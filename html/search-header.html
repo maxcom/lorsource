@@ -1,0 +1,45 @@
+<html lang=ru>
+<head>
+<title>Результаты поиска</title>
+<!-- head.html -->
+<LINK REL=STYLESHEET TYPE="text/css" HREF="/black/style.css" TITLE="Normal">
+</head>
+<body bgcolor="#000000" text="#FFFFFF" link="#fefefe" vlink="#d0d0d0" alink="#808080">
+<table border=0 cellspacing=0 cellpadding=0 width="100%">
+<tr><td rowspan=4 height=114 width=266><img src="/black/newhead1.gif" alt="Русская информация об ОС LINUX" width=266 height=114></td><td width=68><a href="/index.jsp"><img src="/black/newhead12.gif" alt="Новости" width=68 height=39 border=0></a></td><td width=54><a href="/about.jsp"><img src="/black/newhead13.gif" alt="O linux" width=54 height=39 border=0></a></td><td width=100><a href="/distr.html"><img src="/black/newhead14.gif" alt="Дистрибутивы" width=100 height=39 border=0></a></td><td width=110><a href="/server.jsp"><img src="/black/newhead15.gif" alt="О сервере" width=110 height=39 border=0></a></td><td rowspan=4 height=114 width="100%" align=right><img src="/black/pingvin.gif" alt="Linux Logo" height=114 width=102></td></tr>
+<tr><td width=68><a href="/view-news.jsp?section=3"><img src="/black/newhead22.gif" alt="Галерея" width=68 height=23 border=0></a></td><td width=54><a href="/view-section.jsp?section=2"><img src="/black/newhead23.gif" alt="Форум" width=54 height=23 border=0></a></td><td width=100><a href="/books"><img src="/black/newhead24.gif" alt="Документация" width=100 height=23 border=0></a></td><td width=110><a href="/view-section.jsp?section=4"><img src="/black/newhead25.gif" alt="Ссылки" width=110 height=23 border=0></a></td></tr>
+<tr><td colspan=3 height=28><img src="/black/newhead2.gif" alt="" width=222 height=28></td><td width=110><a href="/search.jsp"><img src="/black/newhead35.gif" alt="Поиск" width=110 height=28 border=0></a></td></tr>
+<tr><td colspan=4 height=24></td></tr>
+</table>
+<table border=0 cellspacing=0 cellpadding=0 width="100%">
+<tr><td colspan=5 height=38 width=199><img src="/black/codir1.gif" alt="www.linux.org.ru" width=199 height=38></td><td width=49><a href="http://www.linux.org.ru:8105/"><img src="/black/codir16.gif" alt="translit" width=49 height=38 border=0></a></td><td rowspan=2 width="100%" bgcolor="#000000" align=center>
+
+
+</td></tr>
+<tr><td height=52 width=51><a href="http://www.linux.org.ru:8102/"><img src="/black/codir21.gif" alt="dos" width=51 height=52 border=0></a></td><td width=36><a href="http://www.linux.org.ru:8101/"><img src="/black/codir22.gif" alt="win-1251" width=36 height=52 border=0></a></td><td width=46><a href="http://www.linux.org.ru:8100/"><img src="/black/codir23.gif" alt="koi8-r" width=46 height=52 border=0></a></td><td width=39><a href="http://www.linux.org.ru:8104/"><img src="/black/codir24.gif" alt="mac" width=39 height=52 border=0></a></td><td width=27><a href="http://www.linux.org.ru:8103/"><img src="/black/codir25.gif" alt="iso8859-5" width=27 height=52 border=0></a></td><td width=49><img src="/black/codir26.gif" alt="" width=49 height=52></td></tr>
+</table>
+
+<!-- end of head head.html -->
+
+<h2>Результаты поиска для '$(LOGICAL_WORDS)'</h2>
+<hr noshade size=4>
+<form method="get" action="$(CGI)">
+<font size=-1>
+<input type=hidden name=config value=$(CONFIG)>
+<input type=hidden name=restrict value="$(RESTRICT)">
+<input type=hidden name=exclude value="$(EXCLUDE)">
+Совпадение: $(METHOD)
+Формат: $(FORMAT)
+<br>
+Новый поиск:
+<input type="text" size="30" name="words" value="$(WORDS)">
+<input type="submit" value="Искать">
+</select>
+</font>
+</form>
+<hr noshade size=1>
+<b>Документы $(FIRSTDISPLAYED) - $(LASTDISPLAYED) из $(MATCHES) найденных.
+Чем больше <img src="/htdig/star.gif" alt="*">'к, тем лучше
+совпадение.
+</b>
+<hr noshade size=1>

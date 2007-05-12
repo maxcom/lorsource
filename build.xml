@@ -1,0 +1,45 @@
+<project name="lnxorg" default="dist">
+
+  <path id="build.classpath">
+    <fileset dir="lib">
+      <include name="gnu-regexp-1.0.8.jar"/>
+      <include name="jsdk23.jar"/>
+      <include name="postgresql-8.0-311.jdbc3.jar"/>
+      <include name="jcaptcha-all-1.0-RC3.jar"/>
+    </fileset>
+  </path>
+
+
+<target name="init">
+	<property name="build" value="build"/>
+	<property name="dist" value="dist"/>
+	<property name="apidoc" value="docs/apidoc"/>
+</target>
+
+<target name="prepare" depends="init">
+	<mkdir dir="${build}"/>
+</target>
+
+<target name="build" depends="prepare">
+	<javac classpathref="build.classpath" srcdir="src" destdir="${build}" optimize="yes" debug="yes" encoding="koi8-r"/>
+</target>
+
+<target name="dist" depends="build">
+	<mkdir dir="${dist}"/>
+	<jar jarfile="${dist}/lnxorgutil.jar" basedir="${build}" includes="ru/org/linux/util/*,ru/org/linux/storage/*,ru/org/linux/cache/*,ru/org/linux/boxlet/*,ru/org/linux/logger/*"/>
+	<jar jarfile="${dist}/lnxorgsite.jar" basedir="${build}" includes="ru/org/linux/site/**"/>
+	<copydir src="${build}" dest="${dist}/" excludes="ru/**,**/.*"/>
+</target>
+
+<target name="doc" depends="build">
+	<mkdir dir="docs/api"/>
+	<javadoc sourcepath="src" destdir="docs/api" packagenames="ru.org.linux.*" encoding="koi8-r" docencoding="koi8-r"/>
+</target>
+
+<target name="clean" depends="init">
+	<deltree dir="${build}"/>
+	<deltree dir="${dist}"/>
+	<deltree dir="${apidoc}"/>
+</target>
+
+</project>

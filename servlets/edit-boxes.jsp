@@ -1,0 +1,146 @@
+<%@ page contentType="text/html; charset=koi8-r"%>
+<%@ page import="java.net.URLEncoder,java.sql.Connection,java.util.List,ru.org.linux.boxlet.BoxletVectorRunner, ru.org.linux.site.AccessViolationException, ru.org.linux.site.MissingParameterException, ru.org.linux.site.Template, ru.org.linux.site.User" errorPage="error.jsp"%>
+<% Template tmpl = new Template(request, config, response);%>
+<%= tmpl.head() %>
+	<title>Конструктор страницы</title>
+<%= tmpl.DocumentHeader() %>
+<h1>Конструктор страницы</h1>
+<% if (tmpl.isUsingDefaultProfile() || tmpl.getProfileName().charAt(0)=='_')
+throw new AccessViolationException("нельзя изменить системный профиль; создайте сначала свой");
+%>
+<% if (request.getParameter("mode")==null) { %>
+При помощи этого инструмента вы можете составить для себя свою собственную
+страничку, содержащую только необходимую вам информацию.
+<% } else { %>
+[<a href="edit-boxes.jsp">В&nbsp;начало</a>] [<a href="edit-profile.jsp">Настройки&nbsp;профиля</a>] [<a href="/">На&nbsp;главную&nbsp;страницу</a>]
+<% } %>
+<%
+   List main2=(List) tmpl.getProf().getObjectProperty("main2");
+   List main31=(List) tmpl.getProf().getObjectProperty("main3-1");
+   List main32=(List) tmpl.getProf().getObjectProperty("main3-2");
+   List current=null;
+   String cname=null;
+   String tag=request.getParameter("tag");
+   if (tag!=null)
+   	if ("31".equals(tag)){ current=main31; cname="main3-1"; }
+   else if ("32".equals(tag)){ current=main32; cname="main3-2"; }
+   else if ("2".equals(tag)){ current=main2; cname="main2"; }
+
+%>
+<%
+  boolean showlist = true;
+  boolean save = false;
+  if (request.getParameter("mode")!=null && "remove".equals(request.getParameter("mode"))) {
+       showlist=false;
+
+       out.print("<form method=POST action=\"edit-boxes.jsp\">");
+       out.print("<input type=hidden name=mode value=remove2>");
+       out.print("<input type=hidden name=tag value="+tag+ '>');
+          int id = Integer.parseInt(request.getParameter("id"));
+       out.print("<input type=hidden name=id value="+id+ '>');
+       out.print("Пароль <input type=password name=password><br>");
+       out.print("<input type=submit value=\"Remove/Удалить\">");
+       out.print("</form>");
+  } else if (request.getParameter("mode")!=null && "remove2".equals(request.getParameter("mode"))) {
+          Connection db = null;
+       try {
+           db = tmpl.getConnection("edit-boxes");
+           User user=new User(db, tmpl.getProfileName());
+           user.checkAnonymous();
+           user.checkPassword(request.getParameter("password"));
+       } finally {
+           if ( db != null )
+               db.close();
+       }
+
+
+       int id = Integer.parseInt(request.getParameter("id"));
+       current.remove(id);
+       save=true;
+  } else
+  if (request.getParameter("mode")!=null && "add".equals(request.getParameter("mode"))) {
+       showlist=false;
+       List boxlist=(List) tmpl.getProf().getObjectProperty("boxlist");
+
+       out.print("<form method=POST action=\"edit-boxes.jsp\">");
+       out.print("<input type=hidden name=mode value=add2>");
+       out.print("<input type=hidden name=tag value="+tag+ '>');
+       if (request.getParameter("id")!=null) {
+                  int id = Integer.parseInt(request.getParameter("id"));
+               out.print("<input type=hidden name=id value="+id+ '>');
+       }
+       for (int i=0; i<boxlist.size(); i++)
+               out.print("<input type=radio name=box value=\""+ URLEncoder.encode((String) boxlist.get(i)) + "\">" +boxlist.get(i) + "<br>");
+       out.print("Пароль <input type=password name=password><br>");
+       out.print("<input type=submit value=\"Add/Добавить\">");
+       out.print("</form>");
+  } else
+  if (request.getParameter("mode")!=null && "add2".equals(request.getParameter("mode"))) {
+          Connection db = null;
+       try {
+           db = tmpl.getConnection("edit-boxes");
+           User user=new User(db, tmpl.getProfileName());
+           user.checkAnonymous();
+           user.checkPassword(request.getParameter("password"));
+       } finally {
+           if ( db != null )
+               db.close();
+       }
+
+       if (request.getParameter("box")==null)
+               throw new MissingParameterException("box");
+
+          if (request.getParameter("id")!=null) {
+                  int id = Integer.parseInt(request.getParameter("id"));
+               current.add(id, request.getParameter("box"));
+       } else
+               current.add(request.getParameter("box"));
+       save=true;
+  }
+%>
+
+<% // save
+	if (save) {
+		tmpl.getProf().setObjectProperty(cname, current);
+		tmpl.writeProfile(tmpl.getProfileName());
+	}
+
+%>
+
+<% if (showlist) { %>
+<table><tr><td valign=top>
+<%
+   	if (tmpl.getProf().getBooleanProperty("main.3columns")) {
+		out.print("<h3>Левая колонка</h3>");
+		out.print("<div class=column>");
+		out.print(new BoxletVectorRunner(main31, tmpl.getCache()).getEditContent(tmpl.getObjectConfig(), tmpl.getProf(), "31"));
+		out.print("</div>");
+   	} else {
+		out.print("<h3>Левая колонка</h3>");
+		out.print("<div class=column>");
+		out.print(new BoxletVectorRunner(main2, tmpl.getCache()).getEditContent(tmpl.getObjectConfig(), tmpl.getProf(), "2"));
+		out.print("</div>");
+	}
+%>
+</td><td valign=top>
+<h1>Редактирование</h1>
+Чтобы добавить или удалить Boxlet, выберете соответствующий пункт в меню
+редактирования внизу каждой коробочки.
+</td>
+<%
+	if (tmpl.getProf().getBooleanProperty("main.3columns")) {
+		out.print("<td valign=top>");
+		out.print("<h3>Правая колонка</h3>");
+		out.print("<div class=column>");
+		out.print(new BoxletVectorRunner(main32, tmpl.getCache()).getEditContent(tmpl.getObjectConfig(), tmpl.getProf(), "32"));
+		out.print("</div>");
+		out.print("</td>");
+	}
+
+	//tmpl.getObjectConfig().SQLclose();
+%>
+</tr></table>
+<% } %>
+
+
+<%= tmpl.DocumentFooter() %>

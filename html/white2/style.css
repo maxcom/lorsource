@@ -1,0 +1,100 @@
+/* (c) Макс Валянский 1999 <maxcom@vinchi.ru> */
+
+BODY { font-family: serif; }
+
+.text { text-align: justify }
+
+.hr { background: #B0B0B0; }
+hr { color: #B0B0B0; }
+
+.head A { text-decoration: none; }
+
+/* info boxes on columns */
+DIV.column { text-align: center; }
+
+.column DIV.boxlet H2 
+   { 
+    text-align: center; 
+    color: white; 
+    font-size: medium; 
+    font-family: sans-serif;
+    width: 158px;
+    background-color: #aea6f2;
+    border: 1px;
+    padding-bottom: 5px;
+    font-weight: bold;
+   }
+
+.column DIV.boxlet H3
+   {
+    font-size: x-small;
+   }
+
+.column DIV.boxlet H2 A { text-decoration: none; color: white }
+.column DIV.boxlet A { text-decoration: none }
+
+.column DIV.boxlet 
+   { 
+    font-size: small; 
+    font-family: serif; 
+    margin-top: 30px; 
+    padding-bottom: 5px;
+    width: 158px; 
+    text-align: left; 
+    background-color: #defefc; 
+    border: 1px;
+   }
+
+DIV.columnimg
+   { 
+    font-size: small; 
+    font-family: serif; 
+    margin-top: 30px; 
+    text-align: center; 
+   }
+
+/* news items */
+DIV.news H2 { font-family: sans-serif;  margin-bottom: 5px; margin-top: 5px; }
+.news H2 A { color: #786af2; } 
+H1 A { color: #786af2; } 
+DIV.news DIV.msg { text-align: justify }
+DIV.news DIV.nav { text-align: left; margin-top: 1em; }
+DIV.news DIV.sign { font-style: italic; margin-top: 1em; }
+
+/* view-forum */
+DIV.forum A { text-decoration: none; }
+DIV.forum A:link { color: black; }
+.color1 { background: #aea6f2; }
+TR.color2 { background: #f0f0f0; }
+
+/* view-message */
+DIV.messages H1 { text-align: center; }
+DIV.messages DIV.nav { text-align: center; margin-bottom: 1em; }
+DIV.messages .title { background: #aea6f2; }
+.messages .comment .title { background: #defefc; }
+.messages .body { background: #f0f0f0; }
+
+/* comment signature */
+div.sig {
+    margin: 1ex 0 0 70%;
+    font-style: italic;
+}
+
+div.sig a.nick {
+    text-decoration: none;
+}
+
+
+
+/* general */
+DIV.notes 
+   { 
+    text-align: center; 
+    font-style: italic; 
+    margin-top: 0.5em; 
+    margin-bottom: 0.5em;
+    border: solid black;
+   }
+
+IMG.newsimage { float: left; }
+

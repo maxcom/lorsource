@@ -1,0 +1,29 @@
+<html><head><title>No match for '$(LOGICAL_WORDS)'</title></head>
+<body bgcolor="#eef7ff">
+<h1><img src="/htdig/htdig.gif">
+Результаты поиска</h1>
+<hr noshade size=4>
+<h2>К сожалению, небыло обнаружено подходящих страниц для '$(LOGICAL_WORDS)'</h2>
+<p>
+Проверьте правильность написания слов, которые вы использовали.
+Если написание правильно и вы использовали одно слово для поиска,
+попробуйте использовать несколько синонимов с совпадением <b>Any</b>."
+<hr noshade size=4>
+<form method="get" action="$(CGI)">
+<font size=-1>
+<input type=hidden name=config value=$(CONFIG)>
+<input type=hidden name=restrict value="$(RESTRICT)">
+<input type=hidden name=exclude value="$(EXCLUDE)">
+Совпадение: $(METHOD)
+Формат: $(FORMAT)
+<br>
+Refine search:
+<input type="text" size="30" name="words" value="$(WORDS)">
+<input type="submit" value="Искать">
+</select>
+</font>
+</form>
+<hr noshade size=4>
+<a href="http://www.htdig.org/">
+<img src="/htdig/htdig.gif" border=0>ht://Dig $(VERSION)</a>
+</body></html>

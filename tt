@@ -1,0 +1,1 @@
+echo YES | /usr/local/mnogosearch/sbin/indexer -C -v 1 -u "http://www.linux.org.ru/view-group.jsp%"

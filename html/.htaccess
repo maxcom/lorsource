@@ -1,0 +1,9 @@
+ErrorDocument 404 /error404.jsp
+
+Redirect permanent /info.html http://www.linux.org.ru/books/
+Redirect permanent /info-mirror.html http://www.linux.org.ru/books/
+Redirect permanent /rss.jsp http://www.linux.org.ru/rss.xml
+
+RewriteEngine on
+RewriteRule ^profile/([^/]+)$	/profile/$1/	[R]
+RewriteRule ^profile/([^/]+)/(.*)	/$2

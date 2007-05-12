@@ -1,0 +1,12 @@
+#/bin/bash
+
+echo Copying files...
+
+cp servlets/*.jsp /var/www/beta.linux.org.ru/servlets/
+cp dist/*.jar /var/www/beta.linux.org.ru/servlets/WEB-INF/lib/
+
+cp -f -R html/* /var/www/beta.linux.org.ru/html/
+
+echo done
+
+

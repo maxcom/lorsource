@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="koi8-r"?>
+
+
+
+
+
+
+<rss version="2.0">
+<channel>
+<title>Linux.org.ru News</title>
+<link>http://www.linux.org.ru/</link>
+<description>Latest Linux/Opensource news Linux.org.ru.</description>
+<language>ru</language>
+<pubDate>Thu, 2 Nov 2006 14:20:01 +0300 </pubDate>
+
+
+<item>
+  <title>Аудиоинтервью с Патриком Волькердингом</title>
+  <link>http://www.linux.org.ru/jump-message.jsp?msgid=1637563</link>
+  <pubDate>Wed, 1 Nov 2006 20:10:42 +0300</pubDate>
+  <description>
+	Полутарочасовое аудиоинтервью с основателем дистрибутива Slackware Linux. Затрагиваются  темы от основания дистра в 1993 году, его философии и до &amp;quot;почему в Slackware Linux нет менеджера пакетов с проверкой зависимостей&amp;quot;
+ 
+  </description>
+</item>
+
+
+<item>
+  <title>TrueBSD 0.1</title>
+  <link>http://www.linux.org.ru/jump-message.jsp?msgid=1637130</link>
+  <pubDate>Wed, 1 Nov 2006 16:34:00 +0300</pubDate>
+  <description>
+	После 4 месяцев с момента выхода LiveCD ОС TrueBSD 0.1-RC1 (основанной на коде FreeBSD) вышел первый релиз - 0.1!&lt;p&gt;TrueBSD - это ОС, основанная на коде ОС FreeBSD (&lt;a href=&quot;http://www.freebsd.org&quot;&gt;http://www.freebsd.org&lt;/a&gt;), способная загружаться с CD-диска, без участия HDD; наделенная множеством полезных GNU-программ.&lt;p&gt;Источник: &lt;a href=&quot;http://ylsoftware.com/?action=news&amp;amp;na=viewfull&amp;amp;news=111&quot;&gt;http://ylsoftware.com/?action=news&amp;am...&lt;/a&gt;
+ 
+  </description>
+</item>
+
+
+<item>
+  <title>Свершилось! mplayer официально в Debian!</title>
+  <link>http://www.linux.org.ru/jump-message.jsp?msgid=1636664</link>
+  <pubDate>Wed, 1 Nov 2006 11:57:48 +0300</pubDate>
+  <description>
+	Почти неделю назад в sid снова появился mplayer. Поздравляю всех пользователей Debian и mplayer, и благодарю от их лица разработчиков, мантейнеров и всех, кто способствовал этому великому событию.
+ 
+  </description>
+</item>
+
+
+<item>
+  <title>Siemens IP-STB с Linux на борту поддерживают HDTV, DVB-T</title>
+  <link>http://www.linux.org.ru/jump-message.jsp?msgid=1636657</link>
+  <pubDate>Wed, 1 Nov 2006 11:54:26 +0300</pubDate>
+  <description>
+	Siemens-Швейцария представила три аппаратно-программных эталона для IP-STB(&lt;a href=&quot;http://ru.wikipedia.org/wiki/IPTV&quot;&gt;http://ru.wikipedia.org/wiki/IPTV&lt;/a&gt;). Серия STB-7100 использует Linux 2.6 на SuperH STMicroelectronics (ST) SoC, и поддерживает контент стандартного и высокого разрешения до 1080i, и разные виды цифрового доступа, включая DSL, кабель и DVB-T.&lt;p&gt;Система работает на частоте 300MHz и интегрирует ядро Renesas ST40 SuperH, с поддержкой MPEG-2, MPEG-4 pt10/H.264 и WMV9 декодеров, множество перефирийных интерфейсов - последовательный, ATA, USB 2.0, 10/100 Ethernet, SCART, S-video, RCA, S/PDIF. Серия STB-7100 имеет 128MB RAM и 32MB видео памяти, 16MB Flash. Также система имеет встроенный Web браузер с поддержкой HTML, HTTP, HTTPS, DHTML, SSL, Cookie, Java Script. Поддерживает классическую-, IP- и Video-телефонию, имеет встроенный Web сервер TinyWeb.
+ 
+  </description>
+</item>
+
+
+<item>
+  <title>SPE 0.8.3.c</title>
+  <link>http://www.linux.org.ru/jump-message.jsp?msgid=1636624</link>
+  <pubDate>Wed, 1 Nov 2006 11:28:40 +0300</pubDate>
+  <description>
+	Вышла новая версия IDE для Python (написанна с использованием wxPython).
+На мой взгляд, это одна из наиболее удобных OpenSource IDE для Python.
+Эта IDE имеет подсветку синтаксиса, автодополнение, автоотступы, сворачивание блоков кода, TODO лист, UML, браузер классов и кода и  т.д.
+SPE работает как под nix, так и под MS Windows.
+
+ 
+  </description>
+</item>
+
+
+<item>
+  <title>ASP linux мертв?</title>
+  <link>http://www.linux.org.ru/jump-message.jsp?msgid=1636661</link>
+  <pubDate>Wed, 1 Nov 2006 11:56:34 +0300</pubDate>
+  <description>
+	Как сообщил в своем блоге Шейн Аркадий Львович (AKA Tigro) он прекращает свою работу над поддержкой дистрибутивов от ASPLinux. Странно но факт, именно благодаря труду этого человека, а не самой ASPLinux, дистрибутивы долгое время были с актуальными обновлениями.
+ &lt;p&gt;
+
+ 
+  </description>
+</item>
+
+
+<item>
+  <title>Выпущен CLIP-1.2.0</title>
+  <link>http://www.linux.org.ru/jump-message.jsp?msgid=1636516</link>
+  <pubDate>Wed, 1 Nov 2006 09:40:41 +0300</pubDate>
+  <description>
+	Сегодня выпущен CLIP-1.2.0 - свободная реализация компилятора языка Clipper, предназначенная для быстрого создания интерактивных приложений как в консоли, так и в XWindow/Cygwin для работы с базами данных.&lt;p&gt;В этой версии реализована частичная поддержка UTF-8, появились некоторые новые функции, доработана документация, а также добавлена библиотека codb-query и консольный клиент codb для работы с объектной базой данных CODB посредством запросов похожих на SQL. &lt;p&gt;Скачать: &lt;a href=&quot;http://www.itk.ru/download.shtml&quot;&gt;http://www.itk.ru/download.shtml&lt;/a&gt;
+
+ 
+  </description>
+</item>
+
+
+<item>
+  <title>OpenBSD 4.0 вышла 1 ноября 2006!</title>
+  <link>http://www.linux.org.ru/jump-message.jsp?msgid=1636515</link>
+  <pubDate>Wed, 1 Nov 2006 09:39:16 +0300</pubDate>
+  <description>
+	Сегодня официально стал доступен новый релиз OpenBSD -- OpenBSD 4.0! Это уже двадцатый релиз OpenBSD на CD-ROM, и двадцать первый по FTP. &lt;p&gt;В релизе добавлена поддержка огромного количества новых устройств, включая несколько новых беспроводных устройств, гигабитных и десятигигабитных адаптеров, поддержка всех основных драйверов для платформы Intel Core 2 (например, добавлен новый драйвер звука azalia(4)), поддержка устройств глобального позиционирования, улучшены уже существующие драйвера на распознавание более широкого круга устройств, улучшена поддержка SpeedStep, GNU RCS заменён OpenRCS, сильно улучшен (до неузнаваемости) ipsecctl(8) и произведено множество других улучшений и изменений (полный список нововведений и улучшений занимает пару страниц и доступен по ссылке).
+ 
+  </description>
+</item>
+
+
+<item>
+  <title>Amarok 1.4.4</title>
+  <link>http://www.linux.org.ru/jump-message.jsp?msgid=1636373</link>
+  <pubDate>Wed, 1 Nov 2006 02:11:19 +0300</pubDate>
+  <description>
+	Тихо и незаметно вышла очередная версия замечательного аудио-плеера.&lt;br&gt;&lt;br&gt;В этот релизе интегрирована работа с Magnatune - онлайн-магазином  свободной от DRM музыки (&lt;a href=&quot;http://magnatune.com&quot;&gt;http://magnatune.com&lt;/a&gt;). Кроме того, улучшена работа с внешними устройствами, ускорен поиск по плейлисту. Обнаружено и исправлено более 100 ошибок.&lt;br&gt;&lt;br&gt;Скачать можно тут: &lt;a href=&quot;http://amarok.kde.org/wiki/Download&quot;&gt;http://amarok.kde.org/wiki/Download&lt;/a&gt;
+ 
+  </description>
+</item>
+
+
+<item>
+  <title>Драйвер для видеокарт ATi 8.30.3</title>
+  <link>http://www.linux.org.ru/jump-message.jsp?msgid=1636191</link>
+  <pubDate>Tue, 31 Oct 2006 22:52:30 +0300</pubDate>
+  <description>
+	Вышла первая версия драйверов ATi, после завершения слияния с amd.
+&lt;p&gt;Изменения:&lt;ul&gt;
+&lt;li&gt;Проигрывание видео через XV теперь работает с xorg 7.1&lt;/li&gt;
+&lt;li&gt;Изменения с адаптером AVIVO (The ATI AVIVO Video adaptor is now present.)&lt;/li&gt;
+&lt;li&gt;Исправления при работе с mplayer и в утилите ati-config, при настройке формата вывода на dvd&lt;/li&gt;&lt;/ul&gt;
+&lt;p&gt;p.s. Также произошла цветовая реструктуризация сайта ATi
+ 
+  </description>
+</item>
+
+
+
+</channel>
+</rss>

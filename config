@@ -1,0 +1,17 @@
+; Main url (used for redirects and etc)
+MainUrl=http://localhost:8080/
+; Path to directory tree
+PathPrefix=/home/maxcom/IdeaProjects/lnxorg/
+; Path to html root
+HTMLPathPrefix=/home/maxcom/IdeaProjects/lnxorg/html/
+; current vote
+VoteID=19
+; JDBC
+JDBC_URL=jdbc:postgresql:linux
+JDBC_USER=linuxweb
+JDBC_PASS=linuxweb
+DB_POOL=TRUE
+; Log
+Logfile=/var/tmp/site.log
+;
+Secret=secret
