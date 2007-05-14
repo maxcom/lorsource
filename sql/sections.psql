@@ -1,0 +1,27 @@
+--
+-- PostgreSQL database dump
+--
+
+SET client_encoding = 'KOI8';
+SET check_function_bodies = false;
+SET client_min_messages = warning;
+
+SET search_path = public, pg_catalog;
+
+--
+-- Data for Name: sections; Type: TABLE DATA; Schema: public; Owner: maxcom
+--
+
+COPY sections (id, name, moderate, imagepost, preformat, linkup, linktext, havelink, browsable, "comment", expire, lineonly) FROM stdin;
+0	Комментарии	f	f	t	f	\N	f	f	f	1000 years	f
+3	Галерея	t	t	f	f	\N	f	t	t	1 mon 15 days	f
+1	Новости	t	f	f	f	Подробности	t	t	t	1 mon 15 days	f
+4	Ссылки	t	f	f	t	\N	t	t	f	1000 years	t
+2	Форум	f	f	t	f	\N	f	t	t	1 mon 15 days	f
+\.
+
+
+--
+-- PostgreSQL database dump complete
+--
+
