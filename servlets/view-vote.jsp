@@ -179,6 +179,8 @@
 
 
 <form method=POST action="add_comment.jsp">
+<input type="hidden" name="session" value="<%= HTMLFormatter.htmlSpecialChars(session.getId()) %>">
+
 <% if (session==null || session.getAttribute("login")==null || !((Boolean) session.getAttribute("login")).booleanValue()) { %>
 ้อั:
 <input type=text name=nick value="<%= tmpl.getCookie("NickCookie","anonymous") %>" size=40><br>
