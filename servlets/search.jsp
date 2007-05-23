@@ -7,7 +7,7 @@
 
 <H1>Поиск по сайту</h1>
 <h2>Поисковая система сайта</h2>
-<FORM METHOD=GET ACTION="/cgi-bin/search.cgi">
+<FORM METHOD=GET ACTION="http://images.linux.org.ru/cgi-bin/search.cgi">
 <table order=1 width=100%>
 <tr><td>
 <BR>
