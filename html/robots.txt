@@ -7,7 +7,6 @@ Disallow: /delete.jsp
 Disallow: /add.jsp
 Disallow: /add2.jsp
 Disallow: /search.jsp
-Disallow: /search.php
 Disallow: /register.jsp
 Disallow: /lostpwd.jsp
 Disallow: /addphoto.php3
