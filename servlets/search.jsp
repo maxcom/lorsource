@@ -8,7 +8,7 @@
 <H1>Поиск по сайту</h1>
 <h2>Поисковая система сайта</h2>
 <FORM METHOD=GET ACTION="/cgi-bin/search.cgi">
-<table bgcolor=#eeeee0 order=1 width=100%>
+<table order=1 width=100%>
 <tr><td>
 <BR>
 Search for: <INPUT TYPE="text" NAME="q" SIZE=50 VALUE="">
