@@ -1,15 +1,15 @@
 .dw-feed-main { padding:0px; }
 .dw-feed-items { background:#000000; }
-.dw-feed-title-box { font-size:small; color:#ffffff; background:#000030; }
+.dw-feed-title-box { font-size:small; color:#ffffff; background:#000000; }
 
 .dw-feed-bullet-item { color:#ffffff; font-size:9px; }
 
 a.dw-feed-item:link,
 a.dw-feed-item:visited,
-a.dw-feed-item:hover{ font-size: small; }
-a.dw-feed-item:link { text-decoration:none; }
-a.dw-feed-item:visited { text-decoration:none; }
-a.dw-feed-item:hover { text-decoration:underline; }
+a.dw-feed-item:hover{ font-size: small; color:white; }
+a.dw-feed-item:link { text-decoration:none; color:white; }
+a.dw-feed-item:visited { text-decoration:none; color:white; }
+a.dw-feed-item:hover { text-decoration:underline; color:white; }
 
 body {
   background-image: url();
