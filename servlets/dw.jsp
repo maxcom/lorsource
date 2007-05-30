@@ -6,7 +6,7 @@
 <% if (tmpl.getParameters().getBoolean("main")) { %>
 <LINK REL=STYLESHEET TYPE="text/css" HREF="/<%= tmpl.getStyle() %>/dw-main.css">
 <% } else { %>
-<LINK REL=STYLESHEET TYPE="text/css" HREF="/<%= tmpl.getStyle() %>/dw.css">  
+<LINK REL=STYLESHEET TYPE="text/css" HREF="/<%= tmpl.getStyle() %>/dw.css">
 <% } %>
 </head>
 <body>
@@ -20,10 +20,10 @@
       +'/customrssatom.jsp?feed_by=rss&zone_by=IBM+Systems'
       +',Java+technology,Web+services,Linux,XML,Open+sourc'
       +'e&type_by=Articles,Tutorials&search_by=&pubdate=01'
-      +'/01/2007&max_entries=10&encoding=UTF-8';
+      +'/01/2007&max_entries=10&encoding=KOI-8';
 
       var num_of_articles = 10;
-      var enc = 'UTF-8';
+      var enc = 'KOI-8';
 
     </script>
           <script type="text/javascript"
