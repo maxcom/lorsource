@@ -1,3 +1,11 @@
+<%@ page contentType="text/html; charset=koi8-r"%>
+<%@ page import="ru.org.linux.site.Template" errorPage="error.jsp"%>
+<% Template tmpl = new Template(request, config, response); %>
+<html>
+<head>
+<LINK REL=STYLESHEET TYPE="text/css" HREF="/<%= tmpl.getStyle() %>/dw-main.css">
+</head>
+<body>
 <table border="0" cellspacing="0" cellpadding="0">
       <tr>
         <td><marquee behavior="scroll" direction="up" height="400" width="160" ScrollAmount="1" ScrollDelay="100" onMouseOver="this.stop()" onMouseOut="this.start()">
@@ -21,3 +29,4 @@
         </td>
       </tr>
     </table>
+</body>

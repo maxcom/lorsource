@@ -10,7 +10,6 @@
 <META NAME="Description" CONTENT="Все о Linux на русском языке">
 <LINK REL="alternate" TITLE="L.O.R RSS" HREF="http://linux.org.ru/rss.jsp" TYPE="application/rss+xml">
 
-<LINK REL=STYLESHEET TYPE="text/css" HREF="/<%= tmpl.getStyle() %>/dw-main.css">
 <%
    boolean redirect=false;
 /*
@@ -82,7 +81,7 @@
 <!-- IBM developerWorks -->
 <div class=boxlet>
 <h2>Новые материалы на IBM developerWorks</h2>
-  <iframe src="/dw.html" width="160" height="400"></iframe>
+  <iframe src="dw.jsp" width="160" height="400" scrolling="no"></iframe>
   <br>&nbsp;<br>
 
   Профессиональный ресурс от IBM для специалистов в области разработки ПО. Рассылка выходит 1 раз в неделю.
