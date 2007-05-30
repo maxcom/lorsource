@@ -9,6 +9,8 @@
 <META NAME="Keywords" CONTENT="linux линукс операционная система документация gnu бесплатное свободное програмное обеспечение софт unix юникс software free documentation operating system новости news">
 <META NAME="Description" CONTENT="Все о Linux на русском языке">
 <LINK REL="alternate" TITLE="L.O.R RSS" HREF="http://linux.org.ru/rss.jsp" TYPE="application/rss+xml">
+
+<LINK REL=STYLESHEET TYPE="text/css" HREF="/<%= tmpl.getStyle() %>/dw-main.css">
 <%
    boolean redirect=false;
 /*
@@ -76,6 +78,47 @@
 <% } %>
 
 </div>
+
+<!-- IBM developerWorks -->
+<div class=boxlet>
+<h2>Новые материалы на IBM developerWorks</h2>
+  <table border="0" cellspacing="0" cellpadding="0">
+        <tr>
+          <td><marquee behavior="scroll" direction="up" height="400" width="160" ScrollAmount="1" ScrollDelay="100" onMouseOver="this.stop()" onMouseOut="this.start()">
+            <script type="text/javascript" language="Javascript">
+
+        var site_id = 40;
+        var dw_rss_feed = 'http://www-128.ibm.com/developerworks/ru/views/rss'
+        +'/customrssatom.jsp?feed_by=rss&zone_by=IBM+Systems'
+        +',Java+technology,Web+services,Linux,XML,Open+sourc'
+        +'e&type_by=Articles,Tutorials&search_by=&pubdate=01'
+        +'/01/2007&max_entries=10&encoding=UTF-8';
+
+        var num_of_articles = 10;
+        var enc = 'UTF-8';
+
+      </script>
+            <script type="text/javascript"
+        src="http://www-128.ibm.com/developerworks/everywhere/ew.js" language="Javascript">
+      </script>
+            </marquee>
+          </td>
+        </tr>
+      </table>
+
+  <br>&nbsp;<br>
+  Профессиональный ресурс от IBM для специалистов в области разработки ПО. Рассылка выходит 1 раз в неделю.
+e-mail:
+  <form name="data1" id="data1" method="post" enctype="multipart/form-data" action="http://www-931.ibm.com/bin/subscriptions/esi/subscribe/RURU/10209/">
+                       e-mail:&nbsp;&nbsp;
+  <input type="text" size="18" maxlength="55" name="email" value="" />
+  <br />
+  <input alt="subscribe" type="image" name="butSubmit1" value="Subscribe" src="http://www.ibm.com/i/v14/buttons/ru/ru/subscribe.gif">
+                      </form>
+
+</div>
+
+<!-- boxes -->
 <%
 	BoxletVectorRunner boxes=null;
 
