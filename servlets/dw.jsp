@@ -1,4 +1,4 @@
-<%@ page contentType="text/html; charset=koi8-r"%>
+<%@ page contentType="text/html; charset=utf-8"%>
 <%@ page import="ru.org.linux.site.Template" errorPage="error.jsp"%>
 <% Template tmpl = new Template(request, config, response); %>
 <%= tmpl.head() %>
@@ -20,10 +20,10 @@
       +'/customrssatom.jsp?feed_by=rss&zone_by=IBM+Systems'
       +',Java+technology,Web+services,Linux,XML,Open+sourc'
       +'e&type_by=Articles,Tutorials&search_by=&pubdate=01'
-      +'/01/2007&max_entries=10&encoding=KOI-8';
+      +'/01/2007&max_entries=10&encoding=UTF-8';
 
       var num_of_articles = 10;
-      var enc = 'KOI-8';
+      var enc = 'UTF-8';
 
     </script>
           <script type="text/javascript"
