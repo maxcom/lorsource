@@ -8,7 +8,7 @@
 <body>
 <table border="0" cellspacing="0" cellpadding="0">
       <tr>
-        <td><marquee behavior="scroll" direction="up" height="400" width="150" ScrollAmount="1" ScrollDelay="100" onMouseOver="this.stop()" onMouseOut="this.start()">
+        <td><marquee behavior="scroll" direction="up" height="400" width="155" ScrollAmount="1" ScrollDelay="100" onMouseOver="this.stop()" onMouseOut="this.start()">
           <script type="text/javascript" language="Javascript">
 
       var site_id = 40;
