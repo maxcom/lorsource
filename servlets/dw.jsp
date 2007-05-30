@@ -2,6 +2,7 @@
 <%@ page import="ru.org.linux.site.Template" errorPage="error.jsp"%>
 <% Template tmpl = new Template(request, config, response); %>
 <%= tmpl.head() %>
+<LINK REL=STYLESHEET TYPE="text/css" HREF="/<%= tmpl.getStyle() %>/style.css" TITLE="Normal">
 <LINK REL=STYLESHEET TYPE="text/css" HREF="/<%= tmpl.getStyle() %>/dw-main.css">
 </head>
 <body>
