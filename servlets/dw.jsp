@@ -3,12 +3,16 @@
 <% Template tmpl = new Template(request, config, response); %>
 <%= tmpl.head() %>
 <LINK REL=STYLESHEET TYPE="text/css" HREF="/<%= tmpl.getStyle() %>/style.css" TITLE="Normal">
+<% if (tmpl.getParameters().getBoolean("main")) { %>
 <LINK REL=STYLESHEET TYPE="text/css" HREF="/<%= tmpl.getStyle() %>/dw-main.css">
+<% } else { %>
+<LINK REL=STYLESHEET TYPE="text/css" HREF="/<%= tmpl.getStyle() %>/dw.css">  
+<% } %>
 </head>
 <body>
 <table border="0" cellspacing="0" cellpadding="0">
       <tr>
-        <td><marquee behavior="scroll" direction="up" height="400" width="155" ScrollAmount="1" ScrollDelay="100" onMouseOver="this.stop()" onMouseOut="this.start()">
+        <td><marquee behavior="scroll" direction="up" height="<%= tmpl.getParameters().getString("height") %>" width="<%= tmpl.getParameters().getString("width") %>" ScrollAmount="1" ScrollDelay="100" onMouseOver="this.stop()" onMouseOut="this.start()">
           <script type="text/javascript" language="Javascript">
 
       var site_id = 40;

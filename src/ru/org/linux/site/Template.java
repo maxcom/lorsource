@@ -446,6 +446,10 @@ public class Template {
       out.append("<p><i><a href=\"").append(getRedirectUrl()).append("\">").append(getMainUrl()).append("</a></i>");
     }
 
+    if (!isMainPage()) {
+      out.append("  <iframe src=\"dw.jsp?width=400&amp;height=155&amp;main=t\" width=\"468\" height=\"60\" scrolling=\"no\" frameborder=\"0\"></iframe>");
+    }
+
     if (!isSearchMode()) { // counters / buttons
       out.append("<p><div align=center>");
       if (isMainPage()) {
