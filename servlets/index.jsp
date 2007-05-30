@@ -82,7 +82,7 @@
 <!-- IBM developerWorks -->
 <div class=boxlet>
 <h2>Новые материалы на IBM developerWorks</h2>
-  <ifame src="/dw.html" width="160" height="400"></ifame>
+  <iframe src="/dw.html" width="160" height="400"></iframe>
   <br>&nbsp;<br>
 
   Профессиональный ресурс от IBM для специалистов в области разработки ПО. Рассылка выходит 1 раз в неделю.
