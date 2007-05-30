@@ -84,7 +84,7 @@
 <h2>Новые материалы на IBM developerWorks</h2>
   <table border="0" cellspacing="0" cellpadding="0">
         <tr>
-          <td><marquee behavior="scroll" direction="up" height="400" width="160" ScrollAmount="1" ScrollDelay="100" onMouseOver="this.stop()" onMouseOut="this.start()">
+          <td height="410"><marquee behavior="scroll" direction="up" height="400" width="160" ScrollAmount="1" ScrollDelay="100" onMouseOver="this.stop()" onMouseOut="this.start()">
             <script type="text/javascript" language="Javascript">
 
         var site_id = 40;
@@ -105,6 +105,7 @@
           </td>
         </tr>
       </table>
+  <br>&nbsp;<br>
 
   Профессиональный ресурс от IBM для специалистов в области разработки ПО. Рассылка выходит 1 раз в неделю.
 e-mail:
