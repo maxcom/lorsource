@@ -447,7 +447,7 @@ public class Template {
     }
 
     if (!isMainPage()) {
-      out.append("<div align=center><iframe src=\"dw.jsp?width=468&amp;height=60&amp;main=0\" width=\"468\" height=\"60\" scrolling=\"no\" frameborder=\"0\"></iframe></div>");
+      out.append("<div align=center><iframe src=\"dw.jsp?width=728&amp;height=90&amp;main=0\" width=\"728\" height=\"90\" scrolling=\"no\" frameborder=\"0\"></iframe></div>");
     }
 
     if (!isSearchMode()) { // counters / buttons
