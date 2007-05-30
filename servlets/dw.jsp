@@ -8,6 +8,7 @@
 <% } else { %>
 <LINK REL=STYLESHEET TYPE="text/css" HREF="/<%= tmpl.getStyle() %>/dw.css">
 <% } %>
+<base target="_top">   
 </head>
 <body>
 <table border="0" cellspacing="0" cellpadding="0">
