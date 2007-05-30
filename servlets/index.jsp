@@ -113,7 +113,7 @@ e-mail:
                        e-mail:&nbsp;&nbsp;
   <input type="text" size="18" maxlength="55" name="email" value="" />
   <br />
-  <input alt="subscribe" type="image" name="butSubmit1" value="Subscribe" src="http://www.ibm.com/i/v14/buttons/ru/ru/subscribe.gif">
+  <input style="font-size: 10px" alt="subscribe" type="image" name="butSubmit1" value="Subscribe" src="http://www.ibm.com/i/v14/buttons/ru/ru/subscribe.gif">
                       </form>
   </p>
 </div>
