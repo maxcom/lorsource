@@ -12,9 +12,10 @@ a.dw-feed-item:visited { text-decoration:none; color:#D0D0F0; }
 a.dw-feed-item:hover { text-decoration:underline; color:#E65D29; }
 
 body {
-        background-image: url();
-        margin-left: 0px;
-        margin-top: 0px;
-        margin-right: 0px;
-        margin-bottom: 0px;
-        }
+  background-image: url();
+  margin-left: 0px;
+  margin-top: 0px;
+  margin-right: 0px;
+  margin-bottom: 0px;
+  background: #000030;
+}
