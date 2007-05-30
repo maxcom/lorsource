@@ -106,7 +106,7 @@
         </tr>
       </table>
 
-  <br>&nbsp;<br>
+  <p style="font-size: 10pt">
   Профессиональный ресурс от IBM для специалистов в области разработки ПО. Рассылка выходит 1 раз в неделю.
 e-mail:
   <form name="data1" id="data1" method="post" enctype="multipart/form-data" action="http://www-931.ibm.com/bin/subscriptions/esi/subscribe/RURU/10209/">
@@ -115,7 +115,7 @@ e-mail:
   <br />
   <input alt="subscribe" type="image" name="butSubmit1" value="Subscribe" src="http://www.ibm.com/i/v14/buttons/ru/ru/subscribe.gif">
                       </form>
-
+  </p>
 </div>
 
 <!-- boxes -->
@@ -209,7 +209,7 @@ out.print(boxes.getContent(tmpl.getObjectConfig(), tmpl.getProf()));
 
 <div align=center>
 <p>
-Разработка и поддержка - <a href="whois.jsp?nick=maxcom">Максим Валянский</a> 1998-2006<br>
+Разработка и поддержка - <a href="whois.jsp?nick=maxcom">Максим Валянский</a> 1998-2007<br>
 Размещение сервера и подключение его к сети Интернет осуществляется компанией
 ООО "<a href="http://www.ratel.ru">НИИР-РадиоНет</a>"<br>
 </p>
