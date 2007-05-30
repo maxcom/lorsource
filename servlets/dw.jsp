@@ -1,7 +1,7 @@
 <%@ page contentType="text/html; charset=koi8-r"%>
 <%@ page import="ru.org.linux.site.Template" errorPage="error.jsp"%>
 <% Template tmpl = new Template(request, config, response); %>
-<% tmpl.head(); %>
+<%= tmpl.head(); %>
 <LINK REL=STYLESHEET TYPE="text/css" HREF="/<%= tmpl.getStyle() %>/dw-main.css">
 </head>
 <body>
