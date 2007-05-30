@@ -6,7 +6,7 @@
 
 a.dw-feed-item:link,
 a.dw-feed-item:visited,
-a.dw-feed-item:hover{ font-size: 10px; }
+a.dw-feed-item:hover{ font-size: small; }
 a.dw-feed-item:link { text-decoration:none; color:#D0D0F0; }
 a.dw-feed-item:visited { text-decoration:none; color:#D0D0F0; }
 a.dw-feed-item:hover { text-decoration:underline; color:#E65D29; }
