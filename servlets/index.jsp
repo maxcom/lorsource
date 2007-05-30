@@ -106,7 +106,7 @@
         </tr>
       </table>
 
-  <p style="font-size: 10pt">
+  <p style="font-size: 10px">
   Профессиональный ресурс от IBM для специалистов в области разработки ПО. Рассылка выходит 1 раз в неделю.
 e-mail:
   <form name="data1" id="data1" method="post" enctype="multipart/form-data" action="http://www-931.ibm.com/bin/subscriptions/esi/subscribe/RURU/10209/">
