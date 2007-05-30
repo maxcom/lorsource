@@ -106,16 +106,14 @@
         </tr>
       </table>
 
-  <p style="font-size: x-small">
   Профессиональный ресурс от IBM для специалистов в области разработки ПО. Рассылка выходит 1 раз в неделю.
 e-mail:
   <form name="data1" id="data1" method="post" enctype="multipart/form-data" action="http://www-931.ibm.com/bin/subscriptions/esi/subscribe/RURU/10209/">
                        e-mail:&nbsp;&nbsp;
-  <input type="text" size="18" maxlength="55" name="email" value="" />
+  <input type="text" size="15" name="email" value="" />
   <br />
-  <input style="width: 130px" alt="subscribe" type="image" name="butSubmit1" value="Subscribe" src="http://www.ibm.com/i/v14/buttons/ru/ru/subscribe.gif">
+  <input alt="subscribe" type="image" name="butSubmit1" value="Subscribe" src="http://www.ibm.com/i/v14/buttons/ru/ru/subscribe.gif">
                       </form>
-  </p>
 </div>
 
 <!-- boxes -->
