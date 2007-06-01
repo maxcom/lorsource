@@ -1,0 +1,42 @@
+<web-app>
+<!--  <context-param config='/var/www/linux.org.ru/config'/> -->
+  <context-param>
+    <param-name>config</param-name>
+    <param-value>/var/www/beta.linux.org.ru/config</param-value>
+  </context-param>
+
+<!--  <servlet-mapping url-pattern='/profile/*/*' servlet-name='invoker'/>  -->
+<!--  <servlet-mapping url-regexp='/\/profile\/[^\/]+\/(.*)' servlet-name='$1'/>-->
+<!--
+  <rewrite-dispatch>
+	<forward regexp="/profile/[^/]+/(.*)" target="/$1"/>
+  </rewrite-dispatch>
+-->
+  <rewrite-real-path>
+	<real-path regexp="/profile/[^/]+/" target="/var/www/beta.linux.org.ru/servlets/"/>
+  </rewrite-real-path>
+
+
+<!--
+ <filter filter-name='rewrite'
+        filter-class='com.caucho.filters.RewriteFilter'>
+  <init>
+    <rewrite pattern="/profile/[^/]+/(.*)" target="$1"/>
+  </init>
+</filter>
+<filter-mapping url-pattern='/profile/*/*' filter-name='rewrite'/>
+-->
+
+  <servlet>
+        <servlet-name>jcaptcha</servlet-name>
+        <servlet-class>ru.org.linux.site.ImageCaptchaServlet</servlet-class>
+        <load-on-startup>0</load-on-startup>
+  </servlet>
+
+  <servlet-mapping>
+        <servlet-name>jcaptcha</servlet-name>
+        <url-pattern>/jcaptcha.jsp</url-pattern>
+  </servlet-mapping>
+
+</web-app>
+
