@@ -1,11 +1,14 @@
 #/bin/bash
 
+SITE_PATH=${1:-/var/www/beta.linux.org.ru}
+
 echo Copying files...
 
-cp servlets/*.jsp /var/www/beta.linux.org.ru/servlets/
-cp dist/*.jar /var/www/beta.linux.org.ru/servlets/WEB-INF/lib/
+cp servlets/*.jsp ${SITE_PATH}/servlets/
+cp lib/*.jar ${SITE_PATH}/servlets/WEB-INF/lib/
+cp dist/*.jar ${SITE_PATH}/servlets/WEB-INF/lib/
 
-cp -f -R html/* /var/www/beta.linux.org.ru/html/
+cp -f -R html/* ${SITE_PATH}/html/
 
 echo done
 
