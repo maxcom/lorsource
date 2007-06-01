@@ -1,8 +1,7 @@
 <%@ page contentType="text/html; charset=koi8-r"%>
 <%@ page
-    import="java.sql.Connection,java.sql.Statement,ru.org.linux.site.AccessViolationException,ru.org.linux.site.Message,ru.org.linux.site.Template,ru.org.linux.storage.Storage"
+    import="java.sql.Connection,java.sql.PreparedStatement,ru.org.linux.site.AccessViolationException,ru.org.linux.site.Message,ru.org.linux.site.Template,ru.org.linux.util.HTMLFormatter"
     errorPage="error.jsp" buffer="200kb" %>
-<%@ page import="java.sql.PreparedStatement"%>
 <%
   Template tmpl = new Template(request, config, response);
 
@@ -98,7 +97,7 @@
 <form name="edit" method="post">
   Заголовок новости :
   <% if ((sMsgTitle != null) && (sMsgTitle.length() != 0)) {
-    out.print("<input type=\"text\" name=\"title\" size=\"70\" value=\"" + sMsgTitle + "\">\n");
+    out.print("<input type=\"text\" name=\"title\" size=\"70\" value=\"" + HTMLFormatter.htmlSpecialChars(sMsgTitle) + "\">\n");
   } else {
     out.print("<input type=\"text\" name=\"title\" size=\"70\" value='' disabled>\n");
   }
