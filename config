@@ -10,7 +10,7 @@ VoteID=19
 JDBC_URL=jdbc:postgresql:linux
 JDBC_USER=linuxweb
 JDBC_PASS=linuxweb
-DB_POOL=TRUE
+DB_POOL=FALSE
 ; Log
 Logfile=/var/tmp/site.log
 ;
