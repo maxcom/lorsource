@@ -78,7 +78,7 @@
 </div>
 
 <!-- IBM developerWorks -->
-<div class=boxlet>
+<div class="boxlet" id="ibmdw">
 <h2>Новые материалы на IBM developerWorks</h2>
   <iframe src="dw.jsp?height=400&amp;width=155&amp;main=1" width="158" height="400" scrolling="no" frameborder="0"></iframe>
   <br>&nbsp;<br>
