@@ -24,17 +24,16 @@
 %>
 
 <div class=forum>
-<div class=color1>
-<table width="100%" cellspacing=1 cellpadding=0 border=0>
+<table width="100%" class="message-table">
 <thead>
-<tr class=color1><th>Раздел</th><th>Группа</th><th>Заглавие темы</th><th>Дата</th></tr>
+<tr><th>Раздел</th><th>Группа</th><th>Заглавие темы</th><th>Дата</th></tr>
 <tbody>
 <%
 
   Statement st=db.createStatement();
   ResultSet rs=st.executeQuery("SELECT sections.name as ptitle, groups.title as gtitle, topics.title, topics.id as topicid, comments.id as msgid, comments.postdate FROM sections, groups, topics, comments WHERE sections.id=groups.section AND groups.id=topics.groupid AND comments.topic=topics.id AND comments.userid="+user.getId()+" AND NOT comments.deleted ORDER BY postdate DESC LIMIT 50;");
   while (rs.next())
-	out.print("<tr class=color2><td>"+rs.getString("ptitle")+"</td><td>"+rs.getString("gtitle")+"</td><td><a href=\"jump-message.jsp?msgid="+rs.getInt("topicid")+'#'+rs.getInt("msgid")+"\" rev=contents>"+StringUtil.makeTitle(rs.getString("title"))+"</a></td><td>"+Template.dateFormat.format(rs.getTimestamp("postdate"))+"</td></tr>");
+	out.print("<tr><td>"+rs.getString("ptitle")+"</td><td>"+rs.getString("gtitle")+"</td><td><a href=\"jump-message.jsp?msgid="+rs.getInt("topicid")+'#'+rs.getInt("msgid")+"\" rev=contents>"+StringUtil.makeTitle(rs.getString("title"))+"</a></td><td>"+Template.dateFormat.format(rs.getTimestamp("postdate"))+"</td></tr>");
 
   rs.close();
   st.close();
@@ -42,7 +41,6 @@
 %>
 
 </table>
-</div>
 </div>
 
 <h2>Последние 20 удаленных модераторами комментариев</h2>
@@ -50,17 +48,16 @@
 <% if (Template.isSessionAuthorized(session) && (tmpl.isModeratorSession() || nick.equals(session.getValue("nick")))) { %>
 
 <div class=forum>
-<div class=color1>
-<table width="100%" cellspacing=1 cellpadding=0 border=0>
+<table width="100%" class="message-table">
 <thead>
-<tr class=color1><th>Раздел</th><th>Группа</th><th>Заглавие темы</th><th>Причина удаления</th><th>Дата</th></tr>
+<tr><th>Раздел</th><th>Группа</th><th>Заглавие темы</th><th>Причина удаления</th><th>Дата</th></tr>
 <tbody>
 <%
 
   st=db.createStatement();
   rs=st.executeQuery("SELECT sections.name as ptitle, groups.title as gtitle, topics.title, topics.id as msgid, del_info.reason, comments.postdate FROM sections, groups, topics, comments, del_info WHERE sections.id=groups.section AND groups.id=topics.groupid AND comments.topic=topics.id AND del_info.msgid=comments.id AND comments.userid="+user.getId()+" AND del_info.delby!="+user.getId()+" ORDER BY del_info.msgid DESC LIMIT 20;");
   while (rs.next())
-	out.print("<tr class=color2><td>"+rs.getString("ptitle")+"</td><td>"+rs.getString("gtitle")+"</td><td><a href=\"view-message.jsp?msgid="+rs.getInt("msgid")+"\" rev=contents>"+StringUtil.makeTitle(rs.getString("title"))+"</a></td><td>"+rs.getString("reason")+"</td><td>"+Template.dateFormat.format(rs.getTimestamp("postdate"))+"</td></tr>");
+	out.print("<tr><td>"+rs.getString("ptitle")+"</td><td>"+rs.getString("gtitle")+"</td><td><a href=\"view-message.jsp?msgid="+rs.getInt("msgid")+"\" rev=contents>"+StringUtil.makeTitle(rs.getString("title"))+"</a></td><td>"+rs.getString("reason")+"</td><td>"+Template.dateFormat.format(rs.getTimestamp("postdate"))+"</td></tr>");
 
   rs.close();
   st.close();
@@ -68,7 +65,6 @@
 %>
 
 </table>
-</div>
 </div>
 
 <% } %>

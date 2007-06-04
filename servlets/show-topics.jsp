@@ -25,24 +25,22 @@
 <h1>Последние 50 тем пользователя <%= nick %></h1>
 
 <div class=forum>
-<div class=color1>
-<table width="100%" cellspacing=1 cellpadding=0 border=0>
+<table width="100%" class="message-table">
 <thead>
-<tr class=color1><th>Раздел</th><th>Группа</th><th>Заглавие</th><th>Дата</th><th>Последнее добавление</th></tr>
+<tr><th>Раздел</th><th>Группа</th><th>Заглавие</th><th>Дата</th><th>Последнее добавление</th></tr>
 <tbody>
 <%
 
   Statement st=db.createStatement();
   ResultSet rs=st.executeQuery("SELECT sections.name as ptitle, groups.title as gtitle, topics.title as title, topics.id as msgid, postdate, lastmod FROM topics, groups, sections, users WHERE topics.groupid=groups.id AND sections.id=groups.section AND users.id=topics.userid AND users.id="+user.getId()+" AND NOT deleted ORDER BY msgid DESC LIMIT 50");
   while (rs.next())
-	out.print("<tr class=color2><td>"+rs.getString("ptitle")+"</td><td>"+rs.getString("gtitle")+"</td><td><a href=\"view-message.jsp?msgid="+rs.getInt("msgid")+"\" rev=contents>"+StringUtil.makeTitle(rs.getString("title"))+"</a></td><td>"+Template.dateFormat.format(rs.getTimestamp("postdate"))+"</td><td>"+Template.dateFormat.format(rs.getTimestamp("lastmod"))+"</td></tr>");
+	out.print("<tr><td>"+rs.getString("ptitle")+"</td><td>"+rs.getString("gtitle")+"</td><td><a href=\"view-message.jsp?msgid="+rs.getInt("msgid")+"\" rev=contents>"+StringUtil.makeTitle(rs.getString("title"))+"</a></td><td>"+Template.dateFormat.format(rs.getTimestamp("postdate"))+"</td><td>"+Template.dateFormat.format(rs.getTimestamp("lastmod"))+"</td></tr>");
 
   rs.close();
   st.close();
 
 %>
 </table>
-</div>
 </div>
 
 <%
