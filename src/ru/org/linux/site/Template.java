@@ -398,13 +398,17 @@ public class Template {
     return profileHashtable;
   }
 
-  public String DocumentHeader() throws IOException, StorageException {
+  public String DocumentHeader() throws IOException, StorageException, UtilException {
     StringBuffer out = new StringBuffer();
     out.append("<link rel=\"search\" title=\"Search L.O.R.\" href=\"search.php\">\n");
     out.append("<link rel=\"top\" title=\"Linux.org.ru\" href=\"index.jsp\">\n");
 
     // form submit on ctrl-enter js
-    out.append("<script src=\"/js/ctrlenter.js\" language=\"javascript\" type=\"text/javascript\">;</script>\n"); 
+    out.append("<script src=\"/js/ctrlenter.js\" language=\"javascript\" type=\"text/javascript\">;</script>\n");
+
+    if (getProf().getBooleanProperty("hover")) {
+      out.append("<LINK REL=STYLESHEET TYPE=\"text/css\" HREF=\"/"+getStyle()+"/hover.css\" TITLE=\"Normal\">");
+    }
 
     if ("black".equals(style)) {
       if (isMainPage()) {

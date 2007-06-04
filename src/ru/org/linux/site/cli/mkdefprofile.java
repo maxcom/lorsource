@@ -11,6 +11,7 @@ public final class mkdefprofile {
     Hashtable defaults = new Hashtable();
 
     defaults.put("newfirst", Boolean.FALSE);
+    defaults.put("hover", Boolean.TRUE);
     defaults.put("style", "black");
     defaults.put("topics", new Integer(30));
     defaults.put("messages", new Integer(50));

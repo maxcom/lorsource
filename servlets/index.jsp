@@ -46,6 +46,8 @@
   boolean columns3 = tmpl.getProf().getBooleanProperty("main.3columns");
 %>
 
+<div style="clear: both"></div>
+
 <div class=column>
 <div class=boxlet>
 <h2>Вход на сайт</h2>

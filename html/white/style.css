@@ -96,10 +96,6 @@ TR.color2 { background: #f0f0f0; }
   background: #f0f0f0;
 }
 
-.message-table tbody tr:hover {
-  background: #d8d8d8;
-}
-
 /* view-message */
 DIV.messages H1 { text-align: center; }
 DIV.messages DIV.nav { text-align: center; margin-bottom: 1em; }
