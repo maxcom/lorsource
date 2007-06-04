@@ -123,10 +123,9 @@
 
 %>
 <div class=forum>
-<div class=color1>
-<table width="100%" cellspacing=1 cellpadding=0 border=0>
+<table width="100%" class="message-table">
 <thead>
-<tr class=color1><th>Заголовок
+<tr><th>Заголовок
 <%
   if (!tmpl.isSearchMode()) {
 	out.print("<span style=\"font-weight: normal\">[порядок: ");
@@ -147,7 +146,7 @@
     Timestamp lastmod=rs.getTimestamp("lastmod");
     if (lastmod==null) lastmod=new Timestamp(0);
 
-    out.print("<tr class=color2><td>");
+    out.print("<tr><td>");
     if (rs.getBoolean("deleted")) out.print("[X] ");
 
     if (tmpl.isSearchMode())
@@ -193,9 +192,9 @@
   }
 	rs.close();
 %>
-  <tfoot><tr class=color1><td colspan=2><p>
+  <tfoot><tr><td colspan=2><p>
 <%
-	out.print("<table width=\"100%\"><tr><td align=left>");
+	out.print("<div style=\"float: left\">");
 	if (offset==0)
 		out.print("<b>Назад</b>");
 	else
@@ -203,16 +202,16 @@
 			out.print("<a rel=prev rev=next href=\"group-lastmod.jsp?group="+group+"\">Назад</a>");
 		else
 			out.print("<a rel=prev rev=next href=\"group-lastmod.jsp?group="+group+"&amp;offset="+(offset-topics)+"\">Назад</a>");
-	out.print("</td>");
+	out.print("</div>");
 	if (offset>0)
-		out.print("<td align=center><a rel=start href=\"group-lastmod.jsp?group="+group+"\">Начало</a></td>");
-	out.print("<td align=right>");
+		out.print("<div style=\"text-align: center\"><a rel=start href=\"group-lastmod.jsp?group="+group+"\">Начало</a></div>");
+	out.print("<div style=\"float: right\">");
 	if (offset==topics*pages)
 		out.print("<b>Вперед</b>");
 	else
 		out.print("<a rel=next rev=prev href=\"group-lastmod.jsp?group="+group+"&amp;offset="+(offset+topics)+"\">Вперед</a>");
 
-	out.print("</td></tr></table>");
+	out.print("</div>");
 
 %>
 </td></tr></table>
@@ -235,7 +234,6 @@
   }
 %>
 <p>
-</div>
 <%
 	st.close();
 	db.commit();

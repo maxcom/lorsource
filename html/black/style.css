@@ -1,6 +1,22 @@
 /* (c) Макс Валянский 1999 <maxcom@vinchi.ru> */
 
-BODY { font-family: sans-serif; }
+BODY { 
+	font-family: sans-serif;
+	background: #000000;
+	color: #c8c8c8;
+}
+
+A {
+	color: #fefefe;
+}
+
+A:visited {
+	color: #d1d0d0;
+}
+
+A:active {
+	color: #808080;
+}
 
 .text { text-align: justify }
 
@@ -12,12 +28,30 @@ H2 { color: #ffffff; }
 
 H1 A { text-decoration: none; }
 
-/* FORM { color: #ffffff; } */
-
 /* info boxes on columns */
-DIV.column { text-align: center; }
+DIV.column {
+  text-align: center;
+  float: left;
+  width: 160px;
+}
 
-DIV.column DIV.boxlet H2 
+DIV.column2 {
+  text-align: center;
+  float: right;
+  width: 160px;
+}
+
+DIV.newsblog {
+  margin-left: 165px;
+}
+
+DIV.newsblog2 {
+  margin-left: 165px;
+  margin-right: 165px;
+  clear: none;
+}
+
+DIV.boxlet H2
    { 
     text-align: center; 
     color: white; 
@@ -30,15 +64,15 @@ DIV.column DIV.boxlet H2
     font-weight: bold;
    }
 
-DIV.column DIV.boxlet H3
+DIV.boxlet H3
    {
     font-size: small;
    }
 
-DIV.column DIV.boxlet H2 A { text-decoration: none; color: white }
-DIV.column DIV.boxlet A { text-decoration: none; }
-DIV.column DIV.boxlet A:link {color: #D0D0F0}
-DIV.column DIV.boxlet 
+DIV.boxlet H2 A { text-decoration: none; color: white }
+DIV.boxlet A { text-decoration: none; }
+DIV.boxlet A:link {color: #D0D0F0}
+DIV.boxlet
    { 
     font-size: small; 
     font-family: sans-serif; 
@@ -47,9 +81,10 @@ DIV.column DIV.boxlet
     background-color: #000030; 
     border: 1px;
     padding-bottom: 1em;
+    margin-bottom: 1em;
    }
 
-DIV.column DIV.boxlet LI { list-style: inside }
+DIV.boxlet LI { list-style: inside }
 
 DIV.columnimg
    { 
@@ -70,6 +105,22 @@ DIV.columnimg
 DIV.forum A { text-decoration: none }
 .color1 { background: #808080; }
 TR.color2 { background: #000080; }
+.message-table {
+  background: #808080;
+  border-spacing: 1px;
+}
+
+.message-table td {
+  padding: 0;
+}
+
+.message-table tbody {
+  background: #000080;
+}
+
+.message-table tbody tr:hover {
+  background: #000060;
+}
 
 /* view-message */
 DIV.messages H1 { text-align: center; }
@@ -78,7 +129,7 @@ DIV.messages .title { background: #000080; }
 .messages .comment .title { background: #000080; }
 .messages .body { background: #000040; }
 .messages .comment .nav { text-align: left; font-style: italic; }
-.messages H2 { margin-bottom: 0em; margin-top: 0em; }
+.messages H2 { margin-bottom: 0; margin-top: 0; }
 
 /* general */
 DIV.notes 

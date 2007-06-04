@@ -42,10 +42,9 @@
 //-->
 </SCRIPT>
 <%= tmpl.DocumentHeader() %>
-<table border=0 width="100%">
-<tr>
-<td valign=top width=160>
-
+<%
+  boolean columns3 = tmpl.getProf().getBooleanProperty("main.3columns");
+%>
 
 <div class=column>
 <div class=boxlet>
@@ -85,9 +84,8 @@
   <br>&nbsp;<br>
 
   Профессиональный ресурс от IBM для специалистов в области разработки ПО. Рассылка выходит 1 раз в неделю.
-e-mail:
-  <form name="data1" id="data1" method="post" enctype="multipart/form-data" action="http://www-931.ibm.com/bin/subscriptions/esi/subscribe/RURU/10209/">
-                       e-mail:&nbsp;&nbsp;
+  <form id="data1" method="post" enctype="multipart/form-data" action="http://www-931.ibm.com/bin/subscriptions/esi/subscribe/RURU/10209/">
+                       e-mail:<br />
   <input type="text" size="15" name="email" style="width: 90%" value="" />
   <br />
   <input alt="subscribe" type="image" name="butSubmit1" value="Subscribe" src="http://www.ibm.com/i/v14/buttons/ru/ru/subscribe.gif">
@@ -114,8 +112,19 @@ e-mail:
 [<a href="javascript:addSidebar();">Добавить<br>Mozilla SideBar</a>]
 </div>
 </div>
-</td>
-<td valign=top>
+
+<% if (columns3) { %>
+<div class=column2>
+<%
+boxes=new BoxletVectorRunner((List) tmpl.getProf().getObjectProperty("main3-2"), tmpl.getCache());
+if (request.getParameter("nocache")!=null) boxes.setCacheMode(true);
+
+out.print(boxes.getContent(tmpl.getObjectConfig(), tmpl.getProf()));
+%>
+</div>
+<% } %>
+
+<div class="<%= columns3?"newsblog2":"newsblog"%>">
 <%
 if (!"black".equals(tmpl.getStyle())) {
 //	out.print("<div align=center>");
@@ -163,20 +172,9 @@ if (!"black".equals(tmpl.getStyle())) {
 <hr>
 <div align=center>[<a href="add-section.jsp?section=1" style="text-decoration: none">добавить новость</a>]</div>
 <hr>
-</td>
-<% if (tmpl.getProf().getBooleanProperty("main.3columns")) { %>
-<td valign=top width=160>
-<div class=column>
-<%
-boxes=new BoxletVectorRunner((List) tmpl.getProf().getObjectProperty("main3-2"), tmpl.getCache());
-if (request.getParameter("nocache")!=null) boxes.setCacheMode(true);
-
-out.print(boxes.getContent(tmpl.getObjectConfig(), tmpl.getProf()));
-%>
 </div>
-</td>
-<% } %>
-</tr></table>
+
+<div style="clear: both"></div>
 
 <%
 	tmpl.getObjectConfig().SQLclose();

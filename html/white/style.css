@@ -8,9 +8,28 @@ BODY { font-family: serif; }
 hr { color: #B0B0B0; }
 
 /* info boxes on columns */
-DIV.column { text-align: center; }
+DIV.column {
+  text-align: center;
+  width: 160px;
+  float: left;
+}
 
-.column DIV.boxlet H2 
+DIV.column2 {
+  text-align: center;
+  width: 160px;
+  float: right;  
+}
+
+DIV.newsblog {
+  margin-left: 165px;
+}
+
+DIV.newsblog2 {
+  margin-left: 165px;
+  margin-right: 165px;
+}
+
+.column DIV.boxlet H2
    { 
     text-align: center; 
     color: white; 
@@ -63,6 +82,23 @@ DIV.news DIV.sign { font-style: italic; margin-top: 1em; }
 DIV.forum A { text-decoration: none }
 .color1 { background: #c0c0c0; }
 TR.color2 { background: #f0f0f0; }
+
+.message-table {
+  background: #c0c0c0;
+  border-spacing: 1px;
+}
+
+.message-table td {
+  padding: 0;
+}
+
+.message-table tbody {
+  background: #f0f0f0;
+}
+
+.message-table tbody tr:hover {
+  background: #d8d8d8;
+}
 
 /* view-message */
 DIV.messages H1 { text-align: center; }

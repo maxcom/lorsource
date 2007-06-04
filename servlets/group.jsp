@@ -2,10 +2,10 @@
 <%@ page import="java.net.URLEncoder,java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.sql.Timestamp,java.util.ArrayList,java.util.Collections,java.util.Iterator" errorPage="error.jsp" buffer="200kb"%>
 <%@ page import="java.util.List"%>
 <%@ page import="javax.servlet.http.HttpServletResponse"%>
+<%@ page import="ru.org.linux.site.*"%>
+<%@ page import="ru.org.linux.util.BadImageException"%>
 <%@ page import="ru.org.linux.util.ImageInfo"%>
 <%@ page import="ru.org.linux.util.StringUtil"%>
-<%@ page import="ru.org.linux.util.BadImageException"%>
-<%@ page import="ru.org.linux.site.*"%>
 <% Template tmpl = new Template(request, config, response); %>
 <%= tmpl.head() %>
 <%
@@ -172,10 +172,9 @@
 	}
 %>
 <div class=forum>
-<div class="color1">
-<table width="100%" cellspacing=1 cellpadding=0 border=0>
+<table width="100%" class="message-table">
 <thead>
-<tr class=color1><th>Заголовок
+<tr><th>Заголовок
 <%
   if (!tmpl.isSearchMode()) {
 	out.print("<span style=\"font-weight: normal\">[порядок: ");
@@ -208,7 +207,7 @@
       lastmod = new Timestamp(0);
     }
 
-    outbuf.append("<tr class=color2><td>");
+    outbuf.append("<tr><td>");
     if (rs.getBoolean("deleted")) {
       outbuf.append("[X] ");
     }
@@ -270,9 +269,9 @@
 </tbody>
 <tfoot>
 <%
-        out.print("<tr class=color1><td colspan=2><p>");
+        out.print("<tr><td colspan=2><p>");
 
-	out.print("<table width=\"100%\"><tr><td align=left>");
+	out.print("<div style=\"float: left\">");
 
         // НАЗАД
         if (firstPage)
@@ -281,10 +280,10 @@
           out.print("<a href=\"group.jsp?group="+groupId +(showDeleted?"&amp;deleted=t":"")+"\">Начало</a> ");
         else
           out.print("<a rel=prev rev=next href=\"group.jsp?group="+groupId +"&amp;offset="+(offset+topics)+(showDeleted?"&amp;deleted=t":"")+"\">Назад</a>");
-	out.print("</td>");
+	out.print("</div>");
 
         // ВПЕРЕД
-	out.print("<td align=right>");
+	out.print("<div style=\"float: right\">");
 
         if (firstPage) {
           out.print("<a rel=next rev=prev href=\"group.jsp?group="+groupId +"&amp;offset="+(pages*topics)+(showDeleted?"&amp;deleted=t":"")+"\">Архив</a>");
@@ -292,12 +291,11 @@
           out.print("<b>Вперед</b>");
 	else
           out.print("<a rel=next rev=prev href=\"group.jsp?group="+groupId +"&amp;offset="+(offset-topics)+(showDeleted?"&amp;deleted=t":"")+"\">Вперед</a>");
-	out.print("</td></tr></table>");
+	out.print("</div>");
 
 %>
 </tfoot>
 </table>
-</div>
 </div>
 <div align=center><p>
 <%
