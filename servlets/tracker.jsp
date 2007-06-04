@@ -1,6 +1,6 @@
 <%@ page info="last active topics" %>
 <%@ page contentType="text/html; charset=koi8-r"%>
-<%@ page import="java.sql.Statement,java.sql.*,ru.org.linux.util.*,ru.org.linux.site.*,java.net.URLEncoder,java.util.Date,java.text.*,java.util.*,java.lang.Math" errorPage="error.jsp" buffer="200kb"%>
+<%@ page import="java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.sql.Timestamp,java.text.DateFormat,java.text.SimpleDateFormat,ru.org.linux.site.BadInputException,ru.org.linux.site.Template" errorPage="error.jsp" buffer="200kb"%>
 <% Template tmpl = new Template(request, config, response); %>
 <%= tmpl.head() %>
 <%
@@ -61,10 +61,9 @@
 <h1><%= title %> за <%= hours %> часа</h1>
 
 <div class=forum>
-<div class="color1">
-<table width="100%" cellspacing=1 cellpadding=0 border=0>
+<table width="100%" class="message-table">
 <thead>
-<tr class=color1>
+<tr>
   <th>Форум</th>
   <th>Заголовок</th>
   <th>Последнее сообщение</th>
@@ -86,7 +85,7 @@
 
         int itotal=Integer.parseInt(rs.getString("stat1"));
 
-        out.print("<tr class=color2><td>"+
+        out.print("<tr><td>"+
                     "<a href='group.jsp?group="+rs.getString("gid")+"'>"+
                     rs.getString("gname")+"</a>"+
                     "</td><td>"+
@@ -123,12 +122,10 @@
 </tbody>
 
 <tfoot>
-  <tr class=color1><td colspan='4' align='right'>всего: <%= cnt %> &nbsp</td></tr>
-
+  <tr><td colspan='4' align='right'>всего: <%= cnt %> &nbsp</td></tr>
 </tfoot>
 
 </table>
-</div>
 </div>
 
         <%
