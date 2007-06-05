@@ -136,13 +136,13 @@ public class NewsViewer {
       out.append("<div class=\"nav\">");
 
       if (!res.getBoolean("expired"))
-        out.append("[&nbsp;<a href=\"comment-message.jsp?msgid=").append(msgid).append("\">Добавить&nbsp;комментарий</a>&nbsp;]");
+        out.append("[<a href=\"comment-message.jsp?msgid=").append(msgid).append("\">Добавить&nbsp;комментарий</a>]");
 
       int stat1 = res.getInt("stat1");
 
       if (stat1 > 0) {
 
-	out.append("&nbsp;[&nbsp;<a href=\"");
+	out.append(" [<a href=\"");
 
         if (searchMode)
      	  out.append(newslink);
@@ -174,7 +174,7 @@ public class NewsViewer {
 	  }
 	  out.append(")");
 	}
-	out.append("&nbsp;]");
+	out.append("]");
 
     }
       out.append("</div>");
