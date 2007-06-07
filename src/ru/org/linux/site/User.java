@@ -1,8 +1,8 @@
 package ru.org.linux.site;
 
+import java.net.URLEncoder;
 import java.sql.*;
 import java.util.Date;
-import java.net.URLEncoder;
 
 import javax.servlet.http.HttpSession;
 
@@ -20,6 +20,7 @@ public class User {
   private final String password;
   private final int score;
   private final int maxScore;
+  private final String photo;
 
   private final boolean activated;
 
@@ -29,7 +30,7 @@ public class User {
     }
     nick = name;
 
-    PreparedStatement st = con.prepareStatement("SELECT id,candel,canmod,passwd,blocked,score,max_score,activated FROM users where nick=?");
+    PreparedStatement st = con.prepareStatement("SELECT id,candel,canmod,passwd,blocked,score,max_score,activated,photo FROM users where nick=?");
     st.setString(1, name);
 
     ResultSet rs = st.executeQuery();
@@ -52,6 +53,8 @@ public class User {
     anonymous = "".equals(pwd);
     password = pwd;
 
+    photo=rs.getString("photo");
+
     rs.close();
     st.close();
   }
@@ -59,7 +62,7 @@ public class User {
   public User(Connection con, int id) throws SQLException, UserNotFoundException {
     this.id = id;
 
-    PreparedStatement st = con.prepareStatement("SELECT nick,score, max_score, candel,canmod,passwd,blocked,activated FROM users where id=?");
+    PreparedStatement st = con.prepareStatement("SELECT nick,score, max_score, candel,canmod,passwd,blocked,activated,photo FROM users where id=?");
     st.setInt(1, id);
 
     ResultSet rs = st.executeQuery();
@@ -81,6 +84,7 @@ public class User {
     }
     password = pwd;
     anonymous = "".equals(pwd);
+    photo=rs.getString("photo");
 
     rs.close();
     st.close();
@@ -295,5 +299,9 @@ public class User {
 
   public boolean isActivated() {
     return activated;
+  }
+
+  public String getPhoto() {
+    return photo;
   }
 }

@@ -1,8 +1,14 @@
 <%@ page contentType="text/html; charset=koi8-r"%>
-<%@ page import="java.sql.*,ru.org.linux.site.MissingParameterException,ru.org.linux.site.Template,ru.org.linux.site.User,ru.org.linux.site.UserNotFoundException,ru.org.linux.util.HTMLFormatter" errorPage="error.jsp" buffer="60kb" %>
-<%@ page import="ru.org.linux.util.ImageInfo"%>
-<%@ page import="ru.org.linux.util.StringUtil"%>
-<%@ page import="ru.org.linux.util.BadImageException"%>
+<%@ page import="java.sql.Connection,java.sql.PreparedStatement" errorPage="error.jsp" buffer="60kb" %>
+<%@ page import="java.sql.ResultSet"%>
+<%@ page import="java.sql.Timestamp"%>
+<%@ page import="ru.org.linux.site.MissingParameterException"%>
+<%@ page import="ru.org.linux.site.Template" %>
+<%@ page import="ru.org.linux.site.User" %>
+<%@ page import="ru.org.linux.site.UserNotFoundException" %>
+<%@ page import="ru.org.linux.util.BadImageException" %>
+<%@ page import="ru.org.linux.util.HTMLFormatter" %>
+<%@ page import="ru.org.linux.util.ImageInfo" %>
 <% Template tmpl = new Template(request, config, response); %>
 <%
   response.setDateHeader("Expires", System.currentTimeMillis()+120000);
@@ -21,48 +27,12 @@
     db = tmpl.getConnectionWhois();
 
     User user = new User(db, nick);
-
-    // update user to moderator command -> block/unblock
-    if (tmpl.isModeratorSession()) {
-      if (request.getMethod().equals("POST")) {
-        String moder_name = (String) session.getValue("nick");
-
-        out.print("<!-- update mode -->");
-        String abuser = user.getNick();
-        String logmessage = "user " + abuser;
-        int uid = user.getId();
-        Statement st1 = db.createStatement();
-
-        if (user.isBlockable()) {
-          if (request.getParameter("block") != null) {
-            st1.executeUpdate("UPDATE users SET blocked='t' WHERE id=" + uid);
-            out.print("<!-- user " + abuser + " is blocked -->");
-            logmessage = logmessage + " blocked by " + moder_name;
-            tmpl.getLogger().notice("whois.jsp", logmessage);
-          }
-          if (request.getParameter("unblock") != null) {
-            st1.executeUpdate("UPDATE users SET blocked='f' WHERE id=" + uid);
-            out.print("<!-- user " + user.getNick() + " is unblocked -->");
-            logmessage = logmessage + " unblocked by " + moder_name;
-            tmpl.getLogger().notice("whois.jsp", logmessage);
-          }
-          st1.close();
-
-          user = new User(db, nick);
-        } else {
-          out.print("<!-- moders and anonymous can't be blocked -->");
-        }
-        // rs.close();
-      } else {
-        out.print("<!-- userview mode "+request.getMethod()+" -->");
-      }
-    }
 %>
 
 <h1>Информация о пользователе <%= nick %></h1>
 <table><tr>
 <%
-  PreparedStatement userInfo = db.prepareStatement("SELECT url, photo, town, lastlogin, email, name, regdate FROM users WHERE nick=?");
+  PreparedStatement userInfo = db.prepareStatement("SELECT url, town, lastlogin, email, name, regdate FROM users WHERE nick=?");
   PreparedStatement stat1 = db.prepareStatement("SELECT count(*) as c FROM comments WHERE userid=?");
   PreparedStatement stat2 = db.prepareStatement("SELECT sections.name as pname, count(*) as c FROM topics, groups, sections WHERE topics.userid=? AND groups.id=topics.groupid AND sections.id=groups.section GROUP BY sections.name");
   PreparedStatement stat3 = db.prepareStatement("SELECT min(postdate) as first,max(postdate) as last FROM topics WHERE topics.userid=?");
@@ -76,7 +46,6 @@
     throw new UserNotFoundException(nick);
   }
 
-  String photo = rs.getString("photo");
   int userid = user.getId();
 
   stat1.setInt(1, userid);
@@ -84,13 +53,21 @@
   stat3.setInt(1, userid);
   stat4.setInt(1, userid);
 
-  if (photo != null) {
-    out.print("<td valign='top' align='left'>");
+  if (user.getPhoto() != null) {
+    out.print("<td valign='top' align='center'>");
 
     try {
-      out.print("<img src=\"/photos/" + photo + "\" alt=\"" + nick + "\" " + new ImageInfo(tmpl.getObjectConfig().getHTMLPathPrefix() + "photos/" + photo).getCode() + ">");
+      out.print("<img src=\"/photos/" + user.getPhoto() + "\" alt=\"" + nick + "\" " + new ImageInfo(tmpl.getObjectConfig().getHTMLPathPrefix() + "photos/" + user.getPhoto()).getCode() + ">");
     } catch (BadImageException ex) {
       out.print("[bad image]");
+    }
+
+    if (tmpl.isModeratorSession()) {
+      out.print("<p><form name='f_remove_userpic' method='post' action='usermod.jsp'>\n");
+      out.print("<input type='hidden' name='id' value='" + userid + "'>\n");
+      out.print("<input type='hidden' name='action' value='remove_userpic'>\n");
+      out.print("<input type='submit' value='Удалить изображение'>\n");
+      out.print("</form>");
     }
 
     out.print("</td>");
@@ -133,16 +110,14 @@
   out.println("<br>");
   if (tmpl.isModeratorSession() && user.isBlockable()) {
     if (user.isBlocked()) {
-      out.print("<form name='f_unblock' method='post' action='whois.jsp'>\n");
-      out.print("<input type='hidden' name='update' value='" + nick + "'>\n");
-      out.print("<input type='hidden' name='nick' value='" + nick + "'>\n");
-      out.print("<input type='submit' name='unblock' value='unblock'>\n");
+      out.print("<form name='f_unblock' method='post' action='usermod.jsp'>\n");
+      out.print("<input type='hidden' name='id' value='" + userid + "'>\n");
+      out.print("<input type='submit' name='action' value='unblock'>\n");
       out.print("</form>");
     } else {
-      out.print("<form name='f_block' method='post' action='whois.jsp'>\n");
-      out.print("<input type='hidden' name='update' value='" + nick + "'>\n");
-      out.print("<input type='hidden' name='nick' value='" + nick + "'>\n");
-      out.print("<input type='submit' name='block' value='block user'>\n</form>");
+      out.print("<form name='f_block' method='post' action='usermod.jsp'>\n");
+      out.print("<input type='hidden' name='id' value='" + userid + "'>\n");
+      out.print("<input type='submit' name='action' value='block'>\n</form>");
     }
   }
 
@@ -153,7 +128,16 @@
 <p>
 <cite>
 <%
-    out.print(HTMLFormatter.nl2br(tmpl.getObjectConfig().getStorage().readMessageDefault("userinfo", String.valueOf(userid), "")));
+  out.print(HTMLFormatter.nl2br(tmpl.getObjectConfig().getStorage().readMessageDefault("userinfo", String.valueOf(userid), "")));
+
+  if (tmpl.isModeratorSession() && user.isBlockable()) {
+    out.print("<p><form name='f_remove_userinfo' method='post' action='usermod.jsp'>\n");
+    out.print("<input type='hidden' name='id' value='" + userid + "'>\n");
+    out.print("<input type='hidden' name='action' value='remove_userinfo'>\n");
+    out.print("<input type='submit' value='Удалить текст'>\n");
+    out.print("</form>");
+  }
+
 %>
 </cite>
 <%
