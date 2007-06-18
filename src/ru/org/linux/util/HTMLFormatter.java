@@ -237,7 +237,17 @@ public class HTMLFormatter {
   /**
    * Convert special SGML (HTML) chars to
    * SGML entities
-   */
+   */  
+  private static final RE uniRE;
+
+  static {
+     try {
+       uniRE = new RE("^&#[1-9]\\d{1,4};");
+     } catch (REException e) {
+       throw new RuntimeException(e);
+     }
+   }
+  
   public static String htmlSpecialChars(String str) {
     StringBuffer res = new StringBuffer();
 
@@ -252,8 +262,16 @@ public class HTMLFormatter {
         case '\"':
           res.append("&quot;");
           break;
-        case '&':
-          res.append("&amp;");
+        case '&':        
+          REMatch m = uniRE.getMatch(str.substring(i));
+          if ((m instanceof REMatch) ) {
+              String s = m.toString();
+              res.append(s);
+              i+=s.length()-1;
+              continue;
+          } else {
+            res.append("&amp;");
+          }
           break;
         default:
           res.append(str.charAt(i));
