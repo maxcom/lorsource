@@ -61,7 +61,7 @@
       st.executeUpdate("UPDATE users SET score=score-10 WHERE id=" + id);
       tmpl.getLogger().notice("whois.jsp", "Clearing " + user.getNick() + " userpic");
     } else if (action.equals("remove_userinfo")) {
-      if (!user.isBlockable()) {
+      if (user.canModerate()) {
         throw new AccessViolationException("Пользователю " + user.getNick() + " нельзя удалить сведения");
       }
 

@@ -130,7 +130,7 @@
 <%
   out.print(HTMLFormatter.nl2br(tmpl.getObjectConfig().getStorage().readMessageDefault("userinfo", String.valueOf(userid), "")));
 
-  if (tmpl.isModeratorSession() && user.isBlockable()) {
+  if (tmpl.isModeratorSession()) {
     out.print("<p><form name='f_remove_userinfo' method='post' action='usermod.jsp'>\n");
     out.print("<input type='hidden' name='id' value='" + userid + "'>\n");
     out.print("<input type='hidden' name='action' value='remove_userinfo'>\n");
