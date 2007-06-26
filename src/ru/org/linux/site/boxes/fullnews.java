@@ -40,7 +40,7 @@ public final class fullnews extends Boxlet {
   }
 
   public String getVariantID(ProfileHashtable prof, Properties request) throws UtilException {
-    return "SearchMode=" + prof.getBooleanProperty("SearchMode") + "&topics=" + prof.getIntProperty("topics") + "&style=" + prof.getStringProperty("style");
+    return "SearchMode=" + prof.getBooleanProperty("SearchMode") + "&topics=" + prof.getIntProperty("topics")+"&messages=" + prof.getIntProperty("messages") + "&style=" + prof.getStringProperty("style");
   }
 
   public long getVersionID(ProfileHashtable profile, Properties request) {
