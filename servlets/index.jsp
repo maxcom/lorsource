@@ -127,15 +127,8 @@ out.print(boxes.getContent(tmpl.getObjectConfig(), tmpl.getProf()));
 <% } %>
 
 <div class="<%= columns3?"newsblog2":"newsblog"%>">
-<%
-if (!"black".equals(tmpl.getStyle())) {
-//	out.print("<div align=center>");
-//	out.print("<a href=\"http://www.centerpress.ru/shop/computer_press/linuxformat/lxf-2007/ref_102196\"><img src=\"http://www.linux.org.ru/adv/linuxformat/lxf2007.gif\"></a>");
-        // banners
-//        out.print("</div>");
-} else {%>
+  
 <h1><a href="view-section.jsp?section=1">Новости</a></h1>
-<% } %>
 <%
         if (tmpl.isSessionAuthorized(session) && ((Boolean) session.getValue("moderator")).booleanValue()) {
           out.print("<hr><div align=\"center\">");
