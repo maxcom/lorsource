@@ -1,4 +1,5 @@
 <project name="lnxorg" default="dist">
+  <taskdef name="junit" classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask"/>
 
   <path id="build.classpath">
     <fileset dir="lib">
@@ -24,7 +25,7 @@
 	<javac classpathref="build.classpath" srcdir="src" destdir="${build}" optimize="yes" debug="yes" encoding="koi8-r"/>
 </target>
 
-<target name="dist" depends="build">
+<target name="dist" depends="build, unit-tests">
 	<mkdir dir="${dist}"/>
 	<jar jarfile="${dist}/lnxorgutil.jar" basedir="${build}" includes="ru/org/linux/util/*,ru/org/linux/storage/*,ru/org/linux/cache/*,ru/org/linux/boxlet/*,ru/org/linux/logger/*"/>
 	<jar jarfile="${dist}/lnxorgsite.jar" basedir="${build}" includes="ru/org/linux/site/**"/>
@@ -41,5 +42,22 @@
 	<deltree dir="${dist}"/>
 	<deltree dir="${apidoc}"/>
 </target>
+
+<target name="unit-tests" depends="build">
+	<junit fork="yes" haltonfailure="yes" printsummary="yes" dir=".">
+		<classpath>
+			<path refid="build.classpath" />
+			<pathelement location="${build}" />
+		</classpath>
+		<formatter type="xml" />
+		<formatter type="brief" usefile="false" />
+		<batchtest todir="test-reports">
+			<fileset dir="${build}">
+	                    <include name="**/*Test.class" />
+			</fileset>
+		</batchtest>
+	</junit>
+</target>
+
 
 </project>

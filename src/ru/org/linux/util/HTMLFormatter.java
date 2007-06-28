@@ -4,6 +4,7 @@
 
 package ru.org.linux.util;
 
+import java.util.Iterator;
 import java.util.StringTokenizer;
 
 import gnu.regexp.RE;
@@ -13,27 +14,18 @@ import gnu.regexp.REMatchEnumeration;
 
 public class HTMLFormatter {
   private final String text;
-  private String nl;
-  private int maxlength;
-  private boolean urlHighlight;
-  private boolean Preformat;
-  private boolean NewLine;
-  private boolean PlainText;
-  private boolean CheckHTML;
-  private boolean texNewLine;
+  private String nl = " ";
+  private int maxlength = 80;
+  private boolean urlHighlight = false;
+  private boolean Preformat = false;
+  private boolean NewLine = false;
+  private boolean plainTextInput = false;
+  private boolean htmlInput = false;
+  private boolean texNewLine = false;
   private boolean quoting = false;
-  private String delim;
+  private String delim = " \n";
 
   public HTMLFormatter(String atext) {
-    nl = " ";
-    delim = " \n";
-    Preformat = false;
-    urlHighlight = false;
-    NewLine = false;
-    texNewLine = false;
-    PlainText = false;
-    maxlength = 80;
-    CheckHTML = false;
     text = atext;
   }
 
@@ -50,12 +42,12 @@ public class HTMLFormatter {
   }
 
   public String process() throws UtilException {
-    if (CheckHTML) {
+    if (htmlInput) {
       checkHTML();
     }
 
     StringTokenizer st;
-    if (PlainText) {
+    if (plainTextInput) {
       st = new StringTokenizer(htmlSpecialChars(text), delim, true);
     } else {
       st = new StringTokenizer(text, delim, true);
@@ -108,13 +100,13 @@ public class HTMLFormatter {
   }
 
   public void enablePlainTextMode() {
-    PlainText = true;
-    CheckHTML = false;
+    plainTextInput = true;
+    htmlInput = false;
   }
 
   public void enableCheckHTML() {
-    CheckHTML = true;
-    PlainText = false;
+    htmlInput = true;
+    plainTextInput = false;
   }
 
   public void enableQuoting() {
@@ -131,7 +123,13 @@ public class HTMLFormatter {
     }
   }
 
-  private String formatHTMLLine(String chunk) {
+  /** форматирует фрагмент исходного текста
+   *
+   * @param chunk фрагмент текста
+   * @return отформатированную строку
+   * @throws UtilException в случае некорректного входного текста
+   */
+  private String formatHTMLLine(String chunk) throws UtilException {
     StringBuffer out = new StringBuffer();
 
     REMatchEnumeration en = urlRE.getMatchEnumeration(chunk);
@@ -142,19 +140,20 @@ public class HTMLFormatter {
 
       // обработка начальной части до URL
       out.append(wrapLongLine(chunk.substring(index, found.getStartIndex()), maxlength, nl, index));
+
       // обработка URL
-      index = found.getStartIndex();
-      int end = found.getEndIndex();
-      String url = chunk.substring(index, end);
+      String url = chunk.substring(found.getStartIndex(), found.getEndIndex());
       if (urlHighlight) {
         String urlchunk = url;
+
         if (url.toLowerCase().startsWith("www.")) {
           url = "http://" + url;
         } else if (url.toLowerCase().startsWith("ftp.")) {
           url = "ftp://" + url;
         }
+
         if (Preformat) {
-          urlchunk = wrapLongLine(urlchunk, maxlength, nl, index);
+          urlchunk = wrapLongLine(urlchunk, maxlength, nl, found.getStartIndex());
         } else if (urlchunk.length() > maxlength) {
           urlchunk = urlchunk.substring(0, maxlength - 3) + "...";
         }
@@ -163,7 +162,7 @@ public class HTMLFormatter {
       } else {
         out.append(url);
       }
-      index = end;
+      index = found.getEndIndex();
     }
 
     // обработка последнего фрагмента
@@ -174,6 +173,20 @@ public class HTMLFormatter {
     return out.toString();
   }
 
+  public static int countCharacters(String str) throws UtilException {
+    int size = 0;
+
+    try {
+      for (Iterator i=new SGMLStringIterator(str); i.hasNext(); ) {
+        i.next();
+        size++;
+      }
+    } catch (StringIndexOutOfBoundsException ex) {
+      throw new UtilException("Invalid SGML Entity");
+    }
+
+    return size;
+  }
 
   /**
    * converts new line characters in input string to
@@ -294,7 +307,7 @@ public class HTMLFormatter {
     }
   }
 
-  private void checkHTML() throws UtilException {
+  private void checkHTML() throws UtilBadHTMLException {
     String str;
 
     if (!urlHighlight) {
@@ -308,28 +321,29 @@ public class HTMLFormatter {
     }
   }
 
-  /**
-   * Wrap long text line
+  /** Разбивает слишком длинный фрагмент в строке на части
+   *
+   * @param line строка
+   * @param maxlength максимальная длинна фрагмента
+   * @param delim разделитель которым будет разбиваться строка
+   * @param start текущая позиция в строке
+   * @return разбитая строка
    */
-  public static String wrapLongLine(String line, int maxlength, String delim, int start) {
+  public static String wrapLongLine(String line, int maxlength, String delim, int start) throws UtilException {
     StringBuffer sb = new StringBuffer();
-    start = start % maxlength;
-    int pices = (start + line.length()) / maxlength;
 
-    for (int i = 0; i < pices; i++) {
-      if (i == 0) {
-        sb.append(line.substring(0, (i + 1) * maxlength - start));
-      } else {
-        sb.append(line.substring(maxlength * i - start, (i + 1) * maxlength - start));
+    int index = start;
+
+    for (Iterator i = new SGMLStringIterator(line); i.hasNext(); ) {
+      String ch = (String) i.next();
+
+      if (index%maxlength == maxlength-1) {
+        sb.append(delim);
       }
 
-      sb.append(delim);
-    }
+      sb.append(ch);
 
-    if (pices == 0) {
-      sb.append(line);
-    } else {
-      sb.append(line.substring(maxlength * pices - start));
+      index++;
     }
 
     return sb.toString();
@@ -338,14 +352,14 @@ public class HTMLFormatter {
   /**
    * Wrap long text line
    */
-  public static String wrapLongLine(String line, int maxlength, String delim) {
+  public static String wrapLongLine(String line, int maxlength, String delim) throws UtilException {
     return wrapLongLine(line, maxlength, delim, 0);
   }
 
   /**
    * Wrap long text lines
    */
-  public static String wrapLongLines(String text, int maxlength) {
+  public static String wrapLongLines(String text, int maxlength) throws UtilException {
     StringTokenizer st = new StringTokenizer(text, "\n", true);
     StringBuffer sb = new StringBuffer();
 
