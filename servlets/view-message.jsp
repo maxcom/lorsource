@@ -203,11 +203,12 @@ google_ad_width = 728;
 google_ad_height = 90;
 google_ad_format = "728x90_as";
 google_ad_type = "text_image";
-google_ad_channel = "";
+//2007-06-29: lor-messages
+google_ad_channel = "0949716006";
 google_color_border = "000000";
-google_color_bg = "000000";
+google_color_bg = "000030";
 google_color_link = "FFFFFF";
-google_color_text = "CCCCCC";
+google_color_text = "C8C8C8";
 google_color_url = "999999";
 google_ui_features = "rc:0";
 //-->
