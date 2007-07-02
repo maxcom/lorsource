@@ -1,6 +1,7 @@
 <%@ page contentType="text/html; charset=koi8-r"%>
 <%@ page import="java.sql.*,java.util.Random,javax.servlet.http.Cookie,javax.servlet.http.HttpServletResponse,ru.org.linux.site.*,ru.org.linux.util.HTMLFormatter" errorPage="error.jsp"%>
 <%@ page import="ru.org.linux.util.UtilBadHTMLException"%>
+<%@ page import="ru.org.linux.util.UtilBadURLException" %>
 <% Template tmpl = new Template(request, config, response);%>
 <%
 	int topic = tmpl.getParameters().getInt("topic");
@@ -235,6 +236,13 @@
 		db.setAutoCommit(true);
 	}
 } catch (UserNotFoundException e) {
+	error=e;
+	showform=true;
+	if (db!=null) {
+		db.rollback();
+		db.setAutoCommit(true);
+	}
+} catch (UtilBadURLException e) {
 	error=e;
 	showform=true;
 	if (db!=null) {
