@@ -1,5 +1,7 @@
 #/bin/bash
 
+ant
+
 echo Copying files...
 
 sudo cp servlets/*.jsp /var/www/linux.org.ru/servlets/
