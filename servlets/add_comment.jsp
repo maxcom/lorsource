@@ -170,45 +170,45 @@
       }
       rs.close();
 
-      if (DupeProtector.getInstance().check(request.getRemoteAddr())) {
-        // allocation MSGID
-        rs = st.executeQuery("select nextval('s_msgid') as msgid");
-        rs.next();
-        int msgid = rs.getInt("msgid");
+      DupeProtector.getInstance().checkDuplication(request.getRemoteAddr());
 
-        // insert headers
-        PreparedStatement pst = db.prepareStatement("INSERT INTO comments (id, userid, title, postdate, replyto, deleted, topic, postip) VALUES (?, ?, ?, CURRENT_TIMESTAMP, ?, 'f', ?, '" + request.getRemoteAddr() + "')");
-        pst.setInt(1, msgid);
-        pst.setInt(2, user.getId());
-        pst.setString(3, title);
-        pst.setInt(5, topic);
+      // allocation MSGID
+      rs = st.executeQuery("select nextval('s_msgid') as msgid");
+      rs.next();
+      int msgid = rs.getInt("msgid");
 
-        if (replyto != 0) {
-          pst.setInt(4, replyto);
-        } else {
-          pst.setNull(4, Types.INTEGER);
-        }
+      // insert headers
+      PreparedStatement pst = db.prepareStatement("INSERT INTO comments (id, userid, title, postdate, replyto, deleted, topic, postip) VALUES (?, ?, ?, CURRENT_TIMESTAMP, ?, 'f', ?, '" + request.getRemoteAddr() + "')");
+      pst.setInt(1, msgid);
+      pst.setInt(2, user.getId());
+      pst.setString(3, title);
+      pst.setInt(5, topic);
 
-        //pst.setString(6, request.getRemoteAddr());
-        pst.executeUpdate();
-        pst.close();
-
-        // insert message text
-        PreparedStatement pstMsgbase = db.prepareStatement("INSERT INTO msgbase (id, message) values (?,?)");
-        pstMsgbase.setLong(1, msgid);
-        pstMsgbase.setString(2, msg);
-        pstMsgbase.executeUpdate();
-        pstMsgbase.close();
-
-        // write to storage
-//        tmpl.getObjectConfig().getStorage().writeMessage("msgbase", String.valueOf(msgid), msg);
-        String logmessage = "Написан комментарий " + msgid + " ip:" + request.getRemoteAddr();
-        if (request.getHeader("X-Forwarded-For") != null) {
-          logmessage = logmessage + " XFF:" + request.getHeader(("X-Forwarded-For"));
-        }
-
-        tmpl.getLogger().notice("add2", logmessage);
+      if (replyto != 0) {
+        pst.setInt(4, replyto);
+      } else {
+        pst.setNull(4, Types.INTEGER);
       }
+
+      //pst.setString(6, request.getRemoteAddr());
+      pst.executeUpdate();
+      pst.close();
+
+      // insert message text
+      PreparedStatement pstMsgbase = db.prepareStatement("INSERT INTO msgbase (id, message) values (?,?)");
+      pstMsgbase.setLong(1, msgid);
+      pstMsgbase.setString(2, msg);
+      pstMsgbase.executeUpdate();
+      pstMsgbase.close();
+
+      // write to storage
+//        tmpl.getObjectConfig().getStorage().writeMessage("msgbase", String.valueOf(msgid), msg);
+      String logmessage = "Написан комментарий " + msgid + " ip:" + request.getRemoteAddr();
+      if (request.getHeader("X-Forwarded-For") != null) {
+        logmessage = logmessage + " XFF:" + request.getHeader(("X-Forwarded-For"));
+      }
+
+      tmpl.getLogger().notice("add2", logmessage);
 
       Random random = new Random();
 
