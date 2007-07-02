@@ -1,13 +1,13 @@
 package ru.org.linux.site;
 
+import java.io.File;
 import java.io.IOException;
-import java.net.URLEncoder;
 import java.sql.*;
 
-import ru.org.linux.util.BadImageException;
-import ru.org.linux.util.ImageInfo;
-import ru.org.linux.util.StringUtil;
-import ru.org.linux.util.UtilException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
+import ru.org.linux.util.*;
 
 public class Message {
   public static final int SCROLL_NOSCROLL = 0;
@@ -355,9 +355,7 @@ public class Message {
   }
 
   public int getPageCount(int messages) {
-    int pages=(int) Math.ceil(commentCount/((double) messages));
-
-    return pages;
+    return (int) Math.ceil(commentCount/((double) messages));
   }
 
   public String getMessageText() {
@@ -380,5 +378,153 @@ public class Message {
 
   public String getLinktext() {
     return linktext;
+  }
+
+  public static void addTopic(Connection db, Template tmpl, HttpSession session, HttpServletRequest request, Group group) throws BadInputException, SQLException, UserNotFoundException, BadPasswordException, AccessViolationException, ServletParameterException, UtilException, DuplicationException {
+    String title = request.getParameter("title");
+    if (title == null) {
+      title = "";
+    }
+
+    title = HTMLFormatter.htmlSpecialChars(title);
+    if ("".equals(title.trim())) {
+      throw new BadInputException("заголовок сообщения не может быть пустым");
+    }
+
+    String linktext = request.getParameter("linktext");
+    if (linktext != null && "".equals(linktext)) {
+      linktext = null;
+    }
+    if (linktext != null) {
+      linktext = HTMLFormatter.htmlSpecialChars(linktext);
+    }
+
+    String msg = request.getParameter("msg");
+
+    boolean userhtml = tmpl.getParameters().getBoolean("texttype");
+    boolean autourl = tmpl.getParameters().getBoolean("autourl");
+
+    String url = request.getParameter("url");
+    if (url != null && "".equals(url)) {
+      url = null;
+    }
+
+    // checks is over
+    User user;
+
+    if (session == null || session.getAttribute("login") == null || !((Boolean) session.getAttribute("login")).booleanValue())     {
+      if (request.getParameter("nick") == null) {
+        throw new BadInputException("Вы уже вышли из системы");
+      }
+      user = new User(db, request.getParameter("nick"));
+      user.checkPassword(request.getParameter("password"));
+    } else {
+      user = new User(db, (String) session.getAttribute("nick"));
+      user.checkBlocked();
+    }
+
+    if (user.isAnonymous()) {
+      if (msg.length() > 4096) {
+        throw new BadInputException("Слишком большое сообщение");
+      }
+    } else {
+      if (msg.length() > 8192) {
+        throw new BadInputException("Слишком большое сообщение");
+      }
+    }
+
+    Statement st = db.createStatement();
+
+    if (!group.isTopicPostingAllowed(user)) {
+      throw new AccessViolationException("Не достаточно прав для постинга тем в эту группу");
+    }
+
+    String mode = tmpl.getParameters().getString("mode");
+
+    if ("pre".equals(mode) && !group.isPreformatAllowed()) {
+      throw new AccessViolationException("В группу нельзя добавлять преформатированные сообщения");
+    }
+    if (("ntobr".equals(mode) || "tex".equals(mode) || "quot".equals(mode)) && group.isLineOnly()) {
+      throw new AccessViolationException("В группу нельзя добавлять сообщения с переносом строк");
+    }
+    if (userhtml && group.isLineOnly()) {
+      throw new AccessViolationException("В группу нельзя добавлять сообщения с переносом строк");
+    }
+
+    if (!group.isImagePostAllowed()) {
+      if (url != null) {
+        if (linktext == null) {
+          throw new BadInputException("указан URL без текста");
+        }
+        url = URLUtil.fixURL(url);
+      }
+    } else {
+      url = "gallery/" + new File(url).getName();
+      linktext = "gallery/" + new File(linktext).getName();
+    }
+
+    int maxlength = 80;
+    if (group.getSectionId() == 1) {
+      maxlength = 40;
+    }
+    HTMLFormatter form = new HTMLFormatter(msg);
+    form.setMaxLength(maxlength);
+    if ("pre".equals(mode)) {
+      form.enablePreformatMode();
+    }
+    if (autourl) {
+      form.enableUrlHighLightMode();
+    }
+    if ("ntobr".equals(mode)) {
+      form.enableNewLineMode();
+    }
+    if ("tex".equals(mode)) {
+      form.enableTexNewLineMode();
+    }
+
+    if (!userhtml) {
+      form.enablePlainTextMode();
+    } else {
+      form.enableCheckHTML();
+    }
+
+    try {
+      msg = form.process();
+    } catch (UtilBadHTMLException e) {
+      throw new BadInputException(e);
+    }
+
+    DupeProtector.getInstance().checkDuplication(request.getRemoteAddr());
+
+    // allocation MSGID
+    ResultSet rs = st.executeQuery("select nextval('s_msgid') as msgid");
+    rs.next();
+    int msgid = rs.getInt("msgid");
+
+    PreparedStatement pst = db.prepareStatement("INSERT INTO topics (postip, groupid, userid, title, url, moderate, postdate, id, linktext, deleted) VALUES ('" + request.getRemoteAddr() + "',?, ?, ?, ?, 'f', CURRENT_TIMESTAMP, ?, ?, 'f')");
+//                pst.setString(1, request.getRemoteAddr());
+    pst.setInt(1, group.getId());
+    pst.setInt(2, user.getId());
+    pst.setString(3, title);
+    pst.setString(4, url);
+    pst.setInt(5, msgid);
+    pst.setString(6, linktext);
+    pst.executeUpdate();
+    pst.close();
+
+    // insert message text
+    PreparedStatement pstMsgbase = db.prepareStatement("INSERT INTO msgbase (id, message) values (?,?)");
+    pstMsgbase.setLong(1, msgid);
+    pstMsgbase.setString(2, msg);
+    pstMsgbase.executeUpdate();
+    pstMsgbase.close();
+
+    String logmessage = "Написана тема " + msgid + " " + LorHttpUtils.getRequestIP(request);
+    tmpl.getLogger().notice("add2", logmessage);
+
+    db.commit();
+
+    rs.close();
+    st.close();
   }
 }

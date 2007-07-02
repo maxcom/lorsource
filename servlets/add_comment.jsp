@@ -249,7 +249,7 @@
 if (showform) { // show form
 	if (db==null) db = tmpl.getConnection("add_comment");
 	Statement st=db.createStatement();
-	ResultSet grinfo=st.executeQuery("SELECT postdate<(CURRENT_TIMESTAMP-sections.expire) as expired, postscore FROM topics WHERE topics.id="+topic);
+	ResultSet grinfo=st.executeQuery("SELECT postdate<(CURRENT_TIMESTAMP-sections.expire) as expired, postscore FROM topics, sections, groups WHERE topics.id="+topic+" AND groups.id = topics.groupid AND groups.section=sections.id");
 	if (!grinfo.next()) {
 		grinfo.close();
 		grinfo=st.executeQuery("SELECT id, 0 as postscore FROM votenames WHERE votenames.topic="+topic);
@@ -288,20 +288,20 @@ if (showform) { // show form
   <input type="hidden" name="session" value="<%= HTMLFormatter.htmlSpecialChars(session.getId()) %>">
 <% if (!tmpl.isSessionAuthorized(session)) { %>
 Имя:
-<input type=text name=nick value="<%= tmpl.getCookie("NickCookie","anonymous") %>" size=40><br>
+<input type=text name=nick value="<%= "anonymous" %>" size=40><br>
 Пароль:
 <input type=password name=password size=40><br>
 <% } %>
 <input type=hidden name=topic value="<%= topic %>">
 
 <% if (request.getParameter("return")!=null) { %>
-<input type=hidden name=return value="<%= request.getParameter("return") %>">
+<input type=hidden name=return value="<%= HTMLFormatter.htmlSpecialChars(request.getParameter("return")) %>">
 <% } %>
 
 <% if (request.getParameter("replyto")!=null) {
         int replyto=Integer.parseInt(request.getParameter("replyto"));
 %>
-<input type=hidden name=replyto value=<%= replyto %>>
+<input type=hidden name=replyto value="<%= replyto %>">
 <% // show message here
   Comment comment = new Comment(db, replyto);
 //        ResultSet rs=st.executeQuery("SELECT postdate, topic, nick, score, max_score, comments.id as msgid, comments.title, photo, 'f', deleted, 'f' as expired, replyto, message FROM comments, users, msgbase WHERE comments.id=msgbase.id AND comments.id="+replyto+" AND comments.userid=users.id AND comments.topic="+topic);
@@ -323,12 +323,12 @@ if (showform) { // show form
 <input type=text name=title size=40><br>
 <% } else { %>
 Заглавие:
-<input type=text name=title size=40 value="<%= request.getParameter("title") %>"><br>
+<input type=text name=title size=40 value="<%= HTMLFormatter.htmlSpecialChars(request.getParameter("title")) %>"><br>
 <% } %>
 
 Сообщение:<br>
 <font size=2>(В режиме <i>Tex paragraphs</i> игнорируются переносы строк.<br> Пустая строка (два раза Enter) начинает новый абзац.<br> Знак '&gt;' в начале абзаца выделяет абзац курсивом цитирования)</font><br>
-<textarea name="msg" cols="70" rows="20" onkeypress="return ctrl_enter(event, this.form);"><%= request.getParameter("msg")==null?"":request.getParameter("msg") %></textarea><br>
+<textarea name="msg" cols="70" rows="20" onkeypress="return ctrl_enter(event, this.form);"><%= request.getParameter("msg")==null?"":HTMLFormatter.htmlSpecialChars(request.getParameter("msg")) %></textarea><br>
 
 <select name=mode>
 <option value=quot>TeX paragraphs w/quoting

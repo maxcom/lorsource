@@ -5,8 +5,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import javax.servlet.http.HttpSession;
-
 public class Group {
   private final boolean moderate;
   private final boolean preformat;
@@ -20,10 +18,13 @@ public class Group {
   private final String title;
   private final String image;
   private final int restrictTopics;
+  private final int id;
 
   public Group(Connection db, int id) throws SQLException, BadGroupException {
     Statement st = null;
     ResultSet rs = null;
+
+    this.id = id;
 
     try {
       st = db.createStatement();
@@ -125,5 +126,9 @@ public class Group {
     }
 
     return currentUser.getScore() >= restrictTopics;
+  }
+
+  public int getId() {
+    return id;
   }
 }

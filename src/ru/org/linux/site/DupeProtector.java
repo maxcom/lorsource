@@ -25,6 +25,12 @@ public class DupeProtector {
     return true;
   }
 
+  public void checkDuplication(String ip) throws DuplicationException {
+    if (!check(ip)) {
+      throw new DuplicationException();
+    }
+  }
+
   public synchronized void cleanup() {
     Date current = new Date();
 
