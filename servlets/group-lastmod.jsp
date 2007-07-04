@@ -103,7 +103,7 @@
 </div>
 </div>
 <%
-	out.print("<h1 align=center>");
+	out.print("<h1>");
 
 	out.print(rs.getString("name")+": "+rs.getString("title")+"</h1>");
 
