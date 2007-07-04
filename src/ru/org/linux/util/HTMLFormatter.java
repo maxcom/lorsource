@@ -158,7 +158,7 @@ public class HTMLFormatter {
           urlchunk = urlchunk.substring(0, maxlength - 3) + "...";
         }
 
-        out.append("<a href=\"" + url + "\">" + urlchunk + "</a>");
+        out.append("<a href=\"" + htmlSpecialChars(url) + "\">" + urlchunk + "</a>");
       } else {
         out.append(url);
       }

@@ -20,6 +20,9 @@ public class HTMLFormatterTest extends TestCase {
   private static String TEXT7 = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
   private static String RESULT7 = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
 
+  private static String TEXT8 = "Long url: http://www.linux.org.ru/profile/maxcom/view-message.jsp?msgid=1993651&a=b";
+  private static String RESULT8 = "Long url: <a href=\"http://www.linux.org.ru/profile/maxcom/view-message.jsp?msgid=1993651&amp;a=b\">http://www.linux....</a>";
+
   public void testURLHighlight() throws UtilException {
     HTMLFormatter formatter = new HTMLFormatter(TEXT1);
 
@@ -43,6 +46,15 @@ public class HTMLFormatterTest extends TestCase {
     formatter.setMaxLength(20);
 
     assertEquals(formatter.process(), RESULT3);
+  }
+
+  public void testURLHighlight4() throws UtilException {
+    HTMLFormatter formatter = new HTMLFormatter(TEXT8);
+
+    formatter.enableUrlHighLightMode();
+    formatter.setMaxLength(20);
+
+    assertEquals(formatter.process(), RESULT8);
   }
 
   public void testWrap1() throws UtilException {
