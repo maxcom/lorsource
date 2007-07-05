@@ -468,7 +468,12 @@ public class Template {
     }
 
     // Google analytics
-    out.append("<script src=\"http://www.google-analytics.com/urchin.js\" type=\"text/javascript\"></script><script type=\"text/javascript\">_uacct = \"UA-1826606-1\";urchinTracker(); </script>\n");
+    out.append("<script src=\"http://www.google-analytics.com/urchin.js\" type=\"text/javascript\">\n" +
+        "</script>\n" +
+        "<script type=\"text/javascript\">\n" +
+        "_uacct = \"UA-2184304-1\";\n" +
+        "urchinTracker();\n" +
+        "</script>\n");
 
     if (closeHtml) {
       out.append("</body></html>");
