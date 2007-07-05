@@ -76,7 +76,6 @@ DIV.columnimg
 DIV.news H2 { font-family: sans-serif;  margin-bottom: 5px; margin-top: 5px; }
 .news H2 A { color: #786af2; } 
 H1 A { color: #786af2; } 
-DIV.news DIV.msg { text-align: justify }
 DIV.news DIV.nav { text-align: left; margin-top: 1em; }
 DIV.news DIV.sign { font-style: italic; margin-top: 1em; }
 
@@ -116,8 +115,6 @@ div.sig a.nick {
     text-decoration: none;
 }
 
-
-
 /* general */
 DIV.notes 
    { 
@@ -128,5 +125,15 @@ DIV.notes
     border: solid black;
    }
 
-IMG.newsimage { float: left; }
+div.entry-userpic {
+  float: left;
+  text-align: center;
+  width: 70px;
+}
+
+div.entry-body {
+  margin-left: 70px;
+  text-align: justify;
+}
+
 

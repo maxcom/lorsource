@@ -97,7 +97,6 @@ DIV.columnimg
 /* news items */
 .news H2 { font-family: sans-serif; margin-bottom: 5px; margin-top: 5px; }
 .news H2 A { text-decoration: none; color: white; }
-.news DIV.msg { text-align: justify }
 .news DIV.nav { text-align: left; margin-top: 1em; }
 .news DIV.sign { font-style: italic; margin-top: 1em; }
 
@@ -137,5 +136,15 @@ DIV.notes
     border: solid white;
    }
 
-IMG.newsimage { float: left; }
+div.entry-userpic {
+  float: left;
+  text-align: center;
+  width: 70px;
+}
+
+div.entry-body {
+  margin-left: 70px;
+  text-align: justify;
+}
+
 

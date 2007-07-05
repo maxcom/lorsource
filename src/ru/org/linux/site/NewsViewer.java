@@ -32,7 +32,6 @@ public class NewsViewer {
     String linktext = res.getString("linktext");
     boolean imagepost = res.getBoolean("imagepost");
     boolean linkup = res.getBoolean("linkup");
-//    Storage storage = (Storage) profile.getObjectProperty("Storage");
     String image = res.getString("image");
     Timestamp lastmod = res.getTimestamp("lastmod");
     String messageText = res.getString("message");
@@ -68,53 +67,37 @@ public class NewsViewer {
 
     out.append("</h2>");
 
-    final int columnWidth;
-
-    if (imagepost) { /* gallery */
-      columnWidth = 160;
-    } else { /* news */
-      columnWidth = 70;
-    }
-
     if (image != null) {
+      out.append("<div class=\"entry-userpic\">");
       out.append("<a href=\"group.jsp?group=").append(res.getInt("guid")).append("\">");
       try {
         ImageInfo info = new ImageInfo(config.getProperty("HTMLPathPrefix") + profile.getStringProperty("style") + image);
-        int width = info.getWidth();
-        int margin = (columnWidth - width) / 2;
-        if (margin < 0) {
-          margin = 0;
-        }
-        out.append("<img style=\"margin-left: ").append(margin).append("px; margin-right: ").append(margin).append("\" class=newsimage src=\"/").append(profile.getStringProperty("style")).append(image).append("\" ").append(info.getCode()).append(" border=0 alt=\"çÒÕÐÐÁ ").append(res.getString("gtitle")).append("\">");
+        out.append("<img src=\"/").append(profile.getStringProperty("style")).append(image).append("\" ").append(info.getCode()).append(" border=0 alt=\"çÒÕÐÐÁ ").append(res.getString("gtitle")).append("\">");
       } catch (BadImageException e) {
         out.append("[bad image] <img class=newsimage src=\"/").append(profile.getStringProperty("style")).append(image).append("\" " + " border=0 alt=\"çÒÕÐÐÁ ").append(res.getString("gtitle")).append("\">");
       }
       out.append("</a>");
-    } else if (imagepost) {
-      try {
-        ImageInfo info = new ImageInfo(config.getProperty("HTMLPathPrefix") + linktext);
-        out.append("<a href=\"").append(url).append("\"><img class=newsimage src=\"/").append(linktext).append("\" ALT=\"").append(subj).append("\" ").append(info.getCode()).append(" ></a>");
-      } catch (BadImageException e) {
-        out.append("<a href=\"").append(url).append("\">[bad image!]<img class=newsimage src=\"/").append(linktext).append("\" ALT=\"").append(subj).append("\" " + " ></a>");
-      } catch (IOException e) {
-        out.append("<a href=\"").append(url).append("\">[bad image - io exception!]<img class=newsimage src=\"/").append(linktext).append("\" ALT=\"").append(subj).append("\" " + " ></a>");
-      }
-    } else {
-      out.append("<a href=\"group.jsp?group=").append(res.getInt("guid")).append("\">");
-      out.append(res.getString("gtitle"));
-      out.append("</a>");
+      out.append("</div>");
     }
 
-    out.append("<div class=\"msg-placeholder\" style=\"margin-left: ").append(columnWidth).append("px\">");
+    out.append("<div class=\"entry-body\">");
     out.append("<div class=msg>\n");
 
-//    out.append(storage.readMessage("msgbase", String.valueOf(msgid)));
     out.append(messageText);
 
     if (url != null && !imagepost && !linkup) {
       out.append("<p>&gt;&gt;&gt; <a href=\"").append(HTMLFormatter.htmlSpecialChars(url)).append("\">").append(linktext).append("</a>");
     } else if (imagepost) {
       try {
+        try {
+          ImageInfo iconInfo = new ImageInfo(config.getProperty("HTMLPathPrefix") + linktext);
+          out.append("<a href=\"").append(url).append("\"><img src=\"/").append(linktext).append("\" ALT=\"").append(subj).append("\" ").append(iconInfo.getCode()).append(" ></a>");
+        } catch (BadImageException e) {
+          out.append("<a href=\"").append(url).append("\">[bad image!]<img src=\"/").append(linktext).append("\" ALT=\"").append(subj).append("\" " + " ></a>");
+        } catch (IOException e) {
+          out.append("<a href=\"").append(url).append("\">[bad image - io exception!]<img src=\"/").append(linktext).append("\" ALT=\"").append(subj).append("\" " + " ></a>");
+        }
+
         ImageInfo info = new ImageInfo(config.getProperty("HTMLPathPrefix") + url);
 
         out.append("<p><i>").append(info.getWidth()).append('x').append(info.getHeight()).append(", ").append(info.getSizeString()).append("</i>");
