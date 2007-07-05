@@ -91,11 +91,11 @@ public class NewsViewer {
       try {
         try {
           ImageInfo iconInfo = new ImageInfo(config.getProperty("HTMLPathPrefix") + linktext);
-          out.append("<a href=\"").append(url).append("\"><img src=\"/").append(linktext).append("\" ALT=\"").append(subj).append("\" ").append(iconInfo.getCode()).append(" ></a>");
+          out.append("<p><a href=\"").append(url).append("\"><img src=\"/").append(linktext).append("\" ALT=\"").append(subj).append("\" ").append(iconInfo.getCode()).append(" ></a>");
         } catch (BadImageException e) {
-          out.append("<a href=\"").append(url).append("\">[bad image!]<img src=\"/").append(linktext).append("\" ALT=\"").append(subj).append("\" " + " ></a>");
+          out.append("<p><a href=\"").append(url).append("\">[bad image!]<img src=\"/").append(linktext).append("\" ALT=\"").append(subj).append("\" " + " ></a>");
         } catch (IOException e) {
-          out.append("<a href=\"").append(url).append("\">[bad image - io exception!]<img src=\"/").append(linktext).append("\" ALT=\"").append(subj).append("\" " + " ></a>");
+          out.append("<p><a href=\"").append(url).append("\">[bad image - io exception!]<img src=\"/").append(linktext).append("\" ALT=\"").append(subj).append("\" " + " ></a>");
         }
 
         ImageInfo info = new ImageInfo(config.getProperty("HTMLPathPrefix") + url);
