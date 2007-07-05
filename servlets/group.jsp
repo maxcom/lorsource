@@ -89,7 +89,12 @@
       response.setDateHeader("Expires", System.currentTimeMillis()+30*24*60*60*1000L);
     }
 
-    out.print("<title>" + group.getSectionName() + " - " + group.getTitle() + " (сообщения " + (count - offset) + '-' + (count - offset - topics) + ")</title>");
+    if (firstPage) {
+      out.print("<title>" + group.getSectionName() + " - " + group.getTitle() + " (последние сообщения)</title>");
+    } else {
+      out.print("<title>" + group.getSectionName() + " - " + group.getTitle() + " (сообщения " + (count - offset) + '-' + (count - offset - topics) + ")</title>");      
+    }
+
     out.print("<link rel=\"parent\" title=\"" + group.getTitle() + "\" href=\"view-section.jsp?section=" + group.getSectionId() + "\">");
 %>
 <%=   tmpl.DocumentHeader() %>

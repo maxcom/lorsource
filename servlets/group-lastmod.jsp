@@ -17,10 +17,16 @@
 
    int group = Integer.parseInt(request.getParameter("group"));
    int offset;
-   if (request.getParameter("offset")!=null)
-   	offset = Integer.parseInt(request.getParameter("offset"));
-   else
-   	offset = 0;
+
+   boolean firstPage;
+
+   if (request.getParameter("offset")!=null) {
+     offset = Integer.parseInt(request.getParameter("offset"));
+     firstPage = false;
+   } else {
+     offset = 0;
+     firstPage = true;
+   }
 
    String returnUrl;
    if (offset>0)
@@ -52,7 +58,11 @@
    if (section==0) throw new BadGroupException();
    if (rs.getBoolean("linkup")) throw new BadGroupException();
 
-   out.print("<title>"+rs.getString("name")+" - "+rs.getString("title")+" (сообщения "+(count-offset)+ '-' +(count-offset-topics)+")</title>");
+  if (firstPage) {
+    out.print("<title>"+rs.getString("name")+" - "+rs.getString("title")+" (последние сообщения)</title>");
+  } else {
+    out.print("<title>"+rs.getString("name")+" - "+rs.getString("title")+" (сообщения "+(count-offset)+ '-' +(count-offset-topics)+")</title>");
+  }
   out.print("<link rel=\"parent\" title=\""+rs.getString("title")+"\" href=\"view-section.jsp?section="+rs.getInt("id")+"\">");
 %>
 <%=   tmpl.DocumentHeader() %>
