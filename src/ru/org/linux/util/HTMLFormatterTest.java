@@ -51,6 +51,7 @@ public class HTMLFormatterTest extends TestCase {
   public void testURLHighlight4() throws UtilException {
     HTMLFormatter formatter = new HTMLFormatter(TEXT8);
 
+    formatter.enablePlainTextMode();
     formatter.enableUrlHighLightMode();
     formatter.setMaxLength(20);
 
