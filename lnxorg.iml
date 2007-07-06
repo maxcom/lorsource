@@ -117,6 +117,11 @@
   </component>
   <component name="WebModuleProperties">
     <containerElement type="library" level="module">
+      <attribute name="method" value="0" />
+      <attribute name="URI" value="/WEB-INF/lib/junit.jar" />
+      <url>jar://$APPLICATION_HOME_DIR$/lib/junit.jar!/</url>
+    </containerElement>
+    <containerElement type="library" level="module">
       <attribute name="method" value="1" />
       <attribute name="URI" value="/WEB-INF/lib/commons-collections-2.1.1.jar" />
       <url>jar://$MODULE_DIR$/lib/commons-collections-2.1.1.jar!/</url>
@@ -140,6 +145,11 @@
       <attribute name="method" value="1" />
       <attribute name="URI" value="/WEB-INF/lib/jcaptcha-all-1.0-RC3.jar" />
       <url>jar://$MODULE_DIR$/lib/jcaptcha-all-1.0-RC3.jar!/</url>
+    </containerElement>
+    <containerElement type="library" level="module">
+      <attribute name="method" value="0" />
+      <attribute name="URI" value="&lt;N/A&gt;" />
+      <url>jar://$MODULE_DIR$/lib/jsdk23.jar!/</url>
     </containerElement>
     <containerElement type="library" level="module">
       <attribute name="method" value="1" />

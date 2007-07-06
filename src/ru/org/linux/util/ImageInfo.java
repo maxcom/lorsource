@@ -25,6 +25,37 @@ public class ImageInfo {
     System.out.println(info.width + " " + info.height);
   }
 
+  public static String detectImageType(String filename) throws BadImageException, IOException {
+    ImageInfo2 ii = new ImageInfo2();
+
+    FileInputStream is = null;
+
+    try {
+      is = new FileInputStream(filename);
+
+      ii.setInput(is);
+
+      ii.check();
+
+      int format = ii.getFormat();
+
+      switch (format) {
+        case ImageInfo2.FORMAT_GIF:
+          return "gif";
+        case ImageInfo2.FORMAT_JPEG:
+          return "jpg";
+        case ImageInfo2.FORMAT_PNG:
+          return "png";
+        default:
+          throw new BadImageException("Unsupported format: " + ii.getMimeType());
+      }
+    } finally {
+      if (is != null) {
+        is.close();
+      }
+    }
+  }
+
   /**
    * constructs image from filename
    * <p/>
@@ -41,14 +72,41 @@ public class ImageInfo {
 
       if (lowname.endsWith("gif")) {
         getGifInfo(fileStream);
-      }
-
-      if (lowname.endsWith("jpg") || lowname.endsWith("jpeg")) {
+      } else if (lowname.endsWith("jpg") || lowname.endsWith("jpeg")) {
         getJpgInfo(fileStream);
+      } else if (lowname.endsWith("png")) {
+        getPngInfo(fileStream);
+      } else {
+        throw new BadImageException("Invalid image extension");        
       }
 
-      if (lowname.endsWith("png")) {
+      if (height == -1 || width == -1) {
+        throw new BadImageException();
+      }
+    } finally {
+      if (fileStream != null) {
+        fileStream.close();
+      }
+    }
+  }
+
+  public ImageInfo(String filename, String extension) throws BadImageException, IOException {
+    FileInputStream fileStream = null;
+
+    try {
+      fileStream = new FileInputStream(filename);
+      size = fileStream.available();
+
+      String lowname = filename.toLowerCase();
+
+      if (extension.equals("gif")) {
+        getGifInfo(fileStream);
+      } else if (extension.equals("jpg") || extension.equals("jpeg")) {
+        getJpgInfo(fileStream);
+      } else if (extension.equals("png")) {
         getPngInfo(fileStream);
+      } else {
+        throw new BadImageException("Invalid image extension");
       }
 
       if (height == -1 || width == -1) {
