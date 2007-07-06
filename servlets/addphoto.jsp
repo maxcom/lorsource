@@ -10,6 +10,26 @@
 <title>Добавление/Изменение фотографии</title>
 <%= tmpl.DocumentHeader() %>
 
+<div class=messages>
+<div class=nav>
+
+<div class="color1">
+  <table width="100%" cellspacing=1 cellpadding=1 border=0><tr class=body>
+    <td align=left valign=middle>
+      Добавление/Изменение фотографии
+    </td>
+
+    <td align=right valign=middle>
+      [<a style="text-decoration: none" href="register.jsp?mode=change">Изменение регистрации</a>]
+      [<a style="text-decoration: none" href="rules.jsp">Правила форума</a>]
+     </td>
+    </tr>
+ </table>
+</div>
+
+</div>
+</div>
+
 <h1>Добавление/Изменение фотографии</h1>
 
 <%

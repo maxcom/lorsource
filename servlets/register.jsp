@@ -233,6 +233,28 @@ URL (не забудьте добавить <b>http://</b>): <br>
       if (db!=null) db.close();
     }
    } else if ("change".equals(request.getParameter("mode"))) {
+  %>
+<div class=messages>
+<div class=nav>
+
+<div class="color1">
+  <table width="100%" cellspacing=1 cellpadding=1 border=0><tr class=body>
+    <td align=left valign=middle>
+      Изменение регистрации
+    </td>
+
+    <td align=right valign=middle>
+      [<a style="text-decoration: none" href="addphoto.jsp">Добавить фотографию</a>]
+      [<a style="text-decoration: none" href="rules.jsp">Правила форума</a>]
+     </td>
+    </tr>
+ </table>
+</div>
+
+</div>
+</div>
+<h1>Изменение регистрации</h1>
+<%
       if (!tmpl.isSessionAuthorized(session)) {
         throw new IllegalAccessException("Not authorized");
       }
