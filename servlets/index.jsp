@@ -31,16 +31,6 @@
    }
 
 %>
-<SCRIPT LANGUAGE="JavaScript" type="text/javascript">
-   function addSidebar() {
-      if ((typeof window.sidebar == "object") && (typeof window.sidebar.addPanel == "function")) {
-         window.sidebar.addPanel ("Linux.Org.Ru News", "http://www.linux.org.ru/sidebar.jsp", "");
-      } else {
-         alert ("Кнопка добавления SideBar предназначена для броузера Mozilla/Netscape6/7");
-      }
-   }
-//-->
-</SCRIPT>
 <%= tmpl.DocumentHeader() %>
 <%
   boolean columns3 = tmpl.getProf().getBooleanProperty("main.3columns");
@@ -109,10 +99,6 @@
 	out.print(boxes.getContent(tmpl.getObjectConfig(), tmpl.getProf()));
 
 %>
-<p>
-<div class=column style="font-size: smaller">
-[<a href="javascript:addSidebar();">Добавить<br>Mozilla SideBar</a>]
-</div>
 </div>
 
 <% if (columns3) { %>
