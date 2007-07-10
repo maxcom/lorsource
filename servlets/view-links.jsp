@@ -71,7 +71,6 @@
       }
       out.print("<a href=\"" + url + "\">" + StringUtil.makeTitle(rs.getString("title")) + "</a>. ");
       out.print(rs.getString("message"));
-//	out.print(tmpl.getObjectConfig().getStorage().readMessage("msgbase", String.valueOf(msgid)));
       if (rs.getBoolean("new")) {
         out.print(" [<strong>новая</strong>]");
       }

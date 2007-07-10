@@ -33,7 +33,7 @@ public class BoxletRunner {
     try {
       out.append(bx.getContent(name, profile));
     } catch (Exception e) {
-      if (profile.getBooleanProperty("DebugMode")) {
+      if (profile.getBoolean("DebugMode")) {
         out.append("<b>Ошибка получения " + name + ": " + e.toString() + "</b><p>" + HTMLFormatter.nl2br(StringUtil.getStackTrace(e)));
       } else {
         out.append("<b>Ошибка</b>");

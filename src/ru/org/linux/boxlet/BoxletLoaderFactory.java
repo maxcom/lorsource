@@ -30,7 +30,7 @@ public class BoxletLoaderFactory extends BoxletFactory {
     try {
       buf.append(bx.getContent(config, profile));
     } catch (Exception e) {
-/*			if (profile.getBooleanProperty("DebugMode"))
+/*			if (profile.getBoolean("DebugMode"))
 				buf.append("<h2>Ошибка: "+e.toString()+"</h2>"+HTMLFormatter.nl2br(StringUtil.getStackTrace(e)));
 			else
 				buf.append("<h2>Ошибка</h2>");
@@ -49,7 +49,7 @@ public class BoxletLoaderFactory extends BoxletFactory {
     try {
       buf.append(bx.getContent(config, profile));
     } catch (Exception e) {
-      if (profile.getBooleanProperty("DebugMode")) {
+      if (profile.getBoolean("DebugMode")) {
         buf.append("<h2>Ошибка: " + e.toString() + "</h2>" + HTMLFormatter.nl2br(StringUtil.getStackTrace(e)));
       } else {
         buf.append("<h2>Ошибка</h2>");

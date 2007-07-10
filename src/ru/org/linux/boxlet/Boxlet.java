@@ -24,7 +24,7 @@ public abstract class Boxlet {
   public abstract String getInfo();
 
   public String getVariantID(ProfileHashtable profile, Properties request) throws UtilException {
-//		return "ProfileName="+profile.getStringProperty("ProfileName");
+//		return "ProfileName="+profile.getString("ProfileName");
     return "";
   }
 

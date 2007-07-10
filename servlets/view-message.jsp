@@ -22,7 +22,7 @@
     }
 
     boolean showDeleted = request.getParameter("deleted") != null;
-    boolean showAnonymous = tmpl.getProf().getBooleanProperty("showanonymous");
+    boolean showAnonymous = tmpl.getProf().getBoolean("showanonymous");
 
     if (request.getParameter("anonymous") != null) {
       if ("show".equals(request.getParameter("anonymous"))) {
@@ -36,7 +36,7 @@
     Statement st = db.createStatement();
 
     if (showDeleted && !"POST".equals(request.getMethod())) {
-      response.setHeader("Location", tmpl.getRedirectUrl() + "view-message.jsp?msgid="+msgid);
+      response.setHeader("Location", tmpl.getRedirectUrl() + "view-message.jsp?msgid=" + msgid);
       response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
 
       showDeleted = false;
@@ -69,9 +69,9 @@
     }
 
     if (message.isExpired()) {
-      response.setDateHeader("Expires", System.currentTimeMillis()+30*24*60*60*1000L);
+      response.setDateHeader("Expires", System.currentTimeMillis() + 30 * 24 * 60 * 60 * 1000L);
     } else {
-      response.setDateHeader("Expires", System.currentTimeMillis()-24*60*60*1000);
+      response.setDateHeader("Expires", System.currentTimeMillis() - 24 * 60 * 60 * 1000);
     }
 
     int scroll = message.getScrollMode();
@@ -169,28 +169,28 @@
 </h1>
 
 <%
-  boolean comment=message.isCommentEnabled();
-  int messages=tmpl.getProf().getIntProperty("messages");
-  int pages=message.getPageCount(messages);
+  boolean comment = message.isCommentEnabled();
+  int messages = tmpl.getProf().getInt("messages");
+  int pages = message.getPageCount(messages);
 
-   String pageInfo=null;
-   if (pages>1) {
-   	StringBuffer bufInfo=new StringBuffer();
+  String pageInfo = null;
+  if (pages > 1) {
+    StringBuffer bufInfo = new StringBuffer();
 
-	bufInfo.append("[страница");
+    bufInfo.append("[страница");
 
-        for (int i=0; i<pages; i++) {
-          bufInfo.append(' ');
+    for (int i = 0; i < pages; i++) {
+      bufInfo.append(' ');
 
-          if (i!=npage)
-	    bufInfo.append("<a href=\""+mainurl+"&page="+i+"\">"+(i+1)+"</a>");
-	  else
-	    bufInfo.append("<strong>"+(i+1)+"</strong>");
-        }
+      if (i != npage)
+        bufInfo.append("<a href=\"" + mainurl + "&page=" + i + "\">" + (i + 1) + "</a>");
+      else
+        bufInfo.append("<strong>" + (i + 1) + "</strong>");
+    }
 
-        bufInfo.append(']');
-	pageInfo=bufInfo.toString();
-   }
+    bufInfo.append(']');
+    pageInfo = bufInfo.toString();
+  }
 
   out.print(message.printMessage(tmpl, db, true));
 %>
@@ -220,88 +220,88 @@ google_ui_features = "rc:0";
 <% } %>
 
 <%
-   if (comment) {
-   	out.print("<div class=comment>");
-	if (tmpl.getProf().getBooleanProperty("sortwarning")) {
-           	out.print("<div class=nav><div class=color1><table width=\"100%\" cellspacing=1 cellpadding=0 border=0><tr class=body><td align=\"center\">");
+  if (comment) {
+    out.print("<div class=comment>");
+    if (tmpl.getProf().getBoolean("sortwarning")) {
+      out.print("<div class=nav><div class=color1><table width=\"100%\" cellspacing=1 cellpadding=0 border=0><tr class=body><td align=\"center\">");
 
-		if (tmpl.getProf().getBooleanProperty("newfirst"))
-			out.print("сообщения отсортированы в порядке убывания даты их написания");
-		else
-			out.print("сообщения отсортированы в порядке возрастания даты их написания");
+      if (tmpl.getProf().getBoolean("newfirst"))
+        out.print("сообщения отсортированы в порядке убывания даты их написания");
+      else
+        out.print("сообщения отсортированы в порядке возрастания даты их написания");
 
-      	        out.print("</td></tr></table></div></div>");
-        }
+      out.print("</td></tr></table></div></div>");
+    }
 
-        if (!showDeleted && message.getCommentCount()>0) {
-	  out.print("<form method=\"GET\" action=\"view-message.jsp\">");
-     	  out.print("<div class=nav><div class=color1><table width=\"100%\" cellspacing=1 cellpadding=0 border=0><tr class=body><td>");
+    if (!showDeleted && message.getCommentCount() > 0) {
+      out.print("<form method=\"GET\" action=\"view-message.jsp\">");
+      out.print("<div class=nav><div class=color1><table width=\"100%\" cellspacing=1 cellpadding=0 border=0><tr class=body><td>");
 
-	  out.print("<div align=\"center\">");
-	  out.print("<input type=hidden name=msgid value=\""+msgid+"\">");
-	  out.print("фильтр комментариев: <select name=\"anonymous\">");
-          out.print("<option value=\"show\""+(showAnonymous?" selected=\"selected\"":"")+">все комментарии</option>");
-          out.print("<option value=\"hide\""+(showAnonymous?"":" selected=\"selected\"")+">без анонимных комментариев и ответов на них</option>");
-	  out.print("</select>");
-	  out.print(" <input type=\"submit\" value=\"Обновить\">");
-	  out.print("</div>");
-  	  out.print("</td></tr></table></div></div>");
-	  out.print("</form>");
-        }
+      out.print("<div align=\"center\">");
+      out.print("<input type=hidden name=msgid value=\"" + msgid + "\">");
+      out.print("фильтр комментариев: <select name=\"anonymous\">");
+      out.print("<option value=\"show\"" + (showAnonymous ? " selected=\"selected\"" : "") + ">все комментарии</option>");
+      out.print("<option value=\"hide\"" + (showAnonymous ? "" : " selected=\"selected\"") + ">без анонимных комментариев и ответов на них</option>");
+      out.print("</select>");
+      out.print(" <input type=\"submit\" value=\"Обновить\">");
+      out.print("</div>");
+      out.print("</td></tr></table></div></div>");
+      out.print("</form>");
+    }
 
-	if (pageInfo!=null) {
-          out.print("<div class=nav><div class=color1><table width=\"100%\" cellspacing=1 cellpadding=0 border=0><tr class=body><td>");
-          out.print("<div align=\"center\">");
-   	  out.print(pageInfo);
-          out.print("</div>");
-          out.print("</td></tr></table></div></div>");
-        }
+    if (pageInfo != null) {
+      out.print("<div class=nav><div class=color1><table width=\"100%\" cellspacing=1 cellpadding=0 border=0><tr class=body><td>");
+      out.print("<div align=\"center\">");
+      out.print(pageInfo);
+      out.print("</div>");
+      out.print("</td></tr></table></div></div>");
+    }
 
-        String order=tmpl.getProf().getBooleanProperty("newfirst")?"DESC":"ASC";
+    String order = tmpl.getProf().getBoolean("newfirst") ? "DESC" : "ASC";
 
-   	Statement scm=db.createStatement();
+    Statement scm = db.createStatement();
 
-	String limits;
+    String limits;
 
-	if (npage!=-1)
-		limits=" OFFSET "+ (messages*npage) + " LIMIT "+messages;
-	else
-		limits="";
+    if (npage != -1)
+      limits = " OFFSET " + (messages * npage) + " LIMIT " + messages;
+    else
+      limits = "";
 
-	String delq=showDeleted ?"":" AND NOT deleted ";
+    String delq = showDeleted ? "" : " AND NOT deleted ";
 
-        if (!showAnonymous) {
-          order = "ASC";
-          limits =  "";
-        }
+    if (!showAnonymous) {
+      order = "ASC";
+      limits = "";
+    }
 
-	ResultSet cm=scm.executeQuery("SELECT comments.title, topic, postdate, nick, score, max_score, comments.id as msgid, replyto, photo, "+(message.isExpired()?"'t'":"'f'")+" as expired, deleted, message FROM comments,users,msgbase WHERE comments.id=msgbase.id AND comments.userid=users.id AND topic="+msgid+ ' ' + delq+" ORDER BY msgid " + order+limits);
+    ResultSet cm = scm.executeQuery("SELECT comments.title, topic, postdate, nick, score, max_score, comments.id as msgid, replyto, photo, " + (message.isExpired() ? "'t'" : "'f'") + " as expired, deleted, message FROM comments,users,msgbase WHERE comments.id=msgbase.id AND comments.userid=users.id AND topic=" + msgid + ' ' + delq + " ORDER BY msgid " + order + limits);
 
-        String urladd="&amp;return="+URLEncoder.encode(returnUrl);
+    String urladd = "&amp;return=" + URLEncoder.encode(returnUrl);
 
-	CommentViewer cv=new CommentViewer(tmpl, cm, db, urladd);
+    CommentViewer cv = new CommentViewer(tmpl, cm, db, urladd);
 
-	if (npage!=-1)
-		cv.setMainUrl(mainurl);
+    if (npage != -1)
+      cv.setMainUrl(mainurl);
 
-        if (!showAnonymous)
-          out.print(cv.showThreaded());
-        else
-          out.print(cv.showAll());
+    if (!showAnonymous)
+      out.print(cv.showThreaded());
+    else
+      out.print(cv.showAll());
 
-	cm.close();
-	scm.close();
+    cm.close();
+    scm.close();
 
-   	out.print("</div>");
+    out.print("</div>");
 
-     if (pageInfo!=null) {
-       out.print("<div class=nav><div class=color1><table width=\"100%\" cellspacing=1 cellpadding=0 border=0><tr class=body><td>");
-       out.print("<div align=\"center\">");
-          out.print(pageInfo);
-       out.print("</div>");
-       out.print("</td></tr></table></div></div>");
-     }
-   }
+    if (pageInfo != null) {
+      out.print("<div class=nav><div class=color1><table width=\"100%\" cellspacing=1 cellpadding=0 border=0><tr class=body><td>");
+      out.print("<div align=\"center\">");
+      out.print(pageInfo);
+      out.print("</div>");
+      out.print("</td></tr></table></div></div>");
+    }
+  }
 %>
 <%
    if (!tmpl.isSearchMode() && scroll!=Message.SCROLL_NOSCROLL) {

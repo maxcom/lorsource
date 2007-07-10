@@ -9,61 +9,61 @@
 <%
   Connection db = null;
   try {
-   response.setDateHeader("Expires", new Date(new Date().getTime()-20*3600*1000).getTime());
-   response.setDateHeader("Last-Modified", new Date(new Date().getTime()-2*1000).getTime());
+    response.setDateHeader("Expires", new Date(new Date().getTime() - 20 * 3600 * 1000).getTime());
+    response.setDateHeader("Last-Modified", new Date(new Date().getTime() - 2 * 1000).getTime());
 
-   if (request.getParameter("group")==null)
-   	throw new MissingParameterException("group");
+    if (request.getParameter("group") == null)
+      throw new MissingParameterException("group");
 
-   int group = Integer.parseInt(request.getParameter("group"));
-   int offset;
+    int group = Integer.parseInt(request.getParameter("group"));
+    int offset;
 
-   boolean firstPage;
+    boolean firstPage;
 
-   if (request.getParameter("offset")!=null) {
-     offset = Integer.parseInt(request.getParameter("offset"));
-     firstPage = false;
-   } else {
-     offset = 0;
-     firstPage = true;
-   }
+    if (request.getParameter("offset") != null) {
+      offset = Integer.parseInt(request.getParameter("offset"));
+      firstPage = false;
+    } else {
+      offset = 0;
+      firstPage = true;
+    }
 
-   String returnUrl;
-   if (offset>0)
-   	returnUrl="group-lastmod.jsp?group=" + group + "&amp;offset=" + offset;
-   else
-   	returnUrl="group-lastmod.jsp?group=" + group;
+    String returnUrl;
+    if (offset > 0)
+      returnUrl = "group-lastmod.jsp?group=" + group + "&amp;offset=" + offset;
+    else
+      returnUrl = "group-lastmod.jsp?group=" + group;
 
-   db = tmpl.getConnection("group-lastmod");
-   db.setAutoCommit(false);
+    db = tmpl.getConnection("group-lastmod");
+    db.setAutoCommit(false);
 
-   Statement st=db.createStatement();
+    Statement st = db.createStatement();
 
-   ResultSet rs=st.executeQuery("SELECT count(topics.id) FROM topics,groups,sections WHERE (topics.moderate OR NOT sections.moderate) AND groups.section=sections.id AND topics.groupid=groups.id AND groups.id="+group+" AND NOT topics.deleted");
-   int count=0;
-   int pages=0;
-   int topics=tmpl.getProf().getIntProperty("topics");
+    ResultSet rs = st.executeQuery("SELECT count(topics.id) FROM topics,groups,sections WHERE (topics.moderate OR NOT sections.moderate) AND groups.section=sections.id AND topics.groupid=groups.id AND groups.id=" + group + " AND NOT topics.deleted");
+    int count = 0;
+    int pages = 0;
+    int topics = tmpl.getProf().getInt("topics");
 
-   if (rs.next()) {
-   	count=rs.getInt("count");
-	pages=count/topics;
-	if (count%topics!=0)
-   		count=(pages+1)*topics;
-   }
-   rs.close();
+    if (rs.next()) {
+      count = rs.getInt("count");
+      pages = count / topics;
+      if (count % topics != 0)
+        count = (pages + 1) * topics;
+    }
+    rs.close();
 
-   rs=st.executeQuery("SELECT title,sections.name,image, sections.linkup, sections.id FROM groups,sections WHERE groups.id=" + group + " AND section=sections.id");
-   if (!rs.next()) throw new BadGroupException("Группа "+group+" не существует");
-   int section = rs.getInt("id");
-   if (section==0) throw new BadGroupException();
-   if (rs.getBoolean("linkup")) throw new BadGroupException();
+    rs = st.executeQuery("SELECT title,sections.name,image, sections.linkup, sections.id FROM groups,sections WHERE groups.id=" + group + " AND section=sections.id");
+    if (!rs.next()) throw new BadGroupException("Группа " + group + " не существует");
+    int section = rs.getInt("id");
+    if (section == 0) throw new BadGroupException();
+    if (rs.getBoolean("linkup")) throw new BadGroupException();
 
-  if (firstPage) {
-    out.print("<title>"+rs.getString("name")+" - "+rs.getString("title")+" (последние сообщения)</title>");
-  } else {
-    out.print("<title>"+rs.getString("name")+" - "+rs.getString("title")+" (сообщения "+(count-offset)+ '-' +(count-offset-topics)+")</title>");
-  }
-  out.print("<link rel=\"parent\" title=\""+rs.getString("title")+"\" href=\"view-section.jsp?section="+rs.getInt("id")+"\">");
+    if (firstPage) {
+      out.print("<title>" + rs.getString("name") + " - " + rs.getString("title") + " (последние сообщения)</title>");
+    } else {
+      out.print("<title>" + rs.getString("name") + " - " + rs.getString("title") + " (сообщения " + (count - offset) + '-' + (count - offset - topics) + ")</title>");
+    }
+    out.print("<link rel=\"parent\" title=\"" + rs.getString("title") + "\" href=\"view-section.jsp?section=" + rs.getInt("id") + "\">");
 %>
 <%=   tmpl.DocumentHeader() %>
 <div class=messages>
@@ -148,7 +148,7 @@
 <tbody>
 <%
   String order="lastmod";
-  double messages = tmpl.getProf().getIntProperty("messages");
+  double messages = tmpl.getProf().getInt("messages");
 
   rs=st.executeQuery("SELECT topics.title as subj, lastmod, nick, topics.id as msgid, deleted, topics.stat1, topics.stat2, topics.stat3, topics.stat4 FROM topics,groups,users, sections WHERE sections.id=groups.section AND (topics.moderate OR NOT sections.moderate) AND topics.userid=users.id AND topics.groupid="+group+" AND groups.id="+group+" AND NOT deleted ORDER BY "+order+" DESC LIMIT "+topics+" OFFSET "+offset);
 

@@ -64,7 +64,7 @@
 
     int count = 0;
     int pages = 0;
-    int topics = tmpl.getProf().getIntProperty("topics");
+    int topics = tmpl.getProf().getInt("topics");
 
     if (rs.next()) {
       count = rs.getInt("count");
@@ -83,16 +83,16 @@
       throw new BadGroupException();
     }
 
-    if (firstPage || offset>=pages*topics) {
-      response.setDateHeader("Expires", System.currentTimeMillis()+90*1000);
+    if (firstPage || offset >= pages * topics) {
+      response.setDateHeader("Expires", System.currentTimeMillis() + 90 * 1000);
     } else {
-      response.setDateHeader("Expires", System.currentTimeMillis()+30*24*60*60*1000L);
+      response.setDateHeader("Expires", System.currentTimeMillis() + 30 * 24 * 60 * 60 * 1000L);
     }
 
     if (firstPage) {
       out.print("<title>" + group.getSectionName() + " - " + group.getTitle() + " (последние сообщения)</title>");
     } else {
-      out.print("<title>" + group.getSectionName() + " - " + group.getTitle() + " (сообщения " + (count - offset) + '-' + (count - offset - topics) + ")</title>");      
+      out.print("<title>" + group.getSectionName() + " - " + group.getTitle() + " (сообщения " + (count - offset) + '-' + (count - offset - topics) + ")</title>");
     }
 
     out.print("<link rel=\"parent\" title=\"" + group.getTitle() + "\" href=\"view-section.jsp?section=" + group.getSectionId() + "\">");
@@ -201,7 +201,7 @@
   }
 
   List outputList = new ArrayList();
-  double messages = tmpl.getProf().getIntProperty("messages");
+  double messages = tmpl.getProf().getInt("messages");
 
   while (rs.next()) {
     StringBuffer outbuf = new StringBuffer();
@@ -223,7 +223,7 @@
     }
 
     int pagesInCurrent = (int) Math.ceil(stat1 / messages);
-    if (!tmpl.isSearchMode() && pagesInCurrent > 1 ) {
+    if (!tmpl.isSearchMode() && pagesInCurrent > 1) {
       outbuf.append("&nbsp;(стр.");
       for (int i = 0; i < pagesInCurrent; i++) {
         outbuf.append(" <a href=\"").append("jump-message.jsp?msgid=").append(rs.getInt("msgid")).append("&amp;lastmod=").append(lastmod.getTime()).append("&amp;page=").append(i).append("\">").append(i + 1).append("</a>");

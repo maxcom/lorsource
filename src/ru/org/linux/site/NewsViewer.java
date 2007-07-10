@@ -39,8 +39,8 @@ public class NewsViewer {
     if (lastmod == null) {
       lastmod = new Timestamp(0);
     }
-    double messages = profile.getIntProperty("messages");
-    boolean searchMode = profile.getBooleanProperty("SearchMode");
+    double messages = profile.getInt("messages");
+    boolean searchMode = profile.getBoolean("SearchMode");
 
     out.append("<hr noshade class=\"news-divider\">");
     out.append("<div class=news><h2>");
@@ -71,10 +71,10 @@ public class NewsViewer {
       out.append("<div class=\"entry-userpic\">");
       out.append("<a href=\"group.jsp?group=").append(res.getInt("guid")).append("\">");
       try {
-        ImageInfo info = new ImageInfo(config.getProperty("HTMLPathPrefix") + profile.getStringProperty("style") + image);
-        out.append("<img src=\"/").append(profile.getStringProperty("style")).append(image).append("\" ").append(info.getCode()).append(" border=0 alt=\"çÒÕÐÐÁ ").append(res.getString("gtitle")).append("\">");
+        ImageInfo info = new ImageInfo(config.getProperty("HTMLPathPrefix") + profile.getString("style") + image);
+        out.append("<img src=\"/").append(profile.getString("style")).append(image).append("\" ").append(info.getCode()).append(" border=0 alt=\"çÒÕÐÐÁ ").append(res.getString("gtitle")).append("\">");
       } catch (BadImageException e) {
-        out.append("[bad image] <img class=newsimage src=\"/").append(profile.getStringProperty("style")).append(image).append("\" " + " border=0 alt=\"çÒÕÐÐÁ ").append(res.getString("gtitle")).append("\">");
+        out.append("[bad image] <img class=newsimage src=\"/").append(profile.getString("style")).append(image).append("\" " + " border=0 alt=\"çÒÕÐÐÁ ").append(res.getString("gtitle")).append("\">");
       }
       out.append("</a>");
       out.append("</div>");

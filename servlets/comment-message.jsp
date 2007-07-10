@@ -48,7 +48,7 @@
 <% if (message.isCommentEnabled() && !message.isExpired() && !message.isDeleted() && !show_deleted) { %>
 
 <h2><a name=rep>Добавить сообщение:</a></h2>
-<% if (tmpl.getProf().getBooleanProperty("showinfo") && !tmpl.isSessionAuthorized(session)) { %>
+<% if (tmpl.getProf().getBoolean("showinfo") && !tmpl.isSessionAuthorized(session)) { %>
 <font size=2>Чтобы просто поместить сообщение, используйте login `anonymous',
 без пароля. Если вы собираетесь активно участвовать в форуме,
 помещать новости на главную страницу,

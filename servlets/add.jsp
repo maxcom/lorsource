@@ -107,7 +107,7 @@
 <% if (error==null) { %>
 <h1>Добавить</h1>
 <% } else { out.println("<h1>Ошибка: "+error.getMessage()+"</h1>"); } %>
-<% if (tmpl.getProf().getBooleanProperty("showinfo") && !tmpl.isSessionAuthorized(session)) { %>
+<% if (tmpl.getProf().getBoolean("showinfo") && !tmpl.isSessionAuthorized(session)) { %>
 <font size=2>Чтобы просто поместить сообщение, используйте login `anonymous',
 без пароля. Если вы собираетесь активно участвовать в форуме,
 помещать новости на главную страницу,

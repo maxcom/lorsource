@@ -33,7 +33,7 @@
 %>
 <%= tmpl.DocumentHeader() %>
 <%
-  boolean columns3 = tmpl.getProf().getBooleanProperty("main.3columns");
+  boolean columns3 = tmpl.getProf().getBoolean("main.3columns");
 %>
 
 <div style="clear: both"></div>
@@ -86,17 +86,17 @@
 
 <!-- boxes -->
 <%
-	BoxletVectorRunner boxes=null;
+  BoxletVectorRunner boxes = null;
 
-	if (tmpl.getProf().getBooleanProperty("main.3columns"))
-		boxes=new BoxletVectorRunner((List) tmpl.getProf().getObjectProperty("main3-1"), tmpl.getCache());
-	else
-		boxes=new BoxletVectorRunner((List) tmpl.getProf().getObjectProperty("main2"), tmpl.getCache());
+  if (tmpl.getProf().getBoolean("main.3columns"))
+    boxes = new BoxletVectorRunner((List) tmpl.getProf().getObject("main3-1"), tmpl.getCache());
+  else
+    boxes = new BoxletVectorRunner((List) tmpl.getProf().getObject("main2"), tmpl.getCache());
 
-	if (request.getParameter("nocache")!=null)
-		boxes.setCacheMode(true);
+  if (request.getParameter("nocache") != null)
+    boxes.setCacheMode(true);
 
-	out.print(boxes.getContent(tmpl.getObjectConfig(), tmpl.getProf()));
+  out.print(boxes.getContent(tmpl.getObjectConfig(), tmpl.getProf()));
 
 %>
 </div>
@@ -104,10 +104,10 @@
 <% if (columns3) { %>
 <div class=column2>
 <%
-boxes=new BoxletVectorRunner((List) tmpl.getProf().getObjectProperty("main3-2"), tmpl.getCache());
-if (request.getParameter("nocache")!=null) boxes.setCacheMode(true);
+  boxes = new BoxletVectorRunner((List) tmpl.getProf().getObject("main3-2"), tmpl.getCache());
+  if (request.getParameter("nocache") != null) boxes.setCacheMode(true);
 
-out.print(boxes.getContent(tmpl.getObjectConfig(), tmpl.getProf()));
+  out.print(boxes.getContent(tmpl.getObjectConfig(), tmpl.getProf()));
 %>
 </div>
 <% } %>

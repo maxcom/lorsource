@@ -40,7 +40,7 @@ public class BoxletVectorRunner {
         out.append(bx.getContent(name, profile));
         out.append("</div>");
       } catch (Exception e) {
-        if (profile.getBooleanProperty("DebugMode")) {
+        if (profile.getBoolean("DebugMode")) {
           out.append("<b>Ошибка получения " + name + ": " + e.toString() + "</b><p>" + HTMLFormatter.nl2br(StringUtil.getStackTrace(e)));
         } else {
           out.append("<b>Ошибка</b>");
@@ -61,7 +61,7 @@ public class BoxletVectorRunner {
         out.append(bx.getMenuContent((String) boxes.get(i), profile, "edit-boxes.jsp?tag=" + URLEncoder.encode(tag) + "&mode=add&id=" + i, "edit-boxes.jsp?tag=" + URLEncoder.encode(tag) + "&mode=remove&id=" + i));
         out.append("</div>");
       } catch (Exception e) {
-        if (profile.getBooleanProperty("DebugMode")) {
+        if (profile.getBoolean("DebugMode")) {
           out.append("<b>Ошибка получения " + boxes.get(i) + ": " + e.toString() + "</b><p>" + HTMLFormatter.nl2br(StringUtil.getStackTrace(e)));
         } else {
           out.append("<b>Ошибка</b>");

@@ -72,51 +72,51 @@
 </thead>
 <tbody>
 <%
-      DateFormat rfc822 = new SimpleDateFormat("HH:mm:ss 'назад'");
+  DateFormat rfc822 = new SimpleDateFormat("HH:mm:ss 'назад'");
 
-      int cnt=0;
+  int cnt = 0;
 
-      while (rs.next()) {
-        Timestamp lastmod=rs.getTimestamp("lastmod");
+  while (rs.next()) {
+    Timestamp lastmod = rs.getTimestamp("lastmod");
 
-        if (lastmod==null) {
-          lastmod=new Timestamp(0);
-        }
+    if (lastmod == null) {
+      lastmod = new Timestamp(0);
+    }
 
-        int itotal=Integer.parseInt(rs.getString("stat1"));
+    int itotal = Integer.parseInt(rs.getString("stat1"));
 
-        out.print("<tr><td>"+
-                    "<a href='group.jsp?group="+rs.getString("gid")+"'>"+
-                    rs.getString("gname")+"</a>"+
-                    "</td><td>"+
-                    "<a href='jump-message.jsp?msgid="+rs.getString("id"));
+    out.print("<tr><td>" +
+        "<a href='group.jsp?group=" + rs.getString("gid") + "'>" +
+        rs.getString("gname") + "</a>" +
+        "</td><td>" +
+        "<a href='jump-message.jsp?msgid=" + rs.getString("id"));
 
-        String sTemp="";
+    String sTemp = "";
 
-        int messages=tmpl.getProf().getIntProperty("messages");
+    int messages = tmpl.getProf().getInt("messages");
 
-        if (itotal>messages) {
-                // itotal = round(ceil(itotal/50));
-          if (tmpl.getProf().getBooleanProperty("newfirst")) {
-            sTemp="&amp;page=0";
-          } else {
-            itotal = itotal/messages;
-            sTemp="&page="+itotal;
-          }
-        }
+    if (itotal > messages) {
+      // itotal = round(ceil(itotal/50));
+      if (tmpl.getProf().getBoolean("newfirst")) {
+        sTemp = "&amp;page=0";
+      } else {
+        itotal = itotal / messages;
+        sTemp = "&page=" + itotal;
+      }
+    }
 
-        out.println("&lastmod="+lastmod.getTime()+sTemp+
-                    "'>"+rs.getString("title")+
-                    "</a> ("+rs.getString("nick")+')'+
-                    "</td><td align='center'>"+
-                    rfc822.format(rs.getTimestamp("backtime"))+
-                    "</td><td align='center'>"+
-                    rs.getString("stat1")+'/'+
-                    rs.getString("stat3")+'/'+
-                    rs.getString("stat4")+
-                    "</td></tr>");
-            cnt++;
-        }
+    out.println("&lastmod=" + lastmod.getTime() + sTemp +
+        "'>" + rs.getString("title") +
+        "</a> (" + rs.getString("nick") + ')' +
+        "</td><td align='center'>" +
+        rfc822.format(rs.getTimestamp("backtime")) +
+        "</td><td align='center'>" +
+        rs.getString("stat1") + '/' +
+        rs.getString("stat3") + '/' +
+        rs.getString("stat4") +
+        "</td></tr>");
+    cnt++;
+  }
 %>
 
 </tbody>

@@ -82,9 +82,9 @@
 <tr><td>Показывать сообщение о порядке сортировки комментариев</td>
 <td><input type=checkbox name=sortwarning <%= profHash.getBooleanPropertyHTML("sortwarning")%>></td></tr>
 <tr><td>Число тем форума на странице</td>
-<td><input type=text name=topics value=<%= profHash.getIntProperty("topics")%>></td></tr>
+<td><input type=text name=topics value=<%= profHash.getInt("topics")%>></td></tr>
 <tr><td>Число комментариев на странице</td>
-<td><input type=text name=messages value=<%= profHash.getIntProperty("messages")%>></td></tr>
+<td><input type=text name=messages value=<%= profHash.getInt("messages")%>></td></tr>
 <tr><td>Верстка главной страницы в 3 колонки</td>
 <td><input type=checkbox name=3column <%= profHash.getBooleanPropertyHTML("main.3columns")%>></td></tr>
 <tr><td>Показывать информацию о регистрации перед формами добавления сообщений</td>
@@ -125,84 +125,84 @@
 <li><a href="edit-boxes.jsp">настройка стартовой страницы</a>
 </ul>
 <%
-   } else if ("setup".equals(request.getParameter("mode"))) {
-	String name=StringUtil.getFileName(request.getParameter("profile"));
+  } else if ("setup".equals(request.getParameter("mode"))) {
+    String name = StringUtil.getFileName(request.getParameter("profile"));
 
-   	out.print("Выбран профиль: " + name);
+    out.print("Выбран профиль: " + name);
 
-	if (!tmpl.isSearchMode()) {
-          if ("".equals(name)) {
-            response.setHeader("Location", tmpl.getMainUrl());
-            response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
-          } else {
-            response.setHeader("Location", tmpl.getRedirectUrl(name));
-            response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
-          }
-	}
+    if (!tmpl.isSearchMode()) {
+      if ("".equals(name)) {
+        response.setHeader("Location", tmpl.getMainUrl());
+        response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
+      } else {
+        response.setHeader("Location", tmpl.getRedirectUrl(name));
+        response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
+      }
+    }
 
-	Cookie prof=new Cookie("profile", name);
-	prof.setMaxAge(60*60*24*31*12);
-	prof.setPath("/");
-	if (!tmpl.isSearchMode())
-		response.addCookie(prof);
+    Cookie prof = new Cookie("profile", name);
+    prof.setMaxAge(60 * 60 * 24 * 31 * 12);
+    prof.setPath("/");
+    if (!tmpl.isSearchMode())
+      response.addCookie(prof);
 
-	if (request.getParameter("setnick")!=null && "on".equals(request.getParameter("setnick"))) {
-		Cookie nick=new Cookie("NickCookie", request.getParameter("profile"));
-		nick.setMaxAge(60*60*24*31*24);
-		nick.setPath("/");
-		response.addCookie(nick);
-	}
-   } else if ("set".equals(request.getParameter("mode"))) {
-        final String profile;
+    if (request.getParameter("setnick") != null && "on".equals(request.getParameter("setnick"))) {
+      Cookie nick = new Cookie("NickCookie", request.getParameter("profile"));
+      nick.setMaxAge(60 * 60 * 24 * 31 * 24);
+      nick.setPath("/");
+      response.addCookie(nick);
+    }
+  } else if ("set".equals(request.getParameter("mode"))) {
+    final String profile;
 
-        if (!tmpl.isSessionAuthorized(session)) {
-          throw new IllegalAccessException("Not authorized");
-        } else {
-          profile=(String) session.getAttribute("nick");
-        }
+    if (!tmpl.isSessionAuthorized(session)) {
+      throw new IllegalAccessException("Not authorized");
+    } else {
+      profile = (String) session.getAttribute("nick");
+    }
 
-	int topics=Integer.parseInt(request.getParameter("topics"));
-	int messages=Integer.parseInt(request.getParameter("messages"));
+    int topics = Integer.parseInt(request.getParameter("topics"));
+    int messages = Integer.parseInt(request.getParameter("messages"));
 
-	if (topics<=0 || topics>1000)
-		throw new BadInputException("некорректное число тем");
-	if (messages<=0 || messages>1000)
-		throw new BadInputException("некорректное число сообщений");
+    if (topics <= 0 || topics > 1000)
+      throw new BadInputException("некорректное число тем");
+    if (messages <= 0 || messages > 1000)
+      throw new BadInputException("некорректное число сообщений");
 
-   	if (tmpl.getProf().setIntProperty("topics", new Integer(topics)));
-		out.print("Установлен параметр <i>topics</i><br>");
-   	if (tmpl.getProf().setIntProperty("messages", new Integer(messages)));
-		out.print("Установлен параметр <i>messages</i><br>");
-	if (tmpl.getProf().setBooleanProperty("newfirst", request.getParameter("newfirst")))
-		out.print("Установлен параметр <i>newfirst</i><br>");
-	if (tmpl.getProf().setBooleanProperty("photos", request.getParameter("photos")))
-		out.print("Установлен параметр <i>photos</i><br>");
-	if (tmpl.getProf().setBooleanProperty("sortwarning", request.getParameter("sortwarning")))
-		out.print("Установлен параметр <i>sortwarning</i><br>");
-	if (tmpl.getProf().setStringProperty("style", request.getParameter("style")))
-		out.print("Установлен параметр <i>style</i><br>");
-	if (tmpl.getProf().setBooleanProperty("main.3columns", request.getParameter("3column")))
-		out.print("Установлен параметр <i>main.3columns</i><br>");
-	if (tmpl.getProf().setBooleanProperty("showinfo", request.getParameter("showinfo")))
-		out.print("Установлен параметр <i>showinfo</i><br>");
-	if (tmpl.getProf().setBooleanProperty("showanonymous", request.getParameter("showanonymous")))
-		out.print("Установлен параметр <i>showanonymous</i><br>");
-       if (tmpl.getProf().setBooleanProperty("hover", request.getParameter("hover")))
-               out.print("Установлен параметр <i>hover</i><br>");
+    if (tmpl.getProf().setInt("topics", new Integer(topics))) ;
+    out.print("Установлен параметр <i>topics</i><br>");
+    if (tmpl.getProf().setInt("messages", new Integer(messages))) ;
+    out.print("Установлен параметр <i>messages</i><br>");
+    if (tmpl.getProf().setBoolean("newfirst", request.getParameter("newfirst")))
+      out.print("Установлен параметр <i>newfirst</i><br>");
+    if (tmpl.getProf().setBoolean("photos", request.getParameter("photos")))
+      out.print("Установлен параметр <i>photos</i><br>");
+    if (tmpl.getProf().setBoolean("sortwarning", request.getParameter("sortwarning")))
+      out.print("Установлен параметр <i>sortwarning</i><br>");
+    if (tmpl.getProf().setString("style", request.getParameter("style")))
+      out.print("Установлен параметр <i>style</i><br>");
+    if (tmpl.getProf().setBoolean("main.3columns", request.getParameter("3column")))
+      out.print("Установлен параметр <i>main.3columns</i><br>");
+    if (tmpl.getProf().setBoolean("showinfo", request.getParameter("showinfo")))
+      out.print("Установлен параметр <i>showinfo</i><br>");
+    if (tmpl.getProf().setBoolean("showanonymous", request.getParameter("showanonymous")))
+      out.print("Установлен параметр <i>showanonymous</i><br>");
+    if (tmpl.getProf().setBoolean("hover", request.getParameter("hover")))
+      out.print("Установлен параметр <i>hover</i><br>");
 
-	tmpl.writeProfile(profile);
+    tmpl.writeProfile(profile);
 
-	Cookie prof=new Cookie("profile", profile);
-	prof.setMaxAge(60*60*24*31*12);
-	prof.setPath("/");
-	if (!tmpl.isSearchMode())
-		response.addCookie(prof);
+    Cookie prof = new Cookie("profile", profile);
+    prof.setMaxAge(60 * 60 * 24 * 31 * 12);
+    prof.setPath("/");
+    if (!tmpl.isSearchMode())
+      response.addCookie(prof);
 
-	response.setHeader("Location", tmpl.getRedirectUrl(profile));
-	response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
+    response.setHeader("Location", tmpl.getRedirectUrl(profile));
+    response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
 
-	out.print("Ok");
-   }
+    out.print("Ok");
+  }
 %>
 <p><b>Внимание!</b> настройки на некоторых уже посещенных страницах могут
 не отображаться. Используйте кнопку <i>Reload</i> вашего броузера.

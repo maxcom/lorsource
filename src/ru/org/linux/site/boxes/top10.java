@@ -19,7 +19,7 @@ public final class top10 extends Boxlet {
       db = ((SQLConfig) config).getConnection("top10");
       Map ht = new Hashtable();
       StringBuffer out = new StringBuffer();
-      double messages = profile.getIntProperty("messages");
+      double messages = profile.getInt("messages");
 
       out.append("<h2>Top 10</h2><h3>Наиболее обсуждаемые темы этого месяца</h3>");
       Statement st = db.createStatement();
@@ -46,12 +46,12 @@ public final class top10 extends Boxlet {
 
         if ((ht.get(msg) == null)
             || (((Integer) ht.get(msg)).intValue() > order)) {
-          out.append("<img src=\"/" + profile.getStringProperty("style") + "/img/arrow.gif\" alt=\"[up]\" width=10 height=12> ");
+          out.append("<img src=\"/" + profile.getString("style") + "/img/arrow.gif\" alt=\"[up]\" width=10 height=12> ");
         } else {
           out.append("* ");
         }
 
-        if (profile.getBooleanProperty("SearchMode")) {
+        if (profile.getBoolean("SearchMode")) {
           out.append("<a href=\"view-message.jsp?msgid=" + msgid + "&amp;page=0\">" + rs.getString("title") + "</a> (" + c + ")<br>");
         } else {
           out.append("<a href=\"jump-message.jsp?msgid=" + msgid + "&amp;lastmod=" + lastmod.getTime() + "&amp;page=0\">" + rs.getString("title") + "</a>");
@@ -83,7 +83,7 @@ public final class top10 extends Boxlet {
   }
 
   public String getVariantID(ProfileHashtable prof, Properties request) throws UtilException {
-    return "SearchMode=" + prof.getBooleanProperty("SearchMode") + "&messages=" + prof.getIntProperty("messages") + "&style=" + prof.getStringProperty("style");
+    return "SearchMode=" + prof.getBoolean("SearchMode") + "&messages=" + prof.getInt("messages") + "&style=" + prof.getString("style");
   }
 
   public long getVersionID(ProfileHashtable profile, Properties request) {

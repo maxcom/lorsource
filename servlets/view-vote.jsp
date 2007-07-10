@@ -46,9 +46,9 @@
 
 <h1><%= title %></h1>
 <%
-  Statement st=db.createStatement();
+  Statement st = db.createStatement();
 
-  int max=poll.getMaxVote(db);
+  int max = poll.getMaxVote(db);
 
   List vars = poll.getPollVariants(db, Poll.ORDER_VOTES);
 
@@ -56,15 +56,15 @@
   out.print("<tr class=body><td>");
   out.print("<div class=msg>");
 
-  out.print("<h2>"+title+"</h2>");
+  out.print("<h2>" + title + "</h2>");
 
   out.print("<table>");
 
-   ImageInfo info=new ImageInfo(tmpl.getObjectConfig().getHTMLPathPrefix()+tmpl.getStyle()+"/img/votes.gif");
+  ImageInfo info = new ImageInfo(tmpl.getObjectConfig().getHTMLPathPrefix() + tmpl.getStyle() + "/img/votes.gif");
 
-   int highlight=0;
-   if (request.getParameter("highlight")!=null)
-   	highlight=Integer.parseInt(request.getParameter("highlight"));
+  int highlight = 0;
+  if (request.getParameter("highlight") != null)
+    highlight = Integer.parseInt(request.getParameter("highlight"));
 
   for (Iterator iter = vars.iterator(); iter.hasNext();) {
     PollVariant var = (PollVariant) iter.next();
@@ -102,7 +102,7 @@
 
   int commitby = poll.getCommitby();
 
-  if (commitby!=0) {
+  if (commitby != 0) {
     User commiter = new User(db, commitby);
 
     out.print("<br>");
@@ -114,16 +114,16 @@
 
 // comments
 
-  String returnurl="view-vote.jsp?vote="+voteid;
+  String returnurl = "view-vote.jsp?vote=" + voteid;
 
-  boolean expired= Poll.getCurrentPollId(db)!=voteid;
+  boolean expired = Poll.getCurrentPollId(db) != voteid;
 
   out.print("<div class=comment>");
 
-  if (tmpl.getProf().getBooleanProperty("sortwarning")) {
+  if (tmpl.getProf().getBoolean("sortwarning")) {
     out.print("<div class=nav><div class=color1><table width=\"100%\" cellspacing=1 cellpadding=0 border=0><tr class=body><td align=\"center\">");
 
-    if (tmpl.getProf().getBooleanProperty("newfirst")) {
+    if (tmpl.getProf().getBoolean("newfirst")) {
       out.print("сообщения отсортированы в порядке убывания даты их написания");
     } else {
       out.print("сообщения отсортированы в порядке возрастания даты их написания");
@@ -132,19 +132,19 @@
     out.print("</td></tr></table></div></div>");
   }
 
-  String order=tmpl.getProf().getBooleanProperty("newfirst")?"DESC":"ASC";
+  String order = tmpl.getProf().getBoolean("newfirst") ? "DESC" : "ASC";
 
-	String delq=showDeleted ?"":" AND NOT deleted ";
+  String delq = showDeleted ? "" : " AND NOT deleted ";
 
-   	Statement scm=db.createStatement();
-   	ResultSet cm=scm.executeQuery("SELECT comments.title, topic, postdate, nick, score, max_score, comments.id as msgid, replyto, photo, "+(expired?"'t'":"'f'")+" as expired, deleted, message FROM comments, users, msgbase WHERE msgbase.id=comments.id AND comments.userid=users.id AND comments.topic="+topic+ ' ' + delq+" ORDER BY msgid "+order);
+  Statement scm = db.createStatement();
+  ResultSet cm = scm.executeQuery("SELECT comments.title, topic, postdate, nick, score, max_score, comments.id as msgid, replyto, photo, " + (expired ? "'t'" : "'f'") + " as expired, deleted, message FROM comments, users, msgbase WHERE msgbase.id=comments.id AND comments.userid=users.id AND comments.topic=" + topic + ' ' + delq + " ORDER BY msgid " + order);
 
-	String urladd="&return="+URLEncoder.encode(returnurl);
+  String urladd = "&return=" + URLEncoder.encode(returnurl);
 
-	CommentViewer cv=new CommentViewer(tmpl, cm, db, urladd);
-	out.print(cv.showAll());
+  CommentViewer cv = new CommentViewer(tmpl, cm, db, urladd);
+  out.print(cv.showAll());
 
-   	out.print("</div>");
+  out.print("</div>");
 %>
 </div>
 </div>
@@ -164,7 +164,7 @@
 
 <h2><a name=rep>Добавить сообщение:</a></h2>
 
-<% if (tmpl.getProf().getBooleanProperty("showinfo") && !tmpl.isSessionAuthorized(session)) { %>
+<% if (tmpl.getProf().getBoolean("showinfo") && !tmpl.isSessionAuthorized(session)) { %>
   <font size=2>Чтобы просто поместить сообщение, используйте login `anonymous',
   без пароля. Если вы собираетесь активно участвовать в форуме,
   помещать новости на главную страницу,

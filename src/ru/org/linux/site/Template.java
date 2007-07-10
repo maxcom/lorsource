@@ -4,7 +4,9 @@ import java.io.*;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.text.DateFormat;
-import java.util.*;
+import java.util.Date;
+import java.util.Locale;
+import java.util.Properties;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
@@ -20,7 +22,6 @@ import ru.org.linux.cache.Cache;
 import ru.org.linux.logger.Logger;
 import ru.org.linux.logger.ServletLogger;
 import ru.org.linux.logger.SimpleFileLogger;
-import ru.org.linux.site.cli.mkdefprofile;
 import ru.org.linux.storage.StorageException;
 import ru.org.linux.storage.StorageNotFoundException;
 import ru.org.linux.util.*;
@@ -30,11 +31,7 @@ public class Template {
   private String style;
   private boolean searchMode = false;
   private boolean debugMode = false;
-  private Map userProfile;
-  private final Map defaultProfile;
-  private boolean usingDefaultProfile;
-  private String profileName;
-  private ProfileHashtable profileHashtable;
+  private Profile userProfile;
   private static Properties properties = null;
   private boolean mainPage;
   private final ServletParameterParser parameters;
@@ -117,10 +114,6 @@ public class Template {
 
     // read profiles
     cookies = LorHttpUtils.getCookies(request.getCookies());
-    // TODO static initializaion???
-    defaultProfile = mkdefprofile.getDefaultProfile();
-
-    usingDefaultProfile = true;
 
     String profile;
 
@@ -137,46 +130,21 @@ public class Template {
     if (isSearchMode()) {
       profile = "_search";
     }
-//		if (DebugMode) profile="_debug";
+
+    userProfile = new Profile(profile);
 
     if (profile != null) {
-      usingDefaultProfile = false;
-      profileName = profile;
-
       try {
         userProfile = readProfile(profile);
       } catch (IOException e) {
         getLogger().error("template", e.toString()+": "+StringUtil.getStackTrace(e));        
-        userProfile = new Hashtable();
       } catch (StorageNotFoundException e) {
-        userProfile = new Hashtable();
-      }
-    } else {
-      userProfile = new Hashtable();
-    }
-
-    if (profile != null) {
-      userProfile.put("ProfileName", profile);
-    }
-
-    userProfile.put("DebugMode", Boolean.valueOf(debugMode));
-    userProfile.put("Storage", this.config.getStorage());
-
-    profileHashtable = new ProfileHashtable(defaultProfile, userProfile);
-
-    style = getStyle(getProf().getStringProperty("style"));
-// style fixup hack
-    if (getCookie("StyleCookie") == null ||
-      !getCookie("StyleCookie").equals(getStyle())) {
-      Cookie style = new Cookie("StyleCookie", getStyle());
-      style.setMaxAge(60 * 60 * 24 * 31 * 12);
-      style.setPath("/");
-      if (!isSearchMode()) {
-        response.addCookie(style);
       }
     }
 
-    userProfile.put("style", style);
+    userProfile.getHashtable().addBoolean("DebugMode", debugMode);
+
+    styleFixup();
 
     /* restore password */
     session = request.getSession();
@@ -222,23 +190,23 @@ public class Template {
     }
 
     /* redirects */
-    if (usingDefaultProfile) {
+    if (userProfile.isDefault()) {
       if (profileCookie != null) {
         response.setHeader("Location", replaceProfile(request, getCookie("profile")));
         response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
-        logger.notice("template", "redirecting " + request.getRequestURI() + " to " + replaceProfile(request, getCookie("profile")));
+        logger.notice("template", "default profile, but cookie set: redirecting " + request.getRequestURI() + " to " + replaceProfile(request, getCookie("profile")));
       }
     } else if (profileCookie != null &&
-      profileCookie.equals(profileName)) {
+      profileCookie.equals(userProfile.getName())) {
       /* update profile */
-      Cookie prof = new Cookie("profile", profileName);
+      Cookie prof = new Cookie("profile", userProfile.getName());
       prof.setMaxAge(60 * 60 * 24 * 31 * 12);
       prof.setPath("/");
       if (!isSearchMode()) {
         response.addCookie(prof);
       }
     } else if (profileCookie != null &&
-      !profileCookie.equals(profileName)) {
+      !profileCookie.equals(userProfile.getName())) {
       /* redirect to users page */
       response.setHeader("Location", replaceProfile(request, getCookie("profile")));
       response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
@@ -250,13 +218,19 @@ public class Template {
     }
   }
 
+  private void styleFixup() {
+    style = getStyle(getProf().getString("style"));
+
+    userProfile.getHashtable().setString("style", style);
+  }
+
   private String getStyle(String style) {
     if (!"black".equals(style) &&
         !"white".equals(style) &&
         !"white2".equals(style) &&
         !"blue".equals(style) &&
         !"blackbeta".equals(style)) {
-      return (String) defaultProfile.get("style");
+      return (String) Profile.getDefaults().get("style");
     }
 
     return style;
@@ -334,17 +308,20 @@ public class Template {
   }
 
   public String getProfileName() {
-    return profileName;
+    return userProfile.getName();
   }
 
-  private Map readProfile(String name) throws ClassNotFoundException, IOException, StorageException {
-    InputStream df = config.getStorage().getReadStream("profile", name);
-    ObjectInputStream dof = new ObjectInputStream(df);
-    Map profile = (Map) dof.readObject();
-    dof.close();
-    df.close();
+  private Profile readProfile(String name) throws ClassNotFoundException, IOException, StorageException {
+    InputStream df = null;
+    try {
+      df = config.getStorage().getReadStream("profile", name);
 
-    return profile;
+      return new Profile(df, name);
+    } finally {
+      if (df!=null) {
+        df.close();
+      }
+    }
   }
 
   public void writeProfile(String name) throws IOException, AccessViolationException, StorageException {
@@ -359,15 +336,16 @@ public class Template {
     if ("anonymous".equals(name)) {
       throw new AccessViolationException("нельзя менять профиль по умолчанию");
     }
-    userProfile.put("system.timestamp", new Long(new Date().getTime()));
-    userProfile.remove("Storage");
 
-    OutputStream df = config.getStorage().getWriteStream("profile", name);
-    ObjectOutputStream dof = new ObjectOutputStream(df);
-    dof.writeObject(userProfile);
-    dof.close();
-    df.close();
-    userProfile.put("Storage", config.getStorage());
+    OutputStream df = null;
+    try {
+      config.getStorage().getWriteStream("profile", name);
+      userProfile.write(df);
+    } finally {
+      if (df!=null) {
+        df.close();
+      }
+    }
   }
 
   public String getCookie(String key) {
@@ -395,7 +373,7 @@ public class Template {
   }
 
   public ProfileHashtable getProf() {
-    return profileHashtable;
+    return userProfile.getHashtable();
   }
 
   public String DocumentHeader() throws IOException, StorageException, UtilException {
@@ -406,7 +384,7 @@ public class Template {
     // form submit on ctrl-enter js
     out.append("<script src=\"/js/ctrlenter.js\" language=\"javascript\" type=\"text/javascript\">;</script>\n");
 
-    if (getProf().getBooleanProperty("hover")) {
+    if (getProf().getBoolean("hover")) {
       out.append("<LINK REL=STYLESHEET TYPE=\"text/css\" HREF=\"/"+getStyle()+"/hover.css\" TITLE=\"Normal\">");
     }
 
@@ -494,7 +472,7 @@ public class Template {
   }
 
   public boolean isUsingDefaultProfile() {
-    return usingDefaultProfile;
+    return userProfile.isDefault();
   }
 
   public String getMainUrl() {
@@ -502,10 +480,10 @@ public class Template {
   }
 
   public String getRedirectUrl() {
-    if (usingDefaultProfile || searchMode) {
+    if (userProfile.isDefault() || searchMode) {
       return getMainUrl();
     } else {
-      return getMainUrl() + "profile/" + profileName + '/';
+      return getMainUrl() + "profile/" + userProfile.getName() + '/';
     }
   }
 
@@ -554,6 +532,6 @@ public class Template {
       return true;
     }
 
-    return profileName.startsWith("_");
+    return userProfile.getName().startsWith("_");
   }
 }

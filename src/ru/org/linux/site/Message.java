@@ -154,7 +154,7 @@ public class Message {
     }
 
     if (!imagepost && photo!=null) {
-      if (tmpl.getProf().getBooleanProperty("photos")) {
+      if (tmpl.getProf().getBoolean("photos")) {
         out.append("<table><tr><td valign=top align=center>");
         tbl=true;
 

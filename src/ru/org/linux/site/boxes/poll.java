@@ -1,6 +1,5 @@
 package ru.org.linux.site.boxes;
 
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -9,9 +8,8 @@ import java.util.Date;
 import java.util.Properties;
 
 import ru.org.linux.boxlet.Boxlet;
-import ru.org.linux.site.config.PropertiesConfig;
-import ru.org.linux.site.config.SQLConfig;
 import ru.org.linux.site.Poll;
+import ru.org.linux.site.config.SQLConfig;
 import ru.org.linux.util.ProfileHashtable;
 import ru.org.linux.util.UtilException;
 
@@ -60,7 +58,7 @@ public final class poll extends Boxlet {
   }
 
   public String getVariantID(ProfileHashtable prof, Properties request) throws UtilException {
-    return "SearchMode=" + prof.getBooleanProperty("SearchMode");
+    return "SearchMode=" + prof.getBoolean("SearchMode");
   }
 
   public long getVersionID(ProfileHashtable profile, Properties request) {

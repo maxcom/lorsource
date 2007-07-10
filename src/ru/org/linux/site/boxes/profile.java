@@ -12,10 +12,10 @@ public final class profile extends Boxlet
 		StringBuffer out=new StringBuffer();
 
 		out.append("<h2>Выбор профиля</h2>");
-		if (profile.getStringProperty("ProfileName")==null)
+		if (profile.getString("ProfileName")==null)
 			out.append("Используется профиль по-умолчанию<p>");
 		else
-			out.append("Используется профиль: <em>"+profile.getStringProperty("ProfileName")+"</em><p>");
+			out.append("Используется профиль: <em>"+profile.getString("ProfileName")+"</em><p>");
 		out.append("<br><a href=\"edit-profile.jsp\">настройки...</a>");
 
 		out.append("<p><strong>Предустановки:</strong><br>");
@@ -29,9 +29,9 @@ public final class profile extends Boxlet
 	public String getInfo() { return "Выбор профиля"; }
 
 	public String getVariantID(ProfileHashtable prof, Properties request) {
-		if (prof.getStringProperty("ProfileName")==null)
+		if (prof.getString("ProfileName")==null)
 			return "";
 		else
-			return "ProfileName="+prof.getStringProperty("ProfileName");
+			return "ProfileName="+prof.getString("ProfileName");
 	}
 }

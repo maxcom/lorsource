@@ -88,7 +88,7 @@ public class CommentViewer {
     root.hideAnonymous();
 
     /* display comments */
-    showCommentList(buf, comments, tmpl.getProf().getBooleanProperty("newfirst"));
+    showCommentList(buf, comments, tmpl.getProf().getBoolean("newfirst"));
 
     return buf.toString();
   }

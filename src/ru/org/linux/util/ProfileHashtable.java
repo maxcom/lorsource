@@ -15,7 +15,7 @@ public class ProfileHashtable {
     }
   }
 
-  public String getStringProperty(String prop) {
+  public String getString(String prop) {
     if (settings.get(prop) != null) {
       return (String) settings.get(prop);
     } else {
@@ -23,7 +23,7 @@ public class ProfileHashtable {
     }
   }
 
-  public boolean getBooleanProperty(String prop) throws UtilException {
+  public boolean getBoolean(String prop) throws UtilException {
     if (settings.get(prop) != null) {
       return ((Boolean) settings.get(prop)).booleanValue();
     } else {
@@ -35,7 +35,7 @@ public class ProfileHashtable {
     }
   }
 
-  public Object getObjectProperty(String prop) {
+  public Object getObject(String prop) {
     if (settings.get(prop) != null) {
       return settings.get(prop);
     } else {
@@ -44,10 +44,10 @@ public class ProfileHashtable {
   }
 
   public String getBooleanPropertyHTML(String prop) throws UtilException {
-    return getBooleanProperty(prop) ? "checked" : "";
+    return getBoolean(prop) ? "checked" : "";
   }
 
-  public int getIntProperty(String prop) {
+  public int getInt(String prop) {
     if (settings.get(prop) != null) {
       return ((Integer) settings.get(prop)).intValue();
     } else {
@@ -55,7 +55,7 @@ public class ProfileHashtable {
     }
   }
 
-  public long getLongProperty(String prop) {
+  public long getLong(String prop) {
     if (settings.get(prop) != null) {
       return ((Long) settings.get(prop)).longValue();
     } else {
@@ -63,20 +63,8 @@ public class ProfileHashtable {
     }
   }
 
-  public int getIntSystemProperty(String prop) {
-    return ((Integer) Defaults.get("system." + prop)).intValue();
-  }
-
-  public long getLongSystemProperty(String prop) {
-    return ((Long) Defaults.get("system." + prop)).longValue();
-  }
-
-  public String getStringSystemProperty(String prop) {
-    return ((String) Defaults.get("system." + prop));
-  }
-
-  public boolean setIntProperty(String prop, Integer value) {
-    if (value != null && value.intValue() != getIntProperty(prop)) {
+  public boolean setInt(String prop, Integer value) {
+    if (value != null && value.intValue() != getInt(prop)) {
       settings.put(prop, value);
       return true;
     } else {
@@ -84,8 +72,8 @@ public class ProfileHashtable {
     }
   }
 
-  public boolean setStringProperty(String prop, String value) {
-    if (value != null && !value.equals(getStringProperty(prop))) {
+  public boolean setString(String prop, String value) {
+    if (value != null && !value.equals(getString(prop))) {
       settings.put(prop, value);
       return true;
     } else {
@@ -93,7 +81,7 @@ public class ProfileHashtable {
     }
   }
 
-  public boolean setObjectProperty(String prop, Object value) {
+  public boolean setObject(String prop, Object value) {
     if (value != null) {
       settings.put(prop, value);
       return true;
@@ -102,8 +90,8 @@ public class ProfileHashtable {
     }
   }
 
-  public boolean setBooleanProperty(String prop, Boolean value) throws UtilException {
-    if (value != null && value.booleanValue() != getBooleanProperty(prop)) {
+  public boolean setBoolean(String prop, Boolean value) throws UtilException {
+    if (value != null && value.booleanValue() != getBoolean(prop)) {
       settings.put(prop, value);
       return true;
     } else {
@@ -111,8 +99,8 @@ public class ProfileHashtable {
     }
   }
 
-  public boolean setBooleanProperty(String prop, boolean value) throws UtilException {
-    if (value != getBooleanProperty(prop)) {
+  public boolean setBoolean(String prop, boolean value) throws UtilException {
+    if (value != getBoolean(prop)) {
       settings.put(prop, Boolean.valueOf(value));
       return true;
     } else {
@@ -120,16 +108,31 @@ public class ProfileHashtable {
     }
   }
 
-
-  public boolean setBooleanProperty(String prop, String value) throws UtilException {
+  public boolean setBoolean(String prop, String value) throws UtilException {
     if (value == null) {
-      return setBooleanProperty(prop, Boolean.FALSE);
+      return setBoolean(prop, Boolean.FALSE);
     }
 
     if ("on".equals(value)) {
-      return setBooleanProperty(prop, Boolean.TRUE);
+      return setBoolean(prop, Boolean.TRUE);
     }
 
     return false;
+  }
+
+  public void addBoolean(String prop, boolean value) {
+    settings.put(prop, Boolean.valueOf(value));
+  }
+
+  public void addObject(String prop, Object value) {
+    settings.put(prop, value);
+  }
+
+  public void removeObject(String key) {
+    settings.remove(key);
+  }
+
+  public Map getSettings() {
+    return settings;
   }
 }

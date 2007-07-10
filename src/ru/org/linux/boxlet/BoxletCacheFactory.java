@@ -52,7 +52,7 @@ public class BoxletCacheFactory extends BoxletFactory {
         content = factory.getContent(name, profile);
         cache.putObject(key, content, version);
       } catch (Exception e) {
-        if (profile.getBooleanProperty("DebugMode")) {
+        if (profile.getBoolean("DebugMode")) {
           content = "<h2>Ошибка: " + e.toString() + "</h2>" + HTMLFormatter.nl2br(StringUtil.getStackTrace(e));
         } else {
           content = "<h2>Ошибка</h2>";
@@ -75,7 +75,7 @@ public class BoxletCacheFactory extends BoxletFactory {
           cache.putObject(key, content, version);
         }
       } catch (Exception e) { // show old info instead of error when possible
-        if (profile.getBooleanProperty("DebugMode")) {
+        if (profile.getBoolean("DebugMode")) {
           content = "Ошибка, using old cache:<i>" + e.toString() + "</i><br>" + cobj.getString();
         } else {
           content = cobj.getString();

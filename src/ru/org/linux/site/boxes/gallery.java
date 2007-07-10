@@ -70,7 +70,7 @@ public final class gallery extends Boxlet
         public String getInfo() { return "Последние добавления в галерею"; }
 
         public String getVariantID(ProfileHashtable prof, Properties request) throws UtilException {
-                return "SearchMode="+prof.getBooleanProperty("SearchMode");
+                return "SearchMode="+prof.getBoolean("SearchMode");
         }
 
         public long getVersionID(ProfileHashtable profile, Properties request)
