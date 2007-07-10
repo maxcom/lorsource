@@ -10,7 +10,7 @@ import ru.org.linux.site.cli.mkdefprofile;
 import ru.org.linux.util.ProfileHashtable;
 
 public class Profile {
-  private final static Map defaultProfile = Collections.unmodifiableMap(mkdefprofile.getDefaultProfile());
+//  private final static Map defaultProfile = Collections.unmodifiableMap(mkdefprofile.getDefaultProfile());
 
   private final ProfileHashtable profileHashtable;
   private final String profileName;
@@ -29,7 +29,7 @@ public class Profile {
 
       userProfile.put("ProfileName", profileName);
       
-      profileHashtable = new ProfileHashtable(defaultProfile, userProfile);
+      profileHashtable = new ProfileHashtable(getDefaults(), userProfile);
 
       isdefault = false;
     } finally {
@@ -40,7 +40,7 @@ public class Profile {
   }
 
   public Profile(String profile) {
-    profileHashtable = new ProfileHashtable(defaultProfile, new Hashtable());
+    profileHashtable = new ProfileHashtable(getDefaults(), new Hashtable());
     profileName = profile;
 
     isdefault = profile==null;
@@ -59,7 +59,7 @@ public class Profile {
   }
 
   public static Map getDefaults() {
-    return defaultProfile;
+    return Collections.unmodifiableMap(mkdefprofile.getDefaultProfile());
   }
 
   public void write(OutputStream df) throws IOException {
