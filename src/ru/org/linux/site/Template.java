@@ -527,11 +527,15 @@ public class Template {
     return ((Boolean) session.getValue("moderator")).booleanValue();
   }
 
+  public boolean isAnonymousProfile(String name) {
+    return name.startsWith("_");
+  }
+
   public boolean isAnonymousProfile() {
     if (isUsingDefaultProfile()) {
       return true;
     }
 
-    return userProfile.getName().startsWith("_");
+    return isAnonymousProfile(userProfile.getName());
   }
 }
