@@ -19,4 +19,17 @@ public class ProfileTest extends TestCase {
 
     new Profile(new ByteArrayInputStream(os.toByteArray()) , "test");
   }
+
+  public void testModification() throws IOException, ClassNotFoundException {
+    Profile profile = new Profile(null);
+
+    profile.getHashtable().setInt("messages", new Integer(125));
+
+    ByteArrayOutputStream os = new ByteArrayOutputStream();
+
+    profile.write(os);
+
+    new Profile(new ByteArrayInputStream(os.toByteArray()) , "test");
+  }
+
 }

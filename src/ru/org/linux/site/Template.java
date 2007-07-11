@@ -339,7 +339,7 @@ public class Template {
 
     OutputStream df = null;
     try {
-      config.getStorage().getWriteStream("profile", name);
+      df = config.getStorage().getWriteStream("profile", name);
       userProfile.write(df);
     } finally {
       if (df!=null) {
