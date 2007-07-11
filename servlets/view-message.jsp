@@ -18,7 +18,7 @@
     String returnUrl = "view-message.jsp?msgid=" + msgid;
     String mainurl = returnUrl;
     if (npage != -1) {
-      returnUrl += "&amp;page=" + npage;
+      returnUrl += "&page=" + npage;
     }
 
     boolean showDeleted = request.getParameter("deleted") != null;
