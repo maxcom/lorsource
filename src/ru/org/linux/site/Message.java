@@ -85,7 +85,7 @@ public class Message {
     return deleted;
   }
 
-  public String printMessage(Template tmpl, Connection db, boolean showMenu)
+  public String printMessage(Template tmpl, Connection db, boolean showMenu, String user)
       throws SQLException, IOException, UserNotFoundException, UtilException {
     StringBuffer out=new StringBuffer();
 
@@ -103,7 +103,7 @@ public class Message {
       if (!isExpired() && !isDeleted())
         out.append("[<a href=\"comment-message.jsp?msgid=").append(msgid).append("\">Ответить</a>]");
 
-      if (!isDeleted() && tmpl.isModeratorSession() || (tmpl.getCookie("NickCookie")!=null && tmpl.getCookie("NickCookie").equals(nick))) {
+      if (!isDeleted() && (tmpl.isModeratorSession() || nick.equals(user))) {
         out.append("[<a href=\"delete.jsp?msgid=").append(msgid).append("\">Удалить</a>]");
       }
 

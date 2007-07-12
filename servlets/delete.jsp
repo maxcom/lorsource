@@ -27,7 +27,7 @@ function change(dest,source)
 <% if (session==null || session.getAttribute("login")==null || !((Boolean) session.getAttribute("login")).booleanValue()) { %>
 <tr>
 <td>้อั:</td>
-<td><input type=text name=nick size=40 value="<%= tmpl.getCookie("NickCookie","")%>">
+<td><input type=text name=nick size=40>
 </td>
 </tr>
 <tr>

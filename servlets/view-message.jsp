@@ -183,16 +183,16 @@
       bufInfo.append(' ');
 
       if (i != npage)
-        bufInfo.append("<a href=\"" + mainurl + "&page=" + i + "\">" + (i + 1) + "</a>");
+        bufInfo.append("<a href=\"").append(mainurl).append("&page=").append(i).append("\">").append(i + 1).append("</a>");
       else
-        bufInfo.append("<strong>" + (i + 1) + "</strong>");
+        bufInfo.append("<strong>").append(i + 1).append("</strong>");
     }
 
     bufInfo.append(']');
     pageInfo = bufInfo.toString();
   }
 
-  out.print(message.printMessage(tmpl, db, true));
+  out.print(message.printMessage(tmpl, db, true, Template.getNick(session)));
 %>
 
 <% if (!Template.isSessionAuthorized(session)) { %>
@@ -279,7 +279,7 @@ google_ui_features = "rc:0";
 
     String urladd = "&amp;return=" + URLEncoder.encode(returnUrl);
 
-    CommentViewer cv = new CommentViewer(tmpl, cm, db, urladd);
+    CommentViewer cv = new CommentViewer(tmpl, cm, db, urladd, Template.getNick(session));
 
     if (npage != -1)
       cv.setMainUrl(mainurl);

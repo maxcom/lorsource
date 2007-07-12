@@ -41,7 +41,7 @@
 <div class=messages>
 
 <%
-   out.print(message.printMessage(tmpl, db, true));
+   out.print(message.printMessage(tmpl, db, true, Template.getNick(session)));
 %>
 </div>
 

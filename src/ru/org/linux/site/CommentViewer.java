@@ -17,12 +17,15 @@ public class CommentViewer {
   private final String urladd;
   private String mainUrl;
 
-  public CommentViewer(Template t, ResultSet r, Connection conn, String u) {
+  private final String user;
+
+  public CommentViewer(Template t, ResultSet r, Connection conn, String u, String user) {
     tmpl=t;
     rs=r;
     db=conn;
     urladd=u;
     mainUrl ="";
+    this.user=user;
   }
 
   public void setMainUrl(String url) {
@@ -39,7 +42,7 @@ public class CommentViewer {
       Comment comment = (Comment) i.next();
 
       if (comment.isShowable()) {
-        buf.append(comment.printMessage(tmpl, db, true, false, urladd, mainUrl));
+        buf.append(comment.printMessage(tmpl, db, true, false, urladd, mainUrl, tmpl.isModeratorSession(), user));
       }
     }
   }

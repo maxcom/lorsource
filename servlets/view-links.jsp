@@ -65,10 +65,11 @@
       String url = rs.getString("url");
       String nick = rs.getString("nick");
       out.print("<li>");
-      if (tmpl.isModeratorSession() || (tmpl.getCookie("NickCookie") != null && tmpl.getCookie("NickCookie").equals(nick)))
-      {
+
+      if (tmpl.isModeratorSession() || nick.equals(Template.getNick(session))) {
         out.print("[<a href=\"delete.jsp?msgid=" + msgid + "\">Удалить</a>] ");
       }
+
       out.print("<a href=\"" + url + "\">" + StringUtil.makeTitle(rs.getString("title")) + "</a>. ");
       out.print(rs.getString("message"));
       if (rs.getBoolean("new")) {

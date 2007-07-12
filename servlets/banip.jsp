@@ -8,70 +8,70 @@
 <title>banip</title>
 <%= tmpl.DocumentHeader() %>
 <%
-   if (!tmpl.isSessionAuthorized(session) || !(((Boolean) session.getValue("moderator")).booleanValue())) {
-     throw new IllegalAccessException("Not authorized");
-   }
+  if (!tmpl.isModeratorSession()) {
+    throw new IllegalAccessException("Not authorized");
+  }
 
-   String ip = tmpl.getParameters().getIP("ip");
-   String reason = tmpl.getParameters().getString("reason");
-   String time = tmpl.getParameters().getString("time");   
+  String ip = tmpl.getParameters().getIP("ip");
+  String reason = tmpl.getParameters().getString("reason");
+  String time = tmpl.getParameters().getString("time");
 
-   Calendar calendar = Calendar.getInstance();
-   calendar.setTime(new Date());
+  Calendar calendar = Calendar.getInstance();
+  calendar.setTime(new Date());
 
-   if ("hour".equals(time)) {
-     calendar.add(Calendar.HOUR_OF_DAY, 1);
-   } else if ("day".equals(time)) {
-     calendar.add(Calendar.DAY_OF_MONTH, 1);
-   } else if ("month".equals(time)) {
-     calendar.add(Calendar.MONTH, 1);
-   } else if ("3month".equals(time)) {
-     calendar.add(Calendar.MONTH, 3);
-   } else if ("6month".equals(time)) {
-     calendar.add(Calendar.MONTH, 6);
-   } else if ("remove".equals(time)) {
-   } 
+  if ("hour".equals(time)) {
+    calendar.add(Calendar.HOUR_OF_DAY, 1);
+  } else if ("day".equals(time)) {
+    calendar.add(Calendar.DAY_OF_MONTH, 1);
+  } else if ("month".equals(time)) {
+    calendar.add(Calendar.MONTH, 1);
+  } else if ("3month".equals(time)) {
+    calendar.add(Calendar.MONTH, 3);
+  } else if ("6month".equals(time)) {
+    calendar.add(Calendar.MONTH, 6);
+  } else if ("remove".equals(time)) {
+  }
 
-   final Timestamp ts;
-   if ("unlim".equals(time)) {
-     ts = null;
-   } else {
-     ts = new Timestamp(calendar.getTimeInMillis());
-   }
-   
-   Connection db = null;
-   try {
-	db = tmpl.getConnection("sameip");
-	db.setAutoCommit(false);
+  Timestamp ts;
+  if ("unlim".equals(time)) {
+    ts = null;
+  } else {
+    ts = new Timestamp(calendar.getTimeInMillis());
+  }
 
-	User user=new User(db, (String) session.getAttribute("nick"));
+  Connection db = null;
+  try {
+    db = tmpl.getConnection("sameip");
+    db.setAutoCommit(false);
 
-  	IPBlockInfo blockInfo = IPBlockInfo.getBlockInfo(db, ip);
-	user.checkCommit();
+    User user = new User(db, (String) session.getAttribute("nick"));
 
-	final PreparedStatement pst;
+    IPBlockInfo blockInfo = IPBlockInfo.getBlockInfo(db, ip);
+    user.checkCommit();
 
-	if (blockInfo==null) {
-	  pst = db.prepareStatement("INSERT INTO b_ips (ip, mod_id, date, reason, ban_date) VALUES (?::inet, ?, CURRENT_TIMESTAMP, ?, ?)");
-	} else {
-	  pst = db.prepareStatement("UPDATE b_ips SET ip=?::inet, mod_id=?,date=CURRENT_TIMESTAMP, reason=?, ban_date=? WHERE ip=?::inet");
-	  pst.setString(5, ip);
-        }
+    PreparedStatement pst;
 
-        pst.setString(1, ip);
-        pst.setInt(2, user.getId());
-        pst.setString(3, reason);
-        pst.setTimestamp(4, ts);
+    if (blockInfo == null) {
+      pst = db.prepareStatement("INSERT INTO b_ips (ip, mod_id, date, reason, ban_date) VALUES (?::inet, ?, CURRENT_TIMESTAMP, ?, ?)");
+    } else {
+      pst = db.prepareStatement("UPDATE b_ips SET ip=?::inet, mod_id=?,date=CURRENT_TIMESTAMP, reason=?, ban_date=? WHERE ip=?::inet");
+      pst.setString(5, ip);
+    }
 
-	pst.executeUpdate();
+    pst.setString(1, ip);
+    pst.setInt(2, user.getId());
+    pst.setString(3, reason);
+    pst.setTimestamp(4, ts);
 
-	db.commit();
+    pst.executeUpdate();
 
-	response.setHeader("Location",tmpl.getRedirectUrl()+"sameip.jsp?ip="+URLEncoder.encode(ip));
-   	response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
+    db.commit();
+
+    response.setHeader("Location", tmpl.getRedirectUrl() + "sameip.jsp?ip=" + URLEncoder.encode(ip));
+    response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
 
   } finally {
-    if (db!=null) db.close();
+    if (db != null) db.close();
   }
 %>
 <%= tmpl.DocumentFooter() %>

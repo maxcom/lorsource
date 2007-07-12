@@ -141,7 +141,7 @@
 
   String urladd = "&return=" + URLEncoder.encode(returnurl);
 
-  CommentViewer cv = new CommentViewer(tmpl, cm, db, urladd);
+  CommentViewer cv = new CommentViewer(tmpl, cm, db, urladd, Template.getNick(session));
   out.print(cv.showAll());
 
   out.print("</div>");
@@ -183,13 +183,13 @@
 
 <% if (session==null || session.getAttribute("login")==null || !((Boolean) session.getAttribute("login")).booleanValue()) { %>
 Имя:
-<input type=text name=nick value="<%= tmpl.getCookie("NickCookie","anonymous") %>" size=40><br>
+<input type=text name=nick value="anonymous" size=40><br>
 Пароль:
 <input type=password name=password size=40><br>
 <% } %>
 <% out.print("<input type=hidden name=voteid value="+voteid+ '>'); %>
 <input type=hidden name=return value="<%= returnurl %>">
-<input type=hidden name=topic value=<%= topic %>>
+<input type=hidden name=topic value="<%= topic %>">
 Заглавие:
 <input type=text name=title size=40 value="Re: <%= title %>"><br>
 Сообщение:<br>

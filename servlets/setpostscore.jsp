@@ -9,6 +9,12 @@
 <%= tmpl.DocumentHeader() %>
 
 <%
+if (!tmpl.isModeratorSession()) {
+  throw new IllegalAccessException("Not authorized");
+}
+%>
+
+<%
    if (request.getParameter("nick")==null) {
    	if (request.getParameter("msgid")==null)
 		throw new MissingParameterException("msgid");
@@ -32,10 +38,6 @@
 Данная форма предназначена для администраторов сайта и пользователей,
 имеющих права подтверждения сообщений.
 <form method=POST action="setpostscore.jsp">
-Имя:
-<input type=text name=nick size=40 value="<%= tmpl.getCookie("NickCookie","anonymous") %>"><br>
-Пароль:
-<input type=password name=password size=40><br>
 <input type=hidden name=msgid value="<%= msgid %>">
 <br>
 Текущий уровень записи: <%= postscore %>
@@ -74,9 +76,7 @@
 	pst.setInt(1, postscore);
 	pst.setInt(2, msgid);
 
-	User user=new User(db, request.getParameter("nick"));
-
-	user.checkPassword(request.getParameter("password"));
+	User user=new User(db, Template.getNick(session));
 	user.checkCommit();
 
 	pst.executeUpdate();

@@ -34,7 +34,7 @@ function change(dest,source)
 <% if (session==null || session.getAttribute("login")==null || !((Boolean) session.getAttribute("login")).booleanValue()) { %>
 <tr>
 <td>Имя:</td>
-<td><input type=text name=nick size=40 value="<%= tmpl.getCookie("NickCookie","")%>">
+<td><input type=text name=nick size=40>
 </td>
 </tr>
 <tr>
@@ -104,7 +104,7 @@ function change(dest,source)
 
     /* TODO надо сделать проверку на то, что коммент уже удален. И еще логику с select for update */
 
-    final String deleted;
+    String deleted;
     if (tmpl.isModeratorSession()) {
       deleted = "";
     } else {
@@ -112,7 +112,7 @@ function change(dest,source)
     }
 
     ResultSet cm = st.executeQuery("SELECT comments.title, topic, postdate, nick, score, max_score, comments.id as msgid, replyto, photo, 'f' as expired, deleted, message FROM comments,users,msgbase WHERE msgbase.id=comments.id AND comments.userid=users.id AND topic=" + topic.getMessageId() + ' ' + deleted + " ORDER BY msgid ");
-    CommentViewer cv = new CommentViewer(tmpl, cm, db, "");
+    CommentViewer cv = new CommentViewer(tmpl, cm, db, "", Template.getNick(session));
     out.print(cv.showSubtree(msgid));
 
     cm.close();

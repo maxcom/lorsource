@@ -538,4 +538,12 @@ public class Template {
 
     return isAnonymousProfile(userProfile.getName());
   }
+
+  public static String getNick(HttpSession session) {
+    if (isSessionAuthorized(session)) {
+      return (String) session.getValue("nick");
+    } else {
+      return null;
+    }
+  }
 }

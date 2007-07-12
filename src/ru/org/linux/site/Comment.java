@@ -59,7 +59,7 @@ public class Comment {
     st.close();
   }
 
-  public String printMessage(Template tmpl, Connection db, boolean showMenu, boolean masterMode, String urladd, String mainUrl)
+  public String printMessage(Template tmpl, Connection db, boolean showMenu, boolean masterMode, String urladd, String mainUrl, boolean moderatorMode, String user)
       throws IOException, SQLException, UtilException {
     StringBuffer out=new StringBuffer();
 
@@ -84,14 +84,13 @@ public class Comment {
         } else {
           out.append("[<a href=\"add_comment.jsp?topic=").append(topic).append("&amp;replyto=").append(msgid).append(urladd).append("\">Ответить</a>]");
         }
-     }
+      }
 
-      // TODO заменить NickCookie на сессии
-      if (!deleted && (tmpl.isModeratorSession() || (tmpl.getCookie("NickCookie")!=null && tmpl.getCookie("NickCookie").equals(nick)))) {
+      if (!deleted && (moderatorMode || nick.equals(user))) {
         out.append("[<a href=\"delete_comment.jsp?msgid=").append(msgid).append("\">Удалить</a>]");
       }
 
-      if (tmpl.isModeratorSession()) {
+      if (moderatorMode) {
         out.append("[<a href=\"sameip.jsp?msgid=").append(msgid).append("\">Другие с этого IP</a>]");
       }
 
@@ -147,7 +146,7 @@ public class Comment {
 
     if (!"anonymous".equals(nick)) {
       out.append(User.getStars(userScore, userMaxScore)).append(' ');
-        if (tmpl.isModeratorSession())
+        if (moderatorMode)
           out.append("(Score: ").append(userScore).append(" MaxScore: ").append(userMaxScore).append(") ");
     }
 

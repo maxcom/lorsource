@@ -104,9 +104,8 @@
       }
 
       Statement st = db.createStatement();
-      ResultSet rs = null;
 
-      rs = st.executeQuery("SELECT sections.comment, deleted, postscore FROM groups, sections, topics WHERE groups.id=topics.groupid AND topics.id=" + topic + " AND groups.section=sections.id");
+      ResultSet rs = st.executeQuery("SELECT sections.comment, deleted, postscore FROM groups, sections, topics WHERE groups.id=topics.groupid AND topics.id=" + topic + " AND groups.section=sections.id");
       if (!rs.next()) {
         rs = st.executeQuery("SELECT 't' as comment, 'f' as deleted, 0 as postscore FROM votenames WHERE topic=" + topic);
         if (!rs.next()) {
@@ -310,16 +309,14 @@ if (showform) { // show form
         int replyto=Integer.parseInt(request.getParameter("replyto"));
 %>
 <input type=hidden name=replyto value="<%= replyto %>">
-<% // show message here
+<%
   Comment comment = new Comment(db, replyto);
-//        ResultSet rs=st.executeQuery("SELECT postdate, topic, nick, score, max_score, comments.id as msgid, comments.title, photo, 'f', deleted, 'f' as expired, replyto, message FROM comments, users, msgbase WHERE comments.id=msgbase.id AND comments.id="+replyto+" AND comments.userid=users.id AND comments.topic="+topic);
-//           if (!rs.next()) throw new MessageNotFoundException(replyto);
   if (comment.isDeleted()) throw new MessageNotFoundException(replyto);
   String title=comment.getTitle();
   if (!title.startsWith("Re:")) title="Re: "+title;
 
   out.print("<div class=messages>");
-  out.print(comment.printMessage(tmpl, db, false, true, "", ""));
+  out.print(comment.printMessage(tmpl, db, false, true, "", "", tmpl.isModeratorSession(), Template.getNick(session)));
   out.print("</div>");
 
   if (request.getParameter("title")!=null) title=request.getParameter("title");
