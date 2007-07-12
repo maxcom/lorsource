@@ -11,7 +11,7 @@
       <sourceFolder url="file://$MODULE_DIR$/servlets" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
     </content>
-    <orderEntry type="inheritedJdk" />
+    <orderEntry type="jdk" jdkName="1.5" jdkType="JavaSDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module-library">
       <library>
@@ -112,15 +112,6 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib/java_memcached-release_1.6.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
     <orderEntryProperties />
   </component>
   <component name="WebModuleBuildComponent">
@@ -163,11 +154,6 @@
       <attribute name="method" value="1" />
       <attribute name="URI" value="/WEB-INF/lib/java_memcached-1.6maxcom.jar" />
       <url>jar://$MODULE_DIR$/lib/java_memcached-1.6maxcom.jar!/</url>
-    </containerElement>
-    <containerElement type="library" level="module">
-      <attribute name="method" value="1" />
-      <attribute name="URI" value="/WEB-INF/lib/java_memcached-release_1.6.jar" />
-      <url>jar://$MODULE_DIR$/lib/java_memcached-release_1.6.jar!/</url>
     </containerElement>
     <containerElement type="library" level="module">
       <attribute name="method" value="1" />

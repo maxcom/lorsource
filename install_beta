@@ -1,5 +1,7 @@
 #/bin/bash
 
+set -e
+
 ant
 
 SITE_PATH=${1:-/var/www/beta.linux.org.ru}
