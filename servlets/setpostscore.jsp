@@ -15,7 +15,7 @@ if (!tmpl.isModeratorSession()) {
 %>
 
 <%
-   if (request.getParameter("nick")==null) {
+   if (request.getMethod().equals("GET")) {
    	if (request.getParameter("msgid")==null)
 		throw new MissingParameterException("msgid");
 
