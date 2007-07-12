@@ -43,7 +43,7 @@ public class Template {
 
   private static final Cache cache;
   public static final DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM, new Locale("ru"));
-  public static final int WARNING_EXEC_TIME = 15000;
+  private static final int WARNING_EXEC_TIME = 15000;
 
   static {
     cache = new Cache();
@@ -240,7 +240,7 @@ public class Template {
     mainPage = true;
   }
 
-  public boolean isMainPage() {
+  private boolean isMainPage() {
     return mainPage;
   }
 
@@ -277,7 +277,7 @@ public class Template {
     }
   }
 
-  public String replaceProfile(HttpServletRequest request, String profile) {
+  private String replaceProfile(HttpServletRequest request, String profile) {
     String path = request.getRequestURI();
 
     REMatch found = profileRE.getMatch(path);
@@ -385,7 +385,7 @@ public class Template {
     out.append("<script src=\"/js/ctrlenter.js\" language=\"javascript\" type=\"text/javascript\">;</script>\n");
 
     if (getProf().getBoolean("hover")) {
-      out.append("<LINK REL=STYLESHEET TYPE=\"text/css\" HREF=\"/"+getStyle()+"/hover.css\" TITLE=\"Normal\">");
+      out.append("<LINK REL=STYLESHEET TYPE=\"text/css\" HREF=\"/").append(getStyle()).append("/hover.css\" TITLE=\"Normal\">");
     }
 
     if ("black".equals(style)) {
@@ -527,11 +527,11 @@ public class Template {
     return ((Boolean) session.getValue("moderator")).booleanValue();
   }
 
-  public boolean isAnonymousProfile(String name) {
+  private boolean isAnonymousProfile(String name) {
     return name.startsWith("_");
   }
 
-  public boolean isAnonymousProfile() {
+  private boolean isAnonymousProfile() {
     if (isUsingDefaultProfile()) {
       return true;
     }
