@@ -5,7 +5,7 @@
     <fileset dir="lib">
       <include name="gnu-regexp-1.0.8.jar"/>
       <include name="jsdk23.jar"/>
-      <include name="postgresql-8.0-311.jdbc3.jar"/>
+      <include name="postgresql-jdbc-8.2.504.jar"/>
       <include name="jcaptcha-all-1.0-RC3.jar"/>
     </fileset>
   </path>
