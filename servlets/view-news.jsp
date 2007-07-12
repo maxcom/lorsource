@@ -1,6 +1,5 @@
 <%@ page contentType="text/html; charset=koi8-r"%>
-<%@ page import="java.net.URLEncoder,java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.util.Calendar,ru.org.linux.site.BadSectionException" errorPage="error.jsp" buffer="200kb"%>
-<%@ page import="ru.org.linux.site.NewsViewer"%>
+<%@ page import="java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.util.Calendar,ru.org.linux.site.BadSectionException,ru.org.linux.site.NewsViewer" errorPage="error.jsp" buffer="200kb"%>
 <%@ page import="ru.org.linux.site.Template"%>
 <%@ page import="ru.org.linux.util.DateUtil"%>
 <% Template tmpl = new Template(request, config, response); %>
@@ -77,11 +76,7 @@
     <td align=right valign=middle>
 <%
       if (rs.getBoolean("imagepost")) {
-              if (tmpl.getProfileName()!=null)
-                      out.print("[<a href=\"http://images.linux.org.ru/addsshot.php?profile="+URLEncoder.encode(tmpl.getProfileName())+"\">Добавить изображение</a>]");
-              else
-                      out.print("[<a href=\"http://images.linux.org.ru/addsshot.php\">Добавить изображение</a>]");
-
+        out.print("[<a style=\"text-decoration: none\" href=\"add.jsp?group=4962\">Добавить изображение</a>]");
       }
 %>
     </td>

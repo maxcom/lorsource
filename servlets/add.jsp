@@ -2,8 +2,7 @@
 <%@ page contentType="text/html; charset=koi8-r" import="java.sql.Connection,java.util.Random" errorPage="error.jsp"%>
 <%@ page import="ru.org.linux.site.*"%>
 <%@ page import="ru.org.linux.util.HTMLFormatter"%>
-<%@ page import="ru.org.linux.util.ImageInfo"%>
-<%@ page import="ru.org.linux.util.UtilBadURLException" %>
+<%@ page import="ru.org.linux.util.UtilBadURLException"%>
 <% Template tmpl = new Template(request, config, response);%>
 <%= tmpl.head() %>
 <%
@@ -119,19 +118,17 @@
 <% } %>
 <% } %>
 
-<% if (group.isImagePostAllowed()) {
-	if (request.getParameter("icon")==null) throw new MissingParameterException("icon");
-	if (request.getParameter("url")==null) throw new MissingParameterException("url");
-	if ("".equals(request.getParameter("icon"))) throw new MissingParameterException("icon");
-	if ("".equals(request.getParameter("url"))) throw new MissingParameterException("url");
-
-	String linktext=request.getParameter("icon");
-
-	ImageInfo info=new ImageInfo(tmpl.getObjectConfig().getHTMLPathPrefix()+linktext);
-        out.print("<img src=\"/" + linktext + "\" ALT=icon " + info.getCode() +  " >");
-   }
-%>
-<form method=POST action="add.jsp">
+<% if (group.isImagePostAllowed()) { %>
+<p>
+  Технические требования к изображению:
+  <ul>
+    <li>Ширина x Высота: от 400x400 до 2048x2048 пикселей</li>
+    <li>Тип: jpeg, gif, png</li>
+    <li>Размер не более 300 Kb</li>
+  </ul>
+</p>
+<%   } %>
+<form method=POST action="add.jsp" <%= group.isImagePostAllowed()?"enctype=\"multipart/form-data\"":"" %> >
   <input type="hidden" name="session" value="<%= HTMLFormatter.htmlSpecialChars(session.getId()) %>">
 <%  if (request.getParameter("noinfo")!=null) {
   %>
@@ -153,6 +150,11 @@
 Заглавие:
 <input type=text name=title size=40 value="<%= request.getParameter("title")==null?"":HTMLFormatter.htmlSpecialChars(request.getParameter("title")) %>" ><br>
 
+  <% if (group.isImagePostAllowed()) { %>
+  Изображение:
+  <input type="file" name="image"><br>
+  <% } %>
+
 <% if (group.isLinksAllowed() && group.isLinksUp()) { %>
 <input type=hidden name=linktext value="<%= group.getDefaultLinkText() %> ">
 Ссылка (не забудьте <b>http://</b>)
@@ -172,11 +174,6 @@
 <input type=text name=linktext size=60 value="<%= request.getParameter("linktext")==null?group.getDefaultLinkText():HTMLFormatter.htmlSpecialChars(request.getParameter("linktext")) %>"><br>
 Ссылка (не забудьте <b>http://</b>)
 <input type=text name=url size=70 value="<%= request.getParameter("url")==null?"":HTMLFormatter.htmlSpecialChars(request.getParameter("url")) %>"><br>
-<% } %>
-
-<% if (group.isImagePostAllowed()) { %>
-<input type=hidden name=linktext value="<%= request.getParameter("icon")==null?HTMLFormatter.htmlSpecialChars(request.getParameter("linktext")):HTMLFormatter.htmlSpecialChars(request.getParameter("icon")) %>">
-<input type=hidden name=url value="<%= HTMLFormatter.htmlSpecialChars(request.getParameter("url")) %>">
 <% } %>
 
 <% if (!group.isLineOnly() || group.isPreformatAllowed()) {%>

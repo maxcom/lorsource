@@ -30,8 +30,8 @@
       throw new MissingParameterException("group");
     }
 
-    final boolean firstPage;
-    final int offset;
+    boolean firstPage;
+    int offset;
 
     if (request.getParameter("offset") != null) {
       offset = Integer.parseInt(request.getParameter("offset"));
@@ -115,17 +115,9 @@
   User currentUser = User.getCurrentUser(db, session);
 
   if (group.isTopicPostingAllowed(currentUser)) {
-    if (section==3) {
-      if (tmpl.getProfileName()!=null) {
-        out.print("[<a style=\"text-decoration: none\" href=\"http://images.linux.org.ru/addsshot.php?profile="+URLEncoder.encode(tmpl.getProfileName())+"\">Добавить изображение</a>]");
-      } else {
-         out.print("[<a style=\"text-decoration: none\" href=\"http://images.linux.org.ru/addsshot.php\">Добавить изображение</a>]");
-      }
-    } else {
 %>
       [<a style="text-decoration: none" href="add.jsp?group=<%= groupId %>&amp;return=<%= URLEncoder.encode(returnUrl) %>">Добавить сообщение</a>]
 <%
-    }
   }
 %>
       <select name=group onChange="submit()" title="Быстрый переход">

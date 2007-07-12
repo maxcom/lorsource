@@ -219,4 +219,23 @@ public class ImageInfo {
   public String getCode() {
     return "width=" + width + " height=" + height;
   }
+
+  public static void resizeImage(String filename, String iconname) throws IOException, UtilException, InterruptedException {
+    String[] cmd = {
+      "/usr/bin/convert",
+      "-scale",
+      "150",
+      filename,
+      iconname };
+
+    Process proc;
+
+    proc = Runtime.getRuntime().exec(cmd);
+
+    int exitStatus = proc.waitFor();
+
+    if (exitStatus!=0) {
+      throw new UtilException("Can't convert image: convert failed");
+    }
+  }
 }

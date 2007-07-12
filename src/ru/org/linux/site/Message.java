@@ -1,6 +1,5 @@
 package ru.org.linux.site;
 
-import java.io.File;
 import java.io.IOException;
 import java.sql.*;
 
@@ -281,7 +280,7 @@ public class Message {
   }
 
   public int getNextMessage(Connection db, int scrollMode) throws SQLException {
-    final PreparedStatement pst;
+    PreparedStatement pst;
 
     switch (scrollMode) {
       case SCROLL_SECTION:
@@ -314,7 +313,7 @@ public class Message {
   }
 
   public int getPreviousMessage(Connection db, int scrollMode) throws SQLException {
-    final PreparedStatement pst;
+    PreparedStatement pst;
 
     switch (scrollMode) {
       case SCROLL_SECTION:
@@ -365,8 +364,7 @@ public class Message {
 
   public void updateMessageText(Connection db, String text) throws SQLException {
 
-    final PreparedStatement pst;
-    pst = db.prepareStatement("UPDATE msgbase SET message=? WHERE id=?");
+    PreparedStatement pst = db.prepareStatement("UPDATE msgbase SET message=? WHERE id=?");
     pst.setString(1, text);
     pst.setInt(2, msgid);
     pst.executeUpdate();
@@ -380,7 +378,7 @@ public class Message {
     return linktext;
   }
 
-  public static void addTopic(Connection db, Template tmpl, HttpSession session, HttpServletRequest request, Group group) throws BadInputException, SQLException, UserNotFoundException, BadPasswordException, AccessViolationException, ServletParameterException, UtilException, DuplicationException {
+  public static void addTopic(Connection db, Template tmpl, HttpSession session, HttpServletRequest request, Group group) throws SQLException, UserNotFoundException, ServletParameterException, UtilException, IOException, BadImageException, InterruptedException, BadInputException, BadPasswordException, AccessViolationException, DuplicationException {
     String title = request.getParameter("title");
     if (title == null) {
       title = "";
@@ -397,6 +395,12 @@ public class Message {
     }
     if (linktext != null) {
       linktext = HTMLFormatter.htmlSpecialChars(linktext);
+    }
+
+    ScreenshotProcessor screenshot = null;
+
+    if (group.isImagePostAllowed()) {
+      screenshot = new ScreenshotProcessor(request.getParameter("image"));
     }
 
     String msg = request.getParameter("msg");
@@ -458,9 +462,6 @@ public class Message {
         }
         url = URLUtil.fixURL(url);
       }
-    } else {
-      url = "gallery/" + new File(url).getName();
-      linktext = "gallery/" + new File(linktext).getName();
     }
 
     int maxlength = 80;
@@ -500,6 +501,13 @@ public class Message {
     ResultSet rs = st.executeQuery("select nextval('s_msgid') as msgid");
     rs.next();
     int msgid = rs.getInt("msgid");
+
+    if (group.isImagePostAllowed()) {
+      screenshot.copyScreenshot(tmpl, msgid);
+
+      url = "gallery/" + screenshot.getMainFile().getName();
+      linktext = "gallery/" + screenshot.getIconFile().getName();
+    }
 
     PreparedStatement pst = db.prepareStatement("INSERT INTO topics (postip, groupid, userid, title, url, moderate, postdate, id, linktext, deleted) VALUES ('" + request.getRemoteAddr() + "',?, ?, ?, ?, 'f', CURRENT_TIMESTAMP, ?, ?, 'f')");
 //                pst.setString(1, request.getRemoteAddr());
