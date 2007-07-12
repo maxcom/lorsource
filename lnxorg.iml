@@ -25,15 +25,6 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib/postgresql-8.0-311.jdbc3.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
           <root url="jar://$MODULE_DIR$/lib/jsdk23.jar!/" />
         </CLASSES>
         <JAVADOC />
@@ -103,6 +94,33 @@
         <SOURCES />
       </library>
     </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/postgresql-jdbc-8.2.504.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/java_memcached-1.6maxcom.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/java_memcached-release_1.6.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
     <orderEntryProperties />
   </component>
   <component name="WebModuleBuildComponent">
@@ -143,6 +161,16 @@
     </containerElement>
     <containerElement type="library" level="module">
       <attribute name="method" value="1" />
+      <attribute name="URI" value="/WEB-INF/lib/java_memcached-1.6maxcom.jar" />
+      <url>jar://$MODULE_DIR$/lib/java_memcached-1.6maxcom.jar!/</url>
+    </containerElement>
+    <containerElement type="library" level="module">
+      <attribute name="method" value="1" />
+      <attribute name="URI" value="/WEB-INF/lib/java_memcached-release_1.6.jar" />
+      <url>jar://$MODULE_DIR$/lib/java_memcached-release_1.6.jar!/</url>
+    </containerElement>
+    <containerElement type="library" level="module">
+      <attribute name="method" value="1" />
       <attribute name="URI" value="/WEB-INF/lib/jcaptcha-all-1.0-RC3.jar" />
       <url>jar://$MODULE_DIR$/lib/jcaptcha-all-1.0-RC3.jar!/</url>
     </containerElement>
@@ -158,8 +186,8 @@
     </containerElement>
     <containerElement type="library" level="module">
       <attribute name="method" value="1" />
-      <attribute name="URI" value="/WEB-INF/lib/postgresql-8.0-311.jdbc3.jar" />
-      <url>jar://$MODULE_DIR$/lib/postgresql-8.0-311.jdbc3.jar!/</url>
+      <attribute name="URI" value="/WEB-INF/lib/postgresql-jdbc-8.2.504.jar" />
+      <url>jar://$MODULE_DIR$/lib/postgresql-jdbc-8.2.504.jar!/</url>
     </containerElement>
     <containerElement type="library" level="module">
       <attribute name="method" value="1" />

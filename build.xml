@@ -7,6 +7,7 @@
       <include name="jsdk23.jar"/>
       <include name="postgresql-jdbc-8.2.504.jar"/>
       <include name="jcaptcha-all-1.0-RC3.jar"/>
+      <include name="java_memcached-1.6maxcom.jar"/>
     </fileset>
   </path>
 
