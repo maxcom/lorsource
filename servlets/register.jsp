@@ -210,7 +210,6 @@ URL (не забудьте добавить <b>http://</b>): <br>
 
           Properties props = new Properties();
           props.put("mail.smtp.host", "localhost");
-          props.put("mail.smtp.localhost", "www.linux.org.ru");
           Session mailSession = Session.getDefaultInstance(props, null);
 
           MimeMessage emailMessage = new MimeMessage(mailSession);
