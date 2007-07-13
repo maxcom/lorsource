@@ -25,7 +25,7 @@ public class NewsViewer {
     profile = prof;
   }
 
-  public String showCurrent(Connection db,Template tmpl) throws IOException, SQLException, UtilException {
+  private String showCurrent(Connection db,Template tmpl) throws IOException, SQLException, UtilException {
     StringBuffer out = new StringBuffer();
     int msgid = res.getInt("msgid");
     String url = res.getString("url");
@@ -117,7 +117,9 @@ public class NewsViewer {
 	out.append(poll.renderPoll(db, tmpl));
         out.append("<p>&gt;&gt;&gt; <a href=\"").append("vote-vote.jsp?msgid=").append(msgid).append("\">Голосовать</a>");
         out.append("<p>&gt;&gt;&gt; <a href=\"").append(jumplink).append("\">Результаты</a>");
-      } catch (Exception e) {
+      } catch (BadImageException e) {
+        out.append("<p>&gt;&gt;&gt; <a href=\"").append("\">[BAD POLL!] Просмотр</a>");
+      } catch (PollNotFoundException e) {
         out.append("<p>&gt;&gt;&gt; <a href=\"").append("\">[BAD POLL!] Просмотр</a>");
       }
     }

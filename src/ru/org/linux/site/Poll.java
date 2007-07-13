@@ -170,24 +170,33 @@ public class Poll {
   }
 
   public String renderPoll(Connection db,Template tmpl) throws SQLException, BadImageException, IOException {
+    return renderPoll(db, tmpl, 0);
+  }
+  
+  public String renderPoll(Connection db,Template tmpl, int highlight) throws SQLException, BadImageException, IOException {
     StringBuffer out = new StringBuffer();
     int max = getMaxVote(db);
     List vars = getPollVariants(db, ORDER_VOTES);
-    out.append("<table>");
+    out.append("<table>");    
     ImageInfo info = new ImageInfo(tmpl.getObjectConfig().getHTMLPathPrefix() + tmpl.getStyle() + "/img/votes.gif");
-
     for (Iterator iter = vars.iterator(); iter.hasNext();) {
-      PollVariant var = (PollVariant) iter.next();
-      out.append("<tr><td>");
-      int votes = var.getVotes();
-      out.append(HTMLFormatter.htmlSpecialChars(var.getLabel()));
+	PollVariant var = (PollVariant) iter.next();
+	out.append("<tr><td>");
+	int id = var.getId();
+	int votes = var.getVotes();
+        if (id == highlight) {                                                                                                                                   
+          out.append("<b>");                                                                                                                                      
+	} 	
+	out.append(HTMLFormatter.htmlSpecialChars(var.getLabel()));
+        if (id == highlight) {                                                                                                                                   
+          out.append("</b>");                                                                                                                                      
+	}
       out.append("</td><td>").append(votes).append("</td><td>");
-      for (int i = 0; i < 20 * votes / max; i++) {
-        out.append("<img src=\"").append(tmpl.getStyle()).append("/img/votes.gif\" alt=\"*\" ").append(info.getCode()).append('>');
-      }
-      out.append("</td></tr>");
+	for (int i = 0; i < 20 * votes / max; i++) {
+          out.append("<img src=\"").append(tmpl.getStyle()).append("/img/votes.gif\" alt=\"*\" ").append(info.getCode()).append('>');
+	}
+	out.append("</td></tr>");
     }
-    
     out.append("</table>");
     return out.toString();
   }

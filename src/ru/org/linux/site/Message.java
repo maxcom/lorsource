@@ -82,7 +82,12 @@ public class Message {
     return deleted;
   }
 
-  public String printMessage(Template tmpl, Connection db, boolean showMenu, String user)
+  public String printMessage(Template tmpl, Connection db, boolean showMenu, String user) 
+      throws SQLException, IOException, UserNotFoundException, UtilException {
+    return printMessage(tmpl, db, showMenu, user, 0);
+  }
+  
+  public String printMessage(Template tmpl, Connection db, boolean showMenu, String user, int highlight)
       throws SQLException, IOException, UserNotFoundException, UtilException {
     StringBuffer out=new StringBuffer();
 
@@ -166,18 +171,20 @@ public class Message {
     out.append("<h2><a name=").append(msgid).append('>').append(title).append("</a></h2>");
 
 //    out.append(storage.readMessage("msgbase", String.valueOf(msgid)));
-    if(votepoll) {
-	//Render poll
-	try {
-	    int id = Poll.getPollIdByTopic(db, msgid);                                                                                                           
-            Poll poll = new Poll(db, id);                                                                                                                        
-	    out.append(poll.renderPoll(db, tmpl)); 
-	    out.append("<p>&gt;&gt;&gt; <a href=\"").append("vote-vote.jsp?msgid=").append(msgid).append("\">Проголосовать</a>");
-	} catch (Exception e) {
-	    out.append("[BAD POLL]");
-	}
+    if (votepoll) {
+      //Render poll
+      try {
+        int id = Poll.getPollIdByTopic(db, msgid);
+        Poll poll = new Poll(db, id);
+        out.append(poll.renderPoll(db, tmpl, highlight));
+        out.append("<p>&gt;&gt;&gt; <a href=\"").append("vote-vote.jsp?msgid=").append(msgid).append("\">Проголосовать</a>");
+      } catch (PollNotFoundException e) {
+        out.append("[BAD POLL: not found]");
+      } catch (BadImageException e) {
+        out.append("[BAD POLL: bad image]");
+      }
     } else {
-	out.append(message);
+      out.append(message);
     }
 
     if (url!=null && havelink)

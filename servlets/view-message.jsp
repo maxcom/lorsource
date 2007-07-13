@@ -192,7 +192,11 @@
     pageInfo = bufInfo.toString();
   }
 
-  out.print(message.printMessage(tmpl, db, true, Template.getNick(session)));
+  if (request.getParameter("highlight") != null) {
+    out.print(message.printMessage(tmpl, db, true, Template.getNick(session),tmpl.getParameters().getInt("highlight")));
+  } else {
+    out.print(message.printMessage(tmpl, db, true, Template.getNick(session)));
+  }
 %>
 
 <% if (!Template.isSessionAuthorized(session)) { %>
