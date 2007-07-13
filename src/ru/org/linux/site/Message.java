@@ -9,11 +9,6 @@ import javax.servlet.http.HttpSession;
 import ru.org.linux.util.*;
 
 public class Message {
-  public static final int SCROLL_NOSCROLL = 0;
-  public static final int SCROLL_SECTION = 1;
-  public static final int SCROLL_GROUP = 2;
-
-  public static final int SECTION_LINKS = 4;
 
   private int msgid;
   private int postscore;
@@ -281,35 +276,23 @@ public class Message {
     }
   }
 
-  public int getScrollMode() {
-   switch (getSectionId()) {
-    case 1: /* news*/
-    case 3: /* screenshots */
-      return SCROLL_SECTION;
-    case 2: /* forum */
-      return SCROLL_GROUP;
-    default:
-      return SCROLL_NOSCROLL;
-   }
-  }
-
   public int getNextMessage(Connection db, int scrollMode) throws SQLException {
     PreparedStatement pst;
 
     switch (scrollMode) {
-      case SCROLL_SECTION:
+      case Section.SCROLL_SECTION:
         pst = db.prepareStatement("SELECT topics.id as msgid FROM topics, groups WHERE topics.groupid=groups.id AND topics.commitdate=(SELECT min(commitdate) FROM topics, groups, sections WHERE sections.id=groups.section AND topics.commitdate>? AND topics.groupid=groups.id AND groups.section=? AND (topics.moderate OR NOT sections.moderate) AND NOT deleted)");
         pst.setTimestamp(1, commitDate);
         pst.setInt(2, section);
         break;
 
-      case SCROLL_GROUP:
+      case Section.SCROLL_GROUP:
         pst = db.prepareStatement("SELECT topics.id as msgid FROM topics WHERE topics.id=(SELECT min(topics.id) FROM topics, groups, sections WHERE sections.id=groups.section AND topics.id>? AND topics.groupid=? AND topics.groupid=groups.id AND (topics.moderate OR NOT sections.moderate) AND NOT deleted)");
         pst.setInt(1, msgid);
         pst.setInt(2, guid);
         break;
 
-      case SCROLL_NOSCROLL:
+      case Section.SCROLL_NOSCROLL:
       default:
         return 0;
     }
@@ -330,19 +313,19 @@ public class Message {
     PreparedStatement pst;
 
     switch (scrollMode) {
-      case SCROLL_SECTION:
+      case Section.SCROLL_SECTION:
         pst = db.prepareStatement("SELECT topics.id as msgid FROM topics, groups WHERE topics.groupid=groups.id AND topics.commitdate=(SELECT max(commitdate) FROM topics, groups, sections WHERE sections.id=groups.section AND topics.commitdate<? AND topics.groupid=groups.id AND groups.section=? AND (topics.moderate OR NOT sections.moderate) AND NOT deleted)");
         pst.setTimestamp(1, commitDate);
         pst.setInt(2, section);
         break;
 
-      case SCROLL_GROUP:
+      case Section.SCROLL_GROUP:
         pst = db.prepareStatement("SELECT topics.id as msgid FROM topics WHERE topics.id=(SELECT max(topics.id) FROM topics, groups, sections WHERE sections.id=groups.section AND topics.id<? AND topics.groupid=? AND topics.groupid=groups.id AND (topics.moderate OR NOT sections.moderate) AND NOT deleted)");
         pst.setInt(1, msgid);
         pst.setInt(2, guid);
         break;
 
-      case SCROLL_NOSCROLL:
+      case Section.SCROLL_NOSCROLL:
       default:
         return 0;
     }

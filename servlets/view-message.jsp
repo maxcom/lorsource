@@ -74,7 +74,7 @@
       response.setDateHeader("Expires", System.currentTimeMillis() - 24 * 60 * 60 * 1000);
     }
 
-    int scroll = message.getScrollMode();
+    int scroll = Section.getScrollMode(message.getSectionId());
 
     int prevMsgid = message.getPreviousMessage(db, scroll);
     int nextMsgid = message.getNextMessage(db, scroll);
@@ -102,59 +102,59 @@
 <div class=messages>
 
 <%
-   if (!tmpl.isSearchMode() && scroll!=Message.SCROLL_NOSCROLL) {
+  if (!tmpl.isSearchMode() && scroll != Section.SCROLL_NOSCROLL) {
 %>
 <div class=nav>
   <div class="color1">
     <table width="100%" cellspacing=1 cellpadding=0 border=0>
       <tr class=body>
 <%
-   	if (scroll==Message.SCROLL_GROUP) {
-		out.print("<td align=left valign=middle width=\"35%\"><table><tr valign=middle><td>");
+  if (scroll == Section.SCROLL_GROUP) {
+    out.print("<td align=left valign=middle width=\"35%\"><table><tr valign=middle><td>");
 
-		if (prevMessage!=null) {
-			Timestamp lastmod=prevMessage.getLastModified();
+    if (prevMessage != null) {
+      Timestamp lastmod = prevMessage.getLastModified();
 
-			out.print("<a href=\"jump-message.jsp?msgid="+prevMessage.getMessageId()+"&amp;lastmod="+lastmod.getTime()+"\" rel=prev rev=next>&lt;&lt;&lt;</a></td><td align=left valign=top>"+StringUtil.makeTitle(prevMessage.getTitle()));
-		}
+      out.print("<a href=\"jump-message.jsp?msgid=" + prevMessage.getMessageId() + "&amp;lastmod=" + lastmod.getTime() + "\" rel=prev rev=next>&lt;&lt;&lt;</a></td><td align=left valign=top>" + StringUtil.makeTitle(prevMessage.getTitle()));
+    }
 
-		out.print("</td></table></td>");
+    out.print("</td></table></td>");
 
-  		out.print("<td align=center valign=middle><table><tr valign=middle><td><a title=\""+message.getPortalTitle()+" - "+message.getGroupTitle()+"\" href=\"group.jsp?group="+message.getGroupId()+"\">"+message.getPortalTitle()+" - "+message.getGroupTitle()+"</a></td></tr></table>");
+    out.print("<td align=center valign=middle><table><tr valign=middle><td><a title=\"" + message.getPortalTitle() + " - " + message.getGroupTitle() + "\" href=\"group.jsp?group=" + message.getGroupId() + "\">" + message.getPortalTitle() + " - " + message.getGroupTitle() + "</a></td></tr></table>");
 
-		out.print("<td align=left valign=middle width=\"35%\"><table width=\"100%\"><tr valign=middle align=right><td>");
+    out.print("<td align=left valign=middle width=\"35%\"><table width=\"100%\"><tr valign=middle align=right><td>");
 
-		if (nextMessage!=null) {
-			Timestamp lastmod=nextMessage.getLastModified();
+    if (nextMessage != null) {
+      Timestamp lastmod = nextMessage.getLastModified();
 
-			out.print(StringUtil.makeTitle(nextMessage.getTitle())+"</td><td align=right valign=middle><a href=\"jump-message.jsp?msgid="+nextMessage.getMessageId()+"&amp;lastmod="+lastmod.getTime()+"\" rev=prev rel=next>&gt;&gt;&gt;</a>");
-		}
+      out.print(StringUtil.makeTitle(nextMessage.getTitle()) + "</td><td align=right valign=middle><a href=\"jump-message.jsp?msgid=" + nextMessage.getMessageId() + "&amp;lastmod=" + lastmod.getTime() + "\" rev=prev rel=next>&gt;&gt;&gt;</a>");
+    }
 
-		out.print("</td></table></td>");
-	} else if (scroll==Message.SCROLL_SECTION) {
-		out.print("<td align=left valign=middle width=\"35%\"><table width=\"100%\"><tr valign=middle><td>");
+    out.print("</td></table></td>");
+  } else if (scroll == Section.SCROLL_SECTION) {
+    out.print("<td align=left valign=middle width=\"35%\"><table width=\"100%\"><tr valign=middle><td>");
 
-		if (prevMessage!=null) {
-			Timestamp lastmod=prevMessage.getLastModified();
-			if (lastmod==null) lastmod=new Timestamp(0);
+    if (prevMessage != null) {
+      Timestamp lastmod = prevMessage.getLastModified();
+      if (lastmod == null) lastmod = new Timestamp(0);
 
-			out.print("<a href=\"jump-message.jsp?msgid="+prevMessage.getMessageId()+"&amp;lastmod="+lastmod.getTime()+"\" rel=prev rev=next>&lt;&lt;&lt;</a></td><td align=left valign=top>"+StringUtil.makeTitle(prevMessage.getTitle())+" ("+prevMessage.getGroupTitle()+ ')');
-		}
+      out.print("<a href=\"jump-message.jsp?msgid=" + prevMessage.getMessageId() + "&amp;lastmod=" + lastmod.getTime() + "\" rel=prev rev=next>&lt;&lt;&lt;</a></td><td align=left valign=top>" + StringUtil.makeTitle(prevMessage.getTitle()) + " (" + prevMessage.getGroupTitle() + ')');
+    }
 
-		out.print("</td></table></td>");
+    out.print("</td></table></td>");
 
-  		out.print("<td align=center valign=middle><table><tr valign=middle><td><a title=\""+message.getPortalTitle()+" - "+message.getGroupTitle()+"\" href=\"group.jsp?group="+message.getGroupId()+"\">"+message.getPortalTitle()+" - "+message.getGroupTitle()+"</a></td></tr></table>");
+    out.print("<td align=center valign=middle><table><tr valign=middle><td><a title=\"" + message.getPortalTitle() + " - " + message.getGroupTitle() + "\" href=\"group.jsp?group=" + message.getGroupId() + "\">" + message.getPortalTitle() + " - " + message.getGroupTitle() + "</a></td></tr></table>");
 
-		out.print("<td align=left valign=middle width=\"35%\"><table width=\"100%\"><tr valign=middle align=right><td>");
-		if (nextMessage!=null) {
-			Timestamp lastmod=nextMessage.getLastModified();
-			if (lastmod==null) lastmod=new Timestamp(0);
+    out.print("<td align=left valign=middle width=\"35%\"><table width=\"100%\"><tr valign=middle align=right><td>");
+    if (nextMessage != null) {
+      Timestamp lastmod = nextMessage.getLastModified();
+      if (lastmod == null) lastmod = new Timestamp(0);
 
-			out.print(StringUtil.makeTitle(nextMessage.getTitle())+" ("+nextMessage.getGroupTitle()+")</td><td valign=middle align=right><a href=\"jump-message.jsp?msgid="+nextMessage.getMessageId()+"&amp;lastmod="+lastmod.getTime()+"\" rev=prev rel=next>&gt;&gt;&gt;</a>");
-		}
+      out.print(StringUtil.makeTitle(nextMessage.getTitle()) + " (" + nextMessage.getGroupTitle() + ")</td><td valign=middle align=right><a href=\"jump-message.jsp?msgid=" + nextMessage.getMessageId() + "&amp;lastmod=" + lastmod.getTime() + "\" rev=prev rel=next>&gt;&gt;&gt;</a>");
+    }
 
-		out.print("</td></table></td>");
-	}
+    out.print("</td></table></td>");
+  }
 %>
       </tr>
     </table>
@@ -304,57 +304,57 @@ google_ui_features = "rc:0";
   }
 %>
 <%
-   if (!tmpl.isSearchMode() && scroll!=Message.SCROLL_NOSCROLL) {
-   	out.print("<div class=nav><div class=color1><table width=\"100%\" cellspacing=1 cellpadding=0 border=0><tr class=body>");
+  if (!tmpl.isSearchMode() && scroll != Section.SCROLL_NOSCROLL) {
+    out.print("<div class=nav><div class=color1><table width=\"100%\" cellspacing=1 cellpadding=0 border=0><tr class=body>");
 
-   	if (scroll==Message.SCROLL_GROUP) {
-		out.print("<td align=left valign=middle width=\"35%\"><table><tr valign=middle><td>");
+    if (scroll == Section.SCROLL_GROUP) {
+      out.print("<td align=left valign=middle width=\"35%\"><table><tr valign=middle><td>");
 
-		if (prevMessage!=null) {
-			Timestamp lastmod=prevMessage.getLastModified();
+      if (prevMessage != null) {
+        Timestamp lastmod = prevMessage.getLastModified();
 
-			out.print("<a href=\"jump-message.jsp?msgid="+prevMessage.getMessageId()+"&amp;lastmod="+lastmod.getTime()+"\" rel=prev rev=next>&lt;&lt;&lt;</a></td><td align=left valign=top>"+StringUtil.makeTitle(prevMessage.getTitle()));
-		}
+        out.print("<a href=\"jump-message.jsp?msgid=" + prevMessage.getMessageId() + "&amp;lastmod=" + lastmod.getTime() + "\" rel=prev rev=next>&lt;&lt;&lt;</a></td><td align=left valign=top>" + StringUtil.makeTitle(prevMessage.getTitle()));
+      }
 
-		out.print("</td></table></td>");
+      out.print("</td></table></td>");
 
-  		out.print("<td align=center valign=middle><table><tr valign=middle><td><a title=\""+message.getPortalTitle()+" - "+message.getGroupTitle()+"\" href=\"group.jsp?group="+message.getGroupId()+"\">"+message.getPortalTitle()+" - "+message.getGroupTitle()+"</a></td></tr></table>");
+      out.print("<td align=center valign=middle><table><tr valign=middle><td><a title=\"" + message.getPortalTitle() + " - " + message.getGroupTitle() + "\" href=\"group.jsp?group=" + message.getGroupId() + "\">" + message.getPortalTitle() + " - " + message.getGroupTitle() + "</a></td></tr></table>");
 
-		out.print("<td align=left valign=middle width=\"35%\"><table width=\"100%\"><tr valign=middle align=right><td>");
+      out.print("<td align=left valign=middle width=\"35%\"><table width=\"100%\"><tr valign=middle align=right><td>");
 
-		if (nextMessage!=null) {
-			Timestamp lastmod=nextMessage.getLastModified();
+      if (nextMessage != null) {
+        Timestamp lastmod = nextMessage.getLastModified();
 
-			out.print(StringUtil.makeTitle(nextMessage.getTitle())+"</td><td align=right valign=middle><a href=\"jump-message.jsp?msgid="+nextMessage.getMessageId()+"&amp;lastmod="+lastmod.getTime()+"\" rev=prev rel=next>&gt;&gt;&gt;</a>");
-		}
+        out.print(StringUtil.makeTitle(nextMessage.getTitle()) + "</td><td align=right valign=middle><a href=\"jump-message.jsp?msgid=" + nextMessage.getMessageId() + "&amp;lastmod=" + lastmod.getTime() + "\" rev=prev rel=next>&gt;&gt;&gt;</a>");
+      }
 
-		out.print("</td></table></td>");
-	} else if (scroll==Message.SCROLL_SECTION) {
-		out.print("<td align=left valign=middle width=\"35%\"><table width=\"100%\"><tr valign=middle><td>");
+      out.print("</td></table></td>");
+    } else if (scroll == Section.SCROLL_SECTION) {
+      out.print("<td align=left valign=middle width=\"35%\"><table width=\"100%\"><tr valign=middle><td>");
 
-		if (prevMessage!=null) {
-			Timestamp lastmod=prevMessage.getLastModified();
-			if (lastmod==null) lastmod=new Timestamp(0);
+      if (prevMessage != null) {
+        Timestamp lastmod = prevMessage.getLastModified();
+        if (lastmod == null) lastmod = new Timestamp(0);
 
-			out.print("<a href=\"jump-message.jsp?msgid="+prevMessage.getMessageId()+"&amp;lastmod="+lastmod.getTime()+"\" rel=prev rev=next>&lt;&lt;&lt;</a></td><td align=left valign=top>"+StringUtil.makeTitle(prevMessage.getTitle())+" ("+prevMessage.getGroupTitle()+ ')');
-		}
+        out.print("<a href=\"jump-message.jsp?msgid=" + prevMessage.getMessageId() + "&amp;lastmod=" + lastmod.getTime() + "\" rel=prev rev=next>&lt;&lt;&lt;</a></td><td align=left valign=top>" + StringUtil.makeTitle(prevMessage.getTitle()) + " (" + prevMessage.getGroupTitle() + ')');
+      }
 
-		out.print("</td></table></td>");
+      out.print("</td></table></td>");
 
-  		out.print("<td align=center valign=middle><table><tr valign=middle><td><a title=\""+message.getPortalTitle()+" - "+message.getGroupTitle()+"\" href=\"group.jsp?group="+message.getGroupId()+"\">"+message.getPortalTitle()+" - "+message.getGroupTitle()+"</a></td></tr></table>");
+      out.print("<td align=center valign=middle><table><tr valign=middle><td><a title=\"" + message.getPortalTitle() + " - " + message.getGroupTitle() + "\" href=\"group.jsp?group=" + message.getGroupId() + "\">" + message.getPortalTitle() + " - " + message.getGroupTitle() + "</a></td></tr></table>");
 
-		out.print("<td align=left valign=middle width=\"35%\"><table width=\"100%\"><tr valign=middle align=right><td>");
-		if (nextMessage!=null) {
-			Timestamp lastmod=nextMessage.getLastModified();
-			if (lastmod==null) lastmod=new Timestamp(0);
+      out.print("<td align=left valign=middle width=\"35%\"><table width=\"100%\"><tr valign=middle align=right><td>");
+      if (nextMessage != null) {
+        Timestamp lastmod = nextMessage.getLastModified();
+        if (lastmod == null) lastmod = new Timestamp(0);
 
-			out.print(StringUtil.makeTitle(nextMessage.getTitle())+" ("+nextMessage.getGroupTitle()+")</td><td valign=middle align=right><a href=\"jump-message.jsp?msgid="+nextMessage.getMessageId()+"&amp;lastmod="+lastmod.getTime()+"\" rev=prev rel=next>&gt;&gt;&gt;</a>");
-		}
+        out.print(StringUtil.makeTitle(nextMessage.getTitle()) + " (" + nextMessage.getGroupTitle() + ")</td><td valign=middle align=right><a href=\"jump-message.jsp?msgid=" + nextMessage.getMessageId() + "&amp;lastmod=" + lastmod.getTime() + "\" rev=prev rel=next>&gt;&gt;&gt;</a>");
+      }
 
-		out.print("</td></table></td>");
-	}
-	out.print("</tr></table></div></div>");
-   }
+      out.print("</td></table></td>");
+    }
+    out.print("</tr></table></div></div>");
+  }
 %>
 
 

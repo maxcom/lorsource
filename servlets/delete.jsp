@@ -69,127 +69,126 @@ function change(dest,source)
 <input type=submit value="Delete/Удалить">
 </form>
 <%
-   } else {
-     Connection db = null;
-     try {
-       int msgid = Integer.parseInt(request.getParameter("msgid"));
-       String nick = request.getParameter("nick");
-       String reason = request.getParameter("reason");
+  } else {
+    Connection db = null;
+    try {
+      int msgid = Integer.parseInt(request.getParameter("msgid"));
+      String nick = request.getParameter("nick");
+      String reason = request.getParameter("reason");
 
-       db = tmpl.getConnection("delete");
-       db.setAutoCommit(false);
+      db = tmpl.getConnection("delete");
+      db.setAutoCommit(false);
 
-       PreparedStatement lock = db.prepareStatement("SELECT deleted FROM topics WHERE id=? FOR UPDATE");
-       PreparedStatement st1 = db.prepareStatement("UPDATE topics SET deleted='t' WHERE id=?");
-       PreparedStatement st2 = db.prepareStatement("INSERT INTO del_info (msgid, delby, reason) values(?,?,?)");
-       lock.setInt(1, msgid);
-       st1.setInt(1, msgid);
-       st2.setInt(1, msgid);
-       st2.setString(3, reason);
+      PreparedStatement lock = db.prepareStatement("SELECT deleted FROM topics WHERE id=? FOR UPDATE");
+      PreparedStatement st1 = db.prepareStatement("UPDATE topics SET deleted='t' WHERE id=?");
+      PreparedStatement st2 = db.prepareStatement("INSERT INTO del_info (msgid, delby, reason) values(?,?,?)");
+      lock.setInt(1, msgid);
+      st1.setInt(1, msgid);
+      st2.setInt(1, msgid);
+      st2.setString(3, reason);
 
-       User user;
+      User user;
 
-       if (session == null || session.getAttribute("login") == null || !((Boolean) session.getAttribute("login")).booleanValue())
-       {
-         if (request.getParameter("nick") == null) {
-           throw new BadInputException("Вы уже вышли из системы");
-         }
-         user = new User(db, nick);
-         user.checkPassword(request.getParameter("password"));
-       } else {
-         user = new User(db, (String) session.getAttribute("nick"));
-         nick = (String) session.getAttribute("nick");
-       }
+      if (session == null || session.getAttribute("login") == null || !((Boolean) session.getAttribute("login")).booleanValue()) {
+        if (request.getParameter("nick") == null) {
+          throw new BadInputException("Вы уже вышли из системы");
+        }
+        user = new User(db, nick);
+        user.checkPassword(request.getParameter("password"));
+      } else {
+        user = new User(db, (String) session.getAttribute("nick"));
+        nick = (String) session.getAttribute("nick");
+      }
 
-       user.checkAnonymous();
-       st2.setInt(2, user.getId());
+      user.checkAnonymous();
+      st2.setInt(2, user.getId());
 
-       ResultSet lockResult = lock.executeQuery(); // lock another delete.jsp on this row
+      ResultSet lockResult = lock.executeQuery(); // lock another delete.jsp on this row
 
-       if (lockResult.next() && lockResult.getBoolean("deleted")) {
-         throw new UserErrorException("Сообщение уже удалено");
-       }
+      if (lockResult.next() && lockResult.getBoolean("deleted")) {
+        throw new UserErrorException("Сообщение уже удалено");
+      }
 
-       PreparedStatement pr = db.prepareStatement("SELECT postdate>CURRENT_TIMESTAMP-'1 hour'::interval as perm FROM users, topics WHERE topics.id=? AND topics.userid=users.id AND users.nick=?");
-       pr.setInt(1, msgid);
-       pr.setString(2, nick);
-       ResultSet rs = pr.executeQuery();
-       boolean perm = false;
+      PreparedStatement pr = db.prepareStatement("SELECT postdate>CURRENT_TIMESTAMP-'1 hour'::interval as perm FROM users, topics WHERE topics.id=? AND topics.userid=users.id AND users.nick=?");
+      pr.setInt(1, msgid);
+      pr.setString(2, nick);
+      ResultSet rs = pr.executeQuery();
+      boolean perm = false;
 
-       if (rs.next()) {
-         perm = rs.getBoolean("perm");
-       }
+      if (rs.next()) {
+        perm = rs.getBoolean("perm");
+      }
 
-       rs.close();
+      rs.close();
 
-       if (!perm) {
-         PreparedStatement mod = db.prepareStatement("SELECT moderator FROM groups,topics WHERE topics.groupid=groups.id AND topics.id=?");
-         mod.setInt(1, msgid);
+      if (!perm) {
+        PreparedStatement mod = db.prepareStatement("SELECT moderator FROM groups,topics WHERE topics.groupid=groups.id AND topics.id=?");
+        mod.setInt(1, msgid);
 
-         rs = mod.executeQuery();
+        rs = mod.executeQuery();
 
-         if (!rs.next()) {
-           throw new MessageNotFoundException(msgid);
-         }
+        if (!rs.next()) {
+          throw new MessageNotFoundException(msgid);
+        }
 
-         if (rs.getInt("moderator") == user.getId()) {
-           perm = true; // NULL is ok
-         }
+        if (rs.getInt("moderator") == user.getId()) {
+          perm = true; // NULL is ok
+        }
 
-         mod.close();
-         rs.close();
-       }
+        mod.close();
+        rs.close();
+      }
 
-       if (!perm) {
-         PreparedStatement mod = db.prepareStatement("SELECT topics.moderate as mod, sections.moderate as needmod FROM groups,topics,sections WHERE topics.groupid=groups.id AND topics.id=? AND groups.section=sections.id");
-         mod.setInt(1, msgid);
+      if (!perm) {
+        PreparedStatement mod = db.prepareStatement("SELECT topics.moderate as mod, sections.moderate as needmod FROM groups,topics,sections WHERE topics.groupid=groups.id AND topics.id=? AND groups.section=sections.id");
+        mod.setInt(1, msgid);
 
-         rs = mod.executeQuery();
-         if (!rs.next()) {
-           throw new MessageNotFoundException(msgid);
-         }
+        rs = mod.executeQuery();
+        if (!rs.next()) {
+          throw new MessageNotFoundException(msgid);
+        }
 
-         if (rs.getBoolean("needmod") && !rs.getBoolean("mod") && user.canModerate()) {
-           perm = true;
-         }
+        if (rs.getBoolean("needmod") && !rs.getBoolean("mod") && user.canModerate()) {
+          perm = true;
+        }
 
-         rs.close();
-       }
+        rs.close();
+      }
 
-       if (!perm && user.canModerate()) {
-         PreparedStatement mod = db.prepareStatement("SELECT postdate>CURRENT_TIMESTAMP-'1 month'::interval as perm, section FROM topics,groups WHERE topics.groupid=groups.id AND topics.id=?");
-         mod.setInt(1, msgid);
+      if (!perm && user.canModerate()) {
+        PreparedStatement mod = db.prepareStatement("SELECT postdate>CURRENT_TIMESTAMP-'1 month'::interval as perm, section FROM topics,groups WHERE topics.groupid=groups.id AND topics.id=?");
+        mod.setInt(1, msgid);
 
-         rs = mod.executeQuery();
-         if (!rs.next()) {
-           throw new MessageNotFoundException(msgid);
-         }
+        rs = mod.executeQuery();
+        if (!rs.next()) {
+          throw new MessageNotFoundException(msgid);
+        }
 
-         if (rs.getBoolean("perm") || rs.getInt("section")==Message.SECTION_LINKS) {
-           perm = true;
-         }
+        if (rs.getBoolean("perm") || rs.getInt("section") == Section.SECTION_LINKS) {
+          perm = true;
+        }
 
-         rs.close();
-       }
+        rs.close();
+      }
 
-       if (!perm) {
-         user.checkDelete();
-       }
+      if (!perm) {
+        user.checkDelete();
+      }
 
-       st1.executeUpdate();
-       st2.executeUpdate();
+      st1.executeUpdate();
+      st2.executeUpdate();
 
-       out.print("Сообщение удалено");
-       tmpl.getLogger().notice("delete", "Удалено сообщение " + msgid + " пользователем " + nick + " по причине `" + reason + '\'');
+      out.print("Сообщение удалено");
+      tmpl.getLogger().notice("delete", "Удалено сообщение " + msgid + " пользователем " + nick + " по причине `" + reason + '\'');
 
-       st1.close();
-       st2.close();
-       db.commit();
-     } finally {
-       if (db != null) {
-         db.close();
-       }
-     }
-   }
+      st1.close();
+      st2.close();
+      db.commit();
+    } finally {
+      if (db != null) {
+        db.close();
+      }
+    }
+  }
 %>
 <%= tmpl.DocumentFooter() %>
