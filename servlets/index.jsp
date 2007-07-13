@@ -1,7 +1,10 @@
 <%@ page contentType="text/html; charset=koi8-r"%>
-<%@ page import="java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.util.Date,java.util.List,ru.org.linux.boxlet.BoxletRunner, ru.org.linux.boxlet.BoxletVectorRunner" errorPage="error.jsp" buffer="60kb"%>
-<%@ page import="ru.org.linux.site.Template"%>
-<%@ page import="ru.org.linux.site.User"%>
+<%@ page import="java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.util.Date,java.util.List, com.danga.MemCached.MemCachedClient" errorPage="error.jsp" buffer="60kb"%>
+<%@ page import="ru.org.linux.boxlet.BoxletVectorRunner"%>
+<%@ page import="ru.org.linux.site.MemCachedSettings"%>
+<%@ page import="ru.org.linux.site.Template" %>
+<%@ page import="ru.org.linux.site.User" %>
+<%@ page import="ru.org.linux.site.boxes.fullnews" %>
 <% Template tmpl = new Template(request, config, response);
    tmpl.setMainPage(); %>
 <%=   tmpl.head() %>
@@ -11,24 +14,8 @@
 <LINK REL="alternate" TITLE="L.O.R RSS" HREF="http://linux.org.ru/rss.jsp" TYPE="application/rss+xml">
 
 <%
-   boolean redirect=false;
-/*
-   if (tmpl.getCookie("profile")!=null && !tmpl.getCookie("profile").equals("") && tmpl.getProfileName()==null) {
-	response.setHeader("Location", tmpl.getRedirectUrl(tmpl.getCookie("profile")));
-	response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
-	redirect=true;
-   }
-
-   if (tmpl.getProfile(request)!=null && tmpl.isUsingDefaultProfile()) {
-   	response.setHeader("Location", tmpl.getMainUrl());
-   	response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
-	redirect=true;
-   }
-*/
-   if (!redirect) {
-   	response.setDateHeader("Expires", new Date(new Date().getTime()-20*3600*1000).getTime());
-   	response.setDateHeader("Last-Modified", new Date(new Date().getTime()-2*1000).getTime());
-   }
+  response.setDateHeader("Expires", new Date(new Date().getTime() - 20 * 3600 * 1000).getTime());
+  response.setDateHeader("Last-Modified", new Date(new Date().getTime() - 2 * 1000).getTime());
 
 %>
 <%= tmpl.DocumentHeader() %>
@@ -41,7 +28,7 @@
 <div class=column>
 <div class=boxlet>
 <h2>Вход на сайт</h2>
-<% if (session==null || session.getAttribute("login")==null || !((Boolean) session.getAttribute("login")).booleanValue()) { %>
+<% if (session == null || session.getAttribute("login") == null || !(Boolean) session.getAttribute("login")) { %>
 <form method=POST action="login.jsp">
 Имя:<br><input type=text name=nick size=15 style="width: 90%"><br>
 Пароль:<br><input type=password name=passwd size=15 style="width: 90%"><br>
@@ -86,17 +73,14 @@
 
 <!-- boxes -->
 <%
-  BoxletVectorRunner boxes = null;
+  BoxletVectorRunner boxes  ;
 
   if (tmpl.getProf().getBoolean("main.3columns"))
-    boxes = new BoxletVectorRunner((List) tmpl.getProf().getObject("main3-1"), tmpl.getCache());
+    boxes = new BoxletVectorRunner((List) tmpl.getProf().getObject("main3-1"));
   else
-    boxes = new BoxletVectorRunner((List) tmpl.getProf().getObject("main2"), tmpl.getCache());
+    boxes = new BoxletVectorRunner((List) tmpl.getProf().getObject("main2"));
 
-  if (request.getParameter("nocache") != null)
-    boxes.setCacheMode(true);
-
-  out.print(boxes.getContent(tmpl.getObjectConfig(), tmpl.getProf()));
+  out.print(boxes.getContent(tmpl, tmpl.getObjectConfig(), tmpl.getProf()));
 
 %>
 </div>
@@ -104,10 +88,9 @@
 <% if (columns3) { %>
 <div class=column2>
 <%
-  boxes = new BoxletVectorRunner((List) tmpl.getProf().getObject("main3-2"), tmpl.getCache());
-  if (request.getParameter("nocache") != null) boxes.setCacheMode(true);
+  boxes = new BoxletVectorRunner((List) tmpl.getProf().getObject("main3-2"));
 
-  out.print(boxes.getContent(tmpl.getObjectConfig(), tmpl.getProf()));
+  out.print(boxes.getContent(tmpl, tmpl.getObjectConfig(), tmpl.getProf()));
 %>
 </div>
 <% } %>
@@ -116,39 +99,49 @@
   
 <h1><a href="view-section.jsp?section=1">Новости</a></h1>
 <%
-        if (tmpl.isSessionAuthorized(session) && ((Boolean) session.getValue("moderator")).booleanValue()) {
-          out.print("<hr><div align=\"center\">");
+  if (tmpl.isModeratorSession()) {
+    out.print("<hr><div align=\"center\">");
 
-          Connection db = tmpl.getConnection("index");
+    Connection db = tmpl.getConnection("index");
 
-	  Statement st = db.createStatement();
-	  ResultSet rs = st.executeQuery("select count(*) from topics,groups where section=1 and topics.groupid=groups.id and not deleted and not moderate AND postdate>(CURRENT_TIMESTAMP-'1 month'::interval)");
+    Statement st = db.createStatement();
+    ResultSet rs = st.executeQuery("select count(*) from topics,groups where section=1 and topics.groupid=groups.id and not deleted and not moderate AND postdate>(CURRENT_TIMESTAMP-'1 month'::interval)");
 
-          if (rs.next()) {
-	    int count = rs.getInt("count");
+    if (rs.next()) {
+      int count = rs.getInt("count");
 
-	    out.print("[<a style=\"text-decoration: none\" href=\"view-all.jsp\">Неподтвержденных новостей</a>: "+count+"]");
-	  }
+      out.print("[<a style=\"text-decoration: none\" href=\"view-all.jsp\">Неподтвержденных новостей</a>: " + count + "]");
+    }
 
-	  rs.close();
+    rs.close();
 
-          rs = st.executeQuery("select count(*) from votenames where not deleted and not moderate");
+    rs = st.executeQuery("select count(*) from votenames where not deleted and not moderate");
 
-          if (rs.next()) {
-            int count = rs.getInt("count");
+    if (rs.next()) {
+      int count = rs.getInt("count");
 
-            out.print(" [<a style=\"text-decoration: none\" href=\"votes.jsp\">Неподтвержденных опросов</a>: "+count+"]");
-          }
+      out.print(" [<a style=\"text-decoration: none\" href=\"votes.jsp\">Неподтвержденных опросов</a>: " + count + "]");
+    }
 
-          rs.close();
-          st.close();
+    rs.close();
+    st.close();
 
-          out.print("</div>");
-        }
+    out.print("</div>");
+  }
 
-	BoxletRunner main=new BoxletRunner("fullnews", tmpl.getCache());
-	if (request.getParameter("nocache")!=null) main.setCacheMode(true);
-	out.print(main.getContent(tmpl.getObjectConfig(), tmpl.getProf()));
+  MemCachedClient mcc = MemCachedSettings.getClient();
+
+  fullnews news = new fullnews();
+  String cacheId = MemCachedSettings.getId(tmpl, "fullnews" + "?" + news.getVariantID(tmpl.getProf()));
+
+  String res = (String) mcc.get(cacheId);
+  if (res == null) {
+    res = news.getContent(tmpl.getObjectConfig(), tmpl.getProf());
+
+    mcc.add(cacheId, res, news.getExpire());
+  }
+
+  out.print(res);
 %>
 <hr>
 <div align=center>[<a href="add-section.jsp?section=1" style="text-decoration: none">добавить новость</a>]</div>

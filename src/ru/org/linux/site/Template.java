@@ -19,7 +19,6 @@ import gnu.regexp.RE;
 import gnu.regexp.REException;
 import gnu.regexp.REMatch;
 
-import ru.org.linux.cache.Cache;
 import ru.org.linux.logger.Logger;
 import ru.org.linux.logger.ServletLogger;
 import ru.org.linux.logger.SimpleFileLogger;
@@ -42,15 +41,10 @@ public class Template {
   private final Date startDate = new Date();
   private final String requestString;
 
-  private static final Cache cache;
   public static final DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM, new Locale("ru"));
   public static final DateFormat RFC822 = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss Z", Locale.US);
 
   private static final int WARNING_EXEC_TIME = 15000;
-
-  static {
-    cache = new Cache();
-  }
 
   static {
     try {
@@ -82,7 +76,6 @@ public class Template {
       tmp.load(new FileInputStream(propFile));
       properties = tmp;
       logger.notice("template", "loaded config file");
-      cache.clear();
       logger.close();
       logger = new SimpleFileLogger(properties.getProperty("Logfile"));
     }
@@ -508,10 +501,6 @@ public class Template {
 
   public Config getObjectConfig() {
     return config;
-  }
-
-  public Cache getCache() {
-    return cache;
   }
 
   public Logger getLogger() {

@@ -1,7 +1,6 @@
 package ru.org.linux.site.boxes;
 
 import java.io.IOException;
-import java.util.Properties;
 
 import ru.org.linux.boxlet.Boxlet;
 import ru.org.linux.util.ProfileHashtable;
@@ -15,7 +14,7 @@ public final class profile extends Boxlet
 		if (profile.getString("ProfileName")==null)
 			out.append("Используется профиль по-умолчанию<p>");
 		else
-			out.append("Используется профиль: <em>"+profile.getString("ProfileName")+"</em><p>");
+                  out.append("Используется профиль: <em>").append(profile.getString("ProfileName")).append("</em><p>");
 		out.append("<br><a href=\"edit-profile.jsp\">настройки...</a>");
 
 		out.append("<p><strong>Предустановки:</strong><br>");
@@ -28,7 +27,7 @@ public final class profile extends Boxlet
 
 	public String getInfo() { return "Выбор профиля"; }
 
-	public String getVariantID(ProfileHashtable prof, Properties request) {
+	public String getVariantID(ProfileHashtable prof) {
 		if (prof.getString("ProfileName")==null)
 			return "";
 		else

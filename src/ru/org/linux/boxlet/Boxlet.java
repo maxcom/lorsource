@@ -1,15 +1,12 @@
 package ru.org.linux.boxlet;
 
 import java.util.Date;
-import java.util.Properties;
 
 import ru.org.linux.util.ProfileHashtable;
 import ru.org.linux.util.UtilException;
 
 public abstract class Boxlet {
   protected Object config;
-
-  protected Properties request;
 
   public Boxlet() {
   }
@@ -23,12 +20,12 @@ public abstract class Boxlet {
 
   public abstract String getInfo();
 
-  public String getVariantID(ProfileHashtable profile, Properties request) throws UtilException {
+  public String getVariantID(ProfileHashtable profile) throws UtilException {
 //		return "ProfileName="+profile.getString("ProfileName");
     return "";
   }
 
-  public long getVersionID(ProfileHashtable profile, Properties request) {
-    return new Date().getTime();
+  public Date getExpire() {
+    return new Date(new Date().getTime() + 30*1000);
   }
 }

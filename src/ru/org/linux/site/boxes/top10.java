@@ -3,9 +3,8 @@ package ru.org.linux.site.boxes;
 import java.io.IOException;
 import java.sql.*;
 import java.util.Date;
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 
 import ru.org.linux.boxlet.Boxlet;
 import ru.org.linux.site.config.SQLConfig;
@@ -17,7 +16,7 @@ public final class top10 extends Boxlet {
     Connection db = null;
     try {
       db = ((SQLConfig) config).getConnection("top10");
-      Map ht = new Hashtable();
+      Map ht = new HashMap();
       StringBuffer out = new StringBuffer();
       double messages = profile.getInt("messages");
 
@@ -26,8 +25,8 @@ public final class top10 extends Boxlet {
 
       ResultSet rs = st.executeQuery("select msgid, mess_order from top10");
       while (rs.next()) {
-        Integer msgid = new Integer(rs.getInt("msgid"));
-        Integer mess_order = new Integer(rs.getInt("mess_order"));
+        Integer msgid = rs.getInt("msgid");
+        Integer mess_order = rs.getInt("mess_order");
         ht.put(msgid, mess_order);
       }
       rs.close();
@@ -38,33 +37,33 @@ public final class top10 extends Boxlet {
         order++;
         int c = rs.getInt("c");
         int msgid = rs.getInt("msgid");
-        Integer msg = new Integer(msgid);
+        Integer msg = msgid;
         Timestamp lastmod = rs.getTimestamp("lastmod");
         if (lastmod == null) {
           lastmod = new Timestamp(0);
         }
 
         if ((ht.get(msg) == null)
-            || (((Integer) ht.get(msg)).intValue() > order)) {
-          out.append("<img src=\"/" + profile.getString("style") + "/img/arrow.gif\" alt=\"[up]\" width=10 height=12> ");
+            || ((Integer) ht.get(msg) > order)) {
+          out.append("<img src=\"/").append(profile.getString("style")).append("/img/arrow.gif\" alt=\"[up]\" width=10 height=12> ");
         } else {
           out.append("* ");
         }
 
         if (profile.getBoolean("SearchMode")) {
-          out.append("<a href=\"view-message.jsp?msgid=" + msgid + "&amp;page=0\">" + rs.getString("title") + "</a> (" + c + ")<br>");
+          out.append("<a href=\"view-message.jsp?msgid=").append(msgid).append("&amp;page=0\">").append(rs.getString("title")).append("</a> (").append(c).append(")<br>");
         } else {
-          out.append("<a href=\"jump-message.jsp?msgid=" + msgid + "&amp;lastmod=" + lastmod.getTime() + "&amp;page=0\">" + rs.getString("title") + "</a>");
+          out.append("<a href=\"jump-message.jsp?msgid=").append(msgid).append("&amp;lastmod=").append(lastmod.getTime()).append("&amp;page=0\">").append(rs.getString("title")).append("</a>");
           int pages = (int) Math.ceil(c / messages);
           if (pages > 1) {
             out.append(" (стр.");
             for (int i = 0; i < pages; i++) {
-              out.append(" <a href=\"jump-message.jsp?msgid=" + msgid + "&amp;lastmod=" + lastmod.getTime()+"&amp;page=" + i + "\">" + (i + 1) + "</a>");
+              out.append(" <a href=\"jump-message.jsp?msgid=").append(msgid).append("&amp;lastmod=").append(lastmod.getTime()).append("&amp;page=").append(i).append("\">").append(i + 1).append("</a>");
             }
             out.append(')');
           }
 
-          out.append(" (" + c + ")<br>");
+          out.append(" (").append(c).append(")<br>");
         }
       }
 
@@ -82,13 +81,11 @@ public final class top10 extends Boxlet {
     return "Наиболее обсуждаемые темы этого месяца";
   }
 
-  public String getVariantID(ProfileHashtable prof, Properties request) throws UtilException {
+  public String getVariantID(ProfileHashtable prof) throws UtilException {
     return "SearchMode=" + prof.getBoolean("SearchMode") + "&messages=" + prof.getInt("messages") + "&style=" + prof.getString("style");
   }
 
-  public long getVersionID(ProfileHashtable profile, Properties request) {
-    long time = new Date().getTime();
-
-    return time - time % (5 * 60 * 1000); // 5 min
+  public Date getExpire() {
+    return new Date(new Date().getTime() + 5*60*1000);
   }
 }

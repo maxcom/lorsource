@@ -119,12 +119,12 @@ throw new AccessViolationException("нельзя изменить системный профиль; создайте 
   if (tmpl.getProf().getBoolean("main.3columns")) {
     out.print("<h3>Левая колонка</h3>");
     out.print("<div class=column>");
-    out.print(new BoxletVectorRunner(main31, tmpl.getCache()).getEditContent(tmpl.getObjectConfig(), tmpl.getProf(), "31"));
+    out.print(new BoxletVectorRunner(main31).getEditContent(tmpl.getObjectConfig(), tmpl.getProf(), "31"));
     out.print("</div>");
   } else {
     out.print("<h3>Левая колонка</h3>");
     out.print("<div class=column>");
-    out.print(new BoxletVectorRunner(main2, tmpl.getCache()).getEditContent(tmpl.getObjectConfig(), tmpl.getProf(), "2"));
+    out.print(new BoxletVectorRunner(main2).getEditContent(tmpl.getObjectConfig(), tmpl.getProf(), "2"));
     out.print("</div>");
   }
 %>
@@ -138,7 +138,7 @@ throw new AccessViolationException("нельзя изменить системный профиль; создайте 
     out.print("<td valign=top>");
     out.print("<h3>Правая колонка</h3>");
     out.print("<div class=column>");
-    out.print(new BoxletVectorRunner(main32, tmpl.getCache()).getEditContent(tmpl.getObjectConfig(), tmpl.getProf(), "32"));
+    out.print(new BoxletVectorRunner(main32).getEditContent(tmpl.getObjectConfig(), tmpl.getProf(), "32"));
     out.print("</div>");
     out.print("</td>");
   }

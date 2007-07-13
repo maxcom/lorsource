@@ -6,7 +6,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Date;
-import java.util.Properties;
 
 import ru.org.linux.boxlet.Boxlet;
 import ru.org.linux.site.config.SQLConfig;
@@ -29,7 +28,7 @@ public final class archive extends Boxlet {
       while (rs.next()) {
         int year = rs.getInt("year");
         int month = rs.getInt("month");
-        out.append("<a href=\"view-news.jsp?year=" + year + "&amp;month=" + month + "&amp;section=1\">" + year + ' ' + DateUtil.getMonth(month) + "</a> (" + rs.getInt("c") + ")<br>");
+        out.append("<a href=\"view-news.jsp?year=").append(year).append("&amp;month=").append(month).append("&amp;section=1\">").append(year).append(' ').append(DateUtil.getMonth(month)).append("</a> (").append(rs.getInt("c")).append(")<br>");
       }
       rs.close();
 
@@ -47,9 +46,7 @@ public final class archive extends Boxlet {
     return "Архив новостей по месяцам";
   }
 
-  public long getVersionID(ProfileHashtable profile, Properties request) {
-    long time = new Date().getTime();
-
-    return time - time % (5 * 60 * 1000); // 5 min
+  public Date getExpire() {
+    return new Date(new Date().getTime() + 5*60*1000);
   }
 }
