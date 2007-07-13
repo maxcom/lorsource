@@ -1,6 +1,7 @@
 <%@ page contentType="text/html; charset=koi8-r"%>
 <%@ page import="java.net.URLEncoder,java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.util.Date,ru.org.linux.site.NewsViewer" errorPage="error.jsp" buffer="60kb"%>
-<%@ page import="ru.org.linux.site.Template"%>
+<%@ page import="ru.org.linux.site.Section"%>
+<%@ page import="ru.org.linux.site.Template" %>
 <% Template tmpl = new Template(request, config, response); %>
 <%= tmpl.head() %>
 <%
@@ -9,10 +10,65 @@
 
    response.setDateHeader("Expires", new Date(new Date().getTime()-20*3600*1000).getTime());
    response.setDateHeader("Last-Modified", new Date(new Date().getTime()-120*1000).getTime());
+
+  db = tmpl.getConnection("view-all");
+
+  int sectionid = 0;
+  Section section = null;
+
+  if (request.getParameter("section") != null) {
+    sectionid = tmpl.getParameters().getInt("section");
+    if (sectionid!=0) {
+      section = new Section(db, sectionid);
+    }
+  }
+
 %>
-<title>Просмотр неподтвержденных сообщений</title>
+<title>Просмотр неподтвержденных сообщений - <%= section==null?"Все":section.getName() %></title>
 <%= tmpl.DocumentHeader() %>
-<h1>Просмотр неподтвержденных сообщений</h1>
+
+<div class=messages>
+<div class=nav>
+  <form action="view-all.jsp">
+
+<div class="color1">
+  <table width="100%" cellspacing=1 cellpadding=1 border=0><tr class=body>
+    <td align=left valign=middle>
+      Просмотр неподтвержденных сообщений - <%= section==null?"Все":section.getName() %>
+    </td>
+
+    <td align=right valign=middle>
+      [<a style="text-decoration: none" href="rules.jsp">Правила форума</a>]
+
+      <select name=section onChange="submit()" title="Быстрый переход">
+        <option value=0>Все</option>
+        <%
+                Statement sectionListSt = db.createStatement();
+                ResultSet sectionList = sectionListSt.executeQuery("SELECT id, name FROM sections WHERE moderate order by id");
+
+                while (sectionList.next()) {
+                        int id = sectionList.getInt("id");
+        %>
+                <option value=<%= id %> <%= id==sectionid?"selected":"" %> ><%= sectionList.getString("name") %></option>
+        <%
+                }
+
+                sectionList.close();
+                sectionListSt.close();
+        %>
+
+      </select>
+    </td>
+
+  </tr>
+ </table>
+</div>
+</form>
+</div>
+</div>
+
+
+<h1><%= section==null?"П":(section.getName()+": п") %>росмотр неподтвержденных</h1>
 <strong>Внимание!</strong> сообщения отображаются точно также, как
 они будут выглядеть на главной странице (за исключением раздела <em>ссылок</em>). Если ваше сообщение отображается не так, как вы хотели, или
 в нем не работают какие-либо ссылки, пожалуйста,
@@ -21,24 +77,30 @@
 <strong>Внимание модераторам!</strong> Не подтверждайте сразу
 много скриншотов, дайте им повисеть на главной странице.<p>
 <%
-   db = tmpl.getConnection("view-all");
 
-   Statement st=db.createStatement();
-%>
+  Statement st = db.createStatement();
 
-<%
+  ResultSet rs;
 
-  ResultSet rs=st.executeQuery("SELECT topics.title as subj, lastmod, postdate, nick, image, groups.title as gtitle, topics.id as msgid, sections.comment, groups.id as guid, topics.url, topics.linktext, imagepost, vote, sections.name as pname, linkup, postdate<(CURRENT_TIMESTAMP-expire) as expired, message FROM topics,groups,users,sections, msgbase WHERE sections.id=groups.section AND topics.userid=users.id AND topics.groupid=groups.id AND topics.id=msgbase.id AND (NOT topics.moderate) AND sections.moderate AND NOT deleted AND postdate>(CURRENT_TIMESTAMP-'1 month'::interval) ORDER BY msgid DESC");
+  if (sectionid == 0) {
+    rs = st.executeQuery("SELECT topics.title as subj, lastmod, postdate, nick, image, groups.title as gtitle, topics.id as msgid, sections.comment, groups.id as guid, topics.url, topics.linktext, imagepost, vote, sections.name as pname, linkup, postdate<(CURRENT_TIMESTAMP-expire) as expired, message FROM topics,groups,users,sections, msgbase WHERE sections.id=groups.section AND topics.userid=users.id AND topics.groupid=groups.id AND topics.id=msgbase.id AND (NOT topics.moderate) AND sections.moderate AND NOT deleted AND section=" + sectionid + " AND postdate>(CURRENT_TIMESTAMP-'1 month'::interval) ORDER BY msgid DESC");
+  } else {
+    rs = st.executeQuery("SELECT topics.title as subj, lastmod, postdate, nick, image, groups.title as gtitle, topics.id as msgid, sections.comment, groups.id as guid, topics.url, topics.linktext, imagepost, vote, sections.name as pname, linkup, postdate<(CURRENT_TIMESTAMP-expire) as expired, message FROM topics,groups,users,sections, msgbase WHERE sections.id=groups.section AND topics.userid=users.id AND topics.groupid=groups.id AND topics.id=msgbase.id AND (NOT topics.moderate) AND sections.moderate AND NOT deleted AND postdate>(CURRENT_TIMESTAMP-'1 month'::interval) ORDER BY msgid DESC");
+  }
 
-  NewsViewer nw=new NewsViewer(tmpl.getConfig(), tmpl.getProf(), rs, true, true);
+  NewsViewer nw = new NewsViewer(tmpl.getConfig(), tmpl.getProf(), rs, true, true);
 
   out.print(nw.showAll(db, tmpl));
 
   rs.close();
 
-  rs=st.executeQuery("SELECT topics.title as subj, nick, groups.title as gtitle, topics.id as msgid, groups.id as guid, sections.name as ptitle, reason FROM topics,groups,users,sections,del_info WHERE sections.id=groups.section AND topics.userid=users.id AND topics.groupid=groups.id AND sections.moderate AND deleted AND del_info.msgid=topics.id AND topics.userid!=del_info.delby ORDER BY msgid DESC LIMIT 20;");
+  if (sectionid==0) {
+    rs = st.executeQuery("SELECT topics.title as subj, nick, groups.title as gtitle, topics.id as msgid, groups.id as guid, sections.name as ptitle, reason FROM topics,groups,users,sections,del_info WHERE sections.id=groups.section AND topics.userid=users.id AND topics.groupid=groups.id AND sections.moderate AND deleted AND del_info.msgid=topics.id AND topics.userid!=del_info.delby ORDER BY msgid DESC LIMIT 20;");
+  } else {
+    rs = st.executeQuery("SELECT topics.title as subj, nick, groups.title as gtitle, topics.id as msgid, groups.id as guid, sections.name as ptitle, reason FROM topics,groups,users,sections,del_info WHERE sections.id=groups.section AND topics.userid=users.id AND topics.groupid=groups.id AND sections.moderate AND deleted AND del_info.msgid=topics.id AND topics.userid!=del_info.delby AND section="+sectionid+" ORDER BY msgid DESC LIMIT 20;");    
+  }
 %>
-<h1>Последние удаленные неподтвержденные сообщения</h1>
+<h2>Последние удаленные неподтвержденные</h2>
 <div class=forum>
 <div class=color1>
 <table width="100%" cellspacing=1 cellpadding=0 border=0>

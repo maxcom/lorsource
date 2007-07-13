@@ -105,23 +105,13 @@
     Connection db = tmpl.getConnection("index");
 
     Statement st = db.createStatement();
-    ResultSet rs = st.executeQuery("select count(*) from topics,groups where section=1 and topics.groupid=groups.id and not deleted and not moderate AND postdate>(CURRENT_TIMESTAMP-'1 month'::interval)");
+    ResultSet rs = st.executeQuery("select count(*) from topics,groups,sections where section=sections.id AND sections.moderate and topics.groupid=groups.id and not deleted and not topics.moderate AND postdate>(CURRENT_TIMESTAMP-'1 month'::interval)");
 
     if (rs.next()) {
       int count = rs.getInt("count");
 
-      out.print("[<a style=\"text-decoration: none\" href=\"view-all.jsp\">Неподтвержденных новостей</a>: " + count + "]");
+      out.print("[<a style=\"text-decoration: none\" href=\"view-all.jsp\">Неподтвержденных</a>: " + count + "]");
     }
-
-    rs.close();
-
-    rs = st.executeQuery("select count(*) from votenames,topics where topics.id=votenames.topic and not topics.deleted and not topics.moderate");
-
-    if (rs.next()) {
-            int count = rs.getInt("count");
-
-            out.print(" [<a style=\"text-decoration: none\" href=\"view-all.jsp?section=5\">Неподтвержденных опросов</a>: "+count+"]");
-          }
 
     rs.close();
     st.close();

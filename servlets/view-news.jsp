@@ -76,7 +76,7 @@
       if (section.isImagepost()) {
         out.print("[<a style=\"text-decoration: none\" href=\"add.jsp?group=4962\">Добавить изображение</a>]");
       }
-      if (section.isVotePoll()) out.print("[<a href=\"add-poll.jsp?group=19387\">Добавить голосование</a>]");
+      if (section.isVotePoll()) out.print("[<a style=\"text-decoration: none\" href=\"add-poll.jsp?group=19387\">Добавить голосование</a>]");
   out.print("[<a style=\"text-decoration: none\" href=\"view-news-archive.jsp?section="+sectionid+"\">Архив</a>]");
 
 %>
