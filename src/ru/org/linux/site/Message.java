@@ -110,7 +110,10 @@ public class Message {
       }
 
       if (!isDeleted() && tmpl.isModeratorSession()) {
-        out.append("[<a href=\"edit.jsp?msgid=").append(msgid).append("\">Править</a>]");
+        if(votepoll)
+	    out.append("[<a href=\"edit-vote.jsp?msgid=").append(msgid).append("\">Править</a>]");
+	else
+    	    out.append("[<a href=\"edit.jsp?msgid=").append(msgid).append("\">Править</a>]");
         out.append("[<a href=\"setpostscore.jsp?msgid=").append(msgid).append("\">Установить уровень записи комментариев</a>]");
         out.append("[<a href=\"notop.jsp?msgid=").append(msgid).append("\">Удалить из TOP10</a>]");
         out.append("[<a href=\"mt.jsp?msgid=").append(msgid).append("\">Перенести</a>]");

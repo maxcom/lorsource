@@ -181,6 +181,8 @@ public class NewsViewer {
       out.append(" [<a href=\"delete.jsp?msgid=").append(msgid).append("\">Удалить</a>]");
       if (!votepoll)
 	out.append(" [<a href=\"edit.jsp?msgid=").append(msgid).append("\">Править</a>]");
+      else
+        out.append(" [<a href=\"edit-vote.jsp?msgid=").append(msgid).append("\">Править</a>]");
       out.append("</div>");
     }
     out.append("</div>");
