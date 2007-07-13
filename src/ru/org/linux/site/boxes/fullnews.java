@@ -20,7 +20,7 @@ public final class fullnews {
       db = ((SQLConfig) config).getConnection("fullnews");
       StringBuffer buf = new StringBuffer();
       Statement st = db.createStatement();
-      ResultSet rs = st.executeQuery("SELECT topics.stat1, topics.lastmod, topics.title as subj, postdate, nick, image, groups.title as gtitle, topics.id as msgid, sections.comment, groups.id as guid, topics.url, topics.linktext, sections.imagepost, linkup, postdate<(CURRENT_TIMESTAMP-expire) as expired, message FROM topics,groups,users,sections,msgbase WHERE sections.id=groups.section AND topics.id=msgbase.id AND topics.moderate AND topics.userid=users.id AND topics.groupid=groups.id AND section=1 AND NOT deleted AND commitdate>(CURRENT_TIMESTAMP-'12 month'::interval) ORDER BY commitdate DESC LIMIT 20");
+      ResultSet rs = st.executeQuery("SELECT topics.stat1, topics.lastmod, topics.title as subj, postdate, nick, image, groups.title as gtitle, topics.id as msgid, sections.comment, groups.id as guid, topics.url, topics.linktext, sections.imagepost, linkup, postdate<(CURRENT_TIMESTAMP-expire) as expired, message FROM topics,groups,users,sections,msgbase WHERE sections.id=groups.section AND topics.id=msgbase.id AND topics.moderate AND topics.userid=users.id AND topics.groupid=groups.id AND section=1 AND NOT deleted AND commitdate>(CURRENT_TIMESTAMP-'1 month'::interval) ORDER BY commitdate DESC LIMIT 20");
       NewsViewer nw = new NewsViewer(((PropertiesConfig) config).getProperties(), profile, rs, false, false);
       buf.append(nw.showAll());
       rs.close();
