@@ -1,9 +1,14 @@
 package ru.org.linux.site;
 
+import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
+import ru.org.linux.util.BadImageException;
+import ru.org.linux.util.HTMLFormatter;
+import ru.org.linux.util.ImageInfo;
 
 public class Poll {
   public static final int MAX_POLL_SIZE = 15;
@@ -12,22 +17,31 @@ public class Poll {
 
   private final int id;
   private final String title;
-  private final Timestamp postdate;
-  private boolean moderate;
   private final int topic;
-  private final int userid;
-  private final int commitby;
-  private final Timestamp commitDate;
-  private final boolean deleted;
+
+  public static int getPollIdByTopic(Connection db, int msgid) throws SQLException {
+    PreparedStatement pst = db.prepareStatement("SELECT votenames.id FROM votenames,topics WHERE topics.id=? AND votenames.topic=topics.id");
+    pst.clearParameters();
+    pst.setInt(1, msgid);
+    ResultSet rs = pst.executeQuery();
+    rs.next();
+    return rs.getInt("id");
+  }
+
+  public void setTopicId(Connection db, int msgid) throws SQLException {
+    PreparedStatement addPst = db.prepareStatement("UPDATE votenames SET topic=? WHERE id=?");
+    addPst.clearParameters();
+    addPst.setInt(1, msgid);
+    addPst.setInt(2, id);
+    addPst.executeUpdate();
+  }
 
   public static int getCurrentPollId(Connection db) throws SQLException {
     Statement st = db.createStatement();
 
-    ResultSet rs = st.executeQuery("select id from votenames where commitdate = (select max(commitdate) from votenames where moderate AND NOT deleted)");
+    ResultSet rs = st.executeQuery("SELECT votenames.id FROM votenames,topics WHERE topics.id=votenames.topic AND topics.moderate = 't' AND topics.deleted = 'f' AND topics.commitdate = (select max(commitdate) from topics where groupid=19387 AND moderate AND NOT deleted)");
 
-    rs.next();
-
-    return rs.getInt("id");
+    return rs.next()?rs.getInt("id"):0;
   }
 
   public static Poll getCurrentPoll(Connection db) throws SQLException {
@@ -43,20 +57,14 @@ public class Poll {
 
     Statement st = db.createStatement();
 
-    ResultSet rs = st.executeQuery("SELECT title, moderate, topic, postdate, userid, commitby, commitdate, deleted FROM votenames WHERE id="+id);
+    ResultSet rs = st.executeQuery("SELECT title, topic FROM votenames WHERE id="+id);
 
     if (!rs.next()) {
       throw new PollNotFoundException(id);
     }
 
     this.title = rs.getString("title");
-    this.moderate = rs.getBoolean("moderate");
     this.topic = rs.getInt("topic");
-    this.postdate = rs.getTimestamp("postdate");
-    this.userid = rs.getInt("userid");
-    this.commitby = rs.getInt("commitby");
-    this.commitDate = rs.getTimestamp("commitdate");
-    this.deleted = rs.getBoolean("deleted");
   }
 
   public int getId() {
@@ -77,11 +85,10 @@ public class Poll {
   public static int createPoll(Connection db, User user, String title, List pollList) throws SQLException {
     int voteid = getNextPollId(db);
 
-    PreparedStatement pst = db.prepareStatement("INSERT INTO votenames (id, title, topic, groupid, userid, postdate) values (?,?,nextval('s_msgid'), nextval('s_guid'), ?, CURRENT_TIMESTAMP)");
+    PreparedStatement pst = db.prepareStatement("INSERT INTO votenames (id, title) values (?,?)");
 
     pst.setInt(1, voteid);
     pst.setString(2, title);
-    pst.setInt(3, user.getId());
 
     pst.executeUpdate();
 
@@ -97,30 +104,13 @@ public class Poll {
 
         poll.addNewVariant(db, variant);
       }
+      //Add new message
+      
     } catch (PollNotFoundException ex) {
       throw new RuntimeException(ex);
     }
 
     return voteid;
-  }
-
-  public boolean isCommited() {
-    return moderate;
-  }
-
-  public void commit(Connection db, User commitby) throws SQLException {
-    PreparedStatement pst = db.prepareStatement("UPDATE votenames SET moderate='t', commitby=?, commitdate='now' WHERE id=?");
-    pst.setInt(1, commitby.getId());
-    pst.setInt(2, id);
-
-    PreparedStatement pst2 = db.prepareStatement("UPDATE users SET score=score+3 WHERE id IN (SELECT userid FROM votenames WHERE id=?) AND score<300");
-    pst2.setInt(1, id);
-
-    pst.executeUpdate();
-    pst2.executeUpdate();
-
-    pst.close();
-    pst2.close();
   }
 
   public List getPollVariants(Connection db, int order) throws SQLException {
@@ -179,23 +169,26 @@ public class Poll {
     addPst.executeUpdate();
   }
 
-  public Timestamp getPostdate() {
-    return postdate;
+  public String renderPoll(Connection db,Template tmpl) throws SQLException, BadImageException, IOException {
+    StringBuffer out = new StringBuffer();
+    int max = getMaxVote(db);
+    List vars = getPollVariants(db, ORDER_VOTES);
+    out.append("<table>");
+    ImageInfo info = new ImageInfo(tmpl.getObjectConfig().getHTMLPathPrefix() + tmpl.getStyle() + "/img/votes.gif");
+    for (Iterator iter = vars.iterator(); iter.hasNext();) {
+	PollVariant var = (PollVariant) iter.next();
+	out.append("<tr><td>");
+	int id = var.getId();
+	int votes = var.getVotes();
+	out.append(HTMLFormatter.htmlSpecialChars(var.getLabel()));
+	out.append("</td><td>" + votes + "</td><td>");
+	for (int i = 0; i < 20 * votes / max; i++) { 
+	    out.append("<img src=\"" + tmpl.getStyle() + "/img/votes.gif\" alt=\"*\" " + info.getCode() + '>');
+	}
+	out.append("</td></tr>");
+    }
+    out.append("</table>");
+    return out.toString();
   }
-
-  public int getUserid() {
-    return userid;
-  }
-
-  public int getCommitby() {
-    return commitby;
-  }
-
-  public Timestamp getCommitDate() {
-    return commitDate;
-  }
-
-  public boolean isDeleted() {
-    return deleted;
-  }
+  
 }

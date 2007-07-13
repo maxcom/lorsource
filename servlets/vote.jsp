@@ -25,7 +25,8 @@
 
     int vote = Integer.parseInt(request.getParameter("vote"));
     int voteid = Integer.parseInt(request.getParameter("voteid"));
-
+    int msgid = Integer.parseInt(request.getParameter("msgid"));
+    
     db = tmpl.getConnection("vote");
 
     if (voteid != Poll.getCurrentPollId(db)) {
@@ -44,7 +45,7 @@
       st.close();
     }
 
-    response.setHeader("Location", tmpl.getRedirectUrl() + "view-vote.jsp?vote=" + voteid + "&highlight=" + vote);
+    response.setHeader("Location", tmpl.getRedirectUrl() + "view-message.jsp?msgid=" + msgid + "&highlight=" + vote);
     response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
 
   } finally {

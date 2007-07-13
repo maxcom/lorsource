@@ -10,6 +10,7 @@ public class Group {
   private final boolean preformat;
   private final boolean lineonly;
   private final boolean imagepost;
+  private final boolean votepoll;
   private final boolean havelink;
   private final boolean linkup;
   private final int section;
@@ -30,7 +31,8 @@ public class Group {
     try {
       st = db.createStatement();
 
-      rs = st.executeQuery("SELECT sections.moderate, sections.preformat, lineonly, imagepost, section, havelink, linkup, linktext, sections.name, title, image, restrict_topics, sections.browsable FROM groups, sections WHERE groups.id=" + id + " AND groups.section=sections.id");
+      rs = st.executeQuery("SELECT sections.moderate, sections.preformat, lineonly, imagepost, vote, section, havelink, linkup, linktext, sections.name, title, image, restrict_topics, sections.browsable FROM groups, sections WHERE groups.id=" + id + " AND groups.section=sections.id");
+
       if (!rs.next()) {
         throw new BadGroupException("Группа " + id + " не существует");
       }
@@ -39,6 +41,7 @@ public class Group {
       preformat = rs.getBoolean("preformat");
       lineonly = rs.getBoolean("lineonly");
       imagepost = rs.getBoolean("imagepost");
+      votepoll = rs.getBoolean("vote");
       section = rs.getInt("section");
       havelink = rs.getBoolean("havelink");
       linkup = rs.getBoolean("linkup");
@@ -68,6 +71,10 @@ public class Group {
 
   public boolean isImagePostAllowed() {
     return imagepost;
+  }
+
+  public boolean isPollPostAllowed() {
+    return votepoll;
   }
 
   public int getSectionId() {

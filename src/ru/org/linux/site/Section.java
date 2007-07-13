@@ -10,10 +10,11 @@ public class Section {
   private final boolean browsable;
   private final boolean linkup;
   private final boolean imagepost;
+  private final boolean votepoll;
 
   public Section(Connection db, int id) throws SQLException, BadSectionException {
     Statement st = db.createStatement();
-    ResultSet rs = st.executeQuery("SELECT name, browsable, linkup, imagepost FROM sections WHERE id="+id);
+    ResultSet rs = st.executeQuery("SELECT name, browsable, linkup, imagepost, vote FROM sections WHERE id="+id);
 
     if (!rs.next()) {
       throw new BadSectionException(id);
@@ -23,6 +24,7 @@ public class Section {
     browsable = rs.getBoolean("browsable");
     linkup = rs.getBoolean("linkup");
     imagepost = rs.getBoolean("imagepost");
+    votepoll = rs.getBoolean("vote");
   }
 
   public String getName() {
@@ -39,5 +41,9 @@ public class Section {
 
   public boolean isImagepost() {
     return imagepost;
+  }
+
+  public boolean isVotePoll() {
+    return votepoll;
   }
 }

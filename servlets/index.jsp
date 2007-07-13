@@ -115,13 +115,13 @@
 
     rs.close();
 
-    rs = st.executeQuery("select count(*) from votenames where not deleted and not moderate");
+    rs = st.executeQuery("select count(*) from votenames,topics where topics.id=votenames.topic and not topics.deleted and not topics.moderate");
 
     if (rs.next()) {
-      int count = rs.getInt("count");
+            int count = rs.getInt("count");
 
-      out.print(" [<a style=\"text-decoration: none\" href=\"votes.jsp\">Неподтвержденных опросов</a>: " + count + "]");
-    }
+            out.print(" [<a style=\"text-decoration: none\" href=\"view-all.jsp?section=5\">Неподтвержденных опросов</a>: "+count+"]");
+          }
 
     rs.close();
     st.close();
@@ -136,7 +136,7 @@
 
   String res = (String) mcc.get(cacheId);
   if (res == null) {
-    res = news.getContent(tmpl.getObjectConfig(), tmpl.getProf());
+    res = news.getContent(tmpl.getObjectConfig(), tmpl.getProf(), tmpl);
 
     mcc.add(cacheId, res, news.getExpire());
   }

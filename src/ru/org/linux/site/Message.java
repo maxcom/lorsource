@@ -18,6 +18,7 @@ public class Message {
   private int msgid;
   private int postscore;
   private boolean imagepost;
+  private boolean votepoll;
   private String linktext;
   private String url;
   private String title;
@@ -44,7 +45,7 @@ public class Message {
   public Message(Connection db, int msgid) throws SQLException, MessageNotFoundException {
     Statement st=db.createStatement();
 
-    ResultSet rs=st.executeQuery("SELECT postdate, nick, topics.id as msgid, topics.title, sections.comment, topics.groupid as guid, photo, topics.url, topics.linktext, sections.name as ptitle, groups.title as gtitle, imagepost, havelink, section, postdate<(CURRENT_TIMESTAMP-sections.expire) as expired, deleted, lastmod, commitby, commitdate, topics.stat1, score, max_score, postscore, topics.moderate, message FROM topics, users, groups, sections, msgbase WHERE topics.id="+msgid+" AND topics.userid=users.id AND topics.groupid=groups.id AND groups.section=sections.id AND topics.id=msgbase.id");
+    ResultSet rs=st.executeQuery("SELECT postdate, nick, topics.id as msgid, topics.title, sections.comment, topics.groupid as guid, photo, topics.url, topics.linktext, sections.name as ptitle, groups.title as gtitle, imagepost, vote, havelink, section, postdate<(CURRENT_TIMESTAMP-sections.expire) as expired, deleted, lastmod, commitby, commitdate, topics.stat1, score, max_score, postscore, topics.moderate, message FROM topics, users, groups, sections, msgbase WHERE topics.id="+msgid+" AND topics.userid=users.id AND topics.groupid=groups.id AND groups.section=sections.id AND topics.id=msgbase.id");
     if (!rs.next()) throw new MessageNotFoundException(msgid);
 
     this.msgid=rs.getInt("msgid");
@@ -52,6 +53,7 @@ public class Message {
     userScore=rs.getInt("score");
     userMaxScore=rs.getInt("max_score");
     imagepost=rs.getBoolean("imagepost");
+    votepoll=rs.getBoolean("vote");
     linktext=rs.getString("linktext");
     url=rs.getString("url");
     title=StringUtil.makeTitle(rs.getString("title"));
@@ -169,7 +171,19 @@ public class Message {
     out.append("<h2><a name=").append(msgid).append('>').append(title).append("</a></h2>");
 
 //    out.append(storage.readMessage("msgbase", String.valueOf(msgid)));
-    out.append(message);
+    if(votepoll) {
+	//Render poll
+	try {
+	    int id = Poll.getPollIdByTopic(db, msgid);                                                                                                           
+            Poll poll = new Poll(db, id);                                                                                                                        
+	    out.append(poll.renderPoll(db, tmpl)); 
+	    out.append("<p>&gt;&gt;&gt; <a href=\"").append("vote-vote.jsp?msgid=").append(msgid).append("\">Проголосовать</a>");
+	} catch (Exception e) {
+	    out.append("[BAD POLL]");
+	}
+    } else {
+	out.append(message);
+    }
 
     if (url!=null && havelink)
       out.append("<p>&gt;&gt;&gt; <a href=\"").append(url).append("\">").append(linktext).append("</a>.");
@@ -378,7 +392,7 @@ public class Message {
     return linktext;
   }
 
-  public static void addTopic(Connection db, Template tmpl, HttpSession session, HttpServletRequest request, Group group) throws SQLException, UserNotFoundException, ServletParameterException, UtilException, IOException, BadImageException, InterruptedException, BadInputException, BadPasswordException, AccessViolationException, DuplicationException {
+  public static int addTopic(Connection db, Template tmpl, HttpSession session, HttpServletRequest request, Group group) throws SQLException, UserNotFoundException, ServletParameterException, UtilException, IOException, BadImageException, InterruptedException, BadInputException, BadPasswordException, AccessViolationException, DuplicationException {
     String title = request.getParameter("title");
     if (title == null) {
       title = "";
@@ -404,6 +418,9 @@ public class Message {
     }
 
     String msg = request.getParameter("msg");
+    String vmsg = (String)request.getAttribute("msg");
+    if (msg == null && vmsg != null && vmsg.length()>0) msg = vmsg;
+    request.setAttribute("msg", null);
 
     boolean userhtml = tmpl.getParameters().getBoolean("texttype");
     boolean autourl = tmpl.getParameters().getBoolean("autourl");
@@ -534,5 +551,7 @@ public class Message {
 
     rs.close();
     st.close();
+    
+    return msgid;
   }
 }

@@ -77,7 +77,7 @@
       if (section.isImagepost()) {
         out.print("[<a style=\"text-decoration: none\" href=\"add.jsp?group=4962\">Добавить изображение</a>]");
       }
-
+      if (section.isVotePoll()) out.print("[<a href=\"add-poll.jsp?group=19387\">Добавить голосование</a>]");
   out.print("[<a style=\"text-decoration: none\" href=\"view-news-archive.jsp?section="+sectionid+"\">Архив</a>]");
 
 %>
@@ -94,14 +94,14 @@
   ResultSet rs;
 
   if (month != 0) {
-    rs = st.executeQuery("SELECT topics.title as subj, topics.lastmod, topics.stat1, postdate, nick, image, groups.title as gtitle, topics.id as msgid, sections.comment, groups.id as guid, topics.url, topics.linktext, imagepost, linkup, postdate<(CURRENT_TIMESTAMP-expire) as expired, message FROM topics,groups,users,sections,msgbase WHERE sections.id=groups.section AND topics.id=msgbase.id AND (topics.moderate OR NOT sections.moderate) AND topics.userid=users.id AND topics.groupid=groups.id AND section=" + sectionid + " AND postdate>'" + year + "-" + month + "-01'::timestamp AND (postdate<'" + year + "-" + month + "-01'::timestamp+'1 month'::interval) AND NOT deleted ORDER BY commitdate");
+    rs = st.executeQuery("SELECT topics.title as subj, topics.lastmod, topics.stat1, postdate, nick, image, groups.title as gtitle, topics.id as msgid, sections.comment, groups.id as guid, topics.url, topics.linktext, imagepost, vote, linkup, postdate<(CURRENT_TIMESTAMP-expire) as expired, message FROM topics,groups,users,sections,msgbase WHERE sections.id=groups.section AND topics.id=msgbase.id AND (topics.moderate OR NOT sections.moderate) AND topics.userid=users.id AND topics.groupid=groups.id AND section=" + sectionid + " AND postdate>'" + year + "-" + month + "-01'::timestamp AND (postdate<'" + year + "-" + month + "-01'::timestamp+'1 month'::interval) AND NOT deleted ORDER BY commitdate");
   } else {
-    rs = st.executeQuery("SELECT topics.title as subj, topics.lastmod, topics.stat1, postdate, nick, image, groups.title as gtitle, topics.id as msgid, sections.comment, groups.id as guid, topics.url, topics.linktext, imagepost, linkup, postdate<(CURRENT_TIMESTAMP-expire) as expired, message FROM topics,groups,users,sections,msgbase WHERE sections.id=groups.section AND topics.id=msgbase.id AND (topics.moderate OR NOT sections.moderate) AND topics.userid=users.id AND topics.groupid=groups.id AND section=" + sectionid + " AND NOT deleted ORDER BY commitdate DESC LIMIT 20");
+    rs = st.executeQuery("SELECT topics.title as subj, topics.lastmod, topics.stat1, postdate, nick, image, groups.title as gtitle, topics.id as msgid, sections.comment, groups.id as guid, topics.url, topics.linktext, imagepost, vote, linkup, postdate<(CURRENT_TIMESTAMP-expire) as expired, message FROM topics,groups,users,sections,msgbase WHERE sections.id=groups.section AND topics.id=msgbase.id AND (topics.moderate OR NOT sections.moderate) AND topics.userid=users.id AND topics.groupid=groups.id AND section=" + sectionid + " AND NOT deleted ORDER BY commitdate DESC LIMIT 20");
   }
 
   NewsViewer nw = new NewsViewer(tmpl.getConfig(), tmpl.getProf(), rs, false, false);
 
-  out.print(nw.showAll());
+  out.print(nw.showAll(db, tmpl));
 
   rs.close();
 %>

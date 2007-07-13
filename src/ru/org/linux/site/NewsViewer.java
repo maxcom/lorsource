@@ -2,6 +2,7 @@ package ru.org.linux.site;
 
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -24,13 +25,14 @@ public class NewsViewer {
     profile = prof;
   }
 
-  public String showCurrent() throws IOException, SQLException, UtilException {
+  public String showCurrent(Connection db,Template tmpl) throws IOException, SQLException, UtilException {
     StringBuffer out = new StringBuffer();
     int msgid = res.getInt("msgid");
     String url = res.getString("url");
     String subj = StringUtil.makeTitle(res.getString("subj"));
     String linktext = res.getString("linktext");
     boolean imagepost = res.getBoolean("imagepost");
+    boolean votepoll = res.getBoolean("vote");
     boolean linkup = res.getBoolean("linkup");
     String image = res.getString("image");
     Timestamp lastmod = res.getTimestamp("lastmod");
@@ -83,9 +85,9 @@ public class NewsViewer {
     out.append("<div class=\"entry-body\">");
     out.append("<div class=msg>\n");
 
-    out.append(messageText);
+    if (!votepoll) out.append(messageText);
 
-    if (url != null && !imagepost && !linkup) {
+    if (url != null && !imagepost && !votepoll && !linkup) {
       out.append("<p>&gt;&gt;&gt; <a href=\"").append(HTMLFormatter.htmlSpecialChars(url)).append("\">").append(linktext).append("</a>");
     } else if (imagepost) {
       try {
@@ -107,6 +109,16 @@ public class NewsViewer {
         out.append("<p>&gt;&gt;&gt; <a href=\"").append(url).append("\">[BAD IMAGE!] Просмотр</a>");
       } catch (IOException e) {
         out.append("<p>&gt;&gt;&gt; <a href=\"").append(url).append("\">[BAD IMAGE: IO Exception!] Просмотр</a>");
+      }
+    } else if (votepoll) {
+      try {
+        int id = Poll.getPollIdByTopic(db, msgid);
+        Poll poll = new Poll(db, id);
+	out.append(poll.renderPoll(db, tmpl));
+        out.append("<p>&gt;&gt;&gt; <a href=\"").append("vote-vote.jsp?msgid=").append(msgid).append("\">Голосовать</a>");
+        out.append("<p>&gt;&gt;&gt; <a href=\"").append(jumplink).append("\">Результаты</a>");
+      } catch (Exception e) {
+        out.append("<p>&gt;&gt;&gt; <a href=\"").append("\">[BAD POLL!] Просмотр</a>");
       }
     }
 
@@ -165,6 +177,7 @@ public class NewsViewer {
       out.append("<div class=nav>");
       out.append("[<a href=\"commit.jsp?msgid=").append(msgid).append("\">Подтвердить</a>]");
       out.append(" [<a href=\"delete.jsp?msgid=").append(msgid).append("\">Удалить</a>]");
+      if (!votepoll)
 	out.append(" [<a href=\"edit.jsp?msgid=").append(msgid).append("\">Править</a>]");
       out.append("</div>");
     }
@@ -175,11 +188,11 @@ public class NewsViewer {
     return out.toString();
   }
 
-  public String showAll() throws IOException, SQLException, UtilException {
+  public String showAll(Connection db,Template tmpl) throws IOException, SQLException, UtilException {
     StringBuffer buf = new StringBuffer();
 
     while (res.next()) {
-      buf.append(showCurrent());
+      buf.append(showCurrent(db,tmpl));
     }
 
     return buf.toString();

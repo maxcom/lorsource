@@ -22,7 +22,7 @@ public final class poll extends Boxlet {
 
       StringBuffer out = new StringBuffer();
 
-      out.append("<h2><a href=\"votes.jsp\">Опрос</a></h2>");
+      out.append("<h2><a href=\"view-news.jsp?section=5\">Опрос</a></h2>");
       out.append("<h3>").append(poll.getTitle()).append("</h3>");
 
       Statement st = db.createStatement();
@@ -30,6 +30,7 @@ public final class poll extends Boxlet {
 
       out.append("<form method=GET action=vote.jsp>");
       out.append("<input type=hidden name=voteid value=").append(poll.getId()).append('>');
+      out.append("<input type=hidden name=msgid value=" + poll.getTopicId() + '>');
       while (rs.next()) {
         out.append("<input type=radio name=vote value=").append(rs.getInt("id")).append('>').append(rs.getString("label")).append("<br>");
       }
@@ -42,7 +43,7 @@ public final class poll extends Boxlet {
       rs = st.executeQuery("SELECT sum(votes) as s FROM votes WHERE vote=" + poll.getId());
       rs.next();
       out.append(" (").append(rs.getInt("s")).append(" голосов)");
-      out.append("<br><a href=\"votes.jsp\">итоги прошедших опросов...</a>");
+      out.append("<br><a href=\"view-news.jsp?section=5\">итоги прошедших опросов...</a>");
       out.append("<br>[<a href=\"add-poll.jsp\">добавить опрос</a>]");
       return out.toString();
     } finally {
