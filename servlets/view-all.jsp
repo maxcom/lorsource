@@ -82,7 +82,7 @@
 
   ResultSet rs;
 
-  if (sectionid == 0) {
+  if (sectionid != 0) {
     rs = st.executeQuery("SELECT topics.title as subj, lastmod, postdate, nick, image, groups.title as gtitle, topics.id as msgid, sections.comment, groups.id as guid, topics.url, topics.linktext, imagepost, vote, sections.name as pname, linkup, postdate<(CURRENT_TIMESTAMP-expire) as expired, message FROM topics,groups,users,sections, msgbase WHERE sections.id=groups.section AND topics.userid=users.id AND topics.groupid=groups.id AND topics.id=msgbase.id AND (NOT topics.moderate) AND sections.moderate AND NOT deleted AND section=" + sectionid + " AND postdate>(CURRENT_TIMESTAMP-'1 month'::interval) ORDER BY msgid DESC");
   } else {
     rs = st.executeQuery("SELECT topics.title as subj, lastmod, postdate, nick, image, groups.title as gtitle, topics.id as msgid, sections.comment, groups.id as guid, topics.url, topics.linktext, imagepost, vote, sections.name as pname, linkup, postdate<(CURRENT_TIMESTAMP-expire) as expired, message FROM topics,groups,users,sections, msgbase WHERE sections.id=groups.section AND topics.userid=users.id AND topics.groupid=groups.id AND topics.id=msgbase.id AND (NOT topics.moderate) AND sections.moderate AND NOT deleted AND postdate>(CURRENT_TIMESTAMP-'1 month'::interval) ORDER BY msgid DESC");
