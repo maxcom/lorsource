@@ -110,7 +110,7 @@
     if (rs.next()) {
       int count = rs.getInt("count");
 
-      out.print("[<a style=\"text-decoration: none\" href=\"view-all.jsp\">Неподтвержденных</a>: " + count+", ");
+      out.print("[<a style=\"text-decoration: none\" href=\"view-all.jsp\">Неподтвержденных: " + count+", ");
     }
 
     rs.close();
@@ -120,7 +120,7 @@
     if (rs.next()) {
       int count = rs.getInt("count");
 
-      out.print(" в том числе новостей: "+ count + "]");
+      out.print(" в том числе новостей: "+ count + "</a>]");
     }
 
     rs.close();
