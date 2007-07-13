@@ -36,10 +36,10 @@
 
     List pollList = new ArrayList();
 
-    for (int i=0; i<Poll.MAX_POLL_SIZE; i++) {
-      String poll = request.getParameter("var"+i);
+    for (int i = 0; i < Poll.MAX_POLL_SIZE; i++) {
+      String poll = request.getParameter("var" + i);
 
-      if (poll!=null) {
+      if (poll != null) {
         pollList.add(poll);
       }
     }
@@ -50,9 +50,9 @@
     User user = new User(db, (String) session.getAttribute("nick"));
     user.checkBlocked();
 
-    int id =Poll.createPoll(db, user, title, pollList);
+    int id = Poll.createPoll(db, title, pollList);
 
-    out.print("Создан опрос #"+id+"<br>");
+    out.print("Создан опрос #" + id + "<br>");
     out.print("В данный момент новый опрос виден только модераторам сайта; подождите пока его проверят");
 
     String logmessage = "Создан опрос " + id + " ip:" + request.getRemoteAddr();
@@ -62,16 +62,16 @@
 
     tmpl.getLogger().notice("add-poll", logmessage);
 
-	if (id > 0) {
-    	int guid = tmpl.getParameters().getInt("group");
-    	Group group = new Group(db, guid);
-	//set msg -> id
-	request.setAttribute("msg","poll");
-    	int msgid = Message.addTopic(db, tmpl, session, request, group);
-	//out.write("msgid="+msgid);
-	Poll poll = new Poll(db, id);
-	poll.setTopicId(db, msgid);
-	}
+    if (id > 0) {
+      int guid = tmpl.getParameters().getInt("group");
+      Group group = new Group(db, guid);
+      //set msg -> id
+      request.setAttribute("msg", "poll");
+      int msgid = Message.addTopic(db, tmpl, session, request, group);
+      //out.write("msgid="+msgid);
+      Poll poll = new Poll(db, id);
+      poll.setTopicId(db, msgid);
+    }
 
     db.commit();
   } else {

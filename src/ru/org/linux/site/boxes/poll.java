@@ -30,7 +30,7 @@ public final class poll extends Boxlet {
 
       out.append("<form method=GET action=vote.jsp>");
       out.append("<input type=hidden name=voteid value=").append(poll.getId()).append('>');
-      out.append("<input type=hidden name=msgid value=" + poll.getTopicId() + '>');
+      out.append("<input type=hidden name=msgid value=").append(poll.getTopicId()).append('>');
       while (rs.next()) {
         out.append("<input type=radio name=vote value=").append(rs.getInt("id")).append('>').append(rs.getString("label")).append("<br>");
       }

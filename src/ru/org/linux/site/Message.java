@@ -433,7 +433,7 @@ public class Message {
     // checks is over
     User user;
 
-    if (session == null || session.getAttribute("login") == null || !((Boolean) session.getAttribute("login")).booleanValue())     {
+    if (!Template.isSessionAuthorized(session))     {
       if (request.getParameter("nick") == null) {
         throw new BadInputException("Вы уже вышли из системы");
       }

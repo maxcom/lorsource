@@ -63,8 +63,8 @@ public class Poll {
       throw new PollNotFoundException(id);
     }
 
-    this.title = rs.getString("title");
-    this.topic = rs.getInt("topic");
+    title = rs.getString("title");
+    topic = rs.getInt("topic");
   }
 
   public int getId() {
@@ -82,7 +82,7 @@ public class Poll {
     return rs.getInt("voteid");
   }
 
-  public static int createPoll(Connection db, User user, String title, List pollList) throws SQLException {
+  public static int createPoll(Connection db, String title, List pollList) throws SQLException {
     int voteid = getNextPollId(db);
 
     PreparedStatement pst = db.prepareStatement("INSERT INTO votenames (id, title) values (?,?)");
@@ -175,18 +175,19 @@ public class Poll {
     List vars = getPollVariants(db, ORDER_VOTES);
     out.append("<table>");
     ImageInfo info = new ImageInfo(tmpl.getObjectConfig().getHTMLPathPrefix() + tmpl.getStyle() + "/img/votes.gif");
+
     for (Iterator iter = vars.iterator(); iter.hasNext();) {
-	PollVariant var = (PollVariant) iter.next();
-	out.append("<tr><td>");
-	int id = var.getId();
-	int votes = var.getVotes();
-	out.append(HTMLFormatter.htmlSpecialChars(var.getLabel()));
-	out.append("</td><td>" + votes + "</td><td>");
-	for (int i = 0; i < 20 * votes / max; i++) { 
-	    out.append("<img src=\"" + tmpl.getStyle() + "/img/votes.gif\" alt=\"*\" " + info.getCode() + '>');
-	}
-	out.append("</td></tr>");
+      PollVariant var = (PollVariant) iter.next();
+      out.append("<tr><td>");
+      int votes = var.getVotes();
+      out.append(HTMLFormatter.htmlSpecialChars(var.getLabel()));
+      out.append("</td><td>").append(votes).append("</td><td>");
+      for (int i = 0; i < 20 * votes / max; i++) {
+        out.append("<img src=\"").append(tmpl.getStyle()).append("/img/votes.gif\" alt=\"*\" ").append(info.getCode()).append('>');
+      }
+      out.append("</td></tr>");
     }
+    
     out.append("</table>");
     return out.toString();
   }

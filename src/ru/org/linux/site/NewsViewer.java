@@ -47,8 +47,8 @@ public class NewsViewer {
     out.append("<hr noshade class=\"news-divider\">");
     out.append("<div class=news><h2>");
 
-    final String newslink;
-    final String jumplink;
+    String newslink;
+    String jumplink;
     if (!searchMode) {
       newslink = "view-message.jsp?msgid=" + msgid;
       jumplink = "jump-message.jsp?msgid=" + msgid + "&amp;lastmod=" + lastmod.getTime();

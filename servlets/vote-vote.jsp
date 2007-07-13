@@ -22,12 +22,12 @@
       throw new BadInputException("ничего не выбрано");
     }
 
-    int msgid = 0;
-	try {
-		msgid = Integer.parseInt(request.getParameter("msgid"));
-	} catch(NumberFormatException e) {
-		throw new BadInputException("ничего не выбрано");
-	}
+    int msgid;
+    try {
+      msgid = Integer.parseInt(request.getParameter("msgid"));
+    } catch (NumberFormatException e) {
+      throw new BadInputException("ничего не выбрано");
+    }
 
     db = tmpl.getConnection("vote");
 

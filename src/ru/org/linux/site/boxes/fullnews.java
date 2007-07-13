@@ -33,10 +33,6 @@ public final class fullnews {
     }
   }
 
-  public String getInfo() {
-    return "Опрос";
-  }
-
   public String getVariantID(ProfileHashtable prof) throws UtilException {
     return "SearchMode=" + prof.getBoolean("SearchMode") + "&topics=" + prof.getInt("topics")+"&messages=" + prof.getInt("messages") + "&style=" + prof.getString("style");
   }
