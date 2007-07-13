@@ -35,7 +35,7 @@
 <h1>Софт</h1>
   <p>
 Мы работаем на Fedora 7, СУБД PostgreSQL 8.2, Apache2 2.0,
-Sun Java SDK 1.5, Caucho Resin 2.1. Спасибо Олегу Дрокину (<b>green</b>) за
+Sun Java SDK 1.5, Caucho Resin 2.1, memcached 1.2. Спасибо Олегу Дрокину (<b>green</b>) за
 администрирование.
   </p>
 
