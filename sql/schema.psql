@@ -3,8 +3,10 @@
 --
 
 SET client_encoding = 'KOI8';
+SET standard_conforming_strings = off;
 SET check_function_bodies = false;
 SET client_min_messages = warning;
+SET escape_string_warning = off;
 
 --
 -- Name: SCHEMA public; Type: COMMENT; Schema: -; Owner: postgres
@@ -13,25 +15,14 @@ SET client_min_messages = warning;
 COMMENT ON SCHEMA public IS 'Standard public schema';
 
 
+--
+-- Name: plpgsql; Type: PROCEDURAL LANGUAGE; Schema: -; Owner: postgres
+--
+
+CREATE PROCEDURAL LANGUAGE plpgsql;
+
+
 SET search_path = public, pg_catalog;
-
---
--- Name: plpgsql_call_handler(); Type: FUNCTION; Schema: public; Owner: maxcom
---
-
-CREATE FUNCTION plpgsql_call_handler() RETURNS language_handler
-    AS '/usr/lib/pgsql/plpgsql.so', 'plpgsql_call_handler'
-    LANGUAGE c;
-
-
-ALTER FUNCTION public.plpgsql_call_handler() OWNER TO maxcom;
-
---
--- Name: plpgsql; Type: PROCEDURAL LANGUAGE; Schema: public; Owner: 
---
-
-CREATE PROCEDURAL LANGUAGE plpgsql HANDLER plpgsql_call_handler;
-
 
 --
 -- Name: comins(); Type: FUNCTION; Schema: public; Owner: maxcom
@@ -144,6 +135,17 @@ $$
 ALTER FUNCTION public.msgins() OWNER TO maxcom;
 
 --
+-- Name: plpgsql_call_handler(); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION plpgsql_call_handler() RETURNS language_handler
+    AS '/usr/lib/pgsql/plpgsql.so', 'plpgsql_call_handler'
+    LANGUAGE c;
+
+
+ALTER FUNCTION public.plpgsql_call_handler() OWNER TO maxcom;
+
+--
 -- Name: stat_update(); Type: FUNCTION; Schema: public; Owner: maxcom
 --
 
@@ -164,13 +166,6 @@ BEGIN
 		SELECT count(*) INTO st3 FROM comments WHERE topic = top.id AND now-'1 day'::interval<postdate AND NOT deleted;
 		SELECT count(*) INTO st4 FROM comments WHERE topic = top.id AND now-'1 hour'::interval<postdate AND NOT deleted;
 		UPDATE topics SET stat1 = st1,stat2 = st2,stat3 = st3,stat4 = st4 WHERE id = top.id AND (stat1 != st1 OR stat2 != st2 OR stat3 != st3 OR stat4 != st4 );
-	END LOOP;
-	FOR top IN SELECT topic FROM votenames WHERE stat2!=0 FOR UPDATE LOOP
-		SELECT count(*) INTO st1 FROM comments WHERE topic = top.topic AND NOT deleted;
-		SELECT count(*) INTO st2 FROM comments WHERE topic = top.topic AND now-'3 day'::interval<postdate AND NOT deleted;
-		SELECT count(*) INTO st3 FROM comments WHERE topic = top.topic AND now-'1 day'::interval<postdate AND NOT deleted;
-		SELECT count(*) INTO st4 FROM comments WHERE topic = top.topic AND now-'1 hour'::interval<postdate AND NOT deleted;
-		UPDATE votenames SET stat1 = st1,stat2 = st2,stat3 = st3,stat4 = st4 WHERE topic = top.topic;
 	END LOOP;
 	RETURN now;
 END;
@@ -279,23 +274,6 @@ COMMENT ON TABLE b_ips IS 'banned ip list table';
 
 
 --
--- Name: banners; Type: TABLE; Schema: public; Owner: maxcom; Tablespace: 
---
-
-CREATE TABLE banners (
-    id integer NOT NULL,
-    banner character(100) NOT NULL,
-    url character(100) NOT NULL,
-    total integer NOT NULL,
-    today integer NOT NULL,
-    clicks integer NOT NULL,
-    maxtoday integer
-);
-
-
-ALTER TABLE public.banners OWNER TO maxcom;
-
---
 -- Name: comments; Type: TABLE; Schema: public; Owner: maxcom; Tablespace: 
 --
 
@@ -373,30 +351,6 @@ CREATE TABLE msgbase (
 ALTER TABLE public.msgbase OWNER TO maxcom;
 
 --
--- Name: puzzle; Type: TABLE; Schema: public; Owner: maxcom; Tablespace: 
---
-
-CREATE TABLE puzzle (
-    userid integer NOT NULL,
-    score integer NOT NULL
-);
-
-
-ALTER TABLE public.puzzle OWNER TO maxcom;
-
---
--- Name: puzzleq; Type: TABLE; Schema: public; Owner: maxcom; Tablespace: 
---
-
-CREATE TABLE puzzleq (
-    id integer NOT NULL,
-    score integer DEFAULT 0 NOT NULL
-);
-
-
-ALTER TABLE public.puzzleq OWNER TO maxcom;
-
---
 -- Name: s_guid; Type: SEQUENCE; Schema: public; Owner: maxcom
 --
 
@@ -465,7 +419,8 @@ CREATE TABLE sections (
     browsable boolean NOT NULL,
     "comment" boolean NOT NULL,
     expire interval NOT NULL,
-    lineonly boolean NOT NULL
+    lineonly boolean NOT NULL,
+    vote boolean DEFAULT false
 );
 
 
@@ -560,18 +515,7 @@ ALTER TABLE public.vote_id OWNER TO maxcom;
 CREATE TABLE votenames (
     id integer NOT NULL,
     title text NOT NULL,
-    topic integer NOT NULL,
-    groupid integer,
-    stat1 integer DEFAULT 0 NOT NULL,
-    stat2 integer DEFAULT 0 NOT NULL,
-    stat3 integer DEFAULT 0 NOT NULL,
-    stat4 integer DEFAULT 0 NOT NULL,
-    moderate boolean DEFAULT false NOT NULL,
-    commitby integer,
-    commitdate timestamp without time zone,
-    userid integer NOT NULL,
-    deleted boolean DEFAULT false NOT NULL,
-    postdate timestamp without time zone
+    topic integer DEFAULT 0 NOT NULL
 );
 
 
@@ -605,28 +549,12 @@ CREATE SEQUENCE votes_id
 ALTER TABLE public.votes_id OWNER TO maxcom;
 
 --
--- Name: banners_pkey; Type: CONSTRAINT; Schema: public; Owner: maxcom; Tablespace: 
---
-
-ALTER TABLE ONLY banners
-    ADD CONSTRAINT banners_pkey PRIMARY KEY (id);
-
-
-ALTER INDEX public.banners_pkey OWNER TO maxcom;
-
-SET default_tablespace = indexspace;
-
---
--- Name: comments_pkey; Type: CONSTRAINT; Schema: public; Owner: maxcom; Tablespace: indexspace
+-- Name: comments_pkey; Type: CONSTRAINT; Schema: public; Owner: maxcom; Tablespace: 
 --
 
 ALTER TABLE ONLY comments
     ADD CONSTRAINT comments_pkey PRIMARY KEY (id);
 
-
-ALTER INDEX public.comments_pkey OWNER TO maxcom;
-
-SET default_tablespace = '';
 
 --
 -- Name: del_info_pkey; Type: CONSTRAINT; Schema: public; Owner: maxcom; Tablespace: 
@@ -636,21 +564,13 @@ ALTER TABLE ONLY del_info
     ADD CONSTRAINT del_info_pkey PRIMARY KEY (msgid);
 
 
-ALTER INDEX public.del_info_pkey OWNER TO maxcom;
-
-SET default_tablespace = indexspace;
-
 --
--- Name: groups_pkey; Type: CONSTRAINT; Schema: public; Owner: maxcom; Tablespace: indexspace
+-- Name: groups_pkey; Type: CONSTRAINT; Schema: public; Owner: maxcom; Tablespace: 
 --
 
 ALTER TABLE ONLY groups
     ADD CONSTRAINT groups_pkey PRIMARY KEY (id);
 
-
-ALTER INDEX public.groups_pkey OWNER TO maxcom;
-
-SET default_tablespace = '';
 
 --
 -- Name: msgbase_pkey; Type: CONSTRAINT; Schema: public; Owner: maxcom; Tablespace: 
@@ -660,18 +580,6 @@ ALTER TABLE ONLY msgbase
     ADD CONSTRAINT msgbase_pkey PRIMARY KEY (id);
 
 
-ALTER INDEX public.msgbase_pkey OWNER TO maxcom;
-
---
--- Name: puzzleq_pkey; Type: CONSTRAINT; Schema: public; Owner: maxcom; Tablespace: 
---
-
-ALTER TABLE ONLY puzzleq
-    ADD CONSTRAINT puzzleq_pkey PRIMARY KEY (id);
-
-
-ALTER INDEX public.puzzleq_pkey OWNER TO maxcom;
-
 --
 -- Name: sections_pkey; Type: CONSTRAINT; Schema: public; Owner: maxcom; Tablespace: 
 --
@@ -679,8 +587,6 @@ ALTER INDEX public.puzzleq_pkey OWNER TO maxcom;
 ALTER TABLE ONLY sections
     ADD CONSTRAINT sections_pkey PRIMARY KEY (id);
 
-
-ALTER INDEX public.sections_pkey OWNER TO maxcom;
 
 --
 -- Name: top10_pkey; Type: CONSTRAINT; Schema: public; Owner: maxcom; Tablespace: 
@@ -690,21 +596,13 @@ ALTER TABLE ONLY top10
     ADD CONSTRAINT top10_pkey PRIMARY KEY (msgid);
 
 
-ALTER INDEX public.top10_pkey OWNER TO maxcom;
-
-SET default_tablespace = indexspace;
-
 --
--- Name: users_pkey; Type: CONSTRAINT; Schema: public; Owner: maxcom; Tablespace: indexspace
+-- Name: users_pkey; Type: CONSTRAINT; Schema: public; Owner: maxcom; Tablespace: 
 --
 
 ALTER TABLE ONLY users
     ADD CONSTRAINT users_pkey PRIMARY KEY (id);
 
-
-ALTER INDEX public.users_pkey OWNER TO maxcom;
-
-SET default_tablespace = '';
 
 --
 -- Name: votenames_pkey; Type: CONSTRAINT; Schema: public; Owner: maxcom; Tablespace: 
@@ -714,8 +612,6 @@ ALTER TABLE ONLY votenames
     ADD CONSTRAINT votenames_pkey PRIMARY KEY (id);
 
 
-ALTER INDEX public.votenames_pkey OWNER TO maxcom;
-
 --
 -- Name: votes_pkey; Type: CONSTRAINT; Schema: public; Owner: maxcom; Tablespace: 
 --
@@ -724,56 +620,40 @@ ALTER TABLE ONLY votes
     ADD CONSTRAINT votes_pkey PRIMARY KEY (id);
 
 
-ALTER INDEX public.votes_pkey OWNER TO maxcom;
-
-SET default_tablespace = indexspace;
-
 --
--- Name: comment_author; Type: INDEX; Schema: public; Owner: maxcom; Tablespace: indexspace
+-- Name: comment_author; Type: INDEX; Schema: public; Owner: maxcom; Tablespace: 
 --
 
 CREATE INDEX comment_author ON comments USING btree (userid);
 
 
-ALTER INDEX public.comment_author OWNER TO maxcom;
-
 --
--- Name: comment_postdate; Type: INDEX; Schema: public; Owner: maxcom; Tablespace: indexspace
+-- Name: comment_postdate; Type: INDEX; Schema: public; Owner: maxcom; Tablespace: 
 --
 
 CREATE INDEX comment_postdate ON comments USING btree (postdate);
 
 
-ALTER INDEX public.comment_postdate OWNER TO maxcom;
-
 --
--- Name: comment_reply; Type: INDEX; Schema: public; Owner: maxcom; Tablespace: indexspace
+-- Name: comment_reply; Type: INDEX; Schema: public; Owner: maxcom; Tablespace: 
 --
 
 CREATE INDEX comment_reply ON comments USING btree (replyto);
 
 
-ALTER INDEX public.comment_reply OWNER TO maxcom;
-
 --
--- Name: comment_topic; Type: INDEX; Schema: public; Owner: maxcom; Tablespace: indexspace
+-- Name: comment_topic; Type: INDEX; Schema: public; Owner: maxcom; Tablespace: 
 --
 
 CREATE INDEX comment_topic ON comments USING btree (topic);
 
 
-ALTER INDEX public.comment_topic OWNER TO maxcom;
-
 --
--- Name: commit_order; Type: INDEX; Schema: public; Owner: maxcom; Tablespace: indexspace
+-- Name: commit_order; Type: INDEX; Schema: public; Owner: maxcom; Tablespace: 
 --
 
 CREATE INDEX commit_order ON topics USING btree (commitdate);
 
-
-ALTER INDEX public.commit_order OWNER TO maxcom;
-
-SET default_tablespace = '';
 
 --
 -- Name: del_info_delby; Type: INDEX; Schema: public; Owner: maxcom; Tablespace: 
@@ -782,20 +662,12 @@ SET default_tablespace = '';
 CREATE INDEX del_info_delby ON del_info USING btree (delby);
 
 
-ALTER INDEX public.del_info_delby OWNER TO maxcom;
-
-SET default_tablespace = indexspace;
-
 --
--- Name: group_section; Type: INDEX; Schema: public; Owner: maxcom; Tablespace: indexspace
+-- Name: group_section; Type: INDEX; Schema: public; Owner: maxcom; Tablespace: 
 --
 
 CREATE INDEX group_section ON groups USING btree (section);
 
-
-ALTER INDEX public.group_section OWNER TO maxcom;
-
-SET default_tablespace = '';
 
 --
 -- Name: i_nick; Type: INDEX; Schema: public; Owner: maxcom; Tablespace: 
@@ -804,8 +676,6 @@ SET default_tablespace = '';
 CREATE UNIQUE INDEX i_nick ON users USING btree (nick);
 
 
-ALTER INDEX public.i_nick OWNER TO maxcom;
-
 --
 -- Name: i_votes_vote; Type: INDEX; Schema: public; Owner: maxcom; Tablespace: 
 --
@@ -813,65 +683,40 @@ ALTER INDEX public.i_nick OWNER TO maxcom;
 CREATE INDEX i_votes_vote ON votes USING btree (vote);
 
 
-ALTER INDEX public.i_votes_vote OWNER TO maxcom;
-
 --
--- Name: puzzle_userid; Type: INDEX; Schema: public; Owner: maxcom; Tablespace: 
---
-
-CREATE UNIQUE INDEX puzzle_userid ON puzzle USING btree (userid);
-
-
-ALTER INDEX public.puzzle_userid OWNER TO maxcom;
-
-SET default_tablespace = indexspace;
-
---
--- Name: topic_author; Type: INDEX; Schema: public; Owner: maxcom; Tablespace: indexspace
+-- Name: topic_author; Type: INDEX; Schema: public; Owner: maxcom; Tablespace: 
 --
 
 CREATE INDEX topic_author ON topics USING btree (userid);
 
 
-ALTER INDEX public.topic_author OWNER TO maxcom;
-
 --
--- Name: topic_group; Type: INDEX; Schema: public; Owner: maxcom; Tablespace: indexspace
+-- Name: topic_group; Type: INDEX; Schema: public; Owner: maxcom; Tablespace: 
 --
 
 CREATE INDEX topic_group ON topics USING btree (groupid);
 
 
-ALTER INDEX public.topic_group OWNER TO maxcom;
-
 --
--- Name: topic_postip; Type: INDEX; Schema: public; Owner: maxcom; Tablespace: indexspace
+-- Name: topic_postip; Type: INDEX; Schema: public; Owner: maxcom; Tablespace: 
 --
 
 CREATE INDEX topic_postip ON topics USING btree (postip);
 
 
-ALTER INDEX public.topic_postip OWNER TO maxcom;
-
 --
--- Name: topics_date; Type: INDEX; Schema: public; Owner: maxcom; Tablespace: indexspace
+-- Name: topics_date; Type: INDEX; Schema: public; Owner: maxcom; Tablespace: 
 --
 
 CREATE INDEX topics_date ON topics USING btree (postdate);
 
 
-ALTER INDEX public.topics_date OWNER TO maxcom;
-
 --
--- Name: topics_pkey; Type: INDEX; Schema: public; Owner: maxcom; Tablespace: indexspace
+-- Name: topics_pkey; Type: INDEX; Schema: public; Owner: maxcom; Tablespace: 
 --
 
 CREATE UNIQUE INDEX topics_pkey ON topics USING btree (id);
 
-
-ALTER INDEX public.topics_pkey OWNER TO maxcom;
-
-SET default_tablespace = '';
 
 --
 -- Name: votenames_topic_key; Type: INDEX; Schema: public; Owner: maxcom; Tablespace: 
@@ -880,10 +725,8 @@ SET default_tablespace = '';
 CREATE UNIQUE INDEX votenames_topic_key ON votenames USING btree (topic);
 
 
-ALTER INDEX public.votenames_topic_key OWNER TO maxcom;
-
 --
--- Name: RI_ConstraintTrigger_7915711; Type: TRIGGER; Schema: public; Owner: maxcom
+-- Name: RI_ConstraintTrigger_207334; Type: TRIGGER; Schema: public; Owner: maxcom
 --
 
 CREATE CONSTRAINT TRIGGER "<unnamed>"
@@ -895,7 +738,7 @@ CREATE CONSTRAINT TRIGGER "<unnamed>"
 
 
 --
--- Name: RI_ConstraintTrigger_7915712; Type: TRIGGER; Schema: public; Owner: maxcom
+-- Name: RI_ConstraintTrigger_207335; Type: TRIGGER; Schema: public; Owner: maxcom
 --
 
 CREATE CONSTRAINT TRIGGER "<unnamed>"
@@ -945,22 +788,6 @@ ALTER TABLE ONLY monthly_stats
 
 
 --
--- Name: votenames_commitby_fkey; Type: FK CONSTRAINT; Schema: public; Owner: maxcom
---
-
-ALTER TABLE ONLY votenames
-    ADD CONSTRAINT votenames_commitby_fkey FOREIGN KEY (commitby) REFERENCES users(id);
-
-
---
--- Name: votenames_userid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: maxcom
---
-
-ALTER TABLE ONLY votenames
-    ADD CONSTRAINT votenames_userid_fkey FOREIGN KEY (userid) REFERENCES users(id);
-
-
---
 -- Name: public; Type: ACL; Schema: -; Owner: postgres
 --
 
@@ -977,19 +804,7 @@ GRANT ALL ON SCHEMA public TO PUBLIC;
 REVOKE ALL ON TABLE b_ips FROM PUBLIC;
 REVOKE ALL ON TABLE b_ips FROM linuxweb;
 GRANT ALL ON TABLE b_ips TO linuxweb;
-GRANT SELECT ON TABLE b_ips TO mator;
-GRANT SELECT ON TABLE b_ips TO shaman;
 GRANT SELECT ON TABLE b_ips TO maxcom;
-
-
---
--- Name: banners; Type: ACL; Schema: public; Owner: maxcom
---
-
-REVOKE ALL ON TABLE banners FROM PUBLIC;
-REVOKE ALL ON TABLE banners FROM maxcom;
-GRANT ALL ON TABLE banners TO maxcom;
-GRANT SELECT,UPDATE,DELETE ON TABLE banners TO linuxweb;
 
 
 --
@@ -999,9 +814,7 @@ GRANT SELECT,UPDATE,DELETE ON TABLE banners TO linuxweb;
 REVOKE ALL ON TABLE comments FROM PUBLIC;
 REVOKE ALL ON TABLE comments FROM maxcom;
 GRANT ALL ON TABLE comments TO maxcom;
-GRANT INSERT,SELECT,UPDATE,DELETE ON TABLE comments TO linuxweb;
-GRANT SELECT ON TABLE comments TO mator;
-GRANT SELECT ON TABLE comments TO shaman;
+GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE comments TO linuxweb;
 
 
 --
@@ -1011,8 +824,7 @@ GRANT SELECT ON TABLE comments TO shaman;
 REVOKE ALL ON TABLE del_info FROM PUBLIC;
 REVOKE ALL ON TABLE del_info FROM maxcom;
 GRANT ALL ON TABLE del_info TO maxcom;
-GRANT INSERT,SELECT,UPDATE,DELETE ON TABLE del_info TO linuxweb;
-GRANT SELECT ON TABLE del_info TO mator;
+GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE del_info TO linuxweb;
 
 
 --
@@ -1022,8 +834,7 @@ GRANT SELECT ON TABLE del_info TO mator;
 REVOKE ALL ON TABLE groups FROM PUBLIC;
 REVOKE ALL ON TABLE groups FROM maxcom;
 GRANT ALL ON TABLE groups TO maxcom;
-GRANT INSERT,SELECT,UPDATE,DELETE ON TABLE groups TO linuxweb;
-GRANT SELECT ON TABLE groups TO mator;
+GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE groups TO linuxweb;
 
 
 --
@@ -1043,57 +854,37 @@ GRANT SELECT ON TABLE monthly_stats TO linuxweb;
 REVOKE ALL ON TABLE msgbase FROM PUBLIC;
 REVOKE ALL ON TABLE msgbase FROM maxcom;
 GRANT ALL ON TABLE msgbase TO maxcom;
-GRANT INSERT,SELECT,UPDATE ON TABLE msgbase TO linuxweb;
-
-
---
--- Name: puzzle; Type: ACL; Schema: public; Owner: maxcom
---
-
-REVOKE ALL ON TABLE puzzle FROM PUBLIC;
-REVOKE ALL ON TABLE puzzle FROM maxcom;
-GRANT ALL ON TABLE puzzle TO maxcom;
-GRANT SELECT,UPDATE,DELETE ON TABLE puzzle TO linuxweb;
-
-
---
--- Name: puzzleq; Type: ACL; Schema: public; Owner: maxcom
---
-
-REVOKE ALL ON TABLE puzzleq FROM PUBLIC;
-REVOKE ALL ON TABLE puzzleq FROM maxcom;
-GRANT ALL ON TABLE puzzleq TO maxcom;
-GRANT SELECT,UPDATE,DELETE ON TABLE puzzleq TO linuxweb;
+GRANT SELECT,INSERT,UPDATE ON TABLE msgbase TO linuxweb;
 
 
 --
 -- Name: s_guid; Type: ACL; Schema: public; Owner: maxcom
 --
 
-REVOKE ALL ON TABLE s_guid FROM PUBLIC;
-REVOKE ALL ON TABLE s_guid FROM maxcom;
-GRANT ALL ON TABLE s_guid TO maxcom;
-GRANT SELECT,UPDATE,DELETE ON TABLE s_guid TO linuxweb;
+REVOKE ALL ON SEQUENCE s_guid FROM PUBLIC;
+REVOKE ALL ON SEQUENCE s_guid FROM maxcom;
+GRANT ALL ON SEQUENCE s_guid TO maxcom;
+GRANT SELECT,UPDATE ON SEQUENCE s_guid TO linuxweb;
 
 
 --
 -- Name: s_msgid; Type: ACL; Schema: public; Owner: maxcom
 --
 
-REVOKE ALL ON TABLE s_msgid FROM PUBLIC;
-REVOKE ALL ON TABLE s_msgid FROM maxcom;
-GRANT ALL ON TABLE s_msgid TO maxcom;
-GRANT ALL ON TABLE s_msgid TO linuxweb;
+REVOKE ALL ON SEQUENCE s_msgid FROM PUBLIC;
+REVOKE ALL ON SEQUENCE s_msgid FROM maxcom;
+GRANT ALL ON SEQUENCE s_msgid TO maxcom;
+GRANT ALL ON SEQUENCE s_msgid TO linuxweb;
 
 
 --
 -- Name: s_uid; Type: ACL; Schema: public; Owner: maxcom
 --
 
-REVOKE ALL ON TABLE s_uid FROM PUBLIC;
-REVOKE ALL ON TABLE s_uid FROM maxcom;
-GRANT ALL ON TABLE s_uid TO maxcom;
-GRANT SELECT,UPDATE,DELETE ON TABLE s_uid TO linuxweb;
+REVOKE ALL ON SEQUENCE s_uid FROM PUBLIC;
+REVOKE ALL ON SEQUENCE s_uid FROM maxcom;
+GRANT ALL ON SEQUENCE s_uid TO maxcom;
+GRANT SELECT,UPDATE ON SEQUENCE s_uid TO linuxweb;
 
 
 --
@@ -1103,9 +894,7 @@ GRANT SELECT,UPDATE,DELETE ON TABLE s_uid TO linuxweb;
 REVOKE ALL ON TABLE sections FROM PUBLIC;
 REVOKE ALL ON TABLE sections FROM maxcom;
 GRANT ALL ON TABLE sections TO maxcom;
-GRANT SELECT,UPDATE,DELETE ON TABLE sections TO linuxweb;
-GRANT SELECT ON TABLE sections TO mator;
-GRANT SELECT ON TABLE sections TO shaman;
+GRANT SELECT,DELETE,UPDATE ON TABLE sections TO linuxweb;
 
 
 --
@@ -1115,7 +904,7 @@ GRANT SELECT ON TABLE sections TO shaman;
 REVOKE ALL ON TABLE top10 FROM PUBLIC;
 REVOKE ALL ON TABLE top10 FROM maxcom;
 GRANT ALL ON TABLE top10 TO maxcom;
-GRANT INSERT,SELECT,UPDATE,DELETE ON TABLE top10 TO linuxweb;
+GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE top10 TO linuxweb;
 
 
 --
@@ -1125,9 +914,7 @@ GRANT INSERT,SELECT,UPDATE,DELETE ON TABLE top10 TO linuxweb;
 REVOKE ALL ON TABLE topics FROM PUBLIC;
 REVOKE ALL ON TABLE topics FROM maxcom;
 GRANT ALL ON TABLE topics TO maxcom;
-GRANT INSERT,SELECT,UPDATE,DELETE ON TABLE topics TO linuxweb;
-GRANT SELECT ON TABLE topics TO mator;
-GRANT SELECT ON TABLE topics TO shaman;
+GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE topics TO linuxweb;
 
 
 --
@@ -1137,19 +924,17 @@ GRANT SELECT ON TABLE topics TO shaman;
 REVOKE ALL ON TABLE users FROM PUBLIC;
 REVOKE ALL ON TABLE users FROM maxcom;
 GRANT ALL ON TABLE users TO maxcom;
-GRANT INSERT,SELECT,UPDATE,DELETE ON TABLE users TO linuxweb;
-GRANT SELECT ON TABLE users TO mator;
-GRANT SELECT ON TABLE users TO shaman;
+GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE users TO linuxweb;
 
 
 --
 -- Name: vote_id; Type: ACL; Schema: public; Owner: maxcom
 --
 
-REVOKE ALL ON TABLE vote_id FROM PUBLIC;
-REVOKE ALL ON TABLE vote_id FROM maxcom;
-GRANT ALL ON TABLE vote_id TO maxcom;
-GRANT UPDATE ON TABLE vote_id TO linuxweb;
+REVOKE ALL ON SEQUENCE vote_id FROM PUBLIC;
+REVOKE ALL ON SEQUENCE vote_id FROM maxcom;
+GRANT ALL ON SEQUENCE vote_id TO maxcom;
+GRANT UPDATE ON SEQUENCE vote_id TO linuxweb;
 
 
 --
@@ -1159,7 +944,7 @@ GRANT UPDATE ON TABLE vote_id TO linuxweb;
 REVOKE ALL ON TABLE votenames FROM PUBLIC;
 REVOKE ALL ON TABLE votenames FROM maxcom;
 GRANT ALL ON TABLE votenames TO maxcom;
-GRANT INSERT,SELECT,UPDATE,DELETE ON TABLE votenames TO linuxweb;
+GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE votenames TO linuxweb;
 
 
 --
@@ -1169,17 +954,17 @@ GRANT INSERT,SELECT,UPDATE,DELETE ON TABLE votenames TO linuxweb;
 REVOKE ALL ON TABLE votes FROM PUBLIC;
 REVOKE ALL ON TABLE votes FROM maxcom;
 GRANT ALL ON TABLE votes TO maxcom;
-GRANT INSERT,SELECT,UPDATE,DELETE ON TABLE votes TO linuxweb;
+GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE votes TO linuxweb;
 
 
 --
 -- Name: votes_id; Type: ACL; Schema: public; Owner: maxcom
 --
 
-REVOKE ALL ON TABLE votes_id FROM PUBLIC;
-REVOKE ALL ON TABLE votes_id FROM maxcom;
-GRANT ALL ON TABLE votes_id TO maxcom;
-GRANT UPDATE ON TABLE votes_id TO linuxweb;
+REVOKE ALL ON SEQUENCE votes_id FROM PUBLIC;
+REVOKE ALL ON SEQUENCE votes_id FROM maxcom;
+GRANT ALL ON SEQUENCE votes_id TO maxcom;
+GRANT UPDATE ON SEQUENCE votes_id TO linuxweb;
 
 
 --
