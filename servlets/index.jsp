@@ -28,7 +28,7 @@
 <div class=column>
 <div class=boxlet>
 <h2>Вход на сайт</h2>
-<% if (session == null || session.getAttribute("login") == null || !(Boolean) session.getAttribute("login")) { %>
+<% if (!Template.isSessionAuthorized(session)) { %>
 <form method=POST action="login.jsp">
 Имя:<br><input type=text name=nick size=15 style="width: 90%"><br>
 Пароль:<br><input type=password name=passwd size=15 style="width: 90%"><br>
