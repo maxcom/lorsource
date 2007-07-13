@@ -4,6 +4,7 @@ import java.io.*;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Properties;
@@ -43,6 +44,8 @@ public class Template {
 
   private static final Cache cache;
   public static final DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM, new Locale("ru"));
+  public static final DateFormat RFC822 = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss Z", Locale.US);
+
   private static final int WARNING_EXEC_TIME = 15000;
 
   static {
@@ -152,7 +155,7 @@ public class Template {
       session != null &&
       profile != null &&
       (session.getAttribute("login") == null ||
-        !((Boolean) session.getAttribute("login")).booleanValue())) {
+        !(Boolean) session.getAttribute("login"))) {
 
       try {
         Connection db = getConnection("user-cookie-auth");
@@ -161,7 +164,7 @@ public class Template {
         if (user.getMD5(getSecret()).equals(getCookie("password")) && !user.isBlocked()) {
           session.putValue("login", Boolean.TRUE);
           session.putValue("nick", profile);
-          session.putValue("moderator", Boolean.valueOf(user.canModerate()));
+          session.putValue("moderator", user.canModerate());
           User.updateUserLastlogin(db, profile, new Date()); // update user `lastlogin` time in DB
         }
       } catch (UserNotFoundException ex) {
@@ -516,7 +519,7 @@ public class Template {
   }
 
   public static boolean isSessionAuthorized(HttpSession session) {
-    return session != null && session.getAttribute("login") != null && ((Boolean) session.getAttribute("login")).booleanValue();
+    return session != null && session.getAttribute("login") != null && (Boolean) session.getAttribute("login");
   }
 
   public boolean isModeratorSession() {
@@ -524,7 +527,7 @@ public class Template {
       return false;
     }
 
-    return ((Boolean) session.getValue("moderator")).booleanValue();
+    return (Boolean) session.getValue("moderator");
   }
 
   private boolean isAnonymousProfile(String name) {

@@ -1,7 +1,8 @@
 <%@ page contentType="text/html; charset=koi8-r"%>
 <%@ page import="java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.util.Calendar,ru.org.linux.site.BadSectionException,ru.org.linux.site.NewsViewer" errorPage="error.jsp" buffer="200kb"%>
+<%@ page import="ru.org.linux.site.Section"%>
 <%@ page import="ru.org.linux.site.Template"%>
-<%@ page import="ru.org.linux.util.DateUtil"%>
+<%@ page import="ru.org.linux.util.DateUtil" %>
 <% Template tmpl = new Template(request, config, response); %>
 <%= tmpl.head() %>
 <%
@@ -36,30 +37,28 @@
 %>
 
 <%
-   int section = tmpl.getParameters().getInt("section");
+  int sectionid = tmpl.getParameters().getInt("section");
 
-   db = tmpl.getConnection("view-news");
+  db = tmpl.getConnection("view-news");
 
-   Statement st=db.createStatement();
+  Section section = new Section(db, sectionid);
 
-   ResultSet rs=st.executeQuery("SELECT name, browsable, imagepost FROM sections WHERE id=" + section);
+  Statement st = db.createStatement();
 
-   if (!rs.next()) throw new BadSectionException();
+  int month = 0;
+  int year = 0;
 
-   int month=0;
-   int year=0;
+  String ptitle;
+  if (request.getParameter("month") == null) {
+    ptitle = section.getName();
+  } else {
+    month = tmpl.getParameters().getInt("month");
+    year = tmpl.getParameters().getInt("year");
+    ptitle = "Архив: " + section.getName() + ", " + year + ", " + DateUtil.getMonth(month);
+  }
 
-   String ptitle;
-   if (request.getParameter("month")==null) {
-   	ptitle=rs.getString("name");
-   } else {
-   	month=tmpl.getParameters().getInt("month");
-	year=tmpl.getParameters().getInt("year");
-   	ptitle="Архив: " + rs.getString("name") + ", " + year + ", " + DateUtil.getMonth(month);
-   }
-
-  if (!rs.getBoolean("browsable")|| section==2) {
-    throw new BadSectionException();
+  if (!section.isBrowsable() || sectionid == 2) {
+    throw new BadSectionException(sectionid);
   }
 
 %>
@@ -75,9 +74,12 @@
     </td>
     <td align=right valign=middle>
 <%
-      if (rs.getBoolean("imagepost")) {
+      if (section.isImagepost()) {
         out.print("[<a style=\"text-decoration: none\" href=\"add.jsp?group=4962\">Добавить изображение</a>]");
       }
+
+  out.print("[<a style=\"text-decoration: none\" href=\"view-news-archive.jsp?section="+sectionid+"\">Архив</a>]");
+
 %>
     </td>
    </tr>
@@ -85,17 +87,16 @@
 </div>
 </div>
 </div>
-<%
-rs.close();
-%>
 
 <H1><%= ptitle %></H1>
 
 <%
+  ResultSet rs;
+
   if (month != 0) {
-    rs = st.executeQuery("SELECT topics.title as subj, topics.lastmod, topics.stat1, postdate, nick, image, groups.title as gtitle, topics.id as msgid, sections.comment, groups.id as guid, topics.url, topics.linktext, imagepost, linkup, postdate<(CURRENT_TIMESTAMP-expire) as expired, message FROM topics,groups,users,sections,msgbase WHERE sections.id=groups.section AND topics.id=msgbase.id AND (topics.moderate OR NOT sections.moderate) AND topics.userid=users.id AND topics.groupid=groups.id AND section=" + section + " AND postdate>'"+year+"-"+month+"-01'::timestamp AND (postdate<'"+year+"-"+month+"-01'::timestamp+'1 month'::interval) AND NOT deleted ORDER BY commitdate");
+    rs = st.executeQuery("SELECT topics.title as subj, topics.lastmod, topics.stat1, postdate, nick, image, groups.title as gtitle, topics.id as msgid, sections.comment, groups.id as guid, topics.url, topics.linktext, imagepost, linkup, postdate<(CURRENT_TIMESTAMP-expire) as expired, message FROM topics,groups,users,sections,msgbase WHERE sections.id=groups.section AND topics.id=msgbase.id AND (topics.moderate OR NOT sections.moderate) AND topics.userid=users.id AND topics.groupid=groups.id AND section=" + sectionid + " AND postdate>'" + year + "-" + month + "-01'::timestamp AND (postdate<'" + year + "-" + month + "-01'::timestamp+'1 month'::interval) AND NOT deleted ORDER BY commitdate");
   } else {
-    rs = st.executeQuery("SELECT topics.title as subj, topics.lastmod, topics.stat1, postdate, nick, image, groups.title as gtitle, topics.id as msgid, sections.comment, groups.id as guid, topics.url, topics.linktext, imagepost, linkup, postdate<(CURRENT_TIMESTAMP-expire) as expired, message FROM topics,groups,users,sections,msgbase WHERE sections.id=groups.section AND topics.id=msgbase.id AND (topics.moderate OR NOT sections.moderate) AND topics.userid=users.id AND topics.groupid=groups.id AND section=" + section + " AND NOT deleted ORDER BY commitdate DESC LIMIT 20");
+    rs = st.executeQuery("SELECT topics.title as subj, topics.lastmod, topics.stat1, postdate, nick, image, groups.title as gtitle, topics.id as msgid, sections.comment, groups.id as guid, topics.url, topics.linktext, imagepost, linkup, postdate<(CURRENT_TIMESTAMP-expire) as expired, message FROM topics,groups,users,sections,msgbase WHERE sections.id=groups.section AND topics.id=msgbase.id AND (topics.moderate OR NOT sections.moderate) AND topics.userid=users.id AND topics.groupid=groups.id AND section=" + sectionid + " AND NOT deleted ORDER BY commitdate DESC LIMIT 20");
   }
 
   NewsViewer nw = new NewsViewer(tmpl.getConfig(), tmpl.getProf(), rs, false, false);
@@ -105,20 +106,6 @@ rs.close();
   rs.close();
 %>
 
-<h1>Предыдущие месяцы</h1>
-<%
-
-	rs=st.executeQuery("select year, month, c from monthly_stats where section=" + section + " order by year, month");
-	while (rs.next()) {
-		int tMonth=rs.getInt("month");
-		int tYear=rs.getInt("year");
-		if (month!=tMonth || year!=tYear)
-			out.print("<a href=\"view-news.jsp?year="+tYear+"&amp;month="+tMonth+"&amp;section="+section+"\">"+rs.getInt("year") + ' ' + DateUtil.getMonth(tMonth) + "</a> (" + rs.getInt("c") + ")<br>");
-		else
-			out.print(rs.getInt("year") + " " + DateUtil.getMonth(tMonth) + " (" + rs.getInt("c") + ")<br>");
-	}
-	rs.close();
-%>
 <%
  	st.close();
   } finally {

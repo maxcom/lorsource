@@ -1,10 +1,9 @@
 package ru.org.linux.site;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
+import java.util.Date;
 
+import ru.org.linux.util.HTMLFormatter;
 import ru.org.linux.util.StringUtil;
 
 public class MessageTable {
@@ -21,6 +20,28 @@ public class MessageTable {
 
     rs.close();
     pst.close();
+
+    return out.toString();
+  }
+
+  public static String getSectionRss(Connection db, int sectionid) throws SQLException, BadSectionException {
+    StringBuilder out = new StringBuilder();
+
+    Section section = new Section(db, sectionid);
+
+    out.append("<title>Linux.org.ru: ").append(section.getName()).append("</title>");
+    out.append("<pubDate>").append(Template.RFC822.format(new Date())).append("</pubDate>");
+    out.append("<description>Linux.org.ru: ").append(section.getName()).append("</description>");
+
+    Statement st=db.createStatement();
+
+    ResultSet rs=st.executeQuery("SELECT topics.title as subj, topics.lastmod, topics.stat1, postdate, nick, image, groups.title as gtitle, topics.id as msgid, sections.comment, groups.id as guid, topics.url, topics.linktext, imagepost, linkup, postdate<(CURRENT_TIMESTAMP-expire) as expired, message FROM topics,groups, users, sections, msgbase WHERE sections.id=groups.section AND topics.id=msgbase.id AND sections.id="+sectionid+" AND (topics.moderate OR NOT sections.moderate) AND topics.userid=users.id AND topics.groupid=groups.id AND NOT deleted AND commitdate>(CURRENT_TIMESTAMP-'1 month'::interval) ORDER BY commitdate DESC LIMIT 10");
+
+    while (rs.next()) {
+     int msgid=rs.getInt("msgid");
+
+      out.append("<item>\n" + "  <title>").append(rs.getString("subj")).append("</title>\n" + "  <link>http://www.linux.org.ru/jump-message.jsp?msgid=").append(msgid).append("</link>\n" + "  <guid>http://www.linux.org.ru/jump-message.jsp?msgid=").append(msgid).append("</guid>\n" + "  <pubDate>").append(Template.RFC822.format(rs.getTimestamp("postdate"))).append("</pubDate>\n" + "  <description>\n" + "\t").append(HTMLFormatter.htmlSpecialChars(rs.getString("message"))).append("\n" + " \n" + "  </description>\n" + "</item>");
+    }
 
     return out.toString();
   }

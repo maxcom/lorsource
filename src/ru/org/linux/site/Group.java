@@ -19,6 +19,7 @@ public class Group {
   private final String image;
   private final int restrictTopics;
   private final int id;
+  private final boolean browsable;
 
   public Group(Connection db, int id) throws SQLException, BadGroupException {
     Statement st = null;
@@ -29,7 +30,7 @@ public class Group {
     try {
       st = db.createStatement();
 
-      rs = st.executeQuery("SELECT sections.moderate, sections.preformat, lineonly, imagepost, section, havelink, linkup, linktext, sections.name, title, image, restrict_topics FROM groups, sections WHERE groups.id=" + id + " AND groups.section=sections.id");
+      rs = st.executeQuery("SELECT sections.moderate, sections.preformat, lineonly, imagepost, section, havelink, linkup, linktext, sections.name, title, image, restrict_topics, sections.browsable FROM groups, sections WHERE groups.id=" + id + " AND groups.section=sections.id");
       if (!rs.next()) {
         throw new BadGroupException("Группа " + id + " не существует");
       }
@@ -46,6 +47,7 @@ public class Group {
       title = rs.getString("title");
       image = rs.getString("image");
       restrictTopics = rs.getInt("restrict_topics");
+      browsable = rs.getBoolean("browsable");
     } finally {
       if (st != null) {
         st.close();
@@ -130,5 +132,9 @@ public class Group {
 
   public int getId() {
     return id;
+  }
+
+  public boolean isBrowsable() {
+    return browsable;
   }
 }

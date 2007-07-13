@@ -1,13 +1,10 @@
 package ru.org.linux.site;
 
-public class BadGroupException extends ScriptErrorException
-{
-	public BadGroupException()
-	{
-	}
+public class BadGroupException extends ScriptErrorException {
+  public BadGroupException() {
+  }
 
-	public BadGroupException(String info)
-	{
-		super(info);
-	}
+  public BadGroupException(String info) {
+    super(info);
+  }
 }

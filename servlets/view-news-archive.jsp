@@ -1,21 +1,20 @@
 <%@ page contentType="text/html; charset=koi8-r"%>
-<%@ page import="java.sql.Connection,java.sql.ResultSet,java.sql.Statement,ru.org.linux.site.BadSectionException,ru.org.linux.site.Template,ru.org.linux.util.DateUtil" errorPage="error.jsp" buffer="200kb"%>
+<%@ page import="java.sql.Connection,java.sql.ResultSet,java.sql.Statement,ru.org.linux.site.BadSectionException,ru.org.linux.site.Section,ru.org.linux.site.Template" errorPage="error.jsp" buffer="200kb"%>
+<%@ page import="ru.org.linux.util.DateUtil" %>
 <% Template tmpl = new Template(request, config, response); %>
 <%= tmpl.head() %>
 <% Connection db=null;
   try { %>
 <%
-   int section = tmpl.getParameters().getInt("section");
+  int sectionid = tmpl.getParameters().getInt("section");
 
-   db = tmpl.getConnection("view-news-archive");
+  db = tmpl.getConnection("view-news-archive");
 
-   Statement st=db.createStatement();
+  Section section = new Section(db, sectionid);
 
-   ResultSet rs=st.executeQuery("SELECT name, browsable, imagepost FROM sections WHERE id=" + section);
+  Statement st = db.createStatement();
 
-   if (!rs.next()) throw new BadSectionException();
-
-  String ptitle=rs.getString("name") + " - Архив";
+  String ptitle = section.getName() + " - Архив";
 %>
 	<title><%= ptitle %></title>
 <%= tmpl.DocumentHeader() %>
@@ -23,26 +22,18 @@
 <H1><%= ptitle %></H1>
 <%
 
-if (!rs.getBoolean("browsable")) { throw new BadSectionException(); }
-if (rs.getBoolean("imagepost")) out.print("[<a href=\"addsshot.php\">Добавить изображение</a>]");
+if (!section.isBrowsable()) { throw new BadSectionException(sectionid); }
 
-rs.close();
 %>
-
 <%
 
-	rs=st.executeQuery("select date_part('year', postdate) as year, date_part('month', postdate) as month, count(topics.id) as c from topics, groups, sections where topics.groupid=groups.id and groups.section=sections.id and section=" + section + " and topics.moderate and not deleted group by year, month order by year, month");
-  int year = 0;
-  int month = 0;
+  ResultSet rs = st.executeQuery("select year, month, c from monthly_stats where section=" + sectionid + " order by year, month");
   while (rs.next()) {
-          int tMonth=rs.getInt("month");
-          int tYear=rs.getInt("year");
-          if (month!=tMonth || year!=tYear)
-                  out.print("<a href=\"view-news.jsp?year="+tYear+"&amp;month="+tMonth+"&amp;section="+section+"\">"+rs.getInt("year") + ' ' + DateUtil.getMonth(tMonth) + "</a> (" + rs.getInt("c") + ")<br>");
-          else
-                  out.print(rs.getInt("year") + " " + DateUtil.getMonth(tMonth) + " (" + rs.getInt("c") + ")<br>");
+    int tMonth = rs.getInt("month");
+    int tYear = rs.getInt("year");
+    out.print("<a href=\"view-news.jsp?year=" + tYear + "&amp;month=" + tMonth + "&amp;section=" + sectionid + "\">" + rs.getInt("year") + ' ' + DateUtil.getMonth(tMonth) + "</a> (" + rs.getInt("c") + ")<br>");
   }
-	rs.close();
+  rs.close();
 %>
 
 <%
