@@ -263,14 +263,18 @@ public class Template {
   }
 
   private String getProfile(HttpServletRequest request) {
-    String path = request.getRequestURI();
+//    if (request.getAttribute("lor-profile")!=null) {
+      return (String) request.getAttribute("lor-profile"); 
+//    }
 
-    REMatch found = profileRE.getMatch(path);
-    if (found != null) {
-      return path.substring(found.getSubStartIndex(1), found.getSubEndIndex(1));
-    } else {
-      return null;
-    }
+//    String path = request.getRequestURI();
+
+//    REMatch found = profileRE.getMatch(path);
+//    if (found != null) {
+//      return path.substring(found.getSubStartIndex(1), found.getSubEndIndex(1));
+//    } else {
+//      return null;
+//    }
   }
 
   private String replaceProfile(HttpServletRequest request, String profile) {

@@ -7,4 +7,4 @@ Redirect permanent /rss.jsp http://www.linux.org.ru/section-rss.jsp
 
 RewriteEngine on
 RewriteRule ^profile/([^/]+)$	/profile/$1/	[R]
-RewriteRule ^profile/([^/]+)/(.*)	/$2
+#RewriteRule ^profile/([^/]+)/(.*)	/$2
