@@ -199,9 +199,9 @@ public class Message {
 
         out.append("<p><i>").append(info.getWidth()).append('x').append(info.getHeight()).append(", ").append(info.getSizeString()).append("</i>");
 
-        out.append("<p>&gt;&gt;&gt; <a href=\"").append(url).append("\">Просмотр</a>.");
+        out.append("<p>&gt;&gt;&gt; <a href=\"/").append(url).append("\">Просмотр</a>.");
       } catch (BadImageException e) {
-        out.append("<p>&gt;&gt;&gt; <a href=\"").append(url).append("\">[BROKEN IMAGE!] Просмотр</a>.");
+        out.append("<p>&gt;&gt;&gt; <a href=\"/").append(url).append("\">[BROKEN IMAGE!] Просмотр</a>.");
       }
     }
 
