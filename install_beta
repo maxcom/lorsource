@@ -15,7 +15,7 @@ cp lib/*.jar ${SITE_PATH}servlets/WEB-INF/lib/
 cp -f urlrewrite.xml ${SITE_PATH}/servlets/WEB-INF/
 
 cp -f -R html/* ${SITE_PATH}/html/
-cp -f html/.htaccess /var/www/linux.org.ru/html/
+cp -f html/.htaccess ${SITE_PATH}/html/
 
 echo done
 
