@@ -12,7 +12,7 @@ cp servlets/*.jsp ${SITE_PATH}/servlets/
 cp lib/*.jar ${SITE_PATH}/servlets/WEB-INF/lib/
 cp dist/*.jar ${SITE_PATH}/servlets/WEB-INF/lib/
 cp lib/*.jar ${SITE_PATH}servlets/WEB-INF/lib/
-cp -f urlrewrite.xml /var/www/${SITE_PATH}/servlets/WEB-INF/
+cp -f urlrewrite.xml ${SITE_PATH}/servlets/WEB-INF/
 
 cp -f -R html/* ${SITE_PATH}/html/
 cp -f html/.htaccess /var/www/linux.org.ru/html/
