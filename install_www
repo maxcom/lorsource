@@ -8,8 +8,10 @@ echo Copying files...
 
 sudo cp servlets/*.jsp /var/www/linux.org.ru/servlets/
 sudo cp dist/*.jar /var/www/linux.org.ru/servlets/WEB-INF/lib/
+sudo cp lib/*.jar /var/www/linux.org.ru/servlets/WEB-INF/lib/
 
 sudo cp -f -R html/* /var/www/linux.org.ru/html/
+sudo cp -f urlrewrite.xml /var/www/linux.org.ru/servlets/WEB-INF/
 sudo cp -f html/.htaccess /var/www/linux.org.ru/html/
 
 sudo /etc/init.d/resin restart
