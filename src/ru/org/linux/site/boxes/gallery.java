@@ -58,7 +58,7 @@ public final class gallery extends Boxlet {
 
         out.append("<p>");
       }
-      rs.close();
+      rs.close();                          
       out.append("<a href=\"view-news.jsp?section=3\">другие скриншоты...</a>");
       return out.toString();
     } finally {

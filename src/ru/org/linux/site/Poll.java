@@ -195,7 +195,7 @@ public class Poll {
       out.append("</td><td>").append(votes).append("</td><td>");
       total += votes;
 	for (int i = 0; i < 20 * votes / max; i++) {
-          out.append("<img src=\"").append(tmpl.getStyle()).append("/img/votes.gif\" alt=\"*\" ").append(info.getCode()).append('>');
+          out.append("<img src=\"/").append(tmpl.getStyle()).append("/img/votes.gif\" alt=\"*\" ").append(info.getCode()).append('>');
 	}
 	out.append("</td></tr>");
     }
