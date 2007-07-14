@@ -224,7 +224,6 @@ public class Template {
     if (!"black".equals(style) &&
         !"white".equals(style) &&
         !"white2".equals(style) &&
-        !"blue".equals(style) &&
         !"blackbeta".equals(style)) {
       return (String) Profile.getDefaults().get("style");
     }
