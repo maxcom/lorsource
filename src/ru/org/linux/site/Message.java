@@ -149,9 +149,9 @@ public class Message {
 
       try {
         ImageInfo info=new ImageInfo(tmpl.getObjectConfig().getHTMLPathPrefix()+linktext);
-        out.append("<a href=\"").append(url).append("\"><img src=\"/").append(linktext).append("\" ALT=\"").append(title).append("\" ").append(info.getCode()).append(" ></a>");
+        out.append("<a href=\"/").append(url).append("\"><img src=\"/").append(linktext).append("\" ALT=\"").append(title).append("\" ").append(info.getCode()).append(" ></a>");
       } catch (BadImageException e) {
-        out.append("<a href=\"").append(url).append("\">[bad image]</a>");
+        out.append("<a href=\"/").append(url).append("\">[bad image]</a>");
       }
 
       out.append("</td><td valign=top>");
