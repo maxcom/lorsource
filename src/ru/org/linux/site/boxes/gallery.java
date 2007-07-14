@@ -36,7 +36,7 @@ public final class gallery extends Boxlet {
         try {
           ImageInfo info = new ImageInfo(htmlPath + icon);
 
-          out.append("<img border=1 src=\"").append(icon).append("\" alt=\"Скриншот: ").append(title).append("\" ").append(info.getCode()).append('>');
+          out.append("<img border=1 src=\"/").append(icon).append("\" alt=\"Скриншот: ").append(title).append("\" ").append(info.getCode()).append('>');
         } catch (BadImageException e) {
           out.append("[bad image] <img border=1 src=\"").append(icon).append("\" alt=\"Скриншот: ").append(title).append("\" " + '>');
         }
