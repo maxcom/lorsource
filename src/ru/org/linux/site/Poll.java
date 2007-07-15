@@ -24,8 +24,7 @@ public class Poll {
     pst.clearParameters();
     pst.setInt(1, msgid);
     ResultSet rs = pst.executeQuery();
-    rs.next();
-    return rs.getInt("id");
+    return rs.next()?rs.getInt("id"):0;
   }
 
   public void setTopicId(Connection db, int msgid) throws SQLException {
