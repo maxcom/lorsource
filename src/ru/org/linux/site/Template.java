@@ -113,11 +113,7 @@ public class Template {
 
     String profile;
 
-    if (isErrorPage) {
-      profile = cookies.getProperty("profile");
-    } else {
-      profile = getProfile(request);
-    }
+    profile = getProfile(request);
 
     if (profile != null && ("".equals(profile) || "anonymous".equals(profile))) {
       profile = null;

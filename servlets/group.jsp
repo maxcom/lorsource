@@ -1,5 +1,5 @@
 <%@ page contentType="text/html; charset=koi8-r"%>
-<%@ page import="java.net.URLEncoder,java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.sql.Timestamp,java.util.ArrayList,java.util.Collections,java.util.Iterator" errorPage="error.jsp" buffer="200kb"%>
+<%@ page import="java.net.URLEncoder,java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.sql.Timestamp,java.util.ArrayList,java.util.Collections,java.util.Iterator" errorPage="/error.jsp" buffer="200kb"%>
 <%@ page import="java.util.List"%>
 <%@ page import="javax.servlet.http.HttpServletResponse"%>
 <%@ page import="ru.org.linux.site.*"%>
