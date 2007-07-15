@@ -1,5 +1,5 @@
 <%@ page contentType="text/html; charset=koi8-r"%>
-<%@ page import="java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.util.Date,java.util.Properties,javax.mail.Session,javax.mail.Transport,javax.mail.internet.InternetAddress" errorPage="error.jsp" buffer="64kb"%>
+<%@ page import="java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.util.Date,java.util.Properties,javax.mail.Session,javax.mail.Transport,javax.mail.internet.InternetAddress" errorPage="/error.jsp" buffer="64kb"%>
 <%@ page import="javax.mail.internet.MimeMessage"%>
 <%@ page import="ru.org.linux.site.AccessViolationException"%>
 <%@ page import="ru.org.linux.site.Template"%>

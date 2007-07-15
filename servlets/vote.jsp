@@ -1,7 +1,7 @@
 <%@ page contentType="text/html; charset=koi8-r" %>
 <%@ page
     import="java.sql.Connection,java.sql.Statement,javax.servlet.http.HttpServletResponse"
-    errorPage="error.jsp" %>
+    errorPage="/error.jsp" %>
 <%@ page import="ru.org.linux.site.*"%>
 <% Template tmpl = new Template(request, config, response); %>
 <%= tmpl.head() %>

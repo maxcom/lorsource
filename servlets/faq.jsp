@@ -1,5 +1,5 @@
 <%@ page contentType="text/html; charset=koi8-r"%>
-<%@ page import="ru.org.linux.site.Template" errorPage="error.jsp"%>
+<%@ page import="ru.org.linux.site.Template" errorPage="/error.jsp"%>
 <% Template tmpl = new Template(request, config, response); %><%= tmpl.head() %>
 <title>Ответы на часто задаваемые вопросы (FAQ)</title>
 <%= tmpl.DocumentHeader() %>

@@ -1,5 +1,5 @@
 <%@ page contentType="text/html; charset=koi8-r"%>
-<%@ page import="java.net.URLEncoder" errorPage="error.jsp"%>
+<%@ page import="java.net.URLEncoder" errorPage="/error.jsp"%>
 <%@ page import="java.sql.Connection" %>
 <%@ page import="java.sql.ResultSet" %>
 <%@ page import="java.sql.Statement" %>

@@ -1,5 +1,5 @@
 <%@ page contentType="text/html; charset=koi8-r"%>
-<%@ page import="java.net.URLEncoder,java.sql.Connection,java.sql.ResultSet,java.sql.Statement" errorPage="error.jsp" buffer="60kb" %>
+<%@ page import="java.net.URLEncoder,java.sql.Connection,java.sql.ResultSet,java.sql.Statement" errorPage="/error.jsp" buffer="60kb" %>
 <%@ page import="java.util.Date"%>
 <%@ page import="com.danga.MemCached.MemCachedClient" %>
 <%@ page import="ru.org.linux.site.*" %>

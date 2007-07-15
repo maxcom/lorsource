@@ -1,5 +1,5 @@
 <%@ page contentType="text/html; charset=koi8-r"%>
-<%@ page import="java.io.File,java.io.IOException, java.net.URLEncoder, java.sql.Connection" errorPage="error.jsp"%>
+<%@ page import="java.io.File,java.io.IOException, java.net.URLEncoder, java.sql.Connection" errorPage="/error.jsp"%>
 <%@ page import="java.sql.PreparedStatement" %>
 <%@ page import="java.util.Random" %>
 <%@ page import="ru.org.linux.site.*" %>

@@ -1,5 +1,5 @@
 <%@ page contentType="text/html; charset=koi8-r"%>
-<%@ page import="javax.servlet.http.Cookie,javax.servlet.http.HttpServletResponse" errorPage="error.jsp"%>
+<%@ page import="javax.servlet.http.Cookie,javax.servlet.http.HttpServletResponse" errorPage="/error.jsp"%>
 <%@ page import="ru.org.linux.site.Template"%>
 <% Template tmpl = new Template(request, config, response); %>
 <%= tmpl.head() %>

@@ -1,5 +1,5 @@
 <%@ page contentType="text/html; charset=koi8-r"%>
-<%@ page import="java.sql.Connection,ru.org.linux.site.MissingParameterException,ru.org.linux.site.Poll,ru.org.linux.site.Template" errorPage="error.jsp" buffer="200kb"%>
+<%@ page import="java.sql.Connection,ru.org.linux.site.MissingParameterException,ru.org.linux.site.Poll,ru.org.linux.site.Template" errorPage="/error.jsp" buffer="200kb"%>
 <% Template tmpl = new Template(request, config, response); %>
 <%=tmpl.head() %>
 <%

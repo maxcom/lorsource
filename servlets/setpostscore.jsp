@@ -1,5 +1,5 @@
 <%@ page contentType="text/html; charset=koi8-r"%>
-<%@ page import="java.sql.Connection,java.sql.PreparedStatement,java.sql.ResultSet,java.sql.Statement,ru.org.linux.site.MessageNotFoundException" errorPage="error.jsp"%>
+<%@ page import="java.sql.Connection,java.sql.PreparedStatement,java.sql.ResultSet,java.sql.Statement,ru.org.linux.site.MessageNotFoundException" errorPage="/error.jsp"%>
 <%@ page import="ru.org.linux.site.MissingParameterException"%>
 <%@ page import="ru.org.linux.site.Template"%>
 <%@ page import="ru.org.linux.site.User"%>

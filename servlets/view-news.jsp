@@ -1,5 +1,5 @@
 <%@ page contentType="text/html; charset=koi8-r"%>
-<%@ page import="java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.util.Calendar,ru.org.linux.site.BadSectionException,ru.org.linux.site.NewsViewer" errorPage="error.jsp" buffer="200kb"%>
+<%@ page import="java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.util.Calendar,ru.org.linux.site.BadSectionException,ru.org.linux.site.NewsViewer" errorPage="/error.jsp" buffer="200kb"%>
 <%@ page import="ru.org.linux.site.Section"%>
 <%@ page import="ru.org.linux.site.Template"%>
 <%@ page import="ru.org.linux.util.DateUtil" %>

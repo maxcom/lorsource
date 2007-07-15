@@ -1,9 +1,6 @@
 <%@ page contentType="text/html; charset=koi8-r"%>
-<%@ page import="java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.sql.Timestamp" errorPage="error.jsp" buffer="60kb" %>
-<%@ page import="ru.org.linux.site.*"%>
-<%@ page import="ru.org.linux.util.HTMLFormatter"%>
-<%@ page import="ru.org.linux.util.StringUtil"%>
-<%  
+<%@ page import="java.sql.Connection,java.sql.ResultSet,java.sql.Statement,ru.org.linux.site.Template" errorPage="/error.jsp" buffer="60kb" %>
+<%
     Template tmpl = new Template(request, config, response);
     out.print(tmpl.head());
     if (!tmpl.isSessionAuthorized(session) || !(((Boolean) session.getValue("moderator")).booleanValue())) {

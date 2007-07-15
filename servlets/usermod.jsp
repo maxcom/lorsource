@@ -7,7 +7,7 @@
 <%@ page import="ru.org.linux.site.User" %>
 <%@ page import="ru.org.linux.site.UserErrorException" %>
 <%@ page import="ru.org.linux.util.HTMLFormatter" %>
-<%@ page contentType="text/html;charset=koi8-r" language="java" errorPage="error.jsp" %>
+<%@ page contentType="text/html;charset=koi8-r" language="java" errorPage="/error.jsp" %>
 <% Template tmpl = new Template(request, config, response); %>
 <%= tmpl.head() %>
 <title>usermod</title>

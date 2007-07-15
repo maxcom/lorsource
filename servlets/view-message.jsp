@@ -1,5 +1,5 @@
 <%@ page contentType="text/html; charset=koi8-r"%>
-<%@ page import="java.net.URLEncoder,java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.sql.Timestamp,javax.servlet.http.HttpServletResponse" errorPage="error.jsp" buffer="200kb"%>
+<%@ page import="java.net.URLEncoder,java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.sql.Timestamp,javax.servlet.http.HttpServletResponse" errorPage="/error.jsp" buffer="200kb"%>
 <%@ page import="ru.org.linux.site.*"%>
 <%@ page import="ru.org.linux.util.StringUtil"%>
 <% Template tmpl = new Template(request, config, response); %>

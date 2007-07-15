@@ -1,5 +1,5 @@
 <%@ page contentType="text/html; charset=koi8-r"%>
-<%@ page import="java.sql.Connection,java.sql.PreparedStatement" errorPage="error.jsp" buffer="60kb" %>
+<%@ page import="java.sql.Connection,java.sql.PreparedStatement" errorPage="/error.jsp" buffer="60kb" %>
 <%@ page import="java.sql.ResultSet"%>
 <%@ page import="java.sql.Timestamp"%>
 <%@ page import="ru.org.linux.site.MissingParameterException"%>

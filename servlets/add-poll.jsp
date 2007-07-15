@@ -3,7 +3,7 @@
 <%@ page import="java.util.List"%>
 <%@ page import="ru.org.linux.site.*"%>
 <%@ page import="ru.org.linux.util.HTMLFormatter"%>
-<%@ page contentType="text/html; charset=koi8-r" errorPage="error.jsp"%>
+<%@ page contentType="text/html; charset=koi8-r" errorPage="/error.jsp"%>
 <% Template tmpl = new Template(request, config, response);%>
 <%= tmpl.head() %>
 

@@ -1,5 +1,5 @@
 <%@ page contentType="text/html; charset=koi8-r"%>
-<%@ page import="java.sql.Connection,javax.servlet.http.HttpServletResponse,ru.org.linux.site.AccessViolationException,ru.org.linux.site.Message,ru.org.linux.site.Template" errorPage="error.jsp" buffer="200kb"%>
+<%@ page import="java.sql.Connection,javax.servlet.http.HttpServletResponse,ru.org.linux.site.AccessViolationException,ru.org.linux.site.Message,ru.org.linux.site.Template" errorPage="/error.jsp" buffer="200kb"%>
 <%@ page import="ru.org.linux.util.HTMLFormatter"%>
 <% Template tmpl = new Template(request, config, response); %>
 <%= tmpl.head() %>

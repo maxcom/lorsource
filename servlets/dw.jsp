@@ -1,5 +1,5 @@
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="ru.org.linux.site.Template" errorPage="error.jsp"%>
+<%@ page import="ru.org.linux.site.Template" errorPage="/error.jsp"%>
 <% Template tmpl = new Template(request, config, response); %>
 <%= tmpl.head() %>
 <LINK REL=STYLESHEET TYPE="text/css" HREF="/<%= tmpl.getStyle() %>/style.css" TITLE="Normal">

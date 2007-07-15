@@ -1,5 +1,5 @@
 <%@ page contentType="text/html; charset=koi8-r"%>
-<%@ page import="java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.util.Date,java.util.List, com.danga.MemCached.MemCachedClient" errorPage="error.jsp" buffer="60kb"%>
+<%@ page import="java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.util.Date,java.util.List, com.danga.MemCached.MemCachedClient" errorPage="/error.jsp" buffer="60kb"%>
 <%@ page import="ru.org.linux.boxlet.BoxletVectorRunner"%>
 <%@ page import="ru.org.linux.site.MemCachedSettings"%>
 <%@ page import="ru.org.linux.site.Template" %>

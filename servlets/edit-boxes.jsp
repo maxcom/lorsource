@@ -1,5 +1,5 @@
 <%@ page contentType="text/html; charset=koi8-r"%>
-<%@ page import="java.net.URLEncoder,java.sql.Connection,java.util.List,ru.org.linux.boxlet.BoxletVectorRunner, ru.org.linux.site.AccessViolationException, ru.org.linux.site.MissingParameterException, ru.org.linux.site.Template, ru.org.linux.site.User" errorPage="error.jsp"%>
+<%@ page import="java.net.URLEncoder,java.sql.Connection,java.util.List,ru.org.linux.boxlet.BoxletVectorRunner, ru.org.linux.site.AccessViolationException, ru.org.linux.site.MissingParameterException, ru.org.linux.site.Template, ru.org.linux.site.User" errorPage="/error.jsp"%>
 <% Template tmpl = new Template(request, config, response);%>
 <%= tmpl.head() %>
 	<title>Конструктор страницы</title>

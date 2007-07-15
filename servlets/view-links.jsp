@@ -1,7 +1,7 @@
 <%@ page contentType="text/html; charset=koi8-r"%>
 <%@ page
     import="java.net.URLEncoder,java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.util.Date"
-    errorPage="error.jsp" buffer="200kb" %>
+    errorPage="/error.jsp" buffer="200kb" %>
 <%@ page import="ru.org.linux.site.BadGroupException" %>
 <%@ page import="ru.org.linux.site.Group" %>
 <%@ page import="ru.org.linux.site.MissingParameterException" %>

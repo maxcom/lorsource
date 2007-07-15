@@ -1,7 +1,6 @@
 <%@ page contentType="text/html; charset=koi8-r"%>
-<%@ page import="java.net.URLEncoder,java.sql.Connection,java.sql.ResultSet,java.sql.Statement, ru.org.linux.site.Template" errorPage="error.jsp"%>
-<%@ page import="ru.org.linux.site.BadInputException"%>
-<%@ page import="ru.org.linux.site.AccessViolationException"%>
+<%@ page import="java.sql.Connection,java.sql.ResultSet,java.sql.Statement,ru.org.linux.site.AccessViolationException, ru.org.linux.site.BadInputException" errorPage="/error.jsp"%>
+<%@ page import="ru.org.linux.site.Template"%>
 <% Template tmpl = new Template(request, config, response); %>
 <%= tmpl.head() %>
 	<title>Опросы</title>

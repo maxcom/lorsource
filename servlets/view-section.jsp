@@ -1,5 +1,5 @@
 <%@ page contentType="text/html; charset=koi8-r"%>
-<%@ page import="java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.util.Date,ru.org.linux.site.BadSectionException" errorPage="error.jsp" %>
+<%@ page import="java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.util.Date,ru.org.linux.site.BadSectionException" errorPage="/error.jsp" %>
 <%@ page import="ru.org.linux.site.Section"%>
 <%@ page import="ru.org.linux.site.Template" %>
 <% Template tmpl = new Template(request, config, response);%>

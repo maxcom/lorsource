@@ -1,5 +1,5 @@
 <%@ page contentType="text/html; charset=koi8-r"%>
-<%@ page import="java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.util.Date,ru.org.linux.site.BadSectionException,ru.org.linux.site.Template" errorPage="error.jsp" buffer="200kb"%>
+<%@ page import="java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.util.Date,ru.org.linux.site.BadSectionException,ru.org.linux.site.Template" errorPage="/error.jsp" buffer="200kb"%>
 <% Template tmpl = new Template(request, config, response); %>
 <%
   response.setDateHeader("Expires", new Date(new Date().getTime()-20*3600*1000).getTime());

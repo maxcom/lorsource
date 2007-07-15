@@ -1,5 +1,5 @@
 <%@ page contentType="text/html; charset=koi8-r"%>
-<%@ page contentType="text/html; charset=koi8-r" import="java.sql.Connection,java.util.Random" errorPage="error.jsp"%>
+<%@ page contentType="text/html; charset=koi8-r" import="java.sql.Connection,java.util.Random" errorPage="/error.jsp"%>
 <%@ page import="ru.org.linux.site.*"%>
 <%@ page import="ru.org.linux.util.HTMLFormatter"%>
 <%@ page import="ru.org.linux.util.UtilBadURLException"%>

@@ -1,5 +1,5 @@
 <%@ page contentType="text/html; charset=koi8-r"%>
-<%@ page import="javax.servlet.http.Cookie,javax.servlet.http.HttpServletResponse,ru.org.linux.site.BadInputException, ru.org.linux.site.Template, ru.org.linux.util.ProfileHashtable" errorPage="error.jsp" buffer="20kb" %>
+<%@ page import="javax.servlet.http.Cookie,javax.servlet.http.HttpServletResponse,ru.org.linux.site.BadInputException, ru.org.linux.site.Template, ru.org.linux.util.ProfileHashtable" errorPage="/error.jsp" buffer="20kb" %>
 <%@ page import="ru.org.linux.util.StringUtil"%>
 <% Template tmpl = new Template(request, config, response); %>
 <%= tmpl.head() %>

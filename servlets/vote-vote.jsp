@@ -1,7 +1,7 @@
 <%@ page contentType="text/html; charset=koi8-r" %>
 <%@ page
     import="java.sql.Connection,java.sql.ResultSet,java.sql.Statement,ru.org.linux.site.*"
-    errorPage="error.jsp" %>
+    errorPage="/error.jsp" %>
 <% Template tmpl = new Template(request, config, response); %>
 <%= tmpl.head() %>
 <title>Голосование</title>
