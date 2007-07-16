@@ -62,6 +62,8 @@
 
 %>
 	<title><%= ptitle %></title>
+        <LINK REL="alternate" HREF="section-rss.jsp?section=<%= sectionid %>" TYPE="application/rss+xml">
+
 <%= tmpl.DocumentHeader() %>
 
 <div class=messages>
