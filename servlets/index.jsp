@@ -11,7 +11,7 @@
 <title>LINUX.ORG.RU - Русская информация об ОС Linux</title>
 <META NAME="Keywords" CONTENT="linux линукс операционная система документация gnu бесплатное свободное програмное обеспечение софт unix юникс software free documentation operating system новости news">
 <META NAME="Description" CONTENT="Все о Linux на русском языке">
-<LINK REL="alternate" TITLE="L.O.R RSS" HREF="http://linux.org.ru/rss.jsp" TYPE="application/rss+xml">
+<LINK REL="alternate" TITLE="L.O.R RSS" HREF="section-rss.jsp?section=1" TYPE="application/rss+xml">
 
 <%
   response.setDateHeader("Expires", new Date(new Date().getTime() - 20 * 3600 * 1000).getTime());
