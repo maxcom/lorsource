@@ -20,6 +20,26 @@
   </rule>
 
   <rule>
+    <from>^/info.html$</from>
+    <to type="redirect">/books</to>
+  </rule>
+
+  <rule>
+    <from>^/info-mirror.html$</from>
+    <to type="redirect">/books</to>
+  </rule>
+
+  <rule>
+    <from>^/rss.jsp$</from>
+    <to type="redirect">/section-rss.jsp</to>
+  </rule>
+
+  <rule>
+    <from>^/rss.xml$</from>
+    <to type="redirect">/section-rss.jsp</to>
+  </rule>
+
+  <rule>
     <from>^/profile/([^/]+)/(.*)$</from>
     <to>/$2</to>
     <set name="lor-profile">$1</set>
