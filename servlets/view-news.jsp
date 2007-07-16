@@ -78,6 +78,7 @@
       }
       if (section.isVotePoll()) out.print("[<a style=\"text-decoration: none\" href=\"add-poll.jsp?group=19387\">Добавить голосование</a>]");
   out.print("[<a style=\"text-decoration: none\" href=\"view-news-archive.jsp?section="+sectionid+"\">Архив</a>]");
+  out.print("[<a style=\"text-decoration: none\" href=\"section-rss.jsp?section="+sectionid+"\">RSS</a>]");
 
 %>
     </td>

@@ -145,7 +145,10 @@
   out.print(res);
 %>
 <hr>
-<div align=center>[<a href="add-section.jsp?section=1" style="text-decoration: none">добавить новость</a>]</div>
+<div align=center>
+  [<a href="add-section.jsp?section=1" style="text-decoration: none">добавить новость</a>]
+  [<a href="section-rss.jsp?section=1" style="text-decoration: none">RSS</a>]
+</div>
 <hr>
 </div>
 
