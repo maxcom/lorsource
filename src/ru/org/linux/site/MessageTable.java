@@ -35,7 +35,18 @@ public class MessageTable {
 
     Statement st=db.createStatement();
 
-    ResultSet rs=st.executeQuery("SELECT topics.title as subj, topics.lastmod, topics.stat1, postdate, nick, image, groups.title as gtitle, topics.id as msgid, sections.comment, sections.vote, groups.id as guid, topics.url, topics.linktext, imagepost, linkup, postdate<(CURRENT_TIMESTAMP-expire) as expired, message FROM topics,groups, users, sections, msgbase WHERE sections.id=groups.section AND topics.id=msgbase.id AND sections.id="+sectionid+" AND (topics.moderate OR NOT sections.moderate) AND topics.userid=users.id AND topics.groupid=groups.id AND NOT deleted AND commitdate>(CURRENT_TIMESTAMP-'1 month'::interval) ORDER BY commitdate DESC LIMIT 10");
+    ResultSet rs = st.executeQuery(
+        "SELECT topics.title as subj, topics.lastmod, topics.stat1, postdate, nick, image, " +
+            "groups.title as gtitle, topics.id as msgid, sections.comment, sections.vote, " +
+            "groups.id as guid, topics.url, topics.linktext, imagepost, linkup, " +
+            "postdate<(CURRENT_TIMESTAMP-expire) as expired, message " +
+            "FROM topics,groups, users, sections, msgbase " +
+            "WHERE sections.id=groups.section AND topics.id=msgbase.id " +
+            "AND sections.id=" + sectionid + " AND (topics.moderate OR NOT sections.moderate) " +
+            "AND topics.userid=users.id AND topics.groupid=groups.id AND NOT deleted " +
+            "AND postdate>(CURRENT_TIMESTAMP-'3 month'::interval) " +
+            "ORDER BY commitdate DESC LIMIT 10"
+    );
 
     while (rs.next()) {
       int msgid = rs.getInt("msgid");

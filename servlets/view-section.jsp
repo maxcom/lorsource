@@ -28,6 +28,7 @@
 %>
 <title><%= name %></title>
 <link rel="parent" title="Linux.org.ru" href="index.jsp">
+<LINK REL="alternate" HREF="section-rss.jsp?section=<%= sectionid %>" TYPE="application/rss+xml">
 <%= tmpl.DocumentHeader() %>
 <div class=messages>
 <div class=nav>
@@ -50,6 +51,7 @@
         <% if (sectionid == 2) { %>
           [<a style="text-decoration: none" href="rules.jsp">Правила форума</a>]
         <% } %>
+        [<a style="text-decoration: none" href="section-rss.jsp?section=<%= sectionid %>">RSS</a>]
       </td>
     </tr>
   </table>
