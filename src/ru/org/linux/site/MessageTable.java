@@ -27,7 +27,7 @@ public class MessageTable {
     return out.toString();
   }
 
-  public static String getSectionRss(Connection db, int sectionid, String htmlPath) throws SQLException, BadSectionException {
+  public static String getSectionRss(Connection db, int sectionid, String htmlPath, String fullUrl) throws SQLException, BadSectionException {
     StringBuilder out = new StringBuilder();
 
     Section section = new Section(db, sectionid);
@@ -70,7 +70,7 @@ public class MessageTable {
 
           out.append("  <description>\n" + "\t");
           out.append(HTMLFormatter.htmlSpecialChars(rs.getString("message")));
-          out.append(HTMLFormatter.htmlSpecialChars("<img src=\"/"+linktext+"\" ALT=\""+subj+"\" "+iconInfo.getCode()+" >"));
+          out.append(HTMLFormatter.htmlSpecialChars("<img src=\"/"+fullUrl+linktext+"\" ALT=\""+subj+"\" "+iconInfo.getCode()+" >"));
           out.append(HTMLFormatter.htmlSpecialChars("<p><i>"+info.getWidth()+'x'+info.getHeight()+", "+info.getSizeString()+"</i>"));
           out.append("</description>\n");
 
@@ -86,7 +86,7 @@ public class MessageTable {
           try {
             Poll poll = new Poll(db, id);
             out.append("<item>\n" + "  <title>").append(subj).append("</title>\n" + "  <link>http://www.linux.org.ru/jump-message.jsp?msgid=").append(msgid).append("</link>\n" + "  <guid>http://www.linux.org.ru/jump-message.jsp?msgid=").append(msgid).append("</guid>\n" + "  <pubDate>").append(Template.RFC822.format(rs.getTimestamp("postdate"))).append("</pubDate>\n" + "  <description>\n" + "\t");
-            out.append(HTMLFormatter.htmlSpecialChars(poll.renderPoll(db))).append("\n" + " \n" + "  </description>\n" + "</item>");
+            out.append(HTMLFormatter.htmlSpecialChars(poll.renderPoll(db, fullUrl))).append("\n" + " \n" + "  </description>\n" + "</item>");
           } catch (PollNotFoundException e) {
             // TODO write to log
           }

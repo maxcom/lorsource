@@ -203,7 +203,7 @@ public class Poll {
     return out.toString();
   }
   
-  public String renderPoll(Connection db) throws SQLException {
+  public String renderPoll(Connection db, String fullUrl) throws SQLException {
     StringBuffer out = new StringBuffer();
     int max = getMaxVote(db);
     List vars = getPollVariants(db, ORDER_VOTES);
@@ -217,7 +217,7 @@ public class Poll {
 	out.append("</td><td>").append(votes).append("</td><td>");
 	total += votes;
 	for (int i = 0; i < 20 * votes / max; i++) {
-          out.append("<img src=\"/").append("/white/img/votes.gif\" alt=\"*\">");
+          out.append("<img src=\"/").append(fullUrl+"white/img/votes.gif\" alt=\"*\">");
 	}
 	out.append("</td></tr>");
     }
