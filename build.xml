@@ -32,7 +32,9 @@
 	<mkdir dir="${dist}/WEB-INF/lib"/>
 	<jar jarfile="${dist}/WEB-INF/lib/lnxorgutil.jar" basedir="${build}" includes="ru/org/linux/util/*,ru/org/linux/storage/*,ru/org/linux/cache/*,ru/org/linux/boxlet/*,ru/org/linux/logger/*"/>
 	<jar jarfile="${dist}/WEB-INF/lib/lnxorgsite.jar" basedir="${build}" includes="ru/org/linux/site/**"/>
-	<copy todir="${dist}/WEB-INF" file="web/WEB-INF/urlrewrite.xml"/>
+	<copy todir="${dist}/WEB-INF">
+		<fileset dir="web/WEB-INF"/>
+	</copy>
 	<copy todir="${dist}">
 		<fileset dir="web" includes="*.jsp"/>
 		<fileset dir="html"/>
