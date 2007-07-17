@@ -67,10 +67,11 @@ public class MessageTable {
           out.append("  <link>http://www.linux.org.ru/jump-message.jsp?msgid=").append(msgid).append("</link>\n");
           out.append("  <guid>http://www.linux.org.ru/jump-message.jsp?msgid=").append(msgid).append("</guid>\n");
           out.append("  <pubDate>").append(Template.RFC822.format(rs.getTimestamp("postdate"))).append("</pubDate>\n");
+          out.append("  <title>").append(HTMLFormatter.htmlSpecialChars(subj)).append("</title>\n");
 
           out.append("  <description>\n" + "\t");
-          out.append(HTMLFormatter.htmlSpecialChars(rs.getString("message")));
-          out.append(HTMLFormatter.htmlSpecialChars("<img src=\""+fullUrl+linktext+"\" ALT=\""+subj+"\" "+iconInfo.getCode()+" >"));
+          out.append(HTMLFormatter.htmlSpecialChars(HTMLFormatter.htmlSpecialChars(rs.getString("message"))));
+          out.append(HTMLFormatter.htmlSpecialChars("<p><img src=\""+fullUrl+linktext+"\" ALT=\""+subj+"\" "+iconInfo.getCode()+" >"));
           out.append(HTMLFormatter.htmlSpecialChars("<p><i>"+info.getWidth()+'x'+info.getHeight()+", "+info.getSizeString()+"</i>"));
           out.append("</description>\n");
 
@@ -92,7 +93,8 @@ public class MessageTable {
           }
         }
       } else {
-        out.append("<item>\n" + "  <title>").append(subj).append("</title>\n");
+        out.append("<item>\n");
+        out.append("  <title>").append(HTMLFormatter.htmlSpecialChars(subj)).append("</title>\n");
         out.append("  <link>http://www.linux.org.ru/jump-message.jsp?msgid=").append(msgid).append("</link>\n");
         out.append("  <guid>http://www.linux.org.ru/jump-message.jsp?msgid=").append(msgid).append("</guid>\n");
         out.append("  <pubDate>").append(Template.RFC822.format(rs.getTimestamp("postdate"))).append("</pubDate>\n");
