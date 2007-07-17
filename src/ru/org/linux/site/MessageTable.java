@@ -48,7 +48,7 @@ public class MessageTable {
             "AND sections.id=" + sectionid + " AND (topics.moderate OR NOT sections.moderate) " +
             "AND topics.userid=users.id AND topics.groupid=groups.id AND NOT deleted " +
             "AND postdate>(CURRENT_TIMESTAMP-'3 month'::interval) " +
-            "ORDER BY commitdate, postdate DESC LIMIT 10"
+            "ORDER BY commitdate DESC, postdate DESC LIMIT 10"
     );
 
     while (rs.next()) {
