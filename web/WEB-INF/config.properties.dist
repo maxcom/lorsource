@@ -1,13 +1,11 @@
 ; Main url (used for redirects and etc)
-MainUrl=http://localhost:8080/
+MainUrl=http://test-lor:8080/
 ; Path to directory tree
-PathPrefix=/home/maxcom/IdeaProjects/lnxorg/
+PathPrefix=/var/www/test-lor/
 ; Path to html root
-HTMLPathPrefix=/home/maxcom/IdeaProjects/lnxorg/html/
-; current vote
-VoteID=19
+HTMLPathPrefix=/var/www/test-lor/webapps/lor/
 ; JDBC
-JDBC_URL=jdbc:postgresql:linux
+JDBC_URL=jdbc:postgresql:lor
 JDBC_USER=linuxweb
 JDBC_PASS=linuxweb
 DB_POOL=FALSE

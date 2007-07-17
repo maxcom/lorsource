@@ -1,6 +1,8 @@
 package ru.org.linux.site;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.text.DateFormat;
@@ -69,15 +71,29 @@ public class Template {
     return config.getProperties().getProperty("Secret");
   }
 
-  private static synchronized void initProperties(String configFileName) throws IOException {
-    File propFile = new File(configFileName);
+  private static synchronized void initProperties(ServletContext sc) throws IOException {
     if (properties == null) {
-      Properties tmp = new Properties();
-      tmp.load(new FileInputStream(propFile));
-      properties = tmp;
-      logger.notice("template", "loaded config file");
-      logger.close();
-      logger = new SimpleFileLogger(properties.getProperty("Logfile"));
+      InputStream is = null;
+      try {
+        is = sc.getResourceAsStream("/WEB-INF/config.properties");
+        if (is==null) {
+          is = sc.getResourceAsStream("/WEB-INF/config.properties.dist");
+          if (is==null) {
+            throw new RuntimeException("Can't find config.properties / config.properties.dist");
+          }
+        }
+
+        Properties tmp = new Properties();
+        tmp.load(is);
+        properties = tmp;
+        logger.notice("template", "loaded config file");
+        logger.close();
+        logger = new SimpleFileLogger(properties.getProperty("Logfile"));
+      } finally {
+        if (is!=null) {
+          is.close();
+        }
+      }
     }
   }
 
@@ -95,13 +111,7 @@ public class Template {
 
     parameters = new ServletParameterParser(request);
 
-    // read properties
-    String configFileName = config.getServletContext().getInitParameter("config");
-    if (configFileName==null) {
-      throw new RuntimeException("Server misconfigured: config file name not defined");
-    }
-
-    initProperties(configFileName);
+    initProperties(config.getServletContext());
 
     this.config = new Config(properties);
 

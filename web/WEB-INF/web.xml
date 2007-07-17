@@ -1,0 +1,35 @@
+<web-app>
+  <servlet>
+        <servlet-name>jcaptcha</servlet-name>
+        <servlet-class>ru.org.linux.site.ImageCaptchaServlet</servlet-class>
+        <load-on-startup>0</load-on-startup>
+  </servlet>
+
+  <servlet-mapping>
+        <servlet-name>jcaptcha</servlet-name>
+        <url-pattern>/jcaptcha.jsp</url-pattern>
+
+        <init-param>
+             <param-name>statusEnabled</param-name>
+             <param-value>false</param-value>
+        </init-param>
+  </servlet-mapping>
+
+  <multipart-form upload-max="500K"/>
+
+   <filter>
+        <filter-name>UrlRewriteFilter</filter-name>
+        <filter-class>org.tuckey.web.filters.urlrewrite.UrlRewriteFilter</filter-class>
+  </filter>
+
+  <filter-mapping>
+        <filter-name>UrlRewriteFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+  </filter-mapping>
+
+  <error-page>
+      <error-code>404</error-code>
+      <location>/error404.jsp</location>
+  </error-page>
+
+</web-app>
