@@ -175,10 +175,10 @@ public class Poll {
   public String renderPoll(Connection db,Template tmpl, int highlight) throws SQLException, BadImageException, IOException {
     StringBuffer out = new StringBuffer();
     int max = getMaxVote(db);
-    int total = 0;
     List vars = getPollVariants(db, ORDER_VOTES);
     out.append("<table>");    
     ImageInfo info = new ImageInfo(tmpl.getObjectConfig().getHTMLPathPrefix() + tmpl.getStyle() + "/img/votes.gif");
+    int total = 0;
     for (Iterator iter = vars.iterator(); iter.hasNext();) {
 	PollVariant var = (PollVariant) iter.next();
 	out.append("<tr><td>");
@@ -195,6 +195,29 @@ public class Poll {
       total += votes;
 	for (int i = 0; i < 20 * votes / max; i++) {
           out.append("<img src=\"/").append(tmpl.getStyle()).append("/img/votes.gif\" alt=\"*\" ").append(info.getCode()).append('>');
+	}
+	out.append("</td></tr>");
+    }
+    out.append("<tr><td colspan=2>Всего голосов: ").append(total).append("</td></tr>");
+    out.append("</table>");
+    return out.toString();
+  }
+  
+  public String renderPoll(Connection db) throws SQLException {
+    StringBuffer out = new StringBuffer();
+    int max = getMaxVote(db);
+    List vars = getPollVariants(db, ORDER_VOTES);
+    out.append("<table>");
+    int total = 0;
+    for (Iterator iter = vars.iterator(); iter.hasNext();) {
+	PollVariant var = (PollVariant) iter.next();
+	out.append("<tr><td>");
+	int votes = var.getVotes();
+	out.append(HTMLFormatter.htmlSpecialChars(var.getLabel()));
+	out.append("</td><td>").append(votes).append("</td><td>");
+	total += votes;
+	for (int i = 0; i < 20 * votes / max; i++) {
+          out.append("<img src=\"/").append("/white/img/votes.gif\" alt=\"*\">");
 	}
 	out.append("</td></tr>");
     }
