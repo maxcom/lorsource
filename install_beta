@@ -8,14 +8,7 @@ SITE_PATH=${1:-/var/www/beta.linux.org.ru}
 
 echo Copying files...
 
-cp servlets/*.jsp ${SITE_PATH}/servlets/
-cp lib/*.jar ${SITE_PATH}/servlets/WEB-INF/lib/
-cp dist/*.jar ${SITE_PATH}/servlets/WEB-INF/lib/
-cp lib/*.jar ${SITE_PATH}/servlets/WEB-INF/lib/
-cp -f urlrewrite.xml ${SITE_PATH}/servlets/WEB-INF/
-
-cp -f -R html/* ${SITE_PATH}/html/
-cp -f html/.htaccess ${SITE_PATH}/html/
+cp -R dist/* ${SITE_PATH}/webapps/lor
 
 echo done
 

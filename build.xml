@@ -28,9 +28,18 @@
 
 <target name="dist" depends="build, unit-tests">
 	<mkdir dir="${dist}"/>
-	<jar jarfile="${dist}/lnxorgutil.jar" basedir="${build}" includes="ru/org/linux/util/*,ru/org/linux/storage/*,ru/org/linux/cache/*,ru/org/linux/boxlet/*,ru/org/linux/logger/*"/>
-	<jar jarfile="${dist}/lnxorgsite.jar" basedir="${build}" includes="ru/org/linux/site/**"/>
-	<copydir src="${build}" dest="${dist}/" excludes="ru/**,**/.*"/>
+	<mkdir dir="${dist}/WEB-INF"/>
+	<mkdir dir="${dist}/WEB-INF/lib"/>
+	<jar jarfile="${dist}/WEB-INF/lib/lnxorgutil.jar" basedir="${build}" includes="ru/org/linux/util/*,ru/org/linux/storage/*,ru/org/linux/cache/*,ru/org/linux/boxlet/*,ru/org/linux/logger/*"/>
+	<jar jarfile="${dist}/WEB-INF/lib/lnxorgsite.jar" basedir="${build}" includes="ru/org/linux/site/**"/>
+	<copy todir="${dist}/WEB-INF" file="web/WEB-INF/urlrewrite.xml"/>
+	<copy todir="${dist}">
+		<fileset dir="web" includes="*.jsp"/>
+		<fileset dir="html"/>
+	</copy>
+	<copy todir="${dist}/WEB-INF/lib">
+		<fileset dir="lib" includes="*.jar" excludes="jsdk23.jar"/>
+	</copy>
 </target>
 
 <target name="doc" depends="build">
@@ -39,9 +48,9 @@
 </target>
 
 <target name="clean" depends="init">
-	<deltree dir="${build}"/>
-	<deltree dir="${dist}"/>
-	<deltree dir="${apidoc}"/>
+	<delete dir="${build}"/>
+	<delete dir="${dist}"/>
+	<delete dir="${apidoc}"/>
 </target>
 
 <target name="unit-tests" depends="build">
