@@ -23,7 +23,7 @@
     if (res==null) {
       db = tmpl.getConnection("rss");
 
-      res = MessageTable.getSectionRss(db, section);
+      res = MessageTable.getSectionRss(db, section, tmpl.getConfig().getProperty("HTMLPathPrefix"));
 
       mcc.add(cacheId, res, new Date(new Date().getTime()+10*60*1000));
     }

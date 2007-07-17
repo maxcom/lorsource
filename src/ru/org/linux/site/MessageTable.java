@@ -1,9 +1,12 @@
 package ru.org.linux.site;
 
+import java.io.IOException;
 import java.sql.*;
 import java.util.Date;
 
+import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.HTMLFormatter;
+import ru.org.linux.util.ImageInfo;
 import ru.org.linux.util.StringUtil;
 
 public class MessageTable {
@@ -24,7 +27,7 @@ public class MessageTable {
     return out.toString();
   }
 
-  public static String getSectionRss(Connection db, int sectionid) throws SQLException, BadSectionException {
+  public static String getSectionRss(Connection db, int sectionid, String htmlPath) throws SQLException, BadSectionException {
     StringBuilder out = new StringBuilder();
 
     Section section = new Section(db, sectionid);
@@ -51,18 +54,50 @@ public class MessageTable {
     while (rs.next()) {
       int msgid = rs.getInt("msgid");
       boolean vote = rs.getBoolean("vote");
-      if (vote) {
+      String linktext = rs.getString("linktext");
+      String url = rs.getString("url");
+      String subj = rs.getString("subj");
+
+      if (section.isImagepost()) {
+        try {
+          ImageInfo iconInfo = new ImageInfo(htmlPath + linktext);
+          ImageInfo info = new ImageInfo(htmlPath + url);
+
+          out.append("<item>");
+          out.append("  <link>http://www.linux.org.ru/jump-message.jsp?msgid=").append(msgid).append("</link>\n");
+          out.append("  <guid>http://www.linux.org.ru/jump-message.jsp?msgid=").append(msgid).append("</guid>\n");
+          out.append("  <pubDate>").append(Template.RFC822.format(rs.getTimestamp("postdate"))).append("</pubDate>\n");
+
+          out.append("  <description>\n" + "\t");
+          out.append(HTMLFormatter.htmlSpecialChars(rs.getString("message")));
+          out.append(HTMLFormatter.htmlSpecialChars("<img src=\"/"+linktext+"\" ALT=\""+subj+"\" "+iconInfo.getCode()+" >"));
+          out.append(HTMLFormatter.htmlSpecialChars("<p><i>"+info.getWidth()+'x'+info.getHeight()+", "+info.getSizeString()+"</i>"));
+          out.append("</description>\n");
+
+          out.append("</item>");
+        } catch (BadImageException e) {
+          // TODO write to log
+        } catch (IOException e) {
+          // TODO write to log
+        }
+      } else if (vote) {
         int id = Poll.getPollIdByTopic(db, msgid);
         if (id > 0) {
           try {
             Poll poll = new Poll(db, id);
-            out.append("<item>\n" + "  <title>").append(rs.getString("subj")).append("</title>\n" + "  <link>http://www.linux.org.ru/jump-message.jsp?msgid=").append(msgid).append("</link>\n" + "  <guid>http://www.linux.org.ru/jump-message.jsp?msgid=").append(msgid).append("</guid>\n" + "  <pubDate>").append(Template.RFC822.format(rs.getTimestamp("postdate"))).append("</pubDate>\n" + "  <description>\n" + "\t");
+            out.append("<item>\n" + "  <title>").append(subj).append("</title>\n" + "  <link>http://www.linux.org.ru/jump-message.jsp?msgid=").append(msgid).append("</link>\n" + "  <guid>http://www.linux.org.ru/jump-message.jsp?msgid=").append(msgid).append("</guid>\n" + "  <pubDate>").append(Template.RFC822.format(rs.getTimestamp("postdate"))).append("</pubDate>\n" + "  <description>\n" + "\t");
             out.append(HTMLFormatter.htmlSpecialChars(poll.renderPoll(db))).append("\n" + " \n" + "  </description>\n" + "</item>");
           } catch (PollNotFoundException e) {
+            // TODO write to log
           }
         }
       } else {
-        out.append("<item>\n" + "  <title>").append(rs.getString("subj")).append("</title>\n" + "  <link>http://www.linux.org.ru/jump-message.jsp?msgid=").append(msgid).append("</link>\n" + "  <guid>http://www.linux.org.ru/jump-message.jsp?msgid=").append(msgid).append("</guid>\n" + "  <pubDate>").append(Template.RFC822.format(rs.getTimestamp("postdate"))).append("</pubDate>\n" + "  <description>\n" + "\t").append(HTMLFormatter.htmlSpecialChars(rs.getString("message"))).append("\n" + " \n" + "  </description>\n" + "</item>");
+        out.append("<item>\n" + "  <title>").append(subj).append("</title>\n");
+        out.append("  <link>http://www.linux.org.ru/jump-message.jsp?msgid=").append(msgid).append("</link>\n");
+        out.append("  <guid>http://www.linux.org.ru/jump-message.jsp?msgid=").append(msgid).append("</guid>\n");
+        out.append("  <pubDate>").append(Template.RFC822.format(rs.getTimestamp("postdate"))).append("</pubDate>\n");
+        out.append("  <description>\n" + "\t").append(HTMLFormatter.htmlSpecialChars(rs.getString("message"))).append("</description>\n");
+        out.append("</item>");
       }
     }
 
