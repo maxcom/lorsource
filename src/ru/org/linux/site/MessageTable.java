@@ -86,7 +86,7 @@ public class MessageTable {
           out.append("  <title>").append(HTMLFormatter.htmlSpecialChars(subj)).append("</title>\n");
 
           out.append("  <description>\n" + "\t");
-          out.append(HTMLFormatter.htmlSpecialChars(HTMLFormatter.htmlSpecialChars(rs.getString("message"))));
+          out.append(HTMLFormatter.htmlSpecialChars(rs.getString("message")));
           out.append(HTMLFormatter.htmlSpecialChars("<p><img src=\""+fullUrl+linktext+"\" ALT=\""+subj+"\" "+iconInfo.getCode()+" >"));
           out.append(HTMLFormatter.htmlSpecialChars("<p><i>"+info.getWidth()+'x'+info.getHeight()+", "+info.getSizeString()+"</i>"));
           out.append("</description>\n");
