@@ -34,8 +34,16 @@
 
 <h1>Софт</h1>
   <p>
-Мы работаем на Fedora 7, СУБД PostgreSQL 8.2, Apache2 2.0,
-Sun Java SDK 1.5, Caucho Resin 2.1, memcached 1.2. Спасибо Олегу Дрокину (<b>green</b>) за
+Мы работаем на:
+    <ul>
+      <li>Fedora 7</li>
+      <li>СУБД PostgreSQL 8.2</li>
+      <li>Apache2 2.0</li>
+      <li>Sun Java SDK 1.5</li>
+      <li>Caucho Resin 2.1</li>
+      <li>memcached 1.2</li>
+    </ul>
+      Спасибо Олегу Дрокину (<b>green</b>) за
 администрирование.
   </p>
 
@@ -84,5 +92,12 @@ Sun Java SDK 1.5, Caucho Resin 2.1, memcached 1.2. Спасибо Олегу Дрокину (<b>gre
 Linux.org.ru некоммерческий проект, мы не занимаемся размещением рекламы на страничках сайта
 сверх минимума, необходимого для работы сайта. Вы можете разместить рекламу через Google Adsense
 на страничках нашего сайта по ссылке "<a href="https://adwords.google.com/select/OnsiteSignupLandingPage?client=ca-pub-6069094673001350&referringUrl=http://www.linux.org.ru/">размещение рекламы на этом сайте</a>".
+
+<h1>Связанные проекты</h1>
+<ul>
+  <li><a href="http://www.lorquotes.ru/">LorQuotes</a> - избранные цитаты</li>
+  <li><a href="http://www.lastfm.ru/group/Linux-org-ru">Группа linux.org.ru на last.fm</a></li>
+  <li><a href="http://community.livejournal.com/l_o_r/">Филиал l.o.r.</a></li>
+</ul>
 
 <%= tmpl.DocumentFooter() %>
