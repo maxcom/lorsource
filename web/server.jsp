@@ -97,7 +97,7 @@ Linux.org.ru некоммерческий проект, мы не занимаемся размещением рекламы на стра
 <ul>
   <li><a href="http://www.lorquotes.ru/">LorQuotes</a> - избранные цитаты</li>
   <li><a href="http://www.lastfm.ru/group/Linux-org-ru">Группа linux.org.ru на last.fm</a></li>
-  <li><a href="http://community.livejournal.com/l_o_r/">Филиал l.o.r.</a></li>
+  <li><a href="http://community.livejournal.com/l_o_r/">Филиал l.o.r. в ЖЖ</a></li>
 </ul>
 
 <%= tmpl.DocumentFooter() %>
