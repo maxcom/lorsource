@@ -99,6 +99,8 @@ public class Template {
 
   public Template(HttpServletRequest request, ServletConfig config, HttpServletResponse response, boolean isErrorPage)
       throws ClassNotFoundException, IOException, SQLException, StorageException {
+    request.setCharacterEncoding("koi8-r"); // блядский tomcat
+
     initServletLogger(config.getServletContext());
 
     requestString = request.getRequestURI() + '?' + request.getQueryString();
