@@ -14,8 +14,13 @@
     section = tmpl.getParameters().getInt("section");
   }
 
+  int group = 0;
+  if (request.getParameter("group") != null) {
+    group = tmpl.getParameters().getInt("group");
+  }
+
   MemCachedClient mcc = MemCachedSettings.getClient();
-  String cacheId = MemCachedSettings.getId(tmpl, "rss?section=" + section);
+  String cacheId = MemCachedSettings.getId(tmpl, "rss?section=" + section+(group!=0?"&group="+group:""));
 
   Connection db = null;
   try {
@@ -23,7 +28,7 @@
     if (res==null) {
       db = tmpl.getConnection("rss");
 
-      res = MessageTable.getSectionRss(db, section, tmpl.getConfig().getProperty("HTMLPathPrefix"), tmpl.getMainUrl());
+      res = MessageTable.getSectionRss(db, section, group, tmpl.getConfig().getProperty("HTMLPathPrefix"), tmpl.getMainUrl());
 
       mcc.add(cacheId, res, new Date(new Date().getTime()+10*60*1000));
     }

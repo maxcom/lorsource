@@ -27,14 +27,29 @@ public class MessageTable {
     return out.toString();
   }
 
-  public static String getSectionRss(Connection db, int sectionid, String htmlPath, String fullUrl) throws SQLException, BadSectionException {
+  public static String getSectionRss(Connection db, int sectionid, int groupid, String htmlPath, String fullUrl) throws SQLException, BadGroupException, BadSectionException {
     StringBuilder out = new StringBuilder();
 
     Section section = new Section(db, sectionid);
+    Group group = null;
+    if (groupid!=0) {
+      group = new Group(db, groupid);
+      if (group.getSectionId()!=sectionid) {
+        throw new BadGroupException("группа #"+groupid+" не пренадлежит разделу #"+sectionid);
+      }
+    }
 
-    out.append("<title>Linux.org.ru: ").append(section.getName()).append("</title>");
+    out.append("<title>Linux.org.ru: ").append(section.getName());
+    if (group!=null) {
+      out.append(" - ").append(group.getTitle());
+    }
+    out.append("</title>");
     out.append("<pubDate>").append(Template.RFC822.format(new Date())).append("</pubDate>");
-    out.append("<description>Linux.org.ru: ").append(section.getName()).append("</description>");
+    out.append("<description>Linux.org.ru: ").append(section.getName());
+    if (group!=null) {
+      out.append(" - ").append(group.getTitle());
+    }
+    out.append("</description>");
 
     Statement st=db.createStatement();
 
@@ -48,6 +63,7 @@ public class MessageTable {
             "AND sections.id=" + sectionid + " AND (topics.moderate OR NOT sections.moderate) " +
             "AND topics.userid=users.id AND topics.groupid=groups.id AND NOT deleted " +
             "AND postdate>(CURRENT_TIMESTAMP-'3 month'::interval) " +
+            (group!=null?" AND groupid="+group.getId():"")+
             "ORDER BY commitdate DESC, postdate DESC LIMIT 10"
     );
 

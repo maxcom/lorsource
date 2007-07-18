@@ -2,30 +2,29 @@ package ru.org.linux.site;
 
 import java.io.IOException;
 import java.net.URLEncoder;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
+import java.sql.*;
 import java.util.Properties;
 
 import ru.org.linux.util.*;
 
 public class NewsViewer {
-  private final ResultSet res;
-  private final boolean moderateMode;
-  private final boolean multiPortal;
   private final ProfileHashtable profile;
   private final Properties config;
+  private boolean viewAll = false;
+  private int section = 0;
+  private int group = 0;
+  private String datelimit = null;
+  private String limit="";
+  private boolean moderateMode = false;
 
-  public NewsViewer(Properties Config, ProfileHashtable prof, ResultSet r, boolean Moderate, boolean Portals) {
+  public NewsViewer(Properties Config, ProfileHashtable prof) {
     config = Config;
-    res = r;
-    moderateMode = Moderate;
-    multiPortal = Portals;
     profile = prof;
   }
 
-  private String showCurrent(Connection db,Template tmpl) throws IOException, SQLException, UtilException {
+  private String showCurrent(Connection db, Template tmpl, ResultSet res) throws IOException, SQLException, UtilException {
+    boolean multiPortal = (group==0 && section==0);
+
     StringBuffer out = new StringBuffer();
     int msgid = res.getInt("msgid");
     String url = res.getString("url");
@@ -71,7 +70,7 @@ public class NewsViewer {
 
     if (image != null) {
       out.append("<div class=\"entry-userpic\">");
-      out.append("<a href=\"group.jsp?group=").append(res.getInt("guid")).append("\">");
+      out.append("<a href=\"view-news.jsp?section=").append(res.getInt("section")).append("&amp;group=").append(res.getInt("guid")).append("\">");
       try {
         ImageInfo info = new ImageInfo(config.getProperty("HTMLPathPrefix") + profile.getString("style") + image);
         out.append("<img src=\"/").append(profile.getString("style")).append(image).append("\" ").append(info.getCode()).append(" border=0 alt=\"çÒÕÐÐÁ ").append(res.getString("gtitle")).append("\">");
@@ -192,14 +191,70 @@ public class NewsViewer {
     return out.toString();
   }
 
-  public String showAll(Connection db,Template tmpl) throws IOException, SQLException, UtilException {
+  public String showAll(Connection db, Template tmpl) throws IOException, SQLException, UtilException {
     StringBuffer buf = new StringBuffer();
+    Statement st = db.createStatement();
+
+    StringBuilder where = new StringBuilder(
+        "sections.id=groups.section AND topics.id=msgbase.id AND topics.userid=users.id " +
+            "AND topics.groupid=groups.id AND NOT deleted"
+    );
+
+    if (!viewAll) {
+      where.append(" AND (topics.moderate OR NOT sections.moderate)");
+    } else {
+      where.append(" AND (NOT topics.moderate) AND sections.moderate");    
+    }
+
+    if (section!=0) {
+      where.append(" AND section=").append(section);
+    }
+
+    if (group!=0) {
+      where.append(" AND groupid=").append(group);
+    }
+
+    if (datelimit!=null) {
+      where.append(" AND ").append(datelimit);
+    }
+
+    ResultSet res = st.executeQuery(
+        "SELECT topics.title as subj, topics.lastmod, topics.stat1, postdate, nick, image, " +
+            "groups.title as gtitle, topics.id as msgid, sections.comment, groups.id as guid, " +
+            "topics.url, topics.linktext, imagepost, vote, sections.name as pname, linkup, " +
+            "postdate<(CURRENT_TIMESTAMP-expire) as expired, message, sections.id as section " +
+            "FROM topics,groups,users,sections,msgbase " +
+            "WHERE " + where.toString()+" " +
+            "ORDER BY commitdate DESC, msgid DESC "+limit
+    );
 
     while (res.next()) {
-      buf.append(showCurrent(db,tmpl));
+      buf.append(showCurrent(db,tmpl, res));
     }
+
+    res.close();
 
     return buf.toString();
   }
 
+  public void setViewAll(boolean viewAll) {
+    this.viewAll = viewAll;
+    moderateMode = viewAll;
+  }
+
+  public void setSection(int section) {
+    this.section = section;
+  }
+
+  public void setGroup(int group) {
+    this.group = group;
+  }
+
+  public void setDatelimit(String datelimit) {
+    this.datelimit = datelimit;
+  }
+
+  public void setLimit(String limit) {
+    this.limit = limit;
+  }
 }

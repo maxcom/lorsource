@@ -31,7 +31,7 @@ public class Group {
     try {
       st = db.createStatement();
 
-      rs = st.executeQuery("SELECT sections.moderate, sections.preformat, lineonly, imagepost, vote, section, havelink, linkup, linktext, sections.name, title, image, restrict_topics, sections.browsable FROM groups, sections WHERE groups.id=" + id + " AND groups.section=sections.id");
+      rs = st.executeQuery("SELECT sections.moderate, sections.preformat, lineonly, imagepost, vote, section, havelink, linkup, linktext, sections.name as sname, title, image, restrict_topics, sections.browsable FROM groups, sections WHERE groups.id=" + id + " AND groups.section=sections.id");
 
       if (!rs.next()) {
         throw new BadGroupException("Группа " + id + " не существует");
@@ -46,7 +46,7 @@ public class Group {
       havelink = rs.getBoolean("havelink");
       linkup = rs.getBoolean("linkup");
       linktext = rs.getString("linktext");
-      sectionName = rs.getString("name");
+      sectionName = rs.getString("sname");
       title = rs.getString("title");
       image = rs.getString("image");
       restrictTopics = rs.getInt("restrict_topics");

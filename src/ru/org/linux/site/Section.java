@@ -10,6 +10,7 @@ public class Section {
   private final boolean browsable;
   private final boolean linkup;
   private final boolean imagepost;
+  private final int id;
   private final boolean votepoll;
   public static final int SCROLL_NOSCROLL = 0;
   public static final int SCROLL_SECTION = 1;
@@ -17,6 +18,8 @@ public class Section {
   public static final int SECTION_LINKS = 4;
 
   public Section(Connection db, int id) throws SQLException, BadSectionException {
+    this.id = id;
+
     Statement st = db.createStatement();
     ResultSet rs = st.executeQuery("SELECT name, browsable, linkup, imagepost, vote FROM sections WHERE id="+id);
 
@@ -62,5 +65,9 @@ public class Section {
       default:
         return SCROLL_NOSCROLL;
     }
+  }
+
+  public int getId() {
+    return id;
   }
 }

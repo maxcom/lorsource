@@ -80,19 +80,24 @@
 
   Statement st = db.createStatement();
 
-  ResultSet rs;
+//  ResultSet rs;
 
-  if (sectionid != 0) {
-    rs = st.executeQuery("SELECT topics.title as subj, lastmod, postdate, nick, image, groups.title as gtitle, topics.id as msgid, sections.comment, groups.id as guid, topics.url, topics.linktext, imagepost, vote, sections.name as pname, linkup, postdate<(CURRENT_TIMESTAMP-expire) as expired, message FROM topics,groups,users,sections, msgbase WHERE sections.id=groups.section AND topics.userid=users.id AND topics.groupid=groups.id AND topics.id=msgbase.id AND (NOT topics.moderate) AND sections.moderate AND NOT deleted AND section=" + sectionid + " AND postdate>(CURRENT_TIMESTAMP-'1 month'::interval) ORDER BY msgid DESC");
-  } else {
-    rs = st.executeQuery("SELECT topics.title as subj, lastmod, postdate, nick, image, groups.title as gtitle, topics.id as msgid, sections.comment, groups.id as guid, topics.url, topics.linktext, imagepost, vote, sections.name as pname, linkup, postdate<(CURRENT_TIMESTAMP-expire) as expired, message FROM topics,groups,users,sections, msgbase WHERE sections.id=groups.section AND topics.userid=users.id AND topics.groupid=groups.id AND topics.id=msgbase.id AND (NOT topics.moderate) AND sections.moderate AND NOT deleted AND postdate>(CURRENT_TIMESTAMP-'1 month'::interval) ORDER BY msgid DESC");
+//  if (sectionid != 0) {
+//    rs = st.executeQuery("SELECT topics.title as subj, lastmod, postdate, nick, image, groups.title as gtitle, topics.id as msgid, sections.comment, groups.id as guid, topics.url, topics.linktext, imagepost, vote, sections.name as pname, linkup, postdate<(CURRENT_TIMESTAMP-expire) as expired, message FROM topics,groups,users,sections, msgbase WHERE sections.id=groups.section AND topics.userid=users.id AND topics.groupid=groups.id AND topics.id=msgbase.id AND (NOT topics.moderate) AND sections.moderate AND NOT deleted AND section=" + sectionid + " AND postdate>(CURRENT_TIMESTAMP-'1 month'::interval) ORDER BY msgid DESC");
+//  } else {
+//    rs = st.executeQuery("SELECT topics.title as subj, lastmod, postdate, nick, image, groups.title as gtitle, topics.id as msgid, sections.comment, groups.id as guid, topics.url, topics.linktext, imagepost, vote, sections.name as pname, linkup, postdate<(CURRENT_TIMESTAMP-expire) as expired, message FROM topics,groups,users,sections, msgbase WHERE sections.id=groups.section AND topics.userid=users.id AND topics.groupid=groups.id AND topics.id=msgbase.id AND (NOT topics.moderate) AND sections.moderate AND NOT deleted AND postdate>(CURRENT_TIMESTAMP-'1 month'::interval) ORDER BY msgid DESC");
+//  }
+
+  NewsViewer nw = new NewsViewer(tmpl.getConfig(), tmpl.getProf());
+  nw.setViewAll(true);
+  nw.setDatelimit("postdate>(CURRENT_TIMESTAMP-'1 month'::interval)");
+  if (sectionid!=0) {
+    nw.setSection(sectionid);
   }
-
-  NewsViewer nw = new NewsViewer(tmpl.getConfig(), tmpl.getProf(), rs, true, true);
 
   out.print(nw.showAll(db, tmpl));
 
-  rs.close();
+  ResultSet rs;
 
   if (sectionid==0) {
     rs = st.executeQuery("SELECT topics.title as subj, nick, groups.title as gtitle, topics.id as msgid, groups.id as guid, sections.name as ptitle, reason FROM topics,groups,users,sections,del_info WHERE sections.id=groups.section AND topics.userid=users.id AND topics.groupid=groups.id AND sections.moderate AND deleted AND del_info.msgid=topics.id AND topics.userid!=del_info.delby ORDER BY msgid DESC LIMIT 20;");

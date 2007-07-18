@@ -97,7 +97,7 @@
 
 <div class="<%= columns3?"newsblog2":"newsblog"%>">
   
-<h1><a href="view-section.jsp?section=1">Новости</a></h1>
+<h1><a href="view-news.jsp?section=1">Новости</a></h1>
 <%
   if (tmpl.isModeratorSession()) {
     out.print("<hr><div align=\"center\">");
