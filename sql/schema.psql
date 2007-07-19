@@ -804,11 +804,51 @@ ALTER TABLE ONLY comments
 
 
 --
+-- Name: del_info_delby_fkey; Type: FK CONSTRAINT; Schema: public; Owner: maxcom
+--
+
+ALTER TABLE ONLY del_info
+    ADD CONSTRAINT del_info_delby_fkey FOREIGN KEY (delby) REFERENCES users(id);
+
+
+--
+-- Name: groups_section_fkey; Type: FK CONSTRAINT; Schema: public; Owner: maxcom
+--
+
+ALTER TABLE ONLY groups
+    ADD CONSTRAINT groups_section_fkey FOREIGN KEY (section) REFERENCES sections(id);
+
+
+--
 -- Name: monthly_stats_section_fkey; Type: FK CONSTRAINT; Schema: public; Owner: maxcom
 --
 
 ALTER TABLE ONLY monthly_stats
     ADD CONSTRAINT monthly_stats_section_fkey FOREIGN KEY (section) REFERENCES sections(id);
+
+
+--
+-- Name: topics_commitby_fkey; Type: FK CONSTRAINT; Schema: public; Owner: maxcom
+--
+
+ALTER TABLE ONLY topics
+    ADD CONSTRAINT topics_commitby_fkey FOREIGN KEY (commitby) REFERENCES users(id);
+
+
+--
+-- Name: topics_groupid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: maxcom
+--
+
+ALTER TABLE ONLY topics
+    ADD CONSTRAINT topics_groupid_fkey FOREIGN KEY (groupid) REFERENCES groups(id);
+
+
+--
+-- Name: topics_userid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: maxcom
+--
+
+ALTER TABLE ONLY topics
+    ADD CONSTRAINT topics_userid_fkey FOREIGN KEY (userid) REFERENCES users(id);
 
 
 --
