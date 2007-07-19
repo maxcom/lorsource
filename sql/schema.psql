@@ -780,11 +780,27 @@ CREATE TRIGGER topins_t
 
 
 --
+-- Name: comments_replyto_fkey; Type: FK CONSTRAINT; Schema: public; Owner: maxcom
+--
+
+ALTER TABLE ONLY comments
+    ADD CONSTRAINT comments_replyto_fkey FOREIGN KEY (replyto) REFERENCES comments(id);
+
+
+--
 -- Name: comments_topic_fkey; Type: FK CONSTRAINT; Schema: public; Owner: maxcom
 --
 
 ALTER TABLE ONLY comments
     ADD CONSTRAINT comments_topic_fkey FOREIGN KEY (topic) REFERENCES topics(id);
+
+
+--
+-- Name: comments_userid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: maxcom
+--
+
+ALTER TABLE ONLY comments
+    ADD CONSTRAINT comments_userid_fkey FOREIGN KEY (userid) REFERENCES users(id);
 
 
 --
