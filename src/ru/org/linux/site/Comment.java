@@ -107,7 +107,7 @@ public class Comment {
       out.append("&nbsp;</td></tr>");
     }
 
-    if (replyto!=0) {
+    if (replyto!=0 && !masterMode) {
       out.append("<tr class=title><td>");
       Statement rts=db.createStatement();
       ResultSet rt=rts.executeQuery("SELECT users.nick, comments.title, comments.postdate from comments, users WHERE users.id=comments.userid AND comments.id=" + replyto);
