@@ -12,6 +12,8 @@ public class MemCachedSettings {
     pool.setServers(new String[] { "localhost:11211" });
 
     pool.initialize();
+
+    mc.setSanitizeKeys(false);
   }
 
   public static MemCachedClient getClient() {

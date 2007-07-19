@@ -2,6 +2,7 @@
 <%@ page import="java.net.URLEncoder,java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.util.Date,ru.org.linux.site.NewsViewer" errorPage="/error.jsp" buffer="60kb"%>
 <%@ page import="ru.org.linux.site.Section"%>
 <%@ page import="ru.org.linux.site.Template" %>
+<%@ page import="ru.org.linux.site.ViewerCacher" %>
 <% Template tmpl = new Template(request, config, response); %>
 <%= tmpl.head() %>
 <%
@@ -10,6 +11,7 @@
 
    response.setDateHeader("Expires", new Date(new Date().getTime()-20*3600*1000).getTime());
    response.setDateHeader("Last-Modified", new Date(new Date().getTime()-120*1000).getTime());
+   boolean nocache = request.getParameter("nocache")!=null;
 
   db = tmpl.getConnection("view-all");
 
@@ -91,18 +93,18 @@
   NewsViewer nw = new NewsViewer(tmpl.getConfig(), tmpl.getProf());
   nw.setViewAll(true);
   nw.setDatelimit("postdate>(CURRENT_TIMESTAMP-'1 month'::interval)");
-  if (sectionid!=0) {
+  if (sectionid != 0) {
     nw.setSection(sectionid);
   }
 
-  out.print(nw.showAll(db, tmpl));
+  out.print(ViewerCacher.getViewer(nw, tmpl, nocache, false));
 
   ResultSet rs;
 
-  if (sectionid==0) {
+  if (sectionid == 0) {
     rs = st.executeQuery("SELECT topics.title as subj, nick, groups.title as gtitle, topics.id as msgid, groups.id as guid, sections.name as ptitle, reason FROM topics,groups,users,sections,del_info WHERE sections.id=groups.section AND topics.userid=users.id AND topics.groupid=groups.id AND sections.moderate AND deleted AND del_info.msgid=topics.id AND topics.userid!=del_info.delby ORDER BY msgid DESC LIMIT 20;");
   } else {
-    rs = st.executeQuery("SELECT topics.title as subj, nick, groups.title as gtitle, topics.id as msgid, groups.id as guid, sections.name as ptitle, reason FROM topics,groups,users,sections,del_info WHERE sections.id=groups.section AND topics.userid=users.id AND topics.groupid=groups.id AND sections.moderate AND deleted AND del_info.msgid=topics.id AND topics.userid!=del_info.delby AND section="+sectionid+" ORDER BY msgid DESC LIMIT 20;");    
+    rs = st.executeQuery("SELECT topics.title as subj, nick, groups.title as gtitle, topics.id as msgid, groups.id as guid, sections.name as ptitle, reason FROM topics,groups,users,sections,del_info WHERE sections.id=groups.section AND topics.userid=users.id AND topics.groupid=groups.id AND sections.moderate AND deleted AND del_info.msgid=topics.id AND topics.userid!=del_info.delby AND section=" + sectionid + " ORDER BY msgid DESC LIMIT 20;");
   }
 %>
 <h2>Последние удаленные неподтвержденные</h2>

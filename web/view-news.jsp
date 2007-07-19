@@ -125,7 +125,7 @@
 <H1><%= ptitle %></H1>
 
 <%
-//  ResultSet rs;
+  //  ResultSet rs;
 
 //  if (month != 0) {
 //    rs = st.executeQuery("SELECT topics.title as subj, topics.lastmod, topics.stat1, postdate, nick, image, groups.title as gtitle, topics.id as msgid, sections.comment, groups.id as guid, topics.url, topics.linktext, imagepost, vote, linkup, postdate<(CURRENT_TIMESTAMP-expire) as expired, message FROM topics,groups,users,sections,msgbase WHERE sections.id=groups.section AND topics.id=msgbase.id AND (topics.moderate OR NOT sections.moderate) AND topics.userid=users.id AND topics.groupid=groups.id AND section=" + sectionid + (group!=null?" AND groupid="+group.getId():"") +" AND postdate>='" + year + "-" + month + "-01'::timestamp AND (postdate<'" + year + "-" + month + "-01'::timestamp+'1 month'::interval) AND NOT deleted ORDER BY commitdate");
@@ -135,18 +135,18 @@
 
   NewsViewer nw = new NewsViewer(tmpl.getConfig(), tmpl.getProf());
   nw.setSection(sectionid);
-  if (group!=null) {
+  if (group != null) {
     nw.setGroup(group.getId());
   }
 
-  if (month!=0) {
+  if (month != 0) {
     nw.setDatelimit("(postdate<'" + year + "-" + month + "-01'::timestamp+'1 month'::interval)");
   } else {
     nw.setDatelimit("commitdate>(CURRENT_TIMESTAMP-'3 month'::interval)");
     nw.setLimit("LIMIT 20");
   }
 
-  out.print(nw.showAll(db, tmpl));
+  out.print(ViewerCacher.getViewer(nw, tmpl, false, false));
 %>
 
 <%

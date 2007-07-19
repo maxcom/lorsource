@@ -179,7 +179,7 @@ public class Message {
       try {
         int id = Poll.getPollIdByTopic(db, msgid);
         Poll poll = new Poll(db, id);
-        out.append(poll.renderPoll(db, tmpl, highlight));
+        out.append(poll.renderPoll(db, tmpl.getConfig(), tmpl.getProf(), highlight));
         out.append("<p>&gt;&gt;&gt; <a href=\"").append("vote-vote.jsp?msgid=").append(msgid).append("\">Проголосовать</a>");
       } catch (PollNotFoundException e) {
         out.append("[BAD POLL: not found]");

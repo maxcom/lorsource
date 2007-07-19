@@ -1,10 +1,9 @@
 <%@ page contentType="text/html; charset=koi8-r"%>
-<%@ page import="java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.util.Date,java.util.List, com.danga.MemCached.MemCachedClient" errorPage="/error.jsp" buffer="60kb"%>
-<%@ page import="ru.org.linux.boxlet.BoxletVectorRunner"%>
-<%@ page import="ru.org.linux.site.MemCachedSettings"%>
+<%@ page import="java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.util.Date,java.util.List, ru.org.linux.boxlet.BoxletVectorRunner" errorPage="/error.jsp" buffer="60kb"%>
+<%@ page import="ru.org.linux.site.NewsViewer"%>
 <%@ page import="ru.org.linux.site.Template" %>
 <%@ page import="ru.org.linux.site.User" %>
-<%@ page import="ru.org.linux.site.boxes.fullnews" %>
+<%@ page import="ru.org.linux.site.ViewerCacher" %>
 <% Template tmpl = new Template(request, config, response);
    tmpl.setMainPage(); %>
 <%=   tmpl.head() %>
@@ -110,7 +109,7 @@
     if (rs.next()) {
       int count = rs.getInt("count");
 
-      out.print("[<a style=\"text-decoration: none\" href=\"view-all.jsp\">Неподтвержденных: " + count+", ");
+      out.print("[<a style=\"text-decoration: none\" href=\"view-all.jsp\">Неподтвержденных: " + count + ", ");
     }
 
     rs.close();
@@ -120,7 +119,7 @@
     if (rs.next()) {
       int count = rs.getInt("count");
 
-      out.print(" в том числе новостей: "+ count + "</a>]");
+      out.print(" в том числе новостей: " + count + "</a>]");
     }
 
     rs.close();
@@ -130,19 +129,9 @@
     out.print("</div>");
   }
 
-  MemCachedClient mcc = MemCachedSettings.getClient();
+  NewsViewer nv = NewsViewer.getMainpage(tmpl.getConfig(), tmpl.getProf());
 
-  fullnews news = new fullnews();
-  String cacheId = MemCachedSettings.getId(tmpl, "fullnews" + "?" + news.getVariantID(tmpl.getProf()));
-
-  String res = (String) mcc.get(cacheId);
-  if (res == null) {
-    res = news.getContent(tmpl.getObjectConfig(), tmpl.getProf(), tmpl);
-
-    mcc.add(cacheId, res, news.getExpire());
-  }
-
-  out.print(res);
+  out.print(ViewerCacher.getViewer(nv, tmpl, false, true));
 %>
 <hr>
 <div align=center>

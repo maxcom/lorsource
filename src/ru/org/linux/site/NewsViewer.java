@@ -7,7 +7,7 @@ import java.util.Properties;
 
 import ru.org.linux.util.*;
 
-public class NewsViewer {
+public class NewsViewer implements Viewer {
   private final ProfileHashtable profile;
   private final Properties config;
   private boolean viewAll = false;
@@ -22,7 +22,7 @@ public class NewsViewer {
     profile = prof;
   }
 
-  private String showCurrent(Connection db, Template tmpl, ResultSet res) throws IOException, SQLException, UtilException {
+  private String showCurrent(Connection db, ResultSet res) throws IOException, SQLException, UtilException {
     boolean multiPortal = (group==0 && section==0);
 
     StringBuffer out = new StringBuffer();
@@ -113,7 +113,7 @@ public class NewsViewer {
       try {
         int id = Poll.getPollIdByTopic(db, msgid);
         Poll poll = new Poll(db, id);
-	out.append(poll.renderPoll(db, tmpl));
+	out.append(poll.renderPoll(db, config, profile));
         out.append("<p>&gt;&gt;&gt; <a href=\"").append("vote-vote.jsp?msgid=").append(msgid).append("\">Голосовать</a>");
         out.append("<p>&gt;&gt;&gt; <a href=\"").append(jumplink).append("\">Результаты</a>");
       } catch (BadImageException e) {
@@ -191,7 +191,7 @@ public class NewsViewer {
     return out.toString();
   }
 
-  public String showAll(Connection db, Template tmpl) throws IOException, SQLException, UtilException {
+  public String show(Connection db) throws IOException, SQLException, UtilException {
     StringBuffer buf = new StringBuffer();
     Statement st = db.createStatement();
 
@@ -229,7 +229,7 @@ public class NewsViewer {
     );
 
     while (res.next()) {
-      buf.append(showCurrent(db,tmpl, res));
+      buf.append(showCurrent(db, res));
     }
 
     res.close();
@@ -256,5 +256,53 @@ public class NewsViewer {
 
   public void setLimit(String limit) {
     this.limit = limit;
+  }
+
+  public String getVariantID(ProfileHashtable prof) throws UtilException {
+    StringBuilder id = new StringBuilder("view-news?"+
+        "SearchMode=" + prof.getBoolean("SearchMode") +
+        "&topics=" + prof.getInt("topics")+
+        "&messages=" + prof.getInt("messages") +
+        "&style=" + prof.getString("style"));
+
+    if (viewAll) {
+      id.append("&view-all=true");
+    }
+
+    if (section!=0) {
+      id.append("&section=").append(section);
+    }
+
+    if (group!=0) {
+      id.append("&group=").append(group);
+    }
+
+    if (datelimit!=null) {
+      id.append("&datelimit=").append(URLEncoder.encode(datelimit));
+    }
+
+    if (limit!=null && limit.length()>0) {
+      id.append("&limit=").append(URLEncoder.encode(limit));
+    }
+
+    return id.toString();
+  }
+
+  public java.util.Date getExpire() {
+    if (limit==null || limit.length()==0) {
+      return new java.util.Date(new java.util.Date().getTime() + 10*60*1000);      
+    }
+
+    return new java.util.Date(new java.util.Date().getTime() + 60*1000);
+  }
+
+  public static NewsViewer getMainpage(Properties config, ProfileHashtable profile) {
+//      Statement st = db.createStatement();
+//      ResultSet rs = st.executeQuery("SELECT topics.stat1, topics.lastmod, topics.title as subj, postdate, nick, image, groups.title as gtitle, topics.id as msgid, sections.comment, groups.id as guid, topics.url, topics.linktext, sections.imagepost, sections.vote, linkup, postdate<(CURRENT_TIMESTAMP-expire) as expired, message FROM topics,groups,users,sections,msgbase WHERE sections.id=groups.section AND topics.id=msgbase.id AND topics.moderate AND topics.userid=users.id AND topics.groupid=groups.id AND section=1 AND NOT deleted AND commitdate>(CURRENT_TIMESTAMP-'1 month'::interval) ORDER BY commitdate DESC LIMIT 20");
+    NewsViewer nw = new NewsViewer(config, profile);
+    nw.setSection(1);
+    nw.setLimit("LIMIT 20");
+    nw.setDatelimit("commitdate>(CURRENT_TIMESTAMP-'1 month'::interval)");
+    return nw;
   }
 }

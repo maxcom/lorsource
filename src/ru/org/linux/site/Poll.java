@@ -5,10 +5,12 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Properties;
 
 import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.HTMLFormatter;
 import ru.org.linux.util.ImageInfo;
+import ru.org.linux.util.ProfileHashtable;
 
 public class Poll {
   public static final int MAX_POLL_SIZE = 15;
@@ -168,16 +170,16 @@ public class Poll {
     addPst.executeUpdate();
   }
 
-  public String renderPoll(Connection db,Template tmpl) throws SQLException, BadImageException, IOException {
-    return renderPoll(db, tmpl, 0);
+  public String renderPoll(Connection db, Properties config, ProfileHashtable profile) throws SQLException, BadImageException, IOException {
+    return renderPoll(db, config, profile, 0);
   }
   
-  public String renderPoll(Connection db,Template tmpl, int highlight) throws SQLException, BadImageException, IOException {
+  public String renderPoll(Connection db, Properties config, ProfileHashtable profile, int highlight) throws SQLException, BadImageException, IOException {
     StringBuffer out = new StringBuffer();
     int max = getMaxVote(db);
     List vars = getPollVariants(db, ORDER_VOTES);
     out.append("<table>");    
-    ImageInfo info = new ImageInfo(tmpl.getObjectConfig().getHTMLPathPrefix() + tmpl.getStyle() + "/img/votes.gif");
+    ImageInfo info = new ImageInfo(config.getProperty("HTMLPathPrefix") + profile.getString("style") + "/img/votes.gif");
     int total = 0;
     for (Iterator iter = vars.iterator(); iter.hasNext();) {
 	PollVariant var = (PollVariant) iter.next();
@@ -194,7 +196,7 @@ public class Poll {
       out.append("</td><td>").append(votes).append("</td><td>");
       total += votes;
 	for (int i = 0; i < 20 * votes / max; i++) {
-          out.append("<img src=\"/").append(tmpl.getStyle()).append("/img/votes.gif\" alt=\"*\" ").append(info.getCode()).append('>');
+          out.append("<img src=\"/").append(profile.getString("style")).append("/img/votes.gif\" alt=\"*\" ").append(info.getCode()).append('>');
 	}
 	out.append("</td></tr>");
     }
@@ -217,7 +219,7 @@ public class Poll {
 	out.append("</td><td>").append(votes).append("</td><td>");
 	total += votes;
 	for (int i = 0; i < 20 * votes / max; i++) {
-          out.append("<img src=\"").append(fullUrl+"white/img/votes.gif\" alt=\"*\">");
+          out.append("<img src=\"").append(fullUrl).append("white/img/votes.gif\" alt=\"*\">");
 	}
 	out.append("</td></tr>");
     }
