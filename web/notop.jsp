@@ -12,7 +12,7 @@ if (!tmpl.isModeratorSession()) {
 %>
 
 <%
-   if (request.getParameter("nick")==null) {
+   if (request.getMethod().equals("GET")) {
    	if (request.getParameter("msgid")==null)
 		throw new MissingParameterException("msgid");
 
@@ -23,7 +23,7 @@ if (!tmpl.isModeratorSession()) {
 имеющих права подтверждения сообщений.
 <form method=POST action="notop.jsp">
 <input type=hidden name=msgid value="<%= msgid %>"><br>
-<input type=submit value="Submit/Подтвердить">
+<input type=submit value="Удалить из top10">
 </form>
 <%
    } else {
@@ -43,7 +43,7 @@ if (!tmpl.isModeratorSession()) {
 
         out.print("Сообщение удалено из top10");
 
-	tmpl.getLogger().notice("commit", "Удалено из TOP10 сообщение "+msgid+" пользователем "+user.getNick());
+	tmpl.getLogger().notice("notop", "Удалено из TOP10 сообщение "+msgid+" пользователем "+user.getNick());
 	pst.close();
 
 	db.commit();
