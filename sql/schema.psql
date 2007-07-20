@@ -25,6 +25,247 @@ CREATE PROCEDURAL LANGUAGE plpgsql;
 SET search_path = public, pg_catalog;
 
 --
+-- Name: gtsq; Type: SHELL TYPE; Schema: public; Owner: maxcom
+--
+
+CREATE TYPE gtsq;
+
+
+--
+-- Name: gtsq_in(cstring); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION gtsq_in(cstring) RETURNS gtsq
+    AS '$libdir/tsearch2', 'gtsq_in'
+    LANGUAGE c STRICT;
+
+
+ALTER FUNCTION public.gtsq_in(cstring) OWNER TO maxcom;
+
+--
+-- Name: gtsq_out(gtsq); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION gtsq_out(gtsq) RETURNS cstring
+    AS '$libdir/tsearch2', 'gtsq_out'
+    LANGUAGE c STRICT;
+
+
+ALTER FUNCTION public.gtsq_out(gtsq) OWNER TO maxcom;
+
+--
+-- Name: gtsq; Type: TYPE; Schema: public; Owner: maxcom
+--
+
+CREATE TYPE gtsq (
+    INTERNALLENGTH = 8,
+    INPUT = gtsq_in,
+    OUTPUT = gtsq_out,
+    ALIGNMENT = int4,
+    STORAGE = plain
+);
+
+
+ALTER TYPE public.gtsq OWNER TO maxcom;
+
+--
+-- Name: gtsvector; Type: SHELL TYPE; Schema: public; Owner: maxcom
+--
+
+CREATE TYPE gtsvector;
+
+
+--
+-- Name: gtsvector_in(cstring); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION gtsvector_in(cstring) RETURNS gtsvector
+    AS '$libdir/tsearch2', 'gtsvector_in'
+    LANGUAGE c STRICT;
+
+
+ALTER FUNCTION public.gtsvector_in(cstring) OWNER TO maxcom;
+
+--
+-- Name: gtsvector_out(gtsvector); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION gtsvector_out(gtsvector) RETURNS cstring
+    AS '$libdir/tsearch2', 'gtsvector_out'
+    LANGUAGE c STRICT;
+
+
+ALTER FUNCTION public.gtsvector_out(gtsvector) OWNER TO maxcom;
+
+--
+-- Name: gtsvector; Type: TYPE; Schema: public; Owner: maxcom
+--
+
+CREATE TYPE gtsvector (
+    INTERNALLENGTH = variable,
+    INPUT = gtsvector_in,
+    OUTPUT = gtsvector_out,
+    ALIGNMENT = int4,
+    STORAGE = plain
+);
+
+
+ALTER TYPE public.gtsvector OWNER TO maxcom;
+
+--
+-- Name: tsquery; Type: SHELL TYPE; Schema: public; Owner: maxcom
+--
+
+CREATE TYPE tsquery;
+
+
+--
+-- Name: tsquery_in(cstring); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION tsquery_in(cstring) RETURNS tsquery
+    AS '$libdir/tsearch2', 'tsquery_in'
+    LANGUAGE c STRICT;
+
+
+ALTER FUNCTION public.tsquery_in(cstring) OWNER TO maxcom;
+
+--
+-- Name: tsquery_out(tsquery); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION tsquery_out(tsquery) RETURNS cstring
+    AS '$libdir/tsearch2', 'tsquery_out'
+    LANGUAGE c STRICT;
+
+
+ALTER FUNCTION public.tsquery_out(tsquery) OWNER TO maxcom;
+
+--
+-- Name: tsquery; Type: TYPE; Schema: public; Owner: maxcom
+--
+
+CREATE TYPE tsquery (
+    INTERNALLENGTH = variable,
+    INPUT = tsquery_in,
+    OUTPUT = tsquery_out,
+    ALIGNMENT = int4,
+    STORAGE = plain
+);
+
+
+ALTER TYPE public.tsquery OWNER TO maxcom;
+
+--
+-- Name: tsvector; Type: SHELL TYPE; Schema: public; Owner: maxcom
+--
+
+CREATE TYPE tsvector;
+
+
+--
+-- Name: tsvector_in(cstring); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION tsvector_in(cstring) RETURNS tsvector
+    AS '$libdir/tsearch2', 'tsvector_in'
+    LANGUAGE c STRICT;
+
+
+ALTER FUNCTION public.tsvector_in(cstring) OWNER TO maxcom;
+
+--
+-- Name: tsvector_out(tsvector); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION tsvector_out(tsvector) RETURNS cstring
+    AS '$libdir/tsearch2', 'tsvector_out'
+    LANGUAGE c STRICT;
+
+
+ALTER FUNCTION public.tsvector_out(tsvector) OWNER TO maxcom;
+
+--
+-- Name: tsvector; Type: TYPE; Schema: public; Owner: maxcom
+--
+
+CREATE TYPE tsvector (
+    INTERNALLENGTH = variable,
+    INPUT = tsvector_in,
+    OUTPUT = tsvector_out,
+    ALIGNMENT = int4,
+    STORAGE = extended
+);
+
+
+ALTER TYPE public.tsvector OWNER TO maxcom;
+
+--
+-- Name: statinfo; Type: TYPE; Schema: public; Owner: maxcom
+--
+
+CREATE TYPE statinfo AS (
+	word text,
+	ndoc integer,
+	nentry integer
+);
+
+
+ALTER TYPE public.statinfo OWNER TO maxcom;
+
+--
+-- Name: tokenout; Type: TYPE; Schema: public; Owner: maxcom
+--
+
+CREATE TYPE tokenout AS (
+	tokid integer,
+	token text
+);
+
+
+ALTER TYPE public.tokenout OWNER TO maxcom;
+
+--
+-- Name: tokentype; Type: TYPE; Schema: public; Owner: maxcom
+--
+
+CREATE TYPE tokentype AS (
+	tokid integer,
+	alias text,
+	descr text
+);
+
+
+ALTER TYPE public.tokentype OWNER TO maxcom;
+
+--
+-- Name: tsdebug; Type: TYPE; Schema: public; Owner: maxcom
+--
+
+CREATE TYPE tsdebug AS (
+	ts_name text,
+	tok_type text,
+	description text,
+	token text,
+	dict_name text[],
+	tsvector tsvector
+);
+
+
+ALTER TYPE public.tsdebug OWNER TO maxcom;
+
+--
+-- Name: _get_parser_from_curcfg(); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION _get_parser_from_curcfg() RETURNS text
+    AS $$ select prs_name from pg_ts_cfg where oid = show_curcfg() $$
+    LANGUAGE sql IMMUTABLE STRICT;
+
+
+ALTER FUNCTION public._get_parser_from_curcfg() OWNER TO maxcom;
+
+--
 -- Name: comins(); Type: FUNCTION; Schema: public; Owner: maxcom
 --
 
@@ -51,6 +292,68 @@ $$
 ALTER FUNCTION public.comins() OWNER TO maxcom;
 
 --
+-- Name: concat(tsvector, tsvector); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION concat(tsvector, tsvector) RETURNS tsvector
+    AS '$libdir/tsearch2', 'concat'
+    LANGUAGE c IMMUTABLE STRICT;
+
+
+ALTER FUNCTION public.concat(tsvector, tsvector) OWNER TO maxcom;
+
+--
+-- Name: dex_init(internal); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION dex_init(internal) RETURNS internal
+    AS '$libdir/tsearch2', 'dex_init'
+    LANGUAGE c;
+
+
+ALTER FUNCTION public.dex_init(internal) OWNER TO maxcom;
+
+--
+-- Name: dex_lexize(internal, internal, integer); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION dex_lexize(internal, internal, integer) RETURNS internal
+    AS '$libdir/tsearch2', 'dex_lexize'
+    LANGUAGE c STRICT;
+
+
+ALTER FUNCTION public.dex_lexize(internal, internal, integer) OWNER TO maxcom;
+
+--
+-- Name: exectsq(tsvector, tsquery); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION exectsq(tsvector, tsquery) RETURNS boolean
+    AS '$libdir/tsearch2', 'exectsq'
+    LANGUAGE c IMMUTABLE STRICT;
+
+
+ALTER FUNCTION public.exectsq(tsvector, tsquery) OWNER TO maxcom;
+
+--
+-- Name: FUNCTION exectsq(tsvector, tsquery); Type: COMMENT; Schema: public; Owner: maxcom
+--
+
+COMMENT ON FUNCTION exectsq(tsvector, tsquery) IS 'boolean operation with text index';
+
+
+--
+-- Name: get_covers(tsvector, tsquery); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION get_covers(tsvector, tsquery) RETURNS text
+    AS '$libdir/tsearch2', 'get_covers'
+    LANGUAGE c STRICT;
+
+
+ALTER FUNCTION public.get_covers(tsvector, tsquery) OWNER TO maxcom;
+
+--
 -- Name: get_title(bigint); Type: FUNCTION; Schema: public; Owner: maxcom
 --
 
@@ -60,6 +363,303 @@ CREATE FUNCTION get_title(bigint) RETURNS character varying
 
 
 ALTER FUNCTION public.get_title(bigint) OWNER TO maxcom;
+
+--
+-- Name: gin_extract_tsquery(tsquery, internal, internal); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION gin_extract_tsquery(tsquery, internal, internal) RETURNS internal
+    AS '$libdir/tsearch2', 'gin_extract_tsquery'
+    LANGUAGE c STRICT;
+
+
+ALTER FUNCTION public.gin_extract_tsquery(tsquery, internal, internal) OWNER TO maxcom;
+
+--
+-- Name: gin_extract_tsvector(tsvector, internal); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION gin_extract_tsvector(tsvector, internal) RETURNS internal
+    AS '$libdir/tsearch2', 'gin_extract_tsvector'
+    LANGUAGE c STRICT;
+
+
+ALTER FUNCTION public.gin_extract_tsvector(tsvector, internal) OWNER TO maxcom;
+
+--
+-- Name: gin_ts_consistent(internal, internal, tsquery); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION gin_ts_consistent(internal, internal, tsquery) RETURNS boolean
+    AS '$libdir/tsearch2', 'gin_ts_consistent'
+    LANGUAGE c STRICT;
+
+
+ALTER FUNCTION public.gin_ts_consistent(internal, internal, tsquery) OWNER TO maxcom;
+
+--
+-- Name: gtsq_compress(internal); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION gtsq_compress(internal) RETURNS internal
+    AS '$libdir/tsearch2', 'gtsq_compress'
+    LANGUAGE c;
+
+
+ALTER FUNCTION public.gtsq_compress(internal) OWNER TO maxcom;
+
+--
+-- Name: gtsq_consistent(gtsq, internal, integer); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION gtsq_consistent(gtsq, internal, integer) RETURNS boolean
+    AS '$libdir/tsearch2', 'gtsq_consistent'
+    LANGUAGE c;
+
+
+ALTER FUNCTION public.gtsq_consistent(gtsq, internal, integer) OWNER TO maxcom;
+
+--
+-- Name: gtsq_decompress(internal); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION gtsq_decompress(internal) RETURNS internal
+    AS '$libdir/tsearch2', 'gtsq_decompress'
+    LANGUAGE c;
+
+
+ALTER FUNCTION public.gtsq_decompress(internal) OWNER TO maxcom;
+
+--
+-- Name: gtsq_penalty(internal, internal, internal); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION gtsq_penalty(internal, internal, internal) RETURNS internal
+    AS '$libdir/tsearch2', 'gtsq_penalty'
+    LANGUAGE c STRICT;
+
+
+ALTER FUNCTION public.gtsq_penalty(internal, internal, internal) OWNER TO maxcom;
+
+--
+-- Name: gtsq_picksplit(internal, internal); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION gtsq_picksplit(internal, internal) RETURNS internal
+    AS '$libdir/tsearch2', 'gtsq_picksplit'
+    LANGUAGE c;
+
+
+ALTER FUNCTION public.gtsq_picksplit(internal, internal) OWNER TO maxcom;
+
+--
+-- Name: gtsq_same(gtsq, gtsq, internal); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION gtsq_same(gtsq, gtsq, internal) RETURNS internal
+    AS '$libdir/tsearch2', 'gtsq_same'
+    LANGUAGE c;
+
+
+ALTER FUNCTION public.gtsq_same(gtsq, gtsq, internal) OWNER TO maxcom;
+
+--
+-- Name: gtsq_union(bytea, internal); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION gtsq_union(bytea, internal) RETURNS integer[]
+    AS '$libdir/tsearch2', 'gtsq_union'
+    LANGUAGE c;
+
+
+ALTER FUNCTION public.gtsq_union(bytea, internal) OWNER TO maxcom;
+
+--
+-- Name: gtsvector_compress(internal); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION gtsvector_compress(internal) RETURNS internal
+    AS '$libdir/tsearch2', 'gtsvector_compress'
+    LANGUAGE c;
+
+
+ALTER FUNCTION public.gtsvector_compress(internal) OWNER TO maxcom;
+
+--
+-- Name: gtsvector_consistent(gtsvector, internal, integer); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION gtsvector_consistent(gtsvector, internal, integer) RETURNS boolean
+    AS '$libdir/tsearch2', 'gtsvector_consistent'
+    LANGUAGE c;
+
+
+ALTER FUNCTION public.gtsvector_consistent(gtsvector, internal, integer) OWNER TO maxcom;
+
+--
+-- Name: gtsvector_decompress(internal); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION gtsvector_decompress(internal) RETURNS internal
+    AS '$libdir/tsearch2', 'gtsvector_decompress'
+    LANGUAGE c;
+
+
+ALTER FUNCTION public.gtsvector_decompress(internal) OWNER TO maxcom;
+
+--
+-- Name: gtsvector_penalty(internal, internal, internal); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION gtsvector_penalty(internal, internal, internal) RETURNS internal
+    AS '$libdir/tsearch2', 'gtsvector_penalty'
+    LANGUAGE c STRICT;
+
+
+ALTER FUNCTION public.gtsvector_penalty(internal, internal, internal) OWNER TO maxcom;
+
+--
+-- Name: gtsvector_picksplit(internal, internal); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION gtsvector_picksplit(internal, internal) RETURNS internal
+    AS '$libdir/tsearch2', 'gtsvector_picksplit'
+    LANGUAGE c;
+
+
+ALTER FUNCTION public.gtsvector_picksplit(internal, internal) OWNER TO maxcom;
+
+--
+-- Name: gtsvector_same(gtsvector, gtsvector, internal); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION gtsvector_same(gtsvector, gtsvector, internal) RETURNS internal
+    AS '$libdir/tsearch2', 'gtsvector_same'
+    LANGUAGE c;
+
+
+ALTER FUNCTION public.gtsvector_same(gtsvector, gtsvector, internal) OWNER TO maxcom;
+
+--
+-- Name: gtsvector_union(internal, internal); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION gtsvector_union(internal, internal) RETURNS integer[]
+    AS '$libdir/tsearch2', 'gtsvector_union'
+    LANGUAGE c;
+
+
+ALTER FUNCTION public.gtsvector_union(internal, internal) OWNER TO maxcom;
+
+--
+-- Name: headline(oid, text, tsquery, text); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION headline(oid, text, tsquery, text) RETURNS text
+    AS '$libdir/tsearch2', 'headline'
+    LANGUAGE c IMMUTABLE STRICT;
+
+
+ALTER FUNCTION public.headline(oid, text, tsquery, text) OWNER TO maxcom;
+
+--
+-- Name: headline(oid, text, tsquery); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION headline(oid, text, tsquery) RETURNS text
+    AS '$libdir/tsearch2', 'headline'
+    LANGUAGE c IMMUTABLE STRICT;
+
+
+ALTER FUNCTION public.headline(oid, text, tsquery) OWNER TO maxcom;
+
+--
+-- Name: headline(text, text, tsquery, text); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION headline(text, text, tsquery, text) RETURNS text
+    AS '$libdir/tsearch2', 'headline_byname'
+    LANGUAGE c IMMUTABLE STRICT;
+
+
+ALTER FUNCTION public.headline(text, text, tsquery, text) OWNER TO maxcom;
+
+--
+-- Name: headline(text, text, tsquery); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION headline(text, text, tsquery) RETURNS text
+    AS '$libdir/tsearch2', 'headline_byname'
+    LANGUAGE c IMMUTABLE STRICT;
+
+
+ALTER FUNCTION public.headline(text, text, tsquery) OWNER TO maxcom;
+
+--
+-- Name: headline(text, tsquery, text); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION headline(text, tsquery, text) RETURNS text
+    AS '$libdir/tsearch2', 'headline_current'
+    LANGUAGE c IMMUTABLE STRICT;
+
+
+ALTER FUNCTION public.headline(text, tsquery, text) OWNER TO maxcom;
+
+--
+-- Name: headline(text, tsquery); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION headline(text, tsquery) RETURNS text
+    AS '$libdir/tsearch2', 'headline_current'
+    LANGUAGE c IMMUTABLE STRICT;
+
+
+ALTER FUNCTION public.headline(text, tsquery) OWNER TO maxcom;
+
+--
+-- Name: length(tsvector); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION length(tsvector) RETURNS integer
+    AS '$libdir/tsearch2', 'tsvector_length'
+    LANGUAGE c IMMUTABLE STRICT;
+
+
+ALTER FUNCTION public.length(tsvector) OWNER TO maxcom;
+
+--
+-- Name: lexize(oid, text); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION lexize(oid, text) RETURNS text[]
+    AS '$libdir/tsearch2', 'lexize'
+    LANGUAGE c STRICT;
+
+
+ALTER FUNCTION public.lexize(oid, text) OWNER TO maxcom;
+
+--
+-- Name: lexize(text, text); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION lexize(text, text) RETURNS text[]
+    AS '$libdir/tsearch2', 'lexize_byname'
+    LANGUAGE c STRICT;
+
+
+ALTER FUNCTION public.lexize(text, text) OWNER TO maxcom;
+
+--
+-- Name: lexize(text); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION lexize(text) RETURNS text[]
+    AS '$libdir/tsearch2', 'lexize_bycurrent'
+    LANGUAGE c STRICT;
+
+
+ALTER FUNCTION public.lexize(text) OWNER TO maxcom;
 
 --
 -- Name: msgdel(); Type: FUNCTION; Schema: public; Owner: maxcom
@@ -123,6 +723,99 @@ $$
 ALTER FUNCTION public.msgdel2() OWNER TO maxcom;
 
 --
+-- Name: msgins(); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION msgins() RETURNS "trigger"
+    AS $$
+BEGIN
+NEW.idxFTI := to_tsvector ('default_russian',coalesce(get_title(NEW.id),'') ||' '|| coalesce(NEW.message,''));
+RETURN NEW;
+ END;
+$$
+    LANGUAGE plpgsql;
+
+
+ALTER FUNCTION public.msgins() OWNER TO maxcom;
+
+--
+-- Name: numnode(tsquery); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION numnode(tsquery) RETURNS integer
+    AS '$libdir/tsearch2', 'tsquery_numnode'
+    LANGUAGE c IMMUTABLE STRICT;
+
+
+ALTER FUNCTION public.numnode(tsquery) OWNER TO maxcom;
+
+--
+-- Name: parse(oid, text); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION parse(oid, text) RETURNS SETOF tokenout
+    AS '$libdir/tsearch2', 'parse'
+    LANGUAGE c STRICT;
+
+
+ALTER FUNCTION public.parse(oid, text) OWNER TO maxcom;
+
+--
+-- Name: parse(text, text); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION parse(text, text) RETURNS SETOF tokenout
+    AS '$libdir/tsearch2', 'parse_byname'
+    LANGUAGE c STRICT;
+
+
+ALTER FUNCTION public.parse(text, text) OWNER TO maxcom;
+
+--
+-- Name: parse(text); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION parse(text) RETURNS SETOF tokenout
+    AS '$libdir/tsearch2', 'parse_current'
+    LANGUAGE c STRICT;
+
+
+ALTER FUNCTION public.parse(text) OWNER TO maxcom;
+
+--
+-- Name: plainto_tsquery(oid, text); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION plainto_tsquery(oid, text) RETURNS tsquery
+    AS '$libdir/tsearch2', 'plainto_tsquery'
+    LANGUAGE c IMMUTABLE STRICT;
+
+
+ALTER FUNCTION public.plainto_tsquery(oid, text) OWNER TO maxcom;
+
+--
+-- Name: plainto_tsquery(text, text); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION plainto_tsquery(text, text) RETURNS tsquery
+    AS '$libdir/tsearch2', 'plainto_tsquery_name'
+    LANGUAGE c IMMUTABLE STRICT;
+
+
+ALTER FUNCTION public.plainto_tsquery(text, text) OWNER TO maxcom;
+
+--
+-- Name: plainto_tsquery(text); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION plainto_tsquery(text) RETURNS tsquery
+    AS '$libdir/tsearch2', 'plainto_tsquery_current'
+    LANGUAGE c IMMUTABLE STRICT;
+
+
+ALTER FUNCTION public.plainto_tsquery(text) OWNER TO maxcom;
+
+--
 -- Name: plpgsql_call_handler(); Type: FUNCTION; Schema: public; Owner: maxcom
 --
 
@@ -132,6 +825,409 @@ CREATE FUNCTION plpgsql_call_handler() RETURNS language_handler
 
 
 ALTER FUNCTION public.plpgsql_call_handler() OWNER TO maxcom;
+
+--
+-- Name: prsd_end(internal); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION prsd_end(internal) RETURNS void
+    AS '$libdir/tsearch2', 'prsd_end'
+    LANGUAGE c;
+
+
+ALTER FUNCTION public.prsd_end(internal) OWNER TO maxcom;
+
+--
+-- Name: prsd_getlexeme(internal, internal, internal); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION prsd_getlexeme(internal, internal, internal) RETURNS integer
+    AS '$libdir/tsearch2', 'prsd_getlexeme'
+    LANGUAGE c;
+
+
+ALTER FUNCTION public.prsd_getlexeme(internal, internal, internal) OWNER TO maxcom;
+
+--
+-- Name: prsd_headline(internal, internal, internal); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION prsd_headline(internal, internal, internal) RETURNS internal
+    AS '$libdir/tsearch2', 'prsd_headline'
+    LANGUAGE c;
+
+
+ALTER FUNCTION public.prsd_headline(internal, internal, internal) OWNER TO maxcom;
+
+--
+-- Name: prsd_lextype(internal); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION prsd_lextype(internal) RETURNS internal
+    AS '$libdir/tsearch2', 'prsd_lextype'
+    LANGUAGE c;
+
+
+ALTER FUNCTION public.prsd_lextype(internal) OWNER TO maxcom;
+
+--
+-- Name: prsd_start(internal, integer); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION prsd_start(internal, integer) RETURNS internal
+    AS '$libdir/tsearch2', 'prsd_start'
+    LANGUAGE c;
+
+
+ALTER FUNCTION public.prsd_start(internal, integer) OWNER TO maxcom;
+
+--
+-- Name: querytree(tsquery); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION querytree(tsquery) RETURNS text
+    AS '$libdir/tsearch2', 'tsquerytree'
+    LANGUAGE c STRICT;
+
+
+ALTER FUNCTION public.querytree(tsquery) OWNER TO maxcom;
+
+--
+-- Name: rank(real[], tsvector, tsquery); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION rank(real[], tsvector, tsquery) RETURNS real
+    AS '$libdir/tsearch2', 'rank'
+    LANGUAGE c IMMUTABLE STRICT;
+
+
+ALTER FUNCTION public.rank(real[], tsvector, tsquery) OWNER TO maxcom;
+
+--
+-- Name: rank(real[], tsvector, tsquery, integer); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION rank(real[], tsvector, tsquery, integer) RETURNS real
+    AS '$libdir/tsearch2', 'rank'
+    LANGUAGE c IMMUTABLE STRICT;
+
+
+ALTER FUNCTION public.rank(real[], tsvector, tsquery, integer) OWNER TO maxcom;
+
+--
+-- Name: rank(tsvector, tsquery); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION rank(tsvector, tsquery) RETURNS real
+    AS '$libdir/tsearch2', 'rank_def'
+    LANGUAGE c IMMUTABLE STRICT;
+
+
+ALTER FUNCTION public.rank(tsvector, tsquery) OWNER TO maxcom;
+
+--
+-- Name: rank(tsvector, tsquery, integer); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION rank(tsvector, tsquery, integer) RETURNS real
+    AS '$libdir/tsearch2', 'rank_def'
+    LANGUAGE c IMMUTABLE STRICT;
+
+
+ALTER FUNCTION public.rank(tsvector, tsquery, integer) OWNER TO maxcom;
+
+--
+-- Name: rank_cd(real[], tsvector, tsquery); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION rank_cd(real[], tsvector, tsquery) RETURNS real
+    AS '$libdir/tsearch2', 'rank_cd'
+    LANGUAGE c IMMUTABLE STRICT;
+
+
+ALTER FUNCTION public.rank_cd(real[], tsvector, tsquery) OWNER TO maxcom;
+
+--
+-- Name: rank_cd(real[], tsvector, tsquery, integer); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION rank_cd(real[], tsvector, tsquery, integer) RETURNS real
+    AS '$libdir/tsearch2', 'rank_cd'
+    LANGUAGE c IMMUTABLE STRICT;
+
+
+ALTER FUNCTION public.rank_cd(real[], tsvector, tsquery, integer) OWNER TO maxcom;
+
+--
+-- Name: rank_cd(tsvector, tsquery); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION rank_cd(tsvector, tsquery) RETURNS real
+    AS '$libdir/tsearch2', 'rank_cd_def'
+    LANGUAGE c IMMUTABLE STRICT;
+
+
+ALTER FUNCTION public.rank_cd(tsvector, tsquery) OWNER TO maxcom;
+
+--
+-- Name: rank_cd(tsvector, tsquery, integer); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION rank_cd(tsvector, tsquery, integer) RETURNS real
+    AS '$libdir/tsearch2', 'rank_cd_def'
+    LANGUAGE c IMMUTABLE STRICT;
+
+
+ALTER FUNCTION public.rank_cd(tsvector, tsquery, integer) OWNER TO maxcom;
+
+--
+-- Name: reset_tsearch(); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION reset_tsearch() RETURNS void
+    AS '$libdir/tsearch2', 'reset_tsearch'
+    LANGUAGE c STRICT;
+
+
+ALTER FUNCTION public.reset_tsearch() OWNER TO maxcom;
+
+--
+-- Name: rewrite(tsquery, text); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION rewrite(tsquery, text) RETURNS tsquery
+    AS '$libdir/tsearch2', 'tsquery_rewrite'
+    LANGUAGE c IMMUTABLE STRICT;
+
+
+ALTER FUNCTION public.rewrite(tsquery, text) OWNER TO maxcom;
+
+--
+-- Name: rewrite(tsquery, tsquery, tsquery); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION rewrite(tsquery, tsquery, tsquery) RETURNS tsquery
+    AS '$libdir/tsearch2', 'tsquery_rewrite_query'
+    LANGUAGE c IMMUTABLE STRICT;
+
+
+ALTER FUNCTION public.rewrite(tsquery, tsquery, tsquery) OWNER TO maxcom;
+
+--
+-- Name: rewrite_accum(tsquery, tsquery[]); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION rewrite_accum(tsquery, tsquery[]) RETURNS tsquery
+    AS '$libdir/tsearch2', 'rewrite_accum'
+    LANGUAGE c;
+
+
+ALTER FUNCTION public.rewrite_accum(tsquery, tsquery[]) OWNER TO maxcom;
+
+--
+-- Name: rewrite_finish(tsquery); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION rewrite_finish(tsquery) RETURNS tsquery
+    AS '$libdir/tsearch2', 'rewrite_finish'
+    LANGUAGE c;
+
+
+ALTER FUNCTION public.rewrite_finish(tsquery) OWNER TO maxcom;
+
+--
+-- Name: rexectsq(tsquery, tsvector); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION rexectsq(tsquery, tsvector) RETURNS boolean
+    AS '$libdir/tsearch2', 'rexectsq'
+    LANGUAGE c IMMUTABLE STRICT;
+
+
+ALTER FUNCTION public.rexectsq(tsquery, tsvector) OWNER TO maxcom;
+
+--
+-- Name: FUNCTION rexectsq(tsquery, tsvector); Type: COMMENT; Schema: public; Owner: maxcom
+--
+
+COMMENT ON FUNCTION rexectsq(tsquery, tsvector) IS 'boolean operation with text index';
+
+
+--
+-- Name: set_curcfg(integer); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION set_curcfg(integer) RETURNS void
+    AS '$libdir/tsearch2', 'set_curcfg'
+    LANGUAGE c STRICT;
+
+
+ALTER FUNCTION public.set_curcfg(integer) OWNER TO maxcom;
+
+--
+-- Name: set_curcfg(text); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION set_curcfg(text) RETURNS void
+    AS '$libdir/tsearch2', 'set_curcfg_byname'
+    LANGUAGE c STRICT;
+
+
+ALTER FUNCTION public.set_curcfg(text) OWNER TO maxcom;
+
+--
+-- Name: set_curdict(integer); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION set_curdict(integer) RETURNS void
+    AS '$libdir/tsearch2', 'set_curdict'
+    LANGUAGE c STRICT;
+
+
+ALTER FUNCTION public.set_curdict(integer) OWNER TO maxcom;
+
+--
+-- Name: set_curdict(text); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION set_curdict(text) RETURNS void
+    AS '$libdir/tsearch2', 'set_curdict_byname'
+    LANGUAGE c STRICT;
+
+
+ALTER FUNCTION public.set_curdict(text) OWNER TO maxcom;
+
+--
+-- Name: set_curprs(integer); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION set_curprs(integer) RETURNS void
+    AS '$libdir/tsearch2', 'set_curprs'
+    LANGUAGE c STRICT;
+
+
+ALTER FUNCTION public.set_curprs(integer) OWNER TO maxcom;
+
+--
+-- Name: set_curprs(text); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION set_curprs(text) RETURNS void
+    AS '$libdir/tsearch2', 'set_curprs_byname'
+    LANGUAGE c STRICT;
+
+
+ALTER FUNCTION public.set_curprs(text) OWNER TO maxcom;
+
+--
+-- Name: setweight(tsvector, "char"); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION setweight(tsvector, "char") RETURNS tsvector
+    AS '$libdir/tsearch2', 'setweight'
+    LANGUAGE c IMMUTABLE STRICT;
+
+
+ALTER FUNCTION public.setweight(tsvector, "char") OWNER TO maxcom;
+
+--
+-- Name: show_curcfg(); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION show_curcfg() RETURNS oid
+    AS '$libdir/tsearch2', 'show_curcfg'
+    LANGUAGE c STRICT;
+
+
+ALTER FUNCTION public.show_curcfg() OWNER TO maxcom;
+
+--
+-- Name: snb_en_init(internal); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION snb_en_init(internal) RETURNS internal
+    AS '$libdir/tsearch2', 'snb_en_init'
+    LANGUAGE c;
+
+
+ALTER FUNCTION public.snb_en_init(internal) OWNER TO maxcom;
+
+--
+-- Name: snb_lexize(internal, internal, integer); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION snb_lexize(internal, internal, integer) RETURNS internal
+    AS '$libdir/tsearch2', 'snb_lexize'
+    LANGUAGE c STRICT;
+
+
+ALTER FUNCTION public.snb_lexize(internal, internal, integer) OWNER TO maxcom;
+
+--
+-- Name: snb_ru_init_koi8(internal); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION snb_ru_init_koi8(internal) RETURNS internal
+    AS '$libdir/tsearch2', 'snb_ru_init_koi8'
+    LANGUAGE c;
+
+
+ALTER FUNCTION public.snb_ru_init_koi8(internal) OWNER TO maxcom;
+
+--
+-- Name: snb_ru_init_utf8(internal); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION snb_ru_init_utf8(internal) RETURNS internal
+    AS '$libdir/tsearch2', 'snb_ru_init_utf8'
+    LANGUAGE c;
+
+
+ALTER FUNCTION public.snb_ru_init_utf8(internal) OWNER TO maxcom;
+
+--
+-- Name: spell_init(internal); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION spell_init(internal) RETURNS internal
+    AS '$libdir/tsearch2', 'spell_init'
+    LANGUAGE c;
+
+
+ALTER FUNCTION public.spell_init(internal) OWNER TO maxcom;
+
+--
+-- Name: spell_lexize(internal, internal, integer); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION spell_lexize(internal, internal, integer) RETURNS internal
+    AS '$libdir/tsearch2', 'spell_lexize'
+    LANGUAGE c STRICT;
+
+
+ALTER FUNCTION public.spell_lexize(internal, internal, integer) OWNER TO maxcom;
+
+--
+-- Name: stat(text); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION stat(text) RETURNS SETOF statinfo
+    AS '$libdir/tsearch2', 'ts_stat'
+    LANGUAGE c STRICT;
+
+
+ALTER FUNCTION public.stat(text) OWNER TO maxcom;
+
+--
+-- Name: stat(text, text); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION stat(text, text) RETURNS SETOF statinfo
+    AS '$libdir/tsearch2', 'ts_stat'
+    LANGUAGE c STRICT;
+
+
+ALTER FUNCTION public.stat(text, text) OWNER TO maxcom;
 
 --
 -- Name: stat_update(); Type: FUNCTION; Schema: public; Owner: maxcom
@@ -202,6 +1298,160 @@ $$
 ALTER FUNCTION public.stat_update2() OWNER TO maxcom;
 
 --
+-- Name: strip(tsvector); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION strip(tsvector) RETURNS tsvector
+    AS '$libdir/tsearch2', 'strip'
+    LANGUAGE c IMMUTABLE STRICT;
+
+
+ALTER FUNCTION public.strip(tsvector) OWNER TO maxcom;
+
+--
+-- Name: syn_init(internal); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION syn_init(internal) RETURNS internal
+    AS '$libdir/tsearch2', 'syn_init'
+    LANGUAGE c;
+
+
+ALTER FUNCTION public.syn_init(internal) OWNER TO maxcom;
+
+--
+-- Name: syn_lexize(internal, internal, integer); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION syn_lexize(internal, internal, integer) RETURNS internal
+    AS '$libdir/tsearch2', 'syn_lexize'
+    LANGUAGE c STRICT;
+
+
+ALTER FUNCTION public.syn_lexize(internal, internal, integer) OWNER TO maxcom;
+
+--
+-- Name: thesaurus_init(internal); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION thesaurus_init(internal) RETURNS internal
+    AS '$libdir/tsearch2', 'thesaurus_init'
+    LANGUAGE c;
+
+
+ALTER FUNCTION public.thesaurus_init(internal) OWNER TO maxcom;
+
+--
+-- Name: thesaurus_lexize(internal, internal, integer, internal); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION thesaurus_lexize(internal, internal, integer, internal) RETURNS internal
+    AS '$libdir/tsearch2', 'thesaurus_lexize'
+    LANGUAGE c STRICT;
+
+
+ALTER FUNCTION public.thesaurus_lexize(internal, internal, integer, internal) OWNER TO maxcom;
+
+--
+-- Name: to_tsquery(oid, text); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION to_tsquery(oid, text) RETURNS tsquery
+    AS '$libdir/tsearch2', 'to_tsquery'
+    LANGUAGE c IMMUTABLE STRICT;
+
+
+ALTER FUNCTION public.to_tsquery(oid, text) OWNER TO maxcom;
+
+--
+-- Name: to_tsquery(text, text); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION to_tsquery(text, text) RETURNS tsquery
+    AS '$libdir/tsearch2', 'to_tsquery_name'
+    LANGUAGE c IMMUTABLE STRICT;
+
+
+ALTER FUNCTION public.to_tsquery(text, text) OWNER TO maxcom;
+
+--
+-- Name: to_tsquery(text); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION to_tsquery(text) RETURNS tsquery
+    AS '$libdir/tsearch2', 'to_tsquery_current'
+    LANGUAGE c IMMUTABLE STRICT;
+
+
+ALTER FUNCTION public.to_tsquery(text) OWNER TO maxcom;
+
+--
+-- Name: to_tsvector(oid, text); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION to_tsvector(oid, text) RETURNS tsvector
+    AS '$libdir/tsearch2', 'to_tsvector'
+    LANGUAGE c IMMUTABLE STRICT;
+
+
+ALTER FUNCTION public.to_tsvector(oid, text) OWNER TO maxcom;
+
+--
+-- Name: to_tsvector(text, text); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION to_tsvector(text, text) RETURNS tsvector
+    AS '$libdir/tsearch2', 'to_tsvector_name'
+    LANGUAGE c IMMUTABLE STRICT;
+
+
+ALTER FUNCTION public.to_tsvector(text, text) OWNER TO maxcom;
+
+--
+-- Name: to_tsvector(text); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION to_tsvector(text) RETURNS tsvector
+    AS '$libdir/tsearch2', 'to_tsvector_current'
+    LANGUAGE c IMMUTABLE STRICT;
+
+
+ALTER FUNCTION public.to_tsvector(text) OWNER TO maxcom;
+
+--
+-- Name: token_type(integer); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION token_type(integer) RETURNS SETOF tokentype
+    AS '$libdir/tsearch2', 'token_type'
+    LANGUAGE c STRICT;
+
+
+ALTER FUNCTION public.token_type(integer) OWNER TO maxcom;
+
+--
+-- Name: token_type(text); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION token_type(text) RETURNS SETOF tokentype
+    AS '$libdir/tsearch2', 'token_type_byname'
+    LANGUAGE c STRICT;
+
+
+ALTER FUNCTION public.token_type(text) OWNER TO maxcom;
+
+--
+-- Name: token_type(); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION token_type() RETURNS SETOF tokentype
+    AS '$libdir/tsearch2', 'token_type_current'
+    LANGUAGE c STRICT;
+
+
+ALTER FUNCTION public.token_type() OWNER TO maxcom;
+
+--
 -- Name: topins(); Type: FUNCTION; Schema: public; Owner: maxcom
 --
 
@@ -219,6 +1469,255 @@ $$
 ALTER FUNCTION public.topins() OWNER TO maxcom;
 
 --
+-- Name: ts_debug(text); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION ts_debug(text) RETURNS SETOF tsdebug
+    AS $_$
+select 
+        m.ts_name,
+        t.alias as tok_type,
+        t.descr as description,
+        p.token,
+        m.dict_name,
+        strip(to_tsvector(p.token)) as tsvector
+from
+        parse( _get_parser_from_curcfg(), $1 ) as p,
+        token_type() as t,
+        pg_ts_cfgmap as m,
+        pg_ts_cfg as c
+where
+        t.tokid=p.tokid and
+        t.alias = m.tok_alias and 
+        m.ts_name=c.ts_name and 
+        c.oid=show_curcfg() 
+$_$
+    LANGUAGE sql STRICT;
+
+
+ALTER FUNCTION public.ts_debug(text) OWNER TO maxcom;
+
+--
+-- Name: tsearch2(); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION tsearch2() RETURNS "trigger"
+    AS '$libdir/tsearch2', 'tsearch2'
+    LANGUAGE c;
+
+
+ALTER FUNCTION public.tsearch2() OWNER TO maxcom;
+
+--
+-- Name: tsq_mcontained(tsquery, tsquery); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION tsq_mcontained(tsquery, tsquery) RETURNS boolean
+    AS '$libdir/tsearch2', 'tsq_mcontained'
+    LANGUAGE c IMMUTABLE STRICT;
+
+
+ALTER FUNCTION public.tsq_mcontained(tsquery, tsquery) OWNER TO maxcom;
+
+--
+-- Name: tsq_mcontains(tsquery, tsquery); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION tsq_mcontains(tsquery, tsquery) RETURNS boolean
+    AS '$libdir/tsearch2', 'tsq_mcontains'
+    LANGUAGE c IMMUTABLE STRICT;
+
+
+ALTER FUNCTION public.tsq_mcontains(tsquery, tsquery) OWNER TO maxcom;
+
+--
+-- Name: tsquery_and(tsquery, tsquery); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION tsquery_and(tsquery, tsquery) RETURNS tsquery
+    AS '$libdir/tsearch2', 'tsquery_and'
+    LANGUAGE c IMMUTABLE STRICT;
+
+
+ALTER FUNCTION public.tsquery_and(tsquery, tsquery) OWNER TO maxcom;
+
+--
+-- Name: tsquery_cmp(tsquery, tsquery); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION tsquery_cmp(tsquery, tsquery) RETURNS integer
+    AS '$libdir/tsearch2', 'tsquery_cmp'
+    LANGUAGE c IMMUTABLE STRICT;
+
+
+ALTER FUNCTION public.tsquery_cmp(tsquery, tsquery) OWNER TO maxcom;
+
+--
+-- Name: tsquery_eq(tsquery, tsquery); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION tsquery_eq(tsquery, tsquery) RETURNS boolean
+    AS '$libdir/tsearch2', 'tsquery_eq'
+    LANGUAGE c IMMUTABLE STRICT;
+
+
+ALTER FUNCTION public.tsquery_eq(tsquery, tsquery) OWNER TO maxcom;
+
+--
+-- Name: tsquery_ge(tsquery, tsquery); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION tsquery_ge(tsquery, tsquery) RETURNS boolean
+    AS '$libdir/tsearch2', 'tsquery_ge'
+    LANGUAGE c IMMUTABLE STRICT;
+
+
+ALTER FUNCTION public.tsquery_ge(tsquery, tsquery) OWNER TO maxcom;
+
+--
+-- Name: tsquery_gt(tsquery, tsquery); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION tsquery_gt(tsquery, tsquery) RETURNS boolean
+    AS '$libdir/tsearch2', 'tsquery_gt'
+    LANGUAGE c IMMUTABLE STRICT;
+
+
+ALTER FUNCTION public.tsquery_gt(tsquery, tsquery) OWNER TO maxcom;
+
+--
+-- Name: tsquery_le(tsquery, tsquery); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION tsquery_le(tsquery, tsquery) RETURNS boolean
+    AS '$libdir/tsearch2', 'tsquery_le'
+    LANGUAGE c IMMUTABLE STRICT;
+
+
+ALTER FUNCTION public.tsquery_le(tsquery, tsquery) OWNER TO maxcom;
+
+--
+-- Name: tsquery_lt(tsquery, tsquery); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION tsquery_lt(tsquery, tsquery) RETURNS boolean
+    AS '$libdir/tsearch2', 'tsquery_lt'
+    LANGUAGE c IMMUTABLE STRICT;
+
+
+ALTER FUNCTION public.tsquery_lt(tsquery, tsquery) OWNER TO maxcom;
+
+--
+-- Name: tsquery_ne(tsquery, tsquery); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION tsquery_ne(tsquery, tsquery) RETURNS boolean
+    AS '$libdir/tsearch2', 'tsquery_ne'
+    LANGUAGE c IMMUTABLE STRICT;
+
+
+ALTER FUNCTION public.tsquery_ne(tsquery, tsquery) OWNER TO maxcom;
+
+--
+-- Name: tsquery_not(tsquery); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION tsquery_not(tsquery) RETURNS tsquery
+    AS '$libdir/tsearch2', 'tsquery_not'
+    LANGUAGE c IMMUTABLE STRICT;
+
+
+ALTER FUNCTION public.tsquery_not(tsquery) OWNER TO maxcom;
+
+--
+-- Name: tsquery_or(tsquery, tsquery); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION tsquery_or(tsquery, tsquery) RETURNS tsquery
+    AS '$libdir/tsearch2', 'tsquery_or'
+    LANGUAGE c IMMUTABLE STRICT;
+
+
+ALTER FUNCTION public.tsquery_or(tsquery, tsquery) OWNER TO maxcom;
+
+--
+-- Name: tsvector_cmp(tsvector, tsvector); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION tsvector_cmp(tsvector, tsvector) RETURNS integer
+    AS '$libdir/tsearch2', 'tsvector_cmp'
+    LANGUAGE c IMMUTABLE STRICT;
+
+
+ALTER FUNCTION public.tsvector_cmp(tsvector, tsvector) OWNER TO maxcom;
+
+--
+-- Name: tsvector_eq(tsvector, tsvector); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION tsvector_eq(tsvector, tsvector) RETURNS boolean
+    AS '$libdir/tsearch2', 'tsvector_eq'
+    LANGUAGE c IMMUTABLE STRICT;
+
+
+ALTER FUNCTION public.tsvector_eq(tsvector, tsvector) OWNER TO maxcom;
+
+--
+-- Name: tsvector_ge(tsvector, tsvector); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION tsvector_ge(tsvector, tsvector) RETURNS boolean
+    AS '$libdir/tsearch2', 'tsvector_ge'
+    LANGUAGE c IMMUTABLE STRICT;
+
+
+ALTER FUNCTION public.tsvector_ge(tsvector, tsvector) OWNER TO maxcom;
+
+--
+-- Name: tsvector_gt(tsvector, tsvector); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION tsvector_gt(tsvector, tsvector) RETURNS boolean
+    AS '$libdir/tsearch2', 'tsvector_gt'
+    LANGUAGE c IMMUTABLE STRICT;
+
+
+ALTER FUNCTION public.tsvector_gt(tsvector, tsvector) OWNER TO maxcom;
+
+--
+-- Name: tsvector_le(tsvector, tsvector); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION tsvector_le(tsvector, tsvector) RETURNS boolean
+    AS '$libdir/tsearch2', 'tsvector_le'
+    LANGUAGE c IMMUTABLE STRICT;
+
+
+ALTER FUNCTION public.tsvector_le(tsvector, tsvector) OWNER TO maxcom;
+
+--
+-- Name: tsvector_lt(tsvector, tsvector); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION tsvector_lt(tsvector, tsvector) RETURNS boolean
+    AS '$libdir/tsearch2', 'tsvector_lt'
+    LANGUAGE c IMMUTABLE STRICT;
+
+
+ALTER FUNCTION public.tsvector_lt(tsvector, tsvector) OWNER TO maxcom;
+
+--
+-- Name: tsvector_ne(tsvector, tsvector); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION tsvector_ne(tsvector, tsvector) RETURNS boolean
+    AS '$libdir/tsearch2', 'tsvector_ne'
+    LANGUAGE c IMMUTABLE STRICT;
+
+
+ALTER FUNCTION public.tsvector_ne(tsvector, tsvector) OWNER TO maxcom;
+
+--
 -- Name: update_monthly_stats(); Type: FUNCTION; Schema: public; Owner: maxcom
 --
 
@@ -234,6 +1733,506 @@ $$
 
 
 ALTER FUNCTION public.update_monthly_stats() OWNER TO maxcom;
+
+--
+-- Name: rewrite(tsquery[]); Type: AGGREGATE; Schema: public; Owner: maxcom
+--
+
+CREATE AGGREGATE rewrite(tsquery[]) (
+    SFUNC = rewrite_accum,
+    STYPE = tsquery,
+    FINALFUNC = rewrite_finish
+);
+
+
+ALTER AGGREGATE public.rewrite(tsquery[]) OWNER TO maxcom;
+
+--
+-- Name: !!; Type: OPERATOR; Schema: public; Owner: maxcom
+--
+
+CREATE OPERATOR !! (
+    PROCEDURE = tsquery_not,
+    RIGHTARG = tsquery
+);
+
+
+ALTER OPERATOR public.!! (NONE, tsquery) OWNER TO maxcom;
+
+--
+-- Name: &&; Type: OPERATOR; Schema: public; Owner: maxcom
+--
+
+CREATE OPERATOR && (
+    PROCEDURE = tsquery_and,
+    LEFTARG = tsquery,
+    RIGHTARG = tsquery,
+    COMMUTATOR = &&,
+    RESTRICT = contsel,
+    JOIN = contjoinsel
+);
+
+
+ALTER OPERATOR public.&& (tsquery, tsquery) OWNER TO maxcom;
+
+--
+-- Name: <; Type: OPERATOR; Schema: public; Owner: maxcom
+--
+
+CREATE OPERATOR < (
+    PROCEDURE = tsvector_lt,
+    LEFTARG = tsvector,
+    RIGHTARG = tsvector,
+    COMMUTATOR = >,
+    NEGATOR = >=,
+    RESTRICT = contsel,
+    JOIN = contjoinsel
+);
+
+
+ALTER OPERATOR public.< (tsvector, tsvector) OWNER TO maxcom;
+
+--
+-- Name: <; Type: OPERATOR; Schema: public; Owner: maxcom
+--
+
+CREATE OPERATOR < (
+    PROCEDURE = tsquery_lt,
+    LEFTARG = tsquery,
+    RIGHTARG = tsquery,
+    COMMUTATOR = >,
+    NEGATOR = >=,
+    RESTRICT = contsel,
+    JOIN = contjoinsel
+);
+
+
+ALTER OPERATOR public.< (tsquery, tsquery) OWNER TO maxcom;
+
+--
+-- Name: <=; Type: OPERATOR; Schema: public; Owner: maxcom
+--
+
+CREATE OPERATOR <= (
+    PROCEDURE = tsvector_le,
+    LEFTARG = tsvector,
+    RIGHTARG = tsvector,
+    COMMUTATOR = >=,
+    NEGATOR = >,
+    RESTRICT = contsel,
+    JOIN = contjoinsel
+);
+
+
+ALTER OPERATOR public.<= (tsvector, tsvector) OWNER TO maxcom;
+
+--
+-- Name: <=; Type: OPERATOR; Schema: public; Owner: maxcom
+--
+
+CREATE OPERATOR <= (
+    PROCEDURE = tsquery_le,
+    LEFTARG = tsquery,
+    RIGHTARG = tsquery,
+    COMMUTATOR = >=,
+    NEGATOR = >,
+    RESTRICT = contsel,
+    JOIN = contjoinsel
+);
+
+
+ALTER OPERATOR public.<= (tsquery, tsquery) OWNER TO maxcom;
+
+--
+-- Name: <>; Type: OPERATOR; Schema: public; Owner: maxcom
+--
+
+CREATE OPERATOR <> (
+    PROCEDURE = tsvector_ne,
+    LEFTARG = tsvector,
+    RIGHTARG = tsvector,
+    COMMUTATOR = <>,
+    NEGATOR = =,
+    RESTRICT = neqsel,
+    JOIN = neqjoinsel
+);
+
+
+ALTER OPERATOR public.<> (tsvector, tsvector) OWNER TO maxcom;
+
+--
+-- Name: <>; Type: OPERATOR; Schema: public; Owner: maxcom
+--
+
+CREATE OPERATOR <> (
+    PROCEDURE = tsquery_ne,
+    LEFTARG = tsquery,
+    RIGHTARG = tsquery,
+    COMMUTATOR = <>,
+    NEGATOR = =,
+    RESTRICT = neqsel,
+    JOIN = neqjoinsel
+);
+
+
+ALTER OPERATOR public.<> (tsquery, tsquery) OWNER TO maxcom;
+
+--
+-- Name: <@; Type: OPERATOR; Schema: public; Owner: maxcom
+--
+
+CREATE OPERATOR <@ (
+    PROCEDURE = tsq_mcontained,
+    LEFTARG = tsquery,
+    RIGHTARG = tsquery,
+    COMMUTATOR = @>,
+    RESTRICT = contsel,
+    JOIN = contjoinsel
+);
+
+
+ALTER OPERATOR public.<@ (tsquery, tsquery) OWNER TO maxcom;
+
+--
+-- Name: =; Type: OPERATOR; Schema: public; Owner: maxcom
+--
+
+CREATE OPERATOR = (
+    PROCEDURE = tsvector_eq,
+    LEFTARG = tsvector,
+    RIGHTARG = tsvector,
+    COMMUTATOR = =,
+    NEGATOR = <>,
+    RESTRICT = eqsel,
+    JOIN = eqjoinsel,
+    SORT1 = <,
+    SORT2 = <,
+    LTCMP = <,
+    GTCMP = >
+);
+
+
+ALTER OPERATOR public.= (tsvector, tsvector) OWNER TO maxcom;
+
+--
+-- Name: =; Type: OPERATOR; Schema: public; Owner: maxcom
+--
+
+CREATE OPERATOR = (
+    PROCEDURE = tsquery_eq,
+    LEFTARG = tsquery,
+    RIGHTARG = tsquery,
+    COMMUTATOR = =,
+    NEGATOR = <>,
+    RESTRICT = eqsel,
+    JOIN = eqjoinsel,
+    SORT1 = <,
+    SORT2 = <,
+    LTCMP = <,
+    GTCMP = >
+);
+
+
+ALTER OPERATOR public.= (tsquery, tsquery) OWNER TO maxcom;
+
+--
+-- Name: >; Type: OPERATOR; Schema: public; Owner: maxcom
+--
+
+CREATE OPERATOR > (
+    PROCEDURE = tsvector_gt,
+    LEFTARG = tsvector,
+    RIGHTARG = tsvector,
+    COMMUTATOR = <,
+    NEGATOR = <=,
+    RESTRICT = contsel,
+    JOIN = contjoinsel
+);
+
+
+ALTER OPERATOR public.> (tsvector, tsvector) OWNER TO maxcom;
+
+--
+-- Name: >; Type: OPERATOR; Schema: public; Owner: maxcom
+--
+
+CREATE OPERATOR > (
+    PROCEDURE = tsquery_gt,
+    LEFTARG = tsquery,
+    RIGHTARG = tsquery,
+    COMMUTATOR = <,
+    NEGATOR = <=,
+    RESTRICT = contsel,
+    JOIN = contjoinsel
+);
+
+
+ALTER OPERATOR public.> (tsquery, tsquery) OWNER TO maxcom;
+
+--
+-- Name: >=; Type: OPERATOR; Schema: public; Owner: maxcom
+--
+
+CREATE OPERATOR >= (
+    PROCEDURE = tsvector_ge,
+    LEFTARG = tsvector,
+    RIGHTARG = tsvector,
+    COMMUTATOR = <=,
+    NEGATOR = <,
+    RESTRICT = contsel,
+    JOIN = contjoinsel
+);
+
+
+ALTER OPERATOR public.>= (tsvector, tsvector) OWNER TO maxcom;
+
+--
+-- Name: >=; Type: OPERATOR; Schema: public; Owner: maxcom
+--
+
+CREATE OPERATOR >= (
+    PROCEDURE = tsquery_ge,
+    LEFTARG = tsquery,
+    RIGHTARG = tsquery,
+    COMMUTATOR = <=,
+    NEGATOR = <,
+    RESTRICT = contsel,
+    JOIN = contjoinsel
+);
+
+
+ALTER OPERATOR public.>= (tsquery, tsquery) OWNER TO maxcom;
+
+--
+-- Name: @; Type: OPERATOR; Schema: public; Owner: maxcom
+--
+
+CREATE OPERATOR @ (
+    PROCEDURE = tsq_mcontains,
+    LEFTARG = tsquery,
+    RIGHTARG = tsquery,
+    COMMUTATOR = ~,
+    RESTRICT = contsel,
+    JOIN = contjoinsel
+);
+
+
+ALTER OPERATOR public.@ (tsquery, tsquery) OWNER TO maxcom;
+
+--
+-- Name: @>; Type: OPERATOR; Schema: public; Owner: maxcom
+--
+
+CREATE OPERATOR @> (
+    PROCEDURE = tsq_mcontains,
+    LEFTARG = tsquery,
+    RIGHTARG = tsquery,
+    COMMUTATOR = <@,
+    RESTRICT = contsel,
+    JOIN = contjoinsel
+);
+
+
+ALTER OPERATOR public.@> (tsquery, tsquery) OWNER TO maxcom;
+
+--
+-- Name: @@; Type: OPERATOR; Schema: public; Owner: maxcom
+--
+
+CREATE OPERATOR @@ (
+    PROCEDURE = rexectsq,
+    LEFTARG = tsquery,
+    RIGHTARG = tsvector,
+    COMMUTATOR = @@,
+    RESTRICT = contsel,
+    JOIN = contjoinsel
+);
+
+
+ALTER OPERATOR public.@@ (tsquery, tsvector) OWNER TO maxcom;
+
+--
+-- Name: @@; Type: OPERATOR; Schema: public; Owner: maxcom
+--
+
+CREATE OPERATOR @@ (
+    PROCEDURE = exectsq,
+    LEFTARG = tsvector,
+    RIGHTARG = tsquery,
+    COMMUTATOR = @@,
+    RESTRICT = contsel,
+    JOIN = contjoinsel
+);
+
+
+ALTER OPERATOR public.@@ (tsvector, tsquery) OWNER TO maxcom;
+
+--
+-- Name: @@@; Type: OPERATOR; Schema: public; Owner: maxcom
+--
+
+CREATE OPERATOR @@@ (
+    PROCEDURE = rexectsq,
+    LEFTARG = tsquery,
+    RIGHTARG = tsvector,
+    COMMUTATOR = @@@,
+    RESTRICT = contsel,
+    JOIN = contjoinsel
+);
+
+
+ALTER OPERATOR public.@@@ (tsquery, tsvector) OWNER TO maxcom;
+
+--
+-- Name: @@@; Type: OPERATOR; Schema: public; Owner: maxcom
+--
+
+CREATE OPERATOR @@@ (
+    PROCEDURE = exectsq,
+    LEFTARG = tsvector,
+    RIGHTARG = tsquery,
+    COMMUTATOR = @@@,
+    RESTRICT = contsel,
+    JOIN = contjoinsel
+);
+
+
+ALTER OPERATOR public.@@@ (tsvector, tsquery) OWNER TO maxcom;
+
+--
+-- Name: ||; Type: OPERATOR; Schema: public; Owner: maxcom
+--
+
+CREATE OPERATOR || (
+    PROCEDURE = concat,
+    LEFTARG = tsvector,
+    RIGHTARG = tsvector
+);
+
+
+ALTER OPERATOR public.|| (tsvector, tsvector) OWNER TO maxcom;
+
+--
+-- Name: ||; Type: OPERATOR; Schema: public; Owner: maxcom
+--
+
+CREATE OPERATOR || (
+    PROCEDURE = tsquery_or,
+    LEFTARG = tsquery,
+    RIGHTARG = tsquery,
+    COMMUTATOR = ||,
+    RESTRICT = contsel,
+    JOIN = contjoinsel
+);
+
+
+ALTER OPERATOR public.|| (tsquery, tsquery) OWNER TO maxcom;
+
+--
+-- Name: ~; Type: OPERATOR; Schema: public; Owner: maxcom
+--
+
+CREATE OPERATOR ~ (
+    PROCEDURE = tsq_mcontained,
+    LEFTARG = tsquery,
+    RIGHTARG = tsquery,
+    COMMUTATOR = @,
+    RESTRICT = contsel,
+    JOIN = contjoinsel
+);
+
+
+ALTER OPERATOR public.~ (tsquery, tsquery) OWNER TO maxcom;
+
+--
+-- Name: gin_tsvector_ops; Type: OPERATOR CLASS; Schema: public; Owner: maxcom
+--
+
+CREATE OPERATOR CLASS gin_tsvector_ops
+    DEFAULT FOR TYPE tsvector USING gin AS
+    STORAGE text ,
+    OPERATOR 1 @@(tsvector,tsquery) ,
+    OPERATOR 2 @@@(tsvector,tsquery) RECHECK ,
+    FUNCTION 1 bttextcmp(text,text) ,
+    FUNCTION 2 gin_extract_tsvector(tsvector,internal) ,
+    FUNCTION 3 gin_extract_tsquery(tsquery,internal,internal) ,
+    FUNCTION 4 gin_ts_consistent(internal,internal,tsquery);
+
+
+ALTER OPERATOR CLASS public.gin_tsvector_ops USING gin OWNER TO maxcom;
+
+--
+-- Name: gist_tp_tsquery_ops; Type: OPERATOR CLASS; Schema: public; Owner: maxcom
+--
+
+CREATE OPERATOR CLASS gist_tp_tsquery_ops
+    DEFAULT FOR TYPE tsquery USING gist AS
+    STORAGE gtsq ,
+    OPERATOR 7 @>(tsquery,tsquery) RECHECK ,
+    OPERATOR 8 <@(tsquery,tsquery) RECHECK ,
+    OPERATOR 13 @(tsquery,tsquery) RECHECK ,
+    OPERATOR 14 ~(tsquery,tsquery) RECHECK ,
+    FUNCTION 1 gtsq_consistent(gtsq,internal,integer) ,
+    FUNCTION 2 gtsq_union(bytea,internal) ,
+    FUNCTION 3 gtsq_compress(internal) ,
+    FUNCTION 4 gtsq_decompress(internal) ,
+    FUNCTION 5 gtsq_penalty(internal,internal,internal) ,
+    FUNCTION 6 gtsq_picksplit(internal,internal) ,
+    FUNCTION 7 gtsq_same(gtsq,gtsq,internal);
+
+
+ALTER OPERATOR CLASS public.gist_tp_tsquery_ops USING gist OWNER TO maxcom;
+
+--
+-- Name: gist_tsvector_ops; Type: OPERATOR CLASS; Schema: public; Owner: maxcom
+--
+
+CREATE OPERATOR CLASS gist_tsvector_ops
+    DEFAULT FOR TYPE tsvector USING gist AS
+    STORAGE gtsvector ,
+    OPERATOR 1 @@(tsvector,tsquery) RECHECK ,
+    FUNCTION 1 gtsvector_consistent(gtsvector,internal,integer) ,
+    FUNCTION 2 gtsvector_union(internal,internal) ,
+    FUNCTION 3 gtsvector_compress(internal) ,
+    FUNCTION 4 gtsvector_decompress(internal) ,
+    FUNCTION 5 gtsvector_penalty(internal,internal,internal) ,
+    FUNCTION 6 gtsvector_picksplit(internal,internal) ,
+    FUNCTION 7 gtsvector_same(gtsvector,gtsvector,internal);
+
+
+ALTER OPERATOR CLASS public.gist_tsvector_ops USING gist OWNER TO maxcom;
+
+--
+-- Name: tsquery_ops; Type: OPERATOR CLASS; Schema: public; Owner: maxcom
+--
+
+CREATE OPERATOR CLASS tsquery_ops
+    DEFAULT FOR TYPE tsquery USING btree AS
+    OPERATOR 1 <(tsquery,tsquery) ,
+    OPERATOR 2 <=(tsquery,tsquery) ,
+    OPERATOR 3 =(tsquery,tsquery) ,
+    OPERATOR 4 >=(tsquery,tsquery) ,
+    OPERATOR 5 >(tsquery,tsquery) ,
+    FUNCTION 1 tsquery_cmp(tsquery,tsquery);
+
+
+ALTER OPERATOR CLASS public.tsquery_ops USING btree OWNER TO maxcom;
+
+--
+-- Name: tsvector_ops; Type: OPERATOR CLASS; Schema: public; Owner: maxcom
+--
+
+CREATE OPERATOR CLASS tsvector_ops
+    DEFAULT FOR TYPE tsvector USING btree AS
+    OPERATOR 1 <(tsvector,tsvector) ,
+    OPERATOR 2 <=(tsvector,tsvector) ,
+    OPERATOR 3 =(tsvector,tsvector) ,
+    OPERATOR 4 >=(tsvector,tsvector) ,
+    OPERATOR 5 >(tsvector,tsvector) ,
+    FUNCTION 1 tsvector_cmp(tsvector,tsvector);
+
+
+ALTER OPERATOR CLASS public.tsvector_ops USING btree OWNER TO maxcom;
 
 SET default_tablespace = '';
 
@@ -332,11 +2331,70 @@ ALTER TABLE public.monthly_stats OWNER TO maxcom;
 
 CREATE TABLE msgbase (
     id bigint NOT NULL,
-    message text NOT NULL
+    message text NOT NULL,
+    idxfti tsvector
 );
 
 
 ALTER TABLE public.msgbase OWNER TO maxcom;
+
+--
+-- Name: pg_ts_cfg; Type: TABLE; Schema: public; Owner: maxcom; Tablespace: 
+--
+
+CREATE TABLE pg_ts_cfg (
+    ts_name text NOT NULL,
+    prs_name text NOT NULL,
+    locale text
+);
+
+
+ALTER TABLE public.pg_ts_cfg OWNER TO maxcom;
+
+--
+-- Name: pg_ts_cfgmap; Type: TABLE; Schema: public; Owner: maxcom; Tablespace: 
+--
+
+CREATE TABLE pg_ts_cfgmap (
+    ts_name text NOT NULL,
+    tok_alias text NOT NULL,
+    dict_name text[]
+);
+
+
+ALTER TABLE public.pg_ts_cfgmap OWNER TO maxcom;
+
+--
+-- Name: pg_ts_dict; Type: TABLE; Schema: public; Owner: maxcom; Tablespace: 
+--
+
+CREATE TABLE pg_ts_dict (
+    dict_name text NOT NULL,
+    dict_init regprocedure,
+    dict_initoption text,
+    dict_lexize regprocedure NOT NULL,
+    dict_comment text
+);
+
+
+ALTER TABLE public.pg_ts_dict OWNER TO maxcom;
+
+--
+-- Name: pg_ts_parser; Type: TABLE; Schema: public; Owner: maxcom; Tablespace: 
+--
+
+CREATE TABLE pg_ts_parser (
+    prs_name text NOT NULL,
+    prs_start regprocedure NOT NULL,
+    prs_nexttoken regprocedure NOT NULL,
+    prs_end regprocedure NOT NULL,
+    prs_headline regprocedure NOT NULL,
+    prs_lextype regprocedure NOT NULL,
+    prs_comment text
+);
+
+
+ALTER TABLE public.pg_ts_parser OWNER TO maxcom;
 
 --
 -- Name: s_guid; Type: SEQUENCE; Schema: public; Owner: maxcom
@@ -569,6 +2627,38 @@ ALTER TABLE ONLY msgbase
 
 
 --
+-- Name: pg_ts_cfg_pkey; Type: CONSTRAINT; Schema: public; Owner: maxcom; Tablespace: 
+--
+
+ALTER TABLE ONLY pg_ts_cfg
+    ADD CONSTRAINT pg_ts_cfg_pkey PRIMARY KEY (ts_name);
+
+
+--
+-- Name: pg_ts_cfgmap_pkey; Type: CONSTRAINT; Schema: public; Owner: maxcom; Tablespace: 
+--
+
+ALTER TABLE ONLY pg_ts_cfgmap
+    ADD CONSTRAINT pg_ts_cfgmap_pkey PRIMARY KEY (ts_name, tok_alias);
+
+
+--
+-- Name: pg_ts_dict_pkey; Type: CONSTRAINT; Schema: public; Owner: maxcom; Tablespace: 
+--
+
+ALTER TABLE ONLY pg_ts_dict
+    ADD CONSTRAINT pg_ts_dict_pkey PRIMARY KEY (dict_name);
+
+
+--
+-- Name: pg_ts_parser_pkey; Type: CONSTRAINT; Schema: public; Owner: maxcom; Tablespace: 
+--
+
+ALTER TABLE ONLY pg_ts_parser
+    ADD CONSTRAINT pg_ts_parser_pkey PRIMARY KEY (prs_name);
+
+
+--
 -- Name: sections_pkey; Type: CONSTRAINT; Schema: public; Owner: maxcom; Tablespace: 
 --
 
@@ -672,6 +2762,13 @@ CREATE INDEX i_votes_vote ON votes USING btree (vote);
 
 
 --
+-- Name: idxfti_idx; Type: INDEX; Schema: public; Owner: maxcom; Tablespace: 
+--
+
+CREATE INDEX idxfti_idx ON msgbase USING gin (idxfti);
+
+
+--
 -- Name: topic_author; Type: INDEX; Schema: public; Owner: maxcom; Tablespace: 
 --
 
@@ -714,7 +2811,7 @@ CREATE UNIQUE INDEX votenames_topic_key ON votenames USING btree (topic);
 
 
 --
--- Name: RI_ConstraintTrigger_461123; Type: TRIGGER; Schema: public; Owner: maxcom
+-- Name: RI_ConstraintTrigger_523662; Type: TRIGGER; Schema: public; Owner: maxcom
 --
 
 CREATE CONSTRAINT TRIGGER "<unnamed>"
@@ -726,7 +2823,7 @@ CREATE CONSTRAINT TRIGGER "<unnamed>"
 
 
 --
--- Name: RI_ConstraintTrigger_461124; Type: TRIGGER; Schema: public; Owner: maxcom
+-- Name: RI_ConstraintTrigger_523663; Type: TRIGGER; Schema: public; Owner: maxcom
 --
 
 CREATE CONSTRAINT TRIGGER "<unnamed>"
@@ -755,6 +2852,16 @@ CREATE TRIGGER msgdel_t
     AFTER INSERT ON del_info
     FOR EACH ROW
     EXECUTE PROCEDURE msgdel();
+
+
+--
+-- Name: msgins_t; Type: TRIGGER; Schema: public; Owner: maxcom
+--
+
+CREATE TRIGGER msgins_t
+    BEFORE INSERT OR UPDATE ON msgbase
+    FOR EACH ROW
+    EXECUTE PROCEDURE msgins();
 
 
 --
@@ -907,6 +3014,46 @@ REVOKE ALL ON TABLE msgbase FROM PUBLIC;
 REVOKE ALL ON TABLE msgbase FROM maxcom;
 GRANT ALL ON TABLE msgbase TO maxcom;
 GRANT SELECT,INSERT,UPDATE ON TABLE msgbase TO linuxweb;
+
+
+--
+-- Name: pg_ts_cfg; Type: ACL; Schema: public; Owner: maxcom
+--
+
+REVOKE ALL ON TABLE pg_ts_cfg FROM PUBLIC;
+REVOKE ALL ON TABLE pg_ts_cfg FROM maxcom;
+GRANT ALL ON TABLE pg_ts_cfg TO maxcom;
+GRANT SELECT ON TABLE pg_ts_cfg TO linuxweb;
+
+
+--
+-- Name: pg_ts_cfgmap; Type: ACL; Schema: public; Owner: maxcom
+--
+
+REVOKE ALL ON TABLE pg_ts_cfgmap FROM PUBLIC;
+REVOKE ALL ON TABLE pg_ts_cfgmap FROM maxcom;
+GRANT ALL ON TABLE pg_ts_cfgmap TO maxcom;
+GRANT SELECT ON TABLE pg_ts_cfgmap TO linuxweb;
+
+
+--
+-- Name: pg_ts_dict; Type: ACL; Schema: public; Owner: maxcom
+--
+
+REVOKE ALL ON TABLE pg_ts_dict FROM PUBLIC;
+REVOKE ALL ON TABLE pg_ts_dict FROM maxcom;
+GRANT ALL ON TABLE pg_ts_dict TO maxcom;
+GRANT SELECT ON TABLE pg_ts_dict TO linuxweb;
+
+
+--
+-- Name: pg_ts_parser; Type: ACL; Schema: public; Owner: maxcom
+--
+
+REVOKE ALL ON TABLE pg_ts_parser FROM PUBLIC;
+REVOKE ALL ON TABLE pg_ts_parser FROM maxcom;
+GRANT ALL ON TABLE pg_ts_parser TO maxcom;
+GRANT SELECT ON TABLE pg_ts_parser TO linuxweb;
 
 
 --
