@@ -51,6 +51,17 @@ $$
 ALTER FUNCTION public.comins() OWNER TO maxcom;
 
 --
+-- Name: get_title(bigint); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION get_title(bigint) RETURNS character varying
+    AS $_$select title from comments where id=$1 union select title from topics where id=$1$_$
+    LANGUAGE sql;
+
+
+ALTER FUNCTION public.get_title(bigint) OWNER TO maxcom;
+
+--
 -- Name: msgdel(); Type: FUNCTION; Schema: public; Owner: maxcom
 --
 
@@ -110,29 +121,6 @@ $$
 
 
 ALTER FUNCTION public.msgdel2() OWNER TO maxcom;
-
---
--- Name: msgins(); Type: FUNCTION; Schema: public; Owner: maxcom
---
-
-CREATE FUNCTION msgins() RETURNS opaque
-    AS $$
-DECLARE
-	master groups%ROWTYPE;
-BEGIN
-	UPDATE groups SET stat1=stat1+1,stat2=stat2+1,stat3=stat3+1,stat4=stat4+1 WHERE groups.id = NEW.groupid;
-	SELECT * FROM groups INTO master WHERE groups.id = NEW.groupid;
-	IF master.section = 0 THEN
-		SELECT * FROM groups INTO master WHERE groups.id = (SELECT DISTINCT(messages.groupid) FROM messages, groups WHERE messages.comment_guid = NEW.groupid);
-	END IF;
-	UPDATE group_stat SET stat1=stat1+1,stat2=stat2+1,stat3=stat3+1 WHERE groupid = master.id;
-	RETURN NULL;
-END;
-$$
-    LANGUAGE plpgsql;
-
-
-ALTER FUNCTION public.msgins() OWNER TO maxcom;
 
 --
 -- Name: plpgsql_call_handler(); Type: FUNCTION; Schema: public; Owner: maxcom
@@ -726,7 +714,7 @@ CREATE UNIQUE INDEX votenames_topic_key ON votenames USING btree (topic);
 
 
 --
--- Name: RI_ConstraintTrigger_336057; Type: TRIGGER; Schema: public; Owner: maxcom
+-- Name: RI_ConstraintTrigger_461123; Type: TRIGGER; Schema: public; Owner: maxcom
 --
 
 CREATE CONSTRAINT TRIGGER "<unnamed>"
@@ -738,7 +726,7 @@ CREATE CONSTRAINT TRIGGER "<unnamed>"
 
 
 --
--- Name: RI_ConstraintTrigger_336058; Type: TRIGGER; Schema: public; Owner: maxcom
+-- Name: RI_ConstraintTrigger_461124; Type: TRIGGER; Schema: public; Owner: maxcom
 --
 
 CREATE CONSTRAINT TRIGGER "<unnamed>"
