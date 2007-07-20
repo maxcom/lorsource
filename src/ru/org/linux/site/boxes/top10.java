@@ -31,20 +31,19 @@ public final class top10 extends Boxlet {
       }
       rs.close();
 
-      rs = st.executeQuery("select topics.id as msgid, topics.title, lastmod, stat1 as c from topics where age('now', topics.postdate)<'1 month 1 day' and not deleted and notop is null order by c desc, msgid limit 10");
+      rs = st.executeQuery("select topics.id as msgid, topics.title, lastmod, stat1 as c from topics where topics.postdate>(CURRENT_TIMESTAMP-'1 month 1 day'::interval) and not deleted and notop is null and groupid!=8404 and groupid!=4068 order by c desc, msgid limit 10");
       int order = 0;
       while (rs.next()) {
         order++;
         int c = rs.getInt("c");
         int msgid = rs.getInt("msgid");
-        Integer msg = msgid;
         Timestamp lastmod = rs.getTimestamp("lastmod");
         if (lastmod == null) {
           lastmod = new Timestamp(0);
         }
 
-        if ((ht.get(msg) == null)
-            || ((Integer) ht.get(msg) > order)) {
+        if ((ht.get(msgid) == null)
+            || ((Integer) ht.get(msgid) > order)) {
           out.append("<img src=\"/").append(profile.getString("style")).append("/img/arrow.gif\" alt=\"[up]\" width=10 height=12> ");
         } else {
           out.append("* ");

@@ -14,7 +14,7 @@
 	Statement stmtDel=db.createStatement();
 	PreparedStatement stmtTo=db.prepareStatement("INSERT INTO top10 (msgid, mess_order) VALUES (?,?)");
 	stmtDel.executeUpdate("DELETE FROM top10");
-	ResultSet rs=stmtFrom.executeQuery("SELECT topics.id as msgid FROM topics WHERE age('now', topics.postdate)<'1 month 1 day' AND not deleted AND notop is null ORDER BY stat1 desc, msgid limit 10");
+	ResultSet rs=stmtFrom.executeQuery("select topics.id as msgid, topics.title, lastmod, stat1 as c from topics where topics.postdate>(CURRENT_TIMESTAMP-'1 month 1 day'::interval) and not deleted and notop is null and groupid!=8404 and groupid!=4068 order by c desc, msgid limit 10");
 
 	int c=0;
 	while (rs.next()) {
