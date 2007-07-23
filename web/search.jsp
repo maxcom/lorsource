@@ -34,39 +34,38 @@
 <h2>Поисковая система сайта</h2>
 
 <FORM METHOD=GET ACTION="search.jsp">
-Искать: <INPUT TYPE="text" NAME="q" SIZE=50 VALUE="<%= q!=null?q:"" %>"><br>
-  <input type="radio" name="include" value="topics" <%= (include==SearchViewer.SEARCH_TOPICS)?"checked":"" %> id="include_topics">
-  <label for="include_topics">только темы</label>
-  <input type="radio" name="include" value="all" <%= (include==SearchViewer.SEARCH_ALL)?"checked":"" %> id="include_all">
-  <label for="include_topics">темы и комментарии</label> <br>
+Искать: <INPUT TYPE="text" NAME="q" SIZE=50 VALUE="<%= q!=null?q:"" %>"><p>
+  <select name="include">
+    <option value="topics" <%= (include==SearchViewer.SEARCH_TOPICS)?"selected":"" %>>только темы</option>
+    <option value="all" <%= (include==SearchViewer.SEARCH_ALL)?"selected":"" %>>темы и комментарии</option>
+  </select>
 
   За:
-  <input type="radio" name="date" value="3month" <%= (date==SearchViewer.SEARCH_3MONTH)?"checked":"" %> id="date_3month">
-  <label for="date_3month">три месяца</label>
-  <input type="radio" name="date" value="year" <%= (date==SearchViewer.SEARCH_YEAR)?"checked":"" %> id="date_year">
-  <label for="date_year">год</label>
-  <input type="radio" name="date" value="all" <%= (date==SearchViewer.SEARCH_ALL)?"checked":"" %> id="date_all">
-  <label for="date_all">весь период</label><br>
+  <select name="date">
+    <option value="3month" <%= (date==SearchViewer.SEARCH_3MONTH)?"selected":"" %>>три месяца</option>
+    <option value="year" <%= (date==SearchViewer.SEARCH_YEAR)?"selected":"" %>>год</option>
+    <option value="all" <%= (date==SearchViewer.SEARCH_ALL)?"selected":"" %>>весь период</option>
+  </select>
 
   Раздел:
-  <input type="radio" name="section" value="1" <%= (section==1)?"checked":"" %> id="section_news">
-  <label for="section_news">новости</label>
+  <select name="section">
 
-  <input type="radio" name="section" value="2" <%= (section==2)?"checked":"" %> id="section_forum">
-  <label for="section_news">форум</label>
+  <option value="1" <%= (section==1)?"selected":"" %>>новости</option>
 
-  <input type="radio" name="section" value="3" <%= (section==3)?"checked":"" %> id="section_screenshots">
-  <label for="section_news">галерея</label>
+  <option value="2" <%= (section==2)?"selected":"" %>>форум</option>
 
-  <input type="radio" name="section" value="0" <%= (section==0)?"checked":"" %> id="section_all">
-  <label for="section_all">все</label><br>
+  <option value="3" <%= (section==3)?"selected":"" %>>галерея</option>
+
+  <option value="0" <%= (section==0)?"selected":"" %>>все</option>
+  </select>
+  <br>
 
   Сортировать
-  <input type="radio" name="sort" value="<%= SearchViewer.SORT_DATE %>" <%= (sort==SearchViewer.SORT_DATE)?"checked":"" %> id="sort_date">
-  <label for="sort_date">по дате</label>
+  <select name="sort">
+  <option value="<%= SearchViewer.SORT_DATE %>" <%= (sort==SearchViewer.SORT_DATE)?"selected":"" %>>по дате</option>
 
-  <input type="radio" name="sort" value="<%= SearchViewer.SORT_R %>" <%= (sort==SearchViewer.SORT_R)?"checked":"" %> id="sort_r">
-  <label for="sort_r">по релевантности</label>
+  <option value="<%= SearchViewer.SORT_R %>" <%= (sort==SearchViewer.SORT_R)?"selected":"" %>>по релевантности</option>
+  </select>
 
   <br>
 <input TYPE="submit" VALUE="Искать!"><BR>

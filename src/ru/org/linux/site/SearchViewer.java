@@ -30,7 +30,7 @@ public class SearchViewer implements Viewer {
   }
 
   public String show(Connection db) throws IOException, SQLException, UtilException {
-    StringBuilder select = new StringBuilder("SELECT msgs.id, title, postdate, section, topic, rank(idxFTI, q) as rank, headline(message, q, 'HighlightAll=True') as headline");
+    StringBuilder select = new StringBuilder("SELECT msgs.id, title, postdate, section, topic, nick, score, max_score, rank(idxFTI, q) as rank, headline(message, q, 'HighlightAll=True') as headline");
 
     if (include==SEARCH_ALL) {
       select.append(" FROM msgs_and_cmts as msgs, msgbase, plainto_tsquery(?) as q");
@@ -78,6 +78,9 @@ public class SearchViewer implements Viewer {
       int id = rs.getInt("id");
       String headline = rs.getString("headline");
       Timestamp postdate = rs.getTimestamp("postdate");
+      String nick = rs.getString("nick");
+      int userScore = rs.getInt("score");
+      int userMaxScore = rs.getInt("max_score");
 
       String url;
 
@@ -95,7 +98,13 @@ public class SearchViewer implements Viewer {
 
       out.append("<p>"+headline+"</p>");
 
-      out.append("<i>"+Template.dateFormat.format(postdate)+"</i>");
+      out.append("<p><i>").append(nick).append(' ');
+
+      if (!"anonymous".equals(nick)) {
+        out.append(User.getStars(userScore, userMaxScore)).append(' ');
+      }
+
+      out.append("(<a href=\"whois.jsp?nick=").append(URLEncoder.encode(nick)).append("\">*</a>) (").append(Template.dateFormat.format(postdate)).append(")</i>");
 
       out.append("</div></td></tr></table><p>");
     }
