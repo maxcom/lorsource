@@ -2,7 +2,6 @@
 <%@ page import="java.net.URLEncoder,java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.util.Date,ru.org.linux.site.NewsViewer" errorPage="/error.jsp" buffer="60kb"%>
 <%@ page import="ru.org.linux.site.Section"%>
 <%@ page import="ru.org.linux.site.Template" %>
-<%@ page import="ru.org.linux.site.ViewerCacher" %>
 <% Template tmpl = new Template(request, config, response); %>
 <%= tmpl.head() %>
 <%
@@ -97,7 +96,7 @@
     nw.setSection(sectionid);
   }
 
-  out.print(ViewerCacher.getViewer(nw, tmpl, nocache, false));
+  out.print(nw.show(db));
 
   ResultSet rs;
 
