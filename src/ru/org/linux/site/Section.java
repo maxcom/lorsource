@@ -58,7 +58,7 @@ public class Section {
     switch (sectionid) {
       case 1: /* news*/
       case 3: /* screenshots */
-      case 5: /* screenshots */
+      case 5: /* poll */
         return SCROLL_SECTION;
       case 2: /* forum */
         return SCROLL_GROUP;
