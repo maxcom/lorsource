@@ -2040,22 +2040,6 @@ ALTER OPERATOR public.@> (tsquery, tsquery) OWNER TO maxcom;
 --
 
 CREATE OPERATOR @@ (
-    PROCEDURE = rexectsq,
-    LEFTARG = tsquery,
-    RIGHTARG = tsvector,
-    COMMUTATOR = @@,
-    RESTRICT = contsel,
-    JOIN = contjoinsel
-);
-
-
-ALTER OPERATOR public.@@ (tsquery, tsvector) OWNER TO maxcom;
-
---
--- Name: @@; Type: OPERATOR; Schema: public; Owner: maxcom
---
-
-CREATE OPERATOR @@ (
     PROCEDURE = exectsq,
     LEFTARG = tsvector,
     RIGHTARG = tsquery,
@@ -2068,20 +2052,20 @@ CREATE OPERATOR @@ (
 ALTER OPERATOR public.@@ (tsvector, tsquery) OWNER TO maxcom;
 
 --
--- Name: @@@; Type: OPERATOR; Schema: public; Owner: maxcom
+-- Name: @@; Type: OPERATOR; Schema: public; Owner: maxcom
 --
 
-CREATE OPERATOR @@@ (
+CREATE OPERATOR @@ (
     PROCEDURE = rexectsq,
     LEFTARG = tsquery,
     RIGHTARG = tsvector,
-    COMMUTATOR = @@@,
+    COMMUTATOR = @@,
     RESTRICT = contsel,
     JOIN = contjoinsel
 );
 
 
-ALTER OPERATOR public.@@@ (tsquery, tsvector) OWNER TO maxcom;
+ALTER OPERATOR public.@@ (tsquery, tsvector) OWNER TO maxcom;
 
 --
 -- Name: @@@; Type: OPERATOR; Schema: public; Owner: maxcom
@@ -2098,6 +2082,22 @@ CREATE OPERATOR @@@ (
 
 
 ALTER OPERATOR public.@@@ (tsvector, tsquery) OWNER TO maxcom;
+
+--
+-- Name: @@@; Type: OPERATOR; Schema: public; Owner: maxcom
+--
+
+CREATE OPERATOR @@@ (
+    PROCEDURE = rexectsq,
+    LEFTARG = tsquery,
+    RIGHTARG = tsvector,
+    COMMUTATOR = @@@,
+    RESTRICT = contsel,
+    JOIN = contjoinsel
+);
+
+
+ALTER OPERATOR public.@@@ (tsquery, tsvector) OWNER TO maxcom;
 
 --
 -- Name: ||; Type: OPERATOR; Schema: public; Owner: maxcom
@@ -2339,6 +2339,55 @@ CREATE TABLE msgbase (
 ALTER TABLE public.msgbase OWNER TO maxcom;
 
 --
+-- Name: topics; Type: TABLE; Schema: public; Owner: maxcom; Tablespace: 
+--
+
+CREATE TABLE topics (
+    id integer NOT NULL,
+    groupid integer NOT NULL,
+    userid integer NOT NULL,
+    title character varying(255) NOT NULL,
+    url character varying(255),
+    moderate boolean DEFAULT false NOT NULL,
+    postdate timestamp with time zone NOT NULL,
+    linktext character varying(255),
+    deleted boolean DEFAULT false NOT NULL,
+    stat1 integer DEFAULT 0 NOT NULL,
+    stat2 integer DEFAULT 0 NOT NULL,
+    stat3 integer DEFAULT 0 NOT NULL,
+    stat4 integer DEFAULT 0 NOT NULL,
+    lastmod timestamp with time zone,
+    commitby integer,
+    notop boolean,
+    commitdate timestamp without time zone,
+    postscore integer,
+    postip inet
+);
+
+
+ALTER TABLE public.topics OWNER TO maxcom;
+
+--
+-- Name: msgs; Type: VIEW; Schema: public; Owner: maxcom
+--
+
+CREATE VIEW msgs AS
+    SELECT topics.id, topics.title, topics.postdate, groups.section, NULL::"unknown" AS topic FROM topics, groups WHERE ((NOT topics.deleted) AND (groups.id = topics.groupid));
+
+
+ALTER TABLE public.msgs OWNER TO maxcom;
+
+--
+-- Name: msgs_and_cmts; Type: VIEW; Schema: public; Owner: maxcom
+--
+
+CREATE VIEW msgs_and_cmts AS
+    SELECT topics.id, topics.title, topics.postdate, groups.section, NULL::"unknown" AS topic FROM topics, groups WHERE ((NOT topics.deleted) AND (groups.id = topics.groupid)) UNION SELECT comments.id, comments.title, comments.postdate, groups.section, comments.topic FROM comments, topics, groups WHERE ((((NOT comments.deleted) AND (NOT topics.deleted)) AND (comments.topic = topics.id)) AND (groups.id = topics.groupid));
+
+
+ALTER TABLE public.msgs_and_cmts OWNER TO maxcom;
+
+--
 -- Name: pg_ts_cfg; Type: TABLE; Schema: public; Owner: maxcom; Tablespace: 
 --
 
@@ -2484,35 +2533,6 @@ CREATE TABLE top10 (
 
 
 ALTER TABLE public.top10 OWNER TO maxcom;
-
---
--- Name: topics; Type: TABLE; Schema: public; Owner: maxcom; Tablespace: 
---
-
-CREATE TABLE topics (
-    id integer NOT NULL,
-    groupid integer NOT NULL,
-    userid integer NOT NULL,
-    title character varying(255) NOT NULL,
-    url character varying(255),
-    moderate boolean DEFAULT false NOT NULL,
-    postdate timestamp with time zone NOT NULL,
-    linktext character varying(255),
-    deleted boolean DEFAULT false NOT NULL,
-    stat1 integer DEFAULT 0 NOT NULL,
-    stat2 integer DEFAULT 0 NOT NULL,
-    stat3 integer DEFAULT 0 NOT NULL,
-    stat4 integer DEFAULT 0 NOT NULL,
-    lastmod timestamp with time zone,
-    commitby integer,
-    notop boolean,
-    commitdate timestamp without time zone,
-    postscore integer,
-    postip inet
-);
-
-
-ALTER TABLE public.topics OWNER TO maxcom;
 
 --
 -- Name: users; Type: TABLE; Schema: public; Owner: maxcom; Tablespace: 
@@ -2811,7 +2831,7 @@ CREATE UNIQUE INDEX votenames_topic_key ON votenames USING btree (topic);
 
 
 --
--- Name: RI_ConstraintTrigger_523662; Type: TRIGGER; Schema: public; Owner: maxcom
+-- Name: RI_ConstraintTrigger_587646; Type: TRIGGER; Schema: public; Owner: maxcom
 --
 
 CREATE CONSTRAINT TRIGGER "<unnamed>"
@@ -2823,7 +2843,7 @@ CREATE CONSTRAINT TRIGGER "<unnamed>"
 
 
 --
--- Name: RI_ConstraintTrigger_523663; Type: TRIGGER; Schema: public; Owner: maxcom
+-- Name: RI_ConstraintTrigger_587647; Type: TRIGGER; Schema: public; Owner: maxcom
 --
 
 CREATE CONSTRAINT TRIGGER "<unnamed>"
@@ -3017,6 +3037,36 @@ GRANT SELECT,INSERT,UPDATE ON TABLE msgbase TO linuxweb;
 
 
 --
+-- Name: topics; Type: ACL; Schema: public; Owner: maxcom
+--
+
+REVOKE ALL ON TABLE topics FROM PUBLIC;
+REVOKE ALL ON TABLE topics FROM maxcom;
+GRANT ALL ON TABLE topics TO maxcom;
+GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE topics TO linuxweb;
+
+
+--
+-- Name: msgs; Type: ACL; Schema: public; Owner: maxcom
+--
+
+REVOKE ALL ON TABLE msgs FROM PUBLIC;
+REVOKE ALL ON TABLE msgs FROM maxcom;
+GRANT ALL ON TABLE msgs TO maxcom;
+GRANT SELECT ON TABLE msgs TO linuxweb;
+
+
+--
+-- Name: msgs_and_cmts; Type: ACL; Schema: public; Owner: maxcom
+--
+
+REVOKE ALL ON TABLE msgs_and_cmts FROM PUBLIC;
+REVOKE ALL ON TABLE msgs_and_cmts FROM maxcom;
+GRANT ALL ON TABLE msgs_and_cmts TO maxcom;
+GRANT SELECT ON TABLE msgs_and_cmts TO linuxweb;
+
+
+--
 -- Name: pg_ts_cfg; Type: ACL; Schema: public; Owner: maxcom
 --
 
@@ -3104,16 +3154,6 @@ REVOKE ALL ON TABLE top10 FROM PUBLIC;
 REVOKE ALL ON TABLE top10 FROM maxcom;
 GRANT ALL ON TABLE top10 TO maxcom;
 GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE top10 TO linuxweb;
-
-
---
--- Name: topics; Type: ACL; Schema: public; Owner: maxcom
---
-
-REVOKE ALL ON TABLE topics FROM PUBLIC;
-REVOKE ALL ON TABLE topics FROM maxcom;
-GRANT ALL ON TABLE topics TO maxcom;
-GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE topics TO linuxweb;
 
 
 --
