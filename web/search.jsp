@@ -56,7 +56,7 @@
   <label for="section_news">форум</label>
 
   <input type="radio" name="section" value="3" <%= (section==3)?"checked":"" %> id="section_screenshots">
-  <label for="section_news">галлерея</label>
+  <label for="section_news">галерея</label>
 
   <input type="radio" name="section" value="0" <%= (section==0)?"checked":"" %> id="section_all">
   <label for="section_all">все</label><br>
