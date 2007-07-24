@@ -130,21 +130,18 @@
 
     out.print("Выбран профиль: " + name);
 
-    if (!tmpl.isSearchMode()) {
-      if ("".equals(name)) {
-        response.setHeader("Location", tmpl.getMainUrl());
-        response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
-      } else {
-        response.setHeader("Location", tmpl.getRedirectUrl(name));
-        response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
-      }
+    if ("".equals(name)) {
+      response.setHeader("Location", tmpl.getMainUrl());
+      response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
+    } else {
+      response.setHeader("Location", tmpl.getRedirectUrl(name));
+      response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
     }
 
     Cookie prof = new Cookie("profile", name);
     prof.setMaxAge(60 * 60 * 24 * 31 * 12);
     prof.setPath("/");
-    if (!tmpl.isSearchMode())
-      response.addCookie(prof);
+    response.addCookie(prof);
 
     if (request.getParameter("setnick") != null && "on".equals(request.getParameter("setnick"))) {
       Cookie nick = new Cookie("NickCookie", request.getParameter("profile"));
@@ -153,7 +150,7 @@
       response.addCookie(nick);
     }
   } else if ("set".equals(request.getParameter("mode"))) {
-    final String profile;
+    String profile;
 
     if (!tmpl.isSessionAuthorized(session)) {
       throw new IllegalAccessException("Not authorized");
@@ -195,8 +192,7 @@
     Cookie prof = new Cookie("profile", profile);
     prof.setMaxAge(60 * 60 * 24 * 31 * 12);
     prof.setPath("/");
-    if (!tmpl.isSearchMode())
-      response.addCookie(prof);
+    response.addCookie(prof);
 
     response.setHeader("Location", tmpl.getRedirectUrl(profile));
     response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);

@@ -137,13 +137,11 @@
 <thead>
 <tr><th>Заголовок
 <%
-  if (!tmpl.isSearchMode()) {
-	out.print("<span style=\"font-weight: normal\">[порядок: ");
+  out.print("<span style=\"font-weight: normal\">[порядок: ");
 
-        out.print("<a href=\"group.jsp?group="+group+"\" style=\"text-decoration: underline\">дата отправки</a> <b>дата изменения</b>");
+  out.print("<a href=\"group.jsp?group=" + group + "\" style=\"text-decoration: underline\">дата отправки</a> <b>дата изменения</b>");
 
-	out.print("]</span>");
-   }
+  out.print("]</span>");
 %></th><th>Число ответов<br>всего/день/час</th></tr>
 <tbody>
 <%
@@ -159,15 +157,12 @@
     out.print("<tr><td>");
     if (rs.getBoolean("deleted")) out.print("[X] ");
 
-    if (tmpl.isSearchMode())
-      out.print("<a href=\"view-message.jsp?msgid=" + rs.getInt("msgid") +"\" rev=contents>" +  StringUtil.makeTitle(rs.getString("subj")) + "</a>");
-    else
-      out.print("<a href=\"jump-message.jsp?msgid=" + rs.getInt("msgid") + "&amp;lastmod="+lastmod.getTime()+"\" rev=contents>" +  StringUtil.makeTitle(rs.getString("subj")) + "</a>");
+    out.print("<a href=\"jump-message.jsp?msgid=" + rs.getInt("msgid") + "&amp;lastmod="+lastmod.getTime()+"\" rev=contents>" +  StringUtil.makeTitle(rs.getString("subj")) + "</a>");
 
     int stat1=rs.getInt("stat1");
 
     int pagesInCurrent = (int) Math.ceil(stat1 / messages);
-    if (!tmpl.isSearchMode() && pagesInCurrent > 1 ) {
+    if (pagesInCurrent > 1 ) {
       out.print("&nbsp;(стр.");
       for (int i = 0; i < pagesInCurrent; i++) {
         out.print(" <a href=\""+"jump-message.jsp?msgid="+rs.getInt("msgid")+"&amp;lastmod="+lastmod.getTime()+"&amp;page="+i+"\">"+(i + 1)+"</a>");

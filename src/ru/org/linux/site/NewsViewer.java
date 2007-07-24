@@ -22,7 +22,7 @@ public class NewsViewer implements Viewer {
     profile = prof;
   }
 
-  private String showCurrent(Connection db, ResultSet res) throws IOException, SQLException, UtilException {
+  private String showCurrent(Connection db, ResultSet res) throws IOException, SQLException {
     boolean multiPortal = (group==0 && section==0);
 
     StringBuffer out = new StringBuffer();
@@ -41,20 +41,12 @@ public class NewsViewer implements Viewer {
       lastmod = new Timestamp(0);
     }
     double messages = profile.getInt("messages");
-    boolean searchMode = profile.getBoolean("SearchMode");
 
     out.append("<hr noshade class=\"news-divider\">");
     out.append("<div class=news><h2>");
 
-    String newslink;
-    String jumplink;
-    if (!searchMode) {
-      newslink = "view-message.jsp?msgid=" + msgid;
-      jumplink = "jump-message.jsp?msgid=" + msgid + "&amp;lastmod=" + lastmod.getTime();
-    } else {
-      newslink = "view-message.jsp?msgid=" + msgid;
-      jumplink = newslink;
-    }
+    String jumplink = "jump-message.jsp?msgid=" + msgid + "&amp;lastmod=" + lastmod.getTime();
+
     if (!linkup) {
       out.append("<a href=\"").append(jumplink).append("\">");
     } else {
@@ -128,7 +120,7 @@ public class NewsViewer implements Viewer {
     String nick = res.getString("nick");
     out.append("<div class=sign>").append(nick).append("(<a href=\"whois.jsp?nick=").append(URLEncoder.encode(nick)).append("\">*</a>) (").append(Template.dateFormat.format(res.getTimestamp("postdate"))).append(")</div>");
 
-    if (!moderateMode && res.getBoolean("comment") && !searchMode) {
+    if (!moderateMode && res.getBoolean("comment")) {
       out.append("<div class=\"nav\">");
 
       if (!res.getBoolean("expired"))
@@ -140,12 +132,9 @@ public class NewsViewer implements Viewer {
 
 	out.append(" [<a href=\"");
 
-        if (searchMode)
-     	  out.append(newslink);
-        else
-	  out.append(jumplink);
-	  
-	if (stat1 % 10 == 1 && stat1 % 100 != 11)
+        out.append(jumplink);
+
+        if (stat1 % 10 == 1 && stat1 % 100 != 11)
 	    out.append("\">Добавлен&nbsp;").append(stat1);
 	else
 	    out.append("\">Добавлено&nbsp;").append(stat1);
@@ -260,8 +249,7 @@ public class NewsViewer implements Viewer {
 
   public String getVariantID(ProfileHashtable prof) throws UtilException {
     StringBuilder id = new StringBuilder("view-news?"+
-        "SearchMode=" + prof.getBoolean("SearchMode") +
-        "&topics=" + prof.getInt("topics")+
+        "topics=" + prof.getInt("topics")+
         "&messages=" + prof.getInt("messages") +
         "&style=" + prof.getString("style"));
 

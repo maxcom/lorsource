@@ -102,7 +102,7 @@
 <div class=messages>
 
 <%
-  if (!tmpl.isSearchMode() && scroll != Section.SCROLL_NOSCROLL) {
+  if (scroll != Section.SCROLL_NOSCROLL) {
 %>
 <div class=nav>
   <div class="color1">
@@ -308,7 +308,7 @@ google_ui_features = "rc:0";
   }
 %>
 <%
-  if (!tmpl.isSearchMode() && scroll != Section.SCROLL_NOSCROLL) {
+  if (scroll != Section.SCROLL_NOSCROLL) {
     out.print("<div class=nav><div class=color1><table width=\"100%\" cellspacing=1 cellpadding=0 border=0><tr class=body>");
 
     if (scroll == Section.SCROLL_GROUP) {
@@ -365,7 +365,7 @@ google_ui_features = "rc:0";
 
 </div>
 
-<% if (tmpl.isSessionAuthorized(session) && !message.isExpired() && !tmpl.isSearchMode() && !showDeleted) { %>
+<% if (tmpl.isSessionAuthorized(session) && !message.isExpired() && !showDeleted) { %>
 <hr>
 <form action="view-message.jsp" method=POST>
 <input type=hidden name=msgid value=<%= msgid %>>

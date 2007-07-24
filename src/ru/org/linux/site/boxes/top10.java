@@ -49,21 +49,17 @@ public final class top10 extends Boxlet {
           out.append("* ");
         }
 
-        if (profile.getBoolean("SearchMode")) {
-          out.append("<a href=\"view-message.jsp?msgid=").append(msgid).append("&amp;page=0\">").append(rs.getString("title")).append("</a> (").append(c).append(")<br>");
-        } else {
-          out.append("<a href=\"jump-message.jsp?msgid=").append(msgid).append("&amp;lastmod=").append(lastmod.getTime()).append("&amp;page=0\">").append(rs.getString("title")).append("</a>");
-          int pages = (int) Math.ceil(c / messages);
-          if (pages > 1) {
-            out.append(" (стр.");
-            for (int i = 0; i < pages; i++) {
-              out.append(" <a href=\"jump-message.jsp?msgid=").append(msgid).append("&amp;lastmod=").append(lastmod.getTime()).append("&amp;page=").append(i).append("\">").append(i + 1).append("</a>");
-            }
-            out.append(')');
+        out.append("<a href=\"jump-message.jsp?msgid=").append(msgid).append("&amp;lastmod=").append(lastmod.getTime()).append("&amp;page=0\">").append(rs.getString("title")).append("</a>");
+        int pages = (int) Math.ceil(c / messages);
+        if (pages > 1) {
+          out.append(" (стр.");
+          for (int i = 0; i < pages; i++) {
+            out.append(" <a href=\"jump-message.jsp?msgid=").append(msgid).append("&amp;lastmod=").append(lastmod.getTime()).append("&amp;page=").append(i).append("\">").append(i + 1).append("</a>");
           }
-
-          out.append(" (").append(c).append(")<br>");
+          out.append(')');
         }
+
+        out.append(" (").append(c).append(")<br>");
       }
 
       rs.close();
@@ -81,7 +77,7 @@ public final class top10 extends Boxlet {
   }
 
   public String getVariantID(ProfileHashtable prof) throws UtilException {
-    return "SearchMode=" + prof.getBoolean("SearchMode") + "&messages=" + prof.getInt("messages") + "&style=" + prof.getString("style");
+    return "messages=" + prof.getInt("messages") + "&style=" + prof.getString("style");
   }
 
   public Date getExpire() {

@@ -173,13 +173,11 @@
 <thead>
 <tr><th>Заголовок
 <%
-  if (!tmpl.isSearchMode()) {
-	out.print("<span style=\"font-weight: normal\">[порядок: ");
+  out.print("<span style=\"font-weight: normal\">[порядок: ");
 
-        out.print("<b>дата отправки</b> <a href=\"group-lastmod.jsp?group="+groupId +"\" style=\"text-decoration: underline\">дата изменения</a>");
+  out.print("<b>дата отправки</b> <a href=\"group-lastmod.jsp?group=" + groupId + "\" style=\"text-decoration: underline\">дата изменения</a>");
 
-	out.print("]</span>");
-   }
+  out.print("]</span>");
 %></th><th>Число ответов<br>всего/день/час</th></tr>
 </thead>
 <tbody>
@@ -208,14 +206,11 @@
     if (rs.getBoolean("deleted")) {
       outbuf.append("[X] ");
     }
-    if (tmpl.isSearchMode()) {
-      outbuf.append("<a href=\"view-message.jsp?msgid=").append(rs.getInt("msgid")).append("\" rev=contents>").append(StringUtil.makeTitle(rs.getString("subj"))).append("</a>");
-    } else {
-      outbuf.append("<a href=\"jump-message.jsp?msgid=").append(rs.getInt("msgid")).append("&amp;lastmod=").append(lastmod.getTime()).append("\" rev=contents>").append(StringUtil.makeTitle(rs.getString("subj"))).append("</a>");
-    }
+
+    outbuf.append("<a href=\"jump-message.jsp?msgid=").append(rs.getInt("msgid")).append("&amp;lastmod=").append(lastmod.getTime()).append("\" rev=contents>").append(StringUtil.makeTitle(rs.getString("subj"))).append("</a>");
 
     int pagesInCurrent = (int) Math.ceil(stat1 / messages);
-    if (!tmpl.isSearchMode() && pagesInCurrent > 1) {
+    if (pagesInCurrent > 1) {
       outbuf.append("&nbsp;(стр.");
       for (int i = 0; i < pagesInCurrent; i++) {
         outbuf.append(" <a href=\"").append("jump-message.jsp?msgid=").append(rs.getInt("msgid")).append("&amp;lastmod=").append(lastmod.getTime()).append("&amp;page=").append(i).append("\">").append(i + 1).append("</a>");
@@ -324,7 +319,7 @@
 %>
 <p>
 
-<% if (tmpl.isSessionAuthorized(session) && !tmpl.isSearchMode() && !showDeleted) { %>
+<% if (tmpl.isSessionAuthorized(session) && !showDeleted) { %>
   <hr>
   <form action="group.jsp" method=POST>
   <input type=hidden name=group value=<%= groupId %>>

@@ -31,7 +31,6 @@ import ru.org.linux.util.*;
 public class Template {
   private final Properties cookies;
   private String style;
-  private boolean searchMode = false;
   private boolean debugMode = false;
   private Profile userProfile;
   private static Properties properties = null;
@@ -117,22 +116,13 @@ public class Template {
 
     this.config = new Config(properties);
 
-    // search detector
-    searchMode = StringUtil.isSearchEnguine(request.getHeader("User-Agent"));
-
     // read profiles
     cookies = LorHttpUtils.getCookies(request.getCookies());
 
-    String profile;
-
-    profile = getProfile(request);
+    String profile = getProfile(request);
 
     if (profile != null && ("".equals(profile) || "anonymous".equals(profile))) {
       profile = null;
-    }
-
-    if (isSearchMode()) {
-      profile = "_search";
     }
 
     userProfile = new Profile(profile);
@@ -182,9 +172,7 @@ public class Template {
       Cookie prof = new Cookie("profile", "");
       prof.setMaxAge(60 * 60 * 24 * 31 * 12);
       prof.setPath("/");
-      if (!isSearchMode()) {
-        response.addCookie(prof);
-      }
+      response.addCookie(prof);
       return;
     }
 
@@ -206,9 +194,7 @@ public class Template {
       Cookie prof = new Cookie("profile", userProfile.getName());
       prof.setMaxAge(60 * 60 * 24 * 31 * 12);
       prof.setPath("/");
-      if (!isSearchMode()) {
-        response.addCookie(prof);
-      }
+      response.addCookie(prof);
     } else if (profileCookie != null &&
       !profileCookie.equals(userProfile.getName())) {
       /* redirect to users page */
@@ -367,10 +353,6 @@ public class Template {
     return style;
   }
 
-  public boolean isSearchMode() {
-    return searchMode;
-  }
-
   public boolean isDebugMode() {
     return debugMode;
   }
@@ -414,13 +396,11 @@ public class Template {
       }
     }
 
-    if (!isSearchMode()) { // hidden counters
-      if (isMainPage()) {
-        out.append(config.getStorage().readMessage("buttons", "top100-main-hidden"));
-        out.append(config.getStorage().readMessage("buttons", "toplist-main-hidden"));
-      } else {
-        out.append(config.getStorage().readMessage("buttons", "toplist-hidden"));
-      }
+    if (isMainPage()) {
+      out.append(config.getStorage().readMessage("buttons", "top100-main-hidden"));
+      out.append(config.getStorage().readMessage("buttons", "toplist-main-hidden"));
+    } else {
+      out.append(config.getStorage().readMessage("buttons", "toplist-hidden"));
     }
 
     return out.toString();
@@ -429,28 +409,22 @@ public class Template {
   public String DocumentFooter(boolean closeHtml) throws IOException, StorageException {
     StringBuffer out = new StringBuffer();
 
-    if (isSearchMode()) {
-      out.append("<p><i><a href=\"").append(getMainUrl()).append("\">").append(getMainUrl()).append("</a></i>");
-    } else {
-      out.append("<p><i><a href=\"").append(getRedirectUrl()).append("\">").append(getMainUrl()).append("</a></i>");
-    }
+    out.append("<p><i><a href=\"").append(getRedirectUrl()).append("\">").append(getMainUrl()).append("</a></i>");
 
     if (!isMainPage()) {
       out.append("<div align=center><iframe src=\"dw.jsp?width=728&amp;height=90&amp;main=0\" width=\"728\" height=\"90\" scrolling=\"no\" frameborder=\"0\"></iframe></div>");
     }
 
-    if (!isSearchMode()) { // counters / buttons
-      out.append("<p><div align=center>");
-      if (isMainPage()) {
-        out.append(config.getStorage().readMessage("buttons", "top100-main-button"));
-        out.append(config.getStorage().readMessage("buttons", "toplist-main-button"));
+    out.append("<p><div align=center>");
+    if (isMainPage()) {
+      out.append(config.getStorage().readMessage("buttons", "top100-main-button"));
+      out.append(config.getStorage().readMessage("buttons", "toplist-main-button"));
 //				out.append(config.getStorage().readMessage("buttons", "spylog-main-button"));
-      } else {
-        out.append(config.getStorage().readMessage("buttons", "toplist-button"));
+    } else {
+      out.append(config.getStorage().readMessage("buttons", "toplist-button"));
 //				out.append(config.getStorage().readMessage("buttons", "spylog-button"));
-      }
-      out.append("</div>");
     }
+    out.append("</div>");
 
     // Google analytics
     out.append("<script src=\"http://www.google-analytics.com/urchin.js\" type=\"text/javascript\">\n" +
@@ -487,7 +461,7 @@ public class Template {
   }
 
   public String getRedirectUrl() {
-    if (userProfile.isDefault() || searchMode) {
+    if (userProfile.isDefault()) {
       return getMainUrl();
     } else {
       return getMainUrl() + "profile/" + userProfile.getName() + '/';
@@ -496,10 +470,6 @@ public class Template {
 
   public String getRedirectUrl(String prof) {
     if (prof == null) {
-      return getMainUrl();
-    }
-
-    if (searchMode) {
       return getMainUrl();
     }
 

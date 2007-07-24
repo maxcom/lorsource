@@ -58,7 +58,7 @@ public final class poll extends Boxlet {
   }
 
   public String getVariantID(ProfileHashtable prof) throws UtilException {
-    return "SearchMode=" + prof.getBoolean("SearchMode");
+    return "";
   }
 
   public Date getExpire() {

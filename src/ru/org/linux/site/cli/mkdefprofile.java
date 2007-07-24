@@ -13,15 +13,14 @@ public final class mkdefprofile {
     defaults.put("newfirst", Boolean.FALSE);
     defaults.put("hover", Boolean.TRUE);
     defaults.put("style", "black");
-    defaults.put("topics", new Integer(30));
-    defaults.put("messages", new Integer(50));
+    defaults.put("topics", 30);
+    defaults.put("messages", 50);
     defaults.put("photos", Boolean.FALSE);
     defaults.put("sortwarning", Boolean.TRUE);
-    defaults.put("system.timestamp", new Long(new Date().getTime()));
+    defaults.put("system.timestamp", new Date().getTime());
     defaults.put("showinfo", Boolean.TRUE);
     defaults.put("showanonymous", Boolean.TRUE);
 
-    defaults.put("SearchMode", Boolean.FALSE);
     defaults.put("DebugMode", Boolean.FALSE);
 
 // main page settings
@@ -72,15 +71,6 @@ public final class mkdefprofile {
 
     o.writeObject(defaults);
 
-    o.close();
-    f.close();
-
-    defaults = new Hashtable();
-    f = new FileOutputStream("_search");
-    defaults.put("SearchMode", Boolean.TRUE);
-
-    o = new ObjectOutputStream(f);
-    o.writeObject(defaults);
     o.close();
     f.close();
 

@@ -73,24 +73,6 @@ public final class StringUtil {
     return r;
   }
 
-  /**
-   * Detects search egnuine robot from User-Agent string
-   */
-  public static boolean isSearchEnguine(String UserAgent) {
-    boolean r = false;
-    if (UserAgent != null) {
-      UserAgent = UserAgent.toLowerCase();
-      if (UserAgent.indexOf("htdig") != -1) {
-        r = true;
-      }
-      if (UserAgent.indexOf("udmsearch") != -1) {
-        r = true;
-      }
-    }
-
-    return r;
-  }
-
   public static String md5hash(String pass) {
     try {
       MessageDigest md = MessageDigest.getInstance("MD5"); //$NON-NLS-1$

@@ -46,10 +46,7 @@
   while (rs.next()) {
     int guid = rs.getInt("guid");
     String returnUrl = "&return=" + URLEncoder.encode("group.jsp?group=" + guid);
-    if (tmpl.isSearchMode())
-      out.print("<li><a href=\"add.jsp?group=" + guid + "&noinfo=1\">" + rs.getString("title") + "</a> (<a href=\"group.jsp?group=" + guid + "\">просмотр...</a>)");
-    else
-      out.print("<li><a href=\"add.jsp?group=" + guid + "&noinfo=1" + returnUrl + "\">" + rs.getString("title") + "</a> (<a href=\"group.jsp?group=" + guid + "\">просмотр...</a>)");
+    out.print("<li><a href=\"add.jsp?group=" + guid + "&noinfo=1" + returnUrl + "\">" + rs.getString("title") + "</a> (<a href=\"group.jsp?group=" + guid + "\">просмотр...</a>)");
 
     String des = tmpl.getObjectConfig().getStorage().readMessageNull("grinfo", String.valueOf(guid));
     if (des != null) {

@@ -211,6 +211,7 @@
         <inspection_tool class="JSUndeclaredVariable" level="INFO" enabled="false" />
         <inspection_tool class="JSUnresolvedFunction" level="INFO" enabled="false" />
         <inspection_tool class="JSUnresolvedVariable" level="INFO" enabled="false" />
+        <inspection_tool class="SameReturnValue" level="WARNING" enabled="false" />
       </profile>
     </profiles>
   </component>
