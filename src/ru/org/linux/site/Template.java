@@ -203,9 +203,9 @@ public class Template {
       logger.notice("template", "redirecting " + request.getRequestURI() + " to " + replaceProfile(request, getCookie("profile")));
     }
 
-    if (isSessionAuthorized(session)) {
+//    if (isSessionAuthorized(session)) {
       response.addHeader("Cache-Control", "private");
-    }
+//    }
   }
 
   private void styleFixup() {
