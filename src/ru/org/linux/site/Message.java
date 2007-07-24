@@ -9,7 +9,6 @@ import javax.servlet.http.HttpSession;
 import ru.org.linux.util.*;
 
 public class Message {
-
   private int msgid;
   private int postscore;
   private boolean imagepost;
@@ -40,7 +39,17 @@ public class Message {
   public Message(Connection db, int msgid) throws SQLException, MessageNotFoundException {
     Statement st=db.createStatement();
 
-    ResultSet rs=st.executeQuery("SELECT postdate, nick, topics.id as msgid, topics.title, sections.comment, topics.groupid as guid, photo, topics.url, topics.linktext, sections.name as ptitle, groups.title as gtitle, imagepost, vote, havelink, section, postdate<(CURRENT_TIMESTAMP-sections.expire) as expired, deleted, lastmod, commitby, commitdate, topics.stat1, score, max_score, postscore, topics.moderate, message FROM topics, users, groups, sections, msgbase WHERE topics.id="+msgid+" AND topics.userid=users.id AND topics.groupid=groups.id AND groups.section=sections.id AND topics.id=msgbase.id");
+    ResultSet rs=st.executeQuery(
+        "SELECT " +
+            "postdate, nick, topics.id as msgid, topics.title, sections.comment, " +
+            "topics.groupid as guid, photo, topics.url, topics.linktext, sections.name as ptitle, " +
+            "groups.title as gtitle, imagepost, vote, havelink, section, " +
+            "postdate<(CURRENT_TIMESTAMP-sections.expire) as expired, deleted, lastmod, commitby, " +
+            "commitdate, topics.stat1, score, max_score, postscore, topics.moderate, message " +
+            "FROM topics, users, groups, sections, msgbase " +
+            "WHERE topics.id="+msgid+" AND topics.userid=users.id AND topics.groupid=groups.id " +
+            "AND groups.section=sections.id AND topics.id=msgbase.id"
+    );
     if (!rs.next()) throw new MessageNotFoundException(msgid);
 
     this.msgid=rs.getInt("msgid");
@@ -286,8 +295,10 @@ public class Message {
     }
   }
 
-  public int getNextMessage(Connection db, int scrollMode) throws SQLException {
+  public Message getNextMessage(Connection db) throws SQLException {
     PreparedStatement pst;
+
+    int scrollMode = Section.getScrollMode(getSectionId());
 
     switch (scrollMode) {
       case Section.SCROLL_SECTION:
@@ -304,23 +315,27 @@ public class Message {
 
       case Section.SCROLL_NOSCROLL:
       default:
-        return 0;
+        return null;
     }
 
     try {
       ResultSet rs = pst.executeQuery();
 
       if (!rs.next())
-        return 0;
+        return null;
 
-      return rs.getInt("msgid");
+      return new Message(db, rs.getInt("msgid"));
+    } catch (MessageNotFoundException e) {
+      throw new RuntimeException(e);
     } finally {
       pst.close();
     }
   }
 
-  public int getPreviousMessage(Connection db, int scrollMode) throws SQLException {
+  public Message getPreviousMessage(Connection db) throws SQLException {
     PreparedStatement pst;
+
+    int scrollMode = Section.getScrollMode(getSectionId());
 
     switch (scrollMode) {
       case Section.SCROLL_SECTION:
@@ -337,16 +352,18 @@ public class Message {
 
       case Section.SCROLL_NOSCROLL:
       default:
-        return 0;
+        return null;
     }
 
     try {
       ResultSet rs = pst.executeQuery();
 
       if (!rs.next())
-        return 0;
+        return null;
 
-      return rs.getInt("msgid");
+      return new Message(db, rs.getInt("msgid"));
+    } catch (MessageNotFoundException e) {
+      throw new RuntimeException(e);
     } finally {
       pst.close();
     }

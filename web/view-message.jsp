@@ -74,20 +74,8 @@
       response.setDateHeader("Expires", System.currentTimeMillis() - 24 * 60 * 60 * 1000);
     }
 
-    int scroll = Section.getScrollMode(message.getSectionId());
-
-    int prevMsgid = message.getPreviousMessage(db, scroll);
-    int nextMsgid = message.getNextMessage(db, scroll);
-
-    Message prevMessage = null;
-    if (prevMsgid != 0) {
-      prevMessage = new Message(db, prevMsgid);
-    }
-
-    Message nextMessage = null;
-    if (nextMsgid != 0) {
-      nextMessage = new Message(db, nextMsgid);
-    }
+    Message prevMessage = message.getPreviousMessage(db);
+    Message nextMessage = message.getNextMessage(db);
 
     if (prevMessage != null) {
       out.print("<link rel=\"Previous\" href=\"jump-message.jsp?msgid=" + prevMessage.getMessageId() + "&amp;lastmod=" + prevMessage.getLastModified().getTime() + "\" title=\"" + StringUtil.makeTitle(prevMessage.getTitle()) + "\">");
@@ -102,6 +90,8 @@
 <div class=messages>
 
 <%
+  int scroll = Section.getScrollMode(message.getSectionId());
+
   if (scroll != Section.SCROLL_NOSCROLL) {
 %>
 <div class=nav>
