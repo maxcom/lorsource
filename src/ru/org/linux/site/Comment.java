@@ -113,7 +113,7 @@ public class Comment {
       ResultSet rt=rts.executeQuery("SELECT users.nick, comments.title, comments.postdate FROM comments, users WHERE users.id=comments.userid AND comments.id=" + replyto);
 
       if (rt.next())
-        out.append("Ответ на: <a href=\"").append("view-message.jsp?msgid="+topic).append('#').append(replyto).append("\">").append(StringUtil.makeTitle(rt.getString("title"))).append("</a> от ").append(rt.getString("nick")).append(' ').append(Template.dateFormat.format(rt.getTimestamp("postdate")));
+        out.append("Ответ на: <a href=\"").append("view-message.jsp?msgid=").append(topic).append('#').append(replyto).append("\">").append(StringUtil.makeTitle(rt.getString("title"))).append("</a> от ").append(rt.getString("nick")).append(' ').append(Template.dateFormat.format(rt.getTimestamp("postdate")));
 
       rt.close();
       rts.close();
