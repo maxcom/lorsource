@@ -82,7 +82,7 @@
     }
 
     if (nextMessage != null) {
-      out.print("<link rel=\"Next\" href=\"jump-message.jsp?msgid=" + nextMessage.getMessageId() + "&amp;lastmod=" + nextMessage.getLastModified() + "\" title=\"" + StringUtil.makeTitle(nextMessage.getTitle()) + "\">");
+      out.print("<link rel=\"Next\" href=\"jump-message.jsp?msgid=" + nextMessage.getMessageId() + "&amp;lastmod=" + nextMessage.getLastModified().getTime() + "\" title=\"" + StringUtil.makeTitle(nextMessage.getTitle()) + "\">");
     }
 %>
 <%= tmpl.DocumentHeader() %>
