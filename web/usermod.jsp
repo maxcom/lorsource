@@ -34,13 +34,23 @@
 
     User user = new User(db, id);
 
-    if (action.equals("block")) {
+    User moderator = new User(db, (String) session.getValue("nick"));
+
+    boolean redirect = true;
+
+    if (action.equals("block") || action.equals("block-n-delete-comments")) {
       if (!user.isBlockable()) {
         throw new AccessViolationException("Пользователя " + user.getNick() + " нельзя заблокировать");
       }
 
+      user.block(db);
       st.executeUpdate("UPDATE users SET blocked='t' WHERE id=" + id);
       tmpl.getLogger().notice("usermod.jsp", "User " + user.getNick() + " blocked by " + session.getValue("nick"));
+
+      if (action.equals("block-n-delete-comments")) {
+        out.print(user.deleteAllComments(db, tmpl.getLogger(), moderator));
+        redirect = false;
+      }
     } else if (action.equals("unblock")) {
       if (!user.isBlockable()) {
         throw new AccessViolationException("Пользователя " + user.getNick() + " нельзя разблокировать");
@@ -73,10 +83,12 @@
       throw new UserErrorException("Invalid action=" + HTMLFormatter.htmlSpecialChars(action));
     }
 
-    Random random = new Random();
+    if (redirect) {
+      Random random = new Random();
 
-    response.setHeader("Location", tmpl.getMainUrl() + "/whois.jsp?nick=" + URLEncoder.encode(user.getNick()) + "&nocache=" + random.nextInt());
-    response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
+      response.setHeader("Location", tmpl.getMainUrl() + "whois.jsp?nick=" + URLEncoder.encode(user.getNick()) + "&nocache=" + random.nextInt());
+      response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
+    }
 
     db.commit();
   } finally {
@@ -86,3 +98,5 @@
   }
 
 %>
+<%= tmpl.DocumentFooter() %>
+

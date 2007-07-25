@@ -97,15 +97,18 @@
   if (user.canModerate()) {
 	out.print(" (модератор)");
   }
-  if (tmpl.isSessionAuthorized(session) && (session.getValue("nick").equals(nick) || 
-              ((Boolean)session.getValue("moderator")).booleanValue())) {
-            if (sEmail!=null) if (!sEmail.equals("")) 
-                out.println("<br><b>Email:</b> " + sEmail + "<br>");
-            out.println("<b>Score</b>: "+score+"<br>\n");
-  }
 
   if (user.isBlocked())
     out.println(" (заблокирован)\n");
+
+  out.print("<br>");
+
+  if (tmpl.isSessionAuthorized(session) && (session.getValue("nick").equals(nick) ||
+              ((Boolean)session.getValue("moderator")).booleanValue())) {
+            if (sEmail!=null) if (!sEmail.equals(""))
+                out.println("<br><b>Email:</b> " + sEmail + "<br>");
+            out.println("<b>Score</b>: "+score+"<br>\n");
+  }
 
   out.println("<br>");
   if (tmpl.isModeratorSession() && user.isBlockable()) {
@@ -117,7 +120,8 @@
     } else {
       out.print("<form name='f_block' method='post' action='usermod.jsp'>\n");
       out.print("<input type='hidden' name='id' value='" + userid + "'>\n");
-      out.print("<input type='submit' name='action' value='block'>\n</form>");
+      out.print("<input type='submit' name='action' value='block'>\n");
+      out.print("<input type='submit' name='action' value='block-n-delete-comments'>\n</form>");
     }
   }
 

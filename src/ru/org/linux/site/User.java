@@ -6,6 +6,7 @@ import java.util.Date;
 
 import javax.servlet.http.HttpSession;
 
+import ru.org.linux.logger.Logger;
 import ru.org.linux.util.StringUtil;
 
 public class User {
@@ -272,7 +273,7 @@ public class User {
     out.append("(<a href=\"whois.jsp?nick=").append(URLEncoder.encode(nick)).append("\">*</a>)");
 
     if (postdate!=null) {
-      out.append(" ("+Template.dateFormat.format(postdate)).append(")</i>");
+      out.append(" (").append(Template.dateFormat.format(postdate)).append(")</i>");
     }
 
     return out.toString();
@@ -303,5 +304,59 @@ public class User {
 
   public String getPhoto() {
     return photo;
+  }
+
+  public void block(Connection db) throws SQLException {
+    Statement st = null;
+
+    try {
+      st = db.createStatement();
+      st.executeUpdate("UPDATE users SET blocked='t' WHERE id=" + id);
+    } finally {
+      if (st!=null) {
+        st.close();
+      }
+    }
+  }
+
+  public String deleteAllComments(Connection db, Logger logger, User moderator) throws SQLException {
+    Statement st = null;
+    ResultSet rs = null;
+    CommentDeleter deleter = null;
+
+    StringBuilder out = new StringBuilder();
+
+    try {
+      deleter = new CommentDeleter(db, logger);
+
+      st = db.createStatement();
+
+      rs = st.executeQuery("SELECT id FROM comments WHERE userid="+id+" AND not deleted ORDER BY id DESC FOR update");
+
+      while(rs.next()) {
+        int msgid = rs.getInt("id");
+
+        out.append("Сообщение #").append(msgid).append("<br>");
+
+        out.append(deleter.deleteReplys(msgid, moderator, true));
+        out.append(deleter.deleteComment(msgid, "4.7 Flood (auto)", moderator, 20));
+
+        out.append("<br>");
+      }
+    } finally {
+      if (deleter!=null) {
+        deleter.close();
+      }
+
+      if (rs!=null) {
+        rs.close();
+      }
+
+      if (st!=null) {
+        st.close();
+      }
+    }
+
+    return out.toString();
   }
 }
