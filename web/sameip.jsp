@@ -78,6 +78,10 @@
 <strong>Текущий статус: </strong>
 
 <%
+  if (IPBlockInfo.getTor(ip)) {
+    out.print("адрес заблокирован: tor.ahbl.org; база: ");          
+  }
+
   IPBlockInfo blockInfo = IPBlockInfo.getBlockInfo(db, ip);
 
   if (blockInfo==null) {

@@ -69,9 +69,13 @@ public class IPBlockInfo {
     return moderatorId;
   }
 
-  public static void checkBlockIP(Connection db, String addr) throws AccessViolationException, SQLException, UnknownHostException, TextParseException {
+  public static boolean getTor(String addr) throws TextParseException, UnknownHostException {
     DNSBLClient dnsbl = new DNSBLClient("tor.ahbl.org");
-    if (dnsbl.checkIP(addr)) {
+    return (dnsbl.checkIP(addr));
+  }
+
+  public static void checkBlockIP(Connection db, String addr) throws AccessViolationException, SQLException, UnknownHostException, TextParseException {
+    if (getTor(addr)) {
       throw new AccessViolationException("Постинг заблокирован: tor.ahbl.org");      
     }
 
