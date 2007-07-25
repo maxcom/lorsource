@@ -98,6 +98,7 @@ public class Template {
         fh.setFormatter(new SimpleFormatter());
         fh.setLevel(Level.ALL);
         java.util.logging.Logger.getLogger("ru.org.linux").addHandler(fh);
+        java.util.logging.Logger.getLogger("ru.org.linux").setLevel(Level.FINE);
         logger.info("Applicaton started!");
       } finally {
         if (is!=null) {
