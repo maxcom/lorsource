@@ -1,7 +1,12 @@
 package ru.org.linux.site;
 
+import java.net.UnknownHostException;
 import java.sql.*;
 import java.util.Date;
+
+import org.xbill.DNS.TextParseException;
+
+import ru.org.linux.util.DNSBLClient;
 
 public class IPBlockInfo {
   private final String reason;
@@ -64,7 +69,12 @@ public class IPBlockInfo {
     return moderatorId;
   }
 
-  public static void checkBlockIP(Connection db, String addr) throws AccessViolationException, SQLException {
+  public static void checkBlockIP(Connection db, String addr) throws AccessViolationException, SQLException, UnknownHostException, TextParseException {
+    DNSBLClient dnsbl = new DNSBLClient("tor.ahbl.org");
+    if (dnsbl.checkIP(addr)) {
+      throw new AccessViolationException("Постинг заблокирован: tor.ahbl.org");      
+    }
+
     IPBlockInfo block = getBlockInfo(db, addr);
 
     if (block == null) {

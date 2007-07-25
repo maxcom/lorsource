@@ -10,6 +10,9 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Properties;
+import java.util.logging.FileHandler;
+import java.util.logging.Level;
+import java.util.logging.SimpleFormatter;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
@@ -29,6 +32,8 @@ import ru.org.linux.storage.StorageNotFoundException;
 import ru.org.linux.util.*;
 
 public class Template {
+  private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger("ru.org.linux"); 
+
   private final Properties cookies;
   private String style;
   private boolean debugMode = false;
@@ -36,7 +41,7 @@ public class Template {
   private static Properties properties = null;
   private boolean mainPage;
   private final ServletParameterParser parameters;
-  private static Logger logger;
+  private static Logger siteLogger;
   private final Config config;
   private final HttpSession session;
   private final Date startDate = new Date();
@@ -61,8 +66,8 @@ public class Template {
   }
 
   private static synchronized void initServletLogger(ServletContext context) {
-    if (logger == null) {
-      logger = new ServletLogger(context);
+    if (siteLogger == null) {
+      siteLogger = new ServletLogger(context);
     }
   }
 
@@ -85,9 +90,15 @@ public class Template {
         Properties tmp = new Properties();
         tmp.load(is);
         properties = tmp;
-        logger.notice("template", "loaded config file");
-        logger.close();
-        logger = new SimpleFileLogger(properties.getProperty("Logfile"));
+        siteLogger.notice("template", "loaded config file");
+        siteLogger.close();
+        siteLogger = new SimpleFileLogger(properties.getProperty("Logfile"));
+
+        FileHandler fh = new FileHandler(properties.getProperty("Logfile")+"j", true);
+        fh.setFormatter(new SimpleFormatter());
+        fh.setLevel(Level.ALL);
+        java.util.logging.Logger.getLogger("ru.org.linux").addHandler(fh);
+        logger.info("Applicaton started!");
       } finally {
         if (is!=null) {
           is.close();
@@ -166,7 +177,7 @@ public class Template {
     }
 
     if (!isAnonymousProfile() && !isSessionAuthorized(session) && !isErrorPage) {
-      logger.notice("template", "redirecting " + request.getRequestURI() + " to " + replaceProfile(request, null) + " because not logged in");
+      siteLogger.notice("template", "redirecting " + request.getRequestURI() + " to " + replaceProfile(request, null) + " because not logged in");
       response.setHeader("Location", replaceProfile(request, null));
       response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
       Cookie prof = new Cookie("profile", "");
@@ -186,7 +197,7 @@ public class Template {
       if (profileCookie != null) {
         response.setHeader("Location", replaceProfile(request, getCookie("profile")));
         response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
-        logger.notice("template", "default profile, but cookie set: redirecting " + request.getRequestURI() + " to " + replaceProfile(request, getCookie("profile")));
+        siteLogger.notice("template", "default profile, but cookie set: redirecting " + request.getRequestURI() + " to " + replaceProfile(request, getCookie("profile")));
       }
     } else if (profileCookie != null &&
       profileCookie.equals(userProfile.getName())) {
@@ -200,7 +211,7 @@ public class Template {
       /* redirect to users page */
       response.setHeader("Location", replaceProfile(request, getCookie("profile")));
       response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
-      logger.notice("template", "redirecting " + request.getRequestURI() + " to " + replaceProfile(request, getCookie("profile")));
+      siteLogger.notice("template", "redirecting " + request.getRequestURI() + " to " + replaceProfile(request, getCookie("profile")));
     }
 
 //    if (isSessionAuthorized(session)) {
@@ -442,7 +453,7 @@ public class Template {
     long millis = currentDate.getTime() - startDate.getTime();
 
     if (millis>WARNING_EXEC_TIME) {
-      logger.notice("template", "execTime="+millis/1000+" seconds (dbWait="+config.getDbWaitTime()/1000+" seconds): "+requestString);
+      siteLogger.notice("template", "execTime="+millis/1000+" seconds (dbWait="+config.getDbWaitTime()/1000+" seconds): "+requestString);
     }
 
     return out.toString();
@@ -485,7 +496,7 @@ public class Template {
   }
 
   public Logger getLogger() {
-    return logger;
+    return siteLogger;
   }
 
   public static boolean isSessionAuthorized(HttpSession session) {
