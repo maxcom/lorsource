@@ -339,7 +339,7 @@ public class User {
         out.append("Сообщение #").append(msgid).append("<br>");
 
         out.append(deleter.deleteReplys(msgid, moderator, true));
-        out.append(deleter.deleteComment(msgid, "4.7 Flood (auto)", moderator, 20));
+        out.append(deleter.deleteComment(msgid, "4.7 Flood (auto)", moderator, -20));
 
         out.append("<br>");
       }
