@@ -59,7 +59,7 @@ public class Comment {
     st.close();
   }
 
-  public String printMessage(Template tmpl, Connection db, boolean showMenu, boolean masterMode, String urladd, String mainUrl, boolean moderatorMode, String user)
+  public String printMessage(Template tmpl, Connection db, boolean showMenu, boolean masterMode, String urladd, boolean moderatorMode, String user)
       throws IOException, SQLException, UtilException {
     StringBuffer out=new StringBuffer();
 
@@ -110,10 +110,10 @@ public class Comment {
     if (replyto!=0 && !masterMode) {
       out.append("<tr class=title><td>");
       Statement rts=db.createStatement();
-      ResultSet rt=rts.executeQuery("SELECT users.nick, comments.title, comments.postdate from comments, users WHERE users.id=comments.userid AND comments.id=" + replyto);
+      ResultSet rt=rts.executeQuery("SELECT users.nick, comments.title, comments.postdate FROM comments, users WHERE users.id=comments.userid AND comments.id=" + replyto);
 
       if (rt.next())
-        out.append("Ответ на: <a href=\"").append(mainUrl).append('#').append(replyto).append("\">").append(StringUtil.makeTitle(rt.getString("title"))).append("</a> от ").append(rt.getString("nick")).append(' ').append(Template.dateFormat.format(rt.getTimestamp("postdate")));
+        out.append("Ответ на: <a href=\"").append("view-message.jsp?msgid="+topic).append('#').append(replyto).append("\">").append(StringUtil.makeTitle(rt.getString("title"))).append("</a> от ").append(rt.getString("nick")).append(' ').append(Template.dateFormat.format(rt.getTimestamp("postdate")));
 
       rt.close();
       rts.close();

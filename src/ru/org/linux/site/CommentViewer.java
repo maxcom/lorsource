@@ -15,7 +15,6 @@ public class CommentViewer {
   private final ResultSet rs;
   private final Connection db;
   private final String urladd;
-  private String mainUrl;
 
   private final String user;
 
@@ -24,12 +23,7 @@ public class CommentViewer {
     rs=r;
     db=conn;
     urladd=u;
-    mainUrl ="";
     this.user=user;
-  }
-
-  public void setMainUrl(String url) {
-    mainUrl =url;
   }
 
   private void showCommentList(StringBuffer buf, List comments, boolean reverse)
@@ -42,7 +36,7 @@ public class CommentViewer {
       Comment comment = (Comment) i.next();
 
       if (comment.isShowable()) {
-        buf.append(comment.printMessage(tmpl, db, true, false, urladd, mainUrl, tmpl.isModeratorSession(), user));
+        buf.append(comment.printMessage(tmpl, db, true, false, urladd, tmpl.isModeratorSession(), user));
       }
     }
   }

@@ -269,14 +269,19 @@ google_ui_features = "rc:0";
       limits = "";
     }
 
-    ResultSet cm = scm.executeQuery("SELECT comments.title, topic, postdate, nick, score, max_score, comments.id as msgid, replyto, photo, " + (message.isExpired() ? "'t'" : "'f'") + " as expired, deleted, message FROM comments,users,msgbase WHERE comments.id=msgbase.id AND comments.userid=users.id AND topic=" + msgid + ' ' + delq + " ORDER BY msgid " + order + limits);
+    ResultSet cm = scm.executeQuery(
+        "SELECT comments.title, topic, postdate, nick, score, max_score, comments.id as msgid, " +
+            "replyto, photo, " + (message.isExpired() ? "'t'" : "'f'") + " as expired, " +
+            "deleted, message " +
+            "FROM comments,users,msgbase " +
+            "WHERE comments.id=msgbase.id AND comments.userid=users.id " +
+            "AND topic=" + msgid + ' ' + delq + " " +
+            "ORDER BY msgid " + order + limits
+    );
 
     String urladd = "&amp;return=" + URLEncoder.encode(returnUrl);
 
     CommentViewer cv = new CommentViewer(tmpl, cm, db, urladd, Template.getNick(session));
-
-    if (npage != -1)
-      cv.setMainUrl(mainurl);
 
     if (!showAnonymous)
       out.print(cv.showThreaded());

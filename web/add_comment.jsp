@@ -312,14 +312,14 @@ if (showform) { // show form
 <%
   Comment comment = new Comment(db, replyto);
   if (comment.isDeleted()) throw new MessageNotFoundException(replyto);
-  String title=comment.getTitle();
-  if (!title.startsWith("Re:")) title="Re: "+title;
+  String title = comment.getTitle();
+  if (!title.startsWith("Re:")) title = "Re: " + title;
 
   out.print("<div class=messages>");
-  out.print(comment.printMessage(tmpl, db, false, true, "", "", tmpl.isModeratorSession(), Template.getNick(session)));
+  out.print(comment.printMessage(tmpl, db, false, true, "", tmpl.isModeratorSession(), Template.getNick(session)));
   out.print("</div>");
 
-  if (request.getParameter("title")!=null) title=request.getParameter("title");
+  if (request.getParameter("title") != null) title = request.getParameter("title");
 %>
 Заглавие:
 <input type=text name=title size=40 value="<%= title %>"><br>
