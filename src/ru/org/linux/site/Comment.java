@@ -1,24 +1,26 @@
 package ru.org.linux.site;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.net.URLEncoder;
 import java.sql.*;
+import java.util.logging.Logger;
 
 import ru.org.linux.util.*;
 
-public class Comment {
+public class Comment implements Serializable {
+  private static final Logger logger = Logger.getLogger("ru.org.linux");
+
   private final int msgid;
-  private String title;
-  private String photo;
-  private String nick;
-  private int userScore;
-  private int userMaxScore;
-  private int replyto = 0;
-  private int topic;
-  private boolean deleted;
-  private boolean expired;
-  private Timestamp postdate;
-  private boolean show = true;
+  private final String title;
+  private final String photo;
+  private final String nick;
+  private final int userScore;
+  private final int userMaxScore;
+  private final int replyto;
+  private final int topic;
+  private final boolean deleted;
+  private final Timestamp postdate;
   private final String message;
 
   public Comment(ResultSet rs) throws SQLException {
@@ -29,7 +31,6 @@ public class Comment {
     topic=rs.getInt("topic");
     replyto=rs.getInt("replyto");
     deleted=rs.getBoolean("deleted");
-    expired=rs.getBoolean("expired");
     postdate=rs.getTimestamp("postdate");
     userScore=rs.getInt("score");
     userMaxScore=rs.getInt("max_score");
@@ -39,9 +40,13 @@ public class Comment {
   public Comment(Connection db, int msgid) throws SQLException, MessageNotFoundException {
     Statement st = db.createStatement();
 
-    ResultSet rs=st.executeQuery("SELECT postdate, topic, nick, score, max_score, comments.id as msgid, comments.title, photo, 'f', deleted, 'f' as expired, replyto, message FROM comments, users, msgbase WHERE comments.id="+msgid+" AND comments.id=msgbase.id AND comments.userid=users.id");
+    ResultSet rs=st.executeQuery("SELECT " +
+        "postdate, topic, nick, score, max_score, comments.id as msgid, comments.title, " +
+        "photo, deleted, replyto, message " +
+        "FROM comments, users, msgbase " +
+        "WHERE comments.id="+msgid+" AND comments.id=msgbase.id AND comments.userid=users.id");
 
-    if (!rs.next()) throw new MessageNotFoundException(replyto);
+    if (!rs.next()) throw new MessageNotFoundException(msgid);
 
     this.msgid=rs.getInt("msgid");
     title=StringUtil.makeTitle(rs.getString("title"));
@@ -50,7 +55,6 @@ public class Comment {
     topic=rs.getInt("topic");
     replyto=rs.getInt("replyto");
     deleted=rs.getBoolean("deleted");
-    expired=rs.getBoolean("expired");
     postdate=rs.getTimestamp("postdate");
     userScore=rs.getInt("score");
     userMaxScore=rs.getInt("max_score");
@@ -59,7 +63,7 @@ public class Comment {
     st.close();
   }
 
-  public String printMessage(Template tmpl, Connection db, boolean showMenu, boolean masterMode, String urladd, boolean moderatorMode, String user)
+  public String printMessage(Template tmpl, Connection db, boolean showMenu, String urladd, boolean moderatorMode, String user, boolean expired)
       throws IOException, SQLException, UtilException {
     StringBuffer out=new StringBuffer();
 
@@ -74,16 +78,8 @@ public class Comment {
         out.append("[<a href=\"/jump-message.jsp?msgid=").append(topic).append('#').append(msgid).append("\">#</a>]");
       }
 
-      if (!show) {
-        out.append("[hide] ");
-      }
-
       if (!expired && !deleted) {
-        if (masterMode) {
-          out.append("[<a href=\"#rep\">Ответить</a>]");
-        } else {
-          out.append("[<a href=\"add_comment.jsp?topic=").append(topic).append("&amp;replyto=").append(msgid).append(urladd).append("\">Ответить</a>]");
-        }
+        out.append("[<a href=\"add_comment.jsp?topic=").append(topic).append("&amp;replyto=").append(msgid).append(urladd).append("\">Ответить</a>]");
       }
 
       if (!deleted && (moderatorMode || nick.equals(user))) {
@@ -107,7 +103,7 @@ public class Comment {
       out.append("&nbsp;</td></tr>");
     }
 
-    if (replyto!=0 && !masterMode) {
+    if (replyto!=0 && showMenu) {
       out.append("<tr class=title><td>");
       Statement rts=db.createStatement();
       ResultSet rt=rts.executeQuery("SELECT users.nick, comments.title, comments.postdate FROM comments, users WHERE users.id=comments.userid AND comments.id=" + replyto);
@@ -131,7 +127,9 @@ public class Comment {
         try {
           ImageInfo info=new ImageInfo(tmpl.getObjectConfig().getHTMLPathPrefix()+"/photos/"+photo);
           out.append("<img src=\"/photos/").append(photo).append("\" alt=\"").append(nick).append(" (фотография)\" ").append(info.getCode()).append(" >");
-        } catch (BadImageException e) {}
+        } catch (BadImageException e) {
+          logger.warning(StringUtil.getStackTrace(e));
+        }
 
         out.append("</td><td valign=top>");
       }
@@ -152,7 +150,7 @@ public class Comment {
 
     out.append("(<a href=\"whois.jsp?nick=").append(URLEncoder.encode(nick)).append("\">*</a>) (").append(Template.dateFormat.format(postdate)).append(")</i>");
 
-    if (!expired && !deleted && !masterMode && showMenu)
+    if (!expired && !deleted && showMenu)
       out.append("<p><font size=2>[<a href=\"add_comment.jsp?topic=").append(topic).append("&amp;replyto=").append(msgid).append(urladd).append("\">Ответить на это сообщение</a>]</font>");
 
     if (tbl) out.append("</td></tr></table>");
@@ -168,14 +166,6 @@ public class Comment {
 
   public int getReplyTo() {
     return replyto;
-  }
-
-  public void setShow(boolean show) {
-    this.show = show;
-  }
-
-  public boolean isShowable() {
-    return show;
   }
 
   public boolean isAnonymous() {

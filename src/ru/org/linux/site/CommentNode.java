@@ -1,12 +1,13 @@
 package ru.org.linux.site;
 
+import java.io.Serializable;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
-public class CommentNode {
-  private final LinkedList childs = new LinkedList();
+public class CommentNode implements Serializable {
+  private final LinkedList<CommentNode> childs = new LinkedList<CommentNode>();
   private Comment comment = null;
 
   public CommentNode() {
@@ -28,39 +29,34 @@ public class CommentNode {
     return comment==null?0:comment.getMessageId();
   }
 
-  public void hideAnonymous() {
+  public void hideAnonymous(Set<Integer> hideSet) {
     if (comment!=null) {
       if (comment.isAnonymous())
-        hideNode();
+        hideNode(hideSet);
     }
 
-    if (comment==null || comment.isShowable()) {
-      for (Iterator i=childs.iterator(); i.hasNext(); ) {
-        CommentNode node = (CommentNode) i.next();
-
-        node.hideAnonymous();
+    if (comment==null || !hideSet.contains(comment.getMessageId())) {
+      for (CommentNode child : childs) {
+        child.hideAnonymous(hideSet);
       }
     }
   }
 
-  public void buildList(List list) {
+  public void buildList(List<Comment> list) {
     if (comment!=null) list.add(comment);
 
-    for (Iterator i=childs.iterator(); i.hasNext(); ) {
-      CommentNode node = (CommentNode) i.next();
-
-      node.buildList(list);
+    for (CommentNode child : childs) {
+      child.buildList(list);
     }
   }
 
-  public void hideNode() {
-    if (comment!=null)
-      comment.setShow(false);
+  public void hideNode(Set<Integer> hideSet) {
+    if (comment!=null) {
+      hideSet.add(comment.getMessageId());
+    }
 
-    for (Iterator i=childs.iterator(); i.hasNext(); ) {
-      CommentNode node = (CommentNode) i.next();
-
-      node.hideNode();
+    for (CommentNode child : childs) {
+      child.hideNode(hideSet);
     }
   }
 }

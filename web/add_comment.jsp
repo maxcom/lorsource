@@ -7,7 +7,7 @@
 <%
   Logger logger = Logger.getLogger("ru.org.linux");
 
-  int topic = tmpl.getParameters().getInt("topic");
+  int topicId = tmpl.getParameters().getInt("topic");
   boolean showform = request.getParameter("msg") == null;
 
   if (!"POST".equals(request.getMethod()))
@@ -22,7 +22,6 @@
 
 <% Exception error = null;
   if (!showform) { // add2
-
     String returnUrl = request.getParameter("return");
     String msg = request.getParameter("msg");
     int replyto = 0;
@@ -101,22 +100,15 @@
           throw new AccessViolationException("Комментарий был удален");
         }
 
-        if (reply.getTopic() != topic) {
+        if (reply.getTopic() != topicId) {
           throw new AccessViolationException("Некорректная тема?!");
         }
       }
 
       Statement st = db.createStatement();
+      Message topic = new Message(db, topicId);
 
-      ResultSet rs = st.executeQuery("SELECT sections.comment, deleted, postscore FROM groups, sections, topics WHERE groups.id=topics.groupid AND topics.id=" + topic + " AND groups.section=sections.id");
-      if (!rs.next()) {
-        rs = st.executeQuery("SELECT 't' as comment, 'f' as deleted, 0 as postscore FROM votenames WHERE topic=" + topic);
-        if (!rs.next()) {
-          throw new MessageNotFoundException(topic);
-        }
-      }
-
-      int postscore = rs.getInt("postscore");
+      int postscore = topic.getPostScore();
 
       if (postscore != 0) {
         if (user.getScore() < postscore || user.isAnonymous()) {
@@ -126,10 +118,10 @@
 
       String mode = tmpl.getParameters().getString("mode");
 
-      if (rs.getBoolean("deleted")) {
+      if (topic.isDeleted()) {
         throw new AccessViolationException("Нельзя добавлять комментарии к удаленному сообщению");
       }
-      if (!rs.getBoolean("comment")) {
+      if (!topic.isCommentEnabled()) {
         throw new AccessViolationException("В эту группу нельзя добавлять комментарии");
       }
 
@@ -161,21 +153,15 @@
         throw new BadInputException(e);
       }
 
-      rs.close();
-
       // section EXPIRE
-      rs = st.executeQuery("SELECT topics.postdate<(CURRENT_TIMESTAMP-sections.expire) as expired FROM topics, groups, sections  WHERE sections.id=groups.section AND topics.id=" + topic + " AND topics.groupid=groups.id");
-      if (rs.next()) {
-        if (rs.getBoolean("expired")) {
-          throw new AccessViolationException("группа уже устарела");
-        }
+      if (topic.isExpired()) {
+        throw new AccessViolationException("группа уже устарела");
       }
-      rs.close();
 
       DupeProtector.getInstance().checkDuplication(request.getRemoteAddr());
 
       // allocation MSGID
-      rs = st.executeQuery("select nextval('s_msgid') as msgid");
+      ResultSet rs = st.executeQuery("select nextval('s_msgid') as msgid");
       rs.next();
       int msgid = rs.getInt("msgid");
 
@@ -184,7 +170,7 @@
       pst.setInt(1, msgid);
       pst.setInt(2, user.getId());
       pst.setString(3, title);
-      pst.setInt(5, topic);
+      pst.setInt(5, topicId);
 
       if (replyto != 0) {
         pst.setInt(4, replyto);
@@ -203,8 +189,6 @@
       pstMsgbase.executeUpdate();
       pstMsgbase.close();
 
-      // write to storage
-//        tmpl.getObjectConfig().getStorage().writeMessage("msgbase", String.valueOf(msgid), msg);
       String logmessage = "Написан комментарий " + msgid + " ip:" + request.getRemoteAddr();
       if (request.getHeader("X-Forwarded-For") != null) {
         logmessage = logmessage + " XFF:" + request.getHeader(("X-Forwarded-For"));
@@ -257,20 +241,21 @@
 <% }
 
 if (showform) { // show form
-	if (db==null) db = tmpl.getConnection("add_comment");
-	Statement st=db.createStatement();
-	ResultSet grinfo=st.executeQuery("SELECT postdate<(CURRENT_TIMESTAMP-sections.expire) as expired, postscore FROM topics, sections, groups WHERE topics.id="+topic+" AND groups.id = topics.groupid AND groups.section=sections.id");
-	if (!grinfo.next()) {
-		grinfo.close();
-		grinfo=st.executeQuery("SELECT id, 0 as postscore FROM votenames WHERE votenames.topic="+topic);
-		if (!grinfo.next())
-			throw new BadGroupException("Тема "+topic+" не существует");
-	} else {
-		if (grinfo.getBoolean("expired"))
-   			throw new AccessViolationException("нельзя добавлять в устаревшие темы");
-	}
-        int postscore = grinfo.getInt("postscore");
-	grinfo.close();
+  if (db==null) {
+    db = tmpl.getConnection("add_comment");
+  }
+
+  Message topic = new Message(db, topicId);
+
+  if (topic.isExpired()) {
+    throw new AccessViolationException("нельзя добавлять в устаревшие темы");
+  }
+
+  if (topic.isDeleted()) {
+    throw new AccessViolationException("нельзя добавлять в удаленные темы");
+  }
+
+  int postscore = topic.getPostScore();
 %>
 
 <title>Добавить сообщение</title>
@@ -302,7 +287,7 @@ if (showform) { // show form
 Пароль:
 <input type=password name=password size=40><br>
 <% } %>
-<input type=hidden name=topic value="<%= topic %>">
+<input type=hidden name=topic value="<%= topicId %>">
 
 <% if (request.getParameter("return")!=null) { %>
 <input type=hidden name=return value="<%= HTMLFormatter.htmlSpecialChars(request.getParameter("return")) %>">
@@ -319,7 +304,7 @@ if (showform) { // show form
   if (!title.startsWith("Re:")) title = "Re: " + title;
 
   out.print("<div class=messages>");
-  out.print(comment.printMessage(tmpl, db, false, true, "", tmpl.isModeratorSession(), Template.getNick(session)));
+  out.print(comment.printMessage(tmpl, db, false, "", tmpl.isModeratorSession(), Template.getNick(session), false));
   out.print("</div>");
 
   if (request.getParameter("title") != null) title = request.getParameter("title");
@@ -370,9 +355,7 @@ if (showform) { // show form
 
 </form>
 <%
-   st.close();
    }
-
 } finally {
   if (db!=null) db.close();
 }

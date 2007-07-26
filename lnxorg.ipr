@@ -219,6 +219,7 @@
           <option name="m_requireAnnotationsFirst" value="true" />
         </inspection_tool>
         <inspection_tool class="ConfusingOctalEscape" level="WARNING" enabled="true" />
+        <inspection_tool class="SameParameterValue" level="WARNING" enabled="false" />
       </profile>
     </profiles>
   </component>

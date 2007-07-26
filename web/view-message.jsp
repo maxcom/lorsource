@@ -1,6 +1,5 @@
 <%@ page contentType="text/html; charset=koi8-r"%>
-<%@ page import="java.net.URLEncoder,java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.sql.Timestamp,javax.servlet.http.HttpServletResponse" errorPage="/error.jsp" buffer="200kb"%>
-<%@ page import="ru.org.linux.site.*"%>
+<%@ page import="java.net.URLEncoder,java.sql.Connection,java.sql.Statement,java.sql.Timestamp,javax.servlet.http.HttpServletResponse,ru.org.linux.site.*" errorPage="/error.jsp" buffer="200kb"%>
 <%@ page import="ru.org.linux.util.StringUtil"%>
 <% Template tmpl = new Template(request, config, response); %>
 <%= tmpl.head() %>
@@ -23,12 +22,15 @@
 
     boolean showDeleted = request.getParameter("deleted") != null;
     boolean showAnonymous = tmpl.getProf().getBoolean("showanonymous");
+    String showAnonymousParam = null;
 
     if (request.getParameter("anonymous") != null) {
       if ("show".equals(request.getParameter("anonymous"))) {
         showAnonymous = true;
+        showAnonymousParam = "show";
       } else if ("hide".equals(request.getParameter("anonymous"))) {
         showAnonymous = false;
+        showAnonymousParam = "hide";
       }
     }
 
@@ -172,10 +174,15 @@
     for (int i = 0; i < pages; i++) {
       bufInfo.append(' ');
 
-      if (i != npage)
-        bufInfo.append("<a href=\"").append(mainurl).append("&page=").append(i).append("\">").append(i + 1).append("</a>");
-      else
+      if (i != npage) {
+        bufInfo.append("<a href=\"").append(mainurl).append("&page=").append(i);
+        if (showAnonymousParam!=null) {
+          bufInfo.append("&anonymous="+showAnonymousParam);
+        }
+        bufInfo.append("\">").append(i + 1).append("</a>");
+      } else {
         bufInfo.append("<strong>").append(i + 1).append("</strong>");
+      }
     }
 
     bufInfo.append(']');
@@ -233,6 +240,9 @@ google_ui_features = "rc:0";
 
       out.print("<div align=\"center\">");
       out.print("<input type=hidden name=msgid value=\"" + msgid + "\">");
+      if (npage!=-1) {
+        out.print("<input type=hidden name=page value=\"" + npage + "\">");
+      }
       out.print("фильтр комментариев: <select name=\"anonymous\">");
       out.print("<option value=\"show\"" + (showAnonymous ? " selected=\"selected\"" : "") + ">все комментарии</option>");
       out.print("<option value=\"hide\"" + (showAnonymous ? "" : " selected=\"selected\"") + ">без анонимных комментариев и ответов на них</option>");
@@ -251,45 +261,25 @@ google_ui_features = "rc:0";
       out.print("</td></tr></table></div></div>");
     }
 
-    String order = tmpl.getProf().getBoolean("newfirst") ? "DESC" : "ASC";
+    int offset = 0;
+    int limit = 0;
+    boolean reverse = tmpl.getProf().getBoolean("newfirst");
 
-    Statement scm = db.createStatement();
-
-    String limits;
-
-    if (npage != -1)
-      limits = " OFFSET " + (messages * npage) + " LIMIT " + messages;
-    else
-      limits = "";
-
-    String delq = showDeleted ? "" : " AND NOT deleted ";
-
-    if (!showAnonymous) {
-      order = "ASC";
-      limits = "";
+    if (npage != -1) {
+      limit = messages;
+      offset = messages * npage;
     }
 
-    ResultSet cm = scm.executeQuery(
-        "SELECT comments.title, topic, postdate, nick, score, max_score, comments.id as msgid, " +
-            "replyto, photo, " + (message.isExpired() ? "'t'" : "'f'") + " as expired, " +
-            "deleted, message " +
-            "FROM comments,users,msgbase " +
-            "WHERE comments.id=msgbase.id AND comments.userid=users.id " +
-            "AND topic=" + msgid + ' ' + delq + " " +
-            "ORDER BY msgid " + order + limits
-    );
+    CommentList comments = CommentList.getCommentList(tmpl, db, message, showDeleted); 
 
     String urladd = "&amp;return=" + URLEncoder.encode(returnUrl);
 
-    CommentViewer cv = new CommentViewer(tmpl, cm, db, urladd, Template.getNick(session));
+    CommentViewer cv = new CommentViewer(tmpl, comments, db, urladd, Template.getNick(session), message.isExpired());
 
     if (!showAnonymous)
-      out.print(cv.showThreaded());
+      out.print(cv.showFiltered(reverse, offset, limit));
     else
-      out.print(cv.showAll());
-
-    cm.close();
-    scm.close();
+      out.print(cv.showAll(reverse, offset, limit));
 
     out.print("</div>");
 

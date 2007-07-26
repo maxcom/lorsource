@@ -2,130 +2,91 @@ package ru.org.linux.site;
 
 import java.io.IOException;
 import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.logging.Logger;
 
 import ru.org.linux.util.UtilException;
 
 public class CommentViewer {
-  private static final int COMMENTS_INITIAL_BUFSIZE = 50;
+  private final static Logger logger = Logger.getLogger("ru.org.linux");
+
+  public static final int COMMENTS_INITIAL_BUFSIZE = 50;
 
   private final Template tmpl;
-  private final ResultSet rs;
+  private final CommentList comments;
   private final Connection db;
   private final String urladd;
+  private final boolean expired;
 
   private final String user;
 
-  public CommentViewer(Template t, ResultSet r, Connection conn, String u, String user) {
+  public CommentViewer(Template t, CommentList comments, Connection conn, String u, String user, boolean expired) {
     tmpl=t;
-    rs=r;
+    this.comments = comments;
     db=conn;
     urladd=u;
     this.user=user;
+    this.expired = expired;
   }
 
-  private void showCommentList(StringBuffer buf, List comments, boolean reverse)
+  private void showCommentList(StringBuffer buf, List<Comment> comments, boolean reverse, int offset, int limit, Set<Integer> hideSet)
       throws IOException, SQLException, UtilException {
-    if (reverse) {
-      Collections.reverse(comments);
-    }
+    int shown = 0;
 
-    for (Iterator i=comments.iterator(); i.hasNext(); ) {
-      Comment comment = (Comment) i.next();
+    for (ListIterator<Comment> i = comments.listIterator(reverse?comments.size():0); reverse?i.hasPrevious():i.hasNext();) {
+      int index = reverse?(comments.size()-i.previousIndex()):i.nextIndex();
 
-      if (comment.isShowable()) {
-        buf.append(comment.printMessage(tmpl, db, true, false, urladd, tmpl.isModeratorSession(), user));
+      Comment comment = reverse?i.previous():i.next();
+
+      if (index<offset || (limit!=0 && index>=offset+limit)) {
+        continue;
+      }
+
+      if (hideSet==null || !hideSet.contains(comment.getMessageId())) {
+        shown++;
+        buf.append(comment.printMessage(tmpl, db, true, urladd, tmpl.isModeratorSession(), user, expired));
       }
     }
+
+    logger.fine("Showing list size="+comments.size()+" shown="+shown);    
   }
 
-  public String showAll() throws IOException, SQLException, UtilException {
+  public String showAll(boolean reverse, int offset, int limit) throws IOException, SQLException, UtilException {
     StringBuffer buf=new StringBuffer();
-    List comments = new ArrayList(COMMENTS_INITIAL_BUFSIZE);
 
-    while (rs.next()) {
-      comments.add(new Comment(rs));
-    }
-
-    showCommentList(buf, comments, false);
+    showCommentList(buf, comments.getList(), reverse, offset, limit,  null);
 
     return buf.toString();
   }
 
-  public String showThreaded() throws IOException, SQLException, UtilException {
+  public String showFiltered(boolean reverse, int offset, int limit) throws IOException, SQLException, UtilException {
     StringBuffer buf=new StringBuffer();
-    List comments = new ArrayList(COMMENTS_INITIAL_BUFSIZE);
-    CommentNode root = new CommentNode();
-    Map treeHash = new HashMap(COMMENTS_INITIAL_BUFSIZE);
-
-    /* build tree */
-    while (rs.next()) {
-      Comment comment = new Comment(rs);
-      comments.add(comment);
-
-      CommentNode node = new CommentNode(comment);
-
-      treeHash.put(new Integer(comment.getMessageId()), node);
-
-      if (comment.getReplyTo()==0) {
-        root.addChild(node);
-      } else {
-        CommentNode parentNode = (CommentNode) treeHash.get(new Integer(comment.getReplyTo()));
-        if (parentNode!=null) {
-          parentNode.addChild(node);
-        } else {
-          root.addChild(node);
-        }
-      }
-    }
+    Set<Integer> hideSet = new HashSet<Integer>();
 
     /* hide anonymous */
-    root.hideAnonymous();
+    comments.getRoot().hideAnonymous(hideSet);
 
     /* display comments */
-    showCommentList(buf, comments, tmpl.getProf().getBoolean("newfirst"));
+    showCommentList(buf, comments.getList(), reverse, offset, limit, hideSet);
 
     return buf.toString();
   }
 
   public String showSubtree(int parentId) throws IOException, SQLException, UtilException, MessageNotFoundException {
     StringBuffer buf=new StringBuffer();
-    CommentNode root = new CommentNode();
-    Map treeHash = new HashMap(COMMENTS_INITIAL_BUFSIZE);
 
-    /* build tree */
-    while (rs.next()) {
-      Comment comment = new Comment(rs);
-
-      CommentNode node = new CommentNode(comment);
-
-      treeHash.put(new Integer(comment.getMessageId()), node);
-
-      if (comment.getReplyTo()==0) {
-        root.addChild(node);
-      } else {
-        CommentNode parentNode = (CommentNode) treeHash.get(new Integer(comment.getReplyTo()));
-        if (parentNode!=null) {
-          parentNode.addChild(node);
-        } else {
-          root.addChild(node);
-        }
-      }
-    }
-
-    CommentNode parentNode = (CommentNode) treeHash.get(new Integer(parentId));
+    CommentNode parentNode = comments.getNode(parentId);
 
     if (parentNode==null) {
       throw new MessageNotFoundException(parentId);
     }
 
-    List parentList = new ArrayList();
+    List<Comment> parentList = new ArrayList<Comment>();
     parentNode.buildList(parentList);
 
     /* display comments */
-    showCommentList(buf, parentList, false);
+    showCommentList(buf, parentList, false, 0, 0, null);
 
     return buf.toString();
   }
