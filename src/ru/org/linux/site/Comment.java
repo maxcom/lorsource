@@ -116,10 +116,15 @@ public class Comment implements Serializable {
 
     if (replyto!=0 && showMenu) {
       Comment reply = comments.getNode(replyto).getComment();
+      int messages = tmpl.getProf().getInt("messages");
+      boolean reverse = tmpl.getProf().getBoolean("newfirst");
 
       out.append("<tr class=title><td>");
 
-      out.append("Ответ на: <a href=\"").append("view-message.jsp?msgid=").append(topic).append('#').append(replyto).append("\">").append(StringUtil.makeTitle(reply.getTitle())).append("</a> от ").append(reply.getNick()).append(' ').append(Template.dateFormat.format(reply.getPostdate()));
+      out.append("Ответ на: <a href=\"");
+      out.append("view-message.jsp?msgid=").append(topic).append("?page=").append(comments.getCommentPage(reply, messages, reverse)).append('#').append(replyto);
+      out.append("\">");
+      out.append(StringUtil.makeTitle(reply.getTitle())).append("</a> от ").append(reply.getNick()).append(' ').append(Template.dateFormat.format(reply.getPostdate()));
     }
 
     out.append("<tr class=body><td>");
