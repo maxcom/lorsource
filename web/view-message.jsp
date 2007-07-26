@@ -176,8 +176,8 @@
 
       if (i != npage) {
         bufInfo.append("<a href=\"").append(mainurl).append("&page=").append(i);
-        if (showAnonymousParam!=null) {
-          bufInfo.append("&anonymous="+showAnonymousParam);
+        if (showAnonymousParam != null) {
+          bufInfo.append("&anonymous=").append(showAnonymousParam);
         }
         bufInfo.append("\">").append(i + 1).append("</a>");
       } else {
@@ -190,7 +190,7 @@
   }
 
   if (request.getParameter("highlight") != null) {
-    out.print(message.printMessage(tmpl, db, true, Template.getNick(session),tmpl.getParameters().getInt("highlight")));
+    out.print(message.printMessage(tmpl, db, true, Template.getNick(session), tmpl.getParameters().getInt("highlight")));
   } else {
     out.print(message.printMessage(tmpl, db, true, Template.getNick(session)));
   }
@@ -274,7 +274,7 @@ google_ui_features = "rc:0";
 
     String urladd = "&amp;return=" + URLEncoder.encode(returnUrl);
 
-    CommentViewer cv = new CommentViewer(tmpl, comments, db, urladd, Template.getNick(session), message.isExpired());
+    CommentViewer cv = new CommentViewer(tmpl, comments, urladd, Template.getNick(session), message.isExpired());
 
     if (!showAnonymous)
       out.print(cv.showFiltered(reverse, offset, limit));

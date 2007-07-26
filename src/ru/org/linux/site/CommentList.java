@@ -11,18 +11,16 @@ import java.util.logging.Logger;
 import com.danga.MemCached.MemCachedClient;
 
 public class CommentList implements Serializable {
-  private final static Logger logger = Logger.getLogger("ru.org.linux");
+  private static final Logger logger = Logger.getLogger("ru.org.linux");
 
   private final List<Comment> comments = new ArrayList<Comment>(CommentViewer.COMMENTS_INITIAL_BUFSIZE);
   private final CommentNode root = new CommentNode();
   private final Map<Integer, CommentNode> treeHash = new HashMap<Integer, CommentNode>(CommentViewer.COMMENTS_INITIAL_BUFSIZE);
 
-  private long lastmod;
-  private boolean deleted;
+  private final long lastmod;
 
   private CommentList(Connection db, int topicId, long lastmod, boolean deleted) throws SQLException {
     this.lastmod = lastmod;
-    this.deleted = deleted;
 
     String delq = deleted ? "" : " AND NOT deleted ";
 
@@ -38,7 +36,7 @@ public class CommentList implements Serializable {
     );
 
     while (rs.next()) {
-      comments.add(new Comment(rs));
+      comments.add(new Comment(db, rs));
     }
 
     rs.close();

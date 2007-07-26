@@ -59,4 +59,8 @@ public class CommentNode implements Serializable {
       child.hideNode(hideSet);
     }
   }
+
+  public Comment getComment() {
+    return comment;
+  }
 }

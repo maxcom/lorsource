@@ -22,8 +22,9 @@ public class Comment implements Serializable {
   private final boolean deleted;
   private final Timestamp postdate;
   private final String message;
+  private final DeleteInfo deleteInfo;
 
-  public Comment(ResultSet rs) throws SQLException {
+  public Comment(Connection db, ResultSet rs) throws SQLException {
     msgid=rs.getInt("msgid");
     title=StringUtil.makeTitle(rs.getString("title"));
     photo=rs.getString("photo");
@@ -35,6 +36,12 @@ public class Comment implements Serializable {
     userScore=rs.getInt("score");
     userMaxScore=rs.getInt("max_score");
     message=rs.getString("message");
+
+    if (deleted) {
+      deleteInfo = DeleteInfo.getDeleteInfo(db, msgid);
+    } else {
+      deleteInfo = null;
+    }
   }
 
   public Comment(Connection db, int msgid) throws SQLException, MessageNotFoundException {
@@ -61,10 +68,16 @@ public class Comment implements Serializable {
     message=rs.getString("message");
 
     st.close();
+
+    if (deleted) {
+      deleteInfo = DeleteInfo.getDeleteInfo(db, msgid);
+    } else {
+      deleteInfo = null;
+    }
   }
 
-  public String printMessage(Template tmpl, Connection db, boolean showMenu, String urladd, boolean moderatorMode, String user, boolean expired)
-      throws IOException, SQLException, UtilException {
+  public String printMessage(Template tmpl, CommentList comments, boolean showMenu, String urladd, boolean moderatorMode, String user, boolean expired)
+      throws IOException, UtilException {
     StringBuffer out=new StringBuffer();
 
     out.append("\n\n<!-- ").append(msgid).append(" -->\n");
@@ -91,8 +104,6 @@ public class Comment implements Serializable {
       }
 
       if (deleted) {
-        DeleteInfo deleteInfo = DeleteInfo.getDeleteInfo(db, msgid);
-
         if (deleteInfo==null) {
           out.append("<strong>Сообщение удалено</strong>");
         } else {
@@ -104,15 +115,11 @@ public class Comment implements Serializable {
     }
 
     if (replyto!=0 && showMenu) {
+      Comment reply = comments.getNode(replyto).getComment();
+
       out.append("<tr class=title><td>");
-      Statement rts=db.createStatement();
-      ResultSet rt=rts.executeQuery("SELECT users.nick, comments.title, comments.postdate FROM comments, users WHERE users.id=comments.userid AND comments.id=" + replyto);
 
-      if (rt.next())
-        out.append("Ответ на: <a href=\"").append("view-message.jsp?msgid=").append(topic).append('#').append(replyto).append("\">").append(StringUtil.makeTitle(rt.getString("title"))).append("</a> от ").append(rt.getString("nick")).append(' ').append(Template.dateFormat.format(rt.getTimestamp("postdate")));
-
-      rt.close();
-      rts.close();
+      out.append("Ответ на: <a href=\"").append("view-message.jsp?msgid=").append(topic).append('#').append(replyto).append("\">").append(StringUtil.makeTitle(reply.getTitle())).append("</a> от ").append(reply.getNick()).append(' ').append(Template.dateFormat.format(reply.getPostdate()));
     }
 
     out.append("<tr class=body><td>");
@@ -137,7 +144,6 @@ public class Comment implements Serializable {
 
     out.append("<h2><a name=").append(msgid).append('>').append(title).append("</a></h2>");
 
-//    out.append(storage.readMessage("msgbase", String.valueOf(msgid)));
     out.append(message);
 
     out.append("<p><i>").append(nick).append(' ');
@@ -182,5 +188,13 @@ public class Comment implements Serializable {
 
   public String getTitle() {
     return title;
+  }
+
+  public Timestamp getPostdate() {
+    return postdate;
+  }
+
+  public String getNick() {
+    return nick;
   }
 }

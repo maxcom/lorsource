@@ -304,7 +304,7 @@ if (showform) { // show form
   if (!title.startsWith("Re:")) title = "Re: " + title;
 
   out.print("<div class=messages>");
-  out.print(comment.printMessage(tmpl, db, false, "", tmpl.isModeratorSession(), Template.getNick(session), false));
+  out.print(comment.printMessage(tmpl, null, false, "", tmpl.isModeratorSession(), Template.getNick(session), false));
   out.print("</div>");
 
   if (request.getParameter("title") != null) title = request.getParameter("title");

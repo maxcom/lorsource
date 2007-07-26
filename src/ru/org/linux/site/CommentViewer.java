@@ -1,37 +1,33 @@
 package ru.org.linux.site;
 
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.*;
 import java.util.logging.Logger;
 
 import ru.org.linux.util.UtilException;
 
 public class CommentViewer {
-  private final static Logger logger = Logger.getLogger("ru.org.linux");
+  private static final Logger logger = Logger.getLogger("ru.org.linux");
 
   public static final int COMMENTS_INITIAL_BUFSIZE = 50;
 
   private final Template tmpl;
   private final CommentList comments;
-  private final Connection db;
   private final String urladd;
   private final boolean expired;
 
   private final String user;
 
-  public CommentViewer(Template t, CommentList comments, Connection conn, String u, String user, boolean expired) {
+  public CommentViewer(Template t, CommentList comments, String u, String user, boolean expired) {
     tmpl=t;
     this.comments = comments;
-    db=conn;
     urladd=u;
     this.user=user;
     this.expired = expired;
   }
 
   private void showCommentList(StringBuffer buf, List<Comment> comments, boolean reverse, int offset, int limit, Set<Integer> hideSet)
-      throws IOException, SQLException, UtilException {
+      throws IOException, UtilException {
     int shown = 0;
 
     for (ListIterator<Comment> i = comments.listIterator(reverse?comments.size():0); reverse?i.hasPrevious():i.hasNext();) {
@@ -45,14 +41,14 @@ public class CommentViewer {
 
       if (hideSet==null || !hideSet.contains(comment.getMessageId())) {
         shown++;
-        buf.append(comment.printMessage(tmpl, db, true, urladd, tmpl.isModeratorSession(), user, expired));
+        buf.append(comment.printMessage(tmpl, this.comments, true, urladd, tmpl.isModeratorSession(), user, expired));
       }
     }
 
     logger.fine("Showing list size="+comments.size()+" shown="+shown);    
   }
 
-  public String showAll(boolean reverse, int offset, int limit) throws IOException, SQLException, UtilException {
+  public String showAll(boolean reverse, int offset, int limit) throws IOException, UtilException {
     StringBuffer buf=new StringBuffer();
 
     showCommentList(buf, comments.getList(), reverse, offset, limit,  null);
@@ -60,7 +56,7 @@ public class CommentViewer {
     return buf.toString();
   }
 
-  public String showFiltered(boolean reverse, int offset, int limit) throws IOException, SQLException, UtilException {
+  public String showFiltered(boolean reverse, int offset, int limit) throws IOException, UtilException {
     StringBuffer buf=new StringBuffer();
     Set<Integer> hideSet = new HashSet<Integer>();
 
@@ -73,7 +69,7 @@ public class CommentViewer {
     return buf.toString();
   }
 
-  public String showSubtree(int parentId) throws IOException, SQLException, UtilException, MessageNotFoundException {
+  public String showSubtree(int parentId) throws IOException, UtilException, MessageNotFoundException {
     StringBuffer buf=new StringBuffer();
 
     CommentNode parentNode = comments.getNode(parentId);

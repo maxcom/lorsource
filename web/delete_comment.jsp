@@ -108,7 +108,7 @@ function change(dest,source)
 
     CommentList comments = CommentList.getCommentList(tmpl, db, topic, showDeleted);
 
-    CommentViewer cv = new CommentViewer(tmpl, comments, db, "", Template.getNick(session), topic.isExpired());
+    CommentViewer cv = new CommentViewer(tmpl, comments, "", Template.getNick(session), topic.isExpired());
     out.print(cv.showSubtree(msgid));
   } catch (MessageNotFoundException ex) {
     // it's ok for votes
