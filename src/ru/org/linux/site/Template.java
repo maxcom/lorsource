@@ -85,8 +85,14 @@ public class Template {
 
         FileHandler fh = new FileHandler(properties.getProperty("Logfile")+"j", true);
         fh.setFormatter(new SimpleFormatter());
-        fh.setLevel(Level.ALL);
+        fh.setLevel(Level.INFO);
+
+        FileHandler fhDebug = new FileHandler(properties.getProperty("Logfile")+"jdebug", true);
+        fhDebug.setFormatter(new SimpleFormatter());
+        fhDebug.setLevel(Level.ALL);
+
         Logger.getLogger("ru.org.linux").addHandler(fh);
+        Logger.getLogger("ru.org.linux").addHandler(fhDebug);
         Logger.getLogger("ru.org.linux").setLevel(Level.FINE);
         logger.info("Applicaton started!");
       } finally {
