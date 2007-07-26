@@ -2,6 +2,7 @@ package ru.org.linux.site;
 
 import java.io.IOException;
 import java.sql.*;
+import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -9,6 +10,8 @@ import javax.servlet.http.HttpSession;
 import ru.org.linux.util.*;
 
 public class Message {
+  private static final Logger logger = Logger.getLogger("ru.org.linux");
+
   private int msgid;
   private int postscore;
   private boolean imagepost;
@@ -174,7 +177,9 @@ public class Message {
         try {
           ImageInfo info=new ImageInfo(tmpl.getObjectConfig().getHTMLPathPrefix()+"/photos/"+photo);
           out.append("<img src=\"/photos/").append(photo).append("\" alt=\"").append(nick).append(" (фотография)\" ").append(info.getCode()).append(" >");
-        } catch (BadImageException e) {}
+        } catch (BadImageException e) {
+          logger.warning(StringUtil.getStackTrace(e));
+        }
 
         out.append("</td><td valign=top>");
       }
@@ -555,7 +560,7 @@ public class Message {
     pstMsgbase.close();
 
     String logmessage = "Написана тема " + msgid + " " + LorHttpUtils.getRequestIP(request);
-    tmpl.getLogger().notice("add2", logmessage);
+    logger.info(logmessage);
 
     db.commit();
 

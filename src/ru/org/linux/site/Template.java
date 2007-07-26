@@ -12,6 +12,7 @@ import java.util.Locale;
 import java.util.Properties;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
 import javax.servlet.ServletConfig;
@@ -24,15 +25,12 @@ import gnu.regexp.RE;
 import gnu.regexp.REException;
 import gnu.regexp.REMatch;
 
-import ru.org.linux.logger.Logger;
-import ru.org.linux.logger.ServletLogger;
-import ru.org.linux.logger.SimpleFileLogger;
 import ru.org.linux.storage.StorageException;
 import ru.org.linux.storage.StorageNotFoundException;
 import ru.org.linux.util.*;
 
 public class Template {
-  private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger("ru.org.linux"); 
+  private static final Logger logger = Logger.getLogger("ru.org.linux");
 
   private final Properties cookies;
   private String style;
@@ -41,7 +39,6 @@ public class Template {
   private static Properties properties = null;
   private boolean mainPage;
   private final ServletParameterParser parameters;
-  private static Logger siteLogger;
   private final Config config;
   private final HttpSession session;
   private final Date startDate = new Date();
@@ -65,12 +62,6 @@ public class Template {
     this(request, Config, response, false);
   }
 
-  private static synchronized void initServletLogger(ServletContext context) {
-    if (siteLogger == null) {
-      siteLogger = new ServletLogger(context);
-    }
-  }
-
   public String getSecret() {
     return config.getProperties().getProperty("Secret");
   }
@@ -90,15 +81,13 @@ public class Template {
         Properties tmp = new Properties();
         tmp.load(is);
         properties = tmp;
-        siteLogger.notice("template", "loaded config file");
-        siteLogger.close();
-        siteLogger = new SimpleFileLogger(properties.getProperty("Logfile"));
+        logger.fine("loaded config file");
 
         FileHandler fh = new FileHandler(properties.getProperty("Logfile")+"j", true);
         fh.setFormatter(new SimpleFormatter());
         fh.setLevel(Level.ALL);
-        java.util.logging.Logger.getLogger("ru.org.linux").addHandler(fh);
-        java.util.logging.Logger.getLogger("ru.org.linux").setLevel(Level.FINE);
+        Logger.getLogger("ru.org.linux").addHandler(fh);
+        Logger.getLogger("ru.org.linux").setLevel(Level.FINE);
         logger.info("Applicaton started!");
       } finally {
         if (is!=null) {
@@ -111,8 +100,6 @@ public class Template {
   public Template(HttpServletRequest request, ServletConfig config, HttpServletResponse response, boolean isErrorPage)
       throws ClassNotFoundException, IOException, SQLException, StorageException {
     request.setCharacterEncoding("koi8-r"); // блядский tomcat
-
-    initServletLogger(config.getServletContext());
 
     requestString = request.getRequestURI() + '?' + request.getQueryString();
 
@@ -143,7 +130,7 @@ public class Template {
       try {
         userProfile = readProfile(profile);
       } catch (IOException e) {
-        getLogger().error("template", e.toString()+": "+StringUtil.getStackTrace(e));        
+        logger.severe(e.toString()+": "+StringUtil.getStackTrace(e));
       } catch (StorageNotFoundException e) {
       }
     }
@@ -171,14 +158,14 @@ public class Template {
           User.updateUserLastlogin(db, profile, new Date()); // update user `lastlogin` time in DB
         }
       } catch (UserNotFoundException ex) {
-        getLogger().error("template", "Can't restore password for user: " + profile + " - " + ex.toString());
+        logger.warning("Can't restore password for user: " + profile + " - " + ex.toString());
       } finally {
         this.config.SQLclose();
       }
     }
 
     if (!isAnonymousProfile() && !isSessionAuthorized(session) && !isErrorPage) {
-      siteLogger.notice("template", "redirecting " + request.getRequestURI() + " to " + replaceProfile(request, null) + " because not logged in");
+      logger.fine("redirecting " + request.getRequestURI() + " to " + replaceProfile(request, null) + " because not logged in");
       response.setHeader("Location", replaceProfile(request, null));
       response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
       Cookie prof = new Cookie("profile", "");
@@ -198,7 +185,7 @@ public class Template {
       if (profileCookie != null) {
         response.setHeader("Location", replaceProfile(request, getCookie("profile")));
         response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
-        siteLogger.notice("template", "default profile, but cookie set: redirecting " + request.getRequestURI() + " to " + replaceProfile(request, getCookie("profile")));
+        logger.fine("default profile, but cookie set: redirecting " + request.getRequestURI() + " to " + replaceProfile(request, getCookie("profile")));
       }
     } else if (profileCookie != null &&
       profileCookie.equals(userProfile.getName())) {
@@ -212,7 +199,7 @@ public class Template {
       /* redirect to users page */
       response.setHeader("Location", replaceProfile(request, getCookie("profile")));
       response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
-      siteLogger.notice("template", "redirecting " + request.getRequestURI() + " to " + replaceProfile(request, getCookie("profile")));
+      logger.fine("redirecting " + request.getRequestURI() + " to " + replaceProfile(request, getCookie("profile")));
     }
 
 //    if (isSessionAuthorized(session)) {
@@ -454,7 +441,7 @@ public class Template {
     long millis = currentDate.getTime() - startDate.getTime();
 
     if (millis>WARNING_EXEC_TIME) {
-      siteLogger.notice("template", "execTime="+millis/1000+" seconds (dbWait="+config.getDbWaitTime()/1000+" seconds): "+requestString);
+      logger.info("execTime="+millis/1000+" seconds (dbWait="+config.getDbWaitTime()/1000+" seconds): "+requestString);
     }
 
     return out.toString();
@@ -496,10 +483,6 @@ public class Template {
     return config;
   }
 
-  public Logger getLogger() {
-    return siteLogger;
-  }
-
   public static boolean isSessionAuthorized(HttpSession session) {
     return session != null && session.getAttribute("login") != null && (Boolean) session.getAttribute("login");
   }
@@ -531,5 +514,4 @@ public class Template {
       return null;
     }
   }
-  
 }

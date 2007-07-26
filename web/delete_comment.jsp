@@ -135,12 +135,11 @@ function change(dest,source)
     db = tmpl.getConnection("delete_comment");
     db.setAutoCommit(false);
 
-    CommentDeleter deleter = new CommentDeleter(db, tmpl.getLogger());
+    CommentDeleter deleter = new CommentDeleter(db);
 
     User user;
 
-    if (session == null || session.getAttribute("login") == null || !((Boolean) session.getAttribute("login")).booleanValue())
-    {
+    if (session == null || session.getAttribute("login") == null || !((Boolean) session.getAttribute("login")).booleanValue()) {
       if (request.getParameter("nick") == null) {
         throw new BadInputException("Вы уже вышли из системы");
       }

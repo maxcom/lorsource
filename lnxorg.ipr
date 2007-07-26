@@ -212,6 +212,13 @@
         <inspection_tool class="JSUnresolvedFunction" level="INFO" enabled="false" />
         <inspection_tool class="JSUnresolvedVariable" level="INFO" enabled="false" />
         <inspection_tool class="SameReturnValue" level="WARNING" enabled="false" />
+        <inspection_tool class="UnnecessaryFullyQualifiedName" level="WARNING" enabled="true">
+          <option name="m_ignoreJavadoc" value="false" />
+        </inspection_tool>
+        <inspection_tool class="MissortedModifiers" level="WARNING" enabled="true">
+          <option name="m_requireAnnotationsFirst" value="true" />
+        </inspection_tool>
+        <inspection_tool class="ConfusingOctalEscape" level="WARNING" enabled="true" />
       </profile>
     </profiles>
   </component>

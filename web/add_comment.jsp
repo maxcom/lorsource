@@ -1,14 +1,17 @@
 <%@ page contentType="text/html; charset=koi8-r"%>
-<%@ page import="java.sql.*,java.util.Random,javax.servlet.http.Cookie,javax.servlet.http.HttpServletResponse,ru.org.linux.site.*,ru.org.linux.util.HTMLFormatter" errorPage="/error.jsp"%>
-<%@ page import="ru.org.linux.util.UtilBadHTMLException"%>
+<%@ page import="java.sql.*,java.util.Random,java.util.logging.Logger,javax.servlet.http.Cookie,javax.servlet.http.HttpServletResponse,ru.org.linux.site.*" errorPage="/error.jsp"%>
+<%@ page import="ru.org.linux.util.HTMLFormatter"%>
+<%@ page import="ru.org.linux.util.UtilBadHTMLException" %>
 <%@ page import="ru.org.linux.util.UtilBadURLException" %>
 <% Template tmpl = new Template(request, config, response);%>
 <%
-	int topic = tmpl.getParameters().getInt("topic");
-	boolean showform = request.getParameter("msg")==null;
+  Logger logger = Logger.getLogger("ru.org.linux");
+
+  int topic = tmpl.getParameters().getInt("topic");
+  boolean showform = request.getParameter("msg") == null;
 
   if (!"POST".equals(request.getMethod()))
-    showform=true;
+    showform = true;
 %>
 <%= tmpl.head() %>
 
@@ -29,7 +32,7 @@
     }
 
     if (!session.getId().equals(request.getParameter("session"))) {
-      tmpl.getLogger().notice("add2", "Flood protection (session variable differs: "+ session.getId()+ ") " + request.getRemoteAddr());
+      logger.info("Flood protection (session variable differs: " + session.getId() + ") " + request.getRemoteAddr());
       throw new BadInputException("сбой добавления");
     }
 
@@ -55,7 +58,7 @@
       boolean autourl = tmpl.getParameters().getBoolean("autourl");
 
       if (!Template.isSessionAuthorized(session)) {
-        CaptchaSingleton.checkCaptcha(session, request, tmpl.getLogger());
+        CaptchaSingleton.checkCaptcha(session, request);
       }
 
       // prechecks is over
@@ -207,7 +210,7 @@
         logmessage = logmessage + " XFF:" + request.getHeader(("X-Forwarded-For"));
       }
 
-      tmpl.getLogger().notice("add2", logmessage);
+      logger.info(logmessage);
 
       Random random = new Random();
 

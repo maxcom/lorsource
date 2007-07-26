@@ -1,6 +1,7 @@
 <%@ page contentType="text/html; charset=koi8-r"%>
 <%@ page import="java.sql.Connection,java.sql.PreparedStatement,java.sql.ResultSet,java.sql.Statement,java.util.Date" errorPage="/error.jsp"%>
 <%@ page import="java.util.Properties"%>
+<%@ page import="java.util.logging.Logger"%>
 <%@ page import="javax.mail.Session"%>
 <%@ page import="javax.mail.Transport"%>
 <%@ page import="javax.mail.internet.InternetAddress"%>
@@ -10,8 +11,10 @@
 <%@ page import="ru.org.linux.util.HTMLFormatter"%>
 <%@ page import="ru.org.linux.util.LorHttpUtils"%>
 <%@ page import="ru.org.linux.util.StringUtil"%>
-<%@ page import="ru.org.linux.util.URLUtil"%>
-<% Template tmpl = new Template(request, config, response); %>
+<%@ page import="ru.org.linux.util.URLUtil" %>
+<% Template tmpl = new Template(request, config, response);
+  Logger logger = Logger.getLogger("ru.org.linux");
+%>
 <%= tmpl.head() %>
 <title>Регистрация пользователя</title>
 <%= tmpl.DocumentHeader() %>
@@ -65,10 +68,10 @@ URL (не забудьте добавить <b>http://</b>): <br>
       throw new BadInputException("слишком длинное имя пользователя");
 
     if (!changeMode) {
-      CaptchaSingleton.checkCaptcha(session, request, tmpl.getLogger());
+      CaptchaSingleton.checkCaptcha(session, request);
 
       if (session.getAttribute("register-visited") == null) {
-        tmpl.getLogger().notice("register", "Flood protection (not visited register.jsp) " + request.getRemoteAddr());
+        logger.info("Flood protection (not visited register.jsp) " + request.getRemoteAddr());
         throw new BadInputException("сбой");
       }
     }
@@ -203,7 +206,7 @@ URL (не забудьте добавить <b>http://</b>): <br>
       ist.close();
 
       String logmessage = "Зарегистрирован пользователь " + nick + " (id=" + userid + ") " + LorHttpUtils.getRequestIP(request);
-      tmpl.getLogger().notice("register", logmessage);
+      logger.info(logmessage);
 
       if (info != null) {
         tmpl.getObjectConfig().getStorage().writeMessage("userinfo", String.valueOf(userid), info);

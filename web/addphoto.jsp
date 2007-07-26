@@ -2,10 +2,13 @@
 <%@ page import="java.io.File,java.io.IOException, java.net.URLEncoder, java.sql.Connection" errorPage="/error.jsp"%>
 <%@ page import="java.sql.PreparedStatement" %>
 <%@ page import="java.util.Random" %>
+<%@ page import="java.util.logging.Logger" %>
 <%@ page import="ru.org.linux.site.*" %>
 <%@ page import="ru.org.linux.util.BadImageException" %>
 <%@ page import="ru.org.linux.util.ImageInfo" %>
-<% Template tmpl = new Template(request, config, response); %>
+<% Template tmpl = new Template(request, config, response);
+  Logger logger = Logger.getLogger("ru.org.linux");
+%>
 <%= tmpl.head() %>
 <title>Добавление/Изменение фотографии</title>
 <%= tmpl.DocumentHeader() %>
@@ -56,7 +59,7 @@
 
       Random random = new Random();
 
-      String photoname = Integer.toString(user.getId()) + "." + extension;
+      String photoname;
       File photofile;
 
       do {
@@ -71,7 +74,7 @@
       pst.setInt(2, user.getId());
       pst.executeUpdate();
 
-      tmpl.getLogger().info("addphoto", "Установлена фотография пользователем " + user.getNick());
+      logger.info("Установлена фотография пользователем " + user.getNick());
 
       response.sendRedirect(tmpl.getRedirectUrl() + "whois.jsp?nick=" + URLEncoder.encode(user.getNick())+"&nocache="+random.nextInt());
     } catch (IOException ex) {

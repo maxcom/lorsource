@@ -6,7 +6,6 @@ import java.util.Date;
 
 import javax.servlet.http.HttpSession;
 
-import ru.org.linux.logger.Logger;
 import ru.org.linux.util.StringUtil;
 
 public class User {
@@ -319,7 +318,7 @@ public class User {
     }
   }
 
-  public String deleteAllComments(Connection db, Logger logger, User moderator) throws SQLException {
+  public String deleteAllComments(Connection db, User moderator) throws SQLException {
     Statement st = null;
     ResultSet rs = null;
     CommentDeleter deleter = null;
@@ -327,7 +326,7 @@ public class User {
     StringBuilder out = new StringBuilder();
 
     try {
-      deleter = new CommentDeleter(db, logger);
+      deleter = new CommentDeleter(db);
 
       st = db.createStatement();
 

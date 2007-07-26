@@ -2,13 +2,16 @@
 <%@ page import="java.sql.Connection" %>
 <%@ page import="java.sql.Statement" %>
 <%@ page import="java.util.Random" %>
+<%@ page import="java.util.logging.Logger" %>
 <%@ page import="ru.org.linux.site.AccessViolationException" %>
 <%@ page import="ru.org.linux.site.Template" %>
 <%@ page import="ru.org.linux.site.User" %>
 <%@ page import="ru.org.linux.site.UserErrorException" %>
 <%@ page import="ru.org.linux.util.HTMLFormatter" %>
 <%@ page contentType="text/html;charset=koi8-r" language="java" errorPage="/error.jsp" %>
-<% Template tmpl = new Template(request, config, response); %>
+<% Template tmpl = new Template(request, config, response);
+  Logger logger = Logger.getLogger("ru.org.linux");
+%>
 <%= tmpl.head() %>
 <title>usermod</title>
 <%= tmpl.DocumentHeader() %>
@@ -45,10 +48,10 @@
 
       user.block(db);
       st.executeUpdate("UPDATE users SET blocked='t' WHERE id=" + id);
-      tmpl.getLogger().notice("usermod.jsp", "User " + user.getNick() + " blocked by " + session.getValue("nick"));
+      logger.info("User " + user.getNick() + " blocked by " + session.getValue("nick"));
 
       if (action.equals("block-n-delete-comments")) {
-        out.print(user.deleteAllComments(db, tmpl.getLogger(), moderator));
+        out.print(user.deleteAllComments(db, moderator));
         redirect = false;
       }
     } else if (action.equals("unblock")) {
@@ -57,7 +60,7 @@
       }
 
       st.executeUpdate("UPDATE users SET blocked='f' WHERE id=" + id);
-      tmpl.getLogger().notice("usermod.jsp", "User " + user.getNick() + " unblocked by " + session.getValue("nick"));
+      logger.info("User " + user.getNick() + " unblocked by " + session.getValue("nick"));
     } else if (action.equals("remove_userpic")) {
       if (user.canModerate()) {
         throw new AccessViolationException("Пользователю " + user.getNick() + " нельзя удалить картинку");
@@ -69,16 +72,16 @@
 
       st.executeUpdate("UPDATE users SET photo=null WHERE id=" + id);
       st.executeUpdate("UPDATE users SET score=score-10 WHERE id=" + id);
-      tmpl.getLogger().notice("whois.jsp", "Clearing " + user.getNick() + " userpic");
+      logger.info("Clearing " + user.getNick() + " userpic");
     } else if (action.equals("remove_userinfo")) {
       if (user.canModerate()) {
         throw new AccessViolationException("Пользователю " + user.getNick() + " нельзя удалить сведения");
       }
 
-      tmpl.getObjectConfig().getStorage().updateMessage("userinfo", String.valueOf(id), "");      
+      tmpl.getObjectConfig().getStorage().updateMessage("userinfo", String.valueOf(id), "");
 
       st.executeUpdate("UPDATE users SET score=score-10 WHERE id=" + id);
-      tmpl.getLogger().notice("whois.jsp", "Clearing " + user.getNick() + " userinfo");
+      logger.info("Clearing " + user.getNick() + " userinfo");
     } else {
       throw new UserErrorException("Invalid action=" + HTMLFormatter.htmlSpecialChars(action));
     }

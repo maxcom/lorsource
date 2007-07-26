@@ -1,9 +1,12 @@
 <%@ page contentType="text/html; charset=koi8-r"%>
 <%@ page import="java.sql.Connection,java.sql.PreparedStatement,java.util.Iterator,java.util.List,java.util.Random" errorPage="/error.jsp"%>
+<%@ page import="java.util.logging.Logger"%>
 <%@ page import="javax.servlet.http.HttpServletResponse"%>
 <%@ page import="ru.org.linux.site.*"%>
-<%@ page import="ru.org.linux.util.HTMLFormatter"%>
-<% Template tmpl = new Template(request, config, response); %>
+<%@ page import="ru.org.linux.util.HTMLFormatter" %>
+<% Template tmpl = new Template(request, config, response);
+  Logger logger = Logger.getLogger("ru.org.linux");
+%>
 <%= tmpl.head() %>
 	<title>Редактирование опроса</title>
 <%= tmpl.DocumentHeader() %>
@@ -127,7 +130,7 @@
 
         out.print("Сообщение отредактировано");
 
-        tmpl.getLogger().notice("commit", "Отредактирован опрос" + id + " пользователем " + user.getNick());
+        logger.info("Отредактирован опрос" + id + " пользователем " + user.getNick());
       }
 
       db.commit();

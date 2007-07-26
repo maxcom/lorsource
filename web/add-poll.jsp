@@ -1,8 +1,9 @@
 <%@ page import="java.sql.Connection"%>
 <%@ page import="java.util.ArrayList"%>
 <%@ page import="java.util.List"%>
+<%@ page import="java.util.logging.Logger"%>
 <%@ page import="ru.org.linux.site.*"%>
-<%@ page import="ru.org.linux.util.HTMLFormatter"%>
+<%@ page import="ru.org.linux.util.HTMLFormatter" %>
 <%@ page contentType="text/html; charset=koi8-r" errorPage="/error.jsp"%>
 <% Template tmpl = new Template(request, config, response);%>
 <%= tmpl.head() %>
@@ -60,7 +61,7 @@
       logmessage = logmessage + " XFF:" + request.getHeader(("X-Forwarded-For"));
     }
 
-    tmpl.getLogger().notice("add-poll", logmessage);
+    Logger.getLogger("ru.org.linux").info(logmessage);
 
     if (id > 0) {
       int guid = tmpl.getParameters().getInt("group");

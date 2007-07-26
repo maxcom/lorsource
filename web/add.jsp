@@ -1,50 +1,51 @@
 <%@ page contentType="text/html; charset=koi8-r"%>
 <%@ page contentType="text/html; charset=koi8-r" import="java.sql.Connection,java.util.Random" errorPage="/error.jsp"%>
+<%@ page import="java.util.logging.Logger"%>
 <%@ page import="ru.org.linux.site.*"%>
 <%@ page import="ru.org.linux.util.HTMLFormatter"%>
-<%@ page import="ru.org.linux.util.UtilBadURLException"%>
+<%@ page import="ru.org.linux.util.UtilBadURLException" %>
 <% Template tmpl = new Template(request, config, response);%>
 <%= tmpl.head() %>
 <%
   Connection db = null;
   try {
 
-  boolean showform = request.getMethod().equals("GET");
-  Exception error = null;
+    boolean showform = request.getMethod().equals("GET");
+    Exception error = null;
 
-  if (request.getMethod().equals("POST")) {
-    try {
-    String returnUrl = request.getParameter("return");
-    if (returnUrl == null) {
-      returnUrl = "";
-    }
+    if (request.getMethod().equals("POST")) {
+      try {
+        String returnUrl = request.getParameter("return");
+        if (returnUrl == null) {
+          returnUrl = "";
+        }
 
-    if (!session.getId().equals(request.getParameter("session"))) {
-      tmpl.getLogger().notice("add2", "Flood protection (session variable differs) " + request.getRemoteAddr());
-      throw new BadInputException("сбой добавления");
-    }
+        if (!session.getId().equals(request.getParameter("session"))) {
+          Logger.getLogger("ru.org.linux").info("Flood protection (session variable differs) " + request.getRemoteAddr());
+          throw new BadInputException("сбой добавления");
+        }
 
-    if (!Template.isSessionAuthorized(session)) {
-      CaptchaSingleton.checkCaptcha(session, request, tmpl.getLogger());
-    }
+        if (!Template.isSessionAuthorized(session)) {
+          CaptchaSingleton.checkCaptcha(session, request);
+        }
 
-    db = tmpl.getConnection("add");
-    db.setAutoCommit(false);
+        db = tmpl.getConnection("add");
+        db.setAutoCommit(false);
 
-    IPBlockInfo.checkBlockIP(db, request.getRemoteAddr());
+        IPBlockInfo.checkBlockIP(db, request.getRemoteAddr());
 
-    int guid = tmpl.getParameters().getInt("group");
+        int guid = tmpl.getParameters().getInt("group");
 
-    Group group = new Group(db, guid);
+        Group group = new Group(db, guid);
 
-    Message.addTopic(db, tmpl, session, request, group);
+        Message.addTopic(db, tmpl, session, request, group);
 
-    Random random = new Random();
+        Random random = new Random();
 
-    if (!group.isModerated()) {
-      response.setHeader("Location", tmpl.getRedirectUrl() + returnUrl + "&nocache=" + random.nextInt());
-      response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
-    }
+        if (!group.isModerated()) {
+          response.setHeader("Location", tmpl.getRedirectUrl() + returnUrl + "&nocache=" + random.nextInt());
+          response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
+        }
 %>
 <title>Добавление сообщения прошло успешно</title>
 <%= tmpl.DocumentHeader() %>

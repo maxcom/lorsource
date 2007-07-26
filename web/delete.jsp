@@ -1,7 +1,10 @@
 <%@ page contentType="text/html; charset=koi8-r"%>
 <%@ page import="java.sql.Connection,java.sql.PreparedStatement,java.sql.ResultSet" errorPage="/error.jsp"%>
-<%@ page import="ru.org.linux.site.*"%>
-<% Template tmpl = new Template(request, config, response); %>
+<%@ page import="java.util.logging.Logger"%>
+<%@ page import="ru.org.linux.site.*" %>
+<% Template tmpl = new Template(request, config, response);
+  Logger logger = Logger.getLogger("ru.org.linux");
+%>
 <%= tmpl.head() %>
 	<title>Удаление сообщения</title>
 <%= tmpl.DocumentHeader() %>
@@ -179,7 +182,7 @@ function change(dest,source)
       st2.executeUpdate();
 
       out.print("Сообщение удалено");
-      tmpl.getLogger().notice("delete", "Удалено сообщение " + msgid + " пользователем " + nick + " по причине `" + reason + '\'');
+      logger.info("Удалено сообщение " + msgid + " пользователем " + nick + " по причине `" + reason + '\'');
 
       st1.close();
       st2.close();

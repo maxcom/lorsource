@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Logger;
 
 import com.danga.MemCached.MemCachedClient;
 
@@ -15,6 +16,8 @@ import ru.org.linux.util.StringUtil;
 import ru.org.linux.util.UtilException;
 
 public class BoxletVectorRunner {
+  private static final Logger logger = Logger.getLogger("ru.org.linux");
+
   private final List boxes;
 
   private final MemCachedClient mcc = MemCachedSettings.getClient();
@@ -46,7 +49,7 @@ public class BoxletVectorRunner {
         out.append(res);
         out.append("</div>");
       } catch (Exception e) {
-        tmpl.getLogger().error("boxlerrunner", StringUtil.getStackTrace(e));
+        logger.severe(StringUtil.getStackTrace(e));
 
         if (profile.getBoolean("DebugMode")) {
           out.append("<b>Ошибка получения ").append(name).append(": ").append(e.toString()).append("</b><p>").append(HTMLFormatter.nl2br(StringUtil.getStackTrace(e)));

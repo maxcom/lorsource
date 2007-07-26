@@ -1,9 +1,12 @@
 <%@ page contentType="text/html; charset=koi8-r"%>
-<%@ page import="java.sql.Connection,java.sql.PreparedStatement,java.sql.ResultSet,java.sql.Statement,ru.org.linux.site.MessageNotFoundException" errorPage="/error.jsp"%>
+<%@ page import="java.sql.Connection,java.sql.PreparedStatement,java.sql.ResultSet,java.sql.Statement,java.util.logging.Logger" errorPage="/error.jsp"%>
+<%@ page import="ru.org.linux.site.MessageNotFoundException"%>
 <%@ page import="ru.org.linux.site.MissingParameterException"%>
 <%@ page import="ru.org.linux.site.Template"%>
-<%@ page import="ru.org.linux.site.User"%>
-<% Template tmpl = new Template(request, config, response); %>
+<%@ page import="ru.org.linux.site.User" %>
+<% Template tmpl = new Template(request, config, response);
+  Logger logger = Logger.getLogger("ru.org.linux");
+%>
 <%= tmpl.head() %>
 	<title>Смена режима записи комментариев</title>
 <%= tmpl.DocumentHeader() %>
@@ -83,7 +86,7 @@ if (!tmpl.isModeratorSession()) {
 
         out.print("Установлен новый уровень записи "+postscore);
 
-	tmpl.getLogger().notice("commit", "Установлен новый уровень записи "+postscore+" для "+msgid+" пользователем "+user.getNick());
+	logger.info("Установлен новый уровень записи "+postscore+" для "+msgid+" пользователем "+user.getNick());
 
 	pst.close();
 	db.commit();

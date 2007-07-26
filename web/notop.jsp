@@ -1,7 +1,10 @@
 <%@ page contentType="text/html; charset=koi8-r"%>
-<%@ page import="java.sql.Connection,java.sql.PreparedStatement,ru.org.linux.site.MissingParameterException,ru.org.linux.site.Template" errorPage="/error.jsp"%>
-<%@ page import="ru.org.linux.site.User"%>
-<% Template tmpl = new Template(request, config, response); %>
+<%@ page import="java.sql.Connection,java.sql.PreparedStatement,java.util.logging.Logger,ru.org.linux.site.MissingParameterException" errorPage="/error.jsp"%>
+<%@ page import="ru.org.linux.site.Template"%>
+<%@ page import="ru.org.linux.site.User" %>
+<% Template tmpl = new Template(request, config, response);
+  Logger logger = Logger.getLogger("ru.org.linux");
+%>
 <%= tmpl.head() %>
 	<title>Удаление сообщения из TOP10</title>
 <%= tmpl.DocumentHeader() %>
@@ -43,7 +46,7 @@ if (!tmpl.isModeratorSession()) {
 
         out.print("Сообщение удалено из top10");
 
-	tmpl.getLogger().notice("notop", "Удалено из TOP10 сообщение "+msgid+" пользователем "+user.getNick());
+	logger.info("Удалено из TOP10 сообщение "+msgid+" пользователем "+user.getNick());
 	pst.close();
 
 	db.commit();
