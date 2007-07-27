@@ -1,5 +1,7 @@
 <%@ page contentType="text/html; charset=koi8-r"%>
-<%@ page import="java.net.URLEncoder,javax.servlet.http.HttpServletResponse,ru.org.linux.site.Template" errorPage="/error.jsp" buffer="60kb"%>
+<%@ page import="java.net.URLEncoder,java.sql.Connection" errorPage="/error.jsp" buffer="60kb"%>
+<%@ page import="javax.servlet.http.HttpServletResponse" %>
+<%@ page import="ru.org.linux.site.*" %>
 <% Template tmpl = new Template(request, config, response); %>
 <%= tmpl.head() %>
 <%
@@ -27,6 +29,35 @@
   if (request.getParameter("nocache") != null) {
     options.append("&nocache=");
     options.append(URLEncoder.encode(request.getParameter("nocache")));
+  }
+
+  if (request.getParameter("cid") != null) {
+    Connection db = null;
+    int cid = tmpl.getParameters().getInt("cid");
+
+    try {
+      db = tmpl.getConnection("jump-message");
+      Message topic = new Message(db, msgid);
+      CommentList comments = CommentList.getCommentList(tmpl, db, topic, false);
+      CommentNode node = comments.getNode(cid);
+      if (node == null) {
+        throw new MessageNotFoundException(cid);
+      }
+
+      int pagenum = comments.getCommentPage(node.getComment(), tmpl);
+
+      if (pagenum>0) {
+        options.append("&page=");
+        options.append(pagenum);
+      }
+
+      options.append("#");
+      options.append(cid);
+    } finally {
+      if (db != null) {
+        db.close();
+      }
+    }
   }
 
   response.setHeader("Location", redirectUrl + options.toString());

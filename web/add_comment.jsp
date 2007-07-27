@@ -22,7 +22,6 @@
 
 <% Exception error = null;
   if (!showform) { // add2
-    String returnUrl = request.getParameter("return");
     String msg = request.getParameter("msg");
     int replyto = 0;
 
@@ -36,10 +35,6 @@
     }
 
     try {
-      if (returnUrl == null) {
-        returnUrl = "";
-      }
-
       String title = request.getParameter("title");
       if (title == null) {
         title = "";
@@ -196,9 +191,21 @@
 
       logger.info(logmessage);
 
+      CommentList commentList = CommentList.getCommentList(tmpl, db, topic, false);
+      Comment comment = commentList.getNode(msgid).getComment();
+      int pageNum = commentList.getCommentPage(comment, tmpl);
+
       Random random = new Random();
 
-      response.setHeader("Location", tmpl.getRedirectUrl() + returnUrl + "&nocache=" + random.nextInt());
+      String returnUrl;
+
+      if (pageNum>0) {
+        returnUrl ="view-message.jsp?msgid=" + topicId+"&page="+ pageNum + "&nocache=" + random.nextInt()+"#"+msgid;
+      } else {
+        returnUrl ="view-message.jsp?msgid=" + topicId + "&nocache=" + random.nextInt()+"#"+msgid;        
+      }
+
+      response.setHeader("Location", tmpl.getRedirectUrl() + returnUrl);
       response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
 
       db.commit();
@@ -210,7 +217,7 @@
 <%= tmpl.DocumentHeader() %>
 <p>Сообщение помещено успешно
 
-<p><a href="<%= tmpl.getRedirectUrl()+returnUrl %>">Возврат</a>
+<p><a href="<%= returnUrl %>">Возврат</a>
 
 <p><b>Пожалуйста, не нажимайте кнопку "ReLoad" вашего броузера на этой страничке и не возвращайтесь на нее по средством кнопки Back</b>
 <%
@@ -304,7 +311,7 @@ if (showform) { // show form
   if (!title.startsWith("Re:")) title = "Re: " + title;
 
   out.print("<div class=messages>");
-  out.print(comment.printMessage(tmpl, null, false, "", tmpl.isModeratorSession(), Template.getNick(session), false));
+  out.print(comment.printMessage(tmpl, null, false, tmpl.isModeratorSession(), Template.getNick(session), false));
   out.print("</div>");
 
   if (request.getParameter("title") != null) title = request.getParameter("title");

@@ -1,6 +1,5 @@
 <%@ page contentType="text/html; charset=koi8-r"%>
-<%@ page import="java.sql.Connection,javax.servlet.http.HttpServletResponse,ru.org.linux.site.AccessViolationException,ru.org.linux.site.Message,ru.org.linux.site.Template" errorPage="/error.jsp" buffer="200kb"%>
-<%@ page import="ru.org.linux.util.HTMLFormatter"%>
+<%@ page import="java.sql.Connection,ru.org.linux.site.AccessViolationException,ru.org.linux.site.Message,ru.org.linux.site.Template,ru.org.linux.util.HTMLFormatter" errorPage="/error.jsp" buffer="200kb"%>
 <% Template tmpl = new Template(request, config, response); %>
 <%= tmpl.head() %>
 <%
@@ -9,30 +8,19 @@
   try {
    int msgid = tmpl.getParameters().getInt("msgid");
 
-   int npage=-1;
-   if (request.getParameter("page")!=null)
-   	npage=tmpl.getParameters().getInt("page");
-
-   String returnUrl="view-message.jsp?msgid="+msgid;
-   if (npage!=-1) returnUrl+="&amp;page="+npage;
-
-   boolean show_deleted=request.getParameter("deleted")!=null;
-
-   if (show_deleted && !"POST".equals(request.getMethod())) {
-	response.setHeader("Location",tmpl.getRedirectUrl()+returnUrl);
-	response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
-
-	show_deleted=false;
-   }
-
-   db = tmpl.getConnection("view-message");
+   db = tmpl.getConnection("comment-message");
 
    Message message = new Message(db, msgid);
 
-   if (message.isExpired() && show_deleted)
-   	throw new AccessViolationException("нельзя посмотреть удаленные комментарии в устаревших темах");
-   if (message.isExpired() && message.isDeleted())
-   	throw new AccessViolationException("нельзя посмотреть устаревшие удаленные сообщения");
+   if (message.isExpired())
+    throw new AccessViolationException("нельзя комментировать устаревшие темы");
+
+   if (message.isDeleted())
+    throw new AccessViolationException("нельзя комментировать удаленные сообщения");
+
+   if (!message.isCommentEnabled()) {
+     throw new AccessViolationException("нельзя комментировать тему");
+   }
 
    out.print("<title>"+message.getPortalTitle()+" - "+message.getGroupTitle()+" - "+message.getTitle()+"</title>");
 %>
@@ -45,7 +33,7 @@
 %>
 </div>
 
-<% if (message.isCommentEnabled() && !message.isExpired() && !message.isDeleted() && !show_deleted) { %>
+<% if (message.isCommentEnabled()) { %>
 
 <h2><a name=rep>Добавить сообщение:</a></h2>
 <% if (tmpl.getProf().getBoolean("showinfo") && !tmpl.isSessionAuthorized(session)) { %>
@@ -72,7 +60,6 @@
 <input type=password name=password size=40><br>
 <% } %>
 <% out.print("<input type=hidden name=topic value="+msgid+ '>'); %>
-<input type=hidden name=return value="<%= returnUrl %>">
 Заглавие:
 <input type=text name=title size=40 value="Re: <%= message.getTitle() %>"><br>
 Сообщение:<br>

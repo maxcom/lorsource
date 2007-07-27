@@ -1,11 +1,12 @@
 package ru.org.linux.site;
 
+import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class DeleteInfo {
+public class DeleteInfo implements Serializable {
   private final String nick;
   private final int userid;
   private final String reason;

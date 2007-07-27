@@ -13,15 +13,13 @@ public class CommentViewer {
 
   private final Template tmpl;
   private final CommentList comments;
-  private final String urladd;
   private final boolean expired;
 
   private final String user;
 
-  public CommentViewer(Template t, CommentList comments, String u, String user, boolean expired) {
+  public CommentViewer(Template t, CommentList comments, String user, boolean expired) {
     tmpl=t;
     this.comments = comments;
-    urladd=u;
     this.user=user;
     this.expired = expired;
   }
@@ -41,7 +39,7 @@ public class CommentViewer {
 
       if (hideSet==null || !hideSet.contains(comment.getMessageId())) {
         shown++;
-        buf.append(comment.printMessage(tmpl, this.comments, true, urladd, tmpl.isModeratorSession(), user, expired));
+        buf.append(comment.printMessage(tmpl, this.comments, true, tmpl.isModeratorSession(), user, expired));
       }
     }
 

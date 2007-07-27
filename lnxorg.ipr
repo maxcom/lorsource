@@ -220,6 +220,21 @@
         </inspection_tool>
         <inspection_tool class="ConfusingOctalEscape" level="WARNING" enabled="true" />
         <inspection_tool class="SameParameterValue" level="WARNING" enabled="false" />
+        <inspection_tool class="ChannelResource" level="WARNING" enabled="true" />
+        <inspection_tool class="HibernateResource" level="WARNING" enabled="true" />
+        <inspection_tool class="IOResource" level="WARNING" enabled="true" />
+        <inspection_tool class="JDBCResource" level="WARNING" enabled="true" />
+        <inspection_tool class="JNDIResource" level="WARNING" enabled="true" />
+        <inspection_tool class="SocketResource" level="WARNING" enabled="true" />
+        <inspection_tool class="DriverManagerGetConnection" level="WARNING" enabled="true" />
+        <inspection_tool class="NonSerializableFieldInSerializableClass" level="WARNING" enabled="true">
+          <option name="ignoreSerializableDueToInheritance" value="true" />
+        </inspection_tool>
+        <inspection_tool class="NonSerializableObjectBoundToHttpSession" level="WARNING" enabled="true" />
+        <inspection_tool class="NonSerializableObjectPassedToObjectStream" level="WARNING" enabled="true" />
+        <inspection_tool class="ReadObjectAndWriteObjectPrivate" level="WARNING" enabled="true" />
+        <inspection_tool class="SerializableWithUnconstructableAncestor" level="WARNING" enabled="true" />
+        <inspection_tool class="TransientFieldInNonSerializableClass" level="WARNING" enabled="true" />
       </profile>
     </profiles>
   </component>

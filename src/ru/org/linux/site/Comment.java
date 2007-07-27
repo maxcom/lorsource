@@ -76,7 +76,7 @@ public class Comment implements Serializable {
     }
   }
 
-  public String printMessage(Template tmpl, CommentList comments, boolean showMenu, String urladd, boolean moderatorMode, String user, boolean expired)
+  public String printMessage(Template tmpl, CommentList comments, boolean showMenu, boolean moderatorMode, String user, boolean expired)
       throws IOException, UtilException {
     StringBuffer out=new StringBuffer();
 
@@ -88,11 +88,14 @@ public class Comment implements Serializable {
       out.append("<tr class=title><td>");
 
       if (!deleted) {
-        out.append("[<a href=\"/jump-message.jsp?msgid=").append(topic).append('#').append(msgid).append("\">#</a>]");
+        int page = comments.getCommentPage(this, tmpl);
+        String pg = page>0?"&amp;page="+page:"";
+
+        out.append("[<a href=\"/jump-message.jsp?msgid=").append(topic).append(pg).append('#').append(msgid).append("\">#</a>]");
       }
 
       if (!expired && !deleted) {
-        out.append("[<a href=\"add_comment.jsp?topic=").append(topic).append("&amp;replyto=").append(msgid).append(urladd).append("\">Ответить</a>]");
+        out.append("[<a href=\"add_comment.jsp?topic=").append(topic).append("&amp;replyto=").append(msgid).append("\">Ответить</a>]");
       }
 
       if (!deleted && (moderatorMode || nick.equals(user))) {
@@ -118,13 +121,18 @@ public class Comment implements Serializable {
       CommentNode replyNode = comments.getNode(replyto);
       if (replyNode!=null) {
         Comment reply = replyNode.getComment();
-        int messages = tmpl.getProf().getInt("messages");
-        boolean reverse = tmpl.getProf().getBoolean("newfirst");
 
         out.append("<tr class=title><td>");
 
         out.append("Ответ на: <a href=\"");
-        out.append("view-message.jsp?msgid=").append(topic).append("&amp;page=").append(comments.getCommentPage(reply, messages, reverse)).append('#').append(replyto);
+
+        int replyPage = comments.getCommentPage(reply, tmpl);
+        if (replyPage>0) {
+          out.append("view-message.jsp?msgid=").append(topic).append("&amp;page=").append(replyPage).append('#').append(replyto);
+        } else {
+          out.append("view-message.jsp?msgid=").append(topic).append('#').append(replyto);          
+        }
+
         out.append("\">");
         out.append(StringUtil.makeTitle(reply.getTitle())).append("</a> от ").append(reply.getNick()).append(' ').append(Template.dateFormat.format(reply.getPostdate()));
       } else {
@@ -167,7 +175,7 @@ public class Comment implements Serializable {
     out.append("(<a href=\"whois.jsp?nick=").append(URLEncoder.encode(nick)).append("\">*</a>) (").append(Template.dateFormat.format(postdate)).append(")</i>");
 
     if (!expired && !deleted && showMenu)
-      out.append("<p><font size=2>[<a href=\"add_comment.jsp?topic=").append(topic).append("&amp;replyto=").append(msgid).append(urladd).append("\">Ответить на это сообщение</a>]</font>");
+      out.append("<p><font size=2>[<a href=\"add_comment.jsp?topic=").append(topic).append("&amp;replyto=").append(msgid).append("\">Ответить на это сообщение</a>]</font>");
 
     if (tbl) out.append("</td></tr></table>");
       out.append("</div></td></tr>");

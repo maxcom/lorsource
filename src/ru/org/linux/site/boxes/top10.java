@@ -49,11 +49,11 @@ public final class top10 extends Boxlet {
           out.append("* ");
         }
 
-        out.append("<a href=\"jump-message.jsp?msgid=").append(msgid).append("&amp;lastmod=").append(lastmod.getTime()).append("&amp;page=0\">").append(rs.getString("title")).append("</a>");
+        out.append("<a href=\"jump-message.jsp?msgid=").append(msgid).append("&amp;lastmod=").append(lastmod.getTime()).append("\">").append(rs.getString("title")).append("</a>");
         int pages = (int) Math.ceil(c / messages);
         if (pages > 1) {
           out.append(" (стр.");
-          for (int i = 0; i < pages; i++) {
+          for (int i = 1; i < pages; i++) {
             out.append(" <a href=\"jump-message.jsp?msgid=").append(msgid).append("&amp;lastmod=").append(lastmod.getTime()).append("&amp;page=").append(i).append("\">").append(i + 1).append("</a>");
           }
           out.append(')');

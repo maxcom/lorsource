@@ -3,6 +3,7 @@ package ru.org.linux.site;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.sql.*;
+import java.util.Date;
 import java.util.Properties;
 
 import ru.org.linux.util.*;
@@ -154,7 +155,7 @@ public class NewsViewer implements Viewer {
 
 	if (pages != 1){
 	  out.append("&nbsp;(стр.");
-	  for (int i = 0; i < pages; i++) {
+	  for (int i = 1; i < pages; i++) {
 	    out.append(" <a href=\"").append(jumplink).append("&amp;page=").append(i).append("\">").append(i + 1).append("</a>");
 	  }
 	  out.append(")");
@@ -276,12 +277,12 @@ public class NewsViewer implements Viewer {
     return id.toString();
   }
 
-  public java.util.Date getExpire() {
+  public Date getExpire() {
     if (limit==null || limit.length()==0) {
-      return new java.util.Date(new java.util.Date().getTime() + 10*60*1000);      
+      return new Date(new Date().getTime() + 10*60*1000);
     }
 
-    return new java.util.Date(new java.util.Date().getTime() + 60*1000);
+    return new Date(new Date().getTime() + 60*1000);
   }
 
   public static NewsViewer getMainpage(Properties config, ProfileHashtable profile) {

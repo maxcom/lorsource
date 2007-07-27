@@ -17,4 +17,6 @@ Disallow: /add_comment.jsp
 Disallow: /whois.jsp
 Disallow: /profile/
 Disallow: /comment-message.jsp
+Disallow: /show-comments.jsp
+Disallow: /show-topics.jsp
 Disallow: //

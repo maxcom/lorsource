@@ -164,7 +164,7 @@
     int pagesInCurrent = (int) Math.ceil(stat1 / messages);
     if (pagesInCurrent > 1 ) {
       out.print("&nbsp;(стр.");
-      for (int i = 0; i < pagesInCurrent; i++) {
+      for (int i = 1; i < pagesInCurrent; i++) {
         out.print(" <a href=\""+"jump-message.jsp?msgid="+rs.getInt("msgid")+"&amp;lastmod="+lastmod.getTime()+"&amp;page="+i+"\">"+(i + 1)+"</a>");
       }
       out.print(')');

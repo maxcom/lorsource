@@ -212,7 +212,7 @@
     int pagesInCurrent = (int) Math.ceil(stat1 / messages);
     if (pagesInCurrent > 1) {
       outbuf.append("&nbsp;(стр.");
-      for (int i = 0; i < pagesInCurrent; i++) {
+      for (int i = 1; i < pagesInCurrent; i++) {
         outbuf.append(" <a href=\"").append("jump-message.jsp?msgid=").append(rs.getInt("msgid")).append("&amp;lastmod=").append(lastmod.getTime()).append("&amp;page=").append(i).append("\">").append(i + 1).append("</a>");
       }
       outbuf.append(')');

@@ -1,6 +1,5 @@
 <%@ page contentType="text/html; charset=koi8-r"%>
-<%@ page import="java.net.URLEncoder,java.sql.Connection,java.sql.Statement,java.sql.Timestamp,javax.servlet.http.HttpServletResponse,ru.org.linux.site.*" errorPage="/error.jsp" buffer="200kb"%>
-<%@ page import="ru.org.linux.util.StringUtil"%>
+<%@ page import="java.sql.Connection,java.sql.Statement,java.sql.Timestamp,javax.servlet.http.HttpServletResponse,ru.org.linux.site.*,ru.org.linux.util.StringUtil" errorPage="/error.jsp" buffer="200kb"%>
 <% Template tmpl = new Template(request, config, response); %>
 <%= tmpl.head() %>
 <%
@@ -9,16 +8,12 @@
   try {
     int msgid = tmpl.getParameters().getInt("msgid");
 
-    int npage = -1;
+    int npage = 0;
     if (request.getParameter("page") != null) {
       npage = tmpl.getParameters().getInt("page");
     }
 
-    String returnUrl = "view-message.jsp?msgid=" + msgid;
-    String mainurl = returnUrl;
-    if (npage != -1) {
-      returnUrl += "&page=" + npage;
-    }
+    String mainurl = "view-message.jsp?msgid=" + msgid;
 
     boolean showDeleted = request.getParameter("deleted") != null;
     boolean showAnonymous = tmpl.getProf().getBoolean("showanonymous");
@@ -175,7 +170,12 @@
       bufInfo.append(' ');
 
       if (i != npage) {
-        bufInfo.append("<a href=\"").append(mainurl).append("&page=").append(i);
+        if (i>0) {
+          bufInfo.append("<a href=\"").append(mainurl).append("&page=").append(i);
+        } else {
+          bufInfo.append("<a href=\"").append(mainurl);
+        }
+
         if (showAnonymousParam != null) {
           bufInfo.append("&anonymous=").append(showAnonymousParam);
         }
@@ -240,7 +240,7 @@ google_ui_features = "rc:0";
 
       out.print("<div align=\"center\">");
       out.print("<input type=hidden name=msgid value=\"" + msgid + "\">");
-      if (npage!=-1) {
+      if (npage != -1) {
         out.print("<input type=hidden name=page value=\"" + npage + "\">");
       }
       out.print("фильтр комментариев: <select name=\"anonymous\">");
@@ -270,11 +270,9 @@ google_ui_features = "rc:0";
       offset = messages * npage;
     }
 
-    CommentList comments = CommentList.getCommentList(tmpl, db, message, showDeleted); 
+    CommentList comments = CommentList.getCommentList(tmpl, db, message, showDeleted);
 
-    String urladd = "&amp;return=" + URLEncoder.encode(returnUrl);
-
-    CommentViewer cv = new CommentViewer(tmpl, comments, urladd, Template.getNick(session), message.isExpired());
+    CommentViewer cv = new CommentViewer(tmpl, comments, Template.getNick(session), message.isExpired());
 
     if (!showAnonymous)
       out.print(cv.showFiltered(reverse, offset, limit));

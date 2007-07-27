@@ -10,14 +10,14 @@ import ru.org.linux.util.ProfileHashtable;
 import ru.org.linux.util.UtilException;
 
 public class SearchViewer implements Viewer {
-  public final static int SEARCH_TOPICS = 1;
-  public final static int SEARCH_ALL = 0;
+  public static final int SEARCH_TOPICS = 1;
+  public static final int SEARCH_ALL = 0;
 
-  public final static int SEARCH_3MONTH = 1;
-  public final static int SEARCH_YEAR = 2;
+  public static final int SEARCH_3MONTH = 1;
+  public static final int SEARCH_YEAR = 2;
 
-  public final static int SORT_R = 1;
-  public final static int SORT_DATE = 2;
+  public static final int SORT_R = 1;
+  public static final int SORT_DATE = 2;
 
   private final String query;
   private int include = SEARCH_ALL;
@@ -47,7 +47,7 @@ public class SearchViewer implements Viewer {
     }
 
     if (section!=0) {
-      select.append(" AND section="+section);
+      select.append(" AND section=").append(section);
     }
 
     if (sort==SORT_DATE) {
@@ -58,13 +58,20 @@ public class SearchViewer implements Viewer {
 
     select.append(" LIMIT 100");
 
-    PreparedStatement pst = db.prepareStatement(select.toString());
+    PreparedStatement pst = null;
+    try {
+      pst = db.prepareStatement(select.toString());
 
-    pst.setString(1, query);
+      pst.setString(1, query);
 
-    ResultSet rs = pst.executeQuery();
+      ResultSet rs = pst.executeQuery();
 
-    return printResults(rs);
+      return printResults(rs);
+    } finally {
+      if (pst!=null) {
+        pst.close();
+      }
+    }
   }
 
   private String printResults(ResultSet rs) throws SQLException {
@@ -87,16 +94,16 @@ public class SearchViewer implements Viewer {
       if (topic==0) {
         url = "jump-message.jsp?msgid="+id;
       } else {
-        url = "jump-message.jsp?msgid="+topic+"#"+id;
+        url = "jump-message.jsp?msgid="+topic+"&cid="+id;
       }
 
       out.append("<table width=\"100%\" cellspacing=0 cellpadding=0 border=0>");
       out.append("<tr class=body><td>");
       out.append("<div class=msg>");
 
-      out.append("<h2><a href=\""+url+"\">"+ HTMLFormatter.htmlSpecialChars(title)+"</a></h2>");
+      out.append("<h2><a href=\"").append(url).append("\">").append(HTMLFormatter.htmlSpecialChars(title)).append("</a></h2>");
 
-      out.append("<p>"+headline+"</p>");
+      out.append("<p>").append(headline).append("</p>");
 
       out.append("<p><i>").append(nick).append(' ');
 

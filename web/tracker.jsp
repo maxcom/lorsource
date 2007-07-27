@@ -97,9 +97,7 @@
 
     if (itotal > messages) {
       // itotal = round(ceil(itotal/50));
-      if (tmpl.getProf().getBoolean("newfirst")) {
-        sTemp = "&amp;page=0";
-      } else {
+      if (!tmpl.getProf().getBoolean("newfirst")) {
         itotal = itotal / messages;
         sTemp = "&page=" + itotal;
       }
