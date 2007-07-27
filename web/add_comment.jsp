@@ -191,6 +191,8 @@
 
       logger.info(logmessage);
 
+      topic = new Message(db, topicId); // update lastmod
+
       CommentList commentList = CommentList.getCommentList(tmpl, db, topic, false);
       Comment comment = commentList.getNode(msgid).getComment();
       int pageNum = commentList.getCommentPage(comment, tmpl);
