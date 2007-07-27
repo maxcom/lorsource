@@ -37,6 +37,7 @@ public class NewsViewer implements Viewer {
     String image = res.getString("image");
     Timestamp lastmod = res.getTimestamp("lastmod");
     String messageText = res.getString("message");
+    boolean expired = res.getBoolean("expired");
 
     if (lastmod == null) {
       lastmod = new Timestamp(0);
@@ -46,7 +47,10 @@ public class NewsViewer implements Viewer {
     out.append("<hr noshade class=\"news-divider\">");
     out.append("<div class=news><h2>");
 
-    String jumplink = "jump-message.jsp?msgid=" + msgid + "&amp;lastmod=" + lastmod.getTime();
+    String jumplink = "jump-message.jsp?msgid=" + msgid;
+    if (!expired) {
+      jumplink += "&amp;lastmod=" + lastmod.getTime();
+    }
 
     if (!linkup) {
       out.append("<a href=\"").append(jumplink).append("\">");
@@ -124,7 +128,7 @@ public class NewsViewer implements Viewer {
     if (!moderateMode && res.getBoolean("comment")) {
       out.append("<div class=\"nav\">");
 
-      if (!res.getBoolean("expired"))
+      if (!expired)
         out.append("[<a href=\"comment-message.jsp?msgid=").append(msgid).append("\">Добавить&nbsp;комментарий</a>]");
 
       int stat1 = res.getInt("stat1");
