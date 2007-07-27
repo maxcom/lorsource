@@ -8,3 +8,8 @@ Redirect permanent /rss.xml http://www.linux.org.ru/section-rss.jsp
 RewriteEngine on
 RewriteRule ^profile/([^/]+)$	/profile/$1/	[R]
 #RewriteRule ^profile/([^/]+)/(.*)	/$2
+
+ExpiresActive on
+ExpiresByType image/jpeg "access plus 1 week"
+ExpiresByType image/png "access plus 1 week"
+ExpiresByType image/gif "access plus 1 week"
