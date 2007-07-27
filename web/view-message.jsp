@@ -8,11 +8,6 @@
   try {
     int msgid = tmpl.getParameters().getInt("msgid");
 
-    int npage = 0;
-    if (request.getParameter("page") != null) {
-      npage = tmpl.getParameters().getInt("page");
-    }
-
     String mainurl = "view-message.jsp?msgid=" + msgid;
 
     boolean showDeleted = request.getParameter("deleted") != null;
@@ -43,6 +38,15 @@
       if (!tmpl.isSessionAuthorized(session)) {
         throw new BadInputException("Вы уже вышли из системы");
       }
+    }
+
+    int npage = 0;
+    if (request.getParameter("page") != null) {
+      npage = tmpl.getParameters().getInt("page");
+    }
+
+    if (showDeleted) {
+      npage = -1;
     }
 
     Message message = new Message(db, msgid);
