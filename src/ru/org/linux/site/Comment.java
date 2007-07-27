@@ -88,10 +88,7 @@ public class Comment implements Serializable {
       out.append("<tr class=title><td>");
 
       if (!deleted) {
-        int page = comments.getCommentPage(this, tmpl);
-        String pg = page>0?"&amp;page="+page:"";
-
-        out.append("[<a href=\"/jump-message.jsp?msgid=").append(topic).append(pg).append('#').append(msgid).append("\">#</a>]");
+        out.append("[<a href=\"/jump-message.jsp?msgid=").append(topic).append("&amp;cid=").append(msgid).append("\">#</a>]");
       }
 
       if (!expired && !deleted) {
