@@ -99,6 +99,7 @@
       // show edit form
 %>
 <form action="edit.jsp" name="edit" method="post">
+  <input type="hidden" name="msgid" value="<%= msgid %>">
   Заголовок новости :
   <% if ((sMsgTitle != null) && (sMsgTitle.length() != 0)) {
     out.print("<input type=\"text\" name=\"title\" size=\"70\" value=\"" + HTMLFormatter.htmlSpecialChars(sMsgTitle) + "\">\n");
