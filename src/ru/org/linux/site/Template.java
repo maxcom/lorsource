@@ -188,7 +188,7 @@ public class Template {
 
     /* redirects */
     if (userProfile.isDefault()) {
-      if (profileCookie != null) {
+      if (profileCookie != null && !isErrorPage) {
         response.setHeader("Location", replaceProfile(request, getCookie("profile")));
         response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
         logger.fine("default profile, but cookie set: redirecting " + request.getRequestURI() + " to " + replaceProfile(request, getCookie("profile")));
