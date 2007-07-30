@@ -43,7 +43,7 @@
       CommentList comments = CommentList.getCommentList(tmpl, db, topic, false);
       CommentNode node = comments.getNode(cid);
       if (node == null) {
-        throw new MessageNotFoundException(cid);
+        throw new MessageNotFoundException(cid, "Сообщение #" + cid + " было удалено или не существует");
       }
 
       int pagenum = comments.getCommentPage(node.getComment(), tmpl);
