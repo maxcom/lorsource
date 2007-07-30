@@ -48,6 +48,7 @@ public class NewsViewer implements Viewer {
     out.append("<div class=news><h2>");
 
     String jumplink = "jump-message.jsp?msgid=" + msgid;
+    String mainlink = jumplink;
     if (!expired) {
       jumplink += "&amp;lastmod=" + lastmod.getTime();
     }
@@ -134,10 +135,15 @@ public class NewsViewer implements Viewer {
       int stat1 = res.getInt("stat1");
 
       if (stat1 > 0) {
+        int pages = (int) Math.ceil(stat1 / messages);
 
 	out.append(" [<a href=\"");
 
-        out.append(jumplink);
+        if (pages<=1) {
+          out.append(jumplink);
+        } else {
+          out.append(mainlink);          
+        }
 
         if (stat1 % 10 == 1 && stat1 % 100 != 11)
 	    out.append("\">Добавлен&nbsp;").append(stat1);
@@ -155,13 +161,15 @@ public class NewsViewer implements Viewer {
 	    default: out.append("&nbsp;комментариев</a>");break;
 	  }
 
-	int pages = (int) Math.ceil(stat1 / messages);
-
 	if (pages != 1){
 	  out.append("&nbsp;(стр.");
 	  for (int i = 1; i < pages; i++) {
-	    out.append(" <a href=\"").append(jumplink).append("&amp;page=").append(i).append("\">").append(i + 1).append("</a>");
-	  }
+            if (i==pages-1) {
+              out.append(" <a href=\"").append(jumplink).append("&amp;page=").append(i).append("\">").append(i + 1).append("</a>");
+            } else {
+              out.append(" <a href=\"").append(mainlink).append("&amp;page=").append(i).append("\">").append(i + 1).append("</a>");
+            }
+          }
 	  out.append(")");
 	}
 	out.append("]");
