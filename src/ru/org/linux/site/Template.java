@@ -191,27 +191,29 @@ public class Template {
     }
 
     /* redirects */
-    if (userProfile.isDefault()) {
-      if (profileCookie != null && !isErrorPage) {
+    if (!isErrorPage) {
+      if (userProfile.isDefault()) {
+        if (profileCookie != null) {
+          response.setHeader("Location", replaceProfile(request, getCookie("profile")));
+          response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
+          logger.fine("default profile, but cookie set: redirecting " + request.getRequestURI() + " to " + replaceProfile(request, getCookie("profile")));
+          redirect = true;
+        }
+      } else if (profileCookie != null &&
+          profileCookie.equals(userProfile.getName())) {
+        /* update profile */
+        Cookie prof = new Cookie("profile", userProfile.getName());
+        prof.setMaxAge(60 * 60 * 24 * 31 * 12);
+        prof.setPath("/");
+        response.addCookie(prof);
+      } else if (profileCookie != null &&
+          !profileCookie.equals(userProfile.getName())) {
+        /* redirect to users page */
         response.setHeader("Location", replaceProfile(request, getCookie("profile")));
         response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
-        logger.fine("default profile, but cookie set: redirecting " + request.getRequestURI() + " to " + replaceProfile(request, getCookie("profile")));
+        logger.fine("redirecting " + request.getRequestURI() + " to " + replaceProfile(request, getCookie("profile")));
         redirect = true;
       }
-    } else if (profileCookie != null &&
-      profileCookie.equals(userProfile.getName())) {
-      /* update profile */
-      Cookie prof = new Cookie("profile", userProfile.getName());
-      prof.setMaxAge(60 * 60 * 24 * 31 * 12);
-      prof.setPath("/");
-      response.addCookie(prof);
-    } else if (profileCookie != null &&
-      !profileCookie.equals(userProfile.getName())) {
-      /* redirect to users page */
-      response.setHeader("Location", replaceProfile(request, getCookie("profile")));
-      response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
-      logger.fine("redirecting " + request.getRequestURI() + " to " + replaceProfile(request, getCookie("profile")));
-      redirect = true;
     }
 
 //    if (isSessionAuthorized(session)) {
