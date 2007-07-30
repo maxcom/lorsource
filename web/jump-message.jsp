@@ -10,6 +10,8 @@
   String redirectUrl = tmpl.getMainUrl() + "view-message.jsp?msgid=" + msgid;
   StringBuffer options = new StringBuffer();
 
+  if (!tmpl.isRedirect()) {
+
   if (tmpl.isSessionAuthorized(session)) {
     redirectUrl = tmpl.getRedirectUrl() + "view-message.jsp?msgid=" + msgid;
   } else if (tmpl.getCookie("profile") != null && !"".equals(tmpl.getCookie("profile"))) {
@@ -62,6 +64,8 @@
 
   response.setHeader("Location", redirectUrl + options.toString());
   response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
+
+  }
 %>
 <%= tmpl.DocumentHeader() %>
 Go to: <%= redirectUrl %>

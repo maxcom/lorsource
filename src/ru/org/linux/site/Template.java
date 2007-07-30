@@ -43,6 +43,7 @@ public class Template {
   private final HttpSession session;
   private final Date startDate = new Date();
   private final String requestString;
+  private boolean redirect = false;
 
   public static final DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM, new Locale("ru"));
   public static final DateFormat RFC822 = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss Z", Locale.US);
@@ -180,6 +181,7 @@ public class Template {
       prof.setMaxAge(60 * 60 * 24 * 31 * 12);
       prof.setPath("/");
       response.addCookie(prof);
+      redirect = true;
       return;
     }
 
@@ -194,6 +196,7 @@ public class Template {
         response.setHeader("Location", replaceProfile(request, getCookie("profile")));
         response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
         logger.fine("default profile, but cookie set: redirecting " + request.getRequestURI() + " to " + replaceProfile(request, getCookie("profile")));
+        redirect = true;
       }
     } else if (profileCookie != null &&
       profileCookie.equals(userProfile.getName())) {
@@ -208,6 +211,7 @@ public class Template {
       response.setHeader("Location", replaceProfile(request, getCookie("profile")));
       response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
       logger.fine("redirecting " + request.getRequestURI() + " to " + replaceProfile(request, getCookie("profile")));
+      redirect = true;
     }
 
 //    if (isSessionAuthorized(session)) {
@@ -521,5 +525,9 @@ public class Template {
     } else {
       return null;
     }
+  }
+
+  public boolean isRedirect() {
+    return redirect;
   }
 }
