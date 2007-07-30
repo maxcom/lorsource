@@ -84,10 +84,12 @@ public class Template {
         logger.fine("loaded config file");
 
         FileHandler fh = new FileHandler(properties.getProperty("Logfile")+"j", true);
+        fh.setEncoding("koi8-r");
         fh.setFormatter(new SimpleFormatter());
         fh.setLevel(Level.INFO);
 
         FileHandler fhDebug = new FileHandler(properties.getProperty("Logfile")+"jdebug", true);
+        fhDebug.setEncoding("koi8-r");
         fhDebug.setFormatter(new SimpleFormatter());
         fhDebug.setLevel(Level.ALL);
 
