@@ -8,7 +8,7 @@
   try {
     int msgid = tmpl.getParameters().getInt("msgid");
 
-    String mainurl = "view-message.jsp?msgid=" + msgid;
+    String mainurl = "jump-message.jsp?msgid=" + msgid;
 
     boolean showDeleted = request.getParameter("deleted") != null;
     boolean showAnonymous = tmpl.getProf().getBoolean("showanonymous");
@@ -170,14 +170,20 @@
 
     bufInfo.append("[страница");
 
+    String linkurl = mainurl;
+
     for (int i = 0; i < pages; i++) {
       bufInfo.append(' ');
 
+      if (i==pages-1) {
+        linkurl += "&amp;lastmod="+message.getLastModified().getTime();
+      }
+
       if (i != npage) {
         if (i>0) {
-          bufInfo.append("<a href=\"").append(mainurl).append("&page=").append(i);
+          bufInfo.append("<a href=\"").append(linkurl).append("&page=").append(i);
         } else {
-          bufInfo.append("<a href=\"").append(mainurl);
+          bufInfo.append("<a href=\"").append(linkurl);
         }
 
         if (showAnonymousParam != null) {
@@ -186,6 +192,14 @@
         bufInfo.append("\">").append(i + 1).append("</a>");
       } else {
         bufInfo.append("<strong>").append(i + 1).append("</strong>");
+      }
+    }
+
+    if (Template.isSessionAuthorized(session)) {
+      if (npage!=-1) {
+        bufInfo.append(" <a href=\"").append(linkurl).append("&page=-1").append("\">все").append("</a>");
+      } else {
+        bufInfo.append(" <strong>все").append("</strong>");      
       }
     }
 

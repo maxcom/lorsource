@@ -207,17 +207,28 @@
       outbuf.append("[X] ");
     }
 
+    int pagesInCurrent = (int) Math.ceil(stat1 / messages);
+
     if (firstPage) {
-      outbuf.append("<a href=\"jump-message.jsp?msgid=").append(rs.getInt("msgid")).append("&amp;lastmod=").append(lastmod.getTime()).append("\" rev=contents>").append(StringUtil.makeTitle(rs.getString("subj"))).append("</a>");
+      if (pagesInCurrent <= 1) {
+        outbuf.append("<a href=\"jump-message.jsp?msgid=").append(rs.getInt("msgid")).append("&amp;lastmod=").append(lastmod.getTime()).append("\" rev=contents>").append(StringUtil.makeTitle(rs.getString("subj"))).append("</a>");
+      } else {
+        outbuf.append("<a href=\"jump-message.jsp?msgid=").append(rs.getInt("msgid")).append("\" rev=contents>").append(StringUtil.makeTitle(rs.getString("subj"))).append("</a>");
+      }
     } else {
-      outbuf.append("<a href=\"jump-message.jsp?msgid=").append(rs.getInt("msgid")).append("\" rev=contents>").append(StringUtil.makeTitle(rs.getString("subj"))).append("</a>");      
+      outbuf.append("<a href=\"jump-message.jsp?msgid=").append(rs.getInt("msgid")).append("\" rev=contents>").append(StringUtil.makeTitle(rs.getString("subj"))).append("</a>");
     }
 
-    int pagesInCurrent = (int) Math.ceil(stat1 / messages);
     if (pagesInCurrent > 1) {
       outbuf.append("&nbsp;(стр.");
+
       for (int i = 1; i < pagesInCurrent; i++) {
-        outbuf.append(" <a href=\"").append("jump-message.jsp?msgid=").append(rs.getInt("msgid")).append("&amp;lastmod=").append(lastmod.getTime()).append("&amp;page=").append(i).append("\">").append(i + 1).append("</a>");
+        outbuf.append(" <a href=\"jump-message.jsp?msgid=").append(rs.getInt("msgid"));
+        if (i == pagesInCurrent - 1) {
+          outbuf.append("&amp;lastmod=").append(lastmod.getTime());
+        }
+        outbuf.append("&amp;page=").append(i).append("\">");
+        outbuf.append(i + 1).append("</a>");
       }
       outbuf.append(')');
     }
