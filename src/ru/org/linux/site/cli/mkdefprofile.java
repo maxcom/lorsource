@@ -1,6 +1,7 @@
 package ru.org.linux.site.cli;
 
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.util.Date;
 import java.util.Hashtable;
@@ -20,6 +21,7 @@ public final class mkdefprofile {
     defaults.put("system.timestamp", new Date().getTime());
     defaults.put("showinfo", Boolean.TRUE);
     defaults.put("showanonymous", Boolean.TRUE);
+    defaults.put("showignored", Boolean.FALSE);
 
     defaults.put("DebugMode", Boolean.FALSE);
 
@@ -64,7 +66,7 @@ public final class mkdefprofile {
     return defaults;
   }
 
-  public static void main(String[] args) throws Exception {
+  public static void main(String[] args) throws IOException {
     Hashtable defaults = getDefaultProfile();
     FileOutputStream f = new FileOutputStream("anonymous");
     ObjectOutputStream o = new ObjectOutputStream(f);

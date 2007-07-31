@@ -1,10 +1,7 @@
 package ru.org.linux.site;
 
 import java.io.Serializable;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class CommentNode implements Serializable {
   private final LinkedList<CommentNode> childs = new LinkedList<CommentNode>();
@@ -38,6 +35,20 @@ public class CommentNode implements Serializable {
     if (comment==null || !hideSet.contains(comment.getMessageId())) {
       for (CommentNode child : childs) {
         child.hideAnonymous(hideSet);
+      }
+    }
+  }
+
+  public void hideIgnored(Set<Integer> hideSet, Map<Integer, String> ignoreList) {
+    if (comment != null) {
+      if (comment.isIgnored(ignoreList)) {
+        hideNode(hideSet);
+      }
+    }
+
+    if (comment==null || !hideSet.contains(comment.getMessageId())) {
+      for (CommentNode child : childs) {
+        child.hideIgnored(hideSet, ignoreList);
       }
     }
   }

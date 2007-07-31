@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.net.URLEncoder;
 import java.sql.*;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import ru.org.linux.util.*;
@@ -191,6 +192,10 @@ public class Comment implements Serializable {
 
   public boolean isAnonymous() {
     return "anonymous".equals(nick) || userScore<User.ANONYMOUS_LEVEL_SCORE;
+  }
+
+  public boolean isIgnored(Map<Integer, String> ignoreList) {
+    return ignoreList != null && !ignoreList.isEmpty() && ignoreList.containsValue(nick);
   }
 
   public boolean isDeleted() {

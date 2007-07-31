@@ -11,20 +11,31 @@
     String mainurl = "jump-message.jsp?msgid=" + msgid;
 
     boolean showDeleted = request.getParameter("deleted") != null;
-    boolean showAnonymous = tmpl.getProf().getBoolean("showanonymous");
-    String showAnonymousParam = null;
 
-    if (request.getParameter("anonymous") != null) {
-      if ("show".equals(request.getParameter("anonymous"))) {
-        showAnonymous = true;
-        showAnonymousParam = "show";
-      } else if ("hide".equals(request.getParameter("anonymous"))) {
-        showAnonymous = false;
-        showAnonymousParam = "hide";
-      }
+    int filterMode = CommentViewer.FILTER_NONE;
+
+    if (!tmpl.getProf().getBoolean("showanonymous")) {
+      filterMode += CommentViewer.FILTER_ANONYMOUS;
+    }
+
+    if (!tmpl.getProf().getBoolean("showignored")) {
+      filterMode += CommentViewer.FILTER_IGNORED;
     }
 
     db = tmpl.getConnection("view-message");
+
+    String nick = Template.getNick(session);
+
+    if (nick==null || IgnoreList.getIgnoreListHash(db, nick).isEmpty()) {
+      filterMode = filterMode & ~CommentViewer.FILTER_IGNORED;
+    }
+
+    int defaultFilterMode = filterMode;
+
+    if (request.getParameter("filter") != null) {
+      filterMode = CommentViewer.parseFilterChain(request.getParameter("filter"));
+    }
+
     Statement st = db.createStatement();
 
     if (showDeleted && !"POST".equals(request.getMethod())) {
@@ -186,9 +197,10 @@
           bufInfo.append("<a href=\"").append(linkurl);
         }
 
-        if (showAnonymousParam != null) {
-          bufInfo.append("&anonymous=").append(showAnonymousParam);
+        if (filterMode!=defaultFilterMode) {
+          bufInfo.append("&filter=").append(CommentViewer.toString(filterMode));
         }
+
         bufInfo.append("\">").append(i + 1).append("</a>");
       } else {
         bufInfo.append("<strong>").append(i + 1).append("</strong>");
@@ -258,14 +270,25 @@ google_ui_features = "rc:0";
 
       out.print("<div align=\"center\">");
       out.print("<input type=hidden name=msgid value=\"" + msgid + "\">");
-      if (npage != -1) {
+      if (npage != 0) {
         out.print("<input type=hidden name=page value=\"" + npage + "\">");
       }
-      out.print("фильтр комментариев: <select name=\"anonymous\">");
-      out.print("<option value=\"show\"" + (showAnonymous ? " selected=\"selected\"" : "") + ">все комментарии</option>");
-      out.print("<option value=\"hide\"" + (showAnonymous ? "" : " selected=\"selected\"") + ">без анонимных комментариев и ответов на них</option>");
+      out.print("фильтр комментариев: <select name=\"filter\">");
+      out.print("<option value=\""+ CommentViewer.toString(CommentViewer.FILTER_NONE) +"\"" + (filterMode==CommentViewer.FILTER_NONE ? " selected=\"selected\"" : "") + ">все комментарии</option>");
+      out.print("<option value=\""+ CommentViewer.toString(CommentViewer.FILTER_ANONYMOUS) +"\"" + (filterMode==CommentViewer.FILTER_ANONYMOUS ? " selected=\"selected\"" : "") + ">без анонимных</option>");
+
+      if (!tmpl.isUsingDefaultProfile()) {
+        out.print("<option value=\""+ CommentViewer.toString(CommentViewer.FILTER_IGNORED) +"\"" + (filterMode==CommentViewer.FILTER_IGNORED ? " selected=\"selected\"" : "") + ">без игнорируемых</option>");
+        out.print("<option value=\""+ CommentViewer.toString(CommentViewer.FILTER_LISTANON) +"\"" + (filterMode==CommentViewer.FILTER_LISTANON ? " selected=\"selected\"" : "") + ">без анонимных и игнорируемых</option>");
+      }
+
       out.print("</select>");
       out.print(" <input type=\"submit\" value=\"Обновить\">");
+
+      if (!tmpl.isUsingDefaultProfile()) {
+        out.print(" [<a style=\"text-decoration: none\" href=\"ignore-list.jsp\">настроить</a>]");
+      }
+      
       out.print("</div>");
       out.print("</td></tr></table></div></div>");
       out.print("</form>");
@@ -292,10 +315,11 @@ google_ui_features = "rc:0";
 
     CommentViewer cv = new CommentViewer(tmpl, comments, Template.getNick(session), message.isExpired());
 
-    if (!showAnonymous)
-      out.print(cv.showFiltered(reverse, offset, limit));
-    else
+    if (filterMode!=CommentViewer.FILTER_NONE) {
+      out.print(cv.showFiltered(db, reverse, offset, limit, filterMode, Template.getNick(session)));
+    } else {
       out.print(cv.showAll(reverse, offset, limit));
+    }
 
     out.print("</div>");
 

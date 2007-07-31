@@ -1,6 +1,8 @@
 package ru.org.linux.site;
 
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.*;
 import java.util.logging.Logger;
 
@@ -11,11 +13,16 @@ public class CommentViewer {
 
   public static final int COMMENTS_INITIAL_BUFSIZE = 50;
 
+  public static final int FILTER_NONE = 0;
+  public static final int FILTER_ANONYMOUS = 1;
+  public static final int FILTER_IGNORED = 2;
+
   private final Template tmpl;
   private final CommentList comments;
   private final boolean expired;
 
   private final String user;
+  public static final int FILTER_LISTANON = FILTER_ANONYMOUS+FILTER_IGNORED;
 
   public CommentViewer(Template t, CommentList comments, String user, boolean expired) {
     tmpl=t;
@@ -54,12 +61,25 @@ public class CommentViewer {
     return buf.toString();
   }
 
-  public String showFiltered(boolean reverse, int offset, int limit) throws IOException, UtilException {
+  public String showFiltered(Connection db, boolean reverse, int offset, int limit, int filterChain, String nick) throws IOException, UtilException {
     StringBuffer buf=new StringBuffer();
     Set<Integer> hideSet = new HashSet<Integer>();
 
     /* hide anonymous */
-    comments.getRoot().hideAnonymous(hideSet);
+    if ((filterChain & FILTER_ANONYMOUS) > 0) {
+      comments.getRoot().hideAnonymous(hideSet);
+    }
+
+    /* hide ignored */
+    if ((filterChain & FILTER_IGNORED) > 0 && nick != null && !"".equals(nick)) {
+      try {
+        Map<Integer, String> ignoreList = IgnoreList.getIgnoreListHash(db, nick);
+        if (ignoreList != null && !ignoreList.isEmpty()) {
+          comments.getRoot().hideIgnored(hideSet, ignoreList);
+        }
+      } catch (SQLException e) {
+      }
+    }
 
     /* display comments */
     showCommentList(buf, comments.getList(), reverse, offset, limit, hideSet);
@@ -83,5 +103,31 @@ public class CommentViewer {
     showCommentList(buf, parentList, false, 0, 0, null);
 
     return buf.toString();
+  }
+
+  public static int parseFilterChain(String filter) {
+    if (filter.equals("list")) {
+      return FILTER_IGNORED;
+    }
+
+    if (filter.equals("anonymous")) {
+      return FILTER_ANONYMOUS;
+    }
+
+    if (filter.equals("listanon")) {
+      return FILTER_IGNORED+FILTER_ANONYMOUS;
+    }
+
+    return FILTER_NONE;
+  }
+
+  public static String toString(int filterMode) {
+    switch (filterMode) {
+      case FILTER_NONE: return "show";
+      case FILTER_ANONYMOUS: return "anonymous";
+      case FILTER_IGNORED: return "list";
+      case FILTER_IGNORED+FILTER_ANONYMOUS: return "listanon";
+      default: return "show";
+    }
   }
 }
