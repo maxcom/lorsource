@@ -73,8 +73,8 @@
 <%
   Iterator it = ignoreList.keySet().iterator();
   while (it.hasNext()) {
-    int id = (Integer) it.next();
-    String nick = (String) ignoreList.get(id);
+    int id = ((Integer) it.next()).intValue();
+    String nick = (String) ignoreList.get(new Integer(id));
     if (id > 0) {
 %>
           <option value="<%= id%>"><%= nick %></option>
