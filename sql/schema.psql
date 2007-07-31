@@ -266,6 +266,26 @@ CREATE FUNCTION _get_parser_from_curcfg() RETURNS text
 ALTER FUNCTION public._get_parser_from_curcfg() OWNER TO maxcom;
 
 --
+-- Name: check_replyto(); Type: FUNCTION; Schema: public; Owner: maxcom
+--
+
+CREATE FUNCTION check_replyto() RETURNS "trigger"
+    AS $$
+BEGIN
+IF NEW.replyto IS NOT NULL AND NOT NEW.deleted  THEN
+IF NOT EXISTS (SELECT id FROM comments WHERE NEW.replyto=comments.id AND not comments.deleted) THEN
+RAISE EXCEPTION 'reply to deleted comment denied';
+end if;
+end if;
+return NEW;
+end;
+$$
+    LANGUAGE plpgsql;
+
+
+ALTER FUNCTION public.check_replyto() OWNER TO maxcom;
+
+--
 -- Name: comins(); Type: FUNCTION; Schema: public; Owner: maxcom
 --
 
@@ -2859,6 +2879,16 @@ CREATE CONSTRAINT TRIGGER "<unnamed>"
     NOT DEFERRABLE INITIALLY IMMEDIATE
     FOR EACH ROW
     EXECUTE PROCEDURE "RI_FKey_noaction_upd"('<unnamed>', 'groups', 'sections', 'UNSPECIFIED', 'section', 'id');
+
+
+--
+-- Name: check_replyto; Type: TRIGGER; Schema: public; Owner: maxcom
+--
+
+CREATE TRIGGER check_replyto
+    BEFORE INSERT OR UPDATE ON comments
+    FOR EACH ROW
+    EXECUTE PROCEDURE check_replyto();
 
 
 --
