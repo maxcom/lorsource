@@ -69,6 +69,7 @@
 
   Ник: <input type="text" name="nick" size="20" maxlength="80"><input type="submit" name="add" value="Добавить"><br>
 <!-- input type="checkbox" name="activated" value="1" <%= ignore.getActivated()?"checked":"" %>> Список включен <input type="submit" name="set" value="Установить"><br -->
+<% if (!ignoreList.isEmpty()) { %>
 <select name="ignore_list" size="10" width="20">
 <%
   Iterator it = ignoreList.keySet().iterator();
@@ -85,6 +86,7 @@
  </select>
 <br>
   <input type="submit" name="del" value="Удалить">
+<% } %>
 </form>
 
 <%

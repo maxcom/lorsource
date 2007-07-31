@@ -126,6 +126,12 @@
 <ul>
 <li><a href="edit-boxes.jsp">настройка стартовой страницы</a>
 </ul>
+
+<h2>Настройка фильтрации сообщений</h2>
+<ul>
+<li><a href="ignore-list.jsp">настройка стартовой страницы</a>
+</ul>
+
 <%
   } else if ("setup".equals(request.getParameter("mode"))) {
     String name = StringUtil.getFileName(request.getParameter("profile"));
