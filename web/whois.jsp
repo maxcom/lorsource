@@ -2,10 +2,8 @@
 <%@ page import="java.sql.Connection,java.sql.PreparedStatement" errorPage="/error.jsp" buffer="60kb" %>
 <%@ page import="java.sql.ResultSet"%>
 <%@ page import="java.sql.Timestamp"%>
-<%@ page import="ru.org.linux.site.MissingParameterException"%>
-<%@ page import="ru.org.linux.site.Template" %>
-<%@ page import="ru.org.linux.site.User" %>
-<%@ page import="ru.org.linux.site.UserNotFoundException" %>
+<%@ page import="java.util.Map"%>
+<%@ page import="ru.org.linux.site.*" %>
 <%@ page import="ru.org.linux.util.BadImageException" %>
 <%@ page import="ru.org.linux.util.HTMLFormatter" %>
 <%@ page import="ru.org.linux.util.ImageInfo" %>
@@ -37,7 +35,8 @@
   PreparedStatement stat2 = db.prepareStatement("SELECT sections.name as pname, count(*) as c FROM topics, groups, sections WHERE topics.userid=? AND groups.id=topics.groupid AND sections.id=groups.section GROUP BY sections.name");
   PreparedStatement stat3 = db.prepareStatement("SELECT min(postdate) as first,max(postdate) as last FROM topics WHERE topics.userid=?");
   PreparedStatement stat4 = db.prepareStatement("SELECT min(postdate) as first,max(postdate) as last FROM comments WHERE comments.userid=?");
-
+  PreparedStatement stat5 = db.prepareStatement("SELECT count(*) as inum FROM ignore_list WHERE ignored=?");
+  
   userInfo.setString(1, nick);
 
   ResultSet rs = userInfo.executeQuery();
@@ -52,6 +51,7 @@
   stat2.setInt(1, userid);
   stat3.setInt(1, userid);
   stat4.setInt(1, userid);
+  stat5.setInt(1, userid);
 
   if (user.getPhoto() != null) {
     out.print("<td valign='top' align='center'>");
@@ -108,6 +108,25 @@
             if (sEmail!=null) if (!sEmail.equals(""))
                 out.println("<br><b>Email:</b> " + sEmail + "<br>");
             out.println("<b>Score</b>: "+score+"<br>\n");
+			rs.close(); rs=stat5.executeQuery(); rs.next();
+			out.println("<b>Игнорируется</b>: "+rs.getInt("inum")+"<br>\n");
+  }
+  if (tmpl.isSessionAuthorized(session) && !session.getValue("nick").equals(nick) && !session.getValue("nick").equals("anonymous")) {
+    out.println("<br>");
+    Map<Integer, String> ignoreList = IgnoreList.getIgnoreListHash(db,(String)session.getValue("nick"));
+	if (ignoreList != null && !ignoreList.isEmpty() && ignoreList.containsValue(nick)) {
+      out.print("<form name='i_unblock' method='post' action='ignore-list.jsp'>\n");
+      out.print("<input type='hidden' name='ignore_list' value='" + userid + "'>\n");
+      out.print("Вы игнорируете этого пользователя &nbsp; \n");
+	  out.print("<input type='submit' name='del' value='не игнорировать'>\n");
+      out.print("</form>");
+    } else {
+      out.print("<form name='i_block' method='post' action='ignore-list.jsp'>\n");
+      out.print("<input type='hidden' name='nick' value='" + nick + "'>\n");
+       out.print("Вы не игнорируете этого пользователя &nbsp; \n");
+	  out.print("<input type='submit' name='add' value='игнорировать'>\n");
+      out.print("</form>");
+    }
   }
 
   out.println("<br>");
