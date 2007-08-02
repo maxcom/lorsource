@@ -60,7 +60,7 @@
     rs = st.executeQuery("SELECT sum(votes) as s FROM votes WHERE vote=" + poll.getId());
     rs.next();
     out.print(" (" + rs.getInt("s") + " голосов)");
-    out.print("<br><a href=\"view-news.jsp?section=3\">итоги прошедших опросов...</a>");
+    out.print("<br><a href=\"view-news.jsp?section=5\">итоги прошедших опросов...</a>");
     out.print("<br>[<a href=\"add-poll.jsp\">добавить опрос</a>]");
  
     //response.setHeader("Location", tmpl.getRedirectUrl() + "view-vote.jsp?vote=" + voteid + "&highlight=" + vote);
@@ -74,50 +74,3 @@
 
 %>
 <%= tmpl.DocumentFooter() %>
-<%
-/*
-package ru.org.linux.site.boxes;
-
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.Date;
-import java.util.Properties;
-
-import ru.org.linux.boxlet.Boxlet;
-import ru.org.linux.site.Poll;
-import ru.org.linux.site.config.SQLConfig;
-import ru.org.linux.util.ProfileHashtable;
-import ru.org.linux.util.UtilException;
-
-public final class poll extends Boxlet {
-  public String getContentImpl(ProfileHashtable profile) throws SQLException, UtilException {
-    Connection db = null;
-    try {
-      db = ((SQLConfig) config).getConnection("poll");
-
-   } finally {
-      if (db != null) {
-        ((SQLConfig) config).SQLclose();
-      }
-    }
-  }
-
-  public String getInfo() {
-    return "Опрос";
-  }
-
-  public String getVariantID(ProfileHashtable prof, Properties request) throws UtilException {
-    return "SearchMode=" + prof.getBoolean("SearchMode");
-  }
-
-  public long getVersionID(ProfileHashtable profile, Properties request) {
-    long time = new Date().getTime();
-
-    return time - time % (1 * 60 * 1000); // 1 min
-  }
-
-}
-*/
-%>
