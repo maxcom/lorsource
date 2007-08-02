@@ -20,7 +20,7 @@ public class CommentDeleter {
   public CommentDeleter(Connection db) throws SQLException {
     st1 = db.prepareStatement("UPDATE comments SET deleted='t' WHERE id=?");
     st2 = db.prepareStatement("INSERT INTO del_info (msgid, delby, reason) values(?,?,?)");
-    st3 = db.prepareStatement("SELECT id FROM comments WHERE replyto=? AND NOT deleted");
+    st3 = db.prepareStatement("SELECT id FROM comments WHERE replyto=? AND NOT deleted FOR UPDATE");
     st4 = db.prepareStatement("UPDATE users SET score=score+? WHERE id=(SELECT userid FROM comments WHERE id=?)");
   }
 
