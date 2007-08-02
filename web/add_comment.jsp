@@ -106,7 +106,7 @@
       int postscore = topic.getPostScore();
 
       if (postscore != 0) {
-        if (user.getScore() < postscore || user.isAnonymous()) {
+        if (user.getScore() < postscore || user.isAnonymous() || (postscore == -1 && !tmpl.isModeratorSession())) {
           throw new AccessViolationException("Вы не можете добавлять комментарии в эту тему");
         }
       }
