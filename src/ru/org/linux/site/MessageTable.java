@@ -16,7 +16,14 @@ public class MessageTable {
     PreparedStatement pst=null;
 
     try {
-      pst = db.prepareStatement("SELECT sections.name as ptitle, groups.title as gtitle, topics.title, topics.id as topicid, comments.id as msgid, comments.postdate FROM sections, groups, topics, comments, users WHERE sections.id=groups.section AND groups.id=topics.groupid AND comments.topic=topics.id AND comments.userid=users.id AND users.nick=? AND NOT comments.deleted ORDER BY postdate DESC LIMIT 50");
+      pst = db.prepareStatement(
+          "SELECT sections.name as ptitle, groups.title as gtitle, topics.title, " +
+              "topics.id as topicid, comments.id as msgid, comments.postdate " +
+              "FROM sections, groups, topics, comments, users " +
+              "WHERE sections.id=groups.section AND groups.id=topics.groupid " +
+              "AND comments.topic=topics.id AND comments.userid=users.id " +
+              "AND users.nick=? AND NOT comments.deleted ORDER BY postdate DESC LIMIT 50"
+      );
       pst.setString(1, nick);
       ResultSet rs = pst.executeQuery();
 
