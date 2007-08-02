@@ -147,13 +147,41 @@
 <%
   String ignq = "";
 
+  Map ignoreList = IgnoreList.getIgnoreListHash(db, (String) session.getValue("nick"));
+
   if (!showIgnored && tmpl.isSessionAuthorized(session) && !session.getValue("nick").equals("anonymous")) {
-    Map ignoreList = IgnoreList.getIgnoreListHash(db, (String) session.getValue("nick"));
     if (firstPage && ignoreList != null && !ignoreList.isEmpty())
       ignq = " AND topics.userid NOT IN (SELECT ignored FROM ignore_list, users WHERE userid=users.id and nick='" + session.getValue("nick") + "')";
   }
 
 %>
+  </div>
+</div>
+  <%
+          out.print("<h1>");
+
+          out.print(group.getSectionName()+": "+group.getTitle()+"</h1>");
+
+          if (group.getImage()!=null) {
+            out.print("<div align=center>");
+            try {
+              ImageInfo info=new ImageInfo(tmpl.getObjectConfig().getHTMLPathPrefix()+tmpl.getStyle()+group.getImage());
+              out.print("<img src=\"/" + tmpl.getStyle() + group.getImage() + "\" " + info.getCode() + " border=0 alt=\"Группа " + group.getTitle() + "\">");
+            } catch (BadImageException ex) {
+              out.print("[bad image]");
+            }
+            out.print("</div>");
+          }
+
+          String des=tmpl.getObjectConfig().getStorage().readMessageNull("grinfo", String.valueOf(groupId));
+          if (des!=null) {
+                  out.print("<p><em>");
+                  out.print(des);
+                  out.print("</em></p>");
+          }
+  %>
+<div class=messages>  
+<div class=nav>
 <form action="group.jsp" method="GET">
 
   <input type=hidden name=group value=<%= groupId %>>
@@ -177,29 +205,6 @@
 </div>
 </div>
 
-<%
-	out.print("<h1>");
-
-	out.print(group.getSectionName()+": "+group.getTitle()+"</h1>");
-
-	if (group.getImage()!=null) {
-          out.print("<div align=center>");
-          try {
-            ImageInfo info=new ImageInfo(tmpl.getObjectConfig().getHTMLPathPrefix()+tmpl.getStyle()+group.getImage());
-	    out.print("<img src=\"/" + tmpl.getStyle() + group.getImage() + "\" " + info.getCode() + " border=0 alt=\"Группа " + group.getTitle() + "\">");
-          } catch (BadImageException ex) {
-            out.print("[bad image]");
-          }
-          out.print("</div>");
-        }
-
-	String des=tmpl.getObjectConfig().getStorage().readMessageNull("grinfo", String.valueOf(groupId));
-	if (des!=null) {
-		out.print("<em>");
-		out.print(des);
-		out.print("</em>");
-	}
-%>
 <div class=forum>
 <table width="100%" class="message-table">
 <thead>
@@ -293,9 +298,10 @@
 
     outbuf.append("</td></tr>");
 
-//    if (!firstPage && ignoreList != null && !ignoreList.isEmpty() && ignoreList.containsValue(rs.getString("nick"))) {
-//      outbuf = new StringBuffer().append("<tr><td colspan=2>Тема создана игнорируемым пользователем</td></tr>");
-//    }
+    if (!firstPage && ignoreList != null && !ignoreList.isEmpty() && ignoreList.containsValue(rs.getString("nick"))) {
+      outbuf = new StringBuffer();
+      //new StringBuffer().append("<tr><td colspan=2>Тема создана игнорируемым пользователем</td></tr>");
+    }
 
     outputList.add(outbuf.toString());
   }
@@ -312,30 +318,35 @@
 </tbody>
 <tfoot>
 <%
-        out.print("<tr><td colspan=2><p>");
+  out.print("<tr><td colspan=2><p>");
 
-	out.print("<div style=\"float: left\">");
+  String ignoredAdd = tmpl.getProf().getBoolean("showignored")!=showIgnored?("&amp;showignored=" + (showIgnored ? "t" : "f")):"";
 
-        // НАЗАД
-        if (firstPage)
-          out.print("");
-	else if (offset==pages*topics)
-          out.print("<a href=\"group.jsp?group="+groupId +(showDeleted?"&amp;deleted=t":"")+"&amp;showignored="+(showIgnored?"t":"f")+"\">Начало</a> ");
-        else
-          out.print("<a rel=prev rev=next href=\"group.jsp?group="+groupId +"&amp;offset="+(offset+topics)+(showDeleted?"&amp;deleted=t":"")+"&amp;showignored="+(showIgnored?"t":"f")+"\">Назад</a>");
-	out.print("</div>");
+  out.print("<div style=\"float: left\">");
 
-        // ВПЕРЕД
-	out.print("<div style=\"float: right\">");
+  // НАЗАД
+  if (firstPage) {
+    out.print("");
+  } else if (offset == pages * topics) {
+    out.print("<a href=\"group.jsp?group=" + groupId + (showDeleted ? "&amp;deleted=t" : "") + ignoredAdd + "\">Начало</a> ");
+  } else {
+    out.print("<a rel=prev rev=next href=\"group.jsp?group=" + groupId + "&amp;offset=" + (offset + topics) + (showDeleted ? "&amp;deleted=t" : "") + ignoredAdd + "\">Назад</a>");
+  }
 
-        if (firstPage) {
-          out.print("<a rel=next rev=prev href=\"group.jsp?group="+groupId +"&amp;offset="+(pages*topics)+(showDeleted?"&amp;deleted=t":"")+"&amp;showignored="+(showIgnored?"t":"f")+"\">Архив</a>");
-	} else if (offset==0 && !firstPage)
-          out.print("<b>Вперед</b>");
-	else
-          out.print("<a rel=next rev=prev href=\"group.jsp?group="+groupId +"&amp;offset="+(offset-topics)+(showDeleted?"&amp;deleted=t":"")+"&amp;showignored="+(showIgnored?"t":"f")+"\">Вперед</a>");
-	out.print("</div>");
+  out.print("</div>");
 
+  // ВПЕРЕД
+  out.print("<div style=\"float: right\">");
+
+  if (firstPage) {
+    out.print("<a rel=next rev=prev href=\"group.jsp?group=" + groupId + "&amp;offset=" + (pages * topics) + (showDeleted ? "&amp;deleted=t" : "") + ignoredAdd + "\">Архив</a>");
+  } else if (offset == 0 && !firstPage) {
+    out.print("<b>Вперед</b>");
+  } else {
+    out.print("<a rel=next rev=prev href=\"group.jsp?group=" + groupId + "&amp;offset=" + (offset - topics) + (showDeleted ? "&amp;deleted=t" : "") + ignoredAdd + "\">Вперед</a>");
+  }
+
+  out.print("</div>");
 %>
 </tfoot>
 </table>
@@ -353,18 +364,18 @@
 
     if (i==pages+1) {
       if (offset!=0 || firstPage)
-        out.print("[<a href=\"group.jsp?group="+groupId+"&amp;offset=0"+(showDeleted?"&amp;deleted=t":"")+"&amp;showignored="+(showIgnored?"t":"f")+"\">конец</a>] ");
+        out.print("[<a href=\"group.jsp?group="+groupId+"&amp;offset=0"+(showDeleted?"&amp;deleted=t":"")+ignoredAdd+"\">конец</a>] ");
       else
         out.print("[<b>конец</b>] ");
     } else if (i==0) {
         if (firstPage)
           out.print("[<b>начало</b>] ");
         else
-          out.print("[<a href=\"group.jsp?group="+groupId+(showDeleted?"&amp;deleted=t":"")+"&amp;showignored="+(showIgnored?"t":"f")+"\">начало</a>] ");
+          out.print("[<a href=\"group.jsp?group="+groupId+(showDeleted?"&amp;deleted=t":"")+ignoredAdd+"\">начало</a>] ");
     } else if ((pages+1-i)*topics==offset)
       out.print("[<b>"+(pages+1-i)+"</b>] ");
     else {
-      out.print("[<a href=\"group.jsp?group="+groupId+"&amp;offset="+((pages+1-i)*topics)+(showDeleted?"&amp;deleted=t":"")+"&amp;showignored="+(showIgnored?"t":"f")+"\">"+(pages+1-i)+"</a>] ");
+      out.print("[<a href=\"group.jsp?group="+groupId+"&amp;offset="+((pages+1-i)*topics)+(showDeleted?"&amp;deleted=t":"")+ignoredAdd+"\">"+(pages+1-i)+"</a>] ");
     }
   }
 %>
