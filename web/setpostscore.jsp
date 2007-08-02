@@ -43,7 +43,7 @@ if (!tmpl.isModeratorSession()) {
 <form method=POST action="setpostscore.jsp">
 <input type=hidden name=msgid value="<%= msgid %>">
 <br>
-Текущий уровень записи: <%= (postscore<0?"только для модераторов":postscore) %>
+Текущий уровень записи: <%= (postscore<0?"только для модераторов":Integer.toString(postscore)) %>
 <select name="postscore">
   <option value="0">0 - без ограничений</option>
   <option value="50">50 - для зарегистрированных</option>
@@ -85,7 +85,7 @@ if (!tmpl.isModeratorSession()) {
 
 	pst.executeUpdate();
 
-        out.print("Установлен новый уровень записи "+(postscore<0?"только для модераторов":postscore));
+        out.print("Установлен новый уровень записи "+(postscore<0?"только для модераторов":Integer.toString(postscore)));
 
 	logger.info("Установлен новый уровень записи "+postscore+" для "+msgid+" пользователем "+user.getNick());
 
