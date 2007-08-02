@@ -1,8 +1,5 @@
 <%@ page contentType="text/html; charset=koi8-r"%>
-<%@ page import="java.net.URLEncoder,java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.sql.Timestamp,java.util.ArrayList,java.util.Collections,java.util.Iterator" errorPage="/error.jsp" buffer="200kb"%>
-<%@ page import="java.util.List"%>
-<%@ page import="javax.servlet.http.HttpServletResponse"%>
-<%@ page import="ru.org.linux.site.*"%>
+<%@ page import="java.net.URLEncoder,java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.sql.Timestamp,java.util.*,javax.servlet.http.HttpServletResponse,ru.org.linux.site.*" errorPage="/error.jsp" buffer="200kb"%>
 <%@ page import="ru.org.linux.util.BadImageException"%>
 <%@ page import="ru.org.linux.util.ImageInfo"%>
 <%@ page import="ru.org.linux.util.StringUtil"%>
@@ -25,6 +22,10 @@
       throw new AccessViolationException("Вы не авторизованы");
     }
 
+    boolean showIgnored = tmpl.getProf().getBoolean("showignored");
+    if (request.getParameter("showignored") != null) {
+      showIgnored = "t".equals(request.getParameter("showignored"));
+    }
 
     if (request.getParameter("group") == null) {
       throw new MissingParameterException("group");
@@ -140,6 +141,37 @@
     </tr>
  </table>
 </div>
+
+</form>
+
+<%
+  String ignq = "";
+
+  if (!showIgnored && tmpl.isSessionAuthorized(session) && !session.getValue("nick").equals("anonymous")) {
+    Map ignoreList = IgnoreList.getIgnoreListHash(db, (String) session.getValue("nick"));
+    if (firstPage && ignoreList != null && !ignoreList.isEmpty())
+      ignq = " AND topics.userid NOT IN (SELECT ignored FROM ignore_list, users WHERE userid=users.id and nick='" + session.getValue("nick") + "')";
+  }
+
+%>
+<form action="group.jsp" method="GET">
+
+  <input type=hidden name=group value=<%= groupId %>>
+  <!-- input type=hidden name=deleted value=<%= (showDeleted?"t":"f")%> -->
+  <% if (!firstPage) { %>
+    <input type=hidden name=offset value="<%= offset %>">
+  <% } %>
+<div class=color1>
+  <table width="100%" cellspacing=1 cellpadding=0 border=0><tr class=body>
+    <td><div align="center">фильтр тем: <select name="showignored">
+      <option value="t" <%= (showIgnored?"selected":"") %>>все темы</option>
+      <option value="f" <%= (showIgnored?"":"selected") %>>без игнорируемых</option>
+      </select> <input type="submit" value="Обновить"> [<a style="text-decoration: none" href="ignore-list.jsp">настроить</a>]</div>
+    </td>
+  </tr>
+  </table>
+</div>
+
 </form>
 
 </div>
@@ -185,7 +217,7 @@
   String delq = showDeleted ? "" : " AND NOT deleted ";
 
   if (firstPage) {
-    rs = st.executeQuery("SELECT topics.title as subj, lastmod, nick, topics.id as msgid, deleted, topics.stat1, topics.stat3, topics.stat4 FROM topics,groups,users, sections WHERE sections.id=groups.section AND (topics.moderate OR NOT sections.moderate) AND topics.userid=users.id AND topics.groupid=groups.id AND groups.id=" + groupId + delq + " AND postdate>(CURRENT_TIMESTAMP-'3 month'::interval) ORDER BY msgid DESC LIMIT " + topics);
+    rs = st.executeQuery("SELECT topics.title as subj, lastmod, nick, topics.id as msgid, deleted, topics.stat1, topics.stat3, topics.stat4 FROM topics,groups,users, sections WHERE sections.id=groups.section AND (topics.moderate OR NOT sections.moderate) AND topics.userid=users.id AND topics.groupid=groups.id AND groups.id=" + groupId + delq + ignq + " AND postdate>(CURRENT_TIMESTAMP-'3 month'::interval) ORDER BY msgid DESC LIMIT " + topics);
   } else {
     rs = st.executeQuery("SELECT topics.title as subj, lastmod, nick, topics.id as msgid, deleted, topics.stat1, topics.stat3, topics.stat4 FROM topics,groups,users, sections WHERE sections.id=groups.section AND (topics.moderate OR NOT sections.moderate) AND topics.userid=users.id AND topics.groupid=groups.id AND groups.id=" + groupId + delq + " ORDER BY msgid ASC LIMIT " + topics + " OFFSET " + offset);
   }
@@ -261,6 +293,10 @@
 
     outbuf.append("</td></tr>");
 
+//    if (!firstPage && ignoreList != null && !ignoreList.isEmpty() && ignoreList.containsValue(rs.getString("nick"))) {
+//      outbuf = new StringBuffer().append("<tr><td colspan=2>Тема создана игнорируемым пользователем</td></tr>");
+//    }
+
     outputList.add(outbuf.toString());
   }
   rs.close();
@@ -284,20 +320,20 @@
         if (firstPage)
           out.print("");
 	else if (offset==pages*topics)
-          out.print("<a href=\"group.jsp?group="+groupId +(showDeleted?"&amp;deleted=t":"")+"\">Начало</a> ");
+          out.print("<a href=\"group.jsp?group="+groupId +(showDeleted?"&amp;deleted=t":"")+"&amp;showignored="+(showIgnored?"t":"f")+"\">Начало</a> ");
         else
-          out.print("<a rel=prev rev=next href=\"group.jsp?group="+groupId +"&amp;offset="+(offset+topics)+(showDeleted?"&amp;deleted=t":"")+"\">Назад</a>");
+          out.print("<a rel=prev rev=next href=\"group.jsp?group="+groupId +"&amp;offset="+(offset+topics)+(showDeleted?"&amp;deleted=t":"")+"&amp;showignored="+(showIgnored?"t":"f")+"\">Назад</a>");
 	out.print("</div>");
 
         // ВПЕРЕД
 	out.print("<div style=\"float: right\">");
 
         if (firstPage) {
-          out.print("<a rel=next rev=prev href=\"group.jsp?group="+groupId +"&amp;offset="+(pages*topics)+(showDeleted?"&amp;deleted=t":"")+"\">Архив</a>");
+          out.print("<a rel=next rev=prev href=\"group.jsp?group="+groupId +"&amp;offset="+(pages*topics)+(showDeleted?"&amp;deleted=t":"")+"&amp;showignored="+(showIgnored?"t":"f")+"\">Архив</a>");
 	} else if (offset==0 && !firstPage)
           out.print("<b>Вперед</b>");
 	else
-          out.print("<a rel=next rev=prev href=\"group.jsp?group="+groupId +"&amp;offset="+(offset-topics)+(showDeleted?"&amp;deleted=t":"")+"\">Вперед</a>");
+          out.print("<a rel=next rev=prev href=\"group.jsp?group="+groupId +"&amp;offset="+(offset-topics)+(showDeleted?"&amp;deleted=t":"")+"&amp;showignored="+(showIgnored?"t":"f")+"\">Вперед</a>");
 	out.print("</div>");
 
 %>
@@ -317,18 +353,18 @@
 
     if (i==pages+1) {
       if (offset!=0 || firstPage)
-        out.print("[<a href=\"group.jsp?group="+groupId+"&amp;offset=0"+(showDeleted?"&amp;deleted=t":"")+"\">конец</a>] ");
+        out.print("[<a href=\"group.jsp?group="+groupId+"&amp;offset=0"+(showDeleted?"&amp;deleted=t":"")+"&amp;showignored="+(showIgnored?"t":"f")+"\">конец</a>] ");
       else
         out.print("[<b>конец</b>] ");
     } else if (i==0) {
         if (firstPage)
           out.print("[<b>начало</b>] ");
         else
-          out.print("[<a href=\"group.jsp?group="+groupId+(showDeleted?"&amp;deleted=t":"")+"\">начало</a>] ");
+          out.print("[<a href=\"group.jsp?group="+groupId+(showDeleted?"&amp;deleted=t":"")+"&amp;showignored="+(showIgnored?"t":"f")+"\">начало</a>] ");
     } else if ((pages+1-i)*topics==offset)
       out.print("[<b>"+(pages+1-i)+"</b>] ");
     else {
-      out.print("[<a href=\"group.jsp?group="+groupId+"&amp;offset="+((pages+1-i)*topics)+(showDeleted?"&amp;deleted=t":"")+"\">"+(pages+1-i)+"</a>] ");
+      out.print("[<a href=\"group.jsp?group="+groupId+"&amp;offset="+((pages+1-i)*topics)+(showDeleted?"&amp;deleted=t":"")+"&amp;showignored="+(showIgnored?"t":"f")+"\">"+(pages+1-i)+"</a>] ");
     }
   }
 %>
