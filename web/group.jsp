@@ -262,7 +262,7 @@
 
       for (int i = 1; i < pagesInCurrent; i++) {
         outbuf.append(" <a href=\"jump-message.jsp?msgid=").append(rs.getInt("msgid"));
-        if (i == pagesInCurrent - 1) {
+        if ((i == pagesInCurrent - 1) && firstPage) {
           outbuf.append("&amp;lastmod=").append(lastmod.getTime());
         }
         outbuf.append("&amp;page=").append(i).append("\">");

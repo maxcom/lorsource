@@ -181,32 +181,46 @@
 %></th><th>Число ответов<br>всего/день/час</th></tr>
 <tbody>
 <%
-  String order="lastmod";
   double messages = tmpl.getProf().getInt("messages");
 
   if (firstPage) {
-	rs=st.executeQuery("SELECT topics.title as subj, lastmod, nick, topics.id as msgid, deleted, topics.stat1, topics.stat2, topics.stat3, topics.stat4 FROM topics,groups,users, sections WHERE sections.id=groups.section AND (topics.moderate OR NOT sections.moderate) AND topics.userid=users.id AND topics.groupid="+group+" AND groups.id="+group+" AND NOT deleted " + ignq + " ORDER BY "+order+" DESC LIMIT "+topics+" OFFSET "+offset);
+	rs=st.executeQuery("SELECT topics.title as subj, lastmod, nick, topics.id as msgid, deleted, topics.stat1, topics.stat2, topics.stat3, topics.stat4 FROM topics,groups,users, sections WHERE sections.id=groups.section AND (topics.moderate OR NOT sections.moderate) AND topics.userid=users.id AND topics.groupid="+group+" AND groups.id="+group+" AND NOT deleted " + ignq + " ORDER BY lastmod DESC LIMIT "+topics+" OFFSET "+offset);
   } else {
-	rs=st.executeQuery("SELECT topics.title as subj, lastmod, nick, topics.id as msgid, deleted, topics.stat1, topics.stat2, topics.stat3, topics.stat4 FROM topics,groups,users, sections WHERE sections.id=groups.section AND (topics.moderate OR NOT sections.moderate) AND topics.userid=users.id AND topics.groupid="+group+" AND groups.id="+group+" AND NOT deleted ORDER BY "+order+" DESC LIMIT "+topics+" OFFSET "+offset);  
+	rs=st.executeQuery("SELECT topics.title as subj, lastmod, nick, topics.id as msgid, deleted, topics.stat1, topics.stat2, topics.stat3, topics.stat4 FROM topics,groups,users, sections WHERE sections.id=groups.section AND (topics.moderate OR NOT sections.moderate) AND topics.userid=users.id AND topics.groupid="+group+" AND groups.id="+group+" AND NOT deleted ORDER BY lastmod DESC LIMIT "+topics+" OFFSET "+offset);
   }
   
   while (rs.next()) {
-	StringBuffer outbuf = new StringBuffer();
+    StringBuffer outbuf = new StringBuffer();
+    int stat1 = rs.getInt("stat1");
+
     Timestamp lastmod=rs.getTimestamp("lastmod");
     if (lastmod==null) lastmod=new Timestamp(0);
 
     outbuf.append("<tr><td>");
     if (rs.getBoolean("deleted")) outbuf.append("[X] ");
 
-    outbuf.append("<a href=\"jump-message.jsp?msgid=").append(rs.getInt("msgid")).append("&amp;lastmod=").append(lastmod.getTime()).append("\" rev=contents>").append(StringUtil.makeTitle(rs.getString("subj"))).append("</a>");
-
-    int stat1=rs.getInt("stat1");
-
     int pagesInCurrent = (int) Math.ceil(stat1 / messages);
-    if (pagesInCurrent > 1 ) {
+
+    if (firstPage) {
+      if (pagesInCurrent <= 1) {
+        outbuf.append("<a href=\"jump-message.jsp?msgid=").append(rs.getInt("msgid")).append("&amp;lastmod=").append(lastmod.getTime()).append("\" rev=contents>").append(StringUtil.makeTitle(rs.getString("subj"))).append("</a>");
+      } else {
+        outbuf.append("<a href=\"jump-message.jsp?msgid=").append(rs.getInt("msgid")).append("\" rev=contents>").append(StringUtil.makeTitle(rs.getString("subj"))).append("</a>");
+      }
+    } else {
+      outbuf.append("<a href=\"jump-message.jsp?msgid=").append(rs.getInt("msgid")).append("\" rev=contents>").append(StringUtil.makeTitle(rs.getString("subj"))).append("</a>");
+    }
+
+    if (pagesInCurrent > 1) {
       outbuf.append("&nbsp;(стр.");
+
       for (int i = 1; i < pagesInCurrent; i++) {
-        outbuf.append(" <a href=\"" + "jump-message.jsp?msgid=").append(rs.getInt("msgid")).append("&amp;lastmod=").append(lastmod.getTime()).append("&amp;page=").append(i).append("\">").append(i + 1).append("</a>");
+        outbuf.append(" <a href=\"jump-message.jsp?msgid=").append(rs.getInt("msgid"));
+        if ((i == pagesInCurrent - 1) && firstPage) {
+          outbuf.append("&amp;lastmod=").append(lastmod.getTime());
+        }
+        outbuf.append("&amp;page=").append(i).append("\">");
+        outbuf.append(i + 1).append("</a>");
       }
       outbuf.append(')');
     }
