@@ -1,9 +1,11 @@
 <%@ page contentType="text/html; charset=koi8-r"%>
-<%@ page import="java.net.URLEncoder,java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.sql.Timestamp,java.util.Date,ru.org.linux.site.BadGroupException" errorPage="/error.jsp" buffer="200kb"%>
+<%@ page import="java.net.URLEncoder,java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.sql.Timestamp,java.util.Date,java.util.Map" errorPage="/error.jsp" buffer="200kb"%>
+<%@ page import="ru.org.linux.site.BadGroupException"%>
+<%@ page import="ru.org.linux.site.IgnoreList"%>
 <%@ page import="ru.org.linux.site.MissingParameterException"%>
 <%@ page import="ru.org.linux.site.Template"%>
 <%@ page import="ru.org.linux.util.ImageInfo"%>
-<%@ page import="ru.org.linux.util.StringUtil"%>
+<%@ page import="ru.org.linux.util.StringUtil" %>
 <% Template tmpl = new Template(request, config, response); %>
 <%= tmpl.head() %>
 <%
@@ -27,6 +29,11 @@
       offset = 0;
       firstPage = true;
     }
+
+	boolean showIgnored = tmpl.getProf().getBoolean("showignored");
+	if (request.getParameter("showignored") != null) {
+	  showIgnored = "t".equals(request.getParameter("showignored"));
+	}
 
     String returnUrl;
     if (offset > 0)
@@ -78,9 +85,6 @@
       </td>
 
       <td align=right valign=middle>
-        <table>
-          <tr valign=middle>
-            <td>
 	      [<a style="text-decoration: none" href="faq.jsp">FAQ</a>]
 	      [<a style="text-decoration: none" href="rules.jsp">Правила форума</a>]
 
@@ -102,14 +106,23 @@
 	sectionListSt.close();
 %>
             </select>
-          </td>
-        </tr>
-      </table>
     </td>
   </tr>
 </table>
 </div>
 </form>
+
+<%
+  String ignq = ""; 
+   
+  Map ignoreList = IgnoreList.getIgnoreListHash(db, (String) session.getValue("nick"));
+   
+  if (!showIgnored && tmpl.isSessionAuthorized(session) && !session.getValue("nick").equals("anonymous")) {
+	if (firstPage && ignoreList != null && !ignoreList.isEmpty())
+	  ignq = " AND topics.userid NOT IN (SELECT ignored FROM ignore_list, users WHERE userid=users.id and nick='" + session.getValue("nick") + "')";
+  }
+  
+%>
 </div>
 </div>
 <%
@@ -124,14 +137,37 @@
 
 	String des=tmpl.getObjectConfig().getStorage().readMessageNull("grinfo", String.valueOf(group));
 	if (des!=null) {
-		out.print("<em>");
+		out.print("<p><em>");
 		out.print(des);
-		out.print("</em>");
+		out.print("</em></p>");
 	}
 
 	rs.close();
 
 %>
+<div class=messages>
+<div class=nav>
+<form action="group-lastmod.jsp" method="GET">
+
+  <input type=hidden name=group value=<%= group %>>
+  <% if (!firstPage) { %>
+	<input type=hidden name=offset value="<%= offset %>">
+  <% } %>
+<div class=color1>
+  <table width="100%" cellspacing=1 cellpadding=0 border=0><tr class=body>
+	<td><div align="center">фильтр тем: <select name="showignored">
+  	  <option value="t" <%= (showIgnored?"selected":"") %>>все темы</option>
+	  <option value="f" <%= (showIgnored?"":"selected") %>>без игнорируемых</option>
+	  </select> <input type="submit" value="Обновить"> [<a style="text-decoration: none" href="ignore-list.jsp">настроить</a>]</div>
+	</td>
+  </tr>
+  </table>
+</div>
+</form>
+
+</div>
+</div>
+  
 <div class=forum>
 <table width="100%" class="message-table">
 <thead>
@@ -148,79 +184,94 @@
   String order="lastmod";
   double messages = tmpl.getProf().getInt("messages");
 
-  rs=st.executeQuery("SELECT topics.title as subj, lastmod, nick, topics.id as msgid, deleted, topics.stat1, topics.stat2, topics.stat3, topics.stat4 FROM topics,groups,users, sections WHERE sections.id=groups.section AND (topics.moderate OR NOT sections.moderate) AND topics.userid=users.id AND topics.groupid="+group+" AND groups.id="+group+" AND NOT deleted ORDER BY "+order+" DESC LIMIT "+topics+" OFFSET "+offset);
-
+  if (firstPage) {
+	rs=st.executeQuery("SELECT topics.title as subj, lastmod, nick, topics.id as msgid, deleted, topics.stat1, topics.stat2, topics.stat3, topics.stat4 FROM topics,groups,users, sections WHERE sections.id=groups.section AND (topics.moderate OR NOT sections.moderate) AND topics.userid=users.id AND topics.groupid="+group+" AND groups.id="+group+" AND NOT deleted " + ignq + " ORDER BY "+order+" DESC LIMIT "+topics+" OFFSET "+offset);
+  } else {
+	rs=st.executeQuery("SELECT topics.title as subj, lastmod, nick, topics.id as msgid, deleted, topics.stat1, topics.stat2, topics.stat3, topics.stat4 FROM topics,groups,users, sections WHERE sections.id=groups.section AND (topics.moderate OR NOT sections.moderate) AND topics.userid=users.id AND topics.groupid="+group+" AND groups.id="+group+" AND NOT deleted ORDER BY "+order+" DESC LIMIT "+topics+" OFFSET "+offset);  
+  }
+  
   while (rs.next()) {
+	StringBuffer outbuf = new StringBuffer();
     Timestamp lastmod=rs.getTimestamp("lastmod");
     if (lastmod==null) lastmod=new Timestamp(0);
 
-    out.print("<tr><td>");
-    if (rs.getBoolean("deleted")) out.print("[X] ");
+    outbuf.append("<tr><td>");
+    if (rs.getBoolean("deleted")) outbuf.append("[X] ");
 
-    out.print("<a href=\"jump-message.jsp?msgid=" + rs.getInt("msgid") + "&amp;lastmod="+lastmod.getTime()+"\" rev=contents>" +  StringUtil.makeTitle(rs.getString("subj")) + "</a>");
+    outbuf.append("<a href=\"jump-message.jsp?msgid=").append(rs.getInt("msgid")).append("&amp;lastmod=").append(lastmod.getTime()).append("\" rev=contents>").append(StringUtil.makeTitle(rs.getString("subj"))).append("</a>");
 
     int stat1=rs.getInt("stat1");
 
     int pagesInCurrent = (int) Math.ceil(stat1 / messages);
     if (pagesInCurrent > 1 ) {
-      out.print("&nbsp;(стр.");
+      outbuf.append("&nbsp;(стр.");
       for (int i = 1; i < pagesInCurrent; i++) {
-        out.print(" <a href=\""+"jump-message.jsp?msgid="+rs.getInt("msgid")+"&amp;lastmod="+lastmod.getTime()+"&amp;page="+i+"\">"+(i + 1)+"</a>");
+        outbuf.append(" <a href=\"" + "jump-message.jsp?msgid=").append(rs.getInt("msgid")).append("&amp;lastmod=").append(lastmod.getTime()).append("&amp;page=").append(i).append("\">").append(i + 1).append("</a>");
       }
-      out.print(')');
+      outbuf.append(')');
     }
 
-    out.print(" (" + rs.getString("nick") + ") ");
-                out.print("</td>");
-		out.print("<td align=center>");
+    outbuf.append(" (").append(rs.getString("nick")).append(") ");
+                outbuf.append("</td>");
+		outbuf.append("<td align=center>");
 		int stat3=rs.getInt("stat3");
 		int stat4=rs.getInt("stat4");
 
 		if (stat1>0)
-			out.print("<b>"+stat1+"</b>/");
+                  outbuf.append("<b>").append(stat1).append("</b>/");
 		else
-			out.print("-/");
+			outbuf.append("-/");
 
 		if (stat3>0)
-			out.print("<b>"+stat3+"</b>/");
+                  outbuf.append("<b>").append(stat3).append("</b>/");
 		else
-			out.print("-/");
+			outbuf.append("-/");
 
 		if (stat4>0)
-			out.print("<b>"+stat4+"</b>");
+                  outbuf.append("<b>").append(stat4).append("</b>");
 		else
-			out.print("-");
+			outbuf.append("-");
 
 
 
-		out.print("</td></tr>");
+		outbuf.append("</td></tr>");
+		
+		if (!firstPage && ignoreList != null && !ignoreList.isEmpty() && ignoreList.containsValue(rs.getString("nick"))) {
+		  outbuf = new StringBuffer();
+		  //new StringBuffer().append("<tr><td colspan=2>Тема создана игнорируемым пользователем</td></tr>");
+		}
+		
+		out.print(outbuf.toString());
+		
   }
 	rs.close();
 %>
   <tfoot><tr><td colspan=2><p>
 <%
+	String ignoredAdd = tmpl.getProf().getBoolean("showignored")!=showIgnored?("&amp;showignored=" + (showIgnored ? "t" : "f")):"";
+	
 	out.print("<div style=\"float: left\">");
 	if (offset==0)
 		out.print("<b>Назад</b>");
 	else
 		if ((offset-topics)==0)
-			out.print("<a rel=prev rev=next href=\"group-lastmod.jsp?group="+group+"\">Назад</a>");
+			out.print("<a rel=prev rev=next href=\"group-lastmod.jsp?group=" + group + ignoredAdd + "\">Назад</a>");
 		else
-			out.print("<a rel=prev rev=next href=\"group-lastmod.jsp?group="+group+"&amp;offset="+(offset-topics)+"\">Назад</a>");
+			out.print("<a rel=prev rev=next href=\"group-lastmod.jsp?group=" + group + "&amp;offset=" + (offset-topics) + ignoredAdd + "\">Назад</a>");
 	out.print("</div>");
 	if (offset>0)
-		out.print("<div style=\"text-align: center\"><a rel=start href=\"group-lastmod.jsp?group="+group+"\">Начало</a></div>");
+		out.print("<div style=\"text-align: center\"><a rel=start href=\"group-lastmod.jsp?group=" + group + ignoredAdd + "\">Начало</a></div>");
 	out.print("<div style=\"float: right\">");
 	if (offset==topics*pages)
 		out.print("<b>Вперед</b>");
 	else
-		out.print("<a rel=next rev=prev href=\"group-lastmod.jsp?group="+group+"&amp;offset="+(offset+topics)+"\">Вперед</a>");
+		out.print("<a rel=next rev=prev href=\"group-lastmod.jsp?group=" + group + "&amp;offset=" + (offset+topics) + ignoredAdd + "\">Вперед</a>");
 
 	out.print("</div>");
 
 %>
 </td></tr></table>
-</div></div>
+</div>
 <div align=center><p>
 <%
   for (int i=0; i<pages+1; i++) {
@@ -228,16 +279,17 @@
       continue;
 
     if (i==pages)
-        out.print("[<a href=\"group-lastmod.jsp?group="+group+"&amp;offset="+(i*topics)+"\">конец</a>] ");
+        out.print("[<a href=\"group-lastmod.jsp?group=" + group + "&amp;offset=" + (i*topics) + ignoredAdd + "\">конец</a>] ");
     else if (i*topics==offset)
       out.print("[<b>"+(pages+1-i)+"</b>] ");
     else
       if (i!=0)
-        out.print("[<a href=\"group-lastmod.jsp?group="+group+"&amp;offset="+(i*topics)+"\">"+(pages+1-i)+"</a>] ");
+        out.print("[<a href=\"group-lastmod.jsp?group=" + group + "&amp;offset=" + (i*topics) + ignoredAdd + "\">"+(pages+1-i)+"</a>] ");
       else
-        out.print("[<a href=\"group-lastmod.jsp?group="+group+"\">начало</a>] ");
+        out.print("[<a href=\"group-lastmod.jsp?group=" + group + ignoredAdd + "\">начало</a>] ");
   }
 %>
+  </div>
 <p>
 <%
 	st.close();

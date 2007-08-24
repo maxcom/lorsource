@@ -104,7 +104,8 @@
 <form action="group.jsp">
 
 <div class="color1">
-  <table width="100%" cellspacing=1 cellpadding=1 border=0><tr class=body>
+  <table width="100%" cellspacing=1 cellpadding=1 border=0>
+    <tr class=body>
     <td align=left valign=middle>
       <a href="view-section.jsp?section=<%= group.getSectionId() %>"><%= group.getSectionName() %></a> - <strong><%= group.getTitle() %></strong>
     </td>
