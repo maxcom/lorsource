@@ -52,7 +52,7 @@ public class IgnoreList {
   }
 
   public void addNick(Connection db, String nick) throws SQLException, UserNotFoundException {
-    User user = new User(db, nick);
+    User user = User.getUser(db, nick);
 
     int id = user.getId();
     if (!ignoreList.containsKey(id)) {

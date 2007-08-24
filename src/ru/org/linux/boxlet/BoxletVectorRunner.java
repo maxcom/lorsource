@@ -9,7 +9,6 @@ import java.util.logging.Logger;
 import com.danga.MemCached.MemCachedClient;
 
 import ru.org.linux.site.MemCachedSettings;
-import ru.org.linux.site.Template;
 import ru.org.linux.util.HTMLFormatter;
 import ru.org.linux.util.ProfileHashtable;
 import ru.org.linux.util.StringUtil;
@@ -26,7 +25,7 @@ public class BoxletVectorRunner {
     boxes = v;
   }
 
-  public String getContent(Template tmpl, Object config, ProfileHashtable profile) throws IOException, UtilException {
+  public String getContent(Object config, ProfileHashtable profile) throws IOException, UtilException {
     StringBuffer out = new StringBuffer();
     BoxletLoader loader = new BoxletLoader();
 
@@ -36,7 +35,7 @@ public class BoxletVectorRunner {
       try {
         Boxlet bx = loader.loadBox(name);
 
-        String cacheId = MemCachedSettings.getId(tmpl, "boxlet?name="+name+"&"+bx.getVariantID(profile));
+        String cacheId = MemCachedSettings.getId("boxlet?name="+name+"&"+bx.getVariantID(profile));
 
         String res = (String) mcc.get(cacheId);
 

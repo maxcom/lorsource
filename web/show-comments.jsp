@@ -25,7 +25,7 @@
 <tbody>
 <%
   MemCachedClient mcc=MemCachedSettings.getClient();
-  String showCommentsId = MemCachedSettings.getId(tmpl, "show-comments?id="+URLEncoder.encode(nick));
+  String showCommentsId = MemCachedSettings.getId( "show-comments?id="+URLEncoder.encode(nick));
 
   String res = (String) mcc.get(showCommentsId);
   if (res==null) {
@@ -57,7 +57,7 @@
     db = tmpl.getConnectionWhois();
   }
 
-  User user = new User(db, nick);
+  User user = User.getUser(db, nick);
 
   Statement st=db.createStatement();
   ResultSet rs=st.executeQuery("SELECT sections.name as ptitle, groups.title as gtitle, topics.title, topics.id as msgid, del_info.reason, comments.postdate FROM sections, groups, topics, comments, del_info WHERE sections.id=groups.section AND groups.id=topics.groupid AND comments.topic=topics.id AND del_info.msgid=comments.id AND comments.userid="+user.getId()+" AND del_info.delby!="+user.getId()+" ORDER BY del_info.msgid DESC LIMIT 20;");

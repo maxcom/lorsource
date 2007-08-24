@@ -1,6 +1,8 @@
 package ru.org.linux.site;
 
 import java.io.Serializable;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.*;
 
 public class CommentNode implements Serializable {
@@ -26,15 +28,17 @@ public class CommentNode implements Serializable {
     return comment==null?0:comment.getMessageId();
   }
 
-  public void hideAnonymous(Set<Integer> hideSet) {
+  public void hideAnonymous(Connection db, Set<Integer> hideSet) throws SQLException, UserNotFoundException {
     if (comment!=null) {
-      if (comment.isAnonymous())
+      User commentAuthor = User.getUserCached(db, comment.getUserid());
+
+      if (commentAuthor.isAnonymousScore())
         hideNode(hideSet);
     }
 
     if (comment==null || !hideSet.contains(comment.getMessageId())) {
       for (CommentNode child : childs) {
-        child.hideAnonymous(hideSet);
+        child.hideAnonymous(db, hideSet);
       }
     }
   }

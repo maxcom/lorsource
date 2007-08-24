@@ -20,19 +20,21 @@ public class CommentViewer {
   private final Template tmpl;
   private final CommentList comments;
   private final boolean expired;
+  private final Connection db;
 
   private final String user;
   public static final int FILTER_LISTANON = FILTER_ANONYMOUS+FILTER_IGNORED;
 
-  public CommentViewer(Template t, CommentList comments, String user, boolean expired) {
+  public CommentViewer(Template t, Connection db, CommentList comments, String user, boolean expired) {
     tmpl=t;
     this.comments = comments;
     this.user=user;
     this.expired = expired;
+    this.db = db;
   }
 
   private void showCommentList(StringBuffer buf, List<Comment> comments, boolean reverse, int offset, int limit, Set<Integer> hideSet)
-      throws IOException, UtilException {
+      throws IOException, UtilException, SQLException, UserNotFoundException {
     int shown = 0;
 
     for (ListIterator<Comment> i = comments.listIterator(reverse?comments.size():0); reverse?i.hasPrevious():i.hasNext();) {
@@ -46,14 +48,14 @@ public class CommentViewer {
 
       if (hideSet==null || !hideSet.contains(comment.getMessageId())) {
         shown++;
-        buf.append(comment.printMessage(tmpl, this.comments, true, tmpl.isModeratorSession(), user, expired));
+        buf.append(comment.printMessage(tmpl, db, this.comments, true, tmpl.isModeratorSession(), user, expired));
       }
     }
 
     logger.fine("Showing list size="+comments.size()+" shown="+shown);    
   }
 
-  public String showAll(boolean reverse, int offset, int limit) throws IOException, UtilException {
+  public String showAll(boolean reverse, int offset, int limit) throws IOException, UtilException, SQLException, UserNotFoundException {
     StringBuffer buf=new StringBuffer();
 
     showCommentList(buf, comments.getList(), reverse, offset, limit,  null);
@@ -61,13 +63,13 @@ public class CommentViewer {
     return buf.toString();
   }
 
-  public String showFiltered(Connection db, boolean reverse, int offset, int limit, int filterChain, String nick) throws IOException, UtilException {
+  public String showFiltered(Connection db, boolean reverse, int offset, int limit, int filterChain, String nick) throws IOException, UtilException, SQLException, UserNotFoundException {
     StringBuffer buf=new StringBuffer();
     Set<Integer> hideSet = new HashSet<Integer>();
 
     /* hide anonymous */
     if ((filterChain & FILTER_ANONYMOUS) > 0) {
-      comments.getRoot().hideAnonymous(hideSet);
+      comments.getRoot().hideAnonymous(db, hideSet);
     }
 
     /* hide ignored */
@@ -87,7 +89,7 @@ public class CommentViewer {
     return buf.toString();
   }
 
-  public String showSubtree(int parentId) throws IOException, UtilException, MessageNotFoundException {
+  public String showSubtree(int parentId) throws IOException, UtilException, MessageNotFoundException, SQLException, UserNotFoundException {
     StringBuffer buf=new StringBuffer();
 
     CommentNode parentNode = comments.getNode(parentId);

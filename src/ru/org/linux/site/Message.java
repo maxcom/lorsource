@@ -19,8 +19,7 @@ public class Message {
   private String linktext;
   private String url;
   private String title;
-  private String photo;
-  private String nick;
+  private final int userid;
   private int guid;
   private boolean deleted;
   private boolean expired;
@@ -34,8 +33,6 @@ public class Message {
   private final int section;
   private boolean comment;
   private final int commentCount;
-  private final int userScore;
-  private final int userMaxScore;
   private final boolean moderate;
   private final String message;
 
@@ -44,11 +41,11 @@ public class Message {
 
     ResultSet rs=st.executeQuery(
         "SELECT " +
-            "postdate, nick, topics.id as msgid, topics.title, sections.comment, " +
-            "topics.groupid as guid, photo, topics.url, topics.linktext, sections.name as ptitle, " +
+            "postdate, topics.id as msgid, users.id as userid, topics.title, sections.comment, " +
+            "topics.groupid as guid, topics.url, topics.linktext, sections.name as ptitle, " +
             "groups.title as gtitle, imagepost, vote, havelink, section, " +
             "postdate<(CURRENT_TIMESTAMP-sections.expire) as expired, deleted, lastmod, commitby, " +
-            "commitdate, topics.stat1, score, max_score, postscore, topics.moderate, message " +
+            "commitdate, topics.stat1, postscore, topics.moderate, message " +
             "FROM topics, users, groups, sections, msgbase " +
             "WHERE topics.id="+msgid+" AND topics.userid=users.id AND topics.groupid=groups.id " +
             "AND groups.section=sections.id AND topics.id=msgbase.id"
@@ -57,15 +54,12 @@ public class Message {
 
     this.msgid=rs.getInt("msgid");
     postscore =rs.getInt("postscore");
-    userScore=rs.getInt("score");
-    userMaxScore=rs.getInt("max_score");
     imagepost=rs.getBoolean("imagepost");
     votepoll=rs.getBoolean("vote");
     linktext=rs.getString("linktext");
     url=rs.getString("url");
+    userid = rs.getInt("userid");
     title=StringUtil.makeTitle(rs.getString("title"));
-    photo=rs.getString("photo");
-    nick=rs.getString("nick");
     guid=rs.getInt("guid");
     deleted=rs.getBoolean("deleted");
     expired=rs.getBoolean("expired");
@@ -103,6 +97,8 @@ public class Message {
       throws SQLException, IOException, UserNotFoundException, UtilException {
     StringBuffer out=new StringBuffer();
 
+    User author = User.getUserCached(db, userid);
+
     out.append("\n\n<!-- ").append(msgid).append(" -->\n");
 
     out.append("<table width=\"100%\" cellspacing=0 cellpadding=0 border=0>");
@@ -117,7 +113,7 @@ public class Message {
       if (!isExpired() && !isDeleted())
         out.append("[<a href=\"comment-message.jsp?msgid=").append(msgid).append("\">Ответить</a>]");
 
-      if (!isDeleted() && (tmpl.isModeratorSession() || nick.equals(user))) {
+      if (!isDeleted() && (tmpl.isModeratorSession() || author.getNick().equals(user))) {
         out.append("[<a href=\"delete.jsp?msgid=").append(msgid).append("\">Удалить</a>]");
       }
 
@@ -169,14 +165,14 @@ public class Message {
       out.append("</td><td valign=top>");
     }
 
-    if (!imagepost && photo!=null) {
+    if (!imagepost && author.getPhoto()!=null) {
       if (tmpl.getProf().getBoolean("photos")) {
         out.append("<table><tr><td valign=top align=center>");
         tbl=true;
 
         try {
-          ImageInfo info=new ImageInfo(tmpl.getObjectConfig().getHTMLPathPrefix()+"/photos/"+photo);
-          out.append("<img src=\"/photos/").append(photo).append("\" alt=\"").append(nick).append(" (фотография)\" ").append(info.getCode()).append(" >");
+          ImageInfo info=new ImageInfo(tmpl.getObjectConfig().getHTMLPathPrefix()+"/photos/"+author.getPhoto());
+          out.append("<img src=\"/photos/").append(author.getPhoto()).append("\" alt=\"").append(author.getNick()).append(" (фотография)\" ").append(info.getCode()).append(" >");
         } catch (BadImageException e) {
           logger.warning(StringUtil.getStackTrace(e));
         }
@@ -221,10 +217,10 @@ public class Message {
 
     out.append("<p>");
 
-    out.append(User.getUserInfoLine(tmpl, nick, userScore, userMaxScore, postdate));
+    out.append(author.getSignature(tmpl.isModeratorSession(), postdate));
 
     if (commitby!=0) {
-      User commiter = new User(db, commitby);
+      User commiter = User.getUser(db, commitby);
 
       out.append("<br>");
       out.append(commiter.getCommitInfoLine(postdate, commitDate));
@@ -454,10 +450,10 @@ public class Message {
       if (request.getParameter("nick") == null) {
         throw new BadInputException("Вы уже вышли из системы");
       }
-      user = new User(db, request.getParameter("nick"));
+      user = User.getUser(db, request.getParameter("nick"));
       user.checkPassword(request.getParameter("password"));
     } else {
-      user = new User(db, (String) session.getAttribute("nick"));
+      user = User.getUser(db, (String) session.getAttribute("nick"));
       user.checkBlocked();
     }
 

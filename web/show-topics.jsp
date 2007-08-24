@@ -17,9 +17,9 @@
 %>
 
 <%
-	db = tmpl.getConnectionWhois();
+  db = tmpl.getConnectionWhois();
 
-        User user = new User(db, nick);
+  User user = User.getUser(db, nick);
 %>
 
 <h1>Последние 50 тем пользователя <%= nick %></h1>

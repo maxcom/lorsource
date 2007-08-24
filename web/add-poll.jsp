@@ -48,7 +48,7 @@
     db = tmpl.getConnection("add-poll");
     db.setAutoCommit(false);
 
-    User user = new User(db, (String) session.getAttribute("nick"));
+    User user = User.getUser(db, (String) session.getAttribute("nick"));
     user.checkBlocked();
 
     int id = Poll.createPoll(db, title, pollList);

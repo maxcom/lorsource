@@ -41,9 +41,9 @@
 Вы вошли как <b><%= session.getAttribute("nick") %></b>
 <%
   Connection db = tmpl.getConnection("index");
-  User user = new User(db, (String) session.getAttribute("nick"));
+  User user = User.getUser(db, (String) session.getAttribute("nick"));
 
-  out.print(" (статус: "+user.getStatus()+ ')');
+  out.print(" (статус: " + user.getStatus() + ')');
 %><br>
 <input type=submit value="Выход"><p>
 </form>
@@ -72,14 +72,14 @@
 
 <!-- boxes -->
 <%
-  BoxletVectorRunner boxes  ;
+  BoxletVectorRunner boxes;
 
   if (tmpl.getProf().getBoolean("main.3columns"))
     boxes = new BoxletVectorRunner((List) tmpl.getProf().getObject("main3-1"));
   else
     boxes = new BoxletVectorRunner((List) tmpl.getProf().getObject("main2"));
 
-  out.print(boxes.getContent(tmpl, tmpl.getObjectConfig(), tmpl.getProf()));
+  out.print(boxes.getContent(tmpl.getObjectConfig(), tmpl.getProf()));
 
 %>
 </div>
@@ -89,7 +89,7 @@
 <%
   boxes = new BoxletVectorRunner((List) tmpl.getProf().getObject("main3-2"));
 
-  out.print(boxes.getContent(tmpl, tmpl.getObjectConfig(), tmpl.getProf()));
+  out.print(boxes.getContent(tmpl.getObjectConfig(), tmpl.getProf()));
 %>
 </div>
 <% } %>

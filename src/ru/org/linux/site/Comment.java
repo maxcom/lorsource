@@ -2,7 +2,6 @@ package ru.org.linux.site;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.net.URLEncoder;
 import java.sql.*;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -14,10 +13,7 @@ public class Comment implements Serializable {
 
   private final int msgid;
   private final String title;
-  private final String photo;
-  private final String nick;
-  private final int userScore;
-  private final int userMaxScore;
+  private final int userid;
   private final int replyto;
   private final int topic;
   private final boolean deleted;
@@ -28,14 +24,11 @@ public class Comment implements Serializable {
   public Comment(Connection db, ResultSet rs) throws SQLException {
     msgid=rs.getInt("msgid");
     title=StringUtil.makeTitle(rs.getString("title"));
-    photo=rs.getString("photo");
-    nick=rs.getString("nick");
     topic=rs.getInt("topic");
     replyto=rs.getInt("replyto");
     deleted=rs.getBoolean("deleted");
     postdate=rs.getTimestamp("postdate");
-    userScore=rs.getInt("score");
-    userMaxScore=rs.getInt("max_score");
+    userid=rs.getInt("userid");
     message=rs.getString("message");
 
     if (deleted) {
@@ -49,8 +42,8 @@ public class Comment implements Serializable {
     Statement st = db.createStatement();
 
     ResultSet rs=st.executeQuery("SELECT " +
-        "postdate, topic, nick, score, max_score, comments.id as msgid, comments.title, " +
-        "photo, deleted, replyto, message " +
+        "postdate, topic, users.id as userid, comments.id as msgid, comments.title, " +
+        "deleted, replyto, message " +
         "FROM comments, users, msgbase " +
         "WHERE comments.id="+msgid+" AND comments.id=msgbase.id AND comments.userid=users.id");
 
@@ -58,15 +51,12 @@ public class Comment implements Serializable {
 
     this.msgid=rs.getInt("msgid");
     title=StringUtil.makeTitle(rs.getString("title"));
-    photo=rs.getString("photo");
-    nick=rs.getString("nick");
     topic=rs.getInt("topic");
     replyto=rs.getInt("replyto");
     deleted=rs.getBoolean("deleted");
     postdate=rs.getTimestamp("postdate");
-    userScore=rs.getInt("score");
-    userMaxScore=rs.getInt("max_score");
     message=rs.getString("message");
+    userid=rs.getInt("userid");
 
     st.close();
 
@@ -77,13 +67,15 @@ public class Comment implements Serializable {
     }
   }
 
-  public String printMessage(Template tmpl, CommentList comments, boolean showMenu, boolean moderatorMode, String user, boolean expired)
-      throws IOException, UtilException {
+  public String printMessage(Template tmpl, Connection db, CommentList comments, boolean showMenu, boolean moderatorMode, String user, boolean expired)
+      throws IOException, UtilException, SQLException, UserNotFoundException {
     StringBuffer out=new StringBuffer();
 
     out.append("\n\n<!-- ").append(msgid).append(" -->\n");
 
     out.append("<table width=\"100%\" cellspacing=0 cellpadding=0 border=0>");
+
+    User author = User.getUserCached(db, userid);
 
     if (showMenu) {
       out.append("<tr class=title><td>");
@@ -96,7 +88,7 @@ public class Comment implements Serializable {
         out.append("[<a href=\"add_comment.jsp?topic=").append(topic).append("&amp;replyto=").append(msgid).append("\">Ответить</a>]");
       }
 
-      if (!deleted && (moderatorMode || nick.equals(user))) {
+      if (!deleted && (moderatorMode || author.getNick().equals(user))) {
         out.append("[<a href=\"delete_comment.jsp?msgid=").append(msgid).append("\">Удалить</a>]");
       }
 
@@ -132,7 +124,10 @@ public class Comment implements Serializable {
         }
 
         out.append("\">");
-        out.append(StringUtil.makeTitle(reply.getTitle())).append("</a> от ").append(reply.getNick()).append(' ').append(Template.dateFormat.format(reply.getPostdate()));
+
+        User replyAuthor = User.getUserCached(db, reply.getUserid());
+
+        out.append(StringUtil.makeTitle(reply.getTitle())).append("</a> от ").append(replyAuthor.getNick()).append(' ').append(Template.dateFormat.format(reply.getPostdate()));
       } else {
         logger.warning("Weak reply #"+replyto+" on comment="+msgid+" msgid="+topic);
       }
@@ -142,14 +137,14 @@ public class Comment implements Serializable {
     out.append("<div class=msg>");
 
     boolean tbl = false;
-    if (photo!=null) {
+    if (author.getPhoto()!=null) {
       if (tmpl.getProf().getBoolean("photos")) {
         out.append("<table><tr><td valign=top align=center>");
         tbl=true;
 
         try {
-          ImageInfo info=new ImageInfo(tmpl.getObjectConfig().getHTMLPathPrefix()+"/photos/"+photo);
-          out.append("<img src=\"/photos/").append(photo).append("\" alt=\"").append(nick).append(" (фотография)\" ").append(info.getCode()).append(" >");
+          ImageInfo info=new ImageInfo(tmpl.getObjectConfig().getHTMLPathPrefix()+"/photos/"+author.getPhoto());
+          out.append("<img src=\"/photos/").append(author.getPhoto()).append("\" alt=\"").append(author.getNick()).append(" (фотография)\" ").append(info.getCode()).append(" >");
         } catch (BadImageException e) {
           logger.warning(StringUtil.getStackTrace(e));
         }
@@ -162,15 +157,9 @@ public class Comment implements Serializable {
 
     out.append(message);
 
-    out.append("<p><i>").append(nick).append(' ');
+    out.append("<p>");
 
-    if (!"anonymous".equals(nick)) {
-      out.append(User.getStars(userScore, userMaxScore)).append(' ');
-        if (moderatorMode)
-          out.append("(Score: ").append(userScore).append(" MaxScore: ").append(userMaxScore).append(") ");
-    }
-
-    out.append("(<a href=\"whois.jsp?nick=").append(URLEncoder.encode(nick)).append("\">*</a>) (").append(Template.dateFormat.format(postdate)).append(")</i>");
+    out.append(author.getSignature(moderatorMode, postdate));
 
     if (!expired && !deleted && showMenu)
       out.append("<p><font size=2>[<a href=\"add_comment.jsp?topic=").append(topic).append("&amp;replyto=").append(msgid).append("\">Ответить на это сообщение</a>]</font>");
@@ -190,12 +179,8 @@ public class Comment implements Serializable {
     return replyto;
   }
 
-  public boolean isAnonymous() {
-    return "anonymous".equals(nick) || userScore<User.ANONYMOUS_LEVEL_SCORE;
-  }
-
   public boolean isIgnored(Map<Integer, String> ignoreList) {
-    return ignoreList != null && !ignoreList.isEmpty() && ignoreList.containsValue(nick);
+    return ignoreList != null && !ignoreList.isEmpty() && ignoreList.keySet().contains(userid);
   }
 
   public boolean isDeleted() {
@@ -214,7 +199,7 @@ public class Comment implements Serializable {
     return postdate;
   }
 
-  public String getNick() {
-    return nick;
+  public int getUserid() {
+    return userid;
   }
 }

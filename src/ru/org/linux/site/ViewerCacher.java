@@ -20,7 +20,7 @@ public class ViewerCacher {
   public String get(Viewer viewer, Template tmpl, boolean nocache, boolean closeConnection) throws UtilException, SQLException, IOException {
     MemCachedClient mcc = MemCachedSettings.getClient();
 
-    String cacheId = MemCachedSettings.getId(tmpl, viewer.getVariantID(tmpl.getProf()));
+    String cacheId = MemCachedSettings.getId(viewer.getVariantID(tmpl.getProf()));
 
     String res = null;
 

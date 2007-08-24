@@ -44,7 +44,7 @@
     db = tmpl.getConnection("sameip");
     db.setAutoCommit(false);
 
-    User user = new User(db, (String) session.getAttribute("nick"));
+    User user = User.getUser(db, (String) session.getAttribute("nick"));
 
     IPBlockInfo blockInfo = IPBlockInfo.getBlockInfo(db, ip);
     user.checkCommit();

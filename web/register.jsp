@@ -128,7 +128,7 @@ URL (не забудьте добавить <b>http://</b>): <br>
     int userid;
 
     if (changeMode) {
-      User user = new User(db, nick);
+      User user = User.getUser(db, nick);
       userid = user.getId();
       user.checkPassword(request.getParameter("oldpass"));
       user.checkAnonymous();
@@ -277,23 +277,23 @@ URL (не забудьте добавить <b>http://</b>): <br>
 </div>
 <h1>Изменение регистрации</h1>
 <%
-      if (!tmpl.isSessionAuthorized(session)) {
-        throw new IllegalAccessException("Not authorized");
-      }
+  if (!tmpl.isSessionAuthorized(session)) {
+    throw new IllegalAccessException("Not authorized");
+  }
 
-      Connection db = null;
-      try {
-	String nick=(String) session.getAttribute("nick");
+  Connection db = null;
+  try {
+    String nick = (String) session.getAttribute("nick");
 
-	db = tmpl.getConnection("register");
-	db.setAutoCommit(false);
+    db = tmpl.getConnection("register");
+    db.setAutoCommit(false);
 
-	User user=new User(db, nick);
-	user.checkAnonymous();
+    User user = User.getUser(db, nick);
+    user.checkAnonymous();
 
-	Statement st=db.createStatement();
-	ResultSet rs=st.executeQuery("SELECT * FROM users WHERE id=" + user.getId());
-	rs.next();
+    Statement st = db.createStatement();
+    ResultSet rs = st.executeQuery("SELECT * FROM users WHERE id=" + user.getId());
+    rs.next();
 %>
 
 <form method=POST action="register.jsp">

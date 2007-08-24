@@ -35,9 +35,9 @@
 
     Statement st = db.createStatement();
 
-    User user = new User(db, id);
+    User user = User.getUser(db, id);
 
-    User moderator = new User(db, (String) session.getValue("nick"));
+    User moderator = User.getUser(db, (String) session.getValue("nick"));
 
     boolean redirect = true;
 

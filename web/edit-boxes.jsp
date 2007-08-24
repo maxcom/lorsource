@@ -53,7 +53,7 @@ throw new AccessViolationException("нельзя изменить системный профиль; создайте 
     Connection db = null;
     try {
       db = tmpl.getConnection("edit-boxes");
-      User user = new User(db, tmpl.getProfileName());
+      User user = User.getUser(db, tmpl.getProfileName());
       user.checkAnonymous();
       user.checkPassword(request.getParameter("password"));
     } finally {
@@ -85,7 +85,7 @@ throw new AccessViolationException("нельзя изменить системный профиль; создайте 
     Connection db = null;
     try {
       db = tmpl.getConnection("edit-boxes");
-      User user = new User(db, tmpl.getProfileName());
+      User user = User.getUser(db, tmpl.getProfileName());
       user.checkAnonymous();
       user.checkPassword(request.getParameter("password"));
     } finally {

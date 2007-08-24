@@ -72,14 +72,14 @@
 </form>
 <%
   } else {
-    if (request.getParameter("msgid")==null)
-	throw new MissingParameterException("msgid");
+    if (request.getParameter("msgid") == null)
+      throw new MissingParameterException("msgid");
 
     int msgid = tmpl.getParameters().getInt("msgid");
     int id = tmpl.getParameters().getInt("id");
     String title = tmpl.getParameters().getString("title");
 
-    boolean submit = request.getParameter("submit")!=null;
+    boolean submit = request.getParameter("submit") != null;
 
     Connection db = null;
 
@@ -87,7 +87,7 @@
       db = tmpl.getConnection("commit-vote");
       db.setAutoCommit(false);
 
-      User user = new User(db, (String) session.getAttribute("nick"));
+      User user = User.getUser(db, (String) session.getAttribute("nick"));
       user.checkCommit();
 
       Poll poll = new Poll(db, id);
@@ -108,19 +108,19 @@
       for (Iterator i = variants.iterator(); i.hasNext();) {
         PollVariant var = (PollVariant) i.next();
 
-        String label = tmpl.getParameters().getString("var"+var.getId());
+        String label = tmpl.getParameters().getString("var" + var.getId());
 
-        if (label==null || label.trim().length()==0) {
+        if (label == null || label.trim().length() == 0) {
           var.remove(db);
         } else {
           var.updateLabel(db, label);
         }
       }
 
-      for (int i=1; i<=3; i++) {
-        String label = tmpl.getParameters().getString("new"+i);
+      for (int i = 1; i <= 3; i++) {
+        String label = tmpl.getParameters().getString("new" + i);
 
-        if (label!=null && label.trim().length()>0) {
+        if (label != null && label.trim().length() > 0) {
           poll.addNewVariant(db, label);
         }
       }
@@ -137,7 +137,7 @@
 
       Random random = new Random();
 
-      response.setHeader("Location", tmpl.getRedirectUrl() + "jump-message.jsp?msgid="+msgid+"&nocache=" + random.nextInt());
+      response.setHeader("Location", tmpl.getRedirectUrl() + "jump-message.jsp?msgid=" + msgid + "&nocache=" + random.nextInt());
       response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
     } finally {
       if (db != null) {

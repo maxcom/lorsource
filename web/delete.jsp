@@ -96,10 +96,10 @@ function change(dest,source)
         if (request.getParameter("nick") == null) {
           throw new BadInputException("Вы уже вышли из системы");
         }
-        user = new User(db, nick);
+        user = User.getUser(db, nick);
         user.checkPassword(request.getParameter("password"));
       } else {
-        user = new User(db, (String) session.getAttribute("nick"));
+        user = User.getUser(db, (String) session.getAttribute("nick"));
         nick = (String) session.getAttribute("nick");
       }
 

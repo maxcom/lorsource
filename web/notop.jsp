@@ -29,31 +29,31 @@ if (!tmpl.isModeratorSession()) {
 <input type=submit value="Удалить из top10">
 </form>
 <%
-   } else {
-      Connection db = null;
-      try {
-        int msgid = tmpl.getParameters().getInt("msgid");
+  } else {
+    Connection db = null;
+    try {
+      int msgid = tmpl.getParameters().getInt("msgid");
 
-	db = tmpl.getConnection("notop");
-	db.setAutoCommit(false);
-	PreparedStatement pst=db.prepareStatement("UPDATE topics SET notop='t' WHERE id=?");
-	pst.setInt(1, msgid);
+      db = tmpl.getConnection("notop");
+      db.setAutoCommit(false);
+      PreparedStatement pst = db.prepareStatement("UPDATE topics SET notop='t' WHERE id=?");
+      pst.setInt(1, msgid);
 
-	User user=new User(db, Template.getNick(session));
-	user.checkCommit();
+      User user = User.getUser(db, Template.getNick(session));
+      user.checkCommit();
 
-	pst.executeUpdate();
+      pst.executeUpdate();
 
-        out.print("Сообщение удалено из top10");
+      out.print("Сообщение удалено из top10");
 
-	logger.info("Удалено из TOP10 сообщение "+msgid+" пользователем "+user.getNick());
-	pst.close();
+      logger.info("Удалено из TOP10 сообщение " + msgid + " пользователем " + user.getNick());
+      pst.close();
 
-	db.commit();
+      db.commit();
 
-      } finally {
-        if (db!=null) db.close();
-      }
-   }
+    } finally {
+      if (db != null) db.close();
+    }
+  }
 %>
 <%=	tmpl.DocumentFooter() %>

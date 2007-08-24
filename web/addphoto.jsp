@@ -51,7 +51,7 @@
       Userpic.checkUserpic(filename);
 
       db = tmpl.getConnection("addphoto");
-      User user = new User(db, (String) session.getAttribute("nick"));
+      User user = User.getUser(db, (String) session.getAttribute("nick"));
       user.checkAnonymous();
 
       File file = new File(filename);
@@ -63,7 +63,7 @@
       File photofile;
 
       do {
-        photoname = Integer.toString(user.getId())+":" +random.nextInt() + "." + extension;
+        photoname = Integer.toString(user.getId()) + ":" + random.nextInt() + "." + extension;
         photofile = new File(tmpl.getObjectConfig().getHTMLPathPrefix() + "/photos", photoname);
       } while (photofile.exists());
 
@@ -76,7 +76,7 @@
 
       logger.info("Установлена фотография пользователем " + user.getNick());
 
-      response.sendRedirect(tmpl.getRedirectUrl() + "whois.jsp?nick=" + URLEncoder.encode(user.getNick())+"&nocache="+random.nextInt());
+      response.sendRedirect(tmpl.getRedirectUrl() + "whois.jsp?nick=" + URLEncoder.encode(user.getNick()) + "&nocache=" + random.nextInt());
     } catch (IOException ex) {
       showForm = true;
       error = ex;

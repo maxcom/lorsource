@@ -18,33 +18,33 @@
 %>
 
 <%
-	db = tmpl.getConnection("sameip");
+  db = tmpl.getConnection("sameip");
 
-	final String ip;
+  String ip;
 
-	if (request.getParameter("msgid")!=null) {
-          Statement ipst = db.createStatement();
-   	  int msgid = tmpl.getParameters().getInt("msgid");
+  if (request.getParameter("msgid") != null) {
+    Statement ipst = db.createStatement();
+    int msgid = tmpl.getParameters().getInt("msgid");
 
-          ResultSet rs = ipst.executeQuery("SELECT postip FROM topics WHERE id=" + msgid);
+    ResultSet rs = ipst.executeQuery("SELECT postip FROM topics WHERE id=" + msgid);
 
-          if (!rs.next()) {
-            rs.close();
-            rs = ipst.executeQuery("SELECT postip FROM comments WHERE id="+msgid);
-            if (!rs.next())
-              throw new MessageNotFoundException(msgid);
-          }
+    if (!rs.next()) {
+      rs.close();
+      rs = ipst.executeQuery("SELECT postip FROM comments WHERE id=" + msgid);
+      if (!rs.next())
+        throw new MessageNotFoundException(msgid);
+    }
 
-          ip = rs.getString("postip");
+    ip = rs.getString("postip");
 
-          if (ip==null) {
-            throw new ScriptErrorException("No IP data for #"+msgid);
-          }
+    if (ip == null) {
+      throw new ScriptErrorException("No IP data for #" + msgid);
+    }
 
-          rs.close();
-	} else {
-	  ip = tmpl.getParameters().getIP("ip");
-        }
+    rs.close();
+  } else {
+    ip = tmpl.getParameters().getIP("ip");
+  }
 
 %>
 <div class=messages>
@@ -79,29 +79,29 @@
 
 <%
   if (IPBlockInfo.getTor(ip)) {
-    out.print("адрес заблокирован: tor.ahbl.org; база: ");          
+    out.print("адрес заблокирован: tor.ahbl.org; база: ");
   }
 
   IPBlockInfo blockInfo = IPBlockInfo.getBlockInfo(db, ip);
 
-  if (blockInfo==null) {
+  if (blockInfo == null) {
     out.print("адрес не заблокирован");
   } else {
     Timestamp banDate = blockInfo.getBanDate();
-    User moderator = new User(db, blockInfo.getModeratorId());
+    User moderator = User.getUser(db, blockInfo.getModeratorId());
 
-    if (banDate==null) {
+    if (banDate == null) {
       out.print("адрес заблокирован постоянно");
     } else {
-      out.print("адрес заблокирован до "+Template.dateFormat.format(banDate));
+      out.print("адрес заблокирован до " + Template.dateFormat.format(banDate));
       if (!blockInfo.isBlocked()) {
         out.print(" (блокировка истекла)");
       }
     }
 
-    out.print("<br><strong>Причина блокировки: </strong>"+HTMLFormatter.htmlSpecialChars(blockInfo.getReason()));
-    out.print("<br><strong>Дата блокировки: </strong>"+Template.dateFormat.format(blockInfo.getOriginalDate()));
-    out.print("<br><strong>Адрес блокирован: </strong>"+HTMLFormatter.htmlSpecialChars(moderator.getNick()));
+    out.print("<br><strong>Причина блокировки: </strong>" + HTMLFormatter.htmlSpecialChars(blockInfo.getReason()));
+    out.print("<br><strong>Дата блокировки: </strong>" + Template.dateFormat.format(blockInfo.getOriginalDate()));
+    out.print("<br><strong>Адрес блокирован: </strong>" + HTMLFormatter.htmlSpecialChars(moderator.getNick()));
   }
 %>
 

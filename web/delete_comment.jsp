@@ -106,9 +106,9 @@ function change(dest,source)
 
     boolean showDeleted = tmpl.isModeratorSession();
 
-    CommentList comments = CommentList.getCommentList(tmpl, db, topic, showDeleted);
+    CommentList comments = CommentList.getCommentList(db, topic, showDeleted);
 
-    CommentViewer cv = new CommentViewer(tmpl, comments, Template.getNick(session), topic.isExpired());
+    CommentViewer cv = new CommentViewer(tmpl, db, comments, Template.getNick(session), topic.isExpired());
     out.print(cv.showSubtree(msgid));
   } catch (MessageNotFoundException ex) {
     // it's ok for votes
@@ -137,10 +137,10 @@ function change(dest,source)
       if (request.getParameter("nick") == null) {
         throw new BadInputException("Вы уже вышли из системы");
       }
-      user = new User(db, nick);
+      user = User.getUser(db, nick);
       user.checkPassword(request.getParameter("password"));
     } else {
-      user = new User(db, (String) session.getAttribute("nick"));
+      user = User.getUser(db, (String) session.getAttribute("nick"));
       nick = (String) session.getAttribute("nick");
     }
 

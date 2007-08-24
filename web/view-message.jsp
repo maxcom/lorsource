@@ -274,12 +274,12 @@ google_ui_features = "rc:0";
         out.print("<input type=hidden name=page value=\"" + npage + "\">");
       }
       out.print("фильтр комментариев: <select name=\"filter\">");
-      out.print("<option value=\""+ CommentViewer.toString(CommentViewer.FILTER_NONE) +"\"" + (filterMode==CommentViewer.FILTER_NONE ? " selected=\"selected\"" : "") + ">все комментарии</option>");
-      out.print("<option value=\""+ CommentViewer.toString(CommentViewer.FILTER_ANONYMOUS) +"\"" + (filterMode==CommentViewer.FILTER_ANONYMOUS ? " selected=\"selected\"" : "") + ">без анонимных</option>");
+      out.print("<option value=\"" + CommentViewer.toString(CommentViewer.FILTER_NONE) + "\"" + (filterMode == CommentViewer.FILTER_NONE ? " selected=\"selected\"" : "") + ">все комментарии</option>");
+      out.print("<option value=\"" + CommentViewer.toString(CommentViewer.FILTER_ANONYMOUS) + "\"" + (filterMode == CommentViewer.FILTER_ANONYMOUS ? " selected=\"selected\"" : "") + ">без анонимных</option>");
 
       if (!tmpl.isUsingDefaultProfile()) {
-        out.print("<option value=\""+ CommentViewer.toString(CommentViewer.FILTER_IGNORED) +"\"" + (filterMode==CommentViewer.FILTER_IGNORED ? " selected=\"selected\"" : "") + ">без игнорируемых</option>");
-        out.print("<option value=\""+ CommentViewer.toString(CommentViewer.FILTER_LISTANON) +"\"" + (filterMode==CommentViewer.FILTER_LISTANON ? " selected=\"selected\"" : "") + ">без анонимных и игнорируемых</option>");
+        out.print("<option value=\"" + CommentViewer.toString(CommentViewer.FILTER_IGNORED) + "\"" + (filterMode == CommentViewer.FILTER_IGNORED ? " selected=\"selected\"" : "") + ">без игнорируемых</option>");
+        out.print("<option value=\"" + CommentViewer.toString(CommentViewer.FILTER_LISTANON) + "\"" + (filterMode == CommentViewer.FILTER_LISTANON ? " selected=\"selected\"" : "") + ">без анонимных и игнорируемых</option>");
       }
 
       out.print("</select>");
@@ -288,7 +288,7 @@ google_ui_features = "rc:0";
       if (!tmpl.isUsingDefaultProfile()) {
         out.print(" [<a style=\"text-decoration: none\" href=\"ignore-list.jsp\">настроить</a>]");
       }
-      
+
       out.print("</div>");
       out.print("</td></tr></table></div></div>");
       out.print("</form>");
@@ -311,11 +311,11 @@ google_ui_features = "rc:0";
       offset = messages * npage;
     }
 
-    CommentList comments = CommentList.getCommentList(tmpl, db, message, showDeleted);
+    CommentList comments = CommentList.getCommentList(db, message, showDeleted);
 
-    CommentViewer cv = new CommentViewer(tmpl, comments, Template.getNick(session), message.isExpired());
+    CommentViewer cv = new CommentViewer(tmpl, db, comments, Template.getNick(session), message.isExpired());
 
-    if (filterMode!=CommentViewer.FILTER_NONE) {
+    if (filterMode != CommentViewer.FILTER_NONE) {
       out.print(cv.showFiltered(db, reverse, offset, limit, filterMode, Template.getNick(session)));
     } else {
       out.print(cv.showAll(reverse, offset, limit));

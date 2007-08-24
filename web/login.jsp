@@ -8,49 +8,49 @@
   Connection db = null;
 
   try {
-	db = tmpl.getConnection("login");
-        db.setAutoCommit(false);
-        String nick=request.getParameter("nick");
-	if (nick==null || "".equals(nick))
-		throw new BadInputException("Не указан nick");
+    db = tmpl.getConnection("login");
+    db.setAutoCommit(false);
+    String nick = request.getParameter("nick");
+    if (nick == null || "".equals(nick))
+      throw new BadInputException("Не указан nick");
 
-	User user=new User(db, nick);
+    User user = User.getUser(db, nick);
 
-        if (!user.isActivated()) {
-          String activation = request.getParameter("activate");
+    if (!user.isActivated()) {
+      String activation = request.getParameter("activate");
 
-          if (activation==null) {
-            throw new AccessViolationException("Not activated");
-          }
+      if (activation == null) {
+        throw new AccessViolationException("Not activated");
+      }
 
-          String regcode = user.getActivationCode(tmpl.getSecret());
+      String regcode = user.getActivationCode(tmpl.getSecret());
 
-          if (regcode.equals(activation)) {
-            PreparedStatement pst = db.prepareStatement("UPDATE users SET activated='t' WHERE id=?");
-            pst.setInt(1, user.getId());
-            pst.executeUpdate();
-          } else {
-            throw new AccessViolationException("Bad activation code");
-          }
-        }
+      if (regcode.equals(activation)) {
+        PreparedStatement pst = db.prepareStatement("UPDATE users SET activated='t' WHERE id=?");
+        pst.setInt(1, user.getId());
+        pst.executeUpdate();
+      } else {
+        throw new AccessViolationException("Bad activation code");
+      }
+    }
 
-	user.checkAnonymous();
-	user.checkPassword(request.getParameter("passwd"));
+    user.checkAnonymous();
+    user.checkPassword(request.getParameter("passwd"));
 
-        if (session==null)
-		throw new BadInputException("не удалось открыть сессию; созможно отсутствует поддержка Cookie");
+    if (session == null)
+      throw new BadInputException("не удалось открыть сессию; созможно отсутствует поддержка Cookie");
 
-	session.putValue("login", Boolean.TRUE);
-	session.putValue("nick", nick);
-	session.putValue("moderator", Boolean.valueOf(user.canModerate()));
+    session.putValue("login", Boolean.TRUE);
+    session.putValue("nick", nick);
+    session.putValue("moderator", Boolean.valueOf(user.canModerate()));
 
-	Cookie cookie=new Cookie("password", user.getMD5(tmpl.getSecret()));
-	cookie.setMaxAge(60*60*24*31*24);
-	cookie.setPath("/");
-	response.addCookie(cookie);
+    Cookie cookie = new Cookie("password", user.getMD5(tmpl.getSecret()));
+    cookie.setMaxAge(60 * 60 * 24 * 31 * 24);
+    cookie.setPath("/");
+    response.addCookie(cookie);
 
-        response.setHeader("Location", tmpl.getMainUrl()+"edit-profile.jsp?mode=setup&profile="+nick);
-        response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
+    response.setHeader("Location", tmpl.getMainUrl() + "edit-profile.jsp?mode=setup&profile=" + nick);
+    response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
 
     User.updateUserLastlogin(db, nick, new Date());
 

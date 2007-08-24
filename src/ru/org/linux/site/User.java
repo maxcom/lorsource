@@ -1,14 +1,16 @@
 package ru.org.linux.site;
 
+import java.io.Serializable;
 import java.net.URLEncoder;
 import java.sql.*;
 import java.util.Date;
 
 import javax.servlet.http.HttpSession;
+import com.danga.MemCached.MemCachedClient;
 
 import ru.org.linux.util.StringUtil;
 
-public class User {
+public class User implements Serializable {
   public static final int ANONYMOUS_LEVEL_SCORE = 50;
 
   private String nick;
@@ -24,7 +26,7 @@ public class User {
 
   private final boolean activated;
 
-  public User(Connection con, String name) throws SQLException, UserNotFoundException {
+  private User(Connection con, String name) throws SQLException, UserNotFoundException {
     if (name == null) {
       throw new NullPointerException();
     }
@@ -59,7 +61,7 @@ public class User {
     st.close();
   }
 
-  public User(Connection con, int id) throws SQLException, UserNotFoundException {
+  private User(Connection con, int id) throws SQLException, UserNotFoundException {
     this.id = id;
 
     PreparedStatement st = con.prepareStatement("SELECT nick,score, max_score, candel,canmod,passwd,blocked,activated,photo FROM users where id=?");
@@ -253,31 +255,6 @@ public class User {
     return maxScore<100;
   }
 
-  public static String getUserInfoLine(Template tmpl, User user, Timestamp postdate) {
-    return getUserInfoLine(tmpl, user.getNick(), user.getScore(), user.getMaxScore(), postdate);
-  }
-
-  public static String getUserInfoLine(Template tmpl, String nick, int userScore, int userMaxScore, Timestamp postdate) {
-    StringBuffer out = new StringBuffer();
-
-    out.append("<i>").append(nick).append(' ');
-
-    if (!"anonymous".equals(nick)) {
-      out.append(User.getStars(userScore, userMaxScore)).append(' ');
-
-      if (tmpl.isModeratorSession())
-        out.append("(Score: ").append(userScore).append(" MaxScore: ").append(userMaxScore).append(") ");
-    }
-
-    out.append("(<a href=\"whois.jsp?nick=").append(URLEncoder.encode(nick)).append("\">*</a>)");
-
-    if (postdate!=null) {
-      out.append(" (").append(Template.dateFormat.format(postdate)).append(")</i>");
-    }
-
-    return out.toString();
-  }
-
   public String getCommitInfoLine(Timestamp postdate, Timestamp commitDate) {
     StringBuffer out = new StringBuffer();
 
@@ -294,7 +271,7 @@ public class User {
       return null;
     }
 
-    return new User(db, (String) session.getAttribute("nick"));
+    return getUser(db, (String) session.getAttribute("nick"));
   }
 
   public boolean isActivated() {
@@ -357,5 +334,80 @@ public class User {
     }
 
     return out.toString();
+  }
+
+  public static User getUser(Connection con, String name) throws SQLException, UserNotFoundException {
+    MemCachedClient mcc = MemCachedSettings.getClient();
+
+    User user = new User(con, name);
+
+    String shortCacheId = "User?id="+user.getId();
+
+    String cacheId = MemCachedSettings.getId(shortCacheId);
+
+    mcc.set(cacheId, user, new Date(new Date().getTime() + 300*1000));
+
+    return user;
+  }
+
+  public static User getUser(Connection db, int id) throws SQLException, UserNotFoundException {
+    return getUser(db, id, false);
+  }
+
+  public static User getUserCached(Connection db, int id) throws SQLException, UserNotFoundException {
+    return getUser(db, id, true);
+  }
+
+  private static User getUser(Connection db, int id, boolean useCache) throws SQLException, UserNotFoundException {
+    MemCachedClient mcc = MemCachedSettings.getClient();
+
+    String shortCacheId = "User?id="+id;
+
+    String cacheId = MemCachedSettings.getId(shortCacheId);
+
+    User res = null;
+
+    if (useCache) {
+      res = (User) mcc.get(cacheId);
+    }
+
+    if (res==null) {
+      res = new User(db, id);
+      mcc.set(cacheId, res, new Date(new Date().getTime() + 300*1000));
+    }
+
+    return res;
+  }
+
+  public String getSignature(boolean moderatorMode, Timestamp postdate) {
+    StringBuilder out = new StringBuilder();
+    
+    out.append("<i>");
+
+    if (isBlocked()) {
+      out.append("<s>");
+    }
+
+    out.append(nick);
+
+    if (isBlocked()) {
+      out.append("</s>");
+    }
+
+    out.append(' ');
+
+    if (!"anonymous".equals(nick)) {
+      out.append(User.getStars(score, maxScore)).append(' ');
+        if (moderatorMode)
+          out.append("(Score: ").append(score).append(" MaxScore: ").append(maxScore).append(") ");
+    }
+
+    out.append("(<a href=\"whois.jsp?nick=").append(URLEncoder.encode(nick)).append("\">*</a>) (").append(Template.dateFormat.format(postdate)).append(")</i>");
+
+    return out.toString();
+  }
+
+  public boolean isAnonymousScore() {
+    return isAnonymous() || isBlocked() || score<ANONYMOUS_LEVEL_SCORE;
   }
 }

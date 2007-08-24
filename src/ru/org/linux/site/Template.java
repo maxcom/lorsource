@@ -83,6 +83,7 @@ public class Template {
         tmp.load(is);
         properties = tmp;
         logger.fine("loaded config file");
+        MemCachedSettings.setMainUrl(properties.getProperty("MainUrl"));
 
         FileHandler fh = new FileHandler(properties.getProperty("Logfile")+"j", true);
         fh.setEncoding("koi8-r");
@@ -158,7 +159,7 @@ public class Template {
 
       try {
         Connection db = getConnection("user-cookie-auth");
-        User user = new User(db, profile);
+        User user = User.getUser(db, profile);
 
         if (user.getMD5(getSecret()).equals(getCookie("password")) && !user.isBlocked()) {
           session.putValue("login", Boolean.TRUE);

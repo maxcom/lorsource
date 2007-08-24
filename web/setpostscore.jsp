@@ -64,37 +64,37 @@ if (!tmpl.isModeratorSession()) {
 <input type=submit value="Изменить">
 </form>
 <%
-   } else {
-        int msgid = tmpl.getParameters().getInt("msgid");
-        int postscore = tmpl.getParameters().getInt("postscore");
+  } else {
+    int msgid = tmpl.getParameters().getInt("msgid");
+    int postscore = tmpl.getParameters().getInt("postscore");
 
-        if (postscore<-1) postscore=0;
-        if (postscore>500) postscore=500;
+    if (postscore < -1) postscore = 0;
+    if (postscore > 500) postscore = 500;
 
-        Connection db = null;
-        try {
+    Connection db = null;
+    try {
 
-	db = tmpl.getConnection("setpostscore");
-	db.setAutoCommit(false);
-	PreparedStatement pst=db.prepareStatement("UPDATE topics SET postscore=? WHERE id=?");
-	pst.setInt(1, postscore);
-	pst.setInt(2, msgid);
+      db = tmpl.getConnection("setpostscore");
+      db.setAutoCommit(false);
+      PreparedStatement pst = db.prepareStatement("UPDATE topics SET postscore=? WHERE id=?");
+      pst.setInt(1, postscore);
+      pst.setInt(2, msgid);
 
-	User user=new User(db, Template.getNick(session));
-	user.checkCommit();
+      User user = User.getUser(db, Template.getNick(session));
+      user.checkCommit();
 
-	pst.executeUpdate();
+      pst.executeUpdate();
 
-        out.print("Установлен новый уровень записи "+(postscore<0?"только для модераторов":Integer.toString(postscore)));
+      out.print("Установлен новый уровень записи " + (postscore < 0 ? "только для модераторов" : Integer.toString(postscore)));
 
-	logger.info("Установлен новый уровень записи "+postscore+" для "+msgid+" пользователем "+user.getNick());
+      logger.info("Установлен новый уровень записи " + postscore + " для " + msgid + " пользователем " + user.getNick());
 
-	pst.close();
-	db.commit();
+      pst.close();
+      db.commit();
 
-        } finally {
-          if (db!=null) db.close();
-        }
-   }
+    } finally {
+      if (db != null) db.close();
+    }
+  }
 %>
 <%=	tmpl.DocumentFooter() %>

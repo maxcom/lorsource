@@ -20,17 +20,17 @@
   }
 
   MemCachedClient mcc = MemCachedSettings.getClient();
-  String cacheId = MemCachedSettings.getId(tmpl, "rss?section=" + section+(group!=0?"&group="+group:""));
+  String cacheId = MemCachedSettings.getId("rss?section=" + section + (group != 0 ? "&group=" + group : ""));
 
   Connection db = null;
   try {
     String res = (String) mcc.get(cacheId);
-    if (res==null) {
+    if (res == null) {
       db = tmpl.getConnection("rss");
 
       res = MessageTable.getSectionRss(db, section, group, tmpl.getConfig().getProperty("HTMLPathPrefix"), tmpl.getMainUrl());
 
-      mcc.add(cacheId, res, new Date(new Date().getTime()+10*60*1000));
+      mcc.add(cacheId, res, new Date(new Date().getTime() + 10 * 60 * 1000));
     }
 
     out.print(res);

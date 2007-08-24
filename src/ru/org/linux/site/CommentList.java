@@ -29,8 +29,8 @@ public class CommentList implements Serializable {
     Statement st = db.createStatement();
     ResultSet rs = st.executeQuery(
         "SELECT " +
-            "comments.title, topic, postdate, nick, score, max_score, comments.id as msgid, " +
-            "replyto, photo, deleted, message " +
+            "comments.title, topic, postdate, users.id as userid, comments.id as msgid, " +
+            "replyto, deleted, message " +
             "FROM comments,users,msgbase " +
             "WHERE comments.id=msgbase.id AND comments.userid=users.id " +
             "AND topic=" + topicId + ' ' + delq + " " +
@@ -101,12 +101,12 @@ public class CommentList implements Serializable {
     return getCommentPage(comment, messages, reverse);
   }
 
-  public static CommentList getCommentList(Template tmpl, Connection db, Message topic, boolean showDeleted) throws SQLException {
+  public static CommentList getCommentList(Connection db, Message topic, boolean showDeleted) throws SQLException {
     MemCachedClient mcc = MemCachedSettings.getClient();
 
     String shortCacheId = "commentList?msgid="+topic.getMessageId()+"&showDeleted="+showDeleted;
 
-    String cacheId = MemCachedSettings.getId(tmpl, shortCacheId);
+    String cacheId = MemCachedSettings.getId(shortCacheId);
 
     CommentList res = (CommentList) mcc.get(cacheId);
 

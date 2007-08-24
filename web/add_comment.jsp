@@ -67,10 +67,10 @@
         if (request.getParameter("nick") == null) {
           throw new BadInputException("Вы уже вышли из системы");
         }
-        user = new User(db, request.getParameter("nick"));
+        user = User.getUser(db, request.getParameter("nick"));
         user.checkPassword(request.getParameter("password"));
       } else {
-        user = new User(db, (String) session.getAttribute("nick"));
+        user = User.getUser(db, (String) session.getAttribute("nick"));
         user.checkBlocked();
       }
 
@@ -193,7 +193,7 @@
 
       topic = new Message(db, topicId); // update lastmod
 
-      CommentList commentList = CommentList.getCommentList(tmpl, db, topic, false);
+      CommentList commentList = CommentList.getCommentList(db, topic, false);
       Comment comment = commentList.getNode(msgid).getComment();
       int pageNum = commentList.getCommentPage(comment, tmpl);
 
@@ -201,10 +201,10 @@
 
       String returnUrl;
 
-      if (pageNum>0) {
-        returnUrl ="view-message.jsp?msgid=" + topicId+"&page="+ pageNum + "&nocache=" + random.nextInt()+"#"+msgid;
+      if (pageNum > 0) {
+        returnUrl = "view-message.jsp?msgid=" + topicId + "&page=" + pageNum + "&nocache=" + random.nextInt() + "#" + msgid;
       } else {
-        returnUrl ="view-message.jsp?msgid=" + topicId + "&nocache=" + random.nextInt()+"#"+msgid;        
+        returnUrl = "view-message.jsp?msgid=" + topicId + "&nocache=" + random.nextInt() + "#" + msgid;
       }
 
       response.setHeader("Location", tmpl.getRedirectUrl() + returnUrl);
@@ -313,7 +313,7 @@ if (showform) { // show form
   if (!title.startsWith("Re:")) title = "Re: " + title;
 
   out.print("<div class=messages>");
-  out.print(comment.printMessage(tmpl, null, false, tmpl.isModeratorSession(), Template.getNick(session), false));
+  out.print(comment.printMessage(tmpl, db, null, false, tmpl.isModeratorSession(), Template.getNick(session), false));
   out.print("</div>");
 
   if (request.getParameter("title") != null) title = request.getParameter("title");

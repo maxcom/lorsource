@@ -1,8 +1,9 @@
 <%@ page contentType="text/html; charset=koi8-r"%>
-<%@ page import="java.sql.Connection,java.sql.PreparedStatement" errorPage="/error.jsp" buffer="60kb" %>
+<%@ page import="java.io.IOException,java.sql.Connection" errorPage="/error.jsp" buffer="60kb" %>
+<%@ page import="java.sql.PreparedStatement"%>
 <%@ page import="java.sql.ResultSet"%>
 <%@ page import="java.sql.Timestamp"%>
-<%@ page import="java.util.Map"%>
+<%@ page import="java.util.Map" %>
 <%@ page import="ru.org.linux.site.*" %>
 <%@ page import="ru.org.linux.util.BadImageException" %>
 <%@ page import="ru.org.linux.util.HTMLFormatter" %>
@@ -24,7 +25,7 @@
   try {
     db = tmpl.getConnectionWhois();
 
-    User user = new User(db, nick);
+    User user = User.getUser(db, nick);
 %>
 
 <h1>Информация о пользователе <%= nick %></h1>
@@ -36,7 +37,7 @@
   PreparedStatement stat3 = db.prepareStatement("SELECT min(postdate) as first,max(postdate) as last FROM topics WHERE topics.userid=?");
   PreparedStatement stat4 = db.prepareStatement("SELECT min(postdate) as first,max(postdate) as last FROM comments WHERE comments.userid=?");
   PreparedStatement stat5 = db.prepareStatement("SELECT count(*) as inum FROM ignore_list WHERE ignored=?");
-  
+
   userInfo.setString(1, nick);
 
   ResultSet rs = userInfo.executeQuery();
@@ -58,6 +59,8 @@
 
     try {
       out.print("<img src=\"/photos/" + user.getPhoto() + "\" alt=\"" + nick + "\" " + new ImageInfo(tmpl.getObjectConfig().getHTMLPathPrefix() + "photos/" + user.getPhoto()).getCode() + ">");
+    } catch (IOException ex) {
+      out.print("[bad image]");
     } catch (BadImageException ex) {
       out.print("[bad image]");
     }

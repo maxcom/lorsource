@@ -4,8 +4,10 @@ import com.danga.MemCached.MemCachedClient;
 import com.danga.MemCached.SockIOPool;
 
 public class MemCachedSettings {
-  private final static MemCachedSettings me = new MemCachedSettings();
+  private static final MemCachedSettings me = new MemCachedSettings();
   private final MemCachedClient mc = new MemCachedClient();
+
+  private static String mainUrl = "uninitialized/";
 
   private MemCachedSettings() {
     SockIOPool pool = SockIOPool.getInstance();
@@ -20,7 +22,11 @@ public class MemCachedSettings {
     return me.mc;
   }
 
-  public static String getId(Template tmpl, String suffix) {
-    return tmpl.getMainUrl()+"/"+suffix;
+  public static String getId(String suffix) {
+    return mainUrl+"/"+suffix;
+  }
+
+  public static void setMainUrl(String mainUrl) {
+    MemCachedSettings.mainUrl = mainUrl;
   }
 }
