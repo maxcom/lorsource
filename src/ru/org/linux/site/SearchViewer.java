@@ -77,7 +77,7 @@ public class SearchViewer implements Viewer {
   private String printResults(ResultSet rs) throws SQLException {
     StringBuilder out = new StringBuilder("<h1>Результаты поиска</h1>");
 
-    out.append("<div class=\"messages\"><div class=\"comment\"");
+    out.append("<div class=\"messages\"><div class=\"comment\">");
 
     while (rs.next()) {
       String title = rs.getString("title");
