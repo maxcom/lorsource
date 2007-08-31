@@ -94,7 +94,7 @@ public class SearchViewer implements Viewer {
       if (topic==0) {
         url = "jump-message.jsp?msgid="+id;
       } else {
-        url = "jump-message.jsp?msgid="+topic+"&cid="+id;
+        url = "jump-message.jsp?msgid="+topic+"&amp;cid="+id;
       }
 
       out.append("<table width=\"100%\" cellspacing=0 cellpadding=0 border=0>");
