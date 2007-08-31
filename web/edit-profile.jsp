@@ -1,6 +1,7 @@
 <%@ page contentType="text/html; charset=koi8-r"%>
-<%@ page import="javax.servlet.http.Cookie,javax.servlet.http.HttpServletResponse,ru.org.linux.site.BadInputException, ru.org.linux.site.Template, ru.org.linux.util.ProfileHashtable" errorPage="/error.jsp" buffer="20kb" %>
-<%@ page import="ru.org.linux.util.StringUtil"%>
+<%@ page import="javax.servlet.http.Cookie,javax.servlet.http.HttpServletResponse,ru.org.linux.site.BadInputException, ru.org.linux.site.Template, ru.org.linux.site.UserErrorException" errorPage="/error.jsp" buffer="20kb" %>
+<%@ page import="ru.org.linux.util.ProfileHashtable"%>
+<%@ page import="ru.org.linux.util.StringUtil" %>
 <% Template tmpl = new Template(request, config, response); %>
 <%= tmpl.head() %>
 	<title>Настройки профиля</title>
@@ -135,28 +136,24 @@
 <%
   } else if ("setup".equals(request.getParameter("mode"))) {
     String name = StringUtil.getFileName(request.getParameter("profile"));
+    if (name.length()!=0 && !Template.isAnonymousProfile(name)) {
+      throw new UserErrorException("Данный профиль не может быть выбран");
+    }
 
     out.print("Выбран профиль: " + name);
 
-    if ("".equals(name)) {
-      response.setHeader("Location", tmpl.getMainUrl());
-      response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
-    } else {
-      response.setHeader("Location", tmpl.getRedirectUrl(name));
-      response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
-    }
+    response.setHeader("Location", tmpl.getMainUrl());
+    response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
 
     Cookie prof = new Cookie("profile", name);
-    prof.setMaxAge(60 * 60 * 24 * 31 * 12);
+    if (name.length()==0) {
+      prof.setMaxAge(0);
+    } else {
+      prof.setMaxAge(60 * 60 * 24 * 31 * 12);
+    }
+
     prof.setPath("/");
     response.addCookie(prof);
-
-    if (request.getParameter("setnick") != null && "on".equals(request.getParameter("setnick"))) {
-      Cookie nick = new Cookie("NickCookie", request.getParameter("profile"));
-      nick.setMaxAge(60 * 60 * 24 * 31 * 24);
-      nick.setPath("/");
-      response.addCookie(nick);
-    }
   } else if ("set".equals(request.getParameter("mode"))) {
     String profile;
 

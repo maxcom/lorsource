@@ -49,7 +49,12 @@
     cookie.setPath("/");
     response.addCookie(cookie);
 
-    response.setHeader("Location", tmpl.getMainUrl() + "edit-profile.jsp?mode=setup&profile=" + nick);
+    Cookie prof = new Cookie("profile", nick);
+    prof.setMaxAge(60 * 60 * 24 * 31 * 12);
+    prof.setPath("/");
+    response.addCookie(prof);
+
+    response.setHeader("Location", tmpl.getMainUrl());
     response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
 
     User.updateUserLastlogin(db, nick, new Date());

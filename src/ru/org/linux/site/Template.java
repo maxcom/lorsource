@@ -21,9 +21,6 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import gnu.regexp.RE;
-import gnu.regexp.REException;
-import gnu.regexp.REMatch;
 
 import ru.org.linux.storage.StorageException;
 import ru.org.linux.storage.StorageNotFoundException;
@@ -128,10 +125,58 @@ public class Template {
     // read profiles
     cookies = LorHttpUtils.getCookies(request.getCookies());
 
-    String profile = getProfile(request);
+    String profile = getCookie("profile");
 
     if (profile != null && ("".equals(profile) || "anonymous".equals(profile))) {
       profile = null;
+    }
+
+    /* restore password */
+    session = request.getSession();
+
+    if (isSessionAuthorized(session)) {
+      if (!session.getValue("nick").equals(profile)) {
+        profile = (String) session.getValue("nick");
+
+        Cookie prof = new Cookie("profile", profile);
+        prof.setMaxAge(60 * 60 * 24 * 31 * 12);
+        prof.setPath("/");
+        response.addCookie(prof);
+      }
+    } else if (session==null) {
+      profile = null;
+    } else {
+      if (getCookie("password")!=null) {
+        if (isAnonymousProfile(profile)) {
+          Cookie cookie = new Cookie("password", "");
+          cookie.setMaxAge(0);
+          cookie.setPath("/");
+          response.addCookie(cookie);
+        } else {
+          try {
+            Connection db = getConnection("user-cookie-auth");
+            User user = User.getUser(db, profile);
+
+            if (user.getMD5(getSecret()).equals(getCookie("password")) && !user.isBlocked()) {
+              session.putValue("login", Boolean.TRUE);
+              session.putValue("nick", profile);
+              session.putValue("moderator", user.canModerate());
+              User.updateUserLastlogin(db, profile, new Date()); // update user `lastlogin` time in DB
+            } else {
+              profile = null;
+            }
+          } catch (UserNotFoundException ex) {
+            logger.warning("Can't restore password for user: " + profile + " - " + ex.toString());
+            profile = null;
+          } finally {
+            this.config.SQLclose();
+          }
+        }
+      } else {
+        if (!isAnonymousProfile(profile)) {
+          profile = null;
+        }
+      }
     }
 
     userProfile = new Profile(profile);
@@ -149,77 +194,7 @@ public class Template {
 
     styleFixup();
 
-    /* restore password */
-    session = request.getSession();
-    if (getCookie("password") != null &&
-      session != null &&
-      profile != null &&
-      (session.getAttribute("login") == null ||
-        !(Boolean) session.getAttribute("login"))) {
-
-      try {
-        Connection db = getConnection("user-cookie-auth");
-        User user = User.getUser(db, profile);
-
-        if (user.getMD5(getSecret()).equals(getCookie("password")) && !user.isBlocked()) {
-          session.putValue("login", Boolean.TRUE);
-          session.putValue("nick", profile);
-          session.putValue("moderator", user.canModerate());
-          User.updateUserLastlogin(db, profile, new Date()); // update user `lastlogin` time in DB
-        }
-      } catch (UserNotFoundException ex) {
-        logger.warning("Can't restore password for user: " + profile + " - " + ex.toString());
-      } finally {
-        this.config.SQLclose();
-      }
-    }
-
-    if (!isAnonymousProfile() && !isSessionAuthorized(session) && !isErrorPage) {
-      logger.fine("redirecting " + request.getRequestURI() + " to " + replaceProfile(request, null) + " because not logged in");
-      response.setHeader("Location", replaceProfile(request, null));
-      response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
-      Cookie prof = new Cookie("profile", "");
-      prof.setMaxAge(60 * 60 * 24 * 31 * 12);
-      prof.setPath("/");
-      response.addCookie(prof);
-      redirect = true;
-      return;
-    }
-
-    String profileCookie = getCookie("profile");
-    if (profileCookie != null && "".equals(profileCookie)) {
-      profileCookie = null;
-    }
-
-    /* redirects */
-    if (!isErrorPage) {
-      if (userProfile.isDefault()) {
-        if (profileCookie != null) {
-          response.setHeader("Location", replaceProfile(request, getCookie("profile")));
-          response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
-          logger.fine("default profile, but cookie set: redirecting " + request.getRequestURI() + " to " + replaceProfile(request, getCookie("profile")));
-          redirect = true;
-        }
-      } else if (profileCookie != null &&
-          profileCookie.equals(userProfile.getName())) {
-        /* update profile */
-        Cookie prof = new Cookie("profile", userProfile.getName());
-        prof.setMaxAge(60 * 60 * 24 * 31 * 12);
-        prof.setPath("/");
-        response.addCookie(prof);
-      } else if (profileCookie != null &&
-          !profileCookie.equals(userProfile.getName())) {
-        /* redirect to users page */
-        response.setHeader("Location", replaceProfile(request, getCookie("profile")));
-        response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
-        logger.fine("redirecting " + request.getRequestURI() + " to " + replaceProfile(request, getCookie("profile")));
-        redirect = true;
-      }
-    }
-
-//    if (isSessionAuthorized(session)) {
-      response.addHeader("Cache-Control", "private");
-//    }
+    response.addHeader("Cache-Control", "private");
   }
 
   private void styleFixup() {
@@ -258,60 +233,6 @@ public class Template {
 
   public Properties getConfig() {
     return config.getProperties();
-  }
-
-  private static final RE profileRE;
-  static {
-    try {
-      profileRE = new RE("^/profile/([a-zA-Z0-9_-]+)/");
-    } catch (REException ex) {
-      throw new RuntimeException(ex);
-    }
-  }
-
-  private String getProfile(HttpServletRequest request) {
-//    if (request.getAttribute("lor-profile")!=null) {
-      return (String) request.getAttribute("lor-profile"); 
-//    }
-
-//    String path = request.getRequestURI();
-
-//    REMatch found = profileRE.getMatch(path);
-//    if (found != null) {
-//      return path.substring(found.getSubStartIndex(1), found.getSubEndIndex(1));
-//    } else {
-//      return null;
-//    }
-  }
-
-  private String replaceProfile(HttpServletRequest request, String profile) {
-    String path = request.getRequestURI();
-
-    REMatch found = profileRE.getMatch(path);
-    if (found != null) {
-      String begin = path.substring(0, found.getSubStartIndex(1));
-      String end = path.substring(found.getSubEndIndex(1));
-
-      if (profile == null) {
-        if (request.getQueryString() != null) {
-          return end + '?' + request.getQueryString();
-        } else {
-          return end;
-        }
-      } else {
-        if (request.getQueryString() != null) {
-          return begin + profile + end + '?' + request.getQueryString();
-        } else {
-          return begin + profile + end;
-        }
-      }
-    } else {
-      if (request.getQueryString() != null) {
-        return getRedirectUrl(profile) + path.substring(1) + '?' + request.getQueryString();
-      } else {
-        return getRedirectUrl(profile) + path.substring(1);
-      }
-    }
   }
 
   public String getProfileName() {
@@ -474,20 +395,25 @@ public class Template {
     return config.getProperties().getProperty("MainUrl");
   }
 
+  /** @deprecated */
   public String getRedirectUrl() {
+    return getMainUrl();
+/*
     if (userProfile.isDefault()) {
       return getMainUrl();
     } else {
       return getMainUrl() + "profile/" + userProfile.getName() + '/';
-    }
+    }*/
   }
 
+  /** @deprecated */
   public String getRedirectUrl(String prof) {
-    if (prof == null) {
+    return getMainUrl();
+/*    if (prof == null) {
       return getMainUrl();
     }
 
-    return getMainUrl() + "profile/" + prof + '/';
+    return getMainUrl() + "profile/" + prof + '/';*/
   }
 
   public ServletParameterParser getParameters() {
@@ -510,16 +436,12 @@ public class Template {
     return (Boolean) session.getValue("moderator");
   }
 
-  private boolean isAnonymousProfile(String name) {
-    return name.startsWith("_");
-  }
-
-  private boolean isAnonymousProfile() {
-    if (isUsingDefaultProfile()) {
+  public static boolean isAnonymousProfile(String name) {
+    if (name==null) {
       return true;
     }
 
-    return isAnonymousProfile(userProfile.getName());
+    return name.startsWith("_");
   }
 
   public static String getNick(HttpSession session) {
