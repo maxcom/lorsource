@@ -202,4 +202,8 @@ public class Comment implements Serializable {
   public int getUserid() {
     return userid;
   }
+
+  public String getMessageText() {
+    return message;
+  }
 }

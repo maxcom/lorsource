@@ -97,6 +97,7 @@
       out.print("<link rel=\"Next\" href=\"jump-message.jsp?msgid=" + nextMessage.getMessageId() + "&amp;lastmod=" + nextMessage.getLastModified().getTime() + "\" title=\"" + StringUtil.makeTitle(nextMessage.getTitle()) + "\">");
     }
 %>
+<LINK REL="alternate" TITLE="L.O.R RSS" HREF="topic-rss.jsp?topic=<%= msgid %>" TYPE="application/rss+xml">
 <%= tmpl.DocumentHeader() %>
 
 <div class=messages>

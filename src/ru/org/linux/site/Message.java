@@ -388,7 +388,10 @@ public class Message {
     return message;
   }
 
-
+  public boolean isVotePoll() {
+	return votepoll;
+  }
+  
   public void updateMessageText(Connection db, String text) throws SQLException {
 
     PreparedStatement pst = db.prepareStatement("UPDATE msgbase SET message=? WHERE id=?");

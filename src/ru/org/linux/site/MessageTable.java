@@ -3,6 +3,8 @@ package ru.org.linux.site;
 import java.io.IOException;
 import java.sql.*;
 import java.util.Date;
+import java.util.List;
+import java.util.ListIterator;
 
 import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.HTMLFormatter;
@@ -10,6 +12,10 @@ import ru.org.linux.util.ImageInfo;
 import ru.org.linux.util.StringUtil;
 
 public class MessageTable {
+  public static final int RSS_MIN = 10;
+  public static final int RSS_MAX = 30;
+  public static final int RSS_DEFAULT = 20;
+	
   public static String showComments(Connection db, String nick) throws SQLException {
     StringBuilder out = new StringBuilder();
 
@@ -137,5 +143,93 @@ public class MessageTable {
     }
 
     return out.toString();
+  }
+
+  public static String getTopicRss(Connection db, int topicid, int num, String htmlPath, String fullUrl) throws SQLException, BadSectionException {
+    StringBuilder buf = new StringBuilder();
+    Message topic;
+
+    try {
+      topic = new Message(db, topicid);
+    } catch (MessageNotFoundException e) {
+      buf.append("<title>Linux.org.ru: Тема #").append(topicid).append(" не найдена</title>");
+      buf.append("<pubDate>").append(Template.RFC822.format(new Date())).append("</pubDate>");
+      buf.append("<description>Linux.org.ru: Запрашиваемая тема не найдена или удалена</description>");
+      return buf.toString();
+    }
+
+    boolean showDeleted = false;
+
+    CommentList res = CommentList.getCommentList(db, topic, showDeleted);
+
+    int msgid = topicid;
+    int sectionid = topic.getSectionId();
+    boolean vote = topic.isVotePoll();
+    String subj = topic.getTitle();
+    String url = topic.getUrl();
+    String linktext = topic.getLinktext();
+    Section section = new Section(db, sectionid);
+
+    buf.append("<title>Linux.org.ru: ").append(subj);
+    buf.append("</title>");
+    buf.append("<pubDate>").append(Template.RFC822.format(new Date())).append("</pubDate>");
+
+    if (section.isImagepost()) {
+      buf.append("  <description>\n" + "\t");
+      try {
+        ImageInfo iconInfo = new ImageInfo(htmlPath + linktext);
+        ImageInfo info = new ImageInfo(htmlPath + url);
+
+        buf.append(HTMLFormatter.htmlSpecialChars(topic.getMessageText()));
+        buf.append(HTMLFormatter.htmlSpecialChars("<p><img src=\"" + fullUrl + linktext + "\" ALT=\"" + subj + "\" " + iconInfo.getCode() + " >"));
+        buf.append(HTMLFormatter.htmlSpecialChars("<p><i>" + info.getWidth() + 'x' + info.getHeight() + ", " + info.getSizeString() + "</i>"));
+      } catch (BadImageException e) {
+        // TODO write to log
+      } catch (IOException e) {
+        // TODO write to log
+      }
+    } else if (vote) {
+      int id = Poll.getPollIdByTopic(db, msgid);
+      if (id > 0) {
+        try {
+          Poll poll = new Poll(db, id);
+          buf.append("<description>\n" + "\t");
+          buf.append(HTMLFormatter.htmlSpecialChars(poll.renderPoll(db, fullUrl))).append("\n" + " \n");
+        } catch (PollNotFoundException e) {
+          // TODO write to log
+        }
+      }
+    } else {
+      buf.append("<description>").append(HTMLFormatter.htmlSpecialChars(topic.getMessageText()));
+    }
+    buf.append("</description>\n");
+
+    List<Comment> comments = res.getList();
+
+    for (ListIterator<Comment> i = comments.listIterator(comments.size()); i.hasPrevious();) {
+      Comment comment = i.previous();
+
+      msgid = comment.getMessageId();
+      subj = comment.getTitle();
+
+      buf.append("<item>\n");
+      buf.append("  <title>").append(HTMLFormatter.htmlSpecialChars(subj)).append("</title>\n");
+      try {
+        User author = User.getUserCached(db, comment.getUserid());
+        buf.append("  <author>").append(author.getNick()).append("</author>\n");
+      } catch (UserNotFoundException e) {
+        // TODO write to log
+      }
+      buf.append("  <link>http://www.linux.org.ru/jump-message.jsp?msgid=").append(topicid).append("&amp;cid=").append(msgid).append("</link>\n");
+      buf.append("  <guid>http://www.linux.org.ru/jump-message.jsp?msgid=").append(topicid).append("&amp;cid=").append(msgid).append("</guid>\n");
+      buf.append("  <pubDate>").append(Template.RFC822.format(comment.getPostdate())).append("</pubDate>\n");
+      buf.append("  <description>\n" + "\t").append(HTMLFormatter.htmlSpecialChars(comment.getMessageText())).append("</description>\n");
+      buf.append("</item>");
+      num--;
+      if (num < 0) {
+        break;
+      }
+    }
+    return buf.toString();
   }
 }
