@@ -265,7 +265,7 @@ google_ui_features = "rc:0";
       out.print("</td></tr></table></div></div>");
     }
 
-    if (!showDeleted && message.getCommentCount() > 0) {
+    if (!showDeleted /* && message.getCommentCount() > 0 */) {
       out.print("<form method=\"GET\" action=\"view-message.jsp\">");
       out.print("<div class=nav><div class=color1><table width=\"100%\" cellspacing=1 cellpadding=0 border=0><tr class=body><td>");
 
@@ -289,6 +289,8 @@ google_ui_features = "rc:0";
       if (!tmpl.isUsingDefaultProfile()) {
         out.print(" [<a style=\"text-decoration: none\" href=\"ignore-list.jsp\">настроить</a>]");
       }
+
+      out.print(" [<a style=\"text-decoration: none\" href=\"topic-rss.jsp?topic="+ msgid +"\">RSS</a>]");
 
       out.print("</div>");
       out.print("</td></tr></table></div></div>");

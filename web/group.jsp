@@ -122,6 +122,7 @@
 <%
   }
 %>
+  [<a style="text-decoration: none" href="section-rss.jsp?section=<%= group.getSectionId() %>&amp;group=<%=group.getId()%>">RSS</a>]      
       <select name=group onChange="submit()" title="Быстрый переход">
 <%
 	Statement sectionListSt = db.createStatement();
