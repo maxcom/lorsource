@@ -67,7 +67,7 @@
 
     db.commit();
 
-    response.setHeader("Location", tmpl.getRedirectUrl() + "sameip.jsp?ip=" + URLEncoder.encode(ip));
+    response.setHeader("Location", tmpl.getMainUrl() + "sameip.jsp?ip=" + URLEncoder.encode(ip));
     response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
 
   } finally {

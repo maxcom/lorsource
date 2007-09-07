@@ -12,7 +12,7 @@
     boolean showDeleted = request.getParameter("deleted") != null;
 
     if (showDeleted && !"POST".equals(request.getMethod())) {
-      response.setHeader("Location", tmpl.getRedirectUrl() + "/group.jsp?group=" + groupId);
+      response.setHeader("Location", tmpl.getMainUrl() + "/group.jsp?group=" + groupId);
       response.setStatus(HttpServletResponse.SC_MOVED_PERMANENTLY);
 
       showDeleted = false;

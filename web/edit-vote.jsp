@@ -137,7 +137,7 @@
 
       Random random = new Random();
 
-      response.setHeader("Location", tmpl.getRedirectUrl() + "jump-message.jsp?msgid=" + msgid + "&nocache=" + random.nextInt());
+      response.setHeader("Location", tmpl.getMainUrl() + "jump-message.jsp?msgid=" + msgid + "&nocache=" + random.nextInt());
       response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
     } finally {
       if (db != null) {

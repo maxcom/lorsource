@@ -201,7 +201,7 @@
     prof.setPath("/");
     response.addCookie(prof);
 
-    response.setHeader("Location", tmpl.getRedirectUrl(profile));
+    response.setHeader("Location", tmpl.getMainUrl());
     response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
 
     out.print("Ok");

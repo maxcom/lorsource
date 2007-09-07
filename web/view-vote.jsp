@@ -3,10 +3,10 @@
 <% Template tmpl = new Template(request, config, response); %>
 <%=tmpl.head() %>
 <%
-  Connection db=null;
+  Connection db = null;
   try {
 
-    if (request.getParameter("vote")==null)
+    if (request.getParameter("vote") == null)
       throw new MissingParameterException("vote");
 
     int voteid = Integer.parseInt(request.getParameter("vote"));
@@ -15,10 +15,10 @@
 
     Poll poll = new Poll(db, voteid);
 
-    response.setHeader("Location", tmpl.getRedirectUrl() + "jump-message.jsp?msgid="+poll.getTopicId());
+    response.setHeader("Location", tmpl.getMainUrl() + "jump-message.jsp?msgid=" + poll.getTopicId());
     response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
-    
+
   } finally {
-    if (db!=null)  db.close();                                                                                                                               
-  }                                                                                                                                                          
+    if (db != null) db.close();
+  }
 %>

@@ -6,9 +6,9 @@
 	<title>Опросы</title>
 <%= tmpl.DocumentHeader() %>
 <%
-  boolean showDeleted =request.getParameter("deleted")!=null;
+  boolean showDeleted = request.getParameter("deleted") != null;
   if (showDeleted && !"POST".equals(request.getMethod())) {
-    response.setHeader("Location", tmpl.getRedirectUrl() + "votes.jsp");
+    response.setHeader("Location", tmpl.getMainUrl() + "votes.jsp");
     response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
 
     showDeleted = false;

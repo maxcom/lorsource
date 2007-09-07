@@ -207,7 +207,7 @@
         returnUrl = "view-message.jsp?msgid=" + topicId + "&nocache=" + random.nextInt() + "#" + msgid;
       }
 
-      response.setHeader("Location", tmpl.getRedirectUrl() + returnUrl);
+      response.setHeader("Location", tmpl.getMainUrl() + returnUrl);
       response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
 
       db.commit();

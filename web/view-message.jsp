@@ -26,7 +26,7 @@
 
     String nick = Template.getNick(session);
 
-    if (nick==null || IgnoreList.getIgnoreListHash(db, nick).isEmpty()) {
+    if (nick == null || IgnoreList.getIgnoreListHash(db, nick).isEmpty()) {
       filterMode = filterMode & ~CommentViewer.FILTER_IGNORED;
     }
 
@@ -39,7 +39,7 @@
     Statement st = db.createStatement();
 
     if (showDeleted && !"POST".equals(request.getMethod())) {
-      response.setHeader("Location", tmpl.getRedirectUrl() + "view-message.jsp?msgid=" + msgid);
+      response.setHeader("Location", tmpl.getMainUrl() + "view-message.jsp?msgid=" + msgid);
       response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
 
       showDeleted = false;

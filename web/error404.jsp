@@ -6,7 +6,7 @@
 %>
 <%= tmpl.head() %>
 <title>Error 404</title>
-<base href="<%= HTMLFormatter.htmlSpecialChars(tmpl.getRedirectUrl()) %>">
+<base href="<%= HTMLFormatter.htmlSpecialChars(tmpl.getMainUrl()) %>">
 <%= tmpl.DocumentHeader() %>
 
 <h1>Error 404</h1>

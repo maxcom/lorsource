@@ -76,7 +76,7 @@
 
       logger.info("Установлена фотография пользователем " + user.getNick());
 
-      response.sendRedirect(tmpl.getRedirectUrl() + "whois.jsp?nick=" + URLEncoder.encode(user.getNick()) + "&nocache=" + random.nextInt());
+      response.sendRedirect(tmpl.getMainUrl() + "whois.jsp?nick=" + URLEncoder.encode(user.getNick()) + "&nocache=" + random.nextInt());
     } catch (IOException ex) {
       showForm = true;
       error = ex;

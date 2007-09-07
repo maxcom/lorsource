@@ -40,7 +40,6 @@ public class Template {
   private final HttpSession session;
   private final Date startDate = new Date();
   private final String requestString;
-  private boolean redirect = false;
 
   public static final DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM, new Locale("ru"));
   public static final DateFormat RFC822 = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss Z", Locale.US);
@@ -53,11 +52,6 @@ public class Template {
     } catch (ClassNotFoundException e) {
       throw new RuntimeException(e);
     }
-  }
-
-  public Template(HttpServletRequest request, ServletConfig Config, HttpServletResponse response)
-      throws ClassNotFoundException, IOException, SQLException, StorageException {
-    this(request, Config, response, false);
   }
 
   public String getSecret() {
@@ -104,7 +98,7 @@ public class Template {
     }
   }
 
-  public Template(HttpServletRequest request, ServletConfig config, HttpServletResponse response, boolean isErrorPage)
+  public Template(HttpServletRequest request, ServletConfig config, HttpServletResponse response)
       throws ClassNotFoundException, IOException, SQLException, StorageException {
     request.setCharacterEncoding("koi8-r"); // блядский tomcat
 
@@ -344,7 +338,7 @@ public class Template {
   public String DocumentFooter(boolean closeHtml) throws IOException, StorageException {
     StringBuffer out = new StringBuffer();
 
-    out.append("<p><i><a href=\"").append(getRedirectUrl()).append("\">").append(getMainUrl()).append("</a></i>");
+    out.append("<p><i><a href=\"").append(getMainUrl()).append("\">").append(getMainUrl()).append("</a></i>");
 
     if (!isMainPage()) {
       out.append("<div align=center><iframe src=\"dw.jsp?width=728&amp;height=90&amp;main=0\" width=\"728\" height=\"90\" scrolling=\"no\" frameborder=\"0\"></iframe></div>");
@@ -395,27 +389,6 @@ public class Template {
     return config.getProperties().getProperty("MainUrl");
   }
 
-  /** @deprecated */
-  public String getRedirectUrl() {
-    return getMainUrl();
-/*
-    if (userProfile.isDefault()) {
-      return getMainUrl();
-    } else {
-      return getMainUrl() + "profile/" + userProfile.getName() + '/';
-    }*/
-  }
-
-  /** @deprecated */
-  public String getRedirectUrl(String prof) {
-    return getMainUrl();
-/*    if (prof == null) {
-      return getMainUrl();
-    }
-
-    return getMainUrl() + "profile/" + prof + '/';*/
-  }
-
   public ServletParameterParser getParameters() {
     return parameters;
   }
@@ -450,9 +423,5 @@ public class Template {
     } else {
       return null;
     }
-  }
-
-  public boolean isRedirect() {
-    return redirect;
   }
 }
