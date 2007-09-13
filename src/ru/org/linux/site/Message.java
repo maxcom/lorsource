@@ -16,6 +16,7 @@ public class Message {
   private int postscore;
   private boolean imagepost;
   private boolean votepoll;
+  private boolean sticky;
   private String linktext;
   private String url;
   private String title;
@@ -43,7 +44,7 @@ public class Message {
         "SELECT " +
             "postdate, topics.id as msgid, users.id as userid, topics.title, sections.comment, " +
             "topics.groupid as guid, topics.url, topics.linktext, sections.name as ptitle, " +
-            "groups.title as gtitle, imagepost, vote, havelink, section, " +
+            "groups.title as gtitle, imagepost, vote, havelink, section, topics.sticky, " +
             "postdate<(CURRENT_TIMESTAMP-sections.expire) as expired, deleted, lastmod, commitby, " +
             "commitdate, topics.stat1, postscore, topics.moderate, message " +
             "FROM topics, users, groups, sections, msgbase " +
@@ -56,6 +57,7 @@ public class Message {
     postscore =rs.getInt("postscore");
     imagepost=rs.getBoolean("imagepost");
     votepoll=rs.getBoolean("vote");
+    sticky=rs.getBoolean("sticky");
     linktext=rs.getString("linktext");
     url=rs.getString("url");
     userid = rs.getInt("userid");
@@ -390,6 +392,10 @@ public class Message {
 
   public boolean isVotePoll() {
 	return votepoll;
+  }
+  
+  public boolean isSticky() {
+	return sticky;
   }
   
   public void updateMessageText(Connection db, String text) throws SQLException {
