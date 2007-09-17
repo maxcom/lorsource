@@ -184,9 +184,9 @@
   double messages = tmpl.getProf().getInt("messages");
 
   if (firstPage) {
-	rs=st.executeQuery("SELECT topics.title as subj, lastmod, nick, topics.id as msgid, deleted, topics.stat1, topics.stat2, topics.stat3, topics.stat4 FROM topics,groups,users, sections WHERE sections.id=groups.section AND (topics.moderate OR NOT sections.moderate) AND topics.userid=users.id AND topics.groupid="+group+" AND groups.id="+group+" AND NOT deleted " + ignq + " ORDER BY lastmod DESC LIMIT "+topics+" OFFSET "+offset);
+	rs=st.executeQuery("SELECT topics.title as subj, lastmod, nick, topics.id as msgid, deleted, topics.stat1, topics.stat2, topics.stat3, topics.stat4, topics.sticky FROM topics,groups,users, sections WHERE sections.id=groups.section AND (topics.moderate OR NOT sections.moderate) AND topics.userid=users.id AND topics.groupid="+group+" AND groups.id="+group+" AND NOT deleted " + ignq + " ORDER BY sticky DESC,lastmod DESC LIMIT "+topics+" OFFSET "+offset);
   } else {
-	rs=st.executeQuery("SELECT topics.title as subj, lastmod, nick, topics.id as msgid, deleted, topics.stat1, topics.stat2, topics.stat3, topics.stat4 FROM topics,groups,users, sections WHERE sections.id=groups.section AND (topics.moderate OR NOT sections.moderate) AND topics.userid=users.id AND topics.groupid="+group+" AND groups.id="+group+" AND NOT deleted ORDER BY lastmod DESC LIMIT "+topics+" OFFSET "+offset);
+	rs=st.executeQuery("SELECT topics.title as subj, lastmod, nick, topics.id as msgid, deleted, topics.stat1, topics.stat2, topics.stat3, topics.stat4, topics.sticky FROM topics,groups,users, sections WHERE sections.id=groups.section AND (topics.moderate OR NOT sections.moderate) AND topics.userid=users.id AND topics.groupid="+group+" AND groups.id="+group+" AND NOT deleted ORDER BY sticky DESC,lastmod DESC LIMIT "+topics+" OFFSET "+offset);
   }
   
   while (rs.next()) {
@@ -198,6 +198,7 @@
 
     outbuf.append("<tr><td>");
     if (rs.getBoolean("deleted")) outbuf.append("[X] ");
+	else if(rs.getBoolean("sticky")) outbuf.append("<img src=\"img/paper_clip.gif\" alt=\"Прикреплено\" title=\"Прикреплено\"> ");
 
     int pagesInCurrent = (int) Math.ceil(stat1 / messages);
 
