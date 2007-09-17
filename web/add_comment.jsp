@@ -81,18 +81,6 @@
     comment = new Comment(replyto, title, msg, topicId, 0);
 
     try {
-      if ("".equals(title)) {
-        throw new BadInputException("заголовок сообщения не может быть пустым");
-      }
-
-      if ("".equals(msg)) {
-        throw new BadInputException("комментарий не может быть пустым");
-      }
-
-      if (!preview && !Template.isSessionAuthorized(session)) {
-        CaptchaSingleton.checkCaptcha(session, request);
-      }
-
       // prechecks is over
       db = tmpl.getConnection("add_comment");
       db.setAutoCommit(false);
@@ -113,6 +101,19 @@
       }
 
       comment.setAuthor(user.getId());
+
+
+      if ("".equals(title)) {
+        throw new BadInputException("заголовок сообщения не может быть пустым");
+      }
+
+      if ("".equals(msg)) {
+        throw new BadInputException("комментарий не может быть пустым");
+      }
+
+      if (!preview && !Template.isSessionAuthorized(session)) {
+        CaptchaSingleton.checkCaptcha(session, request);
+      }
 
       if (user.isAnonymous()) {
         if (msg.length() > 4096) {
@@ -342,8 +343,8 @@ if (showform) { // show form
     out.print("<p><img src=\"/jcaptcha.jsp\"><input type='text' name='j_captcha_response' value=''>");
   }
 %>
-<input type=submit value="Post/Поместить">
-<input type=submit name=preview value="Preview/Предпросмотр">
+<input type=submit value="Поместить">
+<input type=submit name=preview value="Предпросмотр">
 
 </form>
 <%
