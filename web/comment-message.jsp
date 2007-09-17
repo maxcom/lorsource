@@ -94,6 +94,7 @@
 %>
 
 <input type=submit value="Post/Отправить">
+<input type=submit name=preview value="Preview/Предпросмотр">  
 </form>
 
 <% } %>

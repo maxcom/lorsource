@@ -576,4 +576,24 @@ public class Message {
     
     return msgid;
   }
+
+  public void checkPostAllowed(User user, boolean moderator) throws AccessViolationException {
+    if (isDeleted()) {
+      throw new AccessViolationException("Нельзя добавлять комментарии к удаленному сообщению");
+    }
+
+    if (!isCommentEnabled()) {
+      throw new AccessViolationException("В эту группу нельзя добавлять комментарии");
+    }
+
+    if (isExpired()) {
+      throw new AccessViolationException("группа уже устарела");
+    }
+
+    if (postscore != 0) {
+      if (user.getScore() < postscore || user.isAnonymous() || (postscore == -1 && !moderator)) {
+        throw new AccessViolationException("Вы не можете добавлять комментарии в эту тему");
+      }
+    }
+  }
 }

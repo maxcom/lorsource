@@ -35,6 +35,7 @@ public class CommentViewer {
 
   private void showCommentList(StringBuffer buf, List<Comment> comments, boolean reverse, int offset, int limit, Set<Integer> hideSet)
       throws IOException, UtilException, SQLException, UserNotFoundException {
+    CommentView view = new CommentView();
     int shown = 0;
 
     for (ListIterator<Comment> i = comments.listIterator(reverse?comments.size():0); reverse?i.hasPrevious():i.hasNext();) {
@@ -48,7 +49,7 @@ public class CommentViewer {
 
       if (hideSet==null || !hideSet.contains(comment.getMessageId())) {
         shown++;
-        buf.append(comment.printMessage(tmpl, db, this.comments, true, tmpl.isModeratorSession(), user, expired));
+        buf.append(view.printMessage(comment, tmpl, db, this.comments, true, tmpl.isModeratorSession(), user, expired));
       }
     }
 

@@ -1,5 +1,5 @@
 <%@ page contentType="text/html; charset=koi8-r"%>
-<%@ page import="java.sql.*,java.util.Random,java.util.logging.Logger,javax.servlet.http.Cookie,javax.servlet.http.HttpServletResponse,ru.org.linux.site.*" errorPage="/error.jsp"%>
+<%@ page import="java.sql.Connection,java.sql.Statement,java.util.Random,java.util.logging.Logger,javax.servlet.http.HttpServletResponse,ru.org.linux.site.*" errorPage="/error.jsp"%>
 <%@ page import="ru.org.linux.util.HTMLFormatter"%>
 <%@ page import="ru.org.linux.util.UtilBadHTMLException" %>
 <%@ page import="ru.org.linux.util.UtilBadURLException" %>
@@ -9,8 +9,9 @@
 
   int topicId = tmpl.getParameters().getInt("topic");
   boolean showform = request.getParameter("msg") == null;
+  boolean preview = request.getParameter("preview") != null;
 
-  if (!"POST".equals(request.getMethod()))
+  if (!"POST".equals(request.getMethod()) || preview)
     showform = true;
 %>
 <%= tmpl.head() %>
@@ -20,27 +21,66 @@
   try {
 %>
 
-<% Exception error = null;
-  if (!showform) { // add2
+<%
+  Exception error = null;
+  String mode = "";
+  boolean autourl = true;
+  Comment comment = null;
+  if (!showform || preview) { // add2
+    mode = tmpl.getParameters().getString("mode");
+    autourl = tmpl.getParameters().getBoolean("autourl");
     String msg = request.getParameter("msg");
+
     int replyto = 0;
 
     if (request.getParameter("replyto") != null) {
       replyto = tmpl.getParameters().getInt("replyto");
     }
 
-    if (!session.getId().equals(request.getParameter("session"))) {
+    if (!preview && !session.getId().equals(request.getParameter("session"))) {
       logger.info("Flood protection (session variable differs: " + session.getId() + ") " + request.getRemoteAddr());
       throw new BadInputException("сбой добавления");
     }
 
-    try {
-      String title = request.getParameter("title");
-      if (title == null) {
-        title = "";
-      }
+    String title = request.getParameter("title");
 
-      title = HTMLFormatter.htmlSpecialChars(title);
+    if (title == null) {
+      title = "";
+    }
+
+    title = HTMLFormatter.htmlSpecialChars(title);
+
+    int maxlength = 80; // TODO: remove this hack
+    HTMLFormatter form = new HTMLFormatter(msg);
+    form.setMaxLength(maxlength);
+    if ("pre".equals(mode)) {
+      form.enablePreformatMode();
+    }
+    if (autourl) {
+      form.enableUrlHighLightMode();
+    }
+    if ("ntobr".equals(mode)) {
+      form.enableNewLineMode();
+    }
+    if ("tex".equals(mode)) {
+      form.enableTexNewLineMode();
+    }
+    if ("quot".equals(mode)) {
+      form.enableTexNewLineMode();
+      form.enableQuoting();
+    }
+
+    form.enablePlainTextMode();
+
+    try {
+      msg = form.process();
+    } catch (UtilBadHTMLException e) {
+      throw new BadInputException(e);
+    }
+
+    comment = new Comment(replyto, title, msg, topicId, 0);
+
+    try {
       if ("".equals(title)) {
         throw new BadInputException("заголовок сообщения не может быть пустым");
       }
@@ -49,16 +89,14 @@
         throw new BadInputException("комментарий не может быть пустым");
       }
 
-      boolean autourl = tmpl.getParameters().getBoolean("autourl");
-
-      if (!Template.isSessionAuthorized(session)) {
+      if (!preview && !Template.isSessionAuthorized(session)) {
         CaptchaSingleton.checkCaptcha(session, request);
       }
 
       // prechecks is over
-
       db = tmpl.getConnection("add_comment");
       db.setAutoCommit(false);
+
       IPBlockInfo.checkBlockIP(db, request.getRemoteAddr());
 
       User user;
@@ -74,6 +112,8 @@
         user.checkBlocked();
       }
 
+      comment.setAuthor(user.getId());
+
       if (user.isAnonymous()) {
         if (msg.length() > 4096) {
           throw new BadInputException("Слишком большое сообщение");
@@ -83,11 +123,6 @@
           throw new BadInputException("Слишком большое сообщение");
         }
       }
-
-      Cookie nickCookie = new Cookie("NickCookie", user.getNick());
-      nickCookie.setMaxAge(60 * 60 * 24 * 31 * 24);
-      nickCookie.setPath("/");
-      response.addCookie(nickCookie);
 
       if (replyto != 0) {
         Comment reply = new Comment(db, replyto);
@@ -103,116 +138,41 @@
       Statement st = db.createStatement();
       Message topic = new Message(db, topicId);
 
-      int postscore = topic.getPostScore();
+      topic.checkPostAllowed(user, tmpl.isModeratorSession());
 
-      if (postscore != 0) {
-        if (user.getScore() < postscore || user.isAnonymous() || (postscore == -1 && !tmpl.isModeratorSession())) {
-          throw new AccessViolationException("Вы не можете добавлять комментарии в эту тему");
+      if (!preview) {
+        DupeProtector.getInstance().checkDuplication(request.getRemoteAddr());
+
+        int msgid = comment.saveNewMessage(db, request.getRemoteAddr());
+
+        String logmessage = "Написан комментарий " + msgid + " ip:" + request.getRemoteAddr();
+        if (request.getHeader("X-Forwarded-For") != null) {
+          logmessage = logmessage + " XFF:" + request.getHeader(("X-Forwarded-For"));
         }
-      }
 
-      String mode = tmpl.getParameters().getString("mode");
+        logger.info(logmessage);
 
-      if (topic.isDeleted()) {
-        throw new AccessViolationException("Нельзя добавлять комментарии к удаленному сообщению");
-      }
-      if (!topic.isCommentEnabled()) {
-        throw new AccessViolationException("В эту группу нельзя добавлять комментарии");
-      }
+        topic = new Message(db, topicId); // update lastmod
 
-      int maxlength = 80; // TODO: remove this hack
-      HTMLFormatter form = new HTMLFormatter(msg);
-      form.setMaxLength(maxlength);
-      if ("pre".equals(mode)) {
-        form.enablePreformatMode();
-      }
-      if (autourl) {
-        form.enableUrlHighLightMode();
-      }
-      if ("ntobr".equals(mode)) {
-        form.enableNewLineMode();
-      }
-      if ("tex".equals(mode)) {
-        form.enableTexNewLineMode();
-      }
-      if ("quot".equals(mode)) {
-        form.enableTexNewLineMode();
-        form.enableQuoting();
-      }
+        CommentList commentList = CommentList.getCommentList(db, topic, false);
+        Comment newComment = commentList.getNode(msgid).getComment();
+        int pageNum = commentList.getCommentPage(newComment, tmpl);
 
-      form.enablePlainTextMode();
+        Random random = new Random();
 
-      try {
-        msg = form.process();
-      } catch (UtilBadHTMLException e) {
-        throw new BadInputException(e);
-      }
+        String returnUrl;
 
-      // section EXPIRE
-      if (topic.isExpired()) {
-        throw new AccessViolationException("группа уже устарела");
-      }
+        if (pageNum > 0) {
+          returnUrl = "view-message.jsp?msgid=" + topicId + "&page=" + pageNum + "&nocache=" + random.nextInt() + "#" + msgid;
+        } else {
+          returnUrl = "view-message.jsp?msgid=" + topicId + "&nocache=" + random.nextInt() + "#" + msgid;
+        }
 
-      DupeProtector.getInstance().checkDuplication(request.getRemoteAddr());
+        response.setHeader("Location", tmpl.getMainUrl() + returnUrl);
+        response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
 
-      // allocation MSGID
-      ResultSet rs = st.executeQuery("select nextval('s_msgid') as msgid");
-      rs.next();
-      int msgid = rs.getInt("msgid");
-
-      // insert headers
-      PreparedStatement pst = db.prepareStatement("INSERT INTO comments (id, userid, title, postdate, replyto, deleted, topic, postip) VALUES (?, ?, ?, CURRENT_TIMESTAMP, ?, 'f', ?, '" + request.getRemoteAddr() + "')");
-      pst.setInt(1, msgid);
-      pst.setInt(2, user.getId());
-      pst.setString(3, title);
-      pst.setInt(5, topicId);
-
-      if (replyto != 0) {
-        pst.setInt(4, replyto);
-      } else {
-        pst.setNull(4, Types.INTEGER);
-      }
-
-      //pst.setString(6, request.getRemoteAddr());
-      pst.executeUpdate();
-      pst.close();
-
-      // insert message text
-      PreparedStatement pstMsgbase = db.prepareStatement("INSERT INTO msgbase (id, message) values (?,?)");
-      pstMsgbase.setLong(1, msgid);
-      pstMsgbase.setString(2, msg);
-      pstMsgbase.executeUpdate();
-      pstMsgbase.close();
-
-      String logmessage = "Написан комментарий " + msgid + " ip:" + request.getRemoteAddr();
-      if (request.getHeader("X-Forwarded-For") != null) {
-        logmessage = logmessage + " XFF:" + request.getHeader(("X-Forwarded-For"));
-      }
-
-      logger.info(logmessage);
-
-      topic = new Message(db, topicId); // update lastmod
-
-      CommentList commentList = CommentList.getCommentList(db, topic, false);
-      Comment comment = commentList.getNode(msgid).getComment();
-      int pageNum = commentList.getCommentPage(comment, tmpl);
-
-      Random random = new Random();
-
-      String returnUrl;
-
-      if (pageNum > 0) {
-        returnUrl = "view-message.jsp?msgid=" + topicId + "&page=" + pageNum + "&nocache=" + random.nextInt() + "#" + msgid;
-      } else {
-        returnUrl = "view-message.jsp?msgid=" + topicId + "&nocache=" + random.nextInt() + "#" + msgid;
-      }
-
-      response.setHeader("Location", tmpl.getMainUrl() + returnUrl);
-      response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
-
-      db.commit();
-      rs.close();
-      st.close();
+        db.commit();
+        st.close();
 
 %>
 <title>Добавление сообщения прошло успешно</title>
@@ -222,7 +182,8 @@
 <p><a href="<%= returnUrl %>">Возврат</a>
 
 <p><b>Пожалуйста, не нажимайте кнопку "ReLoad" вашего броузера на этой страничке и не возвращайтесь на нее по средством кнопки Back</b>
-<%
+<%		
+			} 
 } catch (UserErrorException e) {
 	error=e;
 	showform=true;
@@ -273,7 +234,7 @@ if (showform) { // show form
 <h1>Добавить комментарий</h1>
 <% } else { out.println("<h1>Ошибка: "+error.getMessage()+"</h1>"); } %>
 
-<% if (tmpl.getProf().getBoolean("showinfo") && !tmpl.isSessionAuthorized(session)) { %>
+<% if (tmpl.getProf().getBoolean("showinfo") && !Template.isSessionAuthorized(session)) { %>
 <font size=2>Чтобы просто поместить сообщение, используйте login `anonymous',
 без пароля. Если вы собираетесь активно участвовать в форуме,
 помещать новости на главную страницу,
@@ -290,7 +251,7 @@ if (showform) { // show form
 
 <form method=POST action="add_comment.jsp">
   <input type="hidden" name="session" value="<%= HTMLFormatter.htmlSpecialChars(session.getId()) %>">
-<% if (!tmpl.isSessionAuthorized(session)) { %>
+<% if (!Template.isSessionAuthorized(session)) { %>
 Имя:
 <input type=text name=nick value="<%= "anonymous" %>" size=40><br>
 Пароль:
@@ -301,22 +262,44 @@ if (showform) { // show form
 <% if (request.getParameter("return")!=null) { %>
 <input type=hidden name=return value="<%= HTMLFormatter.htmlSpecialChars(request.getParameter("return")) %>">
 <% } %>
+<%
+  String title = "";
 
-<% if (request.getParameter("replyto")!=null) {
-        int replyto=Integer.parseInt(request.getParameter("replyto"));
+  if (request.getParameter("replyto")!=null) {
+    int replyto=Integer.parseInt(request.getParameter("replyto"));
 %>
 <input type=hidden name=replyto value="<%= replyto %>">
 <%
-  Comment comment = new Comment(db, replyto);
-  if (comment.isDeleted()) throw new MessageNotFoundException(replyto);
-  String title = comment.getTitle();
-  if (!title.startsWith("Re:")) title = "Re: " + title;
+    Comment onComment = new Comment(db, replyto);
 
-  out.print("<div class=messages>");
-  out.print(comment.printMessage(tmpl, db, null, false, tmpl.isModeratorSession(), Template.getNick(session), false));
-  out.print("</div>");
+    if (onComment.isDeleted()) {
+      throw new MessageNotFoundException(replyto);
+    }
 
-  if (request.getParameter("title") != null) title = request.getParameter("title");
+    title = onComment.getTitle();
+    if (!title.startsWith("Re:")) {
+      title = "Re: " + title;
+    }
+
+    out.print("<div class=messages>");
+    CommentView view = new CommentView();
+    out.print(view.printMessage(onComment, tmpl, db, null, false, tmpl.isModeratorSession(), Template.getNick(session), false));
+    out.print("</div>");
+  }
+
+  if (request.getParameter("title") != null) {
+    title = request.getParameter("title");
+  }
+
+  if (preview && comment!=null) {
+    out.print("<p><b>Ваше сообщение</b></p>");
+    out.print("<div class=messages>");
+    CommentView view = new CommentView();
+    out.print(view.printMessage(comment, tmpl, db, null, false, tmpl.isModeratorSession(), Template.getNick(session), false));
+    out.print("</div>");
+  }
+
+  if (request.getParameter("replyto") != null) {
 %>
 Заглавие:
 <input type=text name=title size=40 value="<%= title %>"><br>
@@ -333,16 +316,16 @@ if (showform) { // show form
 <textarea name="msg" cols="70" rows="20" onkeypress="return ctrl_enter(event, this.form);"><%= request.getParameter("msg")==null?"":HTMLFormatter.htmlSpecialChars(request.getParameter("msg")) %></textarea><br>
 
 <select name=mode>
-<option value=quot>TeX paragraphs w/quoting
-<option value=tex>TeX paragraphs w/o quoting
-<option value=ntobr>User line break
-<option value=html>Ignore line breaks
-<option value=pre>Preformatted text
+<option value=quot <%= (preview && mode.equals("quot"))?"selected":""%> >TeX paragraphs w/quoting
+<option value=tex <%= (preview && mode.equals("tex"))?"selected":""%> >TeX paragraphs w/o quoting
+<option value=ntobr <%= (preview && mode.equals("ntobr"))?"selected":""%> >User line break
+<option value=html <%= (preview && mode.equals("html"))?"selected":""%> >Ignore line breaks
+<option value=pre <%= (preview && mode.equals("pre"))?"selected":""%> >Preformatted text
 </select>
 
 <select name=autourl>
-<option value=1>Auto URL
-<option value=0>No Auto URL
+<option value=1 <%= (preview && autourl)?"selected":""%> >Auto URL
+<option value=0 <%= (preview && !autourl)?"selected":""%> >No Auto URL
 </select>
 
 <input type=hidden value=0 name=texttype>
@@ -360,7 +343,7 @@ if (showform) { // show form
   }
 %>
 <input type=submit value="Post/Поместить">
-
+<input type=submit name=preview value="Preview/Предпросмотр">
 
 </form>
 <%

@@ -1,19 +1,15 @@
 package ru.org.linux.site;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.sql.*;
 import java.util.Map;
-import java.util.logging.Logger;
 
-import ru.org.linux.util.*;
+import ru.org.linux.util.StringUtil;
 
 public class Comment implements Serializable {
-  private static final Logger logger = Logger.getLogger("ru.org.linux");
-
   private final int msgid;
   private final String title;
-  private final int userid;
+  private int userid;
   private final int replyto;
   private final int topic;
   private final boolean deleted;
@@ -67,108 +63,16 @@ public class Comment implements Serializable {
     }
   }
 
-  public String printMessage(Template tmpl, Connection db, CommentList comments, boolean showMenu, boolean moderatorMode, String user, boolean expired)
-      throws IOException, UtilException, SQLException, UserNotFoundException {
-    StringBuffer out=new StringBuffer();
-
-    out.append("\n\n<!-- ").append(msgid).append(" -->\n");
-
-    out.append("<table width=\"100%\" cellspacing=0 cellpadding=0 border=0>");
-
-    User author = User.getUserCached(db, userid);
-
-    if (showMenu) {
-      out.append("<tr class=title><td>");
-
-      if (!deleted) {
-        out.append("[<a href=\"/jump-message.jsp?msgid=").append(topic).append("&amp;cid=").append(msgid).append("\">#</a>]");
-      }
-
-      if (!expired && !deleted) {
-        out.append("[<a href=\"add_comment.jsp?topic=").append(topic).append("&amp;replyto=").append(msgid).append("\">Ответить</a>]");
-      }
-
-      if (!deleted && (moderatorMode || author.getNick().equals(user))) {
-        out.append("[<a href=\"delete_comment.jsp?msgid=").append(msgid).append("\">Удалить</a>]");
-      }
-
-      if (moderatorMode) {
-        out.append("[<a href=\"sameip.jsp?msgid=").append(msgid).append("\">Другие с этого IP</a>]");
-      }
-
-      if (deleted) {
-        if (deleteInfo==null) {
-          out.append("<strong>Сообщение удалено</strong>");
-        } else {
-          out.append("<strong>Сообщение удалено ").append(deleteInfo.getNick()).append(" по причине '").append(HTMLFormatter.htmlSpecialChars(deleteInfo.getReason())).append("'</strong>");
-        }
-      }
-
-      out.append("&nbsp;</td></tr>");
-    }
-
-    if (replyto!=0 && showMenu) {
-      CommentNode replyNode = comments.getNode(replyto);
-      if (replyNode!=null) {
-        Comment reply = replyNode.getComment();
-
-        out.append("<tr class=title><td>");
-
-        out.append("Ответ на: <a href=\"");
-
-        int replyPage = comments.getCommentPage(reply, tmpl);
-        if (replyPage>0) {
-          out.append("view-message.jsp?msgid=").append(topic).append("&amp;page=").append(replyPage).append('#').append(replyto);
-        } else {
-          out.append("view-message.jsp?msgid=").append(topic).append('#').append(replyto);          
-        }
-
-        out.append("\">");
-
-        User replyAuthor = User.getUserCached(db, reply.getUserid());
-
-        out.append(StringUtil.makeTitle(reply.getTitle())).append("</a> от ").append(replyAuthor.getNick()).append(' ').append(Template.dateFormat.format(reply.getPostdate()));
-      } else {
-        logger.warning("Weak reply #"+replyto+" on comment="+msgid+" msgid="+topic);
-      }
-    }
-
-    out.append("<tr class=body><td>");
-    out.append("<div class=msg>");
-
-    boolean tbl = false;
-    if (author.getPhoto()!=null) {
-      if (tmpl.getProf().getBoolean("photos")) {
-        out.append("<table><tr><td valign=top align=center>");
-        tbl=true;
-
-        try {
-          ImageInfo info=new ImageInfo(tmpl.getObjectConfig().getHTMLPathPrefix()+"/photos/"+author.getPhoto());
-          out.append("<img src=\"/photos/").append(author.getPhoto()).append("\" alt=\"").append(author.getNick()).append(" (фотография)\" ").append(info.getCode()).append(" >");
-        } catch (BadImageException e) {
-          logger.warning(StringUtil.getStackTrace(e));
-        }
-
-        out.append("</td><td valign=top>");
-      }
-    }
-
-    out.append("<h2><a name=").append(msgid).append('>').append(title).append("</a></h2>");
-
-    out.append(message);
-
-    out.append("<p>");
-
-    out.append(author.getSignature(moderatorMode, postdate));
-
-    if (!expired && !deleted && showMenu)
-      out.append("<p><font size=2>[<a href=\"add_comment.jsp?topic=").append(topic).append("&amp;replyto=").append(msgid).append("\">Ответить на это сообщение</a>]</font>");
-
-    if (tbl) out.append("</td></tr></table>");
-      out.append("</div></td></tr>");
-      out.append("</table><p>");
-
-    return out.toString();
+  public Comment(int replyto, String title, String message, int topic, int userid) {
+    msgid =0;
+    this.title=title;
+    this.topic=topic;
+    this.replyto=replyto;
+    deleted =false;
+    postdate =new Timestamp(0);
+    this.message=message;
+    this.userid=userid;
+    deleteInfo = null;
   }
 
   public int getMessageId() {
@@ -205,5 +109,65 @@ public class Comment implements Serializable {
 
   public String getMessageText() {
     return message;
+  }
+
+  public DeleteInfo getDeleteInfo() {
+    return deleteInfo;
+  }
+
+  public int saveNewMessage(Connection db, String remoteAddr) throws SQLException {
+    PreparedStatement pst = null;
+    PreparedStatement pstMsgbase = null;
+
+    try {
+      // allocation MSGID
+      Statement st = db.createStatement();
+      ResultSet rs = st.executeQuery("select nextval('s_msgid') as msgid");
+      rs.next();
+      int msgid = rs.getInt("msgid");
+
+      // insert headers
+      pst = db.prepareStatement("INSERT INTO comments (id, userid, title, postdate, replyto, deleted, topic, postip) VALUES (?, ?, ?, CURRENT_TIMESTAMP, ?, 'f', ?, '" + remoteAddr + "')");
+      pst.setInt(1, msgid);
+      pst.setInt(2, userid);
+      pst.setString(3, title);
+      pst.setInt(5, topic);
+
+      if (replyto != 0) {
+        pst.setInt(4, replyto);
+      } else {
+        pst.setNull(4, Types.INTEGER);
+      }
+
+      //pst.setString(6, request.getRemoteAddr());
+      pst.executeUpdate();
+
+      // insert message text
+      pstMsgbase = db.prepareStatement("INSERT INTO msgbase (id, message) values (?,?)");
+      pstMsgbase.setLong(1, msgid);
+      pstMsgbase.setString(2, message);
+      pstMsgbase.executeUpdate();
+
+      rs.close();
+      st.close();
+
+      return msgid;
+    } finally {
+      if (pst != null) {
+        pst.close();
+      }
+
+      if (pstMsgbase!=null) {
+        pstMsgbase.close();
+      }
+    }
+  }
+
+  public void setAuthor(int userid) {
+    if (msgid!=0) {
+      throw new IllegalArgumentException("cant change author to stored message");
+    }
+
+    this.userid = userid;
   }
 }
