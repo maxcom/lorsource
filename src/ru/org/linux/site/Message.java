@@ -14,7 +14,6 @@ public class Message {
 
   private int msgid;
   private int postscore;
-  private boolean imagepost;
   private boolean votepoll;
   private boolean sticky;
   private String linktext;
@@ -28,14 +27,15 @@ public class Message {
   private boolean havelink;
   private Timestamp postdate;
   private Timestamp commitDate;
-  private final String portalTitle;
   private final String groupTitle;
   private Timestamp lastModified;
-  private final int section;
+  private final int sectionid;
   private boolean comment;
   private final int commentCount;
   private final boolean moderate;
   private final String message;
+
+  private final Section section;
 
   public Message(Connection db, int msgid) throws SQLException, MessageNotFoundException {
     Statement st=db.createStatement();
@@ -43,8 +43,8 @@ public class Message {
     ResultSet rs=st.executeQuery(
         "SELECT " +
             "postdate, topics.id as msgid, users.id as userid, topics.title, sections.comment, " +
-            "topics.groupid as guid, topics.url, topics.linktext, sections.name as ptitle, " +
-            "groups.title as gtitle, imagepost, vote, havelink, section, topics.sticky, " +
+            "topics.groupid as guid, topics.url, topics.linktext, " +
+            "groups.title as gtitle, vote, havelink, section, topics.sticky, " +
             "postdate<(CURRENT_TIMESTAMP-sections.expire) as expired, deleted, lastmod, commitby, " +
             "commitdate, topics.stat1, postscore, topics.moderate, message " +
             "FROM topics, users, groups, sections, msgbase " +
@@ -55,7 +55,6 @@ public class Message {
 
     this.msgid=rs.getInt("msgid");
     postscore =rs.getInt("postscore");
-    imagepost=rs.getBoolean("imagepost");
     votepoll=rs.getBoolean("vote");
     sticky=rs.getBoolean("sticky");
     linktext=rs.getString("linktext");
@@ -69,10 +68,9 @@ public class Message {
     postdate=rs.getTimestamp("postdate");
     commitDate=rs.getTimestamp("commitdate");
     commitby = rs.getInt("commitby");
-    portalTitle = rs.getString("ptitle");
     groupTitle = rs.getString("gtitle");
     lastModified = rs.getTimestamp("lastmod");
-    section=rs.getInt("section");
+    sectionid =rs.getInt("section");
     comment=rs.getBoolean("comment");
     commentCount = rs.getInt("stat1");
     moderate = rs.getBoolean("moderate");
@@ -80,6 +78,12 @@ public class Message {
 
     rs.close();
     st.close();
+
+    try {
+      section = new Section(db, sectionid);
+    } catch (BadSectionException ex) {
+      throw new RuntimeException(ex);
+    }
   }
 
   public boolean isExpired() {
@@ -153,7 +157,7 @@ public class Message {
     out.append("<div class=msg>");
 
     boolean tbl = false;
-    if (imagepost) {
+    if (section.isImagepost()) {
       out.append("<table><tr><td valign=top align=center>");
       tbl=true;
 
@@ -167,7 +171,7 @@ public class Message {
       out.append("</td><td valign=top>");
     }
 
-    if (!imagepost && author.getPhoto()!=null) {
+    if (!section.isImagepost() && author.getPhoto()!=null) {
       if (tmpl.getProf().getBoolean("photos")) {
         out.append("<table><tr><td valign=top align=center>");
         tbl=true;
@@ -205,7 +209,7 @@ public class Message {
     if (url!=null && havelink)
       out.append("<p>&gt;&gt;&gt; <a href=\"").append(url).append("\">").append(linktext).append("</a>.");
 
-    if (url!=null && imagepost) {
+    if (url!=null && section.isImagepost()) {
       try {
         ImageInfo info=new ImageInfo(tmpl.getObjectConfig().getHTMLPathPrefix()+url);
 
@@ -243,7 +247,7 @@ public class Message {
   }
 
   public String getPortalTitle() {
-    return portalTitle;
+    return section.getName();
   }
 
   public String getGroupTitle() {
@@ -262,7 +266,7 @@ public class Message {
   }
 
   public int getSectionId() {
-    return section;
+    return sectionid;
   }
 
   public boolean isCommentEnabled() {
@@ -309,7 +313,7 @@ public class Message {
       case Section.SCROLL_SECTION:
         pst = db.prepareStatement("SELECT topics.id as msgid FROM topics, groups WHERE topics.groupid=groups.id AND topics.commitdate=(SELECT min(commitdate) FROM topics, groups, sections WHERE sections.id=groups.section AND topics.commitdate>? AND topics.groupid=groups.id AND groups.section=? AND (topics.moderate OR NOT sections.moderate) AND NOT deleted)");
         pst.setTimestamp(1, commitDate);
-        pst.setInt(2, section);
+        pst.setInt(2, sectionid);
         break;
 
       case Section.SCROLL_GROUP:
@@ -346,7 +350,7 @@ public class Message {
       case Section.SCROLL_SECTION:
         pst = db.prepareStatement("SELECT topics.id as msgid FROM topics, groups WHERE topics.groupid=groups.id AND topics.commitdate=(SELECT max(commitdate) FROM topics, groups, sections WHERE sections.id=groups.section AND topics.commitdate<? AND topics.groupid=groups.id AND groups.section=? AND (topics.moderate OR NOT sections.moderate) AND NOT deleted)");
         pst.setTimestamp(1, commitDate);
-        pst.setInt(2, section);
+        pst.setInt(2, sectionid);
         break;
 
       case Section.SCROLL_GROUP:
@@ -595,5 +599,9 @@ public class Message {
         throw new AccessViolationException("Вы не можете добавлять комментарии в эту тему");
       }
     }
+  }
+
+  public boolean isEditable() {
+    return !(isExpired() || isDeleted()) && section.isPremoderated();
   }
 }

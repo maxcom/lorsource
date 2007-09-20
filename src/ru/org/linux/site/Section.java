@@ -1,15 +1,17 @@
 package ru.org.linux.site;
 
+import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-public class Section {
+public class Section implements Serializable {
   private final String name;
   private final boolean browsable;
   private final boolean linkup;
   private final boolean imagepost;
+  private final boolean moderate;
   private final int id;
   private final boolean votepoll;
   public static final int SCROLL_NOSCROLL = 0;
@@ -21,7 +23,11 @@ public class Section {
     this.id = id;
 
     Statement st = db.createStatement();
-    ResultSet rs = st.executeQuery("SELECT name, browsable, linkup, imagepost, vote FROM sections WHERE id="+id);
+    ResultSet rs = st.executeQuery(
+        "SELECT name, browsable, linkup, imagepost, vote, moderate " +
+            "FROM sections " +
+            "WHERE id="+id
+    );
 
     if (!rs.next()) {
       throw new BadSectionException(id);
@@ -32,6 +38,7 @@ public class Section {
     linkup = rs.getBoolean("linkup");
     imagepost = rs.getBoolean("imagepost");
     votepoll = rs.getBoolean("vote");
+    moderate = rs.getBoolean("moderate");
   }
 
   public String getName() {
@@ -69,5 +76,9 @@ public class Section {
 
   public int getId() {
     return id;
+  }
+
+  public boolean isPremoderated() {
+    return moderate;
   }
 }

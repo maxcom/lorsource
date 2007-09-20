@@ -26,14 +26,9 @@
     String sURLtitle = message.getLinktext();
 	boolean sSticky = message.isSticky();
 
-    if (message.isExpired() && message.isDeleted()) {
-      throw new AccessViolationException("нельзя править устаревшие/удаленные сообщения");
+    if (!message.isEditable()) {
+      throw new AccessViolationException("это сообщение нельзя править");
     }
-    if (message.isDeleted()) {
-      throw new AccessViolationException("Сообщение удалено");
-    }
-
-//cText = storage.readMessage(msgDomain, MsgId);
 
     String cText = message.getMessageText();
 
@@ -42,6 +37,7 @@
     if (debugme) {
       out.print("<!-- old message = " + cText + "\n msglen: " + cText.length() + " -->\n");
     }
+
     String cnText = request.getParameter("newmsg");
     if (request.getMethod().equals("POST") && (cnText != null)) {
       if (debugme) {
@@ -54,8 +50,6 @@
       String snURLtitle = request.getParameter("url_text");
       String snURL = request.getParameter("url");
 	  String snSticky = request.getParameter("sticky");
-
-      db = tmpl.getConnection("edit");
 
       String sSql = "UPDATE topics SET title=?, linktext=?, url=?, sticky=? WHERE id=?";
       PreparedStatement pst = db.prepareStatement(sSql);
