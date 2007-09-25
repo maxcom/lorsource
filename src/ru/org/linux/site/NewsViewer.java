@@ -224,10 +224,10 @@ public class NewsViewer implements Viewer {
         "SELECT topics.title as subj, topics.lastmod, topics.stat1, postdate, nick, image, " +
             "groups.title as gtitle, topics.id as msgid, sections.comment, groups.id as guid, " +
             "topics.url, topics.linktext, imagepost, vote, sections.name as pname, linkup, " +
-            "postdate<(CURRENT_TIMESTAMP-expire) as expired, message, sections.id as section " +
+            "postdate<(CURRENT_TIMESTAMP-expire) as expired, message, sections.id as section, NOT topics.sticky AS ssticky " +
             "FROM topics,groups,users,sections,msgbase " +
             "WHERE " + where.toString()+" " +
-            "ORDER BY commitdate DESC, msgid DESC "+limit
+            "ORDER BY ssticky,commitdate DESC, msgid DESC "+limit
     );
 
     while (res.next()) {
