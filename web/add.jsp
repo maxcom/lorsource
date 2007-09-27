@@ -11,9 +11,10 @@
   try {
 
     boolean showform = request.getMethod().equals("GET");
+    boolean preview = request.getParameter("preview") != null;
     Exception error = null;
 
-    if (request.getMethod().equals("POST")) {
+    if (request.getMethod().equals("POST") && !preview) {
       try {
         String returnUrl = request.getParameter("return");
         if (returnUrl == null) {
@@ -62,40 +63,62 @@
 <p><b>Пожалуйста, не нажимайте кнопку "ReLoad" вашего броузера на этой страничке и не возвращайтесь на нее по средством кнопки Back</b>
 <%
     } catch (UserErrorException e) {
-	error=e;
-	showform=true;
-	if (db!=null) {
-		db.rollback();
-		db.setAutoCommit(true);
-	}
+      error=e;
+      showform=true;
+      if (db!=null) {
+        db.rollback();
+	db.setAutoCommit(true);
+      }
     } catch (UserNotFoundException e) {
-	error=e;
-	showform=true;
-	if (db!=null) {
-		db.rollback();
-		db.setAutoCommit(true);
-	}
+      error=e;
+      showform=true;
+      if (db!=null) {
+        db.rollback();
+	db.setAutoCommit(true);
+      }
     } catch (UtilBadURLException e) {
-	error=e;
-	showform=true;
-	if (db!=null) {
-		db.rollback();
-		db.setAutoCommit(true);
-	}
+      error=e;
+      showform=true;
+      if (db!=null) {
+        db.rollback();
+	db.setAutoCommit(true);
+      }
     }
   }
 
-  if (showform) {
-      int groupId = tmpl.getParameters().getInt("group");
+  if (showform || preview) {
+    int groupId = tmpl.getParameters().getInt("group");
+    Message previewMsg = null;
 
-      db = tmpl.getConnection("add");
-      Group group = new Group(db, groupId);
+    db = tmpl.getConnection("add");
+    Group group = new Group(db, groupId);
 
-      User currentUser = User.getCurrentUser(db, session);
+    User currentUser = User.getCurrentUser(db, session);
 
-      if (!group.isTopicPostingAllowed(currentUser)) {
-        throw new AccessViolationException("Не достаточно прав для постинга тем в эту группу");
-      }
+    if (!group.isTopicPostingAllowed(currentUser)) {
+      throw new AccessViolationException("Не достаточно прав для постинга тем в эту группу");
+    }
+
+    String mode = "";
+    boolean texttype = false;
+    boolean autourl = true;
+
+    if (preview) {
+      mode = tmpl.getParameters().getString("mode");
+      autourl = tmpl.getParameters().getBoolean("autourl");
+      texttype = tmpl.getParameters().getBoolean("texttype");
+      String title = tmpl.getParameters().getString("title");
+      String msg = tmpl.getParameters().getString("msg");
+      String linktext = "";
+      String url = "";
+
+      try {
+        linktext = tmpl.getParameters().getString("linktext");
+        url = tmpl.getParameters().getString("url");
+      } catch(Exception e) { }
+
+      previewMsg = new Message(db,groupId,title,msg,mode,autourl,texttype,linktext,url,currentUser.getId());
+    }
 %>
 
 <title>Добавить сообщение</title>
@@ -104,6 +127,14 @@
 	if (request.getParameter("noinfo")==null || !"1".equals(request.getParameter("noinfo")))
 		out.print(tmpl.getObjectConfig().getStorage().readMessageDefault("addportal", String.valueOf(section), ""));
 %>
+<% if (preview && previewMsg!=null) { %>
+<h1>Предпросмотр</h1>
+<div class=messages>
+<%
+    out.print(previewMsg.printMessage(tmpl, db, false, Template.getNick(session), 0));
+%>
+</div>
+<% } %>
 <% if (error==null) { %>
 <h1>Добавить</h1>
 <% } else { out.println("<h1>Ошибка: "+error.getMessage()+"</h1>"); } %>
@@ -159,7 +190,7 @@
 <% if (group.isLinksAllowed() && group.isLinksUp()) { %>
 <input type=hidden name=linktext value="<%= group.getDefaultLinkText() %> ">
 Ссылка (не забудьте <b>http://</b>)
-<input type=text name=url size=70><br>
+<input type=text name=url size=70 value="<%= request.getParameter("url")==null?"":HTMLFormatter.htmlSpecialChars(request.getParameter("url")) %>"><br>
 <% } %>
 
 Сообщение:<br>
@@ -180,12 +211,12 @@
 <% if (!group.isLineOnly() || group.isPreformatAllowed()) {%>
 <select name=mode>
 <% if (!group.isLineOnly()) { %>
-<option value=tex>TeX paragraphs
-<option value=ntobr>User line break
+<option value=tex <%= (preview && mode.equals("tex"))?"selected":""%> >TeX paragraphs
+<option value=ntobr <%= (preview && mode.equals("ntobr"))?"selected":""%> >User line break
 <% } %>
-<option value=html>Ignore line breaks
+<option value=html <%= (preview && mode.equals("html"))?"selected":""%> >Ignore line breaks
 <% if (group.isPreformatAllowed()) { %>
-<option value=pre>Preformatted text
+<option value=pre <%= (preview && mode.equals("pre"))?"selected":""%> >Preformatted text
 <% } %>
 <% } else { %>
 <input type=hidden name=mode value=html>
@@ -194,14 +225,14 @@
 </select>
 
 <select name=autourl>
-<option value=1>Auto URL
-<option value=0>No Auto URL
+<option value=1 <%= (preview && autourl)?"selected":""%> >Auto URL
+<option value=0 <%= (preview && !autourl)?"selected":""%> >No Auto URL
 </select>
 
 <% if (!group.isLineOnly()) { %>
 <select name=texttype>
-<option value=0>Plain text
-<option value=1>HTML (limited)
+<option value=0 <%= (preview && !texttype)?"selected":""%> >Plain text
+<option value=1 <%= (preview && texttype)?"selected":""%> >HTML (limited)
 </select>
 <% } else { %>
 <input type=hidden name=texttype value=0>
@@ -214,8 +245,10 @@
 %>
 
 <br>
-<input type=submit value="Post/Поместить">
-
+<input type=submit value="Поместить">
+<% if (!group.isImagePostAllowed()) { %>
+<input type=submit name=preview value="Предпросмотр">
+<% } %>
 </form>
 <%}
   } finally {

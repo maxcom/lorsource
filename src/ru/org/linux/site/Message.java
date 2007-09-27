@@ -86,6 +86,65 @@ public class Message {
     }
   }
 
+  public Message(Connection db, int guid,String title, String msg,String mode,boolean autourl,boolean texttype,String linktext,String url,int userid)
+      throws BadInputException, SQLException, UtilException, BadGroupException, RuntimeException {
+    msgid = 0;
+    postscore = 0;
+    votepoll = false;
+    sticky = false;
+    this.linktext = linktext == null ? "" : HTMLFormatter.htmlSpecialChars(linktext);
+    this.url = url == null ? "" : HTMLFormatter.htmlSpecialChars(url);
+    this.title = HTMLFormatter.htmlSpecialChars(title);
+    this.userid = userid;
+    this.guid = guid;
+    deleted = false;
+    expired = false;
+    commitby = 0;
+    havelink = url.length() > 0 && linktext.length() > 0;
+    postdate = new Timestamp(0);
+    commitDate = null;
+    groupTitle = "";
+    lastModified = new Timestamp(0);
+    sectionid = 0;
+    comment = false;
+    commentCount = 0;
+    moderate = true;
+    Group group = new Group(db, guid);
+    HTMLFormatter form = new HTMLFormatter(msg);
+    int maxlength = 80;
+    if (group.getSectionId() == 1) {
+      maxlength = 40;
+    }
+    form.setMaxLength(maxlength);
+    if ("pre".equals(mode)) {
+      form.enablePreformatMode();
+    }
+    if (autourl) {
+      form.enableUrlHighLightMode();
+    }
+    if ("ntobr".equals(mode)) {
+      form.enableNewLineMode();
+    }
+    if ("tex".equals(mode)) {
+      form.enableTexNewLineMode();
+    }
+    if (!texttype) {
+      form.enablePlainTextMode();
+    } else {
+      form.enableCheckHTML();
+    }
+    try {
+      message = form.process();
+    } catch (UtilBadHTMLException e) {
+      throw new BadInputException(e);
+    }
+    try {
+      section = new Section(db, sectionid);
+    } catch (BadSectionException ex) {
+      throw new RuntimeException(ex);
+    }
+  }
+
   public boolean isExpired() {
     return expired;
   }
