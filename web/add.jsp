@@ -9,7 +9,6 @@
 <%
   Connection db = null;
   try {
-
     boolean showform = request.getMethod().equals("GET");
     boolean preview = request.getParameter("preview") != null;
     Exception error = null;
