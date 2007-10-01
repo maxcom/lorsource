@@ -9,6 +9,9 @@
       <include name="jcaptcha-all-1.0-RC3.jar"/>
       <include name="java_memcached-1.6maxcom.jar"/>
       <include name="dnsjava-2.0.3.jar"/>
+      <include name="commons-fileupload-1.2.jar"/>
+      <include name="commons-io-1.3.2.jar"/>
+      <include name="simplecaptcha-20050925.jar"/>
     </fileset>
   </path>
 

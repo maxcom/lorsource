@@ -1,51 +1,49 @@
 <%@ page contentType="text/html; charset=koi8-r"%>
 <%@ page contentType="text/html; charset=koi8-r" import="java.sql.Connection,java.util.Random" errorPage="/error.jsp"%>
-<%@ page import="java.util.logging.Logger"%>
 <%@ page import="ru.org.linux.site.*"%>
 <%@ page import="ru.org.linux.util.HTMLFormatter"%>
-<%@ page import="ru.org.linux.util.UtilBadURLException" %>
+<%@ page import="ru.org.linux.util.UtilBadURLException"%>
 <% Template tmpl = new Template(request, config, response);%>
 <%= tmpl.head() %>
 <%
   Connection db = null;
+  Message previewMsg = null;
+
   try {
+
     boolean showform = request.getMethod().equals("GET");
-    boolean preview = request.getParameter("preview") != null;
+    boolean preview = false;
     Exception error = null;
 
-    if (request.getMethod().equals("POST") && !preview) {
-      try {
-        String returnUrl = request.getParameter("return");
-        if (returnUrl == null) {
-          returnUrl = "";
-        }
+    if (request.getMethod().equals("POST")) {
 
-        if (!session.getId().equals(request.getParameter("session"))) {
-          Logger.getLogger("ru.org.linux").info("Flood protection (session variable differs) " + request.getRemoteAddr());
-          throw new BadInputException("сбой добавления");
-        }
+      try {	  
 
-        if (!Template.isSessionAuthorized(session)) {
-          CaptchaSingleton.checkCaptcha(session, request);
-        }
+		preview = true;
 
         db = tmpl.getConnection("add");
-        db.setAutoCommit(false);
+        db.setAutoCommit(false);	  
 
-        IPBlockInfo.checkBlockIP(db, request.getRemoteAddr());
+		previewMsg = new Message(db,tmpl,session,request);
+	  
+        String returnUrl = (String)request.getAttribute("return");
+		preview = previewMsg.isPreview();
 
-        int guid = tmpl.getParameters().getInt("group");
+		if (!preview) {
+		  
+      	  int msgid = previewMsg.addTopicFromPreview(db,tmpl,session,request);
 
-        Group group = new Group(db, guid);
+		  Group group = new Group(db, previewMsg.getGroupId());
 
-        Message.addTopic(db, tmpl, session, request, group);
+      	  Random random = new Random();
 
-        Random random = new Random();
-
-        if (!group.isModerated()) {
-          response.setHeader("Location", tmpl.getMainUrl() + returnUrl + "&nocache=" + random.nextInt());
-          response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
-        }
+      	  if (!group.isModerated()) {
+			if (returnUrl==null || "".equals(returnUrl)) {
+			  returnUrl = "jump-message.jsp?msgid="+msgid;
+			}
+        	response.setHeader("Location", tmpl.getMainUrl() + returnUrl + "&nocache=" + random.nextInt());
+        	response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
+      	  }
 %>
 <title>Добавление сообщения прошло успешно</title>
 <%= tmpl.DocumentHeader() %>
@@ -61,6 +59,9 @@
 
 <p><b>Пожалуйста, не нажимайте кнопку "ReLoad" вашего броузера на этой страничке и не возвращайтесь на нее по средством кнопки Back</b>
 <%
+	  } else {
+		showform = true;
+	  }
     } catch (UserErrorException e) {
       error=e;
       showform=true;
@@ -86,11 +87,17 @@
   }
 
   if (showform || preview) {
-    int groupId = tmpl.getParameters().getInt("group");
-    Message previewMsg = null;
+
+	if (!preview && previewMsg==null) { 
+	  try { 
+		previewMsg = new Message(db,tmpl,session,request);
+	  } catch (MessageNotFoundException e) { }
+	}
+
+    Integer groupId = (Integer)request.getAttribute("group");
 
     db = tmpl.getConnection("add");
-    Group group = new Group(db, groupId);
+    Group group = new Group(db, groupId.intValue());
 
     User currentUser = User.getCurrentUser(db, session);
 
@@ -98,32 +105,16 @@
       throw new AccessViolationException("Не достаточно прав для постинга тем в эту группу");
     }
 
-    String mode = "";
-    boolean texttype = false;
-    boolean autourl = true;
+    String mode = (String)request.getAttribute("mode");
+    boolean texttype = "1".equals(request.getAttribute("texttype"));
+    boolean autourl = "1".equals(request.getAttribute("autourl"));
 
-    if (preview) {
-      mode = tmpl.getParameters().getString("mode");
-      autourl = tmpl.getParameters().getBoolean("autourl");
-      texttype = tmpl.getParameters().getBoolean("texttype");
-      String title = tmpl.getParameters().getString("title");
-      String msg = tmpl.getParameters().getString("msg");
-      String linktext = "";
-      String url = "";
-
-      try {
-        linktext = tmpl.getParameters().getString("linktext");
-        url = tmpl.getParameters().getString("url");
-      } catch(Exception e) { }
-
-      previewMsg = new Message(db,groupId,title,msg,mode,autourl,texttype,linktext,url,currentUser.getId());
-    }
 %>
 
 <title>Добавить сообщение</title>
 <%= tmpl.DocumentHeader() %>
 <%	int section=group.getSectionId();
-	if (request.getParameter("noinfo")==null || !"1".equals(request.getParameter("noinfo")))
+	if (request.getAttribute("noinfo")==null || !"1".equals(request.getAttribute("noinfo")))
 		out.print(tmpl.getObjectConfig().getStorage().readMessageDefault("addportal", String.valueOf(section), ""));
 %>
 <% if (preview && previewMsg!=null) { %>
@@ -161,25 +152,25 @@
 <%   } %>
 <form method=POST action="add.jsp" <%= group.isImagePostAllowed()?"enctype=\"multipart/form-data\"":"" %> >
   <input type="hidden" name="session" value="<%= HTMLFormatter.htmlSpecialChars(session.getId()) %>">
-<%  if (request.getParameter("noinfo")!=null) {
+<%  if (request.getAttribute("noinfo")!=null) {
   %>
-  <input type="hidden" name="noinfo" value="<%= request.getParameter("noinfo") %>">
+  <input type="hidden" name="noinfo" value="<%= request.getAttribute("noinfo") %>">
  <% }
 %>
 <% if (session==null || session.getValue("login")==null || !((Boolean) session.getValue("login")).booleanValue()) { %>
 Имя:
-<input type=text name=nick value="<%= request.getParameter("nick")==null?"anonymous":HTMLFormatter.htmlSpecialChars(request.getParameter("nick")) %>" size=40><br>
+<input type=text name=nick value="<%= request.getAttribute("nick")==null?"anonymous":HTMLFormatter.htmlSpecialChars((String)request.getAttribute("nick")) %>" size=40><br>
 Пароль:
 <input type=password name=password size=40><br>
 <% } %>
 <input type=hidden name=group value="<%= groupId %>">
 
-<% if (request.getParameter("return")!=null) { %>
-<input type=hidden name=return value="<%= HTMLFormatter.htmlSpecialChars(request.getParameter("return")) %>">
+<% if (request.getAttribute("return")!=null) { %>
+<input type=hidden name=return value="<%= HTMLFormatter.htmlSpecialChars((String)request.getAttribute("return")) %>">
 <% } %>
 
 Заглавие:
-<input type=text name=title size=40 value="<%= request.getParameter("title")==null?"":HTMLFormatter.htmlSpecialChars(request.getParameter("title")) %>" ><br>
+<input type=text name=title size=40 value="<%= request.getAttribute("title")==null?"":HTMLFormatter.htmlSpecialChars((String)request.getAttribute("title")) %>" ><br>
 
   <% if (group.isImagePostAllowed()) { %>
   Изображение:
@@ -189,22 +180,22 @@
 <% if (group.isLinksAllowed() && group.isLinksUp()) { %>
 <input type=hidden name=linktext value="<%= group.getDefaultLinkText() %> ">
 Ссылка (не забудьте <b>http://</b>)
-<input type=text name=url size=70 value="<%= request.getParameter("url")==null?"":HTMLFormatter.htmlSpecialChars(request.getParameter("url")) %>"><br>
+<input type=text name=url size=70 value="<%= request.getAttribute("url")==null?"":HTMLFormatter.htmlSpecialChars((String)request.getAttribute("url")) %>"><br>
 <% } %>
 
 Сообщение:<br>
 <font size=2>(В режиме <i>Tex paragraphs</i> игнорируются переносы строк.<br> Пустая строка (два раза Enter) начинает новый абзац)</font><br>
 <textarea name=msg cols=70 rows=20><%
-    if (request.getParameter("msg")!=null) {
-      out.print(HTMLFormatter.htmlSpecialChars(request.getParameter("msg")));
+    if (request.getAttribute("msg")!=null) {
+      out.print(HTMLFormatter.htmlSpecialChars((String)request.getAttribute("msg")));
     }
   %></textarea><br>
 
 <% if (group.isLinksAllowed() && !group.isLinksUp()) { %>
 Текст ссылки:
-<input type=text name=linktext size=60 value="<%= request.getParameter("linktext")==null?group.getDefaultLinkText():HTMLFormatter.htmlSpecialChars(request.getParameter("linktext")) %>"><br>
+<input type=text name=linktext size=60 value="<%= request.getAttribute("linktext")==null?group.getDefaultLinkText():HTMLFormatter.htmlSpecialChars((String)request.getAttribute("linktext")) %>"><br>
 Ссылка (не забудьте <b>http://</b>)
-<input type=text name=url size=70 value="<%= request.getParameter("url")==null?"":HTMLFormatter.htmlSpecialChars(request.getParameter("url")) %>"><br>
+<input type=text name=url size=70 value="<%= request.getAttribute("url")==null?"":HTMLFormatter.htmlSpecialChars((String)request.getAttribute("url")) %>"><br>
 <% } %>
 
 <% if (!group.isLineOnly() || group.isPreformatAllowed()) {%>
@@ -239,15 +230,12 @@
 
 <%
   if (!Template.isSessionAuthorized(session)) {
-    out.print("<p><img src=\"/jcaptcha.jsp\"><input type='text' name='j_captcha_response' value=''>");
+    out.print("<p><img src=\"/Captcha.jsp\"><input type='text' name='j_captcha_response' value=''>");
   }
 %>
-
 <br>
 <input type=submit value="Поместить">
-<% if (!group.isImagePostAllowed()) { %>
 <input type=submit name=preview value="Предпросмотр">
-<% } %>
 </form>
 <%}
   } finally {

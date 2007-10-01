@@ -1,11 +1,22 @@
 package ru.org.linux.site;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.UnknownHostException;
 import java.sql.*;
+import java.util.Iterator;
+import java.util.List;
 import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import nl.captcha.servlet.Constants;
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.FileUploadException;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.xbill.DNS.TextParseException;
 
 import ru.org.linux.util.*;
 
@@ -16,6 +27,7 @@ public class Message {
   private int postscore;
   private boolean votepoll;
   private boolean sticky;
+  private boolean preview;
   private String linktext;
   private String url;
   private String title;
@@ -53,6 +65,7 @@ public class Message {
     );
     if (!rs.next()) throw new MessageNotFoundException(msgid);
 
+    preview =false;
     this.msgid=rs.getInt("msgid");
     postscore =rs.getInt("postscore");
     votepoll=rs.getBoolean("vote");
@@ -86,36 +99,254 @@ public class Message {
     }
   }
 
-  public Message(Connection db, int guid,String title, String msg,String mode,boolean autourl,boolean texttype,String linktext,String url,int userid)
-      throws BadInputException, SQLException, UtilException, BadGroupException, RuntimeException {
+  public Message(Connection db, Template tmpl, HttpSession session, HttpServletRequest request)
+   throws BadInputException, SQLException, UtilException, BadGroupException, RuntimeException, MessageNotFoundException, ServletParameterException, 
+  		  UserNotFoundException, BadPasswordException, AccessViolationException, UnknownHostException, TextParseException, FileUploadException, Exception {
+	// Init fields
+	String linktext = null;
+	String url = null;
+	String mode = "";
+	boolean autourl = true;
+	boolean texttype = false;
+	String j_captcha_response = "";
+	String image = "";
+	String nick = null;
+	String password = null;
+	String noinfo = null;
+	String sessionId = null;
+	String returnUrl = null;
+	String title = null;
+	String msg = null;
+	int guid = 0;
+	boolean preview  ;
+	
+	// Check that we have a file upload request
+	if (!ServletFileUpload.isMultipartContent(request) || request.getParameter("group") != null) {
+	  // Load fields from request
+	  noinfo = request.getParameter("noinfo");
+	  sessionId = request.getParameter("session");
+	  preview = request.getParameter("preview") != null;
+	  if (!request.getMethod().equals("GET")) {
+		j_captcha_response = request.getParameter("j_captcha_response");
+		nick = request.getParameter("nick");
+		password = request.getParameter("password");
+		mode = request.getParameter("mode");
+		autourl = "1".equals(request.getParameter("autourl"));
+		texttype = "1".equals(request.getParameter("texttype"));
+		title = request.getParameter("title");
+		msg = request.getParameter("msg");
+	  }
+	  try {
+		guid = request.getParameter("group") != null ? Integer.parseInt(request.getParameter("group")): 0;
+	  } catch (NumberFormatException e) { }
+	  try {
+		linktext = request.getParameter("linktext");
+		url = request.getParameter("url");
+	  } catch (Exception e) { }
+	  try {
+		returnUrl = request.getParameter("return");
+	  } catch (Exception e) { }
+		image = request.getParameter("image");
+	} else {
+	  // Load fields from multipart request
+	  File rep = new File(tmpl.getObjectConfig().getPathPrefix()+"/linux-storage/tmp/");
+	  // Create a factory for disk-based file items
+	  DiskFileItemFactory factory = new DiskFileItemFactory();
+	  // Set factory constraints
+	  factory.setSizeThreshold(500000);
+	  factory.setRepository(rep);
+	  // Create a new file upload handler
+	  ServletFileUpload upload = new ServletFileUpload(factory);
+	  // Set overall request size constraint
+	  upload.setSizeMax(600000);
+	  // Parse the request
+	  List items = upload.parseRequest(request);
+	  // Process the uploaded items
+	  Iterator iter = items.iterator();
+	  // Defaults
+	  preview = false;
+	  while (iter.hasNext()) {
+		FileItem item = (FileItem) iter.next();
+		if (item.isFormField()) {
+		  String name = item.getFieldName();
+		  String value = item.getString();
+		  //System.out.println("\nField: "+name+" => "+value);
+		  if (name.compareToIgnoreCase("j_captcha_response")==0) {
+        	j_captcha_response = value;
+		  } else if (name.compareToIgnoreCase("noinfo")==0) {
+        	noinfo = value;
+          } else if (name.compareToIgnoreCase("session")==0) {
+        	sessionId = value;
+          } else if (name.compareToIgnoreCase("preview")==0) {
+        	preview = (!(value == null || "".equals(value)));
+          } else if (name.compareToIgnoreCase("nick")==0) {
+            nick = value;
+          } else if (name.compareToIgnoreCase("password")==0) {
+            password = value;
+          } else if (name.compareToIgnoreCase("mode")==0) {
+            mode = value;
+          } else if (name.compareToIgnoreCase("autourl")==0) {
+        	autourl = Boolean.parseBoolean(value);
+          } else if (name.compareToIgnoreCase("textype")==0) {
+        	texttype = Boolean.parseBoolean(value);
+          } else if (name.compareToIgnoreCase("title")==0) {
+            title = value;
+          } else if (name.compareToIgnoreCase("msg")==0) {
+            msg = value;
+          } else if (name.compareToIgnoreCase("group")==0) {
+        	guid = Integer.parseInt(value);
+          } else if (name.compareToIgnoreCase("linktext")==0) {
+            linktext = value;
+          } else if (name.compareToIgnoreCase("url")==0) {
+            url = value;
+          } else if (name.compareToIgnoreCase("return")==0) {
+            returnUrl = value;
+          }
+		} else {
+          String fieldName = item.getFieldName();
+          String fileName = item.getName();
+          //System.out.print("\nFile: "+fieldName+" => "+fileName);
+          if (fieldName.compareToIgnoreCase("image")==0 && fileName!=null && !"".equals(fileName)) {
+        	image = tmpl.getObjectConfig().getPathPrefix()+"/linux-storage/tmp/"+fileName;
+            File uploadedFile = new File(image);
+			if (uploadedFile!=null && (uploadedFile.canWrite() || uploadedFile.createNewFile())) {
+          	  item.write(uploadedFile);
+			} else {
+			  Logger.getLogger("ru.org.linux").info("Bad target file name: "+image);
+			}
+          } else {
+			Logger.getLogger("ru.org.linux").info("Bad source file name: "+fileName); 
+		  }
+        }
+	  }
+	}
+	
+	// Save fields as request attributes
+	this.preview = preview;
+	request.setAttribute("j_captcha_response",j_captcha_response);
+	request.setAttribute("image",image);
+	request.setAttribute("session",sessionId);
+	request.setAttribute("preview",preview);
+	request.setAttribute("mode",mode);
+	request.setAttribute("autourl",autourl);
+	request.setAttribute("texttype",texttype);
+	request.setAttribute("title",title);
+	request.setAttribute("msg",msg);
+	request.setAttribute("group",guid);
+	request.setAttribute("linktext",linktext);
+	request.setAttribute("url",url);
+	request.setAttribute("return",returnUrl);
+	request.setAttribute("noinfo",noinfo);
+	request.setAttribute("nick",nick);
+	request.setAttribute("password",password);
+	// If we under get
+	if (request.getMethod().equals("GET")) {
+	  throw new MessageNotFoundException(0);
+	}
+	
+	// Posting checks...
+	if (!preview) {
+	  // Flood protection
+	  if (!session.getId().equals(sessionId)) {
+		Logger.getLogger("ru.org.linux").info("Flood protection (session variable differs) " + request.getRemoteAddr());
+		Logger.getLogger("ru.org.linux").info("Flood protection (session variable differs) " + session.getId() + " != " + sessionId);
+		throw new BadInputException("сбой добавления");
+	  }
+	  // Captch
+	  if (!Template.isSessionAuthorized(session)) {
+		//CaptchaSingleton.checkCaptcha(session, request);
+		if (j_captcha_response==null || "".equals(j_captcha_response) || !j_captcha_response.equals(session.getAttribute(Constants.SIMPLE_CAPCHA_SESSION_KEY))) {
+		  throw new BadInputException("сбой добавления: введен неверный код проверки");
+		}
+	  }
+	  // Blocked IP
+	  IPBlockInfo.checkBlockIP(db, request.getRemoteAddr());
+	}
+	
+	if (guid<1) {
+	  throw new BadInputException("Bad group id");
+	}
+	Group group = new Group(db, guid);
+	// url check
+    if (!group.isImagePostAllowed()) {
+      if (url != null && !"".equals(url)) {
+        if (linktext == null) {
+		  if (!preview) {
+        	throw new BadInputException("указан URL без текста");
+		  }
+        }
+        url = URLUtil.fixURL(url);
+      }
+    }
+	// Setting Message fields
+    this.linktext = linktext == null ? "" : HTMLFormatter.htmlSpecialChars(linktext);
+    this.url = url == null ? "" : HTMLFormatter.htmlSpecialChars(url);
+    this.title = title == null ? "" : HTMLFormatter.htmlSpecialChars(title);
+    this.guid = guid;
+    havelink = url != null && linktext!=null && url.length() > 0 && linktext.length() > 0;
+    sectionid = group.getSectionId();
+	// Defaults
     msgid = 0;
     postscore = 0;
     votepoll = false;
     sticky = false;
-    this.linktext = linktext == null ? "" : HTMLFormatter.htmlSpecialChars(linktext);
-    this.url = url == null ? "" : HTMLFormatter.htmlSpecialChars(url);
-    this.title = HTMLFormatter.htmlSpecialChars(title);
-    this.userid = userid;
-    this.guid = guid;
     deleted = false;
     expired = false;
     commitby = 0;
-    havelink = url.length() > 0 && linktext.length() > 0;
     postdate = new Timestamp(0);
     commitDate = null;
     groupTitle = "";
     lastModified = new Timestamp(0);
-    sectionid = 0;
     comment = false;
     commentCount = 0;
-    moderate = true;
-    Group group = new Group(db, guid);
+    moderate = false;
+	// Checks TODO: checks for anonymous
+    User user;
+
+    if (!Template.isSessionAuthorized(session))     {
+      if (nick == null) {
+        throw new BadInputException("Вы уже вышли из системы");
+      }
+      user = User.getUser(db, nick);
+      user.checkPassword(password);
+    } else {
+      user = User.getUser(db, (String) session.getAttribute("nick"));
+      user.checkBlocked();
+    }
+
+    if (user.isAnonymous()) {
+      if (msg.length() > 4096) {
+        throw new BadInputException("Слишком большое сообщение");
+      }
+    } else {
+      if (msg.length() > 8192) {
+        throw new BadInputException("Слишком большое сообщение");
+      }
+    }
+    userid = user.getId();
+
+    if (!group.isTopicPostingAllowed(user)) {
+      throw new AccessViolationException("Не достаточно прав для постинга тем в эту группу");
+    }
+
+	// Format message
     HTMLFormatter form = new HTMLFormatter(msg);
     int maxlength = 80;
     if (group.getSectionId() == 1) {
       maxlength = 40;
     }
     form.setMaxLength(maxlength);
+
+    if ("pre".equals(mode) && !group.isPreformatAllowed()) {
+      throw new AccessViolationException("В группу нельзя добавлять преформатированные сообщения");
+    }
+    if (("ntobr".equals(mode) || "tex".equals(mode) || "quot".equals(mode)) && group.isLineOnly()) {
+      throw new AccessViolationException("В группу нельзя добавлять сообщения с переносом строк");
+    }
+    if (texttype && group.isLineOnly()) {
+      throw new AccessViolationException("В группу нельзя добавлять сообщения с переносом строк");
+    }
+
     if ("pre".equals(mode)) {
       form.enablePreformatMode();
     }
@@ -225,7 +456,9 @@ public class Message {
         out.append("<a href=\"/").append(url).append("\"><img src=\"/").append(linktext).append("\" ALT=\"").append(title).append("\" ").append(info.getCode()).append(" ></a>");
       } catch (BadImageException e) {
         out.append("<a href=\"/").append(url).append("\">[bad image]</a>");
-      }
+      } catch (FileNotFoundException e) {
+		out.append("<a href=\"/").append(url).append("\">[bad image]</a>");
+	  }
 
       out.append("</td><td valign=top>");
     }
@@ -277,7 +510,9 @@ public class Message {
         out.append("<p>&gt;&gt;&gt; <a href=\"/").append(url).append("\">Просмотр</a>.");
       } catch (BadImageException e) {
         out.append("<p>&gt;&gt;&gt; <a href=\"/").append(url).append("\">[BROKEN IMAGE!] Просмотр</a>.");
-      }
+      } catch (FileNotFoundException e) {
+        out.append("<p>&gt;&gt;&gt; <a href=\"/").append(url).append("\">[BROKEN IMAGE!] Просмотр</a>.");	  
+	  }
     }
 
     out.append("<p>");
@@ -460,7 +695,11 @@ public class Message {
   public boolean isSticky() {
 	return sticky;
   }
-  
+
+  public boolean isPreview() {
+	return preview;
+  }
+
   public void updateMessageText(Connection db, String text) throws SQLException {
 
     PreparedStatement pst = db.prepareStatement("UPDATE msgbase SET message=? WHERE id=?");
@@ -626,6 +865,91 @@ public class Message {
     PreparedStatement pstMsgbase = db.prepareStatement("INSERT INTO msgbase (id, message) values (?,?)");
     pstMsgbase.setLong(1, msgid);
     pstMsgbase.setString(2, msg);
+    pstMsgbase.executeUpdate();
+    pstMsgbase.close();
+
+    String logmessage = "Написана тема " + msgid + " " + LorHttpUtils.getRequestIP(request);
+    logger.info(logmessage);
+
+    db.commit();
+
+    rs.close();
+    st.close();
+    
+    return msgid;
+  }
+
+  public int addTopicFromPreview(Connection db, Template tmpl, HttpSession session, HttpServletRequest request) throws SQLException, UserNotFoundException,  UtilException, IOException, BadImageException, InterruptedException, BadInputException, BadPasswordException, AccessViolationException, DuplicationException, BadGroupException {
+    if ("".equals(title.trim())) {
+      throw new BadInputException("заголовок сообщения не может быть пустым");
+    }
+
+    ScreenshotProcessor screenshot = null;
+
+	Group group = new Group(db, guid);
+	
+    if (group.isImagePostAllowed()) {
+      screenshot = new ScreenshotProcessor((String)request.getAttribute("image"));
+    }
+
+    User user;
+
+    if (!Template.isSessionAuthorized(session))     {
+      if (request.getAttribute("nick") == null) {
+        throw new BadInputException("Вы уже вышли из системы");
+      }
+      user = User.getUser(db, (String)request.getAttribute("nick"));
+      user.checkPassword((String)request.getAttribute("password"));
+    } else {
+      user = User.getUser(db, (String) session.getAttribute("nick"));
+      user.checkBlocked();
+    }
+
+    if (user.isAnonymous()) {
+      if (message.length() > 4096) {
+        throw new BadInputException("Слишком большое сообщение");
+      }
+    } else {
+      if (message.length() > 8192) {
+        throw new BadInputException("Слишком большое сообщение");
+      }
+    }
+
+    Statement st = db.createStatement();
+
+    if (!group.isTopicPostingAllowed(user)) {
+      throw new AccessViolationException("Не достаточно прав для постинга тем в эту группу");
+    }
+
+    DupeProtector.getInstance().checkDuplication(request.getRemoteAddr());
+
+    // allocation MSGID
+    ResultSet rs = st.executeQuery("select nextval('s_msgid') as msgid");
+    rs.next();
+    int msgid = rs.getInt("msgid");
+
+    if (group.isImagePostAllowed()) {
+      screenshot.copyScreenshot(tmpl, msgid);
+
+      url = "gallery/" + screenshot.getMainFile().getName();
+      linktext = "gallery/" + screenshot.getIconFile().getName();
+    }
+
+    PreparedStatement pst = db.prepareStatement("INSERT INTO topics (postip, groupid, userid, title, url, moderate, postdate, id, linktext, deleted) VALUES ('" + request.getRemoteAddr() + "',?, ?, ?, ?, 'f', CURRENT_TIMESTAMP, ?, ?, 'f')");
+//                pst.setString(1, request.getRemoteAddr());
+    pst.setInt(1, group.getId());
+    pst.setInt(2, user.getId());
+    pst.setString(3, title);
+    pst.setString(4, url);
+    pst.setInt(5, msgid);
+    pst.setString(6, linktext);
+    pst.executeUpdate();
+    pst.close();
+
+    // insert message text
+    PreparedStatement pstMsgbase = db.prepareStatement("INSERT INTO msgbase (id, message) values (?,?)");
+    pstMsgbase.setLong(1, msgid);
+    pstMsgbase.setString(2, message);
     pstMsgbase.executeUpdate();
     pstMsgbase.close();
 

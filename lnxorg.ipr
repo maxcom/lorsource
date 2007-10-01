@@ -435,6 +435,13 @@
       <JAVADOC />
       <SOURCES />
     </library>
+    <library name="simplecaptcha-20050925">
+      <CLASSES>
+        <root url="jar://$PROJECT_DIR$/lib/simplecaptcha-20050925.jar!/" />
+      </CLASSES>
+      <JAVADOC />
+      <SOURCES />
+    </library>
   </component>
   <component name="uidesigner-configuration">
     <option name="INSTRUMENT_CLASSES" value="true" />
