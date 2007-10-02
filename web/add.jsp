@@ -106,8 +106,8 @@
     }
 
     String mode = (String)request.getAttribute("mode");
-    boolean texttype = "1".equals(request.getAttribute("texttype"));
-    boolean autourl = "1".equals(request.getAttribute("autourl"));
+    boolean texttype = "1".equals(request.getAttribute("texttype"))?true:false;
+    boolean autourl = "1".equals(request.getAttribute("autourl"))?true:false;
 
 %>
 
@@ -230,7 +230,7 @@
 
 <%
   if (!Template.isSessionAuthorized(session)) {
-    out.print("<p><img src=\"/Captcha.jsp\"><input type='text' name='j_captcha_response' value=''>");
+    out.print("<p><img src=\"/jcaptcha.jsp\"><input type='text' name='j_captcha_response' value=''>");
   }
 %>
 <br>

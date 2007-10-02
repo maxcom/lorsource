@@ -15,17 +15,6 @@
         </init-param>
   </servlet-mapping>
 
-  <servlet>
-    <servlet-name>Captcha</servlet-name>
-    <display-name>Captcha</display-name>
-    <servlet-class>nl.captcha.servlet.CaptchaServlet</servlet-class>
-  </servlet>
-
-  <servlet-mapping>
-    <servlet-name>Captcha</servlet-name>
-    <url-pattern>/Captcha.jsp</url-pattern>
-  </servlet-mapping>
-
   <multipart-form upload-max="500K"/>
 
    <filter>

@@ -24,7 +24,9 @@ public class CaptchaSingleton {
   public static void checkCaptcha(HttpSession session, HttpServletRequest request) throws BadInputException {
     String captchaId = session.getId();
     String captchaResponse = request.getParameter("j_captcha_response");
-
+	if (request.getAttribute("j_captcha_response")!=null && !"".equals(request.getAttribute("j_captcha_response"))) {
+	  captchaResponse = (String)request.getAttribute("j_captcha_response");
+	}
     try {
       if (!CaptchaSingleton.getInstance().validateResponseForID(captchaId, captchaResponse)) {
         String logmessage = "Captcha: сбой проверки response='" + captchaResponse + "' " + LorHttpUtils.getRequestIP(request);

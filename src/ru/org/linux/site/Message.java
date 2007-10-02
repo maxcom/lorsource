@@ -1,17 +1,13 @@
 package ru.org.linux.site;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.sql.*;
-import java.util.Iterator;
-import java.util.List;
 import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import nl.captcha.servlet.Constants;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
@@ -65,7 +61,7 @@ public class Message {
     );
     if (!rs.next()) throw new MessageNotFoundException(msgid);
 
-    preview =false;
+	this.preview=false;
     this.msgid=rs.getInt("msgid");
     postscore =rs.getInt("postscore");
     votepoll=rs.getBoolean("vote");
@@ -118,21 +114,21 @@ public class Message {
 	String title = null;
 	String msg = null;
 	int guid = 0;
-	boolean preview  ;
+	boolean preview = true;
 	
 	// Check that we have a file upload request
 	if (!ServletFileUpload.isMultipartContent(request) || request.getParameter("group") != null) {
 	  // Load fields from request
 	  noinfo = request.getParameter("noinfo");
 	  sessionId = request.getParameter("session");
-	  preview = request.getParameter("preview") != null;
+	  preview = request.getParameter("preview") != null ? true : false;
 	  if (!request.getMethod().equals("GET")) {
 		j_captcha_response = request.getParameter("j_captcha_response");
 		nick = request.getParameter("nick");
 		password = request.getParameter("password");
 		mode = request.getParameter("mode");
-		autourl = "1".equals(request.getParameter("autourl"));
-		texttype = "1".equals(request.getParameter("texttype"));
+		autourl = "1".equals(request.getParameter("autourl")) ? true : false;
+		texttype = "1".equals(request.getParameter("texttype")) ? true : false;
 		title = request.getParameter("title");
 		msg = request.getParameter("msg");
 	  }
@@ -149,7 +145,7 @@ public class Message {
 		image = request.getParameter("image");
 	} else {
 	  // Load fields from multipart request
-	  File rep = new File(tmpl.getObjectConfig().getPathPrefix()+"/linux-storage/tmp/");
+	  java.io.File rep = new java.io.File(tmpl.getObjectConfig().getPathPrefix()+"/linux-storage/tmp/");
 	  // Create a factory for disk-based file items
 	  DiskFileItemFactory factory = new DiskFileItemFactory();
 	  // Set factory constraints
@@ -160,9 +156,9 @@ public class Message {
 	  // Set overall request size constraint
 	  upload.setSizeMax(600000);
 	  // Parse the request
-	  List items = upload.parseRequest(request);
+	  java.util.List items = upload.parseRequest(request);
 	  // Process the uploaded items
-	  Iterator iter = items.iterator();
+	  java.util.Iterator iter = items.iterator();
 	  // Defaults
 	  preview = false;
 	  while (iter.hasNext()) {
@@ -178,7 +174,7 @@ public class Message {
           } else if (name.compareToIgnoreCase("session")==0) {
         	sessionId = value;
           } else if (name.compareToIgnoreCase("preview")==0) {
-        	preview = (!(value == null || "".equals(value)));
+        	preview = (value==null || "".equals(value)) ? false : true;
           } else if (name.compareToIgnoreCase("nick")==0) {
             nick = value;
           } else if (name.compareToIgnoreCase("password")==0) {
@@ -205,10 +201,13 @@ public class Message {
 		} else {
           String fieldName = item.getFieldName();
           String fileName = item.getName();
+          String contentType = item.getContentType();
+          boolean isInMemory = item.isInMemory();
+          long sizeInBytes = item.getSize();
           //System.out.print("\nFile: "+fieldName+" => "+fileName);
           if (fieldName.compareToIgnoreCase("image")==0 && fileName!=null && !"".equals(fileName)) {
         	image = tmpl.getObjectConfig().getPathPrefix()+"/linux-storage/tmp/"+fileName;
-            File uploadedFile = new File(image);
+            java.io.File uploadedFile = new java.io.File(image);
 			if (uploadedFile!=null && (uploadedFile.canWrite() || uploadedFile.createNewFile())) {
           	  item.write(uploadedFile);
 			} else {
@@ -254,10 +253,7 @@ public class Message {
 	  }
 	  // Captch
 	  if (!Template.isSessionAuthorized(session)) {
-		//CaptchaSingleton.checkCaptcha(session, request);
-		if (j_captcha_response==null || "".equals(j_captcha_response) || !j_captcha_response.equals(session.getAttribute(Constants.SIMPLE_CAPCHA_SESSION_KEY))) {
-		  throw new BadInputException("сбой добавления: введен неверный код проверки");
-		}
+		CaptchaSingleton.checkCaptcha(session, request);
 	  }
 	  // Blocked IP
 	  IPBlockInfo.checkBlockIP(db, request.getRemoteAddr());
@@ -283,8 +279,8 @@ public class Message {
     this.url = url == null ? "" : HTMLFormatter.htmlSpecialChars(url);
     this.title = title == null ? "" : HTMLFormatter.htmlSpecialChars(title);
     this.guid = guid;
-    havelink = url != null && linktext!=null && url.length() > 0 && linktext.length() > 0;
-    sectionid = group.getSectionId();
+    this.havelink = url != null && linktext!=null && url.length() > 0 && linktext.length() > 0;
+    this.sectionid = group.getSectionId();
 	// Defaults
     msgid = 0;
     postscore = 0;
@@ -323,7 +319,9 @@ public class Message {
         throw new BadInputException("Слишком большое сообщение");
       }
     }
-    userid = user.getId();
+    this.userid = user.getId();
+
+    Statement st = db.createStatement();
 
     if (!group.isTopicPostingAllowed(user)) {
       throw new AccessViolationException("Не достаточно прав для постинга тем в эту группу");
@@ -879,7 +877,7 @@ public class Message {
     return msgid;
   }
 
-  public int addTopicFromPreview(Connection db, Template tmpl, HttpSession session, HttpServletRequest request) throws SQLException, UserNotFoundException,  UtilException, IOException, BadImageException, InterruptedException, BadInputException, BadPasswordException, AccessViolationException, DuplicationException, BadGroupException {
+  public int addTopicFromPreview(Connection db, Template tmpl, HttpSession session, HttpServletRequest request) throws SQLException, UserNotFoundException, ServletParameterException, UtilException, IOException, BadImageException, InterruptedException, BadInputException, BadPasswordException, AccessViolationException, DuplicationException, BadGroupException {
     if ("".equals(title.trim())) {
       throw new BadInputException("заголовок сообщения не может быть пустым");
     }

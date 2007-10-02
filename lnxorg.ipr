@@ -435,9 +435,9 @@
       <JAVADOC />
       <SOURCES />
     </library>
-    <library name="simplecaptcha-20050925">
+    <library name="jcaptcha-all-1.0-RC6">
       <CLASSES>
-        <root url="jar://$PROJECT_DIR$/lib/simplecaptcha-20050925.jar!/" />
+        <root url="jar://$PROJECT_DIR$/lib/jcaptcha-all-1.0-RC6.jar!/" />
       </CLASSES>
       <JAVADOC />
       <SOURCES />
