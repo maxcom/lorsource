@@ -1,11 +1,12 @@
 <%@ page contentType="text/html; charset=koi8-r"%>
-<%@ page import="java.io.File,java.io.IOException, java.net.URLEncoder, java.sql.Connection" errorPage="/error.jsp"%>
+<%@ page import="java.io.File, java.io.IOException, java.io.FileNotFoundException, java.net.URLEncoder, java.sql.Connection" errorPage="/error.jsp"%>
 <%@ page import="java.sql.PreparedStatement" %>
 <%@ page import="java.util.Random" %>
 <%@ page import="java.util.logging.Logger" %>
 <%@ page import="ru.org.linux.site.*" %>
 <%@ page import="ru.org.linux.util.BadImageException" %>
 <%@ page import="ru.org.linux.util.ImageInfo" %>
+<%@ page import="org.apache.commons.fileupload.FileItem, org.apache.commons.fileupload.FileUploadException, org.apache.commons.fileupload.disk.DiskFileItemFactory, org.apache.commons.fileupload.servlet.ServletFileUpload" %>
 <% Template tmpl = new Template(request, config, response);
   Logger logger = Logger.getLogger("ru.org.linux");
 %>
@@ -47,7 +48,49 @@
     Connection db = null;
 
     try {
-      String filename = request.getParameter("file");
+      String filename = "";
+	  if (!ServletFileUpload.isMultipartContent(request) || request.getParameter("file") != null) {
+		filename = request.getParameter("file");
+	  } else {
+		// Load file from multipart request
+		java.io.File rep = new java.io.File(tmpl.getObjectConfig().getPathPrefix()+"/linux-storage/tmp/");
+		// Create a factory for disk-based file items
+		DiskFileItemFactory factory = new DiskFileItemFactory();
+		// Set factory constraints
+		factory.setSizeThreshold(500000);
+		factory.setRepository(rep); 
+		// Create a new file upload handler
+		ServletFileUpload upload = new ServletFileUpload(factory);
+		// Set overall request size constraint
+		upload.setSizeMax(600000);
+		// Parse the request
+		java.util.List items = upload.parseRequest(request);
+		// Process the uploaded items
+		java.util.Iterator iter = items.iterator();
+		while (iter.hasNext()) {
+		  FileItem item = (FileItem) iter.next();
+		  if (!item.isFormField()) {
+			String fieldName = item.getFieldName();
+			String fileName = item.getName();
+			String contentType = item.getContentType();
+			boolean isInMemory = item.isInMemory();
+			long sizeInBytes = item.getSize();
+			if (fieldName.compareToIgnoreCase("file")==0 && fileName!=null && !"".equals(fileName)) {
+			  filename = tmpl.getObjectConfig().getPathPrefix()+"/linux-storage/tmp/"+fileName;
+			  java.io.File uploadedFile = new java.io.File(filename);
+			  if (uploadedFile!=null && (uploadedFile.canWrite() || uploadedFile.createNewFile())) {
+				item.write(uploadedFile);
+			  } else {
+				throw new BadInputException("Ошибка сохранения");
+			  }
+			} else {
+			  throw new BadInputException("Ошибка загрузки");
+			}
+		  } else {
+			// Form field
+		  }
+		} // while
+	  }
       Userpic.checkUserpic(filename);
 
       db = tmpl.getConnection("addphoto");
