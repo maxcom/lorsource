@@ -241,8 +241,11 @@ public class Message {
 	// If we under get
 	if (request.getMethod().equals("GET")) {
 	  throw new MessageNotFoundException(0);
+	}	
+	if (guid<1) {
+	  throw new BadInputException("Bad group id");
 	}
-	
+	Group group = new Group(db, guid);
 	// Posting checks...
 	if (!preview) {
 	  // Flood protection
@@ -259,10 +262,31 @@ public class Message {
 	  IPBlockInfo.checkBlockIP(db, request.getRemoteAddr());
 	}
 	
-	if (guid<1) {
-	  throw new BadInputException("Bad group id");
+  	ScreenshotProcessor screenshot = null;
+	  
+	if (group.isImagePostAllowed()) {
+	  java.io.File uploadedFile = null;
+  	  if (image!=null && !"".equals(image)) {
+    	uploadedFile = new java.io.File(image);
+	  } else if (sessionId!=null && !"".equals(sessionId) && session.getAttribute("image")!=null && !"".equals(session.getAttribute("image"))) {
+		uploadedFile = new java.io.File((String)session.getAttribute("image"));
+	  }
+	  if (uploadedFile!=null && uploadedFile.isFile() && uploadedFile.canRead()) {
+		screenshot = new ScreenshotProcessor(uploadedFile.getAbsolutePath());
+		logger.info("SCREEN: "+uploadedFile.getAbsolutePath()+"\nINFO: SCREEN: "+image);
+    	if (image!=null && !"".equals("image")) {
+		  screenshot.copyScreenshot(tmpl, sessionId);
+		} else {
+		  image = uploadedFile.getAbsolutePath();
+		}
+    	url = "gallery/preview/" + screenshot.getMainFile().getName();
+    	linktext = "gallery/preview/" + screenshot.getIconFile().getName();
+		request.setAttribute("linktext",linktext);
+		request.setAttribute("url",url);
+		request.setAttribute("image",screenshot.getMainFile().getAbsolutePath());
+		session.setAttribute("image",screenshot.getMainFile().getAbsolutePath());
+	  }
 	}
-	Group group = new Group(db, guid);
 	// url check
     if (!group.isImagePostAllowed()) {
       if (url != null && !"".equals(url)) {
@@ -279,7 +303,7 @@ public class Message {
     this.url = url == null ? "" : HTMLFormatter.htmlSpecialChars(url);
     this.title = title == null ? "" : HTMLFormatter.htmlSpecialChars(title);
     this.guid = guid;
-    this.havelink = url != null && linktext!=null && url.length() > 0 && linktext.length() > 0;
+    this.havelink = url != null && linktext!=null && url.length() > 0 && linktext.length() > 0 && !group.isImagePostAllowed();
     this.sectionid = group.getSectionId();
 	// Defaults
     msgid = 0;
@@ -289,10 +313,10 @@ public class Message {
     deleted = false;
     expired = false;
     commitby = 0;
-    postdate = new Timestamp(0);
+    postdate = new Timestamp(System.currentTimeMillis());
     commitDate = null;
     groupTitle = "";
-    lastModified = new Timestamp(0);
+    lastModified = new Timestamp(System.currentTimeMillis());
     comment = false;
     commentCount = 0;
     moderate = false;

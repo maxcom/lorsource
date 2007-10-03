@@ -69,6 +69,33 @@ public class ScreenshotProcessor {
     }
   }
 
+  public void copyScreenshot(Template tmpl, String sessionId) throws IOException, UtilException, InterruptedException {
+    String mainname = sessionId + "." + extension;
+    String iconname = sessionId + "-icon" + "." + extension;
+
+    mainFile = new File(tmpl.getObjectConfig().getHTMLPathPrefix() + "/gallery/preview", mainname);
+    iconFile = new File(tmpl.getObjectConfig().getHTMLPathPrefix() + "/gallery/preview", iconname);
+
+    file.renameTo(mainFile);
+
+    boolean error = true;
+
+    try {
+      ImageInfo.resizeImage(mainFile.getAbsolutePath(), iconFile.getAbsolutePath());
+      error = false;
+    } finally {
+      if (error) {
+        if (mainFile.exists()) {
+          mainFile.delete();
+        }
+
+        if (iconFile.exists()) {
+          iconFile.delete();
+        }
+      }
+    }
+  }
+
   public File getMainFile() {
     return mainFile;
   }
