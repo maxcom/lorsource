@@ -69,7 +69,7 @@ public class Comment implements Serializable {
     this.topic=topic;
     this.replyto=replyto;
     deleted =false;
-    postdate =new Timestamp(0);
+    postdate =new Timestamp(System.currentTimeMillis());
     this.message=message;
     this.userid=userid;
     deleteInfo = null;
