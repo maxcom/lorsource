@@ -1,9 +1,12 @@
 package ru.org.linux.site;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.sql.*;
+import java.util.Iterator;
+import java.util.List;
 import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
@@ -61,7 +64,7 @@ public class Message {
     );
     if (!rs.next()) throw new MessageNotFoundException(msgid);
 
-	this.preview=false;
+    preview =false;
     this.msgid=rs.getInt("msgid");
     postscore =rs.getInt("postscore");
     votepoll=rs.getBoolean("vote");
@@ -96,216 +99,216 @@ public class Message {
   }
 
   public Message(Connection db, Template tmpl, HttpSession session, HttpServletRequest request)
-   throws BadInputException, SQLException, UtilException, BadGroupException, RuntimeException, MessageNotFoundException, ServletParameterException, 
-  		  UserNotFoundException, BadPasswordException, AccessViolationException, UnknownHostException, TextParseException, FileUploadException, Exception {
-	// Init fields
-	String linktext = null;
-	String url = null;
-	String mode = "";
-	boolean autourl = true;
-	boolean texttype = false;
-	String j_captcha_response = "";
-	String image = "";
-	String nick = null;
-	String password = null;
-	String noinfo = null;
-	String sessionId = null;
-	String returnUrl = null;
-	String title = null;
-	String msg = null;
-	int guid = 0;
-	boolean preview = true;
-	
-	// Check that we have a file upload request
-	if (!ServletFileUpload.isMultipartContent(request) || request.getParameter("group") != null) {
-	  // Load fields from request
-	  noinfo = request.getParameter("noinfo");
-	  sessionId = request.getParameter("session");
-	  preview = request.getParameter("preview") != null ? true : false;
-	  if (!request.getMethod().equals("GET")) {
-		j_captcha_response = request.getParameter("j_captcha_response");
-		nick = request.getParameter("nick");
-		password = request.getParameter("password");
-		mode = request.getParameter("mode");
-		autourl = "1".equals(request.getParameter("autourl")) ? true : false;
-		texttype = "1".equals(request.getParameter("texttype")) ? true : false;
-		title = request.getParameter("title");
-		msg = request.getParameter("msg");
-	  }
-	  try {
-		guid = request.getParameter("group") != null ? Integer.parseInt(request.getParameter("group")): 0;
-	  } catch (NumberFormatException e) { }
-	  try {
-		linktext = request.getParameter("linktext");
-		url = request.getParameter("url");
-	  } catch (Exception e) { }
-	  try {
-		returnUrl = request.getParameter("return");
-	  } catch (Exception e) { }
-		image = request.getParameter("image");
-	} else {
-	  // Load fields from multipart request
-	  java.io.File rep = new java.io.File(tmpl.getObjectConfig().getPathPrefix()+"/linux-storage/tmp/");
-	  // Create a factory for disk-based file items
-	  DiskFileItemFactory factory = new DiskFileItemFactory();
-	  // Set factory constraints
-	  factory.setSizeThreshold(500000);
-	  factory.setRepository(rep);
-	  // Create a new file upload handler
-	  ServletFileUpload upload = new ServletFileUpload(factory);
-	  // Set overall request size constraint
-	  upload.setSizeMax(600000);
-	  // Parse the request
-	  java.util.List items = upload.parseRequest(request);
-	  // Process the uploaded items
-	  java.util.Iterator iter = items.iterator();
-	  // Defaults
-	  preview = false;
-	  while (iter.hasNext()) {
-		FileItem item = (FileItem) iter.next();
-		if (item.isFormField()) {
-		  String name = item.getFieldName();
-		  String value = item.getString();
-		  //System.out.println("\nField: "+name+" => "+value);
-		  if (name.compareToIgnoreCase("j_captcha_response")==0) {
-        	j_captcha_response = value;
-		  } else if (name.compareToIgnoreCase("noinfo")==0) {
-        	noinfo = value;
-          } else if (name.compareToIgnoreCase("session")==0) {
-        	sessionId = value;
-          } else if (name.compareToIgnoreCase("preview")==0) {
-        	preview = (value==null || "".equals(value)) ? false : true;
-          } else if (name.compareToIgnoreCase("nick")==0) {
+      throws BadInputException, SQLException, UtilException, BadGroupException, RuntimeException, MessageNotFoundException, ServletParameterException,
+      UserNotFoundException, BadPasswordException, AccessViolationException, UnknownHostException, TextParseException, FileUploadException, Exception {
+    // Init fields
+    String linktext = null;
+    String url = null;
+    String mode = "";
+    boolean autourl = true;
+    boolean texttype = false;
+    String j_captcha_response = "";
+    String image = "";
+    String nick = null;
+    String password = null;
+    String noinfo = null;
+    String sessionId = null;
+    String returnUrl = null;
+    String title = null;
+    String msg = null;
+    int guid = 0;
+    boolean preview;
+
+    // Check that we have a file upload request
+    if (!ServletFileUpload.isMultipartContent(request) || request.getParameter("group") != null) {
+      // Load fields from request
+      noinfo = request.getParameter("noinfo");
+      sessionId = request.getParameter("session");
+      preview = request.getParameter("preview") != null;
+      if (!request.getMethod().equals("GET")) {
+        j_captcha_response = request.getParameter("j_captcha_response");
+        nick = request.getParameter("nick");
+        password = request.getParameter("password");
+        mode = request.getParameter("mode");
+        autourl = "1".equals(request.getParameter("autourl"));
+        texttype = "1".equals(request.getParameter("texttype"));
+        title = request.getParameter("title");
+        msg = request.getParameter("msg");
+      }
+      try {
+        guid = request.getParameter("group") != null ? Integer.parseInt(request.getParameter("group")) : 0;
+      } catch (NumberFormatException e) {
+      }
+      try {
+        linktext = request.getParameter("linktext");
+        url = request.getParameter("url");
+      } catch (Exception e) {
+      }
+      try {
+        returnUrl = request.getParameter("return");
+      } catch (Exception e) {
+      }
+      image = request.getParameter("image");
+      if (image!=null) {
+        logger.fine("Got image from request field: "+image);
+      }
+    } else {
+      // Load fields from multipart request
+      File rep = new File(tmpl.getObjectConfig().getPathPrefix() + "/linux-storage/tmp/");
+      // Create a factory for disk-based file items
+      DiskFileItemFactory factory = new DiskFileItemFactory();
+      // Set factory constraints
+      factory.setSizeThreshold(500000);
+      factory.setRepository(rep);
+      // Create a new file upload handler
+      ServletFileUpload upload = new ServletFileUpload(factory);
+      // Set overall request size constraint
+      upload.setSizeMax(600000);
+      // Parse the request
+      List items = upload.parseRequest(request);
+      // Process the uploaded items
+      Iterator iter = items.iterator();
+      // Defaults
+      preview = false;
+      while (iter.hasNext()) {
+        FileItem item = (FileItem) iter.next();
+        if (item.isFormField()) {
+          String name = item.getFieldName();
+          String value = item.getString();
+          //System.out.println("\nField: "+name+" => "+value);
+          if (name.compareToIgnoreCase("j_captcha_response") == 0) {
+            j_captcha_response = value;
+          } else if (name.compareToIgnoreCase("noinfo") == 0) {
+            noinfo = value;
+          } else if (name.compareToIgnoreCase("session") == 0) {
+            sessionId = value;
+          } else if (name.compareToIgnoreCase("preview") == 0) {
+            preview = (!(value == null || "".equals(value)));
+          } else if (name.compareToIgnoreCase("nick") == 0) {
             nick = value;
-          } else if (name.compareToIgnoreCase("password")==0) {
+          } else if (name.compareToIgnoreCase("password") == 0) {
             password = value;
-          } else if (name.compareToIgnoreCase("mode")==0) {
+          } else if (name.compareToIgnoreCase("mode") == 0) {
             mode = value;
-          } else if (name.compareToIgnoreCase("autourl")==0) {
-        	autourl = Boolean.parseBoolean(value);
-          } else if (name.compareToIgnoreCase("textype")==0) {
-        	texttype = Boolean.parseBoolean(value);
-          } else if (name.compareToIgnoreCase("title")==0) {
+          } else if (name.compareToIgnoreCase("autourl") == 0) {
+            autourl = Boolean.parseBoolean(value);
+          } else if (name.compareToIgnoreCase("textype") == 0) {
+            texttype = Boolean.parseBoolean(value);
+          } else if (name.compareToIgnoreCase("title") == 0) {
             title = value;
-          } else if (name.compareToIgnoreCase("msg")==0) {
+          } else if (name.compareToIgnoreCase("msg") == 0) {
             msg = value;
-          } else if (name.compareToIgnoreCase("group")==0) {
-        	guid = Integer.parseInt(value);
-          } else if (name.compareToIgnoreCase("linktext")==0) {
+          } else if (name.compareToIgnoreCase("group") == 0) {
+            guid = Integer.parseInt(value);
+          } else if (name.compareToIgnoreCase("linktext") == 0) {
             linktext = value;
-          } else if (name.compareToIgnoreCase("url")==0) {
+          } else if (name.compareToIgnoreCase("url") == 0) {
             url = value;
-          } else if (name.compareToIgnoreCase("return")==0) {
+          } else if (name.compareToIgnoreCase("return") == 0) {
             returnUrl = value;
           }
-		} else {
+        } else {
           String fieldName = item.getFieldName();
-          String fileName = item.getName();
-          String contentType = item.getContentType();
-          boolean isInMemory = item.isInMemory();
-          long sizeInBytes = item.getSize();
+          String fileName = item.getName();       
           //System.out.print("\nFile: "+fieldName+" => "+fileName);
-          if (fieldName.compareToIgnoreCase("image")==0 && fileName!=null && !"".equals(fileName)) {
-        	image = tmpl.getObjectConfig().getPathPrefix()+"/linux-storage/tmp/"+fileName;
-            java.io.File uploadedFile = new java.io.File(image);
-			if (uploadedFile!=null && (uploadedFile.canWrite() || uploadedFile.createNewFile())) {
-          	  item.write(uploadedFile);
-			} else {
-			  Logger.getLogger("ru.org.linux").info("Bad target file name: "+image);
-			}
+          if (fieldName.compareToIgnoreCase("image") == 0 && fileName != null && !"".equals(fileName)) {
+            image = tmpl.getObjectConfig().getPathPrefix() + "/linux-storage/tmp/" + fileName;
+            File uploadedFile = new File(image);
+            if (uploadedFile != null && (uploadedFile.canWrite() || uploadedFile.createNewFile())) {
+              item.write(uploadedFile);
+            } else {
+              Logger.getLogger("ru.org.linux").info("Bad target file name: " + image);
+            }
           } else {
-			Logger.getLogger("ru.org.linux").info("Bad source file name: "+fileName); 
-		  }
+            Logger.getLogger("ru.org.linux").info("Bad source file name: " + fileName);
+          }
         }
-	  }
-	}
-	
-	// Save fields as request attributes
-	this.preview = preview;
-	request.setAttribute("j_captcha_response",j_captcha_response);
-	request.setAttribute("image",image);
-	request.setAttribute("session",sessionId);
-	request.setAttribute("preview",preview);
-	request.setAttribute("mode",mode);
-	request.setAttribute("autourl",autourl);
-	request.setAttribute("texttype",texttype);
-	request.setAttribute("title",title);
-	request.setAttribute("msg",msg);
-	request.setAttribute("group",guid);
-	request.setAttribute("linktext",linktext);
-	request.setAttribute("url",url);
-	request.setAttribute("return",returnUrl);
-	request.setAttribute("noinfo",noinfo);
-	request.setAttribute("nick",nick);
-	request.setAttribute("password",password);
-	// If we under get
-	if (request.getMethod().equals("GET")) {
-	  throw new MessageNotFoundException(0);
-	}	
-	if (guid<1) {
-	  throw new BadInputException("Bad group id");
-	}
-	Group group = new Group(db, guid);
-	// Posting checks...
-	if (!preview) {
-	  // Flood protection
-	  if (!session.getId().equals(sessionId)) {
-		Logger.getLogger("ru.org.linux").info("Flood protection (session variable differs) " + request.getRemoteAddr());
-		Logger.getLogger("ru.org.linux").info("Flood protection (session variable differs) " + session.getId() + " != " + sessionId);
-		throw new BadInputException("сбой добавления");
-	  }
-	  // Captch
-	  if (!Template.isSessionAuthorized(session)) {
-		CaptchaSingleton.checkCaptcha(session, request);
-	  }
-	  // Blocked IP
-	  IPBlockInfo.checkBlockIP(db, request.getRemoteAddr());
-	}
-	
-  	ScreenshotProcessor screenshot = null;
-	  
-	if (group.isImagePostAllowed()) {
-	  java.io.File uploadedFile = null;
-  	  if (image!=null && !"".equals(image)) {
-    	uploadedFile = new java.io.File(image);
-	  } else if (sessionId!=null && !"".equals(sessionId) && session.getAttribute("image")!=null && !"".equals(session.getAttribute("image"))) {
-		uploadedFile = new java.io.File((String)session.getAttribute("image"));
-	  }
-	  if (uploadedFile!=null && uploadedFile.isFile() && uploadedFile.canRead()) {
-		screenshot = new ScreenshotProcessor(uploadedFile.getAbsolutePath());
-		logger.info("SCREEN: "+uploadedFile.getAbsolutePath()+"\nINFO: SCREEN: "+image);
-    	if (image!=null && !"".equals("image")) {
-		  screenshot.copyScreenshot(tmpl, sessionId);
-		} else {
-		  image = uploadedFile.getAbsolutePath();
-		}
-    	url = "gallery/preview/" + screenshot.getMainFile().getName();
-    	linktext = "gallery/preview/" + screenshot.getIconFile().getName();
-		request.setAttribute("linktext",linktext);
-		request.setAttribute("url",url);
-		request.setAttribute("image",screenshot.getMainFile().getAbsolutePath());
-		session.setAttribute("image",screenshot.getMainFile().getAbsolutePath());
-	  }
-	}
-	// url check
+      }
+    }
+
+    // Save fields as request attributes
+    this.preview = preview;
+    request.setAttribute("j_captcha_response", j_captcha_response);
+    request.setAttribute("image", image);
+    request.setAttribute("session", sessionId);
+    request.setAttribute("preview", preview);
+    request.setAttribute("mode", mode);
+    request.setAttribute("autourl", autourl);
+    request.setAttribute("texttype", texttype);
+    request.setAttribute("title", title);
+    request.setAttribute("msg", msg);
+    request.setAttribute("group", guid);
+    request.setAttribute("linktext", linktext);
+    request.setAttribute("url", url);
+    request.setAttribute("return", returnUrl);
+    request.setAttribute("noinfo", noinfo);
+    request.setAttribute("nick", nick);
+    request.setAttribute("password", password);
+    // If we under get
+    if (request.getMethod().equals("GET")) {
+      throw new MessageNotFoundException(0);
+    }
+    if (guid < 1) {
+      throw new BadInputException("Bad group id");
+    }
+    Group group = new Group(db, guid);
+    // Posting checks...
+    if (!preview) {
+      // Flood protection
+      if (!session.getId().equals(sessionId)) {
+        Logger.getLogger("ru.org.linux").info("Flood protection (session variable differs) " + request.getRemoteAddr());
+        Logger.getLogger("ru.org.linux").info("Flood protection (session variable differs) " + session.getId() + " != " + sessionId);
+        throw new BadInputException("сбой добавления");
+      }
+      // Captch
+      if (!Template.isSessionAuthorized(session)) {
+        CaptchaSingleton.checkCaptcha(session, request);
+      }
+      // Blocked IP
+      IPBlockInfo.checkBlockIP(db, request.getRemoteAddr());
+    }
+
+    if (group.isImagePostAllowed()) {
+      File uploadedFile = null;
+      if (image != null && !"".equals(image)) {
+        uploadedFile = new File(image);
+      } else
+      if (sessionId != null && !"".equals(sessionId) && session.getAttribute("image") != null && !"".equals(session.getAttribute("image"))) {
+        uploadedFile = new File((String) session.getAttribute("image"));
+      }
+      if (uploadedFile != null && uploadedFile.isFile() && uploadedFile.canRead()) {
+        ScreenshotProcessor screenshot = new ScreenshotProcessor(uploadedFile.getAbsolutePath());
+        logger.info("SCREEN: " + uploadedFile.getAbsolutePath() + "\nINFO: SCREEN: " + image);
+        if (image != null && !"".equals("image")) {
+          screenshot.copyScreenshot(tmpl, sessionId);
+        }
+        url = "gallery/preview/" + screenshot.getMainFile().getName();
+        linktext = "gallery/preview/" + screenshot.getIconFile().getName();
+        request.setAttribute("linktext", linktext);
+        request.setAttribute("url", url);
+        request.setAttribute("image", screenshot.getMainFile().getAbsolutePath());
+        session.setAttribute("image", screenshot.getMainFile().getAbsolutePath());
+      }
+    }
+    // url check
     if (!group.isImagePostAllowed()) {
       if (url != null && !"".equals(url)) {
         if (linktext == null) {
-		  if (!preview) {
-        	throw new BadInputException("указан URL без текста");
-		  }
+          if (!preview) {
+            throw new BadInputException("указан URL без текста");
+          }
         }
         url = URLUtil.fixURL(url);
       }
     }
-	// Setting Message fields
+    // Setting Message fields
     this.linktext = linktext == null ? "" : HTMLFormatter.htmlSpecialChars(linktext);
     this.url = url == null ? "" : HTMLFormatter.htmlSpecialChars(url);
     this.title = title == null ? "" : HTMLFormatter.htmlSpecialChars(title);
     this.guid = guid;
-    this.havelink = url != null && linktext!=null && url.length() > 0 && linktext.length() > 0 && !group.isImagePostAllowed();
-    this.sectionid = group.getSectionId();
-	// Defaults
+    havelink = url != null && linktext != null && url.length() > 0 && linktext.length() > 0 && !group.isImagePostAllowed();
+    sectionid = group.getSectionId();
+    // Defaults
     msgid = 0;
     postscore = 0;
     votepoll = false;
@@ -320,10 +323,10 @@ public class Message {
     comment = false;
     commentCount = 0;
     moderate = false;
-	// Checks TODO: checks for anonymous
+    // Checks TODO: checks for anonymous
     User user;
 
-    if (!Template.isSessionAuthorized(session))     {
+    if (!Template.isSessionAuthorized(session)) {
       if (nick == null) {
         throw new BadInputException("Вы уже вышли из системы");
       }
@@ -343,15 +346,13 @@ public class Message {
         throw new BadInputException("Слишком большое сообщение");
       }
     }
-    this.userid = user.getId();
-
-    Statement st = db.createStatement();
+    userid = user.getId();
 
     if (!group.isTopicPostingAllowed(user)) {
       throw new AccessViolationException("Не достаточно прав для постинга тем в эту группу");
     }
 
-	// Format message
+    // Format message
     HTMLFormatter form = new HTMLFormatter(msg);
     int maxlength = 80;
     if (group.getSectionId() == 1) {
@@ -901,7 +902,7 @@ public class Message {
     return msgid;
   }
 
-  public int addTopicFromPreview(Connection db, Template tmpl, HttpSession session, HttpServletRequest request) throws SQLException, UserNotFoundException, ServletParameterException, UtilException, IOException, BadImageException, InterruptedException, BadInputException, BadPasswordException, AccessViolationException, DuplicationException, BadGroupException {
+  public int addTopicFromPreview(Connection db, Template tmpl, HttpSession session, HttpServletRequest request) throws SQLException, UserNotFoundException,  UtilException, IOException, BadImageException, InterruptedException, BadInputException, BadPasswordException, AccessViolationException, DuplicationException, BadGroupException {
     if ("".equals(title.trim())) {
       throw new BadInputException("заголовок сообщения не может быть пустым");
     }

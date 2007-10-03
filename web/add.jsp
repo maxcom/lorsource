@@ -16,34 +16,32 @@
     Exception error = null;
 
     if (request.getMethod().equals("POST")) {
-
-      try {	  
-
-		preview = true;
+      try {
+        preview = true;
 
         db = tmpl.getConnection("add");
-        db.setAutoCommit(false);	  
+        db.setAutoCommit(false);
 
-		previewMsg = new Message(db,tmpl,session,request);
-	  
-        String returnUrl = (String)request.getAttribute("return");
-		preview = previewMsg.isPreview();
+        previewMsg = new Message(db, tmpl, session, request);
 
-		if (!preview) {
-		  
-      	  int msgid = previewMsg.addTopicFromPreview(db,tmpl,session,request);
+        String returnUrl = (String) request.getAttribute("return");
+        preview = previewMsg.isPreview();
 
-		  Group group = new Group(db, previewMsg.getGroupId());
+        if (!preview) {
 
-      	  Random random = new Random();
+          int msgid = previewMsg.addTopicFromPreview(db, tmpl, session, request);
 
-      	  if (!group.isModerated()) {
-			if (returnUrl==null || "".equals(returnUrl)) {
-			  returnUrl = "jump-message.jsp?msgid="+msgid;
-			}
-        	response.setHeader("Location", tmpl.getMainUrl() + returnUrl + "&nocache=" + random.nextInt());
-        	response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
-      	  }
+          Group group = new Group(db, previewMsg.getGroupId());
+
+          Random random = new Random();
+
+          if (!group.isModerated()) {
+            if (returnUrl == null || "".equals(returnUrl)) {
+              returnUrl = "jump-message.jsp?msgid=" + msgid;
+            }
+            response.setHeader("Location", tmpl.getMainUrl() + returnUrl + "&nocache=" + random.nextInt());
+            response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
+          }
 %>
 <title>Добавление сообщения прошло успешно</title>
 <%= tmpl.DocumentHeader() %>

@@ -1,7 +1,9 @@
 package ru.org.linux.util;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.logging.Logger;
 
 /**
  * Gets image dimensions by parsing file headers.
@@ -9,6 +11,8 @@ import java.io.IOException;
  * currently supported file types: Jpeg Gif Png
  */
 public class ImageInfo {
+  private static final Logger logger = Logger.getLogger("ru.org.linux");
+
   private int height = -1;
   private int width = -1;
   private int size = 0;
@@ -26,6 +30,10 @@ public class ImageInfo {
   }
 
   public static String detectImageType(String filename) throws BadImageException, IOException {
+    File file = new File(filename);
+
+    logger.fine("Detecting image type for: " + filename+ " ("+file.length()+" bytes)");
+
     ImageInfo2 ii = new ImageInfo2();
 
     FileInputStream is = null;
@@ -96,8 +104,6 @@ public class ImageInfo {
     try {
       fileStream = new FileInputStream(filename);
       size = fileStream.available();
-
-      String lowname = filename.toLowerCase();
 
       if (extension.equals("gif")) {
         getGifInfo(fileStream);
@@ -228,9 +234,7 @@ public class ImageInfo {
       filename,
       iconname };
 
-    Process proc;
-
-    proc = Runtime.getRuntime().exec(cmd);
+    Process proc = Runtime.getRuntime().exec(cmd);
 
     int exitStatus = proc.waitFor();
 
