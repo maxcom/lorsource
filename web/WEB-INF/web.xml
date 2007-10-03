@@ -15,8 +15,6 @@
         </init-param>
   </servlet-mapping>
 
-  <multipart-form upload-max="500K"/>
-
    <filter>
         <filter-name>UrlRewriteFilter</filter-name>
         <filter-class>org.tuckey.web.filters.urlrewrite.UrlRewriteFilter</filter-class>

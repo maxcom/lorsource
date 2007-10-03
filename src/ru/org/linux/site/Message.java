@@ -148,10 +148,6 @@ public class Message {
         returnUrl = request.getParameter("return");
       } catch (Exception e) {
       }
-      image = request.getParameter("image");
-      if (image!=null) {
-        logger.fine("Got image from request field: "+image);
-      }
     } else {
       // Load fields from multipart request
       File rep = new File(tmpl.getObjectConfig().getPathPrefix() + "/linux-storage/tmp/");
