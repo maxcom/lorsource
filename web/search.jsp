@@ -25,6 +25,11 @@
     sort = tmpl.getParameters().getInt("sort");
   }
 
+  String username = request.getParameter("username");
+  if (username==null) {
+    username = "";
+  }
+
 %>
 
 <title>Поиск по сайту <%= q != null ? (" - "+HTMLFormatter.htmlSpecialChars(q)):"" %></title>
@@ -46,7 +51,7 @@
     <option value="year" <%= (date==SearchViewer.SEARCH_YEAR)?"selected":"" %>>год</option>
     <option value="all" <%= (date==SearchViewer.SEARCH_ALL)?"selected":"" %>>весь период</option>
   </select>
-
+<br>
   Раздел:
   <select name="section">
 
@@ -58,6 +63,9 @@
 
   <option value="0" <%= (section==0)?"selected":"" %>>все</option>
   </select>
+
+  Пользователь:
+  <INPUT TYPE="text" NAME="username" SIZE=20 VALUE="<%= HTMLFormatter.htmlSpecialChars(username) %>"><p>
   <br>
 
   Сортировать
@@ -80,6 +88,7 @@
     sv.setInclude(include);
     sv.setSection(section);
     sv.setSort(sort);
+    sv.setUser(username);
 
     ViewerCacher cacher = new ViewerCacher();
 

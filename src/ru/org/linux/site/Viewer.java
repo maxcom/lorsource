@@ -8,7 +8,7 @@ import ru.org.linux.util.ProfileHashtable;
 import ru.org.linux.util.UtilException;
 
 public interface Viewer {
-  String show(Connection db) throws IOException, SQLException, UtilException;
+  String show(Connection db) throws IOException, SQLException, UtilException, UserErrorException;
   String getVariantID(ProfileHashtable prof) throws UtilException;
   java.util.Date getExpire();  
 }

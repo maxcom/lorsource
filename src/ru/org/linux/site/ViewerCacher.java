@@ -13,11 +13,11 @@ public class ViewerCacher {
   private boolean fromCache;
   private long time = -1;
 
-  public static String getViewer(Viewer viewer, Template tmpl, boolean nocache, boolean closeConnection) throws UtilException, SQLException, IOException {
+  public static String getViewer(Viewer viewer, Template tmpl, boolean nocache, boolean closeConnection) throws UtilException, SQLException, IOException, UserErrorException {
     return new ViewerCacher().get(viewer, tmpl, nocache, closeConnection);
   }
 
-  public String get(Viewer viewer, Template tmpl, boolean nocache, boolean closeConnection) throws UtilException, SQLException, IOException {
+  public String get(Viewer viewer, Template tmpl, boolean nocache, boolean closeConnection) throws UtilException, SQLException, IOException, UserErrorException {
     MemCachedClient mcc = MemCachedSettings.getClient();
 
     String cacheId = MemCachedSettings.getId(viewer.getVariantID(tmpl.getProf()));

@@ -25,12 +25,14 @@ public class SearchViewer implements Viewer {
   private int section = 0;
   private int sort = SORT_R;
 
+  private String username = "";
+
   public SearchViewer(String query) {
     this.query = query;
   }
 
-  public String show(Connection db) throws IOException, SQLException, UtilException {
-    StringBuilder select = new StringBuilder("SELECT msgs.id, title, postdate, section, topic, nick, score, max_score, rank(idxFTI, q) as rank, headline(message, q, 'HighlightAll=True') as headline");
+  public String show(Connection db) throws IOException, SQLException, UtilException, UserErrorException {
+    StringBuilder select = new StringBuilder("SELECT msgs.id, title, postdate, section, topic, userid, rank(idxFTI, q) as rank, headline(message, q, 'HighlightAll=True') as headline");
 
     if (include==SEARCH_ALL) {
       select.append(" FROM msgs_and_cmts as msgs, msgbase, plainto_tsquery(?) as q");
@@ -50,6 +52,16 @@ public class SearchViewer implements Viewer {
       select.append(" AND section=").append(section);
     }
 
+    if (username.length()>0) {
+      try {
+        User user = User.getUser(db, username);
+
+        select.append(" AND userid="+user.getId());
+      } catch (UserNotFoundException ex) {
+        throw new UserErrorException("User not found: "+username);
+      }
+    }
+
     if (sort==SORT_DATE) {
       select.append(" ORDER BY postdate DESC");
     } else {
@@ -66,7 +78,9 @@ public class SearchViewer implements Viewer {
 
       ResultSet rs = pst.executeQuery();
 
-      return printResults(rs);
+      return printResults(db, rs);
+    } catch (UserNotFoundException ex) {
+      throw new RuntimeException(ex);
     } finally {
       if (pst!=null) {
         pst.close();
@@ -74,7 +88,7 @@ public class SearchViewer implements Viewer {
     }
   }
 
-  private String printResults(ResultSet rs) throws SQLException {
+  private String printResults(Connection db, ResultSet rs) throws SQLException, UserNotFoundException {
     StringBuilder out = new StringBuilder("<h1>Результаты поиска</h1>");
 
     out.append("<div class=\"messages\"><div class=\"comment\">");
@@ -85,9 +99,8 @@ public class SearchViewer implements Viewer {
       int id = rs.getInt("id");
       String headline = rs.getString("headline");
       Timestamp postdate = rs.getTimestamp("postdate");
-      String nick = rs.getString("nick");
-      int userScore = rs.getInt("score");
-      int userMaxScore = rs.getInt("max_score");
+      int userid = rs.getInt("userid");
+      User user = User.getUserCached(db, userid);
 
       String url;
 
@@ -103,15 +116,9 @@ public class SearchViewer implements Viewer {
 
       out.append("<h2><a href=\"").append(url).append("\">").append(HTMLFormatter.htmlSpecialChars(title)).append("</a></h2>");
 
-      out.append("<p>").append(headline).append("</p>");
+      out.append("<p>").append(headline).append("</p><p>");
 
-      out.append("<p><i>").append(nick).append(' ');
-
-      if (!"anonymous".equals(nick)) {
-        out.append(User.getStars(userScore, userMaxScore)).append(' ');
-      }
-
-      out.append("(<a href=\"whois.jsp?nick=").append(URLEncoder.encode(nick)).append("\">*</a>) (").append(Template.dateFormat.format(postdate)).append(")</i>");
+      out.append(user.getSignature(false, postdate));
 
       out.append("</div></td></tr></table><p>");
     }
@@ -122,7 +129,7 @@ public class SearchViewer implements Viewer {
   }
 
   public String getVariantID(ProfileHashtable prof) throws UtilException {
-    return "search?q="+ URLEncoder.encode(query)+"&include="+include+"&date="+date+"&section="+section+"&sort="+sort;
+    return "search?q="+ URLEncoder.encode(query)+"&include="+include+"&date="+date+"&section="+section+"&sort="+sort+"&username="+URLEncoder.encode(username);
   }
 
   public Date getExpire() {
@@ -171,5 +178,9 @@ public class SearchViewer implements Viewer {
 
   public void setSort(int sort) {
     this.sort = sort;
+  }
+
+  public void setUser(String username) {
+    this.username = username;
   }
 }
