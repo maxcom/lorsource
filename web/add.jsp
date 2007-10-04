@@ -104,8 +104,8 @@
     }
 
     String mode = (String)request.getAttribute("mode");
-    boolean texttype = "1".equals(request.getAttribute("texttype"))?true:false;
-    boolean autourl = "1".equals(request.getAttribute("autourl"))?true:false;
+    boolean texttype = ((Boolean)request.getAttribute("texttype")).booleanValue();
+    boolean autourl = ((Boolean)request.getAttribute("autourl")).booleanValue();
 
 %>
 
