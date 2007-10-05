@@ -170,7 +170,7 @@ public class Message {
         FileItem item = (FileItem) iter.next();
         if (item.isFormField()) {
           String name = item.getFieldName();
-          String value = item.getString();
+          String value = item.getString("KOI8-R");
           //System.out.println("\nField: "+name+" => "+value);
           if (name.compareToIgnoreCase("j_captcha_response") == 0) {
             j_captcha_response = value;
