@@ -70,7 +70,7 @@
   }
 %>
 
-<h2>Настройки профиля</h2>
+<h2>Параметры профиля</h2>
 <% ProfileHashtable profHash=tmpl.getProf(); %>
 <form method=POST action="edit-profile.jsp">
 <input type=hidden name=mode value=set>
