@@ -2,8 +2,8 @@ package ru.org.linux.site;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Properties;
 import java.util.Date;
+import java.util.Properties;
 
 import ru.org.linux.site.config.PathConfig;
 import ru.org.linux.site.config.PropertiesConfig;
@@ -38,7 +38,7 @@ implements
     if (db==null) {
       long startMillis = new Date().getTime();
 
-      db=pool.getConnection(config, user);
+      db=pool.getConnection(config);
       //logger.notice("config", "opened connection for '"+user+"'");
 
       long endMillis = new Date().getTime();
