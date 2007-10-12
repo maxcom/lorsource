@@ -137,7 +137,7 @@
 
 	String des=tmpl.getObjectConfig().getStorage().readMessageNull("grinfo", String.valueOf(group));
 	if (des!=null) {
-		out.print("<p><em>");
+		out.print("<p style=\"margin-top: 0px\"><em>");
 		out.print(des);
 		out.print("</em></p>");
 	}
