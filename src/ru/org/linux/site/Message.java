@@ -476,7 +476,7 @@ public class Message {
       } catch (BadImageException e) {
         out.append("<a href=\"/").append(url).append("\">[bad image]</a>");
       } catch (FileNotFoundException e) {
-		out.append("<a href=\"/").append(url).append("\">[bad image]</a>");
+		out.append("<a href=\"/").append(url).append("\">[no image]</a>");
 	  }
 
       out.append("</td><td valign=top>");
@@ -528,9 +528,9 @@ public class Message {
 
         out.append("<p>&gt;&gt;&gt; <a href=\"/").append(url).append("\">Просмотр</a>.");
       } catch (BadImageException e) {
-        out.append("<p>&gt;&gt;&gt; <a href=\"/").append(url).append("\">[BROKEN IMAGE!] Просмотр</a>.");
+        out.append("<p>&gt;&gt;&gt; <a href=\"/").append(url).append("\">[BAD IMAGE!] Просмотр</a>.");
       } catch (FileNotFoundException e) {
-        out.append("<p>&gt;&gt;&gt; <a href=\"/").append(url).append("\">[BROKEN IMAGE!] Просмотр</a>.");	  
+        out.append("<p>&gt;&gt;&gt; <a href=\"/").append(url).append("\">[NO IMAGE!] Просмотр</a>.");	  
 	  }
     }
 
