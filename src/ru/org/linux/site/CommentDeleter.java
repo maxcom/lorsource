@@ -64,7 +64,7 @@ public class CommentDeleter {
     rs.close();
 
     for (Integer r : replys) {
-      out.append(deleteReplys(r, user, score, depth++));
+      out.append(deleteReplys(r, user, score, depth+1));
       out.append("Удаляем ответ ").append(r).append("<br>");
       switch (depth) {
         case 0:
