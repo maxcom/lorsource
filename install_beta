@@ -9,6 +9,7 @@ SITE_PATH=${1:-/var/www/beta.linux.org.ru}
 echo Copying files...
 
 cp -R dist/* ${SITE_PATH}/webapps/lor
+touch ${SITE_PATH}/webapps/lor/WEB-INF/web.xml
 
 echo done
 
