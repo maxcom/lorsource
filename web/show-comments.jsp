@@ -8,38 +8,85 @@
 <%= tmpl.head() %>
 <% String nick=request.getParameter("nick");
 	if (nick==null) throw new MissingParameterException("nick");
-	response.setDateHeader("Expires", new Date(new Date().getTime()-20*3600*1000).getTime());
-%>
-<title>Последние 50 комментариев пользователя <%= nick %></title>
-<%= tmpl.DocumentHeader() %>
-<% Connection db = null;
-  try {
-%>
 
-<h1>Последние 50 комментариев пользователя <%= nick %></h1>
-
+	Connection db = null;
+	try {
+	
+	  boolean firstPage = true;
+	  int offset = 0;
+	  
+	  if (request.getParameter("offset") != null) {
+		offset = Integer.parseInt(request.getParameter("offset"));
+		firstPage = false;
+	  }
+	  if (offset>0) {
+		firstPage = false;
+	  }
+	  
+	  int topics = 50;
+	  int count = offset + topics;
+	  
+	  MemCachedClient mcc=MemCachedSettings.getClient();
+	  String showCommentsId = MemCachedSettings.getId( "show-comments?id="+URLEncoder.encode(nick)+"&offset="+offset);
+	  
+	  if (firstPage) {
+		//response.setDateHeader("Expires", new Date(new Date().getTime()-20*3600*1000).getTime());
+		response.setDateHeader("Expires", System.currentTimeMillis() + 90 * 1000);
+		out.print("<title>Последние " + topics + " комментариев пользователя " + nick + "</title>");
+		out.print(tmpl.DocumentHeader() );
+		out.print("<h1>Последние " + topics + " комментариев пользователя " + nick + "</h1>");
+	  } else {
+		response.setDateHeader("Expires", System.currentTimeMillis() + 30 * 24 * 60 * 60 * 1000L);
+		out.print("<title>Последние " + count + '-' + offset + " комментариев пользователя " + nick + "</title>");
+		out.print(tmpl.DocumentHeader());
+		out.print("<h1>Последние " + count + '-' + offset + " комментариев пользователя " + nick + "</h1>");
+	  }
+%>
 <div class=forum>
 <table width="100%" class="message-table">
 <thead>
 <tr><th>Раздел</th><th>Группа</th><th>Заглавие темы</th><th>Дата</th></tr>
 <tbody>
 <%
-  MemCachedClient mcc=MemCachedSettings.getClient();
-  String showCommentsId = MemCachedSettings.getId( "show-comments?id="+URLEncoder.encode(nick));
 
   String res = (String) mcc.get(showCommentsId);
   if (res==null) {
     db = tmpl.getConnectionWhois();
 
-    res = MessageTable.showComments(db, nick);
-
-    mcc.add(showCommentsId, res, new Date(new Date().getTime()+60*1000));
+    res = MessageTable.showComments(db, nick, offset, topics);
+	
+	if (firstPage) {
+  	  mcc.add(showCommentsId, res, new Date(new Date().getTime()+90*1000));
+	} else {
+	  mcc.add(showCommentsId, res, new Date(new Date().getTime()+30 * 24 * 60 * 60 * 1000L));
+	}
   }
 
   out.print(res);
 
 %>
-
+</tbody>
+<tfoot>
+  <tr><td colspan=5><p>
+<%
+  out.print("<div style=\"float: left\">");
+  if (firstPage || (offset - topics)<0) {
+	out.print("");
+  } else {
+	out.print("<a rel=prev rev=next href=\"show-comments.jsp?nick=" + nick + "&amp;offset=" + (offset - topics) + "\">Назад</a>");	
+  }
+  out.print("</div>");
+  
+  out.print("<div style=\"float: right\">");
+  if (res!=null && !"".equals(res)) {
+	out.print("<a rel=next rev=prev href=\"show-comments.jsp?nick=" + nick + "&amp;offset=" + (offset + topics) + "\">Вперед</a>");
+  } else {
+	out.print("<a rel=next rev=prev href=\"show-comments.jsp?nick=" + nick + "&amp;offset=0\">Начало</a>");    
+  }
+  out.print("</div>");
+%>
+  </td></tr>
+</tfoor>
 </table>
 </div>
 

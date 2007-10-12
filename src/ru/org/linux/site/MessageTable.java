@@ -17,19 +17,34 @@ public class MessageTable {
   public static final int RSS_DEFAULT = 20;
 	
   public static String showComments(Connection db, String nick) throws SQLException {
+	return showComments(db,nick,0,0);
+  }
+
+  public static String showComments(Connection db, String nick, int offset, int limit) throws SQLException {
     StringBuilder out = new StringBuilder();
 
     PreparedStatement pst=null;
 
     try {
-      pst = db.prepareStatement(
+	  if (limit<1 || offset<0) {
+    	pst = db.prepareStatement(
           "SELECT sections.name as ptitle, groups.title as gtitle, topics.title, " +
               "topics.id as topicid, comments.id as msgid, comments.postdate " +
               "FROM sections, groups, topics, comments, users " +
               "WHERE sections.id=groups.section AND groups.id=topics.groupid " +
               "AND comments.topic=topics.id AND comments.userid=users.id " +
               "AND users.nick=? AND NOT comments.deleted ORDER BY postdate DESC LIMIT 50"
-      );
+		);
+	  } else {
+    	pst = db.prepareStatement(
+          "SELECT sections.name as ptitle, groups.title as gtitle, topics.title, " +
+              "topics.id as topicid, comments.id as msgid, comments.postdate " +
+              "FROM sections, groups, topics, comments, users " +
+              "WHERE sections.id=groups.section AND groups.id=topics.groupid " +
+              "AND comments.topic=topics.id AND comments.userid=users.id " +
+              "AND users.nick=? AND NOT comments.deleted ORDER BY postdate DESC LIMIT "+limit+" OFFSET "+offset
+		);
+	  }
       pst.setString(1, nick);
       ResultSet rs = pst.executeQuery();
 
