@@ -40,6 +40,7 @@ DIV.newsblog2 {
     border: 1px;
     padding-bottom: 5px;
     font-weight: bold;
+    margin-top: 0px;
    }
 
 .column DIV.boxlet H3
@@ -54,7 +55,7 @@ DIV.newsblog2 {
    { 
     font-size: small; 
     font-family: serif; 
-    margin-top: 30px; 
+    margin-bottom: 30px; 
     width: 158px; 
     text-align: left; 
     background-color: #d0d0d0; 
@@ -74,6 +75,7 @@ DIV.columnimg
 DIV.news H2 { font-family: sans-serif;  margin-bottom: 5px; margin-top: 5px; }
 .news H2 A { color: black; }
 H1 A { color: black; }
+H1 { margin-top: 0px; }
 DIV.news DIV.nav { text-align: left; margin-top: 1em; }
 DIV.news DIV.sign { font-style: italic; margin-top: 1em; }
 
