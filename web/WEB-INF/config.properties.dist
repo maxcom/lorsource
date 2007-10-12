@@ -5,10 +5,7 @@ PathPrefix=/var/www/test-lor/
 ; Path to html root
 HTMLPathPrefix=/var/www/test-lor/webapps/lor/
 ; JDBC
-JDBC_URL=jdbc:postgresql:lor
-JDBC_USER=linuxweb
-JDBC_PASS=linuxweb
-DB_POOL=FALSE
+DB_POOL=JNDI
 ; Log
 Logfile=/var/tmp/site.log
 ;
