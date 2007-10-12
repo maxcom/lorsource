@@ -905,7 +905,7 @@ public class Message {
 
     ScreenshotProcessor screenshot = null;
 
-	Group group = new Group(db, guid);
+    Group group = new Group(db, guid);
 	
     if (group.isImagePostAllowed()) {
       screenshot = new ScreenshotProcessor((String)request.getAttribute("image"));
