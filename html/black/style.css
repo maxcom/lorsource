@@ -23,7 +23,10 @@ A:active {
 .hr { background: #404040; }
 hr { color: #404040; }
 
-H1 { color: #ffffff; }
+H1 { 
+	color: #ffffff; 
+	margin-top: 0px;
+}
 H2 { color: #ffffff; }
 
 H1 A { text-decoration: none; }
@@ -62,6 +65,7 @@ DIV.boxlet H2
     border: 1px; 
     padding-bottom: 5px;
     font-weight: bold;
+    margin-top: 0px;
    }
 
 DIV.boxlet H3
