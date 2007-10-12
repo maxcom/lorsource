@@ -45,6 +45,7 @@ public class Message {
   private final int commentCount;
   private final boolean moderate;
   private final String message;
+  private final boolean notop;
 
   private final Section section;
 
@@ -57,7 +58,7 @@ public class Message {
             "topics.groupid as guid, topics.url, topics.linktext, " +
             "groups.title as gtitle, vote, havelink, section, topics.sticky, " +
             "postdate<(CURRENT_TIMESTAMP-sections.expire) as expired, deleted, lastmod, commitby, " +
-            "commitdate, topics.stat1, postscore, topics.moderate, message " +
+            "commitdate, topics.stat1, postscore, topics.moderate, message, notop " +
             "FROM topics, users, groups, sections, msgbase " +
             "WHERE topics.id="+msgid+" AND topics.userid=users.id AND topics.groupid=groups.id " +
             "AND groups.section=sections.id AND topics.id=msgbase.id"
@@ -87,6 +88,7 @@ public class Message {
     commentCount = rs.getInt("stat1");
     moderate = rs.getBoolean("moderate");
     message = rs.getString("message");
+    notop = rs.getBoolean("notop");
 
     rs.close();
     st.close();
@@ -319,6 +321,7 @@ public class Message {
     comment = false;
     commentCount = 0;
     moderate = false;
+    notop = false;
     // Checks TODO: checks for anonymous
     User user;
 
@@ -437,8 +440,7 @@ public class Message {
 	    out.append("[<a href=\"edit-vote.jsp?msgid=").append(msgid).append("\">Править</a>]");
 	else
     	    out.append("[<a href=\"edit.jsp?msgid=").append(msgid).append("\">Править</a>]");
-        out.append("[<a href=\"setpostscore.jsp?msgid=").append(msgid).append("\">Установить уровень записи комментариев</a>]");
-        out.append("[<a href=\"notop.jsp?msgid=").append(msgid).append("\">Удалить из TOP10</a>]");
+        out.append("[<a href=\"setpostscore.jsp?msgid=").append(msgid).append("\">Установить параметры</a>]");
         out.append("[<a href=\"mt.jsp?msgid=").append(msgid).append("\">Перенести</a>]");
       }
 
@@ -708,19 +710,18 @@ public class Message {
   }
 
   public boolean isVotePoll() {
-	return votepoll;
+    return votepoll;
   }
-  
+
   public boolean isSticky() {
-	return sticky;
+    return sticky;
   }
 
   public boolean isPreview() {
-	return preview;
+    return preview;
   }
 
   public void updateMessageText(Connection db, String text) throws SQLException {
-
     PreparedStatement pst = db.prepareStatement("UPDATE msgbase SET message=? WHERE id=?");
     pst.setString(1, text);
     pst.setInt(2, msgid);
@@ -1005,5 +1006,9 @@ public class Message {
 
   public boolean isEditable() {
     return !(isExpired() || isDeleted()) && section.isPremoderated();
+  }
+
+  public boolean isNotop() {
+    return notop;
   }
 }

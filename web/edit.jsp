@@ -24,7 +24,7 @@
     String sMsgTitle = message.getTitle();
     String sURL = message.getUrl();
     String sURLtitle = message.getLinktext();
-	boolean sSticky = message.isSticky();
+    boolean sSticky = message.isSticky();
 
     if (!message.isEditable()) {
       throw new AccessViolationException("это сообщение нельзя править");
@@ -49,7 +49,7 @@
       String snMsgTitle = request.getParameter("title");
       String snURLtitle = request.getParameter("url_text");
       String snURL = request.getParameter("url");
-	  String snSticky = request.getParameter("sticky");
+      String snSticky = request.getParameter("sticky");
 
       String sSql = "UPDATE topics SET title=?, linktext=?, url=?, sticky=? WHERE id=?";
       PreparedStatement pst = db.prepareStatement(sSql);
@@ -78,14 +78,17 @@
       if (snURL != null && !snURL.equals(sURL)) {
         modified = true;
       }
-	  
-	  boolean sticky = false;
+
+      boolean sticky = false;
+
       if ((snSticky == null && sSticky) || (snSticky != null && !sSticky)) {
         modified = true;
-		if (snSticky != null)
-		  sticky = true;
+        if (snSticky != null) {
+          sticky = true;
+        }
       }
-	  pst.setBoolean(4, sticky);
+      
+      pst.setBoolean(4, sticky);
 
       pst.setInt(5, msgid);
 

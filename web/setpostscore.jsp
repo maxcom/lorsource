@@ -1,14 +1,11 @@
 <%@ page contentType="text/html; charset=koi8-r"%>
-<%@ page import="java.sql.Connection,java.sql.PreparedStatement,java.sql.ResultSet,java.sql.Statement,java.util.logging.Logger" errorPage="/error.jsp"%>
-<%@ page import="ru.org.linux.site.MessageNotFoundException"%>
-<%@ page import="ru.org.linux.site.MissingParameterException"%>
-<%@ page import="ru.org.linux.site.Template"%>
+<%@ page import="java.sql.Connection,java.sql.PreparedStatement,java.util.logging.Logger,ru.org.linux.site.Message,ru.org.linux.site.Template" errorPage="/error.jsp"%>
 <%@ page import="ru.org.linux.site.User" %>
 <% Template tmpl = new Template(request, config, response);
   Logger logger = Logger.getLogger("ru.org.linux");
 %>
 <%= tmpl.head() %>
-	<title>Смена режима записи комментариев</title>
+	<title>Смена параметров сообщения</title>
 <%= tmpl.DocumentHeader() %>
 
 <%
@@ -18,26 +15,22 @@ if (!tmpl.isModeratorSession()) {
 %>
 
 <%
-   if (request.getMethod().equals("GET")) {
-   	if (request.getParameter("msgid")==null)
-		throw new MissingParameterException("msgid");
+  if (request.getMethod().equals("GET")) {
+    Connection db = null;
 
-        Connection db = null;
+    try {
+      int msgid = tmpl.getParameters().getInt("msgid");
 
-        try {
+      db = tmpl.getConnection("setpostscore");
 
-        int msgid = tmpl.getParameters().getInt("msgid");
+      Message msg = new Message(db, msgid);
 
-	db = tmpl.getConnection("setpostscore");
-
-	Statement st = db.createStatement();
-	ResultSet rq = st.executeQuery("SELECT groupid, section, groups.title, postscore FROM topics, groups WHERE topics.id="+msgid+" AND topics.groupid=groups.id");
-	if (!rq.next())
-		throw new MessageNotFoundException(msgid);
-        int postscore = rq.getInt("postscore");
+      int postscore = msg.getPostScore();
+      boolean sticky = msg.isSticky();
+      boolean notop = msg.isNotop();
 
 %>
-<h1>Смена режима записи комментариев</h1>
+<h1>Смена режима параметров сообщения</h1>
 Данная форма предназначена для администраторов сайта и пользователей,
 имеющих права подтверждения сообщений.
 <form method=POST action="setpostscore.jsp">
@@ -54,12 +47,14 @@ if (!tmpl.isModeratorSession()) {
   <option value="500">500 - пять "звезд"</option>
   <option value="-1">только для модераторов</option>
 </select><br>
+Прикрепить сообщение <input type=checkbox name="sticky" <%= sticky?"checked":"" %>><br>
+Удалить из top10 <input type=checkbox name="notop" <%= notop?"checked":"" %>><br>
 <%
-	rq.close();
-	st.close();
-	} finally {
-          if (db!=null) db.close();
-        }
+  } finally {
+    if (db != null) {
+      db.close();
+    }
+  }
 %>
 <input type=submit value="Изменить">
 </form>
@@ -67,27 +62,44 @@ if (!tmpl.isModeratorSession()) {
   } else {
     int msgid = tmpl.getParameters().getInt("msgid");
     int postscore = tmpl.getParameters().getInt("postscore");
+    boolean sticky = request.getParameter("sticky")!=null;
+    boolean notop = request.getParameter("notop")!=null;
 
     if (postscore < -1) postscore = 0;
     if (postscore > 500) postscore = 500;
 
     Connection db = null;
     try {
-
       db = tmpl.getConnection("setpostscore");
       db.setAutoCommit(false);
-      PreparedStatement pst = db.prepareStatement("UPDATE topics SET postscore=? WHERE id=?");
+
+      Message msg = new Message(db, msgid);
+
+      PreparedStatement pst = db.prepareStatement("UPDATE topics SET postscore=?, sticky=?, notop=? WHERE id=?");
       pst.setInt(1, postscore);
-      pst.setInt(2, msgid);
+      pst.setBoolean(2, sticky);
+      pst.setBoolean(3, notop);
+      pst.setInt(4, msgid);
 
       User user = User.getUser(db, Template.getNick(session));
       user.checkCommit();
 
       pst.executeUpdate();
 
-      out.print("Установлен новый уровень записи " + (postscore < 0 ? "только для модераторов" : Integer.toString(postscore)));
+      if (msg.getPostScore()!=postscore) {
+        out.print("Установлен новый уровень записи " + (postscore < 0 ? "только для модераторов" : Integer.toString(postscore))+"<br>");
+        logger.info("Установлен новый уровень записи " + postscore + " для " + msgid + " пользователем " + user.getNick());
+      }
 
-      logger.info("Установлен новый уровень записи " + postscore + " для " + msgid + " пользователем " + user.getNick());
+      if (msg.isSticky()!=sticky) {
+        out.print("Новое значение sticky: " + sticky+"<br>");
+        logger.info("Новое значение sticky: " + sticky);
+      }
+
+      if (msg.isNotop()!=notop) {
+        out.print("Новое значение notop: " + notop+"<br>");
+        logger.info("Новое значение notop: " + notop);
+      }
 
       pst.close();
       db.commit();
