@@ -130,6 +130,12 @@ TR.color2 { background: #000080; }
   text-decoration: none
 }
 
+.entry-body .nav A {
+  text-decoration: underline;
+  margin-bottom: 0;
+}
+
+
 DIV.messages .title { background: #000080; }
 .messages .comment .title { background: #000080; }
 .messages .body { background: #000040; }

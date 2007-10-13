@@ -105,6 +105,13 @@ TR.color2 { background: #f0f0f0; }
 .nav A {
   text-decoration: none
 }
+
+.entry-body .nav A {
+  text-decoration: underline;
+  margin-bottom: 0;
+}
+
+
 DIV.messages .title { background: #aea6f2; }
 .messages .comment .title { background: #defefc; }
 .messages .body { background: #f0f0f0; }
