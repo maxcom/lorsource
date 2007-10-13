@@ -73,3 +73,10 @@ DIV.newsblog2 {
   width: 100%;
   float: right;
 }
+
+H1 {
+  margin-top: 0; margin-bottom: 5px
+}
+
+.messages H2 { margin-bottom: 5px; margin-top: 0; }
+

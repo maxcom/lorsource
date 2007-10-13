@@ -23,8 +23,6 @@ hr { color: #404040; }
 
 H1 { 
 	color: #ffffff; 
-	margin-top: 0px;
-	margin-bottom: 0px;
 }
 H2 { color: #ffffff; }
 
@@ -116,7 +114,6 @@ DIV.messages .title { background: #000080; }
 .messages .comment .title { background: #000080; }
 .messages .body { background: #000040; }
 .messages .comment .nav { text-align: left; font-style: italic; }
-.messages H2 { margin-bottom: 0; margin-top: 0; }
 
 /* general */
 DIV.notes 

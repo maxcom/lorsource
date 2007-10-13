@@ -52,7 +52,6 @@ DIV.columnimg
 DIV.news H2 { font-family: sans-serif;  margin-bottom: 5px; margin-top: 5px; }
 .news H2 A { color: black; }
 H1 A { color: black; }
-H1 { margin-top: 0px; margin-bottom: 0px }
 DIV.news DIV.nav { text-align: left; margin-top: 1em; }
 DIV.news DIV.sign { font-style: italic; margin-top: 1em; }
 
@@ -89,7 +88,6 @@ TR.color2 { background: #f0f0f0; }
 DIV.messages .title { background: #4876ff; }
 .messages .comment .title { background: #90ff90; }
 .messages .body { background: #f0f0f0; }
-.messages H2 { margin-bottom: 0; margin-top: 0; }
 
 /* general */
 DIV.notes 
