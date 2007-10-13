@@ -23,6 +23,61 @@
 %>
 
 <div style="clear: both"></div>
+<div class="<%= columns3?"newsblog2":"newsblog"%>">
+  <div class="<%= columns3?"newsblog-in2":"newsblog-in"%>">
+
+<h1><a href="view-news.jsp?section=1">Новости</a></h1>
+<%
+  if (tmpl.isModeratorSession()) {
+    out.print("<div class=\"nav\"  style=\"border-bottom: none\">");
+
+    Connection db = tmpl.getConnection("index");
+
+    Statement st = db.createStatement();
+    ResultSet rs = st.executeQuery("select count(*) from topics,groups,sections where section=sections.id AND sections.moderate and topics.groupid=groups.id and not deleted and not topics.moderate AND postdate>(CURRENT_TIMESTAMP-'1 month'::interval)");
+
+    if (rs.next()) {
+      int count = rs.getInt("count");
+
+      out.print("[<a style=\"text-decoration: none\" href=\"view-all.jsp\">Неподтвержденных: " + count + ", ");
+    }
+
+    rs.close();
+
+    rs = st.executeQuery("select count(*) from topics,groups where section=1 AND topics.groupid=groups.id and not deleted and not topics.moderate AND postdate>(CURRENT_TIMESTAMP-'1 month'::interval)");
+
+    if (rs.next()) {
+      int count = rs.getInt("count");
+
+      out.print(" в том числе новостей: " + count + "</a>]");
+    }
+
+    rs.close();
+
+    st.close();
+
+    out.print("</div>");
+  }
+
+  NewsViewer nv = NewsViewer.getMainpage(tmpl.getConfig(), tmpl.getProf());
+
+  out.print(ViewerCacher.getViewer(nv, tmpl, false, true));
+%>
+<div class="nav">
+  [<a href="add-section.jsp?section=1">добавить новость</a>]
+  [<a href="section-rss.jsp?section=1">RSS</a>]
+</div>
+</div>
+</div>
+
+<%
+  BoxletVectorRunner boxes;
+
+  if (tmpl.getProf().getBoolean("main.3columns"))
+    boxes = new BoxletVectorRunner((List) tmpl.getProf().getObject("main3-1"));
+  else
+    boxes = new BoxletVectorRunner((List) tmpl.getProf().getObject("main2"));
+%>
 
 <div class=column>
 <div class=boxlet>
@@ -72,18 +127,11 @@
 
 <!-- boxes -->
 <%
-  BoxletVectorRunner boxes;
-
-  if (tmpl.getProf().getBoolean("main.3columns"))
-    boxes = new BoxletVectorRunner((List) tmpl.getProf().getObject("main3-1"));
-  else
-    boxes = new BoxletVectorRunner((List) tmpl.getProf().getObject("main2"));
 
   out.print(boxes.getContent(tmpl.getObjectConfig(), tmpl.getProf()));
 
 %>
 </div>
-
 <% if (columns3) { %>
 <div class=column2>
 <%
@@ -93,51 +141,6 @@
 %>
 </div>
 <% } %>
-
-<div class="<%= columns3?"newsblog2":"newsblog"%>">
-  
-<h1><a href="view-news.jsp?section=1">Новости</a></h1>
-<%
-  if (tmpl.isModeratorSession()) {
-    out.print("<div class=\"nav\"  style=\"border-bottom: none\">");
-
-    Connection db = tmpl.getConnection("index");
-
-    Statement st = db.createStatement();
-    ResultSet rs = st.executeQuery("select count(*) from topics,groups,sections where section=sections.id AND sections.moderate and topics.groupid=groups.id and not deleted and not topics.moderate AND postdate>(CURRENT_TIMESTAMP-'1 month'::interval)");
-
-    if (rs.next()) {
-      int count = rs.getInt("count");
-
-      out.print("[<a style=\"text-decoration: none\" href=\"view-all.jsp\">Неподтвержденных: " + count + ", ");
-    }
-
-    rs.close();
-
-    rs = st.executeQuery("select count(*) from topics,groups where section=1 AND topics.groupid=groups.id and not deleted and not topics.moderate AND postdate>(CURRENT_TIMESTAMP-'1 month'::interval)");
-
-    if (rs.next()) {
-      int count = rs.getInt("count");
-
-      out.print(" в том числе новостей: " + count + "</a>]");
-    }
-
-    rs.close();
-
-    st.close();
-
-    out.print("</div>");
-  }
-
-  NewsViewer nv = NewsViewer.getMainpage(tmpl.getConfig(), tmpl.getProf());
-
-  out.print(ViewerCacher.getViewer(nv, tmpl, false, true));
-%>
-<div class="nav">
-  [<a href="add-section.jsp?section=1">добавить новость</a>]
-  [<a href="section-rss.jsp?section=1">RSS</a>]
-</div>
-</div>
 
 <div style="clear: both"></div>
 
