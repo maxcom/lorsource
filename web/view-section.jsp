@@ -41,17 +41,17 @@
 
       <td align=right valign=middle>
         <% if (sectionid == 4) { %>
-          [<a style="text-decoration: none" href="add-section.jsp?section=<%= sectionid %>">Добавить ссылку</a>]
+          [<a href="add-section.jsp?section=<%= sectionid %>">Добавить ссылку</a>]
         <% } else { %>
-          [<a style="text-decoration: none" href="add-section.jsp?section=<%= sectionid %>">Добавить сообщение</a>]
+          [<a href="add-section.jsp?section=<%= sectionid %>">Добавить сообщение</a>]
         <% } %>
 
-        [<a style="text-decoration: none" href="tracker.jsp">Последние сообщения</a>]
+        [<a href="tracker.jsp">Последние сообщения</a>]
 
         <% if (sectionid == 2) { %>
-          [<a style="text-decoration: none" href="rules.jsp">Правила форума</a>]
+          [<a href="rules.jsp">Правила форума</a>]
         <% } %>
-        [<a style="text-decoration: none" href="section-rss.jsp?section=<%= sectionid %>">RSS</a>]
+        [<a href="section-rss.jsp?section=<%= sectionid %>">RSS</a>]
       </td>
     </tr>
   </table>

@@ -113,18 +113,18 @@
     </td>
 
     <td align=right valign=middle>
-      [<a style="text-decoration: none" href="faq.jsp">FAQ</a>]
-      [<a style="text-decoration: none" href="rules.jsp">Правила форума</a>]
+      [<a href="faq.jsp">FAQ</a>]
+      [<a href="rules.jsp">Правила форума</a>]
 <%
   User currentUser = User.getCurrentUser(db, session);
 
   if (group.isTopicPostingAllowed(currentUser)) {
 %>
-      [<a style="text-decoration: none" href="add.jsp?group=<%= groupId %>&amp;return=<%= URLEncoder.encode(returnUrl) %>">Добавить сообщение</a>]
+      [<a href="add.jsp?group=<%= groupId %>&amp;return=<%= URLEncoder.encode(returnUrl) %>">Добавить сообщение</a>]
 <%
   }
 %>
-  [<a style="text-decoration: none" href="section-rss.jsp?section=<%= group.getSectionId() %>&amp;group=<%=group.getId()%>">RSS</a>]      
+  [<a href="section-rss.jsp?section=<%= group.getSectionId() %>&amp;group=<%=group.getId()%>">RSS</a>]
       <select name=group onChange="submit()" title="Быстрый переход">
 <%
 	Statement sectionListSt = db.createStatement();
@@ -198,7 +198,7 @@
     <td><div align="center">фильтр тем: <select name="showignored">
       <option value="t" <%= (showIgnored?"selected":"") %>>все темы</option>
       <option value="f" <%= (showIgnored?"":"selected") %>>без игнорируемых</option>
-      </select> <input type="submit" value="Обновить"> [<a style="text-decoration: none" href="ignore-list.jsp">настроить</a>]</div>
+      </select> <input type="submit" value="Обновить"> [<a href="ignore-list.jsp">настроить</a>]</div>
     </td>
   </tr>
   </table>

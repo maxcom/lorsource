@@ -85,10 +85,10 @@
       </td>
 
       <td align=right valign=middle>
-	      [<a style="text-decoration: none" href="faq.jsp">FAQ</a>]
-	      [<a style="text-decoration: none" href="rules.jsp">Правила форума</a>]
+	      [<a href="faq.jsp">FAQ</a>]
+	      [<a href="rules.jsp">Правила форума</a>]
 
-	      [<a style="text-decoration: none" href="add.jsp?group=<%= group %>&amp;return=<%= URLEncoder.encode(returnUrl) %>">Добавить сообщение</a>]
+	      [<a href="add.jsp?group=<%= group %>&amp;return=<%= URLEncoder.encode(returnUrl) %>">Добавить сообщение</a>]
 
               <select name=group onChange="submit()" title="Быстрый переход">
 <%
@@ -158,7 +158,7 @@
 	<td><div align="center">фильтр тем: <select name="showignored">
   	  <option value="t" <%= (showIgnored?"selected":"") %>>все темы</option>
 	  <option value="f" <%= (showIgnored?"":"selected") %>>без игнорируемых</option>
-	  </select> <input type="submit" value="Обновить"> [<a style="text-decoration: none" href="ignore-list.jsp">настроить</a>]</div>
+	  </select> <input type="submit" value="Обновить"> [<a href="ignore-list.jsp">настроить</a>]</div>
 	</td>
   </tr>
   </table>

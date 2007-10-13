@@ -122,8 +122,14 @@ TR.color2 { background: #000080; }
   background: #000080;
 }
 
-/* view-message */
-DIV.messages DIV.nav { text-align: center; margin-bottom: 1em; }
+.nav {
+  text-align: center; margin-bottom: 1em;
+}
+
+.nav A {
+  text-decoration: none
+}
+
 DIV.messages .title { background: #000080; }
 .messages .comment .title { background: #000080; }
 .messages .body { background: #000040; }

@@ -56,6 +56,12 @@
   int year = 0;
 
   String ptitle;
+  String navtitle = section.getName();
+
+  if (group!=null) {
+    navtitle = "<a href=\"view-news.jsp?section="+section.getId()+"\">"+section.getName()+"</a> - "+group.getTitle();
+  }
+
   if (request.getParameter("month") == null) {
     ptitle = section.getName();
     if (group!=null) {
@@ -71,6 +77,7 @@
     }
 
     ptitle += ", " + year + ", " + DateUtil.getMonth(month);
+    navtitle += " - Архив " + year + ", " + DateUtil.getMonth(month);
   }
 
   if (!section.isBrowsable() || sectionid == 2) {
@@ -88,31 +95,31 @@
 <div class="color1">
   <table width="100%" cellspacing=1 cellpadding=1 border=0><tr class=body>
     <td align=left valign=middle>
-      <strong><%= ptitle %></strong>
+      <strong><%= navtitle %></strong>
     </td>
     <td align=right valign=middle>
 <%
   if (month==0) {
       if (section.isImagepost()) {
-        out.print("[<a style=\"text-decoration: none\" href=\"add.jsp?group=4962\">Добавить изображение</a>]");
+        out.print("[<a href=\"add.jsp?group=4962\">Добавить изображение</a>]");
       } else if (section.isVotePoll()) {
-        out.print("[<a style=\"text-decoration: none\" href=\"add-poll.jsp?group=19387\">Добавить голосование</a>]");
+        out.print("[<a href=\"add-poll.jsp?group=19387\">Добавить голосование</a>]");
       } else {
         if (group==null) {
-          out.print("[<a style=\"text-decoration: none\" href=\"add-section.jsp?section="+section.getId()+"\">Добавить</a>]");
+          out.print("[<a href=\"add-section.jsp?section="+section.getId()+"\">Добавить</a>]");
         } else {
-          out.print("[<a style=\"text-decoration: none\" href=\"add.jsp?group="+group.getId()+"\">Добавить</a>]");          
+          out.print("[<a href=\"add.jsp?group="+group.getId()+"\">Добавить</a>]");
         }
       }
 
     if (group==null) {
-      out.print("[<a style=\"text-decoration: none\" href=\"view-section.jsp?section="+section.getId()+"\">Таблица</a>]");
+      out.print("[<a href=\"view-section.jsp?section="+section.getId()+"\">Таблица</a>]");
     } else {
-      out.print("[<a style=\"text-decoration: none\" href=\"group.jsp?group="+group.getId()+"\">Таблица</a>]");            
+      out.print("[<a href=\"group.jsp?group="+group.getId()+"\">Таблица</a>]");
     }
   }
-  out.print("[<a style=\"text-decoration: none\" href=\"view-news-archive.jsp?section="+sectionid+"\">Архив</a>]");
-  out.print("[<a style=\"text-decoration: none\" href=\"section-rss.jsp?section="+sectionid+(group!=null?("&amp;group="+group.getId()):"")+"\">RSS</a>]");
+  out.print("[<a href=\"view-news-archive.jsp?section="+sectionid+"\">Архив</a>]");
+  out.print("[<a href=\"section-rss.jsp?section="+sectionid+(group!=null?("&amp;group="+group.getId()):"")+"\">RSS</a>]");
 
 %>
     </td>

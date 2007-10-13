@@ -287,10 +287,10 @@ google_ui_features = "rc:0";
       out.print(" <input type=\"submit\" value=\"Обновить\">");
 
       if (!tmpl.isUsingDefaultProfile()) {
-        out.print(" [<a style=\"text-decoration: none\" href=\"ignore-list.jsp\">настроить</a>]");
+        out.print(" [<a href=\"ignore-list.jsp\">настроить</a>]");
       }
 
-      out.print(" [<a style=\"text-decoration: none\" href=\"topic-rss.jsp?topic="+ msgid +"\">RSS</a>]");
+      out.print(" [<a href=\"topic-rss.jsp?topic="+ msgid +"\">RSS</a>]");
 
       out.print("</div>");
       out.print("</td></tr></table></div></div>");

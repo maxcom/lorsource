@@ -101,7 +101,10 @@ TR.color2 { background: #f0f0f0; }
 }
 
 /* view-message */
-DIV.messages DIV.nav { text-align: center; margin-bottom: 1em; }
+.nav { text-align: center; margin-bottom: 1em; }
+.nav A {
+  text-decoration: none
+}
 DIV.messages .title { background: #aea6f2; }
 .messages .comment .title { background: #defefc; }
 .messages .body { background: #f0f0f0; }
