@@ -6,27 +6,6 @@ BODY { font-family: serif; }
 hr { color: #B0B0B0; }
 
 /* info boxes on columns */
-DIV.column {
-  text-align: center;
-  width: 160px;
-  float: left;
-}
-
-DIV.column2 {
-  text-align: center;
-  width: 160px;
-  float: right;  
-}
-
-DIV.newsblog {
-  margin-left: 165px;
-}
-
-DIV.newsblog2 {
-  margin-left: 165px;
-  margin-right: 165px;
-}
-
 .column DIV.boxlet H2
    { 
     text-align: center; 

@@ -8,27 +8,6 @@ hr { color: #B0B0B0; }
 .head A { text-decoration: none; }
 
 /* info boxes on columns */
-DIV.column {
-  text-align: center;
-  float: left;
-  width: 160px;
-}
-
-DIV.column2 {
-  text-align: center;
-  float: right;
-  width: 160px;
-}
-
-DIV.newsblog {
-  margin-left: 165px;
-}
-
-DIV.newsblog2 {
-  margin-left: 165px;
-  margin-right: 165px;
-}
-
 .column DIV.boxlet H2
    { 
     text-align: center; 
