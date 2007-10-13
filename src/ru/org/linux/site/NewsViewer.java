@@ -44,7 +44,6 @@ public class NewsViewer implements Viewer {
     }
     double messages = profile.getInt("messages");
 
-    out.append("<hr noshade class=\"news-divider\">");
     out.append("<div class=news><h2>");
 
     String jumplink = "jump-message.jsp?msgid=" + msgid;

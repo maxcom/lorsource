@@ -2,8 +2,6 @@
 
 BODY { font-family: serif; }
 
-.text { text-align: justify }
-
 .hr { background: #B0B0B0; }
 hr { color: #B0B0B0; }
 
@@ -137,16 +135,3 @@ DIV.notes
     margin-bottom: 0.5em;
     border: solid black;
    }
-
-div.entry-userpic {
-  float: left;
-  text-align: center;
-  width: 70px;
-}
-
-div.entry-body {
-  margin-left: 70px;
-  text-align: justify;
-}
-
-

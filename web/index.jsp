@@ -99,7 +99,7 @@
 <h1><a href="view-news.jsp?section=1">Новости</a></h1>
 <%
   if (tmpl.isModeratorSession()) {
-    out.print("<hr><div align=\"center\">");
+    out.print("<div class=\"nav\"  style=\"border-bottom: none\">");
 
     Connection db = tmpl.getConnection("index");
 
@@ -133,12 +133,10 @@
 
   out.print(ViewerCacher.getViewer(nv, tmpl, false, true));
 %>
-<hr>
-<div align=center>
-  [<a href="add-section.jsp?section=1" style="text-decoration: none">добавить новость</a>]
-  [<a href="section-rss.jsp?section=1" style="text-decoration: none">RSS</a>]
+<div class="nav">
+  [<a href="add-section.jsp?section=1">добавить новость</a>]
+  [<a href="section-rss.jsp?section=1">RSS</a>]
 </div>
-<hr>
 </div>
 
 <div style="clear: both"></div>
