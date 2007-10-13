@@ -500,7 +500,7 @@ public class Message {
       }
     }
 
-    out.append("<h2><a name=").append(msgid).append('>').append(title).append("</a></h2>");
+    out.append("<h1><a name=").append(msgid).append('>').append(title).append("</a></h1>");
 
 //    out.append(storage.readMessage("msgbase", String.valueOf(msgid)));
     if (votepoll) {

@@ -167,7 +167,7 @@
    }
 %>
 
-<h1><%= message.getTitle() %>
+<h1>
 <% if (showDeleted) out.print("<br>Режим показа удаленных комментариев"); %>
 </h1>
 
