@@ -47,9 +47,7 @@
   }
 
 %>
-<div class=messages>
-<div class=nav>
-<table width="100%"><tr class=color1><td><table width="100%" cellspacing=1 cellpadding=1 border=0><tr class=body>
+<table class=nav><tr>
 			<td align=left valign=middle>
 			<strong>Интерфейс модератора - Сообщения с <%= ip %></strong>
 			</td>
@@ -65,13 +63,9 @@
       out.print("<a href='http://lacnic.net/cgi-bin/lacnic/whois?lg=EN&query="+ip+"'>LACNIC</a>\n");
 %>
 ]
-			</td>
+			</td>   </tr>
 
-			</table></td>
-
-</tr></table></td></tr></table>
-</div>
-</div>
+			</table>
 
 <h1 align="center">Сообщения с <%= ip %> (за 24 часа)</h1>
 

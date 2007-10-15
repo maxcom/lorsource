@@ -1,12 +1,12 @@
 <%@ page contentType="text/html; charset=koi8-r"%>
-<%@ page import="java.io.File, java.io.IOException, java.io.FileNotFoundException, java.net.URLEncoder, java.sql.Connection" errorPage="/error.jsp"%>
-<%@ page import="java.sql.PreparedStatement" %>
+<%@ page import="java.io.File, java.io.IOException, java.net.URLEncoder, java.sql.Connection, java.sql.PreparedStatement" errorPage="/error.jsp"%>
 <%@ page import="java.util.Random" %>
 <%@ page import="java.util.logging.Logger" %>
+<%@ page import="org.apache.commons.fileupload.FileItem" %>
+<%@ page import="org.apache.commons.fileupload.disk.DiskFileItemFactory" %>
+<%@ page import="org.apache.commons.fileupload.servlet.ServletFileUpload" %>
 <%@ page import="ru.org.linux.site.*" %>
-<%@ page import="ru.org.linux.util.BadImageException" %>
-<%@ page import="ru.org.linux.util.ImageInfo" %>
-<%@ page import="org.apache.commons.fileupload.FileItem, org.apache.commons.fileupload.FileUploadException, org.apache.commons.fileupload.disk.DiskFileItemFactory, org.apache.commons.fileupload.servlet.ServletFileUpload" %>
+<%@ page import="ru.org.linux.util.BadImageException, ru.org.linux.util.ImageInfo" %>
 <% Template tmpl = new Template(request, config, response);
   Logger logger = Logger.getLogger("ru.org.linux");
 %>
@@ -14,11 +14,7 @@
 <title>Добавление/Изменение фотографии</title>
 <%= tmpl.DocumentHeader() %>
 
-<div class=messages>
-<div class=nav>
-
-<div class="color1">
-  <table width="100%" cellspacing=1 cellpadding=1 border=0><tr class=body>
+  <table class=nav><tr>
     <td align=left valign=middle>
       Добавление/Изменение фотографии
     </td>
@@ -29,10 +25,6 @@
      </td>
     </tr>
  </table>
-</div>
-
-</div>
-</div>
 
 <h1>Добавление/Изменение фотографии</h1>
 

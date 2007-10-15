@@ -33,12 +33,9 @@
 <title><%= title %></title>
 <%= tmpl.DocumentHeader() %>
 
-<div class=messages>
-<div class=nav>
 <form action="tracker.jsp">
 
-<div class="color1">
-  <table width="100%" cellspacing=1 cellpadding=1 border=0><tr class=body>
+  <table class=nav><tr>
     <td align=left valign=middle>
       <%= title %>
     </td>
@@ -52,11 +49,7 @@
     </td>
   </tr>
  </table>
-</div>
 </form>
-
-</div>
-</div>
 
 <h1><%= title %> за <%= hours %> часа</h1>
 

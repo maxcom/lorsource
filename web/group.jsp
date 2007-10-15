@@ -101,13 +101,9 @@
     out.print("<link rel=\"parent\" title=\"" + group.getTitle() + "\" href=\"view-section.jsp?section=" + group.getSectionId() + "\">");
 %>
 <%=   tmpl.DocumentHeader() %>
-<div class=messages>
-<div class=nav>
 <form action="group.jsp">
-
-<div class="color1">
-  <table width="100%" cellspacing=1 cellpadding=1 border=0>
-    <tr class=body>
+  <table class=nav>
+    <tr>
     <td align=left valign=middle>
       <a href="view-section.jsp?section=<%= group.getSectionId() %>"><%= group.getSectionName() %></a> - <strong><%= group.getTitle() %></strong>
     </td>
@@ -144,7 +140,6 @@
      </td>
     </tr>
  </table>
-</div>
 
 </form>
 
@@ -158,10 +153,6 @@
       ignq = " AND topics.userid NOT IN (SELECT ignored FROM ignore_list, users WHERE userid=users.id and nick='" + session.getValue("nick") + "')";
   }
 
-%>
-  </div>
-</div>
-  <%
           out.print("<h1>");
 
           out.print(group.getSectionName()+": "+group.getTitle()+"</h1>");
@@ -184,8 +175,6 @@
                   out.print("</em></p>");
           }
   %>
-<div class=messages>  
-<div class=nav>
 <form action="group.jsp" method="GET">
 
   <input type=hidden name=group value=<%= groupId %>>
@@ -193,21 +182,14 @@
   <% if (!firstPage) { %>
     <input type=hidden name=offset value="<%= offset %>">
   <% } %>
-<div class=color1>
-  <table width="100%" cellspacing=1 cellpadding=0 border=0><tr class=body>
-    <td><div align="center">фильтр тем: <select name="showignored">
+  <div class=nav>
+    фильтр тем: <select name="showignored">
       <option value="t" <%= (showIgnored?"selected":"") %>>все темы</option>
       <option value="f" <%= (showIgnored?"":"selected") %>>без игнорируемых</option>
-      </select> <input type="submit" value="Обновить"> [<a href="ignore-list.jsp">настроить</a>]</div>
-    </td>
-  </tr>
-  </table>
-</div>
+      </select> <input type="submit" value="Обновить"> [<a href="ignore-list.jsp">настроить</a>]
+  </div>
 
 </form>
-
-</div>
-</div>
 
 <div class=forum>
 <table width="100%" class="message-table">

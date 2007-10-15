@@ -7,11 +7,7 @@
 	<title>Настройки профиля</title>
 <%= tmpl.DocumentHeader() %>
 
-<div class=messages>
-<div class=nav>
-
-<div class="color1">
-  <table width="100%" cellspacing=1 cellpadding=1 border=0><tr class=body>
+  <table class=nav><tr>
     <td align=left valign=middle>
       Настройки профиля
     </td>
@@ -23,11 +19,6 @@
      </td>
     </tr>
  </table>
-</div>
-
-</div>
-</div>
-
 
 <h1>Настройки профиля</h1>
 

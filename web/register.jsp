@@ -256,11 +256,7 @@ URL (не забудьте добавить <b>http://</b>): <br>
   }
 } else if ("change".equals(request.getParameter("mode"))) {
 %>
-<div class=messages>
-<div class=nav>
-
-<div class="color1">
-  <table width="100%" cellspacing=1 cellpadding=1 border=0><tr class=body>
+  <table class=nav><tr>
     <td align=left valign=middle>
       Изменение регистрации
     </td>
@@ -271,10 +267,6 @@ URL (не забудьте добавить <b>http://</b>): <br>
      </td>
     </tr>
  </table>
-</div>
-
-</div>
-</div>
 <h1>Изменение регистрации</h1>
 <%
   if (!tmpl.isSessionAuthorized(session)) {

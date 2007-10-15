@@ -107,10 +107,8 @@
 
   if (scroll != Section.SCROLL_NOSCROLL) {
 %>
-<div class=nav>
-  <div class="color1">
-    <table width="100%" cellspacing=1 cellpadding=0 border=0>
-      <tr class=body>
+    <table class=nav>
+      <tr>
 <%
   if (scroll == Section.SCROLL_GROUP) {
     out.print("<td align=left valign=middle width=\"35%\"><table><tr valign=middle><td>");
@@ -161,8 +159,6 @@
 %>
       </tr>
     </table>
-  </div>
-</div>
 <%
    }
 %>
@@ -253,21 +249,20 @@ google_ui_features = "rc:0";
 
 <%
   if (comment) {
-    out.print("<div class=comment>");
     if (tmpl.getProf().getBoolean("sortwarning")) {
-      out.print("<div class=nav><div class=color1><table width=\"100%\" cellspacing=1 cellpadding=0 border=0><tr class=body><td align=\"center\">");
+      out.print("<div class=nav>");
 
       if (tmpl.getProf().getBoolean("newfirst"))
         out.print("сообщения отсортированы в порядке убывания даты их написания");
       else
         out.print("сообщения отсортированы в порядке возрастания даты их написания");
 
-      out.print("</td></tr></table></div></div>");
+      out.print("</div>");
     }
 
     if (!showDeleted /* && message.getCommentCount() > 0 */) {
       out.print("<form method=\"GET\" action=\"view-message.jsp\">");
-      out.print("<div class=nav><div class=color1><table width=\"100%\" cellspacing=1 cellpadding=0 border=0><tr class=body><td>");
+      out.print("<div class=nav>");
 
       out.print("<div align=\"center\">");
       out.print("<input type=hidden name=msgid value=\"" + msgid + "\">");
@@ -293,17 +288,17 @@ google_ui_features = "rc:0";
       out.print(" [<a href=\"topic-rss.jsp?topic="+ msgid +"\">RSS</a>]");
 
       out.print("</div>");
-      out.print("</td></tr></table></div></div>");
+      out.print("</div>");
       out.print("</form>");
     }
 
     if (pageInfo != null) {
-      out.print("<div class=nav><div class=color1><table width=\"100%\" cellspacing=1 cellpadding=0 border=0><tr class=body><td>");
-      out.print("<div align=\"center\">");
+      out.print("<div class=\"pageinfo\">");
       out.print(pageInfo);
       out.print("</div>");
-      out.print("</td></tr></table></div></div>");
     }
+
+    out.print("<div class=comment>");
 
     int offset = 0;
     int limit = 0;
@@ -327,17 +322,15 @@ google_ui_features = "rc:0";
     out.print("</div>");
 
     if (pageInfo != null) {
-      out.print("<div class=nav><div class=color1><table width=\"100%\" cellspacing=1 cellpadding=0 border=0><tr class=body><td>");
-      out.print("<div align=\"center\">");
+      out.print("<div class=pageinfo>");
       out.print(pageInfo);
       out.print("</div>");
-      out.print("</td></tr></table></div></div>");
     }
   }
 %>
 <%
   if (scroll != Section.SCROLL_NOSCROLL) {
-    out.print("<div class=nav><div class=color1><table width=\"100%\" cellspacing=1 cellpadding=0 border=0><tr class=body>");
+    out.print("<table class=nav><tr>");
 
     if (scroll == Section.SCROLL_GROUP) {
       out.print("<td align=left valign=middle width=\"35%\"><table><tr valign=middle><td>");
@@ -385,7 +378,7 @@ google_ui_features = "rc:0";
 
       out.print("</td></table></td>");
     }
-    out.print("</tr></table></div></div>");
+    out.print("</tr></table>");
   }
 %>
 

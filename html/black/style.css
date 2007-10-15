@@ -83,6 +83,33 @@ DIV.columnimg
 /* view-forum */
 DIV.forum A { text-decoration: none }
 .color1 { background: #808080; }
+
+.nav {
+  border: #808080 1px solid;
+  background: #000040;
+}
+
+table.nav>tbody>tr>td {
+  border: #808080 1px solid; 
+}
+
+.newsblog .nav {
+  background-color: black;
+}
+
+.newsblog2 .nav {
+  background-color: black;
+}
+
+.entry-body .nav {
+  background-color: black;
+}
+
+.pageinfo {
+  border: #808080 1px solid;
+  background: #000040;
+}
+
 TR.color2 { background: #000080; }
 .message-table {
   background: #808080;
@@ -95,14 +122,6 @@ TR.color2 { background: #000080; }
 
 .message-table tbody {
   background: #000080;
-}
-
-.nav {
-  text-align: center; margin-bottom: 1em;
-}
-
-.nav A {
-  text-decoration: none
 }
 
 .entry-body .nav A {

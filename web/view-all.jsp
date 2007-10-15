@@ -28,12 +28,9 @@
 <title>Просмотр неподтвержденных сообщений - <%= section==null?"Все":section.getName() %></title>
 <%= tmpl.DocumentHeader() %>
 
-<div class=messages>
-<div class=nav>
   <form action="view-all.jsp">
 
-<div class="color1">
-  <table width="100%" cellspacing=1 cellpadding=1 border=0><tr class=body>
+  <table class=nav><tr>
     <td align=left valign=middle>
       Просмотр неподтвержденных сообщений - <%= section==null?"Все":section.getName() %>
     </td>
@@ -63,11 +60,7 @@
 
   </tr>
  </table>
-</div>
 </form>
-</div>
-</div>
-
 
 <h1><%= section==null?"П":(section.getName()+": п") %>росмотр неподтвержденных</h1>
 <strong>Внимание!</strong> сообщения отображаются точно также, как

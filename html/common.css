@@ -3,6 +3,7 @@
 }
 
 .newsblog .nav {
+  border: none;
   border-top: 1px solid;
   border-bottom: 1px solid;
   padding-top: 5px;
@@ -11,6 +12,7 @@
 }
 
 .newsblog2 .nav {
+  border: none;
   border-top: 1px solid;
   border-bottom: 1px solid;
   padding-top: 5px;
@@ -19,8 +21,7 @@
 }
 
 .entry-body .nav {
-  border-top: none;
-  border-bottom: none;
+  border: none;
   padding-top: 0;
   padding-bottom: 0;
   margin-bottom: 1em;
@@ -80,3 +81,23 @@ H1 {
 
 .messages H2 { margin-bottom: 5px; margin-top: 0; }
 
+.nav {
+  text-align: center; margin-bottom: 1em;
+}
+
+form>.nav {
+  margin-bottom: 0;
+}
+
+table.nav {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.pageinfo {
+  text-align: center; margin-bottom: 1em;
+}
+
+.nav A {
+  text-decoration: none
+}

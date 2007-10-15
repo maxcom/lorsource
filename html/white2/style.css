@@ -61,6 +61,33 @@ DIV.news DIV.sign { font-style: italic; margin-top: 1em; }
 DIV.forum A { text-decoration: none; }
 DIV.forum A:link { color: black; }
 .color1 { background: #aea6f2; }
+
+.nav {
+  border: #aea6f2 1px solid;
+  background: #f0f0f0;
+}
+
+.newsblog .nav {
+  background-color: white;
+}
+
+.newsblog2 .nav {
+  background-color: white;
+}
+
+.entry-body .nav {
+  background-color: white;
+}
+
+table.nav>tbody>tr>td {
+  border: #aea6f2 1px solid; 
+}
+
+.pageinfo {
+  border: #aea6f2 1px solid;
+  background: #f0f0f0;
+}
+
 TR.color2 { background: #f0f0f0; }
 
 .message-table {
@@ -77,11 +104,6 @@ TR.color2 { background: #f0f0f0; }
 }
 
 /* view-message */
-.nav { text-align: center; margin-bottom: 1em; }
-.nav A {
-  text-decoration: none
-}
-
 .entry-body .nav A {
   text-decoration: underline;
   margin-bottom: 0;

@@ -90,10 +90,7 @@
 
 <%= tmpl.DocumentHeader() %>
 
-<div class=messages>
-<div class=nav>
-<div class="color1">
-  <table width="100%" cellspacing=1 cellpadding=1 border=0><tr class=body>
+  <table class=nav><tr>
     <td align=left valign=middle>
       <strong><%= navtitle %></strong>
     </td>
@@ -125,12 +122,8 @@
     </td>
    </tr>
 </table>
-</div>
-</div>
-</div>
 
 <H1><%= ptitle %></H1>
-
 <%
   //  ResultSet rs;
 
