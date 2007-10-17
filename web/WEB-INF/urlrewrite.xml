@@ -13,12 +13,6 @@
     <from>^/$</from>
     <to type="redirect">/index.jsp</to>
   </rule>
-<!--
-  <rule>
-    <from>^/profile/([^/]+)/?$</from>
-    <to type="redirect">/profile/$1/index.jsp</to>
-  </rule>
--->
   <rule>
     <from>^/info.html$</from>
     <to type="redirect">/books</to>
@@ -42,78 +36,16 @@
     <from>^/profile/([^/]+)/(.*)$</from>
     <to type="redirect">/$2</to>
   </rule>
-<!--
+
   <rule>
-    <from>^/profile/([^/]+)/(.*)$</from>
-    <to>/$2</to>
-    <set name="lor-profile">$1</set>
+    <condition name="host" operator="notequal">^www\.linux\.org\.ru</condition>
+    <condition name="host" operator="notequal">^beta\.linux\.org\.ru</condition>
+    <condition name="host" operator="notequal">^test-lor</condition>
+    <condition name="host" operator="notequal">^$</condition>
+    <from>^/(.*)</from>
+    <to type="redirect" last="true">http://www.linux.org.ru/$1</to>
   </rule>
--->
-  <outbound-rule>
-    <note>
-      The outbound-rule specifies that when response.encodeURL is called (if you are using JSTL
-      c:url)
-      the url /rewrite-status will be rewritten to /test/status/.
 
-      The above rule and this outbound-rule means that end users should never see the
-      url /rewrite-status only /test/status/ both in thier location bar and in hyperlinks
-      in your pages.
-    </note>
-    <from>/rewrite-status</from>
-    <to>/test/status/</to>
-  </outbound-rule>
-
-
-  <!--
-
-  INSTALLATION
-
-      in your web.xml add...
-
-      <filter>
-          <filter-name>UrlRewriteFilter</filter-name>
-          <filter-class>org.tuckey.web.filters.urlrewrite.UrlRewriteFilter</filter-class>
-          <init-param>
-              <param-name>logLevel</param-name>
-              <param-value>WARN</param-value>
-          </init-param>
-      </filter>
-      <filter-mapping>
-          <filter-name>UrlRewriteFilter</filter-name>
-          <url-pattern>/*</url-pattern>
-      </filter-mapping>
-
-   EXAMPLES
-
-   Redirect one url
-      <rule>
-          <from>/some/old/page.html</from>
-          <to type="redirect">/very/new/page.html</to>
-      </rule>
-
-  Redirect a directory
-      <rule>
-          <from>/some/olddir/(.*)</from>
-          <to type="redirect">/very/newdir/$1</to>
-      </rule>
-
-  Clean a url
-      <rule>
-          <from>/products/([0-9]+)</from>
-          <to>/products/index.jsp?product_id=$1</to>
-      </rule>
-  eg, /products/1234 will be passed on to /products/index.jsp?product_id=1234 without the user noticing.
-
-  Browser detection
-      <rule>
-          <condition name="user-agent">Mozilla/[1-4]</condition>
-          <from>/some/page.html</from>
-          <to>/some/page-for-old-browsers.html</to>
-      </rule>
-  eg, will pass the request for /some/page.html on to /some/page-for-old-browsers.html only for older
-  browsers whose user agent srtings match Mozilla/1, Mozilla/2, Mozilla/3 or Mozilla/4.
-
-  -->
 
 </urlrewrite>
 
