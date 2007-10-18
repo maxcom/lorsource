@@ -442,6 +442,13 @@
       <JAVADOC />
       <SOURCES />
     </library>
+    <library name="javamail">
+      <CLASSES>
+        <root url="jar://$PROJECT_DIR$/lib/javamail.jar!/" />
+      </CLASSES>
+      <JAVADOC />
+      <SOURCES />
+    </library>
   </component>
   <component name="uidesigner-configuration">
     <option name="INSTRUMENT_CLASSES" value="true" />

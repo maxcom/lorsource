@@ -238,9 +238,9 @@ URL (не забудьте добавить <b>http://</b>): <br>
       emailMessage.setFrom(new InternetAddress("no-reply@linux.org.ru"));
 
       emailMessage.addRecipient(MimeMessage.RecipientType.TO, new InternetAddress(email));
-      emailMessage.setSubject("Регистрация на сайте www.linux.org.ru");
+      emailMessage.setSubject("Регистрация на сайте www.linux.org.ru", "UTF-8");
       emailMessage.setSentDate(new Date());
-      emailMessage.setText(text.toString());
+      emailMessage.setText(text.toString(), "UTF-8");
 
       Transport.send(emailMessage);
     }
