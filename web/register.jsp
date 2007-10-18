@@ -6,12 +6,11 @@
 <%@ page import="javax.mail.Transport"%>
 <%@ page import="javax.mail.internet.InternetAddress"%>
 <%@ page import="javax.mail.internet.MimeMessage"%>
-<%@ page import="javax.mail.internet.MimeUtility"%>
 <%@ page import="ru.org.linux.site.*"%>
 <%@ page import="ru.org.linux.storage.StorageNotFoundException"%>
 <%@ page import="ru.org.linux.util.HTMLFormatter"%>
 <%@ page import="ru.org.linux.util.LorHttpUtils"%>
-<%@ page import="ru.org.linux.util.StringUtil" %>
+<%@ page import="ru.org.linux.util.StringUtil"%>
 <%@ page import="ru.org.linux.util.URLUtil" %>
 <% Template tmpl = new Template(request, config, response);
   Logger logger = Logger.getLogger("ru.org.linux");
@@ -239,7 +238,7 @@ URL (не забудьте добавить <b>http://</b>): <br>
       emailMessage.setFrom(new InternetAddress("no-reply@linux.org.ru"));
 
       emailMessage.addRecipient(MimeMessage.RecipientType.TO, new InternetAddress(email));
-      emailMessage.setSubject(MimeUtility.encodeText("Регистрация на сайте www.linux.org.ru", "UTF-8", "B"));
+      emailMessage.setSubject("Linux.org.ru registration");
       emailMessage.setSentDate(new Date());
       emailMessage.setText(text.toString(), "UTF-8");
 
