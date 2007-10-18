@@ -264,7 +264,6 @@ google_ui_features = "rc:0";
       out.print("<form method=\"GET\" action=\"view-message.jsp\">");
       out.print("<div class=nav>");
 
-      out.print("<div align=\"center\">");
       out.print("<input type=hidden name=msgid value=\"" + msgid + "\">");
       if (npage != 0) {
         out.print("<input type=hidden name=page value=\"" + npage + "\">");
@@ -287,7 +286,6 @@ google_ui_features = "rc:0";
 
       out.print(" [<a href=\"topic-rss.jsp?topic="+ msgid +"\">RSS</a>]");
 
-      out.print("</div>");
       out.print("</div>");
       out.print("</form>");
     }

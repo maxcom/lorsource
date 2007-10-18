@@ -301,7 +301,7 @@ public class Template {
     out.append("<link rel=\"top\" title=\"Linux.org.ru\" href=\"index.jsp\">\n");
 
     // form submit on ctrl-enter js
-    out.append("<script src=\"/js/ctrlenter.js\" language=\"javascript\" type=\"text/javascript\">;</script>\n");
+    out.append("<script src=\"/js/ctrlenter.js\" type=\"text/javascript\">;</script>\n");
 
     if (getProf().getBoolean("hover")) {
       out.append("<LINK REL=STYLESHEET TYPE=\"text/css\" HREF=\"/").append(getStyle()).append("/hover.css\" TITLE=\"Normal\">");
