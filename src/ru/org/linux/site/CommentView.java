@@ -16,15 +16,13 @@ public class CommentView {
 
     out.append("\n\n<!-- ").append(comment.getMessageId()).append(" -->\n");
 
-    out.append("<table width=\"100%\" cellspacing=0 cellpadding=0 border=0>");
-
     User author = User.getUserCached(db, comment.getUserid());
 
     if (showMenu) {
       printMenu(out, comment, expired, moderatorMode, author, user, comments, tmpl, db);
     }
 
-    out.append("<tr class=body><td>");
+//    out.append("<tr class=body><td>");
     out.append("<div class=msg>");
 
     boolean tbl = false;
@@ -53,25 +51,25 @@ public class CommentView {
     out.append(author.getSignature(moderatorMode, comment.getPostdate()));
 
     if (!expired && !comment.isDeleted() && showMenu)
-      out.append("<p><font size=2>[<a href=\"add_comment.jsp?topic=").append(comment.getTopic()).append("&amp;replyto=").append(comment.getMessageId()).append("\">Ответить на это сообщение</a>]</font>");
+      out.append("<div class=reply>[<a href=\"add_comment.jsp?topic=").append(comment.getTopic()).append("&amp;replyto=").append(comment.getMessageId()).append("\">Ответить на это сообщение</a>]</div>");
 
     if (tbl) out.append("</td></tr></table>");
-      out.append("</div></td></tr>");
-      out.append("</table><p>");
+      out.append("</div>");
+      out.append("<p>");
 
     return out.toString();
   }
 
   private void printMenu(StringBuffer out, Comment comment, boolean expired, boolean moderatorMode, User author, String user, CommentList comments, Template tmpl, Connection db) throws UtilException, SQLException, UserNotFoundException {
-    out.append("<tr class=title><td>");
+    out.append("<div class=title>");
 
     if (!comment.isDeleted()) {
       out.append("[<a href=\"/jump-message.jsp?msgid=").append(comment.getTopic()).append("&amp;cid=").append(comment.getMessageId()).append("\">#</a>]");
     }
 
-    if (!expired && !comment.isDeleted()) {
-      out.append("[<a href=\"add_comment.jsp?topic=").append(comment.getTopic()).append("&amp;replyto=").append(comment.getMessageId()).append("\">Ответить</a>]");
-    }
+//    if (!expired && !comment.isDeleted()) {
+//      out.append("[<a href=\"add_comment.jsp?topic=").append(comment.getTopic()).append("&amp;replyto=").append(comment.getMessageId()).append("\">Ответить</a>]");
+//    }
 
     if (!comment.isDeleted() && (moderatorMode || author.getNick().equals(user))) {
       out.append("[<a href=\"delete_comment.jsp?msgid=").append(comment.getMessageId()).append("\">Удалить</a>]");
@@ -89,14 +87,14 @@ public class CommentView {
       }
     }
 
-    out.append("&nbsp;</td></tr>");
+    out.append("&nbsp;</div>");
 
     if (comment.getReplyTo() != 0) {
       CommentNode replyNode = comments.getNode(comment.getReplyTo());
       if (replyNode != null) {
         Comment reply = replyNode.getComment();
 
-        out.append("<tr class=title><td>");
+        out.append("<div class=title>");
 
         out.append("Ответ на: <a href=\"");
 
@@ -112,6 +110,8 @@ public class CommentView {
         User replyAuthor = User.getUserCached(db, reply.getUserid());
 
         out.append(StringUtil.makeTitle(reply.getTitle())).append("</a> от ").append(replyAuthor.getNick()).append(' ').append(Template.dateFormat.format(reply.getPostdate()));
+
+        out.append("</div>");
       } else {
         logger.warning("Weak reply #" + comment.getReplyTo() + " on comment=" + comment.getMessageId() + " msgid=" + comment.getTopic());
       }

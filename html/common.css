@@ -101,3 +101,8 @@ table.nav {
 .nav A {
   text-decoration: none
 }
+
+.msg .reply {
+  font-size: smaller;
+  padding-bottom: 1em;
+}

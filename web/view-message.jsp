@@ -189,7 +189,7 @@
 
       if (i != npage) {
         if (i>0) {
-          bufInfo.append("<a href=\"").append(linkurl).append("&page=").append(i);
+          bufInfo.append("<a href=\"").append(linkurl).append("&amp;page=").append(i);
         } else {
           bufInfo.append("<a href=\"").append(linkurl);
         }
@@ -206,7 +206,7 @@
 
     if (Template.isSessionAuthorized(session)) {
       if (npage!=-1) {
-        bufInfo.append(" <a href=\"").append(linkurl).append("&page=-1").append("\">все").append("</a>");
+        bufInfo.append(" <a href=\"").append(linkurl).append("&amp;page=-1").append("\">все").append("</a>");
       } else {
         bufInfo.append(" <strong>все").append("</strong>");      
       }
@@ -224,7 +224,7 @@
 %>
 
 <% if (!Template.isSessionAuthorized(session)) { %>
-<div style="text-align: center">
+<div style="text-align: center; margin-top: 1em">
 <script type="text/javascript"><!--
 google_ad_client = "pub-6069094673001350";
 google_ad_width = 728;

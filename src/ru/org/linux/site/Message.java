@@ -419,17 +419,15 @@ public class Message {
 
     out.append("\n\n<!-- ").append(msgid).append(" -->\n");
 
-    out.append("<table width=\"100%\" cellspacing=0 cellpadding=0 border=0>");
-
     if (showMenu) {
-      out.append("<tr class=title><td>");
+      out.append("<div class=title>");
 
       if (!deleted) {
         out.append("[<a href=\"/jump-message.jsp?msgid=").append(msgid).append("\">#</a>]");
       }
 
-      if (!isExpired() && !isDeleted())
-        out.append("[<a href=\"comment-message.jsp?msgid=").append(msgid).append("\">Ответить</a>]");
+//      if (!isExpired() && !isDeleted())
+//        out.append("[<a href=\"comment-message.jsp?msgid=").append(msgid).append("\">Ответить</a>]");
 
       if (!isDeleted() && (tmpl.isModeratorSession() || author.getNick().equals(user))) {
         out.append("[<a href=\"delete.jsp?msgid=").append(msgid).append("\">Удалить</a>]");
@@ -461,10 +459,9 @@ public class Message {
         rts.close();
       }
 
-      out.append("&nbsp;</td></tr>");
+      out.append("&nbsp;</div>");
     }
 
-    out.append("<tr class=body><td>");
     out.append("<div class=msg>");
 
     boolean tbl = false;
@@ -548,11 +545,10 @@ public class Message {
     }
 
     if (!expired && !deleted && showMenu)
-      out.append("<p><font size=2>[<a href=\"comment-message.jsp?msgid=").append(msgid).append("\">Ответить на это сообщение</a>] ").append(getPostScoreInfo(postscore)).append("</font>");
+      out.append("<div class=reply>[<a href=\"comment-message.jsp?msgid=").append(msgid).append("\">Ответить на это сообщение</a>] ").append(getPostScoreInfo(postscore)).append("</div>");
 
     if (tbl) out.append("</td></tr></table>");
-    out.append("</div></td></tr>");
-    out.append("</table><p>");
+    out.append("</div>");
 
     return out.toString();
   }

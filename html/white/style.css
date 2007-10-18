@@ -109,7 +109,7 @@ TR.color2 { background: #f0f0f0; }
 
 DIV.messages .title { background: #4876ff; }
 .messages .comment .title { background: #90ff90; }
-.messages .body { background: #f0f0f0; }
+.messages .msg { background: #f0f0f0; }
 
 /* general */
 DIV.notes 
