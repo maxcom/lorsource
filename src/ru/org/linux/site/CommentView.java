@@ -19,11 +19,10 @@ public class CommentView {
     User author = User.getUserCached(db, comment.getUserid());
 
     if (showMenu) {
-      printMenu(out, comment, expired, moderatorMode, author, user, comments, tmpl, db);
+      printMenu(out, comment, moderatorMode, author, user, comments, tmpl, db);
     }
 
-//    out.append("<tr class=body><td>");
-    out.append("<div class=msg>");
+    out.append("<div class=msg id=").append(comment.getMessageId()).append(">");
 
     boolean tbl = false;
     if (author.getPhoto()!=null) {
@@ -42,7 +41,7 @@ public class CommentView {
       }
     }
 
-    out.append("<h2><a name=").append(comment.getMessageId()).append('>').append(comment.getTitle()).append("</a></h2>");
+    out.append("<h2>").append(comment.getTitle()).append("</h2>");
 
     out.append(comment.getMessageText());
 
@@ -60,7 +59,7 @@ public class CommentView {
     return out.toString();
   }
 
-  private void printMenu(StringBuffer out, Comment comment, boolean expired, boolean moderatorMode, User author, String user, CommentList comments, Template tmpl, Connection db) throws UtilException, SQLException, UserNotFoundException {
+  private void printMenu(StringBuffer out, Comment comment, boolean moderatorMode, User author, String user, CommentList comments, Template tmpl, Connection db) throws UtilException, SQLException, UserNotFoundException {
     out.append("<div class=title>");
 
     if (!comment.isDeleted()) {
