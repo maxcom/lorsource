@@ -113,3 +113,7 @@ DIV.sign {
   margin-top: 1em;
   margin-bottom: 1em; 
 }
+
+.message .msg {
+  margin-bottom: 1em;
+}
