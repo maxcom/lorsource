@@ -77,8 +77,6 @@ DIV.columnimg
 .news H2 { font-family: sans-serif; margin-bottom: 5px; margin-top: 5px; }
 .news H2 A { text-decoration: none; color: white; }
 .news DIV.nav { text-align: left; margin-top: 1em; }
-.news DIV.sign { font-style: italic; margin-top: 1em; }
-
 
 /* view-forum */
 DIV.forum A { text-decoration: none }

@@ -105,4 +105,11 @@ table.nav {
 .msg .reply {
   font-size: smaller;
   padding-bottom: 1em;
+  margin-bottom: 1em;
+}
+
+DIV.sign {
+  font-style: italic;
+  margin-top: 1em;
+  margin-bottom: 1em; 
 }

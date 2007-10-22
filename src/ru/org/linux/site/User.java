@@ -381,8 +381,6 @@ public class User implements Serializable {
 
   public String getSignature(boolean moderatorMode, Timestamp postdate) {
     StringBuilder out = new StringBuilder();
-    
-    out.append("<i>");
 
     if (isBlocked()) {
       out.append("<s>");
@@ -402,7 +400,7 @@ public class User implements Serializable {
           out.append("(Score: ").append(score).append(" MaxScore: ").append(maxScore).append(") ");
     }
 
-    out.append("(<a href=\"whois.jsp?nick=").append(URLEncoder.encode(nick)).append("\">*</a>) (").append(Template.dateFormat.format(postdate)).append(")</i>");
+    out.append("(<a href=\"whois.jsp?nick=").append(URLEncoder.encode(nick)).append("\">*</a>) (").append(Template.dateFormat.format(postdate)).append(")");
 
     return out.toString();
   }

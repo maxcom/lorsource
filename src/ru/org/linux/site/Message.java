@@ -533,9 +533,11 @@ public class Message {
 	  }
     }
 
-    out.append("<p>");
+    out.append("<div class=sign>");
 
     out.append(author.getSignature(tmpl.isModeratorSession(), postdate));
+
+    out.append("</div>");
 
     if (commitby!=0) {
       User commiter = User.getUser(db, commitby);

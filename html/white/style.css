@@ -53,7 +53,6 @@ DIV.news H2 { font-family: sans-serif;  margin-bottom: 5px; margin-top: 5px; }
 .news H2 A { color: black; }
 H1 A { color: black; }
 DIV.news DIV.nav { text-align: left; margin-top: 1em; }
-DIV.news DIV.sign { font-style: italic; margin-top: 1em; }
 
 /* view-forum */
 DIV.forum A { text-decoration: none }

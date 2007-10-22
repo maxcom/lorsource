@@ -45,16 +45,16 @@ public class CommentView {
 
     out.append(comment.getMessageText());
 
-    out.append("<p>");
-
-    out.append(author.getSignature(moderatorMode, comment.getPostdate()));
+    out.append("<div class=sign>"+author.getSignature(moderatorMode, comment.getPostdate())+"</div>");
 
     if (!expired && !comment.isDeleted() && showMenu)
       out.append("<div class=reply>[<a href=\"add_comment.jsp?topic=").append(comment.getTopic()).append("&amp;replyto=").append(comment.getMessageId()).append("\">Ответить на это сообщение</a>]</div>");
 
-    if (tbl) out.append("</td></tr></table>");
-      out.append("</div>");
-      out.append("<p>");
+    if (tbl) {
+      out.append("</td></tr></table>");
+    }
+
+    out.append("</div>");
 
     return out.toString();
   }
