@@ -537,14 +537,14 @@ public class Message {
 
     out.append(author.getSignature(tmpl.isModeratorSession(), postdate));
 
-    out.append("</div>");
-
     if (commitby!=0) {
       User commiter = User.getUser(db, commitby);
 
       out.append("<br>");
       out.append(commiter.getCommitInfoLine(postdate, commitDate));
     }
+
+    out.append("</div>");
 
     if (!expired && !deleted && showMenu)
       out.append("<div class=reply>[<a href=\"comment-message.jsp?msgid=").append(msgid).append("\">Ответить на это сообщение</a>] ").append(getPostScoreInfo(postscore)).append("</div>");
