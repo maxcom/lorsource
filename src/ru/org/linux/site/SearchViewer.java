@@ -1,6 +1,7 @@
 package ru.org.linux.site;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.sql.*;
 import java.util.Date;
@@ -116,9 +117,11 @@ public class SearchViewer implements Viewer {
 
       out.append("<h2><a href=\"").append(url).append("\">").append(HTMLFormatter.htmlSpecialChars(title)).append("</a></h2>");
 
-      out.append("<p>").append(headline).append("</p><p>");
+      out.append("<p>").append(headline).append("</p>");
 
+      out.append("<div class=sign>");
       out.append(user.getSignature(false, postdate));
+      out.append("</div>");
 
       out.append("</div></td></tr></table><p>");
     }
@@ -129,7 +132,11 @@ public class SearchViewer implements Viewer {
   }
 
   public String getVariantID(ProfileHashtable prof) throws UtilException {
-    return "search?q="+ URLEncoder.encode(query)+"&include="+include+"&date="+date+"&section="+section+"&sort="+sort+"&username="+URLEncoder.encode(username);
+    try {
+      return "search?q="+ URLEncoder.encode(query, "koi8-r")+"&include="+include+"&date="+date+"&section="+section+"&sort="+sort+"&username="+URLEncoder.encode(username);
+    } catch (UnsupportedEncodingException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   public Date getExpire() {
