@@ -10,9 +10,20 @@
 -->
 <urlrewrite>
   <rule>
-    <from>^/$</from>
-    <to type="redirect">/index.jsp</to>
+    <from>^/index.jsp$</from>
+    <to type="redirect">/</to>
   </rule>
+
+<!--  <rule>
+    <from>^/news$</from>
+    <to type="redirect">/news/</to>
+  </rule>
+
+  <rule>
+    <from>^/news/$</from>
+    <to>/view-news.jsp?section=1</to>
+  </rule>
+-->
   <rule>
     <from>^/info.html$</from>
     <to type="redirect">/books</to>

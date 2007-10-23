@@ -299,6 +299,8 @@ public class Template {
       out.append("<LINK REL=STYLESHEET TYPE=\"text/css\" HREF=\"/").append(getStyle()).append("/hover.css\" TITLE=\"Normal\">");
     }
 
+    out.append("<base href=").append(HTMLFormatter.htmlSpecialChars(getMainUrl())).append(">");
+
     if ("black".equals(style)) {
       if (isMainPage()) {
         out.append(FileUtils.readfile(config.getHTMLPathPrefix() + style + "/head-main.html"));
