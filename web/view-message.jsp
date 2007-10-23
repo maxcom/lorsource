@@ -8,7 +8,7 @@
   try {
     int msgid = tmpl.getParameters().getInt("msgid");
 
-    String mainurl = "jump-message.jsp?msgid=" + msgid;
+    String mainurl = "view-message.jsp?msgid=" + msgid;
 
     boolean showDeleted = request.getParameter("deleted") != null;
 
@@ -90,11 +90,11 @@
     Message nextMessage = message.getNextMessage(db);
 
     if (prevMessage != null) {
-      out.print("<link rel=\"Previous\" href=\"jump-message.jsp?msgid=" + prevMessage.getMessageId() + "&amp;lastmod=" + prevMessage.getLastModified().getTime() + "\" title=\"" + StringUtil.makeTitle(prevMessage.getTitle()) + "\">");
+      out.print("<link rel=\"Previous\" href=\"view-message.jsp?msgid=" + prevMessage.getMessageId() + "&amp;lastmod=" + prevMessage.getLastModified().getTime() + "\" title=\"" + StringUtil.makeTitle(prevMessage.getTitle()) + "\">");
     }
 
     if (nextMessage != null) {
-      out.print("<link rel=\"Next\" href=\"jump-message.jsp?msgid=" + nextMessage.getMessageId() + "&amp;lastmod=" + nextMessage.getLastModified().getTime() + "\" title=\"" + StringUtil.makeTitle(nextMessage.getTitle()) + "\">");
+      out.print("<link rel=\"Next\" href=\"view-message.jsp?msgid=" + nextMessage.getMessageId() + "&amp;lastmod=" + nextMessage.getLastModified().getTime() + "\" title=\"" + StringUtil.makeTitle(nextMessage.getTitle()) + "\">");
     }
 %>
 <LINK REL="alternate" TITLE="L.O.R RSS" HREF="topic-rss.jsp?topic=<%= msgid %>" TYPE="application/rss+xml">
@@ -116,7 +116,7 @@
     if (prevMessage != null) {
       Timestamp lastmod = prevMessage.getLastModified();
 
-      out.print("<a href=\"jump-message.jsp?msgid=" + prevMessage.getMessageId() + "&amp;lastmod=" + lastmod.getTime() + "\" rel=prev rev=next>&lt;&lt;&lt;</a></td><td align=left valign=top>" + StringUtil.makeTitle(prevMessage.getTitle()));
+      out.print("<a href=\"view-message.jsp?msgid=" + prevMessage.getMessageId() + "&amp;lastmod=" + lastmod.getTime() + "\" rel=prev rev=next>&lt;&lt;&lt;</a></td><td align=left valign=top>" + StringUtil.makeTitle(prevMessage.getTitle()));
     }
 
     out.print("</td></table></td>");
@@ -128,7 +128,7 @@
     if (nextMessage != null) {
       Timestamp lastmod = nextMessage.getLastModified();
 
-      out.print(StringUtil.makeTitle(nextMessage.getTitle()) + "</td><td align=right valign=middle><a href=\"jump-message.jsp?msgid=" + nextMessage.getMessageId() + "&amp;lastmod=" + lastmod.getTime() + "\" rev=prev rel=next>&gt;&gt;&gt;</a>");
+      out.print(StringUtil.makeTitle(nextMessage.getTitle()) + "</td><td align=right valign=middle><a href=\"view-message.jsp?msgid=" + nextMessage.getMessageId() + "&amp;lastmod=" + lastmod.getTime() + "\" rev=prev rel=next>&gt;&gt;&gt;</a>");
     }
 
     out.print("</td></table></td>");
@@ -139,7 +139,7 @@
       Timestamp lastmod = prevMessage.getLastModified();
       if (lastmod == null) lastmod = new Timestamp(0);
 
-      out.print("<a href=\"jump-message.jsp?msgid=" + prevMessage.getMessageId() + "&amp;lastmod=" + lastmod.getTime() + "\" rel=prev rev=next>&lt;&lt;&lt;</a></td><td align=left valign=top>" + StringUtil.makeTitle(prevMessage.getTitle()) + " (" + prevMessage.getGroupTitle() + ')');
+      out.print("<a href=\"view-message.jsp?msgid=" + prevMessage.getMessageId() + "&amp;lastmod=" + lastmod.getTime() + "\" rel=prev rev=next>&lt;&lt;&lt;</a></td><td align=left valign=top>" + StringUtil.makeTitle(prevMessage.getTitle()) + " (" + prevMessage.getGroupTitle() + ')');
     }
 
     out.print("</td></table></td>");
@@ -151,7 +151,7 @@
       Timestamp lastmod = nextMessage.getLastModified();
       if (lastmod == null) lastmod = new Timestamp(0);
 
-      out.print(StringUtil.makeTitle(nextMessage.getTitle()) + " (" + nextMessage.getGroupTitle() + ")</td><td valign=middle align=right><a href=\"jump-message.jsp?msgid=" + nextMessage.getMessageId() + "&amp;lastmod=" + lastmod.getTime() + "\" rev=prev rel=next>&gt;&gt;&gt;</a>");
+      out.print(StringUtil.makeTitle(nextMessage.getTitle()) + " (" + nextMessage.getGroupTitle() + ")</td><td valign=middle align=right><a href=\"view-message.jsp?msgid=" + nextMessage.getMessageId() + "&amp;lastmod=" + lastmod.getTime() + "\" rev=prev rel=next>&gt;&gt;&gt;</a>");
     }
 
     out.print("</td></table></td>");
@@ -336,7 +336,7 @@ google_ui_features = "rc:0";
       if (prevMessage != null) {
         Timestamp lastmod = prevMessage.getLastModified();
 
-        out.print("<a href=\"jump-message.jsp?msgid=" + prevMessage.getMessageId() + "&amp;lastmod=" + lastmod.getTime() + "\" rel=prev rev=next>&lt;&lt;&lt;</a></td><td align=left valign=top>" + StringUtil.makeTitle(prevMessage.getTitle()));
+        out.print("<a href=\"view-message.jsp?msgid=" + prevMessage.getMessageId() + "&amp;lastmod=" + lastmod.getTime() + "\" rel=prev rev=next>&lt;&lt;&lt;</a></td><td align=left valign=top>" + StringUtil.makeTitle(prevMessage.getTitle()));
       }
 
       out.print("</td></table></td>");
@@ -348,7 +348,7 @@ google_ui_features = "rc:0";
       if (nextMessage != null) {
         Timestamp lastmod = nextMessage.getLastModified();
 
-        out.print(StringUtil.makeTitle(nextMessage.getTitle()) + "</td><td align=right valign=middle><a href=\"jump-message.jsp?msgid=" + nextMessage.getMessageId() + "&amp;lastmod=" + lastmod.getTime() + "\" rev=prev rel=next>&gt;&gt;&gt;</a>");
+        out.print(StringUtil.makeTitle(nextMessage.getTitle()) + "</td><td align=right valign=middle><a href=\"view-message.jsp?msgid=" + nextMessage.getMessageId() + "&amp;lastmod=" + lastmod.getTime() + "\" rev=prev rel=next>&gt;&gt;&gt;</a>");
       }
 
       out.print("</td></table></td>");
@@ -359,7 +359,7 @@ google_ui_features = "rc:0";
         Timestamp lastmod = prevMessage.getLastModified();
         if (lastmod == null) lastmod = new Timestamp(0);
 
-        out.print("<a href=\"jump-message.jsp?msgid=" + prevMessage.getMessageId() + "&amp;lastmod=" + lastmod.getTime() + "\" rel=prev rev=next>&lt;&lt;&lt;</a></td><td align=left valign=top>" + StringUtil.makeTitle(prevMessage.getTitle()) + " (" + prevMessage.getGroupTitle() + ')');
+        out.print("<a href=\"view-message.jsp?msgid=" + prevMessage.getMessageId() + "&amp;lastmod=" + lastmod.getTime() + "\" rel=prev rev=next>&lt;&lt;&lt;</a></td><td align=left valign=top>" + StringUtil.makeTitle(prevMessage.getTitle()) + " (" + prevMessage.getGroupTitle() + ')');
       }
 
       out.print("</td></table></td>");
@@ -371,7 +371,7 @@ google_ui_features = "rc:0";
         Timestamp lastmod = nextMessage.getLastModified();
         if (lastmod == null) lastmod = new Timestamp(0);
 
-        out.print(StringUtil.makeTitle(nextMessage.getTitle()) + " (" + nextMessage.getGroupTitle() + ")</td><td valign=middle align=right><a href=\"jump-message.jsp?msgid=" + nextMessage.getMessageId() + "&amp;lastmod=" + lastmod.getTime() + "\" rev=prev rel=next>&gt;&gt;&gt;</a>");
+        out.print(StringUtil.makeTitle(nextMessage.getTitle()) + " (" + nextMessage.getGroupTitle() + ")</td><td valign=middle align=right><a href=\"view-message.jsp?msgid=" + nextMessage.getMessageId() + "&amp;lastmod=" + lastmod.getTime() + "\" rev=prev rel=next>&gt;&gt;&gt;</a>");
       }
 
       out.print("</td></table></td>");
@@ -396,7 +396,7 @@ google_ui_features = "rc:0";
 
 <p>
 <i>
-<% String masterUrl = "http://www.linux.org.ru/jump-message.jsp?msgid="+msgid; %>
+<% String masterUrl = "http://www.linux.org.ru/view-message.jsp?msgid="+msgid; %>
 Пожалуйста, для ссылок на дискуссию используйте URL: <br>
 <a href="<%= masterUrl %>"><%= masterUrl %></a></i>
 <p>

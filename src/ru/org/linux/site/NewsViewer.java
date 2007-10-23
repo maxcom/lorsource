@@ -46,7 +46,7 @@ public class NewsViewer implements Viewer {
 
     out.append("<div class=news><h2>");
 
-    String jumplink = "jump-message.jsp?msgid=" + msgid;
+    String jumplink = "view-message.jsp?msgid=" + msgid;
     String mainlink = jumplink;
     if (!expired) {
       jumplink += "&amp;lastmod=" + lastmod.getTime();

@@ -1,8 +1,11 @@
 <%@ page contentType="text/html; charset=koi8-r"%>
-<%@ page import="java.net.URLEncoder,java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.sql.Timestamp,java.util.*,javax.servlet.http.HttpServletResponse,ru.org.linux.site.*" errorPage="/error.jsp" buffer="200kb"%>
-<%@ page import="ru.org.linux.util.BadImageException"%>
-<%@ page import="ru.org.linux.util.ImageInfo"%>
-<%@ page import="ru.org.linux.util.StringUtil"%>
+<%@ page import="java.net.URLEncoder,java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.sql.Timestamp,java.util.ArrayList,java.util.Collections,java.util.List" errorPage="/error.jsp" buffer="200kb"%>
+<%@ page import="java.util.Map"%>
+<%@ page import="javax.servlet.http.HttpServletResponse"%>
+<%@ page import="ru.org.linux.site.*"%>
+<%@ page import="ru.org.linux.util.BadImageException" %>
+<%@ page import="ru.org.linux.util.ImageInfo" %>
+<%@ page import="ru.org.linux.util.StringUtil" %>
 <% Template tmpl = new Template(request, config, response); %>
 <%= tmpl.head() %>
 <%
@@ -149,32 +152,33 @@
   Map ignoreList = IgnoreList.getIgnoreListHash(db, (String) session.getValue("nick"));
 
   if (!showIgnored && tmpl.isSessionAuthorized(session) && !session.getValue("nick").equals("anonymous")) {
-    if (firstPage && ignoreList != null && !ignoreList.isEmpty())
+    if (firstPage && ignoreList != null && !ignoreList.isEmpty()) {
       ignq = " AND topics.userid NOT IN (SELECT ignored FROM ignore_list, users WHERE userid=users.id and nick='" + session.getValue("nick") + "')";
+    }
   }
 
-          out.print("<h1>");
+  out.print("<h1>");
 
-          out.print(group.getSectionName()+": "+group.getTitle()+"</h1>");
+  out.print(group.getSectionName() + ": " + group.getTitle() + "</h1>");
 
-          if (group.getImage()!=null) {
-            out.print("<div align=center>");
-            try {
-              ImageInfo info=new ImageInfo(tmpl.getObjectConfig().getHTMLPathPrefix()+tmpl.getStyle()+group.getImage());
-              out.print("<img src=\"/" + tmpl.getStyle() + group.getImage() + "\" " + info.getCode() + " border=0 alt=\"Группа " + group.getTitle() + "\">");
-            } catch (BadImageException ex) {
-              out.print("[bad image]");
-            }
-            out.print("</div>");
-          }
+  if (group.getImage() != null) {
+    out.print("<div align=center>");
+    try {
+      ImageInfo info = new ImageInfo(tmpl.getObjectConfig().getHTMLPathPrefix() + tmpl.getStyle() + group.getImage());
+      out.print("<img src=\"/" + tmpl.getStyle() + group.getImage() + "\" " + info.getCode() + " border=0 alt=\"Группа " + group.getTitle() + "\">");
+    } catch (BadImageException ex) {
+      out.print("[bad image]");
+    }
+    out.print("</div>");
+  }
 
-          String des=tmpl.getObjectConfig().getStorage().readMessageNull("grinfo", String.valueOf(groupId));
-          if (des!=null) {
-                  out.print("<p style=\"margin-top: 0px\"><em>");
-                  out.print(des);
-                  out.print("</em></p>");
-          }
-  %>
+  String des = tmpl.getObjectConfig().getStorage().readMessageNull("grinfo", String.valueOf(groupId));
+  if (des != null) {
+    out.print("<p style=\"margin-top: 0px\"><em>");
+    out.print(des);
+    out.print("</em></p>");
+  }
+%>
 <form action="group.jsp" method="GET">
 
   <input type=hidden name=group value=<%= groupId %>>
@@ -219,7 +223,7 @@
   while (rs.next()) {
     StringBuffer outbuf = new StringBuffer();
     int stat1 = rs.getInt("stat1");
-	
+
     Timestamp lastmod = rs.getTimestamp("lastmod");
     if (lastmod == null) {
       lastmod = new Timestamp(0);
@@ -228,7 +232,7 @@
     outbuf.append("<tr><td>");
     if (rs.getBoolean("deleted")) {
       outbuf.append("[X] ");
-    } else if(rs.getBoolean("sticky")) {
+    } else if (rs.getBoolean("sticky")) {
       outbuf.append("<img src=\"img/paper_clip.gif\" alt=\"Прикреплено\" title=\"Прикреплено\"> ");
     }
 
@@ -236,19 +240,19 @@
 
     if (firstPage) {
       if (pagesInCurrent <= 1) {
-        outbuf.append("<a href=\"jump-message.jsp?msgid=").append(rs.getInt("msgid")).append("&amp;lastmod=").append(lastmod.getTime()).append("\" rev=contents>").append(StringUtil.makeTitle(rs.getString("subj"))).append("</a>");
+        outbuf.append("<a href=\"view-message.jsp?msgid=").append(rs.getInt("msgid")).append("&amp;lastmod=").append(lastmod.getTime()).append("\" rev=contents>").append(StringUtil.makeTitle(rs.getString("subj"))).append("</a>");
       } else {
-        outbuf.append("<a href=\"jump-message.jsp?msgid=").append(rs.getInt("msgid")).append("\" rev=contents>").append(StringUtil.makeTitle(rs.getString("subj"))).append("</a>");
+        outbuf.append("<a href=\"view-message.jsp?msgid=").append(rs.getInt("msgid")).append("\" rev=contents>").append(StringUtil.makeTitle(rs.getString("subj"))).append("</a>");
       }
     } else {
-      outbuf.append("<a href=\"jump-message.jsp?msgid=").append(rs.getInt("msgid")).append("\" rev=contents>").append(StringUtil.makeTitle(rs.getString("subj"))).append("</a>");
+      outbuf.append("<a href=\"view-message.jsp?msgid=").append(rs.getInt("msgid")).append("\" rev=contents>").append(StringUtil.makeTitle(rs.getString("subj"))).append("</a>");
     }
 
     if (pagesInCurrent > 1) {
       outbuf.append("&nbsp;(стр.");
 
       for (int i = 1; i < pagesInCurrent; i++) {
-        outbuf.append(" <a href=\"jump-message.jsp?msgid=").append(rs.getInt("msgid"));
+        outbuf.append(" <a href=\"view-message.jsp?msgid=").append(rs.getInt("msgid"));
         if ((i == pagesInCurrent - 1) && firstPage) {
           outbuf.append("&amp;lastmod=").append(lastmod.getTime());
         }
@@ -299,8 +303,8 @@
     Collections.reverse(outputList);
   }
 
-  for (Iterator i = outputList.iterator(); i.hasNext();) {
-    out.print((String) i.next());
+  for (Object anOutputList : outputList) {
+    out.print((String) anOutputList);
   }
 %>
 </tbody>
@@ -343,27 +347,31 @@
 <%
   for (int i=0; i<=pages+1; i++) {
     if (firstPage) {
-      if (i!=0 && i!=(pages+1) && i>7)
+      if (i != 0 && i != (pages + 1) && i > 7) {
         continue;
+      }
     } else {
-      if (i!=0 && i!=(pages+1) && Math.abs((pages+1-i)*topics-offset)>7*topics)
+      if (i != 0 && i != (pages + 1) && Math.abs((pages + 1 - i) * topics - offset) > 7 * topics) {
         continue;
+      }
     }
 
     if (i==pages+1) {
-      if (offset!=0 || firstPage)
-        out.print("[<a href=\"group.jsp?group="+groupId+"&amp;offset=0"+(showDeleted?"&amp;deleted=t":"")+ignoredAdd+"\">конец</a>] ");
-      else
+      if (offset != 0 || firstPage) {
+        out.print("[<a href=\"group.jsp?group=" + groupId + "&amp;offset=0" + (showDeleted ? "&amp;deleted=t" : "") + ignoredAdd + "\">конец</a>] ");
+      } else {
         out.print("[<b>конец</b>] ");
+      }
     } else if (i==0) {
-        if (firstPage)
-          out.print("[<b>начало</b>] ");
-        else
-          out.print("[<a href=\"group.jsp?group="+groupId+(showDeleted?"&amp;deleted=t":"")+ignoredAdd+"\">начало</a>] ");
-    } else if ((pages+1-i)*topics==offset)
-      out.print("[<b>"+(pages+1-i)+"</b>] ");
-    else {
-      out.print("[<a href=\"group.jsp?group="+groupId+"&amp;offset="+((pages+1-i)*topics)+(showDeleted?"&amp;deleted=t":"")+ignoredAdd+"\">"+(pages+1-i)+"</a>] ");
+      if (firstPage) {
+        out.print("[<b>начало</b>] ");
+      } else {
+        out.print("[<a href=\"group.jsp?group=" + groupId + (showDeleted ? "&amp;deleted=t" : "") + ignoredAdd + "\">начало</a>] ");
+      }
+    } else if ((pages + 1 - i) * topics == offset) {
+      out.print("[<b>" + (pages + 1 - i) + "</b>] ");
+    } else {
+      out.print("[<a href=\"group.jsp?group=" + groupId + "&amp;offset=" + ((pages + 1 - i) * topics) + (showDeleted ? "&amp;deleted=t" : "") + ignoredAdd + "\">" + (pages + 1 - i) + "</a>] ");
     }
   }
 %>
@@ -389,7 +397,9 @@
 %>
 <%
   } finally {
-    if (db!=null) db.close();
+    if (db != null) {
+      db.close();
+    }
   }
 %>
 <%= tmpl.DocumentFooter() %>

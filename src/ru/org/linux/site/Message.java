@@ -423,7 +423,7 @@ public class Message {
       out.append("<div class=title>");
 
       if (!deleted) {
-        out.append("[<a href=\"/jump-message.jsp?msgid=").append(msgid).append("\">#</a>]");
+        out.append("[<a href=\"/view-message.jsp?msgid=").append(msgid).append("\">#</a>]");
       }
 
 //      if (!isExpired() && !isDeleted())
