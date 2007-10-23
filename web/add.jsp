@@ -37,7 +37,7 @@
 
           if (!group.isModerated()) {
             if (returnUrl == null || "".equals(returnUrl)) {
-              returnUrl = "jump-message.jsp?msgid=" + msgid;
+              returnUrl = "view-message.jsp?msgid=" + msgid;
             }
             response.setHeader("Location", tmpl.getMainUrl() + returnUrl + "&nocache=" + random.nextInt());
             response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
@@ -95,7 +95,7 @@
     Integer groupId = (Integer)request.getAttribute("group");
 
     db = tmpl.getConnection("add");
-    Group group = new Group(db, groupId.intValue());
+    Group group = new Group(db, groupId);
 
     User currentUser = User.getCurrentUser(db, session);
 
@@ -104,8 +104,8 @@
     }
 
     String mode = (String)request.getAttribute("mode");
-    boolean texttype = ((Boolean)request.getAttribute("texttype")).booleanValue();
-    boolean autourl = ((Boolean)request.getAttribute("autourl")).booleanValue();
+    boolean texttype = (Boolean) request.getAttribute("texttype");
+    boolean autourl = (Boolean) request.getAttribute("autourl");
 
 %>
 
@@ -126,7 +126,7 @@
 <% if (error==null) { %>
 <h1>Добавить</h1>
 <% } else { out.println("<h1>Ошибка: "+error.getMessage()+"</h1>"); } %>
-<% if (tmpl.getProf().getBoolean("showinfo") && !tmpl.isSessionAuthorized(session)) { %>
+<% if (tmpl.getProf().getBoolean("showinfo") && !Template.isSessionAuthorized(session)) { %>
 <font size=2>Чтобы просто поместить сообщение, используйте login `anonymous',
 без пароля. Если вы собираетесь активно участвовать в форуме,
 помещать новости на главную страницу,
@@ -155,7 +155,7 @@
   <input type="hidden" name="noinfo" value="<%= request.getAttribute("noinfo") %>">
  <% }
 %>
-<% if (session==null || session.getValue("login")==null || !((Boolean) session.getValue("login")).booleanValue()) { %>
+<% if (session == null || session.getValue("login") == null || !(Boolean) session.getValue("login")) { %>
 Имя:
 <input type=text name=nick value="<%= request.getAttribute("nick")==null?"anonymous":HTMLFormatter.htmlSpecialChars((String)request.getAttribute("nick")) %>" size=40><br>
 Пароль:

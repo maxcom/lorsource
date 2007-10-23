@@ -20,7 +20,7 @@
 %>
 <rss version="2.0">
 <channel>
-<link>http://www.linux.org.ru/jump-message.jsp?msgid=<%= topic %></link>
+<link>http://www.linux.org.ru/view-message.jsp?msgid=<%= topic %></link>
 <language>ru</language>
 <%
 

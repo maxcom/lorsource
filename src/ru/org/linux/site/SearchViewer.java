@@ -57,7 +57,7 @@ public class SearchViewer implements Viewer {
       try {
         User user = User.getUser(db, username);
 
-        select.append(" AND userid="+user.getId());
+        select.append(" AND userid=").append(user.getId());
       } catch (UserNotFoundException ex) {
         throw new UserErrorException("User not found: "+username);
       }
@@ -106,7 +106,7 @@ public class SearchViewer implements Viewer {
       String url;
 
       if (topic==0) {
-        url = "jump-message.jsp?msgid="+id;
+        url = "view-message.jsp?msgid="+id;
       } else {
         url = "jump-message.jsp?msgid="+topic+"&amp;cid="+id;
       }

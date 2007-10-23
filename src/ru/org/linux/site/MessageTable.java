@@ -118,8 +118,8 @@ public class MessageTable {
           ImageInfo info = new ImageInfo(htmlPath + url);
 
           out.append("<item>");
-          out.append("  <link>http://www.linux.org.ru/jump-message.jsp?msgid=").append(msgid).append("</link>\n");
-          out.append("  <guid>http://www.linux.org.ru/jump-message.jsp?msgid=").append(msgid).append("</guid>\n");
+          out.append("  <link>http://www.linux.org.ru/view-message.jsp?msgid=").append(msgid).append("</link>\n");
+          out.append("  <guid>http://www.linux.org.ru/view-message.jsp?msgid=").append(msgid).append("</guid>\n");
           out.append("  <pubDate>").append(Template.RFC822.format(rs.getTimestamp("postdate"))).append("</pubDate>\n");
           out.append("  <title>").append(HTMLFormatter.htmlSpecialChars(subj)).append("</title>\n");
 
@@ -140,7 +140,12 @@ public class MessageTable {
         if (id > 0) {
           try {
             Poll poll = new Poll(db, id);
-            out.append("<item>\n" + "  <title>").append(HTMLFormatter.htmlSpecialChars(subj)).append("</title>\n" + "  <link>http://www.linux.org.ru/jump-message.jsp?msgid=").append(msgid).append("</link>\n" + "  <guid>http://www.linux.org.ru/jump-message.jsp?msgid=").append(msgid).append("</guid>\n" + "  <pubDate>").append(Template.RFC822.format(rs.getTimestamp("postdate"))).append("</pubDate>\n" + "  <description>\n" + "\t");
+            out.append("<item>\n" + "  <title>")
+                .append(HTMLFormatter.htmlSpecialChars(subj))
+                .append("</title>\n" + "  <link>http://www.linux.org.ru/view-message.jsp?msgid=").append(msgid)
+                .append("</link>\n" + "  <guid>http://www.linux.org.ru/view-message.jsp?msgid=").append(msgid)
+                .append("</guid>\n" + "  <pubDate>").append(Template.RFC822.format(rs.getTimestamp("postdate")))
+                .append("</pubDate>\n" + "  <description>\n" + "\t");
             out.append(HTMLFormatter.htmlSpecialChars(poll.renderPoll(db, fullUrl))).append("\n" + " \n" + "  </description>\n" + "</item>");
           } catch (PollNotFoundException e) {
             // TODO write to log

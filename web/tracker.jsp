@@ -82,7 +82,7 @@
         "<a href='group.jsp?group=" + rs.getString("gid") + "'>" +
         rs.getString("gname") + "</a>" +
         "</td><td>" +
-        "<a href='jump-message.jsp?msgid=" + rs.getString("id"));
+        "<a href='view-message.jsp?msgid=" + rs.getString("id"));
 
     String sTemp = "";
 

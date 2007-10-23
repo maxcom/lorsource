@@ -1,9 +1,8 @@
 <%@ page contentType="text/html; charset=koi8-r"%>
-<%@ page import="java.sql.Connection,java.sql.PreparedStatement,java.util.Iterator,java.util.List,java.util.Random" errorPage="/error.jsp"%>
-<%@ page import="java.util.logging.Logger"%>
+<%@ page import="java.sql.Connection,java.sql.PreparedStatement,java.util.List,java.util.Random,java.util.logging.Logger" errorPage="/error.jsp"%>
 <%@ page import="javax.servlet.http.HttpServletResponse"%>
 <%@ page import="ru.org.linux.site.*"%>
-<%@ page import="ru.org.linux.util.HTMLFormatter" %>
+<%@ page import="ru.org.linux.util.HTMLFormatter"%>
 <% Template tmpl = new Template(request, config, response);
   Logger logger = Logger.getLogger("ru.org.linux");
 %>
@@ -49,13 +48,14 @@
 <%
   List variants = poll.getPollVariants(db, Poll.ORDER_ID);
 
-  for (Iterator i = variants.iterator(); i.hasNext(); ) {
-    PollVariant var = (PollVariant) i.next();
+  for (Object variant : variants) {
+    PollVariant var = (PollVariant) variant;
 
-      %>
-      Вариант #<%= var.getId() %>: <input type="text" name="var<%= var.getId() %>" size="40" value="<%= var.getLabel() %>"><br>
-      <%
-  }
+%>
+  Вариант #<%= var.getId() %>: <input type="text" name="var<%= var.getId() %>" size="40"
+                                      value="<%= var.getLabel() %>"><br>
+  <%
+    }
   %>
   Еще вариант: <input type="text" name="new1" size="40"><br>
   Еще вариант: <input type="text" name="new2" size="40"><br>
@@ -63,17 +63,20 @@
 
   <%
 
-  } finally {
-    if (db!=null) db.close();
-  }
-%>
+    } finally {
+      if (db != null) {
+        db.close();
+      }
+    }
+  %>
 <input type=submit name="change" value="Изменить">
 <!-- input type=submit name="submit" value="Подтвердить" -->
 </form>
 <%
   } else {
-    if (request.getParameter("msgid") == null)
+    if (request.getParameter("msgid") == null) {
       throw new MissingParameterException("msgid");
+    }
 
     int msgid = tmpl.getParameters().getInt("msgid");
     int id = tmpl.getParameters().getInt("id");
@@ -105,8 +108,8 @@
       pstTopic.executeUpdate();
 
       List variants = poll.getPollVariants(db, Poll.ORDER_ID);
-      for (Iterator i = variants.iterator(); i.hasNext();) {
-        PollVariant var = (PollVariant) i.next();
+      for (Object variant : variants) {
+        PollVariant var = (PollVariant) variant;
 
         String label = tmpl.getParameters().getString("var" + var.getId());
 
@@ -137,7 +140,7 @@
 
       Random random = new Random();
 
-      response.setHeader("Location", tmpl.getMainUrl() + "jump-message.jsp?msgid=" + msgid + "&nocache=" + random.nextInt());
+      response.setHeader("Location", tmpl.getMainUrl() + "view-message.jsp?msgid=" + msgid + "&nocache=" + random.nextInt());
       response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
     } finally {
       if (db != null) {

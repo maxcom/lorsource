@@ -39,7 +39,7 @@
 
     Poll poll = Poll.getCurrentPoll(db);
 
-    out.print("<h2><a href=\"jump-message.jsp?msgid="+poll.getTopicId()+"\">Опрос</a></h2>");
+    out.print("<h2><a href=\"view-message.jsp?msgid="+poll.getTopicId()+"\">Опрос</a></h2>");
     out.print("<h3>" + poll.getTitle() + "</h3>");
 
     Statement st = db.createStatement();
