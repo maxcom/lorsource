@@ -23,7 +23,7 @@ implements
   private Storage storage=null;
   private long dbWaitTime=0;
 
-  protected static final DatabasePool pool = new DatabasePool();
+  private final DatabasePool pool = new DatabasePool();
 
   public Config(Properties configfile) {
     config=configfile;
@@ -38,7 +38,7 @@ implements
     if (db==null) {
       long startMillis = new Date().getTime();
 
-      db=pool.getConnection(config);
+      db=pool.getConnection();
       //logger.notice("config", "opened connection for '"+user+"'");
 
       long endMillis = new Date().getTime();
@@ -54,7 +54,7 @@ implements
     if (db==null) {
       long startMillis = new Date().getTime();
 
-      db=pool.getConnectionWhois(config);
+      db=pool.getConnectionWhois();
 
       long endMillis = new Date().getTime();
 

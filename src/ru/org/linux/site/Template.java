@@ -46,14 +46,6 @@ public class Template {
 
   private static final int WARNING_EXEC_TIME = 15000;
 
-  static {
-    try {
-      Class.forName("org.postgresql.Driver");
-    } catch (ClassNotFoundException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
   public String getSecret() {
     return config.getProperties().getProperty("Secret");
   }
