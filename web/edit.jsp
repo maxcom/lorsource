@@ -102,8 +102,6 @@
         out.print("nothing changed.\n");
       }
     } else {
-      out.print("<!-- method is GET -->\n");
-      // show edit form
 %>
 <form action="edit.jsp" name="edit" method="post">
   <input type="hidden" name="msgid" value="<%= msgid %>">
@@ -118,7 +116,7 @@
   <textarea name="newmsg" cols="70" rows="20"><%= cText %></textarea>
   <br><br>
   Текст ссылки :
-  <% if ((sURLtitle != null) && (sURLtitle.length() != 0)) {
+  <% if (message.containsLink()) {
     out.print("<input type=\"text\" name=\"url_text\" size=\"78\" value=\"" + sURLtitle + "\">\n");
   } else {
     out.print("<input type=\"text\" name=\"url_text\" size=\"78\" value='' disabled>\n");
@@ -126,7 +124,7 @@
   %>
   <br>
   Ссылка :
-  <% if ((sURL != null) && (sURL.length() != 0)) {
+  <% if (message.containsLink()) {
     out.print("<input type=\"text\" name=\"url\" size=\"84\" value=\"" + sURL + "\">\n");
   } else {
     out.print("<input type=\"text\" name=\"url\" size=\"84\" value='' disabled>\n");

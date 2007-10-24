@@ -1025,4 +1025,8 @@ public class Message {
       return link;
     }
   }
+
+  public boolean containsLink() {
+    return havelink;
+  }
 }
