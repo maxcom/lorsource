@@ -1,5 +1,6 @@
 <%@ page contentType="text/html; charset=koi8-r"%>
 <%@ page import="java.sql.Connection,java.sql.Statement,javax.servlet.http.HttpServletResponse,ru.org.linux.site.*,ru.org.linux.util.StringUtil" errorPage="/error.jsp" buffer="200kb"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <% Template tmpl = new Template(request, config, response); %>
 <%= tmpl.head() %>
 <%
@@ -153,9 +154,11 @@
    }
 %>
 
-<h1>
-<% if (showDeleted) out.print("<br>Режим показа удаленных комментариев"); %>
-</h1>
+<c:if test="<%= showDeleted %>">
+<%
+  out.print("<h1>Режим показа удаленных комментариев</h1>");
+%>
+</c:if>
 
 <%
   boolean comment = message.isCommentEnabled();
@@ -250,7 +253,7 @@ google_ui_features = "rc:0";
       out.print("</div>");
     }
 
-    if (!showDeleted /* && message.getCommentCount() > 0 */) {
+    if (!showDeleted) {
       out.print("<form method=\"GET\" action=\"view-message.jsp\">");
       out.print("<div class=nav>");
 
@@ -367,7 +370,7 @@ google_ui_features = "rc:0";
 <% if (Template.isSessionAuthorized(session) && !message.isExpired() && !showDeleted) { %>
 <hr>
 <form action="view-message.jsp" method=POST>
-<input type=hidden name=msgid value=<%= msgid %>>
+<input type=hidden name=msgid value="<%= msgid %>">
 <input type=hidden name=deleted value=1>
 <input type=submit value="Показать удаленные комментарии">
 </form>

@@ -115,6 +115,8 @@
     <orderEntry type="library" name="commons-io-1.3.2" level="project" />
     <orderEntry type="library" name="jcaptcha-all-1.0-RC6" level="project" />
     <orderEntry type="library" name="javamail" level="project" />
+    <orderEntry type="library" name="jstl" level="project" />
+    <orderEntry type="library" name="standard" level="project" />
     <orderEntryProperties />
   </component>
   <component name="WebModuleBuildComponent">
@@ -196,6 +198,14 @@
       <attribute name="URI" value="/WEB-INF/lib" />
     </containerElement>
     <containerElement type="library" name="jcaptcha-all-1.0-RC6" level="project">
+      <attribute name="method" value="1" />
+      <attribute name="URI" value="/WEB-INF/lib" />
+    </containerElement>
+    <containerElement type="library" name="jstl" level="project">
+      <attribute name="method" value="1" />
+      <attribute name="URI" value="/WEB-INF/lib" />
+    </containerElement>
+    <containerElement type="library" name="standard" level="project">
       <attribute name="method" value="1" />
       <attribute name="URI" value="/WEB-INF/lib" />
     </containerElement>

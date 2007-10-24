@@ -449,6 +449,20 @@
       <JAVADOC />
       <SOURCES />
     </library>
+    <library name="jstl">
+      <CLASSES>
+        <root url="jar://$PROJECT_DIR$/lib/jstl.jar!/" />
+      </CLASSES>
+      <JAVADOC />
+      <SOURCES />
+    </library>
+    <library name="standard">
+      <CLASSES>
+        <root url="jar://$PROJECT_DIR$/lib/standard.jar!/" />
+      </CLASSES>
+      <JAVADOC />
+      <SOURCES />
+    </library>
   </component>
   <component name="uidesigner-configuration">
     <option name="INSTRUMENT_CLASSES" value="true" />
