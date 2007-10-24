@@ -289,7 +289,7 @@ public class Template {
   public String DocumentHeader() throws IOException, StorageException, UtilException {
     StringBuffer out = new StringBuffer();
     out.append("<LINK REL=STYLESHEET TYPE=\"text/css\" HREF=\"/common.css\" TITLE=\"Normal\">");
-    out.append("<link rel=\"search\" title=\"Search L.O.R.\" href=\"search.php\">\n");
+    out.append("<link rel=\"search\" title=\"Search L.O.R.\" href=\"/search.jsp\">\n");
     out.append("<link rel=\"top\" title=\"Linux.org.ru\" href=\"/\">\n");
 
     // form submit on ctrl-enter js
