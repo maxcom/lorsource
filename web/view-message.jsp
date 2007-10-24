@@ -1,5 +1,5 @@
 <%@ page contentType="text/html; charset=koi8-r"%>
-<%@ page import="java.sql.Connection,java.sql.Statement,java.sql.Timestamp,javax.servlet.http.HttpServletResponse,ru.org.linux.site.*,ru.org.linux.util.StringUtil" errorPage="/error.jsp" buffer="200kb"%>
+<%@ page import="java.sql.Connection,java.sql.Statement,javax.servlet.http.HttpServletResponse,ru.org.linux.site.*,ru.org.linux.util.StringUtil" errorPage="/error.jsp" buffer="200kb"%>
 <% Template tmpl = new Template(request, config, response); %>
 <%= tmpl.head() %>
 <%
@@ -46,7 +46,7 @@
     }
 
     if (showDeleted) {
-      if (!tmpl.isSessionAuthorized(session)) {
+      if (!Template.isSessionAuthorized(session)) {
         throw new BadInputException("Вы уже вышли из системы");
       }
     }
@@ -68,7 +68,7 @@
     if (message.isExpired() && message.isDeleted()) {
       throw new AccessViolationException("нельзя посмотреть устаревшие удаленные сообщения");
     }
-    if (message.isDeleted() && !tmpl.isSessionAuthorized(session)) {
+    if (message.isDeleted() && !Template.isSessionAuthorized(session)) {
       throw new AccessViolationException("Сообщение удалено");
     }
 
@@ -90,11 +90,11 @@
     Message nextMessage = message.getNextMessage(db);
 
     if (prevMessage != null) {
-      out.print("<link rel=\"Previous\" href=\"view-message.jsp?msgid=" + prevMessage.getMessageId() + "&amp;lastmod=" + prevMessage.getLastModified().getTime() + "\" title=\"" + StringUtil.makeTitle(prevMessage.getTitle()) + "\">");
+      out.print("<link rel=\"Previous\" href=\"" + prevMessage.getLinkLastmod(true) + "\" title=\"" + StringUtil.makeTitle(prevMessage.getTitle()) + "\">");
     }
 
     if (nextMessage != null) {
-      out.print("<link rel=\"Next\" href=\"view-message.jsp?msgid=" + nextMessage.getMessageId() + "&amp;lastmod=" + nextMessage.getLastModified().getTime() + "\" title=\"" + StringUtil.makeTitle(nextMessage.getTitle()) + "\">");
+      out.print("<link rel=\"Next\" href=\"" + nextMessage.getLinkLastmod(true) + "\" title=\"" + StringUtil.makeTitle(nextMessage.getTitle()) + "\">");
     }
 %>
 <LINK REL="alternate" TITLE="L.O.R RSS" HREF="topic-rss.jsp?topic=<%= msgid %>" TYPE="application/rss+xml">
@@ -114,9 +114,7 @@
     out.print("<td align=left valign=middle width=\"35%\"><table><tr valign=middle><td>");
 
     if (prevMessage != null) {
-      Timestamp lastmod = prevMessage.getLastModified();
-
-      out.print("<a href=\"view-message.jsp?msgid=" + prevMessage.getMessageId() + "&amp;lastmod=" + lastmod.getTime() + "\" rel=prev rev=next>&lt;&lt;&lt;</a></td><td align=left valign=top>" + StringUtil.makeTitle(prevMessage.getTitle()));
+      out.print("<a href=\"" + prevMessage.getLinkLastmod(true) + "\" rel=prev rev=next>&lt;&lt;&lt;</a></td><td align=left valign=top>" + StringUtil.makeTitle(prevMessage.getTitle()));
     }
 
     out.print("</td></table></td>");
@@ -126,9 +124,7 @@
     out.print("<td align=left valign=middle width=\"35%\"><table width=\"100%\"><tr valign=middle align=right><td>");
 
     if (nextMessage != null) {
-      Timestamp lastmod = nextMessage.getLastModified();
-
-      out.print(StringUtil.makeTitle(nextMessage.getTitle()) + "</td><td align=right valign=middle><a href=\"view-message.jsp?msgid=" + nextMessage.getMessageId() + "&amp;lastmod=" + lastmod.getTime() + "\" rev=prev rel=next>&gt;&gt;&gt;</a>");
+      out.print(StringUtil.makeTitle(nextMessage.getTitle()) + "</td><td align=right valign=middle><a href=\"" + nextMessage.getLinkLastmod(true) + "\" rev=prev rel=next>&gt;&gt;&gt;</a>");
     }
 
     out.print("</td></table></td>");
@@ -136,10 +132,7 @@
     out.print("<td align=left valign=middle width=\"35%\"><table width=\"100%\"><tr valign=middle><td>");
 
     if (prevMessage != null) {
-      Timestamp lastmod = prevMessage.getLastModified();
-      if (lastmod == null) lastmod = new Timestamp(0);
-
-      out.print("<a href=\"view-message.jsp?msgid=" + prevMessage.getMessageId() + "&amp;lastmod=" + lastmod.getTime() + "\" rel=prev rev=next>&lt;&lt;&lt;</a></td><td align=left valign=top>" + StringUtil.makeTitle(prevMessage.getTitle()) + " (" + prevMessage.getGroupTitle() + ')');
+      out.print("<a href=\"" + prevMessage.getLinkLastmod(true) + "\" rel=prev rev=next>&lt;&lt;&lt;</a></td><td align=left valign=top>" + StringUtil.makeTitle(prevMessage.getTitle()) + " (" + prevMessage.getGroupTitle() + ')');
     }
 
     out.print("</td></table></td>");
@@ -148,10 +141,7 @@
 
     out.print("<td align=left valign=middle width=\"35%\"><table width=\"100%\"><tr valign=middle align=right><td>");
     if (nextMessage != null) {
-      Timestamp lastmod = nextMessage.getLastModified();
-      if (lastmod == null) lastmod = new Timestamp(0);
-
-      out.print(StringUtil.makeTitle(nextMessage.getTitle()) + " (" + nextMessage.getGroupTitle() + ")</td><td valign=middle align=right><a href=\"view-message.jsp?msgid=" + nextMessage.getMessageId() + "&amp;lastmod=" + lastmod.getTime() + "\" rev=prev rel=next>&gt;&gt;&gt;</a>");
+      out.print(StringUtil.makeTitle(nextMessage.getTitle()) + " (" + nextMessage.getGroupTitle() + ")</td><td valign=middle align=right><a href=\"" + nextMessage.getLinkLastmod(true) + "\" rev=prev rel=next>&gt;&gt;&gt;</a>");
     }
 
     out.print("</td></table></td>");
@@ -334,9 +324,7 @@ google_ui_features = "rc:0";
       out.print("<td align=left valign=middle width=\"35%\"><table><tr valign=middle><td>");
 
       if (prevMessage != null) {
-        Timestamp lastmod = prevMessage.getLastModified();
-
-        out.print("<a href=\"view-message.jsp?msgid=" + prevMessage.getMessageId() + "&amp;lastmod=" + lastmod.getTime() + "\" rel=prev rev=next>&lt;&lt;&lt;</a></td><td align=left valign=top>" + StringUtil.makeTitle(prevMessage.getTitle()));
+        out.print("<a href=\"" + prevMessage.getLinkLastmod(true) + "\" rel=prev rev=next>&lt;&lt;&lt;</a></td><td align=left valign=top>" + StringUtil.makeTitle(prevMessage.getTitle()));
       }
 
       out.print("</td></table></td>");
@@ -346,9 +334,7 @@ google_ui_features = "rc:0";
       out.print("<td align=left valign=middle width=\"35%\"><table width=\"100%\"><tr valign=middle align=right><td>");
 
       if (nextMessage != null) {
-        Timestamp lastmod = nextMessage.getLastModified();
-
-        out.print(StringUtil.makeTitle(nextMessage.getTitle()) + "</td><td align=right valign=middle><a href=\"view-message.jsp?msgid=" + nextMessage.getMessageId() + "&amp;lastmod=" + lastmod.getTime() + "\" rev=prev rel=next>&gt;&gt;&gt;</a>");
+        out.print(StringUtil.makeTitle(nextMessage.getTitle()) + "</td><td align=right valign=middle><a href=\"" + nextMessage.getLinkLastmod(true) + "\" rev=prev rel=next>&gt;&gt;&gt;</a>");
       }
 
       out.print("</td></table></td>");
@@ -356,10 +342,7 @@ google_ui_features = "rc:0";
       out.print("<td align=left valign=middle width=\"35%\"><table width=\"100%\"><tr valign=middle><td>");
 
       if (prevMessage != null) {
-        Timestamp lastmod = prevMessage.getLastModified();
-        if (lastmod == null) lastmod = new Timestamp(0);
-
-        out.print("<a href=\"view-message.jsp?msgid=" + prevMessage.getMessageId() + "&amp;lastmod=" + lastmod.getTime() + "\" rel=prev rev=next>&lt;&lt;&lt;</a></td><td align=left valign=top>" + StringUtil.makeTitle(prevMessage.getTitle()) + " (" + prevMessage.getGroupTitle() + ')');
+        out.print("<a href=\"" + prevMessage.getLinkLastmod(true) + "\" rel=prev rev=next>&lt;&lt;&lt;</a></td><td align=left valign=top>" + StringUtil.makeTitle(prevMessage.getTitle()) + " (" + prevMessage.getGroupTitle() + ')');
       }
 
       out.print("</td></table></td>");
@@ -368,10 +351,7 @@ google_ui_features = "rc:0";
 
       out.print("<td align=left valign=middle width=\"35%\"><table width=\"100%\"><tr valign=middle align=right><td>");
       if (nextMessage != null) {
-        Timestamp lastmod = nextMessage.getLastModified();
-        if (lastmod == null) lastmod = new Timestamp(0);
-
-        out.print(StringUtil.makeTitle(nextMessage.getTitle()) + " (" + nextMessage.getGroupTitle() + ")</td><td valign=middle align=right><a href=\"view-message.jsp?msgid=" + nextMessage.getMessageId() + "&amp;lastmod=" + lastmod.getTime() + "\" rev=prev rel=next>&gt;&gt;&gt;</a>");
+        out.print(StringUtil.makeTitle(nextMessage.getTitle()) + " (" + nextMessage.getGroupTitle() + ")</td><td valign=middle align=right><a href=\"" + nextMessage.getLinkLastmod(true) + "\" rev=prev rel=next>&gt;&gt;&gt;</a>");
       }
 
       out.print("</td></table></td>");
@@ -384,7 +364,7 @@ google_ui_features = "rc:0";
 
 </div>
 
-<% if (tmpl.isSessionAuthorized(session) && !message.isExpired() && !showDeleted) { %>
+<% if (Template.isSessionAuthorized(session) && !message.isExpired() && !showDeleted) { %>
 <hr>
 <form action="view-message.jsp" method=POST>
 <input type=hidden name=msgid value=<%= msgid %>>

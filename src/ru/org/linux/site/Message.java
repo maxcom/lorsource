@@ -1009,4 +1009,20 @@ public class Message {
   public boolean isNotop() {
     return notop;
   }
+
+  public String getLinkLastmod(boolean encode) {
+    String link;
+
+    if (isExpired()) {
+      link = "view-message.jsp?msgid="+msgid;
+    } else {
+      link = "view-message.jsp?msgid="+msgid+"&lastmod="+getLastModified().getTime();
+    }
+
+    if (encode) {
+      return HTMLFormatter.htmlSpecialChars(link);
+    } else {
+      return link;
+    }
+  }
 }
