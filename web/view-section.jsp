@@ -27,7 +27,7 @@
     boolean linkup = section.isLinkup();
 %>
 <title><%= name %></title>
-<link rel="parent" title="Linux.org.ru" href="index.jsp">
+<link rel="parent" title="Linux.org.ru" href="/">
 <LINK REL="alternate" HREF="section-rss.jsp?section=<%= sectionid %>" TYPE="application/rss+xml">
 <%= tmpl.DocumentHeader() %>
   <table class=nav>
