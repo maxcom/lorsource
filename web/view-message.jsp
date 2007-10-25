@@ -103,6 +103,7 @@
 
 <div class=messages>
 
+<c:set var="scroller">
 <%
   int scroll = Section.getScrollMode(message.getSectionId());
 
@@ -110,49 +111,60 @@
 %>
     <table class=nav>
       <tr>
+        <td align=left valign=middle width="35%">
+          <table>
+            <tr valign=middle>
+              <td>
 <%
-  if (scroll == Section.SCROLL_GROUP) {
-    out.print("<td align=left valign=middle width=\"35%\"><table><tr valign=middle><td>");
-
-    if (prevMessage != null) {
+  if (prevMessage != null) {
+    if (scroll == Section.SCROLL_GROUP) {
       out.print("<a href=\"" + prevMessage.getLinkLastmod(true) + "\" rel=prev rev=next>&lt;&lt;&lt;</a></td><td align=left valign=top>" + StringUtil.makeTitle(prevMessage.getTitle()));
-    }
-
-    out.print("</td></table></td>");
-
-    out.print("<td align=center valign=middle><table><tr valign=middle><td><a title=\"" + message.getPortalTitle() + " - " + message.getGroupTitle() + "\" href=\"group.jsp?group=" + message.getGroupId() + "\">" + message.getPortalTitle() + " - " + message.getGroupTitle() + "</a></td></tr></table>");
-
-    out.print("<td align=left valign=middle width=\"35%\"><table width=\"100%\"><tr valign=middle align=right><td>");
-
-    if (nextMessage != null) {
-      out.print(StringUtil.makeTitle(nextMessage.getTitle()) + "</td><td align=right valign=middle><a href=\"" + nextMessage.getLinkLastmod(true) + "\" rev=prev rel=next>&gt;&gt;&gt;</a>");
-    }
-
-    out.print("</td></table></td>");
-  } else if (scroll == Section.SCROLL_SECTION) {
-    out.print("<td align=left valign=middle width=\"35%\"><table width=\"100%\"><tr valign=middle><td>");
-
-    if (prevMessage != null) {
+    } else {
       out.print("<a href=\"" + prevMessage.getLinkLastmod(true) + "\" rel=prev rev=next>&lt;&lt;&lt;</a></td><td align=left valign=top>" + StringUtil.makeTitle(prevMessage.getTitle()) + " (" + prevMessage.getGroupTitle() + ')');
     }
-
-    out.print("</td></table></td>");
-
-    out.print("<td align=center valign=middle><table><tr valign=middle><td><a title=\"" + message.getPortalTitle() + " - " + message.getGroupTitle() + "\" href=\"group.jsp?group=" + message.getGroupId() + "\">" + message.getPortalTitle() + " - " + message.getGroupTitle() + "</a></td></tr></table>");
-
-    out.print("<td align=left valign=middle width=\"35%\"><table width=\"100%\"><tr valign=middle align=right><td>");
-    if (nextMessage != null) {
-      out.print(StringUtil.makeTitle(nextMessage.getTitle()) + " (" + nextMessage.getGroupTitle() + ")</td><td valign=middle align=right><a href=\"" + nextMessage.getLinkLastmod(true) + "\" rev=prev rel=next>&gt;&gt;&gt;</a>");
-    }
-
-    out.print("</td></table></td>");
   }
 %>
+              </td>
+            </tr>
+          </table>
+        </td>
+        <td align=center valign=middle>
+          <table>
+            <tr valign=middle>
+              <td>
+                <a title="<%=  message.getPortalTitle() + " - " + message.getGroupTitle() %>"
+                   href="group.jsp?group=<%= message.getGroupId() %>">
+                  <%= message.getPortalTitle() + " - " + message.getGroupTitle() %>
+                </a>
+              </td>
+            </tr>
+          </table>
+        <td align=left valign=middle width="35%">
+          <table width="100%">
+            <tr valign=middle align=right>
+              <td>
+<%
+  if (nextMessage != null) {
+    if (scroll == Section.SCROLL_GROUP) {
+      out.print(StringUtil.makeTitle(nextMessage.getTitle()) + "</td><td align=right valign=middle><a href=\"" + nextMessage.getLinkLastmod(true) + "\" rev=prev rel=next>&gt;&gt;&gt;</a>");
+    } else {
+      out.print(StringUtil.makeTitle(nextMessage.getTitle()) + " (" + nextMessage.getGroupTitle() + ")</td><td valign=middle align=right><a href=\"" + nextMessage.getLinkLastmod(true) + "\" rev=prev rel=next>&gt;&gt;&gt;</a>");
+    }
+  }
+%>
+              </td>
+            </tr>
+          </table>
+        </td>
       </tr>
     </table>
 <%
    }
 %>
+
+</c:set>
+
+<c:out value="${scroller}" escapeXml="false"/>
 
 <c:if test="<%= showDeleted %>">
 <%
@@ -319,51 +331,8 @@ google_ui_features = "rc:0";
     }
   }
 %>
-<%
-  if (scroll != Section.SCROLL_NOSCROLL) {
-    out.print("<table class=nav><tr>");
 
-    if (scroll == Section.SCROLL_GROUP) {
-      out.print("<td align=left valign=middle width=\"35%\"><table><tr valign=middle><td>");
-
-      if (prevMessage != null) {
-        out.print("<a href=\"" + prevMessage.getLinkLastmod(true) + "\" rel=prev rev=next>&lt;&lt;&lt;</a></td><td align=left valign=top>" + StringUtil.makeTitle(prevMessage.getTitle()));
-      }
-
-      out.print("</td></table></td>");
-
-      out.print("<td align=center valign=middle><table><tr valign=middle><td><a title=\"" + message.getPortalTitle() + " - " + message.getGroupTitle() + "\" href=\"group.jsp?group=" + message.getGroupId() + "\">" + message.getPortalTitle() + " - " + message.getGroupTitle() + "</a></td></tr></table>");
-
-      out.print("<td align=left valign=middle width=\"35%\"><table width=\"100%\"><tr valign=middle align=right><td>");
-
-      if (nextMessage != null) {
-        out.print(StringUtil.makeTitle(nextMessage.getTitle()) + "</td><td align=right valign=middle><a href=\"" + nextMessage.getLinkLastmod(true) + "\" rev=prev rel=next>&gt;&gt;&gt;</a>");
-      }
-
-      out.print("</td></table></td>");
-    } else if (scroll == Section.SCROLL_SECTION) {
-      out.print("<td align=left valign=middle width=\"35%\"><table width=\"100%\"><tr valign=middle><td>");
-
-      if (prevMessage != null) {
-        out.print("<a href=\"" + prevMessage.getLinkLastmod(true) + "\" rel=prev rev=next>&lt;&lt;&lt;</a></td><td align=left valign=top>" + StringUtil.makeTitle(prevMessage.getTitle()) + " (" + prevMessage.getGroupTitle() + ')');
-      }
-
-      out.print("</td></table></td>");
-
-      out.print("<td align=center valign=middle><table><tr valign=middle><td><a title=\"" + message.getPortalTitle() + " - " + message.getGroupTitle() + "\" href=\"group.jsp?group=" + message.getGroupId() + "\">" + message.getPortalTitle() + " - " + message.getGroupTitle() + "</a></td></tr></table>");
-
-      out.print("<td align=left valign=middle width=\"35%\"><table width=\"100%\"><tr valign=middle align=right><td>");
-      if (nextMessage != null) {
-        out.print(StringUtil.makeTitle(nextMessage.getTitle()) + " (" + nextMessage.getGroupTitle() + ")</td><td valign=middle align=right><a href=\"" + nextMessage.getLinkLastmod(true) + "\" rev=prev rel=next>&gt;&gt;&gt;</a>");
-      }
-
-      out.print("</td></table></td>");
-    }
-    out.print("</tr></table>");
-  }
-%>
-
-
+<c:out value="${scroller}" escapeXml="false"/>
 
 </div>
 

@@ -1,4 +1,7 @@
-<web-app>
+<web-app xmlns="http://java.sun.com/xml/ns/j2ee"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee
+http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd" version="2.4">
   <resource-ref>
     <description>Primary JDBC source</description>
     <res-ref-name>jdbc/lor</res-ref-name>
@@ -16,6 +19,12 @@
   <servlet>
         <servlet-name>jcaptcha</servlet-name>
         <servlet-class>ru.org.linux.site.ImageCaptchaServlet</servlet-class>
+
+        <init-param>
+            <param-name>statusEnabled</param-name>
+            <param-value>false</param-value>
+        </init-param>
+
         <load-on-startup>0</load-on-startup>
   </servlet>
 
@@ -23,10 +32,6 @@
         <servlet-name>jcaptcha</servlet-name>
         <url-pattern>/jcaptcha.jsp</url-pattern>
 
-        <init-param>
-             <param-name>statusEnabled</param-name>
-             <param-value>false</param-value>
-        </init-param>
   </servlet-mapping>
 
    <filter>
