@@ -119,8 +119,8 @@
   Профессиональный ресурс от IBM для специалистов в области разработки ПО. Рассылка выходит 1 раз в неделю.
   <form id="data1" method="post" enctype="multipart/form-data" action="http://www-931.ibm.com/bin/subscriptions/esi/subscribe/RURU/10209/">
                        e-mail:<br />
-  <input type="text" size="15" name="email" style="width: 90%" value="" />
-  <br />
+  <input type="text" size="15" name="email" style="width: 90%" value="">
+  <br>
   <input alt="subscribe" type="image" name="butSubmit1" value="Subscribe" src="http://www.ibm.com/i/v14/buttons/ru/ru/subscribe.gif">
                       </form>
 </div>
