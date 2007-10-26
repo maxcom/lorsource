@@ -3,26 +3,26 @@
 <% Template tmpl = new Template(request, config, response); %>
 <%= tmpl.head() %>
 <%
-  Connection db=null;
+  Connection db = null;
 
   try {
-   int msgid = tmpl.getParameters().getInt("msgid");
+    int msgid = tmpl.getParameters().getInt("msgid");
 
-   db = tmpl.getConnection("comment-message");
+    db = tmpl.getConnection();
 
-   Message message = new Message(db, msgid);
+    Message message = new Message(db, msgid);
 
-   if (message.isExpired())
-    throw new AccessViolationException("нельзя комментировать устаревшие темы");
+    if (message.isExpired())
+      throw new AccessViolationException("нельзя комментировать устаревшие темы");
 
-   if (message.isDeleted())
-    throw new AccessViolationException("нельзя комментировать удаленные сообщения");
+    if (message.isDeleted())
+      throw new AccessViolationException("нельзя комментировать удаленные сообщения");
 
-   if (!message.isCommentEnabled()) {
-     throw new AccessViolationException("нельзя комментировать тему");
-   }
+    if (!message.isCommentEnabled()) {
+      throw new AccessViolationException("нельзя комментировать тему");
+    }
 
-   out.print("<title>"+message.getPortalTitle()+" - "+message.getGroupTitle()+" - "+message.getTitle()+"</title>");
+    out.print("<title>" + message.getPortalTitle() + " - " + message.getGroupTitle() + " - " + message.getTitle() + "</title>");
 %>
 <%= tmpl.DocumentHeader() %>
 
@@ -36,7 +36,7 @@
 <% if (message.isCommentEnabled()) { %>
 
 <h2><a name=rep>Добавить сообщение:</a></h2>
-<% if (tmpl.getProf().getBoolean("showinfo") && !tmpl.isSessionAuthorized(session)) { %>
+<% if (tmpl.getProf().getBoolean("showinfo") && !Template.isSessionAuthorized(session)) { %>
 <font size=2>Чтобы просто поместить сообщение, используйте login `anonymous',
 без пароля. Если вы собираетесь активно участвовать в форуме,
 помещать новости на главную страницу,
@@ -53,7 +53,7 @@
 
 <form method=POST action="add_comment.jsp">
   <input type="hidden" name="session" value="<%= HTMLFormatter.htmlSpecialChars(session.getId()) %>">  
-<% if (session==null || session.getAttribute("login")==null || !((Boolean) session.getAttribute("login")).booleanValue()) { %>
+<% if (session == null || session.getAttribute("login") == null || !(Boolean) session.getAttribute("login")) { %>
 Имя:
 <input type=text name=nick value="<%= tmpl.getCookie("NickCookie","anonymous") %>" size=40><br>
 Пароль:

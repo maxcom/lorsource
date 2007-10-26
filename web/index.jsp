@@ -31,7 +31,7 @@
   if (tmpl.isModeratorSession()) {
     out.print("<div class=\"nav\"  style=\"border-bottom: none\">");
 
-    Connection db = tmpl.getConnection("index");
+    Connection db = tmpl.getConnection();
 
     Statement st = db.createStatement();
     ResultSet rs = st.executeQuery("select count(*) from topics,groups,sections where section=sections.id AND sections.moderate and topics.groupid=groups.id and not deleted and not topics.moderate AND postdate>(CURRENT_TIMESTAMP-'1 month'::interval)");
@@ -95,7 +95,7 @@
 <form method=POST action="logout.jsp">
 Вы вошли как <b><%= session.getAttribute("nick") %></b>
 <%
-  Connection db = tmpl.getConnection("index");
+  Connection db = tmpl.getConnection();
   User user = User.getUser(db, (String) session.getAttribute("nick"));
 
   out.print(" (статус: " + user.getStatus() + ')');

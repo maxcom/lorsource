@@ -45,7 +45,7 @@
       }
     }
 
-    db = tmpl.getConnection("add-poll");
+    db = tmpl.getConnection();
     db.setAutoCommit(false);
 
     User user = User.getUser(db, (String) session.getAttribute("nick"));

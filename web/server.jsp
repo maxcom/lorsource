@@ -60,7 +60,7 @@
   Connection db = null;
 
   try {
-    db = tmpl.getConnection("server");
+    db = tmpl.getConnection();
 
     Statement st = db.createStatement();
     ResultSet rs = st.executeQuery("SELECT nick, name FROM users WHERE canmod ORDER BY id");

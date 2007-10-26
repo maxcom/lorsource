@@ -140,7 +140,7 @@ public class Template {
           response.addCookie(cookie);
         } else {
           try {
-            Connection db = getConnection("user-cookie-auth");
+            Connection db = getConnection();
             User user = User.getUser(db, profile);
 
             if (user.getMD5(getSecret()).equals(getCookie("password")) && !user.isBlocked()) {
@@ -208,12 +208,8 @@ public class Template {
     return mainPage;
   }
 
-  public Connection getConnection(String user) throws SQLException {
-    return config.getConnection(user);
-  }
-
-  public Connection getConnectionWhois() throws SQLException {
-    return config.getConnectionWhois();
+  public Connection getConnection() throws SQLException {
+    return config.getConnection();
   }
 
   public Properties getConfig() {

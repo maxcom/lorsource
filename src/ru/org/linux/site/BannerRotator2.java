@@ -19,7 +19,7 @@ public class BannerRotator2 {
   }
 
   public String getBanner() throws SQLException {
-    Connection db = config.getConnection("banner rotator");
+    Connection db = config.getConnection();
 
     Statement st = db.createStatement();
     ResultSet rs = st.executeQuery("SELECT id, banner FROM banners WHERE today>0 AND total>0 ORDER BY total DESC LIMIT 1");

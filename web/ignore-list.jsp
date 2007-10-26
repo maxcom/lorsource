@@ -1,7 +1,6 @@
 <%@ page import="java.sql.Connection"%>
-<%@ page import="java.util.Iterator"%>
 <%@ page import="java.util.Map"%>
-<%@ page import="ru.org.linux.site.*" %>
+<%@ page import="ru.org.linux.site.*"%>
 <%@ page contentType="text/html; charset=koi8-r" errorPage="/error.jsp"%>
 <% Template tmpl = new Template(request, config, response);%>
 <%= tmpl.head() %>
@@ -23,7 +22,7 @@
 
 <%
 
-  db = tmpl.getConnection("add-poll");
+  db = tmpl.getConnection();
   //db.setAutoCommit(false);
   User user = User.getUser(db, (String) session.getAttribute("nick"));
   user.checkAnonymous();
@@ -49,8 +48,9 @@
     } else if (request.getParameter("set") != null) {
       // Enable/Disable ignore list
       boolean activated = false;
-      if (request.getParameter("activated") != null)
+      if (request.getParameter("activated") != null) {
         activated = true;
+      }
       ail.setActivated(activated);
     }
 
@@ -72,14 +72,14 @@
 <% if (!ignoreList.isEmpty()) { %>
 <select name="ignore_list" size="10" width="20">
 <%
-  Iterator it = ignoreList.keySet().iterator();
-  while (it.hasNext()) {
-    int id = ((Integer) it.next()).intValue();
-    String nick = (String) ignoreList.get(new Integer(id));
+  for (Object o : ignoreList.keySet()) {
+    int id = (Integer) o;
+    String nick = (String) ignoreList.get(id);
     if (id > 0) {
 %>
-          <option value="<%= id%>"><%= nick %></option>
-        <%
+  <option value="<%= id%>"><%= nick %>
+  </option>
+  <%
       }
     }
   %>
@@ -91,7 +91,9 @@
 
 <%
   } finally {
-    if (db!=null) db.close();
+    if (db != null) {
+      db.close();
+    }
   }
 %>
 

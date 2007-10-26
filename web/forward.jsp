@@ -6,27 +6,27 @@
 	<title>Редирект</title>
 <%= tmpl.DocumentHeader() %>
 <%
-int id=Integer.parseInt(request.getParameter("id"));
+  int id = Integer.parseInt(request.getParameter("id"));
 
-Connection db = null;
-try {
-db = tmpl.getConnection("forward");
+  Connection db = null;
+  try {
+    db = tmpl.getConnection();
 
-Statement st=db.createStatement();
+    Statement st = db.createStatement();
 
-ResultSet rs=st.executeQuery("SELECT url FROM banners WHERE id="+id);
-rs.next();
-String url=rs.getString("url");
-rs.close();
-st.executeUpdate("UPDATE banners SET clicks=clicks+1 WHERE id="+id);
+    ResultSet rs = st.executeQuery("SELECT url FROM banners WHERE id=" + id);
+    rs.next();
+    String url = rs.getString("url");
+    rs.close();
+    st.executeUpdate("UPDATE banners SET clicks=clicks+1 WHERE id=" + id);
 
-st.close();
-response.setHeader("Location", url);
-} finally {
-if ( db != null )
-	db.close();
-}
+    st.close();
+    response.setHeader("Location", url);
+  } finally {
+    if (db != null)
+      db.close();
+  }
 
-response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
+  response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
 %>
 <%= tmpl.DocumentFooter() %>

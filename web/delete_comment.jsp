@@ -31,7 +31,7 @@ function change(dest,source)
 его помещения.
 <form method=POST action="delete_comment.jsp">
 <table>
-<% if (session==null || session.getAttribute("login")==null || !((Boolean) session.getAttribute("login")).booleanValue()) { %>
+<% if (session == null || session.getAttribute("login") == null || !(Boolean) session.getAttribute("login")) { %>
 <tr>
 <td>Имя:</td>
 <td><input type=text name=nick size=40>
@@ -86,7 +86,7 @@ function change(dest,source)
 <div class="messages">
 <div class="comment">
 <%
-  db = tmpl.getConnection("delete_comment");
+  db = tmpl.getConnection();
 
   Statement st = db.createStatement();
   ResultSet rs = st.executeQuery("SELECT topic FROM comments WHERE id=" + msgid);
@@ -126,14 +126,14 @@ function change(dest,source)
       throw new BadParameterException("incorrect bonus value");
     }
 
-    db = tmpl.getConnection("delete_comment");
+    db = tmpl.getConnection();
     db.setAutoCommit(false);
 
     CommentDeleter deleter = new CommentDeleter(db);
 
     User user;
 
-    if (session == null || session.getAttribute("login") == null || !((Boolean) session.getAttribute("login")).booleanValue()) {
+    if (session == null || session.getAttribute("login") == null || !(Boolean) session.getAttribute("login")) {
       if (request.getParameter("nick") == null) {
         throw new BadInputException("Вы уже вышли из системы");
       }

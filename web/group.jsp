@@ -52,7 +52,7 @@
       returnUrl = "group.jsp?group=" + groupId;
     }
 
-    db = tmpl.getConnection("group");
+    db = tmpl.getConnection();
     db.setAutoCommit(false);
 
     Group group = new Group(db, groupId);
@@ -151,7 +151,7 @@
 
   Map ignoreList = IgnoreList.getIgnoreListHash(db, (String) session.getValue("nick"));
 
-  if (!showIgnored && tmpl.isSessionAuthorized(session) && !session.getValue("nick").equals("anonymous")) {
+  if (!showIgnored && Template.isSessionAuthorized(session) && !session.getValue("nick").equals("anonymous")) {
     if (firstPage && ignoreList != null && !ignoreList.isEmpty()) {
       ignq = " AND topics.userid NOT IN (SELECT ignored FROM ignore_list, users WHERE userid=users.id and nick='" + session.getValue("nick") + "')";
     }
@@ -377,7 +377,7 @@
 %>
 <p>
 
-<% if (tmpl.isSessionAuthorized(session) && !showDeleted) { %>
+<% if (Template.isSessionAuthorized(session) && !showDeleted) { %>
   <hr>
   <form action="group.jsp" method=POST>
   <input type=hidden name=group value=<%= groupId %>>

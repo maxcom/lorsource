@@ -16,7 +16,7 @@ public final class poll extends Boxlet {
   public String getContentImpl(ProfileHashtable profile) throws SQLException, UtilException {
     Connection db = null;
     try {
-      db = ((SQLConfig) config).getConnection("poll");
+      db = ((SQLConfig) config).getConnection();
 
       Poll poll = Poll.getCurrentPoll(db);
 

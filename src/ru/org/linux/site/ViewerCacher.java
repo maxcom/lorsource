@@ -35,7 +35,7 @@ public class ViewerCacher {
     if (res==null) {
       try{
         long current = new Date().getTime();
-        Connection db = tmpl.getConnection("viewer-cacher");
+        Connection db = tmpl.getConnection();
         res = viewer.show(db);
         time = new Date().getTime() - current;
         fromCache = false;

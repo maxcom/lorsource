@@ -8,7 +8,7 @@
   Connection db = null;
 
   try {
-    db = tmpl.getConnection("login");
+    db = tmpl.getConnection();
     db.setAutoCommit(false);
     String nick = request.getParameter("nick");
     if (nick == null || "".equals(nick))
@@ -42,7 +42,7 @@
 
     session.putValue("login", Boolean.TRUE);
     session.putValue("nick", nick);
-    session.putValue("moderator", Boolean.valueOf(user.canModerate()));
+    session.putValue("moderator", user.canModerate());
 
     Cookie cookie = new Cookie("password", user.getMD5(tmpl.getSecret()));
     cookie.setMaxAge(60 * 60 * 24 * 31 * 24);

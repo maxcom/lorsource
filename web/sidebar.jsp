@@ -10,14 +10,14 @@
   Connection db = null;
   try {
 
-    db = tmpl.getConnection("sidebar");
+    db = tmpl.getConnection();
 
-   Statement st=db.createStatement();
+    Statement st = db.createStatement();
 
     int section = 1;
-    ResultSet rs=st.executeQuery("SELECT name, browsable, imagepost FROM sections WHERE id=" + section);
+    ResultSet rs = st.executeQuery("SELECT name, browsable, imagepost FROM sections WHERE id=" + section);
 
-   if (!rs.next()) throw new BadSectionException(section);
+    if (!rs.next()) throw new BadSectionException(section);
 
 %>
 <strong><a href="http://www.linux.org.ru/" target="_content">LINUX.ORG.RU</a></strong><br>

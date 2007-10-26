@@ -8,7 +8,7 @@
 <%
   int sectionid = tmpl.getParameters().getInt("section");
 
-  db = tmpl.getConnection("view-news-archive");
+  db = tmpl.getConnection();
 
   Section section = new Section(db, sectionid);
 

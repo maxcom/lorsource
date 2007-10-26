@@ -5,8 +5,9 @@
 	<title>Конструктор страницы</title>
 <%= tmpl.DocumentHeader() %>
 <h1>Конструктор страницы</h1>
-<% if (tmpl.isUsingDefaultProfile() || tmpl.getProfileName().charAt(0)=='_')
-throw new AccessViolationException("нельзя изменить системный профиль; создайте сначала свой");
+<% if (tmpl.isUsingDefaultProfile() || tmpl.getProfileName().charAt(0) == '_') {
+  throw new AccessViolationException("нельзя изменить системный профиль; создайте сначала свой");
+}
 %>
 <% if (request.getParameter("mode")==null) { %>
 При помощи этого инструмента вы можете составить для себя свою собственную
@@ -21,7 +22,7 @@ throw new AccessViolationException("нельзя изменить системный профиль; создайте 
   List current = null;
   String cname = null;
   String tag = request.getParameter("tag");
-  if (tag != null)
+  if (tag != null) {
     if ("31".equals(tag)) {
       current = main31;
       cname = "main3-1";
@@ -32,6 +33,7 @@ throw new AccessViolationException("нельзя изменить системный профиль; создайте 
       current = main2;
       cname = "main2";
     }
+  }
 
 %>
 <%
@@ -52,13 +54,14 @@ throw new AccessViolationException("нельзя изменить системный профиль; создайте 
   if (request.getParameter("mode") != null && "remove2".equals(request.getParameter("mode"))) {
     Connection db = null;
     try {
-      db = tmpl.getConnection("edit-boxes");
+      db = tmpl.getConnection();
       User user = User.getUser(db, tmpl.getProfileName());
       user.checkAnonymous();
       user.checkPassword(request.getParameter("password"));
     } finally {
-      if (db != null)
+      if (db != null) {
         db.close();
+      }
     }
 
 
@@ -76,31 +79,35 @@ throw new AccessViolationException("нельзя изменить системный профиль; создайте 
       int id = Integer.parseInt(request.getParameter("id"));
       out.print("<input type=hidden name=id value=" + id + '>');
     }
-    for (int i = 0; i < boxlist.size(); i++)
-      out.print("<input type=radio name=box value=\"" + URLEncoder.encode((String) boxlist.get(i)) + "\">" + boxlist.get(i) + "<br>");
+    for (Object aBoxlist : boxlist) {
+      out.print("<input type=radio name=box value=\"" + URLEncoder.encode((String) aBoxlist) + "\">" + aBoxlist + "<br>");
+    }
     out.print("Пароль <input type=password name=password><br>");
     out.print("<input type=submit value=\"Add/Добавить\">");
     out.print("</form>");
   } else if (request.getParameter("mode") != null && "add2".equals(request.getParameter("mode"))) {
     Connection db = null;
     try {
-      db = tmpl.getConnection("edit-boxes");
+      db = tmpl.getConnection();
       User user = User.getUser(db, tmpl.getProfileName());
       user.checkAnonymous();
       user.checkPassword(request.getParameter("password"));
     } finally {
-      if (db != null)
+      if (db != null) {
         db.close();
+      }
     }
 
-    if (request.getParameter("box") == null)
+    if (request.getParameter("box") == null) {
       throw new MissingParameterException("box");
+    }
 
     if (request.getParameter("id") != null) {
       int id = Integer.parseInt(request.getParameter("id"));
       current.add(id, request.getParameter("box"));
-    } else
+    } else {
       current.add(request.getParameter("box"));
+    }
     save = true;
   }
 %>

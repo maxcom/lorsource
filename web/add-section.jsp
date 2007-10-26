@@ -14,7 +14,7 @@
 
     int sectionid = Integer.parseInt(request.getParameter("section"));
 
-    db = tmpl.getConnection("add-section");
+    db = tmpl.getConnection();
     Statement st = db.createStatement();
 
     Section section = new Section(db, sectionid);

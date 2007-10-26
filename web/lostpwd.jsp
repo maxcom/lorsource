@@ -27,7 +27,7 @@ Email:
       String nick = request.getParameter("nick");
       String useremail = request.getParameter("email");
 
-      db = tmpl.getConnection("lostpwd");
+      db = tmpl.getConnection();
       db.setAutoCommit(false);
 
       User user = User.getUser(db, nick);

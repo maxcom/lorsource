@@ -6,9 +6,9 @@
 <% Template tmpl = new Template(request, config, response); %>
 <%= tmpl.head() %>
 <%
-   if (!tmpl.isSessionAuthorized(session) || !(((Boolean) session.getValue("moderator")).booleanValue())) {
-     throw new IllegalAccessException("Not authorized");
-   }
+  if (!Template.isSessionAuthorized(session) || !((Boolean) session.getValue("moderator"))) {
+    throw new IllegalAccessException("Not authorized");
+  }
 
 %>
 <title>Поиск писем с IP-адреса</title>
@@ -18,7 +18,7 @@
 %>
 
 <%
-  db = tmpl.getConnection("sameip");
+  db = tmpl.getConnection();
 
   String ip;
 

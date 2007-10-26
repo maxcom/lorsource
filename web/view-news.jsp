@@ -37,7 +37,7 @@
   int sectionid = tmpl.getParameters().getInt("section");
   Group group = null;
 
-  db = tmpl.getConnection("view-news");
+  db = tmpl.getConnection();
 
   Section section = new Section(db, sectionid);
 
@@ -45,35 +45,35 @@
     int groupid = tmpl.getParameters().getInt("group");
     group = new Group(db, groupid);
 
-    if (group.getSectionId()!=sectionid) {
-      throw new ScriptErrorException("группа #"+groupid+" не пренадлежит разделу #"+sectionid);
+    if (group.getSectionId() != sectionid) {
+      throw new ScriptErrorException("группа #" + groupid + " не пренадлежит разделу #" + sectionid);
     }
   }
 
   Statement st = db.createStatement();
 
-  int month = 0;
-  int year = 0;
-
-  String ptitle;
   String navtitle = section.getName();
 
-  if (group!=null) {
-    navtitle = "<a href=\"view-news.jsp?section="+section.getId()+"\">"+section.getName()+"</a> - "+group.getTitle();
+  if (group != null) {
+    navtitle = "<a href=\"view-news.jsp?section=" + section.getId() + "\">" + section.getName() + "</a> - " + group.getTitle();
   }
+
+  int month = 0;
+  int year = 0;
+  String ptitle;
 
   if (request.getParameter("month") == null) {
     ptitle = section.getName();
-    if (group!=null) {
-      ptitle += " - "+group.getTitle();
+    if (group != null) {
+      ptitle += " - " + group.getTitle();
     }
   } else {
     month = tmpl.getParameters().getInt("month");
     year = tmpl.getParameters().getInt("year");
     ptitle = "Архив: " + section.getName();
 
-    if (group!=null) {
-      ptitle += " - "+group.getTitle();
+    if (group != null) {
+      ptitle += " - " + group.getTitle();
     }
 
     ptitle += ", " + year + ", " + DateUtil.getMonth(month);

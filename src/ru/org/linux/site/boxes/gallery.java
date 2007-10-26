@@ -17,7 +17,7 @@ public final class gallery extends Boxlet {
   public String getContentImpl(ProfileHashtable profile) throws IOException, SQLException {
     Connection db = null;
     try {
-      db = ((SQLConfig) config).getConnection("gallery");
+      db = ((SQLConfig) config).getConnection();
       StringBuffer out = new StringBuffer();
 
       out.append("<h2><a href=\"view-news.jsp?section=3\">Галерея</a></h2> <h3>Последние скриншоты</h3>");

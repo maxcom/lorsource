@@ -8,21 +8,20 @@
   Connection db = null;
   try {
 
-   response.setDateHeader("Expires", new Date(new Date().getTime()-20*3600*1000).getTime());
-   response.setDateHeader("Last-Modified", new Date(new Date().getTime()-120*1000).getTime());
-   boolean nocache = request.getParameter("nocache")!=null;
+    response.setDateHeader("Expires", new Date(new Date().getTime() - 20 * 3600 * 1000).getTime());
+    response.setDateHeader("Last-Modified", new Date(new Date().getTime() - 120 * 1000).getTime());
 
-  db = tmpl.getConnection("view-all");
+    db = tmpl.getConnection();
 
-  int sectionid = 0;
-  Section section = null;
+    int sectionid = 0;
+    Section section = null;
 
-  if (request.getParameter("section") != null) {
-    sectionid = tmpl.getParameters().getInt("section");
-    if (sectionid!=0) {
-      section = new Section(db, sectionid);
+    if (request.getParameter("section") != null) {
+      sectionid = tmpl.getParameters().getInt("section");
+      if (sectionid != 0) {
+        section = new Section(db, sectionid);
+      }
     }
-  }
 
 %>
 <title>Просмотр неподтвержденных сообщений - <%= section==null?"Все":section.getName() %></title>

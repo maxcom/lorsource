@@ -24,7 +24,7 @@
   }
   int groupid = Integer.parseInt(request.getParameter("group"));
 
-  db = tmpl.getConnection("view-links");
+  db = tmpl.getConnection();
 
   Group group = new Group(db, groupid);
 

@@ -26,7 +26,7 @@
   try {
     String res = (String) mcc.get(cacheId);
     if (res == null) {
-      db = tmpl.getConnection("rss");
+      db = tmpl.getConnection();
 
       res = MessageTable.getSectionRss(db, section, group, tmpl.getConfig().getProperty("HTMLPathPrefix"), tmpl.getMainUrl());
 

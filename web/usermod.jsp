@@ -30,7 +30,7 @@
   Connection db = null;
 
   try {
-    db = tmpl.getConnection("usermod");
+    db = tmpl.getConnection();
     db.setAutoCommit(false);
 
     Statement st = db.createStatement();

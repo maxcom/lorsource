@@ -26,7 +26,7 @@
 
       int msgid = tmpl.getParameters().getInt("msgid");
 
-      db = tmpl.getConnection("commit-vote");
+      db = tmpl.getConnection();
 
       int id = Poll.getPollIdByTopic(db, msgid);
 
@@ -87,7 +87,7 @@
     Connection db = null;
 
     try {
-      db = tmpl.getConnection("commit-vote");
+      db = tmpl.getConnection();
       db.setAutoCommit(false);
 
       User user = User.getUser(db, (String) session.getAttribute("nick"));

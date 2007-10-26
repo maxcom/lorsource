@@ -27,7 +27,7 @@ function change(dest,source)
 его помещения.
 <form method=POST action="delete.jsp">
 <table>
-<% if (session==null || session.getAttribute("login")==null || !((Boolean) session.getAttribute("login")).booleanValue()) { %>
+<% if (session == null || session.getAttribute("login") == null || !(Boolean) session.getAttribute("login")) { %>
 <tr>
 <td>Имя:</td>
 <td><input type=text name=nick size=40>
@@ -79,7 +79,7 @@ function change(dest,source)
       String nick = request.getParameter("nick");
       String reason = request.getParameter("reason");
 
-      db = tmpl.getConnection("delete");
+      db = tmpl.getConnection();
       db.setAutoCommit(false);
 
       PreparedStatement lock = db.prepareStatement("SELECT deleted FROM topics WHERE id=? FOR UPDATE");
@@ -92,7 +92,7 @@ function change(dest,source)
 
       User user;
 
-      if (session == null || session.getAttribute("login") == null || !((Boolean) session.getAttribute("login")).booleanValue()) {
+      if (session == null || session.getAttribute("login") == null || !(Boolean) session.getAttribute("login")) {
         if (request.getParameter("nick") == null) {
           throw new BadInputException("Вы уже вышли из системы");
         }

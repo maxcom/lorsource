@@ -4,30 +4,30 @@
 <% Template tmpl = new Template(request, config, response); %>
 <%= tmpl.head() %>
 <%
-    Connection db = null;
-    try {
-        // defaults
-      int hours=3;
+  Connection db = null;
+  try {
+    // defaults
+    int hours = 3;
 
-      if (request.getParameter("h")!=null) {
-         hours = tmpl.getParameters().getInt("h");
+    if (request.getParameter("h") != null) {
+      hours = tmpl.getParameters().getInt("h");
 
-         if (hours<1 || hours>23) {
-          throw new BadInputException("неправильный ввод. hours = "+hours);
-         }
+      if (hours < 1 || hours > 23) {
+        throw new BadInputException("неправильный ввод. hours = " + hours);
       }
+    }
 
-      // active topics for last xx hours
-      db = tmpl.getConnection("tracker");
+    // active topics for last xx hours
+    db = tmpl.getConnection();
 
-      String sSql="SELECT nick, t.id, lastmod, CURRENT_TIMESTAMP-lastmod AS backtime, t.stat1 AS stat1, t.stat3 AS stat3, t.stat4 AS stat4, g.id AS gid, g.title AS gname, t.title AS title FROM users AS u, topics AS t, groups AS g, (SELECT distinct topic FROM comments WHERE postdate > CURRENT_TIMESTAMP - interval '"+hours+" hours' UNION SELECT id FROM topics WHERE postdate > CURRENT_TIMESTAMP - interval '"+hours+" hours') AS foo WHERE t.userid=u.id AND not deleted AND t.id=foo.topic AND t.groupid=g.id ORDER BY lastmod DESC";
+    String sSql = "SELECT nick, t.id, lastmod, CURRENT_TIMESTAMP-lastmod AS backtime, t.stat1 AS stat1, t.stat3 AS stat3, t.stat4 AS stat4, g.id AS gid, g.title AS gname, t.title AS title FROM users AS u, topics AS t, groups AS g, (SELECT distinct topic FROM comments WHERE postdate > CURRENT_TIMESTAMP - interval '" + hours + " hours' UNION SELECT id FROM topics WHERE postdate > CURRENT_TIMESTAMP - interval '" + hours + " hours') AS foo WHERE t.userid=u.id AND not deleted AND t.id=foo.topic AND t.groupid=g.id ORDER BY lastmod DESC";
 
-      Statement st=db.createStatement();
-      ResultSet rs=st.executeQuery(sSql);
+    Statement st = db.createStatement();
+    ResultSet rs = st.executeQuery(sSql);
 
-      out.println("<!-- hours = "+hours+" -->");
+    out.println("<!-- hours = " + hours + " -->");
 
-      String title = "Последние сообщения";
+    String title = "Последние сообщения";
 
 %>
 <title><%= title %></title>

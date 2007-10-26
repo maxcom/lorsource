@@ -21,7 +21,7 @@ if (!tmpl.isModeratorSession()) {
     try {
       int msgid = tmpl.getParameters().getInt("msgid");
 
-      db = tmpl.getConnection("setpostscore");
+      db = tmpl.getConnection();
 
       Message msg = new Message(db, msgid);
 
@@ -62,15 +62,15 @@ if (!tmpl.isModeratorSession()) {
   } else {
     int msgid = tmpl.getParameters().getInt("msgid");
     int postscore = tmpl.getParameters().getInt("postscore");
-    boolean sticky = request.getParameter("sticky")!=null;
-    boolean notop = request.getParameter("notop")!=null;
+    boolean sticky = request.getParameter("sticky") != null;
+    boolean notop = request.getParameter("notop") != null;
 
     if (postscore < -1) postscore = 0;
     if (postscore > 500) postscore = 500;
 
     Connection db = null;
     try {
-      db = tmpl.getConnection("setpostscore");
+      db = tmpl.getConnection();
       db.setAutoCommit(false);
 
       Message msg = new Message(db, msgid);
@@ -86,18 +86,18 @@ if (!tmpl.isModeratorSession()) {
 
       pst.executeUpdate();
 
-      if (msg.getPostScore()!=postscore) {
-        out.print("Установлен новый уровень записи " + (postscore < 0 ? "только для модераторов" : Integer.toString(postscore))+"<br>");
+      if (msg.getPostScore() != postscore) {
+        out.print("Установлен новый уровень записи " + (postscore < 0 ? "только для модераторов" : Integer.toString(postscore)) + "<br>");
         logger.info("Установлен новый уровень записи " + postscore + " для " + msgid + " пользователем " + user.getNick());
       }
 
-      if (msg.isSticky()!=sticky) {
-        out.print("Новое значение sticky: " + sticky+"<br>");
+      if (msg.isSticky() != sticky) {
+        out.print("Новое значение sticky: " + sticky + "<br>");
         logger.info("Новое значение sticky: " + sticky);
       }
 
-      if (msg.isNotop()!=notop) {
-        out.print("Новое значение notop: " + notop+"<br>");
+      if (msg.isNotop() != notop) {
+        out.print("Новое значение notop: " + notop + "<br>");
         logger.info("Новое значение notop: " + notop);
       }
 

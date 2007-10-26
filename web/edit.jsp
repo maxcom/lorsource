@@ -17,7 +17,7 @@
 
   Connection db = null;
   try {
-    db = tmpl.getConnection("edit");
+    db = tmpl.getConnection();
     db.setAutoCommit(false);
     Message message = new Message(db, msgid);
 

@@ -33,28 +33,13 @@ implements
     }
   }
 
-  public synchronized Connection getConnection(String user)
+  public synchronized Connection getConnection()
       throws SQLException {
     if (db==null) {
       long startMillis = new Date().getTime();
 
       db=pool.getConnection();
       //logger.notice("config", "opened connection for '"+user+"'");
-
-      long endMillis = new Date().getTime();
-
-      dbWaitTime = endMillis - startMillis;
-    }
-
-    return db;
-  }
-
-  public synchronized Connection getConnectionWhois()
-      throws SQLException {
-    if (db==null) {
-      long startMillis = new Date().getTime();
-
-      db=pool.getConnectionWhois();
 
       long endMillis = new Date().getTime();
 

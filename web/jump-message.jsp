@@ -30,7 +30,7 @@
     int cid = tmpl.getParameters().getInt("cid");
 
     try {
-      db = tmpl.getConnection("jump-message");
+      db = tmpl.getConnection();
       Message topic = new Message(db, msgid);
       CommentList comments = CommentList.getCommentList(db, topic, false);
       CommentNode node = comments.getNode(cid);

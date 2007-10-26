@@ -22,7 +22,7 @@
 		offset = 0;
 	  }
 	
-	  db = tmpl.getConnectionWhois();
+	  db = tmpl.getConnection();
 
 	  User user = User.getUser(db, nick);
 	  

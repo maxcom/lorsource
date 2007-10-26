@@ -82,7 +82,7 @@
 
     try {
       // prechecks is over
-      db = tmpl.getConnection("add_comment");
+      db = tmpl.getConnection();
       db.setAutoCommit(false);
 
       IPBlockInfo.checkBlockIP(db, request.getRemoteAddr());
@@ -213,7 +213,7 @@
 
 if (showform) { // show form
   if (db==null) {
-    db = tmpl.getConnection("add_comment");
+    db = tmpl.getConnection();
   }
 
   Message topic = new Message(db, topicId);

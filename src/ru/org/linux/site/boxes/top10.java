@@ -15,7 +15,7 @@ public final class top10 extends Boxlet {
   public String getContentImpl(ProfileHashtable profile) throws IOException, SQLException, UtilException {
     Connection db = null;
     try {
-      db = ((SQLConfig) config).getConnection("top10");
+      db = ((SQLConfig) config).getConnection();
       Map ht = new HashMap();
       StringBuffer out = new StringBuffer();
       double messages = profile.getInt("messages");

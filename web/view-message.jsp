@@ -23,7 +23,7 @@
       filterMode += CommentViewer.FILTER_IGNORED;
     }
 
-    db = tmpl.getConnection("view-message");
+    db = tmpl.getConnection();
 
     String nick = Template.getNick(session);
 

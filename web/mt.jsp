@@ -7,7 +7,7 @@
   Template tmpl = new Template(request, config, response);
   out.print(tmpl.head());
 
-  if (!tmpl.isSessionAuthorized(session) || !(((Boolean) session.getValue("moderator")).booleanValue())) {
+  if (!Template.isSessionAuthorized(session) || !((Boolean) session.getValue("moderator"))) {
     throw new IllegalAccessException("Not authorized");
   }
 
@@ -18,7 +18,7 @@
 
   try {
     int msgid = tmpl.getParameters().getInt("msgid");
-    db = tmpl.getConnection("view-message");
+    db = tmpl.getConnection();
     Statement st1 = db.createStatement();
     if (request.getMethod().equals("POST")) {
       String newgr = request.getParameter("moveto");

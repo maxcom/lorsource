@@ -12,34 +12,34 @@
 <%= tmpl.DocumentHeader() %>
 
 <%
-    if (!tmpl.isSessionAuthorized(session)) {
-        throw new IllegalAccessException("Not authorized");
-    }
+  if (!Template.isSessionAuthorized(session)) {
+    throw new IllegalAccessException("Not authorized");
+  }
 
-   if ("GET".equals(request.getMethod())) {
-   	if (request.getParameter("msgid")==null)
-		throw new MissingParameterException("msgid");
+  if ("GET".equals(request.getMethod())) {
+    if (request.getParameter("msgid") == null)
+      throw new MissingParameterException("msgid");
 
-        Connection db = null;
+    Connection db = null;
 
-        try {
+    try {
 
-        int msgid = tmpl.getParameters().getInt("msgid");
+      int msgid = tmpl.getParameters().getInt("msgid");
 
-	db = tmpl.getConnection("commit");
+      db = tmpl.getConnection();
 
-        Message message = new Message(db, msgid);
+      Message message = new Message(db, msgid);
 
-	int groupid = message.getGroupId();
-        Group group = new Group(db, message.getGroupId());
+      int groupid = message.getGroupId();
+      Group group = new Group(db, message.getGroupId());
 
-        if (message.isCommited()) {
-          throw new AccessViolationException("Сообщение уже подтверждено");
-        }
+      if (message.isCommited()) {
+        throw new AccessViolationException("Сообщение уже подтверждено");
+      }
 
-        if (!group.isModerated()) {
-          throw new AccessViolationException("группа не является модерируемой");
-        }
+      if (!group.isModerated()) {
+        throw new AccessViolationException("группа не является модерируемой");
+      }
 
 %>
 <h1>Подтверждение сообщения</h1>
@@ -89,7 +89,7 @@
     Connection db = null;
     try {
 
-      db = tmpl.getConnection("commit");
+      db = tmpl.getConnection();
       db.setAutoCommit(false);
       PreparedStatement pst = db.prepareStatement("UPDATE topics SET moderate='t', commitby=?, commitdate='now', title=? WHERE id=?");
       pst.setInt(3, msgid);

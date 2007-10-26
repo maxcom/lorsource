@@ -13,7 +13,7 @@
 
   Connection db = null;
   try {
-    db = tmpl.getConnection("view-section");
+    db = tmpl.getConnection();
 
     Section section = new Section(db, sectionid);
 

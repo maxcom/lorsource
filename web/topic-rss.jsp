@@ -26,7 +26,7 @@
 
   Connection db = null;
   try {
-	db = tmpl.getConnection("rss");
+    db = tmpl.getConnection();
     out.print(MessageTable.getTopicRss(db, topic, num, tmpl.getConfig().getProperty("HTMLPathPrefix"), tmpl.getMainUrl()));
 %>
 <%

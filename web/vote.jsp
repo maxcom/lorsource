@@ -27,21 +27,21 @@
     int voteid = Integer.parseInt(request.getParameter("voteid"));
     int msgid = Integer.parseInt(request.getParameter("msgid"));
 
-    db = tmpl.getConnection("vote");
+    db = tmpl.getConnection();
 
     if (voteid != Poll.getCurrentPollId(db)) {
       throw new BadVoteException("голосовать можно только в текущий опрос");
     }
 
     Integer last = (Integer) session.getValue("poll.voteid");
-    if (last == null || last.intValue() != voteid) {
+    if (last == null || last != voteid) {
       Statement st = db.createStatement();
 
       if (st.executeUpdate("UPDATE votes SET votes=votes+1 WHERE id=" + vote + " AND vote=" + voteid) == 0) {
         throw new BadVoteException(vote, voteid);
       }
 
-      session.putValue("poll.voteid", new Integer(voteid));
+      session.putValue("poll.voteid", voteid);
       st.close();
     }
 

@@ -4,7 +4,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 public interface SQLConfig {
-  Connection getConnection(String user)
+  Connection getConnection()
       throws SQLException;
 
   void SQLclose() throws SQLException;

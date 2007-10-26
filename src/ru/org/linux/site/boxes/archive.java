@@ -18,7 +18,7 @@ public final class archive extends Boxlet {
     Connection db = null;
 
     try {
-      db = ((SQLConfig) config).getConnection("archive");
+      db = ((SQLConfig) config).getConnection();
       StringBuffer out = new StringBuffer();
 
       out.append("<h2><a href=\"view-news-archive.jsp?section=1\">Архив Новостей</a></h2>");

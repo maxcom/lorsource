@@ -30,10 +30,10 @@
       firstPage = true;
     }
 
-	boolean showIgnored = tmpl.getProf().getBoolean("showignored");
-	if (request.getParameter("showignored") != null) {
-	  showIgnored = "t".equals(request.getParameter("showignored"));
-	}
+    boolean showIgnored = tmpl.getProf().getBoolean("showignored");
+    if (request.getParameter("showignored") != null) {
+      showIgnored = "t".equals(request.getParameter("showignored"));
+    }
 
     String returnUrl;
     if (offset > 0)
@@ -41,7 +41,7 @@
     else
       returnUrl = "group-lastmod.jsp?group=" + group;
 
-    db = tmpl.getConnection("group-lastmod");
+    db = tmpl.getConnection();
     db.setAutoCommit(false);
 
     Statement st = db.createStatement();
@@ -109,32 +109,32 @@
 </form>
 
 <%
-  String ignq = ""; 
-   
+  String ignq = "";
+
   Map ignoreList = IgnoreList.getIgnoreListHash(db, (String) session.getValue("nick"));
-   
-  if (!showIgnored && tmpl.isSessionAuthorized(session) && !session.getValue("nick").equals("anonymous")) {
-	if (firstPage && ignoreList != null && !ignoreList.isEmpty())
-	  ignq = " AND topics.userid NOT IN (SELECT ignored FROM ignore_list, users WHERE userid=users.id and nick='" + session.getValue("nick") + "')";
+
+  if (!showIgnored && Template.isSessionAuthorized(session) && !session.getValue("nick").equals("anonymous")) {
+    if (firstPage && ignoreList != null && !ignoreList.isEmpty())
+      ignq = " AND topics.userid NOT IN (SELECT ignored FROM ignore_list, users WHERE userid=users.id and nick='" + session.getValue("nick") + "')";
   }
-  
-	out.print("<h1>");
 
-	out.print(rs.getString("name")+": "+rs.getString("title")+"</h1>");
+  out.print("<h1>");
 
-	if (rs.getString("image")!=null) {
-		ImageInfo info=new ImageInfo(tmpl.getObjectConfig().getHTMLPathPrefix()+tmpl.getStyle()+rs.getString("image"));
-		out.print("<div align=center><img src=\"/" + tmpl.getStyle() + rs.getString("image") + "\" " + info.getCode() + " border=0 alt=\"çÒÕÐÐÁ " + rs.getString("title") + "\"></div>");
-	}
+  out.print(rs.getString("name") + ": " + rs.getString("title") + "</h1>");
 
-	String des=tmpl.getObjectConfig().getStorage().readMessageNull("grinfo", String.valueOf(group));
-	if (des!=null) {
-		out.print("<p style=\"margin-top: 0px\"><em>");
-		out.print(des);
-		out.print("</em></p>");
-	}
+  if (rs.getString("image") != null) {
+    ImageInfo info = new ImageInfo(tmpl.getObjectConfig().getHTMLPathPrefix() + tmpl.getStyle() + rs.getString("image"));
+    out.print("<div align=center><img src=\"/" + tmpl.getStyle() + rs.getString("image") + "\" " + info.getCode() + " border=0 alt=\"çÒÕÐÐÁ " + rs.getString("title") + "\"></div>");
+  }
 
-	rs.close();
+  String des = tmpl.getObjectConfig().getStorage().readMessageNull("grinfo", String.valueOf(group));
+  if (des != null) {
+    out.print("<p style=\"margin-top: 0px\"><em>");
+    out.print(des);
+    out.print("</em></p>");
+  }
+
+  rs.close();
 
 %>
 <form action="group-lastmod.jsp" method="GET">

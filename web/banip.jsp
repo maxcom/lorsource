@@ -41,7 +41,7 @@
 
   Connection db = null;
   try {
-    db = tmpl.getConnection("sameip");
+    db = tmpl.getConnection();
     db.setAutoCommit(false);
 
     User user = User.getUser(db, (String) session.getAttribute("nick"));

@@ -23,7 +23,7 @@
 <%= tmpl.DocumentHeader() %>
 <% Connection db = null;
   try {
-    db = tmpl.getConnectionWhois();
+    db = tmpl.getConnection();
 
     User user = User.getUser(db, nick);
 %>
@@ -98,7 +98,7 @@
 %>
 <b>Статус:</b> <%= user.getStatus() %><%
   if (user.canModerate()) {
-	out.print(" (модератор)");
+    out.print(" (модератор)");
   }
 
   if (user.isBlocked())
@@ -106,28 +106,30 @@
 
   out.print("<br>");
 
-  if (tmpl.isSessionAuthorized(session) && (session.getValue("nick").equals(nick) ||
-              ((Boolean)session.getValue("moderator")).booleanValue())) {
-            if (sEmail!=null) if (!sEmail.equals(""))
-                out.println("<br><b>Email:</b> " + sEmail + "<br>");
-            out.println("<b>Score</b>: "+score+"<br>\n");
-			rs.close(); rs=stat5.executeQuery(); rs.next();
-			out.println("<b>Игнорируется</b>: "+rs.getInt("inum")+"<br>\n");
+  if (Template.isSessionAuthorized(session) && (session.getValue("nick").equals(nick) ||
+      (Boolean) session.getValue("moderator"))) {
+    if (sEmail != null) if (!sEmail.equals(""))
+      out.println("<br><b>Email:</b> " + sEmail + "<br>");
+    out.println("<b>Score</b>: " + score + "<br>\n");
+    rs.close();
+    rs = stat5.executeQuery();
+    rs.next();
+    out.println("<b>Игнорируется</b>: " + rs.getInt("inum") + "<br>\n");
   }
-  if (tmpl.isSessionAuthorized(session) && !session.getValue("nick").equals(nick) && !session.getValue("nick").equals("anonymous")) {
+  if (Template.isSessionAuthorized(session) && !session.getValue("nick").equals(nick) && !session.getValue("nick").equals("anonymous")) {
     out.println("<br>");
-    Map ignoreList = IgnoreList.getIgnoreListHash(db,(String)session.getValue("nick"));
-	if (ignoreList != null && !ignoreList.isEmpty() && ignoreList.containsValue(nick)) {
+    Map ignoreList = IgnoreList.getIgnoreListHash(db, (String) session.getValue("nick"));
+    if (ignoreList != null && !ignoreList.isEmpty() && ignoreList.containsValue(nick)) {
       out.print("<form name='i_unblock' method='post' action='ignore-list.jsp'>\n");
       out.print("<input type='hidden' name='ignore_list' value='" + userid + "'>\n");
       out.print("Вы игнорируете этого пользователя &nbsp; \n");
-	  out.print("<input type='submit' name='del' value='не игнорировать'>\n");
+      out.print("<input type='submit' name='del' value='не игнорировать'>\n");
       out.print("</form>");
     } else {
       out.print("<form name='i_block' method='post' action='ignore-list.jsp'>\n");
       out.print("<input type='hidden' name='nick' value='" + nick + "'>\n");
-       out.print("Вы не игнорируете этого пользователя &nbsp; \n");
-	  out.print("<input type='submit' name='add' value='игнорировать'>\n");
+      out.print("Вы не игнорируете этого пользователя &nbsp; \n");
+      out.print("<input type='submit' name='add' value='игнорировать'>\n");
       out.print("</form>");
     }
   }
@@ -167,7 +169,7 @@
 %>
 </cite>
 <%
-  if (tmpl.isSessionAuthorized(session) && (session.getValue("nick").equals(nick))) {
+  if (Template.isSessionAuthorized(session) && (session.getValue("nick").equals(nick))) {
     out.print("<p><a href=\"register.jsp?mode=change\">Изменить регистрацию</a>.");
   }
 %>

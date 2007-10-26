@@ -19,7 +19,7 @@
       try {
         preview = true;
 
-        db = tmpl.getConnection("add");
+        db = tmpl.getConnection();
         db.setAutoCommit(false);
 
         previewMsg = new Message(db, tmpl, session, request);
@@ -94,7 +94,7 @@
 
     Integer groupId = (Integer)request.getAttribute("group");
 
-    db = tmpl.getConnection("add");
+    db = tmpl.getConnection();
     Group group = new Group(db, groupId);
 
     User currentUser = User.getCurrentUser(db, session);
