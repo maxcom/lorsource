@@ -208,8 +208,7 @@ public class Template {
     return mainPage;
   }
 
-  public Connection getConnection(String user)
-    throws SQLException {
+  public Connection getConnection(String user) throws SQLException {
     return config.getConnection(user);
   }
 
