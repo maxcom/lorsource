@@ -6,7 +6,7 @@ BODY { font-family: serif; }
 hr { color: #B0B0B0; }
 
 /* info boxes on columns */
-.column DIV.boxlet H2
+DIV.boxlet H2
    { 
     text-align: center; 
     color: white; 
@@ -20,15 +20,15 @@ hr { color: #B0B0B0; }
     margin-top: 0px;
    }
 
-.column DIV.boxlet H3
+DIV.boxlet H3
    {
     font-size: x-small;
    }
 
-.column DIV.boxlet H2 A { text-decoration: none; color: white }
-.column DIV.boxlet A { text-decoration: none }
+DIV.boxlet H2 A { text-decoration: none; color: white }
+DIV.boxlet A { text-decoration: none }
 
-.column DIV.boxlet 
+DIV.boxlet
    { 
     font-size: small; 
     font-family: serif; 
