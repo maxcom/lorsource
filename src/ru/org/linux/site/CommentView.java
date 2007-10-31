@@ -19,7 +19,7 @@ public class CommentView {
     User author = User.getUserCached(db, comment.getUserid());
 
     if (showMenu) {
-      printMenu(out, comment, moderatorMode, author, user, comments, tmpl, db);
+      printMenu(out, comment, moderatorMode, author, user, comments, tmpl, db, expired);
     }
 
     out.append("<div class=msg id=").append(comment.getMessageId()).append(">");
@@ -45,7 +45,7 @@ public class CommentView {
 
     out.append(comment.getMessageText());
 
-    out.append("<div class=sign>"+author.getSignature(moderatorMode, comment.getPostdate())+"</div>");
+    out.append("<div class=sign>").append(author.getSignature(moderatorMode, comment.getPostdate())).append("</div>");
 
     if (!expired && !comment.isDeleted() && showMenu)
       out.append("<div class=reply>[<a href=\"add_comment.jsp?topic=").append(comment.getTopic()).append("&amp;replyto=").append(comment.getMessageId()).append("\">Ответить на это сообщение</a>]</div>");
@@ -59,7 +59,9 @@ public class CommentView {
     return out.toString();
   }
 
-  private void printMenu(StringBuffer out, Comment comment, boolean moderatorMode, User author, String user, CommentList comments, Template tmpl, Connection db) throws UtilException, SQLException, UserNotFoundException {
+  private void printMenu(StringBuffer out, Comment comment, boolean moderatorMode,
+                         User author, String user, CommentList comments, Template tmpl,
+                         Connection db, boolean expired) throws UtilException, SQLException, UserNotFoundException {
     out.append("<div class=title>");
 
     if (!comment.isDeleted()) {
@@ -97,11 +99,16 @@ public class CommentView {
 
         out.append("Ответ на: <a href=\"");
 
+        String urladd = "";
+        if (!expired) {
+          urladd = "&amp;lastmod="+comments.getLastModified();
+        }
+
         int replyPage = comments.getCommentPage(reply, tmpl);
         if (replyPage > 0) {
-          out.append("view-message.jsp?msgid=").append(comment.getTopic()).append("&amp;page=").append(replyPage).append('#').append(comment.getReplyTo());
+          out.append("view-message.jsp?msgid=").append(comment.getTopic()).append(urladd).append("&amp;page=").append(replyPage).append('#').append(comment.getReplyTo());
         } else {
-          out.append("view-message.jsp?msgid=").append(comment.getTopic()).append('#').append(comment.getReplyTo());
+          out.append("view-message.jsp?msgid=").append(comment.getTopic()).append(urladd).append('#').append(comment.getReplyTo());
         }
 
         out.append("\">");

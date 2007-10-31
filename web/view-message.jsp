@@ -188,7 +188,7 @@
     for (int i = 0; i < pages; i++) {
       bufInfo.append(' ');
 
-      if (i==pages-1) {
+      if ((i==pages-1) && !(message.isExpired()) ) {
         linkurl += "&amp;lastmod="+message.getLastModified().getTime();
       }
 
