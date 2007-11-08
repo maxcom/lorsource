@@ -97,8 +97,9 @@
         user.checkPassword(request.getParameter("password"));
       } else {
         user = User.getUser(db, (String) session.getAttribute("nick"));
-        user.checkBlocked();
       }
+
+      user.checkBlocked();
 
       comment.setAuthor(user.getId());
 

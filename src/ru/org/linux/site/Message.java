@@ -333,8 +333,9 @@ public class Message {
       user.checkPassword(password);
     } else {
       user = User.getUser(db, (String) session.getAttribute("nick"));
-      user.checkBlocked();
     }
+
+    user.checkBlocked();
 
     if (user.isAnonymous()) {
       if (msg.length() > 4096) {
@@ -783,8 +784,9 @@ public class Message {
       user.checkPassword(request.getParameter("password"));
     } else {
       user = User.getUser(db, (String) session.getAttribute("nick"));
-      user.checkBlocked();
     }
+
+    user.checkBlocked();
 
     if (user.isAnonymous()) {
       if (msg.length() > 4096) {
@@ -920,8 +922,9 @@ public class Message {
       user.checkPassword((String)request.getAttribute("password"));
     } else {
       user = User.getUser(db, (String) session.getAttribute("nick"));
-      user.checkBlocked();
     }
+
+    user.checkBlocked();
 
     if (user.isAnonymous()) {
       if (message.length() > 4096) {
