@@ -4,6 +4,7 @@
 
 package ru.org.linux.util;
 
+import java.net.URLEncoder;
 import java.util.Iterator;
 import java.util.StringTokenizer;
 
@@ -113,11 +114,28 @@ public class HTMLFormatter {
     quoting = true;
   }
 
+  public static String URLEncoder(String str) {
+    try {
+      StringBuffer buf = new StringBuffer();
+      for (int i = 0; i < str.length(); i++) {
+        char c = str.charAt(i);
+        if (c > ' ' && c <= 'z') {
+          buf.append(c);
+        } else {
+          buf.append(URLEncoder.encode("" + c, "UTF-8"));
+        }
+      }
+      return buf.toString();
+    } catch (Exception e) {
+      return str;
+    }
+  }
+
   private static final RE urlRE;
 
   static {
     try {
-      urlRE = new RE("(?:(?:(?:(?:https?://)|(?:ftp://)|(?:www\\.))|(?:ftp\\.))[a-z0-9.-]+\\.[a-z]+(?::[0-9]+)?(?:/(?:[a-z0-9=?:+/~&%;,._#-]*[a-z0-9=?+/~&%-])?)?)|(?:mailto: ?[a-z0-9+]+@[a-z0-9.-]+.[a-z]+)", RE.REG_ICASE);
+      urlRE = new RE("(?:(?:(?:(?:https?://)|(?:ftp://)|(?:www\\.))|(?:ftp\\.))[a-z0-9.-]+\\.[a-z]+(?::[0-9]+)?(?:/(?:[\\w=?:+/~&%;,._#-]*[\\w=?+/~&%-])?)?)|(?:mailto: ?[a-z0-9+]+@[a-z0-9.-]+.[a-z]+)", RE.REG_ICASE);
     } catch (REException e) {
       throw new RuntimeException(e);
     }
@@ -157,8 +175,7 @@ public class HTMLFormatter {
         } else if (urlchunk.length() > maxlength) {
           urlchunk = urlchunk.substring(0, maxlength - 3) + "...";
         }
-
-        out.append("<a href=\"" + url + "\">" + urlchunk + "</a>");
+				out.append("<a href=\"" + URLEncoder(url) + "\">" + urlchunk + "</a>");
       } else {
         out.append(url);
       }
