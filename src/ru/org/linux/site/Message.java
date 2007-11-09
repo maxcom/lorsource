@@ -15,6 +15,7 @@ import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.xbill.DNS.TextParseException;
 
 import ru.org.linux.util.*;
@@ -954,7 +955,11 @@ public class Message {
 
       url = "gallery/" + screenshot.getMainFile().getName();
       linktext = "gallery/" + screenshot.getIconFile().getName();
-    }
+    } else {
+	  if (url!=null) {
+        url = StringEscapeUtils.unescapeHtml(url);
+	  }	
+	}
 
     PreparedStatement pst = db.prepareStatement("INSERT INTO topics (postip, groupid, userid, title, url, moderate, postdate, id, linktext, deleted) VALUES ('" + request.getRemoteAddr() + "',?, ?, ?, ?, 'f', CURRENT_TIMESTAMP, ?, ?, 'f')");
 //                pst.setString(1, request.getRemoteAddr());
