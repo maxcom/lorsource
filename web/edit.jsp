@@ -106,7 +106,7 @@
   <% if (message.containsLink()) {
     out.print("<input type=\"text\" name=\"url_text\" size=\"78\" value=\"" + sURLtitle + "\">\n");
   } else {
-    out.print("<input type=\"text\" name=\"url_text\" size=\"78\" value='' disabled>\n");
+    out.print("<input type=\"text\" name=\"url_text\" size=\"78\" value='" + sURLtitle + "' readonly style=\"background:#979797;color:#79787e;\">\n");
   }
   %>
   <br>
@@ -114,7 +114,7 @@
   <% if (message.containsLink()) {
     out.print("<input type=\"text\" name=\"url\" size=\"84\" value=\"" + sURL + "\">\n");
   } else {
-    out.print("<input type=\"text\" name=\"url\" size=\"84\" value='' disabled>\n");
+    out.print("<input type=\"text\" name=\"url\" size=\"84\" value='" + sURL + "' readonly style=\"background:#979797;color:#79787e;\">\n");
   }
   %>
   <br><br>
