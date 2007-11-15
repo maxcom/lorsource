@@ -22,7 +22,7 @@
       throw new AccessViolationException("нельзя комментировать тему");
     }
 
-    out.print("<title>" + message.getPortalTitle() + " - " + message.getGroupTitle() + " - " + message.getTitle() + "</title>");
+    out.print("<title>" + message.getSectionTitle() + " - " + message.getGroupTitle() + " - " + message.getTitle() + "</title>");
 %>
 <%= tmpl.DocumentHeader() %>
 

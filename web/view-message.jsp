@@ -73,8 +73,8 @@
       throw new AccessViolationException("Сообщение удалено");
     }
 
-    out.print("<title>" + message.getPortalTitle() + " - " + message.getGroupTitle() + " - " + message.getTitle() + "</title>");
-    out.print("<link rel=\"parent\" title=\"" + message.getPortalTitle() + " - " + message.getGroupTitle() + "\" href=\"group.jsp?group=" + message.getGroupId() + "\">");
+    out.print("<title>" + message.getSectionTitle() + " - " + message.getGroupTitle() + " - " + message.getTitle() + "</title>");
+    out.print("<link rel=\"parent\" title=\"" + message.getSectionTitle() + " - " + message.getGroupTitle() + "\" href=\"group.jsp?group=" + message.getGroupId() + "\">");
 
 // count last modified time
     if (!tmpl.isDebugMode() && !message.isDeleted() && !showDeleted && message.getLastModified() != null) {
@@ -98,10 +98,48 @@
       out.print("<link rel=\"Next\" href=\"" + nextMessage.getLinkLastmod(true) + "\" title=\"" + StringUtil.makeTitle(nextMessage.getTitle()) + "\">");
     }
 %>
-<LINK REL="alternate" TITLE="L.O.R RSS" HREF="topic-rss.jsp?topic=<%= msgid %>" TYPE="application/rss+xml">
+<LINK REL="alternate" TITLE="Comments RSS" HREF="topic-rss.jsp?topic=<%= msgid %>" TYPE="application/rss+xml">
 <%= tmpl.DocumentHeader() %>
 
 <div class=messages>
+
+<form method="GET" action="view-message.jsp">
+<input type=hidden name=msgid value="<%= msgid %>">
+  <table class=nav>
+  <tr>
+  <td align=left valign=middle>
+    <a href="view-section.jsp?section=<%= message.getSectionId() %>"><%= message.getSectionTitle() %></a> -
+    <a href="group.jsp?group=<%= message.getGroupId()%>"><%= message.getGroupTitle() %></a>
+  </td>
+
+    <td align=right>
+      [<a href="topic-rss.jsp?topic=<%= msgid %>">RSS</a>]
+
+<%
+  if (!showDeleted) {
+    if (npage != 0) {
+      out.print("<input type=hidden name=page value=\"" + npage + "\">");
+    }
+
+    if (!tmpl.isUsingDefaultProfile()) {
+      out.print(" [<a href=\"ignore-list.jsp\">Фильтр</a>]");
+    }
+
+    out.print(" <select name=\"filter\" onChange=\"submit()\">");
+    out.print("<option value=\"" + CommentViewer.toString(CommentViewer.FILTER_NONE) + "\"" + (filterMode == CommentViewer.FILTER_NONE ? " selected=\"selected\"" : "") + ">все комментарии</option>");
+    out.print("<option value=\"" + CommentViewer.toString(CommentViewer.FILTER_ANONYMOUS) + "\"" + (filterMode == CommentViewer.FILTER_ANONYMOUS ? " selected=\"selected\"" : "") + ">без анонимных</option>");
+
+    if (!tmpl.isUsingDefaultProfile()) {
+      out.print("<option value=\"" + CommentViewer.toString(CommentViewer.FILTER_IGNORED) + "\"" + (filterMode == CommentViewer.FILTER_IGNORED ? " selected=\"selected\"" : "") + ">без игнорируемых</option>");
+      out.print("<option value=\"" + CommentViewer.toString(CommentViewer.FILTER_LISTANON) + "\"" + (filterMode == CommentViewer.FILTER_LISTANON ? " selected=\"selected\"" : "") + ">без анонимных и игнорируемых</option>");
+    }
+
+    out.print("</select>");
+  }
+%>
+    </td>
+  </table>
+</form>
 
 <c:set var="scroller">
 <%
@@ -128,17 +166,17 @@
             </tr>
           </table>
         </td>
-        <td align=center valign=middle>
+<!--        <td align=center valign=middle>
           <table>
             <tr valign=middle>
               <td>
-                <a title="<%=  message.getPortalTitle() + " - " + message.getGroupTitle() %>"
+                <a title="<%=  message.getSectionTitle() + " - " + message.getGroupTitle() %>"
                    href="group.jsp?group=<%= message.getGroupId() %>">
-                  <%= message.getPortalTitle() + " - " + message.getGroupTitle() %>
+                  <%= message.getSectionTitle() + " - " + message.getGroupTitle() %>
                 </a>
               </td>
             </tr>
-          </table>
+          </table> -->
         <td align=left valign=middle width="35%">
           <table width="100%">
             <tr valign=middle align=right>
@@ -163,8 +201,6 @@
 %>
 
 </c:set>
-
-<c:out value="${scroller}" escapeXml="false"/>
 
 <c:if test="<%= showDeleted %>">
 <%
@@ -228,6 +264,8 @@
   }
 %>
 
+<c:out value="${scroller}" escapeXml="false"/>
+
 <% if (!Template.isSessionAuthorized(session)) { %>
 <div style="text-align: center; margin-top: 1em">
 <script type="text/javascript"><!--
@@ -263,36 +301,6 @@ google_ui_features = "rc:0";
         out.print("сообщения отсортированы в порядке возрастания даты их написания");
 
       out.print("</div>");
-    }
-
-    if (!showDeleted) {
-      out.print("<form method=\"GET\" action=\"view-message.jsp\">");
-      out.print("<div class=nav>");
-
-      out.print("<input type=hidden name=msgid value=\"" + msgid + "\">");
-      if (npage != 0) {
-        out.print("<input type=hidden name=page value=\"" + npage + "\">");
-      }
-      out.print("фильтр комментариев: <select name=\"filter\">");
-      out.print("<option value=\"" + CommentViewer.toString(CommentViewer.FILTER_NONE) + "\"" + (filterMode == CommentViewer.FILTER_NONE ? " selected=\"selected\"" : "") + ">все комментарии</option>");
-      out.print("<option value=\"" + CommentViewer.toString(CommentViewer.FILTER_ANONYMOUS) + "\"" + (filterMode == CommentViewer.FILTER_ANONYMOUS ? " selected=\"selected\"" : "") + ">без анонимных</option>");
-
-      if (!tmpl.isUsingDefaultProfile()) {
-        out.print("<option value=\"" + CommentViewer.toString(CommentViewer.FILTER_IGNORED) + "\"" + (filterMode == CommentViewer.FILTER_IGNORED ? " selected=\"selected\"" : "") + ">без игнорируемых</option>");
-        out.print("<option value=\"" + CommentViewer.toString(CommentViewer.FILTER_LISTANON) + "\"" + (filterMode == CommentViewer.FILTER_LISTANON ? " selected=\"selected\"" : "") + ">без анонимных и игнорируемых</option>");
-      }
-
-      out.print("</select>");
-      out.print(" <input type=\"submit\" value=\"Обновить\">");
-
-      if (!tmpl.isUsingDefaultProfile()) {
-        out.print(" [<a href=\"ignore-list.jsp\">настроить</a>]");
-      }
-
-      out.print(" [<a href=\"topic-rss.jsp?topic="+ msgid +"\">RSS</a>]");
-
-      out.print("</div>");
-      out.print("</form>");
     }
 
     if (pageInfo != null) {
@@ -346,14 +354,10 @@ google_ui_features = "rc:0";
 <hr>
 <% } %>
 
-<p>
-<i>
-<% String masterUrl = "http://www.linux.org.ru/view-message.jsp?msgid="+msgid; %>
-Пожалуйста, для ссылок на дискуссию используйте URL: <br>
-<a href="<%= masterUrl %>"><%= masterUrl %></a></i>
+<!--
 <p>
 <i>Последнее обновление дискуссии: <%= Template.dateFormat.format(message.getLastModified()) %> </i>
-
+-->
 <%
    st.close();
 

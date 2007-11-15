@@ -561,7 +561,7 @@ public class Message {
     return title;
   }
 
-  public String getPortalTitle() {
+  public String getSectionTitle() {
     return section.getName();
   }
 
