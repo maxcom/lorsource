@@ -25,6 +25,8 @@ public class CommentViewer {
   private final String user;
   public static final int FILTER_LISTANON = FILTER_ANONYMOUS+FILTER_IGNORED;
 
+  private int outputCount = 0;
+
   public CommentViewer(Template t, Connection db, CommentList comments, String user, boolean expired) {
     tmpl=t;
     this.comments = comments;
@@ -49,6 +51,7 @@ public class CommentViewer {
 
       if (hideSet==null || !hideSet.contains(comment.getMessageId())) {
         shown++;
+        outputCount++;
         buf.append(view.printMessage(comment, tmpl, db, this.comments, true, tmpl.isModeratorSession(), user, expired));
       }
     }
@@ -132,5 +135,9 @@ public class CommentViewer {
       case FILTER_IGNORED+FILTER_ANONYMOUS: return "listanon";
       default: return "show";
     }
+  }
+
+  public int getOutputCount() {
+    return outputCount;
   }
 }

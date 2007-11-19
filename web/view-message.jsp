@@ -202,6 +202,67 @@
 
 </c:set>
 
+<c:set var="bottomScroller">
+<%
+  int scroll = Section.getScrollMode(message.getSectionId());
+
+  if (scroll != Section.SCROLL_NOSCROLL) {
+%>
+    <table class=nav>
+      <tr>
+        <td align=left valign=middle width="35%">
+          <table>
+            <tr valign=middle>
+              <td>
+<%
+  if (prevMessage != null) {
+    if (scroll == Section.SCROLL_GROUP) {
+      out.print("<a href=\"" + prevMessage.getLinkLastmod(true) + "\" rel=prev rev=next>&lt;&lt;&lt;</a></td><td align=left valign=top>" + StringUtil.makeTitle(prevMessage.getTitle()));
+    } else {
+      out.print("<a href=\"" + prevMessage.getLinkLastmod(true) + "\" rel=prev rev=next>&lt;&lt;&lt;</a></td><td align=left valign=top>" + StringUtil.makeTitle(prevMessage.getTitle()) + " (" + prevMessage.getGroupTitle() + ')');
+    }
+  }
+%>
+              </td>
+            </tr>
+          </table>
+        </td>
+        <td align=center valign=middle>
+          <table>
+            <tr valign=middle>
+              <td>
+                <a title="<%=  message.getSectionTitle() + " - " + message.getGroupTitle() %>"
+                   href="group.jsp?group=<%= message.getGroupId() %>">
+                  <%= message.getSectionTitle() + " - " + message.getGroupTitle() %>
+                </a>
+              </td>
+            </tr>
+          </table>
+        <td align=left valign=middle width="35%">
+          <table width="100%">
+            <tr valign=middle align=right>
+              <td>
+<%
+  if (nextMessage != null) {
+    if (scroll == Section.SCROLL_GROUP) {
+      out.print(StringUtil.makeTitle(nextMessage.getTitle()) + "</td><td align=right valign=middle><a href=\"" + nextMessage.getLinkLastmod(true) + "\" rev=prev rel=next>&gt;&gt;&gt;</a>");
+    } else {
+      out.print(StringUtil.makeTitle(nextMessage.getTitle()) + " (" + nextMessage.getGroupTitle() + ")</td><td valign=middle align=right><a href=\"" + nextMessage.getLinkLastmod(true) + "\" rev=prev rel=next>&gt;&gt;&gt;</a>");
+    }
+  }
+%>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+<%
+   }
+%>
+
+</c:set>
+
 <c:if test="<%= showDeleted %>">
 <%
   out.print("<h1>Режим показа удаленных комментариев</h1>");
@@ -290,27 +351,8 @@ google_ui_features = "rc:0";
 </div><br>
 <% } %>
 
+<c:if test="<%= comment %>">
 <%
-  if (comment) {
-    if (tmpl.getProf().getBoolean("sortwarning")) {
-      out.print("<div class=nav>");
-
-      if (tmpl.getProf().getBoolean("newfirst"))
-        out.print("сообщения отсортированы в порядке убывания даты их написания");
-      else
-        out.print("сообщения отсортированы в порядке возрастания даты их написания");
-
-      out.print("</div>");
-    }
-
-    if (pageInfo != null) {
-      out.print("<div class=\"pageinfo\">");
-      out.print(pageInfo);
-      out.print("</div>");
-    }
-
-    out.print("<div class=comment>");
-
     int offset = 0;
     int limit = 0;
     boolean reverse = tmpl.getProf().getBoolean("newfirst");
@@ -324,24 +366,43 @@ google_ui_features = "rc:0";
 
     CommentViewer cv = new CommentViewer(tmpl, db, comments, Template.getNick(session), message.isExpired());
 
+    String outputComments;
+
     if (filterMode != CommentViewer.FILTER_NONE) {
-      out.print(cv.showFiltered(db, reverse, offset, limit, filterMode, Template.getNick(session)));
+      outputComments = cv.showFiltered(db, reverse, offset, limit, filterMode, Template.getNick(session));
     } else {
-      out.print(cv.showAll(reverse, offset, limit));
+      outputComments = cv.showAll(reverse, offset, limit);
     }
 
-    out.print("</div>");
+    if (tmpl.getProf().getBoolean("sortwarning") && cv.getOutputCount()>0) {
+      out.print("<div class=nav>");
 
-    if (pageInfo != null) {
-      out.print("<div class=pageinfo>");
-      out.print(pageInfo);
+      if (tmpl.getProf().getBoolean("newfirst"))
+        out.print("сообщения отсортированы в порядке убывания даты их написания");
+      else
+        out.print("сообщения отсортированы в порядке возрастания даты их написания");
+
       out.print("</div>");
     }
-  }
 %>
+  <c:if test="<%= pageInfo!=null %>">
+    <div class="pageinfo">
+      <%= pageInfo %>
+    </div>
+  </c:if>
+  <div class="comment">
+    <%= outputComments %>
+  </div>
+<c:if test="<%= cv.getOutputCount()>0 %>">
+  <c:if test="<%= pageInfo!=null %>">
+    <div class="pageinfo">
+      <%= pageInfo %>
+    </div>
+  </c:if>
 
-<c:out value="${scroller}" escapeXml="false"/>
-
+  <c:out value="${bottomScroller}" escapeXml="false"/>
+</c:if>
+</c:if>
 </div>
 
 <% if (Template.isSessionAuthorized(session) && !message.isExpired() && !showDeleted) { %>
