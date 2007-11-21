@@ -1,4 +1,4 @@
-<%@ page contentType="text/html; charset=koi8-r"%>
+<%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
 <%@ page import="java.sql.Connection,java.sql.PreparedStatement, java.util.Date, javax.servlet.http.Cookie, javax.servlet.http.HttpServletResponse, ru.org.linux.site.AccessViolationException, ru.org.linux.site.BadInputException" errorPage="/error.jsp"%>
 <%@ page import="ru.org.linux.site.Template"%>
 <%@ page import="ru.org.linux.site.User"%>

@@ -1,4 +1,4 @@
-<%@ page contentType="text/html; charset=koi8-r"%>
+<%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
 <%@ page import="java.sql.Connection,java.sql.PreparedStatement,java.sql.ResultSet,java.sql.Statement" errorPage="/error.jsp" %>
 <%@ page import="ru.org.linux.site.Template"%>
 <% Template tmpl = new Template(request, config, response); %>

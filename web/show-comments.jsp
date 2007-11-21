@@ -1,4 +1,4 @@
-<%@ page contentType="text/html; charset=koi8-r"%>
+<%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
 <%@ page import="java.net.URLEncoder,java.sql.Connection,java.sql.ResultSet,java.sql.Statement" errorPage="/error.jsp" buffer="60kb" %>
 <%@ page import="java.util.Date"%>
 <%@ page import="com.danga.MemCached.MemCachedClient" %>

@@ -92,7 +92,8 @@ public class Template {
 
   public Template(HttpServletRequest request, ServletConfig config, HttpServletResponse response)
       throws ClassNotFoundException, IOException, SQLException, StorageException {
-    request.setCharacterEncoding("koi8-r"); // блядский tomcat
+//    request.setCharacterEncoding("koi8-r"); // блядский tomcat
+    request.setCharacterEncoding("utf-8"); // блядский tomcat
 
     requestString = request.getRequestURI() + '?' + request.getQueryString();
 

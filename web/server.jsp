@@ -1,4 +1,4 @@
-<%@ page contentType="text/html; charset=koi8-r"%>
+<%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
 <%@ page import="java.net.URLEncoder" errorPage="/error.jsp"%>
 <%@ page import="java.sql.Connection" %>
 <%@ page import="java.sql.ResultSet" %>

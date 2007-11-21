@@ -8,7 +8,7 @@
 <%@ page import="ru.org.linux.site.User" %>
 <%@ page import="ru.org.linux.site.UserErrorException" %>
 <%@ page import="ru.org.linux.util.HTMLFormatter" %>
-<%@ page contentType="text/html;charset=koi8-r" language="java" errorPage="/error.jsp" %>
+<%@ page pageEncoding="koi8-r" contentType="text/html;charset=utf-8" language="java" errorPage="/error.jsp" %>
 <% Template tmpl = new Template(request, config, response);
   Logger logger = Logger.getLogger("ru.org.linux");
 %>

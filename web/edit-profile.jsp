@@ -1,4 +1,4 @@
-<%@ page contentType="text/html; charset=koi8-r"%>
+<%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
 <%@ page import="javax.servlet.http.Cookie,javax.servlet.http.HttpServletResponse,ru.org.linux.site.BadInputException, ru.org.linux.site.Template, ru.org.linux.site.UserErrorException" errorPage="/error.jsp" buffer="20kb" %>
 <%@ page import="ru.org.linux.util.ProfileHashtable"%>
 <%@ page import="ru.org.linux.util.StringUtil" %>

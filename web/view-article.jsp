@@ -1,4 +1,4 @@
-<%@ page contentType="text/html; charset=koi8-r"%>
+<%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
 <%@ page import="ru.org.linux.site.MissingParameterException,ru.org.linux.site.Template" errorPage="/error.jsp" %>
 <% Template tmpl = new Template(request, config, response); %>
 <%= tmpl.head() %>

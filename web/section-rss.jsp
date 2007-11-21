@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="koi8-r"?>
-<%@ page contentType="application/rss+xml; charset=koi8-r"%>
+<%@ page pageEncoding="koi8-r" contentType="application/rss+xml; charset=utf-8"%>
 <%@ page import="java.sql.Connection,java.util.Date,com.danga.MemCached.MemCachedClient,ru.org.linux.site.MemCachedSettings,ru.org.linux.site.MessageTable,ru.org.linux.site.Template" errorPage="/error.jsp" buffer="200kb"%>
 <% Template tmpl = new Template(request, config, response); %>
 
