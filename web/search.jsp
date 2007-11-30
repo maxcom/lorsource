@@ -138,8 +138,8 @@
 </table>
 <input type="hidden" name="client" value="pub-6069094673001350"></input>
 <input type="hidden" name="forid" value="1"></input>
-<input type="hidden" name="ie" value="KOI8-R"></input>
-<input type="hidden" name="oe" value="KOI8-R"></input>
+<input type="hidden" name="ie" value="UTF-8"></input>
+<input type="hidden" name="oe" value="UTF-8"></input>
 <input type="hidden" name="flav" value="0000"></input>
 <input type="hidden" name="sig" value="VNPb2D8JZrqtw9dZ"></input>
 <input type="hidden" name="cof" value="GALT:#3399FF;GL:1;DIV:#666666;VLC:FFFFFF;AH:center;BGC:000000;LBGC:FFFF00;ALC:FFFFFF;LC:FFFFFF;T:CCCCCC;GFNT:FFFFFF;GIMP:FFFFFF;LH:65;LW:30;L:http://www.linux.org.ru/black/img/angry-logo.gif;S:http://;LP:1;FORID:1"></input>
@@ -177,8 +177,8 @@
 </table>
 <input type="hidden" name="client" value="pub-6069094673001350"></input>
 <input type="hidden" name="forid" value="1"></input>
-<input type="hidden" name="ie" value="KOI8-R"></input>
-<input type="hidden" name="oe" value="KOI8-R"></input>
+<input type="hidden" name="ie" value="UTF-8"></input>
+<input type="hidden" name="oe" value="UTF-8"></input>
 <input type="hidden" name="flav" value="0000"></input>
 <input type="hidden" name="sig" value="VNPb2D8JZrqtw9dZ"></input>
 <input type="hidden" name="cof" value="GALT:#008000;GL:1;DIV:#336699;VLC:663399;AH:center;BGC:FFFFFF;LBGC:336699;ALC:0000FF;LC:0000FF;T:000000;GFNT:0000FF;GIMP:0000FF;LH:65;LW:30;L:http://www.linux.org.ru/white2/img/angry-logo.gif;S:http://;LP:1;FORID:1"></input>
