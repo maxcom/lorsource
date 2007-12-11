@@ -238,9 +238,40 @@
         <inspection_tool class="ReadObjectAndWriteObjectPrivate" level="WARNING" enabled="true" />
         <inspection_tool class="SerializableWithUnconstructableAncestor" level="WARNING" enabled="true" />
         <inspection_tool class="TransientFieldInNonSerializableClass" level="WARNING" enabled="true" />
+        <inspection_tool class="TestOnlyProblems" level="WARNING" enabled="true" />
+        <inspection_tool class="ControlFlowStatementWithoutBraces" level="WARNING" enabled="true" />
+        <inspection_tool class="ParametersPerConstructor" level="WARNING" enabled="true">
+          <option name="m_limit" value="5" />
+        </inspection_tool>
+        <inspection_tool class="ParametersPerMethod" level="WARNING" enabled="true">
+          <option name="m_limit" value="5" />
+        </inspection_tool>
+        <inspection_tool class="CyclomaticComplexity" level="WARNING" enabled="true">
+          <option name="m_limit" value="10" />
+        </inspection_tool>
+        <inspection_tool class="MethodCoupling" level="WARNING" enabled="true">
+          <option name="m_includeJavaClasses" value="false" />
+          <option name="m_includeLibraryClasses" value="false" />
+          <option name="m_limit" value="10" />
+        </inspection_tool>
+        <inspection_tool class="NonCommentSourceStatements" level="WARNING" enabled="true">
+          <option name="m_limit" value="30" />
+        </inspection_tool>
+        <inspection_tool class="NestingDepth" level="WARNING" enabled="true">
+          <option name="m_limit" value="5" />
+        </inspection_tool>
+        <inspection_tool class="LocalVariableHidingMemberVariable" level="WARNING" enabled="true">
+          <option name="m_ignoreInvisibleFields" value="true" />
+          <option name="m_ignoreStaticMethods" value="true" />
+        </inspection_tool>
       </profile>
     </profiles>
-    <list size="0" />
+    <list size="4">
+      <item index="0" class="java.lang.String" itemvalue="SERVER PROBLEM" />
+      <item index="1" class="java.lang.String" itemvalue="INFO" />
+      <item index="2" class="java.lang.String" itemvalue="WARNING" />
+      <item index="3" class="java.lang.String" itemvalue="ERROR" />
+    </list>
   </component>
   <component name="JavacSettings">
     <option name="DEBUGGING_INFO" value="true" />
