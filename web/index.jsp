@@ -78,14 +78,14 @@
 %>
 <div class="nav">
   <% if (offset<200) { %>
-  [<a href="index.jsp?offset=<%=offset+20%>">Предыдущие 20</a>]
+  [<a href="index.jsp?offset=<%=offset+20%>">предыдущие 20</a>]
   <% } %>
   [<a href="add-section.jsp?section=1">добавить новость</a>]
   [<a href="section-rss.jsp?section=1">RSS</a>]
   <% if (offset>20) { %>
     [<a href="index.jsp?offset=<%= (offset-20) %>">Следующие 20</a>]
   <% } else if (offset==20) { %>
-  [<a href="index.jsp">Следующие 20</a>]
+  [<a href="index.jsp">cледующие 20</a>]
   <% } %>
 </div>
 </div>
