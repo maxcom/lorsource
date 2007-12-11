@@ -59,13 +59,34 @@
     out.print("</div>");
   }
 
-  NewsViewer nv = NewsViewer.getMainpage(tmpl.getConfig(), tmpl.getProf());
+  int offset = 0;
+  if (request.getParameter("offset")!=null) {
+    offset = tmpl.getParameters().getInt("offset");
+
+    if (offset<0) {
+	offset = 0;
+    }
+
+    if (offset>200) {
+      offset=200;
+    }
+  }
+
+  NewsViewer nv = NewsViewer.getMainpage(tmpl.getConfig(), tmpl.getProf(), offset);
 
   out.print(ViewerCacher.getViewer(nv, tmpl, false, true));
 %>
 <div class="nav">
+  <% if (offset<200) { %>
+  [<a href="index.jsp?offset=<%=offset+20%>">Предыдущие 20</a>]
+  <% } %>
   [<a href="add-section.jsp?section=1">добавить новость</a>]
   [<a href="section-rss.jsp?section=1">RSS</a>]
+  <% if (offset>20) { %>
+    [<a href="index.jsp?offset=<%= (offset-20) %>">Следующие 20</a>]
+  <% } else if (offset==20) { %>
+  [<a href="index.jsp">Следующие 20</a>]
+  <% } %>
 </div>
 </div>
 </div>

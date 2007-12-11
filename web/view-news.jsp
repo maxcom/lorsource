@@ -1,5 +1,9 @@
 <%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
-<%@ page import="java.sql.Connection,java.sql.Statement,java.util.Calendar,ru.org.linux.site.*" errorPage="/error.jsp" buffer="200kb"%>
+<%@ page import="java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.util.Calendar" errorPage="/error.jsp" buffer="200kb"%>
+<%@ page import="java.util.Date" %>
+<%@ page import="java.util.List" %>
+<%@ page import="ru.org.linux.boxlet.BoxletVectorRunner" %>
+<%@ page import="ru.org.linux.site.*" %>
 <%@ page import="ru.org.linux.util.DateUtil" %>
 <% Template tmpl = new Template(request, config, response); %>
 <%= tmpl.head() %>
@@ -125,14 +129,6 @@
 
 <H1><%= ptitle %></H1>
 <%
-  //  ResultSet rs;
-
-//  if (month != 0) {
-//    rs = st.executeQuery("SELECT topics.title as subj, topics.lastmod, topics.stat1, postdate, nick, image, groups.title as gtitle, topics.id as msgid, sections.comment, groups.id as guid, topics.url, topics.linktext, imagepost, vote, linkup, postdate<(CURRENT_TIMESTAMP-expire) as expired, message FROM topics,groups,users,sections,msgbase WHERE sections.id=groups.section AND topics.id=msgbase.id AND (topics.moderate OR NOT sections.moderate) AND topics.userid=users.id AND topics.groupid=groups.id AND section=" + sectionid + (group!=null?" AND groupid="+group.getId():"") +" AND postdate>='" + year + "-" + month + "-01'::timestamp AND (postdate<'" + year + "-" + month + "-01'::timestamp+'1 month'::interval) AND NOT deleted ORDER BY commitdate");
-//  } else {
-//    rs = st.executeQuery("SELECT topics.title as subj, topics.lastmod, topics.stat1, postdate, nick, image, groups.title as gtitle, topics.id as msgid, sections.comment, groups.id as guid, topics.url, topics.linktext, imagepost, vote, linkup, postdate<(CURRENT_TIMESTAMP-expire) as expired, message FROM topics,groups,users,sections,msgbase WHERE sections.id=groups.section AND topics.id=msgbase.id AND (topics.moderate OR NOT sections.moderate) AND topics.userid=users.id AND topics.groupid=groups.id AND section=" + sectionid + (group!=null?" AND groupid="+group.getId():"") + " AND NOT deleted ORDER BY commitdate DESC LIMIT 20");
-//  }
-
   NewsViewer nw = new NewsViewer(tmpl.getConfig(), tmpl.getProf());
   nw.setSection(sectionid);
   if (group != null) {
