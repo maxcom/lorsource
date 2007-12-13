@@ -15,9 +15,9 @@ public class MessageTable {
   public static final int RSS_MIN = 10;
   public static final int RSS_MAX = 30;
   public static final int RSS_DEFAULT = 20;
-	
+
   public static String showComments(Connection db, String nick) throws SQLException {
-	return showComments(db,nick,0,0);
+    return showComments(db, nick, 0, 0);
   }
 
   public static String showComments(Connection db, String nick, int offset, int limit) throws SQLException {
