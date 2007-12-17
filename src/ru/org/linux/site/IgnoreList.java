@@ -51,17 +51,21 @@ public class IgnoreList {
     this.activated = activated;
   }
 
-  public void addNick(Connection db, String nick) throws SQLException, UserNotFoundException {
+  public void addNick(Connection db, String nick) throws SQLException, UserNotFoundException, AccessViolationException {
     User user = User.getUser(db, nick);
 
     int id = user.getId();
-    if (!ignoreList.containsKey(id)) {
-      PreparedStatement addPst = db.prepareStatement("INSERT INTO ignore_list (userid,ignored) VALUES(?,?)");
-      addPst.clearParameters();
-      addPst.setInt(1, userId);
-      addPst.setInt(2, id);
-      addPst.executeUpdate();
-      ignoreList.put(id, nick);
+    if (user.canModerate()) {
+	  throw new AccessViolationException("Нельзя игнорировать модератора");
+	} else {
+	  if (!ignoreList.containsKey(id)) {
+    	PreparedStatement addPst = db.prepareStatement("INSERT INTO ignore_list (userid,ignored) VALUES(?,?)");
+    	addPst.clearParameters();
+    	addPst.setInt(1, userId);
+    	addPst.setInt(2, id);
+    	addPst.executeUpdate();
+    	ignoreList.put(id, nick);
+	  }
     }
   }
 
