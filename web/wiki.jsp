@@ -15,13 +15,11 @@
     showDeleted = false;
   }
 
-  if (showDeleted) {
-    if (!tmpl.isSessionAuthorized(session)) {
-      throw new BadInputException("Вы уже вышли из системы");
-    }
+  if (!tmpl.isSessionAuthorized(session)) {
+    throw new BadInputException("Вы уже вышли из системы");
   }
 
-  if (showDeleted && !tmpl.isModeratorSession()) {
+  if (!tmpl.isModeratorSession()) {
     throw new AccessViolationException("Not moderator");
   }
 
