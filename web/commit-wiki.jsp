@@ -1,7 +1,8 @@
 <%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
 <%@ page import="java.sql.Connection,java.sql.PreparedStatement,java.sql.ResultSet" errorPage="error.jsp"%>
+<%@ page import="java.util.Random"%>
 <%@ page import="java.util.logging.Logger"%>
-<%@ page import="ru.org.linux.site.AccessViolationException"%>
+<%@ page import="ru.org.linux.site.AccessViolationException" %>
 <%@ page import="ru.org.linux.site.Template" %>
 <%@ page import="ru.org.linux.site.User" %>
 <%@ page import="ru.org.linux.site.UserErrorException" %>
@@ -65,6 +66,11 @@
 
      out.print("Правка опубликована в вики");
      Logger.getLogger("ru.org.linux").info("commit-wiki: Опубликована правка " + id + " пользователем " + user.getNick());
+
+     Random random = new Random();
+
+     response.setHeader("Location", tmpl.getMainUrl() + "wiki.jsp?nocache=" + random.nextInt());
+     response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
 
      db.commit();
    }
