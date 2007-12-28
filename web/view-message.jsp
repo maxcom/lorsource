@@ -1,5 +1,7 @@
 <%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
-<%@ page import="java.sql.Connection,java.sql.Statement,javax.servlet.http.HttpServletResponse,ru.org.linux.site.*,ru.org.linux.util.StringUtil" errorPage="/error.jsp" buffer="200kb"%>
+<%@ page import="java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.util.Date,javax.servlet.http.HttpServletResponse" errorPage="/error.jsp" buffer="200kb"%>
+<%@ page import="ru.org.linux.site.*" %>
+<%@ page import="ru.org.linux.util.StringUtil" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <% Template tmpl = new Template(request, config, response); %>
 <%= tmpl.head() %>
@@ -63,10 +65,10 @@
 
     Message message = new Message(db, msgid);
 
-    if (message.isExpired() && showDeleted) {
+    if (message.isExpired() && showDeleted && !tmpl.isModeratorSession()) {
       throw new AccessViolationException("нельзя посмотреть удаленные комментарии в устаревших темах");
     }
-    if (message.isExpired() && message.isDeleted()) {
+    if (message.isExpired() && message.isDeleted() && !tmpl.isModeratorSession()) {
       throw new AccessViolationException("нельзя посмотреть устаревшие удаленные сообщения");
     }
     if (message.isDeleted() && !Template.isSessionAuthorized(session)) {
@@ -405,7 +407,7 @@ google_ui_features = "rc:0";
 </c:if>
 </div>
 
-<% if (Template.isSessionAuthorized(session) && !message.isExpired() && !showDeleted) { %>
+<% if (Template.isSessionAuthorized(session) && (!message.isExpired() || tmpl.isModeratorSession()) && !showDeleted) { %>
 <hr>
 <form action="view-message.jsp" method=POST>
 <input type=hidden name=msgid value="<%= msgid %>">
