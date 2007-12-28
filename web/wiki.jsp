@@ -36,7 +36,7 @@
       </td>
 
       <td align=right valign=middle>
-        [<a style="text-decoration: none" href="/wiki/ru/FAQ">Перейти в вики</a>]
+        [<a style="text-decoration: none" href="/wiki/">Перейти в вики</a>]
       </td>
     </tr>
   </table>
