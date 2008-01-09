@@ -1,0 +1,2633 @@
+<HTML>
+<HEAD>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=gb_2312-80">
+<META NAME="Generator" CONTENT="Microsoft Word 97">
+<TITLE>The Halloween Document (1.3)</TITLE>
+<META NAME="Template" CONTENT="C:\MSOffice\Templates\Reports\Professional Report.dot">
+</HEAD>
+<BODY LINK="#0000ff" VLINK="#800080">
+
+<CENTER><FONT SIZE=4 COLOR="green"><B>{ The Halloween Document }</B></FONT></CENTER>
+
+<B><FONT FACE="宋体" LANG="ZH-CN" SIZE=7><P>&#9;</FONT><FONT FACE="Arial Black" SIZE=7>Open Source Software</P>
+</B></FONT><FONT FACE="Arial" SIZE=6><P>A (New?) Development Methodology</P>
+<FONT SIZE=3 COLOR="green">
+{ 
+
+The body of the Halloween Document is an internal strategy memorandum
+on Microsoft's possible responses to the Linux/Open Source phenomenon.
+It smells too strongly of Microsoft's unique corporate culture (as
+revealed by independent resources such as <a
+href="http://cinepad.com/borg.htm">The Borg</a>) to be other than
+genuine.<P>
+
+The list of collaborators mentioned at the end includes some people
+who are known to be key players at Microsoft, and the document reads
+as though the research effort had the cooperation of top management;
+it may even have been commissioned as a policy white paper for Bill
+Gates's attention (the author <a href="#comment6">seems to have
+expected</a> that Gates would read it).<P>
+
+Accordingly, it provides us with a very valuable look past Microsoft's
+dismissive marketing spin about Open Source at what the company is
+actually thinking -- which, as you'll see, is an odd combination of
+astuteness and institutional myopia.<P>
+
+Since the author quoted my analyses of open-source community dynamics
+(<a
+href="http://www.tuxedo.org/~esr/writings/cathedral-bazaar">The
+Cathedral and the Bazaar</a>) and <a
+href="http://www.tuxedo.org/~esr/writings/homesteading">Homesteading
+the Noosphere</a>) extensively, it seems fair that I should 
+respond on behalf of the community. :-)<p>
+
+Here are some notable quotes from the document, with hotlinks to where
+they are embedded.  It's helpful to know that ``OSS'' is the author's
+abbreviation for  ``Open Source Software''.<P>
+
+<BLOCKQUOTE><FONT COLOR="red">
+<a href="#quote1">*</a>
+OSS poses a direct, short-term revenue and platform threat to
+Microsoft, particularly in server space. Additionally, the
+intrinsic parallelism and free idea exchange in OSS has benefits that
+are not replicable with our current licensing model and therefore
+present a long term developer mindshare threat.
+</FONT></BLOCKQUOTE>
+
+<BLOCKQUOTE><FONT COLOR="red">
+<a href="#quote2">*</a>
+Recent case studies (the Internet) provide very dramatic evidence
+... that commercial quality can be achieved / exceeded by OSS projects.
+</FONT></BLOCKQUOTE>
+
+<BLOCKQUOTE><FONT COLOR="red">
+<a href="#quote3">*</a>
+...to understand how to compete against OSS, we must target a process
+rather than a company.
+</FONT></BLOCKQUOTE>
+
+<BLOCKQUOTE><FONT COLOR="red">
+<a href="#quote4">*</a>
+OSS is long-term credible ... FUD tactics can not be used to combat it.
+</FONT></BLOCKQUOTE>
+
+<BLOCKQUOTE><FONT COLOR="red">
+<a href="#quote5">*</a>
+Linux and other OSS advocates are making a progressively more credible
+argument that OSS software is at least as robust -- if not more
+-- than commercial alternatives. The Internet provides an ideal,
+high-visibility showcase for the OSS world.
+</FONT></BLOCKQUOTE>
+
+<BLOCKQUOTE><FONT COLOR="red">
+<a href="#quote6">*</a>
+Linux has been deployed in mission critical, commercial
+environments with an excellent pool of public testimonials. ...
+Linux outperforms many other UNIXes ... Linux is on track to
+eventually own the x86 UNIX market ...
+</FONT></BLOCKQUOTE>
+
+<BLOCKQUOTE><FONT COLOR="red">
+<a href="#quote7">*</a>
+Linux can win as long as services / protocols are commodities.
+</FONT></BLOCKQUOTE>
+
+<BLOCKQUOTE><FONT COLOR="red">
+<a href="#quote9">*</a>
+OSS projects have been able to gain a foothold in many server
+applications because of the wide utility of highly commoditized,
+simple protocols. By extending these protocols and developing new
+protocols, we can deny OSS projects entry into the market.
+</FONT></BLOCKQUOTE>
+
+<BLOCKQUOTE><FONT COLOR="red">
+<a href="#quote8">*</a>
+The ability of the OSS process to collect and harness the collective
+IQ of thousands of individuals across the Internet is simply
+amazing. More importantly, OSS evangelization scales with the size of
+the Internet much faster than our own evangelization efforts appear to
+scale.
+</FONT></BLOCKQUOTE>
+
+Comments in green, surrounded by curly brackets, are me (<a
+href="http://www.tuxedo.org/~esr">Eric S. Raymond</a>).  I have
+highlighted what I believe to be key points in the original text by
+turning them <FONT COLOR="red">red</FONT>.  I have inserted comments
+near these key points; you can skim the document by surfing
+through this comment index in sequence.<P>
+
+<A HREF="#quote1">1</A>
+<A HREF="#comment2">2</A>
+<A HREF="#quote2">3</A>
+<A HREF="#quote3">4</A>
+<A HREF="#comment5">5</A>
+<A HREF="#comment6">6</A>
+<A HREF="#comment7">7</A>
+<A HREF="#comment8">8</A>
+<A HREF="#comment9">9</A>
+<A HREF="#quote4">10</A>
+<A HREF="#comment11">11</A>
+<A HREF="#quote5">12</A>
+<A HREF="#comment13">13</A>
+<A HREF="#comment14">14</A>
+<A HREF="#comment15">15</A>
+<A HREF="#comment16">16</A>
+<A HREF="#comment17">17</A>
+<A HREF="#comment18">18</A>
+<A HREF="#comment19">19</A>
+<A HREF="#quote6">20</A>
+<A HREF="#quote7">21</A>
+<A HREF="#comment22">22</A>
+<A HREF="#comment23">23</A>
+<A HREF="#comment24">24</A>
+<A HREF="#comment25">25</A>
+<A HREF="#quote8">26</A>
+<A HREF="#quote9">27</A>
+<P>
+
+I've embedded a few other comments in green that aren't associated
+with key points and aren't indexed.  These additional comments are
+only of interest if you're reading the entire document.<P>
+
+I have otherwise left the document completely as-is, so you can read
+what Bill Gates is reading about Open Source.  It's a bit long, but
+persevere.  An accurate fix on the opposition's thinking is worth some
+effort -- and there are one or two really startling insights buried in
+the corporatespeak.<P>
+
+The first (1.1) annotated version of the VinodV memorandum was
+prepared over the weekend of 31 Oct-1 Nov 1998.  It is in recognition
+of the date, and my fond hope that publishing it will help realize
+Microsoft's worst nightmares, that I named it the ``Halloween
+Document"'.<P>
+
+The 1.2 version featured cleanup of non-ASCII characters by
+David Levine &lt;davidl@co.intel.com&gt;.<P>
+
+<B>Breaking news:</B>
+
+According to the Wall Street Journal, Microsoft has confirmed that this
+memorandum is genuine.  This fact will become public knowledge tomorrow 
+evening (3 Nov) at the latest.  This update is the 1.3 version.<P>
+
+}
+</FONT>
+</FONT><FONT FACE="宋体" LANG="ZH-CN" SIZE=2><P ALIGN="JUSTIFY"></P>
+</FONT><FONT FACE="宋体" LANG="ZH-CN" SIZE=5><P ALIGN="JUSTIFY">&nbsp;</P>
+<P ALIGN="JUSTIFY">&nbsp;</P>	<!-- originally there were 6 more of this -->
+<DIR>
+<DIR>
+<DIR>
+
+</FONT><FONT FACE="Arial" SIZE=5><P ALIGN="JUSTIFY">Vinod Valloppillil (VinodV)</P>
+<P ALIGN="JUSTIFY">Aug 11, 1998 -- v1.00</P>
+<P ALIGN="JUSTIFY"></P>
+<P ALIGN="JUSTIFY">Microsoft Confidential</P>
+</FONT><FONT FACE="宋体" LANG="ZH-CN" SIZE=5><P ALIGN="JUSTIFY"></P></DIR>
+</DIR>
+</DIR>
+
+</FONT><FONT FACE="宋体" LANG="ZH-CN" COLOR="#ffffff"><P><A NAME="_Toc427495714"></FONT><FONT FACE="Arial Black" COLOR="#ffffff">Table of Contents</A></P>
+</FONT><B><FONT FACE="宋体" LANG="ZH-CN" SIZE=2><P></FONT><FONT SIZE=2>Table of Contents&#9;</B></FONT><A HREF="#_Toc427495714">*</A>
+<B><FONT SIZE=2><P>Executive Summary&#9;</B></FONT><A HREF="#_Toc427495715">*</A></P>
+<B><FONT SIZE=2><P>Open Source Software&#9;</B></FONT><A HREF="#_Toc427495716">*</A></P><DIR>
+
+<FONT SIZE=2><P>What is it?&#9;</FONT><A HREF="#_Toc427495717">*</A></P>
+<FONT SIZE=2><P>Software Licensing Taxonomy&#9;</FONT><A HREF="#_Toc427495718">*</A></P>
+<FONT SIZE=2><P>Open Source Software is Significant to Microsoft&#9;</FONT><A HREF="#_Toc427495719">*</A></P>
+<FONT SIZE=2><P>History&#9;</FONT><A HREF="#_Toc427495720">*</A></P></DIR>
+
+<B><FONT SIZE=2><P>Open Source Process&#9;</B></FONT><A HREF="#_Toc427495721">*</A></P><DIR>
+
+<FONT SIZE=2><P>Open Source Development Teams&#9;</FONT><A HREF="#_Toc427495722">*</A></P>
+<FONT SIZE=2><P>OSS Development Coordination&#9;</FONT><A HREF="#_Toc427495723">*</A></P>
+<FONT SIZE=2><P>Parallel Development&#9;</FONT><A HREF="#_Toc427495724">*</A></P>
+<FONT SIZE=2><P>Parallel Debugging&#9;</FONT><A HREF="#_Toc427495725">*</A></P>
+<FONT SIZE=2><P>Conflict resolution&#9;</FONT><A HREF="#_Toc427495726">*</A></P>
+<FONT SIZE=2><P>Motivation&#9;</FONT><A HREF="#_Toc427495727">*</A></P>
+<FONT SIZE=2><P>Code Forking&#9;</FONT><A HREF="#_Toc427495728">*</A></P></DIR>
+
+<B><FONT SIZE=2><P>Open Source Strengths&#9;</B></FONT><A HREF="#_Toc427495729">*</A></P><DIR>
+
+<FONT SIZE=2><P>OSS Exponential Attributes&#9;</FONT><A HREF="#_Toc427495730">*</A></P>
+<FONT SIZE=2><P>Long-term credibility&#9;</FONT><A HREF="#_Toc427495731">*</A></P>
+<FONT SIZE=2><P>Parallel Debugging&#9;</FONT><A HREF="#_Toc427495732">*</A></P>
+<FONT SIZE=2><P>Parallel Development&#9;</FONT><A HREF="#_Toc427495733">*</A></P>
+<FONT SIZE=2><P>OSS = `perfect' API evangelization / documentation&#9;</FONT><A HREF="#_Toc427495734">*</A></P>
+<FONT SIZE=2><P>Release rate&#9;</FONT><A HREF="#_Toc427495735">*</A></P></DIR>
+
+<B><FONT SIZE=2><P>Open Source Weaknesses&#9;</B></FONT><A HREF="#_Toc427495736">*</A></P><DIR>
+
+<FONT SIZE=2><P>Management Costs&#9;</FONT><A HREF="#_Toc427495737">*</A></P>
+<FONT SIZE=2><P>Process Issues&#9;</FONT><A HREF="#_Toc427495738">*</A></P>
+<FONT SIZE=2><P>Organizational Credibility&#9;</FONT><A HREF="#_Toc427495739">*</A></P></DIR>
+
+<B><FONT SIZE=2><P>Open Source Business Models&#9;</B></FONT><A HREF="#_Toc427495740">*</A></P><DIR>
+
+<FONT SIZE=2><P>Secondary Services&#9;</FONT><A HREF="#_Toc427495741">*</A></P>
+<FONT SIZE=2><P>Loss Leader -- Market Entry&#9;</FONT><A HREF="#_Toc427495742">*</A></P>
+<FONT SIZE=2><P>Commoditizing Downstream Suppliers&#9;</FONT><A HREF="#_Toc427495743">*</A></P>
+<FONT SIZE=2><P>First Mover -- Build Now, $$ Later&#9;</FONT><A HREF="#_Toc427495744">*</A></P></DIR>
+
+<B><FONT SIZE=2><P>Linux&#9;</B></FONT><A HREF="#_Toc427495745">*</A></P><DIR>
+
+<FONT SIZE=2><P>What is it?&#9;</FONT><A HREF="#_Toc427495746">*</A></P>
+<FONT SIZE=2><P>Linux is a real, credible OS + Development process&#9;</FONT><A HREF="#_Toc427495747">*</A></P>
+<FONT SIZE=2><P>Linux is a short/medium-term threat in servers&#9;</FONT><A HREF="#_Toc427495748">*</A></P>
+<FONT SIZE=2><P>Linux is unlikely to be a threat on the desktop&#9;</FONT><A HREF="#_Toc427495749">*</A></P>
+<FONT SIZE=2><P>Beating Linux&#9;</FONT><A HREF="#_Toc427495750">*</A></P></DIR>
+
+<B><FONT SIZE=2><P>Netscape&#9;</B></FONT><A HREF="#_Toc427495751">*</A></P><DIR>
+
+<FONT SIZE=2><P>Organization &amp; LIcensing&#9;</FONT><A HREF="#_Toc427495752">*</A></P>
+<FONT SIZE=2><P>Strengths&#9;</FONT><A HREF="#_Toc427495753">*</A></P>
+<FONT SIZE=2><P>Weaknesses&#9;</FONT><A HREF="#_Toc427495754">*</A></P>
+<FONT SIZE=2><P>Predictions&#9;</FONT><A HREF="#_Toc427495755">*</A></P></DIR>
+
+<B><FONT SIZE=2><P>Apache&#9;</B></FONT><A HREF="#_Toc427495756">*</A></P><DIR>
+
+<FONT SIZE=2><P>History&#9;</FONT><A HREF="#_Toc427495757">*</A></P>
+<FONT SIZE=2><P>Organization&#9;</FONT><A HREF="#_Toc427495758">*</A></P>
+<FONT SIZE=2><P>Strengths&#9;</FONT><A HREF="#_Toc427495759">*</A></P>
+<FONT SIZE=2><P>Weaknesses&#9;</FONT><A HREF="#_Toc427495760">*</A></P>
+<FONT SIZE=2><P>IBM &amp; Apache&#9;</FONT><A HREF="#_Toc427495761">*</A></P></DIR>
+
+<B><FONT SIZE=2><P>Other OSS Projects&#9;</B></FONT><A HREF="#_Toc427495762">*</A></P>
+<B><FONT SIZE=2><P>Microsoft Response&#9;</B></FONT><A HREF="#_Toc427495763">*</A></P><DIR>
+
+<FONT SIZE=2><P>Product Vulnerabilities&#9;</FONT><A HREF="#_Toc427495764">*</A></P>
+<FONT SIZE=2><P>Capturing OSS benefits -- Developer Mindshare&#9;</FONT><A HREF="#_Toc427495765">*</A></P>
+<FONT SIZE=2><P>Capturing OSS benefits -- Microsoft Internal Processes&#9;</FONT><A HREF="#_Toc427495766">*</A></P>
+<FONT SIZE=2><P>Extending OSS benefits -- Service Infrastructure&#9;</FONT><A HREF="#_Toc427495767">*</A></P>
+<FONT SIZE=2><P>Blunting OSS attacks&#9;</FONT><A HREF="#_Toc427495768">*</A></P></DIR>
+
+<B><FONT SIZE=2><P>Other Interesting Links&#9;</B></FONT><A HREF="#_Toc427495769">*</A></P>
+<B><FONT SIZE=2><P>Acknowledgments&#9;</B></FONT><A HREF="#_Toc427495770">*</A></P>
+<B><FONT SIZE=2><P>Revision History&#9;</B></FONT><A HREF="#_Toc427495771">*</A></P>
+<FONT FACE="宋体" LANG="ZH-CN" SIZE=6></P>
+</FONT><FONT FACE="宋体" LANG="ZH-CN" SIZE=2><P>&nbsp;</P>
+</FONT><FONT FACE="Arial Black" SIZE=6><P>Open Source Software</P>
+</FONT><FONT FACE="Arial" SIZE=5><P>A (New?) Development Methodology</P>
+</FONT><FONT FACE="宋体" LANG="ZH-CN" COLOR="#ffffff"><P><A NAME="_Toc427495715"></FONT><FONT FACE="Arial Black" COLOR="#ffffff">Executive Summary</A></P><DIR>
+<DIR>
+<DIR>
+
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">Open Source Software (OSS) is a development process which promotes rapid creation and deployment of incremental features and bug fixes in an existing code / knowledge base.   In recent years, corresponding to the growth of Internet, OSS projects have acquired the depth &amp; complexity traditionally associated with commercial projects such as Operating Systems and mission critical servers.</P>
+<P ALIGN="JUSTIFY"><FONT COLOR="red">Consequently, <A NAME="quote1">OSS poses a direct,
+short-term revenue and platform threat to Microsoft -- particularly
+in server space.  Additionally, the intrinsic parallelism and free
+idea exchange in OSS has benefits that are not replicable with our
+current licensing model and therefore present a long term developer
+mindshare threat.</A></FONT>  </P>
+<FONT COLOR="green">{
+OK, this establishes that Microsoft isn't asleep at the switch.
+}</FONT>
+<P ALIGN="JUSTIFY">However, other OSS process weaknesses provide an
+avenue for Microsoft to garner advantage in key feature areas such as
+architectural improvements (e.g. storage+), integration
+(e.g. schemas), ease-of-use, and organizational support.</P>
+<FONT COLOR="green">{
+This summary recommendation is mainly interesting for how it fails to
+cover the specific suggestions later on in the document about
+<A HREF="#decommoditize">de-commoditizing protocols</a> etc.
+}</FONT>
+
+</DIR>
+</DIR>
+</DIR>
+
+</FONT><FONT FACE="宋体" LANG="ZH-CN" COLOR="#ffffff"><P><A NAME="_Toc427495716"></FONT><FONT FACE="Arial Black" COLOR="#ffffff">Open Source Software</A></P>
+</FONT><FONT FACE="宋体" LANG="ZH-CN" SIZE=3><P><A NAME="_Toc427495717"></FONT><FONT FACE="Arial Black" SIZE=3>What is it?</A></P><DIR>
+<DIR>
+<DIR>
+
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">Open Source Software (OSS) is software in which both source and binaries are distributed or accessible for a given product, usually for free.  OSS is often mistaken for "shareware" or "freeware" but there are significant differences between these <U>licensing</U> models and the process around each product.</P>
+<P ALIGN="JUSTIFY"> </P>
+</FONT><FONT FACE="宋体" LANG="ZH-CN" SIZE=3></DIR>
+</DIR>
+</DIR>
+
+<P><A NAME="_Toc427495718"></FONT><FONT FACE="Arial Black" SIZE=3>Software Licensing Taxonomy</A></P></FONT>
+<P ALIGN="RIGHT"><TABLE BORDER CELLSPACING=1 CELLPADDING=7 WIDTH=516>
+<TR><TD WIDTH="22%" VALIGN="TOP">
+<B><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">Software Type</B></FONT></TD>
+<TD WIDTH="17%" VALIGN="TOP">&nbsp;</TD>
+<TD WIDTH="8%" VALIGN="TOP">&nbsp;</TD>
+<TD WIDTH="10%" VALIGN="TOP">&nbsp;</TD>
+<TD WIDTH="10%" VALIGN="TOP">&nbsp;</TD>
+<TD WIDTH="9%" VALIGN="TOP">&nbsp;</TD>
+<TD WIDTH="14%" VALIGN="TOP">&nbsp;</TD>
+<TD WIDTH="9%" VALIGN="TOP">&nbsp;</TD>
+</TR>
+<TR><TD WIDTH="22%" VALIGN="TOP">
+<B><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">Commercial</B></FONT></TD>
+<TD WIDTH="17%" VALIGN="TOP">&nbsp;</TD>
+<TD WIDTH="8%" VALIGN="TOP">&nbsp;</TD>
+<TD WIDTH="10%" VALIGN="TOP">&nbsp;</TD>
+<TD WIDTH="10%" VALIGN="TOP">&nbsp;</TD>
+<TD WIDTH="9%" VALIGN="TOP">&nbsp;</TD>
+<TD WIDTH="14%" VALIGN="TOP">&nbsp;</TD>
+<TD WIDTH="9%" VALIGN="TOP">&nbsp;</TD>
+</TR>
+<TR><TD WIDTH="22%" VALIGN="TOP" HEIGHT=32>
+<B><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">Trial Software</B></FONT></TD>
+<TD WIDTH="17%" VALIGN="MIDDLE" BGCOLOR="#ffffff" HEIGHT=32>
+<B><FONT FACE="Arial" SIZE=5><P ALIGN="CENTER">X</P>
+</B></FONT><FONT FACE="Arial" SIZE=2><P ALIGN="CENTER">(Non-full featured)</FONT></TD>
+<TD WIDTH="8%" VALIGN="MIDDLE" BGCOLOR="#ffffff" HEIGHT=32>
+<B><FONT FACE="Arial" SIZE=5><P ALIGN="CENTER">X</B></FONT></TD>
+<TD WIDTH="10%" VALIGN="TOP" HEIGHT=32><P></P></TD>
+<TD WIDTH="10%" VALIGN="TOP" HEIGHT=32><P></P></TD>
+<TD WIDTH="9%" VALIGN="TOP" HEIGHT=32><P></P></TD>
+<TD WIDTH="14%" VALIGN="TOP" HEIGHT=32><P></P></TD>
+<TD WIDTH="9%" VALIGN="TOP" HEIGHT=32><P></P></TD>
+</TR>
+<TR><TD WIDTH="22%" VALIGN="TOP">
+<B><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">Non-Commercial Use</B></FONT></TD>
+<TD WIDTH="17%" VALIGN="MIDDLE" BGCOLOR="#ffffff">
+<B><FONT FACE="Arial" SIZE=5><P ALIGN="CENTER">X</P>
+</B></FONT><FONT FACE="Arial" SIZE=2><P ALIGN="CENTER">(Usage dependent)</FONT></TD>
+<TD WIDTH="8%" VALIGN="MIDDLE" BGCOLOR="#ffffff">
+<B><FONT FACE="Arial" SIZE=5><P ALIGN="CENTER">X</B></FONT></TD>
+<TD WIDTH="10%" VALIGN="TOP">&nbsp;</TD>
+<TD WIDTH="10%" VALIGN="TOP">&nbsp;</TD>
+<TD WIDTH="9%" VALIGN="TOP">&nbsp;</TD>
+<TD WIDTH="14%" VALIGN="TOP">&nbsp;</TD>
+<TD WIDTH="9%" VALIGN="TOP">&nbsp;</TD>
+</TR>
+<TR><TD WIDTH="22%" VALIGN="TOP">
+<B><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">Shareware</B></FONT></TD>
+<TD WIDTH="17%" VALIGN="MIDDLE" BGCOLOR="#ffffff">
+<B><FONT FACE="Arial" SIZE=5><P ALIGN="CENTER">X</B></FONT><FONT FACE="Arial" SIZE=2>-(Unenforced licensing)</FONT></TD>
+<TD WIDTH="8%" VALIGN="MIDDLE" BGCOLOR="#ffffff">
+<B><FONT FACE="Arial" SIZE=5><P ALIGN="CENTER">X</B></FONT></TD>
+<TD WIDTH="10%" VALIGN="TOP">&nbsp;</TD>
+<TD WIDTH="10%" VALIGN="TOP">&nbsp;</TD>
+<TD WIDTH="9%" VALIGN="TOP">&nbsp;</TD>
+<TD WIDTH="14%" VALIGN="TOP">&nbsp;</TD>
+<TD WIDTH="9%" VALIGN="TOP">&nbsp;</TD>
+</TR>
+<TR><TD WIDTH="22%" VALIGN="TOP">
+<B><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">Royalty-free binaries </B>("Freeware")</FONT></TD>
+<TD WIDTH="17%" VALIGN="MIDDLE" BGCOLOR="#ffffff">
+<B><FONT FACE="Arial" SIZE=5><P ALIGN="CENTER">X</B></FONT></TD>
+<TD WIDTH="8%" VALIGN="MIDDLE" BGCOLOR="#ffffff">
+<B><FONT FACE="Arial" SIZE=5><P ALIGN="CENTER">X</B></FONT></TD>
+<TD WIDTH="10%" VALIGN="MIDDLE" BGCOLOR="#ffffff">
+<B><FONT FACE="Arial" SIZE=5><P ALIGN="CENTER">X</B></FONT></TD>
+<TD WIDTH="10%" VALIGN="MIDDLE">&nbsp;</TD>
+<TD WIDTH="9%" VALIGN="MIDDLE">&nbsp;</TD>
+<TD WIDTH="14%" VALIGN="MIDDLE">&nbsp;</TD>
+<TD WIDTH="9%" VALIGN="MIDDLE">&nbsp;</TD>
+</TR>
+<TR><TD WIDTH="22%" VALIGN="TOP">
+<B><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">Royalty-free libraries</B></FONT></TD>
+<TD WIDTH="17%" VALIGN="MIDDLE" BGCOLOR="#ffffff">
+<B><FONT FACE="Arial" SIZE=5><P ALIGN="CENTER">X</B></FONT></TD>
+<TD WIDTH="8%" VALIGN="MIDDLE" BGCOLOR="#ffffff">
+<B><FONT FACE="Arial" SIZE=5><P ALIGN="CENTER">X</B></FONT></TD>
+<TD WIDTH="10%" VALIGN="MIDDLE" BGCOLOR="#ffffff">
+<B><FONT FACE="Arial" SIZE=5><P ALIGN="CENTER">X</B></FONT></TD>
+<TD WIDTH="10%" VALIGN="MIDDLE" BGCOLOR="#ffffff">
+<B><FONT FACE="Arial" SIZE=5><P ALIGN="CENTER">X</B></FONT></TD>
+<TD WIDTH="9%" VALIGN="MIDDLE">&nbsp;</TD>
+<TD WIDTH="14%" VALIGN="MIDDLE">&nbsp;</TD>
+<TD WIDTH="9%" VALIGN="MIDDLE">&nbsp;</TD>
+</TR>
+<TR><TD WIDTH="22%" VALIGN="TOP">
+<B><FONT FACE="Arial" SIZE=2><P>Open Source </B>(BSD-Style)</FONT></TD>
+<TD WIDTH="17%" VALIGN="MIDDLE" BGCOLOR="#ffffff">
+<B><FONT FACE="Arial" SIZE=5><P ALIGN="CENTER">X</B></FONT></TD>
+<TD WIDTH="8%" VALIGN="MIDDLE" BGCOLOR="#ffffff">
+<B><FONT FACE="Arial" SIZE=5><P ALIGN="CENTER">X</B></FONT></TD>
+<TD WIDTH="10%" VALIGN="MIDDLE" BGCOLOR="#ffffff">
+<B><FONT FACE="Arial" SIZE=5><P ALIGN="CENTER">X</B></FONT></TD>
+<TD WIDTH="10%" VALIGN="MIDDLE" BGCOLOR="#ffffff">
+<B><FONT FACE="Arial" SIZE=5><P ALIGN="CENTER">X</B></FONT></TD>
+<TD WIDTH="9%" VALIGN="MIDDLE" BGCOLOR="#ffffff">
+<B><FONT FACE="Arial" SIZE=5><P ALIGN="CENTER">X</B></FONT></TD>
+<TD WIDTH="14%" VALIGN="MIDDLE">&nbsp;</TD>
+<TD WIDTH="9%" VALIGN="MIDDLE">&nbsp;</TD>
+</TR>
+<TR><TD WIDTH="22%" VALIGN="TOP">
+<B><FONT FACE="Arial" SIZE=2><P>Open Source </B>(Apache Style)</FONT></TD>
+<TD WIDTH="17%" VALIGN="MIDDLE" BGCOLOR="#ffffff">
+<B><FONT FACE="Arial" SIZE=5><P ALIGN="CENTER">X</B></FONT></TD>
+<TD WIDTH="8%" VALIGN="MIDDLE" BGCOLOR="#ffffff">
+<B><FONT FACE="Arial" SIZE=5><P ALIGN="CENTER">X</B></FONT></TD>
+<TD WIDTH="10%" VALIGN="MIDDLE" BGCOLOR="#ffffff">
+<B><FONT FACE="Arial" SIZE=5><P ALIGN="CENTER">X</B></FONT></TD>
+<TD WIDTH="10%" VALIGN="MIDDLE" BGCOLOR="#ffffff">
+<B><FONT FACE="Arial" SIZE=5><P ALIGN="CENTER">X</B></FONT></TD>
+<TD WIDTH="9%" VALIGN="MIDDLE" BGCOLOR="#ffffff">
+<B><FONT FACE="Arial" SIZE=5><P ALIGN="CENTER">X</B></FONT></TD>
+<TD WIDTH="14%" VALIGN="MIDDLE" BGCOLOR="#ffffff">
+<B><FONT FACE="Arial" SIZE=5><P ALIGN="CENTER">X</B></FONT></TD>
+<TD WIDTH="9%" VALIGN="MIDDLE">&nbsp;</TD>
+</TR>
+<TR><TD WIDTH="22%" VALIGN="TOP">
+<B><FONT FACE="Arial" SIZE=2><P>Open Source </B>(Linux/GNU style)</FONT></TD>
+<TD WIDTH="17%" VALIGN="MIDDLE" BGCOLOR="#ffffff">
+<B><FONT FACE="Arial" SIZE=5><P ALIGN="CENTER">X</B></FONT></TD>
+<TD WIDTH="8%" VALIGN="MIDDLE" BGCOLOR="#ffffff">
+<B><FONT FACE="Arial" SIZE=5><P ALIGN="CENTER">X</B></FONT></TD>
+<TD WIDTH="10%" VALIGN="MIDDLE" BGCOLOR="#ffffff">
+<B><FONT FACE="Arial" SIZE=5><P ALIGN="CENTER">X</B></FONT></TD>
+<TD WIDTH="10%" VALIGN="MIDDLE" BGCOLOR="#ffffff">
+<B><FONT FACE="Arial" SIZE=5><P ALIGN="CENTER">X</B></FONT></TD>
+<TD WIDTH="9%" VALIGN="MIDDLE" BGCOLOR="#ffffff">
+<B><FONT FACE="Arial" SIZE=5><P ALIGN="CENTER">X</B></FONT></TD>
+<TD WIDTH="14%" VALIGN="MIDDLE" BGCOLOR="#ffffff">
+<B><FONT FACE="Arial" SIZE=5><P ALIGN="CENTER">X</B></FONT></TD>
+<TD WIDTH="9%" VALIGN="MIDDLE" BGCOLOR="#ffffff">
+<B><FONT FACE="Arial" SIZE=5><P ALIGN="CENTER">X</B></FONT></TD>
+</TR>
+<TR><TD WIDTH="22%" VALIGN="BOTTOM" HEIGHT=119>
+<B><FONT FACE="Arial" SIZE=2><P>License Feature</B></FONT></TD>
+<TD WIDTH="17%" VALIGN="TOP" HEIGHT=119>
+<B><FONT FACE="Arial" SIZE=2><P>Zero Price Avenue</B></FONT></TD>
+<TD WIDTH="8%" VALIGN="TOP" HEIGHT=119>
+<B><FONT FACE="Arial" SIZE=2><P>Redistributable</B></FONT></TD>
+<TD WIDTH="10%" VALIGN="TOP" HEIGHT=119>
+<B><FONT FACE="Arial" SIZE=2><P>Unlimited Usage</B></FONT></TD>
+<TD WIDTH="10%" VALIGN="TOP" HEIGHT=119>
+<B><FONT FACE="Arial" SIZE=2><P>Source Code Available</B></FONT></TD>
+<TD WIDTH="9%" VALIGN="TOP" HEIGHT=119>
+<B><FONT FACE="Arial" SIZE=2><P>Source Code Modifiable</B></FONT></TD>
+<TD WIDTH="14%" VALIGN="TOP" HEIGHT=119>
+<B><FONT FACE="Arial" SIZE=2><P>Public "Check-ins" to core codebase</B></FONT></TD>
+<TD WIDTH="9%" VALIGN="TOP" HEIGHT=119>
+<B><FONT FACE="Arial" SIZE=2><P>All derivatives must be free</B></FONT></TD>
+</TR>
+</TABLE>
+</P>
+
+<FONT FACE="宋体" LANG="ZH-CN" SIZE=2><P ALIGN="JUSTIFY"></P>
+<P ALIGN="JUSTIFY">&nbsp;</P><DIR>
+<DIR>
+<DIR>
+
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">The broad categories of licensing include:</P></DIR>
+</DIR>
+</DIR>
+
+
+<UL>
+
+<UL>
+<B><P ALIGN="JUSTIFY"><LI>Commercial software</LI></P></UL>
+</UL>
+<DIR>
+<DIR>
+<DIR>
+<DIR>
+
+</B><P ALIGN="JUSTIFY">Commercial software is classic Microsoft bread-and-butter.   It must be purchased, may NOT be redistributed, and is typically only available as binaries to end users.</P></DIR>
+</DIR>
+</DIR>
+</DIR>
+
+
+<UL>
+
+<UL>
+<B><P ALIGN="JUSTIFY"><LI>Limited trial software</LI></P></UL>
+</UL>
+<DIR>
+<DIR>
+<DIR>
+<DIR>
+
+</B><P ALIGN="JUSTIFY">Limited trial software are usually functionally limited versions of commercial software which are freely distributed and intend to drive purchase of the commercial code.  Examples include 60-day time bombed evaluation products.</P></DIR>
+</DIR>
+</DIR>
+</DIR>
+
+
+<UL>
+
+<UL>
+<B><P ALIGN="JUSTIFY"><LI>Shareware</LI></P></UL>
+</UL>
+<DIR>
+<DIR>
+<DIR>
+<DIR>
+
+</B><P ALIGN="JUSTIFY">Shareware products are fully functional and freely redistributable but have a license that mandates eventual purchase by both individuals and corporations.  Many internet utilities (like "WinZip") take advantage of shareware as a distribution method.</P></DIR>
+</DIR>
+</DIR>
+</DIR>
+
+
+<UL>
+
+<UL>
+<B><P ALIGN="JUSTIFY"><LI>Non-commercial use</LI></P></UL>
+</UL>
+<DIR>
+<DIR>
+<DIR>
+<DIR>
+
+</B><P ALIGN="JUSTIFY">Non-commercial use software is freely available and redistributable by non-profit making entities.    Corporations, etc. must purchase the product.  An example of this would be Netscape Navigator. </P></DIR>
+</DIR>
+</DIR>
+</DIR>
+
+
+<UL>
+
+<UL>
+<B><P ALIGN="JUSTIFY"><LI>Royalty free binaries</LI></P></UL>
+</UL>
+<DIR>
+<DIR>
+<DIR>
+<DIR>
+
+</B><P ALIGN="JUSTIFY">Royalty-free binaries consist of software which may be freely used and distributed in binary form only.  Internet Explorer and NetMeeting binaries fit this model.</P></DIR>
+</DIR>
+</DIR>
+</DIR>
+
+
+<UL>
+
+<UL>
+<B><P ALIGN="JUSTIFY"><LI>Royalty free libraries</LI></P></UL>
+</UL>
+<DIR>
+<DIR>
+<DIR>
+<DIR>
+
+</B><P ALIGN="JUSTIFY">Royalty-free libraries are software products whose binaries and source code are freely used and distributed but may NOT be modified by the end customer without violating the license.  Examples of this include class libraries, header files, etc.</P></DIR>
+</DIR>
+</DIR>
+</DIR>
+
+
+<UL>
+
+<UL>
+<B><P ALIGN="JUSTIFY"><LI>Open Source (BSD-style)</LI></P></UL>
+</UL>
+<DIR>
+<DIR>
+<DIR>
+<DIR>
+
+</B><P ALIGN="JUSTIFY">A small, closed team of developers develops
+BSD-style open source products &amp; allows free use and
+redistribution of binaries and code.   <FONT COLOR="red">While users are allowed to modify the code, the development team does NOT typically take "check-ins" from the public.</FONT></P></DIR>
+</DIR>
+</DIR>
+</DIR>
+
+
+<UL>
+
+<UL>
+<B><P ALIGN="JUSTIFY"><LI>Open Source (Apache-style)</LI></P></UL>
+</UL>
+<DIR>
+<DIR>
+<DIR>
+<DIR>
+
+</B><P ALIGN="JUSTIFY">Apache takes the BSD-style open source model and extends it by <FONT COLOR="red">allowing check-ins to the core codebase by external parties.</FONT></P></DIR>
+</DIR>
+</DIR>
+</DIR>
+
+
+<UL>
+
+<UL>
+<B><P ALIGN="JUSTIFY"><LI>Open Source (CopyLeft, Linux-style)</LI></P></UL>
+</UL>
+<DIR>
+<DIR>
+<DIR>
+<DIR>
+
+</B><P ALIGN="JUSTIFY">CopyLeft or GPL (General Public License) based software takes the Open Source license one <U>critical</U> step farther.   Whereas BSD and Apache style software permits users to "fork" the codebase and apply their own license terms to their modified code (e.g. make it commercial), the GPL license requires that all derivative works in turn must also be GPL code.  "You are free to hack this code as long as your derivative is also hackable"</P></DIR>
+</DIR>
+</DIR>
+</DIR>
+</FONT>
+<FONT COLOR="green"><A NAME="comment2">{
+It's interesting to note how differently these last three distinctions
+are framed from the way the open-source community generally views
+them.<P>
+
+To us, open-source licensing and the rights it grants to users and
+third parties are primary, and specific development practice varies
+ad-hoc in a way not especially coupled to our license variations.  In
+this Microsoft taxonomy, on the other hand, the central distinction is who
+has write access to a privileged central code base.<P>
+
+This reflects a much more centralized view of reality, and reflects a
+failure of imagination or understanding on the memo-authors's part.
+He doesn't grok our distributed-development tradition fully.
+This is hardly surprising...
+}</A></FONT><P>
+
+<FONT FACE="宋体" LANG="ZH-CN" SIZE=3><P><A NAME="_Toc427495719"></FONT><FONT FACE="Arial Black" SIZE=3>Open Source Software is Significant to Microsoft</A></P><DIR>
+<DIR>
+<DIR>
+
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">This paper focuses on Open Source Software (OSS). OSS is acutely different from the other forms of licensing (in particular "shareware") in two very important respects:</P></DIR>
+</DIR>
+</DIR>
+
+<OL>
+<DIR>
+<DIR>
+
+<OL>
+
+<P ALIGN="JUSTIFY"><LI>There always exists an avenue for completely royalty-free purchase of the core code base</LI></P>
+<P ALIGN="JUSTIFY"><LI>Unlike freely distributed binaries, Open Source encourages a <I>process</I> around a core code base and encourages extensions to the codebase by other developers.</LI></P></OL>
+</DIR>
+</DIR>
+</OL>
+<DIR>
+<DIR>
+<DIR>
+
+<P ALIGN="JUSTIFY">OSS is a concern to Microsoft for several reasons:</P></DIR>
+</DIR>
+</DIR>
+
+<OL>
+
+<OL>
+
+<B><P ALIGN="JUSTIFY"><LI>OSS projects have achieved "commercial quality"</LI></P>
+</B><P ALIGN="JUSTIFY">A key barrier to entry for OSS in many customer environments has been its perceived lack of quality.  OSS advocates contend that the greater code inspection &amp; debugging in OSS software results in <U>higher quality</U> code than commercial software. </P>
+<P ALIGN="JUSTIFY"><FONT COLOR="red"><a name="quote2">Recent case studies (the
+Internet) provide very
+dramatic evidence in customer's eyes that commercial quality
+can be achieved / exceeded by OSS projects.</A>  At this
+time, however there is no strong evidence of OSS code quality aside
+from anecdotal.</FONT></P>
+<FONT COLOR="green">{
+These sentences, taken together, are rather contradictory unless the
+``recent case studies'' are all ``anecdotal''.  But if so, why call them
+``very dramatic evidence''?<P>
+
+It appears there's a bit of self-protective backing and filling going
+on in the second sentence.  Nevertheless, the first sentence is a huge
+concession for Microsoft to make (even internally).
+}</FONT><P>
+<B><P ALIGN="JUSTIFY"><LI>OSS projects have become large-scale &amp; complex</LI></P>
+</B><P ALIGN="JUSTIFY">Another barrier to entry that has been tackled by OSS is project complexity.  OSS teams are undertaking projects whose size &amp; complexity had heretofore been the exclusive domain of commercial, economically-organized/motivated development teams.  Examples include the Linux Operating System and Xfree86 GUI.</P>
+<P ALIGN="JUSTIFY">OSS process vitality is directly tied to the Internet to provide distributed development resources on a mammoth scale.  Some examples of OSS project size:</P></OL>
+</FONT>
+<P ALIGN="CENTER"><CENTER><TABLE BORDER CELLSPACING=1 CELLPADDING=7 WIDTH=406>
+<TR><TD WIDTH="53%" VALIGN="TOP">
+<FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">Project</FONT></TD>
+<TD WIDTH="47%" VALIGN="TOP">
+<FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">Lines of Code</FONT></TD>
+</TR>
+<TR><TD WIDTH="53%" VALIGN="TOP">
+<FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">Linux Kernel (x86 only)</FONT></TD>
+<TD WIDTH="47%" VALIGN="TOP">
+<FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">500,000</FONT></TD>
+</TR>
+<TR><TD WIDTH="53%" VALIGN="TOP">
+<FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">Apache Web Server</FONT></TD>
+<TD WIDTH="47%" VALIGN="TOP">
+<FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">80,000</FONT></TD>
+</TR>
+<TR><TD WIDTH="53%" VALIGN="TOP">
+<FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">SendMail</FONT></TD>
+<TD WIDTH="47%" VALIGN="TOP">
+<FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">57,000</FONT></TD>
+</TR>
+<TR><TD WIDTH="53%" VALIGN="TOP">
+<FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">Xfree86 X-windows server</FONT></TD>
+<TD WIDTH="47%" VALIGN="TOP">
+<FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">1.5 Million </FONT></TD>
+</TR>
+<TR><TD WIDTH="53%" VALIGN="TOP">
+<FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">"K" desktop environment</FONT></TD>
+<TD WIDTH="47%" VALIGN="TOP">
+<FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">90,000</FONT></TD>
+</TR>
+<TR><TD WIDTH="53%" VALIGN="TOP">
+<FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">Full Linux distribution</FONT></TD>
+<TD WIDTH="47%" VALIGN="TOP">
+<FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">~10 Million</FONT></TD>
+</TR>
+</TABLE>
+</CENTER></P>
+
+<FONT FACE="宋体" LANG="ZH-CN" SIZE=2><P ALIGN="JUSTIFY"></P>
+</FONT><B><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY"><LI>OSS has a unique development process with unique strengths/weaknesses</LI></P></OL>
+<DIR>
+<DIR>
+<DIR>
+<DIR>
+
+</B><P ALIGN="JUSTIFY">The OSS process is unique in its participants' motivations and the resources that can be brought to bare down on problems.  OSS, therefore, has some interesting, non-replicable assets which should be thoroughly understood.</P></DIR>
+</DIR>
+</DIR>
+</DIR>
+
+</FONT><FONT FACE="宋体" LANG="ZH-CN" SIZE=3><P><A NAME="_Toc427495720"></FONT><FONT FACE="Arial Black" SIZE=3>History</A></P><DIR>
+<DIR>
+<DIR>
+
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">Open source software has roots in the hobbyist and the scientific community and was typified by ad hoc exchange of source code by developers/users.</P>
+</FONT><FONT FACE="Arial Black" SIZE=2><P>Internet Software</P>
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">The largest case study of OSS is the Internet.  Most of the earliest code on the Internet was, and is still based on OSS as described in an interview with Tim O'Reilly (</FONT><A HREF="http://www.techweb.com/internet/profile/toreilly/interview"><FONT FACE="Arial" SIZE=2>http://www.techweb.com/internet/profile/toreilly/interview</FONT></A><FONT FACE="Arial" SIZE=2> ):  </P><DIR>
+
+<I><P>TIM O'REILLY: The biggest message that we started out with was, "open source software works." ... BIND has absolutely dominant market share as the single most mission-critical piece of software on the Internet. Apache is the dominant Web server. SendMail runs probably eighty percent of the mail servers and probably touches every single piece of e-mail on the Internet</P>
+</DIR>
+
+</I></FONT><FONT FACE="Arial Black" SIZE=2><P>Free Software Foundation / GNU Project</P>
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">Credit for the first instance of modern, organized OSS is generally given to Richard Stallman of MIT.   In late 1983, Stallman created the Free Software Foundation (FSF) -- </FONT><A HREF="http://www.fsf.com)/"><U><FONT FACE="Arial" SIZE=2 COLOR="#0000ff">http://www.gnu.ai.mit.edu/fsf/fsf.html</U></FONT></A><FONT FACE="Arial" SIZE=2> -- with the goal of creating a free version of the UNIX operating system.  The FSF released a series of sources and binaries under the GNU moniker (which recursively stands for "Gnu's Not Unix").</P>
+<P ALIGN="JUSTIFY">The original FSF / GNU initiatives fell short of their original goal of creating a completely OSS Unix.   They did, however, contribute several famous and widely disseminated applications and programming tools used today including:</P></DIR>
+</DIR>
+</DIR>
+
+
+<UL><DIR>
+<DIR>
+
+
+<UL>
+<B><P ALIGN="JUSTIFY"><LI>GNU Emacs</B> -- originally a powerful character-mode text editor, over time Emacs was enhanced to provide a front-end to compilers, mail readers, etc.</LI></P>
+<B><P ALIGN="JUSTIFY"><LI>GNU C Compiler (GCC)</B> -- GCC is the most widely used compiler in academia &amp; the OSS world. In addition to the compiler a fairly standardized set of intermediate libraries are available as a superset to the ANSI C libraries.</LI></P>
+<B><P ALIGN="JUSTIFY"><LI>GNU GhostScript</B> -- Postscript printer/viewer.</LI></P></UL>
+</DIR>
+</DIR>
+</UL>
+<DIR>
+<DIR>
+<DIR>
+
+</FONT><FONT FACE="Arial Black" SIZE=2><P>CopyLeft Licensing</P>
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">FSF/GNU software introduced the "copyleft" licensing scheme that not only made it illegal to hide source code from GNU software but also made it illegal to hide the source from work <I>derived from GNU software.</I>  The document that described this license is known as the General Public License (GPL).</P>
+<P ALIGN="JUSTIFY">Wired magazine has the following summary of this scheme &amp; its intent (</FONT><A HREF="http://www.wired.com/wired/5.08/linux.html"><FONT FACE="Arial" SIZE=2>http://www.wired.com/wired/5.08/linux.html</FONT></A><FONT FACE="Arial" SIZE=2>):</P><DIR>
+
+<I><P>The general public license, or GPL, allows users to sell, copy, and change copylefted programs - which can also be copyrighted - but you must pass along the same freedom to sell or copy your modifications and change them further. You must also make the source code of your modifications freely available. </P>
+</DIR>
+
+</I><P ALIGN="JUSTIFY">The second clause -- open source code of derivative works -- has been the most controversial (and, potentially the most successful) aspect of CopyLeft licensing. </P></DIR>
+</DIR>
+</DIR>
+
+</FONT><FONT FACE="宋体" LANG="ZH-CN" COLOR="#ffffff"><P><A NAME="_Toc427495721"></FONT><FONT FACE="Arial Black" COLOR="#ffffff">Open Source Process</A></P><DIR>
+<DIR>
+<DIR>
+
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">Commercial software development processes are hallmarked by organization around economic goals.   However, since money is often not the (primary) motivation behind Open Source Software, understanding the nature of the threat posed requires a deep understanding of the process and motivation of Open Source development teams.</P>
+<P ALIGN="JUSTIFY"><FONT COLOR="red"><A NAME="quote3">In other words, to understand how
+to compete against OSS, we must target a process rather than a
+company.</A></FONT></P>
+<FONT COLOR="green">{
+This is a very important insight, one I wish Microsoft had missed.
+The real battle isn't NT vs. Linux, or Microsoft vs. Red
+Hat/Caldera/S.u.S.E. -- it's closed-source development versus
+open-source.  The cathedral versus the bazaar.<P>
+
+This applies in reverse as well, which is why bashing Microsoft qua
+Microsoft misses the point -- they're a symptom, not the disease
+itself.  I wish more Linux hackers understood this.<P>
+
+On a practical level, this insight means we can expect Microsoft's
+propaganda machine to be directed against the process and culture of
+open source, rather than specific competitors.  Brace for it...
+}</FONT><P>
+</DIR>
+</DIR>
+</DIR>
+
+</FONT><FONT FACE="宋体" LANG="ZH-CN" SIZE=3><P><A NAME="_Toc427495722"></FONT><FONT FACE="Arial Black" SIZE=3>Open Source Development Teams</A></P><DIR>
+<DIR>
+<DIR>
+
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">Some of the key attributes of Internet-driven OSS teams:</P></DIR>
+</DIR>
+</DIR>
+
+
+<UL>
+
+<UL>
+<a name="comment5">
+<P ALIGN="JUSTIFY"><LI>Geographically far-flung.  <FONT
+COLOR="red">Some of the key developers of Linux, for example, are
+uniformly distributed across Europe, the US, and Asia.</FONT>
+</LI></P> 
+<FONT COLOR="green">{
+It's very interesting that the
+author recognizes this, but doesn't go on to discuss either Linux's
+edge in internationalization or the extent to which Linux's success
+overseas (especially in Europe) is driven by a fear of
+U.S. technological domination.  This omission may represent an
+exploitable blind spot in Microsoft's strategy.
+}</FONT><P>
+</a>
+<P ALIGN="JUSTIFY"><LI>Large set of contributors with a smaller set of
+core individuals.  Linux, once again, has had over 1000 people submit
+patches, bug fixes, etc. and has had over 200 individuals directly
+contribute code to the kernel.</LI></P></UL>
+</UL>
+
+
+<UL>
+
+<UL>
+<P ALIGN="JUSTIFY"><LI>Not monetarily motivated (in the short run).  These individuals are more like hobbyists spending their free time / energy on OSS project development while maintaining other full time jobs.  This has begun to change somewhat as commercial versions of the Linux OS have appeared.</LI></P></UL>
+</UL>
+
+</FONT><FONT FACE="宋体" LANG="ZH-CN" SIZE=3><P><A NAME="_Toc427495723"></FONT><FONT FACE="Arial Black" SIZE=3>OSS Development Coordination</A></P><DIR>
+<DIR>
+<DIR>
+
+</FONT><FONT FACE="Arial Black" SIZE=2><P>Communication -- Internet Scale</P>
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">Coordination of an OSS team is extremely dependent on Internet-native forms of collaboration.  Typical methods employed run the full gamut of the Internet's collaborative technologies:</P></DIR>
+</DIR>
+</DIR>
+
+
+<UL><DIR>
+<DIR>
+
+
+<UL>
+<P ALIGN="JUSTIFY"><LI>Email lists</LI></P>
+<P ALIGN="JUSTIFY"><LI>Newsgroups</LI></P>
+<P ALIGN="JUSTIFY"><LI>24x 7 monitoring by international subscribers</LI></P>
+<P ALIGN="JUSTIFY"><LI>Web sites</LI></P></UL>
+</DIR>
+</DIR>
+</UL>
+<DIR>
+<DIR>
+<DIR>
+
+<P ALIGN="JUSTIFY">OSS projects the size of Linux and Apache are <U>only</U> viable if a large enough community of highly skilled developers can be amassed to attack a problem.  Consequently, there is direct correlation between the size of the project that OSS can tackle and the growth of the Internet.</P>
+</FONT><FONT FACE="Arial Black" SIZE=2><P>Common Direction</P>
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">In addition to the communications medium, another set of factors implicitly coordinate the direction of the team. </P>
+</FONT><FONT FACE="Arial" SIZE=3><P>Common Goals</P>
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">Common goals are the equivalent of vision statements which permeate the distributed decision making for the entire development team.   A single, clear directive (e.g. "recreate UNIX") is far more efficiently communicated and acted upon by a group than multiple, intangible ones (e.g. "make a good operating system").</P>
+</FONT><FONT FACE="Arial" SIZE=3><P>Common Precedents</P>
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">Precedence is potentially <U>the most important factor</U> in explaining the rapid and cohesive growth of massive OSS projects such as the Linux Operating System.  Because the entire Linux community has years of shared experience dealing with many other forms of UNIX, they are easily able to discern -- in a non-confrontational manner -- what worked and what didn't.</P>
+<P ALIGN="JUSTIFY">There weren't arguments about the command syntax to use in the text editor -- everyone already used "vi" and the developers simply parcelled out chunks of the command namespace to develop.</P>
+<A NAME="comment6"><P ALIGN="JUSTIFY">Having historical, 20:20 hindsight provides a
+strong, implicit structure.  <FONT COLOR="red">In more forward looking
+organizations, this structure is provided by strong, visionary
+leadership.</FONT></P>
+<FONT COLOR="green">{
+At first glance, this just reads like a
+brown-nose-Bill comment by someone expecting that Gates will read
+the memo -- you can almost see the author genuflecting
+before an icon of the Fearless Leader.<P>
+More generally, it suggests a serious and potentially exploitable
+underestimation of the open-source community's ability to enable its
+own visionary leaders.  We didn't get Emacs or Perl or the World Wide
+Web from ``20:20 hindsight'' -- nor is it correct to view even
+the relatively conservative Linux kernel design as a backward-looking
+recreation of past models.<P>
+Accordingly, it suggests that Microsoft's response to open source can
+be wrong-footed by emphasizing innovation in both our actions and the
+way we represent what we're doing to the rest of the world.
+}</A></FONT><P>
+</FONT><FONT FACE="Arial" SIZE=3><P>Common Skillsets</P>
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">NatBro points out that the need for a commonly accepted skillset as a pre-requisite for OSS development.   This point is closely related to the common precedents phenomena.  From his email:  </P><DIR>
+
+</FONT><FONT FACE="Arial" SIZE=2 COLOR="#000080"><P ALIGN="JUSTIFY">A key attribute ... is the common UNIX/gnu/make skillset that OSS taps into and reinforces. I think the whole process wouldn't work if the barrier to entry were much higher than it is ... a modestly skilled UNIX programmer can grow into doing great things with Linux and many OSS products.  Put another way -- it's not too hard for a developer in the OSS space to scratch their itch, because things build very similarly to one another, debug similarly, etc.</P></DIR>
+
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">Whereas precedents identify the end goal, the common skillsets attribute describes the number of people who are versed in the process necessary to reach that end</FONT><FONT FACE="Arial" SIZE=2 COLOR="#000080">.</P>
+</FONT><FONT FACE="Arial Black" SIZE=2><P>The Cathedral and the Bazaar</P>
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">A very influential paper by an open source software advocate -- Eric Raymond -- was first published in May 1997 (</FONT><A HREF="http://www.redhat.com/redhat/cathedral-bazaar/"><FONT FACE="Arial" SIZE=2>http://www.redhat.com/redhat/cathedral-bazaar/</FONT></A><FONT FACE="Arial" SIZE=2>). Raymond's paper was expressly cited by (then) Netscape CTO Eric Hahn as a motivation for their decision to release browser source code. </P>
+<P ALIGN="JUSTIFY">Raymond dissected his OSS project in order to derive rules-of-thumb which could be exploited by other OSS projects in the future.  Some of Raymond's rules include:</P>
+</FONT><FONT FACE="Arial Black" SIZE=2><P>Every good work of software starts by scratching a developer's personal itch</P><DIR>
+
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">This summarizes one of the core motivations of developers in the OSS process -- solving an immediate problem at hand faced by an individual developer -- this has allowed OSS to evolve complex projects without constant feedback from a marketing / support organization. </P></DIR>
+
+</FONT><FONT FACE="Arial Black" SIZE=2><P>Good programmers know what to write. Great ones know what to rewrite (and reuse). </P><DIR>
+
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">Raymond posits that developers are more likely to reuse code in a rigorous open source process than in a more traditional development environment because they are always guaranteed access to the entire source all the time.</P>
+<P ALIGN="JUSTIFY">Widely available open source reduces search costs for finding a particular code snippet.</P></DIR>
+
+</FONT><FONT FACE="Arial Black" SIZE=2><P>``Plan to throw one away; you will, anyhow.'' </P><DIR>
+
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">Quoting Fred Brooks, ``The Mythical Man-Month'', Chapter 11.   Because development teams in OSS are often extremely far flung, many major subcomponents in Linux had several initial prototypes followed by the selection and refinement of a single design by Linus.</P></DIR>
+
+</FONT><FONT FACE="Arial Black" SIZE=2><P>Treating your users as co-developers is your least-hassle route to rapid code improvement and effective debugging. </P><DIR>
+
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">Raymond advocates strong documentation and significant developer support for OSS projects in order to maximize their benefits.</P>
+<P ALIGN="JUSTIFY">Code documentation is cited as an area which commercial developers typically neglect which would be a fatal mistake in OSS.</P></DIR>
+
+</FONT><FONT FACE="Arial Black" SIZE=2><P>Release early. Release often. And listen to your customers. </P><DIR>
+
+<A NAME="comment7">
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY"><FONT
+COLOR="red">This is a classic play out of the Microsoft
+handbook.</FONT>   OSS advocates will note, however, that their
+release-feedback cycle is potentially an order of magnitude faster
+than commercial software's.</P>
+<FONT COLOR="green">{
+This is an interestingly arrogant
+statement, as if they think I was somehow inspired by the Microsoft
+way of binary-only releases.<P>
+
+But it suggests something else -- that even though the author
+intellectually grasps the importance of source code
+releases, he doesn't truly grok how powerful a lever the early
+release specifically of <em>source code</em> truly is.
+Perhaps living within Microsoft's assumptions makes that impossible.
+}</FONT><P>
+</A>
+
+</DIR>
+
+</FONT><FONT FACE="Arial Black" SIZE=2><P>Given a large enough beta-tester and co-developer base, almost every problem will be characterized quickly and the fix obvious to someone. </P><DIR>
+
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY"><FONT
+COLOR="red">This is probably the heart of Raymond's insight
+into the OSS process.</FONT>    He paraphrased this rule as
+"debugging is parallelizable".  More in depth analysis
+follows.</P>
+<FONT COLOR="green">{ Well, he got <em>that</em>
+right, anyway. }</FONT><P>
+</DIR>
+</DIR>
+</DIR>
+</DIR>
+
+</FONT><FONT FACE="宋体" LANG="ZH-CN" SIZE=3><P><A NAME="_Toc427495724"></FONT><FONT FACE="Arial Black" SIZE=3>Parallel Development</A></P><DIR>
+<DIR>
+<DIR>
+
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">Once a component framework has been established (e.g. key API's &amp; structures defined), OSS projects such as Linux utilize multiple small teams of individuals independently solving particular problems.</P>
+<P ALIGN="JUSTIFY">Because the developers are typically hobbyists, the ability to `fund' multiple, competing efforts is not an issue and the OSS process benefits from the ability to pick the best potential implementation out of the many produced.</P>
+<P ALIGN="JUSTIFY">Note, that this is very dependent on:</P></DIR>
+</DIR>
+</DIR>
+
+
+<UL>
+
+<UL>
+<P ALIGN="JUSTIFY"><LI>A large group of individuals willing to submit code</LI></P>
+<P ALIGN="JUSTIFY"><LI>A strong, implicit componentization framework  (which, in the case of Linux was inherited from UNIX architecture).</LI></P></UL>
+</UL>
+
+</FONT><FONT FACE="宋体" LANG="ZH-CN" SIZE=3><P><A NAME="_Toc427495725"></FONT><FONT FACE="Arial Black" SIZE=3>Parallel Debugging</A></P><DIR>
+<DIR>
+<DIR>
+
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">The core argument advanced by Eric Raymond is that unlike other aspects of software development, code debugging is an activity whose efficiency improves nearly linearly with the number of individuals tasked with the project.  There are little/no management or coordination costs associated with debugging a piece of open source code -- this is the key `break' in Brooks' laws for OSS.</P>
+<P ALIGN="JUSTIFY">Raymond includes Linus Torvald's description of the Linux debugging process:</P><DIR>
+
+<P>My original formulation was that every problem ``will be transparent to somebody''. Linus demurred that the person who understands and fixes the problem is not necessarily or even usually the person who first characterizes it. ``Somebody finds the problem,'' he says, ``and somebody else understands it. And I'll go on record as saying that finding it is the bigger challenge.'' But the point is that both things tend to happen quickly</P>
+</DIR>
+
+<P ALIGN="JUSTIFY">Put alternately:</P><DIR>
+
+<P>``Debugging is parallelizable''. Jeff [Dutky &lt;dutky@wam.umd.edu&gt;] observes that although debugging requires debuggers to communicate with some coordinating developer, it doesn't require significant coordination between debuggers. Thus it doesn't fall prey to the same quadratic complexity and management costs that make adding developers problematic.</P>
+</DIR>
+
+<P>One advantage of parallel debugging is that bugs and their fixes are found / propagated much faster than in traditional processes.   For example, when the TearDrop IP attack was first posted to the web, less than 24 hours passed before the Linux community had a working fix available for download.</P>
+
+</FONT><FONT FACE="Arial Black" SIZE=2><P>"Impulse Debugging"</P>
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">An extension to parallel debugging that I'll add to Raymond's hypothesis is "impulsive debugging".  In the case of the Linux OS, implicit to the act of installing the OS is the act of installing <I>the debugging/development environment.</I>  Consequently, it's highly likely that if a particular user/developer comes across a bug in another individual's component -- and especially if that bug is "shallow" -- that user can very quickly patch the code and, via internet collaboration technologies, propagate that patch very quickly back to the code maintainer.</P>
+<P ALIGN="JUSTIFY">Put another way, OSS processes have a very low entry barrier to the debugging process due to the common development/debugging methodology derived from the GNU tools.</P></DIR>
+</DIR>
+</DIR>
+
+</FONT><FONT FACE="宋体" LANG="ZH-CN" SIZE=3><P><A NAME="_Toc427495726"></FONT><FONT FACE="Arial Black" SIZE=3>Conflict resolution</A></P><DIR>
+<DIR>
+<DIR>
+
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">Any large scale development process will encounter conflicts which must be resolved.   Often resolution is an arbitrary decision in order to further progress the project.  In commercial teams, the corporate hierarchy + performance review structure solves this problem -- How do OSS teams resolve them?</P>
+<P ALIGN="JUSTIFY">In the case of Linux, Linus Torvalds is the undisputed `leader' of the project.   He's delegated large components (e.g. networking, device drivers, etc.) to several of his trusted "lieutenants' who further de-facto delegate to a handful of "area" owners (e.g. LAN drivers).</P>
+<P ALIGN="JUSTIFY">Other organizations are described by Eric Raymond: (http://earthspace.net/~esr/writings/homesteading/homesteading-15.html):</P><DIR>
+
+<P>Some very large projects discard the `benevolent dictator' model entirely. One way to do this is turn the co-developers into a voting committee (as with Apache). Another is rotating dictatorship, in which control is occasionally passed from one member to another within a circle of senior co-developers (the Perl developers organize themselves this way). </P>
+
+</FONT><FONT FACE="宋体" LANG="ZH-CN" SIZE=2><P>&nbsp;</P></DIR>
+</DIR>
+</DIR>
+</DIR>
+
+</FONT><FONT FACE="宋体" LANG="ZH-CN" SIZE=3><P><A NAME="_Toc427495727"></FONT><FONT FACE="Arial Black" SIZE=3>Motivation</A></P><DIR>
+<DIR>
+<DIR>
+
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">This section provides an overview of some of the key reasons OSS developers seek to contribute to OSS projects.</P>
+</FONT><FONT FACE="Arial Black" SIZE=2><P>Solving the Problem at Hand</P>
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">This is basically a rephrasing of Raymond's first rule of thumb -- "Every good work of software starts by scratching a developer's personal itch".</P>
+<P ALIGN="JUSTIFY">Many OSS projects -- such as Apache -- started as a small team of developers setting out to solve an immediate problem at hand. Subsequent improvements of the code often stem from individuals applying the code to their own scenarios (e.g. discovering that there is no device driver for a particular NIC, etc.)</P>
+</FONT><FONT FACE="Arial Black" SIZE=2><P>Education</P>
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">The Linux kernel grew out of an educational project at the University of Helsinki.   Similarly, many of the components of Linux / GNU system (X windows GUI, shell utilities, clustering, networking, etc.) were extended by individuals at educational institutions.</P></DIR>
+</DIR>
+</DIR>
+
+
+<UL>
+
+<UL>
+<P ALIGN="JUSTIFY"><LI>In the Far East, for example, Linux is reportedly growing faster than internet connectivity -- due primarily to educational adoption.</LI></P>
+<P ALIGN="JUSTIFY"><LI>Universities are some of the original proponents of OSS as a teaching tool.</LI></P>
+<P ALIGN="JUSTIFY"><LI>Research/teaching projects on top of Linux are easily `disseminated' due to the wide availability of Linux source.   In particular, this often means that new research ideas are first implemented and available on Linux before they are available / incorporated into other platforms.   </LI></P></UL>
+</UL>
+<DIR>
+<DIR>
+<DIR>
+
+</FONT><FONT FACE="Arial Black" SIZE=2><P>Ego Gratification</P>
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">The most ethereal, and perhaps most profound motivation presented by the OSS development community is pure ego gratification.   </P>
+<P ALIGN="JUSTIFY">In "The Cathedral and the Bazaar", Eric S. Raymond cites:  </P><DIR>
+
+<P ALIGN="JUSTIFY">The ``utility function'' Linux hackers are maximizing is not classically economic, but is the intangible of their own ego satisfaction and reputation among other hackers. </P></DIR>
+
+<P>And, of course, "you aren't a hacker until someone else calls you hacker"</P>
+
+</FONT><FONT FACE="Arial Black" SIZE=2><P>Homesteading on the Noosphere</P>
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">A second paper published by Raymond -- "Homesteading on the Noosphere" (http://sagan.earthspace.net/~esr/writings/homesteading/), discusses the difference between economically motivated exchange (e.g. commercial software development for money) and "gift exchange" (e.g. OSS for glory). </P>
+<P ALIGN="JUSTIFY">"Homesteading" is acquiring property
+by being the first to `discover' it or by being the most
+recent to make a significant contribution to it.   The
+"Noosphere" is loosely defined as the "space of
+all work".  Therefore, Raymond posits, the
+OSS hacker motivation is to lay a claim to the largest area in the
+body of work.  In other words, take credit for the biggest piece of
+the prize.</P>
+<FONT COLOR="green">{
+This is a subtle but significant misreading.  It
+introduces a notion of territorial `size' which is nowhere in my
+theory.  It may be a personal error of the author, but I suspect it
+reflects Microsoft's competition-obsessed culture.
+}</FONT><P>
+<P ALIGN="JUSTIFY">From "Homesteading on the Noosphere":</P><DIR>
+
+<P>Abundance makes command relationships difficult to sustain and exchange relationships an almost pointless game. In gift cultures, social status is determined not by what you control but by </FONT><EM>what you give away</EM><FONT FACE="Arial" SIZE=2>. </P>
+<P>...</P>
+<P>For examined in this way, it is quite clear that the society of open-source hackers is in fact a gift culture. Within it, there is no serious shortage of the `survival necessities' -- disk space, network bandwidth, computing power. Software is freely shared. This abundance creates a situation in which the only available measure of competitive success is reputation among one's peers. </P>
+</FONT><FONT FACE="宋体" LANG="ZH-CN" SIZE=2></DIR>
+
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">More succinctly (</FONT><A HREF="http://www.techweb.com/internet/profile/eraymond/interview"><FONT FACE="Arial" SIZE=2>http://www.techweb.com/internet/profile/eraymond/interview</FONT></A><FONT FACE="Arial" SIZE=2>):</P><DIR>
+
+<P>SIMS: So the scarcity that you looked for was the scarcity of attention and reward?<BR>
+RAYMOND: That's exactly correct.</P>
+</DIR>
+
+</FONT><FONT FACE="Arial Black" SIZE=2><P>Altruism</P>
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">This is a controversial motivation and I'm inclined to believe that at some level, Altruism `degenerates' into a form of the Ego Gratification argument advanced by Raymond.</P>
+<P ALIGN="JUSTIFY"><FONT COLOR="red"><A NAME="comment8">One smaller motivation which, in
+part, stems from altruism is Microsoft-bashing.</FONT>   </P>
+<FONT COLOR="green">{
+What a very fascinating admission, coming from a Microserf!
+Of course, he doesn't analyze why this connection exists; that might
+hit too close to home...
+}</FONT><P></A>
+</DIR>
+</DIR>
+</DIR>
+
+</FONT><FONT FACE="宋体" LANG="ZH-CN" SIZE=3><P><A NAME="_Toc427495728"></FONT><FONT FACE="Arial Black" SIZE=3>Code Forking</A></P><DIR>
+<DIR>
+<DIR>
+
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">A key threat in any large development team -- and one that is particularly exacerbated by the process chaos of an internet-scale development team -- is the risk of code-forking. </P>
+<P ALIGN="JUSTIFY">Code forking occurs when over normal push-and-pull of a development project, multiple, inconsistent versions of the project's code base evolve.</P>
+<P ALIGN="JUSTIFY">In the commercial world, for example, the strong, singular management of the Windows NT codebase is considered to be one of it's greatest advantages over the `forked' codebase found in commercial UNIX implementations (SCO, Solaris, IRIX, HP-UX, etc.).</P>
+</FONT><FONT FACE="Arial Black" SIZE=2><P>Forking in OSS -- BSD Unix</P>
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">Within OSS space, BSD Unix is the best example of forked code.   The original BSD UNIX was an attempt by U-Cal Berkeley to create a royalty-free version of the UNIX operating system for teaching purposes.  However, Berkeley put severe restrictions on non-academic uses of the codebase.</P>
+<P ALIGN="JUSTIFY">In order to create a fully free version of BSD UNIX, an ad hoc (but closed) team of developers created FreeBSD.   Other developers at odds with the FreeBSD team for one reason or another splintered the OS to create other variations (OpenBSD, NetBSD, BSDI).  </P>
+<P ALIGN="JUSTIFY">There are two dominant factors which led to the forking of the BSD tree:</P></DIR>
+</DIR>
+</DIR>
+
+
+<UL><DIR>
+<DIR>
+
+
+<UL>
+<A NAME="comment9">
+<P ALIGN="JUSTIFY"><LI><FONT COLOR="red">Not everyone can contribute
+to the BSD codebase.  This limits the size of the effective
+"Noosphere" and creates the potential for someone else
+to credibly claim that their forked code will become more dominant
+than the core BSD code.</FONT></LI></P>
+<FONT COLOR="green">{
+Wow.  This is an insight I never had -- that forking can actually be
+driven by the belief that the forker could accumulate a bigger bazaar
+than the current project.  It certainly explains EGCS and the
+BSD-spinoff-group-of-the-week phenomenon, though probably not the
+Emacs/XEmacs split.<P>
+OK, we've learned something now.  This may in fact explain the 
+couinterintuitive fact that the projects which open up development
+the most actually have the <em>least</em> tendency to fork...
+}</FONT><P></A>
+<P ALIGN="JUSTIFY"><LI>Unlike GPL, BSD's license places no restrictions on derivative code.   Therefore, if you think your modifications are cool enough, you are free to fork the code, charge money for it, change its name, etc.</LI></P></UL>
+</DIR>
+</DIR>
+</UL>
+<DIR>
+<DIR>
+<DIR>
+
+<P ALIGN="JUSTIFY">Both of these motivations create a situation where developers may try to force a fork in the code and collect royalties (monetary, or ego) at the expense of the collective BSD society.</P>
+</FONT><FONT FACE="Arial Black" SIZE=2><P>(Lack of) Forking in Linux</P>
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">In contrast to the BSD example, the Linux kernel code base hasn't forked. Some of the reasons why the integrity of the Linux codebase has been maintained include:</P></DIR>
+</DIR>
+</DIR>
+
+
+<UL>
+
+<UL>
+<P ALIGN="JUSTIFY"><LI>Universally accepted leadership</LI></P></UL>
+</UL>
+<DIR>
+<DIR>
+<DIR>
+<DIR>
+
+<P ALIGN="JUSTIFY">Linus Torvalds is a celebrity in the Linux world and his decisions are considered final. By contrast, a similar celebrity leader did NOT exist for the BSD-derived efforts.</P>
+<P ALIGN="JUSTIFY">Linus is considered by the development team to be a fair, well-reasoned code manager and his reputation within the Linux community is quite strong.  However, Linus doesn't get involved in every decision. Often, sub groups resolve their -- often large -- differences amongst themselves and prevent code forking.</P></DIR>
+</DIR>
+</DIR>
+</DIR>
+
+
+<UL>
+
+<UL>
+<P ALIGN="JUSTIFY"><LI>Open membership &amp; long term contribution potential.  </LI></P></UL>
+</UL>
+<DIR>
+<DIR>
+<DIR>
+<DIR>
+
+<P ALIGN="JUSTIFY">In contrast to BSD's closed membership, anyone can contribute to Linux and your "status" -- and therefore ability to `homestead' a bigger piece of Linux -- is based on the size of your previous contributions.</P>
+<P ALIGN="JUSTIFY">Indirectly this presents a further disincentive to code forking.  There is almost no credible mechanism by which the forked, minority code base will be able to maintain the rate of innovation of the primary Linux codebase.</P></DIR>
+</DIR>
+</DIR>
+</DIR>
+
+
+<UL>
+
+<UL>
+<P ALIGN="JUSTIFY"><LI>GPL licensing eliminates economic motivations for code forking</LI></P></UL>
+</UL>
+<DIR>
+<DIR>
+<DIR>
+<DIR>
+
+<P ALIGN="JUSTIFY">Because derivatives of Linux MUST be available through some free avenue, it lowers the long term economic gain for a minority party with a forked Linux tree. </P></DIR>
+</DIR>
+</DIR>
+</DIR>
+
+
+<UL>
+
+<UL>
+<P ALIGN="JUSTIFY"><LI>Forking the codebase also forks the "Noosphere"</LI></P></UL>
+</UL>
+<DIR>
+<DIR>
+<DIR>
+<DIR>
+
+<P ALIGN="JUSTIFY">Ego motivations push OSS developers to plant the biggest stake in the biggest Noosphere. Forking the code base inevitably shrinks the space of accomplishment for any subsequent developers to the new code tree.</P></DIR>
+</DIR>
+</DIR>
+</DIR>
+
+</FONT><FONT FACE="宋体" LANG="ZH-CN" COLOR="#ffffff"><P><A NAME="_Toc427495729"></FONT><FONT FACE="Arial Black" COLOR="#ffffff">Open Source Strengths</A> </P><DIR>
+<DIR>
+<DIR>
+
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">What are the core strengths of OSS products that Microsoft needs to be concerned with?</P></DIR>
+</DIR>
+</DIR>
+
+</FONT><FONT FACE="宋体" LANG="ZH-CN" SIZE=3><P><A NAME="_Toc427495730"></FONT><FONT FACE="Arial Black" SIZE=3>OSS Exponential Attributes</A></P><DIR>
+<DIR>
+<DIR>
+
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">Like our Operating System business, OSS ecosystems have several exponential attributes:</P></DIR>
+</DIR>
+</DIR>
+
+
+<UL>
+
+<UL>
+<B><P ALIGN="JUSTIFY"><LI>OSS processes are growing with the Internet</LI></P></UL>
+</UL>
+<DIR>
+<DIR>
+<DIR>
+<DIR>
+
+</B><P ALIGN="JUSTIFY">The single biggest constraint faced by any OSS project is finding enough developers interested in contributing their time towards the project.  As an enabler, the Internet was absolutely necessary to bring together enough people for an Operating System scale project.  More importantly, the <I>growth engine</I> for these projects is the growth in the Internet's reach.  Improvements in collaboration technologies directly lubricate the OSS engine.</P>
+<P ALIGN="JUSTIFY">Put another way, the growth of the Internet will make existing OSS projects bigger and will make OSS projects in "smaller" software categories become viable.</P></DIR>
+</DIR>
+</DIR>
+</DIR>
+
+
+<UL>
+
+<UL>
+<B><P ALIGN="JUSTIFY"><LI>OSS processes are "winner-take-all"</LI></P></UL>
+</UL>
+<DIR>
+<DIR>
+<DIR>
+<DIR>
+
+</B><P ALIGN="JUSTIFY">Like commercial software, the most viable single OSS project in many categories will, in the long run, kill competitive OSS projects and `acquire' their IQ assets.  For example, Linux is killing BSD Unix and has absorbed most of its core ideas (as well as ideas in the commercial UNIXes).  This feature confers huge first mover advantages to a particular project</P></DIR>
+</DIR>
+</DIR>
+</DIR>
+
+
+<UL>
+
+<UL>
+<B><P ALIGN="JUSTIFY"><LI>Developers seek to contribute to the largest OSS platform </LI></P></UL>
+</UL>
+<DIR>
+<DIR>
+<DIR>
+<DIR>
+
+</B><P ALIGN="JUSTIFY">The larger the OSS project, the greater the prestige associated with contributing a large, high quality component to its Noosphere.  This phenomena contributes back to the "winner-take-all" nature of the OSS process in a given segment.</P></DIR>
+</DIR>
+</DIR>
+</DIR>
+
+
+<UL>
+
+<UL>
+<B><P ALIGN="JUSTIFY"><LI>Larger OSS projects solve more "problems at hand"</LI></P></UL>
+</UL>
+<DIR>
+<DIR>
+<DIR>
+<DIR>
+
+</B><P ALIGN="JUSTIFY">The larger the project, the more development/test/debugging the code receives.  The more debugging, the more people who deploy it. </P></DIR>
+</DIR>
+</DIR>
+</DIR>
+
+</FONT><FONT FACE="宋体" LANG="ZH-CN" SIZE=3><P><A NAME="_Toc427495731"></FONT><FONT FACE="Arial Black" SIZE=3>Long-term credibility</A></P><DIR>
+<DIR>
+<DIR>
+
+</FONT><I><FONT FACE="Arial" SIZE=2><P ALIGN="CENTER">Binaries may die but source code lives forever</P>
+</I><P ALIGN="JUSTIFY">One of the most interesting implications of viable OSS ecosystems is long-term credibility. </P>
+</FONT><FONT FACE="Arial Black" SIZE=2><P>Long-Term Credibility Defined</P>
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">Long term credibility exists if there is no way you can be driven out of business in the near term.  This forces change in how competitors deal with you.  </P>
+<P ALIGN="JUSTIFY">For example, Airbus Industries garnered initial long term credibility from explicit government support.  Consequently, when bidding for an airline contract, Boeing would be more likely to accept short-term, non-economic returns when bidding against Lockheed than when  bidding against Airbus. </P>
+<a name="quote4">
+<P ALIGN="JUSTIFY">Loosely applied to the vernacular of the software industry,
+<FONT COLOR="red">a product/process is long-term credible if FUD
+tactics can not be used to combat it</FONT>.</P>
+</FONT><FONT FACE="Arial Black" SIZE=2><P><FONT COLOR="red">OSS is Long-Term Credible</a></FONT></P>
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">OSS systems are considered credible because the source code is available from potentially millions of places and individuals.</P>
+<FONT COLOR="green">{
+We are deep inside the Microsoft world-view here.  I realize that a
+typical hacker's reaction to this kind of thinking will be to find it
+nauseating, but it reflects a kind of instrumental ruthlessness about
+the uses of negative marketing that we need to learn to cope with.<P>
+The <em>really</em> interesting thing about these two statements is
+that they imply that Microsoft should give up on FUD as an effective
+tactic against us.<P>
+Most of us have been assuming that the DOJ antitrust suit is what's
+keeping Microsoft from hauling out the FUD guns.  But if His Gatesness
+bought this part of the memo, Microsoft may believe that they need to 
+develop a more substantive response because FUD won't work.<P>
+This could be both good and bad news.  The good news is that Microsoft
+would give up attack marketing, a weapon which in the past has been
+much more powerful than its distinctly inferior technology.  The bad
+news is that, against <em>us</em>, giving it up would actually be better
+strategy; they wouldn't be wasting energy any more and might actually
+evolve some effective response.  }</FONT><P></A>
+<P ALIGN="JUSTIFY">The likelihood that Apache will cease to exist is orders of magnitudes lower than the likelihood that WordPerfect, for example, will disappear.  The disappearance of Apache is not tied to the disappearance of binaries (which are affected by purchasing shifts, etc.) but rather to the disappearance of source code and the knowledge base. </P>
+<P ALIGN="JUSTIFY">Inversely stated, customers know that Apache will be around 5 years from now -- provided there exists some minimal sustained interested from its user/development community.</P>
+<P ALIGN="JUSTIFY">One Apache customer, in discussing his rationale for running his e-commerce site on OSS stated, "because it's open source, I can assign one or two developers to it and maintain it myself indefinitely. "  </P>
+</FONT><FONT FACE="Arial Black" SIZE=2><P>Lack of Code-Forking Compounds Long-Term Credibility</P>
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">The GPL and its
+aversion to code forking reassures customers that they aren't
+riding an evolutionary `dead-end' by subscribing to a
+particular commercial version of Linux.</P>
+<A NAME="comment11">
+<P ALIGN="JUSTIFY"><FONT COLOR="red">The "evolutionary
+dead-end" is the core of the software FUD argument.</FONT></P>
+<FONT COLOR="green">{
+Very true -- and there's another glaring omission here.  If the author
+had been really honest, he'd have noted that OSS advocates are
+well positioned to turn this argument around and beat Microsoft to death
+with it.<P>
+By the author's own admission, OSS is bulletproof on this
+score.  On the other hand, the exploding complexity and schedule
+slippage of the just-renamed ``Windows 2000'' suggest that <em>it</em>
+is an evolutionary dead end.<P>
+The author didn't go on to point that out.  But <em>we</em> should.
+}</FONT><P></A>
+</DIR>
+</DIR>
+</DIR>
+
+</FONT><FONT FACE="宋体" LANG="ZH-CN" SIZE=3><P><A NAME="_Toc427495732"></FONT><FONT FACE="Arial Black" SIZE=3>Parallel Debugging</A></P><DIR>
+<DIR>
+<DIR>
+
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY"><A NAME="quote5"><FONT COLOR="red">Linux and other OSS advocates are making a progressively more credible argument that OSS software is at least as robust -- if not more -- than commercial alternatives.   The Internet provides an ideal, high-visibility showcase for the OSS world.</FONT></A> </P>
+<FONT COLOR="green">{
+It's a handful of amateurs, most of us unpaid and almost all part-time,
+against an entrenced multimillion-dollar propaganda machine run by some of the
+top specialists in the technology-marketing business.<P>
+
+And the amateurs are ``<FONT COLOR="red">making a progressively more credible
+argument''</FONT>.  By Microsoft's own admission, we're actually
+<em>winning</em>.<P>
+
+Maybe there's a message about the underlying products here?
+}</FONT><P>
+<P ALIGN="JUSTIFY">In  particular, larger, more savvy, organizations who rely on OSS for business operations (e.g. ISPs) are comforted by the fact that they can potentially fix a work-stopping bug independent of a commercial provider's schedule (for example, UUNET was able to obtain, compile, and apply the teardrop attack patch to their deployed Linux boxes within 24 hours of the first public attack)</P></DIR>
+</DIR>
+</DIR>
+
+</FONT><FONT FACE="宋体" LANG="ZH-CN" SIZE=3><P><A NAME="_Toc427495733"></FONT><FONT FACE="Arial Black" SIZE=3>Parallel Development</A></P><DIR>
+<DIR>
+<DIR>
+
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">Alternatively stated, "developer resources are essentially free in OSS".   Because the pool of potential developers is massive, it is economically viable to simultaneously investigate multiple solutions / versions to a problem and chose the best solution in the end.</P>
+<P ALIGN="JUSTIFY">For example, the Linux TCP/IP stack was probably rewritten 3 times.  Assembly code components in particular have been continuously hand tuned and refined.</P></DIR>
+</DIR>
+</DIR>
+
+</FONT><FONT FACE="宋体" LANG="ZH-CN" SIZE=3><P><A NAME="_Toc427495734"></FONT><FONT FACE="Arial Black" SIZE=3>OSS = `perfect' API evangelization / documentation</A></P><DIR>
+<DIR>
+<DIR>
+
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">OSS's API evangelization / developer education is basically providing the developer with the underlying code.  Whereas evangelization of API's in a closed source model basically defaults to trust, OSS API evangelization lets the developer make up his own mind.</P>
+<A NAME="comment13">
+<P ALIGN="JUSTIFY">NatBro and Ckindel point out a split in developer
+capabilities here.   Whereas the "enthusiast developer"
+is comforted by OSS evangelization, <FONT
+COLOR="red">novice/intermediate developers --the bulk of the
+development community -- prefer the trust model + organizational
+credibility</FONT> (e.g. "Microsoft says API X looks this
+way")</P>
+<FONT COLOR="green">{
+Whether it's really true that most developers prefer the `trust' model
+or not is an extremely interesting question.<P>
+
+Twenty years of experience in the field tells me not; that, in
+general, developers prefer code even when their non-technical
+<em>bosses</em> are naive enough to prefer `trust'.  Microsoft,
+obviously, wants to believe that its `organizational credibility'
+counts -- I detect some wishful thinking here.<P>
+
+On the other hand, they may be right.  We in the open-source community
+can't afford to dismiss that possibility.  I think we can meet it by
+developing high-quality documentation.  In this way, `trust' in name
+authors (or in publishers of good repute such as O'Reilly or
+Addison-Wesley) can substitute for `trust' in an API-defining
+organization.)
+}</FONT></A><P>
+</DIR>
+</DIR>
+</DIR>
+
+</FONT><FONT FACE="宋体" LANG="ZH-CN" SIZE=3><P><A NAME="_Toc427495735"></FONT><FONT FACE="Arial Black" SIZE=3>Release rate</A></P><DIR>
+<DIR>
+<DIR>
+
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">Strongly componentized OSS projects are able to release subcomponents as soon as the developer has finished his code.   Consequently, OSS projects rev quickly &amp; frequently.</P></DIR>
+</DIR>
+</DIR>
+
+</FONT><FONT FACE="宋体" LANG="ZH-CN" COLOR="#ffffff"><P><A NAME="_Toc427495736"></FONT><FONT FACE="Arial Black" COLOR="#ffffff">Open Source Weaknesses</A></P><DIR>
+<DIR>
+<DIR>
+
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">The weaknesses in OSS projects fall into 3 primary buckets:</P></DIR>
+</DIR>
+</DIR>
+
+
+<UL>
+
+<UL>
+<P ALIGN="JUSTIFY"><LI>Management costs</LI></P>
+<P ALIGN="JUSTIFY"><LI>Process Issues</LI></P>
+<P ALIGN="JUSTIFY"><LI>Organizational Credibility</LI></P></UL>
+</UL>
+
+</FONT><FONT FACE="宋体" LANG="ZH-CN" SIZE=3><P><A NAME="_Toc427495737"></FONT><FONT FACE="Arial Black" SIZE=3>Management Costs</A></P><DIR>
+<DIR>
+<DIR>
+
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">The biggest roadblock for OSS projects is dealing with exponential growth of management costs as a project is scaled up in terms of rate of innovation and size.   This implies a limit to the rate at which an OSS project can innovate.</P>
+</FONT><FONT FACE="Arial Black" SIZE=2><P>Starting an OSS project is difficult</P>
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">From Eric Raymond:  </P><DIR>
+
+<P>It's fairly clear that one cannot code from the ground up in bazaar style. One can test, debug and improve in bazaar style, but it would be very hard to </FONT><EM>originate</EM><FONT FACE="Arial" SIZE=2> a project in bazaar mode. Linus didn't try it. I didn't either. Your nascent developer community needs to have something runnable and testable to play with. </P>
+</DIR>
+
+<P ALIGN="JUSTIFY">Raymond `s argument can be extended to the difficulty in starting/sustaining a project if there are no clear precedent / goal (or too many goals) for the project.</P>
+</FONT><FONT FACE="Arial" SIZE=3><P>Bazaar Credibility</P>
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">Obviously, there are far more fragments of source code on the Internet than there are OSS communities.   What separates "dead source code" from a thriving bazaar?</P>
+<P ALIGN="JUSTIFY">One article (</FONT><A HREF="http://www.mibsoftware.com/bazdev/0003.htm"><FONT FACE="Arial" SIZE=2>http://www.mibsoftware.com/bazdev/0003.htm</FONT></A><FONT FACE="Arial" SIZE=2>) provides the following <I>credibility</I> criteria:</P><DIR>
+
+<P ALIGN="JUSTIFY">"....thinking in terms of a hard minimum number of participants is misleading. Fetchmail and Linux have huge numbers of beta testers *now*, but they obviously both had very few at the beginning.</P>
+<P ALIGN="JUSTIFY">What both projects did have was a handful of enthusiasts and a plausible promise. The promise was partly technical (this code will be wonderful with a little effort) and sociological (if you join our gang, you'll have as much fun as we're having). So what's necessary for a bazaar to develop is that it be credible that the full-blown bazaar will exist!"</P></DIR>
+
+<P ALIGN="JUSTIFY">I'll posit that some of the key criteria that must exist for a bazaar to be credible include:</P></DIR>
+</DIR>
+</DIR>
+
+
+<UL>
+
+<UL>
+<B><P ALIGN="JUSTIFY"><LI>Large Future Noosphere</B> -- The project must be cool enough that the intellectual reward adequately compensates for the time invested by developers.  The Linux OS excels in this respect.</LI></P>
+<B><P ALIGN="JUSTIFY"><LI>Scratch a big itch </B>-- The project must be important / deployable by a large audience of <I>developers</I>.   The Apache web server provides an excellent example here.</LI></P>
+<B><P ALIGN="JUSTIFY"><LI>Solve the right amount of the problem first </B>-- Solving too much of the problem relegates the OSS development community to the role of testers.   Solving too little before going OSS reduces "plausible promise" and doesn't provide a strong enough component framework to efficiently coordinate work.</LI></P></UL>
+<FONT COLOR="green">{
+These three points are well-thought-out and actually improve on my
+characterization in ``The Cathedral and the Bazaar.''.  The
+distinction he makes between `Large Future Noosphere' and `Scratch a
+big itch' is particularly telling.
+}</A></FONT><P>
+</UL>
+<DIR>
+<DIR>
+<DIR>
+
+</FONT><FONT FACE="Arial Black" SIZE=2><P>Post-Parity Development</P>
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">When describing
+this problem to JimAll, he provided the perfect analogy of
+"chasing tail lights".   The easiest way to get
+coordinated behavior from a large, semi-organized mob is to point them
+at a known target.  Having the taillights provides concreteness to a
+fuzzy vision.  In such situations, having a taillight to follow is a
+proxy for having strong central leadership.</P>
+<A NAME="comment14">
+<P ALIGN="JUSTIFY">Of course, once this implicit organizing principle
+is no longer available <FONT COLOR="red">(once a project has achieved "parity" with the state-of-the-art), the level of management necessary to push towards new frontiers becomes massive.</FONT></P>
+<FONT COLOR="green">{
+Nonsense.  In the open-source world, all it takes is one person with a
+good idea.<P>
+
+Part of the point of open source is to lower the energy barriers that
+retard innovation.  We've found by experience that the `massive
+management' the author extols is one of the worst of these
+barriers.<P>
+
+In the open-source world, innovators get to try anything, and the only
+test is whether users will volunteer to experiment with the innovation
+and like it once they have.  The Internet facilitates this process,
+and the cooperative conventions of the open-source community are
+specifically designed to promote it.<P>
+
+The third alternative to ``<FONT COLOR="red">chasing
+taillights</FONT>'' or ``<FONT COLOR="red">strong central
+leadership</FONT>'' (and more effective than either) is an evolving
+creative anarchy, in which there are a thousand leaders and ten
+thousand followers linked by a web of peer review
+and subject to rapid-fire reality checks.<P>
+
+Microsoft cannot beat this.  I don't think they can even really
+<em>understand</em> it, not on a gut level.
+}</FONT><P></A>
+<P ALIGN="JUSTIFY">This is possibly the single most interesting hurdle
+to face the Linux community now that they've achieved parity
+with the state of the art in UNIX in many respects.</P>
+<FONT COLOR="green">{
+The Linux community has not merely lept this hurdle, but utterly
+<em>demolished</em> it.  This fact is at the core of open-source's
+long-term advantage over closed-source development.
+}</FONT><P>
+</FONT><FONT FACE="Arial Black" SIZE=2><P>Un-sexy work</P>
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">Another interesting thing to observe in the near future of OSS is how well the team is able to tackle the "unsexy" work necessary to bring a commercial grade product to life. </P>
+<P ALIGN="JUSTIFY">In the operating systems space, this includes small, essential functions such as power management, suspend/resume, management infrastructure, UI niceties, deep Unicode support, etc.</P>
+<P ALIGN="JUSTIFY">For Apache, this may mean novice-administrator functionality such as wizards.</P>
+</FONT><FONT FACE="Arial Black" SIZE=2><P>Integrative/Architectural work</P>
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">Integrative work across modules is the biggest cost encountered by OSS teams.  An email memo from Nathan Myrhvold on 5/98, points out that of all the aspects of software development, integration work is most subject to Brooks' laws.</P>
+<P ALIGN="JUSTIFY">Up till now, Linux has <U>greatly</U> benefited from the integration / componentization model pushed by previous UNIX's.   Additionally, the organization of Apache was simplified by the relatively simple, fault tolerant specifications of the HTTP protocol and UNIX server application design.</P>
+<A NAME="comment15">
+<P ALIGN="JUSTIFY"><FONT COLOR="red">Future innovations which require
+changes to the core architecture / integration model are going to be
+incredibly hard for the OSS team to absorb because it simultaneously
+devalues their precedents and skillsets.</P></FONT> <FONT
+COLOR="green">{ This prediction is of a piece with the author's <A
+HREF="#comment6">earlier assertion</A> that open-source development
+relies critically on design precedents and is unavoidably
+backward-looking. It's myopic -- apparently things like <a
+href="http://www.python.org">Python</a>, <a
+href="http://www.beowulf.org">Beowulf</a>, and <a
+href="http://squeak.cs.uiuc.edu/">Squeak</a> (to name just three of
+hundreds of innovative projects) don't show on his radar.<P>
+
+We can only hope Microsoft continues to believe this, because it would
+hinder their response.  Much will depend on how they interpret 
+innovations such as (for example) the SMPization of the Linux kernel.
+}</FONT><P></A>
+</DIR>
+</DIR>
+</DIR>
+
+</FONT><FONT FACE="宋体" LANG="ZH-CN" SIZE=3><P><A NAME="_Toc427495738"></FONT><FONT FACE="Arial Black" SIZE=3>Process Issues</A></P><DIR>
+<DIR>
+<DIR>
+
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">These are weaknesses intrinsic to OSS's design/feedback methodology.  </P>
+</FONT><FONT FACE="Arial Black" SIZE=2><P>Iterative Cost</P>
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">One of the key's to the OSS process is having many more iterations than commercial software (Linux was known to rev it's kernel more than once a day!).  However, commercial customers tell us they want <U>fewer</U> revs, not more.</P>
+<FONT COLOR="green">{
+This is why commercial Linux distributors exist -- to mediate between
+the rapid-development process and customers who don't want to follow
+every twist of it.   The kernel may rev once a day, but Red Hat only
+revs once in six months.
+}</FONT><P>
+</FONT><FONT FACE="Arial Black" SIZE=2><P> "Non-expert" Feedback</P>
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">The Linux OS is not developed for end users but rather, for other hackers.   Similarly, the Apache web server is implicitly targetted at the largest, most savvy site operators, not the departmental intranet server.</P>
+<P ALIGN="JUSTIFY">The key thread here is that because OSS doesn't have an explicit marketing / customer feedback component, wishlists -- and consequently feature development -- are dominated by the most technically savvy users.</P>
+<A NAME="comment16">
+<P ALIGN="JUSTIFY"><FONT COLOR="red">One thing that development groups at MSFT
+have learned time and time again is that ease of use, UI
+intuitiveness, etc. must be built from the ground up into a product
+and can not be pasted on at a later time.</FONT></P>
+<FONT COLOR="green">{
+This demands comment -- because it's so right in theory, but so hideously
+wrong in Microsoft practice.  The wrongness implies an exploitable
+weakness in the implied strategy (for Microsoft) of emphasizing UI.<P>
+
+There are two ways to build in ease of use "from the ground up".  One
+(the Microsoft way) is to design monolithic applications that are
+defined and dominated by their UIs.  This tends to produce
+``Windowsitis'' -- rigid, clunky, bug-prone monstrosities that are all
+glossy surface with a hollow interior. <P>
+
+Programs built this way <em>look</em> user-friendly at first sight,
+but turn out to be huge time and energy sinks in the longer term.
+They can only be sustained by carpet-bomb marketing, the main purpose
+of which is to delude users into believing that (a) bugs are features,
+or that (b) all bugs are really the stupid user's fault, or that (c)
+all bugs will be abolished if the user bends over for the next
+upgrade. This approach is fundamentally broken.<P>
+
+The other way is the Unix/Internet/Web way, which is to separate the
+engine (which does the work) from the UI (which does the viewing and
+control).  This approach requires that the engine and UI communicate
+using a well-defined protocol.  It's exemplified by browser/server
+pairs -- the engine specializes in being an engine, and the UI
+specializes in being a UI.<P>
+
+With this second approach, overall complexity goes down and
+reliability goes up.  Further, the interface is easier to
+evolve/improve/customize, precisely because it's not tightly
+coupled to the engine.  It's even possible to have multiple 
+interfaces tuned to different audiences.<P>
+
+Finally, this architecture leads naturally to applications that are
+enterprise-ready -- that can be used or administered remotely from the
+server.  This approach works -- and it's the open-source community's
+natural way to counter Microsoft.<P>
+
+The key point is here is that if Microsoft wants to fight the
+open-source community on UI, let them -- because we can win that
+battle, too, fighting it our way.  They can write ever-more-elaborate
+Windows monoliths that spot-weld you to your application-server
+console.  We'll win if we write clean distributed applications that
+leverage the Internet and the Web and make the UI a
+pluggable/unpluggable user choice that can evolve.<P>
+
+Note, however, that our win depends on the existence of well-defined
+protocols (such as HTTP) to communicate between UIs and engines.
+That's why the stuff later in this memo about ``de-commoditizing
+protocols'' is so sinister.  We need to guard against that.
+}</FONT><P></A>
+<P ALIGN="JUSTIFY">The interesting trend to observe here will be the effect that commercial OSS providers (such as RedHat in Linux space, C2Net in Apache space) will have on the feedback cycle.</P></DIR>
+</DIR>
+</DIR>
+
+</FONT><FONT FACE="宋体" LANG="ZH-CN" SIZE=3><P><A NAME="_Toc427495739"></FONT><FONT FACE="Arial Black" SIZE=3>Organizational Credibility</A></P><DIR>
+<DIR>
+<DIR>
+
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">How can OSS provide the <I>service</I> that consumers expect from software providers?</P>
+</FONT><FONT FACE="Arial Black" SIZE=2><P>Support Model</P>
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">Product support is typically the first issue prospective consumers of OSS packages worry about and is the primary feature that commercial redistributors tout.  </P>
+<A NAME="comment17">
+<P ALIGN="JUSTIFY">However, the vast majority of OSS projects are
+supported by the developers of the respective components.  Scaling
+this support infrastructure to the level expected in commercial
+products will be a significant challenge.  <FONT COLOR="red">There are many orders of
+magnitude difference between users and developers in IIS
+vs. Apache.</FONT></P>
+<FONT COLOR="green">{
+The vagueness of this last sentence is telling.  Had the author
+continued, he would have had to acknowledge that Apache is clobbering
+the crap out of IIS in the marketplace (Apache's share 54% and
+climbing; IIS's somewhere around 14% and dropping).<P>
+
+This would have led to a choice of unpalatable (for Microsoft)
+alternatives.  It may be that Apache's informal user-support channels and
+`organizational credibility' actually produce better results than
+Microsoft's IIS organization can offer.  If that's true, then it's hard to
+see in principle why the same shouldn't be true of other open-source
+projects.<P>
+
+The alternative -- that Apache is so good that it doesn't <em>need</em>
+much support or `organizational credibility' -- is even worse.  That
+would mean that all of Microsoft's heavy-duty support and marketing
+battalions were just a huge malinvestment, like crumbling Stalinist
+apartment blocks forty years later.<P>
+
+These two possible explanations imply distinct but parallel strategies
+for open-source advocates.  One is to build software that's so good it
+just doesn't need much support (but we'd do this anyway, and generally
+have).  The other is to do more intensely what we're already doing
+along the lines of support mailing lists, newsgroups, FAQs, and other
+informal but extremely effective channels.
+}</FONT><P></A>
+<P ALIGN="JUSTIFY">For the short-medium run, this factor alone will relegate OSS products to the top tiers of the user community.</P>
+</FONT><FONT FACE="Arial Black" SIZE=2><P>Strategic Futures</P>
+<A NAME="comment18">
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY"><FONT COLOR="red">A very sublime
+problem which will affect full scale consumer adoption of OSS projects
+is the lack of strategic direction in the OSS development cycle.
+While incremental improvement of the current bag of features in an OSS
+product is very credible, <I>future features
+</I>have no organizational commitment to guarantee their development.</FONT></P>
+<FONT COLOR="green">{
+No.  In the open-source community, new features are driven by the 
+novelty- and territory-seeking behavior of individual hackers.
+This certainly is not a force to be despised.  The Internet and the Web were
+built this way -- not because of `organizational commitment', but
+because somebody, somewhere, thought ``Hey -- this would be neat...''.<P>
+
+Perhaps we're fortunate that `organizational credibility' looms so large
+in the Microsoft world-view.  The time and energy they spend worrying about
+that and believing it's a prerequisite is resources they won't spend doing
+anything that might be effective against us.
+}</FONT><P></A>
+<A NAME="comment19">
+<P ALIGN="JUSTIFY">What does it mean for the Linux community to
+"sign up" to help build the Corporate Digital Nervous
+System?   How can Linux guarantee backward compatibility with apps
+written to previous API's?  Who do you sue if the next version
+of Linux breaks some commitment?  <FONT COLOR="red">How does Linux
+make a strategic alliance with some other entity?</FONT></P>
+<FONT COLOR="green">{
+The author has been overtaken by events here.  He should ask
+Microsoft's buddies at Intel, who bought a minority stake in
+Red Hat less than two months after this memo was written.
+}</FONT><P></A>
+</DIR>
+</DIR>
+</DIR>
+
+</FONT><FONT FACE="宋体" LANG="ZH-CN" COLOR="#ffffff"><P><A NAME="_Toc427495740"></FONT><FONT FACE="Arial Black" COLOR="#ffffff">Open Source Business Models</A></P><DIR>
+<DIR>
+<DIR>
+
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">In the last 2 years, OSS has taken another twist with the emergence of companies that sell OSS software, and more importantly, hiring full-time developers to improve the code base.  What's the business model that justifies these salaries?</P>
+<P ALIGN="JUSTIFY">In many cases, the answers to these questions are similar to "why should I submit my protocol/app/API to a standards body?"</P></DIR>
+</DIR>
+</DIR>
+
+</FONT><FONT FACE="宋体" LANG="ZH-CN" SIZE=3><P><A NAME="_Toc427495741"></FONT><FONT FACE="Arial Black" SIZE=3>Secondary Services</A></P><DIR>
+<DIR>
+<DIR>
+
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">The vendor of OSS-ware provides sales, support, and integration to the customer.   Effectively, this transforms the OSS-ware vendor from a package goods manufacturer into a services provider.</P></DIR>
+</DIR>
+</DIR>
+
+</FONT><FONT FACE="宋体" LANG="ZH-CN" SIZE=3><P><A NAME="_Toc427495742"></FONT><FONT FACE="Arial Black" SIZE=3>Loss Leader -- Market Entry</A></P><DIR>
+<DIR>
+<DIR>
+
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">The Loss Leader OSS business model can be used for two purposes:</P></DIR>
+</DIR>
+</DIR>
+
+
+<UL><DIR>
+<DIR>
+
+
+<UL>
+<P ALIGN="JUSTIFY"><LI>Jumpstarting an infant market</LI></P>
+<P ALIGN="JUSTIFY"><LI>Breaking into an existing market with entrenched, closed-source players</LI></P></UL>
+</DIR>
+</DIR>
+</UL>
+<DIR>
+<DIR>
+<DIR>
+
+<P ALIGN="JUSTIFY">Many OSS startups -- particularly those in Operating Systems space -- view funding the development of OSS products as a strategic loss leader against Microsoft.</P>
+<P ALIGN="JUSTIFY">Linux distributors, such as RedHat, Caldera, and others, are expressly willing to fund full time developers who release all their work to the OSS community. By simultaneously funding these efforts, Red Hat and Caldera are implicitly colluding and believe they'll make more short term revenue by growing the Linux market rather than directly competing with each other.</P>
+<P ALIGN="JUSTIFY">An indirect example is O'Reilly &amp; Associates employment of Larry Wall -- "leader" and full time developer of PERL.   The #1 publisher of PERL reference books, of course is O'Reilly &amp; Associates.</P>
+<P ALIGN="JUSTIFY">For the short run, especially as the OSS project is at the steepest part of it's growth curve, such investments generate positive ROI.   Longer term, ROI motivations may steer these developers towards making proprietary extensions rather than releasing OSS.</P></DIR>
+</DIR>
+</DIR>
+
+</FONT><FONT FACE="宋体" LANG="ZH-CN" SIZE=3><P><A NAME="_Toc427495743"></FONT><FONT FACE="Arial Black" SIZE=3>Commoditizing Downstream Suppliers</A> </P><DIR>
+<DIR>
+<DIR>
+
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">This is very closely related to the loss leader business model.   However, instead of trying to get marginal service returns by massively growing the market, these businesses increase returns in their part of the value chain by commoditizing downstream suppliers.</P>
+<P ALIGN="JUSTIFY">The best examples of this currently are the thin server vendors such as Whistle Communications, and Cobalt Micro who are actively funding developers in SAMBA and Linux respectively.</P>
+<P ALIGN="JUSTIFY">Both Whistle and Cobalt generate their revenue on hardware volume.  Consequently, funding OSS enables them to avoid today's PC market where a "tax" must be paid to the OS vendor (NT Server retail price is $800 whereas Cobalt's target MSRP is around $1000).</P>
+<P ALIGN="JUSTIFY">The earliest Apache developers were employed by cash-strapped ISPs and ICPs.</P>
+<P ALIGN="JUSTIFY">Another, more recent example is IBM's deal with Apache.  By declaring the HTTP server a commodity, IBM hopes to concentrate returns in the more technically arcane application services it bundles with it's Apache distribution (as well as hope to reach Apache's tremendous market share).</P></DIR>
+</DIR>
+</DIR>
+
+</FONT><FONT FACE="宋体" LANG="ZH-CN" SIZE=3><P><A NAME="_Toc427495744"></FONT><FONT FACE="Arial Black" SIZE=3>First Mover -- Build Now, $$ Later</A></P><DIR>
+<DIR>
+<DIR>
+
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">One of the exponential qualities of OSS -- successful OSS projects swallow less successful ones in their space -- implies a pre-emption business model where by investing directly in OSS today, they can pre-empt / eliminate competitive projects later -- especially if the project requires API evangelization.  This is tantamount to seizing a first mover advantage in OSS.</P>
+<P ALIGN="JUSTIFY">In addition, the developer scale, iteration rate, and reliability advantages of the OSS process are a blessing to small startups who typically can't afford a large in--house development staff.</P>
+<P ALIGN="JUSTIFY">Examples of startups in this space include SendMail.com (making a commercially supported version of the sendmail mail transfer agent) and C2Net (makes commercial and encrypted Apache)</P>
+<P ALIGN="JUSTIFY">Notice, that no case of a successful startup <I>originating</I> an OSS project has been observed.   In both of these cases, the OSS project existed <I>before</I> the startup was formed.</P>
+<P ALIGN="JUSTIFY">Sun Microsystem's has recently announced that its "JINI" project will be provided via a form of  OSS and may represent an application of the pre-emption doctrine.</P></DIR>
+</DIR>
+</DIR>
+
+</FONT><FONT FACE="宋体" LANG="ZH-CN" COLOR="#ffffff"><P><A NAME="_Toc427495745"></FONT><FONT FACE="Arial Black" COLOR="#ffffff">Linux</A></P><DIR>
+<DIR>
+<DIR>
+
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">The next several sections analyze the most prominent OSS projects including Linux, Apache, and now, Netscape's OSS browser.</P>
+<P ALIGN="JUSTIFY">A second memo titled "Linux OS Competitive Analysis" provides an in-depth review of the Linux OS.  Here, I provide a top-level summary of my findings in Linux.</P></DIR>
+</DIR>
+</DIR>
+
+</FONT><FONT FACE="宋体" LANG="ZH-CN" SIZE=3><P><A NAME="_Toc427495746"></FONT><FONT FACE="Arial Black" SIZE=3>What is it?</A></P><DIR>
+<DIR>
+<DIR>
+
+</FONT><FONT FACE="Arial" SIZE=2><P>Linux (pronounced "LYNN-ucks") is the #1 market share Open Source OS on the Internet.   Linux is derives strongly from the 25+ years of lessons learned on the UNIX operating system. </P>
+
+<P>Top-Level Features:</P></DIR>
+</DIR>
+</DIR>
+
+
+<UL>
+
+<UL>
+<LI>Multi-user / Multi-threaded (kernel &amp; user)</LI>
+<LI>Multi-platform (x86, Alpha, MIPS, PowerPC, SPARC, etc.)</LI>
+<LI>Protected 32-bit  memory space for apps;  Virtual Memory support  (64-bit in development)</LI>
+<LI>SMP (Intel &amp; Sun CPU's)</LI>
+<LI>Supports multiple file systems (FAT16, FAT32, NTFS, Ext2FS)</LI>
+<LI>High performance networking</LI>
+
+<UL>
+<LI>NFS/SMB/IPX/Appletalk networking </LI>
+<LI>Fastest stack in Unix vs. Unix perf tests</LI></UL>
+
+<LI>Disk Management</LI>
+
+<UL>
+<LI>Striping, mirroring, FAT16, FAT32, NTFS</LI></UL>
+
+<LI>Xfree86 GUI</LI></UL>
+</UL>
+
+</FONT><FONT FACE="宋体" LANG="ZH-CN" SIZE=2>
+</FONT><FONT FACE="宋体" LANG="ZH-CN" SIZE=3><P><A
+NAME="_Toc424804421"><A NAME="_Toc427495747"></FONT>
+<A NAME="quote6">
+<FONT FACE="Arial Black" SIZE=3>Linux is a real, credible OS + Development process</A></A></P><DIR>
+<DIR>
+<DIR>
+
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY"><FONT COLOR="red">Like other Open Source Software (OSS) products, the real key to Linux isn't the static version of the product but rather the process around it.  This process lends credibility and an air of future-safeness to customer Linux investments.</FONT></P></DIR>
+</DIR>
+</DIR>
+
+
+<UL>
+
+<UL>
+<B><P ALIGN="JUSTIFY"><LI>Trusted in mission criticial
+environments</B>.  <FONT COLOR="red">Linux has been deployed in mission critical, commercial environments with an excellent pool of public testimonials.</FONT></LI></P></UL>
+</UL>
+
+
+<UL>
+
+<UL>
+<B><P ALIGN="JUSTIFY"><LI>Linux = Best of Breed UNIX.  </B><FONT COLOR="red">Linux outperforms many other UNIX's in most major performance category (networking, disk I/O, process ctx switch, etc.).</FONT>    To grow their featurebase, Linux has also liberally stolen features of other UNIX's (shell features, file systems, graphics, CPU ports)</LI></P></UL>
+</UL>
+
+
+<UL>
+
+<UL>
+<B><P ALIGN="JUSTIFY"><LI>Only Unix OS to gain market share.</B>
+<FONT COLOR="red">Linux is on track to eventually own the x86 UNIX
+market</FONT> and has been the only UNIX version to gain net Server OS market share in recent years.  I believe that Linux -- moreso than NT -- will be the biggest threat to SCO in the near future.</LI></P></UL>
+</UL>
+
+
+<UL>
+
+<UL>
+<B><P ALIGN="JUSTIFY"><LI>Linux's process iterates VERY fast.  </B>For example, the Linux equivalent of the TransmitFile() API went from idea to final implementation in about 2 weeks time.</LI></P></UL>
+</UL>
+<FONT COLOR="green">{
+All true.  I couldn't have put it better myself :-).
+}</FONT><P>
+</A>
+
+</FONT><FONT FACE="宋体" LANG="ZH-CN" SIZE=3><P><A NAME="_Toc424804422"><A NAME="_Toc427495748"></FONT><FONT FACE="Arial Black" SIZE=3>Linux is a short/medium-term threat in servers</A></A></P><DIR>
+<DIR>
+<DIR>
+
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">The primary threat Microsoft faces from Linux is against NT Server.</P>
+<P ALIGN="JUSTIFY">Linux's future strength against NT server (and other UNIXes) is fed by several key factors:</P></DIR>
+</DIR>
+</DIR>
+
+
+<UL>
+
+<UL>
+<P ALIGN="JUSTIFY"><LI>Linux uses commodity PC hardware and, due to OS modularity, can be run on smaller systems than NT.   Linux is frequently used for services such as DNS running on old 486's in back closets.</LI></P>
+<P ALIGN="JUSTIFY"><LI>Due to it's UNIX heritage, Linux represents a lower switching cost for some organizations than NT</LI></P>
+<P ALIGN="JUSTIFY"><LI>UNIX's perceived Scaleability, Interopability, Availability, and Manageability (SIAM) advantages over NT.</LI></P>
+<P ALIGN="JUSTIFY"><LI><FONT COLOR="red"><a name="quote7">Linux can win as long as
+services / protocols are commodities</a></FONT></LI></P>
+<FONT COLOR="green">{
+We sense a theme developing here...<P>
+
+To put it slightly differently: Linux can win if services are open
+and protocols are simple, transparent.  Microsoft can only win if
+services are closed and protocols are complex, opaque.<P>
+
+To put it even more bluntly: "commodity" services and protocols are
+good things for customers; they promote competition and choice.
+<B>Therefore, for Microsoft to win, the customer must lose.</B><P>
+
+The most interesting revelation in this memo is how close to
+explicitly stating this logic Microsoft is willing to come.
+}</FONT><P>
+</UL>
+</UL>
+
+</FONT><FONT FACE="宋体" LANG="ZH-CN" SIZE=3><P><A NAME="_Toc424804423"><A NAME="_Toc427495749"></FONT><FONT FACE="Arial Black" SIZE=3>Linux is unlikely to be a threat on the desktop</A></A></P><DIR>
+<DIR>
+<DIR>
+
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">Linux is unlikely to be a threat in the medium-long term on the desktop for several reasons:</P></DIR>
+</DIR>
+</DIR>
+
+
+<UL>
+
+<UL>
+<A NAME="comment22">
+<B><P ALIGN="JUSTIFY"><LI>Poor end-user apps &amp; focus.  </B><FONT
+COLOR="red">OSS development process are far better at solving
+individual component issues than they are at solving integrative
+scenarios such as end-to-end ease of use.</FONT></LI></P>
+<FONT COLOR="green">{
+The easy and obvious counter to this is to observe that
+Microsoft is pretty bad at `end-to-end ease of use' itself; what
+it's good at is creating systems that <em>look at first sight</em>
+as though they have that quality, but don't actually deliver on it
+(and, over time, have a far higher total cost in productivity lost
+to bugs and missing features than does Linux).<P>
+
+Though this is true, it evades an important issue -- which is that 
+that Microsoft's own meretriciousness on this score doesn't make its
+criticism any less valid.  Open-source development really is
+poor at addressing this class of issues, because it doesn't involve
+systematic ease-of-use-testing with non-hackers.<P>
+
+This genuinely will slow down Linux's advance on the desktop.  It is
+not likely to stall it forever, however -- not if efforts like GNOME
+and KDE get time to mature.
+}</FONT><P></A>
+<A NAME="comment23">
+<B><P ALIGN="JUSTIFY"><LI>Switching costs for desktop installed base.  </B><FONT COLOR="red">Switching desktops is hard and a challenger must be able to prove a significant marginal advantage.   Linux's process is more focused on second-mover advantages (e.g. copying what's been proven to work) and is therefore unlikely to provide the first-mover advantage necessary to provide switching impetus.</FONT></LI></P>
+<FONT COLOR="green">{
+There's a hidden presumption here that innovation and ``first mover advantage''
+are the only ways to defray the preceived cost of switching.  This is
+a dangerous assumption for Microsoft; it may be that the superior
+reliability and stability of Linux is sufficient.<P>
+
+Even granting the author's presumption, the possibility that Linux can
+grab a sufficient `first-mover' advantage is not safely foreclosed
+unless the open-source mode really is incapable of generating 
+innovation -- and we already know that's not true.
+}</FONT><P></A>
+</UL></UL><UL>
+
+<UL>
+<A NAME="comment24">
+<B><P ALIGN="JUSTIFY"><LI>UNIX heritage will slow encroachment.</B>
+<FONT COLOR="red">Ease of use must be engineered from the ground up.
+Linux's hacker orientation will never provide the ease-of-use
+requirements of the average desktop user.</FONT></LI></P>
+<FONT COLOR="green">{
+My <a href="#comment16">previous comments</a> on ease-of-use
+engineering, and the open-source community's way to beat this rap,
+apply here.  We need to wrong-foot Microsoft by building systems that
+use openness to support users readily <em>evolving</em> their
+environments to optimum, in the way that the Web does. 
+}</FONT><P></A>
+</UL></UL>
+
+</FONT><FONT FACE="宋体" LANG="ZH-CN" SIZE=3><P><A NAME="_Toc424804424"><A NAME="_Toc427495750"></FONT><FONT FACE="Arial Black" SIZE=3>Beating Linux</A></A></P><DIR>
+<DIR>
+<DIR>
+
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">In addition to the attacking the general weaknesses of OSS projects (e.g. Integrative / Architectural costs), some specific attacks on Linux are:</P></DIR>
+</DIR>
+</DIR>
+
+
+<UL>
+
+<UL>
+<P ALIGN="JUSTIFY"><LI>Beat UNIX</LI></P></UL>
+</UL>
+<DIR>
+<DIR>
+<DIR>
+<DIR>
+
+<P ALIGN="JUSTIFY">All the standard product issues for NT vs. Sun apply to Linux.</P></DIR>
+</DIR>
+</DIR>
+</DIR>
+
+
+<UL>
+
+<UL>
+<P ALIGN="JUSTIFY"><LI>Fold extended functionality into commodity protocols / services and create new protocols</LI></P></UL>
+</UL>
+<DIR>
+<DIR>
+<DIR>
+<DIR>
+
+<A NAME="comment25">
+<P ALIGN="JUSTIFY"><FONT COLOR="red">Linux's homebase is currently commodity
+network and server infrastructure.   By folding extended functionality
+(e.g. Storage+ in file systems, DAV/POD for networking) into
+today's commodity services, we raise the bar &amp; change the rules of the game.</FONT></P></DIR>
+<FONT COLOR="green">{
+Here, as in the earlier comment on <a href="#comment21">how Linux
+can win</a>, we start to see the actual outlines of a Microsoft
+strategy emerge from the fog of corporatese.  And it ain't pretty; in
+fact, it's ugly enough to make it appropriate that it's pushing
+midnight on Halloween as I write.<P>
+
+What the author is driving at is nothing less than trying to subvert
+the entire "<FONT COLOR="red">commodity network and server</FONT>"
+infrastructure (featuring TCP/IP, SMTP, HTTP, POP3, IMAP, NFS, and
+other open standards) into using protocols which, though they might
+have the same names, have actually been subverted into customer- and
+market-control devices for Microsoft (this is what the author really
+means when he exhorts Microserfs to ``<FONT COLOR="red">raise the bar
+&amp; change the rules of the game</FONT>'').<P>
+
+The `<FONT COLOR="red">folding extended functionality</FONT>' here is
+a euphemism for introducing nonstandard extensions (or entire
+alternative protocols) which are then saturation-marketed as
+standards, even though they're closed, undocumented or just specified
+enough to create an illusion of openness.  The objective is to make
+the new protocols a checklist item for gullible corporate buyers,
+while simultaneously making the writing of third-party symbiotes for
+Microsoft programs next to impossible.  (And anyone who succeeds gets
+bought out.)<P>
+
+This game is called ``embrace and extend''.  We've seen Microsoft play
+this game before, and they're very good at it.  When it works,
+Microsoft wins a monopoly lock.  Customers lose.<P>
+
+Open-source advocates can counter by pointing out exactly how and 
+why customers lose (reduced competition, higher costs, lower
+reliability, lost opportunities).  Open-source advocates can also make
+this case by showing the contrapositive -- that is, how open source and
+open standards increase vendor competition, decrease costs, improve
+reliability, and create opportunities.<P>
+
+Once again, as Microsoft conceded <a href="#comment3">earlier in the
+memo</a>, the Internet is our poster child.  Our best stop-thrust
+against embrace-and-extend is to point out that Microsoft is trying
+to close up the Internet.
+}</FONT><P></A>
+</DIR>
+</DIR>
+</DIR>
+
+</FONT><FONT FACE="宋体" LANG="ZH-CN" COLOR="#ffffff"><P><A NAME="_Toc427495751"></FONT><FONT FACE="Arial Black" COLOR="#ffffff">Netscape</A></P><DIR>
+<DIR>
+<DIR>
+
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">In an attempt to renew it's credibility in the browser space, Netscape has recently released and is attempting to create an OSS community around it's Mozilla source code.</P></DIR>
+</DIR>
+</DIR>
+
+</FONT><FONT FACE="宋体" LANG="ZH-CN" SIZE=3><P><A NAME="_Toc427495752"></FONT><FONT FACE="Arial Black" SIZE=3>Organization &amp; LIcensing</A></P><DIR>
+<DIR>
+<DIR>
+
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">Netscape's organization and licensing model is loosely based on the Linux community &amp; GPL with a few differences.  First, Mozilla and Netscape Communicator are 2 codebases with Netscape's engineers providing synchronization. </P></DIR>
+</DIR>
+</DIR>
+
+
+<UL><DIR>
+<DIR>
+
+
+<UL>
+<P ALIGN="JUSTIFY"><LI>Mozilla = the OSS, freely distributable browser</LI></P></UL>
+</DIR>
+</DIR>
+</UL>
+
+
+<UL><DIR>
+<DIR>
+
+
+<UL>
+<P ALIGN="JUSTIFY"><LI>Netscape Communicator = Branded, slightly modified (e.g. homepage default is set to </FONT><A HREF="http://home.netscape.com/"><FONT FACE="Arial" SIZE=2>home.netscape.com</FONT></A><FONT FACE="Arial" SIZE=2>) version of Mozilla.</LI></P></UL>
+</DIR>
+</DIR>
+</UL>
+<DIR>
+<DIR>
+<DIR>
+
+<P ALIGN="JUSTIFY">Unlike the full GPL, Netscape reserves the final right to reject / force modifications into the Mozilla codebase and Netscape's engineers are the appointed "Area Directors" of large components (for now).</P></DIR>
+</DIR>
+</DIR>
+
+</FONT><FONT FACE="宋体" LANG="ZH-CN" SIZE=3><P><A NAME="_Toc427495753"></FONT><FONT FACE="Arial Black" SIZE=3>Strengths</A></P><DIR>
+<DIR>
+<DIR>
+
+</FONT><FONT FACE="Arial Black" SIZE=2><P>Capitalize on Anti-MSFT Sentiment in the OSS Community</P>
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">Relative to other OSS projects, Mozilla is considered to be one of the most direct, near-term attacks on the Microsoft establishment.   This factor alone is probably a key galvanizing factor in motivating developers towards the Mozilla codebase.</P>
+</FONT><FONT FACE="Arial Black" SIZE=2><P>New credibility</P>
+</FONT><FONT FACE="Arial" SIZE=2><P>The availability of Mozilla source code has renewed Netscape's credibility in the browser space to a small degree.  As BharatS points out in </FONT><A HREF="http://ie/specs/Mozilla/default.htm:"><FONT FACE="Arial" SIZE=2>http://ie/specs/Mozilla/default.htm:</FONT></A></P>
+<FONT FACE="宋体" LANG="ZH-CN" SIZE=2><DIR>
+
+</FONT><FONT FACE="Arial" SIZE=2><P>"They have guaranteed by releasing their code that they will never disappear from the horizon entirely in the manner that Wordstar has disappeared. Mozilla browsers will survive well into the next 10 years even if the user base does shrink. "</P>
+</DIR>
+
+</FONT><FONT FACE="Arial Black" SIZE=2><P>Scratch a big itch</P>
+</FONT><FONT FACE="Arial" SIZE=2><P>The browser is widely used / disseminated.  Consequently, the pool of people who may be willing to solve "an immediate problem at hand" and/or fix a bug may be quite high.</P>
+</FONT><FONT FACE="宋体" LANG="ZH-CN" SIZE=2></DIR>
+</DIR>
+</DIR>
+
+</FONT><FONT FACE="宋体" LANG="ZH-CN" SIZE=3><P><A NAME="_Toc427495754"></FONT><FONT FACE="Arial Black" SIZE=3>Weaknesses</A></P><DIR>
+<DIR>
+<DIR>
+
+</FONT><FONT FACE="Arial Black" SIZE=2><P>Post parity development</P>
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">Mozilla is already at close to parity with IE4/5.   Consequently, there no strong example to chase to help implicitly coordinate the development team.</P>
+<P ALIGN="JUSTIFY">Netscape has assigned some of their top developers towards the full time task of managing the Mozilla codebase and it will be interesting to see how this helps (if at all) the ability of Mozilla to push on new ground.</P>
+</FONT><FONT FACE="Arial Black" SIZE=2><P>Small Noosphere</P>
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">An interesting weakness is the size of  the remaining "Noosphere" for the OSS browser.  </P></DIR>
+</DIR>
+</DIR>
+
+<OL>
+
+<OL>
+
+<P ALIGN="JUSTIFY"><LI>The stand-alone browser is basically finished.</LI></P>
+<P ALIGN="JUSTIFY">There are no longer any large, high-profile segments of the stand-alone browser which must be developed.   In otherwords, Netscape has already solved the interesting 80% of the problem.   There is little / no ego gratification in debugging / fixing the remaining 20% of Netscape's code.</P>
+<P ALIGN="JUSTIFY"><LI>Netscape's commercial interests shrink the effect of Noosphere contributions.</LI></P></OL>
+</OL>
+<DIR>
+<DIR>
+<DIR>
+<DIR>
+
+<P ALIGN="JUSTIFY">Linus Torvalds' management of the Linux codebase is arguably directed towards the goal of creating the best Linux.   Netscape, by contrast, expressly reserves the right to make code management decisions on the basis of Netscape's <I>commercial / business interests</I>.  Instead of creating an important product, the developer's code is being subjugated to Netscape's stock price.</P></DIR>
+
+</FONT><FONT FACE="Arial Black" SIZE=2><P>Integration Cost</P>
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">Potentially the single biggest detriment to the Mozilla effort is the level of integration that customers expect from features in a browser.   As stated earlier, integration development / testing is NOT a parallelizable activity and therefore is <U>hurt</U> by the OSS process.</P>
+<P ALIGN="JUSTIFY">In particular, much of the new work for IE5+ is not just integrating components within the browser but continuing integration within the OS.  This will be exceptionally painful to compete aga inst.  </P></DIR>
+</DIR>
+</DIR>
+
+</FONT><FONT FACE="宋体" LANG="ZH-CN" SIZE=3><P><A NAME="_Toc427495755"></FONT><FONT FACE="Arial Black" SIZE=3>Predictions</A></P><DIR>
+<DIR>
+<DIR>
+
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">The contention therefore, is that unlike the Apache and Linux projects which, for now, are quite successful, Netscape's Mozilla effort will:</P></DIR>
+</DIR>
+</DIR>
+
+
+<UL>
+
+<UL>
+<P ALIGN="JUSTIFY"><LI>Produce the dominant browser on Linux and some UNIX's</LI></P>
+<P ALIGN="JUSTIFY"><LI>Continue to slip behind IE in the long run</LI></P></UL>
+</UL>
+<DIR>
+<DIR>
+<DIR>
+
+<P ALIGN="JUSTIFY">Keeping in mind that the source code was only released a short time ago (April '98), there is already evidence of waning interest in Mozilla.  EXTREMELY unscientific evidence is found in the decline in mailing list volume on Mozilla mailing lists from April to June.</P></DIR>
+</DIR>
+</DIR>
+</FONT>
+<P ALIGN="CENTER"><CENTER><TABLE BORDER CELLSPACING=1 CELLPADDING=7 WIDTH=409>
+<TR><TD WIDTH="36%" VALIGN="BOTTOM">
+<B><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">Mozilla Mailing List</B></FONT></TD>
+<TD WIDTH="24%" VALIGN="BOTTOM">
+<FONT FACE="Arial" SIZE=2><P ALIGN="CENTER">April 1998</FONT></TD>
+<TD WIDTH="22%" VALIGN="BOTTOM">
+<FONT FACE="Arial" SIZE=2><P ALIGN="CENTER">June 1998</FONT></TD>
+<TD WIDTH="18%" VALIGN="BOTTOM">
+<FONT FACE="Arial" SIZE=2><P ALIGN="CENTER">% decline</FONT></TD>
+</TR>
+<TR><TD WIDTH="36%" VALIGN="TOP">
+<B><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">Feature Wishlist</B></FONT></TD>
+<TD WIDTH="24%" VALIGN="TOP">
+<FONT FACE="Arial" SIZE=2><P ALIGN="CENTER">1073</FONT></TD>
+<TD WIDTH="22%" VALIGN="TOP">
+<FONT FACE="Arial" SIZE=2><P ALIGN="CENTER">450</FONT></TD>
+<TD WIDTH="18%" VALIGN="TOP">
+<FONT FACE="Arial" SIZE=2><P ALIGN="CENTER">58%</FONT></TD>
+</TR>
+<TR><TD WIDTH="36%" VALIGN="TOP">
+<B><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">UI Development</B></FONT></TD>
+<TD WIDTH="24%" VALIGN="TOP">
+<FONT FACE="Arial" SIZE=2><P ALIGN="CENTER">285</FONT></TD>
+<TD WIDTH="22%" VALIGN="TOP">
+<FONT FACE="Arial" SIZE=2><P ALIGN="CENTER">76</FONT></TD>
+<TD WIDTH="18%" VALIGN="TOP">
+<FONT FACE="Arial" SIZE=2><P ALIGN="CENTER">73%</FONT></TD>
+</TR>
+<TR><TD WIDTH="36%" VALIGN="TOP">
+<B><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">General Discussion</B></FONT></TD>
+<TD WIDTH="24%" VALIGN="TOP">
+<FONT FACE="Arial" SIZE=2><P ALIGN="CENTER">1862</FONT></TD>
+<TD WIDTH="22%" VALIGN="TOP">
+<FONT FACE="Arial" SIZE=2><P ALIGN="CENTER">687</FONT></TD>
+<TD WIDTH="18%" VALIGN="TOP">
+<FONT FACE="Arial" SIZE=2><P ALIGN="CENTER">63%</FONT></TD>
+</TR>
+</TABLE>
+</CENTER></P>
+
+<FONT FACE="宋体" LANG="ZH-CN" SIZE=2><P ALIGN="JUSTIFY"></P><DIR>
+<DIR>
+<DIR>
+
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">Internal mirrors of the Mozilla mailing lists can be found on http://egg.Microsoft.com/wilma/lists</P></DIR>
+</DIR>
+</DIR>
+
+</FONT><FONT FACE="宋体" LANG="ZH-CN" COLOR="#ffffff"><P><A NAME="_Toc427495756"></FONT><FONT FACE="Arial Black" COLOR="#ffffff">Apache</A></P>
+</FONT><FONT FACE="宋体" LANG="ZH-CN" SIZE=3><P><A NAME="_Toc427495757"></FONT><FONT FACE="Arial Black" SIZE=3>History</A></P><DIR>
+<DIR>
+<DIR>
+
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">Paraphrased from </FONT><A HREF="http://www.apache.org/ABOUT_APACHE.html"><FONT FACE="Arial" SIZE=2>http://www.apache.org/ABOUT_APACHE.html</FONT></A></P><DIR>
+
+<FONT FACE="Arial" SIZE=2><P>In February of 1995, the most popular server software on the Web was the public domain HTTP daemon developed by NCSA, University of Illinois, Urbana-Champaign. However, development of that httpd had stalled after mid-1994, and many webmasters had developed their own extensions and bug fixes that were in need of a common distribution. A small group of these webmasters, contacted via private e-mail, gathered together for the purpose of coordinating their changes (in the form of "patches"). By the end of February `95, eight core contributors formed the foundation of the original Apache Group.   In April 1995, Apache 0.6.2 was released.</P>
+
+<P>During May-June 1995, a new server architecture (code-named Shambhala) was developed which included a modular structure and API for better extensibility, pool-based memory allocation, and an adaptive pre-forking process model. The group switched to this new server base in July and added the features from 0.7.x, resulting in Apache 0.8.8 (and its brethren) in August. </P>
+
+<P>Less than a year after the group was formed, the Apache server passed NCSA's httpd as the #1 server on the Internet. </P>
+</FONT><FONT FACE="宋体" LANG="ZH-CN" SIZE=2><P ALIGN="JUSTIFY"></P></DIR>
+</DIR>
+</DIR>
+</DIR>
+
+</FONT><FONT FACE="宋体" LANG="ZH-CN" SIZE=3><P><A NAME="_Toc427495758"></FONT><FONT FACE="Arial Black" SIZE=3>Organization</A></P><DIR>
+<DIR>
+<DIR>
+
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">The Apache development team consists of about 19 core members plus hundreds of web site administrators around the world who've submitted a bug report / patch of one form or another.  Apache's bug data can be found at: </FONT><U><FONT FACE="Arial" SIZE=2 COLOR="#0000ff">http://bugs.apache.org/index</U></FONT><FONT FACE="Arial" SIZE=2>.</P>
+<P ALIGN="JUSTIFY">A description of the code management and dispute resolution procedures followed by the Apache team are found on </FONT><A HREF="http://www.apache.org:/"><FONT FACE="Arial" SIZE=2>http://www.apache.org:</FONT></A></P>
+<FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">Leadership:</P><DIR>
+
+<I><P>There is a core group of contributors (informally called the "core") which was formed from the project founders and is augmented from time to time when core members nominate outstanding contributors and the rest of the core members agree. </P>
+</DIR>
+
+</I><P ALIGN="JUSTIFY">Dispute resolution:</P><DIR>
+
+<I><P>Changes to the code are proposed on the mailing list and usually voted on by active members -- three +1 (yes votes) and no -1 (no votes, or vetoes) are needed to commit a code change during a release cycle</P>
+</DIR>
+</DIR>
+</DIR>
+</DIR>
+
+</I></FONT><FONT FACE="宋体" LANG="ZH-CN" SIZE=3><P><A NAME="_Toc427495759"></FONT><FONT FACE="Arial Black" SIZE=3>Strengths</A></P><DIR>
+<DIR>
+<DIR>
+
+</FONT><FONT FACE="Arial Black" SIZE=2><P>Market Share!</P>
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">Apache far and away has #1 web site share on the Internet today. Possession of the lion's share of the market provides extremely powerful control over the market's evolution.</P>
+<P ALIGN="JUSTIFY">In particular, Apache's market share in web server space presents the following competitive hurdles:</P></DIR>
+</DIR>
+</DIR>
+
+
+<UL>
+
+<UL>
+<P ALIGN="JUSTIFY"><LI>Lowest common denominator HTTP protocol -- slows our ability to extend the protocol to support new applications</LI></P>
+<P ALIGN="JUSTIFY"><LI>Breathe more life into UNIX -- Where Apache goes, Unix must follow.</LI></P></UL>
+</UL>
+<DIR>
+<DIR>
+<DIR>
+
+</FONT><FONT FACE="Arial Black" SIZE=2><P>3<SUP>rd</SUP> Party Support</P>
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">The number of tools / modules / plug-ins available for Apache has been growing at an increasing rate.</P></DIR>
+</DIR>
+</DIR>
+
+</FONT><FONT FACE="宋体" LANG="ZH-CN" SIZE=3><P><A NAME="_Toc427495760"></FONT><FONT FACE="Arial Black" SIZE=3>Weaknesses</A></P><DIR>
+<DIR>
+<DIR>
+
+</FONT><FONT FACE="Arial Black" SIZE=2><P>Performance</P>
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">In the short run, IIS soundly beats Apache on SPECweb.   Moving further, as IIS moves into kernel and takes advantage deeper integration with the NT, this lead is expected to increase further.</P>
+<P ALIGN="JUSTIFY">Apache, by contrast, is saddled with the requirement to create portable code for all of its OS environments.</P>
+</FONT><FONT FACE="Arial Black" SIZE=2><P>HTTP Protocol Complexity &amp; Application services</P>
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">Part of the reason that Apache was able to get a foothold and take off was because the HTTP protocol is so simple.   As more and more features become layered on top of the humble web server (e.g. multi-server transaction support, POD, etc.) it will be interesting to see how the Apache team will be able to keep up.</P>
+<P ALIGN="JUSTIFY">ASP support, for example is a key driver for IIS in corporate intranets.</P></DIR>
+</DIR>
+</DIR>
+
+</FONT><FONT FACE="宋体" LANG="ZH-CN" SIZE=3><P><A NAME="_Toc427495761"></FONT><FONT FACE="Arial Black" SIZE=3>IBM &amp; Apache</A></P><DIR>
+<DIR>
+<DIR>
+
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">Recently, IBM announced it's support for the Apache codebase in its WebSphere application server.   The actual result of the press furor is still unclear however:</P></DIR>
+</DIR>
+</DIR>
+
+
+<UL>
+
+<UL>
+<P ALIGN="JUSTIFY"><LI>IBM still ships and supports both Apache and Domino's GO web server</LI></P>
+<P ALIGN="JUSTIFY"><LI>IBM's commitment appears to be:</LI></P>
+
+<UL>
+<P ALIGN="JUSTIFY"><LI>Helping Apache port to strategic IBM platforms (AS/400, etc.)</LI></P>
+<P ALIGN="JUSTIFY"><LI>Redistributing Apache binaries to customers who request Apache support</LI></P>
+<P ALIGN="JUSTIFY"><LI>Support for Apache binaries (only if they were purchased through IBM?)</LI></P></UL>
+
+<P ALIGN="JUSTIFY"><LI>IBM has developers actively participating in Apache development / discussion groups. </LI></P>
+<P ALIGN="JUSTIFY"><LI>IBM is taking a lead role in optimizing Apache for NT</LI></P></UL>
+</UL>
+
+</FONT><FONT FACE="宋体" LANG="ZH-CN" COLOR="#ffffff"><P><A NAME="_Toc427495762"></FONT><FONT FACE="Arial Black" COLOR="#ffffff">Other OSS Projects</A></P><DIR>
+<DIR>
+<DIR>
+
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">Some other OSS projects:</P></DIR>
+</DIR>
+</DIR>
+
+
+<UL>
+
+<UL>
+<B><P ALIGN="JUSTIFY"><LI>Gimp</B> -- </FONT><A HREF="http://www.gimp.org/"><FONT FACE="Arial" SIZE=2>http://www.gimp.org</FONT></A><FONT FACE="Arial" SIZE=2> -- Gimp (GNU Image Manipulation Program) is an OSS project to create an Adobe Photoshop clone for Unix workstations.  Feature-wise, however, their version 1.0 project is more akin to PaintBrush.  </LI></P>
+<B><P ALIGN="JUSTIFY"><LI>WINE / WABI</B> -- </FONT><A HREF="http://www.wine.org/"><FONT FACE="Arial" SIZE=2>http://www.wine.org</FONT></A><FONT FACE="Arial" SIZE=2> -- Wine (Wine Is Not an Emulator) is an OSS windows emulation library for UNIX.   Wine competes (somewhat) with Sun's WABI project which is non-OSS.  Older versions of Office, for example, are able to run in WINE although performance remains to be evaluated.</LI></P>
+<B><P ALIGN="JUSTIFY"><LI>PERL</B> -- </FONT><A HREF="http://www.perl.org/"><FONT FACE="Arial" SIZE=2>http://www.perl.org</FONT></A><FONT FACE="Arial" SIZE=2> -- PERL (Practical Evaluation and Reporting Language) is the defacto standard scripting language for all Apache web servers.    PERL is very popular on UNIX in particular due to its powerful text/string manipulation and UNIX's reliance on command line administration of all functionality.</LI></P>
+<B><P ALIGN="JUSTIFY"><LI>BIND </B>-- </FONT><A HREF="http://www.bind.org/"><FONT FACE="Arial" SIZE=2>http://www.bind.org</FONT></A><FONT FACE="Arial" SIZE=2> -- BIND (Berkeley Internet Name Daemon) is the de facto DNS server for the Internet.   In many respects, DNS was developed on top of BIND.</LI></P>
+<B><P ALIGN="JUSTIFY"><LI>Sendmail</B> -- </FONT><A HREF="http://www.sendmail.org/"><FONT FACE="Arial" SIZE=2>http://www.sendmail.org</FONT></A><FONT FACE="Arial" SIZE=2> -- Sendmail is the #1 share mail transfer agent on the Internet today.   </LI></P>
+<B><P ALIGN="JUSTIFY"><LI>Squid</B> -- </FONT><A HREF="http://www.squid.org/"><FONT FACE="Arial" SIZE=2>http://www.squid.org</FONT></A><FONT FACE="Arial" SIZE=2> -- Squid is an OSS Proxy server based on the ICP protocol.   Squid is somewhat popular with large international ISPs although it's performance is lacking.</LI></P></UL>
+</UL>
+
+
+<UL>
+
+<UL>
+<B><LI>SAMBA</B> -- </FONT><A HREF="http://www.samba.org/"><FONT FACE="Arial" SIZE=2>http://www.samba.org</FONT></A><FONT FACE="Arial" SIZE=2> -- SAMBA provides an SMB file server for UNIX.  Recently, the SAMBA team has managed to reverse engineer and develop an NT domain controller for UNIX as well.  SGI employs one of the SAMBA leads. http://www.sonic.net/~roelofs/reports/linux-19980714-phq.html:  "<I>By the end of the year ... Samba will be able to completely replace all primary NT Server functions.</I>" </LI></UL>
+</UL>
+
+</FONT><FONT FACE="宋体" LANG="ZH-CN" SIZE=2>
+
+<UL>
+
+<UL>
+</FONT><B><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY"><LI>KDE </B>-- </FONT><A HREF="http://www.kde.org/"><FONT FACE="Arial" SIZE=2>http://www.kde.org</FONT></A><FONT FACE="Arial" SIZE=2> -- "K" Desktop Environment.   Combines integrated browser, shell, and office suite for Unix desktops.   Check out the screen shots at: </FONT><A HREF="http://www.kde.org/kscreenshots.html"><FONT FACE="Arial" SIZE=2>http://www.kde.org/kscreenshots.html</FONT></A><FONT FACE="Arial" SIZE=2> and </FONT><A HREF="http://www.kde.org/koffice/index.html"><FONT FACE="Arial" SIZE=2>http://www.kde.org/koffice/index.html</FONT></A><FONT FACE="Arial" SIZE=2>.</LI></P>
+<B><P ALIGN="JUSTIFY"><LI>Majordomo </B>-- the dominant mail list server on the Internet is writtenentirely in PERL via OSS.   </LI></P></UL>
+</UL>
+
+</FONT><FONT FACE="宋体" LANG="ZH-CN" COLOR="#ffffff"><P><A NAME="_Toc427495763"></FONT><FONT FACE="Arial Black" COLOR="#ffffff">Microsoft Response</A></P><DIR>
+<DIR>
+<DIR>
+
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">In general, a lot more thought/discussion needs to put into Microsoft's response to the OSS phenomena.   The goal of this document is education and analysis of the OSS process, consequently in this section, I present only a very superficial list of options and concerns.</P></DIR>
+</DIR>
+</DIR>
+
+</FONT><FONT FACE="宋体" LANG="ZH-CN" SIZE=3><P><A NAME="_Toc427495764"></FONT><FONT FACE="Arial Black" SIZE=3>Product Vulnerabilities</A></P><DIR>
+<DIR>
+<DIR>
+
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">Where is Microsoft most likely to feel the "pinch" of OSS projects in the near future? </P>
+</FONT><FONT FACE="Arial Black" SIZE=2><P>Server vs. Client</P>
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">The server is more vulnerable to OSS products than the client.   Reasons for this include:</P></DIR>
+</DIR>
+</DIR>
+
+
+<UL>
+
+<UL>
+<B><P ALIGN="JUSTIFY"><LI>Clients "task switch" more often </B>-- the average client desktop is used for a wider variety of apps than the server.  Consequently, integration, ease-of-use, fit &amp; finish, etc. are key attributes.</LI></P>
+<B><P ALIGN="JUSTIFY"><LI>Servers are more task specific -- </B>OSS products work best if goals/precedents are clearly defined -- e.g. serving up commodity protocols</LI></P>
+<B><P ALIGN="JUSTIFY"><LI>Commodity servers are a lower "commitment" than clients</B> -- Replacing commodity servers such as file, print, mail-relay, etc. with open source alternatives doesn't interfere with the end-user's experience.   Also, in these commodity services, a "throw-away" "experimental" solution will often by entertained by an organization.</LI></P>
+<B><P ALIGN="JUSTIFY"><LI>Servers are professionally managed -- </B>This plays into OSS's strengths in customization and mitigates weaknesses in lack of end-user ease of use focus.</LI></P></UL>
+</UL>
+
+</FONT><FONT FACE="宋体" LANG="ZH-CN" SIZE=3><P><A NAME="_Toc427495765"></FONT><FONT FACE="Arial Black" SIZE=3>Capturing OSS benefits -- Developer Mindshare</A></P><DIR>
+<DIR>
+<DIR>
+
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY"><FONT
+COLOR="red"><a name="quote8">The ability of the OSS process to collect and harness the
+collective IQ of thousands of individuals across the Internet is
+simply amazing.  More importantly, OSS evangelization scales with the
+size of the Internet much faster than our own evangelization efforts
+appear to scale.</FONT>  </P>
+<FONT COLOR="green">{
+That is, Microsoft is being both out-thought and out-marketed by Open
+Source -- <em>and knows it</em>!
+}</A></FONT><P>
+<P ALIGN="JUSTIFY">How can Microsoft capture some of the rabid developer mindshare being focused on OSS products?  </P>
+<P ALIGN="JUSTIFY">Some initial ideas include:</P></DIR>
+</DIR>
+</DIR>
+
+
+<UL>
+
+<UL>
+<B><P ALIGN="JUSTIFY"><LI>Capture parallel debugging benefits via broader code licensing -- </B>Be more liberal in handing out source code licenses to NT to organizations such as universities and certain partners.</LI></P>
+<B><P ALIGN="JUSTIFY"><LI>Provide entry level tools for low cost / free </B>-- The second order effect of tools is to generate a common skillset / vocabulary tacitly leveraged by developers.  As NatBro points out, the wide availability of a consistent developer toolset in Linux/UNIX is a critical means of implicitly coordinating the system.</LI></P>
+<B><P ALIGN="JUSTIFY"><LI>Put out parts of the source code</B> -- try to generate hacker interest in adding value to MS-sponsored code bases. Parts of the TCP/IP stack could be a first candidate.  OshM points out, however that the challenge is to find some part of MS's codebase with a big enough Noosphere to generate interest.</LI></P>
+<B><P ALIGN="JUSTIFY"><LI>Provide more extensibility </B>-- The Linux "enthusiast developer" loves writing to  / understanding undocumented API's and internals.  Documenting  / publishing some internal API's as "unsupported" may be a means of generating external innovations that leverage our systems investments.  In particular, ensuring that more components from more teams are scriptable / automatable will help ensure that power users can play with our components.</LI></P>
+<B><P ALIGN="JUSTIFY"><LI>Creating Community/Noosphere</B>.   MSDN reaches an extremely large population.   How can we create social structures that provide network benefits leveraging this huge developer base?   For example, what if we had a central VB showcase on Microsoft.com which allowed VB developers to post &amp; published full source of their VB projects to share with other VB developers?   I'll contend that many VB developers would get extreme ego gratification out of having their name / code downloadable from Microsoft.com.</LI></P>
+<B><P ALIGN="JUSTIFY"><LI>Monitor OSS news groups</B>.  Learn new ideas and hire the best/brightest individuals.</LI></P></UL>
+</UL>
+
+</FONT><FONT FACE="宋体" LANG="ZH-CN" SIZE=3><P><A NAME="_Toc427495766"></FONT><FONT FACE="Arial Black" SIZE=3>Capturing OSS benefits -- Microsoft Internal Processes</A></P><DIR>
+<DIR>
+<DIR>
+
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">What can Microsoft learn from the OSS example?  More specifically: How can we recreate the OSS development environment internally?  Different reviewers of this paper have consistently pointed out that internally, we should view Microsoft as an idealized OSS community but, for various reasons do not:</P></DIR>
+</DIR>
+</DIR>
+
+
+<UL>
+
+<UL>
+<B><P ALIGN="JUSTIFY"><LI>Different development "modes".  </B>Setting up an NT build/development environment is extremely complex &amp; wildly different from the environment used by the Office team.</LI></P>
+<B><P ALIGN="JUSTIFY"><LI>Different tools / source code managers.   </B>Some teams use SLM, other use VSS.  Different bug databases.  Different build processes.  </LI></P>
+<B><P ALIGN="JUSTIFY"><LI>No central repository/code access.  </B>There is no central set of servers to find, install, review the code from projects outside your immediate scope.  Even simply providing a central repository for debug symbols would be a huge improvement.<B> </B>NatBro: </LI></P></UL>
+</UL>
+<DIR>
+<DIR>
+<DIR>
+<DIR>
+
+<P ALIGN="JUSTIFY">"a developer at Microsoft working on the OS can't scratch an itch they've got with Excel, neither can the Excel developer scratch their itch with the OS -- it would take them months to figure out how to build &amp; debug &amp; install, and they probably couldn't get proper source access anyway"</P></DIR>
+</DIR>
+</DIR>
+</DIR>
+
+
+<UL>
+
+<UL>
+<B><P ALIGN="JUSTIFY"><LI>Wide developer communication</B>.  Mailing lists dealing with particular components &amp; bug reports are usually closed to team members.  </LI></P>
+<B><P ALIGN="JUSTIFY"><LI>More component robustness</B>.  Linux and other OSS projects make it easy for developers to experiment with small components in the system without introducing regressions in other components:  DavidDs:  </LI></P></UL>
+</UL>
+<DIR>
+<DIR>
+<DIR>
+<DIR>
+
+<P>"People have to work on their parts independent of the rest so internal abstractions between components are well documented and well exposed/exported as well as being more robust because they have no idea how they are going to be called. The linux development system has evolved into allowing more devs to party on it without causing huge numbers of integration issues because robustness is present at every level.  This is great, long term, for overall stability and it shows."</P>
+</FONT><FONT FACE="宋体" LANG="ZH-CN" SIZE=2></DIR>
+
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">The trick of course, is to capture these benefits without incurring the costs of the OSS process.   These costs are typically the reasons such barriers were erected in the first place:</P></DIR>
+</DIR>
+</DIR>
+
+
+<UL>
+
+<UL>
+<B><P ALIGN="JUSTIFY"><LI>Integration.  </B>A full-time developer on a component has a lot of work to do already before trying to analyze &amp; integrate fixes from other developers within the company. </LI></P>
+<B><P ALIGN="JUSTIFY"><LI>Iterative costs &amp; dependencies.  </B>The potential for mini-code forks between "scratched' versions of the OS being used by one Excel developer and "core" OS used by a different Excel developer.</LI></P></UL>
+</UL>
+
+</FONT><FONT FACE="宋体" LANG="ZH-CN" SIZE=3><P><A NAME="_Toc427495767"></FONT><FONT FACE="Arial Black" SIZE=3>Extending OSS benefits -- Service Infrastructure</A></P><DIR>
+<DIR>
+<DIR>
+
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">Supporting a platform &amp; development community requires a lot of <I>service</I> infrastructure which OSS can't provide.   This includes PDC's, MSDN, ADCU, ISVs, IHVs, etc.</P>
+<P ALIGN="JUSTIFY">The OSS communities "MSDN" equivalent, of course, is a loose confederation of web sites with API docs of varying quality.   MS has an opportunty to <U>really</U> exploit the web for developer evangelization.</P></DIR>
+</DIR>
+</DIR>
+
+</FONT><FONT FACE="宋体" LANG="ZH-CN" SIZE=3><P><A NAME="_Toc427495768"></FONT><FONT FACE="Arial Black" SIZE=3>Blunting OSS attacks</A></P><DIR>
+<DIR>
+<DIR>
+
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">Generally, Microsoft wins by attacking the core weaknesses of OSS projects.</P>
+</FONT><FONT FACE="Arial Black" SIZE=2><P><a name="decommoditize">De-commoditize protocols &amp; applications</a></P>
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY"><FONT COLOR="red"><a name="quote9">OSS projects have been able to gain a foothold in many server applications because of the wide utility of highly commoditized, simple protocols.   By extending these protocols and developing new protocols, we can deny OSS projects entry into the market.</a></FONT></P>
+<P ALIGN="JUSTIFY">David Stutz makes a <U>very</U> good point:   in
+competing with Microsoft's level of desktop integration,
+"<I>commodity protocols actually <U>become</U> the means of
+integration</I>" for OSS projects.  <FONT COLOR="red">There is
+a large amount of IQ being expended in various IETF working groups
+which are quickly creating the architectural model for integration for
+these OSS projects.</FONT> </P>
+<FONT COLOR="green">{
+In other words, open protocols must be locked up and the IETF crushed in
+order to ``<FONT COLOR="red">de-commoditize protocols &
+applications</FONT>'' and stop open-source software.<P>
+
+Once again, open-source advocates' best response is to point out to
+customers that when things are ``de-commoditized'', vendors gain and
+customers lose.
+}</FONT><P></A>
+<P ALIGN="JUSTIFY">Some examples of Microsoft initiatives which are extending commodity protocols include:</P></DIR>
+</DIR>
+</DIR>
+
+
+<UL>
+
+<UL>
+<B><P ALIGN="JUSTIFY"><LI>DNS integration with Directory</B>.    Leveraging the Directory Service to add value to DNS via dynamic updates, security, authentication</LI></P></UL>
+</UL>
+
+
+<UL>
+
+<UL>
+<B><P ALIGN="JUSTIFY"><LI>HTTP-DAV</B>.   DAV is complex and the protocol spec provides an infinite level of implementation complexity for various applications (e.g. the design for Exchange over DAV is good but certainly not <U>the</U> single obvious design).   Apache will be hard pressed to pick and choose the correct first areas of DAV to implement.</LI></P>
+<B><P ALIGN="JUSTIFY"><LI>Structured storage</B>.   Changes the rules of the game in the file serving space (a key Linux/Apache application).   Creates a compelling client-side advantage which can be extended to the server as well.</LI></P>
+<B><P ALIGN="JUSTIFY"><LI>MSMQ for Distributed Applications</B>.  MSMQ is a great example of a distributed technology where most of the value is in the services and implementation and NOT in the wire protocol.  The same is true for MTS, DTC, and COM+.</LI></P></UL>
+</UL>
+<DIR>
+<DIR>
+<DIR>
+
+</FONT><FONT FACE="Arial Black" SIZE=2><P>Make Integration Compelling -- Especially on the server</P>
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">The rise of specialty servers is a particularly potent and dire long term threat that directly affects our revenue streams.  One of the keys to combating this threat is to create integrative scenarios that are valuable on the server platform.  David Stutz points out:</P><DIR>
+
+<P>The bottom line here is whoever has the best network-oriented integration technologies and processes will win the <I>commodity server business</I>.  There is a convergence of embedded systems, mobile connectivity, and pervasive networking protocols that will make the number of servers (especially "specialist servers"??) explode.  The general-purpose commodity client is a good business to be in - will it be dwarfed by the special-purpose commodity server business?</P>
+</FONT><FONT FACE="宋体" LANG="ZH-CN" SIZE=2><P ALIGN="JUSTIFY"></P></DIR>
+</DIR>
+</DIR>
+</DIR>
+
+
+<UL>
+
+<UL>
+</FONT><B><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY"><LI>System Management</B>.  Systems management functionality potentially touches all aspects of a product / platform.   Consequently, it is not something which is easily grafted onto an existing codebase in a componentized manner.   It must be designed from the start or be the result of a conscious re-evaluation of all components in a given project.</LI></P>
+<B><P ALIGN="JUSTIFY"><LI>Ease of Use</B>.   Like management, this often must be designed from the ground up and consequently incurs large development management cost.   OSS projects will consistently have problems matching this feature area</LI></P>
+<B><P ALIGN="JUSTIFY"><LI>Solve Scenarios</B>.  ZAW, dial up networking, wizards, etc.</LI></P>
+<B><P ALIGN="JUSTIFY"><LI>Client Integration</B>.  How  can we leverage the client base to provide similar integration requirements on our servers?   For example, MSMQ, as a piece of middleware, requires closely synchronized client and server codebases.</LI></P>
+<B><P ALIGN="JUSTIFY"><LI>Middleware control is critical</B>.   Obviously, as servers and their protocols risk commoditization higher order functionality is necessary to preserve margins in the server OS business.</LI></P></UL>
+</UL>
+<DIR>
+<DIR>
+<DIR>
+
+</FONT><FONT FACE="Arial Black" SIZE=2><P>Organizational Credibility</P></DIR>
+</DIR>
+</DIR>
+
+
+<UL>
+
+<UL>
+</FONT><B><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY"><LI>Release / Service pack process.</B>  By consolidating and managing the arduous task of keeping up with the latest fixes, Microsoft provides a key customer advantage over basic OSS processes.</LI></P>
+<B><P ALIGN="JUSTIFY"><LI>Long-Term Commitments.</B>  Via tools such as enterprise agreements, long term research, executive keynotes, etc., Microsoft is able to commit to a long term vision and create a greater sense of long term order than an OSS process.</LI></P></UL>
+</UL>
+
+</FONT><FONT FACE="宋体" LANG="ZH-CN" COLOR="#ffffff"><P><A NAME="_Toc427495769"></FONT><FONT FACE="Arial Black" COLOR="#ffffff">Other Interesting Links</A></P>
+
+<UL>
+
+<UL>
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY"><LI>http://www.lwn.net/ -- summarizes the weeks events in Linux development world. </LI></P>
+<P ALIGN="JUSTIFY"><LI>Slashdot -- </FONT><A HREF="http://slashdot.org/"><FONT FACE="Arial" SIZE=2>http://slashdot.org</FONT></A><FONT FACE="Arial" SIZE=2>/ -- daily news / discussion in the OSS community</LI></P>
+</FONT><FONT FACE="宋体" LANG="ZH-CN" SIZE=2><P ALIGN="JUSTIFY"><LI></FONT><A HREF="http://www.linux.org/"><FONT FACE="Arial" SIZE=2>http://www.linux.org</FONT></A></LI></P>
+<FONT FACE="宋体" LANG="ZH-CN" SIZE=2><P ALIGN="JUSTIFY"><LI></FONT><A HREF="http://www.opensource.org/"><FONT FACE="Arial" SIZE=2>http://www.opensource.org</FONT></A></LI></P>
+<FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY"><LI>http://news.freshmeat.net/ -- info on the latest open source releases &amp; project updates</LI></P></UL>
+</UL>
+
+</FONT><FONT FACE="宋体" LANG="ZH-CN" COLOR="#ffffff"><P><A NAME="_Toc427495770"></FONT><FONT FACE="Arial Black" COLOR="#ffffff">Acknowledgments</A></P><DIR>
+<DIR>
+<DIR>
+
+</FONT><FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">Many people provided, datapoints, proofreading, thoughtful email, and analysis on both this paper and the Linux analysis:</P></DIR>
+</DIR>
+</DIR>
+
+<P>Nat Brown</P>
+<P>Jim Allchin</P>
+<P>Charlie Kindel</P>
+<P>Ben Slivka</P>
+<P>Josh Cohen</P>
+<P>George Spix</P>
+<P>David Stutz</P>
+<P>Stephanie Ferguson</P>
+<P>Jackie Erickson</P>
+<P>Michael Nelson </P>
+<P>Dwight Krossa</P>
+<P>David D'Souza</P>
+<P>David Treadwell</P>
+<P>David Gunter</P>
+<P>Oshoma Momoh</P>
+<P>Alex Hopman</P>
+<P>Jeffrey Robertson</P>
+<P>Sankar Koundinya</P>
+<P>Alex Sutton</P>
+<P>Bernard Aboba</P>
+</FONT><FONT FACE="宋体" LANG="ZH-CN" SIZE=2><P ALIGN="JUSTIFY"></P>
+<P ALIGN="JUSTIFY">&nbsp;</P>
+</FONT><FONT FACE="宋体" LANG="ZH-CN" COLOR="#ffffff"><P><A NAME="_Toc427495771"></FONT><FONT FACE="Arial Black" COLOR="#ffffff">Revision History</A></P></FONT>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#ffffff" CELLPADDING=7 WIDTH=570>
+<TR><TD WIDTH="12%" VALIGN="TOP">
+<FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">Date</FONT></TD>
+<TD WIDTH="16%" VALIGN="TOP">
+<FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">Revision</FONT></TD>
+<TD WIDTH="72%" VALIGN="TOP">
+<FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">Comments</FONT></TD>
+</TR>
+<TR><TD WIDTH="12%" VALIGN="TOP">
+<FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">8/03/98</FONT></TD>
+<TD WIDTH="16%" VALIGN="TOP">
+<FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">0.95</FONT></TD>
+<TD WIDTH="72%" VALIGN="TOP">&nbsp;</TD>
+</TR>
+<TR><TD WIDTH="12%" VALIGN="TOP">
+<FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">8/10/98</FONT></TD>
+<TD WIDTH="16%" VALIGN="TOP">
+<FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">0.97</FONT></TD>
+<TD WIDTH="72%" VALIGN="TOP">
+<FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">Started revision table</P>
+<P ALIGN="JUSTIFY">Folded in comments from JoshCo</FONT></TD>
+</TR>
+<TR><TD WIDTH="12%" VALIGN="TOP">
+<FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">8/11/98</FONT></TD>
+<TD WIDTH="16%" VALIGN="TOP">
+<FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">1.00</FONT></TD>
+<TD WIDTH="72%" VALIGN="TOP">
+<FONT FACE="Arial" SIZE=2><P ALIGN="JUSTIFY">More fixes, printed copies for PaulMa review</FONT></TD>
+</TR>
+</TABLE>
+
+<FONT FACE="宋体" LANG="ZH-CN" SIZE=2><P ALIGN="JUSTIFY"></P></FONT></BODY>
+</HTML>

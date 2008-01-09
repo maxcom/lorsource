@@ -1,0 +1,46 @@
+         Return-Path: 
+         To: johnc@idsoftware.com (John Carmack)
+         cc: Bob Young 
+         Subject: Re: distribution 
+         Date: Tue, 03 Nov 1998 15:32:43 -0500
+         From: Bob Young 
+
+         > We never heard from anyone...
+         > 
+
+         John, 
+
+         We've been just a tad busy. Here's a quick update: 
+
+         We'd like to investigate what we can do to assure the success of
+         games on the Linux OS. 
+
+         Everything from branding to web links, to introducing you to our
+         distributors (who including the leading Linux distributors, as well
+         as Ingram Micro), to technical development assistance. 
+
+         What we have concluded we are unable to do is to publish
+         games under the Red Hat brand. The two reasons for this is that
+         we would like our Brand to be considered viable in the
+         enterprise software market and publishing games (at least until
+         we are a little bigger) would not help there. The other is that we
+         do not want to publish binary-only applications. We have just
+         ended long-term relationships with Applix (Applixware Office
+         Suite) and Triteal (CDE desktop environment) in order to focus
+         on delivering the Red Hat Linux open source OS. 
+
+         I personally think that there are millions of dollars in revenues
+         available in publishing shrink-wrapped Quake-on-Linux boxes
+         and distributing these through Ingram and CompUSA, as well as
+         on the net. Clearly there would be more money in it for you to
+         do this yourselves than to license a publisher like Red Hat. But if
+         you would like to work through a publisher, I'm sure Stacey
+         Hiquet of Macmillan Digital Publishing would be thrilled to
+         handle this project for you. Let me know and I'll pass her your
+         contact info. 
+
+         Cheers, Bob. Red Hat Software,
+         Inc.-----------------------------------------
+         Phone 919-547-0012 x227 Fax 919-547-0024
+         P.O. Box 13588 email: bob@redhat.com
+         Research Triangle Park, NC 27709 http://www.redhat.com
