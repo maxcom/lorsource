@@ -7,14 +7,6 @@
 	<title>Изменения в вики</title>
 <%= tmpl.DocumentHeader() %>
 <%
-  boolean showDeleted =request.getParameter("deleted")!=null;
-  if (showDeleted && !"POST".equals(request.getMethod())) {
-    response.setHeader("Location", "/wiki.jsp");
-    response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
-
-    showDeleted = false;
-  }
-
   if (!tmpl.isSessionAuthorized(session)) {
     throw new BadInputException("Вы уже вышли из системы");
   }
@@ -62,10 +54,7 @@
 
   while (rs.next()) {
     int topic_version_id = rs.getInt("topic_version_id");
-    int topic_id = rs.getInt("topic_id");
     String login = rs.getString("login");
-    int wiki_user_id = rs.getInt("wiki_user_id");
-    String wiki_user_ip_address = rs.getString("wiki_user_ip_address");
     int previous_topic_version_id = rs.getInt("previous_topic_version_id");
     String topic_name = rs.getString("topic_name");
 %> <li>
@@ -88,13 +77,67 @@
 (IP: <%= rs.getString("wiki_user_ip_address") %>)</i>
   <% } %>
 </ul>
+<h1>Последние 20 правок</h1>
+<table class="message-table" width="100%">
+<thead>
+<tr><th>Дата</th><th>Тема</th><th>Разница с последней публикацией</th></tr>
+</thead>
+<tbody>
+<%
+		rs.close();
+		rs = st.executeQuery("SELECT b.login,c.topic_name,c.topic_id,a.topic_version_id,a.wiki_user_id,a.previous_topic_version_id,a.edit_comment,a.edit_date FROM jam_topic_version a, jam_wiki_user b, jam_topic c WHERE a.published='t' AND b.wiki_user_id=a.wiki_user_id AND c.topic_id=a.topic_id AND c.delete_date IS NULL ORDER BY a.edit_date DESC LIMIT 20");
+		while (rs.next()) {
+			int topic_version_id = rs.getInt("topic_version_id");
+			String login = rs.getString("login");
+			int previous_topic_version_id = rs.getInt("previous_topic_version_id");
+			String topic_name = rs.getString("topic_name");
+			String edit_comment = rs.getString("edit_comment");
+%>	<tr align="center">
+		<td><%= rs.getString("edit_date").substring(0,19) %></td><td align="left"><a href="/wiki/ru/Special:History?topicVersionId=<%= topic_version_id%>&topic=<%= URLEncoder.encode(topic_name) %>" title="<%= edit_comment %>"><%
+			out.print(topic_name+ " #"+topic_version_id);
+			out.print("</a> ("+login+")</td><td><a href=\"/wiki/ru/Special:Diff?type=arbitrary&topic="+URLEncoder.encode(topic_name)+"&diff%3A"+topic_version_id+"=on&diff%3A"+previous_topic_version_id+"=on\">Разница с последней публикацией</a></td>");
+%>
+	</tr>
+<%
+		}
+%>
+</tbody>
+</table>
+<h1>Последние 20 статей</h1>
+<table class="message-table" width="100%">
+<thead>
+<tr><th>Дата</th><th>Тема</th><th>Разница с последней публикацией</th></tr>
+</thead>
+<tbody>
+<%
+		rs.close();
+		rs = st.executeQuery("SELECT b.login,c.topic_id,c.topic_name,a.topic_version_id,a.wiki_user_id,a.previous_topic_version_id,a.edit_comment,a.edit_date FROM jam_topic c, jam_wiki_user b, jam_topic_version a WHERE c.delete_date IS NULL AND a.topic_version_id=c.current_version_id AND a.published='t' AND b.wiki_user_id=a.wiki_user_id ORDER BY c.topic_id DESC LIMIT 20");
+		while (rs.next()) {
+			int topic_version_id = rs.getInt("topic_version_id");
+			String login = rs.getString("login");
+			int previous_topic_version_id = rs.getInt("previous_topic_version_id");
+			String topic_name = rs.getString("topic_name");
+			String edit_comment = rs.getString("edit_comment");
+%>	<tr align="center">
+		<td><%= rs.getString("edit_date").substring(0,19) %></td><td align="left"><a href="/wiki/ru/Special:History?topicVersionId=<%= topic_version_id%>&topic=<%= URLEncoder.encode(topic_name) %>" title="<%= edit_comment %>"><%
+			out.print(topic_name+ " #"+topic_version_id);
+			out.print("</a> ("+login+")</td><td><a href=\"/wiki/ru/Special:Diff?type=arbitrary&topic="+URLEncoder.encode(topic_name)+"&diff%3A"+topic_version_id+"=on&diff%3A"+previous_topic_version_id+"=on\">Разница с последней публикацией</a></td>");
+%>
+	</tr>
+<%
+		}
+%>
+</tbody>
+</table>
 
 <p>
 <%
     rs.close();
     st.close();
   } finally {
-    if (db!=null) db.close();
+    if (db!=null) {
+      db.close();
+    }
   }
 %>
 <%= tmpl.DocumentFooter() %>
