@@ -10,9 +10,10 @@
 <%= tmpl.DocumentHeader() %>
 
 <%
-   if (request.getParameter("reason")==null) {
-   	if (request.getParameter("msgid")==null)
-		throw new MissingParameterException("msgid");
+  if (request.getParameter("reason")==null) {
+    if (request.getParameter("msgid")==null) {
+      throw new MissingParameterException("msgid");
+    }
 %>
 <script language="Javascript">
 <!--
@@ -83,7 +84,7 @@ function change(dest,source)
       db.setAutoCommit(false);
 
       PreparedStatement lock = db.prepareStatement("SELECT deleted FROM topics WHERE id=? FOR UPDATE");
-      PreparedStatement st1 = db.prepareStatement("UPDATE topics SET deleted='t' WHERE id=?");
+      PreparedStatement st1 = db.prepareStatement("UPDATE topics SET deleted='t',sticky='f' WHERE id=?");
       PreparedStatement st2 = db.prepareStatement("INSERT INTO del_info (msgid, delby, reason) values(?,?,?)");
       lock.setInt(1, msgid);
       st1.setInt(1, msgid);
