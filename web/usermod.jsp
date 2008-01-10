@@ -72,7 +72,7 @@
 
       st.executeUpdate("UPDATE users SET photo=null WHERE id=" + id);
       st.executeUpdate("UPDATE users SET score=score-10 WHERE id=" + id);
-      logger.info("Clearing " + user.getNick() + " userpic");
+      logger.info("Clearing " + user.getNick() + " userpic by " + session.getValue("nick"));
     } else if (action.equals("remove_userinfo")) {
       if (user.canModerate()) {
         throw new AccessViolationException("Пользователю " + user.getNick() + " нельзя удалить сведения");
