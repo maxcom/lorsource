@@ -1,13 +1,19 @@
 <%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
-<%@ page import="java.io.File, java.io.IOException, java.net.URLEncoder, java.sql.Connection, java.sql.PreparedStatement" errorPage="/error.jsp"%>
-<%@ page import="java.util.List" %>
-<%@ page import="java.util.Random" %>
+<%@ page import="java.io.File, java.io.IOException, java.net.URLEncoder, java.sql.*, java.util.*" errorPage="/error.jsp"%>
+<%@ page import="java.util.Date" %>
 <%@ page import="java.util.logging.Logger" %>
+<%@ page import="javax.mail.Session" %>
+<%@ page import="javax.mail.Transport" %>
+<%@ page import="javax.mail.internet.InternetAddress" %>
+<%@ page import="javax.mail.internet.MimeMessage" %>
+<%@ page import="javax.servlet.http.Cookie, javax.servlet.http.HttpServletResponse" %>
 <%@ page import="org.apache.commons.fileupload.FileItem" %>
 <%@ page import="org.apache.commons.fileupload.disk.DiskFileItemFactory" %>
 <%@ page import="org.apache.commons.fileupload.servlet.ServletFileUpload" %>
-<%@ page import="ru.org.linux.site.*, ru.org.linux.util.BadImageException" %>
-<%@ page import="ru.org.linux.util.ImageInfo" %>
+<%@ page import="ru.org.linux.boxlet.BoxletVectorRunner" %>
+<%@ page import="ru.org.linux.site.*" %>
+<%@ page import="ru.org.linux.storage.StorageNotFoundException" %>
+<%@ page import="ru.org.linux.util.*" %>
 <% Template tmpl = new Template(request, config, response);
   Logger logger = Logger.getLogger("ru.org.linux");
 %>
@@ -55,7 +61,7 @@
         // Create a new file upload handler
         ServletFileUpload upload = new ServletFileUpload(factory);
         // Set overall request size constraint
-        upload.setSizeMax(600000);
+        upload.setSizeMax(60000);
         // Parse the request
         List items = upload.parseRequest(request);
         // Process the uploaded items
@@ -99,7 +105,10 @@
         photofile = new File(tmpl.getObjectConfig().getHTMLPathPrefix() + "/photos", photoname);
       } while (photofile.exists());
 
-      file.renameTo(photofile);
+      if (!file.renameTo(photofile)) {
+        logger.warning("Can't move photo to "+photofile);
+        throw new ScriptErrorException("Can't move photo: internal error");
+      }
 
       PreparedStatement pst = db.prepareStatement("UPDATE users SET photo=? WHERE id=?");
       pst.setString(1, photoname);
@@ -135,7 +144,7 @@
   <ul>
     <li>Ширина x Высота: от 50x50 до 150x150 пискелей</li>
     <li>Тип: jpeg, gif, png</li>
-    <li>Размер не более 20 Kb</li>
+    <li>Размер не более 30 Kb</li>
   </ul>
 </p>
 

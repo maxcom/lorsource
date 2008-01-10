@@ -44,7 +44,7 @@ public class ImageInfo {
       ii.setInput(is);
 
       ii.check();
-
+      
       int format = ii.getFormat();
 
       switch (format) {
