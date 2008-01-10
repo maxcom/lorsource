@@ -442,6 +442,9 @@ public class Message {
     	    out.append("[<a href=\"edit.jsp?msgid=").append(msgid).append("\">Править</a>]");
         out.append("[<a href=\"setpostscore.jsp?msgid=").append(msgid).append("\">Установить параметры</a>]");
         out.append("[<a href=\"mt.jsp?msgid=").append(msgid).append("\">Перенести</a>]");
+				if (sectionid==1) {
+					out.append("[<a href=\"mtn.jsp?msgid=").append(msgid).append("\">Группа</a>]");
+				}
       }
 
       if (tmpl.isModeratorSession()) {
