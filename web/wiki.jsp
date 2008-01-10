@@ -58,7 +58,7 @@
     int previous_topic_version_id = rs.getInt("previous_topic_version_id");
     String topic_name = rs.getString("topic_name");
 %> <li>
-  <a href="/wiki/ru/Special:History?topicVersionId=<%= topic_version_id%>&topic=<%= URLEncoder.encode(topic_name) %>"><%
+  <a href="/wiki/en/Special:History?topicVersionId=<%= topic_version_id%>&topic=<%= URLEncoder.encode(topic_name) %>"><%
      out.print(topic_name+ " #"+topic_version_id);
 	 String edit_comment = rs.getString("edit_comment");
      if(edit_comment!=null && edit_comment.length()>0) {
@@ -66,7 +66,7 @@
      }
    %></a>
   <%
-    out.print(" [<a href=\"/wiki/ru/Special:Diff?type=arbitrary&topic="+URLEncoder.encode(topic_name)+"&diff%3A"+topic_version_id+"=on&diff%3A"+previous_topic_version_id+"=on\">Разница с последней публикацией</a>]");
+    out.print(" [<a href=\"/wiki/en/Special:Diff?type=arbitrary&topic="+URLEncoder.encode(topic_name)+"&diff%3A"+topic_version_id+"=on&diff%3A"+previous_topic_version_id+"=on\">Разница с последней публикацией</a>]");
     if (tmpl.isModeratorSession()) {
       out.print(" [<a href=\"commit-wiki.jsp?id="+topic_version_id+"\">Опубликовать</a>]");
       out.print(" [<a href=\"delete-wiki.jsp?id="+topic_version_id+"\">Удалить</a>]");
