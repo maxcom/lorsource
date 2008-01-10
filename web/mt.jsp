@@ -1,13 +1,14 @@
 <%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
-<%@ page import="java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.util.logging.Logger" errorPage="/error.jsp" buffer="60kb" %>
+<%@ page import="java.sql.Connection,java.sql.PreparedStatement,java.sql.ResultSet,java.sql.Statement,java.util.logging.Logger" errorPage="/error.jsp" buffer="60kb" %>
 <%@ page import="ru.org.linux.site.Template" %>
+<%@ page import="ru.org.linux.site.User" %>
 <%
   Logger logger = Logger.getLogger("ru.org.linux");
 
   Template tmpl = new Template(request, config, response);
   out.print(tmpl.head());
 
-  if (!Template.isSessionAuthorized(session) || !((Boolean) session.getValue("moderator"))) {
+  if (!tmpl.isModeratorSession()) {
     throw new IllegalAccessException("Not authorized");
   }
 
@@ -23,10 +24,34 @@
     if (request.getMethod().equals("POST")) {
       String newgr = request.getParameter("moveto");
       String sSql = "UPDATE topics SET groupid=" + newgr + " WHERE id=" + msgid;
-      // out.println(sSql);
+
+      PreparedStatement pst = db.prepareStatement("SELECT topics.groupid,topics.userid,groups.title FROM topics,groups WHERE topics.id=? AND groups.id=topics.groupid");
+      pst.setInt(1,msgid);
+
+      ResultSet rs = pst.executeQuery();
+      String oldgr = "n/a";
+      String title = "n/a";
+
+      if (rs.next()) {
+        oldgr = rs.getString("groupid");
+	title = rs.getString("title");
+        int userid = rs.getInt("userid");
+
+        User user = User.getUserCached(db, userid);
+
+        if (user.isAnonymousScore() && "8404".equals(newgr)) {
+	  throw new IllegalAccessException("Была ж договоренность на тему того, что сценарий \"анонимный пост в других разделах с просьбой перетащить в толксы\" не должен работать");
+	}
+      }
+
       st1.executeUpdate(sSql);
+
+      PreparedStatement pst1 = db.prepareStatement("UPDATE msgbase SET message=message||? WHERE id=?");
+      pst1.setString(1,"\n<br>\n<br>Перемещено " + session.getValue("nick") + " из "+title+"\n");
+      pst1.setInt(2,msgid);
+      pst1.executeUpdate();
       logger.info("topic " + msgid + " moved" +
-          " by " + session.getValue("nick") + " to forum " + newgr);
+          " by " + session.getValue("nick") + " from news/forum " + oldgr + " to forum " + newgr);
     } else {
       out.println("перенос сообщения <strong>" + msgid + "</strong> в форум:");
       ResultSet rs = st1.executeQuery("SELECT id,title FROM groups WHERE section=2 ORDER BY id");
@@ -43,7 +68,9 @@
             out.println("</select>\n<input type='submit' name='move' value='move'>\n</form>");
         }
     } finally {
-        if (db!=null) db.close();
+        if (db!=null) {
+          db.close();
+        }
     }
 %>
 
