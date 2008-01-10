@@ -514,6 +514,15 @@
       <JAVADOC />
       <SOURCES />
     </library>
+    <library name="urlrewrite">
+      <CLASSES>
+        <root url="jar://$PROJECT_DIR$/lib/urlrewrite-2.6.0.jar!/" />
+      </CLASSES>
+      <JAVADOC />
+      <SOURCES>
+        <root url="jar://$PROJECT_DIR$/lib/urlrewritefilter-2.6-src.zip!/urlrewrite-2.6.0-src/src/java" />
+      </SOURCES>
+    </library>
   </component>
 </project>
 
