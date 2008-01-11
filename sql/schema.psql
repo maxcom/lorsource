@@ -292,14 +292,14 @@ ALTER FUNCTION public.check_replyto() OWNER TO maxcom;
 CREATE FUNCTION comins() RETURNS "trigger"
     AS $$
 DECLARE
-	group int;
-	thetopic topics%ROWTYPE;
+        group int;
+        thetopic topics%ROWTYPE;
 BEGIN
-	SELECT * INTO thetopic FROM topics WHERE topics.id = NEW.topic FOR UPDATE;
-	UPDATE topics SET stat1=stat1+1,stat2=stat2+1,stat3=stat3+1,stat4=stat4+1,lastmod=CURRENT_TIMESTAMP WHERE topics.id = NEW.topic;
-	SELECT groupid INTO group FROM topics WHERE topics.id = NEW.topic;
-	UPDATE groups SET stat1=stat1+1,stat2=stat2+1,stat3=stat3+1,stat4=stat4+1 WHERE id = group;
-	RETURN NULL;
+        SELECT * INTO thetopic FROM topics WHERE topics.id = NEW.topic FOR UPDATE;
+        SELECT groupid INTO group FROM topics WHERE topics.id = NEW.topic FOR UPDATE;
+        UPDATE topics SET stat1=stat1+1,stat2=stat2+1,stat3=stat3+1,stat4=stat4+1,lastmod=CURRENT_TIMESTAMP WHERE topics.id = NEW.topic;
+        UPDATE groups SET stat1=stat1+1,stat2=stat2+1,stat3=stat3+1,stat4=stat4+1 WHERE id = group;
+        RETURN NULL;
 END;
 $$
     LANGUAGE plpgsql;
@@ -2052,22 +2052,6 @@ ALTER OPERATOR public.@> (tsquery, tsquery) OWNER TO maxcom;
 --
 
 CREATE OPERATOR @@ (
-    PROCEDURE = exectsq,
-    LEFTARG = tsvector,
-    RIGHTARG = tsquery,
-    COMMUTATOR = @@,
-    RESTRICT = contsel,
-    JOIN = contjoinsel
-);
-
-
-ALTER OPERATOR public.@@ (tsvector, tsquery) OWNER TO maxcom;
-
---
--- Name: @@; Type: OPERATOR; Schema: public; Owner: maxcom
---
-
-CREATE OPERATOR @@ (
     PROCEDURE = rexectsq,
     LEFTARG = tsquery,
     RIGHTARG = tsvector,
@@ -2080,20 +2064,20 @@ CREATE OPERATOR @@ (
 ALTER OPERATOR public.@@ (tsquery, tsvector) OWNER TO maxcom;
 
 --
--- Name: @@@; Type: OPERATOR; Schema: public; Owner: maxcom
+-- Name: @@; Type: OPERATOR; Schema: public; Owner: maxcom
 --
 
-CREATE OPERATOR @@@ (
+CREATE OPERATOR @@ (
     PROCEDURE = exectsq,
     LEFTARG = tsvector,
     RIGHTARG = tsquery,
-    COMMUTATOR = @@@,
+    COMMUTATOR = @@,
     RESTRICT = contsel,
     JOIN = contjoinsel
 );
 
 
-ALTER OPERATOR public.@@@ (tsvector, tsquery) OWNER TO maxcom;
+ALTER OPERATOR public.@@ (tsvector, tsquery) OWNER TO maxcom;
 
 --
 -- Name: @@@; Type: OPERATOR; Schema: public; Owner: maxcom
@@ -2110,6 +2094,22 @@ CREATE OPERATOR @@@ (
 
 
 ALTER OPERATOR public.@@@ (tsquery, tsvector) OWNER TO maxcom;
+
+--
+-- Name: @@@; Type: OPERATOR; Schema: public; Owner: maxcom
+--
+
+CREATE OPERATOR @@@ (
+    PROCEDURE = exectsq,
+    LEFTARG = tsvector,
+    RIGHTARG = tsquery,
+    COMMUTATOR = @@@,
+    RESTRICT = contsel,
+    JOIN = contjoinsel
+);
+
+
+ALTER OPERATOR public.@@@ (tsvector, tsquery) OWNER TO maxcom;
 
 --
 -- Name: ||; Type: OPERATOR; Schema: public; Owner: maxcom
@@ -2875,7 +2875,7 @@ CREATE UNIQUE INDEX votenames_topic_key ON votenames USING btree (topic);
 
 
 --
--- Name: RI_ConstraintTrigger_79160; Type: TRIGGER; Schema: public; Owner: maxcom
+-- Name: RI_ConstraintTrigger_396601; Type: TRIGGER; Schema: public; Owner: maxcom
 --
 
 CREATE CONSTRAINT TRIGGER "<unnamed>"
@@ -2887,7 +2887,7 @@ CREATE CONSTRAINT TRIGGER "<unnamed>"
 
 
 --
--- Name: RI_ConstraintTrigger_79161; Type: TRIGGER; Schema: public; Owner: maxcom
+-- Name: RI_ConstraintTrigger_396602; Type: TRIGGER; Schema: public; Owner: maxcom
 --
 
 CREATE CONSTRAINT TRIGGER "<unnamed>"
