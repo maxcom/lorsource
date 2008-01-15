@@ -2,6 +2,7 @@
 <%@ page
     import="java.sql.Connection,java.sql.PreparedStatement,java.util.logging.Logger,ru.org.linux.site.AccessViolationException,ru.org.linux.site.Message,ru.org.linux.site.Template"
     errorPage="/error.jsp" buffer="200kb" %>
+<%@ page import="ru.org.linux.site.User" %>
 <%@ page import="ru.org.linux.util.HTMLFormatter" %>
 <%
   Template tmpl = new Template(request, config, response);
@@ -25,7 +26,9 @@
     String sURL = message.getUrl();
     String sURLtitle = message.getLinktext();
 
-    if (!message.isEditable()) {
+    User moderator = User.getCurrentUser(db, session);
+
+    if (!message.isEditable(db, moderator)) {
       throw new AccessViolationException("это сообщение нельзя править");
     }
 

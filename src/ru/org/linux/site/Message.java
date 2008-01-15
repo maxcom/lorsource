@@ -1013,8 +1013,20 @@ public class Message {
     }
   }
 
-  public boolean isEditable() {
+  public boolean isEditable(Connection db, User by) throws SQLException, UserNotFoundException {
+    if (!by.canModerate()) {
+      return false;
+    }
+
+    if (User.getUser(db, userid).canModerate()) {
+      return true;
+    }
+
     return !(isExpired() || isDeleted()) && section.isPremoderated();
+  }
+
+  public int getUid() {
+	return userid;
   }
 
   public boolean isNotop() {
