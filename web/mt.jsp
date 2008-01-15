@@ -47,7 +47,7 @@
       st1.executeUpdate(sSql);
 
       PreparedStatement pst1 = db.prepareStatement("UPDATE msgbase SET message=message||? WHERE id=?");
-      pst1.setString(1,"\n<br>\n<br>Перемещено " + session.getValue("nick") + " из "+title+"\n");
+      pst1.setString(1,"\n<br>\n<br><i>Перемещено " + session.getValue("nick") + " из "+title+"</i>\n");
       pst1.setInt(2,msgid);
       pst1.executeUpdate();
       logger.info("topic " + msgid + " moved" +
