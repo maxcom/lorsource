@@ -1018,15 +1018,19 @@ public class Message {
       return false;
     }
 
+    if (isExpired() || isDeleted()) {
+      return false;
+    }
+
     if (User.getUser(db, userid).canModerate()) {
       return true;
     }
 
-    return !(isExpired() || isDeleted()) && section.isPremoderated();
+    return section.isPremoderated();
   }
 
   public int getUid() {
-	return userid;
+    return userid;
   }
 
   public boolean isNotop() {
