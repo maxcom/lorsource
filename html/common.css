@@ -116,3 +116,8 @@ DIV.sign {
   margin-bottom: 1em;
   padding-bottom: 1em;
 }
+
+.highLighted
+{
+    border: red solid 1px;
+}

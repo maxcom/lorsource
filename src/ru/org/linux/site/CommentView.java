@@ -111,7 +111,7 @@ public class CommentView {
           out.append("view-message.jsp?msgid=").append(comment.getTopic()).append(urladd).append('#').append(comment.getReplyTo());
         }
 
-        out.append("\">");
+        out.append("\"onclick=\"highLight("+reply.getMessageId()+");\">");
 
         User replyAuthor = User.getUserCached(db, reply.getUserid());
 
