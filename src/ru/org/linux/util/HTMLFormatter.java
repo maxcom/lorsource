@@ -135,7 +135,7 @@ public class HTMLFormatter {
 
   static {
     try {
-      urlRE = new RE("(?:(?:(?:(?:https?://)|(?:ftp://)|(?:www\\.))|(?:ftp\\.))[a-z0-9.-]+\\.[a-z]+(?::[0-9]+)?(?:/(?:[\\w=?:+/~&%;,._#-]*[\\w=?+/~&%-])?)?)|(?:mailto: ?[a-z0-9+]+@[a-z0-9.-]+.[a-z]+)", RE.REG_ICASE);
+      urlRE = new RE("(?:(?:(?:(?:https?://)|(?:ftp://)|(?:www\\.))|(?:ftp\\.))[a-z0-9.-]+\\.[a-z]+(?::[0-9]+)?(?:/(?:[\\w=?:+/\\[\\]~&%;,._#-]*[\\w=?+/~&%-])?)?)|(?:mailto: ?[a-z0-9+]+@[a-z0-9.-]+.[a-z]+)", RE.REG_ICASE);
     } catch (REException e) {
       throw new RuntimeException(e);
     }
@@ -175,7 +175,7 @@ public class HTMLFormatter {
         } else if (urlchunk.length() > maxlength) {
           urlchunk = urlchunk.substring(0, maxlength - 3) + "...";
         }
-				out.append("<a href=\"" + URLEncoder(url) + "\">" + urlchunk + "</a>");
+        out.append("<a href=\"").append(URLEncoder(url)).append("\">").append(urlchunk).append("</a>");
       } else {
         out.append(url);
       }
@@ -346,7 +346,7 @@ public class HTMLFormatter {
    * @param start текущая позиция в строке
    * @return разбитая строка
    */
-  public static String wrapLongLine(String line, int maxlength, String delim, int start) throws UtilException {
+  public static String wrapLongLine(String line, int maxlength, String delim, int start)  {
     StringBuffer sb = new StringBuffer();
 
     int index = start;
