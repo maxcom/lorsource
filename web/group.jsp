@@ -1,11 +1,17 @@
 <%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
-<%@ page import="java.net.URLEncoder,java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.sql.Timestamp,java.util.ArrayList,java.util.Collections,java.util.List" errorPage="/error.jsp" buffer="200kb"%>
-<%@ page import="java.util.Map"%>
-<%@ page import="javax.servlet.http.HttpServletResponse"%>
-<%@ page import="ru.org.linux.site.*"%>
-<%@ page import="ru.org.linux.util.BadImageException" %>
-<%@ page import="ru.org.linux.util.ImageInfo" %>
-<%@ page import="ru.org.linux.util.StringUtil" %>
+<%@ page import="java.io.File,java.io.IOException,java.net.URLEncoder,java.sql.*,java.util.*,java.util.Date,java.util.logging.Logger,javax.mail.Session" errorPage="/error.jsp" buffer="200kb"%>
+<%@ page import="javax.mail.Transport"%>
+<%@ page import="javax.mail.internet.InternetAddress"%>
+<%@ page import="javax.mail.internet.MimeMessage"%>
+<%@ page import="javax.servlet.http.Cookie" %>
+<%@ page import="javax.servlet.http.HttpServletResponse" %>
+<%@ page import="org.apache.commons.fileupload.FileItem" %>
+<%@ page import="org.apache.commons.fileupload.disk.DiskFileItemFactory" %>
+<%@ page import="org.apache.commons.fileupload.servlet.ServletFileUpload" %>
+<%@ page import="ru.org.linux.boxlet.BoxletVectorRunner" %>
+<%@ page import="ru.org.linux.site.*" %>
+<%@ page import="ru.org.linux.storage.StorageNotFoundException" %>
+<%@ page import="ru.org.linux.util.*" %>
 <% Template tmpl = new Template(request, config, response); %>
 <%= tmpl.head() %>
 <%
@@ -212,7 +218,7 @@
   String delq = showDeleted ? "" : " AND NOT deleted ";
 
   if (firstPage) {
-    rs = st.executeQuery("SELECT topics.title as subj, lastmod, nick, topics.id as msgid, deleted, topics.stat1, topics.stat3, topics.stat4, topics.sticky FROM topics,groups,users, sections WHERE sections.id=groups.section AND (topics.moderate OR NOT sections.moderate) AND topics.userid=users.id AND topics.groupid=groups.id AND groups.id=" + groupId + delq + ignq + " AND postdate>(CURRENT_TIMESTAMP-'3 month'::interval) ORDER BY sticky desc,msgid DESC LIMIT " + topics);
+    rs = st.executeQuery("SELECT topics.title as subj, lastmod, nick, topics.id as msgid, deleted, topics.stat1, topics.stat3, topics.stat4, topics.sticky FROM topics,groups,users, sections WHERE sections.id=groups.section AND (topics.moderate OR NOT sections.moderate) AND topics.userid=users.id AND topics.groupid=groups.id AND groups.id=" + groupId + delq + ignq + " AND (postdate>(CURRENT_TIMESTAMP-'3 month'::interval) or sticky) ORDER BY sticky desc,msgid DESC LIMIT " + topics);
   } else {
     rs = st.executeQuery("SELECT topics.title as subj, lastmod, nick, topics.id as msgid, deleted, topics.stat1, topics.stat3, topics.stat4, topics.sticky FROM topics,groups,users, sections WHERE sections.id=groups.section AND (topics.moderate OR NOT sections.moderate) AND topics.userid=users.id AND topics.groupid=groups.id AND groups.id=" + groupId + delq + " ORDER BY sticky,msgid ASC LIMIT " + topics + " OFFSET " + offset);
   }
