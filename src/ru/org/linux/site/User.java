@@ -303,6 +303,27 @@ public class User implements Serializable {
     StringBuilder out = new StringBuilder();
 
     try {
+      // Delete user topics
+      PreparedStatement lock = db.prepareStatement("SELECT id FROM topics WHERE userid=? AND not deleted FOR UPDATE");
+      PreparedStatement st1 = db.prepareStatement("UPDATE topics SET deleted='t',sticky='f' WHERE id=?");
+      PreparedStatement st2 = db.prepareStatement("INSERT INTO del_info (msgid, delby, reason) values(?,?,?)");
+      lock.setInt(1, id);
+      st2.setInt(2,moderator.getId());
+      st2.setString(3,"Автоматически: удаление всех коментариев");
+      ResultSet lockResult = lock.executeQuery(); // lock another delete on this row
+      while (lockResult.next()) {
+        int mid = lockResult.getInt("id");
+        st1.setInt(1,mid);
+        st2.setInt(1,mid);
+        st1.executeUpdate();
+        st2.executeUpdate();
+      }
+      st1.close();
+      st2.close();
+      lockResult.close();
+      lock.close();
+
+      // Delete user comments
       deleter = new CommentDeleter(db);
 
       st = db.createStatement();
