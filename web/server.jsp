@@ -38,9 +38,9 @@
     <ul>
       <li>Fedora 7</li>
       <li>СУБД PostgreSQL 8.2</li>
-      <li>Apache2 2.0</li>
+      <li>Apache2 2.2</li>
       <li>Sun Java SDK 1.5</li>
-      <li>Caucho Resin 2.1</li>
+      <li>Apache Tomcat 5.5</li>
       <li>memcached 1.2</li>
     </ul>
       Спасибо Олегу Дрокину (<b>green</b>) за
