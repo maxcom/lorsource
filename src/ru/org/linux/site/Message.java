@@ -77,7 +77,7 @@ public class Message {
     title=StringUtil.makeTitle(rs.getString("title"));
     guid=rs.getInt("guid");
     deleted=rs.getBoolean("deleted");
-    expired=rs.getBoolean("expired");
+    expired= !sticky && rs.getBoolean("expired");
     havelink=rs.getBoolean("havelink");
     postdate=rs.getTimestamp("postdate");
     commitDate=rs.getTimestamp("commitdate");
