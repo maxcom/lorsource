@@ -17,8 +17,9 @@
   }
 
   if ("GET".equals(request.getMethod())) {
-    if (request.getParameter("msgid") == null)
+    if (request.getParameter("msgid") == null) {
       throw new MissingParameterException("msgid");
+    }
 
     Connection db = null;
 
@@ -60,25 +61,32 @@
 <input type=text name=title size=40 value="<%= message.getTitle() %>">
 <br>
 <%
-        Statement st = db.createStatement();
-        ResultSet rq = null;
-	if (message.getSectionId()==1) { // news
-		out.println("Переместить в группу: ");
-		rq = st.executeQuery("SELECT id, title FROM groups WHERE section=1 ORDER BY id");
-		out.println("<select name=\"chgrp\">");
-		out.println("<option value="+groupid+ '>' +message.getGroupTitle()+" (не менять)</option>");
-		while (rq.next()) {
-			int id = rq.getInt("id");
-			if (id != groupid)
-				out.println("<option value="+id+ '>' +rq.getString("title")+"</option>");
-		}
-		out.println("</select><br>");
-	}
-	if (rq!=null) rq.close();
-	st.close();
-	} finally {
-          if (db!=null) db.close();
+    Statement st = db.createStatement();
+    ResultSet rq = null;
+    if (message.getSectionId() == 1) { // news
+      out.println("Метки (теги): ");
+      out.println("<input type=\"text\" name=\"tags\" size=40 value=\"" + message.getPlainTags() + "\"><br>");
+      out.println("Переместить в группу: ");
+      rq = st.executeQuery("SELECT id, title FROM groups WHERE section=1 ORDER BY id");
+      out.println("<select name=\"chgrp\">");
+      out.println("<option value=" + groupid + '>' + message.getGroupTitle() + " (не менять)</option>");
+      while (rq.next()) {
+        int id = rq.getInt("id");
+        if (id != groupid) {
+          out.println("<option value=" + id + '>' + rq.getString("title") + "</option>");
         }
+      }
+      out.println("</select><br>");
+    }
+    if (rq != null) {
+      rq.close();
+    }
+    st.close();
+  } finally {
+      if (db != null) {
+        db.close();
+      }
+  }
 %>
 <input type=submit value="Submit/Подтвердить">
 </form>
@@ -87,8 +95,8 @@
     int msgid = tmpl.getParameters().getInt("msgid");
     String title = tmpl.getParameters().getString("title");
     Connection db = null;
-    try {
 
+    try {
       db = tmpl.getConnection();
       db.setAutoCommit(false);
       PreparedStatement pst = db.prepareStatement("UPDATE topics SET moderate='t', commitby=?, commitdate='now', title=? WHERE id=?");
@@ -108,21 +116,24 @@
 
         Statement st = db.createStatement();
         ResultSet rs = st.executeQuery("select groupid, section, groups.title FROM topics, groups WHERE topics.id=" + msgid + " and groups.id=topics.groupid");
-        if (!rs.next())
+        if (!rs.next()) {
           throw new MessageNotFoundException(msgid);
+        }
 
         int oldgrp = rs.getInt("groupid");
         if (oldgrp != chgrp) {
           String oldtitle = rs.getString("title");
           int section = rs.getInt("section");
-          if (section != 1)
+          if (section != 1) {
             throw new AccessViolationException("Can't move topics in non-news section");
+          }
 
           rs.close();
           rs = st.executeQuery("SELECT section, title FROM groups WHERE groups.id=" + chgrp);
           rs.next();
-          if (rs.getInt("section") != section)
+          if (rs.getInt("section") != section) {
             throw new AccessViolationException("Can't move topics between sections");
+          }
           String newtitle = rs.getString("title");
           st.executeUpdate("UPDATE topics SET groupid=" + chgrp + " WHERE id=" + msgid);
           /* to recalc counters */
@@ -135,6 +146,10 @@
 
       pst.executeUpdate();
       pst2.executeUpdate();
+      
+      if (request.getParameter("tags")!=null) {
+        Tags.updateTags(db, msgid, request.getParameter("tags"), true);
+      }
 
       out.print("Сообщение подтверждено");
 
@@ -148,7 +163,9 @@
       response.setHeader("Location", tmpl.getMainUrl() + "view-all.jsp?nocache=" + random.nextInt());
       response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
     } finally {
-      if (db != null) db.close();
+      if (db != null) {
+        db.close();
+      }
     }
   }
 %>

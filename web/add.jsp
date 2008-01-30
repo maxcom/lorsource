@@ -1,18 +1,34 @@
-<%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8" import="java.sql.Connection,java.util.Random" errorPage="/error.jsp"%>
-<%@ page import="ru.org.linux.site.*"%>
-<%@ page import="ru.org.linux.util.HTMLFormatter"%>
-<%@ page import="ru.org.linux.util.UtilBadURLException"%>
+<%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8" import="java.io.File,java.io.IOException" errorPage="/error.jsp"%>
+<%@ page import="java.net.URLEncoder"%>
+<%@ page import="java.sql.*"%>
+<%@ page import="java.util.*"%>
+<%@ page import="java.util.Date" %>
+<%@ page import="java.util.logging.Logger" %>
+<%@ page import="javax.mail.Session" %>
+<%@ page import="javax.mail.Transport" %>
+<%@ page import="javax.mail.internet.InternetAddress" %>
+<%@ page import="javax.mail.internet.MimeMessage" %>
+<%@ page import="javax.servlet.http.Cookie" %>
+<%@ page import="javax.servlet.http.HttpServletResponse" %>
+<%@ page import="org.apache.commons.fileupload.FileItem" %>
+<%@ page import="org.apache.commons.fileupload.disk.DiskFileItemFactory" %>
+<%@ page import="org.apache.commons.fileupload.servlet.ServletFileUpload" %>
+<%@ page import="org.apache.commons.lang.StringUtils" %>
+<%@ page import="ru.org.linux.boxlet.BoxletVectorRunner" %>
+<%@ page import="ru.org.linux.site.*" %>
+<%@ page import="ru.org.linux.storage.StorageNotFoundException" %>
+<%@ page import="ru.org.linux.util.*" %>
 <% Template tmpl = new Template(request, config, response);%>
 <%= tmpl.head() %>
 <%
   Connection db = null;
-  Message previewMsg = null;
 
   try {
-
     boolean showform = request.getMethod().equals("GET");
     boolean preview = false;
     Exception error = null;
+
+    Message previewMsg = null;
 
     if (request.getMethod().equals("POST")) {
       try {
@@ -27,10 +43,14 @@
         preview = previewMsg.isPreview();
 
         if (!preview) {
-
           int msgid = previewMsg.addTopicFromPreview(db, tmpl, session, request);
+          if (request.getAttribute("tags")!=null) {
+            Tags.updateTags(db, msgid, (String)request.getAttribute("tags"), false);
+          }
 
           Group group = new Group(db, previewMsg.getGroupId());
+
+          db.commit();
 
           Random random = new Random();
 
@@ -64,36 +84,37 @@
       showform=true;
       if (db!=null) {
         db.rollback();
-	db.setAutoCommit(true);
       }
     } catch (UserNotFoundException e) {
       error=e;
       showform=true;
       if (db!=null) {
         db.rollback();
-	db.setAutoCommit(true);
       }
     } catch (UtilBadURLException e) {
       error=e;
       showform=true;
       if (db!=null) {
         db.rollback();
-	db.setAutoCommit(true);
       }
     }
   }
 
   if (showform || preview) {
-
-	if (!preview && previewMsg==null) { 
-	  try { 
-		previewMsg = new Message(db,tmpl,session,request);
-	  } catch (MessageNotFoundException e) { }
-	}
+    if (!preview && previewMsg==null) {
+      try {
+        previewMsg = new Message(db,tmpl,session,request);
+      } catch (MessageNotFoundException e) { }
+    }
 
     Integer groupId = (Integer)request.getAttribute("group");
 
-    db = tmpl.getConnection();
+    if (db==null) {
+      db = tmpl.getConnection();
+    }
+
+    db.setAutoCommit(true);
+
     Group group = new Group(db, groupId);
 
     User currentUser = User.getCurrentUser(db, session);
@@ -111,8 +132,9 @@
 <title>Добавить сообщение</title>
 <%= tmpl.DocumentHeader() %>
 <%	int section=group.getSectionId();
-	if (request.getAttribute("noinfo")==null || !"1".equals(request.getAttribute("noinfo")))
-		out.print(tmpl.getObjectConfig().getStorage().readMessageDefault("addportal", String.valueOf(section), ""));
+	if (request.getAttribute("noinfo")==null || !"1".equals(request.getAttribute("noinfo"))) {
+          out.print(tmpl.getObjectConfig().getStorage().readMessageDefault("addportal", String.valueOf(section), ""));
+        }
 %>
 <% if (preview && previewMsg!=null) { %>
 <h1>Предпросмотр</h1>
@@ -194,7 +216,10 @@
 Ссылка (не забудьте <b>http://</b>)
 <input type=text name=url size=70 value="<%= request.getAttribute("url")==null?"":HTMLFormatter.htmlSpecialChars((String)request.getAttribute("url")) %>"><br>
 <% } %>
-
+<% if (group.getSectionId()==1) { %>
+Метки (разделенные запятой) 
+<input type=text name=tags size=70 value="<%= request.getAttribute("tags")==null?"":StringUtils.strip((String)request.getAttribute("tags")) %>"><br>
+<% } %>
 <% if (!group.isLineOnly() || group.isPreformatAllowed()) {%>
 <select name=mode>
 <% if (!group.isLineOnly()) { %>
@@ -236,7 +261,9 @@
 </form>
 <%}
   } finally {
-    if (db!=null) db.close();
+    if (db!=null) {
+      db.close();
+    }
   }
 %>
 <%=	tmpl.DocumentFooter() %>

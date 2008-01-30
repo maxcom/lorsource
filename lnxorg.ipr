@@ -264,6 +264,11 @@
           <option name="m_ignoreInvisibleFields" value="true" />
           <option name="m_ignoreStaticMethods" value="true" />
         </inspection_tool>
+        <inspection_tool class="WeakerAccess" level="WARNING" enabled="true">
+          <option name="SUGGEST_PACKAGE_LOCAL_FOR_MEMBERS" value="false" />
+          <option name="SUGGEST_PACKAGE_LOCAL_FOR_TOP_CLASSES" value="false" />
+          <option name="SUGGEST_PRIVATE_FOR_INNERS" value="true" />
+        </inspection_tool>
       </profile>
     </profiles>
     <list size="4">

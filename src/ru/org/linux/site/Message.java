@@ -16,6 +16,7 @@ import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
 import org.xbill.DNS.TextParseException;
 
 import ru.org.linux.util.*;
@@ -30,6 +31,7 @@ public class Message {
   private boolean preview;
   private String linktext;
   private String url;
+  private String tags;
   private String title;
   private final int userid;
   private int guid;
@@ -73,6 +75,7 @@ public class Message {
     sticky=rs.getBoolean("sticky");
     linktext=rs.getString("linktext");
     url=rs.getString("url");
+    tags=Tags.getPlainTags(db,msgid);
     userid = rs.getInt("userid");
     title=StringUtil.makeTitle(rs.getString("title"));
     guid=rs.getInt("guid");
@@ -107,6 +110,7 @@ public class Message {
     // Init fields
     String linktext = null;
     String url = null;
+    String tags = null;
     String mode = "";
     boolean autourl = true;
     boolean texttype = false;
@@ -149,6 +153,10 @@ public class Message {
       }
       try {
         returnUrl = request.getParameter("return");
+      } catch (Exception e) {
+      }
+      try {
+        tags = request.getParameter("tags");
       } catch (Exception e) {
       }
     } else {
@@ -203,6 +211,8 @@ public class Message {
             linktext = value;
           } else if (name.compareToIgnoreCase("url") == 0) {
             url = value;
+          } else if (name.compareToIgnoreCase("tags") == 0) {
+            tags = value;
           } else if (name.compareToIgnoreCase("return") == 0) {
             returnUrl = value;
           }
@@ -239,6 +249,7 @@ public class Message {
     request.setAttribute("group", guid);
     request.setAttribute("linktext", linktext);
     request.setAttribute("url", url);
+    request.setAttribute("tags", tags);
     request.setAttribute("return", returnUrl);
     request.setAttribute("noinfo", noinfo);
     request.setAttribute("nick", nick);
@@ -303,6 +314,7 @@ public class Message {
     // Setting Message fields
     this.linktext = linktext == null ? "" : HTMLFormatter.htmlSpecialChars(linktext);
     this.url = url == null ? "" : HTMLFormatter.htmlSpecialChars(url);
+    this.tags = tags == null ? "" : StringUtils.strip(tags);
     this.title = title == null ? "" : HTMLFormatter.htmlSpecialChars(title);
     this.guid = guid;
     havelink = url != null && linktext != null && url.length() > 0 && linktext.length() > 0 && !group.isImagePostAllowed();
@@ -551,8 +563,17 @@ public class Message {
 
     out.append("</div>");
 
-    if (!expired && !deleted && showMenu)
-      out.append("<div class=reply>[<a href=\"comment-message.jsp?msgid=").append(msgid).append("\">Ответить на это сообщение</a>] ").append(getPostScoreInfo(postscore)).append("</div>");
+    if (!deleted && showMenu) {
+      out.append("<div class=reply>");
+      if (!expired) {
+        out.append("[<a href=\"comment-message.jsp?msgid=").append(msgid).append("\">Ответить на это сообщение</a>] ").append(getPostScoreInfo(postscore));
+      }
+      if (sectionid==1) {
+        out.append(Tags.getTagLinks(db, msgid));
+      }
+      out.append("</div>");
+    }
+
 
     if (tbl) out.append("</td></tr></table>");
     out.append("</div>");
@@ -895,8 +916,6 @@ public class Message {
     String logmessage = "Написана тема " + msgid + " " + LorHttpUtils.getRequestIP(request);
     logger.info(logmessage);
 
-    db.commit();
-
     rs.close();
     st.close();
     
@@ -959,10 +978,10 @@ public class Message {
       url = "gallery/" + screenshot.getMainFile().getName();
       linktext = "gallery/" + screenshot.getIconFile().getName();
     } else {
-	  if (url!=null) {
+      if (url != null) {
         url = StringEscapeUtils.unescapeHtml(url);
-	  }	
-	}
+      }
+    }
 
     PreparedStatement pst = db.prepareStatement("INSERT INTO topics (postip, groupid, userid, title, url, moderate, postdate, id, linktext, deleted) VALUES ('" + request.getRemoteAddr() + "',?, ?, ?, ?, 'f', CURRENT_TIMESTAMP, ?, ?, 'f')");
 //                pst.setString(1, request.getRemoteAddr());
@@ -984,8 +1003,6 @@ public class Message {
 
     String logmessage = "Написана тема " + msgid + " " + LorHttpUtils.getRequestIP(request);
     logger.info(logmessage);
-
-    db.commit();
 
     rs.close();
     st.close();
@@ -1051,6 +1068,10 @@ public class Message {
     } else {
       return link;
     }
+  }
+
+  public String getPlainTags() {
+    return tags;
   }
 
   public boolean containsLink() {

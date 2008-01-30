@@ -54,6 +54,12 @@
     }
   }
 
+  String tag = "";
+  if (request.getParameter("tag")!=null) {
+    tag = tmpl.getParameters().getString("tag");
+    Tags.checkTag(tag);
+  }
+
   Statement st = db.createStatement();
 
   String navtitle = section.getName();
@@ -71,6 +77,10 @@
     if (group != null) {
       ptitle += " - " + group.getTitle();
     }
+
+    if (tag !=null) {
+      ptitle += " - " + tag;
+    }
   } else {
     month = tmpl.getParameters().getInt("month");
     year = tmpl.getParameters().getInt("year");
@@ -78,6 +88,10 @@
 
     if (group != null) {
       ptitle += " - " + group.getTitle();
+    }
+
+    if (tag !=null) {
+      ptitle += " - " + tag;
     }
 
     ptitle += ", " + year + ", " + DateUtil.getMonth(month);
@@ -135,6 +149,10 @@
     nw.setGroup(group.getId());
   }
 
+  if (tag!=null) {
+    nw.setTag(tag);
+  }
+
   if (month != 0) {
     nw.setDatelimit("postdate>='" + year + "-" + month + "-01'::timestamp AND (postdate<'" + year + "-" + month + "-01'::timestamp+'1 month'::interval)");
   } else {
@@ -148,7 +166,9 @@
 <%
  	st.close();
   } finally {
-    if (db!=null) db.close();
+    if (db!=null) {
+      db.close();
+    }
   }
 %>
 

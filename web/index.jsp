@@ -103,10 +103,12 @@
 <%
   BoxletVectorRunner boxes;
 
-  if (tmpl.getProf().getBoolean("main.3columns"))
+  if (tmpl.getProf().getBoolean("main.3columns")) {
     boxes = new BoxletVectorRunner((List) tmpl.getProf().getObject("main3-1"));
-  else
+  }
+  else {
     boxes = new BoxletVectorRunner((List) tmpl.getProf().getObject("main2"));
+  }
 %>
 
 <div class=column>

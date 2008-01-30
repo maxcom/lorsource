@@ -16,6 +16,7 @@ public class NewsViewer implements Viewer {
   private int group = 0;
   private String datelimit = null;
   private String limit="";
+  private String tag="";
   private boolean moderateMode = false;
 
   public NewsViewer(Properties Config, ProfileHashtable prof) {
@@ -81,7 +82,9 @@ public class NewsViewer implements Viewer {
     out.append("<div class=\"entry-body\">");
     out.append("<div class=msg>\n");
 
-    if (!votepoll) out.append(messageText);
+    if (!votepoll) {
+      out.append(messageText);
+    }
 
     if (url != null && !imagepost && !votepoll && !linkup) {
       out.append("<p>&gt;&gt;&gt; <a href=\"").append(HTMLFormatter.htmlSpecialChars(url)).append("\">").append(linktext).append("</a>");
@@ -128,8 +131,9 @@ public class NewsViewer implements Viewer {
     if (!moderateMode && res.getBoolean("comment")) {
       out.append("<div class=\"nav\">");
 
-      if (!expired)
+      if (!expired) {
         out.append("[<a href=\"comment-message.jsp?msgid=").append(msgid).append("\">Добавить&nbsp;комментарий</a>]");
+      }
 
       int stat1 = res.getInt("stat1");
 
@@ -144,21 +148,31 @@ public class NewsViewer implements Viewer {
           out.append(mainlink);          
         }
 
-        if (stat1 % 10 == 1 && stat1 % 100 != 11)
-	    out.append("\">Добавлен&nbsp;").append(stat1);
-	else
-	    out.append("\">Добавлено&nbsp;").append(stat1);
+        if (stat1 % 10 == 1 && stat1 % 100 != 11) {
+          out.append("\">Добавлен&nbsp;").append(stat1);
+        }
+	else {
+          out.append("\">Добавлено&nbsp;").append(stat1);
+        }
 
-	if (stat1 % 100 >= 10 && stat1 % 100 <= 20)
-	  out.append("&nbsp;комментариев</a>");
-	else
-	  switch (stat1 % 10) {
-	    case 1: out.append("&nbsp;комментарий</a>");break;
-	    case 2:
-	    case 3:
-	    case 4: out.append("&nbsp;комментария</a>");break;
-	    default: out.append("&nbsp;комментариев</a>");break;
-	  }
+	if (stat1 % 100 >= 10 && stat1 % 100 <= 20) {
+          out.append("&nbsp;комментариев</a>");
+        }
+	else {
+          switch (stat1 % 10) {
+            case 1:
+              out.append("&nbsp;комментарий</a>");
+              break;
+            case 2:
+            case 3:
+            case 4:
+              out.append("&nbsp;комментария</a>");
+              break;
+            default:
+              out.append("&nbsp;комментариев</a>");
+              break;
+          }
+        }
 
 	if (pages != 1){
 	  out.append("&nbsp;(стр.");
@@ -172,17 +186,28 @@ public class NewsViewer implements Viewer {
 	  out.append(")");
 	}
 	out.append("]");
+      }
 
-    }
+      if (res.getInt("section")==1) {
+        out.append(Tags.getTagLinks(db, msgid));
+      }
+
       out.append("</div>");
     } else if (moderateMode) {
       out.append("<div class=nav>");
       out.append("[<a href=\"commit.jsp?msgid=").append(msgid).append("\">Подтвердить</a>]");
       out.append(" [<a href=\"delete.jsp?msgid=").append(msgid).append("\">Удалить</a>]");
-      if (!votepoll)
-	out.append(" [<a href=\"edit.jsp?msgid=").append(msgid).append("\">Править</a>]");
-      else
+      if (!votepoll) {
+        out.append(" [<a href=\"edit.jsp?msgid=").append(msgid).append("\">Править</a>]");
+      }
+      else {
         out.append(" [<a href=\"edit-vote.jsp?msgid=").append(msgid).append("\">Править</a>]");
+      }
+
+      if (res.getInt("section")==1) {
+        out.append(Tags.getTagLinks(db, msgid));
+      }
+
       out.append("</div>");
     }
     out.append("</div>");
@@ -219,6 +244,20 @@ public class NewsViewer implements Viewer {
       where.append(" AND ").append(datelimit);
     }
 
+    if (tag!=null && !"".equals(tag)) {
+      PreparedStatement pst = db.prepareStatement("SELECT id FROM tags_values WHERE value=?");
+      pst.setString(1,tag);
+      ResultSet rs = pst.executeQuery();
+      if (rs.next()) {
+        int tagid=rs.getInt("id");
+        if (tagid>0) {
+          where.append(" AND topics.id IN (SELECT msgid FROM tags WHERE tagid=").append(tagid).append(")");
+        }
+      }
+      rs.close();
+      pst.close();
+    }
+    
     ResultSet res = st.executeQuery(
         "SELECT topics.title as subj, topics.lastmod, topics.stat1, postdate, nick, image, " +
             "groups.title as gtitle, topics.id as msgid, sections.comment, groups.id as guid, " +
@@ -243,6 +282,10 @@ public class NewsViewer implements Viewer {
     moderateMode = viewAll;
   }
 
+  public void setTag(String tag) {
+    this.tag = tag;
+  }
+
   public void setSection(int section) {
     this.section = section;
   }
@@ -263,7 +306,8 @@ public class NewsViewer implements Viewer {
     StringBuilder id = new StringBuilder("view-news?"+
         "topics=" + prof.getInt("topics")+
         "&messages=" + prof.getInt("messages") +
-        "&style=" + prof.getString("style"));
+        "&style=" + prof.getString("style") +
+        "&tag=" + tag);
 
     if (viewAll) {
       id.append("&view-all=true");
