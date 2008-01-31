@@ -1,8 +1,9 @@
 <%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
 <%@ page
-    import="java.sql.Connection,java.sql.PreparedStatement,java.util.logging.Logger,ru.org.linux.site.AccessViolationException,ru.org.linux.site.Message,ru.org.linux.site.Template"
+    import="java.sql.Connection,java.sql.PreparedStatement,java.util.List"
     errorPage="/error.jsp" buffer="200kb" %>
-<%@ page import="ru.org.linux.site.User" %>
+<%@ page import="java.util.logging.Logger" %>
+<%@ page import="ru.org.linux.site.*" %>
 <%@ page import="ru.org.linux.util.HTMLFormatter" %>
 <%
   Template tmpl = new Template(request, config, response);
@@ -52,6 +53,8 @@
       String snURLtitle = request.getParameter("url_text");
       String snURL = request.getParameter("url");
 
+      String tags = request.getParameter("tags");
+
       String sSql = "UPDATE topics SET title=?, linktext=?, url=? WHERE id=?";
       PreparedStatement pst = db.prepareStatement(sSql);
 
@@ -91,6 +94,18 @@
       } else {
         out.print("nothing changed.\n");
       }
+
+      if (tags!=null) {
+        List<String> oldTags = Tags.getMessageTags(db, msgid);
+        List<String> newTags = Tags.parseTags(tags);
+
+        Tags.updateTags(db, msgid, newTags);
+        if (message.isCommited()) {
+          Tags.updateCounters(db, oldTags, newTags);
+        }
+        
+        out.print("tags updates\n");
+      }
     } else {
 %>
 <form action="edit.jsp" name="edit" method="post">
@@ -120,6 +135,12 @@
     out.print("<input type=\"text\" name=\"url\" size=\"84\" value='" + sURL + "' readonly style=\"background:#979797;color:#79787e;\">\n");
   }
   %>
+  <br>
+
+  Теги:
+  <% if (message.getSectionId()==1) { %>
+  <input type="text" name="tags" value="<%= Tags.getPlainTags(db, msgid) %>">
+  <% } %>
   <br><br>
   <input type="submit" value="отредактировать">
   &nbsp;

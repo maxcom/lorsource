@@ -65,13 +65,15 @@ public class Tags{
   }
 
   public String toString() {
-    String str = "";
     if (tags==null || tags.isEmpty()) {
       return "";
     }
+    String str = "";
+
     for (String tag : tags) {
       str += (str.length() > 0 ? "," : "") + tag;
     }
+    
     return str;
   }
 
@@ -100,7 +102,32 @@ public class Tags{
     }
   }
 
-  public static void updateTags(Connection con, int msgid, String tags, boolean moderate) throws SQLException, UserErrorException {
+  public static void updateCounters(Connection con, List<String> oldTags, List<String> newTags) throws SQLException {
+    PreparedStatement stInc = con.prepareStatement("UPDATE tags_values SET counter=counter+1 WHERE id=?");
+    PreparedStatement stDec = con.prepareStatement("UPDATE tags_values SET counter=counter-1 WHERE id=?");
+
+    if (oldTags==null) {
+      oldTags = Collections.emptyList();
+    }
+
+    for (String tag : newTags) {
+      if (!oldTags.contains(tag)) {
+        int id = getOrCreateTag(con, tag);
+        stInc.setInt(1, id);
+        stInc.executeUpdate();
+      }
+    }
+
+    for (String tag : oldTags) {
+      if (!newTags.contains(tag)) {
+        int id = getOrCreateTag(con, tag);
+        stDec.setInt(1, id);
+        stDec.executeUpdate();
+      }
+    }
+  }
+
+  public static List<String> parseTags(String tags) throws UserErrorException {
     Set<String> tagSet = new HashSet<String>();
 
     // Теги разделяютчя пайпом или запятой
@@ -108,7 +135,7 @@ public class Tags{
     String [] tagsArr = tags.split(",");
 
     if (tagsArr.length==0) {
-      return;
+      return Collections.emptyList();
     }
 
     for (int i = 0; i < tagsArr.length; i++) {
@@ -124,36 +151,38 @@ public class Tags{
       tagSet.add(tag);
     }
 
-    PreparedStatement st1 = con.prepareStatement("SELECT tagid FROM tags WHERE msgid=? AND tagid=?");
-    PreparedStatement st2 = con.prepareStatement("INSERT INTO tags VALUES(?,?)");
-    PreparedStatement st3 = con.prepareStatement("UPDATE tags_values SET counter=counter+1 WHERE id=?");
-    st1.setInt(1, msgid);
-    st2.setInt(1, msgid);
+    return new ArrayList<String>(tagSet);
+  }
 
-    for (String tag : tagSet) {
-      // Добавляем тег в таблицу tags_values и/или берем его id
-      int id = getOrCreateTag(con, tag);
+  public static void updateTags(Connection con, int msgid, List<String> tagList) throws SQLException {
+    List<String> oldTags = Tags.getMessageTags(con, msgid);
 
-      // Есть ли этот тег у нас в таблице tags для этого топика?
-      st1.setInt(2,id);
-      ResultSet rs = st1.executeQuery();
-      if (!rs.next()) {
-        // Еще нет - вставляем
-        st2.setInt(2,id);
-        st2.executeUpdate();
-      }
-      rs.close();
+    PreparedStatement insertStatement = con.prepareStatement("INSERT INTO tags VALUES(?,?)");
+    PreparedStatement deleteStatement = con.prepareStatement("DELETE FROM tags WHERE msgid=? and tagid=?");
 
-      // Модерируем? прибавляем счетчик использования
-      if (moderate) {
-        st3.setInt(1,id);
-        st3.executeUpdate();
+    insertStatement.setInt(1, msgid);
+    deleteStatement.setInt(1, msgid);
+
+    for (String tag : tagList) {
+      if (!oldTags.contains(tag)) {
+        int id = getOrCreateTag(con, tag);
+
+        insertStatement.setInt(2, id);
+        insertStatement.executeUpdate();
       }
     }
 
-    st3.close();
-    st2.close();
-    st1.close();
+    for (String tag : oldTags) {
+      if (!tagList.contains(tag)) {
+        int id = getOrCreateTag(con, tag);
+
+        deleteStatement.setInt(2, id);
+        deleteStatement.executeUpdate();
+      }
+    }
+
+    insertStatement.close();
+    deleteStatement.close();
   }
 
   public static String getPlainTags(Connection con, int msgid) throws SQLException {

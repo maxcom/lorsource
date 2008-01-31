@@ -45,7 +45,8 @@
         if (!preview) {
           int msgid = previewMsg.addTopicFromPreview(db, tmpl, session, request);
           if (request.getAttribute("tags")!=null) {
-            Tags.updateTags(db, msgid, (String)request.getAttribute("tags"), false);
+            List<String> tags = Tags.parseTags((String)request.getAttribute("tags"));
+            Tags.updateTags(db, msgid, tags);
           }
 
           Group group = new Group(db, previewMsg.getGroupId());

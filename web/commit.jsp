@@ -1,8 +1,9 @@
 <%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
-<%@ page import="java.sql.Connection,java.sql.PreparedStatement,java.sql.ResultSet,java.sql.Statement,java.util.Random" errorPage="/error.jsp"%>
+<%@ page import="java.sql.Connection,java.sql.PreparedStatement,java.sql.ResultSet,java.sql.Statement,java.util.List" errorPage="/error.jsp"%>
+<%@ page import="java.util.Random"%>
 <%@ page import="java.util.logging.Logger"%>
 <%@ page import="javax.servlet.http.HttpServletResponse"%>
-<%@ page import="ru.org.linux.site.*"%>
+<%@ page import="ru.org.linux.site.*" %>
 <%@ page import="ru.org.linux.util.HTMLFormatter" %>
 <% Template tmpl = new Template(request, config, response);
   Logger logger = Logger.getLogger("ru.org.linux");
@@ -148,7 +149,9 @@
       pst2.executeUpdate();
       
       if (request.getParameter("tags")!=null) {
-        Tags.updateTags(db, msgid, request.getParameter("tags"), true);
+        List<String> tags = Tags.parseTags(request.getParameter("tags"));
+        Tags.updateTags(db, msgid, tags);
+        Tags.updateCounters(db, null, Tags.getMessageTags(db, msgid));
       }
 
       out.print("Сообщение подтверждено");
