@@ -217,7 +217,7 @@ public class NewsViewer implements Viewer {
     return out.toString();
   }
 
-  public String show(Connection db) throws IOException, SQLException, UtilException {
+  public String show(Connection db) throws IOException, SQLException, UtilException, UserErrorException {
     StringBuffer buf = new StringBuffer();
     Statement st = db.createStatement();
 
@@ -245,7 +245,7 @@ public class NewsViewer implements Viewer {
     }
 
     if (tag!=null && !"".equals(tag)) {
-      PreparedStatement pst = db.prepareStatement("SELECT id FROM tags_values WHERE value=?");
+      PreparedStatement pst = db.prepareStatement("SELECT id FROM tags_values WHERE value=? AND counter>0");
       pst.setString(1,tag);
       ResultSet rs = pst.executeQuery();
       if (rs.next()) {
@@ -253,6 +253,8 @@ public class NewsViewer implements Viewer {
         if (tagid>0) {
           where.append(" AND topics.id IN (SELECT msgid FROM tags WHERE tagid=").append(tagid).append(")");
         }
+      } else {
+        throw new UserErrorException("Tag not found");
       }
       rs.close();
       pst.close();
