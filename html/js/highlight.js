@@ -1,15 +1,26 @@
 var highLighted;
 
-function highLight(message)
+function highLight(toHighLight)
 {
-  var toHighLight = document.getElementById(message);
-  if (toHighLight && toHighLight != highLighted) {
-    if (highLighted)
-    {
-      highLighted.className = "msg";
+    if (highLighted==toHighLight) {
+      return;
     }
+
+    if (highLighted) {
+      highLighted.className="msg";
+    }
+
     highLighted = toHighLight;
     highLighted.className = "msg highLighted";
+}
+
+function highlightMessage(id)
+{
+  var toHighLight = document.getElementById(id);
+
+  if (toHighLight)
+  {
+    highLight(toHighLight);
   }
 }
 
@@ -17,6 +28,8 @@ function parseHash()
 {
   var results = location.hash.match(/^#([1-9]\d*)$/);
   if (results) {
-    highLight(results[1]);
+    highlightMessage(results[1]);
   }
 }
+
+setInterval(parseHash, 1000);
