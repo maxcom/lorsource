@@ -48,7 +48,7 @@ public final class tagcloud extends Boxlet {
 
         int weight = Math.round(10*cnt/maxc);
 
-        out.append("<a class=\"cloud").append(URLEncoder.encode(Integer.toString(weight), "UTF-8")).append("\" href=\"index.jsp?tag=");
+        out.append("<a class=\"cloud").append(URLEncoder.encode(Integer.toString(weight), "UTF-8")).append("\" href=\"view-news.jsp?section=1&amp;tag=");
         out.append(tag).append("\">").append(tag).append("</a>").append(" ");
       }
       out.append("<br>");
