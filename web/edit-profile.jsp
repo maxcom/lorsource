@@ -1,7 +1,21 @@
 <%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
-<%@ page import="javax.servlet.http.Cookie,javax.servlet.http.HttpServletResponse,ru.org.linux.site.BadInputException, ru.org.linux.site.Template, ru.org.linux.site.UserErrorException" errorPage="/error.jsp" buffer="20kb" %>
-<%@ page import="ru.org.linux.util.ProfileHashtable"%>
-<%@ page import="ru.org.linux.util.StringUtil" %>
+<%@ page import="java.io.File,java.io.IOException,java.net.URLEncoder, java.sql.*, java.util.*" errorPage="/error.jsp" buffer="20kb" %>
+<%@ page import="java.util.Date"%>
+<%@ page import="java.util.logging.Logger" %>
+<%@ page import="javax.mail.Session" %>
+<%@ page import="javax.mail.Transport" %>
+<%@ page import="javax.mail.internet.InternetAddress" %>
+<%@ page import="javax.mail.internet.MimeMessage" %>
+<%@ page import="javax.servlet.http.Cookie" %>
+<%@ page import="javax.servlet.http.HttpServletResponse" %>
+<%@ page import="org.apache.commons.fileupload.FileItem" %>
+<%@ page import="org.apache.commons.fileupload.disk.DiskFileItemFactory" %>
+<%@ page import="org.apache.commons.fileupload.servlet.ServletFileUpload" %>
+<%@ page import="org.apache.commons.lang.StringUtils" %>
+<%@ page import="ru.org.linux.boxlet.BoxletVectorRunner" %>
+<%@ page import="ru.org.linux.site.*" %>
+<%@ page import="ru.org.linux.storage.StorageNotFoundException" %>
+<%@ page import="ru.org.linux.util.*" %>
 <% Template tmpl = new Template(request, config, response); %>
 <%= tmpl.head() %>
 	<title>Настройки профиля</title>
@@ -31,7 +45,7 @@
 
 %>
 <%
-  if (!tmpl.isSessionAuthorized(session)) {
+  if (!Template.isSessionAuthorized(session)) {
 %>
 
 <h2>Коротко о...</h2>
@@ -77,6 +91,8 @@
 <td><input type=text name=topics value=<%= profHash.getInt("topics")%>></td></tr>
 <tr><td>Число комментариев на странице</td>
 <td><input type=text name=messages value=<%= profHash.getInt("messages")%>></td></tr>
+<tr><td>Число меток в облаке</td>
+<td><input type=text name=tags value=<%= profHash.getInt("tags")%>></td></tr>
 <tr><td>Верстка главной страницы в 3 колонки</td>
 <td><input type=checkbox name=3column <%= profHash.getBooleanPropertyHTML("main.3columns")%>></td></tr>
 <tr><td>Показывать информацию о регистрации перед формами добавления сообщений</td>
@@ -98,7 +114,7 @@
   </td>
 </tr>
 
-<% if (!tmpl.isSessionAuthorized(session)) { %>
+<% if (!Template.isSessionAuthorized(session)) { %>
 
 <tr><td colspan=2><hr></td></tr>
 <tr><td>Профиль (имя пользователя)</td><td>
@@ -148,7 +164,7 @@
   } else if ("set".equals(request.getParameter("mode"))) {
     String profile;
 
-    if (!tmpl.isSessionAuthorized(session)) {
+    if (!Template.isSessionAuthorized(session)) {
       throw new IllegalAccessException("Not authorized");
     } else {
       profile = (String) session.getAttribute("nick");
@@ -156,16 +172,21 @@
 
     int topics = Integer.parseInt(request.getParameter("topics"));
     int messages = Integer.parseInt(request.getParameter("messages"));
+    int tags = Integer.parseInt(request.getParameter("tags"));
 
     if (topics <= 0 || topics > 1000)
       throw new BadInputException("некорректное число тем");
     if (messages <= 0 || messages > 1000)
       throw new BadInputException("некорректное число сообщений");
+    if (tags<=0 || tags>100)
+      throw new BadInputException("некорректное число меток в облаке");
 
-    if (tmpl.getProf().setInt("topics", new Integer(topics))) ;
+    if (tmpl.getProf().setInt("topics", topics)) ;
     out.print("Установлен параметр <i>topics</i><br>");
-    if (tmpl.getProf().setInt("messages", new Integer(messages))) ;
+    if (tmpl.getProf().setInt("messages", messages)) ;
     out.print("Установлен параметр <i>messages</i><br>");
+    if (tmpl.getProf().setInt("tags", tags)) ;
+    out.print("Установлен параметр <i>tags</i><br>");
     if (tmpl.getProf().setBoolean("newfirst", request.getParameter("newfirst")))
       out.print("Установлен параметр <i>newfirst</i><br>");
     if (tmpl.getProf().setBoolean("photos", request.getParameter("photos")))

@@ -8,6 +8,9 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 public final class mkdefprofile {
+  private mkdefprofile() {
+  }
+
   public static Hashtable getDefaultProfile() {
     Hashtable defaults = new Hashtable();
 
@@ -16,12 +19,14 @@ public final class mkdefprofile {
     defaults.put("style", "black");
     defaults.put("topics", 30);
     defaults.put("messages", 50);
+    defaults.put("tags", 20);
     defaults.put("photos", Boolean.FALSE);
     defaults.put("sortwarning", Boolean.TRUE);
     defaults.put("system.timestamp", new Date().getTime());
     defaults.put("showinfo", Boolean.TRUE);
     defaults.put("showanonymous", Boolean.TRUE);
     defaults.put("showignored", Boolean.FALSE);
+    defaults.put("showsticky", Boolean.TRUE);
 
     defaults.put("DebugMode", Boolean.FALSE);
 
@@ -34,6 +39,7 @@ public final class mkdefprofile {
     boxlist.addElement("gallery");
 //		boxlist.addElement("justnews");
 //		boxlist.addElement("projects");
+    boxlist.addElement("tagcloud");
     boxlist.addElement("archive");
     boxlist.addElement("profile");
 //		boxlist.addElement("login");
@@ -47,6 +53,7 @@ public final class mkdefprofile {
 //		boxes.addElement("projects");
     boxes.addElement("archive");
     boxes.addElement("profile");
+    boxes.addElement("tagcloud");
     defaults.put("main2", boxes);
 
     boxes = new Vector();
@@ -54,6 +61,7 @@ public final class mkdefprofile {
 //		boxes.addElement("projects");
     boxes.addElement("archive");
     boxes.addElement("profile");
+    boxes.addElement("tagcloud");
     defaults.put("main3-1", boxes);
 
     boxes = new Vector();
