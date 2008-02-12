@@ -122,15 +122,15 @@ DIV.sign {
     border: red solid 1px;
 }
 
-.cloud0 { font-size: 1.00em; }
-.cloud1 { font-size: 1.10em; }
-.cloud2 { font-size: 1.20em; }
-.cloud3 { font-size: 1.30em; }
-.cloud4 { font-size: 1.40em; }
-.cloud5 { font-size: 1.50em; }
-.cloud6 { font-size: 1.60em; }
-.cloud7 { font-size: 1.70em; }
-.cloud8 { font-size: 1.80em; }
-.cloud9 { font-size: 1.90em; }
-.cloud10 { font-size: 2em; }
+.cloud0 { font-size: 0.5em; }
+.cloud1 { font-size: 0.6em; }
+.cloud2 { font-size: 0.7em; }
+.cloud3 { font-size: 0.8em; }
+.cloud4 { font-size: 0.9em; }
+.cloud5 { font-size: 1em; }
+.cloud6 { font-size: 1.1em; }
+.cloud7 { font-size: 1.2em; }
+.cloud8 { font-size: 1.3em; }
+.cloud9 { font-size: 1.4em; }
+.cloud10 { font-size: 1.5em; }
 
