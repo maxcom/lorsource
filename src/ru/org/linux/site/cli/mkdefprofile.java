@@ -51,9 +51,9 @@ public final class mkdefprofile {
     boxes.addElement("gallery");
 //		boxes.addElement("justnews");
 //		boxes.addElement("projects");
+    boxes.addElement("tagcloud");
     boxes.addElement("archive");
     boxes.addElement("profile");
-    boxes.addElement("tagcloud");
     defaults.put("main2", boxes);
 
     boxes = new Vector();

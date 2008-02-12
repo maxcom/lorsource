@@ -1,13 +1,14 @@
 package ru.org.linux.site.boxes;
 
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 import ru.org.linux.boxlet.Boxlet;
 import ru.org.linux.site.config.SQLConfig;
@@ -19,7 +20,7 @@ public final class tagcloud extends Boxlet {
     Connection db = null;
     try {
       db = ((SQLConfig) config).getConnection();
-      Map<String,Integer> ht = new HashMap<String,Integer>();
+      Map<String,Integer> ht = new TreeMap<String,Integer>();
       StringBuffer out = new StringBuffer();
       int tags = profile.getInt("tags");
 
@@ -29,31 +30,25 @@ public final class tagcloud extends Boxlet {
       st.setInt(1,tags);
 
       ResultSet rs = st.executeQuery();
-      int maxc = 0;
-      int minc = 0;
+      int maxc = 1;
       while (rs.next()) {
         String tag = rs.getString("value");
-        Integer cnt = rs.getInt("counter");
+        int cnt = rs.getInt("counter");
+
         if (cnt>maxc) {
           maxc = cnt;
         }
-        if (cnt<minc || minc==0) {
-          minc = cnt;
-        }
+
         ht.put(tag, cnt);
       }
       rs.close();
 
-      int scale = maxc-minc;
-      if (scale>10) {
-        scale /= 10;
-      }
-      if (scale<1) {
-        scale = 1;
-      }
       for (String tag : ht.keySet()) {
         int cnt = ht.get(tag);
-        out.append("<a class=\"cloud").append(Math.round((1 + cnt - minc) / scale)).append("\" href=\"index.jsp?tag=");
+
+        int weight = Math.round(10*cnt/maxc);
+
+        out.append("<a class=\"cloud").append(URLEncoder.encode(Integer.toString(weight), "UTF-8")).append("\" href=\"index.jsp?tag=");
         out.append(tag).append("\">").append(tag).append("</a>").append(" ");
       }
       out.append("<br>");
