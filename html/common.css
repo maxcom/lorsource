@@ -44,33 +44,33 @@ div.entry-body {
 DIV.column {
   text-align: center;
   float: left;
-  width: 160px;
+  width: 240px;
 }
 
 DIV.column2 {
   text-align: center;
-  width: 160px;
+  width: 240px;
   position: absolute;
   right: 0;
 }
 
 DIV.newsblog {
-  margin-left: -165px;
+  margin-left: -245px;
   float: right;
   width: 100%;
 }
 
 .newsblog-in {
-  margin-left: 165px;
+  margin-left: 245px;
 }
 
 .newsblog-in2 {
-  margin-left: 165px;
-  margin-right: 165px;
+  margin-left: 245px;
+  margin-right: 245px;
 }
 
 DIV.newsblog2 {
-  margin-left: -330px;
+  margin-left: -490px;
   width: 100%;
   float: right;
 }
@@ -133,4 +133,13 @@ DIV.sign {
 .cloud8 { font-size: 1.3em; }
 .cloud9 { font-size: 1.4em; }
 .cloud10 { font-size: 1.5em; }
+
+DIV.boxlet H2 {
+  width: 238px;
+}
+
+DIV.boxlet {
+  width: 238px;   
+}
+
 

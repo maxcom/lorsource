@@ -12,7 +12,6 @@ DIV.boxlet H2
     color: white; 
     font-size: medium; 
     font-family: sans-serif;
-    width: 158px;
     background-color: #4876ff;
     border: 1px;
     padding-bottom: 5px;
@@ -33,8 +32,7 @@ DIV.boxlet
     font-size: small; 
     font-family: serif; 
     margin-bottom: 30px; 
-    width: 158px; 
-    text-align: left; 
+    text-align: left;
     background-color: #d0d0d0; 
     border: 1px;
     padding-bottom: 1em;

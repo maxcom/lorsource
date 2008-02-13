@@ -35,8 +35,7 @@ DIV.boxlet H2
     color: white; 
     font-size: medium; 
     font-family: sans-serif; 
-    width: 158px; 
-    background-color: #000080; 
+    background-color: #000080;
     border: 1px; 
     padding-bottom: 5px;
     font-weight: bold;
@@ -51,11 +50,9 @@ DIV.boxlet H3
 DIV.boxlet H2 A { text-decoration: none; color: white }
 DIV.boxlet A { text-decoration: none; }
 DIV.boxlet A:link {color: #D0D0F0}
-DIV.boxlet
-   { 
+DIV.boxlet {
     font-size: small; 
     font-family: sans-serif; 
-    width: 158px; 
     text-align: left; 
     background-color: #000030; 
     border: 1px;
