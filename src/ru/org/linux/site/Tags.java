@@ -24,6 +24,7 @@ public class Tags{
   }                          
   
   private final ArrayList<String> tags;
+  private static final int TOP_TAGS_COUNT = 50;
 
   private static synchronized int getOrCreateTag(Connection con, String tag) throws SQLException {
     PreparedStatement st2 = con.prepareStatement("SELECT id FROM tags_values WHERE value=?");
@@ -81,16 +82,18 @@ public class Tags{
     return tags;
   }
 
-  public static Map<Integer, String> getCloud(Connection con) throws SQLException {
-    Map<Integer, String> cloud = new HashMap<Integer, String>();
-     PreparedStatement st = con.prepareStatement("SELECT counter,value FROM tags_values ORDER BY counter DESC LIMIT 10");
+  public static Set<String> getTopTags(Connection con) throws SQLException {
+    Set<String> set = new TreeSet<String>();
+    PreparedStatement st = con.prepareStatement("SELECT counter,value FROM tags_values WHERE counter>5 ORDER BY counter DESC LIMIT " + TOP_TAGS_COUNT);
     ResultSet rs = st.executeQuery();
+
     while (rs.next()) {
-      cloud.put(rs.getInt("counter"),rs.getString("value"));
+      set.add(rs.getString("value"));
     }
-    return cloud;  
+
+    return set;
   }
-  
+
   public static ArrayList<String> getMessageTags(Connection con, int msgid) throws SQLException {
     return new Tags(con, msgid).getTags();
   }
@@ -138,10 +141,10 @@ public class Tags{
       return Collections.emptyList();
     }
 
-    for (int i = 0; i < tagsArr.length; i++) {
-      String tag = StringUtils.stripToNull(tagsArr[i].toLowerCase());
+    for (String aTagsArr : tagsArr) {
+      String tag = StringUtils.stripToNull(aTagsArr.toLowerCase());
       // плохой тег - выбрасываем
-      if (tag==null) {
+      if (tag == null) {
         continue;
       }
 
@@ -152,6 +155,21 @@ public class Tags{
     }
 
     return new ArrayList<String>(tagSet);
+  }
+
+  public static String getPlainTags(Collection<String> tags) {
+    StringBuilder out = new StringBuilder();
+    boolean first = true;
+
+    for (String tag : tags) {
+      if (!first) {
+        out.append(", ");
+      }
+      out.append(tag);
+      first = false;
+    }
+
+    return out.toString();
   }
 
   public static void updateTags(Connection con, int msgid, List<String> tagList) throws SQLException {

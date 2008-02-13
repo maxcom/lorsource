@@ -67,6 +67,9 @@
     if (message.getSectionId() == 1) { // news
       out.println("Метки (теги): ");
       out.println("<input type=\"text\" name=\"tags\" size=40 value=\"" + message.getPlainTags() + "\"><br>");
+%>
+  Популярные теги: <%= Tags.getPlainTags(Tags.getTopTags(db)) %> <br>  
+  <%
       out.println("Переместить в группу: ");
       rq = st.executeQuery("SELECT id, title FROM groups WHERE section=1 ORDER BY id");
       out.println("<select name=\"chgrp\">");

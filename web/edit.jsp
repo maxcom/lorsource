@@ -139,7 +139,8 @@
 
   Теги:
   <% if (message.getSectionId()==1) { %>
-  <input type="text" name="tags" value="<%= Tags.getPlainTags(db, msgid) %>">
+  <input type="text" name="tags" value="<%= Tags.getPlainTags(db, msgid) %>"><br>
+  Популярные теги: <%= Tags.getPlainTags(Tags.getTopTags(db)) %> <br>
   <% } %>
   <br><br>
   <input type="submit" value="отредактировать">
