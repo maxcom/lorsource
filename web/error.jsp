@@ -1,10 +1,29 @@
 <%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
-<%@ page import="java.util.logging.Logger,ru.org.linux.site.ScriptErrorException" isErrorPage="true" %>
-<%@ page import="ru.org.linux.site.Template"%>
-<%@ page import="ru.org.linux.site.UserErrorException"%>
-<%@ page import="ru.org.linux.util.HTMLFormatter"%>
-<%@ page import="ru.org.linux.util.ServletParameterException"%>
-<%@ page import="ru.org.linux.util.StringUtil" %>
+<%@ page import="java.io.File,java.io.IOException" isErrorPage="true" %>
+<%@ page import="java.io.PrintWriter"%>
+<%@ page import="java.io.StringWriter"%>
+<%@ page import="java.net.URLEncoder"%>
+<%@ page import="java.sql.*"%>
+<%@ page import="java.text.DateFormat"%>
+<%@ page import="java.text.SimpleDateFormat"%>
+<%@ page import="java.util.*"%>
+<%@ page import="java.util.Date"%>
+<%@ page import="java.util.logging.Logger"%>
+<%@ page import="javax.mail.Session"%>
+<%@ page import="javax.mail.Transport"%>
+<%@ page import="javax.mail.internet.InternetAddress"%>
+<%@ page import="javax.mail.internet.MimeMessage"%>
+<%@ page import="javax.servlet.http.Cookie" %>
+<%@ page import="javax.servlet.http.HttpServletResponse" %>
+<%@ page import="com.danga.MemCached.MemCachedClient" %>
+<%@ page import="org.apache.commons.fileupload.FileItem" %>
+<%@ page import="org.apache.commons.fileupload.disk.DiskFileItemFactory" %>
+<%@ page import="org.apache.commons.fileupload.servlet.ServletFileUpload" %>
+<%@ page import="org.apache.commons.lang.StringUtils" %>
+<%@ page import="ru.org.linux.boxlet.BoxletVectorRunner" %>
+<%@ page import="ru.org.linux.site.*" %>
+<%@ page import="ru.org.linux.storage.StorageNotFoundException" %>
+<%@ page import="ru.org.linux.util.*" %>
 <% Template tmpl = new Template(request, config, response);
   Logger logger = Logger.getLogger("ru.org.linux");
 %>
@@ -26,11 +45,53 @@
 К сожалению, произошла исключительная ситуация при генерации страницы. Если
 вы считаете, что она возникла по причине нашей ошибки, пожалуйста <a href="mailto:bugs@linux.org.ru">сообщите</a> нам о ошибке и условиях ее возникновения. Не забудьте
 также указать полный URL странички, вызвавшей исключение.
-
-<pre>
-<%= HTMLFormatter.htmlSpecialChars(StringUtil.getStackTrace(exception)) %>
-</pre>
 <%
+
+  String email = "bugs@linux.org.ru";
+
+  InternetAddress mail = new InternetAddress(email);
+  StringBuffer text = new StringBuffer();
+
+  if (exception.getMessage()==null) {
+    text.append(exception.getClass().getName());
+  } else {
+    text.append(exception.getMessage());
+  }
+  text.append("\n\n");
+  text.append("Main URL: ").append(tmpl.getMainUrl()).append("\n");
+  text.append("Req. URI: ").append(request.getAttribute("javax.servlet.error.request_uri")).append("\n");
+  text.append(" Headers: ");
+  Enumeration enu = request.getHeaderNames();
+  while ( enu.hasMoreElements() ) {
+    String paramName = (String) enu.nextElement();
+    text.append("\n         ").append(paramName).append(": ").append(request.getHeader(paramName));
+  }
+  text.append("\n\n");
+
+  StringWriter exceptionStackTrace = new StringWriter();
+  exception.printStackTrace(new PrintWriter(exceptionStackTrace));
+  text.append(exceptionStackTrace.toString());
+
+  Properties props = new Properties();
+  props.put("mail.smtp.host", "localhost"); 
+  Session mailSession = Session.getDefaultInstance(props, null);
+
+  MimeMessage emailMessage = new MimeMessage(mailSession);
+  emailMessage.setFrom(new InternetAddress("no-reply@linux.org.ru"));
+
+  emailMessage.addRecipient(MimeMessage.RecipientType.TO, mail);
+  emailMessage.setSubject("Linux.org.ru error");
+  emailMessage.setSentDate(new Date());
+  emailMessage.setText(text.toString(), "UTF-8");
+  
+  out.println("\n<br>\n<br>");
+  
+  try {
+    Transport.send(emailMessage);
+    out.println("<b>Произошла непредвиденая ошибка. Администраторы получили об этом сигнал.</b>");
+  } catch(Exception e) {
+    out.println("<b>Произошла непредвиденая ошибка. К сожалению сервер временно не принимает сообщения об ошибках.</b>");
+  }
   logger.severe(exception.toString()+": "+StringUtil.getStackTrace(exception));
 %>
 <% } %>
