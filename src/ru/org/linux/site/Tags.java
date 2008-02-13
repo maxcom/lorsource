@@ -84,7 +84,7 @@ public class Tags{
 
   public static Set<String> getTopTags(Connection con) throws SQLException {
     Set<String> set = new TreeSet<String>();
-    PreparedStatement st = con.prepareStatement("SELECT counter,value FROM tags_values WHERE counter>5 ORDER BY counter DESC LIMIT " + TOP_TAGS_COUNT);
+    PreparedStatement st = con.prepareStatement("SELECT counter,value FROM tags_values WHERE counter>1 ORDER BY counter DESC LIMIT " + TOP_TAGS_COUNT);
     ResultSet rs = st.executeQuery();
 
     while (rs.next()) {
