@@ -135,7 +135,7 @@ public class HTMLFormatter {
 
   static {
     try {
-      urlRE = new RE("(?:(?:(?:(?:https?://)|(?:ftp://)|(?:www\\.))|(?:ftp\\.))[a-z0-9.-]+\\.[a-z]+(?::[0-9]+)?(?:/(?:[\\w=?:+/\\[\\]~&%;,._#-]*[\\w=?+/~&%-])?)?)|(?:mailto: ?[a-z0-9+]+@[a-z0-9.-]+.[a-z]+)", RE.REG_ICASE);
+      urlRE = new RE("(?:(?:(?:(?:https?://)|(?:ftp://)|(?:www\\.))|(?:ftp\\.))[a-z0-9.-]+\\.[a-z]+(?::[0-9]+)?(?:/(?:[\\w=?:+/\\(\\)\\[\\]~&%;,._#-]*[\\w=?+/~&%-])?)?)|(?:mailto: ?[a-z0-9+]+@[a-z0-9.-]+.[a-z]+)", RE.REG_ICASE);
     } catch (REException e) {
       throw new RuntimeException(e);
     }
