@@ -19,7 +19,7 @@ public final class mkdefprofile {
     defaults.put("style", "black");
     defaults.put("topics", 30);
     defaults.put("messages", 50);
-    defaults.put("tags", 30);
+    defaults.put("tags", 50);
     defaults.put("photos", Boolean.FALSE);
     defaults.put("sortwarning", Boolean.TRUE);
     defaults.put("system.timestamp", new Date().getTime());
