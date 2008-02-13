@@ -6,19 +6,22 @@ import java.util.Iterator;
 import java.util.Map;
 
 public class DupeProtector {
-  public static final int THRESHHOLD = 30000;
-
+  private static final int THRESHHOLD = 30000;
+  private static final int THRESHHOLD_TRUSTED = 3000;
+  
   private static final DupeProtector instance = new DupeProtector();
 
-  private final Map hash = new HashMap();
+  private final Map<String,Date> hash = new HashMap<String,Date>();
 
-  public DupeProtector() {
+  private DupeProtector() {
   }
 
-  public synchronized boolean check(String ip) {
-    cleanup();
+  public synchronized boolean check(String ip,boolean trusted) {
+    cleanup(trusted);
 
-    if (hash.containsKey(ip)) return false;
+    if (hash.containsKey(ip)) {
+      return false;
+    }
 
     hash.put(ip, new Date());
 
@@ -26,20 +29,30 @@ public class DupeProtector {
   }
 
   public void checkDuplication(String ip) throws DuplicationException {
-    if (!check(ip)) {
+    if (!check(ip,false)) {
       throw new DuplicationException();
     }
   }
 
-  public synchronized void cleanup() {
+  public void checkDuplication(String ip,boolean trusted) throws DuplicationException {
+    if (!check(ip,trusted)) {
+      throw new DuplicationException();
+    }
+  }
+
+  private synchronized void cleanup(boolean trusted) {
     Date current = new Date();
 
-    for (Iterator i = hash.entrySet().iterator(); i.hasNext(); ) {
-      Map.Entry entry = (Map.Entry) i.next();
-      Date date = (Date) entry.getValue();
+    for (Iterator<Map.Entry<String,Date>> i = hash.entrySet().iterator(); i.hasNext(); ) {
+      Map.Entry<String,Date> entry = i.next();
+      Date date = entry.getValue();
 
-      if ((current.getTime()-date.getTime())>THRESHHOLD)
+      if (trusted && (current.getTime()-date.getTime())>THRESHHOLD_TRUSTED) {
         i.remove();
+      }
+      else if ((current.getTime()-date.getTime())>THRESHHOLD) {
+        i.remove();
+      }
     }
   }
 

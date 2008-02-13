@@ -269,6 +269,10 @@
           <option name="SUGGEST_PACKAGE_LOCAL_FOR_TOP_CLASSES" value="false" />
           <option name="SUGGEST_PRIVATE_FOR_INNERS" value="true" />
         </inspection_tool>
+        <inspection_tool class="RawUseOfParameterizedType" level="WARNING" enabled="true">
+          <option name="ignoreObjectConstruction" value="true" />
+          <option name="ignoreTypeCasts" value="false" />
+        </inspection_tool>
       </profile>
     </profiles>
     <list size="4">

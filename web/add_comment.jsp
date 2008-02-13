@@ -11,8 +11,9 @@
   boolean showform = request.getParameter("msg") == null;
   boolean preview = request.getParameter("preview") != null;
 
-  if (!"POST".equals(request.getMethod()) || preview)
+  if (!"POST".equals(request.getMethod()) || preview) {
     showform = true;
+  }
 %>
 <%= tmpl.head() %>
 
@@ -143,7 +144,7 @@
       topic.checkPostAllowed(user, tmpl.isModeratorSession());
 
       if (!preview) {
-        DupeProtector.getInstance().checkDuplication(request.getRemoteAddr());
+        DupeProtector.getInstance().checkDuplication(request.getRemoteAddr(),user.getScore()>100);
 
         int msgid = comment.saveNewMessage(db, request.getRemoteAddr());
 
@@ -351,7 +352,9 @@ if (showform) { // show form
 <%
    }
 } finally {
-  if (db!=null) db.close();
+  if (db!=null) {
+    db.close();
+  }
 }
 %>
 <%=	tmpl.DocumentFooter() %>
