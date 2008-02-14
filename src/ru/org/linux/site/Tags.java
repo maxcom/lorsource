@@ -217,18 +217,15 @@ public class Tags{
     for (String mtag : mtags) {
       if (buf.length() > 0) {
         buf.append(", ");
-      } else {
-        buf.append(" [метки: ");
       }
+
       try {
         buf.append("<a href=\"view-news.jsp?section=1&amp;tag=").append(URLEncoder.encode(mtag, "UTF-8")).append("\">").append(mtag).append("</a>");
       } catch (UnsupportedEncodingException e) {
         throw new RuntimeException(e);
       }
     }
-    if (buf.length() > 0) {
-      buf.append("]");
-    }
+    
     return buf.toString();
   }
 }

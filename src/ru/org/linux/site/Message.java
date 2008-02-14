@@ -550,6 +550,17 @@ public class Message {
 	  }
     }
 
+    if (sectionid==1) {
+      String tagLinks = Tags.getTagLinks(db, msgid);
+
+      if (tagLinks.length()>0) {
+        out.append("<p>Метки: <i>");
+        out.append(tagLinks);
+        out.append("</i>");
+      }
+    }
+
+
     out.append("<div class=sign>");
 
     out.append(author.getSignature(tmpl.isModeratorSession(), postdate));
@@ -567,9 +578,6 @@ public class Message {
       out.append("<div class=reply>");
       if (!expired) {
         out.append("[<a href=\"comment-message.jsp?msgid=").append(msgid).append("\">Ответить на это сообщение</a>] ").append(getPostScoreInfo(postscore));
-      }
-      if (sectionid==1) {
-        out.append(Tags.getTagLinks(db, msgid));
       }
       out.append("</div>");
     }

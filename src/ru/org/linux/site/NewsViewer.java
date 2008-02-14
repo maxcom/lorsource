@@ -125,6 +125,16 @@ public class NewsViewer implements Viewer {
 
     out.append("</div>");
 
+    if (res.getInt("section")==1) {
+      String tagLinks = Tags.getTagLinks(db, msgid);
+
+      if (tagLinks.length()>0) {
+        out.append("Метки: <i>");
+        out.append(tagLinks);
+        out.append("</i>");
+      }
+    }
+
     String nick = res.getString("nick");
     out.append("<div class=sign>").append(nick).append("(<a href=\"whois.jsp?nick=").append(URLEncoder.encode(nick)).append("\">*</a>) (").append(Template.dateFormat.format(res.getTimestamp("postdate"))).append(")</div>");
 
@@ -188,10 +198,6 @@ public class NewsViewer implements Viewer {
 	out.append("]");
       }
 
-      if (res.getInt("section")==1) {
-        out.append(Tags.getTagLinks(db, msgid));
-      }
-
       out.append("</div>");
     } else if (moderateMode) {
       out.append("<div class=nav>");
@@ -202,10 +208,6 @@ public class NewsViewer implements Viewer {
       }
       else {
         out.append(" [<a href=\"edit-vote.jsp?msgid=").append(msgid).append("\">Править</a>]");
-      }
-
-      if (res.getInt("section")==1) {
-        out.append(Tags.getTagLinks(db, msgid));
       }
 
       out.append("</div>");
