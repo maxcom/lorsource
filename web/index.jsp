@@ -130,7 +130,7 @@
   Connection db = tmpl.getConnection();
   User user = User.getUser(db, (String) session.getAttribute("nick"));
 
-  out.print(" (статус: " + user.getStatus() + ')');
+  out.print("<br>(статус: " + user.getStatus() + ')');
 %><br>
 <input type=submit value="Выход"><p>
 </form>
