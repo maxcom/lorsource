@@ -54,15 +54,6 @@
 
     rs.close();
 
-    rs = st.executeQuery("select count(*) from jam_topic_version where published='f'");
-
-    if (rs.next()) {
-      int count = rs.getInt("count");
-      out.print(" [<a style=\"text-decoration: none\" href=\"wiki.jsp\">Изменения в вики</a>: "+count+"]");
-    }
-
-    rs.close();
-
     st.close();
 
     out.print("</div>");
