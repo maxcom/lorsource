@@ -31,7 +31,7 @@ public final class gallery extends Boxlet {
         String nick = rs.getString("nick");
         String title = StringUtil.makeTitle(rs.getString("title"));
 
-        out.append("<a href=\"view-message.jsp?msgid=").append(rs.getInt("msgid")).append("\">");
+        out.append("<div align=\"center\"><a href=\"view-message.jsp?msgid=").append(rs.getInt("msgid")).append("\">");
 
         try {
           ImageInfo info = new ImageInfo(htmlPath + icon);
@@ -41,7 +41,7 @@ public final class gallery extends Boxlet {
           out.append("[bad image] <img border=1 src=\"").append(icon).append("\" alt=\"Скриншот: ").append(title).append("\" " + '>');
         }
 
-        out.append("</a><br>");
+        out.append("</a></div><br>");
 
         try {
           ImageInfo imginfo = new ImageInfo(htmlPath + img);
