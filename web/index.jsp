@@ -144,8 +144,8 @@
                        e-mail:<br>
   <input type="text" size="15" name="email" style="width: 90%" value="">
   <br>
-  <input alt="subscribe" type="image" name="butSubmit1" value="Subscribe" src="http://www.ibm.com/i/v14/buttons/ru/ru/subscribe.gif">
-                      </form>
+  <input alt="subscribe" type="submit" name="butSubmit1" value="Подписаться">
+  </form>
 </div>
 
 <!-- boxes -->
