@@ -57,6 +57,15 @@
     <to type="redirect" last="true">http://www.linux.org.ru/$1</to>
   </rule>
 
+  <rule>
+    <from>\.css$</from>
+    <set type="response-header" name="Cache-Control">max-age=3600</set>
+  </rule>
+
+  <rule>
+    <from>\.(gif)|(jpg)|(png)$</from>
+    <set type="response-header" name="Cache-Control">max-age=315360000</set>
+  </rule>
 
 </urlrewrite>
 
