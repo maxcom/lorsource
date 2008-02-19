@@ -1,9 +1,10 @@
 <%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
-<%@ page import="java.io.IOException,java.sql.Connection" errorPage="/error.jsp" buffer="60kb" %>
-<%@ page import="java.sql.PreparedStatement"%>
-<%@ page import="java.sql.ResultSet"%>
-<%@ page import="java.sql.Timestamp"%>
+<%@ page import="java.io.IOException,java.net.URLEncoder" errorPage="/error.jsp" buffer="60kb" %>
+<%@ page import="java.sql.*"%>
+<%@ page import="java.util.Date"%>
+<%@ page import="java.util.List"%>
 <%@ page import="java.util.Map" %>
+<%@ page import="ru.org.linux.boxlet.BoxletVectorRunner" %>
 <%@ page import="ru.org.linux.site.*" %>
 <%@ page import="ru.org.linux.util.BadImageException" %>
 <%@ page import="ru.org.linux.util.HTMLFormatter" %>

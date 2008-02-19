@@ -10,6 +10,9 @@
           <root url="file://$MODULE_DIR$/html" relative="/" />
           <root url="file://$MODULE_DIR$/web" relative="/" />
         </webroots>
+        <sourceRoots>
+          <root url="file://$MODULE_DIR$/src" />
+        </sourceRoots>
         <building>
           <setting name="EXPLODED_URL" value="file://$MODULE_DIR$/exploded" />
           <setting name="EXPLODED_ENABLED" value="true" />

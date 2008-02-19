@@ -1,8 +1,6 @@
 <%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
-<%@ page import="java.net.URLEncoder,java.sql.Connection,java.sql.PreparedStatement,java.sql.Timestamp,java.util.Calendar,java.util.Date, javax.servlet.http.HttpServletResponse" errorPage="/error.jsp" buffer="60kb" %>
-<%@ page import="ru.org.linux.site.IPBlockInfo"%>
-<%@ page import="ru.org.linux.site.Template"%>
-<%@ page import="ru.org.linux.site.User"%>
+<%@ page import="java.net.URLEncoder,java.sql.*,java.util.Calendar,java.util.Date,javax.servlet.http.HttpServletResponse,ru.org.linux.site.*, ru.org.linux.util.HTMLFormatter" errorPage="/error.jsp" buffer="60kb" %>
+<%@ page import="ru.org.linux.util.StringUtil"%>
 <% Template tmpl = new Template(request, config, response); %>
 <%= tmpl.head() %>
 <title>banip</title>

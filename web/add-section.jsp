@@ -1,22 +1,8 @@
 <%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
-<%@ page import="java.io.File,java.io.IOException,java.net.URLEncoder,java.sql.*" errorPage="/error.jsp"%>
-<%@ page import="java.util.*" %>
-<%@ page import="java.util.Date" %>
-<%@ page import="java.util.logging.Logger" %>
-<%@ page import="javax.mail.Session" %>
-<%@ page import="javax.mail.Transport" %>
-<%@ page import="javax.mail.internet.InternetAddress" %>
-<%@ page import="javax.mail.internet.MimeMessage" %>
-<%@ page import="javax.servlet.http.Cookie" %>
-<%@ page import="javax.servlet.http.HttpServletResponse" %>
-<%@ page import="org.apache.commons.fileupload.FileItem" %>
-<%@ page import="org.apache.commons.fileupload.disk.DiskFileItemFactory" %>
-<%@ page import="org.apache.commons.fileupload.servlet.ServletFileUpload" %>
-<%@ page import="org.apache.commons.lang.StringUtils" %>
+<%@ page import="java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.util.Date" errorPage="/error.jsp"%>
+<%@ page import="java.util.List" %>
 <%@ page import="ru.org.linux.boxlet.BoxletVectorRunner" %>
 <%@ page import="ru.org.linux.site.*" %>
-<%@ page import="ru.org.linux.storage.StorageNotFoundException" %>
-<%@ page import="ru.org.linux.util.*" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <% Template tmpl = new Template(request, config, response); %>
 <%= tmpl.head() %>

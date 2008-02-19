@@ -1,6 +1,6 @@
 <%@ page info="last active topics" %>
 <%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
-<%@ page import="java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.sql.Timestamp,java.text.DateFormat,java.text.SimpleDateFormat,ru.org.linux.site.BadInputException,ru.org.linux.site.Template" errorPage="/error.jsp" buffer="200kb"%>
+<%@ page import="java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.sql.Timestamp,java.text.DateFormat,java.text.SimpleDateFormat,java.util.Date,ru.org.linux.site.*" errorPage="/error.jsp" buffer="200kb"%>
 <% Template tmpl = new Template(request, config, response); %>
 <%= tmpl.head() %>
 <%

@@ -1,5 +1,14 @@
 <%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
-<%@ page import="ru.org.linux.site.Template" errorPage="/error.jsp"%>
+<%@ page import="java.sql.Connection" errorPage="/error.jsp"%>
+<%@ page import="java.sql.ResultSet" %>
+<%@ page import="java.sql.Statement" %>
+<%@ page import="java.util.Date" %>
+<%@ page import="java.util.List" %>
+<%@ page import="ru.org.linux.boxlet.BoxletVectorRunner" %>
+<%@ page import="ru.org.linux.site.NewsViewer" %>
+<%@ page import="ru.org.linux.site.Template" %>
+<%@ page import="ru.org.linux.site.User" %>
+<%@ page import="ru.org.linux.site.ViewerCacher" %>
 <% Template tmpl = new Template(request, config, response); %>
 <%= tmpl.head() %>
 <LINK REL=STYLESHEET TYPE="text/css" HREF="/<%= tmpl.getStyle() %>/style.css" TITLE="Normal">

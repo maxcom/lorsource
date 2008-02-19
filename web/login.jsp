@@ -1,7 +1,8 @@
 <%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
-<%@ page import="java.sql.Connection,java.sql.PreparedStatement, java.util.Date, javax.servlet.http.Cookie, javax.servlet.http.HttpServletResponse, ru.org.linux.site.AccessViolationException, ru.org.linux.site.BadInputException" errorPage="/error.jsp"%>
-<%@ page import="ru.org.linux.site.Template"%>
-<%@ page import="ru.org.linux.site.User"%>
+<%@ page import="java.sql.Connection,java.sql.PreparedStatement, java.sql.ResultSet, java.sql.Statement, java.util.Date, java.util.List, javax.servlet.http.Cookie" errorPage="/error.jsp"%>
+<%@ page import="javax.servlet.http.HttpServletResponse"%>
+<%@ page import="ru.org.linux.boxlet.BoxletVectorRunner"%>
+<%@ page import="ru.org.linux.site.*" %>
 <% Template tmpl = new Template(request, config, response); %>
 <%= tmpl.head() %>
 <%

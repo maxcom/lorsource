@@ -1,6 +1,15 @@
 <%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
-<%@ page import="javax.servlet.http.Cookie,javax.servlet.http.HttpServletResponse" errorPage="/error.jsp"%>
-<%@ page import="ru.org.linux.site.Template"%>
+<%@ page import="java.sql.Connection,java.sql.ResultSet" errorPage="/error.jsp"%>
+<%@ page import="java.sql.Statement"%>
+<%@ page import="java.util.Date" %>
+<%@ page import="java.util.List" %>
+<%@ page import="javax.servlet.http.Cookie" %>
+<%@ page import="javax.servlet.http.HttpServletResponse" %>
+<%@ page import="ru.org.linux.boxlet.BoxletVectorRunner" %>
+<%@ page import="ru.org.linux.site.NewsViewer" %>
+<%@ page import="ru.org.linux.site.Template" %>
+<%@ page import="ru.org.linux.site.User" %>
+<%@ page import="ru.org.linux.site.ViewerCacher" %>
 <% Template tmpl = new Template(request, config, response); %>
 <%= tmpl.head() %>
 <title>Logout</title>
