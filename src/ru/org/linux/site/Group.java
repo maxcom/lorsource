@@ -1,56 +1,55 @@
 package ru.org.linux.site;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
+
+import ru.org.linux.storage.Storage;
+import ru.org.linux.storage.StorageException;
 
 public class Group {
-  private final boolean moderate;
-  private final boolean preformat;
-  private final boolean lineonly;
-  private final boolean imagepost;
-  private final boolean votepoll;
-  private final boolean havelink;
-  private final boolean linkup;
-  private final int section;
-  private final String linktext;
-  private final String sectionName;
-  private final String title;
-  private final String image;
-  private final int restrictTopics;
-  private final int id;
-  private final boolean browsable;
+  private boolean moderate;
+  private boolean preformat;
+  private boolean lineonly;
+  private boolean imagepost;
+  private boolean votepoll;
+  private boolean havelink;
+  private boolean linkup;
+  private int section;
+  private String linktext;
+  private String sectionName;
+  private String title;
+  private String image;
+  private int restrictTopics;
+  private int id;
+  private boolean browsable;
+
+  private int stat1;
+  private int stat2;
+  private int stat3;
+
+  private String info = null;
 
   public Group(Connection db, int id) throws SQLException, BadGroupException {
-    Statement st = null;
-    ResultSet rs = null;
 
     this.id = id;
 
+    ResultSet rs = null;
+    Statement st = null;
     try {
       st = db.createStatement();
 
-      rs = st.executeQuery("SELECT sections.moderate, sections.preformat, lineonly, imagepost, vote, section, havelink, linkup, linktext, sections.name as sname, title, image, restrict_topics, sections.browsable FROM groups, sections WHERE groups.id=" + id + " AND groups.section=sections.id");
+      rs = st.executeQuery("SELECT sections.moderate, sections.preformat, lineonly, imagepost, vote, section, havelink, linkup, linktext, sections.name as sname, title, image, restrict_topics, sections.browsable,stat1,stat2,stat3,groups.id FROM groups, sections WHERE groups.id=" + id + " AND groups.section=sections.id");
 
       if (!rs.next()) {
         throw new BadGroupException("Группа " + id + " не существует");
       }
 
-      moderate = rs.getBoolean("moderate");
-      preformat = rs.getBoolean("preformat");
-      lineonly = rs.getBoolean("lineonly");
-      imagepost = rs.getBoolean("imagepost");
-      votepoll = rs.getBoolean("vote");
-      section = rs.getInt("section");
-      havelink = rs.getBoolean("havelink");
-      linkup = rs.getBoolean("linkup");
-      linktext = rs.getString("linktext");
-      sectionName = rs.getString("sname");
-      title = rs.getString("title");
-      image = rs.getString("image");
-      restrictTopics = rs.getInt("restrict_topics");
-      browsable = rs.getBoolean("browsable");
+      init(rs);
     } finally {
       if (st != null) {
         st.close();
@@ -59,6 +58,50 @@ public class Group {
         rs.close();
       }
     }
+  }
+
+  private Group(ResultSet rs) throws SQLException {
+    init(rs);
+  }
+
+  public static List<Group> getGroups(Connection db, Storage storage, Section section) throws SQLException, StorageException, IOException {
+    Statement st = db.createStatement();
+
+    ResultSet rs = st.executeQuery("SELECT sections.moderate, sections.preformat, lineonly, imagepost, vote, section, havelink, linkup, linktext, sections.name as sname, title, image, restrict_topics, sections.browsable,stat1,stat2,stat3,groups.id FROM groups, sections WHERE sections.id=" + section.getId() + " AND groups.section=sections.id ORDER BY id");
+
+    List<Group> list = new ArrayList<Group>();
+
+    while(rs.next()) {
+      Group group = new Group(rs);
+
+      group.updateInfo(storage);
+
+      list.add(group);
+    }
+
+    return list;
+  }
+
+  private void init(ResultSet rs) throws SQLException {
+    id = rs.getInt("id");
+    moderate = rs.getBoolean("moderate");
+    preformat = rs.getBoolean("preformat");
+    lineonly = rs.getBoolean("lineonly");
+    imagepost = rs.getBoolean("imagepost");
+    votepoll = rs.getBoolean("vote");
+    section = rs.getInt("section");
+    havelink = rs.getBoolean("havelink");
+    linkup = rs.getBoolean("linkup");
+    linktext = rs.getString("linktext");
+    sectionName = rs.getString("sname");
+    title = rs.getString("title");
+    image = rs.getString("image");
+    restrictTopics = rs.getInt("restrict_topics");
+    browsable = rs.getBoolean("browsable");
+
+    stat1 = rs.getInt("stat1");
+    stat2 = rs.getInt("stat2");
+    stat3 = rs.getInt("stat3");
   }
 
   public boolean isPreformatAllowed() {
@@ -144,4 +187,33 @@ public class Group {
   public boolean isBrowsable() {
     return browsable;
   }
+
+  public int getStat1() {
+    return stat1;
+  }
+
+  public int getStat2() {
+    return stat2;
+  }
+
+  public int getStat3() {
+    return stat3;
+  }
+
+  public String getInfo() {
+    return info;
+  }
+
+  private void updateInfo(Storage storage) throws StorageException, IOException {
+    info = storage.readMessageNull("grinfo", String.valueOf(id));
+  }
+
+  public String getUrl() {
+    if (linkup) {
+      return "view-links.jsp?group="+id;
+    } else {
+      return "group.jsp?group="+id;
+    }
+  }
+
 }

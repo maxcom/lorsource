@@ -1,7 +1,27 @@
 <%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
-<%@ page import="java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.util.Date,ru.org.linux.site.BadSectionException" errorPage="/error.jsp" %>
-<%@ page import="ru.org.linux.site.Section"%>
-<%@ page import="ru.org.linux.site.Template" %>
+<%@ page import="java.io.File" errorPage="/error.jsp" %>
+<%@ page import="java.io.IOException"%>
+<%@ page import="java.net.URLEncoder" %>
+<%@ page import="java.sql.*" %>
+<%@ page import="java.util.*" %>
+<%@ page import="java.util.Date" %>
+<%@ page import="java.util.logging.Logger" %>
+<%@ page import="javax.mail.Session" %>
+<%@ page import="javax.mail.Transport" %>
+<%@ page import="javax.mail.internet.InternetAddress" %>
+<%@ page import="javax.mail.internet.MimeMessage" %>
+<%@ page import="javax.servlet.http.Cookie" %>
+<%@ page import="javax.servlet.http.HttpServletResponse" %>
+<%@ page import="org.apache.commons.fileupload.FileItem" %>
+<%@ page import="org.apache.commons.fileupload.disk.DiskFileItemFactory" %>
+<%@ page import="org.apache.commons.fileupload.servlet.ServletFileUpload" %>
+<%@ page import="org.apache.commons.lang.StringUtils" %>
+<%@ page import="ru.org.linux.boxlet.BoxletVectorRunner" %>
+<%@ page import="ru.org.linux.site.*" %>
+<%@ page import="ru.org.linux.storage.StorageNotFoundException" %>
+<%@ page import="ru.org.linux.util.*" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+
 <% Template tmpl = new Template(request, config, response);%>
 <%= tmpl.head() %>
 <%
@@ -17,80 +37,67 @@
 
     Section section = new Section(db, sectionid);
 
-    Statement st = db.createStatement();
-
     if (!section.isBrowsable()) {
       throw new BadSectionException(sectionid);
     }
-
-    String name = section.getName();
-    boolean linkup = section.isLinkup();
 %>
-<title><%= name %></title>
+<c:set var="section" value="<%= section %>"/>
+
+<title>${section.name}</title>
 <link rel="parent" title="Linux.org.ru" href="/">
-<LINK REL="alternate" HREF="section-rss.jsp?section=<%= sectionid %>" TYPE="application/rss+xml">
+<LINK REL="alternate" HREF="section-rss.jsp?section=${section.id}" TYPE="application/rss+xml">
 <%= tmpl.DocumentHeader() %>
   <table class=nav>
     <tr>
       <td align=left valign=middle>
-        <strong><%= name %></strong>
+        <strong>${section.name}</strong>
       </td>
 
       <td align=right valign=middle>
-        <% if (sectionid == 4) { %>
-          [<a href="add-section.jsp?section=<%= sectionid %>">Добавить ссылку</a>]
-        <% } else { %>
-          [<a href="add-section.jsp?section=<%= sectionid %>">Добавить сообщение</a>]
-        <% } %>
-
+        [<a href="add-section.jsp?section=${section.id}">${section.addText}</a>]
+        
         [<a href="tracker.jsp">Последние сообщения</a>]
 
-        <% if (sectionid == 2) { %>
+        <c:if test="${section.forum}">
           [<a href="rules.jsp">Правила форума</a>]
-        <% } %>
-        [<a href="section-rss.jsp?section=<%= sectionid %>">RSS</a>]
+        </c:if>
+
+        [<a href="section-rss.jsp?section=${section.id}">RSS</a>]
       </td>
     </tr>
   </table>
 
-<h1><%= name %></h1>
+<h1>${section.name}</h1>
 
 Группы:
 <ul>
+
+  <c:forEach var="group"
+             items="<%= Group.getGroups(db, tmpl.getObjectConfig().getStorage(), section) %>">
+    <li>
+      <a href="${group.url}">${group.title}</a>
+
+      (${group.stat1}/${group.stat2}/${group.stat3})
+
+      <c:if test="${group.info != null}">
+        - <em><c:out value="${group.info}" escapeXml="false"/></em>
+      </c:if>
+
+    </li>
+
+  </c:forEach>
+
+</ul>
+
 <%
-  ResultSet rs = st.executeQuery("SELECT id, title, stat1, stat2, stat3 FROM groups WHERE section=" + sectionid + " order by id");
-  while (rs.next()) {
-    int group = rs.getInt("id");
-
-    if (!linkup)
-      out.print("<li><a href=\"group.jsp?group=" + group + "\">" + rs.getString("title") + "</a>");
-    else
-      out.print("<li><a href=\"view-links.jsp?group=" + group + "\">" + rs.getString("title") + "</a>");
-
-
-    out.print(" (" + (rs.getInt("stat1")));
-    out.print("/" + (rs.getInt("stat2")));
-    out.print("/" + (rs.getInt("stat3")) + ')');
-
-    String des = tmpl.getObjectConfig().getStorage().readMessageNull("grinfo", String.valueOf(group));
-    if (des != null) {
-      out.print(" - <em>");
-      out.print(des);
-      out.print("</em>");
+  } finally {
+    if (db!=null) {
+      db.close();
     }
   }
-  rs.close();
-%>
-</ul>
-<%
-        st.close();
-  } finally {
-    if (db!=null) db.close();
-  }
 %>
 
-<% if (sectionid == 2) { %>
-
+<c:if test="${section.forum}">
 <h1>Настройки</h1>
 Если вы еще не зарегистрировались - вам <a href="register.jsp">сюда</a>.
 <ul>
@@ -99,7 +106,6 @@
 <li><a href="lostpwd.jsp">Получить забытый пароль</a>
 <li><a href="edit-profile.jsp">Персональные настройки сайта</a>
 </ul>
-
-<% } %>
+</c:if>
 
 <%= tmpl.DocumentFooter() %>

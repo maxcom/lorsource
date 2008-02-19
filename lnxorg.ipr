@@ -498,6 +498,7 @@
     <library name="javamail">
       <CLASSES>
         <root url="jar://$PROJECT_DIR$/lib/javamail.jar!/" />
+        <root url="jar://$PROJECT_DIR$/lib/activation.jar!/" />
       </CLASSES>
       <JAVADOC />
       <SOURCES />

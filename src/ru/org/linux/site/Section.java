@@ -81,4 +81,16 @@ public class Section implements Serializable {
   public boolean isPremoderated() {
     return moderate;
   }
+
+  public String getAddText() {
+    if (id==4) {
+      return "Добавить ссылку";
+    } else {
+      return "Добавить сообщение";
+    }
+  }
+
+  public boolean isForum() {
+    return id==2;
+  }
 }
