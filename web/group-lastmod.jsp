@@ -1,11 +1,10 @@
 <%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
-<%@ page import="java.net.URLEncoder,java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.sql.Timestamp,java.util.Date,java.util.Map" errorPage="/error.jsp" buffer="200kb"%>
-<%@ page import="ru.org.linux.site.BadGroupException"%>
+<%@ page import="java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.sql.Timestamp,java.util.Date,java.util.Map,ru.org.linux.site.BadGroupException" errorPage="/error.jsp" buffer="200kb"%>
 <%@ page import="ru.org.linux.site.IgnoreList"%>
 <%@ page import="ru.org.linux.site.MissingParameterException"%>
 <%@ page import="ru.org.linux.site.Template"%>
 <%@ page import="ru.org.linux.util.ImageInfo"%>
-<%@ page import="ru.org.linux.util.StringUtil" %>
+<%@ page import="ru.org.linux.util.StringUtil"%>
 <% Template tmpl = new Template(request, config, response); %>
 <%= tmpl.head() %>
 <%
@@ -34,12 +33,6 @@
     if (request.getParameter("showignored") != null) {
       showIgnored = "t".equals(request.getParameter("showignored"));
     }
-
-    String returnUrl;
-    if (offset > 0)
-      returnUrl = "group-lastmod.jsp?group=" + group + "&amp;offset=" + offset;
-    else
-      returnUrl = "group-lastmod.jsp?group=" + group;
 
     db = tmpl.getConnection();
     db.setAutoCommit(false);
@@ -85,7 +78,7 @@
 	      [<a href="faq.jsp">FAQ</a>]
 	      [<a href="rules.jsp">Правила форума</a>]
 
-	      [<a href="add.jsp?group=<%= group %>&amp;return=<%= URLEncoder.encode(returnUrl) %>">Добавить сообщение</a>]
+	      [<a href="add.jsp?group=<%= group %>">Добавить сообщение</a>]
 
               <select name=group onChange="submit()" title="Быстрый переход">
 <%
@@ -111,7 +104,7 @@
 <%
   String ignq = "";
 
-  Map ignoreList = IgnoreList.getIgnoreListHash(db, (String) session.getValue("nick"));
+  Map<Integer,String> ignoreList = IgnoreList.getIgnoreListHash(db, (String) session.getValue("nick"));
 
   if (!showIgnored && Template.isSessionAuthorized(session) && !session.getValue("nick").equals("anonymous")) {
     if (firstPage && ignoreList != null && !ignoreList.isEmpty())

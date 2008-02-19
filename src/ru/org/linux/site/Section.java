@@ -93,4 +93,8 @@ public class Section implements Serializable {
   public boolean isForum() {
     return id==2;
   }
+
+  public String getTitle() {
+    return name;
+  }
 }

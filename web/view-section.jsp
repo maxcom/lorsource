@@ -73,7 +73,7 @@
 <ul>
 
   <c:forEach var="group"
-             items="<%= Group.getGroups(db, tmpl.getObjectConfig().getStorage(), section) %>">
+             items="<%= Group.getGroups(db, section) %>">
     <li>
       <a href="${group.url}">${group.title}</a>
 

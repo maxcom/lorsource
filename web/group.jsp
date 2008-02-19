@@ -8,6 +8,7 @@
 <%@ page import="org.apache.commons.fileupload.FileItem" %>
 <%@ page import="org.apache.commons.fileupload.disk.DiskFileItemFactory" %>
 <%@ page import="org.apache.commons.fileupload.servlet.ServletFileUpload" %>
+<%@ page import="org.apache.commons.lang.StringUtils" %>
 <%@ page import="ru.org.linux.boxlet.BoxletVectorRunner" %>
 <%@ page import="ru.org.linux.site.*" %>
 <%@ page import="ru.org.linux.storage.StorageNotFoundException" %>
@@ -49,13 +50,6 @@
     } else {
       firstPage = true;
       offset = 0;
-    }
-
-    String returnUrl;
-    if (offset > 0) {
-      returnUrl = "group.jsp?group=" + groupId + "&amp;offset=" + offset;
-    } else {
-      returnUrl = "group.jsp?group=" + groupId;
     }
 
     db = tmpl.getConnection();
@@ -125,7 +119,7 @@
 
   if (group.isTopicPostingAllowed(currentUser)) {
 %>
-      [<a href="add.jsp?group=<%= groupId %>&amp;return=<%= URLEncoder.encode(returnUrl) %>">Добавить сообщение</a>]
+      [<a href="add.jsp?group=<%= groupId %>">Добавить сообщение</a>]
 <%
   }
 %>
@@ -155,7 +149,7 @@
 <%
   String ignq = "";
 
-  Map ignoreList = IgnoreList.getIgnoreListHash(db, (String) session.getValue("nick"));
+  Map<Integer,String> ignoreList = IgnoreList.getIgnoreListHash(db, (String) session.getValue("nick"));
 
   if (!showIgnored && Template.isSessionAuthorized(session) && !session.getValue("nick").equals("anonymous")) {
     if (firstPage && ignoreList != null && !ignoreList.isEmpty()) {
@@ -178,7 +172,7 @@
     out.print("</div>");
   }
 
-  String des = tmpl.getObjectConfig().getStorage().readMessageNull("grinfo", String.valueOf(groupId));
+  String des = group.getInfo();
   if (des != null) {
     out.print("<p style=\"margin-top: 0px\"><em>");
     out.print(des);
@@ -223,7 +217,7 @@
     rs = st.executeQuery("SELECT topics.title as subj, lastmod, nick, topics.id as msgid, deleted, topics.stat1, topics.stat3, topics.stat4, topics.sticky FROM topics,groups,users, sections WHERE sections.id=groups.section AND (topics.moderate OR NOT sections.moderate) AND topics.userid=users.id AND topics.groupid=groups.id AND groups.id=" + groupId + delq + " ORDER BY sticky,msgid ASC LIMIT " + topics + " OFFSET " + offset);
   }
 
-  List outputList = new ArrayList();
+  List<String> outputList = new ArrayList<String>();
   double messages = tmpl.getProf().getInt("messages");
 
   while (rs.next()) {

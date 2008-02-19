@@ -39,7 +39,6 @@
 
         previewMsg = new Message(db, tmpl, session, request);
 
-        String returnUrl = (String) request.getAttribute("return");
         preview = previewMsg.isPreview();
 
         if (!preview) {
@@ -55,11 +54,10 @@
 
           Random random = new Random();
 
+          String messageUrl = "view-message.jsp?msgid=" + msgid;
+
           if (!group.isModerated()) {
-            if (returnUrl == null || "".equals(returnUrl)) {
-              returnUrl = "view-message.jsp?msgid=" + msgid;
-            }
-            response.setHeader("Location", tmpl.getMainUrl() + returnUrl + "&nocache=" + random.nextInt());
+            response.setHeader("Location", tmpl.getMainUrl() + messageUrl + "&nocache=" + random.nextInt());
             response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
           }
 %>
@@ -73,7 +71,7 @@
 <p>Пожалуйста, проверьте свое сообщение и работоспособность ссылок в нем в <a href="view-all.jsp?nocache=<%= random.nextInt()%>">буфере неподтвержденных сообщений</a>
 <% } %>
 
-<p><a href="<%= tmpl.getMainUrl()+returnUrl %>">Возврат</a>
+<p><a href="<%= tmpl.getMainUrl()+messageUrl %>">Перейти к сообщению</a>
 
 <p><b>Пожалуйста, не нажимайте кнопку "ReLoad" вашего броузера на этой страничке и не возвращайтесь на нее по средством кнопки Back</b>
 <%

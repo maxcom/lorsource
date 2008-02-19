@@ -1,8 +1,7 @@
 <%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
 <%@ page
-    import="java.net.URLEncoder,java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.util.Date"
+    import="java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.util.Date,ru.org.linux.site.BadGroupException"
     errorPage="/error.jsp" buffer="200kb" %>
-<%@ page import="ru.org.linux.site.BadGroupException" %>
 <%@ page import="ru.org.linux.site.Group" %>
 <%@ page import="ru.org.linux.site.MissingParameterException" %>
 <%@ page import="ru.org.linux.site.Template" %>
@@ -46,7 +45,7 @@
 %>
 
 <div align=center>[<a
-    href="add.jsp?group=<%= groupid %>&return=<%= URLEncoder.encode("view-links.jsp?group="+groupid)%>">добавить
+    href="add.jsp?group=<%= groupid %>">добавить
   ссылку</a>]</div>
 
 

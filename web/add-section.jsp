@@ -1,16 +1,32 @@
 <%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
-<%@ page import="java.net.URLEncoder,java.sql.Connection,java.sql.ResultSet,java.sql.Statement,ru.org.linux.site.BadSectionException" errorPage="/error.jsp"%>
-<%@ page import="ru.org.linux.site.MissingParameterException"%>
-<%@ page import="ru.org.linux.site.Section"%>
-<%@ page import="ru.org.linux.site.Template" %>
+<%@ page import="java.io.File,java.io.IOException,java.net.URLEncoder,java.sql.*" errorPage="/error.jsp"%>
+<%@ page import="java.util.*" %>
+<%@ page import="java.util.Date" %>
+<%@ page import="java.util.logging.Logger" %>
+<%@ page import="javax.mail.Session" %>
+<%@ page import="javax.mail.Transport" %>
+<%@ page import="javax.mail.internet.InternetAddress" %>
+<%@ page import="javax.mail.internet.MimeMessage" %>
+<%@ page import="javax.servlet.http.Cookie" %>
+<%@ page import="javax.servlet.http.HttpServletResponse" %>
+<%@ page import="org.apache.commons.fileupload.FileItem" %>
+<%@ page import="org.apache.commons.fileupload.disk.DiskFileItemFactory" %>
+<%@ page import="org.apache.commons.fileupload.servlet.ServletFileUpload" %>
+<%@ page import="org.apache.commons.lang.StringUtils" %>
+<%@ page import="ru.org.linux.boxlet.BoxletVectorRunner" %>
+<%@ page import="ru.org.linux.site.*" %>
+<%@ page import="ru.org.linux.storage.StorageNotFoundException" %>
+<%@ page import="ru.org.linux.util.*" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <% Template tmpl = new Template(request, config, response); %>
 <%= tmpl.head() %>
 <%
   Connection db = null;
   try {
 
-    if (request.getParameter("section") == null)
+    if (request.getParameter("section") == null) {
       throw new MissingParameterException("section");
+    }
 
     int sectionid = Integer.parseInt(request.getParameter("section"));
 
@@ -23,50 +39,43 @@
       throw new BadSectionException(sectionid);
     }
 
-    String title = section.getName() + ": добавление";
 %>
-<title><%= title %></title>
+<c:set var="section" value="<%= section %>"/>
+
+<title>${section.title}: добавление</title>
 <%= tmpl.DocumentHeader() %>
 
-<%
-  String info = tmpl.getObjectConfig().getStorage().readMessageNull("addportal", String.valueOf(sectionid));
-  if (info != null) {
-    out.print(info);
-    out.print("<h2>Выберите группу</h2>");
-  } else
-    out.print("<h1>" + title + "</h1>");
-%>
+<c:set var="info" value="<%= tmpl.getObjectConfig().getStorage().readMessageNull("addportal", String.valueOf(sectionid)) %>"/>
+
+<c:if test="${info!=null}">
+  ${info}
+  <h2>Выберите группу</h2>
+</c:if>
+
+<c:if test="${info==null}">
+  <h1>${section.title}: добавление</h1>
+</c:if>
 
 Доступные группы:
 <ul>
-<%
+<c:forEach var="group"
+           items="<%= Group.getGroups(db, section) %>">
+  <li>
+    <a href="add.jsp?group=${group.id}&amp;noinfo=1">${group.title}</a> (<a href="group.jsp?group=${group.id}">просмотр...</a>)
 
-  ResultSet rs = st.executeQuery("SELECT groups.id as guid, title FROM groups WHERE section=" + sectionid + " ORDER BY guid");
-
-  while (rs.next()) {
-    int guid = rs.getInt("guid");
-    String returnUrl = "&return=" + URLEncoder.encode("group.jsp?group=" + guid);
-    out.print("<li><a href=\"add.jsp?group=" + guid + "&noinfo=1" + returnUrl + "\">" + rs.getString("title") + "</a> (<a href=\"group.jsp?group=" + guid + "\">просмотр...</a>)");
-
-    String des = tmpl.getObjectConfig().getStorage().readMessageNull("grinfo", String.valueOf(guid));
-    if (des != null) {
-      out.print(" - <em>");
-      out.print(des);
-      out.print("</em>");
-    }
-
-
-  }
-
-%>
+    <c:if test="${group.info != null}">
+      - <em><c:out value="${group.info}" escapeXml="false"/></em>
+    </c:if>
+  </li>
+</c:forEach>
 </ul>
-Если вы считаете, что необходимо добавить какую-либо группу, <a href="mailto:webmaster@linux.org.ru">сообщите</a> нам.
 
 <%
-   rs.close();
    st.close();
   } finally {
-    if (db!=null) db.close();
+    if (db!=null) {
+      db.close();
+    }
   }
 %>
 <%=	tmpl.DocumentFooter() %>

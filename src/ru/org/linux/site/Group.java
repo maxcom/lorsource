@@ -1,15 +1,11 @@
 package ru.org.linux.site;
 
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-
-import ru.org.linux.storage.Storage;
-import ru.org.linux.storage.StorageException;
 
 public class Group {
   private boolean moderate;
@@ -32,7 +28,7 @@ public class Group {
   private int stat2;
   private int stat3;
 
-  private String info = null;
+  private String info;
 
   public Group(Connection db, int id) throws SQLException, BadGroupException {
 
@@ -43,7 +39,7 @@ public class Group {
     try {
       st = db.createStatement();
 
-      rs = st.executeQuery("SELECT sections.moderate, sections.preformat, lineonly, imagepost, vote, section, havelink, linkup, linktext, sections.name as sname, title, image, restrict_topics, sections.browsable,stat1,stat2,stat3,groups.id FROM groups, sections WHERE groups.id=" + id + " AND groups.section=sections.id");
+      rs = st.executeQuery("SELECT sections.moderate, sections.preformat, lineonly, imagepost, vote, section, havelink, linkup, linktext, sections.name as sname, title, image, restrict_topics, sections.browsable,stat1,stat2,stat3,groups.id, groups.info FROM groups, sections WHERE groups.id=" + id + " AND groups.section=sections.id");
 
       if (!rs.next()) {
         throw new BadGroupException("Группа " + id + " не существует");
@@ -64,17 +60,15 @@ public class Group {
     init(rs);
   }
 
-  public static List<Group> getGroups(Connection db, Storage storage, Section section) throws SQLException, StorageException, IOException {
+  public static List<Group> getGroups(Connection db, Section section) throws SQLException {
     Statement st = db.createStatement();
 
-    ResultSet rs = st.executeQuery("SELECT sections.moderate, sections.preformat, lineonly, imagepost, vote, section, havelink, linkup, linktext, sections.name as sname, title, image, restrict_topics, sections.browsable,stat1,stat2,stat3,groups.id FROM groups, sections WHERE sections.id=" + section.getId() + " AND groups.section=sections.id ORDER BY id");
+    ResultSet rs = st.executeQuery("SELECT sections.moderate, sections.preformat, lineonly, imagepost, vote, section, havelink, linkup, linktext, sections.name as sname, title, image, restrict_topics, sections.browsable,stat1,stat2,stat3,groups.id,groups.info FROM groups, sections WHERE sections.id=" + section.getId() + " AND groups.section=sections.id ORDER BY id");
 
     List<Group> list = new ArrayList<Group>();
 
     while(rs.next()) {
       Group group = new Group(rs);
-
-      group.updateInfo(storage);
 
       list.add(group);
     }
@@ -102,6 +96,9 @@ public class Group {
     stat1 = rs.getInt("stat1");
     stat2 = rs.getInt("stat2");
     stat3 = rs.getInt("stat3");
+
+
+    info = rs.getString("info");
   }
 
   public boolean isPreformatAllowed() {
@@ -202,10 +199,6 @@ public class Group {
 
   public String getInfo() {
     return info;
-  }
-
-  private void updateInfo(Storage storage) throws StorageException, IOException {
-    info = storage.readMessageNull("grinfo", String.valueOf(id));
   }
 
   public String getUrl() {
