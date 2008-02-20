@@ -2,6 +2,7 @@
 <%@ page import="java.sql.Connection,java.sql.PreparedStatement,java.sql.ResultSet" errorPage="/error.jsp"%>
 <%@ page import="java.sql.Statement"%>
 <%@ page import="ru.org.linux.site.*"%>
+<%@ page import="ru.org.linux.util.ServletParameterParser" %>
 <% Template tmpl = new Template(request, config, response); %>
 <%= tmpl.head() %>
 	<title>Удаление сообщения</title>
@@ -10,13 +11,14 @@
 <%
    Connection db = null;
 
-   int msgid=tmpl.getParameters().getInt("msgid");
+  int msgid= new ServletParameterParser(request).getInt("msgid");
 
    try {
 
    if (request.getParameter("reason")==null) {
-   	if (request.getParameter("msgid")==null)
-		throw new MissingParameterException("msgid");
+   	if (request.getParameter("msgid")==null) {
+             throw new MissingParameterException("msgid");
+           }
 %>
 <script language="Javascript" type="text/javascript">
 <!--
@@ -120,7 +122,7 @@ function change(dest,source)
   } else {
     String nick = request.getParameter("nick");
     String reason = request.getParameter("reason");
-    int bonus = tmpl.getParameters().getInt("bonus");
+    int bonus = new ServletParameterParser(request).getInt("bonus");
 
     if (bonus < 0 || bonus > 20) {
       throw new BadParameterException("incorrect bonus value");

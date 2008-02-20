@@ -5,6 +5,7 @@
 <%@ page import="ru.org.linux.site.Group" %>
 <%@ page import="ru.org.linux.site.Section" %>
 <%@ page import="ru.org.linux.site.Template" %>
+<%@ page import="ru.org.linux.util.ServletParameterParser" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 
 <% Template tmpl = new Template(request, config, response);%>
@@ -14,7 +15,7 @@
   response.setDateHeader("Expires", new Date(new Date().getTime() - 20 * 3600 * 1000).getTime());
   response.setDateHeader("Last-Modified", new Date(new Date().getTime() - 2 * 1000).getTime());
 
-  int sectionid = tmpl.getParameters().getInt("section");
+  int sectionid = new ServletParameterParser(request).getInt("section");
 
   Connection db = null;
   try {

@@ -6,13 +6,14 @@
 <%@ page import="ru.org.linux.site.Template" %>
 <%@ page import="ru.org.linux.site.User" %>
 <%@ page import="ru.org.linux.site.UserErrorException" %>
+<%@ page import="ru.org.linux.util.ServletParameterParser" %>
 <% Template tmpl = new Template(request, config, response); %>
 <%= tmpl.head() %>
 	<title>Публикация правки в вики</title>
 <%= tmpl.DocumentHeader() %>
 
 <%
-  int id = tmpl.getParameters().getInt("id");
+  int id = new ServletParameterParser(request).getInt("id");
   Connection db = null;
 
   if (!tmpl.isModeratorSession()) {

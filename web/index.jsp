@@ -4,6 +4,7 @@
 <%@ page import="ru.org.linux.site.Template" %>
 <%@ page import="ru.org.linux.site.User" %>
 <%@ page import="ru.org.linux.site.ViewerCacher" %>
+<%@ page import="ru.org.linux.util.ServletParameterParser" %>
 <% Template tmpl = new Template(request, config, response);
    tmpl.setMainPage(); %>
 <%=   tmpl.head() %>
@@ -61,7 +62,7 @@
 
   int offset = 0;
   if (request.getParameter("offset")!=null) {
-    offset = tmpl.getParameters().getInt("offset");
+    offset = new ServletParameterParser(request).getInt("offset");
 
     if (offset<0) {
 	offset = 0;

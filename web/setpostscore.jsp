@@ -1,6 +1,7 @@
 <%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
 <%@ page import="java.sql.Connection,java.sql.PreparedStatement,java.util.logging.Logger,ru.org.linux.site.Message,ru.org.linux.site.Template" errorPage="/error.jsp"%>
 <%@ page import="ru.org.linux.site.User" %>
+<%@ page import="ru.org.linux.util.ServletParameterParser" %>
 <% Template tmpl = new Template(request, config, response);
   Logger logger = Logger.getLogger("ru.org.linux");
 %>
@@ -19,7 +20,7 @@ if (!tmpl.isModeratorSession()) {
     Connection db = null;
 
     try {
-      int msgid = tmpl.getParameters().getInt("msgid");
+      int msgid = new ServletParameterParser(request).getInt("msgid");
 
       db = tmpl.getConnection();
 
@@ -60,13 +61,17 @@ if (!tmpl.isModeratorSession()) {
 </form>
 <%
   } else {
-    int msgid = tmpl.getParameters().getInt("msgid");
-    int postscore = tmpl.getParameters().getInt("postscore");
+    int msgid = new ServletParameterParser(request).getInt("msgid");
+    int postscore = new ServletParameterParser(request).getInt("postscore");
     boolean sticky = request.getParameter("sticky") != null;
     boolean notop = request.getParameter("notop") != null;
 
-    if (postscore < -1) postscore = 0;
-    if (postscore > 500) postscore = 500;
+    if (postscore < -1) {
+      postscore = 0;
+    }
+    if (postscore > 500) {
+      postscore = 500;
+    }
 
     Connection db = null;
     try {
@@ -105,7 +110,9 @@ if (!tmpl.isModeratorSession()) {
       db.commit();
 
     } finally {
-      if (db != null) db.close();
+      if (db != null) {
+        db.close();
+      }
     }
   }
 %>

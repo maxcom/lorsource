@@ -1,5 +1,6 @@
 <%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
-<%@ page import="java.sql.Connection,java.sql.Statement,javax.servlet.http.HttpServletResponse,ru.org.linux.site.*,ru.org.linux.util.StringUtil" errorPage="/error.jsp" buffer="200kb"%>
+<%@ page import="java.sql.Connection,java.sql.Statement,javax.servlet.http.HttpServletResponse,ru.org.linux.site.*,ru.org.linux.util.ServletParameterParser" errorPage="/error.jsp" buffer="200kb"%>
+<%@ page import="ru.org.linux.util.StringUtil" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <% Template tmpl = new Template(request, config, response); %>
 <%= tmpl.head() %>
@@ -7,7 +8,7 @@
   Connection db = null;
 
   try {
-    int msgid = tmpl.getParameters().getInt("msgid");
+    int msgid = new ServletParameterParser(request).getInt("msgid");
 
     String mainurl = "view-message.jsp?msgid=" + msgid;
 
@@ -54,7 +55,7 @@
 
     int npage = 0;
     if (request.getParameter("page") != null) {
-      npage = tmpl.getParameters().getInt("page");
+      npage = new ServletParameterParser(request).getInt("page");
     }
 
     if (showDeleted) {
@@ -308,7 +309,7 @@
   }
 
   if (request.getParameter("highlight") != null) {
-    out.print(message.printMessage(tmpl, db, true, Template.getNick(session), tmpl.getParameters().getInt("highlight")));
+    out.print(message.printMessage(tmpl, db, true, Template.getNick(session), new ServletParameterParser(request).getInt("highlight")));
   } else {
     out.print(message.printMessage(tmpl, db, true, Template.getNick(session)));
   }

@@ -1,13 +1,14 @@
 <%@ page contentType="text/html; charset=utf-8" pageEncoding="koi8-r"%>
 <%@ page import="java.sql.Connection,java.sql.Statement,java.util.Random,java.util.logging.Logger,javax.servlet.http.HttpServletResponse,ru.org.linux.site.*" errorPage="/error.jsp"%>
 <%@ page import="ru.org.linux.util.HTMLFormatter"%>
+<%@ page import="ru.org.linux.util.ServletParameterParser" %>
 <%@ page import="ru.org.linux.util.UtilBadHTMLException" %>
 <%@ page import="ru.org.linux.util.UtilBadURLException" %>
 <% Template tmpl = new Template(request, config, response);%>
 <%
   Logger logger = Logger.getLogger("ru.org.linux");
 
-  int topicId = tmpl.getParameters().getInt("topic");
+  int topicId = new ServletParameterParser(request).getInt("topic");
   boolean showform = request.getParameter("msg") == null;
   boolean preview = request.getParameter("preview") != null;
 
@@ -28,14 +29,14 @@
   boolean autourl = true;
   Comment comment = null;
   if (!showform || preview) { // add2
-    mode = tmpl.getParameters().getString("mode");
-    autourl = tmpl.getParameters().getBoolean("autourl");
+    mode = new ServletParameterParser(request).getString("mode");
+    autourl = new ServletParameterParser(request).getBoolean("autourl");
     String msg = request.getParameter("msg");
 
     int replyto = 0;
 
     if (request.getParameter("replyto") != null) {
-      replyto = tmpl.getParameters().getInt("replyto");
+      replyto = new ServletParameterParser(request).getInt("replyto");
     }
 
     if (!preview && !session.getId().equals(request.getParameter("session"))) {

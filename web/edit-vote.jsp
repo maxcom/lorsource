@@ -3,6 +3,7 @@
 <%@ page import="javax.servlet.http.HttpServletResponse"%>
 <%@ page import="ru.org.linux.site.*"%>
 <%@ page import="ru.org.linux.util.HTMLFormatter"%>
+<%@ page import="ru.org.linux.util.ServletParameterParser" %>
 <% Template tmpl = new Template(request, config, response);
   Logger logger = Logger.getLogger("ru.org.linux");
 %>
@@ -24,7 +25,7 @@
 
     try {
 
-      int msgid = tmpl.getParameters().getInt("msgid");
+      int msgid = new ServletParameterParser(request).getInt("msgid");
 
       db = tmpl.getConnection();
 
@@ -46,11 +47,9 @@
 <input type=text name=title size=40 value="<%= poll.getTitle() %>">
 <br>
 <%
-  List variants = poll.getPollVariants(db, Poll.ORDER_ID);
+  List<PollVariant> variants = poll.getPollVariants(db, Poll.ORDER_ID);
 
-  for (Object variant : variants) {
-    PollVariant var = (PollVariant) variant;
-
+  for (PollVariant var : variants) {
 %>
   Вариант #<%= var.getId() %>: <input type="text" name="var<%= var.getId() %>" size="40"
                                       value="<%= var.getLabel() %>"><br>
@@ -78,9 +77,9 @@
       throw new MissingParameterException("msgid");
     }
 
-    int msgid = tmpl.getParameters().getInt("msgid");
-    int id = tmpl.getParameters().getInt("id");
-    String title = tmpl.getParameters().getString("title");
+    int msgid = new ServletParameterParser(request).getInt("msgid");
+    int id = new ServletParameterParser(request).getInt("id");
+    String title = new ServletParameterParser(request).getString("title");
 
     boolean submit = request.getParameter("submit") != null;
 
@@ -107,11 +106,9 @@
 
       pstTopic.executeUpdate();
 
-      List variants = poll.getPollVariants(db, Poll.ORDER_ID);
-      for (Object variant : variants) {
-        PollVariant var = (PollVariant) variant;
-
-        String label = tmpl.getParameters().getString("var" + var.getId());
+      List<PollVariant> variants = poll.getPollVariants(db, Poll.ORDER_ID);
+      for (PollVariant var : variants) {
+        String label = new ServletParameterParser(request).getString("var" + var.getId());
 
         if (label == null || label.trim().length() == 0) {
           var.remove(db);
@@ -121,7 +118,7 @@
       }
 
       for (int i = 1; i <= 3; i++) {
-        String label = tmpl.getParameters().getString("new" + i);
+        String label = new ServletParameterParser(request).getString("new" + i);
 
         if (label != null && label.trim().length() > 0) {
           poll.addNewVariant(db, label);

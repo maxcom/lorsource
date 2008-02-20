@@ -8,6 +8,7 @@
 <%@ page import="ru.org.linux.site.User" %>
 <%@ page import="ru.org.linux.site.UserErrorException" %>
 <%@ page import="ru.org.linux.util.HTMLFormatter" %>
+<%@ page import="ru.org.linux.util.ServletParameterParser" %>
 <%@ page pageEncoding="koi8-r" contentType="text/html;charset=utf-8" language="java" errorPage="/error.jsp" %>
 <% Template tmpl = new Template(request, config, response);
   Logger logger = Logger.getLogger("ru.org.linux");
@@ -20,8 +21,8 @@
     throw new IllegalAccessException("Not authorized");
   }
 
-  String action = tmpl.getParameters().getString("action");
-  int id = tmpl.getParameters().getInt("id");
+  String action = new ServletParameterParser(request).getString("action");
+  int id = new ServletParameterParser(request).getInt("id");
 
   if (!request.getMethod().equals("POST")) {
     throw new IllegalAccessException("Invalid method");

@@ -3,6 +3,7 @@
 <%@ page import="ru.org.linux.site.Template" %>
 <%@ page import="ru.org.linux.site.ViewerCacher" %>
 <%@ page import="ru.org.linux.util.HTMLFormatter" %>
+<%@ page import="ru.org.linux.util.ServletParameterParser" %>
 <% Template tmpl = new Template(request, config, response);%>
 <%= tmpl.head() %>
 
@@ -16,13 +17,13 @@
   String strSection = request.getParameter("section");
   int section = 0;
   if (strSection!=null) {
-    section = tmpl.getParameters().getInt("section");
+    section = new ServletParameterParser(request).getInt("section");
   }
 
   int sort = SearchViewer.SORT_R;
   String strSort = request.getParameter("sort");
   if (strSort!=null) {
-    sort = tmpl.getParameters().getInt("sort");
+    sort = new ServletParameterParser(request).getInt("sort");
   }
 
   String username = request.getParameter("username");

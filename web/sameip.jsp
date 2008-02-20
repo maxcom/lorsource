@@ -2,7 +2,8 @@
 <%@ page import="java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.sql.Timestamp" errorPage="/error.jsp" buffer="60kb" %>
 <%@ page import="ru.org.linux.site.*"%>
 <%@ page import="ru.org.linux.util.HTMLFormatter"%>
-<%@ page import="ru.org.linux.util.StringUtil"%>
+<%@ page import="ru.org.linux.util.ServletParameterParser"%>
+<%@ page import="ru.org.linux.util.StringUtil" %>
 <% Template tmpl = new Template(request, config, response); %>
 <%= tmpl.head() %>
 <%
@@ -24,15 +25,16 @@
 
   if (request.getParameter("msgid") != null) {
     Statement ipst = db.createStatement();
-    int msgid = tmpl.getParameters().getInt("msgid");
+    int msgid = new ServletParameterParser(request).getInt("msgid");
 
     ResultSet rs = ipst.executeQuery("SELECT postip FROM topics WHERE id=" + msgid);
 
     if (!rs.next()) {
       rs.close();
       rs = ipst.executeQuery("SELECT postip FROM comments WHERE id=" + msgid);
-      if (!rs.next())
+      if (!rs.next()) {
         throw new MessageNotFoundException(msgid);
+      }
     }
 
     ip = rs.getString("postip");
@@ -43,7 +45,7 @@
 
     rs.close();
   } else {
-    ip = tmpl.getParameters().getIP("ip");
+    ip = new ServletParameterParser(request).getIP("ip");
   }
 
 %>
@@ -131,8 +133,9 @@
 
   Statement st=db.createStatement();
   ResultSet rs=st.executeQuery("SELECT sections.name as ptitle, groups.title as gtitle, topics.title as title, topics.id as msgid, postdate FROM topics, groups, sections, users WHERE topics.groupid=groups.id AND sections.id=groups.section AND users.id=topics.userid AND topics.postip='"+ip+"' AND postdate>CURRENT_TIMESTAMP-'24 hour'::interval ORDER BY msgid DESC");
-  while (rs.next())
-	out.print("<tr class=color2><td>"+rs.getString("ptitle")+"</td><td>"+rs.getString("gtitle")+"</td><td><a href=\"view-message.jsp?msgid="+rs.getInt("msgid")+"\" rev=contents>"+StringUtil.makeTitle(rs.getString("title"))+"</a></td><td>"+Template.dateFormat.format(rs.getTimestamp("postdate"))+"</td></tr>");
+  while (rs.next()) {
+    out.print("<tr class=color2><td>" + rs.getString("ptitle") + "</td><td>" + rs.getString("gtitle") + "</td><td><a href=\"view-message.jsp?msgid=" + rs.getInt("msgid") + "\" rev=contents>" + StringUtil.makeTitle(rs.getString("title")) + "</a></td><td>" + Template.dateFormat.format(rs.getTimestamp("postdate")) + "</td></tr>");
+  }
 
   rs.close();
   st.close();
@@ -154,8 +157,9 @@
 
   st=db.createStatement();
   rs=st.executeQuery("SELECT sections.name as ptitle, groups.title as gtitle, topics.title, topics.id as topicid, comments.id as msgid, comments.postdate FROM sections, groups, topics, comments WHERE sections.id=groups.section AND groups.id=topics.groupid AND comments.topic=topics.id AND comments.postip='"+ip+"' AND comments.postdate>CURRENT_TIMESTAMP-'24 hour'::interval ORDER BY postdate DESC;");
-  while (rs.next())
-	out.print("<tr class=color2><td>"+rs.getString("ptitle")+"</td><td>"+rs.getString("gtitle")+"</td><td><a href=\"jump-message.jsp?msgid="+rs.getInt("topicid")+"&amp;cid="+rs.getInt("msgid")+"\" rev=contents>"+StringUtil.makeTitle(rs.getString("title"))+"</a></td><td>"+Template.dateFormat.format(rs.getTimestamp("postdate"))+"</td></tr>");
+  while (rs.next()) {
+    out.print("<tr class=color2><td>" + rs.getString("ptitle") + "</td><td>" + rs.getString("gtitle") + "</td><td><a href=\"jump-message.jsp?msgid=" + rs.getInt("topicid") + "&amp;cid=" + rs.getInt("msgid") + "\" rev=contents>" + StringUtil.makeTitle(rs.getString("title")) + "</a></td><td>" + Template.dateFormat.format(rs.getTimestamp("postdate")) + "</td></tr>");
+  }
 
   rs.close();
   st.close();
@@ -167,7 +171,9 @@
 </div>
 <%
   } finally {
-    if (db!=null) db.close();
+    if (db!=null) {
+      db.close();
+    }
   }
 %>
 <%= tmpl.DocumentFooter() %>

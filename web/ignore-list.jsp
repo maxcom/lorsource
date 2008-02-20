@@ -59,7 +59,7 @@
       }
       ail.addNick(db, nick);
     } else if (request.getParameter("del") != null) {
-      int uid = tmpl.getParameters().getInt("ignore_list");
+      int uid = new ServletParameterParser(request).getInt("ignore_list");
       if (!ail.removeNick(db, uid)) {
         throw new BadInputException("неверный ник");
       }
@@ -75,7 +75,7 @@
   }
 
   IgnoreList ignore = new IgnoreList(db, user.getId());
-  Map ignoreList = ignore.getIgnoreList();
+  Map<Integer,String> ignoreList = ignore.getIgnoreList();
   session.setAttribute("ignoreList", ignoreList);
 
   //db.commit();
@@ -92,7 +92,7 @@
 <%
   for (Object o : ignoreList.keySet()) {
     int id = (Integer) o;
-    String nick = (String) ignoreList.get(id);
+    String nick = ignoreList.get(id);
     if (id > 0) {
 %>
   <option value="<%= id%>"><%= nick %>

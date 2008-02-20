@@ -3,6 +3,7 @@
 <%@ page import="java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.util.Date,java.util.List,com.danga.MemCached.MemCachedClient" errorPage="/error.jsp" buffer="200kb"%>
 <%@ page import="ru.org.linux.boxlet.BoxletVectorRunner" %>
 <%@ page import="ru.org.linux.site.*" %>
+<%@ page import="ru.org.linux.util.ServletParameterParser" %>
 <% Template tmpl = new Template(request, config, response); %>
 
 <rss version="2.0">
@@ -13,12 +14,12 @@
 <%
   int section = 1;
   if (request.getParameter("section") != null) {
-    section = tmpl.getParameters().getInt("section");
+    section = new ServletParameterParser(request).getInt("section");
   }
 
   int group = 0;
   if (request.getParameter("group") != null) {
-    group = tmpl.getParameters().getInt("group");
+    group = new ServletParameterParser(request).getInt("group");
   }
 
   MemCachedClient mcc = MemCachedSettings.getClient();

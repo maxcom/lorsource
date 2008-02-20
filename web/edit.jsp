@@ -5,6 +5,7 @@
 <%@ page import="java.util.logging.Logger" %>
 <%@ page import="ru.org.linux.site.*" %>
 <%@ page import="ru.org.linux.util.HTMLFormatter" %>
+<%@ page import="ru.org.linux.util.ServletParameterParser" %>
 <%
   Template tmpl = new Template(request, config, response);
   Logger logger = Logger.getLogger("ru.org.linux");
@@ -13,7 +14,7 @@
     throw new IllegalAccessException("Not authorized");
   }
 
-  int msgid = tmpl.getParameters().getInt("msgid");
+  int msgid = new ServletParameterParser(request).getInt("msgid");
 
   out.print(tmpl.DocumentHeader());
 

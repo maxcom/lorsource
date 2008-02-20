@@ -1,17 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <%@ page pageEncoding="koi8-r" contentType="application/rss+xml; charset=utf-8"%>
 <%@ page import="java.sql.Connection,ru.org.linux.site.MessageTable,ru.org.linux.site.Template" errorPage="/error.jsp" buffer="200kb"%>
+<%@ page import="ru.org.linux.util.ServletParameterParser" %>
 <% Template tmpl = new Template(request, config, response); %>
 
 <%
   int topic = 1;
   if (request.getParameter("topic") != null) {
-    topic = tmpl.getParameters().getInt("topic");
+    topic = new ServletParameterParser(request).getInt("topic");
   }
 
   int num = MessageTable.RSS_DEFAULT;
   if (request.getParameter("num") != null) {
-    num = tmpl.getParameters().getInt("num");
+    num = new ServletParameterParser(request).getInt("num");
 	if (num < MessageTable.RSS_MIN || num > MessageTable.RSS_MAX) {
 	  num = MessageTable.RSS_DEFAULT;
 	}

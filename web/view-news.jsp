@@ -5,6 +5,7 @@
 <%@ page import="ru.org.linux.boxlet.BoxletVectorRunner" %>
 <%@ page import="ru.org.linux.site.*" %>
 <%@ page import="ru.org.linux.util.DateUtil" %>
+<%@ page import="ru.org.linux.util.ServletParameterParser" %>
 <% Template tmpl = new Template(request, config, response); %>
 <%= tmpl.head() %>
 <%
@@ -18,8 +19,8 @@
 
       response.setDateHeader("Expires", System.currentTimeMillis()+30*24*60*60*1000L);
 
-      int month=tmpl.getParameters().getInt("month");
-      int year=tmpl.getParameters().getInt("year");
+      int month= new ServletParameterParser(request).getInt("month");
+      int year= new ServletParameterParser(request).getInt("year");
 
       Calendar calendar = Calendar.getInstance();
       calendar.set(year, month-1, 1);
@@ -38,7 +39,7 @@
 %>
 
 <%
-  int sectionid = tmpl.getParameters().getInt("section");
+  int sectionid = new ServletParameterParser(request).getInt("section");
   Group group = null;
 
   db = tmpl.getConnection();
@@ -46,7 +47,7 @@
   Section section = new Section(db, sectionid);
 
   if (request.getParameter("group") != null) {
-    int groupid = tmpl.getParameters().getInt("group");
+    int groupid = new ServletParameterParser(request).getInt("group");
     group = new Group(db, groupid);
 
     if (group.getSectionId() != sectionid) {
@@ -56,7 +57,7 @@
 
   String tag = "";
   if (request.getParameter("tag")!=null) {
-    tag = tmpl.getParameters().getString("tag");
+    tag = new ServletParameterParser(request).getString("tag");
     Tags.checkTag(tag);
   }
 
@@ -82,8 +83,8 @@
       ptitle += " - " + tag;
     }
   } else {
-    month = tmpl.getParameters().getInt("month");
-    year = tmpl.getParameters().getInt("year");
+    month = new ServletParameterParser(request).getInt("month");
+    year = new ServletParameterParser(request).getInt("year");
     ptitle = "Архив: " + section.getName();
 
     if (group != null) {

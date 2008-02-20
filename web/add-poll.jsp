@@ -4,6 +4,7 @@
 <%@ page import="java.util.logging.Logger"%>
 <%@ page import="ru.org.linux.site.*"%>
 <%@ page import="ru.org.linux.util.HTMLFormatter" %>
+<%@ page import="ru.org.linux.util.ServletParameterParser" %>
 <%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8" errorPage="/error.jsp"%>
 <% Template tmpl = new Template(request, config, response);%>
 <%= tmpl.head() %>
@@ -35,7 +36,7 @@
       throw new BadInputException("заголовок сообщения не может быть пустым");
     }
 
-    List pollList = new ArrayList();
+    List<String> pollList = new ArrayList<String>();
 
     for (int i = 0; i < Poll.MAX_POLL_SIZE; i++) {
       String poll = request.getParameter("var" + i);
@@ -64,7 +65,7 @@
     Logger.getLogger("ru.org.linux").info(logmessage);
 
     if (id > 0) {
-      int guid = tmpl.getParameters().getInt("group");
+      int guid = new ServletParameterParser(request).getInt("group");
       Group group = new Group(db, guid);
       //set msg -> id
       request.setAttribute("msg", "poll");
@@ -103,7 +104,9 @@
 
 <%
   } finally {
-    if (db!=null) db.close();
+    if (db!=null) {
+      db.close();
+    }
   }
 %>
 

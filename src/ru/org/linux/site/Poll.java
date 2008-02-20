@@ -83,7 +83,7 @@ public class Poll {
     return rs.getInt("voteid");
   }
 
-  public static int createPoll(Connection db, String title, List pollList) throws SQLException {
+  public static int createPoll(Connection db, String title, List<String> pollList) throws SQLException {
     int voteid = getNextPollId(db);
 
     PreparedStatement pst = db.prepareStatement("INSERT INTO votenames (id, title) values (?,?)");
@@ -96,10 +96,8 @@ public class Poll {
     try {
       Poll poll = new Poll(db, voteid);
 
-      for (Iterator i = pollList.iterator(); i.hasNext(); ) {
-        String variant = (String) i.next();
-
-        if (variant.trim().length()==0) {
+      for (String variant : pollList) {
+        if (variant.trim().length() == 0) {
           continue;
         }
 
@@ -114,8 +112,8 @@ public class Poll {
     return voteid;
   }
 
-  public List getPollVariants(Connection db, int order) throws SQLException {
-    List variants = new ArrayList();
+  public List<PollVariant> getPollVariants(Connection db, int order) throws SQLException {
+    List<PollVariant> variants = new ArrayList<PollVariant>();
     Statement st = db.createStatement();
     ResultSet rs;
 
@@ -145,7 +143,7 @@ public class Poll {
     return topic;
   }
 
-  public int getMaxVote(Connection db) throws SQLException {
+  private int getMaxVote(Connection db) throws SQLException {
     Statement st = db.createStatement();
     ResultSet rs=st.executeQuery("SELECT max(votes) FROM votes WHERE vote="+id);
     rs.next();
@@ -186,12 +184,12 @@ public class Poll {
 	out.append("<tr><td>");
 	int id = var.getId();
 	int votes = var.getVotes();
-        if (id == highlight) {                                                                                                                                   
-          out.append("<b>");                                                                                                                                      
-	} 	
+        if (id == highlight) {
+          out.append("<b>");
+	}
 	out.append(HTMLFormatter.htmlSpecialChars(var.getLabel()));
-        if (id == highlight) {                                                                                                                                   
-          out.append("</b>");                                                                                                                                      
+        if (id == highlight) {
+          out.append("</b>");
 	}
       out.append("</td><td>").append(votes).append("</td><td>");
       total += votes;

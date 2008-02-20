@@ -1,6 +1,7 @@
 <%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
 <%@ page import="java.net.URLEncoder,java.sql.*,java.util.Calendar,java.util.Date,javax.servlet.http.HttpServletResponse,ru.org.linux.site.*, ru.org.linux.util.HTMLFormatter" errorPage="/error.jsp" buffer="60kb" %>
-<%@ page import="ru.org.linux.util.StringUtil"%>
+<%@ page import="ru.org.linux.util.ServletParameterParser"%>
+<%@ page import="ru.org.linux.util.StringUtil" %>
 <% Template tmpl = new Template(request, config, response); %>
 <%= tmpl.head() %>
 <title>banip</title>
@@ -10,9 +11,9 @@
     throw new IllegalAccessException("Not authorized");
   }
 
-  String ip = tmpl.getParameters().getIP("ip");
-  String reason = tmpl.getParameters().getString("reason");
-  String time = tmpl.getParameters().getString("time");
+  String ip = new ServletParameterParser(request).getIP("ip");
+  String reason = new ServletParameterParser(request).getString("reason");
+  String time = new ServletParameterParser(request).getString("time");
 
   Calendar calendar = Calendar.getInstance();
   calendar.setTime(new Date());
@@ -69,7 +70,9 @@
     response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
 
   } finally {
-    if (db != null) db.close();
+    if (db != null) {
+      db.close();
+    }
   }
 %>
 <%= tmpl.DocumentFooter() %>

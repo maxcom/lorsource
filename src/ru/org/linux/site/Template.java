@@ -35,7 +35,6 @@ public class Template {
   private Profile userProfile;
   private static Properties properties = null;
   private boolean mainPage;
-  private final ServletParameterParser parameters;
   private final Config config;
   private final HttpSession session;
   private final Date startDate = new Date();
@@ -102,8 +101,6 @@ public class Template {
     }
 
     mainPage = false;
-
-    parameters = new ServletParameterParser(request);
 
     initProperties(config.getServletContext());
 
@@ -331,10 +328,8 @@ public class Template {
     if (isMainPage()) {
       out.append(config.getStorage().readMessage("buttons", "top100-main-button"));
       out.append(config.getStorage().readMessage("buttons", "toplist-main-button"));
-//				out.append(config.getStorage().readMessage("buttons", "spylog-main-button"));
     } else {
       out.append(config.getStorage().readMessage("buttons", "toplist-button"));
-//				out.append(config.getStorage().readMessage("buttons", "spylog-button"));
     }
     out.append("</div>");
 
@@ -370,10 +365,6 @@ public class Template {
 
   public String getMainUrl() {
     return config.getProperties().getProperty("MainUrl");
-  }
-
-  public ServletParameterParser getParameters() {
-    return parameters;
   }
 
   public Config getObjectConfig() {

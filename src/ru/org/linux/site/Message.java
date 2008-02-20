@@ -3,7 +3,6 @@ package ru.org.linux.site;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.UnknownHostException;
 import java.sql.*;
 import java.util.Iterator;
 import java.util.List;
@@ -17,7 +16,6 @@ import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
-import org.xbill.DNS.TextParseException;
 
 import ru.org.linux.util.*;
 
@@ -105,8 +103,8 @@ public class Message {
   }
 
   public Message(Connection db, Template tmpl, HttpSession session, HttpServletRequest request)
-      throws BadInputException, SQLException, UtilException, BadGroupException, RuntimeException, MessageNotFoundException, ServletParameterException,
-      UserNotFoundException, BadPasswordException, AccessViolationException, UnknownHostException, TextParseException, FileUploadException, Exception {
+      throws BadInputException, SQLException, UtilException, ScriptErrorException, RuntimeException,
+      BadPasswordException, AccessViolationException, IOException,  FileUploadException, BadImageException, InterruptedException {
     // Init fields
     String linktext = null;
     String url = null;
@@ -114,7 +112,7 @@ public class Message {
     String mode = "";
     boolean autourl = true;
     boolean texttype = false;
-    String j_captcha_response = "";
+    String captchaResponse = "";
     String image = "";
     String nick = null;
     String password = null;
@@ -133,7 +131,7 @@ public class Message {
       sessionId = request.getParameter("session");
       preview = request.getParameter("preview") != null;
       if (!request.getMethod().equals("GET")) {
-        j_captcha_response = request.getParameter("j_captcha_response");
+        captchaResponse = request.getParameter("j_captcha_response");
         nick = request.getParameter("nick");
         password = request.getParameter("password");
         mode = request.getParameter("mode");
@@ -146,19 +144,10 @@ public class Message {
         guid = request.getParameter("group") != null ? Integer.parseInt(request.getParameter("group")) : 0;
       } catch (NumberFormatException e) {
       }
-      try {
-        linktext = request.getParameter("linktext");
-        url = request.getParameter("url");
-      } catch (Exception e) {
-      }
-      try {
-        returnUrl = request.getParameter("return");
-      } catch (Exception e) {
-      }
-      try {
-        tags = request.getParameter("tags");
-      } catch (Exception e) {
-      }
+      linktext = request.getParameter("linktext");
+      url = request.getParameter("url");
+      returnUrl = request.getParameter("return");
+      tags = request.getParameter("tags");
     } else {
       // Load fields from multipart request
       File rep = new File(tmpl.getObjectConfig().getPathPrefix() + "/linux-storage/tmp/");
@@ -184,7 +173,7 @@ public class Message {
           String value = item.getString("UTF-8");
           //System.out.println("\nField: "+name+" => "+value);
           if (name.compareToIgnoreCase("j_captcha_response") == 0) {
-            j_captcha_response = value;
+            captchaResponse = value;
           } else if (name.compareToIgnoreCase("noinfo") == 0) {
             noinfo = value;
           } else if (name.compareToIgnoreCase("session") == 0) {
@@ -224,7 +213,11 @@ public class Message {
             image = tmpl.getObjectConfig().getPathPrefix() + "/linux-storage/tmp/" + fileName;
             File uploadedFile = new File(image);
             if (uploadedFile != null && (uploadedFile.canWrite() || uploadedFile.createNewFile())) {
-              item.write(uploadedFile);
+              try {
+                item.write(uploadedFile);
+              } catch (Exception e) {
+                throw new ScriptErrorException("Failed to write uploaded file", e);
+              }
             } else {
               Logger.getLogger("ru.org.linux").info("Bad target file name: " + image);
             }
@@ -237,7 +230,7 @@ public class Message {
 
     // Save fields as request attributes
     this.preview = preview;
-    request.setAttribute("j_captcha_response", j_captcha_response);
+    request.setAttribute("j_captcha_response", captchaResponse);
     request.setAttribute("image", image);
     request.setAttribute("session", sessionId);
     request.setAttribute("preview", preview);
@@ -798,8 +791,8 @@ public class Message {
     if (msg == null && vmsg != null && vmsg.length()>0) msg = vmsg;
     request.setAttribute("msg", null);
 
-    boolean userhtml = tmpl.getParameters().getBoolean("texttype");
-    boolean autourl = tmpl.getParameters().getBoolean("autourl");
+    boolean userhtml = new ServletParameterParser(request).getBoolean("texttype");
+    boolean autourl = new ServletParameterParser(request).getBoolean("autourl");
 
     String url = request.getParameter("url");
     if (url != null && "".equals(url)) {
@@ -837,7 +830,7 @@ public class Message {
       throw new AccessViolationException("Не достаточно прав для постинга тем в эту группу");
     }
 
-    String mode = tmpl.getParameters().getString("mode");
+    String mode = new ServletParameterParser(request).getString("mode");
 
     if ("pre".equals(mode) && !group.isPreformatAllowed()) {
       throw new AccessViolationException("В группу нельзя добавлять преформатированные сообщения");

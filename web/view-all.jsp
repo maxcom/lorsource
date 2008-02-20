@@ -2,6 +2,7 @@
 <%@ page import="java.net.URLEncoder,java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.util.Date,ru.org.linux.site.NewsViewer" errorPage="/error.jsp" buffer="60kb"%>
 <%@ page import="ru.org.linux.site.Section"%>
 <%@ page import="ru.org.linux.site.Template" %>
+<%@ page import="ru.org.linux.util.ServletParameterParser" %>
 <% Template tmpl = new Template(request, config, response); %>
 <%= tmpl.head() %>
 <%
@@ -17,7 +18,7 @@
     Section section = null;
 
     if (request.getParameter("section") != null) {
-      sectionid = tmpl.getParameters().getInt("section");
+      sectionid = new ServletParameterParser(request).getInt("section");
       if (sectionid != 0) {
         section = new Section(db, sectionid);
       }
@@ -129,7 +130,9 @@
   rs.close();
   st.close();
   } finally {
-    if (db!=null) db.close();
+    if (db!=null) {
+      db.close();
+    }
   }
 %>
 <%=	tmpl.DocumentFooter() %>

@@ -2,10 +2,11 @@
 <%@ page import="java.net.URLEncoder,java.sql.Connection" errorPage="/error.jsp" buffer="60kb"%>
 <%@ page import="javax.servlet.http.HttpServletResponse" %>
 <%@ page import="ru.org.linux.site.*" %>
+<%@ page import="ru.org.linux.util.ServletParameterParser" %>
 <% Template tmpl = new Template(request, config, response); %>
 <%= tmpl.head() %>
 <%
-  int msgid = tmpl.getParameters().getInt("msgid");
+  int msgid = new ServletParameterParser(request).getInt("msgid");
 
   String redirectUrl = tmpl.getMainUrl() + "view-message.jsp?msgid=" + msgid;
   StringBuffer options = new StringBuffer();
@@ -27,7 +28,7 @@
 
   if (request.getParameter("cid") != null) {
     Connection db = null;
-    int cid = tmpl.getParameters().getInt("cid");
+    int cid = new ServletParameterParser(request).getInt("cid");
 
     try {
       db = tmpl.getConnection();

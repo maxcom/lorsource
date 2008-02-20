@@ -1,6 +1,7 @@
 <%@ page info="last active topics" %>
 <%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
 <%@ page import="java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.sql.Timestamp,java.text.DateFormat,java.text.SimpleDateFormat,java.util.Date,ru.org.linux.site.*" errorPage="/error.jsp" buffer="200kb"%>
+<%@ page import="ru.org.linux.util.ServletParameterParser" %>
 <% Template tmpl = new Template(request, config, response); %>
 <%= tmpl.head() %>
 <%
@@ -10,7 +11,7 @@
     int hours = 3;
 
     if (request.getParameter("h") != null) {
-      hours = tmpl.getParameters().getInt("h");
+      hours = new ServletParameterParser(request).getInt("h");
 
       if (hours < 1 || hours > 23) {
         throw new BadInputException("неправильный ввод. hours = " + hours);

@@ -5,6 +5,7 @@
 <%@ page import="javax.servlet.http.HttpServletResponse"%>
 <%@ page import="ru.org.linux.site.*" %>
 <%@ page import="ru.org.linux.util.HTMLFormatter" %>
+<%@ page import="ru.org.linux.util.ServletParameterParser" %>
 <% Template tmpl = new Template(request, config, response);
   Logger logger = Logger.getLogger("ru.org.linux");
 %>
@@ -26,7 +27,7 @@
 
     try {
 
-      int msgid = tmpl.getParameters().getInt("msgid");
+      int msgid = new ServletParameterParser(request).getInt("msgid");
 
       db = tmpl.getConnection();
 
@@ -96,8 +97,8 @@
 </form>
 <%
   } else {
-    int msgid = tmpl.getParameters().getInt("msgid");
-    String title = tmpl.getParameters().getString("title");
+    int msgid = new ServletParameterParser(request).getInt("msgid");
+    String title = new ServletParameterParser(request).getString("title");
     Connection db = null;
 
     try {
@@ -116,7 +117,7 @@
       user.checkCommit();
 
       if (request.getParameter("chgrp") != null) {
-        int chgrp = tmpl.getParameters().getInt("chgrp");
+        int chgrp = new ServletParameterParser(request).getInt("chgrp");
 
         Statement st = db.createStatement();
         ResultSet rs = st.executeQuery("select groupid, section, groups.title FROM topics, groups WHERE topics.id=" + msgid + " and groups.id=topics.groupid");
