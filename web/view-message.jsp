@@ -166,17 +166,6 @@
             </tr>
           </table>
         </td>
-<!--        <td align=center valign=middle>
-          <table>
-            <tr valign=middle>
-              <td>
-                <a title="<%=  message.getSectionTitle() + " - " + message.getGroupTitle() %>"
-                   href="group.jsp?group=<%= message.getGroupId() %>">
-                  <%= message.getSectionTitle() + " - " + message.getGroupTitle() %>
-                </a>
-              </td>
-            </tr>
-          </table> -->
         <td align=left valign=middle width="35%">
           <table width="100%">
             <tr valign=middle align=right>
@@ -329,25 +318,7 @@
 
 <% if (!Template.isSessionAuthorized(session)) { %>
 <div style="text-align: center; margin-top: 1em">
-<script type="text/javascript"><!--
-google_ad_client = "pub-6069094673001350";
-google_ad_width = 728;
-google_ad_height = 90;
-google_ad_format = "728x90_as";
-google_ad_type = "text_image";
-//2007-06-29: lor-messages
-google_ad_channel = "0949716006";
-google_color_border = "808080";
-google_color_bg = "000030";
-google_color_link = "FFFFFF";
-google_color_text = "C8C8C8";
-google_color_url = "999999";
-google_ui_features = "rc:0";
-//-->
-</script>
-<script type="text/javascript"
-  src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
-</script>
+  <jsp:include page="WEB-INF/jsp/adsense.jsp"/>
 </div><br>
 <% } %>
 
@@ -415,10 +386,6 @@ google_ui_features = "rc:0";
 <hr>
 <% } %>
 
-<!--
-<p>
-<i>Последнее обновление дискуссии: <%= Template.dateFormat.format(message.getLastModified()) %> </i>
--->
 <%
    st.close();
 
