@@ -14,6 +14,23 @@
 
     boolean showDeleted = request.getParameter("deleted") != null;
 
+    if (showDeleted && !"POST".equals(request.getMethod())) {
+      response.setHeader("Location", tmpl.getMainUrl() + "view-message.jsp?msgid=" + msgid);
+      response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
+
+      showDeleted = false;
+    }
+
+    if (showDeleted) {
+      if (!Template.isSessionAuthorized(session)) {
+        throw new BadInputException("Вы уже вышли из системы");
+      }
+    }
+ %>
+  <c:set var="showDeleted" value="<%= showDeleted %>"/>
+
+<%
+
     int filterMode = CommentViewer.FILTER_NONE;
 
     if (!tmpl.getProf().getBoolean("showanonymous")) {
@@ -40,19 +57,6 @@
 
     Statement st = db.createStatement();
 
-    if (showDeleted && !"POST".equals(request.getMethod())) {
-      response.setHeader("Location", tmpl.getMainUrl() + "view-message.jsp?msgid=" + msgid);
-      response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
-
-      showDeleted = false;
-    }
-
-    if (showDeleted) {
-      if (!Template.isSessionAuthorized(session)) {
-        throw new BadInputException("Вы уже вышли из системы");
-      }
-    }
-
     int npage = 0;
     if (request.getParameter("page") != null) {
       npage = new ServletParameterParser(request).getInt("page");
@@ -73,10 +77,11 @@
     if (message.isDeleted() && !Template.isSessionAuthorized(session)) {
       throw new AccessViolationException("Сообщение удалено");
     }
-
-    out.print("<title>" + message.getSectionTitle() + " - " + message.getGroupTitle() + " - " + message.getTitle() + "</title>");
-    out.print("<link rel=\"parent\" title=\"" + message.getSectionTitle() + " - " + message.getGroupTitle() + "\" href=\"group.jsp?group=" + message.getGroupId() + "\">");
-
+  %>
+<c:set var="message" value="<%= message %>"/>
+<title>${message.sectionTitle} - ${message.groupTitle} - ${message.title}</title>
+<link rel="parent" title="${message.sectionTitle} - ${message.groupTitle}" href="group.jsp?group=${message.groupId}">
+<%
 // count last modified time
     if (!message.isDeleted() && !showDeleted && message.getLastModified() != null) {
       response.setDateHeader("Last-Modified", message.getLastModified().getTime());
@@ -116,8 +121,8 @@
     <td align=right>
       [<a href="topic-rss.jsp?topic=<%= msgid %>">RSS</a>]
 
+      <c:if test="${!showDeleted}">
 <%
-  if (!showDeleted) {
     if (npage != 0) {
       out.print("<input type=hidden name=page value=\"" + npage + "\">");
     }
@@ -136,8 +141,8 @@
     }
 
     out.print("</select>");
-  }
 %>
+      </c:if>
     </td>
   </table>
 </form>
@@ -253,7 +258,7 @@
 
 </c:set>
 
-<c:if test="<%= showDeleted %>">
+<c:if test="${showDeleted}">
 <%
   out.print("<h1>Режим показа удаленных комментариев</h1>");
 %>
