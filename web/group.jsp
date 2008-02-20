@@ -112,7 +112,7 @@
     </td>
 
     <td align=right valign=middle>
-      [<a href="faq.jsp">FAQ</a>]
+      [<a href="/wiki/en/lor-faq">FAQ</a>]
       [<a href="rules.jsp">Правила форума</a>]
 <%
   User currentUser = User.getCurrentUser(db, session);
