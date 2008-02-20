@@ -12,11 +12,13 @@
 
     Message message = new Message(db, msgid);
 
-    if (message.isExpired())
+    if (message.isExpired()) {
       throw new AccessViolationException("нельзя комментировать устаревшие темы");
+    }
 
-    if (message.isDeleted())
+    if (message.isDeleted()) {
       throw new AccessViolationException("нельзя комментировать удаленные сообщения");
+    }
 
     if (!message.isCommentEnabled()) {
       throw new AccessViolationException("нельзя комментировать тему");
@@ -55,7 +57,7 @@
   <input type="hidden" name="session" value="<%= HTMLFormatter.htmlSpecialChars(session.getId()) %>">  
 <% if (session == null || session.getAttribute("login") == null || !(Boolean) session.getAttribute("login")) { %>
 Имя:
-<input type=text name=nick value="<%= tmpl.getCookie("NickCookie","anonymous") %>" size=40><br>
+<input type=text name=nick value="anonymous" size=40><br>
 Пароль:
 <input type=password name=password size=40><br>
 <% } %>
@@ -100,7 +102,9 @@
 <% } %>
 <%
   } finally {
-    if (db!=null) db.close();
+    if (db!=null) {
+      db.close();
+    }
   }
 %>
 <%=	tmpl.DocumentFooter() %>

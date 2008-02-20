@@ -109,7 +109,7 @@
 
 <tr><td colspan=2><hr></td></tr>
 <tr><td>Профиль (имя пользователя)</td><td>
-<input type=text name=profile value="<%= tmpl.getCookie("NickCookie", "")%>"></td></tr>
+<input type=text name=profile value=""></td></tr>
 <tr><td>Пароль</td><td>
 <input type=password name=password></td></tr>
 <% } %>

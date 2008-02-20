@@ -77,7 +77,7 @@
     out.print("<link rel=\"parent\" title=\"" + message.getSectionTitle() + " - " + message.getGroupTitle() + "\" href=\"group.jsp?group=" + message.getGroupId() + "\">");
 
 // count last modified time
-    if (!tmpl.isDebugMode() && !message.isDeleted() && !showDeleted && message.getLastModified() != null) {
+    if (!message.isDeleted() && !showDeleted && message.getLastModified() != null) {
       response.setDateHeader("Last-Modified", message.getLastModified().getTime());
     }
 

@@ -273,6 +273,46 @@
           <option name="ignoreObjectConstruction" value="true" />
           <option name="ignoreTypeCasts" value="false" />
         </inspection_tool>
+        <inspection_tool class="BooleanMethodNameMustStartWithQuestion" level="WARNING" enabled="true">
+          <option name="questionString" value="is,can,has,should,could,will,shall,check,contains,equals,add,put,remove,startsWith,endsWith" />
+        </inspection_tool>
+        <inspection_tool class="ConfusingMainMethod" level="WARNING" enabled="true" />
+        <inspection_tool class="ConstantNamingConvention" level="WARNING" enabled="true">
+          <option name="m_regex" value="[A-Z_\d]*" />
+          <option name="m_minLength" value="5" />
+          <option name="m_maxLength" value="32" />
+        </inspection_tool>
+        <inspection_tool class="ExceptionNameDoesntEndWithException" level="WARNING" enabled="true" />
+        <inspection_tool class="InstanceMethodNamingConvention" level="WARNING" enabled="true">
+          <option name="m_regex" value="[a-z][A-Za-z\d]*" />
+          <option name="m_minLength" value="4" />
+          <option name="m_maxLength" value="32" />
+        </inspection_tool>
+        <inspection_tool class="InterfaceNamingConvention" level="WARNING" enabled="true">
+          <option name="m_regex" value="[A-Z][A-Za-z\d]*" />
+          <option name="m_minLength" value="8" />
+          <option name="m_maxLength" value="64" />
+        </inspection_tool>
+        <inspection_tool class="LocalVariableNamingConvention" level="WARNING" enabled="true">
+          <option name="m_ignoreForLoopParameters" value="false" />
+          <option name="m_ignoreCatchParameters" value="false" />
+          <option name="m_regex" value="[a-z][A-Za-z\d]*" />
+          <option name="m_minLength" value="1" />
+          <option name="m_maxLength" value="20" />
+        </inspection_tool>
+        <inspection_tool class="MethodNamesDifferOnlyByCase" level="WARNING" enabled="true" />
+        <inspection_tool class="UpperCaseFieldNameNotConstant" level="WARNING" enabled="true" />
+        <inspection_tool class="NonExceptionNameEndsWithException" level="WARNING" enabled="true" />
+        <inspection_tool class="StaticMethodNamingConvention" level="WARNING" enabled="true">
+          <option name="m_regex" value="[a-z][A-Za-z\d]*" />
+          <option name="m_minLength" value="4" />
+          <option name="m_maxLength" value="32" />
+        </inspection_tool>
+        <inspection_tool class="StaticVariableNamingConvention" level="WARNING" enabled="true">
+          <option name="m_regex" value="s_[a-z][A-Za-z\d]*" />
+          <option name="m_minLength" value="5" />
+          <option name="m_maxLength" value="32" />
+        </inspection_tool>
       </profile>
     </profiles>
     <list size="4">

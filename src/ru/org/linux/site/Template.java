@@ -258,20 +258,12 @@ public class Template {
     }
   }
 
-  public String getCookie(String key) {
+  private String getCookie(String key) {
     return cookies.getProperty(key);
-  }
-
-  public String getCookie(String key, String def) {
-    return cookies.getProperty(key, def);
   }
 
   public String getStyle() {
     return style;
-  }
-
-  public boolean isDebugMode() {
-    return debugMode;
   }
 
   public String head() {
