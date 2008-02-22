@@ -28,6 +28,15 @@
     }
 %>
 <c:set var="section" value="<%= section %>"/>
+<c:set var="groups" value="<%= Group.getGroups(db, section) %>"/>
+
+<%
+  } finally {
+    if (db!=null) {
+      db.close();
+    }
+  }
+%>
 
 <title>${section.name}</title>
 <link rel="parent" title="Linux.org.ru" href="/">
@@ -58,8 +67,7 @@
 Группы:
 <ul>
 
-  <c:forEach var="group"
-             items="<%= Group.getGroups(db, section) %>">
+  <c:forEach var="group" items="${groups}">
     <li>
       <a href="${group.url}">${group.title}</a>
 
@@ -74,14 +82,6 @@
   </c:forEach>
 
 </ul>
-
-<%
-  } finally {
-    if (db!=null) {
-      db.close();
-    }
-  }
-%>
 
 <c:if test="${section.forum}">
 <h1>Настройки</h1>

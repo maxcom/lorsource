@@ -1,7 +1,7 @@
 <%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
-<%@ page import="java.sql.Connection,java.sql.Statement,javax.servlet.http.HttpServletResponse,ru.org.linux.site.*,ru.org.linux.util.ServletParameterParser" errorPage="/error.jsp" buffer="200kb"%>
-<%@ page import="ru.org.linux.util.StringUtil" %>
+<%@ page import="java.sql.Connection,javax.servlet.http.HttpServletResponse,ru.org.linux.site.*,ru.org.linux.util.ServletParameterParser,ru.org.linux.util.StringUtil" errorPage="/error.jsp" buffer="200kb"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <% Template tmpl = new Template(request, config, response); %>
 <%= tmpl.head() %>
 <%
@@ -55,8 +55,6 @@
       filterMode = CommentViewer.parseFilterChain(request.getParameter("filter"));
     }
 
-    Statement st = db.createStatement();
-
     int npage = 0;
     if (request.getParameter("page") != null) {
       npage = new ServletParameterParser(request).getInt("page");
@@ -77,33 +75,37 @@
     if (message.isDeleted() && !Template.isSessionAuthorized(session)) {
       throw new AccessViolationException("Сообщение удалено");
     }
+
+// count last modified time
+  if (!message.isDeleted() && !showDeleted && message.getLastModified() != null) {
+    response.setDateHeader("Last-Modified", message.getLastModified().getTime());
+  }
+
+  if (message.isExpired()) {
+    response.setDateHeader("Expires", System.currentTimeMillis() + 30 * 24 * 60 * 60 * 1000L);
+  } else {
+    response.setDateHeader("Expires", System.currentTimeMillis() - 24 * 60 * 60 * 1000);
+  }
   %>
 <c:set var="message" value="<%= message %>"/>
+<c:set var="prevMessage" value="<%= message.getPreviousMessage(db) %>"/>
+<c:set var="nextMessage" value="<%= message.getNextMessage(db) %>"/>
+
+<%
+  Message prevMessage = message.getPreviousMessage(db);
+  Message nextMessage = message.getNextMessage(db);
+%>
+
 <title>${message.sectionTitle} - ${message.groupTitle} - ${message.title}</title>
 <link rel="parent" title="${message.sectionTitle} - ${message.groupTitle}" href="group.jsp?group=${message.groupId}">
-<%
-// count last modified time
-    if (!message.isDeleted() && !showDeleted && message.getLastModified() != null) {
-      response.setDateHeader("Last-Modified", message.getLastModified().getTime());
-    }
+<c:if test="${prevMessage != null}">
+  <link rel="Previous" href="${fn:escapeXml(prevMessage.linkLastmod)}" title="<%= StringUtil.makeTitle(prevMessage.getTitle()) %>">
+</c:if>
 
-    if (message.isExpired()) {
-      response.setDateHeader("Expires", System.currentTimeMillis() + 30 * 24 * 60 * 60 * 1000L);
-    } else {
-      response.setDateHeader("Expires", System.currentTimeMillis() - 24 * 60 * 60 * 1000);
-    }
+<c:if test="${nextMessage != null}">
+  <link rel="Next" href="${fn:escapeXml(nextMessage.linkLastmod)}" title="<%= StringUtil.makeTitle(nextMessage.getTitle()) %>">
+</c:if>
 
-    Message prevMessage = message.getPreviousMessage(db);
-    Message nextMessage = message.getNextMessage(db);
-
-    if (prevMessage != null) {
-      out.print("<link rel=\"Previous\" href=\"" + prevMessage.getLinkLastmod(true) + "\" title=\"" + StringUtil.makeTitle(prevMessage.getTitle()) + "\">");
-    }
-
-    if (nextMessage != null) {
-      out.print("<link rel=\"Next\" href=\"" + nextMessage.getLinkLastmod(true) + "\" title=\"" + StringUtil.makeTitle(nextMessage.getTitle()) + "\">");
-    }
-%>
 <LINK REL="alternate" TITLE="Comments RSS" HREF="topic-rss.jsp?topic=<%= msgid %>" TYPE="application/rss+xml">
 <%= tmpl.DocumentHeader() %>
 
@@ -146,6 +148,7 @@
     </td>
   </table>
 </form>
+<c:set var="scrollGroup" value="<%= Section.getScrollMode(message.getSectionId())==Section.SCROLL_GROUP %>"/>
 
 <c:set var="scroller">
 <%
@@ -158,34 +161,34 @@
         <td align=left valign=middle width="35%">
           <table>
             <tr valign=middle>
-              <td>
-<%
-  if (prevMessage != null) {
-    if (scroll == Section.SCROLL_GROUP) {
-      out.print("<a href=\"" + prevMessage.getLinkLastmod(true) + "\" rel=prev rev=next>&lt;&lt;&lt;</a></td><td align=left valign=top>" + StringUtil.makeTitle(prevMessage.getTitle()));
-    } else {
-      out.print("<a href=\"" + prevMessage.getLinkLastmod(true) + "\" rel=prev rev=next>&lt;&lt;&lt;</a></td><td align=left valign=top>" + StringUtil.makeTitle(prevMessage.getTitle()) + " (" + prevMessage.getGroupTitle() + ')');
-    }
-  }
-%>
-              </td>
+                <c:if test="${prevMessage != null}">
+                  <td>
+                    <a href="${fn:escapeXml(prevMessage.linkLastmod)}" rel=prev rev=next>&lt;&lt;&lt;</a>
+                  </td>
+                  <td align=left valign=top>
+                    <%= StringUtil.makeTitle(prevMessage.getTitle()) %>
+                    <c:if test="${!scrollGroup}">
+                      (${prevMessage.groupTitle})
+                    </c:if>
+                  </td>
+                </c:if>
             </tr>
           </table>
         </td>
         <td align=left valign=middle width="35%">
           <table width="100%">
             <tr valign=middle align=right>
-              <td>
-<%
-  if (nextMessage != null) {
-    if (scroll == Section.SCROLL_GROUP) {
-      out.print(StringUtil.makeTitle(nextMessage.getTitle()) + "</td><td align=right valign=middle><a href=\"" + nextMessage.getLinkLastmod(true) + "\" rev=prev rel=next>&gt;&gt;&gt;</a>");
-    } else {
-      out.print(StringUtil.makeTitle(nextMessage.getTitle()) + " (" + nextMessage.getGroupTitle() + ")</td><td valign=middle align=right><a href=\"" + nextMessage.getLinkLastmod(true) + "\" rev=prev rel=next>&gt;&gt;&gt;</a>");
-    }
-  }
-%>
-              </td>
+              <c:if test="${nextMessage != null}">
+                <td>
+                  <%= StringUtil.makeTitle(nextMessage.getTitle()) %>
+                  <c:if test="${!scrollGroup}">
+                    (${nextMessage.groupTitle})
+                  </c:if>
+                </td>
+                <td align="right" valign="middle">
+                  <a href="${fn:escapeXml(nextMessage.linkLastmod)}" rel=next rev=prev>&gt;&gt;&gt;</a>
+                </td>
+              </c:if>
             </tr>
           </table>
         </td>
@@ -212,9 +215,9 @@
 <%
   if (prevMessage != null) {
     if (scroll == Section.SCROLL_GROUP) {
-      out.print("<a href=\"" + prevMessage.getLinkLastmod(true) + "\" rel=prev rev=next>&lt;&lt;&lt;</a></td><td align=left valign=top>" + StringUtil.makeTitle(prevMessage.getTitle()));
+      out.print("<a href=\"" + prevMessage.getLinkLastmod() + "\" rel=prev rev=next>&lt;&lt;&lt;</a></td><td align=left valign=top>" + StringUtil.makeTitle(prevMessage.getTitle()));
     } else {
-      out.print("<a href=\"" + prevMessage.getLinkLastmod(true) + "\" rel=prev rev=next>&lt;&lt;&lt;</a></td><td align=left valign=top>" + StringUtil.makeTitle(prevMessage.getTitle()) + " (" + prevMessage.getGroupTitle() + ')');
+      out.print("<a href=\"" + prevMessage.getLinkLastmod() + "\" rel=prev rev=next>&lt;&lt;&lt;</a></td><td align=left valign=top>" + StringUtil.makeTitle(prevMessage.getTitle()) + " (" + prevMessage.getGroupTitle() + ')');
     }
   }
 %>
@@ -240,9 +243,9 @@
 <%
   if (nextMessage != null) {
     if (scroll == Section.SCROLL_GROUP) {
-      out.print(StringUtil.makeTitle(nextMessage.getTitle()) + "</td><td align=right valign=middle><a href=\"" + nextMessage.getLinkLastmod(true) + "\" rev=prev rel=next>&gt;&gt;&gt;</a>");
+      out.print(StringUtil.makeTitle(nextMessage.getTitle()) + "</td><td align=right valign=middle><a href=\"" + nextMessage.getLinkLastmod() + "\" rev=prev rel=next>&gt;&gt;&gt;</a>");
     } else {
-      out.print(StringUtil.makeTitle(nextMessage.getTitle()) + " (" + nextMessage.getGroupTitle() + ")</td><td valign=middle align=right><a href=\"" + nextMessage.getLinkLastmod(true) + "\" rev=prev rel=next>&gt;&gt;&gt;</a>");
+      out.print(StringUtil.makeTitle(nextMessage.getTitle()) + " (" + nextMessage.getGroupTitle() + ")</td><td valign=middle align=right><a href=\"" + nextMessage.getLinkLastmod() + "\" rev=prev rel=next>&gt;&gt;&gt;</a>");
     }
   }
 %>
@@ -393,8 +396,6 @@
 <% } %>
 
 <%
-   st.close();
-
   } finally {
     if (db!=null) db.close();
   }

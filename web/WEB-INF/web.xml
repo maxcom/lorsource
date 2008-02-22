@@ -47,6 +47,12 @@ version="2.4">
       <taglib-uri>http://java.sun.com/jsp/jstl/core</taglib-uri>
       <taglib-location>/WEB-INF/c.tld</taglib-location>
     </taglib>
+
+    <taglib>
+      <taglib-uri>http://java.sun.com/jsp/jstl/functions</taglib-uri>
+      <taglib-location>/WEB-INF/fn.tld</taglib-location>
+    </taglib>
+
   </jsp-config>
 
   <session-config>

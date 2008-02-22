@@ -103,7 +103,7 @@ public class Message {
   }
 
   public Message(Connection db, Template tmpl, HttpSession session, HttpServletRequest request)
-      throws BadInputException, SQLException, UtilException, ScriptErrorException, RuntimeException,
+      throws BadInputException, SQLException, UtilException, ScriptErrorException,
       BadPasswordException, AccessViolationException, IOException,  FileUploadException, BadImageException, InterruptedException {
     // Init fields
     String linktext = null;
@@ -130,7 +130,7 @@ public class Message {
       noinfo = request.getParameter("noinfo");
       sessionId = request.getParameter("session");
       preview = request.getParameter("preview") != null;
-      if (!request.getMethod().equals("GET")) {
+      if (!"GET".equals(request.getMethod())) {
         captchaResponse = request.getParameter("j_captcha_response");
         nick = request.getParameter("nick");
         password = request.getParameter("password");
@@ -248,7 +248,7 @@ public class Message {
     request.setAttribute("nick", nick);
     request.setAttribute("password", password);
     // If we under get
-    if (request.getMethod().equals("GET")) {
+    if ("GET".equals(request.getMethod())) {
       throw new MessageNotFoundException(0);
     }
     if (guid < 1) {
@@ -259,8 +259,8 @@ public class Message {
     if (!preview) {
       // Flood protection
       if (!session.getId().equals(sessionId)) {
-        Logger.getLogger("ru.org.linux").info("Flood protection (session variable differs) " + request.getRemoteAddr());
-        Logger.getLogger("ru.org.linux").info("Flood protection (session variable differs) " + session.getId() + " != " + sessionId);
+        logger.info("Flood protection (session variable differs) " + request.getRemoteAddr());
+        logger.info("Flood protection (session variable differs) " + session.getId() + " != " + sessionId);
         throw new BadInputException("сбой добавления");
       }
       // Captch
@@ -914,7 +914,7 @@ public class Message {
     pstMsgbase.executeUpdate();
     pstMsgbase.close();
 
-    String logmessage = "Написана тема " + msgid + " " + LorHttpUtils.getRequestIP(request);
+    String logmessage = "Написана тема " + msgid + ' ' + LorHttpUtils.getRequestIP(request);
     logger.info(logmessage);
 
     rs.close();
@@ -1002,7 +1002,7 @@ public class Message {
     pstMsgbase.executeUpdate();
     pstMsgbase.close();
 
-    String logmessage = "Написана тема " + msgid + " " + LorHttpUtils.getRequestIP(request);
+    String logmessage = "Написана тема " + msgid + ' ' + LorHttpUtils.getRequestIP(request);
     logger.info(logmessage);
 
     rs.close();
@@ -1055,7 +1055,7 @@ public class Message {
     return notop;
   }
 
-  public String getLinkLastmod(boolean encode) {
+  public String getLinkLastmod() {
     String link;
 
     if (isExpired()) {
@@ -1064,11 +1064,7 @@ public class Message {
       link = "view-message.jsp?msgid="+msgid+"&lastmod="+getLastModified().getTime();
     }
 
-    if (encode) {
-      return HTMLFormatter.htmlSpecialChars(link);
-    } else {
-      return link;
-    }
+    return link;
   }
 
   public String getPlainTags() {
