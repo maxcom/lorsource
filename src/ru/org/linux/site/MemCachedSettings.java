@@ -1,5 +1,6 @@
 package ru.org.linux.site;
 
+import com.danga.MemCached.Logger;
 import com.danga.MemCached.MemCachedClient;
 import com.danga.MemCached.SockIOPool;
 
@@ -10,8 +11,13 @@ public class MemCachedSettings {
   private static String mainUrl = "uninitialized/";
 
   private MemCachedSettings() {
+    Logger logger = Logger.getLogger("com.danga.MemCached.MemCachedClient");
+    logger.setLevel(Logger.LEVEL_WARN);
+
     SockIOPool pool = SockIOPool.getInstance();
     pool.setServers(new String[] { "localhost:11211" });
+
+    pool.setNagle(false);
 
     pool.initialize();
 
