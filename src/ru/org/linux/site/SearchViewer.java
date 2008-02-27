@@ -33,7 +33,9 @@ public class SearchViewer implements Viewer {
   }
 
   public String show(Connection db) throws IOException, SQLException, UtilException, UserErrorException {
-    StringBuilder select = new StringBuilder("SELECT msgs.id, title, postdate, section, topic, userid, rank(idxFTI, q) as rank, headline(message, q, 'HighlightAll=True') as headline");
+    StringBuilder select = new StringBuilder("SELECT id, title, postdate, section, topic, userid, rank, headline(message, q, 'HighlightAll=True') as headline FROM ("+
+        "SELECT " +
+        "msgs.id, title, postdate, section, topic, userid, rank(idxFTI, q) as rank,message");
 
     if (include==SEARCH_ALL) {
       select.append(" FROM msgs_and_cmts as msgs, msgbase, plainto_tsquery(?) as q");
@@ -69,7 +71,7 @@ public class SearchViewer implements Viewer {
       select.append(" ORDER BY rank DESC");
     }
 
-    select.append(" LIMIT 100");
+    select.append(" LIMIT 100) as qq, plainto_tsquery('linux') as q");
 
     PreparedStatement pst = null;
     try {
