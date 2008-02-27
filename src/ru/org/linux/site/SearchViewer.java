@@ -33,9 +33,9 @@ public class SearchViewer implements Viewer {
   }
 
   public String show(Connection db) throws IOException, SQLException, UtilException, UserErrorException {
-    StringBuilder select = new StringBuilder("SELECT id, title, postdate, section, topic, userid, rank, headline(message, q, 'HighlightAll=True') as headline FROM ("+
+    StringBuilder select = new StringBuilder("SELECT qq.id, title, postdate, section, topic, userid, rank, headline(message, q, 'HighlightAll=True') as headline FROM ("+
         "SELECT " +
-        "msgs.id, title, postdate, section, topic, userid, rank(idxFTI, q) as rank,message");
+        "msgs.id, title, postdate, section, topic, userid, rank(idxFTI, q) as rank");
 
     if (include==SEARCH_ALL) {
       select.append(" FROM msgs_and_cmts as msgs, msgbase, plainto_tsquery(?) as q");
@@ -71,7 +71,7 @@ public class SearchViewer implements Viewer {
       select.append(" ORDER BY rank DESC");
     }
 
-    select.append(" LIMIT 100) as qq, plainto_tsquery(?) as q");
+    select.append(" LIMIT 100) as qq, plainto_tsquery(?) as q, msgbase WHERE msgbase.id=qq.id");
 
     if (sort==SORT_DATE) {
       select.append(" ORDER BY postdate DESC");
