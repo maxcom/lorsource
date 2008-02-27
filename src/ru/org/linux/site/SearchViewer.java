@@ -73,6 +73,12 @@ public class SearchViewer implements Viewer {
 
     select.append(" LIMIT 100) as qq, plainto_tsquery(?) as q");
 
+    if (sort==SORT_DATE) {
+      select.append(" ORDER BY postdate DESC");
+    } else {
+      select.append(" ORDER BY rank DESC");
+    }
+
     PreparedStatement pst = null;
     try {
       pst = db.prepareStatement(select.toString());
