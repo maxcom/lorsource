@@ -71,13 +71,14 @@ public class SearchViewer implements Viewer {
       select.append(" ORDER BY rank DESC");
     }
 
-    select.append(" LIMIT 100) as qq, plainto_tsquery('linux') as q");
+    select.append(" LIMIT 100) as qq, plainto_tsquery(?) as q");
 
     PreparedStatement pst = null;
     try {
       pst = db.prepareStatement(select.toString());
 
       pst.setString(1, query);
+      pst.setString(2, query);
 
       ResultSet rs = pst.executeQuery();
 
