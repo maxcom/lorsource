@@ -16,7 +16,7 @@ public final class top10 extends Boxlet {
     Connection db = null;
     try {
       db = ((SQLConfig) config).getConnection();
-      Map ht = new HashMap();
+      Map<Integer,Integer> ht = new HashMap<Integer,Integer>();
       StringBuffer out = new StringBuffer();
       double messages = profile.getInt("messages");
 
@@ -43,7 +43,7 @@ public final class top10 extends Boxlet {
         }
 
         if ((ht.get(msgid) == null)
-            || ((Integer) ht.get(msgid) > order)) {
+            || (ht.get(msgid) > order)) {
           out.append("<img src=\"/").append(profile.getString("style")).append("/img/arrow.gif\" alt=\"[up]\" width=10 height=12> ");
         } else {
           out.append("* ");
