@@ -25,7 +25,8 @@
 %>
 <%= tmpl.head() %>
 <title>Добавление/Изменение фотографии</title>
-<%= tmpl.DocumentHeader() %>
+<jsp:include page="WEB-INF/jsp/header.jsp"/>
+
 
   <table class=nav><tr>
     <td align=left valign=middle>
@@ -167,4 +168,4 @@
   }
 %>
 
-<%=	tmpl.DocumentFooter() %>
+<jsp:include page="WEB-INF/jsp/footer.jsp"/>

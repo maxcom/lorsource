@@ -7,8 +7,7 @@
 %>
 <%= tmpl.head() %>
 	<title>Смена параметров сообщения</title>
-<%= tmpl.DocumentHeader() %>
-
+<jsp:include page="WEB-INF/jsp/header.jsp"/>
 <%
 if (!tmpl.isModeratorSession()) {
   throw new IllegalAccessException("Not authorized");
@@ -116,4 +115,4 @@ if (!tmpl.isModeratorSession()) {
     }
   }
 %>
-<%=	tmpl.DocumentFooter() %>
+<jsp:include page="WEB-INF/jsp/footer.jsp"/>

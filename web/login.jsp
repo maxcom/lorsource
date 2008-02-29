@@ -3,6 +3,7 @@
 <%@ page import="javax.servlet.http.HttpServletResponse"%>
 <%@ page import="ru.org.linux.boxlet.BoxletVectorRunner"%>
 <%@ page import="ru.org.linux.site.*" %>
+<%@ page import="ru.org.linux.util.ServletParameterParser" %>
 <% Template tmpl = new Template(request, config, response); %>
 <%= tmpl.head() %>
 <%
@@ -12,8 +13,9 @@
     db = tmpl.getConnection();
     db.setAutoCommit(false);
     String nick = request.getParameter("nick");
-    if (nick == null || "".equals(nick))
+    if (nick == null || "".equals(nick)) {
       throw new BadInputException("Не указан nick");
+    }
 
     User user = User.getUser(db, nick);
 
@@ -38,8 +40,9 @@
     user.checkAnonymous();
     user.checkPassword(request.getParameter("passwd"));
 
-    if (session == null)
+    if (session == null) {
       throw new BadInputException("не удалось открыть сессию; созможно отсутствует поддержка Cookie");
+    }
 
     session.putValue("login", Boolean.TRUE);
     session.putValue("nick", nick);
@@ -63,7 +66,8 @@
     db.commit();
 %>
 <title>Login</title>
-<%= tmpl.DocumentHeader() %>
+<jsp:include page="WEB-INF/jsp/header.jsp"/>
+
 <h1>Вход прошел успешно</h1>
 
 <strong>Внимание:</strong>
@@ -74,7 +78,9 @@
 </ul>
 <%
   } finally {
-    if (db!=null) db.close();
+    if (db!=null) {
+      db.close();
+    }
   }
 %>
-<%=	tmpl.DocumentFooter() %>
+<jsp:include page="WEB-INF/jsp/footer.jsp"/>

@@ -15,9 +15,9 @@
   }
 
   int msgid = new ServletParameterParser(request).getInt("msgid");
-
-  out.print(tmpl.DocumentHeader());
-
+%>
+<jsp:include page="WEB-INF/jsp/header.jsp"/>
+<%
   Connection db = null;
   try {
     db = tmpl.getConnection();
@@ -159,5 +159,5 @@
     }
   }
 
-  out.print(tmpl.DocumentFooter());
 %>
+<jsp:include page="WEB-INF/jsp/footer.jsp"/>

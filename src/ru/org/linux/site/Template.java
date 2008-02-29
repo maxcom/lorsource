@@ -24,7 +24,10 @@ import javax.servlet.http.HttpSession;
 
 import ru.org.linux.storage.StorageException;
 import ru.org.linux.storage.StorageNotFoundException;
-import ru.org.linux.util.*;
+import ru.org.linux.util.LorHttpUtils;
+import ru.org.linux.util.ProfileHashtable;
+import ru.org.linux.util.StringUtil;
+import ru.org.linux.util.UtilException;
 
 public class Template {
   private static final Logger logger = Logger.getLogger("ru.org.linux");
@@ -93,6 +96,8 @@ public class Template {
       throws ClassNotFoundException, IOException, SQLException, StorageException {
 //    request.setCharacterEncoding("koi8-r"); // блядский tomcat
     request.setCharacterEncoding("utf-8"); // блядский tomcat
+
+    request.setAttribute("template", this);
 
     requestString = request.getRequestURI() + '?' + request.getQueryString();
 
@@ -271,80 +276,11 @@ public class Template {
     return userProfile.getHashtable();
   }
 
-  public String DocumentHeader() throws IOException, StorageException, UtilException {
-    StringBuffer out = new StringBuffer();
-    out.append("<LINK REL=STYLESHEET TYPE=\"text/css\" HREF=\"/common.css\" TITLE=\"Normal\">");
-    out.append("<link rel=\"search\" title=\"Search L.O.R.\" href=\"/search.jsp\">\n");
-    out.append("<link rel=\"top\" title=\"Linux.org.ru\" href=\"/\">\n");
-
-    // form submit on ctrl-enter js
-    out.append("<script src=\"/js/lor.js\" type=\"text/javascript\">;</script>\n");
-
-    if (getProf().getBoolean("hover")) {
-      out.append("<LINK REL=STYLESHEET TYPE=\"text/css\" HREF=\"/").append(getStyle()).append("/hover.css\" TITLE=\"Normal\">");
-    }
-
-    out.append("<base href=\"").append(HTMLFormatter.htmlSpecialChars(getMainUrl())).append("\">");
-
-    if ("black".equals(style)) {
-      if (isMainPage()) {
-        out.append(FileUtils.readfile(config.getHTMLPathPrefix() + style + "/head-main.html"));
-//        out.append("<div align=center>");
-//	out.append("<a href=\"http://www.centerpress.ru/shop/computer_press/linuxformat/lxf-2007/ref_102196\"><img src=\"http://www.linux.org.ru/adv/linuxformat/lxf2007.gif\"></a>");
-        // banners
-//        out.append("</div>");
-        out.append(FileUtils.readfile(config.getHTMLPathPrefix() + style + "/head-main2.html"));
-      } else {
-        out.append(FileUtils.readfile(config.getHTMLPathPrefix() + style + "/head.html"));
-      }
-    } else {
-      if (isMainPage()) {
-        out.append(FileUtils.readfile(config.getHTMLPathPrefix() + style + "/head-main.html"));
-      } else {
-        out.append(FileUtils.readfile(config.getHTMLPathPrefix() + style + "/head.html"));
-      }
-    }
-
-    if (isMainPage()) {
-      out.append(config.getStorage().readMessage("buttons", "top100-main-hidden"));
-      out.append(config.getStorage().readMessage("buttons", "toplist-main-hidden"));
-    } else {
-      out.append(config.getStorage().readMessage("buttons", "toplist-hidden"));
-    }
-
-    return out.toString();
+  public boolean getHover() throws UtilException {
+    return getProf().getBoolean("hover");
   }
 
-  public String DocumentFooter(boolean closeHtml) throws IOException, StorageException {
-    StringBuffer out = new StringBuffer();
-
-    out.append("<p><i><a href=\"").append(getMainUrl()).append("\">").append(getMainUrl()).append("</a></i>");
-
-    if (!isMainPage()) {
-      out.append("<div align=center><iframe src=\"dw.jsp?width=728&amp;height=90&amp;main=0\" width=\"728\" height=\"90\" scrolling=\"no\" frameborder=\"0\"></iframe></div>");
-    }
-
-    out.append("<p><div align=center>");
-    if (isMainPage()) {
-      out.append(config.getStorage().readMessage("buttons", "top100-main-button"));
-      out.append(config.getStorage().readMessage("buttons", "toplist-main-button"));
-    } else {
-      out.append(config.getStorage().readMessage("buttons", "toplist-button"));
-    }
-    out.append("</div>");
-
-    // Google analytics
-    out.append("<script src=\"http://www.google-analytics.com/urchin.js\" type=\"text/javascript\">\n" +
-        "</script>\n" +
-        "<script type=\"text/javascript\">\n" +
-        "_uacct = \"UA-2184304-1\";\n" +
-        "urchinTracker();\n" +
-        "</script>\n");
-
-    if (closeHtml) {
-      out.append("</body></html>");
-    }
-
+  public String getDocumentFooter() {
     Date currentDate = new Date();
     long millis = currentDate.getTime() - startDate.getTime();
 
@@ -352,11 +288,7 @@ public class Template {
       logger.info("execTime="+millis/1000+" seconds (dbWait="+config.getDbWaitTime()/1000+" seconds): "+requestString);
     }
 
-    return out.toString();
-  }
-
-  public String DocumentFooter() throws IOException, StorageException {
-    return DocumentFooter(true);
+    return "";
   }
 
   public boolean isUsingDefaultProfile() {

@@ -180,7 +180,7 @@
 
 %>
 <title>Добавление сообщения прошло успешно</title>
-<%= tmpl.DocumentHeader() %>
+<jsp:include page="WEB-INF/jsp/header.jsp"/>
 <p>Сообщение помещено успешно
 
 <p><a href="<%= returnUrl %>">Возврат</a>
@@ -233,7 +233,8 @@ if (showform) { // show form
 %>
 
 <title>Добавить сообщение</title>
-<%= tmpl.DocumentHeader() %>
+<jsp:include page="WEB-INF/jsp/header.jsp"/>
+
 <% if (error==null) { %>
 <h1>Добавить комментарий</h1>
 <% } else { out.println("<h1>Ошибка: "+error.getMessage()+"</h1>"); } %>
@@ -358,4 +359,4 @@ if (showform) { // show form
   }
 }
 %>
-<%=	tmpl.DocumentFooter() %>
+<jsp:include page="WEB-INF/jsp/footer.jsp"/>

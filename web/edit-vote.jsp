@@ -9,7 +9,7 @@
 %>
 <%= tmpl.head() %>
 	<title>Редактирование опроса</title>
-<%= tmpl.DocumentHeader() %>
+<jsp:include page="WEB-INF/jsp/header.jsp"/>
 
 <%
   if (!tmpl.isModeratorSession()) {
@@ -146,4 +146,4 @@
     }
   }
 %>
-<%=	tmpl.DocumentFooter() %>
+<jsp:include page="WEB-INF/jsp/footer.jsp"/>

@@ -32,7 +32,7 @@
 
 %>
 <title><%= title %></title>
-<%= tmpl.DocumentHeader() %>
+<jsp:include page="WEB-INF/jsp/header.jsp"/>
 
 <form action="tracker.jsp">
 
@@ -188,4 +188,4 @@
     }
   }
 %>
-<%= tmpl.DocumentFooter() %>
+<jsp:include page="WEB-INF/jsp/footer.jsp"/>

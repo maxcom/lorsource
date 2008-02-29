@@ -107,7 +107,7 @@
 	<title><%= ptitle %></title>
         <LINK REL="alternate" HREF="section-rss.jsp?section=<%= sectionid %><%= (group!=null?("&amp;group="+group.getId()):"")%>" TYPE="application/rss+xml">
 
-<%= tmpl.DocumentHeader() %>
+<jsp:include page="WEB-INF/jsp/header.jsp"/>
 
   <table class=nav><tr>
     <td align=left valign=middle>
@@ -173,4 +173,5 @@
   }
 %>
 
-<%= tmpl.DocumentFooter() %>
+<jsp:include page="WEB-INF/jsp/footer.jsp"/>
+

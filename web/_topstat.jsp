@@ -4,7 +4,8 @@
 <% Template tmpl = new Template(request, config, response); %>
 <%= tmpl.head() %>
 <title>we make new db information for mess_priority</title>
-<%= tmpl.DocumentHeader() %>
+<jsp:include page="WEB-INF/jsp/header.jsp"/>
+
 <%  Connection db=null;
     try { %>
 <%
@@ -32,6 +33,8 @@
 %>
 
 <% } finally {
-  if (db!=null) db.close();
+  if (db!=null) {
+    db.close();
+  }
 } %>
-<%= tmpl.DocumentFooter() %>
+<jsp:include page="WEB-INF/jsp/footer.jsp"/>

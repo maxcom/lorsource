@@ -7,7 +7,7 @@
 <% Template tmpl = new Template(request, config, response); %>
 <%= tmpl.head() %>
 <title>О Сервере</title>
-<%= tmpl.DocumentHeader() %>
+<jsp:include page="WEB-INF/jsp/header.jsp"/>
 <div class=text>
 
 <h1>О Проекте</h1>
@@ -100,4 +100,4 @@ Linux.org.ru некоммерческий проект, мы не занимаемся размещением рекламы на стра
   <li><a href="http://community.livejournal.com/l_o_r/">Филиал l.o.r. в ЖЖ</a></li>
 </ul>
 
-<%= tmpl.DocumentFooter() %>
+<jsp:include page="WEB-INF/jsp/footer.jsp"/>

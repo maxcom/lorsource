@@ -6,11 +6,12 @@
 <%@ page import="ru.org.linux.boxlet.BoxletVectorRunner" %>
 <%@ page import="ru.org.linux.site.*" %>
 <%@ page import="ru.org.linux.util.ProfileHashtable" %>
+<%@ page import="ru.org.linux.util.ServletParameterParser" %>
 <%@ page import="ru.org.linux.util.StringUtil" %>
 <% Template tmpl = new Template(request, config, response); %>
 <%= tmpl.head() %>
 	<title>Настройки профиля</title>
-<%= tmpl.DocumentHeader() %>
+<jsp:include page="WEB-INF/jsp/header.jsp"/>
 
   <table class=nav><tr>
     <td align=left valign=middle>
@@ -213,4 +214,4 @@
 <p><b>Внимание!</b> настройки на некоторых уже посещенных страницах могут
 не отображаться. Используйте кнопку <i>Reload</i> вашего броузера.
 
-<%= tmpl.DocumentFooter() %>
+  <jsp:include page="WEB-INF/jsp/footer.jsp"/>

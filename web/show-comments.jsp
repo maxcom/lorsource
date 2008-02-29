@@ -7,7 +7,9 @@
 <% Template tmpl = new Template(request, config, response); %>
 <%= tmpl.head() %>
 <% String nick=request.getParameter("nick");
-	if (nick==null) throw new MissingParameterException("nick");
+	if (nick==null) {
+          throw new MissingParameterException("nick");
+        }
 
 	Connection db = null;
 	try {
@@ -33,12 +35,16 @@
 		//response.setDateHeader("Expires", new Date(new Date().getTime()-20*3600*1000).getTime());
 		response.setDateHeader("Expires", System.currentTimeMillis() + 90 * 1000);
 		out.print("<title>Последние " + topics + " комментариев пользователя " + nick + "</title>");
-		out.print(tmpl.DocumentHeader() );
+            %>
+<jsp:include page="WEB-INF/jsp/header.jsp"/>
+<%
 		out.print("<h1>Последние " + topics + " комментариев пользователя " + nick + "</h1>");
 	  } else {
 		response.setDateHeader("Expires", System.currentTimeMillis() + 30 * 24 * 60 * 60 * 1000L);
 		out.print("<title>Последние " + count + '-' + offset + " комментариев пользователя " + nick + "</title>");
-		out.print(tmpl.DocumentHeader());
+                  %>
+<jsp:include page="WEB-INF/jsp/header.jsp"/>
+<%
 		out.print("<h1>Последние " + count + '-' + offset + " комментариев пользователя " + nick + "</h1>");
 	  }
 %>
@@ -108,8 +114,9 @@
 
   Statement st=db.createStatement();
   ResultSet rs=st.executeQuery("SELECT sections.name as ptitle, groups.title as gtitle, topics.title, topics.id as msgid, del_info.reason, comments.postdate FROM sections, groups, topics, comments, del_info WHERE sections.id=groups.section AND groups.id=topics.groupid AND comments.topic=topics.id AND del_info.msgid=comments.id AND comments.userid="+user.getId()+" AND del_info.delby!="+user.getId()+" ORDER BY del_info.msgid DESC LIMIT 20;");
-  while (rs.next())
-	out.print("<tr><td>"+rs.getString("ptitle")+"</td><td>"+rs.getString("gtitle")+"</td><td><a href=\"view-message.jsp?msgid="+rs.getInt("msgid")+"\" rev=contents>"+StringUtil.makeTitle(rs.getString("title"))+"</a></td><td>"+rs.getString("reason")+"</td><td>"+Template.dateFormat.format(rs.getTimestamp("postdate"))+"</td></tr>");
+  while (rs.next()) {
+    out.print("<tr><td>" + rs.getString("ptitle") + "</td><td>" + rs.getString("gtitle") + "</td><td><a href=\"view-message.jsp?msgid=" + rs.getInt("msgid") + "\" rev=contents>" + StringUtil.makeTitle(rs.getString("title")) + "</a></td><td>" + rs.getString("reason") + "</td><td>" + Template.dateFormat.format(rs.getTimestamp("postdate")) + "</td></tr>");
+  }
 
   rs.close();
   st.close();
@@ -123,7 +130,9 @@
 
 <%
   } finally {
-    if (db!=null) db.close();
+    if (db!=null) {
+      db.close();
+    }
   }
 %>
-<%= tmpl.DocumentFooter() %>
+<jsp:include page="WEB-INF/jsp/footer.jsp"/>

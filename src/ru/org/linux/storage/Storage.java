@@ -8,11 +8,6 @@ import gnu.regexp.RE;
 import gnu.regexp.REException;
 
 public abstract class Storage {
-  public String readMessage(String domain, String msgid) throws IOException, StorageException {
-    check(domain, msgid);
-    return readMessageImpl(domain, msgid);
-  }
-
   public String readMessageNull(String domain, String msgid) throws IOException, StorageException {
     check(domain, msgid);
     return readMessageNullImpl(domain, msgid);

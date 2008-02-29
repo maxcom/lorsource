@@ -5,10 +5,10 @@
 %>
 <%= tmpl.head() %>
 <title>Error 404</title>
-<%= tmpl.DocumentHeader() %>
+<jsp:include page="WEB-INF/jsp/header.jsp"/>
 
 <h1>Error 404</h1>
 Запрошенный Вами URL не был найден на этом сервере. <p>
 The URL you requested is not found on this server.
 
-<%= tmpl.DocumentFooter() %>
+  <jsp:include page="WEB-INF/jsp/footer.jsp"/>

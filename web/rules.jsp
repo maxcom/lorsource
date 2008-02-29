@@ -22,7 +22,8 @@
 <%@ page import="ru.org.linux.util.*" %>
 <% Template tmpl = new Template(request, config, response); %><%= tmpl.head() %>
 <title>Правила LOR</title>
-<%= tmpl.DocumentHeader() %>
+<jsp:include page="WEB-INF/jsp/header.jsp"/>
+
 <div class=text>
 <h1>Правила написания и модерирования комментариев</h1>
 Linux.org.ru - клуб пользователей операционной системы Linux и
@@ -227,4 +228,4 @@ Linux.org.ru - клуб пользователей операционной системы Linux и
 $Id$
 
 </div>
-<%= tmpl.DocumentFooter() %>
+<jsp:include page="WEB-INF/jsp/footer.jsp"/>

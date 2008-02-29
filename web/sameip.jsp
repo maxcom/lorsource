@@ -13,7 +13,7 @@
 
 %>
 <title>Поиск писем с IP-адреса</title>
-<%= tmpl.DocumentHeader() %>
+<jsp:include page="WEB-INF/jsp/header.jsp"/>
 <% Connection db = null;
   try {
 %>
@@ -176,4 +176,4 @@
     }
   }
 %>
-<%= tmpl.DocumentFooter() %>
+<jsp:include page="WEB-INF/jsp/footer.jsp"/>

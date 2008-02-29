@@ -3,7 +3,7 @@
 <% Template tmpl = new Template(request, config, response); %>
 <%= tmpl.head() %>
 <title>Активация</title>
-<%= tmpl.DocumentHeader() %>
+<jsp:include page="WEB-INF/jsp/header.jsp"/>
 <h1>Активация</h1>
 
 <form method=POST action="login.jsp">
@@ -28,4 +28,4 @@
   <input type=submit value="Активировать">
 </form>
 
-<%=	tmpl.DocumentFooter() %>
+<jsp:include page="WEB-INF/jsp/footer.jsp"/>

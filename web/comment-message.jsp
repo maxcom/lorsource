@@ -27,8 +27,7 @@
 
     out.print("<title>" + message.getSectionTitle() + " - " + message.getGroupTitle() + " - " + message.getTitle() + "</title>");
 %>
-<%= tmpl.DocumentHeader() %>
-
+<jsp:include page="WEB-INF/jsp/header.jsp"/>
 <div class=messages>
 
 <%
@@ -108,4 +107,4 @@
     }
   }
 %>
-<%=	tmpl.DocumentFooter() %>
+<jsp:include page="WEB-INF/jsp/footer.jsp"/>

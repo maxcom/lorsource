@@ -26,7 +26,7 @@
 
 %>
 <title>Просмотр неподтвержденных сообщений - <%= section==null?"Все":section.getName() %></title>
-<%= tmpl.DocumentHeader() %>
+<jsp:include page="WEB-INF/jsp/header.jsp"/>
 
   <form action="view-all.jsp">
 
@@ -135,4 +135,4 @@
     }
   }
 %>
-<%=	tmpl.DocumentFooter() %>
+<jsp:include page="WEB-INF/jsp/footer.jsp"/>

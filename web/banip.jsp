@@ -5,7 +5,7 @@
 <% Template tmpl = new Template(request, config, response); %>
 <%= tmpl.head() %>
 <title>banip</title>
-<%= tmpl.DocumentHeader() %>
+<jsp:include page="WEB-INF/jsp/header.jsp"/>
 <%
   if (!tmpl.isModeratorSession()) {
     throw new IllegalAccessException("Not authorized");
@@ -75,4 +75,5 @@
     }
   }
 %>
-<%= tmpl.DocumentFooter() %>
+<jsp:include page="WEB-INF/jsp/footer.jsp"/>
+

@@ -65,7 +65,7 @@
     }
     out.print("<link rel=\"parent\" title=\"" + rs.getString("title") + "\" href=\"view-section.jsp?section=" + rs.getInt("id") + "\">");
 %>
-<%=   tmpl.DocumentHeader() %>
+<jsp:include page="WEB-INF/jsp/header.jsp"/>
 <form action="group-lastmod.jsp">
 
   <table class=nav>
@@ -291,4 +291,4 @@
     if (db!=null) db.close();
   }
 %>
-<%= tmpl.DocumentFooter() %>
+<jsp:include page="WEB-INF/jsp/footer.jsp"/>

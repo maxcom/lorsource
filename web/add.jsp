@@ -49,7 +49,8 @@
           }
 %>
 <title>Добавление сообщения прошло успешно</title>
-<%= tmpl.DocumentHeader() %>
+<jsp:include page="WEB-INF/jsp/header.jsp"/>
+
 <% if (group.isModerated()) { %>
 Вы поместили сообщение в защищенный раздел. Подождите, пока ваше сообщение проверят.
 <% } %>
@@ -116,7 +117,8 @@
 %>
 
 <title>Добавить сообщение</title>
-<%= tmpl.DocumentHeader() %>
+  <jsp:include page="WEB-INF/jsp/header.jsp"/>
+
 <%	int section=group.getSectionId();
 	if (request.getAttribute("noinfo")==null || !"1".equals(request.getAttribute("noinfo"))) {
           out.print(tmpl.getObjectConfig().getStorage().readMessageDefault("addportal", String.valueOf(section), ""));
@@ -253,4 +255,4 @@
     }
   }
 %>
-<%=	tmpl.DocumentFooter() %>
+<jsp:include page="WEB-INF/jsp/footer.jsp"/>

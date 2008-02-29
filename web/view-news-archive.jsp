@@ -18,8 +18,7 @@
   String ptitle = section.getName() + " - Архив";
 %>
 	<title><%= ptitle %></title>
-<%= tmpl.DocumentHeader() %>
-
+<jsp:include page="WEB-INF/jsp/header.jsp"/>
 <H1><%= ptitle %></H1>
 <%
 
@@ -45,4 +44,4 @@ if (!section.isBrowsable()) { throw new BadSectionException(sectionid); }
     }
   }
 %>
-<%= tmpl.DocumentFooter() %>
+<jsp:include page="WEB-INF/jsp/footer.jsp"/>

@@ -29,8 +29,7 @@
 %>
 <%= tmpl.head() %>
 <title>Ошибка: <%= HTMLFormatter.htmlSpecialChars(exception.getClass().getName()) %></title>
-<%= tmpl.DocumentHeader() %>
-
+<jsp:include page="WEB-INF/jsp/header.jsp"/>
 <h1><%=exception.getMessage()==null?HTMLFormatter.htmlSpecialChars(exception.getClass().getName()):HTMLFormatter.htmlSpecialChars(exception.getMessage()) %></h1>
 
 <% if (exception instanceof UserErrorException) { %>
@@ -96,4 +95,4 @@
 %>
 <% } %>
 
-<%= tmpl.DocumentFooter() %>
+<jsp:include page="WEB-INF/jsp/footer.jsp"/>

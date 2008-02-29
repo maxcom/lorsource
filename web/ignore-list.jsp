@@ -36,7 +36,7 @@
 %>
 <title>Список Игнорирования</title>
 
-<%= tmpl.DocumentHeader() %>
+<jsp:include page="WEB-INF/jsp/header.jsp"/>
 
 <%
 
@@ -115,4 +115,4 @@
   }
 %>
 
-<%=	tmpl.DocumentFooter() %>
+<jsp:include page="WEB-INF/jsp/footer.jsp"/>

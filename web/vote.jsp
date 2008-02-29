@@ -6,7 +6,7 @@
 <% Template tmpl = new Template(request, config, response); %>
 <%= tmpl.head() %>
 <title>Ваш голос принят</title>
-<%= tmpl.DocumentHeader() %>
+<jsp:include page="WEB-INF/jsp/header.jsp"/>
 
 <%
   if (!Template.isSessionAuthorized(session)) {
@@ -55,4 +55,4 @@
   }
 
 %>
-<%= tmpl.DocumentFooter() %>
+<jsp:include page="WEB-INF/jsp/footer.jsp"/>

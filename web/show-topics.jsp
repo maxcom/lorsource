@@ -6,7 +6,9 @@
 <% Template tmpl = new Template(request, config, response); %>
 <%= tmpl.head() %>
 <% String nick=request.getParameter("nick");
-	if (nick==null) throw new MissingParameterException("nick");
+	if (nick==null) {
+          throw new MissingParameterException("nick");
+        }
 	
 	Connection db = null;
 	try {	
@@ -55,7 +57,7 @@
 		out.print("<title>Последние " + (count - offset) + '-' + (count - offset - topics) + " тем пользователя " + nick + "</title>");		
 	  }
 %>
-<%= tmpl.DocumentHeader() %>
+<jsp:include page="WEB-INF/jsp/header.jsp"/>
 <%
 		if (firstPage) {
 			out.print("<h1>Последние " + topics + " тем пользователя " + nick + "</h1>");
@@ -74,8 +76,9 @@
   } else {
 	rs=st.executeQuery("SELECT sections.name as ptitle, groups.title as gtitle, topics.title as title, topics.id as msgid, postdate, lastmod FROM topics, groups, sections, users WHERE topics.groupid=groups.id AND sections.id=groups.section AND users.id=topics.userid AND users.id="+user.getId()+" AND NOT deleted ORDER BY msgid ASC LIMIT " + topics + " OFFSET " + offset);  
   }
-  while (rs.next())
-	out.print("<tr><td>"+rs.getString("ptitle")+"</td><td>"+rs.getString("gtitle")+"</td><td><a href=\"view-message.jsp?msgid="+rs.getInt("msgid")+"\" rev=contents>"+StringUtil.makeTitle(rs.getString("title"))+"</a></td><td>"+Template.dateFormat.format(rs.getTimestamp("postdate"))+"</td><td>"+Template.dateFormat.format(rs.getTimestamp("lastmod"))+"</td></tr>");
+  while (rs.next()) {
+    out.print("<tr><td>" + rs.getString("ptitle") + "</td><td>" + rs.getString("gtitle") + "</td><td><a href=\"view-message.jsp?msgid=" + rs.getInt("msgid") + "\" rev=contents>" + StringUtil.makeTitle(rs.getString("title")) + "</a></td><td>" + Template.dateFormat.format(rs.getTimestamp("postdate")) + "</td><td>" + Template.dateFormat.format(rs.getTimestamp("lastmod")) + "</td></tr>");
+  }
 
   rs.close();
   st.close();
@@ -119,23 +122,29 @@
 <%
 	for (int i=0; i<=pages+1; i++) {
 	  if (firstPage) {
-		if (i!=0 && i!=(pages+1) && i>7)
-		  continue;
+		if (i!=0 && i!=(pages+1) && i>7) {
+                  continue;
+                }
 	  } else {
-		if (i!=0 && i!=(pages+1) && Math.abs((pages+1-i)*topics-offset)>7*topics)
-		  continue;
+		if (i!=0 && i!=(pages+1) && Math.abs((pages+1-i)*topics-offset)>7*topics) {
+                  continue;
+                }
 	  }
 	  
 	  if (i==pages+1) {
-		if (offset!=0 || firstPage)
-		  out.print("[<a href=\"show-topics.jsp?nick="+nick+"&amp;offset=0\">конец</a>] ");
-		else
-		  out.print("[<b>конец</b>] ");
+		if (offset!=0 || firstPage) {
+                  out.print("[<a href=\"show-topics.jsp?nick=" + nick + "&amp;offset=0\">конец</a>] ");
+                }
+		else {
+                  out.print("[<b>конец</b>] ");
+                }
 	  } else if (i==0) {
-		if (firstPage)
-		  out.print("[<b>начало</b>] ");
-		else
-		  out.print("[<a href=\"show-topics.jsp?nick="+nick+"\">начало</a>] ");
+		if (firstPage) {
+                  out.print("[<b>начало</b>] ");
+                }
+		else {
+                  out.print("[<a href=\"show-topics.jsp?nick=" + nick + "\">начало</a>] ");
+                }
 	  } else if ((pages+1-i)*topics==offset) {
 		out.print("[<b>"+(pages+1-i)+"</b>] ");
 	  } else {
@@ -143,7 +152,9 @@
 	  }
 	}
   } finally {
-    if (db!=null) db.close();
+    if (db!=null) {
+      db.close();
+    }
   }
 %>
-<%= tmpl.DocumentFooter() %>
+<jsp:include page="WEB-INF/jsp/footer.jsp"/>

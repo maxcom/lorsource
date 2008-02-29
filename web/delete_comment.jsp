@@ -6,8 +6,7 @@
 <% Template tmpl = new Template(request, config, response); %>
 <%= tmpl.head() %>
 	<title>Удаление сообщения</title>
-<%= tmpl.DocumentHeader() %>
-
+<jsp:include page="WEB-INF/jsp/header.jsp"/>
 <%
    Connection db = null;
 
@@ -208,4 +207,4 @@ function change(dest,source)
     }
   }
 %>
-<%= tmpl.DocumentFooter() %>
+<jsp:include page="WEB-INF/jsp/footer.jsp"/>

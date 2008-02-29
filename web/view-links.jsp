@@ -31,7 +31,8 @@
 
 %>
 <title><%= group.getSectionName() + " - " + group.getTitle() %></title>
-<%= tmpl.DocumentHeader() %>
+<jsp:include page="WEB-INF/jsp/header.jsp"/>
+
 <H1><%= group.getTitle() %></H1>
 <%
 
@@ -81,4 +82,4 @@
   }
 %>
 
-<%=        tmpl.DocumentFooter() %>
+<jsp:include page="WEB-INF/jsp/footer.jsp"/>

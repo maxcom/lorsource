@@ -26,7 +26,7 @@
 %>
 <%= tmpl.head() %>
 <title>Регистрация пользователя</title>
-<%= tmpl.DocumentHeader() %>
+<jsp:include page="WEB-INF/jsp/header.jsp"/>
 <%
   response.addHeader("Cache-Control", "no-store, no-cache, must-revalidate");
 
@@ -335,4 +335,4 @@ Email:
 %>
 
 <% } %>
-<%=   tmpl.DocumentFooter() %>
+<jsp:include page="WEB-INF/jsp/footer.jsp"/>

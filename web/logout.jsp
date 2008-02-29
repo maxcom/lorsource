@@ -10,12 +10,13 @@
 <%@ page import="ru.org.linux.site.Template" %>
 <%@ page import="ru.org.linux.site.User" %>
 <%@ page import="ru.org.linux.site.ViewerCacher" %>
+<%@ page import="ru.org.linux.util.ServletParameterParser" %>
 <% Template tmpl = new Template(request, config, response); %>
 <%= tmpl.head() %>
 <title>Logout</title>
-<%= tmpl.DocumentHeader() %>
+<jsp:include page="WEB-INF/jsp/header.jsp"/>
 <h1>Logout</h1>
-<% if (session!=null && session.getValue("login")!=null && ((Boolean) session.getValue("login")).booleanValue()) {
+<% if (session!=null && session.getValue("login")!=null && (Boolean) session.getValue("login")) {
 		session.removeValue("login");
 		session.removeValue("nick");
 		session.removeValue("moderator");
@@ -38,4 +39,4 @@
    }
 %>
 
-<%= tmpl.DocumentFooter() %>
+<jsp:include page="WEB-INF/jsp/footer.jsp"/>

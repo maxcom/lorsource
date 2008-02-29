@@ -22,7 +22,7 @@
 %>
 <title>Добавить опрос</title>
 
-<%= tmpl.DocumentHeader() %>
+<jsp:include page="WEB-INF/jsp/header.jsp"/>
 
 <%
   if ("POST".equals(request.getMethod())) {
@@ -110,4 +110,4 @@
   }
 %>
 
-<%=	tmpl.DocumentFooter() %>
+<jsp:include page="WEB-INF/jsp/footer.jsp"/>

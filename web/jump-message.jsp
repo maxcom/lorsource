@@ -58,6 +58,6 @@
   response.setHeader("Location", redirectUrl + options.toString());
   response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
 %>
-<%= tmpl.DocumentHeader() %>
+<jsp:include page="WEB-INF/jsp/header.jsp"/>
 Go to: <%= redirectUrl %>
-<%= tmpl.DocumentFooter() %>
+<jsp:include page="WEB-INF/jsp/footer.jsp"/>

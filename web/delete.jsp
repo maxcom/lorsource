@@ -7,7 +7,7 @@
 %>
 <%= tmpl.head() %>
 	<title>Удаление сообщения</title>
-<%= tmpl.DocumentHeader() %>
+<jsp:include page="WEB-INF/jsp/header.jsp"/>
 
 <%
   if (request.getParameter("reason")==null) {
@@ -195,4 +195,4 @@ function change(dest,source)
     }
   }
 %>
-<%= tmpl.DocumentFooter() %>
+<jsp:include page="WEB-INF/jsp/footer.jsp"/>

@@ -14,8 +14,9 @@
   }
 
   out.println("<title>Перенос темы...</title>");
-  out.print(tmpl.DocumentHeader());
-
+  %>
+<jsp:include page="WEB-INF/jsp/header.jsp"/>
+<%
   Connection db = null;
 
   try {
@@ -76,4 +77,4 @@
 %>
 
 
-<%= tmpl.DocumentFooter() %>
+  <jsp:include page="WEB-INF/jsp/footer.jsp"/>

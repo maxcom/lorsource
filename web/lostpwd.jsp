@@ -21,7 +21,7 @@
 <% Template tmpl = new Template(request, config, response); %>
 <%= tmpl.head() %>
 	<title>Получить забытый пароль</title>
-<%= tmpl.DocumentHeader() %>
+<jsp:include page="WEB-INF/jsp/header.jsp"/>
 
 <%
    if (request.getParameter("nick")==null) {
@@ -52,21 +52,27 @@ Email:
 
       rs.next();
 
-      if (rs.getBoolean("canmod"))
+      if (rs.getBoolean("canmod")) {
         throw new AccessViolationException("this feature is not for you, ask me directly");
+      }
 
-      if (rs.getBoolean("datecheck")) throw new AccessViolationException("mail flood");
-      if (rs.getString("email") == null || !rs.getString("email").equals(useremail))
+      if (rs.getBoolean("datecheck")) {
+        throw new AccessViolationException("mail flood");
+      }
+      if (rs.getString("email") == null || !rs.getString("email").equals(useremail)) {
         throw new AccessViolationException("mail не совпадает с указанным при регистрации");
+      }
 
 
       String password = rs.getString("passwd");
       InternetAddress email = new InternetAddress(rs.getString("email"));
       String name = rs.getString("name");
-      if (name != null && !"".equals(name))
+      if (name != null && !"".equals(name)) {
         email.setPersonal(name);
-      else
+      }
+      else {
         email.setPersonal(nick);
+      }
 
       rs.close();
       st.executeUpdate("UPDATE users SET lostpwd=CURRENT_TIMESTAMP WHERE id=" + user.getId());
@@ -89,8 +95,10 @@ Email:
       out.print("Ваш пароль был выслан по вашему email'у");
       st.close();
     } finally {
-      if (db != null) db.close();
+      if (db != null) {
+        db.close();
+      }
     }
   }
 %>
-<%=	tmpl.DocumentFooter() %>
+<jsp:include page="WEB-INF/jsp/footer.jsp"/>

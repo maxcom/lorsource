@@ -1,11 +1,8 @@
 <%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
 <%@ page import="java.io.IOException,java.net.URLEncoder" errorPage="/error.jsp" buffer="60kb" %>
 <%@ page import="java.sql.*"%>
-<%@ page import="java.util.Date"%>
-<%@ page import="java.util.List"%>
-<%@ page import="java.util.Map" %>
-<%@ page import="ru.org.linux.boxlet.BoxletVectorRunner" %>
-<%@ page import="ru.org.linux.site.*" %>
+<%@ page import="java.util.Map"%>
+<%@ page import="ru.org.linux.site.*"%>
 <%@ page import="ru.org.linux.util.BadImageException" %>
 <%@ page import="ru.org.linux.util.HTMLFormatter" %>
 <%@ page import="ru.org.linux.util.ImageInfo" %>
@@ -21,7 +18,8 @@
   }
 %>
 <title>Информация о пользователе <%= nick %></title>
-<%= tmpl.DocumentHeader() %>
+<jsp:include page="WEB-INF/jsp/header.jsp"/>
+
 <% Connection db = null;
   try {
     db = tmpl.getConnection();
@@ -231,4 +229,4 @@
     if (db!=null) db.close();
   }
 %>
-<%= tmpl.DocumentFooter() %>
+<jsp:include page="WEB-INF/jsp/footer.jsp"/>

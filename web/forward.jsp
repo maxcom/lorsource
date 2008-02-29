@@ -4,7 +4,8 @@
 <% Template tmpl = new Template(request, config, response); %>
 <%= tmpl.head() %>
 	<title>Редирект</title>
-<%= tmpl.DocumentHeader() %>
+<jsp:include page="WEB-INF/jsp/header.jsp"/>
+
 <%
   int id = Integer.parseInt(request.getParameter("id"));
 
@@ -23,10 +24,11 @@
     st.close();
     response.setHeader("Location", url);
   } finally {
-    if (db != null)
+    if (db != null) {
       db.close();
+    }
   }
 
   response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
 %>
-<%= tmpl.DocumentFooter() %>
+<jsp:include page="WEB-INF/jsp/footer.jsp"/>

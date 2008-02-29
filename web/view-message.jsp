@@ -107,8 +107,7 @@
 </c:if>
 
 <LINK REL="alternate" TITLE="Comments RSS" HREF="topic-rss.jsp?topic=<%= msgid %>" TYPE="application/rss+xml">
-<%= tmpl.DocumentHeader() %>
-
+<jsp:include page="WEB-INF/jsp/header.jsp"/>
 <div class=messages>
 
 <form method="GET" action="view-message.jsp">
@@ -400,4 +399,4 @@
     if (db!=null) db.close();
   }
 %>
-<%=	tmpl.DocumentFooter() %>
+<jsp:include page="WEB-INF/jsp/footer.jsp"/>

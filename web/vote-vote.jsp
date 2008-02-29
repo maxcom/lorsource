@@ -5,8 +5,7 @@
 <% Template tmpl = new Template(request, config, response); %>
 <%= tmpl.head() %>
 <title>Голосование</title>
-<%= tmpl.DocumentHeader() %>
-
+<jsp:include page="WEB-INF/jsp/header.jsp"/>
 <%
   if (!Template.isSessionAuthorized(session)) {
     throw new AccessViolationException("Not authorized");
@@ -73,4 +72,4 @@
   }
 
 %>
-<%= tmpl.DocumentFooter() %>
+<jsp:include page="WEB-INF/jsp/footer.jsp"/>

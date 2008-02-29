@@ -18,7 +18,7 @@
   response.setDateHeader("Last-Modified", new Date(new Date().getTime() - 2 * 1000).getTime());
 
 %>
-<%= tmpl.DocumentHeader() %>
+<jsp:include page="WEB-INF/jsp/header-main.jsp"/>
 <%
   boolean columns3 = tmpl.getProf().getBoolean("main.3columns");
 %>
@@ -171,14 +171,4 @@
 <%
 	tmpl.getObjectConfig().SQLclose();
 %>
-<%=	tmpl.DocumentFooter(false) %>
-
-<div align=center>
-<p>
-Разработка и поддержка - <a href="whois.jsp?nick=maxcom">Максим Валянский</a> 1998-2008<br>
-Размещение сервера и подключение его к сети Интернет осуществляется компанией
-ООО "<a href="http://www.ratel.ru">НИИР-РадиоНет</a>"<br>
-</p>
-</div>
-</body>
-</html>
+<jsp:include page="WEB-INF/jsp/footer-main.jsp"/>
