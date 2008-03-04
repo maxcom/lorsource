@@ -573,6 +573,14 @@
         <root url="jar://$PROJECT_DIR$/lib/urlrewritefilter-2.6-src.zip!/urlrewrite-2.6.0-src/src/java" />
       </SOURCES>
     </library>
+    <library name="spring">
+      <CLASSES>
+        <root url="jar://$PROJECT_DIR$/lib/spring-webmvc.jar!/" />
+        <root url="jar://$PROJECT_DIR$/lib/spring.jar!/" />
+      </CLASSES>
+      <JAVADOC />
+      <SOURCES />
+    </library>
   </component>
 </project>
 

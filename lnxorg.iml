@@ -30,11 +30,6 @@
             <attribute name="URI" value="/WEB-INF/classes" />
           </containerElement>
           <containerElement type="library" level="module">
-            <attribute name="method" value="0" />
-            <attribute name="URI" value="/WEB-INF/lib" />
-            <url>jar://$APPLICATION_HOME_DIR$/lib/junit.jar!/</url>
-          </containerElement>
-          <containerElement type="library" level="module">
             <attribute name="method" value="1" />
             <attribute name="URI" value="/WEB-INF/lib/commons-collections-2.1.1.jar" />
             <url>jar://$MODULE_DIR$/lib/commons-collections-2.1.1.jar!/</url>
@@ -84,6 +79,16 @@
             <attribute name="URI" value="/WEB-INF/lib/xercesImpl.jar" />
             <url>jar://$MODULE_DIR$/lib/xercesImpl.jar!/</url>
           </containerElement>
+          <containerElement type="library" level="module">
+            <attribute name="method" value="0" />
+            <attribute name="URI" value="&lt;N/A&gt;" />
+            <url>jar://$APPLICATION_HOME_DIR$/lib/javaee.jar!/</url>
+          </containerElement>
+          <containerElement type="library" level="module">
+            <attribute name="method" value="0" />
+            <attribute name="URI" value="/WEB-INF/lib" />
+            <url>jar://$APPLICATION_HOME_DIR$/lib/junit.jar!/</url>
+          </containerElement>
           <containerElement type="library" name="commons-fileupload-1.2" level="project">
             <attribute name="method" value="1" />
             <attribute name="URI" value="/WEB-INF/lib" />
@@ -108,11 +113,28 @@
             <attribute name="method" value="1" />
             <attribute name="URI" value="/WEB-INF/lib" />
           </containerElement>
+          <containerElement type="library" name="spring" level="project">
+            <attribute name="method" value="1" />
+            <attribute name="URI" value="/WEB-INF/lib" />
+          </containerElement>
           <containerElement type="library" name="standard" level="project">
             <attribute name="method" value="1" />
             <attribute name="URI" value="/WEB-INF/lib" />
           </containerElement>
+          <containerElement type="library" name="urlrewrite" level="project">
+            <attribute name="method" value="1" />
+            <attribute name="URI" value="/WEB-INF/lib" />
+          </containerElement>
         </packaging>
+      </configuration>
+    </facet>
+    <facet type="Spring" name="Spring" implicit="true">
+      <configuration>
+        <options>
+          <option name="enableValidation" value="true" />
+          <option name="reportErrorsAsWarnings" value="true" />
+        </options>
+        <customNs />
       </configuration>
     </facet>
   </component>
@@ -240,6 +262,7 @@
       </library>
     </orderEntry>
     <orderEntry type="library" exported="" name="urlrewrite" level="project" />
+    <orderEntry type="library" name="spring" level="project" />
     <orderEntryProperties />
   </component>
 </module>

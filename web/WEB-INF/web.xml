@@ -59,4 +59,15 @@ version="2.4">
 	<session-timeout>60</session-timeout>
   </session-config>
 
+  <servlet>
+    <servlet-name>springapp</servlet-name>
+    <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+    <load-on-startup>1</load-on-startup>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>springapp</servlet-name>
+    <url-pattern>/section</url-pattern>
+  </servlet-mapping>  
+
 </web-app>
