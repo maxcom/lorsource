@@ -4,7 +4,5 @@ MainUrl=http://test-lor:8080/
 PathPrefix=/var/www/test-lor/
 ; Path to html root
 HTMLPathPrefix=/var/www/test-lor/webapps/lor/
-; Log
-Logfile=/var/tmp/site.log
 ;
 Secret=secret

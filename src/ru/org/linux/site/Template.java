@@ -10,10 +10,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Properties;
-import java.util.logging.FileHandler;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.logging.SimpleFormatter;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
@@ -70,20 +67,7 @@ public class Template {
         logger.fine("loaded config file");
         MemCachedSettings.setMainUrl(properties.getProperty("MainUrl"));
 
-        FileHandler fh = new FileHandler(properties.getProperty("Logfile")+"j", true);
-        fh.setEncoding("koi8-r");
-        fh.setFormatter(new SimpleFormatter());
-        fh.setLevel(Level.INFO);
-
-        FileHandler fhDebug = new FileHandler(properties.getProperty("Logfile")+"jdebug", true);
-        fhDebug.setEncoding("koi8-r");
-        fhDebug.setFormatter(new SimpleFormatter());
-        fhDebug.setLevel(Level.ALL);
-
-        Logger.getLogger("ru.org.linux").addHandler(fh);
-        Logger.getLogger("ru.org.linux").addHandler(fhDebug);
-        Logger.getLogger("ru.org.linux").setLevel(Level.FINE);
-        logger.info("Applicaton started!");
+        logger.info("Application started!");
       } finally {
         if (is!=null) {
           is.close();
