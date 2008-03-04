@@ -55,7 +55,7 @@
     }
   }
 
-  String tag = "";
+  String tag = null;
   if (request.getParameter("tag")!=null) {
     tag = new ServletParameterParser(request).getString("tag");
     Tags.checkTag(tag);
