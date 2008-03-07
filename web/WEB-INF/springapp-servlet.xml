@@ -14,4 +14,13 @@
     <property name="prefix" value="/WEB-INF/jsp/"></property>
     <property name="suffix" value=".jsp"></property>
   </bean>
+
+  <bean id="exceptionMapping"
+        class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+    <property name="exceptionMappings">
+      <props>
+        <prop key="java.lang.Exception">error</prop>
+      </props>
+    </property>
+  </bean>
 </beans>

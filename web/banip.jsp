@@ -1,9 +1,9 @@
 <%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
-<%@ page import="java.net.URLEncoder,java.sql.*,java.util.Calendar,java.util.Date,javax.servlet.http.HttpServletResponse,ru.org.linux.site.*, ru.org.linux.util.HTMLFormatter" errorPage="/error.jsp" buffer="60kb" %>
+<%@ page import="java.net.URLEncoder,java.sql.*,java.util.Calendar,java.util.Date,javax.servlet.http.HttpServletResponse,ru.org.linux.site.*, ru.org.linux.util.HTMLFormatter"   buffer="60kb" %>
 <%@ page import="ru.org.linux.util.ServletParameterParser"%>
 <%@ page import="ru.org.linux.util.StringUtil" %>
-<% Template tmpl = new Template(request, config, response); %>
-<%= tmpl.head() %>
+<% Template tmpl = new Template(request, config.getServletContext(), response); %>
+<%= tmpl.getHead() %>
 <title>banip</title>
 <jsp:include page="WEB-INF/jsp/header.jsp"/>
 <%

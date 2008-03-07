@@ -12,7 +12,6 @@ import java.util.Locale;
 import java.util.Properties;
 import java.util.logging.Logger;
 
-import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -56,7 +55,7 @@ public class Template {
     return prop;
   }
 
-  public Template(HttpServletRequest request, ServletConfig config, HttpServletResponse response)
+  public Template(HttpServletRequest request, ServletContext context, HttpServletResponse response)
       throws ClassNotFoundException, IOException, SQLException, StorageException {
 //    request.setCharacterEncoding("koi8-r"); // блядский tomcat
     request.setCharacterEncoding("utf-8"); // блядский tomcat
@@ -67,7 +66,7 @@ public class Template {
       debugMode = true;
     }
 
-    Properties properties= getProperties(config.getServletContext());
+    Properties properties= getProperties(context);
 
     // TODO use better initialization
     MemCachedSettings.setMainUrl(properties.getProperty("MainUrl"));
@@ -223,7 +222,7 @@ public class Template {
     return style;
   }
 
-  public String head() {
+  public String getHead() {
     return "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\" \"http://www.w3.org/TR/REC-html40/loose.dtd\">\n<html lang=ru>\n<head>\n";
   }
 

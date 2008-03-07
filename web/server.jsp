@@ -1,12 +1,12 @@
 <%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
-<%@ page import="java.net.URLEncoder" errorPage="/error.jsp"%>
+<%@ page import="java.net.URLEncoder"  %>
 <%@ page import="java.sql.Connection" %>
 <%@ page import="java.sql.ResultSet" %>
 <%@ page import="java.sql.Statement" %>
 <%@ page import="ru.org.linux.site.LorDataSource" %>
 <%@ page import="ru.org.linux.site.Template" %>
-<% Template tmpl = new Template(request, config, response); %>
-<%= tmpl.head() %>
+<% Template tmpl = new Template(request, config.getServletContext(), response); %>
+<%= tmpl.getHead() %>
 <title>О Сервере</title>
 <jsp:include page="WEB-INF/jsp/header.jsp"/>
 <div class=text>

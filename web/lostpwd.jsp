@@ -1,5 +1,5 @@
 <%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
-<%@ page import="java.io.File,java.io.IOException,java.net.URLEncoder,java.sql.Connection,java.sql.PreparedStatement,java.sql.ResultSet,java.sql.Statement,java.util.Date" errorPage="/error.jsp" buffer="64kb"%>
+<%@ page import="java.io.File,java.io.IOException,java.net.URLEncoder,java.sql.Connection,java.sql.PreparedStatement,java.sql.ResultSet,java.sql.Statement,java.util.Date"   buffer="64kb"%>
 <%@ page import="java.util.List"%>
 <%@ page import="java.util.Properties"%>
 <%@ page import="java.util.Random"%>
@@ -18,8 +18,8 @@
 <%@ page import="ru.org.linux.site.*" %>
 <%@ page import="ru.org.linux.storage.StorageNotFoundException" %>
 <%@ page import="ru.org.linux.util.*" %>
-<% Template tmpl = new Template(request, config, response); %>
-<%= tmpl.head() %>
+<% Template tmpl = new Template(request, config.getServletContext(), response); %>
+<%= tmpl.getHead() %>
 	<title>Получить забытый пароль</title>
 <jsp:include page="WEB-INF/jsp/header.jsp"/>
 

@@ -1,11 +1,11 @@
 <%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
-<%@ page import="java.sql.Connection,java.sql.PreparedStatement, java.sql.ResultSet, java.sql.Statement, java.util.Date, java.util.List, javax.servlet.http.Cookie" errorPage="/error.jsp"%>
+<%@ page import="java.sql.Connection,java.sql.PreparedStatement, java.sql.ResultSet, java.sql.Statement, java.util.Date, java.util.List, javax.servlet.http.Cookie"  %>
 <%@ page import="javax.servlet.http.HttpServletResponse"%>
 <%@ page import="ru.org.linux.boxlet.BoxletVectorRunner"%>
 <%@ page import="ru.org.linux.site.*" %>
 <%@ page import="ru.org.linux.util.ServletParameterParser" %>
-<% Template tmpl = new Template(request, config, response); %>
-<%= tmpl.head() %>
+<% Template tmpl = new Template(request, config.getServletContext(), response); %>
+<%= tmpl.getHead() %>
 <%
   Connection db = null;
 

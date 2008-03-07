@@ -1,7 +1,7 @@
 <%@ page contentType="text/html; charset=utf-8" pageEncoding="koi8-r"%>
-<%@ page import="ru.org.linux.site.Template" errorPage="/error.jsp"%>
-<% Template tmpl = new Template(request, config, response); %>
-<%= tmpl.head() %>
+<%@ page import="ru.org.linux.site.Template"  %>
+<% Template tmpl = new Template(request, config.getServletContext(), response); %>
+<%= tmpl.getHead() %>
 <title>Активация</title>
 <jsp:include page="WEB-INF/jsp/header.jsp"/>
 <h1>Активация</h1>

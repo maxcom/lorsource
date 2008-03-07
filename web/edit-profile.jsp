@@ -1,5 +1,5 @@
 <%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
-<%@ page import="java.net.URLEncoder,java.sql.Connection,java.sql.ResultSet, java.sql.Statement, java.util.Date" errorPage="/error.jsp" buffer="20kb" %>
+<%@ page import="java.net.URLEncoder,java.sql.Connection,java.sql.ResultSet, java.sql.Statement, java.util.Date"   buffer="20kb" %>
 <%@ page import="java.util.List"%>
 <%@ page import="javax.servlet.http.Cookie" %>
 <%@ page import="javax.servlet.http.HttpServletResponse" %>
@@ -8,8 +8,8 @@
 <%@ page import="ru.org.linux.util.ProfileHashtable" %>
 <%@ page import="ru.org.linux.util.ServletParameterParser" %>
 <%@ page import="ru.org.linux.util.StringUtil" %>
-<% Template tmpl = new Template(request, config, response); %>
-<%= tmpl.head() %>
+<% Template tmpl = new Template(request, config.getServletContext(), response); %>
+<%= tmpl.getHead() %>
 	<title>Настройки профиля</title>
 <jsp:include page="WEB-INF/jsp/header.jsp"/>
 

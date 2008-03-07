@@ -1,9 +1,9 @@
 <%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
-<%@ page import="java.sql.Connection,java.sql.ResultSet,java.sql.Statement,javax.servlet.http.HttpServletResponse" errorPage="/error.jsp"%>
+<%@ page import="java.sql.Connection,java.sql.ResultSet,java.sql.Statement,javax.servlet.http.HttpServletResponse"  %>
 <%@ page import="ru.org.linux.site.LorDataSource"%>
 <%@ page import="ru.org.linux.site.Template" %>
-<% Template tmpl = new Template(request, config, response); %>
-<%= tmpl.head() %>
+<% Template tmpl = new Template(request, config.getServletContext(), response); %>
+<%= tmpl.getHead() %>
 	<title>Редирект</title>
 <jsp:include page="WEB-INF/jsp/header.jsp"/>
 

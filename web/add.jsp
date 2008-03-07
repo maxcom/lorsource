@@ -1,12 +1,12 @@
-<%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8" import="java.sql.Connection,java.util.List" errorPage="/error.jsp"%>
+<%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8" import="java.sql.Connection,java.util.List"  %>
 <%@ page import="java.util.Random"%>
 <%@ page import="javax.servlet.http.HttpServletResponse"%>
 <%@ page import="org.apache.commons.lang.StringUtils" %>
 <%@ page import="ru.org.linux.site.*" %>
 <%@ page import="ru.org.linux.util.HTMLFormatter" %>
 <%@ page import="ru.org.linux.util.UtilBadURLException" %>
-<% Template tmpl = new Template(request, config, response);%>
-<%= tmpl.head() %>
+<% Template tmpl = new Template(request, config.getServletContext(), response);%>
+<%= tmpl.getHead() %>
 <%
   Connection db = null;
 

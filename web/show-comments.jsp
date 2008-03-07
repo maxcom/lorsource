@@ -1,11 +1,11 @@
 <%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
-<%@ page import="java.net.URLEncoder,java.sql.Connection,java.sql.ResultSet,java.sql.Statement" errorPage="/error.jsp" buffer="60kb" %>
+<%@ page import="java.net.URLEncoder,java.sql.Connection,java.sql.ResultSet,java.sql.Statement"   buffer="60kb" %>
 <%@ page import="java.util.Date"%>
 <%@ page import="com.danga.MemCached.MemCachedClient" %>
 <%@ page import="ru.org.linux.site.*" %>
 <%@ page import="ru.org.linux.util.StringUtil" %>
-<% Template tmpl = new Template(request, config, response); %>
-<%= tmpl.head() %>
+<% Template tmpl = new Template(request, config.getServletContext(), response); %>
+<%= tmpl.getHead() %>
 <% String nick=request.getParameter("nick");
 	if (nick==null) {
           throw new MissingParameterException("nick");

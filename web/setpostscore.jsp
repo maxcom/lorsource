@@ -1,12 +1,12 @@
 <%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
-<%@ page import="java.sql.Connection,java.sql.PreparedStatement,java.util.logging.Logger,ru.org.linux.site.LorDataSource,ru.org.linux.site.Message" errorPage="/error.jsp"%>
+<%@ page import="java.sql.Connection,java.sql.PreparedStatement,java.util.logging.Logger,ru.org.linux.site.LorDataSource,ru.org.linux.site.Message"  %>
 <%@ page import="ru.org.linux.site.Template" %>
 <%@ page import="ru.org.linux.site.User" %>
 <%@ page import="ru.org.linux.util.ServletParameterParser" %>
-<% Template tmpl = new Template(request, config, response);
+<% Template tmpl = new Template(request, config.getServletContext(), response);
   Logger logger = Logger.getLogger("ru.org.linux");
 %>
-<%= tmpl.head() %>
+<%= tmpl.getHead() %>
 	<title>Смена параметров сообщения</title>
 <jsp:include page="WEB-INF/jsp/header.jsp"/>
 <%

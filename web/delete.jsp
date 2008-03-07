@@ -1,11 +1,11 @@
 <%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
-<%@ page import="java.sql.Connection,java.sql.PreparedStatement,java.sql.ResultSet" errorPage="/error.jsp"%>
+<%@ page import="java.sql.Connection,java.sql.PreparedStatement,java.sql.ResultSet"  %>
 <%@ page import="java.util.logging.Logger"%>
 <%@ page import="ru.org.linux.site.*" %>
-<% Template tmpl = new Template(request, config, response);
+<% Template tmpl = new Template(request, config.getServletContext(), response);
   Logger logger = Logger.getLogger("ru.org.linux");
 %>
-<%= tmpl.head() %>
+<%= tmpl.getHead() %>
 	<title>Удаление сообщения</title>
 <jsp:include page="WEB-INF/jsp/header.jsp"/>
 

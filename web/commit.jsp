@@ -1,15 +1,15 @@
 <%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
-<%@ page import="java.sql.Connection,java.sql.PreparedStatement,java.sql.ResultSet,java.sql.Statement,java.util.List" errorPage="/error.jsp"%>
+<%@ page import="java.sql.Connection,java.sql.PreparedStatement,java.sql.ResultSet,java.sql.Statement,java.util.List"  %>
 <%@ page import="java.util.Random"%>
 <%@ page import="java.util.logging.Logger"%>
 <%@ page import="javax.servlet.http.HttpServletResponse"%>
 <%@ page import="ru.org.linux.site.*" %>
 <%@ page import="ru.org.linux.util.HTMLFormatter" %>
 <%@ page import="ru.org.linux.util.ServletParameterParser" %>
-<% Template tmpl = new Template(request, config, response);
+<% Template tmpl = new Template(request, config.getServletContext(), response);
   Logger logger = Logger.getLogger("ru.org.linux");
 %>
-<%= tmpl.head() %>
+<%= tmpl.getHead() %>
 	<title>Подтверждение сообщения</title>
 <jsp:include page="WEB-INF/jsp/header.jsp"/>
 

@@ -1,10 +1,10 @@
 <%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
-<%@ page import="java.net.URLEncoder,java.sql.Connection" errorPage="/error.jsp" buffer="60kb"%>
+<%@ page import="java.net.URLEncoder,java.sql.Connection"   buffer="60kb"%>
 <%@ page import="javax.servlet.http.HttpServletResponse" %>
 <%@ page import="ru.org.linux.site.*" %>
 <%@ page import="ru.org.linux.util.ServletParameterParser" %>
-<% Template tmpl = new Template(request, config, response); %>
-<%= tmpl.head() %>
+<% Template tmpl = new Template(request, config.getServletContext(), response); %>
+<%= tmpl.getHead() %>
 <%
   int msgid = new ServletParameterParser(request).getInt("msgid");
 

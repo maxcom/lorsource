@@ -1,18 +1,15 @@
 <%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
-<%@ page import="java.sql.Connection,java.sql.ResultSet" errorPage="/error.jsp"%>
+<%@ page import="java.sql.Connection,java.sql.ResultSet"  %>
 <%@ page import="java.sql.Statement"%>
 <%@ page import="java.util.Date" %>
 <%@ page import="java.util.List" %>
 <%@ page import="javax.servlet.http.Cookie" %>
 <%@ page import="javax.servlet.http.HttpServletResponse" %>
 <%@ page import="ru.org.linux.boxlet.BoxletVectorRunner" %>
-<%@ page import="ru.org.linux.site.NewsViewer" %>
-<%@ page import="ru.org.linux.site.Template" %>
-<%@ page import="ru.org.linux.site.User" %>
-<%@ page import="ru.org.linux.site.ViewerCacher" %>
+<%@ page import="ru.org.linux.site.*" %>
 <%@ page import="ru.org.linux.util.ServletParameterParser" %>
-<% Template tmpl = new Template(request, config, response); %>
-<%= tmpl.head() %>
+<% Template tmpl = new Template(request, config.getServletContext(), response); %>
+<%= tmpl.getHead() %>
 <title>Logout</title>
 <jsp:include page="WEB-INF/jsp/header.jsp"/>
 <h1>Logout</h1>

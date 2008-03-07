@@ -1,5 +1,5 @@
 <%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
-<%@ page import="java.io.File,java.io.IOException,java.net.URLEncoder,java.sql.*,java.util.*,java.util.Date,java.util.logging.Logger,javax.mail.Session" errorPage="/error.jsp" buffer="200kb"%>
+<%@ page import="java.io.File,java.io.IOException,java.net.URLEncoder,java.sql.*,java.util.*,java.util.Date,java.util.logging.Logger,javax.mail.Session"   buffer="200kb"%>
 <%@ page import="javax.mail.Transport"%>
 <%@ page import="javax.mail.internet.InternetAddress"%>
 <%@ page import="javax.mail.internet.MimeMessage"%>
@@ -13,8 +13,8 @@
 <%@ page import="ru.org.linux.site.*" %>
 <%@ page import="ru.org.linux.storage.StorageNotFoundException" %>
 <%@ page import="ru.org.linux.util.*" %>
-<% Template tmpl = new Template(request, config, response); %>
-<%= tmpl.head() %>
+<% Template tmpl = new Template(request, config.getServletContext(), response); %>
+<%= tmpl.getHead() %>
 <%
   Connection db = null;
   try {

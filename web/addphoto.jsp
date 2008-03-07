@@ -1,5 +1,5 @@
 <%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
-<%@ page import="java.io.File, java.io.IOException, java.net.URLEncoder, java.sql.Connection, java.sql.PreparedStatement" errorPage="/error.jsp"%>
+<%@ page import="java.io.File, java.io.IOException, java.net.URLEncoder, java.sql.Connection, java.sql.PreparedStatement"  %>
 <%@ page import="java.sql.ResultSet" %>
 <%@ page import="java.sql.Statement" %>
 <%@ page import="java.util.Date" %>
@@ -20,10 +20,10 @@
 <%@ page import="ru.org.linux.site.*" %>
 <%@ page import="ru.org.linux.storage.StorageNotFoundException" %>
 <%@ page import="ru.org.linux.util.*" %>
-<% Template tmpl = new Template(request, config, response);
+<% Template tmpl = new Template(request, config.getServletContext(), response);
   Logger logger = Logger.getLogger("ru.org.linux");
 %>
-<%= tmpl.head() %>
+<%= tmpl.getHead() %>
 <title>Добавление/Изменение фотографии</title>
 <jsp:include page="WEB-INF/jsp/header.jsp"/>
 

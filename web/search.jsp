@@ -1,5 +1,5 @@
 <%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
-<%@ page import="java.io.File" errorPage="/error.jsp"%>
+<%@ page import="java.io.File"  %>
 <%@ page import="java.io.IOException" %>
 <%@ page import="java.io.PrintWriter" %>
 <%@ page import="java.io.StringWriter" %>
@@ -25,8 +25,8 @@
 <%@ page import="ru.org.linux.site.*" %>
 <%@ page import="ru.org.linux.storage.StorageNotFoundException" %>
 <%@ page import="ru.org.linux.util.*" %>
-<% Template tmpl = new Template(request, config, response);%>
-<%= tmpl.head() %>
+<% Template tmpl = new Template(request, config.getServletContext(), response);%>
+<%= tmpl.getHead() %>
 
 <%
   boolean initial = request.getParameter("q") == null;

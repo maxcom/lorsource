@@ -1,35 +1,29 @@
 <%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
-<%@ page import="java.io.File,java.io.IOException" isErrorPage="true" %>
-<%@ page import="java.io.PrintWriter"%>
-<%@ page import="java.io.StringWriter"%>
-<%@ page import="java.net.URLEncoder"%>
-<%@ page import="java.sql.*"%>
-<%@ page import="java.text.DateFormat"%>
-<%@ page import="java.text.SimpleDateFormat"%>
-<%@ page import="java.util.*"%>
+<%@ page import="java.io.PrintWriter,java.io.StringWriter" isErrorPage="true" %>
 <%@ page import="java.util.Date"%>
+<%@ page import="java.util.Enumeration"%>
+<%@ page import="java.util.Properties"%>
 <%@ page import="java.util.logging.Logger"%>
 <%@ page import="javax.mail.Session"%>
 <%@ page import="javax.mail.Transport"%>
 <%@ page import="javax.mail.internet.InternetAddress"%>
 <%@ page import="javax.mail.internet.MimeMessage"%>
-<%@ page import="javax.servlet.http.Cookie" %>
-<%@ page import="javax.servlet.http.HttpServletResponse" %>
-<%@ page import="com.danga.MemCached.MemCachedClient" %>
-<%@ page import="org.apache.commons.fileupload.FileItem" %>
-<%@ page import="org.apache.commons.fileupload.disk.DiskFileItemFactory" %>
-<%@ page import="org.apache.commons.fileupload.servlet.ServletFileUpload" %>
-<%@ page import="org.apache.commons.lang.StringUtils" %>
-<%@ page import="ru.org.linux.boxlet.BoxletVectorRunner" %>
-<%@ page import="ru.org.linux.site.*" %>
-<%@ page import="ru.org.linux.storage.StorageNotFoundException" %>
-<%@ page import="ru.org.linux.util.*" %>
-<% Template tmpl = new Template(request, config, response);
+<%@ page import="ru.org.linux.site.ScriptErrorException"%>
+<%@ page import="ru.org.linux.site.Template"%>
+<%@ page import="ru.org.linux.site.UserErrorException"%>
+<%@ page import="ru.org.linux.util.HTMLFormatter"%>
+<%@ page import="ru.org.linux.util.ServletParameterException"%>
+<%@ page import="ru.org.linux.util.StringUtil" %>
+<% Template tmpl = new Template(request, config.getServletContext(), response);
   Logger logger = Logger.getLogger("ru.org.linux");
+
+  if (exception==null) {
+    exception = (Throwable) request.getAttribute("exception");
+  }
 %>
-<%= tmpl.head() %>
+<%= tmpl.getHead() %>
 <title>Ошибка: <%= HTMLFormatter.htmlSpecialChars(exception.getClass().getName()) %></title>
-<jsp:include page="WEB-INF/jsp/header.jsp"/>
+<jsp:include page="/WEB-INF/jsp/header.jsp"/>
 <h1><%=exception.getMessage()==null?HTMLFormatter.htmlSpecialChars(exception.getClass().getName()):HTMLFormatter.htmlSpecialChars(exception.getMessage()) %></h1>
 
 <% if (exception instanceof UserErrorException) { %>
@@ -72,7 +66,7 @@
   text.append(exceptionStackTrace.toString());
 
   Properties props = new Properties();
-  props.put("mail.smtp.host", "localhost"); 
+  props.put("mail.smtp.host", "localhost");
   Session mailSession = Session.getDefaultInstance(props, null);
 
   MimeMessage emailMessage = new MimeMessage(mailSession);
@@ -82,9 +76,9 @@
   emailMessage.setSubject("Linux.org.ru error");
   emailMessage.setSentDate(new Date());
   emailMessage.setText(text.toString(), "UTF-8");
-  
+
   out.println("\n<br>\n<br>");
-  
+
   try {
     Transport.send(emailMessage);
     out.println("<b>Произошла непредвиденая ошибка. Администраторы получили об этом сигнал.</b>");
@@ -95,4 +89,4 @@
 %>
 <% } %>
 
-<jsp:include page="WEB-INF/jsp/footer.jsp"/>
+<jsp:include page="/WEB-INF/jsp/footer.jsp"/>

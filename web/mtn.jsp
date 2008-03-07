@@ -1,13 +1,13 @@
 <%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
-<%@ page import="java.sql.Connection,java.sql.PreparedStatement,java.sql.ResultSet,java.sql.Statement,java.util.logging.Logger" errorPage="/error.jsp" buffer="60kb" %>
+<%@ page import="java.sql.Connection,java.sql.PreparedStatement,java.sql.ResultSet,java.sql.Statement,java.util.logging.Logger"   buffer="60kb" %>
 <%@ page import="ru.org.linux.site.LorDataSource" %>
 <%@ page import="ru.org.linux.site.Template" %>
 <%@ page import="ru.org.linux.util.ServletParameterParser" %>
 <%
   Logger logger = Logger.getLogger("ru.org.linux");
 
-  Template tmpl = new Template(request, config, response);
-  out.print(tmpl.head());
+  Template tmpl = new Template(request, config.getServletContext(), response);
+  out.print(tmpl.getHead());
 
   if (!Template.isSessionAuthorized(session) || !((Boolean) session.getValue("moderator"))) {
     throw new IllegalAccessException("Not authorized");

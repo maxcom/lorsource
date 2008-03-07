@@ -1,9 +1,9 @@
 <%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8" %>
 <%@ page
     import="java.sql.Connection,java.sql.ResultSet,java.sql.Statement,ru.org.linux.site.*"
-    errorPage="/error.jsp" %>
-<% Template tmpl = new Template(request, config, response); %>
-<%= tmpl.head() %>
+      %>
+<% Template tmpl = new Template(request, config.getServletContext(), response); %>
+<%= tmpl.getHead() %>
 <title>Голосование</title>
 <jsp:include page="WEB-INF/jsp/header.jsp"/>
 <%

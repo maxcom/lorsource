@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <%@ page pageEncoding="koi8-r" contentType="application/rss+xml; charset=utf-8"%>
-<%@ page import="java.sql.Connection,ru.org.linux.site.LorDataSource,ru.org.linux.site.MessageTable" errorPage="/error.jsp" buffer="200kb"%>
+<%@ page import="java.sql.Connection,ru.org.linux.site.LorDataSource,ru.org.linux.site.MessageTable"   buffer="200kb"%>
 <%@ page import="ru.org.linux.site.Template" %>
 <%@ page import="ru.org.linux.util.ServletParameterParser" %>
-<% Template tmpl = new Template(request, config, response); %>
+<% Template tmpl = new Template(request, config.getServletContext(), response); %>
 
 <%
   int topic = 1;

@@ -1,12 +1,12 @@
 <%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
-<%@ page import="java.sql.Connection" errorPage="/error.jsp" %>
+<%@ page import="java.sql.Connection" %>
 <%@ page import="java.util.Date"%>
 <%@ page import="ru.org.linux.site.*" %>
 <%@ page import="ru.org.linux.util.ServletParameterParser" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 
-<% Template tmpl = new Template(request, config, response);%>
-<%= tmpl.head() %>
+<% Template tmpl = new Template(request, config.getServletContext(), response);%>
+<%= tmpl.getHead() %>
 <%
 
   response.setDateHeader("Expires", new Date(new Date().getTime() - 20 * 3600 * 1000).getTime());

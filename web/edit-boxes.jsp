@@ -1,12 +1,12 @@
 <%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
-<%@ page import="java.net.URLEncoder,java.sql.Connection,java.sql.ResultSet,java.sql.Statement, java.util.Date, java.util.List, javax.servlet.http.Cookie, javax.servlet.http.HttpServletResponse" errorPage="/error.jsp"%>
+<%@ page import="java.net.URLEncoder,java.sql.Connection,java.sql.ResultSet,java.sql.Statement, java.util.Date, java.util.List, javax.servlet.http.Cookie, javax.servlet.http.HttpServletResponse"  %>
 <%@ page import="ru.org.linux.boxlet.BoxletVectorRunner" %>
 <%@ page import="ru.org.linux.site.*" %>
 <%@ page import="ru.org.linux.util.ProfileHashtable" %>
 <%@ page import="ru.org.linux.util.ServletParameterParser" %>
 <%@ page import="ru.org.linux.util.StringUtil" %>
-<% Template tmpl = new Template(request, config, response);%>
-<%= tmpl.head() %>
+<% Template tmpl = new Template(request, config.getServletContext(), response);%>
+<%= tmpl.getHead() %>
 	<title>Конструктор страницы</title>
 <jsp:include page="WEB-INF/jsp/header.jsp"/>
 

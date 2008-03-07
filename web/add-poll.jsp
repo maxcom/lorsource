@@ -5,9 +5,9 @@
 <%@ page import="ru.org.linux.site.*"%>
 <%@ page import="ru.org.linux.util.HTMLFormatter" %>
 <%@ page import="ru.org.linux.util.ServletParameterParser" %>
-<%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8" errorPage="/error.jsp"%>
-<% Template tmpl = new Template(request, config, response);%>
-<%= tmpl.head() %>
+<%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"  %>
+<% Template tmpl = new Template(request, config.getServletContext(), response);%>
+<%= tmpl.getHead() %>
 
 <%
   response.addHeader("Cache-Control", "no-store, no-cache, must-revalidate");

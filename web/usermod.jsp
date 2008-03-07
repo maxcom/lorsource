@@ -6,11 +6,11 @@
 <%@ page import="ru.org.linux.site.*" %>
 <%@ page import="ru.org.linux.util.HTMLFormatter" %>
 <%@ page import="ru.org.linux.util.ServletParameterParser" %>
-<%@ page pageEncoding="koi8-r" contentType="text/html;charset=utf-8" language="java" errorPage="/error.jsp" %>
-<% Template tmpl = new Template(request, config, response);
+<%@ page pageEncoding="koi8-r" contentType="text/html;charset=utf-8" language="java"   %>
+<% Template tmpl = new Template(request, config.getServletContext(), response);
   Logger logger = Logger.getLogger("ru.org.linux");
 %>
-<%= tmpl.head() %>
+<%= tmpl.getHead() %>
 <title>usermod</title>
 <jsp:include page="WEB-INF/jsp/header.jsp"/>
 

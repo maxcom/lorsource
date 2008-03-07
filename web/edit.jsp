@@ -1,13 +1,13 @@
 <%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
 <%@ page
     import="java.sql.Connection,java.sql.PreparedStatement,java.util.List"
-    errorPage="/error.jsp" buffer="200kb" %>
+      buffer="200kb" %>
 <%@ page import="java.util.logging.Logger" %>
 <%@ page import="ru.org.linux.site.*" %>
 <%@ page import="ru.org.linux.util.HTMLFormatter" %>
 <%@ page import="ru.org.linux.util.ServletParameterParser" %>
 <%
-  Template tmpl = new Template(request, config, response);
+  Template tmpl = new Template(request, config.getServletContext(), response);
   Logger logger = Logger.getLogger("ru.org.linux");
 
   if (!tmpl.isModeratorSession()) {

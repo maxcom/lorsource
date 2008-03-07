@@ -1,8 +1,8 @@
 <%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
-<%@ page import="java.sql.Connection,ru.org.linux.site.LorDataSource,ru.org.linux.site.MissingParameterException,ru.org.linux.site.Poll" errorPage="/error.jsp" buffer="200kb"%>
+<%@ page import="java.sql.Connection,ru.org.linux.site.LorDataSource,ru.org.linux.site.MissingParameterException,ru.org.linux.site.Poll"   buffer="200kb"%>
 <%@ page import="ru.org.linux.site.Template" %>
-<% Template tmpl = new Template(request, config, response); %>
-<%=tmpl.head() %>
+<% Template tmpl = new Template(request, config.getServletContext(), response); %>
+<%=tmpl.getHead() %>
 <%
   Connection db = null;
   try {
