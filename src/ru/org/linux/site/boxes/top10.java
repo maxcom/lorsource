@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import ru.org.linux.boxlet.Boxlet;
-import ru.org.linux.site.config.SQLConfig;
+import ru.org.linux.site.LorDataSource;
 import ru.org.linux.util.ProfileHashtable;
 import ru.org.linux.util.UtilException;
 
@@ -15,7 +15,8 @@ public final class top10 extends Boxlet {
   public String getContentImpl(ProfileHashtable profile) throws IOException, SQLException, UtilException {
     Connection db = null;
     try {
-      db = ((SQLConfig) config).getConnection();
+      db = LorDataSource.getConnection();
+
       Map<Integer,Integer> ht = new HashMap<Integer,Integer>();
       StringBuffer out = new StringBuffer();
       double messages = profile.getInt("messages");
@@ -25,9 +26,7 @@ public final class top10 extends Boxlet {
 
       ResultSet rs = st.executeQuery("select msgid, mess_order from top10");
       while (rs.next()) {
-        Integer msgid = rs.getInt("msgid");
-        Integer mess_order = rs.getInt("mess_order");
-        ht.put(msgid, mess_order);
+        ht.put(rs.getInt("msgid"), rs.getInt("mess_order"));
       }
       rs.close();
 
@@ -65,7 +64,7 @@ public final class top10 extends Boxlet {
       return out.toString();
     } finally {
       if (db != null) {
-        ((SQLConfig) config).SQLclose();
+        db.close();
       }
     }
   }

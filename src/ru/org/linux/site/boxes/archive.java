@@ -8,7 +8,7 @@ import java.sql.Statement;
 import java.util.Date;
 
 import ru.org.linux.boxlet.Boxlet;
-import ru.org.linux.site.config.SQLConfig;
+import ru.org.linux.site.LorDataSource;
 import ru.org.linux.util.BadDateException;
 import ru.org.linux.util.DateUtil;
 import ru.org.linux.util.ProfileHashtable;
@@ -18,7 +18,7 @@ public final class archive extends Boxlet {
     Connection db = null;
 
     try {
-      db = ((SQLConfig) config).getConnection();
+      db = LorDataSource.getConnection();
       StringBuffer out = new StringBuffer();
 
       out.append("<h2><a href=\"view-news-archive.jsp?section=1\">Архив Новостей</a></h2>");
@@ -37,7 +37,7 @@ public final class archive extends Boxlet {
       return out.toString();
     } finally {
       if (db != null) {
-        ((SQLConfig) config).SQLclose();
+        db.close();
       }
     }
   }

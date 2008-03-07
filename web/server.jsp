@@ -3,6 +3,7 @@
 <%@ page import="java.sql.Connection" %>
 <%@ page import="java.sql.ResultSet" %>
 <%@ page import="java.sql.Statement" %>
+<%@ page import="ru.org.linux.site.LorDataSource" %>
 <%@ page import="ru.org.linux.site.Template" %>
 <% Template tmpl = new Template(request, config, response); %>
 <%= tmpl.head() %>
@@ -60,7 +61,7 @@
   Connection db = null;
 
   try {
-    db = tmpl.getConnection();
+    db = LorDataSource.getConnection();
 
     Statement st = db.createStatement();
     ResultSet rs = st.executeQuery("SELECT nick, name FROM users WHERE canmod ORDER BY id");

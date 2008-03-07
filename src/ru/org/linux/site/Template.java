@@ -36,13 +36,9 @@ public class Template {
   private static Properties properties = null;
   private final Config config;
   private final HttpSession session;
-  private final Date startDate = new Date();
-  private final String requestString;
 
   public static final DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM, new Locale("ru"));
   public static final DateFormat RFC822 = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss Z", Locale.US);
-
-  private static final int WARNING_EXEC_TIME = 15000;
 
   public String getSecret() {
     return config.getProperties().getProperty("Secret");
@@ -81,8 +77,6 @@ public class Template {
     request.setCharacterEncoding("utf-8"); // блядский tomcat
 
     request.setAttribute("template", this);
-
-    requestString = request.getRequestURI() + '?' + request.getQueryString();
 
     if (request.getParameter("debug") != null) {
       debugMode = true;
@@ -123,8 +117,9 @@ public class Template {
           cookie.setPath("/");
           response.addCookie(cookie);
         } else {
+          Connection db = null;
           try {
-            Connection db = getConnection();
+            db = LorDataSource.getConnection();
             User user = User.getUser(db, profile);
 
             if (user.getMD5(getSecret()).equals(getCookie("password")) && !user.isBlocked()) {
@@ -139,7 +134,9 @@ public class Template {
             logger.warning("Can't restore password for user: " + profile + " - " + ex.toString());
             profile = null;
           } finally {
-            this.config.SQLclose();
+            if (db!=null) {
+              db.close();
+            }
           }
         }
       } else {
@@ -182,10 +179,6 @@ public class Template {
     }
 
     return style;
-  }
-
-  public Connection getConnection() throws SQLException {
-    return config.getConnection();
   }
 
   public Properties getConfig() {
@@ -251,17 +244,6 @@ public class Template {
 
   public boolean getHover() throws UtilException {
     return getProf().getBoolean("hover");
-  }
-
-  public String getDocumentFooter() {
-    Date currentDate = new Date();
-    long millis = currentDate.getTime() - startDate.getTime();
-
-    if (millis>WARNING_EXEC_TIME) {
-      logger.info("execTime="+millis/1000+" seconds (dbWait="+config.getDbWaitTime()/1000+" seconds): "+requestString);
-    }
-
-    return "";
   }
 
   public boolean isUsingDefaultProfile() {

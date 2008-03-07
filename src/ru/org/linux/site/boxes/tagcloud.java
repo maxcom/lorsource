@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import ru.org.linux.boxlet.Boxlet;
-import ru.org.linux.site.config.SQLConfig;
+import ru.org.linux.site.LorDataSource;
 import ru.org.linux.util.ProfileHashtable;
 import ru.org.linux.util.UtilException;
 
@@ -19,7 +19,8 @@ public final class tagcloud extends Boxlet {
   public String getContentImpl(ProfileHashtable profile) throws IOException, SQLException, UtilException {
     Connection db = null;
     try {
-      db = ((SQLConfig) config).getConnection();
+      db = LorDataSource.getConnection();
+
       Map<String,Integer> ht = new TreeMap<String,Integer>();
       StringBuffer out = new StringBuffer();
       int tags = profile.getInt("tags");
@@ -56,7 +57,7 @@ public final class tagcloud extends Boxlet {
       return out.toString();
     } finally {
       if (db != null) {
-        ((SQLConfig) config).SQLclose();
+        db.close();
       }
     }
   }

@@ -4,10 +4,7 @@
 <%@ page import="java.util.Date" %>
 <%@ page import="java.util.List" %>
 <%@ page import="ru.org.linux.boxlet.BoxletVectorRunner" %>
-<%@ page import="ru.org.linux.site.NewsViewer" %>
-<%@ page import="ru.org.linux.site.Template" %>
-<%@ page import="ru.org.linux.site.User" %>
-<%@ page import="ru.org.linux.site.ViewerCacher" %>
+<%@ page import="ru.org.linux.site.*" %>
 <%@ page import="ru.org.linux.util.ServletParameterParser" %>
 <%@ page contentType="text/html; charset=utf-8"%>
 
@@ -26,8 +23,6 @@
   _uacct = "UA-2184304-1";
   urchinTracker();
 </script>
-
-${template.documentFooter}
 
 <div align=center>
 <p>

@@ -31,7 +31,7 @@
     int cid = new ServletParameterParser(request).getInt("cid");
 
     try {
-      db = tmpl.getConnection();
+      db = LorDataSource.getConnection();
       Message topic = new Message(db, msgid);
       CommentList comments = CommentList.getCommentList(db, topic, false);
       CommentNode node = comments.getNode(cid);

@@ -1,6 +1,7 @@
 <%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
 <%@ page import="java.sql.Connection,java.sql.PreparedStatement,java.sql.ResultSet,java.sql.Statement" errorPage="/error.jsp" %>
-<%@ page import="ru.org.linux.site.Template"%>
+<%@ page import="ru.org.linux.site.LorDataSource"%>
+<%@ page import="ru.org.linux.site.Template" %>
 <% Template tmpl = new Template(request, config, response); %>
 <%= tmpl.head() %>
 <title>we make new db information for mess_priority</title>
@@ -9,7 +10,7 @@
 <%  Connection db=null;
     try { %>
 <%
-  db = tmpl.getConnection();
+  db = LorDataSource.getConnection();
   db.setAutoCommit(false);
   Statement stmtFrom = db.createStatement();
   Statement stmtDel = db.createStatement();

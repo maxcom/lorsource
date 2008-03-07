@@ -52,7 +52,7 @@
       offset = 0;
     }
 
-    db = tmpl.getConnection();
+    db = LorDataSource.getConnection();
     db.setAutoCommit(false);
 
     Group group = new Group(db, groupId);

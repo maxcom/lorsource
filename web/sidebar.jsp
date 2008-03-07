@@ -1,5 +1,6 @@
 <%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
-<%@ page import="java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.util.Date,ru.org.linux.site.BadSectionException,ru.org.linux.site.Template" errorPage="/error.jsp" buffer="200kb"%>
+<%@ page import="java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.util.Date,ru.org.linux.site.BadSectionException,ru.org.linux.site.LorDataSource" errorPage="/error.jsp" buffer="200kb"%>
+<%@ page import="ru.org.linux.site.Template" %>
 <% Template tmpl = new Template(request, config, response); %>
 <%
   response.setDateHeader("Expires", new Date(new Date().getTime()-20*3600*1000).getTime());
@@ -10,14 +11,16 @@
   Connection db = null;
   try {
 
-    db = tmpl.getConnection();
+    db = LorDataSource.getConnection();
 
     Statement st = db.createStatement();
 
     int section = 1;
     ResultSet rs = st.executeQuery("SELECT name, browsable, imagepost FROM sections WHERE id=" + section);
 
-    if (!rs.next()) throw new BadSectionException(section);
+    if (!rs.next()) {
+      throw new BadSectionException(section);
+    }
 
 %>
 <strong><a href="http://www.linux.org.ru/" target="_content">LINUX.ORG.RU</a></strong><br>
@@ -37,6 +40,8 @@
 <%
 	st.close();
   } finally {
-    if (db!=null) db.close();
+    if (db!=null) {
+      db.close();
+    }
   }
 %>

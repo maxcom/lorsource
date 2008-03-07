@@ -1,5 +1,6 @@
 <%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
 <%@ page import="java.sql.Connection,java.sql.PreparedStatement,java.sql.ResultSet,java.sql.Statement,java.util.logging.Logger" errorPage="/error.jsp" buffer="60kb" %>
+<%@ page import="ru.org.linux.site.LorDataSource" %>
 <%@ page import="ru.org.linux.site.Template" %>
 <%@ page import="ru.org.linux.site.User" %>
 <%@ page import="ru.org.linux.util.ServletParameterParser" %>
@@ -21,7 +22,7 @@
 
   try {
     int msgid = new ServletParameterParser(request).getInt("msgid");
-    db = tmpl.getConnection();
+    db = LorDataSource.getConnection();
     Statement st1 = db.createStatement();
     if (request.getMethod().equals("POST")) {
       String newgr = request.getParameter("moveto");

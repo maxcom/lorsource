@@ -60,7 +60,7 @@
   if (request.getParameter("mode") != null && "remove2".equals(request.getParameter("mode"))) {
     Connection db = null;
     try {
-      db = tmpl.getConnection();
+      db = LorDataSource.getConnection();
       User user = User.getUser(db, tmpl.getProfileName());
       user.checkAnonymous();
       user.checkPassword(request.getParameter("password"));
@@ -94,7 +94,7 @@
   } else if (request.getParameter("mode") != null && "add2".equals(request.getParameter("mode"))) {
     Connection db = null;
     try {
-      db = tmpl.getConnection();
+      db = LorDataSource.getConnection();
       User user = User.getUser(db, tmpl.getProfileName());
       user.checkAnonymous();
       user.checkPassword(request.getParameter("password"));

@@ -1,5 +1,6 @@
 <%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
-<%@ page import="java.sql.Connection,ru.org.linux.site.AccessViolationException,ru.org.linux.site.Message,ru.org.linux.site.Template,ru.org.linux.util.HTMLFormatter" errorPage="/error.jsp" buffer="200kb"%>
+<%@ page import="java.sql.Connection,ru.org.linux.site.AccessViolationException,ru.org.linux.site.LorDataSource,ru.org.linux.site.Message,ru.org.linux.site.Template" errorPage="/error.jsp" buffer="200kb"%>
+<%@ page import="ru.org.linux.util.HTMLFormatter" %>
 <%@ page import="ru.org.linux.util.ServletParameterParser" %>
 <% Template tmpl = new Template(request, config, response); %>
 <%= tmpl.head() %>
@@ -9,7 +10,7 @@
   try {
     int msgid = new ServletParameterParser(request).getInt("msgid");
 
-    db = tmpl.getConnection();
+    db = LorDataSource.getConnection();
 
     Message message = new Message(db, msgid);
 

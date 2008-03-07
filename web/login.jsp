@@ -10,7 +10,7 @@
   Connection db = null;
 
   try {
-    db = tmpl.getConnection();
+    db = LorDataSource.getConnection();
     db.setAutoCommit(false);
     String nick = request.getParameter("nick");
     if (nick == null || "".equals(nick)) {

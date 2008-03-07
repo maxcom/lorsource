@@ -1,6 +1,7 @@
 <%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
-<%@ page import="java.net.URLEncoder,java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.util.Date,ru.org.linux.site.NewsViewer" errorPage="/error.jsp" buffer="60kb"%>
-<%@ page import="ru.org.linux.site.Section"%>
+<%@ page import="java.net.URLEncoder,java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.util.Date,ru.org.linux.site.LorDataSource" errorPage="/error.jsp" buffer="60kb"%>
+<%@ page import="ru.org.linux.site.NewsViewer"%>
+<%@ page import="ru.org.linux.site.Section" %>
 <%@ page import="ru.org.linux.site.Template" %>
 <%@ page import="ru.org.linux.util.ServletParameterParser" %>
 <% Template tmpl = new Template(request, config, response); %>
@@ -12,7 +13,7 @@
     response.setDateHeader("Expires", new Date(new Date().getTime() - 20 * 3600 * 1000).getTime());
     response.setDateHeader("Last-Modified", new Date(new Date().getTime() - 120 * 1000).getTime());
 
-    db = tmpl.getConnection();
+    db = LorDataSource.getConnection();
 
     int sectionid = 0;
     Section section = null;

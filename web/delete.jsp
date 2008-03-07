@@ -80,7 +80,7 @@ function change(dest,source)
       String nick = request.getParameter("nick");
       String reason = request.getParameter("reason");
 
-      db = tmpl.getConnection();
+      db = LorDataSource.getConnection();
       db.setAutoCommit(false);
 
       PreparedStatement lock = db.prepareStatement("SELECT deleted FROM topics WHERE id=? FOR UPDATE");

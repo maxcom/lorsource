@@ -129,7 +129,7 @@ URL (не забудьте добавить <b>http://</b>): <br>
     if (town != null) town = HTMLFormatter.htmlSpecialChars(town);
     if (info != null) info = HTMLFormatter.htmlSpecialChars(info);
 
-    db = tmpl.getConnection();
+    db = LorDataSource.getConnection();
     db.setAutoCommit(false);
 
     IPBlockInfo.checkBlockIP(db, request.getRemoteAddr());
@@ -286,7 +286,7 @@ URL (не забудьте добавить <b>http://</b>): <br>
   try {
     String nick = (String) session.getAttribute("nick");
 
-    db = tmpl.getConnection();
+    db = LorDataSource.getConnection();
     db.setAutoCommit(false);
 
     User user = User.getUser(db, nick);

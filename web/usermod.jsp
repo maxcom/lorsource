@@ -3,10 +3,7 @@
 <%@ page import="java.sql.Statement" %>
 <%@ page import="java.util.Random" %>
 <%@ page import="java.util.logging.Logger" %>
-<%@ page import="ru.org.linux.site.AccessViolationException" %>
-<%@ page import="ru.org.linux.site.Template" %>
-<%@ page import="ru.org.linux.site.User" %>
-<%@ page import="ru.org.linux.site.UserErrorException" %>
+<%@ page import="ru.org.linux.site.*" %>
 <%@ page import="ru.org.linux.util.HTMLFormatter" %>
 <%@ page import="ru.org.linux.util.ServletParameterParser" %>
 <%@ page pageEncoding="koi8-r" contentType="text/html;charset=utf-8" language="java" errorPage="/error.jsp" %>
@@ -32,7 +29,7 @@
   Connection db = null;
 
   try {
-    db = tmpl.getConnection();
+    db = LorDataSource.getConnection();
     db.setAutoCommit(false);
 
     Statement st = db.createStatement();

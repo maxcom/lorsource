@@ -1,5 +1,6 @@
 <%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
-<%@ page import="java.sql.Connection,java.sql.PreparedStatement,java.util.logging.Logger,ru.org.linux.site.Message,ru.org.linux.site.Template" errorPage="/error.jsp"%>
+<%@ page import="java.sql.Connection,java.sql.PreparedStatement,java.util.logging.Logger,ru.org.linux.site.LorDataSource,ru.org.linux.site.Message" errorPage="/error.jsp"%>
+<%@ page import="ru.org.linux.site.Template" %>
 <%@ page import="ru.org.linux.site.User" %>
 <%@ page import="ru.org.linux.util.ServletParameterParser" %>
 <% Template tmpl = new Template(request, config, response);
@@ -21,7 +22,7 @@ if (!tmpl.isModeratorSession()) {
     try {
       int msgid = new ServletParameterParser(request).getInt("msgid");
 
-      db = tmpl.getConnection();
+      db = LorDataSource.getConnection();
 
       Message msg = new Message(db, msgid);
 
@@ -74,7 +75,7 @@ if (!tmpl.isModeratorSession()) {
 
     Connection db = null;
     try {
-      db = tmpl.getConnection();
+      db = LorDataSource.getConnection();
       db.setAutoCommit(false);
 
       Message msg = new Message(db, msgid);

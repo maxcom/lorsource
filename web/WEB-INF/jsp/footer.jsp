@@ -42,6 +42,4 @@
   urchinTracker();
 </script>
 
-${template.documentFooter}
-
 </body></html>

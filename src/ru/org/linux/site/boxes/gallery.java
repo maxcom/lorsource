@@ -9,15 +9,16 @@ import java.sql.Statement;
 import java.util.Date;
 
 import ru.org.linux.boxlet.Boxlet;
+import ru.org.linux.site.LorDataSource;
 import ru.org.linux.site.config.PropertiesConfig;
-import ru.org.linux.site.config.SQLConfig;
 import ru.org.linux.util.*;
 
 public final class gallery extends Boxlet {
   public String getContentImpl(ProfileHashtable profile) throws IOException, SQLException {
     Connection db = null;
     try {
-      db = ((SQLConfig) config).getConnection();
+      db = LorDataSource.getConnection();
+
       StringBuffer out = new StringBuffer();
 
       out.append("<h2><a href=\"view-news.jsp?section=3\">Галерея</a></h2> <h3>Последние скриншоты</h3>");
@@ -63,7 +64,7 @@ public final class gallery extends Boxlet {
       return out.toString();
     } finally {
       if (db != null) {
-        ((SQLConfig) config).SQLclose();
+        db.close();
       }
     }
   }

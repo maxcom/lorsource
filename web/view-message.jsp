@@ -41,7 +41,7 @@
       filterMode += CommentViewer.FILTER_IGNORED;
     }
 
-    db = tmpl.getConnection();
+  db = LorDataSource.getConnection();
 
     String nick = Template.getNick(session);
 

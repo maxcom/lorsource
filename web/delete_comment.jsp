@@ -87,7 +87,7 @@ function change(dest,source)
 <div class="messages">
 <div class="comment">
 <%
-  db = tmpl.getConnection();
+  db = LorDataSource.getConnection();
 
   Statement st = db.createStatement();
   ResultSet rs = st.executeQuery("SELECT topic FROM comments WHERE id=" + msgid);
@@ -127,7 +127,7 @@ function change(dest,source)
       throw new BadParameterException("incorrect bonus value");
     }
 
-    db = tmpl.getConnection();
+    db = LorDataSource.getConnection();
     db.setAutoCommit(false);
 
     CommentDeleter deleter = new CommentDeleter(db);

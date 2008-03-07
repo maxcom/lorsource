@@ -1,10 +1,7 @@
 <%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
 <%@ page import="java.sql.Connection" errorPage="/error.jsp" %>
 <%@ page import="java.util.Date"%>
-<%@ page import="ru.org.linux.site.BadSectionException" %>
-<%@ page import="ru.org.linux.site.Group" %>
-<%@ page import="ru.org.linux.site.Section" %>
-<%@ page import="ru.org.linux.site.Template" %>
+<%@ page import="ru.org.linux.site.*" %>
 <%@ page import="ru.org.linux.util.ServletParameterParser" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 
@@ -19,7 +16,7 @@
 
   Connection db = null;
   try {
-    db = tmpl.getConnection();
+    db = LorDataSource.getConnection();
 
     Section section = new Section(db, sectionid);
 

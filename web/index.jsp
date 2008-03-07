@@ -1,9 +1,6 @@
 <%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
 <%@ page import="java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.util.Date,java.util.List, ru.org.linux.boxlet.BoxletVectorRunner" errorPage="/error.jsp" buffer="60kb"%>
-<%@ page import="ru.org.linux.site.NewsViewer"%>
-<%@ page import="ru.org.linux.site.Template" %>
-<%@ page import="ru.org.linux.site.User" %>
-<%@ page import="ru.org.linux.site.ViewerCacher" %>
+<%@ page import="ru.org.linux.site.*" %>
 <%@ page import="ru.org.linux.util.ServletParameterParser" %>
 <% Template tmpl = new Template(request, config, response); %>
 <%=   tmpl.head() %>
@@ -20,6 +17,9 @@
 <jsp:include page="WEB-INF/jsp/header-main.jsp"/>
 <%
   boolean columns3 = tmpl.getProf().getBoolean("main.3columns");
+
+  Connection db = null;
+  try {
 %>
 
 <div style="clear: both"></div>
@@ -31,7 +31,9 @@
   if (tmpl.isModeratorSession()) {
     out.print("<div class=\"nav\"  style=\"border-bottom: none\">");
 
-    Connection db = tmpl.getConnection();
+    if (db==null) {
+      db = LorDataSource.getConnection();
+    }
 
     Statement st = db.createStatement();
     ResultSet rs = st.executeQuery("select count(*) from topics,groups,sections where section=sections.id AND sections.moderate and topics.groupid=groups.id and not deleted and not topics.moderate AND postdate>(CURRENT_TIMESTAMP-'1 month'::interval)");
@@ -74,7 +76,7 @@
 
   NewsViewer nv = NewsViewer.getMainpage(tmpl.getConfig(), tmpl.getProf(), offset);
 
-  out.print(ViewerCacher.getViewer(nv, tmpl, false, true));
+  out.print(ViewerCacher.getViewer(nv, tmpl, false));
 %>
 <div class="nav">
   <% if (offset<200) { %>
@@ -118,7 +120,10 @@
 <form method=POST action="logout.jsp">
 Вы вошли как <b><%= session.getAttribute("nick") %></b>
 <%
-  Connection db = tmpl.getConnection();
+  if (db==null) {
+    db = LorDataSource.getConnection();
+  }
+  
   User user = User.getUser(db, (String) session.getAttribute("nick"));
 
   out.print("<br>(статус: " + user.getStatus() + ')');
@@ -167,7 +172,10 @@
 
 <div style="clear: both"></div>
 
-<%
-	tmpl.getObjectConfig().SQLclose();
+<% } finally {
+    if (db!=null) {
+      db.close();
+    }
+  }
 %>
 <jsp:include page="WEB-INF/jsp/footer-main.jsp"/>

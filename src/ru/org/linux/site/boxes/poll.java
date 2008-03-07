@@ -7,8 +7,8 @@ import java.sql.Statement;
 import java.util.Date;
 
 import ru.org.linux.boxlet.Boxlet;
+import ru.org.linux.site.LorDataSource;
 import ru.org.linux.site.Poll;
-import ru.org.linux.site.config.SQLConfig;
 import ru.org.linux.util.ProfileHashtable;
 import ru.org.linux.util.UtilException;
 
@@ -16,7 +16,7 @@ public final class poll extends Boxlet {
   public String getContentImpl(ProfileHashtable profile) throws SQLException, UtilException {
     Connection db = null;
     try {
-      db = ((SQLConfig) config).getConnection();
+      db = LorDataSource.getConnection();
 
       Poll poll = Poll.getCurrentPoll(db);
 
@@ -48,7 +48,7 @@ public final class poll extends Boxlet {
       return out.toString();
     } finally {
       if (db != null) {
-        ((SQLConfig) config).SQLclose();
+        db.close();
       }
     }
   }

@@ -1,10 +1,8 @@
 <%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
 <%@ page
-    import="java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.util.Date,ru.org.linux.site.BadGroupException"
+    import="java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.util.Date"
     errorPage="/error.jsp" buffer="200kb" %>
-<%@ page import="ru.org.linux.site.Group" %>
-<%@ page import="ru.org.linux.site.MissingParameterException" %>
-<%@ page import="ru.org.linux.site.Template" %>
+<%@ page import="ru.org.linux.site.*" %>
 <%@ page import="ru.org.linux.util.StringUtil" %>
 <% Template tmpl = new Template(request, config, response); %>
 <%= tmpl.head() %>
@@ -23,7 +21,7 @@
   }
   int groupid = Integer.parseInt(request.getParameter("group"));
 
-  db = tmpl.getConnection();
+  db = LorDataSource.getConnection();
 
   Group group = new Group(db, groupid);
 

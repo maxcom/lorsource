@@ -28,7 +28,7 @@
       throw new BadInputException("ничего не выбрано");
     }
 
-    db = tmpl.getConnection();
+    db = LorDataSource.getConnection();
 
     int vote = Poll.getPollIdByTopic(db, msgid);
 

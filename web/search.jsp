@@ -114,7 +114,7 @@
 
     ViewerCacher cacher = new ViewerCacher();
 
-    out.print(cacher.get(sv, tmpl, false, true));
+    out.print(cacher.get(sv, tmpl, false));
 
     out.print("<p><i>");
 

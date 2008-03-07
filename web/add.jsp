@@ -21,7 +21,7 @@
       try {
         preview = true;
 
-        db = tmpl.getConnection();
+        db = LorDataSource.getConnection();
         db.setAutoCommit(false);
 
         previewMsg = new Message(db, tmpl, session, request);
@@ -97,7 +97,7 @@
     Integer groupId = (Integer)request.getAttribute("group");
 
     if (db==null) {
-      db = tmpl.getConnection();
+      db = LorDataSource.getConnection();
     }
 
     db.setAutoCommit(true);

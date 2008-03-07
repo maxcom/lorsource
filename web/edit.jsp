@@ -20,7 +20,7 @@
 <%
   Connection db = null;
   try {
-    db = tmpl.getConnection();
+    db = LorDataSource.getConnection();
     db.setAutoCommit(false);
     Message message = new Message(db, msgid);
 

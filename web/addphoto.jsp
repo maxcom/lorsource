@@ -95,7 +95,7 @@
       }
       Userpic.checkUserpic(filename);
 
-      db = tmpl.getConnection();
+      db = LorDataSource.getConnection();
       User user = User.getUser(db, (String) session.getAttribute("nick"));
       user.checkAnonymous();
 

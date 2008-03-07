@@ -19,7 +19,7 @@
 %>
 
 <%
-  db = tmpl.getConnection();
+  db = LorDataSource.getConnection();
 
   String ip;
 

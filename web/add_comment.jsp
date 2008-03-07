@@ -84,7 +84,7 @@
 
     try {
       // prechecks is over
-      db = tmpl.getConnection();
+      db = LorDataSource.getConnection();
       db.setAutoCommit(false);
 
       IPBlockInfo.checkBlockIP(db, request.getRemoteAddr());
@@ -216,7 +216,7 @@
 
 if (showform) { // show form
   if (db==null) {
-    db = tmpl.getConnection();
+    db = LorDataSource.getConnection();
   }
 
   Message topic = new Message(db, topicId);

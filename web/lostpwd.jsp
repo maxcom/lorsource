@@ -41,7 +41,7 @@ Email:
       String nick = request.getParameter("nick");
       String useremail = request.getParameter("email");
 
-      db = tmpl.getConnection();
+      db = LorDataSource.getConnection();
       db.setAutoCommit(false);
 
       User user = User.getUser(db, nick);

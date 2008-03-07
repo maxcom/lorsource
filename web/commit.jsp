@@ -29,7 +29,7 @@
 
       int msgid = new ServletParameterParser(request).getInt("msgid");
 
-      db = tmpl.getConnection();
+      db = LorDataSource.getConnection();
 
       Message message = new Message(db, msgid);
 
@@ -102,7 +102,7 @@
     Connection db = null;
 
     try {
-      db = tmpl.getConnection();
+      db = LorDataSource.getConnection();
       db.setAutoCommit(false);
       PreparedStatement pst = db.prepareStatement("UPDATE topics SET moderate='t', commitby=?, commitdate='now', title=? WHERE id=?");
       pst.setInt(3, msgid);

@@ -32,7 +32,7 @@
       showIgnored = "t".equals(request.getParameter("showignored"));
     }
 
-    db = tmpl.getConnection();
+    db = LorDataSource.getConnection();
     db.setAutoCommit(false);
 
     Group group = new Group(db, groupid);

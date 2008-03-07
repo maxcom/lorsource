@@ -1,8 +1,9 @@
 <%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
-<%@ page import="java.sql.Connection,java.sql.ResultSet,java.sql.Statement,ru.org.linux.site.MissingParameterException" errorPage="/error.jsp" buffer="60kb" %>
+<%@ page import="java.sql.Connection,java.sql.ResultSet,java.sql.Statement,ru.org.linux.site.LorDataSource" errorPage="/error.jsp" buffer="60kb" %>
+<%@ page import="ru.org.linux.site.MissingParameterException"%>
 <%@ page import="ru.org.linux.site.Template"%>
 <%@ page import="ru.org.linux.site.User"%>
-<%@ page import="ru.org.linux.util.StringUtil"%>
+<%@ page import="ru.org.linux.util.StringUtil" %>
 <% Template tmpl = new Template(request, config, response); %>
 <%= tmpl.head() %>
 <% String nick=request.getParameter("nick");
@@ -23,8 +24,8 @@
 		firstPage = true;
 		offset = 0;
 	  }
-	
-	  db = tmpl.getConnection();
+
+          db = LorDataSource.getConnection();
 
 	  User user = User.getUser(db, nick);
 	  

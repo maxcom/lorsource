@@ -27,7 +27,7 @@
     int voteid = Integer.parseInt(request.getParameter("voteid"));
     int msgid = Integer.parseInt(request.getParameter("msgid"));
 
-    db = tmpl.getConnection();
+    db = LorDataSource.getConnection();
 
     if (voteid != Poll.getCurrentPollId(db)) {
       throw new BadVoteException("голосовать можно только в текущий опрос");

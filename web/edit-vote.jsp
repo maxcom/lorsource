@@ -27,7 +27,7 @@
 
       int msgid = new ServletParameterParser(request).getInt("msgid");
 
-      db = tmpl.getConnection();
+      db = LorDataSource.getConnection();
 
       int id = Poll.getPollIdByTopic(db, msgid);
 
@@ -86,7 +86,7 @@
     Connection db = null;
 
     try {
-      db = tmpl.getConnection();
+      db = LorDataSource.getConnection();
       db.setAutoCommit(false);
 
       User user = User.getUser(db, (String) session.getAttribute("nick"));

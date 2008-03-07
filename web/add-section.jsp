@@ -17,7 +17,7 @@
 
     int sectionid = Integer.parseInt(request.getParameter("section"));
 
-    db = tmpl.getConnection();
+    db = LorDataSource.getConnection();
     Statement st = db.createStatement();
 
     Section section = new Section(db, sectionid);

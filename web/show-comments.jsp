@@ -57,7 +57,7 @@
 
   String res = (String) mcc.get(showCommentsId);
   if (res==null) {
-    db = tmpl.getConnection();
+    db = LorDataSource.getConnection();
 
     res = MessageTable.showComments(db, nick, offset, topics);
 	
@@ -107,7 +107,7 @@
 <tbody>
 <%
   if (db==null) {
-    db = tmpl.getConnection();
+    db = LorDataSource.getConnection();
   }
 
   User user = User.getUser(db, nick);

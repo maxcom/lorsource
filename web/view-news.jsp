@@ -42,7 +42,7 @@
   int sectionid = new ServletParameterParser(request).getInt("section");
   Group group = null;
 
-  db = tmpl.getConnection();
+  db = LorDataSource.getConnection();
 
   Section section = new Section(db, sectionid);
 
@@ -161,7 +161,7 @@
     nw.setLimit("LIMIT 20");
   }
 
-  out.print(ViewerCacher.getViewer(nw, tmpl, false, false));
+  out.print(ViewerCacher.getViewer(nw, tmpl, false));
 %>
 
 <%
