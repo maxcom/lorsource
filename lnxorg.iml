@@ -128,7 +128,7 @@
         </packaging>
       </configuration>
     </facet>
-    <facet type="Spring" name="Spring" implicit="true">
+    <facet type="Spring" name="Spring">
       <configuration>
         <options>
           <option name="enableValidation" value="true" />

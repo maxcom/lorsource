@@ -34,7 +34,6 @@ public class Template {
   private boolean debugMode = false;
   private Profile userProfile;
   private static Properties properties = null;
-  private boolean mainPage;
   private final Config config;
   private final HttpSession session;
   private final Date startDate = new Date();
@@ -88,8 +87,6 @@ public class Template {
     if (request.getParameter("debug") != null) {
       debugMode = true;
     }
-
-    mainPage = false;
 
     initProperties(config.getServletContext());
 
@@ -185,14 +182,6 @@ public class Template {
     }
 
     return style;
-  }
-
-  public void setMainPage() {
-    mainPage = true;
-  }
-
-  private boolean isMainPage() {
-    return mainPage;
   }
 
   public Connection getConnection() throws SQLException {

@@ -5,8 +5,7 @@
 <%@ page import="ru.org.linux.site.User" %>
 <%@ page import="ru.org.linux.site.ViewerCacher" %>
 <%@ page import="ru.org.linux.util.ServletParameterParser" %>
-<% Template tmpl = new Template(request, config, response);
-   tmpl.setMainPage(); %>
+<% Template tmpl = new Template(request, config, response); %>
 <%=   tmpl.head() %>
 <title>LINUX.ORG.RU - Русская информация об ОС Linux</title>
 <META NAME="Keywords" CONTENT="linux линукс операционная система документация gnu бесплатное свободное програмное обеспечение софт unix юникс software free documentation operating system новости news">
