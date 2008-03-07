@@ -581,6 +581,13 @@
       <JAVADOC />
       <SOURCES />
     </library>
+    <library name="acegi">
+      <CLASSES>
+        <root url="jar://$PROJECT_DIR$/lib/acegi-security-1.0.6.jar!/" />
+      </CLASSES>
+      <JAVADOC />
+      <SOURCES />
+    </library>
   </component>
 </project>
 
