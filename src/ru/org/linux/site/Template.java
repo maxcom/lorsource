@@ -152,7 +152,8 @@ public class Template {
       try {
         userProfile = readProfile(profile);
       } catch (IOException e) {
-        logger.severe(e.toString()+": "+StringUtil.getStackTrace(e));
+        logger.info("Bad profile: "+profile);
+        logger.fine(e.toString()+": "+StringUtil.getStackTrace(e));
       } catch (StorageNotFoundException e) {
       }
     }
