@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN/EN" "http://www.springframework.org/dtd/spring-beans-2.0.dtd" >
+
+<beans>
+  <bean class="org.springframework.beans.factory.config.PropertiesFactoryBean" scope="singleton" name="config.properties">
+    <property name="location" value="/WEB-INF/config.properties"/>
+    <property name="ignoreResourceNotFound" value="true"/>
+  </bean>
+
+  <bean class="org.springframework.beans.factory.config.PropertiesFactoryBean" scope="singleton" name="config.properties.dist">
+    <property name="location" value="/WEB-INF/config.properties.dist"/>
+  </bean>
+</beans>

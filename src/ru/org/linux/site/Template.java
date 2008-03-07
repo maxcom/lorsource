@@ -18,6 +18,8 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import ru.org.linux.storage.StorageException;
 import ru.org.linux.storage.StorageNotFoundException;
@@ -33,7 +35,6 @@ public class Template {
   private String style;
   private boolean debugMode = false;
   private Profile userProfile;
-  private static Properties properties = null;
   private final Config config;
   private final HttpSession session;
 
@@ -44,31 +45,15 @@ public class Template {
     return config.getProperties().getProperty("Secret");
   }
 
-  private static synchronized void initProperties(ServletContext sc) throws IOException {
-    if (properties == null) {
-      InputStream is = null;
-      try {
-        is = sc.getResourceAsStream("/WEB-INF/config.properties");
-        if (is==null) {
-          is = sc.getResourceAsStream("/WEB-INF/config.properties.dist");
-          if (is==null) {
-            throw new RuntimeException("Can't find config.properties / config.properties.dist");
-          }
-        }
+  private static Properties getProperties(ServletContext sc)  {
+    WebApplicationContext ctx = WebApplicationContextUtils.getWebApplicationContext(sc);
 
-        Properties tmp = new Properties();
-        tmp.load(is);
-        properties = tmp;
-        logger.fine("loaded config file");
-        MemCachedSettings.setMainUrl(properties.getProperty("MainUrl"));
-
-        logger.info("Application started!");
-      } finally {
-        if (is!=null) {
-          is.close();
-        }
-      }
+    Properties prop = (Properties) ctx.getBean("config.properties");
+    if (prop.isEmpty()) {
+      prop = (Properties) ctx.getBean("config.properties.dist");
     }
+
+    return prop;
   }
 
   public Template(HttpServletRequest request, ServletConfig config, HttpServletResponse response)
@@ -82,7 +67,10 @@ public class Template {
       debugMode = true;
     }
 
-    initProperties(config.getServletContext());
+    Properties properties= getProperties(config.getServletContext());
+
+    // TODO use better initialization
+    MemCachedSettings.setMainUrl(properties.getProperty("MainUrl"));
 
     this.config = new Config(properties);
 
