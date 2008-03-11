@@ -67,13 +67,13 @@
     Message message = new Message(db, msgid);
 
     if (message.isExpired() && showDeleted && !tmpl.isModeratorSession()) {
-      throw new AccessViolationException("нельзя посмотреть удаленные комментарии в устаревших темах");
+      throw new MessageNotFoundException(message.getId(), "нельзя посмотреть удаленные комментарии в устаревших темах");
     }
     if (message.isExpired() && message.isDeleted() && !tmpl.isModeratorSession()) {
-      throw new AccessViolationException("нельзя посмотреть устаревшие удаленные сообщения");
+      throw new MessageNotFoundException(message.getId(), "нельзя посмотреть устаревшие удаленные сообщения");
     }
     if (message.isDeleted() && !Template.isSessionAuthorized(session)) {
-      throw new AccessViolationException("Сообщение удалено");
+      throw new MessageNotFoundException(message.getId(), "Сообщение удалено");
     }
 
 // count last modified time

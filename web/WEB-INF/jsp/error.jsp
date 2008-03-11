@@ -8,17 +8,24 @@
 <%@ page import="javax.mail.Transport"%>
 <%@ page import="javax.mail.internet.InternetAddress"%>
 <%@ page import="javax.mail.internet.MimeMessage"%>
+<%@ page import="ru.org.linux.site.MessageNotFoundException"%>
 <%@ page import="ru.org.linux.site.ScriptErrorException"%>
 <%@ page import="ru.org.linux.site.Template"%>
 <%@ page import="ru.org.linux.site.UserErrorException"%>
 <%@ page import="ru.org.linux.util.HTMLFormatter"%>
-<%@ page import="ru.org.linux.util.ServletParameterException"%>
+<%@ page import="ru.org.linux.util.ServletParameterException" %>
 <%@ page import="ru.org.linux.util.StringUtil" %>
 <% Template tmpl = new Template(request, config.getServletContext(), response);
   Logger logger = Logger.getLogger("ru.org.linux");
 
   if (exception==null) {
     exception = (Throwable) request.getAttribute("exception");
+  }
+
+  if (exception instanceof MessageNotFoundException) {
+    response.setStatus(404);
+  } else {
+    response.setStatus(500);    
   }
 %>
 <%= tmpl.getHead() %>

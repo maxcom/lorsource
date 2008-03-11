@@ -1074,4 +1074,8 @@ public class Message {
   public boolean containsLink() {
     return havelink;
   }
+
+  public int getId() {
+    return msgid;
+  }
 }

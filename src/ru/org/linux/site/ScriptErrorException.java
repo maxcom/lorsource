@@ -1,6 +1,8 @@
 package ru.org.linux.site;
 
-public class ScriptErrorException extends Exception {
+import javax.servlet.ServletException;
+
+public class ScriptErrorException extends ServletException {
   public ScriptErrorException() {
     super("неизвестная ошибка скрипта");
   }

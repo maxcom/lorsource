@@ -1,6 +1,8 @@
 package ru.org.linux.util;
 
-public class ServletParameterException extends Exception {
+import javax.servlet.ServletException;
+
+public class ServletParameterException extends ServletException {
   ServletParameterException(String info) {
     super(info);
   }

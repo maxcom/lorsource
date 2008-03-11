@@ -39,7 +39,7 @@ version="2.4">
 
   <error-page>
       <error-code>404</error-code>
-      <location>/error404.jsp</location>
+      <location>/WEB-INF/jsp/error404.jsp</location>
   </error-page>
 
   <error-page>
