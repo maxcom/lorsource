@@ -157,7 +157,7 @@ public class Tags{
     return new ArrayList<String>(tagSet);
   }
 
-  public static String getPlainTags(Collection<String> tags) {
+  public static String getEditTags(Collection<String> tags) {
     StringBuilder out = new StringBuilder();
     boolean first = true;
 
@@ -165,7 +165,9 @@ public class Tags{
       if (!first) {
         out.append(", ");
       }
+      out.append("<a onclick=\"addTag('").append(tag).append("')\">");
       out.append(tag);
+      out.append("</a>");
       first = false;
     }
 

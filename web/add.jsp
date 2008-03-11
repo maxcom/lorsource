@@ -206,8 +206,8 @@
 <% } %>
 <% if (group.getSectionId()==1) { %>
 Метки (разделенные запятой) 
-<input type=text name=tags size=70 value="<%= request.getAttribute("tags")==null?"":StringUtils.strip((String)request.getAttribute("tags")) %>"><br>
-  Популярные теги: <%= Tags.getPlainTags(Tags.getTopTags(db)) %> <br>
+<input type=text name=tags id="tags" size=70 value="<%= request.getAttribute("tags")==null?"":StringUtils.strip((String)request.getAttribute("tags")) %>"><br>
+  Популярные теги: <%= Tags.getEditTags(Tags.getTopTags(db)) %> <br>
 <% } %>
 <% if (!group.isLineOnly() || group.isPreformatAllowed()) {%>
 <select name=mode>

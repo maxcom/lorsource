@@ -67,9 +67,9 @@
     ResultSet rq = null;
     if (message.getSectionId() == 1) { // news
       out.println("Метки (теги): ");
-      out.println("<input type=\"text\" name=\"tags\" size=40 value=\"" + message.getPlainTags() + "\"><br>");
+      out.println("<input type=\"text\" id=\"tags\" name=\"tags\" size=40 value=\"" + message.getPlainTags() + "\"><br>");
 %>
-  Популярные теги: <%= Tags.getPlainTags(Tags.getTopTags(db)) %> <br>  
+  Популярные теги: <%= Tags.getEditTags(Tags.getTopTags(db)) %> <br>
   <%
       out.println("Переместить в группу: ");
       rq = st.executeQuery("SELECT id, title FROM groups WHERE section=1 ORDER BY id");

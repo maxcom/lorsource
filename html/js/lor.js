@@ -2,7 +2,16 @@
 
 function ctrl_enter(e, form)
 {
-    if (((e.keyCode == 13) || (e.keyCode == 10)) && (e.ctrlKey == true)) form.submit();
+    if (((e.keyCode == 13) || (e.keyCode == 10)) && (e.ctrlKey)) form.submit();
+}
+
+// addtag.js
+function addTag(tag) {
+  var tags = document.getElementById('tags');
+  if (tags.value != "") {
+    tags.value += ",";
+  }
+  tags.value += tag;
 }
 
 // hightlight.js
