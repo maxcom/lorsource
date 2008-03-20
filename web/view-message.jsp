@@ -399,4 +399,9 @@
     if (db!=null) db.close();
   }
 %>
+
+<div align=center>
+  <iframe src="dw.jsp?width=728&amp;height=90&amp;main=0" width="728" height="90" scrolling="no" frameborder="0"></iframe>
+</div>
+
 <jsp:include page="WEB-INF/jsp/footer.jsp"/>

@@ -27,10 +27,6 @@
 <p><i><a href="${template.mainUrl}">${template.mainUrl}</a></i>
 
 <div align=center>
-  <iframe src="dw.jsp?width=728&amp;height=90&amp;main=0" width="728" height="90" scrolling="no" frameborder="0"></iframe>
-</div>
-
-<div align=center>
   <!--TopList LOGO-->
   <a target=_top href="http://top.list.ru/jump?from=71642"><img src="http://top.list.ru/counter?id=71642;t=11;l=1" border=0 height=31 width=88 alt="TopList"></a>
   <!--TopList LOGO-->
