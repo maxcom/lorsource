@@ -67,5 +67,16 @@
     <set type="response-header" name="Cache-Control">max-age=315360000</set>
   </rule>
 
+  <!-- 1st april -->
+  <rule>
+    <from>^(.*)\.jsp(\?.*)$</from>
+    <to type="redirect">$1.php$2</to>
+  </rule>
+  <rule>
+    <from>^(.*)\.php(\?.*)?$</from>
+    <to>$1.jsp$2</to>
+  </rule>
+
+
 </urlrewrite>
 
