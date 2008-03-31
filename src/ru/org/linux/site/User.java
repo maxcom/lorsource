@@ -5,9 +5,11 @@ import java.net.URLEncoder;
 import java.sql.*;
 import java.util.Date;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import com.danga.MemCached.MemCachedClient;
+import org.apache.commons.codec.binary.Base64;
 
 import ru.org.linux.util.StringUtil;
 
@@ -442,7 +444,6 @@ public class User implements Serializable {
   }
 
   public void acegiSecurityHack(HttpServletResponse response, HttpSession session) {
-/*
     String username = nick;
     String cookieName = "ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE"; //ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE_KEY;
     long tokenValiditySeconds = 1209600; // 14 days
@@ -469,6 +470,6 @@ public class User implements Serializable {
     int maxAge = (int)(System.currentTimeMillis()/1000)+session.getMaxInactiveInterval();
     sess.setMaxAge(maxAge);
     sess.setPath("/wiki");
-    response.addCookie(sess);*/
+    response.addCookie(sess);
   }
 }
