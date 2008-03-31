@@ -9,6 +9,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import com.danga.MemCached.MemCachedClient;
+import org.apache.commons.codec.binary.Base64;
 
 import ru.org.linux.util.StringUtil;
 
@@ -456,8 +457,7 @@ public class User implements Serializable {
 
     String signatureValue = StringUtil.md5hash(username + ":" + expiryTime + ":" + password + ":" + key);
     String tokenValue = username + ":" + expiryTime + ":" + signatureValue;
-    sun.misc.BASE64Encoder encoder = new sun.misc.BASE64Encoder(); 
-    String tokenValueBase64 = new String(encoder.encode(tokenValue.getBytes())); 
+    String tokenValueBase64 = new String(Base64.encodeBase64(tokenValue.getBytes()));
 
     // Add remember me cookie
     Cookie acegi = new Cookie(cookieName, tokenValueBase64);

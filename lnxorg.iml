@@ -261,6 +261,7 @@
     <orderEntry type="library" exported="" name="urlrewrite" level="project" />
     <orderEntry type="library" name="spring" level="project" />
     <orderEntry type="library" name="acegi" level="project" />
+    <orderEntry type="library" name="commons-codec" level="project" />
     <orderEntryProperties />
   </component>
 </module>
