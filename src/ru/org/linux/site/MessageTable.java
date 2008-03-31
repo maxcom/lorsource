@@ -87,7 +87,7 @@ public class MessageTable {
     if (group!=null) {
       out.append(" - ").append(group.getTitle());
     }
-    out.append("</description>");
+    out.append("</description>\n");
 
     Statement st=db.createStatement();
 
@@ -118,6 +118,7 @@ public class MessageTable {
           ImageInfo info = new ImageInfo(htmlPath + url);
 
           out.append("<item>");
+          out.append("  <author>").append(rs.getString("nick")).append("</author>\n");
           out.append("  <link>http://www.linux.org.ru/view-message.jsp?msgid=").append(msgid).append("</link>\n");
           out.append("  <guid>http://www.linux.org.ru/view-message.jsp?msgid=").append(msgid).append("</guid>\n");
           out.append("  <pubDate>").append(Template.RFC822.format(rs.getTimestamp("postdate"))).append("</pubDate>\n");
@@ -142,7 +143,8 @@ public class MessageTable {
             Poll poll = new Poll(db, id);
             out.append("<item>\n" + "  <title>")
                 .append(HTMLFormatter.htmlSpecialChars(subj))
-                .append("</title>\n" + "  <link>http://www.linux.org.ru/view-message.jsp?msgid=").append(msgid)
+                .append("</title>\n" + "  <author>").append(rs.getString("nick"))
+                .append("</author>\n" + "  <link>http://www.linux.org.ru/view-message.jsp?msgid=").append(msgid)
                 .append("</link>\n" + "  <guid>http://www.linux.org.ru/view-message.jsp?msgid=").append(msgid)
                 .append("</guid>\n" + "  <pubDate>").append(Template.RFC822.format(rs.getTimestamp("postdate")))
                 .append("</pubDate>\n" + "  <description>\n" + "\t");
@@ -154,6 +156,7 @@ public class MessageTable {
       } else {
         out.append("<item>\n");
         out.append("  <title>").append(HTMLFormatter.htmlSpecialChars(subj)).append("</title>\n");
+        out.append("  <author>").append(rs.getString("nick")).append("</author>\n");
         out.append("  <link>http://www.linux.org.ru/jump-message.jsp?msgid=").append(msgid).append("</link>\n");
         out.append("  <guid>http://www.linux.org.ru/jump-message.jsp?msgid=").append(msgid).append("</guid>\n");
         out.append("  <pubDate>").append(Template.RFC822.format(rs.getTimestamp("postdate"))).append("</pubDate>\n");
