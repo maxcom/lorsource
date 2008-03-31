@@ -28,6 +28,7 @@ public class User implements Serializable {
   private final String photo;
 
   private final boolean activated;
+  public static final int CORRECTOR_SCORE = 100;
 
   private User(Connection con, String name) throws SQLException, UserNotFoundException {
     if (name == null) {
@@ -159,7 +160,7 @@ public class User implements Serializable {
   }
 
   public boolean canCorrect() {
-    return corrector;
+    return corrector && score>= CORRECTOR_SCORE;
   }
 
   public boolean isAnonymous() {
@@ -227,7 +228,7 @@ public class User implements Serializable {
   public String getStatus() {
     if (score < ANONYMOUS_LEVEL_SCORE) {
       return "анонимный";
-    } else if (score < 100 && maxScore < 100) {
+    } else if (score < CORRECTOR_SCORE && maxScore < CORRECTOR_SCORE) {
       return "новый пользователь";
     } else {
       return getStars(score, maxScore);
@@ -261,7 +262,7 @@ public class User implements Serializable {
       return false;
     }               
 
-    return maxScore<100;
+    return maxScore< CORRECTOR_SCORE;
   }
 
   public String getCommitInfoLine(Timestamp postdate, Timestamp commitDate) {

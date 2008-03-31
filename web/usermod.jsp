@@ -54,8 +54,8 @@
         redirect = false;
       }
     } else if (action.equals("toggle_corrector")) {
-      if (user.getScore()<300) {
-        throw new AccessViolationException("Пользователя " + user.getNick() + " нельзя сделать корректором (score<300)");
+      if (user.getScore()<User.CORRECTOR_SCORE) {
+        throw new AccessViolationException("Пользователя " + user.getNick() + " нельзя сделать корректором");
       }
 
       if (user.canCorrect()) {
