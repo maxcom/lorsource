@@ -69,7 +69,7 @@
 
   <!-- 1st april -->
   <rule>
-    <from>^(.*)\.jsp(\?.*)$</from>
+    <from>^(.*)\.jsp(\?.*)?$</from>
     <to type="redirect">$1.php$2</to>
   </rule>
   <rule>

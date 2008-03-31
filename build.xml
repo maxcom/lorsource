@@ -14,6 +14,7 @@
       <include name="commons-lang-2.3.jar"/>
       <include name="spring.jar"/>
       <include name="spring-webmvc.jar"/>
+      <include name="commons-codec-1.3.jar"/>
     </fileset>
   </path>
 
@@ -30,6 +31,7 @@
 
 <target name="build" depends="prepare">
 	<javac classpathref="build.classpath" srcdir="src" destdir="${build}" optimize="yes" debug="yes" encoding="koi8-r"/>
+	<copy file="src/logging.properties" todir="${build}"/>
 </target>
 
 <target name="dist" depends="build, unit-tests">
@@ -37,7 +39,7 @@
 	<mkdir dir="${dist}/WEB-INF"/>
 	<mkdir dir="${dist}/WEB-INF/lib"/>
 	<jar jarfile="${dist}/WEB-INF/lib/lnxorgutil.jar" basedir="${build}" includes="ru/org/linux/util/*,ru/org/linux/storage/*,ru/org/linux/cache/*,ru/org/linux/boxlet/*,ru/org/linux/logger/*"/>
-	<jar jarfile="${dist}/WEB-INF/lib/lnxorgsite.jar" basedir="${build}" includes="ru/org/linux/site/**,ru/org/linux/spring/**"/>
+	<jar jarfile="${dist}/WEB-INF/lib/lnxorgsite.jar" basedir="${build}" includes="ru/org/linux/site/**,ru/org/linux/spring/**,logging.properties"/>
 	<copy todir="${dist}/WEB-INF">
 		<fileset dir="web/WEB-INF"/>
 	</copy>
