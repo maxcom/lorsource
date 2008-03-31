@@ -163,6 +163,11 @@
     out.print("<input type='hidden' name='action' value='remove_userinfo'>\n");
     out.print("<input type='submit' value='Удалить текст'>\n");
     out.print("</form>");
+    out.print("<p><form name='f_toggle_corrector' method='post' action='usermod.jsp'>\n");
+    out.print("<input type='hidden' name='id' value='" + userid + "'>\n");
+    out.print("<input type='hidden' name='action' value='toggle_corrector'>\n");
+    out.print("<input type='submit' value='"+(user.canCorrect()?"Убрать права корректора":"Сделать коректором")+"'>\n");
+    out.print("</form>");
   }
 
 %>

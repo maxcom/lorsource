@@ -53,6 +53,16 @@
         out.print(user.deleteAllComments(db, moderator));
         redirect = false;
       }
+    } else if (action.equals("toggle_corrector")) {
+      if (user.getScore()<300) {
+        throw new AccessViolationException("Пользователя " + user.getNick() + " нельзя сделать корректором (score<300)");
+      }
+
+      if (user.canCorrect()) {
+        st.executeUpdate("UPDATE users SET corrector='f' WHERE id=" + id);
+      } else {
+        st.executeUpdate("UPDATE users SET corrector='t' WHERE id=" + id);
+      }
     } else if (action.equals("unblock")) {
       if (!user.isBlockable()) {
         throw new AccessViolationException("Пользователя " + user.getNick() + " нельзя разблокировать");

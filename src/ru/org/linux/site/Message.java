@@ -451,6 +451,9 @@ public class Message {
 					out.append("[<a href=\"mtn.jsp?msgid=").append(msgid).append("\">Группа</a>]");
 				}
       }
+      if (!isDeleted() && tmpl.isCorrectorSession() && sectionid==1) {
+        out.append("[<a href=\"edit.jsp?msgid=").append(msgid).append("\">Править</a>]");
+      }
 
       if (tmpl.isModeratorSession()) {
         out.append("[<a href=\"sameip.jsp?msgid=").append(msgid).append("\">Другие с этого IP</a>]");
@@ -1032,7 +1035,7 @@ public class Message {
   }
 
   public boolean isEditable(Connection db, User by) throws SQLException, UserNotFoundException {
-    if (!by.canModerate()) {
+    if (!by.canModerate() && !by.canCorrect()) {
       return false;
     }
 
@@ -1043,7 +1046,15 @@ public class Message {
     if (User.getUser(db, userid).canModerate()) {
       return true;
     }
-
+    
+    if (sectionid==1 && by.canCorrect()) {
+      return true;
+    }
+    
+    if (sectionid!=1 && by.canCorrect()) {
+      return false;
+    }
+    
     return section.isPremoderated();
   }
 

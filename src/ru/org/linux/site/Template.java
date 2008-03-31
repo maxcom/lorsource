@@ -71,7 +71,7 @@ public class Template {
     // TODO use better initialization
     MemCachedSettings.setMainUrl(properties.getProperty("MainUrl"));
 
-    this.config = new Config(properties);
+    config = new Config(properties);
 
     // read profiles
     cookies = LorHttpUtils.getCookies(request.getCookies());
@@ -113,7 +113,9 @@ public class Template {
               session.putValue("login", Boolean.TRUE);
               session.putValue("nick", profile);
               session.putValue("moderator", user.canModerate());
+              session.putValue("corrector", user.canCorrect());
               User.updateUserLastlogin(db, profile, new Date()); // update user `lastlogin` time in DB
+              user.acegiSecurityHack(response, session);
             } else {
               profile = null;
             }
@@ -162,6 +164,7 @@ public class Template {
     if (!"black".equals(style) &&
         !"white".equals(style) &&
         !"white2".equals(style) &&
+        !"trans".equals(style) &&
         !"blackbeta".equals(style)) {
       return (String) Profile.getDefaults().get("style");
     }
@@ -256,6 +259,13 @@ public class Template {
     }
 
     return (Boolean) session.getValue("moderator");
+  }
+
+  public boolean isCorrectorSession() {
+    if (!isSessionAuthorized(session)) {
+      return false;
+    }
+    return session.getValue("corrector")!=null ? (Boolean) session.getValue("corrector") : false;
   }
 
   public static boolean isAnonymousProfile(String name) {

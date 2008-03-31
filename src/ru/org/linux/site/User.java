@@ -5,6 +5,8 @@ import java.net.URLEncoder;
 import java.sql.*;
 import java.util.Date;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import com.danga.MemCached.MemCachedClient;
 
@@ -18,6 +20,7 @@ public class User implements Serializable {
   private boolean canmod;
   private boolean candel;
   private boolean anonymous;
+  private boolean corrector;
   private final boolean blocked;
   private final String password;
   private final int score;
@@ -32,7 +35,7 @@ public class User implements Serializable {
     }
     nick = name;
 
-    PreparedStatement st = con.prepareStatement("SELECT id,candel,canmod,passwd,blocked,score,max_score,activated,photo FROM users where nick=?");
+    PreparedStatement st = con.prepareStatement("SELECT id,candel,canmod,corrector,passwd,blocked,score,max_score,activated,photo FROM users where nick=?");
     st.setString(1, name);
 
     ResultSet rs = st.executeQuery();
@@ -44,6 +47,7 @@ public class User implements Serializable {
     id = rs.getInt("id");
     canmod = rs.getBoolean("canmod");
     candel = rs.getBoolean("candel");
+    corrector = rs.getBoolean("corrector");
     activated = rs.getBoolean("activated");
     blocked = rs.getBoolean("blocked");
     score = rs.getInt("score");
@@ -64,7 +68,7 @@ public class User implements Serializable {
   private User(Connection con, int id) throws SQLException, UserNotFoundException {
     this.id = id;
 
-    PreparedStatement st = con.prepareStatement("SELECT nick,score, max_score, candel,canmod,passwd,blocked,activated,photo FROM users where id=?");
+    PreparedStatement st = con.prepareStatement("SELECT nick,score, max_score, candel,canmod,corrector,passwd,blocked,activated,photo FROM users where id=?");
     st.setInt(1, id);
 
     ResultSet rs = st.executeQuery();
@@ -75,6 +79,7 @@ public class User implements Serializable {
 
     nick = rs.getString("nick");
     canmod = rs.getBoolean("canmod");
+    corrector = rs.getBoolean("corrector");
     blocked = rs.getBoolean("blocked");
     candel = rs.getBoolean("candel");
     activated = rs.getBoolean("activated");
@@ -151,6 +156,10 @@ public class User implements Serializable {
 
   public boolean canModerate() {
     return canmod;
+  }
+
+  public boolean canCorrect() {
+    return corrector;
   }
 
   public boolean isAnonymous() {
@@ -259,8 +268,9 @@ public class User implements Serializable {
     StringBuffer out = new StringBuffer();
 
     out.append("<i>Проверено: ").append(getNick()).append(" (<a href=\"whois.jsp?nick=").append(URLEncoder.encode(getNick())).append("\">*</a>)");
-    if (commitDate!=null && !commitDate.equals(postdate))
+    if (commitDate!=null && !commitDate.equals(postdate)) {
       out.append(' ').append(Template.dateFormat.format(commitDate));
+    }
     out.append("</i>");
 
     return out.toString();
@@ -417,8 +427,9 @@ public class User implements Serializable {
 
     if (!"anonymous".equals(nick)) {
       out.append(User.getStars(score, maxScore)).append(' ');
-        if (moderatorMode)
+        if (moderatorMode) {
           out.append("(Score: ").append(score).append(" MaxScore: ").append(maxScore).append(") ");
+        }
     }
 
     out.append("(<a href=\"whois.jsp?nick=").append(URLEncoder.encode(nick)).append("\">*</a>) (").append(Template.dateFormat.format(postdate)).append(")");
@@ -428,5 +439,37 @@ public class User implements Serializable {
 
   public boolean isAnonymousScore() {
     return isAnonymous() || isBlocked() || score<ANONYMOUS_LEVEL_SCORE;
+  }
+
+  public void acegiSecurityHack(HttpServletResponse response, HttpSession session) {
+  
+    String username = nick;
+    String cookieName = "ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE"; //ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE_KEY;
+    long tokenValiditySeconds = 1209600; // 14 days
+    String key = "jam35Wiki"; // from applicationContext-acegi-security.xml
+    long expiryTime = System.currentTimeMillis() + (tokenValiditySeconds * 1000);
+
+    // construct token to put in cookie; format is:
+    // username + ":" + expiryTime + ":" + Md5Hex(username + ":" +
+    // expiryTime + ":" + password + ":" + key)
+
+    String signatureValue = StringUtil.md5hash(username + ":" + expiryTime + ":" + password + ":" + key);
+    String tokenValue = username + ":" + expiryTime + ":" + signatureValue;
+    sun.misc.BASE64Encoder encoder = new sun.misc.BASE64Encoder(); 
+    String tokenValueBase64 = new String(encoder.encode(tokenValue.getBytes())); 
+
+    // Add remember me cookie
+    Cookie acegi = new Cookie(cookieName, tokenValueBase64);
+    acegi.setMaxAge(new Long(expiryTime).intValue());
+    acegi.setPath("/wiki");
+    response.addCookie(acegi);
+
+    // Remove ACEGI_SECURITY_CONTEXT and session
+    session.removeAttribute("ACEGI_SECURITY_CONTEXT"); // if any
+    Cookie sess = new Cookie("JSESSIONID", session.getId());
+    int maxAge = (int)(System.currentTimeMillis()/1000)+session.getMaxInactiveInterval();
+    sess.setMaxAge(maxAge);
+    sess.setPath("/wiki");
+    response.addCookie(sess);
   }
 }

@@ -58,6 +58,8 @@
     prof.setPath("/");
     response.addCookie(prof);
 
+    user.acegiSecurityHack(response, session);
+
     response.setHeader("Location", tmpl.getMainUrl());
     response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
 

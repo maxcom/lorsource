@@ -10,7 +10,7 @@
   Template tmpl = new Template(request, config.getServletContext(), response);
   Logger logger = Logger.getLogger("ru.org.linux");
 
-  if (!tmpl.isModeratorSession()) {
+  if (!tmpl.isModeratorSession() && !tmpl.isCorrectorSession()) {
     throw new IllegalAccessException("Not authorized");
   }
 

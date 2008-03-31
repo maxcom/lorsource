@@ -17,6 +17,7 @@
 		session.removeValue("login");
 		session.removeValue("nick");
 		session.removeValue("moderator");
+        session.removeAttribute("ACEGI_SECURITY_CONTEXT"); // if any
 	Cookie cookie=new Cookie("password", "");
 	cookie.setMaxAge(60*60*24*31*24);
 	cookie.setPath("/");
@@ -26,6 +27,11 @@
 	cookie2.setMaxAge(60*60*24*31*24);
 	cookie2.setPath("/");
 	response.addCookie(cookie2);
+
+	Cookie cookie3=new Cookie("ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE", "");
+	cookie3.setMaxAge(60*60*24*31*24);
+	cookie3.setPath("/wiki");
+	response.addCookie(cookie3);
 
         response.setHeader("Location", tmpl.getMainUrl());
         response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
