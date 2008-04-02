@@ -26,65 +26,13 @@
             <attribute name="method" value="1" />
             <attribute name="URI" value="/WEB-INF/classes" />
           </containerElement>
-          <containerElement type="library" level="module">
-            <attribute name="method" value="1" />
-            <attribute name="URI" value="/WEB-INF/lib/commons-collections-2.1.1.jar" />
-            <url>jar://$MODULE_DIR$/lib/commons-collections-2.1.1.jar!/</url>
-          </containerElement>
-          <containerElement type="library" level="module">
-            <attribute name="method" value="1" />
-            <attribute name="URI" value="/WEB-INF/lib/commons-logging-1.0.4.jar" />
-            <url>jar://$MODULE_DIR$/lib/commons-logging-1.0.4.jar!/</url>
-          </containerElement>
-          <containerElement type="library" level="module">
-            <attribute name="method" value="1" />
-            <attribute name="URI" value="/WEB-INF/lib/dnsjava-2.0.3.jar" />
-            <url>jar://$MODULE_DIR$/lib/dnsjava-2.0.3.jar!/</url>
-          </containerElement>
-          <containerElement type="library" level="module">
-            <attribute name="method" value="1" />
-            <attribute name="URI" value="/WEB-INF/lib/ehcache-1.2.jar" />
-            <url>jar://$MODULE_DIR$/lib/ehcache-1.2.jar!/</url>
-          </containerElement>
-          <containerElement type="library" level="module">
-            <attribute name="method" value="1" />
-            <attribute name="URI" value="/WEB-INF/lib/gnu-regexp-1.0.8.jar" />
-            <url>jar://$MODULE_DIR$/lib/gnu-regexp-1.0.8.jar!/</url>
-          </containerElement>
-          <containerElement type="library" level="module">
-            <attribute name="method" value="1" />
-            <attribute name="URI" value="/WEB-INF/lib/java_memcached-1.6maxcom.jar" />
-            <url>jar://$MODULE_DIR$/lib/java_memcached-1.6maxcom.jar!/</url>
-          </containerElement>
-          <containerElement type="library" level="module">
-            <attribute name="method" value="0" />
-            <attribute name="URI" value="&lt;N/A&gt;" />
-            <url>jar://$MODULE_DIR$/lib/jsdk23.jar!/</url>
-          </containerElement>
-          <containerElement type="library" level="module">
-            <attribute name="method" value="1" />
-            <attribute name="URI" value="/WEB-INF/lib/postgresql-jdbc-8.2.504.jar" />
-            <url>jar://$MODULE_DIR$/lib/postgresql-jdbc-8.2.504.jar!/</url>
-          </containerElement>
-          <containerElement type="library" level="module">
-            <attribute name="method" value="1" />
-            <attribute name="URI" value="/WEB-INF/lib/urlrewrite-2.6.0.jar" />
-            <url>jar://$MODULE_DIR$/lib/urlrewrite-2.6.0.jar!/</url>
-          </containerElement>
-          <containerElement type="library" level="module">
-            <attribute name="method" value="1" />
-            <attribute name="URI" value="/WEB-INF/lib/xercesImpl.jar" />
-            <url>jar://$MODULE_DIR$/lib/xercesImpl.jar!/</url>
-          </containerElement>
-          <containerElement type="library" level="module">
-            <attribute name="method" value="0" />
-            <attribute name="URI" value="&lt;N/A&gt;" />
-            <url>jar://$APPLICATION_HOME_DIR$/lib/javaee.jar!/</url>
-          </containerElement>
-          <containerElement type="library" level="module">
+          <containerElement type="library" name="acegi" level="project">
             <attribute name="method" value="0" />
             <attribute name="URI" value="/WEB-INF/lib" />
-            <url>jar://$APPLICATION_HOME_DIR$/lib/junit.jar!/</url>
+          </containerElement>
+          <containerElement type="library" name="commons-codec" level="project">
+            <attribute name="method" value="1" />
+            <attribute name="URI" value="/WEB-INF/lib" />
           </containerElement>
           <containerElement type="library" name="commons-fileupload-1.2" level="project">
             <attribute name="method" value="1" />
@@ -121,6 +69,66 @@
           <containerElement type="library" name="urlrewrite" level="project">
             <attribute name="method" value="1" />
             <attribute name="URI" value="/WEB-INF/lib" />
+          </containerElement>
+          <containerElement type="library" level="module">
+            <attribute name="method" value="1" />
+            <attribute name="URI" value="/WEB-INF/lib/commons-collections-2.1.1.jar" />
+            <url>jar://$MODULE_DIR$/lib/commons-collections-2.1.1.jar!/</url>
+          </containerElement>
+          <containerElement type="library" level="module">
+            <attribute name="method" value="1" />
+            <attribute name="URI" value="/WEB-INF/lib/commons-logging-1.0.4.jar" />
+            <url>jar://$MODULE_DIR$/lib/commons-logging-1.0.4.jar!/</url>
+          </containerElement>
+          <containerElement type="library" level="module">
+            <attribute name="method" value="1" />
+            <attribute name="URI" value="/WEB-INF/lib/dnsjava-2.0.3.jar" />
+            <url>jar://$MODULE_DIR$/lib/dnsjava-2.0.3.jar!/</url>
+          </containerElement>
+          <containerElement type="library" level="module">
+            <attribute name="method" value="1" />
+            <attribute name="URI" value="/WEB-INF/lib/ehcache-1.2.jar" />
+            <url>jar://$MODULE_DIR$/lib/ehcache-1.2.jar!/</url>
+          </containerElement>
+          <containerElement type="library" level="module">
+            <attribute name="method" value="1" />
+            <attribute name="URI" value="/WEB-INF/lib/gnu-regexp-1.0.8.jar" />
+            <url>jar://$MODULE_DIR$/lib/gnu-regexp-1.0.8.jar!/</url>
+          </containerElement>
+          <containerElement type="library" level="module">
+            <attribute name="method" value="1" />
+            <attribute name="URI" value="/WEB-INF/lib/java_memcached-1.6maxcom.jar" />
+            <url>jar://$MODULE_DIR$/lib/java_memcached-1.6maxcom.jar!/</url>
+          </containerElement>
+          <containerElement type="library" level="module">
+            <attribute name="method" value="0" />
+            <attribute name="URI" value="&lt;N/A&gt;" />
+            <url>jar://$APPLICATION_HOME_DIR$/lib/javaee.jar!/</url>
+          </containerElement>
+          <containerElement type="library" level="module">
+            <attribute name="method" value="0" />
+            <attribute name="URI" value="&lt;N/A&gt;" />
+            <url>jar://$MODULE_DIR$/lib/jsdk23.jar!/</url>
+          </containerElement>
+          <containerElement type="library" level="module">
+            <attribute name="method" value="0" />
+            <attribute name="URI" value="/WEB-INF/lib" />
+            <url>jar://$APPLICATION_HOME_DIR$/lib/junit.jar!/</url>
+          </containerElement>
+          <containerElement type="library" level="module">
+            <attribute name="method" value="1" />
+            <attribute name="URI" value="/WEB-INF/lib/postgresql-jdbc-8.2.504.jar" />
+            <url>jar://$MODULE_DIR$/lib/postgresql-jdbc-8.2.504.jar!/</url>
+          </containerElement>
+          <containerElement type="library" level="module">
+            <attribute name="method" value="1" />
+            <attribute name="URI" value="/WEB-INF/lib/urlrewrite-2.6.0.jar" />
+            <url>jar://$MODULE_DIR$/lib/urlrewrite-2.6.0.jar!/</url>
+          </containerElement>
+          <containerElement type="library" level="module">
+            <attribute name="method" value="1" />
+            <attribute name="URI" value="/WEB-INF/lib/xercesImpl.jar" />
+            <url>jar://$MODULE_DIR$/lib/xercesImpl.jar!/</url>
           </containerElement>
         </packaging>
       </configuration>

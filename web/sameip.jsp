@@ -107,7 +107,7 @@
 <input type="hidden" name="ip" value="<%= ip %>">
 забанить/разбанить IP по причине: <br>
 <input type="text" name="reason" maxlength="254" size="40" value=""><br>
-<select name="time">
+<select name="time" onchange="checkCustomBan(this.selectedIndex)">
 <option value="hour">1 час</option>
 <option value="day">1 день</option>
 <option value="month">1 месяц</option>
@@ -115,9 +115,28 @@
 <option value="6month">6 месяцев</option>
 <option value="unlim">постоянно</option>
 <option value="remove">не блокировать</option>
+<option value="custom">указать (дней)</option>
 </select>
+<div id="custom_ban" style="display:none;">
+<br><input type="text" name="ban_days" value="">
+</div>
 <p>
 <input type="submit" name="ban" value="ban ip">
+<script type="text/javascript">
+<!--
+function checkCustomBan(idx) {
+  var custom_ban_div = document.getElementById('custom_ban');
+  if (custom_ban_div==null || typeof(custom_ban_div)!="object") {
+    return;
+  }
+  if (idx!=7) {
+    custom_ban_div.style.display='none';
+  } else {
+    custom_ban_div.style.display='block';
+  }
+}
+// -->
+</script>
 </form>
 
 <h2>Темы</h2>

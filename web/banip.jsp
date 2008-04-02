@@ -29,6 +29,14 @@
   } else if ("6month".equals(time)) {
     calendar.add(Calendar.MONTH, 6);
   } else if ("remove".equals(time)) {
+  } else if ("custom".equals(time)) {
+    int days = new ServletParameterParser(request).getInt("ban_days");
+
+    if (days<=0 || days > 180) {
+      throw new UserErrorException("Invalid days count");
+    }
+
+    calendar.add(Calendar.DAY_OF_MONTH, days);
   }
 
   Timestamp ts;
