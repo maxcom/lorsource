@@ -82,7 +82,7 @@ version="2.4">
 
   <servlet-mapping>
     <servlet-name>springapp</servlet-name>
-    <url-pattern>/section</url-pattern>
+    <url-pattern>/view-section.jsp</url-pattern>
   </servlet-mapping>
 
 <listener>

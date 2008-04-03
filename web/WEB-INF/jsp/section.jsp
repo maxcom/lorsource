@@ -1,7 +1,7 @@
 <%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
 <%@ page import="java.util.Date"   %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-${template.head}
+<jsp:include page="/WEB-INF/jsp/head.jsp"/>
 <%
 
   response.setDateHeader("Expires", new Date(new Date().getTime() - 20 * 3600 * 1000).getTime());
