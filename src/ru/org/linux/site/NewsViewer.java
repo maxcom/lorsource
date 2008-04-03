@@ -311,7 +311,7 @@ public class NewsViewer implements Viewer {
         "topics=" + prof.getInt("topics")+
         "&messages=" + prof.getInt("messages") +
         "&style=" + prof.getString("style") +
-        "&tag=" + tag);
+        "&tag=" + URLEncoder.encode(tag));
 
     if (viewAll) {
       id.append("&view-all=true");
