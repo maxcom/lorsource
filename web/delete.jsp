@@ -2,11 +2,12 @@
 <%@ page import="java.sql.Connection,java.sql.PreparedStatement,java.sql.ResultSet"  %>
 <%@ page import="java.util.logging.Logger"%>
 <%@ page import="ru.org.linux.site.*" %>
-<% Template tmpl = new Template(request, config.getServletContext(), response);
+<%
   Logger logger = Logger.getLogger("ru.org.linux");
 %>
-<%= tmpl.getHead() %>
-	<title>Удаление сообщения</title>
+<jsp:include page="WEB-INF/jsp/head.jsp"/>
+
+        <title>Удаление сообщения</title>
 <jsp:include page="WEB-INF/jsp/header.jsp"/>
 
 <%

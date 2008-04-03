@@ -1,9 +1,6 @@
 <%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
 <%@ page import="java.util.Date"   %>
-<%@ page import="ru.org.linux.site.Template"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<% Template tmpl = new Template(request, config.getServletContext(), response); %>
-
 ${template.head}
 <%
 

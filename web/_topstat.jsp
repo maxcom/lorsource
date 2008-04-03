@@ -1,9 +1,8 @@
 <%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
 <%@ page import="java.sql.Connection,java.sql.PreparedStatement,java.sql.ResultSet,java.sql.Statement"   %>
 <%@ page import="ru.org.linux.site.LorDataSource"%>
-<%@ page import="ru.org.linux.site.Template" %>
-<% Template tmpl = new Template(request, config.getServletContext(), response); %>
-<%= tmpl.getHead() %>
+<jsp:include page="/WEB-INF/jsp/head.jsp"/>
+
 <title>we make new db information for mess_priority</title>
 <jsp:include page="WEB-INF/jsp/header.jsp"/>
 

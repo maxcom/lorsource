@@ -4,11 +4,14 @@
 <%@ page import="java.sql.Statement" %>
 <%@ page import="java.util.Date" %>
 <%@ page import="java.util.List" %>
+<%@ page import="javax.servlet.http.HttpServletResponse" %>
 <%@ page import="ru.org.linux.boxlet.BoxletVectorRunner" %>
 <%@ page import="ru.org.linux.site.*" %>
 <%@ page import="ru.org.linux.util.ServletParameterParser" %>
-<% Template tmpl = new Template(request, config.getServletContext(), response); %>
-<%= tmpl.getHead() %>
+<%@ page import="ru.org.linux.util.StringUtil" %>
+<% Template tmpl = Template.getTemplate(request); %>
+<jsp:include page="WEB-INF/jsp/head.jsp"/>
+
 <LINK REL=STYLESHEET TYPE="text/css" HREF="/<%= tmpl.getStyle() %>/style.css" TITLE="Normal">
 <%
   if (new ServletParameterParser(request).getBoolean("main")) { %>

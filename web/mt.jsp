@@ -7,9 +7,10 @@
 <%
   Logger logger = Logger.getLogger("ru.org.linux");
 
-  Template tmpl = new Template(request, config.getServletContext(), response);
-  out.print(tmpl.getHead());
-
+  Template tmpl = Template.getTemplate(request);
+%>
+<jsp:include page="WEB-INF/jsp/head.jsp"/>
+<%
   if (!tmpl.isModeratorSession()) {
     throw new IllegalAccessException("Not authorized");
   }

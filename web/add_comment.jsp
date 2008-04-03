@@ -4,7 +4,7 @@
 <%@ page import="ru.org.linux.util.ServletParameterParser" %>
 <%@ page import="ru.org.linux.util.UtilBadHTMLException" %>
 <%@ page import="ru.org.linux.util.UtilBadURLException" %>
-<% Template tmpl = new Template(request, config.getServletContext(), response);%>
+<% Template tmpl = Template.getTemplate(request);%>
 <%
   Logger logger = Logger.getLogger("ru.org.linux");
 
@@ -16,7 +16,7 @@
     showform = true;
   }
 %>
-<%= tmpl.getHead() %>
+<jsp:include page="WEB-INF/jsp/head.jsp"/>
 
 <%
   Connection db = null;

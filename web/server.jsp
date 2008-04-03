@@ -4,9 +4,8 @@
 <%@ page import="java.sql.ResultSet" %>
 <%@ page import="java.sql.Statement" %>
 <%@ page import="ru.org.linux.site.LorDataSource" %>
-<%@ page import="ru.org.linux.site.Template" %>
-<% Template tmpl = new Template(request, config.getServletContext(), response); %>
-<%= tmpl.getHead() %>
+<jsp:include page="WEB-INF/jsp/head.jsp"/>
+
 <title>О Сервере</title>
 <jsp:include page="WEB-INF/jsp/header.jsp"/>
 <div class=text>

@@ -5,8 +5,9 @@
 <%@ page import="ru.org.linux.site.*" %>
 <%@ page import="ru.org.linux.util.ServletParameterParser" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<% Template tmpl = new Template(request, config.getServletContext(), response); %>
-<%= tmpl.getHead() %>
+<% Template tmpl = Template.getTemplate(request); %>
+
+<jsp:include page="/WEB-INF/jsp/head.jsp"/>
 <%
   Connection db = null;
   try {

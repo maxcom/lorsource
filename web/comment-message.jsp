@@ -2,8 +2,9 @@
 <%@ page import="java.sql.Connection,ru.org.linux.site.AccessViolationException,ru.org.linux.site.LorDataSource,ru.org.linux.site.Message,ru.org.linux.site.Template"   buffer="200kb"%>
 <%@ page import="ru.org.linux.util.HTMLFormatter" %>
 <%@ page import="ru.org.linux.util.ServletParameterParser" %>
-<% Template tmpl = new Template(request, config.getServletContext(), response); %>
-<%= tmpl.getHead() %>
+<% Template tmpl = Template.getTemplate(request); %>
+<jsp:include page="WEB-INF/jsp/head.jsp"/>
+
 <%
   Connection db = null;
 

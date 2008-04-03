@@ -7,10 +7,11 @@
 <%@ page import="ru.org.linux.util.HTMLFormatter" %>
 <%@ page import="ru.org.linux.util.ServletParameterParser" %>
 <%@ page pageEncoding="koi8-r" contentType="text/html;charset=utf-8" language="java"   %>
-<% Template tmpl = new Template(request, config.getServletContext(), response);
+<% Template tmpl = Template.getTemplate(request);
   Logger logger = Logger.getLogger("ru.org.linux");
 %>
-<%= tmpl.getHead() %>
+<jsp:include page="/WEB-INF/jsp/head.jsp"/>
+
 <title>usermod</title>
 <jsp:include page="WEB-INF/jsp/header.jsp"/>
 

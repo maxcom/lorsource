@@ -4,8 +4,9 @@
 <%@ page import="com.danga.MemCached.MemCachedClient" %>
 <%@ page import="ru.org.linux.site.*" %>
 <%@ page import="ru.org.linux.util.StringUtil" %>
-<% Template tmpl = new Template(request, config.getServletContext(), response); %>
-<%= tmpl.getHead() %>
+<% Template tmpl = Template.getTemplate(request); %>
+<jsp:include page="WEB-INF/jsp/head.jsp"/>
+
 <% String nick=request.getParameter("nick");
 	if (nick==null) {
           throw new MissingParameterException("nick");

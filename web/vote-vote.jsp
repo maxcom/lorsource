@@ -2,8 +2,8 @@
 <%@ page
     import="java.sql.Connection,java.sql.ResultSet,java.sql.Statement,ru.org.linux.site.*"
       %>
-<% Template tmpl = new Template(request, config.getServletContext(), response); %>
-<%= tmpl.getHead() %>
+<jsp:include page="/WEB-INF/jsp/head.jsp"/>
+
 <title>Голосование</title>
 <jsp:include page="WEB-INF/jsp/header.jsp"/>
 <%

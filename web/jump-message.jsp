@@ -3,8 +3,9 @@
 <%@ page import="javax.servlet.http.HttpServletResponse" %>
 <%@ page import="ru.org.linux.site.*" %>
 <%@ page import="ru.org.linux.util.ServletParameterParser" %>
-<% Template tmpl = new Template(request, config.getServletContext(), response); %>
-<%= tmpl.getHead() %>
+<% Template tmpl = Template.getTemplate(request); %>
+<jsp:include page="/WEB-INF/jsp/head.jsp"/>
+
 <%
   int msgid = new ServletParameterParser(request).getInt("msgid");
 

@@ -20,8 +20,7 @@
 <%@ page import="ru.org.linux.storage.StorageNotFoundException" %>
 <%@ page import="ru.org.linux.util.*" %>
 <%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"  %>
-<% Template tmpl = new Template(request, config.getServletContext(), response);%>
-<%= tmpl.getHead() %>
+<jsp:include page="WEB-INF/jsp/head.jsp"/>
 
 <%
   response.addHeader("Cache-Control", "no-store, no-cache, must-revalidate");

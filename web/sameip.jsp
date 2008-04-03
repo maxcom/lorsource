@@ -4,8 +4,8 @@
 <%@ page import="ru.org.linux.util.HTMLFormatter"%>
 <%@ page import="ru.org.linux.util.ServletParameterParser"%>
 <%@ page import="ru.org.linux.util.StringUtil" %>
-<% Template tmpl = new Template(request, config.getServletContext(), response); %>
-<%= tmpl.getHead() %>
+<jsp:include page="WEB-INF/jsp/head.jsp"/>
+
 <%
   if (!Template.isSessionAuthorized(session) || !((Boolean) session.getValue("moderator"))) {
     throw new IllegalAccessException("Not authorized");

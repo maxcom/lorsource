@@ -1,8 +1,9 @@
 <%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
 <%@ page import="java.sql.Connection,ru.org.linux.site.LorDataSource,ru.org.linux.site.MissingParameterException,ru.org.linux.site.Poll"   buffer="200kb"%>
 <%@ page import="ru.org.linux.site.Template" %>
-<% Template tmpl = new Template(request, config.getServletContext(), response); %>
-<%=tmpl.getHead() %>
+<% Template tmpl = Template.getTemplate(request); %>
+<jsp:include page="/WEB-INF/jsp/head.jsp"/>
+
 <%
   Connection db = null;
   try {

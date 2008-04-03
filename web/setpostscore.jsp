@@ -3,11 +3,12 @@
 <%@ page import="ru.org.linux.site.Template" %>
 <%@ page import="ru.org.linux.site.User" %>
 <%@ page import="ru.org.linux.util.ServletParameterParser" %>
-<% Template tmpl = new Template(request, config.getServletContext(), response);
+<% Template tmpl = Template.getTemplate(request);
   Logger logger = Logger.getLogger("ru.org.linux");
 %>
-<%= tmpl.getHead() %>
-	<title>Смена параметров сообщения</title>
+<jsp:include page="WEB-INF/jsp/head.jsp"/>
+
+        <title>Смена параметров сообщения</title>
 <jsp:include page="WEB-INF/jsp/header.jsp"/>
 <%
 if (!tmpl.isModeratorSession()) {

@@ -5,9 +5,10 @@
 <%@ page import="ru.org.linux.util.ProfileHashtable" %>
 <%@ page import="ru.org.linux.util.ServletParameterParser" %>
 <%@ page import="ru.org.linux.util.StringUtil" %>
-<% Template tmpl = new Template(request, config.getServletContext(), response);%>
-<%= tmpl.getHead() %>
-	<title>Конструктор страницы</title>
+<% Template tmpl = Template.getTemplate(request);%>
+<jsp:include page="WEB-INF/jsp/head.jsp"/>
+
+        <title>Конструктор страницы</title>
 <jsp:include page="WEB-INF/jsp/header.jsp"/>
 
 <h1>Конструктор страницы</h1>

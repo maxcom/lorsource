@@ -2,8 +2,9 @@
 <%@ page import="java.sql.Connection,javax.servlet.http.HttpServletResponse,ru.org.linux.site.*,ru.org.linux.util.ServletParameterParser,ru.org.linux.util.StringUtil"   buffer="200kb"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
-<% Template tmpl = new Template(request, config.getServletContext(), response); %>
-<%= tmpl.getHead() %>
+<% Template tmpl = Template.getTemplate(request); %>
+<jsp:include page="WEB-INF/jsp/head.jsp"/>
+
 <%
   Connection db = null;
 
@@ -356,10 +357,12 @@
     if (tmpl.getProf().getBoolean("sortwarning") && cv.getOutputCount()>0) {
       out.print("<div class=nav>");
 
-      if (tmpl.getProf().getBoolean("newfirst"))
+      if (tmpl.getProf().getBoolean("newfirst")) {
         out.print("сообщения отсортированы в порядке убывания даты их написания");
-      else
+      }
+      else {
         out.print("сообщения отсортированы в порядке возрастания даты их написания");
+      }
 
       out.print("</div>");
     }
@@ -396,7 +399,9 @@
 
 <%
   } finally {
-    if (db!=null) db.close();
+    if (db!=null) {
+      db.close();
+    }
   }
 %>
 

@@ -3,9 +3,10 @@
 <%@ page import="java.sql.Statement"%>
 <%@ page import="ru.org.linux.site.*"%>
 <%@ page import="ru.org.linux.util.ServletParameterParser" %>
-<% Template tmpl = new Template(request, config.getServletContext(), response); %>
-<%= tmpl.getHead() %>
-	<title>Удаление сообщения</title>
+<% Template tmpl = Template.getTemplate(request); %>
+<jsp:include page="WEB-INF/jsp/head.jsp"/>
+
+        <title>Удаление сообщения</title>
 <jsp:include page="WEB-INF/jsp/header.jsp"/>
 <%
    Connection db = null;

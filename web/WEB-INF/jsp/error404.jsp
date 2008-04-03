@@ -1,9 +1,9 @@
 <%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
-<%@ page import="ru.org.linux.site.Template"  %>
-<% Template tmpl = new Template(request, config.getServletContext(), response);
+<%
    response.setStatus(404);
 %>
-<%= tmpl.getHead() %>
+<jsp:include page="/WEB-INF/jsp/head.jsp"/>
+
 <title>Error 404</title>
 <jsp:include page="header.jsp"/>
 

@@ -5,8 +5,9 @@
 <%@ page import="ru.org.linux.site.*" %>
 <%@ page import="ru.org.linux.util.HTMLFormatter" %>
 <%@ page import="ru.org.linux.util.UtilBadURLException" %>
-<% Template tmpl = new Template(request, config.getServletContext(), response);%>
-<%= tmpl.getHead() %>
+<% Template tmpl = Template.getTemplate(request);%>
+<jsp:include page="/WEB-INF/jsp/head.jsp"/>
+
 <%
   Connection db = null;
 

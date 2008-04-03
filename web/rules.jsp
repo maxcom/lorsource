@@ -20,7 +20,8 @@
 <%@ page import="ru.org.linux.site.*" %>
 <%@ page import="ru.org.linux.storage.StorageNotFoundException" %>
 <%@ page import="ru.org.linux.util.*" %>
-<% Template tmpl = new Template(request, config.getServletContext(), response); %><%= tmpl.getHead() %>
+<jsp:include page="/WEB-INF/jsp/head.jsp"/>
+
 <title>Правила LOR</title>
 <jsp:include page="WEB-INF/jsp/header.jsp"/>
 

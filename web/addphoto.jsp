@@ -20,10 +20,11 @@
 <%@ page import="ru.org.linux.site.*" %>
 <%@ page import="ru.org.linux.storage.StorageNotFoundException" %>
 <%@ page import="ru.org.linux.util.*" %>
-<% Template tmpl = new Template(request, config.getServletContext(), response);
+<% Template tmpl = Template.getTemplate(request);
   Logger logger = Logger.getLogger("ru.org.linux");
 %>
-<%= tmpl.getHead() %>
+<jsp:include page="/WEB-INF/jsp/head.jsp"/>
+
 <title>Добавление/Изменение фотографии</title>
 <jsp:include page="WEB-INF/jsp/header.jsp"/>
 

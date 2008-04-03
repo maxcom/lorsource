@@ -6,11 +6,12 @@
 <%@ page import="ru.org.linux.util.BadImageException" %>
 <%@ page import="ru.org.linux.util.HTMLFormatter" %>
 <%@ page import="ru.org.linux.util.ImageInfo" %>
-<% Template tmpl = new Template(request, config.getServletContext(), response); %>
+<% Template tmpl = Template.getTemplate(request); %>
 <%
   response.setDateHeader("Expires", System.currentTimeMillis()+120000);
 %>
-<%= tmpl.getHead() %>
+<jsp:include page="/WEB-INF/jsp/head.jsp"/>
+
 <% String nick=request.getParameter("nick");
 
   if (nick == null) {

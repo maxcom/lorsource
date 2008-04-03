@@ -18,9 +18,9 @@
 <%@ page import="ru.org.linux.site.*" %>
 <%@ page import="ru.org.linux.storage.StorageNotFoundException" %>
 <%@ page import="ru.org.linux.util.*" %>
-<% Template tmpl = new Template(request, config.getServletContext(), response); %>
-<%= tmpl.getHead() %>
-	<title>Получить забытый пароль</title>
+<jsp:include page="WEB-INF/jsp/head.jsp"/>
+
+        <title>Получить забытый пароль</title>
 <jsp:include page="WEB-INF/jsp/header.jsp"/>
 
 <%

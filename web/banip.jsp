@@ -2,8 +2,9 @@
 <%@ page import="java.net.URLEncoder,java.sql.*,java.util.Calendar,java.util.Date,javax.servlet.http.HttpServletResponse,ru.org.linux.site.*, ru.org.linux.util.HTMLFormatter"   buffer="60kb" %>
 <%@ page import="ru.org.linux.util.ServletParameterParser"%>
 <%@ page import="ru.org.linux.util.StringUtil" %>
-<% Template tmpl = new Template(request, config.getServletContext(), response); %>
-<%= tmpl.getHead() %>
+<% Template tmpl = Template.getTemplate(request); %>
+<jsp:include page="WEB-INF/jsp/head.jsp"/>
+
 <title>banip</title>
 <jsp:include page="WEB-INF/jsp/header.jsp"/>
 <%

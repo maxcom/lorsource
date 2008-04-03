@@ -12,13 +12,10 @@ import java.util.Locale;
 import java.util.Properties;
 import java.util.logging.Logger;
 
-import javax.servlet.ServletContext;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import ru.org.linux.storage.StorageException;
 import ru.org.linux.storage.StorageNotFoundException;
@@ -44,32 +41,16 @@ public class Template {
     return config.getProperties().getProperty("Secret");
   }
 
-  private static Properties getProperties(ServletContext sc)  {
-    WebApplicationContext ctx = WebApplicationContextUtils.getWebApplicationContext(sc);
-
-    Properties prop = (Properties) ctx.getBean("config.properties");
-    if (prop.isEmpty()) {
-      prop = (Properties) ctx.getBean("config.properties.dist");
-    }
-
-    return prop;
-  }
-
-  public Template(HttpServletRequest request, ServletContext context, HttpServletResponse response)
+  public Template(HttpServletRequest request, Properties properties, HttpServletResponse response)
       throws ClassNotFoundException, IOException, SQLException, StorageException {
 //    request.setCharacterEncoding("koi8-r"); // блядский tomcat
     request.setCharacterEncoding("utf-8"); // блядский tomcat
-
-    request.setAttribute("template", this);
 
     if (request.getParameter("debug") != null) {
       debugMode = true;
     }
 
-    Properties properties= getProperties(context);
-
     // TODO use better initialization
-    MemCachedSettings.setMainUrl(properties.getProperty("MainUrl"));
 
     config = new Config(properties);
 
@@ -282,5 +263,9 @@ public class Template {
     } else {
       return null;
     }
+  }
+
+  public static Template getTemplate(HttpServletRequest request) {
+    return (Template) request.getAttribute("template");
   }
 }

@@ -3,8 +3,9 @@
     import="java.sql.Connection,java.sql.Statement,javax.servlet.http.HttpServletResponse"
       %>
 <%@ page import="ru.org.linux.site.*"%>
-<% Template tmpl = new Template(request, config.getServletContext(), response); %>
-<%= tmpl.getHead() %>
+<% Template tmpl = Template.getTemplate(request); %>
+<jsp:include page="/WEB-INF/jsp/head.jsp"/>
+
 <title>Ваш голос принят</title>
 <jsp:include page="WEB-INF/jsp/header.jsp"/>
 

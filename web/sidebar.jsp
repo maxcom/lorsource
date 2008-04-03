@@ -1,7 +1,5 @@
 <%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
 <%@ page import="java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.util.Date,ru.org.linux.site.BadSectionException,ru.org.linux.site.LorDataSource"   buffer="200kb"%>
-<%@ page import="ru.org.linux.site.Template" %>
-<% Template tmpl = new Template(request, config.getServletContext(), response); %>
 <%
   response.setDateHeader("Expires", new Date(new Date().getTime()-20*3600*1000).getTime());
   response.setDateHeader("Last-Modified", new Date(new Date().getTime()-120*1000).getTime());

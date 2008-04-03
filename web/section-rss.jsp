@@ -4,7 +4,7 @@
 <%@ page import="ru.org.linux.boxlet.BoxletVectorRunner" %>
 <%@ page import="ru.org.linux.site.*" %>
 <%@ page import="ru.org.linux.util.ServletParameterParser" %>
-<% Template tmpl = new Template(request, config.getServletContext(), response); %>
+<% Template tmpl = Template.getTemplate(request); %>
 
 <rss version="2.0">
 <channel>

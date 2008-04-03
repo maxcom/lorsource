@@ -7,7 +7,7 @@
 <%@ page import="ru.org.linux.util.HTMLFormatter" %>
 <%@ page import="ru.org.linux.util.ServletParameterParser" %>
 <%
-  Template tmpl = new Template(request, config.getServletContext(), response);
+  Template tmpl = Template.getTemplate(request);
   Logger logger = Logger.getLogger("ru.org.linux");
 
   if (!tmpl.isModeratorSession() && !tmpl.isCorrectorSession()) {

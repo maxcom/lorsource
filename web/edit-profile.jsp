@@ -8,9 +8,10 @@
 <%@ page import="ru.org.linux.util.ProfileHashtable" %>
 <%@ page import="ru.org.linux.util.ServletParameterParser" %>
 <%@ page import="ru.org.linux.util.StringUtil" %>
-<% Template tmpl = new Template(request, config.getServletContext(), response); %>
-<%= tmpl.getHead() %>
-	<title>Настройки профиля</title>
+<% Template tmpl = Template.getTemplate(request); %>
+<jsp:include page="WEB-INF/jsp/head.jsp"/>
+
+        <title>Настройки профиля</title>
 <jsp:include page="WEB-INF/jsp/header.jsp"/>
 
   <table class=nav><tr>

@@ -5,10 +5,9 @@
 <%@ page import="ru.org.linux.util.ServletParameterParser" %>
 <%
   Logger logger = Logger.getLogger("ru.org.linux");
-
-  Template tmpl = new Template(request, config.getServletContext(), response);
-  out.print(tmpl.getHead());
-
+%>
+<jsp:include page="/WEB-INF/jsp/head.jsp"/>
+<%
   if (!Template.isSessionAuthorized(session) || !((Boolean) session.getValue("moderator"))) {
     throw new IllegalAccessException("Not authorized");
   }
