@@ -308,29 +308,29 @@ public class NewsViewer implements Viewer {
 
   public String getVariantID(ProfileHashtable prof) throws UtilException {
     StringBuilder id = new StringBuilder("view-news?"+
-        "topics=" + prof.getInt("topics")+
-        "&messages=" + prof.getInt("messages") +
-        "&style=" + prof.getString("style") +
-        "&tag=" + URLEncoder.encode(tag));
+        "t=" + prof.getInt("topics")+
+        "&m=" + prof.getInt("messages") +
+        "&st=" + prof.getString("style") +
+        "&tg=" + URLEncoder.encode(tag));
 
     if (viewAll) {
-      id.append("&view-all=true");
+      id.append("&v-all=true");
     }
 
     if (section!=0) {
-      id.append("&section=").append(section);
+      id.append("&sec=").append(section);
     }
 
     if (group!=0) {
-      id.append("&group=").append(group);
+      id.append("&grp=").append(group);
     }
 
     if (datelimit!=null) {
-      id.append("&datelimit=").append(URLEncoder.encode(datelimit));
+      id.append("&dlmt=").append(URLEncoder.encode(datelimit));
     }
 
     if (limit!=null && limit.length()>0) {
-      id.append("&limit=").append(URLEncoder.encode(limit));
+      id.append("&lmt=").append(URLEncoder.encode(limit));
     }
 
     return id.toString();
