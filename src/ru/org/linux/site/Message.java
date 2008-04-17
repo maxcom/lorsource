@@ -562,7 +562,7 @@ public class Message {
     out.append(author.getSignature(tmpl.isModeratorSession(), postdate));
 
     if (commitby!=0) {
-      User commiter = User.getUser(db, commitby);
+      User commiter = User.getUserCached(db, commitby);
 
       out.append("<br>");
       out.append(commiter.getCommitInfoLine(postdate, commitDate));
