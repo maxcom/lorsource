@@ -17,6 +17,7 @@ public class Comment implements Serializable {
   private final String message;
   private final DeleteInfo deleteInfo;
   private final String userAgent;
+  private final String postIP;
 
   public Comment(Connection db, ResultSet rs) throws SQLException {
     msgid=rs.getInt("msgid");
@@ -28,6 +29,7 @@ public class Comment implements Serializable {
     userid=rs.getInt("userid");
     message=rs.getString("message");
     userAgent=rs.getString("useragent");
+    postIP=rs.getString("postip");
 
     if (deleted) {
       deleteInfo = DeleteInfo.getDeleteInfo(db, msgid);
@@ -41,7 +43,7 @@ public class Comment implements Serializable {
 
     ResultSet rs=st.executeQuery("SELECT " +
         "postdate, topic, users.id as userid, comments.id as msgid, comments.title, " +
-        "deleted, replyto, message, user_agents.name AS useragent " +
+        "deleted, replyto, message, user_agents.name AS useragent, comments.postip " +
         "FROM comments " + 
         "INNER JOIN users ON (users.id=comments.userid) " +
         "INNER JOIN msgbase ON (msgbase.id=comments.id) " +
@@ -61,6 +63,7 @@ public class Comment implements Serializable {
     message=rs.getString("message");
     userid=rs.getInt("userid");
     userAgent=rs.getString("useragent");
+    postIP=rs.getString("postip");
     
     st.close();
 
@@ -71,7 +74,7 @@ public class Comment implements Serializable {
     }
   }
 
-  public Comment(int replyto, String title, String message, int topic, int userid, String userAgent) {
+  public Comment(int replyto, String title, String message, int topic, int userid, String userAgent, String postIP) {
     msgid =0;
     this.title=title;
     this.topic=topic;
@@ -82,6 +85,7 @@ public class Comment implements Serializable {
     this.userid=userid;
     deleteInfo = null;
     this.userAgent=userAgent;
+    this.postIP=postIP;
   }
 
   public int getMessageId() {
@@ -126,6 +130,10 @@ public class Comment implements Serializable {
 
   public String getUserAgent() {
     return userAgent;
+  }
+
+  public String getPostIP() {
+    return postIP;
   }
 
   public int saveNewMessage(Connection db, String remoteAddr) throws SQLException {

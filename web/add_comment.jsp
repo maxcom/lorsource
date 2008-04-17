@@ -80,14 +80,14 @@
       throw new BadInputException(e);
     }
 
-    comment = new Comment(replyto, title, msg, topicId, 0, request.getHeader("user-agent"));
+    comment = new Comment(replyto, title, msg, topicId, 0, request.getHeader("user-agent"), request.getRemoteAddr());
 
     try {
       // prechecks is over
       db = LorDataSource.getConnection();
       db.setAutoCommit(false);
 
-      IPBlockInfo.checkBlockIP(db, request.getRemoteAddr());
+      //IPBlockInfo.checkBlockIP(db, request.getRemoteAddr());
 
       User user;
 
