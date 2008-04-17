@@ -73,8 +73,6 @@ try {
       nick = (String) session.getAttribute("nick");
     }
 
-    user.checkAnonymous();
-
     ResultSet lockResult = lock.executeQuery(); // lock another undelete.jsp on this row
 
     if (lockResult.next() && !lockResult.getBoolean("deleted")) {
