@@ -56,7 +56,7 @@ public final class tagcloud extends Boxlet {
       for (String tag : ht.keySet()) {
         double cnt = ht.get(tag);
 
-        long weight = Math.round(10*cnt/(maxc-minc));
+        long weight = Math.round(10*(cnt-minc)/(maxc-minc));
 
         out.append("<a class=\"cloud").append(URLEncoder.encode(Long.toString(weight), "UTF-8")).append("\" href=\"view-news.jsp?section=1&amp;tag=");
         out.append(tag).append("\">").append(tag).append("</a>").append(" ");
