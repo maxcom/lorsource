@@ -226,6 +226,10 @@ public class Template {
     return config;
   }
 
+  public boolean isSessionAuthorized() {
+    return isSessionAuthorized(session);
+  }
+
   public static boolean isSessionAuthorized(HttpSession session) {
     return session != null && session.getAttribute("login") != null && (Boolean) session.getAttribute("login");
   }
@@ -251,6 +255,10 @@ public class Template {
     }
 
     return name.startsWith("_");
+  }
+
+  public String getNick() {
+    return getNick(session);
   }
 
   public static String getNick(HttpSession session) {

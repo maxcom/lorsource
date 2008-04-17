@@ -50,4 +50,16 @@ function parseHash()
   }
 }
 
+// black login form
+function showLoginForm() {
+  document.getElementById("regmenu").style.display = "none";
+  document.getElementById("regform").style.display = "";
+}
+
+function hideLoginForm() {
+  document.getElementById("regmenu").style.display = "";
+  document.getElementById("regform").style.display = "none";
+}
+
+// enable comment frame
 setInterval(parseHash, 1000);
