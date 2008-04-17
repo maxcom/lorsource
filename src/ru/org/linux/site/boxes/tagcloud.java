@@ -32,6 +32,7 @@ public final class tagcloud extends Boxlet {
 
       ResultSet rs = st.executeQuery();
       double maxc = 1;
+      double minc = -1;
       while (rs.next()) {
         String tag = rs.getString("value");
         double cnt = Math.log(rs.getInt("counter"));
@@ -40,14 +41,22 @@ public final class tagcloud extends Boxlet {
           maxc = cnt;
         }
 
+        if (minc<0 || cnt<minc) {
+          minc = cnt;
+        }
+
         ht.put(tag, cnt);
       }
       rs.close();
 
+      if (minc<0) {
+        minc = 0;
+      }
+
       for (String tag : ht.keySet()) {
         double cnt = ht.get(tag);
 
-        long weight = Math.round(10*cnt/maxc);
+        long weight = Math.round(10*cnt/(maxc-minc));
 
         out.append("<a class=\"cloud").append(URLEncoder.encode(Long.toString(weight), "UTF-8")).append("\" href=\"view-news.jsp?section=1&amp;tag=");
         out.append(tag).append("\">").append(tag).append("</a>").append(" ");
