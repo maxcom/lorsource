@@ -21,7 +21,7 @@ public final class tagcloud extends Boxlet {
     try {
       db = LorDataSource.getConnection();
 
-      Map<String,Integer> ht = new TreeMap<String,Integer>();
+      Map<String,Double> ht = new TreeMap<String,Double>();
       StringBuffer out = new StringBuffer();
       int tags = profile.getInt("tags");
 
@@ -31,10 +31,10 @@ public final class tagcloud extends Boxlet {
       st.setInt(1,tags);
 
       ResultSet rs = st.executeQuery();
-      int maxc = 1;
+      double maxc = 1;
       while (rs.next()) {
         String tag = rs.getString("value");
-        int cnt = rs.getInt("counter");
+        double cnt = Math.log(rs.getInt("counter"));
 
         if (cnt>maxc) {
           maxc = cnt;
@@ -45,11 +45,11 @@ public final class tagcloud extends Boxlet {
       rs.close();
 
       for (String tag : ht.keySet()) {
-        int cnt = ht.get(tag);
+        double cnt = ht.get(tag);
 
-        int weight = Math.round(10*cnt/maxc);
+        long weight = Math.round(10*cnt/maxc);
 
-        out.append("<a class=\"cloud").append(URLEncoder.encode(Integer.toString(weight), "UTF-8")).append("\" href=\"view-news.jsp?section=1&amp;tag=");
+        out.append("<a class=\"cloud").append(URLEncoder.encode(Long.toString(weight), "UTF-8")).append("\" href=\"view-news.jsp?section=1&amp;tag=");
         out.append(tag).append("\">").append(tag).append("</a>").append(" ");
       }
       out.append("<br>");
