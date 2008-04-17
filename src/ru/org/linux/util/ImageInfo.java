@@ -230,7 +230,7 @@ public class ImageInfo {
     String[] cmd = {
       "/usr/bin/convert",
       "-scale",
-      "150",
+      "200",
       filename,
       iconname };
 
