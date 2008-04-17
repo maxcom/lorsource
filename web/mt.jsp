@@ -2,7 +2,6 @@
 <%@ page import="java.sql.Connection,java.sql.PreparedStatement,java.sql.ResultSet,java.sql.Statement,java.util.logging.Logger"   buffer="60kb" %>
 <%@ page import="ru.org.linux.site.LorDataSource" %>
 <%@ page import="ru.org.linux.site.Template" %>
-<%@ page import="ru.org.linux.site.User" %>
 <%@ page import="ru.org.linux.util.ServletParameterParser" %>
 <%
   Logger logger = Logger.getLogger("ru.org.linux");
@@ -39,13 +38,6 @@
       if (rs.next()) {
         oldgr = rs.getString("groupid");
 	title = rs.getString("title");
-        int userid = rs.getInt("userid");
-
-        User user = User.getUserCached(db, userid);
-
-        if (user.isAnonymousScore() && "8404".equals(newgr)) {
-	  throw new IllegalAccessException("Была ж договоренность на тему того, что сценарий \"анонимный пост в других разделах с просьбой перетащить в толксы\" не должен работать");
-	}
       }
 
       st1.executeUpdate(sSql);
