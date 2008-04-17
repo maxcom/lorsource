@@ -80,7 +80,7 @@
       throw new BadInputException(e);
     }
 
-    comment = new Comment(replyto, title, msg, topicId, 0);
+    comment = new Comment(replyto, title, msg, topicId, 0, request.getHeader("user-agent"));
 
     try {
       // prechecks is over
@@ -147,7 +147,7 @@
       if (!preview) {
         DupeProtector.getInstance().checkDuplication(request.getRemoteAddr(),user.getScore()>100);
 
-        int msgid = comment.saveNewMessage(db, request.getRemoteAddr());
+        int msgid = comment.saveNewMessage(db, request.getRemoteAddr(), request.getHeader("user-agent"));
 
         String logmessage = "Написан комментарий " + msgid + " ip:" + request.getRemoteAddr();
         if (request.getHeader("X-Forwarded-For") != null) {

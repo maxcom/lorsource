@@ -16,6 +16,7 @@ public class Comment implements Serializable {
   private final Timestamp postdate;
   private final String message;
   private final DeleteInfo deleteInfo;
+  private final String userAgent;
 
   public Comment(Connection db, ResultSet rs) throws SQLException {
     msgid=rs.getInt("msgid");
@@ -26,6 +27,7 @@ public class Comment implements Serializable {
     postdate=rs.getTimestamp("postdate");
     userid=rs.getInt("userid");
     message=rs.getString("message");
+    userAgent=rs.getString("useragent");
 
     if (deleted) {
       deleteInfo = DeleteInfo.getDeleteInfo(db, msgid);
@@ -39,11 +41,16 @@ public class Comment implements Serializable {
 
     ResultSet rs=st.executeQuery("SELECT " +
         "postdate, topic, users.id as userid, comments.id as msgid, comments.title, " +
-        "deleted, replyto, message " +
-        "FROM comments, users, msgbase " +
-        "WHERE comments.id="+msgid+" AND comments.id=msgbase.id AND comments.userid=users.id");
+        "deleted, replyto, message, user_agents.name AS useragent " +
+        "FROM comments " + 
+        "INNER JOIN users ON (users.id=comments.userid) " +
+        "INNER JOIN msgbase ON (msgbase.id=comments.id) " +
+        "LEFT JOIN user_agents ON (user_agents.id=comments.ua_id) " +
+        "WHERE comments.id="+msgid);
 
-    if (!rs.next()) throw new MessageNotFoundException(msgid);
+    if (!rs.next()) {
+      throw new MessageNotFoundException(msgid);
+    }
 
     this.msgid=rs.getInt("msgid");
     title=StringUtil.makeTitle(rs.getString("title"));
@@ -53,7 +60,8 @@ public class Comment implements Serializable {
     postdate=rs.getTimestamp("postdate");
     message=rs.getString("message");
     userid=rs.getInt("userid");
-
+    userAgent=rs.getString("useragent");
+    
     st.close();
 
     if (deleted) {
@@ -63,7 +71,7 @@ public class Comment implements Serializable {
     }
   }
 
-  public Comment(int replyto, String title, String message, int topic, int userid) {
+  public Comment(int replyto, String title, String message, int topic, int userid, String userAgent) {
     msgid =0;
     this.title=title;
     this.topic=topic;
@@ -73,6 +81,7 @@ public class Comment implements Serializable {
     this.message=message;
     this.userid=userid;
     deleteInfo = null;
+    this.userAgent=userAgent;
   }
 
   public int getMessageId() {
@@ -115,7 +124,15 @@ public class Comment implements Serializable {
     return deleteInfo;
   }
 
+  public String getUserAgent() {
+    return userAgent;
+  }
+
   public int saveNewMessage(Connection db, String remoteAddr) throws SQLException {
+    return saveNewMessage(db, remoteAddr, "не указан");
+  }
+  
+  public int saveNewMessage(Connection db, String remoteAddr, String userAgent) throws SQLException {
     PreparedStatement pst = null;
     PreparedStatement pstMsgbase = null;
 
@@ -127,11 +144,12 @@ public class Comment implements Serializable {
       int msgid = rs.getInt("msgid");
 
       // insert headers
-      pst = db.prepareStatement("INSERT INTO comments (id, userid, title, postdate, replyto, deleted, topic, postip) VALUES (?, ?, ?, CURRENT_TIMESTAMP, ?, 'f', ?, '" + remoteAddr + "')");
+      pst = db.prepareStatement("INSERT INTO comments (id, userid, title, postdate, replyto, deleted, topic, postip, ua_id) VALUES (?, ?, ?, CURRENT_TIMESTAMP, ?, 'f', ?, '" + remoteAddr + "',create_user_agent(?))");
       pst.setInt(1, msgid);
       pst.setInt(2, userid);
       pst.setString(3, title);
       pst.setInt(5, topic);
+      pst.setString(6, userAgent);
 
       if (replyto != 0) {
         pst.setInt(4, replyto);

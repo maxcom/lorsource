@@ -47,8 +47,9 @@ public class CommentView {
 
     out.append("<div class=sign>").append(author.getSignature(moderatorMode, comment.getPostdate())).append("</div>");
 
-    if (!expired && !comment.isDeleted() && showMenu)
+    if (!expired && !comment.isDeleted() && showMenu) {
       out.append("<div class=reply>[<a href=\"add_comment.jsp?topic=").append(comment.getTopic()).append("&amp;replyto=").append(comment.getMessageId()).append("\">Ответить на это сообщение</a>]</div>");
+    }
 
     if (tbl) {
       out.append("</td></tr></table>");
@@ -78,6 +79,7 @@ public class CommentView {
 
     if (moderatorMode) {
       out.append("[<a href=\"sameip.jsp?msgid=").append(comment.getMessageId()).append("\">Другие с этого IP</a>]");
+      out.append("[").append(comment.getUserAgent()).append("]");
     }
 
     if (comment.isDeleted()) {
@@ -111,7 +113,7 @@ public class CommentView {
           out.append("view-message.jsp?msgid=").append(comment.getTopic()).append(urladd).append('#').append(comment.getReplyTo());
         }
 
-        out.append("\"onclick=\"highlightMessage("+reply.getMessageId()+");\">");
+        out.append("\"onclick=\"highlightMessage(").append(reply.getMessageId()).append(");\">");
 
         User replyAuthor = User.getUserCached(db, reply.getUserid());
 
