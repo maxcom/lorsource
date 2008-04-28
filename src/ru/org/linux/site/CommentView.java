@@ -48,7 +48,7 @@ public class CommentView {
     out.append("<div class=sign>").append(author.getSignature(moderatorMode, comment.getPostdate()));
     
     if (moderatorMode) {
-      out.append(" (").append(comment.getPostIP()).append(")");
+      out.append(" (<a href=\"sameip.jsp?msgid=").append(comment.getMessageId()).append("\">").append(comment.getPostIP()).append("</a>)");
     }
     
     out.append("</div>");
