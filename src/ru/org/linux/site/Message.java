@@ -47,6 +47,8 @@ public class Message {
   private final boolean moderate;
   private final String message;
   private final boolean notop;
+  private final String userAgent;
+  private final String postIP;
 
   private final Section section;
 
@@ -56,13 +58,17 @@ public class Message {
     ResultSet rs=st.executeQuery(
         "SELECT " +
             "postdate, topics.id as msgid, users.id as userid, topics.title, sections.comment, " +
-            "topics.groupid as guid, topics.url, topics.linktext, " +
-            "groups.title as gtitle, vote, havelink, section, topics.sticky, " +
+            "topics.groupid as guid, topics.url, topics.linktext, user_agents.name as useragent, " +
+            "groups.title as gtitle, vote, havelink, section, topics.sticky, topics.postip, " +
             "postdate<(CURRENT_TIMESTAMP-sections.expire) as expired, deleted, lastmod, commitby, " +
             "commitdate, topics.stat1, postscore, topics.moderate, message, notop " +
-            "FROM topics, users, groups, sections, msgbase " +
-            "WHERE topics.id="+msgid+" AND topics.userid=users.id AND topics.groupid=groups.id " +
-            "AND groups.section=sections.id AND topics.id=msgbase.id"
+            "FROM topics " +
+            "INNER JOIN users ON (users.id=topics.userid) " +
+            "INNER JOIN groups ON (groups.id=topics.groupid) " +
+            "INNER JOIN sections ON (sections.id=groups.section) " +
+            "INNER JOIN msgbase ON (msgbase.id=topics.id) " +
+            "LEFT JOIN user_agents ON (user_agents.id=topics.ua_id) " +
+            "WHERE topics.id="+msgid
     );
     if (!rs.next()) throw new MessageNotFoundException(msgid);
 
@@ -91,6 +97,8 @@ public class Message {
     moderate = rs.getBoolean("moderate");
     message = rs.getString("message");
     notop = rs.getBoolean("notop");
+    userAgent = rs.getString("useragent");
+    postIP = rs.getString("postip");
 
     rs.close();
     st.close();
@@ -123,6 +131,9 @@ public class Message {
     String msg = null;
     int guid = 0;
     boolean preview;
+
+    this.userAgent = request.getHeader("user-agent");
+    this.postIP = request.getRemoteAddr();
 
     // Check that we have a file upload request
     if (!ServletFileUpload.isMultipartContent(request) || request.getParameter("group") != null) {
@@ -457,6 +468,7 @@ public class Message {
 
       if (tmpl.isModeratorSession()) {
         out.append("[<a href=\"sameip.jsp?msgid=").append(msgid).append("\">Другие с этого IP</a>]");
+        out.append("[").append(this.userAgent).append("]");
       }
 
       if (isDeleted()) {
@@ -560,6 +572,9 @@ public class Message {
     out.append("<div class=sign>");
 
     out.append(author.getSignature(tmpl.isModeratorSession(), postdate));
+    if (tmpl.isModeratorSession()) {
+      out.append(" (<a href=\"sameip.jsp?msgid=").append(msgid).append("\">").append(this.postIP).append("</a>)");
+    }
 
     if (commitby!=0) {
       User commiter = User.getUserCached(db, commitby);
@@ -899,7 +914,7 @@ public class Message {
       linktext = "gallery/" + screenshot.getIconFile().getName();
     }
 
-    PreparedStatement pst = db.prepareStatement("INSERT INTO topics (postip, groupid, userid, title, url, moderate, postdate, id, linktext, deleted) VALUES ('" + request.getRemoteAddr() + "',?, ?, ?, ?, 'f', CURRENT_TIMESTAMP, ?, ?, 'f')");
+    PreparedStatement pst = db.prepareStatement("INSERT INTO topics (postip, groupid, userid, title, url, moderate, postdate, id, linktext, deleted, ua_id) VALUES ('" + request.getRemoteAddr() + "',?, ?, ?, ?, 'f', CURRENT_TIMESTAMP, ?, ?, 'f',create_user_agent(?))");
 //                pst.setString(1, request.getRemoteAddr());
     pst.setInt(1, group.getId());
     pst.setInt(2, user.getId());
@@ -907,6 +922,7 @@ public class Message {
     pst.setString(4, url);
     pst.setInt(5, msgid);
     pst.setString(6, linktext);
+    pst.setString(7, request.getHeader("User-Agent"));
     pst.executeUpdate();
     pst.close();
 
@@ -987,7 +1003,7 @@ public class Message {
       }
     }
 
-    PreparedStatement pst = db.prepareStatement("INSERT INTO topics (postip, groupid, userid, title, url, moderate, postdate, id, linktext, deleted) VALUES ('" + request.getRemoteAddr() + "',?, ?, ?, ?, 'f', CURRENT_TIMESTAMP, ?, ?, 'f')");
+    PreparedStatement pst = db.prepareStatement("INSERT INTO topics (postip, groupid, userid, title, url, moderate, postdate, id, linktext, deleted, ua_id) VALUES ('" + request.getRemoteAddr() + "',?, ?, ?, ?, 'f', CURRENT_TIMESTAMP, ?, ?, 'f', create_user_agent(?))");
 //                pst.setString(1, request.getRemoteAddr());
     pst.setInt(1, group.getId());
     pst.setInt(2, user.getId());
@@ -995,6 +1011,7 @@ public class Message {
     pst.setString(4, url);
     pst.setInt(5, msgid);
     pst.setString(6, linktext);
+    pst.setString(7, request.getHeader("User-Agent"));
     pst.executeUpdate();
     pst.close();
 
