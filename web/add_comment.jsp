@@ -87,7 +87,7 @@
       db = LorDataSource.getConnection();
       db.setAutoCommit(false);
 
-      //IPBlockInfo.checkBlockIP(db, request.getRemoteAddr());
+      IPBlockInfo.checkBlockIP(db, request.getRemoteAddr());
 
       User user;
 
