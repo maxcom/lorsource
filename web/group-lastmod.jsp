@@ -51,9 +51,8 @@
       count = (pages + 1) * topics;
     }
 
-    int sectionid = group.getSectionId();
-    Section section = new Section(db, sectionid);
-    if (sectionid == 0) {
+    Section section = new Section(db, group.getSectionId());
+    if (group.getSectionId() == 0) {
       throw new BadGroupException();
     }
     if (group.isLinksUp()) {
