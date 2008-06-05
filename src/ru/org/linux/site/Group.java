@@ -31,7 +31,6 @@ public class Group {
   private String info;
 
   public Group(Connection db, int id) throws SQLException, BadGroupException {
-
     this.id = id;
 
     ResultSet rs = null;
@@ -209,4 +208,28 @@ public class Group {
     }
   }
 
+  public int calcTopicsCount(Connection db, boolean showDeleted) throws SQLException {
+    Statement st = null;
+
+    try {
+      st = db.createStatement();
+
+      ResultSet rs;
+      if (showDeleted) {
+        rs = st.executeQuery("SELECT count(topics.id) FROM topics,groups,sections WHERE (topics.moderate OR NOT sections.moderate) AND groups.section=sections.id AND topics.groupid=groups.id AND groups.id=" + id);
+      } else {
+        rs = st.executeQuery("SELECT count(topics.id) FROM topics,groups,sections WHERE (topics.moderate OR NOT sections.moderate) AND groups.section=sections.id AND topics.groupid=groups.id AND groups.id=" + id + " AND NOT topics.deleted");
+      }
+
+      if (rs.next()) {
+        return rs.getInt("count");
+      } else {
+        return 0;
+      }
+    } finally {
+      if (st != null) {
+        st.close();
+      }
+    }
+  }
 }

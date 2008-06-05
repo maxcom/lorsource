@@ -60,30 +60,21 @@
 
     Statement st = db.createStatement();
 
-    ResultSet rs;
-    if (showDeleted) {
-      rs = st.executeQuery("SELECT count(topics.id) FROM topics,groups,sections WHERE (topics.moderate OR NOT sections.moderate) AND groups.section=sections.id AND topics.groupid=" + groupId + " AND groups.id=" + groupId);
-    } else {
-      rs = st.executeQuery("SELECT count(topics.id) FROM topics,groups,sections WHERE (topics.moderate OR NOT sections.moderate) AND groups.section=sections.id AND topics.groupid=" + groupId + " AND groups.id=" + groupId + " AND NOT topics.deleted");
-    }
-
-    int count = 0;
-    int pages = 0;
+    int count = group.calcTopicsCount(db, showDeleted);
     int topics = tmpl.getProf().getInt("topics");
 
-    if (rs.next()) {
-      count = rs.getInt("count");
-      pages = count / topics;
-      if (count % topics != 0) {
-        count = (pages + 1) * topics;
-      }
+    int pages = count / topics;
+    if (count % topics != 0) {
+      count = (pages + 1) * topics;
     }
-    rs.close();
 
-    int section = group.getSectionId();
-    if (section == 0) {
+    int sectionid = group.getSectionId();
+    if (sectionid == 0) {
       throw new BadGroupException();
     }
+
+    Section section = new Section(db, sectionid);
+
     if (group.isLinksUp()) {
       throw new BadGroupException();
     }
@@ -127,18 +118,14 @@
   [<a href="section-rss.jsp?section=<%= group.getSectionId() %>&amp;group=<%=group.getId()%>">RSS</a>]
       <select name=group onChange="submit()" title="Быстрый переход">
 <%
-	Statement sectionListSt = db.createStatement();
-	ResultSet sectionList = sectionListSt.executeQuery("SELECT id, title FROM groups WHERE section="+section+" order by id");
+        List<Group> groups = Group.getGroups(db, section);
 
-	while (sectionList.next()) {
-		int id = sectionList.getInt("id");
+        for (Group g: groups) {
+		int id = g.getId();
 %>
-        <option value=<%= id %> <%= id==groupId?"selected":"" %> ><%= sectionList.getString("title") %></option>
+        <option value=<%= id %> <%= id==groupId?"selected":"" %> ><%= g.getTitle() %></option>
 <%
 	}
-
-	sectionList.close();
-	sectionListSt.close();
 %>
       </select>
      </td>
@@ -211,6 +198,8 @@
 <tbody>
 <%
   String delq = showDeleted ? "" : " AND NOT deleted ";
+
+  ResultSet rs;
 
   if (firstPage) {
     rs = st.executeQuery("SELECT topics.title as subj, lastmod, nick, topics.id as msgid, deleted, topics.stat1, topics.stat3, topics.stat4, topics.sticky FROM topics,groups,users, sections WHERE sections.id=groups.section AND (topics.moderate OR NOT sections.moderate) AND topics.userid=users.id AND topics.groupid=groups.id AND groups.id=" + groupId + delq + ignq + " AND (postdate>(CURRENT_TIMESTAMP-'3 month'::interval) or sticky) ORDER BY sticky desc,msgid DESC LIMIT " + topics);
