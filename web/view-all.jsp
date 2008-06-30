@@ -39,6 +39,7 @@
 
     <td align=right valign=middle>
       [<a style="text-decoration: none" href="rules.jsp">Правила форума</a>]
+      [<a style="text-decoration: none" href="tags.jsp">Метки</a>]
 
       <select name=section onChange="submit()" title="Быстрый переход">
         <option value=0>Все</option>
