@@ -94,6 +94,18 @@ public class Tags{
     return set;
   }
 
+  public static Map<String,Integer> getAllTags(Connection con) throws SQLException {
+    Map<String,Integer> map = new Hashtable<String,Integer>();
+    PreparedStatement st = con.prepareStatement("SELECT counter,value FROM tags_values ORDER BY value");
+    ResultSet rs = st.executeQuery();
+
+    while (rs.next()) {
+      map.put(rs.getString("value"),rs.getInt("counter"));
+    }
+
+    return map;
+  }
+
   public static ArrayList<String> getMessageTags(Connection con, int msgid) throws SQLException {
     return new Tags(con, msgid).getTags();
   }
