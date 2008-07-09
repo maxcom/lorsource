@@ -139,6 +139,19 @@ function checkCustomBan(idx) {
 </script>
 </form>
 
+<form method="post" action="delip.jsp">
+<input type="hidden" name="ip" value="<%= ip %>">
+Удалить темы и сообщения с IP по причине: <br>
+<input type="text" name="reason" maxlength="254" size="40" value=""><br>
+за последний(ие) <select name="time" onchange="checkCustomDel(this.selectedIndex)">
+<option value="hour">1 час</option>
+<option value="day">1 день</option>
+<option value="3day">3 дня</option>
+</select>
+<p>
+<input type="submit" name="del" value="del from ip">
+</form>
+
 <h2>Темы</h2>
 
 <div class=forum width="100%">
