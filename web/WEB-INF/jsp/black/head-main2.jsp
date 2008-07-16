@@ -10,7 +10,15 @@
 <style type="text/css">
 .head-main A { text-decoration: none; color: white }
 .head-main A:visited { text-decoration: none; color: white }
-.head-main table { border-collapse: collapse; margin-top: 5px; border-style: solid; border-color: black; }
+
+.head-main table {
+  border-collapse: collapse;
+  margin-top: 5px;
+  border-style: solid;
+  border-color: black;
+  font-size: smaller;
+}
+
 .head-main td { border: 1px solid #C8C8C8; padding: 3px; text-align: right; }
 </style>
 <div style="float: left" class="head-main">
