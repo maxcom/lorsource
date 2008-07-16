@@ -16,23 +16,7 @@
   response.setDateHeader("Last-Modified", new Date(new Date().getTime() - 2 * 1000).getTime());
 
 %>
-<c:if test="${param.new}">
-  <jsp:include page="WEB-INF/jsp/header.jsp"/>
-  <table class=nav>
-    <tr>
-      <td align=left valign=middle>
-        Linux.org.ru
-      </td>
-      <td align=right valign=middle>
-        [<a href="add-section.jsp?section=1">Добавить новость</a>]
-        [<a href="section-rss.jsp?section=1">RSS</a>]
-      </td>      
-    </tr>
-  </table>
-</c:if>
-<c:if test="${not param.new}">
 <jsp:include page="WEB-INF/jsp/header-main.jsp"/>
-</c:if>
 <%
   boolean columns3 = tmpl.getProf().getBoolean("main.3columns");
 

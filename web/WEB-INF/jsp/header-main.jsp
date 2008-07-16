@@ -4,10 +4,7 @@
 <%@ page import="java.util.Date" %>
 <%@ page import="java.util.List" %>
 <%@ page import="ru.org.linux.boxlet.BoxletVectorRunner" %>
-<%@ page import="ru.org.linux.site.NewsViewer" %>
-<%@ page import="ru.org.linux.site.Template" %>
-<%@ page import="ru.org.linux.site.User" %>
-<%@ page import="ru.org.linux.site.ViewerCacher" %>
+<%@ page import="ru.org.linux.site.*" %>
 <%@ page import="ru.org.linux.util.ServletParameterParser" %>
 
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
@@ -20,7 +17,12 @@
 
 <base href="${fn:escapeXml(template.mainUrl)}">
 
-<jsp:include page="${template.style}/head-main.jsp"/>
+<c:if test="${param.new}">
+  <jsp:include page="${template.style}/head-main2.jsp"/>
+</c:if>
+<c:if test="${not param.new}">
+  <jsp:include page="${template.style}/head-main.jsp"/>
+</c:if>
 
 <img src="http://counter.rambler.ru/top100.cnt?29833" alt="Rambler's Top100" width=1 height=1 border=0>
 <!--TopList COUNTER-->
