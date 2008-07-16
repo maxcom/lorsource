@@ -17,12 +17,7 @@
 
 <base href="${fn:escapeXml(template.mainUrl)}">
 
-<c:if test="${param.new}">
-  <jsp:include page="${template.style}/head-main2.jsp"/>
-</c:if>
-<c:if test="${not param.new}">
-  <jsp:include page="${template.style}/head-main.jsp"/>
-</c:if>
+<jsp:include page="${template.style}/head-main.jsp"/>
 
 <img src="http://counter.rambler.ru/top100.cnt?29833" alt="Rambler's Top100" width=1 height=1 border=0>
 <!--TopList COUNTER-->
