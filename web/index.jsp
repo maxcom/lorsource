@@ -140,21 +140,6 @@
 
 </div>
 
-<!-- IBM developerWorks -->
-<div class="boxlet" id="ibmdw">
-<h2>Новые материалы на IBM developerWorks</h2>
-  <iframe src="dw.jsp?height=400&amp;width=235&amp;main=1" width="238" height="400" scrolling="no" frameborder="0"></iframe>
-  <br>&nbsp;<br>
-
-  Профессиональный ресурс от IBM для специалистов в области разработки ПО. Рассылка выходит 1 раз в неделю.
-  <form id="data1" method="post" enctype="multipart/form-data" action="http://www-931.ibm.com/bin/subscriptions/esi/subscribe/RURU/10209/">
-                       e-mail:<br>
-  <input type="text" size="15" name="email" style="width: 90%" value="">
-  <br>
-  <input alt="subscribe" type="submit" name="butSubmit1" value="Подписаться">
-  </form>
-</div>
-
 <!-- boxes -->
 <%
 

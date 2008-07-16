@@ -42,10 +42,12 @@ public final class mkdefprofile {
     boxlist.addElement("tagcloud");
     boxlist.addElement("archive");
     boxlist.addElement("profile");
+    boxlist.addElement("ibm");
 //		boxlist.addElement("login");
     defaults.put("boxlist", boxlist);
 
     Vector boxes = new Vector();
+    boxes.addElement("ibm");
     boxes.addElement("poll");
     boxes.addElement("top10");
     boxes.addElement("gallery");
@@ -57,6 +59,7 @@ public final class mkdefprofile {
     defaults.put("main2", boxes);
 
     boxes = new Vector();
+    boxes.addElement("ibm");
     boxes.addElement("poll");
 //		boxes.addElement("projects");
     boxes.addElement("archive");
