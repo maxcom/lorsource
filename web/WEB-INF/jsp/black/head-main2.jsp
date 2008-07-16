@@ -19,7 +19,7 @@
   font-size: smaller;
 }
 
-.head-main td { border: 1px solid #C8C8C8; padding: 3px; text-align: right; }
+.head-main td { border: 1px solid #808080; padding: 3px; text-align: right; }
 </style>
 <div style="float: left" class="head-main">
 <table>
