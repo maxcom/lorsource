@@ -33,7 +33,7 @@
   <td><a href="view-news.jsp?section=3">Галерея</a></td>
   <td><a href="view-section.jsp?section=2">Форум</a></td>
   <td><a href="/books">Документация</a></td>
-  <td><a href="view-section.jsp?section=4">Ссылки</a></td>
+  <td><a href="/wiki">Wiki</a></td>
 </tr>
 <tr>
   <td></td>
@@ -44,6 +44,31 @@
 </table>
 </div>
 
-<img style="float: right" src="/black/pingvin.gif" alt="Linux Logo" height=114 width=102>
+<div style="float: right; text-align: right; font-size: smaller; margin-top: 5px">
+<c:if test="${template.sessionAuthorized}">
+  <c:url var="userUrl" value="/whois.jsp">
+    <c:param name="nick" value="${template.nick}"/>
+  </c:url>
+  добро пожаловать, <a style="text-decoration: none" href="${userUrl}">${template.nick}</a>
+  <br>
+  <img src="/black/pingvin.gif" alt="Linux Logo" height=114 width=102>
+</c:if>
+
+<c:if test="${not template.sessionAuthorized}">
+  <div id="regmenu">
+    <a style="text-decoration: none" href="/register.jsp">Регистрация</a> -
+    <a style="text-decoration: none" href="/" onclick="showLoginForm(); return false;">Вход</a>
+    <br>
+    <img src="/black/pingvin.gif" alt="Linux Logo" height=114 width=102>
+  </div>
+
+  <form method=POST action="login.jsp" style="display: none" id="regform">
+    Имя: <input type=text name=nick size=15><br>
+    Пароль: <input type=password name=passwd size=15><br>
+    <input type=submit value="Вход">
+    <input type="button" value="Отмена" onclick="hideLoginForm(); return false">
+  </form>
+</c:if>
+  </div>
    
 <div style="clear: both"></div>
