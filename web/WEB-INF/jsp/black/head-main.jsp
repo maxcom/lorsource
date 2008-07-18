@@ -16,7 +16,6 @@
   margin-top: 5px;
   border-style: solid;
   border-color: black;
-  font-size: smaller;
 }
 
 .head-main td { border: 1px solid #808080; padding: 3px; text-align: right; }
@@ -44,7 +43,7 @@
 </table>
 </div>
 
-<div style="float: right; text-align: right; font-size: smaller; margin-top: 5px">
+<div style="float: right; text-align: right; margin-top: 5px">
 <c:if test="${template.sessionAuthorized}">
   <c:url var="userUrl" value="/whois.jsp">
     <c:param name="nick" value="${template.nick}"/>
