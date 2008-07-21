@@ -171,10 +171,6 @@ public class Group {
       return false;
     }
 
-    if (currentUser.getMaxScore()>=100) {
-      return true;
-    }
-
     return currentUser.getScore() >= restrictTopics;
   }
 
