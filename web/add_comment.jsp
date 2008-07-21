@@ -25,7 +25,7 @@
 
 <%
   Exception error = null;
-  String mode = "";
+  String mode = tmpl.getFormatMode();
   boolean autourl = true;
   Comment comment = null;
   if (!showform || preview) { // add2
@@ -60,6 +60,10 @@
     }
     if (autourl) {
       form.enableUrlHighLightMode();
+    }
+    if ("ntobrq".equals(mode)) {
+      form.enableNewLineMode();
+      form.enableQuoting();      
     }
     if ("ntobr".equals(mode)) {
       form.enableNewLineMode();
@@ -321,11 +325,12 @@ if (showform) { // show form
 <textarea name="msg" cols="70" rows="20" onkeypress="return ctrl_enter(event, this.form);"><%= request.getParameter("msg")==null?"":HTMLFormatter.htmlSpecialChars(request.getParameter("msg")) %></textarea><br>
 
 <select name=mode>
-<option value=quot <%= (preview && mode.equals("quot"))?"selected":""%> >TeX paragraphs w/quoting
-<option value=tex <%= (preview && mode.equals("tex"))?"selected":""%> >TeX paragraphs w/o quoting
-<option value=ntobr <%= (preview && mode.equals("ntobr"))?"selected":""%> >User line break
-<option value=html <%= (preview && mode.equals("html"))?"selected":""%> >Ignore line breaks
-<option value=pre <%= (preview && mode.equals("pre"))?"selected":""%> >Preformatted text
+<option value=ntobrq <%= (mode!=null && mode.equals("ntobrq"))?"selected":""%> >User line breaks w/quoting
+<option value=quot <%= (mode!=null && mode.equals("quot"))?"selected":""%> >TeX paragraphs w/quoting
+<option value=tex <%= (mode!=null && mode.equals("tex"))?"selected":""%> >TeX paragraphs w/o quoting
+<option value=ntobr <%= (mode!=null && mode.equals("ntobr"))?"selected":""%> >User line break w/o quoting
+<option value=html <%= (mode!=null && mode.equals("html"))?"selected":""%> >Ignore line breaks
+<option value=pre <%= (mode!=null && mode.equals("pre"))?"selected":""%> >Preformatted text
 </select>
 
 <select name=autourl>

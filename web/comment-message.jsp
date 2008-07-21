@@ -70,11 +70,13 @@
 <font size=2>(В режиме <i>Tex paragraphs</i> игнорируются переносы строк.<br> Пустая строка (два раза Enter) начинает новый абзац.<br> Знак '&gt;' в начале абзаца выделяет абзац курсивом цитирования)</font><br>
 <textarea name=msg cols=70 rows=20 onkeypress="return ctrl_enter(event, this.form);"></textarea><br>
 
+<% String mode = tmpl.getFormatMode(); %>
 <select name=mode>
-<option value=quot>TeX paragraphs w/quoting
-<option value=tex>TeX paragraphs w/o quoting
-<option value=ntobr>User line breaks
-<option value=pre>Preformatted text
+<option value=ntobrq <%= "ntobrq".equals(mode)?"selected":""%> >User line breaks w/quoting
+<option value=quot <%= "quot".equals(mode)?"selected":""%> >TeX paragraphs w/quoting
+<option value=tex <%= "tex".equals(mode)?"selected":""%> >TeX paragraphs w/o quoting
+<option value=ntobr <%= "ntobr".equals(mode)?"selected":""%> >User line breaks w/o quoting
+<option value=pre  <%= "pre".equals(mode)?"selected":""%> >Preformatted text
 </select>
 
 <select name=autourl>

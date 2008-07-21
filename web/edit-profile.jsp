@@ -106,6 +106,19 @@
     <input type=radio name=style value=white2 <%= "white2".equals(style)?"checked":"" %>> White2<br>
   </td>
 </tr>
+  <tr><td colspan=2><hr></td></tr>
+<tr>
+  <td valign=top>Форматирование по умолчанию</td>
+  <td>
+    <% String format_mode=tmpl.getFormatMode(); %>
+    <input type=radio name=format_mode value=ntobrq <%= "ntobrq".equals(format_mode)?"checked":"" %>> User line break w/quoting<br>
+    <input type=radio name=format_mode value=quot   <%= "quot".equals(format_mode)?"checked":"" %>> TeX paragraphs w/quoting (default)<br>
+    <input type=radio name=format_mode value=tex    <%= "tex".equals(format_mode)?"checked":"" %>> TeX paragraphs w/o quoting<br>
+    <input type=radio name=format_mode value=ntobr  <%= "ntobr".equals(format_mode)?"checked":"" %>> User line break w/o quoting<br>
+    <input type=radio name=format_mode value=html   <%= "html".equals(format_mode)?"checked":"" %>> Ignore line breaks<br>
+    <input type=radio name=format_mode value=pre    <%= "pre".equals(format_mode)?"checked":"" %>> Preformatted text <br>
+  </td>
+</tr>
 
 <% if (!Template.isSessionAuthorized(session)) { %>
 
@@ -186,6 +199,8 @@
       out.print("Установлен параметр <i>photos</i><br>");
     if (tmpl.getProf().setBoolean("sortwarning", request.getParameter("sortwarning")))
       out.print("Установлен параметр <i>sortwarning</i><br>");
+    if (tmpl.getProf().setString("format.mode", request.getParameter("format_mode")))
+      out.print("Установлен параметр <i>format.mode</i><br>");
     if (tmpl.getProf().setString("style", request.getParameter("style")))
       out.print("Установлен параметр <i>style</i><br>");
     if (tmpl.getProf().setBoolean("main.3columns", request.getParameter("3column")))

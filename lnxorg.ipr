@@ -313,6 +313,11 @@
           <option name="m_minLength" value="5" />
           <option name="m_maxLength" value="32" />
         </inspection_tool>
+        <inspection_tool class="MissingOverrideAnnotation" level="WARNING" enabled="true">
+          <option name="useJdk6Rules" value="false" />
+        </inspection_tool>
+        <inspection_tool class="OverridableMethodCallDuringObjectConstruction" level="WARNING" enabled="true" />
+        <inspection_tool class="OverriddenMethodCallDuringObjectConstruction" level="WARNING" enabled="true" />
       </profile>
     </profiles>
     <list size="4">

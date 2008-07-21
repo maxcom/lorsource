@@ -141,9 +141,10 @@ public class Comment implements Serializable {
   }
   
   public int saveNewMessage(Connection db, String remoteAddr, String userAgent) throws SQLException {
-    PreparedStatement pst = null;
-    PreparedStatement pstMsgbase = null;
+    Group.checkCommentsAllowed(db,topic,userid);
 
+    PreparedStatement pstMsgbase = null;
+    PreparedStatement pst = null;
     try {
       // allocation MSGID
       Statement st = db.createStatement();

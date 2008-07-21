@@ -29,6 +29,7 @@ public class Template {
 
   private final Properties cookies;
   private String style;
+  private String formatMode;
   private boolean debugMode = false;
   private Profile userProfile;
   private final Config config;
@@ -131,6 +132,7 @@ public class Template {
     userProfile.getHashtable().addBoolean("DebugMode", debugMode);
 
     styleFixup();
+    formatModeFixup();
 
     response.addHeader("Cache-Control", "private");
   }
@@ -151,6 +153,25 @@ public class Template {
     }
 
     return style;
+  }
+
+  private void formatModeFixup() {
+    formatMode = getFormatMode(getProf().getString("format.mode"));
+
+    userProfile.getHashtable().setString("format.mode", formatMode);
+  }
+
+  private String getFormatMode(String mode) {
+    if (!"ntobrq".equals(mode) &&
+        !"quot".equals(mode) &&
+        !"tex".equals(mode) &&
+        !"ntobr".equals(mode) &&
+        !"html".equals(mode) &&
+        !"pre".equals(mode)) {
+      return (String) Profile.getDefaults().get("format.mode");
+    }
+
+    return mode;
   }
 
   public Properties getConfig() {
@@ -204,6 +225,10 @@ public class Template {
 
   public String getStyle() {
     return style;
+  }
+
+  public String getFormatMode() {
+    return formatMode;
   }
 
   public ProfileHashtable getProf() {

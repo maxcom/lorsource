@@ -62,8 +62,8 @@ public class HTMLFormatter {
 
     String res = sb.toString();
 
-    if (NewLine) {
-      res = nl2br(res);
+    if (NewLine) {      
+      res = nl2br(res, quoting);
     }
     if (texNewLine) {
       res = texnl2br(res, quoting);
@@ -147,7 +147,7 @@ public class HTMLFormatter {
    * @return отформатированную строку
    * @throws UtilException в случае некорректного входного текста
    */
-  private String formatHTMLLine(String chunk) throws UtilException {
+  private String formatHTMLLine(String chunk)  {
     StringBuffer out = new StringBuffer();
 
     REMatchEnumeration en = urlRE.getMatchEnumeration(chunk);
@@ -210,7 +210,68 @@ public class HTMLFormatter {
    * HTML line brake tag
    */
   public static String nl2br(String text) {
-    return nlRE.substituteAll(text, "<br>");
+    return nl2br(text,false);
+  }
+
+  /**
+   * converts new line characters in input string to
+   * HTML line brake tag
+   */
+  public static String nl2br(String text, boolean quoting) {
+    if (!quoting) {
+      return nlRE.substituteAll(text, "<br>");
+    }
+
+    StringBuffer buf = new StringBuffer();
+
+    boolean cr = false;
+    boolean quot = false;
+    boolean skip = false;
+
+    for (int i = 0; i < text.length(); i++) {
+      if (text.charAt(i) == '\r') {
+        continue;
+      }
+      if (text.charAt(i) == '\n' || i == 0) {
+        if (cr || i == 0) {
+          if (quot) {
+            quot = false;
+            buf.append("</i>");
+          }
+
+          if (i != 0) {
+            buf.append("<p>");
+            skip = true;
+          }
+
+          if (text.substring(i).trim().startsWith("&gt;")) {
+            quot = true;
+            buf.append("<i>");
+          }
+        } else {
+          cr = true;
+        }
+        
+        if (text.charAt(i) == '\n') {
+          if (skip) {
+            skip = false;
+          } else {
+            buf.append("<br>");
+          }
+        }
+        
+      } else {
+        cr = false;
+      }
+
+      buf.append(text.charAt(i));
+    }
+
+    if (quot) {
+      buf.append("</i>");
+    }
+
+    return buf.toString();  
   }
 
   /**
@@ -369,14 +430,14 @@ public class HTMLFormatter {
   /**
    * Wrap long text line
    */
-  public static String wrapLongLine(String line, int maxlength, String delim) throws UtilException {
+  public static String wrapLongLine(String line, int maxlength, String delim)  {
     return wrapLongLine(line, maxlength, delim, 0);
   }
 
   /**
    * Wrap long text lines
    */
-  public static String wrapLongLines(String text, int maxlength) throws UtilException {
+  public static String wrapLongLines(String text, int maxlength) {
     StringTokenizer st = new StringTokenizer(text, "\n", true);
     StringBuffer sb = new StringBuffer();
 

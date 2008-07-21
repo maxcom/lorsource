@@ -114,28 +114,28 @@ public class Message {
       throws BadInputException, SQLException, UtilException, ScriptErrorException,
       BadPasswordException, AccessViolationException, IOException,  FileUploadException, BadImageException, InterruptedException {
     // Init fields
-    String linktext = null;
-    String url = null;
-    String tags = null;
-    String mode = "";
-    boolean autourl = true;
-    boolean texttype = false;
-    String captchaResponse = "";
-    String image = "";
-    String nick = null;
-    String password = null;
-    String noinfo = null;
-    String sessionId = null;
-    String returnUrl = null;
-    String title = null;
-    String msg = null;
-    int guid = 0;
-    boolean preview;
 
-    this.userAgent = request.getHeader("user-agent");
-    this.postIP = request.getRemoteAddr();
+    userAgent = request.getHeader("user-agent");
+    postIP = request.getRemoteAddr();
 
     // Check that we have a file upload request
+    boolean preview;
+    int guid = 0;
+    String msg = null;
+    String title = null;
+    String returnUrl = null;
+    String sessionId = null;
+    String noinfo = null;
+    String password = null;
+    String nick = null;
+    String image = "";
+    String captchaResponse = "";
+    boolean texttype = false;
+    boolean autourl = true;
+    String mode = "";
+    String tags = null;
+    String url = null;
+    String linktext = null;
     if (!ServletFileUpload.isMultipartContent(request) || request.getParameter("group") != null) {
       // Load fields from request
       noinfo = request.getParameter("noinfo");
@@ -380,7 +380,7 @@ public class Message {
     if ("pre".equals(mode) && !group.isPreformatAllowed()) {
       throw new AccessViolationException("В группу нельзя добавлять преформатированные сообщения");
     }
-    if (("ntobr".equals(mode) || "tex".equals(mode) || "quot".equals(mode)) && group.isLineOnly()) {
+    if (("ntobrq".equals(mode) || "ntobr".equals(mode) || "tex".equals(mode) || "quot".equals(mode)) && group.isLineOnly()) {
       throw new AccessViolationException("В группу нельзя добавлять сообщения с переносом строк");
     }
     if (texttype && group.isLineOnly()) {
@@ -392,6 +392,9 @@ public class Message {
     }
     if (autourl) {
       form.enableUrlHighLightMode();
+    }
+    if ("ntobrq".equals(mode)) {
+      form.enableNewLineMode();
     }
     if ("ntobr".equals(mode)) {
       form.enableNewLineMode();
@@ -468,7 +471,7 @@ public class Message {
 
       if (tmpl.isModeratorSession()) {
         out.append("[<a href=\"sameip.jsp?msgid=").append(msgid).append("\">Другие с этого IP</a>]");
-        out.append("[").append(this.userAgent).append("]");
+        out.append("[").append(userAgent).append("]");
       }
 
       if (isDeleted()) {
@@ -573,7 +576,7 @@ public class Message {
 
     out.append(author.getSignature(tmpl.isModeratorSession(), postdate));
     if (tmpl.isModeratorSession()) {
-      out.append(" (<a href=\"sameip.jsp?msgid=").append(msgid).append("\">").append(this.postIP).append("</a>)");
+      out.append(" (<a href=\"sameip.jsp?msgid=").append(msgid).append("\">").append(postIP).append("</a>)");
     }
 
     if (commitby!=0) {
@@ -853,7 +856,7 @@ public class Message {
     if ("pre".equals(mode) && !group.isPreformatAllowed()) {
       throw new AccessViolationException("В группу нельзя добавлять преформатированные сообщения");
     }
-    if (("ntobr".equals(mode) || "tex".equals(mode) || "quot".equals(mode)) && group.isLineOnly()) {
+    if (("ntobrq".equals(mode) || "ntobr".equals(mode) || "tex".equals(mode) || "quot".equals(mode)) && group.isLineOnly()) {
       throw new AccessViolationException("В группу нельзя добавлять сообщения с переносом строк");
     }
     if (userhtml && group.isLineOnly()) {
@@ -882,6 +885,9 @@ public class Message {
       form.enableUrlHighLightMode();
     }
     if ("ntobr".equals(mode)) {
+      form.enableNewLineMode();
+    }
+    if ("ntobrq".equals(mode)) {
       form.enableNewLineMode();
     }
     if ("tex".equals(mode)) {

@@ -17,6 +17,7 @@ public final class mkdefprofile {
     defaults.put("newfirst", Boolean.FALSE);
     defaults.put("hover", Boolean.TRUE);
     defaults.put("style", "black");
+    defaults.put("format.mode", "quot");
     defaults.put("topics", 30);
     defaults.put("messages", 50);
     defaults.put("tags", 50);
