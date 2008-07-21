@@ -7,19 +7,6 @@
 <body style="margin-top: 0">
 <img style="float: left" src="/black/lorlogo.png" alt="Русская информация об ОС LINUX" width="270" height="208">
 
-<style type="text/css">
-.head-main A { text-decoration: none; color: white }
-.head-main A:visited { text-decoration: none; color: white }
-
-.head-main table {
-  border-collapse: collapse;
-  margin-top: 5px;
-  border-style: solid;
-  border-color: black;
-}
-
-.head-main td { border: 1px solid #808080; padding: 3px; text-align: right; }
-</style>
 <div style="float: left" class="head-main">
 <table>
 <tr>
