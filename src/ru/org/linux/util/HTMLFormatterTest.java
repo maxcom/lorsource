@@ -3,25 +3,34 @@ package ru.org.linux.util;
 import junit.framework.TestCase;
 
 public class HTMLFormatterTest extends TestCase {
-  private static String TEXT1 = "Here is www.linux.org.ru, have fun! :-)";
-  private static String RESULT1 = "Here is <a href=\"http://www.linux.org.ru\">www.linux.org.ru</a>, have fun! :-)";
+  private static final String TEXT1 = "Here is www.linux.org.ru, have fun! :-)";
+  private static final String RESULT1 = "Here is <a href=\"http://www.linux.org.ru\">www.linux.org.ru</a>, have fun! :-)";
 
-  private static String TEXT2 = "Here is http://linux.org.ru, have fun! :-)";
-  private static String RESULT2 = "Here is <a href=\"http://linux.org.ru\">http://linux.org.ru</a>, have fun! :-)";
+  private static final String TEXT2 = "Here is http://linux.org.ru, have fun! :-)";
+  private static final String RESULT2 = "Here is <a href=\"http://linux.org.ru\">http://linux.org.ru</a>, have fun! :-)";
 
-  private static String TEXT3 = "Long url: http://www.linux.org.ru/profile/maxcom/view-message.jsp?msgid=1993651";
-  private static String RESULT3 = "Long url: <a href=\"http://www.linux.org.ru/profile/maxcom/view-message.jsp?msgid=1993651\">http://www.linux....</a>";
+  private static final String TEXT3 = "Long url: http://www.linux.org.ru/profile/maxcom/view-message.jsp?msgid=1993651";
+  private static final String RESULT3 = "Long url: <a href=\"http://www.linux.org.ru/profile/maxcom/view-message.jsp?msgid=1993651\">http://www.linux....</a>";
 
-  private static String TEXT4 = "Forced wrapping: 12345678901234567890123456789";
-  private static String RESULT4 = "Forced wrapping: 1234567890123456789 0123456789";
+  private static final String TEXT4 = "Forced wrapping: 12345678901234567890123456789";
+  private static final String RESULT4 = "Forced wrapping: 1234567890123456789 0123456789";
 
-  private static String TEXT6 = "123&nbsp;4";
+  private static final String TEXT6 = "123&nbsp;4";
 
-  private static String TEXT7 = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
-  private static String RESULT7 = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+  private static final String TEXT7 = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+  private static final String RESULT7 = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
 
-  private static String TEXT8 = "Long url: http://www.linux.org.ru/profile/maxcom/view-message.jsp?msgid=1993651&a=b";
-  private static String RESULT8 = "Long url: <a href=\"http://www.linux.org.ru/profile/maxcom/view-message.jsp?msgid=1993651&amp;a=b\">http://www.linux....</a>";
+  private static final String TEXT8 = "Long url: http://www.linux.org.ru/profile/maxcom/view-message.jsp?msgid=1993651&a=b";
+  private static final String RESULT8 = "Long url: <a href=\"http://www.linux.org.ru/profile/maxcom/view-message.jsp?msgid=1993651&amp;a=b\">http://www.linux....</a>";
+
+  private static final String QUOTING1 = "> 1";
+  private static final String RESULT_QUOTING1 = "<i>&gt; 1</i>";
+
+  private static final String QUOTING2 = "> 1\n2";
+  private static final String RESULT_QUOTING2 = "<i>&gt; 1\n2</i>";
+
+  private static final String QUOTING3 = "> 1\n2\n\n3";
+  private static final String RESULT_QUOTING3 = "<i>&gt; 1\n2\n</i><p>\n3";
 
   public void testURLHighlight() throws UtilException {
     HTMLFormatter formatter = new HTMLFormatter(TEXT1);
@@ -80,5 +89,35 @@ public class HTMLFormatterTest extends TestCase {
 
   public void testWrapSGML2() throws UtilException {
     assertEquals(RESULT7, HTMLFormatter.wrapLongLine(TEXT7, 20, " "));
+  }
+
+  public void testQuiting1() throws UtilException {
+    HTMLFormatter formatter = new HTMLFormatter(QUOTING1);
+
+    formatter.enablePlainTextMode();
+    formatter.enableTexNewLineMode();    
+    formatter.enableQuoting();
+
+    assertEquals(RESULT_QUOTING1, formatter.process());
+  }
+
+  public void testQuiting2() throws UtilException {
+    HTMLFormatter formatter = new HTMLFormatter(QUOTING2);
+
+    formatter.enablePlainTextMode();
+    formatter.enableTexNewLineMode();
+    formatter.enableQuoting();
+
+    assertEquals(RESULT_QUOTING2, formatter.process());
+  }
+
+  public void testQuiting3() throws UtilException {
+    HTMLFormatter formatter = new HTMLFormatter(QUOTING3);
+
+    formatter.enablePlainTextMode();
+    formatter.enableTexNewLineMode();
+    formatter.enableQuoting();
+
+    assertEquals(RESULT_QUOTING3, formatter.process());
   }
 }
