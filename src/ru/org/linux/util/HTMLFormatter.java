@@ -224,44 +224,26 @@ public class HTMLFormatter {
 
     StringBuffer buf = new StringBuffer();
 
-    boolean cr = false;
     boolean quot = false;
-    boolean skip = false;
 
     for (int i = 0; i < text.length(); i++) {
       if (text.charAt(i) == '\r') {
         continue;
       }
       if (text.charAt(i) == '\n' || i == 0) {
-        if (cr || i == 0) {
-          if (quot) {
-            quot = false;
-            buf.append("</i>");
-          }
-
-          if (i != 0) {
-            buf.append("<p>");
-            skip = true;
-          }
-
-          if (text.substring(i).trim().startsWith("&gt;")) {
-            quot = true;
-            buf.append("<i>");
-          }
-        } else {
-          cr = true;
+        if (quot) {
+          quot = false;
+          buf.append("</i>");
         }
+
+        if (text.substring(i).trim().startsWith("&gt;")) {
+          quot = true;
+          buf.append("<i>");
+        } 
         
         if (text.charAt(i) == '\n') {
-          if (skip) {
-            skip = false;
-          } else {
-            buf.append("<br>");
-          }
+          buf.append("<br>");
         }
-        
-      } else {
-        cr = false;
       }
 
       buf.append(text.charAt(i));
