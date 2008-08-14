@@ -22,6 +22,13 @@
     exception = (Throwable) request.getAttribute("exception");
   }
 
+  if (exception instanceof ServletException) {
+    Throwable ex = ((ServletException) exception).getRootCause();
+    if (ex!=null) {
+      exception = ex;
+    }
+  }
+
   if (exception instanceof MessageNotFoundException) {
     response.setStatus(404);
   } else {
