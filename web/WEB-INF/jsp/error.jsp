@@ -38,17 +38,13 @@
 <% } else if (exception instanceof ScriptErrorException || exception instanceof ServletParameterException) { %>
 Скрипту, генерирующему страничку были переданы некорректные
 параметры. Если на эту страничку вас привела одна из
-страниц нашего сайта, пожалуйста
-<a href="mailto:bugs@linux.org.ru">сообщите</a> нам адреса
-текущей и ссылающейся страниц.
+страниц нашего сайта, пожалуйста сообщите нам адреса текущей и ссылающейся страниц.
 <% } else { %>
 
-К сожалению, произошла исключительная ситуация при генерации страницы. Если
-вы считаете, что она возникла по причине нашей ошибки, пожалуйста <a href="mailto:bugs@linux.org.ru">сообщите</a> нам о ошибке и условиях ее возникновения. Не забудьте
-также указать полный URL странички, вызвавшей исключение.
+К сожалению, произошла исключительная ситуация при генерации страницы.
 <%
 
-  String email = "bugs@linux.org.ru";
+  String email = "bugz@linux.org.ru";
 
   InternetAddress mail = new InternetAddress(email);
   StringBuffer text = new StringBuffer();
