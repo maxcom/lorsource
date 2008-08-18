@@ -84,7 +84,7 @@
   emailMessage.setFrom(new InternetAddress("no-reply@linux.org.ru"));
 
   emailMessage.addRecipient(MimeMessage.RecipientType.TO, mail);
-  emailMessage.setSubject("Linux.org.ru: " + exception.getCause());
+  emailMessage.setSubject("Linux.org.ru: " + exception.getClass());
   emailMessage.setSentDate(new Date());
   emailMessage.setText(text.toString(), "UTF-8");
 
