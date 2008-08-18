@@ -30,6 +30,7 @@ public class User implements Serializable {
 
   private final boolean activated;
   public static final int CORRECTOR_SCORE = 100;
+  private static final int BLOCK_SCORE = 400;
 
   private User(Connection con, String name) throws SQLException, UserNotFoundException {
     if (name == null) {
@@ -263,7 +264,7 @@ public class User implements Serializable {
       return false;
     }               
 
-    return maxScore< CORRECTOR_SCORE;
+    return maxScore<BLOCK_SCORE;
   }
 
   public String getCommitInfoLine(Timestamp postdate, Timestamp commitDate) {
