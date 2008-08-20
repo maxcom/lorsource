@@ -26,8 +26,9 @@ public class IgnoreList {
   }
 
   public IgnoreList(Connection db, int userId) throws SQLException {
-    if (userId<1)
-	  throw new SQLException("Incorrect user ID");  
+    if (userId<1) {
+      throw new SQLException("Incorrect user ID");
+    }
     this.userId = userId;
     ignoreList = new Hashtable<Integer, String>();
     PreparedStatement pst = db.prepareStatement("SELECT a.id,a.nick FROM users a, ignore_list b WHERE b.userid=? AND a.id=b.ignored ORDER BY a.nick ASC");
@@ -43,7 +44,7 @@ public class IgnoreList {
     return ignoreList;
   }
 
-  public boolean getActivated() {
+  public boolean isActivated() {
     return activated;
   }
 
@@ -51,27 +52,26 @@ public class IgnoreList {
     this.activated = activated;
   }
 
-  public void addNick(Connection db, String nick) throws SQLException, UserNotFoundException, AccessViolationException {
-    User user = User.getUser(db, nick);
-
+  public void addUser(Connection db, User user) throws SQLException,  AccessViolationException {
     int id = user.getId();
     if (user.canModerate()) {
-	  throw new AccessViolationException("Нельзя игнорировать модератора");
-	} else {
-	  if (!ignoreList.containsKey(id)) {
-    	PreparedStatement addPst = db.prepareStatement("INSERT INTO ignore_list (userid,ignored) VALUES(?,?)");
-    	addPst.clearParameters();
-    	addPst.setInt(1, userId);
-    	addPst.setInt(2, id);
-    	addPst.executeUpdate();
-    	ignoreList.put(id, nick);
-	  }
+      throw new AccessViolationException("Нельзя игнорировать модератора");
+    } else {
+      if (!ignoreList.containsKey(id)) {
+        PreparedStatement addPst = db.prepareStatement("INSERT INTO ignore_list (userid,ignored) VALUES(?,?)");
+        addPst.clearParameters();
+        addPst.setInt(1, userId);
+        addPst.setInt(2, id);
+        addPst.executeUpdate();
+        ignoreList.put(id, user.getNick());
+      }
     }
   }
 
   public boolean removeNick(Connection db, int uid) throws SQLException {
-    if (!ignoreList.containsKey(uid))
+    if (!ignoreList.containsKey(uid)) {
       return false;
+    }
     PreparedStatement pst = db.prepareStatement("DELETE FROM ignore_list WHERE userid=? AND ignored=?"); 
     pst.clearParameters();
     pst.setInt(1,userId);

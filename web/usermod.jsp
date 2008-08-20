@@ -47,7 +47,6 @@
       }
 
       user.block(db);
-      st.executeUpdate("UPDATE users SET blocked='t' WHERE id=" + id);
       logger.info("User " + user.getNick() + " blocked by " + session.getValue("nick"));
 
       if (action.equals("block-n-delete-comments")) {
@@ -81,7 +80,7 @@
       }
 
       st.executeUpdate("UPDATE users SET photo=null WHERE id=" + id);
-      st.executeUpdate("UPDATE users SET score=score-10 WHERE id=" + id);
+      user.changeScore(db, -10);
       logger.info("Clearing " + user.getNick() + " userpic by " + session.getValue("nick"));
     } else if (action.equals("remove_userinfo")) {
       if (user.canModerate()) {
@@ -90,7 +89,7 @@
 
       tmpl.getObjectConfig().getStorage().updateMessage("userinfo", String.valueOf(id), "");
 
-      st.executeUpdate("UPDATE users SET score=score-10 WHERE id=" + id);
+      user.changeScore(db, -10);
       logger.info("Clearing " + user.getNick() + " userinfo");
     } else {
       throw new UserErrorException("Invalid action=" + HTMLFormatter.htmlSpecialChars(action));
@@ -112,4 +111,3 @@
 
 %>
 <jsp:include page="WEB-INF/jsp/footer.jsp"/>
-

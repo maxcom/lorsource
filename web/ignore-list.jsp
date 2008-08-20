@@ -56,9 +56,21 @@
       if ("".equals(nick)) {
         throw new BadInputException("ник не может быть пустым");
       }
-      ail.addNick(db, nick);
+      User addUser = User.getUser(db, nick);
+
+      ail.addUser(db, addUser);
+      if (user.getScore()>User.IGNORE_PENALTI_THRESHOLD) {
+        addUser.changeScore(db, -User.IGNORE_PENALTI_SCORE);
+      }
     } else if (request.getParameter("del") != null) {
       int uid = new ServletParameterParser(request).getInt("ignore_list");
+
+      User delUser = User.getUserCached(db, uid);
+
+      if (user.getScore()>User.IGNORE_PENALTI_THRESHOLD) {
+        delUser.changeScore(db, User.IGNORE_PENALTI_SCORE);
+      }
+
       if (!ail.removeNick(db, uid)) {
         throw new BadInputException("неверный ник");
       }
@@ -85,7 +97,7 @@
 <form action="ignore-list.jsp" method="POST">
 
   Ник: <input type="text" name="nick" size="20" maxlength="80"><input type="submit" name="add" value="Добавить"><br>
-<!-- input type="checkbox" name="activated" value="1" <%= ignore.getActivated()?"checked":"" %>> Список включен <input type="submit" name="set" value="Установить"><br -->
+<!-- input type="checkbox" name="activated" value="1" <%= ignore.isActivated()?"checked":"" %>> Список включен <input type="submit" name="set" value="Установить"><br -->
 <% if (!ignoreList.isEmpty()) { %>
 <select name="ignore_list" size="10" width="20">
 <%

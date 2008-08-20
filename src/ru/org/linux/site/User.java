@@ -31,6 +31,10 @@ public class User implements Serializable {
   private final boolean activated;
   public static final int CORRECTOR_SCORE = 100;
   private static final int BLOCK_SCORE = 400;
+  public static final int IGNORE_PENALTI_THRESHOLD = 100;
+
+  public static final int IGNORE_PENALTI_SCORE = 10;
+  private static final int CACHE_MILLIS = 300*1000;
 
   private User(Connection con, String name) throws SQLException, UserNotFoundException {
     if (name == null) {
@@ -301,6 +305,7 @@ public class User implements Serializable {
     try {
       st = db.createStatement();
       st.executeUpdate("UPDATE users SET blocked='t' WHERE id=" + id);
+      updateCache(db);
     } finally {
       if (st!=null) {
         st.close();
@@ -379,7 +384,7 @@ public class User implements Serializable {
 
     String cacheId = MemCachedSettings.getId(shortCacheId);
 
-    mcc.set(cacheId, user, new Date(new Date().getTime() + 300*1000));
+    mcc.set(cacheId, user, new Date(new Date().getTime() + CACHE_MILLIS));
 
     return user;
   }
@@ -407,7 +412,7 @@ public class User implements Serializable {
 
     if (res==null) {
       res = new User(db, id);
-      mcc.set(cacheId, res, new Date(new Date().getTime() + 300*1000));
+      mcc.set(cacheId, res, new Date(new Date().getTime() + CACHE_MILLIS));
     }
 
     return res;
@@ -472,5 +477,29 @@ public class User implements Serializable {
     sess.setMaxAge(maxAge);
     sess.setPath("/wiki");
     response.addCookie(sess);
+  }
+
+  private void updateCache(Connection db) throws SQLException {
+    try {
+      User.getUser(db, id);
+    } catch (UserNotFoundException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  public void changeScore(Connection db, int delta) throws SQLException {
+    PreparedStatement st = null;
+    try {
+      st = db.prepareStatement("UPDATE users SET score=score+? WHERE id=?");
+      st.setInt(1, delta);
+      st.setInt(2, id);
+      st.executeUpdate();
+
+      updateCache(db);
+    } finally {
+      if (st!=null) {
+        st.close();
+      }
+    }
   }
 }
