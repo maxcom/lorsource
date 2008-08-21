@@ -52,6 +52,10 @@ public class IgnoreList {
     this.activated = activated;
   }
 
+  public boolean containsUser(User user) {
+    return ignoreList.containsKey(user.getId());
+  }
+
   public void addUser(Connection db, User user) throws SQLException,  AccessViolationException {
     int id = user.getId();
     if (user.canModerate()) {

@@ -56,23 +56,26 @@
       if ("".equals(nick)) {
         throw new BadInputException("ник не может быть пустым");
       }
+
       User addUser = User.getUser(db, nick);
 
-      ail.addUser(db, addUser);
-      if (user.getScore()>User.IGNORE_PENALTI_THRESHOLD) {
-        addUser.changeScore(db, -User.IGNORE_PENALTI_SCORE);
+      if (!ail.containsUser(addUser)) {
+        ail.addUser(db, addUser);
+        if (user.getScore() > User.IGNORE_PENALTI_THRESHOLD) {
+          addUser.changeScore(db, -User.IGNORE_PENALTI_SCORE);
+        }
       }
     } else if (request.getParameter("del") != null) {
       int uid = new ServletParameterParser(request).getInt("ignore_list");
 
       User delUser = User.getUserCached(db, uid);
 
-      if (user.getScore()>User.IGNORE_PENALTI_THRESHOLD) {
-        delUser.changeScore(db, User.IGNORE_PENALTI_SCORE);
-      }
-
       if (!ail.removeNick(db, uid)) {
         throw new BadInputException("неверный ник");
+      } else {
+        if (user.getScore()>User.IGNORE_PENALTI_THRESHOLD) {
+          delUser.changeScore(db, User.IGNORE_PENALTI_SCORE);
+        }
       }
     } else if (request.getParameter("set") != null) {
       // Enable/Disable ignore list
