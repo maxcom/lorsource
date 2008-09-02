@@ -33,7 +33,7 @@
       throw new AccessViolationException("Вы не авторизованы");
     }
 
-    boolean showIgnored = tmpl.getProf().getBoolean("showignored");
+    boolean showIgnored = false;
     if (request.getParameter("showignored") != null) {
       showIgnored = "t".equals(request.getParameter("showignored"));
     }
@@ -301,7 +301,7 @@
 <%
   out.print("<tr><td colspan=2><p>");
 
-  String ignoredAdd = tmpl.getProf().getBoolean("showignored")!=showIgnored?("&amp;showignored=" + (showIgnored ? "t" : "f")):"";
+  String ignoredAdd = showIgnored ?("&amp;showignored=t"):"";
 
   out.print("<div style=\"float: left\">");
 

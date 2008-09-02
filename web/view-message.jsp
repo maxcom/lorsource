@@ -32,17 +32,13 @@
 
 <%
 
-    int filterMode = CommentViewer.FILTER_NONE;
+    int filterMode = CommentViewer.FILTER_IGNORED;
 
     if (!tmpl.getProf().getBoolean("showanonymous")) {
       filterMode += CommentViewer.FILTER_ANONYMOUS;
     }
 
-    if (!tmpl.getProf().getBoolean("showignored")) {
-      filterMode += CommentViewer.FILTER_IGNORED;
-    }
-
-  db = LorDataSource.getConnection();
+    db = LorDataSource.getConnection();
 
     String nick = Template.getNick(session);
 

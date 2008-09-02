@@ -92,8 +92,6 @@
 <td><input type=checkbox name=showinfo <%= profHash.getBooleanPropertyHTML("showinfo")%>></td></tr>
 <tr><td>Показывать анонимные комментарии</td>
 <td><input type=checkbox name=showanonymous <%= profHash.getBooleanPropertyHTML("showanonymous")%>></td></tr>
-<tr><td>Показывать комментарии игнорируемых пользователей</td>
-<td><input type=checkbox name=showignored <%= profHash.getBooleanPropertyHTML("showignored")%>></td></tr>
 <tr><td>Подсветка строчек в таблицах сообщений (tr:hover)</td>
 <td><input type=checkbox name=hover <%= profHash.getBooleanPropertyHTML("hover")%>></td></tr>  
   <tr><td colspan=2><hr></td></tr>
@@ -209,8 +207,6 @@
       out.print("Установлен параметр <i>showinfo</i><br>");
     if (tmpl.getProf().setBoolean("showanonymous", request.getParameter("showanonymous")))
       out.print("Установлен параметр <i>showanonymous</i><br>");
-    if (tmpl.getProf().setBoolean("showignored", request.getParameter("showignored")))
-      out.print("Установлен параметр <i>showignored</i><br>");
     if (tmpl.getProf().setBoolean("hover", request.getParameter("hover")))
       out.print("Установлен параметр <i>hover</i><br>");
 

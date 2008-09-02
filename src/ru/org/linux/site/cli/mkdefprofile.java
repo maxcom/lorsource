@@ -26,7 +26,6 @@ public final class mkdefprofile {
     defaults.put("system.timestamp", new Date().getTime());
     defaults.put("showinfo", Boolean.TRUE);
     defaults.put("showanonymous", Boolean.TRUE);
-    defaults.put("showignored", Boolean.FALSE);
     defaults.put("showsticky", Boolean.TRUE);
 
     defaults.put("DebugMode", Boolean.FALSE);
