@@ -61,9 +61,9 @@
 
       if (!ail.containsUser(addUser)) {
         ail.addUser(db, addUser);
-        if (user.getScore() > User.IGNORE_PENALTI_THRESHOLD) {
-          addUser.changeScore(db, -User.IGNORE_PENALTI_SCORE);
-        }
+ //       if (user.getScore() > User.IGNORE_PENALTI_THRESHOLD) {
+  //        addUser.changeScore(db, -User.IGNORE_PENALTI_SCORE);
+   //     }
       }
     } else if (request.getParameter("del") != null) {
       int uid = new ServletParameterParser(request).getInt("ignore_list");
@@ -73,9 +73,9 @@
       if (!ail.removeNick(db, uid)) {
         throw new BadInputException("неверный ник");
       } else {
-        if (user.getScore()>User.IGNORE_PENALTI_THRESHOLD) {
-          delUser.changeScore(db, User.IGNORE_PENALTI_SCORE);
-        }
+//        if (user.getScore()>User.IGNORE_PENALTI_THRESHOLD) {
+ //         delUser.changeScore(db, User.IGNORE_PENALTI_SCORE);
+  //      }
       }
     } else if (request.getParameter("set") != null) {
       // Enable/Disable ignore list
