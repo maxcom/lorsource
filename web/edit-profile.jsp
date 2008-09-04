@@ -146,6 +146,10 @@
 
 <%
   } else if ("setup".equals(request.getParameter("mode"))) {
+    if (request.getParameter("profile")==null) {
+      throw new UserErrorException("Параметр profile не указан");
+    }
+
     String name = StringUtil.getFileName(request.getParameter("profile"));
     if (name.length()!=0 && !Template.isAnonymousProfile(name)) {
       throw new UserErrorException("Данный профиль не может быть выбран");
