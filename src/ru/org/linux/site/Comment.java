@@ -136,11 +136,11 @@ public class Comment implements Serializable {
     return postIP;
   }
 
-  public int saveNewMessage(Connection db, String remoteAddr) throws SQLException {
+  public int saveNewMessage(Connection db, String remoteAddr) throws SQLException, AccessViolationException, UserNotFoundException, MessageNotFoundException {
     return saveNewMessage(db, remoteAddr, "не указан");
   }
   
-  public int saveNewMessage(Connection db, String remoteAddr, String userAgent) throws SQLException {
+  public int saveNewMessage(Connection db, String remoteAddr, String userAgent) throws SQLException, AccessViolationException, UserNotFoundException, MessageNotFoundException {
     Group.checkCommentsAllowed(db,topic,userid);
 
     PreparedStatement pstMsgbase = null;

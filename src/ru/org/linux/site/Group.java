@@ -198,7 +198,7 @@ public class Group {
     return currentUser.getScore() >= restrictComments;
   }
 
-  public static void checkCommentsAllowed(Connection db, int topicid, int userid) throws SQLException {
+  public static void checkCommentsAllowed(Connection db, int topicid, int userid) throws SQLException, AccessViolationException, MessageNotFoundException, UserNotFoundException {
     Statement st = null;
     try {
       User user = User.getUserCached(db,userid);
@@ -206,7 +206,7 @@ public class Group {
       ResultSet rs = st.executeQuery("SELECT groupid FROM topics WHERE id="+topicid+" AND NOT deleted");
 
       if (!rs.next()) {
-        throw new SQLException("Тема не существует или удалена");
+        throw new MessageNotFoundException(topicid, "Тема не существует или удалена");
       }
 
       int groupid = rs.getInt("groupid");
@@ -214,13 +214,11 @@ public class Group {
 
       Group group = new Group(db, groupid);
       if (!group.isCommentPostingAllowed(user)) {
-        throw new SQLException("У вас недостаточно прав для коментирования");
+        throw new AccessViolationException("У вас недостаточно прав для коментирования");
       }
     } catch (BadGroupException e) {
-      throw new SQLException(e.toString());
-    } catch (UserNotFoundException e) {    
-      throw new SQLException(e.toString());      
-    } finally {    
+      throw new RuntimeException(e.toString());
+    } finally {
       if (st!=null) {
         st.close();
       }
