@@ -13,7 +13,7 @@
 <%
 
 if (!tmpl.isModeratorSession()) {
-  throw new IllegalAccessException("Not authorized");
+  throw new AccessViolationException("Not authorized");
 }
 
 Connection db = null;
@@ -63,13 +63,11 @@ try {
     st1.setInt(1, msgid);
     st2.setInt(1, msgid);
 
-    User user;
     String nick;
 
     if (session == null || session.getAttribute("login") == null || !(Boolean) session.getAttribute("login")) {
       throw new BadInputException("Вы уже вышли из системы");
     } else {
-      user = User.getUser(db, (String) session.getAttribute("nick"));
       nick = (String) session.getAttribute("nick");
     }
 

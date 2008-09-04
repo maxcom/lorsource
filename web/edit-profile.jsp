@@ -108,13 +108,13 @@
 <tr>
   <td valign=top>Форматирование по умолчанию</td>
   <td>
-    <% String format_mode=tmpl.getFormatMode(); %>
-    <input type=radio name=format_mode value=ntobrq <%= "ntobrq".equals(format_mode)?"checked":"" %>> User line break w/quoting<br>
-    <input type=radio name=format_mode value=quot   <%= "quot".equals(format_mode)?"checked":"" %>> TeX paragraphs w/quoting (default)<br>
-    <input type=radio name=format_mode value=tex    <%= "tex".equals(format_mode)?"checked":"" %>> TeX paragraphs w/o quoting<br>
-    <input type=radio name=format_mode value=ntobr  <%= "ntobr".equals(format_mode)?"checked":"" %>> User line break w/o quoting<br>
-    <input type=radio name=format_mode value=html   <%= "html".equals(format_mode)?"checked":"" %>> Ignore line breaks<br>
-    <input type=radio name=format_mode value=pre    <%= "pre".equals(format_mode)?"checked":"" %>> Preformatted text <br>
+    <% String formatMode=tmpl.getFormatMode(); %>
+    <input type=radio name=format_mode value=ntobrq <%= "ntobrq".equals(formatMode)?"checked":"" %>> User line break w/quoting<br>
+    <input type=radio name=format_mode value=quot   <%= "quot".equals(formatMode)?"checked":"" %>> TeX paragraphs w/quoting (default)<br>
+    <input type=radio name=format_mode value=tex    <%= "tex".equals(formatMode)?"checked":"" %>> TeX paragraphs w/o quoting<br>
+    <input type=radio name=format_mode value=ntobr  <%= "ntobr".equals(formatMode)?"checked":"" %>> User line break w/o quoting<br>
+    <input type=radio name=format_mode value=html   <%= "html".equals(formatMode)?"checked":"" %>> Ignore line breaks<br>
+    <input type=radio name=format_mode value=pre    <%= "pre".equals(formatMode)?"checked":"" %>> Preformatted text <br>
   </td>
 </tr>
 
@@ -169,7 +169,7 @@
     String profile;
 
     if (!Template.isSessionAuthorized(session)) {
-      throw new IllegalAccessException("Not authorized");
+      throw new AccessViolationException("Not authorized");
     } else {
       profile = (String) session.getAttribute("nick");
     }

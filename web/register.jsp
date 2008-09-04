@@ -280,7 +280,7 @@ URL (не забудьте добавить <b>http://</b>): <br>
 <h1>Изменение регистрации</h1>
 <%
   if (!Template.isSessionAuthorized(session)) {
-    throw new IllegalAccessException("Not authorized");
+    throw new AccessViolationException("Not authorized");
   }
 
   Connection db = null;

@@ -16,7 +16,7 @@
 
 <%
   if (!Template.isSessionAuthorized(session)) {
-    throw new IllegalAccessException("Not authorized");
+    throw new AccessViolationException("Not authorized");
   }
 
   if ("GET".equals(request.getMethod())) {

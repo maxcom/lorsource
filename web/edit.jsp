@@ -11,7 +11,7 @@
   Logger logger = Logger.getLogger("ru.org.linux");
 
   if (!tmpl.isModeratorSession() && !tmpl.isCorrectorSession()) {
-    throw new IllegalAccessException("Not authorized");
+    throw new AccessViolationException("Not authorized");
   }
 
   int msgid = new ServletParameterParser(request).getInt("msgid");
