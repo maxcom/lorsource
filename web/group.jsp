@@ -74,10 +74,6 @@
 
     Section section = new Section(db, group.getSectionId());
 
-    if (group.isLinksUp()) {
-      throw new BadGroupException();
-    }
-
     if (firstPage || offset >= pages * topics) {
       response.setDateHeader("Expires", System.currentTimeMillis() + 90 * 1000);
     } else {

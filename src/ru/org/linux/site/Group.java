@@ -14,7 +14,6 @@ public class Group {
   private boolean imagepost;
   private boolean votepoll;
   private boolean havelink;
-  private boolean linkup;
   private int section;
   private String linktext;
   private String sectionName;
@@ -39,7 +38,7 @@ public class Group {
     try {
       st = db.createStatement();
 
-      rs = st.executeQuery("SELECT sections.moderate, sections.preformat, lineonly, imagepost, vote, section, havelink, linkup, linktext, sections.name as sname, title, image, restrict_topics, restrict_comments, sections.browsable,stat1,stat2,stat3,groups.id, groups.info FROM groups, sections WHERE groups.id=" + id + " AND groups.section=sections.id");
+      rs = st.executeQuery("SELECT sections.moderate, sections.preformat, lineonly, imagepost, vote, section, havelink, linktext, sections.name as sname, title, image, restrict_topics, restrict_comments, sections.browsable,stat1,stat2,stat3,groups.id, groups.info FROM groups, sections WHERE groups.id=" + id + " AND groups.section=sections.id");
 
       if (!rs.next()) {
         throw new BadGroupException("Группа " + id + " не существует");
@@ -63,7 +62,7 @@ public class Group {
   public static List<Group> getGroups(Connection db, Section section) throws SQLException {
     Statement st = db.createStatement();
 
-    ResultSet rs = st.executeQuery("SELECT sections.moderate, sections.preformat, lineonly, imagepost, vote, section, havelink, linkup, linktext, sections.name as sname, title, image, restrict_topics, restrict_comments, sections.browsable,stat1,stat2,stat3,groups.id,groups.info FROM groups, sections WHERE sections.id=" + section.getId() + " AND groups.section=sections.id ORDER BY id");
+    ResultSet rs = st.executeQuery("SELECT sections.moderate, sections.preformat, lineonly, imagepost, vote, section, havelink, linktext, sections.name as sname, title, image, restrict_topics, restrict_comments, sections.browsable,stat1,stat2,stat3,groups.id,groups.info FROM groups, sections WHERE sections.id=" + section.getId() + " AND groups.section=sections.id ORDER BY id");
 
     List<Group> list = new ArrayList<Group>();
 
@@ -85,7 +84,6 @@ public class Group {
     votepoll = rs.getBoolean("vote");
     section = rs.getInt("section");
     havelink = rs.getBoolean("havelink");
-    linkup = rs.getBoolean("linkup");
     linktext = rs.getString("linktext");
     sectionName = rs.getString("sname");
     title = rs.getString("title");
@@ -128,10 +126,6 @@ public class Group {
 
   public boolean isLinksAllowed() {
     return havelink;
-  }
-
-  public boolean isLinksUp() {
-    return linkup;
   }
 
   public String getDefaultLinkText() {
@@ -250,11 +244,7 @@ public class Group {
   }
 
   public String getUrl() {
-    if (linkup) {
-      return "view-links.jsp?group="+id;
-    } else {
-      return "group.jsp?group="+id;
-    }
+    return "group.jsp?group="+id;
   }
 
   public int calcTopicsCount(Connection db, boolean showDeleted) throws SQLException {

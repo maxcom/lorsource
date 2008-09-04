@@ -185,12 +185,6 @@
   <input type="file" name="image"><br>
   <% } %>
 
-<% if (group.isLinksAllowed() && group.isLinksUp()) { %>
-<input type=hidden name=linktext value="<%= group.getDefaultLinkText() %> ">
-Ссылка (не забудьте <b>http://</b>)
-<input type=text name=url size=70 value="<%= request.getAttribute("url")==null?"":HTMLFormatter.htmlSpecialChars((String)request.getAttribute("url")) %>"><br>
-<% } %>
-
 Сообщение:<br>
 <font size=2>(В режиме <i>Tex paragraphs</i> игнорируются переносы строк.<br> Пустая строка (два раза Enter) начинает новый абзац)</font><br>
 <textarea name=msg cols=70 rows=20><%
@@ -199,7 +193,7 @@
     }
   %></textarea><br>
 
-<% if (group.isLinksAllowed() && !group.isLinksUp()) { %>
+<% if (group.isLinksAllowed()) { %>
 Текст ссылки:
 <input type=text name=linktext size=60 value="<%= request.getAttribute("linktext")==null?group.getDefaultLinkText():HTMLFormatter.htmlSpecialChars((String)request.getAttribute("linktext")) %>"><br>
 Ссылка (не забудьте <b>http://</b>)

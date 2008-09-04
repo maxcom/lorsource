@@ -55,9 +55,6 @@
     if (group.getSectionId() == 0) {
       throw new BadGroupException();
     }
-    if (group.isLinksUp()) {
-      throw new BadGroupException();
-    }
 
     if (firstPage) {
       out.print("<title>" + group.getSectionName() + " - " + group.getTitle() + " (последние сообщения)</title>");
