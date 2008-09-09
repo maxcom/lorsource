@@ -208,7 +208,7 @@ public class Group {
 
       Group group = new Group(db, groupid);
       if (!group.isCommentPostingAllowed(user)) {
-        throw new AccessViolationException("У вас недостаточно прав для коментирования");
+        throw new AccessViolationException("У вас не достаточно прав для комментирования");
       }
     } catch (BadGroupException e) {
       throw new RuntimeException(e.toString());
