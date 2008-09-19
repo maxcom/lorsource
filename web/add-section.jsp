@@ -34,7 +34,7 @@
 <jsp:include page="WEB-INF/jsp/header.jsp"/>
 
 
-<c:set var="info" value="<%= tmpl.getObjectConfig().getStorage().readMessageNull("addportal", String.valueOf(sectionid)) %>"/>
+<c:set var="info" value="<%= tmpl.getObjectConfig().getStorage().readMessageNull(&quot;addportal&quot;, String.valueOf(sectionid)) %>"/>
 
 <c:if test="${info!=null}">
   ${info}
