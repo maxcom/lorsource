@@ -38,7 +38,7 @@
       <object id="flash_adv" classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" width="468" height="60">
         <param name="movie" value="/adv/468x60_linuxorgru.swf" />
         <!--[if !IE]>-->
-        <object type="application/x-shockwave-flash" data="468x60_linuxorgru.swf" width="468" height="60">
+        <object type="application/x-shockwave-flash" data="/adv/468x60_linuxorgru.swf" width="468" height="60">
         <!--<![endif]-->
         <!--[if !IE]>-->
         </object>
