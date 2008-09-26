@@ -3,7 +3,7 @@
 <!-- head-main -->
 <LINK REL=STYLESHEET TYPE="text/css" HREF="/black/style.css" TITLE="Normal">
 <LINK REL="shortcut icon" HREF="/favicon.ico" TYPE="image/x-icon">
-    <script type="text/javascript" src="/js/swfobject.js"></script>
+    <script type="text/javascript" src="/js/swfobject.js"  defer="defer"></script>
 
     <script type="text/javascript">
     swfobject.registerObject("flash_adv", "9.0.0");
