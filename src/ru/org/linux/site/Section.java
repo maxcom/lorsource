@@ -1,10 +1,7 @@
 package ru.org.linux.site;
 
 import java.io.Serializable;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 
 public class Section implements Serializable {
   private final String name;
@@ -96,5 +93,30 @@ public class Section implements Serializable {
 
   public String getTitle() {
     return name;
+  }
+
+  public Timestamp getLastCommitdate(Connection db) throws SQLException {
+    Statement st = null;
+    ResultSet rs = null;
+
+    try {
+      st = db.createStatement();
+
+      rs = st.executeQuery("select max(commitdate) from topics,groups where section=" + id + " and topics.groupid=groups.id");
+
+      if (!rs.next()) {
+        return null;
+      } else {
+        return rs.getTimestamp("max");
+      }
+    } finally {
+      if (rs!=null) {
+        rs.close();
+      }
+
+      if (st!=null) {
+        st.close();
+      }
+    }
   }
 }

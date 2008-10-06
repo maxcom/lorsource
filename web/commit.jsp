@@ -1,8 +1,9 @@
 <%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
-<%@ page import="java.sql.Connection,java.sql.PreparedStatement,java.sql.ResultSet,java.sql.Statement,java.util.List"  %>
+<%@ page import="java.sql.*"  %>
+<%@ page import="java.util.List"%>
 <%@ page import="java.util.Random"%>
 <%@ page import="java.util.logging.Logger"%>
-<%@ page import="javax.servlet.http.HttpServletResponse"%>
+<%@ page import="javax.servlet.http.HttpServletResponse" %>
 <%@ page import="ru.org.linux.site.*" %>
 <%@ page import="ru.org.linux.util.HTMLFormatter" %>
 <%@ page import="ru.org.linux.util.ServletParameterParser" %>
@@ -44,6 +45,8 @@
       if (!group.isModerated()) {
         throw new AccessViolationException("группа не является модерируемой");
       }
+
+      Section section = new Section(db, group.getSectionId());
 
 %>
 <h1>Подтверждение сообщения</h1>
@@ -88,6 +91,12 @@
       rq.close();
     }
     st.close();
+
+    Timestamp lastCommit = section.getLastCommitdate(db);
+    if (lastCommit!=null) {
+      out.println("Последнее подтверждение в разделе: "+Template.dateFormat.format(lastCommit)+"<br>");
+    }
+
   } finally {
       if (db != null) {
         db.close();

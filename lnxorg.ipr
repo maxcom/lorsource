@@ -318,6 +318,16 @@
         </inspection_tool>
         <inspection_tool class="OverridableMethodCallDuringObjectConstruction" level="WARNING" enabled="true" />
         <inspection_tool class="OverriddenMethodCallDuringObjectConstruction" level="WARNING" enabled="true" />
+        <inspection_tool class="InstanceofChain" level="WARNING" enabled="true" />
+        <inspection_tool class="ClassReferencesSubclass" level="WARNING" enabled="true" />
+        <inspection_tool class="InstanceofThis" level="WARNING" enabled="true" />
+        <inspection_tool class="InstanceofInterfaces" level="WARNING" enabled="true" />
+        <inspection_tool class="TypeMayBeWeakened" level="WARNING" enabled="true">
+          <option name="useRighthandTypeAsWeakestTypeInAssignments" value="true" />
+        </inspection_tool>
+        <inspection_tool class="OverlyStrongTypeCast" level="WARNING" enabled="true">
+          <option name="ignoreInMatchingInstanceof" value="false" />
+        </inspection_tool>
       </profile>
     </profiles>
     <list size="4">
