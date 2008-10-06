@@ -3,12 +3,6 @@
 <!-- head-main -->
 <LINK REL=STYLESHEET TYPE="text/css" HREF="/black/style.css" TITLE="Normal">
 <LINK REL="shortcut icon" HREF="/favicon.ico" TYPE="image/x-icon">
-    <script type="text/javascript" src="/js/swfobject.js"  defer="defer"></script>
-
-    <script type="text/javascript">
-    swfobject.registerObject("flash_adv", "9.0.0");
-    </script>
-
 </head>
 <body style="margin-top: 0">
 <img style="float: left" src="/black/lorlogo.png" alt="Русская информация об ОС LINUX" width="270" height="208">
@@ -33,18 +27,7 @@
   <td></td>
   <td><a href="search.jsp">Поиск</a></td>
 </tr>
-</table><br>
-    <div>
-      <object id="flash_adv" classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" width="468" height="60">
-        <param name="movie" value="/adv/468x60_linuxorgru.swf" />
-        <!--[if !IE]>-->
-        <object type="application/x-shockwave-flash" data="/adv/468x60_linuxorgru.swf" width="468" height="60">
-        <!--<![endif]-->
-        <!--[if !IE]>-->
-        </object>
-        <!--<![endif]-->
-      </object>
-    </div>
+</table>
 </div>
 
 <div style="float: right; text-align: right; margin-top: 5px">
