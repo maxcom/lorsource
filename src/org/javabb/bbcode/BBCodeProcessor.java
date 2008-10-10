@@ -42,6 +42,8 @@ public class BBCodeProcessor implements Serializable {
 //            "\\[size=['\"]?([0-9]|[1-2][0-9])['\"]?\\](.*?)\\[/size\\]",
 //            "<span style='font-size:$1px'>$2</span>"),
       new SimpleRegexTag("b", "\\[b\\](.*?)\\[/b\\]", "<b>$1</b>", false),
+      new SimpleRegexTag("em", "\\[em\\](.*?)\\[/em\\]", "<em>$1</em>", false),
+      new SimpleRegexTag("strong", "\\[strong\\](.*?)\\[/strong\\]", "<strong>$1</strong>", false),
       new SimpleRegexTag("u", "\\[u\\](.*?)\\[/u\\]", "<u>$1</u>", false),
       new SimpleRegexTag("i", "\\[i\\](.*?)\\[/i\\]", "<i>$1</i>", false),
 //        new SimpleRegexTag("img", "\\[img\\](.*?)\\[/img\\]", "<img src='$1' border='0' alt=''>"),
