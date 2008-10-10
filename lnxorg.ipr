@@ -328,6 +328,9 @@
         <inspection_tool class="OverlyStrongTypeCast" level="WARNING" enabled="true">
           <option name="ignoreInMatchingInstanceof" value="false" />
         </inspection_tool>
+        <inspection_tool class="UnnecessaryInterfaceModifier" level="WARNING" enabled="true" />
+        <inspection_tool class="CastToIncompatibleInterface" level="WARNING" enabled="true" />
+        <inspection_tool class="InstanceofIncompatibleInterface" level="WARNING" enabled="true" />
       </profile>
     </profiles>
     <list size="4">

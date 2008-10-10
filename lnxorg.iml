@@ -270,6 +270,15 @@
     <orderEntry type="library" name="spring" level="project" />
     <orderEntry type="library" name="acegi" level="project" />
     <orderEntry type="library" name="commons-codec" level="project" />
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$APPLICATION_HOME_DIR$/lib/junit-4.4.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
     <orderEntryProperties />
   </component>
 </module>
