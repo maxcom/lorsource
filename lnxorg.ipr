@@ -331,6 +331,7 @@
         <inspection_tool class="UnnecessaryInterfaceModifier" level="WARNING" enabled="true" />
         <inspection_tool class="CastToIncompatibleInterface" level="WARNING" enabled="true" />
         <inspection_tool class="InstanceofIncompatibleInterface" level="WARNING" enabled="true" />
+        <inspection_tool class="ComparableImplementedButEqualsNotOverridden" level="WARNING" enabled="true" />
       </profile>
     </profiles>
     <list size="4">

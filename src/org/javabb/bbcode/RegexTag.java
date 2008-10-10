@@ -16,6 +16,8 @@
 
 package org.javabb.bbcode;
 
+import java.util.regex.Pattern;
+
 /**
  * @author
  * @since 18/01/2005
@@ -29,10 +31,12 @@ public interface RegexTag {
   /**
    * @return opening tag replace
    */
-  String getRegex();
+  Pattern getRegex();
 
   /**
    * @return closing tag replace
    */
   String getReplacement();
+
+  boolean isUrl();
 }

@@ -1,9 +1,9 @@
 <%@ page contentType="text/html; charset=utf-8" pageEncoding="koi8-r"%>
 <%@ page import="java.sql.Connection,java.sql.Statement,java.util.Random,java.util.logging.Logger,javax.servlet.http.HttpServletResponse,ru.org.linux.site.*"  %>
-<%@ page import="ru.org.linux.util.HTMLFormatter"%>
+<%@ page import="ru.org.linux.util.BadURLException"%>
+<%@ page import="ru.org.linux.util.HTMLFormatter" %>
 <%@ page import="ru.org.linux.util.ServletParameterParser" %>
 <%@ page import="ru.org.linux.util.UtilBadHTMLException" %>
-<%@ page import="ru.org.linux.util.UtilBadURLException" %>
 <% Template tmpl = Template.getTemplate(request);%>
 <%
   Logger logger = Logger.getLogger("ru.org.linux");
@@ -206,7 +206,7 @@
 		db.rollback();
 		db.setAutoCommit(true);
 	}
-} catch (UtilBadURLException e) {
+} catch (BadURLException e) {
 	error=e;
 	showform=true;
 	if (db!=null) {

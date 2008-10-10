@@ -21,7 +21,9 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import ru.org.linux.util.BadURLException;
 import ru.org.linux.util.HTMLFormatter;
+import ru.org.linux.util.URLUtil;
 
 /**
  * $Id: BBCodeProcessor.java,v 1.1 2005/02/07 03:16:07 ronaldtm Exp $
@@ -31,25 +33,24 @@ import ru.org.linux.util.HTMLFormatter;
 public class BBCodeProcessor implements Serializable {
   private static final String CR_LF = "(?:\r\n|\r|\n)?";
 
-  private static final RegexTag[] REGEX_TAGS = new RegexTag[]{new SimpleRegexTag("",
-      "(\r\n\r\n|\n\r\n\r|\n\n|\r\r)",
-      "<br>"),
+  private static final RegexTag[] REGEX_TAGS = new RegexTag[]{
+      new SimpleRegexTag("", "(\r\n\r\n|\n\r\n\r|\n\n|\r\r)", "<br>", false),
 //        new SimpleRegexTag("color",
 //            "\\[color=['\"]?(.*?[^'\"])['\"]?\\](.*?)\\[/color\\]",
 //            "<span style='color:$1px'>$2</span>"),
 //        new SimpleRegexTag("size",
 //            "\\[size=['\"]?([0-9]|[1-2][0-9])['\"]?\\](.*?)\\[/size\\]",
 //            "<span style='font-size:$1px'>$2</span>"),
-      new SimpleRegexTag("b", "\\[b\\](.*?)\\[/b\\]", "<b>$1</b>"),
-      new SimpleRegexTag("u", "\\[u\\](.*?)\\[/u\\]", "<u>$1</u>"),
-      new SimpleRegexTag("i", "\\[i\\](.*?)\\[/i\\]", "<i>$1</i>"),
+      new SimpleRegexTag("b", "\\[b\\](.*?)\\[/b\\]", "<b>$1</b>", false),
+      new SimpleRegexTag("u", "\\[u\\](.*?)\\[/u\\]", "<u>$1</u>", false),
+      new SimpleRegexTag("i", "\\[i\\](.*?)\\[/i\\]", "<i>$1</i>", false),
 //        new SimpleRegexTag("img", "\\[img\\](.*?)\\[/img\\]", "<img src='$1' border='0' alt=''>"),
-      new SimpleRegexTag("url", "\\[url\\](.*?)\\[/url\\]", "<a href='$1'>$1</a>"),
-      new SimpleRegexTag("user", "\\[user\\](.*?)\\[/user\\]", "<img src=\"http://www.linux.org.ru/favicon.ico\"><a style=\"text-decoration: none\" href='http://www.linux.org.ru/whois.jsp?nick=$1'>$1</a>"),
+      new SimpleRegexTag("url", "\\[url\\](.*?)\\[/url\\]", "<a href='$1'>$1</a>", true),
+      new SimpleRegexTag("user", "\\[user\\](.*?)\\[/user\\]", "<img src=\"http://www.linux.org.ru/favicon.ico\"><a style=\"text-decoration: none\" href='http://www.linux.org.ru/whois.jsp?nick=$1'>$1</a>", false),
       new SimpleRegexTag("url",
           "\\[url=['\"]?(.*?[^'\"])['\"]?\\](.*?)\\[/url\\]",
-          "<a href=\"$1\" target=\"_new\">$2</a>"),
-      new SimpleRegexTag("email", "\\[email\\](.*?)\\[/email\\]", "<a href='mailto:$1'>$1</a>")};
+          "<a href=\"$1\" target=\"_new\">$2</a>", true),
+      new SimpleRegexTag("email", "\\[email\\](.*?)\\[/email\\]", "<a href='mailto:$1'>$1</a>", true)};
 
   /** */
   private boolean acceptHTML = false;
@@ -89,7 +90,7 @@ public class BBCodeProcessor implements Serializable {
    * @param texto
    * @return TODO unuseful parameters.
    */
-  public String preparePostText(String texto) {
+  public String preparePostText(String texto) throws BadURLException {
     if (!isAcceptHTML()) {
       texto = HTMLFormatter.htmlSpecialChars(texto);
     }
@@ -103,7 +104,7 @@ public class BBCodeProcessor implements Serializable {
    * @param string
    * @return HTML-formated message
    */
-  private String process(String string) {
+  private String process(String string) throws BadURLException {
     StringBuffer buffer = new StringBuffer(string);
     new CodeTag().processContent(buffer);
 
@@ -133,7 +134,7 @@ public class BBCodeProcessor implements Serializable {
     StringBuffer sb2 = new StringBuffer((int) (buffer.length() * 1.5));
 
     for (RegexTag tag : REGEX_TAGS) {
-      substitute(sb1, sb2, tag.getRegex(), tag.getReplacement());
+      substitute(sb1, sb2, tag, tag.getReplacement());
       StringBuffer temp = sb1;
       sb1 = sb2;
       sb2 = temp;
@@ -148,12 +149,19 @@ public class BBCodeProcessor implements Serializable {
    * @param regex       TODO
    * @param replacement TODO
    */
-  private void substitute(CharSequence from, StringBuffer to, String regex, String replacement) {
+  private void substitute(CharSequence from, StringBuffer to, RegexTag regex, String replacement) throws BadURLException {
     to.setLength(0);
 
-    Pattern p = Pattern.compile(regex);
+    Pattern p = regex.getRegex();
     Matcher m = p.matcher(from);
     while (m.find()) {
+      String value = m.group(1);
+      if (regex.isUrl()) {
+        if (!URLUtil.isUrl(value)) {
+          throw new BadURLException(value);
+        }
+      }
+
       m.appendReplacement(to, replacement);
     }
     m.appendTail(to);
@@ -261,9 +269,7 @@ public class BBCodeProcessor implements Serializable {
 
     Collections.sort(subst, new Comparator<MutableCharSequence>() {
       public int compare(MutableCharSequence o1, MutableCharSequence o2) {
-        MutableCharSequence s1 = o1;
-        MutableCharSequence s2 = o2;
-        return -(s1.start - s2.start);
+        return -(o1.start - o2.start);
       }
     });
 

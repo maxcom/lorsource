@@ -24,7 +24,7 @@ public final class URLUtil {
   public static String fixURL(String url) throws UtilException {
     url = url.trim();
 
-    if (IsItUrl(url)) {
+    if (isUrl(url)) {
       if (url.toLowerCase().startsWith("www.")) {
         return "http://" + url;
       }
@@ -34,10 +34,10 @@ public final class URLUtil {
       return url;
     }
 
-    throw new UtilBadURLException(url);
+    throw new BadURLException(url);
   }
 
-  private static boolean IsItUrl(String x) {
+  public static boolean isUrl(String x) {
     return isUrl.isMatch(x);
   }
 

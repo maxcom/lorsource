@@ -3,8 +3,8 @@
 <%@ page import="javax.servlet.http.HttpServletResponse"%>
 <%@ page import="org.apache.commons.lang.StringUtils" %>
 <%@ page import="ru.org.linux.site.*" %>
+<%@ page import="ru.org.linux.util.BadURLException" %>
 <%@ page import="ru.org.linux.util.HTMLFormatter" %>
-<%@ page import="ru.org.linux.util.UtilBadURLException" %>
 <% Template tmpl = Template.getTemplate(request);%>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
@@ -79,7 +79,7 @@
       if (db!=null) {
         db.rollback();
       }
-    } catch (UtilBadURLException e) {
+    } catch (BadURLException e) {
       error=e;
       showform=true;
       if (db!=null) {
