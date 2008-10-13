@@ -18,6 +18,7 @@
     div.code {
       border: 1px dotted;
       margin-bottom: 1em;
+      font-family: monospace;
     }
   </style>
   <body>

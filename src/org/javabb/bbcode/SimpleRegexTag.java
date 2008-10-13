@@ -16,6 +16,7 @@
 
 package org.javabb.bbcode;
 
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -26,63 +27,47 @@ public class SimpleRegexTag implements RegexTag {
   private String _tagName;
   private Pattern _regex;
   private String _replacement;
-  private boolean url = false;
 
-  /**
-   * @param tagName
-   * @param regex
-   * @param replacement
-   */
-  public SimpleRegexTag(String tagName, String regex, String replacement, boolean url) {
+  public static final String BAD_DATA = "<s>$1</s>";
+
+  public SimpleRegexTag(String tagName, String regex, String replacement) {
     _tagName = tagName;
     _regex = Pattern.compile(regex);
     _replacement = replacement;
-    this.url = url;
   }
 
-  /**
-   * @return tag name
-   */
   public String getTagName() {
     return _tagName;
   }
 
-  /**
-   * @return opening tag replace
-   */
   public Pattern getRegex() {
     return _regex;
   }
 
-  /**
-   * @return closing tag replace
-   */
   public String getReplacement() {
     return _replacement;
   }
 
-  /**
-   * @param tagName
-   */
   public void setTagName(String tagName) {
     _tagName = tagName;
   }
 
-  /**
-   * @param regex
-   */
   public void setRegex(String regex) {
     _regex = Pattern.compile(regex);
   }
 
-  /**
-   * @param replacement
-   */
   public void setReplacement(String replacement) {
     _replacement = replacement;
   }
 
-  public boolean isUrl() {
-    return url;
+  public void substitute(CharSequence from, StringBuffer to, RegexTag regex, String replacement) {
+    to.setLength(0);
+
+    Pattern p = regex.getRegex();
+    Matcher m = p.matcher(from);
+    while (m.find()) {
+      m.appendReplacement(to, replacement);
+    }
+    m.appendTail(to);
   }
 }

