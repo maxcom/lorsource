@@ -470,7 +470,7 @@ public class Message {
       }
 
       if (tmpl.isModeratorSession()) {
-        out.append("[<a href=\"sameip.jsp?msgid=").append(msgid).append("\">Другие с этого IP</a>]");
+//        out.append("[<a href=\"sameip.jsp?msgid=").append(msgid).append("\">Другие с этого IP</a>]");
         out.append("[").append(userAgent).append("]");
       }
 
