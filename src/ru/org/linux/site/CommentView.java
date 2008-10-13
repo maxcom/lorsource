@@ -75,16 +75,12 @@ public class CommentView {
       out.append("[<a href=\"/jump-message.jsp?msgid=").append(comment.getTopic()).append("&amp;cid=").append(comment.getMessageId()).append("\">#</a>]");
     }
 
-//    if (!expired && !comment.isDeleted()) {
-//      out.append("[<a href=\"add_comment.jsp?topic=").append(comment.getTopic()).append("&amp;replyto=").append(comment.getMessageId()).append("\">Ответить</a>]");
-//    }
-
     if (!comment.isDeleted() && (moderatorMode || author.getNick().equals(user))) {
       out.append("[<a href=\"delete_comment.jsp?msgid=").append(comment.getMessageId()).append("\">Удалить</a>]");
     }
 
     if (moderatorMode) {
-      out.append("[<a href=\"sameip.jsp?msgid=").append(comment.getMessageId()).append("\">Другие с этого IP</a>]");
+//      out.append("[<a href=\"sameip.jsp?msgid=").append(comment.getMessageId()).append("\">Другие с этого IP</a>]");
       out.append("[").append(comment.getUserAgent()).append("]");
     }
 
