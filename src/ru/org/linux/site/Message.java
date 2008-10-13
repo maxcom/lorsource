@@ -61,7 +61,7 @@ public class Message {
             "topics.groupid as guid, topics.url, topics.linktext, user_agents.name as useragent, " +
             "groups.title as gtitle, vote, havelink, section, topics.sticky, topics.postip, " +
             "postdate<(CURRENT_TIMESTAMP-sections.expire) as expired, deleted, lastmod, commitby, " +
-            "commitdate, topics.stat1, postscore, topics.moderate, message, notop" +
+            "commitdate, topics.stat1, postscore, topics.moderate, message, notop " +
             "FROM topics " +
             "INNER JOIN users ON (users.id=topics.userid) " +
             "INNER JOIN groups ON (groups.id=topics.groupid) " +
