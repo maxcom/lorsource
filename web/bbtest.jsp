@@ -1,4 +1,6 @@
+<%@ page import="java.sql.Connection" %>
 <%@ page import="org.javabb.bbcode.BBCodeProcessor" %>
+<%@ page import="ru.org.linux.site.LorDataSource" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 
 <html>
@@ -25,17 +27,26 @@
 
 <%
   String text = request.getParameter("text");
-  if (text==null) {
-    text="";
+  if (text == null) {
+    text = "";
   }
 
-  if (request.getMethod().equals("POST")) {
+  Connection db = null;
 
-  BBCodeProcessor proc = new BBCodeProcessor();
+  try {
+    if (request.getMethod().equals("POST")) {
+      db = LorDataSource.getConnection();
 
-  out.print(proc.preparePostText(text));
-  out.print("<hr>");
-} %>
+      BBCodeProcessor proc = new BBCodeProcessor();
+
+      out.print(proc.preparePostText(db, text));
+      out.print("<hr>");
+    }
+  } finally {
+    if (db != null) {
+      db.close();
+    }
+  } %>
 
     <form action="bbtest.jsp" method="POST">
       <textarea rows="20" cols="80" name="text"><%= text %></textarea>

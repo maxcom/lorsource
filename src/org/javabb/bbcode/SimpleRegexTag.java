@@ -16,6 +16,8 @@
 
 package org.javabb.bbcode;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -60,7 +62,7 @@ public class SimpleRegexTag implements RegexTag {
     _replacement = replacement;
   }
 
-  public void substitute(CharSequence from, StringBuffer to, RegexTag regex, String replacement) {
+  public void substitute(Connection db, CharSequence from, StringBuffer to, RegexTag regex, String replacement) throws SQLException {
     to.setLength(0);
 
     Pattern p = regex.getRegex();

@@ -17,6 +17,8 @@ package org.javabb.bbcode;
  */
 
 import java.io.Serializable;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -46,7 +48,7 @@ public class BBCodeProcessor implements Serializable {
       new SimpleRegexTag("i", "\\[i\\](.*?)\\[/i\\]", "<i>$1</i>"),
 //        new SimpleRegexTag("img", "\\[img\\](.*?)\\[/img\\]", "<img src='$1' border='0' alt=''>"),
       new URLTag("url", "\\[url\\](.*?)\\[/url\\]", "<a href='$1'>$1</a>"),
-      new UserTag("user", "\\[user\\](.*?)\\[/user\\]", "<img src=\"http://www.linux.org.ru/favicon.ico\"><a style=\"text-decoration: none\" href='http://www.linux.org.ru/whois.jsp?nick=$1'>$1</a>"),
+      new UserTag("user", "\\[user\\](.*?)\\[/user\\]"),
       new URLTag("url",
           "\\[url=['\"]?(.*?[^'\"])['\"]?\\](.*?)\\[/url\\]",
           "<a href=\"$1\" target=\"_new\">$2</a>")//,
@@ -91,12 +93,12 @@ public class BBCodeProcessor implements Serializable {
    * @param texto
    * @return TODO unuseful parameters.
    */
-  public String preparePostText(String texto) {
+  public String preparePostText(Connection db, String texto) throws SQLException {
     if (!isAcceptHTML()) {
       texto = HTMLFormatter.htmlSpecialChars(texto);
     }
     if (isAcceptBBCode()) {
-      texto = process(texto);
+      texto = process(db, texto);
     }
     return texto;
   }
@@ -105,7 +107,7 @@ public class BBCodeProcessor implements Serializable {
    * @param string
    * @return HTML-formated message
    */
-  private String process(String string) {
+  private String process(Connection db, String string) throws SQLException {
     StringBuffer buffer = new StringBuffer(string);
     new CodeTag().processContent(buffer);
 
@@ -135,7 +137,7 @@ public class BBCodeProcessor implements Serializable {
     StringBuffer sb2 = new StringBuffer((int) (buffer.length() * 1.5));
 
     for (RegexTag tag : REGEX_TAGS) {
-      tag.substitute(sb1, sb2, tag, tag.getReplacement());
+      tag.substitute(db, sb1, sb2, tag, tag.getReplacement());
       StringBuffer temp = sb1;
       sb1 = sb2;
       sb2 = temp;

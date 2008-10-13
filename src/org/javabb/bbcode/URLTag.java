@@ -1,5 +1,6 @@
 package org.javabb.bbcode;
 
+import java.sql.Connection;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -11,7 +12,7 @@ public class URLTag extends SimpleRegexTag {
   }
   
   @Override
-  public void substitute(CharSequence from, StringBuffer to, RegexTag regex, String replacement) {
+  public void substitute(Connection db, CharSequence from, StringBuffer to, RegexTag regex, String replacement) {
     to.setLength(0);
 
     Pattern p = regex.getRegex();
@@ -27,5 +28,4 @@ public class URLTag extends SimpleRegexTag {
     }
     m.appendTail(to);
   }
-
 }

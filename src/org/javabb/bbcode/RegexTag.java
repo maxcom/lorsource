@@ -16,6 +16,8 @@
 
 package org.javabb.bbcode;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.regex.Pattern;
 
 /**
@@ -38,5 +40,5 @@ public interface RegexTag {
    */
   String getReplacement();
 
-  void substitute(CharSequence from, StringBuffer to, RegexTag regex, String replacement);
+  void substitute(Connection db, CharSequence from, StringBuffer to, RegexTag regex, String replacement) throws SQLException;
 }
