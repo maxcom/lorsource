@@ -60,7 +60,6 @@ public class HTMLFormatterTest extends TestCase {
   public void testURLHighlight4() throws UtilException {
     HTMLFormatter formatter = new HTMLFormatter(TEXT8);
 
-    formatter.enablePlainTextMode();
     formatter.enableUrlHighLightMode();
     formatter.setMaxLength(20);
 
@@ -94,8 +93,7 @@ public class HTMLFormatterTest extends TestCase {
   public void testQuiting1() throws UtilException {
     HTMLFormatter formatter = new HTMLFormatter(QUOTING1);
 
-    formatter.enablePlainTextMode();
-    formatter.enableTexNewLineMode();    
+    formatter.enableTexNewLineMode();
     formatter.enableQuoting();
 
     assertEquals(RESULT_QUOTING1, formatter.process());
@@ -104,7 +102,6 @@ public class HTMLFormatterTest extends TestCase {
   public void testQuiting2() throws UtilException {
     HTMLFormatter formatter = new HTMLFormatter(QUOTING2);
 
-    formatter.enablePlainTextMode();
     formatter.enableTexNewLineMode();
     formatter.enableQuoting();
 
@@ -114,7 +111,6 @@ public class HTMLFormatterTest extends TestCase {
   public void testQuiting3() throws UtilException {
     HTMLFormatter formatter = new HTMLFormatter(QUOTING3);
 
-    formatter.enablePlainTextMode();
     formatter.enableTexNewLineMode();
     formatter.enableQuoting();
 

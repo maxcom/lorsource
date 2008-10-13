@@ -61,7 +61,7 @@ public class Message {
             "topics.groupid as guid, topics.url, topics.linktext, user_agents.name as useragent, " +
             "groups.title as gtitle, vote, havelink, section, topics.sticky, topics.postip, " +
             "postdate<(CURRENT_TIMESTAMP-sections.expire) as expired, deleted, lastmod, commitby, " +
-            "commitdate, topics.stat1, postscore, topics.moderate, message, notop " +
+            "commitdate, topics.stat1, postscore, topics.moderate, message, notop" +
             "FROM topics " +
             "INNER JOIN users ON (users.id=topics.userid) " +
             "INNER JOIN groups ON (groups.id=topics.groupid) " +
@@ -130,7 +130,6 @@ public class Message {
     String nick = null;
     String image = "";
     String captchaResponse = "";
-    boolean texttype = false;
     boolean autourl = true;
     String mode = "";
     String tags = null;
@@ -147,7 +146,6 @@ public class Message {
         password = request.getParameter("password");
         mode = request.getParameter("mode");
         autourl = "1".equals(request.getParameter("autourl"));
-        texttype = "1".equals(request.getParameter("texttype"));
         title = request.getParameter("title");
         msg = request.getParameter("msg");
       }
@@ -199,8 +197,6 @@ public class Message {
             mode = value;
           } else if (name.compareToIgnoreCase("autourl") == 0) {
             autourl = Boolean.parseBoolean(value);
-          } else if (name.compareToIgnoreCase("textype") == 0) {
-            texttype = Boolean.parseBoolean(value);
           } else if (name.compareToIgnoreCase("title") == 0) {
             title = value;
           } else if (name.compareToIgnoreCase("msg") == 0) {
@@ -247,7 +243,6 @@ public class Message {
     request.setAttribute("preview", preview);
     request.setAttribute("mode", mode);
     request.setAttribute("autourl", autourl);
-    request.setAttribute("texttype", texttype);
     request.setAttribute("title", title);
     request.setAttribute("msg", msg);
     request.setAttribute("group", guid);
@@ -383,9 +378,6 @@ public class Message {
     if (("ntobrq".equals(mode) || "ntobr".equals(mode) || "tex".equals(mode) || "quot".equals(mode)) && group.isLineOnly()) {
       throw new AccessViolationException("В группу нельзя добавлять сообщения с переносом строк");
     }
-    if (texttype && group.isLineOnly()) {
-      throw new AccessViolationException("В группу нельзя добавлять сообщения с переносом строк");
-    }
 
     if ("pre".equals(mode)) {
       form.enablePreformatMode();
@@ -402,16 +394,9 @@ public class Message {
     if ("tex".equals(mode)) {
       form.enableTexNewLineMode();
     }
-    if (!texttype) {
-      form.enablePlainTextMode();
-    } else {
-      form.enableCheckHTML();
-    }
-    try {
-      message = form.process();
-    } catch (UtilBadHTMLException e) {
-      throw new BadInputException(e);
-    }
+
+    message = form.process();
+
     try {
       section = new Section(db, sectionid);
     } catch (BadSectionException ex) {
@@ -812,7 +797,6 @@ public class Message {
     if (msg == null && vmsg != null && vmsg.length()>0) msg = vmsg;
     request.setAttribute("msg", null);
 
-    boolean userhtml = new ServletParameterParser(request).getBoolean("texttype");
     boolean autourl = new ServletParameterParser(request).getBoolean("autourl");
 
     String url = request.getParameter("url");
@@ -859,9 +843,6 @@ public class Message {
     if (("ntobrq".equals(mode) || "ntobr".equals(mode) || "tex".equals(mode) || "quot".equals(mode)) && group.isLineOnly()) {
       throw new AccessViolationException("В группу нельзя добавлять сообщения с переносом строк");
     }
-    if (userhtml && group.isLineOnly()) {
-      throw new AccessViolationException("В группу нельзя добавлять сообщения с переносом строк");
-    }
 
     if (!group.isImagePostAllowed()) {
       if (url != null) {
@@ -894,17 +875,7 @@ public class Message {
       form.enableTexNewLineMode();
     }
 
-    if (!userhtml) {
-      form.enablePlainTextMode();
-    } else {
-      form.enableCheckHTML();
-    }
-
-    try {
-      msg = form.process();
-    } catch (UtilBadHTMLException e) {
-      throw new BadInputException(e);
-    }
+    msg = form.process();
 
     DupeProtector.getInstance().checkDuplication(request.getRemoteAddr());
 

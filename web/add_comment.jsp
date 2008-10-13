@@ -3,7 +3,6 @@
 <%@ page import="ru.org.linux.util.BadURLException"%>
 <%@ page import="ru.org.linux.util.HTMLFormatter" %>
 <%@ page import="ru.org.linux.util.ServletParameterParser" %>
-<%@ page import="ru.org.linux.util.UtilBadHTMLException" %>
 <% Template tmpl = Template.getTemplate(request);%>
 <%
   Logger logger = Logger.getLogger("ru.org.linux");
@@ -76,13 +75,7 @@
       form.enableQuoting();
     }
 
-    form.enablePlainTextMode();
-
-    try {
-      msg = form.process();
-    } catch (UtilBadHTMLException e) {
-      throw new BadInputException(e);
-    }
+    msg = form.process();
 
     comment = new Comment(replyto, title, msg, topicId, 0, request.getHeader("user-agent"), request.getRemoteAddr());
 

@@ -20,8 +20,6 @@ public class HTMLFormatter {
   private boolean urlHighlight = false;
   private boolean Preformat = false;
   private boolean NewLine = false;
-  private boolean plainTextInput = false;
-  private boolean htmlInput = false;
   private boolean texNewLine = false;
   private boolean quoting = false;
   private String delim = " \n";
@@ -42,17 +40,8 @@ public class HTMLFormatter {
     }
   }
 
-  public String process() throws UtilException {
-    if (htmlInput) {
-      checkHTML();
-    }
-
-    StringTokenizer st;
-    if (plainTextInput) {
-      st = new StringTokenizer(htmlSpecialChars(text), delim, true);
-    } else {
-      st = new StringTokenizer(text, delim, true);
-    }
+  public String process() {
+    StringTokenizer st = new StringTokenizer(htmlSpecialChars(text), delim, true);
 
     StringBuffer sb = new StringBuffer();
 
@@ -100,21 +89,11 @@ public class HTMLFormatter {
     texNewLine = true;
   }
 
-  public void enablePlainTextMode() {
-    plainTextInput = true;
-    htmlInput = false;
-  }
-
-  public void enableCheckHTML() {
-    htmlInput = true;
-    plainTextInput = false;
-  }
-
   public void enableQuoting() {
     quoting = true;
   }
 
-  public static String URLEncoder(String str) {
+  private static String URLEncoder(String str) {
     try {
       StringBuffer buf = new StringBuffer();
       for (int i = 0; i < str.length(); i++) {
@@ -217,7 +196,7 @@ public class HTMLFormatter {
    * converts new line characters in input string to
    * HTML line brake tag
    */
-  public static String nl2br(String text, boolean quoting) {
+  private static String nl2br(String text, boolean quoting) {
     if (!quoting) {
       return nlRE.substituteAll(text, "<br>");
     }
@@ -260,7 +239,7 @@ public class HTMLFormatter {
    * converts double new line characters in input string to
    * HTML paragraph tag
    */
-  public static String texnl2br(String text, boolean quoting) {
+  private static String texnl2br(String text, boolean quoting) {
     if (!quoting) {
       return texnlRE.substituteAll(text, "<p>");
     }
@@ -355,32 +334,6 @@ public class HTMLFormatter {
     return res.toString();
   }
 
-  private static final RE tagRE;
-  private static final RE tagREAnchor;
-
-  static {
-    try {
-      tagRE = new RE("(<p>)|(<br>)|(<li>)", RE.REG_ICASE);
-      tagREAnchor = new RE("(<p>)|(<br>)|(<li>)|(<a +href=\"[^<> \"]+\">[^><]+</a>)", RE.REG_ICASE);
-    } catch (REException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  private void checkHTML() throws UtilBadHTMLException {
-    String str;
-
-    if (!urlHighlight) {
-      str = tagREAnchor.substituteAll(text, "");
-    } else {
-      str = tagRE.substituteAll(text, "");
-    }
-
-    if (str.indexOf('<') != -1 || str.indexOf('>') != -1) {
-      throw new UtilBadHTMLException();
-    }
-  }
-
   /** Разбивает слишком длинный фрагмент в строке на части
    *
    * @param line строка
@@ -389,7 +342,7 @@ public class HTMLFormatter {
    * @param start текущая позиция в строке
    * @return разбитая строка
    */
-  public static String wrapLongLine(String line, int maxlength, String delim, int start)  {
+  private static String wrapLongLine(String line, int maxlength, String delim, int start)  {
     StringBuffer sb = new StringBuffer();
 
     int index = start;

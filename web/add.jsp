@@ -112,7 +112,6 @@
     }
 
     String mode = (String)request.getAttribute("mode");
-    boolean texttype = (Boolean) request.getAttribute("texttype");
     boolean autourl = (Boolean) request.getAttribute("autourl");
 
 %>
@@ -142,10 +141,6 @@
 помещать новости на главную страницу,
 <a href="register.jsp">зарегистрируйтесь</a></font>.
 <p>
-
-<% if (!group.isLineOnly()) { %>
-<font size=2>В HTML режиме можно использовать теги &lt;a&gt; &lt;p&gt; &lt;li&gt; </font>
-<% } %>
 <% } %>
 
 <% if (group.isImagePostAllowed()) { %>
@@ -217,22 +212,12 @@
 <% } else { %>
 <input type=hidden name=mode value=html>
 <% } %>
-
 </select>
 
 <select name=autourl>
 <option value=1 <%= (preview && autourl)?"selected":""%> >Auto URL
 <option value=0 <%= (preview && !autourl)?"selected":""%> >No Auto URL
 </select>
-
-<% if (!group.isLineOnly()) { %>
-<select name=texttype>
-<option value=0 <%= (preview && !texttype)?"selected":""%> >Plain text
-<option value=1 <%= (preview && texttype)?"selected":""%> >HTML (limited)
-</select>
-<% } else { %>
-<input type=hidden name=texttype value=0>
-<% } %>
 
 <%
   if (!Template.isSessionAuthorized(session)) {
