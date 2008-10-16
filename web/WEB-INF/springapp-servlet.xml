@@ -10,6 +10,7 @@
   <bean name="/view-section.jsp" class="ru.org.linux.spring.SectionController"/>
   <bean name="/tags.jsp" class="ru.org.linux.spring.TagsController"/>
   <bean name="/delip.jsp" class="ru.org.linux.spring.DelIPController"/>
+  <bean name="/add.jsp" class="ru.org.linux.spring.AddMessageController"/>
 
   <bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
     <property name="viewClass" value="org.springframework.web.servlet.view.JstlView"></property>

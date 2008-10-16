@@ -50,7 +50,7 @@
           }
 %>
 <title>Добавление сообщения прошло успешно</title>
-<jsp:include page="WEB-INF/jsp/header.jsp"/>
+<jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
 <% if (group.isModerated()) { %>
 Вы поместили сообщение в защищенный раздел. Подождите, пока ваше сообщение проверят.
@@ -117,7 +117,7 @@
 %>
 
 <title>Добавить сообщение</title>
-  <jsp:include page="WEB-INF/jsp/header.jsp"/>
+  <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
 <%	int section=group.getSectionId();
 	if (request.getAttribute("noinfo")==null || !"1".equals(request.getAttribute("noinfo"))) {
@@ -235,4 +235,4 @@
     }
   }
 %>
-<jsp:include page="WEB-INF/jsp/footer.jsp"/>
+<jsp:include page="/WEB-INF/jsp/footer.jsp"/>
