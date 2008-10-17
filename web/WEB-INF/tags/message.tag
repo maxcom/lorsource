@@ -127,7 +127,7 @@
     try {
       int id = Poll.getPollIdByTopic(db, msgid);
       Poll poll = new Poll(db, id);
-      out.append(poll.renderPoll(db, tmpl.getConfig(), tmpl.getProf(), highlight));
+      out.append(poll.renderPoll(db, tmpl.getConfig(), tmpl.getProf(), highlight!=null?highlight:0));
       out.append("<p>&gt;&gt;&gt; <a href=\"").append("vote-vote.jsp?msgid=");
       out.print(msgid);
       out.append("\">Проголосовать</a>");
