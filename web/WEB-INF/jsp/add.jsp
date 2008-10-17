@@ -1,10 +1,6 @@
-<%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8" import="java.sql.Connection,java.util.List"  %>
-<%@ page import="java.util.Random"%>
-<%@ page import="javax.servlet.http.HttpServletResponse"%>
-<%@ page import="org.apache.commons.lang.StringUtils" %>
-<%@ page import="ru.org.linux.site.*" %>
-<%@ page import="ru.org.linux.util.BadURLException" %>
-<%@ page import="ru.org.linux.util.HTMLFormatter" %>
+<%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8" import="java.sql.Connection,org.apache.commons.lang.StringUtils"  %>
+<%@ page import="ru.org.linux.site.*"%>
+<%@ page import="ru.org.linux.util.HTMLFormatter"%>
 <% Template tmpl = Template.getTemplate(request);%>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
@@ -12,96 +8,20 @@
   Connection db = null;
 
   try {
-    boolean showform = request.getMethod().equals("GET");
-    boolean preview = false;
-    Exception error = null;
+    Exception error = (Exception) request.getAttribute("error");
 
-    Message previewMsg = null;
+    Message previewMsg = (Message) request.getAttribute("message");
+    boolean preview = previewMsg!=null;
 
-    if (request.getMethod().equals("POST")) {
-      try {
-        preview = true;
+    db = LorDataSource.getConnection();
 
-        db = LorDataSource.getConnection();
-        db.setAutoCommit(false);
-
-        previewMsg = new Message(db, tmpl, session, request);
-
-        preview = previewMsg.isPreview();
-
-        if (!preview) {
-          int msgid = previewMsg.addTopicFromPreview(db, tmpl, session, request);
-          if (request.getAttribute("tags")!=null) {
-            List<String> tags = Tags.parseTags((String)request.getAttribute("tags"));
-            Tags.updateTags(db, msgid, tags);
-          }
-
-          Group group = new Group(db, previewMsg.getGroupId());
-
-          db.commit();
-
-          Random random = new Random();
-
-          String messageUrl = "view-message.jsp?msgid=" + msgid;
-
-          if (!group.isModerated()) {
-            response.setHeader("Location", tmpl.getMainUrl() + messageUrl + "&nocache=" + random.nextInt());
-            response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
-          }
-%>
-<title>Добавление сообщения прошло успешно</title>
-<jsp:include page="/WEB-INF/jsp/header.jsp"/>
-
-<% if (group.isModerated()) { %>
-Вы поместили сообщение в защищенный раздел. Подождите, пока ваше сообщение проверят.
-<% } %>
-<p>Сообщение помещено успешно
-<% if (group.isModerated()) { %>
-<p>Пожалуйста, проверьте свое сообщение и работоспособность ссылок в нем в <a href="view-all.jsp?nocache=<%= random.nextInt()%>">буфере неподтвержденных сообщений</a>
-<% } %>
-
-<p><a href="<%= tmpl.getMainUrl()+messageUrl %>">Перейти к сообщению</a>
-
-<p><b>Пожалуйста, не нажимайте кнопку "ReLoad" вашего броузера на этой страничке и не возвращайтесь на нее по средством кнопки Back</b>
-<%
-	  } else {
-		showform = true;
-	  }
-    } catch (UserErrorException e) {
-      error=e;
-      showform=true;
-      if (db!=null) {
-        db.rollback();
-      }
-    } catch (UserNotFoundException e) {
-      error=e;
-      showform=true;
-      if (db!=null) {
-        db.rollback();
-      }
-    } catch (BadURLException e) {
-      error=e;
-      showform=true;
-      if (db!=null) {
-        db.rollback();
-      }
-    }
-  }
-
-  if (showform || preview) {
-    if (!preview && previewMsg==null) {
+    if (!preview) {
       try {
         previewMsg = new Message(db,tmpl,session,request);
       } catch (MessageNotFoundException e) { }
     }
 
     Integer groupId = (Integer)request.getAttribute("group");
-
-    if (db==null) {
-      db = LorDataSource.getConnection();
-    }
-
-    db.setAutoCommit(true);
 
     Group group = new Group(db, groupId);
 
@@ -228,7 +148,7 @@
 <input type=submit value="Поместить">
 <input type=submit name=preview value="Предпросмотр">
 </form>
-<%}
+<%
   } finally {
     if (db!=null) {
       db.close();
