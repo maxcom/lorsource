@@ -2,6 +2,7 @@
 
 set -e
 
+ant clean
 ant
 
 echo Copying files...

@@ -315,7 +315,7 @@
 
   if (request.getParameter("highlight") != null) {
 %>
-<lor:message db="<%= db %>" message="<%= message %>" showMenu="true" user="<%= Template.getNick(session) %>" highlight="<%= new ServletParameterParser(request).getInt("highlight")%>"/>
+<lor:message db="<%= db %>" message="<%= message %>" showMenu="true" user="<%= Template.getNick(session) %>" highlight="<%= new ServletParameterParser(request).getInt(&quot;highlight&quot;)%>"/>
 <%
   } else {
 %>
