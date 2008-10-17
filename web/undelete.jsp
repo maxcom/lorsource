@@ -2,6 +2,8 @@
 <%@ page import="java.sql.Connection,java.sql.PreparedStatement,java.sql.ResultSet"  %>
 <%@ page import="java.util.logging.Logger"%>
 <%@ page import="ru.org.linux.site.*" %>
+<%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
+
 <%  Template tmpl = Template.getTemplate(request);  
   Logger logger = Logger.getLogger("ru.org.linux");
 %>
@@ -48,7 +50,7 @@ try {
 <form method=POST action="undelete.jsp">
 <input type=hidden name=msgid value="<%= request.getParameter("msgid") %>">
 <div class=messages>
-<%= message.printMessage(tmpl, db, false, null) %>
+  <lor:message db="<%= db %>" message="<%= message %>" showMenu="false"/> 
 </div>
 <input type=submit name=undel value="Undelete/Восстановить">
 </form>

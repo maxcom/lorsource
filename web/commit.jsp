@@ -7,6 +7,8 @@
 <%@ page import="ru.org.linux.site.*" %>
 <%@ page import="ru.org.linux.util.HTMLFormatter" %>
 <%@ page import="ru.org.linux.util.ServletParameterParser" %>
+<%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
+
 <% Template tmpl = Template.getTemplate(request);
   Logger logger = Logger.getLogger("ru.org.linux");
 %>
@@ -55,9 +57,7 @@
 имеющих права подтверждения сообщений.
 <p>
 <div class=messages>
-
-<%= message.printMessage(tmpl, db, false, Template.getNick(session)) %>
-
+  <lor:message db="<%= db %>" message="<%= message %>" showMenu="false" user="<%= Template.getNick(session) %>"/>
 </div>
 
 <form method=POST action="commit.jsp">

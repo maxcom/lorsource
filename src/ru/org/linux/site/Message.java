@@ -1,7 +1,6 @@
 package ru.org.linux.site;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.*;
 import java.util.Iterator;
@@ -70,7 +69,9 @@ public class Message {
             "LEFT JOIN user_agents ON (user_agents.id=topics.ua_id) " +
             "WHERE topics.id="+msgid
     );
-    if (!rs.next()) throw new MessageNotFoundException(msgid);
+    if (!rs.next()) {
+      throw new MessageNotFoundException(msgid);
+    }
 
     preview =false;
     this.msgid=rs.getInt("msgid");
@@ -412,182 +413,6 @@ public class Message {
     return deleted;
   }
 
-  public String printMessage(Template tmpl, Connection db, boolean showMenu, String user) 
-      throws SQLException, IOException, UserNotFoundException, UtilException {
-    return printMessage(tmpl, db, showMenu, user, 0);
-  }
-  
-  public String printMessage(Template tmpl, Connection db, boolean showMenu, String user, int highlight)
-      throws SQLException, IOException, UserNotFoundException, UtilException {
-    StringBuffer out=new StringBuffer();
-
-    User author = User.getUserCached(db, userid);
-
-    out.append("\n\n<!-- ").append(msgid).append(" -->\n");
-
-    if (showMenu) {
-      out.append("<div class=title>");
-
-      if (!deleted) {
-        out.append("[<a href=\"/view-message.jsp?msgid=").append(msgid).append("\">#</a>]");
-      }
-
-//      if (!isExpired() && !isDeleted())
-//        out.append("[<a href=\"comment-message.jsp?msgid=").append(msgid).append("\">Ответить</a>]");
-
-      if (!isDeleted() && (tmpl.isModeratorSession() || author.getNick().equals(user))) {
-        out.append("[<a href=\"delete.jsp?msgid=").append(msgid).append("\">Удалить</a>]");
-      }
-
-      if (!isDeleted() && tmpl.isModeratorSession()) {
-        if(votepoll)
-	    out.append("[<a href=\"edit-vote.jsp?msgid=").append(msgid).append("\">Править</a>]");
-	else
-    	    out.append("[<a href=\"edit.jsp?msgid=").append(msgid).append("\">Править</a>]");
-        out.append("[<a href=\"setpostscore.jsp?msgid=").append(msgid).append("\">Установить параметры</a>]");
-        out.append("[<a href=\"mt.jsp?msgid=").append(msgid).append("\">Перенести</a>]");
-				if (sectionid==1) {
-					out.append("[<a href=\"mtn.jsp?msgid=").append(msgid).append("\">Группа</a>]");
-				}
-      }
-      if (!isDeleted() && tmpl.isCorrectorSession() && sectionid==1) {
-        out.append("[<a href=\"edit.jsp?msgid=").append(msgid).append("\">Править</a>]");
-      }
-
-      if (tmpl.isModeratorSession()) {
-//        out.append("[<a href=\"sameip.jsp?msgid=").append(msgid).append("\">Другие с этого IP</a>]");
-        out.append("[").append(userAgent).append("]");
-      }
-
-      if (isDeleted()) {
-        Statement rts=db.createStatement();
-        ResultSet rt=rts.executeQuery("SELECT nick,reason FROM del_info,users WHERE msgid="+msgid+" AND users.id=del_info.delby");
-
-        if (!rt.next())
-          out.append("<strong>Сообщение удалено</strong>");
-        else
-          out.append("<strong>Сообщение удалено ").append(rt.getString("nick")).append(" по причине '").append(rt.getString("reason")).append("'</strong>");
-
-        rt.close();
-        rts.close();
-      }
-
-      out.append("&nbsp;</div>");
-    }
-
-    out.append("<div class=msg>");
-
-    boolean tbl = false;
-    if (section.isImagepost()) {
-      out.append("<table><tr><td valign=top align=center>");
-      tbl=true;
-
-      try {
-        ImageInfo info=new ImageInfo(tmpl.getObjectConfig().getHTMLPathPrefix()+linktext);
-        out.append("<a href=\"/").append(url).append("\"><img src=\"/").append(linktext).append("\" ALT=\"").append(title).append("\" ").append(info.getCode()).append(" ></a>");
-      } catch (BadImageException e) {
-        out.append("<a href=\"/").append(url).append("\">[bad image]</a>");
-      } catch (FileNotFoundException e) {
-		out.append("<a href=\"/").append(url).append("\">[no image]</a>");
-	  }
-
-      out.append("</td><td valign=top>");
-    }
-
-    if (!section.isImagepost() && author.getPhoto()!=null) {
-      if (tmpl.getProf().getBoolean("photos")) {
-        out.append("<table><tr><td valign=top align=center>");
-        tbl=true;
-
-        try {
-          ImageInfo info=new ImageInfo(tmpl.getObjectConfig().getHTMLPathPrefix()+"/photos/"+author.getPhoto());
-          out.append("<img src=\"/photos/").append(author.getPhoto()).append("\" alt=\"").append(author.getNick()).append(" (фотография)\" ").append(info.getCode()).append(" >");
-        } catch (BadImageException e) {
-          logger.warning(StringUtil.getStackTrace(e));
-        }
-
-        out.append("</td><td valign=top>");
-      }
-    }
-
-    out.append("<h1><a name=").append(msgid).append('>').append(title).append("</a></h1>");
-
-//    out.append(storage.readMessage("msgbase", String.valueOf(msgid)));
-    if (votepoll) {
-      //Render poll
-      try {
-        int id = Poll.getPollIdByTopic(db, msgid);
-        Poll poll = new Poll(db, id);
-        out.append(poll.renderPoll(db, tmpl.getConfig(), tmpl.getProf(), highlight));
-        out.append("<p>&gt;&gt;&gt; <a href=\"").append("vote-vote.jsp?msgid=").append(msgid).append("\">Проголосовать</a>");
-      } catch (PollNotFoundException e) {
-        out.append("[BAD POLL: not found]");
-      } catch (BadImageException e) {
-        out.append("[BAD POLL: bad image]");
-      }
-    } else {
-      out.append(message);
-    }
-
-    if (url!=null && havelink)
-      out.append("<p>&gt;&gt;&gt; <a href=\"").append(url).append("\">").append(linktext).append("</a>.");
-
-    if (url!=null && section.isImagepost()) {
-      try {
-        ImageInfo info=new ImageInfo(tmpl.getObjectConfig().getHTMLPathPrefix()+url);
-
-        out.append("<p><i>").append(info.getWidth()).append('x').append(info.getHeight()).append(", ").append(info.getSizeString()).append("</i>");
-
-        out.append("<p>&gt;&gt;&gt; <a href=\"/").append(url).append("\">Просмотр</a>.");
-      } catch (BadImageException e) {
-        out.append("<p>&gt;&gt;&gt; <a href=\"/").append(url).append("\">[BAD IMAGE!] Просмотр</a>.");
-      } catch (FileNotFoundException e) {
-        out.append("<p>&gt;&gt;&gt; <a href=\"/").append(url).append("\">[NO IMAGE!] Просмотр</a>.");	  
-	  }
-    }
-
-    if (sectionid==1) {
-      String tagLinks = Tags.getTagLinks(db, msgid);
-
-      if (tagLinks.length()>0) {
-        out.append("<p>Метки: <i>");
-        out.append(tagLinks);
-        out.append("</i>");
-      }
-    }
-
-
-    out.append("<div class=sign>");
-
-    out.append(author.getSignature(tmpl.isModeratorSession(), postdate));
-    if (tmpl.isModeratorSession()) {
-      out.append(" (<a href=\"sameip.jsp?msgid=").append(msgid).append("\">").append(postIP).append("</a>)");
-    }
-
-    if (commitby!=0) {
-      User commiter = User.getUserCached(db, commitby);
-
-      out.append("<br>");
-      out.append(commiter.getCommitInfoLine(postdate, commitDate));
-    }
-
-    out.append("</div>");
-
-    if (!deleted && showMenu) {
-      out.append("<div class=reply>");
-      if (!expired) {
-        out.append("[<a href=\"comment-message.jsp?msgid=").append(msgid).append("\">Ответить на это сообщение</a>] ").append(getPostScoreInfo(postscore));
-      }
-      out.append("</div>");
-    }
-
-
-    if (tbl) out.append("</td></tr></table>");
-    out.append("</div>");
-
-    return out.toString();
-  }
-
   public String getTitle() {
     return title;
   }
@@ -601,8 +426,9 @@ public class Message {
   }
 
   public Timestamp getLastModified() {
-    if (lastModified==null)
+    if (lastModified==null) {
       return new Timestamp(0);
+    }
 
     return lastModified;
   }
@@ -676,8 +502,9 @@ public class Message {
     try {
       ResultSet rs = pst.executeQuery();
 
-      if (!rs.next())
+      if (!rs.next()) {
         return null;
+      }
 
       return new Message(db, rs.getInt("msgid"));
     } catch (MessageNotFoundException e) {
@@ -713,8 +540,9 @@ public class Message {
     try {
       ResultSet rs = pst.executeQuery();
 
-      if (!rs.next())
+      if (!rs.next()) {
         return null;
+      }
 
       return new Message(db, rs.getInt("msgid"));
     } catch (MessageNotFoundException e) {
@@ -794,7 +622,9 @@ public class Message {
 
     String msg = request.getParameter("msg");
     String vmsg = (String)request.getAttribute("msg");
-    if (msg == null && vmsg != null && vmsg.length()>0) msg = vmsg;
+    if (msg == null && vmsg != null && vmsg.length()>0) {
+      msg = vmsg;
+    }
     request.setAttribute("msg", null);
 
     boolean autourl = new ServletParameterParser(request).getBoolean("autourl");
@@ -1076,11 +906,39 @@ public class Message {
     return tags;
   }
 
-  public boolean containsLink() {
+  public boolean isHaveLink() {
     return havelink;
   }
 
   public int getId() {
     return msgid;
+  }
+
+  public String getUserAgent() {
+    return userAgent;
+  }
+
+  public Section getSection() {
+    return section;
+  }
+
+  public String getMessage() {
+    return message;
+  }
+
+  public Timestamp getPostdate() {
+    return postdate;
+  }
+
+  public String getPostIP() {
+    return postIP;
+  }
+
+  public int getCommitby() {
+    return commitby;
+  }
+
+  public Timestamp getCommitDate() {
+    return commitDate;
   }
 }

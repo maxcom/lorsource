@@ -122,7 +122,7 @@
   <textarea name="newmsg" cols="70" rows="20"><%= cText %></textarea>
   <br><br>
   Текст ссылки :
-  <% if (message.containsLink()) {
+  <% if (message.isHaveLink()) {
     out.print("<input type=\"text\" name=\"url_text\" size=\"78\" value=\"" + sURLtitle + "\">\n");
   } else {
     out.print("<input type=\"text\" name=\"url_text\" size=\"78\" value='" + sURLtitle + "' readonly style=\"background:#979797;color:#79787e;\">\n");
@@ -130,7 +130,7 @@
   %>
   <br>
   Ссылка :
-  <% if (message.containsLink()) {
+  <% if (message.isHaveLink()) {
     out.print("<input type=\"text\" name=\"url\" size=\"84\" value=\"" + sURL + "\">\n");
   } else {
     out.print("<input type=\"text\" name=\"url\" size=\"84\" value='" + sURL + "' readonly style=\"background:#979797;color:#79787e;\">\n");

@@ -2,6 +2,7 @@
 <%@ page import="java.sql.Connection,javax.servlet.http.HttpServletResponse,ru.org.linux.site.*,ru.org.linux.util.ServletParameterParser,ru.org.linux.util.StringUtil"   buffer="200kb"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
+<%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <% Template tmpl = Template.getTemplate(request); %>
 <jsp:include page="WEB-INF/jsp/head.jsp"/>
 
@@ -313,9 +314,13 @@
   }
 
   if (request.getParameter("highlight") != null) {
-    out.print(message.printMessage(tmpl, db, true, Template.getNick(session), new ServletParameterParser(request).getInt("highlight")));
+%>
+<lor:message db="<%= db %>" message="<%= message %>" showMenu="true" user="<%= Template.getNick(session) %>" highlight="<%= new ServletParameterParser(request).getInt("highlight")%>"/>
+<%
   } else {
-    out.print(message.printMessage(tmpl, db, true, Template.getNick(session)));
+%>
+<lor:message db="<%= db %>" message="<%= message %>" showMenu="true" user="<%= Template.getNick(session) %>"/>
+<%
   }
 %>
 

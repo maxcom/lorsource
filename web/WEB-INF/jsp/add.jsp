@@ -3,6 +3,7 @@
 <%@ page import="ru.org.linux.util.HTMLFormatter"%>
 <% Template tmpl = Template.getTemplate(request);%>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
+<%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 
 <%
   Connection db = null;
@@ -47,9 +48,7 @@
 <% if (preview && previewMsg!=null) { %>
 <h1>Предпросмотр</h1>
 <div class=messages>
-<%
-    out.print(previewMsg.printMessage(tmpl, db, false, Template.getNick(session), 0));
-%>
+  <lor:message db="<%= db %>" message="<%= previewMsg %>" showMenu="false" user="<%= Template.getNick(session) %>"/>
 </div>
 <% } %>
 <% if (error==null) { %>
@@ -125,7 +124,6 @@
 <option value=tex <%= (preview && mode.equals("tex"))?"selected":""%> >TeX paragraphs
 <option value=ntobr <%= (preview && mode.equals("ntobr"))?"selected":""%> >User line break
 <% } %>
-<option value=html <%= (preview && mode.equals("html"))?"selected":""%> >Ignore line breaks
 <% if (group.isPreformatAllowed()) { %>
 <option value=pre <%= (preview && mode.equals("pre"))?"selected":""%> >Preformatted text
 <% } %>

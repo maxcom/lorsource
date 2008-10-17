@@ -1,7 +1,12 @@
 <%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
-<%@ page import="java.sql.Connection,ru.org.linux.site.AccessViolationException,ru.org.linux.site.LorDataSource,ru.org.linux.site.Message,ru.org.linux.site.Template"   buffer="200kb"%>
+<%@ page import="java.sql.Connection"   buffer="200kb"%>
+<%@ page import="ru.org.linux.site.AccessViolationException" %>
+<%@ page import="ru.org.linux.site.LorDataSource" %>
+<%@ page import="ru.org.linux.site.Message" %>
+<%@ page import="ru.org.linux.site.Template" %>
 <%@ page import="ru.org.linux.util.HTMLFormatter" %>
 <%@ page import="ru.org.linux.util.ServletParameterParser" %>
+<%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <% Template tmpl = Template.getTemplate(request); %>
 <jsp:include page="WEB-INF/jsp/head.jsp"/>
 
@@ -31,10 +36,7 @@
 %>
 <jsp:include page="WEB-INF/jsp/header.jsp"/>
 <div class=messages>
-
-<%
-   out.print(message.printMessage(tmpl, db, true, Template.getNick(session)));
-%>
+  <lor:message db="<%= db %>" message="<%= message %>" showMenu="true" user="<%= Template.getNick(session) %>"/>
 </div>
 
 <% if (message.isCommentEnabled()) { %>
