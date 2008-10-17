@@ -64,10 +64,6 @@
       out.append("\">Править</a>]");
     }
 
-    if (tmpl.isModeratorSession()) {
-      out.append("[").append(message.getUserAgent()).append("]");
-    }
-
     if (message.isDeleted()) {
       Statement rts = db.createStatement();
       ResultSet rt = rts.executeQuery("SELECT nick,reason FROM del_info,users WHERE msgid=" + msgid + " AND users.id=del_info.delby");
@@ -195,6 +191,13 @@
     out.append(commiter.getCommitInfoLine(message.getPostdate(), message.getCommitDate()));
   }
 
+  if (showMenu) {
+    if (tmpl.isModeratorSession()) {
+      out.append("<br>");
+      out.append(message.getUserAgent());
+    }
+  }
+
   out.append("</div>");
 
   if (!message.isDeleted() && showMenu) {
@@ -206,7 +209,6 @@
     }
     out.append("</div>");
   }
-
 
   if (tbl) {
     out.append("</td></tr></table>");

@@ -36,7 +36,7 @@
 %>
 <jsp:include page="WEB-INF/jsp/header.jsp"/>
 <div class=messages>
-  <lor:message db="<%= db %>" message="<%= message %>" showMenu="true" user="<%= Template.getNick(session) %>"/>
+  <lor:message db="<%= db %>" message="<%= message %>" showMenu="false" user="<%= Template.getNick(session) %>"/>
 </div>
 
 <% if (message.isCommentEnabled()) { %>
