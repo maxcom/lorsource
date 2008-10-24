@@ -173,7 +173,7 @@
       outbuf.append("[X] ");
     }
 	else if(rs.getBoolean("sticky")) {
-      outbuf.append("<img src=\"img/paper_clip.gif\" alt=\"Прикреплено\" title=\"Прикреплено\"> ");
+      outbuf.append("<img src=\"img/paper_clip.gif\" width=\"15\" height=\"15\" alt=\"Прикреплено\" title=\"Прикреплено\"> ");
     }
 
     int pagesInCurrent = (int) Math.ceil(stat1 / messages);

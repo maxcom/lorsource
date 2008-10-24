@@ -8,7 +8,6 @@
 <%@ page import="org.apache.commons.fileupload.FileItem" %>
 <%@ page import="org.apache.commons.fileupload.disk.DiskFileItemFactory" %>
 <%@ page import="org.apache.commons.fileupload.servlet.ServletFileUpload" %>
-<%@ page import="org.apache.commons.lang.StringUtils" %>
 <%@ page import="ru.org.linux.boxlet.BoxletVectorRunner" %>
 <%@ page import="ru.org.linux.site.*" %>
 <%@ page import="ru.org.linux.storage.StorageNotFoundException" %>
@@ -218,7 +217,7 @@
     if (rs.getBoolean("deleted")) {
       outbuf.append("[X] ");
     } else if (rs.getBoolean("sticky")) {
-      outbuf.append("<img src=\"img/paper_clip.gif\" alt=\"Прикреплено\" title=\"Прикреплено\"> ");
+      outbuf.append("<img src=\"img/paper_clip.gif\" width=\"15\" height=\"15\" alt=\"Прикреплено\" title=\"Прикреплено\"> ");
     }
 
     int pagesInCurrent = (int) Math.ceil(stat1 / messages);
