@@ -1,6 +1,7 @@
 <%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8" import="java.sql.Connection,org.apache.commons.lang.StringUtils"  %>
 <%@ page import="ru.org.linux.site.*"%>
-<%@ page import="ru.org.linux.util.HTMLFormatter"%>
+<%@ page import="ru.org.linux.spring.AddMessageForm"%>
+<%@ page import="ru.org.linux.util.HTMLFormatter" %>
 <% Template tmpl = Template.getTemplate(request);%>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
@@ -9,41 +10,27 @@
   Connection db = null;
 
   try {
+    db = LorDataSource.getConnection();
+    
     Exception error = (Exception) request.getAttribute("error");
-
     Message previewMsg = (Message) request.getAttribute("message");
+    AddMessageForm form = (AddMessageForm) request.getAttribute("form");
+    Group group = (Group) request.getAttribute("group");
+
     boolean preview = previewMsg!=null;
 
-    db = LorDataSource.getConnection();
-
-    if (!preview) {
-      try {
-        previewMsg = new Message(db,tmpl,session,request);
-      } catch (MessageNotFoundException e) { }
-    }
-
-    Integer groupId = (Integer)request.getAttribute("group");
-
-    Group group = new Group(db, groupId);
-
-    User currentUser = User.getCurrentUser(db, session);
-
-    if (!group.isTopicPostingAllowed(currentUser)) {
-      throw new AccessViolationException("Не достаточно прав для постинга тем в эту группу");
-    }
-
-    String mode = (String)request.getAttribute("mode");
-    boolean autourl = (Boolean) request.getAttribute("autourl");
+    String mode = form.getMode();
+    boolean autourl = form.isAutourl();
 
 %>
 
 <title>Добавить сообщение</title>
   <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
-<%	int section=group.getSectionId();
-	if (request.getAttribute("noinfo")==null || !"1".equals(request.getAttribute("noinfo"))) {
-          out.print(tmpl.getObjectConfig().getStorage().readMessageDefault("addportal", String.valueOf(section), ""));
-        }
+<%
+  if (form.getNoinfo() == null || !"1".equals(form.getNoinfo())) {
+    out.print(request.getAttribute("addportal"));
+  }
 %>
 <% if (preview && previewMsg!=null) { %>
 <h1>Предпросмотр</h1>
@@ -74,25 +61,25 @@
 <%   } %>
 <form method=POST action="add.jsp" <%= group.isImagePostAllowed()?"enctype=\"multipart/form-data\"":"" %> >
   <input type="hidden" name="session" value="<%= HTMLFormatter.htmlSpecialChars(session.getId()) %>">
-<%  if (request.getAttribute("noinfo")!=null) {
+<%  if (form.getNoinfo()!=null) {
   %>
-  <input type="hidden" name="noinfo" value="<%= request.getAttribute("noinfo") %>">
+  <input type="hidden" name="noinfo" value="<%= form.getNoinfo() %>">
  <% }
 %>
 <% if (session == null || session.getValue("login") == null || !(Boolean) session.getValue("login")) { %>
 Имя:
-<input type=text name=nick value="<%= request.getAttribute("nick")==null?"anonymous":HTMLFormatter.htmlSpecialChars((String)request.getAttribute("nick")) %>" size=40><br>
+<input type=text name=nick value="<%= form.getNick()==null?"anonymous":HTMLFormatter.htmlSpecialChars(form.getNick()) %>" size=40><br>
 Пароль:
 <input type=password name=password size=40><br>
 <% } %>
-<input type=hidden name=group value="<%= groupId %>">
+<input type=hidden name=group value="<%= form.getGuid() %>">
 
-<% if (request.getAttribute("return")!=null) { %>
-<input type=hidden name=return value="<%= HTMLFormatter.htmlSpecialChars((String)request.getAttribute("return")) %>">
+<% if (form.getReturnUrl()!=null) { %>
+<input type=hidden name=return value="<%= HTMLFormatter.htmlSpecialChars(form.getReturnUrl()) %>">
 <% } %>
 
 Заглавие:
-<input type=text name=title size=40 value="<%= request.getAttribute("title")==null?"":HTMLFormatter.htmlSpecialChars((String)request.getAttribute("title")) %>" ><br>
+<input type=text name=title size=40 value="<%= form.getTitle()==null?"":HTMLFormatter.htmlSpecialChars(form.getTitle()) %>" ><br>
 
   <% if (group.isImagePostAllowed()) { %>
   Изображение:
@@ -102,20 +89,20 @@
 Сообщение:<br>
 <font size=2>(В режиме <i>Tex paragraphs</i> игнорируются переносы строк.<br> Пустая строка (два раза Enter) начинает новый абзац)</font><br>
 <textarea name=msg cols=70 rows=20><%
-    if (request.getAttribute("msg")!=null) {
-      out.print(HTMLFormatter.htmlSpecialChars((String)request.getAttribute("msg")));
+    if (form.getMsg()!=null) {
+      out.print(HTMLFormatter.htmlSpecialChars(form.getMsg()));
     }
   %></textarea><br>
 
 <% if (group.isLinksAllowed()) { %>
 Текст ссылки:
-<input type=text name=linktext size=60 value="<%= request.getAttribute("linktext")==null?group.getDefaultLinkText():HTMLFormatter.htmlSpecialChars((String)request.getAttribute("linktext")) %>"><br>
+<input type=text name=linktext size=60 value="<%= form.getLinktext()==null?group.getDefaultLinkText():HTMLFormatter.htmlSpecialChars(form.getLinktext()) %>"><br>
 Ссылка (не забудьте <b>http://</b>)
-<input type=text name=url size=70 value="<%= request.getAttribute("url")==null?"":HTMLFormatter.htmlSpecialChars((String)request.getAttribute("url")) %>"><br>
+<input type=text name=url size=70 value="<%= form.getUrl()==null?"":HTMLFormatter.htmlSpecialChars(form.getUrl()) %>"><br>
 <% } %>
 <% if (group.getSectionId()==1) { %>
 Метки (разделенные запятой) 
-<input type=text name=tags id="tags" size=70 value="<%= request.getAttribute("tags")==null?"":StringUtils.strip((String)request.getAttribute("tags")) %>"><br>
+<input type=text name=tags id="tags" size=70 value="<%= form.getTags()==null?"":StringUtils.strip(form.getTags()) %>"><br>
   Популярные теги: <%= Tags.getEditTags(Tags.getTopTags(db)) %> <br>
 <% } %>
 <% if (!group.isLineOnly() || group.isPreformatAllowed()) {%>

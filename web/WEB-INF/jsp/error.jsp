@@ -46,6 +46,9 @@
 Скрипту, генерирующему страничку были переданы некорректные
 параметры. Если на эту страничку вас привела одна из
 страниц нашего сайта, пожалуйста сообщите нам адреса текущей и ссылающейся страниц.
+<%
+  logger.fine(exception.toString()+": "+StringUtil.getStackTrace(exception));
+%>
 <% } else { %>
 
 К сожалению, произошла исключительная ситуация при генерации страницы.
@@ -100,8 +103,9 @@
     out.println("<b>Произошла непредвиденая ошибка. Администраторы получили об этом сигнал.</b>");
   } catch(Exception e) {
     out.println("<b>Произошла непредвиденая ошибка. К сожалению сервер временно не принимает сообщения об ошибках.</b>");
+  } finally {
+    logger.severe(exception.toString()+": "+StringUtil.getStackTrace(exception));
   }
-  logger.severe(exception.toString()+": "+StringUtil.getStackTrace(exception));
 %>
 <% } %>
 
