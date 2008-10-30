@@ -6,6 +6,8 @@ import java.sql.*;
 import java.util.Date;
 import java.util.Properties;
 
+import org.javabb.bbcode.BBCodeProcessor;
+
 import ru.org.linux.util.*;
 
 public class NewsViewer implements Viewer {
@@ -38,6 +40,7 @@ public class NewsViewer implements Viewer {
     String image = res.getString("image");
     Timestamp lastmod = res.getTimestamp("lastmod");
     String messageText = res.getString("message");
+    boolean lorcode = res.getBoolean("bbcode");
     boolean expired = res.getBoolean("expired");
 
     if (lastmod == null) {
@@ -83,7 +86,12 @@ public class NewsViewer implements Viewer {
     out.append("<div class=msg>\n");
 
     if (!votepoll) {
-      out.append(messageText);
+      if (lorcode) {
+        BBCodeProcessor proc = new BBCodeProcessor();
+        out.append(proc.preparePostText(db, messageText));
+      } else {
+        out.append(messageText);
+      }
     }
 
     if (url != null && !imagepost && !votepoll && !linkup) {
@@ -266,7 +274,7 @@ public class NewsViewer implements Viewer {
         "SELECT topics.title as subj, topics.lastmod, topics.stat1, postdate, nick, image, " +
             "groups.title as gtitle, topics.id as msgid, sections.comment, groups.id as guid, " +
             "topics.url, topics.linktext, imagepost, vote, sections.name as pname, linkup, " +
-            "postdate<(CURRENT_TIMESTAMP-expire) as expired, message, sections.id as section, NOT topics.sticky AS ssticky " +
+            "postdate<(CURRENT_TIMESTAMP-expire) as expired, message, bbcode, sections.id as section, NOT topics.sticky AS ssticky " +
             "FROM topics,groups,users,sections,msgbase " +
             "WHERE " + where.toString()+" " +
             "ORDER BY ssticky,commitdate DESC, msgid DESC "+limit

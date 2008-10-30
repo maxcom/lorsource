@@ -14,7 +14,7 @@ import org.apache.commons.codec.binary.Base64;
 import ru.org.linux.util.StringUtil;
 
 public class User implements Serializable {
-  public static final int ANONYMOUS_LEVEL_SCORE = 50;
+  private static final int ANONYMOUS_LEVEL_SCORE = 50;
 
   private String nick;
   private final int id;
@@ -31,10 +31,10 @@ public class User implements Serializable {
   private final boolean activated;
   public static final int CORRECTOR_SCORE = 100;
   private static final int BLOCK_SCORE = 400;
-  public static final int IGNORE_PENALTI_THRESHOLD = 100;
 
-  public static final int IGNORE_PENALTI_SCORE = 10;
   private static final int CACHE_MILLIS = 300*1000;
+
+  public static final int LORCODE_SCORE = 200;
 
   private User(Connection con, String name) throws SQLException, UserNotFoundException {
     if (name == null) {

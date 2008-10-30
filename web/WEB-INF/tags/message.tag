@@ -6,6 +6,7 @@
 <%@ tag import="javax.servlet.http.HttpServletResponse" %>
 <%@ tag import="org.apache.commons.lang.StringUtils" %>
 <%@ tag import="ru.org.linux.site.*" %>
+<%@ tag import="ru.org.linux.spring.AddMessageForm" %>
 <%@ tag import="ru.org.linux.util.*" %>
 <%@ tag pageEncoding="UTF-8"%>
 <%@ attribute name="db" required="true" type="java.sql.Connection" %>
@@ -137,7 +138,7 @@
       out.append("[BAD POLL: bad image]");
     }
   } else {
-    out.append(message.getMessage());
+    out.append(message.getProcessedMessage(db));
   }
 
   if (message.getUrl() != null && message.isHaveLink()) {
@@ -205,7 +206,7 @@
     if (!message.isExpired()) {
       out.append("[<a href=\"comment-message.jsp?msgid=");
       out.print(msgid);
-      out.append("\">Ответить на это сообщение</a>] ").append(message.getPostScoreInfo(message.getPostScore()));
+      out.append("\">Ответить на это сообщение</a>] ").append(Message.getPostScoreInfo(message.getPostScore()));
     }
     out.append("</div>");
   }

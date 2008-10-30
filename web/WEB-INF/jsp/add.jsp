@@ -17,6 +17,8 @@
     AddMessageForm form = (AddMessageForm) request.getAttribute("form");
     Group group = (Group) request.getAttribute("group");
 
+    User user = User.getCurrentUser(db, session);
+
     boolean preview = previewMsg!=null;
 
     String mode = form.getMode();
@@ -66,7 +68,7 @@
   <input type="hidden" name="noinfo" value="<%= form.getNoinfo() %>">
  <% }
 %>
-<% if (session == null || session.getValue("login") == null || !(Boolean) session.getValue("login")) { %>
+<% if (!tmpl.isSessionAuthorized()) { %>
 Имя:
 <input type=text name=nick value="<%= form.getNick()==null?"anonymous":HTMLFormatter.htmlSpecialChars(form.getNick()) %>" size=40><br>
 Пароль:
@@ -88,6 +90,9 @@
 
 Сообщение:<br>
 <font size=2>(В режиме <i>Tex paragraphs</i> игнорируются переносы строк.<br> Пустая строка (два раза Enter) начинает новый абзац)</font><br>
+  <% if (user!=null && user.getScore()>=User.LORCODE_SCORE) { %>
+    <font size="2"><b>Внимание:</b> Новый экспериментальный режим - <a href="/wiki/en/Lorcode">LORCODE</a></font><br>
+  <% } %>
 <textarea name=msg cols=70 rows=20><%
     if (form.getMsg()!=null) {
       out.print(HTMLFormatter.htmlSpecialChars(form.getMsg()));
@@ -105,17 +110,14 @@
 <input type=text name=tags id="tags" size=70 value="<%= form.getTags()==null?"":StringUtils.strip(form.getTags()) %>"><br>
   Популярные теги: <%= Tags.getEditTags(Tags.getTopTags(db)) %> <br>
 <% } %>
-<% if (!group.isLineOnly() || group.isPreformatAllowed()) {%>
 <select name=mode>
-<% if (!group.isLineOnly()) { %>
 <option value=tex <%= (preview && mode.equals("tex"))?"selected":""%> >TeX paragraphs
 <option value=ntobr <%= (preview && mode.equals("ntobr"))?"selected":""%> >User line break
+<% if (user!=null && user.getScore()>=User.LORCODE_SCORE) { %>
+<option value=lorcode <%= (preview && mode.equals("lorcode"))?"selected":""%> >LORCODE
 <% } %>
 <% if (group.isPreformatAllowed()) { %>
 <option value=pre <%= (preview && mode.equals("pre"))?"selected":""%> >Preformatted text
-<% } %>
-<% } else { %>
-<input type=hidden name=mode value=html>
 <% } %>
 </select>
 

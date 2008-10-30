@@ -34,7 +34,7 @@
       throw new AccessViolationException("это сообщение нельзя править");
     }
 
-    String cText = message.getMessageText();
+    String cText = message.getMessage();
 
     boolean debugme = false;
 

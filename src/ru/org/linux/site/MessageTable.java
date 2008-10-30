@@ -6,6 +6,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.ListIterator;
 
+import org.javabb.bbcode.BBCodeProcessor;
+
 import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.HTMLFormatter;
 import ru.org.linux.util.ImageInfo;
@@ -95,7 +97,7 @@ public class MessageTable {
         "SELECT topics.title as subj, topics.lastmod, topics.stat1, postdate, nick, image, " +
             "groups.title as gtitle, topics.id as msgid, sections.comment, sections.vote, " +
             "groups.id as guid, topics.url, topics.linktext, imagepost, linkup, " +
-            "postdate<(CURRENT_TIMESTAMP-expire) as expired, message " +
+            "postdate<(CURRENT_TIMESTAMP-expire) as expired, message, bbcode " +
             "FROM topics,groups, users, sections, msgbase " +
             "WHERE sections.id=groups.section AND topics.id=msgbase.id " +
             "AND sections.id=" + sectionid + " AND (topics.moderate OR NOT sections.moderate) " +
@@ -125,7 +127,14 @@ public class MessageTable {
           out.append("  <title>").append(HTMLFormatter.htmlSpecialChars(subj)).append("</title>\n");
 
           out.append("  <description>\n" + "\t");
-          out.append(HTMLFormatter.htmlSpecialChars(rs.getString("message")));
+          String message = rs.getString("message");
+          boolean bbcode = rs.getBoolean("bbcode");
+          if (bbcode) {
+            BBCodeProcessor proc = new BBCodeProcessor();
+            out.append(HTMLFormatter.htmlSpecialChars(proc.preparePostText(db, message)));
+          } else {
+            out.append(HTMLFormatter.htmlSpecialChars(message));
+          }
           out.append(HTMLFormatter.htmlSpecialChars("<p><img src=\""+fullUrl+linktext+"\" ALT=\""+subj+"\" "+iconInfo.getCode()+" >"));
           out.append(HTMLFormatter.htmlSpecialChars("<p><i>"+info.getWidth()+'x'+info.getHeight()+", "+info.getSizeString()+"</i>"));
           out.append("</description>\n");
@@ -160,7 +169,16 @@ public class MessageTable {
         out.append("  <link>http://www.linux.org.ru/jump-message.jsp?msgid=").append(msgid).append("</link>\n");
         out.append("  <guid>http://www.linux.org.ru/jump-message.jsp?msgid=").append(msgid).append("</guid>\n");
         out.append("  <pubDate>").append(Template.RFC822.format(rs.getTimestamp("postdate"))).append("</pubDate>\n");
-        out.append("  <description>\n" + "\t").append(HTMLFormatter.htmlSpecialChars(rs.getString("message"))).append("</description>\n");
+        out.append("  <description>\n" + "\t");
+        String message = rs.getString("message");
+        boolean bbcode = rs.getBoolean("bbcode");
+        if (bbcode) {
+          BBCodeProcessor proc = new BBCodeProcessor();
+          out.append(HTMLFormatter.htmlSpecialChars(proc.preparePostText(db, message)));
+        } else {
+          out.append(HTMLFormatter.htmlSpecialChars(message));
+        }
+        out.append("</description>\n");
         out.append("</item>");
       }
     }
@@ -203,7 +221,7 @@ public class MessageTable {
         ImageInfo iconInfo = new ImageInfo(htmlPath + linktext);
         ImageInfo info = new ImageInfo(htmlPath + url);
 
-        buf.append(HTMLFormatter.htmlSpecialChars(topic.getMessageText()));
+        buf.append(HTMLFormatter.htmlSpecialChars(topic.getProcessedMessage(db)));
         buf.append(HTMLFormatter.htmlSpecialChars("<p><img src=\"" + fullUrl + linktext + "\" ALT=\"" + subj + "\" " + iconInfo.getCode() + " >"));
         buf.append(HTMLFormatter.htmlSpecialChars("<p><i>" + info.getWidth() + 'x' + info.getHeight() + ", " + info.getSizeString() + "</i>"));
       } catch (BadImageException e) {
@@ -223,7 +241,7 @@ public class MessageTable {
         }
       }
     } else {
-      buf.append("<description>").append(HTMLFormatter.htmlSpecialChars(topic.getMessageText()));
+      buf.append("<description>").append(HTMLFormatter.htmlSpecialChars(topic.getProcessedMessage(db)));
     }
     buf.append("</description>\n");
 

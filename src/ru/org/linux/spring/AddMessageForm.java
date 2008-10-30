@@ -260,9 +260,6 @@ public class AddMessageForm {
     if ("pre".equals(mode) && !group.isPreformatAllowed()) {
       throw new AccessViolationException("В группу нельзя добавлять преформатированные сообщения");
     }
-    if (("ntobrq".equals(mode) || "ntobr".equals(mode) || "tex".equals(mode) || "quot".equals(mode)) && group.isLineOnly()) {
-      throw new AccessViolationException("В группу нельзя добавлять сообщения с переносом строк");
-    }
 
     String message = processMessage(group);
 
@@ -327,39 +324,47 @@ public class AddMessageForm {
       }
     }
 
+    if ("lorcode".equals(mode) && user.getScore()<User.LORCODE_SCORE) {
+      throw new AccessViolationException("Lorcode forbidden");
+    }
+
     return user;
   }
 
   public String processMessage(Group group) {
-    if (msg==null) {
+    if (msg == null) {
       return "";
     }
 
-    // Format message
-    HTMLFormatter formatter = new HTMLFormatter(msg);
-    int maxlength = 80;
-    if (group.getSectionId() == 1) {
-      maxlength = 40;
-    }
-    formatter.setMaxLength(maxlength);
+    if ("lorcode".equals(mode)) {
+      return msg;
+    } else {
+      // Format message
+      HTMLFormatter formatter = new HTMLFormatter(msg);
+      int maxlength = 80;
+      if (group.getSectionId() == 1) {
+        maxlength = 40;
+      }
+      formatter.setMaxLength(maxlength);
 
-    if ("pre".equals(mode)) {
-      formatter.enablePreformatMode();
-    }
-    if (autourl) {
-      formatter.enableUrlHighLightMode();
-    }
-    if ("ntobrq".equals(mode)) {
-      formatter.enableNewLineMode();
-    }
-    if ("ntobr".equals(mode)) {
-      formatter.enableNewLineMode();
-    }
-    if ("tex".equals(mode)) {
-      formatter.enableTexNewLineMode();
-    }
+      if ("pre".equals(mode)) {
+        formatter.enablePreformatMode();
+      }
+      if (autourl) {
+        formatter.enableUrlHighLightMode();
+      }
+      if ("ntobrq".equals(mode)) {
+        formatter.enableNewLineMode();
+      }
+      if ("ntobr".equals(mode)) {
+        formatter.enableNewLineMode();
+      }
+      if ("tex".equals(mode)) {
+        formatter.enableTexNewLineMode();
+      }
 
-    return formatter.process();
+      return formatter.process();
+    }
   }
 
   public String getUserAgent() {

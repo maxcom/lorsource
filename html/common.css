@@ -141,4 +141,19 @@ DIV.boxlet {
   width: 238px;   
 }
 
+div.quote {
+  border: 1px dotted;
+  margin-bottom: 1em;
+}
 
+div.quote h3 {
+  margin-top: 0;
+  margin-bottom: 0;
+  font-size: medium;
+}
+
+div.code {
+  border: 1px dotted;
+  margin-bottom: 1em;
+  font-family: monospace;
+}

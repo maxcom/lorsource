@@ -5,6 +5,7 @@ import java.sql.*;
 import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
+import org.javabb.bbcode.BBCodeProcessor;
 
 import ru.org.linux.spring.AddMessageForm;
 import ru.org.linux.util.*;
@@ -39,6 +40,7 @@ public class Message {
   private final boolean notop;
   private final String userAgent;
   private final String postIP;
+  private final boolean lorcode;
 
   private final Section section;
 
@@ -51,7 +53,7 @@ public class Message {
             "topics.groupid as guid, topics.url, topics.linktext, user_agents.name as useragent, " +
             "groups.title as gtitle, vote, havelink, section, topics.sticky, topics.postip, " +
             "postdate<(CURRENT_TIMESTAMP-sections.expire) as expired, deleted, lastmod, commitby, " +
-            "commitdate, topics.stat1, postscore, topics.moderate, message, notop " +
+            "commitdate, topics.stat1, postscore, topics.moderate, message, notop,bbcode " +
             "FROM topics " +
             "INNER JOIN users ON (users.id=topics.userid) " +
             "INNER JOIN groups ON (groups.id=topics.groupid) " +
@@ -91,6 +93,7 @@ public class Message {
     notop = rs.getBoolean("notop");
     userAgent = rs.getString("useragent");
     postIP = rs.getString("postip");
+    lorcode = rs.getBoolean("bbcode");
 
     rs.close();
     st.close();
@@ -149,6 +152,7 @@ public class Message {
     moderate = false;
     notop = false;
     userid = user.getId();
+    lorcode = "lorcode".equals(form.getMode());
 
     message = form.processMessage(group);
 
@@ -318,10 +322,6 @@ public class Message {
     return (int) Math.ceil(commentCount/((double) messages));
   }
 
-  public String getMessageText() {
-    return message;
-  }
-
   public boolean isVotePoll() {
     return votepoll;
   }
@@ -388,9 +388,10 @@ public class Message {
     pst.close();
 
     // insert message text
-    PreparedStatement pstMsgbase = db.prepareStatement("INSERT INTO msgbase (id, message) values (?,?)");
+    PreparedStatement pstMsgbase = db.prepareStatement("INSERT INTO msgbase (id, message, bbcode) values (?,?, ?)");
     pstMsgbase.setLong(1, msgid);
     pstMsgbase.setString(2, message);
+    pstMsgbase.setBoolean(3, lorcode);
     pstMsgbase.executeUpdate();
     pstMsgbase.close();
 
@@ -491,6 +492,15 @@ public class Message {
     return message;
   }
 
+  public String getProcessedMessage(Connection db) throws SQLException {
+    if (lorcode) {
+      BBCodeProcessor proc = new BBCodeProcessor();
+      return proc.preparePostText(db, message);      
+    } else {
+      return message;
+    }
+  }
+
   public Timestamp getPostdate() {
     return postdate;
   }
@@ -505,5 +515,9 @@ public class Message {
 
   public Timestamp getCommitDate() {
     return commitDate;
+  }
+
+  public boolean isLorcode() {
+    return lorcode;
   }
 }
