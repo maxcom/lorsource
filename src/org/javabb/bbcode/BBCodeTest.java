@@ -9,7 +9,7 @@ import ru.org.linux.util.BadURLException;
 
 public class BBCodeTest {
   private static final String LINE_BREAK_TEST = "test\ntest\n\ntest";
-  private static final String LINE_BREAK_RESULT = "test\ntest<br>test";
+  private static final String LINE_BREAK_RESULT = "test\ntest<p>test";
   
   private static final String TAG_ESCAPE_TEST = "<br>";
   private static final String TAG_ESCAPE_RESULT = "&lt;br&gt;";
