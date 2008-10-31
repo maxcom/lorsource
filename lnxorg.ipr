@@ -332,6 +332,26 @@
         <inspection_tool class="CastToIncompatibleInterface" level="WARNING" enabled="true" />
         <inspection_tool class="InstanceofIncompatibleInterface" level="WARNING" enabled="true" />
         <inspection_tool class="ComparableImplementedButEqualsNotOverridden" level="WARNING" enabled="true" />
+        <inspection_tool class="DeclareCollectionAsInterface" level="WARNING" enabled="true">
+          <option name="ignoreLocalVariables" value="false" />
+          <option name="ignorePrivateMethodsAndFields" value="false" />
+        </inspection_tool>
+        <inspection_tool class="UnnecessarilyQualifiedStaticUsage" level="WARNING" enabled="true">
+          <option name="m_ignoreStaticFieldAccesses" value="false" />
+          <option name="m_ignoreStaticMethodCalls" value="false" />
+          <option name="m_ignoreStaticAccessFromStaticContext" value="false" />
+        </inspection_tool>
+        <inspection_tool class="LengthOneStringsInConcatenation" level="WARNING" enabled="true" />
+        <inspection_tool class="LengthOneStringInIndexOf" level="WARNING" enabled="true" />
+        <inspection_tool class="StringReplaceableByStringBuffer" level="WARNING" enabled="true" />
+        <inspection_tool class="StringBufferReplaceableByString" level="WARNING" enabled="true" />
+        <inspection_tool class="TrivialStringConcatenation" level="WARNING" enabled="true" />
+        <inspection_tool class="StringBufferReplaceableByStringBuilder" level="WARNING" enabled="true" />
+        <inspection_tool class="StringEqualsEmptyString" level="WARNING" enabled="true" />
+        <inspection_tool class="StringBufferToStringInConcatenation" level="WARNING" enabled="true" />
+        <inspection_tool class="StringConcatenationInLoops" level="WARNING" enabled="true">
+          <option name="m_ignoreUnlessAssigned" value="false" />
+        </inspection_tool>
       </profile>
     </profiles>
     <list size="4">

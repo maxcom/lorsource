@@ -23,7 +23,7 @@ public class Tags{
     }
   }                          
   
-  private final ArrayList<String> tags;
+  private final List<String> tags;
   private static final int TOP_TAGS_COUNT = 50;
 
   private static synchronized int getOrCreateTag(Connection con, String tag) throws SQLException {
@@ -54,7 +54,7 @@ public class Tags{
   private Tags(Connection con, int msgid) throws SQLException {
     tags = new ArrayList<String>();
     
-    PreparedStatement st = con.prepareStatement("SELECT tags_values.value FROM tags, tags_values WHERE tags.msgid=? AND tags_values.id=tags.tagid");
+    PreparedStatement st = con.prepareStatement("SELECT tags_values.value FROM tags, tags_values WHERE tags.msgid=? AND tags_values.id=tags.tagid ORDER BY value");
     st.setInt(1, msgid);
 
     ResultSet rs = st.executeQuery();
@@ -65,6 +65,7 @@ public class Tags{
     st.close();
   }
 
+  @Override
   public String toString() {
     if (tags==null || tags.isEmpty()) {
       return "";
@@ -78,7 +79,7 @@ public class Tags{
     return str;
   }
 
-  public ArrayList<String> getTags() {
+  public List<String> getTags() {
     return tags;
   }
 
@@ -95,8 +96,8 @@ public class Tags{
   }
 
   public static Map<String,Integer> getAllTags(Connection con) throws SQLException {
-    Map<String,Integer> map = new Hashtable<String,Integer>();
-    PreparedStatement st = con.prepareStatement("SELECT counter,value FROM tags_values ORDER BY value");
+    Map<String,Integer> map = new TreeMap<String,Integer>();
+    PreparedStatement st = con.prepareStatement("SELECT counter,value FROM tags_values WHERE counter>0");
     ResultSet rs = st.executeQuery();
 
     while (rs.next()) {
@@ -106,14 +107,14 @@ public class Tags{
     return map;
   }
 
-  public static ArrayList<String> getMessageTags(Connection con, int msgid) throws SQLException {
+  public static List<String> getMessageTags(Connection con, int msgid) throws SQLException {
     return new Tags(con, msgid).getTags();
   }
 
   public static void checkTag(String tag) throws UserErrorException {
     // обработка тега: только буквы/цифры/пробелы, никаких спецсимволов, запятых, амперсандов и <>
     if (!tagRE.isMatch(tag)) {
-      throw new UserErrorException("Invalid tag: '"+tag+"'");
+      throw new UserErrorException("Invalid tag: '"+tag+ '\'');
     }
   }
 
@@ -187,7 +188,7 @@ public class Tags{
   }
 
   public static void updateTags(Connection con, int msgid, List<String> tagList) throws SQLException {
-    List<String> oldTags = Tags.getMessageTags(con, msgid);
+    List<String> oldTags = getMessageTags(con, msgid);
 
     PreparedStatement insertStatement = con.prepareStatement("INSERT INTO tags VALUES(?,?)");
     PreparedStatement deleteStatement = con.prepareStatement("DELETE FROM tags WHERE msgid=? and tagid=?");
@@ -224,7 +225,7 @@ public class Tags{
   public static String getTagLinks(Connection con, int msgid) throws SQLException {
     StringBuilder buf = new StringBuilder();
     Tags tags = new Tags(con, msgid);
-    ArrayList<String> mtags = tags.getTags();
+    List<String> mtags = tags.getTags();
     if (mtags.isEmpty()) {
       return "";
     }
