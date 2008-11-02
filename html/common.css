@@ -144,6 +144,9 @@ DIV.boxlet {
 div.quote {
   border: 1px dotted;
   margin-bottom: 1em;
+  margin-left: 5em;
+  margin-right: 1em;
+  font-style: italic;  
 }
 
 div.quote h3 {
