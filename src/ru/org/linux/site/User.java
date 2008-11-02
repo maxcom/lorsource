@@ -34,7 +34,7 @@ public class User implements Serializable {
 
   private static final int CACHE_MILLIS = 300*1000;
 
-  public static final int LORCODE_SCORE = 200;
+  public static final int LORCODE_SCORE = 100;
 
   private User(Connection con, String name) throws SQLException, UserNotFoundException {
     if (name == null) {
