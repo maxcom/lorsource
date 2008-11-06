@@ -67,7 +67,7 @@ public class AddMessageController extends AbstractController {
 
           // Captch
           if (!Template.isSessionAuthorized(session)) {
-            CaptchaSingleton.checkCaptcha(session, request);
+            CaptchaSingleton.checkCaptcha(session, form.getCaptchaResponse());
           }
           // Blocked IP
           IPBlockInfo.checkBlockIP(db, request.getRemoteAddr());
