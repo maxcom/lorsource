@@ -150,3 +150,11 @@ DIV.notes
 }
 
 .head-main td { border: 1px solid #808080; padding: 3px; text-align: right; }
+
+.messages .msg {
+  border: 1px solid #000040;
+}
+
+.messages .highLighted {
+    border: red solid 1px;
+}

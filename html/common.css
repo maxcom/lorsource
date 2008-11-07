@@ -116,8 +116,7 @@ DIV.sign {
   padding-bottom: 1em;
 }
 
-.highLighted
-{
+.messages .highLighted {
     border: red solid 1px;
 }
 
