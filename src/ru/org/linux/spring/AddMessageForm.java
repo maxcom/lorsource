@@ -194,7 +194,7 @@ public class AddMessageForm {
           } else if (name.compareToIgnoreCase("mode") == 0) {
             mode = value;
           } else if (name.compareToIgnoreCase("autourl") == 0) {
-            autourl = Boolean.parseBoolean(value);
+            autourl = "1".equals(value);
           } else if (name.compareToIgnoreCase("title") == 0) {
             title = value;
           } else if (name.compareToIgnoreCase("msg") == 0) {
