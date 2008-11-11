@@ -160,3 +160,9 @@ div.code {
   margin-bottom: 1em;
   font-family: monospace;
 }
+
+pre {
+    white-space: pre-wrap; /* Последние Opera, Firefox, Safari, Chrome*/
+    white-space: -o-pre-wrap; /* Старая Opera (8?) */
+    word-wrap: break-word; /* IE 5.5+ */
+}
