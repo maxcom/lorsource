@@ -28,14 +28,18 @@
 
 <c:if test="${showMenu}">
   <div class=title>
-    <c:if test="${not message.deleted}">[<a href="/view-message.jsp?msgid=<%= msgid %>">#</a>]</c:if><%
-    if (!message.isDeleted() && (tmpl.isModeratorSession() || author.getNick().equals(user))) {
+    <c:if test="${not message.deleted}">[<a href="/view-message.jsp?msgid=<%= msgid %>">#</a>]<%
+    if (tmpl.isModeratorSession() && message.getSection().isPremoderated() && !message.isCommited()) {
+      out.append("[<a href=\"commit.jsp?msgid="+msgid+"\">Подтвердить</a>]");
+    }
+
+    if (tmpl.isModeratorSession() || author.getNick().equals(user)) {
       out.append("[<a href=\"delete.jsp?msgid=");
       out.print(msgid);
       out.append("\">Удалить</a>]");
     }
 
-    if (!message.isDeleted() && tmpl.isModeratorSession()) {
+    if (tmpl.isModeratorSession()) {
       if (message.isVotePoll()) {
         out.append("[<a href=\"edit-vote.jsp?msgid=");
         out.print(msgid);
@@ -59,12 +63,12 @@
       }
     }
 
-    if (!message.isDeleted() && tmpl.isCorrectorSession() && message.getSectionId() == 1) {
+    if (tmpl.isCorrectorSession() && message.getSectionId() == 1) {
       out.append("[<a href=\"edit.jsp?msgid=");
       out.print(msgid);
       out.append("\">Править</a>]");
     }
-
+    %></c:if><%
     if (message.isDeleted()) {
       Statement rts = db.createStatement();
       ResultSet rt = rts.executeQuery("SELECT nick,reason FROM del_info,users WHERE msgid=" + msgid + " AND users.id=del_info.delby");
@@ -208,6 +212,7 @@
       out.print(msgid);
       out.append("\">Ответить на это сообщение</a>] ").append(Message.getPostScoreInfo(message.getPostScore()));
     }
+
     out.append("</div>");
   }
 
