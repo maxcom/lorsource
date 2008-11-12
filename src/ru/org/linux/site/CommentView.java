@@ -22,7 +22,7 @@ public class CommentView {
       printMenu(out, comment, moderatorMode, author, user, comments, tmpl, db, expired);
     }
 
-    out.append("<div class=msg id=").append(comment.getMessageId()).append(">");
+    out.append("<div class=msg id=").append(comment.getMessageId()).append('>');
 
     boolean tbl = false;
     if (author.getPhoto()!=null) {
@@ -49,6 +49,7 @@ public class CommentView {
     
     if (moderatorMode) {
       out.append(" (<a href=\"sameip.jsp?msgid=").append(comment.getMessageId()).append("\">").append(comment.getPostIP()).append("</a>)");
+      out.append("<br>").append(comment.getUserAgent());
     }
     
     out.append("</div>");
@@ -77,11 +78,6 @@ public class CommentView {
 
     if (!comment.isDeleted() && (moderatorMode || author.getNick().equals(user))) {
       out.append("[<a href=\"delete_comment.jsp?msgid=").append(comment.getMessageId()).append("\">Удалить</a>]");
-    }
-
-    if (moderatorMode) {
-//      out.append("[<a href=\"sameip.jsp?msgid=").append(comment.getMessageId()).append("\">Другие с этого IP</a>]");
-      out.append("[").append(comment.getUserAgent()).append("]");
     }
 
     if (comment.isDeleted()) {
