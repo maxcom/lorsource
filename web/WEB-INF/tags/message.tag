@@ -199,7 +199,7 @@
   if (showMenu) {
     if (tmpl.isModeratorSession()) {
       out.append("<br>");
-      out.append(message.getUserAgent());
+      out.append(HTMLFormatter.htmlSpecialChars(message.getUserAgent()));
     }
   }
 
