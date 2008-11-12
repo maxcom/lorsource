@@ -197,7 +197,7 @@
   }
 
   if (showMenu) {
-    if (tmpl.isModeratorSession()) {
+    if (tmpl.isModeratorSession() && message.getUserAgent()!=null) {
       out.append("<br>");
       out.append(HTMLFormatter.htmlSpecialChars(message.getUserAgent()));
     }

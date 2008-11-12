@@ -49,7 +49,9 @@ public class CommentView {
     
     if (moderatorMode) {
       out.append(" (<a href=\"sameip.jsp?msgid=").append(comment.getMessageId()).append("\">").append(comment.getPostIP()).append("</a>)");
-      out.append("<br>").append(HTMLFormatter.htmlSpecialChars(comment.getUserAgent()));
+      if (comment.getUserAgent()!=null) {
+        out.append("<br>").append(HTMLFormatter.htmlSpecialChars(comment.getUserAgent()));
+      }
     }
     
     out.append("</div>");
