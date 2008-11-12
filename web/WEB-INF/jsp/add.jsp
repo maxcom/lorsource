@@ -111,13 +111,10 @@
   Популярные теги: <%= Tags.getEditTags(Tags.getTopTags(db)) %> <br>
 <% } %>
 <select name=mode>
-<option value=tex <%= (preview && mode.equals("tex"))?"selected":""%> >TeX paragraphs
-<option value=ntobr <%= (preview && mode.equals("ntobr"))?"selected":""%> >User line break
+<option value=tex <%= (preview && "tex".equals(mode))?"selected":""%> >TeX paragraphs
+<option value=ntobr <%= (preview && "ntobr".equals(mode))?"selected":""%> >User line break
 <% if (user!=null && user.getScore()>=User.LORCODE_SCORE) { %>
-<option value=lorcode <%= (preview && mode.equals("lorcode"))?"selected":""%> >LORCODE
-<% } %>
-<% if (group.isPreformatAllowed()) { %>
-<option value=pre <%= (preview && mode.equals("pre"))?"selected":""%> >Preformatted text
+<option value=lorcode <%= (preview && "lorcode".equals(mode))?"selected":""%> >LORCODE
 <% } %>
 </select>
 

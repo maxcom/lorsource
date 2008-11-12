@@ -352,6 +352,34 @@
         <inspection_tool class="StringConcatenationInLoops" level="WARNING" enabled="true">
           <option name="m_ignoreUnlessAssigned" value="false" />
         </inspection_tool>
+        <inspection_tool class="LiteralAsArgToStringEquals" level="WARNING" enabled="true" />
+        <inspection_tool class="EqualsAndHashcode" level="WARNING" enabled="true" />
+        <inspection_tool class="MisorderedAssertEqualsParameters" level="WARNING" enabled="true" />
+        <inspection_tool class="ComparisonToNaN" level="WARNING" enabled="true" />
+        <inspection_tool class="BigDecimalEquals" level="WARNING" enabled="true" />
+        <inspection_tool class="FloatingPointEquality" level="WARNING" enabled="true" />
+        <inspection_tool class="ComparisonOfShortAndChar" level="WARNING" enabled="true" />
+        <inspection_tool class="CovariantEquals" level="WARNING" enabled="true" />
+        <inspection_tool class="EqualsUsesNonFinalVariable" level="WARNING" enabled="true" />
+        <inspection_tool class="ObjectEquality" level="WARNING" enabled="true">
+          <option name="m_ignoreEnums" value="true" />
+          <option name="m_ignoreClassObjects" value="false" />
+          <option name="m_ignorePrivateConstructors" value="false" />
+        </inspection_tool>
+        <inspection_tool class="MethodMayBeSynchronized" level="WARNING" enabled="true" />
+        <inspection_tool class="RedundantThrowsDeclaration" level="WARNING" enabled="true" />
+        <inspection_tool class="IteratorNextDoesNotThrowNoSuchElementException" level="WARNING" enabled="true" />
+        <inspection_tool class="ExceptionFromCatchWhichDoesntWrap" level="WARNING" enabled="true">
+          <option name="ignoreGetMessage" value="false" />
+        </inspection_tool>
+        <inspection_tool class="ThrowCaughtLocally" level="WARNING" enabled="true">
+          <option name="ignoreRethrownExceptions" value="false" />
+        </inspection_tool>
+        <inspection_tool class="UnusedCatchParameter" level="WARNING" enabled="true">
+          <option name="m_ignoreCatchBlocksWithComments" value="false" />
+          <option name="m_ignoreTestCases" value="false" />
+          <option name="m_ignoreIgnoreParameter" value="true" />
+        </inspection_tool>
       </profile>
     </profiles>
     <list size="4">

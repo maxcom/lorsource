@@ -148,7 +148,7 @@ public class AddMessageForm {
       try {
         guid = Integer.parseInt(request.getParameter("group"));
       } catch (NumberFormatException e) {
-        throw new ScriptErrorException("invalid group parameter");
+        throw new ScriptErrorException("invalid group parameter", e);
       }
       
       linktext = request.getParameter("linktext");
@@ -257,10 +257,6 @@ public class AddMessageForm {
       throw new BadInputException("Bad group id");
     }
 
-    if ("pre".equals(mode) && !group.isPreformatAllowed()) {
-      throw new AccessViolationException("В группу нельзя добавлять преформатированные сообщения");
-    }
-
     String message = processMessage(group);
 
     if (user.isAnonymous()) {
@@ -347,9 +343,6 @@ public class AddMessageForm {
       }
       formatter.setMaxLength(maxlength);
 
-      if ("pre".equals(mode)) {
-        formatter.enablePreformatMode();
-      }
       if (autourl) {
         formatter.enableUrlHighLightMode();
       }

@@ -9,7 +9,6 @@ import java.util.List;
 
 public class Group {
   private boolean moderate;
-  private boolean preformat;
   private boolean imagepost;
   private boolean votepoll;
   private boolean havelink;
@@ -77,7 +76,6 @@ public class Group {
   private void init(ResultSet rs) throws SQLException {
     id = rs.getInt("id");
     moderate = rs.getBoolean("moderate");
-    preformat = rs.getBoolean("preformat");
     imagepost = rs.getBoolean("imagepost");
     votepoll = rs.getBoolean("vote");
     section = rs.getInt("section");
@@ -96,10 +94,6 @@ public class Group {
 
 
     info = rs.getString("info");
-  }
-
-  public boolean isPreformatAllowed() {
-    return preformat;
   }
 
   public boolean isImagePostAllowed() {
@@ -205,7 +199,7 @@ public class Group {
         throw new AccessViolationException("У вас не достаточно прав для комментирования");
       }
     } catch (BadGroupException e) {
-      throw new RuntimeException(e.toString());
+      throw new RuntimeException(e);
     } finally {
       if (st!=null) {
         st.close();
