@@ -151,6 +151,10 @@
 <%
   int scroll = Section.getScrollMode(message.getSectionId());
 
+  if (prevMessage == null && nextMessage == null) {
+    scroll = Section.SCROLL_NOSCROLL;
+  }
+
   if (scroll != Section.SCROLL_NOSCROLL) {
 %>
     <table class=nav>
