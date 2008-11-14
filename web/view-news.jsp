@@ -161,6 +161,8 @@
     nw.setLimit("LIMIT 20");
   }
 
+  db.close(); db=null;
+
   out.print(ViewerCacher.getViewer(nw, tmpl, false));
 %>
 

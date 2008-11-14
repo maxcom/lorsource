@@ -61,6 +61,8 @@
     st.close();
 
     out.print("</div>");
+
+    db.close(); db=null;
   }
 
   int offset = 0;
