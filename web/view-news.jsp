@@ -187,6 +187,10 @@
     params += "&amp;tag="+ URLEncoder.encode(tag, "UTF-8");
   }
 
+  if (group!=null) {
+    params += "&amp;group="+group.getId();
+  }
+
   if (month==0 && tag==null) {
 %>
 <table class="nav">

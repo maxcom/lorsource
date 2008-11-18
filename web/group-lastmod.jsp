@@ -1,4 +1,4 @@
-<%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
+<%@ page contentType="text/html; charset=utf-8"%>
 <%@ page import="java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.sql.Timestamp,java.util.Date,java.util.List"   buffer="200kb"%>
 <%@ page import="java.util.Map"%>
 <%@ page import="ru.org.linux.site.*"%>
@@ -57,9 +57,9 @@
     }
 
     if (firstPage) {
-      out.print("<title>" + group.getSectionName() + " - " + group.getTitle() + " (последние сообщения)</title>");
+      out.print("<title>" + group.getSectionName() + " - " + group.getTitle() + " (п©п╬я│п╩п╣п╢п╫п╦п╣ я│п╬п╬п╠я┴п╣п╫п╦я▐)</title>");
     } else {
-      out.print("<title>" + group.getSectionName() + " - " + group.getTitle() + " (сообщения " + (count - offset) + '-' + (count - offset - topics) + ")</title>");
+      out.print("<title>" + group.getSectionName() + " - " + group.getTitle() + " (я│п╬п╬п╠я┴п╣п╫п╦я▐ " + (count - offset) + '-' + (count - offset - topics) + ")</title>");
     }
     out.print("<link rel=\"parent\" title=\"" + group.getSectionName() + "\" href=\"view-section.jsp?section=" + group.getSectionId() + "\">");
 %>
@@ -74,11 +74,11 @@
 
       <td align=right valign=middle>
 	      [<a href="/wiki/en/lor-faq">FAQ</a>]
-	      [<a href="rules.jsp">Правила форума</a>]
+	      [<a href="rules.jsp">п÷я─п╟п╡п╦п╩п╟ я└п╬я─я┐п╪п╟</a>]
 
-	      [<a href="add.jsp?group=<%= groupid %>">Добавить сообщение</a>]
+	      [<a href="add.jsp?group=<%= groupid %>">п■п╬п╠п╟п╡п╦я┌я▄ я│п╬п╬п╠я┴п╣п╫п╦п╣</a>]
 
-        <select name=group onChange="submit()" title="Быстрый переход">
+        <select name=group onChange="submit()" title="п▒я▀я│я┌я─я▀п╧ п©п╣я─п╣я┘п╬п╢">
   <%
           List<Group> groups = Group.getGroups(db, section);
 
@@ -100,7 +100,7 @@
 
   Map<Integer,String> ignoreList = IgnoreList.getIgnoreListHash(db, (String) session.getValue("nick"));
 
-  if (!showIgnored && Template.isSessionAuthorized(session) && !session.getValue("nick").equals("anonymous")) {
+  if (!showIgnored && Template.isSessionAuthorized(session)) {
     if (firstPage && ignoreList != null && !ignoreList.isEmpty()) {
       ignq = " AND topics.userid NOT IN (SELECT ignored FROM ignore_list, users WHERE userid=users.id and nick='" + session.getValue("nick") + "')";
     }
@@ -112,7 +112,7 @@
 
   if (group.getImage() != null) {
     ImageInfo info = new ImageInfo(tmpl.getObjectConfig().getHTMLPathPrefix() + tmpl.getStyle() + group.getImage());
-    out.print("<div align=center><img src=\"/" + tmpl.getStyle() + group.getImage() + "\" " + info.getCode() + " border=0 alt=\"Группа " + group.getTitle() + "\"></div>");
+    out.print("<div align=center><img src=\"/" + tmpl.getStyle() + group.getImage() + "\" " + info.getCode() + " border=0 alt=\"п⌠я─я┐п©п©п╟ " + group.getTitle() + "\"></div>");
   }
 
   String des = group.getInfo();
@@ -129,24 +129,24 @@
 	<input type=hidden name=offset value="<%= offset %>">
   <% } %>
   <div class=nav>
-	фильтр тем: <select name="showignored">
-  	  <option value="t" <%= (showIgnored?"selected":"") %>>все темы</option>
-	  <option value="f" <%= (showIgnored?"":"selected") %>>без игнорируемых</option>
-	  </select> <input type="submit" value="Обновить"> [<a href="ignore-list.jsp">настроить</a>]
+	я└п╦п╩я▄я┌я─ я┌п╣п╪: <select name="showignored">
+  	  <option value="t" <%= (showIgnored?"selected":"") %>>п╡я│п╣ я┌п╣п╪я▀</option>
+	  <option value="f" <%= (showIgnored?"":"selected") %>>п╠п╣п╥ п╦пЁп╫п╬я─п╦я─я┐п╣п╪я▀я┘</option>
+	  </select> <input type="submit" value="п·п╠п╫п╬п╡п╦я┌я▄"> [<a href="ignore-list.jsp">п╫п╟я│я┌я─п╬п╦я┌я▄</a>]
   </div>
 </form>
 
 <div class=forum>
 <table width="100%" class="message-table">
 <thead>
-<tr><th>Заголовок
+<tr><th>п≈п╟пЁп╬п╩п╬п╡п╬п╨
 <%
-  out.print("<span style=\"font-weight: normal\">[порядок: ");
+  out.print("<span style=\"font-weight: normal\">[п©п╬я─я▐п╢п╬п╨: ");
 
-  out.print("<a href=\"group.jsp?group=" + groupid + "\" style=\"text-decoration: underline\">дата отправки</a> <b>дата изменения</b>");
+  out.print("<a href=\"group.jsp?group=" + groupid + "\" style=\"text-decoration: underline\">п╢п╟я┌п╟ п╬я┌п©я─п╟п╡п╨п╦</a> <b>п╢п╟я┌п╟ п╦п╥п╪п╣п╫п╣п╫п╦я▐</b>");
 
   out.print("]</span>");
-%></th><th>Число ответов<br>всего/день/час</th></tr>
+%></th><th>п╖п╦я│п╩п╬ п╬я┌п╡п╣я┌п╬п╡<br>п╡я│п╣пЁп╬/п╢п╣п╫я▄/я┤п╟я│</th></tr>
 <tbody>
 <%
   double messages = tmpl.getProf().getInt("messages");
@@ -173,7 +173,7 @@
       outbuf.append("[X] ");
     }
 	else if(rs.getBoolean("sticky")) {
-      outbuf.append("<img src=\"img/paper_clip.gif\" width=\"15\" height=\"15\" alt=\"Прикреплено\" title=\"Прикреплено\"> ");
+      outbuf.append("<img src=\"img/paper_clip.gif\" width=\"15\" height=\"15\" alt=\"п÷я─п╦п╨я─п╣п©п╩п╣п╫п╬\" title=\"п÷я─п╦п╨я─п╣п©п╩п╣п╫п╬\"> ");
     }
 
     int pagesInCurrent = (int) Math.ceil(stat1 / messages);
@@ -189,7 +189,7 @@
     }
 
     if (pagesInCurrent > 1) {
-      outbuf.append("&nbsp;(стр.");
+      outbuf.append("&nbsp;(я│я┌я─.");
 
       for (int i = 1; i < pagesInCurrent; i++) {
         outbuf.append(" <a href=\"view-message.jsp?msgid=").append(rs.getInt("msgid"));
@@ -226,7 +226,7 @@
                   outbuf.append("<b>").append(stat4).append("</b>");
                 }
 		else {
-                  outbuf.append("-");
+                  outbuf.append('-');
                 }
 
 
@@ -235,7 +235,7 @@
 		
 		if (!firstPage && ignoreList != null && !ignoreList.isEmpty() && ignoreList.containsValue(rs.getString("nick"))) {
 		  outbuf = new StringBuffer();
-		  //new StringBuffer().append("<tr><td colspan=2>Тема создана игнорируемым пользователем</td></tr>");
+		  //new StringBuffer().append("<tr><td colspan=2>п╒п╣п╪п╟ я│п╬п╥п╢п╟п╫п╟ п╦пЁп╫п╬я─п╦я─я┐п╣п╪я▀п╪ п©п╬п╩я▄п╥п╬п╡п╟я┌п╣п╩п╣п╪</td></tr>");
 		}
 		
 		out.print(outbuf.toString());
@@ -249,25 +249,19 @@
 	
 	out.print("<div style=\"float: left\">");
 	if (offset==0) {
-          out.print("<b>Назад</b>");
+          out.print("<b>Б├░ п╫п╟п╥п╟п╢</b>");
+        } else if ((offset-topics)==0) {
+          out.print("<a rel=prev rev=next href=\"group-lastmod.jsp?group=" + groupid + ignoredAdd + "\">Б├░ п╫п╟п╥п╟п╢</a>");
+        } else {
+          out.print("<a rel=prev rev=next href=\"group-lastmod.jsp?group=" + groupid + "&amp;offset=" + (offset - topics) + ignoredAdd + "\">Б├░ п╫п╟п╥п╟п╢</a>");
         }
-	else
-		if ((offset-topics)==0) {
-                  out.print("<a rel=prev rev=next href=\"group-lastmod.jsp?group=" + groupid + ignoredAdd + "\">Назад</a>");
-                }
-		else {
-                  out.print("<a rel=prev rev=next href=\"group-lastmod.jsp?group=" + groupid + "&amp;offset=" + (offset - topics) + ignoredAdd + "\">Назад</a>");
-                }
+
 	out.print("</div>");
-	if (offset>0) {
-          out.print("<div style=\"text-align: center\"><a rel=start href=\"group-lastmod.jsp?group=" + groupid + ignoredAdd + "\">Начало</a></div>");
-        }
 	out.print("<div style=\"float: right\">");
 	if (offset==topics*pages) {
-          out.print("<b>Вперед</b>");
-        }
-	else {
-          out.print("<a rel=next rev=prev href=\"group-lastmod.jsp?group=" + groupid + "&amp;offset=" + (offset + topics) + ignoredAdd + "\">Вперед</a>");
+          out.print("<b>п╡п©п╣я─п╣п╢ Б├▓</b>");
+        } else {
+          out.print("<a rel=next rev=prev href=\"group-lastmod.jsp?group=" + groupid + "&amp;offset=" + (offset + topics) + ignoredAdd + "\">п╡п©п╣я─п╣п╢ Б├▓</a>");
         }
 
 	out.print("</div>");
@@ -275,29 +269,6 @@
 %>
 </td></tr></table>
 </div>
-<div align=center><p>
-<%
-  for (int i=0; i<pages+1; i++) {
-    if (i!=0 && i!=pages && Math.abs(i*topics-offset)>7*topics) {
-      continue;
-    }
-
-    if (i==pages) {
-      out.print("[<a href=\"group-lastmod.jsp?group=" + groupid + "&amp;offset=" + (i * topics) + ignoredAdd + "\">конец</a>] ");
-    }
-    else if (i*topics==offset) {
-      out.print("[<b>" + (pages + 1 - i) + "</b>] ");
-    }
-    else
-      if (i!=0) {
-        out.print("[<a href=\"group-lastmod.jsp?group=" + groupid + "&amp;offset=" + (i * topics) + ignoredAdd + "\">" + (pages + 1 - i) + "</a>] ");
-      }
-      else {
-        out.print("[<a href=\"group-lastmod.jsp?group=" + groupid + ignoredAdd + "\">начало</a>] ");
-      }
-  }
-%>
-  </div>
 <p>
 <%
 	st.close();
