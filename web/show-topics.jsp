@@ -136,15 +136,13 @@
 	  if (i==pages+1) {
 		if (offset!=0 || firstPage) {
                   out.print("[<a href=\"show-topics.jsp?nick=" + nick + "&amp;offset=0\">конец</a>] ");
-                }
-		else {
+                } else {
                   out.print("[<b>конец</b>] ");
                 }
 	  } else if (i==0) {
 		if (firstPage) {
                   out.print("[<b>начало</b>] ");
-                }
-		else {
+                } else {
                   out.print("[<a href=\"show-topics.jsp?nick=" + nick + "\">начало</a>] ");
                 }
 	  } else if ((pages+1-i)*topics==offset) {
