@@ -151,6 +151,9 @@
 		out.print("<a href=\"show-topics.jsp?nick="+nick+"&amp;offset="+((pages+1-i)*topics)+"\">"+(pages+1-i)+"</a> ");
 	  }
 	}
+%>
+  </div>
+  <%
   } finally {
     if (db!=null) {
       db.close();
