@@ -163,8 +163,8 @@
           <table>
             <tr valign=middle>
                 <c:if test="${prevMessage != null}">
-                  <td>
-                    <a href="${fn:escapeXml(prevMessage.linkLastmod)}" rel=prev rev=next>← </a>
+                  <td style="padding-right: 5px">
+                    <a href="${fn:escapeXml(prevMessage.linkLastmod)}" rel=prev rev=next>←</a>
                   </td>
                   <td align=left valign=top>
                     <%= StringUtil.makeTitle(prevMessage.getTitle()) %>
@@ -186,8 +186,8 @@
                     (${nextMessage.groupTitle})
                   </c:if>
                 </td>
-                <td align="right" valign="middle">
-                  <a href="${fn:escapeXml(nextMessage.linkLastmod)}" rel=next rev=prev> →</a>
+                <td align="right" valign="middle" style="padding-left: 5px">
+                  <a href="${fn:escapeXml(nextMessage.linkLastmod)}" rel=next rev=prev>→</a>
                 </td>
               </c:if>
             </tr>
@@ -212,17 +212,20 @@
         <td align=left valign=middle width="35%">
           <table>
             <tr valign=middle>
-              <td>
+              <c:if test="${prevMessage != null}">
+                <td style="padding-right: 5px">
+                  <a href="${fn:escapeXml(prevMessage.linkLastmod)}" rel=prev rev=next>←</a>
+                </td>
+                <td align=left valign=top>
 <%
-  if (prevMessage != null) {
     if (scroll == Section.SCROLL_GROUP) {
-      out.print("<a href=\"" + prevMessage.getLinkLastmod() + "\" rel=prev rev=next>← </a></td><td align=left valign=top>" + StringUtil.makeTitle(prevMessage.getTitle()));
+      out.print(StringUtil.makeTitle(prevMessage.getTitle()));
     } else {
-      out.print("<a href=\"" + prevMessage.getLinkLastmod() + "\" rel=prev rev=next>← </a></td><td align=left valign=top>" + StringUtil.makeTitle(prevMessage.getTitle()) + " (" + prevMessage.getGroupTitle() + ')');
+      out.print(StringUtil.makeTitle(prevMessage.getTitle()) + " (" + prevMessage.getGroupTitle() + ')');
     }
-  }
 %>
-              </td>
+                </td>
+              </c:if>
             </tr>
           </table>
         </td>
@@ -240,17 +243,17 @@
         <td align=left valign=middle width="35%">
           <table width="100%">
             <tr valign=middle align=right>
-              <td>
-<%
-  if (nextMessage != null) {
-    if (scroll == Section.SCROLL_GROUP) {
-      out.print(StringUtil.makeTitle(nextMessage.getTitle()) + "</td><td align=right valign=middle><a href=\"" + nextMessage.getLinkLastmod() + "\" rev=prev rel=next> →</a>");
-    } else {
-      out.print(StringUtil.makeTitle(nextMessage.getTitle()) + " (" + nextMessage.getGroupTitle() + ")</td><td valign=middle align=right><a href=\"" + nextMessage.getLinkLastmod() + "\" rev=prev rel=next> →</a>");
-    }
-  }
-%>
-              </td>
+              <c:if test="${nextMessage != null}">
+                <td>
+                  <%= StringUtil.makeTitle(nextMessage.getTitle()) %>
+                  <c:if test="${!scrollGroup}">
+                    (${nextMessage.groupTitle})
+                  </c:if>
+                </td>
+                <td align="right" valign="middle" style="padding-left: 5px">
+                  <a href="${fn:escapeXml(nextMessage.linkLastmod)}" rel=next rev=prev>→</a>
+                </td>
+              </c:if>
             </tr>
           </table>
         </td>
