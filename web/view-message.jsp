@@ -164,7 +164,7 @@
             <tr valign=middle>
                 <c:if test="${prevMessage != null}">
                   <td>
-                    <a href="${fn:escapeXml(prevMessage.linkLastmod)}" rel=prev rev=next>←</a>
+                    <a href="${fn:escapeXml(prevMessage.linkLastmod)}" rel=prev rev=next>← </a>
                   </td>
                   <td align=left valign=top>
                     <%= StringUtil.makeTitle(prevMessage.getTitle()) %>
@@ -187,7 +187,7 @@
                   </c:if>
                 </td>
                 <td align="right" valign="middle">
-                  <a href="${fn:escapeXml(nextMessage.linkLastmod)}" rel=next rev=prev>→</a>
+                  <a href="${fn:escapeXml(nextMessage.linkLastmod)}" rel=next rev=prev> →</a>
                 </td>
               </c:if>
             </tr>
@@ -216,9 +216,9 @@
 <%
   if (prevMessage != null) {
     if (scroll == Section.SCROLL_GROUP) {
-      out.print("<a href=\"" + prevMessage.getLinkLastmod() + "\" rel=prev rev=next>←</a></td><td align=left valign=top>" + StringUtil.makeTitle(prevMessage.getTitle()));
+      out.print("<a href=\"" + prevMessage.getLinkLastmod() + "\" rel=prev rev=next>← </a></td><td align=left valign=top>" + StringUtil.makeTitle(prevMessage.getTitle()));
     } else {
-      out.print("<a href=\"" + prevMessage.getLinkLastmod() + "\" rel=prev rev=next>←</a></td><td align=left valign=top>" + StringUtil.makeTitle(prevMessage.getTitle()) + " (" + prevMessage.getGroupTitle() + ')');
+      out.print("<a href=\"" + prevMessage.getLinkLastmod() + "\" rel=prev rev=next>← </a></td><td align=left valign=top>" + StringUtil.makeTitle(prevMessage.getTitle()) + " (" + prevMessage.getGroupTitle() + ')');
     }
   }
 %>
@@ -244,9 +244,9 @@
 <%
   if (nextMessage != null) {
     if (scroll == Section.SCROLL_GROUP) {
-      out.print(StringUtil.makeTitle(nextMessage.getTitle()) + "</td><td align=right valign=middle><a href=\"" + nextMessage.getLinkLastmod() + "\" rev=prev rel=next>→</a>");
+      out.print(StringUtil.makeTitle(nextMessage.getTitle()) + "</td><td align=right valign=middle><a href=\"" + nextMessage.getLinkLastmod() + "\" rev=prev rel=next> →</a>");
     } else {
-      out.print(StringUtil.makeTitle(nextMessage.getTitle()) + " (" + nextMessage.getGroupTitle() + ")</td><td valign=middle align=right><a href=\"" + nextMessage.getLinkLastmod() + "\" rev=prev rel=next>→</a>");
+      out.print(StringUtil.makeTitle(nextMessage.getTitle()) + " (" + nextMessage.getGroupTitle() + ")</td><td valign=middle align=right><a href=\"" + nextMessage.getLinkLastmod() + "\" rev=prev rel=next> →</a>");
     }
   }
 %>
