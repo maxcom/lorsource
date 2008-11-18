@@ -148,9 +148,9 @@
                   out.print("[<a href=\"show-topics.jsp?nick=" + nick + "\">начало</a>] ");
                 }
 	  } else if ((pages+1-i)*topics==offset) {
-		out.print("[<b>"+(pages+1-i)+"</b>] ");
+		out.print("<b>"+(pages+1-i)+"</b> ");
 	  } else {
-		out.print("[<a href=\"show-topics.jsp?nick="+nick+"&amp;offset="+((pages+1-i)*topics)+"\">"+(pages+1-i)+"</a>] ");
+		out.print("<a href=\"show-topics.jsp?nick="+nick+"&amp;offset="+((pages+1-i)*topics)+"\">"+(pages+1-i)+"</a> ");
 	  }
 	}
   } finally {
