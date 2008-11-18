@@ -1,5 +1,6 @@
-<%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
-<%@ page import="java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.util.Calendar"   buffer="200kb"%>
+<%@ page contentType="text/html; charset=utf-8"%>
+<%@ page import="java.net.URLEncoder,java.sql.Connection,java.sql.ResultSet,java.sql.Statement"   buffer="200kb"%>
+<%@ page import="java.util.Calendar" %>
 <%@ page import="java.util.Date" %>
 <%@ page import="java.util.List" %>
 <%@ page import="ru.org.linux.boxlet.BoxletVectorRunner" %>
@@ -51,7 +52,7 @@
     group = new Group(db, groupid);
 
     if (group.getSectionId() != sectionid) {
-      throw new ScriptErrorException("группа #" + groupid + " не пренадлежит разделу #" + sectionid);
+      throw new ScriptErrorException("пЁя─я┐п©п©п╟ #" + groupid + " п╫п╣ п©я─п╣п╫п╟п╢п╩п╣п╤п╦я┌ я─п╟п╥п╢п╣п╩я┐ #" + sectionid);
     }
   }
 
@@ -85,7 +86,7 @@
   } else {
     month = new ServletParameterParser(request).getInt("month");
     year = new ServletParameterParser(request).getInt("year");
-    ptitle = "Архив: " + section.getName();
+    ptitle = "п░я─я┘п╦п╡: " + section.getName();
 
     if (group != null) {
       ptitle += " - " + group.getTitle();
@@ -96,7 +97,7 @@
     }
 
     ptitle += ", " + year + ", " + DateUtil.getMonth(month);
-    navtitle += " - Архив " + year + ", " + DateUtil.getMonth(month);
+    navtitle += " - п░я─я┘п╦п╡ " + year + ", " + DateUtil.getMonth(month);
   }
 
   if (!section.isBrowsable() || sectionid == 2) {
@@ -117,24 +118,24 @@
 <%
   if (month==0) {
       if (section.isImagepost()) {
-        out.print("[<a href=\"add.jsp?group=4962\">Добавить изображение</a>]");
+        out.print("[<a href=\"add.jsp?group=4962\">п■п╬п╠п╟п╡п╦я┌я▄ п╦п╥п╬п╠я─п╟п╤п╣п╫п╦п╣</a>]");
       } else if (section.isVotePoll()) {
-        out.print("[<a href=\"add-poll.jsp?group=19387\">Добавить голосование</a>]");
+        out.print("[<a href=\"add-poll.jsp?group=19387\">п■п╬п╠п╟п╡п╦я┌я▄ пЁп╬п╩п╬я│п╬п╡п╟п╫п╦п╣</a>]");
       } else {
         if (group==null) {
-          out.print("[<a href=\"add-section.jsp?section="+section.getId()+"\">Добавить</a>]");
+          out.print("[<a href=\"add-section.jsp?section="+section.getId()+"\">п■п╬п╠п╟п╡п╦я┌я▄</a>]");
         } else {
-          out.print("[<a href=\"add.jsp?group="+group.getId()+"\">Добавить</a>]");
+          out.print("[<a href=\"add.jsp?group="+group.getId()+"\">п■п╬п╠п╟п╡п╦я┌я▄</a>]");
         }
       }
 
     if (group==null) {
-      out.print("[<a href=\"view-section.jsp?section="+section.getId()+"\">Таблица</a>]");
+      out.print("[<a href=\"view-section.jsp?section="+section.getId()+"\">п╒п╟п╠п╩п╦я├п╟</a>]");
     } else {
-      out.print("[<a href=\"group.jsp?group="+group.getId()+"\">Таблица</a>]");
+      out.print("[<a href=\"group.jsp?group="+group.getId()+"\">п╒п╟п╠п╩п╦я├п╟</a>]");
     }
   }
-  out.print("[<a href=\"view-news-archive.jsp?section="+sectionid+"\">Архив</a>]");
+  out.print("[<a href=\"view-news-archive.jsp?section="+sectionid+"\">п░я─я┘п╦п╡</a>]");
   out.print("[<a href=\"section-rss.jsp?section="+sectionid+(group!=null?("&amp;group="+group.getId()):"")+"\">RSS</a>]");
 
 %>
@@ -154,20 +155,61 @@
     nw.setTag(tag);
   }
 
-  if (month != 0) {
-    nw.setDatelimit("postdate>='" + year + "-" + month + "-01'::timestamp AND (postdate<'" + year + "-" + month + "-01'::timestamp+'1 month'::interval)");
-  } else if (tag==null) {
-    nw.setDatelimit("commitdate>(CURRENT_TIMESTAMP-'3 month'::interval)");
-    nw.setLimit("LIMIT 20");
+  int offset = 0;
+  if (request.getParameter("offset")!=null) {
+    offset = new ServletParameterParser(request).getInt("offset");
+
+    if (offset<0) {
+	offset = 0;
+    }
+
+    if (offset>200) {
+      offset=200;
+    }
   }
 
+  if (month != 0) {
+    nw.setDatelimit("postdate>='" + year + '-' + month + "-01'::timestamp AND (postdate<'" + year + '-' + month + "-01'::timestamp+'1 month'::interval)");
+  } else if (tag==null) {
+    nw.setDatelimit("commitdate>(CURRENT_TIMESTAMP-'3 month'::interval)");
+    nw.setLimit("LIMIT 20" + (offset > 0 ? (" OFFSET " + offset) : ""));
+  } else {
+    nw.setLimit("LIMIT 20" + (offset > 0 ? (" OFFSET " + offset) : ""));
+  }
+
+  st.close();
   db.close(); db=null;
 
   out.print(ViewerCacher.getViewer(nw, tmpl, false));
+
+  String params = "section="+sectionid;
+  if (tag!=null) {
+    params += "&amp;tag="+ URLEncoder.encode(tag, "UTF-8");
+  }
+
+  if (month==0 && tag==null) {
 %>
+<table class="nav">
+  <tr>
+  <% if (offset<200) { %>
+    <td align="left" width="35%">
+      <a href="view-news.jsp?<%= params %>&amp;offset=<%=offset+20%>">Б├░ п©я─п╣п╢я▀п╢я┐я┴п╦п╣</a>
+    </td>
+  <% } %>
+  <% if (offset>20) { %>
+    <td width="35%" align="right">
+      <a href="view-news.jsp?<%= params %>&amp;offset=<%= (offset-20) %>">я│п╩п╣п╢я┐я▌я┴п╦п╣ Б├▓</a>
+    </td>
+  <% } else if (offset==20) { %>
+    <td width="35%" align="right">
+      <a href="view-news.jsp?<%= params %>">я│п╩п╣п╢я┐я▌я┴п╦п╣ Б├▓</a>
+    </td>
+  <% } %>
+  </tr>
+</table>
 
 <%
- 	st.close();
+    }
   } finally {
     if (db!=null) {
       db.close();

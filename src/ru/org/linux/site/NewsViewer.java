@@ -356,14 +356,6 @@ public class NewsViewer implements Viewer {
     return new Date(new Date().getTime() + 60*1000);
   }
 
-  public static NewsViewer getMainpage(Properties config, ProfileHashtable profile, int offset) {
-    NewsViewer nw = new NewsViewer(config, profile);
-    nw.setSection(1);
-    nw.setLimit("LIMIT 20" + (offset > 0 ? (" OFFSET " + offset) : ""));
-    nw.setDatelimit("commitdate>(CURRENT_TIMESTAMP-'6 month'::interval)");
-    return nw;
-  }
-
   public static NewsViewer getMainpage(Properties config, ProfileHashtable profile) {
     NewsViewer nw = new NewsViewer(config, profile);
     nw.setSection(1);

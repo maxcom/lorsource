@@ -1,4 +1,4 @@
-<%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
+<%@ page contentType="text/html; charset=utf-8"%>
 <%@ page import="java.sql.Connection,javax.servlet.http.HttpServletResponse,ru.org.linux.site.*,ru.org.linux.util.ServletParameterParser,ru.org.linux.util.StringUtil"   buffer="200kb"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
@@ -25,7 +25,7 @@
 
     if (showDeleted) {
       if (!Template.isSessionAuthorized(session)) {
-        throw new BadInputException("Вы уже вышли из системы");
+        throw new BadInputException("п▓я▀ я┐п╤п╣ п╡я▀я┬п╩п╦ п╦п╥ я│п╦я│я┌п╣п╪я▀");
       }
     }
  %>
@@ -65,13 +65,13 @@
     Message message = new Message(db, msgid);
 
     if (message.isExpired() && showDeleted && !tmpl.isModeratorSession()) {
-      throw new MessageNotFoundException(message.getId(), "нельзя посмотреть удаленные комментарии в устаревших темах");
+      throw new MessageNotFoundException(message.getId(), "п╫п╣п╩я▄п╥я▐ п©п╬я│п╪п╬я┌я─п╣я┌я▄ я┐п╢п╟п╩п╣п╫п╫я▀п╣ п╨п╬п╪п╪п╣п╫я┌п╟я─п╦п╦ п╡ я┐я│я┌п╟я─п╣п╡я┬п╦я┘ я┌п╣п╪п╟я┘");
     }
     if (message.isExpired() && message.isDeleted() && !tmpl.isModeratorSession()) {
-      throw new MessageNotFoundException(message.getId(), "нельзя посмотреть устаревшие удаленные сообщения");
+      throw new MessageNotFoundException(message.getId(), "п╫п╣п╩я▄п╥я▐ п©п╬я│п╪п╬я┌я─п╣я┌я▄ я┐я│я┌п╟я─п╣п╡я┬п╦п╣ я┐п╢п╟п╩п╣п╫п╫я▀п╣ я│п╬п╬п╠я┴п╣п╫п╦я▐");
     }
     if (message.isDeleted() && !Template.isSessionAuthorized(session)) {
-      throw new MessageNotFoundException(message.getId(), "Сообщение удалено");
+      throw new MessageNotFoundException(message.getId(), "п║п╬п╬п╠я┴п╣п╫п╦п╣ я┐п╢п╟п╩п╣п╫п╬");
     }
 
 // count last modified time
@@ -127,16 +127,16 @@
     }
 
     if (!tmpl.isUsingDefaultProfile()) {
-      out.print(" [<a href=\"ignore-list.jsp\">Фильтр</a>]");
+      out.print(" [<a href=\"ignore-list.jsp\">п╓п╦п╩я▄я┌я─</a>]");
     }
 
     out.print(" <select name=\"filter\" onChange=\"submit()\">");
-    out.print("<option value=\"" + CommentViewer.toString(CommentViewer.FILTER_NONE) + "\"" + (filterMode == CommentViewer.FILTER_NONE ? " selected=\"selected\"" : "") + ">все комментарии</option>");
-    out.print("<option value=\"" + CommentViewer.toString(CommentViewer.FILTER_ANONYMOUS) + "\"" + (filterMode == CommentViewer.FILTER_ANONYMOUS ? " selected=\"selected\"" : "") + ">без анонимных</option>");
+    out.print("<option value=\"" + CommentViewer.toString(CommentViewer.FILTER_NONE) + '\"' + (filterMode == CommentViewer.FILTER_NONE ? " selected=\"selected\"" : "") + ">п╡я│п╣ п╨п╬п╪п╪п╣п╫я┌п╟я─п╦п╦</option>");
+    out.print("<option value=\"" + CommentViewer.toString(CommentViewer.FILTER_ANONYMOUS) + '\"' + (filterMode == CommentViewer.FILTER_ANONYMOUS ? " selected=\"selected\"" : "") + ">п╠п╣п╥ п╟п╫п╬п╫п╦п╪п╫я▀я┘</option>");
 
     if (!tmpl.isUsingDefaultProfile()) {
-      out.print("<option value=\"" + CommentViewer.toString(CommentViewer.FILTER_IGNORED) + "\"" + (filterMode == CommentViewer.FILTER_IGNORED ? " selected=\"selected\"" : "") + ">без игнорируемых</option>");
-      out.print("<option value=\"" + CommentViewer.toString(CommentViewer.FILTER_LISTANON) + "\"" + (filterMode == CommentViewer.FILTER_LISTANON ? " selected=\"selected\"" : "") + ">без анонимных и игнорируемых</option>");
+      out.print("<option value=\"" + CommentViewer.toString(CommentViewer.FILTER_IGNORED) + '\"' + (filterMode == CommentViewer.FILTER_IGNORED ? " selected=\"selected\"" : "") + ">п╠п╣п╥ п╦пЁп╫п╬я─п╦я─я┐п╣п╪я▀я┘</option>");
+      out.print("<option value=\"" + CommentViewer.toString(CommentViewer.FILTER_LISTANON) + '\"' + (filterMode == CommentViewer.FILTER_LISTANON ? " selected=\"selected\"" : "") + ">п╠п╣п╥ п╟п╫п╬п╫п╦п╪п╫я▀я┘ п╦ п╦пЁп╫п╬я─п╦я─я┐п╣п╪я▀я┘</option>");
     }
 
     out.print("</select>");
@@ -164,7 +164,7 @@
             <tr valign=middle>
                 <c:if test="${prevMessage != null}">
                   <td>
-                    <a href="${fn:escapeXml(prevMessage.linkLastmod)}" rel=prev rev=next>&lt;&lt;&lt;</a>
+                    <a href="${fn:escapeXml(prevMessage.linkLastmod)}" rel=prev rev=next>Б├░</a>
                   </td>
                   <td align=left valign=top>
                     <%= StringUtil.makeTitle(prevMessage.getTitle()) %>
@@ -187,7 +187,7 @@
                   </c:if>
                 </td>
                 <td align="right" valign="middle">
-                  <a href="${fn:escapeXml(nextMessage.linkLastmod)}" rel=next rev=prev>&gt;&gt;&gt;</a>
+                  <a href="${fn:escapeXml(nextMessage.linkLastmod)}" rel=next rev=prev>Б├▓</a>
                 </td>
               </c:if>
             </tr>
@@ -216,9 +216,9 @@
 <%
   if (prevMessage != null) {
     if (scroll == Section.SCROLL_GROUP) {
-      out.print("<a href=\"" + prevMessage.getLinkLastmod() + "\" rel=prev rev=next>&lt;&lt;&lt;</a></td><td align=left valign=top>" + StringUtil.makeTitle(prevMessage.getTitle()));
+      out.print("<a href=\"" + prevMessage.getLinkLastmod() + "\" rel=prev rev=next>Б├░</a></td><td align=left valign=top>" + StringUtil.makeTitle(prevMessage.getTitle()));
     } else {
-      out.print("<a href=\"" + prevMessage.getLinkLastmod() + "\" rel=prev rev=next>&lt;&lt;&lt;</a></td><td align=left valign=top>" + StringUtil.makeTitle(prevMessage.getTitle()) + " (" + prevMessage.getGroupTitle() + ')');
+      out.print("<a href=\"" + prevMessage.getLinkLastmod() + "\" rel=prev rev=next>Б├░</a></td><td align=left valign=top>" + StringUtil.makeTitle(prevMessage.getTitle()) + " (" + prevMessage.getGroupTitle() + ')');
     }
   }
 %>
@@ -244,9 +244,9 @@
 <%
   if (nextMessage != null) {
     if (scroll == Section.SCROLL_GROUP) {
-      out.print(StringUtil.makeTitle(nextMessage.getTitle()) + "</td><td align=right valign=middle><a href=\"" + nextMessage.getLinkLastmod() + "\" rev=prev rel=next>&gt;&gt;&gt;</a>");
+      out.print(StringUtil.makeTitle(nextMessage.getTitle()) + "</td><td align=right valign=middle><a href=\"" + nextMessage.getLinkLastmod() + "\" rev=prev rel=next>Б├▓</a>");
     } else {
-      out.print(StringUtil.makeTitle(nextMessage.getTitle()) + " (" + nextMessage.getGroupTitle() + ")</td><td valign=middle align=right><a href=\"" + nextMessage.getLinkLastmod() + "\" rev=prev rel=next>&gt;&gt;&gt;</a>");
+      out.print(StringUtil.makeTitle(nextMessage.getTitle()) + " (" + nextMessage.getGroupTitle() + ")</td><td valign=middle align=right><a href=\"" + nextMessage.getLinkLastmod() + "\" rev=prev rel=next>Б├▓</a>");
     }
   }
 %>
@@ -264,7 +264,7 @@
 
 <c:if test="${showDeleted}">
 <%
-  out.print("<h1>Режим показа удаленных комментариев</h1>");
+  out.print("<h1>п═п╣п╤п╦п╪ п©п╬п╨п╟п╥п╟ я┐п╢п╟п╩п╣п╫п╫я▀я┘ п╨п╬п╪п╪п╣п╫я┌п╟я─п╦п╣п╡</h1>");
 %>
 </c:if>
 
@@ -275,9 +275,9 @@
 
   String pageInfo = null;
   if (pages > 1) {
-    StringBuffer bufInfo = new StringBuffer();
+    StringBuilder bufInfo = new StringBuilder();
 
-    bufInfo.append("[страница");
+    bufInfo.append("[я│я┌я─п╟п╫п╦я├п╟");
 
     String linkurl = mainurl;
 
@@ -307,9 +307,9 @@
 
     if (Template.isSessionAuthorized(session)) {
       if (npage!=-1) {
-        bufInfo.append(" <a href=\"").append(linkurl).append("&amp;page=-1").append("\">все").append("</a>");
+        bufInfo.append(" <a href=\"").append(linkurl).append("&amp;page=-1").append("\">п╡я│п╣").append("</a>");
       } else {
-        bufInfo.append(" <strong>все").append("</strong>");      
+        bufInfo.append(" <strong>п╡я│п╣").append("</strong>");      
       }
     }
 
@@ -363,10 +363,10 @@
       out.print("<div class=nav>");
 
       if (tmpl.getProf().getBoolean("newfirst")) {
-        out.print("сообщения отсортированы в порядке убывания даты их написания");
+        out.print("я│п╬п╬п╠я┴п╣п╫п╦я▐ п╬я┌я│п╬я─я┌п╦я─п╬п╡п╟п╫я▀ п╡ п©п╬я─я▐п╢п╨п╣ я┐п╠я▀п╡п╟п╫п╦я▐ п╢п╟я┌я▀ п╦я┘ п╫п╟п©п╦я│п╟п╫п╦я▐");
       }
       else {
-        out.print("сообщения отсортированы в порядке возрастания даты их написания");
+        out.print("я│п╬п╬п╠я┴п╣п╫п╦я▐ п╬я┌я│п╬я─я┌п╦я─п╬п╡п╟п╫я▀ п╡ п©п╬я─я▐п╢п╨п╣ п╡п╬п╥я─п╟я│я┌п╟п╫п╦я▐ п╢п╟я┌я▀ п╦я┘ п╫п╟п©п╦я│п╟п╫п╦я▐");
       }
 
       out.print("</div>");
@@ -397,7 +397,7 @@
 <form action="view-message.jsp" method=POST>
 <input type=hidden name=msgid value="<%= msgid %>">
 <input type=hidden name=deleted value=1>
-<input type=submit value="Показать удаленные комментарии">
+<input type=submit value="п÷п╬п╨п╟п╥п╟я┌я▄ я┐п╢п╟п╩п╣п╫п╫я▀п╣ п╨п╬п╪п╪п╣п╫я┌п╟я─п╦п╦">
 </form>
 <hr>
 <% } %>
