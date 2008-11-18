@@ -5,12 +5,15 @@ import java.net.URLEncoder;
 import java.sql.*;
 import java.util.Date;
 import java.util.Properties;
+import java.util.logging.Logger;
 
 import org.javabb.bbcode.BBCodeProcessor;
 
 import ru.org.linux.util.*;
 
 public class NewsViewer implements Viewer {
+  private static final Logger logger = Logger.getLogger("ru.org.linux");
+
   private final ProfileHashtable profile;
   private final Properties config;
   private boolean viewAll = false;
@@ -29,7 +32,7 @@ public class NewsViewer implements Viewer {
   private String showCurrent(Connection db, ResultSet res) throws IOException, SQLException {
     boolean multiPortal = (group==0 && section==0);
 
-    StringBuffer out = new StringBuffer();
+    StringBuilder out = new StringBuilder();
     int msgid = res.getInt("msgid");
     String url = res.getString("url");
     String subj = StringUtil.makeTitle(res.getString("subj"));
@@ -76,6 +79,7 @@ public class NewsViewer implements Viewer {
         ImageInfo info = new ImageInfo(config.getProperty("HTMLPathPrefix") + profile.getString("style") + image);
         out.append("<img src=\"/").append(profile.getString("style")).append(image).append("\" ").append(info.getCode()).append(" border=0 alt=\"çÒÕÐÐÁ ").append(res.getString("gtitle")).append("\">");
       } catch (BadImageException e) {
+        logger.warning("Bad Image for group "+res.getInt("guid")+StringUtil.getStackTrace(e));
         out.append("[bad image] <img class=newsimage src=\"/").append(profile.getString("style")).append(image).append("\" " + " border=0 alt=\"çÒÕÐÐÁ ").append(res.getString("gtitle")).append("\">");
       }
       out.append("</a>");
@@ -201,9 +205,9 @@ public class NewsViewer implements Viewer {
               out.append(" <a href=\"").append(mainlink).append("&amp;page=").append(i).append("\">").append(i + 1).append("</a>");
             }
           }
-	  out.append(")");
+	  out.append(')');
 	}
-	out.append("]");
+	out.append(']');
       }
 
       out.append("</div>");
@@ -228,7 +232,7 @@ public class NewsViewer implements Viewer {
   }
 
   public String show(Connection db) throws IOException, SQLException, UtilException, UserErrorException {
-    StringBuffer buf = new StringBuffer();
+    StringBuilder buf = new StringBuilder();
     Statement st = db.createStatement();
 
     StringBuilder where = new StringBuilder(
@@ -261,7 +265,7 @@ public class NewsViewer implements Viewer {
       if (rs.next()) {
         int tagid=rs.getInt("id");
         if (tagid>0) {
-          where.append(" AND topics.id IN (SELECT msgid FROM tags WHERE tagid=").append(tagid).append(")");
+          where.append(" AND topics.id IN (SELECT msgid FROM tags WHERE tagid=").append(tagid).append(')');
         }
       } else {
         throw new UserErrorException("Tag not found");
@@ -276,7 +280,7 @@ public class NewsViewer implements Viewer {
             "topics.url, topics.linktext, imagepost, vote, sections.name as pname, linkup, " +
             "postdate<(CURRENT_TIMESTAMP-expire) as expired, message, bbcode, sections.id as section, NOT topics.sticky AS ssticky " +
             "FROM topics,groups,users,sections,msgbase " +
-            "WHERE " + where.toString()+" " +
+            "WHERE " + where.toString()+ ' ' +
             "ORDER BY ssticky,commitdate DESC, msgid DESC "+limit
     );
 
