@@ -1,4 +1,4 @@
-<%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
+<%@ page contentType="text/html; charset=utf-8"%>
 <%@ page import="java.sql.Connection,java.sql.ResultSet,java.sql.Statement,ru.org.linux.site.LorDataSource"   buffer="60kb" %>
 <%@ page import="ru.org.linux.site.MissingParameterException"%>
 <%@ page import="ru.org.linux.site.Template"%>
@@ -54,23 +54,23 @@
 	  }
 	  
 	  if (firstPage) {
-		out.print("<title>Последние " + topics + " тем пользователя " + nick + "</title>");
+		out.print("<title>п÷п╬я│п╩п╣п╢п╫п╦п╣ " + topics + " я┌п╣п╪ п©п╬п╩я▄п╥п╬п╡п╟я┌п╣п╩я▐ " + nick + "</title>");
 	  } else {
-		out.print("<title>Последние " + (count - offset) + '-' + (count - offset - topics) + " тем пользователя " + nick + "</title>");		
+		out.print("<title>п÷п╬я│п╩п╣п╢п╫п╦п╣ " + (count - offset) + '-' + (count - offset - topics) + " я┌п╣п╪ п©п╬п╩я▄п╥п╬п╡п╟я┌п╣п╩я▐ " + nick + "</title>");		
 	  }
 %>
 <jsp:include page="WEB-INF/jsp/header.jsp"/>
 <%
 		if (firstPage) {
-			out.print("<h1>Последние " + topics + " тем пользователя " + nick + "</h1>");
+			out.print("<h1>п÷п╬я│п╩п╣п╢п╫п╦п╣ " + topics + " я┌п╣п╪ п©п╬п╩я▄п╥п╬п╡п╟я┌п╣п╩я▐ " + nick + "</h1>");
 		} else {
-			out.print("<h1>Последние " +(count - offset) + '-' + (count - offset - topics) + " тем пользователя " + nick + "</h1>");
+			out.print("<h1>п÷п╬я│п╩п╣п╢п╫п╦п╣ " +(count - offset) + '-' + (count - offset - topics) + " я┌п╣п╪ п©п╬п╩я▄п╥п╬п╡п╟я┌п╣п╩я▐ " + nick + "</h1>");
 		}
 %>
 <div class=forum>
 <table width="100%" class="message-table">
 <thead>
-<tr><th>Раздел</th><th>Группа</th><th>Заглавие</th><th>Дата</th><th>Последнее добавление</th></tr>
+<tr><th>п═п╟п╥п╢п╣п╩</th><th>п⌠я─я┐п©п©п╟</th><th>п≈п╟пЁп╩п╟п╡п╦п╣</th><th>п■п╟я┌п╟</th><th>п÷п╬я│п╩п╣п╢п╫п╣п╣ п╢п╬п╠п╟п╡п╩п╣п╫п╦п╣</th></tr>
 <tbody>
 <%
   if (firstPage) {
@@ -92,26 +92,26 @@
 <%
   out.print("<div style=\"float: left\">");
 
-  // НАЗАД
+  // п²п░п≈п░п■
   if (firstPage) {
     out.print("");
   } else if (offset == pages * topics) {
-    out.print("<a href=\"show-topics.jsp?nick=" + nick + "\">Начало</a> ");
+    out.print("<a href=\"show-topics.jsp?nick=" + nick + "\">Б├░ п╫п╟я┤п╟п╩п╬</a> ");
   } else {
-    out.print("<a rel=prev rev=next href=\"show-topics.jsp?nick=" + nick + "&amp;offset=" + (offset + topics) + "\">Назад</a>");
+    out.print("<a rel=prev rev=next href=\"show-topics.jsp?nick=" + nick + "&amp;offset=" + (offset + topics) + "\">Б├░ п╫п╟п╥п╟п╢</a>");
   }
 
   out.print("</div>");
 
-  // ВПЕРЕД
+  // п▓п÷п∙п═п∙п■
   out.print("<div style=\"float: right\">");
 
   if (firstPage) {
-    out.print("<a rel=next rev=prev href=\"show-topics.jsp?nick=" + nick + "&amp;offset=" + (pages * topics) + "\">Архив</a>");
+    out.print("<a rel=next rev=prev href=\"show-topics.jsp?nick=" + nick + "&amp;offset=" + (pages * topics) + "\">п╟я─я┘п╦п╡ Б├▓</a>");
   } else if (offset == 0 && !firstPage) {
-    out.print("<b>Вперед</b>");
+    out.print("<b>п▓п©п╣я─п╣п╢</b>");
   } else {
-    out.print("<a rel=next rev=prev href=\"show-topics.jsp?nick=" + nick + "&amp;offset=" + (offset - topics) + "\">Вперед</a>");
+    out.print("<a rel=next rev=prev href=\"show-topics.jsp?nick=" + nick + "&amp;offset=" + (offset - topics) + "\">п╡п©п╣я─п╣п╢ Б├▓</a>");
   }
 
   out.print("</div>");
@@ -135,17 +135,17 @@
 	  
 	  if (i==pages+1) {
 		if (offset!=0 || firstPage) {
-                  out.print("[<a href=\"show-topics.jsp?nick=" + nick + "&amp;offset=0\">конец</a>] ");
+                  out.print("[<a href=\"show-topics.jsp?nick=" + nick + "&amp;offset=0\">п╨п╬п╫п╣я├</a>] ");
                 }
 		else {
-                  out.print("[<b>конец</b>] ");
+                  out.print("[<b>п╨п╬п╫п╣я├</b>] ");
                 }
 	  } else if (i==0) {
 		if (firstPage) {
-                  out.print("[<b>начало</b>] ");
+                  out.print("[<b>п╫п╟я┤п╟п╩п╬</b>] ");
                 }
 		else {
-                  out.print("[<a href=\"show-topics.jsp?nick=" + nick + "\">начало</a>] ");
+                  out.print("[<a href=\"show-topics.jsp?nick=" + nick + "\">п╫п╟я┤п╟п╩п╬</a>] ");
                 }
 	  } else if ((pages+1-i)*topics==offset) {
 		out.print("[<b>"+(pages+1-i)+"</b>] ");
