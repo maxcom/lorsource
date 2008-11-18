@@ -1,4 +1,4 @@
-<%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
+<%@ page contentType="text/html; charset=utf-8"%>
 <%@ page import="java.net.URLEncoder,java.sql.Connection,java.sql.ResultSet,java.sql.Statement"   buffer="60kb" %>
 <%@ page import="java.util.Date"%>
 <%@ page import="com.danga.MemCached.MemCachedClient" %>
@@ -35,24 +35,24 @@
 	  if (firstPage) {
 		//response.setDateHeader("Expires", new Date(new Date().getTime()-20*3600*1000).getTime());
 		response.setDateHeader("Expires", System.currentTimeMillis() + 90 * 1000);
-		out.print("<title>Последние " + topics + " комментариев пользователя " + nick + "</title>");
+		out.print("<title>п÷п╬я│п╩п╣п╢п╫п╦п╣ " + topics + " п╨п╬п╪п╪п╣п╫я┌п╟я─п╦п╣п╡ п©п╬п╩я▄п╥п╬п╡п╟я┌п╣п╩я▐ " + nick + "</title>");
             %>
 <jsp:include page="WEB-INF/jsp/header.jsp"/>
 <%
-		out.print("<h1>Последние " + topics + " комментариев пользователя " + nick + "</h1>");
+		out.print("<h1>п÷п╬я│п╩п╣п╢п╫п╦п╣ " + topics + " п╨п╬п╪п╪п╣п╫я┌п╟я─п╦п╣п╡ п©п╬п╩я▄п╥п╬п╡п╟я┌п╣п╩я▐ " + nick + "</h1>");
 	  } else {
 		response.setDateHeader("Expires", System.currentTimeMillis() + 30 * 24 * 60 * 60 * 1000L);
-		out.print("<title>Последние " + count + '-' + offset + " комментариев пользователя " + nick + "</title>");
+		out.print("<title>п÷п╬я│п╩п╣п╢п╫п╦п╣ " + count + '-' + offset + " п╨п╬п╪п╪п╣п╫я┌п╟я─п╦п╣п╡ п©п╬п╩я▄п╥п╬п╡п╟я┌п╣п╩я▐ " + nick + "</title>");
                   %>
 <jsp:include page="WEB-INF/jsp/header.jsp"/>
 <%
-		out.print("<h1>Последние " + count + '-' + offset + " комментариев пользователя " + nick + "</h1>");
+		out.print("<h1>п÷п╬я│п╩п╣п╢п╫п╦п╣ " + count + '-' + offset + " п╨п╬п╪п╪п╣п╫я┌п╟я─п╦п╣п╡ п©п╬п╩я▄п╥п╬п╡п╟я┌п╣п╩я▐ " + nick + "</h1>");
 	  }
 %>
 <div class=forum>
 <table width="100%" class="message-table">
 <thead>
-<tr><th>Раздел</th><th>Группа</th><th>Заглавие темы</th><th>Дата</th></tr>
+<tr><th>п═п╟п╥п╢п╣п╩</th><th>п⌠я─я┐п©п©п╟</th><th>п≈п╟пЁп╩п╟п╡п╦п╣ я┌п╣п╪я▀</th><th>п■п╟я┌п╟</th></tr>
 <tbody>
 <%
 
@@ -80,15 +80,15 @@
   if (firstPage || (offset - topics)<0) {
 	out.print("");
   } else {
-	out.print("<a rel=prev rev=next href=\"show-comments.jsp?nick=" + nick + "&amp;offset=" + (offset - topics) + "\">Назад</a>");	
+	out.print("<a rel=prev rev=next href=\"show-comments.jsp?nick=" + nick + "&amp;offset=" + (offset - topics) + "\">Б├░ п╫п╟п╥п╟п╢</a>");
   }
   out.print("</div>");
   
   out.print("<div style=\"float: right\">");
   if (res!=null && !"".equals(res)) {
-	out.print("<a rel=next rev=prev href=\"show-comments.jsp?nick=" + nick + "&amp;offset=" + (offset + topics) + "\">Вперед</a>");
+	out.print("<a rel=next rev=prev href=\"show-comments.jsp?nick=" + nick + "&amp;offset=" + (offset + topics) + "\">п╡п©п╣я─п╣п╢ Б├▓</a>");
   } else {
-	out.print("<a rel=next rev=prev href=\"show-comments.jsp?nick=" + nick + "&amp;offset=0\">Начало</a>");    
+	out.print("<a rel=next rev=prev href=\"show-comments.jsp?nick=" + nick + "&amp;offset=0\">п©п╣я─п╡п╟я▐ Б├▓</a>");    
   }
   out.print("</div>");
 %>
@@ -97,14 +97,14 @@
 </table>
 </div>
 
-<h2>Последние 20 удаленных модераторами комментариев</h2>
+<h2>п÷п╬я│п╩п╣п╢п╫п╦п╣ 20 я┐п╢п╟п╩п╣п╫п╫я▀я┘ п╪п╬п╢п╣я─п╟я┌п╬я─п╟п╪п╦ п╨п╬п╪п╪п╣п╫я┌п╟я─п╦п╣п╡</h2>
 
 <% if (Template.isSessionAuthorized(session) && (tmpl.isModeratorSession() || nick.equals(session.getValue("nick")))) { %>
 
 <div class=forum>
 <table width="100%" class="message-table">
 <thead>
-<tr><th>Раздел</th><th>Группа</th><th>Заглавие темы</th><th>Причина удаления</th><th>Дата</th></tr>
+<tr><th>п═п╟п╥п╢п╣п╩</th><th>п⌠я─я┐п©п©п╟</th><th>п≈п╟пЁп╩п╟п╡п╦п╣ я┌п╣п╪я▀</th><th>п÷я─п╦я┤п╦п╫п╟ я┐п╢п╟п╩п╣п╫п╦я▐</th><th>п■п╟я┌п╟</th></tr>
 <tbody>
 <%
   if (db==null) {

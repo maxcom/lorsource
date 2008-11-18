@@ -96,7 +96,7 @@
   if (firstPage) {
     out.print("");
   } else if (offset == pages * topics) {
-    out.print("<a href=\"show-topics.jsp?nick=" + nick + "\">← начало</a> ");
+    out.print("<a href=\"show-topics.jsp?nick=" + nick + "\">← первая</a> ");
   } else {
     out.print("<a rel=prev rev=next href=\"show-topics.jsp?nick=" + nick + "&amp;offset=" + (offset + topics) + "\">← назад</a>");
   }
@@ -109,7 +109,6 @@
   if (firstPage) {
     out.print("<a rel=next rev=prev href=\"show-topics.jsp?nick=" + nick + "&amp;offset=" + (pages * topics) + "\">архив →</a>");
   } else if (offset == 0 && !firstPage) {
-    out.print("<b>Вперед</b>");
   } else {
     out.print("<a rel=next rev=prev href=\"show-topics.jsp?nick=" + nick + "&amp;offset=" + (offset - topics) + "\">вперед →</a>");
   }
@@ -135,15 +134,15 @@
 	  
 	  if (i==pages+1) {
 		if (offset!=0 || firstPage) {
-                  out.print("[<a href=\"show-topics.jsp?nick=" + nick + "&amp;offset=0\">конец</a>] ");
+                  out.print("[<a href=\"show-topics.jsp?nick=" + nick + "&amp;offset=0\">последняя</a>] ");
                 } else {
-                  out.print("[<b>конец</b>] ");
+                  out.print("[<b>последняя</b>] ");
                 }
 	  } else if (i==0) {
 		if (firstPage) {
-                  out.print("[<b>начало</b>] ");
+                  out.print("[<b>первая</b>] ");
                 } else {
-                  out.print("[<a href=\"show-topics.jsp?nick=" + nick + "\">начало</a>] ");
+                  out.print("[<a href=\"show-topics.jsp?nick=" + nick + "\">первая</a>] ");
                 }
 	  } else if ((pages+1-i)*topics==offset) {
 		out.print("<b>"+(pages+1-i)+"</b> ");

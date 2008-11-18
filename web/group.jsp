@@ -317,7 +317,6 @@
   if (firstPage) {
     out.print("<a rel=next rev=prev href=\"group.jsp?group=" + groupId + "&amp;offset=" + (pages * topics) + (showDeleted ? "&amp;deleted=t" : "") + ignoredAdd + "\">архив →</a>");
   } else if (offset == 0 && !firstPage) {
-    out.print("<b>вперед →</b>");
   } else {
     out.print("<a rel=next rev=prev href=\"group.jsp?group=" + groupId + "&amp;offset=" + (offset - topics) + (showDeleted ? "&amp;deleted=t" : "") + ignoredAdd + "\">вперед →</a>");
   }
