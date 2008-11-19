@@ -167,7 +167,8 @@
                     <a href="${fn:escapeXml(prevMessage.linkLastmod)}" rel=prev rev=next>←</a>
                   </td>
                   <td align=left valign=top>
-                    <%= StringUtil.makeTitle(prevMessage.getTitle()) %>
+                    <a href="${fn:escapeXml(prevMessage.linkLastmod)}" rel=prev rev=next>
+                    <%= StringUtil.makeTitle(prevMessage.getTitle()) %></a>
                     <c:if test="${!scrollGroup}">
                       (${prevMessage.groupTitle})
                     </c:if>
@@ -181,7 +182,9 @@
             <tr valign=middle align=right>
               <c:if test="${nextMessage != null}">
                 <td>
+                  <a href="${fn:escapeXml(nextMessage.linkLastmod)}" rel=next rev=prev>
                   <%= StringUtil.makeTitle(nextMessage.getTitle()) %>
+                  </a>
                   <c:if test="${!scrollGroup}">
                     (${nextMessage.groupTitle})
                   </c:if>
@@ -212,20 +215,18 @@
         <td align=left valign=middle width="35%">
           <table>
             <tr valign=middle>
-              <c:if test="${prevMessage != null}">
-                <td style="padding-right: 5px">
-                  <a href="${fn:escapeXml(prevMessage.linkLastmod)}" rel=prev rev=next>←</a>
-                </td>
-                <td align=left valign=top>
-<%
-    if (scroll == Section.SCROLL_GROUP) {
-      out.print(StringUtil.makeTitle(prevMessage.getTitle()));
-    } else {
-      out.print(StringUtil.makeTitle(prevMessage.getTitle()) + " (" + prevMessage.getGroupTitle() + ')');
-    }
-%>
-                </td>
-              </c:if>
+                <c:if test="${prevMessage != null}">
+                  <td style="padding-right: 5px">
+                    <a href="${fn:escapeXml(prevMessage.linkLastmod)}" rel=prev rev=next>←</a>
+                  </td>
+                  <td align=left valign=top>
+                    <a href="${fn:escapeXml(prevMessage.linkLastmod)}" rel=prev rev=next>
+                    <%= StringUtil.makeTitle(prevMessage.getTitle()) %></a>
+                    <c:if test="${!scrollGroup}">
+                      (${prevMessage.groupTitle})
+                    </c:if>
+                  </td>
+                </c:if>
             </tr>
           </table>
         </td>
@@ -245,7 +246,9 @@
             <tr valign=middle align=right>
               <c:if test="${nextMessage != null}">
                 <td>
+                  <a href="${fn:escapeXml(nextMessage.linkLastmod)}" rel=next rev=prev>
                   <%= StringUtil.makeTitle(nextMessage.getTitle()) %>
+                  </a>
                   <c:if test="${!scrollGroup}">
                     (${nextMessage.groupTitle})
                   </c:if>
