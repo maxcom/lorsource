@@ -53,10 +53,13 @@ public class NewsViewer implements Viewer {
 
     out.append("<div class=news><h2>");
 
-    String jumplink = "view-message.jsp?msgid=" + msgid;
-    String mainlink = jumplink;
+    String mainlink = "view-message.jsp?msgid=" + msgid;
+    String jumplink;
+    
     if (!expired) {
-      jumplink += "&amp;lastmod=" + lastmod.getTime();
+      jumplink = mainlink+ "&amp;lastmod=" + lastmod.getTime();
+    } else {
+      jumplink = mainlink;
     }
 
     if (!linkup) {
@@ -170,17 +173,19 @@ public class NewsViewer implements Viewer {
           out.append(mainlink);          
         }
 
-        if (stat1 % 10 == 1 && stat1 % 100 != 11) {
-          out.append("\">Добавлен&nbsp;").append(stat1);
-        }
-	else {
-          out.append("\">Добавлено&nbsp;").append(stat1);
-        }
+        out.append("\">");
 
-	if (stat1 % 100 >= 10 && stat1 % 100 <= 20) {
+//        if (stat1 % 10 == 1 && stat1 % 100 != 11) {
+//          out.append("Добавлен&nbsp;");
+//        } else {
+//          out.append("Добавлено&nbsp;");
+//        }
+
+        out.append(stat1);
+
+        if (stat1 % 100 >= 10 && stat1 % 100 <= 20) {
           out.append("&nbsp;комментариев</a>");
-        }
-	else {
+        } else {
           switch (stat1 % 10) {
             case 1:
               out.append("&nbsp;комментарий</a>");
