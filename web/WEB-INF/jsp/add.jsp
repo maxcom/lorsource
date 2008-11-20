@@ -17,8 +17,6 @@
     AddMessageForm form = (AddMessageForm) request.getAttribute("form");
     Group group = (Group) request.getAttribute("group");
 
-    User user = User.getCurrentUser(db, session);
-
     boolean preview = previewMsg!=null;
 
     String mode = form.getMode();
@@ -90,9 +88,7 @@
 
 Сообщение:<br>
 <font size=2>(В режиме <i>Tex paragraphs</i> игнорируются переносы строк.<br> Пустая строка (два раза Enter) начинает новый абзац)</font><br>
-  <% if (user!=null && user.getScore()>=User.LORCODE_SCORE) { %>
-    <font size="2"><b>Внимание:</b> Новый экспериментальный режим - <a href="/wiki/en/Lorcode">LORCODE</a></font><br>
-  <% } %>
+<font size="2"><b>Внимание:</b> Новый экспериментальный режим - <a href="/wiki/en/Lorcode">LORCODE</a></font><br>
 <textarea name=msg cols=70 rows=20><%
     if (form.getMsg()!=null) {
       out.print(HTMLFormatter.htmlSpecialChars(form.getMsg()));
@@ -113,9 +109,7 @@
 <select name=mode>
 <option value=tex <%= (preview && "tex".equals(mode))?"selected":""%> >TeX paragraphs
 <option value=ntobr <%= (preview && "ntobr".equals(mode))?"selected":""%> >User line break
-<% if (user!=null && user.getScore()>=User.LORCODE_SCORE) { %>
 <option value=lorcode <%= (preview && "lorcode".equals(mode))?"selected":""%> >LORCODE
-<% } %>
 </select>
 
 <select name=autourl>

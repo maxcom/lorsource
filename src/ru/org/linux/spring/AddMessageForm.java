@@ -320,10 +320,6 @@ public class AddMessageForm {
       }
     }
 
-    if ("lorcode".equals(mode) && user.getScore()<User.LORCODE_SCORE) {
-      throw new AccessViolationException("Lorcode forbidden");
-    }
-
     return user;
   }
 

@@ -34,8 +34,6 @@ public class User implements Serializable {
 
   private static final int CACHE_MILLIS = 300*1000;
 
-  public static final int LORCODE_SCORE = 50;
-
   private User(Connection con, String name) throws SQLException, UserNotFoundException {
     if (name == null) {
       throw new NullPointerException();
@@ -178,7 +176,7 @@ public class User implements Serializable {
   }
 
   public String getActivationCode(String base) {
-    return StringUtil.md5hash(base + ":" + nick +":" + password);
+    return StringUtil.md5hash(base + ':' + nick + ':' + password);
   }
 
   public int getScore() {
@@ -198,7 +196,7 @@ public class User implements Serializable {
   }
 
   public static String getStars(int score, int maxScore) {
-    StringBuffer out = new StringBuffer();
+    StringBuilder out = new StringBuilder();
 
     if (score < 0) {
       score = 0;
@@ -272,7 +270,7 @@ public class User implements Serializable {
   }
 
   public String getCommitInfoLine(Timestamp postdate, Timestamp commitDate) {
-    StringBuffer out = new StringBuffer();
+    StringBuilder out = new StringBuilder();
 
     out.append("<i>Проверено: ").append(getNick()).append(" (<a href=\"whois.jsp?nick=").append(URLEncoder.encode(getNick())).append("\">*</a>)");
     if (commitDate!=null && !commitDate.equals(postdate)) {
@@ -434,13 +432,13 @@ public class User implements Serializable {
     out.append(' ');
 
     if (!"anonymous".equals(nick)) {
-      out.append(User.getStars(score, maxScore)).append(' ');
+      out.append(getStars(score, maxScore)).append(' ');
         if (moderatorMode) {
           out.append("(Score: ").append(score).append(" MaxScore: ").append(maxScore).append(") ");
         }
     }
 
-    out.append("(<a href=\"whois.jsp?nick=").append(URLEncoder.encode(nick)).append("\">*</a>) (").append(Template.dateFormat.format(postdate)).append(")");
+    out.append("(<a href=\"whois.jsp?nick=").append(URLEncoder.encode(nick)).append("\">*</a>) (").append(Template.dateFormat.format(postdate)).append(')');
 
     return out.toString();
   }
@@ -460,8 +458,8 @@ public class User implements Serializable {
     // username + ":" + expiryTime + ":" + Md5Hex(username + ":" +
     // expiryTime + ":" + password + ":" + key)
 
-    String signatureValue = StringUtil.md5hash(username + ":" + expiryTime + ":" + password + ":" + key);
-    String tokenValue = username + ":" + expiryTime + ":" + signatureValue;
+    String signatureValue = StringUtil.md5hash(username + ':' + expiryTime + ':' + password + ':' + key);
+    String tokenValue = username + ':' + expiryTime + ':' + signatureValue;
     String tokenValueBase64 = new String(Base64.encodeBase64(tokenValue.getBytes()));
 
     // Add remember me cookie
@@ -481,7 +479,7 @@ public class User implements Serializable {
 
   private void updateCache(Connection db) throws SQLException {
     try {
-      User.getUser(db, id);
+      getUser(db, id);
     } catch (UserNotFoundException e) {
       throw new RuntimeException(e);
     }
