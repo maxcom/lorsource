@@ -1,4 +1,4 @@
-<%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
+<%@ page contentType="text/html; charset=utf-8"%>
 <%@ page import="java.io.IOException,java.net.URLEncoder"   buffer="60kb" %>
 <%@ page import="java.sql.*"%>
 <%@ page import="java.util.Map"%>
@@ -18,7 +18,7 @@
     throw new MissingParameterException("nick");
   }
 %>
-<title>Информация о пользователе <%= nick %></title>
+<title>п≤п╫я└п╬я─п╪п╟я├п╦я▐ п╬ п©п╬п╩я▄п╥п╬п╡п╟я┌п╣п╩п╣ <%= nick %></title>
 <jsp:include page="WEB-INF/jsp/header.jsp"/>
 
 <% Connection db = null;
@@ -28,7 +28,7 @@
     User user = User.getUser(db, nick);
 %>
 
-<h1>Информация о пользователе <%= nick %></h1>
+<h1>п≤п╫я└п╬я─п╪п╟я├п╦я▐ п╬ п©п╬п╩я▄п╥п╬п╡п╟я┌п╣п╩п╣ <%= nick %></h1>
 <table><tr>
 <%
   PreparedStatement userInfo = db.prepareStatement("SELECT url, town, lastlogin, email, name, regdate FROM users WHERE nick=?");
@@ -69,7 +69,7 @@
       out.print("<p><form name='f_remove_userpic' method='post' action='usermod.jsp'>\n");
       out.print("<input type='hidden' name='id' value='" + userid + "'>\n");
       out.print("<input type='hidden' name='action' value='remove_userpic'>\n");
-      out.print("<input type='submit' value='Удалить изображение'>\n");
+      out.print("<input type='submit' value='пёп╢п╟п╩п╦я┌я▄ п╦п╥п╬п╠я─п╟п╤п╣п╫п╦п╣'>\n");
       out.print("</form>");
     }
 
@@ -77,7 +77,7 @@
   }
 %>
 <td valign="top" align="left">
-<h2>Регистрация</h2>
+<h2>п═п╣пЁп╦я│я┌я─п╟я├п╦я▐</h2>
 <b>ID:</b> <%= userid %><br>
 <b>Nick:</b> <%= nick %><br>
 <% String url=rs.getString("url");
@@ -88,25 +88,25 @@
    String sEmail=rs.getString("email");
    int score = user.getScore();
 
-   if (fullname!=null) if (!"".equals(fullname)) out.println("<b>Полное имя:</b> "+fullname+"<br>");
+   if (fullname!=null) if (!"".equals(fullname)) out.println("<b>п÷п╬п╩п╫п╬п╣ п╦п╪я▐:</b> "+fullname+"<br>");
    if (url!=null) if (!"".equals(url)) out.println("<b>URL:</b> <a href=\""+url+"\">"+url+"</a><br>");
-   if (town!=null) if (!"".equals(town)) out.println("<b>Город:</b> "+town+"<br>");
-   if (regdate!=null) out.println("<b>Дата регистрации:</b> "+Template.dateFormat.format(regdate)+"<br>");
-   else out.println("<b>Дата регистрации:</b> неизвестно<br>");
-   if (lastlogin!=null) out.println("<b>Последний логин:</b> "+Template.dateFormat.format(lastlogin)+"<br>");
-   else out.println("<b>Последний логин:</b> неизвестно<br>");
+   if (town!=null) if (!"".equals(town)) out.println("<b>п⌠п╬я─п╬п╢:</b> "+town+"<br>");
+   if (regdate!=null) out.println("<b>п■п╟я┌п╟ я─п╣пЁп╦я│я┌я─п╟я├п╦п╦:</b> "+Template.dateFormat.format(regdate)+"<br>");
+   else out.println("<b>п■п╟я┌п╟ я─п╣пЁп╦я│я┌я─п╟я├п╦п╦:</b> п╫п╣п╦п╥п╡п╣я│я┌п╫п╬<br>");
+   if (lastlogin!=null) out.println("<b>п÷п╬я│п╩п╣п╢п╫п╦п╧ п╩п╬пЁп╦п╫:</b> "+Template.dateFormat.format(lastlogin)+"<br>");
+   else out.println("<b>п÷п╬я│п╩п╣п╢п╫п╦п╧ п╩п╬пЁп╦п╫:</b> п╫п╣п╦п╥п╡п╣я│я┌п╫п╬<br>");
 %>
-<b>Статус:</b> <%= user.getStatus() %><%
+<b>п║я┌п╟я┌я┐я│:</b> <%= user.getStatus() %><%
   if (user.canModerate()) {
-    out.print(" (модератор)");
+    out.print(" (п╪п╬п╢п╣я─п╟я┌п╬я─)");
   }
 
   if (user.isCorrector()) {
-    out.print(" (корректор)");
+    out.print(" (п╨п╬я─я─п╣п╨я┌п╬я─)");
   }
 
   if (user.isBlocked())
-    out.println(" (заблокирован)\n");
+    out.println(" (п╥п╟п╠п╩п╬п╨п╦я─п╬п╡п╟п╫)\n");
 
   out.print("<br>");
 
@@ -118,7 +118,7 @@
     rs.close();
     rs = stat5.executeQuery();
     rs.next();
-    out.println("<b>Игнорируется</b>: " + rs.getInt("inum") + "<br>\n");
+    out.println("<b>п≤пЁп╫п╬я─п╦я─я┐п╣я┌я│я▐</b>: " + rs.getInt("inum") + "<br>\n");
   }
   if (Template.isSessionAuthorized(session) && !session.getValue("nick").equals(nick) && !"anonymous".equals(session.getValue("nick"))) {
     out.println("<br>");
@@ -126,14 +126,14 @@
     if (ignoreList != null && !ignoreList.isEmpty() && ignoreList.containsValue(nick)) {
       out.print("<form name='i_unblock' method='post' action='ignore-list.jsp'>\n");
       out.print("<input type='hidden' name='ignore_list' value='" + userid + "'>\n");
-      out.print("Вы игнорируете этого пользователя &nbsp; \n");
-      out.print("<input type='submit' name='del' value='не игнорировать'>\n");
+      out.print("п▓я▀ п╦пЁп╫п╬я─п╦я─я┐п╣я┌п╣ я█я┌п╬пЁп╬ п©п╬п╩я▄п╥п╬п╡п╟я┌п╣п╩я▐ &nbsp; \n");
+      out.print("<input type='submit' name='del' value='п╫п╣ п╦пЁп╫п╬я─п╦я─п╬п╡п╟я┌я▄'>\n");
       out.print("</form>");
     } else {
       out.print("<form name='i_block' method='post' action='ignore-list.jsp'>\n");
       out.print("<input type='hidden' name='nick' value='" + nick + "'>\n");
-      out.print("Вы не игнорируете этого пользователя &nbsp; \n");
-      out.print("<input type='submit' name='add' value='игнорировать'>\n");
+      out.print("п▓я▀ п╫п╣ п╦пЁп╫п╬я─п╦я─я┐п╣я┌п╣ я█я┌п╬пЁп╬ п©п╬п╩я▄п╥п╬п╡п╟я┌п╣п╩я▐ &nbsp; \n");
+      out.print("<input type='submit' name='add' value='п╦пЁп╫п╬я─п╦я─п╬п╡п╟я┌я▄'>\n");
       out.print("</form>");
     }
   }
@@ -166,12 +166,12 @@
     out.print("<p><form name='f_remove_userinfo' method='post' action='usermod.jsp'>\n");
     out.print("<input type='hidden' name='id' value='" + userid + "'>\n");
     out.print("<input type='hidden' name='action' value='remove_userinfo'>\n");
-    out.print("<input type='submit' value='Удалить текст'>\n");
+    out.print("<input type='submit' value='пёп╢п╟п╩п╦я┌я▄ я┌п╣п╨я│я┌'>\n");
     out.print("</form>");
     out.print("<p><form name='f_toggle_corrector' method='post' action='usermod.jsp'>\n");
     out.print("<input type='hidden' name='id' value='" + userid + "'>\n");
     out.print("<input type='hidden' name='action' value='toggle_corrector'>\n");
-    out.print("<input type='submit' value='"+(user.isCorrector()?"Убрать права корректора":"Сделать коректором")+"'>\n");
+    out.print("<input type='submit' value='"+(user.isCorrector()?"пёп╠я─п╟я┌я▄ п©я─п╟п╡п╟ п╨п╬я─я─п╣п╨я┌п╬я─п╟":"п║п╢п╣п╩п╟я┌я▄ п╨п╬я─я─п╣п╨я┌п╬я─п╬п╪")+"'>\n");
     out.print("</form>");
   }
 
@@ -179,31 +179,31 @@
 </cite>
 <%
   if (Template.isSessionAuthorized(session) && (session.getValue("nick").equals(nick))) {
-    out.print("<p><a href=\"register.jsp?mode=change\">Изменить регистрацию</a>.");
+    out.print("<p><a href=\"register.jsp?mode=change\">п≤п╥п╪п╣п╫п╦я┌я▄ я─п╣пЁп╦я│я┌я─п╟я├п╦я▌</a>.");
   }
 %>
 
-<h2>Статистика</h2>
+<h2>п║я┌п╟я┌п╦я│я┌п╦п╨п╟</h2>
 <% rs.close(); rs=stat3.executeQuery(); rs.next();
   Timestamp first = rs.getTimestamp("first");
   Timestamp last = rs.getTimestamp("last");
  %>
-<b>Первая созданная тема:</b> <%= first==null?"нет":Template.dateFormat.format(first) %><br>
-<b>Последняя созданная тема:</b> <%= last==null?"нет":Template.dateFormat.format(last) %><br>
+<b>п÷п╣я─п╡п╟я▐ я│п╬п╥п╢п╟п╫п╫п╟я▐ я┌п╣п╪п╟:</b> <%= first==null?"п╫п╣я┌":Template.dateFormat.format(first) %><br>
+<b>п÷п╬я│п╩п╣п╢п╫я▐я▐ я│п╬п╥п╢п╟п╫п╫п╟я▐ я┌п╣п╪п╟:</b> <%= last==null?"п╫п╣я┌":Template.dateFormat.format(last) %><br>
 <% rs.close(); %>
 <% rs=stat4.executeQuery(); rs.next();
   Timestamp firstComment = rs.getTimestamp("first");
   Timestamp lastComment = rs.getTimestamp("last");
 %>
-<b>Первый комментарий:</b> <%= firstComment==null?"нет":Template.dateFormat.format(firstComment) %><br>
-<b>Последний комментарий:</b> <%= lastComment==null?"нет":Template.dateFormat.format(lastComment) %>
+<b>п÷п╣я─п╡я▀п╧ п╨п╬п╪п╪п╣п╫я┌п╟я─п╦п╧:</b> <%= firstComment==null?"п╫п╣я┌":Template.dateFormat.format(firstComment) %><br>
+<b>п÷п╬я│п╩п╣п╢п╫п╦п╧ п╨п╬п╪п╪п╣п╫я┌п╟я─п╦п╧:</b> <%= lastComment==null?"п╫п╣я┌":Template.dateFormat.format(lastComment) %>
 <% rs.close(); %>
 <p>
 <div class="forum">
 <div class="color1">
 <table width="100%" cellspacing='1' cellpadding='0' border='0'>
 <thead>
-<tr class='color1'><th>Раздел</th><th>Число сообщений (тем)</th></tr>
+<tr class='color1'><th>п═п╟п╥п╢п╣п╩</th><th>п╖п╦я│п╩п╬ я│п╬п╬п╠я┴п╣п╫п╦п╧ (я┌п╣п╪)</th></tr>
 <tbody>
 <% rs=stat2.executeQuery(); %>
 <%
@@ -213,19 +213,19 @@
 %>
 <tfoot>
 <% rs.close(); rs=stat1.executeQuery(); rs.next(); %>
-<tr class='color2'><td>Комментарии</td><td valign='top'><%= rs.getInt("c") %></td></tr>
+<tr class='color2'><td>п п╬п╪п╪п╣п╫я┌п╟я─п╦п╦</td><td valign='top'><%= rs.getInt("c") %></td></tr>
 </table>
 </div></div>
 <% if (userid!=2) { %>
 
-<h2>Сообщения пользователя</h2>
+<h2>п║п╬п╬п╠я┴п╣п╫п╦я▐ п©п╬п╩я▄п╥п╬п╡п╟я┌п╣п╩я▐</h2>
 <ul>
   <li>
-    <a href="show-topics.jsp?nick=<%= nick %>">Темы</a>
+    <a href="show-topics.jsp?nick=<%= nick %>">п╒п╣п╪я▀</a>
   </li>
 
   <li>
-    <a href="show-comments.jsp?nick=<%= nick %>">Комментарии</a>
+    <a href="show-comments.jsp?nick=<%= nick %>">п п╬п╪п╪п╣п╫я┌п╟я─п╦п╦</a>
   </li>
 </ul>
 
