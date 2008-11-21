@@ -232,7 +232,7 @@ public class User implements Serializable {
   public String getStatus() {
     if (score < ANONYMOUS_LEVEL_SCORE) {
       return "анонимный";
-    } else if (score < CORRECTOR_SCORE && maxScore < CORRECTOR_SCORE) {
+    } else if (score < 100 && maxScore < 100) {
       return "новый пользователь";
     } else {
       return getStars(score, maxScore);
@@ -499,5 +499,9 @@ public class User implements Serializable {
         st.close();
       }
     }
+  }
+
+  public boolean isCorrector() {
+    return corrector;
   }
 }

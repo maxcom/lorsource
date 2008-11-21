@@ -36,15 +36,13 @@
   <p>
 Мы работаем на:
     <ul>
-      <li>Fedora 7</li>
+      <li>Fedora 8</li>
       <li>СУБД PostgreSQL 8.2</li>
       <li>Apache2 2.2</li>
-      <li>Sun Java SDK 1.5</li>
+      <li>Sun Java SDK 1.6</li>
       <li>Apache Tomcat 5.5</li>
       <li>memcached 1.2</li>
     </ul>
-      Спасибо Олегу Дрокину (<b>green</b>) за
-администрирование.
   </p>
 
 <h1>Наша команда</h1>
@@ -55,7 +53,9 @@
 разработка, поддержка, дизайн, новости, информационное наполнение.
 
 <li><a href="whois.jsp?nick=green">Олег Дрокин</a> (green) - администрирование сервера, железо
-
+</ul>
+  Модераторы:
+  <ul>
 <%
   Connection db = null;
 
@@ -69,16 +69,34 @@
       String nick = rs.getString("nick");
       String name = rs.getString("name");
 
-      if (nick.equals("maxcom")) {
+      if ("maxcom".equals(nick)) {
         continue;    
       }
 
-      out.print("<li><a href=\"whois.jsp?nick="+URLEncoder.encode(nick)+"\">"+name+"</a> ("+nick+")");  
+      out.print("<li><a href=\"whois.jsp?nick="+URLEncoder.encode(nick)+"\">"+name+"</a> ("+nick+ ')');
     }
 %>
 
 </ul>
 
+  Корректоры новостей:
+  <ul>
+<%
+  ResultSet rs2 = st.executeQuery("SELECT nick, name FROM users WHERE corrector ORDER BY id");
+
+  while (rs2.next()) {
+    String nick = rs2.getString("nick");
+    String name = rs2.getString("name");
+
+    if ("maxcom".equals(nick)) {
+      continue;
+    }
+
+    out.print("<li><a href=\"whois.jsp?nick="+URLEncoder.encode(nick)+"\">"+name+"</a> ("+nick+ ')');
+  }
+
+%>
+  </ul>
   <%
   } finally {
     if (db!=null) {
@@ -89,10 +107,11 @@
 </div>
 
 <h1>Реклама на сайте</h1>
+<p>
 Linux.org.ru некоммерческий проект, мы не занимаемся размещением рекламы на страничках сайта
 сверх минимума, необходимого для работы сайта. Вы можете разместить рекламу через Google Adsense
 на страничках нашего сайта по ссылке "<a href="https://adwords.google.com/select/OnsiteSignupLandingPage?client=ca-pub-6069094673001350&referringUrl=http://www.linux.org.ru/">размещение рекламы на этом сайте</a>".
-
+</p>
 <h1>Связанные проекты</h1>
 <ul>
   <li><a href="http://www.lorquotes.ru/">LorQuotes</a> - избранные цитаты</li>

@@ -58,7 +58,7 @@
     out.print("<td valign='top' align='center'>");
 
     try {
-      out.print("<img src=\"/photos/" + user.getPhoto() + "\" alt=\"" + nick + "\" " + new ImageInfo(tmpl.getObjectConfig().getHTMLPathPrefix() + "photos/" + user.getPhoto()).getCode() + ">");
+      out.print("<img src=\"/photos/" + user.getPhoto() + "\" alt=\"" + nick + "\" " + new ImageInfo(tmpl.getObjectConfig().getHTMLPathPrefix() + "photos/" + user.getPhoto()).getCode() + '>');
     } catch (IOException ex) {
       out.print("[bad image]");
     } catch (BadImageException ex) {
@@ -101,6 +101,10 @@
     out.print(" (модератор)");
   }
 
+  if (user.isCorrector()) {
+    out.print(" (корректор)");
+  }
+
   if (user.isBlocked())
     out.println(" (заблокирован)\n");
 
@@ -108,7 +112,7 @@
 
   if (Template.isSessionAuthorized(session) && (session.getValue("nick").equals(nick) ||
       (Boolean) session.getValue("moderator"))) {
-    if (sEmail != null) if (!sEmail.equals(""))
+    if (sEmail != null) if (!"".equals(sEmail))
       out.println("<br><b>Email:</b> " + sEmail + "<br>");
     out.println("<b>Score</b>: " + score + "<br>\n");
     rs.close();
@@ -116,7 +120,7 @@
     rs.next();
     out.println("<b>Игнорируется</b>: " + rs.getInt("inum") + "<br>\n");
   }
-  if (Template.isSessionAuthorized(session) && !session.getValue("nick").equals(nick) && !session.getValue("nick").equals("anonymous")) {
+  if (Template.isSessionAuthorized(session) && !session.getValue("nick").equals(nick) && !"anonymous".equals(session.getValue("nick"))) {
     out.println("<br>");
     Map<Integer,String> ignoreList = IgnoreList.getIgnoreListHash(db, (String) session.getValue("nick"));
     if (ignoreList != null && !ignoreList.isEmpty() && ignoreList.containsValue(nick)) {
@@ -167,7 +171,7 @@
     out.print("<p><form name='f_toggle_corrector' method='post' action='usermod.jsp'>\n");
     out.print("<input type='hidden' name='id' value='" + userid + "'>\n");
     out.print("<input type='hidden' name='action' value='toggle_corrector'>\n");
-    out.print("<input type='submit' value='"+(user.canCorrect()?"Убрать права корректора":"Сделать коректором")+"'>\n");
+    out.print("<input type='submit' value='"+(user.isCorrector()?"Убрать права корректора":"Сделать коректором")+"'>\n");
     out.print("</form>");
   }
 
