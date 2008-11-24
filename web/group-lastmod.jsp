@@ -3,6 +3,7 @@
 <%@ page import="java.util.Map"%>
 <%@ page import="ru.org.linux.site.*"%>
 <%@ page import="ru.org.linux.util.ImageInfo" %>
+<%@ page import="ru.org.linux.util.ServletParameterParser" %>
 <%@ page import="ru.org.linux.util.StringUtil" %>
 <% Template tmpl = Template.getTemplate(request); %>
 <jsp:include page="WEB-INF/jsp/head.jsp"/>
@@ -13,11 +14,8 @@
     response.setDateHeader("Expires", new Date(new Date().getTime() - 20 * 3600 * 1000).getTime());
     response.setDateHeader("Last-Modified", new Date(new Date().getTime() - 2 * 1000).getTime());
 
-    if (request.getParameter("group") == null) {
-      throw new MissingParameterException("group");
-    }
+    int groupid = new ServletParameterParser(request).getInt("group");
 
-    int groupid = Integer.parseInt(request.getParameter("group"));
     int offset;
 
     boolean firstPage;

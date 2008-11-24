@@ -18,7 +18,7 @@
 <%
   Connection db = null;
   try {
-    int groupId = Integer.parseInt(request.getParameter("group"));
+    int groupId = new ServletParameterParser(request).getInt("group");
     boolean showDeleted = request.getParameter("deleted") != null;
 
     if (showDeleted && !"POST".equals(request.getMethod())) {
