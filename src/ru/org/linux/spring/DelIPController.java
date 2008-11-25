@@ -19,6 +19,7 @@ import ru.org.linux.site.*;
 import ru.org.linux.util.ServletParameterParser;
 
 public class DelIPController extends AbstractController {
+  @Override
   protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) throws Exception {
   
     Map<String, Object> params = new HashMap<String, Object>();
@@ -31,7 +32,7 @@ public class DelIPController extends AbstractController {
       throw new IllegalAccessException("Not authorized");
     }
 
-    if (!request.getMethod().equals("POST")) {
+    if (!"POST".equals(request.getMethod())) {
       throw new IllegalAccessException("Invalid method");
     }
     
@@ -102,13 +103,18 @@ public class DelIPController extends AbstractController {
 
         rs = st.executeQuery();
     
-        while(rs.next()) {
+        while (rs.next()) {
           int msgid = rs.getInt("id");
-          deleted.put(msgid,deleter.deleteReplys(msgid, moderator, true) + 
-            " " + deleter.deleteComment(msgid, reason, moderator, -20));
+
+          if (!deleter.getReplys(msgid).isEmpty()) {
+            deleted.put(msgid, "пропущен");
+            continue;
+          }
+
+          deleted.put(msgid, deleter.deleteComment(msgid, reason, moderator, -20));
         }
+
         params.put("deleted", deleted);        
-        
       } finally {
         if (deleter!=null) {
           deleter.close();

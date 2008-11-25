@@ -69,7 +69,7 @@
 
 			</table>
 
-<h1 align="center">Сообщения с <%= ip %> (за 24 часа)</h1>
+<h1 align="center">Сообщения с <%= ip %> (за 3 дня)</h1>
 
 <strong>Текущий статус: </strong>
 
@@ -164,7 +164,7 @@ function checkCustomBan(idx) {
 <%
 
   Statement st=db.createStatement();
-  ResultSet rs=st.executeQuery("SELECT sections.name as ptitle, groups.title as gtitle, topics.title as title, topics.id as msgid, postdate FROM topics, groups, sections, users WHERE topics.groupid=groups.id AND sections.id=groups.section AND users.id=topics.userid AND topics.postip='"+ip+"' AND postdate>CURRENT_TIMESTAMP-'24 hour'::interval ORDER BY msgid DESC");
+  ResultSet rs=st.executeQuery("SELECT sections.name as ptitle, groups.title as gtitle, topics.title as title, topics.id as msgid, postdate FROM topics, groups, sections, users WHERE topics.groupid=groups.id AND sections.id=groups.section AND users.id=topics.userid AND topics.postip='"+ip+"' AND postdate>CURRENT_TIMESTAMP-'3 days'::interval ORDER BY msgid DESC");
   while (rs.next()) {
     out.print("<tr class=color2><td>" + rs.getString("ptitle") + "</td><td>" + rs.getString("gtitle") + "</td><td><a href=\"view-message.jsp?msgid=" + rs.getInt("msgid") + "\" rev=contents>" + StringUtil.makeTitle(rs.getString("title")) + "</a></td><td>" + Template.dateFormat.format(rs.getTimestamp("postdate")) + "</td></tr>");
   }

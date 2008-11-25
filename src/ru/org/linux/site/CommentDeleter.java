@@ -8,60 +8,53 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
-
 public class CommentDeleter {
   private static final Logger logger = Logger.getLogger("ru.org.linux");
 
-  private final PreparedStatement st1;
-  private final PreparedStatement st2;
-  private final PreparedStatement st3;
-  private final PreparedStatement st4;
+  private final PreparedStatement deleteComment;
+  private final PreparedStatement insertDelinfo;
+  private final PreparedStatement replysForComment;
+  private final PreparedStatement updateScore;
 
   public CommentDeleter(Connection db) throws SQLException {
-    st1 = db.prepareStatement("UPDATE comments SET deleted='t' WHERE id=?");
-    st2 = db.prepareStatement("INSERT INTO del_info (msgid, delby, reason) values(?,?,?)");
-    st3 = db.prepareStatement("SELECT id FROM comments WHERE replyto=? AND NOT deleted FOR UPDATE");
-    st4 = db.prepareStatement("UPDATE users SET score=score+? WHERE id=(SELECT userid FROM comments WHERE id=?)");
+    deleteComment = db.prepareStatement("UPDATE comments SET deleted='t' WHERE id=?");
+    insertDelinfo = db.prepareStatement("INSERT INTO del_info (msgid, delby, reason) values(?,?,?)");
+    replysForComment = db.prepareStatement("SELECT id FROM comments WHERE replyto=? AND NOT deleted FOR UPDATE");
+    updateScore = db.prepareStatement("UPDATE users SET score=score+? WHERE id=(SELECT userid FROM comments WHERE id=?)");
   }
 
-  public String deleteComment(int msgid, String reason, User user, int scoreBonus) throws SQLException {
-    st1.clearParameters();
-    st2.clearParameters();
+  public String deleteComment(int msgid, String reason, User user, int scoreBonus) throws SQLException, ScriptErrorException {
+    if (!getReplys(msgid).isEmpty()) {
+      throw new ScriptErrorException("Нельзя удалить комментарий с ответами");
+    }
 
-    st1.setInt(1, msgid);
-    st2.setInt(1, msgid);
-    st2.setInt(2, user.getId());
-    st2.setString(3, reason);
+    deleteComment.clearParameters();
+    insertDelinfo.clearParameters();
 
-    st4.setInt(1, scoreBonus);
-    st4.setInt(2, msgid);
+    deleteComment.setInt(1, msgid);
+    insertDelinfo.setInt(1, msgid);
+    insertDelinfo.setInt(2, user.getId());
+    insertDelinfo.setString(3, reason);
 
-    st1.executeUpdate();
-    st2.executeUpdate();
-    st4.executeUpdate();
+    updateScore.setInt(1, scoreBonus);
+    updateScore.setInt(2, msgid);
+
+    deleteComment.executeUpdate();
+    insertDelinfo.executeUpdate();
+    updateScore.executeUpdate();
 
     logger.info("Удалено сообщение " + msgid + " пользователем " + user.getNick() + " по причине `" + reason + '\'');
     return "Сообщение " + msgid + " удалено";
   }
 
-  public String deleteReplys(int msgid, User user, boolean score) throws SQLException {
+  public String deleteReplys(int msgid, User user, boolean score) throws SQLException, ScriptErrorException {
     return deleteReplys(msgid, user, score, 0);
   }
 
-  private String deleteReplys(int msgid, User user, boolean score, int depth) throws SQLException {
-    List<Integer> replys = new ArrayList<Integer>();
-    StringBuffer out = new StringBuffer();
+  private String deleteReplys(int msgid, User user, boolean score, int depth) throws SQLException, ScriptErrorException {
+    List<Integer> replys = getReplys(msgid);
 
-    st3.setInt(1, msgid);
-
-    ResultSet rs = st3.executeQuery();
-
-    while (rs.next()) {
-      int r = rs.getInt("id");
-      replys.add(r);
-    }
-
-    rs.close();
+    StringBuilder out = new StringBuilder();
 
     for (Integer r : replys) {
       out.append(deleteReplys(r, user, score, depth+1));
@@ -90,9 +83,25 @@ public class CommentDeleter {
     return out.toString();
   }
 
+  public List<Integer> getReplys(int msgid) throws SQLException {
+    List<Integer> replys = new ArrayList<Integer>();
+
+    replysForComment.setInt(1, msgid);
+
+    ResultSet rs = replysForComment.executeQuery();
+
+    while (rs.next()) {
+      int r = rs.getInt("id");
+      replys.add(r);
+    }
+
+    rs.close();
+    return replys;
+  }
+
   public void close() throws SQLException {
-    st1.close();
-    st2.close();
-    st3.close();
+    deleteComment.close();
+    insertDelinfo.close();
+    replysForComment.close();
   }
 }

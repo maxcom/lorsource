@@ -311,7 +311,7 @@ public class User implements Serializable {
     }
   }
 
-  public String deleteAllComments(Connection db, User moderator) throws SQLException {
+  public String deleteAllComments(Connection db, User moderator) throws SQLException, ScriptErrorException {
     Statement st = null;
     ResultSet rs = null;
     CommentDeleter deleter = null;
