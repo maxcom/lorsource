@@ -208,6 +208,18 @@ public class Message {
   }
 
   public int getPostScore() {
+    if (commentCount>1000 && postscore < 50 && !sticky) {
+      return 50;
+    }
+
+    if (commentCount>2000 && postscore < 100  && !sticky) {
+      return 100;
+    }
+
+    if (commentCount>3000 && postscore < 200  && !sticky) {
+      return 200;
+    }
+
     return postscore;
   }
 
