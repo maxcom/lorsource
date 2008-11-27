@@ -1,6 +1,7 @@
 <%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
 <%@ page import="java.sql.Connection,java.sql.PreparedStatement,java.sql.ResultSet,java.sql.Statement,java.util.logging.Logger"   buffer="60kb" %>
 <%@ page import="ru.org.linux.site.LorDataSource" %>
+<%@ page import="ru.org.linux.site.Message" %>
 <%@ page import="ru.org.linux.site.Template" %>
 <%@ page import="ru.org.linux.util.ServletParameterParser" %>
 <%
@@ -23,8 +24,11 @@
   try {
     int msgid = new ServletParameterParser(request).getInt("msgid");
     db = LorDataSource.getConnection();
+
+    Message msg = new Message(db, msgid);
+
     Statement st1 = db.createStatement();
-    if (request.getMethod().equals("POST")) {
+    if ("POST".equals(request.getMethod())) {
       String newgr = request.getParameter("moveto");
       String sSql = "UPDATE topics SET groupid=" + newgr + " WHERE id=" + msgid;
 
@@ -43,13 +47,19 @@
       st1.executeUpdate(sSql);
 
       PreparedStatement pst1 = db.prepareStatement("UPDATE msgbase SET message=message||? WHERE id=?");
-      pst1.setString(1,"\n<br>\n<br><i>Перемещено " + session.getValue("nick") + " из "+title+"</i>\n");
+      if (msg.isLorcode()) {
+        pst1.setString(1,"\n\n[i]Перемещено " + session.getValue("nick") + " из "+title+"[/i]\n");
+      } else {
+        pst1.setString(1,"\n<br>\n<br><i>Перемещено " + session.getValue("nick") + " из "+title+"</i>\n");
+      }
       pst1.setInt(2,msgid);
       pst1.executeUpdate();
       logger.info("topic " + msgid + " moved" +
           " by " + session.getValue("nick") + " from news/forum " + oldgr + " to forum " + newgr);
     } else {
-      out.println("перенос сообщения <strong>" + msgid + "</strong> в форум:");
+%>
+перенос сообщения <strong><%= msgid %></strong> в форум:
+<%
       ResultSet rs = st1.executeQuery("SELECT id,title FROM groups WHERE section=2 ORDER BY id");
 %>
 <form method="post" action="mt.jsp">
@@ -69,6 +79,5 @@
         }
     }
 %>
-
 
   <jsp:include page="WEB-INF/jsp/footer.jsp"/>
