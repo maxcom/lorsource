@@ -15,6 +15,8 @@
 	Connection db = null;
 
 	try {
+          db = LorDataSource.getConnection();
+
           User user = User.getUser(db, nick);
 
 	  boolean firstPage = true;
@@ -60,8 +62,6 @@
 
   String res = (String) mcc.get(showCommentsId);
   if (res==null) {
-    db = LorDataSource.getConnection();
-
     res = MessageTable.showComments(db, user, offset, topics);
 	
 	if (firstPage) {
