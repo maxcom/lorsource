@@ -6,6 +6,8 @@ import java.net.URLEncoder;
 import java.sql.*;
 import java.util.Date;
 
+import org.javabb.bbcode.BBCodeProcessor;
+
 import ru.org.linux.util.HTMLFormatter;
 import ru.org.linux.util.ProfileHashtable;
 import ru.org.linux.util.UtilException;
@@ -32,8 +34,9 @@ public class SearchViewer implements Viewer {
     this.query = query;
   }
 
+  @Override
   public String show(Connection db) throws IOException, SQLException, UtilException, UserErrorException {
-    StringBuilder select = new StringBuilder("SELECT qq.id, title, postdate, section, topic, userid, rank, headline(message, q, 'HighlightAll=True') as headline FROM ("+
+    StringBuilder select = new StringBuilder("SELECT qq.id, title, postdate, section, topic, userid, rank, message,bbcode FROM ("+
         "SELECT " +
         "msgs.id, title, postdate, section, topic, userid, rank(idxFTI, q) as rank");
 
@@ -107,7 +110,8 @@ public class SearchViewer implements Viewer {
       String title = rs.getString("title");
       int topic = rs.getInt("topic");
       int id = rs.getInt("id");
-      String headline = rs.getString("headline");
+      String message = rs.getString("message");
+      boolean lorcode = rs.getBoolean("bbcode");
       Timestamp postdate = rs.getTimestamp("postdate");
       int userid = rs.getInt("userid");
       User user = User.getUserCached(db, userid);
@@ -126,7 +130,16 @@ public class SearchViewer implements Viewer {
 
       out.append("<h2><a href=\"").append(url).append("\">").append(HTMLFormatter.htmlSpecialChars(title)).append("</a></h2>");
 
-      out.append("<p>").append(headline).append("</p>");
+      out.append("<p>");
+
+      if (lorcode) {
+        BBCodeProcessor proc = new BBCodeProcessor();
+        out.append(proc.preparePostText(db, message));
+      } else {
+        out.append(message);
+      }
+
+      out.append("</p>");
 
       out.append("<div class=sign>");
       out.append(user.getSignature(false, postdate));
@@ -140,6 +153,7 @@ public class SearchViewer implements Viewer {
     return out.toString();
   }
 
+  @Override
   public String getVariantID(ProfileHashtable prof) throws UtilException {
     try {
       return "search?q="+ URLEncoder.encode(query, "koi8-r")+"&include="+include+"&date="+date+"&section="+section+"&sort="+sort+"&username="+URLEncoder.encode(username);
@@ -148,6 +162,7 @@ public class SearchViewer implements Viewer {
     }
   }
 
+  @Override
   public Date getExpire() {
     return new java.util.Date(new java.util.Date().getTime() + 15*60*1000);
   }
