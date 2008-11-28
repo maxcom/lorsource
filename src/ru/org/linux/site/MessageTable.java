@@ -18,11 +18,14 @@ public class MessageTable {
   public static final int RSS_MAX = 30;
   public static final int RSS_DEFAULT = 20;
 
-  public static String showComments(Connection db, String nick) throws SQLException {
-    return showComments(db, nick, 0, 0);
+  private MessageTable() {
   }
 
-  public static String showComments(Connection db, String nick, int offset, int limit) throws SQLException {
+  public static String showComments(Connection db, User user) throws SQLException {
+    return showComments(db, user, 0, 0);
+  }
+
+  public static String showComments(Connection db, User user, int offset, int limit) throws SQLException {
     StringBuilder out = new StringBuilder();
 
     PreparedStatement pst=null;
@@ -47,7 +50,7 @@ public class MessageTable {
               "AND users.nick=? AND NOT comments.deleted ORDER BY postdate DESC LIMIT "+limit+" OFFSET "+offset
 		);
 	  }
-      pst.setString(1, nick);
+      pst.setString(1, user.getNick());
       ResultSet rs = pst.executeQuery();
 
       while (rs.next()) {
@@ -126,7 +129,7 @@ public class MessageTable {
           out.append("  <pubDate>").append(Template.RFC822.format(rs.getTimestamp("postdate"))).append("</pubDate>\n");
           out.append("  <title>").append(HTMLFormatter.htmlSpecialChars(subj)).append("</title>\n");
 
-          out.append("  <description>\n" + "\t");
+          out.append("  <description>\n" + '\t');
           String message = rs.getString("message");
           boolean bbcode = rs.getBoolean("bbcode");
           if (bbcode) {
@@ -156,8 +159,8 @@ public class MessageTable {
                 .append("</author>\n" + "  <link>http://www.linux.org.ru/view-message.jsp?msgid=").append(msgid)
                 .append("</link>\n" + "  <guid>http://www.linux.org.ru/view-message.jsp?msgid=").append(msgid)
                 .append("</guid>\n" + "  <pubDate>").append(Template.RFC822.format(rs.getTimestamp("postdate")))
-                .append("</pubDate>\n" + "  <description>\n" + "\t");
-            out.append(HTMLFormatter.htmlSpecialChars(poll.renderPoll(db, fullUrl))).append("\n" + " \n" + "  </description>\n" + "</item>");
+                .append("</pubDate>\n" + "  <description>\n" + '\t');
+            out.append(HTMLFormatter.htmlSpecialChars(poll.renderPoll(db, fullUrl))).append('\n' + " \n" + "  </description>\n" + "</item>");
           } catch (PollNotFoundException e) {
             // TODO write to log
           }
@@ -169,7 +172,7 @@ public class MessageTable {
         out.append("  <link>http://www.linux.org.ru/jump-message.jsp?msgid=").append(msgid).append("</link>\n");
         out.append("  <guid>http://www.linux.org.ru/jump-message.jsp?msgid=").append(msgid).append("</guid>\n");
         out.append("  <pubDate>").append(Template.RFC822.format(rs.getTimestamp("postdate"))).append("</pubDate>\n");
-        out.append("  <description>\n" + "\t");
+        out.append("  <description>\n" + '\t');
         String message = rs.getString("message");
         boolean bbcode = rs.getBoolean("bbcode");
         if (bbcode) {
@@ -216,7 +219,7 @@ public class MessageTable {
     buf.append("<pubDate>").append(Template.RFC822.format(new Date())).append("</pubDate>");
 
     if (section.isImagepost()) {
-      buf.append("  <description>\n" + "\t");
+      buf.append("  <description>\n" + '\t');
       try {
         ImageInfo iconInfo = new ImageInfo(htmlPath + linktext);
         ImageInfo info = new ImageInfo(htmlPath + url);
@@ -234,8 +237,8 @@ public class MessageTable {
       if (id > 0) {
         try {
           Poll poll = new Poll(db, id);
-          buf.append("<description>\n" + "\t");
-          buf.append(HTMLFormatter.htmlSpecialChars(poll.renderPoll(db, fullUrl))).append("\n" + " \n");
+          buf.append("<description>\n" + '\t');
+          buf.append(HTMLFormatter.htmlSpecialChars(poll.renderPoll(db, fullUrl))).append('\n' + " \n");
         } catch (PollNotFoundException e) {
           // TODO write to log
         }
@@ -264,7 +267,7 @@ public class MessageTable {
       buf.append("  <link>http://www.linux.org.ru/jump-message.jsp?msgid=").append(topicid).append("&amp;cid=").append(msgid).append("</link>\n");
       buf.append("  <guid>http://www.linux.org.ru/jump-message.jsp?msgid=").append(topicid).append("&amp;cid=").append(msgid).append("</guid>\n");
       buf.append("  <pubDate>").append(Template.RFC822.format(comment.getPostdate())).append("</pubDate>\n");
-      buf.append("  <description>\n" + "\t").append(HTMLFormatter.htmlSpecialChars(comment.getMessageText())).append("</description>\n");
+      buf.append("  <description>\n" + '\t').append(HTMLFormatter.htmlSpecialChars(comment.getMessageText())).append("</description>\n");
       buf.append("</item>");
       num--;
       if (num < 0) {
