@@ -121,6 +121,10 @@ public class CommentList implements Serializable {
   }
 
   public static Set<Integer> makeHideSet(Connection db, CommentList comments, int filterChain, String nick) throws SQLException, UserNotFoundException {
+    if (filterChain == CommentViewer.FILTER_NONE) {
+      return null;
+    }
+
     Set<Integer> hideSet = new HashSet<Integer>();
 
     /* hide anonymous */
