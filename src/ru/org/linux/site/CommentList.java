@@ -35,7 +35,7 @@ public class CommentList implements Serializable {
             "INNER JOIN users ON (users.id=comments.userid) " +
             "INNER JOIN msgbase ON (msgbase.id=comments.id) " + 
             "LEFT JOIN user_agents ON (user_agents.id=comments.ua_id) " +
-            "WHERE topic=" + topicId + ' ' + delq + " " +
+            "WHERE topic=" + topicId + ' ' + delq + ' ' +
             "ORDER BY msgid ASC"
     );
 
@@ -112,11 +112,30 @@ public class CommentList implements Serializable {
 
     CommentList res = (CommentList) mcc.get(cacheId);
 
-    if (res==null || res.getLastModified()!=topic.getLastModified().getTime()) {
+    if (res==null || res.lastmod !=topic.getLastModified().getTime()) {
       res = new CommentList(db, topic.getMessageId(), topic.getLastModified().getTime(), showDeleted);
       mcc.set(cacheId, res);
     }
 
     return res;
+  }
+
+  public static Set<Integer> makeHideSet(Connection db, CommentList comments, int filterChain, String nick) throws SQLException, UserNotFoundException {
+    Set<Integer> hideSet = new HashSet<Integer>();
+
+    /* hide anonymous */
+    if ((filterChain & CommentViewer.FILTER_ANONYMOUS) > 0) {
+      comments.root.hideAnonymous(db, hideSet);
+    }
+
+    /* hide ignored */
+    if ((filterChain & CommentViewer.FILTER_IGNORED) > 0 && nick != null && !"".equals(nick)) {
+      Map<Integer, String> ignoreList = IgnoreList.getIgnoreListHash(db, nick);
+      if (ignoreList != null && !ignoreList.isEmpty()) {
+        comments.root.hideIgnored(hideSet, ignoreList);
+      }
+    }
+    
+    return hideSet;
   }
 }

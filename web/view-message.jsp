@@ -1,5 +1,6 @@
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="java.sql.Connection,javax.servlet.http.HttpServletResponse,ru.org.linux.site.*,ru.org.linux.util.ServletParameterParser,ru.org.linux.util.StringUtil"   buffer="200kb"%>
+<%@ page import="java.sql.Connection,java.util.Set,javax.servlet.http.HttpServletResponse,ru.org.linux.site.*,ru.org.linux.util.ServletParameterParser"   buffer="200kb"%>
+<%@ page import="ru.org.linux.util.StringUtil" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
@@ -346,7 +347,7 @@
 <%
     int offset = 0;
     int limit = 0;
-    boolean reverse = tmpl.getProf().getBoolean("newfirst");
+    boolean reverse = false; //tmpl.getProf().getBoolean("newfirst");
 
     if (npage != -1) {
       limit = messages;
@@ -354,24 +355,18 @@
     }
 
     CommentList comments = CommentList.getCommentList(db, message, showDeleted);
+    Set<Integer> hideSet = CommentList.makeHideSet(db, comments, filterMode, nick);
 
     CommentViewer cv = new CommentViewer(tmpl, db, comments, Template.getNick(session), message.isExpired());
 
-    String outputComments;
-
-    if (filterMode != CommentViewer.FILTER_NONE) {
-      outputComments = cv.showFiltered(db, reverse, offset, limit, filterMode, Template.getNick(session));
-    } else {
-      outputComments = cv.showAll(reverse, offset, limit);
-    }
+    String outputComments = cv.show(reverse, offset, limit, hideSet);
 
     if (tmpl.getProf().getBoolean("sortwarning") && cv.getOutputCount()>0) {
       out.print("<div class=nav>");
 
       if (tmpl.getProf().getBoolean("newfirst")) {
         out.print("сообщения отсортированы в порядке убывания даты их написания");
-      }
-      else {
+      } else {
         out.print("сообщения отсортированы в порядке возрастания даты их написания");
       }
 

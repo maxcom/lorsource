@@ -3,7 +3,10 @@ package ru.org.linux.site;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Set;
 import java.util.logging.Logger;
 
 import ru.org.linux.util.UtilException;
@@ -59,36 +62,10 @@ public class CommentViewer {
     logger.fine("Showing list size="+comments.size()+" shown="+shown);    
   }
 
-  public String showAll(boolean reverse, int offset, int limit) throws IOException, UtilException, SQLException, UserNotFoundException {
+  public String show(boolean reverse, int offset, int limit, Set<Integer> hideSet) throws IOException, UtilException, SQLException, UserNotFoundException {
     StringBuffer buf=new StringBuffer();
 
-    showCommentList(buf, comments.getList(), reverse, offset, limit,  null);
-
-    return buf.toString();
-  }
-
-  public String showFiltered(Connection db, boolean reverse, int offset, int limit, int filterChain, String nick) throws IOException, UtilException, SQLException, UserNotFoundException {
-    StringBuffer buf=new StringBuffer();
-    Set<Integer> hideSet = new HashSet<Integer>();
-
-    /* hide anonymous */
-    if ((filterChain & FILTER_ANONYMOUS) > 0) {
-      comments.getRoot().hideAnonymous(db, hideSet);
-    }
-
-    /* hide ignored */
-    if ((filterChain & FILTER_IGNORED) > 0 && nick != null && !"".equals(nick)) {
-      try {
-        Map<Integer, String> ignoreList = IgnoreList.getIgnoreListHash(db, nick);
-        if (ignoreList != null && !ignoreList.isEmpty()) {
-          comments.getRoot().hideIgnored(hideSet, ignoreList);
-        }
-      } catch (SQLException e) {
-      }
-    }
-
-    /* display comments */
-    showCommentList(buf, comments.getList(), reverse, offset, limit, hideSet);
+    showCommentList(buf, comments.getList(), reverse, offset, limit,  hideSet);
 
     return buf.toString();
   }
@@ -112,15 +89,15 @@ public class CommentViewer {
   }
 
   public static int parseFilterChain(String filter) {
-    if (filter.equals("list")) {
+    if ("list".equals(filter)) {
       return FILTER_IGNORED;
     }
 
-    if (filter.equals("anonymous")) {
+    if ("anonymous".equals(filter)) {
       return FILTER_ANONYMOUS;
     }
 
-    if (filter.equals("listanon")) {
+    if ("listanon".equals(filter)) {
       return FILTER_IGNORED+FILTER_ANONYMOUS;
     }
 
