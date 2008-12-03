@@ -6,7 +6,6 @@
 <%@ page import="ru.org.linux.boxlet.BoxletVectorRunner" %>
 <%@ page import="ru.org.linux.site.*" %>
 <%@ page import="ru.org.linux.util.ProfileHashtable" %>
-<%@ page import="ru.org.linux.util.ServletParameterParser" %>
 <%@ page import="ru.org.linux.util.StringUtil" %>
 <% Template tmpl = Template.getTemplate(request); %>
 <jsp:include page="WEB-INF/jsp/head.jsp"/>
@@ -74,12 +73,8 @@
 <input type=hidden name=mode value=set>
 <table>
 <tr><td colspan=2><hr></td></tr>
-<tr><td>Новые комментарии в начале</td>
-<td><input type=checkbox name=newfirst <%= profHash.getBooleanPropertyHTML("newfirst")%>></td></tr>
 <tr><td>Показывать фотографии</td>
 <td><input type=checkbox name=photos <%= profHash.getBooleanPropertyHTML("photos")%>></td></tr>
-<tr><td>Показывать сообщение о порядке сортировки комментариев</td>
-<td><input type=checkbox name=sortwarning <%= profHash.getBooleanPropertyHTML("sortwarning")%>></td></tr>
 <tr><td>Число тем форума на странице</td>
 <td><input type=text name=topics value=<%= profHash.getInt("topics")%>></td></tr>
 <tr><td>Число комментариев на странице</td>

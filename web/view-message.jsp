@@ -344,12 +344,16 @@
 <% } %>
 
 <c:if test="<%= comment %>">
+  <c:if test="<%= pageInfo!=null %>">
+    <div class="pageinfo">
+      <%= pageInfo %>
+    </div>
+  </c:if>
 <%
     int offset = 0;
     int limit = 0;
-    boolean reverse = false; //tmpl.getProf().getBoolean("newfirst");
 
-    if (npage != -1) {
+  if (npage != -1) {
       limit = messages;
       offset = messages * npage;
     }
@@ -359,29 +363,13 @@
 
     CommentViewer cv = new CommentViewer(tmpl, db, comments, Template.getNick(session), message.isExpired());
 
-    String outputComments = cv.show(reverse, offset, limit, hideSet);
-
-    if (tmpl.getProf().getBoolean("sortwarning") && cv.getOutputCount()>0) {
-      out.print("<div class=nav>");
-
-      if (tmpl.getProf().getBoolean("newfirst")) {
-        out.print("сообщения отсортированы в порядке убывания даты их написания");
-      } else {
-        out.print("сообщения отсортированы в порядке возрастания даты их написания");
-      }
-
-      out.print("</div>");
-    }
+    String outputComments = cv.show(offset, limit, hideSet);
 %>
-  <c:if test="<%= pageInfo!=null %>">
-    <div class="pageinfo">
-      <%= pageInfo %>
-    </div>
-  </c:if>
   <div class="comment">
     <%= outputComments %>
   </div>
 <c:if test="<%= cv.getOutputCount()>0 %>">
+
   <c:if test="<%= pageInfo!=null %>">
     <div class="pageinfo">
       <%= pageInfo %>

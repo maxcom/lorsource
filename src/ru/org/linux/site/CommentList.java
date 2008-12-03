@@ -10,8 +10,6 @@ import java.util.logging.Logger;
 
 import com.danga.MemCached.MemCachedClient;
 
-import ru.org.linux.util.UtilException;
-
 public class CommentList implements Serializable {
   private static final Logger logger = Logger.getLogger("ru.org.linux");
 
@@ -86,21 +84,16 @@ public class CommentList implements Serializable {
     return lastmod;
   }
 
-  public int getCommentPage(Comment comment, int messages, boolean reverse) {
+  public int getCommentPage(Comment comment, int messages) {
     int index = comments.indexOf(comment);
 
-    if (reverse) {
-      return (comments.size()-index)/messages;
-    } else {
-      return index/messages;
-    }
+    return index / messages;
   }
 
-  public int getCommentPage(Comment comment, Template tmpl) throws UtilException {
+  public int getCommentPage(Comment comment, Template tmpl)  {
     int messages = tmpl.getProf().getInt("messages");
-    boolean reverse = tmpl.getProf().getBoolean("newfirst");
 
-    return getCommentPage(comment, messages, reverse);
+    return getCommentPage(comment, messages);
   }
 
   public static CommentList getCommentList(Connection db, Message topic, boolean showDeleted) throws SQLException {

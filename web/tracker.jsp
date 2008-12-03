@@ -1,6 +1,7 @@
 <%@ page info="last active topics" %>
 <%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
-<%@ page import="java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.sql.Timestamp,java.text.DateFormat,java.text.SimpleDateFormat,java.util.Date,ru.org.linux.site.*"   buffer="200kb"%>
+<%@ page import="java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.sql.Timestamp,java.text.DateFormat,java.text.SimpleDateFormat,ru.org.linux.site.BadInputException,ru.org.linux.site.LorDataSource"   buffer="200kb"%>
+<%@ page import="ru.org.linux.site.Template" %>
 <%@ page import="ru.org.linux.util.ServletParameterParser" %>
 <% Template tmpl = Template.getTemplate(request); %>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
@@ -92,10 +93,8 @@
 
     if (itotal > messages) {
       // itotal = round(ceil(itotal/50));
-      if (!tmpl.getProf().getBoolean("newfirst")) {
-        itotal = itotal / messages;
-        sTemp = "&page=" + itotal;
-      }
+      itotal = itotal / messages;
+      sTemp = "&page=" + itotal;
     }
 
     out.println("&lastmod=" + lastmod.getTime() + sTemp +
