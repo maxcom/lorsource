@@ -2,6 +2,6 @@ package ru.org.linux.site;
 
 public class PollNotFoundException extends ScriptErrorException {
   public PollNotFoundException(int id) {
-    super("Голосование #" + id + " не существует");    
+    super("п⌠п╬п╩п╬я│п╬п╡п╟п╫п╦п╣ #" + id + " п╫п╣ я│я┐я┴п╣я│я┌п╡я┐п╣я┌");    
   }
 }

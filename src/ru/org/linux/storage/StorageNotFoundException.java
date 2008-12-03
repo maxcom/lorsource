@@ -2,14 +2,14 @@ package ru.org.linux.storage;
 
 public class StorageNotFoundException extends StorageException {
   public StorageNotFoundException(String domain, int msgid) {
-    super("Не найден объект " + domain + ':' + msgid);
+    super("п²п╣ п╫п╟п╧п╢п╣п╫ п╬п╠я┼п╣п╨я┌ " + domain + ':' + msgid);
   }
 
   public StorageNotFoundException(String domain, String msgid) {
-    super("Не найден объект " + domain + ':' + msgid);
+    super("п²п╣ п╫п╟п╧п╢п╣п╫ п╬п╠я┼п╣п╨я┌ " + domain + ':' + msgid);
   }
 
   public StorageNotFoundException(String domain, String msgid, Exception e) {
-    super("Не найден объект " + domain + ':' + msgid, e);
+    super("п²п╣ п╫п╟п╧п╢п╣п╫ п╬п╠я┼п╣п╨я┌ " + domain + ':' + msgid, e);
   }
 }

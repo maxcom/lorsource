@@ -12,31 +12,31 @@ public final class DateUtil {
   public static String getMonth(int month) throws BadDateException {
     switch (month - 1) {
       case 0:
-        return "Январь";
+        return "п╞п╫п╡п╟я─я▄";
       case 1:
-        return "Февраль";
+        return "п╓п╣п╡я─п╟п╩я▄";
       case 2:
-        return "Март";
+        return "п°п╟я─я┌";
       case 3:
-        return "Апрель";
+        return "п░п©я─п╣п╩я▄";
       case 4:
-        return "Май";
+        return "п°п╟п╧";
       case 5:
-        return "Июнь";
+        return "п≤я▌п╫я▄";
       case 6:
-        return "Июль";
+        return "п≤я▌п╩я▄";
       case 7:
-        return "Август";
+        return "п░п╡пЁя┐я│я┌";
       case 8:
-        return "Сентябрь";
+        return "п║п╣п╫я┌я▐п╠я─я▄";
       case 9:
-        return "Октябрь";
+        return "п·п╨я┌я▐п╠я─я▄";
       case 10:
-        return "Ноябрь";
+        return "п²п╬я▐п╠я─я▄";
       case 11:
-        return "Декабрь";
+        return "п■п╣п╨п╟п╠я─я▄";
       default:
-        throw new BadDateException("Указан месяц " + month);
+        throw new BadDateException("пёп╨п╟п╥п╟п╫ п╪п╣я│я▐я├ " + month);
     }
   }
 

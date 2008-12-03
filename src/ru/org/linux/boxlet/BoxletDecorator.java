@@ -15,19 +15,19 @@ public class BoxletDecorator {
       buf.append(bx.getContent(config, profile));
     } catch (Exception e) {
       if (profile.getBoolean("DebugMode")) {
-        buf.append("<h2>Ошибка: ").append(e.toString()).append("</h2>").append(HTMLFormatter.nl2br(StringUtil.getStackTrace(e)));
+        buf.append("<h2>п·я┬п╦п╠п╨п╟: ").append(e.toString()).append("</h2>").append(HTMLFormatter.nl2br(StringUtil.getStackTrace(e)));
       } else {
-        buf.append("<h2>Ошибка</h2>");
+        buf.append("<h2>п·я┬п╦п╠п╨п╟</h2>");
       }
     }
 
     buf.append("<p>");
-    buf.append("<strong>Меню редактирования:</strong><br>");
+    buf.append("<strong>п°п╣п╫я▌ я─п╣п╢п╟п╨я┌п╦я─п╬п╡п╟п╫п╦я▐:</strong><br>");
     if (addUrl != null) {
-      buf.append("* <a href=\"").append(addUrl).append("\">добавить сюда</a><br>");
+      buf.append("* <a href=\"").append(addUrl).append("\">п╢п╬п╠п╟п╡п╦я┌я▄ я│я▌п╢п╟</a><br>");
     }
     if (removeUrl != null) {
-      buf.append("* <a href=\"").append(removeUrl).append("\">удалить</a><br>");
+      buf.append("* <a href=\"").append(removeUrl).append("\">я┐п╢п╟п╩п╦я┌я▄</a><br>");
     }
 
     return buf.toString();

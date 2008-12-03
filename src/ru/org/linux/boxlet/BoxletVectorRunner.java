@@ -51,9 +51,9 @@ public class BoxletVectorRunner {
         logger.severe(StringUtil.getStackTrace(e));
 
         if (profile.getBoolean("DebugMode")) {
-          out.append("<b>Ошибка получения ").append(name).append(": ").append(e.toString()).append("</b><p>").append(HTMLFormatter.nl2br(StringUtil.getStackTrace(e)));
+          out.append("<b>п·я┬п╦п╠п╨п╟ п©п╬п╩я┐я┤п╣п╫п╦я▐ ").append(name).append(": ").append(e.toString()).append("</b><p>").append(HTMLFormatter.nl2br(StringUtil.getStackTrace(e)));
         } else {
-          out.append("<b>Ошибка</b>");
+          out.append("<b>п·я┬п╦п╠п╨п╟</b>");
         }
       }
 
@@ -77,14 +77,14 @@ public class BoxletVectorRunner {
         out.append("</div>");
       } catch (Exception e) {
         if (profile.getBoolean("DebugMode")) {
-          out.append("<b>Ошибка получения ").append(boxes.get(i)).append(": ").append(e.toString()).append("</b><p>").append(HTMLFormatter.nl2br(StringUtil.getStackTrace(e)));
+          out.append("<b>п·я┬п╦п╠п╨п╟ п©п╬п╩я┐я┤п╣п╫п╦я▐ ").append(boxes.get(i)).append(": ").append(e.toString()).append("</b><p>").append(HTMLFormatter.nl2br(StringUtil.getStackTrace(e)));
         } else {
-          out.append("<b>Ошибка</b>");
+          out.append("<b>п·я┬п╦п╠п╨п╟</b>");
         }
       }
     }
 
-    out.append("[<a href=\"edit-boxes.jsp?tag=").append(URLEncoder.encode(tag)).append("&mode=add\">Добавить</a>]<p>");
+    out.append("[<a href=\"edit-boxes.jsp?tag=").append(URLEncoder.encode(tag)).append("&mode=add\">п■п╬п╠п╟п╡п╦я┌я▄</a>]<p>");
 
     return out.toString();
   }

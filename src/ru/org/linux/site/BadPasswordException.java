@@ -4,6 +4,6 @@ public class BadPasswordException extends UserErrorException
 {
 	public BadPasswordException(String name)
 	{
-		super("Пароль для пользователя \""+name+"\" задан неверно");
+		super("п÷п╟я─п╬п╩я▄ п╢п╩я▐ п©п╬п╩я▄п╥п╬п╡п╟я┌п╣п╩я▐ \""+name+"\" п╥п╟п╢п╟п╫ п╫п╣п╡п╣я─п╫п╬");
 	}
 }

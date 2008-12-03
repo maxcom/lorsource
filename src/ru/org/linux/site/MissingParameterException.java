@@ -4,6 +4,6 @@ public class MissingParameterException extends ScriptErrorException
 {
 	public MissingParameterException(String param)
 	{
-		super("пропущен параметер '"+param+ '\'');
+		super("п©я─п╬п©я┐я┴п╣п╫ п©п╟я─п╟п╪п╣я┌п╣я─ '"+param+ '\'');
 	}
 }

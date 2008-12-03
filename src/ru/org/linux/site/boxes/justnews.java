@@ -20,5 +20,5 @@ public final class justnews extends Boxlet
 		return out.toString();
 	}
 	
-	public String getInfo() { return "Заголовки новостей \"JustNews\""; }
+	public String getInfo() { return "п≈п╟пЁп╬п╩п╬п╡п╨п╦ п╫п╬п╡п╬я│я┌п╣п╧ \"JustNews\""; }
 }

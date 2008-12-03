@@ -9,8 +9,8 @@ public final class projects extends Boxlet
 {
 	public String getContentImpl(ProfileHashtable profile) throws IOException
 	{
-		return ("<h2>Проекты</h2> <h3>Наши проекты</h3> * <a href=\"/gnome\">gnome</a><br> * <a href=\"/rc5\">rc5</a><br>");
+		return ("<h2>п÷я─п╬п╣п╨я┌я▀</h2> <h3>п²п╟я┬п╦ п©я─п╬п╣п╨я┌я▀</h3> * <a href=\"/gnome\">gnome</a><br> * <a href=\"/rc5\">rc5</a><br>");
 	}
 
-	public String getInfo() { return "Наши проекты"; }
+	public String getInfo() { return "п²п╟я┬п╦ п©я─п╬п╣п╨я┌я▀"; }
 }

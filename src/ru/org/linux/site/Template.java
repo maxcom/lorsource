@@ -44,8 +44,8 @@ public class Template {
 
   public Template(HttpServletRequest request, Properties properties, HttpServletResponse response)
       throws ClassNotFoundException, IOException, SQLException, StorageException {
-//    request.setCharacterEncoding("koi8-r"); // блядский tomcat
-    request.setCharacterEncoding("utf-8"); // блядский tomcat
+//    request.setCharacterEncoding("koi8-r"); // п╠п╩я▐п╢я│п╨п╦п╧ tomcat
+    request.setCharacterEncoding("utf-8"); // п╠п╩я▐п╢я│п╨п╦п╧ tomcat
 
     if (request.getParameter("debug") != null) {
       debugMode = true;
@@ -197,15 +197,15 @@ public class Template {
 
   public void writeProfile(String name) throws IOException, AccessViolationException, StorageException {
     if (name.charAt(0) == '_') {
-      throw new AccessViolationException("нельзя менять специальный профиль");
+      throw new AccessViolationException("п╫п╣п╩я▄п╥я▐ п╪п╣п╫я▐я┌я▄ я│п©п╣я├п╦п╟п╩я▄п╫я▀п╧ п©я─п╬я└п╦п╩я▄");
     }
 
     if (!StringUtil.checkLoginName(name)) {
-      throw new AccessViolationException("некорректное имя пользователя");
+      throw new AccessViolationException("п╫п╣п╨п╬я─я─п╣п╨я┌п╫п╬п╣ п╦п╪я▐ п©п╬п╩я▄п╥п╬п╡п╟я┌п╣п╩я▐");
     }
 
     if ("anonymous".equals(name)) {
-      throw new AccessViolationException("нельзя менять профиль по умолчанию");
+      throw new AccessViolationException("п╫п╣п╩я▄п╥я▐ п╪п╣п╫я▐я┌я▄ п©я─п╬я└п╦п╩я▄ п©п╬ я┐п╪п╬п╩я┤п╟п╫п╦я▌");
     }
 
     OutputStream df = null;

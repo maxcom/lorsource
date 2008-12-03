@@ -81,9 +81,9 @@ public class Section implements Serializable {
 
   public String getAddText() {
     if (id==4) {
-      return "Добавить ссылку";
+      return "п■п╬п╠п╟п╡п╦я┌я▄ я│я│я▀п╩п╨я┐";
     } else {
-      return "Добавить сообщение";
+      return "п■п╬п╠п╟п╡п╦я┌я▄ я│п╬п╬п╠я┴п╣п╫п╦п╣";
     }
   }
 

@@ -2,10 +2,10 @@ package ru.org.linux.util;
 
 public class BadURLException extends UtilException {
   public BadURLException() {
-    super("Некорректный URL");
+    super("п²п╣п╨п╬я─я─п╣п╨я┌п╫я▀п╧ URL");
   }
 
   public BadURLException(String URL) {
-    super("Некорректный URL: " + URL);
+    super("п²п╣п╨п╬я─я─п╣п╨я┌п╫я▀п╧ URL: " + URL);
   }
 }

@@ -122,7 +122,7 @@ public class Message {
       if (url != null && !"".equals(url)) {
         if (linktext == null) {
           if (!preview) {
-            throw new BadInputException("указан URL без текста");
+            throw new BadInputException("я┐п╨п╟п╥п╟п╫ URL п╠п╣п╥ я┌п╣п╨я│я┌п╟");
           }
         }
         url = URLUtil.fixURL(url);
@@ -228,21 +228,21 @@ public class Message {
       case 0:
         return "";
       case 50:
-        return "<b>Ограничение на отправку комментариев</b>: только для зарегистрированных пользователей";
+        return "<b>п·пЁя─п╟п╫п╦я┤п╣п╫п╦п╣ п╫п╟ п╬я┌п©я─п╟п╡п╨я┐ п╨п╬п╪п╪п╣п╫я┌п╟я─п╦п╣п╡</b>: я┌п╬п╩я▄п╨п╬ п╢п╩я▐ п╥п╟я─п╣пЁп╦я│я┌я─п╦я─п╬п╡п╟п╫п╫я▀я┘ п©п╬п╩я▄п╥п╬п╡п╟я┌п╣п╩п╣п╧";
       case 100:
-        return "<b>Ограничение на отправку комментариев</b>: "+ User.getStars(100, 100);
+        return "<b>п·пЁя─п╟п╫п╦я┤п╣п╫п╦п╣ п╫п╟ п╬я┌п©я─п╟п╡п╨я┐ п╨п╬п╪п╪п╣п╫я┌п╟я─п╦п╣п╡</b>: "+ User.getStars(100, 100);
       case 200:
-        return "<b>Ограничение на отправку комментариев</b>: "+ User.getStars(200, 200);
+        return "<b>п·пЁя─п╟п╫п╦я┤п╣п╫п╦п╣ п╫п╟ п╬я┌п©я─п╟п╡п╨я┐ п╨п╬п╪п╪п╣п╫я┌п╟я─п╦п╣п╡</b>: "+ User.getStars(200, 200);
       case 300:
-        return "<b>Ограничение на отправку комментариев</b>: "+ User.getStars(300, 300);
+        return "<b>п·пЁя─п╟п╫п╦я┤п╣п╫п╦п╣ п╫п╟ п╬я┌п©я─п╟п╡п╨я┐ п╨п╬п╪п╪п╣п╫я┌п╟я─п╦п╣п╡</b>: "+ User.getStars(300, 300);
       case 400:
-        return "<b>Ограничение на отправку комментариев</b>: "+ User.getStars(400, 400);
+        return "<b>п·пЁя─п╟п╫п╦я┤п╣п╫п╦п╣ п╫п╟ п╬я┌п©я─п╟п╡п╨я┐ п╨п╬п╪п╪п╣п╫я┌п╟я─п╦п╣п╡</b>: "+ User.getStars(400, 400);
       case 500:
-        return "<b>Ограничение на отправку комментариев</b>: "+ User.getStars(500, 500);
+        return "<b>п·пЁя─п╟п╫п╦я┤п╣п╫п╦п╣ п╫п╟ п╬я┌п©я─п╟п╡п╨я┐ п╨п╬п╪п╪п╣п╫я┌п╟я─п╦п╣п╡</b>: "+ User.getStars(500, 500);
       case -1:
-        return "<b>Ограничение на отправку комментариев</b>: только для модераторов";
+        return "<b>п·пЁя─п╟п╫п╦я┤п╣п╫п╦п╣ п╫п╟ п╬я┌п©я─п╟п╡п╨я┐ п╨п╬п╪п╪п╣п╫я┌п╟я─п╦п╣п╡</b>: я┌п╬п╩я▄п╨п╬ п╢п╩я▐ п╪п╬п╢п╣я─п╟я┌п╬я─п╬п╡";
       default:
-        return "<b>Ограничение на отправку комментариев</b>: score="+postscore;
+        return "<b>п·пЁя─п╟п╫п╦я┤п╣п╫п╦п╣ п╫п╟ п╬я┌п©я─п╟п╡п╨я┐ п╨п╬п╪п╪п╣п╫я┌п╟я─п╦п╣п╡</b>: score="+postscore;
     }
   }
 
@@ -407,7 +407,7 @@ public class Message {
     pstMsgbase.executeUpdate();
     pstMsgbase.close();
 
-    String logmessage = "Написана тема " + msgid + ' ' + LorHttpUtils.getRequestIP(request);
+    String logmessage = "п²п╟п©п╦я│п╟п╫п╟ я┌п╣п╪п╟ " + msgid + ' ' + LorHttpUtils.getRequestIP(request);
     logger.info(logmessage);
 
     rs.close();
@@ -418,20 +418,20 @@ public class Message {
 
   public void checkPostAllowed(User user, boolean moderator) throws AccessViolationException {
     if (isDeleted()) {
-      throw new AccessViolationException("Нельзя добавлять комментарии к удаленному сообщению");
+      throw new AccessViolationException("п²п╣п╩я▄п╥я▐ п╢п╬п╠п╟п╡п╩я▐я┌я▄ п╨п╬п╪п╪п╣п╫я┌п╟я─п╦п╦ п╨ я┐п╢п╟п╩п╣п╫п╫п╬п╪я┐ я│п╬п╬п╠я┴п╣п╫п╦я▌");
     }
 
     if (!isCommentEnabled()) {
-      throw new AccessViolationException("В эту группу нельзя добавлять комментарии");
+      throw new AccessViolationException("п▓ я█я┌я┐ пЁя─я┐п©п©я┐ п╫п╣п╩я▄п╥я▐ п╢п╬п╠п╟п╡п╩я▐я┌я▄ п╨п╬п╪п╪п╣п╫я┌п╟я─п╦п╦");
     }
 
     if (isExpired()) {
-      throw new AccessViolationException("группа уже устарела");
+      throw new AccessViolationException("пЁя─я┐п©п©п╟ я┐п╤п╣ я┐я│я┌п╟я─п╣п╩п╟");
     }
 
     if (postscore != 0) {
       if (user.getScore() < postscore || user.isAnonymous() || (postscore == -1 && !moderator)) {
-        throw new AccessViolationException("Вы не можете добавлять комментарии в эту тему");
+        throw new AccessViolationException("п▓я▀ п╫п╣ п╪п╬п╤п╣я┌п╣ п╢п╬п╠п╟п╡п╩я▐я┌я▄ п╨п╬п╪п╪п╣п╫я┌п╟я─п╦п╦ п╡ я█я┌я┐ я┌п╣п╪я┐");
       }
     }
   }

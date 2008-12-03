@@ -58,7 +58,7 @@ public class DelIPController extends AbstractController {
       }
 
       Timestamp ts = new Timestamp(calendar.getTimeInMillis());
-      params.put("message", "Удаляем темы и сообщения после "+ts.toString()+" с IP "+ip+"<br>");
+      params.put("message", "пёп╢п╟п╩я▐п╣п╪ я┌п╣п╪я▀ п╦ я│п╬п╬п╠я┴п╣п╫п╦я▐ п©п╬я│п╩п╣ "+ts.toString()+" я│ IP "+ip+"<br>");
 
       db.setAutoCommit(false);
     
@@ -107,7 +107,7 @@ public class DelIPController extends AbstractController {
           int msgid = rs.getInt("id");
 
           if (!deleter.getReplys(msgid).isEmpty()) {
-            deleted.put(msgid, "пропущен");
+            deleted.put(msgid, "п©я─п╬п©я┐я┴п╣п╫");
             continue;
           }
 

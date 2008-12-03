@@ -232,9 +232,9 @@ public class User implements Serializable {
 
   public String getStatus() {
     if (score < ANONYMOUS_LEVEL_SCORE) {
-      return "анонимный";
+      return "п╟п╫п╬п╫п╦п╪п╫я▀п╧";
     } else if (score < 100 && maxScore < 100) {
-      return "новый пользователь";
+      return "п╫п╬п╡я▀п╧ п©п╬п╩я▄п╥п╬п╡п╟я┌п╣п╩я▄";
     } else {
       return getStars(score, maxScore);
     }
@@ -273,7 +273,7 @@ public class User implements Serializable {
   public String getCommitInfoLine(Timestamp postdate, Timestamp commitDate) {
     StringBuilder out = new StringBuilder();
 
-    out.append("<i>Проверено: ").append(getNick()).append(" (<a href=\"whois.jsp?nick=").append(URLEncoder.encode(getNick())).append("\">*</a>)");
+    out.append("<i>п÷я─п╬п╡п╣я─п╣п╫п╬: ").append(getNick()).append(" (<a href=\"whois.jsp?nick=").append(URLEncoder.encode(getNick())).append("\">*</a>)");
     if (commitDate!=null && !commitDate.equals(postdate)) {
       out.append(' ').append(Template.dateFormat.format(commitDate));
     }
@@ -326,7 +326,7 @@ public class User implements Serializable {
       PreparedStatement st2 = db.prepareStatement("INSERT INTO del_info (msgid, delby, reason) values(?,?,?)");
       lock.setInt(1, id);
       st2.setInt(2,moderator.getId());
-      st2.setString(3,"Автоматически: удаление всех коментариев");
+      st2.setString(3,"п░п╡я┌п╬п╪п╟я┌п╦я┤п╣я│п╨п╦: я┐п╢п╟п╩п╣п╫п╦п╣ п╡я│п╣я┘ п╨п╬п╪п╣п╫я┌п╟я─п╦п╣п╡");
       ResultSet lockResult = lock.executeQuery(); // lock another delete on this row
       while (lockResult.next()) {
         int mid = lockResult.getInt("id");
@@ -350,7 +350,7 @@ public class User implements Serializable {
       while(rs.next()) {
         int msgid = rs.getInt("id");
 
-        out.append("Сообщение #").append(msgid).append("<br>");
+        out.append("п║п╬п╬п╠я┴п╣п╫п╦п╣ #").append(msgid).append("<br>");
 
         out.append(deleter.deleteReplys(msgid, moderator, true));
         out.append(deleter.deleteComment(msgid, "4.7 Flood (auto)", moderator, -20));

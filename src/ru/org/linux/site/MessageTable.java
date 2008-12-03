@@ -78,7 +78,7 @@ public class MessageTable {
     if (groupid!=0) {
       group = new Group(db, groupid);
       if (group.getSectionId()!=sectionid) {
-        throw new BadGroupException("группа #"+groupid+" не пренадлежит разделу #"+sectionid);
+        throw new BadGroupException("пЁя─я┐п©п©п╟ #"+groupid+" п╫п╣ п©я─п╣п╫п╟п╢п╩п╣п╤п╦я┌ я─п╟п╥п╢п╣п╩я┐ #"+sectionid);
       }
     }
 
@@ -196,9 +196,9 @@ public class MessageTable {
     try {
       topic = new Message(db, topicid);
     } catch (MessageNotFoundException e) {
-      buf.append("<title>Linux.org.ru: Тема #").append(topicid).append(" не найдена</title>");
+      buf.append("<title>Linux.org.ru: п╒п╣п╪п╟ #").append(topicid).append(" п╫п╣ п╫п╟п╧п╢п╣п╫п╟</title>");
       buf.append("<pubDate>").append(Template.RFC822.format(new Date())).append("</pubDate>");
-      buf.append("<description>Linux.org.ru: Запрашиваемая тема не найдена или удалена</description>");
+      buf.append("<description>Linux.org.ru: п≈п╟п©я─п╟я┬п╦п╡п╟п╣п╪п╟я▐ я┌п╣п╪п╟ п╫п╣ п╫п╟п╧п╢п╣п╫п╟ п╦п╩п╦ я┐п╢п╟п╩п╣п╫п╟</description>");
       return buf.toString();
     }
 

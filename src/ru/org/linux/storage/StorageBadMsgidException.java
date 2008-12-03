@@ -2,6 +2,6 @@ package ru.org.linux.storage;
 
 public class StorageBadMsgidException extends StorageException {
   public StorageBadMsgidException(String msgid) {
-    super("Некорректный идентификатор объекта " + msgid);
+    super("п²п╣п╨п╬я─я─п╣п╨я┌п╫я▀п╧ п╦п╢п╣п╫я┌п╦я└п╦п╨п╟я┌п╬я─ п╬п╠я┼п╣п╨я┌п╟ " + msgid);
   }
 }

@@ -53,7 +53,7 @@ public final class StringUtil {
     if (title != null && !"".equals(title.trim())) {
       return title;
     }
-    return "Без заглавия";
+    return "п▒п╣п╥ п╥п╟пЁп╩п╟п╡п╦я▐";
   }
 
   /**

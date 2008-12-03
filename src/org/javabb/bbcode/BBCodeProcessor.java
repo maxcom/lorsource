@@ -115,7 +115,7 @@ public class BBCodeProcessor implements Serializable {
         "quote",
         "<div class=\"quote\"><h3>{BBCODE_PARAM}</h3>",
         "</div>",
-        "<div class=\"quote\"><h3>„…‘¡‘¡</h3>",
+        "<div class=\"quote\"><h3>–¶–∏—Ç–∞—Ç–∞</h3>",
         "</div>",
         "[*]",
         false,

@@ -49,7 +49,7 @@ public class IPBlockInfo {
 
   public void checkBlock() throws AccessViolationException {
     if (isBlocked()) {
-      throw new AccessViolationException("Постинг заблокирован: "+reason);
+      throw new AccessViolationException("п÷п╬я│я┌п╦п╫пЁ п╥п╟п╠п╩п╬п╨п╦я─п╬п╡п╟п╫: "+reason);
     }
   }
 
@@ -76,7 +76,7 @@ public class IPBlockInfo {
 
   public static void checkBlockIP(Connection db, String addr) throws AccessViolationException, SQLException, UnknownHostException, TextParseException {
     if (getTor(addr)) {
-      throw new AccessViolationException("Постинг заблокирован: tor.ahbl.org");      
+      throw new AccessViolationException("п÷п╬я│я┌п╦п╫пЁ п╥п╟п╠п╩п╬п╨п╦я─п╬п╡п╟п╫: tor.ahbl.org");      
     }
 
     IPBlockInfo block = getBlockInfo(db, addr);

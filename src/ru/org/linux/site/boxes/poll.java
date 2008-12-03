@@ -22,7 +22,7 @@ public final class poll extends Boxlet {
 
       StringBuffer out = new StringBuffer();
 
-      out.append("<h2><a href=\"view-news.jsp?section=5\">Опрос</a></h2>");
+      out.append("<h2><a href=\"view-news.jsp?section=5\">п·п©я─п╬я│</a></h2>");
       out.append("<h3>").append(poll.getTitle()).append("</h3>");
 
       Statement st = db.createStatement();
@@ -38,13 +38,13 @@ public final class poll extends Boxlet {
 
       out.append("<input type=submit value=vote>");
       out.append("</form><br>");
-      out.append("<a href=\"view-vote.jsp?vote=").append(poll.getId()).append("\">результаты</a>");
+      out.append("<a href=\"view-vote.jsp?vote=").append(poll.getId()).append("\">я─п╣п╥я┐п╩я▄я┌п╟я┌я▀</a>");
 
       rs = st.executeQuery("SELECT sum(votes) as s FROM votes WHERE vote=" + poll.getId());
       rs.next();
-      out.append(" (").append(rs.getInt("s")).append(" голосов)");
-      out.append("<br><a href=\"view-news.jsp?section=5\">итоги прошедших опросов...</a>");
-      out.append("<br>[<a href=\"add-poll.jsp\">добавить опрос</a>]");
+      out.append(" (").append(rs.getInt("s")).append(" пЁп╬п╩п╬я│п╬п╡)");
+      out.append("<br><a href=\"view-news.jsp?section=5\">п╦я┌п╬пЁп╦ п©я─п╬я┬п╣п╢я┬п╦я┘ п╬п©я─п╬я│п╬п╡...</a>");
+      out.append("<br>[<a href=\"add-poll.jsp\">п╢п╬п╠п╟п╡п╦я┌я▄ п╬п©я─п╬я│</a>]");
       return out.toString();
     } finally {
       if (db != null) {
@@ -54,7 +54,7 @@ public final class poll extends Boxlet {
   }
 
   public String getInfo() {
-    return "Опрос";
+    return "п·п©я─п╬я│";
   }
 
   public String getVariantID(ProfileHashtable prof) throws UtilException {

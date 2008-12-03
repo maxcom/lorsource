@@ -22,11 +22,11 @@ public class ScreenshotProcessor {
     file = new File(filename);
 
     if (!file.isFile()) {
-      throw new BadImageException("Сбой загрузки изображения: не файл");
+      throw new BadImageException("п║п╠п╬п╧ п╥п╟пЁя─я┐п╥п╨п╦ п╦п╥п╬п╠я─п╟п╤п╣п╫п╦я▐: п╫п╣ я└п╟п╧п╩");
     }
 
     if (file.length() > MAX_SCREENSHOT_FILESIZE) {
-      throw new BadImageException("Сбой загрузки изображения: слишком большой файл");
+      throw new BadImageException("п║п╠п╬п╧ п╥п╟пЁя─я┐п╥п╨п╦ п╦п╥п╬п╠я─п╟п╤п╣п╫п╦я▐: я│п╩п╦я┬п╨п╬п╪ п╠п╬п╩я▄я┬п╬п╧ я└п╟п╧п╩");
     }
 
     extension = ImageInfo.detectImageType(filename);
@@ -34,11 +34,11 @@ public class ScreenshotProcessor {
     ImageInfo info = new ImageInfo(filename, extension);
 
     if (info.getHeight()< MIN_SCREENSHOT_SIZE || info.getHeight() > MAX_SCREENSHOT_SIZE) {
-      throw new BadImageException("Сбой загрузки изображения: недопустимые размеры изображения");
+      throw new BadImageException("п║п╠п╬п╧ п╥п╟пЁя─я┐п╥п╨п╦ п╦п╥п╬п╠я─п╟п╤п╣п╫п╦я▐: п╫п╣п╢п╬п©я┐я│я┌п╦п╪я▀п╣ я─п╟п╥п╪п╣я─я▀ п╦п╥п╬п╠я─п╟п╤п╣п╫п╦я▐");
     }
 
     if (info.getWidth()<MIN_SCREENSHOT_SIZE || info.getWidth() > MAX_SCREENSHOT_SIZE) {
-      throw new BadImageException("Сбой загрузки изображения: недопустимые размеры изображения");
+      throw new BadImageException("п║п╠п╬п╧ п╥п╟пЁя─я┐п╥п╨п╦ п╦п╥п╬п╠я─п╟п╤п╣п╫п╦я▐: п╫п╣п╢п╬п©я┐я│я┌п╦п╪я▀п╣ я─п╟п╥п╪п╣я─я▀ п╦п╥п╬п╠я─п╟п╤п╣п╫п╦я▐");
     }
   }
 

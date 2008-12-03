@@ -21,7 +21,7 @@ public final class top10 extends Boxlet {
       StringBuffer out = new StringBuffer();
       double messages = profile.getInt("messages");
 
-      out.append("<h2>Top 10</h2><h3>Наиболее обсуждаемые темы этого месяца</h3>");
+      out.append("<h2>Top 10</h2><h3>п²п╟п╦п╠п╬п╩п╣п╣ п╬п╠я│я┐п╤п╢п╟п╣п╪я▀п╣ я┌п╣п╪я▀ я█я┌п╬пЁп╬ п╪п╣я│я▐я├п╟</h3>");
       Statement st = db.createStatement();
 
       ResultSet rs = st.executeQuery("select msgid, mess_order from top10");
@@ -51,7 +51,7 @@ public final class top10 extends Boxlet {
         out.append("<a href=\"view-message.jsp?msgid=").append(msgid).append("&amp;lastmod=").append(lastmod.getTime()).append("\">").append(rs.getString("title")).append("</a>");
         int pages = (int) Math.ceil(c / messages);
         if (pages > 1) {
-          out.append(" (стр.");
+          out.append(" (я│я┌я─.");
           out.append(" <a href=\"view-message.jsp?msgid=").append(msgid).append("&amp;lastmod=").append(lastmod.getTime()).append("&amp;page=").append(pages-1).append("\">").append(pages).append("</a>");
           out.append(')');
         }
@@ -70,7 +70,7 @@ public final class top10 extends Boxlet {
   }
 
   public String getInfo() {
-    return "Наиболее обсуждаемые темы этого месяца";
+    return "п²п╟п╦п╠п╬п╩п╣п╣ п╬п╠я│я┐п╤п╢п╟п╣п╪я▀п╣ я┌п╣п╪я▀ я█я┌п╬пЁп╬ п╪п╣я│я▐я├п╟";
   }
 
   public String getVariantID(ProfileHashtable prof) throws UtilException {

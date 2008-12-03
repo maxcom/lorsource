@@ -32,13 +32,13 @@ public class CaptchaSingleton {
 
     try {
       if (!getInstance().validateResponseForID(captchaId, captchaResponse)) {
-//        String logmessage = "Captcha: сбой проверки response='" + captchaResponse + "' " + LorHttpUtils.getRequestIP(request);
+//        String logmessage = "Captcha: я│п╠п╬п╧ п©я─п╬п╡п╣я─п╨п╦ response='" + captchaResponse + "' " + LorHttpUtils.getRequestIP(request);
 //        logger.info(logmessage);
 
-        throw new BadInputException("сбой добавления: код проверки не совпадает");
+        throw new BadInputException("я│п╠п╬п╧ п╢п╬п╠п╟п╡п╩п╣п╫п╦я▐: п╨п╬п╢ п©я─п╬п╡п╣я─п╨п╦ п╫п╣ я│п╬п╡п©п╟п╢п╟п╣я┌");
       }
     } catch (CaptchaServiceException e) {
-      throw new BadInputException("сбой добавления: сбой проверки кода проверки");
+      throw new BadInputException("я│п╠п╬п╧ п╢п╬п╠п╟п╡п╩п╣п╫п╦я▐: я│п╠п╬п╧ п©я─п╬п╡п╣я─п╨п╦ п╨п╬п╢п╟ п©я─п╬п╡п╣я─п╨п╦");
     }
   }
 }

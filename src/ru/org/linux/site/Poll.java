@@ -198,7 +198,7 @@ public class Poll {
 	}
 	out.append("</td></tr>");
     }
-    out.append("<tr><td colspan=2>Всего голосов: ").append(total).append("</td></tr>");
+    out.append("<tr><td colspan=2>п▓я│п╣пЁп╬ пЁп╬п╩п╬я│п╬п╡: ").append(total).append("</td></tr>");
     out.append("</table>");
     return out.toString();
   }
@@ -221,7 +221,7 @@ public class Poll {
 	}
 	out.append("</td></tr>");
     }
-    out.append("<tr><td colspan=2>Всего голосов: ").append(total).append("</td></tr>");
+    out.append("<tr><td colspan=2>п▓я│п╣пЁп╬ пЁп╬п╩п╬я│п╬п╡: ").append(total).append("</td></tr>");
     out.append("</table>");
     return out.toString();
   }

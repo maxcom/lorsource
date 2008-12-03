@@ -2,6 +2,6 @@ package ru.org.linux.site;
 
 public class DuplicationException extends UserErrorException {
   public DuplicationException() {
-    super("Следующее сообщение может быть записано не менее чем через 30 секунд после предыдущего");
+    super("п║п╩п╣п╢я┐я▌я┴п╣п╣ я│п╬п╬п╠я┴п╣п╫п╦п╣ п╪п╬п╤п╣я┌ п╠я▀я┌я▄ п╥п╟п©п╦я│п╟п╫п╬ п╫п╣ п╪п╣п╫п╣п╣ я┤п╣п╪ я┤п╣я─п╣п╥ 30 я│п╣п╨я┐п╫п╢ п©п╬я│п╩п╣ п©я─п╣п╢я▀п╢я┐я┴п╣пЁп╬");
   }
 }

@@ -4,7 +4,7 @@ public class UserErrorException extends Exception
 {
 	public UserErrorException()
 	{
-		super("неизвестная пользовательская ошибка");
+		super("п╫п╣п╦п╥п╡п╣я│я┌п╫п╟я▐ п©п╬п╩я▄п╥п╬п╡п╟я┌п╣п╩я▄я│п╨п╟я▐ п╬я┬п╦п╠п╨п╟");
 	}
 
 	public UserErrorException(String info)

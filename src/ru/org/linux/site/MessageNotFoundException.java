@@ -6,6 +6,6 @@ public class MessageNotFoundException extends ScriptErrorException {
   }
 
   public MessageNotFoundException(int id) {
-    super("Сообщение #" + id + " не существует");
+    super("п║п╬п╬п╠я┴п╣п╫п╦п╣ #" + id + " п╫п╣ я│я┐я┴п╣я│я┌п╡я┐п╣я┌");
   }
 }

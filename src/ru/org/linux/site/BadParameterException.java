@@ -4,12 +4,12 @@ public class BadParameterException extends ScriptErrorException
 {
 	public BadParameterException(String param, String info)
 	{
-		super("Неправильный формат параметра ``"+param+"'': "+info);
+		super("п²п╣п©я─п╟п╡п╦п╩я▄п╫я▀п╧ я└п╬я─п╪п╟я┌ п©п╟я─п╟п╪п╣я┌я─п╟ ``"+param+"'': "+info);
 	}
 
 	public BadParameterException(String param)
 	{
-		super("Неправильный формат параметра ``"+param+"''");
+		super("п²п╣п©я─п╟п╡п╦п╩я▄п╫я▀п╧ я└п╬я─п╪п╟я┌ п©п╟я─п╟п╪п╣я┌я─п╟ ``"+param+"''");
 	}
 
 }

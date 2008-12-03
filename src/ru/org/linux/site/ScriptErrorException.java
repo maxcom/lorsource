@@ -4,7 +4,7 @@ import javax.servlet.ServletException;
 
 public class ScriptErrorException extends ServletException {
   public ScriptErrorException() {
-    super("неизвестная ошибка скрипта");
+    super("п╫п╣п╦п╥п╡п╣я│я┌п╫п╟я▐ п╬я┬п╦п╠п╨п╟ я│п╨я─п╦п©я┌п╟");
   }
 
   public ScriptErrorException(String info) {

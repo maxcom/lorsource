@@ -59,7 +59,7 @@ public class IgnoreList {
   public void addUser(Connection db, User user) throws SQLException,  AccessViolationException {
     int id = user.getId();
     if (user.canModerate()) {
-      throw new AccessViolationException("Нельзя игнорировать модератора");
+      throw new AccessViolationException("п²п╣п╩я▄п╥я▐ п╦пЁп╫п╬я─п╦я─п╬п╡п╟я┌я▄ п╪п╬п╢п╣я─п╟я┌п╬я─п╟");
     } else {
       if (!ignoreList.containsKey(id)) {
         PreparedStatement addPst = db.prepareStatement("INSERT INTO ignore_list (userid,ignored) VALUES(?,?)");

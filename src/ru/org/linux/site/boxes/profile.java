@@ -10,22 +10,22 @@ public final class profile extends Boxlet
 	public String getContentImpl(ProfileHashtable profile) throws IOException {
 		StringBuffer out=new StringBuffer();
 
-		out.append("<h2>Выбор профиля</h2>");
+		out.append("<h2>п▓я▀п╠п╬я─ п©я─п╬я└п╦п╩я▐</h2>");
 		if (profile.getString("ProfileName")==null)
-			out.append("Используется профиль по-умолчанию<p>");
+			out.append("п≤я│п©п╬п╩я▄п╥я┐п╣я┌я│я▐ п©я─п╬я└п╦п╩я▄ п©п╬-я┐п╪п╬п╩я┤п╟п╫п╦я▌<p>");
 		else
-                  out.append("Используется профиль: <em>").append(profile.getString("ProfileName")).append("</em><p>");
-		out.append("<br><a href=\"edit-profile.jsp\">настройки...</a>");
+                  out.append("п≤я│п©п╬п╩я▄п╥я┐п╣я┌я│я▐ п©я─п╬я└п╦п╩я▄: <em>").append(profile.getString("ProfileName")).append("</em><p>");
+		out.append("<br><a href=\"edit-profile.jsp\">п╫п╟я│я┌я─п╬п╧п╨п╦...</a>");
 
-		out.append("<p><strong>Предустановки:</strong><br>");
-		out.append("*<a href=\"edit-profile.jsp?mode=setup&amp;profile=\">по умолчанию</a><br>");
-		out.append("*<a href=\"edit-profile.jsp?mode=setup&amp;profile=_white\">тема white</a><br>");
-		out.append("*<a href=\"edit-profile.jsp?mode=setup&amp;profile=_white2\">тема white2</a><br>");
+		out.append("<p><strong>п÷я─п╣п╢я┐я│я┌п╟п╫п╬п╡п╨п╦:</strong><br>");
+		out.append("*<a href=\"edit-profile.jsp?mode=setup&amp;profile=\">п©п╬ я┐п╪п╬п╩я┤п╟п╫п╦я▌</a><br>");
+		out.append("*<a href=\"edit-profile.jsp?mode=setup&amp;profile=_white\">я┌п╣п╪п╟ white</a><br>");
+		out.append("*<a href=\"edit-profile.jsp?mode=setup&amp;profile=_white2\">я┌п╣п╪п╟ white2</a><br>");
 
 		return out.toString();
 	}
 
-	public String getInfo() { return "Выбор профиля"; }
+	public String getInfo() { return "п▓я▀п╠п╬я─ п©я─п╬я└п╦п╩я▐"; }
 
 	public String getVariantID(ProfileHashtable prof) {
 		if (prof.getString("ProfileName")==null)

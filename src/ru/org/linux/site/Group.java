@@ -39,7 +39,7 @@ public class Group {
       rs = st.executeQuery("SELECT sections.moderate, sections.preformat, imagepost, vote, section, havelink, linktext, sections.name as sname, title, image, restrict_topics, restrict_comments, sections.browsable,stat1,stat2,stat3,groups.id, groups.info FROM groups, sections WHERE groups.id=" + id + " AND groups.section=sections.id");
 
       if (!rs.next()) {
-        throw new BadGroupException("Группа " + id + " не существует");
+        throw new BadGroupException("п⌠я─я┐п©п©п╟ " + id + " п╫п╣ я│я┐я┴п╣я│я┌п╡я┐п╣я┌");
       }
 
       init(rs);
@@ -188,7 +188,7 @@ public class Group {
       ResultSet rs = st.executeQuery("SELECT groupid FROM topics WHERE id="+topicid+" AND NOT deleted");
 
       if (!rs.next()) {
-        throw new MessageNotFoundException(topicid, "Тема не существует или удалена");
+        throw new MessageNotFoundException(topicid, "п╒п╣п╪п╟ п╫п╣ я│я┐я┴п╣я│я┌п╡я┐п╣я┌ п╦п╩п╦ я┐п╢п╟п╩п╣п╫п╟");
       }
 
       int groupid = rs.getInt("groupid");
@@ -196,7 +196,7 @@ public class Group {
 
       Group group = new Group(db, groupid);
       if (!group.isCommentPostingAllowed(user)) {
-        throw new AccessViolationException("У вас не достаточно прав для комментирования");
+        throw new AccessViolationException("пё п╡п╟я│ п╫п╣ п╢п╬я│я┌п╟я┌п╬я┤п╫п╬ п©я─п╟п╡ п╢п╩я▐ п╨п╬п╪п╪п╣п╫я┌п╦я─п╬п╡п╟п╫п╦я▐");
       }
     } catch (BadGroupException e) {
       throw new RuntimeException(e);

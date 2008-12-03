@@ -4,11 +4,11 @@ public class StorageExistsException extends StorageException
 {
 	public StorageExistsException(String domain, int msgid)
 	{
-		super("Объект "+domain+ ':' +msgid+" уже существует");
+		super("п·п╠я┼п╣п╨я┌ "+domain+ ':' +msgid+" я┐п╤п╣ я│я┐я┴п╣я│я┌п╡я┐п╣я┌");
 	}
 
 	public StorageExistsException(String domain, String msgid)
 	{
-		super("Объект "+domain+ ':' +msgid+" уже существует");
+		super("п·п╠я┼п╣п╨я┌ "+domain+ ':' +msgid+" я┐п╤п╣ я│я┐я┴п╣я│я┌п╡я┐п╣я┌");
 	}
 }

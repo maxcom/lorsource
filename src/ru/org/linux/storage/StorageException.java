@@ -2,7 +2,7 @@ package ru.org.linux.storage;
 
 public class StorageException extends Exception {
   public StorageException() {
-    super("неизвестная ошибка хранилища");
+    super("п╫п╣п╦п╥п╡п╣я│я┌п╫п╟я▐ п╬я┬п╦п╠п╨п╟ я┘я─п╟п╫п╦п╩п╦я┴п╟");
   }
 
   public StorageException(String info) {

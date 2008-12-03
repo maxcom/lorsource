@@ -9,6 +9,6 @@ public class BadVoteException extends ScriptErrorException
 
 	public BadVoteException(int id, int vote)
 	{
-		super("Неверный id опроса");
+		super("п²п╣п╡п╣я─п╫я▀п╧ id п╬п©я─п╬я│п╟");
 	}
 }

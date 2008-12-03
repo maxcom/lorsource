@@ -10,10 +10,10 @@ public final class login extends Boxlet
 		StringBuffer out=new StringBuffer();
 
 		out.append("<h2>Login</h2>"); 
-		out.append("<form method=POST action=\"login.jsp\"><table><tr><td>Nick:</td><td><input type=text name=nick size=9></td></tr><tr><td>Пароль:</td><td><input type=password name=passwd size=9></td></tr></table><input type=checkbox name=profile checked> востановить профиль<br><input type=submit value=\"Login\"></form><br><form method=POST action=\"logout.jsp\"><input type=submit value=\"Logout\"></form><a href=\"register.jsp\">регистрация...</a>");
+		out.append("<form method=POST action=\"login.jsp\"><table><tr><td>Nick:</td><td><input type=text name=nick size=9></td></tr><tr><td>п÷п╟я─п╬п╩я▄:</td><td><input type=password name=passwd size=9></td></tr></table><input type=checkbox name=profile checked> п╡п╬я│я┌п╟п╫п╬п╡п╦я┌я▄ п©я─п╬я└п╦п╩я▄<br><input type=submit value=\"Login\"></form><br><form method=POST action=\"logout.jsp\"><input type=submit value=\"Logout\"></form><a href=\"register.jsp\">я─п╣пЁп╦я│я┌я─п╟я├п╦я▐...</a>");
 		return out.toString();
 
 	}
 	
-	public String getInfo() { return "Выбор профиля"; }
+	public String getInfo() { return "п▓я▀п╠п╬я─ п©я─п╬я└п╦п╩я▐"; }
 }

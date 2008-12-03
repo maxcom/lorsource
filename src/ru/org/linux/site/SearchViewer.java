@@ -102,7 +102,7 @@ public class SearchViewer implements Viewer {
   }
 
   private String printResults(Connection db, ResultSet rs) throws SQLException, UserNotFoundException {
-    StringBuilder out = new StringBuilder("<h1>Результаты поиска</h1>");
+    StringBuilder out = new StringBuilder("<h1>п═п╣п╥я┐п╩я▄я┌п╟я┌я▀ п©п╬п╦я│п╨п╟</h1>");
 
     out.append("<div class=\"messages\"><div class=\"comment\">");
 

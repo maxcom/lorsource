@@ -25,7 +25,7 @@ public final class tagcloud extends Boxlet {
       StringBuffer out = new StringBuffer();
       int tags = profile.getInt("tags");
 
-      out.append("<h2>Облако Меток</h2><h3>Наиболее используемые метки</h3>");
+      out.append("<h2>п·п╠п╩п╟п╨п╬ п°п╣я┌п╬п╨</h2><h3>п²п╟п╦п╠п╬п╩п╣п╣ п╦я│п©п╬п╩я▄п╥я┐п╣п╪я▀п╣ п╪п╣я┌п╨п╦</h3>");
 
       PreparedStatement st = db.prepareStatement("select value,counter from tags_values where counter>0 order by counter desc limit ?");
       st.setInt(1,tags);
@@ -72,7 +72,7 @@ public final class tagcloud extends Boxlet {
   }
 
   public String getInfo() {
-    return "Наиболее используемые метки";
+    return "п²п╟п╦п╠п╬п╩п╣п╣ п╦я│п©п╬п╩я▄п╥я┐п╣п╪я▀п╣ п╪п╣я┌п╨п╦";
   }
 
   public String getVariantID(ProfileHashtable prof) throws UtilException {

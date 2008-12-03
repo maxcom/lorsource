@@ -80,10 +80,10 @@ public class NewsViewer implements Viewer {
       out.append("<a href=\"view-news.jsp?section=").append(res.getInt("section")).append("&amp;group=").append(res.getInt("guid")).append("\">");
       try {
         ImageInfo info = new ImageInfo(config.getProperty("HTMLPathPrefix") + profile.getString("style") + image);
-        out.append("<img src=\"/").append(profile.getString("style")).append(image).append("\" ").append(info.getCode()).append(" border=0 alt=\"Группа ").append(res.getString("gtitle")).append("\">");
+        out.append("<img src=\"/").append(profile.getString("style")).append(image).append("\" ").append(info.getCode()).append(" border=0 alt=\"п⌠я─я┐п©п©п╟ ").append(res.getString("gtitle")).append("\">");
       } catch (BadImageException e) {
         logger.warning("Bad Image for group "+res.getInt("guid")+StringUtil.getStackTrace(e));
-        out.append("[bad image] <img class=newsimage src=\"/").append(profile.getString("style")).append(image).append("\" " + " border=0 alt=\"Группа ").append(res.getString("gtitle")).append("\">");
+        out.append("[bad image] <img class=newsimage src=\"/").append(profile.getString("style")).append(image).append("\" " + " border=0 alt=\"п⌠я─я┐п©п©п╟ ").append(res.getString("gtitle")).append("\">");
       }
       out.append("</a>");
       out.append("</div>");
@@ -118,23 +118,23 @@ public class NewsViewer implements Viewer {
 
         out.append("<p><i>").append(info.getWidth()).append('x').append(info.getHeight()).append(", ").append(info.getSizeString()).append("</i>");
 
-        out.append("<p>&gt;&gt;&gt; <a href=\"/").append(url).append("\">Просмотр</a>");
+        out.append("<p>&gt;&gt;&gt; <a href=\"/").append(url).append("\">п÷я─п╬я│п╪п╬я┌я─</a>");
       } catch (BadImageException e) {
-        out.append("<p>&gt;&gt;&gt; <a href=\"/").append(url).append("\">[BAD IMAGE!] Просмотр</a>");
+        out.append("<p>&gt;&gt;&gt; <a href=\"/").append(url).append("\">[BAD IMAGE!] п÷я─п╬я│п╪п╬я┌я─</a>");
       } catch (IOException e) {
-        out.append("<p>&gt;&gt;&gt; <a href=\"/").append(url).append("\">[BAD IMAGE: IO Exception!] Просмотр</a>");
+        out.append("<p>&gt;&gt;&gt; <a href=\"/").append(url).append("\">[BAD IMAGE: IO Exception!] п÷я─п╬я│п╪п╬я┌я─</a>");
       }
     } else if (votepoll) {
       try {
         int id = Poll.getPollIdByTopic(db, msgid);
         Poll poll = new Poll(db, id);
 	out.append(poll.renderPoll(db, config, profile));
-        out.append("<p>&gt;&gt;&gt; <a href=\"").append("vote-vote.jsp?msgid=").append(msgid).append("\">Голосовать</a>");
-        out.append("<p>&gt;&gt;&gt; <a href=\"").append(jumplink).append("\">Результаты</a>");
+        out.append("<p>&gt;&gt;&gt; <a href=\"").append("vote-vote.jsp?msgid=").append(msgid).append("\">п⌠п╬п╩п╬я│п╬п╡п╟я┌я▄</a>");
+        out.append("<p>&gt;&gt;&gt; <a href=\"").append(jumplink).append("\">п═п╣п╥я┐п╩я▄я┌п╟я┌я▀</a>");
       } catch (BadImageException e) {
-        out.append("<p>&gt;&gt;&gt; <a href=\"").append("\">[BAD POLL!] Просмотр</a>");
+        out.append("<p>&gt;&gt;&gt; <a href=\"").append("\">[BAD POLL!] п÷я─п╬я│п╪п╬я┌я─</a>");
       } catch (PollNotFoundException e) {
-        out.append("<p>&gt;&gt;&gt; <a href=\"").append("\">[BAD POLL!] Просмотр</a>");
+        out.append("<p>&gt;&gt;&gt; <a href=\"").append("\">[BAD POLL!] п÷я─п╬я│п╪п╬я┌я─</a>");
       }
     }
 
@@ -144,7 +144,7 @@ public class NewsViewer implements Viewer {
       String tagLinks = Tags.getTagLinks(db, msgid);
 
       if (tagLinks.length()>0) {
-        out.append("Метки: <i>");
+        out.append("п°п╣я┌п╨п╦: <i>");
         out.append(tagLinks);
         out.append("</i>");
       }
@@ -157,7 +157,7 @@ public class NewsViewer implements Viewer {
       out.append("<div class=\"nav\">");
 
       if (!expired) {
-        out.append("[<a href=\"comment-message.jsp?msgid=").append(msgid).append("\">Добавить&nbsp;комментарий</a>]");
+        out.append("[<a href=\"comment-message.jsp?msgid=").append(msgid).append("\">п■п╬п╠п╟п╡п╦я┌я▄&nbsp;п╨п╬п╪п╪п╣п╫я┌п╟я─п╦п╧</a>]");
       }
 
       int stat1 = res.getInt("stat1");
@@ -176,33 +176,33 @@ public class NewsViewer implements Viewer {
         out.append("\">");
 
 //        if (stat1 % 10 == 1 && stat1 % 100 != 11) {
-//          out.append("Добавлен&nbsp;");
+//          out.append("п■п╬п╠п╟п╡п╩п╣п╫&nbsp;");
 //        } else {
-//          out.append("Добавлено&nbsp;");
+//          out.append("п■п╬п╠п╟п╡п╩п╣п╫п╬&nbsp;");
 //        }
 
         out.append(stat1);
 
         if (stat1 % 100 >= 10 && stat1 % 100 <= 20) {
-          out.append("&nbsp;комментариев</a>");
+          out.append("&nbsp;п╨п╬п╪п╪п╣п╫я┌п╟я─п╦п╣п╡</a>");
         } else {
           switch (stat1 % 10) {
             case 1:
-              out.append("&nbsp;комментарий</a>");
+              out.append("&nbsp;п╨п╬п╪п╪п╣п╫я┌п╟я─п╦п╧</a>");
               break;
             case 2:
             case 3:
             case 4:
-              out.append("&nbsp;комментария</a>");
+              out.append("&nbsp;п╨п╬п╪п╪п╣п╫я┌п╟я─п╦я▐</a>");
               break;
             default:
-              out.append("&nbsp;комментариев</a>");
+              out.append("&nbsp;п╨п╬п╪п╪п╣п╫я┌п╟я─п╦п╣п╡</a>");
               break;
           }
         }
 
 	if (pages != 1){
-	  out.append("&nbsp;(стр.");
+	  out.append("&nbsp;(я│я┌я─.");
 	  for (int i = 1; i < pages; i++) {
             if (i==pages-1) {
               out.append(" <a href=\"").append(jumplink).append("&amp;page=").append(i).append("\">").append(i + 1).append("</a>");
@@ -218,13 +218,13 @@ public class NewsViewer implements Viewer {
       out.append("</div>");
     } else if (moderateMode) {
       out.append("<div class=nav>");
-      out.append("[<a href=\"commit.jsp?msgid=").append(msgid).append("\">Подтвердить</a>]");
-      out.append(" [<a href=\"delete.jsp?msgid=").append(msgid).append("\">Удалить</a>]");
+      out.append("[<a href=\"commit.jsp?msgid=").append(msgid).append("\">п÷п╬п╢я┌п╡п╣я─п╢п╦я┌я▄</a>]");
+      out.append(" [<a href=\"delete.jsp?msgid=").append(msgid).append("\">пёп╢п╟п╩п╦я┌я▄</a>]");
       if (!votepoll) {
-        out.append(" [<a href=\"edit.jsp?msgid=").append(msgid).append("\">Править</a>]");
+        out.append(" [<a href=\"edit.jsp?msgid=").append(msgid).append("\">п÷я─п╟п╡п╦я┌я▄</a>]");
       }
       else {
-        out.append(" [<a href=\"edit-vote.jsp?msgid=").append(msgid).append("\">Править</a>]");
+        out.append(" [<a href=\"edit-vote.jsp?msgid=").append(msgid).append("\">п÷я─п╟п╡п╦я┌я▄</a>]");
       }
 
       out.append("</div>");

@@ -2,7 +2,7 @@ package ru.org.linux.util;
 
 public class BadImageException extends Exception {
   public BadImageException() {
-    super("Некорректное изображение");
+    super("п²п╣п╨п╬я─я─п╣п╨я┌п╫п╬п╣ п╦п╥п╬п╠я─п╟п╤п╣п╫п╦п╣");
   }
 
   public BadImageException(String info) {

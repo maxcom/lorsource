@@ -31,7 +31,7 @@
 </target>
 
 <target name="build" depends="prepare">
-	<javac classpathref="build.classpath" srcdir="src" destdir="${build}" optimize="yes" debug="yes" encoding="koi8-r"/>
+	<javac classpathref="build.classpath" srcdir="src" destdir="${build}" optimize="yes" debug="yes" encoding="utf-8"/>
 	<copy file="src/logging.properties" todir="${build}"/>
 </target>
 
@@ -55,7 +55,7 @@
 
 <target name="doc" depends="build">
 	<mkdir dir="docs/api"/>
-	<javadoc sourcepath="src" destdir="docs/api" packagenames="ru.org.linux.*" encoding="koi8-r" docencoding="koi8-r"/>
+	<javadoc sourcepath="src" destdir="docs/api" packagenames="ru.org.linux.*" encoding="utf-8" docencoding="utf-8"/>
 </target>
 
 <target name="clean" depends="init">

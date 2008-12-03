@@ -120,11 +120,11 @@ public class HTMLFormatter {
     }
   }
 
-  /** форматирует фрагмент исходного текста
+  /** я└п╬я─п╪п╟я┌п╦я─я┐п╣я┌ я└я─п╟пЁп╪п╣п╫я┌ п╦я│я┘п╬п╢п╫п╬пЁп╬ я┌п╣п╨я│я┌п╟
    *
-   * @param chunk фрагмент текста
-   * @return отформатированную строку
-   * @throws UtilException в случае некорректного входного текста
+   * @param chunk я└я─п╟пЁп╪п╣п╫я┌ я┌п╣п╨я│я┌п╟
+   * @return п╬я┌я└п╬я─п╪п╟я┌п╦я─п╬п╡п╟п╫п╫я┐я▌ я│я┌я─п╬п╨я┐
+   * @throws UtilException п╡ я│п╩я┐я┤п╟п╣ п╫п╣п╨п╬я─я─п╣п╨я┌п╫п╬пЁп╬ п╡я┘п╬п╢п╫п╬пЁп╬ я┌п╣п╨я│я┌п╟
    */
   private String formatHTMLLine(String chunk)  {
     StringBuffer out = new StringBuffer();
@@ -135,10 +135,10 @@ public class HTMLFormatter {
     while (en.hasMoreElements()) {
       REMatch found = en.nextMatch();
 
-      // обработка начальной части до URL
+      // п╬п╠я─п╟п╠п╬я┌п╨п╟ п╫п╟я┤п╟п╩я▄п╫п╬п╧ я┤п╟я│я┌п╦ п╢п╬ URL
       out.append(wrapLongLine(chunk.substring(index, found.getStartIndex()), maxlength, nl, index));
 
-      // обработка URL
+      // п╬п╠я─п╟п╠п╬я┌п╨п╟ URL
       String url = chunk.substring(found.getStartIndex(), found.getEndIndex());
       if (urlHighlight) {
         String urlchunk = url;
@@ -161,7 +161,7 @@ public class HTMLFormatter {
       index = found.getEndIndex();
     }
 
-    // обработка последнего фрагмента
+    // п╬п╠я─п╟п╠п╬я┌п╨п╟ п©п╬я│п╩п╣п╢п╫п╣пЁп╬ я└я─п╟пЁп╪п╣п╫я┌п╟
     if (index < chunk.length()) {
       out.append(wrapLongLine(chunk.substring(index), maxlength, nl, index));
     }
@@ -334,13 +334,13 @@ public class HTMLFormatter {
     return res.toString();
   }
 
-  /** Разбивает слишком длинный фрагмент в строке на части
+  /** п═п╟п╥п╠п╦п╡п╟п╣я┌ я│п╩п╦я┬п╨п╬п╪ п╢п╩п╦п╫п╫я▀п╧ я└я─п╟пЁп╪п╣п╫я┌ п╡ я│я┌я─п╬п╨п╣ п╫п╟ я┤п╟я│я┌п╦
    *
-   * @param line строка
-   * @param maxlength максимальная длинна фрагмента
-   * @param delim разделитель которым будет разбиваться строка
-   * @param start текущая позиция в строке
-   * @return разбитая строка
+   * @param line я│я┌я─п╬п╨п╟
+   * @param maxlength п╪п╟п╨я│п╦п╪п╟п╩я▄п╫п╟я▐ п╢п╩п╦п╫п╫п╟ я└я─п╟пЁп╪п╣п╫я┌п╟
+   * @param delim я─п╟п╥п╢п╣п╩п╦я┌п╣п╩я▄ п╨п╬я┌п╬я─я▀п╪ п╠я┐п╢п╣я┌ я─п╟п╥п╠п╦п╡п╟я┌я▄я│я▐ я│я┌я─п╬п╨п╟
+   * @param start я┌п╣п╨я┐я┴п╟я▐ п©п╬п╥п╦я├п╦я▐ п╡ я│я┌я─п╬п╨п╣
+   * @return я─п╟п╥п╠п╦я┌п╟я▐ я│я┌я─п╬п╨п╟
    */
   private static String wrapLongLine(String line, int maxlength, String delim, int start)  {
     StringBuffer sb = new StringBuffer();

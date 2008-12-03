@@ -9,6 +9,6 @@ public class BadInputException extends UserErrorException
 
 	public BadInputException(Throwable e)
 	{
-		super("Некорректный ввод: "+e.getMessage());
+		super("п²п╣п╨п╬я─я─п╣п╨я┌п╫я▀п╧ п╡п╡п╬п╢: "+e.getMessage());
 	}
 }

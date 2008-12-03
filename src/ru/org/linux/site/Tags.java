@@ -112,7 +112,7 @@ public class Tags{
   }
 
   public static void checkTag(String tag) throws UserErrorException {
-    // обработка тега: только буквы/цифры/пробелы, никаких спецсимволов, запятых, амперсандов и <>
+    // п╬п╠я─п╟п╠п╬я┌п╨п╟ я┌п╣пЁп╟: я┌п╬п╩я▄п╨п╬ п╠я┐п╨п╡я▀/я├п╦я└я─я▀/п©я─п╬п╠п╣п╩я▀, п╫п╦п╨п╟п╨п╦я┘ я│п©п╣я├я│п╦п╪п╡п╬п╩п╬п╡, п╥п╟п©я▐я┌я▀я┘, п╟п╪п©п╣я─я│п╟п╫п╢п╬п╡ п╦ <>
     if (!tagRE.isMatch(tag)) {
       throw new UserErrorException("Invalid tag: '"+tag+ '\'');
     }
@@ -146,7 +146,7 @@ public class Tags{
   public static List<String> parseTags(String tags) throws UserErrorException {
     Set<String> tagSet = new HashSet<String>();
 
-    // Теги разделяютчя пайпом или запятой
+    // п╒п╣пЁп╦ я─п╟п╥п╢п╣п╩я▐я▌я┌я┤я▐ п©п╟п╧п©п╬п╪ п╦п╩п╦ п╥п╟п©я▐я┌п╬п╧
     tags = tags.replaceAll("\\|",",");
     String [] tagsArr = tags.split(",");
 
@@ -156,12 +156,12 @@ public class Tags{
 
     for (String aTagsArr : tagsArr) {
       String tag = StringUtils.stripToNull(aTagsArr.toLowerCase());
-      // плохой тег - выбрасываем
+      // п©п╩п╬я┘п╬п╧ я┌п╣пЁ - п╡я▀п╠я─п╟я│я▀п╡п╟п╣п╪
       if (tag == null) {
         continue;
       }
 
-      // обработка тега: только буквы/цифры/пробелы, никаких спецсимволов, запятых, амперсандов и <>
+      // п╬п╠я─п╟п╠п╬я┌п╨п╟ я┌п╣пЁп╟: я┌п╬п╩я▄п╨п╬ п╠я┐п╨п╡я▀/я├п╦я└я─я▀/п©я─п╬п╠п╣п╩я▀, п╫п╦п╨п╟п╨п╦я┘ я│п©п╣я├я│п╦п╪п╡п╬п╩п╬п╡, п╥п╟п©я▐я┌я▀я┘, п╟п╪п©п╣я─я│п╟п╫п╢п╬п╡ п╦ <>
       checkTag(tag);
 
       tagSet.add(tag);

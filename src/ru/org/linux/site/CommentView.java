@@ -32,7 +32,7 @@ public class CommentView {
 
         try {
           ImageInfo info=new ImageInfo(tmpl.getObjectConfig().getHTMLPathPrefix()+"/photos/"+author.getPhoto());
-          out.append("<img src=\"/photos/").append(author.getPhoto()).append("\" alt=\"").append(author.getNick()).append(" (фотография)\" ").append(info.getCode()).append(" >");
+          out.append("<img src=\"/photos/").append(author.getPhoto()).append("\" alt=\"").append(author.getNick()).append(" (я└п╬я┌п╬пЁя─п╟я└п╦я▐)\" ").append(info.getCode()).append(" >");
         } catch (BadImageException e) {
           logger.warning(StringUtil.getStackTrace(e));
         }
@@ -59,11 +59,11 @@ public class CommentView {
     if (!comment.isDeleted() && showMenu) {
       out.append("<div class=reply>");
       if (!expired) {
-        out.append("[<a href=\"add_comment.jsp?topic=").append(comment.getTopic()).append("&amp;replyto=").append(comment.getMessageId()).append("\">Ответить на это сообщение</a>] ");
+        out.append("[<a href=\"add_comment.jsp?topic=").append(comment.getTopic()).append("&amp;replyto=").append(comment.getMessageId()).append("\">п·я┌п╡п╣я┌п╦я┌я▄ п╫п╟ я█я┌п╬ я│п╬п╬п╠я┴п╣п╫п╦п╣</a>] ");
       }
 
       if ((moderatorMode || author.getNick().equals(user))) {
-        out.append("[<a href=\"delete_comment.jsp?msgid=").append(comment.getMessageId()).append("\">Удалить</a>]");
+        out.append("[<a href=\"delete_comment.jsp?msgid=").append(comment.getMessageId()).append("\">пёп╢п╟п╩п╦я┌я▄</a>]");
       }
 
       out.append("</div>");
@@ -89,9 +89,9 @@ public class CommentView {
 
     if (comment.isDeleted()) {
       if (comment.getDeleteInfo() ==null) {
-        out.append("<strong>Сообщение удалено</strong>");
+        out.append("<strong>п║п╬п╬п╠я┴п╣п╫п╦п╣ я┐п╢п╟п╩п╣п╫п╬</strong>");
       } else {
-        out.append("<strong>Сообщение удалено ").append(comment.getDeleteInfo().getNick()).append(" по причине '").append(HTMLFormatter.htmlSpecialChars(comment.getDeleteInfo().getReason())).append("'</strong>");
+        out.append("<strong>п║п╬п╬п╠я┴п╣п╫п╦п╣ я┐п╢п╟п╩п╣п╫п╬ ").append(comment.getDeleteInfo().getNick()).append(" п©п╬ п©я─п╦я┤п╦п╫п╣ '").append(HTMLFormatter.htmlSpecialChars(comment.getDeleteInfo().getReason())).append("'</strong>");
       }
     }
 
@@ -100,7 +100,7 @@ public class CommentView {
       if (replyNode != null) {
         Comment reply = replyNode.getComment();
 
-        out.append(" Ответ на: <a href=\"");
+        out.append(" п·я┌п╡п╣я┌ п╫п╟: <a href=\"");
 
         String urladd = "";
         if (!expired) {
@@ -118,7 +118,7 @@ public class CommentView {
 
         User replyAuthor = User.getUserCached(db, reply.getUserid());
 
-        out.append(StringUtil.makeTitle(reply.getTitle())).append("</a> от ").append(replyAuthor.getNick()).append(' ').append(Template.dateFormat.format(reply.getPostdate()));
+        out.append(StringUtil.makeTitle(reply.getTitle())).append("</a> п╬я┌ ").append(replyAuthor.getNick()).append(' ').append(Template.dateFormat.format(reply.getPostdate()));
       } else {
         logger.warning("Weak reply #" + comment.getReplyTo() + " on comment=" + comment.getMessageId() + " msgid=" + comment.getTopic());
       }

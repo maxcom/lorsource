@@ -2,6 +2,6 @@ package ru.org.linux.storage;
 
 public class StorageInternalErrorException extends StorageException {
   public StorageInternalErrorException(String info) {
-    super("Внутренняя ошибка хранилища: " + info);
+    super("п▓п╫я┐я┌я─п╣п╫п╫я▐я▐ п╬я┬п╦п╠п╨п╟ я┘я─п╟п╫п╦п╩п╦я┴п╟: " + info);
   }
 }

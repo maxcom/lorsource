@@ -62,7 +62,7 @@ public class AddMessageController extends AbstractController {
           if (!session.getId().equals(form.getSessionId())) {
             logger.info("Flood protection (session variable differs) " + request.getRemoteAddr());
             logger.info("Flood protection (session variable differs) " + session.getId() + " != " + form.getSessionId());
-            throw new BadInputException("сбой добавления");
+            throw new BadInputException("я│п╠п╬п╧ п╢п╬п╠п╟п╡п╩п╣п╫п╦я▐");
           }
 
           // Captch
@@ -146,7 +146,7 @@ public class AddMessageController extends AbstractController {
         User currentUser = User.getCurrentUser(db, session);
 
         if (!group.isTopicPostingAllowed(currentUser)) {
-          throw new AccessViolationException("Не достаточно прав для постинга тем в эту группу");
+          throw new AccessViolationException("п²п╣ п╢п╬я│я┌п╟я┌п╬я┤п╫п╬ п©я─п╟п╡ п╢п╩я▐ п©п╬я│я┌п╦п╫пЁп╟ я┌п╣п╪ п╡ я█я┌я┐ пЁя─я┐п©п©я┐");
         }
 
         int section = group.getSectionId();

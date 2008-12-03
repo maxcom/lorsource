@@ -25,7 +25,7 @@ public class CommentDeleter {
 
   public String deleteComment(int msgid, String reason, User user, int scoreBonus) throws SQLException, ScriptErrorException {
     if (!getReplys(msgid).isEmpty()) {
-      throw new ScriptErrorException("Нельзя удалить комментарий с ответами");
+      throw new ScriptErrorException("п²п╣п╩я▄п╥я▐ я┐п╢п╟п╩п╦я┌я▄ п╨п╬п╪п╪п╣п╫я┌п╟я─п╦п╧ я│ п╬я┌п╡п╣я┌п╟п╪п╦");
     }
 
     deleteComment.clearParameters();
@@ -43,8 +43,8 @@ public class CommentDeleter {
     insertDelinfo.executeUpdate();
     updateScore.executeUpdate();
 
-    logger.info("Удалено сообщение " + msgid + " пользователем " + user.getNick() + " по причине `" + reason + '\'');
-    return "Сообщение " + msgid + " удалено";
+    logger.info("пёп╢п╟п╩п╣п╫п╬ я│п╬п╬п╠я┴п╣п╫п╦п╣ " + msgid + " п©п╬п╩я▄п╥п╬п╡п╟я┌п╣п╩п╣п╪ " + user.getNick() + " п©п╬ п©я─п╦я┤п╦п╫п╣ `" + reason + '\'');
+    return "п║п╬п╬п╠я┴п╣п╫п╦п╣ " + msgid + " я┐п╢п╟п╩п╣п╫п╬";
   }
 
   public String deleteReplys(int msgid, User user, boolean score) throws SQLException, ScriptErrorException {
@@ -58,24 +58,24 @@ public class CommentDeleter {
 
     for (Integer r : replys) {
       out.append(deleteReplys(r, user, score, depth+1));
-      out.append("Удаляем ответ ").append(r).append("<br>");
+      out.append("пёп╢п╟п╩я▐п╣п╪ п╬я┌п╡п╣я┌ ").append(r).append("<br>");
       switch (depth) {
         case 0:
           if (score) {
-            deleteComment(r, "7.1 Ответ на некорректное сообщение (авто, уровень 0)", user, -2);
+            deleteComment(r, "7.1 п·я┌п╡п╣я┌ п╫п╟ п╫п╣п╨п╬я─я─п╣п╨я┌п╫п╬п╣ я│п╬п╬п╠я┴п╣п╫п╦п╣ (п╟п╡я┌п╬, я┐я─п╬п╡п╣п╫я▄ 0)", user, -2);
           } else {
-            deleteComment(r, "7.1 Ответ на некорректное сообщение (авто)", user, 0);
+            deleteComment(r, "7.1 п·я┌п╡п╣я┌ п╫п╟ п╫п╣п╨п╬я─я─п╣п╨я┌п╫п╬п╣ я│п╬п╬п╠я┴п╣п╫п╦п╣ (п╟п╡я┌п╬)", user, 0);
           }
           break;
         case 1:
           if (score) {
-            deleteComment(r, "7.1 Ответ на некорректное сообщение (авто, уровень 1)", user, -1);
+            deleteComment(r, "7.1 п·я┌п╡п╣я┌ п╫п╟ п╫п╣п╨п╬я─я─п╣п╨я┌п╫п╬п╣ я│п╬п╬п╠я┴п╣п╫п╦п╣ (п╟п╡я┌п╬, я┐я─п╬п╡п╣п╫я▄ 1)", user, -1);
           } else {
-            deleteComment(r, "7.1 Ответ на некорректное сообщение (авто)", user, 0);
+            deleteComment(r, "7.1 п·я┌п╡п╣я┌ п╫п╟ п╫п╣п╨п╬я─я─п╣п╨я┌п╫п╬п╣ я│п╬п╬п╠я┴п╣п╫п╦п╣ (п╟п╡я┌п╬)", user, 0);
           }
           break;
         default:
-          deleteComment(r, "7.1 Ответ на некорректное сообщение (авто, уровень >1)", user, 0);
+          deleteComment(r, "7.1 п·я┌п╡п╣я┌ п╫п╟ п╫п╣п╨п╬я─я─п╣п╨я┌п╫п╬п╣ я│п╬п╬п╠я┴п╣п╫п╦п╣ (п╟п╡я┌п╬, я┐я─п╬п╡п╣п╫я▄ >1)", user, 0);
           break;
       }
     }

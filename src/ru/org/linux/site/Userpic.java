@@ -18,11 +18,11 @@ public class Userpic {
     File file = new File(filename);
 
     if (!file.isFile()) {
-      throw new UserErrorException("Сбой загрузки изображения: не файл");
+      throw new UserErrorException("п║п╠п╬п╧ п╥п╟пЁя─я┐п╥п╨п╦ п╦п╥п╬п╠я─п╟п╤п╣п╫п╦я▐: п╫п╣ я└п╟п╧п╩");
     }
 
     if (file.length() > MAX_USERPIC_FILESIZE) {
-      throw new UserErrorException("Сбой загрузки изображения: слишком большой файл");      
+      throw new UserErrorException("п║п╠п╬п╧ п╥п╟пЁя─я┐п╥п╨п╦ п╦п╥п╬п╠я─п╟п╤п╣п╫п╦я▐: я│п╩п╦я┬п╨п╬п╪ п╠п╬п╩я▄я┬п╬п╧ я└п╟п╧п╩");      
     }
 
     String extension = ImageInfo.detectImageType(filename);
@@ -30,11 +30,11 @@ public class Userpic {
     ImageInfo info = new ImageInfo(filename, extension);
 
     if (info.getHeight()<MIN_IMAGESIZE || info.getHeight() > MAX_IMAGESIZE) {
-      throw new UserErrorException("Сбой загрузки изображения: недопустимые размеры фотографии");
+      throw new UserErrorException("п║п╠п╬п╧ п╥п╟пЁя─я┐п╥п╨п╦ п╦п╥п╬п╠я─п╟п╤п╣п╫п╦я▐: п╫п╣п╢п╬п©я┐я│я┌п╦п╪я▀п╣ я─п╟п╥п╪п╣я─я▀ я└п╬я┌п╬пЁя─п╟я└п╦п╦");
     }
 
     if (info.getWidth()<MIN_IMAGESIZE || info.getWidth() > MAX_IMAGESIZE) {
-      throw new UserErrorException("Сбой загрузки изображения: недопустимые размеры фотографии");
+      throw new UserErrorException("п║п╠п╬п╧ п╥п╟пЁя─я┐п╥п╨п╦ п╦п╥п╬п╠я─п╟п╤п╣п╫п╦я▐: п╫п╣п╢п╬п©я┐я│я┌п╦п╪я▀п╣ я─п╟п╥п╪п╣я─я▀ я└п╬я┌п╬пЁя─п╟я└п╦п╦");
     }
 
     ImageInfo2 ii = new ImageInfo2();
@@ -48,7 +48,7 @@ public class Userpic {
       ii.check();
 
       if (ii.getNumberOfImages()>1) {
-        throw new UserErrorException("Сбой загрузки изображения: анимация не допустима");
+        throw new UserErrorException("п║п╠п╬п╧ п╥п╟пЁя─я┐п╥п╨п╦ п╦п╥п╬п╠я─п╟п╤п╣п╫п╦я▐: п╟п╫п╦п╪п╟я├п╦я▐ п╫п╣ п╢п╬п©я┐я│я┌п╦п╪п╟");
       }
     } finally {
       if (is!=null) {

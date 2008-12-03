@@ -2,6 +2,6 @@ package ru.org.linux.storage;
 
 public class StorageBadDomainException extends StorageException {
   public StorageBadDomainException(String domain) {
-    super("Некорректное имя домена " + domain);
+    super("п²п╣п╨п╬я─я─п╣п╨я┌п╫п╬п╣ п╦п╪я▐ п╢п╬п╪п╣п╫п╟ " + domain);
   }
 }

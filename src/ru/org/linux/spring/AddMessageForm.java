@@ -250,7 +250,7 @@ public class AddMessageForm {
 
   public void validate(Group group, User user) throws BadInputException, AccessViolationException {
     if ("".equals(title.trim())) {
-      throw new BadInputException("заголовок сообщения не может быть пустым");
+      throw new BadInputException("п╥п╟пЁп╬п╩п╬п╡п╬п╨ я│п╬п╬п╠я┴п╣п╫п╦я▐ п╫п╣ п╪п╬п╤п╣я┌ п╠я▀я┌я▄ п©я┐я│я┌я▀п╪");
     }
 
     if (guid < 1) {
@@ -261,16 +261,16 @@ public class AddMessageForm {
 
     if (user.isAnonymous()) {
       if (message.length() > 4096) {
-        throw new BadInputException("Слишком большое сообщение");
+        throw new BadInputException("п║п╩п╦я┬п╨п╬п╪ п╠п╬п╩я▄я┬п╬п╣ я│п╬п╬п╠я┴п╣п╫п╦п╣");
       }
     } else {
       if (message.length() > 8192) {
-        throw new BadInputException("Слишком большое сообщение");
+        throw new BadInputException("п║п╩п╦я┬п╨п╬п╪ п╠п╬п╩я▄я┬п╬п╣ я│п╬п╬п╠я┴п╣п╫п╦п╣");
       }
     }
 
     if (!group.isTopicPostingAllowed(user)) {
-      throw new AccessViolationException("Не достаточно прав для постинга тем в эту группу");
+      throw new AccessViolationException("п²п╣ п╢п╬я│я┌п╟я┌п╬я┤п╫п╬ п©я─п╟п╡ п╢п╩я▐ п©п╬я│я┌п╦п╫пЁп╟ я┌п╣п╪ п╡ я█я┌я┐ пЁя─я┐п©п©я┐");
     }
   }
 
@@ -300,7 +300,7 @@ public class AddMessageForm {
 
     if (!Template.isSessionAuthorized(session)) {
       if (nick == null) {
-        throw new BadInputException("Вы уже вышли из системы");
+        throw new BadInputException("п▓я▀ я┐п╤п╣ п╡я▀я┬п╩п╦ п╦п╥ я│п╦я│я┌п╣п╪я▀");
       }
       user = User.getUser(db, nick);
       user.checkPassword(password);
@@ -312,11 +312,11 @@ public class AddMessageForm {
 
     if (user.isAnonymous()) {
       if (msg!=null && msg.length() > 4096) {
-        throw new BadInputException("Слишком большое сообщение");
+        throw new BadInputException("п║п╩п╦я┬п╨п╬п╪ п╠п╬п╩я▄я┬п╬п╣ я│п╬п╬п╠я┴п╣п╫п╦п╣");
       }
     } else {
       if (msg!=null && msg.length() > 8192) {
-        throw new BadInputException("Слишком большое сообщение");
+        throw new BadInputException("п║п╩п╦я┬п╨п╬п╪ п╠п╬п╩я▄я┬п╬п╣ я│п╬п╬п╠я┴п╣п╫п╦п╣");
       }
     }
 

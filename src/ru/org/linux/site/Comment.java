@@ -137,7 +137,7 @@ public class Comment implements Serializable {
   }
 
   public int saveNewMessage(Connection db, String remoteAddr) throws SQLException, AccessViolationException, UserNotFoundException, MessageNotFoundException {
-    return saveNewMessage(db, remoteAddr, "не указан");
+    return saveNewMessage(db, remoteAddr, "п╫п╣ я┐п╨п╟п╥п╟п╫");
   }
   
   public int saveNewMessage(Connection db, String remoteAddr, String userAgent) throws SQLException, AccessViolationException, UserNotFoundException, MessageNotFoundException {
