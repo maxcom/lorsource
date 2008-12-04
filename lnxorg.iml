@@ -58,6 +58,10 @@
             <attribute name="method" value="1" />
             <attribute name="URI" value="/WEB-INF/lib" />
           </containerElement>
+          <containerElement type="library" name="memcached" level="project">
+            <attribute name="method" value="1" />
+            <attribute name="URI" value="/WEB-INF/lib" />
+          </containerElement>
           <containerElement type="library" name="spring" level="project">
             <attribute name="method" value="1" />
             <attribute name="URI" value="/WEB-INF/lib" />
@@ -284,6 +288,7 @@
         <SOURCES />
       </library>
     </orderEntry>
+    <orderEntry type="library" name="memcached" level="project" />
     <orderEntryProperties />
   </component>
 </module>
