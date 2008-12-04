@@ -190,12 +190,8 @@
     out.print("Установлен параметр <i>messages</i><br>");
     if (tmpl.getProf().setInt("tags", tags)) ;
     out.print("Установлен параметр <i>tags</i><br>");
-    if (tmpl.getProf().setBoolean("newfirst", request.getParameter("newfirst")))
-      out.print("Установлен параметр <i>newfirst</i><br>");
     if (tmpl.getProf().setBoolean("photos", request.getParameter("photos")))
       out.print("Установлен параметр <i>photos</i><br>");
-    if (tmpl.getProf().setBoolean("sortwarning", request.getParameter("sortwarning")))
-      out.print("Установлен параметр <i>sortwarning</i><br>");
     if (tmpl.getProf().setString("format.mode", request.getParameter("format_mode")))
       out.print("Установлен параметр <i>format.mode</i><br>");
     if (tmpl.getProf().setString("style", request.getParameter("style")))
