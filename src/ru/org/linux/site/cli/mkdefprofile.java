@@ -14,6 +14,7 @@ public final class mkdefprofile {
   public static Hashtable getDefaultProfile() {
     Hashtable defaults = new Hashtable();
 
+    defaults.put("newfirst", Boolean.FALSE);
     defaults.put("hover", Boolean.TRUE);
     defaults.put("style", "black");
     defaults.put("format.mode", "quot");
@@ -21,6 +22,7 @@ public final class mkdefprofile {
     defaults.put("messages", 50);
     defaults.put("tags", 50);
     defaults.put("photos", Boolean.FALSE);
+    defaults.put("sortwarning", Boolean.TRUE);
     defaults.put("system.timestamp", new Date().getTime());
     defaults.put("showinfo", Boolean.TRUE);
     defaults.put("showanonymous", Boolean.TRUE);

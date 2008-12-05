@@ -38,15 +38,15 @@ public class CommentViewer {
     this.db = db;
   }
 
-  private void showCommentList(StringBuffer buf, List<Comment> comments, int offset, int limit, Set<Integer> hideSet)
+  private void showCommentList(StringBuffer buf, List<Comment> comments, boolean reverse, int offset, int limit, Set<Integer> hideSet)
       throws IOException, UtilException, SQLException, UserNotFoundException {
     CommentView view = new CommentView();
     int shown = 0;
 
-    for (ListIterator<Comment> i = comments.listIterator(0); i.hasNext();) {
-      int index = i.nextIndex();
+    for (ListIterator<Comment> i = comments.listIterator(reverse?comments.size():0); reverse?i.hasPrevious():i.hasNext();) {
+      int index = reverse?(comments.size()-i.previousIndex()):i.nextIndex();
 
-      Comment comment = i.next();
+      Comment comment = reverse?i.previous():i.next();
 
       if (index<offset || (limit!=0 && index>=offset+limit)) {
         continue;
@@ -62,10 +62,10 @@ public class CommentViewer {
     logger.fine("Showing list size="+comments.size()+" shown="+shown);    
   }
 
-  public String show(int offset, int limit, Set<Integer> hideSet) throws IOException, UtilException, SQLException, UserNotFoundException {
+  public String show(boolean reverse, int offset, int limit, Set<Integer> hideSet) throws IOException, UtilException, SQLException, UserNotFoundException {
     StringBuffer buf=new StringBuffer();
 
-    showCommentList(buf, comments.getList(), offset, limit,  hideSet);
+    showCommentList(buf, comments.getList(), reverse, offset, limit,  hideSet);
 
     return buf.toString();
   }
@@ -83,7 +83,7 @@ public class CommentViewer {
     parentNode.buildList(parentList);
 
     /* display comments */
-    showCommentList(buf, parentList, 0, 0, null);
+    showCommentList(buf, parentList, false, 0, 0, null);
 
     return buf.toString();
   }

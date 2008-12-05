@@ -1,4 +1,4 @@
-<%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
+<%@ page contentType="text/html; charset=utf-8"%>
 <%@ page import="java.net.URLEncoder,java.sql.Connection,java.sql.ResultSet, java.sql.Statement, java.util.Date"   buffer="20kb" %>
 <%@ page import="java.util.List"%>
 <%@ page import="javax.servlet.http.Cookie" %>
@@ -6,92 +6,97 @@
 <%@ page import="ru.org.linux.boxlet.BoxletVectorRunner" %>
 <%@ page import="ru.org.linux.site.*" %>
 <%@ page import="ru.org.linux.util.ProfileHashtable" %>
+<%@ page import="ru.org.linux.util.ServletParameterParser" %>
 <%@ page import="ru.org.linux.util.StringUtil" %>
 <% Template tmpl = Template.getTemplate(request); %>
 <jsp:include page="WEB-INF/jsp/head.jsp"/>
 
-        <title>Настройки профиля</title>
+        <title>п²п╟я│я┌я─п╬п╧п╨п╦ п©я─п╬я└п╦п╩я▐</title>
 <jsp:include page="WEB-INF/jsp/header.jsp"/>
 
   <table class=nav><tr>
     <td align=left valign=middle>
-      Настройки профиля
+      п²п╟я│я┌я─п╬п╧п╨п╦ п©я─п╬я└п╦п╩я▐
     </td>
 
     <td align=right valign=middle>
-      [<a style="text-decoration: none" href="addphoto.jsp">Добавить фотографию</a>]
-      [<a style="text-decoration: none" href="register.jsp?mode=change">Изменение регистрации</a>]
-      [<a style="text-decoration: none" href="rules.jsp">Правила форума</a>]
+      [<a style="text-decoration: none" href="addphoto.jsp">п■п╬п╠п╟п╡п╦я┌я▄ я└п╬я┌п╬пЁя─п╟я└п╦я▌</a>]
+      [<a style="text-decoration: none" href="register.jsp?mode=change">п≤п╥п╪п╣п╫п╣п╫п╦п╣ я─п╣пЁп╦я│я┌я─п╟я├п╦п╦</a>]
+      [<a style="text-decoration: none" href="rules.jsp">п÷я─п╟п╡п╦п╩п╟ я└п╬я─я┐п╪п╟</a>]
      </td>
     </tr>
  </table>
 
-<h1>Настройки профиля</h1>
+<h1>п²п╟я│я┌я─п╬п╧п╨п╦ п©я─п╬я└п╦п╩я▐</h1>
 
 <%
    if (request.getParameter("mode")==null) {
 	if (tmpl.isUsingDefaultProfile())
-		out.print("Используется профиль по умолчанию");
+		out.print("п≤я│п©п╬п╩я▄п╥я┐п╣я┌я│я▐ п©я─п╬я└п╦п╩я▄ п©п╬ я┐п╪п╬п╩я┤п╟п╫п╦я▌");
 	else
-		out.print("Используется профиль: <i>" + tmpl.getProfileName()+"</i>");
+		out.print("п≤я│п©п╬п╩я▄п╥я┐п╣я┌я│я▐ п©я─п╬я└п╦п╩я▄: <i>" + tmpl.getProfileName()+"</i>");
 
 %>
 <%
   if (!Template.isSessionAuthorized(session)) {
 %>
 
-<h2>Коротко о...</h2>
+<h2>п п╬я─п╬я┌п╨п╬ п╬...</h2>
 <ol>
-<li>Профиль содержит различные настройки отображения сайта и хранится у нас
-на сервере
-<li>Настройки профиля ассоциируются с регистрационным именем пользователя
-(если вы еще не зарегистрировались у нас на сайте - вам <a href="register.jsp">сюда</a>).
-<li>Информация о наличие профиля запоминается в Cookie, при смене броузера
-или местоположения вы можете востановить свой профиль без полной перенастройки.
-<li>Использовать ваш профиль могут любые посетители сайта, но модифицировать его
-можете только вы.
+<li>п÷я─п╬я└п╦п╩я▄ я│п╬п╢п╣я─п╤п╦я┌ я─п╟п╥п╩п╦я┤п╫я▀п╣ п╫п╟я│я┌я─п╬п╧п╨п╦ п╬я┌п╬п╠я─п╟п╤п╣п╫п╦я▐ я│п╟п╧я┌п╟ п╦ я┘я─п╟п╫п╦я┌я│я▐ я┐ п╫п╟я│
+п╫п╟ я│п╣я─п╡п╣я─п╣
+<li>п²п╟я│я┌я─п╬п╧п╨п╦ п©я─п╬я└п╦п╩я▐ п╟я│я│п╬я├п╦п╦я─я┐я▌я┌я│я▐ я│ я─п╣пЁп╦я│я┌я─п╟я├п╦п╬п╫п╫я▀п╪ п╦п╪п╣п╫п╣п╪ п©п╬п╩я▄п╥п╬п╡п╟я┌п╣п╩я▐
+(п╣я│п╩п╦ п╡я▀ п╣я┴п╣ п╫п╣ п╥п╟я─п╣пЁп╦я│я┌я─п╦я─п╬п╡п╟п╩п╦я│я▄ я┐ п╫п╟я│ п╫п╟ я│п╟п╧я┌п╣ - п╡п╟п╪ <a href="register.jsp">я│я▌п╢п╟</a>).
+<li>п≤п╫я└п╬я─п╪п╟я├п╦я▐ п╬ п╫п╟п╩п╦я┤п╦п╣ п©я─п╬я└п╦п╩я▐ п╥п╟п©п╬п╪п╦п╫п╟п╣я┌я│я▐ п╡ Cookie, п©я─п╦ я│п╪п╣п╫п╣ п╠я─п╬я┐п╥п╣я─п╟
+п╦п╩п╦ п╪п╣я│я┌п╬п©п╬п╩п╬п╤п╣п╫п╦я▐ п╡я▀ п╪п╬п╤п╣я┌п╣ п╡п╬я│я┌п╟п╫п╬п╡п╦я┌я▄ я│п╡п╬п╧ п©я─п╬я└п╦п╩я▄ п╠п╣п╥ п©п╬п╩п╫п╬п╧ п©п╣я─п╣п╫п╟я│я┌я─п╬п╧п╨п╦.
+<li>п≤я│п©п╬п╩я▄п╥п╬п╡п╟я┌я▄ п╡п╟я┬ п©я─п╬я└п╦п╩я▄ п╪п╬пЁя┐я┌ п╩я▌п╠я▀п╣ п©п╬я│п╣я┌п╦я┌п╣п╩п╦ я│п╟п╧я┌п╟, п╫п╬ п╪п╬п╢п╦я└п╦я├п╦я─п╬п╡п╟я┌я▄ п╣пЁп╬
+п╪п╬п╤п╣я┌п╣ я┌п╬п╩я▄п╨п╬ п╡я▀.
 </ol>
 
-<h2>Установить профиль</h2>
-Востановить профиль при смене местоположения или выбрать другой (существующий)
-профиль:
+<h2>пёя│я┌п╟п╫п╬п╡п╦я┌я▄ п©я─п╬я└п╦п╩я▄</h2>
+п▓п╬я│я┌п╟п╫п╬п╡п╦я┌я▄ п©я─п╬я└п╦п╩я▄ п©я─п╦ я│п╪п╣п╫п╣ п╪п╣я│я┌п╬п©п╬п╩п╬п╤п╣п╫п╦я▐ п╦п╩п╦ п╡я▀п╠я─п╟я┌я▄ п╢я─я┐пЁп╬п╧ (я│я┐я┴п╣я│я┌п╡я┐я▌я┴п╦п╧)
+п©я─п╬я└п╦п╩я▄:
 <form method=POST action="edit-profile.jsp">
 <input type=hidden name=mode value=setup>
-Профиль:
+п÷я─п╬я└п╦п╩я▄:
 <input type=text name=profile><br>
-Ваш nick совпадает с именем выбранного профиля?
+п▓п╟я┬ nick я│п╬п╡п©п╟п╢п╟п╣я┌ я│ п╦п╪п╣п╫п╣п╪ п╡я▀п╠я─п╟п╫п╫п╬пЁп╬ п©я─п╬я└п╦п╩я▐?
 <input type=checkbox name=setnick><br>
-<input type=submit value="Setup/Установить">
+<input type=submit value="Setup/пёя│я┌п╟п╫п╬п╡п╦я┌я▄">
 </form>
 <%
   }
 %>
 
-<h2>Параметры профиля</h2>
+<h2>п÷п╟я─п╟п╪п╣я┌я─я▀ п©я─п╬я└п╦п╩я▐</h2>
 <% ProfileHashtable profHash=tmpl.getProf(); %>
 <form method=POST action="edit-profile.jsp">
 <input type=hidden name=mode value=set>
 <table>
 <tr><td colspan=2><hr></td></tr>
-<tr><td>Показывать фотографии</td>
+<tr><td>п²п╬п╡я▀п╣ п╨п╬п╪п╪п╣п╫я┌п╟я─п╦п╦ п╡ п╫п╟я┤п╟п╩п╣</td>
+<td><input type=checkbox name=newfirst <%= profHash.getBooleanPropertyHTML("newfirst")%>></td></tr>
+<tr><td>п÷п╬п╨п╟п╥я▀п╡п╟я┌я▄ я└п╬я┌п╬пЁя─п╟я└п╦п╦</td>
 <td><input type=checkbox name=photos <%= profHash.getBooleanPropertyHTML("photos")%>></td></tr>
-<tr><td>Число тем форума на странице</td>
+<tr><td>п÷п╬п╨п╟п╥я▀п╡п╟я┌я▄ я│п╬п╬п╠я┴п╣п╫п╦п╣ п╬ п©п╬я─я▐п╢п╨п╣ я│п╬я─я┌п╦я─п╬п╡п╨п╦ п╨п╬п╪п╪п╣п╫я┌п╟я─п╦п╣п╡</td>
+<td><input type=checkbox name=sortwarning <%= profHash.getBooleanPropertyHTML("sortwarning")%>></td></tr>
+<tr><td>п╖п╦я│п╩п╬ я┌п╣п╪ я└п╬я─я┐п╪п╟ п╫п╟ я│я┌я─п╟п╫п╦я├п╣</td>
 <td><input type=text name=topics value=<%= profHash.getInt("topics")%>></td></tr>
-<tr><td>Число комментариев на странице</td>
+<tr><td>п╖п╦я│п╩п╬ п╨п╬п╪п╪п╣п╫я┌п╟я─п╦п╣п╡ п╫п╟ я│я┌я─п╟п╫п╦я├п╣</td>
 <td><input type=text name=messages value=<%= profHash.getInt("messages")%>></td></tr>
-<tr><td>Число меток в облаке</td>
+<tr><td>п╖п╦я│п╩п╬ п╪п╣я┌п╬п╨ п╡ п╬п╠п╩п╟п╨п╣</td>
 <td><input type=text name=tags value=<%= profHash.getInt("tags")%>></td></tr>
-<tr><td>Верстка главной страницы в 3 колонки</td>
+<tr><td>п▓п╣я─я│я┌п╨п╟ пЁп╩п╟п╡п╫п╬п╧ я│я┌я─п╟п╫п╦я├я▀ п╡ 3 п╨п╬п╩п╬п╫п╨п╦</td>
 <td><input type=checkbox name=3column <%= profHash.getBooleanPropertyHTML("main.3columns")%>></td></tr>
-<tr><td>Показывать информацию о регистрации перед формами добавления сообщений</td>
+<tr><td>п÷п╬п╨п╟п╥я▀п╡п╟я┌я▄ п╦п╫я└п╬я─п╪п╟я├п╦я▌ п╬ я─п╣пЁп╦я│я┌я─п╟я├п╦п╦ п©п╣я─п╣п╢ я└п╬я─п╪п╟п╪п╦ п╢п╬п╠п╟п╡п╩п╣п╫п╦я▐ я│п╬п╬п╠я┴п╣п╫п╦п╧</td>
 <td><input type=checkbox name=showinfo <%= profHash.getBooleanPropertyHTML("showinfo")%>></td></tr>
-<tr><td>Показывать анонимные комментарии</td>
+<tr><td>п÷п╬п╨п╟п╥я▀п╡п╟я┌я▄ п╟п╫п╬п╫п╦п╪п╫я▀п╣ п╨п╬п╪п╪п╣п╫я┌п╟я─п╦п╦</td>
 <td><input type=checkbox name=showanonymous <%= profHash.getBooleanPropertyHTML("showanonymous")%>></td></tr>
-<tr><td>Подсветка строчек в таблицах сообщений (tr:hover)</td>
+<tr><td>п÷п╬п╢я│п╡п╣я┌п╨п╟ я│я┌я─п╬я┤п╣п╨ п╡ я┌п╟п╠п╩п╦я├п╟я┘ я│п╬п╬п╠я┴п╣п╫п╦п╧ (tr:hover)</td>
 <td><input type=checkbox name=hover <%= profHash.getBooleanPropertyHTML("hover")%>></td></tr>  
   <tr><td colspan=2><hr></td></tr>
 <tr>
-  <td valign=top>Тема</td>
+  <td valign=top>п╒п╣п╪п╟</td>
   <td>
     <% String style=tmpl.getStyle(); %>
     <input type=radio name=style value=white <%= "white".equals(style)?"checked":"" %>> White (old)<br>
@@ -101,7 +106,7 @@
 </tr>
   <tr><td colspan=2><hr></td></tr>
 <tr>
-  <td valign=top>Форматирование по умолчанию</td>
+  <td valign=top>п╓п╬я─п╪п╟я┌п╦я─п╬п╡п╟п╫п╦п╣ п©п╬ я┐п╪п╬п╩я┤п╟п╫п╦я▌</td>
   <td>
     <% String formatMode=tmpl.getFormatMode(); %>
     <input type=radio name=format_mode value=ntobrq <%= "ntobrq".equals(formatMode)?"checked":"" %>> User line break w/quoting<br>
@@ -116,41 +121,41 @@
 <% if (!Template.isSessionAuthorized(session)) { %>
 
 <tr><td colspan=2><hr></td></tr>
-<tr><td>Профиль (имя пользователя)</td><td>
+<tr><td>п÷я─п╬я└п╦п╩я▄ (п╦п╪я▐ п©п╬п╩я▄п╥п╬п╡п╟я┌п╣п╩я▐)</td><td>
 <input type=text name=profile value=""></td></tr>
-<tr><td>Пароль</td><td>
+<tr><td>п÷п╟я─п╬п╩я▄</td><td>
 <input type=password name=password></td></tr>
 <% } %>
 
 </table>
 
-<input type=submit value="Setup/Установить">
+<input type=submit value="Setup/пёя│я┌п╟п╫п╬п╡п╦я┌я▄">
 </form>
 
-<h2>Настройка главной страницы</h2>
-После того, как вы создали свой собственный профиль, вы можете
-настройть под себя содержимое стартовой страницы.
+<h2>п²п╟я│я┌я─п╬п╧п╨п╟ пЁп╩п╟п╡п╫п╬п╧ я│я┌я─п╟п╫п╦я├я▀</h2>
+п÷п╬я│п╩п╣ я┌п╬пЁп╬, п╨п╟п╨ п╡я▀ я│п╬п╥п╢п╟п╩п╦ я│п╡п╬п╧ я│п╬п╠я│я┌п╡п╣п╫п╫я▀п╧ п©я─п╬я└п╦п╩я▄, п╡я▀ п╪п╬п╤п╣я┌п╣
+п╫п╟я│я┌я─п╬п╧я┌я▄ п©п╬п╢ я│п╣п╠я▐ я│п╬п╢п╣я─п╤п╦п╪п╬п╣ я│я┌п╟я─я┌п╬п╡п╬п╧ я│я┌я─п╟п╫п╦я├я▀.
 <ul>
-<li><a href="edit-boxes.jsp">настройка стартовой страницы</a>
+<li><a href="edit-boxes.jsp">п╫п╟я│я┌я─п╬п╧п╨п╟ я│я┌п╟я─я┌п╬п╡п╬п╧ я│я┌я─п╟п╫п╦я├я▀</a>
 </ul>
 
-<h2>Настройка фильтрации сообщений</h2>
+<h2>п²п╟я│я┌я─п╬п╧п╨п╟ я└п╦п╩я▄я┌я─п╟я├п╦п╦ я│п╬п╬п╠я┴п╣п╫п╦п╧</h2>
 <ul>
-<li><a href="ignore-list.jsp">настройка фильтрации сообщений</a>
+<li><a href="ignore-list.jsp">п╫п╟я│я┌я─п╬п╧п╨п╟ я└п╦п╩я▄я┌я─п╟я├п╦п╦ я│п╬п╬п╠я┴п╣п╫п╦п╧</a>
 </ul>
 
 <%
   } else if ("setup".equals(request.getParameter("mode"))) {
     if (request.getParameter("profile")==null) {
-      throw new UserErrorException("Параметр profile не указан");
+      throw new UserErrorException("п÷п╟я─п╟п╪п╣я┌я─ profile п╫п╣ я┐п╨п╟п╥п╟п╫");
     }
 
     String name = StringUtil.getFileName(request.getParameter("profile"));
     if (name.length()!=0 && !Template.isAnonymousProfile(name)) {
-      throw new UserErrorException("Данный профиль не может быть выбран");
+      throw new UserErrorException("п■п╟п╫п╫я▀п╧ п©я─п╬я└п╦п╩я▄ п╫п╣ п╪п╬п╤п╣я┌ п╠я▀я┌я▄ п╡я▀п╠я─п╟п╫");
     }
 
-    out.print("Выбран профиль: " + name);
+    out.print("п▓я▀п╠я─п╟п╫ п©я─п╬я└п╦п╩я▄: " + name);
 
     response.setHeader("Location", tmpl.getMainUrl());
     response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
@@ -178,32 +183,36 @@
     int tags = Integer.parseInt(request.getParameter("tags"));
 
     if (topics <= 0 || topics > 1000)
-      throw new BadInputException("некорректное число тем");
+      throw new BadInputException("п╫п╣п╨п╬я─я─п╣п╨я┌п╫п╬п╣ я┤п╦я│п╩п╬ я┌п╣п╪");
     if (messages <= 0 || messages > 1000)
-      throw new BadInputException("некорректное число сообщений");
+      throw new BadInputException("п╫п╣п╨п╬я─я─п╣п╨я┌п╫п╬п╣ я┤п╦я│п╩п╬ я│п╬п╬п╠я┴п╣п╫п╦п╧");
     if (tags<=0 || tags>100)
-      throw new BadInputException("некорректное число меток в облаке");
+      throw new BadInputException("п╫п╣п╨п╬я─я─п╣п╨я┌п╫п╬п╣ я┤п╦я│п╩п╬ п╪п╣я┌п╬п╨ п╡ п╬п╠п╩п╟п╨п╣");
 
     if (tmpl.getProf().setInt("topics", topics)) ;
-    out.print("Установлен параметр <i>topics</i><br>");
+    out.print("пёя│я┌п╟п╫п╬п╡п╩п╣п╫ п©п╟я─п╟п╪п╣я┌я─ <i>topics</i><br>");
     if (tmpl.getProf().setInt("messages", messages)) ;
-    out.print("Установлен параметр <i>messages</i><br>");
+    out.print("пёя│я┌п╟п╫п╬п╡п╩п╣п╫ п©п╟я─п╟п╪п╣я┌я─ <i>messages</i><br>");
     if (tmpl.getProf().setInt("tags", tags)) ;
-    out.print("Установлен параметр <i>tags</i><br>");
+    out.print("пёя│я┌п╟п╫п╬п╡п╩п╣п╫ п©п╟я─п╟п╪п╣я┌я─ <i>tags</i><br>");
+    if (tmpl.getProf().setBoolean("newfirst", request.getParameter("newfirst")))
+      out.print("пёя│я┌п╟п╫п╬п╡п╩п╣п╫ п©п╟я─п╟п╪п╣я┌я─ <i>newfirst</i><br>");
     if (tmpl.getProf().setBoolean("photos", request.getParameter("photos")))
-      out.print("Установлен параметр <i>photos</i><br>");
+      out.print("пёя│я┌п╟п╫п╬п╡п╩п╣п╫ п©п╟я─п╟п╪п╣я┌я─ <i>photos</i><br>");
+    if (tmpl.getProf().setBoolean("sortwarning", request.getParameter("sortwarning")))
+      out.print("пёя│я┌п╟п╫п╬п╡п╩п╣п╫ п©п╟я─п╟п╪п╣я┌я─ <i>sortwarning</i><br>");
     if (tmpl.getProf().setString("format.mode", request.getParameter("format_mode")))
-      out.print("Установлен параметр <i>format.mode</i><br>");
+      out.print("пёя│я┌п╟п╫п╬п╡п╩п╣п╫ п©п╟я─п╟п╪п╣я┌я─ <i>format.mode</i><br>");
     if (tmpl.getProf().setString("style", request.getParameter("style")))
-      out.print("Установлен параметр <i>style</i><br>");
+      out.print("пёя│я┌п╟п╫п╬п╡п╩п╣п╫ п©п╟я─п╟п╪п╣я┌я─ <i>style</i><br>");
     if (tmpl.getProf().setBoolean("main.3columns", request.getParameter("3column")))
-      out.print("Установлен параметр <i>main.3columns</i><br>");
+      out.print("пёя│я┌п╟п╫п╬п╡п╩п╣п╫ п©п╟я─п╟п╪п╣я┌я─ <i>main.3columns</i><br>");
     if (tmpl.getProf().setBoolean("showinfo", request.getParameter("showinfo")))
-      out.print("Установлен параметр <i>showinfo</i><br>");
+      out.print("пёя│я┌п╟п╫п╬п╡п╩п╣п╫ п©п╟я─п╟п╪п╣я┌я─ <i>showinfo</i><br>");
     if (tmpl.getProf().setBoolean("showanonymous", request.getParameter("showanonymous")))
-      out.print("Установлен параметр <i>showanonymous</i><br>");
+      out.print("пёя│я┌п╟п╫п╬п╡п╩п╣п╫ п©п╟я─п╟п╪п╣я┌я─ <i>showanonymous</i><br>");
     if (tmpl.getProf().setBoolean("hover", request.getParameter("hover")))
-      out.print("Установлен параметр <i>hover</i><br>");
+      out.print("пёя│я┌п╟п╫п╬п╡п╩п╣п╫ п©п╟я─п╟п╪п╣я┌я─ <i>hover</i><br>");
 
     tmpl.writeProfile(profile);
 
@@ -218,7 +227,7 @@
     out.print("Ok");
   }
 %>
-<p><b>Внимание!</b> настройки на некоторых уже посещенных страницах могут
-не отображаться. Используйте кнопку <i>Reload</i> вашего броузера.
+<p><b>п▓п╫п╦п╪п╟п╫п╦п╣!</b> п╫п╟я│я┌я─п╬п╧п╨п╦ п╫п╟ п╫п╣п╨п╬я┌п╬я─я▀я┘ я┐п╤п╣ п©п╬я│п╣я┴п╣п╫п╫я▀я┘ я│я┌я─п╟п╫п╦я├п╟я┘ п╪п╬пЁя┐я┌
+п╫п╣ п╬я┌п╬п╠я─п╟п╤п╟я┌я▄я│я▐. п≤я│п©п╬п╩я▄п╥я┐п╧я┌п╣ п╨п╫п╬п©п╨я┐ <i>Reload</i> п╡п╟я┬п╣пЁп╬ п╠я─п╬я┐п╥п╣я─п╟.
 
   <jsp:include page="WEB-INF/jsp/footer.jsp"/>
