@@ -59,11 +59,34 @@ public class MessageController extends AbstractController {
 
       params.put("message", message);
 
+      setLastmodified(response, showDeleted, message);
+
+      params.put("prevMessage", message.getPreviousMessage(db));
+      params.put("nextMessage", message.getNextMessage(db));
+
+      if (message.isCommentEnabled()) {
+        CommentList comments = CommentList.getCommentList(db, message, showDeleted);
+
+        params.put("comments", comments);
+      }
+
       return new ModelAndView("view-message", params);
     } finally {
       if (db!=null) {
         db.close();
       }
+    }
+  }
+
+  private void setLastmodified(HttpServletResponse response, boolean showDeleted, Message message) {
+    if (!message.isDeleted() && !showDeleted && message.getLastModified() != null) {
+      response.setDateHeader("Last-Modified", message.getLastModified().getTime());
+    }
+
+    if (message.isExpired()) {
+      response.setDateHeader("Expires", System.currentTimeMillis() + 30 * 24 * 60 * 60 * 1000L);
+    } else {
+      response.setDateHeader("Expires", System.currentTimeMillis() - 24 * 60 * 60 * 1000);
     }
   }
 }

@@ -45,26 +45,9 @@
       npage = -1;
     }
 
-    Message message = (Message) request.getAttribute("message");
-
-// count last modified time
-  if (!message.isDeleted() && !showDeleted && message.getLastModified() != null) {
-    response.setDateHeader("Last-Modified", message.getLastModified().getTime());
-  }
-
-  if (message.isExpired()) {
-    response.setDateHeader("Expires", System.currentTimeMillis() + 30 * 24 * 60 * 60 * 1000L);
-  } else {
-    response.setDateHeader("Expires", System.currentTimeMillis() - 24 * 60 * 60 * 1000);
-  }
-  %>
-<c:set var="message" value="<%= message %>"/>
-<c:set var="prevMessage" value="<%= message.getPreviousMessage(db) %>"/>
-<c:set var="nextMessage" value="<%= message.getNextMessage(db) %>"/>
-
-<%
-  Message prevMessage = message.getPreviousMessage(db);
-  Message nextMessage = message.getNextMessage(db);
+  Message message = (Message) request.getAttribute("message");
+  Message prevMessage = (Message) request.getAttribute("prevMessage");
+  Message nextMessage = (Message) request.getAttribute("nextMessage"); 
 %>
 
 <title>${message.sectionTitle} - ${message.groupTitle} - ${message.title}</title>
@@ -248,7 +231,6 @@
 </c:if>
 
 <%
-  boolean comment = message.isCommentEnabled();
   int messages = tmpl.getProf().getInt("messages");
   int pages = message.getPageCount(messages);
 
@@ -298,11 +280,11 @@
 
   if (request.getParameter("highlight") != null) {
 %>
-<lor:message db="<%= db %>" message="<%= message %>" showMenu="true" user="<%= Template.getNick(session) %>" highlight="<%= new ServletParameterParser(request).getInt(&quot;highlight&quot;)%>"/>
+<lor:message db="<%= db %>" message="<%= message %>" showMenu="true" user="<%= nick %>" highlight="<%= new ServletParameterParser(request).getInt(&quot;highlight&quot;)%>"/>
 <%
   } else {
 %>
-<lor:message db="<%= db %>" message="<%= message %>" showMenu="true" user="<%= Template.getNick(session) %>"/>
+<lor:message db="<%= db %>" message="<%= message %>" showMenu="true" user="<%= nick %>"/>
 <%
   }
 %>
@@ -315,7 +297,7 @@
 </div><br>
 <% } %>
 
-<c:if test="<%= comment %>">
+<c:if test="${message.commentEnabled}">
 <%
     int offset = 0;
     int limit = 0;
@@ -326,12 +308,10 @@
       offset = messages * npage;
     }
 
-    CommentList comments = CommentList.getCommentList(db, message, showDeleted);
+    CommentList comments = (CommentList) request.getAttribute("comments");
     Set<Integer> hideSet = CommentList.makeHideSet(db, comments, filterMode, nick);
 
     CommentViewer cv = new CommentViewer(tmpl, db, comments, Template.getNick(session), message.isExpired());
-
-    String outputComments = cv.show(reverse, offset, limit, hideSet);
 
     if (tmpl.getProf().getBoolean("sortwarning") && cv.getOutputCount()>0) {
       out.print("<div class=nav>");
@@ -351,7 +331,7 @@
     </div>
   </c:if>
   <div class="comment">
-    <%= outputComments %>
+    <%= cv.show(reverse, offset, limit, hideSet) %>
   </div>
 <c:if test="<%= cv.getOutputCount()>0 %>">
   <c:if test="<%= pageInfo!=null %>">
