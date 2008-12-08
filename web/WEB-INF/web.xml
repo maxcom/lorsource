@@ -100,6 +100,11 @@ version="2.4">
     <url-pattern>/add.jsp</url-pattern>
   </servlet-mapping>
 
+  <servlet-mapping>
+    <servlet-name>springapp</servlet-name>
+    <url-pattern>/view-message.jsp</url-pattern>
+  </servlet-mapping>
+
 <listener>
   <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
 </listener>

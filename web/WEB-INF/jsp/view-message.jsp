@@ -1,38 +1,18 @@
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="java.sql.Connection,java.util.Set,javax.servlet.http.HttpServletResponse,ru.org.linux.site.*,ru.org.linux.util.ServletParameterParser"   buffer="200kb"%>
-<%@ page import="ru.org.linux.util.StringUtil" %>
+<%@ page import="java.sql.Connection,java.util.Set,ru.org.linux.site.*,ru.org.linux.util.ServletParameterParser,ru.org.linux.util.StringUtil"   buffer="200kb"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <% Template tmpl = Template.getTemplate(request); %>
-<jsp:include page="WEB-INF/jsp/head.jsp"/>
+<jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
 <%
   Connection db = null;
 
   try {
-    int msgid = new ServletParameterParser(request).getInt("msgid");
+    int msgid = (Integer) request.getAttribute("msgid");
 
     String mainurl = "view-message.jsp?msgid=" + msgid;
-
-    boolean showDeleted = request.getParameter("deleted") != null;
-
-    if (showDeleted && !"POST".equals(request.getMethod())) {
-      response.setHeader("Location", tmpl.getMainUrl() + "view-message.jsp?msgid=" + msgid);
-      response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
-
-      showDeleted = false;
-    }
-
-    if (showDeleted) {
-      if (!Template.isSessionAuthorized(session)) {
-        throw new BadInputException("Вы уже вышли из системы");
-      }
-    }
- %>
-  <c:set var="showDeleted" value="<%= showDeleted %>"/>
-
-<%
 
     int filterMode = CommentViewer.FILTER_IGNORED;
 
@@ -59,21 +39,13 @@
       npage = new ServletParameterParser(request).getInt("page");
     }
 
+    boolean showDeleted = (Boolean) request.getAttribute("showDeleted");
+
     if (showDeleted) {
       npage = -1;
     }
 
-    Message message = new Message(db, msgid);
-
-    if (message.isExpired() && showDeleted && !tmpl.isModeratorSession()) {
-      throw new MessageNotFoundException(message.getId(), "нельзя посмотреть удаленные комментарии в устаревших темах");
-    }
-    if (message.isExpired() && message.isDeleted() && !tmpl.isModeratorSession()) {
-      throw new MessageNotFoundException(message.getId(), "нельзя посмотреть устаревшие удаленные сообщения");
-    }
-    if (message.isDeleted() && !Template.isSessionAuthorized(session)) {
-      throw new MessageNotFoundException(message.getId(), "Сообщение удалено");
-    }
+    Message message = (Message) request.getAttribute("message");
 
 // count last modified time
   if (!message.isDeleted() && !showDeleted && message.getLastModified() != null) {
@@ -106,7 +78,7 @@
 </c:if>
 
 <LINK REL="alternate" TITLE="Comments RSS" HREF="topic-rss.jsp?topic=<%= msgid %>" TYPE="application/rss+xml">
-<jsp:include page="WEB-INF/jsp/header.jsp"/>
+<jsp:include page="/WEB-INF/jsp/header.jsp"/>
 <div class=messages>
 
 <form method="GET" action="view-message.jsp">
@@ -339,7 +311,7 @@
 
 <% if (!Template.isSessionAuthorized(session)) { %>
 <div style="text-align: center; margin-top: 1em">
-  <jsp:include page="WEB-INF/jsp/adsense.jsp"/>
+  <jsp:include page="/WEB-INF/jsp/adsense.jsp"/>
 </div><br>
 <% } %>
 
@@ -415,4 +387,4 @@
   <iframe src="dw.jsp?width=728&amp;height=90&amp;main=0" width="728" height="90" scrolling="no" frameborder="0"></iframe>
 </div>
 
-<jsp:include page="WEB-INF/jsp/footer.jsp"/>
+<jsp:include page="/WEB-INF/jsp/footer.jsp"/>
