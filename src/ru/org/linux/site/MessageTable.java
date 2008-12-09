@@ -70,7 +70,7 @@ public class MessageTable {
     return out.toString();
   }
 
-  public static String getSectionRss(Connection db, int sectionid, int groupid, String htmlPath, String fullUrl) throws SQLException, BadGroupException, BadSectionException {
+  public static String getSectionRss(Connection db, int sectionid, int groupid, String htmlPath, String fullUrl) throws SQLException, ScriptErrorException {
     StringBuilder out = new StringBuilder();
 
     Section section = new Section(db, sectionid);
@@ -97,14 +97,14 @@ public class MessageTable {
     Statement st=db.createStatement();
 
     ResultSet rs = st.executeQuery(
-        "SELECT topics.title as subj, topics.lastmod, topics.stat1, postdate, nick, image, " +
+        "SELECT topics.title as subj, topics.lastmod, topics.stat1, postdate, userid, image, " +
             "groups.title as gtitle, topics.id as msgid, sections.comment, sections.vote, " +
             "groups.id as guid, topics.url, topics.linktext, imagepost, linkup, " +
             "postdate<(CURRENT_TIMESTAMP-expire) as expired, message, bbcode " +
-            "FROM topics,groups, users, sections, msgbase " +
+            "FROM topics,groups, sections, msgbase " +
             "WHERE sections.id=groups.section AND topics.id=msgbase.id " +
             "AND sections.id=" + sectionid + " AND (topics.moderate OR NOT sections.moderate) " +
-            "AND topics.userid=users.id AND topics.groupid=groups.id AND NOT deleted " +
+            "AND topics.groupid=groups.id AND NOT deleted " +
             "AND postdate>(CURRENT_TIMESTAMP-'3 month'::interval) " +
             (group!=null?" AND groupid="+group.getId():"")+
             "ORDER BY commitdate DESC, postdate DESC LIMIT 10"
@@ -122,8 +122,12 @@ public class MessageTable {
           ImageInfo iconInfo = new ImageInfo(htmlPath + linktext);
           ImageInfo info = new ImageInfo(htmlPath + url);
 
+          int userid = rs.getInt("userid");
+
+          User user = User.getUserCached(db, userid);
+
           out.append("<item>");
-          out.append("  <author>").append(rs.getString("nick")).append("</author>\n");
+          out.append("  <author>").append(user.getNick()).append("</author>\n");
           out.append("  <link>http://www.linux.org.ru/view-message.jsp?msgid=").append(msgid).append("</link>\n");
           out.append("  <guid>http://www.linux.org.ru/view-message.jsp?msgid=").append(msgid).append("</guid>\n");
           out.append("  <pubDate>").append(Template.RFC822.format(rs.getTimestamp("postdate"))).append("</pubDate>\n");
@@ -143,6 +147,8 @@ public class MessageTable {
           out.append("</description>\n");
 
           out.append("</item>");
+        } catch (UserNotFoundException e) {
+            throw new ScriptErrorException("Internal error", e);
         } catch (BadImageException e) {
           // TODO write to log
         } catch (IOException e) {
