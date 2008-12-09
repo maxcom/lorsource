@@ -36,7 +36,7 @@
   <p>
 Мы работаем на:
     <ul>
-      <li>Fedora 8</li>
+      <li>Fedora 10</li>
       <li>СУБД PostgreSQL 8.2</li>
       <li>Apache2 2.2</li>
       <li>Sun Java SDK 1.6</li>

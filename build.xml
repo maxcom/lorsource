@@ -7,7 +7,7 @@
       <include name="jsdk23.jar"/>
       <include name="postgresql-jdbc-8.2.504.jar"/>
       <include name="jcaptcha-all-1.0-RC6.jar"/>
-      <include name="java_memcached-1.6maxcom.jar"/>
+      <include name="java_memcached-release_2.0.1.jar"/>
       <include name="dnsjava-2.0.3.jar"/>
       <include name="commons-fileupload-1.2.jar"/>
       <include name="commons-io-1.3.2.jar"/>
