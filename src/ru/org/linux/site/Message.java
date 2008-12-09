@@ -249,17 +249,17 @@ public class Message {
   public Message getNextMessage(Connection db) throws SQLException {
     PreparedStatement pst;
 
-    int scrollMode = Section.getScrollMode(getSectionId());
+    int scrollMode = Section.getScrollMode(sectionid);
 
     switch (scrollMode) {
       case Section.SCROLL_SECTION:
-        pst = db.prepareStatement("SELECT topics.id as msgid FROM topics, groups WHERE topics.groupid=groups.id AND topics.commitdate=(SELECT min(commitdate) FROM topics, groups, sections WHERE sections.id=groups.section AND topics.commitdate>? AND topics.groupid=groups.id AND groups.section=? AND (topics.moderate OR NOT sections.moderate) AND NOT deleted)");
+        pst = db.prepareStatement("SELECT topics.id as msgid FROM topics WHERE topics.commitdate=(SELECT min(commitdate) FROM topics, groups, sections WHERE sections.id=groups.section AND topics.commitdate>? AND topics.groupid=groups.id AND groups.section=? AND (topics.moderate OR NOT sections.moderate) AND NOT deleted)");
         pst.setTimestamp(1, commitDate);
         pst.setInt(2, sectionid);
         break;
 
       case Section.SCROLL_GROUP:
-        pst = db.prepareStatement("SELECT topics.id as msgid FROM topics WHERE topics.id=(SELECT min(topics.id) FROM topics, groups, sections WHERE sections.id=groups.section AND topics.id>? AND topics.groupid=? AND topics.groupid=groups.id AND (topics.moderate OR NOT sections.moderate) AND NOT deleted)");
+        pst = db.prepareStatement("SELECT min(topics.id) as msgid FROM topics, groups, sections WHERE sections.id=groups.section AND topics.id>? AND topics.groupid=? AND topics.groupid=groups.id AND (topics.moderate OR NOT sections.moderate) AND NOT deleted");
         pst.setInt(1, msgid);
         pst.setInt(2, guid);
         break;
@@ -276,7 +276,13 @@ public class Message {
         return null;
       }
 
-      return new Message(db, rs.getInt("msgid"));
+      int nextMsgid = rs.getInt("msgid");
+
+      if (rs.wasNull()) {
+        return null;
+      }
+
+      return new Message(db, nextMsgid);
     } catch (MessageNotFoundException e) {
       throw new RuntimeException(e);
     } finally {
@@ -287,17 +293,17 @@ public class Message {
   public Message getPreviousMessage(Connection db) throws SQLException {
     PreparedStatement pst;
 
-    int scrollMode = Section.getScrollMode(getSectionId());
+    int scrollMode = Section.getScrollMode(sectionid);
 
     switch (scrollMode) {
       case Section.SCROLL_SECTION:
-        pst = db.prepareStatement("SELECT topics.id as msgid FROM topics, groups WHERE topics.groupid=groups.id AND topics.commitdate=(SELECT max(commitdate) FROM topics, groups, sections WHERE sections.id=groups.section AND topics.commitdate<? AND topics.groupid=groups.id AND groups.section=? AND (topics.moderate OR NOT sections.moderate) AND NOT deleted)");
+        pst = db.prepareStatement("SELECT topics.id as msgid FROM topics WHERE topics.commitdate=(SELECT max(commitdate) FROM topics, groups, sections WHERE sections.id=groups.section AND topics.commitdate<? AND topics.groupid=groups.id AND groups.section=? AND (topics.moderate OR NOT sections.moderate) AND NOT deleted)");
         pst.setTimestamp(1, commitDate);
         pst.setInt(2, sectionid);
         break;
 
       case Section.SCROLL_GROUP:
-        pst = db.prepareStatement("SELECT topics.id as msgid FROM topics WHERE topics.id=(SELECT max(topics.id) FROM topics, groups, sections WHERE sections.id=groups.section AND topics.id<? AND topics.groupid=? AND topics.groupid=groups.id AND (topics.moderate OR NOT sections.moderate) AND NOT deleted)");
+        pst = db.prepareStatement("SELECT max(topics.id) as msgid FROM topics, groups, sections WHERE sections.id=groups.section AND topics.id<? AND topics.groupid=? AND topics.groupid=groups.id AND (topics.moderate OR NOT sections.moderate) AND NOT deleted");
         pst.setInt(1, msgid);
         pst.setInt(2, guid);
         break;
@@ -314,7 +320,13 @@ public class Message {
         return null;
       }
 
-      return new Message(db, rs.getInt("msgid"));
+      int prevMsgid = rs.getInt("msgid");
+
+      if (rs.wasNull()) {
+        return null;
+      }
+
+      return new Message(db, prevMsgid);
     } catch (MessageNotFoundException e) {
       throw new RuntimeException(e);
     } finally {
@@ -417,15 +429,15 @@ public class Message {
   }
 
   public void checkPostAllowed(User user, boolean moderator) throws AccessViolationException {
-    if (isDeleted()) {
+    if (deleted) {
       throw new AccessViolationException("Нельзя добавлять комментарии к удаленному сообщению");
     }
 
-    if (!isCommentEnabled()) {
+    if (!comment) {
       throw new AccessViolationException("В эту группу нельзя добавлять комментарии");
     }
 
-    if (isExpired()) {
+    if (expired) {
       throw new AccessViolationException("группа уже устарела");
     }
 
@@ -441,7 +453,7 @@ public class Message {
       return false;
     }
 
-    if (isExpired() || isDeleted()) {
+    if (expired || deleted) {
       return false;
     }
 
@@ -471,7 +483,7 @@ public class Message {
   public String getLinkLastmod() {
     String link;
 
-    if (isExpired()) {
+    if (expired) {
       link = "view-message.jsp?msgid="+msgid;
     } else {
       link = "view-message.jsp?msgid="+msgid+"&lastmod="+getLastModified().getTime();
