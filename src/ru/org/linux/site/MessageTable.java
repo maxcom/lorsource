@@ -120,19 +120,20 @@ public class MessageTable {
       int userid = rs.getInt("userid");
       User user = User.getUserCached(db, userid);
 
+      out.append("<item>");
+      out.append("  <author>").append(user.getNick()).append("</author>\n");
+      out.append("  <link>http://www.linux.org.ru/view-message.jsp?msgid=").append(msgid).append("</link>\n");
+      out.append("  <guid>http://www.linux.org.ru/view-message.jsp?msgid=").append(msgid).append("</guid>\n");
+      out.append("  <title>").append(HTMLFormatter.htmlSpecialChars(subj)).append("</title>\n");
+      out.append("  <pubDate>").append(Template.RFC822.format(rs.getTimestamp("postdate"))).append("</pubDate>\n");
+
+      out.append("  <description>\n" + '\t');
+
       if (section.isImagepost()) {
         try {
           ImageInfo iconInfo = new ImageInfo(htmlPath + linktext);
           ImageInfo info = new ImageInfo(htmlPath + url);
 
-          out.append("<item>");
-          out.append("  <author>").append(user.getNick()).append("</author>\n");
-          out.append("  <link>http://www.linux.org.ru/view-message.jsp?msgid=").append(msgid).append("</link>\n");
-          out.append("  <guid>http://www.linux.org.ru/view-message.jsp?msgid=").append(msgid).append("</guid>\n");
-          out.append("  <pubDate>").append(Template.RFC822.format(rs.getTimestamp("postdate"))).append("</pubDate>\n");
-          out.append("  <title>").append(HTMLFormatter.htmlSpecialChars(subj)).append("</title>\n");
-
-          out.append("  <description>\n" + '\t');
           String message = rs.getString("message");
           boolean bbcode = rs.getBoolean("bbcode");
           if (bbcode) {
@@ -143,9 +144,6 @@ public class MessageTable {
           }
           out.append(HTMLFormatter.htmlSpecialChars("<p><img src=\""+fullUrl+linktext+"\" ALT=\""+subj+"\" "+iconInfo.getCode()+" >"));
           out.append(HTMLFormatter.htmlSpecialChars("<p><i>"+info.getWidth()+'x'+info.getHeight()+", "+info.getSizeString()+"</i>"));
-          out.append("</description>\n");
-
-          out.append("</item>");
         } catch (BadImageException e) {
           // TODO write to log
         } catch (IOException e) {
@@ -156,26 +154,12 @@ public class MessageTable {
         if (id > 0) {
           try {
             Poll poll = new Poll(db, id);
-            out.append("<item>\n" + "  <title>")
-                .append(HTMLFormatter.htmlSpecialChars(subj))
-                .append("</title>\n" + "  <author>").append(user.getNick())
-                .append("</author>\n" + "  <link>http://www.linux.org.ru/view-message.jsp?msgid=").append(msgid)
-                .append("</link>\n" + "  <guid>http://www.linux.org.ru/view-message.jsp?msgid=").append(msgid)
-                .append("</guid>\n" + "  <pubDate>").append(Template.RFC822.format(rs.getTimestamp("postdate")))
-                .append("</pubDate>\n" + "  <description>\n" + '\t');
-            out.append(HTMLFormatter.htmlSpecialChars(poll.renderPoll(db, fullUrl))).append('\n' + " \n" + "  </description>\n" + "</item>");
+            out.append(HTMLFormatter.htmlSpecialChars(poll.renderPoll(db, fullUrl))).append('\n');
           } catch (PollNotFoundException e) {
             // TODO write to log
           }
         }
       } else {
-        out.append("<item>\n");
-        out.append("  <title>").append(HTMLFormatter.htmlSpecialChars(subj)).append("</title>\n");
-        out.append("  <author>").append(user.getNick()).append("</author>\n");
-        out.append("  <link>http://www.linux.org.ru/jump-message.jsp?msgid=").append(msgid).append("</link>\n");
-        out.append("  <guid>http://www.linux.org.ru/jump-message.jsp?msgid=").append(msgid).append("</guid>\n");
-        out.append("  <pubDate>").append(Template.RFC822.format(rs.getTimestamp("postdate"))).append("</pubDate>\n");
-        out.append("  <description>\n" + '\t');
         String message = rs.getString("message");
         boolean bbcode = rs.getBoolean("bbcode");
         if (bbcode) {
@@ -184,9 +168,11 @@ public class MessageTable {
         } else {
           out.append(HTMLFormatter.htmlSpecialChars(message));
         }
-        out.append("</description>\n");
-        out.append("</item>");
       }
+
+      out.append("</description>\n");
+
+      out.append("</item>");
     }
 
     return out.toString();
