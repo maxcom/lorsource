@@ -102,7 +102,6 @@
 
       comment.setAuthor(user.getId());
 
-
       if ("".equals(title)) {
         throw new BadInputException("заголовок сообщения не может быть пустым");
       }
@@ -139,7 +138,7 @@
       Statement st = db.createStatement();
       Message topic = new Message(db, topicId);
 
-      topic.checkPostAllowed(user, tmpl.isModeratorSession());
+      topic.checkCommentsAllowed(db, user);
 
       if (!preview) {
         DupeProtector.getInstance().checkDuplication(request.getRemoteAddr(),user.getScore()>100);
@@ -164,9 +163,9 @@
         String returnUrl;
 
         if (pageNum > 0) {
-          returnUrl = "view-message.jsp?msgid=" + topicId + "&page=" + pageNum + "&nocache=" + random.nextInt() + "#" + msgid;
+          returnUrl = "view-message.jsp?msgid=" + topicId + "&page=" + pageNum + "&nocache=" + random.nextInt() + '#' + msgid;
         } else {
-          returnUrl = "view-message.jsp?msgid=" + topicId + "&nocache=" + random.nextInt() + "#" + msgid;
+          returnUrl = "view-message.jsp?msgid=" + topicId + "&nocache=" + random.nextInt() + '#' + msgid;
         }
 
         response.setHeader("Location", tmpl.getMainUrl() + returnUrl);
@@ -318,12 +317,12 @@ if (showform) { // show form
 <textarea name="msg" cols="70" rows="20" onkeypress="return ctrl_enter(event, this.form);"><%= request.getParameter("msg")==null?"":HTMLFormatter.htmlSpecialChars(request.getParameter("msg")) %></textarea><br>
 
 <select name=mode>
-<option value=ntobrq <%= (mode!=null && mode.equals("ntobrq"))?"selected":""%> >User line breaks w/quoting
-<option value=quot <%= (mode!=null && mode.equals("quot"))?"selected":""%> >TeX paragraphs w/quoting
-<option value=tex <%= (mode!=null && mode.equals("tex"))?"selected":""%> >TeX paragraphs w/o quoting
-<option value=ntobr <%= (mode!=null && mode.equals("ntobr"))?"selected":""%> >User line break w/o quoting
-<option value=html <%= (mode!=null && mode.equals("html"))?"selected":""%> >Ignore line breaks
-<option value=pre <%= (mode!=null && mode.equals("pre"))?"selected":""%> >Preformatted text
+<option value=ntobrq <%= (mode!=null && "ntobrq".equals(mode))?"selected":""%> >User line breaks w/quoting
+<option value=quot <%= (mode!=null && "quot".equals(mode))?"selected":""%> >TeX paragraphs w/quoting
+<option value=tex <%= (mode!=null && "tex".equals(mode))?"selected":""%> >TeX paragraphs w/o quoting
+<option value=ntobr <%= (mode!=null && "ntobr".equals(mode))?"selected":""%> >User line break w/o quoting
+<option value=html <%= (mode!=null && "html".equals(mode))?"selected":""%> >Ignore line breaks
+<option value=pre <%= (mode!=null && "pre".equals(mode))?"selected":""%> >Preformatted text
 </select>
 
 <select name=autourl>

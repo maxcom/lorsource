@@ -153,7 +153,11 @@ public class Group {
       return false;
     }
 
-    return currentUser.getScore() >= restrictTopics;
+    if (restrictTopics==-1) {
+      return currentUser.canModerate();
+    } else {
+      return currentUser.getScore() >= restrictTopics;
+    }
   }
 
   public boolean isCommentsRestricted() {
@@ -169,42 +173,11 @@ public class Group {
       return true;
     }
 
-    if (currentUser==null) {
-      return false;
-    }
-
-    if (currentUser.isBlocked()) {
-      return false;
+    if (restrictComments==-1) {
+      return currentUser.canModerate();
     }
 
     return currentUser.getScore() >= restrictComments;
-  }
-
-  public static void checkCommentsAllowed(Connection db, int topicid, int userid) throws SQLException, AccessViolationException, MessageNotFoundException, UserNotFoundException {
-    Statement st = null;
-    try {
-      User user = User.getUserCached(db,userid);
-      st = db.createStatement();
-      ResultSet rs = st.executeQuery("SELECT groupid FROM topics WHERE id="+topicid+" AND NOT deleted");
-
-      if (!rs.next()) {
-        throw new MessageNotFoundException(topicid, "Тема не существует или удалена");
-      }
-
-      int groupid = rs.getInt("groupid");
-      rs.close();
-
-      Group group = new Group(db, groupid);
-      if (!group.isCommentPostingAllowed(user)) {
-        throw new AccessViolationException("У вас не достаточно прав для комментирования");
-      }
-    } catch (BadGroupException e) {
-      throw new RuntimeException(e);
-    } finally {
-      if (st!=null) {
-        st.close();
-      }
-    }
   }
 
   public int getId() {

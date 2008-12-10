@@ -428,7 +428,15 @@ public class Message {
     return msgid;
   }
 
-  public void checkPostAllowed(User user, boolean moderator) throws AccessViolationException {
+  public void checkCommentsAllowed(Connection db, User user) throws AccessViolationException, SQLException, BadGroupException {
+    Group group = new Group(db, guid);
+
+    if (!group.isCommentPostingAllowed(user)) {
+      throw new AccessViolationException("В эту группу нельзя добавлять комментарии");
+    }
+
+    user.checkBlocked();
+
     if (deleted) {
       throw new AccessViolationException("Нельзя добавлять комментарии к удаленному сообщению");
     }
@@ -442,7 +450,7 @@ public class Message {
     }
 
     if (postscore != 0) {
-      if (user.getScore() < postscore || user.isAnonymous() || (postscore == -1 && !moderator)) {
+      if (user.getScore() < postscore || user.isAnonymous() || (postscore == -1 && !user.canModerate())) {
         throw new AccessViolationException("Вы не можете добавлять комментарии в эту тему");
       }
     }
