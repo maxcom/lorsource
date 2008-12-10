@@ -13,7 +13,8 @@ import ru.org.linux.site.*;
 import ru.org.linux.util.ServletParameterParser;
 
 public class MessageController extends AbstractController {
-  @Override protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) throws Exception {
+  @Override
+  protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) throws Exception {
     int msgid = new ServletParameterParser(request).getInt("msgid");
     Template tmpl = Template.getTemplate(request);
 
@@ -55,6 +56,10 @@ public class MessageController extends AbstractController {
 
       if (message.isDeleted() && !Template.isSessionAuthorized(request.getSession())) {
         throw new MessageNotFoundException(message.getId(), "Сообщение удалено");
+      }
+
+      if (new Group(db, message.getGroupId()).isCommentsRestricted()) {
+        throw new MessageNotFoundException(message.getId(), "Это сообщение нельзя посмотреть");
       }
 
       params.put("message", message);
