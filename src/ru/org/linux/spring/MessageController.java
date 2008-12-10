@@ -59,7 +59,7 @@ public class MessageController extends AbstractController {
       }
 
       if (new Group(db, message.getGroupId()).isCommentsRestricted()) {
-        throw new MessageNotFoundException(message.getId(), "Это сообщение нельзя посмотреть");
+        throw new AccessViolationException("Это сообщение нельзя посмотреть");
       }
 
       params.put("message", message);
