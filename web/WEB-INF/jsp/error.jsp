@@ -1,4 +1,4 @@
-<%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
+<%@ page contentType="text/html; charset=utf-8"%>
 <%@ page import="java.io.PrintWriter,java.io.StringWriter" isErrorPage="true" %>
 <%@ page import="java.util.Date"%>
 <%@ page import="java.util.Enumeration"%>
@@ -37,21 +37,21 @@
 %>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
-<title>Ошибка: <%= HTMLFormatter.htmlSpecialChars(exception.getClass().getName()) %></title>
+<title>п·я┬п╦п╠п╨п╟: <%= HTMLFormatter.htmlSpecialChars(exception.getClass().getName()) %></title>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 <h1><%=exception.getMessage()==null?HTMLFormatter.htmlSpecialChars(exception.getClass().getName()):HTMLFormatter.htmlSpecialChars(exception.getMessage()) %></h1>
 
 <% if (exception instanceof UserErrorException) { %>
 <% } else if (exception instanceof ScriptErrorException || exception instanceof ServletParameterException) { %>
-Скрипту, генерирующему страничку были переданы некорректные
-параметры. Если на эту страничку вас привела одна из
-страниц нашего сайта, пожалуйста сообщите нам адреса текущей и ссылающейся страниц.
+п║п╨я─п╦п©я┌я┐, пЁп╣п╫п╣я─п╦я─я┐я▌я┴п╣п╪я┐ я│я┌я─п╟п╫п╦я┤п╨я┐ п╠я▀п╩п╦ п©п╣я─п╣п╢п╟п╫я▀ п╫п╣п╨п╬я─я─п╣п╨я┌п╫я▀п╣
+п©п╟я─п╟п╪п╣я┌я─я▀. п∙я│п╩п╦ п╫п╟ я█я┌я┐ я│я┌я─п╟п╫п╦я┤п╨я┐ п╡п╟я│ п©я─п╦п╡п╣п╩п╟ п╬п╢п╫п╟ п╦п╥
+я│я┌я─п╟п╫п╦я├ п╫п╟я┬п╣пЁп╬ я│п╟п╧я┌п╟, п©п╬п╤п╟п╩я┐п╧я│я┌п╟ я│п╬п╬п╠я┴п╦я┌п╣ п╫п╟п╪ п╟п╢я─п╣я│п╟ я┌п╣п╨я┐я┴п╣п╧ п╦ я│я│я▀п╩п╟я▌я┴п╣п╧я│я▐ я│я┌я─п╟п╫п╦я├.
 <%
   logger.fine(exception.toString()+": "+StringUtil.getStackTrace(exception));
 %>
 <% } else { %>
 
-К сожалению, произошла исключительная ситуация при генерации страницы.
+п  я│п╬п╤п╟п╩п╣п╫п╦я▌, п©я─п╬п╦п╥п╬я┬п╩п╟ п╦я│п╨п╩я▌я┤п╦я┌п╣п╩я▄п╫п╟я▐ я│п╦я┌я┐п╟я├п╦я▐ п©я─п╦ пЁп╣п╫п╣я─п╟я├п╦п╦ я│я┌я─п╟п╫п╦я├я▀.
 <%
 
   String email = "bugz@linux.org.ru";
@@ -100,9 +100,9 @@
 
   try {
     Transport.send(emailMessage);
-    out.println("<b>Произошла непредвиденая ошибка. Администраторы получили об этом сигнал.</b>");
+    out.println("<b>п÷я─п╬п╦п╥п╬я┬п╩п╟ п╫п╣п©я─п╣п╢п╡п╦п╢п╣п╫п╟я▐ п╬я┬п╦п╠п╨п╟. п░п╢п╪п╦п╫п╦я│я┌я─п╟я┌п╬я─я▀ п©п╬п╩я┐я┤п╦п╩п╦ п╬п╠ я█я┌п╬п╪ я│п╦пЁп╫п╟п╩.</b>");
   } catch(Exception e) {
-    out.println("<b>Произошла непредвиденая ошибка. К сожалению сервер временно не принимает сообщения об ошибках.</b>");
+    out.println("<b>п÷я─п╬п╦п╥п╬я┬п╩п╟ п╫п╣п©я─п╣п╢п╡п╦п╢п╣п╫п╟я▐ п╬я┬п╦п╠п╨п╟. п  я│п╬п╤п╟п╩п╣п╫п╦я▌ я│п╣я─п╡п╣я─ п╡я─п╣п╪п╣п╫п╫п╬ п╫п╣ п©я─п╦п╫п╦п╪п╟п╣я┌ я│п╬п╬п╠я┴п╣п╫п╦я▐ п╬п╠ п╬я┬п╦п╠п╨п╟я┘.</b>");
   } finally {
     logger.severe(exception.toString()+": "+StringUtil.getStackTrace(exception));
   }

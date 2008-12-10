@@ -1,4 +1,4 @@
-<%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
+<%@ page contentType="text/html; charset=utf-8"%>
 <%@ page import="java.util.Date"   %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
@@ -22,10 +22,10 @@
       <td align=right valign=middle>
         [<a href="add-section.jsp?section=${section.id}">${section.addText}</a>]
         
-        [<a href="tracker.jsp">Последние сообщения</a>]
+        [<a href="tracker.jsp">п÷п╬я│п╩п╣п╢п╫п╦п╣ я│п╬п╬п╠я┴п╣п╫п╦я▐</a>]
 
         <c:if test="${section.forum}">
-          [<a href="rules.jsp">Правила форума</a>]
+          [<a href="rules.jsp">п÷я─п╟п╡п╦п╩п╟ я└п╬я─я┐п╪п╟</a>]
         </c:if>
 
         [<a href="section-rss.jsp?section=${section.id}">RSS</a>]
@@ -35,7 +35,7 @@
 
 <h1>${section.name}</h1>
 
-Группы:
+п⌠я─я┐п©п©я▀:
 <ul>
 
   <c:forEach var="group" items="${groups}">
@@ -55,13 +55,13 @@
 </ul>
 
 <c:if test="${section.forum}">
-<h1>Настройки</h1>
-Если вы еще не зарегистрировались - вам <a href="register.jsp">сюда</a>.
+<h1>п²п╟я│я┌я─п╬п╧п╨п╦</h1>
+п∙я│п╩п╦ п╡я▀ п╣я┴п╣ п╫п╣ п╥п╟я─п╣пЁп╦я│я┌я─п╦я─п╬п╡п╟п╩п╦я│я▄ - п╡п╟п╪ <a href="register.jsp">я│я▌п╢п╟</a>.
 <ul>
-<li><a href="addphoto.jsp">Добавить фотографию</a>
-<li><a href="register.jsp?mode=change">Изменение регистрации</a>
-<li><a href="lostpwd.jsp">Получить забытый пароль</a>
-<li><a href="edit-profile.jsp">Персональные настройки сайта</a>
+<li><a href="addphoto.jsp">п■п╬п╠п╟п╡п╦я┌я▄ я└п╬я┌п╬пЁя─п╟я└п╦я▌</a>
+<li><a href="register.jsp?mode=change">п≤п╥п╪п╣п╫п╣п╫п╦п╣ я─п╣пЁп╦я│я┌я─п╟я├п╦п╦</a>
+<li><a href="lostpwd.jsp">п÷п╬п╩я┐я┤п╦я┌я▄ п╥п╟п╠я▀я┌я▀п╧ п©п╟я─п╬п╩я▄</a>
+<li><a href="edit-profile.jsp">п÷п╣я─я│п╬п╫п╟п╩я▄п╫я▀п╣ п╫п╟я│я┌я─п╬п╧п╨п╦ я│п╟п╧я┌п╟</a>
 </ul>
 </c:if>
 

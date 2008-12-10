@@ -1,4 +1,4 @@
-<%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
+<%@ page contentType="text/html; charset=utf-8"%>
 <%@ page import="java.util.Date"   %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
@@ -8,11 +8,11 @@
   response.setDateHeader("Last-Modified", new Date(new Date().getTime() - 2 * 1000).getTime());
 
 %>
-<title>Список меток</title>
+<title>п║п©п╦я│п╬п╨ п╪п╣я┌п╬п╨</title>
 <link rel="parent" title="Linux.org.ru" href="/">
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
-<h1>Список меток</h1>
+<h1>п║п©п╦я│п╬п╨ п╪п╣я┌п╬п╨</h1>
 
 <ul>
 

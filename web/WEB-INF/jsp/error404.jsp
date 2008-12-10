@@ -1,4 +1,4 @@
-<%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
+<%@ page contentType="text/html; charset=utf-8"%>
 <%
    response.setStatus(404);
 %>
@@ -8,7 +8,7 @@
 <jsp:include page="header.jsp"/>
 
 <h1>Error 404</h1>
-Запрошенный Вами URL не был найден на этом сервере. <p>
+п≈п╟п©я─п╬я┬п╣п╫п╫я▀п╧ п▓п╟п╪п╦ URL п╫п╣ п╠я▀п╩ п╫п╟п╧п╢п╣п╫ п╫п╟ я█я┌п╬п╪ я│п╣я─п╡п╣я─п╣. <p>
 The URL you requested is not found on this server.
 
   <jsp:include page="footer.jsp"/>

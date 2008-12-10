@@ -1,4 +1,4 @@
-<%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
+<%@ page contentType="text/html; charset=utf-8"%>
 <%@ page import="java.util.Date"   %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
@@ -12,13 +12,13 @@
 <link rel="parent" title="Linux.org.ru" href="/">
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
-<h1>Удаление тем и сообщений</h1>
+<h1>пёп╢п╟п╩п╣п╫п╦п╣ я┌п╣п╪ п╦ я│п╬п╬п╠я┴п╣п╫п╦п╧</h1>
 
 ${message}
 
 <br/>
 
-Удалено тем: ${topics}
+пёп╢п╟п╩п╣п╫п╬ я┌п╣п╪: ${topics}
 
 <ul>
 
@@ -26,7 +26,7 @@ ${message}
 
     <li>
     
-Удаляется #${del.key}: ${del.value}
+пёп╢п╟п╩я▐п╣я┌я│я▐ #${del.key}: ${del.value}
 
     </li>
                       
