@@ -31,8 +31,8 @@
 
   <table cellpadding="5" cellspacing="0" border="1" width="600" style="font-size: smaller; position: absolute" ><tr><td bgcolor="#000030">
 <a target="_blank" href="http://www.linuxcenter.ru/linux-format-2009/"><b><center>Розыгрыш призов для подписчиков журнала Linux Format</center></b></a>
-<a target="_blank" href="http://www.linuxcenter.ru/linux-format-2009/"><img src="/adv/id1996.png" hspace='1' vspace='1' height="50" align="left" border="0" ></a>
-<a target="_blank" href="http://www.linuxcenter.ru/linux-format-2009/"><img src="/adv/on.png" hspace='0' vspace='0' height="50" align="right" border="0"></a>
+<a target="_blank" href="http://www.linuxcenter.ru/linux-format-2009/"><img src="/adv/id1996.gif" hspace='1' vspace='1' height="50" align="left" border="0" ></a>
+<a target="_blank" href="http://www.linuxcenter.ru/linux-format-2009/"><img src="/adv/on.gif" hspace='0' vspace='0' height="50" align="right" border="0"></a>
 <div  style="text-align: left">Подпишись на журнал Linux Format с 10 по 30 декабря и выиграй ASUS EEE PC 900! Разыгрываются 10 нетбуков и другие призы от ГНУ/Линуксцентра.</div>
 <a target="_blank" href="http://www.linuxcenter.ru/linux-format-2009/"><b><center>www.linuxcenter.ru/linux-format-2009</center></b></a>
 </td></tr></table>
