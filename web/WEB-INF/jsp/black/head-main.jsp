@@ -29,7 +29,7 @@
 </tr>
 </table>
 
-  <table cellpadding="5" cellspacing="0" border="1" width="600" style="font-size: smaller; position: absolute" ><tr><td bgcolor="#000030">
+<table class="adv" cellpadding="5" cellspacing="0" border="1" width="600" style="font-size: smaller" ><tr><td bgcolor="#000030">
 <a target="_blank" href="http://www.linuxcenter.ru/linux-format-2009/"><b><center>Розыгрыш призов для подписчиков журнала Linux Format</center></b></a>
 <a target="_blank" href="http://www.linuxcenter.ru/linux-format-2009/"><img src="/adv/id1996.gif" hspace='1' vspace='1' height="50" align="left" border="0" ></a>
 <a target="_blank" href="http://www.linuxcenter.ru/linux-format-2009/"><img src="/adv/on.gif" hspace='0' vspace='0' height="50" align="right" border="0"></a>
@@ -40,7 +40,7 @@
   
 </div>
 
-<div style="float: right; text-align: right; margin-top: 5px">
+<div style="right: 5px; text-align: right; z-index: -1; top: 5px; position: absolute">
 <c:if test="${template.sessionAuthorized}">
   <c:url var="userUrl" value="/whois.jsp">
     <c:param name="nick" value="${template.nick}"/>
