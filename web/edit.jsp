@@ -16,7 +16,7 @@
 
   int msgid = new ServletParameterParser(request).getInt("msgid");
 %>
-<jsp:include page="WEB-INF/jsp/header.jsp"/>
+<jsp:include page="/WEB-INF/jsp/header.jsp"/>
 <%
   Connection db = null;
   try {
@@ -160,4 +160,4 @@
   }
 
 %>
-<jsp:include page="WEB-INF/jsp/footer.jsp"/>
+<jsp:include page="/WEB-INF/jsp/footer.jsp"/>
