@@ -2,7 +2,7 @@ package ru.org.linux.site;
 
 import java.io.IOException;
 import java.sql.*;
-import java.util.logging.Logger;
+import java.util.logging.Logger;import java.util.Date;
 
 import javax.servlet.http.HttpServletRequest;
 import org.javabb.bbcode.BBCodeProcessor;
@@ -457,27 +457,27 @@ public class Message {
   }
 
   public boolean isEditable(Connection db, User by) throws SQLException, UserNotFoundException {
-    if (!by.canModerate() && !by.canCorrect()) {
-      return false;
-    }
-
     if (expired || deleted) {
       return false;
     }
 
-    if (User.getUser(db, userid).canModerate()) {
-      return true;
+    if (by.canModerate()) {
+      if (User.getUserCached(db, userid).canModerate()) {
+        return true;
+      }
+
+      return section.isPremoderated();
     }
-    
-    if (sectionid==1 && by.canCorrect()) {
-      return true;
+
+    if (by.canCorrect()) {
+      return sectionid==1;
     }
-    
-    if (sectionid!=1 && by.canCorrect()) {
-      return false;
+
+    if (sectionid==1 && by.getId()==userid && !moderate && lorcode) {
+      return (new Date().getTime() - postdate.getTime()) < 30*60*1000;
     }
-    
-    return section.isPremoderated();
+
+    return false;
   }
 
   public int getUid() {

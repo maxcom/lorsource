@@ -10,7 +10,7 @@
   Template tmpl = Template.getTemplate(request);
   Logger logger = Logger.getLogger("ru.org.linux");
 
-  if (!tmpl.isModeratorSession() && !tmpl.isCorrectorSession()) {
+  if (!tmpl.isSessionAuthorized()) {
     throw new AccessViolationException("Not authorized");
   }
 
@@ -28,9 +28,9 @@
     String sURL = message.getUrl();
     String sURLtitle = message.getLinktext();
 
-    User moderator = User.getCurrentUser(db, session);
+    User user = User.getCurrentUser(db, session);
 
-    if (!message.isEditable(db, moderator)) {
+    if (!message.isEditable(db, user)) {
       throw new AccessViolationException("это сообщение нельзя править");
     }
 
@@ -43,7 +43,7 @@
     }
 
     String cnText = request.getParameter("newmsg");
-    if (request.getMethod().equals("POST") && (cnText != null)) {
+    if ("POST".equals(request.getMethod()) && (cnText != null)) {
       if (debugme) {
         out.print("<!-- new message = " + cnText + "\n msglen: " + cnText.length() + " -->\n");
         out.print("<!-- method is POST -->\n");

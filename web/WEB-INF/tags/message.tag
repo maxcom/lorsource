@@ -20,6 +20,7 @@
   Template tmpl = Template.getTemplate(request);
 
   User author = User.getUserCached(db, message.getUid());
+  User currentUser = User.getCurrentUser(db, session);
 
   int msgid = message.getMessageId();
 %>
@@ -44,11 +45,8 @@
         out.append("[<a href=\"edit-vote.jsp?msgid=");
         out.print(msgid);
         out.print("\">Править</a>]");
-      } else {
-        out.append("[<a href=\"edit.jsp?msgid=");
-        out.print(msgid);
-        out.append("\">Править</a>]");
       }
+      
       out.append("[<a href=\"setpostscore.jsp?msgid=");
       out.print(msgid);
       out.print("\">Установить параметры</a>]");
@@ -63,7 +61,7 @@
       }
     }
 
-    if (tmpl.isCorrectorSession() && message.getSectionId() == 1) {
+    if (currentUser!=null && message.isEditable(db, currentUser)) {
       out.append("[<a href=\"edit.jsp?msgid=");
       out.print(msgid);
       out.append("\">Править</a>]");
