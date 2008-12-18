@@ -16,7 +16,6 @@
 <%@ page import="org.apache.commons.fileupload.FileItem" %>
 <%@ page import="org.apache.commons.fileupload.disk.DiskFileItemFactory" %>
 <%@ page import="org.apache.commons.fileupload.servlet.ServletFileUpload" %>
-<%@ page import="org.apache.commons.lang.StringUtils" %>
 <%@ page import="ru.org.linux.boxlet.BoxletVectorRunner" %>
 <%@ page import="ru.org.linux.site.*" %>
 <%@ page import="ru.org.linux.storage.StorageNotFoundException" %>
@@ -58,8 +57,9 @@ URL (не забудьте добавить <b>http://</b>): <br>
 <input type=text name=town size=50><br>
 Дополнительная информация:<br>
 <textarea name=info cols=50 rows=5></textarea><br>
-<p><img src="/jcaptcha.jsp">
-<input type='text' name='j_captcha_response' value=''>
+<p>
+  <lor:captcha/>
+
 
 <input type=submit value="Register/Зарегистрироваться">
 </form>
@@ -222,7 +222,7 @@ URL (не забудьте добавить <b>http://</b>): <br>
         tmpl.getObjectConfig().getStorage().writeMessage("userinfo", String.valueOf(userid), info);
       }
 
-      StringBuffer text = new StringBuffer();
+      StringBuilder text = new StringBuilder();
 
       text.append("Здравствуйте!\n\n");
       text.append("\tВ форуме по адресу http://www.linux.org.ru/ появилась регистрационная запись,\n");
@@ -234,7 +234,7 @@ URL (не забудьте добавить <b>http://</b>): <br>
       text.append("Если же именно вы решили зарегистрироваться в форуме по адресу http://www.linux.org.ru/,\n");
       text.append("то вам следует подтвердить свою регистрацию и тем самым активировать вашу учетную запись.\n\n");
 
-      String regcode = StringUtil.md5hash(tmpl.getSecret() + ":" + nick + ":" + password);
+      String regcode = StringUtil.md5hash(tmpl.getSecret() + ':' + nick + ':' + password);
 
       text.append("Для активации перейдите по ссылке http://www.linux.org.ru/activate.jsp\n\n");
       text.append("Код активации: ").append(regcode).append("\n\n");

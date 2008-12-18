@@ -3,6 +3,7 @@
 <%@ page import="ru.org.linux.util.BadURLException"%>
 <%@ page import="ru.org.linux.util.HTMLFormatter" %>
 <%@ page import="ru.org.linux.util.ServletParameterParser" %>
+<%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <% Template tmpl = Template.getTemplate(request);%>
 <%
   Logger logger = Logger.getLogger("ru.org.linux");
@@ -339,11 +340,7 @@ if (showform) { // show form
 %>
 
 <br>
-<%
-  if (!Template.isSessionAuthorized(session)) {
-    out.print("<p><img src=\"/jcaptcha.jsp\"><input type='text' name='j_captcha_response' value=''>");
-  }
-%>
+  <lor:captcha/>
 <input type=submit value="Поместить">
 <input type=submit name=preview value="Предпросмотр">
 

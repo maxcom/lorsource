@@ -117,11 +117,7 @@
 <option value=0 <%= (preview && !autourl)?"selected":""%> >No Auto URL
 </select>
 
-<%
-  if (!Template.isSessionAuthorized(session)) {
-    out.print("<p><img src=\"/jcaptcha.jsp\"><input type='text' name='j_captcha_response' value=''>");
-  }
-%>
+  <lor:captcha/>
 <br>
 <input type=submit value="Поместить">
 <input type=submit name=preview value="Предпросмотр">

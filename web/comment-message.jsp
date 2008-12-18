@@ -95,11 +95,7 @@
 
 <br>
 
-  <%  
-  if (!Template.isSessionAuthorized(session)) {
-    out.print("<p><img src=\"/jcaptcha.jsp\"><input type='text' name='j_captcha_response' value=''>");
-  }
-%>
+  <lor:captcha/>
 
 <input type=submit value="Отправить">
 <input type=submit name=preview value="Предпросмотр">  
