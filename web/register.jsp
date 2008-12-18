@@ -20,6 +20,8 @@
 <%@ page import="ru.org.linux.site.*" %>
 <%@ page import="ru.org.linux.storage.StorageNotFoundException" %>
 <%@ page import="ru.org.linux.util.*" %>
+<%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
+
 <% Template tmpl = Template.getTemplate(request);
   Logger logger = Logger.getLogger("ru.org.linux");
 %>
