@@ -4,19 +4,20 @@
 <%@ page import="java.sql.ResultSet" %>
 <%@ page import="java.sql.Statement" %>
 <%@ page import="ru.org.linux.site.LorDataSource" %>
-<jsp:include page="WEB-INF/jsp/head.jsp"/>
+<jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
 <title>О Сервере</title>
-<jsp:include page="WEB-INF/jsp/header.jsp"/>
+<jsp:include page="/WEB-INF/jsp/header.jsp"/>
 <div class=text>
 
 <h1>О Проекте</h1>
-Некоммерческий проект <i>LINUX.ORG.RU: Русская информация об ОС Linux</i> был 
-основан в октябре 
-1998 года. Нашей целью является создание основного информационного ресурса об 
-операционной системе Linux в России. Мы стараемся обеспечить возможность
+
+Некоммерческий проект &laquo;<i>LINUX.ORG.RU: Русская информация об&nbsp;ОС&nbsp;Linux</i>&raquo; был
+основан в&nbsp;октябре
+1998&nbsp;года. Нашей целью является создание основного информационного ресурса об
+операционной системе Linux в&nbsp;России. Мы&nbsp;стараемся обеспечить возможность
 обмена различной Linux-ориентированной информацией, последними новостями,
-ссылками, документацией и другими ресурсами.
+ссылками, документацией и&nbsp;другими ресурсами.
 
 <h1>Наша кнопочка</h1>
 Вы можете использовать эту кнопку для ссылки на наш сайт:<br>
@@ -27,8 +28,8 @@
   </p>
 
 <h1>Хостинг</h1>
-Размещение сервера и подключение к сети Интернет осуществляется компанией 
-ООО "<a href="http://www.ratel.ru">НИИР-РадиоНет</a>".
+Размещение сервера и&nbsp;подключение к&nbsp;сети Интернет осуществляется компанией
+ООО &laquo;<a href="http://www.ratel.ru">НИИР-РадиоНет</a>&raquo;.
 <p>
 	Статистику сервера можно посмотреть тут: <a href="http://linuxhacker.ru/stats">статистика</a>.
 
@@ -46,7 +47,7 @@
   </p>
 
 <h1>Наша команда</h1>
-Проект реализован и развивается исключительно в свободное время авторов. 
+Проект реализован и&nbsp;развивается исключительно в&nbsp;свободное время авторов.
 <ul>
 <li><a href="whois.jsp?nick=maxcom">Максим Валянский</a> (maxcom) - <i>координатор
 проекта</i> -
@@ -108,9 +109,10 @@
 
 <h1>Реклама на сайте</h1>
 <p>
-Linux.org.ru - некоммерческий проект, мы не занимаемся размещением рекламы на страничках сайта
-сверх минимума, необходимого для работы сайта. Вы можете разместить рекламу через Google Adsense
-на страничках нашего сайта по ссылке "<a href="https://adwords.google.com/select/OnsiteSignupLandingPage?client=ca-pub-6069094673001350&referringUrl=http://www.linux.org.ru/">размещение рекламы на этом сайте</a>".
+  Linux.org.ru&nbsp;&#8212; некоммерческий проект, мы&nbsp;не&nbsp;занимаемся размещением рекламы на&nbsp;страничках сайта
+  сверх минимума, необходимого для работы сайта. Вы&nbsp;можете разместить рекламу через Google Adsense
+  на&nbsp;страничках нашего сайта по&nbsp;ссылке &laquo;<a href="https://adwords.google.com/select/OnsiteSignupLandingPage?client=ca-pub-6069094673001350&referringUrl=http://www.linux.org.ru/">размещение рекламы на&nbsp;этом сайте</a>&raquo;.
+
 </p>
 <h1>Связанные проекты</h1>
 <ul>
@@ -119,4 +121,4 @@ Linux.org.ru - некоммерческий проект, мы не занима
   <li><a href="http://community.livejournal.com/l_o_r/">Филиал l.o.r. в ЖЖ</a></li>
 </ul>
 
-<jsp:include page="WEB-INF/jsp/footer.jsp"/>
+<jsp:include page="/WEB-INF/jsp/footer.jsp"/>

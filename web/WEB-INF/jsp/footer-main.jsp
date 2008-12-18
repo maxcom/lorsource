@@ -5,7 +5,6 @@
 <%@ page import="java.util.List" %>
 <%@ page import="ru.org.linux.boxlet.BoxletVectorRunner" %>
 <%@ page import="ru.org.linux.site.*" %>
-<%@ page import="ru.org.linux.util.ServletParameterParser" %>
 <%@ page contentType="text/html; charset=utf-8"%>
 
 <p><i><a href="${template.mainUrl}">${template.mainUrl}</a></i>
@@ -26,9 +25,9 @@
 
 <div align=center>
 <p>
-Разработка и поддержка - <a href="whois.jsp?nick=maxcom">Максим Валянский</a> 1998-2008<br>
-Размещение сервера и подключение его к сети Интернет осуществляется компанией
-ООО "<a href="http://www.ratel.ru">НИИР-РадиоНет</a>"<br>
+Разработка и&nbsp;поддержка&nbsp;&#8212; <a href="whois.jsp?nick=maxcom">Максим Валянский</a> 1998-2008<br>
+Размещение сервера и&nbsp;подключение его к&nbsp;сети Интернет осуществляется компанией
+ООО &laquo;<a href="http://www.ratel.ru">НИИР-РадиоНет</a>&raquo;
 </p>
 </div>
 </body>
