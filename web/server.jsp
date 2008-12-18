@@ -44,7 +44,7 @@
       <li>Sun Java SDK 1.6</li>
       <li>Apache Tomcat 5.5</li>
       <li>memcached 1.2</li>
-    </ul>        re
+    </ul>        
 
 <h1>Наша команда</h1>
 Проект реализован и&nbsp;развивается исключительно в&nbsp;свободное время авторов.
