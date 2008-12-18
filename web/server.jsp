@@ -21,10 +21,10 @@
 
 <h1>Наша кнопочка</h1>
 Вы можете использовать эту кнопку для ссылки на наш сайт:<br>
-<img width=88 height=31 src="/img/button.gif">
+<img width=88 height=31 src="/img/button.gif" alt="Кнопка www.linux.org.ru">
   <p>
   и чудо баннер:<br>
-  <img src="/img/linux-banner5.gif" alt="www.linux.org.ru" width="468" height="60"> 
+  <img src="/img/linux-banner5.gif" alt="www.linux.org.ru" width="468" height="60">
   </p>
 
 <h1>Хостинг</h1>
@@ -35,7 +35,8 @@
 
 <h1>Софт</h1>
   <p>
-Мы работаем на:
+Мы работаем на
+  </p>
     <ul>
       <li>Fedora 10</li>
       <li>СУБД PostgreSQL 8.3</li>
@@ -43,18 +44,18 @@
       <li>Sun Java SDK 1.6</li>
       <li>Apache Tomcat 5.5</li>
       <li>memcached 1.2</li>
-    </ul>
-  </p>
+    </ul>        re
 
 <h1>Наша команда</h1>
 Проект реализован и&nbsp;развивается исключительно в&nbsp;свободное время авторов.
-<ul>
-<li><a href="whois.jsp?nick=maxcom">Максим Валянский</a> (maxcom) - <i>координатор
-проекта</i> -
-разработка, поддержка, дизайн, новости, информационное наполнение.
+  <ul>
+  <li><a href="whois.jsp?nick=maxcom">Максим Валянский</a> (maxcom)&nbsp;&#8212; <i>координатор
+  проекта</i> -
+  разработка, поддержка, дизайн, новости, информационное наполнение.
 
-<li><a href="whois.jsp?nick=green">Олег Дрокин</a> (green) - администрирование сервера, железо
-</ul>
+  <li><a href="whois.jsp?nick=green">Олег Дрокин</a> (green)&nbsp;&#8212; администрирование сервера, железо
+  </ul>
+
   Модераторы:
   <ul>
 <%
@@ -111,14 +112,15 @@
 <p>
   Linux.org.ru&nbsp;&#8212; некоммерческий проект, мы&nbsp;не&nbsp;занимаемся размещением рекламы на&nbsp;страничках сайта
   сверх минимума, необходимого для работы сайта. Вы&nbsp;можете разместить рекламу через Google Adsense
-  на&nbsp;страничках нашего сайта по&nbsp;ссылке &laquo;<a href="https://adwords.google.com/select/OnsiteSignupLandingPage?client=ca-pub-6069094673001350&referringUrl=http://www.linux.org.ru/">размещение рекламы на&nbsp;этом сайте</a>&raquo;.
+  на&nbsp;страничках нашего сайта по&nbsp;ссылке &laquo;<a href="https://adwords.google.com/select/OnsiteSignupLandingPage?client=ca-pub-6069094673001350&amp;referringUrl=http://www.linux.org.ru/">размещение рекламы на&nbsp;этом сайте</a>&raquo;.
 
 </p>
 <h1>Связанные проекты</h1>
 <ul>
-  <li><a href="http://www.lorquotes.ru/">LorQuotes</a> - избранные цитаты</li>
-  <li><a href="http://www.lastfm.ru/group/Linux-org-ru">Группа linux.org.ru на last.fm</a></li>
-  <li><a href="http://community.livejournal.com/l_o_r/">Филиал l.o.r. в ЖЖ</a></li>
+<li><a href="http://www.lorquotes.ru/">LorQuotes</a>&nbsp;&#8212; избранные цитаты</li>
+<li><a href="http://www.lastfm.ru/group/Linux-org-ru">Группа linux.org.ru на&nbsp;last.fm</a></li>
+<li><a href="http://community.livejournal.com/l_o_r/">Филиал l.o.r. в&nbsp;ЖЖ</a></li>
 </ul>
+
 
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>
