@@ -40,7 +40,7 @@
   
 </div>
 
-<div style="right: 5px; text-align: right; z-index: -1; top: 5px; position: absolute">
+<div style="right: 5px; text-align: right; top: 5px; position: absolute">
 <c:if test="${template.sessionAuthorized}">
   <c:url var="userUrl" value="/whois.jsp">
     <c:param name="nick" value="${template.nick}"/>
