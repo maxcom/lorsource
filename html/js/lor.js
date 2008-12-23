@@ -52,13 +52,17 @@ function parseHash()
 
 // black login form
 function showLoginForm() {
-  document.getElementById("regmenu").style.display = "none";
-  document.getElementById("regform").style.display = "";
+  $("#regmenu").fadeOut("fast", function() { $("#regform").fadeIn("fast") });
 }
 
 function hideLoginForm() {
-  document.getElementById("regmenu").style.display = "";
-  document.getElementById("regform").style.display = "none";
+  $("#regform").fadeOut("fast", function() { $("#regmenu").fadeIn("fast") });
+}
+
+function jump(link) {
+  if (link && link.href) {
+    document.location = link.href;
+  }
 }
 
 // enable comment frame

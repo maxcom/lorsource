@@ -53,14 +53,21 @@
 <title>${message.sectionTitle} - ${message.groupTitle} - ${message.title}</title>
 <link rel="parent" title="${message.sectionTitle} - ${message.groupTitle}" href="group.jsp?group=${message.groupId}">
 <c:if test="${prevMessage != null}">
-  <link rel="Previous" href="${fn:escapeXml(prevMessage.linkLastmod)}" title="<%= StringUtil.makeTitle(prevMessage.getTitle()) %>">
+  <link rel="Previous" id="PrevLink" href="${fn:escapeXml(prevMessage.linkLastmod)}" title="<%= StringUtil.makeTitle(prevMessage.getTitle()) %>">
 </c:if>
 
 <c:if test="${nextMessage != null}">
-  <link rel="Next" href="${fn:escapeXml(nextMessage.linkLastmod)}" title="<%= StringUtil.makeTitle(nextMessage.getTitle()) %>">
+  <link rel="Next" id="NextLink" href="${fn:escapeXml(nextMessage.linkLastmod)}" title="<%= StringUtil.makeTitle(nextMessage.getTitle()) %>">
 </c:if>
 
 <LINK REL="alternate" TITLE="Comments RSS" HREF="topic-rss.jsp?topic=<%= msgid %>" TYPE="application/rss+xml">
+<script src="/js/jquery.hotkeys-0.7.8-packed.js" type="text/javascript"></script>
+<script type="text/javascript">
+  <!--
+  $(document).bind('keydown', 'Ctrl+left',function(){ jump(document.getElementById ('PrevLink')) });
+  $(document).bind('keydown', 'Ctrl+right',function(){ jump(document.getElementById ('NextLink')) });
+  -->
+</script>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 <div class=messages>
 

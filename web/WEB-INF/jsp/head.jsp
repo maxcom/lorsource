@@ -22,8 +22,11 @@
 <%@ page import="org.apache.commons.lang.StringUtils" %>
 <%@ page import="ru.org.linux.boxlet.BoxletVectorRunner" %>
 <%@ page import="ru.org.linux.site.*" %>
+<%@ page import="ru.org.linux.spring.AddMessageForm" %>
 <%@ page import="ru.org.linux.storage.StorageNotFoundException" %>
 <%@ page import="ru.org.linux.util.*" %>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
 <html lang=ru>
 <head>
+<script src="/js/jquery-1.2.6.min.js" type="text/javascript"></script>
+
