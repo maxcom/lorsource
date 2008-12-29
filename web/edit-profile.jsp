@@ -6,7 +6,6 @@
 <%@ page import="ru.org.linux.boxlet.BoxletVectorRunner" %>
 <%@ page import="ru.org.linux.site.*" %>
 <%@ page import="ru.org.linux.util.ProfileHashtable" %>
-<%@ page import="ru.org.linux.util.ServletParameterParser" %>
 <%@ page import="ru.org.linux.util.StringUtil" %>
 <% Template tmpl = Template.getTemplate(request); %>
 <jsp:include page="WEB-INF/jsp/head.jsp"/>
@@ -30,42 +29,17 @@
 <h1>Настройки профиля</h1>
 
 <%
-   if (request.getParameter("mode")==null) {
-	if (tmpl.isUsingDefaultProfile())
-		out.print("Используется профиль по умолчанию");
-	else
-		out.print("Используется профиль: <i>" + tmpl.getProfileName()+"</i>");
+  if (request.getParameter("mode") == null) {
+    if (!tmpl.isSessionAuthorized()) {
+      throw new AccessViolationException("Not authorized");
+    }
 
-%>
-<%
-  if (!Template.isSessionAuthorized(session)) {
-%>
+    if (tmpl.isUsingDefaultProfile()) {
+      out.print("Используется профиль по умолчанию");
+    } else {
+      out.print("Используется профиль: <i>" + tmpl.getProfileName() + "</i>");
+    }
 
-<h2>Коротко о...</h2>
-<ol>
-<li>Профиль содержит различные настройки отображения сайта и хранится у нас
-на сервере
-<li>Настройки профиля ассоциируются с регистрационным именем пользователя
-(если вы еще не зарегистрировались у нас на сайте - вам <a href="register.jsp">сюда</a>).
-<li>Информация о наличие профиля запоминается в Cookie, при смене броузера
-или местоположения вы можете востановить свой профиль без полной перенастройки.
-<li>Использовать ваш профиль могут любые посетители сайта, но модифицировать его
-можете только вы.
-</ol>
-
-<h2>Установить профиль</h2>
-Востановить профиль при смене местоположения или выбрать другой (существующий)
-профиль:
-<form method=POST action="edit-profile.jsp">
-<input type=hidden name=mode value=setup>
-Профиль:
-<input type=text name=profile><br>
-Ваш nick совпадает с именем выбранного профиля?
-<input type=checkbox name=setnick><br>
-<input type=submit value="Setup/Установить">
-</form>
-<%
-  }
 %>
 
 <h2>Параметры профиля</h2>
@@ -117,15 +91,6 @@
     <input type=radio name=format_mode value=pre    <%= "pre".equals(formatMode)?"checked":"" %>> Preformatted text <br>
   </td>
 </tr>
-
-<% if (!Template.isSessionAuthorized(session)) { %>
-
-<tr><td colspan=2><hr></td></tr>
-<tr><td>Профиль (имя пользователя)</td><td>
-<input type=text name=profile value=""></td></tr>
-<tr><td>Пароль</td><td>
-<input type=password name=password></td></tr>
-<% } %>
 
 </table>
 
