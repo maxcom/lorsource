@@ -55,63 +55,26 @@ public class BBCodeProcessor implements Serializable {
 //      new SimpleRegexTag("email", "\\[email\\](.*?)\\[/email\\]", "<a href='mailto:$1'>$1</a>", true)
     };
 
-  /** */
-  private boolean acceptHTML = false;
-
-  /** */
-  private boolean acceptBBCode = true;
-
-  /**
-   * @return acceptBBCode
-   */
-  public boolean isAcceptBBCode() {
-    return acceptBBCode;
-  }
-
-  /**
-   * @param acceptBBCode the new acceptBBCode value
-   */
-  public void setAcceptBBCode(boolean acceptBBCode) {
-    this.acceptBBCode = acceptBBCode;
-  }
-
-  /**
-   * @return htmlAccepted
-   */
-  public boolean isAcceptHTML() {
-    return acceptHTML;
-  }
-
-  /**
-   * @param acceptHTML the new acceptHTML value
-   */
-  public void setAcceptHTML(boolean acceptHTML) {
-    this.acceptHTML = acceptHTML;
-  }
 
   /**
    * @param texto
    * @return TODO unuseful parameters.
    */
   public String preparePostText(Connection db, String texto) throws SQLException {
-    if (!isAcceptHTML()) {
-      texto = HTMLFormatter.htmlSpecialChars(texto);
-    }
-    if (isAcceptBBCode()) {
-      texto = process(db, texto);
-    }
-    return texto;
+    texto = HTMLFormatter.htmlSpecialChars(texto);
+
+    return process(db, texto).toString();
   }
 
   /**
    * @param string
    * @return HTML-formated message
    */
-  private String process(Connection db, String string) throws SQLException {
+  private static CharSequence process(Connection db, String string) throws SQLException {
     StringBuffer buffer = new StringBuffer(string);
     new CodeTag().processContent(buffer);
 
-    processNestedTags(buffer,
+    CharSequence data = processNestedTags(buffer,
         "quote",
         "<div class=\"quote\"><h3>{BBCODE_PARAM}</h3>",
         "</div>",
@@ -122,7 +85,7 @@ public class BBCodeProcessor implements Serializable {
         true,
         true);
 
-    processNestedTags(buffer,
+    data = processNestedTags(data,
         "list",
         "<ol type=\"{BBCODE_PARAM}\">",
         "</ol>",
@@ -133,21 +96,18 @@ public class BBCodeProcessor implements Serializable {
         true,
         true);
 
-    StringBuffer sb1 = buffer;
-    StringBuffer sb2 = new StringBuffer((int) (buffer.length() * 1.5));
-
     for (RegexTag tag : REGEX_TAGS) {
-      tag.substitute(db, sb1, sb2, tag, tag.getReplacement());
-      StringBuffer temp = sb1;
-      sb1 = sb2;
-      sb2 = temp;
+      StringBuffer sb2 = new StringBuffer((int) (buffer.length() * 1.5));
+
+      tag.substitute(db, data, sb2, tag, tag.getReplacement());
+      data = sb2;
     }
 
-    return sb1.toString();
+    return data;
   }
 
   /**
-   * @param buffer
+   * @param input
    * @param tagName
    * @param openSubstWithParam
    * @param closeSubstWithParam
@@ -158,8 +118,8 @@ public class BBCodeProcessor implements Serializable {
    * @param acceptParam
    * @param requiresQuotedParam
    */
-  private static void processNestedTags(
-      StringBuffer buffer,
+  private static CharSequence processNestedTags(
+      CharSequence input,
       String tagName,
       String openSubstWithParam,
       String closeSubstWithParam,
@@ -169,12 +129,10 @@ public class BBCodeProcessor implements Serializable {
       boolean processInternalTags,
       boolean acceptParam,
       boolean requiresQuotedParam) {
-    String str = buffer.toString();
-
-    Stack<MutableCharSequence> openStack = new Stack<MutableCharSequence>();
-    Set<MutableCharSequence> subsOpen = new HashSet<MutableCharSequence>();
-    Set<MutableCharSequence> subsClose = new HashSet<MutableCharSequence>();
-    Set<MutableCharSequence> subsInternal = new HashSet<MutableCharSequence>();
+    Stack<BBChunk> openStack = new Stack<BBChunk>();
+    Set<BBChunk> subsOpen = new HashSet<BBChunk>();
+    Set<BBChunk> subsClose = new HashSet<BBChunk>();
+    Set<BBChunk> subsInternal = new HashSet<BBChunk>();
 
     String openTag = CR_LF + "\\["
         + tagName
@@ -183,35 +141,36 @@ public class BBCodeProcessor implements Serializable {
         + CR_LF;
     String closeTag = CR_LF + "\\[/" + tagName + "\\]" + CR_LF;
 
-    String patternString = "(" + openTag + ")|(" + closeTag + ")";
+    String patternString = '(' + openTag + ")|(" + closeTag + ')';
 
     if (processInternalTags) {
-      String internTag = CR_LF + "\\[\\*\\]" + CR_LF;patternString += "|(" + internTag + ")";
+      String internTag = CR_LF + "\\[\\*\\]" + CR_LF;
+      patternString += "|(" + internTag + ')';
     }
 
     Pattern tagsPattern = Pattern.compile(patternString);
-    Matcher matcher = tagsPattern.matcher(str);
+    Matcher matcher = tagsPattern.matcher(input);
 
-    int openTagGroup;
     int paramGroup;
     int closeTagGroup;
     int internalTagGroup;
 
     if (acceptParam) {
-      openTagGroup = 1;
       paramGroup = 2;
       closeTagGroup = 3;
       internalTagGroup = 4;
     } else {
-      openTagGroup = 1;
       paramGroup = -1; // INFO
       closeTagGroup = 2;
       internalTagGroup = 3;
     }
 
+    int openTagGroup = 1;
+    String str = input.toString();
+
     while (matcher.find()) {
       int length = matcher.end() - matcher.start();
-      MutableCharSequence matchedSeq = new MutableCharSequence(str, matcher.start(), length);
+      BBChunk matchedSeq = new BBChunk(matcher.start(), length);
 
       // test opening tags
       if (matcher.group(openTagGroup) != null) {
@@ -223,7 +182,7 @@ public class BBCodeProcessor implements Serializable {
 
         // test closing tags
       } else if ((matcher.group(closeTagGroup) != null) && !openStack.isEmpty()) {
-        MutableCharSequence openSeq = openStack.pop();
+        BBChunk openSeq = openStack.pop();
 
         if (acceptParam) {
           matchedSeq.param = openSeq.param;
@@ -236,48 +195,52 @@ public class BBCodeProcessor implements Serializable {
       } else if (processInternalTags && (matcher.group(internalTagGroup) != null)
           && (!openStack.isEmpty())) {
         subsInternal.add(matchedSeq);
-      } else {
-        // assert (false);
       }
     }
 
-    LinkedList<MutableCharSequence> subst = new LinkedList<MutableCharSequence>();
+    List<BBChunk> subst = new LinkedList<BBChunk>();
     subst.addAll(subsOpen);
     subst.addAll(subsClose);
     subst.addAll(subsInternal);
 
-    Collections.sort(subst, new Comparator<MutableCharSequence>() {
-      public int compare(MutableCharSequence o1, MutableCharSequence o2) {
-        return -(o1.start - o2.start);
+    Collections.sort(subst, new Comparator<BBChunk>() {
+      public int compare(BBChunk o1, BBChunk o2) {
+        return (o1.start - o2.start);
       }
     });
 
-    buffer.delete(0, buffer.length());
+    StringBuffer output = new StringBuffer();
 
     int start = 0;
+    boolean textAllowed = true;
 
-    while (!subst.isEmpty()) {
-      MutableCharSequence seq = subst.removeLast();
-      buffer.append(str.substring(start, seq.start));
+    for (BBChunk seq : subst) {
+      if (textAllowed) {
+        output.append(str.substring(start, seq.start));
+      }
 
       if (subsClose.contains(seq)) {
+        textAllowed = true;
+
         if (seq.param != null) {
-          buffer.append(closeSubstWithParam);
+          output.append(closeSubstWithParam);
         } else {
-          buffer.append(closeSubstWithoutParam);
+          output.append(closeSubstWithoutParam);
         }
       } else if (subsInternal.contains(seq)) {
-        buffer.append(internalSubst);
+        textAllowed = true;
+        output.append(internalSubst);
       } else if (subsOpen.contains(seq)) {
+        textAllowed = !processInternalTags;
+
         Matcher m = Pattern.compile(openTag).matcher(str.substring(seq.start,
             seq.start + seq.length));
 
         if (m.matches()) {
           if (acceptParam && (seq.param != null)) {
-            buffer.append( //
-                openSubstWithParam.replaceAll("\\{BBCODE_PARAM\\}", seq.param));
+            output.append(openSubstWithParam.replaceAll("\\{BBCODE_PARAM\\}", seq.param));
           } else {
-            buffer.append(openSubstWithoutParam);
+            output.append(openSubstWithoutParam);
           }
         }
       }
@@ -285,85 +248,23 @@ public class BBCodeProcessor implements Serializable {
       start = seq.start + seq.length;
     }
 
-    buffer.append(str.substring(start));
+    output.append(str.substring(start));
+
+    return output;
   }
 
-  private static class MutableCharSequence implements CharSequence {
-    /** */
-    public CharSequence base;
-
-    /** */
-    public int start;
-
-    /** */
-    public int length;
-
-    /** */
+  private static class BBChunk {
+    private final int start;
+    private final int length;
     private String param = null;
 
-    /**
-     */
-    public MutableCharSequence() {
-      //
+    public BBChunk(int start, int length) {
+      this.start = start;
+      this.length = length;
     }
 
-    /**
-     * @param base
-     * @param start
-     * @param length
-     */
-    public MutableCharSequence(CharSequence base, int start, int length) {
-      reset(base, start, length);
-    }
-
-    /**
-     * @see CharSequence#length()
-     */
     public int length() {
       return length;
     }
-
-    /**
-     * @see CharSequence#charAt(int)
-     */
-    public char charAt(int index) {
-      return base.charAt(start + index);
-    }
-
-    /**
-     * @see CharSequence#subSequence(int, int)
-     */
-    public CharSequence subSequence(int pStart, int end) {
-      return new MutableCharSequence(base,
-          start + pStart,
-          start + (end - pStart));
-    }
-
-    /**
-     * @param pBase
-     * @param pStart
-     * @param pLength
-     * @return -
-     */
-    public void reset(CharSequence pBase, int pStart, int pLength) {
-      base = pBase;
-      start = pStart;
-      length = pLength;
-    }
-
-    /**
-     * @see Object#toString()
-     */
-    @Override
-    public String toString() {
-      StringBuffer sb = new StringBuffer();
-
-      for (int i = start; i < (start + length); i++) {
-        sb.append(base.charAt(i));
-      }
-
-      return sb.toString();
-    }
-
   }
 }

