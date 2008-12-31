@@ -84,10 +84,6 @@ H1 {
   text-align: center; margin-bottom: 1em;
 }
 
-form>.nav {
-  margin-bottom: 0;
-}
-
 table.nav {
   width: 100%;
   border-collapse: collapse;
@@ -162,7 +158,7 @@ div.code {
 }
 
 pre {
-    white-space: pre-wrap; /* Последние Opera, Firefox, Safari, Chrome*/
-    white-space: -o-pre-wrap; /* Старая Opera (8?) */
+    white-space: pre-wrap; /* О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ Opera, Firefox, Safari, Chrome*/
+    white-space: -o-pre-wrap; /* О©╫О©╫О©╫О©╫О©╫О©╫ Opera (8?) */
     word-wrap: break-word; /* IE 5.5+ */
 }
