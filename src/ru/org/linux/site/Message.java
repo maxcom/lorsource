@@ -2,7 +2,8 @@ package ru.org.linux.site;
 
 import java.io.IOException;
 import java.sql.*;
-import java.util.logging.Logger;import java.util.Date;
+import java.util.Date;
+import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 import org.javabb.bbcode.BBCodeProcessor;
@@ -449,8 +450,10 @@ public class Message {
       throw new AccessViolationException("группа уже устарела");
     }
 
-    if (postscore != 0) {
-      if (user.getScore() < postscore || user.isAnonymous() || (postscore == -1 && !user.canModerate())) {
+    int score = getPostScore();
+
+    if (score != 0) {
+      if (user.getScore() < score || user.isAnonymous() || (score == -1 && !user.canModerate())) {
         throw new AccessViolationException("Вы не можете добавлять комментарии в эту тему");
       }
     }
