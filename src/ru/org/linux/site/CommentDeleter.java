@@ -34,7 +34,7 @@ public class CommentDeleter {
     deleteComment.setInt(1, msgid);
     insertDelinfo.setInt(1, msgid);
     insertDelinfo.setInt(2, user.getId());
-    insertDelinfo.setString(3, reason);
+    insertDelinfo.setString(3, reason+" ("+scoreBonus+')');
 
     updateScore.setInt(1, scoreBonus);
     updateScore.setInt(2, msgid);
