@@ -1,7 +1,6 @@
 User-agent: *
 Disallow: /commit.jsp
 Disallow: /view-all.jsp
-Disallow: /view-group.jsp
 Disallow: /group-lastmod.jsp
 Disallow: /delete.jsp
 Disallow: /add.jsp
@@ -9,13 +8,10 @@ Disallow: /add2.jsp
 Disallow: /search.jsp
 Disallow: /register.jsp
 Disallow: /lostpwd.jsp
-Disallow: /addphoto.php3
 Disallow: /login.jsp
 Disallow: /logout.jsp
 Disallow: /edit-boxes.jsp
 Disallow: /add_comment.jsp
-Disallow: /whois.jsp
-Disallow: /profile/
 Disallow: /comment-message.jsp
 Disallow: /show-comments.jsp
 Disallow: /show-topics.jsp
