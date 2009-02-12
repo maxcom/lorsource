@@ -121,6 +121,10 @@ public class User implements Serializable {
     }
   }
 
+  public boolean matchPassword(String password) {
+    return password.equals(this.password);
+  }
+
   public void checkAnonymous() throws AccessViolationException {
     if (anonymous || blocked) {
       throw new AccessViolationException("Anonymous user");
@@ -181,7 +185,7 @@ public class User implements Serializable {
   }
 
   public int getScore() {
-    if (isAnonymous()) {
+    if (anonymous) {
       return 0;
     } else {
       return score;
@@ -189,7 +193,7 @@ public class User implements Serializable {
   }
 
   public int getMaxScore() {
-    if (isAnonymous()) {
+    if (anonymous) {
       return 0;
     } else {
       return maxScore;
@@ -273,7 +277,7 @@ public class User implements Serializable {
   public String getCommitInfoLine(Timestamp postdate, Timestamp commitDate) {
     StringBuilder out = new StringBuilder();
 
-    out.append("<i>Проверено: ").append(getNick()).append(" (<a href=\"whois.jsp?nick=").append(URLEncoder.encode(getNick())).append("\">*</a>)");
+    out.append("<i>Проверено: ").append(nick).append(" (<a href=\"whois.jsp?nick=").append(URLEncoder.encode(nick)).append("\">*</a>)");
     if (commitDate!=null && !commitDate.equals(postdate)) {
       out.append(' ').append(Template.dateFormat.format(commitDate));
     }
@@ -325,7 +329,7 @@ public class User implements Serializable {
       PreparedStatement st1 = db.prepareStatement("UPDATE topics SET deleted='t',sticky='f' WHERE id=?");
       PreparedStatement st2 = db.prepareStatement("INSERT INTO del_info (msgid, delby, reason) values(?,?,?)");
       lock.setInt(1, id);
-      st2.setInt(2,moderator.getId());
+      st2.setInt(2, moderator.id);
       st2.setString(3,"Автоматически: удаление всех коментариев");
       ResultSet lockResult = lock.executeQuery(); // lock another delete on this row
       while (lockResult.next()) {
@@ -379,7 +383,7 @@ public class User implements Serializable {
 
     User user = new User(con, name);
 
-    String shortCacheId = "User?id="+user.getId();
+    String shortCacheId = "User?id="+ user.id;
 
     String cacheId = MemCachedSettings.getId(shortCacheId);
 
@@ -420,13 +424,13 @@ public class User implements Serializable {
   public String getSignature(boolean moderatorMode, Timestamp postdate) {
     StringBuilder out = new StringBuilder();
 
-    if (isBlocked()) {
+    if (blocked) {
       out.append("<s>");
     }
 
     out.append(nick);
 
-    if (isBlocked()) {
+    if (blocked) {
       out.append("</s>");
     }
 
@@ -445,7 +449,7 @@ public class User implements Serializable {
   }
 
   public boolean isAnonymousScore() {
-    return isAnonymous() || isBlocked() || score<ANONYMOUS_LEVEL_SCORE;
+    return anonymous || blocked || score<ANONYMOUS_LEVEL_SCORE;
   }
 
   public void acegiSecurityHack(HttpServletResponse response, HttpSession session) {

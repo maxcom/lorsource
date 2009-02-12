@@ -15,11 +15,7 @@
           <setting name="EXPLODED_ENABLED" value="true" />
           <setting name="JAR_URL" value="file://$MODULE_DIR$/lnxorg.war" />
           <setting name="JAR_ENABLED" value="false" />
-          <setting name="BUILD_MODULE_ON_FRAME_DEACTIVATION" value="false" />
-          <setting name="BUILD_EXTERNAL_DEPENDENCIES" value="false" />
           <setting name="EXCLUDE_EXPLODED_DIRECTORY" value="true" />
-          <setting name="RUN_JASPER_VALIDATION" value="true" />
-          <setting name="BUILD_ONLY_WEB_RESOURCES" value="false" />
         </building>
         <packaging>
           <containerElement type="module" name="lnxorg">
@@ -76,33 +72,28 @@
           </containerElement>
           <containerElement type="library" level="module">
             <attribute name="method" value="1" />
-            <attribute name="URI" value="/WEB-INF/lib/commons-collections-2.1.1.jar" />
+            <attribute name="URI" value="/WEB-INF/lib" />
             <url>jar://$MODULE_DIR$/lib/commons-collections-2.1.1.jar!/</url>
           </containerElement>
           <containerElement type="library" level="module">
             <attribute name="method" value="1" />
-            <attribute name="URI" value="/WEB-INF/lib/commons-logging-1.0.4.jar" />
+            <attribute name="URI" value="/WEB-INF/lib" />
             <url>jar://$MODULE_DIR$/lib/commons-logging-1.0.4.jar!/</url>
           </containerElement>
           <containerElement type="library" level="module">
             <attribute name="method" value="1" />
-            <attribute name="URI" value="/WEB-INF/lib/dnsjava-2.0.3.jar" />
+            <attribute name="URI" value="/WEB-INF/lib" />
             <url>jar://$MODULE_DIR$/lib/dnsjava-2.0.3.jar!/</url>
           </containerElement>
           <containerElement type="library" level="module">
             <attribute name="method" value="1" />
-            <attribute name="URI" value="/WEB-INF/lib/ehcache-1.2.jar" />
+            <attribute name="URI" value="/WEB-INF/lib" />
             <url>jar://$MODULE_DIR$/lib/ehcache-1.2.jar!/</url>
           </containerElement>
           <containerElement type="library" level="module">
             <attribute name="method" value="1" />
-            <attribute name="URI" value="/WEB-INF/lib/gnu-regexp-1.0.8.jar" />
+            <attribute name="URI" value="/WEB-INF/lib" />
             <url>jar://$MODULE_DIR$/lib/gnu-regexp-1.0.8.jar!/</url>
-          </containerElement>
-          <containerElement type="library" level="module">
-            <attribute name="method" value="1" />
-            <attribute name="URI" value="/WEB-INF/lib/java_memcached-1.6maxcom.jar" />
-            <url>jar://$MODULE_DIR$/lib/java_memcached-1.6maxcom.jar!/</url>
           </containerElement>
           <containerElement type="library" level="module">
             <attribute name="method" value="0" />
@@ -126,30 +117,28 @@
           </containerElement>
           <containerElement type="library" level="module">
             <attribute name="method" value="1" />
-            <attribute name="URI" value="/WEB-INF/lib/postgresql-jdbc-8.2.504.jar" />
+            <attribute name="URI" value="/WEB-INF/lib" />
             <url>jar://$MODULE_DIR$/lib/postgresql-jdbc-8.2.504.jar!/</url>
           </containerElement>
           <containerElement type="library" level="module">
             <attribute name="method" value="1" />
-            <attribute name="URI" value="/WEB-INF/lib/urlrewrite-2.6.0.jar" />
+            <attribute name="URI" value="/WEB-INF/lib" />
             <url>jar://$MODULE_DIR$/lib/urlrewrite-2.6.0.jar!/</url>
           </containerElement>
           <containerElement type="library" level="module">
             <attribute name="method" value="1" />
-            <attribute name="URI" value="/WEB-INF/lib/xercesImpl.jar" />
+            <attribute name="URI" value="/WEB-INF/lib" />
             <url>jar://$MODULE_DIR$/lib/xercesImpl.jar!/</url>
+          </containerElement>
+          <containerElement type="library" name="junit" level="project">
+            <attribute name="method" value="1" />
+            <attribute name="URI" value="/WEB-INF/lib" />
           </containerElement>
         </packaging>
       </configuration>
     </facet>
     <facet type="Spring" name="Spring">
-      <configuration>
-        <options>
-          <option name="enableValidation" value="true" />
-          <option name="reportErrorsAsWarnings" value="true" />
-        </options>
-        <customNs />
-      </configuration>
+      <configuration />
     </facet>
   </component>
   <component name="NewModuleRootManager" inherit-compiler-output="false">
@@ -289,7 +278,7 @@
       </library>
     </orderEntry>
     <orderEntry type="library" name="memcached" level="project" />
-    <orderEntryProperties />
+    <orderEntry type="library" name="junit" level="project" />
   </component>
 </module>
 
