@@ -41,13 +41,13 @@
 <% if (error==null) { %>
 <h1>Добавить</h1>
 <% } else { out.println("<h1>Ошибка: "+error.getMessage()+"</h1>"); } %>
-<% if (tmpl.getProf().getBoolean("showinfo") && !Template.isSessionAuthorized(session)) { %>
-<font size=2>Чтобы просто поместить сообщение, используйте login `anonymous',
-без пароля. Если вы собираетесь активно участвовать в форуме,
-помещать новости на главную страницу,
-<a href="register.jsp">зарегистрируйтесь</a></font>.
-<p>
-<% } %>
+<%--<% if (tmpl.getProf().getBoolean("showinfo") && !Template.isSessionAuthorized(session)) { %>--%>
+<%--<font size=2>Чтобы просто поместить сообщение, используйте login `anonymous',--%>
+<%--без пароля. Если вы собираетесь активно участвовать в форуме,--%>
+<%--помещать новости на главную страницу,--%>
+<%--<a href="register.jsp">зарегистрируйтесь</a></font>.--%>
+<%--<p>--%>
+<%--<% } %>--%>
 
 <% if (group.isImagePostAllowed()) { %>
 <p>
