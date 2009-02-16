@@ -290,7 +290,7 @@ if (showform) { // show form
   }
 
   if (request.getParameter("title") != null) {
-    title = request.getParameter("title");
+    title = HTMLFormatter.htmlSpecialChars(request.getParameter("title"));
   }
 
   if (preview && comment!=null) {
@@ -300,18 +300,9 @@ if (showform) { // show form
     out.print(view.printMessage(comment, tmpl, db, null, false, tmpl.isModeratorSession(), Template.getNick(session), false));
     out.print("</div>");
   }
-
-  if (request.getParameter("replyto") != null) {
 %>
 Заглавие:
 <input type=text name=title size=40 value="<%= title %>"><br>
-<% } else if (request.getParameter("title")==null) {%>
-Заглавие:
-<input type=text name=title size=40><br>
-<% } else { %>
-Заглавие:
-<input type=text name=title size=40 value="<%= HTMLFormatter.htmlSpecialChars(request.getParameter("title")) %>"><br>
-<% } %>
 
 Сообщение:<br>
 <font size=2>(В режиме <i>Tex paragraphs</i> игнорируются переносы строк.<br> Пустая строка (два раза Enter) начинает новый абзац.<br> Знак '&gt;' в начале абзаца выделяет абзац курсивом цитирования)</font><br>
