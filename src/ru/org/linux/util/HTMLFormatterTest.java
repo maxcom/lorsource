@@ -32,6 +32,9 @@ public class HTMLFormatterTest extends TestCase {
   private static final String QUOTING3 = "> 1\n2\n\n3";
   private static final String RESULT_QUOTING3 = "<i>&gt; 1\n2\n</i><p>\n3";
 
+  private static final String TEXT9 = "(http://ru.wikipedia.org/wiki/Blah_(blah))";
+  private static final String RESULT9 = "(<a href=\"http://ru.wikipedia.org/wiki/Blah_(blah)\">http://ru.wikipedia.org/wiki/Blah_(blah)</a>)";
+
   public void testURLHighlight() throws UtilException {
     HTMLFormatter formatter = new HTMLFormatter(TEXT1);
 
@@ -64,6 +67,14 @@ public class HTMLFormatterTest extends TestCase {
     formatter.setMaxLength(20);
 
     assertEquals(formatter.process(), RESULT8);
+  }
+
+  public void testURLHighlight5() throws UtilException {
+    HTMLFormatter formatter = new HTMLFormatter(TEXT9);
+
+    formatter.enableUrlHighLightMode();
+
+    assertEquals(formatter.process(), RESULT9);
   }
 
   public void testWrap1() throws UtilException {

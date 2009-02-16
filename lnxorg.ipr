@@ -462,6 +462,24 @@
         <inspection_tool class="IfStatementWithTooManyBranches" level="WARNING" enabled="true">
           <option name="m_limit" value="3" />
         </inspection_tool>
+        <inspection_tool class="JUnit4AnnotatedMethodInJUnit3TestCase" level="WARNING" enabled="true" />
+        <inspection_tool class="TestMethodInProductCode" level="WARNING" enabled="true" />
+        <inspection_tool class="TestMethodWithoutAssertion" level="WARNING" enabled="true" />
+        <inspection_tool class="TestCaseInProductCode" level="WARNING" enabled="true" />
+        <inspection_tool class="TestCaseWithConstructor" level="WARNING" enabled="true" />
+        <inspection_tool class="BeforeOrAfterIsPublicVoidNoArg" level="WARNING" enabled="true" />
+        <inspection_tool class="BeforeClassOrAfterClassIsPublicStaticVoidNoArg" level="WARNING" enabled="true" />
+        <inspection_tool class="AssertsWithoutMessages" level="WARNING" enabled="true" />
+        <inspection_tool class="SetupCallsSuperSetup" level="WARNING" enabled="true" />
+        <inspection_tool class="MisspelledSetUp" level="WARNING" enabled="true" />
+        <inspection_tool class="SetupIsPublicVoidNoArg" level="WARNING" enabled="true" />
+        <inspection_tool class="SimplifiableJUnitAssertion" level="WARNING" enabled="true" />
+        <inspection_tool class="StaticSuite" level="WARNING" enabled="true" />
+        <inspection_tool class="TeardownCallsSuperTeardown" level="WARNING" enabled="true" />
+        <inspection_tool class="MisspelledTearDown" level="WARNING" enabled="true" />
+        <inspection_tool class="TeardownIsPublicVoidNoArg" level="WARNING" enabled="true" />
+        <inspection_tool class="TestMethodIsPublicVoidNoArg" level="WARNING" enabled="true" />
+        <inspection_tool class="UnconstructableTestCase" level="WARNING" enabled="true" />
       </profile>
     </profiles>
     <list size="4">
