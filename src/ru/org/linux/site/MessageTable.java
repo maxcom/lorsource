@@ -100,7 +100,7 @@ public class MessageTable {
         "SELECT topics.title as subj, topics.lastmod, topics.stat1, postdate, userid, image, " +
             "groups.title as gtitle, topics.id as msgid, sections.comment, sections.vote, " +
             "groups.id as guid, topics.url, topics.linktext, imagepost, linkup, " +
-            "postdate<(CURRENT_TIMESTAMP-expire) as expired, message, bbcode " +
+            "postdate<(CURRENT_TIMESTAMP-expire) as expired, message, bbcode, commitdate " +
             "FROM topics,groups, sections, msgbase " +
             "WHERE sections.id=groups.section AND topics.id=msgbase.id " +
             "AND sections.id=" + sectionid + " AND (topics.moderate OR NOT sections.moderate) " +
@@ -125,7 +125,13 @@ public class MessageTable {
       out.append("  <link>http://www.linux.org.ru/view-message.jsp?msgid=").append(msgid).append("</link>\n");
       out.append("  <guid>http://www.linux.org.ru/view-message.jsp?msgid=").append(msgid).append("</guid>\n");
       out.append("  <title>").append(HTMLFormatter.htmlSpecialChars(subj)).append("</title>\n");
-      out.append("  <pubDate>").append(Template.RFC822.format(rs.getTimestamp("postdate"))).append("</pubDate>\n");
+      Timestamp postdate = rs.getTimestamp("postdate");
+      Timestamp commitdate = rs.getTimestamp("commitdate");
+      if (commitdate!=null) {
+        out.append("  <pubDate>").append(Template.RFC822.format(commitdate)).append("</pubDate>\n");
+      } else {
+        out.append("  <pubDate>").append(Template.RFC822.format(postdate)).append("</pubDate>\n");
+      }
 
       out.append("  <description>\n" + '\t');
 
