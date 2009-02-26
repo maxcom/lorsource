@@ -171,7 +171,7 @@
   if (month != 0) {
     nw.setDatelimit("postdate>='" + year + '-' + month + "-01'::timestamp AND (postdate<'" + year + '-' + month + "-01'::timestamp+'1 month'::interval)");
   } else if (tag==null) {
-    nw.setDatelimit("commitdate>(CURRENT_TIMESTAMP-'3 month'::interval)");
+    nw.setDatelimit("commitdate>(CURRENT_TIMESTAMP-'6 month'::interval)");
     nw.setLimit("LIMIT 20" + (offset > 0 ? (" OFFSET " + offset) : ""));
   } else {
     nw.setLimit("LIMIT 20" + (offset > 0 ? (" OFFSET " + offset) : ""));
