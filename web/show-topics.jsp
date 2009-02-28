@@ -1,8 +1,12 @@
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="java.sql.Connection,java.sql.ResultSet,java.sql.Statement,ru.org.linux.site.LorDataSource"   buffer="60kb" %>
-<%@ page import="ru.org.linux.site.MissingParameterException"%>
-<%@ page import="ru.org.linux.site.Template"%>
-<%@ page import="ru.org.linux.site.User"%>
+<%@ page import="java.io.IOException,java.net.URLEncoder,java.sql.*,java.util.Date"   buffer="60kb" %>
+<%@ page import="java.util.List"%>
+<%@ page import="java.util.Map"%>
+<%@ page import="ru.org.linux.boxlet.BoxletVectorRunner"%>
+<%@ page import="ru.org.linux.site.*" %>
+<%@ page import="ru.org.linux.util.BadImageException" %>
+<%@ page import="ru.org.linux.util.HTMLFormatter" %>
+<%@ page import="ru.org.linux.util.ImageInfo" %>
 <%@ page import="ru.org.linux.util.StringUtil" %>
 <% Template tmpl = Template.getTemplate(request); %>
 <jsp:include page="WEB-INF/jsp/head.jsp"/>
@@ -79,7 +83,7 @@
 	rs=st.executeQuery("SELECT sections.name as ptitle, groups.title as gtitle, topics.title as title, topics.id as msgid, postdate, lastmod FROM topics, groups, sections, users WHERE topics.groupid=groups.id AND sections.id=groups.section AND users.id=topics.userid AND users.id="+user.getId()+" AND NOT deleted ORDER BY msgid ASC LIMIT " + topics + " OFFSET " + offset);  
   }
   while (rs.next()) {
-    out.print("<tr><td>" + rs.getString("ptitle") + "</td><td>" + rs.getString("gtitle") + "</td><td><a href=\"view-message.jsp?msgid=" + rs.getInt("msgid") + "\" rev=contents>" + StringUtil.makeTitle(rs.getString("title")) + "</a></td><td>" + Template.dateFormat.format(rs.getTimestamp("postdate")) + "</td><td>" + Template.dateFormat.format(rs.getTimestamp("lastmod")) + "</td></tr>");
+    out.print("<tr><td>" + rs.getString("ptitle") + "</td><td>" + rs.getString("gtitle") + "</td><td><a href=\"view-message.jsp?msgid=" + rs.getInt("msgid") + "\" rev=contents>" + StringUtil.makeTitle(rs.getString("title")) + "</a></td><td>" + tmpl.dateFormat.format(rs.getTimestamp("postdate")) + "</td><td>" + tmpl.dateFormat.format(rs.getTimestamp("lastmod")) + "</td></tr>");
   }
 
   rs.close();

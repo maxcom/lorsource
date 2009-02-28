@@ -91,9 +91,9 @@
    if (fullname!=null) if (!"".equals(fullname)) out.println("<b>Полное имя:</b> "+fullname+"<br>");
    if (url!=null) if (!"".equals(url)) out.println("<b>URL:</b> <a href=\""+url+"\">"+url+"</a><br>");
    if (town!=null) if (!"".equals(town)) out.println("<b>Город:</b> "+town+"<br>");
-   if (regdate!=null) out.println("<b>Дата регистрации:</b> "+Template.dateFormat.format(regdate)+"<br>");
+   if (regdate!=null) out.println("<b>Дата регистрации:</b> "+tmpl.dateFormat.format(regdate)+"<br>");
    else out.println("<b>Дата регистрации:</b> неизвестно<br>");
-   if (lastlogin!=null) out.println("<b>Последний логин:</b> "+Template.dateFormat.format(lastlogin)+"<br>");
+   if (lastlogin!=null) out.println("<b>Последний логин:</b> "+tmpl.dateFormat.format(lastlogin)+"<br>");
    else out.println("<b>Последний логин:</b> неизвестно<br>");
 %>
 <b>Статус:</b> <%= user.getStatus() %><%
@@ -188,15 +188,15 @@
   Timestamp first = rs.getTimestamp("first");
   Timestamp last = rs.getTimestamp("last");
  %>
-<b>Первая созданная тема:</b> <%= first==null?"нет":Template.dateFormat.format(first) %><br>
-<b>Последняя созданная тема:</b> <%= last==null?"нет":Template.dateFormat.format(last) %><br>
+<b>Первая созданная тема:</b> <%= first==null?"нет":tmpl.dateFormat.format(first) %><br>
+<b>Последняя созданная тема:</b> <%= last==null?"нет":tmpl.dateFormat.format(last) %><br>
 <% rs.close(); %>
 <% rs=stat4.executeQuery(); rs.next();
   Timestamp firstComment = rs.getTimestamp("first");
   Timestamp lastComment = rs.getTimestamp("last");
 %>
-<b>Первый комментарий:</b> <%= firstComment==null?"нет":Template.dateFormat.format(firstComment) %><br>
-<b>Последний комментарий:</b> <%= lastComment==null?"нет":Template.dateFormat.format(lastComment) %>
+<b>Первый комментарий:</b> <%= firstComment==null?"нет":tmpl.dateFormat.format(firstComment) %><br>
+<b>Последний комментарий:</b> <%= lastComment==null?"нет":tmpl.dateFormat.format(lastComment) %>
 <% rs.close(); %>
 <p>
 <div class="forum">

@@ -11,6 +11,8 @@
     throw new IllegalAccessException("Not authorized");
   }
 
+  Template tmpl = Template.getTemplate(request);
+
 %>
 <title>Поиск писем с IP-адреса</title>
 <jsp:include page="WEB-INF/jsp/header.jsp"/>
@@ -89,14 +91,14 @@
     if (banDate == null) {
       out.print("адрес заблокирован постоянно");
     } else {
-      out.print("адрес заблокирован до " + Template.dateFormat.format(banDate));
+      out.print("адрес заблокирован до " + tmpl.dateFormat.format(banDate));
       if (!blockInfo.isBlocked()) {
         out.print(" (блокировка истекла)");
       }
     }
 
     out.print("<br><strong>Причина блокировки: </strong>" + HTMLFormatter.htmlSpecialChars(blockInfo.getReason()));
-    out.print("<br><strong>Дата блокировки: </strong>" + Template.dateFormat.format(blockInfo.getOriginalDate()));
+    out.print("<br><strong>Дата блокировки: </strong>" + tmpl.dateFormat.format(blockInfo.getOriginalDate()));
     out.print("<br><strong>Адрес блокирован: </strong>" + HTMLFormatter.htmlSpecialChars(moderator.getNick()));
   }
 %>
@@ -166,7 +168,7 @@ function checkCustomBan(idx) {
   Statement st=db.createStatement();
   ResultSet rs=st.executeQuery("SELECT sections.name as ptitle, groups.title as gtitle, topics.title as title, topics.id as msgid, postdate FROM topics, groups, sections, users WHERE topics.groupid=groups.id AND sections.id=groups.section AND users.id=topics.userid AND topics.postip='"+ip+"' AND postdate>CURRENT_TIMESTAMP-'3 days'::interval ORDER BY msgid DESC");
   while (rs.next()) {
-    out.print("<tr class=color2><td>" + rs.getString("ptitle") + "</td><td>" + rs.getString("gtitle") + "</td><td><a href=\"view-message.jsp?msgid=" + rs.getInt("msgid") + "\" rev=contents>" + StringUtil.makeTitle(rs.getString("title")) + "</a></td><td>" + Template.dateFormat.format(rs.getTimestamp("postdate")) + "</td></tr>");
+    out.print("<tr class=color2><td>" + rs.getString("ptitle") + "</td><td>" + rs.getString("gtitle") + "</td><td><a href=\"view-message.jsp?msgid=" + rs.getInt("msgid") + "\" rev=contents>" + StringUtil.makeTitle(rs.getString("title")) + "</a></td><td>" + tmpl.dateFormat.format(rs.getTimestamp("postdate")) + "</td></tr>");
   }
 
   rs.close();
@@ -190,7 +192,7 @@ function checkCustomBan(idx) {
   st=db.createStatement();
   rs=st.executeQuery("SELECT sections.name as ptitle, groups.title as gtitle, topics.title, topics.id as topicid, comments.id as msgid, comments.postdate FROM sections, groups, topics, comments WHERE sections.id=groups.section AND groups.id=topics.groupid AND comments.topic=topics.id AND comments.postip='"+ip+"' AND comments.postdate>CURRENT_TIMESTAMP-'24 hour'::interval ORDER BY postdate DESC;");
   while (rs.next()) {
-    out.print("<tr class=color2><td>" + rs.getString("ptitle") + "</td><td>" + rs.getString("gtitle") + "</td><td><a href=\"jump-message.jsp?msgid=" + rs.getInt("topicid") + "&amp;cid=" + rs.getInt("msgid") + "\" rev=contents>" + StringUtil.makeTitle(rs.getString("title")) + "</a></td><td>" + Template.dateFormat.format(rs.getTimestamp("postdate")) + "</td></tr>");
+    out.print("<tr class=color2><td>" + rs.getString("ptitle") + "</td><td>" + rs.getString("gtitle") + "</td><td><a href=\"jump-message.jsp?msgid=" + rs.getInt("topicid") + "&amp;cid=" + rs.getInt("msgid") + "\" rev=contents>" + StringUtil.makeTitle(rs.getString("title")) + "</a></td><td>" + tmpl.dateFormat.format(rs.getTimestamp("postdate")) + "</td></tr>");
   }
 
   rs.close();

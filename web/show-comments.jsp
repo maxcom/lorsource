@@ -122,7 +122,7 @@
   Statement st=db.createStatement();
   ResultSet rs=st.executeQuery("SELECT sections.name as ptitle, groups.title as gtitle, topics.title, topics.id as msgid, del_info.reason, comments.postdate FROM sections, groups, topics, comments, del_info WHERE sections.id=groups.section AND groups.id=topics.groupid AND comments.topic=topics.id AND del_info.msgid=comments.id AND comments.userid="+user.getId()+" AND del_info.delby!="+user.getId()+" ORDER BY del_info.msgid DESC LIMIT 20;");
   while (rs.next()) {
-    out.print("<tr><td>" + rs.getString("ptitle") + "</td><td>" + rs.getString("gtitle") + "</td><td><a href=\"view-message.jsp?msgid=" + rs.getInt("msgid") + "\" rev=contents>" + StringUtil.makeTitle(rs.getString("title")) + "</a></td><td>" + rs.getString("reason") + "</td><td>" + Template.dateFormat.format(rs.getTimestamp("postdate")) + "</td></tr>");
+    out.print("<tr><td>" + rs.getString("ptitle") + "</td><td>" + rs.getString("gtitle") + "</td><td><a href=\"view-message.jsp?msgid=" + rs.getInt("msgid") + "\" rev=contents>" + StringUtil.makeTitle(rs.getString("title")) + "</a></td><td>" + rs.getString("reason") + "</td><td>" + tmpl.dateFormat.format(rs.getTimestamp("postdate")) + "</td></tr>");
   }
 
   rs.close();

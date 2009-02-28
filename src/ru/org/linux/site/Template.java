@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.text.DateFormat;
 import java.util.Date;
 import java.util.Properties;
 import java.util.logging.Logger;
@@ -31,6 +32,9 @@ public class Template {
   private Profile userProfile;
   private final Config config;
   private final HttpSession session;
+
+  public final DateFormat dateFormat = DateFormats.createDefault();
+
 
   public String getSecret() {
     return config.getProperties().getProperty("Secret");

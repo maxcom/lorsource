@@ -94,7 +94,7 @@
 
     Timestamp lastCommit = section.getLastCommitdate(db);
     if (lastCommit!=null) {
-      out.println("Последнее подтверждение в разделе: "+Template.dateFormat.format(lastCommit)+"<br>");
+      out.println("Последнее подтверждение в разделе: "+tmpl.dateFormat.format(lastCommit)+"<br>");
     }
 
   } finally {
