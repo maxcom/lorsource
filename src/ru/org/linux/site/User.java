@@ -3,6 +3,7 @@ package ru.org.linux.site;
 import java.io.Serializable;
 import java.net.URLEncoder;
 import java.sql.*;
+import java.text.DateFormat;
 import java.util.Date;
 
 import javax.servlet.http.Cookie;
@@ -279,11 +280,13 @@ public class User implements Serializable {
   }
 
   public String getCommitInfoLine(Timestamp postdate, Timestamp commitDate) {
+    DateFormat dateFormat = DateFormats.createDefault();
+
     StringBuilder out = new StringBuilder();
 
     out.append("<i>Проверено: ").append(nick).append(" (<a href=\"whois.jsp?nick=").append(URLEncoder.encode(nick)).append("\">*</a>)");
     if (commitDate!=null && !commitDate.equals(postdate)) {
-      out.append(' ').append(Template.dateFormat.format(commitDate));
+      out.append(' ').append(dateFormat.format(commitDate));
     }
     out.append("</i>");
 
@@ -425,7 +428,9 @@ public class User implements Serializable {
     return res;
   }
 
-  public String getSignature(boolean moderatorMode, Timestamp postdate) {
+  public String getSignature(boolean moderatorMode, Date postdate) {
+    DateFormat dateFormat = DateFormats.createDefault();
+
     StringBuilder out = new StringBuilder();
 
     if (blocked) {
@@ -447,7 +452,7 @@ public class User implements Serializable {
         }
     }
 
-    out.append("(<a href=\"whois.jsp?nick=").append(URLEncoder.encode(nick)).append("\">*</a>) (").append(Template.dateFormat.format(postdate)).append(')');
+    out.append("(<a href=\"whois.jsp?nick=").append(URLEncoder.encode(nick)).append("\">*</a>) (").append(dateFormat.format(postdate)).append(')');
 
     return out.toString();
   }

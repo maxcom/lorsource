@@ -3,6 +3,7 @@ package ru.org.linux.site;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.text.DateFormat;
 import java.util.logging.Logger;
 
 import ru.org.linux.util.*;
@@ -81,6 +82,8 @@ public class CommentView {
   private void printMenu(StringBuffer out, Comment comment,
                          CommentList comments, Template tmpl,
                          Connection db, boolean expired) throws UtilException, SQLException, UserNotFoundException {
+    DateFormat dateFormat = DateFormats.createDefault();
+
     out.append("<div class=title>");
 
     if (!comment.isDeleted()) {
@@ -118,7 +121,7 @@ public class CommentView {
 
         User replyAuthor = User.getUserCached(db, reply.getUserid());
 
-        out.append(StringUtil.makeTitle(reply.getTitle())).append("</a> от ").append(replyAuthor.getNick()).append(' ').append(Template.dateFormat.format(reply.getPostdate()));
+        out.append(StringUtil.makeTitle(reply.getTitle())).append("</a> от ").append(replyAuthor.getNick()).append(' ').append(dateFormat.format(reply.getPostdate()));
       } else {
         logger.warning("Weak reply #" + comment.getReplyTo() + " on comment=" + comment.getMessageId() + " msgid=" + comment.getTopic());
       }

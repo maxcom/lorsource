@@ -2,6 +2,7 @@ package ru.org.linux.site;
 
 import java.io.IOException;
 import java.sql.*;
+import java.text.DateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.ListIterator;
@@ -26,6 +27,8 @@ public class MessageTable {
   }
 
   public static String showComments(Connection db, User user, int offset, int limit) throws SQLException {
+    DateFormat dateFormat = DateFormats.createDefault();
+
     StringBuilder out = new StringBuilder();
 
     PreparedStatement pst=null;
@@ -57,7 +60,7 @@ public class MessageTable {
         out.append("<tr><td>").append(rs.getString("ptitle")).append("</td>");
         out.append("<td>").append(rs.getString("gtitle")).append("</td>");
         out.append("<td><a href=\"jump-message.jsp?msgid=").append(rs.getInt("topicid")).append("&amp;cid=").append(rs.getInt("msgid")).append("\" rev=contents>").append(StringUtil.makeTitle(rs.getString("title"))).append("</a></td>");
-        out.append("<td>").append(Template.dateFormat.format(rs.getTimestamp("postdate"))).append("</td></tr>");
+        out.append("<td>").append(dateFormat.format(rs.getTimestamp("postdate"))).append("</td></tr>");
       }
 
       rs.close();
@@ -72,6 +75,7 @@ public class MessageTable {
 
   public static String getSectionRss(Connection db, int sectionid, int groupid, String htmlPath, String fullUrl) throws SQLException, ScriptErrorException {
     StringBuilder out = new StringBuilder();
+    DateFormat rfc822 = DateFormats.createRFC822();
 
     Section section = new Section(db, sectionid);
     Group group = null;
@@ -87,7 +91,7 @@ public class MessageTable {
       out.append(" - ").append(group.getTitle());
     }
     out.append("</title>");
-    out.append("<pubDate>").append(Template.RFC822.format(new Date())).append("</pubDate>");
+    out.append("<pubDate>").append(rfc822.format(new Date())).append("</pubDate>");
     out.append("<description>Linux.org.ru: ").append(section.getName());
     if (group!=null) {
       out.append(" - ").append(group.getTitle());
@@ -128,9 +132,9 @@ public class MessageTable {
       Timestamp postdate = rs.getTimestamp("postdate");
       Timestamp commitdate = rs.getTimestamp("commitdate");
       if (commitdate!=null) {
-        out.append("  <pubDate>").append(Template.RFC822.format(commitdate)).append("</pubDate>\n");
+        out.append("  <pubDate>").append(rfc822.format(commitdate)).append("</pubDate>\n");
       } else {
-        out.append("  <pubDate>").append(Template.RFC822.format(postdate)).append("</pubDate>\n");
+        out.append("  <pubDate>").append(rfc822.format(postdate)).append("</pubDate>\n");
       }
 
       out.append("  <description>\n" + '\t');
@@ -185,6 +189,8 @@ public class MessageTable {
   }
 
   public static String getTopicRss(Connection db, int topicid, int num, String htmlPath, String fullUrl) throws SQLException, BadSectionException {
+    DateFormat rfc822 = DateFormats.createRFC822();
+
     StringBuilder buf = new StringBuilder();
     Message topic;
 
@@ -192,7 +198,7 @@ public class MessageTable {
       topic = new Message(db, topicid);
     } catch (MessageNotFoundException e) {
       buf.append("<title>Linux.org.ru: Тема #").append(topicid).append(" не найдена</title>");
-      buf.append("<pubDate>").append(Template.RFC822.format(new Date())).append("</pubDate>");
+      buf.append("<pubDate>").append(rfc822.format(new Date())).append("</pubDate>");
       buf.append("<description>Linux.org.ru: Запрашиваемая тема не найдена или удалена</description>");
       return buf.toString();
     }
@@ -211,7 +217,7 @@ public class MessageTable {
 
     buf.append("<title>Linux.org.ru: ").append(subj);
     buf.append("</title>");
-    buf.append("<pubDate>").append(Template.RFC822.format(new Date())).append("</pubDate>");
+    buf.append("<pubDate>").append(rfc822.format(new Date())).append("</pubDate>");
 
     if (section.isImagepost()) {
       buf.append("  <description>\n" + '\t');
@@ -261,7 +267,7 @@ public class MessageTable {
       }
       buf.append("  <link>http://www.linux.org.ru/jump-message.jsp?msgid=").append(topicid).append("&amp;cid=").append(msgid).append("</link>\n");
       buf.append("  <guid>http://www.linux.org.ru/jump-message.jsp?msgid=").append(topicid).append("&amp;cid=").append(msgid).append("</guid>\n");
-      buf.append("  <pubDate>").append(Template.RFC822.format(comment.getPostdate())).append("</pubDate>\n");
+      buf.append("  <pubDate>").append(rfc822.format(comment.getPostdate())).append("</pubDate>\n");
       buf.append("  <description>\n" + '\t').append(HTMLFormatter.htmlSpecialChars(comment.getMessageText())).append("</description>\n");
       buf.append("</item>");
       num--;

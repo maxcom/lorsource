@@ -3,6 +3,7 @@ package ru.org.linux.site;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.sql.*;
+import java.text.DateFormat;
 import java.util.Date;
 import java.util.Properties;
 import java.util.logging.Logger;
@@ -30,6 +31,8 @@ public class NewsViewer implements Viewer {
   }
 
   private String showCurrent(Connection db, ResultSet res) throws IOException, SQLException {
+    DateFormat dateFormat = DateFormats.createDefault();
+
     boolean multiPortal = (group==0 && section==0);
 
     StringBuilder out = new StringBuilder();
@@ -151,7 +154,7 @@ public class NewsViewer implements Viewer {
     }
 
     String nick = res.getString("nick");
-    out.append("<div class=sign>").append(nick).append("(<a href=\"whois.jsp?nick=").append(URLEncoder.encode(nick)).append("\">*</a>) (").append(Template.dateFormat.format(res.getTimestamp("postdate"))).append(")</div>");
+    out.append("<div class=sign>").append(nick).append("(<a href=\"whois.jsp?nick=").append(URLEncoder.encode(nick)).append("\">*</a>) (").append(dateFormat.format(res.getTimestamp("postdate"))).append(")</div>");
 
     if (!moderateMode && res.getBoolean("comment")) {
       out.append("<div class=\"nav\">");
@@ -363,9 +366,9 @@ public class NewsViewer implements Viewer {
 
   public static NewsViewer getMainpage(Properties config, ProfileHashtable profile) {
     NewsViewer nw = new NewsViewer(config, profile);
-    nw.setSection(1);
-    nw.setLimit("LIMIT 20");
-    nw.setDatelimit("commitdate>(CURRENT_TIMESTAMP-'1 month'::interval)");
+    nw.section = 1;
+    nw.limit = "LIMIT 20";
+    nw.datelimit = "commitdate>(CURRENT_TIMESTAMP-'1 month'::interval)";
     return nw;
   }
 }

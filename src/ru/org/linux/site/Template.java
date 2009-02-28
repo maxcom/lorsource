@@ -5,13 +5,11 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Locale;
 import java.util.Properties;
 import java.util.logging.Logger;
 
+import javax.servlet.ServletRequest;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -30,13 +28,9 @@ public class Template {
   private final Properties cookies;
   private String style;
   private String formatMode;
-  private boolean debugMode = false;
   private Profile userProfile;
   private final Config config;
   private final HttpSession session;
-
-  public static final DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM, new Locale("ru"));
-  public static final DateFormat RFC822 = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss Z", Locale.US);
 
   public String getSecret() {
     return config.getProperties().getProperty("Secret");
@@ -47,6 +41,7 @@ public class Template {
 //    request.setCharacterEncoding("koi8-r"); // блядский tomcat
     request.setCharacterEncoding("utf-8"); // блядский tomcat
 
+    boolean debugMode= false;
     if (request.getParameter("debug") != null) {
       debugMode = true;
     }
@@ -143,7 +138,7 @@ public class Template {
     userProfile.getHashtable().setString("style", style);
   }
 
-  private String getStyle(String style) {
+  private static String getStyle(String style) {
     if (!"black".equals(style) &&
         !"white".equals(style) &&
         !"white2".equals(style) &&
@@ -294,7 +289,7 @@ public class Template {
     }
   }
 
-  public static Template getTemplate(HttpServletRequest request) {
+  public static Template getTemplate(ServletRequest request) {
     return (Template) request.getAttribute("template");
   }
 }
