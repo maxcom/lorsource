@@ -16,4 +16,3 @@ Disallow: /comment-message.jsp
 Disallow: /show-comments.jsp
 Disallow: /show-topics.jsp
 Disallow: /ignore-list.jsp
-Disallow: //
