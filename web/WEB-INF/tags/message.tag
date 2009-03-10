@@ -2,6 +2,7 @@
 <%@ tag import="java.sql.*" %>
 <%@ tag import="java.util.List" %>
 <%@ tag import="java.util.Random" %>
+<%@ tag import="java.util.Set" %>
 <%@ tag import="java.util.logging.Logger" %>
 <%@ tag import="javax.servlet.http.HttpServletResponse" %>
 <%@ tag import="org.apache.commons.lang.StringUtils" %>
@@ -168,7 +169,7 @@
   }
 
   if (message.getSectionId() == 1) {
-    String tagLinks = Tags.getTagLinks(db, msgid);
+    String tagLinks = Tags.getTagLinks(message.getTags());
 
     if (tagLinks.length() > 0) {
       out.append("<p>Метки: <i>");

@@ -3,8 +3,10 @@ package ru.org.linux.site;
 import java.io.IOException;
 import java.sql.*;
 import java.util.Date;
+import java.util.List;
 import java.util.logging.Logger;
 
+import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import org.javabb.bbcode.BBCodeProcessor;
 
@@ -15,12 +17,12 @@ public class Message {
   private static final Logger logger = Logger.getLogger("ru.org.linux");
 
   private int msgid;
-  private int postscore;
+  private int postscore;                                
   private boolean votepoll;
   private boolean sticky;
   private String linktext;
   private String url;
-  private String tags;
+  private Tags tags;
   private String title;
   private final int userid;
   private int guid;
@@ -72,7 +74,7 @@ public class Message {
     sticky=rs.getBoolean("sticky");
     linktext=rs.getString("linktext");
     url=rs.getString("url");
-    tags=Tags.getPlainTags(db,msgid);
+    tags=new Tags(db, msgid);
     userid = rs.getInt("userid");
     title=StringUtil.makeTitle(rs.getString("title"));
     guid=rs.getInt("guid");
@@ -105,7 +107,7 @@ public class Message {
   }
 
   public Message(Connection db, AddMessageForm form, User user)
-      throws BadInputException, SQLException, UtilException, ScriptErrorException {
+      throws BadInputException, SQLException, UtilException, ScriptErrorException, UserErrorException {
     // Init fields
 
     userAgent = form.getUserAgent();
@@ -114,6 +116,9 @@ public class Message {
     guid = form.getGuid();
 
     Group group = new Group(db, guid);
+
+    linktext = form.getLinktextHTML();
+    url = form.getUrl();
 
     // url check
     if (!group.isImagePostAllowed()) {
@@ -125,9 +130,7 @@ public class Message {
       }
     }
     // Setting Message fields
-    linktext = form.getLinktextHTML();
-    url = form.getUrl();
-    tags = form.getTagsHTML();
+    tags = new Tags(Tags.parseTags(form.getTagsHTML()));
     title = form.getTitleHTML();
     havelink = form.getUrl() != null && form.getLinktext() != null && form.getUrl().length() > 0 && form.getLinktext().length() > 0 && !group.isImagePostAllowed();
     sectionid = group.getSectionId();
@@ -151,6 +154,84 @@ public class Message {
     lorcode = "lorcode".equals(form.getMode());
 
     message = form.processMessage(group);
+
+    try {
+      section = new Section(db, sectionid);
+    } catch (BadSectionException ex) {
+      throw new RuntimeException(ex);
+    }
+  }
+
+  public Message(Connection db, Message original, ServletRequest request) throws BadGroupException, SQLException, UtilException, UserErrorException {
+    userAgent = original.userAgent;
+    postIP = original.postIP;
+    guid = original.guid;
+
+    Group group = new Group(db, guid);
+
+    if (request.getParameter("linktext")!=null) {
+      linktext = request.getParameter("linktext");
+    } else {
+      linktext = original.linktext;
+    }
+
+    if (request.getParameter("url")!=null) {
+      url = request.getParameter("url");
+    } else {
+      url = original.url;
+    }
+
+    if (request.getParameter("tags")!=null) {
+      List<String> newTags = Tags.parseTags(request.getParameter("tags"));
+
+      tags = new Tags(newTags);
+    } else {
+      tags = original.tags;
+    }
+
+    // url check
+    if (!group.isImagePostAllowed()) {
+      if (url != null && !"".equals(url)) {
+        if (linktext == null) {
+          throw new BadInputException("указан URL без текста");
+        }
+        url = URLUtil.fixURL(url);
+      }
+    }
+
+    if (request.getParameter("title")!=null) {
+      title = request.getParameter("title");
+    } else {
+      title = original.title;
+    }
+
+    havelink = original.havelink;
+
+    sectionid = group.getSectionId();
+
+    msgid = original.msgid;
+    postscore = original.getPostScore();
+    votepoll = original.votepoll;
+    sticky = original.sticky;
+    deleted = original.deleted;
+    expired = original.expired;
+    commitby = original.commitby;
+    postdate = original.postdate;
+    commitDate = original.commitDate;
+    groupTitle = original.groupTitle;
+    lastModified = new Timestamp(System.currentTimeMillis());
+    comment = original.comment;
+    commentCount = original.commentCount;
+    moderate = original.moderate;
+    notop = original.notop;
+    userid = original.userid;
+    lorcode = original.lorcode;
+
+    if (request.getParameter("newmsg")!=null) {
+      message = request.getParameter("newmsg");
+    } else {
+      message = original.message;
+    }
 
     try {
       section = new Section(db, sectionid);
@@ -350,9 +431,9 @@ public class Message {
     return sticky;
   }
 
-  public void updateMessageText(Connection db, String text) throws SQLException {
+  public void updateMessageText(Connection db) throws SQLException {
     PreparedStatement pst = db.prepareStatement("UPDATE msgbase SET message=? WHERE id=?");
-    pst.setString(1, text);
+    pst.setString(1, message);
     pst.setInt(2, msgid);
     pst.executeUpdate();
   }
@@ -494,7 +575,7 @@ public class Message {
     return link;
   }
 
-  public String getPlainTags() {
+  public Tags getTags() {
     return tags;
   }
 

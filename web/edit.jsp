@@ -6,6 +6,8 @@
 <%@ page import="ru.org.linux.site.*" %>
 <%@ page import="ru.org.linux.util.HTMLFormatter" %>
 <%@ page import="ru.org.linux.util.ServletParameterParser" %>
+<%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
+
 <%
   Template tmpl = Template.getTemplate(request);
   Logger logger = Logger.getLogger("ru.org.linux");
@@ -23,10 +25,7 @@
     db = LorDataSource.getConnection();
     db.setAutoCommit(false);
     Message message = new Message(db, msgid);
-
-    String sMsgTitle = message.getTitle();
-    String sURL = message.getUrl();
-    String sURLtitle = message.getLinktext();
+    Message newMsg = message;
 
     User user = User.getCurrentUser(db, session);
 
@@ -34,109 +33,113 @@
       throw new AccessViolationException("это сообщение нельзя править");
     }
 
-    String cText = message.getMessage();
+    boolean showForm = true;
 
-    String cnText = request.getParameter("newmsg");
-    if ("POST".equals(request.getMethod()) && (cnText != null)) {
-      // do changes to message
-      // update db
-      String snMsgTitle = request.getParameter("title");
-      String snURLtitle = request.getParameter("url_text");
-      String snURL = request.getParameter("url");
-
-      String tags = request.getParameter("tags");
+    if ("POST".equals(request.getMethod())) {
+      newMsg = new Message(db, message, request);
+      boolean preview = request.getParameter("preview") != null;
 
       String sSql = "UPDATE topics SET title=?, linktext=?, url=? WHERE id=?";
       PreparedStatement pst = db.prepareStatement(sSql);
 
-      pst.setString(1, snMsgTitle);
-
       boolean modified = false;
 
-      if (!snMsgTitle.equals(sMsgTitle)) {
+      if (!message.getTitle().equals(newMsg.getTitle())) {
         modified = true;
       }
 
-      if (!cText.equals(cnText)) {
-        modified = true;
-        message.updateMessageText(db, cnText);
+      pst.setString(1, newMsg.getTitle());
+
+      boolean messageModified = false;
+      if (!message.getMessage().equals(newMsg.getMessage())) {
+        messageModified = true;
       }
 
-      pst.setString(2, snURLtitle);
+      pst.setString(2, newMsg.getLinktext());
 
-      if (snURLtitle != null && !snURLtitle.equals(sURLtitle)) {
+      if (!message.getLinktext().equals(newMsg.getLinktext())) {
         modified = true;
       }
 
-      pst.setString(3, snURL);
+      pst.setString(3, newMsg.getUrl());
 
-      if (snURL != null && !snURL.equals(sURL)) {
+      if (message.isHaveLink() && !message.getUrl().equals(newMsg.getUrl())) {
         modified = true;
       }
 
       pst.setInt(4, msgid);
 
-      if (modified) {
-        pst.executeUpdate();
+      if (!preview) {
+        if (modified) {
+          pst.executeUpdate();
+        }
 
-        out.print("<a href='view-message.jsp?msgid=" + msgid + "'>Сообщение исправлено</a>.<br>\n");
-        // out.print("Редирект в течении 5 секунд.\n");
-        logger.info("сообщение " + msgid + " исправлено " + session.getValue("nick"));
-      } else {
-        out.print("nothing changed.\n");
-      }
+        if (messageModified) {
+          newMsg.updateMessageText(db);
+        }
 
-      if (tags!=null) {
         List<String> oldTags = Tags.getMessageTags(db, msgid);
-        List<String> newTags = Tags.parseTags(tags);
+        List<String> newTags = Tags.parseTags(newMsg.getTags().toString());
 
-        Tags.updateTags(db, msgid, newTags);
-        if (message.isCommited()) {
+        boolean modifiedTags = Tags.updateTags(db, msgid, newTags);
+        if (modifiedTags && message.isCommited()) {
           Tags.updateCounters(db, oldTags, newTags);
         }
-        
-        out.print("tags updates\n");
+
+        if (modifiedTags) {
+          out.print("tags updated\n");
+        }
+
+        if (modified || messageModified || modifiedTags) {
+          out.print("<br><a href='view-message.jsp?msgid=" + msgid + "'>Сообщение исправлено</a>.<br>\n");
+          logger.info("сообщение " + msgid + " исправлено " + session.getValue("nick"));
+          showForm = false;
+        } else {
+          out.print("nothing changed.\n");
+        }
       }
-    } else {
+    }
+
+    if (showForm) {
 %>
+<h1>Редактирование</h1>
+<div class=messages>
+  <lor:message db="<%= db %>" message="<%= newMsg %>" showMenu="false" user="<%= Template.getNick(session) %>"/>
+</div>
+
 <form action="edit.jsp" name="edit" method="post">
   <input type="hidden" name="msgid" value="<%= msgid %>">
   Заголовок новости :
-  <% if ((sMsgTitle != null) && (sMsgTitle.length() != 0)) {
-    out.print("<input type=\"text\" name=\"title\" size=\"70\" value=\"" + HTMLFormatter.htmlSpecialChars(sMsgTitle) + "\">\n");
-  } else {
-    out.print("<input type=\"text\" name=\"title\" size=\"70\" value='' disabled>\n");
-  }
-  %>
-  <br>
-  <textarea name="newmsg" cols="70" rows="20"><%= cText %></textarea>
-  <br><br>
-  Текст ссылки :
-  <% if (message.isHaveLink()) {
-    out.print("<input type=\"text\" name=\"url_text\" size=\"78\" value=\"" + sURLtitle + "\">\n");
-  } else {
-    out.print("<input type=\"text\" name=\"url_text\" size=\"78\" value='" + sURLtitle + "' readonly style=\"background:#979797;color:#79787e;\">\n");
-  }
-  %>
-  <br>
-  Ссылка :
-  <% if (message.isHaveLink()) {
-    out.print("<input type=\"text\" name=\"url\" size=\"84\" value=\"" + sURL + "\">\n");
-  } else {
-    out.print("<input type=\"text\" name=\"url\" size=\"84\" value='" + sURL + "' readonly style=\"background:#979797;color:#79787e;\">\n");
-  }
-  %>
-  <br>
+  <input type=text name=title size=40 value="<%= newMsg.getTitle()==null?"":HTMLFormatter.htmlSpecialChars(newMsg.getTitle()) %>" ><br>
 
+  <br>
+  <textarea name="newmsg" cols="70" rows="20"><%= newMsg.getMessage() %></textarea>
+  <br><br>
+  <% if (message.isHaveLink()) {
+  %>
+  Текст ссылки:
+  <input type=text name=linktext size=60 value="<%= newMsg.getLinktext()==null?"":HTMLFormatter.htmlSpecialChars(newMsg.getLinktext()) %>"><br>
+  <%
+    }
+  %>
+  <% if (message.isHaveLink()) {
+  %>
+  Ссылка :
+  <input type=text name=url size=70 value="<%= newMsg.getUrl()==null?"":HTMLFormatter.htmlSpecialChars(newMsg.getUrl()) %>"><br>
+  <% } %>
+
+  <% if (message.getSectionId()==1) {
+    String result = newMsg.getTags().toString();
+  %>
   Теги:
-  <% if (message.getSectionId()==1) { %>
-  <input type="text" name="tags" id="tags" value="<%= Tags.getPlainTags(db, msgid) %>"><br>
+  <input type="text" name="tags" id="tags" value="<%= result %>"><br>
   Популярные теги: <%= Tags.getEditTags(Tags.getTopTags(db)) %> <br>
   <% } %>
-  <br><br>
+  <br>
+
   <input type="submit" value="отредактировать">
   &nbsp;
-  <input type="reset" value="сбросить">
+  <input type=submit name=preview value="Предпросмотр">
 </form>
 <%
       }

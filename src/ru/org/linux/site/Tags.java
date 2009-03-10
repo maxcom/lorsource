@@ -51,7 +51,7 @@ public class Tags{
     return id;
   }
 
-  private Tags(Connection con, int msgid) throws SQLException {
+  public Tags(Connection con, int msgid) throws SQLException {
     tags = new ArrayList<String>();
     
     PreparedStatement st = con.prepareStatement("SELECT tags_values.value FROM tags, tags_values WHERE tags.msgid=? AND tags_values.id=tags.tagid ORDER BY value");
@@ -62,7 +62,12 @@ public class Tags{
     while (rs.next()) {
       tags.add(rs.getString("value"));
     }
+
     st.close();
+  }
+
+  public Tags(List<String> tags) {
+    this.tags = tags;
   }
 
   @Override
@@ -76,6 +81,19 @@ public class Tags{
       str += (str.length() > 0 ? "," : "") + tag;
     }
     
+    return str;
+  }
+
+  public static String toString(List<String> tags) {
+    if (tags==null || tags.isEmpty()) {
+      return "";
+    }
+    String str = "";
+
+    for (String tag : tags) {
+      str += (str.length() > 0 ? "," : "") + tag;
+    }
+
     return str;
   }
 
@@ -108,7 +126,7 @@ public class Tags{
   }
 
   public static List<String> getMessageTags(Connection con, int msgid) throws SQLException {
-    return new Tags(con, msgid).getTags();
+    return new Tags(con, msgid).tags;
   }
 
   public static void checkTag(String tag) throws UserErrorException {
@@ -187,7 +205,7 @@ public class Tags{
     return out.toString();
   }
 
-  public static void updateTags(Connection con, int msgid, List<String> tagList) throws SQLException {
+  public static boolean updateTags(Connection con, int msgid, List<String> tagList) throws SQLException {
     List<String> oldTags = getMessageTags(con, msgid);
 
     PreparedStatement insertStatement = con.prepareStatement("INSERT INTO tags VALUES(?,?)");
@@ -196,12 +214,14 @@ public class Tags{
     insertStatement.setInt(1, msgid);
     deleteStatement.setInt(1, msgid);
 
+    boolean modified = false;
     for (String tag : tagList) {
       if (!oldTags.contains(tag)) {
         int id = getOrCreateTag(con, tag);
 
         insertStatement.setInt(2, id);
         insertStatement.executeUpdate();
+        modified = true;
       }
     }
 
@@ -211,21 +231,30 @@ public class Tags{
 
         deleteStatement.setInt(2, id);
         deleteStatement.executeUpdate();
+        modified = true;
       }
     }
 
     insertStatement.close();
     deleteStatement.close();
+
+    return modified;
   }
 
   public static String getPlainTags(Connection con, int msgid) throws SQLException {
     return new Tags(con,msgid).toString();
   }
-  
+
   public static String getTagLinks(Connection con, int msgid) throws SQLException {
-    StringBuilder buf = new StringBuilder();
     Tags tags = new Tags(con, msgid);
-    List<String> mtags = tags.getTags();
+
+    return getTagLinks(tags);
+  }
+
+  public static String getTagLinks(Tags tags)  {
+    List<String> mtags = tags.tags;
+
+    StringBuilder buf = new StringBuilder();
     if (mtags.isEmpty()) {
       return "";
     }

@@ -71,7 +71,7 @@
     ResultSet rq = null;
     if (message.getSectionId() == 1) { // news
       out.println("Метки (теги): ");
-      out.println("<input type=\"text\" id=\"tags\" name=\"tags\" size=40 value=\"" + message.getPlainTags() + "\"><br>");
+      out.println("<input type=\"text\" id=\"tags\" name=\"tags\" size=40 value=\"" + message.getTags().toString() + "\"><br>");
 %>
   Популярные теги: <%= Tags.getEditTags(Tags.getTopTags(db)) %> <br>
   <%
