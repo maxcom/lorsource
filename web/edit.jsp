@@ -36,18 +36,8 @@
 
     String cText = message.getMessage();
 
-    boolean debugme = false;
-
-    if (debugme) {
-      out.print("<!-- old message = " + cText + "\n msglen: " + cText.length() + " -->\n");
-    }
-
     String cnText = request.getParameter("newmsg");
     if ("POST".equals(request.getMethod()) && (cnText != null)) {
-      if (debugme) {
-        out.print("<!-- new message = " + cnText + "\n msglen: " + cnText.length() + " -->\n");
-        out.print("<!-- method is POST -->\n");
-      }
       // do changes to message
       // update db
       String snMsgTitle = request.getParameter("title");
