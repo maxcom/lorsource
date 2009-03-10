@@ -57,7 +57,7 @@ public class AddMessageController extends AbstractController {
         int section = group.getSectionId();
         params.put("addportal", tmpl.getObjectConfig().getStorage().readMessageDefault("addportal", String.valueOf(section), ""));
 
-        if (!previewMsg.isPreview()) {
+        if (!form.isPreview()) {
           // Flood protection
           if (!session.getId().equals(form.getSessionId())) {
             logger.info("Flood protection (session variable differs) " + request.getRemoteAddr());

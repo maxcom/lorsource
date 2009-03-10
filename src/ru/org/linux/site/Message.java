@@ -18,7 +18,6 @@ public class Message {
   private int postscore;
   private boolean votepoll;
   private boolean sticky;
-  private boolean preview;
   private String linktext;
   private String url;
   private String tags;
@@ -67,7 +66,6 @@ public class Message {
       throw new MessageNotFoundException(msgid);
     }
 
-    preview =false;
     this.msgid=rs.getInt("msgid");
     postscore =rs.getInt("postscore");
     votepoll=rs.getBoolean("vote");
@@ -112,7 +110,6 @@ public class Message {
 
     userAgent = form.getUserAgent();
     postIP = form.getPostIP();
-    preview = form.isPreview();
 
     guid = form.getGuid();
 
@@ -122,9 +119,7 @@ public class Message {
     if (!group.isImagePostAllowed()) {
       if (url != null && !"".equals(url)) {
         if (linktext == null) {
-          if (!preview) {
-            throw new BadInputException("указан URL без текста");
-          }
+          throw new BadInputException("указан URL без текста");
         }
         url = URLUtil.fixURL(url);
       }
@@ -353,10 +348,6 @@ public class Message {
 
   public boolean isSticky() {
     return sticky;
-  }
-
-  public boolean isPreview() {
-    return preview;
   }
 
   public void updateMessageText(Connection db, String text) throws SQLException {
