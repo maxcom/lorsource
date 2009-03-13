@@ -13,6 +13,7 @@
   <bean name="/add.jsp" class="ru.org.linux.spring.AddMessageController"/>
   <bean name="/view-message.jsp" class="ru.org.linux.spring.MessageController"/>
   <bean name="/login.jsp" class="ru.org.linux.spring.LoginController"/>
+  <bean name="/edit.jsp" class="ru.org.linux.spring.EditController"/>
 
   <bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
     <property name="viewClass" value="org.springframework.web.servlet.view.JstlView"></property>

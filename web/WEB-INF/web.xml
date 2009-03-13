@@ -110,6 +110,11 @@ version="2.4">
       <url-pattern>/login.jsp</url-pattern>
     </servlet-mapping>
 
+    <servlet-mapping>
+      <servlet-name>springapp</servlet-name>
+      <url-pattern>/edit.jsp</url-pattern>
+    </servlet-mapping>
+
 <listener>
   <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
 </listener>
