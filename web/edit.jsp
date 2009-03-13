@@ -1,4 +1,4 @@
-<%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
+<%@ page contentType="text/html; charset=utf-8"%>
 <%@ page
     import="java.sql.Connection,java.sql.PreparedStatement,java.util.List"
       buffer="200kb" %>
@@ -30,7 +30,7 @@
     User user = User.getCurrentUser(db, session);
 
     if (!message.isEditable(db, user)) {
-      throw new AccessViolationException("это сообщение нельзя править");
+      throw new AccessViolationException("я█я┌п╬ я│п╬п╬п╠я┴п╣п╫п╦п╣ п╫п╣п╩я▄п╥я▐ п©я─п╟п╡п╦я┌я▄");
     }
 
     boolean showForm = true;
@@ -91,8 +91,8 @@
         }
 
         if (modified || messageModified || modifiedTags) {
-          out.print("<br><a href='view-message.jsp?msgid=" + msgid + "'>Сообщение исправлено</a>.<br>\n");
-          logger.info("сообщение " + msgid + " исправлено " + session.getValue("nick"));
+          out.print("<br><a href='view-message.jsp?msgid=" + msgid + "'>п║п╬п╬п╠я┴п╣п╫п╦п╣ п╦я│п©я─п╟п╡п╩п╣п╫п╬</a>.<br>\n");
+          logger.info("я│п╬п╬п╠я┴п╣п╫п╦п╣ " + msgid + " п╦я│п©я─п╟п╡п╩п╣п╫п╬ " + session.getValue("nick"));
           showForm = false;
         } else {
           out.print("nothing changed.\n");
@@ -102,14 +102,14 @@
 
     if (showForm) {
 %>
-<h1>Редактирование</h1>
+<h1>п═п╣п╢п╟п╨я┌п╦я─п╬п╡п╟п╫п╦п╣</h1>
 <div class=messages>
   <lor:message db="<%= db %>" message="<%= newMsg %>" showMenu="false" user="<%= Template.getNick(session) %>"/>
 </div>
 
 <form action="edit.jsp" name="edit" method="post">
   <input type="hidden" name="msgid" value="<%= msgid %>">
-  Заголовок новости :
+  п≈п╟пЁп╬п╩п╬п╡п╬п╨ п╫п╬п╡п╬я│я┌п╦ :
   <input type=text name=title size=40 value="<%= newMsg.getTitle()==null?"":HTMLFormatter.htmlSpecialChars(newMsg.getTitle()) %>" ><br>
 
   <br>
@@ -117,29 +117,29 @@
   <br><br>
   <% if (message.isHaveLink()) {
   %>
-  Текст ссылки:
+  п╒п╣п╨я│я┌ я│я│я▀п╩п╨п╦:
   <input type=text name=linktext size=60 value="<%= newMsg.getLinktext()==null?"":HTMLFormatter.htmlSpecialChars(newMsg.getLinktext()) %>"><br>
   <%
     }
   %>
   <% if (message.isHaveLink()) {
   %>
-  Ссылка :
+  п║я│я▀п╩п╨п╟ :
   <input type=text name=url size=70 value="<%= newMsg.getUrl()==null?"":HTMLFormatter.htmlSpecialChars(newMsg.getUrl()) %>"><br>
   <% } %>
 
   <% if (message.getSectionId()==1) {
     String result = newMsg.getTags().toString();
   %>
-  Теги:
+  п╒п╣пЁп╦:
   <input type="text" name="tags" id="tags" value="<%= result %>"><br>
-  Популярные теги: <%= Tags.getEditTags(Tags.getTopTags(db)) %> <br>
+  п÷п╬п©я┐п╩я▐я─п╫я▀п╣ я┌п╣пЁп╦: <%= Tags.getEditTags(Tags.getTopTags(db)) %> <br>
   <% } %>
   <br>
 
-  <input type="submit" value="отредактировать">
+  <input type="submit" value="п╬я┌я─п╣п╢п╟п╨я┌п╦я─п╬п╡п╟я┌я▄">
   &nbsp;
-  <input type=submit name=preview value="Предпросмотр">
+  <input type=submit name=preview value="п÷я─п╣п╢п©я─п╬я│п╪п╬я┌я─">
 </form>
 <%
       }
