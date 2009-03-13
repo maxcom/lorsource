@@ -86,7 +86,7 @@ public class EditController extends AbstractController {
             newMsg.updateMessageText(db);
           }
 
-          List<String> oldTags = Tags.getMessageTags(db, message.getId());
+          List<String> oldTags = message.getTags().getTags();
           List<String> newTags = Tags.parseTags(newMsg.getTags().toString());
 
           boolean modifiedTags = Tags.updateTags(db, message.getId(), newTags);
