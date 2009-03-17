@@ -1,12 +1,13 @@
 <%@ page contentType="text/html; charset=utf-8"%>
 <%@ page import="java.io.IOException,java.net.URLEncoder,java.sql.*,java.util.Date"   buffer="60kb" %>
-<%@ page import="java.util.Map"%>
+<%@ page import="java.util.List"%>
+<%@ page import="java.util.Map" %>
 <%@ page import="com.danga.MemCached.MemCachedClient" %>
+<%@ page import="ru.org.linux.boxlet.BoxletVectorRunner" %>
 <%@ page import="ru.org.linux.site.*" %>
 <%@ page import="ru.org.linux.util.BadImageException" %>
 <%@ page import="ru.org.linux.util.HTMLFormatter" %>
 <%@ page import="ru.org.linux.util.ImageInfo" %>
-<% Template tmpl = Template.getTemplate(request); %>
 <jsp:include page="WEB-INF/jsp/head.jsp"/>
 
 <% 
@@ -39,7 +40,7 @@
 	long time = System.currentTimeMillis();
 	int delay = firstPage ? 90 : 60*60;
 
-	String howmany = firstPage ? ("" + topics) : (count + "-" + offset);
+	String howmany = firstPage ? (String.valueOf(topics)) : (count + "-" + offset);
 	String title = "Последние " + howmany + 
 		" ответов на комментарии пользователя " + nick;
 	response.setDateHeader("Expires", time + 1000 * delay);
@@ -63,9 +64,8 @@
 		 "show-replies?id="+URLEncoder.encode(nick)+"&offset="+offset
 	);
 
-  	String res;
-	res = (String) mcc.get(cachedOutput);
-	if (res==null) {
+  String res = (String) mcc.get(cachedOutput);
+  if (res==null) {
 		res = MessageTable.showReplies (db, user, offset, topics);
 		mcc.add(cachedOutput, res, new Date (time + 1000L * delay));
 	}
