@@ -73,6 +73,63 @@ public class MessageTable {
     return out.toString();
   }
 
+public static String showReplies(Connection db, User user, int offset, int limit)
+	throws SQLException 
+{
+	DateFormat dateFormat = DateFormats.createDefault();
+
+	/* sane default values */
+	if (offset<0) offset = 0;
+	if (limit <1) limit = 50;
+
+	StringBuilder out = new StringBuilder();
+
+	PreparedStatement pst=null;
+
+	try {
+		pst = db.prepareStatement(
+		"SELECT sections.name AS ptitle, groups.title AS gtitle, " +
+		" topics.title, topics.id AS topicid, comments.id AS msgid, " +
+		"comments.postdate, users.nick AS author " +
+		"FROM sections, groups, topics, comments, comments AS parents, users " +
+		"WHERE sections.id=groups.section AND groups.id=topics.groupid " +
+		"AND comments.topic=topics.id AND parents.userid = ? " +
+		" AND comments.userid = users.id " +
+		" AND comments.replyto = parents.id " +
+		"AND NOT comments.deleted ORDER BY postdate DESC LIMIT "+limit+
+		" OFFSET "+offset
+		);
+
+	pst.setInt(1, user.getId());
+	ResultSet rs = pst.executeQuery();
+
+	while (rs.next()) {
+		out.append("<tr><td>").append(rs.getString("ptitle")).append("</td>");
+		out.append("<td>").append(rs.getString("gtitle")).append("</td>");
+		out.append("<td><a href=\"jump-message.jsp?msgid=")
+			.append(rs.getInt("topicid")).append("&amp;cid=")
+			.append(rs.getInt("msgid")).append("\" rev=contents>")
+			.append(StringUtil.makeTitle(rs.getString("title")))
+			.append("</a></td>");
+		out.append("<td>").append(rs.getString("author")).append("</td>");
+		out.append("<td>")
+			.append(dateFormat.format(rs.getTimestamp("postdate")))
+			.append("</td></tr>");
+	}
+
+	rs.close();
+	} finally {
+		if (pst != null) {
+			pst.close();
+		}
+	}
+
+	return out.toString();
+}  
+
+/***** showReplies ends here *****/
+
+
   public static String getSectionRss(Connection db, int sectionid, int groupid, String htmlPath, String fullUrl) throws SQLException, ScriptErrorException {
     StringBuilder out = new StringBuilder();
     DateFormat rfc822 = DateFormats.createRFC822();

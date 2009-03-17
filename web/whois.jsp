@@ -227,6 +227,10 @@
   <li>
     <a href="show-comments.jsp?nick=<%= nick %>">Комментарии</a>
   </li>
+
+  <li>
+    <a href="show-replies.jsp?nick=<%= nick %>">Ответы на комментарии</a>
+  </li>
 </ul>
 
 <% } %>
