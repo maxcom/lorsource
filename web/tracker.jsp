@@ -1,5 +1,5 @@
 <%@ page info="last active topics" %>
-<%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
+<%@ page contentType="text/html; charset=utf-8"%>
 <%@ page import="java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.sql.Timestamp,java.text.DateFormat,java.text.SimpleDateFormat,java.util.Date,ru.org.linux.site.*"   buffer="200kb"%>
 <%@ page import="ru.org.linux.util.ServletParameterParser" %>
 <% Template tmpl = Template.getTemplate(request); %>
@@ -15,7 +15,7 @@
       hours = new ServletParameterParser(request).getInt("h");
 
       if (hours < 1 || hours > 23) {
-        throw new BadInputException("неправильный ввод. hours = " + hours);
+        throw new BadInputException("п╫п╣п©я─п╟п╡п╦п╩я▄п╫я▀п╧ п╡п╡п╬п╢. hours = " + hours);
       }
     }
 
@@ -38,18 +38,18 @@
 
 */
 
-    String sSuf = "ов";
+    String sSuf = "п╬п╡";
     
     /* some magic */
     if (hours % 10 < 5 && hours % 10 > 0 && hours % 100 / 10 != 1) {
 	    if (hours % 10 == 1) {
 		    sSuf = "";
 	    } else {
-		     sSuf="а";
+		     sSuf="п╟";
 	    };
     };
     
-    String title = "Последние сообщения за "+hours+" час"+sSuf;
+    String title = "п÷п╬я│п╩п╣п╢п╫п╦п╣ я│п╬п╬п╠я┴п╣п╫п╦я▐ п╥п╟ "+hours+" я┤п╟я│"+sSuf;
 %>
 
 <title><%= title %></title>
@@ -63,11 +63,11 @@
     </td>
 
     <td align=right valign=middle>
-      за последние
+      п╥п╟ п©п╬я│п╩п╣п╢п╫п╦п╣
         <input name="h" onChange="submit()" value="<%= hours %>">
-      часа
+      я┤п╟я│п╟
 
-      <input type="submit" value="показать">
+      <input type="submit" value="п©п╬п╨п╟п╥п╟я┌я▄">
     </td>
   </tr>
  </table>
@@ -79,15 +79,15 @@
 <table width="100%" class="message-table">
 <thead>
 <tr>
-  <th>Форум</th>
-  <th>Заголовок</th>
-  <th>Последнее сообщение</th>
-  <th>Число ответов<br>всего/день/час</th>
+  <th>п╓п╬я─я┐п╪</th>
+  <th>п≈п╟пЁп╬п╩п╬п╡п╬п╨</th>
+  <th>п÷п╬я│п╩п╣п╢п╫п╣п╣ я│п╬п╬п╠я┴п╣п╫п╦п╣</th>
+  <th>п╖п╦я│п╩п╬ п╬я┌п╡п╣я┌п╬п╡<br>п╡я│п╣пЁп╬/п╢п╣п╫я▄/я┤п╟я│</th>
 </tr>
 </thead>
 <tbody>
 <%
-  DateFormat rfc822 = new SimpleDateFormat("HH:mm:ss 'назад'");
+  DateFormat rfc822 = new SimpleDateFormat("HH:mm:ss 'п╫п╟п╥п╟п╢'");
 
   int cnt = 0;
 
@@ -135,7 +135,7 @@
 </tbody>
 
 <tfoot>
-  <tr><td colspan='4' align='right'>всего: <%= cnt %> &nbsp</td></tr>
+  <tr><td colspan='4' align='right'>п╡я│п╣пЁп╬: <%= cnt %> &nbsp</td></tr>
 </tfoot>
 
 </table>
@@ -161,7 +161,7 @@
 */
       if (tmpl.isModeratorSession()) {
 %>
-<h2>Новые пользователи</h2>
+<h2>п²п╬п╡я▀п╣ п©п╬п╩я▄п╥п╬п╡п╟я┌п╣п╩п╦</h2>
 <%
         // new users
       sSql = "SELECT nick, blocked, activated FROM users where regdate IS NOT null " +
