@@ -1,4 +1,4 @@
-<%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
+<%@ page contentType="text/html; charset=utf-8"%>
 <%@ page import="java.net.URLEncoder,java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.util.Date,ru.org.linux.site.LorDataSource"   buffer="60kb"%>
 <%@ page import="ru.org.linux.site.NewsViewer"%>
 <%@ page import="ru.org.linux.site.Section" %>
@@ -27,22 +27,22 @@
     }
 
 %>
-<title>Просмотр неподтвержденных сообщений - <%= section==null?"Все":section.getName() %></title>
+<title>п÷я─п╬я│п╪п╬я┌я─ п╫п╣п©п╬п╢я┌п╡п╣я─п╤п╢п╣п╫п╫я▀я┘ я│п╬п╬п╠я┴п╣п╫п╦п╧ - <%= section==null?"п▓я│п╣":section.getName() %></title>
 <jsp:include page="WEB-INF/jsp/header.jsp"/>
 
   <form action="view-all.jsp">
 
   <table class=nav><tr>
     <td align=left valign=middle>
-      Просмотр неподтвержденных сообщений - <%= section==null?"Все":section.getName() %>
+      п÷я─п╬я│п╪п╬я┌я─ п╫п╣п©п╬п╢я┌п╡п╣я─п╤п╢п╣п╫п╫я▀я┘ я│п╬п╬п╠я┴п╣п╫п╦п╧ - <%= section==null?"п▓я│п╣":section.getName() %>
     </td>
 
     <td align=right valign=middle>
-      [<a style="text-decoration: none" href="rules.jsp">Правила форума</a>]
-      [<a style="text-decoration: none" href="tags.jsp">Метки</a>]
+      [<a style="text-decoration: none" href="rules.jsp">п÷я─п╟п╡п╦п╩п╟ я└п╬я─я┐п╪п╟</a>]
+      [<a style="text-decoration: none" href="tags.jsp">п°п╣я┌п╨п╦</a>]
 
-      <select name=section onChange="submit()" title="Быстрый переход">
-        <option value=0>Все</option>
+      <select name=section onChange="submit()" title="п▒я▀я│я┌я─я▀п╧ п©п╣я─п╣я┘п╬п╢">
+        <option value=0>п▓я│п╣</option>
         <%
                 Statement sectionListSt = db.createStatement();
                 ResultSet sectionList = sectionListSt.executeQuery("SELECT id, name FROM sections WHERE moderate order by id");
@@ -65,14 +65,14 @@
  </table>
 </form>
 
-<h1><%= section==null?"П":(section.getName()+": п") %>росмотр неподтвержденных</h1>
-<strong>Внимание!</strong> Cообщения отображаются точно так же, как
-они будут выглядеть на главной странице (за исключением раздела <em>ссылок</em>). Если ваше сообщение отображается не так, как вы хотели, или
-в нем не работают какие-либо ссылки, пожалуйста,
-исправьте его и пошлите заново (и, в идеале, самостоятельно удалите
-старую версию).<p>
-<strong>Внимание модераторам!</strong> Не подтверждайте сразу
-много скриншотов, дайте им повисеть на главной странице.<p>
+<h1><%= section==null?"п÷":(section.getName()+": п©") %>я─п╬я│п╪п╬я┌я─ п╫п╣п©п╬п╢я┌п╡п╣я─п╤п╢п╣п╫п╫я▀я┘</h1>
+<strong>п▓п╫п╦п╪п╟п╫п╦п╣!</strong> Cп╬п╬п╠я┴п╣п╫п╦я▐ п╬я┌п╬п╠я─п╟п╤п╟я▌я┌я│я▐ я┌п╬я┤п╫п╬ я┌п╟п╨ п╤п╣, п╨п╟п╨
+п╬п╫п╦ п╠я┐п╢я┐я┌ п╡я▀пЁп╩я▐п╢п╣я┌я▄ п╫п╟ пЁп╩п╟п╡п╫п╬п╧ я│я┌я─п╟п╫п╦я├п╣ (п╥п╟ п╦я│п╨п╩я▌я┤п╣п╫п╦п╣п╪ я─п╟п╥п╢п╣п╩п╟ <em>я│я│я▀п╩п╬п╨</em>). п∙я│п╩п╦ п╡п╟я┬п╣ я│п╬п╬п╠я┴п╣п╫п╦п╣ п╬я┌п╬п╠я─п╟п╤п╟п╣я┌я│я▐ п╫п╣ я┌п╟п╨, п╨п╟п╨ п╡я▀ я┘п╬я┌п╣п╩п╦, п╦п╩п╦
+п╡ п╫п╣п╪ п╫п╣ я─п╟п╠п╬я┌п╟я▌я┌ п╨п╟п╨п╦п╣-п╩п╦п╠п╬ я│я│я▀п╩п╨п╦, п©п╬п╤п╟п╩я┐п╧я│я┌п╟,
+п╦я│п©я─п╟п╡я▄я┌п╣ п╣пЁп╬ п╦ п©п╬я┬п╩п╦я┌п╣ п╥п╟п╫п╬п╡п╬ (п╦, п╡ п╦п╢п╣п╟п╩п╣, я│п╟п╪п╬я│я┌п╬я▐я┌п╣п╩я▄п╫п╬ я┐п╢п╟п╩п╦я┌п╣
+я│я┌п╟я─я┐я▌ п╡п╣я─я│п╦я▌).<p>
+<strong>п▓п╫п╦п╪п╟п╫п╦п╣ п╪п╬п╢п╣я─п╟я┌п╬я─п╟п╪!</strong> п²п╣ п©п╬п╢я┌п╡п╣я─п╤п╢п╟п╧я┌п╣ я│я─п╟п╥я┐
+п╪п╫п╬пЁп╬ я│п╨я─п╦п╫я┬п╬я┌п╬п╡, п╢п╟п╧я┌п╣ п╦п╪ п©п╬п╡п╦я│п╣я┌я▄ п╫п╟ пЁп╩п╟п╡п╫п╬п╧ я│я┌я─п╟п╫п╦я├п╣.<p>
 <%
 
   Statement st = db.createStatement();
@@ -102,12 +102,12 @@
     rs = st.executeQuery("SELECT topics.title as subj, nick, groups.section, groups.title as gtitle, topics.id as msgid, groups.id as guid, sections.name as ptitle, reason FROM topics,groups,users,sections,del_info WHERE sections.id=groups.section AND topics.userid=users.id AND topics.groupid=groups.id AND sections.moderate AND deleted AND del_info.msgid=topics.id AND topics.userid!=del_info.delby AND section=" + sectionid + " ORDER BY msgid DESC LIMIT 20;");
   }
 %>
-<h2>Последние удаленные неподтвержденные</h2>
+<h2>п÷п╬я│п╩п╣п╢п╫п╦п╣ я┐п╢п╟п╩п╣п╫п╫я▀п╣ п╫п╣п©п╬п╢я┌п╡п╣я─п╤п╢п╣п╫п╫я▀п╣</h2>
 <div class=forum>
 <div class=color1>
 <table width="100%" cellspacing=1 cellpadding=0 border=0>
 <thead>
-<tr class=color1><th>&nbsp;<a name="undelete" title="Восстановить">#</a>&nbsp;</th><th>Автор</th><th>Группа</th><th>Заголовок</th><th>Причина удаления</th></tr>
+<tr class=color1><th>&nbsp;<a name="undelete" title="п▓п╬я│я│я┌п╟п╫п╬п╡п╦я┌я▄">#</a>&nbsp;</th><th>п░п╡я┌п╬я─</th><th>п⌠я─я┐п©п©п╟</th><th>п≈п╟пЁп╬п╩п╬п╡п╬п╨</th><th>п÷я─п╦я┤п╦п╫п╟ я┐п╢п╟п╩п╣п╫п╦я▐</th></tr>
 <tbody>
 
 <%
@@ -116,7 +116,7 @@
 	int msgid=rs.getInt("msgid");
 	int guid=rs.getInt("guid");
 	out.print("<tr class=color2>");
-    out.print("<td align=\"center\">"+(rs.getInt("section")==1?"<a href=\"undelete.jsp?msgid="+msgid+"\" title=\"Восстановить\">#</a>":"X")+"</td>");
+    out.print("<td align=\"center\">"+(rs.getInt("section")==1?"<a href=\"undelete.jsp?msgid="+msgid+"\" title=\"п▓п╬я│я│я┌п╟п╫п╬п╡п╦я┌я▄\">#</a>":"X")+"</td>");
 	out.print("<td><a href=\"whois.jsp?nick="+URLEncoder.encode(nick)+"\">"+nick+"</a></td>");
 	out.print("<td><a href=\"group.jsp?group="+guid+"\">"+rs.getString("ptitle")+" - " + rs.getString("gtitle")+"</a></td>");
 	out.print("<td><a href=\"view-message.jsp?msgid="+msgid+"\">"+rs.getString("subj")+"</a></td>");
