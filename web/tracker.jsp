@@ -29,9 +29,29 @@
 
     out.println("<!-- hours = " + hours + " -->");
 
-    String title = "Последние сообщения";
+/*
 
+    (hours % 100 / 10) == 1  => 2  (( 11, 12, 13, 14))
+    (hours % 10) == 1        => 0
+    (hours % 10) == 2 .. 4   => 1
+    else                     => 2
+
+*/
+
+    String sSuf = "ов";
+    
+    /* some magic */
+    if (hours % 10 < 5 && hours % 10 > 0 && hours % 100 / 10 != 1) {
+	    if (hours % 10 == 1) {
+		    sSuf = "";
+	    } else {
+		     sSuf="а";
+	    };
+    };
+    
+    String title = "Последние сообщения за "+hours+" час"+sSuf;
 %>
+
 <title><%= title %></title>
 <jsp:include page="WEB-INF/jsp/header.jsp"/>
 
@@ -53,7 +73,7 @@
  </table>
 </form>
 
-<h1><%= title %> за <%= hours %> часа</h1>
+<h1><%= title %></h1>
 
 <div class=forum>
 <table width="100%" class="message-table">
