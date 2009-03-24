@@ -30,32 +30,43 @@
     Statement st1 = db.createStatement();
     if ("POST".equals(request.getMethod())) {
       String newgr = request.getParameter("moveto");
-      String sSql = "UPDATE topics SET groupid=" + newgr + " WHERE id=" + msgid;
+      String sSql = "UPDATE topics SET linktext=null, url=null, groupid= " + newgr + " WHERE id=" + msgid;
 
-      PreparedStatement pst = db.prepareStatement("SELECT topics.groupid,topics.userid,groups.title FROM topics,groups WHERE topics.id=? AND groups.id=topics.groupid");
+      PreparedStatement pst = db.prepareStatement(
+"SELECT t.groupid,t.userid,g.title,t.url,t.linktext FROM topics as t,groups as g WHERE t.id=? AND g.id=t.groupid");
+
       pst.setInt(1,msgid);
 
       ResultSet rs = pst.executeQuery();
       String oldgr = "n/a";
       String title = "n/a";
+      String linktext = "", url = "";
 
       if (rs.next()) {
         oldgr = rs.getString("groupid");
-	title = rs.getString("title");
-      }
+  title = rs.getString("title");
+        linktext = rs.getString("linktext");
+        url = rs.getString("url");
+      } 
 
       st1.executeUpdate(sSql);
 
-      PreparedStatement pst1 = db.prepareStatement("UPDATE msgbase SET message=message||? WHERE id=?");
-      if (msg.isLorcode()) {
-        pst1.setString(1,"\n\n[i]Перемещено " + session.getValue("nick") + " из "+title+"[/i]\n");
-      } else {
-        pst1.setString(1,"\n<br>\n<br><i>Перемещено " + session.getValue("nick") + " из "+title+"</i>\n");
-      }
-      pst1.setInt(2,msgid);
-      pst1.executeUpdate();
-      logger.info("topic " + msgid + " moved" +
-          " by " + session.getValue("nick") + " from news/forum " + oldgr + " to forum " + newgr);
+  /* if url is not null, update the topic text */
+  if (url != null) {
+
+  PreparedStatement pst1 = db.prepareStatement("UPDATE msgbase SET message=message||? WHERE id=?");
+  if (msg.isLorcode()) {
+    pst1.setString(1,"\n\n[url="+url+"]"+linktext+"[/url]\n\n[i]Перемещено " + session.getValue("nick") + " из "+title+"[/i]\n");
+  } else {
+    pst1.setString(1,"\n<br><a href=\""+url+"\">"+linktext+ "</a>\n<br>\n<br><i>Перемещено " + session.getValue("nick") + " из "+title+"</i>\n");
+  }
+  pst1.setInt(2,msgid);
+  pst1.executeUpdate();
+  logger.info("topic " + msgid + " moved" +
+    " by " + session.getValue("nick") + " from news/forum " + oldgr + " to forum " + newgr);
+
+  };
+
     } else {
 %>
 перенос сообщения <strong><%= msgid %></strong> в форум:
