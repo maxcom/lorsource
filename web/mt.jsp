@@ -52,20 +52,27 @@
       st1.executeUpdate(sSql);
 
   /* if url is not null, update the topic text */
-  if (url != null) {
+    PreparedStatement pst1 = db.prepareStatement("UPDATE msgbase SET message=message||? WHERE id=?");
 
-  PreparedStatement pst1 = db.prepareStatement("UPDATE msgbase SET message=message||? WHERE id=?");
+  String link = "";
+  if (url != null) {
+     if (msg.isLorcode()) {
+       link = "\n[url="+url+"]"+linktext+"[/url]\n";
+     } else {
+       link = "<br><a href=\""+url+"\">"+linktext+ "</a>\n<br>\n";
+     };
+  };
+
   if (msg.isLorcode()) {
-    pst1.setString(1,"\n\n[url="+url+"]"+linktext+"[/url]\n\n[i]Перемещено " + session.getValue("nick") + " из "+title+"[/i]\n");
+    pst1.setString(1,"\n"+link+"\n[i]Перемещено " + session.getValue("nick") + " из "+title+"[/i]\n");
   } else {
-    pst1.setString(1,"\n<br><a href=\""+url+"\">"+linktext+ "</a>\n<br>\n<br><i>Перемещено " + session.getValue("nick") + " из "+title+"</i>\n");
+    pst1.setString(1,"\n"+link+"<br><i>Перемещено " + session.getValue("nick") + " из "+title+"</i>\n");
   }
+
   pst1.setInt(2,msgid);
   pst1.executeUpdate();
   logger.info("topic " + msgid + " moved" +
     " by " + session.getValue("nick") + " from news/forum " + oldgr + " to forum " + newgr);
-
-  };
 
     } else {
 %>
