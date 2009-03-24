@@ -1,4 +1,4 @@
-<%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
+<%@ page contentType="text/html; charset=utf-8"%>
 <%@ page import="java.sql.Connection,java.sql.PreparedStatement,java.sql.ResultSet,java.sql.Statement,java.util.logging.Logger"   buffer="60kb" %>
 <%@ page import="ru.org.linux.site.LorDataSource" %>
 <%@ page import="ru.org.linux.site.Message" %>
@@ -15,7 +15,7 @@
     throw new IllegalAccessException("Not authorized");
   }
 
-  out.println("<title>Перенос темы...</title>");
+  out.println("<title>п÷п╣я─п╣п╫п╬я│ я┌п╣п╪я▀...</title>");
   %>
 <jsp:include page="WEB-INF/jsp/header.jsp"/>
 <%
@@ -64,9 +64,9 @@
   };
 
   if (msg.isLorcode()) {
-    pst1.setString(1,"\n"+link+"\n[i]Перемещено " + session.getValue("nick") + " из "+title+"[/i]\n");
+    pst1.setString(1,"\n"+link+"\n[i]п÷п╣я─п╣п╪п╣я┴п╣п╫п╬ " + session.getValue("nick") + " п╦п╥ "+title+"[/i]\n");
   } else {
-    pst1.setString(1,"\n"+link+"<br><i>Перемещено " + session.getValue("nick") + " из "+title+"</i>\n");
+    pst1.setString(1,"\n"+link+"<br><i>п÷п╣я─п╣п╪п╣я┴п╣п╫п╬ " + session.getValue("nick") + " п╦п╥ "+title+"</i>\n");
   }
 
   pst1.setInt(2,msgid);
@@ -76,7 +76,7 @@
 
     } else {
 %>
-перенос сообщения <strong><%= msgid %></strong> в форум:
+п©п╣я─п╣п╫п╬я│ я│п╬п╬п╠я┴п╣п╫п╦я▐ <strong><%= msgid %></strong> п╡ я└п╬я─я┐п╪:
 <%
       ResultSet rs = st1.executeQuery("SELECT id,title FROM groups WHERE section=2 ORDER BY id");
 %>
