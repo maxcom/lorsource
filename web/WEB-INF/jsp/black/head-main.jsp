@@ -32,8 +32,10 @@
   <td></td>
   <td><a href="search.jsp">Поиск</a></td>
 </tr>
-</table>
-  
+</table><br>
+  <a href="http://www.rootconf.ru/?partner=linuxorgru">
+    <img src="/adv/rootconf.gif" alt="RootConf" width="600" height="60">
+  </a>
 </div>
 
 <div style="right: 5px; text-align: right; top: 5px; position: absolute">
@@ -61,6 +63,7 @@
     <input type="button" value="Отмена" onclick="hideLoginForm(); return false">
   </form>
 </c:if>
-  </div>
+</div>
+
 
 <div style="clear: both"></div>
