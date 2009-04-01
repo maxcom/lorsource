@@ -45,7 +45,8 @@
   </c:url>
   добро пожаловать, <a style="text-decoration: none" href="${userUrl}">${template.nick}</a>
   <br>
-  <img src="/black/pingvin.gif" alt="Linux Logo" height=114 width=102>
+  <%--<img src="/black/pingvin.gif" alt="Linux Logo" height=114 width=102>--%>
+  <img src="/black/tuz.png" alt="Linux Logo" width="113" height="90">
 </c:if>
 
 <c:if test="${not template.sessionAuthorized}">
