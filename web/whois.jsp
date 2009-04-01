@@ -97,15 +97,15 @@
    else out.println("<b>Последний логин:</b> неизвестно<br>");
 %>
 <b>Статус:</b> <%= user.getStatus() %><%
-  if (user.canModerate()) {
-    out.print(" (модератор)");
-  }
+//  if (user.canModerate()) {
+//    out.print(" (модератор)");
+//  }
 
   if (user.isCorrector()) {
     out.print(" (корректор)");
   }
 
-  if (user.isBlocked())
+  if (user.isBlocked() || user.canModerate())
     out.println(" (заблокирован)\n");
 
   out.print("<br>");
