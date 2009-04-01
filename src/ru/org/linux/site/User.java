@@ -433,13 +433,13 @@ public class User implements Serializable {
 
     StringBuilder out = new StringBuilder();
 
-    if (blocked || canmod) {
+    if (blocked) {
       out.append("<s>");
     }
 
     out.append(nick);
 
-    if (blocked || canmod) {
+    if (blocked) {
       out.append("</s>");
     }
 
