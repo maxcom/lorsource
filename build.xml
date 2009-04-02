@@ -65,6 +65,8 @@
 </target>
 
 <target name="unit-tests" depends="build">
+	<mkdir dir="test-reports"/>
+
 	<junit fork="yes" haltonfailure="yes" printsummary="yes" dir=".">
 		<classpath>
 			<path refid="build.classpath" />
