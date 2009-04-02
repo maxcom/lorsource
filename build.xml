@@ -16,6 +16,7 @@
       <include name="spring-webmvc.jar"/>
       <include name="commons-codec-1.3.jar"/>
       <include name="junit-4.5.jar"/>
+      <include name="commons-logging-1.0.4.jar"/>
     </fileset>
   </path>
 
