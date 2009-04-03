@@ -14,10 +14,10 @@
     <antcall target="-download-ivy" />
   </target>
 
-  <target name="-download-ivy">
+  <target name="-download-ivy" unless="ivy.available">
     <mkdir dir="${ivy.jar.dir}"/>
     <get src="http://www.apache.org/dist/ant/ivy/${ivy.version}/apache-ivy-${ivy.version}-bin.zip"
-            dest="${ivy.home}/ivy-${ivy.version}.zip"/>
+            dest="${ivy.home}/ivy-${ivy.version}.zip" verbose="on" />
     <unzip src="${ivy.home}/ivy-${ivy.version}.zip" dest="${ivy.jar.dir}">
       <patternset>
         <include name="**/*.jar"/>

@@ -1,2 +1,78 @@
 <ivy-module version="2.0">
+    <info organisation="linux.org.ru" module="lnxorg"/>
+    <configurations>
+        <conf name="default"/>
+        <conf name="test"/>
+    </configurations>
+    <dependencies>
+        <dependency org="commons-codec" name="commons-codec" rev="1.3"/>
+        <dependency org="commons-fileupload" name="commons-fileupload" rev="1.2">
+            <exclude module="servlet-api"/>
+            <exclude module="portlet-api"/>
+        </dependency>
+        <dependency org="commons-lang" name="commons-lang" rev="2.3"/>
+        <dependency org="commons-logging" name="commons-logging" rev="1.0.4">
+            <exclude module="avalon-framework"/>
+            <exclude module="logkit"/>
+        </dependency>
+        <dependency org="dnsjava" name="dnsjava" rev="2.0.1"/>
+        <dependency org="gnu-regexp" name="gnu-regexp" rev="1.1.4"/>
+        <dependency org="postgresql" name="postgresql" rev="8.2-504.jdbc3"/>
+        <dependency org="junit" name="junit" rev="4.5" conf="test->default"/>
+        <dependency org="com.octo.captcha" name="jcaptcha-all" rev="1.0-RC6">
+            <exclude module="concurrent"/>
+            <exclude module="ehcache"/>
+            <exclude module="quartz"/>
+            <exclude module="xmlParserAPIs"/>
+            <exclude module="xerces-api"/>
+            <exclude module="xercesImpl"/>
+            <exclude module="commons-pool"/>
+            <exclude module="hsqldb"/>
+            <exclude module="spring"/>
+        </dependency>
+        <dependency org="org.springframework" name="spring-core" rev="2.5.6">
+            <exclude module="commons-logging"/>
+            <exclude module="log4j"/>
+            <exclude module="mail"/>
+        </dependency>
+        <dependency org="org.springframework" name="spring-beans" rev="2.5.6">
+            <exclude module="commons-logging"/>
+            <exclude module="log4j"/>
+            <exclude module="mail"/>
+        </dependency>
+        <dependency org="org.springframework" name="spring-context" rev="2.5.6">
+            <exclude module="commons-logging"/>
+            <exclude module="log4j"/>
+            <exclude module="mail"/>
+            <exclude module="commonj-twm"/>
+            <exclude module="jms"/>
+            <exclude module="ejb"/>
+        </dependency>
+        <dependency org="org.springframework" name="spring-web" rev="2.5.6">
+            <exclude module="commons-logging"/>
+            <exclude module="log4j"/>
+            <exclude module="mail"/>
+            <exclude module="jsf-api"/>
+        </dependency>
+        <dependency org="org.springframework" name="spring-webmvc" rev="2.5.6">
+            <exclude module="commons-logging"/>
+            <exclude module="log4j"/>
+            <exclude module="mail"/>
+            <exclude module="jxl"/>
+            <exclude org="struts" module="*"/>
+            <exclude org="org.apache" module="*"/>
+            <exclude module="commons-attributes-compiler"/>
+            <exclude module="commons-attributes"/>
+            <exclude module="itext"/>
+            <exclude module="freemarker"/>
+            <exclude module="poi"/>
+            <exclude org="qdox" module="*"/>
+            <exclude org="velocity-tools" module="*"/>
+            <exclude org="velocity" module="*"/>
+            <exclude module="jasperreports"/>
+            <exclude module="tiles-api"/>
+            <exclude module="tiles-core"/>
+            <exclude module="tiles-jsp"/>
+        </dependency>
+    </dependencies>
 </ivy-module>
