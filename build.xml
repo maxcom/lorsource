@@ -1,4 +1,43 @@
-<project name="lnxorg" default="dist">
+<project name="lnxorg" default="dist" xmlns:ivy="antlib:org.apache.ivy.ant">
+  <!-- ivy setup -->
+  <property name="ivy.version" value="2.0.0"/>
+  <property environment="env"/>
+  <condition property="ivy.home" value="${env.IVY_HOME}">
+    <isset property="env.IVY_HOME"/>
+  </condition>
+  <property name="ivy.home" value="${user.home}/.ant" />
+  <property name="ivy.jar.dir" value="${ivy.home}/lib" />
+  <property name="ivy.jar.file" value="${ivy.jar.dir}/ivy-${ivy.version}.jar" />
+  <property name="lib.dir" value="${basedir}/ivy-lib"/>
+  <target name="download-ivy" unless="offline">
+    <available file="${ivy.jar.file}" property="ivy.available"/>
+    <antcall target="-download-ivy" />
+  </target>
+
+  <target name="-download-ivy">
+    <mkdir dir="${ivy.jar.dir}"/>
+    <get src="http://www.apache.org/dist/ant/ivy/${ivy.version}/apache-ivy-${ivy.version}-bin.zip"
+            dest="${ivy.home}/ivy-${ivy.version}.zip"/>
+    <unzip src="${ivy.home}/ivy-${ivy.version}.zip" dest="${ivy.jar.dir}">
+      <patternset>
+        <include name="**/*.jar"/>
+      </patternset>
+      <mapper type="flatten"/>
+    </unzip>
+  </target>
+
+  <target name="init-ivy" depends="download-ivy" unless="ivy.lib.path">
+    <path id="ivy.lib.path">
+      <fileset dir="${ivy.jar.dir}" includes="*.jar"/>
+    </path>
+    <taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant" classpathref="ivy.lib.path"/>
+  </target>
+
+  <target name="-resolve" depends="init-ivy">
+        <ivy:retrieve pattern="${lib.dir}/[conf]/[artifact]-[revision].[ext]"/>
+  </target>
+
+  <!-- ivy setup end -->
   <taskdef name="junit" classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask"/>
 
   <path id="build.classpath">
@@ -21,66 +60,66 @@
   </path>
 
 
-<target name="init">
-	<property name="build" value="build"/>
-	<property name="dist" value="dist"/>
-	<property name="apidoc" value="docs/apidoc"/>
+<target name="init" depends="-resolve">
+        <property name="build" value="build"/>
+        <property name="dist" value="dist"/>
+        <property name="apidoc" value="docs/apidoc"/>
 </target>
 
 <target name="prepare" depends="init">
-	<mkdir dir="${build}"/>
+        <mkdir dir="${build}"/>
 </target>
 
 <target name="build" depends="prepare">
-	<javac classpathref="build.classpath" srcdir="src" destdir="${build}" optimize="yes" debug="yes" encoding="utf-8"/>
-	<copy file="src/logging.properties" todir="${build}"/>
+        <javac classpathref="build.classpath" srcdir="src" destdir="${build}" optimize="yes" debug="yes" encoding="utf-8"/>
+        <copy file="src/logging.properties" todir="${build}"/>
 </target>
 
 <target name="dist" depends="build, unit-tests">
-	<mkdir dir="${dist}"/>
-	<mkdir dir="${dist}/WEB-INF"/>
-	<mkdir dir="${dist}/WEB-INF/lib"/>
-	<jar jarfile="${dist}/WEB-INF/lib/lnxorgutil.jar" basedir="${build}" includes="ru/org/linux/util/*,ru/org/linux/storage/*,ru/org/linux/cache/*,ru/org/linux/boxlet/*,ru/org/linux/logger/*,org/**"/>
-	<jar jarfile="${dist}/WEB-INF/lib/lnxorgsite.jar" basedir="${build}" includes="ru/org/linux/site/**,ru/org/linux/spring/**,logging.properties"/>
-	<copy todir="${dist}/WEB-INF">
-		<fileset dir="web/WEB-INF"/>
-	</copy>
-	<copy todir="${dist}">
-		<fileset dir="web" includes="*.jsp"/>
-		<fileset dir="html"/>
-	</copy>
-	<copy todir="${dist}/WEB-INF/lib">
-		<fileset dir="lib" includes="*.jar" excludes="jsdk23.jar"/>
-	</copy>
+        <mkdir dir="${dist}"/>
+        <mkdir dir="${dist}/WEB-INF"/>
+        <mkdir dir="${dist}/WEB-INF/lib"/>
+        <jar jarfile="${dist}/WEB-INF/lib/lnxorgutil.jar" basedir="${build}" includes="ru/org/linux/util/*,ru/org/linux/storage/*,ru/org/linux/cache/*,ru/org/linux/boxlet/*,ru/org/linux/logger/*,org/**"/>
+        <jar jarfile="${dist}/WEB-INF/lib/lnxorgsite.jar" basedir="${build}" includes="ru/org/linux/site/**,ru/org/linux/spring/**,logging.properties"/>
+        <copy todir="${dist}/WEB-INF">
+                <fileset dir="web/WEB-INF"/>
+        </copy>
+        <copy todir="${dist}">
+                <fileset dir="web" includes="*.jsp"/>
+                <fileset dir="html"/>
+        </copy>
+        <copy todir="${dist}/WEB-INF/lib">
+                <fileset dir="lib" includes="*.jar" excludes="jsdk23.jar"/>
+        </copy>
 </target>
 
 <target name="doc" depends="build">
-	<mkdir dir="docs/api"/>
-	<javadoc sourcepath="src" destdir="docs/api" packagenames="ru.org.linux.*" encoding="utf-8" docencoding="utf-8"/>
+        <mkdir dir="docs/api"/>
+        <javadoc sourcepath="src" destdir="docs/api" packagenames="ru.org.linux.*" encoding="utf-8" docencoding="utf-8"/>
 </target>
 
 <target name="clean" depends="init">
-	<delete dir="${build}"/>
-	<delete dir="${dist}"/>
-	<delete dir="${apidoc}"/>
+        <delete dir="${build}"/>
+        <delete dir="${dist}"/>
+        <delete dir="${apidoc}"/>
 </target>
 
 <target name="unit-tests" depends="build">
-	<mkdir dir="test-reports"/>
+        <mkdir dir="test-reports"/>
 
-	<junit fork="yes" haltonfailure="yes" printsummary="yes" dir=".">
-		<classpath>
-			<path refid="build.classpath" />
-			<pathelement location="${build}" />
-		</classpath>
-		<formatter type="xml" />
-		<formatter type="brief" usefile="false" />
-		<batchtest todir="test-reports">
-			<fileset dir="${build}">
-	                    <include name="**/*Test.class" />
-			</fileset>
-		</batchtest>
-	</junit>
+        <junit fork="yes" haltonfailure="yes" printsummary="yes" dir=".">
+                <classpath>
+                        <path refid="build.classpath" />
+                        <pathelement location="${build}" />
+                </classpath>
+                <formatter type="xml" />
+                <formatter type="brief" usefile="false" />
+                <batchtest todir="test-reports">
+                        <fileset dir="${build}">
+                            <include name="**/*Test.class" />
+                        </fileset>
+                </batchtest>
+        </junit>
 </target>
 
 </project>
