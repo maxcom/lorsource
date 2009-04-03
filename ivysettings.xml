@@ -1,0 +1,18 @@
+<ivysettings>
+    <settings defaultResolver="default"/>
+    <include url="${ivy.default.settings.dir}/ivysettings-public.xml"/>
+    <include url="${ivy.default.settings.dir}/ivysettings-shared.xml"/>
+    <include url="${ivy.default.settings.dir}/ivysettings-local.xml"/>
+    <include url="${ivy.default.settings.dir}/ivysettings-main-chain.xml"/>
+    <!--include url="${ivy.default.settings.dir}/ivysettings-default-chain.xml"/-->
+    <resolvers>
+        <chain name="default">
+            <filesystem name="provided-libs">
+                <artifact pattern="${basedir}/lib/[artifact]-[revision].[ext]"/>
+            </filesystem>
+
+            <ibiblio name="maven2" m2compatible="true"/>
+
+        </chain>
+    </resolvers>
+</ivysettings>
