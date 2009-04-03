@@ -41,7 +41,7 @@
   <taskdef name="junit" classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask"/>
 
   <path id="build.classpath">
-    <fileset dir="lib">
+    <!--fileset dir="lib">
       <include name="gnu-regexp-1.0.8.jar"/>
       <include name="jsdk23.jar"/>
       <include name="postgresql-jdbc-8.2.504.jar"/>
@@ -56,9 +56,14 @@
       <include name="commons-codec-1.3.jar"/>
       <include name="junit-4.5.jar"/>
       <include name="commons-logging-1.0.4.jar"/>
-    </fileset>
+    </fileset-->
   </path>
 
+  <path id="compile.classpath">
+    <fileset dir="${lib.dir}/test">
+      <include name="*.jar"/>
+    </fileset>
+  </path>
 
 <target name="init" depends="-resolve">
         <property name="build" value="build"/>
@@ -71,7 +76,7 @@
 </target>
 
 <target name="build" depends="prepare">
-        <javac classpathref="build.classpath" srcdir="src" destdir="${build}" optimize="yes" debug="yes" encoding="utf-8"/>
+        <javac classpathref="compile.classpath" srcdir="src" destdir="${build}" optimize="yes" debug="yes" encoding="utf-8" excludes="**/*Test.java"/>
         <copy file="src/logging.properties" todir="${build}"/>
 </target>
 
