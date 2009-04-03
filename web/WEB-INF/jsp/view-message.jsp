@@ -75,7 +75,7 @@
   <link rel="Next" id="NextLink" href="${fn:escapeXml(nextMessage.linkLastmod)}" title="<%= StringUtil.makeTitle(nextMessage.getTitle()) %>">
 </c:if>
 
-<LINK REL="alternate" TITLE="Comments RSS" HREF="topic-rss.jsp?topic=<%= msgid %>" TYPE="application/rss+xml">
+<LINK REL="alternate" TITLE="Comments RSS" HREF="view-message.jsp?msgid=<%= msgid %>&amp;output=rss" TYPE="application/rss+xml">
 <script src="/js/jquery.hotkeys-0.7.8-packed.js" type="text/javascript"></script>
 <script type="text/javascript">
   <!--
@@ -96,7 +96,7 @@
   </td>
 
     <td align=right>
-      [<a href="topic-rss.jsp?topic=<%= msgid %>">RSS</a>]
+      [<a href="view-message-rss.jsp?topic=<%= msgid %>">RSS</a>]
 
       <c:if test="${!showDeleted}">
 <%

@@ -17,6 +17,7 @@ package ru.org.linux.site;
 
 import java.io.Serializable;
 import java.sql.*;
+import java.util.Date;
 import java.util.Map;
 
 import ru.org.linux.util.StringUtil;
@@ -107,6 +108,10 @@ public class Comment implements Serializable {
     return msgid;
   }
 
+  public int getId() {
+    return msgid;
+  }
+
   public int getReplyTo() {
     return replyto;
   }
@@ -127,7 +132,7 @@ public class Comment implements Serializable {
     return title;
   }
 
-  public Timestamp getPostdate() {
+  public Date getPostdate() {
     return postdate;
   }
 

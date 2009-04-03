@@ -29,6 +29,12 @@
     <to type="redirect">/</to>
   </rule>
 
+    <rule>
+        <from>^/topic-rss.jsp\?topic=(.*)$</from>
+        <!--<condition type="query-string">topic=(\\n+)</condition>-->
+        <to type="redirect">/view-message.jsp?msgid=$1&amp;output=rss</to>
+    </rule>
+
 <!--  <rule>
     <from>^/news$</from>
     <to type="redirect">/news/</to>

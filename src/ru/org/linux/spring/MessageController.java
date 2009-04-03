@@ -38,6 +38,7 @@ public class MessageController extends AbstractController {
     params.put("msgid", msgid);
 
     boolean showDeleted = request.getParameter("deleted") != null;
+    boolean rss = request.getParameter("output")!=null && "rss".equals(request.getParameter("output"));
 
     if (showDeleted && !"POST".equals(request.getMethod())) {
       response.setHeader("Location", tmpl.getMainUrl() + "view-message.jsp?msgid=" + msgid);
@@ -90,7 +91,7 @@ public class MessageController extends AbstractController {
         params.put("comments", comments);
       }
 
-      return new ModelAndView("view-message", params);
+      return new ModelAndView(rss?"view-message-rss":"view-message", params);
     } finally {
       if (db!=null) {
         db.close();
