@@ -54,7 +54,7 @@
             <include name="*.jar"/>
         </fileset>
     </path>
-    <target name="init" depends="-resolve">
+    <target name="init">
         <property name="build" value="build"/>
         <property name="build.test.dir" value="${basedir}/build-test"/>
         <property name="dist" value="dist"/>
@@ -66,7 +66,7 @@
         <mkdir dir="${build.test.dir}"/>
     </target>
 
-    <target name="build" depends="prepare">
+    <target name="build" depends="prepare, -resolve">
         <javac classpathref="compile.classpath" srcdir="src" destdir="${build}" optimize="yes"
                debug="yes" encoding="utf-8" excludes="**/*Test.java"/>
         <copy file="src/logging.properties" todir="${build}"/>
