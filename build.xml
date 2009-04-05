@@ -46,33 +46,14 @@
     <!-- ivy setup end -->
     <taskdef name="junit" classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask"/>
 
-    <path id="build.classpath">
-        <!--fileset dir="lib">
-          <include name="gnu-regexp-1.0.8.jar"/>
-          <include name="jsdk23.jar"/>
-          <include name="postgresql-jdbc-8.2.504.jar"/>
-          <include name="jcaptcha-all-1.0-RC6.jar"/>
-          <include name="java_memcached-release_2.0.1.jar"/>
-          <include name="dnsjava-2.0.3.jar"/>
-          <include name="commons-fileupload-1.2.jar"/>
-          <include name="commons-io-1.3.2.jar"/>
-          <include name="commons-lang-2.3.jar"/>
-          <include name="spring.jar"/>
-          <include name="spring-webmvc.jar"/>
-          <include name="commons-codec-1.3.jar"/>
-          <include name="junit-4.5.jar"/>
-          <include name="commons-logging-1.0.4.jar"/>
-        </fileset-->
-    </path>
-
     <path id="compile.classpath">
         <fileset dir="${lib.dir}/build">
             <include name="*.jar"/>
         </fileset>
+        <fileset dir="${lib.dir}/provided">
+            <include name="*.jar"/>
+        </fileset>
     </path>
-
-
-
     <target name="init" depends="-resolve">
         <property name="build" value="build"/>
         <property name="build.test.dir" value="${basedir}/build-test"/>
@@ -93,6 +74,9 @@
 
      <path id="test.compile.classpath">
         <fileset dir="${lib.dir}/test">
+            <include name="*.jar"/>
+        </fileset>
+        <fileset dir="${lib.dir}/provided">
             <include name="*.jar"/>
         </fileset>
     </path>
@@ -123,7 +107,7 @@
             <fileset dir="html"/>
         </copy>
         <copy todir="${dist}/WEB-INF/lib">
-            <fileset dir="lib" includes="*.jar" excludes="jsdk23.jar"/>
+            <fileset dir="${lib.dir}/build" includes="*.jar"/>
         </copy>
     </target>
 
