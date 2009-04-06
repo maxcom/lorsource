@@ -50,6 +50,8 @@ public class HTMLFormatterTest extends TestCase {
   private static final String TEXT9 = "(http://ru.wikipedia.org/wiki/Blah_(blah))";
   private static final String RESULT9 = "(<a href=\"http://ru.wikipedia.org/wiki/Blah_(blah)\">http://ru.wikipedia.org/wiki/Blah_(blah)</a>)";
 
+  private static final String GUARANTEED_CRASH = "\"http://www.google.com/\"";
+
   public void testURLHighlight() throws UtilException {
     HTMLFormatter formatter = new HTMLFormatter(TEXT1);
 
@@ -141,5 +143,18 @@ public class HTMLFormatterTest extends TestCase {
     formatter.enableQuoting();
 
     assertEquals(RESULT_QUOTING3, formatter.process());
+  }
+
+  public void testEntityCrash(){
+    HTMLFormatter formatter = new HTMLFormatter(GUARANTEED_CRASH);
+    formatter.enablePreformatMode();
+    formatter.enableUrlHighLightMode();
+    try{
+      //BANG!!!!
+      formatter.process();
+      fail("This test will fail whe bug will be fixed");
+    }catch (StringIndexOutOfBoundsException e){
+
+    }
   }
 }
