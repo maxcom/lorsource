@@ -150,7 +150,6 @@ public class HTMLFormatterTest extends TestCase {
     formatter.enablePreformatMode();
     formatter.enableUrlHighLightMode();
     try{
-      //BANG!!!!
       String r = formatter.process();
       assertEquals("<pre>&quot;<a href=\"http://www.google.com/\">http://www.google.com/</a>&quot;</pre>", r);
     }catch (StringIndexOutOfBoundsException e){
