@@ -96,7 +96,7 @@
   </td>
 
     <td align=right>
-      [<a href="view-message-rss.jsp?topic=<%= msgid %>">RSS</a>]
+      [<a href="view-message.jsp?msgid=<%= msgid %>&amp;output=rss">RSS</a>]
 
       <c:if test="${!showDeleted}">
 <%

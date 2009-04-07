@@ -15,9 +15,10 @@
 
 package ru.org.linux.util;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
+import org.junit.Test;
 
-public class HTMLFormatterTest extends TestCase {
+public class HTMLFormatterTest {
   private static final String TEXT1 = "Here is www.linux.org.ru, have fun! :-)";
   private static final String RESULT1 = "Here is <a href=\"http://www.linux.org.ru\">www.linux.org.ru</a>, have fun! :-)";
 
@@ -52,48 +53,54 @@ public class HTMLFormatterTest extends TestCase {
 
   private static final String GUARANTEED_CRASH = "\"http://www.google.com/\"";
 
+  @Test
   public void testURLHighlight() throws UtilException {
     HTMLFormatter formatter = new HTMLFormatter(TEXT1);
 
     formatter.enableUrlHighLightMode();
 
-    assertEquals(formatter.process(), RESULT1);
+    assertEquals(RESULT1, formatter.process());
   }
 
+  @Test
   public void testURLHighlight2() throws UtilException {
     HTMLFormatter formatter = new HTMLFormatter(TEXT2);
 
     formatter.enableUrlHighLightMode();
 
-    assertEquals(formatter.process(), RESULT2);
+    assertEquals(RESULT2, formatter.process());
   }
 
+  @Test
   public void testURLHighlight3() throws UtilException {
     HTMLFormatter formatter = new HTMLFormatter(TEXT3);
 
     formatter.enableUrlHighLightMode();
     formatter.setMaxLength(20);
 
-    assertEquals(formatter.process(), RESULT3);
+    assertEquals(RESULT3, formatter.process());
   }
 
+  @Test
   public void testURLHighlight4() throws UtilException {
     HTMLFormatter formatter = new HTMLFormatter(TEXT8);
 
     formatter.enableUrlHighLightMode();
     formatter.setMaxLength(20);
 
-    assertEquals(formatter.process(), RESULT8);
+    assertEquals(RESULT8, formatter.process());
   }
 
+  @Test
   public void testURLHighlight5() throws UtilException {
     HTMLFormatter formatter = new HTMLFormatter(TEXT9);
 
     formatter.enableUrlHighLightMode();
 
-    assertEquals(formatter.process(), RESULT9);
+    assertEquals(RESULT9, formatter.process());
   }
 
+  @Test
   public void testWrap1() throws UtilException {
     HTMLFormatter formatter = new HTMLFormatter(TEXT4);
 
@@ -102,22 +109,27 @@ public class HTMLFormatterTest extends TestCase {
     assertEquals(RESULT4, formatter.process());
   }
 
+  @Test
   public void testCountSGML1() throws UtilException {
     assertEquals(HTMLFormatter.countCharacters(TEXT4), TEXT4.length());
   }
 
+  @Test
   public void testCountSGML2() throws UtilException {
     assertEquals(5, HTMLFormatter.countCharacters(TEXT6));
   }
 
+  @Test
   public void testWrapSGML() throws UtilException {
     assertEquals(TEXT7, HTMLFormatter.wrapLongLine(TEXT7, 35, " "));
   }
 
+  @Test
   public void testWrapSGML2() throws UtilException {
     assertEquals(RESULT7, HTMLFormatter.wrapLongLine(TEXT7, 20, " "));
   }
 
+  @Test
   public void testQuiting1() throws UtilException {
     HTMLFormatter formatter = new HTMLFormatter(QUOTING1);
 
@@ -127,6 +139,7 @@ public class HTMLFormatterTest extends TestCase {
     assertEquals(RESULT_QUOTING1, formatter.process());
   }
 
+  @Test
   public void testQuiting2() throws UtilException {
     HTMLFormatter formatter = new HTMLFormatter(QUOTING2);
 
@@ -136,6 +149,7 @@ public class HTMLFormatterTest extends TestCase {
     assertEquals(RESULT_QUOTING2, formatter.process());
   }
 
+  @Test
   public void testQuiting3() throws UtilException {
     HTMLFormatter formatter = new HTMLFormatter(QUOTING3);
 

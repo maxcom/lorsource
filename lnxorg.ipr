@@ -498,7 +498,6 @@
         <inspection_tool class="TestCaseWithConstructor" level="WARNING" enabled="true" />
         <inspection_tool class="BeforeOrAfterIsPublicVoidNoArg" level="WARNING" enabled="true" />
         <inspection_tool class="BeforeClassOrAfterClassIsPublicStaticVoidNoArg" level="WARNING" enabled="true" />
-        <inspection_tool class="AssertsWithoutMessages" level="WARNING" enabled="true" />
         <inspection_tool class="SetupCallsSuperSetup" level="WARNING" enabled="true" />
         <inspection_tool class="MisspelledSetUp" level="WARNING" enabled="true" />
         <inspection_tool class="SetupIsPublicVoidNoArg" level="WARNING" enabled="true" />
