@@ -160,6 +160,7 @@ public class HTMLFormatterTest {
     assertEquals(RESULT_QUOTING3, formatter.process());
   }
 
+  @Test
   public void testEntityCrash(){
     HTMLFormatter formatter = new HTMLFormatter(GUARANTEED_CRASH);
     formatter.enablePreformatMode();
