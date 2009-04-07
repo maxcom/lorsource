@@ -17,6 +17,7 @@ package ru.org.linux.util;
 
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;
+import org.junit.Assert;
 
 public class HTMLFormatterTest {
   private static final String TEXT1 = "Here is www.linux.org.ru, have fun! :-)";
@@ -167,7 +168,7 @@ public class HTMLFormatterTest {
       String r = formatter.process();
       assertEquals("<pre>&quot;<a href=\"http://www.google.com/\">http://www.google.com/</a>&quot;</pre>", r);
     }catch (StringIndexOutOfBoundsException e){
-      fail("It seems, it should not happen?");
+      Assert.fail("It seems, it should not happen?");
     }
   }
 }
