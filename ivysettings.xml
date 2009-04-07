@@ -12,7 +12,7 @@
             </filesystem>
 
             <ibiblio name="maven2" m2compatible="true"/>
-
+            <ibiblio name="java.net" m2compatible="true" root="http://download.java.net/maven/2/"/>
         </chain>
     </resolvers>
 </ivysettings>
