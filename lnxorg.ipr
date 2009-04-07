@@ -194,19 +194,6 @@
     <option name="OPEN_IN_BROWSER" value="false" />
     <option name="OUTPUT_DIRECTORY" />
   </component>
-  <component name="FacetAutodetectingManager">
-    <autodetection-disabled>
-      <facet-type id="web">
-        <modules>
-          <module name="lnxorg">
-            <files>
-              <file url="file://$PROJECT_DIR$/dist/WEB-INF/web.xml" />
-            </files>
-          </module>
-        </modules>
-      </facet-type>
-    </autodetection-disabled>
-  </component>
   <component name="IdProvider" IDEtalkID="7E0315E77B8671F7F3564E93FA4D06AC" />
   <component name="InspectionProjectProfileManager">
     <option name="PROJECT_PROFILE" value="Project Default" />
@@ -699,7 +686,7 @@
     <converter id="SelenaRunConfToDiana" />
   </component>
   <component name="ProjectKey">
-    <option name="state" value="project:///Users/sreentenko/lorsource/lnxorg.ipr" />
+    <option name="state" value="project:///home/rsvato/tst/lorsource/lnxorg.ipr" />
   </component>
   <component name="ProjectModuleManager">
     <modules>
@@ -837,8 +824,5 @@
       <SOURCES />
     </library>
   </component>
-  <UsedPathMacros>
-    <macro name="MAVEN_REPOSITORY" />
-  </UsedPathMacros>
 </project>
 

@@ -151,10 +151,10 @@ public class HTMLFormatterTest extends TestCase {
     formatter.enableUrlHighLightMode();
     try{
       //BANG!!!!
-      formatter.process();
-      fail("This test will fail whe bug will be fixed");
+      String r = formatter.process();
+      assertEquals("<pre>&quot;<a href=\"http://www.google.com/\">http://www.google.com/</a>&quot;</pre>", r);
     }catch (StringIndexOutOfBoundsException e){
-
+      fail("It seems, it should not happen?");
     }
   }
 }
