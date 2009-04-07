@@ -55,6 +55,8 @@ public class HTMLFormatterTest {
   private static final String GUARANTEED_CRASH = "\"http://www.google.com/\"";
 
   private static final String LINK_WITH_UNDERSCORE = "http://www.phoronix.com/scan.php?page=article&item=intel_core_i7&num=1";
+  private static final String LINK_WITH_PARAM_ONLY = "http://www.phoronix.com/scan.php?page=article&item=intel_core_i7&num";
+  private static final String LINK_WITH_CYR = "\"http://www.phoronix.com/scan.php?page=article&item=intel_core_i7&мама_мыла_раму\"";
 
   @Test
   public void testURLHighlight() throws UtilException {
@@ -180,6 +182,23 @@ public class HTMLFormatterTest {
     HTMLFormatter formatter = new HTMLFormatter(LINK_WITH_UNDERSCORE);
     formatter.enableUrlHighLightMode();
     String s = formatter.process();
-    Assert.assertTrue("Whole text must be formatted as link", s.endsWith(">"));
+    Assert.assertTrue("Whole text must be formatted as link: " + s, s.endsWith(">"));
+  }
+
+  @Test
+  public void testWithParamOnly(){
+    HTMLFormatter formatter = new HTMLFormatter(LINK_WITH_PARAM_ONLY);
+    formatter.enableUrlHighLightMode();
+    String s = formatter.process();
+    Assert.assertTrue("Whole text must be formatted as link: " + s, s.endsWith(">"));
+  }
+
+  @Test
+  public void testWithCyrillic(){
+    HTMLFormatter formatter = new HTMLFormatter(LINK_WITH_CYR);
+    formatter.enableUrlHighLightMode();
+    formatter.enablePreformatMode();
+    String s = formatter.process();
+    Assert.assertTrue("Whole text must be formatted as link: " + s, s.endsWith(">"));
   }
 }

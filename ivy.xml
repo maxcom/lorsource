@@ -15,7 +15,7 @@
         <dependency org="commons-lang" name="commons-lang" rev="2.3" conf="build->default"/>
         <dependency org="commons-logging" name="commons-logging" rev="1.0.4" conf="build->default"/>
         <dependency org="dnsjava" name="dnsjava" rev="2.0.3" conf="build->default"/>
-        <dependency org="gnu-regexp" name="gnu-regexp" rev="1.0.8" conf="build->default"/>
+        <dependency org="gnu-regexp" name="gnu-regexp" rev="1.1.4" conf="build->default"/>
         <dependency org="urlrewrite" name="urlrewrite" rev="2.6.0" conf="build->default"/>
         <dependency org="postgresql" name="postgresql" rev="8.2-504.jdbc3" conf="build->default"/>
         <dependency org="junit" name="junit" rev="4.5" conf="test->default"/>
