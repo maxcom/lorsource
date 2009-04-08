@@ -16,7 +16,7 @@
         <dependency org="commons-logging" name="commons-logging" rev="1.0.4" conf="build->default"/>
         <dependency org="commons-io" name="commons-io" rev="1.3.2" conf="build->default"/>
         <dependency org="dnsjava" name="dnsjava" rev="2.0.3" conf="build->default"/>
-        <dependency org="gnu-regexp" name="gnu-regexp" rev="1.0.8" conf="build->default"/>
+        <dependency org="gnu-regexp" name="gnu-regexp" rev="1.1.4" conf="build->default"/>
         <dependency org="urlrewrite" name="urlrewrite" rev="2.6.0" conf="build->default"/>
         <dependency org="postgresql" name="postgresql" rev="8.2-504.jdbc3" conf="build->default"/>
         <dependency org="junit" name="junit" rev="4.5" conf="test->default"/>
@@ -34,6 +34,6 @@
         <dependency org="javax.activation" name="activation" rev="1.1" conf="build->default"/>
         <dependency org="javax.mail" name="mail" rev="1.4" conf="build->default"/>
         <dependency org="com.Danga" name="java_memcached" rev="release_2.0.1" conf="build->default"/>
-
+        <dependency org="rome" name="rome" rev="1.0" conf="build->default"/>
     </dependencies>
 </ivy-module>

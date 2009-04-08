@@ -25,4 +25,13 @@
   <bean class="org.springframework.beans.factory.config.PropertiesFactoryBean" scope="singleton" name="config.properties.dist">
     <property name="location" value="/WEB-INF/config.properties.dist"/>
   </bean>
+
+    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer"
+            id="configurer">
+        <property name="location" value="/WEB-INF/jndi.properties"/>
+    </bean>
+
+  <bean class="org.springframework.jndi.JndiObjectFactoryBean" name="datasource">
+      <property name="jndiName" value="${datasource.name}"/>
+  </bean>
 </beans>
