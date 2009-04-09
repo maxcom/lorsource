@@ -18,6 +18,9 @@ package ru.org.linux.util;
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 import org.junit.Assert;
+import org.hamcrest.core.IsNot;
+import org.hamcrest.Matcher;
+import org.hamcrest.CoreMatchers;
 
 public class HTMLFormatterTest {
   private static final String TEXT1 = "Here is www.linux.org.ru, have fun! :-)";
@@ -56,7 +59,7 @@ public class HTMLFormatterTest {
 
   private static final String LINK_WITH_UNDERSCORE = "http://www.phoronix.com/scan.php?page=article&item=intel_core_i7&num=1";
   private static final String LINK_WITH_PARAM_ONLY = "http://www.phoronix.com/scan.php?page=article&item=intel_core_i7&num";
-  private static final String LINK_WITH_CYR = "\"http://www.phoronix.com/scan.php?page=article&item=intel_core_i7&мама_мыла_раму\"";
+  private static final String RFC1738 = "\"http://www.phoronix.com/scan.php?page=article&item=intel_core_i7&Мама_мыла_раму&$-_.+!*'(,)=$-_.+!*'(),\"";
 
   @Test
   public void testURLHighlight() throws UtilException {
@@ -195,10 +198,40 @@ public class HTMLFormatterTest {
 
   @Test
   public void testWithCyrillic(){
-    HTMLFormatter formatter = new HTMLFormatter(LINK_WITH_CYR);
+    HTMLFormatter formatter = new HTMLFormatter(RFC1738);
     formatter.enableUrlHighLightMode();
-    formatter.enablePreformatMode();
     String s = formatter.process();
     Assert.assertTrue("Whole text must be formatted as link: " + s, s.endsWith(">"));
+  }
+
+  @Test
+  public void testNlSubstition(){
+    String s = HTMLFormatter.nl2br("This is a line\nwith break inside it");
+    Integer i = s.indexOf("<br>");
+    Assert.assertThat("Newline is changed to <br>", i, CoreMatchers.not(-1));
+  }
+
+  @Test
+  public void testStringEscape(){
+    String str = "This is an entity &#1999;";
+    String s = HTMLFormatter.htmlSpecialChars(str);
+    Assert.assertThat("String should remaint unescaped", s, CoreMatchers.equalTo(str));
+  }
+
+  @Test
+  public void testAmpEscape(){
+    String str = "a&b";
+    String s = HTMLFormatter.htmlSpecialChars(str);
+    Assert.assertThat("Ampersand should be escaped", s, CoreMatchers.equalTo("a&amp;b"));
+  }
+
+  @Test
+  public void testParaSubstition(){
+    String str = "this is a line\n\r\n\rwith some\n\nlinebreaks in it";
+    String s = HTMLFormatter.texnl2br(str, false);
+    Integer i = s.indexOf("<p>");
+    Assert.assertThat("Newlines is changed to <p>", i, CoreMatchers.not(-1));
+    Integer b = s.indexOf("<p>", i+3);
+    Assert.assertThat("Wait, there should be two paras", b, CoreMatchers.not(-1));
   }
 }
