@@ -22,11 +22,9 @@ package ru.org.linux.util;
 import java.net.URLEncoder;
 import java.util.Iterator;
 import java.util.StringTokenizer;
-
-import gnu.regexp.RE;
-import gnu.regexp.REException;
-import gnu.regexp.REMatch;
-import gnu.regexp.REMatchEnumeration;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
+import java.util.regex.Matcher;
 
 public class HTMLFormatter {
   private final String text;
@@ -43,14 +41,14 @@ public class HTMLFormatter {
     text = atext;
   }
 
-  private static final RE nlRE;
-  private static final RE texnlRE;
+  private static final Pattern nlRE;
+  private static final Pattern texnlRE;
 
   static {
     try {
-      nlRE = new RE("\n");
-      texnlRE = new RE("\n\r?\n\r?");
-    } catch (REException e) {
+      nlRE = Pattern.compile("\n");
+      texnlRE = Pattern.compile("\n\r?\n\r?");
+    } catch (PatternSyntaxException e) {
       throw new RuntimeException(e);
     }
   }
@@ -58,7 +56,7 @@ public class HTMLFormatter {
   public String process() {
     StringTokenizer st = new StringTokenizer(htmlSpecialChars(text), delim, true);
 
-    StringBuffer sb = new StringBuffer();
+    StringBuilder sb = new StringBuilder();
 
     while (st.hasMoreTokens()) {
       sb.append(formatHTMLLine(st.nextToken()));
@@ -110,13 +108,13 @@ public class HTMLFormatter {
 
   private static String URLEncoder(String str) {
     try {
-      StringBuffer buf = new StringBuffer();
+      StringBuilder buf = new StringBuilder();
       for (int i = 0; i < str.length(); i++) {
         char c = str.charAt(i);
         if (c > ' ' && c <= 'z') {
           buf.append(c);
         } else {
-          buf.append(URLEncoder.encode("" + c, "UTF-8"));
+          buf.append(URLEncoder.encode(String.valueOf(c), "UTF-8"));
         }
       }
       return buf.toString();
@@ -125,20 +123,21 @@ public class HTMLFormatter {
     }
   }
 
-  private static final RE urlRE;
+  private static final Pattern urlRE;
 
   static {
     try {
+
 //      urlRE = new RE("(?:(?:(?:(?:https?://)|(?:ftp://)|(?:www\\.))|(?:ftp\\.))[a-z0-9.-]+\\.[a-z]+(?::[0-9]+)?(?:/(?:[\\w=?:+/\\(\\)\\[\\]~&%;,._#-]*[\\w=?+/~&%-])?)?)|(?:mailto: ?[a-z0-9+]+@[a-z0-9.-]+.[a-z]+)", RE.REG_ICASE);
         /*urlRE = new RE("(?:(?:(?:(?:https?://)|(?:ftp://)|(?:www\\.))|(?:ftp\\.))[a-z0-9.-]+\\.[a-z]+(?::[" +
           "0-9]+)?(?:/(?:([\\w=?:+/\\[\\]~&%;,._#-]|(\\([^\\)]*\\)))*([\\w=?+/~&%-]|(\\([^\\)]*\\))))" +
           "?)?)|(?:mailto: ?[a-z0-9+]+@[a-z0-9.-]+.[a-z]+)", RE.REG_ICASE);*/
-      //fix #73: allow only &amp; entity in url
-        urlRE = new RE("(?:(?:(?:(?:https?://)|(?:ftp://)|(?:www\\.))|(?:ftp\\.))[a-z0-9.-]+\\." +
-          "[a-z]+(?::[0-9]+)?(?:/(?:([\\w=?:+/\\[\\]~%;,._\\#-]|(\\([^\\)]*\\)))*([\\w=?+/~%-]" +
-          "|(?:&(?=amp;)[\\w_=;-\\u0999]+)+|(\\([^\\)]*\\))))?)?)|(?:mailto: ?[a-z0-9+]+@[a-z0-9.-]+.[a-z]+)",
-        RE.REG_ICASE);
-    } catch (REException e) {
+      //fix #73: allow only &amp; entity in url    "[\\w$-_.+!*'(),\\u0999]+"
+        urlRE = Pattern.compile("(?:(?:(?:(?:https?://)|(?:ftp://)|(?:www\\.))|(?:ftp\\.))[a-z0-9.-]+\\." +
+          "[a-z]+(?::[0-9]+)?(?:/(?:([\\w=?:+/\\[\\]~%;,._#-]|(\\([^\\)]*\\)))*([\\w=?+/~%-]" +
+          "|(?:&(?=amp;)[\\w$-_.+!*'(),а-яА-Я]+)+|(\\([^\\)]*\\))))?)?)|(?:mailto: ?[a-z0-9+]+@[a-z0-9.-]+.[a-z]+)",
+        Pattern.CASE_INSENSITIVE & Pattern.UNICODE_CASE);
+    } catch (PatternSyntaxException e) {
       throw new RuntimeException(e);
     }
   }
@@ -150,19 +149,21 @@ public class HTMLFormatter {
    * @throws UtilException в случае некорректного входного текста
    */
   private String formatHTMLLine(String chunk)  {
-    StringBuffer out = new StringBuffer();
+    StringBuilder out = new StringBuilder();
 
-    REMatchEnumeration en = urlRE.getMatchEnumeration(chunk);
+    Matcher m = urlRE.matcher(chunk);
+
     int index = 0;
 
-    while (en.hasMoreElements()) {
-      REMatch found = en.nextMatch();
+    while (m.find()) {
+      int start = m.start();
+      int end = m.end();
 
       // обработка начальной части до URL
-      out.append(wrapLongLine(chunk.substring(index, found.getStartIndex()), maxlength, nl, index));
+      out.append(wrapLongLine(chunk.substring(index, start), maxlength, nl, index));
 
       // обработка URL
-      String url = chunk.substring(found.getStartIndex(), found.getEndIndex());
+      String url = chunk.substring(start, end);
       if (urlHighlight) {
         String urlchunk = url;
 
@@ -173,7 +174,7 @@ public class HTMLFormatter {
         }
 
         if (Preformat) {
-          urlchunk = wrapLongLine(urlchunk, maxlength, nl, found.getStartIndex());
+          urlchunk = wrapLongLine(urlchunk, maxlength, nl, start);
         } else if (urlchunk.length() > maxlength) {
           urlchunk = urlchunk.substring(0, maxlength - 3) + "...";
         }
@@ -181,7 +182,7 @@ public class HTMLFormatter {
       } else {
         out.append(url);
       }
-      index = found.getEndIndex();
+      index = end;
     }
 
     // обработка последнего фрагмента
@@ -221,10 +222,10 @@ public class HTMLFormatter {
    */
   private static String nl2br(String text, boolean quoting) {
     if (!quoting) {
-      return nlRE.substituteAll(text, "<br>");
+      return text.replaceAll(nlRE.pattern(), "<br>");
     }
 
-    StringBuffer buf = new StringBuffer();
+    StringBuilder buf = new StringBuilder();
 
     boolean quot = false;
 
@@ -262,12 +263,12 @@ public class HTMLFormatter {
    * converts double new line characters in input string to
    * HTML paragraph tag
    */
-  private static String texnl2br(String text, boolean quoting) {
+  static String texnl2br(String text, boolean quoting) {
     if (!quoting) {
-      return texnlRE.substituteAll(text, "<p>");
+      return text.replaceAll(texnlRE.pattern(), "<p>");
     }
 
-    StringBuffer buf = new StringBuffer();
+    StringBuilder buf = new StringBuilder();
 
     boolean cr = false;
     boolean quot = false;
@@ -313,18 +314,18 @@ public class HTMLFormatter {
    * Convert special SGML (HTML) chars to
    * SGML entities
    */  
-  private static final RE uniRE;
+  private static final Pattern uniRE;
 
   static {
      try {
-       uniRE = new RE("^&#[1-9]\\d{1,4};");
-     } catch (REException e) {
+       uniRE = Pattern.compile("^&#[1-9]\\d{1,4};");
+     } catch (PatternSyntaxException e) {
        throw new RuntimeException(e);
      }
    }
   
   public static String htmlSpecialChars(String str) {
-    StringBuffer res = new StringBuffer();
+    StringBuilder res = new StringBuilder();
 
     for (int i = 0; i < str.length(); i++) {
       switch (str.charAt(i)) {
@@ -337,10 +338,10 @@ public class HTMLFormatter {
         case '\"':
           res.append("&quot;");
           break;
-        case '&':        
-          REMatch m = uniRE.getMatch(str.substring(i));
-          if ((m instanceof REMatch) ) {
-              String s = m.toString();
+        case '&':
+          Matcher m = uniRE.matcher(str.substring(i));
+          if (m.find()) {
+              String s = m.group();
               res.append(s);
               i+=s.length()-1;
               continue;
@@ -366,7 +367,7 @@ public class HTMLFormatter {
    * @return разбитая строка
    */
   private static String wrapLongLine(String line, int maxlength, String delim, int start)  {
-    StringBuffer sb = new StringBuffer();
+    StringBuilder sb = new StringBuilder();
 
     int index = start;
 
@@ -397,7 +398,7 @@ public class HTMLFormatter {
    */
   public static String wrapLongLines(String text, int maxlength) {
     StringTokenizer st = new StringTokenizer(text, "\n", true);
-    StringBuffer sb = new StringBuffer();
+    StringBuilder sb = new StringBuilder();
 
     while (st.hasMoreTokens()) {
       sb.append(wrapLongLine(st.nextToken(), maxlength, "\n"));
