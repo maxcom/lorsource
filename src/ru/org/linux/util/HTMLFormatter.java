@@ -56,7 +56,7 @@ public class HTMLFormatter {
   public String process() {
     StringTokenizer st = new StringTokenizer(htmlSpecialChars(text), delim, true);
 
-    StringBuffer sb = new StringBuffer();
+    StringBuilder sb = new StringBuilder();
 
     while (st.hasMoreTokens()) {
       sb.append(formatHTMLLine(st.nextToken()));
@@ -108,13 +108,13 @@ public class HTMLFormatter {
 
   private static String URLEncoder(String str) {
     try {
-      StringBuffer buf = new StringBuffer();
+      StringBuilder buf = new StringBuilder();
       for (int i = 0; i < str.length(); i++) {
         char c = str.charAt(i);
         if (c > ' ' && c <= 'z') {
           buf.append(c);
         } else {
-          buf.append(URLEncoder.encode("" + c, "UTF-8"));
+          buf.append(URLEncoder.encode(String.valueOf(c), "UTF-8"));
         }
       }
       return buf.toString();
@@ -149,7 +149,7 @@ public class HTMLFormatter {
    * @throws UtilException в случае некорректного входного текста
    */
   private String formatHTMLLine(String chunk)  {
-    StringBuffer out = new StringBuffer();
+    StringBuilder out = new StringBuilder();
 
     Matcher m = urlRE.matcher(chunk);
 
@@ -220,12 +220,12 @@ public class HTMLFormatter {
    * converts new line characters in input string to
    * HTML line brake tag
    */
-  static String nl2br(String text, boolean quoting) {
+  private static String nl2br(String text, boolean quoting) {
     if (!quoting) {
       return text.replaceAll(nlRE.pattern(), "<br>");
     }
 
-    StringBuffer buf = new StringBuffer();
+    StringBuilder buf = new StringBuilder();
 
     boolean quot = false;
 
@@ -268,7 +268,7 @@ public class HTMLFormatter {
       return text.replaceAll(texnlRE.pattern(), "<p>");
     }
 
-    StringBuffer buf = new StringBuffer();
+    StringBuilder buf = new StringBuilder();
 
     boolean cr = false;
     boolean quot = false;
@@ -325,7 +325,7 @@ public class HTMLFormatter {
    }
   
   public static String htmlSpecialChars(String str) {
-    StringBuffer res = new StringBuffer();
+    StringBuilder res = new StringBuilder();
 
     for (int i = 0; i < str.length(); i++) {
       switch (str.charAt(i)) {
@@ -367,7 +367,7 @@ public class HTMLFormatter {
    * @return разбитая строка
    */
   private static String wrapLongLine(String line, int maxlength, String delim, int start)  {
-    StringBuffer sb = new StringBuffer();
+    StringBuilder sb = new StringBuilder();
 
     int index = start;
 
@@ -398,7 +398,7 @@ public class HTMLFormatter {
    */
   public static String wrapLongLines(String text, int maxlength) {
     StringTokenizer st = new StringTokenizer(text, "\n", true);
-    StringBuffer sb = new StringBuffer();
+    StringBuilder sb = new StringBuilder();
 
     while (st.hasMoreTokens()) {
       sb.append(wrapLongLine(st.nextToken(), maxlength, "\n"));
