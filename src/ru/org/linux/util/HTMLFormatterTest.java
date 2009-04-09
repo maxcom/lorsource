@@ -45,6 +45,7 @@ public class HTMLFormatterTest {
 
   private static final String QUOTING1 = "> 1";
   private static final String RESULT_QUOTING1 = "<i>&gt; 1</i>";
+  private static final String RESULT_QUOTING1_NOQUOTING = "&gt; 1";
 
   private static final String QUOTING2 = "> 1\n2";
   private static final String RESULT_QUOTING2 = "<i>&gt; 1\n2</i>";
@@ -145,6 +146,15 @@ public class HTMLFormatterTest {
     formatter.enableQuoting();
 
     assertEquals(RESULT_QUOTING1, formatter.process());
+  }
+
+  @Test
+  public void testNoQuiting() throws UtilException {
+    HTMLFormatter formatter = new HTMLFormatter(QUOTING1);
+
+    formatter.enableTexNewLineMode();
+
+    assertEquals(RESULT_QUOTING1_NOQUOTING, formatter.process());
   }
 
   @Test

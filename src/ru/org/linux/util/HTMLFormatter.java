@@ -222,7 +222,7 @@ public class HTMLFormatter {
    */
   static String nl2br(String text, boolean quoting) {
     if (!quoting) {
-      text = text.replaceAll(nlRE.pattern(), "<br>");
+      return text.replaceAll(nlRE.pattern(), "<br>");
     }
 
     StringBuffer buf = new StringBuffer();
@@ -265,7 +265,7 @@ public class HTMLFormatter {
    */
   static String texnl2br(String text, boolean quoting) {
     if (!quoting) {
-      text = text.replaceAll(texnlRE.pattern(), "<p>");
+      return text.replaceAll(texnlRE.pattern(), "<p>");
     }
 
     StringBuffer buf = new StringBuffer();
