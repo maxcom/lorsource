@@ -61,6 +61,7 @@ public class HTMLFormatterTest {
   private static final String LINK_WITH_UNDERSCORE = "http://www.phoronix.com/scan.php?page=article&item=intel_core_i7&num=1";
   private static final String LINK_WITH_PARAM_ONLY = "http://www.phoronix.com/scan.php?page=article&item=intel_core_i7&num";
   private static final String RFC1738 = "\"http://www.phoronix.com/scan.php?page=article&item=intel_core_i7&Мама_мыла_раму&$-_.+!*'(,)=$-_.+!*'(),\"";
+  private static final String CYR_LINK = "http://ru.wikipedia.org/wiki/Литературный_негр(И_не_только)?негр=эфиоп&эфиоп";
 
   @Test
   public void testURLHighlight() throws UtilException {
@@ -243,5 +244,13 @@ public class HTMLFormatterTest {
     Assert.assertThat("Newlines is changed to <p>", i, CoreMatchers.not(-1));
     Integer b = s.indexOf("<p>", i+3);
     Assert.assertThat("Wait, there should be two paras", b, CoreMatchers.not(-1));
+  }
+
+  @Test
+  public void testCyrillicLink(){
+    HTMLFormatter formatter = new HTMLFormatter(CYR_LINK);
+    formatter.enableUrlHighLightMode();
+    String s = formatter.process();
+    Assert.assertTrue("All text should be inside link", s.endsWith("</a>"));
   }
 }
