@@ -61,7 +61,7 @@ public class HTMLFormatterTest {
   private static final String LINK_WITH_UNDERSCORE = "http://www.phoronix.com/scan.php?page=article&item=intel_core_i7&num=1";
   private static final String LINK_WITH_PARAM_ONLY = "http://www.phoronix.com/scan.php?page=article&item=intel_core_i7&num";
   private static final String RFC1738 = "\"http://www.phoronix.com/scan.php?page=article&item=intel_core_i7&Мама_мыла_раму&$-_.+!*'(,)=$-_.+!*'(),\"";
-  private static final String CYR_LINK = "http://ru.wikipedia.org/wiki/Литературный_негр(И_не_только)?негр=эфиоп&эфиоп";
+  private static final String CYR_LINK = "http://ru.wikipedia.org/wiki/Литературный_негр(Fran\u00C7ais\u0152uvre_\u05d0)?негр=эфиоп&эфиоп";
 
   @Test
   public void testURLHighlight() throws UtilException {
@@ -251,6 +251,7 @@ public class HTMLFormatterTest {
     HTMLFormatter formatter = new HTMLFormatter(CYR_LINK);
     formatter.enableUrlHighLightMode();
     String s = formatter.process();
+    System.out.println(s);
     Assert.assertTrue("All text should be inside link", s.endsWith("</a>"));
   }
 }
