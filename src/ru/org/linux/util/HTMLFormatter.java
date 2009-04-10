@@ -135,7 +135,7 @@ public class HTMLFormatter {
       //fix #73: allow only &amp; entity in url    "[\\w$-_.+!*'(),\\u0999]+"
         urlRE = Pattern.compile("(?:(?:(?:(?:https?://)|(?:ftp://)|(?:www\\.))|(?:ftp\\.))[a-z0-9.-]+\\." +
           "[a-z]+(?::[0-9]+)?(?:/(?:([\\w=?:+/\\[\\]~%;,._#\\p{InCyrillic}-]|(\\([^\\)]*\\)))*([\\p{InCyrillic}\\w=?+/~%-]" +
-          "|(?:&(?=amp;)[а-я\\w$-_.+!*'(),\\p{InCyrillic}]+)+|(\\([^\\)]*\\))))?)?)|(?:mailto: ?[a-z0-9+]+@[a-z0-9.-]+.[a-z]+)",
+          "|(?:&(?=amp;)[\\w$-_.+!*'(),\\p{InCyrillic}]+)+|(\\([^\\)]*\\))))?)?)|(?:mailto: ?[a-z0-9+]+@[a-z0-9.-]+.[a-z]+)",
         Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
     } catch (PatternSyntaxException e) {
       throw new RuntimeException(e);
