@@ -251,7 +251,6 @@ public class HTMLFormatterTest {
     HTMLFormatter formatter = new HTMLFormatter(CYR_LINK);
     formatter.enableUrlHighLightMode();
     String s = formatter.process();
-    System.out.println(s);
     Assert.assertTrue("All text should be inside link", s.endsWith("</a>"));
   }
 }
