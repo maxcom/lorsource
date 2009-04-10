@@ -134,8 +134,8 @@ public class HTMLFormatter {
           "?)?)|(?:mailto: ?[a-z0-9+]+@[a-z0-9.-]+.[a-z]+)", RE.REG_ICASE);*/
       //fix #73: allow only &amp; entity in url    "[\\w$-_.+!*'(),\\u0999]+"
         urlRE = Pattern.compile("(?:(?:(?:(?:https?://)|(?:ftp://)|(?:www\\.))|(?:ftp\\.))[a-z0-9.-]+\\." +
-          "[a-z]+(?::[0-9]+)?(?:/(?:([\\w=?:+/\\[\\]~%;,._#-[\\u0400..\\u05F2]а-я]|(\\([^\\)]*\\)))*([а-я\\w=?+/~%-]" +
-          "|(?:&(?=amp;)[а-я\\w$-_.+!*'(),[\\u0400..\\u05F2]]+)+|(\\([^\\)]*\\))))?)?)|(?:mailto: ?[a-z0-9+]+@[a-z0-9.-]+.[a-z]+)",
+          "[a-z]+(?::[0-9]+)?(?:/(?:([\\w=?:+/\\[\\]~%;,._#\\p{InCyrillic}-]|(\\([^\\)]*\\)))*([\\p{InCyrillic}\\w=?+/~%-]" +
+          "|(?:&(?=amp;)[а-я\\w$-_.+!*'(),\\p{InCyrillic}]+)+|(\\([^\\)]*\\))))?)?)|(?:mailto: ?[a-z0-9+]+@[a-z0-9.-]+.[a-z]+)",
         Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
     } catch (PatternSyntaxException e) {
       throw new RuntimeException(e);
