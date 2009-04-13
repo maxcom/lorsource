@@ -1,4 +1,4 @@
-<%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
+<%@ page contentType="text/html; charset=utf-8"%>
 <%@ page import="java.io.File,java.io.IOException,java.net.URLEncoder,java.sql.Connection,java.sql.PreparedStatement"  %>
 <%@ page import="java.sql.ResultSet"%>
 <%@ page import="java.sql.Statement"%>
@@ -42,7 +42,7 @@
 %>
 <jsp:include page="WEB-INF/jsp/head.jsp"/>
 
-<title>Регистрация пользователя</title>
+<title>п═п╣пЁп╦я│я┌я─п╟я├п╦я▐ п©п╬п╩я▄п╥п╬п╡п╟я┌п╣п╩я▐</title>
 <jsp:include page="WEB-INF/jsp/header.jsp"/>
 <%
   response.addHeader("Cache-Control", "no-store, no-cache, must-revalidate");
@@ -51,34 +51,34 @@
      session.setAttribute("register-visited", Boolean.TRUE);
 
 %>
-<H1>Регистрация</H1>
-Если вы уже регистрировались на нашем сайте и забыли пароль - вам
-<a href="lostpwd.jsp">сюда</a>.
+<H1>п═п╣пЁп╦я│я┌я─п╟я├п╦я▐</H1>
+п∙я│п╩п╦ п╡я▀ я┐п╤п╣ я─п╣пЁп╦я│я┌я─п╦я─п╬п╡п╟п╩п╦я│я▄ п╫п╟ п╫п╟я┬п╣п╪ я│п╟п╧я┌п╣ п╦ п╥п╟п╠я▀п╩п╦ п©п╟я─п╬п╩я▄ - п╡п╟п╪
+<a href="lostpwd.jsp">я│я▌п╢п╟</a>.
 
 <form method=POST action="register.jsp">
 <input type=hidden name=mode value=new>
 <b>Login:</b>
 <input type=text name=nick size=40><br>
-Полное имя:
+п÷п╬п╩п╫п╬п╣ п╦п╪я▐:
 <input type=text name=name size=40><br>
-<b>Пароль:</b>
+<b>п÷п╟я─п╬п╩я▄:</b>
 <input type=password name=password size=20><br>
-<b>Повторите Пароль:</b>
+<b>п÷п╬п╡я┌п╬я─п╦я┌п╣ п÷п╟я─п╬п╩я▄:</b>
 <input type=password name=password2 size=20><br>
-URL (не забудьте добавить <b>http://</b>): <br>
+URL (п╫п╣ п╥п╟п╠я┐п╢я▄я┌п╣ п╢п╬п╠п╟п╡п╦я┌я▄ <b>http://</b>): <br>
 <input type=text name=url size="50"><br>
-<b>E-mail</b> (ваш email не будет публиковаться на сайте):<br>
+<b>E-mail</b> (п╡п╟я┬ email п╫п╣ п╠я┐п╢п╣я┌ п©я┐п╠п╩п╦п╨п╬п╡п╟я┌я▄я│я▐ п╫п╟ я│п╟п╧я┌п╣):<br>
 <input type=text name=email size="50"><br>
-Город (просьба писать русскими буквами без сокращений, например: <b>Москва</b>,
-<b>Нижний Новгород</b>, <b>Троицк (Московская область)</b>):
+п⌠п╬я─п╬п╢ (п©я─п╬я│я▄п╠п╟ п©п╦я│п╟я┌я▄ я─я┐я│я│п╨п╦п╪п╦ п╠я┐п╨п╡п╟п╪п╦ п╠п╣п╥ я│п╬п╨я─п╟я┴п╣п╫п╦п╧, п╫п╟п©я─п╦п╪п╣я─: <b>п°п╬я│п╨п╡п╟</b>,
+<b>п²п╦п╤п╫п╦п╧ п²п╬п╡пЁп╬я─п╬п╢</b>, <b>п╒я─п╬п╦я├п╨ (п°п╬я│п╨п╬п╡я│п╨п╟я▐ п╬п╠п╩п╟я│я┌я▄)</b>):
 <input type=text name=town size=50><br>
-Дополнительная информация:<br>
+п■п╬п©п╬п╩п╫п╦я┌п╣п╩я▄п╫п╟я▐ п╦п╫я└п╬я─п╪п╟я├п╦я▐:<br>
 <textarea name=info cols=50 rows=5></textarea><br>
 <p>
   <lor:captcha/>
 
 
-<input type=submit value="Register/Зарегистрироваться">
+<input type=submit value="Register/п≈п╟я─п╣пЁп╦я│я┌я─п╦я─п╬п╡п╟я┌я▄я│я▐">
 </form>
 <% } else if (("new".equals(request.getParameter("mode")) || "update".equals(request.getParameter("mode")))
     && "POST".equals(request.getMethod())) {
@@ -89,17 +89,17 @@ URL (не забудьте добавить <b>http://</b>): <br>
     String nick = request.getParameter("nick");
 
     if (!StringUtil.checkLoginName(nick))
-      throw new BadInputException("некорректное имя пользователя");
+      throw new BadInputException("п╫п╣п╨п╬я─я─п╣п╨я┌п╫п╬п╣ п╦п╪я▐ п©п╬п╩я▄п╥п╬п╡п╟я┌п╣п╩я▐");
 
     if (nick.length() > 40)
-      throw new BadInputException("слишком длинное имя пользователя");
+      throw new BadInputException("я│п╩п╦я┬п╨п╬п╪ п╢п╩п╦п╫п╫п╬п╣ п╦п╪я▐ п©п╬п╩я▄п╥п╬п╡п╟я┌п╣п╩я▐");
 
     if (!changeMode) {
       CaptchaSingleton.checkCaptcha(session, request);
 
       if (session.getAttribute("register-visited") == null) {
         logger.info("Flood protection (not visited register.jsp) " + request.getRemoteAddr());
-        throw new BadInputException("сбой");
+        throw new BadInputException("я│п╠п╬п╧");
       }
     }
 
@@ -120,22 +120,22 @@ URL (не забудьте добавить <b>http://</b>): <br>
     }
 
     if (email == null || "".equals(email))
-      throw new BadInputException("Не указан e-mail");
+      throw new BadInputException("п²п╣ я┐п╨п╟п╥п╟п╫ e-mail");
 
     InternetAddress mail = new InternetAddress(email);
     if (url != null && "".equals(url)) url = null;
 
     if (!changeMode) {
       if (password == null) {
-        throw new BadInputException("пароль не может быть пустым");
+        throw new BadInputException("п©п╟я─п╬п╩я▄ п╫п╣ п╪п╬п╤п╣я┌ п╠я▀я┌я▄ п©я┐я│я┌я▀п╪");
       }
 
       if (password2 == null || !password.equals(password2)) {
-        throw new BadInputException("введенные пароли не совпадают");
+        throw new BadInputException("п╡п╡п╣п╢п╣п╫п╫я▀п╣ п©п╟я─п╬п╩п╦ п╫п╣ я│п╬п╡п©п╟п╢п╟я▌я┌");
       }
     } else {
       if (password2 != null && password != null && !password.equals(password2)) {
-        throw new BadInputException("введенные пароли не совпадают");
+        throw new BadInputException("п╡п╡п╣п╢п╣п╫п╫я▀п╣ п©п╟я─п╬п╩п╦ п╫п╣ я│п╬п╡п©п╟п╢п╟я▌я┌");
       }
     }
 
@@ -193,7 +193,7 @@ URL (не забудьте добавить <b>http://</b>): <br>
       ResultSet rs = pst.executeQuery();
       rs.next();
       if (rs.getInt("c") != 0) {
-        throw new BadInputException("пользователь " + nick + " уже существует");
+        throw new BadInputException("п©п╬п╩я▄п╥п╬п╡п╟я┌п╣п╩я▄ " + nick + " я┐п╤п╣ я│я┐я┴п╣я│я┌п╡я┐п╣я┌");
       }
       rs.close();
       pst.close();
@@ -203,7 +203,7 @@ URL (не забудьте добавить <b>http://</b>): <br>
       rs = pst2.executeQuery();
       rs.next();
       if (rs.getInt("c") != 0) {
-        throw new BadInputException("пользователь с таким e-mail уже зарегистрирован");
+        throw new BadInputException("п©п╬п╩я▄п╥п╬п╡п╟я┌п╣п╩я▄ я│ я┌п╟п╨п╦п╪ e-mail я┐п╤п╣ п╥п╟я─п╣пЁп╦я│я┌я─п╦я─п╬п╡п╟п╫");
       }
       rs.close();
       pst2.close();
@@ -232,7 +232,7 @@ URL (не забудьте добавить <b>http://</b>): <br>
       ist.executeUpdate();
       ist.close();
 
-      String logmessage = "Зарегистрирован пользователь " + nick + " (id=" + userid + ") " + LorHttpUtils.getRequestIP(request);
+      String logmessage = "п≈п╟я─п╣пЁп╦я│я┌я─п╦я─п╬п╡п╟п╫ п©п╬п╩я▄п╥п╬п╡п╟я┌п╣п╩я▄ " + nick + " (id=" + userid + ") " + LorHttpUtils.getRequestIP(request);
       logger.info(logmessage);
 
       if (info != null) {
@@ -241,21 +241,21 @@ URL (не забудьте добавить <b>http://</b>): <br>
 
       StringBuilder text = new StringBuilder();
 
-      text.append("Здравствуйте!\n\n");
-      text.append("\tВ форуме по адресу http://www.linux.org.ru/ появилась регистрационная запись,\n");
-      text.append("в которой был указал ваш электронный адрес (e-mail).\n\n");
-      text.append("При заполнении регистрационной формы было указано следующее имя пользователя: '");
+      text.append("п≈п╢я─п╟п╡я│я┌п╡я┐п╧я┌п╣!\n\n");
+      text.append("\tп▓ я└п╬я─я┐п╪п╣ п©п╬ п╟п╢я─п╣я│я┐ http://www.linux.org.ru/ п©п╬я▐п╡п╦п╩п╟я│я▄ я─п╣пЁп╦я│я┌я─п╟я├п╦п╬п╫п╫п╟я▐ п╥п╟п©п╦я│я▄,\n");
+      text.append("п╡ п╨п╬я┌п╬я─п╬п╧ п╠я▀п╩ я┐п╨п╟п╥п╟п╩ п╡п╟я┬ я█п╩п╣п╨я┌я─п╬п╫п╫я▀п╧ п╟п╢я─п╣я│ (e-mail).\n\n");
+      text.append("п÷я─п╦ п╥п╟п©п╬п╩п╫п╣п╫п╦п╦ я─п╣пЁп╦я│я┌я─п╟я├п╦п╬п╫п╫п╬п╧ я└п╬я─п╪я▀ п╠я▀п╩п╬ я┐п╨п╟п╥п╟п╫п╬ я│п╩п╣п╢я┐я▌я┴п╣п╣ п╦п╪я▐ п©п╬п╩я▄п╥п╬п╡п╟я┌п╣п╩я▐: '");
       text.append(nick);
       text.append("'\n\n");
-      text.append("Если вы не понимаете, о чем идет речь - просто проигнорируйте это сообщение!\n\n");
-      text.append("Если же именно вы решили зарегистрироваться в форуме по адресу http://www.linux.org.ru/,\n");
-      text.append("то вам следует подтвердить свою регистрацию и тем самым активировать вашу учетную запись.\n\n");
+      text.append("п∙я│п╩п╦ п╡я▀ п╫п╣ п©п╬п╫п╦п╪п╟п╣я┌п╣, п╬ я┤п╣п╪ п╦п╢п╣я┌ я─п╣я┤я▄ - п©я─п╬я│я┌п╬ п©я─п╬п╦пЁп╫п╬я─п╦я─я┐п╧я┌п╣ я█я┌п╬ я│п╬п╬п╠я┴п╣п╫п╦п╣!\n\n");
+      text.append("п∙я│п╩п╦ п╤п╣ п╦п╪п╣п╫п╫п╬ п╡я▀ я─п╣я┬п╦п╩п╦ п╥п╟я─п╣пЁп╦я│я┌я─п╦я─п╬п╡п╟я┌я▄я│я▐ п╡ я└п╬я─я┐п╪п╣ п©п╬ п╟п╢я─п╣я│я┐ http://www.linux.org.ru/,\n");
+      text.append("я┌п╬ п╡п╟п╪ я│п╩п╣п╢я┐п╣я┌ п©п╬п╢я┌п╡п╣я─п╢п╦я┌я▄ я│п╡п╬я▌ я─п╣пЁп╦я│я┌я─п╟я├п╦я▌ п╦ я┌п╣п╪ я│п╟п╪я▀п╪ п╟п╨я┌п╦п╡п╦я─п╬п╡п╟я┌я▄ п╡п╟я┬я┐ я┐я┤п╣я┌п╫я┐я▌ п╥п╟п©п╦я│я▄.\n\n");
 
       String regcode = StringUtil.md5hash(tmpl.getSecret() + ':' + nick + ':' + password);
 
-      text.append("Для активации перейдите по ссылке http://www.linux.org.ru/activate.jsp\n\n");
-      text.append("Код активации: ").append(regcode).append("\n\n");
-      text.append("Благодарим за регистрацию!\n");
+      text.append("п■п╩я▐ п╟п╨я┌п╦п╡п╟я├п╦п╦ п©п╣я─п╣п╧п╢п╦я┌п╣ п©п╬ я│я│я▀п╩п╨п╣ http://www.linux.org.ru/activate.jsp\n\n");
+      text.append("п п╬п╢ п╟п╨я┌п╦п╡п╟я├п╦п╦: ").append(regcode).append("\n\n");
+      text.append("п▒п╩п╟пЁп╬п╢п╟я─п╦п╪ п╥п╟ я─п╣пЁп╦я│я┌я─п╟я├п╦я▌!\n");
 
       Properties props = new Properties();
       props.put("mail.smtp.host", "localhost");
@@ -275,9 +275,9 @@ URL (не забудьте добавить <b>http://</b>): <br>
     db.commit();
 
     if (changeMode)
-      out.print("Обновление регистрации прошло успешно");
+      out.print("п·п╠п╫п╬п╡п╩п╣п╫п╦п╣ я─п╣пЁп╦я│я┌я─п╟я├п╦п╦ п©я─п╬я┬п╩п╬ я┐я│п©п╣я┬п╫п╬");
     else
-      out.print("Добавление пользователя прошло успешно");
+      out.print("п■п╬п╠п╟п╡п╩п╣п╫п╦п╣ п©п╬п╩я▄п╥п╬п╡п╟я┌п╣п╩я▐ п©я─п╬я┬п╩п╬ я┐я│п©п╣я┬п╫п╬");
   } finally {
     if (db != null) db.close();
   }
@@ -285,16 +285,16 @@ URL (не забудьте добавить <b>http://</b>): <br>
 %>
   <table class=nav><tr>
     <td align=left valign=middle>
-      Изменение регистрации
+      п≤п╥п╪п╣п╫п╣п╫п╦п╣ я─п╣пЁп╦я│я┌я─п╟я├п╦п╦
     </td>
 
     <td align=right valign=middle>
-      [<a style="text-decoration: none" href="addphoto.jsp">Добавить фотографию</a>]
-      [<a style="text-decoration: none" href="rules.jsp">Правила форума</a>]
+      [<a style="text-decoration: none" href="addphoto.jsp">п■п╬п╠п╟п╡п╦я┌я▄ я└п╬я┌п╬пЁя─п╟я└п╦я▌</a>]
+      [<a style="text-decoration: none" href="rules.jsp">п÷я─п╟п╡п╦п╩п╟ я└п╬я─я┐п╪п╟</a>]
      </td>
     </tr>
  </table>
-<h1>Изменение регистрации</h1>
+<h1>п≤п╥п╪п╣п╫п╣п╫п╦п╣ я─п╣пЁп╦я│я┌я─п╟я├п╦п╦</h1>
 <%
   if (!Template.isSessionAuthorized(session)) {
     throw new AccessViolationException("Not authorized");
@@ -319,30 +319,30 @@ URL (не забудьте добавить <b>http://</b>): <br>
 <input type=hidden name=mode value=update>
 Nick: <%= nick %><br>
 <input type=hidden name=nick value="<%= nick %>"><br>
-Полное имя:
+п÷п╬п╩п╫п╬п╣ п╦п╪я▐:
 <input type=text name="name" size="40" value="<%= rs.getString("name") %>"><br>
-Пароль:
+п÷п╟я─п╬п╩я▄:
 <input type=password name="oldpass" size="20"><br>
-Новый пароль:
-<input type=password name="password" size="20"> (не заполняйте если не хотите менять)<br>
-Повторите новый пароль:
+п²п╬п╡я▀п╧ п©п╟я─п╬п╩я▄:
+<input type=password name="password" size="20"> (п╫п╣ п╥п╟п©п╬п╩п╫я▐п╧я┌п╣ п╣я│п╩п╦ п╫п╣ я┘п╬я┌п╦я┌п╣ п╪п╣п╫я▐я┌я▄)<br>
+п÷п╬п╡я┌п╬я─п╦я┌п╣ п╫п╬п╡я▀п╧ п©п╟я─п╬п╩я▄:
 <input type=password name="password2" size="20"><br>
 URL:
 <input type=text name="url" size="50" value="<%
 	if (rs.getString("url")!=null) out.print(rs.getString("url"));
 %>"><br>
-(не забудьте добавить <b>http://</b>)<br>
+(п╫п╣ п╥п╟п╠я┐п╢я▄я┌п╣ п╢п╬п╠п╟п╡п╦я┌я▄ <b>http://</b>)<br>
 Email:
 <input type=text name="email" size="50" value="<%= rs.getString("email") %>"><br>
-Город (просьба писать русскими буквами без сокращений, например: <b>Москва</b>,
-<b>Нижний Новгород</b>, <b>Троицк (Московская область)</b>):
+п⌠п╬я─п╬п╢ (п©я─п╬я│я▄п╠п╟ п©п╦я│п╟я┌я▄ я─я┐я│я│п╨п╦п╪п╦ п╠я┐п╨п╡п╟п╪п╦ п╠п╣п╥ я│п╬п╨я─п╟я┴п╣п╫п╦п╧, п╫п╟п©я─п╦п╪п╣я─: <b>п°п╬я│п╨п╡п╟</b>,
+<b>п²п╦п╤п╫п╦п╧ п²п╬п╡пЁп╬я─п╬п╢</b>, <b>п╒я─п╬п╦я├п╨ (п°п╬я│п╨п╬п╡я│п╨п╟я▐ п╬п╠п╩п╟я│я┌я▄)</b>):
 <input type=text name="town" size="50" value="<%= rs.getString("town") %>"><br>
-Дополнительная информация:<br>
+п■п╬п©п╬п╩п╫п╦я┌п╣п╩я▄п╫п╟я▐ п╦п╫я└п╬я─п╪п╟я├п╦я▐:<br>
 <textarea name=info cols=50 rows=5>
 <%= tmpl.getObjectConfig().getStorage().readMessageDefault("userinfo", String.valueOf(user.getId()), "") %>
 </textarea>
 <br>
-<input type=submit value="Update/Обновить">
+<input type=submit value="Update/п·п╠п╫п╬п╡п╦я┌я▄">
 </form>
 <%
     rs.close();
