@@ -31,8 +31,8 @@
         <dependency org="jstl" name="jstl" rev="1.1.2" conf="build->default"/>
         <dependency org="javax.servlet" name="servlet-api" rev="2.3" conf="provided->default"/>
         <dependency org="javax.servlet" name="jsp-api" rev="2.0" conf="provided->default"/>
-        <dependency org="javax.activation" name="activation" rev="1.1" conf="build->default"/>
-        <dependency org="javax.mail" name="mail" rev="1.4" conf="build->default"/>
+<!--        <dependency org="javax.activation" name="activation" rev="1.1" conf="build->default"/> -->
+        <dependency org="javax.mail" name="mail" rev="1.4" conf="provided->default"/> 
         <dependency org="com.Danga" name="java_memcached" rev="release_2.0.1" conf="build->default"/>
         <dependency org="rome" name="rome" rev="1.0" conf="build->default"/>
     </dependencies>

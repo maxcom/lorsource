@@ -134,6 +134,10 @@
             <attribute name="method" value="1" />
             <attribute name="URI" value="/WEB-INF/lib" />
           </containerElement>
+          <containerElement type="library" name="ivy libs" level="project">
+            <attribute name="method" value="1" />
+            <attribute name="URI" value="/WEB-INF/lib" />
+          </containerElement>
         </packaging>
       </configuration>
     </facet>
@@ -279,7 +283,7 @@
     </orderEntry>
     <orderEntry type="library" name="memcached" level="project" />
     <orderEntry type="library" name="junit" level="project" />
-    <orderEntry type="module-library">
+    <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
           <root url="file://$MODULE_DIR$/ivy-lib/build" />
@@ -299,6 +303,7 @@
         <jarDirectory url="file://$MODULE_DIR$/ivy-lib/test" recursive="false" />
       </library>
     </orderEntry>
+    <orderEntry type="library" name="ivy libs" level="project" />
   </component>
 </module>
 
