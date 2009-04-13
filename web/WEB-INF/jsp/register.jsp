@@ -40,10 +40,10 @@
 <% Template tmpl = Template.getTemplate(request);
   Logger logger = Logger.getLogger("ru.org.linux");
 %>
-<jsp:include page="WEB-INF/jsp/head.jsp"/>
+<jsp:include page="head.jsp"/>
 
 <title>Регистрация пользователя</title>
-<jsp:include page="WEB-INF/jsp/header.jsp"/>
+<jsp:include page="header.jsp"/>
 <%
   response.addHeader("Cache-Control", "no-store, no-cache, must-revalidate");
 
@@ -53,7 +53,7 @@
 %>
 <H1>Регистрация</H1>
 Если вы уже регистрировались на нашем сайте и забыли пароль - вам
-<a href="lostpwd.jsp">сюда</a>.
+<a href="../../lostpwd.jsp">сюда</a>.
 
 <form method=POST action="register.jsp">
 <input type=hidden name=mode value=new>
@@ -289,8 +289,8 @@ URL (не забудьте добавить <b>http://</b>): <br>
     </td>
 
     <td align=right valign=middle>
-      [<a style="text-decoration: none" href="addphoto.jsp">Добавить фотографию</a>]
-      [<a style="text-decoration: none" href="rules.jsp">Правила форума</a>]
+      [<a style="text-decoration: none" href="../../addphoto.jsp">Добавить фотографию</a>]
+      [<a style="text-decoration: none" href="../../rules.jsp">Правила форума</a>]
      </td>
     </tr>
  </table>
@@ -353,4 +353,4 @@ Email:
 %>
 
 <% } %>
-<jsp:include page="WEB-INF/jsp/footer.jsp"/>
+<jsp:include page="footer.jsp"/>
