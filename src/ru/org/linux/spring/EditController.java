@@ -75,8 +75,11 @@ public class EditController extends AbstractController {
           messageModified = true;
         }
 
-
-        if (!message.getLinktext().equals(newMsg.getLinktext())) {
+        if (message.getLinktext()==null) {
+          if (newMsg.getLinktext()!=null) {
+            modified = true;
+          }
+        } else if (!message.getLinktext().equals(newMsg.getLinktext())) {
           modified = true;
         }
 
