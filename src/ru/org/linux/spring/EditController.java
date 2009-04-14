@@ -83,9 +83,14 @@ public class EditController extends AbstractController {
           modified = true;
         }
 
-
-        if (message.isHaveLink() && !message.getUrl().equals(newMsg.getUrl())) {
-          modified = true;
+        if (message.isHaveLink()) {
+          if (message.getUrl() == null) {
+            if (newMsg.getUrl()!=null) {
+              modified = true;
+            }
+          } else if (!message.getUrl().equals(newMsg.getUrl())) {
+            modified = true;
+          }
         }
 
         if (!preview) {
