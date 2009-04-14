@@ -194,7 +194,7 @@ public class HTMLFormatter {
     int size = 0;
 
     try {
-      for (Iterator i=new SGMLStringIterator(str); i.hasNext(); ) {
+      for (Iterator<String> i=new SGMLStringIterator(str); i.hasNext(); ) {
         i.next();
         size++;
       }

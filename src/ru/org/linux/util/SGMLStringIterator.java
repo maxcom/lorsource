@@ -18,7 +18,7 @@ package ru.org.linux.util;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-public class SGMLStringIterator implements Iterator {
+public class SGMLStringIterator implements Iterator<String> {
   final String str;
   int index = 0;
 
@@ -34,7 +34,7 @@ public class SGMLStringIterator implements Iterator {
     return index<str.length();
   }
 
-  public Object next() {
+  public String next() {
     if (!hasNext()) {
       throw new NoSuchElementException();
     }
