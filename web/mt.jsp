@@ -43,14 +43,15 @@
     Message msg = new Message(db, msgid);
 
     Statement st1 = db.createStatement();
+
     if ("POST".equals(request.getMethod())) {
       String newgr = request.getParameter("moveto");
       String sSql = "UPDATE topics SET linktext=null, url=null, groupid= " + newgr + " WHERE id=" + msgid;
 
       PreparedStatement pst = db.prepareStatement(
-"SELECT t.groupid,t.userid,g.title,t.url,t.linktext FROM topics as t,groups as g WHERE t.id=? AND g.id=t.groupid");
+              "SELECT t.groupid,t.userid,g.title,t.url,t.linktext FROM topics as t,groups as g WHERE t.id=? AND g.id=t.groupid");
 
-      pst.setInt(1,msgid);
+      pst.setInt(1, msgid);
 
       ResultSet rs = pst.executeQuery();
       String oldgr = "n/a";
@@ -59,35 +60,35 @@
 
       if (rs.next()) {
         oldgr = rs.getString("groupid");
-  title = rs.getString("title");
+        title = rs.getString("title");
         linktext = rs.getString("linktext");
         url = rs.getString("url");
-      } 
+      }
 
       st1.executeUpdate(sSql);
 
-  /* if url is not null, update the topic text */
-    PreparedStatement pst1 = db.prepareStatement("UPDATE msgbase SET message=message||? WHERE id=?");
+      /* if url is not null, update the topic text */
+      PreparedStatement pst1 = db.prepareStatement("UPDATE msgbase SET message=message||? WHERE id=?");
 
-  String link = "";
-  if (url != null) {
-     if (msg.isLorcode()) {
-       link = "\n[url="+url+"]"+linktext+"[/url]\n";
-     } else {
-       link = "<br><a href=\""+url+"\">"+linktext+ "</a>\n<br>\n";
-     };
-  };
+      String link = "";
+      if (url != null) {
+        if (msg.isLorcode()) {
+          link = "\n[url=" + url + ']' + linktext + "[/url]\n";
+        } else {
+          link = "<br><a href=\"" + url + "\">" + linktext + "</a>\n<br>\n";
+        }
+      }
 
-  if (msg.isLorcode()) {
-    pst1.setString(1,"\n"+link+"\n[i]Перемещено " + session.getValue("nick") + " из "+title+"[/i]\n");
-  } else {
-    pst1.setString(1,"\n"+link+"<br><i>Перемещено " + session.getValue("nick") + " из "+title+"</i>\n");
-  }
+      if (msg.isLorcode()) {
+        pst1.setString(1, '\n' + link + "\n[i]Перемещено " + session.getValue("nick") + " из " + title + "[/i]\n");
+      } else {
+        pst1.setString(1, '\n' + link + "<br><i>Перемещено " + session.getValue("nick") + " из " + title + "</i>\n");
+      }
 
-  pst1.setInt(2,msgid);
-  pst1.executeUpdate();
-  logger.info("topic " + msgid + " moved" +
-    " by " + session.getValue("nick") + " from news/forum " + oldgr + " to forum " + newgr);
+      pst1.setInt(2, msgid);
+      pst1.executeUpdate();
+      logger.info("topic " + msgid + " moved" +
+              " by " + session.getValue("nick") + " from news/forum " + oldgr + " to forum " + newgr);
 
     } else {
 %>
