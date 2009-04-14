@@ -296,7 +296,7 @@ public class NewsViewer implements Viewer {
     ResultSet res = st.executeQuery(
         "SELECT topics.title as subj, topics.lastmod, topics.stat1, postdate, nick, image, " +
             "groups.title as gtitle, topics.id as msgid, sections.comment, groups.id as guid, " +
-            "topics.url, topics.linktext, imagepost, vote, sections.name as pname " +
+            "topics.url, topics.linktext, imagepost, vote, sections.name as pname, " +
             "postdate<(CURRENT_TIMESTAMP-expire) as expired, message, bbcode, sections.id as section, NOT topics.sticky AS ssticky " +
             "FROM topics,groups,users,sections,msgbase " +
             "WHERE " + where+ ' ' +
