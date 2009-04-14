@@ -31,7 +31,7 @@ public class HTMLFormatter {
   private String nl = " ";
   private int maxlength = 80;
   private boolean urlHighlight = false;
-  private boolean Preformat = false;
+  private boolean preformat = false;
   private boolean NewLine = false;
   private boolean texNewLine = false;
   private boolean quoting = false;
@@ -71,7 +71,7 @@ public class HTMLFormatter {
       res = texnl2br(res, quoting);
     }
 
-    if (Preformat) {
+    if (preformat) {
       res = "<pre>" + res + "</pre>";
     }
 
@@ -87,7 +87,7 @@ public class HTMLFormatter {
   }
 
   public void enablePreformatMode() {
-    Preformat = true;
+    preformat = true;
     nl = "\n";
     delim = " \n";
   }
@@ -171,11 +171,10 @@ public class HTMLFormatter {
           url = "ftp://" + url;
         }
 
-        if (Preformat) {
-          urlchunk = wrapLongLine(urlchunk, maxlength, nl, start);
-        } else if (urlchunk.length() > maxlength) {
+        if (!preformat && urlchunk.length() > maxlength) {
           urlchunk = urlchunk.substring(0, maxlength - 3) + "...";
         }
+
         out.append("<a href=\"").append(URLEncoder(url)).append("\">").append(urlchunk).append("</a>");
       } else {
         out.append(url);
@@ -185,7 +184,7 @@ public class HTMLFormatter {
 
     // обработка последнего фрагмента
     if (index < chunk.length()) {
-      out.append(wrapLongLine(chunk.substring(index), maxlength, nl, index));
+      out.append(preformat?chunk.substring(index):wrapLongLine(chunk.substring(index), maxlength, nl, index));
     }
 
     return out.toString();
