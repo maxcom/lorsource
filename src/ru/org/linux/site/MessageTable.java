@@ -177,7 +177,7 @@ public static String showReplies(Connection db, User user, int offset, int limit
     ResultSet rs = st.executeQuery(
         "SELECT topics.title as subj, topics.lastmod, topics.stat1, postdate, userid, image, " +
             "groups.title as gtitle, topics.id as msgid, sections.comment, sections.vote, " +
-            "groups.id as guid, topics.url, topics.linktext, imagepost, linkup, " +
+            "groups.id as guid, topics.url, topics.linktext, imagepost, " +
             "postdate<(CURRENT_TIMESTAMP-expire) as expired, message, bbcode, commitdate " +
             "FROM topics,groups, sections, msgbase " +
             "WHERE sections.id=groups.section AND topics.id=msgbase.id " +

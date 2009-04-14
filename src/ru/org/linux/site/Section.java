@@ -21,7 +21,6 @@ import java.sql.*;
 public class Section implements Serializable {
   private final String name;
   private final boolean browsable;
-  private final boolean linkup;
   private final boolean imagepost;
   private final boolean moderate;
   private final int id;
@@ -29,14 +28,13 @@ public class Section implements Serializable {
   public static final int SCROLL_NOSCROLL = 0;
   public static final int SCROLL_SECTION = 1;
   public static final int SCROLL_GROUP = 2;
-  public static final int SECTION_LINKS = 4;
 
   public Section(Connection db, int id) throws SQLException, BadSectionException {
     this.id = id;
 
     Statement st = db.createStatement();
     ResultSet rs = st.executeQuery(
-        "SELECT name, browsable, linkup, imagepost, vote, moderate " +
+        "SELECT name, browsable, imagepost, vote, moderate " +
             "FROM sections " +
             "WHERE id="+id
     );
@@ -47,7 +45,6 @@ public class Section implements Serializable {
 
     name = rs.getString("name");
     browsable = rs.getBoolean("browsable");
-    linkup = rs.getBoolean("linkup");
     imagepost = rs.getBoolean("imagepost");
     votepoll = rs.getBoolean("vote");
     moderate = rs.getBoolean("moderate");
@@ -59,10 +56,6 @@ public class Section implements Serializable {
 
   public boolean isBrowsable() {
     return browsable;
-  }
-
-  public boolean isLinkup() {
-    return linkup;
   }
 
   public boolean isImagepost() {

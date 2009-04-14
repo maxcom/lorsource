@@ -57,7 +57,6 @@ public class NewsViewer implements Viewer {
     String linktext = res.getString("linktext");
     boolean imagepost = res.getBoolean("imagepost");
     boolean votepoll = res.getBoolean("vote");
-    boolean linkup = res.getBoolean("linkup");
     String image = res.getString("image");
     Timestamp lastmod = res.getTimestamp("lastmod");
     String messageText = res.getString("message");
@@ -80,11 +79,8 @@ public class NewsViewer implements Viewer {
       jumplink = mainlink;
     }
 
-    if (!linkup) {
-      out.append("<a href=\"").append(jumplink).append("\">");
-    } else {
-      out.append("<a href=\"").append(url).append("\">");
-    }
+    out.append("<a href=\"").append(jumplink).append("\">");
+
     if (multiPortal) {
       out.append('(').append(res.getString("pname")).append(") ");
     }
@@ -119,7 +115,7 @@ public class NewsViewer implements Viewer {
       }
     }
 
-    if (url != null && !imagepost && !votepoll && !linkup) {
+    if (url != null && !imagepost && !votepoll) {
       out.append("<p>&gt;&gt;&gt; <a href=\"").append(HTMLFormatter.htmlSpecialChars(url)).append("\">").append(linktext).append("</a>");
     } else if (imagepost) {
       try {
@@ -300,10 +296,10 @@ public class NewsViewer implements Viewer {
     ResultSet res = st.executeQuery(
         "SELECT topics.title as subj, topics.lastmod, topics.stat1, postdate, nick, image, " +
             "groups.title as gtitle, topics.id as msgid, sections.comment, groups.id as guid, " +
-            "topics.url, topics.linktext, imagepost, vote, sections.name as pname, linkup, " +
+            "topics.url, topics.linktext, imagepost, vote, sections.name as pname " +
             "postdate<(CURRENT_TIMESTAMP-expire) as expired, message, bbcode, sections.id as section, NOT topics.sticky AS ssticky " +
             "FROM topics,groups,users,sections,msgbase " +
-            "WHERE " + where.toString()+ ' ' +
+            "WHERE " + where+ ' ' +
             "ORDER BY ssticky,commitdate DESC, msgid DESC "+limit
     );
 
