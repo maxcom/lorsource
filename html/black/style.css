@@ -154,3 +154,7 @@ DIV.notes
 .messages .msg {
   border: 1px solid #000040;
 }
+
+.messages .highLighted {
+    border: red solid 1px;
+}
