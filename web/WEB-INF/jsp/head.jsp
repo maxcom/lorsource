@@ -45,4 +45,5 @@
 <html lang=ru>
 <head>
 <script src="/js/jquery-1.2.6.min.js" type="text/javascript"></script>
+<script src="/js/jquery.form.js" type="text/javascript"></script>
 

@@ -32,6 +32,12 @@ import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.site.*;
 
 public class LoginController extends AbstractController {
+  private boolean isAjax(HttpServletRequest request) {
+    String header = request.getHeader("X-Requested-With");
+
+    return header != null && "XMLHttpRequest".equals(header);
+  }
+
   @Override
   protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) throws Exception {
     if ("POST".equals(request.getMethod())) {
@@ -39,12 +45,14 @@ public class LoginController extends AbstractController {
       Template tmpl = Template.getTemplate(request);
       HttpSession session = request.getSession();
 
+      boolean ajax = isAjax(request);
+
       try {
         db = LorDataSource.getConnection();
         db.setAutoCommit(false);
         String nick = request.getParameter("nick");
         if (nick == null || "".equals(nick)) {
-          return new ModelAndView("login-form", Collections.singletonMap("error", "Не указан nick"));
+          return new ModelAndView(ajax?"login-xml":"login-form", Collections.singletonMap("error", "Не указан nick"));
         }
 
         User user = User.getUser(db, nick);
@@ -53,7 +61,7 @@ public class LoginController extends AbstractController {
           String activation = request.getParameter("activate");
 
           if (activation == null) {
-            return new ModelAndView("login-form", Collections.singletonMap("error", "Требуется активация"));
+            return new ModelAndView(ajax?"login-xml":"login-form", Collections.singletonMap("error", "Требуется активация"));
           }
 
           String regcode = user.getActivationCode(tmpl.getSecret());
@@ -70,7 +78,7 @@ public class LoginController extends AbstractController {
         user.checkAnonymous();
 
         if (!user.matchPassword(request.getParameter("passwd"))) {
-          return new ModelAndView("login-form", Collections.singletonMap("error", "Неверный пароль"));          
+          return new ModelAndView(ajax?"login-xml":"login-form", Collections.singletonMap("error", "Неверный пароль"));
         }
 
         if (session == null) {
@@ -81,7 +89,11 @@ public class LoginController extends AbstractController {
 
         db.commit();
 
-        return new ModelAndView(new RedirectView(tmpl.getMainUrl()));
+        if (ajax) {
+          return new ModelAndView("login-xml", Collections.singletonMap("ok", "welcome"));
+        } else {
+          return new ModelAndView(new RedirectView(tmpl.getMainUrl()));
+        }
       } finally {
         if (db!=null) {
           db.close();
