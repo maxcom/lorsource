@@ -56,7 +56,7 @@
 --%>
 </div>
 
-<div style="right: 5px; text-align: right; top: 5px; position: absolute" class="head-main">
+<div style="right: 5px; text-align: right; top: 5px; position: absolute" class="head">
 <c:if test="${template.sessionAuthorized}">
   <c:url var="userUrl" value="/whois.jsp">
     <c:param name="nick" value="${template.nick}"/>
@@ -68,9 +68,9 @@
 </c:if>
 
 <c:if test="${not template.sessionAuthorized}">
-  <div id="regmenu">
-    <a style="text-decoration: none" href="/register.jsp">Регистрация</a> -
-    <a style="text-decoration: none" href="/" onclick="showLoginForm(); return false;">Вход</a>
+  <div id="regmenu" class="head">
+    <a href="/register.jsp">Регистрация</a> -
+    <a href="/" onclick="showLoginForm(); return false;">Вход</a>
     <br>
     <img src="/black/pingvin.gif" alt="Linux Logo" height=114 width=102>
   </div>
