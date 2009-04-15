@@ -116,6 +116,10 @@ DIV.sign {
     border: red solid 1px;
 }
 
+.messages .msg:target {
+    border: red solid 1px;
+}
+
 .cloud0 { font-size: 0.5em; }
 .cloud1 { font-size: 0.6em; }
 .cloud2 { font-size: 0.7em; }
