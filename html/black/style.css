@@ -142,6 +142,9 @@ DIV.notes
 .head-main A { text-decoration: none; color: white }
 .head-main A:visited { text-decoration: none; color: white }
 
+.head A { text-decoration: none; color: white }
+.head A:visited { text-decoration: none; color: white }
+
 .head-main table {
   border-collapse: collapse;
   margin-top: 5px;

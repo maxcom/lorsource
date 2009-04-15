@@ -21,7 +21,7 @@
 <LINK REL="shortcut icon" HREF="/favicon.ico" TYPE="image/x-icon">
 </head>
 <body>
-<table border="0" cellspacing="0" cellpadding="0" width="100%">
+<table border="0" cellspacing="0" cellpadding="0" width="100%" class="head">
 <tr>
         <td rowspan="2" align=left><a href="/"><img src="/black/lor-new.png" width=282 height=60 border=0 alt="Linux.org.ru"></a></td>
         <td align="right">
@@ -30,6 +30,7 @@
               <c:param name="nick" value="${template.nick}"/>
             </c:url>
             добро пожаловать, <a style="text-decoration: none" href="${userUrl}">${template.nick}</a>
+            [<a href="logout.jsp" title="Выйти">x</a>]
           </c:if>
 
           <c:if test="${not template.sessionAuthorized}">
