@@ -1,4 +1,4 @@
-<%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
+<%@ page contentType="text/html; charset=utf-8"%>
 <%@ page import="java.net.URLEncoder,java.sql.Connection,java.sql.ResultSet,java.sql.Statement, java.util.Date, java.util.List, javax.servlet.http.Cookie, javax.servlet.http.HttpServletResponse"  %>
 <%@ page import="ru.org.linux.boxlet.BoxletVectorRunner" %>
 <%@ page import="ru.org.linux.site.*" %>
@@ -24,19 +24,19 @@
 <% Template tmpl = Template.getTemplate(request);%>
 <jsp:include page="WEB-INF/jsp/head.jsp"/>
 
-        <title>Конструктор страницы</title>
+        <title>п п╬п╫я│я┌я─я┐п╨я┌п╬я─ я│я┌я─п╟п╫п╦я├я▀</title>
 <jsp:include page="WEB-INF/jsp/header.jsp"/>
 
-<h1>Конструктор страницы</h1>
+<h1>п п╬п╫я│я┌я─я┐п╨я┌п╬я─ я│я┌я─п╟п╫п╦я├я▀</h1>
 <% if (tmpl.isUsingDefaultProfile() || tmpl.getProfileName().charAt(0) == '_') {
-  throw new AccessViolationException("нельзя изменить системный профиль; создайте сначала свой");
+  throw new AccessViolationException("п╫п╣п╩я▄п╥я▐ п╦п╥п╪п╣п╫п╦я┌я▄ я│п╦я│я┌п╣п╪п╫я▀п╧ п©я─п╬я└п╦п╩я▄; я│п╬п╥п╢п╟п╧я┌п╣ я│п╫п╟я┤п╟п╩п╟ я│п╡п╬п╧");
 }
 %>
 <% if (request.getParameter("mode")==null) { %>
-При помощи этого инструмента вы можете составить для себя свою собственную
-страничку, содержащую только необходимую вам информацию.
+п÷я─п╦ п©п╬п╪п╬я┴п╦ я█я┌п╬пЁп╬ п╦п╫я│я┌я─я┐п╪п╣п╫я┌п╟ п╡я▀ п╪п╬п╤п╣я┌п╣ я│п╬я│я┌п╟п╡п╦я┌я▄ п╢п╩я▐ я│п╣п╠я▐ я│п╡п╬я▌ я│п╬п╠я│я┌п╡п╣п╫п╫я┐я▌
+я│я┌я─п╟п╫п╦я┤п╨я┐, я│п╬п╢п╣я─п╤п╟я┴я┐я▌ я┌п╬п╩я▄п╨п╬ п╫п╣п╬п╠я┘п╬п╢п╦п╪я┐я▌ п╡п╟п╪ п╦п╫я└п╬я─п╪п╟я├п╦я▌.
 <% } else { %>
-[<a href="edit-boxes.jsp">В&nbsp;начало</a>] [<a href="edit-profile.jsp">Настройки&nbsp;профиля</a>] [<a href="/">На&nbsp;главную&nbsp;страницу</a>]
+[<a href="edit-boxes.jsp">п▓&nbsp;п╫п╟я┤п╟п╩п╬</a>] [<a href="edit-profile.jsp">п²п╟я│я┌я─п╬п╧п╨п╦&nbsp;п©я─п╬я└п╦п╩я▐</a>] [<a href="/">п²п╟&nbsp;пЁп╩п╟п╡п╫я┐я▌&nbsp;я│я┌я─п╟п╫п╦я├я┐</a>]
 <% } %>
 <%
   List main2 = (List) tmpl.getProf().getObject("main2");
@@ -70,8 +70,8 @@
     out.print("<input type=hidden name=tag value=" + tag + '>');
     int id = Integer.parseInt(request.getParameter("id"));
     out.print("<input type=hidden name=id value=" + id + '>');
-    out.print("Пароль <input type=password name=password><br>");
-    out.print("<input type=submit value=\"Remove/Удалить\">");
+    out.print("п÷п╟я─п╬п╩я▄ <input type=password name=password><br>");
+    out.print("<input type=submit value=\"Remove/пёп╢п╟п╩п╦я┌я▄\">");
     out.print("</form>");
   } else
   if (request.getParameter("mode") != null && "remove2".equals(request.getParameter("mode"))) {
@@ -105,8 +105,8 @@
     for (String box : boxlist) {
       out.print("<input type=radio name=box value=\"" + URLEncoder.encode(box) + "\">" + box + "<br>");
     }
-    out.print("Пароль <input type=password name=password><br>");
-    out.print("<input type=submit value=\"Add/Добавить\">");
+    out.print("п÷п╟я─п╬п╩я▄ <input type=password name=password><br>");
+    out.print("<input type=submit value=\"Add/п■п╬п╠п╟п╡п╦я┌я▄\">");
     out.print("</form>");
   } else if (request.getParameter("mode") != null && "add2".equals(request.getParameter("mode"))) {
     Connection db = null;
@@ -147,26 +147,26 @@
 <table><tr><td valign=top>
 <%
   if (tmpl.getProf().getBoolean("main.3columns")) {
-    out.print("<h3>Левая колонка</h3>");
+    out.print("<h3>п⌡п╣п╡п╟я▐ п╨п╬п╩п╬п╫п╨п╟</h3>");
     out.print("<div class=column>");
     out.print(new BoxletVectorRunner(main31).getEditContent(tmpl.getObjectConfig(), tmpl.getProf(), "31"));
     out.print("</div>");
   } else {
-    out.print("<h3>Левая колонка</h3>");
+    out.print("<h3>п⌡п╣п╡п╟я▐ п╨п╬п╩п╬п╫п╨п╟</h3>");
     out.print("<div class=column>");
     out.print(new BoxletVectorRunner(main2).getEditContent(tmpl.getObjectConfig(), tmpl.getProf(), "2"));
     out.print("</div>");
   }
 %>
 </td><td valign=top>
-<h1>Редактирование</h1>
-Чтобы добавить или удалить Boxlet, выберете соответствующий пункт в меню
-редактирования внизу каждой коробочки.
+<h1>п═п╣п╢п╟п╨я┌п╦я─п╬п╡п╟п╫п╦п╣</h1>
+п╖я┌п╬п╠я▀ п╢п╬п╠п╟п╡п╦я┌я▄ п╦п╩п╦ я┐п╢п╟п╩п╦я┌я▄ Boxlet, п╡я▀п╠п╣я─п╣я┌п╣ я│п╬п╬я┌п╡п╣я┌я│я┌п╡я┐я▌я┴п╦п╧ п©я┐п╫п╨я┌ п╡ п╪п╣п╫я▌
+я─п╣п╢п╟п╨я┌п╦я─п╬п╡п╟п╫п╦я▐ п╡п╫п╦п╥я┐ п╨п╟п╤п╢п╬п╧ п╨п╬я─п╬п╠п╬я┤п╨п╦.
 </td>
 <%
   if (tmpl.getProf().getBoolean("main.3columns")) {
     out.print("<td valign=top>");
-    out.print("<h3>Правая колонка</h3>");
+    out.print("<h3>п÷я─п╟п╡п╟я▐ п╨п╬п╩п╬п╫п╨п╟</h3>");
     out.print("<div class=column>");
     out.print(new BoxletVectorRunner(main32).getEditContent(tmpl.getObjectConfig(), tmpl.getProf(), "32"));
     out.print("</div>");
