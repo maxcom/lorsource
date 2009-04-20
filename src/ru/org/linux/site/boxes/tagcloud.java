@@ -43,7 +43,6 @@ public final class tagcloud extends Boxlet {
 
       out.append("<h2>Облако Меток</h2>");
       out.append("<div class=\"boxlet_content\">");
-      out.append("<h3>Наиболее используемые метки</h3>");
       out.append("<div align=\"center\">");
 
       PreparedStatement st = db.prepareStatement("select value,counter from tags_values where counter>0 order by counter desc limit ?");
