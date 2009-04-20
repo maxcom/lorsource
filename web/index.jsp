@@ -105,6 +105,7 @@
 <div class=column>
 <div class=boxlet>
 <h2>Вход на сайт</h2>
+<div class="boxlet_content">
 <% if (!Template.isSessionAuthorized(session)) { %>
 <form method=POST action="login.jsp">
 Имя:<br><input type=text name=nick size=15 style="width: 90%"><br>
@@ -134,7 +135,7 @@
 * <a href="show-comments.jsp?nick=<%= user.getNick() %>">Мои комментарии</a><br>
 * <a href="show-replies.jsp?nick=<%= user.getNick() %>">Ответы на мои комментарии</a><br>
 <% } %>
-
+</div>
 </div>
 
 <!-- boxes -->

@@ -15,7 +15,6 @@
 
 package ru.org.linux.site.boxes;
 
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -29,14 +28,16 @@ import ru.org.linux.util.DateUtil;
 import ru.org.linux.util.ProfileHashtable;
 
 public final class archive extends Boxlet {
-  public String getContentImpl(ProfileHashtable profile) throws IOException, SQLException, BadDateException {
+  @Override
+  public String getContentImpl(ProfileHashtable profile) throws SQLException, BadDateException {
     Connection db = null;
 
     try {
       db = LorDataSource.getConnection();
-      StringBuffer out = new StringBuffer();
+      StringBuilder out = new StringBuilder();
 
       out.append("<h2><a href=\"view-news-archive.jsp?section=1\">Архив Новостей</a></h2>");
+      out.append("<div class=\"boxlet_content\">");
       Statement st = db.createStatement();
       ResultSet rs = st.executeQuery("select year, month, c from monthly_stats where section=1 order by year desc, month desc limit 13");
 
@@ -48,6 +49,7 @@ public final class archive extends Boxlet {
       rs.close();
 
       out.append("<br>&gt;&gt;&gt; <a href=\"view-news-archive.jsp?section=1\"> Предыдущие месяцы</a> (с октября 1998)");
+      out.append("</div>");
 
       return out.toString();
     } finally {
@@ -57,10 +59,12 @@ public final class archive extends Boxlet {
     }
   }
 
+  @Override
   public String getInfo() {
     return "Архив новостей по месяцам";
   }
 
+  @Override
   public Date getExpire() {
     return new Date(new Date().getTime() + 5*60*1000);
   }

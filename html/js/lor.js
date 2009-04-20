@@ -67,3 +67,21 @@ function jump(link) {
 
 // enable comment frame
 setInterval(parseHash, 1000);
+
+$(document).ready(function() {
+  var options = {
+    success: function(xml) {
+      if ($(xml).find("error").length) {
+        alert($(xml).find("error").text());
+      } else if ($(xml).find("ok").length) {
+        window.location.reload();
+      }
+    },
+    dataType: "xml",
+    error: function (xhr) {
+      alert('Error!  Status = ' + xhr.status);
+    }
+  }
+
+  $('#regform').ajaxForm(options);
+});

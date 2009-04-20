@@ -184,7 +184,7 @@ function change(dest,source)
           throw new MessageNotFoundException(msgid);
         }
 
-        if (rs.getBoolean("perm") || rs.getInt("section") == Section.SECTION_LINKS) {
+        if (rs.getBoolean("perm")) {
           perm = true;
         }
 

@@ -34,11 +34,13 @@ public class CommentView {
 
     User author = User.getUserCached(db, comment.getUserid());
 
+    out.append("<div class=msg id=").append(comment.getMessageId()).append('>');
+    
     if (showMenu) {
       printMenu(out, comment, comments, tmpl, db, expired);
     }
 
-    out.append("<div class=msg id=").append(comment.getMessageId()).append('>');
+    out.append("<div class=\"msg_body\">");
 
     boolean tbl = false;
     if (author.getPhoto()!=null) {
@@ -89,6 +91,7 @@ public class CommentView {
       out.append("</td></tr></table>");
     }
 
+    out.append("</div>");
     out.append("</div>");
 
     return out.toString();

@@ -24,6 +24,7 @@ import java.util.logging.Logger;
 import com.danga.MemCached.MemCachedClient;
 
 import ru.org.linux.site.MemCachedSettings;
+import ru.org.linux.site.cli.mkdefprofile;
 import ru.org.linux.util.HTMLFormatter;
 import ru.org.linux.util.ProfileHashtable;
 import ru.org.linux.util.StringUtil;
@@ -41,16 +42,20 @@ public class BoxletVectorRunner {
   }
 
   public String getContent(Object config, ProfileHashtable profile) throws IOException, UtilException {
-    StringBuffer out = new StringBuffer();
+    StringBuilder out = new StringBuilder();
     BoxletLoader loader = new BoxletLoader();
 
     for (Iterator i = boxes.iterator(); i.hasNext(); ) {
       String name = (String) i.next();
 
+      if (!mkdefprofile.isBox(name)) {
+        continue;
+      }
+
       try {
         Boxlet bx = loader.loadBox(name);
 
-        String cacheId = MemCachedSettings.getId("boxlet?name="+name+"&"+bx.getVariantID(profile));
+        String cacheId = MemCachedSettings.getId("boxlet?name="+name+ '&' +bx.getVariantID(profile));
 
         String res = (String) mcc.get(cacheId);
 
@@ -79,11 +84,15 @@ public class BoxletVectorRunner {
 
   public String getEditContent(Object config, ProfileHashtable profile, String tag) throws IOException, UtilException {
     BoxletLoader loader = new BoxletLoader();
-    StringBuffer out = new StringBuffer();
+    StringBuilder out = new StringBuilder();
     BoxletDecorator decorator = new BoxletDecorator();
 
     for (int i = 0; i < boxes.size(); i++) {
       String name = (String) boxes.get(i);
+
+      if (!mkdefprofile.isBox(name)) {
+        continue;
+      }
 
       try {
         out.append("<div class=boxlet>");

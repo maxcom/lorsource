@@ -26,17 +26,23 @@ import java.util.Date;
 import ru.org.linux.boxlet.Boxlet;
 import ru.org.linux.site.LorDataSource;
 import ru.org.linux.site.config.PropertiesConfig;
-import ru.org.linux.util.*;
+import ru.org.linux.util.BadImageException;
+import ru.org.linux.util.ImageInfo;
+import ru.org.linux.util.ProfileHashtable;
+import ru.org.linux.util.StringUtil;
 
 public final class gallery extends Boxlet {
+  @Override
   public String getContentImpl(ProfileHashtable profile) throws IOException, SQLException {
     Connection db = null;
     try {
       db = LorDataSource.getConnection();
 
-      StringBuffer out = new StringBuffer();
+      StringBuilder out = new StringBuilder();
 
-      out.append("<h2><a href=\"view-news.jsp?section=3\">Галерея</a></h2> <h3>Последние скриншоты</h3>");
+      out.append("<h2><a href=\"view-news.jsp?section=3\">Галерея</a></h2>");
+      out.append("<div class=\"boxlet_content\">");
+      out.append(" <h3>Последние скриншоты</h3>");
       Statement st = db.createStatement();
       ResultSet rs = st.executeQuery("SELECT topics.id as msgid, topics.stat1, topics.title, topics.url, topics.linktext, nick FROM topics, sections, groups, users WHERE groups.id=topics.groupid AND groups.section=sections.id AND users.id=topics.userid AND topics.moderate AND sections.id=3 AND NOT deleted ORDER BY commitdate DESC LIMIT 3");
 
@@ -76,6 +82,7 @@ public final class gallery extends Boxlet {
       }
       rs.close();                          
       out.append("<a href=\"view-news.jsp?section=3\">другие скриншоты...</a>");
+      out.append("</div>");
       return out.toString();
     } finally {
       if (db != null) {
@@ -84,14 +91,17 @@ public final class gallery extends Boxlet {
     }
   }
 
+  @Override
   public String getInfo() {
     return "Последние добавления в галерею";
   }
 
-  public String getVariantID(ProfileHashtable prof) throws UtilException {
+  @Override
+  public String getVariantID(ProfileHashtable prof) {
     return "";
   }
 
+  @Override
   public Date getExpire() {
     return new Date(new Date().getTime() + 2 * 60 * 1000);
   }

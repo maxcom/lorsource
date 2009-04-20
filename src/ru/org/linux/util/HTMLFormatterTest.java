@@ -16,6 +16,7 @@
 package ru.org.linux.util;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 import org.junit.Test;
 import org.junit.Assert;
 import org.hamcrest.core.IsNot;
@@ -63,6 +64,11 @@ public class HTMLFormatterTest {
   private static final String RFC1738 = "http://www.phoronix.com/scan.php?page=article&item=intel_core_i7&Мама_мыла_раму&$-_.+!*'(,)=$-_.+!*'(),#anchor";
   private static final String CYR_LINK = "http://ru.wikipedia.org/wiki/Литературный_'негр'(Fran\u00C7ais\u0152uvre_\u05d0)?негр=эфиоп&эфиоп";
   private static final String GOOGLE_CACHE = "http://74.125.95.132/search?q=cache:fTsc8ze3IxIJ:forum.springsource.org/showthread.php%3Ft%3D53418+spring+security+openid&cd=1&hl=en&ct=clnk&gl=us";
+
+  private static final String PREFORMAT_LONG_TEST1 = "SRC_URI=\"http://downloads.sourceforge.net/simpledict/simpledict-${PV}-src.tar.gz\" ";
+  private static final String PREFORMAT_LONG_RESULT1 = "<pre>SRC_URI=&quot;<a href=\"http://downloads.sourceforge.net/simpledict/simpledict-\">http://downloads.sourceforge.net/simpledict/simpledict-</a>${PV}-src.tar.gz&quot; </pre>";
+  private static final String PREFORMAT_LONG_TEST2 = "Caelum_videri_esset._Et_terra_rus_ad_sidera_tollere_voltus._Ex_uno_discent_omnes...";
+  private static final String PREFORMAT_LONG_RESULT2 = "<pre>"+PREFORMAT_LONG_TEST2+"</pre>";
 
   @Test
   public void testURLHighlight() throws UtilException {
@@ -188,7 +194,7 @@ public class HTMLFormatterTest {
       String r = formatter.process();
       assertEquals("<pre>&quot;<a href=\"http://www.google.com/\">http://www.google.com/</a>&quot;</pre>", r);
     }catch (StringIndexOutOfBoundsException e){
-      Assert.fail("It seems, it should not happen?");
+      fail("It seems, it should not happen?");
     }
   }
 
@@ -197,7 +203,7 @@ public class HTMLFormatterTest {
     HTMLFormatter formatter = new HTMLFormatter(LINK_WITH_UNDERSCORE);
     formatter.enableUrlHighLightMode();
     String s = formatter.process();
-    Assert.assertTrue("Whole text must be formatted as link: " + s, s.endsWith(">"));
+    assertTrue("Whole text must be formatted as link: " + s, s.endsWith(">"));
   }
 
   @Test
@@ -205,7 +211,7 @@ public class HTMLFormatterTest {
     HTMLFormatter formatter = new HTMLFormatter(LINK_WITH_PARAM_ONLY);
     formatter.enableUrlHighLightMode();
     String s = formatter.process();
-    Assert.assertTrue("Whole text must be formatted as link: " + s, s.endsWith(">"));
+    assertTrue("Whole text must be formatted as link: " + s, s.endsWith(">"));
   }
 
   @Test
@@ -213,28 +219,28 @@ public class HTMLFormatterTest {
     HTMLFormatter formatter = new HTMLFormatter(RFC1738);
     formatter.enableUrlHighLightMode();
     String s = formatter.process();
-    Assert.assertTrue("Whole text must be formatted as link: " + s, s.endsWith(">"));
+    assertTrue("Whole text must be formatted as link: " + s, s.endsWith(">"));
   }
 
   @Test
   public void testNlSubstition(){
     String s = HTMLFormatter.nl2br("This is a line\nwith break inside it");
     Integer i = s.indexOf("<br>");
-    Assert.assertThat("Newline is changed to <br>", i, CoreMatchers.not(-1));
+    assertThat("Newline is changed to <br>", i, CoreMatchers.not(-1));
   }
 
   @Test
   public void testStringEscape(){
     String str = "This is an entity &#1999;";
     String s = HTMLFormatter.htmlSpecialChars(str);
-    Assert.assertThat("String should remaint unescaped", s, CoreMatchers.equalTo(str));
+    assertThat("String should remaint unescaped", s, CoreMatchers.equalTo(str));
   }
 
   @Test
   public void testAmpEscape(){
     String str = "a&b";
     String s = HTMLFormatter.htmlSpecialChars(str);
-    Assert.assertThat("Ampersand should be escaped", s, CoreMatchers.equalTo("a&amp;b"));
+    assertThat("Ampersand should be escaped", s, CoreMatchers.equalTo("a&amp;b"));
   }
 
   @Test
@@ -242,9 +248,9 @@ public class HTMLFormatterTest {
     String str = "this is a line\n\r\n\rwith some\n\nlinebreaks in it";
     String s = HTMLFormatter.texnl2br(str, false);
     Integer i = s.indexOf("<p>");
-    Assert.assertThat("Newlines is changed to <p>", i, CoreMatchers.not(-1));
+    assertThat("Newlines is changed to <p>", i, CoreMatchers.not(-1));
     Integer b = s.indexOf("<p>", i+3);
-    Assert.assertThat("Wait, there should be two paras", b, CoreMatchers.not(-1));
+    assertThat("Wait, there should be two paras", b, CoreMatchers.not(-1));
   }
 
   @Test
@@ -252,15 +258,31 @@ public class HTMLFormatterTest {
     HTMLFormatter formatter = new HTMLFormatter(CYR_LINK);
     formatter.enableUrlHighLightMode();
     String s = formatter.process();
-    Assert.assertTrue("All text should be inside link", s.endsWith("</a>"));
+    assertTrue("All text should be inside link", s.endsWith("</a>"));
   }
-
 
   @Test
   public void testGoogleCache(){
     HTMLFormatter formatter = new HTMLFormatter(GOOGLE_CACHE);
     formatter.enableUrlHighLightMode();
     String s = formatter.process();
-    Assert.assertTrue("All text should be inside link", s.endsWith("</a>"));
+    assertTrue("All text should be inside link", s.endsWith("</a>"));
+  }
+
+  @Test
+  public void testPreformatLong1(){
+    HTMLFormatter formatter = new HTMLFormatter(PREFORMAT_LONG_TEST1);
+    formatter.enableUrlHighLightMode();
+    formatter.enablePreformatMode();
+    String s = formatter.process();
+    assertEquals("Long line damaged in preformat mode", PREFORMAT_LONG_RESULT1, s);
+  }
+
+  @Test
+  public void testPreformatLong2(){
+    HTMLFormatter formatter = new HTMLFormatter(PREFORMAT_LONG_TEST2);
+    formatter.enablePreformatMode();
+    String s = formatter.process();
+    assertEquals("Long line damaged in preformat mode", PREFORMAT_LONG_RESULT2, s);
   }
 }

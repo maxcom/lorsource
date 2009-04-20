@@ -18,12 +18,21 @@ package ru.org.linux.site.cli;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
-import java.util.Date;
-import java.util.Hashtable;
-import java.util.Vector;
+import java.util.*;
 
 public final class mkdefprofile {
+  private static final String[] boxlist = {"poll", "top10", "gallery", "tagcloud", "archive", "ibm"};
+  private static final Set<String> boxSet = new HashSet<String>(Arrays.asList(boxlist));
+
   private mkdefprofile() {
+  }
+
+  public static String[] getBoxlist() {
+    return boxlist;
+  }
+
+  public static boolean isBox(String name) {
+    return boxSet.contains(name);
   }
 
   public static Hashtable getDefaultProfile() {
@@ -48,19 +57,6 @@ public final class mkdefprofile {
 // main page settings
     defaults.put("main.3columns", Boolean.FALSE);
 
-    Vector boxlist = new Vector();
-    boxlist.addElement("poll");
-    boxlist.addElement("top10");
-    boxlist.addElement("gallery");
-//		boxlist.addElement("justnews");
-//		boxlist.addElement("projects");
-    boxlist.addElement("tagcloud");
-    boxlist.addElement("archive");
-    boxlist.addElement("profile");
-    boxlist.addElement("ibm");
-//		boxlist.addElement("login");
-    defaults.put("boxlist", boxlist);
-
     Vector boxes = new Vector();
     boxes.addElement("ibm");
     boxes.addElement("poll");
@@ -70,7 +66,7 @@ public final class mkdefprofile {
 //		boxes.addElement("projects");
     boxes.addElement("tagcloud");
     boxes.addElement("archive");
-    boxes.addElement("profile");
+//    boxes.addElement("profile");
     defaults.put("main2", boxes);
 
     boxes = new Vector();
@@ -78,7 +74,7 @@ public final class mkdefprofile {
     boxes.addElement("poll");
 //		boxes.addElement("projects");
     boxes.addElement("archive");
-    boxes.addElement("profile");
+//    boxes.addElement("profile");
     boxes.addElement("tagcloud");
     defaults.put("main3-1", boxes);
 

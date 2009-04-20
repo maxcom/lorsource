@@ -25,19 +25,20 @@ import ru.org.linux.boxlet.Boxlet;
 import ru.org.linux.site.LorDataSource;
 import ru.org.linux.site.Poll;
 import ru.org.linux.util.ProfileHashtable;
-import ru.org.linux.util.UtilException;
 
 public final class poll extends Boxlet {
-  public String getContentImpl(ProfileHashtable profile) throws SQLException, UtilException {
+  @Override
+  public String getContentImpl(ProfileHashtable profile) throws SQLException {
     Connection db = null;
     try {
       db = LorDataSource.getConnection();
 
       Poll poll = Poll.getCurrentPoll(db);
 
-      StringBuffer out = new StringBuffer();
+      StringBuilder out = new StringBuilder();
 
       out.append("<h2><a href=\"view-news.jsp?section=5\">Опрос</a></h2>");
+      out.append("<div class=\"boxlet_content\">");
       out.append("<h3>").append(poll.getTitle()).append("</h3>");
 
       Statement st = db.createStatement();
@@ -60,6 +61,8 @@ public final class poll extends Boxlet {
       out.append(" (").append(rs.getInt("s")).append(" голосов)");
       out.append("<br><a href=\"view-news.jsp?section=5\">итоги прошедших опросов...</a>");
       out.append("<br>[<a href=\"add-poll.jsp\">добавить опрос</a>]");
+      
+      out.append("</div>");
       return out.toString();
     } finally {
       if (db != null) {
@@ -68,14 +71,17 @@ public final class poll extends Boxlet {
     }
   }
 
+  @Override
   public String getInfo() {
     return "Опрос";
   }
 
-  public String getVariantID(ProfileHashtable prof) throws UtilException {
+  @Override
+  public String getVariantID(ProfileHashtable prof) {
     return "";
   }
 
+  @Override
   public Date getExpire() {
     return new Date(new Date().getTime() + 60*1000);
   }

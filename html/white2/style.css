@@ -92,10 +92,6 @@ TR.color2 { background: #f0f0f0; }
   border-spacing: 1px;
 }
 
-.message-table td {
-  padding: 0;
-}
-
 .message-table tbody {
   background: #f0f0f0;
 }

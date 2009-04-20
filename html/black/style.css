@@ -1,4 +1,4 @@
-/* (c) Макс Валянский 1999 <maxcom@vinchi.ru> */
+/* (c) О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ 1999 <maxcom@vinchi.ru> */
 
 BODY { 
 	font-family: sans-serif;
@@ -111,10 +111,6 @@ TR.color2 { background: #000080; }
   border-spacing: 1px;
 }
 
-.message-table td {
-  padding: 0;
-}
-
 .message-table tbody {
   background: #000080;
 }
@@ -141,6 +137,9 @@ DIV.notes
 
 .head-main A { text-decoration: none; color: white }
 .head-main A:visited { text-decoration: none; color: white }
+
+.head A { text-decoration: none; color: white }
+.head A:visited { text-decoration: none; color: white }
 
 .head-main table {
   border-collapse: collapse;
