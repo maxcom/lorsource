@@ -36,7 +36,9 @@ public final class gallery extends Boxlet {
 
       StringBuffer out = new StringBuffer();
 
-      out.append("<h2><a href=\"view-news.jsp?section=3\">Галерея</a></h2> <h3>Последние скриншоты</h3>");
+      out.append("<h2><a href=\"view-news.jsp?section=3\">Галерея</a></h2>");
+      out.append("<div class=\"boxlet_content\">");
+      out.append(" <h3>Последние скриншоты</h3>");
       Statement st = db.createStatement();
       ResultSet rs = st.executeQuery("SELECT topics.id as msgid, topics.stat1, topics.title, topics.url, topics.linktext, nick FROM topics, sections, groups, users WHERE groups.id=topics.groupid AND groups.section=sections.id AND users.id=topics.userid AND topics.moderate AND sections.id=3 AND NOT deleted ORDER BY commitdate DESC LIMIT 3");
 
@@ -76,6 +78,7 @@ public final class gallery extends Boxlet {
       }
       rs.close();                          
       out.append("<a href=\"view-news.jsp?section=3\">другие скриншоты...</a>");
+      out.append("</div>");
       return out.toString();
     } finally {
       if (db != null) {

@@ -140,6 +140,11 @@ DIV.boxlet {
   width: 238px;   
 }
 
+.boxlet_content {
+  padding-left: 0.5em;
+  padding-right: 0.5em;
+}
+
 div.quote {
   border: 1px dotted;
   margin-bottom: 1em;

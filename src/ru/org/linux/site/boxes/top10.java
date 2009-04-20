@@ -36,7 +36,9 @@ public final class top10 extends Boxlet {
       StringBuffer out = new StringBuffer();
       double messages = profile.getInt("messages");
 
-      out.append("<h2>Top 10</h2><h3>Наиболее обсуждаемые темы этого месяца</h3>");
+      out.append("<h2>Top 10</h2>");
+      out.append("<div class=\"boxlet_content\">");
+      out.append("<h3>Наиболее обсуждаемые темы этого месяца</h3>");
       Statement st = db.createStatement();
 
       ResultSet rs = st.executeQuery("select msgid, mess_order from top10");
@@ -75,6 +77,8 @@ public final class top10 extends Boxlet {
       }
 
       rs.close();
+
+      out.append("</div>");
 
       return out.toString();
     } finally {

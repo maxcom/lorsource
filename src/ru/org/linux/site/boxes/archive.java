@@ -37,6 +37,7 @@ public final class archive extends Boxlet {
       StringBuffer out = new StringBuffer();
 
       out.append("<h2><a href=\"view-news-archive.jsp?section=1\">Архив Новостей</a></h2>");
+      out.append("<div class=\"boxlet_content\">");
       Statement st = db.createStatement();
       ResultSet rs = st.executeQuery("select year, month, c from monthly_stats where section=1 order by year desc, month desc limit 13");
 
@@ -48,6 +49,7 @@ public final class archive extends Boxlet {
       rs.close();
 
       out.append("<br>&gt;&gt;&gt; <a href=\"view-news-archive.jsp?section=1\"> Предыдущие месяцы</a> (с октября 1998)");
+      out.append("</div>");
 
       return out.toString();
     } finally {

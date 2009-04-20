@@ -41,7 +41,9 @@ public final class tagcloud extends Boxlet {
       StringBuilder out = new StringBuilder();
       int tags = profile.getInt("tags");
 
-      out.append("<h2>Облако Меток</h2><h3>Наиболее используемые метки</h3>");
+      out.append("<h2>Облако Меток</h2>");
+      out.append("<div class=\"boxlet_content\">");
+      out.append("<h3>Наиболее используемые метки</h3>");
       out.append("<div align=\"center\">");
 
       PreparedStatement st = db.prepareStatement("select value,counter from tags_values where counter>0 order by counter desc limit ?");
@@ -80,7 +82,8 @@ public final class tagcloud extends Boxlet {
       }
 
       out.append("</div>");
-      
+      out.append("</div>");
+
       return out.toString();
     } finally {
       if (db != null) {

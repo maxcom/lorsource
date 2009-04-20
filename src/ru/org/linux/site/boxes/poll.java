@@ -38,6 +38,7 @@ public final class poll extends Boxlet {
       StringBuffer out = new StringBuffer();
 
       out.append("<h2><a href=\"view-news.jsp?section=5\">Опрос</a></h2>");
+      out.append("<div class=\"boxlet_content\">");
       out.append("<h3>").append(poll.getTitle()).append("</h3>");
 
       Statement st = db.createStatement();
@@ -60,6 +61,8 @@ public final class poll extends Boxlet {
       out.append(" (").append(rs.getInt("s")).append(" голосов)");
       out.append("<br><a href=\"view-news.jsp?section=5\">итоги прошедших опросов...</a>");
       out.append("<br>[<a href=\"add-poll.jsp\">добавить опрос</a>]");
+      
+      out.append("</div>");
       return out.toString();
     } finally {
       if (db != null) {
