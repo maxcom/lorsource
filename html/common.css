@@ -110,6 +110,8 @@ DIV.sign {
 .messages .msg {
   margin-bottom: 1em;
   padding-bottom: 1em;
+  padding-left: 0.5em;
+  padding-right: 0.5em;
 }
 
 .messages .highLighted {
