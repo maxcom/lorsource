@@ -78,7 +78,7 @@ H1 {
   margin-top: 0; margin-bottom: 5px
 }
 
-.messages H2 { margin-bottom: 5px; margin-top: 0; }
+.messages H2 { margin-bottom: 5px; margin-top: 5px; }
 
 .nav {
   text-align: center; margin-bottom: 1em; margin-top: 5px;
@@ -110,11 +110,9 @@ DIV.sign {
 .messages .msg {
   margin-bottom: 1em;
   padding-bottom: 1em;
-  padding-left: 0.5em;
-  padding-right: 0.5em;
 }
 
-.messages .title {
+.msg_body {
   padding-left: 0.5em;
   padding-right: 0.5em;
 }
