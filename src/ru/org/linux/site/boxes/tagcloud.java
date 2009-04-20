@@ -31,16 +31,18 @@ import ru.org.linux.util.ProfileHashtable;
 import ru.org.linux.util.UtilException;
 
 public final class tagcloud extends Boxlet {
-  public String getContentImpl(ProfileHashtable profile) throws IOException, SQLException, UtilException {
+  @Override
+  public String getContentImpl(ProfileHashtable profile) throws IOException, SQLException {
     Connection db = null;
     try {
       db = LorDataSource.getConnection();
 
       Map<String,Double> ht = new TreeMap<String,Double>();
-      StringBuffer out = new StringBuffer();
+      StringBuilder out = new StringBuilder();
       int tags = profile.getInt("tags");
 
       out.append("<h2>Облако Меток</h2><h3>Наиболее используемые метки</h3>");
+      out.append("<div align=\"center\">");
 
       PreparedStatement st = db.prepareStatement("select value,counter from tags_values where counter>0 order by counter desc limit ?");
       st.setInt(1,tags);
@@ -74,9 +76,10 @@ public final class tagcloud extends Boxlet {
         long weight = Math.round(10*(cnt-minc)/(maxc-minc));
 
         out.append("<a class=\"cloud").append(URLEncoder.encode(Long.toString(weight), "UTF-8")).append("\" href=\"view-news.jsp?section=1&amp;tag=");
-        out.append(tag).append("\">").append(tag).append("</a>").append(" ");
+        out.append(tag).append("\">").append(tag).append("</a>").append(' ');
       }
-      out.append("<br>");
+
+      out.append("</div>");
       
       return out.toString();
     } finally {
@@ -86,14 +89,17 @@ public final class tagcloud extends Boxlet {
     }
   }
 
+  @Override
   public String getInfo() {
     return "Наиболее используемые метки";
   }
 
-  public String getVariantID(ProfileHashtable prof) throws UtilException {
+  @Override
+  public String getVariantID(ProfileHashtable prof) {
     return "tag=" + prof.getInt("tags");
   }
 
+  @Override
   public Date getExpire() {
     return new Date(new Date().getTime() + 5*60*1000);
   }
