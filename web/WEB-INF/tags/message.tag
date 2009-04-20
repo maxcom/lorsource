@@ -42,7 +42,7 @@
 %>
 
   <!-- <%= msgid%>  -->
-
+<div class=msg>
 <c:if test="${showMenu}">
   <div class=title>
     <c:if test="${not message.deleted}">[<a href="/view-message.jsp?msgid=<%= msgid %>">#</a>]<%
@@ -100,7 +100,7 @@
 %>
   &nbsp;</div>
 </c:if>
-<div class=msg>
+<div class="msg_body">
 <%
   boolean tbl = false;
   if (message.getSection().isImagepost()) {
@@ -234,4 +234,5 @@
     out.append("</td></tr></table>");
   }
 %>
+</div>
 </div>
