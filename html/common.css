@@ -114,6 +114,11 @@ DIV.sign {
   padding-right: 0.5em;
 }
 
+.messages .title {
+  padding-left: 0.5em;
+  padding-right: 0.5em;
+}
+
 .messages .highLighted {
     border: red solid 1px;
 }
