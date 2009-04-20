@@ -111,10 +111,6 @@ TR.color2 { background: #000080; }
   border-spacing: 1px;
 }
 
-.message-table td {
-  padding: 0;
-}
-
 .message-table tbody {
   background: #000080;
 }
