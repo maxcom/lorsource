@@ -15,7 +15,6 @@
 
 package ru.org.linux.site.boxes;
 
-import java.io.IOException;
 import java.sql.*;
 import java.util.Date;
 import java.util.HashMap;
@@ -24,16 +23,16 @@ import java.util.Map;
 import ru.org.linux.boxlet.Boxlet;
 import ru.org.linux.site.LorDataSource;
 import ru.org.linux.util.ProfileHashtable;
-import ru.org.linux.util.UtilException;
 
 public final class top10 extends Boxlet {
-  public String getContentImpl(ProfileHashtable profile) throws IOException, SQLException, UtilException {
+  @Override
+  public String getContentImpl(ProfileHashtable profile) throws SQLException {
     Connection db = null;
     try {
       db = LorDataSource.getConnection();
 
       Map<Integer,Integer> ht = new HashMap<Integer,Integer>();
-      StringBuffer out = new StringBuffer();
+      StringBuilder out = new StringBuilder();
       double messages = profile.getInt("messages");
 
       out.append("<h2>Top 10</h2>");
@@ -88,14 +87,17 @@ public final class top10 extends Boxlet {
     }
   }
 
+  @Override
   public String getInfo() {
     return "Наиболее обсуждаемые темы этого месяца";
   }
 
-  public String getVariantID(ProfileHashtable prof) throws UtilException {
+  @Override
+  public String getVariantID(ProfileHashtable prof) {
     return "messages=" + prof.getInt("messages") + "&style=" + prof.getString("style");
   }
 
+  @Override
   public Date getExpire() {
     return new Date(new Date().getTime() + 5*60*1000);
   }

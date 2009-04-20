@@ -26,15 +26,19 @@ import java.util.Date;
 import ru.org.linux.boxlet.Boxlet;
 import ru.org.linux.site.LorDataSource;
 import ru.org.linux.site.config.PropertiesConfig;
-import ru.org.linux.util.*;
+import ru.org.linux.util.BadImageException;
+import ru.org.linux.util.ImageInfo;
+import ru.org.linux.util.ProfileHashtable;
+import ru.org.linux.util.StringUtil;
 
 public final class gallery extends Boxlet {
+  @Override
   public String getContentImpl(ProfileHashtable profile) throws IOException, SQLException {
     Connection db = null;
     try {
       db = LorDataSource.getConnection();
 
-      StringBuffer out = new StringBuffer();
+      StringBuilder out = new StringBuilder();
 
       out.append("<h2><a href=\"view-news.jsp?section=3\">Галерея</a></h2>");
       out.append("<div class=\"boxlet_content\">");
@@ -87,14 +91,17 @@ public final class gallery extends Boxlet {
     }
   }
 
+  @Override
   public String getInfo() {
     return "Последние добавления в галерею";
   }
 
-  public String getVariantID(ProfileHashtable prof) throws UtilException {
+  @Override
+  public String getVariantID(ProfileHashtable prof) {
     return "";
   }
 
+  @Override
   public Date getExpire() {
     return new Date(new Date().getTime() + 2 * 60 * 1000);
   }
