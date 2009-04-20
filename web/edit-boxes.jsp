@@ -5,6 +5,7 @@
 <%@ page import="ru.org.linux.util.ProfileHashtable" %>
 <%@ page import="ru.org.linux.util.ServletParameterParser" %>
 <%@ page import="ru.org.linux.util.StringUtil" %>
+<%@ page import="ru.org.linux.site.cli.mkdefprofile" %>
 <%--
   ~ Copyright 1998-2009 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -92,7 +93,7 @@
     save = true;
   } else if (request.getParameter("mode") != null && "add".equals(request.getParameter("mode"))) {
     showlist = false;
-    List boxlist = (List) tmpl.getProf().getObject("boxlist");
+    String[] boxlist = mkdefprofile.getBoxlist();
 
     out.print("<form method=POST action=\"edit-boxes.jsp\">");
     out.print("<input type=hidden name=mode value=add2>");
@@ -101,8 +102,8 @@
       int id = Integer.parseInt(request.getParameter("id"));
       out.print("<input type=hidden name=id value=" + id + '>');
     }
-    for (Object aBoxlist : boxlist) {
-      out.print("<input type=radio name=box value=\"" + URLEncoder.encode((String) aBoxlist) + "\">" + aBoxlist + "<br>");
+    for (String box : boxlist) {
+      out.print("<input type=radio name=box value=\"" + URLEncoder.encode(box) + "\">" + box + "<br>");
     }
     out.print("Пароль <input type=password name=password><br>");
     out.print("<input type=submit value=\"Add/Добавить\">");
