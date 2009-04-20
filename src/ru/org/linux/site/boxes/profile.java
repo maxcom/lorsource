@@ -20,32 +20,40 @@ import java.io.IOException;
 import ru.org.linux.boxlet.Boxlet;
 import ru.org.linux.util.ProfileHashtable;
 
-public final class profile extends Boxlet
-{
-	public String getContentImpl(ProfileHashtable profile) throws IOException {
-		StringBuffer out=new StringBuffer();
+public final class profile extends Boxlet {
+  @Override
+  public String getContentImpl(ProfileHashtable profile) {
+    StringBuilder out = new StringBuilder();
 
-		out.append("<h2>Выбор профиля</h2>");
-		if (profile.getString("ProfileName")==null)
-			out.append("Используется профиль по-умолчанию<p>");
-		else
-                  out.append("Используется профиль: <em>").append(profile.getString("ProfileName")).append("</em><p>");
-		out.append("<br><a href=\"edit-profile.jsp\">настройки...</a>");
+    out.append("<h2>Выбор профиля</h2>");
 
-		out.append("<p><strong>Предустановки:</strong><br>");
-		out.append("*<a href=\"edit-profile.jsp?mode=setup&amp;profile=\">по умолчанию</a><br>");
-		out.append("*<a href=\"edit-profile.jsp?mode=setup&amp;profile=_white\">тема white</a><br>");
-		out.append("*<a href=\"edit-profile.jsp?mode=setup&amp;profile=_white2\">тема white2</a><br>");
+    if (profile.getString("ProfileName") == null) {
+      out.append("Используется профиль по-умолчанию<p>");
+    } else {
+      out.append("Используется профиль: <em>").append(profile.getString("ProfileName")).append("</em><p>");
+    }
+    
+    out.append("<br><a href=\"edit-profile.jsp\">настройки...</a>");
 
-		return out.toString();
-	}
+    out.append("<p><strong>Предустановки:</strong><br>");
+    out.append("*<a href=\"edit-profile.jsp?mode=setup&amp;profile=\">по умолчанию</a><br>");
+    out.append("*<a href=\"edit-profile.jsp?mode=setup&amp;profile=_white\">тема white</a><br>");
+    out.append("*<a href=\"edit-profile.jsp?mode=setup&amp;profile=_white2\">тема white2</a><br>");
 
-	public String getInfo() { return "Выбор профиля"; }
+    return out.toString();
+  }
 
-	public String getVariantID(ProfileHashtable prof) {
-		if (prof.getString("ProfileName")==null)
-			return "";
-		else
-			return "ProfileName="+prof.getString("ProfileName");
-	}
+  @Override
+  public String getInfo() {
+    return "Выбор профиля";
+  }
+
+  @Override
+  public String getVariantID(ProfileHashtable prof) {
+    if (prof.getString("ProfileName") == null) {
+      return "";
+    } else {
+      return "ProfileName=" + prof.getString("ProfileName");
+    }
+  }
 }
