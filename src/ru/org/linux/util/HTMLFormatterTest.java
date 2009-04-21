@@ -69,6 +69,7 @@ public class HTMLFormatterTest {
   private static final String PREFORMAT_LONG_RESULT1 = "<pre>SRC_URI=&quot;<a href=\"http://downloads.sourceforge.net/simpledict/simpledict-\">http://downloads.sourceforge.net/simpledict/simpledict-</a>${PV}-src.tar.gz&quot; </pre>";
   private static final String PREFORMAT_LONG_TEST2 = "Caelum_videri_esset._Et_terra_rus_ad_sidera_tollere_voltus._Ex_uno_discent_omnes...";
   private static final String PREFORMAT_LONG_RESULT2 = "<pre>"+PREFORMAT_LONG_TEST2+"</pre>";
+  private static final String URL_WITH_AT = "http://www.mail-archive.com/samba@lists.samba.org/msg58308.html";
 
   @Test
   public void testURLHighlight() throws UtilException {
@@ -284,5 +285,13 @@ public class HTMLFormatterTest {
     formatter.enablePreformatMode();
     String s = formatter.process();
     assertEquals("Long line damaged in preformat mode", PREFORMAT_LONG_RESULT2, s);
+  }
+
+  @Test
+  public void testURLWithAt(){
+    HTMLFormatter formatter = new HTMLFormatter(URL_WITH_AT);
+    formatter.enableUrlHighLightMode();
+    String s = formatter.process();
+    assertTrue("All text should be inside link", s.endsWith("</a>"));
   }
 }
