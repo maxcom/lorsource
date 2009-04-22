@@ -1,4 +1,4 @@
-/* (c) Макс Валянский 1999 <maxcom@vinchi.ru> */
+/* (c) О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ 1999 <maxcom@vinchi.ru> */
 
 BODY { font-family: serif; }
 
@@ -75,11 +75,6 @@ DIV.forum A { text-decoration: none }
 
 table.nav>tbody>tr>td {
   border: #c0c0c0 1px solid; 
-}
-
-.pageinfo {
-  border: #c0c0c0 1px solid;
-  background: #f0f0f0;
 }
 
 TR.color2 { background: #f0f0f0; }
