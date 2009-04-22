@@ -73,6 +73,7 @@ $(document).ready(function() {
     success: function(xml) {
       if ($(xml).find("error").length) {
         alert($(xml).find("error").text());
+        window.location="/login.jsp";
       } else if ($(xml).find("ok").length) {
         window.location.reload();
       }
@@ -80,6 +81,7 @@ $(document).ready(function() {
     dataType: "xml",
     error: function (xhr) {
       alert('Error!  Status = ' + xhr.status);
+      window.location="/login.jsp";
     }
   }
 

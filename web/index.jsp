@@ -103,19 +103,10 @@
 %>
 
 <div class=column>
+  <% if (Template.isSessionAuthorized(session)) { %>
 <div class=boxlet>
 <h2>Вход на сайт</h2>
 <div class="boxlet_content">
-<% if (!Template.isSessionAuthorized(session)) { %>
-<form method=POST action="login.jsp">
-Имя:<br><input type=text name=nick size=15 style="width: 90%"><br>
-Пароль:<br><input type=password name=passwd size=15 style="width: 90%"><br>
-<input type=submit value="Вход">
-</form>
-* <a href="lostpwd.jsp">Забыли пароль?</a><br>
-* <a href="rules.jsp">Правила</a><br>
-* <a href="register.jsp">Регистрация</a>
-<% } else { %>
 Вы вошли как <b><%= session.getAttribute("nick") %></b>
 <%
   if (db==null) {
@@ -132,9 +123,9 @@
 * <a href="show-comments.jsp?nick=<%= user.getNick() %>">Мои комментарии</a><br>
 * <a href="show-replies.jsp?nick=<%= user.getNick() %>">Ответы на мои комментарии</a><br>
   </p>
-<% } %>
 </div>
 </div>
+  <% } %>
 
 <!-- boxes -->
 <%
