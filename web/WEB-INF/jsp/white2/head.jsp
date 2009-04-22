@@ -1,3 +1,4 @@
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page contentType="text/html; charset=utf-8"%>
 
 <%--
@@ -23,7 +24,31 @@
 <!-- #defefc #aea6f2 -->
 
 <table width="100%" border=0 cellpadding=0 cellspacing=0>
-<tr><td bgcolor="#defefc"><img src="/white2/h1.png" alt="Русская информация об ОС Linux" width=452 height=72></td></tr>
+<tr><td bgcolor="#defefc"><img src="/white2/h1.png" alt="Русская информация об ОС Linux" width=452 height=72></td>
+<td align="right" valign="top" bgcolor="#defefc">
+  <c:if test="${template.sessionAuthorized}">
+    <c:url var="userUrl" value="/whois.jsp">
+      <c:param name="nick" value="${template.nick}"/>
+    </c:url>
+    добро пожаловать, <a style="text-decoration: none" href="${userUrl}">${template.nick}</a>
+    [<a href="logout.jsp" title="Выйти">x</a>]
+  </c:if>
+
+  <c:if test="${not template.sessionAuthorized}">
+    <div id="regmenu">
+      <a style="text-decoration: none" href="/register.jsp">Регистрация</a> -
+      <a style="text-decoration: none" href="/" onclick="showLoginForm(); return false;">Вход</a>
+    </div>
+
+    <form method=POST action="login.jsp" style="display: none" id="regform">
+      Имя: <input type=text name=nick size=15>
+      Пароль: <input type=password name=passwd size=15>
+      <input type=submit value="Вход">
+      <input type="button" value="Отмена" onclick="hideLoginForm(); return false">
+    </form>
+  </c:if>
+</td>
+</tr>
 <tr><td><img src="/white2/h2.png" alt="" width=452 height=49></td></tr>
 </table>
 
