@@ -1,16 +1,12 @@
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="java.io.File,java.io.IOException,java.net.URLEncoder,java.sql.*,java.util.*,java.util.Date,java.util.logging.Logger,javax.mail.Session"   buffer="200kb"%>
-<%@ page import="javax.mail.Transport"%>
-<%@ page import="javax.mail.internet.InternetAddress"%>
-<%@ page import="javax.mail.internet.MimeMessage"%>
-<%@ page import="javax.servlet.http.Cookie" %>
-<%@ page import="javax.servlet.http.HttpServletResponse" %>
-<%@ page import="org.apache.commons.fileupload.FileItem" %>
-<%@ page import="org.apache.commons.fileupload.disk.DiskFileItemFactory" %>
+<%@ page import="java.io.File,java.io.IOException,java.net.URLEncoder,java.sql.*,java.util.*,java.util.Date,java.util.logging.Logger,javax.servlet.http.Cookie"   buffer="200kb"%>
+<%@ page import="javax.servlet.http.HttpServletResponse"%>
+<%@ page import="org.apache.commons.fileupload.FileItem"%>
+<%@ page import="org.apache.commons.fileupload.disk.DiskFileItemFactory"%>
 <%@ page import="org.apache.commons.fileupload.servlet.ServletFileUpload" %>
 <%@ page import="ru.org.linux.boxlet.BoxletVectorRunner" %>
 <%@ page import="ru.org.linux.site.*" %>
-<%@ page import="ru.org.linux.storage.StorageNotFoundException" %>
+<%@ page import="ru.org.linux.site.cli.mkdefprofile" %>
 <%@ page import="ru.org.linux.util.*" %>
 <%--
   ~ Copyright 1998-2009 Linux.org.ru
@@ -176,7 +172,7 @@
     out.print("</em></p>");
   }
 %>
-<form action="group.jsp" method="GET">
+<form action="group.jsp" method="GET" onChange="submit()">
 
   <input type=hidden name=group value=<%= groupId %>>
   <!-- input type=hidden name=deleted value=<%= (showDeleted?"t":"f")%> -->
@@ -184,10 +180,10 @@
     <input type=hidden name=offset value="<%= offset %>">
   <% } %>
   <div class=nav>
-    фильтр тем: <select name="showignored">
+    фильтр: <select name="showignored">
       <option value="t" <%= (showIgnored?"selected":"") %>>все темы</option>
       <option value="f" <%= (showIgnored?"":"selected") %>>без игнорируемых</option>
-      </select> <input type="submit" value="Обновить"> [<a href="ignore-list.jsp">настроить</a>]
+      </select> [<a href="ignore-list.jsp">настроить</a>]
   </div>
 
 </form>
@@ -374,6 +370,7 @@
   }
 %>
 <p>
+</div>
 
 <% if (Template.isSessionAuthorized(session) && !showDeleted) { %>
   <hr>
@@ -388,7 +385,6 @@
   <hr>
 <% } %>
 
-</div>
 <%
 	st.close();
 	db.commit();
