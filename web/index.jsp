@@ -116,7 +116,6 @@
 * <a href="rules.jsp">Правила</a><br>
 * <a href="register.jsp">Регистрация</a>
 <% } else { %>
-<form method=POST action="logout.jsp">
 Вы вошли как <b><%= session.getAttribute("nick") %></b>
 <%
   if (db==null) {
@@ -126,14 +125,13 @@
   User user = User.getUser(db, (String) session.getAttribute("nick"));
 
   out.print("<br>(статус: " + user.getStatus() + ')');
-%><br>
-<input type=submit value="Выход"><p>
-</form>
+%><p>
 * <a href="rules.jsp">Правила</a><br>
 * <a href="edit-profile.jsp">Настройки</a><br>&nbsp;<br>
 * <a href="show-topics.jsp?nick=<%= user.getNick() %>">Мои темы</a><br>
 * <a href="show-comments.jsp?nick=<%= user.getNick() %>">Мои комментарии</a><br>
 * <a href="show-replies.jsp?nick=<%= user.getNick() %>">Ответы на мои комментарии</a><br>
+  </p>
 <% } %>
 </div>
 </div>
