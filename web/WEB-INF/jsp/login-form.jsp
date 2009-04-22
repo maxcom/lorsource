@@ -31,10 +31,8 @@
 <input type=submit value="Вход">
 </form>
 
-<h2>Ссылки</h2>
-<ul>
-    <li><a href="register.jsp">Регистрация</a></li>
-    <li><a href="lostpwd.jsp">Получить забытый пароль</a></li>
-</ul>
+<div style="font-size: smaller">
+(<a href="register.jsp">Регистрация</a> | <a href="lostpwd.jsp">Получить забытый пароль</a>)
+</div>
 
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>
