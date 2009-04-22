@@ -265,8 +265,8 @@
     String linkurl = mainurl;
 
     if (npage!=-1 && npage!=0) {
-      bufInfo.append("<a href=\"").append(linkurl).append("&amp;page=").append(npage-1).append("\">");
-      bufInfo.append("&emsp;←");
+      bufInfo.append("&emsp;<a href=\"").append(linkurl).append("&amp;page=").append(npage-1).append("\">");
+      bufInfo.append("←");
       bufInfo.append("</a>");
     } else {
       bufInfo.append("&emsp;←");
