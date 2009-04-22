@@ -135,17 +135,17 @@
     out.print("</em></p>");
   }
 %>
-<form action="group-lastmod.jsp" method="GET">
+<form action="group-lastmod.jsp" method="GET" onChange="submit()">
 
   <input type=hidden name=group value=<%= groupid %>>
   <% if (!firstPage) { %>
 	<input type=hidden name=offset value="<%= offset %>">
   <% } %>
   <div class=nav>
-	фильтр тем: <select name="showignored">
+	фильтр: <select name="showignored">
   	  <option value="t" <%= (showIgnored?"selected":"") %>>все темы</option>
 	  <option value="f" <%= (showIgnored?"":"selected") %>>без игнорируемых</option>
-	  </select> <input type="submit" value="Обновить"> [<a href="ignore-list.jsp">настроить</a>]
+	  </select> [<a href="ignore-list.jsp">настроить</a>]
   </div>
 </form>
 
