@@ -264,6 +264,14 @@
 
     String linkurl = mainurl;
 
+    if (npage!=-1 && npage!=0) {
+      bufInfo.append("<a href=\"").append(linkurl).append("&amp;page=").append(npage-1).append("\">");
+      bufInfo.append("&emsp;←");
+      bufInfo.append("</a>");
+    } else {
+      bufInfo.append("&emsp;←");
+    }
+
     for (int i = 0; i < pages; i++) {
       bufInfo.append(' ');
 
@@ -288,11 +296,19 @@
       }
     }
 
+    if (npage!=-1 && npage+1!=pages) {
+      bufInfo.append("<a href=\"").append(linkurl).append("&amp;page=").append(npage+1).append("\">");
+      bufInfo.append(" →");
+      bufInfo.append("</a>");        
+    } else {
+      bufInfo.append(" →");
+    }
+
     if (Template.isSessionAuthorized(session)) {
       if (npage!=-1) {
-        bufInfo.append(" <a href=\"").append(linkurl).append("&amp;page=-1").append("\">все").append("</a>");
+        bufInfo.append("&emsp;<a href=\"").append(linkurl).append("&amp;page=-1").append("\">все").append("</a>");
       } else {
-        bufInfo.append(" <strong>все").append("</strong>");      
+        bufInfo.append("&emsp;<strong>все").append("</strong>");      
       }
     }
 
