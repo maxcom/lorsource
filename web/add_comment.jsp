@@ -1,4 +1,4 @@
-<%@ page contentType="text/html; charset=utf-8" pageEncoding="koi8-r"%>
+<%@ page contentType="text/html; charset=utf-8"%>
 <%@ page import="java.sql.Connection,java.sql.Statement,java.util.Random,java.util.logging.Logger,javax.servlet.http.HttpServletResponse,ru.org.linux.site.*"  %>
 <%@ page import="ru.org.linux.util.BadURLException"%>
 <%@ page import="ru.org.linux.util.HTMLFormatter" %>
@@ -56,7 +56,7 @@
 
     if (!preview && !session.getId().equals(request.getParameter("session"))) {
       logger.info("Flood protection (session variable differs: " + session.getId() + ") " + request.getRemoteAddr());
-      throw new BadInputException("сбой добавления");
+      throw new BadInputException("я│п╠п╬п╧ п╢п╬п╠п╟п╡п╩п╣п╫п╦я▐");
     }
 
     String title = request.getParameter("title");
@@ -106,7 +106,7 @@
 
       if (!Template.isSessionAuthorized(session)) {
         if (request.getParameter("nick") == null) {
-          throw new BadInputException("Вы уже вышли из системы");
+          throw new BadInputException("п▓я▀ я┐п╤п╣ п╡я▀я┬п╩п╦ п╦п╥ я│п╦я│я┌п╣п╪я▀");
         }
         user = User.getUser(db, request.getParameter("nick"));
         user.checkPassword(request.getParameter("password"));
@@ -119,11 +119,11 @@
       comment.setAuthor(user.getId());
 
       if ("".equals(title)) {
-        throw new BadInputException("заголовок сообщения не может быть пустым");
+        throw new BadInputException("п╥п╟пЁп╬п╩п╬п╡п╬п╨ я│п╬п╬п╠я┴п╣п╫п╦я▐ п╫п╣ п╪п╬п╤п╣я┌ п╠я▀я┌я▄ п©я┐я│я┌я▀п╪");
       }
 
       if ("".equals(msg)) {
-        throw new BadInputException("комментарий не может быть пустым");
+        throw new BadInputException("п╨п╬п╪п╪п╣п╫я┌п╟я─п╦п╧ п╫п╣ п╪п╬п╤п╣я┌ п╠я▀я┌я▄ п©я┐я│я┌я▀п╪");
       }
 
       if (!preview && !Template.isSessionAuthorized(session)) {
@@ -132,22 +132,22 @@
 
       if (user.isAnonymous()) {
         if (msg.length() > 4096) {
-          throw new BadInputException("Слишком большое сообщение");
+          throw new BadInputException("п║п╩п╦я┬п╨п╬п╪ п╠п╬п╩я▄я┬п╬п╣ я│п╬п╬п╠я┴п╣п╫п╦п╣");
         }
       } else {
         if (msg.length() > 8192) {
-          throw new BadInputException("Слишком большое сообщение");
+          throw new BadInputException("п║п╩п╦я┬п╨п╬п╪ п╠п╬п╩я▄я┬п╬п╣ я│п╬п╬п╠я┴п╣п╫п╦п╣");
         }
       }
 
       if (replyto != 0) {
         Comment reply = new Comment(db, replyto);
         if (reply.isDeleted()) {
-          throw new AccessViolationException("Комментарий был удален");
+          throw new AccessViolationException("п п╬п╪п╪п╣п╫я┌п╟я─п╦п╧ п╠я▀п╩ я┐п╢п╟п╩п╣п╫");
         }
 
         if (reply.getTopic() != topicId) {
-          throw new AccessViolationException("Некорректная тема?!");
+          throw new AccessViolationException("п²п╣п╨п╬я─я─п╣п╨я┌п╫п╟я▐ я┌п╣п╪п╟?!");
         }
       }
 
@@ -161,7 +161,7 @@
 
         int msgid = comment.saveNewMessage(db, request.getRemoteAddr(), request.getHeader("user-agent"));
 
-        String logmessage = "Написан комментарий " + msgid + " ip:" + request.getRemoteAddr();
+        String logmessage = "п²п╟п©п╦я│п╟п╫ п╨п╬п╪п╪п╣п╫я┌п╟я─п╦п╧ " + msgid + " ip:" + request.getRemoteAddr();
         if (request.getHeader("X-Forwarded-For") != null) {
           logmessage = logmessage + " XFF:" + request.getHeader(("X-Forwarded-For"));
         }
@@ -191,13 +191,13 @@
         st.close();
 
 %>
-<title>Добавление сообщения прошло успешно</title>
+<title>п■п╬п╠п╟п╡п╩п╣п╫п╦п╣ я│п╬п╬п╠я┴п╣п╫п╦я▐ п©я─п╬я┬п╩п╬ я┐я│п©п╣я┬п╫п╬</title>
 <jsp:include page="WEB-INF/jsp/header.jsp"/>
-<p>Сообщение помещено успешно
+<p>п║п╬п╬п╠я┴п╣п╫п╦п╣ п©п╬п╪п╣я┴п╣п╫п╬ я┐я│п©п╣я┬п╫п╬
 
-<p><a href="<%= returnUrl %>">Возврат</a>
+<p><a href="<%= returnUrl %>">п▓п╬п╥п╡я─п╟я┌</a>
 
-<p><b>Пожалуйста, не нажимайте кнопку "ReLoad" вашего броузера на этой страничке и не возвращайтесь на нее по средством кнопки Back</b>
+<p><b>п÷п╬п╤п╟п╩я┐п╧я│я┌п╟, п╫п╣ п╫п╟п╤п╦п╪п╟п╧я┌п╣ п╨п╫п╬п©п╨я┐ "ReLoad" п╡п╟я┬п╣пЁп╬ п╠я─п╬я┐п╥п╣я─п╟ п╫п╟ я█я┌п╬п╧ я│я┌я─п╟п╫п╦я┤п╨п╣ п╦ п╫п╣ п╡п╬п╥п╡я─п╟я┴п╟п╧я┌п╣я│я▄ п╫п╟ п╫п╣п╣ п©п╬ я│я─п╣п╢я│я┌п╡п╬п╪ п╨п╫п╬п©п╨п╦ Back</b>
 <%		
 			} 
 } catch (UserErrorException e) {
@@ -234,33 +234,33 @@ if (showform) { // show form
   Message topic = new Message(db, topicId);
 
   if (topic.isExpired()) {
-    throw new AccessViolationException("нельзя добавлять в устаревшие темы");
+    throw new AccessViolationException("п╫п╣п╩я▄п╥я▐ п╢п╬п╠п╟п╡п╩я▐я┌я▄ п╡ я┐я│я┌п╟я─п╣п╡я┬п╦п╣ я┌п╣п╪я▀");
   }
 
   if (topic.isDeleted()) {
-    throw new AccessViolationException("нельзя добавлять в удаленные темы");
+    throw new AccessViolationException("п╫п╣п╩я▄п╥я▐ п╢п╬п╠п╟п╡п╩я▐я┌я▄ п╡ я┐п╢п╟п╩п╣п╫п╫я▀п╣ я┌п╣п╪я▀");
   }
 
   int postscore = topic.getPostScore();
 %>
 
-<title>Добавить сообщение</title>
+<title>п■п╬п╠п╟п╡п╦я┌я▄ я│п╬п╬п╠я┴п╣п╫п╦п╣</title>
 <jsp:include page="WEB-INF/jsp/header.jsp"/>
 
 <% if (error==null) { %>
-<h1>Добавить комментарий</h1>
-<% } else { out.println("<h1>Ошибка: "+error.getMessage()+"</h1>"); } %>
+<h1>п■п╬п╠п╟п╡п╦я┌я▄ п╨п╬п╪п╪п╣п╫я┌п╟я─п╦п╧</h1>
+<% } else { out.println("<h1>п·я┬п╦п╠п╨п╟: "+error.getMessage()+"</h1>"); } %>
 
 <%--<% if (tmpl.getProf().getBoolean("showinfo") && !Template.isSessionAuthorized(session)) { %>--%>
-<%--<font size=2>Чтобы просто поместить сообщение, используйте login `anonymous',--%>
-<%--без пароля. Если вы собираетесь активно участвовать в форуме,--%>
-<%--помещать новости на главную страницу,--%>
-<%--<a href="register.jsp">зарегистрируйтесь</a></font>.--%>
+<%--<font size=2>п╖я┌п╬п╠я▀ п©я─п╬я│я┌п╬ п©п╬п╪п╣я│я┌п╦я┌я▄ я│п╬п╬п╠я┴п╣п╫п╦п╣, п╦я│п©п╬п╩я▄п╥я┐п╧я┌п╣ login `anonymous',--%>
+<%--п╠п╣п╥ п©п╟я─п╬п╩я▐. п∙я│п╩п╦ п╡я▀ я│п╬п╠п╦я─п╟п╣я┌п╣я│я▄ п╟п╨я┌п╦п╡п╫п╬ я┐я┤п╟я│я┌п╡п╬п╡п╟я┌я▄ п╡ я└п╬я─я┐п╪п╣,--%>
+<%--п©п╬п╪п╣я┴п╟я┌я▄ п╫п╬п╡п╬я│я┌п╦ п╫п╟ пЁп╩п╟п╡п╫я┐я▌ я│я┌я─п╟п╫п╦я├я┐,--%>
+<%--<a href="register.jsp">п╥п╟я─п╣пЁп╦я│я┌я─п╦я─я┐п╧я┌п╣я│я▄</a></font>.--%>
 <%--<p>--%>
 
 <%--<% } %>--%>
-<font size=2><strong>Внимание!</strong> Перед написанием комментария ознакомьтесь с
-<a href="rules.jsp">правилами</a> сайта.</font><p>
+<font size=2><strong>п▓п╫п╦п╪п╟п╫п╦п╣!</strong> п÷п╣я─п╣п╢ п╫п╟п©п╦я│п╟п╫п╦п╣п╪ п╨п╬п╪п╪п╣п╫я┌п╟я─п╦я▐ п╬п╥п╫п╟п╨п╬п╪я▄я┌п╣я│я▄ я│
+<a href="rules.jsp">п©я─п╟п╡п╦п╩п╟п╪п╦</a> я│п╟п╧я┌п╟.</font><p>
 
 <%
   out.print(Message.getPostScoreInfo(postscore));
@@ -269,9 +269,9 @@ if (showform) { // show form
 <form method=POST action="add_comment.jsp">
   <input type="hidden" name="session" value="<%= HTMLFormatter.htmlSpecialChars(session.getId()) %>">
 <% if (!Template.isSessionAuthorized(session)) { %>
-Имя:
+п≤п╪я▐:
 <input type=text name=nick value="<%= "anonymous" %>" size=40><br>
-Пароль:
+п÷п╟я─п╬п╩я▄:
 <input type=password name=password size=40><br>
 <% } %>
 <input type=hidden name=topic value="<%= topicId %>">
@@ -309,18 +309,18 @@ if (showform) { // show form
   }
 
   if (preview && comment!=null) {
-    out.print("<p><b>Ваше сообщение</b></p>");
+    out.print("<p><b>п▓п╟я┬п╣ я│п╬п╬п╠я┴п╣п╫п╦п╣</b></p>");
     out.print("<div class=messages>");
     CommentView view = new CommentView();
     out.print(view.printMessage(comment, tmpl, db, null, false, tmpl.isModeratorSession(), Template.getNick(session), false));
     out.print("</div>");
   }
 %>
-Заглавие:
+п≈п╟пЁп╩п╟п╡п╦п╣:
 <input type=text name=title size=40 value="<%= title %>"><br>
 
-Сообщение:<br>
-<font size=2>(В режиме <i>Tex paragraphs</i> игнорируются переносы строк.<br> Пустая строка (два раза Enter) начинает новый абзац.<br> Знак '&gt;' в начале абзаца выделяет абзац курсивом цитирования)</font><br>
+п║п╬п╬п╠я┴п╣п╫п╦п╣:<br>
+<font size=2>(п▓ я─п╣п╤п╦п╪п╣ <i>Tex paragraphs</i> п╦пЁп╫п╬я─п╦я─я┐я▌я┌я│я▐ п©п╣я─п╣п╫п╬я│я▀ я│я┌я─п╬п╨.<br> п÷я┐я│я┌п╟я▐ я│я┌я─п╬п╨п╟ (п╢п╡п╟ я─п╟п╥п╟ Enter) п╫п╟я┤п╦п╫п╟п╣я┌ п╫п╬п╡я▀п╧ п╟п╠п╥п╟я├.<br> п≈п╫п╟п╨ '&gt;' п╡ п╫п╟я┤п╟п╩п╣ п╟п╠п╥п╟я├п╟ п╡я▀п╢п╣п╩я▐п╣я┌ п╟п╠п╥п╟я├ п╨я┐я─я│п╦п╡п╬п╪ я├п╦я┌п╦я─п╬п╡п╟п╫п╦я▐)</font><br>
 <textarea name="msg" cols="70" rows="20" onkeypress="return ctrl_enter(event, this.form);"><%= request.getParameter("msg")==null?"":HTMLFormatter.htmlSpecialChars(request.getParameter("msg")) %></textarea><br>
 
 <select name=mode>
@@ -347,8 +347,8 @@ if (showform) { // show form
 
 <br>
   <lor:captcha/>
-<input type=submit value="Поместить">
-<input type=submit name=preview value="Предпросмотр">
+<input type=submit value="п÷п╬п╪п╣я│я┌п╦я┌я▄">
+<input type=submit name=preview value="п÷я─п╣п╢п©я─п╬я│п╪п╬я┌я─">
 
 </form>
 <%
