@@ -348,7 +348,7 @@
     }
 %>
   <c:if test="<%= pageInfo!=null %>">
-    <div class="pageinfo">
+    <div class="nav">
       <%= pageInfo %>
     </div>
   </c:if>
@@ -357,7 +357,7 @@
   </div>
 <c:if test="<%= cv.getOutputCount()>0 %>">
   <c:if test="<%= pageInfo!=null %>">
-    <div class="pageinfo">
+    <div class="nav">
       <%= pageInfo %>
     </div>
   </c:if>

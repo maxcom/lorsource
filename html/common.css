@@ -89,10 +89,6 @@ table.nav {
   border-collapse: collapse;
 }
 
-.pageinfo {
-  text-align: center; margin-bottom: 1em;
-}
-
 .nav A {
   text-decoration: none
 }
