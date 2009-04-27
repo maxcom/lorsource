@@ -88,6 +88,6 @@ $(document).ready(function() {
   }
 
   $('#regform').ajaxForm(options);
-  $('loginbutton').bind('click', showLoginForm());
-  $('hide_loginbutton').bind('click', hideLoginForm());
+  $('loginbutton').bind('click', showLoginForm);
+  $('hide_loginbutton').bind('click', hideLoginForm);
 });
