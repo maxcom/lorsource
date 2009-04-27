@@ -53,10 +53,12 @@ function parseHash()
 // black login form
 function showLoginForm() {
   $("#regmenu").fadeOut("fast", function() { $("#regform").fadeIn("fast") });
+  return false;
 }
 
 function hideLoginForm() {
   $("#regform").fadeOut("fast", function() { $("#regmenu").fadeIn("fast") });
+  return false;
 }
 
 function jump(link) {
@@ -86,4 +88,6 @@ $(document).ready(function() {
   }
 
   $('#regform').ajaxForm(options);
+  $('loginbutton').bind('click', showLoginForm());
+  $('hide_loginbutton').bind('click', hideLoginForm());
 });
