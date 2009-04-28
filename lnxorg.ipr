@@ -697,7 +697,7 @@
     <converter id="SelenaRunConfToDiana" />
   </component>
   <component name="ProjectKey">
-    <option name="state" value="project:///Users/maxcom/IdeaProject/lorsource/lnxorg.ipr" />
+    <option name="state" value="project:///home/rsvato/tst/lorsource/lnxorg.ipr" />
   </component>
   <component name="ProjectModuleManager">
     <modules>
@@ -845,5 +845,8 @@
       <jarDirectory url="file://$PROJECT_DIR$/ivy-lib/test" recursive="false" />
     </library>
   </component>
+  <UsedPathMacros>
+    <macro name="MAVEN_REPOSITORY" description="Maven Local Repostiry" />
+  </UsedPathMacros>
 </project>
 
