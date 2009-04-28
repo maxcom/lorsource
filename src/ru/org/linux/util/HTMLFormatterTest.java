@@ -312,7 +312,6 @@ public class HTMLFormatterTest {
     HTMLFormatter formatter = new HTMLFormatter(greek);
     formatter.enableUrlHighLightMode();
     String s2 = formatter.process();
-    System.out.println(s2);
     assertTrue("All text should be inside link", s2.endsWith("</a>"));
   }
 
