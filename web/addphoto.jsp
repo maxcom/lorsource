@@ -1,4 +1,4 @@
-<%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
+<%@ page pageEncoding="utf-8" contentType="text/html; charset=utf-8"%>
 <%@ page import="java.io.File, java.io.IOException, java.net.URLEncoder, java.sql.Connection, java.sql.PreparedStatement"  %>
 <%@ page import="java.sql.ResultSet" %>
 <%@ page import="java.sql.Statement" %>
@@ -40,23 +40,23 @@
 %>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
-<title>Добавление/Изменение фотографии</title>
+<title>п■п╬п╠п╟п╡п╩п╣п╫п╦п╣/п≤п╥п╪п╣п╫п╣п╫п╦п╣ я└п╬я┌п╬пЁя─п╟я└п╦п╦</title>
 <jsp:include page="WEB-INF/jsp/header.jsp"/>
 
 
   <table class=nav><tr>
     <td align=left valign=middle>
-      Добавление/Изменение фотографии
+      п■п╬п╠п╟п╡п╩п╣п╫п╦п╣/п≤п╥п╪п╣п╫п╣п╫п╦п╣ я└п╬я┌п╬пЁя─п╟я└п╦п╦
     </td>
 
     <td align=right valign=middle>
-      [<a style="text-decoration: none" href="register.jsp?mode=change">Изменение регистрации</a>]
-      [<a style="text-decoration: none" href="rules.jsp">Правила форума</a>]
+      [<a style="text-decoration: none" href="register.jsp?mode=change">п≤п╥п╪п╣п╫п╣п╫п╦п╣ я─п╣пЁп╦я│я┌я─п╟я├п╦п╦</a>]
+      [<a style="text-decoration: none" href="rules.jsp">п÷я─п╟п╡п╦п╩п╟ я└п╬я─я┐п╪п╟</a>]
      </td>
     </tr>
  </table>
 
-<h1>Добавление/Изменение фотографии</h1>
+<h1>п■п╬п╠п╟п╡п╩п╣п╫п╦п╣/п≤п╥п╪п╣п╫п╣п╫п╦п╣ я└п╬я┌п╬пЁя─п╟я└п╦п╦</h1>
 
 <%
   boolean showForm = request.getMethod().equals("GET");
@@ -99,10 +99,10 @@
               if (uploadedFile != null && (uploadedFile.canWrite() || uploadedFile.createNewFile())) {
                 item.write(uploadedFile);
               } else {
-                throw new BadInputException("Ошибка сохранения");
+                throw new BadInputException("п·я┬п╦п╠п╨п╟ я│п╬я┘я─п╟п╫п╣п╫п╦я▐");
               }
             } else {
-              throw new BadInputException("Ошибка загрузки");
+              throw new BadInputException("п·я┬п╦п╠п╨п╟ п╥п╟пЁя─я┐п╥п╨п╦");
             }
           } else {
             // Form field
@@ -138,7 +138,7 @@
       pst.setInt(2, user.getId());
       pst.executeUpdate();
 
-      logger.info("Установлена фотография пользователем " + user.getNick());
+      logger.info("пёя│я┌п╟п╫п╬п╡п╩п╣п╫п╟ я└п╬я┌п╬пЁя─п╟я└п╦я▐ п©п╬п╩я▄п╥п╬п╡п╟я┌п╣п╩п╣п╪ " + user.getNick());
 
       response.sendRedirect(tmpl.getMainUrl() + "whois.jsp?nick=" + URLEncoder.encode(user.getNick()) + "&nocache=" + random.nextInt());
     } catch (IOException ex) {
@@ -160,25 +160,25 @@
   if (showForm) {
 %>
 <p>
-Загрузите вашу фотографию в форум. Изображение должно соответствовать <a href="rules.jsp">правилам</a> сайта.
+п≈п╟пЁя─я┐п╥п╦я┌п╣ п╡п╟я┬я┐ я└п╬я┌п╬пЁя─п╟я└п╦я▌ п╡ я└п╬я─я┐п╪. п≤п╥п╬п╠я─п╟п╤п╣п╫п╦п╣ п╢п╬п╩п╤п╫п╬ я│п╬п╬я┌п╡п╣я┌я│я┌п╡п╬п╡п╟я┌я▄ <a href="rules.jsp">п©я─п╟п╡п╦п╩п╟п╪</a> я│п╟п╧я┌п╟.
 </p>
 <p>
-  Технические требования к изображению:
+  п╒п╣я┘п╫п╦я┤п╣я│п╨п╦п╣ я┌я─п╣п╠п╬п╡п╟п╫п╦я▐ п╨ п╦п╥п╬п╠я─п╟п╤п╣п╫п╦я▌:
   <ul>
-    <li>Ширина x Высота: от 50x50 до 150x150 пискелей</li>
-    <li>Тип: jpeg, gif, png</li>
-    <li>Размер не более 30 Kb</li>
+    <li>п╗п╦я─п╦п╫п╟ x п▓я▀я│п╬я┌п╟: п╬я┌ 50x50 п╢п╬ 150x150 п©п╦я│п╨п╣п╩п╣п╧</li>
+    <li>п╒п╦п©: jpeg, gif, png</li>
+    <li>п═п╟п╥п╪п╣я─ п╫п╣ п╠п╬п╩п╣п╣ 30 Kb</li>
   </ul>
 </p>
 
 <form action="addphoto.jsp" method="POST" enctype="multipart/form-data">
 <% if (error != null) {
-  out.print("<strong>Ошибка! " + error.getMessage() + "</strong><br>");
+  out.print("<strong>п·я┬п╦п╠п╨п╟! " + error.getMessage() + "</strong><br>");
   //error.printStackTrace(new PrintWriter(out));
 }
 %>
   <input type="file" name="file"><br>
-  <input type="submit" value="Отправить">
+  <input type="submit" value="п·я┌п©я─п╟п╡п╦я┌я▄">
 </form>
 <%
   }

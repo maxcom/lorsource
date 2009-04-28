@@ -39,7 +39,7 @@
 <c:if test="${not template.sessionAuthorized}">
   <div id="regmenu" class="head">
     <a href="/register.jsp">Регистрация</a> -
-    <a href="/" onclick="showLoginForm(); return false;">Вход</a>
+    <a href="/login.jsp" id="loginbutton">Вход</a>
     <br>
     <img src="/black/pingvin.gif" alt="Linux Logo" height=114 width=102>
   </div>
@@ -48,7 +48,7 @@
     Имя: <input type=text name=nick size=15><br>
     Пароль: <input type=password name=passwd size=15><br>
     <input type=submit value="Вход">
-    <input type="button" value="Отмена" onclick="hideLoginForm(); return false">
+    <input type="button" value="Отмена" id="hide_logginbutton">
   </form>
 </c:if>
 </td>

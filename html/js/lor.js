@@ -50,15 +50,6 @@ function parseHash()
   }
 }
 
-// black login form
-function showLoginForm() {
-  $("#regmenu").fadeOut("fast", function() { $("#regform").fadeIn("fast") });
-}
-
-function hideLoginForm() {
-  $("#regform").fadeOut("fast", function() { $("#regmenu").fadeIn("fast") });
-}
-
 function jump(link) {
   if (link && link.href) {
     document.location = link.href;
@@ -86,4 +77,14 @@ $(document).ready(function() {
   }
 
   $('#regform').ajaxForm(options);
+
+  $('#loginbutton').bind('click', function(e) {
+    $("#regmenu").fadeOut("fast", function() { $("#regform").fadeIn("fast") });
+    return false;
+  });
+
+  $('#hide_loginbutton').bind('click', function(e) {
+    $("#regform").fadeOut("fast", function() { $("#regmenu").fadeIn("fast") });
+    return false;
+  });
 });
