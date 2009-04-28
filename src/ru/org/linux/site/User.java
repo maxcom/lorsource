@@ -499,11 +499,6 @@ public class User implements Serializable {
 
     // Remove ACEGI_SECURITY_CONTEXT and session
     session.removeAttribute("ACEGI_SECURITY_CONTEXT"); // if any
-    Cookie sess = new Cookie("JSESSIONID", session.getId());
-    int maxAge = (int)(System.currentTimeMillis()/1000)+session.getMaxInactiveInterval();
-    sess.setMaxAge(maxAge);
-    sess.setPath("/wiki");
-    response.addCookie(sess);
   }
 
   private void updateCache(Connection db) throws SQLException {
