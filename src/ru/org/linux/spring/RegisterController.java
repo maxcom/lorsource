@@ -23,9 +23,9 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Properties;
 
+import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.Transport;
-import javax.mail.MessagingException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import javax.servlet.http.HttpServletRequest;
@@ -36,11 +36,9 @@ import org.springframework.web.servlet.mvc.AbstractController;
 
 import ru.org.linux.site.*;
 import ru.org.linux.storage.StorageNotFoundException;
-import ru.org.linux.util.HTMLFormatter;
-import ru.org.linux.util.LorHttpUtils;
-import ru.org.linux.util.StringUtil;
-import ru.org.linux.util.URLUtil;
+import ru.org.linux.util.*;
 
+@SuppressWarnings({"ProhibitedExceptionDeclared"})
 public class RegisterController extends AbstractController {
   @Override
   protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -58,17 +56,8 @@ public class RegisterController extends AbstractController {
           throw new BadInputException("некорректное имя пользователя");
         }
 
-        if (nick.length() > 40) {
+        if (nick.length() > User.MAX_NICK_LENGTH) {
           throw new BadInputException("слишком длинное имя пользователя");
-        }
-
-        if (!changeMode) {
-          CaptchaSingleton.checkCaptcha(session, request);
-
-          if (session.getAttribute("register-visited") == null) {
-            logger.info("Flood protection (not visited register.jsp) " + request.getRemoteAddr());
-            throw new BadInputException("сбой");
-          }
         }
 
         String town = request.getParameter("town");
@@ -95,6 +84,8 @@ public class RegisterController extends AbstractController {
         if (url != null && "".equals(url)) {
           url = null;
         }
+
+        url = URLUtil.fixURL(url);
 
         if (!changeMode) {
           if (password == null) {
@@ -130,6 +121,15 @@ public class RegisterController extends AbstractController {
           info = HTMLFormatter.htmlSpecialChars(info);
         }
 
+        if (!changeMode) {
+          CaptchaSingleton.checkCaptcha(session, request);
+
+          if (session.getAttribute("register-visited") == null) {
+            logger.info("Flood protection (not visited register.jsp) " + request.getRemoteAddr());
+            throw new BadInputException("сбой");
+          }
+        }
+
         db = LorDataSource.getConnection();
         db.setAutoCommit(false);
 
@@ -152,9 +152,8 @@ public class RegisterController extends AbstractController {
           }
 
           if (url != null) {
-            ist.setString(3, URLUtil.fixURL(url));
-          }
-          else {
+            ist.setString(3, url);
+          } else {
             ist.setString(3, null);
           }
 
@@ -235,6 +234,10 @@ public class RegisterController extends AbstractController {
         } else {
           return new ModelAndView("action-done", Collections.singletonMap("message", "Добавление пользователя прошло успешно"));
         }
+      } catch (BadInputException e) {
+        return new ModelAndView("register", Collections.singletonMap("error", e.getMessage()));
+      } catch (BadURLException e) {
+        return new ModelAndView("register", Collections.singletonMap("error", e.getMessage()));
       } finally {
         if (db != null) {
           db.close();

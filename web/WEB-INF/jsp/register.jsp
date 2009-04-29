@@ -4,6 +4,7 @@
 <%@ page import="ru.org.linux.site.Template"%>
 <%@ page import="ru.org.linux.site.User"%>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 
 <%--
   ~ Copyright 1998-2009 Linux.org.ru
@@ -36,25 +37,28 @@
 Если вы уже регистрировались на нашем сайте и забыли пароль - вам
 <a href="../../lostpwd.jsp">сюда</a>.
 
+<c:if test="${error!=null}">
+  <div class="error">Ошибка: ${error}</div>
+</c:if>
+
 <form method=POST action="register.jsp">
-<input type=hidden name=mode value=new>
 <b>Login:</b>
-<input type=text name=nick size=40><br>
+<input type=text name=nick size=40 value="<c:out value="${param.nick}"/>"><br>
 Полное имя:
-<input type=text name=name size=40><br>
+<input type=text name=name size=40 value="<c:out value="${param.name}"/>"><br>
 <b>Пароль:</b>
 <input type=password name=password size=20><br>
 <b>Повторите Пароль:</b>
 <input type=password name=password2 size=20><br>
 URL (не забудьте добавить <b>http://</b>): <br>
-<input type=text name=url size="50"><br>
+<input type=text name=url size="50" value="<c:out value="${param.url}"/>"><br>
 <b>E-mail</b> (ваш email не будет публиковаться на сайте):<br>
-<input type=text name=email size="50"><br>
+<input type=text name=email size="50" value="<c:out value="${param.email}"/>"><br>
 Город (просьба писать русскими буквами без сокращений, например: <b>Москва</b>,
 <b>Нижний Новгород</b>, <b>Троицк (Московская область)</b>):
-<input type=text name=town size=50><br>
+<input type=text name=town size=50 value="<c:out value="${param.town}"/>"><br>
 Дополнительная информация:<br>
-<textarea name=info cols=50 rows=5></textarea><br>
+<textarea name=info cols=50 rows=5><c:out value="${param.info}"/></textarea><br>
 <p>
   <lor:captcha/>
 
@@ -95,6 +99,8 @@ URL (не забудьте добавить <b>http://</b>): <br>
     ResultSet rs = st.executeQuery("SELECT * FROM users WHERE id=" + user.getId());
     rs.next();
 %>
+
+
 
 <form method=POST action="register.jsp">
 <input type=hidden name=mode value=update>
