@@ -173,3 +173,10 @@ pre {
     white-space: -o-pre-wrap; /* for Opera (8?) */
     word-wrap: break-word; /* IE 5.5+ */
 }
+
+.error {
+    font-weight: bold;
+    border: 1px dotted;
+    margin: 1em;
+    padding: 1em;
+}

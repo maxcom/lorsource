@@ -823,8 +823,5 @@
       <jarDirectory url="file://$PROJECT_DIR$/ivy-lib/test" recursive="false" />
     </library>
   </component>
-  <UsedPathMacros>
-    <macro name="MAVEN_REPOSITORY" description="Maven Local Repostiry" />
-  </UsedPathMacros>
 </project>
 
