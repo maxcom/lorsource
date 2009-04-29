@@ -18,7 +18,7 @@
         #else
           Bad Image!
         #end
-    </i> "${item.title}" от <a href="whois.jsp?nick=$item.nick">$item.nick</a> ($stat)
+    </i> "${item.title}" от <a href="whois.jsp?nick=$item.nick">$item.nick</a> ($item.stat)
     <p/>
     #end
     <a href="view-news.jsp?section=3">другие скриншоты...</a>

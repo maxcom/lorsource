@@ -17,6 +17,7 @@ package ru.org.linux.site.boxes;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.io.FileNotFoundException;
 import java.net.URLEncoder;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -24,13 +25,18 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Date;
 import java.util.Vector;
+import java.util.Properties;
 
-import org.apache.velocity.app.VelocityEngine;
-import org.apache.velocity.VelocityContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.velocity.VelocityContext;
+import org.apache.velocity.Template;
+import org.apache.velocity.exception.ResourceNotFoundException;
+import org.apache.velocity.exception.ParseErrorException;
+import org.apache.velocity.app.VelocityEngine;
 
 import ru.org.linux.boxlet.Boxlet;
+import ru.org.linux.boxlet.VelocityBoxlet;
 import ru.org.linux.site.LorDataSource;
 import ru.org.linux.site.config.PropertiesConfig;
 import ru.org.linux.util.BadImageException;
@@ -38,11 +44,11 @@ import ru.org.linux.util.ImageInfo;
 import ru.org.linux.util.ProfileHashtable;
 import ru.org.linux.util.StringUtil;
 
-public final class gallery extends Boxlet {
+public final class gallery extends VelocityBoxlet {
 
   private static final Log log = LogFactory.getLog(gallery.class);
 
-  public String getContent(ProfileHashtable profileHashtable) throws IOException, SQLException {
+  public String getContentImpl(ProfileHashtable profileHashtable) throws IOException, SQLException {
     Connection db = null;
     StringWriter writer = new StringWriter();
     try {
@@ -61,12 +67,10 @@ public final class gallery extends Boxlet {
       }
 
       try {
-        VelocityEngine ve = new VelocityEngine();
-        ve.init();
+        VelocityEngine ve = getEngine();
         VelocityContext vc = new VelocityContext();
         vc.put("items", items);
-        //todo: template loader
-        ve.mergeTemplate("gallery.vm", "UTF-8", vc, writer);
+        ve.mergeTemplate("/templates/boxlets/gallery.vm", "UTF-8", vc, writer);
       } catch (Exception e) {
         log.error(e);
       }
@@ -83,9 +87,10 @@ public final class gallery extends Boxlet {
     item.setMsgid(rs.getInt("msgid"));
     item.setStat(rs.getInt("stat1"));
     item.setTitle(rs.getString("title"));
-    item.setUrl("url");
-    item.setIcon("linktext");
-    item.setNick("nick");
+    item.setUrl(rs.getString("url"));
+    item.setIcon(rs.getString("linktext"));
+    item.setNick(rs.getString("nick"));
+    item.setStat(rs.getInt("stat1"));
 
     String htmlPath = ((PropertiesConfig) config).getProperties().getProperty("HTMLPathPrefix");
 
@@ -94,12 +99,14 @@ public final class gallery extends Boxlet {
       item.setImginfo(new ImageInfo(htmlPath + item.getUrl()));
     } catch (BadImageException e) {
       log.error(e);
+    } catch (FileNotFoundException e) {
+      log.error(e);
     }
 
     return item;
   }
 
-  public String getContentImpl(ProfileHashtable profile) throws IOException, SQLException {
+  public String getContent(ProfileHashtable profile) throws IOException, SQLException {
     Connection db = null;
     try {
       db = LorDataSource.getConnection();

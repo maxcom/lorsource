@@ -94,6 +94,7 @@
     <target name="dist" depends="build, unit-tests">
         <mkdir dir="${dist}"/>
         <mkdir dir="${dist}/WEB-INF"/>
+        <mkdir dir="${dist}/WEB-INF/classes"/>
         <mkdir dir="${dist}/WEB-INF/lib"/>
         <jar jarfile="${dist}/WEB-INF/lib/lnxorgutil.jar" basedir="${build}"
              includes="ru/org/linux/util/*,ru/org/linux/storage/*,ru/org/linux/cache/*,ru/org/linux/boxlet/*,ru/org/linux/logger/*,org/**"/>
@@ -101,6 +102,11 @@
              includes="ru/org/linux/site/**,ru/org/linux/spring/**,logging.properties"/>
         <copy todir="${dist}/WEB-INF">
             <fileset dir="web/WEB-INF"/>
+        </copy>
+        <copy todir="${dist}/WEB-INF/classes">
+            <fileset dir="resources">
+                <include name="**/*"/>
+            </fileset>
         </copy>
         <copy todir="${dist}">
             <fileset dir="web" includes="*.jsp"/>
