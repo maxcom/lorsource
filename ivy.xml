@@ -35,5 +35,6 @@
         <dependency org="javax.mail" name="mail" rev="1.4" conf="provided->default"/> 
         <dependency org="com.Danga" name="java_memcached" rev="release_2.0.1" conf="build->default"/>
         <dependency org="rome" name="rome" rev="1.0" conf="build->default"/>
+        <dependency org="org.apache.velocity" name="velocity" rev="1.6.2" conf="build->default"/>
     </dependencies>
 </ivy-module>
