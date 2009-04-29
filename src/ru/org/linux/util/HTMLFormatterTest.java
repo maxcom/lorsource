@@ -15,6 +15,8 @@
 
 package ru.org.linux.util;
 
+import java.util.Arrays;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.*;
 import org.junit.Test;
@@ -68,8 +70,10 @@ public class HTMLFormatterTest {
   private static final String PREFORMAT_LONG_TEST1 = "SRC_URI=\"http://downloads.sourceforge.net/simpledict/simpledict-${PV}-src.tar.gz\" ";
   private static final String PREFORMAT_LONG_RESULT1 = "<pre>SRC_URI=&quot;<a href=\"http://downloads.sourceforge.net/simpledict/simpledict-\">http://downloads.sourceforge.net/simpledict/simpledict-</a>${PV}-src.tar.gz&quot; </pre>";
   private static final String PREFORMAT_LONG_TEST2 = "Caelum_videri_esset._Et_terra_rus_ad_sidera_tollere_voltus._Ex_uno_discent_omnes...";
-  private static final String PREFORMAT_LONG_RESULT2 = "<pre>"+PREFORMAT_LONG_TEST2+"</pre>";
+  private static final String PREFORMAT_LONG_RESULT2 = "<pre>" + PREFORMAT_LONG_TEST2 + "</pre>";
   private static final String URL_WITH_AT = "http://www.mail-archive.com/samba@lists.samba.org/msg58308.html";
+  private static final String Latin1Supplement = "http://de.wikipedia.org/wiki/Großes_ß#Unicode";
+  private static final String greek = "http://el.wikipedia.org/wiki/άλλες";
 
   @Test
   public void testURLHighlight() throws UtilException {
@@ -187,75 +191,75 @@ public class HTMLFormatterTest {
   }
 
   @Test
-  public void testEntityCrash(){
+  public void testEntityCrash() {
     HTMLFormatter formatter = new HTMLFormatter(GUARANTEED_CRASH);
     formatter.enablePreformatMode();
     formatter.enableUrlHighLightMode();
-    try{
+    try {
       String r = formatter.process();
       assertEquals("<pre>&quot;<a href=\"http://www.google.com/\">http://www.google.com/</a>&quot;</pre>", r);
-    }catch (StringIndexOutOfBoundsException e){
+    } catch (StringIndexOutOfBoundsException e) {
       fail("It seems, it should not happen?");
     }
   }
 
   @Test
-  public void testUndescore(){
+  public void testUndescore() {
     HTMLFormatter formatter = new HTMLFormatter(LINK_WITH_UNDERSCORE);
     formatter.enableUrlHighLightMode();
     String s = formatter.process();
-    assertTrue("Whole text must be formatted as link: " + s, s.endsWith(">"));
+    assertTrue("Whole text must be formatted as link: " + s, s.endsWith("</a>"));
   }
 
   @Test
-  public void testWithParamOnly(){
+  public void testWithParamOnly() {
     HTMLFormatter formatter = new HTMLFormatter(LINK_WITH_PARAM_ONLY);
     formatter.enableUrlHighLightMode();
     String s = formatter.process();
-    assertTrue("Whole text must be formatted as link: " + s, s.endsWith(">"));
+    assertTrue("Whole text must be formatted as link: " + s, s.endsWith("</a>"));
   }
 
   @Test
-  public void testWithCyrillic(){
+  public void testWithCyrillic() {
     HTMLFormatter formatter = new HTMLFormatter(RFC1738);
     formatter.enableUrlHighLightMode();
     String s = formatter.process();
-    assertTrue("Whole text must be formatted as link: " + s, s.endsWith(">"));
+    assertTrue("Whole text must be formatted as link: " + s, s.endsWith("</a>"));
   }
 
   @Test
-  public void testNlSubstition(){
+  public void testNlSubstition() {
     String s = HTMLFormatter.nl2br("This is a line\nwith break inside it");
     Integer i = s.indexOf("<br>");
     assertThat("Newline is changed to <br>", i, CoreMatchers.not(-1));
   }
 
   @Test
-  public void testStringEscape(){
+  public void testStringEscape() {
     String str = "This is an entity &#1999;";
     String s = HTMLFormatter.htmlSpecialChars(str);
     assertThat("String should remaint unescaped", s, CoreMatchers.equalTo(str));
   }
 
   @Test
-  public void testAmpEscape(){
+  public void testAmpEscape() {
     String str = "a&b";
     String s = HTMLFormatter.htmlSpecialChars(str);
     assertThat("Ampersand should be escaped", s, CoreMatchers.equalTo("a&amp;b"));
   }
 
   @Test
-  public void testParaSubstition(){
+  public void testParaSubstition() {
     String str = "this is a line\n\r\n\rwith some\n\nlinebreaks in it";
     String s = HTMLFormatter.texnl2br(str, false);
     Integer i = s.indexOf("<p>");
     assertThat("Newlines is changed to <p>", i, CoreMatchers.not(-1));
-    Integer b = s.indexOf("<p>", i+3);
+    Integer b = s.indexOf("<p>", i + 3);
     assertThat("Wait, there should be two paras", b, CoreMatchers.not(-1));
   }
 
   @Test
-  public void testCyrillicLink(){
+  public void testCyrillicLink() {
     HTMLFormatter formatter = new HTMLFormatter(CYR_LINK);
     formatter.enableUrlHighLightMode();
     String s = formatter.process();
@@ -263,7 +267,7 @@ public class HTMLFormatterTest {
   }
 
   @Test
-  public void testGoogleCache(){
+  public void testGoogleCache() {
     HTMLFormatter formatter = new HTMLFormatter(GOOGLE_CACHE);
     formatter.enableUrlHighLightMode();
     String s = formatter.process();
@@ -271,7 +275,7 @@ public class HTMLFormatterTest {
   }
 
   @Test
-  public void testPreformatLong1(){
+  public void testPreformatLong1() {
     HTMLFormatter formatter = new HTMLFormatter(PREFORMAT_LONG_TEST1);
     formatter.enableUrlHighLightMode();
     formatter.enablePreformatMode();
@@ -280,7 +284,7 @@ public class HTMLFormatterTest {
   }
 
   @Test
-  public void testPreformatLong2(){
+  public void testPreformatLong2() {
     HTMLFormatter formatter = new HTMLFormatter(PREFORMAT_LONG_TEST2);
     formatter.enablePreformatMode();
     String s = formatter.process();
@@ -288,10 +292,27 @@ public class HTMLFormatterTest {
   }
 
   @Test
-  public void testURLWithAt(){
+  public void testURLWithAt() {
     HTMLFormatter formatter = new HTMLFormatter(URL_WITH_AT);
     formatter.enableUrlHighLightMode();
     String s = formatter.process();
     assertTrue("All text should be inside link", s.endsWith("</a>"));
   }
+
+  @Test
+  public void testLatin1Supplement() {
+    HTMLFormatter formatter = new HTMLFormatter(Latin1Supplement);
+    formatter.enableUrlHighLightMode();
+    String s2 = formatter.process();
+    assertTrue("All text should be inside link", s2.endsWith("</a>"));
+  }
+
+  @Test
+  public void testGreek() {
+    HTMLFormatter formatter = new HTMLFormatter(greek);
+    formatter.enableUrlHighLightMode();
+    String s2 = formatter.process();
+    assertTrue("All text should be inside link", s2.endsWith("</a>"));
+  }
+
 }
