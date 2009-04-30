@@ -85,7 +85,9 @@ public class RegisterController extends AbstractController {
           url = null;
         }
 
-        url = URLUtil.fixURL(url);
+        if (url!=null) {
+          url = URLUtil.fixURL(url);
+        }
 
         if (!changeMode) {
           if (password == null) {
