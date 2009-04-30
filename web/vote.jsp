@@ -3,6 +3,7 @@
     import="java.sql.Connection,java.sql.Statement,javax.servlet.http.HttpServletResponse"
       %>
 <%@ page import="ru.org.linux.site.*"%>
+<%@ page import="ru.org.linux.util.ServletParameterParser" %>
 <%--
   ~ Copyright 1998-2009 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -34,12 +35,9 @@
 %>
 
 <H1>Ваш голос принят</H1>
-<%
-    if (request.getParameter("vote") == null) {
-      throw new BadInputException("ничего не выбрано");
-    }
+<%    
+    int vote = new ServletParameterParser(request).getInt("vote");
 
-    int vote = Integer.parseInt(request.getParameter("vote"));
     int voteid = Integer.parseInt(request.getParameter("voteid"));
     int msgid = Integer.parseInt(request.getParameter("msgid"));
 
