@@ -156,7 +156,7 @@
           </table>
         </td>
         <td align=left valign=middle width="35%">
-          <table width="100%">
+          <table align="right">
             <tr valign=middle align=right>
               <c:if test="${nextMessage != null}">
                 <td>
@@ -219,8 +219,8 @@
               </td>
             </tr>
           </table>
-        <td align=left valign=middle width="35%">
-          <table width="100%">
+        <td align=right valign=middle width="35%">
+          <table aling="right">
             <tr valign=middle align=right>
               <c:if test="${nextMessage != null}">
                 <td>
