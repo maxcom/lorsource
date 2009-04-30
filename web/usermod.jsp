@@ -6,7 +6,7 @@
 <%@ page import="ru.org.linux.site.*" %>
 <%@ page import="ru.org.linux.util.HTMLFormatter" %>
 <%@ page import="ru.org.linux.util.ServletParameterParser" %>
-<%@ page pageEncoding="koi8-r" contentType="text/html;charset=utf-8" language="java"   %>
+<%@ page pageEncoding="utf-8" contentType="text/html;charset=utf-8" language="java"   %>
 <%--
   ~ Copyright 1998-2009 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -58,7 +58,7 @@
 
     if (action.equals("block") || action.equals("block-n-delete-comments")) {
       if (!user.isBlockable()) {
-        throw new AccessViolationException("ðÏÌØÚÏ×ÁÔÅÌÑ " + user.getNick() + " ÎÅÌØÚÑ ÚÁÂÌÏËÉÒÏ×ÁÔØ");
+        throw new AccessViolationException("ÐŸÐ¾Ð»ÑŒÐ·Ð¾Ð²Ð°Ñ‚ÐµÐ»Ñ " + user.getNick() + " Ð½ÐµÐ»ÑŒÐ·Ñ Ð·Ð°Ð±Ð»Ð¾ÐºÐ¸Ñ€Ð¾Ð²Ð°Ñ‚ÑŒ");
       }
 
       user.block(db);
@@ -70,7 +70,7 @@
       }
     } else if (action.equals("toggle_corrector")) {
       if (user.getScore()<User.CORRECTOR_SCORE) {
-        throw new AccessViolationException("ðÏÌØÚÏ×ÁÔÅÌÑ " + user.getNick() + " ÎÅÌØÚÑ ÓÄÅÌÁÔØ ËÏÒÒÅËÔÏÒÏÍ");
+        throw new AccessViolationException("ÐŸÐ¾Ð»ÑŒÐ·Ð¾Ð²Ð°Ñ‚ÐµÐ»Ñ " + user.getNick() + " Ð½ÐµÐ»ÑŒÐ·Ñ ÑÐ´ÐµÐ»Ð°Ñ‚ÑŒ ÐºÐ¾Ñ€Ñ€ÐµÐºÑ‚Ð¾Ñ€Ð¾Ð¼");
       }
 
       if (user.canCorrect()) {
@@ -80,18 +80,18 @@
       }
     } else if (action.equals("unblock")) {
       if (!user.isBlockable()) {
-        throw new AccessViolationException("ðÏÌØÚÏ×ÁÔÅÌÑ " + user.getNick() + " ÎÅÌØÚÑ ÒÁÚÂÌÏËÉÒÏ×ÁÔØ");
+        throw new AccessViolationException("ÐŸÐ¾Ð»ÑŒÐ·Ð¾Ð²Ð°Ñ‚ÐµÐ»Ñ " + user.getNick() + " Ð½ÐµÐ»ÑŒÐ·Ñ Ñ€Ð°Ð·Ð±Ð»Ð¾ÐºÐ¸Ñ€Ð¾Ð²Ð°Ñ‚ÑŒ");
       }
 
       st.executeUpdate("UPDATE users SET blocked='f' WHERE id=" + id);
       logger.info("User " + user.getNick() + " unblocked by " + session.getValue("nick"));
     } else if (action.equals("remove_userpic")) {
       if (user.canModerate()) {
-        throw new AccessViolationException("ðÏÌØÚÏ×ÁÔÅÌÀ " + user.getNick() + " ÎÅÌØÚÑ ÕÄÁÌÉÔØ ËÁÒÔÉÎËÕ");
+        throw new AccessViolationException("ÐŸÐ¾Ð»ÑŒÐ·Ð¾Ð²Ð°Ñ‚ÐµÐ»ÑŽ " + user.getNick() + " Ð½ÐµÐ»ÑŒÐ·Ñ ÑƒÐ´Ð°Ð»Ð¸Ñ‚ÑŒ ÐºÐ°Ñ€Ñ‚Ð¸Ð½ÐºÑƒ");
       }
 
       if (user.getPhoto() == null) {
-        throw new AccessViolationException("ðÏÌØÚÏ×ÁÔÅÌØ " + user.getNick() + " ËÁÒÔÉÎËÉ ÎÅ ÉÍÅÅÔ");
+        throw new AccessViolationException("ÐŸÐ¾Ð»ÑŒÐ·Ð¾Ð²Ð°Ñ‚ÐµÐ»ÑŒ " + user.getNick() + " ÐºÐ°Ñ€Ñ‚Ð¸Ð½ÐºÐ¸ Ð½Ðµ Ð¸Ð¼ÐµÐµÑ‚");
       }
 
       st.executeUpdate("UPDATE users SET photo=null WHERE id=" + id);
@@ -99,7 +99,7 @@
       logger.info("Clearing " + user.getNick() + " userpic by " + session.getValue("nick"));
     } else if (action.equals("remove_userinfo")) {
       if (user.canModerate()) {
-        throw new AccessViolationException("ðÏÌØÚÏ×ÁÔÅÌÀ " + user.getNick() + " ÎÅÌØÚÑ ÕÄÁÌÉÔØ Ó×ÅÄÅÎÉÑ");
+        throw new AccessViolationException("ÐŸÐ¾Ð»ÑŒÐ·Ð¾Ð²Ð°Ñ‚ÐµÐ»ÑŽ " + user.getNick() + " Ð½ÐµÐ»ÑŒÐ·Ñ ÑƒÐ´Ð°Ð»Ð¸Ñ‚ÑŒ ÑÐ²ÐµÐ´ÐµÐ½Ð¸Ñ");
       }
 
       tmpl.getObjectConfig().getStorage().updateMessage("userinfo", String.valueOf(id), "");
