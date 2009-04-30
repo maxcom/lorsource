@@ -134,7 +134,8 @@ DIV.sign {
 .cloud10 { font-size: 1.5em; }
 
 DIV.boxlet H2 {
-  width: 238px;
+  width: 228px;
+  padding: 5px;
 }
 
 DIV.boxlet {
