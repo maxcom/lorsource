@@ -1,4 +1,4 @@
-<%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8" %>
+<%@ page contentType="text/html; charset=utf-8" %>
 <%@ page
     import="java.sql.Connection,java.sql.Statement,javax.servlet.http.HttpServletResponse"
       %>
@@ -22,7 +22,7 @@
 <% Template tmpl = Template.getTemplate(request); %>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
-<title>Ваш голос принят</title>
+<title>п▓п╟я┬ пЁп╬п╩п╬я│ п©я─п╦п╫я▐я┌</title>
 <jsp:include page="WEB-INF/jsp/header.jsp"/>
 
 <%
@@ -34,7 +34,7 @@
   try {
 %>
 
-<H1>Ваш голос принят</H1>
+<H1>п▓п╟я┬ пЁп╬п╩п╬я│ п©я─п╦п╫я▐я┌</H1>
 <%    
     int vote = new ServletParameterParser(request).getInt("vote");
 
@@ -44,7 +44,7 @@
     db = LorDataSource.getConnection();
 
     if (voteid != Poll.getCurrentPollId(db)) {
-      throw new BadVoteException("голосовать можно только в текущий опрос");
+      throw new BadVoteException("пЁп╬п╩п╬я│п╬п╡п╟я┌я▄ п╪п╬п╤п╫п╬ я┌п╬п╩я▄п╨п╬ п╡ я┌п╣п╨я┐я┴п╦п╧ п╬п©я─п╬я│");
     }
 
     Integer last = (Integer) session.getValue("poll.voteid");
