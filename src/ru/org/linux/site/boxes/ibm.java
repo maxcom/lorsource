@@ -23,7 +23,7 @@ public class ibm extends Boxlet {
   public String getContentImpl(ProfileHashtable profile) throws Exception {
     return "<h2>Новые материалы на IBM developerWorks</h2>\n" +
         "  <div class=\"boxlet_content\">"+
-        "  <iframe src=\"dw.jsp?height=400&amp;width=235&amp;main=1\" width=\"238\" height=\"400\" scrolling=\"no\" frameborder=\"0\"></iframe>\n" +
+        "  <iframe src=\"dw.jsp?height=400&amp;width=219&amp;main=1\" width=\"222\" height=\"400\" scrolling=\"no\" frameborder=\"0\"></iframe>\n" +
         "  <br>&nbsp;<br>\n" +
       '\n' +
         "  Профессиональный ресурс от IBM для специалистов в области разработки ПО. Рассылка выходит 1 раз в неделю.\n" +
