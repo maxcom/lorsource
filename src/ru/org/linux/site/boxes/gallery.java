@@ -25,19 +25,15 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Date;
 import java.util.Vector;
-import java.util.Properties;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.velocity.VelocityContext;
-import org.apache.velocity.Template;
-import org.apache.velocity.exception.ResourceNotFoundException;
-import org.apache.velocity.exception.ParseErrorException;
 import org.apache.velocity.app.VelocityEngine;
 
-import ru.org.linux.boxlet.Boxlet;
 import ru.org.linux.boxlet.VelocityBoxlet;
 import ru.org.linux.site.LorDataSource;
+import ru.org.linux.site.GalleryItem;
 import ru.org.linux.site.config.PropertiesConfig;
 import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.ImageInfo;

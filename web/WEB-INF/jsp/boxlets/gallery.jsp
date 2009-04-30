@@ -4,7 +4,7 @@
 
 <div class="boxlet_content">
   <h3>Последние скриншоты</h3>
-  <c:forEach var="item" items="{$items}">
+  <c:forEach var="item" items="${items}">
     <div align="center">
       <c:url var="url" value="/view-message.jsp">
         <c:param name="msgid" value="${item.msgid}"/>

@@ -32,9 +32,13 @@
   <bean name="/register.jsp" class="ru.org.linux.spring.RegisterController"/>
 
   <bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
-    <property name="viewClass" value="org.springframework.web.servlet.view.JstlView"></property>
-    <property name="prefix" value="/WEB-INF/jsp/"></property>
-    <property name="suffix" value=".jsp"></property>
+    <property name="viewClass" value="org.springframework.web.servlet.view.JstlView"/>
+    <property name="prefix" value="/WEB-INF/jsp/"/>
+    <property name="suffix" value=".jsp"/>
+  </bean>
+
+  <bean name="/gallery.boxlet" class="ru.org.linux.spring.boxlets.GalleryBoxletImpl">
+      <property name="galleryDao" ref="galleryDao"/>
   </bean>
 
   <bean id="exceptionMapping"

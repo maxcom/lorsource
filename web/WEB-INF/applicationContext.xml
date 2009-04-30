@@ -14,24 +14,41 @@
   ~    limitations under the License.
   -->
 
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN/EN" "http://www.springframework.org/dtd/spring-beans-2.0.dtd" >
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN/EN"
+        "http://www.springframework.org/dtd/spring-beans-2.0.dtd" >
 
 <beans>
-  <bean class="org.springframework.beans.factory.config.PropertiesFactoryBean" scope="singleton" name="config.properties">
-    <property name="location" value="/WEB-INF/config.properties"/>
-    <property name="ignoreResourceNotFound" value="true"/>
-  </bean>
+    <bean class="org.springframework.beans.factory.config.PropertiesFactoryBean" scope="singleton"
+          name="config.properties">
+        <property name="location" value="/WEB-INF/config.properties"/>
+        <property name="ignoreResourceNotFound" value="true"/>
+    </bean>
 
-  <bean class="org.springframework.beans.factory.config.PropertiesFactoryBean" scope="singleton" name="config.properties.dist">
-    <property name="location" value="/WEB-INF/config.properties.dist"/>
-  </bean>
+    <bean class="org.springframework.beans.factory.config.PropertiesFactoryBean" scope="singleton"
+          name="config.properties.dist">
+        <property name="location" value="/WEB-INF/config.properties.dist"/>
+    </bean>
+
+    <bean class="ru.org.linux.spring.commons.PropertiesFacade" id="propertiesFacade">
+        <property name="dist" ref="config.properties.dist"/>
+        <property name="general" ref="config.properties"/>
+    </bean>
 
     <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer"
-            id="configurer">
+          id="configurer">
         <property name="location" value="/WEB-INF/jndi.properties"/>
     </bean>
 
-  <bean class="org.springframework.jndi.JndiObjectFactoryBean" name="datasource">
-      <property name="jndiName" value="${datasource.name}"/>
-  </bean>
+    <bean class="org.springframework.jndi.JndiObjectFactoryBean" name="datasource">
+        <property name="jndiName" value="${datasource.name}"/>
+    </bean>
+
+    <bean class="org.springframework.jdbc.core.simple.SimpleJdbcTemplate" id="jdbcTemplate">
+        <constructor-arg ref="datasource"/>
+    </bean>
+
+    <bean class="ru.org.linux.spring.dao.GalleryDaoImpl" id="galleryDao">
+        <property name="properties" ref="propertiesFacade"/>
+        <property name="template" ref="jdbcTemplate"/>
+    </bean>
 </beans>

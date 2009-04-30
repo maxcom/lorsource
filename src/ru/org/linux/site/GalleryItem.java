@@ -13,7 +13,7 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.site.boxes;
+package ru.org.linux.site;
 
 import ru.org.linux.util.ImageInfo;
 
