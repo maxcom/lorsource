@@ -7,7 +7,7 @@
             #if ($item.info)
             <img border=1 src="$item.icon" alt="Скриншот: $item.title" $item.info.code/>
             #else
-            [bad image] <img border=1 src="$item.icon" alt="Скриншот: $item.title" $item.info.code/>
+            [bad image] <img border=1 src="$item.icon" alt="Скриншот: $item.title"/>
             #end
         </a>
     </div>
