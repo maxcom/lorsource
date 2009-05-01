@@ -226,7 +226,7 @@
 
     outbuf.append("<tr><td>");
     if (rs.getBoolean("deleted")) {
-      outbuf.append("[X] ");
+      outbuf.append("[<a href=\"undelete.jsp?msgid=").append(rs.getInt("msgid")).append("\">X</a>] ");
     } else if (rs.getBoolean("sticky")) {
       outbuf.append("<img src=\"img/paper_clip.gif\" width=\"15\" height=\"15\" alt=\"Прикреплено\" title=\"Прикреплено\"> ");
     }

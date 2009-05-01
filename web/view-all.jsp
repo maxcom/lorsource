@@ -122,8 +122,8 @@
   	String nick=rs.getString("nick");
 	int msgid=rs.getInt("msgid");
 	int guid=rs.getInt("guid");
-	out.print("<tr class=color2>");
-    out.print("<td align=\"center\">"+(rs.getInt("section")==1?"<a href=\"undelete.jsp?msgid="+msgid+"\" title=\"Восстановить\">#</a>":"X")+"</td>");
+	out.print("<tr class=\"color2\">");
+	out.print("<td align=\"center\"><a href=\"undelete.jsp?msgid="+msgid+"\" title=\"Восстановить\">#</a></td>");
 	out.print("<td><a href=\"whois.jsp?nick="+URLEncoder.encode(nick)+"\">"+nick+"</a></td>");
 	out.print("<td><a href=\"group.jsp?group="+guid+"\">"+rs.getString("ptitle")+" - " + rs.getString("gtitle")+"</a></td>");
 	out.print("<td><a href=\"view-message.jsp?msgid="+msgid+"\">"+rs.getString("subj")+"</a></td>");
