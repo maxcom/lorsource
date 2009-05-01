@@ -1,4 +1,4 @@
-<%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
+<%@ page pageEncoding="utf-8" contentType="text/html; charset=utf-8"%>
 <%@ page import="java.sql.Connection,java.sql.PreparedStatement,java.sql.ResultSet"  %>
 <%@ page import="java.util.logging.Logger"%>
 <%@ page import="ru.org.linux.site.*" %>
@@ -24,7 +24,7 @@
 %>
 <jsp:include page="WEB-INF/jsp/head.jsp"/>
 
-        <title>Восстановление сообщения</title>
+        <title>п▓п╬я│я│я┌п╟п╫п╬п╡п╩п╣п╫п╦п╣ я│п╬п╬п╠я┴п╣п╫п╦я▐</title>
 <jsp:include page="WEB-INF/jsp/header.jsp"/>
 
 <%
@@ -46,28 +46,28 @@ try {
   Message message = new Message(db, msgid);
 
   if (message.isExpired()) {
-    throw new AccessViolationException("нельзя восстанавливать устаревшие сообщения");
+    throw new AccessViolationException("п╫п╣п╩я▄п╥я▐ п╡п╬я│я│я┌п╟п╫п╟п╡п╩п╦п╡п╟я┌я▄ я┐я│я┌п╟я─п╣п╡я┬п╦п╣ я│п╬п╬п╠я┴п╣п╫п╦я▐");
   }
 
   if (!message.isDeleted()) {
-    throw new AccessViolationException("Сообщение уже восстановлено");
+    throw new AccessViolationException("п║п╬п╬п╠я┴п╣п╫п╦п╣ я┐п╤п╣ п╡п╬я│я│я┌п╟п╫п╬п╡п╩п╣п╫п╬");
   }
 
   if (message.getSectionId()!=1) {
-    throw new AccessViolationException("Можно восстанавливать только новости"); 
+    throw new AccessViolationException("п°п╬п╤п╫п╬ п╡п╬я│я│я┌п╟п╫п╟п╡п╩п╦п╡п╟я┌я▄ я┌п╬п╩я▄п╨п╬ п╫п╬п╡п╬я│я┌п╦"); 
   }
 
 
   if (request.getParameter("undel")==null) {
 %>
-<h1>Восстановление сообщения</h1>
-Вы можете восстановить удалённое сообщение.
+<h1>п▓п╬я│я│я┌п╟п╫п╬п╡п╩п╣п╫п╦п╣ я│п╬п╬п╠я┴п╣п╫п╦я▐</h1>
+п▓я▀ п╪п╬п╤п╣я┌п╣ п╡п╬я│я│я┌п╟п╫п╬п╡п╦я┌я▄ я┐п╢п╟п╩я▒п╫п╫п╬п╣ я│п╬п╬п╠я┴п╣п╫п╦п╣.
 <form method=POST action="undelete.jsp">
 <input type=hidden name=msgid value="<%= request.getParameter("msgid") %>">
 <div class=messages>
   <lor:message db="<%= db %>" message="<%= message %>" showMenu="false"/> 
 </div>
-<input type=submit name=undel value="Undelete/Восстановить">
+<input type=submit name=undel value="Undelete/п▓п╬я│я│я┌п╟п╫п╬п╡п╦я┌я▄">
 </form>
 <%
   } else {
@@ -83,7 +83,7 @@ try {
     String nick;
 
     if (session == null || session.getAttribute("login") == null || !(Boolean) session.getAttribute("login")) {
-      throw new BadInputException("Вы уже вышли из системы");
+      throw new BadInputException("п▓я▀ я┐п╤п╣ п╡я▀я┬п╩п╦ п╦п╥ я│п╦я│я┌п╣п╪я▀");
     } else {
       nick = (String) session.getAttribute("nick");
     }
@@ -91,14 +91,14 @@ try {
     ResultSet lockResult = lock.executeQuery(); // lock another undelete.jsp on this row
 
     if (lockResult.next() && !lockResult.getBoolean("deleted")) {
-      throw new UserErrorException("Сообщение уже восстановлено");
+      throw new UserErrorException("п║п╬п╬п╠я┴п╣п╫п╦п╣ я┐п╤п╣ п╡п╬я│я│я┌п╟п╫п╬п╡п╩п╣п╫п╬");
     }
 
     st1.executeUpdate();
     st2.executeUpdate();
 
-    out.print("Сообщение восстановлено");
-    logger.info("Восстановлено сообщение " + msgid + " пользователем " + nick);
+    out.print("п║п╬п╬п╠я┴п╣п╫п╦п╣ п╡п╬я│я│я┌п╟п╫п╬п╡п╩п╣п╫п╬");
+    logger.info("п▓п╬я│я│я┌п╟п╫п╬п╡п╩п╣п╫п╬ я│п╬п╬п╠я┴п╣п╫п╦п╣ " + msgid + " п©п╬п╩я▄п╥п╬п╡п╟я┌п╣п╩п╣п╪ " + nick);
 
     st1.close();
     st2.close();
