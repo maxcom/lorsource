@@ -53,8 +53,8 @@ try {
     throw new AccessViolationException("Сообщение уже восстановлено");
   }
 
-  if (message.getSectionId()!=1) {
-    throw new AccessViolationException("Можно восстанавливать только новости"); 
+  if (message.getSectionId()==0) {
+    throw new AccessViolationException("Нельзя восстанавливать комментарии");
   }
 
 
