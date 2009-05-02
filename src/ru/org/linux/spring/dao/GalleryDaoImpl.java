@@ -68,21 +68,9 @@ public class GalleryDaoImpl {
       " AND NOT deleted ORDER BY commitdate DESC LIMIT 3";
     return getTemplate().query(sql, new ParameterizedRowMapper<GalleryItem>() {
       public GalleryItem mapRow(ResultSet rs, int rowNum) throws SQLException {
-        if (rs.getTimestamp("show_date") == null){
-          try {
-            doMarkForShow(rs.getInt("msgid"));
-          } catch (SQLException e) {
-            //Integrity violation here is non-fatal. It means that two threads
-            //simultaneously tries to mark screenshot as shown.
-          }
-        }
         return createGalleryItem(rs);
       }
     }, new HashMap());
-  }
-
-  private void doMarkForShow(int anInt) {
-    template.update("insert into boxlet_show(topic_id) values (?)", anInt);
   }
 
   private GalleryItem createGalleryItem(ResultSet rs) throws SQLException {
