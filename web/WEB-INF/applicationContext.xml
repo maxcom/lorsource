@@ -51,4 +51,12 @@
         <property name="properties" ref="propertiesFacade"/>
         <property name="template" ref="jdbcTemplate"/>
     </bean>
+
+    <bean class="ru.org.linux.spring.dao.ArchiveDaoImpl" id="archiveDao">
+        <property name="jdbcTemplate"  ref="jdbcTemplate"/>
+    </bean>
+    
+    <bean class="ru.org.linux.spring.dao.PollDaoImpl" id="pollDao">
+        <property name="jdbcTemplate" ref="jdbcTemplate"/>
+    </bean>
 </beans>

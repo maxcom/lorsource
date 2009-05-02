@@ -15,34 +15,48 @@
 
 package ru.org.linux.spring.boxlets;
 
+import java.util.Map;
+import java.util.HashMap;
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.web.servlet.ModelAndView;
 
-import ru.org.linux.spring.dao.GalleryDaoImpl;
+import ru.org.linux.spring.dao.PollDaoImpl;
+import ru.org.linux.site.Poll;
+import ru.org.linux.site.PollNotFoundException;
 
 /**
  * User: sreentenko
  * Date: 01.05.2009
- * Time: 1:05:06
+ * Time: 23:51:26
  */
-public class GalleryBoxletImpl extends SpringBoxlet {
-  private GalleryDaoImpl galleryDao;
+public class PollBoxletImpl extends SpringBoxlet {
 
-  public GalleryDaoImpl getGalleryDao() {
-    return galleryDao;
+  private PollDaoImpl pollDao;
+
+  public PollDaoImpl getPollDao() {
+    return pollDao;
   }
 
-  public void setGalleryDao(GalleryDaoImpl galleryDao) {
-    this.galleryDao = galleryDao;
+  public void setPollDao(PollDaoImpl pollDao) {
+    this.pollDao = pollDao;
   }
 
   protected ModelAndView getData(HttpServletRequest request, HttpServletResponse response) {
-    ModelAndView mav = new ModelAndView();
+    Poll poll;
+    try {
+      poll = pollDao.getCurrentPoll();
+    } catch (PollNotFoundException e) {
+      throw new RuntimeException(e);
+    }
+    final List<PollDaoImpl.VoteDTO> votes = pollDao.getVoteDTO(poll.getId());
 
-
-    mav.setViewName("boxlets/gallery");
-    mav.addObject("items", getGalleryDao().getGalleryItems());
-    return mav;
+    Map<String, Object> model = new HashMap<String, Object>();
+    model.put("poll", poll);
+    model.put("votes", votes);
+    model.put("count", pollDao.getVotersCount(poll.getId()));
+    return new ModelAndView("boxlets/poll", model);
   }
 }

@@ -19,30 +19,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.web.servlet.ModelAndView;
 
-import ru.org.linux.spring.dao.GalleryDaoImpl;
-
 /**
  * User: sreentenko
  * Date: 01.05.2009
- * Time: 1:05:06
+ * Time: 23:12:52
  */
-public class GalleryBoxletImpl extends SpringBoxlet {
-  private GalleryDaoImpl galleryDao;
-
-  public GalleryDaoImpl getGalleryDao() {
-    return galleryDao;
-  }
-
-  public void setGalleryDao(GalleryDaoImpl galleryDao) {
-    this.galleryDao = galleryDao;
-  }
-
+public class IbmBoxletImpl extends SpringBoxlet {
   protected ModelAndView getData(HttpServletRequest request, HttpServletResponse response) {
-    ModelAndView mav = new ModelAndView();
-
-
-    mav.setViewName("boxlets/gallery");
-    mav.addObject("items", getGalleryDao().getGalleryItems());
-    return mav;
+    return new ModelAndView("boxlets/ibm", null);
   }
 }

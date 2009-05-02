@@ -68,6 +68,16 @@ public class Poll {
     }
   }
 
+  public static Poll createPoll(Integer id, String title, Integer topic){
+    return new Poll(id, title, topic);
+  }
+
+  private Poll(Integer id, String title, Integer topic){
+    this.id = id;
+    this.title = title;
+    this.topic = topic;
+  }
+
   public Poll(Connection db, int id) throws SQLException, PollNotFoundException {
     this.id = id;
 

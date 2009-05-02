@@ -1,27 +1,36 @@
+/*
+ * Copyright 1998-2009 Linux.org.ru
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ */
+
 package ru.org.linux.spring.dao;
 
-import java.util.List;
-import java.util.HashMap;
-import java.util.Properties;
+import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.io.IOException;
-import java.io.FileNotFoundException;
+import java.util.HashMap;
+import java.util.List;
 
-import javax.sql.DataSource;
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
-import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
+import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
+import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 
 import ru.org.linux.site.GalleryItem;
-import ru.org.linux.site.Config;
-import ru.org.linux.site.Template;
-import ru.org.linux.site.config.PropertiesConfig;
-import ru.org.linux.util.ImageInfo;
-import ru.org.linux.util.BadImageException;
 import ru.org.linux.spring.commons.PropertiesFacade;
+import ru.org.linux.util.BadImageException;
+import ru.org.linux.util.ImageInfo;
 
 /**
  * User: sreentenko
@@ -51,16 +60,29 @@ public class GalleryDaoImpl {
     this.properties = properties;
   }
 
-  public List<GalleryItem> getGalleryItems(){
-    String sql = "SELECT topics.id as msgid, topics.stat1, topics.title, topics.url," +
-        " topics.linktext, nick FROM topics, sections, groups, users WHERE groups.id=topics.groupid" +
-        " AND groups.section=sections.id AND users.id=topics.userid AND topics.moderate AND sections.id=3 AND NOT deleted " +
-        " ORDER BY commitdate DESC LIMIT 3";
+  public List<GalleryItem> getGalleryItems() {
+    String sql = "SELECT topics.id as msgid, " +
+      " topics.stat1, topics.title, topics.url, topics.linktext, nick FROM topics " +
+      " JOIN groups ON topics.groupid = groups.id JOIN sections  ON sections.id = groups.section" +
+      " JOIN users ON users.id = topics.userid WHERE topics.moderate AND sections.id=3 " +
+      " AND NOT deleted ORDER BY commitdate DESC LIMIT 3";
     return getTemplate().query(sql, new ParameterizedRowMapper<GalleryItem>() {
       public GalleryItem mapRow(ResultSet rs, int rowNum) throws SQLException {
-         return createGalleryItem(rs);
+        if (rs.getTimestamp("show_date") == null){
+          try {
+            doMarkForShow(rs.getInt("msgid"));
+          } catch (SQLException e) {
+            //Integrity violation here is non-fatal. It means that two threads
+            //simultaneously tries to mark screenshot as shown.
+          }
+        }
+        return createGalleryItem(rs);
       }
     }, new HashMap());
+  }
+
+  private void doMarkForShow(int anInt) {
+    template.update("insert into boxlet_show(topic_id) values (?)", anInt);
   }
 
   private GalleryItem createGalleryItem(ResultSet rs) throws SQLException {

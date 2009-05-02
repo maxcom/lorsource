@@ -41,6 +41,16 @@
       <property name="galleryDao" ref="galleryDao"/>
   </bean>
 
+  <bean name="/ibm.boxlet" class="ru.org.linux.spring.boxlets.IbmBoxletImpl"/>
+
+  <bean name="/archive.boxlet" class="ru.org.linux.spring.boxlets.ArchiveBoxletImpl">
+      <property name="archiveDao" ref="archiveDao"/>
+  </bean>
+
+  <bean name="/poll.boxlet" class="ru.org.linux.spring.boxlets.PollBoxletImpl">
+      <property name="pollDao" ref="pollDao"/>
+  </bean>
+
   <bean id="exceptionMapping"
         class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
     <property name="exceptionMappings">

@@ -19,30 +19,25 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.web.servlet.ModelAndView;
 
-import ru.org.linux.spring.dao.GalleryDaoImpl;
+import ru.org.linux.spring.dao.ArchiveDaoImpl;
 
 /**
  * User: sreentenko
  * Date: 01.05.2009
- * Time: 1:05:06
+ * Time: 23:15:32
  */
-public class GalleryBoxletImpl extends SpringBoxlet {
-  private GalleryDaoImpl galleryDao;
+public class ArchiveBoxletImpl extends SpringBoxlet {
+  private ArchiveDaoImpl archiveDao;
 
-  public GalleryDaoImpl getGalleryDao() {
-    return galleryDao;
+  public ArchiveDaoImpl getArchiveDao() {
+    return archiveDao;
   }
 
-  public void setGalleryDao(GalleryDaoImpl galleryDao) {
-    this.galleryDao = galleryDao;
+  public void setArchiveDao(ArchiveDaoImpl archiveDao) {
+    this.archiveDao = archiveDao;
   }
 
   protected ModelAndView getData(HttpServletRequest request, HttpServletResponse response) {
-    ModelAndView mav = new ModelAndView();
-
-
-    mav.setViewName("boxlets/gallery");
-    mav.addObject("items", getGalleryDao().getGalleryItems());
-    return mav;
+    return new ModelAndView("boxlets/archive", "items", archiveDao.getArchiveDTO());
   }
 }
