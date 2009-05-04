@@ -55,6 +55,10 @@
       <property name="topTenDao" ref="topTenDao"/>
   </bean>
 
+  <bean name="/tagcloud.boxlet" class="ru.org.linux.spring.boxlets.TagCloudBoxletImpl">
+      <property name="tagDao" ref="tagDao"/>
+  </bean>
+
   <bean id="exceptionMapping"
         class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
     <property name="exceptionMappings">

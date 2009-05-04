@@ -63,4 +63,8 @@
     <bean class="ru.org.linux.spring.dao.TopTenDaoImpl" id="topTenDao">
         <property name="jdbcTemplate" ref="jdbcTemplate"/>
     </bean>
+
+    <bean class="ru.org.linux.spring.dao.TagDaoImpl" id="tagDao">
+        <property name="jdbcTemplate" ref="jdbcTemplate"/>
+    </bean>
 </beans>
