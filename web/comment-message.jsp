@@ -1,4 +1,4 @@
-<%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
+<%@ page contentType="text/html; charset=utf-8"%>
 <%@ page import="java.sql.Connection"   buffer="200kb"%>
 <%@ page import="ru.org.linux.site.AccessViolationException" %>
 <%@ page import="ru.org.linux.site.LorDataSource" %>
@@ -36,11 +36,11 @@
     Message message = new Message(db, msgid);
 
     if (message.isExpired()) {
-      throw new AccessViolationException("нельзя комментировать устаревшие темы");
+      throw new AccessViolationException("п╫п╣п╩я▄п╥я▐ п╨п╬п╪п╪п╣п╫я┌п╦я─п╬п╡п╟я┌я▄ я┐я│я┌п╟я─п╣п╡я┬п╦п╣ я┌п╣п╪я▀");
     }
 
     if (message.isDeleted()) {
-      throw new AccessViolationException("нельзя комментировать удаленные сообщения");
+      throw new AccessViolationException("п╫п╣п╩я▄п╥я▐ п╨п╬п╪п╪п╣п╫я┌п╦я─п╬п╡п╟я┌я▄ я┐п╢п╟п╩п╣п╫п╫я▀п╣ я│п╬п╬п╠я┴п╣п╫п╦я▐");
     }
 
     out.print("<title>" + message.getSectionTitle() + " - " + message.getGroupTitle() + " - " + message.getTitle() + "</title>");
@@ -50,17 +50,17 @@
   <lor:message db="<%= db %>" message="<%= message %>" showMenu="false" user="<%= Template.getNick(session) %>"/>
 </div>
 
-<h2><a name=rep>Добавить сообщение:</a></h2>
+<h2><a name=rep>п■п╬п╠п╟п╡п╦я┌я▄ я│п╬п╬п╠я┴п╣п╫п╦п╣:</a></h2>
 <%--<% if (tmpl.getProf().getBoolean("showinfo") && !Template.isSessionAuthorized(session)) { %>--%>
-<%--<font size=2>Чтобы просто поместить сообщение, используйте login `anonymous',--%>
-<%--без пароля. Если вы собираетесь активно участвовать в форуме,--%>
-<%--помещать новости на главную страницу,--%>
-<%--<a href="register.jsp">зарегистрируйтесь</a></font>.--%>
+<%--<font size=2>п╖я┌п╬п╠я▀ п©я─п╬я│я┌п╬ п©п╬п╪п╣я│я┌п╦я┌я▄ я│п╬п╬п╠я┴п╣п╫п╦п╣, п╦я│п©п╬п╩я▄п╥я┐п╧я┌п╣ login `anonymous',--%>
+<%--п╠п╣п╥ п©п╟я─п╬п╩я▐. п∙я│п╩п╦ п╡я▀ я│п╬п╠п╦я─п╟п╣я┌п╣я│я▄ п╟п╨я┌п╦п╡п╫п╬ я┐я┤п╟я│я┌п╡п╬п╡п╟я┌я▄ п╡ я└п╬я─я┐п╪п╣,--%>
+<%--п©п╬п╪п╣я┴п╟я┌я▄ п╫п╬п╡п╬я│я┌п╦ п╫п╟ пЁп╩п╟п╡п╫я┐я▌ я│я┌я─п╟п╫п╦я├я┐,--%>
+<%--<a href="register.jsp">п╥п╟я─п╣пЁп╦я│я┌я─п╦я─я┐п╧я┌п╣я│я▄</a></font>.--%>
 <%--<p>--%>
 
 <%--<% } %>--%>
-<font size=2><strong>Внимание!</strong> Перед написанием комментария ознакомьтесь с
-<a href="rules.jsp">правилами</a> сайта.</font><p>
+<font size=2><strong>п▓п╫п╦п╪п╟п╫п╦п╣!</strong> п÷п╣я─п╣п╢ п╫п╟п©п╦я│п╟п╫п╦п╣п╪ п╨п╬п╪п╪п╣п╫я┌п╟я─п╦я▐ п╬п╥п╫п╟п╨п╬п╪я▄я┌п╣я│я▄ я│
+<a href="rules.jsp">п©я─п╟п╡п╦п╩п╟п╪п╦</a> я│п╟п╧я┌п╟.</font><p>
 
 <%
   out.print(Message.getPostScoreInfo(message.getPostScore()));
@@ -69,16 +69,16 @@
 <form method=POST action="add_comment.jsp">
   <input type="hidden" name="session" value="<%= HTMLFormatter.htmlSpecialChars(session.getId()) %>">  
 <% if (session == null || session.getAttribute("login") == null || !(Boolean) session.getAttribute("login")) { %>
-Имя:
+п≤п╪я▐:
 <input type=text name=nick value="anonymous" size=40><br>
-Пароль:
+п÷п╟я─п╬п╩я▄:
 <input type=password name=password size=40><br>
 <% } %>
 <% out.print("<input type=hidden name=topic value="+msgid+ '>'); %>
-Заглавие:
+п≈п╟пЁп╩п╟п╡п╦п╣:
 <input type=text name=title size=40 value="Re: <%= message.getTitle() %>"><br>
-Сообщение:<br>
-<font size=2>(В режиме <i>Tex paragraphs</i> игнорируются переносы строк.<br> Пустая строка (два раза Enter) начинает новый абзац.<br> Знак '&gt;' в начале абзаца выделяет абзац курсивом цитирования)</font><br>
+п║п╬п╬п╠я┴п╣п╫п╦п╣:<br>
+<font size=2>(п▓ я─п╣п╤п╦п╪п╣ <i>Tex paragraphs</i> п╦пЁп╫п╬я─п╦я─я┐я▌я┌я│я▐ п©п╣я─п╣п╫п╬я│я▀ я│я┌я─п╬п╨.<br> п÷я┐я│я┌п╟я▐ я│я┌я─п╬п╨п╟ (п╢п╡п╟ я─п╟п╥п╟ Enter) п╫п╟я┤п╦п╫п╟п╣я┌ п╫п╬п╡я▀п╧ п╟п╠п╥п╟я├.<br> п≈п╫п╟п╨ '&gt;' п╡ п╫п╟я┤п╟п╩п╣ п╟п╠п╥п╟я├п╟ п╡я▀п╢п╣п╩я▐п╣я┌ п╟п╠п╥п╟я├ п╨я┐я─я│п╦п╡п╬п╪ я├п╦я┌п╦я─п╬п╡п╟п╫п╦я▐)</font><br>
 <textarea name=msg cols=70 rows=20 onkeypress="return ctrl_enter(event, this.form);"></textarea><br>
 
 <% String mode = tmpl.getFormatMode(); %>
@@ -106,8 +106,8 @@
 
   <lor:captcha/>
 
-<input type=submit value="Отправить">
-<input type=submit name=preview value="Предпросмотр">  
+<input type=submit value="п·я┌п©я─п╟п╡п╦я┌я▄">
+<input type=submit name=preview value="п÷я─п╣п╢п©я─п╬я│п╪п╬я┌я─">  
 </form>
 
 <%
