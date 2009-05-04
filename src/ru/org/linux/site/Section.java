@@ -20,7 +20,6 @@ import java.sql.*;
 
 public class Section implements Serializable {
   private final String name;
-  private final boolean browsable;
   private final boolean imagepost;
   private final boolean moderate;
   private final int id;
@@ -34,7 +33,7 @@ public class Section implements Serializable {
 
     Statement st = db.createStatement();
     ResultSet rs = st.executeQuery(
-        "SELECT name, browsable, imagepost, vote, moderate " +
+        "SELECT name, imagepost, vote, moderate " +
             "FROM sections " +
             "WHERE id="+id
     );
@@ -44,7 +43,6 @@ public class Section implements Serializable {
     }
 
     name = rs.getString("name");
-    browsable = rs.getBoolean("browsable");
     imagepost = rs.getBoolean("imagepost");
     votepoll = rs.getBoolean("vote");
     moderate = rs.getBoolean("moderate");
@@ -52,10 +50,6 @@ public class Section implements Serializable {
 
   public String getName() {
     return name;
-  }
-
-  public boolean isBrowsable() {
-    return browsable;
   }
 
   public boolean isImagepost() {

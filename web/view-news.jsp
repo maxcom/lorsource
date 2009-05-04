@@ -115,7 +115,7 @@
     navtitle += " - Архив " + year + ", " + DateUtil.getMonth(month);
   }
 
-  if (!section.isBrowsable() || sectionid == 2) {
+  if (sectionid == 2) {
     throw new BadSectionException(sectionid);
   }
 
@@ -131,25 +131,26 @@
     </td>
     <td align=right valign=middle>
 <%
-  if (month==0) {
-      if (section.isImagepost()) {
-        out.print("[<a href=\"add.jsp?group=4962\">Добавить изображение</a>]");
-      } else if (section.isVotePoll()) {
-        out.print("[<a href=\"add-poll.jsp?group=19387\">Добавить голосование</a>]");
-      } else {
-        if (group==null) {
-          out.print("[<a href=\"add-section.jsp?section="+section.getId()+"\">Добавить</a>]");
-        } else {
-          out.print("[<a href=\"add.jsp?group="+group.getId()+"\">Добавить</a>]");
-        }
-      }
-
-    if (group==null) {
-      out.print("[<a href=\"view-section.jsp?section="+section.getId()+"\">Таблица</a>]");
+  if (month == 0) {
+    if (section.isImagepost()) {
+      out.print("[<a href=\"add.jsp?group=4962\">Добавить изображение</a>]");
+    } else if (section.isVotePoll()) {
+      out.print("[<a href=\"add-poll.jsp?group=19387\">Добавить голосование</a>]");
     } else {
-      out.print("[<a href=\"group.jsp?group="+group.getId()+"\">Таблица</a>]");
+      if (group == null) {
+        out.print("[<a href=\"add-section.jsp?section=" + section.getId() + "\">Добавить</a>]");
+      } else {
+        out.print("[<a href=\"add.jsp?group=" + group.getId() + "\">Добавить</a>]");
+      }
+    }
+
+    if (group == null) {
+      out.print("[<a href=\"view-section.jsp?section=" + section.getId() + "\">Таблица</a>]");
+    } else {
+      out.print("[<a href=\"group.jsp?group=" + group.getId() + "\">Таблица</a>]");
     }
   }
+
   out.print("[<a href=\"view-news-archive.jsp?section="+sectionid+"\">Архив</a>]");
   out.print("[<a href=\"section-rss.jsp?section="+sectionid+(group!=null?("&amp;group="+group.getId()):"")+"\">RSS</a>]");
 

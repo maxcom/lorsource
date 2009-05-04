@@ -85,11 +85,9 @@ public class MessageController extends AbstractController {
       params.put("prevMessage", message.getPreviousMessage(db));
       params.put("nextMessage", message.getNextMessage(db));
 
-      if (message.isCommentEnabled()) {
-        CommentList comments = CommentList.getCommentList(db, message, showDeleted);
+      CommentList comments = CommentList.getCommentList(db, message, showDeleted);
 
-        params.put("comments", comments);
-      }
+      params.put("comments", comments);
 
       return new ModelAndView(rss?"view-message-rss":"view-message", params);
     } finally {
