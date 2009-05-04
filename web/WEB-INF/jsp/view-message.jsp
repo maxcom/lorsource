@@ -335,7 +335,6 @@
 </div><br>
 <% } %>
 
-<c:if test="${message.commentEnabled}">
 <%
     int offset = 0;
     int limit = 0;
@@ -379,7 +378,6 @@
   </c:if>
 
   <c:out value="${bottomScroller}" escapeXml="false"/>
-</c:if>
 </c:if>
 </div>
 

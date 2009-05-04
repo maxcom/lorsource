@@ -43,18 +43,12 @@
       throw new AccessViolationException("нельзя комментировать удаленные сообщения");
     }
 
-    if (!message.isCommentEnabled()) {
-      throw new AccessViolationException("нельзя комментировать тему");
-    }
-
     out.print("<title>" + message.getSectionTitle() + " - " + message.getGroupTitle() + " - " + message.getTitle() + "</title>");
 %>
 <jsp:include page="WEB-INF/jsp/header.jsp"/>
 <div class=messages>
   <lor:message db="<%= db %>" message="<%= message %>" showMenu="false" user="<%= Template.getNick(session) %>"/>
 </div>
-
-<% if (message.isCommentEnabled()) { %>
 
 <h2><a name=rep>Добавить сообщение:</a></h2>
 <%--<% if (tmpl.getProf().getBoolean("showinfo") && !Template.isSessionAuthorized(session)) { %>--%>
@@ -116,7 +110,6 @@
 <input type=submit name=preview value="Предпросмотр">  
 </form>
 
-<% } %>
 <%
   } finally {
     if (db!=null) {

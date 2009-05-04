@@ -1,6 +1,5 @@
 <%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
-<%@ page import="java.sql.Connection,java.sql.ResultSet,java.sql.Statement,ru.org.linux.site.BadSectionException,ru.org.linux.site.LorDataSource,ru.org.linux.site.Section"   buffer="200kb"%>
-<%@ page import="ru.org.linux.util.DateUtil" %>
+<%@ page import="java.sql.Connection,java.sql.ResultSet,java.sql.Statement,ru.org.linux.site.LorDataSource,ru.org.linux.site.Section,ru.org.linux.util.DateUtil"   buffer="200kb"%>
 <%@ page import="ru.org.linux.util.ServletParameterParser" %>
 <%--
   ~ Copyright 1998-2009 Linux.org.ru
@@ -36,9 +35,6 @@
 <jsp:include page="WEB-INF/jsp/header.jsp"/>
 <H1><%= ptitle %></H1>
 <%
-
-if (!section.isBrowsable()) { throw new BadSectionException(sectionid); }
-
 %>
 <%
 

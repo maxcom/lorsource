@@ -31,26 +31,25 @@ import ru.org.linux.util.*;
 public class Message {
   private static final Logger logger = Logger.getLogger("ru.org.linux");
 
-  private int msgid;
-  private int postscore;                                
-  private boolean votepoll;
-  private boolean sticky;
+  private final int msgid;
+  private final int postscore;
+  private final boolean votepoll;
+  private final boolean sticky;
   private String linktext;
   private String url;
-  private Tags tags;
-  private String title;
+  private final Tags tags;
+  private final String title;
   private final int userid;
-  private int guid;
-  private boolean deleted;
-  private boolean expired;
-  private int commitby;
-  private boolean havelink;
-  private Timestamp postdate;
-  private Timestamp commitDate;
+  private final int guid;
+  private final boolean deleted;
+  private final boolean expired;
+  private final int commitby;
+  private final boolean havelink;
+  private final Timestamp postdate;
+  private final Timestamp commitDate;
   private final String groupTitle;
-  private Timestamp lastModified;
+  private final Timestamp lastModified;
   private final int sectionid;
-  private boolean comment;
   private final int commentCount;
   private final boolean moderate;
   private final String message;
@@ -66,7 +65,7 @@ public class Message {
 
     ResultSet rs=st.executeQuery(
         "SELECT " +
-            "postdate, topics.id as msgid, users.id as userid, topics.title, sections.comment, " +
+            "postdate, topics.id as msgid, users.id as userid, topics.title, " +
             "topics.groupid as guid, topics.url, topics.linktext, user_agents.name as useragent, " +
             "groups.title as gtitle, vote, havelink, section, topics.sticky, topics.postip, " +
             "postdate<(CURRENT_TIMESTAMP-sections.expire) as expired, deleted, lastmod, commitby, " +
@@ -102,7 +101,6 @@ public class Message {
     groupTitle = rs.getString("gtitle");
     lastModified = rs.getTimestamp("lastmod");
     sectionid =rs.getInt("section");
-    comment=rs.getBoolean("comment");
     commentCount = rs.getInt("stat1");
     moderate = rs.getBoolean("moderate");
     message = rs.getString("message");
@@ -122,7 +120,7 @@ public class Message {
   }
 
   public Message(Connection db, AddMessageForm form, User user)
-      throws BadInputException, SQLException, UtilException, ScriptErrorException, UserErrorException {
+      throws  SQLException, UtilException, ScriptErrorException, UserErrorException {
     // Init fields
 
     userAgent = form.getUserAgent();
@@ -161,7 +159,6 @@ public class Message {
     commitDate = null;
     groupTitle = "";
     lastModified = new Timestamp(System.currentTimeMillis());
-    comment = false;
     commentCount = 0;
     moderate = false;
     notop = false;
@@ -235,7 +232,6 @@ public class Message {
     commitDate = original.commitDate;
     groupTitle = original.groupTitle;
     lastModified = new Timestamp(System.currentTimeMillis());
-    comment = original.comment;
     commentCount = original.commentCount;
     moderate = original.moderate;
     notop = original.notop;
@@ -289,10 +285,6 @@ public class Message {
 
   public int getSectionId() {
     return sectionid;
-  }
-
-  public boolean isCommentEnabled() {
-    return comment;
   }
 
   public int getCommentCount() {
@@ -527,10 +519,6 @@ public class Message {
 
     if (deleted) {
       throw new AccessViolationException("Нельзя добавлять комментарии к удаленному сообщению");
-    }
-
-    if (!comment) {
-      throw new AccessViolationException("В эту группу нельзя добавлять комментарии");
     }
 
     if (expired) {

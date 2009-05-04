@@ -167,7 +167,7 @@ public class NewsViewer implements Viewer {
     String nick = res.getString("nick");
     out.append("<div class=sign>").append(nick).append("(<a href=\"whois.jsp?nick=").append(URLEncoder.encode(nick)).append("\">*</a>) (").append(dateFormat.format(res.getTimestamp("postdate"))).append(")</div>");
 
-    if (!moderateMode && res.getBoolean("comment")) {
+    if (!moderateMode) {
       out.append("<div class=\"nav\">");
 
       if (!expired) {
@@ -295,7 +295,7 @@ public class NewsViewer implements Viewer {
     
     ResultSet res = st.executeQuery(
         "SELECT topics.title as subj, topics.lastmod, topics.stat1, postdate, nick, image, " +
-            "groups.title as gtitle, topics.id as msgid, sections.comment, groups.id as guid, " +
+            "groups.title as gtitle, topics.id as msgid, groups.id as guid, " +
             "topics.url, topics.linktext, imagepost, vote, sections.name as pname, " +
             "postdate<(CURRENT_TIMESTAMP-expire) as expired, message, bbcode, sections.id as section, NOT topics.sticky AS ssticky " +
             "FROM topics,groups,users,sections,msgbase " +

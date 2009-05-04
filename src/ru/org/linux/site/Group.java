@@ -35,7 +35,6 @@ public class Group {
   private int restrictTopics;
   private int restrictComments;
   private int id;
-  private boolean browsable;
 
   private int stat1;
   private int stat2;
@@ -51,7 +50,7 @@ public class Group {
     try {
       st = db.createStatement();
 
-      rs = st.executeQuery("SELECT sections.moderate, sections.preformat, imagepost, vote, section, havelink, linktext, sections.name as sname, title, image, restrict_topics, restrict_comments, sections.browsable,stat1,stat2,stat3,groups.id, groups.info FROM groups, sections WHERE groups.id=" + id + " AND groups.section=sections.id");
+      rs = st.executeQuery("SELECT sections.moderate, sections.preformat, imagepost, vote, section, havelink, linktext, sections.name as sname, title, image, restrict_topics, restrict_comments,stat1,stat2,stat3,groups.id, groups.info FROM groups, sections WHERE groups.id=" + id + " AND groups.section=sections.id");
 
       if (!rs.next()) {
         throw new BadGroupException("Группа " + id + " не существует");
@@ -75,7 +74,7 @@ public class Group {
   public static List<Group> getGroups(Connection db, Section section) throws SQLException {
     Statement st = db.createStatement();
 
-    ResultSet rs = st.executeQuery("SELECT sections.moderate, sections.preformat, imagepost, vote, section, havelink, linktext, sections.name as sname, title, image, restrict_topics, restrict_comments, sections.browsable,stat1,stat2,stat3,groups.id,groups.info FROM groups, sections WHERE sections.id=" + section.getId() + " AND groups.section=sections.id ORDER BY id");
+    ResultSet rs = st.executeQuery("SELECT sections.moderate, sections.preformat, imagepost, vote, section, havelink, linktext, sections.name as sname, title, image, restrict_topics, restrict_comments, stat1,stat2,stat3,groups.id,groups.info FROM groups, sections WHERE sections.id=" + section.getId() + " AND groups.section=sections.id ORDER BY id");
 
     List<Group> list = new ArrayList<Group>();
 
@@ -101,7 +100,6 @@ public class Group {
     image = rs.getString("image");
     restrictTopics = rs.getInt("restrict_topics");
     restrictComments = rs.getInt("restrict_comments");
-    browsable = rs.getBoolean("browsable");
 
     stat1 = rs.getInt("stat1");
     stat2 = rs.getInt("stat2");
@@ -197,10 +195,6 @@ public class Group {
 
   public int getId() {
     return id;
-  }
-
-  public boolean isBrowsable() {
-    return browsable;
   }
 
   public int getStat1() {
