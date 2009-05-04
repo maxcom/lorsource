@@ -25,11 +25,6 @@ import org.apache.commons.lang.mutable.MutableDouble;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Closure;
 
-/**
- * User: sreentenko
- * Date: 05.05.2009
- * Time: 1:04:06
- */
 public class TagDaoImpl {
   private SimpleJdbcTemplate jdbcTemplate;
 

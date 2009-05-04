@@ -12,21 +12,13 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
-
-<%--
-  Created by IntelliJ IDEA.
-  User: sreentenko
-  Date: 05.05.2009
-  Time: 0:50:01
-  To change this template use File | Settings | File Templates.
---%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <h2>Облако Меток</h2>
 
 <div class="boxlet_content">
   <div align="center">
-    <c:forEach var="tag" items="tags">
+    <c:forEach var="tag" items="${tags}">
       <c:url value="/view-news.jsp" var="tag_url">
         <c:param name="section" value="1"/>
         <c:param name="tag" value="${tag.value}"/>
