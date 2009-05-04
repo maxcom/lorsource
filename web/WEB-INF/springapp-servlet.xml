@@ -51,6 +51,10 @@
       <property name="pollDao" ref="pollDao"/>
   </bean>
 
+  <bean name="/top10.boxlet" class="ru.org.linux.spring.boxlets.TopTenBoxletImpl">
+      <property name="topTenDao" ref="topTenDao"/>
+  </bean>
+
   <bean id="exceptionMapping"
         class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
     <property name="exceptionMappings">

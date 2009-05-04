@@ -25,6 +25,7 @@ import org.apache.commons.collections.Closure;
 
 import ru.org.linux.spring.dao.TopTenDaoImpl;
 import ru.org.linux.site.Template;
+import ru.org.linux.util.ProfileHashtable;
 
 /**
  * User: rsvato
@@ -44,13 +45,17 @@ public class TopTenBoxletImpl extends SpringBoxlet {
 
   protected ModelAndView getData(HttpServletRequest request, HttpServletResponse response) {
     List<TopTenDaoImpl.TopTenMessageDTO> list = getTopTenDao().getMessages();
-    final int itemsPerPage = Template.getTemplate(request).getProf().getInt("messages");
+    final ProfileHashtable profile = Template.getTemplate(request).getProf();
+    final int itemsPerPage = profile.getInt("messages");
+    final String style = profile.getString("style");
     CollectionUtils.forAllDo(list, new Closure() {
       public void execute(Object o) {
         TopTenDaoImpl.TopTenMessageDTO dto = (TopTenDaoImpl.TopTenMessageDTO) o;
         dto.setPages((int) Math.ceil(dto.getAnswers() / itemsPerPage));
       }
     });
-    return new ModelAndView("boxlets/top10", "messages", list);
+    final ModelAndView view = new ModelAndView("boxlets/top10", "messages", list);
+    view.addObject("style", style);
+    return view;
   }
 }

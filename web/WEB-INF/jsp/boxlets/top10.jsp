@@ -26,8 +26,8 @@
 <h2>Top 10</h2>
 <div class="boxlet_content">
   <h3>Наиболее обсуждаемые темы этого месяца</h3>
-  <c:url var="arrow_url" value="/${style}/arrow.gif"/>
-  <c:forEach items="message" var="message">
+  <c:url var="arrow_url" value="/${style}/img/arrow.gif"/>
+  <c:forEach items="${messages}" var="message">
     <c:choose>
       <c:when test="${message.movedUp}">
         <img src="${arrow_url}" alt="[up]" width="10" height="12"/>
@@ -48,5 +48,6 @@
       (стр. <a href="${page_link}">${message.pages}</a>)
     </c:if>
     (${message.answers})
+    <br/>
   </c:forEach>
 </div>

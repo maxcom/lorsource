@@ -59,4 +59,8 @@
     <bean class="ru.org.linux.spring.dao.PollDaoImpl" id="pollDao">
         <property name="jdbcTemplate" ref="jdbcTemplate"/>
     </bean>
+
+    <bean class="ru.org.linux.spring.dao.TopTenDaoImpl" id="topTenDao">
+        <property name="jdbcTemplate" ref="jdbcTemplate"/>
+    </bean>
 </beans>
