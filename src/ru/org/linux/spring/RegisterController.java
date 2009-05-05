@@ -44,7 +44,7 @@ import ru.org.linux.util.*;
 @Controller
 public class RegisterController extends ApplicationObjectSupport {
   @RequestMapping(value = "/register.jsp", method = RequestMethod.GET)
-  public ModelAndView register() throws Exception {
+  public ModelAndView register()  {
     return new ModelAndView("register");
   }
 
@@ -55,16 +55,26 @@ public class RegisterController extends ApplicationObjectSupport {
 
     Connection db = null;
     try {
-      boolean changeMode = "update".equals(request.getParameter("mode"));
+      boolean changeMode = "change".equals(request.getParameter("mode"));
 
-      String nick = request.getParameter("nick");
+      String nick;
 
-      if (!StringUtil.checkLoginName(nick)) {
-        throw new BadInputException("некорректное имя пользователя");
-      }
+      if (changeMode) {
+        if (!tmpl.isSessionAuthorized()) {
+          throw new AccessViolationException("Not authorized");
+        }
+        
+        nick = tmpl.getNick();
+      } else {
+        nick = request.getParameter("nick");
 
-      if (nick.length() > User.MAX_NICK_LENGTH) {
-        throw new BadInputException("слишком длинное имя пользователя");
+        if (!StringUtil.checkLoginName(nick)) {
+          throw new BadInputException("некорректное имя пользователя");
+        }
+
+        if (nick.length() > User.MAX_NICK_LENGTH) {
+          throw new BadInputException("слишком длинное имя пользователя");
+        }
       }
 
       String town = request.getParameter("town");
