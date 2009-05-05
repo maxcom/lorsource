@@ -100,12 +100,12 @@ URL (не забудьте добавить <b>http://</b>): <br>
     rs.next();
 %>
 
-
+<c:if test="${error!=null}">
+  <div class="error">Ошибка: ${error}</div>
+</c:if>
 
 <form method=POST action="register.jsp">
-<input type=hidden name=mode value=update>
-Nick: <%= nick %><br>
-<input type=hidden name=nick value="<%= nick %>"><br>
+<input type=hidden name=mode value="change">
 Полное имя:
 <input type=text name="name" size="40" value="<%= rs.getString("name") %>"><br>
 Пароль:
