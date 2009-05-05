@@ -44,12 +44,6 @@ public class BoxListTag extends BodyTagSupport {
     }
     @SuppressWarnings("unchecked")
     List<String> boxnames = (List<String>) t.getProf().getObject(s);
-    CollectionUtils.forAllDo(boxnames, new Closure() {
-      public void execute(Object o) {
-        String s = (String) o;
-        s = String.format("/%s.boxlet", s);
-      }
-    });
     pageContext.setAttribute(var, boxnames);
     return EVAL_BODY_INCLUDE;
   }
