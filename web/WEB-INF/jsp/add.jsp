@@ -20,6 +20,7 @@
 <% Template tmpl = Template.getTemplate(request);%>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
 <%
   Connection db = null;
@@ -53,9 +54,7 @@
   <lor:message db="<%= db %>" message="<%= previewMsg %>" showMenu="false" user="<%= Template.getNick(session) %>"/>
 </div>
 <% } %>
-<% if (error==null) { %>
 <h1>Добавить</h1>
-<% } else { out.println("<h1>Ошибка: "+error.getMessage()+"</h1>"); } %>
 <%--<% if (tmpl.getProf().getBoolean("showinfo") && !Template.isSessionAuthorized(session)) { %>--%>
 <%--<font size=2>Чтобы просто поместить сообщение, используйте login `anonymous',--%>
 <%--без пароля. Если вы собираетесь активно участвовать в форуме,--%>
@@ -74,6 +73,10 @@
   </ul>
 </p>
 <%   } %>
+
+<c:if test="${error!=null}">
+  <div class="error">Ошибка: ${error.message}</div>
+</c:if>
 <form method=POST action="add.jsp" <%= group.isImagePostAllowed()?"enctype=\"multipart/form-data\"":"" %> >
   <input type="hidden" name="session" value="<%= HTMLFormatter.htmlSpecialChars(session.getId()) %>">
 <%  if (form.getNoinfo()!=null) {
