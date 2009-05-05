@@ -25,83 +25,87 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.mvc.AbstractController;
 import org.springframework.web.servlet.view.RedirectView;
 
 import ru.org.linux.site.*;
 
-public class LoginController extends AbstractController {
+@Controller
+public class LoginController {
   private boolean isAjax(HttpServletRequest request) {
     String header = request.getHeader("X-Requested-With");
 
     return header != null && "XMLHttpRequest".equals(header);
   }
 
-  @Override
-  protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) throws Exception {
-    if ("POST".equals(request.getMethod())) {
-      Connection db = null;
-      Template tmpl = Template.getTemplate(request);
-      HttpSession session = request.getSession();
+  @RequestMapping(value="/login.jsp", method= RequestMethod.GET)
+  public ModelAndView loginForm(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    return new ModelAndView("login-form");
+  }
 
-      boolean ajax = isAjax(request);
+  @RequestMapping(value = "/login.jsp", method = RequestMethod.POST)
+  public ModelAndView doLogin(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    Connection db = null;
+    Template tmpl = Template.getTemplate(request);
+    HttpSession session = request.getSession();
 
-      try {
-        db = LorDataSource.getConnection();
-        db.setAutoCommit(false);
-        String nick = request.getParameter("nick");
-        if (nick == null || "".equals(nick)) {
-          return new ModelAndView(ajax?"login-xml":"login-form", Collections.singletonMap("error", "Не указан nick"));
+    boolean ajax = isAjax(request);
+
+    try {
+      db = LorDataSource.getConnection();
+      db.setAutoCommit(false);
+      String nick = request.getParameter("nick");
+      if (nick == null || "".equals(nick)) {
+        return new ModelAndView(ajax ? "login-xml" : "login-form", Collections.singletonMap("error", "Не указан nick"));
+      }
+
+      User user = User.getUser(db, nick);
+
+      if (!user.isActivated()) {
+        String activation = request.getParameter("activate");
+
+        if (activation == null) {
+          return new ModelAndView(ajax ? "login-xml" : "login-form", Collections.singletonMap("error", "Требуется активация"));
         }
 
-        User user = User.getUser(db, nick);
+        String regcode = user.getActivationCode(tmpl.getSecret());
 
-        if (!user.isActivated()) {
-          String activation = request.getParameter("activate");
-
-          if (activation == null) {
-            return new ModelAndView(ajax?"login-xml":"login-form", Collections.singletonMap("error", "Требуется активация"));
-          }
-
-          String regcode = user.getActivationCode(tmpl.getSecret());
-
-          if (regcode.equals(activation)) {
-            PreparedStatement pst = db.prepareStatement("UPDATE users SET activated='t' WHERE id=?");
-            pst.setInt(1, user.getId());
-            pst.executeUpdate();
-          } else {
-            throw new AccessViolationException("Bad activation code");
-          }
-        }
-
-        user.checkAnonymous();
-
-        if (!user.matchPassword(request.getParameter("passwd"))) {
-          return new ModelAndView(ajax?"login-xml":"login-form", Collections.singletonMap("error", "Неверный пароль"));
-        }
-
-        if (session == null) {
-          throw new BadInputException("не удалось открыть сессию; созможно отсутствует поддержка Cookie");
-        }
-
-        performLogin(response, db, tmpl, session, nick, user);
-
-        db.commit();
-
-        if (ajax) {
-          return new ModelAndView("login-xml", Collections.singletonMap("ok", "welcome"));
+        if (regcode.equals(activation)) {
+          PreparedStatement pst = db.prepareStatement("UPDATE users SET activated='t' WHERE id=?");
+          pst.setInt(1, user.getId());
+          pst.executeUpdate();
         } else {
-          return new ModelAndView(new RedirectView(tmpl.getMainUrl()));
-        }
-      } finally {
-        if (db!=null) {
-          db.close();
+          throw new AccessViolationException("Bad activation code");
         }
       }
-    }
 
-    return new ModelAndView("login-form");
+      user.checkAnonymous();
+
+      if (!user.matchPassword(request.getParameter("passwd"))) {
+        return new ModelAndView(ajax ? "login-xml" : "login-form", Collections.singletonMap("error", "Неверный пароль"));
+      }
+
+      if (session == null) {
+        throw new BadInputException("не удалось открыть сессию; созможно отсутствует поддержка Cookie");
+      }
+
+      performLogin(response, db, tmpl, session, nick, user);
+
+      db.commit();
+
+      if (ajax) {
+        return new ModelAndView("login-xml", Collections.singletonMap("ok", "welcome"));
+      } else {
+        return new ModelAndView(new RedirectView(tmpl.getMainUrl()));
+      }
+    } finally {
+      if (db != null) {
+        db.close();
+      }
+    }
   }
 
   private void performLogin(HttpServletResponse response, Connection db, Template tmpl, HttpSession session, String nick, User user) throws SQLException {

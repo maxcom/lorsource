@@ -25,18 +25,18 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.mvc.AbstractController;
 
 import ru.org.linux.site.*;
 import ru.org.linux.util.ServletParameterParser;
 
-public class DelIPController extends AbstractController {
-  @Override
-  protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) throws Exception {
-  
+@Controller
+public class DelIPController {
+  @RequestMapping("/delip.jsp")
+  protected ModelAndView handleRequestInternal(HttpServletRequest request) throws Exception {
     Map<String, Object> params = new HashMap<String, Object>();
     Map<Integer, String> deleted = new HashMap<Integer, String>();
     

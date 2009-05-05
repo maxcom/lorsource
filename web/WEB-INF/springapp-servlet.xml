@@ -17,34 +17,31 @@
 
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
-       http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+       http://www.springframework.org/schema/beans/spring-beans-2.5.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
-  <!-- the application context definition for the springapp DispatcherServlet -->
+    <!-- the application context definition for the springapp DispatcherServlet -->
 
-  <bean name="/view-section.jsp" class="ru.org.linux.spring.SectionController"/>
-  <bean name="/tags.jsp" class="ru.org.linux.spring.TagsController"/>
-  <bean name="/delip.jsp" class="ru.org.linux.spring.DelIPController"/>
-  <bean name="/add.jsp" class="ru.org.linux.spring.AddMessageController"/>
-  <bean name="/view-message.jsp" class="ru.org.linux.spring.MessageController"/>
-  <bean name="/login.jsp" class="ru.org.linux.spring.LoginController"/>
-  <bean name="/edit.jsp" class="ru.org.linux.spring.EditController"/>
-  <bean name="/register.jsp" class="ru.org.linux.spring.RegisterController"/>
-  <bean name="/whois.jsp" class="ru.org.linux.spring.WhoisController"/>
+    <bean class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping"/>
+    <bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter"/>
 
-  <bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
-    <property name="viewClass" value="org.springframework.web.servlet.view.JstlView"></property>
-    <property name="prefix" value="/WEB-INF/jsp/"></property>
-    <property name="suffix" value=".jsp"></property>
-  </bean>
+    <context:component-scan base-package="ru.org.linux.spring"/>
 
-  <bean id="exceptionMapping"
-        class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
-    <property name="exceptionMappings">
-      <props>
-        <prop key="ru.org.linux.site.MessageNotFoundException">error404</prop>
-        <prop key="java.lang.Exception">error</prop>
-      </props>
-    </property>
-  </bean>
+    <bean id="viewResolver"
+          class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="viewClass" value="org.springframework.web.servlet.view.JstlView"></property>
+        <property name="prefix" value="/WEB-INF/jsp/"></property>
+        <property name="suffix" value=".jsp"></property>
+    </bean>
+
+    <bean id="exceptionMapping"
+          class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+        <property name="exceptionMappings">
+            <props>
+                <prop key="ru.org.linux.site.MessageNotFoundException">error404</prop>
+                <prop key="java.lang.Exception">error</prop>
+            </props>
+        </property>
+    </bean>
 </beans>

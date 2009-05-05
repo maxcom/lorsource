@@ -27,8 +27,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import org.apache.commons.fileupload.FileUploadException;
+import org.springframework.context.support.ApplicationObjectSupport;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.mvc.AbstractController;
 
 import ru.org.linux.site.*;
 import ru.org.linux.storage.StorageException;
@@ -36,9 +38,10 @@ import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.BadURLException;
 import ru.org.linux.util.UtilException;
 
-public class AddMessageController extends AbstractController {
-  @Override
-  protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) throws UtilException, IOException, FileUploadException, ScriptErrorException, BadImageException, InterruptedException, UserErrorException,  StorageException, SQLException {
+@Controller
+public class AddMessageController extends ApplicationObjectSupport {
+  @RequestMapping("/add.jsp")
+  protected ModelAndView add(HttpServletRequest request, HttpServletResponse response) throws UtilException, IOException, FileUploadException, ScriptErrorException, BadImageException, InterruptedException, UserErrorException,  StorageException, SQLException {
     Map<String, Object> params = new HashMap<String, Object>();
 
     Template tmpl = Template.getTemplate(request);

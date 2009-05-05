@@ -19,21 +19,19 @@ import java.sql.Connection;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.mvc.AbstractController;
 
 import ru.org.linux.site.Group;
 import ru.org.linux.site.LorDataSource;
 import ru.org.linux.site.Section;
-import ru.org.linux.util.ServletParameterParser;
 
-public class SectionController extends AbstractController {
-  @Override
-  protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) throws Exception {
-    int sectionid = new ServletParameterParser(request).getInt("section");
-
+@Controller
+public class SectionController {
+  @RequestMapping("/view-section.jsp")
+  public ModelAndView handleRequestInternal(@RequestParam("section") int sectionid) throws Exception {
     Connection db = null;
     try {
       db = LorDataSource.getConnection();
