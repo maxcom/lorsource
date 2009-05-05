@@ -24,23 +24,24 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import org.springframework.context.support.ApplicationObjectSupport;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.mvc.AbstractController;
 
 import ru.org.linux.site.*;
-import ru.org.linux.util.ServletParameterParser;
 
-public class EditController extends AbstractController {
-  @Override
-  protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) throws Exception {
+@Controller
+public class EditController extends ApplicationObjectSupport {
+  @RequestMapping("/edit.jsp")
+  protected ModelAndView edit(HttpServletRequest request, @RequestParam("msgid") int msgid) throws Exception {
     Template tmpl = Template.getTemplate(request);
     HttpSession session = request.getSession();
 
     if (!tmpl.isSessionAuthorized()) {
       throw new AccessViolationException("Not authorized");
     }
-
-    int msgid = new ServletParameterParser(request).getInt("msgid");
 
     Map<String, Object> params = new HashMap<String, Object>();
 

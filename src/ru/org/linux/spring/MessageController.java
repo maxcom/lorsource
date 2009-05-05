@@ -21,16 +21,17 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.mvc.AbstractController;
 
 import ru.org.linux.site.*;
-import ru.org.linux.util.ServletParameterParser;
 
-public class MessageController extends AbstractController {
-  @Override
-  protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) throws Exception {
-    int msgid = new ServletParameterParser(request).getInt("msgid");
+@Controller
+public class MessageController {
+  @RequestMapping("/view-message.jsp")
+  public ModelAndView getMessage(HttpServletRequest request, HttpServletResponse response, @RequestParam("msgid") int msgid) throws Exception {
     Template tmpl = Template.getTemplate(request);
 
     Map<String, Object> params = new HashMap<String, Object>();
