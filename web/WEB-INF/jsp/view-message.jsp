@@ -76,7 +76,6 @@
 </c:if>
 
 <LINK REL="alternate" TITLE="Comments RSS" HREF="view-message.jsp?msgid=<%= msgid %>&amp;output=rss" TYPE="application/rss+xml">
-<script src="/js/jquery.hotkeys-0.7.8-packed.js" type="text/javascript"></script>
 <script type="text/javascript">
   <!--
   $(document).bind('keydown', 'Ctrl+left',function(){ jump(document.getElementById ('PrevLink')) });

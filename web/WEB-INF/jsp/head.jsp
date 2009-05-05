@@ -46,4 +46,4 @@
 <head>
 <script src="/js/jquery-1.2.6.min.js" type="text/javascript"></script>
 <script src="/js/jquery.form.js" type="text/javascript"></script>
-
+<script src="/js/jquery.hotkeys-0.7.8-packed.js" type="text/javascript"></script>
