@@ -73,6 +73,7 @@
     <condition name="host" operator="notequal">^www\.linux\.org\.ru</condition>
     <condition name="host" operator="notequal">^beta\.linux\.org\.ru</condition>
     <condition name="host" operator="notequal">^test-lor</condition>
+    <condition name="host" operator="notequal">^localhost</condition>
     <condition name="host" operator="notequal">^$</condition>
     <from>^/(.*)</from>
     <to type="redirect" last="true">http://www.linux.org.ru/$1</to>

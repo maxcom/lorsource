@@ -18,22 +18,27 @@ package ru.org.linux.spring.boxlets;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.stereotype.Controller;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.org.linux.spring.dao.TagDaoImpl;
 import ru.org.linux.util.ProfileHashtable;
 import ru.org.linux.site.Template;
 
+@Controller
 public class TagCloudBoxletImpl extends SpringBoxlet {
   private TagDaoImpl tagDao;
 
   public TagDaoImpl getTagDao() {
     return tagDao;
   }
-
+  @Autowired
   public void setTagDao(TagDaoImpl tagDao) {
     this.tagDao = tagDao;
   }
 
+  @RequestMapping("/tagcloud.boxlet")
   protected ModelAndView getData(HttpServletRequest request, HttpServletResponse response) {
     final ProfileHashtable profile = Template.getTemplate(request).getProf();
     final int i = profile.getInt("tags");

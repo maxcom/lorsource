@@ -18,13 +18,17 @@ package ru.org.linux.spring.boxlets;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.stereotype.Controller;
 
 /**
  * User: sreentenko
  * Date: 01.05.2009
  * Time: 23:12:52
  */
+@Controller
 public class IbmBoxletImpl extends SpringBoxlet {
+  @RequestMapping("/ibm.boxlet")
   protected ModelAndView getData(HttpServletRequest request, HttpServletResponse response) {
     return new ModelAndView("boxlets/ibm", null);
   }

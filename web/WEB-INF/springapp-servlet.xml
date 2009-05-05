@@ -25,29 +25,8 @@
 
     <bean class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping"/>
     <bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter"/>
-
-    <bean name="/gallery.boxlet" class="ru.org.linux.spring.boxlets.GalleryBoxletImpl">
-        <property name="galleryDao" ref="galleryDao"/>
-    </bean>
-
-    <bean name="/ibm.boxlet" class="ru.org.linux.spring.boxlets.IbmBoxletImpl"/>
-
-    <bean name="/archive.boxlet" class="ru.org.linux.spring.boxlets.ArchiveBoxletImpl">
-        <property name="archiveDao" ref="archiveDao"/>
-    </bean>
-
-    <bean name="/poll.boxlet" class="ru.org.linux.spring.boxlets.PollBoxletImpl">
-        <property name="pollDao" ref="pollDao"/>
-    </bean>
-
-    <bean name="/top10.boxlet" class="ru.org.linux.spring.boxlets.TopTenBoxletImpl">
-        <property name="topTenDao" ref="topTenDao"/>
-    </bean>
-
-    <bean name="/tagcloud.boxlet" class="ru.org.linux.spring.boxlets.TagCloudBoxletImpl">
-        <property name="tagDao" ref="tagDao"/>
-    </bean>
     <context:component-scan base-package="ru.org.linux.spring"/>
+    <context:annotation-config/>
 
     <bean id="viewResolver"
           class="org.springframework.web.servlet.view.InternalResourceViewResolver">

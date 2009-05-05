@@ -22,6 +22,9 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.stereotype.Controller;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.org.linux.spring.dao.PollDaoImpl;
 import ru.org.linux.site.Poll;
@@ -32,6 +35,7 @@ import ru.org.linux.site.PollNotFoundException;
  * Date: 01.05.2009
  * Time: 23:51:26
  */
+@Controller
 public class PollBoxletImpl extends SpringBoxlet {
 
   private PollDaoImpl pollDao;
@@ -39,11 +43,12 @@ public class PollBoxletImpl extends SpringBoxlet {
   public PollDaoImpl getPollDao() {
     return pollDao;
   }
-
+  @Autowired
   public void setPollDao(PollDaoImpl pollDao) {
     this.pollDao = pollDao;
   }
 
+  @RequestMapping("/poll.boxlet")
   protected ModelAndView getData(HttpServletRequest request, HttpServletResponse response) {
     Poll poll;
     try {

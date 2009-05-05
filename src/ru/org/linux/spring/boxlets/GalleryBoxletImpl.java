@@ -18,6 +18,9 @@ package ru.org.linux.spring.boxlets;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.stereotype.Controller;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.org.linux.spring.dao.GalleryDaoImpl;
 
@@ -26,21 +29,21 @@ import ru.org.linux.spring.dao.GalleryDaoImpl;
  * Date: 01.05.2009
  * Time: 1:05:06
  */
+@Controller
 public class GalleryBoxletImpl extends SpringBoxlet {
   private GalleryDaoImpl galleryDao;
 
   public GalleryDaoImpl getGalleryDao() {
     return galleryDao;
   }
-
+  @Autowired
   public void setGalleryDao(GalleryDaoImpl galleryDao) {
     this.galleryDao = galleryDao;
   }
 
+  @RequestMapping("/gallery.boxlet")
   protected ModelAndView getData(HttpServletRequest request, HttpServletResponse response) {
     ModelAndView mav = new ModelAndView();
-
-
     mav.setViewName("boxlets/gallery");
     mav.addObject("items", getGalleryDao().getGalleryItems());
     return mav;

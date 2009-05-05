@@ -18,6 +18,9 @@ package ru.org.linux.spring.boxlets;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.stereotype.Controller;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.org.linux.spring.dao.ArchiveDaoImpl;
 
@@ -26,17 +29,18 @@ import ru.org.linux.spring.dao.ArchiveDaoImpl;
  * Date: 01.05.2009
  * Time: 23:15:32
  */
+@Controller
 public class ArchiveBoxletImpl extends SpringBoxlet {
   private ArchiveDaoImpl archiveDao;
 
   public ArchiveDaoImpl getArchiveDao() {
     return archiveDao;
   }
-
+  @Autowired
   public void setArchiveDao(ArchiveDaoImpl archiveDao) {
     this.archiveDao = archiveDao;
   }
-
+  @RequestMapping("/archive.boxlet")
   protected ModelAndView getData(HttpServletRequest request, HttpServletResponse response) {
     return new ModelAndView("boxlets/archive", "items", archiveDao.getArchiveDTO());
   }
