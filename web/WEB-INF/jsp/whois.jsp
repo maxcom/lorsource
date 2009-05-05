@@ -34,13 +34,13 @@
   }
 %>
 <title>Информация о пользователе <%= nick %></title>
-<jsp:include page="WEB-INF/jsp/header.jsp"/>
+<jsp:include page="header.jsp"/>
 
 <% Connection db = null;
   try {
     db = LorDataSource.getConnection();
 
-    User user = User.getUser(db, nick);
+    User user = (User) request.getAttribute("user");
 %>
 
 <h1>Информация о пользователе <%= nick %></h1>
@@ -236,15 +236,15 @@
 <h2>Сообщения пользователя</h2>
 <ul>
   <li>
-    <a href="show-topics.jsp?nick=<%= nick %>">Темы</a>
+    <a href="../../show-topics.jsp?nick=<%= nick %>">Темы</a>
   </li>
 
   <li>
-    <a href="show-comments.jsp?nick=<%= nick %>">Комментарии</a>
+    <a href="../../show-comments.jsp?nick=<%= nick %>">Комментарии</a>
   </li>
 
   <li>
-    <a href="show-replies.jsp?nick=<%= nick %>">Ответы на комментарии</a>
+    <a href="../../show-replies.jsp?nick=<%= nick %>">Ответы на комментарии</a>
   </li>
 </ul>
 
@@ -258,4 +258,4 @@
     if (db!=null) db.close();
   }
 %>
-<jsp:include page="WEB-INF/jsp/footer.jsp"/>
+<jsp:include page="footer.jsp"/>

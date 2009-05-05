@@ -79,8 +79,7 @@
 <input type=text name=title size=40 value="Re: <%= message.getTitle() %>"><br>
 Сообщение:<br>
 <font size=2>(В режиме <i>Tex paragraphs</i> игнорируются переносы строк.<br> Пустая строка (два раза Enter) начинает новый абзац.<br> Знак '&gt;' в начале абзаца выделяет абзац курсивом цитирования)</font><br>
-<textarea name=msg cols=70 rows=20 onkeypress="return ctrl_enter(event, this.form);"></textarea><br>
-
+<textarea name=msg cols=70 rows=20></textarea><br>
 <% String mode = tmpl.getFormatMode(); %>
 <select name=mode>
 <option value=ntobrq <%= "ntobrq".equals(mode)?"selected":""%> >User line breaks w/quoting

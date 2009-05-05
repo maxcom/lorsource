@@ -140,6 +140,10 @@ version="2.4">
         <url-pattern>*.boxlet</url-pattern>
     </servlet-mapping>
 
+    <servlet-mapping>
+      <servlet-name>springapp</servlet-name>
+      <url-pattern>/whois.jsp</url-pattern>
+    </servlet-mapping>
 <listener>
   <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
 </listener>
