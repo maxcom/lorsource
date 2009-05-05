@@ -1,7 +1,8 @@
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.util.Date,java.util.List, ru.org.linux.boxlet.BoxletVectorRunner"   buffer="60kb"%>
+<%@ page import="java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.util.Date"   buffer="60kb"%>
 <%@ page import="ru.org.linux.site.*" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib prefix="lor" uri="http://www.linux.org.ru" %>
 <%--
   ~ Copyright 1998-2009 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -90,18 +91,6 @@
 </div>
 </div>
 </div>
-
-<%
-  BoxletVectorRunner boxes;
-
-  if (tmpl.getProf().getBoolean("main.3columns")) {
-    boxes = new BoxletVectorRunner((List) tmpl.getProf().getObject("main3-1"));
-  }
-  else {
-    boxes = new BoxletVectorRunner((List) tmpl.getProf().getObject("main2"));
-  }
-%>
-
 <div class=column>
   <% if (Template.isSessionAuthorized(session)) { %>
 <div class=boxlet>
@@ -126,21 +115,23 @@
 </div>
 </div>
   <% } %>
-
-<!-- boxes -->
-<%
-
-  out.print(boxes.getContent(tmpl.getObjectConfig(), tmpl.getProf()));
-
-%>
+  <lor:boxlets object="<%= columns3 ? \"main3-1\" : \"main2\" %>" var="boxes">
+      <c:forEach var="boxlet" items="${boxes}">
+        <div class="boxlet">
+            <c:import url="/${boxlet}.boxlet"/>
+        </div>
+      </c:forEach>
+  </lor:boxlets>
 </div>
 <% if (columns3) { %>
 <div class=column2>
-<%
-  boxes = new BoxletVectorRunner((List) tmpl.getProf().getObject("main3-2"));
-
-  out.print(boxes.getContent(tmpl.getObjectConfig(), tmpl.getProf()));
-%>
+  <lor:boxlets object="main3-2" var="boxes">
+      <c:forEach var="boxlet" items="${boxes}">
+        <div class="boxlet">
+            <c:import url="/${boxlet}.boxlet"/>
+        </div>
+      </c:forEach>
+  </lor:boxlets>
 </div>
 <% } %>
 

@@ -16,7 +16,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
-<fmt:setLocale value="ru" scope="page"/>
+<fmt:setLocale value="ru" scope="session"/>
 <c:url var="head_url" value="/view-news-archive.jsp">
   <c:param name="section" value="1"/>
 </c:url>
@@ -29,7 +29,7 @@
        <c:param name="section" value="1"/>
      </c:url>
      <fmt:parseDate var="item_date" value="${item.year} ${item.month}" pattern="yyyy M"/>
-     <a href="${item_url}"><fmt:formatDate value="${item_date}" pattern="yyyy MMMM"/> (${item.count})</a>
+     <a href="${item_url}"><fmt:formatDate value="${item_date}" pattern="yyyy MMMM" /> (${item.count})</a>
    </c:forEach>
   <br>&gt;&gt;&gt; <a href="${head_url}"> Предыдущие месяцы</a> (с октября 1998)
 </div>
