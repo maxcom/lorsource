@@ -21,7 +21,6 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
@@ -93,7 +92,6 @@ public class GalleryDaoImpl {
     } catch (IOException e) {
       log.error(e);
     }
-    log.debug(ToStringBuilder.reflectionToString(item));
     return item;
   }
 }
