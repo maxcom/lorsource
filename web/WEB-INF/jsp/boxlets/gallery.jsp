@@ -30,7 +30,7 @@
             <img src="${item.icon}" alt="Скриншот: ${item.title}" ${item.info.code}/>
           </c:when>
           <c:otherwise>
-            [bad image] <img src="${item.icon}" alt="Скриншот: $item.title"/>
+            [bad image] <img src="${item.icon}" alt="Скриншот: ${item.title}"/>
           </c:otherwise>
         </c:choose>
       </a>
