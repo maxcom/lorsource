@@ -41,6 +41,9 @@
             <props>
                 <prop key="ru.org.linux.site.MessageNotFoundException">error404</prop>
                 <prop key="java.lang.Exception">error</prop>
+                <prop key="ru.org.linux.util.ServletParameterException">error-parameter</prop>
+                <prop key="org.springframework.beans.TypeMismatchException">error-parameter</prop>
+                <prop key="org.springframework.web.bind.MissingServletRequestParameterException">error-parameter</prop>
             </props>
         </property>
     </bean>
