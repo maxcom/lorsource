@@ -61,6 +61,7 @@ public class TopTenBoxletImpl extends SpringBoxlet {
     });
     final ModelAndView view = new ModelAndView("boxlets/top10", "messages", list);
     view.addObject("style", style);
+    view.addObject("perPage", itemsPerPage);
     return view;
   }
 }

@@ -16,20 +16,25 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
-<fmt:setLocale value="ru" scope="session"/>
-<c:url var="head_url" value="/view-news-archive.jsp">
-  <c:param name="section" value="1"/>
-</c:url>
-<h2><a href="${head_url}">Архив Новостей</a></h2>
-<div class="boxlet_content">
-  <c:forEach var="item" items="${items}">
-     <c:url value="/view-news-archive.jsp" var="item_url">
-       <c:param name="year" value="${item.year}"/>
-       <c:param name="month" value="${item.month}"/>
-       <c:param name="section" value="1"/>
-     </c:url>
-     <fmt:parseDate var="item_date" value="${item.year} ${item.month}" pattern="yyyy M"/>
-     <a href="${item_url}"><fmt:formatDate value="${item_date}" pattern="yyyy MMMM" /> (${item.count})</a>
-   </c:forEach>
-  <br>&gt;&gt;&gt; <a href="${head_url}"> Предыдущие месяцы</a> (с октября 1998)
-</div>
+<%@ taglib prefix="lor" uri="http://www.linux.org.ru" %>
+<lor:cache key="archive.boxlet" expire="${5*60*1000}">
+  <fmt:setLocale value="ru" scope="session"/>
+  <c:url var="head_url" value="/view-news-archive.jsp">
+    <c:param name="section" value="1"/>
+  </c:url>
+  <h2><a href="${head_url}">Архив Новостей</a></h2>
+
+  <div class="boxlet_content">
+    <c:forEach var="item" items="${items}">
+      <c:url value="/view-news-archive.jsp" var="item_url">
+        <c:param name="year" value="${item.year}"/>
+        <c:param name="month" value="${item.month}"/>
+        <c:param name="section" value="1"/>
+      </c:url>
+      <fmt:parseDate var="item_date" value="${item.year} ${item.month}" pattern="yyyy M"/>
+      <a href="${item_url}"><fmt:formatDate value="${item_date}" pattern="yyyy MMMM"/>
+        (${item.count})</a>
+    </c:forEach>
+    <br>&gt;&gt;&gt; <a href="${head_url}"> Предыдущие месяцы</a> (с октября 1998)
+  </div>
+</lor:cache>

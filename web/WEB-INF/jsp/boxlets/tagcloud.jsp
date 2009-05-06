@@ -12,18 +12,22 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
+
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<h2>Облако Меток</h2>
+<%@ taglib prefix="lor" uri="http://www.linux.org.ru" %>
+<lor:cache key="tagcloud.boxlet?count=${count}" expire="${5*60*1000}">
+  <h2>Облако Меток</h2>
 
-<div class="boxlet_content">
-  <div align="center">
-    <c:forEach var="tag" items="${tags}">
-      <c:url value="/view-news.jsp" var="tag_url">
-        <c:param name="section" value="1"/>
-        <c:param name="tag" value="${tag.value}"/>
-      </c:url>
-      <a class="cloud${tag.weight}" href="${tag_url}">${tag.value}</a>
-    </c:forEach>
+  <div class="boxlet_content">
+    <div align="center">
+      <c:forEach var="tag" items="${tags}">
+        <c:url value="/view-news.jsp" var="tag_url">
+          <c:param name="section" value="1"/>
+          <c:param name="tag" value="${tag.value}"/>
+        </c:url>
+        <a class="cloud${tag.weight}" href="${tag_url}">${tag.value}</a>
+      </c:forEach>
+    </div>
   </div>
-</div>
+</lor:cache>

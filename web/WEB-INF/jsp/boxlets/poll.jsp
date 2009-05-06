@@ -22,28 +22,32 @@
 --%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-
-<c:url value="/view-news.jsp" var="main_url">
-  <c:param name="section" value="5"/>
-</c:url>
-<h2><a href="${main_url}">Опрос</a></h2>
-<div class="boxlet_content">
-  <h3>${poll.title}</h3>
-  <form action="/vote.jsp" method="GET">
-    <input type="hidden" name="voteid" value="${poll.id}"/>
-    <input type="hidden" name="msgid" value="${poll.topicId}"/>
-    <c:forEach var="item" items="${votes}">
-      <input type="radio" name="vote" value="${item.id}"/>${item.label}<br/>
-    </c:forEach>
-    <input type="submit" value="vote"/>
-  </form>
-  <br/>
-  <c:url value="/view-vote.jsp" var="vote_url">
-    <c:param name="vote" value="${poll.id}"/>
+<%@ taglib prefix="lor" uri="http://www.linux.org.ru" %>
+<lor:cache key="poll.boxlet" expire="${60*1000}">
+  <c:url value="/view-news.jsp" var="main_url">
+    <c:param name="section" value="5"/>
   </c:url>
-  <a href="${vote_url}">результаты</a> (${count} голосов)
-  <br/>
-  <a href="${main_url}">итоги прошедших опросов...</a>
-  <br/>
-  [<a href="<c:url value="/add-poll.jsp"/>">добавить опрос</a>]
-</div>
+  <h2><a href="${main_url}">Опрос</a></h2>
+
+  <div class="boxlet_content">
+    <h3>${poll.title}</h3>
+
+    <form action="/vote.jsp" method="GET">
+      <input type="hidden" name="voteid" value="${poll.id}"/>
+      <input type="hidden" name="msgid" value="${poll.topicId}"/>
+      <c:forEach var="item" items="${votes}">
+        <input type="radio" name="vote" value="${item.id}"/>${item.label}<br/>
+      </c:forEach>
+      <input type="submit" value="vote"/>
+    </form>
+    <br/>
+    <c:url value="/view-vote.jsp" var="vote_url">
+      <c:param name="vote" value="${poll.id}"/>
+    </c:url>
+    <a href="${vote_url}">результаты</a> (${count} голосов)
+    <br/>
+    <a href="${main_url}">итоги прошедших опросов...</a>
+    <br/>
+    [<a href="<c:url value="/add-poll.jsp"/>">добавить опрос</a>]
+  </div>
+</lor:cache>

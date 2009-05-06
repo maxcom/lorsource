@@ -42,6 +42,8 @@ public class TagCloudBoxletImpl extends SpringBoxlet {
   protected ModelAndView getData(HttpServletRequest request, HttpServletResponse response) {
     final ProfileHashtable profile = Template.getTemplate(request).getProf();
     final int i = profile.getInt("tags");
-    return new ModelAndView("boxlets/tagcloud", "tags", getTagDao().getTags(i));
+    ModelAndView mav = new ModelAndView("boxlets/tagcloud", "tags", getTagDao().getTags(i));
+    mav.addObject("count", i);
+    return mav;
   }
 }
