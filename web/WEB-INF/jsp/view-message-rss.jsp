@@ -65,8 +65,9 @@
       <link>http://www.linux.org.ru/jump-message.jsp?msgid=${message.id}&amp;cid=${comment.id}</link>
       <guid>http://www.linux.org.ru/jump-message.jsp?msgid=${message.id}&amp;cid=${comment.id}</guid>
       <pubDate><lor:rfc822date date="${comment.postdate}"/></pubDate>
-      <description>
-        <c:out value="${comment.messageText}" escapeXml="true"/>
+      <description ><![CDATA[
+        <%-- To avoid double escaping (comments stored escaped) --%>
+        ${comment.messageText}]]>
       </description>
     </item>
   </c:forEach>
