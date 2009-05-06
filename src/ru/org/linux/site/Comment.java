@@ -34,6 +34,7 @@ public class Comment implements Serializable {
   private final DeleteInfo deleteInfo;
   private final String userAgent;
   private final String postIP;
+  public static final int TITLE_LENGTH = 250;
 
   public Comment(Connection db, ResultSet rs) throws SQLException {
     msgid=rs.getInt("msgid");
