@@ -10,9 +10,11 @@ import javax.servlet.ServletException;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Closure;
+import org.apache.commons.collections.Predicate;
 import org.apache.commons.lang.StringUtils;
 
 import ru.org.linux.site.Template;
+import ru.org.linux.site.cli.mkdefprofile;
 
 
 public class BoxListTag extends BodyTagSupport {
@@ -44,6 +46,12 @@ public class BoxListTag extends BodyTagSupport {
     }
     @SuppressWarnings("unchecked")
     List<String> boxnames = (List<String>) t.getProf().getObject(s);
+    CollectionUtils.filter(boxnames, new Predicate() {
+      public boolean evaluate(Object o) {
+        String s = (String) o;
+        return mkdefprofile.isBox(s);
+      }
+    });
     pageContext.setAttribute(var, boxnames);
     return EVAL_BODY_INCLUDE;
   }

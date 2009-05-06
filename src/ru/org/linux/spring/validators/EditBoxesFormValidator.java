@@ -20,15 +20,15 @@ import org.springframework.validation.Validator;
 import org.springframework.validation.ValidationUtils;
 
 import ru.org.linux.spring.EditBoxesController;
+import ru.org.linux.spring.AddRemoveBoxesController;
 
 public class EditBoxesFormValidator implements Validator{
   public boolean supports(Class clazz) {
-    return EditBoxesController.EditBoxesForm.class.isAssignableFrom(clazz);
+    return AddRemoveBoxesController.EditBoxesForm.class.isAssignableFrom(clazz);
   }
 
   public void validate(Object target, Errors errors) {
     ValidationUtils.rejectIfEmptyOrWhitespace(errors, "password", "password.empty", "Не указан пароль");
     ValidationUtils.rejectIfEmptyOrWhitespace(errors, "tag", "tag.empty", "Не указана колонка");
-    ValidationUtils.rejectIfEmptyOrWhitespace(errors, "position", "position.empty", "Не указанa позиция бокслета");
   }
 }

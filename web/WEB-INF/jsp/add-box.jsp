@@ -13,13 +13,6 @@
   ~    limitations under the License.
   --%>
 
-<%--
-  Created by IntelliJ IDEA.
-  User: rsvato
-  Date: May 5, 2009
-  Time: 7:07:00 PM
-  To change this template use File | Settings | File Templates.
---%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="s" uri="http://www.springframework.org/tags/form" %>
@@ -30,14 +23,16 @@
 <h1>Конструктор страницы</h1>
 [<a href="<c:url value="/edit-boxes.jsp"/>">В&nbsp;начало</a>] [<a href="<c:url value="/edit-profile.jsp"/>">Настройки&nbsp;профиля</a>] [<a href="<c:url value="/"/>">На&nbsp;главную&nbsp;страницу</a>]
 <br/>
-<s:form method="post" modelAttribute="form" action="/remove-box.jsp">
+<s:form method="post" modelAttribute="form" action="/add-box.jsp">
   <s:errors path="*" cssStyle="color:red"/><br/>
 
   <s:hidden path="position"/>
   <s:hidden path="tag"/>
 
+  <s:radiobuttons path="boxName" items="${allboxes}" element="div"/> 
+  <br/>
   Пароль <s:password path="password"/><br/>
-  <input type=submit value="Remove/Удалить">
+  <input type=submit value="Add/Добавить">
 </s:form>
 
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>
