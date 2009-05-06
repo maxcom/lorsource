@@ -4,22 +4,19 @@
 <%@ page import="java.sql.Statement" %>
 <%@ page import="java.util.Date" %>
 <%@ page import="java.util.List" %>
-<%@ page import="java.util.Properties" %>
 <%@ page import="java.util.Random" %>
-<%@ page import="java.util.logging.Logger, javax.mail.Session" %>
-<%@ page import="javax.mail.Transport" %>
-<%@ page import="javax.mail.internet.InternetAddress" %>
-<%@ page import="javax.mail.internet.MimeMessage" %>
-<%@ page import="javax.servlet.http.Cookie" %>
-<%@ page import="javax.servlet.http.HttpServletResponse" %>
+<%@ page import="java.util.logging.Logger" %>
+<%@ page import="javax.servlet.http.Cookie, javax.servlet.http.HttpServletResponse" %>
 <%@ page import="org.apache.commons.fileupload.FileItem" %>
 <%@ page import="org.apache.commons.fileupload.disk.DiskFileItemFactory" %>
 <%@ page import="org.apache.commons.fileupload.servlet.ServletFileUpload" %>
-<%@ page import="org.apache.commons.lang.StringUtils" %>
 <%@ page import="ru.org.linux.boxlet.BoxletVectorRunner" %>
 <%@ page import="ru.org.linux.site.*" %>
-<%@ page import="ru.org.linux.storage.StorageNotFoundException" %>
-<%@ page import="ru.org.linux.util.*" %>
+<%@ page import="ru.org.linux.site.cli.mkdefprofile" %>
+<%@ page import="ru.org.linux.util.BadImageException" %>
+<%@ page import="ru.org.linux.util.ImageInfo" %>
+<%@ page import="ru.org.linux.util.ProfileHashtable" %>
+<%@ page import="ru.org.linux.util.StringUtil" %>
 <%--
   ~ Copyright 1998-2009 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -40,13 +37,13 @@
 %>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
-<title>Добавление/Изменение фотографии</title>
-<jsp:include page="WEB-INF/jsp/header.jsp"/>
+<title>Загрузка фотографии</title>
+<jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
 
   <table class=nav><tr>
     <td align=left valign=middle>
-      Добавление/Изменение фотографии
+      Загрузка фотографии
     </td>
 
     <td align=right valign=middle>
@@ -56,7 +53,7 @@
     </tr>
  </table>
 
-<h1>Добавление/Изменение фотографии</h1>
+<h1>Загрузка фотографии</h1>
 
 <%
   boolean showForm = request.getMethod().equals("GET");
@@ -173,8 +170,7 @@
 
 <form action="addphoto.jsp" method="POST" enctype="multipart/form-data">
 <% if (error != null) {
-  out.print("<strong>Ошибка! " + error.getMessage() + "</strong><br>");
-  //error.printStackTrace(new PrintWriter(out));
+  out.print("<div class=\"error\">Ошибка! " + error.getMessage() + "</div>");
 }
 %>
   <input type="file" name="file"><br>
@@ -184,4 +180,4 @@
   }
 %>
 
-<jsp:include page="WEB-INF/jsp/footer.jsp"/>
+<jsp:include page="/WEB-INF/jsp/footer.jsp"/>
