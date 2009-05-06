@@ -17,7 +17,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="lor" uri="http://www.linux.org.ru" %>
-<lor:cache key="archive.boxlet" expire="${5*60*1000}">
+<lor:cache key="archive.boxlet" expire="${5 * 60 * 1000}">
   <fmt:setLocale value="ru" scope="session"/>
   <c:url var="head_url" value="/view-news-archive.jsp">
     <c:param name="section" value="1"/>

@@ -16,20 +16,14 @@
 package ru.org.linux.site.tags;
 
 import java.io.IOException;
-import java.util.Date;
 
-import javax.servlet.jsp.tagext.BodyTagSupport;
-import javax.servlet.jsp.tagext.BodyContent;
 import javax.servlet.jsp.JspException;
-
+import javax.servlet.jsp.tagext.BodyTagSupport;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import ru.org.linux.site.MemCachedSettings;
 import ru.org.linux.spring.commons.CacheProvider;
 import ru.org.linux.spring.commons.MemCachedProvider;
-
-import net.sf.ehcache.hibernate.EhCache;
 
 /**
  * User: rsvato
@@ -43,6 +37,7 @@ public class CacheTag extends BodyTagSupport {
   private boolean foundInCache;
 
   private CacheProvider provider = new MemCachedProvider();
+  private static final long serialVersionUID = -5460272871141784844L;
 
   public String getKey() {
     return key;
@@ -62,19 +57,15 @@ public class CacheTag extends BodyTagSupport {
 
   @Override
   public int doStartTag() throws JspException {
-    log.debug("Key is " + getKey());
     String cached = provider.getFromCache(getKey());
     foundInCache = cached != null;
     if (foundInCache) {
       try {
-        log.debug("Found cached item: " + cached);
         pageContext.getOut().write(cached);
       } catch (IOException e) {
         log.error(e);
       }
       return SKIP_BODY;
-    }else{
-      log.debug("Cache miss. Will store after...");
     }
     return EVAL_BODY_BUFFERED;
   }
@@ -82,12 +73,10 @@ public class CacheTag extends BodyTagSupport {
   @Override
   public int doAfterBody() throws JspException {
     if (!foundInCache) {
-      log.debug("Content was not found in cache. Will store it");
       if (bodyContent != null) {
         String result = bodyContent.getString();
         provider.storeToCache(getKey(), result, getExpire());
         try {
-          log.debug("Writing result: " + result.length());
           bodyContent.clearBody();
           bodyContent.write(result);
           bodyContent.writeOut(bodyContent.getEnclosingWriter());
