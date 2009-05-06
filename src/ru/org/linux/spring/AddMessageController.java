@@ -174,6 +174,11 @@ public class AddMessageController extends ApplicationObjectSupport {
       if (db != null) {
         db.rollback();
       }
+    } catch (FileUploadException e) {
+      error = e;
+      if (db != null) {
+        db.rollback();
+      }
     } finally {
       if (db != null) {
         db.close();
