@@ -159,7 +159,7 @@
   out.print("<a href=\"group.jsp?group=" + groupid + "\" style=\"text-decoration: underline\">дата отправки</a> <b>дата изменения</b>");
 
   out.print("]</span>");
-%></th><th>Число ответов<br>всего/день/час</th></tr>
+%></th><th>Автор</th><th>Число ответов<br>всего/день/час</th></tr>
 <tbody>
 <%
   double messages = tmpl.getProf().getInt("messages");
@@ -215,8 +215,7 @@
       outbuf.append(')');
     }
 
-    outbuf.append(" (").append(rs.getString("nick")).append(") ");
-                outbuf.append("</td>");
+    outbuf.append("</td><td align=center>").append(rs.getString("nick")).append("</td>");
 		outbuf.append("<td align=center>");
 		int stat3=rs.getInt("stat3");
 		int stat4=rs.getInt("stat4");
@@ -256,7 +255,7 @@
   }
 	rs.close();
 %>
-  <tfoot><tr><td colspan=2><p>
+  <tfoot><tr><td colspan=3><p>
 <%
 	String ignoredAdd = showIgnored?("&amp;showignored=t"):"";
 	

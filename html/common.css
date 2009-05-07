@@ -181,3 +181,8 @@ pre {
     margin: 1em;
     padding: 1em;
 }
+
+.message-table td {
+    padding-left: 3px;
+    padding-right: 3px;
+}

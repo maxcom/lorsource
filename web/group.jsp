@@ -198,7 +198,7 @@
   out.print("<b>дата отправки</b> <a href=\"group-lastmod.jsp?group=" + groupId + "\" style=\"text-decoration: underline\">дата изменения</a>");
 
   out.print("]</span>");
-%></th><th>Число ответов<br>всего/день/час</th></tr>
+%></th><th>Автор</th></td><th>Число ответов<br>всего/день/час</th></tr>
 </thead>
 <tbody>
 <%
@@ -257,7 +257,11 @@
       outbuf.append(')');
     }
 
-    outbuf.append(" (").append(rs.getString("nick")).append(')');
+    outbuf.append("</td>");
+
+    outbuf.append("<td align=center>");
+    
+    outbuf.append(rs.getString("nick"));
     outbuf.append("</td>");
 
     outbuf.append("<td align=center>");
@@ -305,7 +309,7 @@
 </tbody>
 <tfoot>
 <%
-  out.print("<tr><td colspan=2><p>");
+  out.print("<tr><td colspan=3><p>");
 
   String ignoredAdd = showIgnored ?("&amp;showignored=t"):"";
 
