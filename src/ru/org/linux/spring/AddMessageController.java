@@ -192,7 +192,7 @@ public class AddMessageController extends ApplicationObjectSupport {
 
     params.put("form", form);
 
-    if (form.getPollList() != null) {
+    if (form!=null && form.getPollList() != null) {
       params.put("exception", error);
       return new ModelAndView("error", params);
     }
