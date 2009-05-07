@@ -91,7 +91,7 @@
 
 	      [<a href="add.jsp?group=<%= groupid %>">Добавить сообщение</a>]
 
-        <select name=group onChange="submit()" title="Быстрый переход">
+        <select name=group onchange="submit();" title="Быстрый переход">
   <%
           List<Group> groups = Group.getGroups(db, section);
 
@@ -135,14 +135,14 @@
     out.print("</em></p>");
   }
 %>
-<form action="group-lastmod.jsp" method="GET" onChange="submit()">
+<form action="group-lastmod.jsp" method="GET">
 
   <input type=hidden name=group value=<%= groupid %>>
   <% if (!firstPage) { %>
 	<input type=hidden name=offset value="<%= offset %>">
   <% } %>
   <div class=nav>
-	фильтр: <select name="showignored">
+	фильтр: <select name="showignored"  onchange="submit();">
   	  <option value="t" <%= (showIgnored?"selected":"") %>>все темы</option>
 	  <option value="f" <%= (showIgnored?"":"selected") %>>без игнорируемых</option>
 	  </select> [<a href="ignore-list.jsp">настроить</a>]

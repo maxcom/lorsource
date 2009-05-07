@@ -121,7 +121,7 @@
   }
 %>
   [<a href="section-rss.jsp?section=<%= group.getSectionId() %>&amp;group=<%=group.getId()%>">RSS</a>]
-      <select name=group onChange="submit()" title="Быстрый переход">
+      <select name=group onchange="submit();" title="Быстрый переход">
 <%
         List<Group> groups = Group.getGroups(db, section);
 
@@ -172,7 +172,7 @@
     out.print("</em></p>");
   }
 %>
-<form action="group.jsp" method="GET" onChange="submit()">
+<form action="group.jsp" method="GET">
 
   <input type=hidden name=group value=<%= groupId %>>
   <!-- input type=hidden name=deleted value=<%= (showDeleted?"t":"f")%> -->
@@ -180,7 +180,7 @@
     <input type=hidden name=offset value="<%= offset %>">
   <% } %>
   <div class=nav>
-    фильтр: <select name="showignored">
+    фильтр: <select name="showignored" onchange="submit();">
       <option value="t" <%= (showIgnored?"selected":"") %>>все темы</option>
       <option value="f" <%= (showIgnored?"":"selected") %>>без игнорируемых</option>
       </select> [<a href="ignore-list.jsp">настроить</a>]
@@ -198,7 +198,7 @@
   out.print("<b>дата отправки</b> <a href=\"group-lastmod.jsp?group=" + groupId + "\" style=\"text-decoration: underline\">дата изменения</a>");
 
   out.print("]</span>");
-%></th><th>Автор</th></td><th>Число ответов<br>всего/день/час</th></tr>
+%></th><th>Автор</th><th>Число ответов<br>всего/день/час</th></tr>
 </thead>
 <tbody>
 <%
