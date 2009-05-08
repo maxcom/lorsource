@@ -31,7 +31,6 @@
 
     boolean firstPage = (Boolean) request.getAttribute("firstPage");
     int offset = (Integer) request.getAttribute("offset");
-    Map<Integer,String> ignoreList = (Map<Integer,String>) request.getAttribute("ignoreList");
 
     db = LorDataSource.getConnection();
     db.setAutoCommit(false);
@@ -47,10 +46,6 @@
     int pages = count / topics;
     if (count % topics != 0) {
       count = (pages + 1) * topics;
-    }
-
-    if (group.getSectionId() == 0) {
-      throw new BadGroupException();
     }
 
     Section section = (Section) request.getAttribute("section");
