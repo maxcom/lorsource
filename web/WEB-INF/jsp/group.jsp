@@ -1,13 +1,7 @@
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="java.io.File,java.io.IOException,java.net.URLEncoder,java.sql.*,java.util.*,java.util.Date,java.util.logging.Logger,javax.servlet.http.Cookie"   buffer="200kb"%>
-<%@ page import="javax.servlet.http.HttpServletResponse"%>
-<%@ page import="org.apache.commons.fileupload.FileItem"%>
-<%@ page import="org.apache.commons.fileupload.disk.DiskFileItemFactory"%>
-<%@ page import="org.apache.commons.fileupload.servlet.ServletFileUpload" %>
-<%@ page import="ru.org.linux.boxlet.BoxletVectorRunner" %>
-<%@ page import="ru.org.linux.site.*" %>
-<%@ page import="ru.org.linux.site.cli.mkdefprofile" %>
-<%@ page import="ru.org.linux.util.*" %>
+<%@ page import="java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.sql.Timestamp,java.util.*,ru.org.linux.site.*,ru.org.linux.util.BadImageException,ru.org.linux.util.ImageInfo"   buffer="200kb"%>
+<%@ page import="ru.org.linux.util.ServletParameterParser"%>
+<%@ page import="ru.org.linux.util.StringUtil"%>
 <%--
   ~ Copyright 1998-2009 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,27 +23,11 @@
 <%
   Connection db = null;
   try {
-    int groupId = new ServletParameterParser(request).getInt("group");
-    boolean showDeleted = request.getParameter("deleted") != null;
-
-    if (showDeleted && !"POST".equals(request.getMethod())) {
-      response.setHeader("Location", tmpl.getMainUrl() + "/group.jsp?group=" + groupId);
-      response.setStatus(HttpServletResponse.SC_MOVED_PERMANENTLY);
-
-      showDeleted = false;
-    }
-
-    if (showDeleted && !Template.isSessionAuthorized(session)) {
-      throw new AccessViolationException("Вы не авторизованы");
-    }
+    boolean showDeleted = (Boolean) request.getAttribute("showDeleted");
 
     boolean showIgnored = false;
     if (request.getParameter("showignored") != null) {
       showIgnored = "t".equals(request.getParameter("showignored"));
-    }
-
-    if (request.getParameter("group") == null) {
-      throw new MissingParameterException("group");
     }
 
     boolean firstPage;
@@ -66,7 +44,8 @@
     db = LorDataSource.getConnection();
     db.setAutoCommit(false);
 
-    Group group = new Group(db, groupId);
+    Group group = (Group) request.getAttribute("group");
+    int groupId = group.getId();
 
     Statement st = db.createStatement();
 
@@ -82,7 +61,7 @@
       throw new BadGroupException();
     }
 
-    Section section = new Section(db, group.getSectionId());
+    Section section = (Section) request.getAttribute("section");
 
     if (firstPage || offset >= pages * topics) {
       response.setDateHeader("Expires", System.currentTimeMillis() + 90 * 1000);
@@ -100,7 +79,7 @@
 <%
     out.print("<link rel=\"parent\" title=\"" + group.getTitle() + "\" href=\"view-section.jsp?section=" + group.getSectionId() + "\">");
 %>
-<jsp:include page="WEB-INF/jsp/header.jsp"/>
+<jsp:include page="/WEB-INF/jsp/header.jsp"/>
 <form action="group.jsp">
   <table class=nav>
     <tr>
@@ -291,7 +270,6 @@
 
     if (!firstPage && ignoreList != null && !ignoreList.isEmpty() && ignoreList.containsValue(rs.getString("nick"))) {
       outbuf = new StringBuffer();
-      //new StringBuffer().append("<tr><td colspan=2>Тема создана игнорируемым пользователем</td></tr>");
     }
 
     outputList.add(outbuf.toString());
@@ -400,4 +378,4 @@
     }
   }
 %>
-<jsp:include page="WEB-INF/jsp/footer.jsp"/>
+<jsp:include page="/WEB-INF/jsp/footer.jsp"/>
