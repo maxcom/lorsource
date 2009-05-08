@@ -32,10 +32,10 @@
   Calendar yesterday = (Calendar) today.clone();
   yesterday.roll(Calendar.DAY_OF_MONTH, false);
 
-  if (diff<1000*60) {
+  if (diff<2*1000*60) {
     out.print("минуту назад");
   } else if (diff<1000*60*60) {
-    long min = diff / (1000 * 60);
+    long min = diff / (1000 * 60)-1;
 
     if (min%10<5 && min%10>1) {
       out.print(min +" минуты назад");
