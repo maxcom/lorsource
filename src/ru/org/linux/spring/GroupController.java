@@ -33,6 +33,15 @@ import ru.org.linux.site.*;
 public class GroupController {
   @RequestMapping("/group.jsp")
   public ModelAndView topics(@RequestParam("group") int groupId, HttpServletRequest request) throws Exception {
+    return topics(groupId, request, false);
+  }
+
+  @RequestMapping("/group-lastmod.jsp")
+  public ModelAndView topicsLastmod(@RequestParam("group") int groupId, HttpServletRequest request) throws Exception {
+    return topics(groupId, request, true);
+  }
+
+  public ModelAndView topics(@RequestParam("group") int groupId, HttpServletRequest request, boolean lastmod) throws Exception {
     Map<String, Object> params = new HashMap<String, Object>();
 
     boolean showDeleted = request.getParameter("deleted") != null;
@@ -61,6 +70,7 @@ public class GroupController {
 
     params.put("firstPage", firstPage);
     params.put("offset", offset);
+    params.put("lastmod", lastmod);
 
     boolean showIgnored = false;
     if (request.getParameter("showignored") != null) {
@@ -100,10 +110,18 @@ public class GroupController {
       String delq = showDeleted ? "" : " AND NOT deleted ";
       int topics = tmpl.getProf().getInt("topics");
 
-      if (firstPage) {
-        rs = st.executeQuery("SELECT topics.title as subj, lastmod, nick, topics.id as msgid, deleted, topics.stat1, topics.stat3, topics.stat4, topics.sticky FROM topics,groups,users, sections WHERE sections.id=groups.section AND (topics.moderate OR NOT sections.moderate) AND topics.userid=users.id AND topics.groupid=groups.id AND groups.id=" + groupId + delq + ignq + " AND (postdate>(CURRENT_TIMESTAMP-'3 month'::interval) or sticky) ORDER BY sticky desc,msgid DESC LIMIT " + topics);
+      if (!lastmod) {
+        if (firstPage) {
+          rs = st.executeQuery("SELECT topics.title as subj, lastmod, nick, topics.id as msgid, deleted, topics.stat1, topics.stat3, topics.stat4, topics.sticky FROM topics,groups,users, sections WHERE sections.id=groups.section AND (topics.moderate OR NOT sections.moderate) AND topics.userid=users.id AND topics.groupid=groups.id AND groups.id=" + groupId + delq + ignq + " AND (postdate>(CURRENT_TIMESTAMP-'3 month'::interval) or sticky) ORDER BY sticky desc,msgid DESC LIMIT " + topics);
+        } else {
+          rs = st.executeQuery("SELECT topics.title as subj, lastmod, nick, topics.id as msgid, deleted, topics.stat1, topics.stat3, topics.stat4, topics.sticky FROM topics,groups,users, sections WHERE sections.id=groups.section AND (topics.moderate OR NOT sections.moderate) AND topics.userid=users.id AND topics.groupid=groups.id AND groups.id=" + groupId + delq + " ORDER BY sticky,msgid ASC LIMIT " + topics + " OFFSET " + offset);
+        }
       } else {
-        rs = st.executeQuery("SELECT topics.title as subj, lastmod, nick, topics.id as msgid, deleted, topics.stat1, topics.stat3, topics.stat4, topics.sticky FROM topics,groups,users, sections WHERE sections.id=groups.section AND (topics.moderate OR NOT sections.moderate) AND topics.userid=users.id AND topics.groupid=groups.id AND groups.id=" + groupId + delq + " ORDER BY sticky,msgid ASC LIMIT " + topics + " OFFSET " + offset);
+        if (firstPage) {
+          rs = st.executeQuery("SELECT topics.title as subj, lastmod, nick, topics.id as msgid, deleted, topics.stat1, topics.stat3, topics.stat4, topics.sticky FROM topics,groups,users, sections WHERE sections.id=groups.section AND (topics.moderate OR NOT sections.moderate) AND topics.userid=users.id AND topics.groupid=groups.id AND groups.id=" + groupId + " AND NOT deleted " + ignq + " ORDER BY sticky DESC,lastmod DESC LIMIT " + topics + " OFFSET " + offset);
+        } else {
+          rs = st.executeQuery("SELECT topics.title as subj, lastmod, nick, topics.id as msgid, deleted, topics.stat1, topics.stat3, topics.stat4, topics.sticky FROM topics,groups,users, sections WHERE sections.id=groups.section AND (topics.moderate OR NOT sections.moderate) AND topics.userid=users.id AND topics.groupid=groups.id AND groups.id=" + groupId + " AND NOT deleted ORDER BY sticky DESC,lastmod DESC LIMIT " + topics + " OFFSET " + offset);
+        }
       }
 
       List<TopicsListItem> topicsList = new ArrayList<TopicsListItem>();
@@ -118,7 +136,7 @@ public class GroupController {
         topicsList.add(topic);
       }
 
-      if (!firstPage) {
+      if (!firstPage && !lastmod) {
         Collections.reverse(topicsList);
       }
 

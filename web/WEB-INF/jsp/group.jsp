@@ -65,7 +65,13 @@
     <LINK REL="alternate" HREF="section-rss.jsp?section=<%= group.getSectionId() %>&amp;group=<%= group.getId()%>" TYPE="application/rss+xml">
     <link rel="parent" title="${group.title}" href="/view-section.jsp?section=${group.sectionId}">
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
-<form action="group.jsp">
+<c:if test="${lastmod}">
+  <c:set var="self" value="group-lastmod.jsp"/>
+</c:if>
+<c:if test="${not lastmod}">
+  <c:set var="self" value="group.jsp"/>
+</c:if>
+<form action="${self}">
   <table class=nav>
     <tr>
     <td align=left valign=middle>
@@ -123,10 +129,9 @@
     out.print("</em></p>");
   }
 %>
-<form action="group.jsp" method="GET">
+<form action="${self}" method="GET">
 
   <input type=hidden name=group value=<%= groupId %>>
-  <!-- input type=hidden name=deleted value=<%= (showDeleted?"t":"f")%> -->
   <% if (!firstPage) { %>
     <input type=hidden name=offset value="<%= offset %>">
   <% } %>
@@ -143,13 +148,13 @@
 <table width="100%" class="message-table">
 <thead>
 <tr><th>Заголовок
-<%
-  out.print("<span style=\"font-weight: normal\">[порядок: ");
-
-  out.print("<b>дата отправки</b> <a href=\"group-lastmod.jsp?group=" + groupId + "\" style=\"text-decoration: underline\">дата изменения</a>");
-
-  out.print("]</span>");
-%></th><th>Автор</th><th>Число ответов<br>всего/день/час</th></tr>
+  <c:if test="${lastmod}">
+    <span style="font-weight: normal">[порядок: <a href="group.jsp?group=${group.id}" style="text-decoration: underline">дата отправки</a> <b>дата изменения</b>]</span>
+  </c:if>
+  <c:if test="${not lastmod}">
+  <span style="font-weight: normal">[порядок: <b>дата отправки</b> <a href="group-lastmod.jsp?group=${group.id}" style="text-decoration: underline">дата изменения</a>]</span>
+  </c:if>
+</th><th>Автор</th><th>Число ответов<br>всего/день/час</th></tr>
 </thead>
 <tbody>
 
@@ -170,14 +175,14 @@
         </a>
     </c:if>
 
-    <c:if test="${not firstPage or topics.pages>1}">
+    <c:if test="${not firstPage or topic.pages>1}">
       <a href="view-message.jsp?msgid=${topic.msgid}" rev="contents">
           ${topic.subj}
       </a>
     </c:if>
 
     <c:if test="${topic.pages>1}">
-      &nbsp;(стр.
+      (стр.
       <c:forEach var="i" begin="1" end="${topic.pages}"> <c:if test="${i==(topic.pages-1) and firstPage}"><a href="view-message.jsp?msgid=${topic.msgid}&amp;lastmod=${topic.lastmod.time}">${i+1}</a></c:if><c:if test="${i!=(topic.pages-1) or not firstPage}"><a href="view-message.jsp?msgid=${topic.msgid}&amp;page=${i}">${i+1}</a></c:if></c:forEach>)
     </c:if>
   </td>
@@ -199,13 +204,18 @@
 
   out.print("<div style=\"float: left\">");
 
+  boolean lastmod = (Boolean) request.getAttribute("lastmod");
+  String self = lastmod?"group-lastmod.jsp":"group.jsp";
+
   // НАЗАД
   if (firstPage) {
     out.print("");
-  } else if (offset == pages * topics) {
-    out.print("<a href=\"group.jsp?group=" + groupId + (showDeleted ? "&amp;deleted=t" : "") + ignoredAdd + "\">← начало</a> ");
+  } else if ((!lastmod && offset == pages * topics) || (lastmod && offset == topics)) {
+    out.print("<a href=\""+self+"?group=" + groupId + ignoredAdd + "\">← начало</a> ");
+  } else if (!lastmod) {
+    out.print("<a rel=prev rev=next href=\""+self+"?group=" + groupId + "&amp;offset=" + (offset + topics) + ignoredAdd + "\">← назад</a>");
   } else {
-    out.print("<a rel=prev rev=next href=\"group.jsp?group=" + groupId + "&amp;offset=" + (offset + topics) + (showDeleted ? "&amp;deleted=t" : "") + ignoredAdd + "\">← назад</a>");
+    out.print("<a rel=prev rev=next href=\""+self+"?group=" + groupId + "&amp;offset=" + (offset - topics) + ignoredAdd + "\">← назад</a>");
   }
 
   out.print("</div>");
@@ -213,11 +223,13 @@
   // ВПЕРЕД
   out.print("<div style=\"float: right\">");
 
-  if (firstPage) {
-    out.print("<a rel=next rev=prev href=\"group.jsp?group=" + groupId + "&amp;offset=" + (pages * topics) + (showDeleted ? "&amp;deleted=t" : "") + ignoredAdd + "\">архив →</a>");
+  if (firstPage && !lastmod) {
+    out.print("<a rel=next rev=prev href=\""+self+"?group=" + groupId + "&amp;offset=" + (pages * topics) + ignoredAdd + "\">архив →</a>");
   } else if (offset == 0 && !firstPage) {
+  } else if (!lastmod) {
+    out.print("<a rel=next rev=prev href=\""+self+"?group=" + groupId + "&amp;offset=" + (offset - topics) + ignoredAdd + "\">вперед →</a>");
   } else {
-    out.print("<a rel=next rev=prev href=\"group.jsp?group=" + groupId + "&amp;offset=" + (offset - topics) + (showDeleted ? "&amp;deleted=t" : "") + ignoredAdd + "\">вперед →</a>");
+    out.print("<a rel=next rev=prev href=\""+self+"?group=" + groupId + "&amp;offset=" + (offset + topics) + ignoredAdd + "\">вперед →</a>");
   }
 
   out.print("</div>");
@@ -225,6 +237,7 @@
 </tfoot>
 </table>
 </div>
+<c:if test="${not lastmod}">
 <div align=center><p>
 <%
   for (int i=0; i<=pages+1; i++) {
@@ -240,7 +253,7 @@
 
     if (i==pages+1) {
       if (offset != 0 || firstPage) {
-        out.print("[<a href=\"group.jsp?group=" + groupId + "&amp;offset=0" + (showDeleted ? "&amp;deleted=t" : "") + ignoredAdd + "\">последняя</a>] ");
+        out.print("[<a href=\"group.jsp?group=" + groupId + "&amp;offset=0" + ignoredAdd + "\">последняя</a>] ");
       } else {
         out.print("[<b>последняя</b>] ");
       }
@@ -248,12 +261,12 @@
       if (firstPage) {
         out.print("[<b>первая</b>] ");
       } else {
-        out.print("[<a href=\"group.jsp?group=" + groupId + (showDeleted ? "&amp;deleted=t" : "") + ignoredAdd + "\">первая</a>] ");
+        out.print("[<a href=\"group.jsp?group=" + groupId + ignoredAdd + "\">первая</a>] ");
       }
     } else if ((pages + 1 - i) * topics == offset) {
       out.print("<b>" + (pages + 1 - i) + "</b> ");
     } else {
-      out.print("<a href=\"group.jsp?group=" + groupId + "&amp;offset=" + ((pages + 1 - i) * topics) + (showDeleted ? "&amp;deleted=t" : "") + ignoredAdd + "\">" + (pages + 1 - i) + "</a> ");
+      out.print("<a href=\"group.jsp?group=" + groupId + "&amp;offset=" + ((pages + 1 - i) * topics) + ignoredAdd + "\">" + (pages + 1 - i) + "</a> ");
     }
   }
 %>
@@ -272,6 +285,8 @@
   </form>
   <hr>
 <% } %>
+
+</c:if>
 
 <%
 	st.close();
