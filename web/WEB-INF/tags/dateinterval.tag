@@ -35,7 +35,15 @@
   if (diff<1000*60) {
     out.print("минуту назад");
   } else if (diff<1000*60*60) {
-    out.print(diff/(1000*60)+" минут назад");
+    long min = diff / (1000 * 60);
+
+    if (min%10<5 && min%10>1) {
+      out.print(min +" минуты назад");
+    } else if (min%10==1 ) {
+        out.print(min +" минута назад");
+    } else {
+      out.print(min +" минут назад");
+    }
   } else if (c.after(today)) {
     out.print("сегодня, " + c.get(Calendar.HOUR)+":"+c.get(Calendar.MINUTE));
   } else if (c.after(yesterday)) {
