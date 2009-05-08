@@ -19,6 +19,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 
+import ru.org.linux.site.Message;
+import ru.org.linux.util.StringUtil;
+
 public class TopicsListItem {
   private final String subj;
   private final Timestamp lastmod;
@@ -27,11 +30,19 @@ public class TopicsListItem {
   private final boolean deleted;
   private final int stat1, stat3, stat4;
   private final boolean sticky;
+  private final int pages;
 
   // SELECT topics.title as subj, lastmod, nick, topics.id as msgid, deleted, topics.stat1, topics.stat3, topics.stat4, topics.sticky
-  public TopicsListItem(ResultSet rs) throws SQLException {
-    subj = rs.getString("subj");
-    lastmod = rs.getTimestamp("lastmod");
+  public TopicsListItem(ResultSet rs, int messagesInPage) throws SQLException {
+    subj = StringUtil.makeTitle(rs.getString("subj"));
+
+    Timestamp lastmod = rs.getTimestamp("lastmod");
+    if (lastmod==null) {
+      this.lastmod = new Timestamp(0);
+    } else {
+      this.lastmod = lastmod;
+    }
+
     nick = rs.getString("nick");
     msgid = rs.getInt("msgid");
     deleted = rs.getBoolean("deleted");
@@ -39,6 +50,8 @@ public class TopicsListItem {
     stat3 = rs.getInt("stat3");
     stat4 = rs.getInt("stat4");
     sticky = rs.getBoolean("sticky");
+
+    pages = Message.getPageCount(stat1, messagesInPage);
   }
 
   public String getSubj() {
@@ -75,5 +88,9 @@ public class TopicsListItem {
 
   public boolean isSticky() {
     return sticky;
+  }
+
+  public int getPages() {
+    return pages;
   }
 }

@@ -18,10 +18,7 @@ package ru.org.linux.spring;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Controller;
@@ -72,6 +69,8 @@ public class GroupController {
 
     params.put("showIgnored", showIgnored);
 
+    int messages = tmpl.getProf().getInt("messages");
+
     Connection db = null;
 
     try {
@@ -110,7 +109,17 @@ public class GroupController {
       List<TopicsListItem> topicsList = new ArrayList<TopicsListItem>();
 
       while (rs.next()) {
-        topicsList.add(new TopicsListItem(rs));
+        TopicsListItem topic = new TopicsListItem(rs, messages);
+
+        if (!firstPage && ignoreList != null && !ignoreList.isEmpty() && ignoreList.containsValue(topic.getNick())) {
+          continue;
+        }
+
+        topicsList.add(topic);
+      }
+
+      if (!firstPage) {
+        Collections.reverse(topicsList);
       }
 
       params.put("topicsList", topicsList);

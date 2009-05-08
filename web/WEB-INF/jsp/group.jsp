@@ -2,6 +2,8 @@
 <%@ page import="java.sql.Connection,java.sql.Statement,java.sql.Timestamp,java.util.*,ru.org.linux.site.*,ru.org.linux.spring.TopicsListItem,ru.org.linux.util.BadImageException,ru.org.linux.util.ImageInfo"   buffer="200kb"%>
 <%@ page import="ru.org.linux.util.ServletParameterParser"%>
 <%@ page import="ru.org.linux.util.StringUtil"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%--
   ~ Copyright 1998-2009 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,6 +21,7 @@
 
 <% Template tmpl = Template.getTemplate(request); %>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
+
 
 <%
   Connection db = null;
@@ -159,101 +162,44 @@
 %></th><th>Автор</th><th>Число ответов<br>всего/день/час</th></tr>
 </thead>
 <tbody>
-<%
-  List<TopicsListItem> topicsList = (List<TopicsListItem>) request.getAttribute("topicsList");
 
-  List<String> outputList = new ArrayList<String>();
-  double messages = tmpl.getProf().getInt("messages");
+<c:forEach var="topic" items="${topicsList}">
 
-  for (TopicsListItem topic : topicsList) {
-    StringBuffer outbuf = new StringBuffer();
-    int stat1 = topic.getStat1();
+<tr>
+  <td>
+    <c:if test="${topic.deleted}">
+      [<a href="/undelete.jsp?msgid=${topic.msgid}">X</a>]
+    </c:if>
+    <c:if test="${topic.sticky and not topic.deleted}">
+      <img src="/img/paper_clip.gif" width="15" height="15" alt="Прикреплено" title="Прикреплено">
+    </c:if>
 
-    Timestamp lastmod = topic.getLastmod();
-    if (lastmod == null) {
-      lastmod = new Timestamp(0);
-    }
+    <c:if test="${firstPage and topic.pages<=1}">
+        <a href="view-message.jsp?msgid=${topic.msgid}&amp;lastmod=${topic.lastmod.time}" rev="contents">
+          ${topic.subj}
+        </a>
+    </c:if>
 
-    outbuf.append("<tr><td>");
-    if (topic.isDeleted()) {
-      outbuf.append("[<a href=\"undelete.jsp?msgid=").append(topic.getMsgid()).append("\">X</a>] ");
-    } else if (topic.isSticky()) {
-      outbuf.append("<img src=\"img/paper_clip.gif\" width=\"15\" height=\"15\" alt=\"Прикреплено\" title=\"Прикреплено\"> ");
-    }
+    <c:if test="${not firstPage or topics.pages>1}">
+      <a href="view-message.jsp?msgid=${topic.msgid}" rev="contents">
+          ${topic.subj}
+      </a>
+    </c:if>
 
-    int pagesInCurrent = (int) Math.ceil(stat1 / messages);
+    <c:if test="${topic.pages>1}">
+      &nbsp;(стр.
+      <c:forEach var="i" begin="1" end="${topic.pages}"> <c:if test="${i==(topic.pages-1) and firstPage}"><a href="view-message.jsp?msgid=${topic.msgid}&amp;lastmod=${topic.lastmod.time}">${i+1}</a></c:if><c:if test="${i!=(topic.pages-1) or not firstPage}"><a href="view-message.jsp?msgid=${topic.msgid}&amp;page=${i}">${i+1}</a></c:if></c:forEach>)
+    </c:if>
+  </td>
 
-    if (firstPage) {
-      if (pagesInCurrent <= 1) {
-        outbuf.append("<a href=\"view-message.jsp?msgid=").append(topic.getMsgid()).append("&amp;lastmod=").append(lastmod.getTime()).append("\" rev=contents>").append(StringUtil.makeTitle(topic.getSubj())).append("</a>");
-      } else {
-        outbuf.append("<a href=\"view-message.jsp?msgid=").append(topic.getMsgid()).append("\" rev=contents>").append(StringUtil.makeTitle(topic.getSubj())).append("</a>");
-      }
-    } else {
-      outbuf.append("<a href=\"view-message.jsp?msgid=").append(topic.getMsgid()).append("\" rev=contents>").append(StringUtil.makeTitle(topic.getSubj())).append("</a>");
-    }
+  <td align=center>
+    ${topic.nick}
+  </td>
 
-    if (pagesInCurrent > 1) {
-      outbuf.append("&nbsp;(стр.");
-
-      for (int i = 1; i < pagesInCurrent; i++) {
-        outbuf.append(" <a href=\"view-message.jsp?msgid=").append(topic.getMsgid());
-        if ((i == pagesInCurrent - 1) && firstPage) {
-          outbuf.append("&amp;lastmod=").append(lastmod.getTime());
-        }
-        outbuf.append("&amp;page=").append(i).append("\">");
-        outbuf.append(i + 1).append("</a>");
-      }
-      outbuf.append(')');
-    }
-
-    outbuf.append("</td>");
-
-    outbuf.append("<td align=center>");
-    
-    outbuf.append(topic.getNick());
-    outbuf.append("</td>");
-
-    outbuf.append("<td align=center>");
-    int stat3 = topic.getStat3();
-    int stat4 = topic.getStat4();
-
-    if (stat1 > 0) {
-      outbuf.append("<b>").append(stat1).append("</b>/");
-    } else {
-      outbuf.append("-/");
-    }
-
-    if (stat3 > 0) {
-      outbuf.append("<b>").append(stat3).append("</b>/");
-    } else {
-      outbuf.append("-/");
-    }
-
-    if (stat4 > 0) {
-      outbuf.append("<b>").append(stat4).append("</b>");
-    } else {
-      outbuf.append('-');
-    }
-
-
-    outbuf.append("</td></tr>");
-
-    if (!firstPage && ignoreList != null && !ignoreList.isEmpty() && ignoreList.containsValue(topic.getNick())) {
-      outbuf = new StringBuffer();
-    }
-
-    outputList.add(outbuf.toString());
-  }
-
-  if (!firstPage) {
-    Collections.reverse(outputList);
-  }
-
-  for (Object anOutputList : outputList) {
-    out.print((String) anOutputList);
-  }
-%>
+  <td align=center>
+      <c:if test="${topic.stat1==0}">-</c:if><c:if test="${topic.stat1>0}"><b>${topic.stat1}</b></c:if>/<c:if test="${topic.stat3==0}">-</c:if><c:if test="${topic.stat3>0}"><b>${topic.stat3}</b></c:if>/<c:if test="${topic.stat4==0}">-</c:if><c:if test="${topic.stat4>0}"><b>${topic.stat4}</b></c:if> 
+  </td> </tr>
+</c:forEach>
 </tbody>
 <tfoot>
 <%
