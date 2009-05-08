@@ -1,5 +1,5 @@
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.sql.Timestamp,java.util.*,ru.org.linux.site.*,ru.org.linux.util.BadImageException,ru.org.linux.util.ImageInfo"   buffer="200kb"%>
+<%@ page import="java.sql.Connection,java.sql.Statement,java.sql.Timestamp,java.util.*,ru.org.linux.site.*,ru.org.linux.spring.TopicsListItem,ru.org.linux.util.BadImageException,ru.org.linux.util.ImageInfo"   buffer="200kb"%>
 <%@ page import="ru.org.linux.util.ServletParameterParser"%>
 <%@ page import="ru.org.linux.util.StringUtil"%>
 <%--
@@ -24,22 +24,11 @@
   Connection db = null;
   try {
     boolean showDeleted = (Boolean) request.getAttribute("showDeleted");
+    boolean showIgnored = (Boolean) request.getAttribute("showIgnored");
 
-    boolean showIgnored = false;
-    if (request.getParameter("showignored") != null) {
-      showIgnored = "t".equals(request.getParameter("showignored"));
-    }
-
-    boolean firstPage;
-    int offset;
-
-    if (request.getParameter("offset") != null) {
-      offset = Integer.parseInt(request.getParameter("offset"));
-      firstPage = false;
-    } else {
-      firstPage = true;
-      offset = 0;
-    }
+    boolean firstPage = (Boolean) request.getAttribute("firstPage");
+    int offset = (Integer) request.getAttribute("offset");
+    Map<Integer,String> ignoreList = (Map<Integer,String>) request.getAttribute("ignoreList");
 
     db = LorDataSource.getConnection();
     db.setAutoCommit(false);
@@ -119,16 +108,6 @@
 </form>
 
 <%
-  String ignq = "";
-
-  Map<Integer,String> ignoreList = IgnoreList.getIgnoreListHash(db, (String) session.getValue("nick"));
-
-  if (!showIgnored && Template.isSessionAuthorized(session)) {
-    if (firstPage && ignoreList != null && !ignoreList.isEmpty()) {
-      ignq = " AND topics.userid NOT IN (SELECT ignored FROM ignore_list, users WHERE userid=users.id and nick='" + session.getValue("nick") + "')";
-    }
-  }
-
   out.print("<h1>");
 
   out.print(group.getSectionName() + ": " + group.getTitle() + "</h1>");
@@ -181,32 +160,24 @@
 </thead>
 <tbody>
 <%
-  String delq = showDeleted ? "" : " AND NOT deleted ";
-
-  ResultSet rs;
-
-  if (firstPage) {
-    rs = st.executeQuery("SELECT topics.title as subj, lastmod, nick, topics.id as msgid, deleted, topics.stat1, topics.stat3, topics.stat4, topics.sticky FROM topics,groups,users, sections WHERE sections.id=groups.section AND (topics.moderate OR NOT sections.moderate) AND topics.userid=users.id AND topics.groupid=groups.id AND groups.id=" + groupId + delq + ignq + " AND (postdate>(CURRENT_TIMESTAMP-'3 month'::interval) or sticky) ORDER BY sticky desc,msgid DESC LIMIT " + topics);
-  } else {
-    rs = st.executeQuery("SELECT topics.title as subj, lastmod, nick, topics.id as msgid, deleted, topics.stat1, topics.stat3, topics.stat4, topics.sticky FROM topics,groups,users, sections WHERE sections.id=groups.section AND (topics.moderate OR NOT sections.moderate) AND topics.userid=users.id AND topics.groupid=groups.id AND groups.id=" + groupId + delq + " ORDER BY sticky,msgid ASC LIMIT " + topics + " OFFSET " + offset);
-  }
+  List<TopicsListItem> topicsList = (List<TopicsListItem>) request.getAttribute("topicsList");
 
   List<String> outputList = new ArrayList<String>();
   double messages = tmpl.getProf().getInt("messages");
 
-  while (rs.next()) {
+  for (TopicsListItem topic : topicsList) {
     StringBuffer outbuf = new StringBuffer();
-    int stat1 = rs.getInt("stat1");
+    int stat1 = topic.getStat1();
 
-    Timestamp lastmod = rs.getTimestamp("lastmod");
+    Timestamp lastmod = topic.getLastmod();
     if (lastmod == null) {
       lastmod = new Timestamp(0);
     }
 
     outbuf.append("<tr><td>");
-    if (rs.getBoolean("deleted")) {
-      outbuf.append("[<a href=\"undelete.jsp?msgid=").append(rs.getInt("msgid")).append("\">X</a>] ");
-    } else if (rs.getBoolean("sticky")) {
+    if (topic.isDeleted()) {
+      outbuf.append("[<a href=\"undelete.jsp?msgid=").append(topic.getMsgid()).append("\">X</a>] ");
+    } else if (topic.isSticky()) {
       outbuf.append("<img src=\"img/paper_clip.gif\" width=\"15\" height=\"15\" alt=\"Прикреплено\" title=\"Прикреплено\"> ");
     }
 
@@ -214,19 +185,19 @@
 
     if (firstPage) {
       if (pagesInCurrent <= 1) {
-        outbuf.append("<a href=\"view-message.jsp?msgid=").append(rs.getInt("msgid")).append("&amp;lastmod=").append(lastmod.getTime()).append("\" rev=contents>").append(StringUtil.makeTitle(rs.getString("subj"))).append("</a>");
+        outbuf.append("<a href=\"view-message.jsp?msgid=").append(topic.getMsgid()).append("&amp;lastmod=").append(lastmod.getTime()).append("\" rev=contents>").append(StringUtil.makeTitle(topic.getSubj())).append("</a>");
       } else {
-        outbuf.append("<a href=\"view-message.jsp?msgid=").append(rs.getInt("msgid")).append("\" rev=contents>").append(StringUtil.makeTitle(rs.getString("subj"))).append("</a>");
+        outbuf.append("<a href=\"view-message.jsp?msgid=").append(topic.getMsgid()).append("\" rev=contents>").append(StringUtil.makeTitle(topic.getSubj())).append("</a>");
       }
     } else {
-      outbuf.append("<a href=\"view-message.jsp?msgid=").append(rs.getInt("msgid")).append("\" rev=contents>").append(StringUtil.makeTitle(rs.getString("subj"))).append("</a>");
+      outbuf.append("<a href=\"view-message.jsp?msgid=").append(topic.getMsgid()).append("\" rev=contents>").append(StringUtil.makeTitle(topic.getSubj())).append("</a>");
     }
 
     if (pagesInCurrent > 1) {
       outbuf.append("&nbsp;(стр.");
 
       for (int i = 1; i < pagesInCurrent; i++) {
-        outbuf.append(" <a href=\"view-message.jsp?msgid=").append(rs.getInt("msgid"));
+        outbuf.append(" <a href=\"view-message.jsp?msgid=").append(topic.getMsgid());
         if ((i == pagesInCurrent - 1) && firstPage) {
           outbuf.append("&amp;lastmod=").append(lastmod.getTime());
         }
@@ -240,12 +211,12 @@
 
     outbuf.append("<td align=center>");
     
-    outbuf.append(rs.getString("nick"));
+    outbuf.append(topic.getNick());
     outbuf.append("</td>");
 
     outbuf.append("<td align=center>");
-    int stat3 = rs.getInt("stat3");
-    int stat4 = rs.getInt("stat4");
+    int stat3 = topic.getStat3();
+    int stat4 = topic.getStat4();
 
     if (stat1 > 0) {
       outbuf.append("<b>").append(stat1).append("</b>/");
@@ -268,13 +239,12 @@
 
     outbuf.append("</td></tr>");
 
-    if (!firstPage && ignoreList != null && !ignoreList.isEmpty() && ignoreList.containsValue(rs.getString("nick"))) {
+    if (!firstPage && ignoreList != null && !ignoreList.isEmpty() && ignoreList.containsValue(topic.getNick())) {
       outbuf = new StringBuffer();
     }
 
     outputList.add(outbuf.toString());
   }
-  rs.close();
 
   if (!firstPage) {
     Collections.reverse(outputList);

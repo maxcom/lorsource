@@ -16,7 +16,11 @@
 package ru.org.linux.spring;
 
 import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -47,6 +51,27 @@ public class GroupController {
 
     params.put("showDeleted", showDeleted);
 
+    boolean firstPage;
+    int offset;
+
+    if (request.getParameter("offset") != null) {
+      offset = Integer.parseInt(request.getParameter("offset"));
+      firstPage = false;
+    } else {
+      firstPage = true;
+      offset = 0;
+    }
+
+    params.put("firstPage", firstPage);
+    params.put("offset", offset);
+
+    boolean showIgnored = false;
+    if (request.getParameter("showignored") != null) {
+      showIgnored = "t".equals(request.getParameter("showignored"));
+    }
+
+    params.put("showIgnored", showIgnored);
+
     Connection db = null;
 
     try {
@@ -58,7 +83,38 @@ public class GroupController {
 
       Section section = new Section(db, group.getSectionId());
       params.put("section", section);
-      
+
+      String ignq = "";
+
+      Map<Integer,String> ignoreList = IgnoreList.getIgnoreListHash(db, (String) request.getSession().getValue("nick"));
+
+      if (!showIgnored && Template.isSessionAuthorized(request.getSession())) {
+        if (firstPage && ignoreList != null && !ignoreList.isEmpty()) {
+          ignq = " AND topics.userid NOT IN (SELECT ignored FROM ignore_list, users WHERE userid=users.id and nick='" + request.getSession().getValue("nick") + "')";
+        }
+      }
+
+      params.put("ignoreList", ignoreList);
+
+      Statement st = db.createStatement();
+      ResultSet rs;
+      String delq = showDeleted ? "" : " AND NOT deleted ";
+      int topics = tmpl.getProf().getInt("topics");
+
+      if (firstPage) {
+        rs = st.executeQuery("SELECT topics.title as subj, lastmod, nick, topics.id as msgid, deleted, topics.stat1, topics.stat3, topics.stat4, topics.sticky FROM topics,groups,users, sections WHERE sections.id=groups.section AND (topics.moderate OR NOT sections.moderate) AND topics.userid=users.id AND topics.groupid=groups.id AND groups.id=" + groupId + delq + ignq + " AND (postdate>(CURRENT_TIMESTAMP-'3 month'::interval) or sticky) ORDER BY sticky desc,msgid DESC LIMIT " + topics);
+      } else {
+        rs = st.executeQuery("SELECT topics.title as subj, lastmod, nick, topics.id as msgid, deleted, topics.stat1, topics.stat3, topics.stat4, topics.sticky FROM topics,groups,users, sections WHERE sections.id=groups.section AND (topics.moderate OR NOT sections.moderate) AND topics.userid=users.id AND topics.groupid=groups.id AND groups.id=" + groupId + delq + " ORDER BY sticky,msgid ASC LIMIT " + topics + " OFFSET " + offset);
+      }
+
+      List<TopicsListItem> topicsList = new ArrayList<TopicsListItem>();
+
+      while (rs.next()) {
+        topicsList.add(new TopicsListItem(rs));
+      }
+
+      params.put("topicsList", topicsList);
+
       return new ModelAndView("group", params);
     } finally {
       if (db!=null) {
