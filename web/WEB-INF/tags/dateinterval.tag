@@ -45,9 +45,9 @@
       out.print(min +"&nbsp;минут&nbsp;назад");
     }
   } else if (c.after(today)) {
-    out.print("сегодня, " + c.get(Calendar.HOUR)+":"+c.get(Calendar.MINUTE));
+    out.print("сегодня, " + c.get(Calendar.HOUR_OF_DAY)+":"+c.get(Calendar.MINUTE));
   } else if (c.after(yesterday)) {
-    out.print("вчера, " + c.get(Calendar.HOUR)+":"+c.get(Calendar.MINUTE));
+    out.print("вчера, " + c.get(Calendar.HOUR_OF_DAY)+":"+c.get(Calendar.MINUTE));
   } else {
     out.print(DateFormats.createShort().format(date).replace(" ", "&nbsp;"));
   }
