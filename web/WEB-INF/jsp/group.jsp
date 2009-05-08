@@ -63,9 +63,7 @@
     }
 %>
     <LINK REL="alternate" HREF="section-rss.jsp?section=<%= group.getSectionId() %>&amp;group=<%= group.getId()%>" TYPE="application/rss+xml">
-<%
-    out.print("<link rel=\"parent\" title=\"" + group.getTitle() + "\" href=\"view-section.jsp?section=" + group.getSectionId() + "\">");
-%>
+    <link rel="parent" title="${group.title}" href="/view-section.jsp?section=${group.sectionId}">
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 <form action="group.jsp">
   <table class=nav>
@@ -105,11 +103,8 @@
 
 </form>
 
+<h1>${group.sectionName}: ${group.title}</h1>
 <%
-  out.print("<h1>");
-
-  out.print(group.getSectionName() + ": " + group.getTitle() + "</h1>");
-
   if (group.getImage() != null) {
     out.print("<div align=center>");
     try {
