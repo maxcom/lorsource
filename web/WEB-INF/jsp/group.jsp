@@ -190,7 +190,7 @@
     (${topic.nick})
   </td>
 
-  <td align=center>
+  <td>
     <lor:dateinterval date="${topic.lastmod}"/>
   </td>
 
