@@ -39,7 +39,7 @@
 
     if (min%10<5 && min%10>1) {
       out.print(min +" минуты назад");
-    } else if (min%10==1 ) {
+    } else if (min%10==1 && min>20 ) {
         out.print(min +" минута назад");
     } else {
       out.print(min +" минут назад");
