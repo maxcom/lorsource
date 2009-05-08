@@ -38,11 +38,11 @@
     long min = diff / (1000 * 60)-1;
 
     if (min%10<5 && min%10>1 && (min>20 || min<10)) {
-      out.print(min +" минуты&nbsp;назад");
+      out.print(min +"&nbsp;минуты&nbsp;назад");
     } else if (min%10==1 && min>20 ) {
-        out.print(min +" минута&nbsp;назад");
+        out.print(min +"&nbsp;минута&nbsp;назад");
     } else {
-      out.print(min +" минут&nbsp;назад");
+      out.print(min +"&nbsp;минут&nbsp;назад");
     }
   } else if (c.after(today)) {
     out.print("сегодня, " + c.get(Calendar.HOUR)+":"+c.get(Calendar.MINUTE));
