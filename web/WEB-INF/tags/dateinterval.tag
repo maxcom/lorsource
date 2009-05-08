@@ -33,16 +33,16 @@
   yesterday.roll(Calendar.DAY_OF_MONTH, false);
 
   if (diff<2*1000*60) {
-    out.print("минуту назад");
+    out.print("минуту&nbsp;назад");
   } else if (diff<1000*60*60) {
     long min = diff / (1000 * 60)-1;
 
     if (min%10<5 && min%10>1 && (min>20 || min<10)) {
-      out.print(min +" минуты назад");
+      out.print(min +" минуты&nbsp;назад");
     } else if (min%10==1 && min>20 ) {
-        out.print(min +" минута назад");
+        out.print(min +" минута&nbsp;назад");
     } else {
-      out.print(min +" минут назад");
+      out.print(min +" минут&nbsp;назад");
     }
   } else if (c.after(today)) {
     out.print("сегодня, " + c.get(Calendar.HOUR)+":"+c.get(Calendar.MINUTE));
