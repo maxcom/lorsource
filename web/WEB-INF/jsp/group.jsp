@@ -4,6 +4,8 @@
 <%@ page import="ru.org.linux.util.StringUtil"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
+
 <%--
   ~ Copyright 1998-2009 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -154,7 +156,7 @@
   <c:if test="${not lastmod}">
   <span style="font-weight: normal">[порядок: <b>дата отправки</b> <a href="group-lastmod.jsp?group=${group.id}" style="text-decoration: underline">дата изменения</a>]</span>
   </c:if>
-</th><th>Автор</th><th>Число ответов<br>всего/день/час</th></tr>
+</th><th>Последнее<br>сообщение</th><th>Число ответов<br>всего/день/час</th></tr>
 </thead>
 <tbody>
 
@@ -185,10 +187,11 @@
       (стр.
       <c:forEach var="i" begin="1" end="${topic.pages}"> <c:if test="${i==(topic.pages-1) and firstPage}"><a href="view-message.jsp?msgid=${topic.msgid}&amp;lastmod=${topic.lastmod.time}">${i+1}</a></c:if><c:if test="${i!=(topic.pages-1) or not firstPage}"><a href="view-message.jsp?msgid=${topic.msgid}&amp;page=${i}">${i+1}</a></c:if></c:forEach>)
     </c:if>
+    (${topic.nick})
   </td>
 
   <td align=center>
-    ${topic.nick}
+    <lor:dateinterval date="${topic.lastmod}"/>
   </td>
 
   <td align=center>

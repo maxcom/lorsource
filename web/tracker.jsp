@@ -37,7 +37,7 @@
     // active topics for last xx hours
     db = LorDataSource.getConnection();
 
-    String sSql = "SELECT nick, t.id, lastmod, CURRENT_TIMESTAMP-lastmod AS backtime, t.stat1 AS stat1, t.stat3 AS stat3, t.stat4 AS stat4, g.id AS gid, g.title AS gname, t.title AS title FROM users AS u, topics AS t, groups AS g, (SELECT distinct topic FROM comments WHERE postdate > CURRENT_TIMESTAMP - interval '" + hours + " hours' UNION SELECT id FROM topics WHERE postdate > CURRENT_TIMESTAMP - interval '" + hours + " hours') AS foo WHERE t.userid=u.id AND not deleted AND t.id=foo.topic AND t.groupid=g.id ORDER BY lastmod DESC";
+    String sSql = "SELECT nick, t.id, lastmod, t.stat1 AS stat1, t.stat3 AS stat3, t.stat4 AS stat4, g.id AS gid, g.title AS gname, t.title AS title FROM users AS u, topics AS t, groups AS g, (SELECT distinct topic FROM comments WHERE postdate > CURRENT_TIMESTAMP - interval '" + hours + " hours' UNION SELECT id FROM topics WHERE postdate > CURRENT_TIMESTAMP - interval '" + hours + " hours') AS foo WHERE t.userid=u.id AND not deleted AND t.id=foo.topic AND t.groupid=g.id ORDER BY lastmod DESC";
 
     Statement st = db.createStatement();
     ResultSet rs = st.executeQuery(sSql);
@@ -96,7 +96,7 @@
 <tr>
   <th>Форум</th>
   <th>Заголовок</th>
-  <th>Последнее сообщение</th>
+  <th>Последнее<br>сообщение</th>
   <th>Число ответов<br>всего/день/час</th>
 </tr>
 </thead>
@@ -137,7 +137,7 @@
     </a> (<%= rs.getString("nick") %>)
   </td>
   <td align="center">
-    <lor:dateinterval date="<%= rs.getTimestamp("backtime") %>"/>
+    <lor:dateinterval date="<%= rs.getTimestamp("lastmod") %>"/>
   </td>
   <td align='center'><%=
         rs.getString("stat1") + '/' +

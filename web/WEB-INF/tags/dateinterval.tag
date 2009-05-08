@@ -1,5 +1,8 @@
 <%@ tag import="java.text.SimpleDateFormat" %>
 <%@ tag import="java.text.DateFormat" %>
+<%@ tag import="java.util.Calendar" %>
+<%@ tag import="ru.org.linux.site.Template" %>
+<%@ tag import="ru.org.linux.site.DateFormats" %>
 <%@ tag pageEncoding="utf-8" %> 
 <%--
 ~ Copyright 1998-2009 Linux.org.ru
@@ -16,7 +19,28 @@
 ~    limitations under the License.
 --%>
 <%@ attribute name="date" required="true" type="java.util.Date" %><%
-  DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss 'назад'");
+  long diff = System.currentTimeMillis() - date.getTime();
+  Calendar c = Calendar.getInstance();
+  c.setTime(date);
 
-  out.print(dateFormat.format(date));
+  Calendar today = Calendar.getInstance();
+  today.set(Calendar.HOUR_OF_DAY, 0);
+  today.set(Calendar.MINUTE, 0);
+  today.set(Calendar.SECOND, 0);
+  today.set(Calendar.MILLISECOND, 0);
+
+  Calendar yesterday = (Calendar) today.clone();
+  yesterday.roll(Calendar.DAY_OF_MONTH, false);
+
+  if (diff<1000*60) {
+    out.print("минуту назад");
+  } else if (diff<1000*60*60) {
+    out.print(diff/(1000*60)+" минут назад");
+  } else if (c.after(today)) {
+    out.print("сегодня, " + c.get(Calendar.HOUR)+":"+c.get(Calendar.MINUTE));
+  } else if (c.after(yesterday)) {
+    out.print("вчера, " + c.get(Calendar.HOUR)+":"+c.get(Calendar.MINUTE));
+  } else {
+    out.print(DateFormats.createShort().format(date).replace(" ", "&nbsp;"));
+  }
 %>
