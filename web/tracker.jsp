@@ -137,7 +137,7 @@
     </a> (<%= rs.getString("nick") %>)
   </td>
   <td align="center">
-    <lor:dateinterval date="<%= rs.getTimestamp("lastmod") %>"/>
+    <lor:dateinterval date="<%= lastmod %>"/>
   </td>
   <td align='center'><%=
         rs.getString("stat1") + '/' +
