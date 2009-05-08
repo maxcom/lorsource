@@ -1,7 +1,6 @@
 <%@ page info="last active topics" %>
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.sql.Timestamp,java.text.DateFormat,java.text.SimpleDateFormat,java.util.Date,ru.org.linux.site.*"   buffer="200kb"%>
-<%@ page import="ru.org.linux.util.ServletParameterParser" %>
+<%@ page import="java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.sql.Timestamp,ru.org.linux.site.BadInputException,ru.org.linux.site.LorDataSource,ru.org.linux.site.Template,ru.org.linux.util.ServletParameterParser"   buffer="200kb"%>
 <%--
   ~ Copyright 1998-2009 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,6 +18,7 @@
 
 <% Template tmpl = Template.getTemplate(request); %>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
+<%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 
 <%
   Connection db = null;
@@ -61,9 +61,9 @@
 		    sSuf = "";
 	    } else {
 		     sSuf="а";
-	    };
-    };
-    
+	    }
+    }
+
     String title = "Последние сообщения за "+hours+" час"+sSuf;
 %>
 
@@ -79,7 +79,7 @@
 
     <td align=right valign=middle>
       за последние
-        <input name="h" onChange="submit()" value="<%= hours %>">
+        <input name="h" onChange="submit();" value="<%= hours %>">
       часа
 
       <input type="submit" value="показать">
@@ -102,8 +102,6 @@
 </thead>
 <tbody>
 <%
-  DateFormat rfc822 = new SimpleDateFormat("HH:mm:ss 'назад'");
-
   int cnt = 0;
 
   while (rs.next()) {
@@ -114,13 +112,14 @@
     }
 
     int itotal = Integer.parseInt(rs.getString("stat1"));
-
-    out.print("<tr><td>" +
-        "<a href='group.jsp?group=" + rs.getString("gid") + "'>" +
-        rs.getString("gname") + "</a>" +
-        "</td><td>" +
-        "<a href='view-message.jsp?msgid=" + rs.getString("id"));
-
+%>
+<tr>
+  <td>
+    <a href="group.jsp?group=<%= rs.getString("gid") %> + ">
+        <%= rs.getString("gname") %></a>
+  </td>
+  <td>
+<%
     String sTemp = "";
 
     int messages = tmpl.getProf().getInt("messages");
@@ -132,17 +131,21 @@
         sTemp = "&page=" + itotal;
       }
     }
-
-    out.println("&lastmod=" + lastmod.getTime() + sTemp +
-        "'>" + rs.getString("title") +
-        "</a> (" + rs.getString("nick") + ')' +
-        "</td><td align='center'>" +
-        rfc822.format(rs.getTimestamp("backtime")) +
-        "</td><td align='center'>" +
+%>
+    <a href="view-message.jsp?msgid=<%= rs.getString("id") %>&amp;lastmod=<%= lastmod.getTime() + sTemp %>">
+      <%= rs.getString("title")%>
+    </a> (<%= rs.getString("nick") %>)
+  </td>
+  <td align="center">
+    <lor:dateinterval date="<%= rs.getTimestamp("backtime") %>"/>
+  </td>
+  <td align='center'><%=
         rs.getString("stat1") + '/' +
         rs.getString("stat3") + '/' +
-        rs.getString("stat4") +
-        "</td></tr>");
+        rs.getString("stat4") %>
+  </td>
+</tr>
+<%
     cnt++;
   }
 %>
