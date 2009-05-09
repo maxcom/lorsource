@@ -185,3 +185,7 @@ pre {
 .message-table td {
     padding: 5px;
 }
+
+.message-table td.dateinterval {
+    text-align: right;
+}
