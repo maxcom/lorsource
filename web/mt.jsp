@@ -27,9 +27,8 @@
   if (!tmpl.isModeratorSession()) {
     throw new AccessViolationException("Not moderator");
   }
-
-  out.println("<title>Перенос темы...</title>");
   %>
+<title>Перенос темы</title>
 <jsp:include page="WEB-INF/jsp/header.jsp"/>
 <%
   Connection db = null;
