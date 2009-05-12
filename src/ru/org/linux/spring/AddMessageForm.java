@@ -33,9 +33,7 @@ import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.lang.StringUtils;
 
 import ru.org.linux.site.*;
-import ru.org.linux.util.BadImageException;
-import ru.org.linux.util.HTMLFormatter;
-import ru.org.linux.util.UtilException;
+import ru.org.linux.util.*;
 
 public class AddMessageForm {
   private static final Logger logger = Logger.getLogger("ru.org.linux");
@@ -137,7 +135,7 @@ public class AddMessageForm {
     return linktext == null ? "" : HTMLFormatter.htmlSpecialChars(linktext);
   }
 
-  public AddMessageForm(HttpServletRequest request, Template tmpl) throws FileUploadException, IOException, ScriptErrorException {
+  public AddMessageForm(HttpServletRequest request, Template tmpl) throws FileUploadException, IOException, ScriptErrorException, ServletParameterException {
     userAgent = request.getHeader("user-agent");
     postIP = request.getRemoteAddr();
 
@@ -160,11 +158,7 @@ public class AddMessageForm {
         throw new ScriptErrorException("missing group parameter");
       }
 
-      try {
-        guid = Integer.parseInt(request.getParameter("group"));
-      } catch (NumberFormatException e) {
-        throw new ScriptErrorException("invalid group parameter", e);
-      }
+      guid = new ServletParameterParser(request).getInt("group");
       
       linktext = request.getParameter("linktext");
       url = request.getParameter("url");
