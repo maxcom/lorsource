@@ -28,6 +28,7 @@ import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
+import javax.mail.internet.AddressException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import org.springframework.context.support.ApplicationObjectSupport;
@@ -257,6 +258,8 @@ public class RegisterController extends ApplicationObjectSupport {
       return new ModelAndView("register", Collections.singletonMap("error", e.getMessage()));
     } catch (BadURLException e) {
       return new ModelAndView("register", Collections.singletonMap("error", e.getMessage()));
+    } catch (AddressException e) {
+      return new ModelAndView("register", Collections.singletonMap("error", "Некорректный e-mail: "+e.getMessage()));
     } finally {
       if (db != null) {
         db.close();
