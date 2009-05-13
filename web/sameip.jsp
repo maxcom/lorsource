@@ -19,18 +19,18 @@
   ~    limitations under the License.
   --%>
 
-<jsp:include page="WEB-INF/jsp/head.jsp"/>
+<jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
 <%
-  if (!Template.isSessionAuthorized(session) || !((Boolean) session.getValue("moderator"))) {
-    throw new IllegalAccessException("Not authorized");
-  }
-
   Template tmpl = Template.getTemplate(request);
+  
+  if (!tmpl.isModeratorSession()) {
+    throw new AccessViolationException("Not moderator");
+  }
 
 %>
 <title>Поиск писем с IP-адреса</title>
-<jsp:include page="WEB-INF/jsp/header.jsp"/>
+<jsp:include page="/WEB-INF/jsp/header.jsp"/>
 <% Connection db = null;
   try {
 %>
@@ -225,4 +225,4 @@ function checkCustomBan(idx) {
     }
   }
 %>
-<jsp:include page="WEB-INF/jsp/footer.jsp"/>
+<jsp:include page="/WEB-INF/jsp/footer.jsp"/>
