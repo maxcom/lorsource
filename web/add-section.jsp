@@ -1,4 +1,4 @@
-<%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
+<%@ page contentType="text/html; charset=utf-8"%>
 <%@ page import="java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.util.Date"  %>
 <%@ page import="java.util.List" %>
 <%@ page import="ru.org.linux.boxlet.BoxletVectorRunner" %>
@@ -36,7 +36,7 @@
 %>
 <c:set var="section" value="<%= section %>"/>
 
-<title>${section.title}: добавление</title>
+<title>${section.title}: п╢п╬п╠п╟п╡п╩п╣п╫п╦п╣</title>
 <jsp:include page="WEB-INF/jsp/header.jsp"/>
 
 
@@ -44,19 +44,19 @@
 
 <c:if test="${info!=null}">
   ${info}
-  <h2>Выберите группу</h2>
+  <h2>п▓я▀п╠п╣я─п╦я┌п╣ пЁя─я┐п©п©я┐</h2>
 </c:if>
 
 <c:if test="${info==null}">
-  <h1>${section.title}: добавление</h1>
+  <h1>${section.title}: п╢п╬п╠п╟п╡п╩п╣п╫п╦п╣</h1>
 </c:if>
 
-Доступные группы:
+п■п╬я│я┌я┐п©п╫я▀п╣ пЁя─я┐п©п©я▀:
 <ul>
 <c:forEach var="group"
            items="<%= Group.getGroups(db, section) %>">
   <li>
-    <a href="add.jsp?group=${group.id}&amp;noinfo=1">${group.title}</a> (<a href="group.jsp?group=${group.id}">просмотр...</a>)
+    <a href="add.jsp?group=${group.id}&amp;noinfo=1">${group.title}</a> (<a href="group.jsp?group=${group.id}">п©я─п╬я│п╪п╬я┌я─...</a>)
 
     <c:if test="${group.info != null}">
       - <em><c:out value="${group.info}" escapeXml="false"/></em>
