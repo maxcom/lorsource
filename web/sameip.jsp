@@ -124,7 +124,7 @@
 <input type="hidden" name="ip" value="<%= ip %>">
 забанить/разбанить IP по причине: <br>
 <input type="text" name="reason" maxlength="254" size="40" value=""><br>
-<select name="time" onchange="checkCustomBan(this.selectedIndex)">
+<select name="time" onchange="checkCustomBan(this.selectedIndex);">
 <option value="hour">1 час</option>
 <option value="day">1 день</option>
 <option value="month">1 месяц</option>
@@ -160,7 +160,7 @@ function checkCustomBan(idx) {
 <input type="hidden" name="ip" value="<%= ip %>">
 Удалить темы и сообщения с IP по причине: <br>
 <input type="text" name="reason" maxlength="254" size="40" value=""><br>
-за последний(ие) <select name="time" onchange="checkCustomDel(this.selectedIndex)">
+за последний(ие) <select name="time" onchange="checkCustomDel(this.selectedIndex);">
 <option value="hour">1 час</option>
 <option value="day">1 день</option>
 <option value="3day">3 дня</option>
