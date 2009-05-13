@@ -28,6 +28,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
 import ru.org.linux.site.*;
@@ -35,8 +36,8 @@ import ru.org.linux.util.ServletParameterParser;
 
 @Controller
 public class DelIPController {
-  @RequestMapping("/delip.jsp")
-  protected ModelAndView handleRequestInternal(HttpServletRequest request) throws Exception {
+  @RequestMapping(value="/delip.jsp", method= RequestMethod.POST)
+  public ModelAndView delIp(HttpServletRequest request) throws Exception {
     Map<String, Object> params = new HashMap<String, Object>();
     Map<Integer, String> deleted = new HashMap<Integer, String>();
     
@@ -44,13 +45,9 @@ public class DelIPController {
     HttpSession session = request.getSession();
     
     if (!tmpl.isModeratorSession()) {
-      throw new IllegalAccessException("Not authorized");
+      throw new AccessViolationException("Not moderator");
     }
 
-    if (!"POST".equals(request.getMethod())) {
-      throw new IllegalAccessException("Invalid method");
-    }
-    
     Connection db = null;
     try {
       db = LorDataSource.getConnection();

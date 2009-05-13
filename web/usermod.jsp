@@ -32,7 +32,7 @@
 
 <%
   if (!tmpl.isModeratorSession()) {
-    throw new IllegalAccessException("Not authorized");
+    throw new AccessViolationException("Not moderator");
   }
 
   String action = new ServletParameterParser(request).getString("action");

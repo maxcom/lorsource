@@ -1,8 +1,7 @@
 <%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
-<%@ page import="java.sql.Connection,java.sql.PreparedStatement,java.util.logging.Logger,ru.org.linux.site.LorDataSource,ru.org.linux.site.Message"  %>
-<%@ page import="ru.org.linux.site.Template" %>
-<%@ page import="ru.org.linux.site.User" %>
+<%@ page import="java.sql.Connection,java.sql.PreparedStatement,java.util.logging.Logger"  %>
 <%@ page import="ru.org.linux.util.ServletParameterParser" %>
+<%@ page import="ru.org.linux.site.*" %>
 <%--
   ~ Copyright 1998-2009 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,9 +25,9 @@
         <title>Смена параметров сообщения</title>
 <jsp:include page="WEB-INF/jsp/header.jsp"/>
 <%
-if (!tmpl.isModeratorSession()) {
-  throw new IllegalAccessException("Not authorized");
-}
+  if (!tmpl.isModeratorSession()) {
+    throw new AccessViolationException("Not moderator");
+  }
 %>
 
 <%
