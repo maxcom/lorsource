@@ -1,4 +1,4 @@
-<%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
+<%@ page contentType="text/html; charset=utf-8"%>
 <%@ page import="java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.sql.Timestamp"   buffer="60kb" %>
 <%@ page import="ru.org.linux.site.*"%>
 <%@ page import="ru.org.linux.util.HTMLFormatter"%>
@@ -29,7 +29,7 @@
   }
 
 %>
-<title>Поиск писем с IP-адреса</title>
+<title>п÷п╬п╦я│п╨ п©п╦я│п╣п╪ я│ IP-п╟п╢я─п╣я│п╟</title>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 <% Connection db = null;
   try {
@@ -68,7 +68,7 @@
 %>
 <table class=nav><tr>
 			<td align=left valign=middle>
-			<strong>Интерфейс модератора - Сообщения с <%= ip %></strong>
+			<strong>п≤п╫я┌п╣я─я└п╣п╧я│ п╪п╬п╢п╣я─п╟я┌п╬я─п╟ - п║п╬п╬п╠я┴п╣п╫п╦я▐ я│ <%= ip %></strong>
 			</td>
 
 			<td align=right valign=middle>
@@ -86,35 +86,35 @@
 
 			</table>
 
-<h1 align="center">Сообщения с <%= ip %> (за 3 дня)</h1>
+<h1 align="center">п║п╬п╬п╠я┴п╣п╫п╦я▐ я│ <%= ip %> (п╥п╟ 3 п╢п╫я▐)</h1>
 
-<strong>Текущий статус: </strong>
+<strong>п╒п╣п╨я┐я┴п╦п╧ я│я┌п╟я┌я┐я│: </strong>
 
 <%
   if (IPBlockInfo.getTor(ip)) {
-    out.print("адрес заблокирован: tor.ahbl.org; база: ");
+    out.print("п╟п╢я─п╣я│ п╥п╟п╠п╩п╬п╨п╦я─п╬п╡п╟п╫: tor.ahbl.org; п╠п╟п╥п╟: ");
   }
 
   IPBlockInfo blockInfo = IPBlockInfo.getBlockInfo(db, ip);
 
   if (blockInfo == null) {
-    out.print("адрес не заблокирован");
+    out.print("п╟п╢я─п╣я│ п╫п╣ п╥п╟п╠п╩п╬п╨п╦я─п╬п╡п╟п╫");
   } else {
     Timestamp banDate = blockInfo.getBanDate();
     User moderator = User.getUser(db, blockInfo.getModeratorId());
 
     if (banDate == null) {
-      out.print("адрес заблокирован постоянно");
+      out.print("п╟п╢я─п╣я│ п╥п╟п╠п╩п╬п╨п╦я─п╬п╡п╟п╫ п©п╬я│я┌п╬я▐п╫п╫п╬");
     } else {
-      out.print("адрес заблокирован до " + tmpl.dateFormat.format(banDate));
+      out.print("п╟п╢я─п╣я│ п╥п╟п╠п╩п╬п╨п╦я─п╬п╡п╟п╫ п╢п╬ " + tmpl.dateFormat.format(banDate));
       if (!blockInfo.isBlocked()) {
-        out.print(" (блокировка истекла)");
+        out.print(" (п╠п╩п╬п╨п╦я─п╬п╡п╨п╟ п╦я│я┌п╣п╨п╩п╟)");
       }
     }
 
-    out.print("<br><strong>Причина блокировки: </strong>" + HTMLFormatter.htmlSpecialChars(blockInfo.getReason()));
-    out.print("<br><strong>Дата блокировки: </strong>" + tmpl.dateFormat.format(blockInfo.getOriginalDate()));
-    out.print("<br><strong>Адрес блокирован: </strong>" + HTMLFormatter.htmlSpecialChars(moderator.getNick()));
+    out.print("<br><strong>п÷я─п╦я┤п╦п╫п╟ п╠п╩п╬п╨п╦я─п╬п╡п╨п╦: </strong>" + HTMLFormatter.htmlSpecialChars(blockInfo.getReason()));
+    out.print("<br><strong>п■п╟я┌п╟ п╠п╩п╬п╨п╦я─п╬п╡п╨п╦: </strong>" + tmpl.dateFormat.format(blockInfo.getOriginalDate()));
+    out.print("<br><strong>п░п╢я─п╣я│ п╠п╩п╬п╨п╦я─п╬п╡п╟п╫: </strong>" + HTMLFormatter.htmlSpecialChars(moderator.getNick()));
   }
 %>
 
@@ -122,17 +122,17 @@
 
 <form method="post" action="banip.jsp">
 <input type="hidden" name="ip" value="<%= ip %>">
-забанить/разбанить IP по причине: <br>
+п╥п╟п╠п╟п╫п╦я┌я▄/я─п╟п╥п╠п╟п╫п╦я┌я▄ IP п©п╬ п©я─п╦я┤п╦п╫п╣: <br>
 <input type="text" name="reason" maxlength="254" size="40" value=""><br>
 <select name="time" onchange="checkCustomBan(this.selectedIndex);">
-<option value="hour">1 час</option>
-<option value="day">1 день</option>
-<option value="month">1 месяц</option>
-<option value="3month">3 месяца</option>
-<option value="6month">6 месяцев</option>
-<option value="unlim">постоянно</option>
-<option value="remove">не блокировать</option>
-<option value="custom">указать (дней)</option>
+<option value="hour">1 я┤п╟я│</option>
+<option value="day">1 п╢п╣п╫я▄</option>
+<option value="month">1 п╪п╣я│я▐я├</option>
+<option value="3month">3 п╪п╣я│я▐я├п╟</option>
+<option value="6month">6 п╪п╣я│я▐я├п╣п╡</option>
+<option value="unlim">п©п╬я│я┌п╬я▐п╫п╫п╬</option>
+<option value="remove">п╫п╣ п╠п╩п╬п╨п╦я─п╬п╡п╟я┌я▄</option>
+<option value="custom">я┐п╨п╟п╥п╟я┌я▄ (п╢п╫п╣п╧)</option>
 </select>
 <div id="custom_ban" style="display:none;">
 <br><input type="text" name="ban_days" value="">
@@ -158,25 +158,25 @@ function checkCustomBan(idx) {
 
 <form method="post" action="delip.jsp">
 <input type="hidden" name="ip" value="<%= ip %>">
-Удалить темы и сообщения с IP по причине: <br>
+пёп╢п╟п╩п╦я┌я▄ я┌п╣п╪я▀ п╦ я│п╬п╬п╠я┴п╣п╫п╦я▐ я│ IP п©п╬ п©я─п╦я┤п╦п╫п╣: <br>
 <input type="text" name="reason" maxlength="254" size="40" value=""><br>
-за последний(ие) <select name="time" onchange="checkCustomDel(this.selectedIndex);">
-<option value="hour">1 час</option>
-<option value="day">1 день</option>
-<option value="3day">3 дня</option>
+п╥п╟ п©п╬я│п╩п╣п╢п╫п╦п╧(п╦п╣) <select name="time" onchange="checkCustomDel(this.selectedIndex);">
+<option value="hour">1 я┤п╟я│</option>
+<option value="day">1 п╢п╣п╫я▄</option>
+<option value="3day">3 п╢п╫я▐</option>
 </select>
 <p>
 <input type="submit" name="del" value="del from ip">
 </form>
 
-<h2>Темы</h2>
+<h2>п╒п╣п╪я▀</h2>
 
 <div class=forum width="100%">
 <table>
 <tr class=color1><td>
 <table width="100%" cellspacing=1 cellpadding=0 border=0>
 <thead>
-<tr class=color1><th>Раздел</th><th>Группа</th><th>Заглавие</th><th>Дата</th></tr>
+<tr class=color1><th>п═п╟п╥п╢п╣п╩</th><th>п⌠я─я┐п©п©п╟</th><th>п≈п╟пЁп╩п╟п╡п╦п╣</th><th>п■п╟я┌п╟</th></tr>
 <tbody>
 <%
 
@@ -193,14 +193,14 @@ function checkCustomBan(idx) {
 </table>
 </td></tr></table>
 </div>
-<h2>Комментарии</h2>
+<h2>п п╬п╪п╪п╣п╫я┌п╟я─п╦п╦</h2>
 
 <div class=forum width="100%">
 <table>
 <tr class=color1><td>
 <table width="100%" cellspacing=1 cellpadding=0 border=0>
 <thead>
-<tr class=color1><th>Раздел</th><th>Группа</th><th>Заглавие темы</th><th>Дата</th></tr>
+<tr class=color1><th>п═п╟п╥п╢п╣п╩</th><th>п⌠я─я┐п©п©п╟</th><th>п≈п╟пЁп╩п╟п╡п╦п╣ я┌п╣п╪я▀</th><th>п■п╟я┌п╟</th></tr>
 <tbody>
 <%
 
