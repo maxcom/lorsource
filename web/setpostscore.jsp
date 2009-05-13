@@ -1,7 +1,7 @@
 <%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
 <%@ page import="java.sql.Connection,java.sql.PreparedStatement,java.util.logging.Logger"  %>
-<%@ page import="ru.org.linux.util.ServletParameterParser" %>
 <%@ page import="ru.org.linux.site.*" %>
+<%@ page import="ru.org.linux.util.ServletParameterParser" %>
 <%--
   ~ Copyright 1998-2009 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -31,7 +31,7 @@
 %>
 
 <%
-  if (request.getMethod().equals("GET")) {
+  if ("GET".equals(request.getMethod())) {
     Connection db = null;
 
     try {

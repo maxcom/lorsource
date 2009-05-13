@@ -38,7 +38,7 @@
   String action = new ServletParameterParser(request).getString("action");
   int id = new ServletParameterParser(request).getInt("id");
 
-  if (!request.getMethod().equals("POST")) {
+  if (!"POST".equals(request.getMethod())) {
     throw new IllegalAccessException("Invalid method");
   }
 
@@ -56,7 +56,7 @@
 
     boolean redirect = true;
 
-    if (action.equals("block") || action.equals("block-n-delete-comments")) {
+    if ("block".equals(action) || "block-n-delete-comments".equals(action)) {
       if (!user.isBlockable()) {
         throw new AccessViolationException("Пользователя " + user.getNick() + " нельзя заблокировать");
       }
@@ -64,11 +64,11 @@
       user.block(db);
       logger.info("User " + user.getNick() + " blocked by " + session.getValue("nick"));
 
-      if (action.equals("block-n-delete-comments")) {
+      if ("block-n-delete-comments".equals(action)) {
         out.print(user.deleteAllComments(db, moderator));
         redirect = false;
       }
-    } else if (action.equals("toggle_corrector")) {
+    } else if ("toggle_corrector".equals(action)) {
       if (user.getScore()<User.CORRECTOR_SCORE) {
         throw new AccessViolationException("Пользователя " + user.getNick() + " нельзя сделать корректором");
       }
@@ -78,14 +78,14 @@
       } else {
         st.executeUpdate("UPDATE users SET corrector='t' WHERE id=" + id);
       }
-    } else if (action.equals("unblock")) {
+    } else if ("unblock".equals(action)) {
       if (!user.isBlockable()) {
         throw new AccessViolationException("Пользователя " + user.getNick() + " нельзя разблокировать");
       }
 
       st.executeUpdate("UPDATE users SET blocked='f' WHERE id=" + id);
       logger.info("User " + user.getNick() + " unblocked by " + session.getValue("nick"));
-    } else if (action.equals("remove_userpic")) {
+    } else if ("remove_userpic".equals(action)) {
       if (user.canModerate()) {
         throw new AccessViolationException("Пользователю " + user.getNick() + " нельзя удалить картинку");
       }
@@ -97,7 +97,7 @@
       st.executeUpdate("UPDATE users SET photo=null WHERE id=" + id);
       user.changeScore(db, -10);
       logger.info("Clearing " + user.getNick() + " userpic by " + session.getValue("nick"));
-    } else if (action.equals("remove_userinfo")) {
+    } else if ("remove_userinfo".equals(action)) {
       if (user.canModerate()) {
         throw new AccessViolationException("Пользователю " + user.getNick() + " нельзя удалить сведения");
       }
