@@ -2,3 +2,4 @@ build
 test-reports
 dist
 ivy-lib
+build-test
