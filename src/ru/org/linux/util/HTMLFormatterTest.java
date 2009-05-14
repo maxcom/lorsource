@@ -74,6 +74,7 @@ public class HTMLFormatterTest {
   private static final String URL_WITH_AT = "http://www.mail-archive.com/samba@lists.samba.org/msg58308.html";
   private static final String Latin1Supplement = "http://de.wikipedia.org/wiki/Großes_ß#Unicode";
   private static final String greek = "http://el.wikipedia.org/wiki/άλλες";
+  private static final String QP = "http://www.ozon.ru/?context=search&text=%D8%E8%EB%E4%F2";
 
   @Test
   public void testURLHighlight() throws UtilException {
@@ -310,6 +311,14 @@ public class HTMLFormatterTest {
   @Test
   public void testGreek() {
     HTMLFormatter formatter = new HTMLFormatter(greek);
+    formatter.enableUrlHighLightMode();
+    String s2 = formatter.process();
+    assertTrue("All text should be inside link", s2.endsWith("</a>"));
+  }
+
+  @Test
+  public void testQP(){
+    HTMLFormatter formatter = new HTMLFormatter(QP);
     formatter.enableUrlHighLightMode();
     String s2 = formatter.process();
     assertTrue("All text should be inside link", s2.endsWith("</a>"));
