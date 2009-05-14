@@ -430,6 +430,10 @@ public class Message {
     return (int) Math.ceil(commentCount/((double) messages));
   }
 
+  public static int getPageCount(int commentCount, int messages) {
+    return (int) Math.ceil(commentCount/((double) messages));
+  }
+
   public boolean isVotePoll() {
     return votepoll;
   }

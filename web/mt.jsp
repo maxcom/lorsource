@@ -1,10 +1,7 @@
 <%@ page contentType="text/html; charset=utf-8"%>
 <%@ page import="java.sql.Connection,java.sql.PreparedStatement,java.sql.ResultSet,java.sql.Statement,java.util.logging.Logger"   buffer="60kb" %>
-<%@ page import="ru.org.linux.site.Group" %>
-<%@ page import="ru.org.linux.site.LorDataSource" %>
-<%@ page import="ru.org.linux.site.Message" %>
-<%@ page import="ru.org.linux.site.Template" %>
 <%@ page import="ru.org.linux.util.ServletParameterParser" %>
+<%@ page import="ru.org.linux.site.*" %>
 <%--
   ~ Copyright 1998-2009 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,11 +25,10 @@
 <jsp:include page="WEB-INF/jsp/head.jsp"/>
 <%
   if (!tmpl.isModeratorSession()) {
-    throw new IllegalAccessException("Not authorized");
+    throw new AccessViolationException("Not moderator");
   }
-
-  out.println("<title>Перенос темы...</title>");
   %>
+<title>Перенос темы</title>
 <jsp:include page="WEB-INF/jsp/header.jsp"/>
 <%
   Connection db = null;

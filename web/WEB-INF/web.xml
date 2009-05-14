@@ -157,6 +157,21 @@ version="2.4">
       <servlet-name>springapp</servlet-name>
       <url-pattern>/remove-box.jsp</url-pattern>
     </servlet-mapping>
+    <servlet-mapping>
+      <servlet-name>springapp</servlet-name>
+      <url-pattern>/remove-box.jsp</url-pattern>
+      <url-pattern>/group.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+      <servlet-name>springapp</servlet-name>
+      <url-pattern>/group-lastmod.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+      <servlet-name>springapp</servlet-name>
+      <url-pattern>/show-replies.jsp</url-pattern>
+    </servlet-mapping>
 <listener>
   <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
 </listener>

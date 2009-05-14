@@ -529,4 +529,14 @@ public class User implements Serializable {
   public boolean isCorrector() {
     return corrector;
   }
+
+  public static void checkNick(String nick) throws BadInputException {
+    if (nick==null || !StringUtil.checkLoginName(nick)) {
+      throw new BadInputException("некорректное имя пользователя");
+    }
+
+    if (nick.length() > MAX_NICK_LENGTH) {
+      throw new BadInputException("слишком длинное имя пользователя");
+    }
+  }
 }

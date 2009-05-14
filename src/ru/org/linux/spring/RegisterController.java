@@ -26,6 +26,7 @@ import java.util.Properties;
 import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.Transport;
+import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import javax.servlet.http.HttpServletRequest;
@@ -67,14 +68,7 @@ public class RegisterController extends ApplicationObjectSupport {
         nick = tmpl.getNick();
       } else {
         nick = request.getParameter("nick");
-
-        if (nick==null || !StringUtil.checkLoginName(nick)) {
-          throw new BadInputException("некорректное имя пользователя");
-        }
-
-        if (nick.length() > User.MAX_NICK_LENGTH) {
-          throw new BadInputException("слишком длинное имя пользователя");
-        }
+        User.checkNick(nick);
       }
 
       String town = request.getParameter("town");
@@ -257,6 +251,8 @@ public class RegisterController extends ApplicationObjectSupport {
       return new ModelAndView("register", Collections.singletonMap("error", e.getMessage()));
     } catch (BadURLException e) {
       return new ModelAndView("register", Collections.singletonMap("error", e.getMessage()));
+    } catch (AddressException e) {
+      return new ModelAndView("register", Collections.singletonMap("error", "Некорректный e-mail: "+e.getMessage()));
     } finally {
       if (db != null) {
         db.close();

@@ -27,6 +27,14 @@ public class DateFormats {
     return DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM, RUSSIAN_LOCALE);
   }
 
+  public static DateFormat createShort() {
+    return new SimpleDateFormat("dd.MM.yyyy HH:mm");
+  }
+
+  public static DateFormat createTime() {
+    return new SimpleDateFormat("HH:mm");
+  }
+
   public static DateFormat createRFC822() {
     return new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss Z", Locale.US);
   }

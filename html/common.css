@@ -181,3 +181,11 @@ pre {
     margin: 1em;
     padding: 1em;
 }
+
+.message-table td {
+    padding: 3px;
+}
+
+.message-table td.dateinterval {
+    text-align: right;
+}

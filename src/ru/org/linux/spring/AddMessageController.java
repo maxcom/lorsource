@@ -15,9 +15,7 @@
 
 package ru.org.linux.spring;
 
-import java.io.IOException;
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,7 +24,6 @@ import java.util.Random;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import org.apache.commons.fileupload.FileUploadException;
 import org.springframework.context.support.ApplicationObjectSupport;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,22 +31,19 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
 import ru.org.linux.site.*;
-import ru.org.linux.storage.StorageException;
 import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.BadURLException;
-import ru.org.linux.util.UtilException;
 
 @Controller
 public class AddMessageController extends ApplicationObjectSupport {
   @RequestMapping(value = "/add.jsp", method = RequestMethod.GET)
-  public ModelAndView add(HttpServletRequest request) throws IOException, FileUploadException, ScriptErrorException, UserErrorException, StorageException, SQLException {
+  public ModelAndView add(HttpServletRequest request) throws Exception {
     Map<String, Object> params = new HashMap<String, Object>();
 
     Template tmpl = Template.getTemplate(request);
     HttpSession session = request.getSession();
 
     AddMessageForm form = new AddMessageForm(request, tmpl);
-
     params.put("form", form);
 
     Connection db = null;
@@ -80,21 +74,19 @@ public class AddMessageController extends ApplicationObjectSupport {
   }
 
   @RequestMapping(value="/add.jsp", method=RequestMethod.POST)
-  public ModelAndView doAdd(HttpServletRequest request, HttpServletResponse response) throws UtilException, IOException, FileUploadException, ScriptErrorException, BadImageException, InterruptedException, StorageException, SQLException {
+  public ModelAndView doAdd(HttpServletRequest request, HttpServletResponse response) throws Exception {
     Map<String, Object> params = new HashMap<String, Object>();
 
     Template tmpl = Template.getTemplate(request);
     HttpSession session = request.getSession();
 
-    Message previewMsg = null;
-    Exception error = null;
+    AddMessageForm form = new AddMessageForm(request, tmpl);
+    params.put("form", form);
 
     Connection db = null;
-    AddMessageForm form = null;
-
+    Exception error = null;
+    Message previewMsg = null;
     try {
-      form = new AddMessageForm(request, tmpl);
-
       db = LorDataSource.getConnection();
       db.setAutoCommit(false);
 
@@ -179,18 +171,11 @@ public class AddMessageController extends ApplicationObjectSupport {
       if (db != null) {
         db.rollback();
       }
-    } catch (FileUploadException e) {
-      error = e;
-      if (db != null) {
-        db.rollback();
-      }
     } finally {
       if (db != null) {
         db.close();
       }
     }
-
-    params.put("form", form);
 
     if (form.getPollList() != null) {
       params.put("exception", error);

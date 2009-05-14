@@ -1,7 +1,6 @@
 <%@ page info="last active topics" %>
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.sql.Timestamp,java.text.DateFormat,java.text.SimpleDateFormat,java.util.Date,ru.org.linux.site.*"   buffer="200kb"%>
-<%@ page import="ru.org.linux.util.ServletParameterParser" %>
+<%@ page import="java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.sql.Timestamp,ru.org.linux.site.BadInputException,ru.org.linux.site.LorDataSource,ru.org.linux.site.Template,ru.org.linux.util.ServletParameterParser"   buffer="200kb"%>
 <%--
   ~ Copyright 1998-2009 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,6 +18,7 @@
 
 <% Template tmpl = Template.getTemplate(request); %>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
+<%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 
 <%
   Connection db = null;
@@ -37,7 +37,7 @@
     // active topics for last xx hours
     db = LorDataSource.getConnection();
 
-    String sSql = "SELECT nick, t.id, lastmod, CURRENT_TIMESTAMP-lastmod AS backtime, t.stat1 AS stat1, t.stat3 AS stat3, t.stat4 AS stat4, g.id AS gid, g.title AS gname, t.title AS title FROM users AS u, topics AS t, groups AS g, (SELECT distinct topic FROM comments WHERE postdate > CURRENT_TIMESTAMP - interval '" + hours + " hours' UNION SELECT id FROM topics WHERE postdate > CURRENT_TIMESTAMP - interval '" + hours + " hours') AS foo WHERE t.userid=u.id AND not deleted AND t.id=foo.topic AND t.groupid=g.id ORDER BY lastmod DESC";
+    String sSql = "SELECT nick, t.id, lastmod, t.stat1 AS stat1, t.stat3 AS stat3, t.stat4 AS stat4, g.id AS gid, g.title AS gname, t.title AS title FROM users AS u, topics AS t, groups AS g, (SELECT distinct topic FROM comments WHERE postdate > CURRENT_TIMESTAMP - interval '" + hours + " hours' UNION SELECT id FROM topics WHERE postdate > CURRENT_TIMESTAMP - interval '" + hours + " hours') AS foo WHERE t.userid=u.id AND not deleted AND t.id=foo.topic AND t.groupid=g.id ORDER BY lastmod DESC";
 
     Statement st = db.createStatement();
     ResultSet rs = st.executeQuery(sSql);
@@ -61,9 +61,9 @@
 		    sSuf = "";
 	    } else {
 		     sSuf="а";
-	    };
-    };
-    
+	    }
+    }
+
     String title = "Последние сообщения за "+hours+" час"+sSuf;
 %>
 
@@ -79,7 +79,7 @@
 
     <td align=right valign=middle>
       за последние
-        <input name="h" onChange="submit()" value="<%= hours %>">
+        <input name="h" onChange="submit();" value="<%= hours %>">
       часа
 
       <input type="submit" value="показать">
@@ -96,14 +96,12 @@
 <tr>
   <th>Форум</th>
   <th>Заголовок</th>
-  <th>Последнее сообщение</th>
+  <th>Последнее<br>сообщение</th>
   <th>Число ответов<br>всего/день/час</th>
 </tr>
 </thead>
 <tbody>
 <%
-  DateFormat rfc822 = new SimpleDateFormat("HH:mm:ss 'назад'");
-
   int cnt = 0;
 
   while (rs.next()) {
@@ -114,13 +112,14 @@
     }
 
     int itotal = Integer.parseInt(rs.getString("stat1"));
-
-    out.print("<tr><td>" +
-        "<a href='group.jsp?group=" + rs.getString("gid") + "'>" +
-        rs.getString("gname") + "</a>" +
-        "</td><td>" +
-        "<a href='view-message.jsp?msgid=" + rs.getString("id"));
-
+%>
+<tr>
+  <td>
+    <a href="group.jsp?group=<%= rs.getString("gid") %> + ">
+        <%= rs.getString("gname") %></a>
+  </td>
+  <td>
+<%
     String sTemp = "";
 
     int messages = tmpl.getProf().getInt("messages");
@@ -132,17 +131,21 @@
         sTemp = "&page=" + itotal;
       }
     }
-
-    out.println("&lastmod=" + lastmod.getTime() + sTemp +
-        "'>" + rs.getString("title") +
-        "</a> (" + rs.getString("nick") + ')' +
-        "</td><td align='center'>" +
-        rfc822.format(rs.getTimestamp("backtime")) +
-        "</td><td align='center'>" +
+%>
+    <a href="view-message.jsp?msgid=<%= rs.getString("id") %>&amp;lastmod=<%= lastmod.getTime() + sTemp %>">
+      <%= rs.getString("title")%>
+    </a> (<%= rs.getString("nick") %>)
+  </td>
+  <td class="dateinterval">
+    <lor:dateinterval date="<%= lastmod %>"/>
+  </td>
+  <td align='center'><%=
         rs.getString("stat1") + '/' +
         rs.getString("stat3") + '/' +
-        rs.getString("stat4") +
-        "</td></tr>");
+        rs.getString("stat4") %>
+  </td>
+</tr>
+<%
     cnt++;
   }
 %>

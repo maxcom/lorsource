@@ -20,22 +20,18 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
-import org.apache.commons.fileupload.disk.DiskFileItemFactory;
-import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import ru.org.linux.site.*;
-import ru.org.linux.util.BadImageException;
-import ru.org.linux.util.HTMLFormatter;
-import ru.org.linux.util.UtilException;
+import ru.org.linux.util.*;
 
 public class AddMessageForm {
   private static final Logger logger = Logger.getLogger("ru.org.linux");
@@ -137,113 +133,48 @@ public class AddMessageForm {
     return linktext == null ? "" : HTMLFormatter.htmlSpecialChars(linktext);
   }
 
-  public AddMessageForm(HttpServletRequest request, Template tmpl) throws FileUploadException, IOException, ScriptErrorException {
+  public AddMessageForm(HttpServletRequest request, Template tmpl) throws FileUploadException, IOException, ScriptErrorException, ServletParameterException {
     userAgent = request.getHeader("user-agent");
     postIP = request.getRemoteAddr();
 
-    if (!ServletFileUpload.isMultipartContent(request)) {
-      // Load fields from request
-      noinfo = request.getParameter("noinfo");
-      sessionId = request.getParameter("session");
-      preview = request.getParameter("preview") != null;
-      if (!"GET".equals(request.getMethod())) {
-        captchaResponse = request.getParameter("j_captcha_response");
-        nick = request.getParameter("nick");
-        password = request.getParameter("password");
-        mode = request.getParameter("mode");
-        autourl = "1".equals(request.getParameter("autourl"));
-        title = request.getParameter("title");
-        msg = request.getParameter("msg");
-      }
+    noinfo = request.getParameter("noinfo");
+    sessionId = request.getParameter("session");
+    preview = request.getParameter("preview") != null;
+    if (!"GET".equals(request.getMethod())) {
+      captchaResponse = request.getParameter("j_captcha_response");
+      nick = request.getParameter("nick");
+      password = request.getParameter("password");
+      mode = request.getParameter("mode");
+      autourl = "1".equals(request.getParameter("autourl"));
+      title = request.getParameter("title");
+      msg = request.getParameter("msg");
+    }
 
-      if (request.getParameter("group") == null) {
-        throw new ScriptErrorException("missing group parameter");
-      }
+    if (request.getParameter("group") == null) {
+      throw new ScriptErrorException("missing group parameter");
+    }
 
-      try {
-        guid = Integer.parseInt(request.getParameter("group"));
-      } catch (NumberFormatException e) {
-        throw new ScriptErrorException("invalid group parameter", e);
-      }
-      
-      linktext = request.getParameter("linktext");
-      url = request.getParameter("url");
-      returnUrl = request.getParameter("return");
-      tags = request.getParameter("tags");
-    } else {
-      // Load fields from multipart request
-      File rep = new File(tmpl.getObjectConfig().getPathPrefix() + "/linux-storage/tmp/");
-      // Create a factory for disk-based file items
-      DiskFileItemFactory factory = new DiskFileItemFactory();
-      // Set factory constraints
-      factory.setSizeThreshold(500000);
-      factory.setRepository(rep);
-      // Create a new file upload handler
-      ServletFileUpload upload = new ServletFileUpload(factory);
-      // Set overall request size constraint
-      upload.setSizeMax(600000);
-      // Parse the request
-      List items = upload.parseRequest(request);
-      // Process the uploaded items
-      Iterator iter = items.iterator();
-      // Defaults
-      preview = false;
-      while (iter.hasNext()) {
-        FileItem item = (FileItem) iter.next();
-        if (item.isFormField()) {
-          String name = item.getFieldName();
-          String value = item.getString("UTF-8");
-          //System.out.println("\nField: "+name+" => "+value);
-          if (name.compareToIgnoreCase("j_captcha_response") == 0) {
-            captchaResponse = value;
-          } else if (name.compareToIgnoreCase("noinfo") == 0) {
-            noinfo = value;
-          } else if (name.compareToIgnoreCase("session") == 0) {
-            sessionId = value;
-          } else if (name.compareToIgnoreCase("preview") == 0) {
-            preview = (!(value == null || "".equals(value)));
-          } else if (name.compareToIgnoreCase("nick") == 0) {
-            nick = value;
-          } else if (name.compareToIgnoreCase("password") == 0) {
-            password = value;
-          } else if (name.compareToIgnoreCase("mode") == 0) {
-            mode = value;
-          } else if (name.compareToIgnoreCase("autourl") == 0) {
-            autourl = "1".equals(value);
-          } else if (name.compareToIgnoreCase("title") == 0) {
-            title = value;
-          } else if (name.compareToIgnoreCase("msg") == 0) {
-            msg = value;
-          } else if (name.compareToIgnoreCase("group") == 0) {
-            guid = Integer.parseInt(value);
-          } else if (name.compareToIgnoreCase("linktext") == 0) {
-            linktext = value;
-          } else if (name.compareToIgnoreCase("url") == 0) {
-            url = value;
-          } else if (name.compareToIgnoreCase("tags") == 0) {
-            tags = value;
-          } else if (name.compareToIgnoreCase("return") == 0) {
-            returnUrl = value;
+    guid = new ServletParameterParser(request).getInt("group");
+
+    linktext = request.getParameter("linktext");
+    url = request.getParameter("url");
+    returnUrl = request.getParameter("return");
+    tags = request.getParameter("tags");
+
+    if (request instanceof MultipartHttpServletRequest) {
+      MultipartFile multipartFile = ((MultipartHttpServletRequest) request).getFile("image");
+      if (multipartFile != null && !multipartFile.isEmpty()) {
+        File uploadedFile = File.createTempFile("preview", "", new File(tmpl.getObjectConfig().getPathPrefix() + "/linux-storage/tmp/"));
+        image = uploadedFile.getPath();
+        if ((uploadedFile.canWrite() || uploadedFile.createNewFile())) {
+          try {
+            Logger.getLogger("ru.org.linux").fine("Transfering upload to: " + image);
+            multipartFile.transferTo(uploadedFile);
+          } catch (Exception e) {
+            throw new ScriptErrorException("Failed to write uploaded file", e);
           }
         } else {
-          String fieldName = item.getFieldName();
-          String fileName = item.getName();
-          //System.out.print("\nFile: "+fieldName+" => "+fileName);
-          if (fieldName.compareToIgnoreCase("image") == 0 && fileName != null && !"".equals(fileName)) {
-            image = tmpl.getObjectConfig().getPathPrefix() + "/linux-storage/tmp/" + fileName;
-            File uploadedFile = new File(image);
-            if (uploadedFile != null && (uploadedFile.canWrite() || uploadedFile.createNewFile())) {
-              try {
-                item.write(uploadedFile);
-              } catch (Exception e) {
-                throw new ScriptErrorException("Failed to write uploaded file", e);
-              }
-            } else {
-              Logger.getLogger("ru.org.linux").info("Bad target file name: " + image);
-            }
-          } else {
-            Logger.getLogger("ru.org.linux").info("Bad source file name: " + fileName);
-          }
+          Logger.getLogger("ru.org.linux").info("Bad target file name: " + image);
         }
       }
     }
