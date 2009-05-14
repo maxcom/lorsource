@@ -68,7 +68,7 @@ public class RegisterController extends ApplicationObjectSupport {
       } else {
         nick = request.getParameter("nick");
 
-        if (!StringUtil.checkLoginName(nick)) {
+        if (nick==null || !StringUtil.checkLoginName(nick)) {
           throw new BadInputException("некорректное имя пользователя");
         }
 

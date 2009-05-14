@@ -122,6 +122,10 @@
         throw new BadInputException("заголовок сообщения не может быть пустым");
       }
 
+      if (title.length()>Comment.TITLE_LENGTH) {
+        throw new BadInputException("заголовок превышает "+Comment.TITLE_LENGTH+" символов");
+      }
+
       if ("".equals(msg)) {
         throw new BadInputException("комментарий не может быть пустым");
       }
