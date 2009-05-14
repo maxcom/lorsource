@@ -26,9 +26,9 @@ import java.util.Properties;
 import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.Transport;
+import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
-import javax.mail.internet.AddressException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import org.springframework.context.support.ApplicationObjectSupport;
@@ -69,13 +69,7 @@ public class RegisterController extends ApplicationObjectSupport {
       } else {
         nick = request.getParameter("nick");
 
-        if (nick==null || !StringUtil.checkLoginName(nick)) {
-          throw new BadInputException("некорректное имя пользователя");
-        }
-
-        if (nick.length() > User.MAX_NICK_LENGTH) {
-          throw new BadInputException("слишком длинное имя пользователя");
-        }
+        User.checkNick(nick);
       }
 
       String town = request.getParameter("town");

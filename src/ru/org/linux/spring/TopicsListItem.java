@@ -24,15 +24,17 @@ import ru.org.linux.util.StringUtil;
 
 public class TopicsListItem {
   private final String subj;
+  private final String sectionTitle;
+  private final String groupTitle;
   private final Timestamp lastmod;
-  private final String nick;
   private final int msgid;
   private final boolean deleted;
   private final int stat1, stat3, stat4;
   private final boolean sticky;
   private final int pages;
+  private final int author;
 
-  // SELECT topics.title as subj, lastmod, nick, topics.id as msgid, deleted, topics.stat1, topics.stat3, topics.stat4, topics.sticky
+  // SELECT topics.title as subj, sections.name, groups.title as gtitle, lastmod, nick, topics.id as msgid, topics.deleted, topics.stat1, topics.stat3, topics.stat4, topics.sticky
   public TopicsListItem(ResultSet rs, int messagesInPage) throws SQLException {
     subj = StringUtil.makeTitle(rs.getString("subj"));
 
@@ -43,13 +45,15 @@ public class TopicsListItem {
       this.lastmod = lastmod;
     }
 
-    nick = rs.getString("nick");
+    author = rs.getInt("userid");
     msgid = rs.getInt("msgid");
     deleted = rs.getBoolean("deleted");
     stat1 = rs.getInt("stat1");
     stat3 = rs.getInt("stat3");
     stat4 = rs.getInt("stat4");
     sticky = rs.getBoolean("sticky");
+    sectionTitle = rs.getString("name");
+    groupTitle = rs.getString("gtitle");
 
     pages = Message.getPageCount(stat1, messagesInPage);
   }
@@ -62,8 +66,8 @@ public class TopicsListItem {
     return lastmod;
   }
 
-  public String getNick() {
-    return nick;
+  public int getAuthor() {
+    return author;
   }
 
   public int getMsgid() {
@@ -92,5 +96,13 @@ public class TopicsListItem {
 
   public int getPages() {
     return pages;
+  }
+
+  public String getSectionTitle() {
+    return sectionTitle;
+  }
+
+  public String getGroupTitle() {
+    return groupTitle;
   }
 }
