@@ -108,7 +108,7 @@
   out.print("</div>");
 %>
   </td></tr>
-</tfoor>
+</tfoot>
 </table>
 </div>
 
