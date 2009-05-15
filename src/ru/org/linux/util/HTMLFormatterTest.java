@@ -15,15 +15,9 @@
 
 package ru.org.linux.util;
 
-import java.util.Arrays;
-
-import static org.junit.Assert.assertEquals;
+import org.hamcrest.CoreMatchers;
 import static org.junit.Assert.*;
 import org.junit.Test;
-import org.junit.Assert;
-import org.hamcrest.core.IsNot;
-import org.hamcrest.Matcher;
-import org.hamcrest.CoreMatchers;
 
 public class HTMLFormatterTest {
   private static final String TEXT1 = "Here is www.linux.org.ru, have fun! :-)";
@@ -75,6 +69,8 @@ public class HTMLFormatterTest {
   private static final String Latin1Supplement = "http://de.wikipedia.org/wiki/Großes_ß#Unicode";
   private static final String greek = "http://el.wikipedia.org/wiki/άλλες";
   private static final String QP = "http://www.ozon.ru/?context=search&text=%D8%E8%EB%E4%F2";
+  private static final String EMPTY_ANCHOR = "http://www.google.com/#";
+  private static final String SLASH_AFTER_AMP = "http://extensions.joomla.org/extensions/communities-&-groupware/ratings-&-reviews/5483/details";
 
   @Test
   public void testURLHighlight() throws UtilException {
@@ -322,6 +318,27 @@ public class HTMLFormatterTest {
     formatter.enableUrlHighLightMode();
     String s2 = formatter.process();
     assertTrue("All text should be inside link", s2.endsWith("</a>"));
+  }
+
+  @Test
+  public void testEmptyAnchor(){
+    HTMLFormatter formatter = new HTMLFormatter(EMPTY_ANCHOR);
+    formatter.enableUrlHighLightMode();
+    String s2 = formatter.process();
+    assertTrue("All text should be inside link", s2.endsWith("</a>"));
+  }
+
+  @Test
+  public void testSlashAfterAmp(){
+    HTMLFormatter formatter = new HTMLFormatter(SLASH_AFTER_AMP);
+    formatter.enableUrlHighLightMode();
+    String s2 = formatter.process();
+    System.out.println(s2);
+    assertTrue("All text should be inside link", s2.endsWith("</a>"));
+    int blankIndex = s2.indexOf(" ");
+    int lastIndex = s2.lastIndexOf(" ");
+    assertThat("No whitespace inside link", blankIndex, CoreMatchers.equalTo(lastIndex));
+    //whitespace shoud separate href attribute. no other ws should occur
   }
 
 }
