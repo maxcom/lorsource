@@ -103,11 +103,6 @@
         <copy todir="${dist}/WEB-INF">
             <fileset dir="web/WEB-INF"/>
         </copy>
-        <copy todir="${dist}/WEB-INF/classes">
-            <fileset dir="resources">
-                <include name="**/*"/>
-            </fileset>
-        </copy>
         <copy todir="${dist}">
             <fileset dir="web" includes="*.jsp"/>
             <fileset dir="html"/>
