@@ -1,6 +1,7 @@
 <%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
 <%@ page import="java.sql.Connection,ru.org.linux.site.LorDataSource,ru.org.linux.site.MissingParameterException,ru.org.linux.site.Poll"   buffer="200kb"%>
 <%@ page import="ru.org.linux.site.Template" %>
+<%@ page import="ru.org.linux.util.ServletParameterParser" %>
 <%--
   ~ Copyright 1998-2009 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,14 +21,10 @@
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
 <%
+  int voteid = new ServletParameterParser(request).getInt("vote");
+
   Connection db = null;
   try {
-
-    if (request.getParameter("vote") == null) {
-      throw new MissingParameterException("vote");
-    }
-
-    int voteid = Integer.parseInt(request.getParameter("vote"));
 
     db = LorDataSource.getConnection();
 
