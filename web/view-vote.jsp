@@ -1,4 +1,4 @@
-<%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
+<%@ page contentType="text/html; charset=utf-8"%>
 <%@ page import="java.sql.Connection,ru.org.linux.site.LorDataSource,ru.org.linux.site.MissingParameterException,ru.org.linux.site.Poll"   buffer="200kb"%>
 <%@ page import="ru.org.linux.site.Template" %>
 <%@ page import="ru.org.linux.util.ServletParameterParser" %>
