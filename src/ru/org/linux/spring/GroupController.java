@@ -32,16 +32,16 @@ import ru.org.linux.site.*;
 @Controller
 public class GroupController {
   @RequestMapping("/group.jsp")
-  public ModelAndView topics(@RequestParam("group") int groupId, HttpServletRequest request) throws Exception {
-    return topics(groupId, request, false);
+  public ModelAndView topics(@RequestParam("group") int groupId, @RequestParam(value="offset", required=false) Integer offsetObject, HttpServletRequest request) throws Exception {
+    return topics(groupId, offsetObject, request, false);
   }
 
   @RequestMapping("/group-lastmod.jsp")
-  public ModelAndView topicsLastmod(@RequestParam("group") int groupId, HttpServletRequest request) throws Exception {
-    return topics(groupId, request, true);
+  public ModelAndView topicsLastmod(@RequestParam("group") int groupId, @RequestParam(value="offset", required=false) Integer offsetObject, HttpServletRequest request) throws Exception {
+    return topics(groupId, offsetObject, request, true);
   }
 
-  public ModelAndView topics(@RequestParam("group") int groupId, HttpServletRequest request, boolean lastmod) throws Exception {
+  public ModelAndView topics(int groupId, Integer offsetObject, HttpServletRequest request, boolean lastmod) throws Exception {
     Map<String, Object> params = new HashMap<String, Object>();
 
     boolean showDeleted = request.getParameter("deleted") != null;
@@ -60,8 +60,8 @@ public class GroupController {
     boolean firstPage;
     int offset;
 
-    if (request.getParameter("offset") != null) {
-      offset = Integer.parseInt(request.getParameter("offset"));
+    if (offsetObject != null) {
+      offset = offsetObject;
       firstPage = false;
     } else {
       firstPage = true;
