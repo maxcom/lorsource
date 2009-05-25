@@ -71,6 +71,9 @@
       if ("".equals(nick)) {
         throw new BadInputException("ник не может быть пустым");
       }
+      if (nick.equals(user.getNick())){
+        throw new BadInputException("нельзя игнорировать самого себя");
+      }
 
       User addUser = User.getUser(db, nick);
 
