@@ -19,7 +19,7 @@
 <%@ page import="ru.org.linux.site.*" %>
 <%@ page import="ru.org.linux.storage.StorageNotFoundException" %>
 <%@ page import="ru.org.linux.util.*" %>
-<%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"  %>
+<%@ page contentType="text/html; charset=utf-8"  %>
 <%--
   ~ Copyright 1998-2009 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -48,7 +48,7 @@
   Connection db = null;
   try {
 %>
-<title>Список Игнорирования</title>
+<title>п║п©п╦я│п╬п╨ п≤пЁп╫п╬я─п╦я─п╬п╡п╟п╫п╦я▐</title>
 
 <jsp:include page="WEB-INF/jsp/header.jsp"/>
 
@@ -69,10 +69,10 @@
         nick = "";
       }
       if ("".equals(nick)) {
-        throw new BadInputException("ник не может быть пустым");
+        throw new BadInputException("п╫п╦п╨ п╫п╣ п╪п╬п╤п╣я┌ п╠я▀я┌я▄ п©я┐я│я┌я▀п╪");
       }
       if (nick.equals(user.getNick())){
-        throw new BadInputException("нельзя игнорировать самого себя");
+        throw new BadInputException("п╫п╣п╩я▄п╥я▐ п╦пЁп╫п╬я─п╦я─п╬п╡п╟я┌я▄ я│п╟п╪п╬пЁп╬ я│п╣п╠я▐");
       }
 
       User addUser = User.getUser(db, nick);
@@ -89,7 +89,7 @@
       User delUser = User.getUserCached(db, uid);
 
       if (!ail.removeNick(db, uid)) {
-        throw new BadInputException("неверный ник");
+        throw new BadInputException("п╫п╣п╡п╣я─п╫я▀п╧ п╫п╦п╨");
       } else {
 //        if (user.getScore()>User.IGNORE_PENALTI_THRESHOLD) {
  //         delUser.changeScore(db, User.IGNORE_PENALTI_SCORE);
@@ -113,12 +113,12 @@
   //db.commit();
 %>
 
-<h1>Список Игнорирования</h1>
+<h1>п║п©п╦я│п╬п╨ п≤пЁп╫п╬я─п╦я─п╬п╡п╟п╫п╦я▐</h1>
 
 <form action="ignore-list.jsp" method="POST">
 
-  Ник: <input type="text" name="nick" size="20" maxlength="80"><input type="submit" name="add" value="Добавить"><br>
-<!-- input type="checkbox" name="activated" value="1" <%= ignore.isActivated()?"checked":"" %>> Список включен <input type="submit" name="set" value="Установить"><br -->
+  п²п╦п╨: <input type="text" name="nick" size="20" maxlength="80"><input type="submit" name="add" value="п■п╬п╠п╟п╡п╦я┌я▄"><br>
+<!-- input type="checkbox" name="activated" value="1" <%= ignore.isActivated()?"checked":"" %>> п║п©п╦я│п╬п╨ п╡п╨п╩я▌я┤п╣п╫ <input type="submit" name="set" value="пёя│я┌п╟п╫п╬п╡п╦я┌я▄"><br -->
 <% if (!ignoreList.isEmpty()) { %>
 <select name="ignore_list" size="10" width="20">
 <%
@@ -135,7 +135,7 @@
   %>
  </select>
 <br>
-  <input type="submit" name="del" value="Удалить">
+  <input type="submit" name="del" value="пёп╢п╟п╩п╦я┌я▄">
 <% } %>
 </form>
 
