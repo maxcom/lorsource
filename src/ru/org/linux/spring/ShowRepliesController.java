@@ -23,6 +23,7 @@ import java.util.Date;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import com.danga.MemCached.MemCachedClient;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -35,6 +36,10 @@ import ru.org.linux.site.User;
 
 @Controller
 public class ShowRepliesController {
+
+  @Autowired
+  private ReplyFeedView feedView;
+
   @RequestMapping("/show-replies.jsp")
   public ModelAndView showReplies(
     HttpServletRequest request,
@@ -118,7 +123,15 @@ public class ShowRepliesController {
 
     params.put("topicsList", list);
 
-    return new ModelAndView("show-replies", params);
+    final ModelAndView result =  new ModelAndView("show-replies", params);
+    if (request.getParameter("output") != null){
+      result.addObject("feed-type", "rss");
+      if ("atom".equals(request.getParameter("output"))){
+        result.addObject("feed-type", "atom");
+      }
+      result.setView(feedView);
+    }
+    return result;
   }
 
   public static class MyTopicsListItem extends TopicsListItem {

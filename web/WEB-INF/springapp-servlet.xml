@@ -54,4 +54,29 @@
         <!-- one of the properties available; the maximum file size in bytes -->
         <property name="maxUploadSize" value="600000"/>
     </bean>
+
+    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer"
+            id="feedConfigurer">
+        <property name="location" value="/WEB-INF/feeds.properties"/>
+    </bean>
+
+    <bean id="absractRomeView" class="ru.org.linux.spring.AbstractRomeView" abstract="true">
+        <property name="contentTypes">
+            <map>
+                <entry key="rss" value="application/rss+xml"/>
+                <entry key="atom" value="application/atom+xml"/>
+            </map>
+        </property>
+        <property name="feedTypes">
+            <map>
+                <entry key="rss" value="rss_2.0"/>
+                <entry key="atom" value="atom_1.0"/>
+            </map>
+        </property>
+        <property name="defaultType" value="${feeds.defaultType}"/>
+        <property name="defaultCount" value="${feeds.defaultCount}"/>
+        <property name="minimalCount" value="${feeds.minimalCount}"/>
+        <property name="maximalCount" value="${feeds.maximalCount}"/>
+    </bean>
+    <bean id="replyFeed" class="ru.org.linux.spring.ReplyFeedView" parent="absractRomeView" scope="prototype"/>
 </beans>
