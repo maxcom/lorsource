@@ -736,8 +736,7 @@
     </library>
     <library name="javamail">
       <CLASSES>
-        <root url="jar://$PROJECT_DIR$/lib/javamail.jar!/" />
-        <root url="jar://$PROJECT_DIR$/lib/activation.jar!/" />
+        <root url="jar://$PROJECT_DIR$/ivy-lib/provided/mail-1.4.jar!/" />
       </CLASSES>
       <JAVADOC />
       <SOURCES />
