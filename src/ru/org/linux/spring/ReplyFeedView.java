@@ -21,9 +21,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import com.sun.syndication.feed.synd.SyndEntry;
-import com.sun.syndication.feed.synd.SyndEntryImpl;
-import com.sun.syndication.feed.synd.SyndFeed;
+import com.sun.syndication.feed.synd.*;
 
 /**
  * User: rsvato
@@ -50,8 +48,15 @@ public class ReplyFeedView extends AbstractRomeView {
       SyndEntry feedEntry = new SyndEntryImpl();
       feedEntry.setPublishedDate(new Date(item.getLastmod().getTime()));
       feedEntry.setTitle(item.getSubj());
+      feedEntry.setAuthor(String.valueOf(item.getNick()));
       feedEntry.setLink(String.format("http://www.linux.org.ru/jump-message.jsp?msgid=%s&cid=%s",
         String.valueOf(item.getMsgid()), String.valueOf(item.getCid())));
+      if (item.getMessageText() != null){
+        SyndContent message = new SyndContentImpl();
+        message.setValue(item.getMessageText());
+        message.setType("text/html");
+        feedEntry.setDescription(message);
+      }
       entries.add(feedEntry);
     }
   }

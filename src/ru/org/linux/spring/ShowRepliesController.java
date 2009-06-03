@@ -15,6 +15,7 @@
 
 package ru.org.linux.spring;
 
+import java.io.Serializable;
 import java.net.URLEncoder;
 import java.sql.*;
 import java.util.*;
@@ -53,8 +54,10 @@ public class ShowRepliesController {
     params.put("nick", nick);
     Template tmpl = Template.getTemplate(request);
 
+    final boolean feedRequested = request.getParameterMap().containsKey("output");
+
     int offset = 0;
-    if (offsetObject!=null) {
+    if (offsetObject != null) {
       offset = offsetObject;
     }
 
@@ -62,7 +65,7 @@ public class ShowRepliesController {
       offset = 0;
     }
 
-    boolean firstPage = ! (offset > 0);
+    boolean firstPage = !(offset > 0);
     int topics = tmpl.getProf().getInt("topics");
 
     params.put("firstPage", firstPage);
@@ -71,13 +74,16 @@ public class ShowRepliesController {
 
     /* define timestamps for caching */
     long time = System.currentTimeMillis();
-    int delay = firstPage ? 90 : 60*60;
+    int delay = firstPage ? 90 : 60 * 60;
     response.setDateHeader("Expires", time + 1000 * delay);
 
-    MemCachedClient mcc=MemCachedSettings.getClient();
+    MemCachedClient mcc = MemCachedSettings.getClient();
     String cacheKey = MemCachedSettings.getId(
-             "show-replies?id="+ URLEncoder.encode(nick)+"&offset="+offset
+      "show-replies?id=" + URLEncoder.encode(nick) + "&offset=" + offset
     );
+    if (feedRequested) {
+      cacheKey = cacheKey + "&output=true";
+    }
     List<TopicsListItem> list = (List<TopicsListItem>) mcc.get(cacheKey);
     int messages = tmpl.getProf().getInt("messages");
 
@@ -91,24 +97,44 @@ public class ShowRepliesController {
 
         list = new ArrayList<TopicsListItem>();
 
-        PreparedStatement pst = db.prepareStatement(
-          "SELECT topics.title as subj, sections.name, groups.title as gtitle, lastmod, topics.userid, topics.id as msgid, topics.deleted, topics.stat1, topics.stat3, topics.stat4, topics.sticky, " +
+        String sql = "SELECT topics.title as subj, sections.name, groups.title as gtitle, lastmod, topics.userid, topics.id as msgid, topics.deleted, topics.stat1, topics.stat3, topics.stat4, topics.sticky, " +
+          " comments.id AS cid, " +
+          "comments.postdate AS cDate, " +
+          "comments.userid AS cAuthor " +
+          "FROM sections, groups, topics, comments, comments AS parents " +
+          "WHERE sections.id=groups.section AND groups.id=topics.groupid " +
+          "AND comments.topic=topics.id AND parents.userid = ? " +
+          " AND comments.replyto = parents.id " +
+          "AND NOT comments.deleted ORDER BY cDate DESC LIMIT " + topics +
+          " OFFSET " + offset;
+
+        if (feedRequested) {
+          sql = "SELECT topics.title as subj, sections.name, groups.title as gtitle, lastmod, topics.userid, topics.id as msgid, topics.deleted, topics.stat1, topics.stat3, topics.stat4, topics.sticky, " +
             " comments.id AS cid, " +
-            "comments.postdate AS cDate, " +
-            "comments.userid AS cAuthor " +
-            "FROM sections, groups, topics, comments, comments AS parents " +
-            "WHERE sections.id=groups.section AND groups.id=topics.groupid " +
-            "AND comments.topic=topics.id AND parents.userid = ? " +
-            " AND comments.replyto = parents.id " +
-            "AND NOT comments.deleted ORDER BY cDate DESC LIMIT " + topics +
-            " OFFSET " + offset
+            " comments.postdate AS cDate, " +
+            " comments.userid AS cAuthor, " +
+            " msgbase.message AS cMessage, users.nick as cNick " +
+            " FROM sections INNER JOIN groups ON (sections.id = groups.section) " +
+            " INNER JOIN topics ON (groups.id=topics.groupid) " +
+            " INNER JOIN comments ON (comments.topic=topics.id) " +
+            " INNER JOIN users ON (users.id = comments.userid) " +
+            " INNER JOIN comments AS parents ON (parents.id=comments.replyto)" +
+            " INNER JOIN msgbase ON (msgbase.id = comments.id)" +
+            " WHERE  parents.userid = ? " +
+            " AND NOT comments.deleted " +
+            " ORDER BY cDate DESC LIMIT " + topics +
+            " OFFSET " + offset;
+        }
+
+        PreparedStatement pst = db.prepareStatement(
+          sql
         );
 
         pst.setInt(1, user.getId());
         ResultSet rs = pst.executeQuery();
 
         while (rs.next()) {
-          list.add(new MyTopicsListItem(rs, messages));
+          list.add(new MyTopicsListItem(rs, messages, feedRequested));
         }
 
         rs.close();
@@ -123,10 +149,11 @@ public class ShowRepliesController {
 
     params.put("topicsList", list);
 
-    final ModelAndView result =  new ModelAndView("show-replies", params);
-    if (request.getParameter("output") != null){
+    final ModelAndView result = new ModelAndView("show-replies", params);
+
+    if (feedRequested) {
       result.addObject("feed-type", "rss");
-      if ("atom".equals(request.getParameter("output"))){
+      if ("atom".equals(request.getParameter("output"))) {
         result.addObject("feed-type", "atom");
       }
       result.setView(feedView);
@@ -134,17 +161,27 @@ public class ShowRepliesController {
     return result;
   }
 
-  public static class MyTopicsListItem extends TopicsListItem {
+  public static class MyTopicsListItem extends TopicsListItem implements Serializable {
     private final int cid;
     private final int cAuthor;
     private final Timestamp cDate;
+    private final String messageText;
+    private final String nick;
+    private static final long serialVersionUID = -8433869244309809050L;
 
-    public MyTopicsListItem(ResultSet rs, int messages) throws SQLException {
+
+    public MyTopicsListItem(ResultSet rs, int messages, boolean readMessage) throws SQLException {
       super(rs, messages);
-
       cid = rs.getInt("cid");
       cAuthor = rs.getInt("cAuthor");
       cDate = rs.getTimestamp("cDate");
+      if (readMessage) {
+        messageText = rs.getString("cMessage");
+        nick = rs.getString("cNick");
+      } else {
+        messageText = null;
+        nick = null;
+      }
     }
 
     public int getCid() {
@@ -157,6 +194,14 @@ public class ShowRepliesController {
 
     public Timestamp getCommentDate() {
       return cDate;
+    }
+
+    public String getMessageText() {
+      return messageText;
+    }
+
+    public String getNick() {
+      return nick;
     }
   }
 

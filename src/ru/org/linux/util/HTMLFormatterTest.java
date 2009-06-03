@@ -333,7 +333,6 @@ public class HTMLFormatterTest {
     HTMLFormatter formatter = new HTMLFormatter(SLASH_AFTER_AMP);
     formatter.enableUrlHighLightMode();
     String s2 = formatter.process();
-    System.out.println(s2);
     assertTrue("All text should be inside link", s2.endsWith("</a>"));
     int blankIndex = s2.indexOf(" ");
     int lastIndex = s2.lastIndexOf(" ");

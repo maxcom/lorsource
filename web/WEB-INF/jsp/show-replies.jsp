@@ -38,8 +38,8 @@
   ответов на комментарии пользователя ${nick}
 </c:set>
 <title>${title}</title>
-<LINK REL="alternate" TITLE="Comments RSS" HREF="show-replies.jsp?output=rss&amp;nick=${nick}" TYPE="application/rss+xml"/>
-<LINK REL="alternate" TITLE="Comments Atom" HREF="show-replies.jsp?output=atom&amp;nick=${nick}" TYPE="application/rss+atom"/>
+<link rel="alternate" title="RSS" href="show-replies.jsp?output=rss&amp;nick=${nick}" type="application/rss+xml"/>
+<link rel="alternate" title="Atom" href="show-replies.jsp?output=atom&amp;nick=${nick}" type="application/atom+xml"/>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 <h1>${title}</h1>
 
