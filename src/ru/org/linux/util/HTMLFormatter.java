@@ -123,7 +123,12 @@ public class HTMLFormatter {
     }
   }
 
-  private static final Pattern urlRE;
+  public static final Pattern urlRE;
+
+  public static final String URL_PATTTERN = "(?:(?:(?:(?:https?://)|(?:ftp://)|(?:www\\.))|(?:ftp\\.))[a-z0-9.-]+(?:\\.[a-z]+)?(?::[0-9]+)?" +
+    "(?:/(?:([\\w=?+/\\[\\]~%;,._@#'\\p{L}:-]|(\\([^\\)]*\\)))*([\\p{L}:'" +
+    "\\w=?+/~@%#-]|(?:&(?=amp;)[\\w:$_.+!*'#%(),@\\p{L}=;/-]+)+|(\\([^\\)]*\\))))?)?)" +
+    "|(?:mailto: ?[a-z0-9+]+@[a-z0-9.-]+.[a-z]+)|(?:news:([\\w+]\\.?)+)";
 
   static {
     try {
@@ -133,10 +138,7 @@ public class HTMLFormatter {
           "0-9]+)?(?:/(?:([\\w=?:+/\\[\\]~&%;,._#-]|(\\([^\\)]*\\)))*([\\w=?+/~&%-]|(\\([^\\)]*\\))))" +
           "?)?)|(?:mailto: ?[a-z0-9+]+@[a-z0-9.-]+.[a-z]+)", RE.REG_ICASE);*/
       //fix #73: allow only &amp; entity in url    "[\\w$-_.+!*'(),\\u0999]+"
-        urlRE = Pattern.compile("(?:(?:(?:(?:https?://)|(?:ftp://)|(?:www\\.))|(?:ftp\\.))[a-z0-9.-]+(?:\\.[a-z]+)?(?::[0-9]+)?" +
-          "(?:/(?:([\\w=?+/\\[\\]~%;,._@#'\\p{L}:-]|(\\([^\\)]*\\)))*([\\p{L}:'" +
-          "\\w=?+/~@%#-]|(?:&(?=amp;)[\\w:$_.+!*'#%(),@\\p{L}=;/-]+)+|(\\([^\\)]*\\))))?)?)" +
-          "|(?:mailto: ?[a-z0-9+]+@[a-z0-9.-]+.[a-z]+)",
+        urlRE = Pattern.compile(URL_PATTTERN,
         Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
     } catch (PatternSyntaxException e) {
       throw new RuntimeException(e);

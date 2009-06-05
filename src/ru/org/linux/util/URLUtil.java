@@ -56,6 +56,10 @@ public final class URLUtil {
     return isUrl.isMatch(x);
   }
 
+  public static boolean isUrlNoXSS(String x){
+    return HTMLFormatter.urlRE.matcher(x).matches(); 
+  }
+
 
 }
 
