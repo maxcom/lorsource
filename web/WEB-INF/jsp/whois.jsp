@@ -6,6 +6,7 @@
 <%@ page import="ru.org.linux.util.BadImageException" %>
 <%@ page import="ru.org.linux.util.HTMLFormatter" %>
 <%@ page import="ru.org.linux.util.ImageInfo" %>
+<%@ page import="org.apache.commons.lang.StringEscapeUtils" %>
 <%--
   ~ Copyright 1998-2009 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -104,7 +105,7 @@
    int score = user.getScore();
 
    if (fullname!=null) if (!"".equals(fullname)) out.println("<b>Полное имя:</b> "+fullname+"<br>");
-   if (url!=null) if (!"".equals(url)) out.println("<b>URL:</b> <a href=\""+url+"\">"+url+"</a><br>");
+   if (url!=null) if (!"".equals(url)) out.println("<b>URL:</b> <a href=\""+ StringEscapeUtils.escapeHtml(url) +"\">"+url+"</a><br>");
    if (town!=null) if (!"".equals(town)) out.println("<b>Город:</b> "+town+"<br>");
    if (regdate!=null) out.println("<b>Дата регистрации:</b> "+tmpl.dateFormat.format(regdate)+"<br>");
    else out.println("<b>Дата регистрации:</b> неизвестно<br>");
