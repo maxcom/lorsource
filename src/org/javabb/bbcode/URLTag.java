@@ -34,14 +34,13 @@ public class URLTag extends SimpleRegexTag {
     Pattern p = regex.getRegex();
     Matcher m = p.matcher(from);
     while (m.find()) {
-      String value = m.group(1);
-      value = HTMLFormatter.htmlSpecialChars(value);
-      if (!URLUtil.isUrlNoXSS(value)) {
+      if (!URLUtil.isUrlNoXSS(m.group(1))) {
         m.appendReplacement(to, BAD_DATA);
       } else {
         m.appendReplacement(to, replacement);
       }
     }
+    
     m.appendTail(to);
   }
 }

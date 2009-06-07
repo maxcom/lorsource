@@ -62,7 +62,7 @@ public class BBCodeProcessor implements Serializable {
       new SimpleRegexTag("u", "\\[u\\](.*?)\\[/u\\]", "<u>$1</u>"),
       new SimpleRegexTag("i", "\\[i\\](.*?)\\[/i\\]", "<i>$1</i>"),
 //        new SimpleRegexTag("img", "\\[img\\](.*?)\\[/img\\]", "<img src='$1' border='0' alt=''>"),
-      new URLTag("url", "\\[url\\](.*?)\\[/url\\]", "<a href='$1'>$1</a>"),
+      new URLTag("url", "\\[url\\](.*?)\\[/url\\]", "<a href=\"$1\">$1</a>"),
       new UserTag("user", "\\[user\\](.*?)\\[/user\\]"),
       new URLTag("url",
           "\\[url=['\"]?(.*?[^'\"])['\"]?\\](.*?)\\[/url\\]",
