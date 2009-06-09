@@ -29,16 +29,17 @@ import com.sun.syndication.feed.synd.*;
  * Time: 3:21:53 PM
  */
 public class ReplyFeedView extends AbstractRomeView {
+  @Override
   protected void createFeed(SyndFeed feed, Map model) {
     @SuppressWarnings("unchecked")
     List<ShowRepliesController.MyTopicsListItem> list = (List<ShowRepliesController.MyTopicsListItem>) model.get("topicsList");
-    final String s = "Ответы на комментарии пользователя " + String.valueOf(model.get("nick"));
+    String s = "Ответы на комментарии пользователя " + String.valueOf(model.get("nick"));
     feed.setTitle(s);
     feed.setLink("http://www.linux.org.ru");
     feed.setDescription(s);
     Date lastModified = new Date();
     if (!list.isEmpty()) {
-      final Timestamp timestamp = list.get(0).getLastmod();
+      Timestamp timestamp = list.get(0).getLastmod();
       lastModified = new Date(timestamp.getTime());
     }
     feed.setPublishedDate(lastModified);
