@@ -32,7 +32,7 @@ public class ReplyFeedView extends AbstractRomeView {
   protected void createFeed(SyndFeed feed, Map model) {
     @SuppressWarnings("unchecked")
     List<ShowRepliesController.MyTopicsListItem> list = (List<ShowRepliesController.MyTopicsListItem>) model.get("topicsList");
-    final String s = "Последние 30 ответов на комментарии пользователя " + String.valueOf(model.get("nick"));
+    final String s = "Ответы на комментарии пользователя " + String.valueOf(model.get("nick"));
     feed.setTitle(s);
     feed.setLink("http://www.linux.org.ru");
     feed.setDescription(s);
