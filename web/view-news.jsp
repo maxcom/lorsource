@@ -132,9 +132,7 @@
     <td align=right valign=middle>
 <%
   if (month == 0) {
-    if (section.isImagepost()) {
-      out.print("[<a href=\"add.jsp?group=4962\">Добавить изображение</a>]");
-    } else if (section.isVotePoll()) {
+    if (section.isVotePoll()) {
       out.print("[<a href=\"add-poll.jsp?group=19387\">Добавить голосование</a>]");
     } else {
       if (group == null) {
