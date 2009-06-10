@@ -89,9 +89,10 @@
       out.println("<input type=\"text\" id=\"tags\" name=\"tags\" size=40 value=\"" + message.getTags().toString() + "\"><br>");
 %>
   Популярные теги: <%= Tags.getEditTags(Tags.getTopTags(db)) %> <br>
-  <%
+  <% }
+      if (message.getSectionId() == 1 || message.getSectionId() == 3) {
       out.println("Переместить в группу: ");
-      rq = st.executeQuery("SELECT id, title FROM groups WHERE section=1 ORDER BY id");
+      rq = st.executeQuery("SELECT id, title FROM groups WHERE section=" + message.getSectionId() + " ORDER BY id");
       out.println("<select name=\"chgrp\">");
       out.println("<option value=" + groupid + '>' + message.getGroupTitle() + " (не менять)</option>");
       while (rq.next()) {
@@ -142,7 +143,7 @@
       user.checkCommit();
 
       if (request.getParameter("chgrp") != null) {
-        int chgrp = new ServletParameterParser(request).getInt("chgrp");
+        int changeGroupId = new ServletParameterParser(request).getInt("chgrp");
 
         Statement st = db.createStatement();
         ResultSet rs = st.executeQuery("select groupid, section, groups.title FROM topics, groups WHERE topics.id=" + msgid + " and groups.id=topics.groupid");
@@ -151,26 +152,26 @@
         }
 
         int oldgrp = rs.getInt("groupid");
-        if (oldgrp != chgrp) {
+        if (oldgrp != changeGroupId) {
+          Group changeGroup = new Group(db, changeGroupId);
+
           String oldtitle = rs.getString("title");
           int section = rs.getInt("section");
-          if (section != 1) {
+          if (section != 1 && section != 3) {
             throw new AccessViolationException("Can't move topics in non-news section");
           }
 
           rs.close();
-          rs = st.executeQuery("SELECT section, title FROM groups WHERE groups.id=" + chgrp);
-          rs.next();
-          if (rs.getInt("section") != section) {
+          if (changeGroup.getSectionId() != section) {
             throw new AccessViolationException("Can't move topics between sections");
           }
-          String newtitle = rs.getString("title");
-          st.executeUpdate("UPDATE topics SET groupid=" + chgrp + " WHERE id=" + msgid);
+          String newtitle = changeGroup.getTitle();
+          st.executeUpdate("UPDATE topics SET groupid=" + changeGroupId + " WHERE id=" + msgid);
           /* to recalc counters */
-          st.executeUpdate("UPDATE groups SET stat4=stat4+1 WHERE id=" + oldgrp + " or id=" + chgrp);
+          st.executeUpdate("UPDATE groups SET stat4=stat4+1 WHERE id=" + oldgrp + " or id=" + changeGroupId);
           out.println("<br>Сменена группа с '" + oldtitle + "' на '" + newtitle + "'<br>");
         }
-        rs.close();
+
         st.close();
       }
 
