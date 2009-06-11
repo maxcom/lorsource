@@ -19,39 +19,15 @@
 <% Template tmpl = Template.getTemplate(request); %>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
 <%
   Connection db = null;
   try {
     // defaults
-    int hours = 3;
-
-    if (request.getParameter("h") != null) {
-      hours = new ServletParameterParser(request).getInt("h");
-
-      if (hours < 1 || hours > 23) {
-        throw new BadInputException("неправильный ввод. hours = " + hours);
-      }
-    }
-
-    // active topics for last xx hours
+    int hours = (Integer) request.getAttribute("hour");
     db = LorDataSource.getConnection();
-
-    String sSql = "SELECT nick, t.id, lastmod, t.stat1 AS stat1, t.stat3 AS stat3, t.stat4 AS stat4, g.id AS gid, g.title AS gname, t.title AS title FROM users AS u, topics AS t, groups AS g, (SELECT distinct topic FROM comments WHERE postdate > CURRENT_TIMESTAMP - interval '" + hours + " hours' UNION SELECT id FROM topics WHERE postdate > CURRENT_TIMESTAMP - interval '" + hours + " hours') AS foo WHERE t.userid=u.id AND not deleted AND t.id=foo.topic AND t.groupid=g.id ORDER BY lastmod DESC";
-
-    Statement st = db.createStatement();
-    ResultSet rs = st.executeQuery(sSql);
-
-    out.println("<!-- hours = " + hours + " -->");
-
-/*
-
-    (hours % 100 / 10) == 1  => 2  (( 11, 12, 13, 14))
-    (hours % 10) == 1        => 0
-    (hours % 10) == 2 .. 4   => 1
-    else                     => 2
-
-*/
 
     String sSuf = "ов";
     
@@ -68,7 +44,7 @@
 %>
 
 <title><%= title %></title>
-<jsp:include page="WEB-INF/jsp/header.jsp"/>
+<jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
 <form action="tracker.jsp">
 
@@ -101,59 +77,35 @@
 </tr>
 </thead>
 <tbody>
-<%
-  int cnt = 0;
+<c:forEach var="msg" items="${msgs}">
 
-  while (rs.next()) {
-    Timestamp lastmod = rs.getTimestamp("lastmod");
-
-    if (lastmod == null) {
-      lastmod = new Timestamp(0);
-    }
-
-    int itotal = Integer.parseInt(rs.getString("stat1"));
-%>
 <tr>
   <td>
-    <a href="group.jsp?group=<%= rs.getString("gid") %> + ">
-        <%= rs.getString("gname") %></a>
+    <a href="group.jsp?group=${msg.groupId}">
+        ${msg.groupTitle}
+    </a>
   </td>
   <td>
-<%
-    String sTemp = "";
-
-    int messages = tmpl.getProf().getInt("messages");
-
-    if (itotal > messages) {
-      // itotal = round(ceil(itotal/50));
-      if (!tmpl.getProf().getBoolean("newfirst")) {
-        itotal = itotal / messages;
-        sTemp = "&page=" + itotal;
-      }
-    }
-%>
-    <a href="view-message.jsp?msgid=<%= rs.getString("id") %>&amp;lastmod=<%= lastmod.getTime() + sTemp %>">
-      <%= rs.getString("title")%>
-    </a> (<%= rs.getString("nick") %>)
+    <c:if test="${msg.commentId>0}">
+      <a href="/jump-message.jsp?msgid=${msg.msgid}&amp;cid=${msg.commentId}">
+    </c:if>
+    <c:if test="${msg.commentId==0}">
+      <a href="/view-message.jsp?msgid=${msg.msgid}&amp;lastmod=${msg.lastmod.time}">
+    </c:if>
+      ${msg.title}
+    </a>     (<lor:user id="${msg.author}" db="<%= db %>" decorate="true"/>)
   </td>
   <td class="dateinterval">
-    <lor:dateinterval date="<%= lastmod %>"/>
+    <lor:dateinterval date="${msg.lastmod}"/>
   </td>
-  <td align='center'><%=
-        rs.getString("stat1") + '/' +
-        rs.getString("stat3") + '/' +
-        rs.getString("stat4") %>
-  </td>
+  <td align='center'>
+    <c:if test="${msg.stat1==0}">-</c:if><c:if test="${msg.stat1>0}"><b>${msg.stat1}</b></c:if>/<c:if test="${msg.stat3==0}">-</c:if><c:if test="${msg.stat3>0}"><b>${msg.stat3}</b></c:if>/<c:if test="${msg.stat4==0}">-</c:if><c:if test="${msg.stat4>0}"><b>${msg.stat4}</b></c:if>
 </tr>
-<%
-    cnt++;
-  }
-%>
-
+</c:forEach>
 </tbody>
 
 <tfoot>
-  <tr><td colspan='4' align='right'>всего: <%= cnt %> &nbsp</td></tr>
+  <tr><td colspan='4' align='right'>всего: ${fn:length(msgs)} &nbsp</td></tr>
 </tfoot>
 
 </table>
@@ -161,36 +113,21 @@
 
         <%
 
-/*        // users for last 10 minutes
-        sSql = "SELECT id,nick FROM users WHERE lastlogin > CURRENT_TIMESTAMP - interval '10 minutes' ORDER BY nick";
-        st = db.createStatement();
-        st.executeQuery(sSql); rs = st.getResultSet();
-        out.print("<br>Users seen on site for last 10 minutes: ");
-        cnt=0;
-
-        while (rs.next()) {
-            nick = rs.getString("nick");
-            out.println("<a href='/whois.jsp?nick="+nick+"'>"+nick+"</a> , ");
-            cnt++;
-        }
-        out.println("(total "+cnt+")");
-
-        rs.close();
-*/
       if (tmpl.isModeratorSession()) {
 %>
 <h2>Новые пользователи</h2>
 <%
         // new users
-      sSql = "SELECT nick, blocked, activated FROM users where regdate IS NOT null " +
+      String sSql = "SELECT nick, blocked, activated FROM users where regdate IS NOT null " +
           "AND regdate > CURRENT_TIMESTAMP - interval '3 days' ORDER BY regdate";
       out.println("<P>New users for the last 3 days:");
-      cnt = 0;
+      Statement st = db.createStatement();
       st.executeQuery(sSql);
-      rs = st.getResultSet();
+      ResultSet rs = st.getResultSet();
       if (rs == null) {
         out.println("no new users.");
       } else {
+        int cnt = 0;
         while (rs.next()) {
           String nick = rs.getString("nick");
           boolean blocked = rs.getBoolean("blocked");
@@ -227,4 +164,4 @@
     }
   }
 %>
-<jsp:include page="WEB-INF/jsp/footer.jsp"/>
+<jsp:include page="/WEB-INF/jsp/footer.jsp"/>
