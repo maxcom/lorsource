@@ -86,10 +86,10 @@
     </a>
   </td>
   <td>
-    <c:if test="${msg.commentId>0}">
-      <a href="/jump-message.jsp?msgid=${msg.msgid}&amp;cid=${msg.commentId}">
+    <c:if test="${msg.pages>1}">
+      <a href="/view-message.jsp?msgid=${msg.msgid}&amp;page=${msg.pages-1}&amp;lastmod=${msg.lastmod.time}">
     </c:if>
-    <c:if test="${msg.commentId==0}">
+    <c:if test="${msg.pages<=1}">
       <a href="/view-message.jsp?msgid=${msg.msgid}&amp;lastmod=${msg.lastmod.time}">
     </c:if>
       ${msg.title}
