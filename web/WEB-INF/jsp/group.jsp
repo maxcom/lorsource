@@ -127,32 +127,34 @@
 <c:if test="${group.info != null}">
   <p style="margin-top: 0"><em>${group.info}</em></p>
 </c:if>
-<form action="${self}" method="GET">
-
-  <input type=hidden name=group value=<%= groupId %>>
-  <% if (!firstPage) { %>
-    <input type=hidden name=offset value="<%= offset %>">
-  <% } %>
-  <div class=nav>
-    фильтр: <select name="showignored" onchange="submit();">
-      <option value="t" <%= (showIgnored?"selected":"") %>>все темы</option>
-      <option value="f" <%= (showIgnored?"":"selected") %>>без игнорируемых</option>
-      </select> [<a href="ignore-list.jsp">настроить</a>]
-  </div>
-
-</form>
 
 <div class=forum>
 <table width="100%" class="message-table">
 <thead>
-<tr><th>Заголовок
-  <c:if test="${lastmod}">
-    <span style="font-weight: normal">[порядок: <a href="group.jsp?group=${group.id}" style="text-decoration: underline">дата отправки</a> <b>дата изменения</b>]</span>
-  </c:if>
-  <c:if test="${not lastmod}">
-  <span style="font-weight: normal">[порядок: <b>дата отправки</b> <a href="group-lastmod.jsp?group=${group.id}" style="text-decoration: underline">дата изменения</a>]</span>
-  </c:if>
-</th><th>Последнее<br>сообщение</th><th>Число ответов<br>всего/день/час</th></tr>
+<tr>
+  <th>Тема<br>
+    <form action="${self}" method="GET" style="font-weight: normal; display: inline;">
+      фильтр: 
+      <input type=hidden name=group value=<%= groupId %>>
+      <% if (!firstPage) { %>
+        <input type=hidden name=offset value="<%= offset %>">
+      <% } %>
+        <select name="showignored" onchange="submit();">
+          <option value="t" <%= (showIgnored?"selected":"") %>>все темы</option>
+          <option value="f" <%= (showIgnored?"":"selected") %>>без игнорируемых</option>
+          </select>[<a href="ignore-list.jsp">настроить</a>]
+    </form>
+  </th>
+  <th>Последнее сообщение<br>
+    <c:if test="${lastmod}">
+      <span style="font-weight: normal">[<a href="group.jsp?group=${group.id}" style="text-decoration: underline">отменить</a>]</span>
+    </c:if>
+    <c:if test="${not lastmod}">
+      <span style="font-weight: normal">[<a href="group-lastmod.jsp?group=${group.id}" style="text-decoration: underline">упорядочить</a>]</span>
+    </c:if>
+  </th>
+  <th>Число ответов<br>всего/день/час</th>
+</tr>
 </thead>
 <tbody>
 
