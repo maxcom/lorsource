@@ -125,7 +125,7 @@
   }
 %>
 <c:if test="${group.info != null}">
-  <p style="margin-top: 0px"><em>${group.info}</em></p>
+  <p style="margin-top: 0"><em>${group.info}</em></p>
 </c:if>
 <form action="${self}" method="GET">
 
