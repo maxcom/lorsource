@@ -123,14 +123,10 @@
     }
     out.print("</div>");
   }
-
-  String des = group.getInfo();
-  if (des != null) {
-    out.print("<p style=\"margin-top: 0px\"><em>");
-    out.print(des);
-    out.print("</em></p>");
-  }
 %>
+<c:if test="${group.info != null}">
+  <p style="margin-top: 0px"><em>${group.info}</em></p>
+</c:if>
 <form action="${self}" method="GET">
 
   <input type=hidden name=group value=<%= groupId %>>
