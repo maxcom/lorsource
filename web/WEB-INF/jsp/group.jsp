@@ -142,7 +142,7 @@
         <select name="showignored" onchange="submit();">
           <option value="t" <%= (showIgnored?"selected":"") %>>все темы</option>
           <option value="f" <%= (showIgnored?"":"selected") %>>без игнорируемых</option>
-          </select> [<a href="ignore-list.jsp">настроить</a>]
+          </select> [<a style="text-decoration: underline" href="ignore-list.jsp">настроить</a>]
     </form>
   </th>
   <th>Последнее сообщение<br>
