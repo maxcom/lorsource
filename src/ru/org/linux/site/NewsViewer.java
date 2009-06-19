@@ -41,8 +41,8 @@ public class NewsViewer implements Viewer {
   private String tag="";
   private boolean moderateMode = false;
 
-  public NewsViewer(Properties Config, ProfileHashtable prof) {
-    config = Config;
+  public NewsViewer(Properties config, ProfileHashtable prof) {
+    this.config = config;
     profile = prof;
   }
 
@@ -264,6 +264,7 @@ public class NewsViewer implements Viewer {
     return out.toString();
   }
 
+  @Override
   public String show(Connection db) throws IOException, SQLException, UtilException, UserErrorException {
     StringBuilder buf = new StringBuilder();
     Statement st = db.createStatement();
@@ -351,6 +352,7 @@ public class NewsViewer implements Viewer {
     this.limit = limit;
   }
 
+  @Override
   public String getVariantID(ProfileHashtable prof) throws UtilException {
     StringBuilder id = new StringBuilder("view-news?"+
         "t=" + prof.getInt("topics")+
@@ -381,6 +383,7 @@ public class NewsViewer implements Viewer {
     return id.toString();
   }
 
+  @Override
   public Date getExpire() {
     if (limit==null || limit.length()==0) {
       return new Date(new Date().getTime() + 10*60*1000);

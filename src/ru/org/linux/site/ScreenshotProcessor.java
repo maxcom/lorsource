@@ -64,9 +64,9 @@ public class ScreenshotProcessor {
   }
 
   private void initFiles(String name, String path) {
-    String mainname = name + "." + extension;
-    String iconname = name + "-icon" + "." + extension;
-    String medname = name + "-med" + "." + extension;
+    String mainname = name + '.' + extension;
+    String iconname = name + "-icon" + '.' + extension;
+    String medname = name + "-med" + '.' + extension;
 
     mainFile = new File(path, mainname);
     iconFile = new File(path, iconname);
@@ -80,9 +80,9 @@ public class ScreenshotProcessor {
   }
 
   private void doResize() throws IOException, UtilException, InterruptedException {
-    boolean error = true;
-
     file.renameTo(mainFile);
+
+    boolean error = true;
 
     try {
       ImageInfo.resizeImage(mainFile.getAbsolutePath(), iconFile.getAbsolutePath(), ICON_WIDTH);

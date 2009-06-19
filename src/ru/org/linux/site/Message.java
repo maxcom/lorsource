@@ -463,20 +463,12 @@ public class Message {
 
     Group group = new Group(db, guid);
 	
-    if (group.isImagePostAllowed()) {
-      screenshot = new ScreenshotProcessor(previewImagePath);
-    }
-
-    Statement st = db.createStatement();
-
     DupeProtector.getInstance().checkDuplication(request.getRemoteAddr());
 
-    // allocation MSGID
-    ResultSet rs = st.executeQuery("select nextval('s_msgid') as msgid");
-    rs.next();
-    int msgid = rs.getInt("msgid");
+    int msgid = allocateMsgid(db);
 
     if (group.isImagePostAllowed()) {
+      screenshot = new ScreenshotProcessor(previewImagePath);
       screenshot.copyScreenshotFromPreview(tmpl, msgid);
 
       url = "gallery/" + screenshot.getMainFile().getName();
@@ -506,10 +498,27 @@ public class Message {
     String logmessage = "Написана тема " + msgid + ' ' + LorHttpUtils.getRequestIP(request);
     logger.info(logmessage);
 
-    rs.close();
-    st.close();
-    
     return msgid;
+  }
+
+  private int allocateMsgid(Connection db) throws SQLException {
+    Statement st = null;
+    ResultSet rs = null;
+
+    try {
+      st = db.createStatement();
+      rs = st.executeQuery("select nextval('s_msgid') as msgid");
+      rs.next();
+      return rs.getInt("msgid");
+    } finally {
+      if (rs!=null) {
+        rs.close();
+      }
+
+      if (st!=null) {
+        st.close();
+      }
+    }
   }
 
   public void checkCommentsAllowed(Connection db, User user) throws AccessViolationException, SQLException, BadGroupException {

@@ -32,6 +32,7 @@ public class ImageInfo {
   private int width = -1;
   private int size = 0;
 
+  @SuppressWarnings({"UseOfSystemOutOrSystemErr"})
   public static void main(String[] args) throws Exception {
     ImageInfo info = new ImageInfo(args[0]);
 
@@ -120,11 +121,11 @@ public class ImageInfo {
       fileStream = new FileInputStream(filename);
       size = fileStream.available();
 
-      if (extension.equals("gif")) {
+      if ("gif".equals(extension)) {
         getGifInfo(fileStream);
-      } else if (extension.equals("jpg") || extension.equals("jpeg")) {
+      } else if ("jpg".equals(extension) || "jpeg".equals(extension)) {
         getJpgInfo(fileStream);
-      } else if (extension.equals("png")) {
+      } else if ("png".equals(extension)) {
         getPngInfo(fileStream);
       } else {
         throw new BadImageException("Invalid image extension");
