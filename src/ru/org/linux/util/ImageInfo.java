@@ -241,11 +241,11 @@ public class ImageInfo {
     return "width=" + width + " height=" + height;
   }
 
-  public static void resizeImage(String filename, String iconname) throws IOException, UtilException, InterruptedException {
+  public static void resizeImage(String filename, String iconname, int size) throws IOException, UtilException, InterruptedException {
     String[] cmd = {
       "/usr/bin/convert",
       "-scale",
-      "200",
+      Integer.toString(size),
       filename,
       iconname };
 

@@ -17,6 +17,8 @@ package ru.org.linux.site;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.ImageInfo;
@@ -31,7 +33,11 @@ public class ScreenshotProcessor {
   private final String extension;
 
   private File mainFile;
+  private File mediumFile;
   private File iconFile;
+  private static final Pattern GALLERY_NAME = Pattern.compile("(gallery/[^.]+)(\\.\\w+)");
+  private static final int ICON_WIDTH = 200;
+  private static final int MEDIUM_WIDTH = 500;
 
   public ScreenshotProcessor(String filename) throws IOException, BadImageException {
     file = new File(filename);
@@ -57,19 +63,30 @@ public class ScreenshotProcessor {
     }
   }
 
-  public void copyScreenshot(Template tmpl, int msgid) throws IOException, UtilException, InterruptedException {
-    String mainname = Integer.toString(msgid) + "." + extension;
-    String iconname = Integer.toString(msgid) + "-icon" + "." + extension;
+  private void initFiles(String name, String path) {
+    String mainname = name + "." + extension;
+    String iconname = name + "-icon" + "." + extension;
+    String medname = name + "-med" + "." + extension;
 
-    mainFile = new File(tmpl.getObjectConfig().getHTMLPathPrefix() + "/gallery", mainname);
-    iconFile = new File(tmpl.getObjectConfig().getHTMLPathPrefix() + "/gallery", iconname);
+    mainFile = new File(path, mainname);
+    iconFile = new File(path, iconname);
+    mediumFile = new File(path, medname);
+  }
+
+  public void copyScreenshotFromPreview(Template tmpl, int msgid) throws IOException, UtilException, InterruptedException {
+    initFiles(Integer.toString(msgid), tmpl.getObjectConfig().getHTMLPathPrefix() + "/gallery");
+
+    doResize();
+  }
+
+  private void doResize() throws IOException, UtilException, InterruptedException {
+    boolean error = true;
 
     file.renameTo(mainFile);
 
-    boolean error = true;
-
     try {
-      ImageInfo.resizeImage(mainFile.getAbsolutePath(), iconFile.getAbsolutePath());
+      ImageInfo.resizeImage(mainFile.getAbsolutePath(), iconFile.getAbsolutePath(), ICON_WIDTH);
+      ImageInfo.resizeImage(mainFile.getAbsolutePath(), mediumFile.getAbsolutePath(), MEDIUM_WIDTH);
       error = false;
     } finally {
       if (error) {
@@ -78,6 +95,10 @@ public class ScreenshotProcessor {
         }
 
         if (iconFile.exists()) {
+          iconFile.delete();
+        }
+
+        if (mediumFile.exists()) {
           iconFile.delete();
         }
       }
@@ -85,30 +106,9 @@ public class ScreenshotProcessor {
   }
 
   public void copyScreenshot(Template tmpl, String sessionId) throws IOException, UtilException, InterruptedException {
-    String mainname = sessionId + "." + extension;
-    String iconname = sessionId + "-icon" + "." + extension;
+    initFiles(sessionId, tmpl.getObjectConfig().getHTMLPathPrefix() + "/gallery/preview");
 
-    mainFile = new File(tmpl.getObjectConfig().getHTMLPathPrefix() + "/gallery/preview", mainname);
-    iconFile = new File(tmpl.getObjectConfig().getHTMLPathPrefix() + "/gallery/preview", iconname);
-
-    file.renameTo(mainFile);
-
-    boolean error = true;
-
-    try {
-      ImageInfo.resizeImage(mainFile.getAbsolutePath(), iconFile.getAbsolutePath());
-      error = false;
-    } finally {
-      if (error) {
-        if (mainFile.exists()) {
-          mainFile.delete();
-        }
-
-        if (iconFile.exists()) {
-          iconFile.delete();
-        }
-      }
-    }
+    doResize();
   }
 
   public File getMainFile() {
@@ -117,5 +117,19 @@ public class ScreenshotProcessor {
 
   public File getIconFile() {
     return iconFile;
+  }
+
+  public File getMediumFile() {
+    return mediumFile;
+  }
+
+  public static String getMediumName(String name) {
+    Matcher m = GALLERY_NAME.matcher(name);
+
+    if (!m.matches()) {
+      throw new IllegalArgumentException("Not gallery path: "+name);
+    }
+
+    return m.group(1)+"-med"+m.group(2);
   }
 }

@@ -477,7 +477,7 @@ public class Message {
     int msgid = rs.getInt("msgid");
 
     if (group.isImagePostAllowed()) {
-      screenshot.copyScreenshot(tmpl, msgid);
+      screenshot.copyScreenshotFromPreview(tmpl, msgid);
 
       url = "gallery/" + screenshot.getMainFile().getName();
       linktext = "gallery/" + screenshot.getIconFile().getName();

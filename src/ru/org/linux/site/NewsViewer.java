@@ -15,6 +15,7 @@
 
 package ru.org.linux.site;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.sql.*;
@@ -118,26 +119,39 @@ public class NewsViewer implements Viewer {
     if (url != null && !imagepost && !votepoll) {
       out.append("<p>&gt;&gt;&gt; <a href=\"").append(HTMLFormatter.htmlSpecialChars(url)).append("\">").append(linktext).append("</a>");
     } else if (imagepost) {
+      out.append("<br>");
+
       try {
         try {
-          ImageInfo iconInfo = new ImageInfo(config.getProperty("HTMLPathPrefix") + linktext);
-          out.append("<p><a href=\"/").append(url).append("\"><img src=\"/").append(linktext).append("\" ALT=\"").append(subj).append("\" ").append(iconInfo.getCode()).append(" ></a>");
+          String mediumName = ScreenshotProcessor.getMediumName(url);
+
+          if (!new File(config.getProperty("HTMLPathPrefix"), mediumName).exists()) {
+            mediumName = linktext;
+          }
+
+          ImageInfo iconInfo = new ImageInfo(config.getProperty("HTMLPathPrefix") + mediumName);
+
+          out.append("<div align=center><a href=\"/").append(url).append("\"><img src=\"/").append(mediumName).append("\" ALT=\"").append(subj).append("\" ").append(iconInfo.getCode()).append(" ></a></div>");
         } catch (BadImageException e) {
-          out.append("<p><a href=\"/").append(url).append("\">[bad image!]<img src=\"/").append(linktext).append("\" ALT=\"").append(subj).append("\" " + " ></a>");
+          out.append("<a href=\"/").append(url).append("\">[bad image!]<img src=\"/").append(linktext).append("\" ALT=\"").append(subj).append("\" " + " ></a>");
         } catch (IOException e) {
-          out.append("<p><a href=\"/").append(url).append("\">[bad image - io exception!]<img src=\"/").append(linktext).append("\" ALT=\"").append(subj).append("\" " + " ></a>");
+          out.append("<a href=\"/").append(url).append("\">[bad image - io exception!]<img src=\"/").append(linktext).append("\" ALT=\"").append(subj).append("\" " + " ></a>");
         }
+
+        out.append("<p>");
 
         ImageInfo info = new ImageInfo(config.getProperty("HTMLPathPrefix") + url);
 
-        out.append("<p><i>").append(info.getWidth()).append('x').append(info.getHeight()).append(", ").append(info.getSizeString()).append("</i>");
+        out.append("<i>").append(info.getWidth()).append('x').append(info.getHeight()).append(", ").append(info.getSizeString()).append("</i>");
 
-        out.append("<p>&gt;&gt;&gt; <a href=\"/").append(url).append("\">Просмотр</a>");
+        out.append("&gt;&gt;&gt; <a href=\"/").append(url).append("\">Просмотр</a>");
       } catch (BadImageException e) {
-        out.append("<p>&gt;&gt;&gt; <a href=\"/").append(url).append("\">[BAD IMAGE!] Просмотр</a>");
+        out.append("&gt;&gt;&gt; <a href=\"/").append(url).append("\">[BAD IMAGE!] Просмотр</a>");
       } catch (IOException e) {
-        out.append("<p>&gt;&gt;&gt; <a href=\"/").append(url).append("\">[BAD IMAGE: IO Exception!] Просмотр</a>");
+        out.append("&gt;&gt;&gt; <a href=\"/").append(url).append("\">[BAD IMAGE: IO Exception!] Просмотр</a>");
       }
+
+      out.append("</p>");
     } else if (votepoll) {
       try {
         int id = Poll.getPollIdByTopic(db, msgid);
