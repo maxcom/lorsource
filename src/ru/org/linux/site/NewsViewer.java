@@ -119,7 +119,7 @@ public class NewsViewer implements Viewer {
     if (url != null && !imagepost && !votepoll) {
       out.append("<p>&gt;&gt;&gt; <a href=\"").append(HTMLFormatter.htmlSpecialChars(url)).append("\">").append(linktext).append("</a>");
     } else if (imagepost) {
-      out.append("<br>");
+      out.append("<p>");
 
       try {
         try {
@@ -131,7 +131,7 @@ public class NewsViewer implements Viewer {
 
           ImageInfo iconInfo = new ImageInfo(config.getProperty("HTMLPathPrefix") + mediumName);
 
-          out.append("<div align=center><a href=\"/").append(url).append("\"><img src=\"/").append(mediumName).append("\" ALT=\"").append(subj).append("\" ").append(iconInfo.getCode()).append(" ></a></div>");
+          out.append("<a href=\"/").append(url).append("\"><img src=\"/").append(mediumName).append("\" ALT=\"").append(subj).append("\" ").append(iconInfo.getCode()).append(" ></a>");
         } catch (BadImageException e) {
           out.append("<a href=\"/").append(url).append("\">[bad image!]<img src=\"/").append(linktext).append("\" ALT=\"").append(subj).append("\" " + " ></a>");
         } catch (IOException e) {
