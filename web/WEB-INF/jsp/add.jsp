@@ -67,9 +67,11 @@
 <p>
   Технические требования к изображению:
   <ul>
-    <li>Ширина x Высота: от 400x400 до 2048x2048 пикселей</li>
+    <li>Ширина x Высота:
+      от <%= ScreenshotProcessor.MIN_SCREENSHOT_SIZE %>x<%= ScreenshotProcessor.MIN_SCREENSHOT_SIZE %>
+      до <%= ScreenshotProcessor.MAX_SCREENSHOT_SIZE %>x<%= ScreenshotProcessor.MAX_SCREENSHOT_SIZE %> пикселей</li>
     <li>Тип: jpeg, gif, png</li>
-    <li>Размер не более 300 Kb</li>
+    <li>Размер не более <%= (ScreenshotProcessor.MAX_SCREENSHOT_FILESIZE / 1024) - 50 %> Kb</li>
   </ul>
 </p>
 <%   } %>
