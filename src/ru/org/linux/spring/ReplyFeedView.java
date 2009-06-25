@@ -47,7 +47,7 @@ public class ReplyFeedView extends AbstractRomeView {
     feed.setEntries(entries);
     for (ShowRepliesController.MyTopicsListItem item : list) {
       SyndEntry feedEntry = new SyndEntryImpl();
-      feedEntry.setPublishedDate(new Date(item.getLastmod().getTime()));
+      feedEntry.setPublishedDate(new Date(item.getCommentDate().getTime()));
       feedEntry.setTitle(item.getSubj());
       feedEntry.setAuthor(String.valueOf(item.getNick()));
       feedEntry.setLink(String.format("http://www.linux.org.ru/jump-message.jsp?msgid=%s&cid=%s",
