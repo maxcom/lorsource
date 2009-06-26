@@ -33,7 +33,7 @@
 
     <form action="/vote.jsp" method="GET">
       <input type="hidden" name="voteid" value="${poll.id}"/>
-      <input type="hidden" name="msgid" value="${poll.topicId}"/>
+      <input type="hidden" name="msgid" value="${poll.topic}"/>
       <c:forEach var="item" items="${votes}">
         <input type="radio" name="vote" value="${item.id}"/>${item.label}<br/>
       </c:forEach>

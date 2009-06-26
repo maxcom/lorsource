@@ -19,12 +19,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
-import java.io.Serializable;
 
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 
-import ru.org.linux.site.Poll;
 import ru.org.linux.site.PollNotFoundException;
 
 /**
@@ -81,68 +79,6 @@ public class PollDaoImpl {
   public Integer getVotersCount(Integer pollId) {
     String sql = "SELECT sum(votes) as s FROM votes WHERE vote= ?";
     return jdbcTemplate.queryForInt(sql, pollId);
-  }
-
-  public class PollDTO implements Serializable {
-    private static final long serialVersionUID = 4990058253675059050L;
-    private int id;
-    private String title;
-    private int topic;
-
-    public int getId() {
-      return id;
-    }
-
-    public void setId(int id) {
-      this.id = id;
-    }
-
-    public String getTitle() {
-      return title;
-    }
-
-    public void setTitle(String title) {
-      this.title = title;
-    }
-
-    public int getTopic() {
-      return topic;
-    }
-
-    public void setTopic(int topic) {
-      this.topic = topic;
-    }
-  }
-
-  public class VoteDTO implements Serializable {
-    Integer id;
-    String label;
-    Integer pollId;
-    private static final long serialVersionUID = -293722815777946212L;
-
-    public Integer getId() {
-      return id;
-    }
-
-    public void setId(Integer id) {
-      this.id = id;
-    }
-
-    public String getLabel() {
-      return label;
-    }
-
-    public void setLabel(String label) {
-      this.label = label;
-    }
-
-    public Integer getPollId() {
-      return pollId;
-    }
-
-    public void setPollId(Integer pollId) {
-      this.pollId = pollId;
-    }
   }
 
 }

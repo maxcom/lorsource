@@ -28,6 +28,8 @@ import ru.org.linux.site.PollNotFoundException;
 import ru.org.linux.spring.CacheableController;
 import ru.org.linux.spring.commons.CacheProvider;
 import ru.org.linux.spring.dao.PollDaoImpl;
+import ru.org.linux.spring.dao.VoteDTO;
+import ru.org.linux.spring.dao.PollDTO;
 
 /**
  * User: sreentenko
@@ -55,8 +57,8 @@ public class PollBoxletImpl extends SpringBoxlet implements CacheableController 
 
   @RequestMapping("/poll.boxlet")
   protected ModelAndView getData(HttpServletRequest request, HttpServletResponse response) {
-    final PollDaoImpl.PollDTO poll = getFromCache(new GetCommand<PollDaoImpl.PollDTO>() {
-      public PollDaoImpl.PollDTO get() {
+    final PollDTO poll = getFromCache(getCacheKey() + "poll", new GetCommand<PollDTO>() {
+      public PollDTO get() {
         try {
           return pollDao.getCurrentPoll();
         } catch (PollNotFoundException e) {
@@ -65,13 +67,13 @@ public class PollBoxletImpl extends SpringBoxlet implements CacheableController 
       }
     });
 
-    final List<PollDaoImpl.VoteDTO> votes = getFromCache(new GetCommand<List<PollDaoImpl.VoteDTO>>() {
-      public List<PollDaoImpl.VoteDTO> get() {
+    final List<VoteDTO> votes = getFromCache(getCacheKey() + "votes", new GetCommand<List<VoteDTO>>() {
+      public List<VoteDTO> get() {
         return pollDao.getVoteDTO(poll.getId());
       }
     });
 
-    Integer count = getFromCache(new GetCommand<Integer>() {
+    Integer count = getFromCache(getCacheKey() + "count", new GetCommand<Integer>() {
       public Integer get() {
         return pollDao.getVotersCount(poll.getId());
       }
