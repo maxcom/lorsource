@@ -21,6 +21,8 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.stereotype.Controller;
 
+import ru.org.linux.spring.commons.CacheProvider;
+
 /**
  * User: sreentenko
  * Date: 01.05.2009
@@ -31,5 +33,9 @@ public class IbmBoxletImpl extends SpringBoxlet {
   @RequestMapping("/ibm.boxlet")
   protected ModelAndView getData(HttpServletRequest request, HttpServletResponse response) {
     return new ModelAndView("boxlets/ibm", null);
+  }
+
+  protected CacheProvider getCacheProvider() {
+    return null;
   }
 }

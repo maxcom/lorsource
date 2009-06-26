@@ -23,7 +23,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="lor" uri="http://www.linux.org.ru" %>
-<lor:cache key="top10.boxlet?style=${style}&amp;perPage=${perPage}" expire="${5 * 60 * 1000}">
   <h2>Top 10</h2>
 
   <div class="boxlet_content">
@@ -53,4 +52,3 @@
       <br/>
     </c:forEach>
   </div>
-</lor:cache>

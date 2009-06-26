@@ -19,6 +19,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
+import java.io.Serializable;
 
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
@@ -43,24 +44,28 @@ public class PollDaoImpl {
     this.jdbcTemplate = jdbcTemplate;
   }
 
-  public Poll getCurrentPoll() throws PollNotFoundException{
+  public PollDTO getCurrentPoll() throws PollNotFoundException {
     String sql = "SELECT votenames.id, votenames.title, votenames.topic FROM votenames" +
       " JOIN topics on votenames.topic = topics.id WHERE" +
       " topics.moderate AND not topics.deleted " +
       " AND topics.commitdate = (select max(commitdate)" +
       " from topics where groupid=19387 AND moderate AND NOT deleted)";
-    Poll result = jdbcTemplate.queryForObject(sql, new ParameterizedRowMapper<Poll>() {
-      public Poll mapRow(ResultSet rs, int rowNum) throws SQLException {
-        return Poll.createPoll(rs.getInt("id"), rs.getString("title"), rs.getInt("topic"));
+    PollDTO result = jdbcTemplate.queryForObject(sql, new ParameterizedRowMapper<PollDTO>() {
+      public PollDTO mapRow(ResultSet rs, int rowNum) throws SQLException {
+        PollDTO result = new PollDTO();
+        result.setId(rs.getInt("id"));
+        result.setTitle(rs.getString("title"));
+        result.setTopic(rs.getInt("topic"));
+        return result;
       }
     }, new HashMap());
-    if (result == null){
+    if (result == null) {
       throw new PollNotFoundException(-1);
     }
     return result;
   }
 
-  public List<VoteDTO> getVoteDTO(final Integer pollId){
+  public List<VoteDTO> getVoteDTO(final Integer pollId) {
     String sql = "SELECT id, label FROM votes WHERE vote= ? ORDER BY id";
     return jdbcTemplate.query(sql, new ParameterizedRowMapper<VoteDTO>() {
       public VoteDTO mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -73,16 +78,47 @@ public class PollDaoImpl {
     }, pollId);
   }
 
-  public Integer getVotersCount(Integer pollId){
+  public Integer getVotersCount(Integer pollId) {
     String sql = "SELECT sum(votes) as s FROM votes WHERE vote= ?";
     return jdbcTemplate.queryForInt(sql, pollId);
   }
 
+  public class PollDTO implements Serializable {
+    private static final long serialVersionUID = 4990058253675059050L;
+    private int id;
+    private String title;
+    private int topic;
 
-  public static class VoteDTO{
+    public int getId() {
+      return id;
+    }
+
+    public void setId(int id) {
+      this.id = id;
+    }
+
+    public String getTitle() {
+      return title;
+    }
+
+    public void setTitle(String title) {
+      this.title = title;
+    }
+
+    public int getTopic() {
+      return topic;
+    }
+
+    public void setTopic(int topic) {
+      this.topic = topic;
+    }
+  }
+
+  public class VoteDTO implements Serializable {
     Integer id;
     String label;
     Integer pollId;
+    private static final long serialVersionUID = -293722815777946212L;
 
     public Integer getId() {
       return id;

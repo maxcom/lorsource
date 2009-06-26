@@ -15,15 +15,14 @@
 
 package ru.org.linux.spring.commons;
 
-import java.io.Serializable;
 import java.util.Date;
 
 import ru.org.linux.site.MemCachedSettings;
 
 public class MemCachedProvider implements CacheProvider {
-  public <T> T getFromCache(String key) {
+  public Object getFromCache(String key) {
     String s = MemCachedSettings.getId(key);
-    return (T) MemCachedSettings.getClient().get(s);
+    return MemCachedSettings.getClient().get(s);
   }
 
   public <T> boolean storeToCache(String key, T value, long expire) {

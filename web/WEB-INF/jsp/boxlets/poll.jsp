@@ -23,7 +23,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="lor" uri="http://www.linux.org.ru" %>
-<lor:cache key="poll.boxlet" expire="${60 * 1000}">
   <c:url value="/view-news.jsp" var="main_url">
     <c:param name="section" value="5"/>
   </c:url>
@@ -50,4 +49,3 @@
     <br/>
     [<a href="<c:url value="/add-poll.jsp"/>">добавить опрос</a>]
   </div>
-</lor:cache>

@@ -18,6 +18,7 @@ package ru.org.linux.spring.dao;
 import java.util.List;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.io.Serializable;
 
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
@@ -74,10 +75,11 @@ public class TagDaoImpl {
     return result;
   }
 
-  public static class TagDTO {
+  public static class TagDTO implements Serializable{
     private Integer weight;
     private String value;
     private double counter;
+    private static final long serialVersionUID = -1928783200997267710L;
 
     public Integer getWeight() {
       return weight;

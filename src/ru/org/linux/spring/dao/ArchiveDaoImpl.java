@@ -15,13 +15,14 @@
 
 package ru.org.linux.spring.dao;
 
-import java.util.List;
-import java.util.HashMap;
+import java.io.Serializable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.List;
 
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
+import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 
 /**
  * User: sreentenko
@@ -54,10 +55,11 @@ public class ArchiveDaoImpl {
     }, new HashMap());
   }
 
-  public static class ArchiveDTO{
+  public static class ArchiveDTO implements Serializable {
     int year;
     int month;
     int count;
+    private static final long serialVersionUID = 5862774559965251294L;
 
     public int getYear() {
       return year;

@@ -20,6 +20,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.List;
+import java.io.Serializable;
 
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
@@ -65,13 +66,14 @@ public class TopTenDaoImpl {
   }
 
 
-  public static class TopTenMessageDTO {
+  public static class TopTenMessageDTO implements Serializable{
     private Integer msgid;
     private Timestamp lastmod;
     private String title;
     private boolean movedUp = false;
     private Integer pages;
     private Integer answers;
+    private static final long serialVersionUID = 166352344159392938L;
 
     public Integer getMsgid() {
       return msgid;

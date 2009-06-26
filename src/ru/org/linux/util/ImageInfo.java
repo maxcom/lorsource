@@ -25,7 +25,7 @@ import java.util.logging.Logger;
  * <p/>
  * currently supported file types: Jpeg Gif Png
  */
-public class ImageInfo {
+public class ImageInfo{
   private static final Logger logger = Logger.getLogger("ru.org.linux");
 
   private int height = -1;

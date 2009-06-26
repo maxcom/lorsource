@@ -67,4 +67,10 @@
     <bean class="ru.org.linux.spring.dao.TagDaoImpl" id="tagDao">
         <property name="jdbcTemplate" ref="jdbcTemplate"/>
     </bean>
+
+    <bean class="ru.org.linux.spring.dao.TopicDaoImpl" id="topicDao">
+        <property name="jdbcTemplate" ref="jdbcTemplate"/>
+    </bean>
+
+    <bean class="ru.org.linux.spring.commons.MemCachedProvider" id="cacheProvider"/>
 </beans>

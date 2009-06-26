@@ -15,20 +15,19 @@
 
 package ru.org.linux.spring.boxlets;
 
-import java.util.Map;
-import java.util.HashMap;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.stereotype.Controller;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
 
-import ru.org.linux.spring.dao.PollDaoImpl;
-import ru.org.linux.site.Poll;
 import ru.org.linux.site.PollNotFoundException;
+import ru.org.linux.spring.CacheableController;
+import ru.org.linux.spring.commons.CacheProvider;
+import ru.org.linux.spring.dao.PollDaoImpl;
 
 /**
  * User: sreentenko
@@ -36,32 +35,60 @@ import ru.org.linux.site.PollNotFoundException;
  * Time: 23:51:26
  */
 @Controller
-public class PollBoxletImpl extends SpringBoxlet {
-
+public class PollBoxletImpl extends SpringBoxlet implements CacheableController {
+  private CacheProvider cacheProvider;
   private PollDaoImpl pollDao;
 
   public PollDaoImpl getPollDao() {
     return pollDao;
   }
+
   @Autowired
   public void setPollDao(PollDaoImpl pollDao) {
     this.pollDao = pollDao;
   }
 
+  @Autowired
+  public void setCacheProvider(CacheProvider cacheProvider) {
+    this.cacheProvider = cacheProvider;
+  }
+
   @RequestMapping("/poll.boxlet")
   protected ModelAndView getData(HttpServletRequest request, HttpServletResponse response) {
-    Poll poll;
-    try {
-      poll = pollDao.getCurrentPoll();
-    } catch (PollNotFoundException e) {
-      throw new RuntimeException(e);
-    }
-    final List<PollDaoImpl.VoteDTO> votes = pollDao.getVoteDTO(poll.getId());
+    final PollDaoImpl.PollDTO poll = getFromCache(new GetCommand<PollDaoImpl.PollDTO>() {
+      public PollDaoImpl.PollDTO get() {
+        try {
+          return pollDao.getCurrentPoll();
+        } catch (PollNotFoundException e) {
+          throw new RuntimeException(e);
+        }
+      }
+    });
 
-    Map<String, Object> model = new HashMap<String, Object>();
-    model.put("poll", poll);
-    model.put("votes", votes);
-    model.put("count", pollDao.getVotersCount(poll.getId()));
-    return new ModelAndView("boxlets/poll", model);
+    final List<PollDaoImpl.VoteDTO> votes = getFromCache(new GetCommand<List<PollDaoImpl.VoteDTO>>() {
+      public List<PollDaoImpl.VoteDTO> get() {
+        return pollDao.getVoteDTO(poll.getId());
+      }
+    });
+
+    Integer count = getFromCache(new GetCommand<Integer>() {
+      public Integer get() {
+        return pollDao.getVotersCount(poll.getId());
+      }
+    });
+
+    ModelAndView result = new ModelAndView("boxlets/poll");
+    result.addObject("poll", poll);
+    result.addObject("votes", votes);
+    result.addObject("count", count);
+    return result;
+  }
+
+  protected CacheProvider getCacheProvider() {
+    return cacheProvider;
+  }
+
+  public Long getExpiryTime() {
+    return super.getExpiryTime() * 2;
   }
 }

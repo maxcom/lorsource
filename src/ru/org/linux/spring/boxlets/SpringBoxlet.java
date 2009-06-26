@@ -20,16 +20,20 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.AbstractController;
 
+import ru.org.linux.spring.CacheableController;
+import ru.org.linux.spring.commons.CacheProvider;
+
 /**
  * User: sreentenko
  * Date: 01.05.2009
  * Time: 0:55:16
  */
-public abstract class SpringBoxlet extends AbstractController {
+public abstract class SpringBoxlet extends AbstractController implements CacheableController{
 
   protected abstract ModelAndView getData(HttpServletRequest request,
                                           HttpServletResponse response);
 
+  
   protected ModelAndView handleRequestInternal(HttpServletRequest request,
                                                HttpServletResponse response) throws Exception {
     ModelAndView mav = getData(request, response);
@@ -41,5 +45,33 @@ public abstract class SpringBoxlet extends AbstractController {
       mav.addObject("editMode", Boolean.TRUE);
     }
     return mav;
+  }
+
+  protected abstract CacheProvider getCacheProvider();
+
+  protected <T> T getFromCache(GetCommand<T> callback){
+    return getFromCache(getCacheKey(), callback);
+  }
+
+  protected <T> T getFromCache(String key, GetCommand<T> callback){
+    @SuppressWarnings("unchecked")
+    T result = (T) getCacheProvider().getFromCache(key);
+    if (result == null){
+       result = callback.get();
+       getCacheProvider().storeToCache(key, result, getExpiryTime());
+    }
+    return result;
+  }
+
+  public interface GetCommand<T>{
+    T get();
+  }
+
+  public String getCacheKey(){
+    return getClass().getName();
+  }
+
+  public Long getExpiryTime(){
+    return DEFAULT_EXPIRE;
   }
 }

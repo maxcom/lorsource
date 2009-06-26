@@ -15,13 +15,17 @@
 
 package ru.org.linux.spring.boxlets;
 
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.stereotype.Controller;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
 
+import ru.org.linux.site.GalleryItem;
+import ru.org.linux.spring.commons.CacheProvider;
 import ru.org.linux.spring.dao.GalleryDaoImpl;
 
 /**
@@ -32,6 +36,7 @@ import ru.org.linux.spring.dao.GalleryDaoImpl;
 @Controller
 public class GalleryBoxletImpl extends SpringBoxlet {
   private GalleryDaoImpl galleryDao;
+  private CacheProvider cacheProvider;
 
   public GalleryDaoImpl getGalleryDao() {
     return galleryDao;
@@ -41,11 +46,25 @@ public class GalleryBoxletImpl extends SpringBoxlet {
     this.galleryDao = galleryDao;
   }
 
+  public CacheProvider getCacheProvider() {
+    return cacheProvider;
+  }
+
+  @Autowired
+  public void setCacheProvider(CacheProvider cacheProvider) {
+    this.cacheProvider = cacheProvider;
+  }
+
   @RequestMapping("/gallery.boxlet")
   protected ModelAndView getData(HttpServletRequest request, HttpServletResponse response) {
     ModelAndView mav = new ModelAndView();
     mav.setViewName("boxlets/gallery");
-    mav.addObject("items", getGalleryDao().getGalleryItems());
+    final List<GalleryItem> list = getFromCache(new GetCommand<List<GalleryItem>>() {
+      public List<GalleryItem> get() {
+        return galleryDao.getGalleryItems();
+      }
+    });
+    mav.addObject("items", list);
     return mav;
   }
 }

@@ -13,16 +13,16 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.spring.commons;
-
-import java.io.Serializable;
+package ru.org.linux.spring;
 
 /**
- * User: rsvato
- * Date: May 6, 2009
- * Time: 4:27:50 PM
+ * User: sreentenko
+ * Date: 27.06.2009
+ * Time: 1:45:02
  */
-public interface CacheProvider {
-  public Object getFromCache(String key);
-  public<T> boolean storeToCache(String key, T value, long expire);
+public interface CacheableController {
+  Long DEFAULT_EXPIRE = 30000l;
+
+  String getCacheKey();
+  Long getExpiryTime();
 }

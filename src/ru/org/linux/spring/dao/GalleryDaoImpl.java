@@ -83,7 +83,7 @@ public class GalleryDaoImpl {
     item.setStat(rs.getInt("stat1"));
 
     String htmlPath = properties.getProperties().getProperty("HTMLPathPrefix", "");
-
+    item.setHtmlPath(htmlPath);
     try {
       item.setInfo(new ImageInfo(htmlPath + item.getIcon()));
       item.setImginfo(new ImageInfo(htmlPath + item.getUrl()));
@@ -94,4 +94,6 @@ public class GalleryDaoImpl {
     }
     return item;
   }
+
+
 }

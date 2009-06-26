@@ -15,6 +15,8 @@
 
 package ru.org.linux.spring.boxlets;
 
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.web.servlet.ModelAndView;
@@ -23,11 +25,13 @@ import org.springframework.stereotype.Controller;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.org.linux.spring.dao.TagDaoImpl;
+import ru.org.linux.spring.commons.CacheProvider;
 import ru.org.linux.util.ProfileHashtable;
 import ru.org.linux.site.Template;
 
 @Controller
 public class TagCloudBoxletImpl extends SpringBoxlet {
+  private CacheProvider cacheProvider;
   private TagDaoImpl tagDao;
 
   public TagDaoImpl getTagDao() {
@@ -38,12 +42,33 @@ public class TagCloudBoxletImpl extends SpringBoxlet {
     this.tagDao = tagDao;
   }
 
+  @Autowired
+  public void setCacheProvider(CacheProvider cacheProvider) {
+    this.cacheProvider = cacheProvider;
+  }
+
   @RequestMapping("/tagcloud.boxlet")
   protected ModelAndView getData(HttpServletRequest request, HttpServletResponse response) {
     final ProfileHashtable profile = Template.getTemplate(request).getProf();
     final int i = profile.getInt("tags");
-    ModelAndView mav = new ModelAndView("boxlets/tagcloud", "tags", getTagDao().getTags(i));
+    String key = getCacheKey() + "?count=" + i;
+
+    final List<TagDaoImpl.TagDTO> list = getFromCache(key, new GetCommand<List<TagDaoImpl.TagDTO>>() {
+      public List<TagDaoImpl.TagDTO> get() {
+        return getTagDao().getTags(i);
+      }
+    });
+    ModelAndView mav = new ModelAndView("boxlets/tagcloud", "tags", list);
     mav.addObject("count", i);
     return mav;
+  }
+
+  protected CacheProvider getCacheProvider() {
+    return cacheProvider;
+  }
+
+
+  public Long getExpiryTime() {
+    return super.getExpiryTime() * 10;
   }
 }

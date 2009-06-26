@@ -15,13 +15,16 @@
 
 package ru.org.linux.spring.boxlets;
 
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.stereotype.Controller;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
 
+import ru.org.linux.spring.commons.CacheProvider;
 import ru.org.linux.spring.dao.ArchiveDaoImpl;
 
 /**
@@ -30,8 +33,9 @@ import ru.org.linux.spring.dao.ArchiveDaoImpl;
  * Time: 23:15:32
  */
 @Controller
-public class ArchiveBoxletImpl extends SpringBoxlet {
+public class ArchiveBoxletImpl extends SpringBoxlet{
   private ArchiveDaoImpl archiveDao;
+  private CacheProvider cacheProvider;
 
   public ArchiveDaoImpl getArchiveDao() {
     return archiveDao;
@@ -40,8 +44,24 @@ public class ArchiveBoxletImpl extends SpringBoxlet {
   public void setArchiveDao(ArchiveDaoImpl archiveDao) {
     this.archiveDao = archiveDao;
   }
+
+  public CacheProvider getCacheProvider() {
+    return cacheProvider;
+  }
+
+  @Autowired
+  public void setCacheProvider(CacheProvider cacheProvider) {
+    this.cacheProvider = cacheProvider;
+  }
+
   @RequestMapping("/archive.boxlet")
   protected ModelAndView getData(HttpServletRequest request, HttpServletResponse response) {
-    return new ModelAndView("boxlets/archive", "items", archiveDao.getArchiveDTO());
+    List<ArchiveDaoImpl.ArchiveDTO> list = getFromCache(new GetCommand<List<ArchiveDaoImpl.ArchiveDTO>>() {
+      public List<ArchiveDaoImpl.ArchiveDTO> get() {
+        return archiveDao.getArchiveDTO();
+      }
+    });
+
+    return new ModelAndView("boxlets/archive", "items", list);
   }
 }

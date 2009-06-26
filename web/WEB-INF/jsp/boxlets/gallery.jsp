@@ -15,7 +15,6 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
-<lor:cache key="gallery.boxlet" expire="30000">
   <h2><a href="view-news.jsp?section=3">Галерея</a></h2>
 
   <div class="boxlet_content">
@@ -53,4 +52,3 @@
 
     <a href="view-news.jsp?section=3">другие скриншоты...</a>
   </div>
-</lor:cache>
