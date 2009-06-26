@@ -36,7 +36,7 @@
 При помощи этого инструмента вы можете составить для себя свою собственную
 страничку, содержащую только необходимую вам информацию.
 <% } else { %>
-[<a href="edit-boxes.jsp">В&nbsp;начало</a>] [<a href="edit-profile.jsp">Настройки&nbsp;профиля</a>] [<a href="/">На&nbsp;главную&nbsp;страницу</a>]
+[<a href="edit-boxes-old.jsp">В&nbsp;начало</a>] [<a href="edit-profile.jsp">Настройки&nbsp;профиля</a>] [<a href="/">На&nbsp;главную&nbsp;страницу</a>]
 <% } %>
 <%
   List main2 = (List) tmpl.getProf().getObject("main2");

@@ -44,7 +44,8 @@ public final class archive extends Boxlet {
       while (rs.next()) {
         int year = rs.getInt("year");
         int month = rs.getInt("month");
-        out.append("<a href=\"view-news.jsp?year=").append(year).append("&amp;month=").append(month).append("&amp;section=1\">").append(year).append(' ').append(DateUtil.getMonth(month)).append("</a> (").append(rs.getInt("c")).append(")<br>");
+        out.append("<a href=\"view-news.jsp?year=").append(year).append("&amp;month=").append(month).append("&amp;section=1\">")
+          .append(year).append(' ').append(DateUtil.getMonth(month)).append("</a> (").append(rs.getInt("c")).append(")<br>");
       }
       rs.close();
 

@@ -68,7 +68,6 @@ public class RegisterController extends ApplicationObjectSupport {
         nick = tmpl.getNick();
       } else {
         nick = request.getParameter("nick");
-
         User.checkNick(nick);
       }
 

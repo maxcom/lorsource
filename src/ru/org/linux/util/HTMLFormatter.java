@@ -155,7 +155,6 @@ public class HTMLFormatter {
     StringBuilder out = new StringBuilder();
 
     Matcher m = urlRE.matcher(chunk);
-
     int index = 0;
 
     while (m.find()) {
@@ -222,7 +221,7 @@ public class HTMLFormatter {
    * converts new line characters in input string to
    * HTML line brake tag
    */
-  private static String nl2br(String text, boolean quoting) {
+  static String nl2br(String text, boolean quoting) {
     if (!quoting) {
       return text.replaceAll(nlRE.pattern(), "<br>");
     }

@@ -72,7 +72,6 @@ public class HTMLFormatterTest {
   private static final String EMPTY_ANCHOR = "http://www.google.com/#";
   private static final String SLASH_AFTER_AMP = "http://extensions.joomla.org/extensions/communities-&-groupware/ratings-&-reviews/5483/details";
 
-
   @Test
   public void testURLHighlight() throws UtilException {
     HTMLFormatter formatter = new HTMLFormatter(TEXT1);
@@ -340,5 +339,4 @@ public class HTMLFormatterTest {
     assertThat("No whitespace inside link", blankIndex, CoreMatchers.equalTo(lastIndex));
     //whitespace shoud separate href attribute. no other ws should occur
   }
-
 }

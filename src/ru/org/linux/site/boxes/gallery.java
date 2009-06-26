@@ -23,6 +23,9 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Date;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import ru.org.linux.boxlet.Boxlet;
 import ru.org.linux.site.LorDataSource;
 import ru.org.linux.site.config.PropertiesConfig;
@@ -32,7 +35,9 @@ import ru.org.linux.util.ProfileHashtable;
 import ru.org.linux.util.StringUtil;
 
 public final class gallery extends Boxlet {
-  @Override
+
+  private static final Log log = LogFactory.getLog(gallery.class);
+
   public String getContentImpl(ProfileHashtable profile) throws IOException, SQLException {
     Connection db = null;
     try {
@@ -80,7 +85,7 @@ public final class gallery extends Boxlet {
 
         out.append("<p>");
       }
-      rs.close();                          
+      rs.close();
       out.append("<a href=\"view-news.jsp?section=3\">другие скриншоты...</a>");
       out.append("</div>");
       return out.toString();
