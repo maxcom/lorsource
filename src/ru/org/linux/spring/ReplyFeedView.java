@@ -36,6 +36,8 @@ public class ReplyFeedView extends AbstractRomeView {
     String s = "Ответы на комментарии пользователя " + String.valueOf(model.get("nick"));
     feed.setTitle(s);
     feed.setLink("http://www.linux.org.ru");
+    feed.setUri("http://www.linux.org.ru");
+    feed.setAuthor("");
     feed.setDescription(s);
     Date lastModified = new Date();
     if (!list.isEmpty()) {
@@ -50,8 +52,10 @@ public class ReplyFeedView extends AbstractRomeView {
       feedEntry.setPublishedDate(new Date(item.getCommentDate().getTime()));
       feedEntry.setTitle(item.getSubj());
       feedEntry.setAuthor(String.valueOf(item.getNick()));
-      feedEntry.setLink(String.format("http://www.linux.org.ru/jump-message.jsp?msgid=%s&cid=%s",
-        String.valueOf(item.getMsgid()), String.valueOf(item.getCid())));
+      final String link = String.format("http://www.linux.org.ru/jump-message.jsp?msgid=%s&cid=%s",
+        String.valueOf(item.getMsgid()), String.valueOf(item.getCid()));
+      feedEntry.setLink(link);
+      feedEntry.setUri(link);
       if (item.getMessageText() != null){
         SyndContent message = new SyndContentImpl();
         message.setValue(item.getMessageText());
