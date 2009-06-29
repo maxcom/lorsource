@@ -16,6 +16,8 @@
 package ru.org.linux.spring.boxlets;
 
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -78,6 +80,11 @@ public class TopTenBoxletImpl extends SpringBoxlet {
         return list;
       }
     });
-    return new ModelAndView("boxlets/top10", "messages", list);
+
+    Map<String, Object> params = new HashMap<String, Object>();
+    params.put("messages", list);
+    params.put("style", style);
+
+    return new ModelAndView("boxlets/top10", params);
   }
 }
