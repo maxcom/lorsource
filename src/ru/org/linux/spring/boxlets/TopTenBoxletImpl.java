@@ -66,7 +66,7 @@ public class TopTenBoxletImpl extends SpringBoxlet {
     final ProfileHashtable profile = Template.getTemplate(request).getProf();
     final int itemsPerPage = profile.getInt("messages");
     final String style = profile.getString("style");
-    String key = String.format("%s?style=%s&perPage=%d", getCacheKey(), style, itemsPerPage);
+    String key = String.format("%s?perPage=%d", getCacheKey(), itemsPerPage);
 
     List<TopTenDaoImpl.TopTenMessageDTO> list = getFromCache(key, new GetCommand<List<TopTenDaoImpl.TopTenMessageDTO>>() {
       public List<TopTenDaoImpl.TopTenMessageDTO> get() {
