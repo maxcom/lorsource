@@ -16,6 +16,7 @@
 package ru.org.linux.spring.dao;
 
 import java.util.List;
+import java.util.Collections;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.io.Serializable;
@@ -72,10 +73,12 @@ public class TagDaoImpl {
       }
     });
 
+    Collections.sort(result);
+
     return result;
   }
 
-  public static class TagDTO implements Serializable{
+  public static class TagDTO implements Serializable, Comparable<TagDTO>{
     private Integer weight;
     private String value;
     private double counter;
@@ -103,6 +106,12 @@ public class TagDaoImpl {
 
     void setCounter(double counter) {
       this.counter = counter;
+    }
+
+
+    @Override
+    public int compareTo(TagDTO o) {
+      return value.compareTo(o.value);
     }
   }
 }
