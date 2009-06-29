@@ -15,22 +15,22 @@
 
 package ru.org.linux.spring.boxlets;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.stereotype.Controller;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Closure;
+import org.apache.commons.collections.CollectionUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
 
-import ru.org.linux.spring.dao.TopTenDaoImpl;
-import ru.org.linux.spring.commons.CacheProvider;
 import ru.org.linux.site.Template;
+import ru.org.linux.spring.commons.CacheProvider;
+import ru.org.linux.spring.dao.TopTenDaoImpl;
 import ru.org.linux.util.ProfileHashtable;
 
 /**
@@ -52,6 +52,7 @@ public class TopTenBoxletImpl extends SpringBoxlet {
     this.topTenDao = topTenDao;
   }
 
+  @Override
   public CacheProvider getCacheProvider() {
     return cacheProvider;
   }
@@ -61,17 +62,20 @@ public class TopTenBoxletImpl extends SpringBoxlet {
     this.cacheProvider = cacheProvider;
   }
 
+  @Override
   @RequestMapping("/top10.boxlet")
   protected ModelAndView getData(HttpServletRequest request, HttpServletResponse response) {
-    final ProfileHashtable profile = Template.getTemplate(request).getProf();
+    ProfileHashtable profile = Template.getTemplate(request).getProf();
     final int itemsPerPage = profile.getInt("messages");
-    final String style = profile.getString("style");
+    String style = profile.getString("style");
     String key = String.format("%s?perPage=%d", getCacheKey(), itemsPerPage);
 
     List<TopTenDaoImpl.TopTenMessageDTO> list = getFromCache(key, new GetCommand<List<TopTenDaoImpl.TopTenMessageDTO>>() {
+      @Override
       public List<TopTenDaoImpl.TopTenMessageDTO> get() {
         List<TopTenDaoImpl.TopTenMessageDTO> list = getTopTenDao().getMessages();
         CollectionUtils.forAllDo(list, new Closure() {
+          @Override
           public void execute(Object o) {
             TopTenDaoImpl.TopTenMessageDTO dto = (TopTenDaoImpl.TopTenMessageDTO) o;
             dto.setPages((int) Math.ceil(dto.getAnswers() / itemsPerPage));
