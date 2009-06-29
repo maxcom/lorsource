@@ -274,7 +274,11 @@ if (showform) { // show form
   <input type="hidden" name="session" value="<%= HTMLFormatter.htmlSpecialChars(session.getId()) %>">
 <% if (!Template.isSessionAuthorized(session)) { %>
 Имя:
-<input type=text name=nick value="<%= "anonymous" %>" size=40><br>
+<% if (request.getParameter("nick") != null) { %>
+       <input type='text' name='nick' value="<%= request.getParameter("nick") %>" size=40><br><%
+       } else { %>
+       <input type='text' name='nick' value="<%= "anonymous" %>" size=40><br>
+<% } %>
 Пароль:
 <input type=password name=password size=40><br>
 <% } %>
