@@ -32,7 +32,7 @@
     </c:url>
     <fmt:parseDate var="item_date" value="${item.year} ${item.month}" pattern="yyyy M"/>
     <a href="${item_url}"><fmt:formatDate value="${item_date}" pattern="yyyy MMMM"/>
-      (${item.count})</a>
+      (${item.count})</a> <br/>
   </c:forEach>
   <br>&gt;&gt;&gt; <a href="${head_url}"> Предыдущие месяцы</a> (с октября 1998)
 </div>
