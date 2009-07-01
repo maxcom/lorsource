@@ -20,6 +20,7 @@
   <div class="boxlet_content">
     <h3>Последние скриншоты</h3>
     <c:forEach var="item" items="${items}">
+      <div style="margin-bottom: 1em">
       <div align="center">
         <c:url var="url" value="/view-message.jsp">
           <c:param name="msgid" value="${item.msgid}"/>
@@ -48,7 +49,7 @@
           <c:param name="nick" value="${item.nick}"/>
         </c:url>
       </i> ${item.title} от <a href="${nickurl}">${item.nick}</a> (${item.stat})
+      </div>
     </c:forEach>
-
     <a href="view-news.jsp?section=3">другие скриншоты...</a>
   </div>
