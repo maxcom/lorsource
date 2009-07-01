@@ -16,6 +16,8 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="lor" uri="http://www.linux.org.ru" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
+
   <h2>Облако Меток</h2>
 
   <div class="boxlet_content">
@@ -25,7 +27,7 @@
           <c:param name="section" value="1"/>
           <c:param name="tag" value="${tag.value}"/>
         </c:url>
-        <a class="cloud${tag.weight}" href="${tag_url}">${tag.value}</a>
+        <a class="cloud${tag.weight}" href="${fn:escapeXml(tag_url)}">${tag.value}</a>
       </c:forEach>
     </div>
   </div>

@@ -23,6 +23,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="lor" uri="http://www.linux.org.ru" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
   <h2>Top 10</h2>
 
   <div class="boxlet_content">
@@ -39,7 +40,7 @@
         <c:param name="msgid" value="${message.msgid}"/>
         <c:param name="lastmod" value="${message.lastmod.time}"/>
       </c:url>
-      <a href="${msg_link}">${message.title}</a>
+      <a href="${fn:escapeXml(msg_link)}">${message.title}</a>
       <c:if test="${message.pages gt 1}">
         <c:url value="/view-message.jsp" var="page_link">
           <c:param name="msgid" value="${message.msgid}"/>
