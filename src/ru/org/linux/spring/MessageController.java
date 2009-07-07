@@ -24,6 +24,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.ModelAndView;
 
 import ru.org.linux.site.*;
@@ -31,7 +32,7 @@ import ru.org.linux.site.*;
 @Controller
 public class MessageController {
   @RequestMapping("/view-message.jsp")
-  public ModelAndView getMessage(HttpServletRequest request, HttpServletResponse response, @RequestParam("msgid") int msgid) throws Exception {
+  public ModelAndView getMessage(WebRequest webRequest, HttpServletRequest request, HttpServletResponse response, @RequestParam("msgid") int msgid) throws Exception {
     Template tmpl = Template.getTemplate(request);
 
     Map<String, Object> params = new HashMap<String, Object>();
@@ -79,9 +80,15 @@ public class MessageController {
         throw new AccessViolationException("Это сообщение нельзя посмотреть");
       }
 
+      if (webRequest.checkNotModified(getLastmodified(message))) {
+        return null;
+      }
+
       params.put("message", message);
 
-      setLastmodified(response, showDeleted, message);
+      if (message.isExpired()) {
+        response.setDateHeader("Expires", System.currentTimeMillis() + 30 * 24 * 60 * 60 * 1000L);
+      }
 
       params.put("prevMessage", message.getPreviousMessage(db));
       params.put("nextMessage", message.getNextMessage(db));
@@ -98,15 +105,7 @@ public class MessageController {
     }
   }
 
-  private void setLastmodified(HttpServletResponse response, boolean showDeleted, Message message) {
-    if (!message.isDeleted() && !showDeleted && message.getLastModified() != null) {
-      response.setDateHeader("Last-Modified", message.getLastModified().getTime());
-    }
-
-    if (message.isExpired()) {
-      response.setDateHeader("Expires", System.currentTimeMillis() + 30 * 24 * 60 * 60 * 1000L);
-    }/* else {
-      response.setDateHeader("Expires", System.currentTimeMillis() - 24 * 60 * 60 * 1000);
-    }*/
+  private long getLastmodified(Message message) {
+    return message.getLastModified().getTime();
   }
 }
