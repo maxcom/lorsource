@@ -105,8 +105,8 @@ public class MessageController {
 
     if (message.isExpired()) {
       response.setDateHeader("Expires", System.currentTimeMillis() + 30 * 24 * 60 * 60 * 1000L);
-    } else {
+    }/* else {
       response.setDateHeader("Expires", System.currentTimeMillis() - 24 * 60 * 60 * 1000);
-    }
+    }*/
   }
 }
