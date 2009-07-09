@@ -155,12 +155,12 @@
           </table>
         </td>
         <td align=left valign=middle width="35%">
-          <table align="right">
-            <tr valign=middle align=right>
-              <c:if test="${nextMessage != null}">
+          <c:if test="${nextMessage != null}">
+            <table align="right">
+              <tr valign=middle align=right>
                 <td>
                   <a href="${fn:escapeXml(nextMessage.linkLastmod)}" rel=next rev=prev>
-                  <%= StringUtil.makeTitle(nextMessage.getTitle()) %>
+                    <%= StringUtil.makeTitle(nextMessage.getTitle()) %>
                   </a>
                   <c:if test="${!scrollGroup}">
                     (${nextMessage.groupTitle})
@@ -169,9 +169,9 @@
                 <td align="right" valign="middle" style="padding-left: 5px">
                   <a href="${fn:escapeXml(nextMessage.linkLastmod)}" rel=next rev=prev>→</a>
                 </td>
-              </c:if>
-            </tr>
-          </table>
+              </tr>
+            </table>
+          </c:if>
         </td>
       </tr>
     </table>
@@ -219,12 +219,12 @@
             </tr>
           </table>
         <td align=right valign=middle width="35%">
-          <table aling="right">
-            <tr valign=middle align=right>
-              <c:if test="${nextMessage != null}">
+          <c:if test="${nextMessage != null}">
+            <table align="right">
+              <tr valign=middle align=right>
                 <td>
                   <a href="${fn:escapeXml(nextMessage.linkLastmod)}" rel=next rev=prev>
-                  <%= StringUtil.makeTitle(nextMessage.getTitle()) %>
+                    <%= StringUtil.makeTitle(nextMessage.getTitle()) %>
                   </a>
                   <c:if test="${!scrollGroup}">
                     (${nextMessage.groupTitle})
@@ -233,9 +233,9 @@
                 <td align="right" valign="middle" style="padding-left: 5px">
                   <a href="${fn:escapeXml(nextMessage.linkLastmod)}" rel=next rev=prev>→</a>
                 </td>
-              </c:if>
-            </tr>
-          </table>
+              </tr>
+            </table>
+          </c:if>
         </td>
       </tr>
     </table>
