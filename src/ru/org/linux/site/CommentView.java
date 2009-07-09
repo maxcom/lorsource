@@ -34,7 +34,7 @@ public class CommentView {
 
     User author = User.getUserCached(db, comment.getUserid());
 
-    out.append("<div class=msg id=").append(comment.getMessageId()).append('>');
+    out.append("<div class=msg id=\"comment-").append(comment.getMessageId()).append("\">");
     
     if (showMenu) {
       printMenu(out, comment, comments, tmpl, db, expired);

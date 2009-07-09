@@ -62,7 +62,7 @@
         options.append(pagenum);
       }
 
-      options.append("#");
+      options.append("#comment-");
       options.append(cid);
     } finally {
       if (db != null) {
