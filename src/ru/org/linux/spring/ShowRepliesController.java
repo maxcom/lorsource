@@ -30,14 +30,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
-import ru.org.linux.site.LorDataSource;
-import ru.org.linux.site.MemCachedSettings;
-import ru.org.linux.site.Template;
-import ru.org.linux.site.User;
+import ru.org.linux.site.*;
 
 @Controller
 public class ShowRepliesController {
-
   @Autowired
   private ReplyFeedView feedView;
 
@@ -113,11 +109,10 @@ public class ShowRepliesController {
             " comments.id AS cid, " +
             " comments.postdate AS cDate, " +
             " comments.userid AS cAuthor, " +
-            " msgbase.message AS cMessage, users.nick as cNick " +
+            " msgbase.message AS cMessage " +
             " FROM sections INNER JOIN groups ON (sections.id = groups.section) " +
             " INNER JOIN topics ON (groups.id=topics.groupid) " +
             " INNER JOIN comments ON (comments.topic=topics.id) " +
-            " INNER JOIN users ON (users.id = comments.userid) " +
             " INNER JOIN comments AS parents ON (parents.id=comments.replyto)" +
             " INNER JOIN msgbase ON (msgbase.id = comments.id)" +
             " WHERE  parents.userid = ? " +
@@ -134,7 +129,7 @@ public class ShowRepliesController {
         ResultSet rs = pst.executeQuery();
 
         while (rs.next()) {
-          list.add(new MyTopicsListItem(rs, messages, feedRequested));
+          list.add(new MyTopicsListItem(db, rs, messages, feedRequested));
         }
 
         rs.close();
@@ -169,15 +164,14 @@ public class ShowRepliesController {
     private final String nick;
     private static final long serialVersionUID = -8433869244309809050L;
 
-
-    public MyTopicsListItem(ResultSet rs, int messages, boolean readMessage) throws SQLException {
+    public MyTopicsListItem(Connection db, ResultSet rs, int messages, boolean readMessage) throws SQLException, UserNotFoundException {
       super(rs, messages);
       cid = rs.getInt("cid");
       cAuthor = rs.getInt("cAuthor");
       cDate = rs.getTimestamp("cDate");
       if (readMessage) {
         messageText = rs.getString("cMessage");
-        nick = rs.getString("cNick");
+        nick = User.getUserCached(db, cAuthor).getNick();
       } else {
         messageText = null;
         nick = null;
@@ -204,5 +198,4 @@ public class ShowRepliesController {
       return nick;
     }
   }
-
 }
