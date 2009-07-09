@@ -22,7 +22,8 @@ import java.util.*;
 import java.util.Date;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;import javax.servlet.ServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.ServletRequest;
 import com.danga.MemCached.MemCachedClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -100,7 +101,7 @@ public class ShowRepliesController {
           "FROM sections, groups, topics, comments, comments AS parents " +
           "WHERE sections.id=groups.section AND groups.id=topics.groupid " +
           "AND comments.topic=topics.id AND parents.userid = ? " +
-          " AND comments.replyto = parents.id AND parents.id<comments.id m " +
+          " AND comments.replyto = parents.id AND parents.id<comments.id " +
           "AND NOT comments.deleted ORDER BY cDate DESC LIMIT " + topics +
           " OFFSET " + offset;
 
