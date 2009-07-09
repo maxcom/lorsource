@@ -183,9 +183,9 @@
         String returnUrl;
 
         if (pageNum > 0) {
-          returnUrl = "view-message.jsp?msgid=" + topicId + "&page=" + pageNum + "&nocache=" + random.nextInt() + '#' + msgid;
+          returnUrl = "view-message.jsp?msgid=" + topicId + "&page=" + pageNum + "&nocache=" + random.nextInt() + "#comment-" + msgid;
         } else {
-          returnUrl = "view-message.jsp?msgid=" + topicId + "&nocache=" + random.nextInt() + '#' + msgid;
+          returnUrl = "view-message.jsp?msgid=" + topicId + "&nocache=" + random.nextInt() + "#comment-" + msgid;
         }
 
         response.setHeader("Location", tmpl.getMainUrl() + returnUrl);
