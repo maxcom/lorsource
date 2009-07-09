@@ -1,4 +1,4 @@
-<%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
+<%@ page contentType="text/html; charset=utf-8"%>
 <%@ page import="java.io.File,java.io.IOException,java.net.URLEncoder,java.sql.Connection,java.sql.PreparedStatement,java.sql.ResultSet,java.sql.Statement,java.util.Date"   buffer="64kb"%>
 <%@ page import="java.util.List"%>
 <%@ page import="java.util.Properties"%>
@@ -35,19 +35,19 @@
 
 <jsp:include page="WEB-INF/jsp/head.jsp"/>
 
-        <title>Получить забытый пароль</title>
+        <title>п÷п╬п╩я┐я┤п╦я┌я▄ п╥п╟п╠я▀я┌я▀п╧ п©п╟я─п╬п╩я▄</title>
 <jsp:include page="WEB-INF/jsp/header.jsp"/>
 
 <%
    if (request.getParameter("nick")==null) {
 %>
-<H1>Получить забытый пароль</H1>
+<H1>п÷п╬п╩я┐я┤п╦я┌я▄ п╥п╟п╠я▀я┌я▀п╧ п©п╟я─п╬п╩я▄</H1>
 <form method=POST action="lostpwd.jsp">
-Имя:
+п≤п╪я▐:
 <input type=text name=nick size=40><br>
 Email:
 <input type=text name=email size=40><br>
-<input type=submit value="Get/Получить">
+<input type=submit value="Get/п÷п╬п╩я┐я┤п╦я┌я▄">
 </form>
 <%
   } else {
@@ -75,7 +75,7 @@ Email:
         throw new AccessViolationException("mail flood");
       }
       if (rs.getString("email") == null || !rs.getString("email").equals(useremail)) {
-        throw new AccessViolationException("mail не совпадает с указанным при регистрации");
+        throw new AccessViolationException("mail п╫п╣ я│п╬п╡п©п╟п╢п╟п╣я┌ я│ я┐п╨п╟п╥п╟п╫п╫я▀п╪ п©я─п╦ я─п╣пЁп╦я│я┌я─п╟я├п╦п╦");
       }
 
 
@@ -107,7 +107,7 @@ Email:
       Transport.send(msg);
 
       db.commit();
-      out.print("Ваш пароль был выслан по вашему email'у");
+      out.print("п▓п╟я┬ п©п╟я─п╬п╩я▄ п╠я▀п╩ п╡я▀я│п╩п╟п╫ п©п╬ п╡п╟я┬п╣п╪я┐ email'я┐");
       st.close();
     } finally {
       if (db != null) {
