@@ -1,47 +1,51 @@
-<%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.util.Date,java.util.Properties,javax.mail.Session,javax.mail.Transport,javax.mail.internet.InternetAddress"   buffer="64kb"%>
-<%@ page import="javax.mail.internet.MimeMessage"%>
-<%@ page import="ru.org.linux.site.AccessViolationException"%>
-<%@ page import="ru.org.linux.site.LorDataSource"%>
-<%@ page import="ru.org.linux.site.User"%>
-<%--
-  ~ Copyright 1998-2009 Linux.org.ru
-  ~    Licensed under the Apache License, Version 2.0 (the "License");
-  ~    you may not use this file except in compliance with the License.
-  ~    You may obtain a copy of the License at
-  ~
-  ~        http://www.apache.org/licenses/LICENSE-2.0
-  ~
-  ~    Unless required by applicable law or agreed to in writing, software
-  ~    distributed under the License is distributed on an "AS IS" BASIS,
-  ~    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  ~    See the License for the specific language governing permissions and
-  ~    limitations under the License.
-  --%>
+/*
+ * Copyright 1998-2009 Linux.org.ru
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ */
 
-<jsp:include page="WEB-INF/jsp/head.jsp"/>
+package ru.org.linux.spring;
 
-        <title>Получить забытый пароль</title>
-<jsp:include page="WEB-INF/jsp/header.jsp"/>
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.util.Date;
+import java.util.Properties;
 
-<%
-   if (request.getParameter("nick")==null) {
-%>
-<H1>Получить забытый пароль</H1>
-<form method=POST action="lostpwd.jsp">
-Имя:
-<input type=text name=nick size=40><br>
-Email:
-<input type=text name=email size=40><br>
-<input type=submit value="Get/Получить">
-</form>
-<%
-  } else {
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.ModelAndView;
+
+import ru.org.linux.site.AccessViolationException;
+import ru.org.linux.site.LorDataSource;
+import ru.org.linux.site.User;
+
+@Controller
+public class LostPasswordController {
+  @RequestMapping(value="/lostpwd.jsp", method= RequestMethod.GET)
+  public ModelAndView showForm() {
+    return new ModelAndView("lostpwd-form");
+  }
+
+  @RequestMapping(value="/lostpwd.jsp", method= RequestMethod.POST)
+  public ModelAndView sendPassword(@RequestParam("nick") String nick, @RequestParam("email") String useremail) throws Exception {
     Connection db = null;
     try {
-      String nick = request.getParameter("nick");
-      String useremail = request.getParameter("email");
-
       db = LorDataSource.getConnection();
       db.setAutoCommit(false);
 
@@ -93,13 +97,14 @@ Email:
       Transport.send(msg);
 
       db.commit();
-      out.print("Ваш пароль был выслан по вашему email'у");
+
       st.close();
+
+      return new ModelAndView("action-done", "message", "Ваш пароль был выслан по вашему email'у");
     } finally {
       if (db != null) {
         db.close();
       }
     }
   }
-%>
-<jsp:include page="WEB-INF/jsp/footer.jsp"/>
+}

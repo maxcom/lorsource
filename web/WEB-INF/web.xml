@@ -177,6 +177,11 @@ version="2.4">
       <servlet-name>springapp</servlet-name>
       <url-pattern>/tracker.jsp</url-pattern>
     </servlet-mapping>
+
+    <servlet-mapping>
+      <servlet-name>springapp</servlet-name>
+      <url-pattern>/lostpwd.jsp</url-pattern>
+    </servlet-mapping>
 <listener>
   <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
 </listener>
