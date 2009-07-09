@@ -22,7 +22,7 @@ import java.util.*;
 import java.util.Date;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpServletResponse;import javax.servlet.ServletRequest;
 import com.danga.MemCached.MemCachedClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -39,7 +39,7 @@ public class ShowRepliesController {
 
   @RequestMapping("/show-replies.jsp")
   public ModelAndView showReplies(
-    HttpServletRequest request,
+    ServletRequest request,
     HttpServletResponse response,
     @RequestParam("nick") String nick,
     @RequestParam(value = "offset", required = false) Integer offsetObject
@@ -50,7 +50,7 @@ public class ShowRepliesController {
     params.put("nick", nick);
     Template tmpl = Template.getTemplate(request);
 
-    final boolean feedRequested = request.getParameterMap().containsKey("output");
+    boolean feedRequested = request.getParameterMap().containsKey("output");
 
     int offset = 0;
     if (offsetObject != null) {
@@ -144,7 +144,7 @@ public class ShowRepliesController {
 
     params.put("topicsList", list);
 
-    final ModelAndView result = new ModelAndView("show-replies", params);
+    ModelAndView result = new ModelAndView("show-replies", params);
 
     if (feedRequested) {
       result.addObject("feed-type", "rss");
