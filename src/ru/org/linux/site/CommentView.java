@@ -130,9 +130,9 @@ public class CommentView {
 
         int replyPage = comments.getCommentPage(reply, tmpl);
         if (replyPage > 0) {
-          out.append("view-message.jsp?msgid=").append(comment.getTopic()).append(urladd).append("&amp;page=").append(replyPage).append('#').append(comment.getReplyTo());
+          out.append("view-message.jsp?msgid=").append(comment.getTopic()).append(urladd).append("&amp;page=").append(replyPage).append("#comment-").append(comment.getReplyTo());
         } else {
-          out.append("view-message.jsp?msgid=").append(comment.getTopic()).append(urladd).append('#').append(comment.getReplyTo());
+          out.append("view-message.jsp?msgid=").append(comment.getTopic()).append(urladd).append("#comment-").append(comment.getReplyTo());
         }
 
         out.append("\"onclick=\"highlightMessage(").append(reply.getMessageId()).append(");\">");
