@@ -104,7 +104,7 @@ public class ShowRepliesController {
           "FROM sections, groups, topics, comments, comments AS parents " +
           "WHERE sections.id=groups.section AND groups.id=topics.groupid " +
           "AND comments.topic=topics.id AND parents.userid = ? " +
-          " AND comments.replyto = parents.id " +
+          " AND comments.replyto = parents.id AND parents.id<comments.id m " +
           "AND NOT comments.deleted ORDER BY cDate DESC LIMIT " + topics +
           " OFFSET " + offset;
 
