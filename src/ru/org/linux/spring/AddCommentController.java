@@ -57,14 +57,7 @@ public class AddCommentController extends ApplicationObjectSupport {
       db = LorDataSource.getConnection();
 
       Message topic = new Message(db, topicId);
-
-      if (topic.isExpired()) {
-        throw new AccessViolationException("нельзя добавлять в устаревшие темы");
-      }
-
-      if (topic.isDeleted()) {
-        throw new AccessViolationException("нельзя добавлять в удаленные темы");
-      }
+      checkTopic(topic);
 
       int postscore = topic.getPostScore();
       params.put("postscore", postscore);
@@ -76,6 +69,16 @@ public class AddCommentController extends ApplicationObjectSupport {
       if (db != null) {
         db.close();
       }
+    }
+  }
+
+  private void checkTopic(Message topic) throws AccessViolationException {
+    if (topic.isExpired()) {
+      throw new AccessViolationException("нельзя добавлять в устаревшие темы");
+    }
+
+    if (topic.isDeleted()) {
+      throw new AccessViolationException("нельзя добавлять в удаленные темы");
     }
   }
 
@@ -164,6 +167,7 @@ public class AddCommentController extends ApplicationObjectSupport {
       db.setAutoCommit(false);
 
       Message topic = new Message(db, topicId);
+      checkTopic(topic);
       formParams.put("postscore", topic.getPostScore());
 
       createReplyTo(replyToObject, formParams, db);
