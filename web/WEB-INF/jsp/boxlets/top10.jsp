@@ -45,9 +45,9 @@
         <c:url value="/view-message.jsp" var="page_link">
           <c:param name="msgid" value="${message.msgid}"/>
           <c:param name="lastmod" value="${message.lastmod.time}"/>
-          <c:param name="page" value="${message.pages - 1}"/>
+          <c:param name="page" value="${message.pages}"/>
         </c:url>
-        (стр. <a href="${fn:escapeXml(page_link)}">${message.pages}</a>)
+        (стр. <a href="${fn:escapeXml(page_link)}">${message.pages+1}</a>)
       </c:if>
       (${message.answers})
       <br/>
