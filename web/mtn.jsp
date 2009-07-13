@@ -1,4 +1,4 @@
-<%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
+<%@ page contentType="text/html; charset=utf-8"%>
 <%@ page import="java.sql.Connection,java.sql.PreparedStatement,java.sql.ResultSet,java.sql.Statement,java.util.logging.Logger"   buffer="60kb" %>
 <%@ page import="ru.org.linux.site.LorDataSource" %>
 <%@ page import="ru.org.linux.site.Template" %>
@@ -27,7 +27,7 @@
     throw new IllegalAccessException("Not authorized");
   }
 
-  out.println("<title>Перенос новости...</title>");
+  out.println("<title>п÷п╣я─п╣п╫п╬я│ п╫п╬п╡п╬я│я┌п╦...</title>");
   %>
 <jsp:include page="WEB-INF/jsp/header.jsp"/>
 <%
@@ -52,7 +52,7 @@
       logger.info("topic " + msgid + " moved" +
           " by " + session.getValue("nick") + " from group " + oldgr + " to group " + newgr);
     } else {
-      out.println("перенос новости <strong>" + msgid + "</strong> в группу:");
+      out.println("п©п╣я─п╣п╫п╬я│ п╫п╬п╡п╬я│я┌п╦ <strong>" + msgid + "</strong> п╡ пЁя─я┐п©п©я┐:");
       ResultSet rs = st1.executeQuery("SELECT id,title FROM groups WHERE section=1 ORDER BY id");
 %>
 <form method="post" action="mt.jsp">
