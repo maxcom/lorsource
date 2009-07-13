@@ -26,9 +26,6 @@ import ru.org.linux.util.UtilException;
 
 @Controller
 public class EditBoxesController{
-
-  
-
   @RequestMapping(value = "/edit-boxes.jsp")
   public ModelAndView view(HttpServletRequest request) throws AccessViolationException, UtilException {
     boolean isThreeColumn = getThreeColumns(request);
