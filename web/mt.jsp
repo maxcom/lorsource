@@ -1,7 +1,7 @@
 <%@ page contentType="text/html; charset=utf-8"%>
 <%@ page import="java.sql.Connection,java.sql.PreparedStatement,java.sql.ResultSet,java.sql.Statement,java.util.logging.Logger"   buffer="60kb" %>
-<%@ page import="ru.org.linux.util.ServletParameterParser" %>
 <%@ page import="ru.org.linux.site.*" %>
+<%@ page import="ru.org.linux.util.ServletParameterParser" %>
 <%--
   ~ Copyright 1998-2009 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -36,6 +36,7 @@
   try {
     int msgid = new ServletParameterParser(request).getInt("msgid");
     db = LorDataSource.getConnection();
+    db.setAutoCommit(false);
 
     Message msg = new Message(db, msgid);
 
@@ -45,38 +46,45 @@
       int newgr = new ServletParameterParser(request).getInt("moveto");
 
       Group newGrp = new Group(db, newgr);
-
-      String sSql = "UPDATE topics SET linktext=null, url=null, groupid= " + newgr + " WHERE id=" + msgid;
-
-      String title = msg.getGroupTitle();
-      String linktext = msg.getLinktext();
       String url = msg.getUrl();
 
-      st1.executeUpdate(sSql);
+      PreparedStatement movePst = db.prepareStatement("UPDATE topics SET groupid=? WHERE id=?");
+      movePst.setInt(1, newGrp.getId());
+      movePst.setInt(2, msgid);
 
-      /* if url is not null, update the topic text */
-      PreparedStatement pst1 = db.prepareStatement("UPDATE msgbase SET message=message||? WHERE id=?");
+      movePst.executeUpdate();
 
-      String link = "";
       if (url != null && !newGrp.isLinksAllowed()) {
+        String sSql = "UPDATE topics SET linktext=null, url=null WHERE id=" + msgid;
+
+        String title = msg.getGroupTitle();
+        String linktext = msg.getLinktext();
+
+        st1.executeUpdate(sSql);
+
+        /* if url is not null, update the topic text */
+        PreparedStatement pst1 = db.prepareStatement("UPDATE msgbase SET message=message||? WHERE id=?");
+
+        String link;
         if (msg.isLorcode()) {
           link = "\n[url=" + url + ']' + linktext + "[/url]\n";
         } else {
           link = "<br><a href=\"" + url + "\">" + linktext + "</a>\n<br>\n";
         }
+
+        if (msg.isLorcode()) {
+          pst1.setString(1, '\n' + link + "\n[i]Перемещено " + session.getValue("nick") + " из " + title + "[/i]\n");
+        } else {
+          pst1.setString(1, '\n' + link + "<br><i>Перемещено " + session.getValue("nick") + " из " + title + "</i>\n");
+        }
+
+        pst1.setInt(2, msgid);
+        pst1.executeUpdate();
       }
 
-      if (msg.isLorcode()) {
-        pst1.setString(1, '\n' + link + "\n[i]Перемещено " + session.getValue("nick") + " из " + title + "[/i]\n");
-      } else {
-        pst1.setString(1, '\n' + link + "<br><i>Перемещено " + session.getValue("nick") + " из " + title + "</i>\n");
-      }
-
-      pst1.setInt(2, msgid);
-      pst1.executeUpdate();
       logger.info("topic " + msgid + " moved" +
               " by " + session.getValue("nick") + " from news/forum " + msg.getGroupTitle() + " to forum " + newGrp.getTitle());
-
+      db.commit();
     } else {
 %>
 перенос сообщения <strong><%= msgid %></strong> в форум:
