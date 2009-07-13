@@ -244,8 +244,7 @@ public class AddCommentController extends ApplicationObjectSupport {
 
         db.commit();
 
-        Random random = new Random();
-        String returnUrl = "jump-message.jsp?msgid=" + topicId + "&cid=" + msgid + "&nocache=" + random.nextInt();
+        String returnUrl = "jump-message.jsp?msgid=" + topicId + "&cid=" + msgid;
 
         return new ModelAndView(new RedirectView(tmpl.getMainUrl() + returnUrl));
       }

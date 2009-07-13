@@ -62,6 +62,11 @@
         options.append(pagenum);
       }
 
+      if (!topic.isExpired() && topic.getPageCount(tmpl.getProf().getInt("messages"))-1==pagenum) {
+        options.append("&lastmod=");
+        options.append(topic.getLastModified().getTime());        
+      }
+
       options.append("#comment-");
       options.append(cid);
     } finally {
