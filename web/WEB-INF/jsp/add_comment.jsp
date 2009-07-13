@@ -31,7 +31,7 @@
     showform = true;
   }
 %>
-<jsp:include page="WEB-INF/jsp/head.jsp"/>
+<jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
 <%
   Connection db = null;
@@ -196,7 +196,7 @@
 
 %>
 <title>Добавление сообщения прошло успешно</title>
-<jsp:include page="WEB-INF/jsp/header.jsp"/>
+<jsp:include page="/WEB-INF/jsp/header.jsp"/>
 <p>Сообщение помещено успешно
 
 <p><a href="<%= returnUrl %>">Возврат</a>
@@ -249,7 +249,7 @@ if (showform) { // show form
 %>
 
 <title>Добавить сообщение</title>
-<jsp:include page="WEB-INF/jsp/header.jsp"/>
+<jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
 <% if (error==null) { %>
 <h1>Добавить комментарий</h1>
@@ -367,4 +367,4 @@ if (showform) { // show form
   }
 }
 %>
-<jsp:include page="WEB-INF/jsp/footer.jsp"/>
+<jsp:include page="/WEB-INF/jsp/footer.jsp"/>
