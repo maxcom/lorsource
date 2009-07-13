@@ -242,23 +242,10 @@ public class AddCommentController extends ApplicationObjectSupport {
 
         logger.info(logmessage);
 
-        // update lastmod in topic and generate new commentList
-        topic = new Message(db, topicId);
-        CommentList commentList = CommentList.getCommentList(db, topic, false);
-        Comment newComment = commentList.getNode(msgid).getComment();
-        int pageNum = commentList.getCommentPage(newComment, tmpl);
+        db.commit();
 
         Random random = new Random();
-
-        String returnUrl;
-
-        if (pageNum > 0) {
-          returnUrl = "view-message.jsp?msgid=" + topicId + "&page=" + pageNum + "&nocache=" + random.nextInt() + "#comment-" + msgid;
-        } else {
-          returnUrl = "view-message.jsp?msgid=" + topicId + "&nocache=" + random.nextInt() + "#comment-" + msgid;
-        }
-
-        db.commit();
+        String returnUrl = "jump-message.jsp?msgid=" + topicId + "&cid=" + msgid + "&nocache=" + random.nextInt();
 
         return new ModelAndView(new RedirectView(tmpl.getMainUrl() + returnUrl));
       }
@@ -269,12 +256,6 @@ public class AddCommentController extends ApplicationObjectSupport {
         db.setAutoCommit(true);
       }
     } catch (UserNotFoundException e) {
-      formParams.put("error", e);
-      if (db != null) {
-        db.rollback();
-        db.setAutoCommit(true);
-      }
-    } catch (BadURLException e) {
       formParams.put("error", e);
       if (db != null) {
         db.rollback();
