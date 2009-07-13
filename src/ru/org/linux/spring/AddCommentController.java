@@ -119,49 +119,41 @@ public class AddCommentController extends ApplicationObjectSupport {
 
     HttpSession session = request.getSession();
 
-    if (!preview && !session.getId().equals(request.getParameter("session"))) {
-      logger.info("Flood protection (session variable differs: " + session.getId() + ") " + request.getRemoteAddr());
-      throw new BadInputException("сбой добавления");
-    }
-
-    if (title == null) {
-      title = "";
-    }
-
-    title = HTMLFormatter.htmlSpecialChars(title);
-
-    int maxlength = 80; // TODO: remove this hack
-    HTMLFormatter form = new HTMLFormatter(msg);
-    form.setMaxLength(maxlength);
-    if ("pre".equals(mode)) {
-      form.enablePreformatMode();
-    }
-    if (autourl) {
-      form.enableUrlHighLightMode();
-    }
-    if ("ntobrq".equals(mode)) {
-      form.enableNewLineMode();
-      form.enableQuoting();
-    }
-    if ("ntobr".equals(mode)) {
-      form.enableNewLineMode();
-    }
-    if ("tex".equals(mode)) {
-      form.enableTexNewLineMode();
-    }
-    if ("quot".equals(mode)) {
-      form.enableTexNewLineMode();
-      form.enableQuoting();
-    }
-
-    msg = form.process();
-
-    Comment comment = new Comment(replyto, title, msg, topicId, 0, request.getHeader("user-agent"), request.getRemoteAddr());
-    formParams.put("comment", comment);
-
     Connection db = null;
 
     try {
+      if (title == null) {
+        title = "";
+      }
+
+      title = HTMLFormatter.htmlSpecialChars(title);
+
+      int maxlength = 80; // TODO: remove this hack
+      HTMLFormatter form = new HTMLFormatter(msg);
+      form.setMaxLength(maxlength);
+      if ("pre".equals(mode)) {
+        form.enablePreformatMode();
+      }
+      if (autourl) {
+        form.enableUrlHighLightMode();
+      }
+      if ("ntobrq".equals(mode)) {
+        form.enableNewLineMode();
+        form.enableQuoting();
+      }
+      if ("ntobr".equals(mode)) {
+        form.enableNewLineMode();
+      }
+      if ("tex".equals(mode)) {
+        form.enableTexNewLineMode();
+      }
+      if ("quot".equals(mode)) {
+        form.enableTexNewLineMode();
+        form.enableQuoting();
+      }
+
+      msg = form.process();
+
       // prechecks is over
       db = LorDataSource.getConnection();
       db.setAutoCommit(false);
@@ -171,6 +163,11 @@ public class AddCommentController extends ApplicationObjectSupport {
       formParams.put("postscore", topic.getPostScore());
 
       createReplyTo(replyToObject, formParams, db);
+
+      if (!preview && !session.getId().equals(request.getParameter("session"))) {
+        logger.info("Flood protection (session variable differs: " + session.getId() + ") " + request.getRemoteAddr());
+        throw new BadInputException("сбой добавления");
+      }
 
       IPBlockInfo.checkBlockIP(db, request.getRemoteAddr());
 
@@ -188,7 +185,11 @@ public class AddCommentController extends ApplicationObjectSupport {
 
       user.checkBlocked();
 
+      Comment comment = new Comment(replyto, title, msg, topicId, 0, request.getHeader("user-agent"), request.getRemoteAddr());
+
       comment.setAuthor(user.getId());
+
+      formParams.put("comment", comment);
 
       if ("".equals(title)) {
         throw new BadInputException("заголовок сообщения не может быть пустым");
@@ -241,6 +242,8 @@ public class AddCommentController extends ApplicationObjectSupport {
 
         logger.info(logmessage);
 
+        // update lastmod in topic and generate new commentList
+        topic = new Message(db, topicId);
         CommentList commentList = CommentList.getCommentList(db, topic, false);
         Comment newComment = commentList.getNode(msgid).getComment();
         int pageNum = commentList.getCommentPage(newComment, tmpl);
@@ -278,7 +281,7 @@ public class AddCommentController extends ApplicationObjectSupport {
         db.setAutoCommit(true);
       }
     } finally {
-      if (db!=null) {
+      if (db != null) {
         db.close();
       }
     }
