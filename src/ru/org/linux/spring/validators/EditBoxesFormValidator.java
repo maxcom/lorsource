@@ -16,19 +16,19 @@
 package ru.org.linux.spring.validators;
 
 import org.springframework.validation.Errors;
-import org.springframework.validation.Validator;
 import org.springframework.validation.ValidationUtils;
+import org.springframework.validation.Validator;
 
-import ru.org.linux.spring.EditBoxesController;
 import ru.org.linux.spring.AddRemoveBoxesController;
 
 public class EditBoxesFormValidator implements Validator{
+  @Override
   public boolean supports(Class clazz) {
     return AddRemoveBoxesController.EditBoxesForm.class.isAssignableFrom(clazz);
   }
 
+  @Override
   public void validate(Object target, Errors errors) {
-    ValidationUtils.rejectIfEmptyOrWhitespace(errors, "password", "password.empty", "Не указан пароль");
     ValidationUtils.rejectIfEmptyOrWhitespace(errors, "tag", "tag.empty", "Не указана колонка");
   }
 }

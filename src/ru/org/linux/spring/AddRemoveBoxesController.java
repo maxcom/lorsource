@@ -17,40 +17,40 @@ package ru.org.linux.spring;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Arrays;
 
+import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
-import javax.sql.DataSource;
+import org.apache.commons.lang.StringUtils;
+import org.springframework.context.support.ApplicationObjectSupport;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.ValidationUtils;
 import org.springframework.validation.FieldError;
-import org.springframework.context.support.ApplicationObjectSupport;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.springframework.validation.ValidationUtils;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.support.SessionStatus;
 
 import ru.org.linux.site.AccessViolationException;
 import ru.org.linux.site.Template;
-import ru.org.linux.site.User;
 import ru.org.linux.site.cli.mkdefprofile;
-import ru.org.linux.util.UtilException;
-import ru.org.linux.storage.StorageException;
 import ru.org.linux.spring.validators.EditBoxesFormValidator;
+import ru.org.linux.storage.StorageException;
+import ru.org.linux.util.UtilException;
 
 @Controller
 @SessionAttributes("allboxes")
 public class AddRemoveBoxesController extends ApplicationObjectSupport {
-
-  private static final Log log = LogFactory.getLog(AddRemoveBoxesController.class);
-
   @RequestMapping(value = {"/remove-box.jsp", "/add-box.jsp"}, method = RequestMethod.GET)
   public ModelMap showRemove(@RequestParam String tag,
-                             @RequestParam(required = false) Integer pos)
+                             @RequestParam(required = false) Integer pos,
+                             ServletRequest request)
     throws AccessViolationException, UtilException {
+    Template tmpl = Template.getTemplate(request);
+
+    if (!tmpl.isSessionAuthorized()) {
+      throw new AccessViolationException("Not authorized");
+    }
+
     ModelMap result = new ModelMap();
     EditBoxesForm form = new EditBoxesForm();
     form.setPosition(pos);
@@ -62,22 +62,25 @@ public class AddRemoveBoxesController extends ApplicationObjectSupport {
   @RequestMapping(value = "/remove-box.jsp", method = RequestMethod.POST)
   public String doRemove(@ModelAttribute("form") EditBoxesForm form, BindingResult result,
                          SessionStatus status, HttpServletRequest request)
-    throws IOException,
-    UtilException, AccessViolationException, StorageException {
+    throws Exception {
+    Template t = Template.getTemplate(request);
+
+    if (!t.isSessionAuthorized()) {
+      throw new AccessViolationException("Not authorized");
+    }
+
     new EditBoxesFormValidator().validate(form, result);
     ValidationUtils.rejectIfEmptyOrWhitespace(result, "position", "position.empty", "Не указанa позиция бокслета");
     if (result.hasErrors()) {
       return "remove-box";
     }
-    Template t = Template.getTemplate(request);
-    checkUserPassword(form, result, t);
 
     if (result.hasErrors()) {
       return "remove-box";
     }
 
     String objectName = getObjectName(form, request);
-    final List boxlets = (List) t.getProf().getObject(objectName);
+    List boxlets = (List) t.getProf().getObject(objectName);
     if (boxlets != null && !boxlets.isEmpty()) {
       if (boxlets.size() > form.position) {
         boxlets.remove(form.position.intValue());
@@ -87,18 +90,6 @@ public class AddRemoveBoxesController extends ApplicationObjectSupport {
     }
     status.setComplete();
     return "redirect:/edit-boxes.jsp";
-  }
-
-  private void checkUserPassword(EditBoxesForm form, BindingResult result, final Template t) {
-    final DataSource ds = (DataSource) getApplicationContext().getBean("datasource");
-    try {
-      User user = User.getUser(ds.getConnection(), t.getProfileName());
-      user.checkAnonymous();
-      user.checkPassword(form.getPassword());
-    } catch (Exception e) {
-      log.error(e);
-      result.addError(new FieldError("password", "password.invalid", "Неправильный пароль"));
-    }
   }
 
   @ModelAttribute("allboxes")
@@ -121,7 +112,6 @@ public class AddRemoveBoxesController extends ApplicationObjectSupport {
       return "add-box";
     }
     Template t = Template.getTemplate(request);
-    checkUserPassword(form, result, Template.getTemplate(request));
 
     if (result.hasErrors()) {
       return "add-box";
@@ -132,10 +122,10 @@ public class AddRemoveBoxesController extends ApplicationObjectSupport {
     }
 
     String objectName = getObjectName(form, request);
-    final List boxlets = (List) t.getProf().getObject(objectName);
+    List boxlets = (List) t.getProf().getObject(objectName);
     if (boxlets != null && !boxlets.isEmpty()) {
       if (boxlets.size() > form.position) {
-        boxlets.add(form.position.intValue(), form.boxName);
+        boxlets.add(form.position, form.boxName);
         t.getProf().setObject(objectName, boxlets);
         t.writeProfile(t.getProfileName());
       }

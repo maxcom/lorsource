@@ -24,14 +24,13 @@
 [<a href="<c:url value="/edit-boxes.jsp"/>">В&nbsp;начало</a>] [<a href="<c:url value="/edit-profile.jsp"/>">Настройки&nbsp;профиля</a>] [<a href="<c:url value="/"/>">На&nbsp;главную&nbsp;страницу</a>]
 <br/>
 <s:form method="post" modelAttribute="form" action="/add-box.jsp">
-  <s:errors path="*" cssStyle="color:red"/><br/>
+  <s:errors path="*" cssClass="error"/><br/>
 
   <s:hidden path="position"/>
   <s:hidden path="tag"/>
 
   <s:radiobuttons path="boxName" items="${allboxes}" element="div"/> 
   <br/>
-  Пароль <s:password path="password"/><br/>
   <input type=submit value="Add/Добавить">
 </s:form>
 
