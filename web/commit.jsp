@@ -1,4 +1,4 @@
-<%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
+<%@ page contentType="text/html; charset=utf-8"%>
 <%@ page import="java.sql.*"  %>
 <%@ page import="java.util.List"%>
 <%@ page import="java.util.Random"%>
@@ -29,7 +29,7 @@
 %>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
-        <title>Подтверждение сообщения</title>
+        <title>п÷п╬п╢я┌п╡п╣я─п╤п╢п╣п╫п╦п╣ я│п╬п╬п╠я┴п╣п╫п╦я▐</title>
 <jsp:include page="WEB-INF/jsp/header.jsp"/>
 
 <%
@@ -56,20 +56,20 @@
       Group group = new Group(db, message.getGroupId());
 
       if (message.isCommited()) {
-        throw new AccessViolationException("Сообщение уже подтверждено");
+        throw new AccessViolationException("п║п╬п╬п╠я┴п╣п╫п╦п╣ я┐п╤п╣ п©п╬п╢я┌п╡п╣я─п╤п╢п╣п╫п╬");
       }
 
       if (!group.isModerated()) {
-        throw new AccessViolationException("группа не является модерируемой");
+        throw new AccessViolationException("пЁя─я┐п©п©п╟ п╫п╣ я▐п╡п╩я▐п╣я┌я│я▐ п╪п╬п╢п╣я─п╦я─я┐п╣п╪п╬п╧");
       }
 
       Section section = new Section(db, group.getSectionId());
 
 %>
-<h1>Подтверждение сообщения</h1>
+<h1>п÷п╬п╢я┌п╡п╣я─п╤п╢п╣п╫п╦п╣ я│п╬п╬п╠я┴п╣п╫п╦я▐</h1>
 <p>
-Данная форма предназначена для администраторов сайта и пользователей,
-имеющих права подтверждения сообщений.
+п■п╟п╫п╫п╟я▐ я└п╬я─п╪п╟ п©я─п╣п╢п╫п╟п╥п╫п╟я┤п╣п╫п╟ п╢п╩я▐ п╟п╢п╪п╦п╫п╦я│я┌я─п╟я┌п╬я─п╬п╡ я│п╟п╧я┌п╟ п╦ п©п╬п╩я▄п╥п╬п╡п╟я┌п╣п╩п╣п╧,
+п╦п╪п╣я▌я┴п╦я┘ п©я─п╟п╡п╟ п©п╬п╢я┌п╡п╣я─п╤п╢п╣п╫п╦я▐ я│п╬п╬п╠я┴п╣п╫п╦п╧.
 <p>
 <div class=messages>
   <lor:message db="<%= db %>" message="<%= message %>" showMenu="false" user="<%= Template.getNick(session) %>"/>
@@ -78,23 +78,23 @@
 <form method=POST action="commit.jsp">
 <input type=hidden name=msgid value="<%= msgid %>">
 <input type=hidden name=groupid value="<%= groupid %>">
-Заголовок:
+п≈п╟пЁп╬п╩п╬п╡п╬п╨:
 <input type=text name=title size=40 value="<%= message.getTitle() %>">
 <br>
 <%
     Statement st = db.createStatement();
     ResultSet rq = null;
     if (message.getSectionId() == 1) { // news
-      out.println("Метки (теги): ");
+      out.println("п°п╣я┌п╨п╦ (я┌п╣пЁп╦): ");
       out.println("<input type=\"text\" id=\"tags\" name=\"tags\" size=40 value=\"" + message.getTags().toString() + "\"><br>");
 %>
-  Популярные теги: <%= Tags.getEditTags(Tags.getTopTags(db)) %> <br>
+  п÷п╬п©я┐п╩я▐я─п╫я▀п╣ я┌п╣пЁп╦: <%= Tags.getEditTags(Tags.getTopTags(db)) %> <br>
   <% }
       if (message.getSectionId() == 1 || message.getSectionId() == 3) {
-      out.println("Переместить в группу: ");
+      out.println("п÷п╣я─п╣п╪п╣я│я┌п╦я┌я▄ п╡ пЁя─я┐п©п©я┐: ");
       rq = st.executeQuery("SELECT id, title FROM groups WHERE section=" + message.getSectionId() + " ORDER BY id");
       out.println("<select name=\"chgrp\">");
-      out.println("<option value=" + groupid + '>' + message.getGroupTitle() + " (не менять)</option>");
+      out.println("<option value=" + groupid + '>' + message.getGroupTitle() + " (п╫п╣ п╪п╣п╫я▐я┌я▄)</option>");
       while (rq.next()) {
         int id = rq.getInt("id");
         if (id != groupid) {
@@ -110,7 +110,7 @@
 
     Timestamp lastCommit = section.getLastCommitdate(db);
     if (lastCommit!=null) {
-      out.println("Последнее подтверждение в разделе: "+tmpl.dateFormat.format(lastCommit)+"<br>");
+      out.println("п÷п╬я│п╩п╣п╢п╫п╣п╣ п©п╬п╢я┌п╡п╣я─п╤п╢п╣п╫п╦п╣ п╡ я─п╟п╥п╢п╣п╩п╣: "+tmpl.dateFormat.format(lastCommit)+"<br>");
     }
 
   } finally {
@@ -119,7 +119,7 @@
       }
   }
 %>
-<input type=submit value="Submit/Подтвердить">
+<input type=submit value="Submit/п÷п╬п╢я┌п╡п╣я─п╢п╦я┌я▄">
 </form>
 <%
   } else {
@@ -169,7 +169,7 @@
           st.executeUpdate("UPDATE topics SET groupid=" + changeGroupId + " WHERE id=" + msgid);
           /* to recalc counters */
           st.executeUpdate("UPDATE groups SET stat4=stat4+1 WHERE id=" + oldgrp + " or id=" + changeGroupId);
-          out.println("<br>Сменена группа с '" + oldtitle + "' на '" + newtitle + "'<br>");
+          out.println("<br>п║п╪п╣п╫п╣п╫п╟ пЁя─я┐п©п©п╟ я│ '" + oldtitle + "' п╫п╟ '" + newtitle + "'<br>");
         }
 
         st.close();
@@ -184,9 +184,9 @@
         Tags.updateCounters(db, null, Tags.getMessageTags(db, msgid));
       }
 
-      out.print("Сообщение подтверждено");
+      out.print("п║п╬п╬п╠я┴п╣п╫п╦п╣ п©п╬п╢я┌п╡п╣я─п╤п╢п╣п╫п╬");
 
-      logger.info("Подтверждено сообщение " + msgid + " пользователем " + user.getNick());
+      logger.info("п÷п╬п╢я┌п╡п╣я─п╤п╢п╣п╫п╬ я│п╬п╬п╠я┴п╣п╫п╦п╣ " + msgid + " п©п╬п╩я▄п╥п╬п╡п╟я┌п╣п╩п╣п╪ " + user.getNick());
 
       pst.close();
       db.commit();

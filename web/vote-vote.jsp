@@ -1,4 +1,4 @@
-<%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8" %>
+<%@ page contentType="text/html; charset=utf-8" %>
 <%@ page
     import="java.sql.Connection,java.sql.ResultSet,java.sql.Statement,ru.org.linux.site.*"
       %>
@@ -19,7 +19,7 @@
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
-<title>Голосование</title>
+<title>п⌠п╬п╩п╬я│п╬п╡п╟п╫п╦п╣</title>
 <jsp:include page="WEB-INF/jsp/header.jsp"/>
 <%
   if (!Template.isSessionAuthorized(session)) {
@@ -30,17 +30,17 @@
   try {
 %>
 
-<H1>Голосование</H1>
+<H1>п⌠п╬п╩п╬я│п╬п╡п╟п╫п╦п╣</H1>
 <%
     if (request.getParameter("msgid") == null) {
-      throw new BadInputException("ничего не выбрано");
+      throw new BadInputException("п╫п╦я┤п╣пЁп╬ п╫п╣ п╡я▀п╠я─п╟п╫п╬");
     }
 
     int msgid;
     try {
       msgid = Integer.parseInt(request.getParameter("msgid"));
     } catch (NumberFormatException e) {
-      throw new BadInputException("ничего не выбрано");
+      throw new BadInputException("п╫п╦я┤п╣пЁп╬ п╫п╣ п╡я▀п╠я─п╟п╫п╬");
     }
 
     db = LorDataSource.getConnection();
@@ -48,12 +48,12 @@
     int vote = Poll.getPollIdByTopic(db, msgid);
 
     if (vote != Poll.getCurrentPollId(db)) {
-      throw new BadVoteException("голосовать можно только в текущий опрос");
+      throw new BadVoteException("пЁп╬п╩п╬я│п╬п╡п╟я┌я▄ п╪п╬п╤п╫п╬ я┌п╬п╩я▄п╨п╬ п╡ я┌п╣п╨я┐я┴п╦п╧ п╬п©я─п╬я│");
     }
 
     Poll poll = Poll.getCurrentPoll(db);
 
-    out.print("<h2><a href=\"view-message.jsp?msgid=" + poll.getTopicId() + "\">Опрос</a></h2>");
+    out.print("<h2><a href=\"view-message.jsp?msgid=" + poll.getTopicId() + "\">п·п©я─п╬я│</a></h2>");
     out.print("<h3>" + poll.getTitle() + "</h3>");
 
     Statement st = db.createStatement();
@@ -69,13 +69,13 @@
 
     out.print("<input type=submit value=vote>");
     out.print("</form><br>");
-    out.print("<a href=\"view-vote.jsp?vote=" + poll.getId() + "\">результаты</a>");
+    out.print("<a href=\"view-vote.jsp?vote=" + poll.getId() + "\">я─п╣п╥я┐п╩я▄я┌п╟я┌я▀</a>");
 
     rs = st.executeQuery("SELECT sum(votes) as s FROM votes WHERE vote=" + poll.getId());
     rs.next();
-    out.print(" (" + rs.getInt("s") + " голосов)");
-    out.print("<br><a href=\"view-news.jsp?section=5\">итоги прошедших опросов...</a>");
-    out.print("<br>[<a href=\"add-poll.jsp\">добавить опрос</a>]");
+    out.print(" (" + rs.getInt("s") + " пЁп╬п╩п╬я│п╬п╡)");
+    out.print("<br><a href=\"view-news.jsp?section=5\">п╦я┌п╬пЁп╦ п©я─п╬я┬п╣п╢я┬п╦я┘ п╬п©я─п╬я│п╬п╡...</a>");
+    out.print("<br>[<a href=\"add-poll.jsp\">п╢п╬п╠п╟п╡п╦я┌я▄ п╬п©я─п╬я│</a>]");
 
     //response.setHeader("Location", tmpl.getRedirectUrl() + "view-vote.jsp?vote=" + voteid + "&highlight=" + vote);
     //response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);

@@ -1,4 +1,4 @@
-<%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
+<%@ page contentType="text/html; charset=utf-8"%>
 <%@ page import="java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.util.Date,ru.org.linux.site.BadSectionException,ru.org.linux.site.LorDataSource"   buffer="200kb"%>
 <%--
   ~ Copyright 1998-2009 Linux.org.ru
@@ -37,14 +37,14 @@
 
 %>
 <strong><a href="http://www.linux.org.ru/" target="_content">LINUX.ORG.RU</a></strong><br>
-Последние новости
+п÷п╬я│п╩п╣п╢п╫п╦п╣ п╫п╬п╡п╬я│я┌п╦
 <p style="font-size: small">
 <%
  	rs.close();
 	rs=st.executeQuery("SELECT topics.title as subj, topics.lastmod, topics.stat1, postdate, nick, image, groups.title as gtitle, topics.id as msgid, groups.id as guid, topics.url, topics.linktext, imagepost, postdate<(CURRENT_TIMESTAMP-expire) as expired FROM topics,groups, users, sections WHERE sections.id="+section+" AND (topics.moderate OR NOT sections.moderate) AND topics.userid=users.id AND topics.groupid=groups.id AND section=" + section + " AND NOT deleted ORDER BY commitdate DESC LIMIT 10");
 
 	while (rs.next()) {%>
-		* <a target="_content" href="view-message.jsp?msgid=<%= rs.getInt("msgid") %>"> <%= rs.getString("subj")%></a> (<%= rs.getInt("stat1") %> комментариев)<br>
+		* <a target="_content" href="view-message.jsp?msgid=<%= rs.getInt("msgid") %>"> <%= rs.getString("subj")%></a> (<%= rs.getInt("stat1") %> п╨п╬п╪п╪п╣п╫я┌п╟я─п╦п╣п╡)<br>
 <%	}
 
 

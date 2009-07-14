@@ -1,4 +1,4 @@
-<%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
+<%@ page contentType="text/html; charset=utf-8"%>
 <%@ page import="java.io.File"  %>
 <%@ page import="java.io.IOException" %>
 <%@ page import="java.io.PrintWriter" %>
@@ -70,51 +70,51 @@
 
 %>
 
-<title>Поиск по сайту <%= q != null ? (" - "+HTMLFormatter.htmlSpecialChars(q)):"" %></title>
+<title>п÷п╬п╦я│п╨ п©п╬ я│п╟п╧я┌я┐ <%= q != null ? (" - "+HTMLFormatter.htmlSpecialChars(q)):"" %></title>
 <jsp:include page="WEB-INF/jsp/header.jsp"/>
 
-<H1>Поиск по сайту</h1>
-<h2>Поисковая система сайта</h2>
+<H1>п÷п╬п╦я│п╨ п©п╬ я│п╟п╧я┌я┐</h1>
+<h2>п÷п╬п╦я│п╨п╬п╡п╟я▐ я│п╦я│я┌п╣п╪п╟ я│п╟п╧я┌п╟</h2>
 
 <FORM METHOD=GET ACTION="search.jsp">
-Искать: <INPUT TYPE="text" NAME="q" SIZE=50 VALUE="<%= q!=null?q:"" %>"><p>
+п≤я│п╨п╟я┌я▄: <INPUT TYPE="text" NAME="q" SIZE=50 VALUE="<%= q!=null?q:"" %>"><p>
   <select name="include">
-    <option value="topics" <%= (include==SearchViewer.SEARCH_TOPICS)?"selected":"" %>>только темы</option>
-    <option value="all" <%= (include==SearchViewer.SEARCH_ALL)?"selected":"" %>>темы и комментарии</option>
+    <option value="topics" <%= (include==SearchViewer.SEARCH_TOPICS)?"selected":"" %>>я┌п╬п╩я▄п╨п╬ я┌п╣п╪я▀</option>
+    <option value="all" <%= (include==SearchViewer.SEARCH_ALL)?"selected":"" %>>я┌п╣п╪я▀ п╦ п╨п╬п╪п╪п╣п╫я┌п╟я─п╦п╦</option>
   </select>
 
-  За:
+  п≈п╟:
   <select name="date">
-    <option value="3month" <%= (date==SearchViewer.SEARCH_3MONTH)?"selected":"" %>>три месяца</option>
-    <option value="year" <%= (date==SearchViewer.SEARCH_YEAR)?"selected":"" %>>год</option>
-    <option value="all" <%= (date==SearchViewer.SEARCH_ALL)?"selected":"" %>>весь период</option>
+    <option value="3month" <%= (date==SearchViewer.SEARCH_3MONTH)?"selected":"" %>>я┌я─п╦ п╪п╣я│я▐я├п╟</option>
+    <option value="year" <%= (date==SearchViewer.SEARCH_YEAR)?"selected":"" %>>пЁп╬п╢</option>
+    <option value="all" <%= (date==SearchViewer.SEARCH_ALL)?"selected":"" %>>п╡п╣я│я▄ п©п╣я─п╦п╬п╢</option>
   </select>
 <br>
-  Раздел:
+  п═п╟п╥п╢п╣п╩:
   <select name="section">
 
-  <option value="1" <%= (section==1)?"selected":"" %>>новости</option>
+  <option value="1" <%= (section==1)?"selected":"" %>>п╫п╬п╡п╬я│я┌п╦</option>
 
-  <option value="2" <%= (section==2)?"selected":"" %>>форум</option>
+  <option value="2" <%= (section==2)?"selected":"" %>>я└п╬я─я┐п╪</option>
 
-  <option value="3" <%= (section==3)?"selected":"" %>>галерея</option>
+  <option value="3" <%= (section==3)?"selected":"" %>>пЁп╟п╩п╣я─п╣я▐</option>
 
-  <option value="0" <%= (section==0)?"selected":"" %>>все</option>
+  <option value="0" <%= (section==0)?"selected":"" %>>п╡я│п╣</option>
   </select>
 
-  Пользователь:
+  п÷п╬п╩я▄п╥п╬п╡п╟я┌п╣п╩я▄:
   <INPUT TYPE="text" NAME="username" SIZE=20 VALUE="<%= HTMLFormatter.htmlSpecialChars(username) %>"><p>
   <br>
 
-  Сортировать
+  п║п╬я─я┌п╦я─п╬п╡п╟я┌я▄
   <select name="sort">
-  <option value="<%= SearchViewer.SORT_DATE %>" <%= (sort==SearchViewer.SORT_DATE)?"selected":"" %>>по дате</option>
+  <option value="<%= SearchViewer.SORT_DATE %>" <%= (sort==SearchViewer.SORT_DATE)?"selected":"" %>>п©п╬ п╢п╟я┌п╣</option>
 
-  <option value="<%= SearchViewer.SORT_R %>" <%= (sort==SearchViewer.SORT_R)?"selected":"" %>>по релевантности</option>
+  <option value="<%= SearchViewer.SORT_R %>" <%= (sort==SearchViewer.SORT_R)?"selected":"" %>>п©п╬ я─п╣п╩п╣п╡п╟п╫я┌п╫п╬я│я┌п╦</option>
   </select>
 
   <br>
-<input TYPE="submit" VALUE="Искать!"><BR>
+<input TYPE="submit" VALUE="п≤я│п╨п╟я┌я▄!"><BR>
 
 </form>
 
@@ -135,14 +135,14 @@
     out.print("<p><i>");
 
     if (cacher.isFromCache()) {
-      out.print("Результаты извлечены из кеша, время поиска: "+cacher.getTime()+"ms");
+      out.print("п═п╣п╥я┐п╩я▄я┌п╟я┌я▀ п╦п╥п╡п╩п╣я┤п╣п╫я▀ п╦п╥ п╨п╣я┬п╟, п╡я─п╣п╪я▐ п©п╬п╦я│п╨п╟: "+cacher.getTime()+"ms");
     } else {
-      out.print("Результаты извлечены из БД, время поиска: "+cacher.getTime()+"ms");      
+      out.print("п═п╣п╥я┐п╩я▄я┌п╟я┌я▀ п╦п╥п╡п╩п╣я┤п╣п╫я▀ п╦п╥ п▒п■, п╡я─п╣п╪я▐ п©п╬п╦я│п╨п╟: "+cacher.getTime()+"ms");      
     }
     out.print("</i></p>");
   } else {
 %>
-<h2>Поиск через Google</h2>
+<h2>п÷п╬п╦я│п╨ я┤п╣я─п╣п╥ Google</h2>
 
 <%
   if (tmpl.getStyle().equals("black")) {
@@ -156,10 +156,10 @@
 </td>
 <td nowrap="nowrap">
 <input type="hidden" name="domains" value="www.linux.org.ru"></input>
-<label for="sbi" style="display: none">Введите условия поиска</label>
+<label for="sbi" style="display: none">п▓п╡п╣п╢п╦я┌п╣ я┐я│п╩п╬п╡п╦я▐ п©п╬п╦я│п╨п╟</label>
 <input type="text" name="q" size="31" maxlength="255" value="" id="sbi"></input>
-<label for="sbb" style="display: none">Отправить форму поиска</label>
-<input type="submit" name="sa" value="Поиск" id="sbb"></input>
+<label for="sbb" style="display: none">п·я┌п©я─п╟п╡п╦я┌я▄ я└п╬я─п╪я┐ п©п╬п╦я│п╨п╟</label>
+<input type="submit" name="sa" value="п÷п╬п╦я│п╨" id="sbb"></input>
 </td></tr>
 <tr>
 <td>&nbsp;</td>
@@ -168,10 +168,10 @@
 <tr>
 <td>
 <input type="radio" name="sitesearch" value="" id="ss0"></input>
-<label for="ss0" title="Искать в Интернете"><font size="-1" color="white">Web</font></label></td>
+<label for="ss0" title="п≤я│п╨п╟я┌я▄ п╡ п≤п╫я┌п╣я─п╫п╣я┌п╣"><font size="-1" color="white">Web</font></label></td>
 <td>
 <input type="radio" name="sitesearch" value="www.linux.org.ru" checked id="ss1"></input>
-<label for="ss1" title="Поиск www.linux.org.ru"><font size="-1" color="white">www.linux.org.ru</font></label></td>
+<label for="ss1" title="п÷п╬п╦я│п╨ www.linux.org.ru"><font size="-1" color="white">www.linux.org.ru</font></label></td>
 </tr>
 </table>
 <input type="hidden" name="client" value="pub-6069094673001350"></input>
@@ -195,10 +195,10 @@
 </td>
 <td nowrap="nowrap">
 <input type="hidden" name="domains" value="www.linux.org.ru"></input>
-<label for="sbi" style="display: none">Введите условия поиска</label>
+<label for="sbi" style="display: none">п▓п╡п╣п╢п╦я┌п╣ я┐я│п╩п╬п╡п╦я▐ п©п╬п╦я│п╨п╟</label>
 <input type="text" name="q" size="31" maxlength="255" value="" id="sbi"></input>
-<label for="sbb" style="display: none">Отправить форму поиска</label>
-<input type="submit" name="sa" value="Поиск" id="sbb"></input>
+<label for="sbb" style="display: none">п·я┌п©я─п╟п╡п╦я┌я▄ я└п╬я─п╪я┐ п©п╬п╦я│п╨п╟</label>
+<input type="submit" name="sa" value="п÷п╬п╦я│п╨" id="sbb"></input>
 </td></tr>
 <tr>
 <td>&nbsp;</td>
@@ -207,10 +207,10 @@
 <tr>
 <td>
 <input type="radio" name="sitesearch" value="" id="ss0"></input>
-<label for="ss0" title="Искать в Интернете"><font size="-1" color="#000000">Web</font></label></td>
+<label for="ss0" title="п≤я│п╨п╟я┌я▄ п╡ п≤п╫я┌п╣я─п╫п╣я┌п╣"><font size="-1" color="#000000">Web</font></label></td>
 <td>
 <input type="radio" name="sitesearch" value="www.linux.org.ru" checked id="ss1"></input>
-<label for="ss1" title="Поиск www.linux.org.ru"><font size="-1" color="#000000">www.linux.org.ru</font></label></td>
+<label for="ss1" title="п÷п╬п╦я│п╨ www.linux.org.ru"><font size="-1" color="#000000">www.linux.org.ru</font></label></td>
 </tr>
 </table>
 <input type="hidden" name="client" value="pub-6069094673001350"></input>

@@ -1,4 +1,4 @@
-<%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
+<%@ page contentType="text/html; charset=utf-8"%>
 <%@ page import="java.net.URLEncoder,java.sql.Connection"   buffer="60kb"%>
 <%@ page import="javax.servlet.http.HttpServletResponse" %>
 <%@ page import="ru.org.linux.site.*" %>
@@ -52,7 +52,7 @@
       CommentList comments = CommentList.getCommentList(db, topic, false);
       CommentNode node = comments.getNode(cid);
       if (node == null) {
-        throw new MessageNotFoundException(cid, "Сообщение #" + cid + " было удалено или не существует");
+        throw new MessageNotFoundException(cid, "п║п╬п╬п╠я┴п╣п╫п╦п╣ #" + cid + " п╠я▀п╩п╬ я┐п╢п╟п╩п╣п╫п╬ п╦п╩п╦ п╫п╣ я│я┐я┴п╣я│я┌п╡я┐п╣я┌");
       }
 
       int pagenum = comments.getCommentPage(node.getComment(), tmpl);

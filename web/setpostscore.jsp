@@ -1,4 +1,4 @@
-<%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
+<%@ page contentType="text/html; charset=utf-8"%>
 <%@ page import="java.sql.Connection,java.sql.PreparedStatement,java.util.logging.Logger"  %>
 <%@ page import="ru.org.linux.site.*" %>
 <%@ page import="ru.org.linux.util.ServletParameterParser" %>
@@ -22,7 +22,7 @@
 %>
 <jsp:include page="WEB-INF/jsp/head.jsp"/>
 
-        <title>Смена параметров сообщения</title>
+        <title>п║п╪п╣п╫п╟ п©п╟я─п╟п╪п╣я┌я─п╬п╡ я│п╬п╬п╠я┴п╣п╫п╦я▐</title>
 <jsp:include page="WEB-INF/jsp/header.jsp"/>
 <%
   if (!tmpl.isModeratorSession()) {
@@ -46,25 +46,25 @@
       boolean notop = msg.isNotop();
 
 %>
-<h1>Смена режима параметров сообщения</h1>
-Данная форма предназначена для администраторов сайта и пользователей,
-имеющих права подтверждения сообщений.
+<h1>п║п╪п╣п╫п╟ я─п╣п╤п╦п╪п╟ п©п╟я─п╟п╪п╣я┌я─п╬п╡ я│п╬п╬п╠я┴п╣п╫п╦я▐</h1>
+п■п╟п╫п╫п╟я▐ я└п╬я─п╪п╟ п©я─п╣п╢п╫п╟п╥п╫п╟я┤п╣п╫п╟ п╢п╩я▐ п╟п╢п╪п╦п╫п╦я│я┌я─п╟я┌п╬я─п╬п╡ я│п╟п╧я┌п╟ п╦ п©п╬п╩я▄п╥п╬п╡п╟я┌п╣п╩п╣п╧,
+п╦п╪п╣я▌я┴п╦я┘ п©я─п╟п╡п╟ п©п╬п╢я┌п╡п╣я─п╤п╢п╣п╫п╦я▐ я│п╬п╬п╠я┴п╣п╫п╦п╧.
 <form method=POST action="setpostscore.jsp">
 <input type=hidden name=msgid value="<%= msgid %>">
 <br>
-Текущий уровень записи: <%= (postscore<0?"только для модераторов":Integer.toString(postscore)) %>
+п╒п╣п╨я┐я┴п╦п╧ я┐я─п╬п╡п╣п╫я▄ п╥п╟п©п╦я│п╦: <%= (postscore<0?"я┌п╬п╩я▄п╨п╬ п╢п╩я▐ п╪п╬п╢п╣я─п╟я┌п╬я─п╬п╡":Integer.toString(postscore)) %>
 <select name="postscore">
-  <option value="0">0 - без ограничений</option>
-  <option value="50">50 - для зарегистрированных</option>
-  <option value="100">100 - одна "звезда"</option>
-  <option value="200">200 - две "звезды"</option>
-  <option value="300">300 - три "звезды"</option>
-  <option value="400">400 - четыре "звезды"</option>
-  <option value="500">500 - пять "звезд"</option>
-  <option value="-1">только для модераторов</option>
+  <option value="0">0 - п╠п╣п╥ п╬пЁя─п╟п╫п╦я┤п╣п╫п╦п╧</option>
+  <option value="50">50 - п╢п╩я▐ п╥п╟я─п╣пЁп╦я│я┌я─п╦я─п╬п╡п╟п╫п╫я▀я┘</option>
+  <option value="100">100 - п╬п╢п╫п╟ "п╥п╡п╣п╥п╢п╟"</option>
+  <option value="200">200 - п╢п╡п╣ "п╥п╡п╣п╥п╢я▀"</option>
+  <option value="300">300 - я┌я─п╦ "п╥п╡п╣п╥п╢я▀"</option>
+  <option value="400">400 - я┤п╣я┌я▀я─п╣ "п╥п╡п╣п╥п╢я▀"</option>
+  <option value="500">500 - п©я▐я┌я▄ "п╥п╡п╣п╥п╢"</option>
+  <option value="-1">я┌п╬п╩я▄п╨п╬ п╢п╩я▐ п╪п╬п╢п╣я─п╟я┌п╬я─п╬п╡</option>
 </select><br>
-Прикрепить сообщение <input type=checkbox name="sticky" <%= sticky?"checked":"" %>><br>
-Удалить из top10 <input type=checkbox name="notop" <%= notop?"checked":"" %>><br>
+п÷я─п╦п╨я─п╣п©п╦я┌я▄ я│п╬п╬п╠я┴п╣п╫п╦п╣ <input type=checkbox name="sticky" <%= sticky?"checked":"" %>><br>
+пёп╢п╟п╩п╦я┌я▄ п╦п╥ top10 <input type=checkbox name="notop" <%= notop?"checked":"" %>><br>
 <%
   } finally {
     if (db != null) {
@@ -72,7 +72,7 @@
     }
   }
 %>
-<input type=submit value="Изменить">
+<input type=submit value="п≤п╥п╪п╣п╫п╦я┌я▄">
 </form>
 <%
   } else {
@@ -107,18 +107,18 @@
       pst.executeUpdate();
 
       if (msg.getPostScore() != postscore) {
-        out.print("Установлен новый уровень записи " + (postscore < 0 ? "только для модераторов" : Integer.toString(postscore)) + "<br>");
-        logger.info("Установлен новый уровень записи " + postscore + " для " + msgid + " пользователем " + user.getNick());
+        out.print("пёя│я┌п╟п╫п╬п╡п╩п╣п╫ п╫п╬п╡я▀п╧ я┐я─п╬п╡п╣п╫я▄ п╥п╟п©п╦я│п╦ " + (postscore < 0 ? "я┌п╬п╩я▄п╨п╬ п╢п╩я▐ п╪п╬п╢п╣я─п╟я┌п╬я─п╬п╡" : Integer.toString(postscore)) + "<br>");
+        logger.info("пёя│я┌п╟п╫п╬п╡п╩п╣п╫ п╫п╬п╡я▀п╧ я┐я─п╬п╡п╣п╫я▄ п╥п╟п©п╦я│п╦ " + postscore + " п╢п╩я▐ " + msgid + " п©п╬п╩я▄п╥п╬п╡п╟я┌п╣п╩п╣п╪ " + user.getNick());
       }
 
       if (msg.isSticky() != sticky) {
-        out.print("Новое значение sticky: " + sticky + "<br>");
-        logger.info("Новое значение sticky: " + sticky);
+        out.print("п²п╬п╡п╬п╣ п╥п╫п╟я┤п╣п╫п╦п╣ sticky: " + sticky + "<br>");
+        logger.info("п²п╬п╡п╬п╣ п╥п╫п╟я┤п╣п╫п╦п╣ sticky: " + sticky);
       }
 
       if (msg.isNotop() != notop) {
-        out.print("Новое значение notop: " + notop + "<br>");
-        logger.info("Новое значение notop: " + notop);
+        out.print("п²п╬п╡п╬п╣ п╥п╫п╟я┤п╣п╫п╦п╣ notop: " + notop + "<br>");
+        logger.info("п²п╬п╡п╬п╣ п╥п╫п╟я┤п╣п╫п╦п╣ notop: " + notop);
       }
 
       pst.close();

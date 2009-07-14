@@ -1,4 +1,4 @@
-<%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
+<%@ page contentType="text/html; charset=utf-8"%>
 <%@ page import="java.sql.Connection,java.sql.ResultSet"  %>
 <%@ page import="java.sql.Statement"%>
 <%@ page import="java.util.Date" %>
@@ -52,9 +52,9 @@
         response.setHeader("Location", tmpl.getMainUrl());
         response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
 
-        out.print("×ÙÈÏÄ ÐÒÏÛÅÌ ÕÓÐÅÛÎÏ");
+        out.print("Ð²Ñ‹Ñ…Ð¾Ð´ Ð¿Ñ€Ð¾ÑˆÐµÐ» ÑƒÑÐ¿ÐµÑˆÐ½Ð¾");
    } else {
-        out.print("×Ù ÎÅ ×ÈÏÄÉÌÉ × ÓÉÓÔÅÍÕ");
+        out.print("Ð²Ñ‹ Ð½Ðµ Ð²Ñ…Ð¾Ð´Ð¸Ð»Ð¸ Ð² ÑÐ¸ÑÑ‚ÐµÐ¼Ñƒ");
    }
 %>
 

@@ -13,7 +13,7 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
-<%@ page pageEncoding="koi8-r" contentType="application/rss+xml; charset=utf-8"%>
+<%@ page contentType="application/rss+xml; charset=utf-8"%>
 <%@ page import="java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.util.Date,java.util.List,com.danga.MemCached.MemCachedClient"   buffer="200kb"%>
 <%@ page import="ru.org.linux.boxlet.BoxletVectorRunner" %>
 <%@ page import="ru.org.linux.site.*" %>

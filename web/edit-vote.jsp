@@ -1,4 +1,4 @@
-<%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
+<%@ page contentType="text/html; charset=utf-8"%>
 <%@ page import="java.sql.Connection,java.sql.PreparedStatement,java.util.List,java.util.Random,java.util.logging.Logger"  %>
 <%@ page import="javax.servlet.http.HttpServletResponse"%>
 <%@ page import="ru.org.linux.site.*"%>
@@ -24,7 +24,7 @@
 %>
 <jsp:include page="WEB-INF/jsp/head.jsp"/>
 
-        <title>Редактирование опроса</title>
+        <title>п═п╣п╢п╟п╨я┌п╦я─п╬п╡п╟п╫п╦п╣ п╬п©я─п╬я│п╟</title>
 <jsp:include page="WEB-INF/jsp/header.jsp"/>
 
 <%
@@ -50,16 +50,16 @@
       Poll poll = new Poll(db, id);
 
 %>
-<h1>Редактирование опроса</h1>
+<h1>п═п╣п╢п╟п╨я┌п╦я─п╬п╡п╟п╫п╦п╣ п╬п©я─п╬я│п╟</h1>
 <p>
-Данная форма предназначена для администраторов сайта и пользователей,
-имеющих права подтверждения сообщений.
+п■п╟п╫п╫п╟я▐ я└п╬я─п╪п╟ п©я─п╣п╢п╫п╟п╥п╫п╟я┤п╣п╫п╟ п╢п╩я▐ п╟п╢п╪п╦п╫п╦я│я┌я─п╟я┌п╬я─п╬п╡ я│п╟п╧я┌п╟ п╦ п©п╬п╩я▄п╥п╬п╡п╟я┌п╣п╩п╣п╧,
+п╦п╪п╣я▌я┴п╦я┘ п©я─п╟п╡п╟ п©п╬п╢я┌п╡п╣я─п╤п╢п╣п╫п╦я▐ я│п╬п╬п╠я┴п╣п╫п╦п╧.
 <p>
 
 <form method=POST action="edit-vote.jsp">
 <input type=hidden name=id value="<%= id %>">
 <input type=hidden name=msgid value="<%= msgid %>">
-Вопрос:
+п▓п╬п©я─п╬я│:
 <input type=text name=title size=40 value="<%= poll.getTitle() %>">
 <br>
 <%
@@ -67,14 +67,14 @@
 
   for (PollVariant var : variants) {
 %>
-  Вариант #<%= var.getId() %>: <input type="text" name="var<%= var.getId() %>" size="40"
+  п▓п╟я─п╦п╟п╫я┌ #<%= var.getId() %>: <input type="text" name="var<%= var.getId() %>" size="40"
                                       value="<%= var.getLabel() %>"><br>
   <%
     }
   %>
-  Еще вариант: <input type="text" name="new1" size="40"><br>
-  Еще вариант: <input type="text" name="new2" size="40"><br>
-  Еще вариант: <input type="text" name="new3" size="40"><br>
+  п∙я┴п╣ п╡п╟я─п╦п╟п╫я┌: <input type="text" name="new1" size="40"><br>
+  п∙я┴п╣ п╡п╟я─п╦п╟п╫я┌: <input type="text" name="new2" size="40"><br>
+  п∙я┴п╣ п╡п╟я─п╦п╟п╫я┌: <input type="text" name="new3" size="40"><br>
 
   <%
 
@@ -84,8 +84,8 @@
       }
     }
   %>
-<input type=submit name="change" value="Изменить">
-<!-- input type=submit name="submit" value="Подтвердить" -->
+<input type=submit name="change" value="п≤п╥п╪п╣п╫п╦я┌я▄">
+<!-- input type=submit name="submit" value="п÷п╬п╢я┌п╡п╣я─п╢п╦я┌я▄" -->
 </form>
 <%
   } else {
@@ -144,9 +144,9 @@
       if (submit) {
         //poll.commit(db, user);
 
-        out.print("Сообщение отредактировано");
+        out.print("п║п╬п╬п╠я┴п╣п╫п╦п╣ п╬я┌я─п╣п╢п╟п╨я┌п╦я─п╬п╡п╟п╫п╬");
 
-        logger.info("Отредактирован опрос" + id + " пользователем " + user.getNick());
+        logger.info("п·я┌я─п╣п╢п╟п╨я┌п╦я─п╬п╡п╟п╫ п╬п©я─п╬я│" + id + " п©п╬п╩я▄п╥п╬п╡п╟я┌п╣п╩п╣п╪ " + user.getNick());
       }
 
       db.commit();

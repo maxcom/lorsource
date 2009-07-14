@@ -1,4 +1,4 @@
-<%@ page contentType="text/html; charset=utf-8" pageEncoding="koi8-r"%>
+<%@ page contentType="text/html; charset=utf-8"%>
 <%--
   ~ Copyright 1998-2009 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,9 +16,9 @@
 
 <jsp:include page="WEB-INF/jsp/head.jsp"/>
 
-<title>Активация</title>
+<title>п░п╨я┌п╦п╡п╟я├п╦я▐</title>
 <jsp:include page="WEB-INF/jsp/header.jsp"/>
-<h1>Активация</h1>
+<h1>п░п╨я┌п╦п╡п╟я├п╦я▐</h1>
 
 <form method=POST action="login.jsp">
   <table>
@@ -28,18 +28,18 @@
     </tr>
 
     <tr>
-      <td>Пароль:</td>
+      <td>п÷п╟я─п╬п╩я▄:</td>
       <td><input type=password name=passwd></td>
     </tr>
 
     <tr>
-      <td>Код активациии:</td>
+      <td>п п╬п╢ п╟п╨я┌п╦п╡п╟я├п╦п╦п╦:</td>
       <td><input type=text name=activate></td>
     </tr>
 
   </table>
 
-  <input type=submit value="Активировать">
+  <input type=submit value="п░п╨я┌п╦п╡п╦я─п╬п╡п╟я┌я▄">
 </form>
 
 <jsp:include page="WEB-INF/jsp/footer.jsp"/>
