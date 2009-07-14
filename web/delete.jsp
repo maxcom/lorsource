@@ -1,4 +1,4 @@
-<%@ page pageEncoding="koi8-r" contentType="text/html; charset=utf-8"%>
+<%@ page contentType="text/html; charset=utf-8"%>
 <%@ page import="java.sql.Connection,java.sql.PreparedStatement,java.sql.ResultSet"  %>
 <%@ page import="java.util.logging.Logger"%>
 <%@ page import="ru.org.linux.site.*" %>
@@ -22,7 +22,7 @@
 %>
 <jsp:include page="WEB-INF/jsp/head.jsp"/>
 
-        <title>Удаление сообщения</title>
+        <title>пёп╢п╟п╩п╣п╫п╦п╣ я│п╬п╬п╠я┴п╣п╫п╦я▐</title>
 <jsp:include page="WEB-INF/jsp/header.jsp"/>
 
 <%
@@ -39,46 +39,46 @@ function change(dest,source)
 }
    // -->
 </script>
-<h1>Удаление сообщения</h1>
-Вы можете удалить свое сообщение в течении часа с момента
-его помещения.
+<h1>пёп╢п╟п╩п╣п╫п╦п╣ я│п╬п╬п╠я┴п╣п╫п╦я▐</h1>
+п▓я▀ п╪п╬п╤п╣я┌п╣ я┐п╢п╟п╩п╦я┌я▄ я│п╡п╬п╣ я│п╬п╬п╠я┴п╣п╫п╦п╣ п╡ я┌п╣я┤п╣п╫п╦п╦ я┤п╟я│п╟ я│ п╪п╬п╪п╣п╫я┌п╟
+п╣пЁп╬ п©п╬п╪п╣я┴п╣п╫п╦я▐.
 <form method=POST action="delete.jsp">
 <table>
 <% if (session == null || session.getAttribute("login") == null || !(Boolean) session.getAttribute("login")) { %>
 <tr>
-<td>Имя:</td>
+<td>п≤п╪я▐:</td>
 <td><input type=text name=nick size=40>
 </td>
 </tr>
 <tr>
-<td>Пароль:</td>
+<td>п÷п╟я─п╬п╩я▄:</td>
 <td><input type=password name=password size=40></td>
 </tr>
 <% } %>
 <tr>
-<td>Причина удаления<br>Выберите из меню или напишите сами</td>
+<td>п÷я─п╦я┤п╦п╫п╟ я┐п╢п╟п╩п╣п╫п╦я▐<br>п▓я▀п╠п╣я─п╦я┌п╣ п╦п╥ п╪п╣п╫я▌ п╦п╩п╦ п╫п╟п©п╦я┬п╦я┌п╣ я│п╟п╪п╦</td>
 <td>
 <select name=reason_select onChange="change(reason,reason_select);">
 <option value="">
-<option value="3.1 Дубль">3.1 Дубль
-<option value="3.2 Неверная кодировка">3.2 Неверная кодировка
-<option value="3.3 Некорректное форматирование">3.3 Некорректное форматирование
-<option value="3.4 Пустое сообщение">3.4 Пустое сообщение
+<option value="3.1 п■я┐п╠п╩я▄">3.1 п■я┐п╠п╩я▄
+<option value="3.2 п²п╣п╡п╣я─п╫п╟я▐ п╨п╬п╢п╦я─п╬п╡п╨п╟">3.2 п²п╣п╡п╣я─п╫п╟я▐ п╨п╬п╢п╦я─п╬п╡п╨п╟
+<option value="3.3 п²п╣п╨п╬я─я─п╣п╨я┌п╫п╬п╣ я└п╬я─п╪п╟я┌п╦я─п╬п╡п╟п╫п╦п╣">3.3 п²п╣п╨п╬я─я─п╣п╨я┌п╫п╬п╣ я└п╬я─п╪п╟я┌п╦я─п╬п╡п╟п╫п╦п╣
+<option value="3.4 п÷я┐я│я┌п╬п╣ я│п╬п╬п╠я┴п╣п╫п╦п╣">3.4 п÷я┐я│я┌п╬п╣ я│п╬п╬п╠я┴п╣п╫п╦п╣
 <option value="4.1 Offtopic">4.1 Offtopic
-<option value="4.2 Вызывающе неверная информация">4.2 Вызывающе неверная информация
-<option value="4.3 Провокация flame">4.3 Провокация flame
-<option value="4.4 Обсуждение действий модераторов">4.4 Обсуждение действий модераторов
-<option value="4.5 Тестовые сообщения">4.5 Тестовые сообщения
-<option value="4.6 Спам">4.6 Спам
-<option value="4.7 Флуд">4.7 Флуд
-<option value="5.1 Нецензурные выражения">5.1 Нецензурные выражения
-<option value="5.2 Оскорбление участников дискуссии">5.2 Оскорбление участников дискуссии
-<option value="5.3 Национальные/политические/религиозные споры">5.3 Национальные/политические/религиозные споры
-<option value="5.4 Личная переписка">5.4 Личная переписка
-<option value="5.5 Преднамеренное нарушение правил русского языка">5.5 Преднамеренное нарушение правил русского языка
-<option value="6 Нарушение copyright">6 Нарушение copyright
+<option value="4.2 п▓я▀п╥я▀п╡п╟я▌я┴п╣ п╫п╣п╡п╣я─п╫п╟я▐ п╦п╫я└п╬я─п╪п╟я├п╦я▐">4.2 п▓я▀п╥я▀п╡п╟я▌я┴п╣ п╫п╣п╡п╣я─п╫п╟я▐ п╦п╫я└п╬я─п╪п╟я├п╦я▐
+<option value="4.3 п÷я─п╬п╡п╬п╨п╟я├п╦я▐ flame">4.3 п÷я─п╬п╡п╬п╨п╟я├п╦я▐ flame
+<option value="4.4 п·п╠я│я┐п╤п╢п╣п╫п╦п╣ п╢п╣п╧я│я┌п╡п╦п╧ п╪п╬п╢п╣я─п╟я┌п╬я─п╬п╡">4.4 п·п╠я│я┐п╤п╢п╣п╫п╦п╣ п╢п╣п╧я│я┌п╡п╦п╧ п╪п╬п╢п╣я─п╟я┌п╬я─п╬п╡
+<option value="4.5 п╒п╣я│я┌п╬п╡я▀п╣ я│п╬п╬п╠я┴п╣п╫п╦я▐">4.5 п╒п╣я│я┌п╬п╡я▀п╣ я│п╬п╬п╠я┴п╣п╫п╦я▐
+<option value="4.6 п║п©п╟п╪">4.6 п║п©п╟п╪
+<option value="4.7 п╓п╩я┐п╢">4.7 п╓п╩я┐п╢
+<option value="5.1 п²п╣я├п╣п╫п╥я┐я─п╫я▀п╣ п╡я▀я─п╟п╤п╣п╫п╦я▐">5.1 п²п╣я├п╣п╫п╥я┐я─п╫я▀п╣ п╡я▀я─п╟п╤п╣п╫п╦я▐
+<option value="5.2 п·я│п╨п╬я─п╠п╩п╣п╫п╦п╣ я┐я┤п╟я│я┌п╫п╦п╨п╬п╡ п╢п╦я│п╨я┐я│я│п╦п╦">5.2 п·я│п╨п╬я─п╠п╩п╣п╫п╦п╣ я┐я┤п╟я│я┌п╫п╦п╨п╬п╡ п╢п╦я│п╨я┐я│я│п╦п╦
+<option value="5.3 п²п╟я├п╦п╬п╫п╟п╩я▄п╫я▀п╣/п©п╬п╩п╦я┌п╦я┤п╣я│п╨п╦п╣/я─п╣п╩п╦пЁп╦п╬п╥п╫я▀п╣ я│п©п╬я─я▀">5.3 п²п╟я├п╦п╬п╫п╟п╩я▄п╫я▀п╣/п©п╬п╩п╦я┌п╦я┤п╣я│п╨п╦п╣/я─п╣п╩п╦пЁп╦п╬п╥п╫я▀п╣ я│п©п╬я─я▀
+<option value="5.4 п⌡п╦я┤п╫п╟я▐ п©п╣я─п╣п©п╦я│п╨п╟">5.4 п⌡п╦я┤п╫п╟я▐ п©п╣я─п╣п©п╦я│п╨п╟
+<option value="5.5 п÷я─п╣п╢п╫п╟п╪п╣я─п╣п╫п╫п╬п╣ п╫п╟я─я┐я┬п╣п╫п╦п╣ п©я─п╟п╡п╦п╩ я─я┐я│я│п╨п╬пЁп╬ я▐п╥я▀п╨п╟">5.5 п÷я─п╣п╢п╫п╟п╪п╣я─п╣п╫п╫п╬п╣ п╫п╟я─я┐я┬п╣п╫п╦п╣ п©я─п╟п╡п╦п╩ я─я┐я│я│п╨п╬пЁп╬ я▐п╥я▀п╨п╟
+<option value="6 п²п╟я─я┐я┬п╣п╫п╦п╣ copyright">6 п²п╟я─я┐я┬п╣п╫п╦п╣ copyright
 <option value="6.2 Warez">6.2 Warez
-<option value="7.1 Ответ на некорректное сообщение">7.1 Ответ на некорректное сообщение
+<option value="7.1 п·я┌п╡п╣я┌ п╫п╟ п╫п╣п╨п╬я─я─п╣п╨я┌п╫п╬п╣ я│п╬п╬п╠я┴п╣п╫п╦п╣">7.1 п·я┌п╡п╣я┌ п╫п╟ п╫п╣п╨п╬я─я─п╣п╨я┌п╫п╬п╣ я│п╬п╬п╠я┴п╣п╫п╦п╣
 </select>
 </td>
 <tr><td></td>
@@ -86,7 +86,7 @@ function change(dest,source)
 </tr>
 </table>
 <input type=hidden name=msgid value="<%= request.getParameter("msgid") %>">
-<input type=submit value="Delete/Удалить">
+<input type=submit value="Delete/пёп╢п╟п╩п╦я┌я▄">
 </form>
 <%
   } else {
@@ -111,7 +111,7 @@ function change(dest,source)
 
       if (session == null || session.getAttribute("login") == null || !(Boolean) session.getAttribute("login")) {
         if (request.getParameter("nick") == null) {
-          throw new BadInputException("Вы уже вышли из системы");
+          throw new BadInputException("п▓я▀ я┐п╤п╣ п╡я▀я┬п╩п╦ п╦п╥ я│п╦я│я┌п╣п╪я▀");
         }
         user = User.getUser(db, nick);
         user.checkPassword(request.getParameter("password"));
@@ -126,7 +126,7 @@ function change(dest,source)
       ResultSet lockResult = lock.executeQuery(); // lock another delete.jsp on this row
 
       if (lockResult.next() && lockResult.getBoolean("deleted")) {
-        throw new UserErrorException("Сообщение уже удалено");
+        throw new UserErrorException("п║п╬п╬п╠я┴п╣п╫п╦п╣ я┐п╤п╣ я┐п╢п╟п╩п╣п╫п╬");
       }
 
       PreparedStatement pr = db.prepareStatement("SELECT postdate>CURRENT_TIMESTAMP-'1 hour'::interval as perm FROM users, topics WHERE topics.id=? AND topics.userid=users.id AND users.nick=?");
@@ -198,8 +198,8 @@ function change(dest,source)
       st1.executeUpdate();
       st2.executeUpdate();
 
-      out.print("Сообщение удалено");
-      logger.info("Удалено сообщение " + msgid + " пользователем " + nick + " по причине `" + reason + '\'');
+      out.print("п║п╬п╬п╠я┴п╣п╫п╦п╣ я┐п╢п╟п╩п╣п╫п╬");
+      logger.info("пёп╢п╟п╩п╣п╫п╬ я│п╬п╬п╠я┴п╣п╫п╦п╣ " + msgid + " п©п╬п╩я▄п╥п╬п╡п╟я┌п╣п╩п╣п╪ " + nick + " п©п╬ п©я─п╦я┤п╦п╫п╣ `" + reason + '\'');
 
       st1.close();
       st2.close();
