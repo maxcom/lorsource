@@ -58,7 +58,7 @@ function change(dest,source)
 <tr>
 <td>Причина удаления<br>Выберите из меню или напишите сами</td>
 <td>
-<select name=reason_select onChange="change(reason,reason_select)">
+<select name=reason_select onChange="change(reason,reason_select);">
 <option value="">
 <option value="3.1 Дубль">3.1 Дубль
 <option value="3.2 Неверная кодировка">3.2 Неверная кодировка
