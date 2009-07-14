@@ -186,6 +186,11 @@ version="2.4">
       <servlet-name>springapp</servlet-name>
       <url-pattern>/add_comment.jsp</url-pattern>
     </servlet-mapping>
+
+    <servlet-mapping>
+      <servlet-name>springapp</servlet-name>
+      <url-pattern>/delete.jsp</url-pattern>
+    </servlet-mapping>
 <listener>
   <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
 </listener>
