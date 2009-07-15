@@ -25,7 +25,6 @@ import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
@@ -133,7 +132,7 @@ public class AddMessageForm {
     return linktext == null ? "" : HTMLFormatter.htmlSpecialChars(linktext);
   }
 
-  public AddMessageForm(HttpServletRequest request, Template tmpl) throws FileUploadException, IOException, ScriptErrorException, ServletParameterException {
+  public AddMessageForm(HttpServletRequest request, Template tmpl) throws IOException, ScriptErrorException, ServletParameterException {
     userAgent = request.getHeader("user-agent");
     postIP = request.getRemoteAddr();
 
