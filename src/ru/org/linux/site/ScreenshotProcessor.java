@@ -50,7 +50,7 @@ public class ScreenshotProcessor {
       throw new BadImageException("Сбой загрузки изображения: слишком большой файл");
     }
 
-    extension = ImageInfo.detectImageType(filename);
+    extension = ImageInfo.detectImageType(file);
 
     ImageInfo info = new ImageInfo(filename, extension);
 

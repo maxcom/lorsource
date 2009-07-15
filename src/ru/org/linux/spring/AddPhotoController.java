@@ -67,8 +67,8 @@ public class AddPhotoController extends ApplicationObjectSupport {
 
       file.transferTo(uploadedFile);
 
-      Userpic.checkUserpic(uploadedFile.getPath());
-      String extension = ImageInfo.detectImageType(uploadedFile.getPath());
+      Userpic.checkUserpic(uploadedFile);
+      String extension = ImageInfo.detectImageType(uploadedFile);
 
       db = LorDataSource.getConnection();
       User user = User.getUser(db, tmpl.getNick());

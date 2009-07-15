@@ -45,17 +45,15 @@ public class ImageInfo{
     System.out.println(info.width + " " + info.height);
   }
 
-  public static String detectImageType(String filename) throws BadImageException, IOException {
-    File file = new File(filename);
-
-    logger.fine("Detecting image type for: " + filename+ " ("+file.length()+" bytes)");
+  public static String detectImageType(File file) throws BadImageException, IOException {
+    logger.fine("Detecting image type for: " + file+ " ("+file.length()+" bytes)");
 
     ImageInfo2 ii = new ImageInfo2();
 
     FileInputStream is = null;
 
     try {
-      is = new FileInputStream(filename);
+      is = new FileInputStream(file);
 
       ii.setInput(is);
 

@@ -29,9 +29,10 @@ public class Userpic {
   public static final int MIN_IMAGESIZE = 50;
   private static final int MAX_IMAGESIZE = 150;
 
-  public static void checkUserpic(String filename) throws UserErrorException, IOException, BadImageException {
-    File file = new File(filename);
+  private Userpic() {
+  }
 
+  public static void checkUserpic(File file) throws UserErrorException, IOException, BadImageException {
     if (!file.isFile()) {
       throw new UserErrorException("Сбой загрузки изображения: не файл");
     }
@@ -40,9 +41,9 @@ public class Userpic {
       throw new UserErrorException("Сбой загрузки изображения: слишком большой файл");      
     }
 
-    String extension = ImageInfo.detectImageType(filename);
+    String extension = ImageInfo.detectImageType(file);
 
-    ImageInfo info = new ImageInfo(filename, extension);
+    ImageInfo info = new ImageInfo(file.getPath(), extension);
 
     if (info.getHeight()<MIN_IMAGESIZE || info.getHeight() > MAX_IMAGESIZE) {
       throw new UserErrorException("Сбой загрузки изображения: недопустимые размеры фотографии");
@@ -55,7 +56,7 @@ public class Userpic {
     ImageInfo2 ii = new ImageInfo2();
     InputStream is = null;
     try {
-      is = new FileInputStream(filename);
+      is = new FileInputStream(file);
 
       ii.setInput(is);
       ii.setDetermineImageNumber(true);
