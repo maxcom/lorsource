@@ -27,7 +27,7 @@ import ru.org.linux.util.ImageInfo2;
 public class Userpic {
   public static final int MAX_USERPIC_FILESIZE = 32000;
   public static final int MIN_IMAGESIZE = 50;
-  private static final int MAX_IMAGESIZE = 150;
+  public static final int MAX_IMAGESIZE = 100;
 
   private Userpic() {
   }

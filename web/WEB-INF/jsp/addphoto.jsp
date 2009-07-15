@@ -1,3 +1,4 @@
+<%@ page import="ru.org.linux.site.Userpic" %>
 <%@ page pageEncoding="utf-8" contentType="text/html; charset=utf-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%--
@@ -41,9 +42,9 @@
 <p>
   Технические требования к изображению:
   <ul>
-    <li>Ширина x Высота: от 50x50 до 150x150 пискелей</li>
+    <li>Ширина x Высота: от <%= Userpic.MIN_IMAGESIZE %>x<%= Userpic.MIN_IMAGESIZE %> до <%= Userpic.MAX_IMAGESIZE %>x<%= Userpic.MAX_IMAGESIZE %> пискелей</li>
     <li>Тип: jpeg, gif, png</li>
-    <li>Размер не более 30 Kb</li>
+    <li>Размер не более <%= Userpic.MAX_USERPIC_FILESIZE / 1024 %> Kb</li>
   </ul>
 </p>
 
