@@ -28,7 +28,6 @@
   try {
     db = LorDataSource.getConnection();
     
-    Exception error = (Exception) request.getAttribute("error");
     Message previewMsg = (Message) request.getAttribute("message");
     AddMessageForm form = (AddMessageForm) request.getAttribute("form");
     Group group = (Group) request.getAttribute("group");
