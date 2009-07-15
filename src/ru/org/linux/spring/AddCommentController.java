@@ -159,8 +159,8 @@ public class AddCommentController extends ApplicationObjectSupport {
       db.setAutoCommit(false);
 
       Message topic = new Message(db, topicId);
-      checkTopic(topic);
       formParams.put("postscore", topic.getPostScore());
+      checkTopic(topic);
 
       createReplyTo(replyToObject, formParams, db);
 
