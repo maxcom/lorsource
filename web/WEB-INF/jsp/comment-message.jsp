@@ -1,6 +1,5 @@
 <%@ page contentType="text/html; charset=utf-8"%>
 <%@ page import="java.sql.Connection"   buffer="200kb"%>
-<%@ page import="ru.org.linux.site.AccessViolationException" %>
 <%@ page import="ru.org.linux.site.LorDataSource" %>
 <%@ page import="ru.org.linux.site.Message" %>
 <%@ page import="ru.org.linux.site.Template" %>
@@ -23,7 +22,7 @@
   --%>
 
 <% Template tmpl = Template.getTemplate(request); %>
-<jsp:include page="WEB-INF/jsp/head.jsp"/>
+<jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
 <%
   Connection db = null;
@@ -33,19 +32,11 @@
 
     db = LorDataSource.getConnection();
 
-    Message message = new Message(db, msgid);
-
-    if (message.isExpired()) {
-      throw new AccessViolationException("нельзя комментировать устаревшие темы");
-    }
-
-    if (message.isDeleted()) {
-      throw new AccessViolationException("нельзя комментировать удаленные сообщения");
-    }
+    Message message = (Message) request.getAttribute("message");
 
     out.print("<title>" + message.getSectionTitle() + " - " + message.getGroupTitle() + " - " + message.getTitle() + "</title>");
 %>
-<jsp:include page="WEB-INF/jsp/header.jsp"/>
+<jsp:include page="/WEB-INF/jsp/header.jsp"/>
 <div class=messages>
   <lor:message db="<%= db %>" message="<%= message %>" showMenu="false" user="<%= Template.getNick(session) %>"/>
 </div>
@@ -116,4 +107,4 @@
     }
   }
 %>
-<jsp:include page="WEB-INF/jsp/footer.jsp"/>
+<jsp:include page="/WEB-INF/jsp/footer.jsp"/>
