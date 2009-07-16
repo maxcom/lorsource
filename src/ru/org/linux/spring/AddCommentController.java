@@ -158,9 +158,10 @@ public class AddCommentController extends ApplicationObjectSupport {
 
       Message topic = new Message(db, topicId);
       formParams.put("postscore", topic.getPostScore());
-      checkTopic(topic);
 
       createReplyTo(replyToObject, formParams, db);
+
+      checkTopic(topic);
 
       if (!preview && !session.getId().equals(request.getParameter("session"))) {
         logger.info("Flood protection (session variable differs: " + session.getId() + ") " + request.getRemoteAddr());
