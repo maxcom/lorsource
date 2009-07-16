@@ -116,7 +116,7 @@ public class AddMessageController extends ApplicationObjectSupport {
 
         // Captch
         if (!Template.isSessionAuthorized(session)) {
-          CaptchaSingleton.checkCaptcha(session, form.getCaptchaResponse());
+          CaptchaUtils.checkCaptcha(request);
         }
         // Blocked IP
         IPBlockInfo.checkBlockIP(db, request.getRemoteAddr());

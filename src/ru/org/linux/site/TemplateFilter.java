@@ -34,6 +34,7 @@ public class TemplateFilter implements Filter {
 
   private Properties properties;
 
+  @Override
   public void init(FilterConfig filterConfig) throws ServletException {
     this.filterConfig = filterConfig;
 
@@ -42,6 +43,7 @@ public class TemplateFilter implements Filter {
     MemCachedSettings.setMainUrl(properties.getProperty("MainUrl"));
   }
 
+  @Override
   public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws ServletException, IOException {
     if (filterConfig==null) {
       return;
@@ -59,6 +61,7 @@ public class TemplateFilter implements Filter {
     filterChain.doFilter(servletRequest, servletResponse);
   }
 
+  @Override
   public void destroy() {
     filterConfig = null;
   }
@@ -66,11 +69,6 @@ public class TemplateFilter implements Filter {
   private static Properties getProperties(ServletContext sc)  {
     WebApplicationContext ctx = WebApplicationContextUtils.getWebApplicationContext(sc);
 
-    Properties prop = (Properties) ctx.getBean("config.properties");
-    if (prop.isEmpty()) {
-      prop = (Properties) ctx.getBean("config.properties.dist");
-    }
-
-    return prop;
+    return (Properties) ctx.getBean("properties");
   }
 }

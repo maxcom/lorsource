@@ -9,8 +9,15 @@
 <%@ tag import="ru.org.linux.util.BadURLException" %>
 <%@ tag import="ru.org.linux.util.HTMLFormatter" %>
 <%@ tag import="ru.org.linux.util.ServletParameterParser" %>
+<%@ tag import="org.springframework.web.context.WebApplicationContext" %>
+<%@ tag import="org.springframework.web.context.support.WebApplicationContextUtils" %>
+<%@ tag import="java.util.Properties" %>
+<%@ tag import="net.tanesha.recaptcha.ReCaptcha" %>
+<%@ tag import="org.springframework.web.servlet.support.RequestContextUtils" %>
 <%@ tag pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib prefix="lor" uri="http://www.linux.org.ru" %>
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 
 <%--
   ~ Copyright 1998-2009 Linux.org.ru
@@ -30,7 +37,10 @@
 <%
   if (!Template.isSessionAuthorized(session)) {
 %>
-    <p><img src="/jcaptcha.jsp" id="captcha_image" onclick="document.getElementById('captcha_image').src = '/jcaptcha.jsp?'+Math.random();"><input type='text' name='j_captcha_response' value=''>
+    <p>
 <%
+    WebApplicationContext ctx=RequestContextUtils.getWebApplicationContext(request);
+
+    out.print(((ReCaptcha) ctx.getBean("reCaptcha")).createRecaptchaHtml(null, null));
   }
 %>

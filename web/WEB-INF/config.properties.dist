@@ -12,12 +12,9 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 #
-
-; Main url (used for redirects and etc)
 MainUrl=http://test-lor:8080/
-; Path to directory tree
 PathPrefix=/var/www/test-lor/
-; Path to html root
 HTMLPathPrefix=/var/www/test-lor/webapps/lor/
-;
 Secret=secret
+recaptcha.private=6LclXgcAAAAAAKeX4IoMTUdy1nUSzXRXSH7KcrHM
+recaptcha.public=6LclXgcAAAAAAIRhcA0V1DNiTT_AGUg_baM3-vc8

@@ -135,7 +135,7 @@ public class RegisterController extends ApplicationObjectSupport {
       }
 
       if (!changeMode) {
-        CaptchaSingleton.checkCaptcha(session, request);
+        CaptchaUtils.checkCaptcha(request);
 
         if (session.getAttribute("register-visited") == null) {
           logger.info("Flood protection (not visited register.jsp) " + request.getRemoteAddr());

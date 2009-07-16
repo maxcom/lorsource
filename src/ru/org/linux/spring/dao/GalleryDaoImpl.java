@@ -20,6 +20,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Properties;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -27,7 +28,6 @@ import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 
 import ru.org.linux.site.GalleryItem;
-import ru.org.linux.spring.commons.PropertiesFacade;
 import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.ImageInfo;
 
@@ -37,11 +37,10 @@ import ru.org.linux.util.ImageInfo;
  * Time: 1:12:45
  */
 public class GalleryDaoImpl {
-
   private static final Log log = LogFactory.getLog(GalleryDaoImpl.class);
 
   private SimpleJdbcTemplate template;
-  private PropertiesFacade properties;
+  private Properties properties;
 
   public SimpleJdbcTemplate getTemplate() {
     return template;
@@ -51,11 +50,11 @@ public class GalleryDaoImpl {
     this.template = template;
   }
 
-  public PropertiesFacade getProperties() {
+  public Properties getProperties() {
     return properties;
   }
 
-  public void setProperties(PropertiesFacade properties) {
+  public void setProperties(Properties properties) {
     this.properties = properties;
   }
 
@@ -82,7 +81,7 @@ public class GalleryDaoImpl {
     item.setNick(rs.getString("nick"));
     item.setStat(rs.getInt("stat1"));
 
-    String htmlPath = properties.getProperties().getProperty("HTMLPathPrefix", "");
+    String htmlPath = properties.getProperty("HTMLPathPrefix");
     item.setHtmlPath(htmlPath);
     try {
       item.setInfo(new ImageInfo(htmlPath + item.getIcon()));
@@ -94,6 +93,4 @@ public class GalleryDaoImpl {
     }
     return item;
   }
-
-
 }

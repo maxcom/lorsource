@@ -19,7 +19,6 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
@@ -33,7 +32,6 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 
 import ru.org.linux.site.*;
-import ru.org.linux.util.BadURLException;
 import ru.org.linux.util.HTMLFormatter;
 
 @Controller
@@ -204,7 +202,7 @@ public class AddCommentController extends ApplicationObjectSupport {
       }
 
       if (!preview && !Template.isSessionAuthorized(session)) {
-        CaptchaSingleton.checkCaptcha(session, request);
+        CaptchaUtils.checkCaptcha(request);
       }
 
       if (user.isAnonymous()) {

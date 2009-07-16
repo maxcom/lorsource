@@ -14,29 +14,25 @@
   ~    limitations under the License.
   -->
 
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN/EN"
-        "http://www.springframework.org/dtd/spring-beans-2.0.dtd" >
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
 
-<beans>
     <bean class="org.springframework.beans.factory.config.PropertiesFactoryBean" scope="singleton"
-          name="config.properties">
-        <property name="location" value="/WEB-INF/config.properties"/>
+          name="properties">
+        <property name="locations">
+            <list>
+                <value>/WEB-INF/config.properties.dist</value>
+                <value>/WEB-INF/config.properties</value>
+                <value>/WEB-INF/jndi.properties</value>
+            </list>
+        </property>
         <property name="ignoreResourceNotFound" value="true"/>
-    </bean>
-
-    <bean class="org.springframework.beans.factory.config.PropertiesFactoryBean" scope="singleton"
-          name="config.properties.dist">
-        <property name="location" value="/WEB-INF/config.properties.dist"/>
-    </bean>
-
-    <bean class="ru.org.linux.spring.commons.PropertiesFacade" id="propertiesFacade">
-        <property name="dist" ref="config.properties.dist"/>
-        <property name="general" ref="config.properties"/>
     </bean>
 
     <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer"
           id="configurer">
-        <property name="location" value="/WEB-INF/jndi.properties"/>
+        <property name="properties" ref="properties"/>
     </bean>
 
     <bean class="org.springframework.jndi.JndiObjectFactoryBean" name="datasource">
@@ -48,14 +44,14 @@
     </bean>
 
     <bean class="ru.org.linux.spring.dao.GalleryDaoImpl" id="galleryDao">
-        <property name="properties" ref="propertiesFacade"/>
+        <property name="properties" ref="properties"/>
         <property name="template" ref="jdbcTemplate"/>
     </bean>
 
     <bean class="ru.org.linux.spring.dao.ArchiveDaoImpl" id="archiveDao">
-        <property name="jdbcTemplate"  ref="jdbcTemplate"/>
+        <property name="jdbcTemplate" ref="jdbcTemplate"/>
     </bean>
-    
+
     <bean class="ru.org.linux.spring.dao.PollDaoImpl" id="pollDao">
         <property name="jdbcTemplate" ref="jdbcTemplate"/>
     </bean>
@@ -69,4 +65,14 @@
     </bean>
 
     <bean class="ru.org.linux.spring.commons.MemCachedProvider" id="cacheProvider"/>
+
+    <bean id="reCaptcha" class="net.tanesha.recaptcha.ReCaptchaImpl">
+        <property name="privateKey" value="${recaptcha.private}"/>
+        <property name="publicKey" value="${recaptcha.public}"/>
+        <property name="recaptchaServer" value="http://api.recaptcha.net"/>
+        <!-- Or, if you want to use SSL, then use this:
+                    <property name="recaptchaServer" value="http://secure-api.recaptcha.net" />
+            -->
+        <property name="includeNoscript" value="true"/>
+    </bean>
 </beans>

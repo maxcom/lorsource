@@ -24,24 +24,6 @@ version="2.4">
     <res-auth>Container</res-auth>
   </resource-ref>
 
-  <servlet>
-        <servlet-name>jcaptcha</servlet-name>
-        <servlet-class>ru.org.linux.site.ImageCaptchaServlet</servlet-class>
-
-        <init-param>
-            <param-name>statusEnabled</param-name>
-            <param-value>false</param-value>
-        </init-param>
-
-        <load-on-startup>0</load-on-startup>
-  </servlet>
-
-  <servlet-mapping>
-        <servlet-name>jcaptcha</servlet-name>
-        <url-pattern>/jcaptcha.jsp</url-pattern>
-
-  </servlet-mapping>
-
    <filter>
         <filter-name>UrlRewriteFilter</filter-name>
         <filter-class>org.tuckey.web.filters.urlrewrite.UrlRewriteFilter</filter-class>
