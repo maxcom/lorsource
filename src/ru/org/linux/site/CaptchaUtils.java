@@ -30,7 +30,14 @@ public class CaptchaUtils {
     WebApplicationContext ctx= RequestContextUtils.getWebApplicationContext(request);
     ReCaptcha captcha = (ReCaptcha) ctx.getBean("reCaptcha");
 
-    ReCaptchaResponse response = captcha.checkAnswer(request.getRemoteAddr(), request.getParameter("recaptcha_challenge_field"), request.getParameter("recaptcha_response_field"));
+    String captchaChallenge = request.getParameter("recaptcha_challenge_field");
+    String captchaResponse = request.getParameter("recaptcha_response_field");
+
+    if (captchaChallenge==null || captchaResponse==null) {
+      throw new BadInputException("Код проверки не указан");
+    }
+
+    ReCaptchaResponse response = captcha.checkAnswer(request.getRemoteAddr(), captchaChallenge, captchaResponse);
 
     if (!response.isValid()) {
       throw new BadInputException("Код проверки не совпадает");
