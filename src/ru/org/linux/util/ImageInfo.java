@@ -253,6 +253,7 @@ public class ImageInfo{
     int exitStatus = proc.waitFor();
 
     if (exitStatus!=0) {
+      logger.warning("Failed to convert from "+filename+" to "+iconname);
       throw new UtilException("Can't convert image: convert failed");
     }
   }
