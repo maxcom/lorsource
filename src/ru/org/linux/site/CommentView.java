@@ -40,24 +40,31 @@ public class CommentView {
       printMenu(out, comment, comments, tmpl, db, expired);
     }
 
-    out.append("<div class=\"msg_body\">");
+    boolean showPhotos = tmpl.getProf().getBoolean("photos");
 
-    boolean tbl = false;
-    if (author.getPhoto()!=null) {
-      if (tmpl.getProf().getBoolean("photos")) {
-        out.append("<table><tr><td valign=top align=center>");
-        tbl=true;
+    if (showPhotos) {
+      out.append("<div class=\"userpic\">");
+      if (author.getPhoto() != null) {
+        showPhotos = true;
 
         try {
-          ImageInfo info=new ImageInfo(tmpl.getObjectConfig().getHTMLPathPrefix()+"/photos/"+author.getPhoto());
+          ImageInfo info = new ImageInfo(tmpl.getObjectConfig().getHTMLPathPrefix() + "/photos/" + author.getPhoto());
           out.append("<img src=\"/photos/").append(author.getPhoto()).append("\" alt=\"").append(author.getNick()).append(" (фотография)\" ").append(info.getCode()).append(" >");
         } catch (BadImageException e) {
           logger.warning(StringUtil.getStackTrace(e));
+        } catch (IOException e) {
+          logger.warning(StringUtil.getStackTrace(e));
         }
-
-        out.append("</td><td valign=top>");
+      } else {
+        if (author.hasGravatar()) {
+          out.append("<img width=150 height=150 src=\""+author.getGravatar()+"\">");
+        }
       }
+
+      out.append("</div>");
     }
+
+    out.append("<div class=\"msg_body\" style=\"padding-left: 160px\">");
 
     out.append("<h2>").append(comment.getTitle()).append("</h2>");
 
@@ -85,10 +92,6 @@ public class CommentView {
       }
 
       out.append("</div>");
-    }
-
-    if (tbl) {
-      out.append("</td></tr></table>");
     }
 
     out.append("</div>");

@@ -43,6 +43,7 @@ public class User implements Serializable {
   private final int score;
   private final int maxScore;
   private final String photo;
+  private final String email;
 
   private final boolean activated;
   public static final int CORRECTOR_SCORE = 100;
@@ -58,7 +59,7 @@ public class User implements Serializable {
     }
     nick = name;
 
-    PreparedStatement st = con.prepareStatement("SELECT id,candel,canmod,corrector,passwd,blocked,score,max_score,activated,photo FROM users where nick=?");
+    PreparedStatement st = con.prepareStatement("SELECT id,candel,canmod,corrector,passwd,blocked,score,max_score,activated,photo,email FROM users where nick=?");
     st.setString(1, name);
 
     ResultSet rs = st.executeQuery();
@@ -84,6 +85,8 @@ public class User implements Serializable {
 
     photo=rs.getString("photo");
 
+    email = rs.getString("email");
+
     rs.close();
     st.close();
   }
@@ -91,7 +94,7 @@ public class User implements Serializable {
   private User(Connection con, int id) throws SQLException, UserNotFoundException {
     this.id = id;
 
-    PreparedStatement st = con.prepareStatement("SELECT nick,score, max_score, candel,canmod,corrector,passwd,blocked,activated,photo FROM users where id=?");
+    PreparedStatement st = con.prepareStatement("SELECT nick,score, max_score, candel,canmod,corrector,passwd,blocked,activated,photo,email FROM users where id=?");
     st.setInt(1, id);
 
     ResultSet rs = st.executeQuery();
@@ -115,6 +118,7 @@ public class User implements Serializable {
     password = pwd;
     anonymous = "".equals(pwd);
     photo=rs.getString("photo");
+    email = rs.getString("email");
 
     rs.close();
     st.close();
@@ -538,5 +542,19 @@ public class User implements Serializable {
     if (nick.length() > MAX_NICK_LENGTH) {
       throw new BadInputException("слишком длинное имя пользователя");
     }
+  }
+
+  public String getGravatar() {
+    return "http://www.gravatar.com/avatar/"
+      + StringUtil.md5hash(email)
+      + "?s=150&amp;r=g&amp;d="+URLEncoder.encode("http://www.linux.org.ru/img/p.gif");
+  }
+
+  public String getEmail() {
+    return email;
+  }
+
+  public boolean hasGravatar() {
+    return email!=null;
   }
 }

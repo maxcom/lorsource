@@ -195,3 +195,12 @@ pre {
 .message-table td.dateinterval {
     text-align: right;
 }
+
+.userpic {
+    float: left;
+    width: 150px;
+    padding-left: 5px;
+    padding-right: 5px;
+    padding-top: 5px;
+    text-align: center;
+}
