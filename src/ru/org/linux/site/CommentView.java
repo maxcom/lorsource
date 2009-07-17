@@ -95,7 +95,7 @@ public class CommentView {
       out.append("</div>");
     }
 
-    out.append("</div>");
+    out.append("</div><div style=\"clear: both\"></div>");
     out.append("</div>");
 
     return out.toString();
