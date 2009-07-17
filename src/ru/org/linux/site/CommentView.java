@@ -62,9 +62,10 @@ public class CommentView {
       }
 
       out.append("</div>");
+      out.append("<div class=\"msg_body\" style=\"padding-left: 160px\">");
+    } else {
+      out.append("<div class=\"msg_body\">");
     }
-
-    out.append("<div class=\"msg_body\" style=\"padding-left: 160px\">");
 
     out.append("<h2>").append(comment.getTitle()).append("</h2>");
 
