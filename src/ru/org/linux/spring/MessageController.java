@@ -80,7 +80,15 @@ public class MessageController {
         throw new AccessViolationException("Это сообщение нельзя посмотреть");
       }
 
-      if (webRequest.checkNotModified(getLastmodified(message))) {
+      String etag = getEtag(message, tmpl);
+      response.setHeader("Etag", etag);
+
+      if (request.getHeader("If-None-Match")!=null) {
+        if (etag.equals(request.getHeader("If-None-Match"))) {
+          response.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
+          return null;
+        }
+      } else if (webRequest.checkNotModified(message.getLastModified().getTime())) {
         return null;
       }
 
@@ -105,7 +113,11 @@ public class MessageController {
     }
   }
 
-  private long getLastmodified(Message message) {
-    return message.getLastModified().getTime();
+  private String getEtag(Message message, Template tmpl) {
+    String nick = tmpl.getNick();
+
+    String userAddon = nick!=null?("-"+nick):"";
+
+    return "message-"+message.getMessageId()+"-"+message.getLastModified().getTime()+userAddon;
   }
 }
