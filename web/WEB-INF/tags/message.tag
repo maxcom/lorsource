@@ -1,14 +1,8 @@
-<%@ tag import="java.io.FileNotFoundException" %>
-<%@ tag import="java.sql.*" %>
-<%@ tag import="java.util.List" %>
-<%@ tag import="java.util.Random" %>
-<%@ tag import="java.util.Set" %>
-<%@ tag import="java.util.logging.Logger" %>
-<%@ tag import="javax.servlet.http.HttpServletResponse" %>
-<%@ tag import="org.apache.commons.lang.StringUtils" %>
+<%@ tag import="java.sql.ResultSet" %>
+<%@ tag import="java.sql.Statement" %>
 <%@ tag import="ru.org.linux.site.*" %>
-<%@ tag import="ru.org.linux.spring.AddMessageForm" %>
-<%@ tag import="ru.org.linux.util.*" %>
+<%@ tag import="ru.org.linux.util.BadImageException" %>
+<%@ tag import="ru.org.linux.util.HTMLFormatter" %>
 <%@ tag pageEncoding="UTF-8"%>
 <%@ attribute name="db" required="true" type="java.sql.Connection" %>
 <%@ attribute name="message" required="true" type="ru.org.linux.site.Message" %>
@@ -47,7 +41,7 @@
   <div class=title>
     <c:if test="${not message.deleted}">[<a href="/view-message.jsp?msgid=<%= msgid %>">#</a>]<%
     if (tmpl.isModeratorSession() && message.getSection().isPremoderated() && !message.isCommited()) {
-      out.append("[<a href=\"commit.jsp?msgid="+msgid+"\">Подтвердить</a>]");
+      out.append("[<a href=\"commit.jsp?msgid=").append(String.valueOf(msgid)).append("\">Подтвердить</a>]");
     }
 
     if (tmpl.isModeratorSession() || author.getNick().equals(user)) {
@@ -100,39 +94,32 @@
 %>
   &nbsp;</div>
 </c:if>
-<div class="msg_body">
 <%
-  boolean tbl = false;
-  if (message.getSection().isImagepost()) {
-    out.append("<table><tr><td valign=top align=center>");
-    tbl = true;
+//  if (message.getSection().isImagepost()) {
+//    out.append("<table><tr><td valign=top align=center>");
+//    tbl = true;
+//
+//    try {
+//      ImageInfo info = new ImageInfo(tmpl.getObjectConfig().getHTMLPathPrefix() + message.getLinktext());
+//      out.append("<a href=\"/").append(message.getUrl()).append("\"><img src=\"/").append(message.getLinktext()).append("\" ALT=\"").append(message.getTitle()).append("\" ").append(info.getCode()).append(" ></a>");
+//    } catch (BadImageException e) {
+//      out.append("<a href=\"/").append(message.getUrl()).append("\">[bad image]</a>");
+//    } catch (FileNotFoundException e) {
+//      out.append("<a href=\"/").append(message.getUrl()).append("\">[no image]</a>");
+//    }
+//
+//    out.append("</td><td valign=top>");
+//  }
 
-    try {
-      ImageInfo info = new ImageInfo(tmpl.getObjectConfig().getHTMLPathPrefix() + message.getLinktext());
-      out.append("<a href=\"/").append(message.getUrl()).append("\"><img src=\"/").append(message.getLinktext()).append("\" ALT=\"").append(message.getTitle()).append("\" ").append(info.getCode()).append(" ></a>");
-    } catch (BadImageException e) {
-      out.append("<a href=\"/").append(message.getUrl()).append("\">[bad image]</a>");
-    } catch (FileNotFoundException e) {
-      out.append("<a href=\"/").append(message.getUrl()).append("\">[no image]</a>");
-    }
+  boolean showPhotos = tmpl.getProf().getBoolean("photos");
 
-    out.append("</td><td valign=top>");
-  }
-
-  if (!message.getSection().isImagepost() && author.getPhoto() != null) {
-    if (tmpl.getProf().getBoolean("photos")) {
-      out.append("<table><tr><td valign=top align=center>");
-      tbl = true;
-
-      try {
-        ImageInfo info = new ImageInfo(tmpl.getObjectConfig().getHTMLPathPrefix() + "/photos/" + author.getPhoto());
-        out.append("<img src=\"/photos/").append(author.getPhoto()).append("\" alt=\"").append(author.getNick()).append(" (фотография)\" ").append(info.getCode()).append(" >");
-      } catch (BadImageException e) {
-        Logger.getLogger("ru.org.linux").warning(StringUtil.getStackTrace(e));
-      }
-
-      out.append("</td><td valign=top>");
-    }
+  if (showPhotos) {
+    StringBuilder outBuffer = new StringBuilder();
+    CommentView.getUserpicHTML(tmpl, outBuffer, author);
+    out.append(outBuffer.toString());
+    out.append("<div class=\"msg_body\" style=\"padding-left: 160px\">");
+  } else {
+    out.append("<div class=\"msg_body\">");
   }
 
   out.append("<h1><a name=");
@@ -164,23 +151,9 @@
   }
 
   if (message.getUrl() != null && message.getSection().isImagepost()) {
-    try {
-      ImageInfo info = new ImageInfo(tmpl.getObjectConfig().getHTMLPathPrefix() + message.getUrl());
-
-      out.append("<p><i>");
-      out.print(info.getWidth());
-      out.append('x');
-      out.print(info.getHeight());
-      out.append(", ");
-      out.append(info.getSizeString());
-      out.append("</i>");
-
-      out.append("<p>&gt;&gt;&gt; <a href=\"/").append(message.getUrl()).append("\">Просмотр</a>.");
-    } catch (BadImageException e) {
-      out.append("<p>&gt;&gt;&gt; <a href=\"/").append(message.getUrl()).append("\">[BAD IMAGE!] Просмотр</a>.");
-    } catch (FileNotFoundException e) {
-      out.append("<p>&gt;&gt;&gt; <a href=\"/").append(message.getUrl()).append("\">[NO IMAGE!] Просмотр</a>.");
-    }
+    StringBuilder outBuilder = new StringBuilder();
+    NewsViewer.showMediumImage(tmpl.getObjectConfig().getHTMLPathPrefix(), outBuilder, message.getUrl(), message.getTitle(), message.getLinktext());
+    out.print(outBuilder.toString());
   }
 
   if (message.getSectionId() == 1) {
@@ -228,10 +201,6 @@
     }
 
     out.append("</div>");
-  }
-
-  if (tbl) {
-    out.append("</td></tr></table>");
   }
 %>
 </div>

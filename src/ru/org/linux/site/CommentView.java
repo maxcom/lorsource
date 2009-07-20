@@ -28,7 +28,7 @@ public class CommentView {
 
   public String printMessage(Comment comment, Template tmpl, Connection db, CommentList comments, boolean showMenu, boolean moderatorMode, String user, boolean expired)
       throws IOException, UtilException, SQLException, UserNotFoundException {
-    StringBuffer out=new StringBuffer();
+    StringBuilder out=new StringBuilder();
 
     out.append("\n\n<!-- ").append(comment.getMessageId()).append(" -->\n");
 
@@ -43,25 +43,7 @@ public class CommentView {
     boolean showPhotos = tmpl.getProf().getBoolean("photos");
 
     if (showPhotos) {
-      out.append("<div class=\"userpic\">");
-      if (author.getPhoto() != null) {
-        showPhotos = true;
-
-        try {
-          ImageInfo info = new ImageInfo(tmpl.getObjectConfig().getHTMLPathPrefix() + "/photos/" + author.getPhoto());
-          out.append("<img src=\"/photos/").append(author.getPhoto()).append("\" alt=\"").append(author.getNick()).append(" (фотография)\" ").append(info.getCode()).append(" >");
-        } catch (BadImageException e) {
-          logger.warning(StringUtil.getStackTrace(e));
-        } catch (IOException e) {
-          logger.warning(StringUtil.getStackTrace(e));
-        }
-      } else {
-        if (author.hasGravatar()) {
-          out.append("<img width=150 height=150 src=\""+author.getGravatar()+"\">");
-        }
-      }
-
-      out.append("</div>");
+      getUserpicHTML(tmpl, out, author);
       out.append("<div class=\"msg_body\" style=\"padding-left: 160px\">");
     } else {
       out.append("<div class=\"msg_body\">");
@@ -101,7 +83,27 @@ public class CommentView {
     return out.toString();
   }
 
-  private void printMenu(StringBuffer out, Comment comment,
+  public static void getUserpicHTML(Template tmpl, StringBuilder out, User author) throws IOException {
+    out.append("<div class=\"userpic\">");
+    if (author.getPhoto() != null) {
+      try {
+        ImageInfo info = new ImageInfo(tmpl.getObjectConfig().getHTMLPathPrefix() + "/photos/" + author.getPhoto());
+        out.append("<img src=\"/photos/").append(author.getPhoto()).append("\" alt=\"").append(author.getNick()).append(" (фотография)\" ").append(info.getCode()).append(" >");
+      } catch (BadImageException e) {
+        logger.warning(StringUtil.getStackTrace(e));
+      } catch (IOException e) {
+        logger.warning(StringUtil.getStackTrace(e));
+      }
+    } else {
+      if (author.hasGravatar()) {
+        out.append("<img width=150 height=150 src=\""+author.getGravatar()+"\">");
+      }
+    }
+
+    out.append("</div>");
+  }
+
+  private void printMenu(StringBuilder out, Comment comment,
                          CommentList comments, Template tmpl,
                          Connection db, boolean expired) throws UtilException, SQLException, UserNotFoundException {
     DateFormat dateFormat = DateFormats.createDefault();
