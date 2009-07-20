@@ -95,7 +95,7 @@
   &nbsp;</div>
 </c:if>
 
-<c:set var="showPhotos" value="<%= tmpl.getProf().getBoolean("photos")%>"/>
+<c:set var="showPhotos" value="<%= tmpl.getProf().getBoolean(&quot;photos&quot;)%>"/>
   <c:if test="${showPhotos}">
     <%
       StringBuilder outBuffer = new StringBuilder();
