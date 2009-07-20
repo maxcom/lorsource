@@ -94,39 +94,22 @@
 %>
   &nbsp;</div>
 </c:if>
+
+<c:set var="showPhotos" value="<%= tmpl.getProf().getBoolean("photos")%>"/>
+  <c:if test="${showPhotos}">
+    <%
+      StringBuilder outBuffer = new StringBuilder();
+      CommentView.getUserpicHTML(tmpl, outBuffer, author);
+      out.append(outBuffer.toString());
+    %>
+    <c:set var="msgBodyStyle" value="padding-left: 160px"/>
+  </c:if>
+
+  <div class="msg_body" style="${msgBodyStyle}">
+  <h1>
+    <a name="${message.id}">${message.title}</a>
+    </h1>
 <%
-//  if (message.getSection().isImagepost()) {
-//    out.append("<table><tr><td valign=top align=center>");
-//    tbl = true;
-//
-//    try {
-//      ImageInfo info = new ImageInfo(tmpl.getObjectConfig().getHTMLPathPrefix() + message.getLinktext());
-//      out.append("<a href=\"/").append(message.getUrl()).append("\"><img src=\"/").append(message.getLinktext()).append("\" ALT=\"").append(message.getTitle()).append("\" ").append(info.getCode()).append(" ></a>");
-//    } catch (BadImageException e) {
-//      out.append("<a href=\"/").append(message.getUrl()).append("\">[bad image]</a>");
-//    } catch (FileNotFoundException e) {
-//      out.append("<a href=\"/").append(message.getUrl()).append("\">[no image]</a>");
-//    }
-//
-//    out.append("</td><td valign=top>");
-//  }
-
-  boolean showPhotos = tmpl.getProf().getBoolean("photos");
-
-  if (showPhotos) {
-    StringBuilder outBuffer = new StringBuilder();
-    CommentView.getUserpicHTML(tmpl, outBuffer, author);
-    out.append(outBuffer.toString());
-    out.append("<div class=\"msg_body\" style=\"padding-left: 160px\">");
-  } else {
-    out.append("<div class=\"msg_body\">");
-  }
-
-  out.append("<h1><a name=");
-  out.print(msgid);
-  out.append('>');
-  out.append(message.getTitle());
-  out.append("</a></h1>");
 
   if (message.isVotePoll()) {
     //Render poll
@@ -165,10 +148,10 @@
       out.append("</i>");
     }
   }
+%>
 
-
-  out.append("<div class=sign>");
-
+<div class=sign>
+<%
   out.append(author.getSignature(tmpl.isModeratorSession(), message.getPostdate()));
   if (tmpl.isModeratorSession()) {
     out.append(" (<a href=\"sameip.jsp?msgid=");
@@ -189,9 +172,9 @@
       out.append(HTMLFormatter.htmlSpecialChars(message.getUserAgent()));
     }
   }
-
-  out.append("</div>");
-
+%>
+</div>
+<%
   if (!message.isDeleted() && showMenu) {
     out.append("<div class=reply>");
     if (!message.isExpired()) {
