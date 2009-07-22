@@ -65,8 +65,8 @@ public class ScreenshotProcessor {
 
   private void initFiles(String name, String path) {
     String mainname = name + '.' + extension;
-    String iconname = name + "-icon" + '.' + extension;
-    String medname = name + "-med" + '.' + extension;
+    String iconname = name + "-icon.jpg";
+    String medname = name + "-med.jpg";
 
     mainFile = new File(path, mainname);
     iconFile = new File(path, iconname);
@@ -130,6 +130,6 @@ public class ScreenshotProcessor {
       throw new IllegalArgumentException("Not gallery path: "+name);
     }
 
-    return m.group(1)+"-med"+m.group(2);
+    return m.group(1)+"-med.jpg";
   }
 }
