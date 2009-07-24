@@ -546,7 +546,7 @@ public class User implements Serializable {
 
   public String getGravatar() {
     return "http://www.gravatar.com/avatar/"
-      + StringUtil.md5hash(email)
+      + StringUtil.md5hash(email.toLowerCase())
       + "?s=150&amp;r=g&amp;d="+URLEncoder.encode("http://www.linux.org.ru/img/p.gif");
   }
 
