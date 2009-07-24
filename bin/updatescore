@@ -1,0 +1,2 @@
+psql -c "update users set score=score+1 where id in (select distinct comments.userid from comments, topics where comments.postdate>'yesterday' and topics.id=comments.topic and groupid!=8404 and groupid!=4068 and groupid!=19390 and not comments.deleted and not topics.deleted)" linux  > /dev/null
+psql -c "update users set max_score=score where score>max_score" linux > /dev/null
