@@ -1,8 +1,7 @@
 <%@ page contentType="text/html; charset=utf-8"%>
 <%@ page import="java.sql.Connection,java.sql.PreparedStatement,java.sql.ResultSet"  %>
-<%@ page import="java.sql.Statement"%>
 <%@ page import="ru.org.linux.site.*"%>
-<%@ page import="ru.org.linux.util.ServletParameterParser" %>
+<%@ page import="ru.org.linux.util.ServletParameterParser"%>
 <%--
   ~ Copyright 1998-2009 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -31,9 +30,6 @@
    try {
 
    if (request.getParameter("reason")==null) {
-   	if (request.getParameter("msgid")==null) {
-             throw new MissingParameterException("msgid");
-           }
 %>
 <script language="Javascript" type="text/javascript">
 <!--
@@ -62,7 +58,7 @@ function change(dest,source)
 <tr>
 <td>Причина удаления<br>Выберите из меню или напишите сами</td>
 <td>
-<select name=reason_select onChange="change(reason,reason_select)">
+<select name=reason_select onChange="change(reason,reason_select);">
 <option value="">
 <option value="3.1 Дубль">3.1 Дубль
 <option value="3.2 Неверная кодировка">3.2 Неверная кодировка
@@ -105,12 +101,13 @@ function change(dest,source)
 <%
   db = LorDataSource.getConnection();
 
-  Statement st = db.createStatement();
-  ResultSet rs = st.executeQuery("SELECT topic FROM comments WHERE id=" + msgid);
-  rs.next();
+  Comment comment = new Comment(db, msgid);
 
-  int topicId = rs.getInt("topic");
-  rs.close();
+  if (comment.isDeleted()) {
+    throw new AccessViolationException("комментарий уже удален");
+  }
+
+  int topicId = comment.getTopic();
 
   try {
     Message topic = new Message(db, topicId);
