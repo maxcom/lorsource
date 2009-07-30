@@ -55,6 +55,9 @@ public class AddMessageForm {
   private final String postIP;
   private String previewImagePath = null;
   private List<String> pollList;
+  private static final int MAX_MESSAGE_LENGTH_ANONYMOUS = 4096;
+  private static final int MAX_MESSAGE_LENGTH = 8192;
+  private static final int MAX_TITLE_LENGTH = 255;
 
   public boolean isPreview() {
     return preview;
@@ -205,11 +208,11 @@ public class AddMessageForm {
     String message = processMessage(group);
 
     if (user.isAnonymous()) {
-      if (message.length() > 4096) {
+      if (message.length() > MAX_MESSAGE_LENGTH_ANONYMOUS) {
         throw new BadInputException("Слишком большое сообщение");
       }
     } else {
-      if (message.length() > 8192) {
+      if (message.length() > MAX_MESSAGE_LENGTH) {
         throw new BadInputException("Слишком большое сообщение");
       }
     }
@@ -256,13 +259,17 @@ public class AddMessageForm {
     user.checkBlocked();
 
     if (user.isAnonymous()) {
-      if (msg!=null && msg.length() > 4096) {
+      if (msg!=null && msg.length() > MAX_MESSAGE_LENGTH_ANONYMOUS) {
         throw new BadInputException("Слишком большое сообщение");
       }
     } else {
-      if (msg!=null && msg.length() > 8192) {
+      if (msg!=null && msg.length() > MAX_MESSAGE_LENGTH) {
         throw new BadInputException("Слишком большое сообщение");
       }
+    }
+
+    if (title.length() > MAX_TITLE_LENGTH) {
+      throw new BadInputException("Слишком большой заголовок");
     }
 
     return user;
