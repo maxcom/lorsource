@@ -111,10 +111,9 @@
 %>
 <h2>Последние удаленные неподтвержденные</h2>
 <div class=forum>
-<div class=color1>
-<table width="100%" cellspacing=1 cellpadding=0 border=0>
+<table class="message-table" width="100%">
 <thead>
-<tr class=color1><th>&nbsp;<a name="undelete" title="Восстановить">#</a>&nbsp;</th><th>Автор</th><th>Группа</th><th>Заголовок</th><th>Причина удаления</th></tr>
+<tr><th>&nbsp;<a name="undelete" title="Восстановить">#</a>&nbsp;</th><th>Автор</th><th>Группа</th><th>Заголовок</th><th>Причина удаления</th></tr>
 <tbody>
 
 <%
@@ -122,7 +121,7 @@
   	String nick=rs.getString("nick");
 	int msgid=rs.getInt("msgid");
 	int guid=rs.getInt("guid");
-	out.print("<tr class=\"color2\">");
+	out.print("<tr>");
 	out.print("<td align=\"center\"><a href=\"undelete.jsp?msgid="+msgid+"\" title=\"Восстановить\">#</a></td>");
 	out.print("<td><a href=\"whois.jsp?nick="+URLEncoder.encode(nick)+"\">"+nick+"</a></td>");
 	out.print("<td><a href=\"group.jsp?group="+guid+"\">"+rs.getString("ptitle")+" - " + rs.getString("gtitle")+"</a></td>");
@@ -134,7 +133,6 @@
   }
 %>
 </table>
-</div>
 </div>
 
 <%
