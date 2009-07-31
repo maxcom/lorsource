@@ -34,7 +34,7 @@ public class TopicsListItem {
   private final int pages;
   private final int author;
 
-  // SELECT topics.title as subj, sections.name, groups.title as gtitle, lastmod, nick, topics.id as msgid, topics.deleted, topics.stat1, topics.stat3, topics.stat4, topics.sticky
+  // SELECT topics.title as subj, sections.name, groups.title as gtitle, lastmod, topics.id as msgid, topics.deleted, topics.stat1, topics.stat3, topics.stat4, topics.sticky, userid
   public TopicsListItem(ResultSet rs, int messagesInPage) throws SQLException {
     subj = StringUtil.makeTitle(rs.getString("subj"));
 
