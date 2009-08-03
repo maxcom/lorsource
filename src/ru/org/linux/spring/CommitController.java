@@ -1,0 +1,164 @@
+/*
+ * Copyright 1998-2009 Linux.org.ru
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ */
+
+package ru.org.linux.spring;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Random;
+
+import javax.servlet.http.HttpServletRequest;
+import org.springframework.context.support.ApplicationObjectSupport;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.view.RedirectView;
+
+import ru.org.linux.site.*;
+import ru.org.linux.util.HTMLFormatter;
+import ru.org.linux.util.ServletParameterParser;
+
+@Controller
+public class CommitController extends ApplicationObjectSupport {
+  @RequestMapping(value="/commit.jsp", method= RequestMethod.GET)
+  public ModelAndView showForm(
+    HttpServletRequest request,
+    @RequestParam("msgid") int msgid
+  ) throws Exception {
+    if (!Template.isSessionAuthorized(request.getSession())) {
+      throw new AccessViolationException("Not authorized");
+    }
+
+    Connection db = null;
+
+    try {
+      db = LorDataSource.getConnection();
+
+      Message message = new Message(db, msgid);
+
+      Group group = new Group(db, message.getGroupId());
+
+      if (message.isCommited()) {
+        throw new AccessViolationException("Сообщение уже подтверждено");
+      }
+
+      if (!group.isModerated()) {
+        throw new AccessViolationException("группа не является модерируемой");
+      }
+
+      Section section = new Section(db, group.getSectionId());
+
+      HashMap<String, Object> params = new HashMap<String, Object>();
+      params.put("message", message);
+      params.put("msgid", msgid);
+      params.put("section", section);
+
+      return new ModelAndView("commit", params);
+    } finally {
+      if (db!=null) {
+        db.close();
+      }
+    }
+  }
+
+  @RequestMapping(value="/commit.jsp", method= RequestMethod.POST)
+  public ModelAndView commit(
+    HttpServletRequest request,
+    @RequestParam("msgid") int msgid,
+    @RequestParam("title") String title
+  ) throws Exception {
+    Template tmpl = Template.getTemplate(request);
+
+    if (!Template.isSessionAuthorized(request.getSession())) {
+      throw new AccessViolationException("Not authorized");
+    }
+
+    Connection db = null;
+
+    try {
+      db = LorDataSource.getConnection();
+      db.setAutoCommit(false);
+      PreparedStatement pst = db.prepareStatement("UPDATE topics SET moderate='t', commitby=?, commitdate='now', title=? WHERE id=?");
+      pst.setInt(3, msgid);
+      pst.setString(2, HTMLFormatter.htmlSpecialChars(title));
+
+      PreparedStatement pst2 = db.prepareStatement("UPDATE users SET score=score+3 WHERE id IN (SELECT userid FROM topics WHERE id=?) AND score<300");
+      pst2.setInt(1, msgid);
+
+      User user = User.getUser(db, (String) request.getSession().getAttribute("nick"));
+      pst.setInt(1, user.getId());
+
+      user.checkCommit();
+
+      if (request.getParameter("chgrp") != null) {
+        int changeGroupId = new ServletParameterParser(request).getInt("chgrp");
+
+        Statement st = db.createStatement();
+        ResultSet rs = st.executeQuery("select groupid, section, groups.title FROM topics, groups WHERE topics.id=" + msgid + " and groups.id=topics.groupid");
+        if (!rs.next()) {
+          throw new MessageNotFoundException(msgid);
+        }
+
+        int oldgrp = rs.getInt("groupid");
+        if (oldgrp != changeGroupId) {
+          Group changeGroup = new Group(db, changeGroupId);
+
+          int section = rs.getInt("section");
+          if (section != 1 && section != 3) {
+            throw new AccessViolationException("Can't move topics in non-news section");
+          }
+
+          rs.close();
+          if (changeGroup.getSectionId() != section) {
+            throw new AccessViolationException("Can't move topics between sections");
+          }
+          st.executeUpdate("UPDATE topics SET groupid=" + changeGroupId + " WHERE id=" + msgid);
+          /* to recalc counters */
+          st.executeUpdate("UPDATE groups SET stat4=stat4+1 WHERE id=" + oldgrp + " or id=" + changeGroupId);
+        }
+
+        st.close();
+      }
+
+      pst.executeUpdate();
+      pst2.executeUpdate();
+
+      if (request.getParameter("tags")!=null) {
+        List<String> tags = Tags.parseTags(request.getParameter("tags"));
+        Tags.updateTags(db, msgid, tags);
+        Tags.updateCounters(db, null, Tags.getMessageTags(db, msgid));
+      }
+
+      logger.info("Подтверждено сообщение " + msgid + " пользователем " + user.getNick());
+
+      pst.close();
+      db.commit();
+
+      Random random = new Random();
+
+      return new ModelAndView(new RedirectView(tmpl.getMainUrl() + "view-all.jsp?nocache=" + random.nextInt()));
+    } finally {
+      if (db != null) {
+        db.close();
+      }
+    }
+  }
+}
