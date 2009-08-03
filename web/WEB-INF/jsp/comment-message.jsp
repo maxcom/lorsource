@@ -4,7 +4,6 @@
 <%@ page import="ru.org.linux.site.Message" %>
 <%@ page import="ru.org.linux.site.Template" %>
 <%@ page import="ru.org.linux.util.HTMLFormatter" %>
-<%@ page import="ru.org.linux.util.ServletParameterParser" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%--
   ~ Copyright 1998-2009 Linux.org.ru
@@ -28,17 +27,14 @@
   Connection db = null;
 
   try {
-    int msgid = new ServletParameterParser(request).getInt("msgid");
-
     db = LorDataSource.getConnection();
 
     Message message = (Message) request.getAttribute("message");
-
-    out.print("<title>" + message.getSectionTitle() + " - " + message.getGroupTitle() + " - " + message.getTitle() + "</title>");
 %>
+<title>${message.sectionTitle} - ${message.groupTitle} - ${message.title}</title>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 <div class=messages>
-  <lor:message db="<%= db %>" message="<%= message %>" showMenu="false" user="<%= Template.getNick(session) %>"/>
+  <lor:message db="<%= db %>" message="${message}" showMenu="false" user="<%= Template.getNick(session) %>"/>
 </div>
 
 <h2><a name=rep>Добавить сообщение:</a></h2>
@@ -59,13 +55,13 @@
 
 <form method=POST action="add_comment.jsp">
   <input type="hidden" name="session" value="<%= HTMLFormatter.htmlSpecialChars(session.getId()) %>">  
-<% if (session == null || session.getAttribute("login") == null || !(Boolean) session.getAttribute("login")) { %>
+<% if (!Template.isSessionAuthorized(session)) { %>
 Имя:
 <input type=text name=nick value="anonymous" size=40><br>
 Пароль:
 <input type=password name=password size=40><br>
 <% } %>
-<% out.print("<input type=hidden name=topic value="+msgid+ '>'); %>
+<input type=hidden name=topic value="${message.id}">
 Заглавие:
 <input type=text name=title size=40 value="Re: <%= message.getTitle() %>"><br>
 Сообщение:<br>
