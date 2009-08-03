@@ -26,7 +26,7 @@
 
 <div class="boxlet_content">
   <c:forEach var="item" items="${items}">
-    <c:url value="/view-news-archive.jsp" var="item_url">
+    <c:url value="/view-news.jsp" var="item_url">
       <c:param name="year" value="${item.year}"/>
       <c:param name="month" value="${item.month}"/>
       <c:param name="section" value="1"/>
