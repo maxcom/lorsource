@@ -98,9 +98,7 @@
 <c:set var="showPhotos" value="<%= tmpl.getProf().getBoolean(&quot;photos&quot;)%>"/>
   <c:if test="${showPhotos}">
     <%
-      StringBuilder outBuffer = new StringBuilder();
-      CommentView.getUserpicHTML(tmpl, outBuffer, author);
-      out.append(outBuffer.toString());
+      CommentView.getUserpicHTML(tmpl, out, author);
     %>
     <c:set var="msgBodyStyle" value="padding-left: 160px"/>
   </c:if>
