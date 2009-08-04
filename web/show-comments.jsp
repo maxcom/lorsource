@@ -1,13 +1,8 @@
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="java.io.IOException,java.net.URLEncoder,java.sql.*,java.util.Date"   buffer="60kb" %>
-<%@ page import="java.util.List"%>
-<%@ page import="java.util.Map" %>
+<%@ page import="java.net.URLEncoder,java.sql.Connection,java.sql.ResultSet,java.sql.Statement"   buffer="60kb" %>
+<%@ page import="java.util.Date"%>
 <%@ page import="com.danga.MemCached.MemCachedClient" %>
-<%@ page import="ru.org.linux.boxlet.BoxletVectorRunner" %>
 <%@ page import="ru.org.linux.site.*" %>
-<%@ page import="ru.org.linux.util.BadImageException" %>
-<%@ page import="ru.org.linux.util.HTMLFormatter" %>
-<%@ page import="ru.org.linux.util.ImageInfo" %>
 <%@ page import="ru.org.linux.util.StringUtil" %>
 <%--
   ~ Copyright 1998-2009 Linux.org.ru
@@ -120,9 +115,10 @@
 </table>
 </div>
 
+<% if (Template.isSessionAuthorized(session) && (tmpl.isModeratorSession() || nick.equals(session.getValue("nick")))) { %>
+
 <h2>Последние 20 удаленных модераторами комментариев</h2>
 
-<% if (Template.isSessionAuthorized(session) && (tmpl.isModeratorSession() || nick.equals(session.getValue("nick")))) { %>
 
 <div class=forum>
 <table width="100%" class="message-table">
