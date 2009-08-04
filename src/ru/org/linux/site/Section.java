@@ -121,4 +121,29 @@ public class Section implements Serializable {
       }
     }
   }
+
+  public String getAddInfo(Connection db) throws SQLException {
+    Statement st = null;
+    ResultSet rs = null;
+
+    try {
+      st = db.createStatement();
+
+      rs = st.executeQuery("select add_info from sections where id=" + id);
+
+      if (!rs.next()) {
+        return null;
+      } else {
+        return rs.getString("add_info");
+      }
+    } finally {
+      if (rs!=null) {
+        rs.close();
+      }
+
+      if (st!=null) {
+        st.close();
+      }
+    }
+  }
 }
