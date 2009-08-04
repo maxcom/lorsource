@@ -16,47 +16,31 @@
 package ru.org.linux.site;
 
 import java.io.IOException;
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Set;
-import java.util.logging.Logger;
 
 import ru.org.linux.util.UtilException;
 
-public class CommentViewer {
-  private static final Logger logger = Logger.getLogger("ru.org.linux");
-
+public class CommentFilter {
   public static final int COMMENTS_INITIAL_BUFSIZE = 50;
 
   public static final int FILTER_NONE = 0;
   public static final int FILTER_ANONYMOUS = 1;
   public static final int FILTER_IGNORED = 2;
 
-  private final Template tmpl;
   private final CommentList comments;
-  private final boolean expired;
-  private final Connection db;
 
-  private final String user;
   public static final int FILTER_LISTANON = FILTER_ANONYMOUS+FILTER_IGNORED;
 
-  private int outputCount = 0;
-
-  public CommentViewer(Template t, Connection db, CommentList comments, String user, boolean expired) {
-    tmpl=t;
+  public CommentFilter(CommentList comments) {
     this.comments = comments;
-    this.user=user;
-    this.expired = expired;
-    this.db = db;
   }
 
-  private void showCommentList(StringBuffer buf, List<Comment> comments, boolean reverse, int offset, int limit, Set<Integer> hideSet)
-      throws IOException, UtilException, SQLException, UserNotFoundException {
-    CommentView view = new CommentView();
-    int shown = 0;
+  private static List<Comment> getCommentList(List<Comment> comments, boolean reverse, int offset, int limit, Set<Integer> hideSet) {
+    List<Comment> out = new ArrayList<Comment>();
 
     for (ListIterator<Comment> i = comments.listIterator(reverse?comments.size():0); reverse?i.hasPrevious():i.hasNext();) {
       int index = reverse?(comments.size()-i.previousIndex()):i.nextIndex();
@@ -68,26 +52,18 @@ public class CommentViewer {
       }
 
       if (hideSet==null || !hideSet.contains(comment.getMessageId())) {
-        shown++;
-        outputCount++;
-        buf.append(view.printMessage(comment, tmpl, db, this.comments, true, tmpl.isModeratorSession(), user, expired));
+        out.add(comment);
       }
     }
 
-    logger.fine("Showing list size="+comments.size()+" shown="+shown);    
+    return out;
   }
 
-  public String show(boolean reverse, int offset, int limit, Set<Integer> hideSet) throws IOException, UtilException, SQLException, UserNotFoundException {
-    StringBuffer buf=new StringBuffer();
-
-    showCommentList(buf, comments.getList(), reverse, offset, limit,  hideSet);
-
-    return buf.toString();
+  public List<Comment> getComments(boolean reverse, int offset, int limit, Set<Integer> hideSet) throws IOException, UtilException, SQLException, UserNotFoundException {
+    return getCommentList(comments.getList(), reverse, offset, limit,  hideSet);
   }
 
-  public String showSubtree(int parentId) throws IOException, UtilException, MessageNotFoundException, SQLException, UserNotFoundException {
-    StringBuffer buf=new StringBuffer();
-
+  public List<Comment> getCommentsSubtree(int parentId) throws IOException, UtilException, MessageNotFoundException, SQLException, UserNotFoundException {
     CommentNode parentNode = comments.getNode(parentId);
 
     if (parentNode==null) {
@@ -98,9 +74,7 @@ public class CommentViewer {
     parentNode.buildList(parentList);
 
     /* display comments */
-    showCommentList(buf, parentList, false, 0, 0, null);
-
-    return buf.toString();
+    return getCommentList(parentList, false, 0, 0, null);
   }
 
   public static int parseFilterChain(String filter) {
@@ -127,9 +101,5 @@ public class CommentViewer {
       case FILTER_IGNORED+FILTER_ANONYMOUS: return "listanon";
       default: return "show";
     }
-  }
-
-  public int getOutputCount() {
-    return outputCount;
   }
 }

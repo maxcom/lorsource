@@ -1,7 +1,10 @@
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page contentType="text/html; charset=utf-8"%>
 <%@ page import="java.sql.Connection,java.sql.PreparedStatement,java.sql.ResultSet"  %>
 <%@ page import="ru.org.linux.site.*"%>
 <%@ page import="ru.org.linux.util.ServletParameterParser"%>
+<%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
+
 <%--
   ~ Copyright 1998-2009 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -122,8 +125,15 @@ function change(dest,source)
 
     CommentList comments = CommentList.getCommentList(db, topic, showDeleted);
 
-    CommentViewer cv = new CommentViewer(tmpl, db, comments, Template.getNick(session), topic.isExpired());
-    out.print(cv.showSubtree(msgid));
+    CommentFilter cv = new CommentFilter(comments);
+%>
+  <c:set var="commentsPrepared" value="<%= cv.getCommentsSubtree(msgid) %>"/>
+
+  <c:forEach var="comment" items="${commentsPrepared}">
+    <lor:comment comment="${comment}" db="<%= db %>" comments="<%= comments %>" expired="<%= topic.isExpired() %>" user="<%= Template.getNick(session) %>"/>
+  </c:forEach>
+
+  <%
   } catch (MessageNotFoundException ex) {
     // it's ok for votes
   }

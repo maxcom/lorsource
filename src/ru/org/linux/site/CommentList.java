@@ -30,9 +30,9 @@ import ru.org.linux.util.UtilException;
 public class CommentList implements Serializable {
   private static final Logger logger = Logger.getLogger("ru.org.linux");
 
-  private final List<Comment> comments = new ArrayList<Comment>(CommentViewer.COMMENTS_INITIAL_BUFSIZE);
+  private final List<Comment> comments = new ArrayList<Comment>(CommentFilter.COMMENTS_INITIAL_BUFSIZE);
   private final CommentNode root = new CommentNode();
-  private final Map<Integer, CommentNode> treeHash = new HashMap<Integer, CommentNode>(CommentViewer.COMMENTS_INITIAL_BUFSIZE);
+  private final Map<Integer, CommentNode> treeHash = new HashMap<Integer, CommentNode>(CommentFilter.COMMENTS_INITIAL_BUFSIZE);
 
   private final long lastmod;
 
@@ -135,19 +135,19 @@ public class CommentList implements Serializable {
   }
 
   public static Set<Integer> makeHideSet(Connection db, CommentList comments, int filterChain, String nick) throws SQLException, UserNotFoundException {
-    if (filterChain == CommentViewer.FILTER_NONE) {
+    if (filterChain == CommentFilter.FILTER_NONE) {
       return null;
     }
 
     Set<Integer> hideSet = new HashSet<Integer>();
 
     /* hide anonymous */
-    if ((filterChain & CommentViewer.FILTER_ANONYMOUS) > 0) {
+    if ((filterChain & CommentFilter.FILTER_ANONYMOUS) > 0) {
       comments.root.hideAnonymous(db, hideSet);
     }
 
     /* hide ignored */
-    if ((filterChain & CommentViewer.FILTER_IGNORED) > 0 && nick != null && !"".equals(nick)) {
+    if ((filterChain & CommentFilter.FILTER_IGNORED) > 0 && nick != null && !"".equals(nick)) {
       Map<Integer, String> ignoreList = IgnoreList.getIgnoreListHash(db, nick);
       if (ignoreList != null && !ignoreList.isEmpty()) {
         comments.root.hideIgnored(hideSet, ignoreList);

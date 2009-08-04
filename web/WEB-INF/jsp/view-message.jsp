@@ -29,10 +29,10 @@
 
     String mainurl = "view-message.jsp?msgid=" + msgid;
 
-    int filterMode = CommentViewer.FILTER_IGNORED;
+    int filterMode = CommentFilter.FILTER_IGNORED;
 
     if (!tmpl.getProf().getBoolean("showanonymous")) {
-      filterMode += CommentViewer.FILTER_ANONYMOUS;
+      filterMode += CommentFilter.FILTER_ANONYMOUS;
     }
 
     db = LorDataSource.getConnection();
@@ -40,13 +40,13 @@
     String nick = Template.getNick(session);
 
     if (nick == null || IgnoreList.getIgnoreListHash(db, nick).isEmpty()) {
-      filterMode = filterMode & ~CommentViewer.FILTER_IGNORED;
+      filterMode = filterMode & ~CommentFilter.FILTER_IGNORED;
     }
 
     int defaultFilterMode = filterMode;
 
     if (request.getParameter("filter") != null) {
-      filterMode = CommentViewer.parseFilterChain(request.getParameter("filter"));
+      filterMode = CommentFilter.parseFilterChain(request.getParameter("filter"));
     }
 
     int npage = 0;
@@ -108,12 +108,12 @@
     }
 
     out.print(" <select name=\"filter\" onChange=\"submit()\">");
-    out.print("<option value=\"" + CommentViewer.toString(CommentViewer.FILTER_NONE) + '\"' + (filterMode == CommentViewer.FILTER_NONE ? " selected=\"selected\"" : "") + ">все комментарии</option>");
-    out.print("<option value=\"" + CommentViewer.toString(CommentViewer.FILTER_ANONYMOUS) + '\"' + (filterMode == CommentViewer.FILTER_ANONYMOUS ? " selected=\"selected\"" : "") + ">без анонимных</option>");
+    out.print("<option value=\"" + CommentFilter.toString(CommentFilter.FILTER_NONE) + '\"' + (filterMode == CommentFilter.FILTER_NONE ? " selected=\"selected\"" : "") + ">все комментарии</option>");
+    out.print("<option value=\"" + CommentFilter.toString(CommentFilter.FILTER_ANONYMOUS) + '\"' + (filterMode == CommentFilter.FILTER_ANONYMOUS ? " selected=\"selected\"" : "") + ">без анонимных</option>");
 
     if (!tmpl.isUsingDefaultProfile()) {
-      out.print("<option value=\"" + CommentViewer.toString(CommentViewer.FILTER_IGNORED) + '\"' + (filterMode == CommentViewer.FILTER_IGNORED ? " selected=\"selected\"" : "") + ">без игнорируемых</option>");
-      out.print("<option value=\"" + CommentViewer.toString(CommentViewer.FILTER_LISTANON) + '\"' + (filterMode == CommentViewer.FILTER_LISTANON ? " selected=\"selected\"" : "") + ">без анонимных и игнорируемых</option>");
+      out.print("<option value=\"" + CommentFilter.toString(CommentFilter.FILTER_IGNORED) + '\"' + (filterMode == CommentFilter.FILTER_IGNORED ? " selected=\"selected\"" : "") + ">без игнорируемых</option>");
+      out.print("<option value=\"" + CommentFilter.toString(CommentFilter.FILTER_LISTANON) + '\"' + (filterMode == CommentFilter.FILTER_LISTANON ? " selected=\"selected\"" : "") + ">без анонимных и игнорируемых</option>");
     }
 
     out.print("</select>");
@@ -246,9 +246,7 @@
 </c:set>
 
 <c:if test="${showDeleted}">
-<%
-  out.print("<h1>Режим показа удаленных комментариев</h1>");
-%>
+  <h1>Режим показа удаленных комментариев</h1>
 </c:if>
 
 <%
@@ -265,7 +263,7 @@
 
     if (npage!=-1 && npage!=0) {
       bufInfo.append("&emsp;<a href=\"").append(linkurl).append("&amp;page=").append(npage-1).append("\">");
-      bufInfo.append("←");
+      bufInfo.append('←');
       bufInfo.append("</a>");
     } else {
       bufInfo.append("&emsp;←");
@@ -286,7 +284,7 @@
         }
 
         if (filterMode!=defaultFilterMode) {
-          bufInfo.append("&filter=").append(CommentViewer.toString(filterMode));
+          bufInfo.append("&filter=").append(CommentFilter.toString(filterMode));
         }
 
         bufInfo.append("\">").append(i + 1).append("</a>");
@@ -347,29 +345,32 @@
     CommentList comments = (CommentList) request.getAttribute("comments");
     Set<Integer> hideSet = CommentList.makeHideSet(db, comments, filterMode, nick);
 
-    CommentViewer cv = new CommentViewer(tmpl, db, comments, Template.getNick(session), message.isExpired());
-
-    if (tmpl.getProf().getBoolean("sortwarning") && cv.getOutputCount()>0) {
-      out.print("<div class=nav>");
-
+    CommentFilter cv = new CommentFilter(comments);
+%>
+<c:set var="commentsPrepared" value="<%= cv.getComments(reverse, offset, limit, hideSet) %>"/>
+<c:set var="sortwarning" value="<%= tmpl.getProf().getBoolean("sortwarning") %>"/>
+<c:if test="${sortwarning && fn:length(commentsPrepared)>0}">
+  <div class=nav>
+<%
       if (tmpl.getProf().getBoolean("newfirst")) {
         out.print("сообщения отсортированы в порядке убывания даты их написания");
       } else {
         out.print("сообщения отсортированы в порядке возрастания даты их написания");
       }
-
-      out.print("</div>");
-    }
 %>
+    </div>
+  </c:if>
   <c:if test="<%= pageInfo!=null %>">
     <div class="nav">
       <%= pageInfo %>
     </div>
   </c:if>
   <div class="comment">
-    <%= cv.show(reverse, offset, limit, hideSet) %>
+    <c:forEach var="comment" items="${commentsPrepared}">
+      <lor:comment comment="${comment}" db="<%= db %>" comments="${comments}" expired="${message.expired}" user="<%= Template.getNick(session) %>"/>
+    </c:forEach>
   </div>
-<c:if test="<%= cv.getOutputCount()>0 %>">
+<c:if test="${fn:length(commentsPrepared) > 0}">
   <c:if test="<%= pageInfo!=null %>">
     <div class="nav">
       <%= pageInfo %>
