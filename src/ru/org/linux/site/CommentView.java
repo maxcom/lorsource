@@ -26,7 +26,10 @@ import ru.org.linux.util.*;
 public class CommentView {
   private static final Logger logger = Logger.getLogger("ru.org.linux");
 
-  public String printMessage(Comment comment, Template tmpl, Connection db, CommentList comments, boolean showMenu, boolean moderatorMode, String user, boolean expired)
+  private CommentView() {
+  }
+
+  public static String printMessage(Comment comment, Template tmpl, Connection db, CommentList comments, boolean showMenu, boolean moderatorMode, String user, boolean expired)
       throws IOException, UtilException, SQLException, UserNotFoundException {
     StringBuilder out=new StringBuilder();
 
@@ -103,7 +106,7 @@ public class CommentView {
     out.append("</div>");
   }
 
-  private void printMenu(StringBuilder out, Comment comment,
+  private static void printMenu(StringBuilder out, Comment comment,
                          CommentList comments, Template tmpl,
                          Connection db, boolean expired) throws UtilException, SQLException, UserNotFoundException {
     DateFormat dateFormat = DateFormats.createDefault();

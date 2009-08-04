@@ -23,8 +23,9 @@
 <%@ attribute name="showMenu" required="true" type="java.lang.Boolean"%>
 
 <%
-  CommentView view = new CommentView();
   Template tmpl = Template.getTemplate(request);
 
-  out.append(view.printMessage(comment, tmpl, db, comments, showMenu, tmpl.isModeratorSession(), Template.getNick(session), expired));
+  out.append(CommentView.printMessage(comment, tmpl, db, comments, showMenu, tmpl.isModeratorSession(), Template.getNick(session), expired));
+
+  
 %>

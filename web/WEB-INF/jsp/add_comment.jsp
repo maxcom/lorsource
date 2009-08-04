@@ -105,11 +105,12 @@
       }
 
       if (comment != null) {
-        out.print("<p><b>Ваше сообщение</b></p>");
-        out.print("<div class=messages>");
-        CommentView view = new CommentView();
-        out.print(view.printMessage(comment, tmpl, db, null, false, tmpl.isModeratorSession(), Template.getNick(session), false));
-        out.print("</div>");
+%>
+  <p><b>Ваше сообщение</b></p>
+  <div class=messages>
+    <lor:comment showMenu="false" comment="<%= comment %>" db="<%= db %>" comments="${null}" expired="${false}"/>
+  </div>
+  <%
       }
     } finally {
       if (db != null) {
