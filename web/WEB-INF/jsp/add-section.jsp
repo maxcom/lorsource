@@ -1,8 +1,4 @@
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="java.sql.Connection,java.sql.Statement,ru.org.linux.site.Group,ru.org.linux.site.LorDataSource"  %>
-<%@ page import="ru.org.linux.site.Section" %>
-<%@ page import="ru.org.linux.site.Template" %>
-<%@ page import="ru.org.linux.util.ServletParameterParser" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%--
   ~ Copyright 1998-2009 Linux.org.ru
@@ -20,24 +16,9 @@
   --%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
-<%
-  Connection db = null;
-  try {
-    int sectionid = new ServletParameterParser(request).getInt("section");
-
-    db = LorDataSource.getConnection();
-    Statement st = db.createStatement();
-
-    Section section = new Section(db, sectionid);
-
-%>
-<c:set var="section" value="<%= section %>"/>
 
 <title>${section.title}: добавление</title>
-<jsp:include page="WEB-INF/jsp/header.jsp"/>
-
-
-<c:set var="info" value="<%= section.getAddInfo(db) %>"/>
+<jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
 <c:if test="${info!=null}">
   ${info}
@@ -51,7 +32,7 @@
 Доступные группы:
 <ul>
 <c:forEach var="group"
-           items="<%= Group.getGroups(db, section) %>">
+           items="${groups}">
   <li>
     <a href="add.jsp?group=${group.id}&amp;noinfo=1">${group.title}</a> (<a href="group.jsp?group=${group.id}">просмотр...</a>)
 
@@ -62,12 +43,4 @@
 </c:forEach>
 </ul>
 
-<%
-   st.close();
-  } finally {
-    if (db!=null) {
-      db.close();
-    }
-  }
-%>
-<jsp:include page="WEB-INF/jsp/footer.jsp"/>
+<jsp:include page="/WEB-INF/jsp/footer.jsp"/>
