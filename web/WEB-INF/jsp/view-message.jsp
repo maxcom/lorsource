@@ -367,7 +367,7 @@
   </c:if>
   <div class="comment">
     <c:forEach var="comment" items="${commentsPrepared}">
-      <lor:comment comment="${comment}" db="<%= db %>" comments="${comments}" expired="${message.expired}" user="<%= Template.getNick(session) %>"/>
+      <lor:comment showMenu="true" comment="${comment}" db="<%= db %>" comments="${comments}" expired="${message.expired}"/>
     </c:forEach>
   </div>
 <c:if test="${fn:length(commentsPrepared) > 0}">

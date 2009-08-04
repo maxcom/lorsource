@@ -93,11 +93,11 @@
         if (!title.startsWith("Re:")) {
           title = "Re: " + title;
         }
-
-        out.print("<div class=messages>");
-        CommentView view = new CommentView();
-        out.print(view.printMessage(onComment, tmpl, db, null, false, tmpl.isModeratorSession(), Template.getNick(session), false));
-        out.print("</div>");
+%>
+<div class=messages>
+  <lor:comment showMenu="false" comment="<%= onComment %>" db="<%= db %>" comments="${null}" expired="${false}"/>
+</div>
+  <%
       }
 
       if (request.getParameter("title") != null) {

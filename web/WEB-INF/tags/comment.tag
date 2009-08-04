@@ -19,12 +19,12 @@
 <%@ attribute name="comment" required="true" type="ru.org.linux.site.Comment" %>
 <%@ attribute name="db" required="true" type="java.sql.Connection" %>
 <%@ attribute name="comments" required="true" type="ru.org.linux.site.CommentList" %>
-<%@ attribute name="user" required="true" type="java.lang.String"%>
 <%@ attribute name="expired" required="true" type="java.lang.Boolean"%>
+<%@ attribute name="showMenu" required="true" type="java.lang.Boolean"%>
 
 <%
   CommentView view = new CommentView();
   Template tmpl = Template.getTemplate(request);
 
-  out.append(view.printMessage(comment, tmpl, db, comments, true, tmpl.isModeratorSession(), user, expired));
+  out.append(view.printMessage(comment, tmpl, db, comments, showMenu, tmpl.isModeratorSession(), Template.getNick(session), expired));
 %>

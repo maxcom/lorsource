@@ -130,7 +130,7 @@ function change(dest,source)
   <c:set var="commentsPrepared" value="<%= cv.getCommentsSubtree(msgid) %>"/>
 
   <c:forEach var="comment" items="${commentsPrepared}">
-    <lor:comment comment="${comment}" db="<%= db %>" comments="<%= comments %>" expired="<%= topic.isExpired() %>" user="<%= Template.getNick(session) %>"/>
+    <lor:comment showMenu="true" comment="${comment}" db="<%= db %>" comments="<%= comments %>" expired="<%= topic.isExpired() %>"/>
   </c:forEach>
 
   <%
