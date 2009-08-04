@@ -348,7 +348,7 @@
     CommentFilter cv = new CommentFilter(comments);
 %>
 <c:set var="commentsPrepared" value="<%= cv.getComments(reverse, offset, limit, hideSet) %>"/>
-<c:set var="sortwarning" value="<%= tmpl.getProf().getBoolean("sortwarning") %>"/>
+<c:set var="sortwarning" value="<%= tmpl.getProf().getBoolean(&quot;sortwarning&quot;) %>"/>
 <c:if test="${sortwarning && fn:length(commentsPrepared)>0}">
   <div class=nav>
 <%
