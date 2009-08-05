@@ -48,6 +48,10 @@
   boolean initial = request.getParameter("q") == null;
 
   String q = request.getParameter("q");
+  if (q==null) {
+    q="";
+  }
+
   int include = SearchViewer.parseInclude(request.getParameter("include"));
   int date = SearchViewer.parseDate(request.getParameter("date"));
 
@@ -77,7 +81,7 @@
 <h2>Поисковая система сайта</h2>
 
 <FORM METHOD=GET ACTION="search.jsp">
-Искать: <INPUT TYPE="text" NAME="q" SIZE=50 VALUE="<%= q!=null?q:"" %>"><p>
+Искать: <INPUT TYPE="text" NAME="q" SIZE=50 VALUE="<%= HTMLFormatter.htmlSpecialChars(q) %>"><p>
   <select name="include">
     <option value="topics" <%= (include==SearchViewer.SEARCH_TOPICS)?"selected":"" %>>только темы</option>
     <option value="all" <%= (include==SearchViewer.SEARCH_ALL)?"selected":"" %>>темы и комментарии</option>
