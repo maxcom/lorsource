@@ -10,7 +10,8 @@
 <%@ attribute name="user" type="java.lang.String"%>
 <%@ attribute name="highlight" type="java.lang.Integer" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-                          
+<%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
+
 <%--
   ~ Copyright 1998-2009 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -97,9 +98,7 @@
 
 <c:set var="showPhotos" value="<%= tmpl.getProf().getBoolean(&quot;photos&quot;)%>"/>
   <c:if test="${showPhotos}">
-    <%
-      CommentView.getUserpicHTML(tmpl, out, author);
-    %>
+    <lor:userpic author="<%= author %>"/>
     <c:set var="msgBodyStyle" value="padding-left: 160px"/>
   </c:if>
 

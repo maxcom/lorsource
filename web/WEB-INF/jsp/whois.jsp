@@ -1,12 +1,13 @@
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="java.io.IOException,java.net.URLEncoder"   buffer="60kb" %>
-<%@ page import="java.sql.*"%>
+<%@ page import="java.sql.Connection,java.sql.PreparedStatement"   buffer="60kb" %>
+<%@ page import="java.sql.ResultSet"%>
+<%@ page import="java.sql.Timestamp"%>
 <%@ page import="java.util.Map"%>
-<%@ page import="ru.org.linux.site.*"%>
-<%@ page import="ru.org.linux.util.BadImageException" %>
-<%@ page import="ru.org.linux.util.HTMLFormatter" %>
-<%@ page import="ru.org.linux.util.ImageInfo" %>
 <%@ page import="org.apache.commons.lang.StringEscapeUtils" %>
+<%@ page import="ru.org.linux.site.*" %>
+<%@ page import="ru.org.linux.util.HTMLFormatter" %>
+<%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
+
 <%--
   ~ Copyright 1998-2009 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -69,29 +70,22 @@
   stat3.setInt(1, userid);
   stat4.setInt(1, userid);
   stat5.setInt(1, userid);
-
-  if (user.getPhoto() != null) {
-    out.print("<td valign='top' align='center'>");
-
-    try {
-      out.print("<img src=\"/photos/" + user.getPhoto() + "\" alt=\"" + nick + "\" " + new ImageInfo(tmpl.getObjectConfig().getHTMLPathPrefix() + "photos/" + user.getPhoto()).getCode() + '>');
-    } catch (IOException ex) {
-      out.print("[bad image]");
-    } catch (BadImageException ex) {
-      out.print("[bad image]");
-    }
-
-    if (tmpl.isModeratorSession()) {
-      out.print("<p><form name='f_remove_userpic' method='post' action='usermod.jsp'>\n");
-      out.print("<input type='hidden' name='id' value='" + userid + "'>\n");
-      out.print("<input type='hidden' name='action' value='remove_userpic'>\n");
-      out.print("<input type='submit' value='Удалить изображение'>\n");
-      out.print("</form>");
-    }
-
-    out.print("</td>");
+%>
+<td valign='top' align='center'>
+  <div>
+  <lor:userpic author="${user}"/>
+    <div style="clear: both"/>
+  </div>
+<%
+  if (user.getPhoto() != null && tmpl.isModeratorSession()) {
+    out.print("<p><form name='f_remove_userpic' method='post' action='usermod.jsp'>\n");
+    out.print("<input type='hidden' name='id' value='" + userid + "'>\n");
+    out.print("<input type='hidden' name='action' value='remove_userpic'>\n");
+    out.print("<input type='submit' value='Удалить изображение'>\n");
+    out.print("</form>");
   }
 %>
+</td>
 <td valign="top" align="left">
 <h2>Регистрация</h2>
 <b>ID:</b> <%= userid %><br>
@@ -237,15 +231,15 @@
 <h2>Сообщения пользователя</h2>
 <ul>
   <li>
-    <a href="../../show-topics.jsp?nick=<%= nick %>">Темы</a>
+    <a href="show-topics.jsp?nick=<%= nick %>">Темы</a>
   </li>
 
   <li>
-    <a href="../../show-comments.jsp?nick=<%= nick %>">Комментарии</a>
+    <a href="show-comments.jsp?nick=<%= nick %>">Комментарии</a>
   </li>
 
   <li>
-    <a href="../../show-replies.jsp?nick=<%= nick %>">Ответы на комментарии</a>
+    <a href="show-replies.jsp?nick=<%= nick %>">Ответы на комментарии</a>
   </li>
 </ul>
 

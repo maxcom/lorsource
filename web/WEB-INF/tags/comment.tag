@@ -24,6 +24,7 @@
 <%@ attribute name="expired" required="true" type="java.lang.Boolean"%>
 <%@ attribute name="showMenu" required="true" type="java.lang.Boolean"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 
 <%
   Template tmpl = Template.getTemplate(request);
@@ -84,19 +85,16 @@
     }
 %>  &nbsp;</div>
   </c:if>
-<%
+  <c:set var="showPhotos" value="<%= tmpl.getProf().getBoolean(&quot;photos&quot;)%>"/>
 
-  boolean showPhotos = tmpl.getProf().getBoolean("photos");
+  <c:if test="${showPhotos}">
+    <lor:userpic author="<%= author %>"/>
+    <c:set var="msgBodyStyle" value="padding-left: 160px"/>
+  </c:if>
 
-  if (showPhotos) {
-    CommentView.getUserpicHTML(tmpl, out, author);
-    out.append("<div class=\"msg_body\" style=\"padding-left: 160px\">");
-  } else {
-    out.append("<div class=\"msg_body\">");
-  }
-
-  out.append("<h2>").append(comment.getTitle()).append("</h2>");
-
+  <div class="msg_body" style="${msgBodyStyle}">
+    <h2>${comment.title}</h2>
+  <%
   out.append(comment.getMessageText());
 
   out.append("<div class=sign>").append(author.getSignature(moderatorMode, comment.getPostdate()));
