@@ -86,8 +86,6 @@ public class FileStorage extends Storage {
 
   @Override
   protected OutputStream getWriteStreamImpl(String domain, String msgid) throws IOException {
-    FileOutputStream in = new FileOutputStream(root + domain + '/' + msgid);
-
-    return in;
+    return new FileOutputStream(root + domain + '/' + msgid);
   }
 }

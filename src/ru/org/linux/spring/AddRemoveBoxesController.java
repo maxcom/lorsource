@@ -44,7 +44,7 @@ public class AddRemoveBoxesController extends ApplicationObjectSupport {
   public ModelMap showRemove(@RequestParam String tag,
                              @RequestParam(required = false) Integer pos,
                              ServletRequest request)
-    throws AccessViolationException, UtilException {
+    throws AccessViolationException {
     Template tmpl = Template.getTemplate(request);
 
     if (!tmpl.isSessionAuthorized()) {

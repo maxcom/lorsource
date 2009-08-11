@@ -36,7 +36,7 @@ public class CacheTag extends BodyTagSupport {
   private Long expire;
   private boolean foundInCache;
 
-  private CacheProvider provider = new MemCachedProvider();
+  private final CacheProvider provider = new MemCachedProvider();
   private static final long serialVersionUID = -5460272871141784844L;
 
   public String getKey() {

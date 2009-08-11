@@ -63,7 +63,7 @@ public class CommentFilter {
     return getCommentList(comments.getList(), reverse, offset, limit,  hideSet);
   }
 
-  public List<Comment> getCommentsSubtree(int parentId) throws IOException, UtilException, MessageNotFoundException, SQLException, UserNotFoundException {
+  public List<Comment> getCommentsSubtree(int parentId) throws MessageNotFoundException {
     CommentNode parentNode = comments.getNode(parentId);
 
     if (parentNode==null) {
