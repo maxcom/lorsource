@@ -40,13 +40,13 @@ public class ProfileHashtable {
 
   public boolean getBoolean(String prop) throws UtilException {
     if (settings.get(prop) != null) {
-      return ((Boolean) settings.get(prop)).booleanValue();
+      return (Boolean) settings.get(prop);
     } else {
       Boolean value = (Boolean) Defaults.get(prop);
       if (value == null) {
         throw new UtilKeyNotFoundException(prop);
       }
-      return value.booleanValue();
+      return value;
     }
   }
 
@@ -64,22 +64,22 @@ public class ProfileHashtable {
 
   public int getInt(String prop) {
     if (settings.get(prop) != null) {
-      return ((Integer) settings.get(prop)).intValue();
+      return (Integer) settings.get(prop);
     } else {
-      return ((Integer) Defaults.get(prop)).intValue();
+      return (Integer) Defaults.get(prop);
     }
   }
 
   public long getLong(String prop) {
     if (settings.get(prop) != null) {
-      return ((Long) settings.get(prop)).longValue();
+      return (Long) settings.get(prop);
     } else {
-      return ((Long) Defaults.get(prop)).longValue();
+      return (Long) Defaults.get(prop);
     }
   }
 
   public boolean setInt(String prop, Integer value) {
-    if (value != null && value.intValue() != getInt(prop)) {
+    if (value != null && value != getInt(prop)) {
       settings.put(prop, value);
       return true;
     } else {
@@ -106,7 +106,7 @@ public class ProfileHashtable {
   }
 
   public boolean setBoolean(String prop, Boolean value) throws UtilException {
-    if (value != null && value.booleanValue() != getBoolean(prop)) {
+    if (value != null && value != getBoolean(prop)) {
       settings.put(prop, value);
       return true;
     } else {
@@ -116,7 +116,7 @@ public class ProfileHashtable {
 
   public boolean setBoolean(String prop, boolean value) throws UtilException {
     if (value != getBoolean(prop)) {
-      settings.put(prop, Boolean.valueOf(value));
+      settings.put(prop, value);
       return true;
     } else {
       return false;
@@ -136,7 +136,7 @@ public class ProfileHashtable {
   }
 
   public void addBoolean(String prop, boolean value) {
-    settings.put(prop, Boolean.valueOf(value));
+    settings.put(prop, value);
   }
 
   public void addObject(String prop, Object value) {

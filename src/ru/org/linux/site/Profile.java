@@ -78,7 +78,7 @@ public class Profile {
   }
 
   public void write(OutputStream df) throws IOException {
-    profileHashtable.setObject("system.timestamp", new Long(new Date().getTime()));
+    profileHashtable.setObject("system.timestamp", new Date().getTime());
 
     ObjectOutputStream dof = null;
     try {
