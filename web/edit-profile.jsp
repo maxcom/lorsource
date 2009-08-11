@@ -1,10 +1,6 @@
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="java.net.URLEncoder,java.sql.Connection,java.sql.ResultSet, java.sql.Statement, java.util.Date"   buffer="20kb" %>
-<%@ page import="java.util.List"%>
-<%@ page import="javax.servlet.http.Cookie" %>
-<%@ page import="javax.servlet.http.HttpServletResponse" %>
-<%@ page import="ru.org.linux.boxlet.BoxletVectorRunner" %>
-<%@ page import="ru.org.linux.site.*" %>
+<%@ page import="javax.servlet.http.Cookie,javax.servlet.http.HttpServletResponse,ru.org.linux.site.AccessViolationException, ru.org.linux.site.BadInputException, ru.org.linux.site.Template"   buffer="20kb" %>
+<%@ page import="ru.org.linux.site.UserErrorException"%>
 <%@ page import="ru.org.linux.util.ProfileHashtable" %>
 <%@ page import="ru.org.linux.util.StringUtil" %>
 <%--

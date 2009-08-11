@@ -1,14 +1,6 @@
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="java.sql.Connection"  %>
-<%@ page import="java.sql.ResultSet" %>
-<%@ page import="java.sql.Statement" %>
-<%@ page import="java.util.Date" %>
-<%@ page import="java.util.List" %>
-<%@ page import="javax.servlet.http.HttpServletResponse" %>
-<%@ page import="ru.org.linux.boxlet.BoxletVectorRunner" %>
-<%@ page import="ru.org.linux.site.*" %>
+<%@ page import="ru.org.linux.site.Template"  %>
 <%@ page import="ru.org.linux.util.ServletParameterParser" %>
-<%@ page import="ru.org.linux.util.StringUtil" %>
 <%--
   ~ Copyright 1998-2009 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");

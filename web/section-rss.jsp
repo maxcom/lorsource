@@ -14,9 +14,8 @@
   ~    limitations under the License.
   --%>
 <%@ page contentType="application/rss+xml; charset=utf-8"%>
-<%@ page import="java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.util.Date,java.util.List,com.danga.MemCached.MemCachedClient"   buffer="200kb"%>
-<%@ page import="ru.org.linux.boxlet.BoxletVectorRunner" %>
-<%@ page import="ru.org.linux.site.*" %>
+<%@ page import="java.sql.Connection,java.util.Date,com.danga.MemCached.MemCachedClient,ru.org.linux.site.LorDataSource,ru.org.linux.site.MemCachedSettings,ru.org.linux.site.MessageTable"   buffer="200kb"%>
+<%@ page import="ru.org.linux.site.Template" %>
 <%@ page import="ru.org.linux.util.ServletParameterParser" %>
 <% Template tmpl = Template.getTemplate(request); %>
 
