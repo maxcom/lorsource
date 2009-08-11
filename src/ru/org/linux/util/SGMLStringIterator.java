@@ -19,8 +19,8 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 public class SGMLStringIterator implements Iterator<String> {
-  final String str;
-  int index = 0;
+  private final String str;
+  private int index = 0;
 
   public SGMLStringIterator(String str) {
     this.str = str;

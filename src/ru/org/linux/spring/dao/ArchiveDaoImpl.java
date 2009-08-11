@@ -57,9 +57,9 @@ public class ArchiveDaoImpl {
   }
 
   public static class ArchiveDTO implements Serializable {
-    int year;
-    int month;
-    int count;
+    private int year;
+    private int month;
+    private int count;
     private static final long serialVersionUID = 5862774559965251294L;
 
     public int getYear() {

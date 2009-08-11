@@ -23,9 +23,9 @@ import java.io.Serializable;
 * Time: 3:48:48
 */
 public class VoteDTO implements Serializable {
-  Integer id;
-  String label;
-  Integer pollId;
+  private Integer id;
+  private String label;
+  private Integer pollId;
   private static final long serialVersionUID = -293722815777946212L;
 
   public Integer getId() {

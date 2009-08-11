@@ -32,15 +32,15 @@ import ru.org.linux.util.ImageInfo;
 public class GalleryItem implements Serializable {
   private static final Log log = LogFactory.getLog(GalleryItem.class);
 
-  Integer msgid;
-  String nick;
-  String icon;
-  transient ImageInfo info;
-  transient ImageInfo imginfo;
-  String title;
-  Integer stat;
-  String url;
-  String htmlPath;
+  private Integer msgid;
+  private String nick;
+  private String icon;
+  private transient ImageInfo info;
+  private transient ImageInfo imginfo;
+  private String title;
+  private Integer stat;
+  private String url;
+  private String htmlPath;
   private static final long serialVersionUID = -4059370603821918387L;
 
   public Integer getMsgid() {

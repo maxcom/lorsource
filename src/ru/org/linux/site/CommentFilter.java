@@ -59,7 +59,7 @@ public class CommentFilter {
     return out;
   }
 
-  public List<Comment> getComments(boolean reverse, int offset, int limit, Set<Integer> hideSet) throws IOException, UtilException, SQLException, UserNotFoundException {
+  public List<Comment> getComments(boolean reverse, int offset, int limit, Set<Integer> hideSet) {
     return getCommentList(comments.getList(), reverse, offset, limit,  hideSet);
   }
 
