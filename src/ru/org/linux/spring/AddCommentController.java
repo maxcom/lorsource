@@ -23,6 +23,7 @@ import java.util.Map;
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import org.jdom.Verifier;
 import org.springframework.context.support.ApplicationObjectSupport;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -200,6 +201,11 @@ public class AddCommentController extends ApplicationObjectSupport {
 
       if ("".equals(msg)) {
         throw new BadInputException("комментарий не может быть пустым");
+      }
+
+      String error = Verifier.checkCharacterData(msg);
+      if (error!=null) {
+        throw new BadInputException(error);
       }
 
       if (!preview && !Template.isSessionAuthorized(session)) {

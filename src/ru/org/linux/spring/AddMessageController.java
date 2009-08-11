@@ -105,7 +105,6 @@ public class AddMessageController extends ApplicationObjectSupport {
 
       previewMsg = new Message(db, form, user);
 
-
       if (!form.isPreview()) {
         // Flood protection
         if (!session.getId().equals(form.getSessionId())) {

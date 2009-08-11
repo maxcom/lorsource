@@ -26,6 +26,7 @@ import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import org.apache.commons.lang.StringUtils;
+import org.jdom.Verifier;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
@@ -206,6 +207,11 @@ public class AddMessageForm {
     }
 
     String message = processMessage(group);
+
+    String error = Verifier.checkCharacterData(message);
+    if (error!=null) {
+      throw new BadInputException(error);
+    }
 
     if (user.isAnonymous()) {
       if (message.length() > MAX_MESSAGE_LENGTH_ANONYMOUS) {
