@@ -38,7 +38,7 @@ public class ProfileTest extends TestCase {
   public void testModification() throws IOException, ClassNotFoundException {
     Profile profile = new Profile(null);
 
-    profile.getHashtable().setInt("messages", new Integer(125));
+    profile.getHashtable().setInt("messages", 125);
 
     ByteArrayOutputStream os = new ByteArrayOutputStream();
 

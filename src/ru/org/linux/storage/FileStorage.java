@@ -26,7 +26,7 @@ public class FileStorage extends Storage {
 
   @Override
   protected String readMessageImpl(String domain, String msgid) throws IOException, StorageNotFoundException {
-    BufferedReader in = null;
+    BufferedReader in  ;
 
     try {
       in = new BufferedReader(new InputStreamReader(new FileInputStream(root + domain + '/' + msgid), "KOI8-R"));
@@ -37,7 +37,7 @@ public class FileStorage extends Storage {
     char[] buf = new char[8192];
     StringBuffer out = new StringBuffer();
 
-    int i = 0;
+    int i  ;
     while ((i = in.read(buf, 0, buf.length)) > -1) {
       if (i > 0) {
         out.append(buf, 0, i);
@@ -73,7 +73,7 @@ public class FileStorage extends Storage {
 
   @Override
   protected InputStream getReadStreamImpl(String domain, String msgid) throws StorageNotFoundException {
-    FileInputStream in = null;
+    FileInputStream in  ;
     // TODO: try buffered input stream and check perfomance
     try {
       in = new FileInputStream(root + domain + '/' + msgid);

@@ -17,7 +17,6 @@
   ~    limitations under the License.
   --%>
 
-<% Template tmpl = Template.getTemplate(request);%>
 <%
   int topicId = (Integer) request.getAttribute("topic");
   int postscore = (Integer) request.getAttribute("postscore");
