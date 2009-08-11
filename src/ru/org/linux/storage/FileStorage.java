@@ -24,6 +24,7 @@ public class FileStorage extends Storage {
     root = RootPath;
   }
 
+  @Override
   protected String readMessageImpl(String domain, String msgid) throws IOException, StorageNotFoundException {
     BufferedReader in = null;
 
@@ -48,6 +49,7 @@ public class FileStorage extends Storage {
     return out.toString();
   }
 
+  @Override
   protected void writeMessageImpl(String domain, String msgid, String message) throws IOException, StorageException {
     if (new File(root + domain + '/' + msgid).exists()) {
       throw new StorageExistsException(domain, msgid);
@@ -58,6 +60,7 @@ public class FileStorage extends Storage {
     out.close();
   }
 
+  @Override
   protected void updateMessageImpl(String domain, String msgid, String message) throws IOException, StorageException {
     if (!(new File(root + domain + '/' + msgid).exists())) {
       throw new StorageNotFoundException(domain, msgid);
@@ -68,6 +71,7 @@ public class FileStorage extends Storage {
     out.close();
   }
 
+  @Override
   protected InputStream getReadStreamImpl(String domain, String msgid) throws StorageNotFoundException {
     FileInputStream in = null;
     // TODO: try buffered input stream and check perfomance
@@ -80,6 +84,7 @@ public class FileStorage extends Storage {
     return in;
   }
 
+  @Override
   protected OutputStream getWriteStreamImpl(String domain, String msgid) throws IOException {
     FileOutputStream in = null;
     in = new FileOutputStream(root + domain + '/' + msgid);

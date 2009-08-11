@@ -26,14 +26,17 @@ public class SGMLStringIterator implements Iterator<String> {
     this.str = str;
   }
 
+  @Override
   public void remove() {
     throw new UnsupportedOperationException();
   }
 
+  @Override
   public boolean hasNext() {
     return index<str.length();
   }
 
+  @Override
   public String next() {
     if (!hasNext()) {
       throw new NoSuchElementException();

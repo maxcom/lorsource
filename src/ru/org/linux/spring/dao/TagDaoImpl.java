@@ -43,6 +43,7 @@ public class TagDaoImpl {
     final MutableDouble maxc = new MutableDouble(1);
     final MutableDouble minc = new MutableDouble(-1);
     List<TagDTO> result = getJdbcTemplate().query(sql, new ParameterizedRowMapper<TagDTO>() {
+      @Override
       public TagDTO mapRow(ResultSet rs, int rowNum) throws SQLException {
         TagDTO result = new TagDTO();
         result.setValue(rs.getString("value"));
@@ -66,6 +67,7 @@ public class TagDaoImpl {
     }
 
     CollectionUtils.forAllDo(result, new Closure() {
+      @Override
       public void execute(Object o) {
         TagDTO tag = (TagDTO) o;
         tag.setWeight((int) Math.round(10*(tag.getCounter() - minc.doubleValue())

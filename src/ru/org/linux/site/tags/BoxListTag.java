@@ -47,6 +47,7 @@ public class BoxListTag extends BodyTagSupport {
     @SuppressWarnings("unchecked")
     List<String> boxnames = (List<String>) t.getProf().getObject(s);
     CollectionUtils.filter(boxnames, new Predicate() {
+      @Override
       public boolean evaluate(Object o) {
         String s = (String) o;
         return mkdefprofile.isBox(s);

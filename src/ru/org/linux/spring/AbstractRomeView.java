@@ -66,6 +66,7 @@ public abstract class AbstractRomeView extends AbstractView {
     this.defaultCount = defaultCount;
   }
 
+  @Override
   protected void renderMergedOutputModel(Map model, HttpServletRequest request,
                                          HttpServletResponse response) throws Exception {
     SyndFeed feed = new SyndFeedImpl();

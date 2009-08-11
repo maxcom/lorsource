@@ -65,6 +65,7 @@ public class GalleryDaoImpl {
       " JOIN users ON users.id = topics.userid WHERE topics.moderate AND sections.id=3 " +
       " AND NOT deleted ORDER BY commitdate DESC LIMIT 3";
     return getTemplate().query(sql, new ParameterizedRowMapper<GalleryItem>() {
+      @Override
       public GalleryItem mapRow(ResultSet rs, int rowNum) throws SQLException {
         return createGalleryItem(rs);
       }

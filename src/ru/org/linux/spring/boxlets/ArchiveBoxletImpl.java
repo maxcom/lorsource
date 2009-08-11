@@ -45,6 +45,7 @@ public class ArchiveBoxletImpl extends SpringBoxlet{
     this.archiveDao = archiveDao;
   }
 
+  @Override
   public CacheProvider getCacheProvider() {
     return cacheProvider;
   }
@@ -54,9 +55,11 @@ public class ArchiveBoxletImpl extends SpringBoxlet{
     this.cacheProvider = cacheProvider;
   }
 
+  @Override
   @RequestMapping("/archive.boxlet")
   protected ModelAndView getData(HttpServletRequest request, HttpServletResponse response) {
     List<ArchiveDaoImpl.ArchiveDTO> list = getFromCache(new GetCommand<List<ArchiveDaoImpl.ArchiveDTO>>() {
+      @Override
       public List<ArchiveDaoImpl.ArchiveDTO> get() {
         return archiveDao.getArchiveDTO();
       }

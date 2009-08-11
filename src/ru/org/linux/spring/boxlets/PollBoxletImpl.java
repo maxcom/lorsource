@@ -55,9 +55,11 @@ public class PollBoxletImpl extends SpringBoxlet implements CacheableController 
     this.cacheProvider = cacheProvider;
   }
 
+  @Override
   @RequestMapping("/poll.boxlet")
   protected ModelAndView getData(HttpServletRequest request, HttpServletResponse response) {
     final PollDTO poll = getFromCache(getCacheKey() + "poll", new GetCommand<PollDTO>() {
+      @Override
       public PollDTO get() {
         try {
           return pollDao.getCurrentPoll();
@@ -68,12 +70,14 @@ public class PollBoxletImpl extends SpringBoxlet implements CacheableController 
     });
 
     final List<VoteDTO> votes = getFromCache(getCacheKey() + "votes", new GetCommand<List<VoteDTO>>() {
+      @Override
       public List<VoteDTO> get() {
         return pollDao.getVoteDTO(poll.getId());
       }
     });
 
     Integer count = getFromCache(getCacheKey() + "count", new GetCommand<Integer>() {
+      @Override
       public Integer get() {
         return pollDao.getVotersCount(poll.getId());
       }
@@ -86,10 +90,12 @@ public class PollBoxletImpl extends SpringBoxlet implements CacheableController 
     return result;
   }
 
+  @Override
   protected CacheProvider getCacheProvider() {
     return cacheProvider;
   }
 
+  @Override
   public Long getExpiryTime() {
     return super.getExpiryTime() * 2;
   }

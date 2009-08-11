@@ -30,11 +30,13 @@ import ru.org.linux.spring.commons.CacheProvider;
  */
 @Controller
 public class IbmBoxletImpl extends SpringBoxlet {
+  @Override
   @RequestMapping("/ibm.boxlet")
   protected ModelAndView getData(HttpServletRequest request, HttpServletResponse response) {
     return new ModelAndView("boxlets/ibm", null);
   }
 
+  @Override
   protected CacheProvider getCacheProvider() {
     return null;
   }

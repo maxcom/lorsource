@@ -219,6 +219,7 @@ public class BBCodeProcessor implements Serializable {
     subst.addAll(subsInternal);
 
     Collections.sort(subst, new Comparator<BBChunk>() {
+      @Override
       public int compare(BBChunk o1, BBChunk o2) {
         return (o1.start - o2.start);
       }

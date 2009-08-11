@@ -47,6 +47,7 @@ public class TagCloudBoxletImpl extends SpringBoxlet {
     this.cacheProvider = cacheProvider;
   }
 
+  @Override
   @RequestMapping("/tagcloud.boxlet")
   protected ModelAndView getData(HttpServletRequest request, HttpServletResponse response) {
     final ProfileHashtable profile = Template.getTemplate(request).getProf();
@@ -54,6 +55,7 @@ public class TagCloudBoxletImpl extends SpringBoxlet {
     String key = getCacheKey() + "?count=" + i;
 
     final List<TagDaoImpl.TagDTO> list = getFromCache(key, new GetCommand<List<TagDaoImpl.TagDTO>>() {
+      @Override
       public List<TagDaoImpl.TagDTO> get() {
         return getTagDao().getTags(i);
       }
@@ -63,11 +65,13 @@ public class TagCloudBoxletImpl extends SpringBoxlet {
     return mav;
   }
 
+  @Override
   protected CacheProvider getCacheProvider() {
     return cacheProvider;
   }
 
 
+  @Override
   public Long getExpiryTime() {
     return super.getExpiryTime() * 10;
   }

@@ -34,6 +34,7 @@ public abstract class SpringBoxlet extends AbstractController implements Cacheab
                                           HttpServletResponse response);
 
   
+  @Override
   protected ModelAndView handleRequestInternal(HttpServletRequest request,
                                                HttpServletResponse response) throws Exception {
     ModelAndView mav = getData(request, response);
@@ -67,10 +68,12 @@ public abstract class SpringBoxlet extends AbstractController implements Cacheab
     T get();
   }
 
+  @Override
   public String getCacheKey(){
     return getClass().getName();
   }
 
+  @Override
   public Long getExpiryTime(){
     return DEFAULT_EXPIRE;
   }

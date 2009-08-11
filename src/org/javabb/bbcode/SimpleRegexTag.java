@@ -53,14 +53,17 @@ public class SimpleRegexTag implements RegexTag {
     _replacement = replacement;
   }
 
+  @Override
   public String getTagName() {
     return _tagName;
   }
 
+  @Override
   public Pattern getRegex() {
     return _regex;
   }
 
+  @Override
   public String getReplacement() {
     return _replacement;
   }
@@ -77,6 +80,7 @@ public class SimpleRegexTag implements RegexTag {
     _replacement = replacement;
   }
 
+  @Override
   public void substitute(Connection db, CharSequence from, StringBuffer to, RegexTag regex, String replacement) throws SQLException {
     to.setLength(0);
 

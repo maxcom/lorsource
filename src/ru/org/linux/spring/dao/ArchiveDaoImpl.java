@@ -45,6 +45,7 @@ public class ArchiveDaoImpl {
     String sql = "select year, month, c from monthly_stats where section=1" +
       " order by year desc, month desc limit 13";
     return jdbcTemplate.query(sql, new ParameterizedRowMapper<ArchiveDTO>() {
+      @Override
       public ArchiveDTO mapRow(ResultSet rs, int rowNum) throws SQLException {
         ArchiveDTO dto = new ArchiveDTO();
         dto.setYear(rs.getInt("year"));

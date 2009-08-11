@@ -39,10 +39,12 @@ implements
     }
   }
 
+  @Override
   public Properties getProperties() {
     return config;
   }
 
+  @Override
   public Storage getStorage() {
     if (storage == null) {
       storage = new FileStorage(getPathPrefix() + "linux-storage/");
@@ -50,10 +52,12 @@ implements
     return storage;
   }
 
+  @Override
   public String getPathPrefix() {
     return config.getProperty("PathPrefix");
   }
 
+  @Override
   public String getHTMLPathPrefix() {
     return config.getProperty("HTMLPathPrefix");
   }

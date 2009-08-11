@@ -20,11 +20,13 @@ import java.util.Date;
 import ru.org.linux.site.MemCachedSettings;
 
 public class MemCachedProvider implements CacheProvider {
+  @Override
   public Object getFromCache(String key) {
     String s = MemCachedSettings.getId(key);
     return MemCachedSettings.getClient().get(s);
   }
 
+  @Override
   public <T> boolean storeToCache(String key, T value, long expire) {
     String s = MemCachedSettings.getId(key);
     Date now = new Date();

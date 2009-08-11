@@ -49,6 +49,7 @@ public class PollDaoImpl {
       " AND topics.commitdate = (select max(commitdate)" +
       " from topics where groupid=19387 AND moderate AND NOT deleted)";
     PollDTO result = jdbcTemplate.queryForObject(sql, new ParameterizedRowMapper<PollDTO>() {
+      @Override
       public PollDTO mapRow(ResultSet rs, int rowNum) throws SQLException {
         PollDTO result = new PollDTO();
         result.setId(rs.getInt("id"));
@@ -66,6 +67,7 @@ public class PollDaoImpl {
   public List<VoteDTO> getVoteDTO(final Integer pollId) {
     String sql = "SELECT id, label FROM votes WHERE vote= ? ORDER BY id";
     return jdbcTemplate.query(sql, new ParameterizedRowMapper<VoteDTO>() {
+      @Override
       public VoteDTO mapRow(ResultSet rs, int rowNum) throws SQLException {
         VoteDTO dto = new VoteDTO();
         dto.setId(rs.getInt("id"));

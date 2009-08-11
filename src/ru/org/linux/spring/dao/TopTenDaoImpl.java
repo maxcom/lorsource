@@ -48,6 +48,7 @@ public class TopTenDaoImpl {
       " where topics.postdate>(CURRENT_TIMESTAMP-'1 month 1 day'::interval) and not deleted and notop is null " +
       " and groupid!=8404 and groupid!=4068 order by c desc, msgid limit 10";
     return getJdbcTemplate().query(sql, new ParameterizedRowMapper<TopTenMessageDTO>() {
+      @Override
       public TopTenMessageDTO mapRow(ResultSet rs, int i) throws SQLException {
         TopTenMessageDTO result = new TopTenMessageDTO();
         result.setMsgid(rs.getInt("msgid"));
