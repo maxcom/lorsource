@@ -459,7 +459,6 @@ public class Message {
 
   public int addTopicFromPreview(Connection db, Template tmpl, HttpServletRequest request, String previewImagePath, User user)
       throws SQLException, UtilException, IOException, BadImageException, InterruptedException,  DuplicationException, BadGroupException {
-    ScreenshotProcessor screenshot = null;
 
     Group group = new Group(db, guid);
 	
@@ -468,7 +467,7 @@ public class Message {
     int msgid = allocateMsgid(db);
 
     if (group.isImagePostAllowed()) {
-      screenshot = new ScreenshotProcessor(previewImagePath);
+      ScreenshotProcessor screenshot = new ScreenshotProcessor(previewImagePath);
       screenshot.copyScreenshotFromPreview(tmpl, msgid);
 
       url = "gallery/" + screenshot.getMainFile().getName();

@@ -663,11 +663,10 @@ public class ImageInfo2 {
 		int[] PNM_FORMATS = {FORMAT_PBM, FORMAT_PGM, FORMAT_PPM};
 		format = PNM_FORMATS[(id - 1) % 3];
 		boolean hasPixelResolution = false;
-		String s;
-		while (true)
+          while (true)
 		{
-			s = readLine();
-			if (s != null) {
+                  String s = readLine();
+                  if (s != null) {
 				s = s.trim();
 			}
 			if (s == null || s.length() < 1) {
