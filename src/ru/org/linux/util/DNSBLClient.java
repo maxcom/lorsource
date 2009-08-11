@@ -24,7 +24,7 @@ import org.xbill.DNS.*;
 public class DNSBLClient {
   public final int DNSBL_TIMEOUT_SEC = 10;
 
-  private final static Logger logger = Logger.getLogger("ru.org.linux");
+  private static final Logger logger = Logger.getLogger("ru.org.linux");
 
   private final Resolver resolver;
   private final String zone;

@@ -18,6 +18,7 @@ package ru.org.linux.site;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Date;
 
 import ru.org.linux.util.ProfileHashtable;
 import ru.org.linux.util.UtilException;
@@ -25,5 +26,5 @@ import ru.org.linux.util.UtilException;
 public interface Viewer {
   String show(Connection db) throws IOException, SQLException, UtilException, UserErrorException;
   String getVariantID(ProfileHashtable prof) throws UtilException;
-  java.util.Date getExpire();  
+  Date getExpire();
 }

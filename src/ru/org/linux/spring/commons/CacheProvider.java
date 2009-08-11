@@ -23,6 +23,6 @@ import java.io.Serializable;
  * Time: 4:27:50 PM
  */
 public interface CacheProvider {
-  public Object getFromCache(String key);
-  public<T> boolean storeToCache(String key, T value, long expire);
+  Object getFromCache(String key);
+  <T> boolean storeToCache(String key, T value, long expire);
 }

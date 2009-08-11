@@ -47,7 +47,7 @@ public class TagDaoImpl {
       public TagDTO mapRow(ResultSet rs, int rowNum) throws SQLException {
         TagDTO result = new TagDTO();
         result.setValue(rs.getString("value"));
-        final double counter = Math.log(rs.getInt("counter"));
+        double counter = Math.log(rs.getInt("counter"));
         result.setCounter(counter);
 
         if (maxc.doubleValue() < counter){

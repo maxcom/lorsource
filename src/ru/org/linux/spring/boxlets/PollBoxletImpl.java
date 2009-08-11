@@ -69,7 +69,7 @@ public class PollBoxletImpl extends SpringBoxlet implements CacheableController 
       }
     });
 
-    final List<VoteDTO> votes = getFromCache(getCacheKey() + "votes", new GetCommand<List<VoteDTO>>() {
+    List<VoteDTO> votes = getFromCache(getCacheKey() + "votes", new GetCommand<List<VoteDTO>>() {
       @Override
       public List<VoteDTO> get() {
         return pollDao.getVoteDTO(poll.getId());

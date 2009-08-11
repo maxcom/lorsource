@@ -61,7 +61,7 @@ public class GalleryBoxletImpl extends SpringBoxlet {
   protected ModelAndView getData(HttpServletRequest request, HttpServletResponse response) {
     ModelAndView mav = new ModelAndView();
     mav.setViewName("boxlets/gallery");
-    final List<GalleryItem> list = getFromCache(new GetCommand<List<GalleryItem>>() {
+    List<GalleryItem> list = getFromCache(new GetCommand<List<GalleryItem>>() {
       @Override
       public List<GalleryItem> get() {
         return galleryDao.getGalleryItems();

@@ -50,8 +50,8 @@ public abstract class Storage {
   }
 
 // private
-  private final static RE DOMAIN_CHECK_RE;
-  private final static RE NAME_CHECK_RE;
+private static final RE DOMAIN_CHECK_RE;
+  private static final RE NAME_CHECK_RE;
 
   static {
     try {

@@ -47,8 +47,9 @@ public class CommentNode implements Serializable {
     if (comment!=null) {
       User commentAuthor = User.getUserCached(db, comment.getUserid());
 
-      if (commentAuthor.isAnonymousScore())
+      if (commentAuthor.isAnonymousScore()) {
         hideNode(hideSet);
+      }
     }
 
     if (comment==null || !hideSet.contains(comment.getMessageId())) {
@@ -73,7 +74,9 @@ public class CommentNode implements Serializable {
   }
 
   public void buildList(List<Comment> list) {
-    if (comment!=null) list.add(comment);
+    if (comment!=null) {
+      list.add(comment);
+    }
 
     for (CommentNode child : childs) {
       child.buildList(list);

@@ -32,6 +32,7 @@ import java.io.DataInput;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.RandomAccessFile;
 import java.net.URL;
 import java.util.Vector;
 
@@ -370,8 +371,8 @@ public class ImageInfo2 {
 	}
 
 	private boolean checkGif() throws IOException {
-		final byte[] GIF_MAGIC_87A = {0x46, 0x38, 0x37, 0x61};
-		final byte[] GIF_MAGIC_89A = {0x46, 0x38, 0x39, 0x61};
+		byte[] GIF_MAGIC_87A = {0x46, 0x38, 0x37, 0x61};
+		byte[] GIF_MAGIC_89A = {0x46, 0x38, 0x39, 0x61};
 		byte[] a = new byte[11]; // 4 from the GIF signature + 7 from the global header
 		if (read(a) != 11) {
 			return false;
@@ -496,7 +497,7 @@ public class ImageInfo2 {
 		if (read(a, 0, 10) != 10) {
 			return false;
 		}
-		final byte[] IFF_RM = {0x52, 0x4d};
+		byte[] IFF_RM = {0x52, 0x4d};
 		if (!equals(a, 0, IFF_RM, 0, 2)) {
 			return false;
 		}
@@ -550,7 +551,7 @@ public class ImageInfo2 {
 				if (read(data, 0, 12) != 12) {
 					return false;
 				}
-				final byte[] APP0_ID = {0x4a, 0x46, 0x49, 0x46, 0x00};
+				byte[] APP0_ID = {0x4a, 0x46, 0x49, 0x46, 0x00};
 				if (equals(APP0_ID, 0, data, 0, 5)) {
 					//System.out.println("data 7=" + data[7]);
 					if (data[7] == 1) {
@@ -635,7 +636,7 @@ public class ImageInfo2 {
 	}
 
 	private boolean checkPng() throws IOException {
-		final byte[] PNG_MAGIC = {0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a};
+		byte[] PNG_MAGIC = {0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a};
 		byte[] a = new byte[27];
 		if (read(a) != 27) {
 			return false;
@@ -659,7 +660,7 @@ public class ImageInfo2 {
 		if (id < 1 || id > 6) {
 			return false;
 		}
-		final int[] PNM_FORMATS = {FORMAT_PBM, FORMAT_PGM, FORMAT_PPM};
+		int[] PNM_FORMATS = {FORMAT_PBM, FORMAT_PGM, FORMAT_PPM};
 		format = PNM_FORMATS[(id - 1) % 3];
 		boolean hasPixelResolution = false;
 		String s;
@@ -734,7 +735,7 @@ public class ImageInfo2 {
 		if (read(a) != a.length) {
 			return false;
 		}
-		final byte[] PSD_MAGIC = {0x50, 0x53};
+		byte[] PSD_MAGIC = {0x50, 0x53};
 		if (!equals(a, 0, PSD_MAGIC, 0, 2)) {
 			return false;
 		}
@@ -752,7 +753,7 @@ public class ImageInfo2 {
 		if (read(a) != a.length) {
 			return false;
 		}
-		final byte[] RAS_MAGIC = {0x6a, (byte)0x95};
+		byte[] RAS_MAGIC = {0x6a, (byte)0x95};
 		if (!equals(a, 0, RAS_MAGIC, 0, 2)) {
 			return false;
 		}
@@ -1043,7 +1044,7 @@ public class ImageInfo2 {
 	}
 
 	private static void printCompact(String sourceName, ImageInfo2 ImageInfo2) {
-		final String SEP = "\t";
+		String SEP = "\t";
 		System.out.println(
 			sourceName + SEP + 
 			ImageInfo2.getFormatName() + SEP +
@@ -1194,8 +1195,8 @@ public class ImageInfo2 {
 
 	/**
 	 * Set the input stream to the argument stream (or file). 
-	 * Note that {@link java.io.RandomAccessFile} implements
-	 * {@link java.io.DataInput}.
+	 * Note that {@link RandomAccessFile} implements
+	 * {@link DataInput}.
 	 * @param dataInput the input stream to read from
 	 */
 	public void setInput(DataInput dataInput) {

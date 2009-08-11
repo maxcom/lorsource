@@ -50,11 +50,11 @@ public class TagCloudBoxletImpl extends SpringBoxlet {
   @Override
   @RequestMapping("/tagcloud.boxlet")
   protected ModelAndView getData(HttpServletRequest request, HttpServletResponse response) {
-    final ProfileHashtable profile = Template.getTemplate(request).getProf();
+    ProfileHashtable profile = Template.getTemplate(request).getProf();
     final int i = profile.getInt("tags");
     String key = getCacheKey() + "?count=" + i;
 
-    final List<TagDaoImpl.TagDTO> list = getFromCache(key, new GetCommand<List<TagDaoImpl.TagDTO>>() {
+    List<TagDaoImpl.TagDTO> list = getFromCache(key, new GetCommand<List<TagDaoImpl.TagDTO>>() {
       @Override
       public List<TagDaoImpl.TagDTO> get() {
         return getTagDao().getTags(i);
