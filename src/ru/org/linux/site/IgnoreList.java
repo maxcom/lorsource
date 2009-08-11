@@ -21,6 +21,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Hashtable;
 import java.util.Map;
+import java.util.HashMap;
 
 public class IgnoreList {
   private final int userId;
@@ -33,7 +34,7 @@ public class IgnoreList {
     pst.clearParameters();
     pst.setString(1, nick);
     ResultSet rs = pst.executeQuery();
-    Map<Integer, String> cignored = new Hashtable<Integer, String>();
+    Map<Integer, String> cignored = new HashMap<Integer, String>();
     while(rs.next()) {
       cignored.put(rs.getInt("ignored"),rs.getString("nick"));
     }
@@ -45,7 +46,7 @@ public class IgnoreList {
       throw new SQLException("Incorrect user ID");
     }
     this.userId = userId;
-    ignoreList = new Hashtable<Integer, String>();
+    ignoreList = new HashMap<Integer, String>();
     PreparedStatement pst = db.prepareStatement("SELECT a.id,a.nick FROM users a, ignore_list b WHERE b.userid=? AND a.id=b.ignored ORDER BY a.nick ASC");
     pst.clearParameters();
     pst.setInt(1, userId); 
