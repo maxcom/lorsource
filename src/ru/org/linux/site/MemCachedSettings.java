@@ -44,7 +44,7 @@ public class MemCachedSettings {
   }
 
   public static String getId(String suffix) {
-    return mainUrl+"/"+suffix;
+    return mainUrl+ '/' +suffix;
   }
 
   public static void setMainUrl(String mainUrl) {

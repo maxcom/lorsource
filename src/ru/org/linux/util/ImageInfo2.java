@@ -360,11 +360,11 @@ public class ImageInfo2 {
 		}
 		int x = (int)(getIntLittleEndian(a, 36) * 0.0254);
 		if (x > 0) {
-			setPhysicalWidthDpi(x);
+                  physicalHeightDpi = x;
 		}
 		int y = (int)(getIntLittleEndian(a, 40) * 0.0254);
 		if (y > 0) {
-			setPhysicalHeightDpi(y);
+                  physicalWidthDpi = y;
 		}
 		format = FORMAT_BMP;
 		return true;
@@ -555,15 +555,15 @@ public class ImageInfo2 {
 				if (equals(APP0_ID, 0, data, 0, 5)) {
 					//System.out.println("data 7=" + data[7]);
 					if (data[7] == 1) {
-						setPhysicalWidthDpi(getShortBigEndian(data, 8));
-						setPhysicalHeightDpi(getShortBigEndian(data, 10));
+                                          physicalHeightDpi = getShortBigEndian(data, 8);
+                                          physicalWidthDpi = getShortBigEndian(data, 10);
 					}
 					else
 					if (data[7] == 2) {
 						int x = getShortBigEndian(data, 8);
 						int y = getShortBigEndian(data, 10);
-						setPhysicalWidthDpi((int)(x * 2.54f));
-						setPhysicalHeightDpi((int)(y * 2.54f));
+                                          physicalHeightDpi = (int) (x * 2.54f);
+                                          physicalWidthDpi = (int) (y * 2.54f);
 					}
 				}
 				skip(size - 14);
@@ -629,8 +629,8 @@ public class ImageInfo2 {
 		} else {
 			return false;
 		}
-		setPhysicalWidthDpi(getShortLittleEndian(a, 10));
-		setPhysicalHeightDpi(getShortLittleEndian(a, 10));
+          physicalHeightDpi = getShortLittleEndian(a, 10);
+          physicalWidthDpi = getShortLittleEndian(a, 10);
 		format = FORMAT_PCX;
 		return true;
 	}
@@ -926,8 +926,8 @@ public class ImageInfo2 {
 	 * @see #getPhysicalWidthInch()
 	 */
 	public float getPhysicalHeightInch() {
-		int h = getHeight();
-		int ph = getPhysicalHeightDpi();
+		int h = height;
+		int ph = physicalHeightDpi;
 		if (h > 0 && ph > 0) {
 			return ((float)h) / ((float)ph);
 		} else {
@@ -956,8 +956,8 @@ public class ImageInfo2 {
 	 * @see #getPhysicalHeightInch
 	 */
 	public float getPhysicalWidthInch() {
-		int w = getWidth();
-		int pw = getPhysicalWidthDpi();
+		int w = width;
+		int pw = physicalWidthDpi;
 		if (w > 0 && pw > 0) {
 			return ((float)w) / ((float)pw);
 		} else {
@@ -1003,7 +1003,7 @@ public class ImageInfo2 {
 	 */
 	public static void main(String[] args) {
 		ImageInfo2 ImageInfo2 = new ImageInfo2();
-		ImageInfo2.setDetermineImageNumber(true);
+          ImageInfo2.determineNumberOfImages = true;
 		boolean verbose = determineVerbosity(args);
 		if (args.length == 0) {
 			run(null, System.in, ImageInfo2, verbose);
@@ -1013,7 +1013,7 @@ public class ImageInfo2 {
 				InputStream in = null;
 				try {
 					String name = args[index++];
-					System.out.print(name + ";");
+					System.out.print(name + ';');
 					if (name.startsWith("http://")) {
 						in = new URL(name).openConnection().getInputStream();
 					} else {
@@ -1048,15 +1048,15 @@ public class ImageInfo2 {
 			sourceName + SEP + 
 			ImageInfo2.getFormatName() + SEP +
 			ImageInfo2.getMimeType() + SEP +
-			ImageInfo2.getWidth() + SEP +
-			ImageInfo2.getHeight() + SEP +
-			ImageInfo2.getBitsPerPixel() + SEP +
-			ImageInfo2.getNumberOfImages() + SEP +
-			ImageInfo2.getPhysicalWidthDpi() + SEP +
-			ImageInfo2.getPhysicalHeightDpi() + SEP +
+                          ImageInfo2.width + SEP +
+                          ImageInfo2.height + SEP +
+                          ImageInfo2.bitsPerPixel + SEP +
+                          ImageInfo2.numberOfImages + SEP +
+                          ImageInfo2.physicalWidthDpi + SEP +
+                          ImageInfo2.physicalHeightDpi + SEP +
 			ImageInfo2.getPhysicalWidthInch() + SEP +
 			ImageInfo2.getPhysicalHeightInch() + SEP +
-			ImageInfo2.isProgressive()
+                          ImageInfo2.progressive
 		);
 	}
 
@@ -1091,13 +1091,13 @@ public class ImageInfo2 {
 		printLine(0, null, sourceName);
 		printLine(1, "File format: ", ii.getFormatName());
 		printLine(1, "MIME type: ", ii.getMimeType());
-		printLine(1, "Width (pixels): ", ii.getWidth(), 1);
-		printLine(1, "Height (pixels): ", ii.getHeight(), 1);
-		printLine(1, "Bits per pixel: ", ii.getBitsPerPixel(), 1);
-		printLine(1, "Progressive: ", ii.isProgressive() ? "yes" : "no");
-		printLine(1, "Number of images: ", ii.getNumberOfImages(), 1);
-		printLine(1, "Physical width (dpi): ", ii.getPhysicalWidthDpi(), 1);
-		printLine(1, "Physical height (dpi): ", ii.getPhysicalHeightDpi(), 1);
+		printLine(1, "Width (pixels): ", ii.width, 1);
+		printLine(1, "Height (pixels): ", ii.height, 1);
+		printLine(1, "Bits per pixel: ", ii.bitsPerPixel, 1);
+		printLine(1, "Progressive: ", ii.progressive ? "yes" : "no");
+		printLine(1, "Number of images: ", ii.numberOfImages, 1);
+		printLine(1, "Physical width (dpi): ", ii.physicalWidthDpi, 1);
+		printLine(1, "Physical height (dpi): ", ii.physicalHeightDpi, 1);
 		printLine(1, "Physical width (inches): ", ii.getPhysicalWidthInch(), 1.0f);
 		printLine(1, "Physical height (inches): ", ii.getPhysicalHeightInch(), 1.0f);
 		int numComments = ii.getNumberOfComments();
@@ -1153,8 +1153,8 @@ public class ImageInfo2 {
 
 	private static void run(String sourceName, InputStream in, ImageInfo2 ImageInfo2, boolean verbose) {
 		ImageInfo2.setInput(in);
-		ImageInfo2.setDetermineImageNumber(true);
-		ImageInfo2.setCollectComments(verbose);
+          ImageInfo2.determineNumberOfImages = true;
+          ImageInfo2.collectComments = verbose;
 		if (ImageInfo2.check()) {
 			print(sourceName, ImageInfo2, verbose);
 		}

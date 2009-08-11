@@ -334,8 +334,8 @@ public class HTMLFormatterTest {
     formatter.enableUrlHighLightMode();
     String s2 = formatter.process();
     assertTrue("All text should be inside link", s2.endsWith("</a>"));
-    int blankIndex = s2.indexOf(" ");
-    int lastIndex = s2.lastIndexOf(" ");
+    int blankIndex = s2.indexOf(' ');
+    int lastIndex = s2.lastIndexOf(' ');
     assertThat("No whitespace inside link", blankIndex, CoreMatchers.equalTo(lastIndex));
     //whitespace shoud separate href attribute. no other ws should occur
   }

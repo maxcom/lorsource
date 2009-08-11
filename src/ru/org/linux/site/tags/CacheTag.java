@@ -57,7 +57,7 @@ public class CacheTag extends BodyTagSupport {
 
   @Override
   public int doStartTag() throws JspException {
-    String cached = (String) provider.getFromCache(getKey());
+    String cached = (String) provider.getFromCache(key);
     foundInCache = cached != null;
     if (foundInCache) {
       try {
@@ -75,7 +75,7 @@ public class CacheTag extends BodyTagSupport {
     if (!foundInCache) {
       if (bodyContent != null) {
         String result = bodyContent.getString();
-        provider.storeToCache(getKey(), result, getExpire());
+        provider.storeToCache(key, result, expire);
         try {
           bodyContent.clearBody();
           bodyContent.write(result);

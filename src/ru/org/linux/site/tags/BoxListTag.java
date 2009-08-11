@@ -40,7 +40,7 @@ public class BoxListTag extends BodyTagSupport {
   @Override
   public int doStartTag() throws JspException {
     Template t = Template.getTemplate(pageContext.getRequest());
-    String s = getObject();
+    String s = object;
     if (StringUtils.isEmpty(s)){
       s = "main2";
     }

@@ -36,7 +36,7 @@ public class DNSBLClient {
   }
 
   public boolean checkIP(String addr) throws TextParseException {
-    String query = invertIPAddress(addr)+"."+zone;
+    String query = invertIPAddress(addr)+ '.' +zone;
 
     logger.fine("Looking for "+query);
 
@@ -60,7 +60,7 @@ public class DNSBLClient {
     String inverted = t.nextToken();
 
     while (t.hasMoreTokens()) {
-      inverted = t.nextToken() + "." + inverted;
+      inverted = t.nextToken() + '.' + inverted;
     }
 
     return inverted;

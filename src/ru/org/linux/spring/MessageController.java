@@ -116,8 +116,8 @@ public class MessageController {
   private String getEtag(Message message, Template tmpl) {
     String nick = tmpl.getNick();
 
-    String userAddon = nick!=null?("-"+nick):"";
+    String userAddon = nick!=null?('-' +nick):"";
 
-    return "message-"+message.getMessageId()+"-"+message.getLastModified().getTime()+userAddon;
+    return "message-"+message.getMessageId()+ '-' +message.getLastModified().getTime()+userAddon;
   }
 }

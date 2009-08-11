@@ -42,7 +42,7 @@ public class TagDaoImpl {
     String sql = "select value,counter from tags_values where counter>0 order by counter desc limit ?";
     final MutableDouble maxc = new MutableDouble(1);
     final MutableDouble minc = new MutableDouble(-1);
-    List<TagDTO> result = getJdbcTemplate().query(sql, new ParameterizedRowMapper<TagDTO>() {
+    List<TagDTO> result = jdbcTemplate.query(sql, new ParameterizedRowMapper<TagDTO>() {
       @Override
       public TagDTO mapRow(ResultSet rs, int rowNum) throws SQLException {
         TagDTO result = new TagDTO();

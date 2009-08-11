@@ -80,11 +80,11 @@
     text.append(exception.getMessage());
   }
   text.append("\n\n");
-  text.append("Main URL: ").append(tmpl.getMainUrl()).append("\n");
-  text.append("Req. URI: ").append(request.getAttribute("javax.servlet.error.request_uri")).append("\n");
+  text.append("Main URL: ").append(tmpl.getMainUrl()).append('\n');
+  text.append("Req. URI: ").append(request.getAttribute("javax.servlet.error.request_uri")).append('\n');
 
   if (request.getQueryString()!=null) {
-    text.append("Req. Query: ").append(request.getQueryString()).append("\n");
+    text.append("Req. Query: ").append(request.getQueryString()).append('\n');
   }
   
   text.append(" Headers: ");
