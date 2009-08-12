@@ -136,7 +136,7 @@ public class NewsViewer implements Viewer {
 
     out.append("</div>");
 
-    if (res.getInt("section")==1) {
+    if (res.getBoolean("moderate")) {
       String tagLinks = Tags.getTagLinks(db, msgid);
 
       if (tagLinks.length()>0) {
@@ -271,7 +271,7 @@ public class NewsViewer implements Viewer {
     );
 
     if (!viewAll) {
-      where.append(" AND (topics.moderate OR NOT sections.moderate)");
+      where.append(" AND topics.moderate AND sections.moderate");
     } else {
       where.append(" AND (NOT topics.moderate) AND sections.moderate");    
     }
@@ -308,7 +308,8 @@ public class NewsViewer implements Viewer {
         "SELECT topics.title as subj, topics.lastmod, topics.stat1, postdate, nick, image, " +
             "groups.title as gtitle, topics.id as msgid, groups.id as guid, " +
             "topics.url, topics.linktext, imagepost, vote, sections.name as pname, " +
-            "postdate<(CURRENT_TIMESTAMP-expire) as expired, message, bbcode, sections.id as section, NOT topics.sticky AS ssticky " +
+            "postdate<(CURRENT_TIMESTAMP-expire) as expired, message, bbcode, " +
+            "sections.id as section, NOT topics.sticky AS ssticky, sections.moderate " +
             "FROM topics,groups,users,sections,msgbase " +
             "WHERE " + where+ ' ' +
             "ORDER BY ssticky,commitdate DESC, msgid DESC "+limit

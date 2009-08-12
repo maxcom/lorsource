@@ -2,6 +2,7 @@
 <%@ page import="java.net.URLEncoder,java.sql.Connection,java.sql.Statement,java.util.Calendar"   buffer="200kb"%>
 <%@ page import="ru.org.linux.site.*" %>
 <%@ page import="ru.org.linux.util.DateUtil" %>
+<%@ page import="ru.org.linux.util.ServletParameterException" %>
 <%@ page import="ru.org.linux.util.ServletParameterParser" %>
 <%--
   ~ Copyright 1998-2009 Linux.org.ru
@@ -51,12 +52,17 @@
 %>
 
 <%
-  int sectionid = new ServletParameterParser(request).getInt("section");
-  Group group = null;
-
   db = LorDataSource.getConnection();
 
-  Section section = new Section(db, sectionid);
+  int sectionid = 0;
+  Section section = null;
+
+  if (request.getParameter("section")!=null) {
+    sectionid = new ServletParameterParser(request).getInt("section");
+    section = new Section(db, sectionid);
+  }
+
+  Group group = null;
 
   if (request.getParameter("group") != null) {
     int groupid = new ServletParameterParser(request).getInt("group");
@@ -73,9 +79,18 @@
     Tags.checkTag(tag);
   }
 
+  if (section==null && tag ==null) {
+    throw new ServletParameterException("section or tag required");
+  }
+
   Statement st = db.createStatement();
 
-  String navtitle = section.getName();
+  String navtitle;
+  if (section!=null) {
+    navtitle = section.getName();
+  } else {
+    navtitle = tag;
+  }
 
   if (group != null) {
     navtitle = "<a href=\"view-news.jsp?section=" + section.getId() + "\">" + section.getName() + "</a> - " + group.getTitle();
@@ -86,13 +101,17 @@
   String ptitle;
 
   if (request.getParameter("month") == null) {
-    ptitle = section.getName();
-    if (group != null) {
-      ptitle += " - " + group.getTitle();
-    }
+    if (section != null) {
+      ptitle = section.getName();
+      if (group != null) {
+        ptitle += " - " + group.getTitle();
+      }
 
-    if (tag !=null) {
-      ptitle += " - " + tag;
+      if (tag !=null) {
+        ptitle += " - " + tag;
+      }
+    } else {
+      ptitle = tag;
     }
   } else {
     month = new ServletParameterParser(request).getInt("month");
@@ -117,10 +136,12 @@
 
 %>
 	<title><%= ptitle %></title>
+<% if (section!=null) { %>
         <LINK REL="alternate" HREF="section-rss.jsp?section=<%= sectionid %><%= (group!=null?("&amp;group="+group.getId()):"")%>" TYPE="application/rss+xml">
+<% } %>
 
 <jsp:include page="WEB-INF/jsp/header.jsp"/>
-
+<% if (section!=null) { %>
   <table class=nav><tr>
     <td align=left valign=middle>
       <strong><%= navtitle %></strong>
@@ -153,10 +174,15 @@
    </tr>
 </table>
 
+<% } %>
+
 <H1><%= ptitle %></H1>
 <%
   NewsViewer nw = new NewsViewer(tmpl.getConfig(), tmpl.getProf());
-  nw.setSection(sectionid);
+  if (section!=null) {
+    nw.setSection(sectionid);
+  }
+
   if (group != null) {
     nw.setGroup(group.getId());
   }

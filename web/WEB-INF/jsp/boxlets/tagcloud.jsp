@@ -24,7 +24,6 @@
     <div align="center">
       <c:forEach var="tag" items="${tags}">
         <c:url value="/view-news.jsp" var="tag_url">
-          <c:param name="section" value="1"/>
           <c:param name="tag" value="${tag.value}"/>
         </c:url>
         <a class="cloud${tag.weight}" href="${fn:escapeXml(tag_url)}">${tag.value}</a>

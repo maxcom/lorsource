@@ -136,7 +136,7 @@
     out.print(outBuilder.toString());
   }
 
-  if (message.getSectionId() == 1) {
+  if (message.getSection().isPremoderated()) {
     String tagLinks = Tags.getTagLinks(message.getTags());
 
     if (tagLinks.length() > 0) {

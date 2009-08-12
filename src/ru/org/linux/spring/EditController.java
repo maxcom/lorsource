@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import org.springframework.context.support.ApplicationObjectSupport;
 import org.springframework.stereotype.Controller;
@@ -52,6 +51,9 @@ public class EditController extends ApplicationObjectSupport {
 
       Message message = new Message(db, msgid);
       params.put("message", message);
+
+      Group group = new Group(db, message.getGroupId());
+      params.put("group", group);
 
       User user = User.getCurrentUser(db, session);
 

@@ -64,13 +64,14 @@
   <input type=text name=url size=70 value="<%= newMsg.getUrl()==null?"":HTMLFormatter.htmlSpecialChars(newMsg.getUrl()) %>"><br>
   <% } %>
 
-  <% if (message.getSectionId()==1) {
+  <c:if test="${group.moderated}">
+  <%
     String result = newMsg.getTags().toString();
   %>
   Теги:
   <input type="text" name="tags" id="tags" value="<%= result %>"><br>
   Популярные теги: <%= Tags.getEditTags(Tags.getTopTags(db)) %> <br>
-  <% } %>
+    </c:if>
   <br>
 
   <input type="submit" value="отредактировать">

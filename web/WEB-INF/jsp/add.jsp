@@ -120,11 +120,11 @@
 Ссылка (не забудьте <b>http://</b>)
 <input type=text name=url size=70 value="<%= form.getUrl()==null?"":HTMLFormatter.htmlSpecialChars(form.getUrl()) %>"><br>
 <% } %>
-<% if (group.getSectionId()==1) { %>
-Метки (разделенные запятой) 
+  <c:if test="${group.moderated}">
+Метки (разделенные запятой)
 <input type=text name=tags id="tags" size=70 value="<%= form.getTags()==null?"":StringUtils.strip(form.getTags()) %>"><br>
   Популярные теги: <%= Tags.getEditTags(Tags.getTopTags(db)) %> <br>
-<% } %>
+  </c:if>
 <select name=mode>
 <option value=tex <%= (preview && "tex".equals(mode))?"selected":""%> >TeX paragraphs
 <option value=ntobr <%= (preview && "ntobr".equals(mode))?"selected":""%> >User line break
