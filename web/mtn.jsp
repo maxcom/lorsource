@@ -1,5 +1,6 @@
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="java.sql.Connection,java.sql.ResultSet,java.sql.Statement,ru.org.linux.site.LorDataSource,ru.org.linux.site.Template"   buffer="60kb" %>
+<%@ page import="java.sql.Connection,java.sql.ResultSet,java.sql.Statement,ru.org.linux.site.LorDataSource,ru.org.linux.site.Message"   buffer="60kb" %>
+<%@ page import="ru.org.linux.site.Template" %>
 <%@ page import="ru.org.linux.util.ServletParameterParser" %>
 <%--
   ~ Copyright 1998-2009 Linux.org.ru
@@ -25,16 +26,19 @@
   }
   int msgid = new ServletParameterParser(request).getInt("msgid");
   %>
-<title>Перенос новости</title>
+<title>Перенос</title>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
-перенос новости <strong><%= msgid %></strong> в группу:
+перенос <strong><%= msgid %></strong> в группу:
 <%
   Connection db = null;
 
   try {
     db = LorDataSource.getConnection();
+
+    Message message = new Message(db, msgid);
+
     Statement st1 = db.createStatement();
-    ResultSet rs = st1.executeQuery("SELECT id,title FROM groups WHERE section=1 ORDER BY id");
+    ResultSet rs = st1.executeQuery("SELECT id,title FROM groups WHERE section="+message.getSectionId()+" ORDER BY id");
 %>
 <form method="post" action="mt.jsp">
 <input type=hidden name="msgid" value='<%= msgid %>'>

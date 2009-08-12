@@ -65,7 +65,7 @@
       out.print(msgid);
       out.append("\">Перенести</a>]");
 
-      if (message.getSectionId() == 1) {
+      if (message.getSection().isPremoderated()) {
         out.append("[<a href=\"mtn.jsp?msgid=");
         out.print(msgid);
         out.append("\">Группа</a>]");

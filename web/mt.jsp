@@ -54,7 +54,7 @@
 
       movePst.executeUpdate();
 
-      if (url != null && !newGrp.isLinksAllowed()) {
+      if (url != null && !newGrp.isLinksAllowed() && !newGrp.isImagePostAllowed()) {
         String sSql = "UPDATE topics SET linktext=null, url=null WHERE id=" + msgid;
 
         String title = msg.getGroupTitle();
