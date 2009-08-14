@@ -62,7 +62,7 @@
         <c:url var="add_url" value="/add-box.jsp">
           <c:param name="tag" value="left"/>
         </c:url>
-        [<a href="${add_url}">Добавить</a> ]
+        [<a href="${add_url}">Добавить</a>]
       </div>
     </td>
     <td valign="top"><h1>Редактирование</h1>
@@ -100,7 +100,7 @@
           <c:url var="add_url" value="/add-box.jsp">
             <c:param name="tag" value="right"/>
           </c:url>
-          [<a href="${add_url}">Добавить</a> ]
+          [<a href="${add_url}">Добавить</a>]
         </div>
       </td>
     </c:if>

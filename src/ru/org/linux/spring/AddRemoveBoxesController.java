@@ -20,6 +20,7 @@ import java.util.List;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.context.support.ApplicationObjectSupport;
 import org.springframework.stereotype.Controller;
@@ -123,13 +124,19 @@ public class AddRemoveBoxesController extends ApplicationObjectSupport {
 
     String objectName = getObjectName(form, request);
     List boxlets = (List) t.getProf().getObject(objectName);
-    if (boxlets != null && !boxlets.isEmpty()) {
+
+    CollectionUtils.filter(boxlets, mkdefprofile.getBoxPredicate());
+
+    if (boxlets != null) {
       if (boxlets.size() > form.position) {
         boxlets.add(form.position, form.boxName);
-        t.getProf().setObject(objectName, boxlets);
-        t.writeProfile(t.getProfileName());
+      } else {
+        boxlets.add(form.boxName);
       }
+      t.getProf().setObject(objectName, boxlets);
+      t.writeProfile(t.getProfileName());
     }
+
     status.setComplete();
     return "redirect:/edit-boxes.jsp";
   }

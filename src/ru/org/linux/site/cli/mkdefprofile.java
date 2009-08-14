@@ -20,9 +20,18 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.util.*;
 
+import org.apache.commons.collections.Predicate;
+
 public final class mkdefprofile {
   private static final String[] boxlist = {"poll", "top10", "gallery", "tagcloud", "archive", "ibm"};
   private static final Set<String> boxSet = new HashSet<String>(Arrays.asList(boxlist));
+
+  private static final Predicate isBoxPredicate = new Predicate() {
+      @Override
+      public boolean evaluate(Object o) {
+        return mkdefprofile.isBox((String)o);
+      }
+    };
 
   private mkdefprofile() {
   }
@@ -127,4 +136,7 @@ public final class mkdefprofile {
     f.close();
   }
 
+  public static Predicate getBoxPredicate() {
+    return isBoxPredicate;
+  }
 }
