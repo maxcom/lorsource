@@ -198,6 +198,11 @@ version="2.4">
       <servlet-name>springapp</servlet-name>
       <url-pattern>/add-section.jsp</url-pattern>
     </servlet-mapping>
+
+    <servlet-mapping>
+      <servlet-name>springapp</servlet-name>
+      <url-pattern>/groupmod.jsp</url-pattern>
+    </servlet-mapping>
 <listener>
   <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
 </listener>

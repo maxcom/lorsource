@@ -1,7 +1,6 @@
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="java.sql.Connection,java.sql.Statement,java.sql.Timestamp,java.util.*,ru.org.linux.site.*,ru.org.linux.spring.TopicsListItem,ru.org.linux.util.BadImageException,ru.org.linux.util.ImageInfo"   buffer="200kb"%>
-<%@ page import="ru.org.linux.util.ServletParameterParser"%>
-<%@ page import="ru.org.linux.util.StringUtil"%>
+<%@ page import="java.sql.Connection,java.sql.Statement,java.util.List,ru.org.linux.site.*,ru.org.linux.util.BadImageException,ru.org.linux.util.ImageInfo"   buffer="200kb"%>
+<%@ page import="org.javabb.bbcode.BBCodeProcessor" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
@@ -81,6 +80,9 @@
     </td>
 
     <td align=right valign=middle>
+      <% if (tmpl.isModeratorSession()) { %>
+        [<a href="groupmod.jsp?group=${group.id}">Править группу</a>]
+      <% } %>
       [<a href="/wiki/en/lor-faq">FAQ</a>]
       [<a href="rules.jsp">Правила форума</a>]
 <%
@@ -124,10 +126,7 @@
     out.print("</div>");
   }
 %>
-<c:if test="${group.info != null}">
-  <p style="margin-top: 0"><em>${group.info}</em></p>
-</c:if>
-
+<lor:groupinfo group="${group}" db="<%= db %>"/>
 <div class=forum>
 <table width="100%" class="message-table">
 <thead>
