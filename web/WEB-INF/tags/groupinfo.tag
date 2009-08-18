@@ -24,10 +24,10 @@
 </c:if>
 
 <c:if test="${group.longInfo != null}">
-  <div class="nav" style="text-align: left; padding: 5px">
+  <div class="nav" style="text-align: left; padding: 5px; font-size: smaller">
   <%= new BBCodeProcessor().preparePostText(db, group.getLongInfo()) %>
     <% if (tmpl.isModeratorSession()) { %>
-    <p style="font-size: smaller">[<a href="groupmod.jsp?group=${group.id}">править</a>]</p>
+    <p>[<a href="groupmod.jsp?group=${group.id}">править</a>]</p>
     <% } %>
   </div>
 </c:if>
