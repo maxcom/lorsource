@@ -111,7 +111,33 @@ public class LoginController {
   @RequestMapping(value="/activate.jsp", method= RequestMethod.GET)
   public ModelAndView activateForm() throws Exception {
     return new ModelAndView("activate");
-  }  
+  }
+
+  @RequestMapping(value = "/logout.jsp", method = RequestMethod.GET)
+  public ModelAndView logout(HttpSession session, HttpServletResponse response) throws Exception {
+    if (session != null && session.getValue("login") != null && (Boolean) session.getValue("login")) {
+      session.removeValue("login");
+      session.removeValue("nick");
+      session.removeValue("moderator");
+      session.removeAttribute("ACEGI_SECURITY_CONTEXT"); // if any
+      Cookie cookie = new Cookie("password", "");
+      cookie.setMaxAge(60 * 60 * 24 * 31 * 24);
+      cookie.setPath("/");
+      response.addCookie(cookie);
+
+      Cookie cookie2 = new Cookie("profile", "");
+      cookie2.setMaxAge(60 * 60 * 24 * 31 * 24);
+      cookie2.setPath("/");
+      response.addCookie(cookie2);
+
+      Cookie cookie3 = new Cookie("ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE", "");
+      cookie3.setMaxAge(60 * 60 * 24 * 31 * 24);
+      cookie3.setPath("/wiki");
+      response.addCookie(cookie3);
+    }
+
+    return new ModelAndView(new RedirectView("/"));
+  }
 
   private void performLogin(HttpServletResponse response, Connection db, Template tmpl, HttpSession session, String nick, User user) throws SQLException {
     session.putValue("login", Boolean.TRUE);

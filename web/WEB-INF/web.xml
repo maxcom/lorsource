@@ -208,6 +208,11 @@ version="2.4">
       <servlet-name>springapp</servlet-name>
       <url-pattern>/activate.jsp</url-pattern>
     </servlet-mapping>
+
+    <servlet-mapping>
+      <servlet-name>springapp</servlet-name>
+      <url-pattern>/logout.jsp</url-pattern>
+    </servlet-mapping>
 <listener>
   <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
 </listener>
