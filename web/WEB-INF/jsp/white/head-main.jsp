@@ -1,3 +1,4 @@
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page contentType="text/html; charset=utf-8"%>
 
 <%--
@@ -20,11 +21,18 @@
 </head>
 <body bgcolor="#ffffff" text="#000000" link="#0000ee" vlink="#551a8b" ALINK="#ff0000">
 
-<center>
-<img src="/white/linux_main.gif" border=0 width=469 height=81 alt="Русская Информация об ОС Linux">
-</center>
+<c:if test="${template.sessionAuthorized}">
+<div style="float: right">
+  [<a href="/logout.jsp">выйти</a>]
+</div>
+</c:if>
 
-<center>
+<div align="center">
+<img src="/white/linux_main.gif" border=0 width=469 height=81 alt="Русская Информация об ОС Linux">
+</div>
+
+
+<div align="center">
 <table width="80%">
 <tr>
 <td valign="top">
@@ -41,7 +49,7 @@
 </td>
 </tr>
 </table>
-</center>
+</div>
 
 <div style="margin-bottom: 1em"></div>
 
