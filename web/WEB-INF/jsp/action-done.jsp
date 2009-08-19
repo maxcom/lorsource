@@ -22,5 +22,7 @@
 
 <p>${message}</p>
 
+<p>${bigMessage}</p>
+
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>
 
