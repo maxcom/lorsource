@@ -35,10 +35,6 @@ public class MessageTable {
   private MessageTable() {
   }
 
-  public static String showComments(Connection db, User user) throws SQLException {
-    return showComments(db, user, 0, 0);
-  }
-
   public static String showComments(Connection db, User user, int offset, int limit) throws SQLException {
     DateFormat dateFormat = DateFormats.createDefault();
 
