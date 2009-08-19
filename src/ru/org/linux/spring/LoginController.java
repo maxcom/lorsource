@@ -42,7 +42,7 @@ public class LoginController {
   }
 
   @RequestMapping(value="/login.jsp", method= RequestMethod.GET)
-  public ModelAndView loginForm(HttpServletRequest request, HttpServletResponse response) throws Exception {
+  public ModelAndView loginForm() throws Exception {
     return new ModelAndView("login-form");
   }
 
@@ -107,6 +107,11 @@ public class LoginController {
       }
     }
   }
+
+  @RequestMapping(value="/activate.jsp", method= RequestMethod.GET)
+  public ModelAndView activateForm() throws Exception {
+    return new ModelAndView("activate");
+  }  
 
   private void performLogin(HttpServletResponse response, Connection db, Template tmpl, HttpSession session, String nick, User user) throws SQLException {
     session.putValue("login", Boolean.TRUE);

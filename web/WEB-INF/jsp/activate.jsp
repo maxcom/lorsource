@@ -14,10 +14,10 @@
   ~    limitations under the License.
   --%>
 
-<jsp:include page="WEB-INF/jsp/head.jsp"/>
+<jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
 <title>Активация</title>
-<jsp:include page="WEB-INF/jsp/header.jsp"/>
+<jsp:include page="/WEB-INF/jsp/header.jsp"/>
 <h1>Активация</h1>
 
 <form method=POST action="login.jsp">
@@ -42,4 +42,4 @@
   <input type=submit value="Активировать">
 </form>
 
-<jsp:include page="WEB-INF/jsp/footer.jsp"/>
+<jsp:include page="/WEB-INF/jsp/footer.jsp"/>
