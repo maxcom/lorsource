@@ -13,7 +13,7 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.site.cli;
+package ru.org.linux.site;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -22,18 +22,22 @@ import java.util.*;
 
 import org.apache.commons.collections.Predicate;
 
-public final class mkdefprofile {
+public final class DefaultProfile {
   private static final String[] boxlist = {"poll", "top10", "gallery", "tagcloud", "archive", "ibm"};
   private static final Set<String> boxSet = new HashSet<String>(Arrays.asList(boxlist));
+
+  private static final String[] styles = { "black", "white", "white2" /*, "modern"*/ };
+  private static final List<String> styleList = Arrays.asList(styles);
+  private static final Set<String> styleSet = new HashSet<String>(styleList);
 
   private static final Predicate isBoxPredicate = new Predicate() {
       @Override
       public boolean evaluate(Object o) {
-        return mkdefprofile.isBox((String)o);
+        return DefaultProfile.isBox((String)o);
       }
     };
 
-  private mkdefprofile() {
+  private DefaultProfile() {
   }
 
   public static String[] getBoxlist() {
@@ -138,5 +142,13 @@ public final class mkdefprofile {
 
   public static Predicate getBoxPredicate() {
     return isBoxPredicate;
+  }
+
+  public static boolean isStyle(String style) {
+    return styleSet.contains(style);
+  }
+
+  public static List<String> getStyleList() {
+    return styleList;
   }
 }

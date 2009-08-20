@@ -1,8 +1,9 @@
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="javax.servlet.http.Cookie,javax.servlet.http.HttpServletResponse,ru.org.linux.site.AccessViolationException, ru.org.linux.site.BadInputException, ru.org.linux.site.Template"   buffer="20kb" %>
-<%@ page import="ru.org.linux.site.UserErrorException"%>
+<%@ page import="javax.servlet.http.Cookie,javax.servlet.http.HttpServletResponse"   buffer="20kb" %>
+<%@ page import="ru.org.linux.site.*" %>
 <%@ page import="ru.org.linux.util.ProfileHashtable" %>
 <%@ page import="ru.org.linux.util.StringUtil" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%--
   ~ Copyright 1998-2009 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -84,9 +85,16 @@
   <td valign=top>Тема</td>
   <td>
     <% String style=tmpl.getStyle(); %>
-    <input type=radio name=style value=white <%= "white".equals(style)?"checked":"" %>> White (old)<br>
-    <input type=radio name=style value=black <%= "black".equals(style)?"checked":"" %>> Black (default)<br>
-    <input type=radio name=style value=white2 <%= "white2".equals(style)?"checked":"" %>> White2<br>
+    <c:set value="<%= tmpl.getStyle() %>" var="style"/>
+
+    <c:forEach var="s" items="<%= DefaultProfile.getStyleList() %>">
+      <c:if test="${s == style}">
+        <input type=radio name=style value="${s}" checked>${s}<br>
+      </c:if>
+      <c:if test="${s != style}">
+        <input type=radio name=style value=${s}>${s}<br>
+      </c:if>
+    </c:forEach>
   </td>
 </tr>
   <tr><td colspan=2><hr></td></tr>

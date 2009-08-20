@@ -1,20 +1,15 @@
 package ru.org.linux.site.tags;
 
-import java.io.IOException;
 import java.util.List;
 
-import javax.servlet.jsp.tagext.TagSupport;
-import javax.servlet.jsp.tagext.BodyTagSupport;
 import javax.servlet.jsp.JspException;
-import javax.servlet.ServletException;
-
+import javax.servlet.jsp.tagext.BodyTagSupport;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.Closure;
 import org.apache.commons.collections.Predicate;
 import org.apache.commons.lang.StringUtils;
 
+import ru.org.linux.site.DefaultProfile;
 import ru.org.linux.site.Template;
-import ru.org.linux.site.cli.mkdefprofile;
 
 
 public class BoxListTag extends BodyTagSupport {
@@ -50,7 +45,7 @@ public class BoxListTag extends BodyTagSupport {
       @Override
       public boolean evaluate(Object o) {
         String s = (String) o;
-        return mkdefprofile.isBox(s);
+        return DefaultProfile.isBox(s);
       }
     });
     pageContext.setAttribute(var, boxnames);

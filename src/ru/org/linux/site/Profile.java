@@ -21,12 +21,9 @@ import java.util.Date;
 import java.util.Hashtable;
 import java.util.Map;
 
-import ru.org.linux.site.cli.mkdefprofile;
 import ru.org.linux.util.ProfileHashtable;
 
 public class Profile {
-//  private final static Map defaultProfile = Collections.unmodifiableMap(mkdefprofile.getDefaultProfile());
-
   private final ProfileHashtable profileHashtable;
   private final String profileName;
 
@@ -74,7 +71,7 @@ public class Profile {
   }
 
   public static Map getDefaults() {
-    return Collections.unmodifiableMap(mkdefprofile.getDefaultProfile());
+    return Collections.unmodifiableMap(DefaultProfile.getDefaultProfile());
   }
 
   public void write(OutputStream df) throws IOException {

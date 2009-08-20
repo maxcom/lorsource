@@ -32,8 +32,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.support.SessionStatus;
 
 import ru.org.linux.site.AccessViolationException;
+import ru.org.linux.site.DefaultProfile;
 import ru.org.linux.site.Template;
-import ru.org.linux.site.cli.mkdefprofile;
 import ru.org.linux.spring.validators.EditBoxesFormValidator;
 import ru.org.linux.storage.StorageException;
 import ru.org.linux.util.UtilException;
@@ -95,7 +95,7 @@ public class AddRemoveBoxesController extends ApplicationObjectSupport {
 
   @ModelAttribute("allboxes")
   public String[] getAllBoxes() {
-    return mkdefprofile.getBoxlist();
+    return DefaultProfile.getBoxlist();
   }
 
   @RequestMapping(value = "/add-box.jsp", method = RequestMethod.POST)
@@ -106,7 +106,7 @@ public class AddRemoveBoxesController extends ApplicationObjectSupport {
 
     new EditBoxesFormValidator().validate(form, result);
     ValidationUtils.rejectIfEmptyOrWhitespace(result, "boxName", "boxName.empty", "Не выбран бокслет");
-    if (StringUtils.isNotEmpty(form.getBoxName()) && !mkdefprofile.isBox(form.getBoxName())) {
+    if (StringUtils.isNotEmpty(form.getBoxName()) && !DefaultProfile.isBox(form.getBoxName())) {
       result.addError(new FieldError("boxName", "boxName.invalid", "Неверный бокслет"));
     }
     if (result.hasErrors()) {
@@ -125,7 +125,7 @@ public class AddRemoveBoxesController extends ApplicationObjectSupport {
     String objectName = getObjectName(form, request);
     List boxlets = (List) t.getProf().getObject(objectName);
 
-    CollectionUtils.filter(boxlets, mkdefprofile.getBoxPredicate());
+    CollectionUtils.filter(boxlets, DefaultProfile.getBoxPredicate());
 
     if (boxlets != null) {
       if (boxlets.size() > form.position) {

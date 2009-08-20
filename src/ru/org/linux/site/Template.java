@@ -158,11 +158,7 @@ public class Template {
   }
 
   private static String getStyle(String style) {
-    if (!"black".equals(style) &&
-        !"white".equals(style) &&
-        !"white2".equals(style) &&
-        !"trans".equals(style) &&
-        !"blackbeta".equals(style)) {
+    if (!DefaultProfile.isStyle(style)) {
       return (String) Profile.getDefaults().get("style");
     }
 
