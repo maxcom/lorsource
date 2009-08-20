@@ -45,10 +45,7 @@
 
       db = LorDataSource.getConnection();
 
-      int id = Poll.getPollIdByTopic(db, msgid);
-
-      Poll poll = new Poll(db, id);
-
+      Poll poll = Poll.getPollByTopic(db, msgid);
 %>
 <h1>Редактирование опроса</h1>
 <p>
@@ -57,7 +54,7 @@
 <p>
 
 <form method=POST action="edit-vote.jsp">
-<input type=hidden name=id value="<%= id %>">
+<input type=hidden name=id value="<%= poll.getId() %>">
 <input type=hidden name=msgid value="<%= msgid %>">
 Вопрос:
 <input type=text name=title size=40 value="<%= poll.getTitle() %>">

@@ -45,13 +45,11 @@
 
     db = LorDataSource.getConnection();
 
-    int vote = Poll.getPollIdByTopic(db, msgid);
+    Poll poll = Poll.getPollByTopic(db, msgid);
 
-    if (vote != Poll.getCurrentPollId(db)) {
+    if (poll.getId() != Poll.getCurrentPollId(db)) {
       throw new BadVoteException("голосовать можно только в текущий опрос");
     }
-
-    Poll poll = Poll.getCurrentPoll(db);
 
     out.print("<h2><a href=\"view-message.jsp?msgid=" + poll.getTopicId() + "\">Опрос</a></h2>");
     out.print("<h3>" + poll.getTitle() + "</h3>");

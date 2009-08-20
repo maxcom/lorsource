@@ -122,8 +122,7 @@ public class NewsViewer implements Viewer {
       showMediumImage(config.getProperty("HTMLPathPrefix"), out, url, subj, linktext);
     } else if (votepoll) {
       try {
-        int id = Poll.getPollIdByTopic(db, msgid);
-        Poll poll = new Poll(db, id);
+        Poll poll = Poll.getPollByTopic(db, msgid);
 	out.append(poll.renderPoll(db, config, profile));
         out.append("<p>&gt;&gt;&gt; <a href=\"").append("vote-vote.jsp?msgid=").append(msgid).append("\">Голосовать</a>");
         out.append("<p>&gt;&gt;&gt; <a href=\"").append(jumplink).append("\">Результаты</a>");

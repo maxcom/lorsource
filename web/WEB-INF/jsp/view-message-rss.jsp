@@ -47,6 +47,7 @@
     }
 %>
   <c:set var="list" value="<%= list %>"/>
+  <description>
 <%
     db = LorDataSource.getConnection();
 
@@ -56,6 +57,7 @@
             tmpl.getMainUrl(),
             (Message) request.getAttribute("message")));
 %>
+  </description>
   <c:forEach items="${list}" var="comment" begin="<%= fromIndex %>">
     <item>
       <title><c:out escapeXml="true" value="${comment.title}"/></title>

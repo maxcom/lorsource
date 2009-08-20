@@ -169,15 +169,8 @@ public class MessageTable {
           // TODO write to log
         }
       } else if (vote) {
-        int id = Poll.getPollIdByTopic(db, msgid);
-        if (id > 0) {
-          try {
-            Poll poll = new Poll(db, id);
-            out.append(HTMLFormatter.htmlSpecialChars(poll.renderPoll(db, fullUrl))).append('\n');
-          } catch (PollNotFoundException e) {
-            // TODO write to log
-          }
-        }
+        Poll poll = Poll.getPollByTopic(db, msgid);
+        out.append(HTMLFormatter.htmlSpecialChars(poll.renderPoll(db, fullUrl))).append('\n');
       } else {
         String message = rs.getString("message");
         boolean bbcode = rs.getBoolean("bbcode");
@@ -197,47 +190,22 @@ public class MessageTable {
     return out.toString();
   }
 
-  public static String getTopicRss(Connection db, String htmlPath, String fullUrl, Message topic) throws SQLException, BadSectionException {
+  public static String getTopicRss(Connection db, String htmlPath, String fullUrl, Message topic) throws SQLException, PollNotFoundException, IOException, BadImageException {
     StringBuilder buf = new StringBuilder();
 
-    int sectionid = topic.getSectionId();
-    boolean vote = topic.isVotePoll();
-    String subj = topic.getTitle();
-    String url = topic.getUrl();
-    String linktext = topic.getLinktext();
-    Section section = new Section(db, sectionid);
+    if (topic.getSection().isImagepost()) {
+      ImageInfo iconInfo = new ImageInfo(htmlPath + topic.getLinktext());
+      ImageInfo info = new ImageInfo(htmlPath + topic.getUrl());
 
-//    buf.append("<pubDate>").append(rfc822.format(new Date())).append("</pubDate>");
-
-    if (section.isImagepost()) {
-      buf.append("  <description>\n" + '\t');
-      try {
-        ImageInfo iconInfo = new ImageInfo(htmlPath + linktext);
-        ImageInfo info = new ImageInfo(htmlPath + url);
-
-        buf.append(HTMLFormatter.htmlSpecialChars(topic.getProcessedMessage(db)));
-        buf.append(HTMLFormatter.htmlSpecialChars("<p><img src=\"" + fullUrl + linktext + "\" ALT=\"" + subj + "\" " + iconInfo.getCode() + " >"));
-        buf.append(HTMLFormatter.htmlSpecialChars("<p><i>" + info.getWidth() + 'x' + info.getHeight() + ", " + info.getSizeString() + "</i>"));
-      } catch (BadImageException e) {
-        // TODO write to log
-      } catch (IOException e) {
-        // TODO write to log
-      }
-    } else if (vote) {
-      int id = Poll.getPollIdByTopic(db, topic.getId());
-      if (id > 0) {
-        try {
-          Poll poll = new Poll(db, id);
-          buf.append("<description>\n" + '\t');
-          buf.append(HTMLFormatter.htmlSpecialChars(poll.renderPoll(db, fullUrl))).append('\n' + " \n");
-        } catch (PollNotFoundException e) {
-          // TODO write to log
-        }
-      }
+      buf.append(HTMLFormatter.htmlSpecialChars(topic.getProcessedMessage(db)));
+      buf.append(HTMLFormatter.htmlSpecialChars("<p><img src=\"" + fullUrl + topic.getLinktext() + "\" ALT=\"" + topic.getTitle() + "\" " + iconInfo.getCode() + " >"));
+      buf.append(HTMLFormatter.htmlSpecialChars("<p><i>" + info.getWidth() + 'x' + info.getHeight() + ", " + info.getSizeString() + "</i>"));
+    } else if (topic.isVotePoll()) {
+      Poll poll = Poll.getPollByTopic(db, topic.getId());
+      buf.append(HTMLFormatter.htmlSpecialChars(poll.renderPoll(db, fullUrl)));
     } else {
-      buf.append("<description>").append(HTMLFormatter.htmlSpecialChars(topic.getProcessedMessage(db)));
+      buf.append(HTMLFormatter.htmlSpecialChars(topic.getProcessedMessage(db)));
     }
-    buf.append("</description>\n");
 
     return buf.toString();
   }

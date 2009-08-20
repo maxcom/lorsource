@@ -111,8 +111,7 @@
   if (message.isVotePoll()) {
     //Render poll
     try {
-      int id = Poll.getPollIdByTopic(db, msgid);
-      Poll poll = new Poll(db, id);
+      Poll poll = Poll.getPollByTopic(db, msgid);
       out.append(poll.renderPoll(db, tmpl.getConfig(), tmpl.getProf(), highlight!=null?highlight:0));
       out.append("<p>&gt;&gt;&gt; <a href=\"").append("vote-vote.jsp?msgid=");
       out.print(msgid);

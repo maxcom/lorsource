@@ -18,7 +18,6 @@ package ru.org.linux.site;
 import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
@@ -36,12 +35,16 @@ public class Poll {
   private final String title;
   private final int topic;
 
-  public static int getPollIdByTopic(Connection db, int msgid) throws SQLException {
+  public static Poll getPollByTopic(Connection db, int msgid) throws SQLException, PollNotFoundException {
     PreparedStatement pst = db.prepareStatement("SELECT votenames.id FROM votenames,topics WHERE topics.id=? AND votenames.topic=topics.id");
     pst.clearParameters();
     pst.setInt(1, msgid);
     ResultSet rs = pst.executeQuery();
-    return rs.next()?rs.getInt("id"):0;
+    if (!rs.next()) {
+      throw new PollNotFoundException();
+    }
+    
+    return new Poll(db, rs.getInt("id"));
   }
 
   public void setTopicId(Connection db, int msgid) throws SQLException {
@@ -198,30 +201,29 @@ public class Poll {
   }
   
   public String renderPoll(Connection db, Properties config, ProfileHashtable profile, int highlight) throws SQLException, BadImageException, IOException {
-    StringBuffer out = new StringBuffer();
+    StringBuilder out = new StringBuilder();
     int max = getMaxVote(db);
-    List vars = getPollVariants(db, ORDER_VOTES);
+    List<PollVariant> vars = getPollVariants(db, ORDER_VOTES);
     out.append("<table>");    
     ImageInfo info = new ImageInfo(config.getProperty("HTMLPathPrefix") + profile.getString("style") + "/img/votes.gif");
     int total = 0;
-    for (Iterator iter = vars.iterator(); iter.hasNext();) {
-	PollVariant var = (PollVariant) iter.next();
-	out.append("<tr><td>");
-	int id = var.getId();
-	int votes = var.getVotes();
-        if (id == highlight) {
-          out.append("<b>");
-	}
-	out.append(HTMLFormatter.htmlSpecialChars(var.getLabel()));
-        if (id == highlight) {
-          out.append("</b>");
-	}
+    for (PollVariant var : vars) {
+      out.append("<tr><td>");
+      int id = var.getId();
+      int votes = var.getVotes();
+      if (id == highlight) {
+        out.append("<b>");
+      }
+      out.append(HTMLFormatter.htmlSpecialChars(var.getLabel()));
+      if (id == highlight) {
+        out.append("</b>");
+      }
       out.append("</td><td>").append(votes).append("</td><td>");
       total += votes;
-	for (int i = 0; i < 20 * votes / max; i++) {
-          out.append("<img src=\"/").append(profile.getString("style")).append("/img/votes.gif\" alt=\"*\" ").append(info.getCode()).append('>');
-	}
-	out.append("</td></tr>");
+      for (int i = 0; i < 20 * votes / max; i++) {
+        out.append("<img src=\"/").append(profile.getString("style")).append("/img/votes.gif\" alt=\"*\" ").append(info.getCode()).append('>');
+      }
+      out.append("</td></tr>");
     }
     out.append("<tr><td colspan=2>Всего голосов: ").append(total).append("</td></tr>");
     out.append("</table>");
@@ -229,26 +231,24 @@ public class Poll {
   }
   
   public String renderPoll(Connection db, String fullUrl) throws SQLException {
-    StringBuffer out = new StringBuffer();
+    StringBuilder out = new StringBuilder();
     int max = getMaxVote(db);
-    List vars = getPollVariants(db, ORDER_VOTES);
+    List<PollVariant> vars = getPollVariants(db, ORDER_VOTES);
     out.append("<table>");
     int total = 0;
-    for (Iterator iter = vars.iterator(); iter.hasNext();) {
-	PollVariant var = (PollVariant) iter.next();
-	out.append("<tr><td>");
-	int votes = var.getVotes();
-	out.append(HTMLFormatter.htmlSpecialChars(var.getLabel()));
-	out.append("</td><td>").append(votes).append("</td><td>");
-	total += votes;
-	for (int i = 0; i < 20 * votes / max; i++) {
-          out.append("<img src=\"").append(fullUrl).append("white/img/votes.gif\" alt=\"*\">");
-	}
-	out.append("</td></tr>");
+    for (PollVariant var : vars) {
+      out.append("<tr><td>");
+      int votes = var.getVotes();
+      out.append(HTMLFormatter.htmlSpecialChars(var.getLabel()));
+      out.append("</td><td>").append(votes).append("</td><td>");
+      total += votes;
+      for (int i = 0; i < 20 * votes / max; i++) {
+        out.append("<img src=\"").append(fullUrl).append("white/img/votes.gif\" alt=\"*\">");
+      }
+      out.append("</td></tr>");
     }
     out.append("<tr><td colspan=2>Всего голосов: ").append(total).append("</td></tr>");
     out.append("</table>");
     return out.toString();
   }
-  
 }

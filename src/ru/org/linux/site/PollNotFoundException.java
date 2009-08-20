@@ -19,4 +19,7 @@ public class PollNotFoundException extends ScriptErrorException {
   public PollNotFoundException(int id) {
     super("Голосование #" + id + " не существует");    
   }
+  public PollNotFoundException() {
+    super("Голосование не существует");
+  }
 }
