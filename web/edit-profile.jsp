@@ -106,8 +106,6 @@
     <input type=radio name=format_mode value=quot   <%= "quot".equals(formatMode)?"checked":"" %>> TeX paragraphs w/quoting (default)<br>
     <input type=radio name=format_mode value=tex    <%= "tex".equals(formatMode)?"checked":"" %>> TeX paragraphs w/o quoting<br>
     <input type=radio name=format_mode value=ntobr  <%= "ntobr".equals(formatMode)?"checked":"" %>> User line break w/o quoting<br>
-    <input type=radio name=format_mode value=html   <%= "html".equals(formatMode)?"checked":"" %>> Ignore line breaks<br>
-    <input type=radio name=format_mode value=pre    <%= "pre".equals(formatMode)?"checked":"" %>> Preformatted text <br>
   </td>
 </tr>
 
