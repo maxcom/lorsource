@@ -1,6 +1,5 @@
 <%@ page contentType="text/html; charset=utf-8"%>
 <%@ page import="java.sql.Connection,java.sql.Statement,java.util.List,ru.org.linux.site.*,ru.org.linux.util.BadImageException,ru.org.linux.util.ImageInfo"   buffer="200kb"%>
-<%@ page import="org.javabb.bbcode.BBCodeProcessor" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
