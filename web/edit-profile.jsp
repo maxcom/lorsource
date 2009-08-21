@@ -127,7 +127,7 @@
 </ul>
 
 <%
-  } else if ("setup".equals(request.getParameter("mode"))) {
+  } else /*if ("setup".equals(request.getParameter("mode"))) {
     if (request.getParameter("profile")==null) {
       throw new UserErrorException("Параметр profile не указан");
     }
@@ -151,7 +151,7 @@
 
     prof.setPath("/");
     response.addCookie(prof);
-  } else if ("set".equals(request.getParameter("mode"))) {
+  } else*/ if ("set".equals(request.getParameter("mode"))) {
     String profile;
 
     if (!Template.isSessionAuthorized(session)) {
