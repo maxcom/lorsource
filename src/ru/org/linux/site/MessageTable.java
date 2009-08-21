@@ -91,7 +91,7 @@ public class MessageTable {
     if (groupid!=0) {
       group = new Group(db, groupid);
       if (group.getSectionId()!=sectionid) {
-        throw new BadGroupException("группа #"+groupid+" не пренадлежит разделу #"+sectionid);
+        throw new BadGroupException("группа #"+groupid+" не принадлежит разделу #"+sectionid);
       }
     }
 

@@ -69,7 +69,7 @@
     group = new Group(db, groupid);
 
     if (group.getSectionId() != sectionid) {
-      throw new ScriptErrorException("группа #" + groupid + " не пренадлежит разделу #" + sectionid);
+      throw new ScriptErrorException("группа #" + groupid + " не принадлежит разделу #" + sectionid);
     }
   }
 
