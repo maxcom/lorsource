@@ -15,9 +15,6 @@
 
 package ru.org.linux.site;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.util.*;
 
 import org.apache.commons.collections.Predicate;
@@ -99,45 +96,6 @@ public final class DefaultProfile {
     defaults.put("main3-2", boxes);
 
     return defaults;
-  }
-
-  public static void main(String[] args) throws IOException {
-    Hashtable defaults = getDefaultProfile();
-    FileOutputStream f = new FileOutputStream("anonymous");
-    ObjectOutputStream o = new ObjectOutputStream(f);
-
-    o.writeObject(defaults);
-
-    o.close();
-    f.close();
-
-    defaults = new Hashtable();
-    f = new FileOutputStream("_debug");
-    defaults.put("DebugMode", Boolean.TRUE);
-
-    o = new ObjectOutputStream(f);
-    o.writeObject(defaults);
-    o.close();
-    f.close();
-
-
-    defaults = new Hashtable();
-    f = new FileOutputStream("_white2");
-    defaults.put("style", "white2");
-
-    o = new ObjectOutputStream(f);
-    o.writeObject(defaults);
-    o.close();
-    f.close();
-
-    defaults = new Hashtable();
-    f = new FileOutputStream("_white");
-    defaults.put("style", "white");
-
-    o = new ObjectOutputStream(f);
-    o.writeObject(defaults);
-    o.close();
-    f.close();
   }
 
   public static Predicate getBoxPredicate() {

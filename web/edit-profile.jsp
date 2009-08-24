@@ -1,8 +1,10 @@
 <%@ page contentType="text/html; charset=utf-8"%>
 <%@ page import="javax.servlet.http.Cookie,javax.servlet.http.HttpServletResponse"   buffer="20kb" %>
-<%@ page import="ru.org.linux.site.*" %>
+<%@ page import="ru.org.linux.site.AccessViolationException" %>
+<%@ page import="ru.org.linux.site.BadInputException" %>
+<%@ page import="ru.org.linux.site.DefaultProfile" %>
+<%@ page import="ru.org.linux.site.Template" %>
 <%@ page import="ru.org.linux.util.ProfileHashtable" %>
-<%@ page import="ru.org.linux.util.StringUtil" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%--
   ~ Copyright 1998-2009 Linux.org.ru
@@ -127,31 +129,7 @@
 </ul>
 
 <%
-  } else /*if ("setup".equals(request.getParameter("mode"))) {
-    if (request.getParameter("profile")==null) {
-      throw new UserErrorException("Параметр profile не указан");
-    }
-
-    String name = StringUtil.getFileName(request.getParameter("profile"));
-    if (name.length()!=0 && !Template.isAnonymousProfile(name)) {
-      throw new UserErrorException("Данный профиль не может быть выбран");
-    }
-
-    out.print("Выбран профиль: " + name);
-
-    response.setHeader("Location", tmpl.getMainUrl());
-    response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
-
-    Cookie prof = new Cookie("profile", name);
-    if (name.length()==0) {
-      prof.setMaxAge(0);
-    } else {
-      prof.setMaxAge(60 * 60 * 24 * 31 * 12);
-    }
-
-    prof.setPath("/");
-    response.addCookie(prof);
-  } else*/ if ("set".equals(request.getParameter("mode"))) {
+  } else if ("set".equals(request.getParameter("mode"))) {
     String profile;
 
     if (!Template.isSessionAuthorized(session)) {

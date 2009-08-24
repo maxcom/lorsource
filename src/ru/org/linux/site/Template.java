@@ -93,41 +93,32 @@ public class Template {
     } else if (session==null) {
       profile = null;
     } else {
-      if (getCookie("password")!=null) {
-        if (isAnonymousProfile(profile)) {
-          Cookie cookie = new Cookie("password", "");
-          cookie.setMaxAge(0);
-          cookie.setPath("/");
-          response.addCookie(cookie);
-        } else {
-          Connection db = null;
-          try {
-            db = LorDataSource.getConnection();
-            User user = User.getUser(db, profile);
+      if (getCookie("password") != null) {
+        Connection db = null;
+        try {
+          db = LorDataSource.getConnection();
+          User user = User.getUser(db, profile);
 
-            if (user.getMD5(getSecret()).equals(getCookie("password")) && !user.isBlocked()) {
-              session.putValue("login", Boolean.TRUE);
-              session.putValue("nick", profile);
-              session.putValue("moderator", user.canModerate());
-              session.putValue("corrector", user.canCorrect());
-              User.updateUserLastlogin(db, profile, new Date()); // update user `lastlogin` time in DB
-              user.acegiSecurityHack(response, session);
-            } else {
-              profile = null;
-            }
-          } catch (UserNotFoundException ex) {
-            logger.warning("Can't restore password for user: " + profile + " - " + ex.toString());
+          if (user.getMD5(getSecret()).equals(getCookie("password")) && !user.isBlocked()) {
+            session.putValue("login", Boolean.TRUE);
+            session.putValue("nick", profile);
+            session.putValue("moderator", user.canModerate());
+            session.putValue("corrector", user.canCorrect());
+            User.updateUserLastlogin(db, profile, new Date()); // update user `lastlogin` time in DB
+            user.acegiSecurityHack(response, session);
+          } else {
             profile = null;
-          } finally {
-            if (db!=null) {
-              db.close();
-            }
+          }
+        } catch (UserNotFoundException ex) {
+          logger.warning("Can't restore password for user: " + profile + " - " + ex.toString());
+          profile = null;
+        } finally {
+          if (db != null) {
+            db.close();
           }
         }
       } else {
-        if (!isAnonymousProfile(profile)) {
-          profile = null;
-        }
+        profile = null;
       }
     }
 
@@ -282,14 +273,6 @@ public class Template {
       return false;
     }
     return session.getValue("corrector")!=null ? (Boolean) session.getValue("corrector") : false;
-  }
-
-  public static boolean isAnonymousProfile(String name) {
-    if (name==null) {
-      return true;
-    }
-
-    return name.startsWith("_");
   }
 
   public String getNick() {
