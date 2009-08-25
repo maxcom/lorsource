@@ -93,7 +93,7 @@ public class Template {
     } else if (session==null) {
       profile = null;
     } else {
-      if (getCookie("password") != null) {
+      if (profile!=null && getCookie("password") != null) {
         Connection db = null;
         try {
           db = LorDataSource.getConnection();
