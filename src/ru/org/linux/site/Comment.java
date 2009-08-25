@@ -20,6 +20,8 @@ import java.sql.*;
 import java.util.Date;
 import java.util.Map;
 
+import org.javabb.bbcode.BBCodeProcessor;
+
 import ru.org.linux.util.StringUtil;
 
 public class Comment implements Serializable {
@@ -35,6 +37,7 @@ public class Comment implements Serializable {
   private final String userAgent;
   private final String postIP;
   public static final int TITLE_LENGTH = 250;
+  private final boolean lorcode;
 
   public Comment(Connection db, ResultSet rs) throws SQLException {
     msgid=rs.getInt("msgid");
@@ -47,6 +50,7 @@ public class Comment implements Serializable {
     message=rs.getString("message");
     userAgent=rs.getString("useragent");
     postIP=rs.getString("postip");
+    lorcode=rs.getBoolean("bbcode");
 
     if (deleted) {
       deleteInfo = DeleteInfo.getDeleteInfo(db, msgid);
@@ -60,7 +64,7 @@ public class Comment implements Serializable {
 
     ResultSet rs=st.executeQuery("SELECT " +
         "postdate, topic, users.id as userid, comments.id as msgid, comments.title, " +
-        "deleted, replyto, message, user_agents.name AS useragent, comments.postip " +
+        "deleted, replyto, message, user_agents.name AS useragent, comments.postip, bbcode " +
         "FROM comments " + 
         "INNER JOIN users ON (users.id=comments.userid) " +
         "INNER JOIN msgbase ON (msgbase.id=comments.id) " +
@@ -81,7 +85,8 @@ public class Comment implements Serializable {
     userid=rs.getInt("userid");
     userAgent=rs.getString("useragent");
     postIP=rs.getString("postip");
-    
+    lorcode=rs.getBoolean("bbcode");
+
     st.close();
 
     if (deleted) {
@@ -91,7 +96,7 @@ public class Comment implements Serializable {
     }
   }
 
-  public Comment(int replyto, String title, String message, int topic, int userid, String userAgent, String postIP) {
+  public Comment(int replyto, String title, String message, int topic, int userid, String userAgent, String postIP, boolean lorcode) {
     msgid =0;
     this.title=title;
     this.topic=topic;
@@ -103,6 +108,7 @@ public class Comment implements Serializable {
     deleteInfo = null;
     this.userAgent=userAgent;
     this.postIP=postIP;
+    this.lorcode = lorcode;
   }
 
   public int getMessageId() {
@@ -185,9 +191,10 @@ public class Comment implements Serializable {
       pst.executeUpdate();
 
       // insert message text
-      pstMsgbase = db.prepareStatement("INSERT INTO msgbase (id, message) values (?,?)");
+      pstMsgbase = db.prepareStatement("INSERT INTO msgbase (id, message, bbcode) values (?,?,?)");
       pstMsgbase.setLong(1, msgid);
       pstMsgbase.setString(2, message);
+      pstMsgbase.setBoolean(3, lorcode);
       pstMsgbase.executeUpdate();
 
       rs.close();
@@ -211,5 +218,14 @@ public class Comment implements Serializable {
     }
 
     this.userid = userid;
+  }
+
+  public String getProcessedMessage(Connection db) throws SQLException {
+    if (lorcode) {
+      BBCodeProcessor proc = new BBCodeProcessor();
+      return proc.preparePostText(db, message);
+    } else {
+      return message;
+    }
   }
 }

@@ -67,7 +67,10 @@
       <pubDate><lor:rfc822date date="${comment.postdate}"/></pubDate>
       <description ><![CDATA[
         <%-- To avoid double escaping (comments stored escaped) --%>
-        ${comment.messageText}]]>
+              <%
+          Comment comment = (Comment) pageContext.getAttribute("comment");
+          out.print(comment.getProcessedMessage(db));
+              %>]]>
       </description>
     </item>
   </c:forEach>

@@ -91,6 +91,37 @@ public class AddCommentController extends ApplicationObjectSupport {
     }
   }
 
+  private String processMessage(String msg, String mode, boolean autourl) {
+    if ("lorcode".equals(mode)) {
+      return msg;
+    }
+
+    HTMLFormatter form = new HTMLFormatter(msg);
+    form.setMaxLength(80);
+    if ("pre".equals(mode)) {
+      form.enablePreformatMode();
+    }
+    if (autourl) {
+      form.enableUrlHighLightMode();
+    }
+    if ("ntobrq".equals(mode)) {
+      form.enableNewLineMode();
+      form.enableQuoting();
+    }
+    if ("ntobr".equals(mode)) {
+      form.enableNewLineMode();
+    }
+    if ("tex".equals(mode)) {
+      form.enableTexNewLineMode();
+    }
+    if ("quot".equals(mode)) {
+      form.enableTexNewLineMode();
+      form.enableQuoting();
+    }
+
+    return form.process();
+  }
+
   @RequestMapping(value = "/add_comment.jsp", method = RequestMethod.POST)
   public ModelAndView addComment(
     @RequestParam(value = "preview", required = false) String previewStr,
@@ -127,31 +158,7 @@ public class AddCommentController extends ApplicationObjectSupport {
 
       title = HTMLFormatter.htmlSpecialChars(title);
 
-      int maxlength = 80; // TODO: remove this hack
-      HTMLFormatter form = new HTMLFormatter(msg);
-      form.setMaxLength(maxlength);
-      if ("pre".equals(mode)) {
-        form.enablePreformatMode();
-      }
-      if (autourl) {
-        form.enableUrlHighLightMode();
-      }
-      if ("ntobrq".equals(mode)) {
-        form.enableNewLineMode();
-        form.enableQuoting();
-      }
-      if ("ntobr".equals(mode)) {
-        form.enableNewLineMode();
-      }
-      if ("tex".equals(mode)) {
-        form.enableTexNewLineMode();
-      }
-      if ("quot".equals(mode)) {
-        form.enableTexNewLineMode();
-        form.enableQuoting();
-      }
-
-      msg = form.process();
+      msg = processMessage(msg, mode, autourl);
 
       // prechecks is over
       db = LorDataSource.getConnection();
@@ -185,7 +192,13 @@ public class AddCommentController extends ApplicationObjectSupport {
 
       user.checkBlocked();
 
-      Comment comment = new Comment(replyto, title, msg, topicId, 0, request.getHeader("user-agent"), request.getRemoteAddr());
+      boolean lorcode = "lorcode".equals(mode);
+
+      if (lorcode && !user.canModerate()) {
+        throw new AccessViolationException("lorcode not allowed");
+      }
+
+      Comment comment = new Comment(replyto, title, msg, topicId, 0, request.getHeader("user-agent"), request.getRemoteAddr(), lorcode);
 
       comment.setAuthor(user.getId());
 

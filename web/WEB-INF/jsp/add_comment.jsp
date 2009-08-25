@@ -1,6 +1,9 @@
 <%@ page contentType="text/html; charset=utf-8" %>
 <%@ page
-        import="java.sql.Connection,ru.org.linux.site.*,ru.org.linux.util.HTMLFormatter" %>
+        import="java.sql.Connection,ru.org.linux.site.Comment,ru.org.linux.site.LorDataSource" %>
+<%@ page import="ru.org.linux.site.Message" %>
+<%@ page import="ru.org.linux.site.Template" %>
+<%@ page import="ru.org.linux.util.HTMLFormatter" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%--
   ~ Copyright 1998-2009 Linux.org.ru
@@ -20,6 +23,7 @@
 <%
   int topicId = (Integer) request.getAttribute("topic");
   int postscore = (Integer) request.getAttribute("postscore");
+  Template tmpl = Template.getTemplate(request);
 
 %>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
@@ -145,6 +149,13 @@
       w/o quoting
     <option value=html <%= (mode!=null && "html".equals(mode))?"selected":""%> >Ignore line breaks
     <option value=pre <%= (mode!=null && "pre".equals(mode))?"selected":""%> >Preformatted text
+      <%
+        if (tmpl.isModeratorSession()) {
+      %>
+    <option value=lorcode <%= (mode!=null && "lorcode".equals(mode))?"selected":""%> >LORCODE    
+      <%
+      }
+      %>
   </select>
 
   <select name=autourl>

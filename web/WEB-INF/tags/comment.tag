@@ -95,9 +95,11 @@
   <div class="msg_body" style="${msgBodyStyle}">
     <h2>${comment.title}</h2>
   <%
-  out.append(comment.getMessageText());
-
-  out.append("<div class=sign>").append(author.getSignature(moderatorMode, comment.getPostdate()));
+  out.append(comment.getProcessedMessage(db));
+  %>
+    <div class=sign>
+    <%
+  out.append(author.getSignature(moderatorMode, comment.getPostdate()));
 
   if (moderatorMode) {
     out.append(" (<a href=\"sameip.jsp?msgid=").append(Integer.toString(comment.getMessageId())).append("\">").append(comment.getPostIP()).append("</a>)");
@@ -105,9 +107,9 @@
       out.append("<br>").append(HTMLFormatter.htmlSpecialChars(comment.getUserAgent()));
     }
   }
-
-  out.append("</div>");
-
+   %>
+    </div>
+    <%
   if (!comment.isDeleted() && showMenu) {
     out.append("<div class=reply>");
     if (!expired) {

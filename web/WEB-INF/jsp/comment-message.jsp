@@ -74,6 +74,13 @@
 <option value=tex <%= "tex".equals(mode)?"selected":""%> >TeX paragraphs w/o quoting
 <option value=ntobr <%= "ntobr".equals(mode)?"selected":""%> >User line breaks w/o quoting
 <option value=pre  <%= "pre".equals(mode)?"selected":""%> >Preformatted text
+    <%
+      if (tmpl.isModeratorSession()) {
+    %>
+  <option value=lorcode <%= (mode!=null && "lorcode".equals(mode))?"selected":""%> >LORCODE    
+    <%
+    }
+    %>
 </select>
 
 <select name=autourl>
