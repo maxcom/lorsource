@@ -22,14 +22,15 @@ import java.sql.*;
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.Properties;
-import java.util.logging.Logger;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.javabb.bbcode.BBCodeProcessor;
 
 import ru.org.linux.util.*;
 
 public class NewsViewer implements Viewer {
-  private static final Logger logger = Logger.getLogger("ru.org.linux");
+  private static final Log logger = LogFactory.getLog("ru.org.linux");
 
   private final ProfileHashtable profile;
   private final Properties config;
@@ -46,7 +47,7 @@ public class NewsViewer implements Viewer {
     profile = prof;
   }
 
-  private String showCurrent(Connection db, ResultSet res) throws IOException, SQLException {
+  private String showCurrent(Connection db, ResultSet res) throws SQLException {
     DateFormat dateFormat = DateFormats.createDefault();
 
     boolean multiPortal = (group==0 && section==0);
@@ -96,8 +97,11 @@ public class NewsViewer implements Viewer {
       try {
         ImageInfo info = new ImageInfo(config.getProperty("HTMLPathPrefix") + profile.getString("style") + image);
         out.append("<img src=\"/").append(profile.getString("style")).append(image).append("\" ").append(info.getCode()).append(" border=0 alt=\"Группа ").append(res.getString("gtitle")).append("\">");
+      } catch (IOException e) {
+        logger.warn("Bad Image for group "+res.getInt("guid"), e);
+        out.append("[bad image] <img class=newsimage src=\"/").append(profile.getString("style")).append(image).append("\" " + " border=0 alt=\"Группа ").append(res.getString("gtitle")).append("\">");
       } catch (BadImageException e) {
-        logger.warning("Bad Image for group "+res.getInt("guid")+StringUtil.getStackTrace(e));
+        logger.warn("Bad Image for group "+res.getInt("guid"), e);
         out.append("[bad image] <img class=newsimage src=\"/").append(profile.getString("style")).append(image).append("\" " + " border=0 alt=\"Группа ").append(res.getString("gtitle")).append("\">");
       }
       out.append("</a>");
@@ -127,8 +131,13 @@ public class NewsViewer implements Viewer {
         out.append("<p>&gt;&gt;&gt; <a href=\"").append("vote-vote.jsp?msgid=").append(msgid).append("\">Голосовать</a>");
         out.append("<p>&gt;&gt;&gt; <a href=\"").append(jumplink).append("\">Результаты</a>");
       } catch (BadImageException e) {
+        logger.warn("Bad Image for poll msgid="+msgid, e);
+        out.append("<p>&gt;&gt;&gt; <a href=\"").append("\">[BAD POLL!] Просмотр</a>");
+      } catch (IOException e) {
+        logger.warn("Bad Image for poll msgid="+msgid, e);
         out.append("<p>&gt;&gt;&gt; <a href=\"").append("\">[BAD POLL!] Просмотр</a>");
       } catch (PollNotFoundException e) {
+        logger.warn("Bad poll msgid="+msgid, e);
         out.append("<p>&gt;&gt;&gt; <a href=\"").append("\">[BAD POLL!] Просмотр</a>");
       }
     }
@@ -232,7 +241,6 @@ public class NewsViewer implements Viewer {
   }
 
   public static void showMediumImage(String htmlPath, StringBuilder out, String url, String subj, String linktext) {
-
     try {
       out.append("<p>");
       String mediumName = ScreenshotProcessor.getMediumName(url);
@@ -251,8 +259,10 @@ public class NewsViewer implements Viewer {
       out.append("&gt;&gt;&gt; <a href=\"/").append(url).append("\">Просмотр</a>");
       out.append(" (<i>").append(info.getWidth()).append('x').append(info.getHeight()).append(", ").append(info.getSizeString()).append("</i>)");
     } catch (BadImageException e) {
+      logger.warn("Bad image", e);
       out.append("&gt;&gt;&gt; <a href=\"/").append(url).append("\">[BAD IMAGE!] Просмотр</a>");
     } catch (IOException e) {
+      logger.warn("Bad image", e);
       out.append("&gt;&gt;&gt; <a href=\"/").append(url).append("\">[BAD IMAGE: IO Exception!] Просмотр</a>");
     }
 
@@ -260,7 +270,7 @@ public class NewsViewer implements Viewer {
   }
 
   @Override
-  public String show(Connection db) throws IOException, SQLException, UtilException, UserErrorException {
+  public String show(Connection db) throws SQLException, UtilException, UserErrorException {
     StringBuilder buf = new StringBuilder();
     Statement st = db.createStatement();
 

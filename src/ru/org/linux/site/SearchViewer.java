@@ -15,7 +15,6 @@
 
 package ru.org.linux.site;
 
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.sql.*;
@@ -50,7 +49,7 @@ public class SearchViewer implements Viewer {
   }
 
   @Override
-  public String show(Connection db) throws IOException, SQLException, UtilException, UserErrorException {
+  public String show(Connection db) throws SQLException, UtilException, UserErrorException {
     StringBuilder select = new StringBuilder("SELECT qq.id, title, postdate, section, topic, userid, rank, message,bbcode FROM ("+
         "SELECT " +
         "msgs.id, title, postdate, section, topic, userid, rank(idxFTI, q) as rank");

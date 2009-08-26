@@ -73,7 +73,9 @@ public final class StringUtil {
 
   /**
    * print stack trace to string
+   * @Deprecated use Commons Logging fuctions
    */
+  @Deprecated
   public static String getStackTrace(Throwable e) throws IOException {
     StringWriter str = new StringWriter();
     PrintWriter prt = new PrintWriter(str);
