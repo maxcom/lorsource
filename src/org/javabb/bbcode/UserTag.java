@@ -25,8 +25,8 @@ import ru.org.linux.site.UserNotFoundException;
 import ru.org.linux.util.StringUtil;
 
 public class UserTag extends SimpleRegexTag {
-  private static final String USER_VIEW = "<img src=\"/black/user.png\"><a style=\"text-decoration: none\" href='/whois.jsp?nick=$1'>$1</a>";
-  private static final String BLOCKED_VIEW = "<img src=\"/black/user.png\"><s><a style=\"text-decoration: none\" href='/whois.jsp?nick=$1'>$1</a></s>";
+  private static final String USER_VIEW = "<span style=\"white-space: nowrap\"><img src=\"/black/user.png\"><a style=\"text-decoration: none\" href='/whois.jsp?nick=$1'>$1</a></span>";
+  private static final String BLOCKED_VIEW = "<span style=\"white-space: nowrap\"><img src=\"/black/user.png\"><s><a style=\"text-decoration: none\" href='/whois.jsp?nick=$1'>$1</a></s></span>";
 
   public UserTag(String tagName, String regex) {
     super(tagName, regex, USER_VIEW);
