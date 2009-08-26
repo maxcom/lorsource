@@ -1,0 +1,192 @@
+.news {
+	border-top: none;
+}
+
+.newsblog .nav {
+    border: none;
+}
+
+.newsblog h1 {
+    display: none;
+}
+
+.newsblog .entry-userpic {
+    display: none;
+}
+
+.left {
+	text-align: left;
+}
+
+.center {
+	text-align: center;
+}
+
+.right {
+	text-align: right;
+}
+
+em {
+	font-style: italic;
+}
+
+strong {
+	font-weight: bold;
+}
+
+body {
+	font-family: Trebuchet MS, sans-serif;
+	font-size: 12pt;
+	padding: 1em;
+	line-height: 1.4;
+}
+
+p {
+	margin-bottom: 1em;
+}
+
+#hd h1 {
+	font-size: 2em;
+	font-weight: bold;
+	margin-bottom: 1em;
+}
+
+#hd .menu {
+	text-align: center;
+	margin-top: 2em;
+	margin-bottom: 2em;
+}
+
+#hd .menu li.first:before {
+	content: "[ ";
+}
+
+#hd .menu li:after {
+	content: " |";
+}
+
+#hd .menu li.last:after {
+	content: " ]";
+}
+
+#hd .menu li {
+	display: inline;
+}
+
+#hd .primary {
+	font-size: 1.1em;
+}
+
+#hd .secondary {
+	font-size: 0.9em;
+}
+
+#bd {
+	margin-bottom: 2em;
+}
+
+#bd div.news {
+	margin-bottom: 2em;
+}
+
+#bd .news h2 {
+	font-size: 1.6em;
+	padding-top: 0.25em;
+	padding-bottom: 0.5em;
+}
+
+#bd .news div.text {
+	margin-left: 64px;
+}
+
+#bd ul, #bd ol {
+	margin-top: 1em;
+	margin-bottom: 1em;
+}
+
+#bd ul *, #bd ol * {
+	margin: 0em;
+}
+
+#bd ul{
+	list-style-type: disc;
+}
+
+#bd ol{
+	list-style-type: decimal;
+}
+
+#bd li {
+	margin-left: 2em;
+	list-style: inherit;
+}
+
+#bd .tags {
+	font-size: 0.8em;
+}
+
+#bd address {
+	text-align: right;
+	margin-bottom: 0.5em;
+}
+
+#bd .news .nav {
+	text-align: right;
+}
+
+#bd .column {
+	font-size: 0.8em;
+	text-align: left;
+}
+
+#bd .column .boxlet {
+	padding-bottom: 0.1em;
+	padding-left: 0.5em;
+	padding-right: 0.5em;
+}
+
+#bd .column .boxlet h2 {
+	font-weight: bold;
+	text-align: center;
+	padding: 0.25em;
+	margin-bottom: 1em;
+}
+
+#bd .column .boxlet p.image {
+	text-align: center;
+	margin-bottom: 0em;
+}
+
+#bd .forum h1 {
+	font-size: 1.5em;
+}
+
+#bd .forum table {
+	width: 100%;
+}
+
+#bd .forum table thead th {
+	text-align: center;
+}
+
+#bd .forum table tbody td {
+	padding: 0.1em;
+	border: 1px solid;
+	padding-left: 0.25em;
+}
+
+#bd .forum table tbody td * {
+	text-decoration: none;
+}
+
+#ft {
+	padding-top: 1em;
+	padding-bottom: 1em;
+	border-top: 1px dashed;
+	text-align: center;
+	font-size: 0.8em;
+}
+
+#ft p {
+	margin: 0em;
+}

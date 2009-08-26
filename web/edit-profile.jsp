@@ -86,7 +86,6 @@
 <tr>
   <td valign=top>Тема</td>
   <td>
-    <% String style=tmpl.getStyle(); %>
     <c:set value="<%= tmpl.getStyle() %>" var="style"/>
 
     <c:forEach var="s" items="<%= DefaultProfile.getStyleList() %>">
@@ -97,6 +96,7 @@
         <input type=radio name=style value=${s}>${s}<br>
       </c:if>
     </c:forEach>
+    Внимание! Тема "tango" находится в состоянии разработки, пока еще не готова
   </td>
 </tr>
   <tr><td colspan=2><hr></td></tr>

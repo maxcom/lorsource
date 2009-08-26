@@ -1,0 +1,59 @@
+html, body {
+	background-color: #2e3436;
+}
+
+body {
+	color: #babdb6;
+}
+
+a {
+	color: #729fcf;
+}
+
+#hd h1 {
+	color: #ffffff;
+}
+
+#hd .menu .primary a {
+	color: #e9b96e;
+}
+
+#hd .menu .secondary a {
+	color: #fcaf3e;
+}
+
+#bd h2 * {
+	color: #babdb6;
+}
+
+#bd .tags a {
+	color: #fcaf3e;
+}
+
+#bd address a {
+	color: #8ae234;
+}
+
+#bd .column .boxlet {
+	background-color: inherit;
+}
+
+#bd .column .boxlet h2 {
+	background-color: #555753;
+}
+
+#bd .forum table thead {
+	background-color: #555753;
+}
+
+#bd .forum table tbody td {
+	border-color: #555753;
+}
+
+#bd .forum table tbody td * {
+	color: #eeeeec;
+}
+
+#bd .forum table tbody tr:hover {
+	background-color: #5c3566;
+}

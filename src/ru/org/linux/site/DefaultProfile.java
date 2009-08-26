@@ -23,7 +23,7 @@ public final class DefaultProfile {
   private static final String[] boxlist = {"poll", "top10", "gallery", "tagcloud", "archive", "ibm"};
   private static final Set<String> boxSet = new HashSet<String>(Arrays.asList(boxlist));
 
-  private static final String[] styles = { "black", "white", "white2" /*, "modern"*/ };
+  private static final String[] styles = { "black", "white", "white2", "tango" };
   private static final List<String> styleList = Arrays.asList(styles);
   private static final Set<String> styleSet = new HashSet<String>(styleList);
 
