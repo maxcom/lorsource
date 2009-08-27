@@ -105,7 +105,7 @@ p {
 }
 
 #bd ul *, #bd ol * {
-	margin: 0em;
+	margin: 0;
 }
 
 #bd ul{
@@ -155,7 +155,7 @@ p {
 
 #bd .column .boxlet p.image {
 	text-align: center;
-	margin-bottom: 0em;
+	margin-bottom: 0;
 }
 
 #bd .forum h1 {
@@ -167,9 +167,9 @@ p {
 }
 
 #bd .forum table tbody td {
-	padding: 0.1em;
-	border: 1px solid;
-	padding-left: 0.25em;
+    padding: 0.1em 0.1em 0.1em 0.25em;
+    border: 1px solid;
+
 }
 
 #bd .forum table tbody td * {
@@ -185,5 +185,5 @@ p {
 }
 
 #ft p {
-	margin: 0em;
+	margin: 0;
 }
