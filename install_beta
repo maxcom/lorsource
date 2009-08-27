@@ -4,12 +4,12 @@ set -e
 
 # ant
 
-SITE_PATH=${1:-/var/www/beta.linux.org.ru}
+SITE_PATH=${1:-/var/lib/tomcat5.5/webapps}
 
 echo Copying files...
 
-cp -R dist/* ${SITE_PATH}/webapps/lor
-touch ${SITE_PATH}/webapps/lor/WEB-INF/web.xml
+cp -R dist/* ${SITE_PATH}/lor
+touch ${SITE_PATH}/lor/WEB-INF/web.xml
 
 echo done
 
