@@ -187,3 +187,7 @@ p {
 #ft p {
 	margin: 0;
 }
+
+.tag {
+    font-style: normal;
+}

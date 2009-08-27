@@ -208,3 +208,7 @@ pre {
     padding-top: 5px;
     text-align: center;
 }
+
+.tag {
+    font-style: italic;
+}

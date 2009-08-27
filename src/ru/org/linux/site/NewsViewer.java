@@ -148,9 +148,9 @@ public class NewsViewer implements Viewer {
       String tagLinks = Tags.getTagLinks(db, msgid);
 
       if (tagLinks.length()>0) {
-        out.append("<p class=\"tags\">Метки: <i>");
+        out.append("<p class=\"tags\">Метки: <span class=tag>");
         out.append(tagLinks);
-        out.append("</i></p>");
+        out.append("<span></p>");
       }
     }
 
