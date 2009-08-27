@@ -87,7 +87,11 @@
   </td>
   <td>
     <c:if test="${msg.pages>1}">
-      <a href="/view-message.jsp?msgid=${msg.msgid}&amp;page=${msg.pages-1}&amp;lastmod=${msg.lastmod.time}">
+      <% if (tmpl.getProf().getBoolean("newfirst")) { %>
+         <a href="/view-message.jsp?msgid=${msg.msgid}&amp;lastmod=${msg.lastmod.time}">
+      <% } else { %>
+         <a href="/view-message.jsp?msgid=${msg.msgid}&amp;page=${msg.pages-1}&amp;lastmod=${msg.lastmod.time}">
+      <% } %>
     </c:if>
     <c:if test="${msg.pages<=1}">
       <a href="/view-message.jsp?msgid=${msg.msgid}&amp;lastmod=${msg.lastmod.time}">
