@@ -37,7 +37,7 @@
 %>
 
   <!-- <%= msgid%>  -->
-<div class=msg>
+<div class=msg id="topic-${message.id}">
 <c:if test="${showMenu}">
   <div class=title>
     <c:if test="${not message.deleted}">[<a href="/view-message.jsp?msgid=<%= msgid %>">#</a>]<%
@@ -104,8 +104,8 @@
 
   <div class="msg_body" style="${msgBodyStyle}">
   <h1>
-    <a name="${message.id}">${message.title}</a>
-    </h1>
+    ${message.title}
+  </h1>
 <%
 
   if (message.isVotePoll()) {
@@ -139,9 +139,9 @@
     String tagLinks = Tags.getTagLinks(message.getTags());
 
     if (tagLinks.length() > 0) {
-      out.append("<p>Метки: <i>");
+      out.append("<p class=tags>Метки: <span class=tag>");
       out.append(tagLinks);
-      out.append("</i>");
+      out.append("</span></p>");
     }
   }
 %>
