@@ -1,0 +1,21 @@
+.dw-feed-main { padding:0; }
+.dw-feed-items { background:#2e3436; color: #babdb6; }
+.dw-feed-title-box { font-size:small; color:#ffffff; background:#2e3436; }
+
+.dw-feed-bullet-item { color:#ffffff; font-size:9px; }
+
+a.dw-feed-item:link,
+a.dw-feed-item:visited,
+a.dw-feed-item:hover{ font-size: small; color:white; }
+a.dw-feed-item:link { text-decoration:none; color:white; }
+a.dw-feed-item:visited { text-decoration:none; color:white; }
+a.dw-feed-item:hover { text-decoration:underline; color:white; }
+
+body {
+  background-image: url();
+  margin-left: 0;
+  margin-top: 0;
+  margin-right: 0;
+  margin-bottom: 0;
+  background: #2e3436;
+}
