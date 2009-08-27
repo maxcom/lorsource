@@ -33,24 +33,17 @@
 
                 <li><a href="/view-section.jsp?section=2">Форум</a></li>
                 <li><a href="/books">Документация</a></li>
+                <li><a href="/wiki/">Wiki</a></li>
                 <li class="last"><a href="/search.jsp">Поиск</a></li>
             </ul>
             <ul class="secondary">
                 <li class="first"><a href="/wiki/en/Linux">O linux</a></li>
                 <li><a href="/wiki/en/%D0%94%D0%B8%D1%81%D1%82%D1%80%D0%B8%D0%B1%D1%83%D1%82%D0%B8%D0%B2%D1%8B">Дистрибутивы</a></li>
 
-                <li><a href="/server.jsp">О сервере</a></li>
-                <li class="last"><a href="/view-section.jsp?section=4">Ссылки</a></li>
+                <li class="last"><a href="/server.jsp">О сервере</a></li>
             </ul>
         </div>
       </div>
-
-<%--
-  <br>
-  <a href="http://www.rootconf.ru/?partner=linuxorgru">
-    <img src="/adv/rootconf.gif" alt="RootConf" width="600" height="60">
-  </a>
---%>
 
 <div style="right: 5px; text-align: right; top: 5px; position: absolute" class="head">
 <c:if test="${template.sessionAuthorized}">
