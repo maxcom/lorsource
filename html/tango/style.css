@@ -166,10 +166,6 @@ p {
 	width: 100%;
 }
 
-#bd .forum table thead th {
-	text-align: center;
-}
-
 #bd .forum table tbody td {
 	padding: 0.1em;
 	border: 1px solid;

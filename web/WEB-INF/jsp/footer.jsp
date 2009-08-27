@@ -12,6 +12,8 @@
 ~    See the License for the specific language governing permissions and
 ~    limitations under the License.
 --%>
+</div>
+<div id="ft">
 
 <p><i><a href="${template.mainUrl}">${template.mainUrl}</a></i>
 
@@ -26,5 +28,6 @@
   _uacct = "UA-2184304-1";
   urchinTracker();
 </script>
+  </div>
 
 </body></html>

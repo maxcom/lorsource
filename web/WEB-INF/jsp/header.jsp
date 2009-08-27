@@ -32,3 +32,4 @@
 <!--TopList COUNTER-->
 <img height=1 width=1 src="http://top.list.ru/counter?id=71642" alt="">
 <!--TopList COUNTER-->
+<div id="bd">
