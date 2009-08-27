@@ -36,7 +36,7 @@ strong {
 
 body {
 	font-family: Trebuchet MS, sans-serif;
-	font-size: 12pt;
+	font-size: medium;
 	padding: 1em;
 	line-height: 1.4;
 }
@@ -193,5 +193,13 @@ p {
 }
 
 div.msg_body h1,h2 {
-font-weight: bold !important;
+font-weight: bold;
+}
+
+#bd a:visited {
+color: #babdb6;
+}
+
+#bd .forum table tbody td a:visited {
+color: #babdb6;
 }
