@@ -78,4 +78,3 @@
 
 
 <div style="clear: both"></div>
-<div id="bd">

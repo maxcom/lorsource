@@ -15,9 +15,17 @@
   ~    limitations under the License.
   --%>
 
-<p><i><a href="${template.mainUrl}">${template.mainUrl}</a></i>
+</div>
+<div id="ft">
+  <div align=center>
+  <p>
+  Разработка и&nbsp;поддержка&nbsp;&#8212; <a href="whois.jsp?nick=maxcom">Максим Валянский</a> 1998&ndash;2009<br>
+  Размещение сервера и&nbsp;подключение его к&nbsp;сети Интернет осуществляется компанией
+  ООО &laquo;<a href="http://www.ratel.ru">НИИР-РадиоНет</a>&raquo;
+  </p>
+  </div>
 
-<div align=center>
+<div align=center style="margin-top: 1em">
   <a href="http://counter.rambler.ru/top100"><img src="/img/rambler.gif" width=88 height=31 border=0 alt="Участник Rambler TOP 100"></a>
 
   <!--TopList LOGO-->
@@ -31,12 +39,6 @@
   urchinTracker();
 </script>
 
-<div align=center>
-<p>
-Разработка и&nbsp;поддержка&nbsp;&#8212; <a href="whois.jsp?nick=maxcom">Максим Валянский</a> 1998&ndash;2009<br>
-Размещение сервера и&nbsp;подключение его к&nbsp;сети Интернет осуществляется компанией
-ООО &laquo;<a href="http://www.ratel.ru">НИИР-РадиоНет</a>&raquo;
-</p>
 </div>
 </body>
 </html>
