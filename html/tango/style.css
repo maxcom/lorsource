@@ -125,7 +125,8 @@ p {
 	font-size: 0.8em;
 }
 
-#bd address {
+#bd .sign {
+    font-style: normal;
 	text-align: right;
 	margin-bottom: 0.5em;
 }
