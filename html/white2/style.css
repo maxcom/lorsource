@@ -39,6 +39,10 @@ DIV.boxlet
     border: 1px;
    }
 
+.boxlet_content li {
+    margin-left: 1em;
+}
+
 DIV.columnimg
    { 
     font-size: small; 

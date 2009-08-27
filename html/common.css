@@ -147,6 +147,10 @@ DIV.boxlet {
   padding-right: 0.5em;
 }
 
+.boxlet_content ul {
+    padding-left: 0;
+}
+
 div.quote {
   border: 1px dotted;
   margin-bottom: 1em;
