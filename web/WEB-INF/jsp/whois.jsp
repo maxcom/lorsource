@@ -210,22 +210,20 @@
 <% rs.close(); %>
 <p>
 <div class="forum">
-<div class="color1">
-<table width="100%" cellspacing='1' cellpadding='0' border='0'>
+<table width="100%" class="message-table">
 <thead>
-<tr class='color1'><th>Раздел</th><th>Число сообщений (тем)</th></tr>
+<tr><th>Раздел</th><th>Число сообщений (тем)</th></tr>
 <tbody>
 <% rs=stat2.executeQuery(); %>
 <%
    while (rs.next()) {
-   	out.print("<tr class='color2'><td>"+rs.getString("pname")+"</td><td>"+rs.getInt("c")+"</td></tr>");
+   	out.print("<tr><td>"+rs.getString("pname")+"</td><td>"+rs.getInt("c")+"</td></tr>");
    }
 %>
-<tfoot>
 <% rs.close(); rs=stat1.executeQuery(); rs.next(); %>
-<tr class='color2'><td>Комментарии</td><td valign='top'><%= rs.getInt("c") %></td></tr>
+<tr><td>Комментарии</td><td valign='top'><%= rs.getInt("c") %></td></tr>
 </table>
-</div></div>
+</div>
 <% if (userid!=2) { %>
 
 <h2>Сообщения пользователя</h2>
