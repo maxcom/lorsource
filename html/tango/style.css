@@ -203,3 +203,8 @@ color: #babdb6;
 #bd .forum table tbody td a:visited {
 color: #babdb6;
 }
+
+.msg {
+    -moz-border-radius: 1em;
+    border-radius: 1em;
+}
