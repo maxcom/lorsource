@@ -196,13 +196,6 @@ div.msg_body h1,h2 {
 font-weight: bold;
 }
 
-#bd a:visited {
-color: #babdb6;
-}
-
-#bd .forum table tbody td a:visited {
-color: #babdb6;
-}
 
 .msg {
     -moz-border-radius: 1em;

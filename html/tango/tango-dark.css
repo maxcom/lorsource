@@ -61,3 +61,16 @@ a {
 .messages .msg {
   background-color: #272C2D;
 }
+
+#bd a:visited {
+color: #babdb6;
+}
+
+#bd .forum table tbody td a:visited {
+color: #babdb6;
+}
+
+#sitetitle {
+    color: white;
+    text-decoration: none;
+}
