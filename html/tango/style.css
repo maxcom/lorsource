@@ -201,3 +201,7 @@ font-weight: bold;
 pre {
     line-height: 1.1em;
 }
+
+.msg .title {
+     margin-left: 1em;
+}
