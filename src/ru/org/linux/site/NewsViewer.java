@@ -25,7 +25,6 @@ import java.util.Properties;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.javabb.bbcode.BBCodeProcessor;
 
 import ru.org.linux.util.*;
 
@@ -47,23 +46,29 @@ public class NewsViewer implements Viewer {
     profile = prof;
   }
 
-  private String showCurrent(Connection db, ResultSet res) throws SQLException {
+  private String showCurrent(Connection db, Message msg) throws SQLException {
     DateFormat dateFormat = DateFormats.createDefault();
 
     boolean multiPortal = (group==0 && section==0);
 
     StringBuilder out = new StringBuilder();
-    int msgid = res.getInt("msgid");
-    String url = res.getString("url");
-    String subj = StringUtil.makeTitle(res.getString("subj"));
-    String linktext = res.getString("linktext");
-    boolean imagepost = res.getBoolean("imagepost");
-    boolean votepoll = res.getBoolean("vote");
-    String image = res.getString("image");
-    Timestamp lastmod = res.getTimestamp("lastmod");
-    String messageText = res.getString("message");
-    boolean lorcode = res.getBoolean("bbcode");
-    boolean expired = res.getBoolean("expired");
+    int msgid = msg.getId();
+    String url = msg.getUrl();
+    String subj = msg.getTitle();
+    String linktext = msg.getLinktext();
+    boolean imagepost = msg.getSection().isImagepost();
+    boolean votepoll = msg.isVotePoll();
+
+    Group group = null;
+    try {
+      group = new Group(db, msg.getGroupId());
+    } catch (BadGroupException e) {
+      throw new RuntimeException(e);
+    }
+
+    String image = group.getImage();
+    Timestamp lastmod = msg.getLastModified();
+    boolean expired = msg.isExpired();
 
     if (lastmod == null) {
       lastmod = new Timestamp(0);
@@ -84,7 +89,7 @@ public class NewsViewer implements Viewer {
     out.append("<a href=\"").append(jumplink).append("\">");
 
     if (multiPortal) {
-      out.append('(').append(res.getString("pname")).append(") ");
+      out.append('(').append(msg.getSection().getTitle()).append(") ");
     }
     out.append(subj);
     out.append("</a>");
@@ -93,16 +98,16 @@ public class NewsViewer implements Viewer {
 
     if (image != null) {
       out.append("<div class=\"entry-userpic\">");
-      out.append("<a href=\"view-news.jsp?section=").append(res.getInt("section")).append("&amp;group=").append(res.getInt("guid")).append("\">");
+      out.append("<a href=\"view-news.jsp?section=").append(msg.getSectionId()).append("&amp;group=").append(msg.getGroupId()).append("\">");
       try {
         ImageInfo info = new ImageInfo(config.getProperty("HTMLPathPrefix") + profile.getString("style") + image);
-        out.append("<img src=\"/").append(profile.getString("style")).append(image).append("\" ").append(info.getCode()).append(" border=0 alt=\"Группа ").append(res.getString("gtitle")).append("\">");
+        out.append("<img src=\"/").append(profile.getString("style")).append(image).append("\" ").append(info.getCode()).append(" border=0 alt=\"Группа ").append(group.getTitle()).append("\">");
       } catch (IOException e) {
-        logger.warn("Bad Image for group "+res.getInt("guid"), e);
-        out.append("[bad image] <img class=newsimage src=\"/").append(profile.getString("style")).append(image).append("\" " + " border=0 alt=\"Группа ").append(res.getString("gtitle")).append("\">");
+        logger.warn("Bad Image for group "+msg.getGroupId(), e);
+        out.append("[bad image] <img class=newsimage src=\"/").append(profile.getString("style")).append(image).append("\" " + " border=0 alt=\"Группа ").append(group.getTitle()).append("\">");
       } catch (BadImageException e) {
-        logger.warn("Bad Image for group "+res.getInt("guid"), e);
-        out.append("[bad image] <img class=newsimage src=\"/").append(profile.getString("style")).append(image).append("\" " + " border=0 alt=\"Группа ").append(res.getString("gtitle")).append("\">");
+        logger.warn("Bad Image for group "+msg.getGroupId(), e);
+        out.append("[bad image] <img class=newsimage src=\"/").append(profile.getString("style")).append(image).append("\" " + " border=0 alt=\"Группа ").append(group.getTitle()).append("\">");
       }
       out.append("</a>");
       out.append("</div>");
@@ -112,12 +117,7 @@ public class NewsViewer implements Viewer {
     out.append("<div class=msg>\n");
 
     if (!votepoll) {
-      if (lorcode) {
-        BBCodeProcessor proc = new BBCodeProcessor();
-        out.append(proc.preparePostText(db, messageText));
-      } else {
-        out.append(messageText);
-      }
+        out.append(msg.getProcessedMessage(db));
     }
 
     if (url != null && !imagepost && !votepoll) {
@@ -144,7 +144,7 @@ public class NewsViewer implements Viewer {
 
     out.append("</div>");
 
-    if (res.getBoolean("moderate")) {
+    if (msg.getSection().isPremoderated()) {
       String tagLinks = Tags.getTagLinks(db, msgid);
 
       if (tagLinks.length()>0) {
@@ -154,8 +154,15 @@ public class NewsViewer implements Viewer {
       }
     }
 
-    String nick = res.getString("nick");
-    out.append("<div class=sign>").append(nick).append("(<a href=\"whois.jsp?nick=").append(URLEncoder.encode(nick)).append("\">*</a>) (").append(dateFormat.format(res.getTimestamp("postdate"))).append(")</div>");
+    User user = null;
+    try {
+      user = User.getUserCached(db, msg.getUid());
+    } catch (UserNotFoundException e) {
+      throw new RuntimeException(e);
+    }
+
+    String nick = user.getNick();
+    out.append("<div class=sign>").append(nick).append("(<a href=\"whois.jsp?nick=").append(URLEncoder.encode(nick)).append("\">*</a>) (").append(dateFormat.format(msg.getPostdate())).append(")</div>");
 
     if (!moderateMode) {
       out.append("<div class=\"nav\">");
@@ -164,7 +171,7 @@ public class NewsViewer implements Viewer {
         out.append("[<a href=\"comment-message.jsp?msgid=").append(msgid).append("\">Добавить&nbsp;комментарий</a>]");
       }
 
-      int stat1 = res.getInt("stat1");
+      int stat1 = msg.getCommentCount();
 
       if (stat1 > 0) {
         int pages = (int) Math.ceil(stat1 / messages);
@@ -314,18 +321,32 @@ public class NewsViewer implements Viewer {
     }
     
     ResultSet res = st.executeQuery(
-        "SELECT topics.title as subj, topics.lastmod, topics.stat1, postdate, nick, image, " +
-            "groups.title as gtitle, topics.id as msgid, groups.id as guid, " +
-            "topics.url, topics.linktext, imagepost, vote, sections.name as pname, " +
-            "postdate<(CURRENT_TIMESTAMP-expire) as expired, message, bbcode, " +
-            "sections.id as section, NOT topics.sticky AS ssticky, sections.moderate " +
-            "FROM topics,groups,users,sections,msgbase " +
+      "SELECT " +
+          "postdate, topics.id as msgid, users.id as userid, topics.title, " +
+          "topics.groupid as guid, topics.url, topics.linktext, user_agents.name as useragent, " +
+          "groups.title as gtitle, vote, havelink, section, topics.sticky, topics.postip, " +
+          "postdate<(CURRENT_TIMESTAMP-sections.expire) as expired, deleted, lastmod, commitby, " +
+          "commitdate, topics.stat1, postscore, topics.moderate, message, notop,bbcode " +
+          "FROM topics " +
+          "INNER JOIN users ON (users.id=topics.userid) " +
+          "INNER JOIN groups ON (groups.id=topics.groupid) " +
+          "INNER JOIN sections ON (sections.id=groups.section) " +
+          "INNER JOIN msgbase ON (msgbase.id=topics.id) " +
+          "LEFT JOIN user_agents ON (user_agents.id=topics.ua_id) " +
+
+//        "SELECT topics.title as subj, topics.lastmod, topics.stat1, postdate, nick, image, " +
+//            "groups.title as gtitle, topics.id as msgid, groups.id as guid, " +
+//            "topics.url, topics.linktext, imagepost, vote, sections.name as pname, " +
+//            "postdate<(CURRENT_TIMESTAMP-expire) as expired, message, bbcode, " +
+//            "sections.id as section, NOT topics.sticky AS ssticky, sections.moderate " +
+//            "FROM topics,groups,users,sections,msgbase " +
             "WHERE " + where+ ' ' +
-            "ORDER BY ssticky,commitdate DESC, msgid DESC "+limit
+            "ORDER BY sticky,commitdate DESC, msgid DESC "+limit
     );
 
     while (res.next()) {
-      buf.append(showCurrent(db, res));
+      Message message = new Message(db, res);
+      buf.append(showCurrent(db, message));
     }
 
     res.close();

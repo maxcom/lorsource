@@ -119,6 +119,41 @@ public class Message {
     }
   }
 
+  public Message(Connection db, ResultSet rs) throws SQLException {
+    this.msgid=rs.getInt("msgid");
+    postscore =rs.getInt("postscore");
+    votepoll=rs.getBoolean("vote");
+    sticky=rs.getBoolean("sticky");
+    linktext=rs.getString("linktext");
+    url=rs.getString("url");
+    tags=new Tags(db, msgid);
+    userid = rs.getInt("userid");
+    title=StringUtil.makeTitle(rs.getString("title"));
+    guid=rs.getInt("guid");
+    deleted=rs.getBoolean("deleted");
+    expired= !sticky && rs.getBoolean("expired");
+    havelink=rs.getBoolean("havelink");
+    postdate=rs.getTimestamp("postdate");
+    commitDate=rs.getTimestamp("commitdate");
+    commitby = rs.getInt("commitby");
+    groupTitle = rs.getString("gtitle");
+    lastModified = rs.getTimestamp("lastmod");
+    sectionid =rs.getInt("section");
+    commentCount = rs.getInt("stat1");
+    moderate = rs.getBoolean("moderate");
+    message = rs.getString("message");
+    notop = rs.getBoolean("notop");
+    userAgent = rs.getString("useragent");
+    postIP = rs.getString("postip");
+    lorcode = rs.getBoolean("bbcode");
+
+    try {
+      section = new Section(db, sectionid);
+    } catch (BadSectionException ex) {
+      throw new RuntimeException(ex);
+    }
+  }
+
   public Message(Connection db, AddMessageForm form, User user)
       throws  SQLException, UtilException, ScriptErrorException, UserErrorException {
     // Init fields
