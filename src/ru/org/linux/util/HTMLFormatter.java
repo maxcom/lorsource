@@ -22,9 +22,9 @@ package ru.org.linux.util;
 import java.net.URLEncoder;
 import java.util.Iterator;
 import java.util.StringTokenizer;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
-import java.util.regex.Matcher;
 
 public class HTMLFormatter {
   private final String text;
@@ -41,17 +41,8 @@ public class HTMLFormatter {
     text = atext;
   }
 
-  private static final Pattern nlRE;
-  private static final Pattern texnlRE;
-
-  static {
-    try {
-      nlRE = Pattern.compile("\n");
-      texnlRE = Pattern.compile("\n\r?\n\r?");
-    } catch (PatternSyntaxException e) {
-      throw new RuntimeException(e);
-    }
-  }
+  private static final Pattern nlRE = Pattern.compile("\n");;
+  private static final Pattern texnlRE = Pattern.compile("\n\r?\n\r?");
 
   public String process() {
     StringTokenizer st = new StringTokenizer(htmlSpecialChars(text), delim, true);
@@ -84,12 +75,6 @@ public class HTMLFormatter {
 
   public void enableUrlHighLightMode() {
     urlHighlight = true;
-  }
-
-  public void enablePreformatMode() {
-    preformat = true;
-    nl = "\n";
-    delim = " \n";
   }
 
   public void enableNewLineMode() {

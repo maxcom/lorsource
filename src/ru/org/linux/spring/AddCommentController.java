@@ -98,9 +98,6 @@ public class AddCommentController extends ApplicationObjectSupport {
 
     HTMLFormatter form = new HTMLFormatter(msg);
     form.setMaxLength(80);
-    if ("pre".equals(mode)) {
-      form.enablePreformatMode();
-    }
     if (autourl) {
       form.enableUrlHighLightMode();
     }
@@ -193,10 +190,6 @@ public class AddCommentController extends ApplicationObjectSupport {
       user.checkBlocked();
 
       boolean lorcode = "lorcode".equals(mode);
-
-      if (lorcode && !user.canModerate()) {
-        throw new AccessViolationException("lorcode not allowed");
-      }
 
       Comment comment = new Comment(replyto, title, msg, topicId, 0, request.getHeader("user-agent"), request.getRemoteAddr(), lorcode);
 

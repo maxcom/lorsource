@@ -61,10 +61,7 @@ public class HTMLFormatterTest {
   private static final String CYR_LINK = "http://ru.wikipedia.org/wiki/Литературный_'негр'(Fran\u00C7ais\u0152uvre_\u05d0)?негр=эфиоп&эфиоп";
   private static final String GOOGLE_CACHE = "http://74.125.95.132/search?q=cache:fTsc8ze3IxIJ:forum.springsource.org/showthread.php%3Ft%3D53418+spring+security+openid&cd=1&hl=en&ct=clnk&gl=us";
 
-  private static final String PREFORMAT_LONG_TEST1 = "SRC_URI=\"http://downloads.sourceforge.net/simpledict/simpledict-${PV}-src.tar.gz\" ";
-  private static final String PREFORMAT_LONG_RESULT1 = "<pre>SRC_URI=&quot;<a href=\"http://downloads.sourceforge.net/simpledict/simpledict-\">http://downloads.sourceforge.net/simpledict/simpledict-</a>${PV}-src.tar.gz&quot; </pre>";
   private static final String PREFORMAT_LONG_TEST2 = "Caelum_videri_esset._Et_terra_rus_ad_sidera_tollere_voltus._Ex_uno_discent_omnes...";
-  private static final String PREFORMAT_LONG_RESULT2 = "<pre>" + PREFORMAT_LONG_TEST2 + "</pre>";
   private static final String URL_WITH_AT = "http://www.mail-archive.com/samba@lists.samba.org/msg58308.html";
   private static final String Latin1Supplement = "http://de.wikipedia.org/wiki/Großes_ß#Unicode";
   private static final String greek = "http://el.wikipedia.org/wiki/άλλες";
@@ -190,11 +187,10 @@ public class HTMLFormatterTest {
   @Test
   public void testEntityCrash() {
     HTMLFormatter formatter = new HTMLFormatter(GUARANTEED_CRASH);
-    formatter.enablePreformatMode();
     formatter.enableUrlHighLightMode();
     try {
       String r = formatter.process();
-      assertEquals("<pre>&quot;<a href=\"http://www.google.com/\">http://www.google.com/</a>&quot;</pre>", r);
+      assertEquals("&quot;<a href=\"http://www.google.com/\">http://www.google.com/</a>&quot;", r);
     } catch (StringIndexOutOfBoundsException e) {
       fail("It seems, it should not happen?");
     }
@@ -269,23 +265,6 @@ public class HTMLFormatterTest {
     formatter.enableUrlHighLightMode();
     String s = formatter.process();
     assertTrue("All text should be inside link", s.endsWith("</a>"));
-  }
-
-  @Test
-  public void testPreformatLong1() {
-    HTMLFormatter formatter = new HTMLFormatter(PREFORMAT_LONG_TEST1);
-    formatter.enableUrlHighLightMode();
-    formatter.enablePreformatMode();
-    String s = formatter.process();
-    assertEquals("Long line damaged in preformat mode", PREFORMAT_LONG_RESULT1, s);
-  }
-
-  @Test
-  public void testPreformatLong2() {
-    HTMLFormatter formatter = new HTMLFormatter(PREFORMAT_LONG_TEST2);
-    formatter.enablePreformatMode();
-    String s = formatter.process();
-    assertEquals("Long line damaged in preformat mode", PREFORMAT_LONG_RESULT2, s);
   }
 
   @Test

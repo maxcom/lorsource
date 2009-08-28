@@ -148,14 +148,7 @@
     <option value=ntobr <%= (mode!=null && "ntobr".equals(mode))?"selected":""%> >User line break
       w/o quoting
     <option value=html <%= (mode!=null && "html".equals(mode))?"selected":""%> >Ignore line breaks
-    <option value=pre <%= (mode!=null && "pre".equals(mode))?"selected":""%> >Preformatted text
-      <%
-        if (tmpl.isModeratorSession()) {
-      %>
     <option value=lorcode <%= (mode!=null && "lorcode".equals(mode))?"selected":""%> >LORCODE    
-      <%
-      }
-      %>
   </select>
 
   <select name=autourl>
