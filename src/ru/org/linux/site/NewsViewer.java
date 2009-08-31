@@ -19,7 +19,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.sql.*;
-import java.text.DateFormat;
 import java.util.Date;
 import java.util.Properties;
 
@@ -47,8 +46,6 @@ public class NewsViewer implements Viewer {
   }
 
   private String showCurrent(Connection db, Message msg) throws SQLException {
-    DateFormat dateFormat = DateFormats.createDefault();
-
     boolean multiPortal = (group==0 && section==0);
 
     StringBuilder out = new StringBuilder();
@@ -161,7 +158,6 @@ public class NewsViewer implements Viewer {
       throw new RuntimeException(e);
     }
 
-    String nick = user.getNick();
     out.append("<div class=sign>");
     out.append(user.getSignature(false, msg.getPostdate(), true));
     out.append("</div>");
