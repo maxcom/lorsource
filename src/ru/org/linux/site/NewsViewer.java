@@ -19,34 +19,29 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Properties;
 
+import com.danga.MemCached.MemCachedClient;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import ru.org.linux.util.*;
 
-public class NewsViewer implements Viewer {
+public class NewsViewer {
   private static final Log logger = LogFactory.getLog("ru.org.linux");
 
-  private final ProfileHashtable profile;
-  private final Properties config;
   private boolean viewAll = false;
   private int section = 0;
   private int group = 0;
   private String datelimit = null;
   private String limit="";
   private String tag="";
-  private boolean moderateMode = false;
 
-  public NewsViewer(Properties config, ProfileHashtable prof) {
-    this.config = config;
-    profile = prof;
-  }
-
-  private String showCurrent(Connection db, Message msg) throws SQLException {
-    boolean multiPortal = (group==0 && section==0);
+  public static String showCurrent(Connection db, Message msg, boolean multiPortal, Template tmpl, boolean moderateMode) throws SQLException {
+//    boolean multiPortal = (group==0 && section==0);
 
     StringBuilder out = new StringBuilder();
     int msgid = msg.getId();
@@ -56,7 +51,7 @@ public class NewsViewer implements Viewer {
     boolean imagepost = msg.getSection().isImagepost();
     boolean votepoll = msg.isVotePoll();
 
-    Group group = null;
+    Group group  ;
     try {
       group = new Group(db, msg.getGroupId());
     } catch (BadGroupException e) {
@@ -70,7 +65,7 @@ public class NewsViewer implements Viewer {
     if (lastmod == null) {
       lastmod = new Timestamp(0);
     }
-    double messages = profile.getInt("messages");
+    double messages = tmpl.getProf().getInt("messages");
 
     out.append("<div class=news><h2>");
 
@@ -97,14 +92,14 @@ public class NewsViewer implements Viewer {
       out.append("<div class=\"entry-userpic\">");
       out.append("<a href=\"view-news.jsp?section=").append(msg.getSectionId()).append("&amp;group=").append(msg.getGroupId()).append("\">");
       try {
-        ImageInfo info = new ImageInfo(config.getProperty("HTMLPathPrefix") + profile.getString("style") + image);
-        out.append("<img src=\"/").append(profile.getString("style")).append(image).append("\" ").append(info.getCode()).append(" border=0 alt=\"Группа ").append(group.getTitle()).append("\">");
+        ImageInfo info = new ImageInfo(tmpl.getConfig().getProperty("HTMLPathPrefix") + tmpl.getProf().getString("style") + image);
+        out.append("<img src=\"/").append(tmpl.getProf().getString("style")).append(image).append("\" ").append(info.getCode()).append(" border=0 alt=\"Группа ").append(group.getTitle()).append("\">");
       } catch (IOException e) {
         logger.warn("Bad Image for group "+msg.getGroupId(), e);
-        out.append("[bad image] <img class=newsimage src=\"/").append(profile.getString("style")).append(image).append("\" " + " border=0 alt=\"Группа ").append(group.getTitle()).append("\">");
+        out.append("[bad image] <img class=newsimage src=\"/").append(tmpl.getProf().getString("style")).append(image).append("\" " + " border=0 alt=\"Группа ").append(group.getTitle()).append("\">");
       } catch (BadImageException e) {
         logger.warn("Bad Image for group "+msg.getGroupId(), e);
-        out.append("[bad image] <img class=newsimage src=\"/").append(profile.getString("style")).append(image).append("\" " + " border=0 alt=\"Группа ").append(group.getTitle()).append("\">");
+        out.append("[bad image] <img class=newsimage src=\"/").append(tmpl.getProf().getString("style")).append(image).append("\" " + " border=0 alt=\"Группа ").append(group.getTitle()).append("\">");
       }
       out.append("</a>");
       out.append("</div>");
@@ -120,11 +115,11 @@ public class NewsViewer implements Viewer {
     if (url != null && !imagepost && !votepoll) {
       out.append("<p>&gt;&gt;&gt; <a href=\"").append(HTMLFormatter.htmlSpecialChars(url)).append("\">").append(linktext).append("</a>");
     } else if (imagepost) {
-      showMediumImage(config.getProperty("HTMLPathPrefix"), out, url, subj, linktext);
+      showMediumImage(tmpl.getConfig().getProperty("HTMLPathPrefix"), out, url, subj, linktext);
     } else if (votepoll) {
       try {
         Poll poll = Poll.getPollByTopic(db, msgid);
-	out.append(poll.renderPoll(db, config, profile));
+	out.append(poll.renderPoll(db, tmpl.getConfig(), tmpl.getProf()));
         out.append("<p>&gt;&gt;&gt; <a href=\"").append("vote-vote.jsp?msgid=").append(msgid).append("\">Голосовать</a>");
         out.append("<p>&gt;&gt;&gt; <a href=\"").append(jumplink).append("\">Результаты</a>");
       } catch (BadImageException e) {
@@ -151,7 +146,7 @@ public class NewsViewer implements Viewer {
       }
     }
 
-    User user = null;
+    User user  ;
     try {
       user = User.getUserCached(db, msg.getUid());
     } catch (UserNotFoundException e) {
@@ -231,8 +226,7 @@ public class NewsViewer implements Viewer {
       out.append(" [<a href=\"delete.jsp?msgid=").append(msgid).append("\">Удалить</a>]");
       if (!votepoll) {
         out.append(" [<a href=\"edit.jsp?msgid=").append(msgid).append("\">Править</a>]");
-      }
-      else {
+      } else {
         out.append(" [<a href=\"edit-vote.jsp?msgid=").append(msgid).append("\">Править</a>]");
       }
 
@@ -274,9 +268,22 @@ public class NewsViewer implements Viewer {
     out.append("</p>");
   }
 
-  @Override
-  public String show(Connection db) throws SQLException, UtilException, UserErrorException {
-    StringBuilder buf = new StringBuilder();
+  public List<Message> getMessagesCached(Connection db, Template tmpl) throws UtilException, SQLException, UserErrorException {
+    MemCachedClient mcc = MemCachedSettings.getClient();
+
+    String cacheId = MemCachedSettings.getId(getVariantID(tmpl.getProf()));
+
+    List<Message> res = (List<Message>) mcc.get(cacheId);
+
+    if (res == null) {
+      res = getMessages(db);
+      mcc.add(cacheId, res, getExpire());
+    }
+
+    return res;
+  }
+
+  public List<Message> getMessages(Connection db) throws SQLException, UtilException, UserErrorException {
     Statement st = db.createStatement();
 
     StringBuilder where = new StringBuilder(
@@ -342,19 +349,20 @@ public class NewsViewer implements Viewer {
             "ORDER BY sticky,commitdate DESC, msgid DESC "+limit
     );
 
+    List<Message> messages = new ArrayList<Message>();
+
     while (res.next()) {
       Message message = new Message(db, res);
-      buf.append(showCurrent(db, message));
+      messages.add(message);
     }
 
     res.close();
 
-    return buf.toString();
+    return messages;
   }
 
   public void setViewAll(boolean viewAll) {
     this.viewAll = viewAll;
-    moderateMode = viewAll;
   }
 
   public void setTag(String tag) {
@@ -377,12 +385,8 @@ public class NewsViewer implements Viewer {
     this.limit = limit;
   }
 
-  @Override
   public String getVariantID(ProfileHashtable prof) throws UtilException {
     StringBuilder id = new StringBuilder("view-news?"+
-        "t=" + prof.getInt("topics")+
-        "&m=" + prof.getInt("messages") +
-        "&st=" + prof.getString("style") +
         "&tg=" + URLEncoder.encode(tag));
 
     if (viewAll) {
@@ -408,7 +412,6 @@ public class NewsViewer implements Viewer {
     return id.toString();
   }
 
-  @Override
   public Date getExpire() {
     if (limit==null || limit.length()==0) {
       return new Date(new Date().getTime() + 10*60*1000);
@@ -418,10 +421,10 @@ public class NewsViewer implements Viewer {
   }
 
   public static NewsViewer getMainpage(Properties config, ProfileHashtable profile) {
-    NewsViewer nw = new NewsViewer(config, profile);
-    nw.section = 1;
-    nw.limit = "LIMIT 20";
-    nw.datelimit = "commitdate>(CURRENT_TIMESTAMP-'1 month'::interval)";
-    return nw;
+    NewsViewer nv = new NewsViewer();
+    nv.section = 1;
+    nv.limit = "LIMIT 20";
+    nv.datelimit = "commitdate>(CURRENT_TIMESTAMP-'1 month'::interval)";
+    return nv;
   }
 }

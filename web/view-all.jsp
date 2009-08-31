@@ -1,8 +1,7 @@
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="java.net.URLEncoder,java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.util.Date,ru.org.linux.site.LorDataSource"   buffer="60kb"%>
-<%@ page import="ru.org.linux.site.NewsViewer"%>
-<%@ page import="ru.org.linux.site.Section" %>
-<%@ page import="ru.org.linux.site.Template" %>
+<%@ page import="java.net.URLEncoder,java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.util.Date"   buffer="60kb"%>
+<%@ page import="java.util.List" %>
+<%@ page import="ru.org.linux.site.*" %>
 <%@ page import="ru.org.linux.util.ServletParameterParser" %>
 <%--
   ~ Copyright 1998-2009 Linux.org.ru
@@ -92,14 +91,17 @@
 
   Statement st = db.createStatement();
 
-  NewsViewer nw = new NewsViewer(tmpl.getConfig(), tmpl.getProf());
-  nw.setViewAll(true);
-  nw.setDatelimit("postdate>(CURRENT_TIMESTAMP-'1 month'::interval)");
+  NewsViewer newsViewer = new NewsViewer();
+  newsViewer.setViewAll(true);
+  newsViewer.setDatelimit("postdate>(CURRENT_TIMESTAMP-'1 month'::interval)");
   if (sectionid != 0) {
-    nw.setSection(sectionid);
+    newsViewer.setSection(sectionid);
   }
 
-  out.print(nw.show(db));
+  List<Message> messages = newsViewer.getMessages(db);
+  for (Message msg: messages) {
+    out.print(NewsViewer.showCurrent(db, msg, sectionid==0, tmpl, true));
+  }
 
   ResultSet rs;
 

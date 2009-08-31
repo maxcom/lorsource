@@ -1,5 +1,6 @@
 <%@ page contentType="text/html; charset=utf-8"%>
 <%@ page import="java.net.URLEncoder,java.sql.Connection,java.sql.Statement,java.util.Calendar"   buffer="200kb"%>
+<%@ page import="java.util.List" %>
 <%@ page import="ru.org.linux.site.*" %>
 <%@ page import="ru.org.linux.util.DateUtil" %>
 <%@ page import="ru.org.linux.util.ServletParameterException" %>
@@ -178,17 +179,17 @@
 
 <H1><%= ptitle %></H1>
 <%
-  NewsViewer nw = new NewsViewer(tmpl.getConfig(), tmpl.getProf());
+  NewsViewer newsViewer = new NewsViewer();
   if (section!=null) {
-    nw.setSection(sectionid);
+    newsViewer.setSection(sectionid);
   }
 
   if (group != null) {
-    nw.setGroup(group.getId());
+    newsViewer.setGroup(group.getId());
   }
 
   if (tag!=null) {
-    nw.setTag(tag);
+    newsViewer.setTag(tag);
   }
 
   int offset = 0;
@@ -205,18 +206,20 @@
   }
 
   if (month != 0) {
-    nw.setDatelimit("postdate>='" + year + '-' + month + "-01'::timestamp AND (postdate<'" + year + '-' + month + "-01'::timestamp+'1 month'::interval)");
+    newsViewer.setDatelimit("postdate>='" + year + '-' + month + "-01'::timestamp AND (postdate<'" + year + '-' + month + "-01'::timestamp+'1 month'::interval)");
   } else if (tag==null) {
-    nw.setDatelimit("commitdate>(CURRENT_TIMESTAMP-'6 month'::interval)");
-    nw.setLimit("LIMIT 20" + (offset > 0 ? (" OFFSET " + offset) : ""));
+    newsViewer.setDatelimit("commitdate>(CURRENT_TIMESTAMP-'6 month'::interval)");
+    newsViewer.setLimit("LIMIT 20" + (offset > 0 ? (" OFFSET " + offset) : ""));
   } else {
-    nw.setLimit("LIMIT 20" + (offset > 0 ? (" OFFSET " + offset) : ""));
+    newsViewer.setLimit("LIMIT 20" + (offset > 0 ? (" OFFSET " + offset) : ""));
   }
 
   st.close();
-  db.close(); db=null;
 
-  out.print(ViewerCacher.getViewer(nw, tmpl, false));
+  List<Message> messages = newsViewer.getMessagesCached(db, tmpl);
+  for (Message msg: messages) {
+    out.print(NewsViewer.showCurrent(db, msg, sectionid==0 && group==null, tmpl, false));
+  }
 
   String params = "section="+sectionid;
   if (tag!=null) {

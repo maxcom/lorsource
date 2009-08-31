@@ -1,5 +1,6 @@
 <%@ page contentType="text/html; charset=utf-8"%>
 <%@ page import="java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.util.Date"   buffer="60kb"%>
+<%@ page import="java.util.List" %>
 <%@ page import="ru.org.linux.site.*" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib prefix="lor" uri="http://www.linux.org.ru" %>
@@ -80,9 +81,14 @@
     db.close(); db=null;
   }
 
+  db = LorDataSource.getConnection();
+
   NewsViewer nv = NewsViewer.getMainpage(tmpl.getConfig(), tmpl.getProf());
 
-  out.print(ViewerCacher.getViewer(nv, tmpl, false));
+  List<Message> messages = nv.getMessagesCached(db, tmpl);
+  for (Message msg: messages) {
+    out.print(NewsViewer.showCurrent(db, msg, false, tmpl, false));
+  }
 %>
 <div class="nav">
   [<a href="view-news.jsp?section=1&amp;offset=20">← предыдущие</a>]
