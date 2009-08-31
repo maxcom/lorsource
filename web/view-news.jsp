@@ -5,6 +5,9 @@
 <%@ page import="ru.org.linux.util.DateUtil" %>
 <%@ page import="ru.org.linux.util.ServletParameterException" %>
 <%@ page import="ru.org.linux.util.ServletParameterParser" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
+
 <%--
   ~ Copyright 1998-2009 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -215,12 +218,12 @@
   }
 
   st.close();
+%>
+<c:forEach var="msg" items="<%= newsViewer.getMessagesCached(db, tmpl) %>">
+  <lor:news db="<%= db %>" message="${msg}" multiPortal="<%= sectionid==0 && group==null %>" moderateMode="false"/>
+</c:forEach>
 
-  List<Message> messages = newsViewer.getMessagesCached(db, tmpl);
-  for (Message msg: messages) {
-    out.print(NewsViewer.showCurrent(db, msg, sectionid==0 && group==null, tmpl, false));
-  }
-
+<%
   String params = "section="+sectionid;
   if (tag!=null) {
     params += "&amp;tag="+ URLEncoder.encode(tag, "UTF-8");

@@ -4,6 +4,7 @@
 <%@ page import="ru.org.linux.site.*" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib prefix="lor" uri="http://www.linux.org.ru" %>
+<%@ taglib tagdir="/WEB-INF/tags" prefix="lorDir" %>
 <%--
   ~ Copyright 1998-2009 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -84,12 +85,10 @@
   db = LorDataSource.getConnection();
 
   NewsViewer nv = NewsViewer.getMainpage(tmpl.getConfig(), tmpl.getProf());
-
-  List<Message> messages = nv.getMessagesCached(db, tmpl);
-  for (Message msg: messages) {
-    out.print(NewsViewer.showCurrent(db, msg, false, tmpl, false));
-  }
 %>
+    <c:forEach var="msg" items="<%= nv.getMessagesCached(db, tmpl) %>">
+      <lorDir:news db="<%= db %>" message="${msg}" multiPortal="false" moderateMode="false"/>
+    </c:forEach>
 <div class="nav">
   [<a href="view-news.jsp?section=1&amp;offset=20">← предыдущие</a>]
   [<a href="add-section.jsp?section=1">добавить новость</a>]

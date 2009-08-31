@@ -1,8 +1,11 @@
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page contentType="text/html; charset=utf-8"%>
 <%@ page import="java.net.URLEncoder,java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.util.Date"   buffer="60kb"%>
 <%@ page import="java.util.List" %>
 <%@ page import="ru.org.linux.site.*" %>
 <%@ page import="ru.org.linux.util.ServletParameterParser" %>
+<%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
+
 <%--
   ~ Copyright 1998-2009 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -97,12 +100,11 @@
   if (sectionid != 0) {
     newsViewer.setSection(sectionid);
   }
-
-  List<Message> messages = newsViewer.getMessages(db);
-  for (Message msg: messages) {
-    out.print(NewsViewer.showCurrent(db, msg, sectionid==0, tmpl, true));
-  }
-
+%>
+<c:forEach var="msg" items="<%= newsViewer.getMessages(db) %>">
+  <lor:news db="<%= db %>" message="${msg}" multiPortal="<%= sectionid==0 %>" moderateMode="true"/>
+</c:forEach>
+<%
   ResultSet rs;
 
   if (sectionid == 0) {

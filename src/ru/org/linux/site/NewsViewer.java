@@ -24,11 +24,15 @@ import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
+import javax.servlet.jsp.JspWriter;
 import com.danga.MemCached.MemCachedClient;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import ru.org.linux.util.*;
+import ru.org.linux.util.BadImageException;
+import ru.org.linux.util.ImageInfo;
+import ru.org.linux.util.ProfileHashtable;
+import ru.org.linux.util.UtilException;
 
 public class NewsViewer {
   private static final Log logger = LogFactory.getLog("ru.org.linux");
@@ -40,206 +44,7 @@ public class NewsViewer {
   private String limit="";
   private String tag="";
 
-  public static String showCurrent(Connection db, Message msg, boolean multiPortal, Template tmpl, boolean moderateMode) throws SQLException {
-//    boolean multiPortal = (group==0 && section==0);
-
-    StringBuilder out = new StringBuilder();
-    int msgid = msg.getId();
-    String url = msg.getUrl();
-    String subj = msg.getTitle();
-    String linktext = msg.getLinktext();
-    boolean imagepost = msg.getSection().isImagepost();
-    boolean votepoll = msg.isVotePoll();
-
-    Group group  ;
-    try {
-      group = new Group(db, msg.getGroupId());
-    } catch (BadGroupException e) {
-      throw new RuntimeException(e);
-    }
-
-    String image = group.getImage();
-    Timestamp lastmod = msg.getLastModified();
-    boolean expired = msg.isExpired();
-
-    if (lastmod == null) {
-      lastmod = new Timestamp(0);
-    }
-    double messages = tmpl.getProf().getInt("messages");
-
-    out.append("<div class=news><h2>");
-
-    String mainlink = "view-message.jsp?msgid=" + msgid;
-    String jumplink;
-    
-    if (!expired) {
-      jumplink = mainlink+ "&amp;lastmod=" + lastmod.getTime();
-    } else {
-      jumplink = mainlink;
-    }
-
-    out.append("<a href=\"").append(jumplink).append("\">");
-
-    if (multiPortal) {
-      out.append('(').append(msg.getSection().getTitle()).append(") ");
-    }
-    out.append(subj);
-    out.append("</a>");
-
-    out.append("</h2>");
-
-    if (image != null) {
-      out.append("<div class=\"entry-userpic\">");
-      out.append("<a href=\"view-news.jsp?section=").append(msg.getSectionId()).append("&amp;group=").append(msg.getGroupId()).append("\">");
-      try {
-        ImageInfo info = new ImageInfo(tmpl.getConfig().getProperty("HTMLPathPrefix") + tmpl.getProf().getString("style") + image);
-        out.append("<img src=\"/").append(tmpl.getProf().getString("style")).append(image).append("\" ").append(info.getCode()).append(" border=0 alt=\"Группа ").append(group.getTitle()).append("\">");
-      } catch (IOException e) {
-        logger.warn("Bad Image for group "+msg.getGroupId(), e);
-        out.append("[bad image] <img class=newsimage src=\"/").append(tmpl.getProf().getString("style")).append(image).append("\" " + " border=0 alt=\"Группа ").append(group.getTitle()).append("\">");
-      } catch (BadImageException e) {
-        logger.warn("Bad Image for group "+msg.getGroupId(), e);
-        out.append("[bad image] <img class=newsimage src=\"/").append(tmpl.getProf().getString("style")).append(image).append("\" " + " border=0 alt=\"Группа ").append(group.getTitle()).append("\">");
-      }
-      out.append("</a>");
-      out.append("</div>");
-    }
-
-    out.append("<div class=\"entry-body\">");
-    out.append("<div class=msg>\n");
-
-    if (!votepoll) {
-        out.append(msg.getProcessedMessage(db));
-    }
-
-    if (url != null && !imagepost && !votepoll) {
-      out.append("<p>&gt;&gt;&gt; <a href=\"").append(HTMLFormatter.htmlSpecialChars(url)).append("\">").append(linktext).append("</a>");
-    } else if (imagepost) {
-      showMediumImage(tmpl.getConfig().getProperty("HTMLPathPrefix"), out, url, subj, linktext);
-    } else if (votepoll) {
-      try {
-        Poll poll = Poll.getPollByTopic(db, msgid);
-	out.append(poll.renderPoll(db, tmpl.getConfig(), tmpl.getProf()));
-        out.append("<p>&gt;&gt;&gt; <a href=\"").append("vote-vote.jsp?msgid=").append(msgid).append("\">Голосовать</a>");
-        out.append("<p>&gt;&gt;&gt; <a href=\"").append(jumplink).append("\">Результаты</a>");
-      } catch (BadImageException e) {
-        logger.warn("Bad Image for poll msgid="+msgid, e);
-        out.append("<p>&gt;&gt;&gt; <a href=\"").append("\">[BAD POLL!] Просмотр</a>");
-      } catch (IOException e) {
-        logger.warn("Bad Image for poll msgid="+msgid, e);
-        out.append("<p>&gt;&gt;&gt; <a href=\"").append("\">[BAD POLL!] Просмотр</a>");
-      } catch (PollNotFoundException e) {
-        logger.warn("Bad poll msgid="+msgid, e);
-        out.append("<p>&gt;&gt;&gt; <a href=\"").append("\">[BAD POLL!] Просмотр</a>");
-      }
-    }
-
-    out.append("</div>");
-
-    if (msg.getSection().isPremoderated()) {
-      String tagLinks = Tags.getTagLinks(db, msgid);
-
-      if (tagLinks.length()>0) {
-        out.append("<p class=\"tags\">Метки: <span class=tag>");
-        out.append(tagLinks);
-        out.append("<span></p>");
-      }
-    }
-
-    User user  ;
-    try {
-      user = User.getUserCached(db, msg.getUid());
-    } catch (UserNotFoundException e) {
-      throw new RuntimeException(e);
-    }
-
-    out.append("<div class=sign>");
-    out.append(user.getSignature(false, msg.getPostdate(), true));
-    out.append("</div>");
-
-    if (!moderateMode) {
-      out.append("<div class=\"nav\">");
-
-      if (!expired) {
-        out.append("[<a href=\"comment-message.jsp?msgid=").append(msgid).append("\">Добавить&nbsp;комментарий</a>]");
-      }
-
-      int stat1 = msg.getCommentCount();
-
-      if (stat1 > 0) {
-        int pages = (int) Math.ceil(stat1 / messages);
-
-	out.append(" [<a href=\"");
-
-        if (pages<=1) {
-          out.append(jumplink);
-        } else {
-          out.append(mainlink);          
-        }
-
-        out.append("\">");
-
-//        if (stat1 % 10 == 1 && stat1 % 100 != 11) {
-//          out.append("Добавлен&nbsp;");
-//        } else {
-//          out.append("Добавлено&nbsp;");
-//        }
-
-        out.append(stat1);
-
-        if (stat1 % 100 >= 10 && stat1 % 100 <= 20) {
-          out.append("&nbsp;комментариев</a>");
-        } else {
-          switch (stat1 % 10) {
-            case 1:
-              out.append("&nbsp;комментарий</a>");
-              break;
-            case 2:
-            case 3:
-            case 4:
-              out.append("&nbsp;комментария</a>");
-              break;
-            default:
-              out.append("&nbsp;комментариев</a>");
-              break;
-          }
-        }
-
-	if (pages != 1){
-	  out.append("&nbsp;(стр.");
-	  for (int i = 1; i < pages; i++) {
-            if (i==pages-1) {
-              out.append(" <a href=\"").append(jumplink).append("&amp;page=").append(i).append("\">").append(i + 1).append("</a>");
-            } else {
-              out.append(" <a href=\"").append(mainlink).append("&amp;page=").append(i).append("\">").append(i + 1).append("</a>");
-            }
-          }
-	  out.append(')');
-	}
-	out.append(']');
-      }
-
-      out.append("</div>");
-    } else if (moderateMode) {
-      out.append("<div class=nav>");
-      out.append("[<a href=\"commit.jsp?msgid=").append(msgid).append("\">Подтвердить</a>]");
-      out.append(" [<a href=\"delete.jsp?msgid=").append(msgid).append("\">Удалить</a>]");
-      if (!votepoll) {
-        out.append(" [<a href=\"edit.jsp?msgid=").append(msgid).append("\">Править</a>]");
-      } else {
-        out.append(" [<a href=\"edit-vote.jsp?msgid=").append(msgid).append("\">Править</a>]");
-      }
-
-      out.append("</div>");
-    }
-    out.append("</div>");
-
-    out.append("</div>");
-
-    return out.toString();
-  }
-
-  public static void showMediumImage(String htmlPath, StringBuilder out, String url, String subj, String linktext) {
+  public static void showMediumImage(String htmlPath, JspWriter out, String url, String subj, String linktext) throws IOException {
     try {
       out.append("<p>");
       String mediumName = ScreenshotProcessor.getMediumName(url);
@@ -256,7 +61,7 @@ public class NewsViewer {
 
 
       out.append("&gt;&gt;&gt; <a href=\"/").append(url).append("\">Просмотр</a>");
-      out.append(" (<i>").append(info.getWidth()).append('x').append(info.getHeight()).append(", ").append(info.getSizeString()).append("</i>)");
+      out.append(" (<i>").append(Integer.toString(info.getWidth())).append('x').append(Integer.toString(info.getHeight())).append(", ").append(info.getSizeString()).append("</i>)");
     } catch (BadImageException e) {
       logger.warn("Bad image", e);
       out.append("&gt;&gt;&gt; <a href=\"/").append(url).append("\">[BAD IMAGE!] Просмотр</a>");
