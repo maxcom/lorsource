@@ -130,9 +130,7 @@
   }
 
   if (message.getUrl() != null && message.getSection().isImagepost()) {
-    StringBuilder outBuilder = new StringBuilder();
-    NewsViewer.showMediumImage(tmpl.getObjectConfig().getHTMLPathPrefix(), outBuilder, message.getUrl(), message.getTitle(), message.getLinktext());
-    out.print(outBuilder.toString());
+    NewsViewer.showMediumImage(tmpl.getObjectConfig().getHTMLPathPrefix(), out, message.getUrl(), message.getTitle(), message.getLinktext());
   }
 
   if (message.getSection().isPremoderated()) {
@@ -148,7 +146,7 @@
 
 <div class=sign>
 <%
-  out.append(author.getSignature(tmpl.isModeratorSession(), message.getPostdate(), false));
+  out.append(author.getSignature(tmpl.isModeratorSession(), message.getPostdate(), false, tmpl.getStyle()));
   if (tmpl.isModeratorSession()) {
     out.append(" (<a href=\"sameip.jsp?msgid=");
     out.print(msgid);

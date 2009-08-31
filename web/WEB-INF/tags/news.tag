@@ -140,7 +140,7 @@
   }
 
   out.append("<div class=sign>");
-  out.append(user.getSignature(false, message.getPostdate(), true));
+  out.append(user.getSignature(false, message.getPostdate(), true, tmpl.getStyle()));
   out.append("</div>");
 
   if (!(boolean) moderateMode) {

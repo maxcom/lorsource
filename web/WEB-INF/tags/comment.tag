@@ -99,7 +99,7 @@
   %>
     <div class=sign>
     <%
-  out.append(author.getSignature(moderatorMode, comment.getPostdate(), false));
+  out.append(author.getSignature(moderatorMode, comment.getPostdate(), false, tmpl.getStyle()));
 
   if (moderatorMode) {
     out.append(" (<a href=\"sameip.jsp?msgid=").append(Integer.toString(comment.getMessageId())).append("\">").append(comment.getPostIP()).append("</a>)");

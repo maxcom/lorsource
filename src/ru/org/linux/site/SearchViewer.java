@@ -156,7 +156,7 @@ public class SearchViewer implements Viewer {
       out.append("</p>");
 
       out.append("<div class=sign>");
-      out.append(user.getSignature(false, postdate, false));
+      out.append(user.getSignature(false, postdate, false, null));
       out.append("</div>");
 
       out.append("</div></td></tr></table><p>");
