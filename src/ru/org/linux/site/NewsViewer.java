@@ -162,7 +162,9 @@ public class NewsViewer implements Viewer {
     }
 
     String nick = user.getNick();
-    out.append("<div class=sign>").append(nick).append("(<a href=\"whois.jsp?nick=").append(URLEncoder.encode(nick)).append("\">*</a>) (").append(dateFormat.format(msg.getPostdate())).append(")</div>");
+    out.append("<div class=sign>");
+    out.append(user.getSignature(false, msg.getPostdate(), true));
+    out.append("</div>");
 
     if (!moderateMode) {
       out.append("<div class=\"nav\">");

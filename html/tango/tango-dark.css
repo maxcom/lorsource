@@ -34,6 +34,10 @@ a {
 	color: #8ae234;
 }
 
+#bd .sign a:visited {
+	color: #8ae234;
+}
+
 #bd .column .boxlet {
 	background-color: inherit;
 }

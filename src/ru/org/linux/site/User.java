@@ -448,7 +448,8 @@ public class User implements Serializable {
     return res;
   }
 
-  public String getSignature(boolean moderatorMode, Date postdate) {
+  /* Todo: move to jsp tag */
+  public String getSignature(boolean moderatorMode, Date postdate, boolean shortMode) {
     DateFormat dateFormat = DateFormats.createDefault();
 
     StringBuilder out = new StringBuilder();
@@ -465,11 +466,11 @@ public class User implements Serializable {
 
     out.append(' ');
 
-    if (!"anonymous".equals(nick)) {
+    if (!"anonymous".equals(nick) && !shortMode) {
       out.append(getStars(score, maxScore)).append(' ');
-        if (moderatorMode) {
-          out.append("(Score: ").append(score).append(" MaxScore: ").append(maxScore).append(") ");
-        }
+      if (moderatorMode) {
+        out.append("(Score: ").append(score).append(" MaxScore: ").append(maxScore).append(") ");
+      }
     }
 
     out.append("(<a href=\"whois.jsp?nick=").append(URLEncoder.encode(nick)).append("\">*</a>) (").append(dateFormat.format(postdate)).append(')');
