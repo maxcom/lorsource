@@ -89,6 +89,9 @@
     <c:forEach var="msg" items="<%= nv.getMessagesCached(db, tmpl) %>">
       <lorDir:news db="<%= db %>" message="${msg}" multiPortal="false" moderateMode="false"/>
     </c:forEach>
+<%
+  db.close(); db=null;
+%>
 <div class="nav">
   [<a href="view-news.jsp?section=1&amp;offset=20">← предыдущие</a>]
   [<a href="add-section.jsp?section=1">добавить новость</a>]
@@ -122,7 +125,7 @@
   </ul>
 </div>
 </div>
-  <% } %>
+  <% db.close(); db=null; } %>
   <lor:boxlets object="<%= columns3 ? \"main3-1\" : \"main2\" %>" var="boxes">
       <c:forEach var="boxlet" items="${boxes}">
         <div class="boxlet">

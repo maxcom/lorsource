@@ -16,6 +16,7 @@
 package ru.org.linux.site;
 
 import java.io.UnsupportedEncodingException;
+import java.io.Serializable;
 import java.net.URLEncoder;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -27,7 +28,7 @@ import gnu.regexp.RE;
 import gnu.regexp.REException;
 import org.apache.commons.lang.StringUtils;
 
-public class Tags{
+public class Tags implements Serializable {
   private static final RE tagRE;  
   
   static {

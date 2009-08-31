@@ -16,6 +16,7 @@
 package ru.org.linux.site;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.sql.*;
 import java.util.Date;
 import java.util.List;
@@ -28,7 +29,7 @@ import org.javabb.bbcode.BBCodeProcessor;
 import ru.org.linux.spring.AddMessageForm;
 import ru.org.linux.util.*;
 
-public class Message {
+public class Message implements Serializable {
   private static final Logger logger = Logger.getLogger("ru.org.linux");
 
   private final int msgid;
