@@ -22,6 +22,7 @@ import java.util.Date;
 import ru.org.linux.util.ProfileHashtable;
 import ru.org.linux.util.UtilException;
 
+@Deprecated
 public interface Viewer {
   String show(Connection db) throws SQLException, UtilException, UserErrorException;
   String getVariantID(ProfileHashtable prof) throws UtilException;
