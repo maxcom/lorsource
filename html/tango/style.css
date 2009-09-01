@@ -196,6 +196,7 @@ font-weight: bold;
 .msg {
     -moz-border-radius: 1em;
     -webkit-border-radius: 1em;
+    -khtml-border-radius: 1em;
     border-radius: 1em;
 }
 
@@ -210,5 +211,6 @@ pre {
 #bd .column .boxlet h2 {
 -moz-border-radius: 1em;
 -webkit-border-radius: 1em;
+-khtml-border-radius: 1em;
 border-radius: 1em;
 }

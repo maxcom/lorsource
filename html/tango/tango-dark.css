@@ -43,7 +43,7 @@ a {
 }
 
 #bd .column .boxlet h2 {
-	background-color: #555753;
+    background: #555753 url("/tango/round-corners-tango-boxlet.svg");
 }
 
 #bd .forum table thead {
@@ -63,7 +63,7 @@ a {
 }
 
 .messages .msg {
-  background-color: #272C2D;
+  background:  #272C2D url("/tango/round-corners-tango-msg.svg");
 }
 
 #bd a:visited {
