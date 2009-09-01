@@ -55,7 +55,7 @@ public final class DefaultProfile {
     defaults.put("topics", 30);
     defaults.put("messages", 50);
     defaults.put("tags", 50);
-    defaults.put("photos", Boolean.FALSE);
+    defaults.put("photos", Boolean.TRUE);
     defaults.put("sortwarning", Boolean.TRUE);
     defaults.put("system.timestamp", new Date().getTime());
     defaults.put("showinfo", Boolean.TRUE);
