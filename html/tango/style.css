@@ -91,6 +91,10 @@ p {
 	padding-bottom: 0.5em;
 }
 
+#bd h1 {
+    display: none;
+}
+
 #bd .news div.text {
 	margin-left: 64px;
 }
@@ -213,4 +217,16 @@ pre {
 -webkit-border-radius: 1em;
 -khtml-border-radius: 1em;
 border-radius: 1em;
+}
+
+#navPath {
+    font-size: 1.5em;
+}
+
+#navPath a {
+    text-decoration: underline;
+}
+
+#navPath a:visited {
+    text-decoration: underline;
 }

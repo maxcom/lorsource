@@ -30,7 +30,7 @@
 
   <table class=nav>
     <tr>
-      <td align=left valign=middle>
+      <td align=left valign=middle id="navPath">
         <strong>${section.name}</strong>
       </td>
 

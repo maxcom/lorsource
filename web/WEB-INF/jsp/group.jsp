@@ -74,7 +74,7 @@
 <form action="${self}">
   <table class=nav>
     <tr>
-    <td align=left valign=middle>
+    <td align=left valign=middle id="navPath">
       <a href="view-section.jsp?section=<%= group.getSectionId() %>"><%= group.getSectionName() %></a> - <strong><%= group.getTitle() %></strong>
     </td>
 

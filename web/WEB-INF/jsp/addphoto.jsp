@@ -23,7 +23,7 @@
 
 
   <table class=nav><tr>
-    <td align=left valign=middle>
+    <td align=left valign=middle id="navPath">
       Загрузка фотографии
     </td>
 

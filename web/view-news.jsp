@@ -147,7 +147,7 @@
 <jsp:include page="WEB-INF/jsp/header.jsp"/>
 <% if (section!=null) { %>
   <table class=nav><tr>
-    <td align=left valign=middle>
+    <td align=left valign=middle id="navPath">
       <strong><%= navtitle %></strong>
     </td>
     <td align=right valign=middle>

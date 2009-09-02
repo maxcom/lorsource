@@ -28,7 +28,7 @@
 <jsp:include page="WEB-INF/jsp/header.jsp"/>
 
   <table class=nav><tr>
-    <td align=left valign=middle>
+    <td align=left valign=middle id="navPath">
       Настройки профиля
     </td>
 

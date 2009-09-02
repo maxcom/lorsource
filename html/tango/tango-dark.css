@@ -78,3 +78,7 @@ color: #babdb6;
     color: white;
     text-decoration: none;
 }
+
+#navPath a:visited {
+    color: #729FCF;
+}
