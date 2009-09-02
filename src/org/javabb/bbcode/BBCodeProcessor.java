@@ -86,7 +86,7 @@ public class BBCodeProcessor implements Serializable {
    * @return HTML-formated message
    */
   private static CharSequence process(Connection db, String string) throws SQLException {
-    StringBuffer buffer = new StringBuffer(string);
+    StringBuffer buffer = new StringBuffer("<p>"+string);
     new CodeTag().processContent(buffer);
 
     CharSequence data = processNestedTags(buffer,
