@@ -100,7 +100,10 @@
     </a>     (<lor:user id="${msg.author}" db="<%= db %>" decorate="true"/>)
   </td>
   <td class="dateinterval">
-    <lor:dateinterval date="${msg.lastmod}"/>
+      <lor:dateinterval date="${msg.lastmod}"/>
+      <c:if test="${msg.lastCommentBy != 0}">
+        (<lor:user id="${msg.lastCommentBy}" db="<%= db %>" decorate="true"/>)
+      </c:if>
   </td>
   <td align='center'>
     <c:if test="${msg.stat1==0}">-</c:if><c:if test="${msg.stat1>0}"><b>${msg.stat1}</b></c:if>/<c:if test="${msg.stat3==0}">-</c:if><c:if test="${msg.stat3>0}"><b>${msg.stat3}</b></c:if>/<c:if test="${msg.stat4==0}">-</c:if><c:if test="${msg.stat4>0}"><b>${msg.stat4}</b></c:if>
