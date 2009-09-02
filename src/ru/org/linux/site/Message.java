@@ -328,19 +328,21 @@ public class Message implements Serializable {
   }
 
   public int getPostScore() {
-    if (commentCount>3000 && postscore < 200  && !sticky) {
+    int totalPS = Math.max(postscore, section.getCommentPostscore());
+
+    if (commentCount>3000 && totalPS < 200  && !sticky) {
       return 200;
     }
 
-    if (commentCount>2000 && postscore < 100  && !sticky) {
+    if (commentCount>2000 && totalPS < 100  && !sticky) {
       return 100;
     }
 
-    if (commentCount>1000 && postscore < 50 && !sticky) {
+    if (commentCount>1000 && totalPS < 50 && !sticky) {
       return 50;
     }
 
-    return postscore;
+    return totalPS;
   }
 
   public static String getPostScoreInfo(int postscore) {

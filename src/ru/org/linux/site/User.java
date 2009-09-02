@@ -161,9 +161,9 @@ public class User implements Serializable {
       throw new AccessViolationException("Not activated user");
     }
 
-    if (anonymous) {
-      throw new AccessViolationException("Anonymous user - disabled"); 
-    }
+//    if (anonymous) {
+//      throw new AccessViolationException("Anonymous user - disabled");
+//    }
   }
 
 

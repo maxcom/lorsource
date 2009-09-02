@@ -263,6 +263,7 @@ public class AddMessageForm {
     }
 
     user.checkBlocked();
+    user.checkAnonymous();
 
     if (user.isAnonymous()) {
       if (msg!=null && msg.length() > MAX_MESSAGE_LENGTH_ANONYMOUS) {

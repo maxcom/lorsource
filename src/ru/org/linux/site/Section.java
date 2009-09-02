@@ -146,4 +146,13 @@ public class Section implements Serializable {
       }
     }
   }
+
+  public int getCommentPostscore() {
+    //TODO move this to database
+    if (id==1) {
+      return 0;
+    } else {
+      return 50;
+    }
+  }
 }
