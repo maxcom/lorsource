@@ -95,6 +95,10 @@ p {
     display: none;
 }
 
+#bd .msg_body h1 {
+    display: inherit;
+}
+
 #bd .news div.text {
 	margin-left: 64px;
 }
