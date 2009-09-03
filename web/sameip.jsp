@@ -39,22 +39,24 @@
   db = LorDataSource.getConnection();
 
   String ip;
+  int ua_id = 0;
 
   if (request.getParameter("msgid") != null) {
     Statement ipst = db.createStatement();
     int msgid = new ServletParameterParser(request).getInt("msgid");
 
-    ResultSet rs = ipst.executeQuery("SELECT postip FROM topics WHERE id=" + msgid);
+    ResultSet rs = ipst.executeQuery("SELECT postip, ua_id FROM topics WHERE id=" + msgid);
 
     if (!rs.next()) {
       rs.close();
-      rs = ipst.executeQuery("SELECT postip FROM comments WHERE id=" + msgid);
+      rs = ipst.executeQuery("SELECT postip, ua_id FROM comments WHERE id=" + msgid);
       if (!rs.next()) {
         throw new MessageNotFoundException(msgid);
       }
     }
 
     ip = rs.getString("postip");
+    ua_id = rs.getInt("ua_id");
 
     if (ip == null) {
       throw new ScriptErrorException("No IP data for #" + msgid);
@@ -211,6 +213,32 @@ function checkCustomBan(idx) {
 
 </table>
 </div>
+
+<h2>Все пользователи, использовавшие данный IP</h2>
+
+<div class=forum>
+<table width="100%" class="message-table">
+<thead>
+<tr><th>Последний визит</th><th>Пользователь</th><th>User Agent</th></tr>
+<tbody>
+<%
+
+  st=db.createStatement();
+  rs=st.executeQuery("SELECT MAX(c.postdate) AS lastdate, u.nick, c.ua_id, ua.name AS user_agent FROM comments c JOIN user_agents ua ON c.ua_id = ua.id JOIN users u ON c.userid = u.id WHERE c.postip='" + ip + "' GROUP BY u.nick, c.ua_id, ua.name ORDER BY MAX(c.postdate) DESC, u.nick, ua.name");
+
+  while (rs.next()) {
+    boolean same_ua = ua_id == rs.getInt("ua_id");
+    out.print("<tr><td>" + tmpl.dateFormat.format(rs.getTimestamp("lastdate")) + "</td>" +
+                  "<td><a href=\"whois.jsp?nick=" + rs.getString("nick") + "\">" + rs.getString("nick") + "</a></td>" +
+		  "<td>" + (same_ua ? "<b>" : "") + rs.getString("user_agent") + (same_ua ? "</b>" : "") + "</td></tr>");
+  }
+
+  rs.close();
+  st.close();
+%>
+
+</table>
+</div>
 <%
   } finally {
     if (db!=null) {
@@ -218,4 +246,5 @@ function checkCustomBan(idx) {
     }
   }
 %>
+
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>
