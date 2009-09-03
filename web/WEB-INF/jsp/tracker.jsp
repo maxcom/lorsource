@@ -140,24 +140,26 @@
           boolean blocked = rs.getBoolean("blocked");
           boolean activated = rs.getBoolean("activated");
 
-          if (blocked) {
-            out.print("<s>");
-          }
-
           if (activated) {
             out.print("<b>");
           }
 
-          out.print("<a href='/whois.jsp?nick=" + nick + "'>" + nick + "</a> , ");
-          cnt++;
-
-          if (activated) {
-            out.print("</b>");
+          if (blocked) {
+            out.print("<s>");
           }
+
+          out.print("<a href='/whois.jsp?nick=" + nick + "'>" + nick + "</a>");
+          cnt++;
 
           if (blocked) {
             out.print("</s>");
           }
+          
+          if (activated) {
+            out.print("</b>");
+          }
+
+          out.print(", ");
         }
         out.println("(total " + cnt + ')');
       }
