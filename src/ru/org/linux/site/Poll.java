@@ -205,7 +205,7 @@ public class Poll {
     int max = getMaxVote(db);
     List<PollVariant> vars = getPollVariants(db, ORDER_VOTES);
     out.append("<table>");    
-    ImageInfo info = new ImageInfo(config.getProperty("HTMLPathPrefix") + profile.getString("style") + "/img/votes.gif");
+    ImageInfo info = new ImageInfo(config.getProperty("HTMLPathPrefix") + profile.getString("style") + "/img/votes.png");
     int total = 0;
     for (PollVariant var : vars) {
       out.append("<tr><td>");
@@ -221,7 +221,7 @@ public class Poll {
       out.append("</td><td>").append(votes).append("</td><td>");
       total += votes;
       for (int i = 0; i < 20 * votes / max; i++) {
-        out.append("<img src=\"/").append(profile.getString("style")).append("/img/votes.gif\" alt=\"*\" ").append(info.getCode()).append('>');
+        out.append("<img src=\"/").append(profile.getString("style")).append("/img/votes.png\" alt=\"*\" ").append(info.getCode()).append('>');
       }
       out.append("</td></tr>");
     }
@@ -243,7 +243,7 @@ public class Poll {
       out.append("</td><td>").append(votes).append("</td><td>");
       total += votes;
       for (int i = 0; i < 20 * votes / max; i++) {
-        out.append("<img src=\"").append(fullUrl).append("white/img/votes.gif\" alt=\"*\">");
+        out.append("<img src=\"").append(fullUrl).append("white/img/votes.png\" alt=\"*\">");
       }
       out.append("</td></tr>");
     }
