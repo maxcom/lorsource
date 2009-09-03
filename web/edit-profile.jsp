@@ -96,7 +96,7 @@
         <input type=radio name=style value=${s}>${s}<br>
       </c:if>
     </c:forEach>
-    Внимание! Тема "tango" находится в состоянии разработки, пока еще не готова
+    Внимание! Тема "tango" находится в состоянии разработки
   </td>
 </tr>
   <tr><td colspan=2><hr></td></tr>
@@ -108,6 +108,7 @@
     <input type=radio name=format_mode value=quot   <%= "quot".equals(formatMode)?"checked":"" %>> TeX paragraphs w/quoting (default)<br>
     <input type=radio name=format_mode value=tex    <%= "tex".equals(formatMode)?"checked":"" %>> TeX paragraphs w/o quoting<br>
     <input type=radio name=format_mode value=ntobr  <%= "ntobr".equals(formatMode)?"checked":"" %>> User line break w/o quoting<br>
+    <input type=radio name=format_mode value=lorcode  <%= "lorcode".equals(formatMode)?"checked":"" %>> LORCODE<br>
   </td>
 </tr>
 

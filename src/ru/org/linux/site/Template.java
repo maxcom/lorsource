@@ -167,8 +167,7 @@ public class Template {
         !"quot".equals(mode) &&
         !"tex".equals(mode) &&
         !"ntobr".equals(mode) &&
-        !"html".equals(mode) &&
-        !"pre".equals(mode)) {
+        !"lorcode".equals(mode)) {
       return (String) Profile.getDefaults().get("format.mode");
     }
 
