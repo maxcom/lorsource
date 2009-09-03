@@ -58,6 +58,7 @@ public class BBCodeProcessor implements Serializable {
 //            "<span style='font-size:$1px'>$2</span>"),
       new SimpleRegexTag("b", "\\[b\\](.*?)\\[/b\\]", "<b>$1</b>"),
       new SimpleRegexTag("em", "\\[em\\](.*?)\\[/em\\]", "<em>$1</em>"),
+      new SimpleRegexTag("s", "\\[s\\](.*?)\\[/s\\]", "<del>$1</del>"),
       new SimpleRegexTag("strong", "\\[strong\\](.*?)\\[/strong\\]", "<strong>$1</strong>"),
       new SimpleRegexTag("u", "\\[u\\](.*?)\\[/u\\]", "<u>$1</u>"),
       new SimpleRegexTag("i", "\\[i\\](.*?)\\[/i\\]", "<i>$1</i>"),
