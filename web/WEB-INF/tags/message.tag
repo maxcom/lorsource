@@ -174,7 +174,7 @@
     if (!message.isExpired()) {
       out.append("[<a href=\"comment-message.jsp?msgid=");
       out.print(msgid);
-      out.append("\">Ответить на это сообщение</a>] ").append(Message.getPostScoreInfo(message.getPostScore()));
+      out.append("\">Ответить на это сообщение</a>] ")/*.append(Message.getPostScoreInfo(message.getPostScore()))*/;
     }
 
     out.append("</div>");
