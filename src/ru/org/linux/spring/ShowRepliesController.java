@@ -30,6 +30,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
+import org.javabb.bbcode.BBCodeProcessor;
 
 import ru.org.linux.site.*;
 
@@ -110,7 +111,7 @@ public class ShowRepliesController {
             " comments.id AS cid, " +
             " comments.postdate AS cDate, " +
             " comments.userid AS cAuthor, " +
-            " msgbase.message AS cMessage " +
+            " msgbase.message AS cMessage, bbcode " +
             " FROM sections INNER JOIN groups ON (sections.id = groups.section) " +
             " INNER JOIN topics ON (groups.id=topics.groupid) " +
             " INNER JOIN comments ON (comments.topic=topics.id) " +
@@ -171,7 +172,13 @@ public class ShowRepliesController {
       cAuthor = rs.getInt("cAuthor");
       cDate = rs.getTimestamp("cDate");
       if (readMessage) {
-        messageText = rs.getString("cMessage");
+        String text = rs.getString("cMessage");
+        if (rs.getBoolean("bbcode")) {
+          messageText = new BBCodeProcessor().preparePostText(db, text);
+        } else {
+          messageText = text;
+        }
+        
         nick = User.getUserCached(db, cAuthor).getNick();
       } else {
         messageText = null;
