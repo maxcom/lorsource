@@ -24,7 +24,7 @@
 <body>
 <div id="doc3" class="yui-t5">
   	<div id="hd">
-        		<h1><a id="sitetitle" href="/">LINUX.ORG.RU - Русская информация об ОС Linux</a></h1>
+        		<h1><a id="sitetitle" href="/">LINUX.ORG.RU&nbsp;&#8212; Русская информация об&nbsp;ОС&nbsp;Linux</a></h1>
 
         <div class="menu">
             <ul class="primary">
