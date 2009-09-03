@@ -112,14 +112,6 @@ p {
 	margin: 0;
 }
 
-#bd ul{
-	list-style-type: disc;
-}
-
-#bd ol{
-	list-style-type: decimal;
-}
-
 #bd li {
 	margin-left: 2em;
 	list-style: inherit;
