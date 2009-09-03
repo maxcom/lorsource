@@ -49,7 +49,7 @@
 <form action="tracker.jsp">
 
   <table class=nav><tr>
-    <td align=left valign=middle>
+    <td align=left valign=middle id="navPath">
       <%= title %>
     </td>
 
@@ -64,7 +64,7 @@
  </table>
 </form>
 
-<h1><%= title %></h1>
+<h1 style="optional"><%= title %></h1>
 
 <div class=forum>
 <table width="100%" class="message-table">
