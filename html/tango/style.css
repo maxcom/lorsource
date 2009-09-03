@@ -6,6 +6,10 @@
     border: none;
 }
 
+h1,h2 {
+    font-weight: bold;
+}
+
 .newsblog h1 {
     display: none;
 }
@@ -192,10 +196,13 @@ p {
     font-style: normal;
 }
 
-div.msg_body h1,h2 {
+div.msg_body h1 {
 font-weight: bold;
 }
 
+div.msg_body h2 {
+font-weight: bold;
+}
 
 .msg {
     -moz-border-radius: 1em;
