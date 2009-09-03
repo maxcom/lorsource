@@ -112,7 +112,7 @@
 
 </form>
 
-<h1>${group.sectionName}: ${group.title}</h1>
+<h1 class="optional">${group.sectionName}: ${group.title}</h1>
 <%
   if (group.getImage() != null) {
     out.print("<div align=center>");

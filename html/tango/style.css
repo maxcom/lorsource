@@ -91,12 +91,8 @@ p {
 	padding-bottom: 0.5em;
 }
 
-#bd h1 {
+#bd h1.optional {
     display: none;
-}
-
-#bd .msg_body h1 {
-    display: inherit;
 }
 
 #bd .news div.text {

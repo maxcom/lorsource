@@ -40,7 +40,7 @@
     </tr>
  </table>
 
-<h1>Настройки профиля</h1>
+<h1 class="optional">Настройки профиля</h1>
 
 <%
   if (request.getParameter("mode") == null) {

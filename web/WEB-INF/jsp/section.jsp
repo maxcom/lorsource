@@ -48,7 +48,7 @@
     </tr>
   </table>
 
-<h1>${section.name}</h1>
+<h1 class="optional">${section.name}</h1>
 
 Группы:
 <ul>

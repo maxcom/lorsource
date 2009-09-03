@@ -180,7 +180,7 @@
 
 <% } %>
 
-<H1><%= ptitle %></H1>
+<H1 class="optional"><%= ptitle %></H1>
 <%
   NewsViewer newsViewer = new NewsViewer();
   if (section!=null) {
