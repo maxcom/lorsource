@@ -67,7 +67,7 @@
 
 %>
 <table class=nav><tr>
-			<td align=left valign=middle>
+			<td align=left valign=middle id="navPath">
 			<strong>Интерфейс модератора - Сообщения с <%= ip %></strong>
 			</td>
 
@@ -86,7 +86,7 @@
 
 			</table>
 
-<h1 align="center">Сообщения с <%= ip %> (за 3 дня)</h1>
+<h1 class="optional">Сообщения с <%= ip %> (за 3 дня)</h1>
 
 <strong>Текущий статус: </strong>
 
@@ -171,19 +171,17 @@ function checkCustomBan(idx) {
 
 <h2>Темы</h2>
 
-<div class=forum width="100%">
-<table>
-<tr class=color1><td>
-<table width="100%" cellspacing=1 cellpadding=0 border=0>
+<div class=forum>
+<table  width="100%" class="message-table">
 <thead>
-<tr class=color1><th>Раздел</th><th>Группа</th><th>Заглавие</th><th>Дата</th></tr>
+<tr><th>Раздел</th><th>Группа</th><th>Заглавие</th><th>Дата</th></tr>
 <tbody>
 <%
 
   Statement st=db.createStatement();
   ResultSet rs=st.executeQuery("SELECT sections.name as ptitle, groups.title as gtitle, topics.title as title, topics.id as msgid, postdate FROM topics, groups, sections, users WHERE topics.groupid=groups.id AND sections.id=groups.section AND users.id=topics.userid AND topics.postip='"+ip+"' AND postdate>CURRENT_TIMESTAMP-'3 days'::interval ORDER BY msgid DESC");
   while (rs.next()) {
-    out.print("<tr class=color2><td>" + rs.getString("ptitle") + "</td><td>" + rs.getString("gtitle") + "</td><td><a href=\"view-message.jsp?msgid=" + rs.getInt("msgid") + "\" rev=contents>" + StringUtil.makeTitle(rs.getString("title")) + "</a></td><td>" + tmpl.dateFormat.format(rs.getTimestamp("postdate")) + "</td></tr>");
+    out.print("<tr><td>" + rs.getString("ptitle") + "</td><td>" + rs.getString("gtitle") + "</td><td><a href=\"view-message.jsp?msgid=" + rs.getInt("msgid") + "\" rev=contents>" + StringUtil.makeTitle(rs.getString("title")) + "</a></td><td>" + tmpl.dateFormat.format(rs.getTimestamp("postdate")) + "</td></tr>");
   }
 
   rs.close();
@@ -191,32 +189,27 @@ function checkCustomBan(idx) {
 
 %>
 </table>
-</td></tr></table>
 </div>
 <h2>Комментарии</h2>
 
-<div class=forum width="100%">
-<table>
-<tr class=color1><td>
-<table width="100%" cellspacing=1 cellpadding=0 border=0>
+<div class=forum>
+<table width="100%" class="message-table">
 <thead>
-<tr class=color1><th>Раздел</th><th>Группа</th><th>Заглавие темы</th><th>Дата</th></tr>
+<tr><th>Раздел</th><th>Группа</th><th>Заглавие темы</th><th>Дата</th></tr>
 <tbody>
 <%
 
   st=db.createStatement();
   rs=st.executeQuery("SELECT sections.name as ptitle, groups.title as gtitle, topics.title, topics.id as topicid, comments.id as msgid, comments.postdate FROM sections, groups, topics, comments WHERE sections.id=groups.section AND groups.id=topics.groupid AND comments.topic=topics.id AND comments.postip='"+ip+"' AND comments.postdate>CURRENT_TIMESTAMP-'24 hour'::interval ORDER BY postdate DESC;");
   while (rs.next()) {
-    out.print("<tr class=color2><td>" + rs.getString("ptitle") + "</td><td>" + rs.getString("gtitle") + "</td><td><a href=\"jump-message.jsp?msgid=" + rs.getInt("topicid") + "&amp;cid=" + rs.getInt("msgid") + "\" rev=contents>" + StringUtil.makeTitle(rs.getString("title")) + "</a></td><td>" + tmpl.dateFormat.format(rs.getTimestamp("postdate")) + "</td></tr>");
+    out.print("<tr><td>" + rs.getString("ptitle") + "</td><td>" + rs.getString("gtitle") + "</td><td><a href=\"jump-message.jsp?msgid=" + rs.getInt("topicid") + "&amp;cid=" + rs.getInt("msgid") + "\" rev=contents>" + StringUtil.makeTitle(rs.getString("title")) + "</a></td><td>" + tmpl.dateFormat.format(rs.getTimestamp("postdate")) + "</td></tr>");
   }
 
   rs.close();
   st.close();
-
 %>
 
 </table>
-</td></tr></table>
 </div>
 <%
   } finally {
