@@ -328,6 +328,10 @@ public class Message implements Serializable {
   }
 
   public int getPostScore() {
+    if (postscore==-1) {
+      return -1;
+    }
+
     int totalPS = Math.max(postscore, section.getCommentPostscore());
 
     if (commentCount>3000 && totalPS < 200  && !sticky) {
@@ -343,6 +347,22 @@ public class Message implements Serializable {
     }
 
     return totalPS;
+  }
+
+  public int getEffectivePostScore(Connection db) throws BadGroupException, SQLException {
+    int postscore = getPostScore();
+
+    Group group = new Group(db, getGroupId());
+
+    if (postscore>=0) {
+      if (group.getCommentsRestriction()==-1) {
+        postscore = -1;
+      } else {
+        postscore = Math.max(postscore, group.getCommentsRestriction());
+      }
+    }
+
+    return postscore;
   }
 
   public static String getPostScoreInfo(int postscore) {
@@ -559,11 +579,11 @@ public class Message implements Serializable {
   }
 
   public void checkCommentsAllowed(Connection db, User user) throws AccessViolationException, SQLException, BadGroupException {
-    Group group = new Group(db, guid);
-
-    if (!group.isCommentPostingAllowed(user)) {
-      throw new AccessViolationException("В эту группу нельзя добавлять комментарии");
-    }
+//    Group group = new Group(db, guid);
+//
+//    if (!group.isCommentPostingAllowed(user)) {
+//      throw new AccessViolationException("В эту группу нельзя добавлять комментарии");
+//    }
 
     user.checkBlocked();
 
@@ -575,7 +595,7 @@ public class Message implements Serializable {
       throw new AccessViolationException("группа уже устарела");
     }
 
-    int score = getPostScore();
+    int score = getEffectivePostScore(db);
 
     if (score != 0) {
       if (user.getScore() < score || user.isAnonymous() || (score == -1 && !user.canModerate())) {

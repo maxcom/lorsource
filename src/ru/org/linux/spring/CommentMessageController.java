@@ -16,6 +16,7 @@
 package ru.org.linux.spring;
 
 import java.sql.Connection;
+import java.util.HashMap;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -45,7 +46,14 @@ public class CommentMessageController {
         throw new AccessViolationException("нельзя комментировать удаленные сообщения");
       }
 
-      return new ModelAndView("comment-message", "message", message);
+      HashMap<String, Object> params = new HashMap<String, Object>();
+
+      int postscore = message.getEffectivePostScore(db);
+      params.put("postscore", postscore);
+
+      params.put("message", message);
+
+      return new ModelAndView("comment-message", params);
     } finally {
       if (db!=null) {
         db.close();

@@ -58,7 +58,7 @@ public class AddCommentController extends ApplicationObjectSupport {
       Message topic = new Message(db, topicId);
       checkTopic(topic);
 
-      int postscore = topic.getPostScore();
+      int postscore = topic.getEffectivePostScore(db);
       params.put("postscore", postscore);
 
       createReplyTo(replyTo, params, db);

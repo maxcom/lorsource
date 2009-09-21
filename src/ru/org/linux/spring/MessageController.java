@@ -76,7 +76,7 @@ public class MessageController {
         throw new MessageNotFoundException(message.getId(), "Сообщение удалено");
       }
 
-      if (new Group(db, message.getGroupId()).isCommentsRestricted() && !Template.isSessionAuthorized(request.getSession())) {
+      if (new Group(db, message.getGroupId()).getCommentsRestriction()==-1 && !Template.isSessionAuthorized(request.getSession())) {
         throw new AccessViolationException("Это сообщение нельзя посмотреть");
       }
 

@@ -149,7 +149,7 @@ public class Section implements Serializable {
 
   public int getCommentPostscore() {
     //TODO move this to database
-    if (id==1) {
+    if (id==1 || id==2) {
       return 0;
     } else {
       return 50;

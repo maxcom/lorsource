@@ -50,7 +50,7 @@
 <a href="rules.jsp">правилами</a> сайта.</font><p>
 
 <%
-  out.print(Message.getPostScoreInfo(message.getPostScore()));
+  out.print(Message.getPostScoreInfo((Integer) request.getAttribute("postscore")));
 %>
 
 <form method=POST action="add_comment.jsp">
