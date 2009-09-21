@@ -20,7 +20,7 @@ import java.util.*;
 import org.apache.commons.collections.Predicate;
 
 public final class DefaultProfile {
-  private static final String[] boxlist = {"poll", "top10", "gallery", "tagcloud", "archive", "ibm"};
+  private static final String[] boxlist = {"poll", "top10", "gallery", "tagcloud", "archive", "ibm", "tshirt"};
   private static final Set<String> boxSet = new HashSet<String>(Arrays.asList(boxlist));
 
   private static final String[] styles = { "black", "white", "white2", "tango" };
@@ -77,6 +77,7 @@ public final class DefaultProfile {
     boxes.addElement("tagcloud");
     boxes.addElement("archive");
 //    boxes.addElement("profile");
+    boxes.addElement("tshirt");
     defaults.put("main2", boxes);
 
     boxes = new Vector();
@@ -93,6 +94,7 @@ public final class DefaultProfile {
     boxes.addElement("top10");
     boxes.addElement("gallery");
 //		boxes.addElement("justnews");
+    boxes.addElement("tshirt");
     defaults.put("main3-2", boxes);
 
     return defaults;
