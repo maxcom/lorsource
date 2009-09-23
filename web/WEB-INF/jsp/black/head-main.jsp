@@ -20,7 +20,7 @@
 <LINK REL="shortcut icon" HREF="/favicon.ico" TYPE="image/x-icon">
 </head>
 <body style="margin-top: 0">
-<img style="float: left" src="/black/lorlogo.png" alt="Русская информация об ОС LINUX" width="270" height="208">
+<img style="float: left" src="/black/lorlogo-try.png" alt="Русская информация об ОС LINUX" width="270" height="208">
 <div style="float: left" class="head-main">
 <table>
 <tr>
