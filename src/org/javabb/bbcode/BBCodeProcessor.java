@@ -92,9 +92,9 @@ public class BBCodeProcessor implements Serializable {
 
     CharSequence data = processNestedTags(buffer,
         "quote",
-        "<div class=\"quote\"><h3>{BBCODE_PARAM}</h3>",
+        "<div class=\"quote\"><h3>{BBCODE_PARAM}</h3><p>",
         "</div>",
-        "<div class=\"quote\"><h3>Цитата</h3>",
+        "<div class=\"quote\"><h3>Цитата</h3><p>",
         "</div>",
         "[*]",
         false,
