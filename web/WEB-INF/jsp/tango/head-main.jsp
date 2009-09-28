@@ -20,6 +20,19 @@
 <LINK REL=STYLESHEET TYPE="text/css" HREF="/tango/style.css" TITLE="Normal">
 <LINK REL=STYLESHEET TYPE="text/css" HREF="/tango/tango-dark.css" TITLE="Normal">
 <LINK REL="shortcut icon" HREF="/favicon.ico" TYPE="image/x-icon">
+<script src="/js/jquery.corner.js" type="text/javascript"></script>
+<script type="text/javascript">
+  $(document).ready(function() {
+    var moz = $.browser.mozilla && /gecko/i.test(navigator.userAgent);
+    var webkit = $.browser.safari && $.browser.version >= 3;
+
+    if (!moz && !webkit) {
+      $('.msg').corner()
+    }
+  });
+</script>
+
+
 </head>
 <body>
 <div id="doc3" class="yui-t5">
