@@ -38,7 +38,7 @@ import ru.org.linux.util.ServletParameterParser;
 
 @Controller
 public class CommitController extends ApplicationObjectSupport {
-  @RequestMapping(value="/commit.jsp", method= RequestMethod.GET)
+  @RequestMapping(value = "/commit.jsp", method = RequestMethod.GET)
   public ModelAndView showForm(
     HttpServletRequest request,
     @RequestParam("msgid") int msgid
@@ -73,13 +73,13 @@ public class CommitController extends ApplicationObjectSupport {
 
       return new ModelAndView("commit", params);
     } finally {
-      if (db!=null) {
+      if (db != null) {
         db.close();
       }
     }
   }
 
-  @RequestMapping(value="/commit.jsp", method= RequestMethod.POST)
+  @RequestMapping(value = "/commit.jsp", method = RequestMethod.POST)
   public ModelAndView commit(
     HttpServletRequest request,
     @RequestParam("msgid") int msgid,
@@ -141,7 +141,7 @@ public class CommitController extends ApplicationObjectSupport {
       pst.executeUpdate();
       pst2.executeUpdate();
 
-      if (request.getParameter("tags")!=null) {
+      if (request.getParameter("tags") != null) {
         List<String> tags = Tags.parseTags(request.getParameter("tags"));
         Tags.updateTags(db, msgid, tags);
         Tags.updateCounters(db, null, Tags.getMessageTags(db, msgid));
