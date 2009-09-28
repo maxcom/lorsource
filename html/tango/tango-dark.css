@@ -63,7 +63,7 @@ a {
 }
 
 .messages .msg {
-  background:  #272C2D url("/tango/round-corners-tango-msg.svg");
+  background:  #272C2D;
 }
 
 #bd a:visited {

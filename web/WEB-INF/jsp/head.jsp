@@ -20,3 +20,4 @@
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.2.6/jquery.min.js" type="text/javascript"></script>
 <script src="/js/jquery.form.js" type="text/javascript"></script>
 <script src="/js/jquery.hotkeys-0.7.8-packed.js" type="text/javascript"></script>
+<script src="/js/rounded.js" type="text/javascript"></script>
