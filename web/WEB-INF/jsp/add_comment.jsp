@@ -23,8 +23,6 @@
 <%
   int topicId = (Integer) request.getAttribute("topic");
   int postscore = (Integer) request.getAttribute("postscore");
-  Template tmpl = Template.getTemplate(request);
-
 %>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
@@ -37,6 +35,17 @@
 %>
 
 <title>Добавить сообщение</title>
+<script src="/js/jquery.validate.pack.js" type="text/javascript"></script>
+<script type="text/javascript">
+  $(document).ready(function() {
+    $("#commentForm").validate({
+      messages : {
+        msg :  "Введите сообщение",
+        title : "Введите заголовок"
+      }
+    });
+  });
+</script>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
 <h1>Добавить комментарий</h1>
@@ -58,7 +67,7 @@
   out.print(Message.getPostScoreInfo(postscore));
 %>
 
-<form method=POST action="add_comment.jsp">
+<form method=POST action="add_comment.jsp" id="commentForm">
   <input type="hidden" name="session"
          value="<%= HTMLFormatter.htmlSpecialChars(session.getId()) %>">
   <% if (!Template.isSessionAuthorized(session)) { %>
@@ -127,15 +136,15 @@
   </div>
   <% } %>
   
-  Заглавие:
-  <input type=text name=title size=40 value="<%= title %>"><br>
+  <label for="title">Заглавие:</label>
+  <input type=text class="required" id="title" name=title size=40 value="<%= title %>"><br>
 
-  Сообщение:<br>
+  <label for="msg">Сообщение:</label><br>
   <font size=2>(В режиме <i>Tex paragraphs</i> игнорируются переносы строк.<br> Пустая строка (два
     раза Enter) начинает новый абзац.<br> Знак '&gt;' в начале абзаца выделяет абзац курсивом
     цитирования)</font><br>
   <font size="2"><b>Внимание:</b> Новый экспериментальный режим - <a href="/wiki/en/Lorcode">LORCODE</a></font><br>
-  <textarea name="msg" cols="70"
+  <textarea id="msg" class="required" name="msg" cols="70"
             rows="20"><%= request.getParameter("msg") == null ? "" : HTMLFormatter.htmlSpecialChars(request.getParameter("msg"))
   %></textarea><br>
 

@@ -25,6 +25,20 @@
 <jsp:include page="head.jsp"/>
 
 <title>Регистрация пользователя</title>
+<script src="/js/jquery.validate.pack.js" type="text/javascript"></script>
+<script src="/js/jquery.validate.ru.js" type="text/javascript"></script>
+<script type="text/javascript">
+  $(document).ready(function() {
+    $("#registerForm").validate({
+      rules : {
+        password2: {
+          equalTo: "#password"
+        }
+      }
+    });
+  });
+</script>
+
 <jsp:include page="header.jsp"/>
 <%
   response.addHeader("Cache-Control", "no-store, no-cache, must-revalidate");
@@ -41,19 +55,19 @@
   <div class="error">Ошибка: ${error}</div>
 </c:if>
 
-<form method=POST action="register.jsp">
+<form method=POST action="register.jsp" id="registerForm">
 <b>Login:</b>
-<input type=text name=nick size=40 value="<c:out value="${param.nick}"/>"><br>
+<input class="required" type=text name=nick size=40 value="<c:out value="${param.nick}"/>"><br>
 Полное имя:
 <input type=text name=name size=40 value="<c:out value="${param.name}"/>"><br>
 <b>Пароль:</b>
-<input type=password name=password size=20><br>
+<input class="required" id="password" type=password name=password size=20><br>
 <b>Повторите Пароль:</b>
-<input type=password name=password2 size=20><br>
+<input class="required" id="password2" type=password name=password2 size=20><br>
 URL (не забудьте добавить <b>http://</b>): <br>
 <input type=text name=url size="50" value="<c:out value="${param.url}"/>"><br>
 <b>E-mail</b> (ваш email не будет публиковаться на сайте):<br>
-<input type=text name=email size="50" value="<c:out value="${param.email}"/>"><br>
+<input class="required email" type=text name=email size="50" value="<c:out value="${param.email}"/>"><br>
 Город (просьба писать русскими буквами без сокращений, например: <b>Москва</b>,
 <b>Нижний Новгород</b>, <b>Троицк (Московская область)</b>):
 <input type=text name=town size=50 value="<c:out value="${param.town}"/>"><br>

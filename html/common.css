@@ -212,3 +212,25 @@ pre {
 .tag {
     font-style: italic;
 }
+
+input.error {
+    margin: inherit;
+    padding: inherit;
+    border: 1px solid #f00;
+    font-weight: inherit;
+}
+
+textarea.error {
+    margin: inherit;
+    padding: inherit;
+    border: 1px solid #f00;
+    font-weight: inherit;
+}
+
+label.error {
+    margin: inherit inherit inherit 1em;
+    padding: inherit;
+    border: inherit;
+    vertical-align: top;
+    color: #f00;
+}
