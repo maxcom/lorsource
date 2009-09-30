@@ -40,7 +40,6 @@
 <input type="hidden" name="session" value="<%= HTMLFormatter.htmlSpecialChars(session.getId()) %>">  
 <input type="hidden" name="group" value="19387">
 <input type="hidden" name="mode" value="html">
-<input type="hidden" name="autourl" value="0">
 <input type="hidden" name="texttype" value="0">
 
   Вопрос: <input type="text" name="title" size="40"><br>

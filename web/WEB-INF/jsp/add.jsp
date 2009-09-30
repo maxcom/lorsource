@@ -35,8 +35,6 @@
     boolean preview = previewMsg!=null;
 
     String mode = form.getMode();
-    boolean autourl = form.isAutourl();
-
 %>
 
 <title>Добавить сообщение</title>
@@ -129,11 +127,6 @@
 <option value=tex <%= (preview && "tex".equals(mode))?"selected":""%> >TeX paragraphs
 <option value=ntobr <%= (preview && "ntobr".equals(mode))?"selected":""%> >User line break
 <option value=lorcode <%= (preview && "lorcode".equals(mode))?"selected":""%> >LORCODE
-</select>
-
-<select name=autourl>
-<option value=1 <%= (preview && autourl)?"selected":""%> >Auto URL
-<option value=0 <%= (preview && !autourl)?"selected":""%> >No Auto URL
 </select>
 
   <lor:captcha/>

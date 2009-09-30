@@ -76,11 +76,6 @@
 <option value=lorcode <%= (mode!=null && "lorcode".equals(mode))?"selected":""%> >LORCODE    
 </select>
 
-<select name=autourl>
-<option value=1>Auto URL
-<option value=0>No Auto URL
-</select>
-
 <input type=hidden name=texttype value=0>
 <br>
 

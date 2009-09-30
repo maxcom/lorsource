@@ -47,7 +47,6 @@ public class AddMessageForm {
   private String nick = null;
   private String image = "";
   private String captchaResponse = "";
-  private boolean autourl = true;
   private String mode = "";
   private String tags = null;
   private String url = null;
@@ -108,10 +107,6 @@ public class AddMessageForm {
     return captchaResponse;
   }
 
-  public boolean isAutourl() {
-    return autourl;
-  }
-
   public String getMode() {
     return mode;
   }
@@ -148,7 +143,6 @@ public class AddMessageForm {
       nick = request.getParameter("nick");
       password = request.getParameter("password");
       mode = request.getParameter("mode");
-      autourl = "1".equals(request.getParameter("autourl"));
       title = request.getParameter("title");
       msg = request.getParameter("msg");
     }
@@ -298,9 +292,8 @@ public class AddMessageForm {
       }
       formatter.setMaxLength(maxlength);
 
-      if (autourl) {
-        formatter.enableUrlHighLightMode();
-      }
+      formatter.enableUrlHighLightMode();
+
       if ("ntobrq".equals(mode)) {
         formatter.enableNewLineMode();
       }

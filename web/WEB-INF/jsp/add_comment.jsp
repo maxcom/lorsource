@@ -29,7 +29,6 @@
 <%
   Exception error = (Exception) request.getAttribute("error");
   String mode = (String) request.getAttribute("mode");
-  boolean autourl = (Boolean) request.getAttribute("autourl");
   Comment comment = (Comment) request.getAttribute("comment");
 
 %>
@@ -159,11 +158,6 @@
       w/o quoting
     <option value=html <%= (mode!=null && "html".equals(mode))?"selected":""%> >Ignore line breaks
     <option value=lorcode <%= (mode!=null && "lorcode".equals(mode))?"selected":""%> >LORCODE    
-  </select>
-
-  <select name=autourl>
-    <option value=1 <%= autourl?"selected":""%> >Auto URL
-    <option value=0 <%= !autourl?"selected":""%> >No Auto URL
   </select>
 
   <input type=hidden value=0 name=texttype>

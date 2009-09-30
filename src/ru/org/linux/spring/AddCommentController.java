@@ -47,7 +47,6 @@ public class AddCommentController extends ApplicationObjectSupport {
 
     Map<String, Object> params = new HashMap<String, Object>();
     params.put("topic", topicId);
-    params.put("autourl", true);
     params.put("mode", tmpl.getFormatMode());
 
     Connection db = null;
@@ -91,16 +90,15 @@ public class AddCommentController extends ApplicationObjectSupport {
     }
   }
 
-  private String processMessage(String msg, String mode, boolean autourl) {
+  private String processMessage(String msg, String mode) {
     if ("lorcode".equals(mode)) {
       return msg;
     }
 
     HTMLFormatter form = new HTMLFormatter(msg);
     form.setMaxLength(80);
-    if (autourl) {
-      form.enableUrlHighLightMode();
-    }
+    form.enableUrlHighLightMode();
+
     if ("ntobrq".equals(mode)) {
       form.enableNewLineMode();
       form.enableQuoting();
@@ -123,7 +121,6 @@ public class AddCommentController extends ApplicationObjectSupport {
   public ModelAndView addComment(
     @RequestParam(value = "preview", required = false) String previewStr,
     @RequestParam("mode") String mode,
-    @RequestParam("autourl") boolean autourl,
     @RequestParam("msg") String msg,
     @RequestParam(value = "replyto", required = false) Integer replyToObject,
     @RequestParam("title") String title,
@@ -135,8 +132,7 @@ public class AddCommentController extends ApplicationObjectSupport {
     Map<String, Object> formParams = new HashMap<String, Object>();
 
     formParams.put("topic", topicId);
-    formParams.put("autourl", autourl);
-    formParams.put("mode", mode);    
+    formParams.put("mode", mode);
 
     int replyto = 0;
 
@@ -155,7 +151,7 @@ public class AddCommentController extends ApplicationObjectSupport {
 
       title = HTMLFormatter.htmlSpecialChars(title);
 
-      msg = processMessage(msg, mode, autourl);
+      msg = processMessage(msg, mode);
 
       // prechecks is over
       db = LorDataSource.getConnection();
