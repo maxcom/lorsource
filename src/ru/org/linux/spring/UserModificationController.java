@@ -110,8 +110,7 @@ public class UserModificationController extends ApplicationObjectSupport {
           throw new AccessViolationException("Пользователю " + user.getNick() + " нельзя удалить сведения");
         }
 
-        tmpl.getObjectConfig().getStorage().updateMessage("userinfo", String.valueOf(id), "");
-
+        user.setUserinfo(db, null);
         user.changeScore(db, -10);
         logger.info("Clearing " + user.getNick() + " userinfo");
       } else {

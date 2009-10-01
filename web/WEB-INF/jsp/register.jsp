@@ -1,6 +1,5 @@
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.util.Date,ru.org.linux.site.AccessViolationException"  %>
-<%@ page import="ru.org.linux.site.LorDataSource"%>
+<%@ page import="java.sql.Connection,java.sql.ResultSet,java.sql.Statement,ru.org.linux.site.AccessViolationException,ru.org.linux.site.LorDataSource"  %>
 <%@ page import="ru.org.linux.site.Template"%>
 <%@ page import="ru.org.linux.site.User"%>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
@@ -141,9 +140,7 @@ Email:
 <b>Нижний Новгород</b>, <b>Троицк (Московская область)</b>):
 <input type=text name="town" size="50" value="<%= rs.getString("town") %>"><br>
 Дополнительная информация:<br>
-<textarea name=info cols=50 rows=5>
-<%= tmpl.getObjectConfig().getStorage().readMessageDefault("userinfo", String.valueOf(user.getId()), "") %>
-</textarea>
+<textarea name=info cols=50 rows=5><%= user.getUserinfo(db) %></textarea>
 <br>
 <input type=submit value="Update/Обновить">
 </form>

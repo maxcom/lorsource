@@ -38,7 +38,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
 import ru.org.linux.site.*;
-import ru.org.linux.storage.StorageNotFoundException;
 import ru.org.linux.util.*;
 
 @SuppressWarnings({"ProhibitedExceptionDeclared"})
@@ -179,11 +178,7 @@ public class RegisterController extends ApplicationObjectSupport {
         ist.close();
 
         if (info != null) {
-          try {
-            tmpl.getObjectConfig().getStorage().updateMessage("userinfo", String.valueOf(userid), info);
-          } catch (StorageNotFoundException e) {
-            tmpl.getObjectConfig().getStorage().writeMessage("userinfo", String.valueOf(userid), info);
-          }
+          user.setUserinfo(db, info);
         }
       } else {
         PreparedStatement pst = db.prepareStatement("SELECT count(*) as c FROM users WHERE nick=?");
@@ -234,7 +229,7 @@ public class RegisterController extends ApplicationObjectSupport {
         logger.info(logmessage);
 
         if (info != null) {
-          tmpl.getObjectConfig().getStorage().writeMessage("userinfo", String.valueOf(userid), info);
+          User.setUserinfo(db, userid, info);
         }
 
         sendEmail(tmpl, nick, password, email);

@@ -170,7 +170,7 @@
 <p>
 <cite>
 <%
-  out.print(HTMLFormatter.nl2br(tmpl.getObjectConfig().getStorage().readMessageDefault("userinfo", String.valueOf(userid), "")));
+  out.print(HTMLFormatter.nl2br(user.getUserinfo(db)));
 
   if (tmpl.isModeratorSession()) {
     out.print("<p><form name='f_remove_userinfo' method='post' action='usermod.jsp'>\n");

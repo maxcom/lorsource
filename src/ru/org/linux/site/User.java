@@ -572,4 +572,31 @@ public class User implements Serializable {
   public boolean hasGravatar() {
     return email!=null;
   }
+
+  public String getUserinfo(Connection db) throws SQLException {
+    PreparedStatement st = db.prepareStatement("SELECT userinfo FROM users where id=?");
+    st.setInt(1, id);
+
+    ResultSet rs = st.executeQuery();
+    rs.next();
+
+    return rs.getString("userinfo");
+  }
+
+  public void setUserinfo(Connection db, String text) throws SQLException {
+    PreparedStatement st = db.prepareStatement("UPDATE users SET userinfo=? where id=?");
+    st.setString(1, text);
+    st.setInt(2, id);
+
+    st.executeUpdate();
+  }
+
+  public static void setUserinfo(Connection db, int id, String text) throws SQLException {
+    PreparedStatement st = db.prepareStatement("UPDATE users SET userinfo=? where id=?");
+    st.setString(1, text);
+    st.setInt(2, id);
+
+    st.executeUpdate();
+  }
+
 }
