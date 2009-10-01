@@ -580,7 +580,13 @@ public class User implements Serializable {
     ResultSet rs = st.executeQuery();
     rs.next();
 
-    return rs.getString("userinfo");
+    String userinfo = rs.getString("userinfo");
+
+    if (userinfo==null) {
+      return "";
+    } else {
+      return userinfo;
+    }
   }
 
   public void setUserinfo(Connection db, String text) throws SQLException {
