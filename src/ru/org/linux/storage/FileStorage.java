@@ -50,28 +50,6 @@ public class FileStorage extends Storage {
   }
 
   @Override
-  protected void writeMessageImpl(String domain, String msgid, String message) throws IOException, StorageException {
-    if (new File(root + domain + '/' + msgid).exists()) {
-      throw new StorageExistsException(domain, msgid);
-    }
-
-    FileOutputStream out = new FileOutputStream(root + domain + '/' + msgid);
-    out.write(message.getBytes("KOI8-R"));
-    out.close();
-  }
-
-  @Override
-  protected void updateMessageImpl(String domain, String msgid, String message) throws IOException, StorageException {
-    if (!(new File(root + domain + '/' + msgid).exists())) {
-      throw new StorageNotFoundException(domain, msgid);
-    }
-
-    FileOutputStream out = new FileOutputStream(root + domain + '/' + msgid);
-    out.write(message.getBytes("KOI8-R"));
-    out.close();
-  }
-
-  @Override
   protected InputStream getReadStreamImpl(String domain, String msgid) throws StorageNotFoundException {
     FileInputStream in  ;
     // TODO: try buffered input stream and check perfomance

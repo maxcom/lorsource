@@ -28,17 +28,6 @@ public abstract class Storage {
     return readMessageDefaultImpl(domain, msgid, def);
   }
 
-
-  public void writeMessage(String domain, String msgid, String message) throws IOException, StorageException {
-    check(domain, msgid);
-    writeMessageImpl(domain, msgid, message);
-  }
-
-  public void updateMessage(String domain, String msgid, String message) throws IOException, StorageException {
-    check(domain, msgid);
-    updateMessageImpl(domain, msgid, message);
-  }
-
   public InputStream getReadStream(String domain, String msgid) throws StorageException {
     check(domain, msgid);
     return getReadStreamImpl(domain, msgid);
@@ -84,14 +73,6 @@ private static final RE DOMAIN_CHECK_RE;
     } catch (StorageNotFoundException e) {
       return def;
     }
-  }
-
-  protected void writeMessageImpl(String domain, String msgid, String message) throws IOException, StorageException {
-    throw new StorageNotImplException();
-  }
-
-  protected void updateMessageImpl(String domain, String msgid, String message) throws IOException, StorageException {
-    throw new StorageNotImplException();
   }
 
   protected InputStream getReadStreamImpl(String domain, String msgid) throws StorageException {
