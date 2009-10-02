@@ -35,6 +35,7 @@
 
 <title>Добавить сообщение</title>
 <script src="/js/jquery.validate.pack.js" type="text/javascript"></script>
+<script src="/js/jquery.validate.ru.js" type="text/javascript"></script>
 <script type="text/javascript">
   $(document).ready(function() {
     $("#commentForm").validate({

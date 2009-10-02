@@ -38,6 +38,17 @@
 %>
 
 <title>Добавить сообщение</title>
+<script src="/js/jquery.validate.pack.js" type="text/javascript"></script>
+<script src="/js/jquery.validate.ru.js" type="text/javascript"></script>
+<script type="text/javascript">
+  $(document).ready(function() {
+    $("#messageForm").validate({
+      messages : {
+        title : "Введите заголовок"
+      }
+    });
+  });
+</script>
   <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
 <%
@@ -76,7 +87,7 @@
 <c:if test="${error!=null}">
   <div class="error">Ошибка: ${error.message}</div>
 </c:if>
-<form method=POST action="add.jsp" <%= group.isImagePostAllowed()?"enctype=\"multipart/form-data\"":"" %> >
+<form id="messageForm" method=POST action="add.jsp" <%= group.isImagePostAllowed()?"enctype=\"multipart/form-data\"":"" %> >
   <input type="hidden" name="session" value="<%= HTMLFormatter.htmlSpecialChars(session.getId()) %>">
 <%  if (form.getNoinfo()!=null) {
   %>
@@ -95,18 +106,18 @@
 <input type=hidden name=return value="<%= HTMLFormatter.htmlSpecialChars(form.getReturnUrl()) %>">
 <% } %>
 
-Заглавие:
-<input type=text name=title size=40 value="<%= form.getTitle()==null?"":HTMLFormatter.htmlSpecialChars(form.getTitle()) %>" ><br>
+<label for="form_title">Заглавие</label>:
+<input type=text id="form_title" class="required" name=title size=40 value="<%= form.getTitle()==null?"":HTMLFormatter.htmlSpecialChars(form.getTitle()) %>" ><br>
 
   <% if (group.isImagePostAllowed()) { %>
   Изображение:
   <input type="file" name="image"><br>
   <% } %>
 
-Сообщение:<br>
+<label for="form_msg">Сообщение:</label><br>
 <font size=2>(В режиме <i>Tex paragraphs</i> игнорируются переносы строк.<br> Пустая строка (два раза Enter) начинает новый абзац)</font><br>
 <font size="2"><b>Внимание:</b> Новый экспериментальный режим - <a href="/wiki/en/Lorcode">LORCODE</a></font><br>
-<textarea name=msg cols=70 rows=20><%
+<textarea name=msg id="form_msg" cols=70 rows=20><%
     if (form.getMsg()!=null) {
       out.print(HTMLFormatter.htmlSpecialChars(form.getMsg()));
     }
