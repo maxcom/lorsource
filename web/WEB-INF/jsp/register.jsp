@@ -20,7 +20,6 @@
   ~    limitations under the License.
   --%>
 
-<% Template tmpl = Template.getTemplate(request); %>
 <jsp:include page="head.jsp"/>
 
 <title>Регистрация пользователя</title>
@@ -35,6 +34,7 @@
         }
       }
     });
+    $("#changeForm").validate();    
   });
 </script>
 
@@ -117,12 +117,12 @@ URL (не забудьте добавить <b>http://</b>): <br>
   <div class="error">Ошибка: ${error}</div>
 </c:if>
 
-<form method=POST action="register.jsp">
+<form method=POST action="register.jsp" id="changeForm">
 <input type=hidden name=mode value="change">
 Полное имя:
 <input type=text name="name" size="40" value="<%= rs.getString("name") %>"><br>
 Пароль:
-<input type=password name="oldpass" size="20"><br>
+<input class="required" type=password name="oldpass" size="20"><br>
 Новый пароль:
 <input type=password name="password" size="20"> (не заполняйте если не хотите менять)<br>
 Повторите новый пароль:
@@ -135,7 +135,7 @@ URL:
 %>"><br>
 (не забудьте добавить <b>http://</b>)<br>
 Email:
-<input type=text name="email" size="50" value="<%= rs.getString("email") %>"><br>
+<input type=text class="required email" name="email" size="50" value="<%= rs.getString("email") %>"><br>
 Город (просьба писать русскими буквами без сокращений, например: <b>Москва</b>,
 <b>Нижний Новгород</b>, <b>Троицк (Московская область)</b>):
 <input type=text name="town" size="50" value="<%= rs.getString("town") %>"><br>
