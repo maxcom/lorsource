@@ -95,7 +95,7 @@ public class NewsViewer {
     );
 
     if (!viewAll) {
-      where.append(" AND topics.moderate AND sections.moderate");
+      where.append(" AND (topics.moderate OR NOT sections.moderate)");
     } else {
       where.append(" AND (NOT topics.moderate) AND sections.moderate");    
     }

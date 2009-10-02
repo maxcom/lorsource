@@ -16,11 +16,11 @@
 package ru.org.linux.site;
 
 import java.io.IOException;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.text.DateFormat;
-import java.util.Date;
-
-import org.javabb.bbcode.BBCodeProcessor;
 
 import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.HTMLFormatter;
@@ -77,114 +77,6 @@ public class MessageTable {
       if (pst != null) {
         pst.close();
       }
-    }
-
-    return out.toString();
-  }
-
-  public static String getSectionRss(Connection db, int sectionid, int groupid, String htmlPath, String fullUrl) throws SQLException, ScriptErrorException {
-    StringBuilder out = new StringBuilder();
-    DateFormat rfc822 = DateFormats.createRFC822();
-
-    Section section = new Section(db, sectionid);
-    Group group = null;
-    if (groupid!=0) {
-      group = new Group(db, groupid);
-      if (group.getSectionId()!=sectionid) {
-        throw new BadGroupException("группа #"+groupid+" не принадлежит разделу #"+sectionid);
-      }
-    }
-
-    out.append("<title>Linux.org.ru: ").append(section.getName());
-    if (group!=null) {
-      out.append(" - ").append(group.getTitle());
-    }
-    out.append("</title>");
-    out.append("<pubDate>").append(rfc822.format(new Date())).append("</pubDate>");
-    out.append("<description>Linux.org.ru: ").append(section.getName());
-    if (group!=null) {
-      out.append(" - ").append(group.getTitle());
-    }
-    out.append("</description>\n");
-
-    Statement st=db.createStatement();
-
-    ResultSet rs = st.executeQuery(
-        "SELECT topics.title as subj, topics.lastmod, topics.stat1, postdate, userid, image, " +
-            "groups.title as gtitle, topics.id as msgid, sections.vote, " +
-            "groups.id as guid, topics.url, topics.linktext, imagepost, " +
-            "postdate<(CURRENT_TIMESTAMP-expire) as expired, message, bbcode, commitdate " +
-            "FROM topics,groups, sections, msgbase " +
-            "WHERE sections.id=groups.section AND topics.id=msgbase.id " +
-            "AND sections.id=" + sectionid + " AND (topics.moderate OR NOT sections.moderate) " +
-            "AND topics.groupid=groups.id AND NOT deleted " +
-            "AND postdate>(CURRENT_TIMESTAMP-'3 month'::interval) " +
-            (group!=null?" AND groupid="+group.getId():"")+
-            "ORDER BY commitdate DESC, postdate DESC LIMIT 10"
-    );
-
-    while (rs.next()) {
-      int msgid = rs.getInt("msgid");
-      boolean vote = rs.getBoolean("vote");
-      String linktext = rs.getString("linktext");
-      String url = rs.getString("url");
-      String subj = rs.getString("subj");
-
-      int userid = rs.getInt("userid");
-      User user = User.getUserCached(db, userid);
-
-      out.append("<item>");
-      out.append("  <author>").append(user.getNick()).append("</author>\n");
-      out.append("  <link>http://www.linux.org.ru/view-message.jsp?msgid=").append(msgid).append("</link>\n");
-      out.append("  <guid>http://www.linux.org.ru/view-message.jsp?msgid=").append(msgid).append("</guid>\n");
-      out.append("  <title>").append(HTMLFormatter.htmlSpecialChars(subj)).append("</title>\n");
-      Timestamp postdate = rs.getTimestamp("postdate");
-      Timestamp commitdate = rs.getTimestamp("commitdate");
-      if (commitdate!=null) {
-        out.append("  <pubDate>").append(rfc822.format(commitdate)).append("</pubDate>\n");
-      } else {
-        out.append("  <pubDate>").append(rfc822.format(postdate)).append("</pubDate>\n");
-      }
-
-      out.append("  <description>\n" + '\t');
-
-      if (section.isImagepost()) {
-        try {
-          ImageInfo iconInfo = new ImageInfo(htmlPath + linktext);
-          ImageInfo info = new ImageInfo(htmlPath + url);
-
-          String message = rs.getString("message");
-          boolean bbcode = rs.getBoolean("bbcode");
-          if (bbcode) {
-            BBCodeProcessor proc = new BBCodeProcessor();
-            out.append(HTMLFormatter.htmlSpecialChars(proc.preparePostText(db, message)));
-          } else {
-            out.append(HTMLFormatter.htmlSpecialChars(message));
-          }
-          out.append(HTMLFormatter.htmlSpecialChars("<p><img src=\""+fullUrl+linktext+"\" ALT=\""+subj+"\" "+iconInfo.getCode()+" >"));
-          out.append(HTMLFormatter.htmlSpecialChars("<p><i>"+info.getWidth()+'x'+info.getHeight()+", "+info.getSizeString()+"</i>"));
-        } catch (BadImageException e) {
-          // TODO write to log
-        } catch (IOException e) {
-          // TODO write to log
-        }
-      } else if (vote) {
-        Poll poll = Poll.getPollByTopic(db, msgid);
-        out.append(HTMLFormatter.htmlSpecialChars(poll.renderPoll(db, fullUrl))).append('\n');
-      } else {
-        String message = rs.getString("message");
-        boolean bbcode = rs.getBoolean("bbcode");
-        if (bbcode) {
-          BBCodeProcessor proc = new BBCodeProcessor();
-          out.append(HTMLFormatter.htmlSpecialChars(proc.preparePostText(db, message)));
-        } else {
-          out.append(HTMLFormatter.htmlSpecialChars(message));
-        }
-      }
-
-      out.append("</description>\n");
-
-      out.append("</item>");
     }
 
     return out.toString();
