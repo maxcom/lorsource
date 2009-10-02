@@ -36,12 +36,8 @@ import java.sql.SQLException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * @author
- * @since 18/01/2005
- */
 public class SimpleRegexTag implements RegexTag {
-  private String _tagName;
+  private final String _tagName;
   private Pattern _regex;
   private String _replacement;
 
@@ -66,10 +62,6 @@ public class SimpleRegexTag implements RegexTag {
   @Override
   public String getReplacement() {
     return _replacement;
-  }
-
-  public void setTagName(String tagName) {
-    _tagName = tagName;
   }
 
   public void setRegex(String regex) {
