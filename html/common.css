@@ -180,6 +180,10 @@ pre {
     word-wrap: break-word; /* IE 5.5+ */
 }
 
+.code p {
+    margin-bottom: 0;
+}
+
 .error {
     font-weight: bold;
     border: 1px dotted;
