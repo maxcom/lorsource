@@ -219,7 +219,7 @@
 
   st.close();
 %>
-<c:forEach var="msg" items="<%= newsViewer.getMessagesCached(db, tmpl) %>">
+<c:forEach var="msg" items="<%= newsViewer.getMessagesCached(db ) %>">
   <lor:news db="<%= db %>" message="${msg}" multiPortal="<%= sectionid==0 && group==null %>" moderateMode="false"/>
 </c:forEach>
 

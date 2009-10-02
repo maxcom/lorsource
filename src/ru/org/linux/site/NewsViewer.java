@@ -17,21 +17,19 @@ package ru.org.linux.site;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Writer;
 import java.net.URLEncoder;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Properties;
 
-import javax.servlet.jsp.JspWriter;
 import com.danga.MemCached.MemCachedClient;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.ImageInfo;
-import ru.org.linux.util.ProfileHashtable;
 import ru.org.linux.util.UtilException;
 
 public class NewsViewer {
@@ -44,7 +42,7 @@ public class NewsViewer {
   private String limit="";
   private String tag="";
 
-  public static void showMediumImage(String htmlPath, JspWriter out, String url, String subj, String linktext) throws IOException {
+  public static void showMediumImage(String htmlPath, Writer out, String url, String subj, String linktext) throws IOException {
     try {
       out.append("<p>");
       String mediumName = ScreenshotProcessor.getMediumName(url);
@@ -73,10 +71,10 @@ public class NewsViewer {
     out.append("</p>");
   }
 
-  public List<Message> getMessagesCached(Connection db, Template tmpl) throws UtilException, SQLException, UserErrorException {
+  public List<Message> getMessagesCached(Connection db) throws UtilException, SQLException, UserErrorException {
     MemCachedClient mcc = MemCachedSettings.getClient();
 
-    String cacheId = MemCachedSettings.getId(getVariantID(tmpl.getProf()));
+    String cacheId = MemCachedSettings.getId(getVariantID());
 
     List<Message> res = (List<Message>) mcc.get(cacheId);
 
@@ -88,7 +86,7 @@ public class NewsViewer {
     return res;
   }
 
-  public List<Message> getMessages(Connection db) throws SQLException, UtilException, UserErrorException {
+  public List<Message> getMessages(Connection db) throws SQLException,  UserErrorException {
     Statement st = db.createStatement();
 
     StringBuilder where = new StringBuilder(
@@ -190,7 +188,7 @@ public class NewsViewer {
     this.limit = limit;
   }
 
-  public String getVariantID(ProfileHashtable prof) throws UtilException {
+  public String getVariantID()  {
     StringBuilder id = new StringBuilder("view-news?"+
         "&tg=" + URLEncoder.encode(tag));
 
@@ -225,7 +223,7 @@ public class NewsViewer {
     return new Date(new Date().getTime() + 60*1000);
   }
 
-  public static NewsViewer getMainpage(Properties config, ProfileHashtable profile) {
+  public static NewsViewer getMainpage() {
     NewsViewer nv = new NewsViewer();
     nv.section = 1;
     nv.limit = "LIMIT 20";

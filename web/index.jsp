@@ -84,9 +84,9 @@
 
   db = LorDataSource.getConnection();
 
-  NewsViewer nv = NewsViewer.getMainpage(tmpl.getConfig(), tmpl.getProf());
+  NewsViewer nv = NewsViewer.getMainpage();
 %>
-    <c:forEach var="msg" items="<%= nv.getMessagesCached(db, tmpl) %>">
+    <c:forEach var="msg" items="<%= nv.getMessagesCached(db ) %>">
       <lorDir:news db="<%= db %>" message="${msg}" multiPortal="false" moderateMode="false"/>
     </c:forEach>
 <%
