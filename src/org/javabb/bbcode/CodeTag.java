@@ -63,7 +63,7 @@ public class CodeTag {
       content = escapeHtmlBBcode(content);
 
       String replacement =
-          "<pre class=code>"
+          "<pre class=code><p>"
               + content
               + "</pre>";
       buffer.replace(start, end, replacement);
