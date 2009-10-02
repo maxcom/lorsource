@@ -63,9 +63,9 @@ public class CodeTag {
       content = escapeHtmlBBcode(content);
 
       String replacement =
-          "<div class=\"code\">"
+          "<pre class=code>"
               + content
-              + "</div>";
+              + "</pre>";
       buffer.replace(start, end, replacement);
 
       end = start + replacement.length();
@@ -89,17 +89,6 @@ public class CodeTag {
         "&#123;",
         "&#125;",
         "&nbsp; &nbsp;"});
-
-    // taking off start and end line breaks
-    content = content.replaceAll("\\A\r\n|\\A\r|\\A\n|\r\n\\z|\r\\z|\n\\z", "");
-
-    // replacing line breaks for <br>
-    content = content.replaceAll("\r\n", "<br>");
-    content = replaceAll(content, "\n\r".toCharArray(), new String[]{"<br>", "<br>"});
-
-    // replacing spaces for &nbsp; to keep indentation
-    content = content.replaceAll("  ", "&nbsp; ");
-    content = content.replaceAll("  ", " &nbsp;");
 
     return content;
   }

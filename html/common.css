@@ -166,10 +166,11 @@ div.quote h3 {
   font-size: medium;
 }
 
-div.code {
+.code {
   border: 1px dotted;
   margin-bottom: 1em;
   font-family: monospace;
+  white-space: pre;
 }
 
 pre {
