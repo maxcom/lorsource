@@ -73,7 +73,7 @@ public class BBCodeTest {
 
     String result = proc.preparePostText(null, "[code]\"code&code\"[/code]");
 
-    assertEquals("<p><div class=\"code\">&quot;code&amp;code&quot;</div>", result);
+    assertEquals("<p><pre class=code>&quot;code&amp;code&quot;</pre>", result);
   }
 
   @Test
