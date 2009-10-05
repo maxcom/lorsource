@@ -118,10 +118,10 @@
       out.append("[BAD POLL: bad image]");
     }
   } else {
-    out.append(message.getProcessedMessage(db));
+    out.append(message.getProcessedMessage(db, true));
   }
 
-  if (message.getUrl() != null && message.isHaveLink()) {
+  if (message.getUrl() != null && message.isHaveLink() && message.getUrl().length()>0) {
     out.append("<p>&gt;&gt;&gt; <a href=\"").append(message.getUrl()).append("\">").append(message.getLinktext()).append("</a>.");
   }
 

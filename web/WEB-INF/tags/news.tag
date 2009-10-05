@@ -95,10 +95,14 @@
   out.append("<div class=msg>\n");
 
   if (!votepoll) {
-      out.append(message.getProcessedMessage(db));
+      out.append(message.getProcessedMessage(db, moderateMode));
   }
 
   if (url != null && !imagepost && !votepoll) {
+    if (url.length()==0) {
+      url = "view-message.jsp?msgid="+msgid;
+    }
+
     out.append("<p>&gt;&gt;&gt; <a href=\"").append(HTMLFormatter.htmlSpecialChars(url)).append("\">").append(linktext).append("</a>");
   } else if (imagepost) {
     NewsViewer.showMediumImage(tmpl.getConfig().getProperty("HTMLPathPrefix"), out, url, subj, linktext);

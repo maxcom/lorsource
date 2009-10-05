@@ -49,27 +49,32 @@ public class BBCodeProcessor implements Serializable {
   private static final String CR_LF = "(?:\r\n|\r|\n)?";
 
   private static final RegexTag[] REGEX_TAGS = new RegexTag[]{
-      new SimpleRegexTag("", "(\r\n\r\n|\n\r\n\r|\n\n|\r\r)", "<p>"),
+    new SimpleRegexTag("", "(\r\n\r\n|\n\r\n\r|\n\n|\r\r)", "<p>"),
 //        new SimpleRegexTag("color",
 //            "\\[color=['\"]?(.*?[^'\"])['\"]?\\](.*?)\\[/color\\]",
 //            "<span style='color:$1px'>$2</span>"),
 //        new SimpleRegexTag("size",
 //            "\\[size=['\"]?([0-9]|[1-2][0-9])['\"]?\\](.*?)\\[/size\\]",
 //            "<span style='font-size:$1px'>$2</span>"),
-      new SimpleRegexTag("b", "\\[b\\](.*?)\\[/b\\]", "<b>$1</b>"),
-      new SimpleRegexTag("em", "\\[em\\](.*?)\\[/em\\]", "<em>$1</em>"),
-      new SimpleRegexTag("s", "\\[s\\](.*?)\\[/s\\]", "<del>$1</del>"),
-      new SimpleRegexTag("strong", "\\[strong\\](.*?)\\[/strong\\]", "<strong>$1</strong>"),
-      new SimpleRegexTag("u", "\\[u\\](.*?)\\[/u\\]", "<u>$1</u>"),
-      new SimpleRegexTag("i", "\\[i\\](.*?)\\[/i\\]", "<i>$1</i>"),
+    new SimpleRegexTag("b", "\\[b\\](.*?)\\[/b\\]", "<b>$1</b>"),
+    new SimpleRegexTag("em", "\\[em\\](.*?)\\[/em\\]", "<em>$1</em>"),
+    new SimpleRegexTag("s", "\\[s\\](.*?)\\[/s\\]", "<del>$1</del>"),
+    new SimpleRegexTag("strong", "\\[strong\\](.*?)\\[/strong\\]", "<strong>$1</strong>"),
+    new SimpleRegexTag("u", "\\[u\\](.*?)\\[/u\\]", "<u>$1</u>"),
+    new SimpleRegexTag("i", "\\[i\\](.*?)\\[/i\\]", "<i>$1</i>"),
 //        new SimpleRegexTag("img", "\\[img\\](.*?)\\[/img\\]", "<img src='$1' border='0' alt=''>"),
-      new URLTag("url", "\\[url\\](.*?)\\[/url\\]", "<a href=\"$1\">$1</a>"),
-      new UserTag("user", "\\[user\\](.*?)\\[/user\\]"),
-      new URLTag("url",
-          "\\[url=['\"]?(.*?[^'\"])['\"]?\\](.*?)\\[/url\\]",
-          "<a href=\"$1\">$2</a>")//,
+    new URLTag("url", "\\[url\\](.*?)\\[/url\\]", "<a href=\"$1\">$1</a>"),
+    new UserTag("user", "\\[user\\](.*?)\\[/user\\]"),
+    new URLTag("url",
+      "\\[url=['\"]?(.*?[^'\"])['\"]?\\](.*?)\\[/url\\]",
+      "<a href=\"$1\">$2</a>")//,
 //      new SimpleRegexTag("email", "\\[email\\](.*?)\\[/email\\]", "<a href='mailto:$1'>$1</a>", true)
-    };
+  };
+
+  private static final RegexTag ENABLED_CUT = new SimpleRegexTag("cut", "\\[cut\\](.*?)\\[/cut\\]", "<div class=quote><h3>Подробности</h3>$1</div>");
+  private static final RegexTag DISABLED_CUT = new SimpleRegexTag("cut", "\\[cut\\](.*?)\\[/cut\\]", "");
+
+  private boolean includeCut = false;
 
 
   /**
@@ -86,40 +91,47 @@ public class BBCodeProcessor implements Serializable {
    * @param string
    * @return HTML-formated message
    */
-  private static CharSequence process(Connection db, String string) throws SQLException {
-    StringBuffer buffer = new StringBuffer("<p>"+string);
+  private CharSequence process(Connection db, String string) throws SQLException {
+    StringBuffer buffer = new StringBuffer("<p>" + string);
     new CodeTag().processContent(buffer);
 
     CharSequence data = processNestedTags(buffer,
-        "quote",
-        "<div class=\"quote\"><h3>{BBCODE_PARAM}</h3><p>",
-        "</div><p>",
-        "<div class=\"quote\"><h3>Цитата</h3><p>",
-        "</div><p>",
-        "[*]",
-        false,
-        true,
-        true);
+      "quote",
+      "<div class=\"quote\"><h3>{BBCODE_PARAM}</h3><p>",
+      "</div><p>",
+      "<div class=\"quote\"><h3>Цитата</h3><p>",
+      "</div><p>",
+      "[*]",
+      false,
+      true,
+      true);
 
     data = processNestedTags(data,
-        "list",
-        "<ol type=\"{BBCODE_PARAM}\">",
-        "</ol>",
-        "<ul>",
-        "</ul>",
-        "<li>",
-        true,
-        true,
-        true);
+      "list",
+      "<ol type=\"{BBCODE_PARAM}\">",
+      "</ol>",
+      "<ul>",
+      "</ul>",
+      "<li>",
+      true,
+      true,
+      true);
+
+    RegexTag cutTag = includeCut ? ENABLED_CUT : DISABLED_CUT;
+    data = processSimpleTag(db, cutTag, data);
 
     for (RegexTag tag : REGEX_TAGS) {
-      StringBuffer sb2 = new StringBuffer((int) (buffer.length() * 1.5));
-
-      tag.substitute(db, data, sb2, tag, tag.getReplacement());
-      data = sb2;
+      data = processSimpleTag(db, tag, data);
     }
 
     return data;
+  }
+
+  private CharSequence processSimpleTag(Connection db, RegexTag tag, CharSequence data) throws SQLException {
+    StringBuffer sb2 = new StringBuffer((int) (data.length() * 1.5));
+
+    tag.substitute(db, data, sb2, tag, tag.getReplacement());
+    return sb2;
   }
 
   /**
@@ -135,26 +147,26 @@ public class BBCodeProcessor implements Serializable {
    * @param requiresQuotedParam
    */
   private static CharSequence processNestedTags(
-      CharSequence input,
-      String tagName,
-      String openSubstWithParam,
-      String closeSubstWithParam,
-      String openSubstWithoutParam,
-      String closeSubstWithoutParam,
-      String internalSubst,
-      boolean processInternalTags,
-      boolean acceptParam,
-      boolean requiresQuotedParam) {
+    CharSequence input,
+    String tagName,
+    String openSubstWithParam,
+    String closeSubstWithParam,
+    String openSubstWithoutParam,
+    String closeSubstWithoutParam,
+    String internalSubst,
+    boolean processInternalTags,
+    boolean acceptParam,
+    boolean requiresQuotedParam) {
     Stack<BBChunk> openStack = new Stack<BBChunk>();
     Set<BBChunk> subsOpen = new HashSet<BBChunk>();
     Set<BBChunk> subsClose = new HashSet<BBChunk>();
     Set<BBChunk> subsInternal = new HashSet<BBChunk>();
 
     String openTag = CR_LF + "\\["
-        + tagName
-        + (acceptParam ? (requiresQuotedParam ? "(?:=\\&quot;(.*?)\\&quot;)?" : "(?:=?:(\\&quot;)?(.*?)?:(\\&quot;)?)?") : "")
-        + "\\]"
-        + CR_LF;
+      + tagName
+      + (acceptParam ? (requiresQuotedParam ? "(?:=\\&quot;(.*?)\\&quot;)?" : "(?:=?:(\\&quot;)?(.*?)?:(\\&quot;)?)?") : "")
+      + "\\]"
+      + CR_LF;
     String closeTag = CR_LF + "\\[/" + tagName + "\\]" + CR_LF;
 
     String patternString = '(' + openTag + ")|(" + closeTag + ')';
@@ -209,7 +221,7 @@ public class BBCodeProcessor implements Serializable {
 
         // test internal tags
       } else if (processInternalTags && (matcher.group(internalTagGroup) != null)
-          && (!openStack.isEmpty())) {
+        && (!openStack.isEmpty())) {
         subsInternal.add(matchedSeq);
       }
     }
@@ -251,7 +263,7 @@ public class BBCodeProcessor implements Serializable {
         textAllowed = !processInternalTags;
 
         Matcher m = Pattern.compile(openTag).matcher(str.substring(seq.start,
-            seq.start + seq.length));
+          seq.start + seq.length));
 
         if (m.matches()) {
           if (acceptParam && (seq.param != null)) {
@@ -268,6 +280,10 @@ public class BBCodeProcessor implements Serializable {
     output.append(str.substring(start));
 
     return output;
+  }
+
+  public void setIncludeCut(boolean includeCut) {
+    this.includeCut = includeCut;
   }
 
   private static class BBChunk {
