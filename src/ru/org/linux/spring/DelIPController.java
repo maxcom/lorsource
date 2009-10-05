@@ -84,7 +84,7 @@ public class DelIPController {
         // Delete IP topics
         PreparedStatement lock = db.prepareStatement("SELECT id FROM topics WHERE postip=?::inet AND not deleted AND postdate>? FOR UPDATE");
         PreparedStatement st1 = db.prepareStatement("UPDATE topics SET deleted='t',sticky='f' WHERE id=?");
-        PreparedStatement st2 = db.prepareStatement("INSERT INTO del_info (msgid, delby, reason) values(?,?,?)");
+        PreparedStatement st2 = db.prepareStatement("INSERT INTO del_info (msgid, delby, reason, deldate) values(?,?,?, CURRENT_TIMESTAMP)");
         lock.setString(1, ip);
         lock.setTimestamp(2, ts);
         st2.setInt(2, moderator.getId());
