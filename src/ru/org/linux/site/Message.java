@@ -673,8 +673,13 @@ public class Message implements Serializable {
   }
 
   public String getProcessedMessage(Connection db) throws SQLException {
+    return getProcessedMessage(db, false);
+  }
+
+  public String getProcessedMessage(Connection db, boolean includeCut) throws SQLException {
     if (lorcode) {
       BBCodeProcessor proc = new BBCodeProcessor();
+      proc.setIncludeCut(includeCut);
       return proc.preparePostText(db, message);      
     } else {
       return message;

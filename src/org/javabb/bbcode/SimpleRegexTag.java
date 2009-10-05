@@ -45,7 +45,7 @@ public class SimpleRegexTag implements RegexTag {
 
   public SimpleRegexTag(String tagName, String regex, String replacement) {
     _tagName = tagName;
-    _regex = Pattern.compile(regex);
+    _regex = Pattern.compile(regex, Pattern.MULTILINE | Pattern.DOTALL);
     _replacement = replacement;
   }
 
