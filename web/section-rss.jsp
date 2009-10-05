@@ -37,6 +37,12 @@
     groupId = new ServletParameterParser(request).getInt("group");
   }
 
+  String userAgent = request.getHeader("User-Agent");
+  if (sectionId==1 && groupId==0 && userAgent!=null && !userAgent.contains("FeedBurner") && request.getParameter("noredirect")==null) {
+    response.setHeader("Location", "http://feeds.feedburner.com/org/LOR");
+    response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
+  }
+
   NewsViewer nv = new NewsViewer();
   nv.setSection(sectionId);
   nv.setDatelimit(" postdate>(CURRENT_TIMESTAMP-'3 month'::interval) ");
