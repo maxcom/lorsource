@@ -1,5 +1,3 @@
-<%@ tag import="java.sql.ResultSet" %>
-<%@ tag import="java.sql.Statement" %>
 <%@ tag import="ru.org.linux.site.*" %>
 <%@ tag import="ru.org.linux.util.BadImageException" %>
 <%@ tag import="ru.org.linux.util.HTMLFormatter" %>
@@ -79,17 +77,15 @@
     }
     %></c:if><%
     if (message.isDeleted()) {
-      Statement rts = db.createStatement();
-      ResultSet rt = rts.executeQuery("SELECT nick,reason FROM del_info,users WHERE msgid=" + msgid + " AND users.id=del_info.delby");
+      DeleteInfo deleteInfo = DeleteInfo.getDeleteInfo(db, msgid);
 
-      if (!rt.next()) {
+      if (deleteInfo==null) {
         out.append("<strong>Сообщение удалено</strong>");
       } else {
-        out.append("<strong>Сообщение удалено ").append(rt.getString("nick")).append(" по причине '").append(rt.getString("reason")).append("'</strong>");
-      }
+        User deleteUser = User.getUserCached(db, deleteInfo.getUserid());
 
-      rt.close();
-      rts.close();
+        out.append("<strong>Сообщение удалено ").append(deleteUser.getNick()).append(" по причине '").append(deleteInfo.getReason()).append("'</strong>");
+      }
     }
 
 %>

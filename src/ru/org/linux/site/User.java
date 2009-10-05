@@ -354,7 +354,7 @@ public class User implements Serializable {
       // Delete user topics
       PreparedStatement lock = db.prepareStatement("SELECT id FROM topics WHERE userid=? AND not deleted FOR UPDATE");
       PreparedStatement st1 = db.prepareStatement("UPDATE topics SET deleted='t',sticky='f' WHERE id=?");
-      PreparedStatement st2 = db.prepareStatement("INSERT INTO del_info (msgid, delby, reason) values(?,?,?)");
+      PreparedStatement st2 = db.prepareStatement("INSERT INTO del_info (msgid, delby, reason, deldate) values(?,?,?, CURRENT_TIMESTAMP)");
       lock.setInt(1, id);
       st2.setInt(2, moderator.id);
       st2.setString(3,"Автоматически: удаление всех коментариев");

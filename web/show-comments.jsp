@@ -1,9 +1,12 @@
 <%@ page contentType="text/html; charset=utf-8"%>
 <%@ page import="java.net.URLEncoder,java.sql.Connection,java.sql.ResultSet,java.sql.Statement"   buffer="60kb" %>
-<%@ page import="java.util.Date"%>
+<%@ page import="java.sql.Timestamp"%>
+<%@ page import="java.util.Date" %>
 <%@ page import="com.danga.MemCached.MemCachedClient" %>
 <%@ page import="ru.org.linux.site.*" %>
 <%@ page import="ru.org.linux.util.StringUtil" %>
+<%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
+
 <%--
   ~ Copyright 1998-2009 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -131,10 +134,30 @@
   }
 
   Statement st=db.createStatement();
-  ResultSet rs=st.executeQuery("SELECT sections.name as ptitle, groups.title as gtitle, topics.title, topics.id as msgid, del_info.reason, comments.postdate FROM sections, groups, topics, comments, del_info WHERE sections.id=groups.section AND groups.id=topics.groupid AND comments.topic=topics.id AND del_info.msgid=comments.id AND comments.userid="+user.getId()+" AND del_info.delby!="+user.getId()+" ORDER BY del_info.msgid DESC LIMIT 20;");
+  ResultSet rs=st.executeQuery("SELECT sections.name as ptitle, groups.title as gtitle, topics.title, topics.id as msgid, del_info.reason, deldate FROM sections, groups, topics, comments, del_info WHERE sections.id=groups.section AND groups.id=topics.groupid AND comments.topic=topics.id AND del_info.msgid=comments.id AND comments.userid="+user.getId()+" AND del_info.delby!="+user.getId()+" ORDER BY del_info.delDate DESC NULLS LAST, del_info.msgid DESC LIMIT 20;");
   while (rs.next()) {
-    out.print("<tr><td>" + rs.getString("ptitle") + "</td><td>" + rs.getString("gtitle") + "</td><td><a href=\"view-message.jsp?msgid=" + rs.getInt("msgid") + "\" rev=contents>" + StringUtil.makeTitle(rs.getString("title")) + "</a></td><td>" + rs.getString("reason") + "</td><td>" + tmpl.dateFormat.format(rs.getTimestamp("postdate")) + "</td></tr>");
+%>
+  <tr>
+    <td><%= rs.getString("ptitle") %></td>
+    <td><%= rs.getString("gtitle") %></td>
+    <td>
+      <%
+      out.print("<a href=\"view-message.jsp?msgid=" + rs.getInt("msgid") + "\" rev=contents>" + StringUtil.makeTitle(rs.getString("title")) + "</a>");
+      %>
+    </td>
+    <td><%= rs.getString("reason") %></td>
+    <td>
+<%
+  Timestamp delDate = rs.getTimestamp("deldate");
+  if (delDate!=null) {
+%>
+      <lor:dateinterval date="<%= delDate %>"/>
+<%
   }
+%>
+    </td>
+  </tr>
+<%  }
 
   rs.close();
   st.close();
