@@ -39,8 +39,9 @@
   }
 
   String userAgent = request.getHeader("User-Agent");
-  boolean feedBurner = userAgent.contains("FeedBurner");
-  if (sectionId==1 && groupId==0 && userAgent!=null && !feedBurner && request.getParameter("noredirect")==null) {
+  boolean feedBurner = userAgent!=null && userAgent.contains("FeedBurner");
+
+  if (sectionId==1 && groupId==0 && !feedBurner && request.getParameter("noredirect")==null) {
     response.setHeader("Location", "http://feeds.feedburner.com/org/LOR");
     response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
   }
