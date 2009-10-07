@@ -119,7 +119,7 @@ public class NewsViewer {
       if (rs.next()) {
         int tagid=rs.getInt("id");
         if (tagid>0) {
-          where.append(" AND topics.id IN (SELECT msgid FROM tags WHERE tagid=").append(tagid).append(')');
+          where.append(" AND topics.moderate AND topics.id IN (SELECT msgid FROM tags WHERE tagid=").append(tagid).append(')');
         }
       } else {
         throw new UserErrorException("Tag not found");
