@@ -128,7 +128,6 @@ public class AddCommentController extends ApplicationObjectSupport {
     HttpServletRequest request
   ) throws Exception {
     boolean preview = previewStr != null;
-    Template tmpl = Template.getTemplate(request);
     Map<String, Object> formParams = new HashMap<String, Object>();
 
     formParams.put("topic", topicId);
@@ -253,7 +252,7 @@ public class AddCommentController extends ApplicationObjectSupport {
 
         String returnUrl = "jump-message.jsp?msgid=" + topicId + "&cid=" + msgid;
 
-        return new ModelAndView(new RedirectView(tmpl.getMainUrl() + returnUrl));
+        return new ModelAndView(new RedirectView(returnUrl));
       }
     } catch (UserErrorException e) {
       formParams.put("error", e);

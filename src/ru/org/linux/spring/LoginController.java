@@ -99,7 +99,7 @@ public class LoginController {
       if (ajax) {
         return new ModelAndView("login-xml", Collections.singletonMap("ok", "welcome"));
       } else {
-        return new ModelAndView(new RedirectView(tmpl.getMainUrl()));
+        return new ModelAndView(new RedirectView("/"));
       }
     } finally {
       if (db != null) {

@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.view.RedirectView;
 
 import ru.org.linux.site.*;
 
@@ -43,10 +44,7 @@ public class MessageController {
     boolean rss = request.getParameter("output")!=null && "rss".equals(request.getParameter("output"));
 
     if (showDeleted && !"POST".equals(request.getMethod())) {
-      response.setHeader("Location", tmpl.getMainUrl() + "view-message.jsp?msgid=" + msgid);
-      response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
-
-      showDeleted = false;
+      return new ModelAndView(new RedirectView("view-message.jsp?msgid=" + msgid));
     }
 
     if (showDeleted) {
