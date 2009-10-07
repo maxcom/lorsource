@@ -17,6 +17,7 @@
 <%@ page import="java.sql.Connection,java.text.DateFormat,java.util.Date"   buffer="200kb"%>
 <%@ page import="ru.org.linux.site.*" %>
 <%@ page import="ru.org.linux.util.ServletParameterParser" %>
+<%@ page import="java.util.List" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <% Template tmpl = Template.getTemplate(request); %>
@@ -38,7 +39,8 @@
   }
 
   String userAgent = request.getHeader("User-Agent");
-  if (sectionId==1 && groupId==0 && userAgent!=null && !userAgent.contains("FeedBurner") && request.getParameter("noredirect")==null) {
+  boolean feedBurner = userAgent.contains("FeedBurner");
+  if (sectionId==1 && groupId==0 && userAgent!=null && !feedBurner && request.getParameter("noredirect")==null) {
     response.setHeader("Location", "http://feeds.feedburner.com/org/LOR");
     response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
   }
@@ -82,7 +84,10 @@
     out.append("</description>\n");
     
 %>
-  <c:forEach var="msg" items="<%= nv.getMessagesCached(db) %>">
+  <%
+    List<Message> messages=feedBurner?nv.getMessages(db):nv.getMessagesCached(db); 
+  %>
+  <c:forEach var="msg" items="<%= messages %>">
     <item>
       <author><lor:user db="<%= db %>" id="${msg.uid}"/></author>
       <link>http://www.linux.org.ru/view-message.jsp?msgid=${msg.id}</link>
