@@ -96,7 +96,7 @@ public class AddPhotoController extends ApplicationObjectSupport {
 
       logger.info("Установлена фотография пользователем " + user.getNick());
 
-      return new ModelAndView(new RedirectView(tmpl.getMainUrl() + "whois.jsp?nick=" + URLEncoder.encode(user.getNick()) + "&nocache=" + random.nextInt()));
+      return new ModelAndView(new RedirectView("whois.jsp?nick=" + URLEncoder.encode(user.getNick()) + "&nocache=" + random.nextInt()));
     } catch (IOException ex){
       return new ModelAndView("addphoto", "error", ex.getMessage());
     } catch (BadImageException ex){

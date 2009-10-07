@@ -95,8 +95,6 @@ public class CommitController extends ApplicationObjectSupport {
     @RequestParam("msgid") int msgid,
     @RequestParam("title") String title
   ) throws Exception {
-    Template tmpl = Template.getTemplate(request);
-
     if (!Template.isSessionAuthorized(request.getSession())) {
       throw new AccessViolationException("Not authorized");
     }
@@ -166,7 +164,7 @@ public class CommitController extends ApplicationObjectSupport {
 
       Random random = new Random();
 
-      return new ModelAndView(new RedirectView(tmpl.getMainUrl() + "view-all.jsp?nocache=" + random.nextInt()));
+      return new ModelAndView(new RedirectView("view-all.jsp?nocache=" + random.nextInt()));
     } finally {
       if (db != null) {
         db.close();

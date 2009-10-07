@@ -29,6 +29,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.view.RedirectView;
 
 import ru.org.linux.site.*;
 import ru.org.linux.util.BadImageException;
@@ -141,12 +142,11 @@ public class AddMessageController extends ApplicationObjectSupport {
         String messageUrl = "view-message.jsp?msgid=" + msgid;
 
         if (!group.isModerated()) {
-          response.setHeader("Location", tmpl.getMainUrl() + messageUrl + "&nocache=" + random.nextInt());
-          response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
+          return new ModelAndView(new RedirectView(messageUrl + "&nocache=" + random.nextInt()));
         }
 
         params.put("moderated", group.isModerated());
-        params.put("url", tmpl.getMainUrl() + messageUrl);
+        params.put("url", messageUrl);
 
         return new ModelAndView("add-done-moderated", params);
       }

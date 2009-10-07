@@ -48,7 +48,7 @@ public class GroupController {
     Template tmpl = Template.getTemplate(request);
 
     if (showDeleted && !"POST".equals(request.getMethod())) {
-      return new ModelAndView(new RedirectView(tmpl.getMainUrl() + "/group.jsp?group=" + groupId));
+      return new ModelAndView("/group.jsp?group=" + groupId);
     }
 
     if (showDeleted && !Template.isSessionAuthorized(request.getSession())) {
