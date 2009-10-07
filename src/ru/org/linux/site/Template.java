@@ -49,6 +49,7 @@ public class Template {
   private final HttpSession session;
 
   public final DateFormat dateFormat = DateFormats.createDefault();
+  public static final String PROPERTY_MAIN_URL = "MainUrl";
 
 
   public String getSecret() {
@@ -244,7 +245,7 @@ public class Template {
   }
 
   public String getMainUrl() {
-    return config.getProperties().getProperty("MainUrl");
+    return config.getProperties().getProperty(PROPERTY_MAIN_URL);
   }
 
   public Config getObjectConfig() {

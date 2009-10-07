@@ -75,4 +75,7 @@
             -->
         <property name="includeNoscript" value="true"/>
     </bean>
+
+    <bean class="org.apache.xmlrpc.client.XmlRpcClientConfigImpl">
+    </bean>
 </beans>

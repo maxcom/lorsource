@@ -15,15 +15,19 @@
 
 package ru.org.linux.spring;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 import javax.servlet.http.HttpServletRequest;
+import org.apache.xmlrpc.XmlRpcException;
+import org.apache.xmlrpc.client.XmlRpcClient;
+import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.ApplicationObjectSupport;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -38,6 +42,12 @@ import ru.org.linux.util.ServletParameterParser;
 
 @Controller
 public class CommitController extends ApplicationObjectSupport {
+  @Autowired(required = true)
+  private Properties properties;
+
+  @Autowired(required = true)
+  private XmlRpcClientConfigImpl config;
+
   @RequestMapping(value = "/commit.jsp", method = RequestMethod.GET)
   public ModelAndView showForm(
     HttpServletRequest request,
@@ -152,6 +162,8 @@ public class CommitController extends ApplicationObjectSupport {
       pst.close();
       db.commit();
 
+      pingFeedburner();
+
       Random random = new Random();
 
       return new ModelAndView(new RedirectView(tmpl.getMainUrl() + "view-all.jsp?nocache=" + random.nextInt()));
@@ -160,5 +172,37 @@ public class CommitController extends ApplicationObjectSupport {
         db.close();
       }
     }
+  }
+
+  private void pingFeedburner() {
+    try {
+      config.setServerURL(new URL("http://ping.feedburner.com/"));
+
+      XmlRpcClient client = new XmlRpcClient();
+
+      client.setConfig(config);
+
+      Object[] params = new Object[]{"Linux.org.ru", properties.getProperty(Template.PROPERTY_MAIN_URL)};
+
+      Map r = (Map) client.execute("weblogUpdates.ping", params);
+
+      if ((Boolean) r.get("flerror")) {
+        logger.warn("Feedburner ping failed: "+r.get("message"));
+      } else {
+        logger.info("Feedburner ping ok: "+r.get("message"));
+      }
+    } catch (MalformedURLException e) {
+      throw new RuntimeException(e);
+    } catch (XmlRpcException e) {
+      logger.warn("Feedburner ping failed", e);
+    }
+  }
+
+  public void setProperties(Properties properties) {
+    this.properties = properties;
+  }
+
+  public void setConfig(XmlRpcClientConfigImpl config) {
+    this.config = config;
   }
 }
