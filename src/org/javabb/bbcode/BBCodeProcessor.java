@@ -242,14 +242,22 @@ public class BBCodeProcessor implements Serializable {
 
     int start = 0;
     boolean textAllowed = true;
+    boolean inside = false;
 
     for (BBChunk seq : subst) {
       if (textAllowed) {
-        output.append(str.substring(start, seq.start));
+        String text = str.substring(start, seq.start);
+
+        if (inside) {
+          text = text.replaceAll("\\[/?cut\\]", "");
+        }
+        
+        output.append(text);
       }
 
       if (subsClose.contains(seq)) {
         textAllowed = true;
+        inside = false;
 
         if (seq.param != null) {
           output.append(closeSubstWithParam);
@@ -261,6 +269,7 @@ public class BBCodeProcessor implements Serializable {
         output.append(internalSubst);
       } else if (subsOpen.contains(seq)) {
         textAllowed = !processInternalTags;
+        inside = true;
 
         Matcher m = Pattern.compile(openTag).matcher(str.substring(seq.start,
           seq.start + seq.length));
