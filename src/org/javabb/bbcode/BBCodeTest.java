@@ -93,4 +93,14 @@ public class BBCodeTest {
 
     assertEquals(BADLIST_RESULT, result);
   }
+
+  @Test
+  public void testUnexceptedCut() throws BadURLException, SQLException {
+    BBCodeProcessor proc = new BBCodeProcessor();
+    proc.setIncludeCut(true);
+    String result = proc.preparePostText(null, "[list][*][cut][/cut][/list]");
+
+    assertEquals("<p><ul><li></ul>", result);
+  }
+
 }
