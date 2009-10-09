@@ -15,8 +15,8 @@
 
 package ru.org.linux.site;
 
-public class BadSectionException extends ScriptErrorException {
-  public BadSectionException(int id) {
+public class SectionNotFoundException extends ScriptErrorException {
+  public SectionNotFoundException(int id) {
     super("Неправильно задан номер секции: "+id);
   }
 }

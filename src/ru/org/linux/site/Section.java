@@ -28,7 +28,7 @@ public class Section implements Serializable {
   public static final int SCROLL_SECTION = 1;
   public static final int SCROLL_GROUP = 2;
 
-  public Section(Connection db, int id) throws SQLException, BadSectionException {
+  public Section(Connection db, int id) throws SQLException, SectionNotFoundException {
     this.id = id;
 
     Statement st = db.createStatement();
@@ -39,7 +39,7 @@ public class Section implements Serializable {
     );
 
     if (!rs.next()) {
-      throw new BadSectionException(id);
+      throw new SectionNotFoundException(id);
     }
 
     name = rs.getString("name");

@@ -1,5 +1,5 @@
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.util.Date,ru.org.linux.site.BadSectionException,ru.org.linux.site.LorDataSource"   buffer="200kb"%>
+<%@ page import="java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.util.Date,ru.org.linux.site.SectionNotFoundException,ru.org.linux.site.LorDataSource"   buffer="200kb"%>
 <%--
   ~ Copyright 1998-2009 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -32,7 +32,7 @@
     ResultSet rs = st.executeQuery("SELECT name, imagepost FROM sections WHERE id=" + section);
 
     if (!rs.next()) {
-      throw new BadSectionException(section);
+      throw new SectionNotFoundException(section);
     }
 
 %>

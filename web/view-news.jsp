@@ -135,7 +135,7 @@
   }
 
   if (sectionid == 2) {
-    throw new BadSectionException(sectionid);
+    throw new SectionNotFoundException(sectionid);
   }
 
 %>

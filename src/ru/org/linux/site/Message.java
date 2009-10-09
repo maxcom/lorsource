@@ -115,7 +115,7 @@ public class Message implements Serializable {
 
     try {
       section = new Section(db, sectionid);
-    } catch (BadSectionException ex) {
+    } catch (SectionNotFoundException ex) {
       throw new RuntimeException(ex);
     }
   }
@@ -150,7 +150,7 @@ public class Message implements Serializable {
 
     try {
       section = new Section(db, sectionid);
-    } catch (BadSectionException ex) {
+    } catch (SectionNotFoundException ex) {
       throw new RuntimeException(ex);
     }
   }
@@ -205,7 +205,7 @@ public class Message implements Serializable {
 
     try {
       section = new Section(db, sectionid);
-    } catch (BadSectionException ex) {
+    } catch (SectionNotFoundException ex) {
       throw new RuntimeException(ex);
     }
   }
@@ -282,7 +282,7 @@ public class Message implements Serializable {
 
     try {
       section = new Section(db, sectionid);
-    } catch (BadSectionException ex) {
+    } catch (SectionNotFoundException ex) {
       throw new RuntimeException(ex);
     }
   }
