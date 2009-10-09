@@ -106,6 +106,15 @@ public class BBCodeTest {
     proc.setIncludeCut(false);
     String result = proc.preparePostText(null, "[list=\"[cut]\"][/list][/cut][list=\"[cut]\"][/list][/cut] onclick='alert(\"нифига не fixed\");return false'");
 
-    assertEquals("<p><ol type=\"[cut]\"></ol>[/cut]<ol type=\"[cut]\"></ol>[/cut] onclick='alert(&quot;нифига не fixed&quot;);return false'", result);
+    assertEquals("<p><ol type=\"&#91;cut&#93;\"></ol>[/cut]<ol type=\"&#91;cut&#93;\"></ol>[/cut] onclick='alert(&quot;нифига не fixed&quot;);return false'", result);
+  }
+
+  @Test
+  public void testBBinListType() throws SQLException {
+    BBCodeProcessor proc = new BBCodeProcessor();
+    proc.setIncludeCut(false);
+    String result = proc.preparePostText(null, "[b][list=\"[/b]\"][/list]");
+
+    assertEquals("<p>[b]<ol type=\"&#91;/b&#93;\"></ol>", result);
   }
 }

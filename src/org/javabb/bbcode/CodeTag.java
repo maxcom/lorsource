@@ -76,7 +76,7 @@ public class CodeTag {
    * @param content
    * @return -
    */
-  private static String escapeHtmlBBcode(String content) {
+  public static String escapeHtmlBBcode(String content) {
     // escaping single characters
     content = replaceAll(content, ":[]<>(){}\t".toCharArray(), new String[]{
         "&#58;",
