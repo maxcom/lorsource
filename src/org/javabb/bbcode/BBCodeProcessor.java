@@ -95,7 +95,12 @@ public class BBCodeProcessor implements Serializable {
     StringBuffer buffer = new StringBuffer("<p>" + string);
     new CodeTag().processContent(buffer);
 
-    CharSequence data = processNestedTags(buffer,
+    RegexTag cutTag = includeCut ? ENABLED_CUT : DISABLED_CUT;
+    CharSequence data = buffer;
+
+    data = processSimpleTag(db, cutTag, data);
+
+    data = processNestedTags(buffer,
       "quote",
       "<div class=\"quote\"><h3>{BBCODE_PARAM}</h3><p>",
       "</div><p>",
@@ -116,9 +121,6 @@ public class BBCodeProcessor implements Serializable {
       true,
       true,
       true);
-
-    RegexTag cutTag = includeCut ? ENABLED_CUT : DISABLED_CUT;
-    data = processSimpleTag(db, cutTag, data);
 
     for (RegexTag tag : REGEX_TAGS) {
       data = processSimpleTag(db, tag, data);
