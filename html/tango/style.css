@@ -166,6 +166,10 @@ p {
 
 }
 
+#bd .forum table th {
+    border: 1px solid;
+}
+
 #bd .forum table tbody td * {
 	text-decoration: none;
 }
