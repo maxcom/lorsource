@@ -133,11 +133,6 @@
     ptitle += ", " + year + ", " + DateUtil.getMonth(month);
     navtitle += " - Архив " + year + ", " + DateUtil.getMonth(month);
   }
-
-  if (sectionid == 2) {
-    throw new SectionNotFoundException(sectionid);
-  }
-
 %>
 	<title><%= ptitle %></title>
 <% if (section!=null) { %>
