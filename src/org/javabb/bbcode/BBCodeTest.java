@@ -37,9 +37,6 @@ public class BBCodeTest {
   private static final String BADLIST_TEST="[list]0[*]1[*]2[/list]";
   private static final String BADLIST_RESULT="<p><ul><li>1<li>2</ul>";
 
-  private static final String XSS_URL="[url]http://ex.com/[i]<h1>'onmouseover='alert(document.cookie);'\"</h1>[/i][/url]";
-
-
   @Test
   public void testLineBreak() throws BadURLException, SQLException {
     BBCodeProcessor proc = new BBCodeProcessor();
@@ -103,4 +100,12 @@ public class BBCodeTest {
     assertEquals("<p><ul><li></ul>", result);
   }
 
+  @Test
+  public void testUnexceptedCut2() throws BadURLException, SQLException {
+    BBCodeProcessor proc = new BBCodeProcessor();
+    proc.setIncludeCut(false);
+    String result = proc.preparePostText(null, "[list=\"[cut]\"][/list][/cut][list=\"[cut]\"][/list][/cut] onclick='alert(\"нифига не fixed\");return false'");
+
+    assertEquals("<p><ol type=\"[cut]\"></ol>[/cut]<ol type=\"[cut]\"></ol>[/cut] onclick='alert(&quot;нифига не fixed&quot;);return false'", result);
+  }
 }
