@@ -520,8 +520,6 @@ public class Message implements Serializable {
 
     Group group = new Group(db, guid);
 	
-    DupeProtector.getInstance().checkDuplication(request.getRemoteAddr());
-
     int msgid = allocateMsgid(db);
 
     if (group.isImagePostAllowed()) {

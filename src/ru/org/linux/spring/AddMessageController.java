@@ -120,6 +120,7 @@ public class AddMessageController extends ApplicationObjectSupport {
         }
         // Blocked IP
         IPBlockInfo.checkBlockIP(db, request.getRemoteAddr());
+        DupeProtector.getInstance().checkDuplication(request.getRemoteAddr());
 
         int msgid = previewMsg.addTopicFromPreview(db, tmpl, request, form.getPreviewImagePath(), user);
 
