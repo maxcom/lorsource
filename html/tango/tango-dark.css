@@ -54,6 +54,10 @@ a {
 	border-color: #555753;
 }
 
+#bd .forum table th {
+	border-color: #555753;
+}
+
 #bd .forum table tbody td * {
 	color: #eeeeec;
 }
