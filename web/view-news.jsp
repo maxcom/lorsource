@@ -206,7 +206,12 @@
   if (month != 0) {
     newsViewer.setDatelimit("postdate>='" + year + '-' + month + "-01'::timestamp AND (postdate<'" + year + '-' + month + "-01'::timestamp+'1 month'::interval)");
   } else if (tag==null) {
-    newsViewer.setDatelimit("commitdate>(CURRENT_TIMESTAMP-'6 month'::interval)");
+    if (section.isPremoderated()) {
+      newsViewer.setDatelimit("(commitdate>(CURRENT_TIMESTAMP-'6 month'::interval))");
+    } else {
+      newsViewer.setDatelimit("(postdate>(CURRENT_TIMESTAMP-'6 month'::interval))");
+    }
+
     newsViewer.setLimit("LIMIT 20" + (offset > 0 ? (" OFFSET " + offset) : ""));
   } else {
     newsViewer.setLimit("LIMIT 20" + (offset > 0 ? (" OFFSET " + offset) : ""));
