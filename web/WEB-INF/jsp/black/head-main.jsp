@@ -42,10 +42,12 @@
   <td><a href="search.jsp">Поиск</a></td>
 </tr>
 </table>
+<%--
   <br>
   <a href="http://www.highload.ru/?partner=linuxorgru">
     <img src="/adv/highload.png" alt="HighLoad++" width="600" height="90">
   </a>
+--%>
 </div>
 
 <div style="right: 5px; text-align: right; top: 5px; position: absolute" class="head">
