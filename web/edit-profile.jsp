@@ -103,7 +103,7 @@
   <tr>
     <td valign=top>При отсутствии аватара показывать</td>
     <td>
-      <c:set value="<%= profHash.getString("avatar") %>" var="avatar"/>
+      <c:set value="<%= profHash.getString(&quot;avatar&quot;) %>" var="avatar"/>
 
       <c:forEach var="s" items="<%= DefaultProfile.getAvatars() %>">
         <c:if test="${s == avatar}">
