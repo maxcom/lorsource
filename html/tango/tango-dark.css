@@ -62,10 +62,6 @@ a {
 	color: #eeeeec;
 }
 
-#bd .forum table tbody tr:hover {
-	background-color: #5c3566;
-}
-
 .messages .msg {
   background:  #272C2D;
 }
