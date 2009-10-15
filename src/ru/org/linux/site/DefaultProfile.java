@@ -27,6 +27,8 @@ public final class DefaultProfile {
   private static final List<String> styleList = Arrays.asList(styles);
   private static final Set<String> styleSet = new HashSet<String>(styleList);
 
+  private static final List<String> avatars = Arrays.asList("empty", "identicon", "monsterid", "wavatar");
+
   private static final Predicate isBoxPredicate = new Predicate() {
       @Override
       public boolean evaluate(Object o) {
@@ -61,6 +63,7 @@ public final class DefaultProfile {
     defaults.put("showinfo", Boolean.TRUE);
     defaults.put("showanonymous", Boolean.TRUE);
     defaults.put("showsticky", Boolean.TRUE);
+    defaults.put("avatar", "empty");
 
     defaults.put("DebugMode", Boolean.FALSE);
 
@@ -110,5 +113,9 @@ public final class DefaultProfile {
 
   public static List<String> getStyleList() {
     return styleList;
+  }
+
+  public static List<String> getAvatars() {
+    return avatars;
   }
 }

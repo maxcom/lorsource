@@ -100,6 +100,23 @@
   </td>
 </tr>
   <tr><td colspan=2><hr></td></tr>
+  <tr>
+    <td valign=top>При отсутствии аватара показывать</td>
+    <td>
+      <c:set value="<%= profHash.getString("avatar") %>" var="avatar"/>
+
+      <c:forEach var="s" items="<%= DefaultProfile.getAvatars() %>">
+        <c:if test="${s == avatar}">
+          <input type=radio name=avatar value="${s}" checked>${s}<br>
+        </c:if>
+        <c:if test="${s != avatar}">
+          <input type=radio name=avatar value=${s}>${s}<br>
+        </c:if>
+      </c:forEach>
+    </td>
+  </tr>
+
+  <tr><td colspan=2><hr></td></tr>
 <tr>
   <td valign=top>Форматирование по умолчанию</td>
   <td>
@@ -166,6 +183,15 @@
       out.print("Установлен параметр <i>format.mode</i><br>");
     if (tmpl.getProf().setString("style", request.getParameter("style")))
       out.print("Установлен параметр <i>style</i><br>");
+
+    String avatar = request.getParameter("avatar");
+
+    if (!DefaultProfile.getAvatars().contains(avatar)) {
+      throw new BadInputException("invalid avatar value");
+    }
+
+    if (tmpl.getProf().setString("avatar", avatar))
+      out.print("Установлен параметр <i>avatar</i><br>");
     if (tmpl.getProf().setBoolean("main.3columns", request.getParameter("3column")))
       out.print("Установлен параметр <i>main.3columns</i><br>");
     if (tmpl.getProf().setBoolean("showinfo", request.getParameter("showinfo")))

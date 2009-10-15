@@ -3,6 +3,7 @@
 <%@ tag import="ru.org.linux.util.StringUtil" %>
 <%@ tag import="java.io.IOException" %>
 <%@ tag import="ru.org.linux.site.Template" %>
+<%@ tag import="ru.org.linux.site.DefaultProfile" %>
 <%--
 ~ Copyright 1998-2009 Linux.org.ru
 ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -34,7 +35,9 @@
     }
   } else {
     if (author.hasGravatar()) {
-      out.append("<img width=150 height=150 src=\""+author.getGravatar()+"\">");
+      String avatarStyle = tmpl.getProf().getString("avatar");
+
+      out.append("<img width=150 height=150 src=\""+author.getGravatar(avatarStyle)+"\">");
     }
   }
 %>
