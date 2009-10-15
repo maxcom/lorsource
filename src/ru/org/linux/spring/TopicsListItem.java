@@ -15,6 +15,7 @@
 
 package ru.org.linux.spring;
 
+import java.io.Serializable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -22,7 +23,7 @@ import java.sql.Timestamp;
 import ru.org.linux.site.Message;
 import ru.org.linux.util.StringUtil;
 
-public class TopicsListItem {
+public class TopicsListItem implements Serializable {
   private final String subj;
   private final String sectionTitle;
   private final String groupTitle;
@@ -33,6 +34,8 @@ public class TopicsListItem {
   private final boolean sticky;
   private final int pages;
   private final int author;
+  
+  private static final long serialVersionUID = 5344250574674257995L;
 
   // SELECT topics.title as subj, sections.name, groups.title as gtitle, lastmod, topics.id as msgid, topics.deleted, topics.stat1, topics.stat3, topics.stat4, topics.sticky, userid
   public TopicsListItem(ResultSet rs, int messagesInPage) throws SQLException {
