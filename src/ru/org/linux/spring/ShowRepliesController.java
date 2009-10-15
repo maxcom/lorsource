@@ -118,7 +118,7 @@ public class ShowRepliesController {
             " INNER JOIN comments AS parents ON (parents.id=comments.replyto)" +
             " INNER JOIN msgbase ON (msgbase.id = comments.id)" +
             " WHERE  parents.userid = ? " +
-            " AND NOT comments.deleted " +
+            " AND NOT comments.deleted AND parents.postdate>CURRENT_TIMESTAMP-'6 month'::interval" +
             " ORDER BY cDate DESC LIMIT " + topics +
             " OFFSET " + offset;
         }
