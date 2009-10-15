@@ -43,6 +43,9 @@
     db = LorDataSource.getConnection();
 
     User user = (User) request.getAttribute("user");
+
+    boolean moderatorOrCurrentUser = Template.isSessionAuthorized(session) && (session.getValue("nick").equals(nick) ||
+            (Boolean) session.getValue("moderator"));
 %>
 
 <h1>Информация о пользователе <%= nick %></h1>
@@ -77,10 +80,9 @@
     <div style="clear: both"/>
   </div>
 <%
-  if (user.getPhoto() != null && tmpl.isModeratorSession()) {
-    out.print("<p><form name='f_remove_userpic' method='post' action='usermod.jsp'>\n");
+  if (user.getPhoto() != null && moderatorOrCurrentUser) {
+    out.print("<p><form name='f_remove_userpic' method='post' action='remove-userpic.jsp'>\n");
     out.print("<input type='hidden' name='id' value='" + userid + "'>\n");
-    out.print("<input type='hidden' name='action' value='remove_userpic'>\n");
     out.print("<input type='submit' value='Удалить изображение'>\n");
     out.print("</form>");
   }
@@ -120,8 +122,7 @@
 
   out.print("<br>");
 
-  if (Template.isSessionAuthorized(session) && (session.getValue("nick").equals(nick) ||
-      (Boolean) session.getValue("moderator"))) {
+  if (moderatorOrCurrentUser) {
     if (sEmail != null) if (!"".equals(sEmail))
       out.println("<br><b>Email:</b> " + sEmail + "<br>");
     out.println("<b>Score</b>: " + score + "<br>\n");

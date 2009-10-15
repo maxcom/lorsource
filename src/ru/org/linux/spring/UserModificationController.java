@@ -93,18 +93,6 @@ public class UserModificationController extends ApplicationObjectSupport {
 
         st.executeUpdate("UPDATE users SET blocked='f' WHERE id=" + id);
         logger.info("User " + user.getNick() + " unblocked by " + session.getValue("nick"));
-      } else if ("remove_userpic".equals(action)) {
-        if (user.canModerate()) {
-          throw new AccessViolationException("Пользователю " + user.getNick() + " нельзя удалить картинку");
-        }
-
-        if (user.getPhoto() == null) {
-          throw new AccessViolationException("Пользователь " + user.getNick() + " картинки не имеет");
-        }
-
-        st.executeUpdate("UPDATE users SET photo=null WHERE id=" + id);
-        user.changeScore(db, -10);
-        logger.info("Clearing " + user.getNick() + " userpic by " + session.getValue("nick"));
       } else if ("remove_userinfo".equals(action)) {
         if (user.canModerate()) {
           throw new AccessViolationException("Пользователю " + user.getNick() + " нельзя удалить сведения");
@@ -116,6 +104,62 @@ public class UserModificationController extends ApplicationObjectSupport {
       } else {
         throw new UserErrorException("Invalid action=" + HTMLFormatter.htmlSpecialChars(action));
       }
+
+      db.commit();
+
+      Random random = new Random();
+
+      return new ModelAndView(new RedirectView("/whois.jsp?nick=" + URLEncoder.encode(user.getNick()) + "&nocache=" + random.nextInt()));
+    } finally {
+      if (db != null) {
+        db.close();
+      }
+    }
+  }
+
+  @RequestMapping(value="/remove-userpic.jsp", method= RequestMethod.POST)
+  public ModelAndView removeUserpic(
+    HttpServletRequest request,
+    HttpSession session,
+    @RequestParam("id") int id
+  ) throws Exception {
+    Template tmpl = Template.getTemplate(request);
+
+    if (!tmpl.isSessionAuthorized()) {
+      throw new AccessViolationException("Not autorized");
+    }
+
+    Connection db = null;
+
+    try {
+      db = LorDataSource.getConnection();
+      db.setAutoCommit(false);
+
+      Statement st = db.createStatement();
+
+      User user = User.getUser(db, id);
+
+      User currentUser = User.getUser(db, tmpl.getNick());
+
+      if (!currentUser.canModerate() && currentUser.getId()!=user.getId()) {
+        throw new AccessViolationException("Not permitted");
+      }
+
+      if (user.canModerate()) {
+        throw new AccessViolationException("Пользователю " + user.getNick() + " нельзя удалить картинку");
+      }
+
+      if (user.getPhoto() == null) {
+        throw new AccessViolationException("Пользователь " + user.getNick() + " картинки не имеет");
+      }
+
+      st.executeUpdate("UPDATE users SET photo=null WHERE id=" + id);
+
+      if (currentUser.canModerate() && currentUser.getId()!=user.getId()) {
+        user.changeScore(db, -10);
+      }
+
+      logger.info("Clearing " + user.getNick() + " userpic by " + currentUser.getNick());
 
       db.commit();
 
