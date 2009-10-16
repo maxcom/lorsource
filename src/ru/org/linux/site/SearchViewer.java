@@ -50,9 +50,9 @@ public class SearchViewer implements Viewer {
 
   @Override
   public String show(Connection db) throws SQLException, UtilException, UserErrorException {
-    StringBuilder select = new StringBuilder("SELECT qq.id, title, postdate, section, topic, userid, rank, message,bbcode FROM ("+
+    StringBuilder select = new StringBuilder("SELECT qq.id, title, postdate, topic, userid, rank, message,bbcode FROM ("+
         "SELECT " +
-        "msgs.id, title, postdate, section, topic, userid, rank(idxFTI, q) as rank");
+        "msgs.id, title, postdate, topic, userid, rank(idxFTI, q) as rank");
 
     if (include==SEARCH_ALL) {
       select.append(" FROM msgs_and_cmts as msgs, msgbase, plainto_tsquery(?) as q");
