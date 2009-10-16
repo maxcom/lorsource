@@ -35,7 +35,7 @@
       <input type="hidden" name="voteid" value="${poll.id}"/>
       <input type="hidden" name="msgid" value="${poll.topic}"/>
       <c:forEach var="item" items="${votes}">
-        <input type="radio" name="vote" value="${item.id}"/>${item.label}<br/>
+        <input type="radio" name="vote" id="poll-${item.id}" value="${item.id}"><label for="poll-${item.id}">${item.label}</label> <br/>
       </c:forEach>
       <input type="submit" value="vote"/>
     </form>
