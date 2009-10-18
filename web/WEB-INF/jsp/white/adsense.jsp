@@ -1,0 +1,1 @@
+../white2/adsense.jsp
