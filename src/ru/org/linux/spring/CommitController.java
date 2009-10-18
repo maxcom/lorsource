@@ -93,7 +93,8 @@ public class CommitController extends ApplicationObjectSupport {
   public ModelAndView commit(
     HttpServletRequest request,
     @RequestParam("msgid") int msgid,
-    @RequestParam("title") String title
+    @RequestParam("title") String title,
+    @RequestParam("bonus") int bonus
   ) throws Exception {
     if (!Template.isSessionAuthorized(request.getSession())) {
       throw new AccessViolationException("Not authorized");
@@ -108,8 +109,8 @@ public class CommitController extends ApplicationObjectSupport {
       pst.setInt(3, msgid);
       pst.setString(2, HTMLFormatter.htmlSpecialChars(title));
 
-      PreparedStatement pst2 = db.prepareStatement("UPDATE users SET score=score+3 WHERE id IN (SELECT userid FROM topics WHERE id=?) AND score<300");
-      pst2.setInt(1, msgid);
+      Message message = new Message(db, msgid);
+      User author = User.getUser(db, message.getUid());
 
       User user = User.getUser(db, (String) request.getSession().getAttribute("nick"));
       pst.setInt(1, user.getId());
@@ -147,7 +148,13 @@ public class CommitController extends ApplicationObjectSupport {
       }
 
       pst.executeUpdate();
-      pst2.executeUpdate();
+      if (author.getScore()<300) {
+        if (bonus<0 || bonus>20) {
+          throw new UserErrorException("Неверное значение bonus");
+        }
+
+        author.changeScore(db, bonus);
+      }
 
       if (request.getParameter("tags") != null) {
         List<String> tags = Tags.parseTags(request.getParameter("tags"));

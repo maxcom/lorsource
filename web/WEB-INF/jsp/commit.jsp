@@ -54,6 +54,10 @@
   Заголовок:
   <input type=text name=title size=40 value="${message.title}">
   <br>
+    Bonus score (от 0 до 20):
+    <input type=text name=bonus size=40 value="3">
+
+  <br>
   <c:if test="${message.sectionId == 1}">
     Метки (теги):
     <input type="text" id="tags" name="tags" size=40 value="${message.tags}"><br>
