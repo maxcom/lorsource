@@ -38,7 +38,7 @@ public class MessageController {
 
     Map<String, Object> params = new HashMap<String, Object>();
 
-    params.put("showAdsense", !tmpl.isSessionAuthorized());
+    params.put("showAdsense", !tmpl.isSessionAuthorized() || !tmpl.getProf().getBoolean(DefaultProfile.HIDE_ADSENSE));
 
     params.put("msgid", msgid);
 

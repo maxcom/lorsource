@@ -35,6 +35,7 @@ public final class DefaultProfile {
         return DefaultProfile.isBox((String)o);
       }
     };
+  public static final String HIDE_ADSENSE = "hideAdsense";
 
   private DefaultProfile() {
   }
@@ -64,6 +65,7 @@ public final class DefaultProfile {
     defaults.put("showanonymous", Boolean.TRUE);
     defaults.put("showsticky", Boolean.TRUE);
     defaults.put("avatar", "empty");
+    defaults.put(HIDE_ADSENSE, true);
 
     defaults.put("DebugMode", Boolean.FALSE);
 
