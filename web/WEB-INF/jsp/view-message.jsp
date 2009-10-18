@@ -326,11 +326,12 @@
 
 <c:out value="${scroller}" escapeXml="false"/>
 
-<% if (!Template.isSessionAuthorized(session)) { %>
-<div style="text-align: center; margin-top: 1em">
-  <jsp:include page="/WEB-INF/jsp/adsense.jsp"/>
-</div><br>
-<% } %>
+<c:if test="${showAdsense}">
+  <div style="text-align: center; margin-top: 1em">
+    <jsp:include page="/WEB-INF/jsp/adsense.jsp"/>
+  </div>
+  <br>
+</c:if>
 
 <%
     int offset = 0;

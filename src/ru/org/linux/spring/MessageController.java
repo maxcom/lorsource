@@ -38,6 +38,8 @@ public class MessageController {
 
     Map<String, Object> params = new HashMap<String, Object>();
 
+    params.put("showAdsense", !tmpl.isSessionAuthorized());
+
     params.put("msgid", msgid);
 
     boolean showDeleted = request.getParameter("deleted") != null;
