@@ -40,6 +40,8 @@ public class DeleteMessageController extends ApplicationObjectSupport {
   ) throws Exception {
     Connection db = null;
     try {
+      db = LorDataSource.getConnection();
+      
       Message msg = new Message(db, msgid);
 
       if (msg.isDeleted()) {
