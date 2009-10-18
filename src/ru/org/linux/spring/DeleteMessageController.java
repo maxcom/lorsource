@@ -18,6 +18,7 @@ package ru.org.linux.spring;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.HashMap;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -33,8 +34,29 @@ import ru.org.linux.site.*;
 @Controller
 public class DeleteMessageController extends ApplicationObjectSupport {
   @RequestMapping(value="/delete.jsp", method= RequestMethod.GET)
-  public ModelAndView showForm(@RequestParam("msgid") int msgid) {
-    return new ModelAndView("delete", "msgid", msgid);
+  public ModelAndView showForm(
+    @RequestParam("msgid") int msgid,
+    HttpServletRequest request
+  ) throws Exception {
+    Connection db = null;
+    try {
+      Message msg = new Message(db, msgid);
+
+      if (msg.isDeleted()) {
+        throw new UserErrorException("Сообщение уже удалено");
+      }
+
+      HashMap<String, Object> params = new HashMap<String, Object>();
+      params.put("bonus", !msg.getSection().isPremoderated());
+
+      params.put("msgid", msgid);
+
+      return new ModelAndView("delete", params);
+    } finally {
+      if (db != null) {
+        db.close();
+      }
+    }
   }
 
   @RequestMapping(value="/delete.jsp", method= RequestMethod.POST)
@@ -42,6 +64,7 @@ public class DeleteMessageController extends ApplicationObjectSupport {
     @RequestParam("msgid") int msgid,
     @RequestParam(value="nick", required = false) String nick,
     @RequestParam("reason") String reason,
+    @RequestParam(value="bonus", required = false) Integer bonus,
     HttpServletRequest request
   ) throws Exception {
     HttpSession session = request.getSession();
@@ -56,7 +79,6 @@ public class DeleteMessageController extends ApplicationObjectSupport {
       lock.setInt(1, msgid);
       st1.setInt(1, msgid);
       st2.setInt(1, msgid);
-      st2.setString(3, reason);
 
       User user;
 
@@ -79,6 +101,8 @@ public class DeleteMessageController extends ApplicationObjectSupport {
       if (lockResult.next() && lockResult.getBoolean("deleted")) {
         throw new UserErrorException("Сообщение уже удалено");
       }
+
+      Message message = new Message(db, msgid);
 
       PreparedStatement pr = db.prepareStatement("SELECT postdate>CURRENT_TIMESTAMP-'1 hour'::interval as perm FROM users, topics WHERE topics.id=? AND topics.userid=users.id AND users.nick=?");
       pr.setInt(1, msgid);
@@ -147,6 +171,14 @@ public class DeleteMessageController extends ApplicationObjectSupport {
       }
 
       st1.executeUpdate();
+
+      if (user.canModerate() && bonus!=null && bonus>0) {
+        User author = User.getUser(db, message.getUid());
+        author.changeScore(db, -bonus);
+        reason+=" ("+bonus+")";
+      }
+
+      st2.setString(3, reason);
       st2.executeUpdate();
 
       logger.info("Удалено сообщение " + msgid + " пользователем " + nick + " по причине `" + reason + '\'');

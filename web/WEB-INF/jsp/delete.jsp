@@ -1,3 +1,4 @@
+<%@ page import="ru.org.linux.site.Template" %>
 <%@ page contentType="text/html; charset=utf-8"%>
 <%--
   ~ Copyright 1998-2009 Linux.org.ru
@@ -13,7 +14,7 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
-
+<% Template tmpl = Template.getTemplate(request); %>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
         <title>Удаление сообщения</title>
@@ -72,6 +73,13 @@ function change(dest,source)
 <tr><td></td>
 <td><input type=text name=reason size=40></td>
 </tr>
+  <% if (tmpl.isModeratorSession() && (Boolean) request.getAttribute("bonus")) { %>
+  <tr>
+    <td>Штраф score (от 0 до 20)</td>
+    <td><input type=text name=bonus size=40 value="0"></td>
+  </tr>
+  <% } %>
+
 </table>
 <input type=hidden name=msgid value="${msgid}">
 <input type=submit value="Delete/Удалить">
