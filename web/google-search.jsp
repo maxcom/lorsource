@@ -12,6 +12,11 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
+<%@ page contentType="text/html; charset=utf-8"%>
+
+<jsp:include page="WEB-INF/jsp/head.jsp"/>
+<title>Результаты поиска</title>
+<jsp:include page="WEB-INF/jsp/header.jsp"/>
 
 <div id="cse-search-results"></div>
 <script type="text/javascript">
@@ -22,3 +27,5 @@
   var googleSearchPath = "/cse";
 </script>
 <script type="text/javascript" src="http://www.google.com/afsonline/show_afs_search.js"></script>
+
+<jsp:include page="WEB-INF/jsp/footer.jsp"/>
