@@ -12,6 +12,7 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
+<%@ page contentType="text/html; charset=utf-8"%>
 <!-- SiteSearch Google -->
 <form method="get" action="http://www.google.ru/custom" target="_top">
 <table border="0" bgcolor="#000000">
