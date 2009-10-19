@@ -77,6 +77,9 @@ public class LoginController {
           PreparedStatement pst = db.prepareStatement("UPDATE users SET activated='t' WHERE id=?");
           pst.setInt(1, user.getId());
           pst.executeUpdate();
+
+          tmpl.getProf().setBoolean(DefaultProfile.HIDE_ADSENSE, false);
+          tmpl.writeProfile(user.getNick());
         } else {
           throw new AccessViolationException("Bad activation code");
         }
