@@ -1,9 +1,7 @@
 <%@ page contentType="text/html; charset=utf-8"%>
 <%@ page import="java.sql.Connection"   buffer="200kb"%>
 <%@ page import="ru.org.linux.site.LorDataSource" %>
-<%@ page import="ru.org.linux.site.Message" %>
 <%@ page import="ru.org.linux.site.Template" %>
-<%@ page import="ru.org.linux.util.HTMLFormatter" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%--
   ~ Copyright 1998-2009 Linux.org.ru
@@ -29,7 +27,6 @@
   try {
     db = LorDataSource.getConnection();
 
-    Message message = (Message) request.getAttribute("message");
 %>
 <title>${message.sectionTitle} - ${message.groupTitle} - ${message.title}</title>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
@@ -49,47 +46,8 @@
 <font size=2><strong>Внимание!</strong> Перед написанием комментария ознакомьтесь с
 <a href="rules.jsp">правилами</a> сайта.</font><p>
 
-<%
-  out.print(Message.getPostScoreInfo((Integer) request.getAttribute("postscore")));
-%>
+<lor:commentForm topicId="${message.id}" title="${message.title}" postscore="${postscore}"/>
 
-<form method=POST action="add_comment.jsp">
-  <input type="hidden" name="session" value="<%= HTMLFormatter.htmlSpecialChars(session.getId()) %>">  
-<% if (!Template.isSessionAuthorized(session)) { %>
-Имя:
-<input type=text name=nick value="anonymous" size=40><br>
-Пароль:
-<input type=password name=password size=40><br>
-<% } %>
-<input type=hidden name=topic value="${message.id}">
-Заглавие:
-<input type=text name=title size=40 value="Re: <%= message.getTitle() %>"><br>
-Сообщение:<br>
-<font size=2>(В режиме <i>Tex paragraphs</i> игнорируются переносы строк.<br> Пустая строка (два раза Enter) начинает новый абзац.<br> Знак '&gt;' в начале абзаца выделяет абзац курсивом цитирования)</font><br>
-<textarea name=msg cols=70 rows=20></textarea><br>
-<% String mode = tmpl.getFormatMode(); %>
-<select name=mode>
-<option value=ntobrq <%= "ntobrq".equals(mode)?"selected":""%> >User line breaks w/quoting
-<option value=quot <%= "quot".equals(mode)?"selected":""%> >TeX paragraphs w/quoting
-<option value=tex <%= "tex".equals(mode)?"selected":""%> >TeX paragraphs w/o quoting
-<option value=ntobr <%= "ntobr".equals(mode)?"selected":""%> >User line breaks w/o quoting
-<option value=lorcode <%= (mode!=null && "lorcode".equals(mode))?"selected":""%> >LORCODE    
-</select>
-
-<input type=hidden name=texttype value=0>
-<br>
-
-<%
-  out.print(Message.getPostScoreInfo(message.getPostScore()));
-%>
-
-<br>
-
-  <lor:captcha/>
-
-<input type=submit value="Отправить">
-<input type=submit name=preview value="Предпросмотр">  
-</form>
 
 <%
   } finally {

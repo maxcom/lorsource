@@ -1,8 +1,6 @@
 <%@ page contentType="text/html; charset=utf-8" %>
 <%@ page
         import="java.sql.Connection,ru.org.linux.site.Comment,ru.org.linux.site.LorDataSource" %>
-<%@ page import="ru.org.linux.site.Message" %>
-<%@ page import="ru.org.linux.site.Template" %>
 <%@ page import="ru.org.linux.util.HTMLFormatter" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%--
@@ -34,18 +32,6 @@
 %>
 
 <title>Добавить сообщение</title>
-<script src="/js/jquery.validate.pack.js" type="text/javascript"></script>
-<script src="/js/jquery.validate.ru.js" type="text/javascript"></script>
-<script type="text/javascript">
-  $(document).ready(function() {
-    $("#commentForm").validate({
-      messages : {
-        msg :  "Введите сообщение",
-        title : "Введите заголовок"
-      }
-    });
-  });
-</script>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
 <h1>Добавить комментарий</h1>
@@ -63,42 +49,18 @@
 
 <p>
 
-    <%
-  out.print(Message.getPostScoreInfo(postscore));
-%>
-
-<form method=POST action="add_comment.jsp" id="commentForm">
-  <input type="hidden" name="session"
-         value="<%= HTMLFormatter.htmlSpecialChars(session.getId()) %>">
-  <% if (!Template.isSessionAuthorized(session)) { %>
-  Имя:
-  <% if (request.getParameter("nick") != null) { %>
-  <input type='text' name='nick' value="<%= request.getParameter("nick") %>" size=40><br><%
-} else { %>
-  <input type='text' name='nick' value="<%= "anonymous" %>" size=40><br>
-  <% } %>
-  Пароль:
-  <input type=password name=password size=40><br>
-  <% } %>
-  <input type=hidden name=topic value="<%= topicId %>">
-
-  <% if (request.getParameter("return") != null) { %>
-  <input type=hidden name=return
-         value="<%= HTMLFormatter.htmlSpecialChars(request.getParameter("return")) %>">
-  <% } %>
   <%
-    String title = "";
-
     Connection db = null;
 
     try {
       db = LorDataSource.getConnection();
 
+      String title = "";
+      Integer replyto = null;
+
       if (request.getParameter("replyto") != null) {
-        int replyto = Integer.parseInt(request.getParameter("replyto"));
-  %>
-  <input type=hidden name=replyto value="<%= replyto %>">
-  <%
+        replyto = Integer.parseInt(request.getParameter("replyto"));
+
         Comment onComment = (Comment) request.getAttribute("onComment");
 
         title = onComment.getTitle();
@@ -107,7 +69,12 @@
         }
 %>
 <div class=messages>
-  <lor:comment showMenu="false" comment="<%= onComment %>" db="<%= db %>" comments="${null}" expired="${false}"/>
+  <lor:comment
+          showMenu="false"
+          comment="<%= onComment %>"
+          db="<%= db %>"
+          comments="${null}"
+          expired="${false}"/>
 </div>
   <%
       }
@@ -122,57 +89,29 @@
   <div class=messages>
     <lor:comment showMenu="false" comment="<%= comment %>" db="<%= db %>" comments="${null}" expired="${false}"/>
   </div>
-  <%
-      }
+
+<% if (error != null) { %>
+<div class="error">
+  ${error.message}
+</div>
+<% }
+  }
+%>
+
+<lor:commentForm
+        topicId="<%= topicId %>"
+        title="<%= title %>"
+        replyto="<%= replyto %>"
+        msg="<%=request.getParameter("msg")%>"
+        mode="<%= mode %>"
+        postscore="<%= postscore %>"/>
+
+<%
     } finally {
       if (db != null) {
         db.close();
       }
     }
   %>
-  <% if (error != null) { %>
-  <div class="error">
-    ${error.message}
-  </div>
-  <% } %>
-  
-  <label for="title">Заглавие:</label>
-  <input type=text class="required" id="title" name=title size=40 value="<%= title %>"><br>
 
-  <label for="msg">Сообщение:</label><br>
-  <font size=2>(В режиме <i>Tex paragraphs</i> игнорируются переносы строк.<br> Пустая строка (два
-    раза Enter) начинает новый абзац.<br> Знак '&gt;' в начале абзаца выделяет абзац курсивом
-    цитирования)</font><br>
-  <font size="2"><b>Внимание:</b> Новый экспериментальный режим - <a href="/wiki/en/Lorcode">LORCODE</a></font><br>
-  <textarea id="msg" class="required" name="msg" cols="70"
-            rows="20"><%= request.getParameter("msg") == null ? "" : HTMLFormatter.htmlSpecialChars(request.getParameter("msg"))
-  %></textarea><br>
-
-  <select name=mode>
-    <option value=ntobrq <%= (mode!=null && "ntobrq".equals(mode))?"selected":""%> >User line breaks
-      w/quoting
-    <option value=quot <%= (mode!=null && "quot".equals(mode))?"selected":""%> >TeX paragraphs
-      w/quoting
-    <option value=tex <%= (mode!=null && "tex".equals(mode))?"selected":""%> >TeX paragraphs w/o
-      quoting
-    <option value=ntobr <%= (mode!=null && "ntobr".equals(mode))?"selected":""%> >User line break
-      w/o quoting
-    <option value=html <%= (mode!=null && "html".equals(mode))?"selected":""%> >Ignore line breaks
-    <option value=lorcode <%= (mode!=null && "lorcode".equals(mode))?"selected":""%> >LORCODE    
-  </select>
-
-  <input type=hidden value=0 name=texttype>
-
-  <br>
-
-  <%
-    out.print(Message.getPostScoreInfo(postscore));
-  %>
-
-  <br>
-  <lor:captcha/>
-  <input type=submit value="Поместить">
-  <input type=submit name=preview value="Предпросмотр">
-
-</form>
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>

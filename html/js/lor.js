@@ -89,4 +89,11 @@ $(document).ready(function() {
   });
 
   $('textarea').bind('keypress', function(e) { ctrl_enter(e, e.target.form); });
+
+  $("#commentForm").validate({
+    messages : {
+      msg :  "Введите сообщение",
+      title : "Введите заголовок"
+    }
+  });
 });
