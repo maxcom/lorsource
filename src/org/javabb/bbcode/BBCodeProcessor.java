@@ -278,7 +278,7 @@ public class BBCodeProcessor implements Serializable {
 
         if (m.matches()) {
           if (acceptParam && (seq.param != null)) {
-            String escaped = CodeTag.escapeHtmlBBcode(seq.param);
+            String escaped = Matcher.quoteReplacement(CodeTag.escapeHtmlBBcode(seq.param));
             output.append(openSubstWithParam.replaceAll("\\{BBCODE_PARAM\\}", escaped));
           } else {
             output.append(openSubstWithoutParam);
