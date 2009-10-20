@@ -33,14 +33,14 @@
   <input type="hidden" name="session"
          value="<%= HTMLFormatter.htmlSpecialChars(session.getId()) %>">
   <% if (!Template.isSessionAuthorized(session)) { %>
-  Имя:
+  <label for="nick">Имя:</label>
   <% if (request.getParameter("nick") != null) { %>
-  <input type='text' name='nick' value="<%= request.getParameter("nick") %>" size=40><br><%
+  <input id="nick" type='text' name='nick' value="<%= request.getParameter("nick") %>" size=40><br><%
 } else { %>
-  <input type='text' name='nick' value="<%= "anonymous" %>" size=40><br>
+  <input id="nick" type='text' name='nick' value="<%= "anonymous" %>" size=40><br>
   <% } %>
-  Пароль:
-  <input type=password name=password size=40><br>
+  <label for="password">Пароль:</label>
+  <input id="password" type=password name=password size=40><br>
   <%
     out.print(Message.getPostScoreInfo(postscore));
   %>
@@ -86,5 +86,4 @@
 
   <input type=submit value="Поместить">
   <input type=submit name=preview value="Предпросмотр">
-
 </form>
