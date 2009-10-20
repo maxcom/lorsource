@@ -17,6 +17,7 @@
 --%>
 <%@ tag pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 
 <%@ attribute name="topicId" required="true" type="java.lang.Integer" %>
 <%@ attribute name="title" required="true" type="java.lang.String" %>

@@ -404,7 +404,7 @@
   <iframe src="dw.jsp?width=728&amp;height=90&amp;main=0" width="728" height="90" scrolling="no" frameborder="0"></iframe>
 </div>
 
-<c:if test="${not message.expired}">
+<c:if test="${not message.expired and template.sessionAuthorized}">
   <div style="display: none">
     <lor:commentForm topicId="${message.id}" title="${message.title}"
                      postscore="${message.postScore}" replyto="0"/>
