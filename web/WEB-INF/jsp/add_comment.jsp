@@ -102,7 +102,7 @@
         topicId="<%= topicId %>"
         title="<%= title %>"
         replyto="<%= replyto %>"
-        msg="<%=request.getParameter("msg")%>"
+        msg="<%=request.getParameter(&quot;msg&quot;)%>"
         mode="<%= mode %>"
         postscore="<%= postscore %>"/>
 
