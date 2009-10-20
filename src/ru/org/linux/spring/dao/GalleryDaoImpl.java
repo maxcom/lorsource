@@ -61,8 +61,8 @@ public class GalleryDaoImpl {
   public List<GalleryItem> getGalleryItems() {
     String sql = "SELECT topics.id as msgid, " +
       " topics.stat1, topics.title, topics.url, topics.linktext, nick FROM topics " +
-      " JOIN groups ON topics.groupid = groups.id JOIN sections  ON sections.id = groups.section" +
-      " JOIN users ON users.id = topics.userid WHERE topics.moderate AND sections.id=3 " +
+      " JOIN groups ON topics.groupid = groups.id " +
+      " JOIN users ON users.id = topics.userid WHERE topics.moderate AND section=3 " +
       " AND NOT deleted ORDER BY commitdate DESC LIMIT 3";
     return template.query(sql, new ParameterizedRowMapper<GalleryItem>() {
       @Override
