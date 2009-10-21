@@ -58,10 +58,10 @@
       String title = "";
       Integer replyto = null;
 
-      if (request.getParameter("replyto") != null) {
-        replyto = Integer.parseInt(request.getParameter("replyto"));
+      Comment onComment = (Comment) request.getAttribute("onComment");
 
-        Comment onComment = (Comment) request.getAttribute("onComment");
+      if (onComment != null) {
+        replyto = onComment.getId();
 
         title = onComment.getTitle();
         if (!title.startsWith("Re:")) {

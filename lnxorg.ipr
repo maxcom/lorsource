@@ -284,7 +284,6 @@
           <option name="ADD_JUNIT_TO_ENTRIES" value="true" />
           <option name="ADD_TESTNG_TO_ENTRIES" value="true" />
         </inspection_tool>
-        <inspection_tool class="JSUndeclaredVariable" level="INFO" enabled="false" />
         <inspection_tool class="JSUnresolvedFunction" level="INFO" enabled="false" />
         <inspection_tool class="JSUnresolvedVariable" level="INFO" enabled="false" />
         <inspection_tool class="SameReturnValue" level="WARNING" enabled="false" />
@@ -505,6 +504,12 @@
           <option name="superClassString" value="java.awt.Component" />
         </inspection_tool>
         <inspection_tool class="SerialVersionUIDNotStaticFinal" level="WARNING" enabled="true" />
+        <inspection_tool class="ReplaceAssignmentWithOperatorAssignmentJS" level="WARNING" enabled="true" />
+        <inspection_tool class="JSUndeclaredVariable" level="INFO" enabled="false" />
+        <inspection_tool class="DocumentWriteJS" level="WARNING" enabled="true" />
+        <inspection_tool class="InnerHTMLJS" level="WARNING" enabled="true" />
+        <inspection_tool class="StringLiteralBreaksHTMLJS" level="WARNING" enabled="true" />
+        <inspection_tool class="OctalIntegerJS" level="WARNING" enabled="true" />
       </profile>
     </profiles>
     <list size="4">

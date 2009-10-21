@@ -82,6 +82,9 @@
   $(document).bind('keydown', 'Ctrl+right',function(){ jump(document.getElementById ('NextLink')) });
   -->
 </script>
+<c:if test="${template.style == 'tango'}">
+<script src="/js/addComments.js" type="text/javascript"></script>
+</c:if>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 <div class=messages>
 

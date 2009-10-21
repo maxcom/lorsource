@@ -81,7 +81,7 @@ public class AddCommentController extends ApplicationObjectSupport {
   }
 
   private void createReplyTo(Integer replyTo, Map<String, Object> params, Connection db) throws SQLException, MessageNotFoundException {
-    if (replyTo != null) {
+    if (replyTo != null && replyTo>0) {
       Comment onComment = new Comment(db, replyTo);
       params.put("onComment", onComment);
       if (onComment.isDeleted()) {
