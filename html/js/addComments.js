@@ -37,7 +37,6 @@ function sh(type, id) {
   }
 }
 
-
 $(document).ready(function() {
   element = $("#commentForm").parent();
 
@@ -46,18 +45,20 @@ $(document).ready(function() {
     jsid = jsid[1];
   }
 
-  try {
-    $('div.reply').each(function()
-    {
-      var link = $('a', this);
-      if (link.attr('href').match(/^comment-message.jsp/)) {
-        link.bind("click", function() { sh(0, 0); return false; });
-      } else if (link.attr('href').match(/^add_comment.jsp/)) {
-        var buff = link.attr('href').match(/\d+/g);
-        var idr = buff[1];
-        link.bind("click", function() { sh(1, idr); return false; });
-      }
+  $('div.reply').each(function() {
+    $('a[href^=comment-message.jsp]', this).bind("click", function() {
+      sh(0, 0);
+      return false;
     });
-  } catch(e) {
-  }
+
+    var lnk = $("a[href^=add_comment.jsp]", this);
+    if (lnk.length>0) {
+      var buff = lnk.attr('href').match(/\d+/g);
+      var idr = buff[1];
+      lnk.bind("click", function() {
+        sh(1, idr);
+        return false;
+      });
+    }
+  });
 });
