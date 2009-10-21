@@ -78,8 +78,8 @@
 <LINK REL="alternate" TITLE="Comments RSS" HREF="view-message.jsp?msgid=<%= msgid %>&amp;output=rss" TYPE="application/rss+xml">
 <script type="text/javascript">
   <!--
-  $(document).bind('keydown', 'Ctrl+left',function(){ jump(document.getElementById ('PrevLink')) });
-  $(document).bind('keydown', 'Ctrl+right',function(){ jump(document.getElementById ('NextLink')) });
+  $(document).bind('keydown', {combi:'Ctrl+left', disableInInput: true}, function(){ jump(document.getElementById ('PrevLink')) });
+  $(document).bind('keydown', {combi:'Ctrl+right', disableInInput: true}, function(){ jump(document.getElementById ('NextLink')) });
   -->
 </script>
 <c:if test="${template.style == 'tango'}">
