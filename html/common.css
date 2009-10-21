@@ -236,3 +236,7 @@ label.error {
     vertical-align: top;
     color: #f00;
 }
+
+#commentForm {
+    font-size: medium;
+}
