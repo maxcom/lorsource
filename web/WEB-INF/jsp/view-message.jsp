@@ -82,7 +82,7 @@
   $(document).bind('keydown', {combi:'Ctrl+right', disableInInput: true}, function(){ jump(document.getElementById ('NextLink')) });
   -->
 </script>
-<c:if test="${template.style == 'tango'}">
+<c:if test="${template.style != 'black'}">
 <script src="/js/addComments.js" type="text/javascript"></script>
 </c:if>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
