@@ -240,3 +240,7 @@ label.error {
 #commentForm {
     font-size: medium;
 }
+
+.message-w-userpic {
+    padding-left: 160px;
+}

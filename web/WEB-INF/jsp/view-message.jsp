@@ -401,9 +401,11 @@
   }
 %>
 
+<c:if test="{$template.mobile}">
 <div align=center>
   <iframe src="dw.jsp?width=728&amp;height=90&amp;main=0" width="728" height="90" scrolling="no" frameborder="0"></iframe>
 </div>
+</c:if>
 
 <c:if test="${not message.expired and template.sessionAuthorized}">
   <div style="display: none">

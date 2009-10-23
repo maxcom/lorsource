@@ -95,10 +95,10 @@
 <c:set var="showPhotos" value="<%= tmpl.getProf().getBoolean(&quot;photos&quot;)%>"/>
   <c:if test="${showPhotos}">
     <lor:userpic author="<%= author %>"/>
-    <c:set var="msgBodyStyle" value="padding-left: 160px"/>
+    <c:set var="msgBodyStyle" value="message-w-userpic"/>
   </c:if>
 
-  <div class="msg_body" style="${msgBodyStyle}">
+  <div class="msg_body ${msgBodyStyle}">
   <h1>
     ${message.title}
   </h1>
@@ -142,7 +142,7 @@
 
 <div class=sign>
 <%
-  out.append(author.getSignature(tmpl.isModeratorSession(), message.getPostdate(), false, tmpl.getStyle()));
+  out.append(author.getSignature(tmpl.isModeratorSession(), message.getPostdate(), tmpl.isMobile(), tmpl.getStyle()));
   if (tmpl.isModeratorSession()) {
     out.append(" (<a href=\"sameip.jsp?msgid=");
     out.print(msgid);

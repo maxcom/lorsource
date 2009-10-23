@@ -1,0 +1,12 @@
+.userpic {
+    float: left;
+    width: 50px;
+    padding-left: 5px;
+    padding-right: 5px;
+    padding-top: 5px;
+    text-align: center;
+}
+
+.message-w-userpic {
+    padding-left: 55px;
+}

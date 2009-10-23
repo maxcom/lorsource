@@ -27,7 +27,12 @@
   if (author.getPhoto() != null) {
     try {
       ImageInfo info = new ImageInfo(tmpl.getObjectConfig().getHTMLPathPrefix() + "/photos/" + author.getPhoto());
-      out.append("<img src=\"/photos/").append(author.getPhoto()).append("\" alt=\"").append(author.getNick()).append(" (фотография)\" ").append(info.getCode()).append(" >");
+
+      if (tmpl.isMobile()) {
+        out.append("<img src=\"/photos/").append(author.getPhoto()).append("\" alt=\"").append(author.getNick()).append(" (фотография)\" ").append("width=50").append(" >");
+      } else {
+        out.append("<img src=\"/photos/").append(author.getPhoto()).append("\" alt=\"").append(author.getNick()).append(" (фотография)\" ").append(info.getCode()).append(" >");
+      }
     } catch (BadImageException e) {
 //      logger.warning(StringUtil.getStackTrace(e));
     } catch (IOException e) {
@@ -37,7 +42,11 @@
     if (author.hasGravatar()) {
       String avatarStyle = tmpl.getProf().getString("avatar");
 
-      out.append("<img width=150 height=150 src=\""+author.getGravatar(avatarStyle)+"\">");
+      if (tmpl.isMobile()) {
+        out.append("<img width=50 height=50 src=\""+author.getGravatar(avatarStyle, 50)+"\">");
+      } else {
+        out.append("<img width=150 height=150 src=\""+author.getGravatar(avatarStyle, 150)+"\">");
+      }
     }
   }
 %>

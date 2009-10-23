@@ -89,17 +89,17 @@
 
   <c:if test="${showPhotos}">
     <lor:userpic author="<%= author %>"/>
-    <c:set var="msgBodyStyle" value="padding-left: 160px"/>
+    <c:set var="msgBodyStyle" value="message-w-userpic"/>
   </c:if>
 
-  <div class="msg_body" style="${msgBodyStyle}">
+  <div class="msg_body ${msgBodyStyle}">
     <h2>${comment.title}</h2>
   <%
   out.append(comment.getProcessedMessage(db));
   %>
     <div class=sign>
     <%
-  out.append(author.getSignature(moderatorMode, comment.getPostdate(), false, tmpl.getStyle()));
+  out.append(author.getSignature(moderatorMode, comment.getPostdate(), tmpl.isMobile(), tmpl.getStyle()));
 
   if (moderatorMode) {
     out.append(" (<a href=\"sameip.jsp?msgid=").append(Integer.toString(comment.getMessageId())).append("\">").append(comment.getPostIP()).append("</a>)");

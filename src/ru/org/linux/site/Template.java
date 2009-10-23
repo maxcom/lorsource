@@ -31,6 +31,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import com.handinteractive.mobile.UAgentInfo;
+
 import ru.org.linux.storage.StorageException;
 import ru.org.linux.storage.StorageNotFoundException;
 import ru.org.linux.util.LorHttpUtils;
@@ -51,6 +53,7 @@ public class Template {
   public final DateFormat dateFormat = DateFormats.createDefault();
   public static final String PROPERTY_MAIN_URL = "MainUrl";
 
+  private final UAgentInfo userAgent;
 
   public String getSecret() {
     return config.getProperties().getProperty("Secret");
@@ -60,6 +63,8 @@ public class Template {
       throws ClassNotFoundException, IOException, SQLException, StorageException {
 //    request.setCharacterEncoding("koi8-r"); // блядский tomcat
     request.setCharacterEncoding("utf-8"); // блядский tomcat
+
+    userAgent = new UAgentInfo(request.getHeader("User-Agent"), request.getHeader("Accept"));
 
     boolean debugMode= false;
     if (request.getParameter("debug") != null) {
@@ -289,5 +294,13 @@ public class Template {
 
   public static Template getTemplate(ServletRequest request) {
     return (Template) request.getAttribute("template");
+  }
+
+  public boolean isMobile() {
+    if (!style.equals("tango")) {
+      return false;
+    }
+
+    return userAgent.detectAndroidWebKit();
   }
 }

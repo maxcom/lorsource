@@ -17,7 +17,12 @@
 
 <!-- head-main -->
 <LINK REL=STYLESHEET TYPE="text/css" HREF="/tango/reset-fonts-grids.css" TITLE="Normal">
+<c:if test="${not template.mobile}">
 <LINK REL=STYLESHEET TYPE="text/css" HREF="/tango/style.css" TITLE="Normal">
+</c:if>
+<c:if test="${template.mobile}">
+<LINK REL=STYLESHEET TYPE="text/css" HREF="/tango/style-mobile.css" TITLE="Normal">
+</c:if>
 <LINK REL=STYLESHEET TYPE="text/css" HREF="/tango/tango-dark.css" TITLE="Normal">
 <LINK REL="shortcut icon" HREF="/favicon.ico" TYPE="image/x-icon">
 <script src="/js/jquery.corner.js" type="text/javascript"></script>
@@ -34,7 +39,31 @@
 <body>
 <div id="doc3" class="yui-t5">
   	<div id="hd">
-        		<h1><a id="sitetitle" href="/">LINUX.ORG.RU&nbsp;&#8212; Русская информация об&nbsp;ОС&nbsp;Linux</a></h1>
+        <h1><a id="sitetitle" href="/">LINUX.ORG.RU&nbsp;&#8212; Русская информация об&nbsp;ОС&nbsp;Linux</a></h1>
+
+        <div id="loginGreating" class="head">
+        <c:if test="${template.sessionAuthorized}">
+          <c:url var="userUrl" value="/whois.jsp">
+            <c:param name="nick" value="${template.nick}"/>
+          </c:url>
+          добро пожаловать, <a style="text-decoration: none" href="${userUrl}">${template.nick}</a>
+          [<a href="logout.jsp" title="Выйти">x</a>]
+        </c:if>
+
+        <c:if test="${not template.sessionAuthorized}">
+          <div id="regmenu" class="head">
+            <a href="/register.jsp">Регистрация</a> -
+            <a id="loginbutton" href="/login.jsp">Вход</a>
+          </div>
+
+          <form method=POST action="login.jsp" style="display: none" id="regform">
+            Имя: <input type=text name=nick size=15><br>
+            Пароль: <input type=password name=passwd size=15><br>
+            <input type=submit value="Вход">
+            <input id="hide_loginbutton" type="button" value="Отмена">
+          </form>
+        </c:if>
+        </div>
 
         <div class="menu">
             <ul class="primary">
@@ -53,31 +82,8 @@
                 <li class="last"><a href="/server.jsp">О сервере</a></li>
             </ul>
         </div>
-      </div>
+    </div>
 
-<div style="right: 5px; text-align: right; top: 5px; position: absolute" class="head">
-<c:if test="${template.sessionAuthorized}">
-  <c:url var="userUrl" value="/whois.jsp">
-    <c:param name="nick" value="${template.nick}"/>
-  </c:url>
-  добро пожаловать, <a style="text-decoration: none" href="${userUrl}">${template.nick}</a>
-  [<a href="logout.jsp" title="Выйти">x</a>]
-</c:if>
-
-<c:if test="${not template.sessionAuthorized}">
-  <div id="regmenu" class="head">
-    <a href="/register.jsp">Регистрация</a> -
-    <a id="loginbutton" href="/login.jsp">Вход</a>
-  </div>
-
-  <form method=POST action="login.jsp" style="display: none" id="regform">
-    Имя: <input type=text name=nick size=15><br>
-    Пароль: <input type=password name=passwd size=15><br>
-    <input type=submit value="Вход">
-    <input id="hide_loginbutton" type="button" value="Отмена">
-  </form>
-</c:if>
-</div>
 
 
 <div style="clear: both"></div>

@@ -46,31 +46,14 @@ p {
 }
 
 #hd h1 {
-	font-size: 2em;
+	font-size: large;
 	font-weight: bold;
 	margin-bottom: 1em;
 }
 
 #hd .menu {
-	text-align: center;
-	margin-top: 2em;
+	text-align: left;
 	margin-bottom: 2em;
-}
-
-#hd .menu li.first:before {
-	content: "[ ";
-}
-
-#hd .menu li:after {
-	content: " |";
-}
-
-#hd .menu li.last:after {
-	content: " ]";
-}
-
-#hd .menu li {
-	display: inline;
 }
 
 #hd .primary {
@@ -234,8 +217,4 @@ border-radius: 1em;
 
 #navPath a:visited {
     text-decoration: underline;
-}
-
-#loginGreating {
-    right: 5px; text-align: right; top: 5px; position: absolute ;
 }
