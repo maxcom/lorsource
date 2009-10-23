@@ -10,3 +10,39 @@
 .message-w-userpic {
     padding-left: 55px;
 }
+
+/* info boxes on columns */
+DIV.column {
+  text-align: center;
+  float: none;
+  width: 100%;
+}
+
+DIV.column2 {
+  text-align: center;
+  width: 100%;
+  position: inherit;
+  right: inherit;
+}
+
+DIV.newsblog {
+  margin-left: inherit;
+  float: none;
+  width: 100%;
+}
+
+.newsblog-in {
+  margin-left: inherit;
+}
+
+.newsblog-in2 {
+  margin-left: inherit;
+  margin-right: inherit;
+}
+
+DIV.newsblog2 {
+  margin-left: inherit;
+  width: 100%;
+  float: none;
+}
+
