@@ -178,11 +178,13 @@ p {
 }
 
 div.msg_body h1 {
-font-weight: bold;
+    font-weight: bold;
+    font-size: medium;
 }
 
 div.msg_body h2 {
-font-weight: bold;
+    font-weight: bold;
+    font-size: medium;
 }
 
 .msg {

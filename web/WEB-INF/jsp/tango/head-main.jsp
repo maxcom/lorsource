@@ -16,8 +16,8 @@
   --%>
 
 <!-- head-main -->
-<LINK REL=STYLESHEET TYPE="text/css" HREF="/tango/reset-fonts-grids.css" TITLE="Normal">
 <c:if test="${not template.mobile}">
+<LINK REL=STYLESHEET TYPE="text/css" HREF="/tango/reset-fonts-grids.css" TITLE="Normal">
 <LINK REL=STYLESHEET TYPE="text/css" HREF="/tango/style.css" TITLE="Normal">
 </c:if>
 <c:if test="${template.mobile}">
