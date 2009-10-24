@@ -220,3 +220,8 @@ border-radius: 1em;
 #navPath a:visited {
     text-decoration: underline;
 }
+
+ul,li {
+	padding: 0;
+	margin: 0;
+}
