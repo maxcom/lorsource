@@ -82,7 +82,9 @@
   $(document).bind('keydown', {combi:'Ctrl+right', disableInInput: true}, function(){ jump(document.getElementById ('NextLink')) });
   -->
 </script>
+<c:if test="${not message.expired and template.sessionAuthorized}">
 <script src="/js/addComments.js" type="text/javascript"></script>
+</c:if>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 <div class=messages>
 
@@ -401,7 +403,7 @@
   }
 %>
 
-<c:if test="{$template.mobile}">
+<c:if test="${not template.mobile}">
 <div align=center>
   <iframe src="dw.jsp?width=728&amp;height=90&amp;main=0" width="728" height="90" scrolling="no" frameborder="0"></iframe>
 </div>
