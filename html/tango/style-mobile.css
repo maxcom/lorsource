@@ -106,12 +106,12 @@ p {
 
 #bd .sign {
     font-style: normal;
-	text-align: right;
+	text-align: left;
 	margin-bottom: 0.5em;
 }
 
 #bd .news .nav {
-	text-align: right;
+	text-align: left;
 }
 
 #bd .column {
