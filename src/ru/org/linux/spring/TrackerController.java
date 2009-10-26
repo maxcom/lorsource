@@ -54,7 +54,7 @@ public class TrackerController {
     try {
       db = LorDataSource.getConnection();
 
-      String sSql = "SELECT t.userid as author, t.id, lastmod, t.stat1 AS stat1, t.stat3 AS stat3, t.stat4 AS stat4, g.id AS gid, g.title AS gtitle, t.title AS title, cid, comments.userid AS last_comment_by FROM topics AS t, groups AS g, (SELECT topic, max(id) as cid FROM comments WHERE postdate > CURRENT_TIMESTAMP - interval '" + hour + " hours' GROUP BY topic UNION SELECT id, 0 as cid FROM topics WHERE postdate > CURRENT_TIMESTAMP - interval '" + hour + " hours' AND stat1=0) AS foo LEFT JOIN comments ON foo.cid=comments.id WHERE not t.deleted AND t.id=foo.topic AND t.groupid=g.id ORDER BY lastmod DESC";
+      String sSql = "SELECT t.userid as author, t.id, lastmod, t.stat1 AS stat1, t.stat3 AS stat3, t.stat4 AS stat4, g.id AS gid, g.title AS gtitle, t.title AS title, cid, comments.userid AS last_comment_by FROM topics AS t, groups AS g, (SELECT topic, max(id) as cid FROM comments WHERE NOT deleted AND postdate > CURRENT_TIMESTAMP - interval '" + hour + " hours' GROUP BY topic UNION SELECT id, 0 as cid FROM topics WHERE postdate > CURRENT_TIMESTAMP - interval '" + hour + " hours' AND stat1=0) AS foo LEFT JOIN comments ON foo.cid=comments.id WHERE not t.deleted AND t.id=foo.topic AND t.groupid=g.id ORDER BY lastmod DESC";
 
       Statement st = db.createStatement();
       ResultSet rs = st.executeQuery(sSql);
