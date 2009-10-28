@@ -18,11 +18,6 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
-
-<%
-  int topicId = (Integer) request.getAttribute("topic");
-  int postscore = (Integer) request.getAttribute("postscore");
-%>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
 <title>Добавить сообщение</title>
@@ -65,7 +60,7 @@
 <div class=messages>
   <lor:comment
           showMenu="false"
-          comment="<%= onComment %>"
+          comment="${onComment}"
           db="<%= db %>"
           comments="${null}"
           expired="${false}"/>
@@ -91,12 +86,12 @@
 </c:if>
 
 <lor:commentForm
-        topicId="<%= topicId %>"
+        topicId="${topic}"
         title="<%= title %>"
         replyto="<%= replyto %>"
         msg="<%=request.getParameter(&quot;msg&quot;)%>"
         mode="${mode}"
-        postscore="<%= postscore %>"/>
+        postscore="${postscore}"/>
 
 <%
     } finally {
