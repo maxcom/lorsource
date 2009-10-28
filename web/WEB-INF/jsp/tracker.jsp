@@ -64,7 +64,7 @@
  </table>
 </form>
 
-<h1 style="optional"><%= title %></h1>
+<h1 class="optional"><%= title %></h1>
 
 <div class=forum>
 <table width="100%" class="message-table">
