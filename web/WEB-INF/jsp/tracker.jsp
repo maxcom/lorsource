@@ -55,9 +55,19 @@
 
     <td align=right valign=middle>
       за последние
-        <input name="h" size="3" maxlength="3" onChange="submit();" value="<%= hours %>">
+        <input name="h" size="3" maxlength="3" value="<%= hours %>">
       часа
 
+      <select name="filter">
+        <c:if test="${notalks}">
+          <option value="all">все сообщения</option>
+          <option value="notalks" selected="selected">без Talks</option>
+        </c:if>
+        <c:if test="${not notalks}">
+          <option value="all" selected="selected">все сообщения</option>
+          <option value="notalks">без Talks</option>
+        </c:if>
+      </select>
       <input type="submit" value="показать">
     </td>
   </tr>

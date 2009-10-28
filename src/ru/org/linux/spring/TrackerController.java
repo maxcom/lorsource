@@ -35,16 +35,22 @@ import ru.org.linux.site.Template;
 @Controller
 public class TrackerController {
   @RequestMapping("/tracker.jsp")
-  public ModelAndView tracker(@RequestParam(value="h", required = false) Integer hourObject, ServletRequest request) throws Exception {
+  public ModelAndView tracker(
+    @RequestParam(value="h", required = false) Integer hourObject,
+    @RequestParam(value="filter", required = false) String filter,
+    ServletRequest request) throws Exception {
     int hour = hourObject!=null?hourObject:3;
 
     if (hour < 1 || hour > 23) {
       throw new BadInputException("неправильный ввод. hours = " + hour);
     }
 
+    boolean noTalks = filter!=null && filter.equals("notalks");
+
     Map<String, Object> params = new HashMap<String, Object>();
 
     params.put("hour", hour);
+    params.put("notalks", noTalks);
 
     Template tmpl = Template.getTemplate(request);
     int messages = tmpl.getProf().getInt("messages");
@@ -54,7 +60,11 @@ public class TrackerController {
     try {
       db = LorDataSource.getConnection();
 
-      String sSql = "SELECT t.userid as author, t.id, lastmod, t.stat1 AS stat1, t.stat3 AS stat3, t.stat4 AS stat4, g.id AS gid, g.title AS gtitle, t.title AS title, cid, comments.userid AS last_comment_by FROM topics AS t, groups AS g, (SELECT topic, max(id) as cid FROM comments WHERE NOT deleted AND postdate > CURRENT_TIMESTAMP - interval '" + hour + " hours' GROUP BY topic UNION SELECT id, 0 as cid FROM topics WHERE postdate > CURRENT_TIMESTAMP - interval '" + hour + " hours' AND stat1=0) AS foo LEFT JOIN comments ON foo.cid=comments.id WHERE not t.deleted AND t.id=foo.topic AND t.groupid=g.id ORDER BY lastmod DESC";
+      String sSql = "SELECT " +
+        "t.userid as author, t.id, lastmod, t.stat1 AS stat1, t.stat3 AS stat3, t.stat4 AS stat4, g.id AS gid, g.title AS gtitle, t.title AS title, cid, comments.userid AS last_comment_by " +
+        "FROM topics AS t, groups AS g, (SELECT topic, max(id) as cid FROM comments WHERE NOT deleted AND postdate > CURRENT_TIMESTAMP - interval '" + hour + " hours' GROUP BY topic UNION SELECT id, 0 as cid FROM topics WHERE postdate > CURRENT_TIMESTAMP - interval '" + hour + " hours' AND stat1=0) AS foo LEFT JOIN comments ON foo.cid=comments.id " +
+        "WHERE not t.deleted AND t.id=foo.topic AND t.groupid=g.id " + (noTalks?" AND not t.groupid=8404":"")+
+        "ORDER BY lastmod DESC";
 
       Statement st = db.createStatement();
       ResultSet rs = st.executeQuery(sSql);
@@ -66,7 +76,6 @@ public class TrackerController {
       }
 
       params.put("msgs", msgs);
-
     } finally {
       if (db!=null) {
         db.close();
