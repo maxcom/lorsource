@@ -161,7 +161,7 @@
 
           out.print(", ");
         }
-        out.println("(total " + cnt + ')');
+        out.println("(всего " + cnt + ')');
       }
 
       rs.close();
