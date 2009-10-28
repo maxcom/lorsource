@@ -123,11 +123,11 @@
       if (tmpl.isModeratorSession()) {
 %>
 <h2>Новые пользователи</h2>
+Новые пользователи за последние 3 дня:
 <%
         // new users
       String sSql = "SELECT nick, blocked, activated FROM users where regdate IS NOT null " +
           "AND regdate > CURRENT_TIMESTAMP - interval '3 days' ORDER BY regdate";
-      out.println("<P>New users for the last 3 days:");
       Statement st = db.createStatement();
       st.executeQuery(sSql);
       ResultSet rs = st.getResultSet();
