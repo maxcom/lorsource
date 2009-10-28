@@ -122,7 +122,7 @@
   }
 
   if (message.getUrl() != null && message.isHaveLink() && message.getUrl().length()>0) {
-    out.append("<p>&gt;&gt;&gt; <a href=\"").append(message.getUrl()).append("\">").append(message.getLinktext()).append("</a>.");
+    out.append("<p>&gt;&gt;&gt; <a href=\"").append(HTMLFormatter.htmlSpecialChars(message.getUrl())).append("\">").append(message.getLinktext()).append("</a>.");
   }
 
   if (message.getUrl() != null && message.getSection().isImagepost()) {
