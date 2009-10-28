@@ -3,6 +3,7 @@
         import="java.sql.Connection,ru.org.linux.site.Comment,ru.org.linux.site.LorDataSource" %>
 <%@ page import="ru.org.linux.util.HTMLFormatter" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%--
   ~ Copyright 1998-2009 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,13 +24,6 @@
   int postscore = (Integer) request.getAttribute("postscore");
 %>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
-
-<%
-  Exception error = (Exception) request.getAttribute("error");
-  String mode = (String) request.getAttribute("mode");
-  Comment comment = (Comment) request.getAttribute("comment");
-
-%>
 
 <title>Добавить сообщение</title>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
@@ -82,28 +76,26 @@
       if (request.getParameter("title") != null) {
         title = HTMLFormatter.htmlSpecialChars(request.getParameter("title"));
       }
-
-      if (comment != null) {
 %>
+<c:if test="${comment!=null}">
   <p><b>Ваше сообщение</b></p>
   <div class=messages>
-    <lor:comment showMenu="false" comment="<%= comment %>" db="<%= db %>" comments="${null}" expired="${false}"/>
+    <lor:comment showMenu="false" comment="${comment}" db="<%= db %>" comments="${null}" expired="${false}"/>
   </div>
+</c:if>
 
-<% if (error != null) { %>
-<div class="error">
-  ${error.message}
-</div>
-<% }
-  }
-%>
+<c:if test="${error!=null}">
+  <div class="error">
+      ${error.message}
+  </div>
+</c:if>
 
 <lor:commentForm
         topicId="<%= topicId %>"
         title="<%= title %>"
         replyto="<%= replyto %>"
         msg="<%=request.getParameter(&quot;msg&quot;)%>"
-        mode="<%= mode %>"
+        mode="${mode}"
         postscore="<%= postscore %>"/>
 
 <%
