@@ -55,7 +55,7 @@
 
     <td align=right valign=middle>
       за последние
-        <input name="h" onChange="submit();" value="<%= hours %>">
+        <input name="h" size="3" maxlength="3" onChange="submit();" value="<%= hours %>">
       часа
 
       <input type="submit" value="показать">
