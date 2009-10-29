@@ -17,6 +17,7 @@ package ru.org.linux.spring;
 
 import java.sql.Connection;
 import java.sql.Statement;
+import java.sql.ResultSet;
 
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Controller;
@@ -36,7 +37,9 @@ public class VoteController {
     @RequestParam("vote") int vote,
     @RequestParam("voteid") int voteid
   ) throws Exception {
-    if (!Template.isSessionAuthorized(request.getSession())) {
+    Template tmpl = Template.getTemplate(request);
+
+    if (!tmpl.isSessionAuthorized()) {
       throw new AccessViolationException("Not authorized");
     }
 
@@ -44,6 +47,9 @@ public class VoteController {
 
     try {
       db = LorDataSource.getConnection();
+      db.setAutoCommit(false);
+
+      User user = User.getUser(db, tmpl.getNick());
 
       Poll poll = Poll.getCurrentPoll(db);
 
@@ -51,17 +57,21 @@ public class VoteController {
         throw new BadVoteException("голосовать можно только в текущий опрос");
       }
 
-      Integer last = (Integer) request.getSession().getValue("poll.voteid");
-      if (last == null || last != voteid) {
-        Statement st = db.createStatement();
+      Statement st = db.createStatement();
 
+      ResultSet rs = st.executeQuery("SELECT * FROM vote_users WHERE vote="+voteid+" AND userid="+user.getId());
+
+      if (!rs.next()) {
         if (st.executeUpdate("UPDATE votes SET votes=votes+1 WHERE id=" + vote + " AND vote=" + voteid) == 0) {
           throw new BadVoteException(vote, voteid);
         }
 
-        request.getSession().putValue("poll.voteid", voteid);
-        st.close();
+        st.executeUpdate("INSERT INTO vote_users VALUES("+voteid+", "+user.getId()+")");
       }
+
+      rs.close();
+      st.close();
+      db.commit();
 
       return new ModelAndView(new RedirectView("view-message.jsp?msgid=" + poll.getTopicId() + "&highlight=" + vote));
     } finally {
