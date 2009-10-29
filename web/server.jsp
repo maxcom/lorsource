@@ -53,7 +53,7 @@
 Мы работаем на
   </p>
     <ul>
-      <li>Fedora 10</li>
+      <li>Fedora 11</li>
       <li>СУБД PostgreSQL 8.3</li>
       <li>Apache2 2.2</li>
       <li>OpenJDK 1.6.0</li>
