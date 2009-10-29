@@ -236,7 +236,7 @@
 </tfoot>
 </table>
 </div>
-<c:if test="${not lastmod}">
+<c:if test="${not lastmod and not showDeleted}">
 <div align=center><p>
 <%
   for (int i=0; i<=pages+1; i++) {
