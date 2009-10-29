@@ -144,7 +144,12 @@
   }
 
   out.append("<div class=sign>");
-  out.append(user.getSignature(false, message.getPostdate(), true, tmpl.getStyle()));
+  if (message.getSection().isPremoderated() && message.isCommited()) {
+    out.append(user.getSignature(false, message.getCommitDate(), true, tmpl.getStyle()));    
+  } else {
+    out.append(user.getSignature(false, message.getPostdate(), true, tmpl.getStyle()));
+  }
+
   out.append("</div>");
 
   if (!(boolean) moderateMode) {
