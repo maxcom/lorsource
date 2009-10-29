@@ -87,7 +87,8 @@ public class LoginController {
 
       user.checkAnonymous();
 
-      if (!user.matchPassword(request.getParameter("passwd"))) {
+      String password = request.getParameter("passwd");
+      if (password==null || !user.matchPassword(password)) {
         return new ModelAndView(ajax ? "login-xml" : "login-form", Collections.singletonMap("error", "Неверный пароль"));
       }
 
