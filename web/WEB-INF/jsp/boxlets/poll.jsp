@@ -31,9 +31,8 @@
   <div class="boxlet_content">
     <h3>${poll.title}</h3>
 
-    <form action="/vote.jsp" method="GET">
+    <form action="/vote.jsp" method="POST">
       <input type="hidden" name="voteid" value="${poll.id}"/>
-      <input type="hidden" name="msgid" value="${poll.topic}"/>
       <c:forEach var="item" items="${votes}">
         <input type="radio" name="vote" id="poll-${item.id}" value="${item.id}"><label for="poll-${item.id}">${item.label}</label> <br/>
       </c:forEach>
