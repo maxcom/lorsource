@@ -241,3 +241,8 @@ border-radius: 1em;
 #loginGreating {
     right: 5px; text-align: right; top: 5px; position: absolute ;
 }
+
+input {
+    margin-left: 3px;
+    margin-right: 3px;
+}
