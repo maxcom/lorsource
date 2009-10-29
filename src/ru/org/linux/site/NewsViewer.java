@@ -153,7 +153,7 @@ public class NewsViewer {
 //            "sections.id as section, NOT topics.sticky AS ssticky, sections.moderate " +
 //            "FROM topics,groups,users,sections,msgbase " +
             "WHERE " + where+ ' ' +
-            "ORDER BY sticky,commitdate DESC, msgid DESC "+limit
+            "ORDER BY sticky,COALESCE(commitdate, postdate) DESC "+limit
     );
 
     List<Message> messages = new ArrayList<Message>();
