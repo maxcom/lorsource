@@ -1,6 +1,7 @@
 <%@ page contentType="text/html; charset=utf-8"%>
 <%@ page import="java.net.URLEncoder,java.sql.Connection,ru.org.linux.site.Group,ru.org.linux.site.LorDataSource"   buffer="200kb"%>
 <%@ page import="ru.org.linux.site.Section" %>
+<%@ page import="ru.org.linux.site.User" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 
@@ -25,6 +26,9 @@
   Group group = (Group) request.getAttribute("group");
   Section section = (Section) request.getAttribute("section");
   String tag = (String) request.getAttribute("tag");
+  User user = (User) request.getAttribute("user");
+
+
 %>
 
 <c:if test="${section != null}">
@@ -98,23 +102,33 @@
 
     params += "group="+group.getId();
   }
+
+  if (user!=null) {
+    if (params.length()>0) {
+      params += "&amp;";
+    }
+
+    params += "nick="+user.getNick();    
+  }
+
+  String url = user==null?"view-news.jsp":"show-topics.jsp";
 %>
 <c:if test="${offsetNavigation}">
   <table class="nav">
     <tr>
       <c:if test="${offset < 200}">
         <td align="left" width="35%">
-          <a href="view-news.jsp?<%= params %>&amp;offset=${offset+20}">← предыдущие</a>
+          <a href="<%= url %>?<%= params %>&amp;offset=${offset+20}">← предыдущие</a>
         </td>
       </c:if>
       <c:if test="${offset > 20}">
         <td width="35%" align="right">
-          <a href="view-news.jsp?<%= params %>&amp;offset=${offset-20}">следующие →</a>
+          <a href="<%= url %>?<%= params %>&amp;offset=${offset-20}">следующие →</a>
         </td>
       </c:if>
       <c:if test="${offset == 20}">
         <td width="35%" align="right">
-          <a href="view-news.jsp?<%= params %>">следующие →</a>
+          <a href="<%= url %>?<%= params %>">следующие →</a>
         </td>
       </c:if>
     </tr>

@@ -38,6 +38,7 @@ public class NewsViewer {
   private boolean viewAll = false;
   private int section = 0;
   private int group = 0;
+  private int userid = 0;
   private String datelimit = null;
   private String limit="";
   private String tag="";
@@ -110,6 +111,10 @@ public class NewsViewer {
 
     if (datelimit!=null) {
       where.append(" AND ").append(datelimit);
+    }
+
+    if (userid!=0) {
+      where.append(" AND userid=").append(userid);
     }
 
     if (tag!=null && !"".equals(tag)) {
@@ -207,6 +212,10 @@ public class NewsViewer {
       id.append("&dlmt=").append(URLEncoder.encode(datelimit));
     }
 
+    if (userid!=0) {
+      id.append("&u=").append(userid);
+    }
+
     if (limit!=null && limit.length()>0) {
       id.append("&lmt=").append(URLEncoder.encode(limit));
     }
@@ -228,5 +237,9 @@ public class NewsViewer {
     nv.limit = "LIMIT 20";
     nv.datelimit = "commitdate>(CURRENT_TIMESTAMP-'1 month'::interval)";
     return nv;
+  }
+
+  public void setUserid(int userid) {
+    this.userid = userid;
   }
 }

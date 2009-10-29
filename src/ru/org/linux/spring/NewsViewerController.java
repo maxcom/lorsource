@@ -55,8 +55,6 @@ public class NewsViewerController {
       } else {
         long expires = System.currentTimeMillis() + 30 * 24 * 60 * 60 * 1000L;
 
-        response.setDateHeader("Expires", System.currentTimeMillis() + 30 * 24 * 60 * 60 * 1000L);
-
         if (year==null) {
           throw new ServletParameterMissingException("year");
         }
@@ -168,17 +166,7 @@ public class NewsViewerController {
         newsViewer.setTag(tag);
       }
 
-      if (offset!=null) {
-        if (offset<0) {
-            offset = 0;
-        }
-
-        if (offset>200) {
-          offset=200;
-        }
-      } else {
-        offset = 0;
-      }
+      offset = fixOffset(offset);
 
       if (month != null) {
         newsViewer.setDatelimit("postdate>='" + year + '-' + month + "-01'::timestamp AND (postdate<'" + year + '-' + month + "-01'::timestamp+'1 month'::interval)");
@@ -204,6 +192,66 @@ public class NewsViewerController {
       if (db != null) {
         db.close();
       }
+    }
+  }
+
+  @RequestMapping(value = "/show-topics.jsp", method = RequestMethod.GET)
+  public ModelAndView showUserTopics(
+    @RequestParam("nick") String nick,
+    @RequestParam(value="offset", required=false) Integer offset,
+    HttpServletResponse response
+  ) throws Exception {
+    Connection db = null;
+
+    Map<String, Object> params = new HashMap<String, Object>();
+
+    try {
+      response.setDateHeader("Expires", System.currentTimeMillis() + 60 * 1000);
+      response.setDateHeader("Last-Modified", System.currentTimeMillis());
+
+      db = LorDataSource.getConnection();
+
+      User user = User.getUser(db, nick);
+
+      params.put("ptitle", "Сообщения "+user.getNick());
+      params.put("navtitle", "Сообщения "+user.getNick());
+
+      params.put("user", user);
+
+      NewsViewer newsViewer = new NewsViewer();
+
+      offset = fixOffset(offset);
+
+      newsViewer.setLimit("LIMIT 20" + (offset > 0 ? (" OFFSET " + offset) : ""));
+
+      newsViewer.setUserid(user.getId());
+
+      params.put("messages", newsViewer.getMessagesCached(db));
+
+      params.put("offsetNavigation", true);
+      params.put("offset", offset);
+
+      return new ModelAndView("view-news", params);
+    } finally {
+      if (db != null) {
+        db.close();
+      }
+    }
+  }
+
+  private int fixOffset(Integer offset) {
+    if (offset!=null) {
+      if (offset<0) {
+          return 0;
+      }
+
+      if (offset>200) {
+        return 200;
+      }
+
+      return offset;
+    } else {
+      return 0;
     }
   }
 }
