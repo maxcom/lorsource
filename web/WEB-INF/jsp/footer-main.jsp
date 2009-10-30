@@ -27,8 +27,9 @@
   </div>
 
 <div align=center style="margin-top: 1em">
-  <a href="http://counter.rambler.ru/top100"><img src="/img/rambler.gif" width=88 height=31 border=0 alt="Участник Rambler TOP 100"></a>
-
+<!-- begin of Top100 logo -->
+<a href="http://top100.rambler.ru/home?id=29833" target="_blank"><img src="http://top100-images.rambler.ru/top100/banner-88x31-rambler-black2.gif" alt="Rambler's Top100" width="88" height="31" border="0" /></a>
+<!-- end of Top100 logo -->
   <!--TopList LOGO-->
   <a target="_top" href="http://top.list.ru/jump?from=71642"><img src="http://top.list.ru/counter?id=71642;t=11;l=1" border=0 height=31 width=88 alt="TopList"></a>
   <!--TopList LOGO-->
@@ -45,6 +46,10 @@
 <c:if test="${template.style == 'tango'}">
   </div>
 </c:if>
+
+<!-- begin of Top100 code -->
+<script id="top100Counter" type="text/javascript" src="http://counter.rambler.ru/top100.jcn?29833"></script><noscript><img src="http://counter.rambler.ru/top100.cnt?29833" alt="" width="1" height="1" border="0"/></noscript>
+<!-- end of Top100 code -->
 
 </body>
 </html>
