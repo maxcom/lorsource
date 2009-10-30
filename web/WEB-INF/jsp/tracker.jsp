@@ -41,6 +41,9 @@
     }
 
     String title = "Последние сообщения за "+hours+" час"+sSuf;
+    if ((Boolean) request.getAttribute("mine")) {
+      title+=" (мои темы)";
+    }
 %>
 
 <title><%= title %></title>
@@ -62,10 +65,21 @@
         <c:if test="${notalks}">
           <option value="all">все сообщения</option>
           <option value="notalks" selected="selected">без Talks</option>
+          <c:if test="${template.sessionAuthorized}">
+            <option value="mine">мои темы</option>
+          </c:if>
         </c:if>
-        <c:if test="${not notalks}">
+        <c:if test="${not notalks and not mine}">
           <option value="all" selected="selected">все сообщения</option>
           <option value="notalks">без Talks</option>
+          <c:if test="${template.sessionAuthorized}">
+            <option value="mine">мои темы</option>
+          </c:if>
+        </c:if>
+        <c:if test="${mine}">
+          <option value="all">все сообщения</option>
+          <option value="notalks">без Talks</option>
+          <option value="mine" selected="selected">мои темы</option>
         </c:if>
       </select>
       <input type="submit" value="показать">

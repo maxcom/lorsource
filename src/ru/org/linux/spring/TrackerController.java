@@ -27,10 +27,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
-import ru.org.linux.site.BadInputException;
-import ru.org.linux.site.LorDataSource;
-import ru.org.linux.site.Message;
-import ru.org.linux.site.Template;
+import ru.org.linux.site.*;
 
 @Controller
 public class TrackerController {
@@ -46,11 +43,13 @@ public class TrackerController {
     }
 
     boolean noTalks = filter!=null && filter.equals("notalks");
+    boolean mine = filter!=null && filter.equals("mine");
 
     Map<String, Object> params = new HashMap<String, Object>();
 
     params.put("hour", hour);
     params.put("notalks", noTalks);
+    params.put("mine", mine);
 
     Template tmpl = Template.getTemplate(request);
     int messages = tmpl.getProf().getInt("messages");
@@ -60,10 +59,21 @@ public class TrackerController {
     try {
       db = LorDataSource.getConnection();
 
+      User user = null;
+      if (mine) {
+        if (!tmpl.isSessionAuthorized()) {
+          throw new UserErrorException("Not authorized");
+        }
+
+        user = User.getUser(db, tmpl.getNick());
+      }
+
       String sSql = "SELECT " +
         "t.userid as author, t.id, lastmod, t.stat1 AS stat1, t.stat3 AS stat3, t.stat4 AS stat4, g.id AS gid, g.title AS gtitle, t.title AS title, cid, comments.userid AS last_comment_by " +
         "FROM topics AS t, groups AS g, (SELECT topic, max(id) as cid FROM comments WHERE NOT deleted AND postdate > CURRENT_TIMESTAMP - interval '" + hour + " hours' GROUP BY topic UNION SELECT id, 0 as cid FROM topics WHERE postdate > CURRENT_TIMESTAMP - interval '" + hour + " hours' AND stat1=0) AS foo LEFT JOIN comments ON foo.cid=comments.id " +
-        "WHERE not t.deleted AND t.id=foo.topic AND t.groupid=g.id " + (noTalks?" AND not t.groupid=8404":"")+
+        "WHERE not t.deleted AND t.id=foo.topic AND t.groupid=g.id "
+        + (noTalks?" AND not t.groupid=8404":"")
+        + (mine?" AND t.userid="+user.getId():"")+
         "ORDER BY lastmod DESC";
 
       Statement st = db.createStatement();
