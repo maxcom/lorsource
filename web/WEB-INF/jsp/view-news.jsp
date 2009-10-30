@@ -36,11 +36,11 @@
 </c:if>
 
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
-<c:if test="${section != null}">
   <table class=nav><tr>
     <td align=left valign=middle id="navPath">
       <strong>${navtitle}</strong>
     </td>
+    <c:if test="${section != null}">
     <td align=right valign=middle>
       <c:if test="${month != null}">
 <%
@@ -66,9 +66,9 @@
   out.print("[<a href=\"section-rss.jsp?section="+section.getId()+(group!=null?("&amp;group="+group.getId()):"")+"\">RSS</a>]");
 %>
     </td>
+    </c:if>
    </tr>
 </table>
-</c:if>
 
 <H1 class="optional">${ptitle}</H1>
 <%
