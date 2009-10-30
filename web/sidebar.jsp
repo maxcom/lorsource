@@ -41,7 +41,7 @@
 <p style="font-size: small">
 <%
  	rs.close();
-	rs=st.executeQuery("SELECT topics.title as subj, topics.lastmod, topics.stat1, postdate, nick, image, groups.title as gtitle, topics.id as msgid, groups.id as guid, topics.url, topics.linktext, imagepost, postdate<(CURRENT_TIMESTAMP-expire) as expired FROM topics,groups, users, sections WHERE sections.id="+section+" AND (topics.moderate OR NOT sections.moderate) AND topics.userid=users.id AND topics.groupid=groups.id AND section=" + section + " AND NOT deleted ORDER BY commitdate DESC LIMIT 10");
+	rs=st.executeQuery("SELECT topics.title as subj, topics.lastmod, topics.stat1, postdate, nick, image, groups.title as gtitle, topics.id as msgid, groups.id as guid, topics.url, topics.linktext, imagepost, postdate<(CURRENT_TIMESTAMP-expire) as expired FROM topics,groups, users, sections WHERE sections.id="+section+" AND (topics.moderate OR NOT sections.moderate) AND topics.userid=users.id AND topics.groupid=groups.id AND section=" + section + " AND NOT deleted AND commitdate is not null ORDER BY commitdate DESC LIMIT 10");
 
 	while (rs.next()) {%>
 		* <a target="_content" href="view-message.jsp?msgid=<%= rs.getInt("msgid") %>"> <%= rs.getString("subj")%></a> (<%= rs.getInt("stat1") %> комментариев)<br>
