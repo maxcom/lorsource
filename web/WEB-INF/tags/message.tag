@@ -43,12 +43,6 @@
       out.append("[<a href=\"commit.jsp?msgid=").append(String.valueOf(msgid)).append("\">Подтвердить</a>]");
     }
 
-    if (tmpl.isModeratorSession() || author.getNick().equals(user)) {
-      out.append("[<a href=\"delete.jsp?msgid=");
-      out.print(msgid);
-      out.append("\">Удалить</a>]");
-    }
-
     if (tmpl.isModeratorSession()) {
       if (message.isVotePoll()) {
         out.append("[<a href=\"edit-vote.jsp?msgid=");
@@ -172,6 +166,12 @@
       out.print(msgid);
       out.append("\">Ответить на это сообщение</a>] ")/*.append(Message.getPostScoreInfo(message.getPostScore()))*/;
     }
+
+    if (tmpl.isModeratorSession() || author.getNick().equals(user)) {
+      out.append("[<a href=\"delete.jsp?msgid=");
+      out.print(msgid);
+      out.append("\">Удалить</a>]");
+    }    
 
     out.append("</div>");
   }
