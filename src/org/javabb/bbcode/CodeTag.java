@@ -65,7 +65,7 @@ public class CodeTag {
       String replacement =
           "<pre class=code><p>"
               + content
-              + "</pre>";
+              + "</pre><p>";
       buffer.replace(start, end, replacement);
 
       end = start + replacement.length();
