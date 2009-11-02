@@ -65,14 +65,17 @@
   }
 
   out.append("<a href=\"").append(jumplink).append("\">");
-
-  if ((boolean) multiPortal) {
-    out.append('(').append(message.getSection().getTitle()).append(") ");
-  }
   out.append(subj);
   out.append("</a>");
 
   out.append("</h2>");
+%>
+<c:if test="${multiPortal}">
+  <div class="group">
+    ${message.section.title} - ${message.groupTitle}
+  </div>
+</c:if>
+  <%
 
   if (image != null) {
     out.append("<div class=\"entry-userpic\">");

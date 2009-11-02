@@ -244,3 +244,16 @@ label.error {
 .message-w-userpic {
     padding-left: 160px;
 }
+
+.news .group {
+    font-size: small;
+}
+
+.news .entry-body {
+    padding-top: 5px;
+}
+
+.news .entry-userpic {
+    padding-top: 5px;
+}
+

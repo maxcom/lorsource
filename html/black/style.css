@@ -70,7 +70,12 @@ DIV.columnimg
    }
 
 /* news items */
-.news H2 { font-family: sans-serif; margin-bottom: 5px; margin-top: 5px; }
+.news H2 {
+    font-family: sans-serif;
+    margin-bottom: 0;
+    margin-top: 5px;
+}
+
 .news H2 A { text-decoration: none; color: white; }
 .news DIV.nav { text-align: left; margin-top: 1em; }
 
