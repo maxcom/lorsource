@@ -7,6 +7,7 @@
 <%@ page import="ru.org.linux.site.*" %>
 <%@ page import="ru.org.linux.util.HTMLFormatter" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
 <%--
   ~ Copyright 1998-2009 Linux.org.ru
@@ -29,20 +30,17 @@
 %>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
-<% String nick=request.getParameter("nick");
-
-  if (nick == null) {
-    throw new MissingParameterException("nick");
-  }
+<%
+  User user = (User) request.getAttribute("user");
+  String nick = user.getNick();
 %>
-<title>Информация о пользователе <%= nick %></title>
+<title>Информация о пользователе ${user.nick}</title>
 <jsp:include page="header.jsp"/>
 
 <% Connection db = null;
   try {
     db = LorDataSource.getConnection();
 
-    User user = (User) request.getAttribute("user");
 
     boolean moderatorOrCurrentUser = Template.isSessionAuthorized(session) && (session.getValue("nick").equals(nick) ||
             (Boolean) session.getValue("moderator"));
@@ -210,6 +208,9 @@
 <b>Последний комментарий:</b> <%= lastComment==null?"нет":tmpl.dateFormat.format(lastComment) %>
 <% rs.close(); %>
 <p>
+
+  <c:if test="${user.id!=2}">
+
 <div class="forum">
 <table width="100%" class="message-table">
 <thead>
@@ -221,11 +222,13 @@
    	out.print("<tr><td>"+rs.getString("pname")+"</td><td>"+rs.getInt("c")+"</td></tr>");
    }
 %>
-<% rs.close(); rs=stat1.executeQuery(); rs.next(); %>
+<% rs.close(); %>
+<%
+rs=stat1.executeQuery();
+rs.next(); %>
 <tr><td>Комментарии</td><td valign='top'><%= rs.getInt("c") %></td></tr>
 </table>
 </div>
-<% if (userid!=2) { %>
 
 <h2>Сообщения пользователя</h2>
 <ul>
@@ -241,9 +244,7 @@
     <a href="show-replies.jsp?nick=<%= nick %>">Ответы на комментарии</a>
   </li>
 </ul>
-
-<% } %>
-
+</c:if>
 
 </td></tr></table>
 
