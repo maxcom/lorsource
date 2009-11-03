@@ -45,6 +45,7 @@
   <%
     out.print(Message.getPostScoreInfo(postscore));
   %>
+  <br>
   <% } %>
 
   <input type=hidden name=topic value="<%= topicId %>">
