@@ -224,6 +224,10 @@ public class NewsViewerController {
 
       newsViewer.setLimit("LIMIT 20" + (offset > 0 ? (" OFFSET " + offset) : ""));
 
+      if (user.getId()==2) {
+        throw new UserErrorException("Лента для пользователя anonymous не доступна");
+      }
+
       newsViewer.setUserid(user.getId());
 
       params.put("messages", newsViewer.getMessagesCached(db));
