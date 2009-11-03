@@ -54,7 +54,7 @@
   </p>
     <ul>
       <li>Fedora 11</li>
-      <li>СУБД PostgreSQL 8.3</li>
+      <li>СУБД PostgreSQL 8.4</li>
       <li>Apache2 2.2</li>
       <li>OpenJDK 1.6.0</li>
       <li>Apache Tomcat 5.5</li>
