@@ -60,9 +60,9 @@
 Полное имя:
 <input type=text name=name size=40 value="<c:out value="${param.name}"/>"><br>
 <b>Пароль:</b>
-<input class="required" id="password" type=password name=password size=20><br>
+<input class="required" id="password" type=password name=password size=20 maxlength="40"><br>
 <b>Повторите Пароль:</b>
-<input class="required" id="password2" type=password name=password2 size=20><br>
+<input class="required" id="password2" type=password name=password2 size=20 maxlength="40"><br>
 URL (не забудьте добавить <b>http://</b>): <br>
 <input type=text name=url size="50" value="<c:out value="${param.url}"/>"><br>
 <b>E-mail</b> (ваш email не будет публиковаться на сайте):<br>
