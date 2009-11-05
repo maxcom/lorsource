@@ -119,7 +119,7 @@
     <li><a href="edit-profile.jsp">Настройки</a></li>
   </ul>
   <ul>
-    <li><a href="show-topics.jsp?nick=<%= user.getNick() %>">Мои темы</a></li>
+    <li><a href="tracker.jsp?filter=mine">Мои темы</a></li>
     <li><a href="show-comments.jsp?nick=<%= user.getNick() %>">Мои комментарии</a></li>
     <li><a href="show-replies.jsp?nick=<%= user.getNick() %>">Ответы на мои комментарии</a></li>
   </ul>
