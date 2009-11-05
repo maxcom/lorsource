@@ -35,6 +35,7 @@ public class TrackerController {
   public ModelAndView tracker(
     @RequestParam(value="h", required = false) Integer hourObject,
     @RequestParam(value="filter", required = false) String filter,
+    @RequestParam(value="new", required = false) String testRequest,
     ServletRequest request) throws Exception {
     int hour = hourObject!=null?hourObject:3;
 
@@ -68,7 +69,16 @@ public class TrackerController {
         user = User.getUser(db, tmpl.getNick());
       }
 
-      String sSql = "SELECT " +
+      String sSql;
+      if (testRequest!=null) {
+        sSql = "SELECT " +
+          "t.userid as author, t.id, lastmod, t.stat1 AS stat1, t.stat3 AS stat3, t.stat4 AS stat4, g.id AS gid, g.title AS gtitle, t.title AS title, comments.id as cid, comments.userid AS last_comment_by " +
+          "FROM topics AS t, groups AS g, comments " +
+          "WHERE not t.deleted AND t.id=comments.topic AND t.groupid=g.id AND comments.id=(SELECT id FROM comments WHERE NOT deleted AND comments.topic=t.id ORDER BY postdate DESC LIMIT 1) AND t.postdate > CURRENT_TIMESTAMP - interval '"+hour+" hours' " +
+          "UNION ALL SELECT t.userid as author, t.id, lastmod,  t.stat1 AS stat1, t.stat3 AS stat3, t.stat4 AS stat4, g.id AS gid, g.title AS gtitle, t.title AS title, 0, 0 FROM topics AS t, groups AS g WHERE not t.deleted AND t.postdate > CURRENT_TIMESTAMP - interval '"+hour+" hours' AND t.stat1=0 " +
+          "ORDER BY lastmod DESC LIMIT 100;";
+      } else {
+        sSql = "SELECT " +
         "t.userid as author, t.id, lastmod, t.stat1 AS stat1, t.stat3 AS stat3, t.stat4 AS stat4, g.id AS gid, g.title AS gtitle, t.title AS title, cid, comments.userid AS last_comment_by " +
         "FROM topics AS t, groups AS g, (SELECT topic, max(id) as cid FROM comments WHERE NOT deleted AND postdate > CURRENT_TIMESTAMP - interval '" + hour + " hours' GROUP BY topic " +
         "UNION ALL SELECT id, 0 as cid FROM topics WHERE postdate > CURRENT_TIMESTAMP - interval '" + hour + " hours' AND stat1=0) AS foo LEFT JOIN comments ON foo.cid=comments.id " +
@@ -76,6 +86,7 @@ public class TrackerController {
         + (noTalks?" AND not t.groupid=8404":"")
         + (mine?" AND t.userid="+user.getId():"")+
         "ORDER BY lastmod DESC";
+      }
 
       Statement st = db.createStatement();
       ResultSet rs = st.executeQuery(sSql);
