@@ -75,7 +75,7 @@ public class TrackerController {
           "t.userid as author, t.id, lastmod, t.stat1 AS stat1, t.stat3 AS stat3, t.stat4 AS stat4, g.id AS gid, g.title AS gtitle, t.title AS title, comments.id as cid, comments.userid AS last_comment_by " +
           "FROM topics AS t, groups AS g, comments " +
           "WHERE not t.deleted AND t.id=comments.topic AND t.groupid=g.id AND comments.id=(SELECT id FROM comments WHERE NOT deleted AND comments.topic=t.id ORDER BY postdate DESC LIMIT 1) AND t.postdate > CURRENT_TIMESTAMP - interval '"+hour+" hours' " +
-          "UNION ALL SELECT t.userid as author, t.id, lastmod,  t.stat1 AS stat1, t.stat3 AS stat3, t.stat4 AS stat4, g.id AS gid, g.title AS gtitle, t.title AS title, 0, 0 FROM topics AS t, groups AS g WHERE not t.deleted AND t.postdate > CURRENT_TIMESTAMP - interval '"+hour+" hours' AND t.stat1=0 " +
+          "UNION ALL SELECT t.userid as author, t.id, lastmod,  t.stat1 AS stat1, t.stat3 AS stat3, t.stat4 AS stat4, g.id AS gid, g.title AS gtitle, t.title AS title, 0, 0 FROM topics AS t, groups AS g WHERE not t.deleted AND t.postdate > CURRENT_TIMESTAMP - interval '"+hour+" hours' AND t.stat1=0 AND g.id=t.groupid " +
           "ORDER BY lastmod DESC LIMIT 100;";
       } else {
         sSql = "SELECT " +
