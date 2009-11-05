@@ -50,9 +50,9 @@ public class SearchViewer implements Viewer {
 
   @Override
   public String show(Connection db) throws SQLException, UtilException, UserErrorException {
-    StringBuilder select = new StringBuilder("SELECT qq.id, title, postdate, topic, userid, rank, message,bbcode FROM ("+
+    StringBuilder select = new StringBuilder(""+
         "SELECT " +
-        "msgs.id, title, postdate, topic, userid, rank(idxFTI, q) as rank");
+        "msgs.id, title, postdate, topic, userid, rank(idxFTI, q) as rank, message, bbcode");
 
     if (include==SEARCH_ALL) {
       select.append(" FROM msgs_and_cmts as msgs, msgbase, plainto_tsquery(?) as q");
@@ -88,20 +88,13 @@ public class SearchViewer implements Viewer {
       select.append(" ORDER BY rank DESC");
     }
 
-    select.append(" LIMIT 100) as qq, plainto_tsquery(?) as q, msgbase WHERE msgbase.id=qq.id");
-
-    if (sort==SORT_DATE) {
-      select.append(" ORDER BY postdate DESC");
-    } else {
-      select.append(" ORDER BY rank DESC");
-    }
+    select.append(" LIMIT 100");
 
     PreparedStatement pst = null;
     try {
       pst = db.prepareStatement(select.toString());
 
       pst.setString(1, query);
-      pst.setString(2, query);
 
       ResultSet rs = pst.executeQuery();
 
