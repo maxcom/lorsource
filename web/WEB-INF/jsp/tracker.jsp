@@ -26,21 +26,9 @@
   Connection db = null;
   try {
     // defaults
-    int hours = (Integer) request.getAttribute("hour");
     db = LorDataSource.getConnection();
 
-    String sSuf = "ов";
-    
-    /* some magic */
-    if (hours % 10 < 5 && hours % 10 > 0 && hours % 100 / 10 != 1) {
-	    if (hours % 10 == 1) {
-		    sSuf = "";
-	    } else {
-		     sSuf="а";
-	    }
-    }
-
-    String title = "Последние сообщения за "+hours+" час"+sSuf;
+    String title = "Последние сообщения";
     if ((Boolean) request.getAttribute("mine")) {
       title+=" (мои темы)";
     }
@@ -57,10 +45,6 @@
     </td>
 
     <td align=right valign=middle>
-      за последние
-        <input name="h" size="3" maxlength="3" value="<%= hours %>">
-      часа
-
       <select name="filter">
         <c:if test="${notalks}">
           <option value="all">все сообщения</option>
@@ -134,10 +118,6 @@
 </tr>
 </c:forEach>
 </tbody>
-
-<tfoot>
-  <tr><td colspan='4' align='right'>всего: ${fn:length(msgs)} &nbsp</td></tr>
-</tfoot>
 
 </table>
 </div>

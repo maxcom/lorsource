@@ -33,24 +33,19 @@ import ru.org.linux.site.*;
 public class TrackerController {
   @RequestMapping("/tracker.jsp")
   public ModelAndView tracker(
-    @RequestParam(value="h", required = false) Integer hourObject,
     @RequestParam(value="filter", required = false) String filter,
     @RequestParam(value="new", required = false) String testRequest,
     ServletRequest request) throws Exception {
-    int hour = hourObject!=null?hourObject:3;
-
-    if (hour < 1 || hour > 23) {
-      throw new BadInputException("неправильный ввод. hours = " + hour);
-    }
 
     boolean noTalks = filter!=null && filter.equals("notalks");
     boolean mine = filter!=null && filter.equals("mine");
 
     Map<String, Object> params = new HashMap<String, Object>();
 
-    params.put("hour", hour);
     params.put("notalks", noTalks);
     params.put("mine", mine);
+
+    String dateLimit = mine?"6 month":"6 hours";
 
     Template tmpl = Template.getTemplate(request);
     int messages = tmpl.getProf().getInt("messages");
@@ -69,24 +64,16 @@ public class TrackerController {
         user = User.getUser(db, tmpl.getNick());
       }
 
-      String sSql;
-      if (testRequest!=null) {
-        sSql = "SELECT " +
-          "t.userid as author, t.id, lastmod, t.stat1 AS stat1, t.stat3 AS stat3, t.stat4 AS stat4, g.id AS gid, g.title AS gtitle, t.title AS title, comments.id as cid, comments.userid AS last_comment_by " +
-          "FROM topics AS t, groups AS g, comments " +
-          "WHERE not t.deleted AND t.id=comments.topic AND t.groupid=g.id AND comments.id=(SELECT id FROM comments WHERE NOT deleted AND comments.topic=t.id ORDER BY postdate DESC LIMIT 1) AND t.lastmod > CURRENT_TIMESTAMP - interval '"+hour+" hours' " +
-          "UNION ALL SELECT t.userid as author, t.id, lastmod,  t.stat1 AS stat1, t.stat3 AS stat3, t.stat4 AS stat4, g.id AS gid, g.title AS gtitle, t.title AS title, 0, 0 FROM topics AS t, groups AS g WHERE not t.deleted AND t.postdate > CURRENT_TIMESTAMP - interval '"+hour+" hours' AND t.stat1=0 AND g.id=t.groupid " +
-          "ORDER BY lastmod DESC LIMIT 100;";
-      } else {
-        sSql = "SELECT " +
-        "t.userid as author, t.id, lastmod, t.stat1 AS stat1, t.stat3 AS stat3, t.stat4 AS stat4, g.id AS gid, g.title AS gtitle, t.title AS title, cid, comments.userid AS last_comment_by " +
-        "FROM topics AS t, groups AS g, (SELECT topic, max(id) as cid FROM comments WHERE NOT deleted AND postdate > CURRENT_TIMESTAMP - interval '" + hour + " hours' GROUP BY topic " +
-        "UNION ALL SELECT id, 0 as cid FROM topics WHERE postdate > CURRENT_TIMESTAMP - interval '" + hour + " hours' AND stat1=0) AS foo LEFT JOIN comments ON foo.cid=comments.id " +
-        "WHERE not t.deleted AND t.id=foo.topic AND t.groupid=g.id "
-        + (noTalks?" AND not t.groupid=8404":"")
-        + (mine?" AND t.userid="+user.getId():"")+
-        "ORDER BY lastmod DESC";
-      }
+      String sSql = "SELECT " +
+        "t.userid as author, t.id, lastmod, t.stat1 AS stat1, t.stat3 AS stat3, t.stat4 AS stat4, g.id AS gid, g.title AS gtitle, t.title AS title, comments.id as cid, comments.userid AS last_comment_by " +
+        "FROM topics AS t, groups AS g, comments " +
+        "WHERE not t.deleted AND t.id=comments.topic AND t.groupid=g.id AND comments.id=(SELECT id FROM comments WHERE NOT deleted AND comments.topic=t.id ORDER BY postdate DESC LIMIT 1) AND t.lastmod > CURRENT_TIMESTAMP - interval '" + dateLimit + "' "
+        + (noTalks ? " AND not t.groupid=8404" : "")
+        + (mine ? " AND t.userid=" + user.getId() : "") +
+        "UNION ALL SELECT t.userid as author, t.id, lastmod,  t.stat1 AS stat1, t.stat3 AS stat3, t.stat4 AS stat4, g.id AS gid, g.title AS gtitle, t.title AS title, 0, 0 FROM topics AS t, groups AS g WHERE not t.deleted AND t.postdate > CURRENT_TIMESTAMP - interval '" + dateLimit + "' AND t.stat1=0 AND g.id=t.groupid "
+        + (noTalks ? " AND not t.groupid=8404" : "")
+        + (mine ? " AND t.userid=" + user.getId() : "") +
+        "ORDER BY lastmod DESC LIMIT 100;";
 
       Statement st = db.createStatement();
       ResultSet rs = st.executeQuery(sSql);
