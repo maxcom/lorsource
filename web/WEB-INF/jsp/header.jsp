@@ -15,18 +15,9 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
-
-<LINK REL=STYLESHEET TYPE="text/css" HREF="/common.css" TITLE="Normal">
-<c:if test="${template.mobile}">
-  <LINK REL=STYLESHEET TYPE="text/css" HREF="/common-mobile.css" TITLE="Normal">  
-</c:if>
 <link rel="search" title="Search L.O.R." href="/search.jsp">
 <link rel="top" title="Linux.org.ru" href="/">
 <script src="/js/lor.js" type="text/javascript">;</script>
-
-<c:if test="${template.hover}">
-  <LINK REL=STYLESHEET TYPE="text/css" HREF="/${template.style}/hover.css" TITLE="Normal">
-</c:if>
 
 <base href="${fn:escapeXml(template.mainUrl)}">
 

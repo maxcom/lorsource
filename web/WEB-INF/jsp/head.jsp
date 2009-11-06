@@ -1,3 +1,4 @@
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%--
 ~ Copyright 1998-2009 Linux.org.ru
 ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,6 +18,15 @@
 
 <html lang=ru>
 <head>
+<LINK REL=STYLESHEET TYPE="text/css" HREF="/common.css" TITLE="Normal">
+  <c:if test="${template.mobile}">
+    <LINK REL=STYLESHEET TYPE="text/css" HREF="/common-mobile.css" TITLE="Normal">
+  </c:if>
+
+  <c:if test="${template.hover}">
+    <LINK REL=STYLESHEET TYPE="text/css" HREF="/${template.style}/hover.css" TITLE="Normal">
+  </c:if>
+
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.2.6/jquery.min.js" type="text/javascript"></script>
 <script src="/js/jquery.form.2.34.min.js" type="text/javascript"></script>
 <script src="/js/jquery.hotkeys-0.7.8-packed.js" type="text/javascript"></script>
