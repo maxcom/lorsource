@@ -27,12 +27,17 @@
   <!--TopList LOGO-->
 </div>
 
-<script src="http://www.google-analytics.com/urchin.js" type="text/javascript"></script>
 <script type="text/javascript">
-  _uacct = "UA-2184304-1";
-  urchinTracker();
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
 </script>
-  </div>
+<script type="text/javascript">
+try {
+var pageTracker = _gat._getTracker("UA-2184304-1");
+pageTracker._trackPageview();
+} catch(err) {}</script>
+
+</div>
 
 <c:if test="${template.style == 'tango'}">
   </div>
