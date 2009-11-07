@@ -14,13 +14,15 @@
   --%>
 <%@ page contentType="text/html; charset=utf-8"%>
 
+
 <form action="http://www.linux.org.ru/google-search.jsp" id="cse-search-box">
   <div>
-    <input type="hidden" name="cx" value="partner-pub-6069094673001350:thc8dtcptfj" />
+    <input type="hidden" name="cx" value="partner-pub-6069094673001350:dlf1un-p6ic" />
     <input type="hidden" name="cof" value="FORID:9" />
     <input type="hidden" name="ie" value="UTF-8" />
-    <input type="text" name="q" size="31" />
+    <input type="text" name="q" size="50" />
     <input type="submit" name="sa" value="&#x041f;&#x043e;&#x0438;&#x0441;&#x043a;" />
   </div>
 </form>
 <script type="text/javascript" src="http://www.google.ru/cse/brand?form=cse-search-box&amp;lang=ru"></script>
+

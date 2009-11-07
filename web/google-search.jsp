@@ -22,7 +22,7 @@
 <script type="text/javascript">
   var googleSearchIframeName = "cse-search-results";
   var googleSearchFormName = "cse-search-box";
-  var googleSearchFrameWidth = 800;
+  var googleSearchFrameWidth = 1000;
   var googleSearchDomain = "www.google.ru";
   var googleSearchPath = "/cse";
 </script>
