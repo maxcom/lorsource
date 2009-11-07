@@ -24,7 +24,6 @@
 
 <jsp:include page="${template.style}/head-main.jsp"/>
 
-<img src="http://counter.rambler.ru/top100.cnt?29833" alt="Rambler's Top100" width=1 height=1 border=0>
 <!--TopList COUNTER-->
 <img height=1 width=1 src="http://top.list.ru/counter?id=71642" alt="">
 <!--TopList COUNTER-->
