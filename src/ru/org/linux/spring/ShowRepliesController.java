@@ -103,7 +103,9 @@ public class ShowRepliesController {
           "WHERE sections.id=groups.section AND groups.id=topics.groupid " +
           "AND comments.topic=topics.id AND parents.userid = ? " +
           " AND comments.replyto = parents.id AND parents.id<comments.id " +
-          "AND NOT comments.deleted ORDER BY cDate DESC LIMIT " + topics +
+          "AND NOT comments.deleted " +
+          "AND  comments.userid NOT IN (select ignored from ignore_list where userid=?) " +
+          "ORDER BY cDate DESC LIMIT " + topics +
           " OFFSET " + offset;
 
         if (feedRequested) {
@@ -119,6 +121,7 @@ public class ShowRepliesController {
             " INNER JOIN msgbase ON (msgbase.id = comments.id)" +
             " WHERE  parents.userid = ? " +
             " AND NOT comments.deleted AND parents.postdate>CURRENT_TIMESTAMP-'6 month'::interval" +
+            " AND comments.userid NOT IN (select ignored from ignore_list where userid=?) " +
             " ORDER BY cDate DESC LIMIT " + topics +
             " OFFSET " + offset;
         }
@@ -128,6 +131,7 @@ public class ShowRepliesController {
         );
 
         pst.setInt(1, user.getId());
+        pst.setInt(2, user.getId());
         ResultSet rs = pst.executeQuery();
 
         while (rs.next()) {
