@@ -33,7 +33,7 @@ public class Tags implements Serializable {
   
   static {
     try {
-      tagRE = new RE("([\\w\\ ]+)", RE.REG_ICASE);
+      tagRE = new RE("([\\w\\ \\+-]+)", RE.REG_ICASE);
     } catch (REException e) {
       throw new RuntimeException(e);
     }
