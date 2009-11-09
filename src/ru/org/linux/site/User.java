@@ -249,11 +249,11 @@ public class User implements Serializable {
     int greyStars = (int) Math.floor(maxScore / 100.0) - stars;
 
     for (int i = 0; i < stars; i++) {
-      out.append("<img src=\"/img/normal-star.gif\" alt=\"*\">");
+      out.append("<img src=\"/img/normal-star.gif\" width=9 height=9 alt=\"*\">");
     }
 
     for (int i = 0; i < greyStars; i++) {
-      out.append("<img src=\"/img/grey-star.gif\" alt=\"#\">");
+      out.append("<img src=\"/img/grey-star.gif\" width=9 height=9 alt=\"#\">");
     }
 
     return out.toString();
