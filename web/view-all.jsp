@@ -50,7 +50,7 @@
   <form action="view-all.jsp">
 
   <table class=nav><tr>
-    <td align=left valign=middle>
+    <td align=left valign=middle id="navPath">
       Просмотр неподтвержденных сообщений - <%= section==null?"Все":section.getName() %>
     </td>
 
@@ -82,7 +82,7 @@
  </table>
 </form>
 
-<h1><%= section==null?"П":(section.getName()+": п") %>росмотр неподтвержденных</h1>
+<h1 class="optional"><%= section==null?"П":(section.getName()+": п") %>росмотр неподтвержденных</h1>
 <strong>Внимание!</strong> Cообщения отображаются точно так же, как
 они будут выглядеть на главной странице. Если ваше сообщение отображается не так, как вы хотели, или
 в нем не работают какие-либо ссылки, пожалуйста,
