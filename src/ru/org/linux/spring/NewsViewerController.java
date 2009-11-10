@@ -187,6 +187,15 @@ public class NewsViewerController {
       params.put("offsetNavigation", month==null);
       params.put("offset", offset);
 
+      if (section!=null) {
+        String rssLink = "section-rss.jsp?section="+section.getId();
+        if (group!=null) {
+          rssLink += "&group="+group.getId();
+        }
+
+        params.put("rssLink", rssLink);
+      }
+
       return new ModelAndView("view-news", params);
     } finally {
       if (db != null) {
@@ -199,6 +208,7 @@ public class NewsViewerController {
   public ModelAndView showUserTopics(
     @RequestParam("nick") String nick,
     @RequestParam(value="offset", required=false) Integer offset,
+    @RequestParam(value="output", required=false) String output,
     HttpServletResponse response
   ) throws Exception {
     Connection db = null;
@@ -235,7 +245,13 @@ public class NewsViewerController {
       params.put("offsetNavigation", true);
       params.put("offset", offset);
 
-      return new ModelAndView("view-news", params);
+      params.put("rssLink", "show-topics.jsp?nick="+nick+"&output=rss");
+
+      if (output!=null && output.equals("rss")) {
+        return new ModelAndView("section-rss", params);
+      } else {
+        return new ModelAndView("view-news", params);
+      }
     } finally {
       if (db != null) {
         db.close();

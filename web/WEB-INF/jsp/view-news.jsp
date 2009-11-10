@@ -27,12 +27,10 @@
   Section section = (Section) request.getAttribute("section");
   String tag = (String) request.getAttribute("tag");
   User user = (User) request.getAttribute("user");
-
-
 %>
 
-<c:if test="${section != null}">
-  <LINK REL="alternate" HREF="section-rss.jsp?section=${section.id}<%= (group!=null?("&amp;group="+group.getId()):"")%>" TYPE="application/rss+xml">
+<c:if test="${rssLink != null}">
+  <LINK REL="alternate" HREF="${rssLink}" TYPE="application/rss+xml">
 </c:if>
 
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
@@ -40,34 +38,34 @@
     <td align=left valign=middle id="navPath">
       <strong>${navtitle}</strong>
     </td>
-    <c:if test="${section != null}">
     <td align=right valign=middle>
-      <c:if test="${month != null}">
-<%
-    if (section.isVotePoll()) {
-      out.print("[<a href=\"add-poll.jsp?group=19387\">Добавить голосование</a>]");
-    } else {
-      if (group == null) {
-        out.print("[<a href=\"add-section.jsp?section=" + section.getId() + "\">Добавить</a>]");
-      } else {
-        out.print("[<a href=\"add.jsp?group=" + group.getId() + "\">Добавить</a>]");
-      }
-    }
+      <c:if test="${section != null}">
+        <c:if test="${month != null}">
+          <%
+            if (section.isVotePoll()) {
+              out.print("[<a href=\"add-poll.jsp?group=19387\">Добавить голосование</a>]");
+            } else {
+              if (group == null) {
+                out.print("[<a href=\"add-section.jsp?section=" + section.getId() + "\">Добавить</a>]");
+              } else {
+                out.print("[<a href=\"add.jsp?group=" + group.getId() + "\">Добавить</a>]");
+              }
+            }
 
-    if (group == null) {
-      out.print("[<a href=\"view-section.jsp?section=" + section.getId() + "\">Таблица</a>]");
-    } else {
-      out.print("[<a href=\"group.jsp?group=" + group.getId() + "\">Таблица</a>]");
-    }
-%>
+            if (group == null) {
+              out.print("[<a href=\"view-section.jsp?section=" + section.getId() + "\">Таблица</a>]");
+            } else {
+              out.print("[<a href=\"group.jsp?group=" + group.getId() + "\">Таблица</a>]");
+            }
+          %>
+        </c:if>
+        [<a href="view-news-archive.jsp?section=${section.id}">Архив</a>]
       </c:if>
-[<a href="view-news-archive.jsp?section=${section.id}">Архив</a>]
-        <%
-  out.print("[<a href=\"section-rss.jsp?section="+section.getId()+(group!=null?("&amp;group="+group.getId()):"")+"\">RSS</a>]");
-%>
+      <c:if test="${rssLink != null}">
+        [<a href="${rssLink}">RSS</a>]
+      </c:if>
     </td>
-    </c:if>
-   </tr>
+  </tr>
 </table>
 
 <H1 class="optional">${ptitle}</H1>

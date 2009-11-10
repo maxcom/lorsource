@@ -26,17 +26,9 @@
   <channel>
     <link>http://www.linux.org.ru/</link>
     <language>ru</language>
-    <title>Linux.org.ru: "${section.name}"
-      <c:if test="${group!=null}">
-        - ${group.title}
-      </c:if>
-    </title>
+    <title>Linux.org.ru: ${ptitle}</title>
 
-    <description>Linux.org.ru: "${section.name}"
-      <c:if test="${group!=null}">
-        - ${group.title}
-      </c:if>
-    </description>
+    <description>Linux.org.ru: ${ptitle}</description>
 
     <pubDate>
       <lor:rfc822date date="<%= new Date() %>"/>

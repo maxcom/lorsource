@@ -81,6 +81,13 @@ public class SectionRSSController {
         params.put("group", group);
       }
 
+      String ptitle = section.getName();
+      if (group!=null) {
+        ptitle += " - " + group.getTitle();
+      }
+
+      params.put("ptitle", ptitle);
+
       List<Message> messages=feedBurner?nv.getMessages(db):nv.getMessagesCached(db);
       params.put("messages", messages);
 
