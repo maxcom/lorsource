@@ -33,7 +33,13 @@ import ru.org.linux.site.*;
 @Controller
 public class MessageController {
   @RequestMapping("/view-message.jsp")
-  public ModelAndView getMessage(WebRequest webRequest, HttpServletRequest request, HttpServletResponse response, @RequestParam("msgid") int msgid) throws Exception {
+  public ModelAndView getMessage(
+    WebRequest webRequest,
+    HttpServletRequest request,
+    HttpServletResponse response,
+    @RequestParam("msgid") int msgid,
+    @RequestParam(value="page", required=false) Integer page
+  ) throws Exception {
     Template tmpl = Template.getTemplate(request);
 
     Map<String, Object> params = new HashMap<String, Object>();
@@ -41,6 +47,10 @@ public class MessageController {
     params.put("showAdsense", !tmpl.isSessionAuthorized() || !tmpl.getProf().getBoolean(DefaultProfile.HIDE_ADSENSE));
 
     params.put("msgid", msgid);
+
+    if (page!=null) {
+      params.put("page", page);
+    }
 
     boolean showDeleted = request.getParameter("deleted") != null;
     boolean rss = request.getParameter("output")!=null && "rss".equals(request.getParameter("output"));

@@ -50,8 +50,8 @@
     }
 
     int npage = 0;
-    if (request.getParameter("page") != null) {
-      npage = new ServletParameterParser(request).getInt("page");
+    if (request.getAttribute("page") != null) {
+      npage = (Integer) request.getAttribute("page");
     }
 
     boolean showDeleted = (Boolean) request.getAttribute("showDeleted");
