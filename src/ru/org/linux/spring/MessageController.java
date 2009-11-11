@@ -128,6 +128,10 @@ public class MessageController {
 
     String userAddon = nick!=null?('-' +nick):"";
 
-    return "message-"+message.getMessageId()+ '-' +message.getLastModified().getTime()+userAddon;
+    if (!tmpl.isUsingDefaultProfile()) {
+      userAddon+=tmpl.getProf().getLong(Profile.SYSTEM_TIMESTAMP);
+    }
+
+    return "msg-"+message.getMessageId()+ '-' +message.getLastModified().getTime()+userAddon;
   }
 }

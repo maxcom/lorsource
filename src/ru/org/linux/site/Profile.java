@@ -28,6 +28,7 @@ public class Profile {
   private final String profileName;
 
   private final boolean isdefault;
+  public static final String SYSTEM_TIMESTAMP = "system.timestamp";
 
   public Profile(InputStream df, String profileName) throws IOException, ClassNotFoundException {
     ObjectInputStream dof = null;
@@ -75,7 +76,7 @@ public class Profile {
   }
 
   public void write(OutputStream df) throws IOException {
-    profileHashtable.setObject("system.timestamp", new Date().getTime());
+    profileHashtable.setObject(SYSTEM_TIMESTAMP, new Date().getTime());
 
     ObjectOutputStream dof = null;
     try {
