@@ -204,7 +204,7 @@ public class Poll {
     StringBuilder out = new StringBuilder();
     int max = getMaxVote(db);
     List<PollVariant> vars = getPollVariants(db, ORDER_VOTES);
-    out.append("<table>");    
+    out.append("<table class=poll>");    
     ImageInfo info = new ImageInfo(config.getProperty("HTMLPathPrefix") + profile.getString("style") + "/img/votes.png");
     int total = 0;
     for (PollVariant var : vars) {

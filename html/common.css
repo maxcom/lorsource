@@ -257,3 +257,7 @@ label.error {
     padding-top: 5px;
 }
 
+table.poll td {
+    padding-right: 1em;
+}
+
