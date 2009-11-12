@@ -34,11 +34,11 @@
   int include = SearchViewer.parseInclude(request.getParameter("include"));
   int date = SearchViewer.parseDate(request.getParameter("date"));
 
-  String strSection = request.getParameter("section");
-  int section = 0;
-  if (strSection!=null) {
-    section = new ServletParameterParser(request).getInt("section");
-  }
+//  String strSection = request.getParameter("section");
+//  int section = 0;
+//  if (strSection!=null) {
+//    section = new ServletParameterParser(request).getInt("section");
+//  }
 
   int sort = SearchViewer.SORT_R;
   String strSort = request.getParameter("sort");
@@ -73,6 +73,7 @@
     <option value="all" <%= (date==SearchViewer.SEARCH_ALL)?"selected":"" %>>весь период</option>
   </select>
 <br>
+<%--
   Раздел:
   <select name="section">
 
@@ -84,6 +85,7 @@
 
   <option value="0" <%= (section==0)?"selected":"" %>>все</option>
   </select>
+--%>
 
   Пользователь:
   <INPUT TYPE="text" NAME="username" SIZE=20 VALUE="<%= HTMLFormatter.htmlSpecialChars(username) %>"><p>
