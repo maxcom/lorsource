@@ -261,3 +261,7 @@ table.poll td {
     padding-right: 1em;
 }
 
+p {
+    margin-top: 0;
+}
+
