@@ -109,7 +109,7 @@
 
     sv.setDate(date);
     sv.setInclude(include);
-    sv.setSection(section);
+//    sv.setSection(section);
     sv.setSort(sort);
     sv.setUser(username);
 
