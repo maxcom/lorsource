@@ -225,7 +225,7 @@ public class Comment implements Serializable {
       BBCodeProcessor proc = new BBCodeProcessor();
       return proc.preparePostText(db, message);
     } else {
-      return message;
+      return "<p>"+message;
     }
   }
 }
