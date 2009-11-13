@@ -28,6 +28,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 
 import ru.org.linux.site.*;
+import ru.org.linux.util.ServletParameterBadValueException;
 
 @Controller
 public class GroupController {
@@ -63,6 +64,10 @@ public class GroupController {
     if (offsetObject != null) {
       offset = offsetObject;
       firstPage = false;
+
+      if (offset<0) {
+        throw new ServletParameterBadValueException("offset", "offset не может быть отрицательным");
+      }
     } else {
       firstPage = true;
       offset = 0;

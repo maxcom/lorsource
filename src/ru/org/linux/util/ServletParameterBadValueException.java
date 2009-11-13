@@ -20,7 +20,7 @@ public class ServletParameterBadValueException extends ServletParameterException
     super("Bad format of '" + name + "' " + e.toString());
   }
 
-  ServletParameterBadValueException(String name, String info) {
+  public ServletParameterBadValueException(String name, String info) {
     super("Bad format of '" + name + "' " + info);
   }
 }
