@@ -28,24 +28,21 @@ import java.util.regex.PatternSyntaxException;
 
 public class HTMLFormatter {
   private final String text;
-  private String nl = " ";
   private int maxlength = 80;
   private boolean urlHighlight = false;
-  private boolean preformat = false;
   private boolean NewLine = false;
   private boolean texNewLine = false;
   private boolean quoting = false;
-  private String delim = " \n";
 
   public HTMLFormatter(String atext) {
     text = atext;
   }
 
-  private static final Pattern nlRE = Pattern.compile("\n");;
+  private static final Pattern nlRE = Pattern.compile("\n");
   private static final Pattern texnlRE = Pattern.compile("\n\r?\n\r?");
 
   public String process() {
-    StringTokenizer st = new StringTokenizer(htmlSpecialChars(text), delim, true);
+    StringTokenizer st = new StringTokenizer(htmlSpecialChars(text), " \n", true);
 
     StringBuilder sb = new StringBuilder();
 
@@ -60,10 +57,6 @@ public class HTMLFormatter {
     }
     if (texNewLine) {
       res = texnl2br(res, quoting);
-    }
-
-    if (preformat) {
-      res = "<pre>" + res + "</pre>";
     }
 
     return res;
@@ -147,7 +140,7 @@ public class HTMLFormatter {
       int end = m.end();
 
       // обработка начальной части до URL
-      out.append(wrapLongLine(chunk.substring(index, start), maxlength, nl, index));
+      out.append(wrapLongLine(chunk.substring(index, start), maxlength, " ", index));
 
       // обработка URL
       String url = chunk.substring(start, end);
@@ -160,7 +153,7 @@ public class HTMLFormatter {
           url = "ftp://" + url;
         }
 
-        if (!preformat && urlchunk.length() > maxlength) {
+        if (urlchunk.length() > maxlength) {
           urlchunk = urlchunk.substring(0, maxlength - 3) + "...";
         }
 
@@ -173,7 +166,7 @@ public class HTMLFormatter {
 
     // обработка последнего фрагмента
     if (index < chunk.length()) {
-      out.append(preformat?chunk.substring(index):wrapLongLine(chunk.substring(index), maxlength, nl, index));
+      out.append(wrapLongLine(chunk.substring(index), maxlength, " ", index));
     }
 
     return out.toString();
@@ -392,5 +385,4 @@ public class HTMLFormatter {
 
     return sb.toString();
   }
-
 }
