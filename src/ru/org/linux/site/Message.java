@@ -680,7 +680,7 @@ public class Message implements Serializable {
       proc.setIncludeCut(includeCut);
       return proc.preparePostText(db, message);      
     } else {
-      return message;
+      return "<p>"+message;
     }
   }
 
