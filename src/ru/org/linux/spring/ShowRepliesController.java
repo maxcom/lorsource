@@ -102,8 +102,8 @@ public class ShowRepliesController {
           "FROM sections, groups, topics, comments, comments AS parents " +
           "WHERE sections.id=groups.section AND groups.id=topics.groupid " +
           "AND comments.topic=topics.id AND parents.userid = ? " +
-          " AND comments.replyto = parents.id AND parents.id<comments.id " +
-          "AND NOT comments.deleted " +
+          " AND comments.replyto = parents.id AND parents.postdate>CURRENT_TIMESTAMP-'6 month'::interval " +
+          "AND NOT comments.deleted AND NOT comments.topic_deleted " +
           "AND  comments.userid NOT IN (select ignored from ignore_list where userid=?) " +
           "ORDER BY cDate DESC LIMIT " + topics +
           " OFFSET " + offset;
@@ -120,7 +120,7 @@ public class ShowRepliesController {
             " INNER JOIN comments AS parents ON (parents.id=comments.replyto)" +
             " INNER JOIN msgbase ON (msgbase.id = comments.id)" +
             " WHERE  parents.userid = ? " +
-            " AND NOT comments.deleted AND parents.postdate>CURRENT_TIMESTAMP-'6 month'::interval" +
+            " AND NOT comments.deleted  AND NOT comments.topic_deleted AND parents.postdate>CURRENT_TIMESTAMP-'6 month'::interval" +
             " AND comments.userid NOT IN (select ignored from ignore_list where userid=?) " +
             " ORDER BY cDate DESC LIMIT " + topics +
             " OFFSET " + offset;
