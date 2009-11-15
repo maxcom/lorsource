@@ -60,6 +60,10 @@
 </td><td valign="top">
 [<a href="view-section.jsp?section=2">Форум</a>]<br>
 </td><td valign="top">
+[<a href="tracker.jsp">Трекер</a>]<br>
+</td><td valign="top">
+[<a href="/wiki">Wiki</a>]<br>  
+</td><td valign="top">
 [<a href="search.jsp">Поиск</a>]<br>
 </td>
 </tr>

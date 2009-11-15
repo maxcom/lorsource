@@ -37,8 +37,6 @@
       <td align=right valign=middle>
         [<a href="add-section.jsp?section=${section.id}">${section.addText}</a>]
         
-        [<a href="tracker.jsp">Последние сообщения</a>]
-
         <c:if test="${section.forum}">
           [<a href="rules.jsp">Правила форума</a>]
         </c:if>
