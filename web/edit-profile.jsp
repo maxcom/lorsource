@@ -92,10 +92,10 @@
 
     <c:forEach var="s" items="<%= DefaultProfile.getStyleList() %>">
       <c:if test="${s == style}">
-        <input type=radio name=style value="${s}" checked>${s}<br>
+        <input type=radio name=style value="${s}" id="style-${s}" checked><label for="style-${s}">${s}</label><br>
       </c:if>
       <c:if test="${s != style}">
-        <input type=radio name=style value=${s}>${s}<br>
+        <input type=radio name=style id="style-${s}" value="${s}"><label for="style-${s}">${s}</label><br>
       </c:if>
     </c:forEach>
     Внимание! Тема "tango" находится в состоянии разработки
