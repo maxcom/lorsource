@@ -359,4 +359,26 @@ public class HTMLFormatterTest {
     assertEquals("[i]>test\n[/i]\n\ntest", f.process());
   }
 
+  @Test
+  public void testBBCode5() {
+    HTMLFormatter f = new HTMLFormatter("<>");
+    f.setOutputLorcode(true);
+    f.enableQuoting();
+    f.enableUrlHighLightMode();
+    f.enableTexNewLineMode();
+
+    assertEquals("<>", f.process());
+  }
+
+  @Test
+  public void testBBCode6() {
+    HTMLFormatter f = new HTMLFormatter("test http://www.linux.org.ru/jump-message.jsp?msgid=4238459&cid=4240245 test");
+    f.setOutputLorcode(true);
+    f.enableQuoting();
+    f.enableUrlHighLightMode();
+    f.enableTexNewLineMode();
+
+    assertEquals("test [url=http://www.linux.org.ru/jump-message.jsp?msgid=4238459&cid=4240245]http://www.linux.org.ru/jump-message.jsp?msgid=4238459&cid=4240245[/url] test", f.process());
+  }
+
 }

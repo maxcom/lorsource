@@ -49,7 +49,7 @@ public class HTMLFormatter {
     String str; 
 
     if (outputLorcode) {
-      str = CodeTag.escapeHtmlBBcode(text);
+      str = escapeHtmlBBcode(text);
     } else {
       str = htmlSpecialChars(text);
     }
@@ -114,22 +114,22 @@ public class HTMLFormatter {
   }
 
   public static final Pattern urlRE;
+  public static final Pattern urlRE_UNESCAPED;
 
   public static final String URL_PATTTERN = "(?:(?:(?:(?:https?://)|(?:ftp://)|(?:www\\.))|(?:ftp\\.))[a-z0-9.-]+(?:\\.[a-z]+)?(?::[0-9]+)?" +
     "(?:/(?:([\\w=?+/\\[\\]~%;,._@#'\\p{L}:-]|(\\([^\\)]*\\)))*([\\p{L}:'" +
     "\\w=?+/~@%#-]|(?:&(?=amp;)[\\w:$_.+!*'#%(),@\\p{L}=;/-]+)+|(\\([^\\)]*\\))))?)?)" +
     "|(?:mailto: ?[a-z0-9+]+@[a-z0-9.-]+.[a-z]+)|(?:news:([\\w+]\\.?)+)";
 
+  public static final String URL_PATTTERN_UNESCAPED = "(?:(?:(?:(?:https?://)|(?:ftp://)|(?:www\\.))|(?:ftp\\.))[a-z0-9.-]+(?:\\.[a-z]+)?(?::[0-9]+)?" +
+    "(?:/(?:([\\w=?+/\\[\\]~%;,._@#'\\p{L}:-]|(\\([^\\)]*\\)))*([\\p{L}:'" +
+    "\\w=?+/~@%#-]|(?:&[\\w:$_.+!*'#%(),@\\p{L}=;/-]+)+|(\\([^\\)]*\\))))?)?)" +
+    "|(?:mailto: ?[a-z0-9+]+@[a-z0-9.-]+.[a-z]+)|(?:news:([\\w+]\\.?)+)";
+
   static {
     try {
-
-//      urlRE = new RE("(?:(?:(?:(?:https?://)|(?:ftp://)|(?:www\\.))|(?:ftp\\.))[a-z0-9.-]+\\.[a-z]+(?::[0-9]+)?(?:/(?:[\\w=?:+/\\(\\)\\[\\]~&%;,._#-]*[\\w=?+/~&%-])?)?)|(?:mailto: ?[a-z0-9+]+@[a-z0-9.-]+.[a-z]+)", RE.REG_ICASE);
-        /*urlRE = new RE("(?:(?:(?:(?:https?://)|(?:ftp://)|(?:www\\.))|(?:ftp\\.))[a-z0-9.-]+\\.[a-z]+(?::[" +
-          "0-9]+)?(?:/(?:([\\w=?:+/\\[\\]~&%;,._#-]|(\\([^\\)]*\\)))*([\\w=?+/~&%-]|(\\([^\\)]*\\))))" +
-          "?)?)|(?:mailto: ?[a-z0-9+]+@[a-z0-9.-]+.[a-z]+)", RE.REG_ICASE);*/
-      //fix #73: allow only &amp; entity in url    "[\\w$-_.+!*'(),\\u0999]+"
-        urlRE = Pattern.compile(URL_PATTTERN,
-        Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
+      urlRE = Pattern.compile(URL_PATTTERN, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
+      urlRE_UNESCAPED = Pattern.compile(URL_PATTTERN_UNESCAPED, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
     } catch (PatternSyntaxException e) {
       throw new RuntimeException(e);
     }
@@ -144,7 +144,7 @@ public class HTMLFormatter {
   private String formatHTMLLine(String chunk)  {
     StringBuilder out = new StringBuilder();
 
-    Matcher m = urlRE.matcher(chunk);
+    Matcher m = (outputLorcode?urlRE_UNESCAPED:urlRE).matcher(chunk);
     int index = 0;
 
     while (m.find()) {
@@ -291,12 +291,14 @@ public class HTMLFormatter {
             buf.append("<p>");
           }
 
-          if (text.substring(i).trim().startsWith("&gt;")) {
-            quot = true;
-            if (outputLorcode) {
-              buf.append("[i]>");
-              i+=4;
-            } else {
+          if (outputLorcode) {
+            if (text.substring(i).trim().startsWith(">")) {
+              quot = true;
+              buf.append("[i]");
+            }
+          } else {
+            if (text.substring(i).trim().startsWith("&gt;")) {
+              quot = true;
               buf.append("<i>");
             }
           }
@@ -422,4 +424,19 @@ public class HTMLFormatter {
   public void setOutputLorcode(boolean outputLorcode) {
     this.outputLorcode = outputLorcode;
   }
+
+  public static String escapeHtmlBBcode(String content) {
+    // escaping single characters
+    content = CodeTag.replaceAll(content, "[](){}\t".toCharArray(), new String[]{
+        "&#91;",
+        "&#93;",
+        "&#40;",
+        "&#41;",
+        "&#123;",
+        "&#125;",
+        "&nbsp; &nbsp;"});
+
+    return content;
+  }
+
 }
