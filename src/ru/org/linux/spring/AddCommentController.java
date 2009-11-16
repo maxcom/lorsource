@@ -112,6 +112,7 @@ public class AddCommentController extends ApplicationObjectSupport {
     if ("quot".equals(mode)) {
       form.enableTexNewLineMode();
       form.enableQuoting();
+      form.setOutputLorcode(true);
     }
 
     return form.process();
@@ -184,7 +185,7 @@ public class AddCommentController extends ApplicationObjectSupport {
 
       user.checkBlocked();
 
-      boolean lorcode = "lorcode".equals(mode);
+      boolean lorcode = "lorcode".equals(mode) || "quot".equals(mode);
 
       Comment comment = new Comment(replyto, title, msg, topicId, 0, request.getHeader("user-agent"), request.getRemoteAddr(), lorcode);
 
