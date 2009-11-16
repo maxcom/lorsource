@@ -61,7 +61,6 @@ public class HTMLFormatterTest {
   private static final String CYR_LINK = "http://ru.wikipedia.org/wiki/Литературный_'негр'(Fran\u00C7ais\u0152uvre_\u05d0)?негр=эфиоп&эфиоп";
   private static final String GOOGLE_CACHE = "http://74.125.95.132/search?q=cache:fTsc8ze3IxIJ:forum.springsource.org/showthread.php%3Ft%3D53418+spring+security+openid&cd=1&hl=en&ct=clnk&gl=us";
 
-  private static final String PREFORMAT_LONG_TEST2 = "Caelum_videri_esset._Et_terra_rus_ad_sidera_tollere_voltus._Ex_uno_discent_omnes...";
   private static final String URL_WITH_AT = "http://www.mail-archive.com/samba@lists.samba.org/msg58308.html";
   private static final String Latin1Supplement = "http://de.wikipedia.org/wiki/Großes_ß#Unicode";
   private static final String greek = "http://el.wikipedia.org/wiki/άλλες";
@@ -244,7 +243,7 @@ public class HTMLFormatterTest {
   @Test
   public void testParaSubstition() {
     String str = "this is a line\n\r\n\rwith some\n\nlinebreaks in it";
-    String s = HTMLFormatter.texnl2br(str, false);
+    String s = HTMLFormatter.texnl2br(str, false, false);
     Integer i = s.indexOf("<p>");
     assertThat("Newlines is changed to <p>", i, CoreMatchers.not(-1));
     Integer b = s.indexOf("<p>", i + 3);
@@ -318,4 +317,46 @@ public class HTMLFormatterTest {
     assertThat("No whitespace inside link", blankIndex, CoreMatchers.equalTo(lastIndex));
     //whitespace shoud separate href attribute. no other ws should occur
   }
+
+  @Test
+  public void testBBCode1() {
+    HTMLFormatter f = new HTMLFormatter("test\n\ntest\ntest");
+    f.setOutputLorcode(true);
+    f.enableQuoting();
+    f.enableTexNewLineMode();
+
+    assertEquals("test\n\ntest\ntest", f.process());
+  }
+
+  @Test
+  public void testBBCode2() {
+    HTMLFormatter f = new HTMLFormatter("www.linux.org.ru");
+    f.setOutputLorcode(true);
+    f.enableQuoting();
+    f.enableUrlHighLightMode();
+
+    assertEquals("[url=http://www.linux.org.ru]www.linux.org.ru[/url]", f.process());
+  }
+
+  @Test
+  public void testBBCode3() {
+    HTMLFormatter f = new HTMLFormatter("http://www.linux.org.ru/");
+    f.setOutputLorcode(true);
+    f.enableQuoting();
+    f.enableUrlHighLightMode();
+
+    assertEquals("[url=http://www.linux.org.ru/]http://www.linux.org.ru/[/url]", f.process());
+  }
+
+  @Test
+  public void testBBCode4() {
+    HTMLFormatter f = new HTMLFormatter(">test\n\ntest");
+    f.setOutputLorcode(true);
+    f.enableQuoting();
+    f.enableUrlHighLightMode();
+    f.enableTexNewLineMode();
+
+    assertEquals("[i]>test\n[/i]\n\ntest", f.process());
+  }
+
 }

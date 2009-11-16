@@ -26,13 +26,17 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
+import org.javabb.bbcode.CodeTag;
+
 public class HTMLFormatter {
   private final String text;
   private int maxlength = 80;
   private boolean urlHighlight = false;
-  private boolean NewLine = false;
+  private boolean newLine = false;
   private boolean texNewLine = false;
   private boolean quoting = false;
+
+  private boolean outputLorcode = false;
 
   public HTMLFormatter(String atext) {
     text = atext;
@@ -42,7 +46,15 @@ public class HTMLFormatter {
   private static final Pattern texnlRE = Pattern.compile("\n\r?\n\r?");
 
   public String process() {
-    StringTokenizer st = new StringTokenizer(htmlSpecialChars(text), " \n", true);
+    String str; 
+
+    if (outputLorcode) {
+      str = CodeTag.escapeHtmlBBcode(text);
+    } else {
+      str = htmlSpecialChars(text);
+    }
+
+    StringTokenizer st = new StringTokenizer(str, " \n", true);
 
     StringBuilder sb = new StringBuilder();
 
@@ -52,11 +64,11 @@ public class HTMLFormatter {
 
     String res = sb.toString();
 
-    if (NewLine) {      
+    if (newLine) {
       res = nl2br(res, quoting);
     }
     if (texNewLine) {
-      res = texnl2br(res, quoting);
+      res = texnl2br(res, quoting, outputLorcode);
     }
 
     return res;
@@ -71,12 +83,12 @@ public class HTMLFormatter {
   }
 
   public void enableNewLineMode() {
-    NewLine = true;
+    newLine = true;
     texNewLine = false;
   }
 
   public void enableTexNewLineMode() {
-    NewLine = false;
+    newLine = false;
     texNewLine = true;
   }
 
@@ -157,7 +169,11 @@ public class HTMLFormatter {
           urlchunk = urlchunk.substring(0, maxlength - 3) + "...";
         }
 
-        out.append("<a href=\"").append(URLEncoder(url)).append("\">").append(urlchunk).append("</a>");
+        if (outputLorcode) {
+          out.append("[url=").append(URLEncoder(url)).append("]").append(urlchunk).append("[/url]");
+        } else {
+          out.append("<a href=\"").append(URLEncoder(url)).append("\">").append(urlchunk).append("</a>");
+        }
       } else {
         out.append(url);
       }
@@ -242,8 +258,12 @@ public class HTMLFormatter {
    * converts double new line characters in input string to
    * HTML paragraph tag
    */
-  static String texnl2br(String text, boolean quoting) {
+  static String texnl2br(String text, boolean quoting, boolean outputLorcode) {
     if (!quoting) {
+      if (outputLorcode) {
+        return text;
+      }
+
       return text.replaceAll(texnlRE.pattern(), "<p>");
     }
 
@@ -260,16 +280,25 @@ public class HTMLFormatter {
         if (cr || i == 0) {
           if (quot) {
             quot = false;
-            buf.append("</i>");
+            if (outputLorcode) {
+              buf.append("[/i]\n");
+            } else {
+              buf.append("</i>");
+            }
           }
 
-          if (i != 0) {
+          if (i != 0 && !outputLorcode) {
             buf.append("<p>");
           }
 
           if (text.substring(i).trim().startsWith("&gt;")) {
             quot = true;
-            buf.append("<i>");
+            if (outputLorcode) {
+              buf.append("[i]>");
+              i+=4;
+            } else {
+              buf.append("<i>");
+            }
           }
         } else {
           cr = true;
@@ -282,7 +311,11 @@ public class HTMLFormatter {
     }
 
     if (quot) {
-      buf.append("</i>");
+      if (outputLorcode) {
+        buf.append("[/i]");
+      } else {
+        buf.append("</i>");
+      }
     }
 
     return buf.toString();
@@ -384,5 +417,9 @@ public class HTMLFormatter {
     }
 
     return sb.toString();
+  }
+
+  public void setOutputLorcode(boolean outputLorcode) {
+    this.outputLorcode = outputLorcode;
   }
 }
