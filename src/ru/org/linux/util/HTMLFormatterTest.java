@@ -356,7 +356,7 @@ public class HTMLFormatterTest {
     f.enableUrlHighLightMode();
     f.enableTexNewLineMode();
 
-    assertEquals("[i]>test\n[/i]\n\ntest", f.process());
+    assertEquals("\n[i]>test\n[/i]\n\ntest", f.process());
   }
 
   @Test
@@ -379,6 +379,17 @@ public class HTMLFormatterTest {
     f.enableTexNewLineMode();
 
     assertEquals("test [url=http://www.linux.org.ru/jump-message.jsp?msgid=4238459&cid=4240245]http://www.linux.org.ru/jump-message.jsp?msgid=4238459&cid=4240245[/url] test", f.process());
+  }
+
+  @Test
+  public void testBBCode7() {
+    HTMLFormatter f = new HTMLFormatter("test\n\n>test");
+    f.setOutputLorcode(true);
+    f.enableQuoting();
+    f.enableUrlHighLightMode();
+    f.enableTexNewLineMode();
+
+    assertEquals("test\n\n[i]\n>test[/i]", f.process());
   }
 
 }

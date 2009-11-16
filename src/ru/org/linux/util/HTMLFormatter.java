@@ -294,7 +294,7 @@ public class HTMLFormatter {
           if (outputLorcode) {
             if (text.substring(i).trim().startsWith(">")) {
               quot = true;
-              buf.append("[i]");
+              buf.append("\n[i]");
             }
           } else {
             if (text.substring(i).trim().startsWith("&gt;")) {
