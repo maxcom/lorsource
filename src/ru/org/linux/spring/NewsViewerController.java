@@ -234,6 +234,8 @@ public class NewsViewerController {
 
       newsViewer.setLimit("LIMIT 20" + (offset > 0 ? (" OFFSET " + offset) : ""));
 
+      newsViewer.setCommitMode(NewsViewer.CommitMode.ALL);
+
       if (user.getId()==2) {
         throw new UserErrorException("Лента для пользователя anonymous не доступна");
       }

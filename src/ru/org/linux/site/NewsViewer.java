@@ -35,13 +35,21 @@ import ru.org.linux.util.UtilException;
 public class NewsViewer {
   private static final Log logger = LogFactory.getLog("ru.org.linux");
 
-  private boolean viewAll = false;
+  public enum CommitMode {
+    COMMITED_ONLY,
+    UNCOMMITED_ONLY,
+    COMMITED_AND_POSTMODERATED,
+    ALL
+  }
+
   private int section = 0;
   private int group = 0;
   private int userid = 0;
   private String datelimit = null;
   private String limit="";
   private String tag="";
+
+  private CommitMode commitMode = CommitMode.COMMITED_AND_POSTMODERATED;
 
   public static void showMediumImage(String htmlPath, Writer out, String url, String subj, String linktext) throws IOException {
     try {
@@ -95,10 +103,21 @@ public class NewsViewer {
             "AND topics.groupid=groups.id AND NOT deleted"
     );
 
-    if (!viewAll) {
-      where.append(" AND (topics.moderate OR NOT sections.moderate)");
-    } else {
-      where.append(" AND (NOT topics.moderate) AND sections.moderate");    
+    String sort = "ORDER BY sticky,COALESCE(commitdate, postdate) DESC";
+
+    switch (commitMode) {
+      case ALL:
+        break;
+      case COMMITED_AND_POSTMODERATED:
+        where.append(" AND (topics.moderate OR NOT sections.moderate)");
+        break;
+      case COMMITED_ONLY:
+        where.append(" AND topics.moderate AND sections.moderate");
+        sort = "ORDER BY sticky,commitdate DESC";
+        break;
+      case UNCOMMITED_ONLY:
+        where.append(" AND (NOT topics.moderate) AND sections.moderate");
+        break;
     }
 
     if (section!=0) {
@@ -153,7 +172,7 @@ public class NewsViewer {
 //            "sections.id as section, NOT topics.sticky AS ssticky, sections.moderate " +
 //            "FROM topics,groups,users,sections,msgbase " +
             "WHERE " + where+ ' ' +
-            "ORDER BY sticky,COALESCE(commitdate, postdate) DESC "+limit
+            sort+" "+limit
     );
 
     List<Message> messages = new ArrayList<Message>();
@@ -168,8 +187,8 @@ public class NewsViewer {
     return messages;
   }
 
-  public void setViewAll(boolean viewAll) {
-    this.viewAll = viewAll;
+  public void setCommitMode(CommitMode commitMode) {
+    this.commitMode = commitMode;
   }
 
   public void setTag(String tag) {
@@ -196,9 +215,7 @@ public class NewsViewer {
     StringBuilder id = new StringBuilder("view-news?"+
         "&tg=" + URLEncoder.encode(tag));
 
-    if (viewAll) {
-      id.append("&v-all=true");
-    }
+    id.append("&cm="+commitMode);
 
     if (section!=0) {
       id.append("&sec=").append(section);
@@ -236,6 +253,7 @@ public class NewsViewer {
     nv.section = 1;
     nv.limit = "LIMIT 20";
     nv.datelimit = "commitdate>(CURRENT_TIMESTAMP-'1 month'::interval)";
+    nv.setCommitMode(CommitMode.COMMITED_ONLY);
     return nv;
   }
 

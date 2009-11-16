@@ -73,6 +73,9 @@
 <c:if test="${multiPortal}">
   <div class="group">
     ${message.section.title} - ${message.groupTitle}
+    <c:if test="${not message.commited and message.section.premoderated}">
+      (не подтверждено)
+    </c:if>
   </div>
 </c:if>
   <%
