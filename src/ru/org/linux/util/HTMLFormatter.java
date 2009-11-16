@@ -182,7 +182,11 @@ public class HTMLFormatter {
 
     // обработка последнего фрагмента
     if (index < chunk.length()) {
-      out.append(wrapLongLine(chunk.substring(index), maxlength, " ", index));
+      if (outputLorcode) {
+        out.append(chunk.substring(index));
+      } else {
+        out.append(wrapLongLine(chunk.substring(index), maxlength, " ", index));
+      }
     }
 
     return out.toString();

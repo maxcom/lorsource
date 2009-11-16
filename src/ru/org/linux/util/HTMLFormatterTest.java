@@ -392,4 +392,15 @@ public class HTMLFormatterTest {
     assertEquals("test\n\n[i]\n>test[/i]", f.process());
   }
 
+  @Test
+  public void testBBCode8() {
+    HTMLFormatter f = new HTMLFormatter("test &");
+    f.setOutputLorcode(true);
+    f.enableQuoting();
+    f.enableUrlHighLightMode();
+    f.enableTexNewLineMode();
+
+    assertEquals("test &", f.process());
+  }
+
 }
