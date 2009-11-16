@@ -302,6 +302,7 @@ public class AddMessageForm {
       }
       if ("tex".equals(mode)) {
         formatter.enableTexNewLineMode();
+        formatter.setOutputLorcode(true);
       }
 
       return formatter.process();

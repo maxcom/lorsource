@@ -199,7 +199,7 @@ public class Message implements Serializable {
     moderate = false;
     notop = false;
     userid = user.getId();
-    lorcode = "lorcode".equals(form.getMode());
+    lorcode = "lorcode".equals(form.getMode()) || "tex".equals(form.getMode());
 
     message = form.processMessage(group);
 
