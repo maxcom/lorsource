@@ -85,6 +85,9 @@
   db = LorDataSource.getConnection();
 
   NewsViewer nv = NewsViewer.getMainpage();
+  if (tmpl.getProf().getBoolean(DefaultProfile.MAIN_GALLERY)) {
+    nv.addSection(3);
+  }
 %>
     <c:forEach var="msg" items="<%= nv.getMessagesCached(db ) %>">
       <lorDir:news db="<%= db %>" message="${msg}" multiPortal="false" moderateMode="false"/>

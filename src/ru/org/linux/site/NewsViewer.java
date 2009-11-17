@@ -20,9 +20,8 @@ import java.io.IOException;
 import java.io.Writer;
 import java.net.URLEncoder;
 import java.sql.*;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.Date;
-import java.util.List;
 
 import com.danga.MemCached.MemCachedClient;
 import org.apache.commons.logging.Log;
@@ -42,7 +41,7 @@ public class NewsViewer {
     ALL
   }
 
-  private int section = 0;
+  private Set<Integer> sections = new HashSet<Integer>();
   private int group = 0;
   private int userid = 0;
   private String datelimit = null;
@@ -120,8 +119,17 @@ public class NewsViewer {
         break;
     }
 
-    if (section!=0) {
-      where.append(" AND section=").append(section);
+    if (!sections.isEmpty()) {
+      where.append(" AND section in (");
+      boolean first = true;
+      for (int section : sections) {
+        if (!first) {
+          where.append(',');
+        }
+        where.append(section);
+        first = false;
+      }
+      where.append(")");
     }
 
     if (group!=0) {
@@ -195,8 +203,8 @@ public class NewsViewer {
     this.tag = tag;
   }
 
-  public void setSection(int section) {
-    this.section = section;
+  public void addSection(int section) {
+    sections.add(section);
   }
 
   public void setGroup(int group) {
@@ -217,7 +225,7 @@ public class NewsViewer {
 
     id.append("&cm="+commitMode);
 
-    if (section!=0) {
+    for (int section : sections) {
       id.append("&sec=").append(section);
     }
 
@@ -250,7 +258,7 @@ public class NewsViewer {
 
   public static NewsViewer getMainpage() {
     NewsViewer nv = new NewsViewer();
-    nv.section = 1;
+    nv.addSection(1);
     nv.limit = "LIMIT 20";
     nv.datelimit = "commitdate>(CURRENT_TIMESTAMP-'1 month'::interval)";
     nv.setCommitMode(CommitMode.COMMITED_ONLY);

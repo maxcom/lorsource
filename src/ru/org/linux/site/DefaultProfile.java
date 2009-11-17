@@ -36,6 +36,7 @@ public final class DefaultProfile {
       }
     };
   public static final String HIDE_ADSENSE = "hideAdsense";
+  public static final String MAIN_GALLERY = "mainGallery";
 
   private DefaultProfile() {
   }
@@ -66,6 +67,7 @@ public final class DefaultProfile {
     defaults.put("showsticky", Boolean.TRUE);
     defaults.put("avatar", "empty");
     defaults.put(HIDE_ADSENSE, true);
+    defaults.put(MAIN_GALLERY, false);
 
     defaults.put("DebugMode", Boolean.FALSE);
 

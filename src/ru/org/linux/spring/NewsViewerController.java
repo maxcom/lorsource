@@ -155,7 +155,7 @@ public class NewsViewerController {
       NewsViewer newsViewer = new NewsViewer();
 
       if (section!=null) {
-        newsViewer.setSection(sectionid);
+        newsViewer.addSection(sectionid);
       }
 
       if (group != null) {

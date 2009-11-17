@@ -84,6 +84,8 @@
 <td><input type=checkbox name=hover <%= profHash.getBooleanPropertyHTML("hover")%>></td></tr>  
 <tr><td>Показывать меньше рекламы</td>
 <td><input type=checkbox name=hideAdsense <%= profHash.getBooleanPropertyHTML(DefaultProfile.HIDE_ADSENSE)%>></td></tr>
+<tr><td>Показывать галерею в ленте на главной</td>
+<td><input type=checkbox name=mainGallery <%= profHash.getBooleanPropertyHTML(DefaultProfile.MAIN_GALLERY)%>></td></tr>
   <tr><td colspan=2><hr></td></tr>
 <tr>
   <td valign=top>Тема</td>
@@ -183,6 +185,8 @@
       out.print("Установлен параметр <i>sortwarning</i><br>");
     if (tmpl.getProf().setBoolean(DefaultProfile.HIDE_ADSENSE, request.getParameter(DefaultProfile.HIDE_ADSENSE)));
       out.print("Установлен параметр <i>hideAdsense</i><br>");
+    if (tmpl.getProf().setBoolean(DefaultProfile.MAIN_GALLERY, request.getParameter(DefaultProfile.MAIN_GALLERY)));
+      out.print("Установлен параметр <i>mainGallery</i><br>");
     if (tmpl.getProf().setString("format.mode", request.getParameter("format_mode")))
       out.print("Установлен параметр <i>format.mode</i><br>");
     if (tmpl.getProf().setString("style", request.getParameter("style")))

@@ -55,7 +55,7 @@ public class SectionRSSController {
     }
 
     NewsViewer nv = new NewsViewer();
-    nv.setSection(sectionId);
+    nv.addSection(sectionId);
     nv.setDatelimit(" postdate>(CURRENT_TIMESTAMP-'3 month'::interval) ");
     if (groupId !=0) {
       nv.setGroup(groupId);

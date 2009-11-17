@@ -98,7 +98,7 @@
   newsViewer.setCommitMode(NewsViewer.CommitMode.UNCOMMITED_ONLY);
   newsViewer.setDatelimit("postdate>(CURRENT_TIMESTAMP-'1 month'::interval)");
   if (sectionid != 0) {
-    newsViewer.setSection(sectionid);
+    newsViewer.addSection(sectionid);
   }
 
   User currentUser = User.getCurrentUser(db, session);
