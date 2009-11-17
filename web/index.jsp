@@ -85,12 +85,16 @@
   db = LorDataSource.getConnection();
 
   NewsViewer nv = NewsViewer.getMainpage();
+
+  boolean multiPortal = false;
+
   if (tmpl.getProf().getBoolean(DefaultProfile.MAIN_GALLERY)) {
     nv.addSection(3);
+    multiPortal = true;
   }
 %>
     <c:forEach var="msg" items="<%= nv.getMessagesCached(db ) %>">
-      <lorDir:news db="<%= db %>" message="${msg}" multiPortal="false" moderateMode="false"/>
+      <lorDir:news db="<%= db %>" message="${msg}" multiPortal="<%= multiPortal %>" moderateMode="false"/>
     </c:forEach>
 <%
   db.close(); db=null;
