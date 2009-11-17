@@ -67,7 +67,8 @@ public class BBCodeProcessor implements Serializable {
     new UserTag("user", "\\[user\\](.*?)\\[/user\\]"),
     new URLTag("url",
       "\\[url=['\"]?(.*?[^'\"])['\"]?\\](.*?)\\[/url\\]",
-      "<a href=\"$1\">$2</a>")//,
+      "<a href=\"$1\">$2</a>"),
+    new SimpleRegexTag("br", "\\[br\\]", "<br>"),    
 //      new SimpleRegexTag("email", "\\[email\\](.*?)\\[/email\\]", "<a href='mailto:$1'>$1</a>", true)
   };
 

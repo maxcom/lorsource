@@ -117,4 +117,13 @@ public class BBCodeTest {
 
     assertEquals("<p>[b]<ol type=\"&#91;/b&#93;\"></ol><p>", result);
   }
+
+  @Test
+  public void testBr() throws SQLException {
+    BBCodeProcessor proc = new BBCodeProcessor();
+    proc.setIncludeCut(false);
+    String result = proc.preparePostText(null, "test[br]test");
+
+    assertEquals("<p>test<br>test", result);
+  }
 }
