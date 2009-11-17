@@ -22,7 +22,8 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
-
+<jsp:include page="/WEB-INF/jsp/head.jsp"/>
+<title>Редактирование сообщения</title>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 <%
   Connection db = null;
