@@ -109,10 +109,10 @@
 
       <c:forEach var="s" items="<%= DefaultProfile.getAvatars() %>">
         <c:if test="${s == avatar}">
-          <input type=radio name=avatar value="${s}" checked>${s}<br>
+          <input type=radio name=avatar value="${s}" checked id="avatar-${s}"><label for="avatar-${s}">${s}</label><br>
         </c:if>
         <c:if test="${s != avatar}">
-          <input type=radio name=avatar value=${s}>${s}<br>
+          <input type=radio name=avatar value="${s}" id="avatar-${s}"><label for="avatar-${s}">${s}</label><br>
         </c:if>
       </c:forEach>
     </td>
@@ -123,11 +123,11 @@
   <td valign=top>Форматирование по умолчанию</td>
   <td>
     <% String formatMode=tmpl.getFormatMode(); %>
-    <input type=radio name=format_mode value=ntobrq <%= "ntobrq".equals(formatMode)?"checked":"" %>> User line break w/quoting<br>
-    <input type=radio name=format_mode value=quot   <%= "quot".equals(formatMode)?"checked":"" %>> TeX paragraphs w/quoting (default)<br>
-    <input type=radio name=format_mode value=tex    <%= "tex".equals(formatMode)?"checked":"" %>> TeX paragraphs w/o quoting<br>
-    <input type=radio name=format_mode value=ntobr  <%= "ntobr".equals(formatMode)?"checked":"" %>> User line break w/o quoting<br>
-    <input type=radio name=format_mode value=lorcode  <%= "lorcode".equals(formatMode)?"checked":"" %>> LORCODE<br>
+    <input type=radio name=format_mode id="format-ntobrq" value=ntobrq <%= "ntobrq".equals(formatMode)?"checked":"" %>><label for="format-ntobrq">User line break w/quoting</label><br>
+    <input type=radio name=format_mode id="format-quot"  value=quot   <%= "quot".equals(formatMode)?"checked":"" %>><label for="format-quot">TeX paragraphs w/quoting (default)</label><br>
+    <input type=radio name=format_mode id="format-tex" value=tex    <%= "tex".equals(formatMode)?"checked":"" %>><label for="format-tex">TeX paragraphs w/o quoting</label><br>
+    <input type=radio name=format_mode id="format-ntobr" value=ntobr  <%= "ntobr".equals(formatMode)?"checked":"" %>><label for="format-ntobr">User line break w/o quoting</label><br>
+    <input type=radio name=format_mode id="format-lorcode" value=lorcode  <%= "lorcode".equals(formatMode)?"checked":"" %>><label for="format-lorcode">LORCODE</label><br>
   </td>
 </tr>
 
