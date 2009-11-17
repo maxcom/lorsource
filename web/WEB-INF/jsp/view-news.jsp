@@ -40,25 +40,23 @@
     </td>
     <td align=right valign=middle>
       <c:if test="${section != null}">
-        <c:if test="${month != null}">
-          <%
-            if (section.isVotePoll()) {
-              out.print("[<a href=\"add-poll.jsp?group=19387\">Добавить голосование</a>]");
-            } else {
-              if (group == null) {
-                out.print("[<a href=\"add-section.jsp?section=" + section.getId() + "\">Добавить</a>]");
-              } else {
-                out.print("[<a href=\"add.jsp?group=" + group.getId() + "\">Добавить</a>]");
-              }
-            }
-
+        <%
+          if (section.isVotePoll()) {
+            out.print("[<a href=\"add-poll.jsp?group=19387\">Добавить голосование</a>]");
+          } else {
             if (group == null) {
-              out.print("[<a href=\"view-section.jsp?section=" + section.getId() + "\">Таблица</a>]");
+              out.print("[<a href=\"add-section.jsp?section=" + section.getId() + "\">Добавить</a>]");
             } else {
-              out.print("[<a href=\"group.jsp?group=" + group.getId() + "\">Таблица</a>]");
+              out.print("[<a href=\"add.jsp?group=" + group.getId() + "\">Добавить</a>]");
             }
-          %>
-        </c:if>
+          }
+
+          if (group == null) {
+            out.print("[<a href=\"view-section.jsp?section=" + section.getId() + "\">Таблица</a>]");
+          } else {
+            out.print("[<a href=\"group.jsp?group=" + group.getId() + "\">Таблица</a>]");
+          }
+        %>
         [<a href="view-news-archive.jsp?section=${section.id}">Архив</a>]
       </c:if>
       <c:if test="${rssLink != null}">
