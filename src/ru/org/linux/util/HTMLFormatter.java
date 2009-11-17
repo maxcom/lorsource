@@ -42,7 +42,7 @@ public class HTMLFormatter {
     text = atext;
   }
 
-  private static final Pattern nlRE = Pattern.compile("\n");
+  private static final Pattern nlRE = Pattern.compile("\r?\n");
   private static final Pattern texnlRE = Pattern.compile("\n\r?\n\r?");
 
   public String process() {
@@ -65,7 +65,7 @@ public class HTMLFormatter {
     String res = sb.toString();
 
     if (newLine) {
-      res = nl2br(res, quoting);
+      res = nl2br(res, quoting, outputLorcode);
     }
     if (texNewLine) {
       res = texnl2br(res, quoting, outputLorcode);
@@ -212,16 +212,20 @@ public class HTMLFormatter {
    * HTML line brake tag
    */
   public static String nl2br(String text) {
-    return nl2br(text,false);
+    return nl2br(text,false, false);
   }
 
   /**
    * converts new line characters in input string to
    * HTML line brake tag
    */
-  static String nl2br(String text, boolean quoting) {
+  static String nl2br(String text, boolean quoting, boolean outputLorcode) {
     if (!quoting) {
-      return text.replaceAll(nlRE.pattern(), "<br>");
+      if (outputLorcode) {
+        return text.replaceAll(nlRE.pattern(), "[br]\n");
+      } else {
+        return text.replaceAll(nlRE.pattern(), "<br>");
+      }
     }
 
     StringBuilder buf = new StringBuilder();

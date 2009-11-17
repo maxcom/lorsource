@@ -105,6 +105,7 @@ public class AddCommentController extends ApplicationObjectSupport {
     }
     if ("ntobr".equals(mode)) {
       form.enableNewLineMode();
+      form.setOutputLorcode(true);
     }
     if ("tex".equals(mode)) {
       form.enableTexNewLineMode();
@@ -186,7 +187,7 @@ public class AddCommentController extends ApplicationObjectSupport {
 
       user.checkBlocked();
 
-      boolean lorcode = "lorcode".equals(mode) || "quot".equals(mode) || "tex".equals(mode);
+      boolean lorcode = "lorcode".equals(mode) || "quot".equals(mode) || "tex".equals(mode) || "ntobr".equals(mode);
 
       Comment comment = new Comment(replyto, title, msg, topicId, 0, request.getHeader("user-agent"), request.getRemoteAddr(), lorcode);
 

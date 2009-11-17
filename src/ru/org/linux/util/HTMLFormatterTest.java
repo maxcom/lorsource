@@ -403,4 +403,14 @@ public class HTMLFormatterTest {
     assertEquals("test &", f.process());
   }
 
+  @Test
+  public void testBBCode9() {
+    HTMLFormatter f = new HTMLFormatter("test\r\ntest");
+    f.setOutputLorcode(true);
+    f.enableUrlHighLightMode();
+    f.enableNewLineMode();
+
+    assertEquals("test[br]\ntest", f.process());
+  }
+
 }
