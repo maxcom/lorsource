@@ -100,9 +100,16 @@
   if (sectionid != 0) {
     newsViewer.setSection(sectionid);
   }
+
+  User currentUser = User.getCurrentUser(db, session);
 %>
 <c:forEach var="msg" items="<%= newsViewer.getMessages(db) %>">
-  <lor:news db="<%= db %>" message="${msg}" multiPortal="<%= sectionid==0 %>" moderateMode="true"/>
+  <lor:news
+          db="<%= db %>"
+          message="${msg}"
+          multiPortal="<%= sectionid==0 %>"
+          moderateMode="true"
+          currentUser="<%= currentUser %>"/>
 </c:forEach>
 <%
   ResultSet rs;

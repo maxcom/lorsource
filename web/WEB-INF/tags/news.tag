@@ -9,6 +9,7 @@
 <%@ attribute name="message" required="true" type="ru.org.linux.site.Message" %>
 <%@ attribute name="multiPortal" required="true" type="java.lang.Boolean" %>
 <%@ attribute name="moderateMode" required="true" type="java.lang.Boolean" %>
+<%@ attribute name="currentUser" required="false" type="ru.org.linux.site.User" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 
@@ -170,7 +171,7 @@
     if (stat1 > 0) {
       int pages = (int) Math.ceil(stat1 / messages);
 
-  out.append(" [<a href=\"");
+      out.append(" [<a href=\"");
 
       if (pages<=1) {
         out.append(jumplink);
@@ -179,12 +180,6 @@
       }
 
       out.append("\">");
-
-//        if (stat1 % 10 == 1 && stat1 % 100 != 11) {
-//          out.append("Добавлен&nbsp;");
-//        } else {
-//          out.append("Добавлено&nbsp;");
-//        }
 
       out.append(Integer.toString(stat1));
 
@@ -206,29 +201,36 @@
         }
       }
 
-  if (pages != 1){
-    out.append("&nbsp;(стр.");
-    for (int i = 1; i < pages; i++) {
-          if (i==pages-1) {
+      if (pages != 1) {
+        out.append("&nbsp;(стр.");
+        for (int i = 1; i < pages; i++) {
+          if (i == pages - 1) {
             out.append(" <a href=\"").append(jumplink).append("&amp;page=").append(Integer.toString(i)).append("\">").append(Integer.toString(i + 1)).append("</a>");
           } else {
             out.append(" <a href=\"").append(mainlink).append("&amp;page=").append(Integer.toString(i)).append("\">").append(Integer.toString(i + 1)).append("</a>");
           }
         }
-    out.append(')');
-  }
-  out.append(']');
+        out.append(')');
+      }
+      out.append(']');
     }
 
     out.append("</div>");
   } else if ((boolean) moderateMode) {
     out.append("<div class=nav>");
-    out.append("[<a href=\"commit.jsp?msgid=").append(Integer.toString(msgid)).append("\">Подтвердить</a>]");
+
+    if (currentUser!=null && currentUser.canModerate()) {
+      out.append("[<a href=\"commit.jsp?msgid=").append(Integer.toString(msgid)).append("\">Подтвердить</a>]");
+    }
+
     out.append(" [<a href=\"delete.jsp?msgid=").append(Integer.toString(msgid)).append("\">Удалить</a>]");
-    if (!votepoll) {
-      out.append(" [<a href=\"edit.jsp?msgid=").append(Integer.toString(msgid)).append("\">Править</a>]");
-    } else {
-      out.append(" [<a href=\"edit-vote.jsp?msgid=").append(Integer.toString(msgid)).append("\">Править</a>]");
+
+    if (currentUser != null && message.isEditable(db, currentUser)) {
+      if (!votepoll) {
+        out.append(" [<a href=\"edit.jsp?msgid=").append(Integer.toString(msgid)).append("\">Править</a>]");
+      } else {
+        out.append(" [<a href=\"edit-vote.jsp?msgid=").append(Integer.toString(msgid)).append("\">Править</a>]");
+      }
     }
 
     out.append("</div>");
