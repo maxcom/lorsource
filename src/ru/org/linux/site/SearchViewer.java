@@ -64,10 +64,8 @@ public class SearchViewer implements Viewer {
 
     if (date==SEARCH_3MONTH) {
       select.append(" AND postdate>CURRENT_TIMESTAMP-'3 month'::interval");
-      select.append(" AND msgbase_postdate>'now'::timestamp-'3 month'::interval");
     } else if (date == SEARCH_YEAR) {
       select.append(" AND postdate>CURRENT_TIMESTAMP-'1 year'::interval");
-      select.append(" AND msgbase_postdate>'now'::timestamp-'1 year'::interval");
     }
 
     if (section!=0) {
