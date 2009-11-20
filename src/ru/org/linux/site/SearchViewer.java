@@ -81,7 +81,7 @@ public class SearchViewer implements Viewer {
       try {
         User user = User.getUser(db, username);
 
-        select.append(" AND userid=").append(user.getId());
+        select.append(" AND msgs.userid=").append(user.getId());
       } catch (UserNotFoundException ex) {
         throw new UserErrorException("User not found: "+username);
       }
