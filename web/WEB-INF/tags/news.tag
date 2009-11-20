@@ -102,7 +102,7 @@
 <div class=msg>
   <c:if test="<%= imagepost %>">
     <%
-      NewsViewer.showMediumImage(tmpl.getConfig().getProperty("HTMLPathPrefix"), out, url, subj, linktext, tmpl.isMobile());
+      NewsViewer.showMediumImage(tmpl.getConfig().getProperty("HTMLPathPrefix"), out, url, subj, linktext, !tmpl.isMobile());
     %>
   </c:if>
 <%
