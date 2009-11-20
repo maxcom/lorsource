@@ -52,7 +52,7 @@ public class SearchViewer implements Viewer {
   public String show(Connection db) throws SQLException, UtilException, UserErrorException {
     StringBuilder select = new StringBuilder(""+
         "SELECT " +
-        "msgs.id, title, postdate, topic, userid, rank(idxFTI, q) as rank, message, bbcode");
+        "msgs.id, msgs.title, msgs.postdate, topic, msgs.userid, rank(idxFTI, q) as rank, message, bbcode");
 
     if (include==SEARCH_ALL) {
       select.append(" FROM msgs_and_cmts as msgs, msgbase, plainto_tsquery(?) as q");
@@ -60,16 +60,21 @@ public class SearchViewer implements Viewer {
       select.append(" FROM msgs, msgbase, plainto_tsquery(?) as q");
     }
 
+    if (section!=0) {
+      select.append(", topics, groups");
+    }
+
     select.append(" WHERE msgs.id = msgbase.id AND idxFTI @@ q");
 
     if (date==SEARCH_3MONTH) {
-      select.append(" AND postdate>CURRENT_TIMESTAMP-'3 month'::interval");
+      select.append(" AND msgs.postdate>CURRENT_TIMESTAMP-'3 month'::interval");
     } else if (date == SEARCH_YEAR) {
-      select.append(" AND postdate>CURRENT_TIMESTAMP-'1 year'::interval");
+      select.append(" AND msgs.postdate>CURRENT_TIMESTAMP-'1 year'::interval");
     }
 
     if (section!=0) {
       select.append(" AND section=").append(section);
+      select.append(" AND topics.id = topic AND groups.id = topics.groupid");
     }
 
     if (username.length()>0) {
