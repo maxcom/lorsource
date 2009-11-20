@@ -54,7 +54,7 @@ public class TrackerController {
     params.put("mine", mine);
     params.put("offset", offset);
 
-    String dateLimit = mine?"6 month":"6 hours";
+    String dateLimit = mine?"6 month":"24 hours";
 
     Template tmpl = Template.getTemplate(request);
     int messages = tmpl.getProf().getInt("messages");
