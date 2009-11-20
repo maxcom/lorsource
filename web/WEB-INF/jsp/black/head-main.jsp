@@ -32,7 +32,7 @@
 <tr>
   <td><a href="view-news.jsp?section=3">Галерея</a></td>
   <td><a href="view-section.jsp?section=2">Форум</a></td>
-  <td><a href="/books">Документация</a></td>
+  <td><a href="/tracker.jsp">Сообщения</a></td>
   <td><a href="/wiki">Wiki</a></td>
 </tr>
 <tr>
