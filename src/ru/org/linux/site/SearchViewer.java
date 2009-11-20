@@ -130,7 +130,7 @@ public class SearchViewer implements Viewer {
 
       String url;
 
-      if (topic==0) {
+      if (topic==0 || topic==id) {
         url = "view-message.jsp?msgid="+id;
       } else {
         url = "jump-message.jsp?msgid="+topic+"&amp;cid="+id;
