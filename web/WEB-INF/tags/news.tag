@@ -100,16 +100,16 @@
 %>
 <div class="entry-body">
 <div class=msg>
+  <c:if test="<%= imagepost %>">
+    <%
+      NewsViewer.showMediumImage(tmpl.getConfig().getProperty("HTMLPathPrefix"), out, url, subj, linktext, tmpl.isMobile());
+    %>
+  </c:if>
 <%
   if (!votepoll) {
       out.append(message.getProcessedMessage(db, moderateMode));
   }
 %>
-  <c:if test="<% imagepost %>">
-    <%
-      NewsViewer.showMediumImage(tmpl.getConfig().getProperty("HTMLPathPrefix"), out, url, subj, linktext, tmpl.isMobile());
-    %>
-  </c:if>
 <%
   if (url != null && !imagepost && !votepoll) {
     if (url.length()==0) {
