@@ -120,7 +120,7 @@
   }
 
   if (message.getUrl() != null && message.getSection().isImagepost()) {
-    NewsViewer.showMediumImage(tmpl.getObjectConfig().getHTMLPathPrefix(), out, message.getUrl(), message.getTitle(), message.getLinktext());
+    NewsViewer.showMediumImage(tmpl.getObjectConfig().getHTMLPathPrefix(), out, message.getUrl(), message.getTitle(), message.getLinktext(), true);
   }
 
   if (message.getSection().isPremoderated()) {

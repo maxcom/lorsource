@@ -50,24 +50,19 @@ public class NewsViewer {
 
   private CommitMode commitMode = CommitMode.COMMITED_AND_POSTMODERATED;
 
-  public static void showMediumImage(String htmlPath, Writer out, String url, String subj, String linktext) throws IOException {
+  public static void showMediumImage(String htmlPath, Writer out, String url, String subj, String linktext, boolean showMedium) throws IOException {
     try {
-      out.append("<p>");
       String mediumName = ScreenshotProcessor.getMediumName(url);
 
-      if (!new File(htmlPath, mediumName).exists()) {
+      if (!showMedium || !new File(htmlPath, mediumName).exists()) {
         mediumName = linktext;
       }
 
       ImageInfo iconInfo = new ImageInfo(htmlPath + mediumName);
-      ImageInfo info = new ImageInfo(htmlPath + url);
 
+      out.append("<p>");
       out.append("<a href=\"/").append(url).append("\"><img src=\"/").append(mediumName).append("\" ALT=\"").append(subj).append("\" ").append(iconInfo.getCode()).append(" ></a>");
-      out.append("</p><p>");
-
-
-      out.append("&gt;&gt;&gt; <a href=\"/").append(url).append("\">Просмотр</a>");
-      out.append(" (<i>").append(Integer.toString(info.getWidth())).append('x').append(Integer.toString(info.getHeight())).append(", ").append(info.getSizeString()).append("</i>)");
+      out.append("</p>");
     } catch (BadImageException e) {
       logger.warn("Bad image", e);
       out.append("&gt;&gt;&gt; <a href=\"/").append(url).append("\">[BAD IMAGE!] Просмотр</a>");

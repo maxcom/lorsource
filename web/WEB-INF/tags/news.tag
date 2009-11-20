@@ -97,14 +97,20 @@
     out.append("</a>");
     out.append("</div>");
   }
-
-  out.append("<div class=\"entry-body\">");
-  out.append("<div class=msg>\n");
-
+%>
+<div class="entry-body">
+<div class=msg>
+<%
   if (!votepoll) {
       out.append(message.getProcessedMessage(db, moderateMode));
   }
-
+%>
+  <c:if test="<% imagepost %>">
+    <%
+      NewsViewer.showMediumImage(tmpl.getConfig().getProperty("HTMLPathPrefix"), out, url, subj, linktext, tmpl.isMobile());
+    %>
+  </c:if>
+<%
   if (url != null && !imagepost && !votepoll) {
     if (url.length()==0) {
       url = "view-message.jsp?msgid="+msgid;
@@ -112,11 +118,14 @@
 
     out.append("<p>&gt;&gt;&gt; <a href=\"").append(HTMLFormatter.htmlSpecialChars(url)).append("\">").append(linktext).append("</a>");
   } else if (imagepost) {
-    NewsViewer.showMediumImage(tmpl.getConfig().getProperty("HTMLPathPrefix"), out, url, subj, linktext);
+    ImageInfo info = new ImageInfo(tmpl.getConfig().getProperty("HTMLPathPrefix") + url);
+
+    out.append("<p>&gt;&gt;&gt; <a href=\"/").append(url).append("\">Просмотр</a>");
+    out.append(" (<i>").append(Integer.toString(info.getWidth())).append('x').append(Integer.toString(info.getHeight())).append(", ").append(info.getSizeString()).append("</i>)");
   } else if (votepoll) {
     try {
       Poll poll = Poll.getPollByTopic(db, msgid);
-  out.append(poll.renderPoll(db, tmpl.getConfig(), tmpl.getProf()));
+      out.append(poll.renderPoll(db, tmpl.getConfig(), tmpl.getProf()));
       out.append("<p>&gt;&gt;&gt; <a href=\"").append("vote-vote.jsp?msgid=").append(Integer.toString(msgid)).append("\">Голосовать</a>");
       out.append("<p>&gt;&gt;&gt; <a href=\"").append(jumplink).append("\">Результаты</a>");
     } catch (BadImageException e) {
@@ -130,9 +139,9 @@
       out.append("<p>&gt;&gt;&gt; <a href=\"").append("\">[BAD POLL!] Просмотр</a>");
     }
   }
-
-  out.append("</div>");
-
+%>
+  </div>
+<%
   if (message.getSection().isPremoderated()) {
     String tagLinks = Tags.getTagLinks(db, msgid);
 
@@ -235,6 +244,6 @@
 
     out.append("</div>");
   }
-  out.append("</div>");
 %>
+  </div>
 </div>
