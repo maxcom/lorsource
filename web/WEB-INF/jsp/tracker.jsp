@@ -122,8 +122,21 @@
 </table>
 </div>
 
+<table class="nav">
+  <tr>
+    <td align="left">
+      <c:if test="${offset>0}">
+        <a href="tracker.jsp?offset=${offset-topics}${query}">← предыдущие</a>
+      </c:if>
+    </td>
+    <td align="right">
+      <c:if test="${offset+topics<300 and fn:length(msgs)==topics}">
+        <a href="tracker.jsp?offset=${offset+topics}${query}">следующие →</a>
+      </c:if>
+    </td>
+  </tr>
+</table>
         <%
-
       if (tmpl.isModeratorSession()) {
 %>
 <h2>Новые пользователи</h2>

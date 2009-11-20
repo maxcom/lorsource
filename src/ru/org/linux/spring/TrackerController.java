@@ -34,8 +34,16 @@ public class TrackerController {
   @RequestMapping("/tracker.jsp")
   public ModelAndView tracker(
     @RequestParam(value="filter", required = false) String filter,
-    @RequestParam(value="new", required = false) String testRequest,
+    @RequestParam(value="offset", required = false) Integer offset,
     ServletRequest request) throws Exception {
+
+    if (offset==null) {
+      offset = 0;
+    } else {
+      if (offset<0 || offset>300) {
+        throw new UserErrorException("Некорректное значение offset");
+      }
+    }
 
     boolean noTalks = filter!=null && filter.equals("notalks");
     boolean mine = filter!=null && filter.equals("mine");
@@ -44,11 +52,21 @@ public class TrackerController {
 
     params.put("notalks", noTalks);
     params.put("mine", mine);
+    params.put("offset", offset);
 
     String dateLimit = mine?"6 month":"6 hours";
 
     Template tmpl = Template.getTemplate(request);
     int messages = tmpl.getProf().getInt("messages");
+    int topics = tmpl.getProf().getInt("topics");
+
+    params.put("topics", topics);
+
+    if (filter!=null) {
+      params.put("query", "&filter="+filter);
+    } else {
+      params.put("query", "");      
+    }
 
     Connection db = null;
 
@@ -73,7 +91,7 @@ public class TrackerController {
         "UNION ALL SELECT t.userid as author, t.id, lastmod,  t.stat1 AS stat1, t.stat3 AS stat3, t.stat4 AS stat4, g.id AS gid, g.title AS gtitle, t.title AS title, 0, 0 FROM topics AS t, groups AS g WHERE not t.deleted AND t.postdate > CURRENT_TIMESTAMP - interval '" + dateLimit + "' AND t.stat1=0 AND g.id=t.groupid "
         + (noTalks ? " AND not t.groupid=8404" : "")
         + (mine ? " AND t.userid=" + user.getId() : "") +
-        "ORDER BY lastmod DESC LIMIT 100;";
+        "ORDER BY lastmod DESC LIMIT "+ topics +" OFFSET "+offset;
 
       Statement st = db.createStatement();
       ResultSet rs = st.executeQuery(sSql);
