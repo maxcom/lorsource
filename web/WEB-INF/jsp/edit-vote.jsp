@@ -1,5 +1,6 @@
 <%@ page contentType="text/html; charset=utf-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
 <%--
   ~ Copyright 1998-2009 Linux.org.ru
@@ -35,7 +36,7 @@
 <c:forEach var="var" items="${variants}">
 
   Вариант #${var.id}: <input type="text" name="var${var.id}" size="40"
-                                      value="${var.label}"><br>
+                                      value="${fn:escapeXml(var.label)}"><br>
 </c:forEach>
   Еще вариант: <input type="text" name="new1" size="40"><br>
   Еще вариант: <input type="text" name="new2" size="40"><br>
