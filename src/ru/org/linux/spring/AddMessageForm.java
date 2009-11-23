@@ -111,6 +111,10 @@ public class AddMessageForm {
     return mode;
   }
 
+  public void setMode(String mode) {
+    this.mode = mode;
+  }
+
   public String getTags() {
     return tags;
   }

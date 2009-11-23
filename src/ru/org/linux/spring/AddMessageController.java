@@ -45,6 +45,7 @@ public class AddMessageController extends ApplicationObjectSupport {
     HttpSession session = request.getSession();
 
     AddMessageForm form = new AddMessageForm(request, tmpl);
+    form.setMode(tmpl.getFormatMode());
     params.put("form", form);
 
     Connection db = null;
