@@ -2,7 +2,13 @@
 
 function ctrl_enter(e, form)
 {
-    if (((e.keyCode == 13) || (e.keyCode == 10)) && (e.ctrlKey)) form.submit();
+    if (((e.keyCode == 13) || (e.keyCode == 10)) && (e.ctrlKey)) {
+      window.onbeforeunload = null;
+
+      form.submit();
+
+      return false;
+    }
 }
 
 // addtag.js
