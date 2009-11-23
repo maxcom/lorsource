@@ -61,4 +61,14 @@ $(document).ready(function() {
       });
     }
   });
+
+  window.onbeforeunload = function() {
+    if ($("#msg").val()!='') {
+      return "Вы что-то напечатали в форме. Все введенные данные будут потеряны при закрытии страницы.";
+    }
+  };
+
+  $("#commentForm").bind("submit", function() {
+    window.onbeforeunload = null;
+  });
 });
