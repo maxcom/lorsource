@@ -47,7 +47,7 @@
       if (message.isVotePoll()) {
         out.append("[<a href=\"edit-vote.jsp?msgid=");
         out.print(msgid);
-        out.print("\">Править</a>]");
+        out.print("\">Править опрос</a>]");
       }
       
       out.append("[<a href=\"setpostscore.jsp?msgid=");
@@ -96,25 +96,18 @@
   <h1>
     ${message.title}
   </h1>
-<%
 
-  if (message.isVotePoll()) {
-    //Render poll
-    try {
-      Poll poll = Poll.getPollByTopic(db, msgid);
-      out.append(poll.renderPoll(db, tmpl.getConfig(), tmpl.getProf(), highlight!=null?highlight:0));
-      out.append("<p>&gt;&gt;&gt; <a href=\"").append("vote-vote.jsp?msgid=");
-      out.print(msgid);
-      out.append("\">Проголосовать</a>");
-    } catch (PollNotFoundException e) {
-      out.append("[BAD POLL: not found]");
-    } catch (BadImageException e) {
-      out.append("[BAD POLL: bad image]");
-    }
-  } else {
-    out.append(message.getProcessedMessage(db, true));
-  }
+    <%= message.getProcessedMessage(db, true) %>
 
+    <c:if test="${message.votePoll}">
+        <%
+          Poll poll = Poll.getPollByTopic(db, msgid);
+          out.append(poll.renderPoll(db, tmpl.getConfig(), tmpl.getProf(), highlight != null ? highlight : 0));
+        %>
+
+      <p>&gt;&gt;&gt; <a href="vote-vote.jsp?msgid=${msgid}">Проголосовать</a></p>
+    </c:if>
+    <%
   if (message.getUrl() != null && message.isHaveLink() && message.getUrl().length()>0) {
     out.append("<p>&gt;&gt;&gt; <a href=\"").append(HTMLFormatter.htmlSpecialChars(message.getUrl())).append("\">").append(message.getLinktext()).append("</a>.");
   }
