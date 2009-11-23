@@ -57,7 +57,7 @@
     Statement st = db.createStatement();
     ResultSet rs = st.executeQuery("SELECT id, label FROM votes WHERE vote=" + poll.getId() + " ORDER BY id");
 
-    out.print("<form method=GET action=vote.jsp>");
+    out.print("<form method=POST action=vote.jsp>");
     out.print("<input type=hidden name=msgid value=" + msgid + '>');
     out.print("<input type=hidden name=voteid value=" + poll.getId() + '>');
     while (rs.next()) {
