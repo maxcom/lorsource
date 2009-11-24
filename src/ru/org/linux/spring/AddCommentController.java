@@ -98,6 +98,7 @@ public class AddCommentController extends ApplicationObjectSupport {
     HTMLFormatter form = new HTMLFormatter(msg);
     form.setMaxLength(80);
     form.enableUrlHighLightMode();
+    form.setOutputLorcode(true);
 
     if ("ntobrq".equals(mode)) {
       form.enableNewLineMode();
@@ -105,16 +106,13 @@ public class AddCommentController extends ApplicationObjectSupport {
     }
     if ("ntobr".equals(mode)) {
       form.enableNewLineMode();
-      form.setOutputLorcode(true);
     }
     if ("tex".equals(mode)) {
       form.enableTexNewLineMode();
-      form.setOutputLorcode(true);
     }
     if ("quot".equals(mode)) {
       form.enableTexNewLineMode();
       form.enableQuoting();
-      form.setOutputLorcode(true);
     }
 
     return form.process();
@@ -187,7 +185,7 @@ public class AddCommentController extends ApplicationObjectSupport {
 
       user.checkBlocked();
 
-      boolean lorcode = "lorcode".equals(mode) || "quot".equals(mode) || "tex".equals(mode) || "ntobr".equals(mode);
+      boolean lorcode = true;
 
       Comment comment = new Comment(replyto, title, msg, topicId, 0, request.getHeader("user-agent"), request.getRemoteAddr(), lorcode);
 

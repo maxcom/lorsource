@@ -413,4 +413,26 @@ public class HTMLFormatterTest {
     assertEquals("test[br]\ntest", f.process());
   }
 
+  @Test
+  public void testBBCode10() {
+    HTMLFormatter f = new HTMLFormatter("test\ntest");
+    f.setOutputLorcode(true);
+    f.enableNewLineMode();
+    f.enableUrlHighLightMode();
+    f.enableQuoting();
+
+    assertEquals("test[br]\ntest", f.process());
+  }
+
+  @Test
+  public void testBBCode11() {
+    HTMLFormatter f = new HTMLFormatter(">test\ntest");
+    f.setOutputLorcode(true);
+    f.enableNewLineMode();
+    f.enableUrlHighLightMode();
+    f.enableQuoting();
+
+    assertEquals("[i]>test[/i][br]\ntest", f.process());
+  }
+
 }

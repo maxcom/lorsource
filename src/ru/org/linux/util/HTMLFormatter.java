@@ -239,16 +239,31 @@ public class HTMLFormatter {
       if (text.charAt(i) == '\n' || i == 0) {
         if (quot) {
           quot = false;
-          buf.append("</i>");
+          if (outputLorcode) {
+            buf.append("[/i]");
+          } else {
+            buf.append("</i>");
+          }
         }
 
-        if (text.substring(i).trim().startsWith("&gt;")) {
-          quot = true;
-          buf.append("<i>");
-        } 
-        
+        if (outputLorcode) {
+          if (text.substring(i).trim().startsWith(">")) {
+            quot = true;
+            buf.append("[i]");
+          }
+        } else {
+          if (text.substring(i).trim().startsWith("&gt;")) {
+            quot = true;
+            buf.append("<i>");
+          }
+        }
+
         if (text.charAt(i) == '\n') {
-          buf.append("<br>");
+          if (outputLorcode) {
+            buf.append("[br]");
+          } else {
+            buf.append("<br>");
+          }
         }
       }
 

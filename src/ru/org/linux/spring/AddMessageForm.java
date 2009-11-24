@@ -294,20 +294,19 @@ public class AddMessageForm {
       if (group.getSectionId() == 1) {
         maxlength = 40;
       }
-      formatter.setMaxLength(maxlength);
 
+      formatter.setMaxLength(maxlength);
       formatter.enableUrlHighLightMode();
+      formatter.setOutputLorcode(true);
 
       if ("ntobrq".equals(mode)) {
         formatter.enableNewLineMode();
       }
       if ("ntobr".equals(mode)) {
         formatter.enableNewLineMode();
-        formatter.setOutputLorcode(true);
       }
       if ("tex".equals(mode)) {
         formatter.enableTexNewLineMode();
-        formatter.setOutputLorcode(true);
       }
 
       return formatter.process();
