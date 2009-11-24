@@ -29,6 +29,7 @@ import org.apache.commons.lang.StringUtils;
 import org.jdom.Verifier;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
+import org.springframework.web.multipart.MultipartRequest;
 
 import ru.org.linux.site.*;
 import ru.org.linux.util.*;
@@ -36,7 +37,7 @@ import ru.org.linux.util.*;
 public class AddMessageForm {
   private static final Logger logger = Logger.getLogger("ru.org.linux");
 
-  private boolean preview;
+  private final boolean preview;
   private int guid = 0;
   private String msg = "";
   private String title = null;
@@ -163,7 +164,7 @@ public class AddMessageForm {
     tags = request.getParameter("tags");
 
     if (request instanceof MultipartHttpServletRequest) {
-      MultipartFile multipartFile = ((MultipartHttpServletRequest) request).getFile("image");
+      MultipartFile multipartFile = ((MultipartRequest) request).getFile("image");
       if (multipartFile != null && !multipartFile.isEmpty()) {
         File uploadedFile = File.createTempFile("preview", "", new File(tmpl.getObjectConfig().getPathPrefix() + "/linux-storage/tmp/"));
         image = uploadedFile.getPath();

@@ -121,7 +121,7 @@ public class Message implements Serializable {
   }
 
   public Message(Connection db, ResultSet rs) throws SQLException {
-    this.msgid=rs.getInt("msgid");
+    msgid=rs.getInt("msgid");
     postscore =rs.getInt("postscore");
     votepoll=rs.getBoolean("vote");
     sticky=rs.getBoolean("sticky");
@@ -352,7 +352,7 @@ public class Message implements Serializable {
   public int getEffectivePostScore(Connection db) throws BadGroupException, SQLException {
     int postscore = getPostScore();
 
-    Group group = new Group(db, getGroupId());
+    Group group = new Group(db, guid);
 
     if (postscore>=0) {
       if (group.getCommentsRestriction()==-1) {
@@ -516,7 +516,7 @@ public class Message implements Serializable {
   }
 
   public int addTopicFromPreview(Connection db, Template tmpl, HttpServletRequest request, String previewImagePath, User user)
-      throws SQLException, UtilException, IOException, BadImageException, InterruptedException,  DuplicationException, BadGroupException {
+      throws SQLException, UtilException, IOException, BadImageException, InterruptedException,   BadGroupException {
 
     Group group = new Group(db, guid);
 	
@@ -556,7 +556,7 @@ public class Message implements Serializable {
     return msgid;
   }
 
-  private int allocateMsgid(Connection db) throws SQLException {
+  private static int allocateMsgid(Connection db) throws SQLException {
     Statement st = null;
     ResultSet rs = null;
 

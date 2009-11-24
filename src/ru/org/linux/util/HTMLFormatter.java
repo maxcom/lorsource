@@ -170,7 +170,7 @@ public class HTMLFormatter {
         }
 
         if (outputLorcode) {
-          out.append("[url=").append(URLEncoder(url)).append("]").append(urlchunk).append("[/url]");
+          out.append("[url=").append(URLEncoder(url)).append(']').append(urlchunk).append("[/url]");
         } else {
           out.append("<a href=\"").append(URLEncoder(url)).append("\">").append(urlchunk).append("</a>");
         }
