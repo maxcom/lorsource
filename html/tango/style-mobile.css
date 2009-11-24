@@ -37,7 +37,6 @@ strong {
 body {
 	font-family: Trebuchet MS, sans-serif;
 	font-size: medium;
-	padding: 1em;
 	line-height: 1.4;
 }
 
@@ -48,7 +47,6 @@ p {
 #hd h1 {
 	font-size: large;
 	font-weight: bold;
-	margin-bottom: 1em;
 }
 
 #hd .menu {
@@ -228,6 +226,7 @@ h1 {
 ul,li,ol {
 	padding: 0;
 	margin: 0;
+    list-style-position:inside;
 }
 
 table {
