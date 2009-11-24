@@ -249,7 +249,7 @@ border-radius: 1em;
     right: 5px; text-align: right; top: 5px; position: absolute ;
 }
 
-input {
+input[type="radio"] {
     margin-left: 3px;
     margin-right: 3px;
 }

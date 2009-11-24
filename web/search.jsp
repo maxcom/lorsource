@@ -60,7 +60,10 @@
 <h2>Поисковая система сайта</h2>
 
 <FORM METHOD=GET ACTION="search.jsp">
-Искать: <INPUT TYPE="text" NAME="q" SIZE=50 VALUE="<%= HTMLFormatter.htmlSpecialChars(q) %>"><p>
+<INPUT TYPE="text" NAME="q" SIZE=50 VALUE="<%= HTMLFormatter.htmlSpecialChars(q) %>">
+  <input TYPE="submit" VALUE="Поиск"><BR>
+  
+  <p>
   <select name="include">
     <option value="topics" <%= (include==SearchViewer.SEARCH_TOPICS)?"selected":"" %>>только темы</option>
     <option value="all" <%= (include==SearchViewer.SEARCH_ALL)?"selected":"" %>>темы и комментарии</option>
@@ -82,7 +85,7 @@
   </select>
 
   Пользователь:
-  <INPUT TYPE="text" NAME="username" SIZE=20 VALUE="<%= HTMLFormatter.htmlSpecialChars(username) %>"><p>
+  <INPUT TYPE="text" NAME="username" SIZE=20 VALUE="<%= HTMLFormatter.htmlSpecialChars(username) %>">
   <br>
 
   Сортировать
@@ -93,8 +96,6 @@
   </select>
 
   <br>
-<input TYPE="submit" VALUE="Искать!"><BR>
-
 </form>
 
 <%
