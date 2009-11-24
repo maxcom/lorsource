@@ -23,10 +23,8 @@ import java.util.Date;
 import org.javabb.bbcode.BBCodeProcessor;
 
 import ru.org.linux.util.HTMLFormatter;
-import ru.org.linux.util.ProfileHashtable;
-import ru.org.linux.util.UtilException;
 
-public class SearchViewer implements Viewer {
+public class SearchViewer {
   public static final int SEARCH_TOPICS = 1;
   public static final int SEARCH_ALL = 0;
 
@@ -48,8 +46,7 @@ public class SearchViewer implements Viewer {
     this.query = query;
   }
 
-  @Override
-  public String show(Connection db) throws SQLException, UtilException, UserErrorException {
+  public String show(Connection db) throws SQLException, UserErrorException {
     StringBuilder select = new StringBuilder(""+
         "SELECT " +
         "msgs.id, msgs.title, msgs.postdate, topic, msgs.userid, rank(idxFTI, q) as rank, message, bbcode");
@@ -113,7 +110,7 @@ public class SearchViewer implements Viewer {
     }
   }
 
-  private String printResults(Connection db, ResultSet rs) throws SQLException, UserNotFoundException {
+  private static String printResults(Connection db, ResultSet rs) throws SQLException, UserNotFoundException {
     StringBuilder out = new StringBuilder("<h1>Результаты поиска</h1>");
 
     out.append("<div class=\"messages\"><div class=\"comment\">");
@@ -165,8 +162,7 @@ public class SearchViewer implements Viewer {
     return out.toString();
   }
 
-  @Override
-  public String getVariantID(ProfileHashtable prof) throws UtilException {
+  public String getVariantID() {
     try {
       return "search?q="+ URLEncoder.encode(query, "koi8-r")+"&include="+include+"&date="+date+"&section="+section+"&sort="+sort+"&username="+URLEncoder.encode(username);
     } catch (UnsupportedEncodingException e) {
@@ -174,8 +170,7 @@ public class SearchViewer implements Viewer {
     }
   }
 
-  @Override
-  public Date getExpire() {
+  public static Date getExpire() {
     return new java.util.Date(new java.util.Date().getTime() + 15*60*1000);
   }
 
@@ -184,7 +179,7 @@ public class SearchViewer implements Viewer {
       return SEARCH_ALL;
     }
 
-    if (include.equals("topics")) {
+    if ("topics".equals(include)) {
       return SEARCH_TOPICS;
     }
 
@@ -196,11 +191,11 @@ public class SearchViewer implements Viewer {
       return SEARCH_YEAR;
     }
 
-    if (date.equals("3month")) {
+    if ("3month".equals(date)) {
       return SEARCH_3MONTH;
     }
 
-    if (date.equals("all")) {
+    if ("all".equals(date)) {
       return SEARCH_ALL;
     }
 

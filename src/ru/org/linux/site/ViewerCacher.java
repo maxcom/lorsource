@@ -15,27 +15,24 @@
 
 package ru.org.linux.site;
 
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Date;
 
 import com.danga.MemCached.MemCachedClient;
 
-import ru.org.linux.util.UtilException;
-
 public class ViewerCacher {
   private boolean fromCache;
   private long time = -1;
 
-  public static String getViewer(Viewer viewer, Template tmpl, boolean nocache) throws UtilException, SQLException, IOException, UserErrorException {
-    return new ViewerCacher().get(viewer, tmpl, nocache);
+  public static String getViewer(SearchViewer viewer, boolean nocache) throws SQLException, UserErrorException {
+    return new ViewerCacher().get(viewer, nocache);
   }
 
-  public String get(Viewer viewer, Template tmpl, boolean nocache) throws UtilException, SQLException, IOException, UserErrorException {
+  public String get(SearchViewer viewer, boolean nocache) throws SQLException, UserErrorException {
     MemCachedClient mcc = MemCachedSettings.getClient();
 
-    String cacheId = MemCachedSettings.getId(viewer.getVariantID(tmpl.getProf()));
+    String cacheId = MemCachedSettings.getId(viewer.getVariantID());
 
     String res = null;
 

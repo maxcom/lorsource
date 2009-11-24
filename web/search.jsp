@@ -1,6 +1,5 @@
 <%@ page contentType="text/html; charset=utf-8"%>
 <%@ page import="ru.org.linux.site.SearchViewer"  %>
-<%@ page import="ru.org.linux.site.Template" %>
 <%@ page import="ru.org.linux.site.ViewerCacher" %>
 <%@ page import="ru.org.linux.util.HTMLFormatter" %>
 <%@ page import="ru.org.linux.util.ServletParameterParser" %>
@@ -18,11 +17,7 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
-
-<% Template tmpl = Template.getTemplate(request);%>
 <jsp:include page="WEB-INF/jsp/head.jsp"/>
-
-
 <%
   boolean initial = request.getParameter("q") == null;
 
@@ -110,7 +105,7 @@
 
     ViewerCacher cacher = new ViewerCacher();
 
-    out.print(cacher.get(sv, tmpl, false));
+    out.print(cacher.get(sv, false));
 
     out.print("<p><i>");
 
