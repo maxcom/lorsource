@@ -90,5 +90,10 @@
     <set type="response-header" name="Cache-Control">max-age=315360000</set>
   </rule>
 
+  <rule>
+    <from>jquery.*\.(js)$</from>
+    <set type="response-header" name="Cache-Control">max-age=315360000</set>
+  </rule>
+
 </urlrewrite>
 
