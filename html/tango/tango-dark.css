@@ -43,7 +43,7 @@ a {
 }
 
 #bd .column .boxlet h2 {
-    background: #555753 url("/tango/round-corners-tango-boxlet.svg");
+    background: #555753;
 }
 
 #bd .forum table thead {

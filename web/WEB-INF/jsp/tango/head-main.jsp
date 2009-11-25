@@ -29,7 +29,8 @@
 <script type="text/javascript">
   $(document).ready(function() {
     if ($.browser.msie || $.browser.opera) {
-      $('.msg').corner()
+      $('.msg').corner();
+      $('.column .boxlet h2').corner();
     }
   });
 </script>
