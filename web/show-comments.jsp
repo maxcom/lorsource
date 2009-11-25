@@ -73,14 +73,10 @@
 	  }
 %>
 <div class=forum>
-<table width="100%" class="message-table">
-<thead>
-<tr><th>Раздел</th><th>Группа</th><th>Заглавие темы</th><th>Дата</th></tr>
-<tbody>
 <%
-
   String res = (String) mcc.get(showCommentsId);
-  if (res==null) {
+  
+    if (res==null) {
     res = MessageTable.showComments(db, user, offset, topics);
 	
 	if (firstPage) {
@@ -89,6 +85,32 @@
 	  mcc.add(showCommentsId, res, new Date(new Date().getTime()+60 * 60 * 1000L));
 	}
   }
+  
+%>
+<table width="100%" class="message-table">
+<thead>
+<tr><td colspan=5>
+<%
+  out.print("<div style=\"float: left\">");
+  if (firstPage || (offset - topics)<0) {
+	out.print("");
+  } else {
+	out.print("<a rel=prev rev=next href=\"show-comments.jsp?nick=" + nick + "&amp;offset=" + (offset - topics) + "\">← назад</a>");
+  }
+  out.print("</div>");
+  
+  out.print("<div style=\"float: right\">");
+  if (res!=null && !"".equals(res)) {
+	out.print("<a rel=next rev=prev href=\"show-comments.jsp?nick=" + nick + "&amp;offset=" + (offset + topics) + "\">вперед →</a>");
+  } else {
+	out.print("<a rel=next rev=prev href=\"show-comments.jsp?nick=" + nick + "&amp;offset=0\">первая →</a>");
+  }
+  out.print("</div>");
+%>
+</td></tr>
+<tr><th>Раздел</th><th>Группа</th><th>Заглавие темы</th><th>Дата</th></tr>
+<tbody>
+<%
 
   out.print(res);
 

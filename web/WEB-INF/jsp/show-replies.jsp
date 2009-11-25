@@ -46,6 +46,27 @@
 <div class=forum>
 <table width="100%" class="message-table">
 <thead>
+<tr><td colspan=5>
+<%
+  boolean firstPage = (Boolean) request.getAttribute("firstPage");
+  int offset = (Integer) request.getAttribute("offset");
+  int topics = (Integer) request.getAttribute("topics");
+%>
+<div style="float: left"><%
+  if (firstPage || (offset - topics)<0) {
+	out.print("");
+  } else {
+	out.print("<a rel=prev rev=next href=\"show-replies.jsp?nick=" + nick + "&amp;offset=" + (offset - topics) + "\">← назад</a>");
+  }
+%>
+</div>
+    <div style="float: right">
+<%
+  	out.print("<a rel=next rev=prev href=\"show-replies.jsp?nick=" + nick + "&amp;offset=" + (offset + topics) + "\">вперед →</a>");
+%>
+      </div>
+
+</td></tr>
 <tr><th>Раздел</th><th>Группа</th><th>Заглавие темы</th><th>Автор</th><th>Дата</th></tr>
 <tbody>
 
@@ -62,11 +83,6 @@
 </tbody>
 <tfoot>
   <tr><td colspan=5><p>
-<%
-  boolean firstPage = (Boolean) request.getAttribute("firstPage");
-  int offset = (Integer) request.getAttribute("offset");
-  int topics = (Integer) request.getAttribute("topics");
-%>
 <div style="float: left"><%
   if (firstPage || (offset - topics)<0) {
 	out.print("");
