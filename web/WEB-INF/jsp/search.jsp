@@ -1,8 +1,8 @@
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ page contentType="text/html; charset=utf-8"%>
 <%@ page import="ru.org.linux.site.SearchViewer"  %>
-<%@ page import="ru.org.linux.site.ViewerCacher" %>
-<%@ page import="ru.org.linux.util.HTMLFormatter" %>
-<%@ page import="ru.org.linux.util.ServletParameterParser" %>
+
 <%--
   ~ Copyright 1998-2009 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,45 +17,27 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
-<jsp:include page="WEB-INF/jsp/head.jsp"/>
-<%
-  boolean initial = request.getParameter("q") == null;
+<jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
-  String q = request.getParameter("q");
-  if (q==null) {
-    q="";
-  }
-
-  int include = SearchViewer.parseInclude(request.getParameter("include"));
-  int date = SearchViewer.parseDate(request.getParameter("date"));
-
-  String strSection = request.getParameter("section");
-  int section = 0;
-  if (strSection!=null) {
-    section = new ServletParameterParser(request).getInt("section");
-  }
-
-  int sort = SearchViewer.SORT_R;
-  String strSort = request.getParameter("sort");
-  if (strSort!=null) {
-    sort = new ServletParameterParser(request).getInt("sort");
-  }
-
-  String username = request.getParameter("username");
-  if (username==null) {
-    username = "";
-  }
-
-%>
-
-<title>Поиск по сайту <%= initial ? "" : (" - " + HTMLFormatter.htmlSpecialChars(q)) %></title>
-<jsp:include page="WEB-INF/jsp/header.jsp"/>
+<title>Поиск по сайту
+  <c:if test="${not initial}">
+    - <c:out value="${q}" escapeXml="true"/>
+  </c:if>
+</title>
+<jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
 <H1>Поиск по сайту</h1>
 <h2>Поисковая система сайта</h2>
 
+<%
+  int include = (Integer) request.getAttribute("include");
+  int date = (Integer) request.getAttribute("date");
+  int section = (Integer) request.getAttribute("section");
+  int sort = (Integer) request.getAttribute("sort");  
+%>
+
 <FORM METHOD=GET ACTION="search.jsp">
-<INPUT TYPE="text" NAME="q" SIZE=50 VALUE="<%= HTMLFormatter.htmlSpecialChars(q) %>">
+<INPUT TYPE="text" NAME="q" SIZE=50 VALUE="${fn:escapeXml(q)}">
   <input TYPE="submit" VALUE="Поиск"><BR>
   
   <p>
@@ -80,7 +62,7 @@
   </select>
 
   Пользователь:
-  <INPUT TYPE="text" NAME="username" SIZE=20 VALUE="<%= HTMLFormatter.htmlSpecialChars(username) %>">
+  <INPUT TYPE="text" NAME="username" SIZE=20 VALUE="${fn:escapeXml(username)}">
   <br>
 
   Сортировать
@@ -93,32 +75,23 @@
   <br>
 </form>
 
-<%
-  if (!initial) {
-    SearchViewer sv = new SearchViewer(q);
+<c:if test="${not initial}">
+  <c:out value="${result}" escapeXml="false"/>
+  <p>
+    <i>
+      <c:if test="${cached}">
+        Результаты извлечены из кеша, время поиска: ${time} ms
+      </c:if>
+      <c:if test="${not cached}">
+        Результаты извлечены из БД, время поиска: ${time} ms 
+      </c:if>
+    </i>
+  </p>
+</c:if>
 
-    sv.setDate(date);
-    sv.setInclude(include);
-    sv.setSection(section);
-    sv.setSort(sort);
-    sv.setUser(username);
+<c:if test="${initial}">
+  <h2>Поиск через Google</h2>
+  <jsp:include page="/WEB-INF/jsp/${template.style}/google-search.jsp"/>
+</c:if>
 
-    ViewerCacher cacher = new ViewerCacher();
-
-    out.print(cacher.get(sv, false));
-
-    out.print("<p><i>");
-
-    if (cacher.isFromCache()) {
-      out.print("Результаты извлечены из кеша, время поиска: "+cacher.getTime()+"ms");
-    } else {
-      out.print("Результаты извлечены из БД, время поиска: "+cacher.getTime()+"ms");      
-    }
-    out.print("</i></p>");
-  } else {
-%>
-<h2>Поиск через Google</h2>
-<jsp:include page="/WEB-INF/jsp/${template.style}/google-search.jsp"/>
-<% } %>
-
-<jsp:include page="WEB-INF/jsp/footer.jsp"/>
+<jsp:include page="/WEB-INF/jsp/footer.jsp"/>

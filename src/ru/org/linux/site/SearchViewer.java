@@ -174,34 +174,6 @@ public class SearchViewer {
     return new java.util.Date(new java.util.Date().getTime() + 15*60*1000);
   }
 
-  public static int parseInclude(String include) {
-    if (include==null) {
-      return SEARCH_ALL;
-    }
-
-    if ("topics".equals(include)) {
-      return SEARCH_TOPICS;
-    }
-
-    return SEARCH_ALL;
-  }
-
-  public static int parseDate(String date) {
-    if (date==null) {
-      return SEARCH_YEAR;
-    }
-
-    if ("3month".equals(date)) {
-      return SEARCH_3MONTH;
-    }
-
-    if ("all".equals(date)) {
-      return SEARCH_ALL;
-    }
-
-    return SEARCH_YEAR;
-  }
-
   public void setInclude(int include) {
     this.include = include;
   }

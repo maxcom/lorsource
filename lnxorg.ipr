@@ -510,6 +510,7 @@
         <inspection_tool class="InnerHTMLJS" level="WARNING" enabled="true" />
         <inspection_tool class="StringLiteralBreaksHTMLJS" level="WARNING" enabled="true" />
         <inspection_tool class="OctalIntegerJS" level="WARNING" enabled="true" />
+        <inspection_tool class="StaticMethodOnlyUsedInOneClass" level="WARNING" enabled="true" />
       </profile>
     </profiles>
     <list size="4">
