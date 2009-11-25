@@ -35,7 +35,7 @@ public class TrackerController {
   public ModelAndView tracker(
     @RequestParam(value="filter", required = false) String filter,
     @RequestParam(value="offset", required = false) Integer offset,
-    ServletRequest request) throws Exception {
+    HttpServletRequest request) throws Exception {
 
     if (offset==null) {
       offset = 0;
@@ -73,22 +73,28 @@ public class TrackerController {
     try {
       db = LorDataSource.getConnection();
 
-      User user = null;
+      User user = User.getCurrentUser(db, request.getSession());
+
       if (mine) {
         if (!tmpl.isSessionAuthorized()) {
           throw new UserErrorException("Not authorized");
         }
-
-        user = User.getUser(db, tmpl.getNick());
       }
 
       String sSql = "SELECT " +
         "t.userid as author, t.id, lastmod, t.stat1 AS stat1, t.stat3 AS stat3, t.stat4 AS stat4, g.id AS gid, g.title AS gtitle, t.title AS title, comments.id as cid, comments.userid AS last_comment_by " +
         "FROM topics AS t, groups AS g, comments " +
-        "WHERE not t.deleted AND t.id=comments.topic AND t.groupid=g.id AND comments.id=(SELECT id FROM comments WHERE NOT deleted AND comments.topic=t.id ORDER BY postdate DESC LIMIT 1) AND t.lastmod > CURRENT_TIMESTAMP - interval '" + dateLimit + "' "
+        "WHERE not t.deleted AND t.id=comments.topic AND t.groupid=g.id " +
+        "AND comments.id=(SELECT id FROM comments WHERE NOT deleted AND comments.topic=t.id ORDER BY postdate DESC LIMIT 1) " +
+        "AND t.lastmod > CURRENT_TIMESTAMP - interval '" + dateLimit + "' " +
+        (user!=null?"AND t.userid NOT IN (select ignored from ignore_list where userid="+user.getId()+") ":"")
         + (noTalks ? " AND not t.groupid=8404" : "")
         + (mine ? " AND t.userid=" + user.getId() : "") +
-        "UNION ALL SELECT t.userid as author, t.id, lastmod,  t.stat1 AS stat1, t.stat3 AS stat3, t.stat4 AS stat4, g.id AS gid, g.title AS gtitle, t.title AS title, 0, 0 FROM topics AS t, groups AS g WHERE not t.deleted AND t.postdate > CURRENT_TIMESTAMP - interval '" + dateLimit + "' AND t.stat1=0 AND g.id=t.groupid "
+        "UNION ALL SELECT t.userid as author, t.id, lastmod,  t.stat1 AS stat1, t.stat3 AS stat3, t.stat4 AS stat4, g.id AS gid, g.title AS gtitle, t.title AS title, 0, 0 " +
+        "FROM topics AS t, groups AS g " +
+        "WHERE not t.deleted AND t.postdate > CURRENT_TIMESTAMP - interval '" + dateLimit + "' " +
+        "AND t.stat1=0 AND g.id=t.groupid " +
+        (user!=null?"AND t.userid NOT IN (select ignored from ignore_list where userid="+user.getId()+") ":"")
         + (noTalks ? " AND not t.groupid=8404" : "")
         + (mine ? " AND t.userid=" + user.getId() : "") +
         "ORDER BY lastmod DESC LIMIT "+ topics +" OFFSET "+offset;
