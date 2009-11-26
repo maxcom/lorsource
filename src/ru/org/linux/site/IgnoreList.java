@@ -19,9 +19,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Hashtable;
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
 
 public class IgnoreList {
   private final int userId;
@@ -29,15 +28,17 @@ public class IgnoreList {
   private boolean activated = true;
   private Map<Integer, String> ignoreList;
 
-  public static Map<Integer, String> getIgnoreListHash(Connection db, String nick) throws SQLException {
+  public static Map<Integer, String> getIgnoreList(Connection db, String nick) throws SQLException {
     PreparedStatement pst = db.prepareStatement("SELECT a.ignored,b.nick FROM ignore_list a, users b WHERE a.userid=(SELECT id FROM users WHERE nick=?) AND b.id=a.ignored");
     pst.clearParameters();
     pst.setString(1, nick);
     ResultSet rs = pst.executeQuery();
     Map<Integer, String> cignored = new HashMap<Integer, String>();
+
     while(rs.next()) {
       cignored.put(rs.getInt("ignored"),rs.getString("nick"));
     }
+
     return cignored;
   }
 

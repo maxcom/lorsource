@@ -1,5 +1,6 @@
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="java.sql.Connection,java.util.Set,ru.org.linux.site.*,ru.org.linux.util.ServletParameterParser,ru.org.linux.util.StringUtil"   buffer="200kb"%>
+<%@ page import="java.sql.Connection,java.util.Map,java.util.Set,ru.org.linux.site.*,ru.org.linux.util.ServletParameterParser"   buffer="200kb"%>
+<%@ page import="ru.org.linux.util.StringUtil" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
@@ -35,11 +36,11 @@
       filterMode += CommentFilter.FILTER_ANONYMOUS;
     }
 
-    db = LorDataSource.getConnection();
-
     String nick = Template.getNick(session);
 
-    if (nick == null || IgnoreList.getIgnoreListHash(db, nick).isEmpty()) {
+    Map<Integer, String> ignoreList = (Map<Integer, String>) request.getAttribute("ignoreList");
+
+    if (ignoreList==null) {
       filterMode = filterMode & ~CommentFilter.FILTER_IGNORED;
     }
 
@@ -316,6 +317,8 @@
     pageInfo = bufInfo.toString();
   }
 
+  db = LorDataSource.getConnection();
+
   if (request.getParameter("highlight") != null) {
 %>
 <lor:message db="<%= db %>" message="<%= message %>" showMenu="true" user="<%= nick %>" highlight="<%= new ServletParameterParser(request).getInt(&quot;highlight&quot;)%>"/>
@@ -347,7 +350,7 @@
     }
 
     CommentList comments = (CommentList) request.getAttribute("comments");
-    Set<Integer> hideSet = CommentList.makeHideSet(db, comments, filterMode, nick);
+    Set<Integer> hideSet = CommentList.makeHideSet(db, comments, filterMode, ignoreList);
 
     CommentFilter cv = new CommentFilter(comments);
 %>

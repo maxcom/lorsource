@@ -115,6 +115,16 @@ public class MessageController {
 
       params.put("comments", comments);
 
+      String nick = Template.getNick(request.getSession());
+
+      if (nick!=null) {
+        Map<Integer, String> ignoreList = IgnoreList.getIgnoreList(db, nick);
+
+        if (!ignoreList.isEmpty()) {
+          params.put("ignoreList", ignoreList);
+        }
+      }
+
       return new ModelAndView(rss?"view-message-rss":"view-message", params);
     } finally {
       if (db!=null) {

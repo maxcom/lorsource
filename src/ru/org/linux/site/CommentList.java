@@ -134,7 +134,7 @@ public class CommentList implements Serializable {
     return res;
   }
 
-  public static Set<Integer> makeHideSet(Connection db, CommentList comments, int filterChain, String nick) throws SQLException, UserNotFoundException {
+  public static Set<Integer> makeHideSet(Connection db, CommentList comments, int filterChain, Map<Integer, String> ignoreList) throws SQLException, UserNotFoundException {
     if (filterChain == CommentFilter.FILTER_NONE) {
       return null;
     }
@@ -147,8 +147,7 @@ public class CommentList implements Serializable {
     }
 
     /* hide ignored */
-    if ((filterChain & CommentFilter.FILTER_IGNORED) > 0 && nick != null && !"".equals(nick)) {
-      Map<Integer, String> ignoreList = IgnoreList.getIgnoreListHash(db, nick);
+    if ((filterChain & CommentFilter.FILTER_IGNORED) > 0) {
       if (ignoreList != null && !ignoreList.isEmpty()) {
         comments.root.hideIgnored(hideSet, ignoreList);
       }

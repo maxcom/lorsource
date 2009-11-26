@@ -99,7 +99,7 @@ public class GroupController {
 
       String ignq = "";
 
-      Map<Integer,String> ignoreList = IgnoreList.getIgnoreListHash(db, (String) request.getSession().getValue("nick"));
+      Map<Integer,String> ignoreList = IgnoreList.getIgnoreList(db, (String) request.getSession().getValue("nick"));
 
       if (!showIgnored && Template.isSessionAuthorized(request.getSession())) {
         if (firstPage && ignoreList != null && !ignoreList.isEmpty()) {
