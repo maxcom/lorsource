@@ -18,6 +18,7 @@ package ru.org.linux.spring;
 import java.sql.Connection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -38,7 +39,8 @@ public class MessageController {
     HttpServletRequest request,
     HttpServletResponse response,
     @RequestParam("msgid") int msgid,
-    @RequestParam(value="page", required=false) Integer page
+    @RequestParam(value="page", required=false) Integer page,
+    @RequestParam(value="filter", required=false) String filter
   ) throws Exception {
     Template tmpl = Template.getTemplate(request);
 
@@ -117,13 +119,33 @@ public class MessageController {
 
       String nick = Template.getNick(request.getSession());
 
-      if (nick!=null) {
-        Map<Integer, String> ignoreList = IgnoreList.getIgnoreList(db, nick);
+      Map<Integer, String> ignoreList = null;
 
-        if (!ignoreList.isEmpty()) {
-          params.put("ignoreList", ignoreList);
-        }
+      if (nick!=null) {
+        ignoreList = IgnoreList.getIgnoreList(db, nick);
       }
+
+      int filterMode = CommentFilter.FILTER_IGNORED;
+
+      if (!tmpl.getProf().getBoolean("showanonymous")) {
+        filterMode += CommentFilter.FILTER_ANONYMOUS;
+      }
+
+      if (ignoreList==null || ignoreList.isEmpty()) {
+        filterMode = filterMode & ~CommentFilter.FILTER_IGNORED;
+      }
+
+      int defaultFilterMode = filterMode;
+
+      if (filter != null) {
+        filterMode = CommentFilter.parseFilterChain(filter);
+      }
+
+      params.put("filterMode", filterMode);
+      params.put("defaultFilterMode", defaultFilterMode);
+
+      Set<Integer> hideSet = CommentList.makeHideSet(db, comments, filterMode, ignoreList);
+      params.put("hideSet", hideSet);
 
       return new ModelAndView(rss?"view-message-rss":"view-message", params);
     } finally {

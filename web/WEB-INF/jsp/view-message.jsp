@@ -1,6 +1,5 @@
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="java.sql.Connection,java.util.Map,java.util.Set,ru.org.linux.site.*,ru.org.linux.util.ServletParameterParser"   buffer="200kb"%>
-<%@ page import="ru.org.linux.util.StringUtil" %>
+<%@ page import="java.sql.Connection,java.util.Set,ru.org.linux.site.*,ru.org.linux.util.ServletParameterParser,ru.org.linux.util.StringUtil"   buffer="200kb"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
@@ -30,25 +29,10 @@
 
     String mainurl = "view-message.jsp?msgid=" + msgid;
 
-    int filterMode = CommentFilter.FILTER_IGNORED;
-
-    if (!tmpl.getProf().getBoolean("showanonymous")) {
-      filterMode += CommentFilter.FILTER_ANONYMOUS;
-    }
-
     String nick = Template.getNick(session);
 
-    Map<Integer, String> ignoreList = (Map<Integer, String>) request.getAttribute("ignoreList");
-
-    if (ignoreList==null) {
-      filterMode = filterMode & ~CommentFilter.FILTER_IGNORED;
-    }
-
-    int defaultFilterMode = filterMode;
-
-    if (request.getParameter("filter") != null) {
-      filterMode = CommentFilter.parseFilterChain(request.getParameter("filter"));
-    }
+    int filterMode = (Integer) request.getAttribute("filterMode");
+    int defaultFilterMode = (Integer) request.getAttribute("defaultFilterMode");
 
     int npage = 0;
     if (request.getAttribute("page") != null) {
@@ -110,7 +94,7 @@
         <c:if test="${not template.usingDefaultProfile}">
            [<a href="ignore-list.jsp">Фильтр</a>]
         </c:if>
-        <select name="filter" onChange="submit()">
+        <select name="filter" onChange="submit();">
 <%
     out.print("<option value=\"" + CommentFilter.toString(CommentFilter.FILTER_NONE) + '\"' + (filterMode == CommentFilter.FILTER_NONE ? " selected=\"selected\"" : "") + ">все комментарии</option>");
     out.print("<option value=\"" + CommentFilter.toString(CommentFilter.FILTER_ANONYMOUS) + '\"' + (filterMode == CommentFilter.FILTER_ANONYMOUS ? " selected=\"selected\"" : "") + ">без анонимных</option>");
@@ -349,7 +333,7 @@
     }
 
     CommentList comments = (CommentList) request.getAttribute("comments");
-    Set<Integer> hideSet = CommentList.makeHideSet(db, comments, filterMode, ignoreList);
+    Set<Integer> hideSet = (Set<Integer>) request.getAttribute("hideSet");
 
     CommentFilter cv = new CommentFilter(comments);
 %>
