@@ -57,7 +57,7 @@
       <li>СУБД PostgreSQL 8.4</li>
       <li>Apache2 2.2</li>
       <li>OpenJDK 1.6.0</li>
-      <li>Apache Tomcat 5.5</li>
+      <li>Apache Tomcat 6</li>
       <li>memcached 1.2</li>
     </ul>        
 
