@@ -71,4 +71,8 @@ $(document).ready(function() {
   $("#commentForm").bind("submit", function() {
     window.onbeforeunload = null;
   });
+
+  $("#commentForm").bind("reset", function() {
+    element.slideUp('slow');
+  })
 });

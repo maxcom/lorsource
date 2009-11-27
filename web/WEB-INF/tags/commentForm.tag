@@ -25,6 +25,7 @@
 <%@ attribute name="msg" required="false" type="java.lang.String" %>
 <%@ attribute name="mode" required="false" type="java.lang.String" %>
 <%@ attribute name="postscore" required="true" type="java.lang.Integer" %>
+<%@ attribute name="cancel" required="false" type="java.lang.Boolean" %>
 
 <%
   Template tmpl = Template.getTemplate(request);
@@ -88,4 +89,7 @@
 
   <input type=submit value="Поместить">
   <input type=submit name=preview value="Предпросмотр">
+  <c:if test="${cancel!=null && cancel}">
+    <input type=reset name=cancel value="Отменить" id="cancelButton">
+  </c:if>
 </form>
