@@ -63,7 +63,7 @@ $(document).ready(function() {
   });
 
   window.onbeforeunload = function() {
-    if ($("#msg").val()!='') {
+    if ($("#msg").val()!='' && ! $("#commentForm").parent().is(":hidden")) {
       return "Вы что-то напечатали в форме. Все введенные данные будут потеряны при закрытии страницы.";
     }
   };
