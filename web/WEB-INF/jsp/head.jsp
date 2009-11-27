@@ -32,4 +32,3 @@
 <script src="/js/jquery.hotkeys-0.7.8-packed.js" type="text/javascript"></script>
 <script src="/js/jquery.validate.pack.js" type="text/javascript"></script>
 <script src="/js/jquery.validate.ru.js" type="text/javascript"></script>
-

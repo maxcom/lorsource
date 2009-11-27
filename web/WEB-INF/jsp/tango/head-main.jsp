@@ -16,6 +16,9 @@
   --%>
 
 <!-- head-main -->
+<link href="/js/syntax/styles/shCore.css" rel="stylesheet" type="text/css" />
+<link href="/js/syntax/styles/tango.css" rel="stylesheet" type="text/css" />
+
 <c:if test="${not template.mobile}">
 <LINK REL=STYLESHEET TYPE="text/css" HREF="/tango/reset-fonts-grids.css" TITLE="Normal">
 <LINK REL=STYLESHEET TYPE="text/css" HREF="/tango/style.css" TITLE="Normal">
@@ -32,9 +35,13 @@
       $('.msg').corner();
       $('.column .boxlet h2').corner();
     }
+
+    SyntaxHighlighter.all();
   });
 </script>
 
+<script type="text/javascript" src="/js/syntax/src/shCore.js"></script>
+<script type="text/javascript" src="/js/syntax/scripts/shBrushPlain.js"></script>
 
 </head>
 <body>

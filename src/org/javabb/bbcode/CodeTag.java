@@ -63,9 +63,9 @@ public class CodeTag {
       content = escapeHtmlBBcode(content);
 
       String replacement =
-          "<pre class=code><p>"
+          "<div class=code><pre class=\"brush: plain; wrap-lines: false\">"
               + content
-              + "</pre><p>";
+              + "</pre></div><p>";
       buffer.replace(start, end, replacement);
 
       end = start + replacement.length();
