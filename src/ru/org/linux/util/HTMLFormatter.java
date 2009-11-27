@@ -271,7 +271,11 @@ public class HTMLFormatter {
     }
 
     if (quot) {
-      buf.append("</i>");
+      if (outputLorcode) {
+        buf.append("[/i]");
+      } else {
+        buf.append("</i>");
+      }
     }
 
     return buf.toString();  
