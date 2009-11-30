@@ -61,9 +61,16 @@
     <option value="0" <%= (section == 0) ? "selected" : "" %>>все</option>
   </select>
 
-  Пользователь:
-  <INPUT TYPE="text" NAME="username" SIZE=20 VALUE="${fn:escapeXml(username)}">
+  <label for="search_username">Пользователь:</label>
+  <INPUT TYPE="text" NAME="username" id="search_username" SIZE=20 VALUE="${fn:escapeXml(username)}">
   <br>
+    <label for="id_user_topic">В темах пользователя</label>
+    <c:if test="${usertopic}">
+      <INPUT type="checkbox" id="id_user_topic" NAME="usertopic" checked><br>
+    </c:if>
+    <c:if test="${!usertopic}">
+      <INPUT type="checkbox" id="id_user_topic" NAME="usertopic"><br>
+    </c:if>
 
   Сортировать
   <select name="sort">

@@ -41,6 +41,7 @@ public class SearchViewer {
   private int sort = SORT_R;
 
   private String username = "";
+  private boolean userTopic = false;
 
   public SearchViewer(String query) {
     this.query = query;
@@ -57,8 +58,12 @@ public class SearchViewer {
       select.append(" FROM msgs, msgbase, plainto_tsquery(?) as q");
     }
 
+    if (section!=0 || userTopic) {
+      select.append(", topics");
+    }
+
     if (section!=0) {
-      select.append(", topics, groups");
+      select.append(", groups");
     }
 
     select.append(" WHERE msgs.id = msgbase.id AND idxFTI @@ q");
@@ -78,7 +83,12 @@ public class SearchViewer {
       try {
         User user = User.getUser(db, username);
 
-        select.append(" AND msgs.userid=").append(user.getId());
+        if (userTopic) {
+          select.append(" AND topics.userid=").append(user.getId());
+          select.append(" AND topics.id = topic");
+        } else {
+          select.append(" AND msgs.userid=").append(user.getId());
+        }
       } catch (UserNotFoundException ex) {
         throw new UserErrorException("User not found: "+username);
       }
@@ -192,5 +202,9 @@ public class SearchViewer {
 
   public void setUser(String username) {
     this.username = username;
+  }
+
+  public void setUserTopic(boolean userTopic) {
+    this.userTopic = userTopic;
   }
 }
