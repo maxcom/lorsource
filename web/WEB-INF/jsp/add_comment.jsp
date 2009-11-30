@@ -23,7 +23,17 @@
 <title>Добавить сообщение</title>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
-<h1>Добавить комментарий</h1>
+<table class=nav>
+<tr>
+<td align=left valign=middle id="navPath">
+Добавить комментарий
+</td>
+  <td align=right>
+    [<a href="/view-message.jsp?msgid=${topic}">Читать комментарии</a>]
+  </td>
+</tr>
+  </table>
+<h1 class="optional">Добавить комментарий</h1>
 
 <%--<% if (tmpl.getProf().getBoolean("showinfo") && !Template.isSessionAuthorized(session)) { %>--%>
 <%--<font size=2>Чтобы просто поместить сообщение, используйте login `anonymous',--%>
