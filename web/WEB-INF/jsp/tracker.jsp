@@ -65,7 +65,7 @@
         <c:if test="${filter==null}">
           <option value="all" selected="selected">все сообщения</option>
           <option value="notalks">без Talks</option>
-          <option value="tech">Тех. разделы форума</option>
+          <option value="tech">тех. разделы форума</option>
           <c:if test="${template.sessionAuthorized}">
             <option value="mine">мои темы</option>
           </c:if>
