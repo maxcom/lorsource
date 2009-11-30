@@ -126,4 +126,13 @@ public class BBCodeTest {
 
     assertEquals("<p>test<br>test", result);
   }
+
+  @Test
+  public void testCodeBR() throws SQLException {
+    BBCodeProcessor proc = new BBCodeProcessor();
+    proc.setIncludeCut(false);
+    String result = proc.preparePostText(null, "[code]test\n\ntest[/code]");
+
+    assertEquals("<p><div class=code><pre class=\"brush: plain; wrap-lines: false\">test \n \ntest</pre></div><p>", result);
+  }
 }

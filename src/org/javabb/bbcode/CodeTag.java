@@ -78,7 +78,7 @@ public class CodeTag {
    */
   public static String escapeHtmlBBcode(String content) {
     // escaping single characters
-    content = replaceAll(content, "[]<>(){}\t".toCharArray(), new String[]{
+    content = replaceAll(content, "[]<>(){}\t\n".toCharArray(), new String[]{
 //  :       "&#58;",
         "&#91;",
         "&#93;",
@@ -88,8 +88,9 @@ public class CodeTag {
         "&#41;",
         "&#123;",
         "&#125;",
-        "&nbsp; &nbsp;"});
-
+        "&nbsp; &nbsp;",
+        " \n"});
+    
     return content;
   }
 
