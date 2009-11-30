@@ -46,23 +46,34 @@
 
     <td align=right valign=middle>
       <select name="filter">
-        <c:if test="${notalks}">
+        <c:if test="${filter=='notalks'}">
           <option value="all">все сообщения</option>
           <option value="notalks" selected="selected">без Talks</option>
+          <option value="tech">тех. разделы форума</option>
           <c:if test="${template.sessionAuthorized}">
             <option value="mine">мои темы</option>
           </c:if>
         </c:if>
-        <c:if test="${not notalks and not mine}">
-          <option value="all" selected="selected">все сообщения</option>
-          <option value="notalks">без Talks</option>
-          <c:if test="${template.sessionAuthorized}">
-            <option value="mine">мои темы</option>
-          </c:if>
-        </c:if>
-        <c:if test="${mine}">
+        <c:if test="${filter=='tech'}">
           <option value="all">все сообщения</option>
           <option value="notalks">без Talks</option>
+          <option value="tech" selected="selected">тех. разделы форума</option>
+          <c:if test="${template.sessionAuthorized}">
+            <option value="mine">мои темы</option>
+          </c:if>
+        </c:if>
+        <c:if test="${filter==null}">
+          <option value="all" selected="selected">все сообщения</option>
+          <option value="notalks">без Talks</option>
+          <option value="tech">Тех. разделы форума</option>
+          <c:if test="${template.sessionAuthorized}">
+            <option value="mine">мои темы</option>
+          </c:if>
+        </c:if>
+        <c:if test="${filter=='mine'}">
+          <option value="all">все сообщения</option>
+          <option value="notalks">без Talks</option>
+          <option value="tech">тех. разделы форума</option>
           <option value="mine" selected="selected">мои темы</option>
         </c:if>
       </select>

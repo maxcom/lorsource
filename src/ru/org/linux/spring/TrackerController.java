@@ -16,10 +16,7 @@
 package ru.org.linux.spring;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import javax.servlet.http.HttpServletRequest;import javax.servlet.ServletRequest;
 import org.springframework.stereotype.Controller;
@@ -31,11 +28,18 @@ import ru.org.linux.site.*;
 
 @Controller
 public class TrackerController {
+  private final static String[] filterValues = { "all", "notalks", "tech", "mine" };
+  private final static Set<String> filterValuesSet = new HashSet<String>(Arrays.asList(filterValues));
+
   @RequestMapping("/tracker.jsp")
   public ModelAndView tracker(
     @RequestParam(value="filter", required = false) String filter,
     @RequestParam(value="offset", required = false) Integer offset,
     HttpServletRequest request) throws Exception {
+
+    if (filter!=null && !filterValuesSet.contains(filter)) {
+      throw new UserErrorException("Некорректное значение filter");
+    }
 
     if (offset==null) {
       offset = 0;
@@ -46,13 +50,15 @@ public class TrackerController {
     }
 
     boolean noTalks = filter!=null && filter.equals("notalks");
+    boolean tech = filter!=null && filter.equals("tech");
     boolean mine = filter!=null && filter.equals("mine");
 
     Map<String, Object> params = new HashMap<String, Object>();
 
-    params.put("notalks", noTalks);
     params.put("mine", mine);
     params.put("offset", offset);
+
+    params.put("filter", filter);
 
     String dateLimit = mine?"6 month":"24 hours";
 
@@ -89,6 +95,7 @@ public class TrackerController {
         "AND t.lastmod > CURRENT_TIMESTAMP - interval '" + dateLimit + "' " +
         (user!=null?"AND t.userid NOT IN (select ignored from ignore_list where userid="+user.getId()+") ":"")
         + (noTalks ? " AND not t.groupid=8404" : "")
+        + (tech ? " AND not t.groupid=8404 AND not t.groupid=4068 AND section=2" : "")
         + (mine ? " AND t.userid=" + user.getId() : "") +
         "UNION ALL SELECT t.userid as author, t.id, lastmod,  t.stat1 AS stat1, t.stat3 AS stat3, t.stat4 AS stat4, g.id AS gid, g.title AS gtitle, t.title AS title, 0, 0 " +
         "FROM topics AS t, groups AS g " +
@@ -96,6 +103,7 @@ public class TrackerController {
         "AND t.stat1=0 AND g.id=t.groupid " +
         (user!=null?"AND t.userid NOT IN (select ignored from ignore_list where userid="+user.getId()+") ":"")
         + (noTalks ? " AND not t.groupid=8404" : "")
+        + (tech ? " AND not t.groupid=8404 AND not t.groupid=4068 AND section=2" : "")
         + (mine ? " AND t.userid=" + user.getId() : "") +
         "ORDER BY lastmod DESC LIMIT "+ topics +" OFFSET "+offset;
 
