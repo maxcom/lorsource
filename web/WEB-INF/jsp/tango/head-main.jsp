@@ -36,7 +36,6 @@
       $('.column .boxlet h2').corner();
     }
 
-    SyntaxHighlighter.config.clipboardSwf = '/js/syntax/scripts/clipboard.swf';
     SyntaxHighlighter.all();
   });
 </script>
