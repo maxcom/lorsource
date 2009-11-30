@@ -62,7 +62,7 @@
             <option value="mine">мои темы</option>
           </c:if>
         </c:if>
-        <c:if test="${filter==null}">
+        <c:if test="${filter==null || filter == 'all'}">
           <option value="all" selected="selected">все сообщения</option>
           <option value="notalks">без Talks</option>
           <option value="tech">тех. разделы форума</option>
