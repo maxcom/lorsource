@@ -40,7 +40,7 @@
   });
 </script>
 
-<script type="text/javascript" src="/js/syntax/src/shCore.js"></script>
+<script type="text/javascript" src="/js/syntax/scripts/shCore.js"></script>
 <script type="text/javascript" src="/js/syntax/scripts/shBrushPlain.js"></script>
 
 </head>
