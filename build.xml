@@ -91,7 +91,7 @@
         </javac>
     </target>
 
-    <target name="dist" depends="build, unit-tests">
+    <target name="dist" depends="build, unit-tests, js.minify">
         <mkdir dir="${dist}"/>
         <mkdir dir="${dist}/WEB-INF"/>
         <mkdir dir="${dist}/WEB-INF/classes"/>
@@ -110,13 +110,48 @@
         <copy todir="${dist}/WEB-INF/lib">
             <fileset dir="${lib.dir}/build" includes="*.jar"/>
         </copy>
+    </target>
+
+    <target name="js.minify" depends="init">
+        <mkdir dir="${dist}"/>
+	<mkdir dir="${dist}/js"/>
+	<mkdir dir="${dist}/js/syntax/scripts/"/>
+	<mkdir dir="${dist}/js/syntax/styles/"/>
+	<mkdir dir="${dist}/black"/>
+	<mkdir dir="${dist}/tango"/>
+	<mkdir dir="${dist}/white"/>
+	<mkdir dir="${dist}/white2"/>
+
+	<apply executable="java" parallel="false" verbose="true"
+                              dest="${dist}">
+             <fileset dir="html" includes="js/*.js"/>
+             <arg line="-jar"/>
+             <arg path="ivy-lib/compile-only/yuicompressor-2.3.6.jar"/>
+             <arg line="--type js"/>
+             <srcfile/>
+             <arg line="-o"/>
+             <targetfile/>
+             <mapper type="identity"/>
+         </apply>
 
 	<concat destfile="${dist}/js/head.js">
-		<fileset file="html/js/jquery.form.2.34.min.js"/>
-		<fileset file="html/js/jquery.hotkeys-0.7.8-packed.js"/>
-		<fileset file="html/js/jquery.validate.pack.js"/>
-		<fileset file="html/js/jquery.validate.ru.js"/>
+		<fileset file="${dist}/js/jquery.form.2.34.min.js"/>
+		<fileset file="${dist}/js/jquery.hotkeys-0.7.8-packed.js"/>
+		<fileset file="${dist}/js/jquery.validate.pack.js"/>
+		<fileset file="${dist}/js/jquery.validate.ru.js"/>
 	</concat>
+
+	<apply executable="java" parallel="false" verbose="true"
+                              dest="${dist}">
+             <fileset dir="html" includes="**/*.css"/>
+             <arg line="-jar"/>
+             <arg path="ivy-lib/compile-only/yuicompressor-2.3.6.jar"/>
+             <arg line="--type css"/>
+             <srcfile/>
+             <arg line="-o"/>
+             <targetfile/>
+             <mapper type="identity"/>
+         </apply>
     </target>
 
     <target name="doc" depends="build">

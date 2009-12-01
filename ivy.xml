@@ -6,6 +6,7 @@
     <info organisation="linux.org.ru" module="lnxorg"/>
     <configurations>
         <conf name="provided"/>
+        <conf name="compile-only"/>
         <conf name="build" visibility="public"/>
         <conf name="test" extends="build"/>
     </configurations>
@@ -36,5 +37,6 @@
         <dependency org="com.Danga" name="java_memcached" rev="release_2.0.1" conf="build->default"/>
         <dependency org="rome" name="rome" rev="1.0" conf="build->default"/>
         <dependency org="net.tanesha.recaptcha4j" name="recaptcha4j" rev="0.0.7" conf="build->default"/>
+        <dependency org="com.yahoo.platform.yui" name="yuicompressor" rev="2.3.6" conf="compile-only->default" />
     </dependencies>
 </ivy-module>
