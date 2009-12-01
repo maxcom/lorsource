@@ -110,6 +110,13 @@
         <copy todir="${dist}/WEB-INF/lib">
             <fileset dir="${lib.dir}/build" includes="*.jar"/>
         </copy>
+
+	<concat destfile="${dist}/js/head.js">
+		<fileset file="html/js/jquery.form.2.34.min.js"/>
+		<fileset file="html/js/jquery.hotkeys-0.7.8-packed.js"/>
+		<fileset file="html/js/jquery.validate.pack.js"/>
+		<fileset file="html/js/jquery.validate.ru.js"/>
+	</concat>
     </target>
 
     <target name="doc" depends="build">
