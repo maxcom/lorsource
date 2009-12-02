@@ -41,7 +41,7 @@
 </script>
 
 <script type="text/javascript" src="/js/syntax/scripts/shCore.js"></script>
-<script type="text/javascript" src="/js/syntax/scripts/shBrushPlain.js"></script>
+<script type="text/javascript" src="/js/syntax/brush.js"></script>
 
 </head>
 <body>

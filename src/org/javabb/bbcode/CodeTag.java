@@ -31,11 +31,33 @@
 
 package org.javabb.bbcode;
 
-/**
- * @author
- * @since 18/01/2005
- */
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.Arrays;
+
 public class CodeTag {
+  private final Pattern codePattern = Pattern.compile("\\[code(=\\w+)?\\]");
+
+  private static final String[] brushes = new String[] {
+    "bash",
+    "shell",
+    "cpp",
+    "c",
+    "diff",
+    "patch",
+    "java",
+    "js",
+    "javascript",
+    "perl",
+    "php",
+    "plain",
+    "python"
+  };
+
+  private static final Set<String> brushesSet = new HashSet<String>(Arrays.asList(brushes));
+
   /**
    * @return tag name
    */
@@ -47,11 +69,11 @@ public class CodeTag {
    * @param buffer
    */
   public void processContent(StringBuffer buffer) {
-    int start = buffer.indexOf("[code]");
-    int end;
+    Matcher matcher = codePattern.matcher(buffer);
 
-    for (; (start < buffer.length()) && (start != -1); start = buffer.indexOf("[code]", end)) {
-      end = buffer.indexOf("[/code]", start);
+    while (matcher.find()) {
+      int start = matcher.start();
+      int end = buffer.indexOf("[/code]", start);
 
       if (end < 0) {
         break;
@@ -59,11 +81,21 @@ public class CodeTag {
 
       end += "[/code]".length();
 
-      String content = buffer.substring(start + "[code]".length(), end - "[/code]".length());
+      String content = buffer.substring(matcher.end(), end - "[/code]".length());
       content = escapeHtmlBBcode(content);
 
+      String brush = "plain";
+
+      if (matcher.group(1)!=null) {
+        String value = matcher.group(1).substring(1);
+
+        if (brushesSet.contains(value)) {
+          brush = value;
+        }
+      }
+
       String replacement =
-          "<div class=code><pre class=\"brush: plain; wrap-lines: false\">"
+          "<div class=code><pre class=\"brush: "+brush+"; wrap-lines: false\">"
               + content
               + "</pre></div><p>";
       buffer.replace(start, end, replacement);
