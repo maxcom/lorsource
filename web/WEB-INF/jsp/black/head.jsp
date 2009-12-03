@@ -17,7 +17,7 @@
   ~    limitations under the License.
   --%>
 
-<LINK REL=STYLESHEET TYPE="text/css" HREF="/black/style.css" TITLE="Normal">
+<LINK REL=STYLESHEET TYPE="text/css" HREF="/black/combined.css" TITLE="Normal">
 <LINK REL="shortcut icon" HREF="/favicon.ico" TYPE="image/x-icon">
 </head>
 <body>

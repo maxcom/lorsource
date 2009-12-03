@@ -16,16 +16,12 @@
   --%>
 
 <!-- head-main -->
-<link href="/tango/syntax.css" rel="stylesheet" type="text/css" />
-
 <c:if test="${not template.mobile}">
-<LINK REL=STYLESHEET TYPE="text/css" HREF="/tango/reset-fonts-grids.css" TITLE="Normal">
-<LINK REL=STYLESHEET TYPE="text/css" HREF="/tango/style.css" TITLE="Normal">
+<LINK REL=STYLESHEET TYPE="text/css" HREF="/tango/combined.css" TITLE="Normal">
 </c:if>
 <c:if test="${template.mobile}">
-<LINK REL=STYLESHEET TYPE="text/css" HREF="/tango/style-mobile.css" TITLE="Normal">
+<LINK REL=STYLESHEET TYPE="text/css" HREF="/tango/combined-mobile.css" TITLE="Normal">
 </c:if>
-<LINK REL=STYLESHEET TYPE="text/css" HREF="/tango/tango-dark.css" TITLE="Normal">
 <LINK REL="shortcut icon" HREF="/favicon.ico" TYPE="image/x-icon">
 <script src="/js/jquery.corner.js" type="text/javascript"></script>
 <script type="text/javascript">
@@ -35,11 +31,6 @@
       $('.column .boxlet h2').corner();
     }
   });
-</script>
-
-<script type="text/javascript" src="/js/highlight.pack.js"></script>
-<script type="text/javascript">
-  hljs.initHighlightingOnLoad();
 </script>
 
 </head>

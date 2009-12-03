@@ -139,6 +139,7 @@
 		<fileset file="${dist}/js/jquery.hotkeys-0.7.8-packed.js"/>
 		<fileset file="${dist}/js/jquery.validate.pack.js"/>
 		<fileset file="${dist}/js/jquery.validate.ru.js"/>
+		<fileset file="${dist}/js/highlight.pack.js"/>
 	</concat>
 
 	<apply executable="java" parallel="false" verbose="true"
@@ -152,6 +153,31 @@
              <targetfile/>
              <mapper type="identity"/>
          </apply>
+
+	<concat destfile="${dist}/tango/combined.css">
+		<fileset file="${dist}/tango/syntax.css"/>
+		<fileset file="${dist}/tango/reset-fonts-grids.css"/>
+		<fileset file="${dist}/tango/style.css"/>
+		<fileset file="${dist}/tango/tango-dark.css"/>
+	</concat>
+
+	<concat destfile="${dist}/tango/combined-mobile.css">
+		<fileset file="${dist}/tango/syntax.css"/>
+		<fileset file="${dist}/tango/style-mobile.css"/>
+		<fileset file="${dist}/tango/tango-dark.css"/>
+	</concat>
+	<concat destfile="${dist}/black/combined.css">
+		<fileset file="${dist}/black/style.css"/>
+		<fileset file="${dist}/black/ir_black.css"/>
+	</concat>
+	<concat destfile="${dist}/white/combined.css">
+		<fileset file="${dist}/white/style.css"/>
+		<fileset file="${dist}/white/idea.css"/>
+	</concat>
+	<concat destfile="${dist}/white2/combined.css">
+		<fileset file="${dist}/white2/style.css"/>
+		<fileset file="${dist}/white2/idea.css"/>
+	</concat>
     </target>
 
     <target name="doc" depends="build">
