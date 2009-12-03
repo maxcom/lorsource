@@ -232,3 +232,15 @@ ul,li,ol {
 table {
     border-collapse: collapse;
 }
+
+code {
+    margin-bottom: 0.5em;
+    margin-top: 0.5em;
+}
+
+pre {
+    margin-bottom: 0.5em;
+    margin-top: 0.5em;
+}
+
+

@@ -70,7 +70,7 @@ public class BBCodeTest {
 
     String result = proc.preparePostText(null, "[code]\"code&code\"[/code]");
 
-    assertEquals("<p><div class=code><pre class=\"brush: plain; wrap-lines: false\">&quot;code&amp;code&quot;</pre></div><p>", result);
+    assertEquals("<p><div class=code><pre class=\"no-highlight\"><code>&quot;code&amp;code&quot;</code></pre></div><p>", result);
   }
 
   @Test
@@ -133,7 +133,7 @@ public class BBCodeTest {
     proc.setIncludeCut(false);
     String result = proc.preparePostText(null, "[code]test\n\ntest[/code]");
 
-    assertEquals("<p><div class=code><pre class=\"brush: plain; wrap-lines: false\">test \n \ntest</pre></div><p>", result);
+    assertEquals("<p><div class=code><pre class=\"no-highlight\"><code>test \n \ntest</code></pre></div><p>", result);
   }
 
   @Test
@@ -142,7 +142,7 @@ public class BBCodeTest {
     proc.setIncludeCut(false);
     String result = proc.preparePostText(null, "[code=java]test[/code]");
 
-    assertEquals("<p><div class=code><pre class=\"brush: java; wrap-lines: false\">test</pre></div><p>", result);
+    assertEquals("<p><div class=code><pre class=\"language-java\"><code>test</code></pre></div><p>", result);
   }
 
   @Test
@@ -151,6 +151,6 @@ public class BBCodeTest {
     proc.setIncludeCut(false);
     String result = proc.preparePostText(null, "[code=xxx]test[/code]");
 
-    assertEquals("<p><div class=code><pre class=\"brush: plain; wrap-lines: false\">test</pre></div><p>", result);
+    assertEquals("<p><div class=code><pre class=\"no-highlight\"><code>test</code></pre></div><p>", result);
   }
 }

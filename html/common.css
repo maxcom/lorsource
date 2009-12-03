@@ -177,7 +177,6 @@ div.quote h3 {
 pre {
     overflow: auto;
     white-space: pre-wrap; /* for Opera, Firefox, Safari, Chrome*/
-    white-space: -o-pre-wrap; /* for Opera (8?) */
     word-wrap: break-word; /* IE 5.5+ */
 }
 

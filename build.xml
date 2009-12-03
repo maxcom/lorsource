@@ -112,11 +112,9 @@
         </copy>
     </target>
 
-    <target name="js.minify" depends="init">
+    <target name="js.minify" depends="init, -resolve">
         <mkdir dir="${dist}"/>
 	<mkdir dir="${dist}/js"/>
-	<mkdir dir="${dist}/js/syntax/scripts/"/>
-	<mkdir dir="${dist}/js/syntax/styles/"/>
 	<mkdir dir="${dist}/black"/>
 	<mkdir dir="${dist}/tango"/>
 	<mkdir dir="${dist}/white"/>
@@ -126,7 +124,6 @@
                               dest="${dist}">
              <fileset dir="html">
              	<include name="js/*.js"/>
-             	<include name="js/syntax/scripts/shBrush*.js"/>
              </fileset>
              <arg line="-jar"/>
              <arg path="ivy-lib/compile-only/yuicompressor-2.3.6.jar"/>
@@ -142,18 +139,6 @@
 		<fileset file="${dist}/js/jquery.hotkeys-0.7.8-packed.js"/>
 		<fileset file="${dist}/js/jquery.validate.pack.js"/>
 		<fileset file="${dist}/js/jquery.validate.ru.js"/>
-	</concat>
-
-	<concat destfile="${dist}/js/syntax/brush.js">
-		<fileset file="${dist}/js/syntax/scripts/shBrushBash.js"/>
-		<fileset file="${dist}/js/syntax/scripts/shBrushCpp.js"/>
-		<fileset file="${dist}/js/syntax/scripts/shBrushDiff.js"/>
-		<fileset file="${dist}/js/syntax/scripts/shBrushJava.js"/>
-		<fileset file="${dist}/js/syntax/scripts/shBrushJScript.js"/>
-		<fileset file="${dist}/js/syntax/scripts/shBrushPerl.js"/>
-		<fileset file="${dist}/js/syntax/scripts/shBrushPhp.js"/>
-		<fileset file="${dist}/js/syntax/scripts/shBrushPlain.js"/>
-		<fileset file="${dist}/js/syntax/scripts/shBrushPython.js"/>
 	</concat>
 
 	<apply executable="java" parallel="false" verbose="true"

@@ -33,30 +33,37 @@ package org.javabb.bbcode;
 
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
-import java.util.Set;
-import java.util.HashSet;
-import java.util.Arrays;
+import java.util.*;
 
 public class CodeTag {
   private final Pattern codePattern = Pattern.compile("\\[code(=\\w+)?\\]");
 
-  private static final String[] brushes = new String[] {
-    "bash",
-    "shell",
-    "cpp",
-    "c",
-    "diff",
-    "patch",
-    "java",
-    "js",
-    "javascript",
-    "perl",
-    "php",
-    "plain",
-    "python"
-  };
+  private static final Map<String, String> brushes = new HashMap<String, String>();
 
-  private static final Set<String> brushesSet = new HashSet<String>(Arrays.asList(brushes));
+  static {
+    brushes.put("bash", "language-bash");
+    brushes.put("shell", "language-bash");
+    brushes.put("cpp", "language-cpp");
+    brushes.put("c", "language-cpp");
+    brushes.put("diff", "language-diff");
+    brushes.put("patch", "language-diff");
+    brushes.put("java", "language-java");
+    brushes.put("js", "language-javascript");
+    brushes.put("javascript", "language-javascript");
+    brushes.put("perl", "language-perl");
+    brushes.put("php", "language-php");
+    brushes.put("plain", "no-highlight");
+    brushes.put("python", "language-python");
+
+    brushes.put("css", "language-css");
+    brushes.put("delphi", "language-delphi");
+    brushes.put("pascal", "language-delphi");
+    brushes.put("html", "language-html");
+    brushes.put("xml", "language-xml");
+    brushes.put("lisp", "language-lisp");
+    brushes.put("scheme", "language-lisp");
+    brushes.put("ruby", "language-ruby");
+  }
 
   /**
    * @return tag name
@@ -84,20 +91,20 @@ public class CodeTag {
       String content = buffer.substring(matcher.end(), end - "[/code]".length());
       content = escapeHtmlBBcode(content);
 
-      String brush = "plain";
+      String brush = "no-highlight";
 
       if (matcher.group(1)!=null) {
         String value = matcher.group(1).substring(1);
 
-        if (brushesSet.contains(value)) {
-          brush = value;
+        if (brushes.containsKey(value)) {
+          brush = brushes.get(value);
         }
       }
 
       String replacement =
-          "<div class=code><pre class=\"brush: "+brush+"; wrap-lines: false\">"
+          "<div class=code><pre class=\""+brush+"\"><code>"
               + content
-              + "</pre></div><p>";
+              + "</code></pre></div><p>";
       buffer.replace(start, end, replacement);
 
       end = start + replacement.length();
