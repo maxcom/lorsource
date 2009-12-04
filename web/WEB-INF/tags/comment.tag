@@ -55,8 +55,9 @@
         out.append("<strong>Сообщение удалено ").append(comment.getDeleteInfo().getNick()).append(" по причине '").append(HTMLFormatter.htmlSpecialChars(comment.getDeleteInfo().getReason())).append("'</strong>");
       }
     }
-
-    if (comment.getReplyTo() != 0) {
+%>
+<c:if test="${comment.replyTo!=0}">
+    <%
       CommentNode replyNode = comments.getNode(comment.getReplyTo());
       if (replyNode != null) {
         Comment reply = replyNode.getComment();
@@ -65,7 +66,7 @@
 
         String urladd = "";
         if (!expired) {
-          urladd = "&amp;lastmod="+comments.getLastModified();
+          urladd = "&amp;lastmod=" + comments.getLastModified();
         }
 
         int replyPage = comments.getCommentPage(reply, tmpl);
@@ -79,12 +80,18 @@
 
         User replyAuthor = User.getUserCached(db, reply.getUserid());
 
-        out.append(StringUtil.makeTitle(reply.getTitle())).append("</a> от ").append(replyAuthor.getNick()).append(' ').append(dateFormat.format(reply.getPostdate()));
+        String title = reply.getTitle();
+
+        if (title.trim().length() == 0) {
+          title = "комментарий";
+        }
+
+        out.append(title).append("</a> от ").append(replyAuthor.getNick()).append(' ').append(dateFormat.format(reply.getPostdate()));
       } else {
 //        logger.warning("Weak reply #" + comment.getReplyTo() + " on comment=" + comment.getMessageId() + " msgid=" + comment.getTopic());
       }
-    }
-%>  &nbsp;</div>
+    %>
+</c:if>    &nbsp;</div>
   </c:if>
   <c:set var="showPhotos" value="<%= tmpl.getProf().getBoolean(&quot;photos&quot;)%>"/>
 
