@@ -89,10 +89,6 @@ table.nav {
   border-collapse: collapse;
 }
 
-.nav A {
-  text-decoration: none
-}
-
 .msg .reply {
   font-size: smaller;
 }

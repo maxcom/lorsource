@@ -111,3 +111,7 @@ DIV.notes
     margin-bottom: 0.5em;
     border: solid black;
    }
+
+.nav A {
+  text-decoration: none
+}

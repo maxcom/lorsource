@@ -156,3 +156,7 @@ DIV.notes
 .messages .highLighted {
     border: red solid 1px;
 }
+
+.nav A {
+  text-decoration: none
+}
