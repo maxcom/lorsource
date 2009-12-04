@@ -266,3 +266,8 @@ code {
 pre {
    padding: 1em;
 }
+
+#bd p {
+    margin-top: 5px;
+}
+
