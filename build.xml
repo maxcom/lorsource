@@ -176,7 +176,7 @@
 	</concat>
 	<concat destfile="${dist}/white2/combined.css">
 		<fileset file="${dist}/white2/style.css"/>
-		<fileset file="${dist}/white2/idea.css"/>
+		<fileset file="${dist}/white/idea.css"/>
 	</concat>
     </target>
 

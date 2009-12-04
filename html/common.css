@@ -264,3 +264,6 @@ p {
     margin-top: 0;
 }
 
+pre code span {
+    background: inherit !important;
+}
