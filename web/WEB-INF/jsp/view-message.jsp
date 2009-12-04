@@ -281,9 +281,7 @@
     }
 
     if (npage!=-1 && npage+1!=pages) {
-      bufInfo.append("<a href=\"").append(linkurl).append("&amp;page=").append(npage+1).append("\">");
-      bufInfo.append(" →");
-      bufInfo.append("</a>");        
+      bufInfo.append(" <a href=\"").append(linkurl).append("&amp;page=").append(npage+1).append("\">→</a>");
     } else {
       bufInfo.append(" →");
     }
