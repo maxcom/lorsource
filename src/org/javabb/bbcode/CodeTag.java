@@ -31,9 +31,10 @@
 
 package org.javabb.bbcode;
 
-import java.util.regex.Pattern;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
-import java.util.*;
+import java.util.regex.Pattern;
 
 public class CodeTag {
   private final Pattern codePattern = Pattern.compile("\\[code(=\\w+)?\\]");
@@ -76,11 +77,17 @@ public class CodeTag {
    * @param buffer
    */
   public void processContent(StringBuffer buffer) {
-    Matcher matcher = codePattern.matcher(buffer);
+    int end = 0;
 
-    while (matcher.find()) {
+    while (true) {
+      Matcher matcher = codePattern.matcher(buffer);
+
+      if (!matcher.find(end)) {
+        break;
+      }
+
       int start = matcher.start();
-      int end = buffer.indexOf("[/code]", start);
+      end = buffer.indexOf("[/code]", start);
 
       if (end < 0) {
         break;
