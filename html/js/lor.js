@@ -87,7 +87,9 @@ $(document).ready(function() {
   if (navigator.userAgent.indexOf('Opera Mini') == -1) {
     $('#loginbutton').bind('click', function(e) {
       $("#regmenu").fadeOut("fast", function() {
-        $("#regform").fadeIn("fast");
+        $("#regform").fadeIn("fast", function() {
+          $("#regform input[name='nick']").focus();
+        });
       });
       return false;
     });
