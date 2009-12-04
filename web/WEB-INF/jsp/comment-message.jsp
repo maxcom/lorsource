@@ -46,7 +46,7 @@
 <font size=2><strong>Внимание!</strong> Перед написанием комментария ознакомьтесь с
 <a href="rules.jsp">правилами</a> сайта.</font><p>
 
-<lor:commentForm topicId="${message.id}" title="${message.title}" postscore="${postscore}"/>
+<lor:commentForm topicId="${message.id}" title="" postscore="${postscore}"/>
 
 
 <%

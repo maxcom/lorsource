@@ -193,10 +193,6 @@ public class AddCommentController extends ApplicationObjectSupport {
 
       formParams.put("comment", comment);
 
-      if ("".equals(title)) {
-        throw new BadInputException("заголовок сообщения не может быть пустым");
-      }
-
       if (title.length() > Comment.TITLE_LENGTH) {
         throw new BadInputException("заголовок превышает " + Comment.TITLE_LENGTH + " символов");
       }

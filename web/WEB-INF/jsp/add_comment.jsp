@@ -62,9 +62,11 @@
       if (onComment != null) {
         replyto = onComment.getId();
 
-        title = onComment.getTitle();
-        if (!title.startsWith("Re:")) {
-          title = "Re: " + title;
+        if (onComment.getTitle().length()>0) {
+          title = onComment.getTitle();
+          if (!title.startsWith("Re:")) {
+            title = "Re: " + title;
+          }
         }
 %>
 <div class=messages>

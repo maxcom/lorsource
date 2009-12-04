@@ -397,7 +397,7 @@
 
 <c:if test="${not message.expired and template.sessionAuthorized}">
   <div style="display: none">
-    <lor:commentForm topicId="${message.id}" title="${message.title}"
+    <lor:commentForm topicId="${message.id}" title=""
                      postscore="${message.postScore}" replyto="0" cancel="true"/>
   </div>
 </c:if>

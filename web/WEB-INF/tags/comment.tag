@@ -25,6 +25,7 @@
 <%@ attribute name="showMenu" required="true" type="java.lang.Boolean"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 
 <%
   Template tmpl = Template.getTemplate(request);
@@ -93,7 +94,9 @@
   </c:if>
 
   <div class="msg_body ${msgBodyStyle}">
-    <h2>${comment.title}</h2>
+    <c:if test="${fn:length(comment.title)>0}">
+      <h2>${comment.title}</h2>
+    </c:if>
   <%
   out.append(comment.getProcessedMessage(db));
   %>

@@ -41,7 +41,7 @@ public class Comment implements Serializable {
 
   public Comment(Connection db, ResultSet rs) throws SQLException {
     msgid=rs.getInt("msgid");
-    title=StringUtil.makeTitle(rs.getString("title"));
+    title=rs.getString("title");
     topic=rs.getInt("topic");
     replyto=rs.getInt("replyto");
     deleted=rs.getBoolean("deleted");
@@ -76,7 +76,7 @@ public class Comment implements Serializable {
     }
 
     this.msgid=rs.getInt("msgid");
-    title=StringUtil.makeTitle(rs.getString("title"));
+    title=rs.getString("title");
     topic=rs.getInt("topic");
     replyto=rs.getInt("replyto");
     deleted=rs.getBoolean("deleted");

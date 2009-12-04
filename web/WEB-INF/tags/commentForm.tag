@@ -55,7 +55,7 @@
   </c:if>
 
   <label for="title">Заглавие:</label>
-  <input type=text class="required" id="title" name=title size=40 value="<%= title %>"><br>
+  <input type=text id="title" name=title size=40 value="<%= title %>"><br>
 
   <label for="msg">Сообщение:</label><br>
   <font size=2>(В режиме <i>Tex paragraphs</i> игнорируются переносы строк.<br> Пустая строка (два
