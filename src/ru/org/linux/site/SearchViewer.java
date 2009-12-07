@@ -23,6 +23,7 @@ import java.util.Date;
 import org.javabb.bbcode.BBCodeProcessor;
 
 import ru.org.linux.util.HTMLFormatter;
+import ru.org.linux.util.StringUtil;
 
 public class SearchViewer {
   public static final int SEARCH_TOPICS = 1;
@@ -147,7 +148,9 @@ public class SearchViewer {
       out.append("<tr class=body><td>");
       out.append("<div class=msg>");
 
-      out.append("<h2><a href=\"").append(url).append("\">").append(HTMLFormatter.htmlSpecialChars(title)).append("</a></h2>");
+      out.append("<h2><a href=\"").append(url).append("\">");
+      out.append(HTMLFormatter.htmlSpecialChars(StringUtil.makeTitle(title)));
+      out.append("</a></h2>");
 
       out.append("<p>");
 
