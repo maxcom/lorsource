@@ -20,6 +20,7 @@
 <%@ page import="ru.org.linux.util.ServletParameterParser" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <% Template tmpl = Template.getTemplate(request); %>
 
 <%
@@ -60,7 +61,14 @@
   </description>
   <c:forEach items="${list}" var="comment" begin="<%= fromIndex %>">
     <item>
-      <title><c:out escapeXml="true" value="${comment.title}"/></title>
+      <title>
+        <c:if test="${fn:length(comment.title)>0}">
+          <c:out escapeXml="true" value="${comment.title}"/>
+        </c:if>
+        <c:if test="${fn:length(comment.title)==0}">
+          <c:out escapeXml="true" value="${message.title}"/>
+        </c:if>
+      </title>
       <author><lor:user db="<%= db %>" id="${comment.userid}"/></author>
       <link>http://www.linux.org.ru/jump-message.jsp?msgid=${message.id}&amp;cid=${comment.id}</link>
       <guid>http://www.linux.org.ru/jump-message.jsp?msgid=${message.id}&amp;cid=${comment.id}</guid>
