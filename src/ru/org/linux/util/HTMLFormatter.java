@@ -454,11 +454,9 @@ public class HTMLFormatter {
 
   public static String escapeHtmlBBcode(String content) {
     // escaping single characters
-    content = CodeTag.replaceAll(content, "[](){}\t".toCharArray(), new String[]{
+    content = CodeTag.replaceAll(content, "[]{}\t".toCharArray(), new String[]{
         "&#91;",
         "&#93;",
-        "&#40;",
-        "&#41;",
         "&#123;",
         "&#125;",
         "&nbsp; &nbsp;"});

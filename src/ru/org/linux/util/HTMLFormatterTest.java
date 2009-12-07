@@ -116,6 +116,19 @@ public class HTMLFormatterTest {
   }
 
   @Test
+  public void testURLHighlight6() throws UtilException {
+    HTMLFormatter formatter = new HTMLFormatter(
+      "(http://ozpp.ru/laws2/pravila-prod/tovar5.html)");
+
+    formatter.enableUrlHighLightMode();
+    formatter.enableTexNewLineMode();
+    formatter.enableQuoting();
+    formatter.setOutputLorcode(true);
+
+    assertEquals("([url=http://ozpp.ru/laws2/pravila-prod/tovar5.html]http://ozpp.ru/laws2/pravila-prod/tovar5.html[/url])", formatter.process());
+  }
+
+  @Test
   public void testWrap1() throws UtilException {
     HTMLFormatter formatter = new HTMLFormatter(TEXT4);
 
