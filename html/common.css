@@ -263,3 +263,13 @@ p {
 pre code span {
     background: inherit !important;
 }
+
+.nav li {
+    display: inline;
+    margin-left: 0 !important;
+}
+
+.nav ul {
+    margin-top: inherit !important;
+    margin-bottom: inherit !important;
+}

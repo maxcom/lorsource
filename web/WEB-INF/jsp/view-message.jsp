@@ -83,7 +83,8 @@
   </td>
 
     <td align=right>
-      [<a href="view-message.jsp?msgid=<%= msgid %>&amp;output=rss">RSS</a>]
+      <ul>
+      <li>[<a href="view-message.jsp?msgid=<%= msgid %>&amp;output=rss">RSS</a>]</li>
 
       <c:if test="${!showDeleted}">
 <%
@@ -92,9 +93,9 @@
     }
 %>
         <c:if test="${not template.usingDefaultProfile}">
-           [<a href="ignore-list.jsp">Фильтр</a>]
+           <li>[<a href="ignore-list.jsp">Фильтр</a>]</li>
         </c:if>
-        <select name="filter" onChange="submit();">
+        <li><select name="filter" onChange="submit();">
 <%
     out.print("<option value=\"" + CommentFilter.toString(CommentFilter.FILTER_NONE) + '\"' + (filterMode == CommentFilter.FILTER_NONE ? " selected=\"selected\"" : "") + ">все комментарии</option>");
     out.print("<option value=\"" + CommentFilter.toString(CommentFilter.FILTER_ANONYMOUS) + '\"' + (filterMode == CommentFilter.FILTER_ANONYMOUS ? " selected=\"selected\"" : "") + ">без анонимных</option>");
@@ -104,8 +105,9 @@
       out.print("<option value=\"" + CommentFilter.toString(CommentFilter.FILTER_LISTANON) + '\"' + (filterMode == CommentFilter.FILTER_LISTANON ? " selected=\"selected\"" : "") + ">без анонимных и игнорируемых</option>");
     }
 %>
-          </select>
+          </select></li>
       </c:if>
+        </ul>
     </td>
   </table>
 </form>
