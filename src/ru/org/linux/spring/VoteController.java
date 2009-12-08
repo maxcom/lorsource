@@ -16,8 +16,12 @@
 package ru.org.linux.spring;
 
 import java.sql.Connection;
-import java.sql.Statement;
 import java.sql.ResultSet;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Controller;
@@ -28,6 +32,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 
 import ru.org.linux.site.*;
+import ru.org.linux.spring.dao.VoteDTO;
 
 @Controller
 public class VoteController {
@@ -76,6 +81,54 @@ public class VoteController {
       return new ModelAndView(new RedirectView("view-message.jsp?msgid=" + poll.getTopicId() + "&highlight=" + vote));
     } finally {
       if (db != null) {
+        db.close();
+      }
+    }
+  }
+
+  @RequestMapping(value="/vote-vote.jsp", method=RequestMethod.GET)
+  public ModelAndView showForm(
+    @RequestParam("msgid") int msgid,
+    HttpServletRequest request
+  ) throws Exception {
+    if (!Template.isSessionAuthorized(request.getSession())) {
+      throw new AccessViolationException("Not authorized");
+    }
+
+    Map<String, Object> params = new HashMap<String, Object>();
+
+    params.put("msgid", msgid);
+
+    Connection db = null;
+    try {
+      db = LorDataSource.getConnection();
+
+      Poll poll = Poll.getPollByTopic(db, msgid);
+
+      if (!poll.isCurrent()) {
+        throw new BadVoteException("голосовать можно только в текущий опрос");
+      }
+
+      params.put("poll", poll);
+
+      Statement st = db.createStatement();
+      ResultSet rs = st.executeQuery("SELECT id, label FROM votes WHERE vote=" + poll.getId() + " ORDER BY id");
+
+      List<VoteDTO> votes = new ArrayList<VoteDTO>();
+
+      while (rs.next()) {
+        VoteDTO dto = new VoteDTO();
+        dto.setId(rs.getInt("id"));
+        dto.setLabel(rs.getString("label"));
+        dto.setPollId(poll.getId());
+        votes.add(dto);
+      }
+
+      params.put("votes", votes);
+
+      return new ModelAndView("vote-vote", params);
+    } finally {
+      if (db!=null) {
         db.close();
       }
     }
