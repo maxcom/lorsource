@@ -35,6 +35,8 @@ public class Poll {
   private final String title;
   private final int topic;
 
+  private final boolean current;
+
   public static Poll getPollByTopic(Connection db, int msgid) throws SQLException, PollNotFoundException {
     PreparedStatement pst = db.prepareStatement("SELECT votenames.id FROM votenames,topics WHERE topics.id=? AND votenames.topic=topics.id");
     pst.clearParameters();
@@ -71,16 +73,6 @@ public class Poll {
     }
   }
 
-  public static Poll createPoll(Integer id, String title, Integer topic){
-    return new Poll(id, title, topic);
-  }
-
-  private Poll(Integer id, String title, Integer topic){
-    this.id = id;
-    this.title = title;
-    this.topic = topic;
-  }
-
   public Poll(Connection db, int id) throws SQLException, PollNotFoundException {
     this.id = id;
 
@@ -94,6 +86,8 @@ public class Poll {
 
     title = rs.getString("title");
     topic = rs.getInt("topic");
+
+    current = getCurrentPollId(db)==id;
   }
 
   public int getId() {
@@ -131,8 +125,6 @@ public class Poll {
 
         poll.addNewVariant(db, variant);
       }
-      //Add new message
-      
     } catch (PollNotFoundException ex) {
       throw new RuntimeException(ex);
     }
@@ -250,5 +242,9 @@ public class Poll {
     out.append("<tr><td colspan=2>Всего голосов: ").append(total).append("</td></tr>");
     out.append("</table>");
     return out.toString();
+  }
+
+  public boolean isCurrent() {
+    return current;
   }
 }

@@ -126,7 +126,10 @@
     try {
       Poll poll = Poll.getPollByTopic(db, msgid);
       out.append(poll.renderPoll(db, tmpl.getConfig(), tmpl.getProf()));
-      out.append("<p>&gt;&gt;&gt; <a href=\"").append("vote-vote.jsp?msgid=").append(Integer.toString(msgid)).append("\">Голосовать</a>");
+      if (poll.isCurrent()) {
+        out.append("<p>&gt;&gt;&gt; <a href=\"").append("vote-vote.jsp?msgid=").append(Integer.toString(msgid)).append("\">Голосовать</a>");
+      }
+      
       out.append("<p>&gt;&gt;&gt; <a href=\"").append(jumplink).append("\">Результаты</a>");
     } catch (BadImageException e) {
 //      NewsViewer.logger.warn("Bad Image for poll msgid="+msgid, e);
@@ -168,7 +171,7 @@
 
   out.append("</div>");
 
-  if (!(boolean) moderateMode) {
+  if (!moderateMode) {
     out.append("<div class=\"nav\">");
 
     if (!expired) {
@@ -225,7 +228,7 @@
     }
 
     out.append("</div>");
-  } else if ((boolean) moderateMode) {
+  } else if (moderateMode) {
     out.append("<div class=nav>");
 
     if (currentUser!=null && currentUser.canModerate()) {
