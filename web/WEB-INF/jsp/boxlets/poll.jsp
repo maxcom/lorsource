@@ -34,7 +34,7 @@
     <form action="/vote.jsp" method="POST">
       <input type="hidden" name="voteid" value="${poll.id}"/>
       <c:forEach var="item" items="${votes}">
-        <input type="radio" name="vote" id="poll-${item.id}" value="${item.id}"><label for="poll-${item.id}">${item.label}</label> <br/>
+        <input type="radio" name="vote" id="poll-${item.id}" value="${item.id}"><label for="poll-${item.id}"><c:out escapeXml="true" value="${item.label}"/></label> <br/>
       </c:forEach>
       <input type="submit" value="vote"/>
     </form>
