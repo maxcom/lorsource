@@ -390,8 +390,15 @@
 %>
 
 <c:if test="${not template.mobile}">
-<div align=center>
-  <iframe src="dw.jsp?width=728&amp;height=90&amp;main=0" width="728" height="90" scrolling="no" frameborder="0"></iframe>
+  <script type="text/javascript">
+    <!--
+    $(document).ready(function(){
+      var iframe = $('<iframe src="dw.jsp?width=728&amp;height=90&amp;main=0" width="728" height="90" scrolling="no" frameborder="0"></iframe>');
+      $('#dw').append(iframe);
+    });
+    -->
+  </script>
+<div align=center id="dw">
 </div>
 </c:if>
 
