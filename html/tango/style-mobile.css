@@ -73,7 +73,8 @@ p {
 #bd .news h2 {
 	font-size: large;
 	padding-top: 0.25em;
-	padding-bottom: 0.5em;
+	padding-bottom: 0;
+    margin-bottom: 0;
 }
 
 #bd h1.optional {
