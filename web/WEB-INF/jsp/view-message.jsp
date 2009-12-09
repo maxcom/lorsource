@@ -18,6 +18,14 @@
   ~    limitations under the License.
   --%>
 
+<%--@elvariable id="showAdsense" type="Boolean"--%>
+<%--@elvariable id="message" type="ru.org.linux.site.Message"--%>
+<%--@elvariable id="prevMessage" type="ru.org.linux.site.Message"--%>
+<%--@elvariable id="nextMessage" type="ru.org.linux.site.Message"--%>
+<%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
+<%--@elvariable id="showDeleted" type="Boolean"--%>
+<%--@elvariable id="comments" type="ru.org.linux.site.CommentList"--%>
+
 <% Template tmpl = Template.getTemplate(request); %>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
