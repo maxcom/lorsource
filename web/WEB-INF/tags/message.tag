@@ -34,7 +34,7 @@
   int msgid = message.getMessageId();
 %>
 
-  <!-- <%= msgid%>  -->
+  <!-- ${message.id}  -->
 <div class=msg id="topic-${message.id}">
 <c:if test="${showMenu}">
   <div class=title>
@@ -139,8 +139,10 @@
   if (message.getCommitby() != 0) {
     User commiter = User.getUserCached(db, message.getCommitby());
 
-    out.append("<br>");
-    out.append(commiter.getCommitInfoLine(message.getPostdate(), message.getCommitDate()));
+    if (commiter.getId()!=message.getUid()) {
+      out.append("<br>");
+      out.append(commiter.getCommitInfoLine(message.getPostdate(), message.getCommitDate()));
+    }
   }
 
   if (showMenu) {
