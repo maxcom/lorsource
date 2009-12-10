@@ -20,6 +20,7 @@ import java.io.Serializable;
 import java.sql.*;
 import java.util.Date;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.logging.Logger;
 
 import javax.servlet.ServletRequest;
@@ -717,5 +718,32 @@ public class Message implements Serializable {
 
   public boolean isLorcode() {
     return lorcode;
+  }
+
+  public List<EditInfoDTO> loadEditInfo(Connection db) throws SQLException {
+    PreparedStatement pst = db.prepareStatement("SELECT * FROM edit_info WHERE msgid=? ORDER BY id DESC");
+    pst.setInt(1, msgid);
+
+    ResultSet rs = pst.executeQuery();
+
+    List<EditInfoDTO> list = null;
+
+    while(rs.next()) {
+      if (list==null) {
+        list = new ArrayList<EditInfoDTO>();
+      }
+
+      EditInfoDTO dto = new EditInfoDTO();
+
+      dto.setId(rs.getInt("id"));
+      dto.setEditdate(rs.getTimestamp("editdate"));
+      dto.setEditor(rs.getInt("editor"));
+      dto.setOldmessage(rs.getString("oldmessage"));
+      dto.setMsgid(rs.getInt("msgid"));
+
+      list.add(dto);
+    }
+
+    return list;
   }
 }

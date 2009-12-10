@@ -1,6 +1,7 @@
 <%@ tag import="ru.org.linux.site.*" %>
 <%@ tag import="ru.org.linux.util.BadImageException" %>
 <%@ tag import="ru.org.linux.util.HTMLFormatter" %>
+<%@ tag import="java.util.List" %>
 <%@ tag pageEncoding="UTF-8"%>
 <%@ attribute name="db" required="true" type="java.sql.Connection" %>
 <%@ attribute name="message" required="true" type="ru.org.linux.site.Message" %>
@@ -145,21 +146,37 @@
     }
   }
 
-  if (showMenu) {
+%>
+  <c:if test="${template.sessionAuthorized}">
+  <%
+  List<EditInfoDTO> editInfo = message.loadEditInfo(db);
+  if (editInfo!=null) {
+    for (EditInfoDTO info : editInfo) {
+      User editor = User.getUserCached(db, info.getEditor());
+%>
+  <br>
+  <i>Исправлено: <%= editor.getNick() %> <lor:date date="<%= info.getEditdate() %>"/></i>
+  <%
+    }
+  }
+%>
+    </c:if>
+  <c:if test="${showMenu}">
+  <%
     if (tmpl.isModeratorSession() && message.getUserAgent()!=null) {
       out.append("<br>");
       out.append(HTMLFormatter.htmlSpecialChars(message.getUserAgent()));
     }
-  }
 %>
+    </c:if>
 </div>
+    <c:if test="${!message.deleted && showMenu}">
+      <div class=reply>
 <%
-  if (!message.isDeleted() && showMenu) {
-    out.append("<div class=reply>");
     if (!message.isExpired()) {
       out.append("[<a href=\"comment-message.jsp?msgid=");
       out.print(msgid);
-      out.append("\">Ответить на это сообщение</a>] ")/*.append(Message.getPostScoreInfo(message.getPostScore()))*/;
+      out.append("\">Ответить на это сообщение</a>] ");
     }
 
     if (tmpl.isModeratorSession() || author.getNick().equals(user)) {
@@ -167,10 +184,9 @@
       out.print(msgid);
       out.append("\">Удалить</a>]");
     }    
-
-    out.append("</div>");
-  }
 %>
+        </div>
+      </c:if>
 </div>
   <div style="clear: both"></div>
 </div>
