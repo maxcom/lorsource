@@ -12,6 +12,7 @@
 <%@ attribute name="currentUser" required="false" type="ru.org.linux.site.User" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 
 <%--
   ~ Copyright 1998-2009 Linux.org.ru
@@ -54,23 +55,12 @@
   }
   double messages = tmpl.getProf().getInt("messages");
 
-  out.print("<h2>");
-
   String mainlink = "view-message.jsp?msgid=" + msgid;
-  String jumplink;
-
-  if (!expired) {
-    jumplink = mainlink+ "&amp;lastmod=" + lastmod.getTime();
-  } else {
-    jumplink = mainlink;
-  }
-
-  out.append("<a href=\"").append(jumplink).append("\">");
-  out.append(subj);
-  out.append("</a>");
-
-  out.append("</h2>");
+  String jumplink = message.getLinkLastmod();
 %>
+<h2>
+<a href="${fn:escapeXml(message.linkLastmod)}">${message.title}</a>
+</h2>
 <c:if test="${multiPortal}">
   <div class="group">
     ${message.section.title} - ${message.groupTitle}
