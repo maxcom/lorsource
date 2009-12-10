@@ -22,6 +22,11 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
+<%--@elvariable id="message" type="ru.org.linux.site.Message"--%>
+<%--@elvariable id="newMsg" type="ru.org.linux.site.Message"--%>
+<%--@elvariable id="group" type="ru.org.linux.site.Group"--%>
+<%--@elvariable id="info" type="java.lang.String"--%>
+
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 <title>Редактирование сообщения</title>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
