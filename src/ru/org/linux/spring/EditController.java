@@ -29,6 +29,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.view.RedirectView;
 
 import ru.org.linux.site.*;
 
@@ -154,7 +155,7 @@ public class EditController extends ApplicationObjectSupport {
         }
 
         if (messageModified) {
-          newMsg.updateMessageText(db);
+          newMsg.updateMessageText(db, user);
         }
 
         List<String> oldTags = message.getTags().getTags();
@@ -172,7 +173,7 @@ public class EditController extends ApplicationObjectSupport {
           logger.info("сообщение " + message.getId() + " исправлено " + session.getValue("nick"));
 
           db.commit();
-          return new ModelAndView("edit-done", params);
+          return new ModelAndView(new RedirectView(message.getLinkLastmod()));
         } else {
           params.put("info", "nothing changed");
         }

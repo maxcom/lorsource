@@ -500,11 +500,26 @@ public class Message implements Serializable {
     return sticky;
   }
 
-  public void updateMessageText(Connection db) throws SQLException {
+  public void updateMessageText(Connection db, User editor) throws SQLException {
+    PreparedStatement pstGet = db.prepareStatement("SELECT message FROM msgbase WHERE id=? FOR UPDATE");
     PreparedStatement pst = db.prepareStatement("UPDATE msgbase SET message=? WHERE id=?");
+    PreparedStatement pstInfo = db.prepareStatement("INSERT INTO edit_info (msgid, editor, oldmessage) VALUES(?,?,?)");
+
+    pstGet.setInt(1, msgid);
+    ResultSet rs = pstGet.executeQuery();
+    if (!rs.next()) {
+      throw new RuntimeException("Can't fetch previous message text");
+    }
+
     pst.setString(1, message);
     pst.setInt(2, msgid);
     pst.executeUpdate();
+
+    pstInfo.setInt(1, msgid);
+    pstInfo.setInt(2, editor.getId());
+    pstInfo.setString(3, rs.getString("message"));
+
+    pstInfo.executeUpdate();
   }
 
   public String getUrl() {
