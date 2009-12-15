@@ -43,6 +43,8 @@ public class NewsViewer {
 
   private Set<Integer> sections = new HashSet<Integer>();
   private int group = 0;
+  private boolean notalks = false;
+  private boolean tech = false;
   private int userid = 0;
   private String datelimit = null;
   private String limit="";
@@ -137,6 +139,14 @@ public class NewsViewer {
 
     if (userid!=0) {
       where.append(" AND userid=").append(userid);
+    }
+
+    if (notalks){
+        where.append(" AND not topics.groupid=8404");
+    }
+
+    if (tech){
+        where.append(" AND not topics.groupid=8404 AND not topics.groupid=4068 AND groups.section=2");
     }
 
     if (tag!=null && !"".equals(tag)) {
@@ -240,6 +250,12 @@ public class NewsViewer {
       id.append("&lmt=").append(URLEncoder.encode(limit));
     }
 
+    if (notalks){
+        id.append("&notalks=1");
+    }
+    if (tech){
+        id.append("&tech=1");
+    }
     return id.toString();
   }
 
@@ -262,5 +278,13 @@ public class NewsViewer {
 
   public void setUserid(int userid) {
     this.userid = userid;
+  }
+
+  public void setNotalks(boolean notalks) {
+    this.notalks = notalks;
+  }
+
+  public void setTech(boolean tech) {
+    this.tech = tech;
   }
 }

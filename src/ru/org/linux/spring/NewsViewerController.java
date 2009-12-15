@@ -34,6 +34,7 @@ import ru.org.linux.util.ServletParameterMissingException;
 
 @Controller
 public class NewsViewerController {
+
   @RequestMapping(value = "/view-news.jsp", method = RequestMethod.GET)
   public ModelAndView showNews(
     @RequestParam(value="month", required=false) Integer month,

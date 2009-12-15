@@ -16,9 +16,12 @@
 package ru.org.linux.spring;
 
 import java.sql.Connection;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Controller;
@@ -31,8 +34,12 @@ import ru.org.linux.site.*;
 
 @Controller
 public class SectionRSSController {
+  private final static String[] filterValues = { "all", "notalks", "tech", "mine" };
+  private final static Set<String> filterValuesSet = new HashSet<String>(Arrays.asList(filterValues));
+
   @RequestMapping("/section-rss.jsp")
   public ModelAndView showRSS(
+    @RequestParam(value="filter", required = false) String filter,
     @RequestParam(value="section", required = false) Integer sectionId,
     @RequestParam(value="group", required = false) Integer groupId,
     HttpServletRequest request
@@ -47,6 +54,9 @@ public class SectionRSSController {
       groupId = 0;
     }
 
+    boolean notalks = filter!=null && filter.equals("notalks");
+    boolean tech = filter!=null && filter.equals("tech");
+    
     String userAgent = request.getHeader("User-Agent");
     boolean feedBurner = userAgent!=null && userAgent.contains("FeedBurner");
 
@@ -60,6 +70,9 @@ public class SectionRSSController {
     if (groupId !=0) {
       nv.setGroup(groupId);
     }
+
+    nv.setNotalks(notalks);
+    nv.setTech(tech);
 
     nv.setLimit("LIMIT 20");
 
