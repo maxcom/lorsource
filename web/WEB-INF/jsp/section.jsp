@@ -41,7 +41,19 @@
           [<a href="rules.jsp">Правила форума</a>]
         </c:if>
 
-        [<a href="section-rss.jsp?section=${section.id}">RSS</a>]
+
+        <c:if test="${section.id!=2}">
+            [<a href="section-rss.jsp?section=${section.id}">RSS</a>]
+        </c:if>
+
+        <c:if test="${section.id==2}">
+            [<a href="section-rss.jsp?section=${section.id}">RSS</a>
+            <span id="rss-select">::
+                <a href="section-rss.jsp?section=${section.id}&filter=notalks">без talks</a>::
+                <a href="section-rss.jsp?section=${section.id}&filter=notalks">тех. разделы форума</a>
+            </span>
+            ]
+        </c:if>
       </td>
     </tr>
   </table>

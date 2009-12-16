@@ -34,7 +34,7 @@ import ru.org.linux.site.*;
 
 @Controller
 public class SectionRSSController {
-  private final static String[] filterValues = { "all", "notalks", "tech", "mine" };
+  private final static String[] filterValues = { "all", "notalks", "tech"};
   private final static Set<String> filterValuesSet = new HashSet<String>(Arrays.asList(filterValues));
 
   @RequestMapping("/section-rss.jsp")
@@ -44,6 +44,11 @@ public class SectionRSSController {
     @RequestParam(value="group", required = false) Integer groupId,
     HttpServletRequest request
   ) throws Exception {
+
+    if (filter!=null && !filterValuesSet.contains(filter)) {
+      throw new UserErrorException("Некорректное значение filter");
+    }
+    
     Map params = new HashMap();
 
     if (sectionId==null) {
@@ -60,7 +65,7 @@ public class SectionRSSController {
     String userAgent = request.getHeader("User-Agent");
     boolean feedBurner = userAgent!=null && userAgent.contains("FeedBurner");
 
-    if (sectionId==1 && groupId==0 && !feedBurner && request.getParameter("noredirect")==null) {
+    if (sectionId==1 && groupId==0 && !notalks && !tech && !feedBurner && request.getParameter("noredirect")==null) {
       return new ModelAndView(new RedirectView("http://feeds.feedburner.com/org/LOR"));
     }
 
