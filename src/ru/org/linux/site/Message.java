@@ -631,11 +631,11 @@ public class Message implements Serializable {
       return section.isPremoderated();
     }
 
-    if (by.canCorrect()) {
-      return sectionid==1;
+    if (by.canCorrect() && sectionid==1) {
+      return true;
     }
 
-    if (sectionid==1 && by.getId()==userid && !moderate && lorcode) {
+    if (by.getId()==userid && !moderate && lorcode) {
       return (new Date().getTime() - postdate.getTime()) < 30*60*1000;
     }
 
