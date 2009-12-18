@@ -635,7 +635,7 @@ public class Message implements Serializable {
       return true;
     }
 
-    if (by.getId()==userid && !moderate && lorcode) {
+    if (by.getId()==userid && !moderate && lorcode && !by.isAnonymousScore()) {
       return (new Date().getTime() - postdate.getTime()) < 30*60*1000;
     }
 
