@@ -134,7 +134,7 @@
     Map<Integer,String> ignoreList = IgnoreList.getIgnoreList(db, (String) session.getValue("nick"));
     if (ignoreList != null && !ignoreList.isEmpty() && ignoreList.containsValue(nick)) {
       out.print("<form name='i_unblock' method='post' action='ignore-list.jsp'>\n");
-      out.print("<input type='hidden' name='ignore_list' value='" + userid + "'>\n");
+      out.print("<input type='hidden' name='nickList' value='" + nick + "'>\n");
       out.print("Вы игнорируете этого пользователя &nbsp; \n");
       out.print("<input type='submit' name='del' value='не игнорировать'>\n");
       out.print("</form>");
