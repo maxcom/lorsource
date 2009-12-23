@@ -133,4 +133,21 @@ public class VoteController {
       }
     }
   }
+
+  @RequestMapping("/view-vote.jsp")
+  public ModelAndView viewVote(@RequestParam int voteid) throws Exception {
+    Connection db = null;
+
+    try {
+      db = LorDataSource.getConnection();
+
+      Poll poll = new Poll(db, voteid);
+
+      return new ModelAndView(new RedirectView("/jump-message.jsp?msgid=" + poll.getTopicId()));
+    } finally {
+      if (db != null) {
+        db.close();
+      }
+    }
+  }
 }
