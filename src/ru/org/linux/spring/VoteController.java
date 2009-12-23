@@ -135,7 +135,7 @@ public class VoteController {
   }
 
   @RequestMapping("/view-vote.jsp")
-  public ModelAndView viewVote(@RequestParam int voteid) throws Exception {
+  public ModelAndView viewVote(@RequestParam("vote") int voteid) throws Exception {
     Connection db = null;
 
     try {
