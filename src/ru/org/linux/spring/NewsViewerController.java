@@ -277,4 +277,39 @@ public class NewsViewerController {
       return 0;
     }
   }
+
+  @RequestMapping(value="/view-all.jsp", method=RequestMethod.GET)
+  public ModelAndView viewAll(
+    @RequestParam(value="section", required = false) Integer sectionId
+  ) throws Exception {
+    Connection db = null;
+
+    ModelAndView modelAndView = new ModelAndView("view-all");
+
+    try {
+      db = LorDataSource.getConnection();
+      
+      Section section = null;
+
+      if (sectionId!=null) {
+        section = new Section(db, sectionId);
+        modelAndView.getModel().put("section", section);
+      }
+
+      NewsViewer newsViewer = new NewsViewer();
+      newsViewer.setCommitMode(NewsViewer.CommitMode.UNCOMMITED_ONLY);
+      newsViewer.setDatelimit("postdate>(CURRENT_TIMESTAMP-'1 month'::interval)");
+      if (section != null) {
+        newsViewer.addSection(section.getId());
+      }
+
+      modelAndView.getModel().put("messages", newsViewer.getMessages(db));
+
+      return modelAndView;
+    } finally {
+      if (db != null) {
+        db.close();
+      }
+    }
+  }
 }

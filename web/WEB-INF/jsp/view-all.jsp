@@ -1,11 +1,10 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page contentType="text/html; charset=utf-8"%>
 <%@ page import="java.net.URLEncoder,java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.util.Date"   buffer="60kb"%>
-<%@ page import="java.util.List" %>
-<%@ page import="ru.org.linux.site.*" %>
-<%@ page import="ru.org.linux.util.ServletParameterParser" %>
+<%@ page import="ru.org.linux.site.LorDataSource" %>
+<%@ page import="ru.org.linux.site.Section" %>
+<%@ page import="ru.org.linux.site.User" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
-
 <%--
   ~ Copyright 1998-2009 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,32 +19,25 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
-
-<% Template tmpl = Template.getTemplate(request); %>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
 <%
   Connection db = null;
   try {
-
     response.setDateHeader("Expires", new Date(new Date().getTime() - 20 * 3600 * 1000).getTime());
     response.setDateHeader("Last-Modified", new Date(new Date().getTime() - 120 * 1000).getTime());
 
     db = LorDataSource.getConnection();
 
+    Section section = (Section) request.getAttribute("section");
     int sectionid = 0;
-    Section section = null;
-
-    if (request.getParameter("section") != null) {
-      sectionid = new ServletParameterParser(request).getInt("section");
-      if (sectionid != 0) {
-        section = new Section(db, sectionid);
-      }
+    if (section!=null) {
+      sectionid=section.getId();
     }
 
 %>
 <title>Просмотр неподтвержденных сообщений - <%= section==null?"Все":section.getName() %></title>
-<jsp:include page="WEB-INF/jsp/header.jsp"/>
+<jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
   <form action="view-all.jsp">
 
@@ -90,19 +82,9 @@
 <strong>Внимание модераторам!</strong> Не подтверждайте сразу
 много скриншотов, дайте им повисеть на главной странице.<p>
 <%
-
-  Statement st = db.createStatement();
-
-  NewsViewer newsViewer = new NewsViewer();
-  newsViewer.setCommitMode(NewsViewer.CommitMode.UNCOMMITED_ONLY);
-  newsViewer.setDatelimit("postdate>(CURRENT_TIMESTAMP-'1 month'::interval)");
-  if (sectionid != 0) {
-    newsViewer.addSection(sectionid);
-  }
-
   User currentUser = User.getCurrentUser(db, session);
 %>
-<c:forEach var="msg" items="<%= newsViewer.getMessages(db) %>">
+<c:forEach var="msg" items="${messages}">
   <lor:news
           db="<%= db %>"
           message="${msg}"
@@ -111,6 +93,7 @@
           currentUser="<%= currentUser %>"/>
 </c:forEach>
 <%
+  Statement st = db.createStatement();
   ResultSet rs;
 
   if (sectionid == 0) {
@@ -131,15 +114,23 @@
   	String nick=rs.getString("nick");
 	int msgid=rs.getInt("msgid");
 	int guid=rs.getInt("guid");
-	out.print("<tr>");
-	out.print("<td align=\"center\"><a href=\"undelete.jsp?msgid="+msgid+"\" title=\"Восстановить\">#</a></td>");
-	out.print("<td><a href=\"whois.jsp?nick="+URLEncoder.encode(nick)+"\">"+nick+"</a></td>");
-	out.print("<td><a href=\"group.jsp?group="+guid+"\">"+rs.getString("ptitle")+" - " + rs.getString("gtitle")+"</a></td>");
+%>
+<tr>
+  <td align="center">
+    <a href="/undelete.jsp?msgid=<%= msgid %>" title="Восстановить">#</a>
+  </td>
+  <td><a href="whois.jsp?nick=<%= URLEncoder.encode(nick) %>"><%=nick %></a></td>
+  <td><a href="group.jsp?group=<%= guid %>">
+      <%
+	out.print(rs.getString("ptitle")+" - " + rs.getString("gtitle")+"");
+%>
+    </a></td>
+<%
 	out.print("<td><a href=\"view-message.jsp?msgid="+msgid+"\">"+rs.getString("subj")+"</a></td>");
 	out.print("<td>"+rs.getString("reason")+"</td>");
-
-	out.print("</tr>");
-
+%>
+</tr>
+  <%
   }
 %>
 </table>
@@ -154,4 +145,4 @@
     }
   }
 %>
-<jsp:include page="WEB-INF/jsp/footer.jsp"/>
+<jsp:include page="/WEB-INF/jsp/footer.jsp"/>
