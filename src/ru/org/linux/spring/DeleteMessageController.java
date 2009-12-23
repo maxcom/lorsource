@@ -200,4 +200,95 @@ public class DeleteMessageController extends ApplicationObjectSupport {
       }
     }
   }
+
+  @RequestMapping(value = "/undelete.jsp", method = RequestMethod.GET)
+  public ModelAndView undeleteForm(
+    HttpServletRequest request,
+    @RequestParam int msgid
+  ) throws Exception {
+    Template tmpl = Template.getTemplate(request);
+
+    if (!tmpl.isModeratorSession()) {
+      throw new AccessViolationException("Not authorized");
+    }
+
+    Connection db = null;
+    try {
+      db = LorDataSource.getConnection();
+
+      Message message = new Message(db, msgid);
+
+      checkUndeletable(message);
+
+      ModelAndView mv = new ModelAndView("undelete");
+      mv.getModel().put("message", message);
+
+      return mv;
+    } finally {
+      if (db != null) {
+        db.close();
+      }
+    }
+  }
+
+  @RequestMapping(value="/undelete.jsp", method=RequestMethod.POST)
+  public ModelAndView undelete(
+    HttpServletRequest request,
+    @RequestParam int msgid
+  ) throws Exception {
+    Template tmpl = Template.getTemplate(request);
+
+    if (!tmpl.isModeratorSession()) {
+      throw new AccessViolationException("Not authorized");
+    }
+
+    Connection db = null;
+    try {
+      db = LorDataSource.getConnection();
+      db.setAutoCommit(false);
+
+      Message message = new Message(db, msgid);
+
+      checkUndeletable(message);
+
+      PreparedStatement lock = db.prepareStatement("SELECT deleted FROM topics WHERE id=? FOR UPDATE");
+      PreparedStatement st1 = db.prepareStatement("UPDATE topics SET deleted='f' WHERE id=?");
+      PreparedStatement st2 = db.prepareStatement("DELETE FROM del_info WHERE msgid=?");
+      lock.setInt(1, msgid);
+      st1.setInt(1, msgid);
+      st2.setInt(1, msgid);
+
+      ResultSet lockResult = lock.executeQuery(); // lock another undelete.jsp on this row
+
+      if (lockResult.next() && !lockResult.getBoolean("deleted")) {
+        throw new UserErrorException("Сообщение уже восстановлено");
+      }
+
+      st1.executeUpdate();
+      st2.executeUpdate();
+
+      logger.info("Восстановлено сообщение " + msgid + " пользователем " + tmpl.getNick());
+
+      st1.close();
+      st2.close();
+
+      db.commit();
+
+      return new ModelAndView("action-done", "message", "Сообщение восстановлено");
+    } finally {
+      if (db != null) {
+        db.close();
+      }
+    }
+  }
+
+  private void checkUndeletable(Message message) throws AccessViolationException {
+    if (message.isExpired()) {
+      throw new AccessViolationException("нельзя восстанавливать устаревшие сообщения");
+    }
+
+    if (!message.isDeleted()) {
+      throw new AccessViolationException("Сообщение уже восстановлено");
+    }
+  }
 }
