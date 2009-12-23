@@ -80,7 +80,7 @@
     </c:if>
   <br>
 
-  <input type="submit" value="отредактировать">
+  <input type="submit" value="Отредактировать">
   &nbsp;
   <input type=submit name=preview value="Предпросмотр">
 </form>
