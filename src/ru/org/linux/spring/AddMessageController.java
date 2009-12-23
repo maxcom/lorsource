@@ -187,4 +187,13 @@ public class AddMessageController extends ApplicationObjectSupport {
     params.put("error", error);
     return new ModelAndView("add", params);
   }
+
+  @RequestMapping(value="/add-poll.jsp", method=RequestMethod.GET)
+  public ModelAndView addPoll(HttpServletRequest request) throws Exception {
+    if (!Template.isSessionAuthorized(request.getSession())) {
+      throw new AccessViolationException("Not authorized");
+    }
+
+    return new ModelAndView("add-poll");
+  }
 }

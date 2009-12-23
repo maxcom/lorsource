@@ -20,19 +20,9 @@
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
-
-<%
-//  response.addHeader("Cache-Control", "no-store, no-cache, must-revalidate");
-//  response.addHeader("Pragma", "no-cache");
-
-  if (!Template.isSessionAuthorized(session)) {
-    throw new AccessViolationException("Not authorized");
-  }
-
-%>
 <title>Добавить опрос</title>
 
-<jsp:include page="WEB-INF/jsp/header.jsp"/>
+<jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
 <h1>Добавить опрос</h1>
 
@@ -53,4 +43,4 @@
   <input type="submit" value="Добавить">
 </form>
 
-<jsp:include page="WEB-INF/jsp/footer.jsp"/>
+<jsp:include page="/WEB-INF/jsp/footer.jsp"/>
