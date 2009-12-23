@@ -25,7 +25,6 @@ import java.util.Map;
 public class IgnoreList {
   private final int userId;
   
-  private boolean activated = true;
   private Map<Integer, String> ignoreList;
 
   public static Map<Integer, String> getIgnoreList(Connection db, String nick) throws SQLException {
@@ -59,14 +58,6 @@ public class IgnoreList {
 
   public Map<Integer, String> getIgnoreList() {
     return ignoreList;
-  }
-
-  public boolean isActivated() {
-    return activated;
-  }
-
-  public void setActivated(boolean activated) {
-    this.activated = activated;
   }
 
   public boolean containsUser(User user) {
