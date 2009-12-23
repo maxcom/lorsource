@@ -15,6 +15,7 @@
 
 package ru.org.linux.spring;
 
+import java.net.URLEncoder;
 import java.sql.Connection;
 import java.util.HashMap;
 import java.util.Map;
@@ -24,6 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.ModelAndView;
@@ -165,5 +167,64 @@ public class MessageController {
     }
 
     return "msg-"+message.getMessageId()+ '-' +message.getLastModified().getTime()+userAddon;
+  }
+
+  @RequestMapping(value="/jump-message.jsp", method=RequestMethod.GET)
+  public ModelAndView jumpMessage(
+    HttpServletRequest request,
+    @RequestParam int msgid,
+    @RequestParam(required=false) Integer page,
+    @RequestParam(required=false) String nocache,
+    @RequestParam(required=false) Integer cid
+  ) throws Exception {
+    Template tmpl = Template.getTemplate(request);
+
+    String redirectUrl = "/view-message.jsp?msgid=" + msgid;
+    StringBuffer options = new StringBuffer();
+
+    if (page != null) {
+      options.append("&page=");
+      options.append(URLEncoder.encode(page.toString()));
+    }
+
+    if (nocache != null) {
+      options.append("&nocache=");
+      options.append(URLEncoder.encode(nocache));
+    }
+
+    if (cid != null) {
+      Connection db = null;
+
+      try {
+        db = LorDataSource.getConnection();
+        Message topic = new Message(db, msgid);
+        CommentList comments = CommentList.getCommentList(db, topic, false);
+        CommentNode node = comments.getNode(cid);
+        if (node == null) {
+          throw new MessageNotFoundException(cid, "Сообщение #" + cid + " было удалено или не существует");
+        }
+
+        int pagenum = comments.getCommentPage(node.getComment(), tmpl);
+
+        if (pagenum > 0) {
+          options.append("&page=");
+          options.append(pagenum);
+        }
+
+        if (!topic.isExpired() && topic.getPageCount(tmpl.getProf().getInt("messages"))-1==pagenum) {
+          options.append("&lastmod=");
+          options.append(topic.getLastModified().getTime());
+        }
+
+        options.append("#comment-");
+        options.append(cid);
+      } finally {
+        if (db != null) {
+          db.close();
+        }
+      }
+    }
+
+    return new ModelAndView(new RedirectView(redirectUrl + options.toString()));
   }
 }
