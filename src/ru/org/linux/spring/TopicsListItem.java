@@ -26,7 +26,6 @@ import ru.org.linux.util.StringUtil;
 public class TopicsListItem implements Serializable {
   private final String subj;
   private final String sectionTitle;
-  private final String groupTitle;
   private final Timestamp lastmod;
   private final int msgid;
   private final boolean deleted;
@@ -37,7 +36,7 @@ public class TopicsListItem implements Serializable {
   
   private static final long serialVersionUID = 5344250574674257995L;
 
-  // SELECT topics.title as subj, sections.name, groups.title as gtitle, lastmod, topics.id as msgid, topics.deleted, topics.stat1, topics.stat3, topics.stat4, topics.sticky, userid
+  // SELECT topics.title as subj, sections.name, lastmod, topics.id as msgid, topics.deleted, topics.stat1, topics.stat3, topics.stat4, topics.sticky, userid
   public TopicsListItem(ResultSet rs, int messagesInPage) throws SQLException {
     subj = StringUtil.makeTitle(rs.getString("subj"));
 
@@ -56,7 +55,6 @@ public class TopicsListItem implements Serializable {
     stat4 = rs.getInt("stat4");
     sticky = rs.getBoolean("sticky");
     sectionTitle = rs.getString("name");
-    groupTitle = rs.getString("gtitle");
 
     pages = Message.getPageCount(stat1, messagesInPage);
   }
@@ -103,9 +101,5 @@ public class TopicsListItem implements Serializable {
 
   public String getSectionTitle() {
     return sectionTitle;
-  }
-
-  public String getGroupTitle() {
-    return groupTitle;
   }
 }

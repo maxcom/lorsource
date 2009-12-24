@@ -168,6 +168,7 @@ public class ShowRepliesController {
     private final Timestamp cDate;
     private final String messageText;
     private final String nick;
+    private final String groupTitle;
     private static final long serialVersionUID = -8433869244309809050L;
 
     public MyTopicsListItem(Connection db, ResultSet rs, int messages, boolean readMessage) throws SQLException, UserNotFoundException {
@@ -175,6 +176,8 @@ public class ShowRepliesController {
       cid = rs.getInt("cid");
       cAuthor = rs.getInt("cAuthor");
       cDate = rs.getTimestamp("cDate");
+      groupTitle = rs.getString("gtitle");
+      
       if (readMessage) {
         String text = rs.getString("cMessage");
         if (rs.getBoolean("bbcode")) {
@@ -208,6 +211,10 @@ public class ShowRepliesController {
 
     public String getNick() {
       return nick;
+    }
+
+    public String getGroupTitle() {
+      return groupTitle;
     }
   }
 }

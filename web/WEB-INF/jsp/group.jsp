@@ -3,6 +3,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
+<%--@elvariable id="topicsList" type="java.util.List<ru.org.linux.site.TopicsListItem>"--%>
 
 <%--
   ~ Copyright 1998-2009 Linux.org.ru
