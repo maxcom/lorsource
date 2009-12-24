@@ -23,31 +23,20 @@
   --%>
 
 <% Template tmpl = Template.getTemplate(request); %>
-<jsp:include page="WEB-INF/jsp/head.jsp"/>
+<jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
-<% String nick=request.getParameter("nick");
-	if (nick==null) {
-          throw new MissingParameterException("nick");
-        }
+<%
+  User user=(User) request.getAttribute("user");
+  String nick = user.getNick();
 
 	Connection db = null;
 
 	try {
-          db = LorDataSource.getConnection();
+      db = LorDataSource.getConnection();
 
-          User user = User.getUser(db, nick);
-
-	  int offset = 0;
+      int offset = (Integer) request.getAttribute("offset");
 	  
-	  if (request.getParameter("offset") != null) {
-		offset = Integer.parseInt(request.getParameter("offset"));
-	  }
-
-      boolean firstPage = true;
-
-        if (offset>0) {
-		firstPage = false;
-	  }
+      boolean firstPage = offset==0;
 	  
 	  int topics = 50;
 	  int count = offset + topics;
@@ -60,14 +49,14 @@
 		response.setDateHeader("Expires", System.currentTimeMillis() + 90 * 1000);
 		out.print("<title>Последние " + topics + " комментариев пользователя " + nick + "</title>");
             %>
-<jsp:include page="WEB-INF/jsp/header.jsp"/>
+<jsp:include page="/WEB-INF/jsp/header.jsp"/>
 <%
 		out.print("<h1>Последние " + topics + " комментариев пользователя " + nick + "</h1>");
 	  } else {
 		response.setDateHeader("Expires", System.currentTimeMillis() + 60 * 60 * 1000L);
 		out.print("<title>Последние " + count + '-' + offset + " комментариев пользователя " + nick + "</title>");
                   %>
-<jsp:include page="WEB-INF/jsp/header.jsp"/>
+<jsp:include page="/WEB-INF/jsp/header.jsp"/>
 <%
 		out.print("<h1>Последние " + count + '-' + offset + " комментариев пользователя " + nick + "</h1>");
 	  }
@@ -198,4 +187,4 @@
     }
   }
 %>
-<jsp:include page="WEB-INF/jsp/footer.jsp"/>
+<jsp:include page="/WEB-INF/jsp/footer.jsp"/>
