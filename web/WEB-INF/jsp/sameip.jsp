@@ -24,10 +24,6 @@
 <%
   Template tmpl = Template.getTemplate(request);
   
-  if (!tmpl.isModeratorSession()) {
-    throw new AccessViolationException("Not moderator");
-  }
-
 %>
 <title>Поиск писем с IP-адреса</title>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
