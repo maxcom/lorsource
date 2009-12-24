@@ -226,11 +226,17 @@ public class Group {
       st = db.createStatement();
 
       ResultSet rs;
-      if (showDeleted) {
-        rs = st.executeQuery("SELECT count(topics.id) FROM topics,groups,sections WHERE (topics.moderate OR NOT sections.moderate) AND groups.section=sections.id AND topics.groupid=groups.id AND groups.id=" + id);
-      } else {
-        rs = st.executeQuery("SELECT count(topics.id) FROM topics,groups,sections WHERE (topics.moderate OR NOT sections.moderate) AND groups.section=sections.id AND topics.groupid=groups.id AND groups.id=" + id + " AND NOT topics.deleted");
+
+      String query = "SELECT count(topics.id) " +
+        "FROM topics WHERE " +
+        (moderate?"moderate AND ":"") +
+        "groupid=" + id;
+
+      if (!showDeleted) {
+        query+=" AND NOT topics.deleted";
       }
+
+      rs = st.executeQuery(query);
 
       if (rs.next()) {
         return rs.getInt("count");
