@@ -42,6 +42,7 @@
 <form action="groupmod.jsp" method="POST">
   <input type="hidden" name="group" value="${group.id}">
   Строка описания: <input type="text" name="info" size="70" value="${fn:escapeXml(group.info)}"><br>
+  Можно помечать темы как прочтенные: <input type="checkbox" name="resolvable" <c:if test="${group.resolvable}">checked="checked"</c:if>/><br />
   Подробное описание:<br>
   <textarea rows="20" cols="70" name="longinfo"><c:out value="${group.longInfo}" escapeXml="true"/></textarea><br>
   <input type="submit" value="Изменить">

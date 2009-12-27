@@ -43,6 +43,8 @@ public class Group {
   private String info;
   private String longInfo;
 
+  private boolean resolvable;
+
   public Group(Connection db, int id) throws SQLException, BadGroupException {
     this.id = id;
 
@@ -51,7 +53,7 @@ public class Group {
     try {
       st = db.createStatement();
 
-      rs = st.executeQuery("SELECT sections.moderate, sections.preformat, imagepost, vote, section, havelink, linktext, sections.name as sname, title, image, restrict_topics, restrict_comments,stat1,stat2,stat3,groups.id, groups.info, groups.longinfo FROM groups, sections WHERE groups.id=" + id + " AND groups.section=sections.id");
+      rs = st.executeQuery("SELECT sections.moderate, sections.preformat, imagepost, vote, section, havelink, linktext, sections.name as sname, title, image, restrict_topics, restrict_comments,stat1,stat2,stat3,groups.id, groups.info, groups.longinfo, groups.resolvable FROM groups, sections WHERE groups.id=" + id + " AND groups.section=sections.id");
 
       if (!rs.next()) {
         throw new BadGroupException("Группа " + id + " не существует");
@@ -75,7 +77,7 @@ public class Group {
   public static List<Group> getGroups(Connection db, Section section) throws SQLException {
     Statement st = db.createStatement();
 
-    ResultSet rs = st.executeQuery("SELECT sections.moderate, sections.preformat, imagepost, vote, section, havelink, linktext, sections.name as sname, title, image, restrict_topics, restrict_comments, stat1,stat2,stat3,groups.id,groups.info,groups.longinfo FROM groups, sections WHERE sections.id=" + section.getId() + " AND groups.section=sections.id ORDER BY id");
+    ResultSet rs = st.executeQuery("SELECT sections.moderate, sections.preformat, imagepost, vote, section, havelink, linktext, sections.name as sname, title, image, restrict_topics, restrict_comments, stat1,stat2,stat3,groups.id,groups.info,groups.longinfo,groups.resolvable FROM groups, sections WHERE sections.id=" + section.getId() + " AND groups.section=sections.id ORDER BY id");
 
     List<Group> list = new ArrayList<Group>();
 
@@ -109,6 +111,7 @@ public class Group {
 
     info = rs.getString("info");
     longInfo = rs.getString("longinfo");
+    resolvable = rs.getBoolean("resolvable");
   }
 
   public boolean isImagePostAllowed() {
@@ -261,5 +264,10 @@ public class Group {
   public void setLongInfo(String longInfo) {
     this.longInfo = longInfo;
   }
+
+  public boolean isResolvable() {
+    return this.resolvable;
+  }
+
 }
 

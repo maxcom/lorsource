@@ -113,7 +113,8 @@ public class ShowRepliesController {
             " comments.id AS cid, " +
             " comments.postdate AS cDate, " +
             " comments.userid AS cAuthor, " +
-            " msgbase.message AS cMessage, bbcode " +
+            " msgbase.message AS cMessage, bbcode, " +
+            " topics.resolved as resolved " +
             " FROM sections INNER JOIN groups ON (sections.id = groups.section) " +
             " INNER JOIN topics ON (groups.id=topics.groupid) " +
             " INNER JOIN comments ON (comments.topic=topics.id) " +

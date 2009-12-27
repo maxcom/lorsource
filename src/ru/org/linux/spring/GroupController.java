@@ -116,15 +116,15 @@ public class GroupController {
 
       if (!lastmod) {
         if (firstPage) {
-          rs = st.executeQuery("SELECT topics.title as subj, sections.name, lastmod, userid, topics.id as msgid, deleted, topics.stat1, topics.stat3, topics.stat4, topics.sticky FROM topics,groups, sections WHERE sections.id=groups.section AND (topics.moderate OR NOT sections.moderate) AND topics.groupid=groups.id AND groups.id=" + groupId + delq + ignq + " AND (postdate>(CURRENT_TIMESTAMP-'3 month'::interval) or sticky) ORDER BY sticky desc,msgid DESC LIMIT " + topics);
+          rs = st.executeQuery("SELECT topics.title as subj, sections.name, lastmod, userid, topics.id as msgid, deleted, topics.stat1, topics.stat3, topics.stat4, topics.sticky, topics.resolved FROM topics,groups, sections WHERE sections.id=groups.section AND (topics.moderate OR NOT sections.moderate) AND topics.groupid=groups.id AND groups.id=" + groupId + delq + ignq + " AND (postdate>(CURRENT_TIMESTAMP-'3 month'::interval) or sticky) ORDER BY sticky desc,msgid DESC LIMIT " + topics);
         } else {
-          rs = st.executeQuery("SELECT topics.title as subj, sections.name, lastmod, userid, topics.id as msgid, deleted, topics.stat1, topics.stat3, topics.stat4, topics.sticky FROM topics,groups, sections WHERE sections.id=groups.section AND (topics.moderate OR NOT sections.moderate) AND topics.groupid=groups.id AND groups.id=" + groupId + delq + " ORDER BY sticky,msgid ASC LIMIT " + topics + " OFFSET " + offset);
+          rs = st.executeQuery("SELECT topics.title as subj, sections.name, lastmod, userid, topics.id as msgid, deleted, topics.stat1, topics.stat3, topics.stat4, topics.sticky,topics.resolved FROM topics,groups, sections WHERE sections.id=groups.section AND (topics.moderate OR NOT sections.moderate) AND topics.groupid=groups.id AND groups.id=" + groupId + delq + " ORDER BY sticky,msgid ASC LIMIT " + topics + " OFFSET " + offset);
         }
       } else {
         if (firstPage) {
-          rs = st.executeQuery("SELECT topics.title as subj, sections.name, lastmod, userid, topics.id as msgid, deleted, topics.stat1, topics.stat3, topics.stat4, topics.sticky FROM topics,groups, sections WHERE sections.id=groups.section AND (topics.moderate OR NOT sections.moderate) AND topics.groupid=groups.id AND groups.id=" + groupId + " AND NOT deleted " + ignq + " ORDER BY sticky DESC,lastmod DESC LIMIT " + topics + " OFFSET " + offset);
+          rs = st.executeQuery("SELECT topics.title as subj, sections.name, lastmod, userid, topics.id as msgid, deleted, topics.stat1, topics.stat3, topics.stat4, topics.sticky, topics.resolved FROM topics,groups, sections WHERE sections.id=groups.section AND (topics.moderate OR NOT sections.moderate) AND topics.groupid=groups.id AND groups.id=" + groupId + " AND NOT deleted " + ignq + " ORDER BY sticky DESC,lastmod DESC LIMIT " + topics + " OFFSET " + offset);
         } else {
-          rs = st.executeQuery("SELECT topics.title as subj, sections.name, lastmod, userid, topics.id as msgid, deleted, topics.stat1, topics.stat3, topics.stat4, topics.sticky FROM topics,groups, sections WHERE sections.id=groups.section AND (topics.moderate OR NOT sections.moderate) AND topics.groupid=groups.id AND groups.id=" + groupId + " AND NOT deleted ORDER BY sticky DESC,lastmod DESC LIMIT " + topics + " OFFSET " + offset);
+          rs = st.executeQuery("SELECT topics.title as subj, sections.name, lastmod, userid, topics.id as msgid, deleted, topics.stat1, topics.stat3, topics.stat4, topics.sticky, topics.resolved FROM topics,groups, sections WHERE sections.id=groups.section AND (topics.moderate OR NOT sections.moderate) AND topics.groupid=groups.id AND groups.id=" + groupId + " AND NOT deleted ORDER BY sticky DESC,lastmod DESC LIMIT " + topics + " OFFSET " + offset);
         }
       }
 

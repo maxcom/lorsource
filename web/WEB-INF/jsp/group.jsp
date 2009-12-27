@@ -167,6 +167,9 @@
     <c:if test="${topic.sticky and not topic.deleted}">
       <img src="/img/paper_clip.gif" width="15" height="15" alt="Прикреплено" title="Прикреплено">
     </c:if>
+    <c:if test="${topic.resolved}">
+      <img src="/img/solved.png" width="15" height="15" alt="Решено" title="Решено"/>
+    </c:if>
 
     <c:if test="${firstPage and topic.pages<=1}">
         <a href="view-message.jsp?msgid=${topic.msgid}&amp;lastmod=${topic.lastmod.time}" rev="contents">

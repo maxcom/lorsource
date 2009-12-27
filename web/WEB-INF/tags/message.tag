@@ -183,7 +183,18 @@
       out.append("[<a href=\"delete.jsp?msgid=");
       out.print(msgid);
       out.append("\">Удалить</a>]");
-    }    
+    }
+
+    if ((tmpl.isModeratorSession() || author.getNick().equals(user)) &&
+            new Group(db, message.getGroupId()).isResolvable()){
+      out.append("[<a href=\"resolve.jsp?msgid=");
+      out.print(msgid);
+      if (message.isResolved()){
+        out.append("&amp;resolve=no\">Отметить как не решенную</a>]");
+      }else{
+        out.append("&amp;resolve=yes\">Отметить как решенную</a>]");
+      }
+    }
 %>
         </div>
       </c:if>

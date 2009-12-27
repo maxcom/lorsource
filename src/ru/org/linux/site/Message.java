@@ -59,6 +59,7 @@ public class Message implements Serializable {
   private final String userAgent;
   private final String postIP;
   private final boolean lorcode;
+  private final boolean resolved;
 
   private final Section section;
 
@@ -71,7 +72,8 @@ public class Message implements Serializable {
             "topics.groupid as guid, topics.url, topics.linktext, user_agents.name as useragent, " +
             "groups.title as gtitle, vote, havelink, section, topics.sticky, topics.postip, " +
             "postdate<(CURRENT_TIMESTAMP-sections.expire) as expired, deleted, lastmod, commitby, " +
-            "commitdate, topics.stat1, postscore, topics.moderate, message, notop,bbcode " +
+            "commitdate, topics.stat1, postscore, topics.moderate, message, notop,bbcode, " +
+            "topics.resolved " +
             "FROM topics " +
             "INNER JOIN users ON (users.id=topics.userid) " +
             "INNER JOIN groups ON (groups.id=topics.groupid) " +
@@ -110,6 +112,7 @@ public class Message implements Serializable {
     userAgent = rs.getString("useragent");
     postIP = rs.getString("postip");
     lorcode = rs.getBoolean("bbcode");
+    resolved = rs.getBoolean("resolved");
 
     rs.close();
     st.close();
@@ -148,6 +151,7 @@ public class Message implements Serializable {
     userAgent = rs.getString("useragent");
     postIP = rs.getString("postip");
     lorcode = rs.getBoolean("bbcode");
+    resolved = rs.getBoolean("resolved");
 
     try {
       section = new Section(db, sectionid);
@@ -201,6 +205,7 @@ public class Message implements Serializable {
     notop = false;
     userid = user.getId();
     lorcode = true;
+    resolved=false;
 
     message = form.processMessage(group);
 
@@ -252,6 +257,12 @@ public class Message implements Serializable {
       title = request.getParameter("title");
     } else {
       title = original.title;
+    }
+
+    if (request.getParameter("resolve")!=null){
+        resolved = "yes".equals(request.getParameter("resolve"))?true:false;
+    }else{
+        resolved = original.resolved;
     }
 
     havelink = original.havelink;
@@ -634,7 +645,7 @@ public class Message implements Serializable {
     if (by.canCorrect() && sectionid==1) {
       return true;
     }
-
+    
     if (by.getId()==userid && !moderate && lorcode && !by.isAnonymousScore()) {
       return (new Date().getTime() - postdate.getTime()) < 30*60*1000;
     }
@@ -746,4 +757,16 @@ public class Message implements Serializable {
 
     return list;
   }
+
+  public boolean isResolved(){
+      return this.resolved;
+  }
+
+  public void resolveMessage(Connection db, boolean b) throws SQLException {
+    PreparedStatement pstMsgbase = db.prepareStatement("UPDATE topics SET resolved=? WHERE id=?");
+    pstMsgbase.setBoolean(1, b);
+    pstMsgbase.setInt(2, this.msgid);
+    pstMsgbase.executeUpdate();
+  }
+  
 }

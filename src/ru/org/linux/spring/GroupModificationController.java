@@ -65,6 +65,7 @@ public class GroupModificationController {
     @RequestParam("info") String info,
     @RequestParam("longinfo") String longInfo,
     @RequestParam(value = "preview", required = false) String preview,
+    @RequestParam(value = "resolvable", required = false) String resolvable,
     ServletRequest request
   ) throws Exception {
     Template tmpl = Template.getTemplate(request);
@@ -91,11 +92,12 @@ public class GroupModificationController {
         return new ModelAndView("groupmod", params);
       }
 
-      PreparedStatement pst = db.prepareStatement("UPDATE groups SET info=?, longinfo=? WHERE id=?");
+      PreparedStatement pst = db.prepareStatement("UPDATE groups SET info=?, longinfo=?,resolvable=? WHERE id=?");
 
       pst.setString(1, info);
       pst.setString(2, longInfo);
-      pst.setInt(3, id);
+      pst.setBoolean(3, resolvable!=null);
+      pst.setInt(4, id);
 
       pst.executeUpdate();
 
