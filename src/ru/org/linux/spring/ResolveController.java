@@ -41,18 +41,26 @@ public class ResolveController  {
     @RequestParam("resolve") String resolved
   ) throws Exception {
     Template tmpl = Template.getTemplate(request);
-    Connection db = LorDataSource.getConnection();
-    Message message = new Message(db,msgid);
-    Group group = new Group(db, message.getGroupId());
-    User currentUser = User.getCurrentUser(db, request.getSession());
-    if (!group.isResolvable()){
+    Connection db = null;
+
+    try {
+      db = LorDataSource.getConnection();
+      Message message = new Message(db, msgid);
+      Group group = new Group(db, message.getGroupId());
+      User currentUser = User.getCurrentUser(db, request.getSession());
+      if (!group.isResolvable()) {
         throw new AccessViolationException("В данной группе нельзя помечать темы как решенные");
-    }
-    if (!tmpl.isModeratorSession()&&currentUser.getId()!=message.getUid()){
+      }
+      if (!tmpl.isModeratorSession() && currentUser.getId() != message.getUid()) {
         throw new AccessViolationException("У Вас нет прав на решение данной темы");
+      }
+      message.resolveMessage(db, (resolved != null) && "yes".equals(resolved));
+      return new ModelAndView("action-done", "message", "Состояние темы изменено");
+    } finally {
+      if (db != null) {
+        db.close();
+      }
     }
-    message.resolveMessage(db, (resolved!=null)&&"yes".equals(resolved));
-    return new ModelAndView("action-done", "message", "Состояние темы изменено");
   }
 
 
