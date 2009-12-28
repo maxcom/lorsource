@@ -98,7 +98,8 @@ public class ShowRepliesController {
         String sql = "SELECT topics.title as subj, sections.name, groups.title as gtitle, lastmod, topics.userid, topics.id as msgid, topics.deleted, topics.stat1, topics.stat3, topics.stat4, topics.sticky, " +
           " comments.id AS cid, " +
           "comments.postdate AS cDate, " +
-          "comments.userid AS cAuthor " +
+          "comments.userid AS cAuthor, " +
+          " topics.resolved as resolved " +
           "FROM sections, groups, topics, comments, comments AS parents " +
           "WHERE sections.id=groups.section AND groups.id=topics.groupid " +
           "AND comments.topic=topics.id AND parents.userid = ? " +
