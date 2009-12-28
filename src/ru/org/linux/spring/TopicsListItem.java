@@ -33,7 +33,7 @@ public class TopicsListItem implements Serializable {
   private final boolean sticky;
   private final int pages;
   private final int author;
-  private final Boolean resolved;
+  private final boolean resolved;
   
   private static final long serialVersionUID = 5344250574674257995L;
 
@@ -56,7 +56,6 @@ public class TopicsListItem implements Serializable {
     stat4 = rs.getInt("stat4");
     sticky = rs.getBoolean("sticky");
     sectionTitle = rs.getString("name");
-    groupTitle = rs.getString("gtitle");
     resolved = rs.getBoolean("resolved");
 
     pages = Message.getPageCount(stat1, messagesInPage);
@@ -106,11 +105,7 @@ public class TopicsListItem implements Serializable {
     return sectionTitle;
   }
 
-  public String getGroupTitle() {
-    return groupTitle;
-  }
-
-  public Boolean isResolved(){
+  public boolean isResolved(){
     return resolved;
   }
 }
