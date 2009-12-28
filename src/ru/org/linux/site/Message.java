@@ -763,7 +763,7 @@ public class Message implements Serializable {
   }
 
   public void resolveMessage(Connection db, boolean b) throws SQLException {
-    PreparedStatement pstMsgbase = db.prepareStatement("UPDATE topics SET resolved=? WHERE id=?");
+    PreparedStatement pstMsgbase = db.prepareStatement("UPDATE topics SET resolved=?,lastmod=CURRENT_TIMESTAMP WHERE id=?");
     pstMsgbase.setBoolean(1, b);
     pstMsgbase.setInt(2, this.msgid);
     pstMsgbase.executeUpdate();
