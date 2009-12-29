@@ -113,27 +113,19 @@ public class HTMLFormatter {
     }
   }
 
-  public static final Pattern urlRE;
-  public static final Pattern urlRE_UNESCAPED;
-
-  public static final String URL_PATTTERN = "(?:(?:(?:(?:https?://)|(?:ftp://)|(?:www\\.))|(?:ftp\\.))[a-z0-9.-]+(?:\\.[a-z]+)?(?::[0-9]+)?" +
+  private static final String URL_PATTTERN = "(?:(?:(?:(?:https?://)|(?:ftp://)|(?:www\\.))|(?:ftp\\.))[a-z0-9.-]+(?:\\.[a-z]+)?(?::[0-9]+)?" +
     "(?:/(?:([\\w=?+/\\[\\]~%;,._@#'\\p{L}:-]|(\\([^\\)]*\\)))*([\\p{L}:'" +
-    "\\w=?+/~@%#-]|(?:&(?=amp;)[\\w:$_.+!*'#%(),@\\p{L}=;/-]+)+|(\\([^\\)]*\\))))?)?)" +
+    "\\w=?+/~@%#-]|(?:&(?=amp;)[\\w:$_.+!" +
+    "*'#%(),@\\p{L}=;/-]+)+|(\\([^\\)]*\\))))?)?)" +
     "|(?:mailto: ?[a-z0-9+]+@[a-z0-9.-]+.[a-z]+)|(?:news:([\\w+]\\.?)+)";
 
-  public static final String URL_PATTTERN_UNESCAPED = "(?:(?:(?:(?:https?://)|(?:ftp://)|(?:www\\.))|(?:ftp\\.))[a-z0-9.-]+(?:\\.[a-z]+)?(?::[0-9]+)?" +
+  private static final String URL_PATTTERN_UNESCAPED = "(?:(?:(?:(?:https?://)|(?:ftp://)|(?:www\\.))|(?:ftp\\.))[a-z0-9.-]+(?:\\.[a-z]+)?(?::[0-9]+)?" +
     "(?:/(?:([\\w=?+/\\[\\]~%;,._@#'\\p{L}:-]|(\\([^\\)]*\\)))*([\\p{L}:'" +
     "\\w=?+/~@%#-]|(?:&[\\w:$_.+!*'#%(),@\\p{L}=;/-]+)+|(\\([^\\)]*\\))))?)?)" +
     "|(?:mailto: ?[a-z0-9+]+@[a-z0-9.-]+.[a-z]+)|(?:news:([\\w+]\\.?)+)";
 
-  static {
-    try {
-      urlRE = Pattern.compile(URL_PATTTERN, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
-      urlRE_UNESCAPED = Pattern.compile(URL_PATTTERN_UNESCAPED, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
-    } catch (PatternSyntaxException e) {
-      throw new RuntimeException(e);
-    }
-  }
+  public static final Pattern urlRE = Pattern.compile(URL_PATTTERN, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
+  public static final Pattern urlRE_UNESCAPED = Pattern.compile(URL_PATTTERN_UNESCAPED, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
 
   /** форматирует фрагмент исходного текста
    *

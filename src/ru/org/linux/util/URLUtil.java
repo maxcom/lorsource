@@ -55,11 +55,5 @@ public final class URLUtil {
   public static boolean isUrl(String x) {
     return isUrl.isMatch(x);
   }
-
-  public static boolean isUrlNoXSS(String x){
-    return HTMLFormatter.urlRE.matcher(x).matches(); 
-  }
-
-
 }
 

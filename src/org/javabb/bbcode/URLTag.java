@@ -20,7 +20,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import ru.org.linux.util.URLUtil;
-import ru.org.linux.util.HTMLFormatter;
 
 public class URLTag extends SimpleRegexTag {
   public URLTag(String tagName, String regex, String replacement) {
@@ -34,7 +33,7 @@ public class URLTag extends SimpleRegexTag {
     Pattern p = regex.getRegex();
     Matcher m = p.matcher(from);
     while (m.find()) {
-      if (!URLUtil.isUrlNoXSS(m.group(1))) {
+      if (!URLUtil.isUrl(m.group(1))) {
         m.appendReplacement(to, BAD_DATA);
       } else {
         m.appendReplacement(to, replacement);

@@ -163,4 +163,11 @@ public class BBCodeTest {
     assertEquals("<p><div class=code><pre class=\"no-highlight\"><code>test</code></pre></div><p> <div class=code><pre class=\"no-highlight\"><code>test</code></pre></div><p>", result);
   }
 
+  @Test
+  public void testWolframURL() throws SQLException {
+    BBCodeProcessor proc = new BBCodeProcessor();
+    String result = proc.preparePostText(null, "[url]http://www.wolframalpha.com/input/?i=32177![/url]");
+
+    assertEquals("<p><a href=\"http://www.wolframalpha.com/input/?i=32177!\">http://www.wolframalpha.com/input/?i=32177!</a>", result);
+  }
 }
