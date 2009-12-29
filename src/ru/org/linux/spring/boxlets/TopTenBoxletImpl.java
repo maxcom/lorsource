@@ -78,7 +78,9 @@ public class TopTenBoxletImpl extends SpringBoxlet {
           @Override
           public void execute(Object o) {
             TopTenDaoImpl.TopTenMessageDTO dto = (TopTenDaoImpl.TopTenMessageDTO) o;
-            dto.setPages((int) Math.ceil(dto.getAnswers() / itemsPerPage));
+            int tmp = dto.getAnswers()/itemsPerPage;
+            tmp = (dto.getAnswers()%itemsPerPage>0)?tmp+1:tmp;
+            dto.setPages(tmp);
           }
         });
         return list;
