@@ -150,9 +150,8 @@
     </td>
   </tr>
 </table>
-        <%
-      if (tmpl.isModeratorSession()) {
-%>
+
+<c:if test="${template.moderatorSession and filter!='mine'}">
 <h2>Новые пользователи</h2>
 Новые пользователи за последние 3 дня:
 <%
@@ -197,7 +196,9 @@
 
       rs.close();
       st.close();
-    }
+%>
+  </c:if>
+  <%
   } finally {
     if (db!=null) {
       db.close();
