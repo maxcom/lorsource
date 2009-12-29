@@ -39,6 +39,7 @@
 <div class=msg id="topic-${message.id}">
 <c:if test="${showMenu}">
   <div class=title>
+    <c:if test="${message.resolved}"><img src="/img/solved.png" alt="решено" title="решено"/></c:if>
     <c:if test="${not message.deleted}">[<a href="/view-message.jsp?msgid=<%= msgid %>">#</a>]<%
     if (tmpl.isModeratorSession() && message.getSection().isPremoderated() && !message.isCommited()) {
       out.append("[<a href=\"commit.jsp?msgid=").append(String.valueOf(msgid)).append("\">Подтвердить</a>]");

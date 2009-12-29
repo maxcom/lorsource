@@ -105,6 +105,9 @@
     </a>
   </td>
   <td>
+    <c:if test="${filter=='mine' && msg.resolved}">
+          <img src="/img/solved.png" alt="решено" title="решено"/>
+    </c:if>
     <c:if test="${msg.pages>1}">
       <% if (tmpl.getProf().getBoolean("newfirst")) { %>
          <a href="/view-message.jsp?msgid=${msg.msgid}&amp;lastmod=${msg.lastmod.time}">

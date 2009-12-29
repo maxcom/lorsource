@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.site.AccessViolationException;
 import ru.org.linux.site.Group;
 import ru.org.linux.site.LorDataSource;
@@ -55,7 +56,7 @@ public class ResolveController  {
         throw new AccessViolationException("У Вас нет прав на решение данной темы");
       }
       message.resolveMessage(db, (resolved != null) && "yes".equals(resolved));
-      return new ModelAndView("action-done", "message", "Состояние темы изменено");
+      return new ModelAndView(new RedirectView(message.getLinkLastmod()));
     } finally {
       if (db != null) {
         db.close();
