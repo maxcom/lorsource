@@ -16,6 +16,7 @@
 package ru.org.linux.spring;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.Date;
@@ -32,6 +33,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 import ru.org.linux.site.AccessViolationException;
+import ru.org.linux.site.BadInputException;
 import ru.org.linux.site.LorDataSource;
 import ru.org.linux.site.User;
 
@@ -43,43 +45,46 @@ public class LostPasswordController {
   }
 
   @RequestMapping(value="/lostpwd.jsp", method= RequestMethod.POST)
-  public ModelAndView sendPassword(@RequestParam("nick") String nick, @RequestParam("email") String useremail) throws Exception {
+  public ModelAndView sendPassword(@RequestParam("email") String useremail) throws Exception {
     Connection db = null;
     try {
       db = LorDataSource.getConnection();
       db.setAutoCommit(false);
 
-      User user = User.getUser(db, nick);
+      PreparedStatement pst = db.prepareStatement("SELECT id, passwd, canmod, name, lostpwd>CURRENT_TIMESTAMP-'1 week'::interval as datecheck FROM users WHERE email=?");
+      pst.setString(1, useremail);
+      ResultSet rs = pst.executeQuery();
+
+      if (!rs.next()) {
+        throw new BadInputException("Ваш email не зарегистрирован");
+      }
+
+      User user = User.getUser(db, rs.getInt("id"));
+      user.checkBlocked();
       user.checkAnonymous();
-
-      Statement st = db.createStatement();
-      ResultSet rs = st.executeQuery("SELECT passwd, canmod, email, name, lostpwd>CURRENT_TIMESTAMP-'1 week'::interval as datecheck FROM users WHERE id=" + user.getId());
-
-      rs.next();
 
       if (rs.getBoolean("canmod")) {
         throw new AccessViolationException("this feature is not for you, ask me directly");
       }
 
       if (rs.getBoolean("datecheck")) {
-        throw new AccessViolationException("mail flood");
+        throw new AccessViolationException("нельзя запрашивать пароль чаще одного раза в неделю");
       }
-      if (rs.getString("email") == null || !rs.getString("email").equals(useremail)) {
-        throw new AccessViolationException("mail не совпадает с указанным при регистрации");
-      }
-
 
       String password = rs.getString("passwd");
-      InternetAddress email = new InternetAddress(rs.getString("email"));
+      InternetAddress email = new InternetAddress(useremail);
       String name = rs.getString("name");
+
       if (name != null && !"".equals(name)) {
         email.setPersonal(name);
-      }
-      else {
-        email.setPersonal(nick);
+      } else {
+        email.setPersonal(user.getNick());
       }
 
       rs.close();
+      pst.close();
+
+      Statement st = db.createStatement();
       st.executeUpdate("UPDATE users SET lostpwd=CURRENT_TIMESTAMP WHERE id=" + user.getId());
 
       Properties props = new Properties();
@@ -100,7 +105,7 @@ public class LostPasswordController {
 
       st.close();
 
-      return new ModelAndView("action-done", "message", "Ваш пароль был выслан по вашему email'у");
+      return new ModelAndView("action-done", "message", "Ваш пароль был выслан на ваш email");
     } finally {
       if (db != null) {
         db.close();

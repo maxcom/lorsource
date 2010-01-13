@@ -22,8 +22,6 @@
 
 <H1>Получить забытый пароль</H1>
 <form method=POST action="/lostpwd.jsp">
-Имя:
-<input type=text name=nick size=40><br>
 Email:
 <input type=text name=email size=40><br>
 <input type=submit value="Получить">
