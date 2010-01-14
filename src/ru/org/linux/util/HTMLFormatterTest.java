@@ -469,4 +469,9 @@ public class HTMLFormatterTest {
   public void testEscapeEntity() {
     assertEquals("&nbsp;", HTMLFormatter.htmlSpecialChars("&nbsp;"));
   }
+
+  @Test
+  public void testEscapeEntity2() {
+    assertEquals("&#41;&#41;&#41;", HTMLFormatter.htmlSpecialChars("&#41;&#41;&#41;"));
+  }
 }

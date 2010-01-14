@@ -368,7 +368,7 @@ public class HTMLFormatter {
           if (m.find()) {
               String s = m.group();
               res.append(s);
-              i+=s.length();
+              i+=s.length()-1;
               continue;
           } else {
             res.append("&amp;");
