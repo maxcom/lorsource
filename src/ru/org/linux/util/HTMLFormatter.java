@@ -347,16 +347,8 @@ public class HTMLFormatter {
    * Convert special SGML (HTML) chars to
    * SGML entities
    */  
-  private static final Pattern uniRE;
+  private static final Pattern uniRE = Pattern.compile("^&((#[1-9]\\d{1,4})|(\\w{1,8}));");
 
-  static {
-     try {
-       uniRE = Pattern.compile("^&#[1-9]\\d{1,4};");
-     } catch (PatternSyntaxException e) {
-       throw new RuntimeException(e);
-     }
-   }
-  
   public static String htmlSpecialChars(String str) {
     StringBuilder res = new StringBuilder();
 
@@ -376,11 +368,12 @@ public class HTMLFormatter {
           if (m.find()) {
               String s = m.group();
               res.append(s);
-              i+=s.length()-1;
+              i+=s.length();
               continue;
           } else {
             res.append("&amp;");
           }
+
           break;
         default:
           res.append(str.charAt(i));

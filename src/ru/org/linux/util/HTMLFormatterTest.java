@@ -460,4 +460,13 @@ public class HTMLFormatterTest {
       ">test[/i]", f.process());
   }
 
+  @Test
+  public void testEscape() {
+    assertEquals("&lt;script&gt;", HTMLFormatter.htmlSpecialChars("<script>"));
+  }
+
+  @Test
+  public void testEscapeEntity() {
+    assertEquals("&nbsp;", HTMLFormatter.htmlSpecialChars("&nbsp;"));
+  }
 }
