@@ -205,7 +205,8 @@ public class RegisterController extends ApplicationObjectSupport {
         rs.next();
 
         if (rs.getInt("c") != 0) {
-          throw new BadInputException("пользователь с таким e-mail уже зарегистрирован");
+          throw new BadInputException("пользователь с таким e-mail уже зарегистрирован.<br>" +
+            "Если вы забыли параметры своего аккаунта, воспользуйтесь <a href=\"/lostpwd.jsp\">формой восстановления пароля</a>");
         }
 
         rs.close();
