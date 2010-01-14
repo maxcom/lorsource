@@ -35,6 +35,7 @@ import org.springframework.context.support.ApplicationObjectSupport;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 import ru.org.linux.site.*;
@@ -49,7 +50,10 @@ public class RegisterController extends ApplicationObjectSupport {
   }
 
   @RequestMapping(value = "/register.jsp", method = RequestMethod.POST)
-  public ModelAndView doRegister(HttpServletRequest request) throws Exception {
+  public ModelAndView doRegister(
+    HttpServletRequest request,
+    @RequestParam String email
+  ) throws Exception {
     HttpSession session = request.getSession();
     Template tmpl = Template.getTemplate(request);
 
@@ -76,7 +80,6 @@ public class RegisterController extends ApplicationObjectSupport {
       String url = request.getParameter("url");
       String password = request.getParameter("password");
       String password2 = request.getParameter("password2");
-      String email = request.getParameter("email");
 
       if (password != null && password.length() == 0) {
         password = null;
@@ -185,9 +188,11 @@ public class RegisterController extends ApplicationObjectSupport {
         pst.setString(1, nick);
         ResultSet rs = pst.executeQuery();
         rs.next();
+
         if (rs.getInt("c") != 0) {
           throw new BadInputException("пользователь " + nick + " уже существует");
         }
+        
         rs.close();
         pst.close();
 
@@ -195,9 +200,11 @@ public class RegisterController extends ApplicationObjectSupport {
         pst2.setString(1, mail.getAddress());
         rs = pst2.executeQuery();
         rs.next();
+
         if (rs.getInt("c") != 0) {
           throw new BadInputException("пользователь с таким e-mail уже зарегистрирован");
         }
+
         rs.close();
         pst2.close();
 
