@@ -52,7 +52,13 @@ public class RegisterController extends ApplicationObjectSupport {
   @RequestMapping(value = "/register.jsp", method = RequestMethod.POST)
   public ModelAndView doRegister(
     HttpServletRequest request,
-    @RequestParam String email
+    @RequestParam String email,
+    @RequestParam(required=false) String town,
+    @RequestParam(required=false) String info,
+    @RequestParam(required=false) String name,
+    @RequestParam(required=false) String url,
+    @RequestParam(required=false) String password,
+    @RequestParam(required=false) String password2    
   ) throws Exception {
     HttpSession session = request.getSession();
     Template tmpl = Template.getTemplate(request);
@@ -73,13 +79,6 @@ public class RegisterController extends ApplicationObjectSupport {
         nick = request.getParameter("nick");
         User.checkNick(nick);
       }
-
-      String town = request.getParameter("town");
-      String info = request.getParameter("info");
-      String name = request.getParameter("name");
-      String url = request.getParameter("url");
-      String password = request.getParameter("password");
-      String password2 = request.getParameter("password2");
 
       if (password != null && password.length() == 0) {
         password = null;
@@ -119,9 +118,11 @@ public class RegisterController extends ApplicationObjectSupport {
       if (name != null && "".equals(name)) {
         name = null;
       }
+
       if (town != null && "".equals(town)) {
         town = null;
       }
+
       if (info != null && "".equals(info)) {
         info = null;
       }
@@ -129,9 +130,11 @@ public class RegisterController extends ApplicationObjectSupport {
       if (name != null) {
         name = HTMLFormatter.htmlSpecialChars(name);
       }
+
       if (town != null) {
         town = HTMLFormatter.htmlSpecialChars(town);
       }
+
       if (info != null) {
         info = HTMLFormatter.htmlSpecialChars(info);
       }
@@ -245,16 +248,16 @@ public class RegisterController extends ApplicationObjectSupport {
       db.commit();
 
       if (changeMode) {
-        return new ModelAndView("action-done", Collections.singletonMap("message", "Обновление регистрации прошло успешно"));
+        return new ModelAndView("action-done", "message", "Обновление регистрации прошло успешно");
       } else {
-        return new ModelAndView("action-done", Collections.singletonMap("message", "Добавление пользователя прошло успешно"));
+        return new ModelAndView("action-done", "message", "Добавление пользователя прошло успешно");
       }
     } catch (BadInputException e) {
-      return new ModelAndView("register", Collections.singletonMap("error", e.getMessage()));
+      return new ModelAndView("register", "error", e.getMessage());
     } catch (BadURLException e) {
-      return new ModelAndView("register", Collections.singletonMap("error", e.getMessage()));
+      return new ModelAndView("register", "error", e.getMessage());
     } catch (AddressException e) {
-      return new ModelAndView("register", Collections.singletonMap("error", "Некорректный e-mail: "+e.getMessage()));
+      return new ModelAndView("register", "error", "Некорректный e-mail: "+e.getMessage());
     } finally {
       if (db != null) {
         db.close();
