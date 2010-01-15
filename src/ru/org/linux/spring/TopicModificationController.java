@@ -18,7 +18,6 @@ package ru.org.linux.spring;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.ServletRequest;
 import org.springframework.context.support.ApplicationObjectSupport;
 import org.springframework.stereotype.Controller;
@@ -131,6 +130,38 @@ public class TopicModificationController extends ApplicationObjectSupport {
       return mv;
     } finally {
       if (db != null) {
+        db.close();
+      }
+    }
+  }
+
+  @RequestMapping(value="/mtn.jsp", method=RequestMethod.GET)
+  public ModelAndView moveTopicForm(
+    ServletRequest request,
+    @RequestParam int msgid
+  ) throws Exception {
+    Template tmpl = Template.getTemplate(request);
+
+    if (!tmpl.isModeratorSession()) {
+      throw new IllegalAccessException("Not authorized");
+    }
+
+    ModelAndView mv = new ModelAndView("mtn");
+
+    Connection db = null;
+
+    try {
+      db = LorDataSource.getConnection();
+
+      Message message = new Message(db, msgid);
+
+      mv.getModel().put("message", message);
+
+      mv.getModel().put("groups", Group.getGroups(db, message.getSection()));
+
+      return mv;
+    } finally {
+      if (db!=null) {
         db.close();
       }
     }
