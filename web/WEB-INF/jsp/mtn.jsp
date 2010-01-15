@@ -26,7 +26,12 @@
 <input type=hidden name="msgid" value="${message.id}">
 <select name="moveto">
   <c:forEach var="group" items="${groups}">
-    <option value="${group.id}">${group.title}</option>
+    <c:if test="${group.id == message.groupId}">
+      <option value="${group.id}" selected="selected">${group.title}</option>
+    </c:if>
+    <c:if test="${group.id != message.groupId}">
+      <option value="${group.id}">${group.title}</option>
+    </c:if>
   </c:forEach>
 </select>
 <input type='submit' name='move' value='move'>
