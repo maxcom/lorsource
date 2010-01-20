@@ -110,6 +110,11 @@ public class EditController extends ApplicationObjectSupport {
 
       Message newMsg;
 
+      String title = request.getParameter("title");
+      if (title==null || title.trim().length()==0) {
+        throw new BadInputException("заголовок сообщения не может быть пустым");
+      }
+
       newMsg = new Message(db, message, request);
       boolean preview = request.getParameter("preview") != null;
 

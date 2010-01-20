@@ -1,7 +1,6 @@
 <%@ page contentType="text/html; charset=utf-8"%>
 <%@ page
-    import="java.sql.Connection,ru.org.linux.site.LorDataSource,ru.org.linux.site.Message"
-      buffer="200kb" %>
+    import="java.sql.Connection,ru.org.linux.site.LorDataSource,ru.org.linux.site.Message" %>
 <%@ page import="ru.org.linux.site.Tags" %>
 <%@ page import="ru.org.linux.site.Template" %>
 <%@ page import="ru.org.linux.util.HTMLFormatter" %>
@@ -30,6 +29,17 @@
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 <title>Редактирование сообщения</title>
+<script src="/js/jquery.validate.pack.js" type="text/javascript"></script>
+<script src="/js/jquery.validate.ru.js" type="text/javascript"></script>
+<script type="text/javascript">
+  $(document).ready(function() {
+    $("#messageForm").validate({
+      messages : {
+        title : "Введите заголовок"
+      }
+    });
+  });
+</script>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 <%
   Connection db = null;
@@ -50,10 +60,10 @@
   <lor:message db="<%= db %>" message="${newMsg}" showMenu="false" user="<%= Template.getNick(session) %>"/>
 </div>
 
-<form action="edit.jsp" name="edit" method="post">
+<form action="edit.jsp" name="edit" method="post" id="messageForm">
   <input type="hidden" name="msgid" value="${message.id}">
-  Заголовок новости :
-  <input type=text name=title size=40 value="<%= newMsg.getTitle()==null?"":HTMLFormatter.htmlSpecialChars(newMsg.getTitle()) %>" ><br>
+  Заголовок:
+  <input type=text name=title class="required" size=40 value="<%= newMsg.getTitle()==null?"":HTMLFormatter.htmlSpecialChars(newMsg.getTitle()) %>" ><br>
 
   <br>
   <textarea name="newmsg" cols="70" rows="20"><%= newMsg.getMessage() %></textarea>
