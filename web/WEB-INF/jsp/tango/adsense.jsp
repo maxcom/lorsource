@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright 1998-2009 Linux.org.ru
+  ~ Copyright 1998-2010 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -12,6 +12,7 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
+
 <script type="text/javascript"><!--
 google_ad_client = "pub-6069094673001350";
 /* 728x90, messages tango */

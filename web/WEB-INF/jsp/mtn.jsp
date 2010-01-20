@@ -1,7 +1,7 @@
 <%@ page contentType="text/html; charset=utf-8"%>
 <%@ page buffer="60kb" %>
 <%--
-  ~ Copyright 1998-2009 Linux.org.ru
+  ~ Copyright 1998-2010 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -14,6 +14,7 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
+
 <%--@elvariable id="message" type="ru.org.linux.site.Message"--%>
 <%--@elvariable id="groups" type="java.util.List<Group>"--%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
