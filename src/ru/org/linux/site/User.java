@@ -44,6 +44,7 @@ public class User implements Serializable {
   private final int maxScore;
   private final String photo;
   private final String email;
+  private final String fullName;
 
   private final boolean activated;
   public static final int CORRECTOR_SCORE = 100;
@@ -59,7 +60,7 @@ public class User implements Serializable {
     }
     nick = name;
 
-    PreparedStatement st = con.prepareStatement("SELECT id,candel,canmod,corrector,passwd,blocked,score,max_score,activated,photo,email FROM users where nick=?");
+    PreparedStatement st = con.prepareStatement("SELECT id,candel,canmod,corrector,passwd,blocked,score,max_score,activated,photo,email,name FROM users where nick=?");
     st.setString(1, name);
 
     ResultSet rs = st.executeQuery();
@@ -76,6 +77,7 @@ public class User implements Serializable {
     blocked = rs.getBoolean("blocked");
     score = rs.getInt("score");
     maxScore = rs.getInt("max_score");
+    fullName = rs.getString("name");
     String pwd = rs.getString("passwd");
     if (pwd == null) {
       pwd = "";
@@ -94,7 +96,7 @@ public class User implements Serializable {
   private User(Connection con, int id) throws SQLException, UserNotFoundException {
     this.id = id;
 
-    PreparedStatement st = con.prepareStatement("SELECT nick,score, max_score, candel,canmod,corrector,passwd,blocked,activated,photo,email FROM users where id=?");
+    PreparedStatement st = con.prepareStatement("SELECT nick,score, max_score, candel,canmod,corrector,passwd,blocked,activated,photo,email,name FROM users where id=?");
     st.setInt(1, id);
 
     ResultSet rs = st.executeQuery();
@@ -112,6 +114,7 @@ public class User implements Serializable {
     String pwd = rs.getString("passwd");
     score = rs.getInt("score");
     maxScore = rs.getInt("max_score");
+    fullName = rs.getString("name");
     if (pwd == null) {
       pwd = "";
     }
@@ -611,6 +614,10 @@ public class User implements Serializable {
     st.setInt(2, id);
 
     st.executeUpdate();
+  }
+
+  public String getName() {
+    return fullName;
   }
 
 }

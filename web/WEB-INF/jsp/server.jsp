@@ -1,9 +1,5 @@
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="java.net.URLEncoder"  %>
-<%@ page import="java.sql.Connection" %>
-<%@ page import="java.sql.ResultSet" %>
-<%@ page import="java.sql.Statement" %>
-<%@ page import="ru.org.linux.site.LorDataSource" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%--
   ~ Copyright 1998-2010 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -72,63 +68,30 @@
 
   Модераторы:
   <ul>
-<%
-  Connection db = null;
-
-  try {
-    db = LorDataSource.getConnection();
-
-    Statement st = db.createStatement();
-    ResultSet rs = st.executeQuery("SELECT nick, name FROM users WHERE canmod ORDER BY id");
-
-    while (rs.next()) {
-      String nick = rs.getString("nick");
-      String name = rs.getString("name");
-
-      if ("maxcom".equals(nick)) {
-        continue;    
-      }
-
-      out.print("<li><a href=\"whois.jsp?nick="+URLEncoder.encode(nick)+"\">"+name+"</a> ("+nick+ ')');
-    }
-%>
+<c:forEach var="user" items="${moderators}">
+  <li>
+    <c:url var="whois" value="/whois.jsp">
+      <c:param name="nick" value="${user.nick}"/>
+    </c:url>
+    <a href="${whois}"><c:out escapeXml="true" value="${user.name}"/></a> (<c:out escapeXml="true" value="${user.nick}"/>)
+  </li>
+</c:forEach>
 
 </ul>
 
   Корректоры новостей:
   <ul>
-<%
-  ResultSet rs2 = st.executeQuery("SELECT nick, name FROM users WHERE corrector ORDER BY id");
-
-  while (rs2.next()) {
-    String nick = rs2.getString("nick");
-    String name = rs2.getString("name");
-
-    if ("maxcom".equals(nick)) {
-      continue;
-    }
-
-    out.print("<li><a href=\"whois.jsp?nick="+URLEncoder.encode(nick)+"\">"+name+"</a> ("+nick+ ')');
-  }
-
-%>
+    <c:forEach var="user" items="${correctors}">
+      <li>
+        <c:url var="whois" value="/whois.jsp">
+          <c:param name="nick" value="${user.nick}"/>
+        </c:url>
+        <a href="${whois}"><c:out escapeXml="true" value="${user.name}"/></a> (<c:out escapeXml="true" value="${user.nick}"/>)
+      </li>
+    </c:forEach>
   </ul>
-  <%
-  } finally {
-    if (db!=null) {
-      db.close();
-    }
-  }
-  %>
 </div>
 
-<h1>Реклама на сайте</h1>
-<p>
-  Linux.org.ru&nbsp;&#8212; некоммерческий проект, мы&nbsp;не&nbsp;занимаемся размещением рекламы на&nbsp;страничках сайта
-  сверх минимума, необходимого для работы сайта. Вы&nbsp;можете разместить рекламу через Google Adsense
-  на&nbsp;страничках нашего сайта по&nbsp;ссылке &laquo;<a href="https://adwords.google.com/select/OnsiteSignupLandingPage?client=ca-pub-6069094673001350&amp;referringUrl=http://www.linux.org.ru/">размещение рекламы на&nbsp;этом сайте</a>&raquo;.
-
-</p>
 <h1>Связанные проекты</h1>
 <ul>
 <li><a href="http://www.lorquotes.ru/">LorQuotes</a>&nbsp;&#8212; избранные цитаты</li>
