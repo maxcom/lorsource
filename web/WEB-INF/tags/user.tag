@@ -1,9 +1,4 @@
-<%@ tag import="java.sql.Connection"
-        import="java.util.List"
-        import="java.util.Set"
-        import="ru.org.linux.site.*"
-        import="ru.org.linux.util.ServletParameterParser"
-        import="ru.org.linux.util.StringUtil"
+<%@ tag import="ru.org.linux.site.User"
         pageEncoding="UTF-8"
 %><%--
   ~ Copyright 1998-2010 Linux.org.ru
