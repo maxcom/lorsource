@@ -18,9 +18,7 @@
   ~    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
-  --%>
-
-<%@ attribute name="db" required="true" type="java.sql.Connection" %><%@
+  --%><%@ attribute name="db" required="true" type="java.sql.Connection" %><%@
         attribute name="decorate" required="false" type="java.lang.Boolean" %><%@
         attribute name="id" required="true" type="java.lang.Integer" %><%
   User user = User.getUserCached(db, id);
