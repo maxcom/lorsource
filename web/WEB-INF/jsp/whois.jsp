@@ -23,6 +23,7 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
+<%--@elvariable id="user" type="ru.org.linux.site.User"--%>
 
 <% Template tmpl = Template.getTemplate(request); %>
 <%
@@ -170,23 +171,31 @@
 <cite>
 <%
   out.print(HTMLFormatter.nl2br(user.getUserinfo(db)));
-
-  if (tmpl.isModeratorSession()) {
-    out.print("<p><form name='f_remove_userinfo' method='post' action='usermod.jsp'>\n");
-    out.print("<input type='hidden' name='id' value='" + userid + "'>\n");
-    out.print("<input type='hidden' name='action' value='remove_userinfo'>\n");
-    out.print("<input type='submit' value='Удалить текст'>\n");
-    out.print("</form>");
-    out.print("<p><form name='f_toggle_corrector' method='post' action='usermod.jsp'>\n");
-    out.print("<input type='hidden' name='id' value='" + userid + "'>\n");
-    out.print("<input type='hidden' name='action' value='toggle_corrector'>\n");
-    out.print("<input type='submit' value='"+(user.isCorrector()?"Убрать права корректора":"Сделать корректором")+"'>\n");
-    out.print("</form>");
-  }
-
 %>
-</cite>
-<%
+  </cite>
+  <c:if test="${template.moderatorSession}">
+
+  <p>
+
+  <form name='f_remove_userinfo' method='post' action='usermod.jsp'>
+    <input type='hidden' name='id' value='${user.id}'>
+    <input type='hidden' name='action' value='remove_userinfo'>
+    <input type='submit' value='Удалить текст'>
+  </form>
+
+  <p>
+
+    <c:if test="<%= user.isCorrector() || user.getScore() > User.CORRECTOR_SCORE %>">
+  <form name='f_toggle_corrector' method='post' action='usermod.jsp'>
+    <input type='hidden' name='id' value='${user.id}'>
+    <input type='hidden' name='action' value='toggle_corrector'>
+    <%
+      out.print("<input type='submit' value='" + (user.isCorrector() ? "Убрать права корректора" : "Сделать корректором") + "'>\n");
+    %>
+  </form>
+  </c:if>
+  </c:if>
+  <%
   if (Template.isSessionAuthorized(session) && (session.getValue("nick").equals(nick))) {
     out.print("<p><a href=\"register.jsp?mode=change\">Изменить регистрацию</a>.");
   }
