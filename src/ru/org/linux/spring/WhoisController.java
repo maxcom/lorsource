@@ -18,12 +18,15 @@ package ru.org.linux.spring;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Collections;
+import java.net.URLEncoder;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.View;
+import org.springframework.web.servlet.view.RedirectView;
 
 import ru.org.linux.site.LorDataSource;
 import ru.org.linux.site.User;
@@ -31,8 +34,8 @@ import ru.org.linux.site.UserNotFoundException;
 
 @Controller
 public class WhoisController {
-  @RequestMapping("/whois.jsp")
-  public ModelAndView getInfo(@RequestParam("nick") String nick) throws SQLException, UserNotFoundException {
+  @RequestMapping("/people/{nick}/profile")
+  public ModelAndView getInfoNew(@PathVariable String nick) throws Exception {
     Connection db = null;
     try {
       db = LorDataSource.getConnection();
@@ -47,8 +50,8 @@ public class WhoisController {
     }
   }
 
-  @RequestMapping("/people/{nick}/profile")
-  public ModelAndView getInfoNew(@PathVariable String nick) throws Exception {
-    return getInfo(nick);
+  @RequestMapping("/whois.jsp")
+  public View getInfo(@RequestParam("nick") String nick) throws SQLException, UserNotFoundException {
+    return new RedirectView("/people/"+ URLEncoder.encode(nick)+"/profile");
   }
 }
