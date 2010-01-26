@@ -269,5 +269,8 @@ public class Group {
     return this.resolvable;
   }
 
+  public String getSectionLink() {
+    return Section.getSectionLink(section);
+  }
 }
 

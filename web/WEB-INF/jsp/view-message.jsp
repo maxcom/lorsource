@@ -86,7 +86,7 @@
   <table class=nav>
   <tr>
   <td align=left valign=middle id="navPath">
-    <a href="view-section.jsp?section=<%= message.getSectionId() %>"><%= message.getSectionTitle() %></a> -
+    <a href="<%= Section.getSectionLink(message.getSectionId()) %>"><%= message.getSectionTitle() %></a> -
     <a href="group.jsp?group=<%= message.getGroupId()%>"><%= message.getGroupTitle() %></a>
   </td>
 

@@ -51,7 +51,7 @@
         <td align=right valign=bottom>
                 <a style="text-decoration: none" href="/">Новости</a> -
                 <a style="text-decoration: none" href="view-news.jsp?section=3">Галерея</a> -
-                <a style="text-decoration: none" href="view-section.jsp?section=2">Форум</a> -
+                <a style="text-decoration: none" href="/forum/">Форум</a> -
                 <a style="text-decoration: none" href="/tracker.jsp">Трекер</a> -
                 <a style="text-decoration: none" href="/wiki">Wiki</a> -
                 <a style="text-decoration: none" href="search.jsp">Поиск</a>

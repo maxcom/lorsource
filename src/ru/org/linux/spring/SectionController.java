@@ -23,6 +23,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.View;
+import org.springframework.web.servlet.view.RedirectView;
 
 import ru.org.linux.site.Group;
 import ru.org.linux.site.LorDataSource;
@@ -48,5 +50,15 @@ public class SectionController {
         db.close();
       }
     }
+  }
+
+  @RequestMapping("/forum")
+  public ModelAndView forum() throws Exception {
+    return handleRequestInternal(Section.SECTION_FORUM);
+  }
+
+  @RequestMapping(value="/view-section.jsp", params = {"section=2"})
+  public View forumOld() {
+    return new RedirectView("/forum");
   }
 }

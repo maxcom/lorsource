@@ -56,7 +56,7 @@
 <td valign="top">
 [<a href="/">Главная</a>]<br>
 </td><td valign="top">
-[<a href="view-section.jsp?section=2">Форум</a>]<br>
+[<a href="/forum/">Форум</a>]<br>
 </td><td valign="top">
 [<a href="tracker.jsp">Трекер</a>]<br>
 </td><td valign="top">

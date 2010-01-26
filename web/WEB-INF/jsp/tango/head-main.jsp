@@ -66,7 +66,7 @@
                 <li class="first"><a href="/">Новости</a></li>
                 <li><a href="/view-news.jsp?section=3">Галерея</a></li>
 
-                <li><a href="/view-section.jsp?section=2">Форум</a></li>
+                <li><a href="/forum/">Форум</a></li>
                 <li><a href="/tracker.jsp">Трекер</a></li>
                 <li><a href="/wiki/">Wiki</a></li>
                 <li class="last"><a href="/search.jsp">Поиск</a></li>

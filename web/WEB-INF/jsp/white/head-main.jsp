@@ -44,7 +44,7 @@
 <a href="/books">Документация</a><br>
 </td><td valign="top">
 <a href="view-news.jsp?section=3">Галерея</a><br>
-<a href="view-section.jsp?section=2">Форум</a><br>
+<a href="/forum/">Форум</a><br>
 <a href="search.jsp">Поиск</a><br>
 </td>
 </tr>

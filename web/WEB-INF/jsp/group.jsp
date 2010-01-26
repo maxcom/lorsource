@@ -64,7 +64,7 @@
     }
 %>
     <LINK REL="alternate" HREF="section-rss.jsp?section=<%= group.getSectionId() %>&amp;group=<%= group.getId()%>" TYPE="application/rss+xml">
-    <link rel="parent" title="${group.title}" href="/view-section.jsp?section=${group.sectionId}">
+    <link rel="parent" title="${group.title}" href="${group.sectionLink}">
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 <c:if test="${lastmod}">
   <c:set var="self" value="group-lastmod.jsp"/>
@@ -76,7 +76,7 @@
   <table class=nav>
     <tr>
     <td align=left valign=middle id="navPath">
-      <a href="view-section.jsp?section=<%= group.getSectionId() %>"><%= group.getSectionName() %></a> - <strong><%= group.getTitle() %></strong>
+      <a href="${group.sectionLink}"><%= group.getSectionName() %></a> - <strong><%= group.getTitle() %></strong>
     </td>
 
     <td align=right valign=middle>

@@ -28,6 +28,8 @@ public class Section implements Serializable {
   public static final int SCROLL_SECTION = 1;
   public static final int SCROLL_GROUP = 2;
 
+  public static final int SECTION_FORUM = 2;
+
   public Section(Connection db, int id) throws SQLException, SectionNotFoundException {
     this.id = id;
 
@@ -154,5 +156,13 @@ public class Section implements Serializable {
     } else {
       return 50;
     }
+  }
+
+  public static String getSectionLink(int section) {
+    if (section==SECTION_FORUM) {
+      return "/forum/";
+    }
+
+    return "/view-section.jsp?section="+section;
   }
 }
