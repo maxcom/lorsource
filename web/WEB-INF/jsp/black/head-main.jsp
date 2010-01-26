@@ -50,9 +50,7 @@
 
 <div style="right: 5px; text-align: right; top: 5px; position: absolute" class="head">
 <c:if test="${template.sessionAuthorized}">
-  <c:url var="userUrl" value="/whois.jsp">
-    <c:param name="nick" value="${template.nick}"/>
-  </c:url>
+  <c:url var="userUrl" value="/people/${template.nick}/profile"/>
   добро пожаловать, <a style="text-decoration: none" href="${userUrl}">${template.nick}</a>
   [<a href="logout.jsp" title="Выйти">x</a>]
   <br>

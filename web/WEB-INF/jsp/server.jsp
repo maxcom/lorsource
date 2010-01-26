@@ -59,20 +59,18 @@
 <h1>Наша команда</h1>
 Проект реализован и&nbsp;развивается исключительно в&nbsp;свободное время авторов.
   <ul>
-  <li><a href="whois.jsp?nick=maxcom">Максим Валянский</a> (maxcom)&nbsp;&#8212; <i>координатор
+  <li><a href="/people/maxcom/profile">Максим Валянский</a> (maxcom)&nbsp;&#8212; <i>координатор
   проекта</i>:
   разработка, поддержка, дизайн, новости, информационное наполнение.
 
-  <li><a href="whois.jsp?nick=green">Олег Дрокин</a> (green)&nbsp;&#8212; администрирование сервера, железо
+  <li><a href="/people/green/profile">Олег Дрокин</a> (green)&nbsp;&#8212; администрирование сервера, железо
   </ul>
 
   Модераторы:
   <ul>
 <c:forEach var="user" items="${moderators}">
   <li>
-    <c:url var="whois" value="/whois.jsp">
-      <c:param name="nick" value="${user.nick}"/>
-    </c:url>
+    <c:url var="whois" value="/people/${user.nick}/profile"/>
     <a href="${whois}"><c:out escapeXml="true" value="${user.name}"/></a> (<c:out escapeXml="true" value="${user.nick}"/>)
   </li>
 </c:forEach>
@@ -83,9 +81,7 @@
   <ul>
     <c:forEach var="user" items="${correctors}">
       <li>
-        <c:url var="whois" value="/whois.jsp">
-          <c:param name="nick" value="${user.nick}"/>
-        </c:url>
+        <c:url var="whois" value="/people/${user.nick}/profile"/>
         <a href="${whois}"><c:out escapeXml="true" value="${user.name}"/></a> (<c:out escapeXml="true" value="${user.nick}"/>)
       </li>
     </c:forEach>

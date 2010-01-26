@@ -109,7 +109,7 @@ public class UserModificationController extends ApplicationObjectSupport {
 
       Random random = new Random();
 
-      return new ModelAndView(new RedirectView("/whois.jsp?nick=" + URLEncoder.encode(user.getNick()) + "&nocache=" + random.nextInt()));
+      return new ModelAndView(new RedirectView("/people/" + URLEncoder.encode(user.getNick()) + "/profile?nocache=" + random.nextInt()));
     } finally {
       if (db != null) {
         db.close();
@@ -165,7 +165,7 @@ public class UserModificationController extends ApplicationObjectSupport {
 
       Random random = new Random();
 
-      return new ModelAndView(new RedirectView("/whois.jsp?nick=" + URLEncoder.encode(user.getNick()) + "&nocache=" + random.nextInt()));
+      return new ModelAndView(new RedirectView("/people/" + URLEncoder.encode(user.getNick()) + "/profile?nocache=" + random.nextInt()));
     } finally {
       if (db != null) {
         db.close();

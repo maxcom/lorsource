@@ -46,9 +46,7 @@
             [bad image]
           </c:otherwise>
         </c:choose>
-        <c:url value="/whois.jsp" var="nickurl">
-          <c:param name="nick" value="${item.nick}"/>
-        </c:url>
+        <c:url value="/people/${item.nick}/profile" var="nickurl"/>
       </i> ${item.title} от <a href="${nickurl}">${item.nick}</a> (${item.stat})
       </div>
     </c:forEach>

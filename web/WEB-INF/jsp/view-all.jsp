@@ -120,7 +120,7 @@
   <td align="center">
     <a href="/undelete.jsp?msgid=<%= msgid %>" title="Восстановить">#</a>
   </td>
-  <td><a href="whois.jsp?nick=<%= URLEncoder.encode(nick) %>"><%=nick %></a></td>
+  <td><a href="/people/<%= URLEncoder.encode(nick) %>/profile"><%=nick %></a></td>
   <td><a href="group.jsp?group=<%= guid %>">
       <%
 	out.print(rs.getString("ptitle")+" - " + rs.getString("gtitle")+"");

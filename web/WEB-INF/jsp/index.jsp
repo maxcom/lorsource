@@ -111,7 +111,7 @@
 <div class=boxlet>
 <h2>Вход на сайт</h2>
 <div class="boxlet_content">
-Вы вошли как <b><a href="whois.jsp?nick=<%= session.getAttribute("nick") %>"><%= session.getAttribute("nick") %></a></b>
+Вы вошли как <b><a href="/people/<%= session.getAttribute("nick") %>/profile"><%= session.getAttribute("nick") %></a></b>
 <%
   if (db==null) {
     db = LorDataSource.getConnection();

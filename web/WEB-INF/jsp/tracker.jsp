@@ -178,7 +178,7 @@
             out.print("<s>");
           }
 
-          out.print("<a href='/whois.jsp?nick=" + nick + "'>" + nick + "</a>");
+          out.print("<a href='/people/" + nick + "/profile'>" + nick + "</a>");
           cnt++;
 
           if (blocked) {

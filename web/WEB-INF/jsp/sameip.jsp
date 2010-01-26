@@ -225,7 +225,7 @@ function checkCustomBan(idx) {
   while (rs.next()) {
     boolean same_ua = ua_id == rs.getInt("ua_id");
     out.print("<tr><td>" + tmpl.dateFormat.format(rs.getTimestamp("lastdate")) + "</td>" +
-                  "<td><a href=\"whois.jsp?nick=" + rs.getString("nick") + "\">" + rs.getString("nick") + "</a></td>" +
+                  "<td><a href=\"/people/" + rs.getString("nick") + "/profile\">" + rs.getString("nick") + "</a></td>" +
 		  "<td>" + (same_ua ? "<b>" : "") + rs.getString("user_agent") + (same_ua ? "</b>" : "") + "</td></tr>");
   }
 

@@ -26,9 +26,7 @@
         <td rowspan="2" align=left><a href="/"><img src="/black/lor-new.png" width=282 height=60 border=0 alt="Linux.org.ru"></a></td>
         <td align="right">
           <c:if test="${template.sessionAuthorized}">
-            <c:url var="userUrl" value="/whois.jsp">
-              <c:param name="nick" value="${template.nick}"/>
-            </c:url>
+            <c:url var="userUrl" value="/people/${template.nick}/profile"/>
             добро пожаловать, <a style="text-decoration: none" href="${userUrl}">${template.nick}</a>
             [<a href="logout.jsp" title="Выйти">x</a>]
           </c:if>

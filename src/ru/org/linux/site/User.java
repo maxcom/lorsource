@@ -307,7 +307,7 @@ public class User implements Serializable {
 
     StringBuilder out = new StringBuilder();
 
-    out.append("<i>Проверено: ").append(nick).append(" (<a href=\"whois.jsp?nick=").append(URLEncoder.encode(nick)).append("\">*</a>)");
+    out.append("<i>Проверено: ").append(nick).append(" (<a href=\"/people/").append(URLEncoder.encode(nick)).append("/profile\">*</a>)");
     if (commitDate!=null && !commitDate.equals(postdate)) {
       out.append(' ').append(dateFormat.format(commitDate));
     }
@@ -465,7 +465,7 @@ public class User implements Serializable {
     boolean tango = style!=null && style.equals("tango");
 
     if (tango) {
-      out.append("<a href=\"whois.jsp?nick=").append(URLEncoder.encode(nick)).append("\">");
+      out.append("<a href=\"/people/").append(URLEncoder.encode(nick)).append("/profile\">");
     }
     out.append(nick);
 
@@ -487,7 +487,7 @@ public class User implements Serializable {
     }
 
     if (!tango) {
-      out.append("(<a href=\"whois.jsp?nick=").append(URLEncoder.encode(nick)).append("\">*</a>)");
+      out.append("(<a href=\"/people/").append(URLEncoder.encode(nick)).append("/profile\">*</a>)");
     }
 
     out.append(" (").append(dateFormat.format(postdate)).append(')');
