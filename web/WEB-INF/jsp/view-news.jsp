@@ -99,32 +99,28 @@
     params += "group="+group.getId();
   }
 
-  if (user!=null) {
-    if (params.length()>0) {
-      params += "&amp;";
-    }
+  String url = user==null?"view-news.jsp":"/people/"+user.getNick()+"/";
 
-    params += "nick="+user.getNick();    
+  if (params.length()>0) {
+    params += "&amp;";
   }
-
-  String url = user==null?"view-news.jsp":"show-topics.jsp";
 %>
 <c:if test="${offsetNavigation}">
   <table class="nav">
     <tr>
       <c:if test="${offset < 200}">
         <td align="left" width="35%">
-          <a href="<%= url %>?<%= params %>&amp;offset=${offset+20}">← предыдущие</a>
+          <a href="<%= url %>?<%= params %>offset=${offset+20}">← предыдущие</a>
         </td>
       </c:if>
       <c:if test="${offset > 20}">
         <td width="35%" align="right">
-          <a href="<%= url %>?<%= params %>&amp;offset=${offset-20}">следующие →</a>
+          <a href="<%= url %>?<%= params %>offset=${offset-20}">следующие →</a>
         </td>
       </c:if>
       <c:if test="${offset == 20}">
         <td width="35%" align="right">
-          <a href="<%= url %>?<%= params %>">следующие →</a>
+          <a href="<%= url %><%= params.length()>0?("?"+params):"" %>">следующие →</a>
         </td>
       </c:if>
     </tr>

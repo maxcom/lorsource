@@ -27,6 +27,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.View;
+import org.springframework.web.servlet.view.RedirectView;
 
 import ru.org.linux.site.*;
 import ru.org.linux.util.DateUtil;
@@ -206,9 +208,9 @@ public class NewsViewerController {
     }
   }
 
-  @RequestMapping(value = "/show-topics.jsp", method = RequestMethod.GET)
-  public ModelAndView showUserTopics(
-    @RequestParam("nick") String nick,
+  @RequestMapping(value="/people/{nick}")
+  public ModelAndView showUserTopicsNew(
+    @PathVariable String nick,
     @RequestParam(value="offset", required=false) Integer offset,
     @RequestParam(value="output", required=false) String output,
     HttpServletResponse response
@@ -249,7 +251,7 @@ public class NewsViewerController {
       params.put("offsetNavigation", true);
       params.put("offset", offset);
 
-      params.put("rssLink", "show-topics.jsp?nick="+nick+"&output=rss");
+      params.put("rssLink", "/people/"+nick+"/?output=rss");
 
       if (output!=null && output.equals("rss")) {
         return new ModelAndView("section-rss", params);
@@ -314,13 +316,16 @@ public class NewsViewerController {
     }
   }
 
-  @RequestMapping(value="/people/{nick}")
-  public ModelAndView showUserTopicsNew(
-    @PathVariable String nick,
+  @RequestMapping(value = "/show-topics.jsp", method = RequestMethod.GET)
+  public View showUserTopics(
+    @RequestParam("nick") String nick,
     @RequestParam(value="offset", required=false) Integer offset,
-    @RequestParam(value="output", required=false) String output,
-    HttpServletResponse response
+    @RequestParam(value="output", required=false) String output
   ) throws Exception {
-    return showUserTopics(nick, offset, output, response);
+    if (output!=null) {
+      return new RedirectView("/people/"+nick+"/?output=rss");
+    }
+    
+    return new RedirectView("/people/"+nick+"/");
   }
 }

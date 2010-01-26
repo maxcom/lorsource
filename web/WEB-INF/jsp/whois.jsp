@@ -242,7 +242,7 @@ rs.next(); %>
 <h2>Сообщения пользователя</h2>
 <ul>
   <li>
-    <a href="show-topics.jsp?nick=<%= nick %>">Темы</a>
+    <a href="/people/${user.nick}/">Темы</a>
   </li>
 
   <li>
