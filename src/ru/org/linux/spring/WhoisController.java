@@ -22,6 +22,7 @@ import java.util.Collections;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.servlet.ModelAndView;
 
 import ru.org.linux.site.LorDataSource;
@@ -44,5 +45,10 @@ public class WhoisController {
         db.close();
       }
     }
+  }
+
+  @RequestMapping("/people/{nick}/profile")
+  public ModelAndView getInfoNew(@PathVariable String nick) throws Exception {
+    return getInfo(nick);
   }
 }

@@ -21,7 +21,7 @@
   --%>
 
 <% Template tmpl = Template.getTemplate(request); %>
-<jsp:include page="WEB-INF/jsp/head.jsp"/>
+<jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
 <title>LINUX.ORG.RU - Русская информация об ОС Linux</title>
 <META NAME="Keywords" CONTENT="linux линукс операционная система документация gnu бесплатное свободное програмное обеспечение софт unix юникс software free documentation operating system новости news">
@@ -33,7 +33,7 @@
   response.setDateHeader("Last-Modified", new Date(new Date().getTime() - 2 * 1000).getTime());
 
 %>
-<jsp:include page="WEB-INF/jsp/header-main.jsp"/>
+<jsp:include page="/WEB-INF/jsp/header-main.jsp"/>
 <%
   boolean columns3 = tmpl.getProf().getBoolean("main.3columns");
 
@@ -161,4 +161,4 @@
     }
   }
 %>
-<jsp:include page="WEB-INF/jsp/footer-main.jsp"/>
+<jsp:include page="/WEB-INF/jsp/footer-main.jsp"/>
