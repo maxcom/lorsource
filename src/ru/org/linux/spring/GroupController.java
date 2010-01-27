@@ -22,6 +22,7 @@ import java.util.*;
 
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
@@ -33,13 +34,59 @@ import ru.org.linux.util.ServletParameterBadValueException;
 @Controller
 public class GroupController {
   @RequestMapping("/group.jsp")
-  public ModelAndView topics(@RequestParam("group") int groupId, @RequestParam(value="offset", required=false) Integer offsetObject, HttpServletRequest request) throws Exception {
+  public ModelAndView topics(
+    @RequestParam("group") int groupId,
+    @RequestParam(value="offset", required=false) Integer offsetObject,
+    HttpServletRequest request
+  ) throws Exception {
+    Connection db = null;
+    Group group;
+    try {
+      db = LorDataSource.getConnection();
+
+      group = new Group(db, groupId);
+
+      if (group.getSectionId()==Section.SECTION_FORUM) {
+        if (offsetObject!=null) {
+          return new ModelAndView(new RedirectView(group.getUrl()+"?offset="+offsetObject.toString()));
+        } else {
+          return new ModelAndView(new RedirectView(group.getUrl()));
+        }
+      }
+    } finally {
+      if (db!=null) {
+        db.close();
+      }
+    }
+    
     return topics(groupId, offsetObject, request, false);
   }
 
   @RequestMapping("/group-lastmod.jsp")
   public ModelAndView topicsLastmod(@RequestParam("group") int groupId, @RequestParam(value="offset", required=false) Integer offsetObject, HttpServletRequest request) throws Exception {
     return topics(groupId, offsetObject, request, true);
+  }
+
+  @RequestMapping(value="/forum/{group}")
+  public ModelAndView forum(
+    @PathVariable("group") String groupName,
+    @RequestParam(required=false) Integer offset,
+    HttpServletRequest request
+  ) throws Exception {
+    Connection db = null;
+    Group group;
+    try {
+      db = LorDataSource.getConnection();
+
+      Section section = new Section(db, Section.SECTION_FORUM);
+      group = section.getGroup(db, groupName);
+    } finally {
+      if (db!=null) {
+        db.close();
+      }
+    }
+
+    return topics(group.getId(), offset, request, false);
   }
 
   public ModelAndView topics(int groupId, Integer offsetObject, HttpServletRequest request, boolean lastmod) throws Exception {

@@ -182,4 +182,17 @@ public class Section implements Serializable {
 
     return "/view-news-archive.jsp?section="+id;
   }
+
+  public Group getGroup(Connection db, String name) throws SQLException, BadGroupException {
+    PreparedStatement st = db.prepareStatement("SELECT id FROM groups WHERE section=? AND title=?");
+    st.setInt(1, id);
+    st.setString(2, name);
+
+    ResultSet rs = st.executeQuery();
+    if (!rs.next()) {
+      throw new BadGroupException("group not found");
+    }
+
+    return new Group(db, rs.getInt(1));
+  }
 }

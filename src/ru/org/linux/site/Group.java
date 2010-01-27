@@ -218,10 +218,6 @@ public class Group {
     return info;
   }
 
-  public String getUrl() {
-    return "group.jsp?group="+id;
-  }
-
   public int calcTopicsCount(Connection db, boolean showDeleted) throws SQLException {
     Statement st = null;
 
@@ -271,6 +267,14 @@ public class Group {
 
   public String getSectionLink() {
     return Section.getSectionLink(section);
+  }
+
+  public String getUrl() {
+    if (section == Section.SECTION_FORUM) {
+      return "/forum/"+title+"/";
+    }
+
+    return "/group.jsp?group="+id;
   }
 }
 

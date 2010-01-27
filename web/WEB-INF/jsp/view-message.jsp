@@ -25,6 +25,7 @@
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <%--@elvariable id="showDeleted" type="Boolean"--%>
 <%--@elvariable id="comments" type="ru.org.linux.site.CommentList"--%>
+<%--@elvariable id="group" type="ru.org.linux.site.Group"--%>
 
 <% Template tmpl = Template.getTemplate(request); %>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
@@ -87,7 +88,7 @@
   <tr>
   <td align=left valign=middle id="navPath">
     <a href="<%= Section.getSectionLink(message.getSectionId()) %>"><%= message.getSectionTitle() %></a> -
-    <a href="group.jsp?group=<%= message.getGroupId()%>"><%= message.getGroupTitle() %></a>
+    <a href="${group.url}">${group.title}</a>
   </td>
 
     <td align=right>
