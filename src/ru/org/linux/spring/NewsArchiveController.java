@@ -25,6 +25,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.View;
+import org.springframework.web.servlet.view.RedirectView;
 
 import ru.org.linux.site.LorDataSource;
 import ru.org.linux.site.Section;
@@ -52,7 +54,7 @@ public class NewsArchiveController {
       List<NewsArchiveListItem> items = new ArrayList<NewsArchiveListItem>();
 
       while (rs.next()) {
-        items.add(new NewsArchiveListItem(rs.getInt("year"), rs.getInt("month"), rs.getInt("c")));
+        items.add(new NewsArchiveListItem(section, rs.getInt("year"), rs.getInt("month"), rs.getInt("c")));
       }
 
       rs.close();
@@ -68,15 +70,28 @@ public class NewsArchiveController {
     }
   }
 
+  @RequestMapping("/gallery/archive")
+  public ModelAndView galleryArchive(
+  ) throws Exception {
+    return archiveList(Section.SECTION_GALLERY);
+  }
+
+  @RequestMapping(value="/view-news-archive.jsp", params={"section=3"})
+  public View galleryArchiveOld() throws Exception {
+    return new RedirectView("/gallery/archive/");
+  }
+
   public class NewsArchiveListItem {
     private int year;
     private int month;
     private int count;
+    private Section section;
 
-    public NewsArchiveListItem(int year, int month, int count) {
+    public NewsArchiveListItem(Section section, int year, int month, int count) {
       this.year = year;
       this.month = month;
       this.count = count;
+      this.section = section;
     }
 
     public int getYear() {
@@ -89,6 +104,10 @@ public class NewsArchiveController {
 
     public int getCount() {
       return count;
+    }
+
+    public String getLink() {
+      return section.getArchiveLink(year, month);
     }
   }
 }

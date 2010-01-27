@@ -16,7 +16,7 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
-  <h2><a href="view-news.jsp?section=3">Галерея</a></h2>
+  <h2><a href="/gallery/">Галерея</a></h2>
 
   <div class="boxlet_content">
     <h3>Последние скриншоты</h3>
@@ -50,5 +50,5 @@
       </i> ${item.title} от <a href="${nickurl}">${item.nick}</a> (${item.stat})
       </div>
     </c:forEach>
-    <a href="view-news.jsp?section=3">другие скриншоты...</a>
+    <a href="/gallery/">другие скриншоты...</a>
   </div>

@@ -25,11 +25,7 @@
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 <H1>${section.name} - Архив</H1>
 <c:forEach items="${items}" var="item">
-  <c:url value="/view-news.jsp" var="item_url">
-    <c:param name="year" value="${item.year}"/>
-    <c:param name="month" value="${item.month}"/>
-    <c:param name="section" value="${section.id}"/>
-  </c:url>
+  <c:url value="${item.link}" var="item_url"/>
   <fmt:parseDate var="item_date" value="${item.year} ${item.month}" pattern="yyyy M"/>
   <a href="${fn:escapeXml(item_url)}"><fmt:formatDate value="${item_date}" pattern="yyyy MMMM"/>
     (${item.count})</a> <br/>

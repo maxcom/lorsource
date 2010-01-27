@@ -64,7 +64,7 @@
         <div class="menu">
             <ul class="primary">
                 <li class="first"><a href="/">Новости</a></li>
-                <li><a href="/view-news.jsp?section=3">Галерея</a></li>
+                <li><a href="/gallery/">Галерея</a></li>
 
                 <li><a href="/forum/">Форум</a></li>
                 <li><a href="/tracker.jsp">Трекер</a></li>

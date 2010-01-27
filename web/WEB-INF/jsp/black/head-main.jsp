@@ -30,7 +30,7 @@
   <td><a href="server.jsp">О сервере</a></td>
 </tr>
 <tr>
-  <td><a href="view-news.jsp?section=3">Галерея</a></td>
+  <td><a href="/gallery/">Галерея</a></td>
   <td><a href="/forum/">Форум</a></td>
   <td><a href="/tracker.jsp">Сообщения</a></td>
   <td><a href="/wiki">Wiki</a></td>

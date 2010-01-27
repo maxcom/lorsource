@@ -19,6 +19,7 @@ import java.sql.Connection;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
+import java.net.URLEncoder;
 
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Controller;
@@ -37,7 +38,6 @@ import ru.org.linux.util.ServletParameterMissingException;
 
 @Controller
 public class NewsViewerController {
-
   @RequestMapping(value = "/view-news.jsp", method = RequestMethod.GET)
   public ModelAndView showNews(
     @RequestParam(value="month", required=false) Integer month,
@@ -51,6 +51,30 @@ public class NewsViewerController {
     Connection db = null;
 
     Map<String, Object> params = new HashMap<String, Object>();
+
+    params.put("url", "view-news.jsp");
+    StringBuilder urlParams = new StringBuilder();
+    if (sectionid!=null) {
+      urlParams.append("section="+Integer.toString(sectionid));
+    }
+
+    if (tag!=null) {
+      if (urlParams.length()>0) {
+        urlParams.append("&");
+      }
+
+      urlParams.append("tag="+ URLEncoder.encode(tag));
+    }
+
+    if (groupid!=null) {
+      if (urlParams.length()>0) {
+        urlParams.append("&");
+      }
+
+      urlParams.append("group="+Integer.toString(groupid));
+    }
+
+    params.put("params", urlParams);
 
     try {
       if (month == null) {
@@ -219,6 +243,8 @@ public class NewsViewerController {
 
     Map<String, Object> params = new HashMap<String, Object>();
 
+    params.put("url", "/people/"+nick+"/");
+
     try {
       response.setDateHeader("Expires", System.currentTimeMillis() + 60 * 1000);
       response.setDateHeader("Last-Modified", System.currentTimeMillis());
@@ -319,7 +345,6 @@ public class NewsViewerController {
   @RequestMapping(value = "/show-topics.jsp", method = RequestMethod.GET)
   public View showUserTopics(
     @RequestParam("nick") String nick,
-    @RequestParam(value="offset", required=false) Integer offset,
     @RequestParam(value="output", required=false) String output
   ) throws Exception {
     if (output!=null) {
@@ -327,5 +352,49 @@ public class NewsViewerController {
     }
     
     return new RedirectView("/people/"+nick+"/");
+  }
+
+  @RequestMapping("/gallery/")
+  public ModelAndView gallery(
+    @RequestParam(required=false) Integer offset,
+    HttpServletResponse response
+  ) throws Exception {
+    ModelAndView mv = showNews(null, null, Section.SECTION_GALLERY, null, null, offset, response);
+
+    mv.getModel().put("url", "/gallery/");
+    mv.getModel().put("params", null);
+
+    return mv;
+  }
+
+  @RequestMapping(value="/view-news.jsp", params={ "section=3" })
+  public View galleryOldLink(
+    @RequestParam(required=false) Integer offset,
+    @RequestParam(value="month", required=false) Integer month,
+    @RequestParam(value="year", required=false) Integer year
+  ) {
+    if (offset!=null) {
+      return new RedirectView("/gallery/?offset="+Integer.toString(offset));
+    }
+
+    if (year!=null) {
+      return new RedirectView("/gallery/archive/"+Integer.toString(year)+"/"+Integer.toString(month));
+    }
+
+    return new RedirectView("/gallery/");
+  }
+
+  @RequestMapping("/gallery/archive/{year}/{month}")
+  public ModelAndView galleryArchive(
+    @PathVariable int year,
+    @PathVariable int month,
+    HttpServletResponse response
+  ) throws Exception {
+    ModelAndView mv = showNews(month, year, Section.SECTION_GALLERY, null, null, null, response);
+
+    mv.getModel().put("url", "/gallery/archive/"+year+"/"+month+"/");
+    mv.getModel().put("params", null);
+
+    return mv;
   }
 }

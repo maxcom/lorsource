@@ -29,6 +29,7 @@ public class Section implements Serializable {
   public static final int SCROLL_GROUP = 2;
 
   public static final int SECTION_FORUM = 2;
+  public static final int SECTION_GALLERY = 3;
 
   public Section(Connection db, int id) throws SQLException, SectionNotFoundException {
     this.id = id;
@@ -164,5 +165,21 @@ public class Section implements Serializable {
     }
 
     return "/view-section.jsp?section="+section;
+  }
+
+  public String getArchiveLink(int year, int month) {
+    if (id==SECTION_GALLERY) {
+      return "/gallery/archive/"+year+"/"+month+"/";
+    }
+
+    return "/view-news.jsp?section="+id+"&year="+year+"&month="+month;
+  }
+
+  public String getArchiveLink() {
+    if (id==SECTION_GALLERY) {
+      return "/gallery/archive/";
+    }
+
+    return "/view-news-archive.jsp?section="+id;
   }
 }

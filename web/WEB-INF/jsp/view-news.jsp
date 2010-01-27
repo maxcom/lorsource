@@ -4,6 +4,7 @@
 <%@ page import="ru.org.linux.site.User" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
 <%--
   ~ Copyright 1998-2010 Linux.org.ru
@@ -25,8 +26,6 @@
 <%
   Group group = (Group) request.getAttribute("group");
   Section section = (Section) request.getAttribute("section");
-  String tag = (String) request.getAttribute("tag");
-  User user = (User) request.getAttribute("user");
 %>
 
 <c:if test="${rssLink != null}">
@@ -57,7 +56,7 @@
             out.print("[<a href=\"group.jsp?group=" + group.getId() + "\">Таблица</a>]");
           }
         %>
-        [<a href="view-news-archive.jsp?section=${section.id}">Архив</a>]
+        [<a href="${section.archiveLink}">Архив</a>]
       </c:if>
       <c:if test="${rssLink != null}">
         [<a href="${rssLink}">RSS</a>]
@@ -77,50 +76,27 @@
   <lor:news db="<%= db %>" message="${msg}" multiPortal="<%= section==null && group==null %>" moderateMode="false"/>
 </c:forEach>
 
-<%
-  String params = "";
-  if (section!=null) {
-    params += "section="+section.getId();
-  }
-
-  if (tag!=null) {
-    if (params.length()>0) {
-      params += "&amp;";
-    }
-
-    params += "tag="+ URLEncoder.encode(tag, "UTF-8");
-  }
-
-  if (group!=null) {
-    if (params.length()>0) {
-      params += "&amp;";
-    }
-
-    params += "group="+group.getId();
-  }
-
-  String url = user==null?"view-news.jsp":"/people/"+user.getNick()+"/";
-
-  if (params.length()>0) {
-    params += "&amp;";
-  }
-%>
 <c:if test="${offsetNavigation}">
   <table class="nav">
     <tr>
       <c:if test="${offset < 200}">
         <td align="left" width="35%">
-          <a href="<%= url %>?<%= params %>offset=${offset+20}">← предыдущие</a>
+          <a href="${url}?${params}offset=${offset+20}">← предыдущие</a>
         </td>
       </c:if>
       <c:if test="${offset > 20}">
         <td width="35%" align="right">
-          <a href="<%= url %>?<%= params %>offset=${offset-20}">следующие →</a>
+          <a href="${url}?${params}offset=${offset-20}">следующие →</a>
         </td>
       </c:if>
       <c:if test="${offset == 20}">
         <td width="35%" align="right">
-          <a href="<%= url %><%= params.length()>0?("?"+params):"" %>">следующие →</a>
+          <c:if test="${fn:length(params)>0}">
+            <a href="${url}?${params}">следующие →</a>
+          </c:if>
+          <c:if test="${fn:length(params)==0}">
+            <a href="${url}">следующие →</a>
+          </c:if>
         </td>
       </c:if>
     </tr>
