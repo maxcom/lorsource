@@ -46,7 +46,7 @@ public class GroupController {
 
       group = new Group(db, groupId);
 
-      if (group.getSectionId()==Section.SECTION_FORUM) {
+      if (group.getSectionId()==Section.SECTION_FORUM && !request.getMethod().equals("POST")) {
         if (offsetObject!=null) {
           return new ModelAndView(new RedirectView(group.getUrl()+"?offset="+offsetObject.toString()));
         } else {
@@ -89,7 +89,9 @@ public class GroupController {
     return topics(group.getId(), offset, request, false);
   }
 
-  public ModelAndView topics(int groupId, Integer offsetObject, HttpServletRequest request, boolean lastmod) throws Exception {
+  public ModelAndView topics(
+    int groupId, Integer offsetObject, HttpServletRequest request, boolean lastmod
+  ) throws Exception {
     Map<String, Object> params = new HashMap<String, Object>();
 
     boolean showDeleted = request.getParameter("deleted") != null;
