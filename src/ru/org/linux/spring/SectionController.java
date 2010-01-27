@@ -59,6 +59,6 @@ public class SectionController {
 
   @RequestMapping(value="/view-section.jsp", params = {"section=2"})
   public View forumOld() {
-    return new RedirectView("/forum");
+    return new RedirectView("/forum/");
   }
 }
