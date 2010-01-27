@@ -113,6 +113,7 @@ public class NewsViewerController {
         section = new Section(db, sectionid);
 
         params.put("section", section);
+        params.put("archiveLink", section.getArchiveLink());
       }
 
       Group group = null;
@@ -244,6 +245,7 @@ public class NewsViewerController {
     Map<String, Object> params = new HashMap<String, Object>();
 
     params.put("url", "/people/"+nick+"/");
+// TODO    params.put("archiveLink", "/people/"+nick+"/archive/");
 
     try {
       response.setDateHeader("Expires", System.currentTimeMillis() + 60 * 1000);

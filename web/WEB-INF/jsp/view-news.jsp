@@ -56,8 +56,12 @@
             out.print("[<a href=\"group.jsp?group=" + group.getId() + "\">Таблица</a>]");
           }
         %>
-        [<a href="${section.archiveLink}">Архив</a>]
       </c:if>
+
+      <c:if test="${archiveLink != null}">
+        [<a href="${archiveLink}">Архив</a>]
+      </c:if>
+
       <c:if test="${rssLink != null}">
         [<a href="${rssLink}">RSS</a>]
       </c:if>
