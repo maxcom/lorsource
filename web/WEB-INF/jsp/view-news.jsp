@@ -77,24 +77,28 @@
 </c:forEach>
 
 <c:if test="${offsetNavigation}">
+  <c:if test="${params !=null}">
+    <c:set var="aparams" value="${params}&"/>
+  </c:if>
+  
   <table class="nav">
     <tr>
       <c:if test="${offset < 200}">
         <td align="left" width="35%">
-          <a href="${url}?${params}offset=${offset+20}">← предыдущие</a>
+          <a href="${url}?${aparams}offset=${offset+20}">← предыдущие</a>
         </td>
       </c:if>
       <c:if test="${offset > 20}">
         <td width="35%" align="right">
-          <a href="${url}?${params}offset=${offset-20}">следующие →</a>
+          <a href="${url}?${aparams}offset=${offset-20}">следующие →</a>
         </td>
       </c:if>
       <c:if test="${offset == 20}">
         <td width="35%" align="right">
-          <c:if test="${fn:length(params)>0}">
+          <c:if test="${params!=null}">
             <a href="${url}?${params}">следующие →</a>
           </c:if>
-          <c:if test="${fn:length(params)==0}">
+          <c:if test="${params==null}">
             <a href="${url}">следующие →</a>
           </c:if>
         </td>
