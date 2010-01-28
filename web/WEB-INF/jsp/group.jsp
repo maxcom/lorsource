@@ -200,43 +200,40 @@
 </c:forEach>
 </tbody>
 <tfoot>
+<tr><td colspan=3><p>
+<div style="float: left">
 <%
-  out.print("<tr><td colspan=3><p>");
-
   String ignoredAdd = showIgnored ?("&amp;showignored=t"):"";
-
-  out.print("<div style=\"float: left\">");
 
   boolean lastmod = (Boolean) request.getAttribute("lastmod");
   String self = lastmod?"group-lastmod.jsp":"group.jsp";
 
   // НАЗАД
-  if (firstPage) {
-    out.print("");
-  } else if ((!lastmod && offset == pages * topics) || (lastmod && offset == topics)) {
-    out.print("<a href=\""+self+"?group=" + groupId + ignoredAdd + "\">← начало</a> ");
-  } else if (!lastmod) {
-    out.print("<a rel=prev rev=next href=\""+self+"?group=" + groupId + "&amp;offset=" + (offset + topics) + ignoredAdd + "\">← назад</a>");
-  } else {
-    out.print("<a rel=prev rev=next href=\""+self+"?group=" + groupId + "&amp;offset=" + (offset - topics) + ignoredAdd + "\">← назад</a>");
+  if (!firstPage) {
+    if ((!lastmod && offset == pages * topics) || (lastmod && offset == topics)) {
+      out.print("<a href=\""+self+"?group=" + groupId + ignoredAdd + "\">← начало</a> ");
+    } else if (!lastmod) {
+      out.print("<a rel=prev rev=next href=\""+self+"?group=" + groupId + "&amp;offset=" + (offset + topics) + ignoredAdd + "\">← назад</a>");
+    } else {
+      out.print("<a rel=prev rev=next href=\""+self+"?group=" + groupId + "&amp;offset=" + (offset - topics) + ignoredAdd + "\">← назад</a>");
+    }
   }
-
-  out.print("</div>");
-
-  // ВПЕРЕД
-  out.print("<div style=\"float: right\">");
-
-  if (firstPage && !lastmod) {
-    out.print("<a rel=next rev=prev href=\""+self+"?group=" + groupId + "&amp;offset=" + (pages * topics) + ignoredAdd + "\">архив →</a>");
-  } else if (offset == 0 && !firstPage) {
-  } else if (!lastmod) {
-    out.print("<a rel=next rev=prev href=\""+self+"?group=" + groupId + "&amp;offset=" + (offset - topics) + ignoredAdd + "\">вперед →</a>");
-  } else {
-    out.print("<a rel=next rev=prev href=\""+self+"?group=" + groupId + "&amp;offset=" + (offset + topics) + ignoredAdd + "\">вперед →</a>");
-  }
-
-  out.print("</div>");
 %>
+</div>
+<div style="float: right">
+  <%
+  // ВПЕРЕД
+    if (offset != 0 || firstPage) {
+      if (firstPage && !lastmod) {
+        out.print("<a rel=next rev=prev href=\""+self+"?group=" + groupId + "&amp;offset=" + (pages * topics) + ignoredAdd + "\">архив →</a>");
+      } else  if (!lastmod) {
+        out.print("<a rel=next rev=prev href=\""+self+"?group=" + groupId + "&amp;offset=" + (offset - topics) + ignoredAdd + "\">вперед →</a>");
+      } else {
+        out.print("<a rel=next rev=prev href=\""+self+"?group=" + groupId + "&amp;offset=" + (offset + topics) + ignoredAdd + "\">вперед →</a>");
+      }
+    }
+  %>
+</div>
 </tfoot>
 </table>
 </div>
