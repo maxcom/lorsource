@@ -160,11 +160,14 @@ public class Section implements Serializable {
   }
 
   public static String getSectionLink(int section) {
-    if (section==SECTION_FORUM) {
-      return "/forum/";
+    switch (section) {
+      case SECTION_FORUM:
+        return "/forum/";
+      case SECTION_GALLERY:
+        return "/gallery/";
+      default:
+        return "/view-section.jsp?section="+section;
     }
-
-    return "/view-section.jsp?section="+section;
   }
 
   public String getArchiveLink(int year, int month) {

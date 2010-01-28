@@ -369,6 +369,34 @@ public class NewsViewerController {
     return mv;
   }
 
+  @RequestMapping("/gallery/{group}")
+  public ModelAndView galleryGroup(
+    @RequestParam(required=false) Integer offset,
+    @PathVariable("group") String groupName,
+    HttpServletResponse response
+  ) throws Exception {
+    Connection db = null;
+    Group group;
+
+    try {
+      db = LorDataSource.getConnection();
+
+      Section section = new Section(db, Section.SECTION_GALLERY);
+      group = section.getGroup(db, groupName);
+    } finally {
+      if (db!=null) {
+        db.close();
+      }
+    }
+
+    ModelAndView mv = showNews(null, null, Section.SECTION_GALLERY, group.getId(), null, offset, response);
+
+    mv.getModel().put("url", "/gallery/"+groupName+"/");
+    mv.getModel().put("params", null);
+
+    return mv;
+  }
+
   @RequestMapping(value="/view-news.jsp", params={ "section=3" })
   public View galleryOldLink(
     @RequestParam(required=false) Integer offset,
