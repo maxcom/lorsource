@@ -186,6 +186,21 @@ public class Section implements Serializable {
     }
   }
 
+  public static String getNewsViewerLink(int section) {
+    switch (section) {
+      case SECTION_FORUM:
+        return "/forum/lenta/";
+      case SECTION_GALLERY:
+        return "/gallery/";
+      case SECTION_NEWS:
+        return "/news/";
+      case SECTION_POLLS:
+        return "/polls/";
+      default:
+        throw new RuntimeException("unknown section");
+    }
+  }
+
   public String getArchiveLink(int year, int month) {
     return getArchiveLink(id)+"/"+year+"/"+month+"/";
   }

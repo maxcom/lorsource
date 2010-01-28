@@ -369,6 +369,19 @@ public class NewsViewerController {
     return mv;
   }
 
+  @RequestMapping("/forum/lenta")
+  public ModelAndView forum(
+    @RequestParam(required=false) Integer offset,
+    HttpServletResponse response
+  ) throws Exception {
+    ModelAndView mv = showNews(null, null, Section.SECTION_FORUM, null, null, offset, response);
+
+    mv.getModel().put("url", "/forum/lenta");
+    mv.getModel().put("params", null);
+
+    return mv;
+  }
+
   @RequestMapping("/polls/")
   public ModelAndView polls(
     @RequestParam(required=false) Integer offset,
@@ -431,14 +444,14 @@ public class NewsViewerController {
     @RequestParam(value="year", required=false) Integer year
   ) {
     if (offset!=null) {
-      return new RedirectView(Section.getSectionLink(section)+"?offset="+Integer.toString(offset));
+      return new RedirectView(Section.getNewsViewerLink(section)+"?offset="+Integer.toString(offset));
     }
 
     if (year!=null) {
       return new RedirectView(Section.getArchiveLink(section)+Integer.toString(year)+"/"+Integer.toString(month));
     }
 
-    return new RedirectView(Section.getSectionLink(section));
+    return new RedirectView(Section.getNewsViewerLink(section));
   }
 
   @RequestMapping("/{section}/archive/{year}/{month}")

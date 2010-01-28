@@ -47,6 +47,7 @@
         </c:if>
 
         <c:if test="${section.id==2}">
+            [<a href="/forum/lenta/">Лента</a>]
             [<a href="section-rss.jsp?section=${section.id}">RSS</a>
             <span id="rss-select">
                 <a href="section-rss.jsp?section=${section.id}&filter=notalks">без talks</a>

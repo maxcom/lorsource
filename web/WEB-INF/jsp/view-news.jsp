@@ -50,10 +50,12 @@
             }
           }
 
-          if (group == null) {
-            out.print("[<a href=\"view-section.jsp?section=" + section.getId() + "\">Таблица</a>]");
-          } else {
-            out.print("[<a href=\"group.jsp?group=" + group.getId() + "\">Таблица</a>]");
+          if (section.getId() == Section.SECTION_FORUM) {
+            if (group == null) {
+              out.print("[<a href=\"/forum/\">Таблица</a>]");
+            } else {
+              out.print("[<a href=\"/forum/" + group.getUrlName() + "/\">Таблица</a>]");
+            }
           }
         %>
       </c:if>
