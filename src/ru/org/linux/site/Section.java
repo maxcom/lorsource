@@ -210,6 +210,10 @@ public class Section implements Serializable {
   }
 
   public static String getArchiveLink(int id) {
+    if (id==SECTION_FORUM) {
+      return null;
+    }
+    
     return getSectionLink(id)+"archive/";
   }
 
