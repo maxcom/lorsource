@@ -63,6 +63,7 @@ public class GroupModificationController {
   public ModelAndView modifyGroup(
     @RequestParam("group") int id,
     @RequestParam("info") String info,
+    @RequestParam("urlName") String urlName,
     @RequestParam("longinfo") String longInfo,
     @RequestParam(value = "preview", required = false) String preview,
     @RequestParam(value = "resolvable", required = false) String resolvable,
@@ -92,12 +93,23 @@ public class GroupModificationController {
         return new ModelAndView("groupmod", params);
       }
 
-      PreparedStatement pst = db.prepareStatement("UPDATE groups SET info=?, longinfo=?,resolvable=? WHERE id=?");
+      PreparedStatement pst = db.prepareStatement("UPDATE groups SET info=?, longinfo=?,resolvable=?,urlname=? WHERE id=?");
 
-      pst.setString(1, info);
-      pst.setString(2, longInfo);
+      if (info.length()>0) {
+        pst.setString(1, info);
+      } else {
+        pst.setString(1, null);
+      }
+
+      if (longInfo.length()>0) {
+        pst.setString(2, longInfo);
+      } else {
+        pst.setString(2, null);
+      }
+
       pst.setBoolean(3, resolvable!=null);
-      pst.setInt(4, id);
+      pst.setString(4, urlName);
+      pst.setInt(5, id);
 
       pst.executeUpdate();
 

@@ -184,7 +184,7 @@ public class Section implements Serializable {
   }
 
   public Group getGroup(Connection db, String name) throws SQLException, BadGroupException {
-    PreparedStatement st = db.prepareStatement("SELECT id FROM groups WHERE section=? AND title=?");
+    PreparedStatement st = db.prepareStatement("SELECT id FROM groups WHERE section=? AND urlname=?");
     st.setInt(1, id);
     st.setString(2, name);
 
