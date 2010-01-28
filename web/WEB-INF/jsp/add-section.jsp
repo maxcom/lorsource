@@ -34,7 +34,7 @@
 <c:forEach var="group"
            items="${groups}">
   <li>
-    <a href="add.jsp?group=${group.id}&amp;noinfo=1">${group.title}</a> (<a href="group.jsp?group=${group.id}">просмотр...</a>)
+    <a href="add.jsp?group=${group.id}&amp;noinfo=1">${group.title}</a> (<a href="${group.url}">просмотр...</a>)
 
     <c:if test="${group.info != null}">
       - <em><c:out value="${group.info}" escapeXml="false"/></em>
