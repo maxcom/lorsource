@@ -27,6 +27,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
@@ -35,6 +36,35 @@ import ru.org.linux.site.*;
 
 @Controller
 public class MessageController {
+  @RequestMapping("/forum/{group}/{id}")
+  public ModelAndView getMessageNew(
+    WebRequest webRequest,
+    HttpServletRequest request,
+    HttpServletResponse response,
+    @RequestParam(value="page", required=false) Integer page,
+    @RequestParam(value="filter", required=false) String filter,
+    @PathVariable("group") String groupName,
+    @PathVariable("id") int msgid
+  ) throws Exception {
+    Connection db = null;
+    try {
+      db = LorDataSource.getConnection();
+
+      Message message = new Message(db, msgid);
+      Group group = new Group(db, message.getGroupId());
+
+      if (group.getUrlName().equals(groupName)) {
+        return getMessage(webRequest, request, response, msgid, page, filter);
+      } else {
+        return new ModelAndView(new RedirectView(message.getLink()));
+      }
+    } finally {
+      if (db!=null) {
+        db.close();
+      }
+    }
+  }
+
   @RequestMapping("/view-message.jsp")
   public ModelAndView getMessage(
     WebRequest webRequest,

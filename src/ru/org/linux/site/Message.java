@@ -50,6 +50,7 @@ public class Message implements Serializable {
   private final Timestamp postdate;
   private final Timestamp commitDate;
   private final String groupTitle;
+  private final String groupUrl;
   private final Timestamp lastModified;
   private final int sectionid;
   private final int commentCount;
@@ -70,7 +71,7 @@ public class Message implements Serializable {
         "SELECT " +
             "postdate, topics.id as msgid, users.id as userid, topics.title, " +
             "topics.groupid as guid, topics.url, topics.linktext, user_agents.name as useragent, " +
-            "groups.title as gtitle, vote, havelink, section, topics.sticky, topics.postip, " +
+            "groups.title as gtitle, urlname, vote, havelink, section, topics.sticky, topics.postip, " +
             "postdate<(CURRENT_TIMESTAMP-sections.expire) as expired, deleted, lastmod, commitby, " +
             "commitdate, topics.stat1, postscore, topics.moderate, message, notop,bbcode, " +
             "topics.resolved " +
@@ -103,6 +104,7 @@ public class Message implements Serializable {
     commitDate=rs.getTimestamp("commitdate");
     commitby = rs.getInt("commitby");
     groupTitle = rs.getString("gtitle");
+    groupUrl = rs.getString("urlname");
     lastModified = rs.getTimestamp("lastmod");
     sectionid =rs.getInt("section");
     commentCount = rs.getInt("stat1");
@@ -142,6 +144,7 @@ public class Message implements Serializable {
     commitDate=rs.getTimestamp("commitdate");
     commitby = rs.getInt("commitby");
     groupTitle = rs.getString("gtitle");
+    groupUrl = rs.getString("urlname");
     lastModified = rs.getTimestamp("lastmod");
     sectionid =rs.getInt("section");
     commentCount = rs.getInt("stat1");
@@ -199,6 +202,7 @@ public class Message implements Serializable {
     postdate = new Timestamp(System.currentTimeMillis());
     commitDate = null;
     groupTitle = "";
+    groupUrl = "";
     lastModified = new Timestamp(System.currentTimeMillis());
     commentCount = 0;
     moderate = false;
@@ -279,6 +283,7 @@ public class Message implements Serializable {
     postdate = original.postdate;
     commitDate = original.commitDate;
     groupTitle = original.groupTitle;
+    groupUrl = original.groupUrl;
     lastModified = new Timestamp(System.currentTimeMillis());
     commentCount = original.commentCount;
     moderate = original.moderate;
@@ -768,5 +773,12 @@ public class Message implements Serializable {
     pstMsgbase.setInt(2, this.msgid);
     pstMsgbase.executeUpdate();
   }
-  
+
+  public String getLink() {
+    if (sectionid==Section.SECTION_FORUM) {
+      return "/forum/"+groupUrl+"/"+msgid;
+    } else {
+      return "view-message.jsp?msgid="+msgid;
+    }
+  }
 }

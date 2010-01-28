@@ -169,7 +169,7 @@ public class NewsViewer {
       "SELECT " +
           "postdate, topics.id as msgid, userid, topics.title, " +
           "topics.groupid as guid, topics.url, topics.linktext, user_agents.name as useragent, " +
-          "groups.title as gtitle, vote, havelink, section, topics.sticky, topics.postip, " +
+          "groups.title as gtitle, urlname, vote, havelink, section, topics.sticky, topics.postip, " +
           "postdate<(CURRENT_TIMESTAMP-sections.expire) as expired, deleted, lastmod, commitby, " +
           "commitdate, topics.stat1, postscore, topics.moderate, message, notop,bbcode, " +
           "topics.resolved " +
