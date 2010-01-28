@@ -210,7 +210,7 @@
             <tr valign=middle>
               <td>
                 <a title="<%=  message.getSectionTitle() + " - " + message.getGroupTitle() %>"
-                   href="group.jsp?group=<%= message.getGroupId() %>">
+                   href="${group.url}">
                   <%= message.getSectionTitle() + " - " + message.getGroupTitle() %>
                 </a>
               </td>
