@@ -50,9 +50,7 @@
             [<a href="section-rss.jsp?section=${section.id}">RSS</a>
             <span id="rss-select">
                 <a href="section-rss.jsp?section=${section.id}&filter=notalks">без talks</a>
-                <a href="section-rss.jsp?section=${section.id}&filter=tech">тех. разделы форума</a>
-            </span>
-            ]
+                <a href="section-rss.jsp?section=${section.id}&filter=tech">тех. разделы форума</a></span>]
         </c:if>
       </td>
     </tr>
