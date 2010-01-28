@@ -24,11 +24,7 @@
 
 <div class="boxlet_content">
   <c:forEach var="item" items="${items}">
-    <c:url value="/view-news.jsp" var="item_url">
-      <c:param name="year" value="${item.year}"/>
-      <c:param name="month" value="${item.month}"/>
-      <c:param name="section" value="1"/>
-    </c:url>
+    <c:url value="/news/archive/${item.year}/${item.month}" var="item_url"/>
     <fmt:parseDate var="item_date" value="${item.year} ${item.month}" pattern="yyyy M"/>
     <a href="${fn:escapeXml(item_url)}"><fmt:formatDate value="${item_date}" pattern="yyyy MMMM"/>
       (${item.count})</a> <br/>
