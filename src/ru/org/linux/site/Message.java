@@ -775,10 +775,6 @@ public class Message implements Serializable {
   }
 
   public String getLink() {
-    if (sectionid==Section.SECTION_FORUM) {
-      return "/forum/"+groupUrl+"/"+msgid;
-    } else {
-      return "view-message.jsp?msgid="+msgid;
-    }
+    return Section.getSectionLink(sectionid) + groupUrl+"/"+msgid;
   }
 }

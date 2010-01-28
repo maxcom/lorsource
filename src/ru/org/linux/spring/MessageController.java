@@ -37,7 +37,7 @@ import ru.org.linux.site.*;
 @Controller
 public class MessageController {
   @RequestMapping("/forum/{group}/{id}")
-  public ModelAndView getMessageNew(
+  public ModelAndView getMessageNewForum(
     WebRequest webRequest,
     HttpServletRequest request,
     HttpServletResponse response,
@@ -46,6 +46,58 @@ public class MessageController {
     @PathVariable("group") String groupName,
     @PathVariable("id") int msgid
   ) throws Exception {
+    return getMessageNew(Section.SECTION_FORUM, webRequest, request, response, page, filter, groupName, msgid);
+  }
+
+  @RequestMapping("/news/{group}/{id}")
+  public ModelAndView getMessageNewNews(
+    WebRequest webRequest,
+    HttpServletRequest request,
+    HttpServletResponse response,
+    @RequestParam(value="page", required=false) Integer page,
+    @RequestParam(value="filter", required=false) String filter,
+    @PathVariable("group") String groupName,
+    @PathVariable("id") int msgid
+  ) throws Exception {
+    return getMessageNew(Section.SECTION_NEWS, webRequest, request, response, page, filter, groupName, msgid);
+  }
+
+  @RequestMapping("/polls/{group}/{id}")
+  public ModelAndView getMessageNewPolls(
+    WebRequest webRequest,
+    HttpServletRequest request,
+    HttpServletResponse response,
+    @RequestParam(value="page", required=false) Integer page,
+    @RequestParam(value="filter", required=false) String filter,
+    @PathVariable("group") String groupName,
+    @PathVariable("id") int msgid
+  ) throws Exception {
+    return getMessageNew(Section.SECTION_POLLS, webRequest, request, response, page, filter, groupName, msgid);
+  }
+
+  @RequestMapping("/gallery/{group}/{id}")
+  public ModelAndView getMessageNewGallery(
+    WebRequest webRequest,
+    HttpServletRequest request,
+    HttpServletResponse response,
+    @RequestParam(value="page", required=false) Integer page,
+    @RequestParam(value="filter", required=false) String filter,
+    @PathVariable("group") String groupName,
+    @PathVariable("id") int msgid
+  ) throws Exception {
+    return getMessageNew(Section.SECTION_GALLERY, webRequest, request, response, page, filter, groupName, msgid);
+  }
+
+  public ModelAndView getMessageNew(
+    int section,
+    WebRequest webRequest,
+    HttpServletRequest request,
+    HttpServletResponse response,
+    Integer page,
+    String filter,
+    String groupName,
+    int msgid
+  ) throws Exception {
     Connection db = null;
     try {
       db = LorDataSource.getConnection();
@@ -53,7 +105,7 @@ public class MessageController {
       Message message = new Message(db, msgid);
       Group group = new Group(db, message.getGroupId());
 
-      if (group.getUrlName().equals(groupName)) {
+      if (group.getUrlName().equals(groupName) && group.getSectionId()==section) {
         return getMessage(webRequest, request, response, msgid, page, filter);
       } else {
         return new ModelAndView(new RedirectView(message.getLink()));

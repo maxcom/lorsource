@@ -33,9 +33,8 @@ import ru.org.linux.site.Section;
 
 @Controller
 public class NewsArchiveController {
-  @RequestMapping("/view-news-archive.jsp")
   public ModelAndView archiveList(
-    @RequestParam("section") int sectionid
+    int sectionid
   ) throws Exception {
     Connection db = null;
 
@@ -75,10 +74,21 @@ public class NewsArchiveController {
   ) throws Exception {
     return archiveList(Section.SECTION_GALLERY);
   }
+  @RequestMapping("/news/archive")
+  public ModelAndView newsArchive(
+  ) throws Exception {
+    return archiveList(Section.SECTION_NEWS);
+  }
 
-  @RequestMapping(value="/view-news-archive.jsp", params={"section=3"})
-  public View galleryArchiveOld() throws Exception {
-    return new RedirectView("/gallery/archive/");
+  @RequestMapping("/polls/archive")
+  public ModelAndView pollsArchive(
+  ) throws Exception {
+    return archiveList(Section.SECTION_POLLS);
+  }
+
+  @RequestMapping(value="/view-news-archive.jsp")
+  public View galleryArchiveOld(@RequestParam("section") int id) throws Exception {
+    return new RedirectView(Section.getArchiveLink(id));
   }
 
   public class NewsArchiveListItem {

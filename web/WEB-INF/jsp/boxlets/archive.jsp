@@ -19,9 +19,7 @@
 <%@ taglib prefix="lor" uri="http://www.linux.org.ru" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 <fmt:setLocale value="ru" scope="session"/>
-<c:url var="head_url" value="/view-news-archive.jsp">
-  <c:param name="section" value="1"/>
-</c:url>
+<c:url var="head_url" value="/news/"/>
 <h2><a href="${head_url}">Архив Новостей</a></h2>
 
 <div class="boxlet_content">

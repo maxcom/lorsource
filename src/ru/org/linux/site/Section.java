@@ -17,6 +17,8 @@ package ru.org.linux.site;
 
 import java.io.Serializable;
 import java.sql.*;
+import java.util.Map;
+import java.util.HashMap;
 
 public class Section implements Serializable {
   private final String name;
@@ -30,6 +32,16 @@ public class Section implements Serializable {
 
   public static final int SECTION_FORUM = 2;
   public static final int SECTION_GALLERY = 3;
+  public static final int SECTION_NEWS = 1;
+  public static final int SECTION_POLLS = 5;
+
+  private static final Map<String, Integer> sections = new HashMap<String, Integer>();
+  static {
+    sections.put("news", SECTION_NEWS);
+    sections.put("forum", SECTION_FORUM);
+    sections.put("gallery", SECTION_GALLERY);
+    sections.put("polls", SECTION_POLLS);
+  }
 
   public Section(Connection db, int id) throws SQLException, SectionNotFoundException {
     this.id = id;
@@ -165,25 +177,25 @@ public class Section implements Serializable {
         return "/forum/";
       case SECTION_GALLERY:
         return "/gallery/";
+      case SECTION_NEWS:
+        return "/news/";
+      case SECTION_POLLS:
+        return "/polls/";
       default:
-        return "/view-section.jsp?section="+section;
+        throw new RuntimeException("unknown section");
     }
   }
 
   public String getArchiveLink(int year, int month) {
-    if (id==SECTION_GALLERY) {
-      return "/gallery/archive/"+year+"/"+month+"/";
-    }
-
-    return "/view-news.jsp?section="+id+"&year="+year+"&month="+month;
+    return getArchiveLink(id)+"/"+year+"/"+month+"/";
   }
 
   public String getArchiveLink() {
-    if (id==SECTION_GALLERY) {
-      return "/gallery/archive/";
-    }
+    return getArchiveLink(id);
+  }
 
-    return "/view-news-archive.jsp?section="+id;
+  public static String getArchiveLink(int id) {
+    return getSectionLink(id)+"archive/";
   }
 
   public Group getGroup(Connection db, String name) throws SQLException, BadGroupException {
@@ -197,5 +209,15 @@ public class Section implements Serializable {
     }
 
     return new Group(db, rs.getInt(1));
+  }
+
+  public static int getSection(String name) throws SectionNotFoundException {
+    Integer v = sections.get(name);
+
+    if (v==null) {
+      throw new SectionNotFoundException();
+    }
+
+    return v;
   }
 }

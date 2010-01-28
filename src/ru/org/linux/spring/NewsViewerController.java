@@ -15,18 +15,18 @@
 
 package ru.org.linux.spring;
 
+import java.net.URLEncoder;
 import java.sql.Connection;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
-import java.net.URLEncoder;
 
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.view.RedirectView;
@@ -369,6 +369,32 @@ public class NewsViewerController {
     return mv;
   }
 
+  @RequestMapping("/polls/")
+  public ModelAndView polls(
+    @RequestParam(required=false) Integer offset,
+    HttpServletResponse response
+  ) throws Exception {
+    ModelAndView mv = showNews(null, null, Section.SECTION_POLLS, null, null, offset, response);
+
+    mv.getModel().put("url", "/polls/");
+    mv.getModel().put("params", null);
+
+    return mv;
+  }
+
+  @RequestMapping("/news/")
+  public ModelAndView news(
+    @RequestParam(required=false) Integer offset,
+    HttpServletResponse response
+  ) throws Exception {
+    ModelAndView mv = showNews(null, null, Section.SECTION_NEWS, null, null, offset, response);
+
+    mv.getModel().put("url", "/news/");
+    mv.getModel().put("params", null);
+
+    return mv;
+  }
+
   @RequestMapping("/gallery/{group}")
   public ModelAndView galleryGroup(
     @RequestParam(required=false) Integer offset,
@@ -397,30 +423,32 @@ public class NewsViewerController {
     return mv;
   }
 
-  @RequestMapping(value="/view-news.jsp", params={ "section=3" })
+  @RequestMapping(value="/view-news.jsp", params={ "section" })
   public View galleryOldLink(
+    @RequestParam int section,
     @RequestParam(required=false) Integer offset,
     @RequestParam(value="month", required=false) Integer month,
     @RequestParam(value="year", required=false) Integer year
   ) {
     if (offset!=null) {
-      return new RedirectView("/gallery/?offset="+Integer.toString(offset));
+      return new RedirectView(Section.getSectionLink(section)+"?offset="+Integer.toString(offset));
     }
 
     if (year!=null) {
-      return new RedirectView("/gallery/archive/"+Integer.toString(year)+"/"+Integer.toString(month));
+      return new RedirectView(Section.getArchiveLink(section)+Integer.toString(year)+"/"+Integer.toString(month));
     }
 
-    return new RedirectView("/gallery/");
+    return new RedirectView(Section.getSectionLink(section));
   }
 
-  @RequestMapping("/gallery/archive/{year}/{month}")
+  @RequestMapping("/{section}/archive/{year}/{month}")
   public ModelAndView galleryArchive(
+    @PathVariable String section,
     @PathVariable int year,
     @PathVariable int month,
     HttpServletResponse response
   ) throws Exception {
-    ModelAndView mv = showNews(month, year, Section.SECTION_GALLERY, null, null, null, response);
+    ModelAndView mv = showNews(month, year, Section.getSection(section), null, null, null, response);
 
     mv.getModel().put("url", "/gallery/archive/"+year+"/"+month+"/");
     mv.getModel().put("params", null);

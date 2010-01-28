@@ -19,4 +19,8 @@ public class SectionNotFoundException extends ScriptErrorException {
   public SectionNotFoundException(int id) {
     super("Неправильно задан номер секции: "+id);
   }
+
+  public SectionNotFoundException() {
+    super("section not found");
+  }
 }
