@@ -272,14 +272,7 @@ public class Group {
   }
 
   public String getUrl() {
-    switch (section) {
-      case Section.SECTION_FORUM:
-        return "/forum/"+urlName+"/";
-      case Section.SECTION_GALLERY:
-        return "/gallery/"+urlName+"/";
-      default:
-        return "/group.jsp?group="+id;
-    }
+    return getSectionLink()+urlName+"/";
   }
 
   public String getUrlName() {

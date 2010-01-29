@@ -414,13 +414,40 @@ public class NewsViewerController {
     @PathVariable("group") String groupName,
     HttpServletResponse response
   ) throws Exception {
+    return group(Section.SECTION_GALLERY, offset, groupName, response);
+  }
+
+  @RequestMapping("/news/{group}")
+  public ModelAndView newsGroup(
+    @RequestParam(required=false) Integer offset,
+    @PathVariable("group") String groupName,
+    HttpServletResponse response
+  ) throws Exception {
+    return group(Section.SECTION_NEWS, offset, groupName, response);
+  }
+
+  @RequestMapping("/polls/{group}")
+  public ModelAndView pollsGroup(
+    @RequestParam(required=false) Integer offset,
+    @PathVariable("group") String groupName,
+    HttpServletResponse response
+  ) throws Exception {
+    return group(Section.SECTION_POLLS, offset, groupName, response);
+  }
+
+  public ModelAndView group(
+    int sectionId,
+    Integer offset,
+    String groupName,
+    HttpServletResponse response
+  ) throws Exception {
     Connection db = null;
     Group group;
 
     try {
       db = LorDataSource.getConnection();
 
-      Section section = new Section(db, Section.SECTION_GALLERY);
+      Section section = new Section(db, sectionId);
       group = section.getGroup(db, groupName);
     } finally {
       if (db!=null) {
@@ -428,9 +455,9 @@ public class NewsViewerController {
       }
     }
 
-    ModelAndView mv = showNews(null, null, Section.SECTION_GALLERY, group.getId(), null, offset, response);
+    ModelAndView mv = showNews(null, null, group.getSectionId(), group.getId(), null, offset, response);
 
-    mv.getModel().put("url", "/gallery/"+groupName+"/");
+    mv.getModel().put("url", group.getUrl());
     mv.getModel().put("params", null);
 
     return mv;
