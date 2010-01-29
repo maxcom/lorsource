@@ -201,7 +201,7 @@ public class NewsViewerController {
         newsViewer.setDatelimit("postdate>='" + year + '-' + month + "-01'::timestamp AND (postdate<'" + year + '-' + month + "-01'::timestamp+'1 month'::interval)");
       } else if (tag==null) {
         if (section.isPremoderated()) {
-          newsViewer.setDatelimit("(commitdate>(CURRENT_TIMESTAMP-'6 month'::interval))");
+          newsViewer.setDatelimit("(commitdate>(CURRENT_TIMESTAMP-'1 year'::interval))");
         } else {
           newsViewer.setDatelimit("(postdate>(CURRENT_TIMESTAMP-'6 month'::interval))");
         }
