@@ -33,7 +33,7 @@
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
   <table class=nav><tr>
     <td align=left valign=middle id="navPath">
-      <strong>${navtitle}</strong>
+      ${navtitle}
     </td>
     <td align=right valign=middle>
       <c:if test="${section != null}">

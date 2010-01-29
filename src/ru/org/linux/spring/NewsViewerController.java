@@ -145,7 +145,7 @@ public class NewsViewerController {
       }
 
       if (group != null) {
-        navtitle = "<a href=\"view-news.jsp?section=" + section.getId() + "\">" + section.getName() + "</a> - " + group.getTitle();
+        navtitle = "<a href=\""+Section.getNewsViewerLink(group.getSectionId()) + "\">" + section.getName() + "</a> - <strong>" + group.getTitle()+"</strong>";
       }
 
       String ptitle;
