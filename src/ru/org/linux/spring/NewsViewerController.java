@@ -468,14 +468,31 @@ public class NewsViewerController {
     @RequestParam int section,
     @RequestParam(required=false) Integer offset,
     @RequestParam(value="month", required=false) Integer month,
-    @RequestParam(value="year", required=false) Integer year
-  ) {
+    @RequestParam(value="year", required=false) Integer year,
+    @RequestParam(value="group", required=false) Integer groupId
+  ) throws Exception {
     if (offset!=null) {
       return new RedirectView(Section.getNewsViewerLink(section)+"?offset="+Integer.toString(offset));
     }
 
     if (year!=null) {
       return new RedirectView(Section.getArchiveLink(section)+Integer.toString(year)+"/"+Integer.toString(month));
+    }
+
+    if (groupId!=null) {
+      Connection db = null;
+
+      try {
+        db=LorDataSource.getConnection();
+
+        Group group = new Group(db, groupId);
+
+        return new RedirectView(Section.getNewsViewerLink(section)+group.getUrlName()+"/");
+      } finally {
+        if (db!=null) {
+          db.close();
+        }
+      }
     }
 
     return new RedirectView(Section.getNewsViewerLink(section));
