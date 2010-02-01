@@ -97,6 +97,7 @@ public class GroupController {
     Connection db = null;
     try {
       db = LorDataSource.getConnection();
+      db.setAutoCommit(false);
 
       Section section = new Section(db, Section.SECTION_FORUM);
       Group group = section.getGroup(db, groupName);
@@ -138,9 +139,6 @@ public class GroupController {
       params.put("showIgnored", showIgnored);
 
       int messages = tmpl.getProf().getInt("messages");
-
-      db = LorDataSource.getConnection();
-      db.setAutoCommit(false);
 
       params.put("group", group);
 
