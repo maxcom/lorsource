@@ -22,7 +22,13 @@
 
 <% Template tmpl = Template.getTemplate(request); %>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
-
+<script type="text/javascript">
+  <!--
+  function goto(mySelect) {
+      window.location.href = mySelect.options[mySelect.selectedIndex].value;
+  }
+  -->
+</script>
 
 <%
   Connection db = null;
@@ -66,13 +72,7 @@
     <LINK REL="alternate" HREF="section-rss.jsp?section=<%= group.getSectionId() %>&amp;group=<%= group.getId()%>" TYPE="application/rss+xml">
     <link rel="parent" title="${group.title}" href="${group.sectionLink}">
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
-<c:if test="${lastmod}">
-  <c:set var="self" value="group-lastmod.jsp"/>
-</c:if>
-<c:if test="${not lastmod}">
-  <c:set var="self" value="group.jsp"/>
-</c:if>
-<form action="${self}">
+<form>
   <table class=nav>
     <tr>
     <td align=left valign=middle id="navPath">
@@ -95,14 +95,14 @@
   }
 %>
   [<a href="section-rss.jsp?section=<%= group.getSectionId() %>&amp;group=<%=group.getId()%>">RSS</a>]
-      <select name=group onchange="submit();" title="Быстрый переход">
+      <select name=group onchange="goto(this)" title="Быстрый переход">
 <%
         List<Group> groups = Group.getGroups(db, section);
 
         for (Group g: groups) {
 		int id = g.getId();
 %>
-        <option value=<%= id %> <%= id==groupId?"selected":"" %> ><%= g.getTitle() %></option>
+        <option value="<%= g.getUrl() %>" <%= id==groupId?"selected":"" %> ><%= g.getTitle() %></option>
 <%
 	}
 %>
@@ -132,9 +132,11 @@
 <thead>
 <tr>
   <th>Тема<br>
-    <form action="${self}" method="GET" style="font-weight: normal; display: inline;">
-      фильтр: 
-      <input type=hidden name=group value=<%= groupId %>>
+    <form action="${group.url}" method="GET" style="font-weight: normal; display: inline;">
+      фильтр:
+      <c:if test="${lastmod}">
+        <input type=hidden name=lastmod value=true>
+      </c:if>
       <% if (!firstPage) { %>
         <input type=hidden name=offset value="<%= offset %>">
       <% } %>
@@ -146,10 +148,10 @@
   </th>
   <th>Последнее сообщение<br>
     <c:if test="${lastmod}">
-      <span style="font-weight: normal">[<a href="group.jsp?group=${group.id}" style="text-decoration: underline">отменить</a>]</span>
+      <span style="font-weight: normal">[<a href="${group.url}" style="text-decoration: underline">отменить</a>]</span>
     </c:if>
     <c:if test="${not lastmod}">
-      <span style="font-weight: normal">[<a href="group-lastmod.jsp?group=${group.id}" style="text-decoration: underline">упорядочить</a>]</span>
+      <span style="font-weight: normal">[<a href="${group.url}?lastmod=true" style="text-decoration: underline">упорядочить</a>]</span>
     </c:if>
   </th>
   <th>Число ответов<br>всего/день/час</th>
@@ -203,19 +205,25 @@
 <tr><td colspan=3><p>
 <div style="float: left">
 <%
-  String ignoredAdd = showIgnored ?("&amp;showignored=t"):"";
+  String urlAdd = showIgnored ?("&amp;showignored=t"):"";
 
   boolean lastmod = (Boolean) request.getAttribute("lastmod");
-  String self = lastmod?"group-lastmod.jsp":"group.jsp";
+  if (lastmod) {
+    urlAdd+="&amp;lastmod=true";
+  }
 
   // НАЗАД
   if (!firstPage) {
     if ((!lastmod && offset == pages * topics) || (lastmod && offset == topics)) {
-      out.print("<a href=\""+self+"?group=" + groupId + ignoredAdd + "\">← начало</a> ");
+      if (urlAdd.length()>0) {
+        out.print("<a href=\""+group.getUrl()+"?"+urlAdd.substring(5) + "\">← начало</a> ");
+      } else {
+        out.print("<a href=\""+group.getUrl()+ "\">← начало</a> ");
+      }
     } else if (!lastmod) {
-      out.print("<a rel=prev rev=next href=\""+self+"?group=" + groupId + "&amp;offset=" + (offset + topics) + ignoredAdd + "\">← назад</a>");
+      out.print("<a rel=prev rev=next href=\""+group.getUrl()+ "?offset=" + (offset + topics) + urlAdd + "\">← назад</a>");
     } else {
-      out.print("<a rel=prev rev=next href=\""+self+"?group=" + groupId + "&amp;offset=" + (offset - topics) + ignoredAdd + "\">← назад</a>");
+      out.print("<a rel=prev rev=next href=\""+group.getUrl()+"?offset=" + (offset - topics) + urlAdd + "\">← назад</a>");
     }
   }
 %>
@@ -225,11 +233,11 @@
   // ВПЕРЕД
     if (offset != 0 || firstPage) {
       if (firstPage && !lastmod) {
-        out.print("<a rel=next rev=prev href=\""+self+"?group=" + groupId + "&amp;offset=" + (pages * topics) + ignoredAdd + "\">архив →</a>");
+        out.print("<a rel=next rev=prev href=\""+group.getUrl()+"?offset=" + (pages * topics) + urlAdd + "\">архив →</a>");
       } else  if (!lastmod) {
-        out.print("<a rel=next rev=prev href=\""+self+"?group=" + groupId + "&amp;offset=" + (offset - topics) + ignoredAdd + "\">вперед →</a>");
+        out.print("<a rel=next rev=prev href=\""+group.getUrl()+"?offset=" + (offset - topics) + urlAdd + "\">вперед →</a>");
       } else {
-        out.print("<a rel=next rev=prev href=\""+self+"?group=" + groupId + "&amp;offset=" + (offset + topics) + ignoredAdd + "\">вперед →</a>");
+        out.print("<a rel=next rev=prev href=\""+group.getUrl()+"?offset=" + (offset + topics) + urlAdd + "\">вперед →</a>");
       }
     }
   %>
@@ -253,7 +261,7 @@
 
     if (i==pages+1) {
       if (offset != 0 || firstPage) {
-        out.print("[<a href=\"group.jsp?group=" + groupId + "&amp;offset=0" + ignoredAdd + "\">последняя</a>] ");
+        out.print("[<a href=\""+group.getUrl()+"?offset=0" + urlAdd + "\">последняя</a>] ");
       } else {
         out.print("[<b>последняя</b>] ");
       }
@@ -261,12 +269,16 @@
       if (firstPage) {
         out.print("[<b>первая</b>] ");
       } else {
-        out.print("[<a href=\"group.jsp?group=" + groupId + ignoredAdd + "\">первая</a>] ");
+        if (urlAdd.length()>0) {
+          out.print("[<a href=\""+group.getUrl()+"?" + urlAdd.substring(5) + "\">первая</a>] ");
+        } else {
+          out.print("[<a href=\""+group.getUrl()+ "\">первая</a>] ");
+        }
       }
     } else if ((pages + 1 - i) * topics == offset) {
       out.print("<b>" + (pages + 1 - i) + "</b> ");
     } else {
-      out.print("<a href=\"group.jsp?group=" + groupId + "&amp;offset=" + ((pages + 1 - i) * topics) + ignoredAdd + "\">" + (pages + 1 - i) + "</a> ");
+      out.print("<a href=\""+group.getUrl()+"?offset=" + ((pages + 1 - i) * topics) + urlAdd + "\">" + (pages + 1 - i) + "</a> ");
     }
   }
 %>
@@ -275,12 +287,9 @@
 
 <% if (Template.isSessionAuthorized(session) && !showDeleted) { %>
   <hr>
-  <form action="group.jsp" method=POST>
+  <form action="${group.url}" method=POST>
   <input type=hidden name=group value=<%= groupId %>>
   <input type=hidden name=deleted value=1>
-  <% if (!firstPage) { %>
-    <input type=hidden name=offset value="<%= offset %>">
-  <% } %>
   <input type=submit value="Показать удаленные сообщения">
   </form>
   <hr>

@@ -36,119 +36,119 @@ public class GroupController {
   @RequestMapping("/group.jsp")
   public ModelAndView topics(
     @RequestParam("group") int groupId,
-    @RequestParam(value="offset", required=false) Integer offsetObject,
-    HttpServletRequest request
+    @RequestParam(value = "offset", required = false) Integer offsetObject
   ) throws Exception {
     Connection db = null;
-    Group group;
+
     try {
       db = LorDataSource.getConnection();
 
-      group = new Group(db, groupId);
+      Group group = new Group(db, groupId);
 
-      if (group.getSectionId()==Section.SECTION_FORUM && !request.getMethod().equals("POST")) {
-        if (offsetObject!=null) {
-          return new ModelAndView(new RedirectView(group.getUrl()+"?offset="+offsetObject.toString()));
-        } else {
-          return new ModelAndView(new RedirectView(group.getUrl()));
-        }
+      if (offsetObject != null) {
+        return new ModelAndView(new RedirectView(group.getUrl() + "?offset=" + offsetObject.toString()));
+      } else {
+        return new ModelAndView(new RedirectView(group.getUrl()));
       }
     } finally {
-      if (db!=null) {
+      if (db != null) {
         db.close();
       }
     }
-    
-    return topics(groupId, offsetObject, request, false);
   }
 
   @RequestMapping("/group-lastmod.jsp")
-  public ModelAndView topicsLastmod(@RequestParam("group") int groupId, @RequestParam(value="offset", required=false) Integer offsetObject, HttpServletRequest request) throws Exception {
-    return topics(groupId, offsetObject, request, true);
-  }
-
-  @RequestMapping(value="/forum/{group}")
-  public ModelAndView forum(
-    @PathVariable("group") String groupName,
-    @RequestParam(required=false) Integer offset,
-    HttpServletRequest request
+  public ModelAndView topicsLastmod(
+    @RequestParam("group") int groupId,
+    @RequestParam(value = "offset", required = false) Integer offsetObject
   ) throws Exception {
     Connection db = null;
-    Group group;
+
+    try {
+      db = LorDataSource.getConnection();
+
+      Group group = new Group(db, groupId);
+
+      if (offsetObject != null) {
+        return new ModelAndView(new RedirectView(group.getUrl() + "?offset=" + offsetObject.toString() + "&lastmod=true"));
+      } else {
+        return new ModelAndView(new RedirectView(group.getUrl() + "?lastmod=true"));
+      }
+    } finally {
+      if (db != null) {
+        db.close();
+      }
+    }
+  }
+
+  @RequestMapping(value = "/forum/{group}")
+  public ModelAndView forum(
+    @PathVariable("group") String groupName,
+    @RequestParam(required = false) Integer offsetObject,
+    @RequestParam(defaultValue = "false") boolean lastmod,
+    HttpServletRequest request
+  ) throws Exception {
+    Map<String, Object> params = new HashMap<String, Object>();
+    Template tmpl = Template.getTemplate(request);
+
+    boolean showDeleted = request.getParameter("deleted") != null;
+    params.put("showDeleted", showDeleted);
+
+    Connection db = null;
     try {
       db = LorDataSource.getConnection();
 
       Section section = new Section(db, Section.SECTION_FORUM);
-      group = section.getGroup(db, groupName);
-    } finally {
-      if (db!=null) {
-        db.close();
+      Group group = section.getGroup(db, groupName);
+
+      if (showDeleted && !"POST".equals(request.getMethod())) {
+        return new ModelAndView(new RedirectView(group.getUrl()));
       }
-    }
 
-    return topics(group.getId(), offset, request, false);
-  }
+      int groupId = group.getId();
 
-  public ModelAndView topics(
-    int groupId, Integer offsetObject, HttpServletRequest request, boolean lastmod
-  ) throws Exception {
-    Map<String, Object> params = new HashMap<String, Object>();
-
-    boolean showDeleted = request.getParameter("deleted") != null;
-    Template tmpl = Template.getTemplate(request);
-
-    if (showDeleted && !"POST".equals(request.getMethod())) {
-      return new ModelAndView(new RedirectView("/group.jsp?group=" + groupId));
-    }
-
-    if (showDeleted && !Template.isSessionAuthorized(request.getSession())) {
-      throw new AccessViolationException("Вы не авторизованы");
-    }
-
-    params.put("showDeleted", showDeleted);
-
-    boolean firstPage;
-    int offset;
-
-    if (offsetObject != null) {
-      offset = offsetObject;
-      firstPage = false;
-
-      if (offset<0) {
-        throw new ServletParameterBadValueException("offset", "offset не может быть отрицательным");
+      if (showDeleted && !Template.isSessionAuthorized(request.getSession())) {
+        throw new AccessViolationException("Вы не авторизованы");
       }
-    } else {
-      firstPage = true;
-      offset = 0;
-    }
 
-    params.put("firstPage", firstPage);
-    params.put("offset", offset);
-    params.put("lastmod", lastmod);
+      boolean firstPage;
+      int offset;
 
-    boolean showIgnored = false;
-    if (request.getParameter("showignored") != null) {
-      showIgnored = "t".equals(request.getParameter("showignored"));
-    }
+      if (offsetObject != null) {
+        offset = offsetObject;
+        firstPage = false;
 
-    params.put("showIgnored", showIgnored);
+        if (offset < 0) {
+          throw new ServletParameterBadValueException("offset", "offset не может быть отрицательным");
+        }
+      } else {
+        firstPage = true;
+        offset = 0;
+      }
 
-    int messages = tmpl.getProf().getInt("messages");
+      params.put("firstPage", firstPage);
+      params.put("offset", offset);
+      params.put("lastmod", lastmod);
 
-    Connection db = null;
+      boolean showIgnored = false;
+      if (request.getParameter("showignored") != null) {
+        showIgnored = "t".equals(request.getParameter("showignored"));
+      }
 
-    try {
+      params.put("showIgnored", showIgnored);
+
+      int messages = tmpl.getProf().getInt("messages");
+
       db = LorDataSource.getConnection();
       db.setAutoCommit(false);
 
-      Group group = new Group(db, groupId);
       params.put("group", group);
 
       params.put("section", new Section(db, group.getSectionId()));
 
       String ignq = "";
 
-      Map<Integer,String> ignoreList = IgnoreList.getIgnoreList(db, (String) request.getSession().getValue("nick"));
+      Map<Integer, String> ignoreList = IgnoreList.getIgnoreList(db, (String) request.getSession().getValue("nick"));
 
       if (!showIgnored && Template.isSessionAuthorized(request.getSession())) {
         if (firstPage && ignoreList != null && !ignoreList.isEmpty()) {
@@ -200,7 +200,7 @@ public class GroupController {
 
       return new ModelAndView("group", params);
     } finally {
-      if (db!=null) {
+      if (db != null) {
         db.close();
       }
     }
