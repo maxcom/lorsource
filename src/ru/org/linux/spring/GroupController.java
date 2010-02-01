@@ -84,7 +84,7 @@ public class GroupController {
   @RequestMapping(value = "/forum/{group}")
   public ModelAndView forum(
     @PathVariable("group") String groupName,
-    @RequestParam(required = false) Integer offsetObject,
+    @RequestParam(required = false, value="offset") Integer offsetObject,
     @RequestParam(defaultValue = "false") boolean lastmod,
     HttpServletRequest request
   ) throws Exception {
