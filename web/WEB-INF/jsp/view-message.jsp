@@ -263,6 +263,8 @@
       urlAdd.append("?lastmod="+message.getLastModified().getTime());
     }
 
+    String filterAdd="";
+
     if (filterMode!=defaultFilterMode) {
       if (urlAdd.length()>0) {
         urlAdd.append("&");
@@ -270,11 +272,12 @@
         urlAdd.append("?");
       }
 
+      filterAdd="?filter="+CommentFilter.toString(filterMode);
       urlAdd.append("filter=").append(CommentFilter.toString(filterMode));
     }
 
     if (npage!=-1 && npage!=0) {
-      bufInfo.append("&emsp;<a href=\"").append(message.getLinkPage(npage-1)).append(urlAdd).append("\">");
+      bufInfo.append("&emsp;<a href=\"").append(message.getLinkPage(npage-1)).append(filterAdd).append("\">");
       bufInfo.append('←');
       bufInfo.append("</a>");
     } else {
@@ -283,15 +286,17 @@
 
 
     for (int i = 0; i < pages; i++) {
-      String linkurl = mainurl;
-
       bufInfo.append(' ');
 
       if (i != npage) {
         if (i>0) {
-          bufInfo.append("<a href=\"").append(message.getLinkPage(i)).append(urlAdd);
+          if (i==pages-1) {
+            bufInfo.append("<a href=\"").append(message.getLinkPage(i)).append(urlAdd);
+          } else {
+            bufInfo.append("<a href=\"").append(message.getLinkPage(i)).append(filterAdd);
+          }
         } else {
-          bufInfo.append("<a href=\"").append(linkurl).append(urlAdd);
+          bufInfo.append("<a href=\"").append(mainurl).append(filterAdd);
         }
 
         bufInfo.append("\">").append(i + 1).append("</a>");
