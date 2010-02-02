@@ -36,8 +36,6 @@
   try {
     int msgid = (Integer) request.getAttribute("msgid");
 
-    String mainurl = "view-message.jsp?msgid=" + msgid;
-
     String nick = Template.getNick(session);
 
     int filterMode = (Integer) request.getAttribute("filterMode");
@@ -56,7 +54,9 @@
 
   Message message = (Message) request.getAttribute("message");
   Message prevMessage = (Message) request.getAttribute("prevMessage");
-  Message nextMessage = (Message) request.getAttribute("nextMessage"); 
+  Message nextMessage = (Message) request.getAttribute("nextMessage");
+
+  String mainurl = message.getLink();
 %>
 
 <title>${message.sectionTitle} - ${message.groupTitle} - ${message.title}</title>
@@ -257,32 +257,41 @@
 
     bufInfo.append("[страница");
 
-    String linkurl = mainurl;
+
+    StringBuilder urlAdd = new StringBuilder();
+    if (!message.isExpired()) {
+      urlAdd.append("?lastmod="+message.getLastModified().getTime());
+    }
+
+    if (filterMode!=defaultFilterMode) {
+      if (urlAdd.length()>0) {
+        urlAdd.append("&");
+      } else {
+        urlAdd.append("?");
+      }
+
+      urlAdd.append("filter=").append(CommentFilter.toString(filterMode));
+    }
 
     if (npage!=-1 && npage!=0) {
-      bufInfo.append("&emsp;<a href=\"").append(linkurl).append("&amp;page=").append(npage-1).append("\">");
+      bufInfo.append("&emsp;<a href=\"").append(message.getLinkPage(npage-1)).append(urlAdd).append("\">");
       bufInfo.append('←');
       bufInfo.append("</a>");
     } else {
       bufInfo.append("&emsp;←");
     }
 
-    for (int i = 0; i < pages; i++) {
-      bufInfo.append(' ');
 
-      if ((i==pages-1) && !(message.isExpired()) ) {
-        linkurl += "&amp;lastmod="+message.getLastModified().getTime();
-      }
+    for (int i = 0; i < pages; i++) {
+      String linkurl = mainurl;
+
+      bufInfo.append(' ');
 
       if (i != npage) {
         if (i>0) {
-          bufInfo.append("<a href=\"").append(linkurl).append("&amp;page=").append(i);
+          bufInfo.append("<a href=\"").append(message.getLinkPage(i)).append(urlAdd);
         } else {
-          bufInfo.append("<a href=\"").append(linkurl);
-        }
-
-        if (filterMode!=defaultFilterMode) {
-          bufInfo.append("&filter=").append(CommentFilter.toString(filterMode));
+          bufInfo.append("<a href=\"").append(linkurl).append(urlAdd);
         }
 
         bufInfo.append("\">").append(i + 1).append("</a>");
@@ -292,14 +301,14 @@
     }
 
     if (npage!=-1 && npage+1!=pages) {
-      bufInfo.append(" <a href=\"").append(linkurl).append("&amp;page=").append(npage+1).append("\">→</a>");
+      bufInfo.append(" <a href=\"").append(message.getLinkPage(npage+1)).append(urlAdd).append("\">→</a>");
     } else {
       bufInfo.append(" →");
     }
 
     if (Template.isSessionAuthorized(session)) {
       if (npage!=-1) {
-        bufInfo.append("&emsp;<a href=\"").append(linkurl).append("&amp;page=-1").append("\">все").append("</a>");
+        bufInfo.append("&emsp;<a href=\"").append(message.getLinkPage(-1)).append(urlAdd).append("\">все").append("</a>");
       } else {
         bufInfo.append("&emsp;<strong>все").append("</strong>");      
       }
@@ -313,11 +322,11 @@
 
   if (request.getParameter("highlight") != null) {
 %>
-<lor:message db="<%= db %>" message="<%= message %>" showMenu="true" user="<%= nick %>" highlight="<%= new ServletParameterParser(request).getInt(&quot;highlight&quot;)%>"/>
+<lor:message db="<%= db %>" message="${message}" showMenu="true" user="<%= nick %>" highlight="<%= new ServletParameterParser(request).getInt(&quot;highlight&quot;)%>"/>
 <%
   } else {
 %>
-<lor:message db="<%= db %>" message="<%= message %>" showMenu="true" user="<%= nick %>"/>
+<lor:message db="<%= db %>" message="${message}" showMenu="true" user="<%= nick %>"/>
 <%
   }
 %>
@@ -382,8 +391,7 @@
 
 <% if (Template.isSessionAuthorized(session) && (!message.isExpired() || tmpl.isModeratorSession()) && !showDeleted) { %>
 <hr>
-<form action="view-message.jsp" method=POST>
-<input type=hidden name=msgid value="<%= msgid %>">
+<form action="${message.link}" method=POST>
 <input type=hidden name=deleted value=1>
 <input type=submit value="Показать удаленные комментарии">
 </form>

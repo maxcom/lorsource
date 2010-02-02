@@ -667,15 +667,11 @@ public class Message implements Serializable {
   }
 
   public String getLinkLastmod() {
-    String link;
-
     if (expired) {
-      link = "view-message.jsp?msgid="+msgid;
+      return getLink();
     } else {
-      link = "view-message.jsp?msgid="+msgid+"&lastmod="+getLastModified().getTime();
+      return getLink()+"?lastmod="+getLastModified().getTime();
     }
-
-    return link;
   }
 
   public Tags getTags() {
@@ -776,5 +772,13 @@ public class Message implements Serializable {
 
   public String getLink() {
     return Section.getSectionLink(sectionid) + groupUrl+"/"+msgid;
+  }
+
+  public String getLinkPage(int page) {
+    if (page==0) {
+      return getLink();
+    }
+    
+    return Section.getSectionLink(sectionid) + groupUrl+"/"+msgid+"/page"+page;
   }
 }

@@ -41,12 +41,11 @@ public class MessageController {
     WebRequest webRequest,
     HttpServletRequest request,
     HttpServletResponse response,
-    @RequestParam(value="page", required=false) Integer page,
     @RequestParam(value="filter", required=false) String filter,
     @PathVariable("group") String groupName,
     @PathVariable("id") int msgid
   ) throws Exception {
-    return getMessageNew(Section.SECTION_FORUM, webRequest, request, response, page, filter, groupName, msgid);
+    return getMessageNew(Section.SECTION_FORUM, webRequest, request, response, null, filter, groupName, msgid);
   }
 
   @RequestMapping("/news/{group}/{id}")
@@ -54,12 +53,11 @@ public class MessageController {
     WebRequest webRequest,
     HttpServletRequest request,
     HttpServletResponse response,
-    @RequestParam(value="page", required=false) Integer page,
     @RequestParam(value="filter", required=false) String filter,
     @PathVariable("group") String groupName,
     @PathVariable("id") int msgid
   ) throws Exception {
-    return getMessageNew(Section.SECTION_NEWS, webRequest, request, response, page, filter, groupName, msgid);
+    return getMessageNew(Section.SECTION_NEWS, webRequest, request, response, null, filter, groupName, msgid);
   }
 
   @RequestMapping("/polls/{group}/{id}")
@@ -67,12 +65,11 @@ public class MessageController {
     WebRequest webRequest,
     HttpServletRequest request,
     HttpServletResponse response,
-    @RequestParam(value="page", required=false) Integer page,
     @RequestParam(value="filter", required=false) String filter,
     @PathVariable("group") String groupName,
     @PathVariable("id") int msgid
   ) throws Exception {
-    return getMessageNew(Section.SECTION_POLLS, webRequest, request, response, page, filter, groupName, msgid);
+    return getMessageNew(Section.SECTION_POLLS, webRequest, request, response, null, filter, groupName, msgid);
   }
 
   @RequestMapping("/gallery/{group}/{id}")
@@ -80,10 +77,61 @@ public class MessageController {
     WebRequest webRequest,
     HttpServletRequest request,
     HttpServletResponse response,
-    @RequestParam(value="page", required=false) Integer page,
     @RequestParam(value="filter", required=false) String filter,
     @PathVariable("group") String groupName,
     @PathVariable("id") int msgid
+  ) throws Exception {
+    return getMessageNew(Section.SECTION_GALLERY, webRequest, request, response, null, filter, groupName, msgid);
+  }
+
+  @RequestMapping("/forum/{group}/{id}/page{page}")
+  public ModelAndView getMessageNewForumPage(
+    WebRequest webRequest,
+    HttpServletRequest request,
+    HttpServletResponse response,
+    @RequestParam(value="filter", required=false) String filter,
+    @PathVariable("group") String groupName,
+    @PathVariable("id") int msgid,
+    @PathVariable("page") int page
+  ) throws Exception {
+    return getMessageNew(Section.SECTION_FORUM, webRequest, request, response, page, filter, groupName, msgid);
+  }
+
+  @RequestMapping("/news/{group}/{id}/page{page}")
+  public ModelAndView getMessageNewNewsPage(
+    WebRequest webRequest,
+    HttpServletRequest request,
+    HttpServletResponse response,
+    @RequestParam(value="filter", required=false) String filter,
+    @PathVariable("group") String groupName,
+    @PathVariable("id") int msgid,
+    @PathVariable("page") int page
+  ) throws Exception {
+    return getMessageNew(Section.SECTION_NEWS, webRequest, request, response, page, filter, groupName, msgid);
+  }
+
+  @RequestMapping("/polls/{group}/{id}/page{page}")
+  public ModelAndView getMessageNewPollsPage(
+    WebRequest webRequest,
+    HttpServletRequest request,
+    HttpServletResponse response,
+    @RequestParam(value="filter", required=false) String filter,
+    @PathVariable("group") String groupName,
+    @PathVariable("id") int msgid,
+    @PathVariable("page") int page
+  ) throws Exception {
+    return getMessageNew(Section.SECTION_POLLS, webRequest, request, response, page, filter, groupName, msgid);
+  }
+
+  @RequestMapping("/gallery/{group}/{id}/page{page}")
+  public ModelAndView getMessageNewGalleryPage(
+    WebRequest webRequest,
+    HttpServletRequest request,
+    HttpServletResponse response,
+    @RequestParam(value="filter", required=false) String filter,
+    @PathVariable("group") String groupName,
+    @PathVariable("id") int msgid,
+    @PathVariable("page") int page
   ) throws Exception {
     return getMessageNew(Section.SECTION_GALLERY, webRequest, request, response, page, filter, groupName, msgid);
   }
@@ -118,13 +166,67 @@ public class MessageController {
   }
 
   @RequestMapping("/view-message.jsp")
+  public ModelAndView getMessageOld(
+    @RequestParam("msgid") int msgid,
+    @RequestParam(value="page", required=false) Integer page,
+    @RequestParam(value="lastmod", required=false) Long lastmod,
+    @RequestParam(value="filter", required=false) String filter,
+    @RequestParam(required=false) String output
+  ) throws Exception {
+    Connection db = null;
+
+    try {
+      db = LorDataSource.getConnection();
+
+      Message message = new Message(db, msgid);
+
+      StringBuilder link = new StringBuilder(message.getLink());
+
+      StringBuilder params = new StringBuilder();
+
+      if (page!=null) {
+        link.append("/page"+page);
+      }
+
+      if (lastmod!=null && !message.isExpired()) {
+        params.append("?lastmod="+message.getLastModified().getTime());
+      }
+
+      if (filter!=null) {
+        if (params.length()==0) {
+          params.append("?");
+        } else {
+          params.append("&");
+        }
+        params.append("filter="+filter);
+      }
+
+      if (output!=null) {
+        if (params.length()==0) {
+          params.append("?");
+        } else {
+          params.append("&");
+        }
+        params.append("output="+output);
+      }
+
+      link.append(params);
+
+      return new ModelAndView(new RedirectView(link.toString()));
+    } finally {
+      if (db!=null) {
+        db.close();
+      }
+    }
+  }
+
   public ModelAndView getMessage(
     WebRequest webRequest,
     HttpServletRequest request,
     HttpServletResponse response,
-    @RequestParam("msgid") int msgid,
-    @RequestParam(value="page", required=false) Integer page,
-    @RequestParam(value="filter", required=false) String filter
+    int msgid,
+    Integer page,
+    String filter
   ) throws Exception {
     Template tmpl = Template.getTemplate(request);
 
