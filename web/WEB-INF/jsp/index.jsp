@@ -47,7 +47,7 @@
 
 <h1><a href="view-news.jsp?section=1">Новости</a></h1>
 <%
-  if (tmpl.isModeratorSession()) {
+  if (tmpl.isModeratorSession() || tmpl.isCorrectorSession()) {
     out.print("<div class=\"nav\"  style=\"border-bottom: none\">");
 
     if (db==null) {
