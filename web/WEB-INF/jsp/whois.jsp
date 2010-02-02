@@ -52,7 +52,7 @@
 <%
   PreparedStatement userInfo = db.prepareStatement("SELECT url, town, lastlogin, email, name, regdate FROM users WHERE nick=?");
   PreparedStatement stat1 = db.prepareStatement("SELECT count(*) as c FROM comments WHERE userid=?");
-  PreparedStatement stat2 = db.prepareStatement("SELECT sections.name as pname, count(*) as c FROM topics, groups, sections WHERE topics.userid=? AND groups.id=topics.groupid AND sections.id=groups.section GROUP BY sections.name");
+  PreparedStatement stat2 = db.prepareStatement("SELECT sections.name as pname, count(*) as c FROM topics, groups, sections WHERE topics.userid=? AND groups.id=topics.groupid AND sections.id=groups.section AND not deleted GROUP BY sections.name");
   PreparedStatement stat3 = db.prepareStatement("SELECT min(postdate) as first,max(postdate) as last FROM topics WHERE topics.userid=?");
   PreparedStatement stat4 = db.prepareStatement("SELECT min(postdate) as first,max(postdate) as last FROM comments WHERE comments.userid=?");
   PreparedStatement stat5 = db.prepareStatement("SELECT count(*) as inum FROM ignore_list WHERE ignored=?");
