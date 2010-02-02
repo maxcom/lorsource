@@ -153,9 +153,7 @@ public class MessageController {
       Message message = new Message(db, msgid);
       Group group = new Group(db, message.getGroupId());
 
-      if (group.getUrlName().equals(groupName) && group.getSectionId()==section) {
-        return getMessage(webRequest, request, response, msgid, page, filter);
-      } else {
+      if (!group.getUrlName().equals(groupName) || group.getSectionId() != section) {
         return new ModelAndView(new RedirectView(message.getLink()));
       }
     } finally {
@@ -163,6 +161,8 @@ public class MessageController {
         db.close();
       }
     }
+
+    return getMessage(webRequest, request, response, msgid, page, filter);
   }
 
   @RequestMapping("/view-message.jsp")
