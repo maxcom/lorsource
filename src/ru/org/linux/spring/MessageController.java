@@ -24,10 +24,10 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
@@ -357,35 +357,37 @@ public class MessageController {
     return "msg-"+message.getMessageId()+ '-' +message.getLastModified().getTime()+userAddon;
   }
 
-  @RequestMapping(value="/jump-message.jsp", method=RequestMethod.GET)
+  @RequestMapping(value = "/jump-message.jsp", method = RequestMethod.GET)
   public ModelAndView jumpMessage(
     HttpServletRequest request,
     @RequestParam int msgid,
-    @RequestParam(required=false) Integer page,
-    @RequestParam(required=false) String nocache,
-    @RequestParam(required=false) Integer cid
+    @RequestParam(required = false) Integer page,
+    @RequestParam(required = false) String nocache,
+    @RequestParam(required = false) Integer cid
   ) throws Exception {
     Template tmpl = Template.getTemplate(request);
 
-    String redirectUrl = "/view-message.jsp?msgid=" + msgid;
-    StringBuffer options = new StringBuffer();
+    Connection db = null;
+    try {
+      db = LorDataSource.getConnection();
 
-    if (page != null) {
-      options.append("&page=");
-      options.append(URLEncoder.encode(page.toString()));
-    }
+      Message topic = new Message(db, msgid);
 
-    if (nocache != null) {
-      options.append("&nocache=");
-      options.append(URLEncoder.encode(nocache));
-    }
+      String redirectUrl = topic.getLink();
+      StringBuffer options = new StringBuffer();
 
-    if (cid != null) {
-      Connection db = null;
+      if (page != null) {
+        redirectUrl = topic.getLinkPage(page);
+      }
 
-      try {
-        db = LorDataSource.getConnection();
-        Message topic = new Message(db, msgid);
+      if (nocache != null) {
+        options.append("nocache=");
+        options.append(URLEncoder.encode(nocache));
+      }
+
+      StringBuilder hash = new StringBuilder();
+
+      if (cid != null) {
         CommentList comments = CommentList.getCommentList(db, topic, false);
         CommentNode node = comments.getNode(cid);
         if (node == null) {
@@ -395,24 +397,30 @@ public class MessageController {
         int pagenum = comments.getCommentPage(node.getComment(), tmpl);
 
         if (pagenum > 0) {
-          options.append("&page=");
-          options.append(pagenum);
+          redirectUrl = topic.getLinkPage(pagenum);
         }
 
-        if (!topic.isExpired() && topic.getPageCount(tmpl.getProf().getInt("messages"))-1==pagenum) {
-          options.append("&lastmod=");
+        if (!topic.isExpired() && topic.getPageCount(tmpl.getProf().getInt("messages")) - 1 == pagenum) {
+          if (options.length()>0) {
+            options.append("&");
+          }
+          options.append("lastmod=");
           options.append(topic.getLastModified().getTime());
         }
 
-        options.append("#comment-");
-        options.append(cid);
-      } finally {
-        if (db != null) {
-          db.close();
-        }
+        hash.append("#comment-");
+        hash.append(cid);
+      }
+
+      if (options.length()>0) {
+        return new ModelAndView(new RedirectView(redirectUrl + '?'+ options+hash));
+      } else {
+        return new ModelAndView(new RedirectView(redirectUrl+hash));
+      }
+    } finally {
+      if (db != null) {
+        db.close();
       }
     }
-
-    return new ModelAndView(new RedirectView(redirectUrl + options.toString()));
   }
 }
