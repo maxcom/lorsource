@@ -100,7 +100,7 @@
   db.close(); db=null;
 %>
 <div class="nav">
-  [<a href="view-news.jsp?section=1&amp;offset=20">← предыдущие</a>]
+  [<a href="/news/?offset=20">← предыдущие</a>]
   [<a href="add-section.jsp?section=1">добавить новость</a>]
   [<a href="section-rss.jsp?section=1">RSS</a>]
 </div>
