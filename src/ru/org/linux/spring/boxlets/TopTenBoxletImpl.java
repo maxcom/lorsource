@@ -33,11 +33,6 @@ import ru.org.linux.spring.commons.CacheProvider;
 import ru.org.linux.spring.dao.TopTenDaoImpl;
 import ru.org.linux.util.ProfileHashtable;
 
-/**
- * User: rsvato
- * Date: May 4, 2009
- * Time: 1:56:02 PM
- */
 @Controller
 public class TopTenBoxletImpl extends SpringBoxlet {
   private TopTenDaoImpl topTenDao;

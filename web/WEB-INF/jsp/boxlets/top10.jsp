@@ -12,14 +12,6 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
-
-<%--
-  Created by IntelliJ IDEA.
-  User: rsvato
-  Date: May 4, 2009
-  Time: 1:58:24 PM
-  To change this template use File | Settings | File Templates.
---%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="lor" uri="http://www.linux.org.ru" %>
@@ -36,16 +28,13 @@
         </c:when>
         <c:otherwise>*</c:otherwise>
       </c:choose>
-      <c:url value="/view-message.jsp" var="msg_link">
-        <c:param name="msgid" value="${message.msgid}"/>
+      <c:url value="${message.url}" var="msg_link">
         <c:param name="lastmod" value="${message.lastmod.time}"/>
       </c:url>
       <a href="${fn:escapeXml(msg_link)}">${message.title}</a>
       <c:if test="${message.pages gt 1}">
-        <c:url value="/view-message.jsp" var="page_link">
-          <c:param name="msgid" value="${message.msgid}"/>
+        <c:url value="${message.url}/page${message.pages-1}" var="page_link">
           <c:param name="lastmod" value="${message.lastmod.time}"/>
-          <c:param name="page" value="${message.pages-1}"/>
         </c:url>
         (стр. <a href="${fn:escapeXml(page_link)}">${message.pages}</a>)
       </c:if>

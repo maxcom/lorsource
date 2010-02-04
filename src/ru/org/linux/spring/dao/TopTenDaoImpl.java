@@ -25,11 +25,8 @@ import java.io.Serializable;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 
-/**
- * User: rsvato
- * Date: May 4, 2009
- * Time: 1:56:22 PM
- */
+import ru.org.linux.site.Section;
+
 public class TopTenDaoImpl {
   private SimpleJdbcTemplate jdbcTemplate;
 
@@ -43,15 +40,17 @@ public class TopTenDaoImpl {
 
 
   public List<TopTenMessageDTO> getMessages(){
-    String sql = "select topics.id as msgid, topics.title, lastmod, stat1 as c, top10.mess_order from topics left outer join top10 " +
-      " on topics.id = top10.msgid " +
+    String sql =
+      "select topics.id as msgid, groups.urlname, groups.section, topics.title, lastmod, topics.stat1 as c, top10.mess_order " +
+        "from topics left outer join top10  on topics.id = top10.msgid " +
+        "join groups on groups.id = topics.groupid" +
       " where topics.postdate>(CURRENT_TIMESTAMP-'1 month 1 day'::interval) and not deleted and notop is null " +
       " and groupid!=8404 and groupid!=4068 order by c desc, msgid limit 10";
     return jdbcTemplate.query(sql, new ParameterizedRowMapper<TopTenMessageDTO>() {
       @Override
       public TopTenMessageDTO mapRow(ResultSet rs, int i) throws SQLException {
         TopTenMessageDTO result = new TopTenMessageDTO();
-        result.setMsgid(rs.getInt("msgid"));
+        result.setUrl(Section.getSectionLink(rs.getInt("section"))+rs.getString("urlname")+"/"+rs.getInt("msgid"));
         result.setTitle(rs.getString("title"));
         result.setLastmod(rs.getTimestamp("lastmod"));
         result.setAnswers(rs.getInt("c"));
@@ -68,7 +67,7 @@ public class TopTenDaoImpl {
 
 
   public static class TopTenMessageDTO implements Serializable{
-    private Integer msgid;
+    private String url;
     private Timestamp lastmod;
     private String title;
     private boolean movedUp = false;
@@ -76,12 +75,12 @@ public class TopTenDaoImpl {
     private Integer answers;
     private static final long serialVersionUID = 166352344159392938L;
 
-    public Integer getMsgid() {
-      return msgid;
+    public String getUrl() {
+      return url;
     }
 
-    public void setMsgid(Integer msgid) {
-      this.msgid = msgid;
+    public void setUrl(String url) {
+      this.url = url;
     }
 
     public Timestamp getLastmod() {
