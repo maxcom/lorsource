@@ -27,15 +27,10 @@ import org.springframework.web.servlet.ModelAndView;
 import ru.org.linux.site.PollNotFoundException;
 import ru.org.linux.spring.CacheableController;
 import ru.org.linux.spring.commons.CacheProvider;
+import ru.org.linux.spring.dao.PollDTO;
 import ru.org.linux.spring.dao.PollDaoImpl;
 import ru.org.linux.spring.dao.VoteDTO;
-import ru.org.linux.spring.dao.PollDTO;
 
-/**
- * User: sreentenko
- * Date: 01.05.2009
- * Time: 23:51:26
- */
 @Controller
 public class PollBoxletImpl extends SpringBoxlet implements CacheableController {
   private CacheProvider cacheProvider;
@@ -58,7 +53,7 @@ public class PollBoxletImpl extends SpringBoxlet implements CacheableController 
   @Override
   @RequestMapping("/poll.boxlet")
   protected ModelAndView getData(HttpServletRequest request, HttpServletResponse response) {
-    final PollDTO poll = getFromCache(getCacheKey() + "poll", new GetCommand<PollDTO>() {
+    final PollDTO poll = getFromCache(cacheProvider, getCacheKey() + "poll", new GetCommand<PollDTO>() {
       @Override
       public PollDTO get() {
         try {
@@ -69,14 +64,14 @@ public class PollBoxletImpl extends SpringBoxlet implements CacheableController 
       }
     });
 
-    List<VoteDTO> votes = getFromCache(getCacheKey() + "votes", new GetCommand<List<VoteDTO>>() {
+    List<VoteDTO> votes = getFromCache(cacheProvider, getCacheKey() + "votes", new GetCommand<List<VoteDTO>>() {
       @Override
       public List<VoteDTO> get() {
         return pollDao.getVoteDTO(poll.getId());
       }
     });
 
-    Integer count = getFromCache(getCacheKey() + "count", new GetCommand<Integer>() {
+    Integer count = getFromCache(cacheProvider, getCacheKey() + "count", new GetCommand<Integer>() {
       @Override
       public Integer get() {
         return pollDao.getVotersCount(poll.getId());
@@ -88,11 +83,6 @@ public class PollBoxletImpl extends SpringBoxlet implements CacheableController 
     result.addObject("votes", votes);
     result.addObject("count", count);
     return result;
-  }
-
-  @Override
-  protected CacheProvider getCacheProvider() {
-    return cacheProvider;
   }
 
   @Override

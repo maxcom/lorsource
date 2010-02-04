@@ -17,11 +17,9 @@ package ru.org.linux.spring.boxlets;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.stereotype.Controller;
-
-import ru.org.linux.spring.commons.CacheProvider;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 public class TshirtBoxletImpl extends SpringBoxlet {
@@ -29,10 +27,5 @@ public class TshirtBoxletImpl extends SpringBoxlet {
   @RequestMapping("/tshirt.boxlet")
   protected ModelAndView getData(HttpServletRequest request, HttpServletResponse response) {
     return new ModelAndView("boxlets/tshirt", null);
-  }
-
-  @Override
-  protected CacheProvider getCacheProvider() {
-    return null;
   }
 }

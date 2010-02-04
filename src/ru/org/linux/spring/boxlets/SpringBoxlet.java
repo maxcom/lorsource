@@ -48,19 +48,18 @@ public abstract class SpringBoxlet extends AbstractController implements Cacheab
     return mav;
   }
 
-  protected abstract CacheProvider getCacheProvider();
-
-  protected <T> T getFromCache(GetCommand<T> callback){
-    return getFromCache(getCacheKey(), callback);
+  protected <T> T getFromCache(CacheProvider cacheProvider, GetCommand<T> callback){
+    return getFromCache(cacheProvider, getCacheKey(), callback);
   }
 
-  protected <T> T getFromCache(String key, GetCommand<T> callback){
+  protected <T> T getFromCache(CacheProvider cacheProvider, String key, GetCommand<T> callback){
     @SuppressWarnings("unchecked")
-    T result = (T) getCacheProvider().getFromCache(key);
+    T result = (T) cacheProvider.getFromCache(key);
     if (result == null){
        result = callback.get();
-       getCacheProvider().storeToCache(key, result, getExpiryTime());
+       cacheProvider.storeToCache(key, result, getExpiryTime());
     }
+    
     return result;
   }
 

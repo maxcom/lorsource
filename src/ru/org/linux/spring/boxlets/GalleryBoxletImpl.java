@@ -28,11 +28,6 @@ import ru.org.linux.site.GalleryItem;
 import ru.org.linux.spring.commons.CacheProvider;
 import ru.org.linux.spring.dao.GalleryDaoImpl;
 
-/**
- * User: sreentenko
- * Date: 01.05.2009
- * Time: 1:05:06
- */
 @Controller
 public class GalleryBoxletImpl extends SpringBoxlet {
   private GalleryDaoImpl galleryDao;
@@ -46,11 +41,6 @@ public class GalleryBoxletImpl extends SpringBoxlet {
     this.galleryDao = galleryDao;
   }
 
-  @Override
-  public CacheProvider getCacheProvider() {
-    return cacheProvider;
-  }
-
   @Autowired
   public void setCacheProvider(CacheProvider cacheProvider) {
     this.cacheProvider = cacheProvider;
@@ -61,7 +51,7 @@ public class GalleryBoxletImpl extends SpringBoxlet {
   protected ModelAndView getData(HttpServletRequest request, HttpServletResponse response) {
     ModelAndView mav = new ModelAndView();
     mav.setViewName("boxlets/gallery");
-    List<GalleryItem> list = getFromCache(new GetCommand<List<GalleryItem>>() {
+    List<GalleryItem> list = getFromCache(cacheProvider, new GetCommand<List<GalleryItem>>() {
       @Override
       public List<GalleryItem> get() {
         return galleryDao.getGalleryItems();

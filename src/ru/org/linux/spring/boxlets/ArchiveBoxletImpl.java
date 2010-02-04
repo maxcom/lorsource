@@ -27,11 +27,6 @@ import org.springframework.web.servlet.ModelAndView;
 import ru.org.linux.spring.commons.CacheProvider;
 import ru.org.linux.spring.dao.ArchiveDaoImpl;
 
-/**
- * User: sreentenko
- * Date: 01.05.2009
- * Time: 23:15:32
- */
 @Controller
 public class ArchiveBoxletImpl extends SpringBoxlet{
   private ArchiveDaoImpl archiveDao;
@@ -45,11 +40,6 @@ public class ArchiveBoxletImpl extends SpringBoxlet{
     this.archiveDao = archiveDao;
   }
 
-  @Override
-  public CacheProvider getCacheProvider() {
-    return cacheProvider;
-  }
-
   @Autowired
   public void setCacheProvider(CacheProvider cacheProvider) {
     this.cacheProvider = cacheProvider;
@@ -58,7 +48,7 @@ public class ArchiveBoxletImpl extends SpringBoxlet{
   @Override
   @RequestMapping("/archive.boxlet")
   protected ModelAndView getData(HttpServletRequest request, HttpServletResponse response) {
-    List<ArchiveDaoImpl.ArchiveDTO> list = getFromCache(new GetCommand<List<ArchiveDaoImpl.ArchiveDTO>>() {
+    List<ArchiveDaoImpl.ArchiveDTO> list = getFromCache(cacheProvider, new GetCommand<List<ArchiveDaoImpl.ArchiveDTO>>() {
       @Override
       public List<ArchiveDaoImpl.ArchiveDTO> get() {
         return archiveDao.getArchiveDTO();

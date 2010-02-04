@@ -29,7 +29,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import ru.org.linux.site.Template;
-import ru.org.linux.spring.commons.CacheProvider;
 import ru.org.linux.spring.dao.TopTenDaoImpl;
 import ru.org.linux.util.ProfileHashtable;
 
@@ -44,11 +43,6 @@ public class TopTenBoxletImpl extends SpringBoxlet {
   @Autowired
   public void setTopTenDao(TopTenDaoImpl topTenDao) {
     this.topTenDao = topTenDao;
-  }
-
-  @Override
-  protected CacheProvider getCacheProvider() {
-    return null;
   }
 
   @Override
