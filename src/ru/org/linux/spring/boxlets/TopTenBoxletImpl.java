@@ -36,7 +36,6 @@ import ru.org.linux.util.ProfileHashtable;
 @Controller
 public class TopTenBoxletImpl extends SpringBoxlet {
   private TopTenDaoImpl topTenDao;
-  private CacheProvider cacheProvider;
 
   public TopTenDaoImpl getTopTenDao() {
     return topTenDao;
@@ -48,13 +47,8 @@ public class TopTenBoxletImpl extends SpringBoxlet {
   }
 
   @Override
-  public CacheProvider getCacheProvider() {
-    return cacheProvider;
-  }
-
-  @Autowired
-  public void setCacheProvider(CacheProvider cacheProvider) {
-    this.cacheProvider = cacheProvider;
+  protected CacheProvider getCacheProvider() {
+    return null;
   }
 
   @Override
@@ -63,22 +57,15 @@ public class TopTenBoxletImpl extends SpringBoxlet {
     ProfileHashtable profile = Template.getTemplate(request).getProf();
     final int itemsPerPage = profile.getInt("messages");
     String style = profile.getString("style");
-    String key = String.format("%s?perPage=%d", getCacheKey(), itemsPerPage);
 
-    List<TopTenDaoImpl.TopTenMessageDTO> list = getFromCache(key, new GetCommand<List<TopTenDaoImpl.TopTenMessageDTO>>() {
+    List<TopTenDaoImpl.TopTenMessageDTO> list = getTopTenDao().getMessages();
+    CollectionUtils.forAllDo(list, new Closure() {
       @Override
-      public List<TopTenDaoImpl.TopTenMessageDTO> get() {
-        List<TopTenDaoImpl.TopTenMessageDTO> list = getTopTenDao().getMessages();
-        CollectionUtils.forAllDo(list, new Closure() {
-          @Override
-          public void execute(Object o) {
-            TopTenDaoImpl.TopTenMessageDTO dto = (TopTenDaoImpl.TopTenMessageDTO) o;
-            int tmp = dto.getAnswers()/itemsPerPage;
-            tmp = (dto.getAnswers()%itemsPerPage>0)?tmp+1:tmp;
-            dto.setPages(tmp);
-          }
-        });
-        return list;
+      public void execute(Object o) {
+        TopTenDaoImpl.TopTenMessageDTO dto = (TopTenDaoImpl.TopTenMessageDTO) o;
+        int tmp = dto.getAnswers() / itemsPerPage;
+        tmp = (dto.getAnswers() % itemsPerPage > 0) ? tmp + 1 : tmp;
+        dto.setPages(tmp);
       }
     });
 
