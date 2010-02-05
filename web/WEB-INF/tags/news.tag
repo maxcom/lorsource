@@ -48,12 +48,8 @@
   }
 
   String image = group.getImage();
-  Timestamp lastmod = message.getLastModified();
   boolean expired = message.isExpired();
 
-  if (lastmod == null) {
-    lastmod = new Timestamp(0);
-  }
   double messages = tmpl.getProf().getInt("messages");
 
   String mainlink = message.getLink();
