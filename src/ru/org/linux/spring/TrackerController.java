@@ -18,7 +18,7 @@ package ru.org.linux.spring;
 import java.sql.*;
 import java.util.*;
 
-import javax.servlet.http.HttpServletRequest;import javax.servlet.ServletRequest;
+import javax.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -88,7 +88,7 @@ public class TrackerController {
       }
 
       String sSql = "SELECT " +
-        "t.userid as author, t.id, lastmod, t.stat1 AS stat1, t.stat3 AS stat3, t.stat4 AS stat4, g.id AS gid, g.title AS gtitle, t.title AS title, comments.id as cid, comments.userid AS last_comment_by, t.resolved as resolved " +
+        "t.userid as author, t.id, lastmod, t.stat1 AS stat1, t.stat3 AS stat3, t.stat4 AS stat4, g.id AS gid, g.title AS gtitle, t.title AS title, comments.id as cid, comments.userid AS last_comment_by, t.resolved as resolved,section,urlname " +
         "FROM topics AS t, groups AS g, comments " +
         "WHERE not t.deleted AND t.id=comments.topic AND t.groupid=g.id " +
         "AND comments.id=(SELECT id FROM comments WHERE NOT deleted AND comments.topic=t.id ORDER BY postdate DESC LIMIT 1) " +
@@ -97,7 +97,7 @@ public class TrackerController {
         + (noTalks ? " AND not t.groupid=8404" : "")
         + (tech ? " AND not t.groupid=8404 AND not t.groupid=4068 AND section=2" : "")
         + (mine ? " AND t.userid=" + user.getId() : "") +
-        "UNION ALL SELECT t.userid as author, t.id, lastmod,  t.stat1 AS stat1, t.stat3 AS stat3, t.stat4 AS stat4, g.id AS gid, g.title AS gtitle, t.title AS title, 0, 0, t.resolved as resolved " +
+        "UNION ALL SELECT t.userid as author, t.id, lastmod,  t.stat1 AS stat1, t.stat3 AS stat3, t.stat4 AS stat4, g.id AS gid, g.title AS gtitle, t.title AS title, 0, 0, t.resolved as resolved,section,urlname " +
         "FROM topics AS t, groups AS g " +
         "WHERE not t.deleted AND t.postdate > CURRENT_TIMESTAMP - interval '" + dateLimit + "' " +
         "AND t.stat1=0 AND g.id=t.groupid " +
@@ -140,6 +140,8 @@ public class TrackerController {
     private final int cid;
     private final int lastCommentBy;
     private final boolean resolved;
+    private final int section;
+    private final String groupUrlName;
 
     public Item(ResultSet rs, int messagesInPage) throws SQLException {
       author = rs.getInt("author");
@@ -154,6 +156,8 @@ public class TrackerController {
       cid = rs.getInt("cid");
       lastCommentBy = rs.getInt("last_comment_by");
       resolved = rs.getBoolean("resolved");
+      section = rs.getInt("section");
+      groupUrlName = rs.getString("urlname");
 
       pages = Message.getPageCount(stat1, messagesInPage);
     }
@@ -208,6 +212,18 @@ public class TrackerController {
 
     public boolean isResolved(){
       return resolved;
+    }
+
+    public String getUrl() {
+      if (pages>1) {
+        return Section.getSectionLink(section)+groupUrlName+"/"+msgid+"/page"+Integer.toString(pages-1)+"?lastmod="+lastmod.getTime();
+      } else {
+        return Section.getSectionLink(section)+groupUrlName+"/"+msgid+"?lastmod="+lastmod.getTime();
+      }
+    }
+
+    public String getUrlReverse() {
+      return Section.getSectionLink(section)+groupUrlName+"/"+msgid+"?lastmod="+lastmod.getTime();
     }
   }
 }
