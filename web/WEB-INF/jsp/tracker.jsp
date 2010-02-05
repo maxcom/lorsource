@@ -117,7 +117,7 @@
     </a>     (<lor:user id="${msg.author}" db="<%= db %>" decorate="true"/>)
   </td>
   <td class="dateinterval">
-      <lor:dateinterval date="${msg.lastmod}"/>
+      <lor:dateinterval date="${msg.postdate}"/>
       <c:if test="${msg.lastCommentBy != 0}">
         (<lor:user id="${msg.lastCommentBy}" db="<%= db %>" decorate="true"/>)
       </c:if>
