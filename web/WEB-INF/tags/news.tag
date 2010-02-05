@@ -70,11 +70,12 @@
     </c:if>
   </div>
 </c:if>
-  <%
+<c:set var="group" value="<%= group %>"/>
 
-  if (image != null) {
-    out.append("<div class=\"entry-userpic\">");
-    out.append("<a href=\"view-news.jsp?section=").append(Integer.toString(message.getSectionId())).append("&amp;group=").append(Integer.toString(message.getGroupId())).append("\">");
+<c:if test="${group.image != null}">
+<div class="entry-userpic">
+  <a href="${group.url}">
+  <%
     try {
       ImageInfo info = new ImageInfo(tmpl.getConfig().getProperty("HTMLPathPrefix") + tmpl.getProf().getString("style") + image);
       out.append("<img src=\"/").append(tmpl.getProf().getString("style")).append(image).append("\" ").append(info.getCode()).append(" border=0 alt=\"Группа ").append(group.getTitle()).append("\">");
@@ -85,10 +86,11 @@
 //      NewsViewer.logger.warn("Bad Image for group "+ message.getGroupId(), e);
       out.append("[bad image] <img class=newsimage src=\"/").append(tmpl.getProf().getString("style")).append(image).append("\" " + " border=0 alt=\"Группа ").append(group.getTitle()).append("\">");
     }
-    out.append("</a>");
-    out.append("</div>");
-  }
 %>
+    </a>
+</div>
+</c:if>
+
 <div class="entry-body">
 <div class=msg>
   <c:if test="<%= imagepost %>">
