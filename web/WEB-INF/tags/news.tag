@@ -150,21 +150,36 @@
   } catch (UserNotFoundException e) {
     throw new RuntimeException(e);
   }
-
-  out.append("<div class=sign>");
+%>
+<div class=sign>
+  <%
   if (message.getSection().isPremoderated() && message.isCommited()) {
     out.append(user.getSignature(false, message.getCommitDate(), true, tmpl.getStyle()));    
   } else {
     out.append(user.getSignature(false, message.getPostdate(), true, tmpl.getStyle()));
   }
+%>
+</div>
+<div class="nav">
+  <%
+    if (!moderateMode) {
+      if (!expired) {
+        out.append("[<a href=\"comment-message.jsp?msgid=").append(Integer.toString(msgid)).append("\">Добавить&nbsp;комментарий</a>]");
+      }
+    } else {
+      if (currentUser != null && currentUser.canModerate()) {
+        out.append("[<a href=\"commit.jsp?msgid=").append(Integer.toString(msgid)).append("\">Подтвердить</a>]");
+      }
 
-  out.append("</div>");
+      out.append(" [<a href=\"delete.jsp?msgid=").append(Integer.toString(msgid)).append("\">Удалить</a>]");
 
-  if (!moderateMode) {
-    out.append("<div class=\"nav\">");
-
-    if (!expired) {
-      out.append("[<a href=\"comment-message.jsp?msgid=").append(Integer.toString(msgid)).append("\">Добавить&nbsp;комментарий</a>]");
+      if (currentUser != null && message.isEditable(db, currentUser)) {
+        if (!votepoll) {
+          out.append(" [<a href=\"edit.jsp?msgid=").append(Integer.toString(msgid)).append("\">Править</a>]");
+        } else {
+          out.append(" [<a href=\"edit-vote.jsp?msgid=").append(Integer.toString(msgid)).append("\">Править</a>]");
+        }
+      }
     }
 
     int stat1 = message.getCommentCount();
@@ -174,7 +189,7 @@
 
       out.append(" [<a href=\"");
 
-      if (pages<=1) {
+      if (pages <= 1) {
         out.append(jumplink);
       } else {
         out.append(mainlink);
@@ -203,7 +218,7 @@
       }
 
       if (pages != 1) {
-        String urlAdd = message.isExpired()?"":("?lastmod="+message.getLastModified().getTime());
+        String urlAdd = message.isExpired() ? "" : ("?lastmod=" + message.getLastModified().getTime());
 
         out.append("&nbsp;(стр.");
         for (int i = 1; i < pages; i++) {
@@ -218,26 +233,7 @@
       out.append(']');
     }
 
-    out.append("</div>");
-  } else if (moderateMode) {
-    out.append("<div class=nav>");
-
-    if (currentUser!=null && currentUser.canModerate()) {
-      out.append("[<a href=\"commit.jsp?msgid=").append(Integer.toString(msgid)).append("\">Подтвердить</a>]");
-    }
-
-    out.append(" [<a href=\"delete.jsp?msgid=").append(Integer.toString(msgid)).append("\">Удалить</a>]");
-
-    if (currentUser != null && message.isEditable(db, currentUser)) {
-      if (!votepoll) {
-        out.append(" [<a href=\"edit.jsp?msgid=").append(Integer.toString(msgid)).append("\">Править</a>]");
-      } else {
-        out.append(" [<a href=\"edit-vote.jsp?msgid=").append(Integer.toString(msgid)).append("\">Править</a>]");
-      }
-    }
-
-    out.append("</div>");
-  }
-%>
+  %>
+  </div>
   </div>
 </div>
