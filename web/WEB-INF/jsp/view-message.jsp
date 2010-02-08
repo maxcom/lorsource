@@ -380,7 +380,7 @@
   </c:if>
   <div class="comment">
     <c:forEach var="comment" items="${commentsPrepared}">
-      <lor:comment showMenu="true" comment="${comment}" db="<%= db %>" comments="${comments}" expired="${message.expired}"/>
+      <lor:comment topic="${message}" showMenu="true" comment="${comment}" db="<%= db %>" comments="${comments}" expired="${message.expired}"/>
     </c:forEach>
   </div>
 <c:if test="${fn:length(commentsPrepared) > 0}">
