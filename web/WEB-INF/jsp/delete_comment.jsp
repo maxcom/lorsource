@@ -117,7 +117,7 @@
 
     <c:forEach var="comment" items="${commentsPrepared}">
       <lor:comment showMenu="true" comment="${comment}" db="<%= db %>" comments="<%= comments %>"
-                   expired="<%= topic.isExpired() %>"/>
+                   expired="<%= topic.isExpired() %>" topic="<%= topic %>"/>
     </c:forEach>
 
   </div>

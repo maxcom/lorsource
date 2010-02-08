@@ -23,6 +23,7 @@
 <%@ attribute name="comments" required="true" type="ru.org.linux.site.CommentList" %>
 <%@ attribute name="expired" required="true" type="java.lang.Boolean"%>
 <%@ attribute name="showMenu" required="true" type="java.lang.Boolean"%>
+<%@ attribute name="topic" required="true" type="ru.org.linux.site.Message" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
@@ -66,15 +67,11 @@
 
         String urladd = "";
         if (!expired) {
-          urladd = "&amp;lastmod=" + comments.getLastModified();
+          urladd = "?lastmod=" + comments.getLastModified();
         }
 
         int replyPage = comments.getCommentPage(reply, tmpl);
-        if (replyPage > 0) {
-          out.append("view-message.jsp?msgid=").append(Integer.toString(comment.getTopic())).append(urladd).append("&amp;page=").append(Integer.toString(replyPage)).append("#comment-").append(Integer.toString(comment.getReplyTo()));
-        } else {
-          out.append("view-message.jsp?msgid=").append(Integer.toString(comment.getTopic())).append(urladd).append("#comment-").append(Integer.toString(comment.getReplyTo()));
-        }
+        out.append(topic.getLinkPage(replyPage)).append(urladd).append("#comment-").append(Integer.toString(comment.getReplyTo()));
 
         out.append("\" onclick=\"highlightMessage(").append(Integer.toString(reply.getMessageId())).append(");\">");
 

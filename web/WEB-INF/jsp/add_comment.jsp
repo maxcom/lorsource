@@ -76,7 +76,7 @@
           comment="${onComment}"
           db="<%= db %>"
           comments="${null}"
-          expired="${false}"/>
+          expired="${false}" topic="${null}"/>
 </div>
   <%
       }
@@ -88,7 +88,7 @@
 <c:if test="${comment!=null}">
   <p><b>Ваше сообщение</b></p>
   <div class=messages>
-    <lor:comment showMenu="false" comment="${comment}" db="<%= db %>" comments="${null}" expired="${false}"/>
+    <lor:comment showMenu="false" comment="${comment}" db="<%= db %>" comments="${null}" expired="${false}" topic="${null}"/>
   </div>
 </c:if>
 
