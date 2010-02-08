@@ -1,5 +1,7 @@
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="java.sql.Connection,java.util.List,ru.org.linux.site.*,ru.org.linux.util.BadImageException,ru.org.linux.util.ImageInfo"   buffer="200kb"%>
+<%@ page import="java.sql.Connection,ru.org.linux.site.Group,ru.org.linux.site.LorDataSource,ru.org.linux.site.Template,ru.org.linux.site.User"   buffer="200kb"%>
+<%@ page import="ru.org.linux.util.BadImageException" %>
+<%@ page import="ru.org.linux.util.ImageInfo" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
@@ -21,6 +23,8 @@
 <%--@elvariable id="topicsList" type="java.util.List<ru.org.linux.site.TopicsListItem>"--%>
 <%--@elvariable id="group" type="ru.org.linux.site.Group"--%>
 <%--@elvariable id="firstPage" type="java.lang.Boolean"--%>
+<%--@elvariable id="groupList" type="java.util.List<ru.org.linux.site.Group>"--%>
+<%--@elvariable id="lastmod" type="java.lang.Boolean"--%>
 
 <% Template tmpl = Template.getTemplate(request); %>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
@@ -45,7 +49,6 @@
     db.setAutoCommit(false);
 
     Group group = (Group) request.getAttribute("group");
-    int groupId = group.getId();
 
     int count = group.calcTopicsCount(db, showDeleted);
     int topics = tmpl.getProf().getInt("topics");
@@ -54,8 +57,6 @@
     if (count % topics != 0) {
       count = (pages + 1) * topics;
     }
-
-    Section section = (Section) request.getAttribute("section");
 
     if (firstPage || offset >= pages * topics) {
       response.setDateHeader("Expires", System.currentTimeMillis() + 90 * 1000);
@@ -97,16 +98,24 @@
 %>
   [<a href="section-rss.jsp?section=${group.sectionId}&amp;group=${group.id}">RSS</a>]
       <select name=group onchange="goto(this)" title="Быстрый переход">
-<%
-        List<Group> groups = Group.getGroups(db, section);
-
-        for (Group g: groups) {
-		int id = g.getId();
-%>
-        <option value="<%= g.getUrl() %>" <%= id==groupId?"selected":"" %> ><%= g.getTitle() %></option>
-<%
-	}
-%>
+        <c:forEach items="${groupList}" var="item">
+          <c:if test="${item.id == group.id}">
+            <c:if test="${lastmod}">
+              <option value="${item.url}?lastmod=true" selected>${item.title}</option>
+            </c:if>
+            <c:if test="${not lastmod}">
+              <option value="${item.url}" selected>${item.title}</option>
+            </c:if>
+          </c:if>
+          <c:if test="${item.id != group.id}">
+            <c:if test="${lastmod}">
+              <option value="${item.url}?lastmod=true">${item.title}</option>
+            </c:if>
+            <c:if test="${not lastmod}">
+              <option value="${item.url}">${item.title}</option>
+            </c:if>
+          </c:if>
+        </c:forEach>
       </select>
      </td>
     </tr>
