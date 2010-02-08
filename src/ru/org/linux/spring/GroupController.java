@@ -102,6 +102,8 @@ public class GroupController {
       Section section = new Section(db, Section.SECTION_FORUM);
       Group group = section.getGroup(db, groupName);
 
+      params.put("groupList", Group.getGroups(db, section));
+
       if (showDeleted && !"POST".equals(request.getMethod())) {
         return new ModelAndView(new RedirectView(group.getUrl()));
       }
