@@ -1,5 +1,5 @@
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="java.sql.Connection,java.sql.Statement,java.util.List,ru.org.linux.site.*,ru.org.linux.util.BadImageException,ru.org.linux.util.ImageInfo"   buffer="200kb"%>
+<%@ page import="java.sql.Connection,java.util.List,ru.org.linux.site.*,ru.org.linux.util.BadImageException,ru.org.linux.util.ImageInfo"   buffer="200kb"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
@@ -19,6 +19,7 @@
   --%>
 
 <%--@elvariable id="topicsList" type="java.util.List<ru.org.linux.site.TopicsListItem>"--%>
+<%--@elvariable id="group" type="ru.org.linux.site.Group"--%>
 
 <% Template tmpl = Template.getTemplate(request); %>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
@@ -88,7 +89,7 @@
 
   if (group.isTopicPostingAllowed(currentUser)) {
 %>
-      [<a href="add.jsp?group=<%= groupId %>">Добавить сообщение</a>]
+      [<a href="add.jsp?group=${group.id}">Добавить сообщение</a>]
 <%
   }
 %>
@@ -286,7 +287,6 @@
 <% if (Template.isSessionAuthorized(session) && !showDeleted) { %>
   <hr>
   <form action="${group.url}" method=POST>
-  <input type=hidden name=group value=<%= groupId %>>
   <input type=hidden name=deleted value=1>
   <input type=submit value="Показать удаленные сообщения">
   </form>
