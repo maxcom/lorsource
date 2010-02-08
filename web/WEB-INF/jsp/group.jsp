@@ -20,6 +20,7 @@
 
 <%--@elvariable id="topicsList" type="java.util.List<ru.org.linux.site.TopicsListItem>"--%>
 <%--@elvariable id="group" type="ru.org.linux.site.Group"--%>
+<%--@elvariable id="firstPage" type="java.lang.Boolean"--%>
 
 <% Template tmpl = Template.getTemplate(request); %>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
@@ -61,21 +62,22 @@
     } else {
       response.setDateHeader("Expires", System.currentTimeMillis() + 30 * 24 * 60 * 60 * 1000L);
     }
-
-    if (firstPage) {
-      out.print("<title>" + group.getSectionName() + " - " + group.getTitle() + " (последние сообщения)</title>");
-    } else {
-      out.print("<title>" + group.getSectionName() + " - " + group.getTitle() + " (сообщения " + (count - offset) + '-' + (count - offset - topics) + ")</title>");
-    }
 %>
-    <LINK REL="alternate" HREF="section-rss.jsp?section=<%= group.getSectionId() %>&amp;group=<%= group.getId()%>" TYPE="application/rss+xml">
+<title>${group.sectionName} - ${group.title}
+  <c:if test="${not firstPage}">
+<%
+    out.print(" (сообщения " + (count - offset) + '-' + (count - offset - topics) + ")");
+%>
+</c:if>
+</title>
+    <LINK REL="alternate" HREF="section-rss.jsp?section=${sectionId}&amp;group=${group.id}" TYPE="application/rss+xml">
     <link rel="parent" title="${group.title}" href="${group.sectionLink}">
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 <form>
   <table class=nav>
     <tr>
     <td align=left valign=middle id="navPath">
-      <a href="${group.sectionLink}"><%= group.getSectionName() %></a> - <strong><%= group.getTitle() %></strong>
+      <a href="${group.sectionLink}">${group.sectionName}</a> - <strong>${group.title}</strong>
     </td>
 
     <td align=right valign=middle>
@@ -93,7 +95,7 @@
 <%
   }
 %>
-  [<a href="section-rss.jsp?section=<%= group.getSectionId() %>&amp;group=<%=group.getId()%>">RSS</a>]
+  [<a href="section-rss.jsp?section=${group.sectionId}&amp;group=${group.id}">RSS</a>]
       <select name=group onchange="goto(this)" title="Быстрый переход">
 <%
         List<Group> groups = Group.getGroups(db, section);
