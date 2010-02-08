@@ -45,8 +45,6 @@
     Group group = (Group) request.getAttribute("group");
     int groupId = group.getId();
 
-    Statement st = db.createStatement();
-
     int count = group.calcTopicsCount(db, showDeleted);
     int topics = tmpl.getProf().getInt("topics");
 
@@ -298,7 +296,6 @@
 </c:if>
 
 <%
-	st.close();
 	db.commit();
 %>
 <%
