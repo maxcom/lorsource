@@ -69,7 +69,7 @@
   <link rel="Next" id="NextLink" href="${fn:escapeXml(nextMessage.linkLastmod)}" title="<%= StringUtil.makeTitle(nextMessage.getTitle()) %>">
 </c:if>
 
-<LINK REL="alternate" TITLE="Comments RSS" HREF="view-message.jsp?msgid=<%= msgid %>&amp;output=rss" TYPE="application/rss+xml">
+<LINK REL="alternate" TITLE="Comments RSS" HREF="${message.link}?output=rss" TYPE="application/rss+xml">
 <script type="text/javascript">
   <!--
   $(document).bind('keydown', {combi:'Ctrl+left', disableInInput: true}, function(){ jump(document.getElementById ('PrevLink')) });
@@ -93,7 +93,7 @@
 
     <td align=right>
       <ul>
-      <li>[<a href="view-message.jsp?msgid=<%= msgid %>&amp;output=rss">RSS</a>]</li>
+      <li>[<a href="${message.link}?output=rss">RSS</a>]</li>
 
       <c:if test="${!showDeleted}">
 <%
