@@ -10,6 +10,14 @@ h1,h2 {
     font-weight: bold;
 }
 
+#bd h1,h2 {
+    margin-top: 1em;
+}
+
+#bd .messages h1, .messages h2 {
+    margin-top: 0; 
+}
+
 h1 {
     font-size: 1.5em;
 }
@@ -95,7 +103,7 @@ p {
 
 #bd .news h2 {
 	font-size: 1.6em;
-	padding-top: 0.25em;
+	margin-top: 0.25em;
 }
 
 .news .entry-body {
