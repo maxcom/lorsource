@@ -462,7 +462,7 @@ public class User implements Serializable {
     }
 
     /* todo: move this to style */
-    boolean tango = style!=null && style.equals("tango");
+    boolean tango = true; //style!=null && style.equals("tango");
 
     if (tango) {
       out.append("<a href=\"/people/").append(URLEncoder.encode(nick)).append("/profile\">");
