@@ -16,6 +16,8 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
+<%--@elvariable id="items" type="java.util.List<ru.org.linux.site.GalleryItem>"--%>
+
   <h2><a href="/gallery/">Галерея</a></h2>
 
   <div class="boxlet_content">
@@ -23,9 +25,7 @@
     <c:forEach var="item" items="${items}">
       <div style="margin-bottom: 1em">
       <div align="center">
-        <c:url var="url" value="/view-message.jsp">
-          <c:param name="msgid" value="${item.msgid}"/>
-        </c:url>
+        <c:url var="url" value="${item.link}"/>
         <a href="${url}">
           <c:choose>
             <c:when test="${not empty item.info}">
