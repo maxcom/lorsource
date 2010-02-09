@@ -29,7 +29,9 @@
         <c:otherwise>*</c:otherwise>
       </c:choose>
       <c:url value="${message.url}" var="msg_link">
-        <c:param name="lastmod" value="${message.lastmod.time}"/>
+        <c:if test="${message.pages == 1}">
+          <c:param name="lastmod" value="${message.lastmod.time}"/>
+        </c:if>
       </c:url>
       <a href="${fn:escapeXml(msg_link)}">${message.title}</a>
       <c:if test="${message.pages gt 1}">
