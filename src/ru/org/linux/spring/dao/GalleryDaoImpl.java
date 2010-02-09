@@ -28,6 +28,7 @@ import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 
 import ru.org.linux.site.GalleryItem;
+import ru.org.linux.site.Section;
 import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.ImageInfo;
 
@@ -60,7 +61,7 @@ public class GalleryDaoImpl {
 
   public List<GalleryItem> getGalleryItems() {
     String sql = "SELECT topics.id as msgid, " +
-      " topics.stat1, topics.title, topics.url, topics.linktext, nick FROM topics " +
+      " topics.stat1, topics.title, topics.url, topics.linktext, nick, urlname FROM topics " +
       " JOIN groups ON topics.groupid = groups.id " +
       " JOIN users ON users.id = topics.userid WHERE topics.moderate AND section=3 " +
       " AND NOT deleted AND commitdate is not null ORDER BY commitdate DESC LIMIT 3";
@@ -81,6 +82,7 @@ public class GalleryDaoImpl {
     item.setIcon(rs.getString("linktext"));
     item.setNick(rs.getString("nick"));
     item.setStat(rs.getInt("stat1"));
+    item.setLink(Section.getSectionLink(Section.SECTION_GALLERY)+rs.getString("urlname")+"/"+rs.getInt("msgid"));
 
     String htmlPath = properties.getProperty("HTMLPathPrefix");
     item.setHtmlPath(htmlPath);

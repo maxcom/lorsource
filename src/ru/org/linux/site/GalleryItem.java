@@ -41,7 +41,16 @@ public class GalleryItem implements Serializable {
   private Integer stat;
   private String url;
   private String htmlPath;
-  private static final long serialVersionUID = -4059370603821918387L;
+  private String link;
+  private static final long serialVersionUID = 2085410194928989589L;
+
+  public String getLink() {
+    return link;
+  }
+
+  public void setLink(String link) {
+    this.link = link;
+  }
 
   public Integer getMsgid() {
     return msgid;
