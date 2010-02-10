@@ -150,9 +150,9 @@
       DateFormat dateFormat = DateFormats.createDefault();
       out.append("<br>");
 
-      out.append("<i>Проверено: ").append(commiter.getNick()).append(" (<a href=\"/people/").append(URLEncoder.encode(commiter.getNick())).append("/profile\">*</a>)");
+      out.append("<i>Проверено: <a href=\"/people/").append(URLEncoder.encode(commiter.getNick())).append("/profile\">").append(commiter.getNick()).append("</a>");
       if (commitDate !=null && !commitDate.equals(message.getPostdate())) {
-        out.append(' ').append(dateFormat.format(commitDate));
+        out.append(" (").append(dateFormat.format(commitDate)).append(")");
       }
       
       out.append("</i>");
