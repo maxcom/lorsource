@@ -594,5 +594,4 @@ public class User implements Serializable {
   public String getName() {
     return fullName;
   }
-
 }
