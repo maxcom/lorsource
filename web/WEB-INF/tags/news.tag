@@ -1,5 +1,4 @@
 <%@ tag import="java.io.IOException" %>
-<%@ tag import="java.sql.Timestamp" %>
 <%@ tag import="ru.org.linux.site.*" %>
 <%@ tag import="ru.org.linux.util.BadImageException" %>
 <%@ tag import="ru.org.linux.util.HTMLFormatter" %>
