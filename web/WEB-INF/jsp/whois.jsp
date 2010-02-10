@@ -3,11 +3,14 @@
 <%@ page import="java.sql.ResultSet"%>
 <%@ page import="java.sql.Timestamp"%>
 <%@ page import="java.util.Map"%>
-<%@ page import="org.apache.commons.lang.StringEscapeUtils" %>
-<%@ page import="ru.org.linux.site.*" %>
+<%@ page import="ru.org.linux.site.IgnoreList" %>
+<%@ page import="ru.org.linux.site.LorDataSource" %>
+<%@ page import="ru.org.linux.site.Template" %>
+<%@ page import="ru.org.linux.site.User" %>
 <%@ page import="ru.org.linux.util.HTMLFormatter" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
 <%--
   ~ Copyright 1998-2010 Linux.org.ru
@@ -24,6 +27,8 @@
   ~    limitations under the License.
   --%>
 <%--@elvariable id="user" type="ru.org.linux.site.User"--%>
+<%--@elvariable id="userInfo" type="ru.org.linux.site.UserInfo"--%>
+<%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 
 <% Template tmpl = Template.getTemplate(request); %>
 <%
@@ -48,22 +53,12 @@
 %>
 
 <h1>Информация о пользователе <%= nick %></h1>
-<table><tr>
 <%
-  PreparedStatement userInfo = db.prepareStatement("SELECT url, town, lastlogin, email, name, regdate FROM users WHERE nick=?");
   PreparedStatement stat1 = db.prepareStatement("SELECT count(*) as c FROM comments WHERE userid=?");
   PreparedStatement stat2 = db.prepareStatement("SELECT sections.name as pname, count(*) as c FROM topics, groups, sections WHERE topics.userid=? AND groups.id=topics.groupid AND sections.id=groups.section AND not deleted GROUP BY sections.name");
   PreparedStatement stat3 = db.prepareStatement("SELECT min(postdate) as first,max(postdate) as last FROM topics WHERE topics.userid=?");
   PreparedStatement stat4 = db.prepareStatement("SELECT min(postdate) as first,max(postdate) as last FROM comments WHERE comments.userid=?");
   PreparedStatement stat5 = db.prepareStatement("SELECT count(*) as inum FROM ignore_list WHERE ignored=?");
-
-  userInfo.setString(1, nick);
-
-  ResultSet rs = userInfo.executeQuery();
-
-  if (!rs.next()) {
-    throw new UserNotFoundException(nick);
-  }
 
   int userid = user.getId();
 
@@ -73,10 +68,9 @@
   stat4.setInt(1, userid);
   stat5.setInt(1, userid);
 %>
-<td valign='top' align='center'>
-  <div>
+<div style="float: right">
   <lor:userpic author="${user}"/>
-    <div style="clear: both"/>
+    <div style="clear: both">
   </div>
 <%
   if (user.getPhoto() != null && moderatorOrCurrentUser) {
@@ -86,27 +80,35 @@
     out.print("</form>");
   }
 %>
-</td>
-<td valign="top" align="left">
+</div>
+<div>
 <h2>Регистрация</h2>
 <b>ID:</b> <%= userid %><br>
 <b>Nick:</b> <%= nick %><br>
-<% String url=rs.getString("url");
-   String town=rs.getString("town");
-   Timestamp lastlogin=rs.getTimestamp("lastlogin");
-   Timestamp regdate=rs.getTimestamp("regdate");
-   String fullname=rs.getString("name");
-   String sEmail=rs.getString("email");
+<%
+   String fullname=user.getName();
+   String sEmail=user.getEmail();
    int score = user.getScore();
 
-   if (fullname!=null) if (!"".equals(fullname)) out.println("<b>Полное имя:</b> "+fullname+"<br>");
-   if (url!=null) if (!"".equals(url)) out.println("<b>URL:</b> <a href=\""+ StringEscapeUtils.escapeHtml(url) +"\">"+url+"</a><br>");
-   if (town!=null) if (!"".equals(town)) out.println("<b>Город:</b> "+town+"<br>");
-   if (regdate!=null) out.println("<b>Дата регистрации:</b> "+tmpl.dateFormat.format(regdate)+"<br>");
-   else out.println("<b>Дата регистрации:</b> неизвестно<br>");
-   if (lastlogin!=null) out.println("<b>Последний логин:</b> "+tmpl.dateFormat.format(lastlogin)+"<br>");
-   else out.println("<b>Последний логин:</b> неизвестно<br>");
+   if (fullname!=null) {
+     if (!"".equals(fullname)) {
+       out.println("<b>Полное имя:</b> " + fullname + "<br>");
+     }
+   }
 %>
+  <c:if test="${userInfo.url != null}">
+    <b>URL:</b> <a href="${fn:escapeXml(userInfo.url)}">${fn:escapeXml(userInfo.url)}</a><br>
+  </c:if>
+  <c:if test="${userInfo.town != null}">
+    <b>Город:</b> <c:out value="${userInfo.town}" escapeXml="true"/><br>
+  </c:if>
+  <c:if test="${userInfo.registrationDate != null}">
+    <b>Дата регистрации:</b> <lor:date date="${userInfo.registrationDate}"/><br>
+  </c:if>
+  <c:if test="${userInfo.lastLogin != null}">
+    <b>Последнее посещение:</b> <lor:date date="${userInfo.lastLogin}"/><br>
+  </c:if>
+
 <b>Статус:</b> <%= user.getStatus() %><%
   if (user.canModerate()) {
     out.print(" (модератор)");
@@ -116,19 +118,23 @@
     out.print(" (корректор)");
   }
 
-  if (user.isBlocked())
+  if (user.isBlocked()) {
     out.println(" (заблокирован)\n");
-
-  out.print("<br>");
-
+  }
+%>
+  <br>
+<%
   if (moderatorOrCurrentUser) {
-    if (sEmail != null) if (!"".equals(sEmail))
-      out.println("<br><b>Email:</b> " + sEmail + "<br>");
+    if (sEmail != null) {
+      if (!"".equals(sEmail)) {
+        out.println("<br><b>Email:</b> " + sEmail + "<br>");
+      }
+    }
     out.println("<b>Score</b>: " + score + "<br>\n");
-    rs.close();
-    rs = stat5.executeQuery();
+    ResultSet rs = stat5.executeQuery();
     rs.next();
     out.println("<b>Игнорируется</b>: " + rs.getInt("inum") + "<br>\n");
+    rs.close();
   }
   if (Template.isSessionAuthorized(session) && !session.getValue("nick").equals(nick) && !"anonymous".equals(session.getValue("nick"))) {
     out.println("<br>");
@@ -147,9 +153,10 @@
       out.print("</form>");
     }
   }
-
-  out.println("<br>");
-  if (tmpl.isModeratorSession() && user.isBlockable()) {
+%>
+  <br>
+  <c:if test="${template.moderatorSession and user.blockable}">
+  <%
     if (user.isBlocked()) {
       out.print("<form name='f_unblock' method='post' action='usermod.jsp'>\n");
       out.print("<input type='hidden' name='id' value='" + userid + "'>\n");
@@ -161,11 +168,8 @@
       out.print("<input type='submit' name='action' value='block'>\n");
       out.print("<input type='submit' name='action' value='block-n-delete-comments'>\n</form>");
     }
-  }
-
-  userInfo.close();
-
 %>
+    </c:if>
 <br>
 <p>
 <cite>
@@ -202,7 +206,7 @@
 %>
 
 <h2>Статистика</h2>
-<% rs.close(); rs=stat3.executeQuery(); rs.next();
+<% ResultSet rs=stat3.executeQuery(); rs.next();
   Timestamp first = rs.getTimestamp("first");
   Timestamp last = rs.getTimestamp("last");
  %>
@@ -221,7 +225,7 @@
   <c:if test="${user.id!=2}">
 
 <div class="forum">
-<table width="100%" class="message-table">
+<table class="message-table">
 <thead>
 <tr><th>Раздел</th><th>Число сообщений (тем)</th></tr>
 <tbody>
@@ -256,11 +260,12 @@ rs.next(); %>
 </ul>
 </c:if>
 
-</td></tr></table>
-
+</div>
 <%
   } finally {
-    if (db!=null) db.close();
+    if (db!=null) {
+      db.close();
+    }
   }
 %>
 <jsp:include page="footer.jsp"/>

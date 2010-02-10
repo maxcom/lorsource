@@ -302,20 +302,6 @@ public class User implements Serializable {
     return (maxScore < BLOCK_MAX_SCORE) && (score < BLOCK_SCORE);
   }
 
-  public String getCommitInfoLine(Timestamp postdate, Timestamp commitDate) {
-    DateFormat dateFormat = DateFormats.createDefault();
-
-    StringBuilder out = new StringBuilder();
-
-    out.append("<i>Проверено: ").append(nick).append(" (<a href=\"/people/").append(URLEncoder.encode(nick)).append("/profile\">*</a>)");
-    if (commitDate!=null && !commitDate.equals(postdate)) {
-      out.append(' ').append(dateFormat.format(commitDate));
-    }
-    out.append("</i>");
-
-    return out.toString();
-  }
-
   public static User getCurrentUser(Connection db, HttpSession session) throws SQLException, UserNotFoundException {
     if (!Template.isSessionAuthorized(session)) {
       return null;
@@ -452,7 +438,7 @@ public class User implements Serializable {
   }
 
   /* Todo: move to jsp tag */
-  public String getSignature(boolean moderatorMode, Date postdate, boolean shortMode, String style) {
+  public String getSignature(boolean moderatorMode, Date postdate, boolean shortMode) {
     DateFormat dateFormat = DateFormats.createDefault();
 
     StringBuilder out = new StringBuilder();
@@ -461,17 +447,10 @@ public class User implements Serializable {
       out.append("<s>");
     }
 
-    /* todo: move this to style */
-    boolean tango = true; //style!=null && style.equals("tango");
-
-    if (tango) {
-      out.append("<a href=\"/people/").append(URLEncoder.encode(nick)).append("/profile\">");
-    }
+    out.append("<a href=\"/people/").append(URLEncoder.encode(nick)).append("/profile\">");
     out.append(nick);
 
-    if (tango) {
-      out.append("</a>");
-    }
+    out.append("</a>");
 
     if (blocked) {
       out.append("</s>");
@@ -484,10 +463,6 @@ public class User implements Serializable {
       if (moderatorMode) {
         out.append("(Score: ").append(score).append(" MaxScore: ").append(maxScore).append(") ");
       }
-    }
-
-    if (!tango) {
-      out.append("(<a href=\"/people/").append(URLEncoder.encode(nick)).append("/profile\">*</a>)");
     }
 
     out.append(" (").append(dateFormat.format(postdate)).append(')');
@@ -619,5 +594,4 @@ public class User implements Serializable {
   public String getName() {
     return fullName;
   }
-
 }

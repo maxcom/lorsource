@@ -15,21 +15,21 @@
 
 package ru.org.linux.spring;
 
+import java.net.URLEncoder;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Collections;
-import java.net.URLEncoder;
 
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.view.RedirectView;
 
 import ru.org.linux.site.LorDataSource;
 import ru.org.linux.site.User;
+import ru.org.linux.site.UserInfo;
 import ru.org.linux.site.UserNotFoundException;
 
 @Controller
@@ -42,7 +42,11 @@ public class WhoisController {
 
       User user = User.getUser(db, nick);
 
-      return new ModelAndView("whois", Collections.singletonMap("user", user));
+      ModelAndView mv = new ModelAndView("whois");
+      mv.getModel().put("user", user);
+      mv.getModel().put("userInfo", new UserInfo(db, user.getId()));
+
+      return mv;
     } finally {
       if (db!=null) {
         db.close();

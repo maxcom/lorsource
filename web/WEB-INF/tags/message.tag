@@ -2,6 +2,9 @@
 <%@ tag import="ru.org.linux.util.BadImageException" %>
 <%@ tag import="ru.org.linux.util.HTMLFormatter" %>
 <%@ tag import="java.util.List" %>
+<%@ tag import="java.sql.Timestamp" %>
+<%@ tag import="java.text.DateFormat" %>
+<%@ tag import="java.net.URLEncoder" %>
 <%@ tag pageEncoding="UTF-8"%>
 <%@ attribute name="db" required="true" type="java.sql.Connection" %>
 <%@ attribute name="message" required="true" type="ru.org.linux.site.Message" %>
@@ -132,7 +135,7 @@
 
 <div class=sign>
 <%
-  out.append(author.getSignature(tmpl.isModeratorSession(), message.getPostdate(), tmpl.isMobile(), tmpl.getStyle()));
+  out.append(author.getSignature(tmpl.isModeratorSession(), message.getPostdate(), tmpl.isMobile()));
   if (tmpl.isModeratorSession()) {
     out.append(" (<a href=\"sameip.jsp?msgid=");
     out.print(msgid);
@@ -143,8 +146,16 @@
     User commiter = User.getUserCached(db, message.getCommitby());
 
     if (commiter.getId()!=message.getUid()) {
+      Timestamp commitDate = message.getCommitDate();
+      DateFormat dateFormat = DateFormats.createDefault();
       out.append("<br>");
-      out.append(commiter.getCommitInfoLine(message.getPostdate(), message.getCommitDate()));
+
+      out.append("<i>Проверено: <a href=\"/people/").append(URLEncoder.encode(commiter.getNick())).append("/profile\">").append(commiter.getNick()).append("</a>");
+      if (commitDate !=null && !commitDate.equals(message.getPostdate())) {
+        out.append(" (").append(dateFormat.format(commitDate)).append(")");
+      }
+      
+      out.append("</i>");
     }
   }
 

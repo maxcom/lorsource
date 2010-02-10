@@ -1,5 +1,4 @@
 <%@ tag import="java.io.IOException" %>
-<%@ tag import="java.sql.Timestamp" %>
 <%@ tag import="ru.org.linux.site.*" %>
 <%@ tag import="ru.org.linux.util.BadImageException" %>
 <%@ tag import="ru.org.linux.util.HTMLFormatter" %>
@@ -102,7 +101,7 @@
 <%
   if (url != null && !imagepost && !votepoll) {
     if (url.length()==0) {
-      url = "view-message.jsp?msgid="+msgid;
+      url = message.getLink();
     }
 
     out.append("<p>&gt;&gt;&gt; <a href=\"").append(HTMLFormatter.htmlSpecialChars(url)).append("\">").append(linktext).append("</a>");
@@ -154,9 +153,9 @@
 <div class=sign>
   <%
   if (message.getSection().isPremoderated() && message.isCommited()) {
-    out.append(user.getSignature(false, message.getCommitDate(), true, tmpl.getStyle()));    
+    out.append(user.getSignature(false, message.getCommitDate(), true));
   } else {
-    out.append(user.getSignature(false, message.getPostdate(), true, tmpl.getStyle()));
+    out.append(user.getSignature(false, message.getPostdate(), true));
   }
 %>
 </div>
