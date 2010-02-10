@@ -302,20 +302,6 @@ public class User implements Serializable {
     return (maxScore < BLOCK_MAX_SCORE) && (score < BLOCK_SCORE);
   }
 
-  public String getCommitInfoLine(Timestamp postdate, Timestamp commitDate) {
-    DateFormat dateFormat = DateFormats.createDefault();
-
-    StringBuilder out = new StringBuilder();
-
-    out.append("<i>Проверено: ").append(nick).append(" (<a href=\"/people/").append(URLEncoder.encode(nick)).append("/profile\">*</a>)");
-    if (commitDate!=null && !commitDate.equals(postdate)) {
-      out.append(' ').append(dateFormat.format(commitDate));
-    }
-    out.append("</i>");
-
-    return out.toString();
-  }
-
   public static User getCurrentUser(Connection db, HttpSession session) throws SQLException, UserNotFoundException {
     if (!Template.isSessionAuthorized(session)) {
       return null;
