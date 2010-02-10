@@ -19,6 +19,7 @@ import java.net.URLEncoder;
 import java.sql.Connection;
 import java.sql.SQLException;
 
+import javax.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,15 +28,12 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.view.RedirectView;
 
-import ru.org.linux.site.LorDataSource;
-import ru.org.linux.site.User;
-import ru.org.linux.site.UserInfo;
-import ru.org.linux.site.UserNotFoundException;
+import ru.org.linux.site.*;
 
 @Controller
 public class WhoisController {
   @RequestMapping("/people/{nick}/profile")
-  public ModelAndView getInfoNew(@PathVariable String nick) throws Exception {
+  public ModelAndView getInfoNew(@PathVariable String nick, HttpSession session) throws Exception {
     Connection db = null;
     try {
       db = LorDataSource.getConnection();
@@ -45,6 +43,11 @@ public class WhoisController {
       ModelAndView mv = new ModelAndView("whois");
       mv.getModel().put("user", user);
       mv.getModel().put("userInfo", new UserInfo(db, user.getId()));
+
+      boolean moderatorOrCurrentUser = Template.isSessionAuthorized(session) && (session.getValue("nick").equals(nick) ||
+              (Boolean) session.getValue("moderator"));
+
+      mv.getModel().put("moderatorOrCurrentUser", moderatorOrCurrentUser);
 
       return mv;
     } finally {

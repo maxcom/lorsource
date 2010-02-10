@@ -29,6 +29,7 @@
 <%--@elvariable id="user" type="ru.org.linux.site.User"--%>
 <%--@elvariable id="userInfo" type="ru.org.linux.site.UserInfo"--%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
+<%--@elvariable id="moderatorOrCurrentUser" type="java.lang.Boolean"--%>
 
 <% Template tmpl = Template.getTemplate(request); %>
 <%
@@ -47,9 +48,6 @@
   try {
     db = LorDataSource.getConnection();
 
-
-    boolean moderatorOrCurrentUser = Template.isSessionAuthorized(session) && (session.getValue("nick").equals(nick) ||
-            (Boolean) session.getValue("moderator"));
 %>
 
 <h1>Информация о пользователе <%= nick %></h1>
@@ -72,14 +70,13 @@
   <lor:userpic author="${user}"/>
     <div style="clear: both">
   </div>
-<%
-  if (user.getPhoto() != null && moderatorOrCurrentUser) {
-    out.print("<p><form name='f_remove_userpic' method='post' action='remove-userpic.jsp'>\n");
-    out.print("<input type='hidden' name='id' value='" + userid + "'>\n");
-    out.print("<input type='submit' value='Удалить изображение'>\n");
-    out.print("</form>");
-  }
-%>
+<c:if test="${user.photo !=null && moderatorOrCurrentUser}">
+  <p><form style="text-align: center" name='f_remove_userpic' method='post' action='remove-userpic.jsp'>
+  <input type='hidden' name='id' value='${user.id}'>
+  <input type='submit' value='Удалить'>
+  </form>
+</c:if>
+
 </div>
 <div>
 <h2>Регистрация</h2>
@@ -87,8 +84,6 @@
 <b>Nick:</b> <%= nick %><br>
 <%
    String fullname=user.getName();
-   String sEmail=user.getEmail();
-   int score = user.getScore();
 
    if (fullname!=null) {
      if (!"".equals(fullname)) {
@@ -123,19 +118,19 @@
   }
 %>
   <br>
+  <c:if test="${moderatorOrCurrentUser}">
+    <c:if test="${user.email!=null}">
+      <b>Email:</b> ${user.email}<br>
+      <b>Score:</b> ${user.score}<br>
+    <%
+      ResultSet rs = stat5.executeQuery();
+      rs.next();
+      out.println("<b>Игнорируется</b>: " + rs.getInt("inum") + "<br>\n");
+      rs.close();
+    %>
+    </c:if>
+  </c:if>
 <%
-  if (moderatorOrCurrentUser) {
-    if (sEmail != null) {
-      if (!"".equals(sEmail)) {
-        out.println("<br><b>Email:</b> " + sEmail + "<br>");
-      }
-    }
-    out.println("<b>Score</b>: " + score + "<br>\n");
-    ResultSet rs = stat5.executeQuery();
-    rs.next();
-    out.println("<b>Игнорируется</b>: " + rs.getInt("inum") + "<br>\n");
-    rs.close();
-  }
   if (Template.isSessionAuthorized(session) && !session.getValue("nick").equals(nick) && !"anonymous".equals(session.getValue("nick"))) {
     out.println("<br>");
     Map<Integer,String> ignoreList = IgnoreList.getIgnoreList(db, (String) session.getValue("nick"));
@@ -252,11 +247,11 @@ rs.next(); %>
   <li>
     <a href="show-comments.jsp?nick=<%= nick %>">Комментарии</a>
   </li>
-<% if (moderatorOrCurrentUser) { %>
+<c:if test="${moderatorOrCurrentUser}">
   <li>
     <a href="show-replies.jsp?nick=<%= nick %>">Ответы на комментарии</a>
   </li>
-<% } %>
+</c:if>
 </ul>
 </c:if>
 
