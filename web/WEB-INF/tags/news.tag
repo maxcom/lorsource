@@ -28,7 +28,7 @@
   ~    limitations under the License.
   --%>
 
-<div class=news>
+<div class=news id="topic-${message.id}">
 <%
   Template tmpl = Template.getTemplate(request);
 
