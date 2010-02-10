@@ -154,9 +154,9 @@
 <div class=sign>
   <%
   if (message.getSection().isPremoderated() && message.isCommited()) {
-    out.append(user.getSignature(false, message.getCommitDate(), true, tmpl.getStyle()));    
+    out.append(user.getSignature(false, message.getCommitDate(), true));
   } else {
-    out.append(user.getSignature(false, message.getPostdate(), true, tmpl.getStyle()));
+    out.append(user.getSignature(false, message.getPostdate(), true));
   }
 %>
 </div>

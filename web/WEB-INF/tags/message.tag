@@ -132,7 +132,7 @@
 
 <div class=sign>
 <%
-  out.append(author.getSignature(tmpl.isModeratorSession(), message.getPostdate(), tmpl.isMobile(), tmpl.getStyle()));
+  out.append(author.getSignature(tmpl.isModeratorSession(), message.getPostdate(), tmpl.isMobile()));
   if (tmpl.isModeratorSession()) {
     out.append(" (<a href=\"sameip.jsp?msgid=");
     out.print(msgid);

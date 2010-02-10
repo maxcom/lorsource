@@ -452,7 +452,7 @@ public class User implements Serializable {
   }
 
   /* Todo: move to jsp tag */
-  public String getSignature(boolean moderatorMode, Date postdate, boolean shortMode, String style) {
+  public String getSignature(boolean moderatorMode, Date postdate, boolean shortMode) {
     DateFormat dateFormat = DateFormats.createDefault();
 
     StringBuilder out = new StringBuilder();
@@ -461,17 +461,10 @@ public class User implements Serializable {
       out.append("<s>");
     }
 
-    /* todo: move this to style */
-    boolean tango = true; //style!=null && style.equals("tango");
-
-    if (tango) {
-      out.append("<a href=\"/people/").append(URLEncoder.encode(nick)).append("/profile\">");
-    }
+    out.append("<a href=\"/people/").append(URLEncoder.encode(nick)).append("/profile\">");
     out.append(nick);
 
-    if (tango) {
-      out.append("</a>");
-    }
+    out.append("</a>");
 
     if (blocked) {
       out.append("</s>");
@@ -484,10 +477,6 @@ public class User implements Serializable {
       if (moderatorMode) {
         out.append("(Score: ").append(score).append(" MaxScore: ").append(maxScore).append(") ");
       }
-    }
-
-    if (!tango) {
-      out.append("(<a href=\"/people/").append(URLEncoder.encode(nick)).append("/profile\">*</a>)");
     }
 
     out.append(" (").append(dateFormat.format(postdate)).append(')');
