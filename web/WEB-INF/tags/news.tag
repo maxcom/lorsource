@@ -102,7 +102,7 @@
 <%
   if (url != null && !imagepost && !votepoll) {
     if (url.length()==0) {
-      url = "view-message.jsp?msgid="+msgid;
+      url = message.getLink();
     }
 
     out.append("<p>&gt;&gt;&gt; <a href=\"").append(HTMLFormatter.htmlSpecialChars(url)).append("\">").append(linktext).append("</a>");
