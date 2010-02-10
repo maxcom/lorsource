@@ -53,7 +53,6 @@
 %>
 
 <h1>Информация о пользователе <%= nick %></h1>
-<table><tr>
 <%
   PreparedStatement stat1 = db.prepareStatement("SELECT count(*) as c FROM comments WHERE userid=?");
   PreparedStatement stat2 = db.prepareStatement("SELECT sections.name as pname, count(*) as c FROM topics, groups, sections WHERE topics.userid=? AND groups.id=topics.groupid AND sections.id=groups.section AND not deleted GROUP BY sections.name");
@@ -69,8 +68,7 @@
   stat4.setInt(1, userid);
   stat5.setInt(1, userid);
 %>
-<td valign='top' align='center'>
-  <div>
+<div style="float: right">
   <lor:userpic author="${user}"/>
     <div style="clear: both">
   </div>
@@ -82,8 +80,8 @@
     out.print("</form>");
   }
 %>
-</td>
-<td valign="top" align="left">
+</div>
+<div>
 <h2>Регистрация</h2>
 <b>ID:</b> <%= userid %><br>
 <b>Nick:</b> <%= nick %><br>
@@ -227,7 +225,7 @@
   <c:if test="${user.id!=2}">
 
 <div class="forum">
-<table width="100%" class="message-table">
+<table class="message-table">
 <thead>
 <tr><th>Раздел</th><th>Число сообщений (тем)</th></tr>
 <tbody>
@@ -262,8 +260,7 @@ rs.next(); %>
 </ul>
 </c:if>
 
-</td></tr></table>
-
+</div>
 <%
   } finally {
     if (db!=null) {
