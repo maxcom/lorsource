@@ -42,6 +42,11 @@
   String nick = user.getNick();
 %>
 <title>Информация о пользователе ${user.nick}</title>
+<c:if test="${userInfo.url != null}">
+  <link rel="me" href="${fn:escapeXml(userInfo.url)}">
+</c:if>
+<LINK REL="alternate" HREF="/people/${user.nick}/?output=rss" TYPE="application/rss+xml">
+
 <jsp:include page="header.jsp"/>
 
 <% Connection db = null;
