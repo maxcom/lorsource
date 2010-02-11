@@ -18,6 +18,7 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
+<%--@elvariable id="messages" type="java.util.List<ru.org.linux.site.Message>"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 	<title>${ptitle}</title>

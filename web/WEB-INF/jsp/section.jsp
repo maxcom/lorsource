@@ -25,7 +25,7 @@
 %>
 <title>${section.name}</title>
 <link rel="parent" title="Linux.org.ru" href="/">
-<LINK REL="alternate" HREF="section-rss.jsp?section=${section.id}" TYPE="application/rss+xml">
+<LINK REL="alternate" HREF="/section-rss.jsp?section=${section.id}" TYPE="application/rss+xml">
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
   <table class=nav>
