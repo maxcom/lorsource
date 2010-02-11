@@ -254,6 +254,8 @@ public class NewsViewerController {
       db = LorDataSource.getConnection();
 
       User user = User.getUser(db, nick);
+      UserInfo userInfo = new UserInfo(db, user.getId());
+      params.put("meLink", userInfo.getUrl());
 
       params.put("ptitle", "Сообщения "+user.getNick());
       params.put("navtitle", "Сообщения "+user.getNick());
