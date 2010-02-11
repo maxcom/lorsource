@@ -71,7 +71,7 @@
 %>
 </c:if>
 </title>
-    <LINK REL="alternate" HREF="section-rss.jsp?section=${sectionId}&amp;group=${group.id}" TYPE="application/rss+xml">
+    <LINK REL="alternate" HREF="/section-rss.jsp?section=${group.sectionId}&amp;group=${group.id}" TYPE="application/rss+xml">
     <link rel="parent" title="${group.title}" href="${group.sectionLink}">
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 <form>
