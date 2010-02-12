@@ -21,6 +21,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -87,8 +88,15 @@ public class NewsArchiveController {
   }
 
   @RequestMapping(value="/view-news-archive.jsp")
-  public View galleryArchiveOld(@RequestParam("section") int id) throws Exception {
-    return new RedirectView(Section.getArchiveLink(id));
+  public View galleryArchiveOld(@RequestParam("section") int id, HttpServletResponse response) throws Exception {
+    String link = Section.getArchiveLink(id);
+
+    if (link==null) {
+      response.sendError(404, "Now archive for this section");
+      return null;
+    }
+
+    return new RedirectView(link);
   }
 
   public class NewsArchiveListItem {

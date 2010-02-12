@@ -71,7 +71,7 @@
   stat4.setInt(1, userid);
   stat5.setInt(1, userid);
 %>
-<div style="float: right">
+<div id="whois_userpic">
   <lor:userpic author="${user}"/>
     <div style="clear: both">
   </div>

@@ -273,3 +273,7 @@ pre code span {
     margin-top: inherit !important;
     margin-bottom: inherit !important;
 }
+
+#whois_userpic {
+    float: right;
+}
