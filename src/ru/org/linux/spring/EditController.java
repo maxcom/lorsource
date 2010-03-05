@@ -110,9 +110,11 @@ public class EditController extends ApplicationObjectSupport {
 
       Message newMsg;
 
-      String title = request.getParameter("title");
-      if (title==null || title.trim().length()==0) {
-        throw new BadInputException("заголовок сообщения не может быть пустым");
+      if (!message.isExpired()) {
+        String title = request.getParameter("title");
+        if (title == null || title.trim().length() == 0) {
+          throw new BadInputException("заголовок сообщения не может быть пустым");
+        }
       }
 
       newMsg = new Message(db, message, request);
@@ -145,6 +147,10 @@ public class EditController extends ApplicationObjectSupport {
         } else if (!message.getUrl().equals(newMsg.getUrl())) {
           modified = true;
         }
+      }
+
+      if (message.isExpired() && (modified || messageModified)) {
+        throw new AccessViolationException("нельзя править устаревшие сообщения");
       }
 
       if (!preview) {
