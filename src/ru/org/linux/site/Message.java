@@ -635,8 +635,12 @@ public class Message implements Serializable {
   }
 
   public boolean isEditable(Connection db, User by) throws SQLException, UserNotFoundException {
-    if (expired || deleted) {
+    if (deleted) {
       return false;
+    }
+
+    if (expired) {
+      return by.canModerate() && section.isPremoderated();
     }
 
     if (by.canModerate()) {
@@ -647,8 +651,8 @@ public class Message implements Serializable {
       return section.isPremoderated();
     }
 
-    if (by.canCorrect() && sectionid==1) {
-      return true;
+    if (by.canCorrect()) {
+      return section.isPremoderated();
     }
     
     if (by.getId()==userid && !moderate && lorcode && !by.isAnonymousScore()) {

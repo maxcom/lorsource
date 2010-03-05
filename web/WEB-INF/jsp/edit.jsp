@@ -62,6 +62,8 @@
 
 <form action="edit.jsp" name="edit" method="post" id="messageForm">
   <input type="hidden" name="msgid" value="${message.id}">
+
+  <c:if test="${not message.expired}">
   Заголовок:
   <input type=text name=title class="required" size=40 value="<%= newMsg.getTitle()==null?"":HTMLFormatter.htmlSpecialChars(newMsg.getTitle()) %>" ><br>
 
@@ -80,6 +82,7 @@
   Ссылка :
   <input type=text name=url size=70 value="<%= newMsg.getUrl()==null?"":HTMLFormatter.htmlSpecialChars(newMsg.getUrl()) %>"><br>
   <% } %>
+  </c:if>
 
   <c:if test="${group.moderated}">
   <%
