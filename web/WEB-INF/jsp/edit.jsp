@@ -6,7 +6,6 @@
 <%@ page import="ru.org.linux.util.HTMLFormatter" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-
 <%--
   ~ Copyright 1998-2010 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -45,7 +44,6 @@
   Connection db = null;
   try {
     db = LorDataSource.getConnection();
-    Message message = (Message) request.getAttribute("message");
     Message newMsg = (Message) request.getAttribute("newMsg");
 
 %>
@@ -68,28 +66,21 @@
   <input type=text name=title class="required" size=40 value="<%= newMsg.getTitle()==null?"":HTMLFormatter.htmlSpecialChars(newMsg.getTitle()) %>" ><br>
 
   <br>
-  <textarea name="newmsg" cols="70" rows="20"><%= newMsg.getMessage() %></textarea>
+  <textarea name="newmsg" cols="70" rows="20">${newMsg.message}</textarea>
   <br><br>
-  <% if (message.isHaveLink()) {
-  %>
-  Текст ссылки:
-  <input type=text name=linktext size=60 value="<%= newMsg.getLinktext()==null?"":HTMLFormatter.htmlSpecialChars(newMsg.getLinktext()) %>"><br>
-  <%
-    }
-  %>
-  <% if (message.isHaveLink()) {
-  %>
-  Ссылка :
-  <input type=text name=url size=70 value="<%= newMsg.getUrl()==null?"":HTMLFormatter.htmlSpecialChars(newMsg.getUrl()) %>"><br>
-  <% } %>
+    <c:if test="${message.haveLink}">
+      Текст ссылки:
+      <input type=text name=linktext size=60
+             value="<%= newMsg.getLinktext()==null?"":HTMLFormatter.htmlSpecialChars(newMsg.getLinktext()) %>"><br>
+      Ссылка :
+      <input type=text name=url size=70
+             value="<%= newMsg.getUrl()==null?"":HTMLFormatter.htmlSpecialChars(newMsg.getUrl()) %>"><br>
+    </c:if>
   </c:if>
 
   <c:if test="${group.moderated}">
-  <%
-    String result = newMsg.getTags().toString();
-  %>
   Теги:
-  <input type="text" name="tags" id="tags" value="<%= result %>"><br>
+  <input type="text" name="tags" id="tags" value="<%= newMsg.getTags().toString() %>"><br>
   Популярные теги: <%= Tags.getEditTags(Tags.getTopTags(db)) %> <br>
     </c:if>
   <br>
@@ -99,8 +90,6 @@
   <input type=submit name=preview value="Предпросмотр">
 </form>
 <%
-
-    // out.print("<-- or msgid is null -->\n");
   } finally {
     if (db != null) {
       db.close();
