@@ -68,6 +68,11 @@ public class EditController extends ApplicationObjectSupport {
 
       params.put("newMsg", message);
 
+      List<EditInfoDTO> editInfoList = message.loadEditInfo(db);
+      if (editInfoList!=null) {
+        params.put("editInfo", editInfoList.get(0));
+      }
+
       return new ModelAndView("edit", params);
     } finally {
       if (db != null) {
@@ -79,7 +84,8 @@ public class EditController extends ApplicationObjectSupport {
   @RequestMapping(value = "/edit.jsp", method = RequestMethod.POST)
   public ModelAndView edit(
     HttpServletRequest request,
-    @RequestParam("msgid") int msgid)
+    @RequestParam("msgid") int msgid,
+    @RequestParam(value="lastEdit", required=false) Long lastEdit)
     throws Exception {
 
     Template tmpl = Template.getTemplate(request);
@@ -108,8 +114,6 @@ public class EditController extends ApplicationObjectSupport {
         throw new AccessViolationException("это сообщение нельзя править");
       }
 
-      Message newMsg;
-
       if (!message.isExpired()) {
         String title = request.getParameter("title");
         if (title == null || title.trim().length() == 0) {
@@ -117,8 +121,24 @@ public class EditController extends ApplicationObjectSupport {
         }
       }
 
-      newMsg = new Message(db, message, request);
+      List<EditInfoDTO> editInfoList = message.loadEditInfo(db);
+
       boolean preview = request.getParameter("preview") != null;
+      if (preview) {
+        params.put("info", "Предпросмотр");
+      }
+
+      if (editInfoList!=null) {
+        EditInfoDTO dbEditInfo = editInfoList.get(0);
+        params.put("editInfo", dbEditInfo);
+
+        if (lastEdit == null || dbEditInfo.getEditdate().getTime()!=lastEdit) {
+          params.put("info", "Сообщение было отредактировано независимо");
+          preview = true;
+        }
+      }
+
+      Message newMsg = new Message(db, message, request);
 
       boolean modified = false;
 
@@ -188,8 +208,6 @@ public class EditController extends ApplicationObjectSupport {
         } else {
           params.put("info", "nothing changed");
         }
-      } else {
-        params.put("info", "Предпросмотр");
       }
 
       params.put("newMsg", newMsg);

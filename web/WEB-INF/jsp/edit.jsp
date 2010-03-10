@@ -25,6 +25,7 @@
 <%--@elvariable id="newMsg" type="ru.org.linux.site.Message"--%>
 <%--@elvariable id="group" type="ru.org.linux.site.Group"--%>
 <%--@elvariable id="info" type="java.lang.String"--%>
+<%--@elvariable id="editInfo" type="ru.org.linux.site.EditInfoDTO"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 <title>Редактирование сообщения</title>
@@ -49,6 +50,11 @@
 %>
 <c:if test="${info!=null}">
   <h1>${info}</h1>
+  <h2>Текущая версия сообщения</h2>
+  <div class=messages>
+    <lor:message db="<%= db %>" message="${message}" showMenu="false" user="<%= Template.getNick(session) %>"/>
+  </div>
+  <h2>Ваше сообщение</h2>
 </c:if>
 <c:if test="${info==null}">
   <h1>Редактирование</h1>
@@ -60,6 +66,9 @@
 
 <form action="edit.jsp" name="edit" method="post" id="messageForm">
   <input type="hidden" name="msgid" value="${message.id}">
+  <c:if test="${editInfo!=null}">
+    <input type="hidden" name="lastEdit" value="${editInfo.editdate.time}">
+  </c:if>
 
   <c:if test="${not message.expired}">
   Заголовок:
