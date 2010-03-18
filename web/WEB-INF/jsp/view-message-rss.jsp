@@ -48,8 +48,7 @@
     }
 %>
   <c:set var="list" value="<%= list %>"/>
-  <description>
-<%
+  <description><![CDATA[<%
     db = LorDataSource.getConnection();
 
     out.print(MessageTable.getTopicRss(
@@ -57,7 +56,7 @@
             tmpl.getConfig().getProperty("HTMLPathPrefix"),
             tmpl.getMainUrl(),
             (Message) request.getAttribute("message")));
-%>
+%>%>]]>
   </description>
   <c:forEach items="${list}" var="comment" begin="<%= fromIndex %>">
     <item>
@@ -73,9 +72,7 @@
       <link>http://www.linux.org.ru/jump-message.jsp?msgid=${message.id}&amp;cid=${comment.id}</link>
       <guid>http://www.linux.org.ru/jump-message.jsp?msgid=${message.id}&amp;cid=${comment.id}</guid>
       <pubDate><lor:rfc822date date="${comment.postdate}"/></pubDate>
-      <description ><![CDATA[
-        <%-- To avoid double escaping (comments stored escaped) --%>
-              <%
+      <description ><![CDATA[<%
           Comment comment = (Comment) pageContext.getAttribute("comment");
           out.print(comment.getProcessedMessage(db));
               %>]]>

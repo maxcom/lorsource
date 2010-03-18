@@ -52,11 +52,11 @@
       <c:if test="${msg.commitDate==null}">
         <pubDate><lor:rfc822date date="${msg.postdate}"/></pubDate>      
       </c:if>
-      <description>
+      <description><![CDATA[
       <%
         out.print(MessageTable.getTopicRss(db, tmpl.getConfig().getProperty("HTMLPathPrefix"), tmpl.getMainUrl(), (Message) pageContext.getAttribute("msg")));
       %>
-      </description>
+      ]]></description>
     </item>
   </c:forEach>
 <%
