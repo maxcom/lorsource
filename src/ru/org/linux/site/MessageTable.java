@@ -23,7 +23,6 @@ import java.sql.SQLException;
 import java.text.DateFormat;
 
 import ru.org.linux.util.BadImageException;
-import ru.org.linux.util.HTMLFormatter;
 import ru.org.linux.util.ImageInfo;
 import ru.org.linux.util.StringUtil;
 
@@ -79,14 +78,14 @@ public class MessageTable {
       ImageInfo iconInfo = new ImageInfo(htmlPath + topic.getLinktext());
       ImageInfo info = new ImageInfo(htmlPath + topic.getUrl());
 
-      buf.append(HTMLFormatter.htmlSpecialChars(topic.getProcessedMessage(db)));
-      buf.append(HTMLFormatter.htmlSpecialChars("<p><img src=\"" + fullUrl + topic.getLinktext() + "\" ALT=\"" + topic.getTitle() + "\" " + iconInfo.getCode() + " >"));
-      buf.append(HTMLFormatter.htmlSpecialChars("<p><i>" + info.getWidth() + 'x' + info.getHeight() + ", " + info.getSizeString() + "</i>"));
+      buf.append(topic.getProcessedMessage(db));
+      buf.append("<p><img src=\"" + fullUrl + topic.getLinktext() + "\" ALT=\"" + topic.getTitle() + "\" " + iconInfo.getCode() + " >");
+      buf.append("<p><i>" + info.getWidth() + 'x' + info.getHeight() + ", " + info.getSizeString() + "</i>");
     } else if (topic.isVotePoll()) {
       Poll poll = Poll.getPollByTopic(db, topic.getId());
-      buf.append(HTMLFormatter.htmlSpecialChars(poll.renderPoll(db, fullUrl)));
+      buf.append(poll.renderPoll(db, fullUrl));
     } else {
-      buf.append(HTMLFormatter.htmlSpecialChars(topic.getProcessedMessage(db)));
+      buf.append(topic.getProcessedMessage(db));
     }
 
     return buf.toString();
