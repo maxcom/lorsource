@@ -97,7 +97,7 @@ public class LostPasswordController {
       msg.addRecipient(MimeMessage.RecipientType.TO, email);
       msg.setSubject("Your password @linux.org.ru");
       msg.setSentDate(new Date());
-      msg.setText("Hello!\n\nThis messages was sent as a reply to \"Lost password\" request at WWW.LINUX.ORG.RU website.\n\nHere is your password: " + password + "\n\nBest wishes!");
+      msg.setText("Hello!\n\nThis messages was sent as a reply to \"Lost password\" request at WWW.LINUX.ORG.RU website.\n\nYou are "+user.getNick()+" and your password: " + password + "\n\nBest wishes!");
 
       Transport.send(msg);
 
