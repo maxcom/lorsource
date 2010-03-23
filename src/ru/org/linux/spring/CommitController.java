@@ -105,15 +105,15 @@ public class CommitController extends ApplicationObjectSupport {
     try {
       db = LorDataSource.getConnection();
       db.setAutoCommit(false);
-      PreparedStatement pst = db.prepareStatement("UPDATE topics SET moderate='t', commitby=?, commitdate='now', title=? WHERE id=?");
-      pst.setInt(3, msgid);
-      pst.setString(2, HTMLFormatter.htmlSpecialChars(title));
+      PreparedStatement pst = db.prepareStatement("UPDATE topics SET title=? WHERE id=?");
+      pst.setInt(2, msgid);
+      pst.setString(1, HTMLFormatter.htmlSpecialChars(title));
 
       Message message = new Message(db, msgid);
       User author = User.getUser(db, message.getUid());
 
       User user = User.getUser(db, (String) request.getSession().getAttribute("nick"));
-      pst.setInt(1, user.getId());
+      message.commit(db, user, bonus);
 
       user.checkCommit();
 
@@ -148,13 +148,6 @@ public class CommitController extends ApplicationObjectSupport {
       }
 
       pst.executeUpdate();
-      if (author.getScore()<300) {
-        if (bonus<0 || bonus>20) {
-          throw new UserErrorException("Неверное значение bonus");
-        }
-
-        author.changeScore(db, bonus);
-      }
 
       if (request.getParameter("tags") != null) {
         List<String> tags = Tags.parseTags(request.getParameter("tags"));

@@ -68,6 +68,8 @@ public class EditController extends ApplicationObjectSupport {
 
       params.put("newMsg", message);
 
+      params.put("commit", !message.isCommited() && message.getSection().isPremoderated() && user.canModerate());
+
       List<EditInfoDTO> editInfoList = message.loadEditInfo(db);
       if (editInfoList!=null) {
         params.put("editInfo", editInfoList.get(0));
@@ -85,7 +87,8 @@ public class EditController extends ApplicationObjectSupport {
   public ModelAndView edit(
     HttpServletRequest request,
     @RequestParam("msgid") int msgid,
-    @RequestParam(value="lastEdit", required=false) Long lastEdit)
+    @RequestParam(value="lastEdit", required=false) Long lastEdit,
+    @RequestParam(value="bonus", required=false, defaultValue="3") int bonus)
     throws Exception {
 
     Template tmpl = Template.getTemplate(request);
@@ -135,6 +138,15 @@ public class EditController extends ApplicationObjectSupport {
         if (lastEdit == null || dbEditInfo.getEditdate().getTime()!=lastEdit) {
           params.put("info", "Сообщение было отредактировано независимо");
           preview = true;
+        }
+      }
+
+      boolean commit = request.getParameter("commit") != null;
+
+      if (commit) {
+        user.checkCommit();
+        if (message.isCommited()) {
+          throw new BadInputException("сообщение уже подтверждено");
         }
       }
 
@@ -200,8 +212,14 @@ public class EditController extends ApplicationObjectSupport {
         params.put("modifiedTags", modifiedTags);
         params.put("modified", modified || messageModified || modifiedTags);
 
-        if (modified || messageModified || modifiedTags) {
-          logger.info("сообщение " + message.getId() + " исправлено " + session.getValue("nick"));
+        if (commit) {
+          message.commit(db, user, bonus);
+        }
+
+        if (modified || messageModified || modifiedTags || commit) {
+          if (modified || messageModified || modifiedTags) {
+            logger.info("сообщение " + message.getId() + " исправлено " + session.getValue("nick"));
+          }
 
           db.commit();
           return new ModelAndView(new RedirectView(message.getLinkLastmod()));

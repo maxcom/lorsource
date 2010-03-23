@@ -26,6 +26,7 @@
 <%--@elvariable id="group" type="ru.org.linux.site.Group"--%>
 <%--@elvariable id="info" type="java.lang.String"--%>
 <%--@elvariable id="editInfo" type="ru.org.linux.site.EditInfoDTO"--%>
+<%--@elvariable id="commit" type="java.lang.Boolean"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 <title>Редактирование сообщения</title>
@@ -93,10 +94,16 @@
   Популярные теги: <%= Tags.getEditTags(Tags.getTopTags(db)) %> <br>
     </c:if>
   <br>
-
   <input type="submit" value="Отредактировать">
   &nbsp;
   <input type=submit name=preview value="Предпросмотр">
+  <c:if test="${commit}">
+    <br><br>
+    Bonus score (от 0 до 20):
+    <input type=text name=bonus size=40 value="3">
+  <br>
+    <input type=submit name=commit value="Подтвердить">
+  </c:if>
 </form>
 <%
   } finally {
