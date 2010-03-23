@@ -102,6 +102,7 @@
 <div class="nav">
   [<a href="/news/?offset=20">← предыдущие</a>]
   [<a href="add-section.jsp?section=1">добавить новость</a>]
+  [<a href="view-all.jsp?section=1">непроверенные новости</a>]
   [<a href="section-rss.jsp?section=1">RSS</a>]
 </div>
 </div>
