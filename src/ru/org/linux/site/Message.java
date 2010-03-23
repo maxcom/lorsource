@@ -18,9 +18,9 @@ package ru.org.linux.site;
 import java.io.IOException;
 import java.io.Serializable;
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.ArrayList;
 import java.util.logging.Logger;
 
 import javax.servlet.ServletRequest;
@@ -784,5 +784,34 @@ public class Message implements Serializable {
     }
     
     return Section.getSectionLink(sectionid) + groupUrl+"/"+msgid+"/page"+page;
+  }
+
+  public void commit(Connection db, User commiter, int bonus) throws SQLException, UserErrorException {
+    if (bonus<0 || bonus>20) {
+      throw new UserErrorException("Неверное значение bonus");
+    }
+
+    PreparedStatement pst = null;
+    try {
+      pst = db.prepareStatement("UPDATE topics SET moderate='t', commitby=?, commitdate='now' WHERE id=?");
+      pst.setInt(2, msgid);
+      pst.setInt(1, commiter.getId());
+      pst.executeUpdate();
+
+      User author = null;
+      try {
+        author = User.getUserCached(db, userid);
+      } catch (UserNotFoundException e) {
+        throw new RuntimeException(e);
+      }
+
+      if (author.getScore()<300) {
+        author.changeScore(db, bonus);
+      }
+    } finally {
+      if (pst != null) {
+        pst.close();
+      }
+    }
   }
 }
