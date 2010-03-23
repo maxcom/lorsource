@@ -217,7 +217,7 @@ public class NewsViewerController {
       params.put("offset", offset);
 
       if (section!=null) {
-        String rssLink = "section-rss.jsp?section="+section.getId();
+        String rssLink = "/section-rss.jsp?section="+section.getId();
         if (group!=null) {
           rssLink += "&group="+group.getId();
         }
