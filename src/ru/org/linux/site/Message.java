@@ -814,4 +814,12 @@ public class Message implements Serializable {
       }
     }
   }
+
+  public void changeGroup(Connection db, int changeGroupId) throws SQLException {
+    Statement st = db.createStatement();
+    st.executeUpdate("UPDATE topics SET groupid=" + changeGroupId + " WHERE id=" + msgid);
+    /* to recalc counters */
+    st.executeUpdate("UPDATE groups SET stat4=stat4+1 WHERE id=" + guid + " or id=" + changeGroupId);
+    st.close();
+  }
 }

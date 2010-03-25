@@ -19,7 +19,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.Statement;
 import java.util.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -131,11 +130,7 @@ public class CommitController extends ApplicationObjectSupport {
             throw new AccessViolationException("Can't move topics between sections");
           }
           
-          Statement st = db.createStatement();
-          st.executeUpdate("UPDATE topics SET groupid=" + changeGroupId + " WHERE id=" + msgid);
-          /* to recalc counters */
-          st.executeUpdate("UPDATE groups SET stat4=stat4+1 WHERE id=" + oldgrp + " or id=" + changeGroupId);
-          st.close();
+          message.changeGroup(db, changeGroupId);
         }
       }
 
