@@ -79,6 +79,8 @@ public class CommitController extends ApplicationObjectSupport {
       params.put("msgid", msgid);
       params.put("section", section);
 
+      params.put("groups", Group.getGroups(db, section));
+
       return new ModelAndView("commit", params);
     } finally {
       if (db != null) {
