@@ -150,6 +150,8 @@ public class EditController extends ApplicationObjectSupport {
         }
       }
 
+      params.put("commit", !message.isCommited() && message.getSection().isPremoderated() && user.canModerate());
+
       Message newMsg = new Message(db, message, request);
 
       boolean modified = false;
