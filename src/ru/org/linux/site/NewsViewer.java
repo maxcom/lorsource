@@ -265,7 +265,7 @@ public class NewsViewer {
       return new Date(new Date().getTime() + 10*60*1000);
     }
 
-    return new Date(new Date().getTime() + 60*1000);
+    return new Date(new Date().getTime() + 30*1000);
   }
 
   public static NewsViewer getMainpage() {
