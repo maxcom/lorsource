@@ -800,7 +800,7 @@ public class Message implements Serializable {
 
       User author = null;
       try {
-        author = User.getUserCached(db, userid);
+        author = User.getUser(db, userid);
       } catch (UserNotFoundException e) {
         throw new RuntimeException(e);
       }
