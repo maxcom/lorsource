@@ -164,7 +164,7 @@ public class CommitController extends ApplicationObjectSupport {
     }
   }
 
-  private void pingFeedburner() {
+  public void pingFeedburner() {
     try {
       config.setServerURL(new URL("http://ping.feedburner.com/"));
 
