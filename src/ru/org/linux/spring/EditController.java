@@ -30,11 +30,15 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.org.linux.site.*;
 
 @Controller
 public class EditController extends ApplicationObjectSupport {
+  @Autowired(required=true)
+  private CommitController commitController;
+
   @RequestMapping(value = "/edit.jsp", method = RequestMethod.GET)
   public ModelAndView showForm(
     HttpServletRequest request,
@@ -224,6 +228,11 @@ public class EditController extends ApplicationObjectSupport {
           }
 
           db.commit();
+
+          if (commit) {
+            commitController.pingFeedburner();
+          }
+
           return new ModelAndView(new RedirectView(message.getLinkLastmod()));
         } else {
           params.put("info", "nothing changed");
@@ -238,5 +247,9 @@ public class EditController extends ApplicationObjectSupport {
         db.close();
       }
     }
+  }
+
+  public void setCommitController(CommitController commitController) {
+    this.commitController = commitController;
   }
 }

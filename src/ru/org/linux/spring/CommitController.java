@@ -19,8 +19,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.Statement;
 import java.util.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -81,6 +79,8 @@ public class CommitController extends ApplicationObjectSupport {
       params.put("msgid", msgid);
       params.put("section", section);
 
+      params.put("groups", Group.getGroups(db, section));
+
       return new ModelAndView("commit", params);
     } finally {
       if (db != null) {
@@ -110,7 +110,6 @@ public class CommitController extends ApplicationObjectSupport {
       pst.setString(1, HTMLFormatter.htmlSpecialChars(title));
 
       Message message = new Message(db, msgid);
-      User author = User.getUser(db, message.getUid());
 
       User user = User.getUser(db, (String) request.getSession().getAttribute("nick"));
       message.commit(db, user, bonus);
@@ -120,31 +119,21 @@ public class CommitController extends ApplicationObjectSupport {
       if (request.getParameter("chgrp") != null) {
         int changeGroupId = new ServletParameterParser(request).getInt("chgrp");
 
-        Statement st = db.createStatement();
-        ResultSet rs = st.executeQuery("select groupid, section, groups.title FROM topics, groups WHERE topics.id=" + msgid + " and groups.id=topics.groupid");
-        if (!rs.next()) {
-          throw new MessageNotFoundException(msgid);
-        }
-
-        int oldgrp = rs.getInt("groupid");
+        int oldgrp = message.getGroupId();
         if (oldgrp != changeGroupId) {
           Group changeGroup = new Group(db, changeGroupId);
 
-          int section = rs.getInt("section");
+          int section = message.getSectionId();
           if (section != 1 && section != 3) {
             throw new AccessViolationException("Can't move topics in non-news section");
           }
 
-          rs.close();
           if (changeGroup.getSectionId() != section) {
             throw new AccessViolationException("Can't move topics between sections");
           }
-          st.executeUpdate("UPDATE topics SET groupid=" + changeGroupId + " WHERE id=" + msgid);
-          /* to recalc counters */
-          st.executeUpdate("UPDATE groups SET stat4=stat4+1 WHERE id=" + oldgrp + " or id=" + changeGroupId);
+          
+          message.changeGroup(db, changeGroupId);
         }
-
-        st.close();
       }
 
       pst.executeUpdate();
@@ -172,7 +161,7 @@ public class CommitController extends ApplicationObjectSupport {
     }
   }
 
-  private void pingFeedburner() {
+  public void pingFeedburner() {
     try {
       config.setServerURL(new URL("http://ping.feedburner.com/"));
 

@@ -1,12 +1,12 @@
 <%@ page contentType="text/html; charset=utf-8" %>
 <%@ page import="java.sql.Connection" %>
-<%@ page import="java.sql.ResultSet" %>
-<%@ page import="java.sql.Statement" %>
 <%@ page import="java.sql.Timestamp" %>
-<%@ page import="ru.org.linux.site.*" %>
+<%@ page import="ru.org.linux.site.LorDataSource" %>
+<%@ page import="ru.org.linux.site.Section" %>
+<%@ page import="ru.org.linux.site.Tags" %>
+<%@ page import="ru.org.linux.site.Template" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-
 <%--
   ~ Copyright 1998-2010 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,6 +21,8 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
+<%--@elvariable id="groups" type="java.util.List<ru.org.linux.site.Group>"--%>
+<%--@elvariable id="message" type="ru.org.linux.site.Message"--%>
 
 <% Template tmpl = Template.getTemplate(request);
 %>
@@ -58,32 +60,20 @@
     <input type=text name=bonus size=40 value="3">
 
   <br>
-  <c:if test="${message.sectionId == 1}">
     Метки (теги):
     <input type="text" id="tags" name="tags" size=40 value="${message.tags}"><br>
     Популярные теги: <%= Tags.getEditTags(Tags.getTopTags(db)) %> <br>
-  </c:if>
-  <%
-    Message message = (Message) request.getAttribute("message");
-  %>
   <c:if test="${(message.sectionId == 1) || (message.sectionId == 3)}">
-    Переместить в группу:
+    Группа:
     <select name="chgrp">
-      <%
-        Statement st = db.createStatement();
-        ResultSet rq = st.executeQuery("SELECT id, title FROM groups WHERE section=" + message.getSectionId() + " ORDER BY id");
-        out.println("<option value=" + message.getGroupId() + '>' + message.getGroupTitle() + " (не менять)</option>");
-        while (rq.next()) {
-          int id = rq.getInt("id");
-          if (id != message.getGroupId()) {
-            out.println("<option value=" + id + '>' + rq.getString("title") + "</option>");
-          }
-        }
-        if (rq != null) {
-          rq.close();
-        }
-        st.close();
-      %>
+      <c:forEach var="group" items="${groups}">
+        <c:if test="${group.id != message.groupId}">
+          <option value="${group.id}">${group.title}</option>
+        </c:if>
+        <c:if test="${group.id == message.groupId}">
+          <option value="${group.id}" selected="selected">${group.title}</option>
+        </c:if>
+      </c:forEach>
     </select><br>
   </c:if>
   <%

@@ -800,7 +800,7 @@ public class Message implements Serializable {
 
       User author = null;
       try {
-        author = User.getUserCached(db, userid);
+        author = User.getUser(db, userid);
       } catch (UserNotFoundException e) {
         throw new RuntimeException(e);
       }
@@ -813,5 +813,13 @@ public class Message implements Serializable {
         pst.close();
       }
     }
+  }
+
+  public void changeGroup(Connection db, int changeGroupId) throws SQLException {
+    Statement st = db.createStatement();
+    st.executeUpdate("UPDATE topics SET groupid=" + changeGroupId + " WHERE id=" + msgid);
+    /* to recalc counters */
+    st.executeUpdate("UPDATE groups SET stat4=stat4+1 WHERE id=" + guid + " or id=" + changeGroupId);
+    st.close();
   }
 }
