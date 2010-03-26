@@ -94,7 +94,8 @@ public class CommitController extends ApplicationObjectSupport {
     HttpServletRequest request,
     @RequestParam("msgid") int msgid,
     @RequestParam("title") String title,
-    @RequestParam("bonus") int bonus
+    @RequestParam("bonus") int bonus,
+    @RequestParam(value="chgrp", required=false) Integer changeGroupId
   ) throws Exception {
     if (!Template.isSessionAuthorized(request.getSession())) {
       throw new AccessViolationException("Not authorized");
@@ -116,9 +117,7 @@ public class CommitController extends ApplicationObjectSupport {
 
       user.checkCommit();
 
-      if (request.getParameter("chgrp") != null) {
-        int changeGroupId = new ServletParameterParser(request).getInt("chgrp");
-
+      if (changeGroupId != null) {
         int oldgrp = message.getGroupId();
         if (oldgrp != changeGroupId) {
           Group changeGroup = new Group(db, changeGroupId);
