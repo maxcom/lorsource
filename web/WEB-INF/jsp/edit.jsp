@@ -27,6 +27,7 @@
 <%--@elvariable id="info" type="java.lang.String"--%>
 <%--@elvariable id="editInfo" type="ru.org.linux.site.EditInfoDTO"--%>
 <%--@elvariable id="commit" type="java.lang.Boolean"--%>
+<%--@elvariable id="groups" type="java.util.List<ru.org.linux.site.Group>"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 <title>Редактирование сообщения</title>
@@ -99,6 +100,17 @@
   <input type=submit name=preview value="Предпросмотр">
   <c:if test="${commit}">
     <br><br>
+    Группа:
+    <select name="chgrp">
+      <c:forEach var="group" items="${groups}">
+        <c:if test="${group.id != message.groupId}">
+          <option value="${group.id}">${group.title}</option>
+        </c:if>
+        <c:if test="${group.id == message.groupId}">
+          <option value="${group.id}" selected="selected">${group.title}</option>
+        </c:if>
+      </c:forEach>
+    </select><br>
     Bonus score (от 0 до 20):
     <input type=text name=bonus size=40 value="3">
   <br>
