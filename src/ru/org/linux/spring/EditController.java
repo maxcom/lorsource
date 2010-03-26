@@ -64,6 +64,8 @@ public class EditController extends ApplicationObjectSupport {
       Group group = new Group(db, message.getGroupId());
       params.put("group", group);
 
+      params.put("groups", Group.getGroups(db, message.getSection()));
+
       User user = User.getCurrentUser(db, session);
 
       if (!message.isEditable(db, user)) {
@@ -92,8 +94,9 @@ public class EditController extends ApplicationObjectSupport {
     HttpServletRequest request,
     @RequestParam("msgid") int msgid,
     @RequestParam(value="lastEdit", required=false) Long lastEdit,
-    @RequestParam(value="bonus", required=false, defaultValue="3") int bonus)
-    throws Exception {
+    @RequestParam(value="bonus", required=false, defaultValue="3") int bonus,
+    @RequestParam(value="chgrp", required=false) Integer changeGroupId
+  ) throws Exception {
 
     Template tmpl = Template.getTemplate(request);
     HttpSession session = request.getSession();
@@ -114,6 +117,8 @@ public class EditController extends ApplicationObjectSupport {
 
       Group group = new Group(db, message.getGroupId());
       params.put("group", group);
+
+      params.put("groups", Group.getGroups(db, message.getSection()));
 
       User user = User.getCurrentUser(db, session);
 
@@ -219,6 +224,21 @@ public class EditController extends ApplicationObjectSupport {
         params.put("modified", modified || messageModified || modifiedTags);
 
         if (commit) {
+          if (changeGroupId != null) {
+            int oldgrp = message.getGroupId();
+            if (oldgrp != changeGroupId) {
+              Group changeGroup = new Group(db, changeGroupId);
+
+              int section = message.getSectionId();
+
+              if (changeGroup.getSectionId() != section) {
+                throw new AccessViolationException("Can't move topics between sections");
+              }
+
+              message.changeGroup(db, changeGroupId);
+            }
+          }
+
           message.commit(db, user, bonus);
         }
 
