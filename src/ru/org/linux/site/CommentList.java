@@ -21,14 +21,15 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.*;
-import java.util.logging.Logger;
 
 import com.danga.MemCached.MemCachedClient;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import ru.org.linux.util.UtilException;
 
 public class CommentList implements Serializable {
-  private static final Logger logger = Logger.getLogger("ru.org.linux");
+  private static final Log logger = LogFactory.getLog(CommentList.class);
 
   private final List<Comment> comments = new ArrayList<Comment>(CommentFilter.COMMENTS_INITIAL_BUFSIZE);
   private final CommentNode root = new CommentNode();
@@ -59,7 +60,7 @@ public class CommentList implements Serializable {
 
     rs.close();
 
-    logger.fine("Read list size = " +comments.size());
+    logger.debug("Read list size = " +comments.size());
 
     buildTree();
   }

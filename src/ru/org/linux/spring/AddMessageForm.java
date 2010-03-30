@@ -21,11 +21,12 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jdom.Verifier;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
@@ -35,7 +36,7 @@ import ru.org.linux.site.*;
 import ru.org.linux.util.*;
 
 public class AddMessageForm {
-  private static final Logger logger = Logger.getLogger("ru.org.linux");
+  private static final Log logger = LogFactory.getLog(AddMessageForm.class);
 
   private final boolean preview;
   private int guid = 0;
@@ -170,13 +171,13 @@ public class AddMessageForm {
         image = uploadedFile.getPath();
         if ((uploadedFile.canWrite() || uploadedFile.createNewFile())) {
           try {
-            Logger.getLogger("ru.org.linux").fine("Transfering upload to: " + image);
+            logger.debug("Transfering upload to: " + image);
             multipartFile.transferTo(uploadedFile);
           } catch (Exception e) {
             throw new ScriptErrorException("Failed to write uploaded file", e);
           }
         } else {
-          Logger.getLogger("ru.org.linux").info("Bad target file name: " + image);
+          logger.info("Bad target file name: " + image);
         }
       }
     }

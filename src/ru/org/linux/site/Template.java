@@ -23,15 +23,15 @@ import java.sql.SQLException;
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.Properties;
-import java.util.logging.Logger;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-
 import com.handinteractive.mobile.UAgentInfo;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import ru.org.linux.storage.StorageException;
 import ru.org.linux.storage.StorageNotFoundException;
@@ -41,7 +41,7 @@ import ru.org.linux.util.StringUtil;
 import ru.org.linux.util.UtilException;
 
 public class Template {
-  private static final Logger logger = Logger.getLogger("ru.org.linux");
+  private static final Log logger = LogFactory.getLog(Template.class);
 
   private final Properties cookies;
   private String style;
@@ -116,7 +116,7 @@ public class Template {
             profile = null;
           }
         } catch (UserNotFoundException ex) {
-          logger.warning("Can't restore password for user: " + profile + " - " + ex.toString());
+          logger.warn("Can't restore password for user: " + profile + " - " + ex.toString());
           profile = null;
         } finally {
           if (db != null) {
@@ -134,8 +134,7 @@ public class Template {
       try {
         userProfile = readProfile(profile);
       } catch (IOException e) {
-        logger.info("Bad profile: "+profile);
-        logger.fine(e.toString()+": "+StringUtil.getStackTrace(e));
+        logger.info("Bad profile: "+profile, e);
       } catch (StorageNotFoundException e) {
       }
     }

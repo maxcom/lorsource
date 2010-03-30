@@ -18,7 +18,9 @@ package ru.org.linux.util;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.logging.Logger;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * Gets image dimensions by parsing file headers.
@@ -26,7 +28,7 @@ import java.util.logging.Logger;
  * currently supported file types: Jpeg Gif Png
  */
 public class ImageInfo{
-  private static final Logger logger = Logger.getLogger("ru.org.linux");
+  private static final Log logger = LogFactory.getLog(ImageInfo.class);
 
   private int height = -1;
   private int width = -1;
@@ -46,7 +48,7 @@ public class ImageInfo{
   }
 
   public static String detectImageType(File file) throws BadImageException, IOException {
-    logger.fine("Detecting image type for: " + file+ " ("+file.length()+" bytes)");
+    logger.debug("Detecting image type for: " + file+ " ("+file.length()+" bytes)");
 
     ImageInfo2 ii = new ImageInfo2();
 
@@ -253,7 +255,7 @@ public class ImageInfo{
     int exitStatus = proc.waitFor();
 
     if (exitStatus!=0) {
-      logger.warning("Failed to convert from "+filename+" to "+iconname);
+      logger.warn("Failed to convert from "+filename+" to "+iconname);
       throw new UtilException("Can't convert image: convert failed");
     }
   }

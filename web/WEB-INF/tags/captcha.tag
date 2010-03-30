@@ -1,19 +1,7 @@
-<%@ tag import="java.sql.Connection" %>
-<%@ tag import="java.sql.Statement" %>
-<%@ tag import="java.util.Random" %>
-<%@ tag import="java.util.logging.Logger" %>
-<%@ tag import="javax.servlet.http.HttpServletResponse" %>
-<%@ tag import="org.apache.commons.lang.StringUtils" %>
-<%@ tag import="ru.org.linux.site.*" %>
-<%@ tag import="ru.org.linux.spring.AddMessageForm" %>
-<%@ tag import="ru.org.linux.util.BadURLException" %>
-<%@ tag import="ru.org.linux.util.HTMLFormatter" %>
-<%@ tag import="ru.org.linux.util.ServletParameterParser" %>
-<%@ tag import="org.springframework.web.context.WebApplicationContext" %>
-<%@ tag import="org.springframework.web.context.support.WebApplicationContextUtils" %>
-<%@ tag import="java.util.Properties" %>
 <%@ tag import="net.tanesha.recaptcha.ReCaptcha" %>
+<%@ tag import="org.springframework.web.context.WebApplicationContext" %>
 <%@ tag import="org.springframework.web.servlet.support.RequestContextUtils" %>
+<%@ tag import="ru.org.linux.site.Template" %>
 <%@ tag pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib prefix="lor" uri="http://www.linux.org.ru" %>

@@ -15,9 +15,6 @@
 
 package ru.org.linux.util;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.math.BigInteger;
 import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
@@ -71,25 +68,6 @@ public final class StringUtil {
     return "Без заглавия";
   }
 
-  /**
-   * print stack trace to string
-   * @Deprecated use Commons Logging fuctions
-   */
-  @Deprecated
-  public static String getStackTrace(Throwable e) throws IOException {
-    StringWriter str = new StringWriter();
-    PrintWriter prt = new PrintWriter(str);
-
-    e.printStackTrace(prt);
-
-    String r = str.toString();
-
-    prt.close();
-    str.close();
-
-    return r;
-  }
-
   public static String md5hash(String pass) {
     try {
       MessageDigest md = MessageDigest.getInstance("MD5"); //$NON-NLS-1$
@@ -110,5 +88,4 @@ public final class StringUtil {
       throw new RuntimeException(gse);
     }
   }
-
 }
