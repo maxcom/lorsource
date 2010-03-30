@@ -44,31 +44,22 @@
   <div class=title>
     <c:if test="${message.resolved}"><img src="/img/solved.png" alt="решено" title="решено"/></c:if>
     <c:if test="${not message.deleted}">
-      [<a href="${message.link}">#</a>]<%
-    if (tmpl.isModeratorSession() && message.getSection().isPremoderated() && !message.isCommited()) {
-      out.append("[<a href=\"edit.jsp?msgid=").append(String.valueOf(msgid)).append("\">Подтвердить</a>]");
-    }
+      [<a href="${message.link}">#</a>]
+      <c:if test="${template.moderatorSession}">
+        <c:if test="${message.section.premoderated and not message.commited}">
+          [<a href="edit.jsp?msgid=${message.id}">Подтвердить</a>]
+        </c:if>
+        <c:if test="${message.votePoll}">
+          [<a href="edit-vote.jsp?msgid=${message.id}">Править опрос</a>]
+        </c:if>
+        
+        [<a href="setpostscore.jsp?msgid=${message.id}">Установить параметры</a>]
+        [<a href="mt.jsp?msgid=${message.id}">Перенести</a>]
 
-    if (tmpl.isModeratorSession()) {
-      if (message.isVotePoll()) {
-        out.append("[<a href=\"edit-vote.jsp?msgid=");
-        out.print(msgid);
-        out.print("\">Править опрос</a>]");
-      }
-      
-      out.append("[<a href=\"setpostscore.jsp?msgid=");
-      out.print(msgid);
-      out.print("\">Установить параметры</a>]");
-      out.append("[<a href=\"mt.jsp?msgid=");
-      out.print(msgid);
-      out.append("\">Перенести</a>]");
-
-      if (message.getSection().isPremoderated()) {
-        out.append("[<a href=\"mtn.jsp?msgid=");
-        out.print(msgid);
-        out.append("\">Группа</a>]");
-      }
-    }
+        <c:if test="${message.section.premoderated}">
+          [<a href="mtn.jsp?msgid=${message.id}">Группа</a>]
+        </c:if>
+      </c:if><%
 
     if (currentUser!=null && message.isEditable(db, currentUser)) {
       out.append("[<a href=\"edit.jsp?msgid=");
