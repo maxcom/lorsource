@@ -21,17 +21,18 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.logging.Logger;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.javabb.bbcode.BBCodeProcessor;
 
 import ru.org.linux.spring.AddMessageForm;
 import ru.org.linux.util.*;
 
 public class Message implements Serializable {
-  private static final Logger logger = Logger.getLogger("ru.org.linux");
+  private static final Log logger = LogFactory.getLog(Message.class);
 
   private final int msgid;
   private final int postscore;

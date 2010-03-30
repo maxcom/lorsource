@@ -17,18 +17,19 @@ package ru.org.linux.site;
 
 import java.io.IOException;
 import java.util.Properties;
-import java.util.logging.Logger;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import ru.org.linux.util.StringUtil;
 
 public class TemplateFilter implements Filter {
-  private static final Logger logger = Logger.getLogger("ru.org.linux");
+  private static final Log logger = LogFactory.getLog(TemplateFilter.class);
 
   private FilterConfig filterConfig;
 
@@ -54,7 +55,7 @@ public class TemplateFilter implements Filter {
 
       servletRequest.setAttribute("template", tmpl);
     } catch (Exception ex) {
-      logger.severe("Can't build Template "+ StringUtil.getStackTrace(ex));
+      logger.fatal("Can't build Template", ex);
       return;
     }
 

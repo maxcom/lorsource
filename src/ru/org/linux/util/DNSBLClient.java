@@ -17,14 +17,15 @@ package ru.org.linux.util;
 
 import java.net.UnknownHostException;
 import java.util.StringTokenizer;
-import java.util.logging.Logger;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.xbill.DNS.*;
 
 public class DNSBLClient {
   public final int DNSBL_TIMEOUT_SEC = 10;
 
-  private static final Logger logger = Logger.getLogger("ru.org.linux");
+  private static final Log logger = LogFactory.getLog(DNSBLClient.class);
 
   private final Resolver resolver;
   private final String zone;
@@ -38,7 +39,7 @@ public class DNSBLClient {
   public boolean checkIP(String addr) throws TextParseException {
     String query = invertIPAddress(addr)+ '.' +zone;
 
-    logger.fine("Looking for "+query);
+    logger.debug("Looking for "+query);
 
     Lookup lookup = new Lookup(query, Type.A);
     lookup.setResolver(resolver);

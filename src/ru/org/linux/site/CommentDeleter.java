@@ -21,10 +21,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 public class CommentDeleter {
-  private static final Logger logger = Logger.getLogger("ru.org.linux");
+  private static final Log logger = LogFactory.getLog(CommentDeleter.class);
 
   private final PreparedStatement deleteComment;
   private final PreparedStatement insertDelinfo;

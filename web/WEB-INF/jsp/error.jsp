@@ -3,18 +3,18 @@
 <%@ page import="java.util.Date"%>
 <%@ page import="java.util.Enumeration"%>
 <%@ page import="java.util.Properties"%>
-<%@ page import="java.util.logging.Logger"%>
 <%@ page import="javax.mail.Session"%>
 <%@ page import="javax.mail.Transport"%>
 <%@ page import="javax.mail.internet.InternetAddress"%>
 <%@ page import="javax.mail.internet.MimeMessage"%>
+<%@ page import="org.apache.commons.logging.Log"%>
+<%@ page import="org.apache.commons.logging.LogFactory"%>
 <%@ page import="ru.org.linux.site.MessageNotFoundException"%>
 <%@ page import="ru.org.linux.site.ScriptErrorException"%>
 <%@ page import="ru.org.linux.site.Template"%>
 <%@ page import="ru.org.linux.site.UserErrorException"%>
-<%@ page import="ru.org.linux.util.HTMLFormatter"%>
+<%@ page import="ru.org.linux.util.HTMLFormatter" %>
 <%@ page import="ru.org.linux.util.ServletParameterException" %>
-<%@ page import="ru.org.linux.util.StringUtil" %>
 <%--
   ~ Copyright 1998-2010 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -31,7 +31,7 @@
   --%>
 
 <% Template tmpl = Template.getTemplate(request);
-  Logger logger = Logger.getLogger("ru.org.linux");
+  Log logger = LogFactory.getLog("ru.org.linux");
 
   if (exception==null) {
     exception = (Throwable) request.getAttribute("exception");
@@ -62,7 +62,7 @@
 параметры. Если на эту страничку вас привела одна из
 страниц нашего сайта, пожалуйста сообщите нам адреса текущей и ссылающейся страниц.
 <%
-  logger.fine(exception.toString()+": "+StringUtil.getStackTrace(exception));
+  logger.debug("error.jsp", exception);
 %>
 <% } else { %>
 
@@ -119,7 +119,7 @@
   } catch(Exception e) {
     out.println("<b>Произошла непредвиденная ошибка. К сожалению сервер временно не принимает сообщения об ошибках.</b>");
   } finally {
-    logger.severe(exception.toString()+": "+StringUtil.getStackTrace(exception));
+    logger.warn("error.jsp", exception);
   }
 %>
 <% } %>
