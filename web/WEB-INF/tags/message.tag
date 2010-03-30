@@ -46,7 +46,7 @@
     <c:if test="${not message.deleted}">
       [<a href="${message.link}">#</a>]<%
     if (tmpl.isModeratorSession() && message.getSection().isPremoderated() && !message.isCommited()) {
-      out.append("[<a href=\"commit.jsp?msgid=").append(String.valueOf(msgid)).append("\">Подтвердить</a>]");
+      out.append("[<a href=\"edit.jsp?msgid=").append(String.valueOf(msgid)).append("\">Подтвердить</a>]");
     }
 
     if (tmpl.isModeratorSession()) {
