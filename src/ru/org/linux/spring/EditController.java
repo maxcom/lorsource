@@ -37,7 +37,7 @@ import ru.org.linux.site.*;
 @Controller
 public class EditController extends ApplicationObjectSupport {
   @Autowired(required=true)
-  private CommitController commitController;
+  private FeedPinger feedPinger;
 
   @RequestMapping(value = "/edit.jsp", method = RequestMethod.GET)
   public ModelAndView showForm(
@@ -250,7 +250,7 @@ public class EditController extends ApplicationObjectSupport {
           db.commit();
 
           if (commit) {
-            commitController.pingFeedburner();
+            feedPinger.pingFeedburner();
           }
 
           return new ModelAndView(new RedirectView(message.getLinkLastmod()));
@@ -269,7 +269,7 @@ public class EditController extends ApplicationObjectSupport {
     }
   }
 
-  public void setCommitController(CommitController commitController) {
-    this.commitController = commitController;
+  public void setCommitController(FeedPinger feedPinger) {
+    this.feedPinger = feedPinger;
   }
 }
