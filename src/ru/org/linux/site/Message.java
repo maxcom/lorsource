@@ -657,7 +657,7 @@ public class Message implements Serializable {
     }
     
     if (by.getId()==userid && !moderate && lorcode && !by.isAnonymousScore()) {
-      return (new Date().getTime() - postdate.getTime()) < 30*60*1000;
+      return section.isPremoderated() || (new Date().getTime() - postdate.getTime()) < 60 * 60 * 1000;
     }
 
     return false;
