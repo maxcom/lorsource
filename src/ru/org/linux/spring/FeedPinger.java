@@ -17,29 +17,20 @@ package ru.org.linux.spring;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.util.*;
+import java.util.Map;
+import java.util.Properties;
 
-import javax.servlet.http.HttpServletRequest;
 import org.apache.xmlrpc.XmlRpcException;
 import org.apache.xmlrpc.client.XmlRpcClient;
 import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.ApplicationObjectSupport;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.view.RedirectView;
+import org.springframework.stereotype.Service;
 
-import ru.org.linux.site.*;
-import ru.org.linux.util.HTMLFormatter;
-import ru.org.linux.util.ServletParameterParser;
+import ru.org.linux.site.Template;
 
-@Controller
-public class CommitController extends ApplicationObjectSupport {
+@Service
+public class FeedPinger extends ApplicationObjectSupport {
   @Autowired(required = true)
   private Properties properties;
 
