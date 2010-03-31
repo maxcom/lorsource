@@ -215,10 +215,6 @@
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>springapp</servlet-name>
-        <url-pattern>/commit.jsp</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>springapp</servlet-name>
         <url-pattern>/add-section.jsp</url-pattern>
     </servlet-mapping>
     <servlet-mapping>

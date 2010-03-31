@@ -1,7 +1,6 @@
 User-agent: *
-Disallow: /commit.jsp
+Disallow: /edit.jsp
 Disallow: /view-all.jsp
-Disallow: /group-lastmod.jsp
 Disallow: /delete.jsp
 Disallow: /add.jsp
 Disallow: /add2.jsp
@@ -13,6 +12,5 @@ Disallow: /logout.jsp
 Disallow: /edit-boxes.jsp
 Disallow: /add_comment.jsp
 Disallow: /comment-message.jsp
-Disallow: /show-comments.jsp
 Disallow: /show-replies.jsp
 Disallow: /ignore-list.jsp
