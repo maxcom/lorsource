@@ -653,7 +653,7 @@ public class Message implements Serializable {
     }
 
     if (by.canCorrect()) {
-      return section.isPremoderated();
+      return section.isPremoderated() && lorcode;
     }
     
     if (by.getId()==userid && !moderate && lorcode && !by.isAnonymousScore()) {
