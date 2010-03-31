@@ -64,3 +64,11 @@ h1 {
 h2 {
     font-size: large;
 }
+
+#ft-info {
+    float: none;
+}
+
+#ft-buttons {
+    text-align: inherit;
+}
