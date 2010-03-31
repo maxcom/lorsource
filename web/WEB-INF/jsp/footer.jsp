@@ -1,5 +1,5 @@
+<%@ page contentType="text/html; charset=utf-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-
 <%--
   ~ Copyright 1998-2010 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,9 +17,13 @@
 </div>
 <div id="ft">
 
-<p><i><a href="${template.mainUrl}">${template.mainUrl}</a></i>
+<p id="ft-info">
+  <a href="server.jsp">О Сервере</a> -
+  <a href="rules.jsp">Правила форума</a><br>
+  <a href="${template.mainUrl}">${template.mainUrl}</a>
+</p>
 
-<div align=center>
+<div id="ft-buttons">
   <!-- begin of Top100 logo -->
   <a href="http://top100.rambler.ru/home?id=29833" target="_blank"><img src="http://top100-images.rambler.ru/top100/banner-88x31-rambler-black2.gif" alt="Rambler's Top100" width="88" height="31" border="0" /></a>
   <!-- end of Top100 logo -->

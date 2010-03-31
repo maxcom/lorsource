@@ -18,15 +18,16 @@
 
 </div>
 <div id="ft">
-  <div align=center>
-  <p>
+  <p id="ft-info">
+    <a href="server.jsp">О Сервере</a> -
+    <a href="rules.jsp">Правила форума</a><br>
+
   Разработка и&nbsp;поддержка&nbsp;&#8212; <a href="/people/maxcom/profile">Максим Валянский</a> 1998&ndash;2010<br>
   Размещение сервера и&nbsp;подключение его к&nbsp;сети Интернет осуществляется компанией
   ООО &laquo;<a href="http://www.ratel.ru">НИИР-РадиоНет</a>&raquo;
   </p>
-  </div>
 
-<div align=center style="margin-top: 1em">
+<div id="ft-buttons">
 <!-- begin of Top100 logo -->
 <a href="http://top100.rambler.ru/home?id=29833" target="_blank"><img src="http://top100-images.rambler.ru/top100/banner-88x31-rambler-black2.gif" alt="Rambler's Top100" width="88" height="31" border="0" /></a>
 <!-- end of Top100 logo -->

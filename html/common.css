@@ -277,3 +277,15 @@ pre code span {
 #whois_userpic {
     float: right;
 }
+
+#ft {
+    font-size: small;
+}
+
+#ft-info {
+    float: left;
+}
+
+#ft-buttons {
+    text-align: right;
+}
