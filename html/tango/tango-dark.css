@@ -1,88 +1,23 @@
-html, body {
-	background-color: #2e3436;
-}
-
-body {
-	color: #babdb6;
-}
-
-a {
-	color: #729fcf;
-}
-
-#hd h1 {
-	color: #ffffff;
-}
-
-#hd .menu .primary a {
-	color: #e9b96e;
-}
-
-#hd .menu .secondary a {
-	color: #fcaf3e;
-}
-
-#bd h2 * {
-	color: #babdb6;
-}
-
-#bd .tags a {
-	color: #fcaf3e;
-}
-
-#bd .sign a {
-	color: #8ae234;
-}
-
-#bd .sign a:visited {
-	color: #8ae234;
-}
-
-#bd .column .boxlet {
-	background-color: inherit;
-}
-
-#bd .column .boxlet h2 {
-    background: #555753;
-}
-
-#bd .forum table thead {
-	background-color: #555753;
-}
-
-#bd .forum table tbody td {
-	border-color: #555753;
-}
-
-#bd .forum table th {
-	border-color: #555753;
-}
-
-#bd .forum table tbody td * {
-	color: #eeeeec;
-}
-
-.messages .msg {
-  background:  #272C2D;
-}
-
-#bd a:visited {
-color: #babdb6;
-}
-
-#bd .forum table tbody td a:visited {
-color: #babdb6;
-}
-
-#sitetitle {
-    color: white;
-    text-decoration: none;
-}
-
-#navPath a:visited {
-    color: #729FCF;
-}
-
-#whois_userpic {
-    background: #272C2D;
-}
+html,body{background-color:#D9DAC6;}
+body{color:#00000d;}
+a{color:#0000ad;}
+#hd h1{color:#fff;}
+#hd .menu .primary a{color:#3F77FF;}
+#hd .menu .secondary a{color:#3F77FF;}
+#bd h2 *{color:#0000AD;}
+#bd .tags a{color:#3F77FF;}
+#bd .sign a{color:#0000ad; text-decoration: none}
+#bd .sign a:hover{color:#0080C0; text-decoration: underline}
+#bd .sign a:visited{color:#606090;}
+#bd .column .boxlet{background-color:inherit;}
+#bd .column .boxlet h2{background:#797F4F;}
+#bd .forum table thead{background-color:#C7CBB1;}
+#bd .forum table tbody td{border-color:#555753;}
+#bd .forum table th{border-color:#555753;}
+#bd .forum table tbody td *{color:#0000ad;}
+.messages .msg{background:#C7CBB1;}
+#bd a:visited{color:#606090;}
+#bd .forum table tbody td a:visited{color:#babdb6;}
+#sitetitle{color:#464A3C;text-decoration:none;}
+#navPath a:visited{color:#729FCF;}
+#whois_userpic{background:#272C2D;}
