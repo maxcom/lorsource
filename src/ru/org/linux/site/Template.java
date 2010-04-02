@@ -154,12 +154,11 @@ public class Template {
   }
 
   private static String getStyle(String style) {
-    return "tango";
-/*    if (!DefaultProfile.isStyle(style)) {
+    if (!DefaultProfile.isStyle(style)) {
       return (String) Profile.getDefaults().get("style");
     }
 
-    return style; */
+    return style;
   }
 
   private void formatModeFixup() {
