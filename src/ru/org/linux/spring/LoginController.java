@@ -28,6 +28,7 @@ import javax.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 
@@ -118,8 +119,16 @@ public class LoginController {
   }
 
   @RequestMapping(value = "/logout.jsp", method = RequestMethod.GET)
-  public ModelAndView logout(HttpSession session, HttpServletResponse response) throws Exception {
+  public ModelAndView logout(
+    HttpSession session,
+    HttpServletResponse response,
+    @RequestParam(required=false) String sessionId
+  ) throws Exception {
     if (session != null && session.getValue("login") != null && (Boolean) session.getValue("login")) {
+      if (sessionId==null || !session.getId().equals(sessionId)) {
+        return new ModelAndView("logout");
+      }
+
       session.removeValue("login");
       session.removeValue("nick");
       session.removeValue("moderator");

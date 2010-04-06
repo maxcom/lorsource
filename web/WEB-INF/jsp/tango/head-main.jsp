@@ -43,7 +43,7 @@
         <c:if test="${template.sessionAuthorized}">
           <c:url var="userUrl" value="/people/${template.nick}/profile"/>
           добро пожаловать, <a style="text-decoration: none" href="${userUrl}">${template.nick}</a>
-          [<a href="logout.jsp" title="Выйти">x</a>]
+          [<a href="logout.jsp?sessionId=<%= session.getId() %>" title="Выйти">x</a>]
         </c:if>
 
         <c:if test="${not template.sessionAuthorized}">
