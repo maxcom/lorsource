@@ -35,8 +35,7 @@ import ru.org.linux.site.*;
 public class DeleteMessageController extends ApplicationObjectSupport {
   @RequestMapping(value="/delete.jsp", method= RequestMethod.GET)
   public ModelAndView showForm(
-    @RequestParam("msgid") int msgid,
-    HttpServletRequest request
+    @RequestParam("msgid") int msgid
   ) throws Exception {
     Connection db = null;
     try {
