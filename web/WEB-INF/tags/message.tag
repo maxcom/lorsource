@@ -183,6 +183,12 @@
       out.append("\">Ответить на это сообщение</a>] ");
     }
 
+    if (currentUser!=null && message.isEditable(db, currentUser)) {
+      out.append("[<a href=\"edit.jsp?msgid=");
+      out.print(msgid);
+      out.append("\">Править</a>] ");
+    }
+  
     if (tmpl.isModeratorSession() || author.getNick().equals(user)) {
       out.append("[<a href=\"delete.jsp?msgid=");
       out.print(msgid);
