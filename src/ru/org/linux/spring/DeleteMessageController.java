@@ -173,7 +173,7 @@ public class DeleteMessageController extends ApplicationObjectSupport {
 
       st1.executeUpdate();
 
-      if (user.canModerate() && bonus!=null && bonus!=0) {
+      if (user.canModerate() && bonus!=null && bonus!=0 && user.getId()!=message.getUid()) {
         if (bonus>20 || bonus<0) {
           throw new UserErrorException("Некорректное значение bonus");
         }
