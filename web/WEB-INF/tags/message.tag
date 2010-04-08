@@ -47,7 +47,7 @@
       [<a href="${message.link}">#</a>]
       <c:if test="${template.moderatorSession}">
         <c:if test="${message.section.premoderated and not message.commited}">
-          [<a href="edit.jsp?msgid=${message.id}">Подтвердить</a>]
+          [<a href="commit.jsp?msgid=${message.id}">Подтвердить</a>]
         </c:if>
         <c:if test="${message.votePoll}">
           [<a href="edit-vote.jsp?msgid=${message.id}">Править опрос</a>]

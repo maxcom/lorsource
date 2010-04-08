@@ -167,7 +167,7 @@
       }
     } else {
       if (currentUser != null && currentUser.canModerate()) {
-        out.append("[<a href=\"edit.jsp?msgid=").append(Integer.toString(msgid)).append("\">Подтвердить</a>]");
+        out.append("[<a href=\"commit.jsp?msgid=").append(Integer.toString(msgid)).append("\">Подтвердить</a>]");
       }
 
       out.append(" [<a href=\"delete.jsp?msgid=").append(Integer.toString(msgid)).append("\">Удалить</a>]");

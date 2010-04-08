@@ -17,12 +17,14 @@ package ru.org.linux.spring;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.ApplicationObjectSupport;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,7 +32,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.org.linux.site.*;
 
@@ -39,8 +40,45 @@ public class EditController extends ApplicationObjectSupport {
   @Autowired(required=true)
   private FeedPinger feedPinger;
 
+  @RequestMapping(value = "/commit.jsp", method = RequestMethod.GET)
+  public ModelAndView showCommitForm(
+    HttpServletRequest request,
+    @RequestParam("msgid") int msgid)
+  throws Exception {
+    Template tmpl = Template.getTemplate(request);
+
+    if (!tmpl.isModeratorSession()) {
+      throw new AccessViolationException("Not authorized");
+    }
+
+    Connection db = null;
+    try {
+      db = LorDataSource.getConnection();
+
+      Message message = new Message(db, msgid);
+
+      if (message.isCommited()) {
+        throw new UserErrorException("Сообщение уже подтверждено");
+      }
+
+      if (!message.getSection().isPremoderated()) {
+        throw new UserErrorException("Раздел не премодерируемый");
+      }
+
+      ModelAndView mv = prepareModel(db, message);
+
+      mv.getModel().put("commit", true);
+
+      return mv;
+    } finally {
+      if (db != null) {
+        db.close();
+      }
+    }
+  }
+
   @RequestMapping(value = "/edit.jsp", method = RequestMethod.GET)
-  public ModelAndView showForm(
+  public ModelAndView showEditForm(
     HttpServletRequest request,
     @RequestParam("msgid") int msgid)
     throws Exception {
@@ -52,19 +90,12 @@ public class EditController extends ApplicationObjectSupport {
       throw new AccessViolationException("Not authorized");
     }
 
-    Map<String, Object> params = new HashMap<String, Object>();
-
     Connection db = null;
+
     try {
       db = LorDataSource.getConnection();
 
       Message message = new Message(db, msgid);
-      params.put("message", message);
-
-      Group group = new Group(db, message.getGroupId());
-      params.put("group", group);
-
-      params.put("groups", Group.getGroups(db, message.getSection()));
 
       User user = User.getCurrentUser(db, session);
 
@@ -72,21 +103,37 @@ public class EditController extends ApplicationObjectSupport {
         throw new AccessViolationException("это сообщение нельзя править");
       }
 
-      params.put("newMsg", message);
-
-      params.put("commit", !message.isCommited() && message.getSection().isPremoderated() && user.canModerate());
-
-      List<EditInfoDTO> editInfoList = message.loadEditInfo(db);
-      if (editInfoList!=null) {
-        params.put("editInfo", editInfoList.get(0));
-      }
-
-      return new ModelAndView("edit", params);
+      return prepareModel(db, message);
     } finally {
       if (db != null) {
         db.close();
       }
     }
+  }
+
+  private ModelAndView prepareModel(
+    Connection db,
+    Message message
+  ) throws SQLException, MessageNotFoundException, BadGroupException, UserNotFoundException, AccessViolationException {
+    Map<String, Object> params = new HashMap<String, Object>();
+
+    params.put("message", message);
+
+    Group group = new Group(db, message.getGroupId());
+    params.put("group", group);
+
+    params.put("groups", Group.getGroups(db, message.getSection()));
+
+    params.put("newMsg", message);
+
+    List<EditInfoDTO> editInfoList = message.loadEditInfo(db);
+    if (editInfoList != null) {
+      params.put("editInfo", editInfoList.get(0));
+    }
+
+    params.put("commit", false);
+
+    return new ModelAndView("edit", params);
   }
 
   @RequestMapping(value = "/edit.jsp", method = RequestMethod.POST)
