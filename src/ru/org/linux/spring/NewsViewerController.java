@@ -313,7 +313,7 @@ public class NewsViewerController {
 
   @RequestMapping(value="/view-all.jsp", method=RequestMethod.GET)
   public ModelAndView viewAll(
-    @RequestParam(value="section", required = false) Integer sectionId
+    @RequestParam(value="section", required = false, defaultValue = "0") int sectionId
   ) throws Exception {
     Connection db = null;
 
@@ -324,7 +324,7 @@ public class NewsViewerController {
       
       Section section = null;
 
-      if (sectionId!=null) {
+      if (sectionId!=0) {
         section = new Section(db, sectionId);
         modelAndView.getModel().put("section", section);
       }
