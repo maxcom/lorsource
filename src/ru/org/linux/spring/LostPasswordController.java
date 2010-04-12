@@ -51,7 +51,7 @@ public class LostPasswordController {
       db = LorDataSource.getConnection();
       db.setAutoCommit(false);
 
-      PreparedStatement pst = db.prepareStatement("SELECT id, passwd, canmod, name, lostpwd>CURRENT_TIMESTAMP-'1 week'::interval as datecheck FROM users WHERE email=?");
+      PreparedStatement pst = db.prepareStatement("SELECT id, passwd, canmod, name, lostpwd>CURRENT_TIMESTAMP-'1 week'::interval as datecheck AND not blocked FROM users WHERE email=?");
       pst.setString(1, useremail);
       ResultSet rs = pst.executeQuery();
 
