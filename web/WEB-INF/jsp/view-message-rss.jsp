@@ -56,7 +56,7 @@
             tmpl.getConfig().getProperty("HTMLPathPrefix"),
             tmpl.getMainUrl(),
             (Message) request.getAttribute("message")));
-%>%>]]>
+%>]]>
   </description>
   <c:forEach items="${list}" var="comment" begin="<%= fromIndex %>">
     <item>
