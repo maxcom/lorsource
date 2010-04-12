@@ -56,7 +56,7 @@
   добро пожаловать, <a style="text-decoration: none" href="${userUrl}">${template.nick}</a>
   [<a href="logout.jsp?sessionId=<%= session.getId() %>" title="Выйти">x</a>]
   <br>
-  <img src="/black/dk-black.png" alt="День Космонавтики" height=100 width=44>
+  <img src="/black/pingvin.gif" alt="Linux Logo" height=114 width=102>
 </c:if>
 
 <c:if test="${not template.sessionAuthorized}">
