@@ -34,7 +34,12 @@
   <!--TopList LOGO-->
   <a target="_top" href="http://top.list.ru/jump?from=71642"><img src="http://top.list.ru/counter?id=71642;t=11;l=1" border=0 height=31 width=88 alt="TopList"></a>
   <!--TopList LOGO-->
+  <c:if test="${template.style == 'tango'}"><br>
+           Стиль: <a href="#" rel="dark" class="styleswitch">Dark</a></li> -
+            <a href="#" rel="swamp" class="styleswitch">Swamp</a></li>
+  </c:if>
 </div>
+
 
 <script type="text/javascript">
 var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");

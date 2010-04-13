@@ -139,6 +139,7 @@
 		<fileset file="${dist}/js/jquery.hotkeys-0.7.8-packed.js"/>
 		<fileset file="${dist}/js/jquery.validate.pack.js"/>
 		<fileset file="${dist}/js/jquery.validate.ru.js"/>
+		<fileset file="${dist}/js/stylesheetToggle.js"/>
 		<fileset file="${dist}/js/highlight.pack.js"/>
 	</concat>
 
@@ -158,7 +159,6 @@
 		<fileset file="${dist}/tango/syntax.css"/>
 		<fileset file="${dist}/tango/reset-fonts-grids.css"/>
 		<fileset file="${dist}/tango/style.css"/>
-		<fileset file="${dist}/tango/tango-dark.css"/>
 	</concat>
 
 	<concat destfile="${dist}/tango/combined-mobile.css">
