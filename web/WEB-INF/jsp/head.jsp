@@ -18,13 +18,13 @@
 
 <html lang=ru>
 <head>
-<LINK REL=STYLESHEET TYPE="text/css" HREF="/common.css" TITLE="Normal">
+<LINK REL=STYLESHEET TYPE="text/css" HREF="/common.css">
   <c:if test="${template.mobile}">
-    <LINK REL=STYLESHEET TYPE="text/css" HREF="/common-mobile.css" TITLE="Normal">
+    <LINK REL=STYLESHEET TYPE="text/css" HREF="/common-mobile.css">
   </c:if>
 
   <c:if test="${template.hover}">
-    <LINK REL=STYLESHEET TYPE="text/css" HREF="/${template.style}/hover.css" TITLE="Normal">
+    <LINK REL=STYLESHEET TYPE="text/css" HREF="/${template.style}/hover.css">
   </c:if>
 
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.2.6/jquery.min.js" type="text/javascript"></script>
