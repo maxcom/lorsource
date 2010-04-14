@@ -50,19 +50,26 @@
 <tr><td><img src="/white2/h2.png" alt="" width=452 height=49></td></tr>
 </table>
 
-<div align=center>
+<div align="center">
 <table width="80%">
 <tr>
 <td valign="top">
-[<a href="/">Главная</a>]<br>
-</td><td valign="top">
-[<a href="/forum/">Форум</a>]<br>
-</td><td valign="top">
-[<a href="tracker.jsp">Трекер</a>]<br>
-</td><td valign="top">
-[<a href="/wiki">Wiki</a>]<br>  
-</td><td valign="top">
-[<a href="search.jsp">Поиск</a>]<br>
+  [<a href="/">Новости</a>]
+</td>
+<td valign="top">
+  [<a href="/gallery/">Галерея</a>]
+</td>
+<td valign="top">
+  [<a href="/forum/">Форум</a>]
+</td>
+<td valign="top">
+  [<a href="/tracker.jsp">Трекер</a>]
+</td>
+<td valign="top">
+  [<a href="/wiki/">Wiki</a>]
+</td>
+<td valign="top">
+  [<a href="search.jsp">Поиск</a>]
 </td>
 </tr>
 </table>

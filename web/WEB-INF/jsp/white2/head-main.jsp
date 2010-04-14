@@ -54,22 +54,28 @@
 <tr><td><img src="/white2/h2.png" alt="" width=452 height=49></td></tr>
 </table>
 
-<center>
+<div align="center">
 <table width="80%">
 <tr>
 <td valign="top">
-<a href="/">Новости</a><br>
-<a href="/wiki/">Wiki</a><br>
-<a href="server.jsp">О Сервере</a><br>
-</td><td valign="top">
-<a href="/wiki/en/%D0%94%D0%B8%D1%81%D1%82%D1%80%D0%B8%D0%B1%D1%83%D1%82%D0%B8%D0%B2%D1%8B">Дистрибутивы</a><br>
-<a href="/books">Документация</a><br>
-</td><td valign="top">
-<a href="/gallery/">Галерея</a><br>
-<a href="/forum/">Форум</a><br>
-<a href="search.jsp">Поиск</a><br>
+  [<a href="/">Новости</a>]
+</td>
+<td valign="top">
+  [<a href="/gallery/">Галерея</a>]
+</td>
+<td valign="top">
+  [<a href="/forum/">Форум</a>]
+</td>
+<td valign="top">
+  [<a href="/tracker.jsp">Трекер</a>]
+</td>
+<td valign="top">
+  [<a href="/wiki/">Wiki</a>]
+</td>
+<td valign="top">
+  [<a href="search.jsp">Поиск</a>]
 </td>
 </tr>
 </table>
-</center>
+</div>
 <div style="margin-bottom: 1em"></div>
