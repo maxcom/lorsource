@@ -1,6 +1,7 @@
 <%@ page contentType="text/html; charset=utf-8"  %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
+<%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%--
   ~ Copyright 1998-2010 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,7 +16,7 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
-
+<%--@elvariable id="ignoreList" type="java.util.Map<Integer, String>"--%>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
 <%
@@ -31,16 +32,23 @@
 <form action="ignore-list.jsp" method="POST">
 
   Ник: <input type="text" name="nick" size="20" maxlength="80"><input type="submit" name="add" value="Добавить"><br>
+</form>
+
 <c:if test="${fn:length(ignoreList)>0}">
-<select name="nickList" multiple="multiple" size="10" width="20">
-  <c:forEach var="item" items="${ignoreList}">
-    <option value="${item.value}">${item.value}</option>
-  </c:forEach>
- </select>
+  <ul>
+    <c:forEach var="item" items="${ignoreList}">
+      <li>
+        <form action="ignore-list.jsp" method="POST">
+          <input type="hidden" name="id" value="${item.key}">
+          <span style="white-space: nowrap"><img alt="" src="/img/tuxlor.png"><a style="text-decoration: none" href='/people/${item.value}/profile'>${item.value}</a></span>
+          <input type="submit" name="del" value="Удалить">
+        </form>
+      </li>
+    </c:forEach>
+  </ul>
 <br>
-  <input type="submit" name="del" value="Удалить">
+
 </c:if>
 
-</form>
 
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>

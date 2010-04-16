@@ -97,7 +97,7 @@ public class IgnoreListController {
   @RequestMapping(value="/ignore-list.jsp", method= RequestMethod.POST, params = "del")
   public ModelAndView listDel(
     HttpServletRequest request,
-    @RequestParam String[] nickList
+    @RequestParam int id
   ) throws Exception {
     if (!Template.isSessionAuthorized(request.getSession())) {
       throw new AccessViolationException("Not authorized");
@@ -112,12 +112,8 @@ public class IgnoreListController {
 
       IgnoreList ignoreList = new IgnoreList(db, user.getId());
 
-      for (String nick : nickList) {
-        User delUser = User.getUser(db, nick);
-
-        if (!ignoreList.removeNick(db, delUser.getId())) {
-          throw new BadInputException("неверный ник");
-        }
+      if (!ignoreList.remove(db, id)) {
+        throw new BadInputException("неверный ник");
       }
 
       db.commit();

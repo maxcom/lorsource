@@ -80,7 +80,7 @@ public class IgnoreList {
     }
   }
 
-  public boolean removeNick(Connection db, int uid) throws SQLException {
+  public boolean remove(Connection db, int uid) throws SQLException {
     if (!ignoreList.containsKey(uid)) {
       return false;
     }
