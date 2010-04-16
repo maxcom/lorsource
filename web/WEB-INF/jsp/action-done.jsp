@@ -25,5 +25,11 @@
 
 <p>${bigMessage}</p>
 
+<c:if test="${link!=null}">
+  <p>
+    <a href="${link}">Продолжить</a>
+  </p>
+</c:if>
+
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>
 

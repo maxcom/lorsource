@@ -94,7 +94,7 @@ public class TopicModificationController extends ApplicationObjectSupport {
 
       Message msg = new Message(db, msgid);
 
-      PreparedStatement pst = db.prepareStatement("UPDATE topics SET postscore=?, sticky=?, notop=? WHERE id=?");
+      PreparedStatement pst = db.prepareStatement("UPDATE topics SET postscore=?, sticky=?, notop=?, lastmod=CURRENT_TIMESTAMP WHERE id=?");
       pst.setInt(1, postscore);
       pst.setBoolean(2, sticky);
       pst.setBoolean(3, notop);
@@ -128,6 +128,7 @@ public class TopicModificationController extends ApplicationObjectSupport {
       ModelAndView mv = new ModelAndView("action-done");
       mv.getModel().put("message", "Данные изменены");
       mv.getModel().put("bigMessage", out.toString());
+      mv.getModel().put("link", msg.getLink());
 
       return mv;
     } finally {
