@@ -7,7 +7,7 @@ ant
 
 echo Copying files...
 
-sudo rm /var/lib/tomcat6/webapps/lor/WEB-INF/lib/*.jar
+sudo rm -f /var/lib/tomcat6/webapps/lor/WEB-INF/lib/*.jar
 sudo cp -R dist/* /var/lib/tomcat6/webapps/lor
 sudo touch /var/lib/tomcat6/webapps/lor/WEB-INF/web.xml
 
