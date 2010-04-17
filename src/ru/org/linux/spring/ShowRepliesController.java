@@ -44,7 +44,7 @@ public class ShowRepliesController {
     ServletRequest request,
     HttpServletResponse response,
     @RequestParam("nick") String nick,
-    @RequestParam(value = "offset", required = false) Integer offsetObject
+    @RequestParam(value = "offset", defaultValue = "0") int offset
   ) throws Exception {
     User.checkNick(nick);
 
@@ -53,11 +53,6 @@ public class ShowRepliesController {
     Template tmpl = Template.getTemplate(request);
 
     boolean feedRequested = request.getParameterMap().containsKey("output");
-
-    int offset = 0;
-    if (offsetObject != null) {
-      offset = offsetObject;
-    }
 
     if (offset < 0) {
       offset = 0;
@@ -106,6 +101,7 @@ public class ShowRepliesController {
           " AND comments.replyto = parents.id AND parents.postdate>CURRENT_TIMESTAMP-'6 month'::interval " +
           "AND NOT comments.deleted AND NOT comments.topic_deleted " +
           "AND  comments.userid NOT IN (select ignored from ignore_list where userid=?) " +
+          "AND NOT comments.userid=parents.userid "+
           "ORDER BY cDate DESC LIMIT " + topics +
           " OFFSET " + offset;
 
@@ -124,6 +120,7 @@ public class ShowRepliesController {
             " WHERE  parents.userid = ? " +
             " AND NOT comments.deleted  AND NOT comments.topic_deleted AND parents.postdate>CURRENT_TIMESTAMP-'6 month'::interval" +
             " AND comments.userid NOT IN (select ignored from ignore_list where userid=?) " +
+            "AND NOT comments.userid=parents.userid "+
             " ORDER BY cDate DESC LIMIT " + topics +
             " OFFSET " + offset;
         }
