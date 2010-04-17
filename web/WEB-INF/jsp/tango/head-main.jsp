@@ -66,7 +66,8 @@
 
         <div class="menu">
             <ul class="primary">
-                <li class="first"><a href="/">Новости</a></li>
+                <li class="first"><a href="/">Главная</a></li>
+                <li><a href="/news/">Новости</a></li>
                 <li><a href="/gallery/">Галерея</a></li>
 
                 <li><a href="/forum/">Форум</a></li>
