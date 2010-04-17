@@ -33,7 +33,7 @@
 
   <c:forEach var="tag" items="${tags}">
     <li>
-      <a href="view-news.jsp?section=1&tag=${tag.key}">${tag.key}</a>
+      <a href="view-news.jsp?tag=${tag.key}">${tag.key}</a>
 
       (${tag.value})
 
