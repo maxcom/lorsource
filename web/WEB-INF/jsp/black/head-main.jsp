@@ -32,7 +32,7 @@
 <tr>
   <td><a href="/gallery/">Галерея</a></td>
   <td><a href="/forum/">Форум</a></td>
-  <td><a href="/tracker.jsp">Сообщения</a></td>
+  <td><a href="/tracker.jsp">Трекер</a></td>
   <td><a href="/wiki">Wiki</a></td>
 </tr>
 <tr>
