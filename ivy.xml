@@ -23,10 +23,10 @@
         <dependency org="urlrewrite" name="urlrewrite" rev="2.6.0" conf="build->default"/>
         <dependency org="postgresql" name="postgresql" rev="8.2-504.jdbc3" conf="provided->default"/>
         <dependency org="junit" name="junit" rev="4.5" conf="test->default"/>
-        <dependency org="org.springframework" name="spring-webmvc" rev="3.0.0.RELEASE" conf="build->default">
+        <dependency org="org.springframework" name="spring-webmvc" rev="3.0.2.RELEASE" conf="build->default">
             <exclude module="servlet-api"/>
         </dependency>
-        <dependency org="org.springframework" name="spring-jdbc" rev="3.0.0.RELEASE" conf="build->default"/>
+        <dependency org="org.springframework" name="spring-jdbc" rev="3.0.2.RELEASE" conf="build->default"/>
         <dependency org="taglibs" name="standard" rev="1.1.2" conf="build->default"/>
         <dependency org="jstl" name="jstl" rev="1.1.2" conf="build->default"/>
         <dependency org="javax.servlet" name="servlet-api" rev="2.3" conf="provided->default"/>
