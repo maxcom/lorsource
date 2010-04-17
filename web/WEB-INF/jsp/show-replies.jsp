@@ -30,14 +30,7 @@
       db = LorDataSource.getConnection();
 %>
 <c:set var="title">
-  Последние
-    <c:if test="${firstPage}">
-      ${topics}
-    </c:if>
-    <c:if test="${not firstPage}">
-      ${offset+count} - ${offset}
-    </c:if>
-  ответов на комментарии пользователя ${nick}
+  Последние ответы на комментарии пользователя ${nick}
 </c:set>
 <title>${title}</title>
 <link rel="alternate" title="RSS" href="show-replies.jsp?output=rss&amp;nick=${nick}" type="application/rss+xml"/>
