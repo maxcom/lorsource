@@ -135,7 +135,7 @@
 
 </table>
 
-<input type=submit value="Setup/Установить">
+<input type=submit value="Установить">
 </form>
 
 <h2>Настройка главной страницы</h2>
