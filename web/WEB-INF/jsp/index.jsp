@@ -45,7 +45,7 @@
 <div class="<%= columns3?"newsblog2":"newsblog"%>">
   <div class="<%= columns3?"newsblog-in2":"newsblog-in"%>">
 
-<h1><a href="view-news.jsp?section=1">Новости</a></h1>
+<h1><a href="/news/">Новости</a></h1>
 <%
   if (tmpl.isModeratorSession() || tmpl.isCorrectorSession()) {
     out.print("<div class=\"nav\"  style=\"border-bottom: none\">");
