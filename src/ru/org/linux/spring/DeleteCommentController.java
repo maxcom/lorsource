@@ -148,7 +148,7 @@ public class DeleteCommentController {
       StringBuilder out = new StringBuilder();
 
       if (!selfDel) {
-        out.append(deleter.deleteReplys(msgid, user, bonus != 0));
+        out.append(deleter.deleteReplys(msgid, user, bonus > 2));
         out.append(deleter.deleteComment(msgid, reason, user, -bonus));
       } else {
         out.append(deleter.deleteComment(msgid, reason, user, 0));
