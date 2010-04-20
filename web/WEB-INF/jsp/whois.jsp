@@ -156,20 +156,17 @@
 %>
   <br>
   <c:if test="${template.moderatorSession and user.blockable}">
-  <%
-    if (user.isBlocked()) {
-      out.print("<form name='f_unblock' method='post' action='usermod.jsp'>\n");
-      out.print("<input type='hidden' name='id' value='" + userid + "'>\n");
-      out.print("<input type='submit' name='action' value='unblock'>\n");
-      out.print("</form>");
-    } else {
-      out.print("<form name='f_block' method='post' action='usermod.jsp'>\n");
-      out.print("<input type='hidden' name='id' value='" + userid + "'>\n");
-      out.print("<input type='submit' name='action' value='block'>\n");
-      out.print("<input type='submit' name='action' value='block-n-delete-comments'>\n</form>");
-    }
-%>
-    </c:if>
+    <form method='post' action='usermod.jsp'>
+      <input type='hidden' name='id' value='${user.id}'>
+      <c:if test="${user.blocked}">
+        <input type='submit' name='action' value='unblock'>
+      </c:if>
+      <c:if test="${not user.blocked}">
+        <input type='submit' name='action' value='block'>
+        <input type='submit' name='action' value='block-n-delete-comments'>
+      </c:if>
+    </form>
+  </c:if>
 <br>
 <p>
 <cite>
