@@ -25,13 +25,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 
 import ru.org.linux.site.PollNotFoundException;
 
-/**
- * User: sreentenko
- * Date: 01.05.2009
- * Time: 23:55:46
- */
 public class PollDaoImpl {
-
   private SimpleJdbcTemplate jdbcTemplate;
 
   public SimpleJdbcTemplate getJdbcTemplate() {
@@ -43,7 +37,7 @@ public class PollDaoImpl {
   }
 
   public PollDTO getCurrentPoll() throws PollNotFoundException {
-    String sql = "SELECT votenames.id, votenames.title, votenames.topic FROM votenames" +
+    String sql = "SELECT votenames.id, topics.title, votenames.topic FROM votenames" +
       " JOIN topics on votenames.topic = topics.id WHERE" +
       " topics.moderate AND not topics.deleted " +
       " AND topics.commitdate = (select max(commitdate)" +
