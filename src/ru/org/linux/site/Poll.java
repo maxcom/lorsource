@@ -32,7 +32,6 @@ public class Poll {
   public static final int ORDER_VOTES = 2;
 
   private final int id;
-  private final String title;
   private final int topic;
 
   private final boolean current;
@@ -78,13 +77,12 @@ public class Poll {
 
     Statement st = db.createStatement();
 
-    ResultSet rs = st.executeQuery("SELECT title, topic FROM votenames WHERE id="+id);
+    ResultSet rs = st.executeQuery("SELECT topic FROM votenames WHERE id="+id);
 
     if (!rs.next()) {
       throw new PollNotFoundException(id);
     }
 
-    title = rs.getString("title");
     topic = rs.getInt("topic");
 
     current = getCurrentPollId(db)==id;
@@ -94,10 +92,6 @@ public class Poll {
     return id;
   }
 
-  public String getTitle() {
-    return title;
-  }
-
   private static int getNextPollId(Connection db) throws SQLException {
     Statement st = db.createStatement();
     ResultSet rs = st.executeQuery("select nextval('vote_id') as voteid");
@@ -105,13 +99,12 @@ public class Poll {
     return rs.getInt("voteid");
   }
 
-  public static int createPoll(Connection db, String title, List<String> pollList) throws SQLException {
+  public static int createPoll(Connection db, List<String> pollList) throws SQLException {
     int voteid = getNextPollId(db);
 
-    PreparedStatement pst = db.prepareStatement("INSERT INTO votenames (id, title) values (?,?)");
+    PreparedStatement pst = db.prepareStatement("INSERT INTO votenames (id) values (?)");
 
     pst.setInt(1, voteid);
-    pst.setString(2, title);
 
     pst.executeUpdate();
 

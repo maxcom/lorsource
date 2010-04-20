@@ -126,7 +126,7 @@ public class AddMessageController extends ApplicationObjectSupport {
         int msgid = previewMsg.addTopicFromPreview(db, tmpl, request, form.getPreviewImagePath(), user);
 
         if (form.getPollList() != null) {
-          int pollId = Poll.createPoll(db, previewMsg.getTitle(), form.getPollList());
+          int pollId = Poll.createPoll(db, form.getPollList());
 
           Poll poll = new Poll(db, pollId);
           poll.setTopicId(db, msgid);

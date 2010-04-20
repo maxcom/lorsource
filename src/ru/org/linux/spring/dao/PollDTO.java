@@ -17,11 +17,6 @@ package ru.org.linux.spring.dao;
 
 import java.io.Serializable;
 
-/**
- * User: sreentenko
-* Date: 27.06.2009
-* Time: 3:49:07
-*/
 public class PollDTO implements Serializable {
   private static final long serialVersionUID = 4990058253675059050L;
   private int id;

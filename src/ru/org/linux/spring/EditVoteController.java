@@ -59,6 +59,9 @@ public class EditVoteController extends ApplicationObjectSupport {
       Poll poll = Poll.getPollByTopic(db, msgid);
       params.put("poll", poll);
 
+      Message msg = new Message(db, msgid);
+      params.put("msg", msg);
+
       List<PollVariant> variants = poll.getPollVariants(db, Poll.ORDER_ID);
       params.put("variants", variants);
 
@@ -94,13 +97,7 @@ public class EditVoteController extends ApplicationObjectSupport {
 
       Poll poll = new Poll(db, id);
 
-      PreparedStatement pstTitle = db.prepareStatement("UPDATE votenames SET title=? WHERE id=?");
-      pstTitle.setInt(2, id);
-      pstTitle.setString(1, HTMLFormatter.htmlSpecialChars(title));
-
-      pstTitle.executeUpdate();
-
-      PreparedStatement pstTopic = db.prepareStatement("UPDATE topics SET title=? WHERE id=?");
+      PreparedStatement pstTopic = db.prepareStatement("UPDATE topics SET title=?,lastmod=CURRENT_TIMESTAMP WHERE id=?");
       pstTopic.setInt(2, msgid);
       pstTopic.setString(1, HTMLFormatter.htmlSpecialChars(title));
 

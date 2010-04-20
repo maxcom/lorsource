@@ -32,7 +32,7 @@
 <input type=hidden name=id value="${poll.id}">
 <input type=hidden name=msgid value="${msgid}">
 Вопрос:
-<input type=text name=title size=40 value="${poll.title}">
+<input type=text name=title size=40 value="${msg.title}">
 <br>
 <c:forEach var="var" items="${variants}">
 
