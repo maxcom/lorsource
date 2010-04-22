@@ -117,13 +117,34 @@ public class TrackerController {
       }
 
       params.put("msgs", msgs);
+
+      if (tmpl.isModeratorSession() && !mine) {
+        params.put("newUsers", getNewUsers(db));
+      }
+
+      return new ModelAndView("tracker", params);
     } finally {
       if (db!=null) {
         db.close();
       }
     }
+  }
 
-    return new ModelAndView("tracker", params);
+  public List<User> getNewUsers(Connection db) throws SQLException, UserNotFoundException {
+    Statement st = db.createStatement();
+
+    ResultSet rs = st.executeQuery("SELECT id FROM users where regdate IS NOT null " +
+          "AND regdate > CURRENT_TIMESTAMP - interval '3 days' ORDER BY regdate");
+
+    ArrayList<User> list = new ArrayList<User>();
+
+    while (rs.next()) {
+      list.add(User.getUser(db, rs.getInt("id")));
+    }
+
+    st.close();
+
+    return list;
   }
 
   public class Item {

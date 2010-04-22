@@ -1,6 +1,8 @@
 <%@ page info="last active topics" %>
-<%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.sql.Timestamp,ru.org.linux.site.BadInputException,ru.org.linux.site.LorDataSource,ru.org.linux.site.Template,ru.org.linux.util.ServletParameterParser"   buffer="200kb"%>
+<%@ page contentType="text/html; charset=utf-8" %>
+<%@ page
+        import="java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.sql.Timestamp,ru.org.linux.site.BadInputException,ru.org.linux.site.LorDataSource,ru.org.linux.site.Template,ru.org.linux.util.ServletParameterParser"
+        buffer="200kb" %>
 <%--
   ~ Copyright 1998-2010 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,6 +17,7 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
+<%--@elvariable id="newUsers" type="java.util.List<ru.org.linux.site.User>"--%>
 
 <% Template tmpl = Template.getTemplate(request); %>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
@@ -30,105 +33,113 @@
 
     String title = "Последние сообщения";
     if ((Boolean) request.getAttribute("mine")) {
-      title+=" (мои темы)";
+      title += " (мои темы)";
     }
 %>
 
-<title><%= title %></title>
+<title><%= title %>
+</title>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
 <form action="tracker.jsp">
 
-  <table class=nav><tr>
-    <td align=left valign=middle id="navPath">
-      <%= title %>
-    </td>
+  <table class=nav>
+    <tr>
+      <td align=left valign=middle id="navPath">
+        <%= title %>
+      </td>
 
-    <td align=right valign=middle>
-      <select name="filter">
-        <c:if test="${filter=='notalks'}">
-          <option value="all">все сообщения</option>
-          <option value="notalks" selected="selected">без Talks</option>
-          <option value="tech">тех. разделы форума</option>
-          <c:if test="${template.sessionAuthorized}">
-            <option value="mine">мои темы</option>
+      <td align=right valign=middle>
+        <select name="filter">
+          <c:if test="${filter=='notalks'}">
+            <option value="all">все сообщения</option>
+            <option value="notalks" selected="selected">без Talks</option>
+            <option value="tech">тех. разделы форума</option>
+            <c:if test="${template.sessionAuthorized}">
+              <option value="mine">мои темы</option>
+            </c:if>
           </c:if>
-        </c:if>
-        <c:if test="${filter=='tech'}">
-          <option value="all">все сообщения</option>
-          <option value="notalks">без Talks</option>
-          <option value="tech" selected="selected">тех. разделы форума</option>
-          <c:if test="${template.sessionAuthorized}">
-            <option value="mine">мои темы</option>
+          <c:if test="${filter=='tech'}">
+            <option value="all">все сообщения</option>
+            <option value="notalks">без Talks</option>
+            <option value="tech" selected="selected">тех. разделы форума</option>
+            <c:if test="${template.sessionAuthorized}">
+              <option value="mine">мои темы</option>
+            </c:if>
           </c:if>
-        </c:if>
-        <c:if test="${filter==null || filter == 'all'}">
-          <option value="all" selected="selected">все сообщения</option>
-          <option value="notalks">без Talks</option>
-          <option value="tech">тех. разделы форума</option>
-          <c:if test="${template.sessionAuthorized}">
-            <option value="mine">мои темы</option>
+          <c:if test="${filter==null || filter == 'all'}">
+            <option value="all" selected="selected">все сообщения</option>
+            <option value="notalks">без Talks</option>
+            <option value="tech">тех. разделы форума</option>
+            <c:if test="${template.sessionAuthorized}">
+              <option value="mine">мои темы</option>
+            </c:if>
           </c:if>
-        </c:if>
-        <c:if test="${filter=='mine'}">
-          <option value="all">все сообщения</option>
-          <option value="notalks">без Talks</option>
-          <option value="tech">тех. разделы форума</option>
-          <option value="mine" selected="selected">мои темы</option>
-        </c:if>
-      </select>
-      <input type="submit" value="показать">
-    </td>
-  </tr>
- </table>
+          <c:if test="${filter=='mine'}">
+            <option value="all">все сообщения</option>
+            <option value="notalks">без Talks</option>
+            <option value="tech">тех. разделы форума</option>
+            <option value="mine" selected="selected">мои темы</option>
+          </c:if>
+        </select>
+        <input type="submit" value="показать">
+      </td>
+    </tr>
+  </table>
 </form>
 
-<h1 class="optional"><%= title %></h1>
+<h1 class="optional"><%= title %>
+</h1>
 
 <div class=forum>
-<table width="100%" class="message-table">
-<thead>
-<tr>
-  <th>Форум</th>
-  <th>Заголовок</th>
-  <th>Последнее<br>сообщение</th>
-  <th>Число ответов<br>всего/день/час</th>
-</tr>
-</thead>
-<tbody>
-<c:forEach var="msg" items="${msgs}">
+  <table width="100%" class="message-table">
+    <thead>
+    <tr>
+      <th>Форум</th>
+      <th>Заголовок</th>
+      <th>Последнее<br>сообщение</th>
+      <th>Число ответов<br>всего/день/час</th>
+    </tr>
+    </thead>
+    <tbody>
+    <c:forEach var="msg" items="${msgs}">
 
-<tr>
-  <td>
-    <a href="group.jsp?group=${msg.groupId}">
-        ${msg.groupTitle}
-    </a>
-  </td>
-  <td>
-    <c:if test="${filter=='mine' && msg.resolved}">
-          <img src="/img/solved.png" alt="решено" title="решено"/>
-    </c:if>
-      <% if (tmpl.getProf().getBoolean("newfirst")) { %>
-         <a href="${msg.urlReverse}">
-      <% } else { %>
-         <a href="${msg.url}">
-      <% } %>
-      ${msg.title}
-    </a>     (<lor:user id="${msg.author}" db="<%= db %>" decorate="true"/>)
-  </td>
-  <td class="dateinterval">
-      <lor:dateinterval date="${msg.postdate}"/>
-      <c:if test="${msg.lastCommentBy != 0}">
-        (<lor:user id="${msg.lastCommentBy}" db="<%= db %>" decorate="true"/>)
-      </c:if>
-  </td>
-  <td align='center'>
-    <c:if test="${msg.stat1==0}">-</c:if><c:if test="${msg.stat1>0}"><b>${msg.stat1}</b></c:if>/<c:if test="${msg.stat3==0}">-</c:if><c:if test="${msg.stat3>0}"><b>${msg.stat3}</b></c:if>/<c:if test="${msg.stat4==0}">-</c:if><c:if test="${msg.stat4>0}"><b>${msg.stat4}</b></c:if>
-</tr>
-</c:forEach>
-</tbody>
+      <tr>
+        <td>
+          <a href="group.jsp?group=${msg.groupId}">
+              ${msg.groupTitle}
+          </a>
+        </td>
+        <td>
+          <c:if test="${filter=='mine' && msg.resolved}">
+            <img src="/img/solved.png" alt="решено" title="решено"/>
+          </c:if>
+          <% if (tmpl.getProf().getBoolean("newfirst")) { %>
+          <a href="${msg.urlReverse}">
+                <% } else { %>
+            <a href="${msg.url}">
+              <% } %>
+                ${msg.title}
+            </a> (<lor:user id="${msg.author}" db="<%= db %>" decorate="true"/>)
+        </td>
+        <td class="dateinterval">
+          <lor:dateinterval date="${msg.postdate}"/>
+          <c:if test="${msg.lastCommentBy != 0}">
+            (<lor:user id="${msg.lastCommentBy}" db="<%= db %>" decorate="true"/>)
+          </c:if>
+        </td>
+        <td align='center'>
+          <c:if test="${msg.stat1==0}">-</c:if>
+          <c:if test="${msg.stat1>0}"><b>${msg.stat1}</b></c:if>/<c:if
+                test="${msg.stat3==0}">-</c:if>
+          <c:if test="${msg.stat3>0}"><b>${msg.stat3}</b></c:if>/<c:if
+                test="${msg.stat4==0}">-</c:if>
+          <c:if test="${msg.stat4>0}"><b>${msg.stat4}</b></c:if>
+      </tr>
+    </c:forEach>
+    </tbody>
 
-</table>
+  </table>
 </div>
 
 <table class="nav">
@@ -146,56 +157,29 @@
   </tr>
 </table>
 
-<c:if test="${template.moderatorSession and filter!='mine'}">
-<h2>Новые пользователи</h2>
-Новые пользователи за последние 3 дня:
+<c:if test="${newUsers!=null}">
+  <h2>Новые пользователи</h2>
+  Новые пользователи за последние 3 дня:
+  <c:forEach items="${newUsers}" var="user">
+    <c:if test="${user.activated}">
+      <b>
+    </c:if>
+    <c:if test="${user.blocked}">
+      <s>
+    </c:if>
+    <a href="/people/${user.nick}/profile">${user.nick}</a>
+    <c:if test="${user.blocked}">
+      </s>
+    </c:if>
+    <c:if test="${user.activated}">
+      </b>
+    </c:if>
+  </c:forEach>
+  (всего ${fn:length(newUsers)})
+</c:if>
 <%
-        // new users
-      String sSql = "SELECT nick, blocked, activated FROM users where regdate IS NOT null " +
-          "AND regdate > CURRENT_TIMESTAMP - interval '3 days' ORDER BY regdate";
-      Statement st = db.createStatement();
-      st.executeQuery(sSql);
-      ResultSet rs = st.getResultSet();
-      if (rs == null) {
-        out.println("no new users.");
-      } else {
-        int cnt = 0;
-        while (rs.next()) {
-          String nick = rs.getString("nick");
-          boolean blocked = rs.getBoolean("blocked");
-          boolean activated = rs.getBoolean("activated");
-
-          if (activated) {
-            out.print("<b>");
-          }
-
-          if (blocked) {
-            out.print("<s>");
-          }
-
-          out.print("<a href='/people/" + nick + "/profile'>" + nick + "</a>");
-          cnt++;
-
-          if (blocked) {
-            out.print("</s>");
-          }
-          
-          if (activated) {
-            out.print("</b>");
-          }
-
-          out.print(", ");
-        }
-        out.println("(всего " + cnt + ')');
-      }
-
-      rs.close();
-      st.close();
-%>
-  </c:if>
-  <%
   } finally {
-    if (db!=null) {
+    if (db != null) {
       db.close();
     }
   }
