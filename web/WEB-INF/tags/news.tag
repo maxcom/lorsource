@@ -166,17 +166,21 @@
         out.append("[<a href=\"comment-message.jsp?msgid=").append(Integer.toString(msgid)).append("\">Добавить&nbsp;комментарий</a>]");
       }
     } else {
-      if (currentUser != null && currentUser.canModerate()) {
-        out.append("[<a href=\"commit.jsp?msgid=").append(Integer.toString(msgid)).append("\">Подтвердить</a>]");
-      }
+      if (currentUser != null) {
+        if (tmpl.isModeratorSession()) {
+          out.append("[<a href=\"commit.jsp?msgid=").append(Integer.toString(msgid)).append("\">Подтвердить</a>]");
+        }
 
-      out.append(" [<a href=\"delete.jsp?msgid=").append(Integer.toString(msgid)).append("\">Удалить</a>]");
+        if (tmpl.isModeratorSession() || currentUser.getId() == message.getUid()) {
+          out.append(" [<a href=\"delete.jsp?msgid=").append(Integer.toString(msgid)).append("\">Удалить</a>]");
+        }
 
-      if (currentUser != null && message.isEditable(db, currentUser)) {
-        if (!votepoll) {
-          out.append(" [<a href=\"edit.jsp?msgid=").append(Integer.toString(msgid)).append("\">Править</a>]");
-        } else {
-          out.append(" [<a href=\"edit-vote.jsp?msgid=").append(Integer.toString(msgid)).append("\">Править</a>]");
+        if (message.isEditable(db, currentUser)) {
+          if (!votepoll) {
+            out.append(" [<a href=\"edit.jsp?msgid=").append(Integer.toString(msgid)).append("\">Править</a>]");
+          } else {
+            out.append(" [<a href=\"edit-vote.jsp?msgid=").append(Integer.toString(msgid)).append("\">Править</a>]");
+          }
         }
       }
     }
