@@ -263,7 +263,7 @@ public class EditController extends ApplicationObjectSupport {
         List<String> newTags = Tags.parseTags(newMsg.getTags().toString());
 
         boolean modifiedTags = Tags.updateTags(db, message.getId(), newTags);
-        if (modifiedTags && message.isCommited()) {
+        if (modifiedTags) {
           Tags.updateCounters(db, oldTags, newTags);
         }
 

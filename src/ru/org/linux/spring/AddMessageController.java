@@ -135,6 +135,7 @@ public class AddMessageController extends ApplicationObjectSupport {
         if (form.getTags() != null) {
           List<String> tags = Tags.parseTags(form.getTags());
           Tags.updateTags(db, msgid, tags);
+          Tags.updateCounters(db, null, tags);          
         }
 
         db.commit();
