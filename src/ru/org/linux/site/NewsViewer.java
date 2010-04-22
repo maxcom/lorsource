@@ -77,6 +77,10 @@ public class NewsViewer {
   }
 
   public List<Message> getMessagesCached(Connection db) throws UtilException, SQLException, UserErrorException {
+    if (getCacheAge()==0) {
+      return getMessages(db);
+    }
+
     MemCachedClient mcc = MemCachedSettings.getClient();
 
     String cacheId = MemCachedSettings.getId(getVariantID());
@@ -85,7 +89,7 @@ public class NewsViewer {
 
     if (res == null) {
       res = getMessages(db);
-      mcc.add(cacheId, res, getExpire());
+      mcc.add(cacheId, res, new Date(System.currentTimeMillis()+getCacheAge()));
     }
 
     return res;
@@ -95,11 +99,10 @@ public class NewsViewer {
     Statement st = db.createStatement();
 
     StringBuilder where = new StringBuilder(
-        "sections.id=groups.section AND topics.id=msgbase.id " +
-            "AND topics.groupid=groups.id AND NOT deleted"
+        "NOT deleted"
     );
 
-    String sort = "ORDER BY sticky,COALESCE(commitdate, postdate) DESC";
+    String sort = "ORDER BY COALESCE(commitdate, postdate) DESC";
 
     switch (commitMode) {
       case ALL:
@@ -108,8 +111,8 @@ public class NewsViewer {
         where.append(" AND (topics.moderate OR NOT sections.moderate)");
         break;
       case COMMITED_ONLY:
-        where.append(" AND topics.moderate AND sections.moderate");
-        sort = "ORDER BY sticky,commitdate DESC";
+        where.append(" AND topics.moderate AND sections.moderate AND commitdate is not null");
+        sort = "ORDER BY commitdate DESC";
         break;
       case UNCOMMITED_ONLY:
         where.append(" AND (NOT topics.moderate) AND sections.moderate");
@@ -260,12 +263,16 @@ public class NewsViewer {
     return id.toString();
   }
 
-  public Date getExpire() {
+  public long getCacheAge() {
     if (limit==null || limit.length()==0) {
-      return new Date(new Date().getTime() + 10*60*1000);
+      return 10*60*1000;
     }
 
-    return new Date(new Date().getTime() + 30*1000);
+    if (commitMode==CommitMode.COMMITED_ONLY) {
+      return 0;
+    }
+
+    return 30*1000;
   }
 
   public static NewsViewer getMainpage() {
