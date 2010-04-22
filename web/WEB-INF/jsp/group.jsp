@@ -174,7 +174,9 @@
 <tr>
   <td>
     <c:if test="${topic.deleted}">
-      [<a href="/undelete.jsp?msgid=${topic.msgid}">X</a>]
+      <c:if test="${template.moderatorSession}">
+        [<a href="/undelete.jsp?msgid=${topic.msgid}">X</a>]
+      </c:if>
     </c:if>
     <c:if test="${topic.sticky and not topic.deleted}">
       <img src="/img/paper_clip.gif" width="15" height="15" alt="Прикреплено" title="Прикреплено">

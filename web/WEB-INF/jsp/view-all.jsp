@@ -5,7 +5,6 @@
 <%@ page import="ru.org.linux.site.Section" %>
 <%@ page import="ru.org.linux.site.User" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
-
 <%--
   ~ Copyright 1998-2010 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -118,7 +117,9 @@
 %>
 <tr>
   <td align="center">
-    <a href="/undelete.jsp?msgid=<%= msgid %>" title="Восстановить">#</a>
+    <c:if test="${template.moderatorSession}">
+      <a href="/undelete.jsp?msgid=<%= msgid %>" title="Восстановить">#</a>
+    </c:if>
   </td>
   <td><a href="/people/<%= URLEncoder.encode(nick) %>/profile"><%=nick %></a></td>
   <td><a href="group.jsp?group=<%= guid %>">
