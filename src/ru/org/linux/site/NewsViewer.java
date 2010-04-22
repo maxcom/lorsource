@@ -116,6 +116,7 @@ public class NewsViewer {
         break;
       case UNCOMMITED_ONLY:
         where.append(" AND (NOT topics.moderate) AND sections.moderate");
+        sort = "ORDER BY postdate DESC";
         break;
     }
 
