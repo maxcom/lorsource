@@ -24,19 +24,16 @@
 <div style="float: left" class="head-main">
 <table>
 <tr>
-  <td><a href="/">Новости</a></td>
-  <td><a href="/wiki/en/Linux">O linux</a></td>
-  <td><a href="/wiki/en/%D0%94%D0%B8%D1%81%D1%82%D1%80%D0%B8%D0%B1%D1%83%D1%82%D0%B8%D0%B2%D1%8B">Дистрибутивы</a></td>
+  <td><a href="/news/">Новости</a></td>
+  <td><a href="/tracker.jsp">Трекер</a></td>
   <td><a href="server.jsp">О сервере</a></td>
 </tr>
 <tr>
   <td><a href="/gallery/">Галерея</a></td>
   <td><a href="/forum/">Форум</a></td>
-  <td><a href="/tracker.jsp">Трекер</a></td>
   <td><a href="/wiki">Wiki</a></td>
 </tr>
 <tr>
-  <td></td>
   <td></td>
   <td></td>
   <td><a href="search.jsp">Поиск</a></td>

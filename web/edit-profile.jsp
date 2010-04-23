@@ -69,11 +69,11 @@
 <tr><td>Показывать сообщение о порядке сортировки комментариев</td>
 <td><input type=checkbox name=sortwarning <%= profHash.getBooleanPropertyHTML("sortwarning")%>></td></tr>
 <tr><td>Число тем форума на странице</td>
-<td><input type=text name=topics value=<%= profHash.getInt("topics")%>></td></tr>
+<td><input type=text size="5" name=topics value=<%= profHash.getInt("topics")%>></td></tr>
 <tr><td>Число комментариев на странице</td>
-<td><input type=text name=messages value=<%= profHash.getInt("messages")%>></td></tr>
+<td><input type=text size="5" name=messages value=<%= profHash.getInt("messages")%>></td></tr>
 <tr><td>Число меток в облаке</td>
-<td><input type=text name=tags value=<%= profHash.getInt("tags")%>></td></tr>
+<td><input type=text size="5" name=tags value=<%= profHash.getInt("tags")%>></td></tr>
 <tr><td>Верстка главной страницы в 3 колонки</td>
 <td><input type=checkbox name=3column <%= profHash.getBooleanPropertyHTML("main.3columns")%>></td></tr>
 <tr><td>Показывать информацию о регистрации перед формами добавления сообщений</td>
