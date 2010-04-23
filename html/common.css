@@ -61,6 +61,7 @@ DIV.newsblog {
 
 .newsblog-in {
   margin-left: 245px;
+  min-width: 50%;
 }
 
 .newsblog-in2 {
@@ -297,5 +298,5 @@ pre code span {
 }
 
 .msg {
-    min-width: 50%;
+    min-width: 20em;
 }
