@@ -295,3 +295,7 @@ pre code span {
     list-style: inside !important;
     margin-left: 0 !important;
 }
+
+.msg {
+    min-width: 50%;
+}
