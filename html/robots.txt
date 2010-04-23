@@ -11,6 +11,7 @@ Disallow: /login.jsp
 Disallow: /logout.jsp
 Disallow: /edit-boxes.jsp
 Disallow: /add_comment.jsp
+Disallow: /edit-profile.jsp
 Disallow: /comment-message.jsp
 Disallow: /show-replies.jsp
 Disallow: /ignore-list.jsp
