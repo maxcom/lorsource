@@ -47,7 +47,7 @@
 
 <h1><a href="/news/">Новости</a></h1>
 <c:if test="${template.moderatorSession or template.correctorSession}">
-<div class="nav"  style="border-bottom: none">
+<div class="nav"   style="border-bottom: none">
 <%
     if (db==null) {
       db = LorDataSource.getConnection();

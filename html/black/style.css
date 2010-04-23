@@ -91,11 +91,19 @@ table.nav>tbody>tr>td {
 }
 
 .newsblog .nav {
-  background-color: black;
+//  background-color: black;
+}
+
+.newsblog .nav a {
+  text-decoration: underline;
+}
+
+.newsblog2 .nav a {
+  text-decoration: underline;
 }
 
 .newsblog2 .nav {
-  background-color: black;
+//  background-color: black;
 }
 
 .entry-body .nav {
