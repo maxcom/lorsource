@@ -281,3 +281,7 @@ pre {
     border-radius: 1em;
     padding: 1em;
 }
+
+.boxlet h3 {
+    margin-bottom: 0.5em;
+}
