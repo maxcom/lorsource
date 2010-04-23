@@ -290,3 +290,8 @@ pre code span {
 #ft-buttons {
     text-align: right;
 }
+
+.boxlet li {
+    list-style: inside !important;
+    margin-left: 0 !important;
+}

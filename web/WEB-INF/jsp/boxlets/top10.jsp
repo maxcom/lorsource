@@ -16,18 +16,13 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="lor" uri="http://www.linux.org.ru" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
-  <h2>Top 10</h2>
+<h2>Top 10</h2>
 
-  <div class="boxlet_content">
-    <h3>Наиболее обсуждаемые темы этого месяца</h3>
-    <c:url var="arrow_url" value="/${style}/img/arrow.gif"/>
+<div class="boxlet_content">
+  <h3>Наиболее обсуждаемые темы этого месяца</h3>
+  <ul>
     <c:forEach items="${messages}" var="message">
-      <c:choose>
-        <c:when test="${message.movedUp}">
-          <img src="${arrow_url}" alt="[up]" width="10" height="12"/>
-        </c:when>
-        <c:otherwise>*</c:otherwise>
-      </c:choose>
+      <li>
       <c:url value="${message.url}" var="msg_link">
         <c:if test="${message.pages == 1}">
           <c:param name="lastmod" value="${message.lastmod.time}"/>
@@ -41,6 +36,7 @@
         (стр. <a href="${fn:escapeXml(page_link)}">${message.pages}</a>)
       </c:if>
       (${message.answers})
-      <br/>
+      </li>
     </c:forEach>
-  </div>
+  </ul>
+</div>

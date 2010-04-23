@@ -59,8 +59,6 @@ DIV.boxlet {
     margin-bottom: 1em;
    }
 
-DIV.boxlet LI { list-style: inside }
-
 DIV.columnimg
    { 
     font-size: small; 
