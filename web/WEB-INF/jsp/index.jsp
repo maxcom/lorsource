@@ -46,10 +46,9 @@
   <div class="<%= columns3?"newsblog-in2":"newsblog-in"%>">
 
 <h1><a href="/news/">Новости</a></h1>
+<c:if test="${template.moderatorSession or template.correctorSession}">
+<div class="nav"  style="border-bottom: none">
 <%
-  if (tmpl.isModeratorSession() || tmpl.isCorrectorSession()) {
-    out.print("<div class=\"nav\"  style=\"border-bottom: none\">");
-
     if (db==null) {
       db = LorDataSource.getConnection();
     }
@@ -60,7 +59,7 @@
     if (rs.next()) {
       int count = rs.getInt("count");
 
-      out.print("[<a style=\"text-decoration: none\" href=\"view-all.jsp\">Неподтвержденных: " + count + ", ");
+      out.print("[<a href=\"view-all.jsp\">Неподтвержденных</a>: " + count);
     }
 
     rs.close();
@@ -70,18 +69,22 @@
     if (rs.next()) {
       int count = rs.getInt("count");
 
-      out.print(" в том числе новостей: " + count + "</a>]");
+      if (count>0) {
+        out.print(", в том числе <a href=\"view-all.jsp?section=1\">новостей</a>: " + count + "]");
+      } else {
+        out.print(", новостей нет]");
+      }
     }
 
     rs.close();
 
     st.close();
 
-    out.print("</div>");
-
     db.close(); db=null;
-  }
-
+%>
+  </div>
+  </c:if>
+    <%
   db = LorDataSource.getConnection();
 
   NewsViewer nv = NewsViewer.getMainpage();
