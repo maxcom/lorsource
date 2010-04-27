@@ -176,10 +176,10 @@
     <c:if test="${topic.deleted}">
       <c:choose>
         <c:when test="${template.moderatorSession}">
-          [<a href="/undelete.jsp?msgid=${topic.msgid}">X</a>]
+          <a href="/undelete.jsp?msgid=${topic.msgid}"><img src="/img/del.png" border="0" alt="[X]" width="15" height="15"></a>
         </c:when>
         <c:otherwise>
-          [X]          
+          <img src="/img/del.png" border="0" alt="[X]" width="15" height="15">
         </c:otherwise>
       </c:choose>
     </c:if>
