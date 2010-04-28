@@ -300,3 +300,7 @@ pre code span {
 .msg {
     min-width: 20em;
 }
+
+.tags {
+    font-size: small;
+}
