@@ -656,7 +656,7 @@ public class Message implements Serializable {
       return section.isPremoderated() && lorcode;
     }
     
-    if (by.getId()==userid && !moderate && lorcode && !by.isAnonymousScore()) {
+    if (by.getId()==userid && !moderate && lorcode && !by.isAnonymous() && !by.isBlocked()) {
       return section.isPremoderated() || (new Date().getTime() - postdate.getTime()) < 60 * 60 * 1000;
     }
 
