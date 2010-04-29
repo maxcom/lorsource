@@ -39,12 +39,11 @@
   <td><a href="search.jsp">Поиск</a></td>
 </tr>
 </table>
-<%--
   <br>
-  <a href="http://www.linuxcenter.ru/linuxformat-2010">
-    <img src="/adv/linux46860_2.gif" alt="LinuxFormat 2010" width="468" height="60">
+  <a href="http://devconf.ru/register/">
+    <img src="/adv/devconf2010.gif" alt="DevConf 2010" width="468" height="60">
   </a>
---%>
+
 </div>
 
 <div style="right: 5px; text-align: right; top: 5px; position: absolute" class="head">
