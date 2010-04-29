@@ -255,6 +255,7 @@ border-radius: 1em;
 #loginGreating {
     text-align: right; 
     float: right;
+    padding-left: 1em;
 }
 
 input[type="radio"] {
