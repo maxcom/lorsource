@@ -69,16 +69,12 @@ p {
 	margin-bottom: 2em;
 }
 
-#hd .menu li.first:before {
-	content: "[ ";
-}
-
 #hd .menu li:after {
 	content: " |";
 }
 
 #hd .menu li.last:after {
-	content: " ]";
+	content: " ";
 }
 
 #hd .menu li {
