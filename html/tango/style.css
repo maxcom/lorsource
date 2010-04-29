@@ -49,13 +49,16 @@ strong {
 body {
 	font-family: Trebuchet MS, sans-serif;
 	font-size: medium;
-	padding: 1em;
+	padding: 8px;
 	line-height: 1.4;
-    padding-top: 0;
 }
 
 p {
 	margin-bottom: 1em;
+}
+
+#hd {
+    padding-left: 1em;
 }
 
 #hd h1 {
@@ -93,6 +96,8 @@ p {
 
 #bd {
 	margin-bottom: 2em;
+    padding-left: 1em;
+    padding-right: 1em;
 }
 
 #bd div.news {
@@ -196,8 +201,7 @@ p {
 }
 
 #ft {
-	padding-top: 1em;
-	padding-bottom: 1em;
+    padding: 1em;
 	border-top: 1px dashed;
 	font-size: 0.8em;
 }
