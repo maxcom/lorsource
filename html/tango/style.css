@@ -253,7 +253,8 @@ border-radius: 1em;
 }
 
 #loginGreating {
-    right: 5px; text-align: right; top: 5px; position: absolute ;
+    text-align: right; 
+    float: right;
 }
 
 input[type="radio"] {

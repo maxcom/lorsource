@@ -40,8 +40,6 @@
 <body>
 <div id="doc3" class="yui-t5">
   	<div id="hd">
-        <h1><a id="sitetitle" href="/">LINUX.ORG.RU&nbsp;&#8212; Русская информация об&nbsp;ОС&nbsp;Linux</a></h1>
-
         <div id="loginGreating" class="head">
         <c:if test="${template.sessionAuthorized}">
           <c:url var="userUrl" value="/people/${template.nick}/profile"/>
@@ -63,6 +61,8 @@
           </form>
         </c:if>
         </div>
+
+        <h1><a id="sitetitle" href="/">LINUX.ORG.RU&nbsp;&#8212; Русская информация об&nbsp;ОС&nbsp;Linux</a></h1>
 
         <div class="menu">
             <ul class="primary">
