@@ -40,9 +40,15 @@
 </tr>
 </table>
   <br>
+
+  <div>
+    <div style="border: 1px solid #777; padding: 25px; background-color: #000040; margin: 10px 0px 10px 0px">DEVCONF 17 мая : <a href="http://devconf.ru/phpconf/offers/" target=_blank>PHP</a> | <a href="http://devconf.ru/python/offers/" target=_blank>Python</a> | <a href="http://devconf.ru/perl/offers/" target=_blank>Perl</a> | <a href="http://devconf.ru/ruby/offers/" target=_blank>Ruby</a> | <a href="http://devconf.ru/asp.net/offers/" target=_blank>.NET</a> | <a href="http://devconf.ru/richclient/offers/" target=_blank>RichClient</a> и многое другое...</div>
+  </div>
+<%--
   <a href="http://devconf.ru/register/">
     <img src="/adv/devconf2010.gif" alt="DevConf 2010" width="468" height="60">
   </a>
+--%>
 
 </div>
 
