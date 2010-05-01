@@ -37,11 +37,6 @@
       <td align=right valign=middle>
         [<a href="add-section.jsp?section=${section.id}">${section.addText}</a>]
         
-        <c:if test="${section.forum}">
-          [<a href="rules.jsp">Правила форума</a>]
-        </c:if>
-
-
         <c:if test="${section.id!=2}">
             [<a href="section-rss.jsp?section=${section.id}">RSS</a>]
         </c:if>

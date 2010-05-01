@@ -86,7 +86,6 @@
         [<a href="groupmod.jsp?group=${group.id}">Править группу</a>]
       <% } %>
       [<a href="/wiki/en/lor-faq">FAQ</a>]
-      [<a href="rules.jsp">Правила форума</a>]
 <%
   User currentUser = User.getCurrentUser(db, session);
 
