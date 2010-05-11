@@ -449,7 +449,7 @@ public class User implements Serializable {
 
     String title = nick;
 
-    if (moderatorMode) {
+    if (moderatorMode && !anonymous) {
       title += " - score "+score+", max "+maxScore;
     }
 
