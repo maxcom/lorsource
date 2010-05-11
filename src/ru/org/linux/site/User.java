@@ -447,13 +447,7 @@ public class User implements Serializable {
       out.append("<s>");
     }
 
-    String title = nick;
-
-    if (moderatorMode && !anonymous) {
-      title += " - score "+score+", max "+maxScore;
-    }
-
-    out.append("<a title=\""+title+"\" href=\"/people/").append(URLEncoder.encode(nick)).append("/profile\">");
+    out.append("<a href=\"/people/").append(URLEncoder.encode(nick)).append("/profile\">");
     out.append(nick);
 
     out.append("</a>");
@@ -466,6 +460,9 @@ public class User implements Serializable {
 
     if (!"anonymous".equals(nick) && !shortMode) {
       out.append(getStars(score, maxScore)).append(' ');
+      if (moderatorMode) {
+        out.append("(Score: ").append(score).append(" MaxScore: ").append(maxScore).append(") ");
+      }
     }
 
     out.append(" (").append(dateFormat.format(postdate)).append(')');
