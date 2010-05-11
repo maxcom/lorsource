@@ -110,7 +110,7 @@
 %>
       <c:if test="${template.moderatorSession}">
         <c:if test="${comment.userAgent!=null}">
-          (<a href="sameip.jsp?msgid=${comment.id}" title="${fn:escapeXml(comment.userAgent)}">${message.postIP}</a>)
+          (<a href="sameip.jsp?msgid=${comment.id}" title="${fn:escapeXml(comment.userAgent)}">${comment.postIP}</a>)
           <br>
           <c:out value="${comment.userAgent}" escapeXml="true"/>
         </c:if>
