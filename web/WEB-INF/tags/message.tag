@@ -131,6 +131,8 @@
   <c:if test="${template.moderatorSession}">
     <c:if test="${message.userAgent!=null}">
      (<a href="sameip.jsp?msgid=${message.id}" title="${fn:escapeXml(message.userAgent)}">${message.postIP}</a>)
+      <br>
+      <c:out value="${message.userAgent}" escapeXml="true"/>
     </c:if>
     <c:if test="${message.userAgent==null}">
      (<a href="sameip.jsp?msgid=${message.id}">${message.postIP}</a>)
