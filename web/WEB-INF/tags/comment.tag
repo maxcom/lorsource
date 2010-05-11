@@ -107,14 +107,15 @@
     <div class=sign>
     <%
   out.append(author.getSignature(moderatorMode, comment.getPostdate(), tmpl.isMobile()));
-
-  if (moderatorMode) {
-    out.append(" (<a href=\"sameip.jsp?msgid=").append(Integer.toString(comment.getMessageId())).append("\">").append(comment.getPostIP()).append("</a>)");
-    if (comment.getUserAgent()!=null) {
-      out.append("<br>").append(HTMLFormatter.htmlSpecialChars(comment.getUserAgent()));
-    }
-  }
-   %>
+%>
+      <c:if test="${template.moderatorSession}">
+        <c:if test="${message.userAgent!=null}">
+          (<a href="sameip.jsp?msgid=${message.id}" title="${fn:escapeXml(message.userAgent)}">${message.postIP}</a>)
+        </c:if>
+        <c:if test="${message.userAgent==null}">
+          (<a href="sameip.jsp?msgid=${message.id}">${message.postIP}</a>)
+        </c:if>
+      </c:if>
     </div>
     <%
   if (!comment.isDeleted() && showMenu) {

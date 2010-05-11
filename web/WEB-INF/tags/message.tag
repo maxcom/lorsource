@@ -13,7 +13,7 @@
 <%@ attribute name="highlight" type="java.lang.Integer" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
-
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%--
   ~ Copyright 1998-2010 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -127,12 +127,16 @@
 <div class=sign>
 <%
   out.append(author.getSignature(tmpl.isModeratorSession(), message.getPostdate(), tmpl.isMobile()));
-  if (tmpl.isModeratorSession()) {
-    out.append(" (<a href=\"sameip.jsp?msgid=");
-    out.print(msgid);
-    out.append("\">").append(message.getPostIP()).append("</a>)");
-  }
-
+%>
+  <c:if test="${template.moderatorSession}">
+    <c:if test="${message.userAgent!=null}">
+     (<a href="sameip.jsp?msgid=${message.id}" title="${fn:escapeXml(message.userAgent)}">${message.postIP}</a>)
+    </c:if>
+    <c:if test="${message.userAgent==null}">
+     (<a href="sameip.jsp?msgid=${message.id}">${message.postIP}</a>)
+    </c:if>
+  </c:if>
+  <%
   if (message.getCommitby() != 0) {
     User commiter = User.getUserCached(db, message.getCommitby());
 
@@ -162,14 +166,6 @@
   <%
     }
   }
-%>
-    </c:if>
-  <c:if test="${showMenu}">
-  <%
-    if (tmpl.isModeratorSession() && message.getUserAgent()!=null) {
-      out.append("<br>");
-      out.append(HTMLFormatter.htmlSpecialChars(message.getUserAgent()));
-    }
 %>
     </c:if>
 </div>
