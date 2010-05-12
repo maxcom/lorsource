@@ -131,7 +131,7 @@
 <% } %>
   <c:if test="${group.moderated}">
 Метки (разделенные запятой)
-<input type=text name=tags id="tags" size=70 value="<%= form.getTags()==null?"":StringUtils.strip(form.getTags()) %>"><br>
+<input type=text name=tags id="tags" size=70 value="<%= form.getTags()==null?"":HTMLFormatter.htmlSpecialChars(StringUtils.strip(form.getTags())) %>"><br>
   Популярные теги: <%= Tags.getEditTags(Tags.getTopTags(db)) %> <br>
   </c:if>
 <select name=mode>
