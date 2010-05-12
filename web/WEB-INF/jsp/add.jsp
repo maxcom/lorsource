@@ -85,7 +85,7 @@
 <%   } %>
 
 <c:if test="${error!=null}">
-  <div class="error">Ошибка: ${error.message}</div>
+  <div class="error">Ошибка: <c:out value="${error.message}" escapeXml="true"/></div>
 </c:if>
 <form id="messageForm" method=POST action="add.jsp" <%= group.isImagePostAllowed()?"enctype=\"multipart/form-data\"":"" %> >
   <input type="hidden" name="session" value="<%= HTMLFormatter.htmlSpecialChars(session.getId()) %>">
