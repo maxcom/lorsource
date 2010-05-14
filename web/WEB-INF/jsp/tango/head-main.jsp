@@ -45,7 +45,7 @@
           <c:url var="userUrl" value="/people/${template.nick}/profile"/>
           добро пожаловать, <a style="text-decoration: none" href="${userUrl}">${template.nick}</a>
           <a href="logout.jsp?sessionId=<%= session.getId() %>" title="Выйти">
-          <img style="position: relative; bottom: -2px;" src="/img/logout.png" width="16" height="16" alt="[x]">
+          <img style="position: relative; bottom: -2px; border: 0" src="/img/logout.png" width="16" height="16" alt="[x]">
           </a>
         </c:if>
 
