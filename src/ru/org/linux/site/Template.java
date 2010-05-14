@@ -296,11 +296,10 @@ public class Template {
   }
 
   public boolean isMobile() {
-//    if (!style.equals("tango")) {
-//      return false;
-//    }
-//
-//    return userAgent.detectAndroidWebKit();
-    return true;
+    if (!style.equals("tango")) {
+      return false;
+    }
+
+    return userAgent.detectAndroidWebKit();
   }
 }
