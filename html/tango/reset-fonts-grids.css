@@ -96,17 +96,9 @@ body {
     clear: both;
 }
 
-#doc, #doc2, #doc3, #doc4, .yui-t1, .yui-t2, .yui-t3, .yui-t4, .yui-t5, .yui-t6, .yui-t7 {
-    margin: auto;
+#doc3, .yui-t5 {
     text-align: left;
-    width: 57.69em;
-    *width: 56.25em;
     min-width: 300px;
-}
-
-#doc2 {
-    width: 73.076em;
-    *width: 71.25em;
 }
 
 #doc3 {
@@ -114,12 +106,7 @@ body {
     width: auto;
 }
 
-#doc4 {
-    width: 74.923em;
-    *width: 73.05em;
-}
-
-#bd:after, .yui-g:after, .yui-gb:after, .yui-gc:after, .yui-gd:after, .yui-ge:after, .yui-gf:after {
+#bd:after {
     content: ".";
     display: block;
     height: 0;
@@ -127,6 +114,6 @@ body {
     visibility: hidden;
 }
 
-#bd, .yui-g, .yui-gb, .yui-gc, .yui-gd, .yui-ge, .yui-gf {
+#bd {
     zoom: 1;
 }
