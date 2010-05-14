@@ -126,7 +126,7 @@
     <c:if test="${message.userAgent!=null}">
      (<a href="sameip.jsp?msgid=${message.id}" title="${fn:escapeXml(message.userAgent)}">${message.postIP}</a>)
       <br>
-      <c:if test="not $template.mobile">
+      <c:if test="${not template.mobile}">
         <c:out value="${message.userAgent}" escapeXml="true"/>
       </c:if>
     </c:if>

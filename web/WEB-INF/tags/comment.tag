@@ -112,7 +112,7 @@
         <c:if test="${comment.userAgent!=null}">
           (<a href="sameip.jsp?msgid=${comment.id}" title="${fn:escapeXml(comment.userAgent)}">${comment.postIP}</a>)
           <br>
-          <c:if test="not $template.mobile">
+          <c:if test="${not template.mobile}">
             <c:out value="${comment.userAgent}" escapeXml="true"/>
           </c:if>
         </c:if>
