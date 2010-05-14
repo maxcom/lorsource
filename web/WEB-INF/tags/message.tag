@@ -53,20 +53,14 @@
           [<a href="edit-vote.jsp?msgid=${message.id}">Править опрос</a>]
         </c:if>
         
-        [<a href="setpostscore.jsp?msgid=${message.id}">Установить параметры</a>]
+        [<a href="setpostscore.jsp?msgid=${message.id}">Параметры</a>]
         [<a href="mt.jsp?msgid=${message.id}">Перенести</a>]
 
         <c:if test="${message.section.premoderated}">
           [<a href="mtn.jsp?msgid=${message.id}">Группа</a>]
         </c:if>
-      </c:if><%
-
-    if (currentUser!=null && message.isEditable(db, currentUser)) {
-      out.append("[<a href=\"edit.jsp?msgid=");
-      out.print(msgid);
-      out.append("\">Править</a>]");
-    }
-    %></c:if><%
+      </c:if>
+    </c:if><%
     if (message.isDeleted()) {
       DeleteInfo deleteInfo = DeleteInfo.getDeleteInfo(db, msgid);
 
