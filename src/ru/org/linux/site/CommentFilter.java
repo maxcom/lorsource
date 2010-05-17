@@ -33,8 +33,6 @@ public class CommentFilter {
 
   private final CommentList comments;
 
-  public static final int FILTER_LISTANON = FILTER_ANONYMOUS+FILTER_IGNORED;
-
   public CommentFilter(CommentList comments) {
     this.comments = comments;
   }
@@ -84,10 +82,6 @@ public class CommentFilter {
 
     if ("anonymous".equals(filter)) {
       return FILTER_ANONYMOUS;
-    }
-
-    if ("listanon".equals(filter)) {
-      return FILTER_IGNORED+FILTER_ANONYMOUS;
     }
 
     return FILTER_NONE;

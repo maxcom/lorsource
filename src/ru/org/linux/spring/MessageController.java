@@ -329,6 +329,9 @@ public class MessageController {
 
       if (filter != null) {
         filterMode = CommentFilter.parseFilterChain(filter);
+        if (ignoreList!=null && filterMode == CommentFilter.FILTER_ANONYMOUS) {
+          filterMode += CommentFilter.FILTER_IGNORED;
+        }
       }
 
       params.put("filterMode", filterMode);
