@@ -160,7 +160,7 @@
       User editor = User.getUserCached(db, info.getEditor());
 %>
   <br>
-  <i>Исправлено: <%= editor.getNick() %> <lor:date date="<%= info.getEditdate() %>"/></i>
+  Исправлено: <%= editor.getNick() %> <lor:date date="<%= info.getEditdate() %>"/>
   <%
     }
   }
