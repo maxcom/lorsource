@@ -23,11 +23,6 @@ import gnu.regexp.RE;
 import gnu.regexp.REException;
 
 public abstract class Storage {
-  public String readMessageDefault(String domain, String msgid, String def) throws IOException, StorageException {
-    check(domain, msgid);
-    return readMessageDefaultImpl(domain, msgid, def);
-  }
-
   public InputStream getReadStream(String domain, String msgid) throws StorageException {
     check(domain, msgid);
     return getReadStreamImpl(domain, msgid);
@@ -58,20 +53,6 @@ private static final RE DOMAIN_CHECK_RE;
 
     if (!NAME_CHECK_RE.isMatch(msgid)) {
       throw new StorageBadMsgidException(msgid);
-    }
-  }
-
-// Implementaion methods
-
-  protected String readMessageImpl(String domain, String msgid) throws IOException, StorageException {
-    throw new StorageNotImplException();
-  }
-
-  protected String readMessageDefaultImpl(String domain, String msgid, String def) throws IOException, StorageException {
-    try {
-      return readMessageImpl(domain, msgid);
-    } catch (StorageNotFoundException e) {
-      return def;
     }
   }
 

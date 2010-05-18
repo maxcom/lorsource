@@ -22,7 +22,6 @@ import java.util.Map;
 import java.util.Random;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import org.springframework.context.support.ApplicationObjectSupport;
 import org.springframework.stereotype.Controller;
@@ -63,8 +62,8 @@ public class AddMessageController extends ApplicationObjectSupport {
         throw new AccessViolationException("Не достаточно прав для постинга тем в эту группу");
       }
 
-      int section = group.getSectionId();
-      params.put("addportal", tmpl.getObjectConfig().getStorage().readMessageDefault("addportal", String.valueOf(section), ""));
+      Section section = new Section(db, group.getSectionId());
+      params.put("addportal", section.getAddInfo(db));
       params.put("group", group);
     } finally {
       if (db != null) {
@@ -76,7 +75,7 @@ public class AddMessageController extends ApplicationObjectSupport {
   }
 
   @RequestMapping(value="/add.jsp", method=RequestMethod.POST)
-  public ModelAndView doAdd(HttpServletRequest request, HttpServletResponse response) throws Exception {
+  public ModelAndView doAdd(HttpServletRequest request) throws Exception {
     Map<String, Object> params = new HashMap<String, Object>();
 
     Template tmpl = Template.getTemplate(request);
@@ -94,8 +93,8 @@ public class AddMessageController extends ApplicationObjectSupport {
 
       Group group = new Group(db, form.getGuid());
       params.put("group", group);
-      int section = group.getSectionId();
-      params.put("addportal", tmpl.getObjectConfig().getStorage().readMessageDefault("addportal", String.valueOf(section), ""));
+      Section section = new Section(db, group.getSectionId());
+      params.put("addportal", section.getAddInfo(db));
 
       User user = form.validateAndGetUser(session, db);
 
