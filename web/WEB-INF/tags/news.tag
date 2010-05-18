@@ -49,7 +49,8 @@
   String image = group.getImage();
   boolean expired = message.isExpired();
 
-  double messages = tmpl.getProf().getInt("messages");
+  int messages = tmpl.getProf().getInt("messages");
+  int pages = message.getPageCount(messages);
 
   String mainlink = message.getLink();
   String jumplink = message.getLinkLastmod();
@@ -184,11 +185,10 @@
         }
       }
     }
-
-    int stat1 = message.getCommentCount();
-
-    if (stat1 > 0) {
-      int pages = (int) Math.ceil(stat1 / messages);
+%>
+  <c:if test="${message.commentCount > 0}">
+  <%
+      int stat1 = message.getCommentCount();
 
       out.append(" [<a href=\"");
 
@@ -234,9 +234,8 @@
         out.append(')');
       }
       out.append(']');
-    }
-
   %>
+  </c:if>
   </div>
   </div>
 </div>
