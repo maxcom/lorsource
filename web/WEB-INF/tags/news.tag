@@ -56,7 +56,7 @@
   String jumplink = message.getLinkLastmod();
 %>
 <h2>
-<a href="${fn:escapeXml(message.linkLastmod)}">${message.title}</a>
+  <a href="${fn:escapeXml(message.link)}">${message.title}</a>
 </h2>
 <c:if test="${multiPortal}">
   <div class="group">
