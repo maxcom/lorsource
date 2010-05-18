@@ -101,6 +101,11 @@
     <set type="response-header" name="Cache-Control">max-age=315360000</set>
   </rule>
 
+  <rule>
+    <from>^/books/lor-faq.*</from>
+    <to type="redirect">/wiki/en/lor-faq</to>
+  </rule>
+
 
 </urlrewrite>
 
