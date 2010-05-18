@@ -65,12 +65,13 @@
 
         out.append(" Ответ на: <a href=\"");
 
+        int replyPage = comments.getCommentPage(reply, tmpl);
+
         String urladd = "";
-        if (!expired) {
+        if (!expired && replyPage==topic.getPageCount(tmpl.getProf().getInt("messages"))-1) {
           urladd = "?lastmod=" + comments.getLastModified();
         }
 
-        int replyPage = comments.getCommentPage(reply, tmpl);
         out.append(topic.getLinkPage(replyPage)).append(urladd).append("#comment-").append(Integer.toString(comment.getReplyTo()));
 
         out.append("\" onclick=\"highlightMessage(").append(Integer.toString(reply.getMessageId())).append(");\">");
