@@ -109,15 +109,10 @@
   out.append(author.getSignature(moderatorMode, comment.getPostdate(), tmpl.isMobile()));
 %>
       <c:if test="${template.moderatorSession}">
-        <c:if test="${comment.userAgent!=null}">
-          (<a href="sameip.jsp?msgid=${comment.id}" title="${fn:escapeXml(comment.userAgent)}">${comment.postIP}</a>)
+        (<a href="sameip.jsp?msgid=${comment.id}"">${comment.postIP}</a>)
+        <c:if test="${comment.userAgent!=null and not template.mobile}">
           <br>
-          <c:if test="${not template.mobile}">
-            <c:out value="${comment.userAgent}" escapeXml="true"/>
-          </c:if>
-        </c:if>
-        <c:if test="${comment.userAgent==null}">
-          (<a href="sameip.jsp?msgid=${comment.id}">${comment.postIP}</a>)
+          <span class="sign_more"><c:out value="${comment.userAgent}" escapeXml="true"/></span>
         </c:if>
       </c:if>
     </div>

@@ -123,15 +123,14 @@
   out.append(author.getSignature(tmpl.isModeratorSession(), message.getPostdate(), tmpl.isMobile()));
 %>
   <c:if test="${template.moderatorSession}">
-    <c:if test="${message.userAgent!=null}">
-     (<a href="sameip.jsp?msgid=${message.id}" title="${fn:escapeXml(message.userAgent)}">${message.postIP}</a>)
+    (<a href="sameip.jsp?msgid=${message.id}">${message.postIP}</a>)
+  </c:if>
+
+  <span class="sign_more">
+  <c:if test="${template.moderatorSession}">
+    <c:if test="${message.userAgent!=null and not template.mobile}">
       <br>
-      <c:if test="${not template.mobile}">
-        <c:out value="${message.userAgent}" escapeXml="true"/>
-      </c:if>
-    </c:if>
-    <c:if test="${message.userAgent==null}">
-     (<a href="sameip.jsp?msgid=${message.id}">${message.postIP}</a>)
+      <c:out value="${message.userAgent}" escapeXml="true"/>
     </c:if>
   </c:if>
   <%
@@ -166,6 +165,7 @@
   }
 %>
     </c:if>
+   </span>
 </div>
     <c:if test="${!message.deleted && showMenu}">
       <div class=reply>
