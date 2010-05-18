@@ -12,7 +12,6 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
-
 <%--
   ~ Copyright 1998-2010 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -34,8 +33,6 @@
 
   int msgid = message.getId();
   String url = message.getUrl();
-  String subj = message.getTitle();
-  String linktext = message.getLinktext();
   boolean imagepost = message.getSection().isImagepost();
   boolean votepoll = message.isVotePoll();
 
@@ -47,13 +44,8 @@
   }
 
   String image = group.getImage();
-  boolean expired = message.isExpired();
 
-  int messages = tmpl.getProf().getInt("messages");
-  int pages = message.getPageCount(messages);
-
-  String mainlink = message.getLink();
-  String jumplink = message.getLinkLastmod();
+  int pages = message.getPageCount(tmpl.getProf().getInt("messages"));
 %>
 <h2>
   <a href="${fn:escapeXml(message.link)}">${message.title}</a>
@@ -91,7 +83,7 @@
 <div class=msg>
   <c:if test="<%= imagepost %>">
     <%
-      NewsViewer.showMediumImage(tmpl.getConfig().getProperty("HTMLPathPrefix"), out, url, subj, linktext, !tmpl.isMobile());
+      NewsViewer.showMediumImage(tmpl.getConfig().getProperty("HTMLPathPrefix"), out, url, message.getTitle(), message.getLinktext(), !tmpl.isMobile());
     %>
   </c:if>
 <%
@@ -105,7 +97,7 @@
       url = message.getLink();
     }
 
-    out.append("<p>&gt;&gt;&gt; <a href=\"").append(HTMLFormatter.htmlSpecialChars(url)).append("\">").append(linktext).append("</a>");
+    out.append("<p>&gt;&gt;&gt; <a href=\"").append(HTMLFormatter.htmlSpecialChars(url)).append("\">").append(message.getLinktext()).append("</a>");
   } else if (imagepost) {
     ImageInfo info = new ImageInfo(tmpl.getConfig().getProperty("HTMLPathPrefix") + url);
 
@@ -119,7 +111,7 @@
         out.append("<p>&gt;&gt;&gt; <a href=\"").append("vote-vote.jsp?msgid=").append(Integer.toString(msgid)).append("\">Голосовать</a>");
       }
       
-      out.append("<p>&gt;&gt;&gt; <a href=\"").append(jumplink).append("\">Результаты</a>");
+      out.append("<p>&gt;&gt;&gt; <a href=\"").append(message.getLinkLastmod()).append("\">Результаты</a>");
     } catch (BadImageException e) {
 //      NewsViewer.logger.warn("Bad Image for poll msgid="+msgid, e);
       out.append("<p>&gt;&gt;&gt; <a href=\"").append("\">[BAD POLL!] Просмотр</a>");
@@ -163,7 +155,7 @@
 <div class="nav">
   <%
     if (!moderateMode) {
-      if (!expired) {
+      if (!message.isExpired()) {
         out.append("[<a href=\"comment-message.jsp?msgid=").append(Integer.toString(msgid)).append("\">Добавить&nbsp;комментарий</a>]");
       }
     } else {
@@ -188,18 +180,17 @@
 %>
   <c:if test="${message.commentCount > 0}">
   <%
-      int stat1 = message.getCommentCount();
-
       out.append(" [<a href=\"");
 
       if (pages <= 1) {
-        out.append(jumplink);
+        out.append(message.getLinkLastmod());
       } else {
-        out.append(mainlink);
+        out.append(message.getLink());
       }
 
       out.append("\">");
 
+      int stat1 = message.getCommentCount();
       out.append(Integer.toString(stat1));
 
       if (stat1 % 100 >= 10 && stat1 % 100 <= 20) {
