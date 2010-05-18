@@ -41,8 +41,8 @@ public class TopTenDaoImpl {
 
   public List<TopTenMessageDTO> getMessages(){
     String sql =
-      "select topics.id as msgid, groups.urlname, groups.section, topics.title, lastmod, topics.stat1 as c, top10.mess_order " +
-        "from topics left outer join top10  on topics.id = top10.msgid " +
+      "select topics.id as msgid, groups.urlname, groups.section, topics.title, lastmod, topics.stat1 as c  " +
+        "from topics " +
         "join groups on groups.id = topics.groupid" +
       " where topics.postdate>(CURRENT_TIMESTAMP-'1 month 1 day'::interval) and not deleted and notop is null " +
       " and groupid!=8404 and groupid!=4068 order by c desc, msgid limit 10";
@@ -54,11 +54,6 @@ public class TopTenDaoImpl {
         result.setTitle(rs.getString("title"));
         result.setLastmod(rs.getTimestamp("lastmod"));
         result.setAnswers(rs.getInt("c"));
-        Integer savedOrder = rs.getInt("mess_order");
-        if (rs.wasNull()){
-          savedOrder = null;
-        }
-        result.setMovedUp(savedOrder == null || (i + 1) > savedOrder);
         return result;
       }
     }, new HashMap());
@@ -70,7 +65,6 @@ public class TopTenDaoImpl {
     private String url;
     private Timestamp lastmod;
     private String title;
-    private boolean movedUp = false;
     private Integer pages;
     private Integer answers;
     private static final long serialVersionUID = 166352344159392938L;
@@ -97,14 +91,6 @@ public class TopTenDaoImpl {
 
     public void setTitle(String title) {
       this.title = title;
-    }
-
-    public boolean getMovedUp() {
-      return movedUp;
-    }
-
-    public void setMovedUp(boolean movedUp) {
-      this.movedUp = movedUp;
     }
 
     public Integer getPages() {
