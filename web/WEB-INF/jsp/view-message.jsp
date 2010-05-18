@@ -62,11 +62,11 @@
 <title>${message.sectionTitle} - ${message.groupTitle} - ${message.title}</title>
 <link rel="parent" title="${message.sectionTitle} - ${message.groupTitle}" href="group.jsp?group=${message.groupId}">
 <c:if test="${prevMessage != null}">
-  <link rel="Previous" id="PrevLink" href="${fn:escapeXml(prevMessage.linkLastmod)}" title="<%= StringUtil.makeTitle(prevMessage.getTitle()) %>">
+  <link rel="Previous" id="PrevLink" href="${fn:escapeXml(prevMessage.link)}" title="<%= StringUtil.makeTitle(prevMessage.getTitle()) %>">
 </c:if>
 
 <c:if test="${nextMessage != null}">
-  <link rel="Next" id="NextLink" href="${fn:escapeXml(nextMessage.linkLastmod)}" title="<%= StringUtil.makeTitle(nextMessage.getTitle()) %>">
+  <link rel="Next" id="NextLink" href="${fn:escapeXml(nextMessage.link)}" title="<%= StringUtil.makeTitle(nextMessage.getTitle()) %>">
 </c:if>
 
 <LINK REL="alternate" TITLE="Comments RSS" HREF="${message.link}?output=rss" TYPE="application/rss+xml">
@@ -138,10 +138,10 @@
             <tr valign=middle>
                 <c:if test="${prevMessage != null}">
                   <td style="padding-right: 5px">
-                    <a href="${fn:escapeXml(prevMessage.linkLastmod)}" rel=prev rev=next>←</a>
+                    <a href="${fn:escapeXml(prevMessage.link)}" rel=prev rev=next>←</a>
                   </td>
                   <td align=left valign=top>
-                    <a href="${fn:escapeXml(prevMessage.linkLastmod)}" rel=prev rev=next>
+                    <a href="${fn:escapeXml(prevMessage.link)}" rel=prev rev=next>
                     <%= StringUtil.makeTitle(prevMessage.getTitle()) %></a>
                     <c:if test="${!scrollGroup}">
                       (${prevMessage.groupTitle})
@@ -156,7 +156,7 @@
             <table align="right">
               <tr valign=middle align=right>
                 <td>
-                  <a href="${fn:escapeXml(nextMessage.linkLastmod)}" rel=next rev=prev>
+                  <a href="${fn:escapeXml(nextMessage.link)}" rel=next rev=prev>
                     <%= StringUtil.makeTitle(nextMessage.getTitle()) %>
                   </a>
                   <c:if test="${!scrollGroup}">
@@ -164,7 +164,7 @@
                   </c:if>
                 </td>
                 <td align="right" valign="middle" style="padding-left: 5px">
-                  <a href="${fn:escapeXml(nextMessage.linkLastmod)}" rel=next rev=prev>→</a>
+                  <a href="${fn:escapeXml(nextMessage.link)}" rel=next rev=prev>→</a>
                 </td>
               </tr>
             </table>
@@ -191,10 +191,10 @@
             <tr valign=middle>
                 <c:if test="${prevMessage != null}">
                   <td style="padding-right: 5px">
-                    <a href="${fn:escapeXml(prevMessage.linkLastmod)}" rel=prev rev=next>←</a>
+                    <a href="${fn:escapeXml(prevMessage.link)}" rel=prev rev=next>←</a>
                   </td>
                   <td align=left valign=top>
-                    <a href="${fn:escapeXml(prevMessage.linkLastmod)}" rel=prev rev=next>
+                    <a href="${fn:escapeXml(prevMessage.link)}" rel=prev rev=next>
                     <%= StringUtil.makeTitle(prevMessage.getTitle()) %></a>
                     <c:if test="${!scrollGroup}">
                       (${prevMessage.groupTitle})
@@ -220,7 +220,7 @@
             <table align="right">
               <tr valign=middle align=right>
                 <td>
-                  <a href="${fn:escapeXml(nextMessage.linkLastmod)}" rel=next rev=prev>
+                  <a href="${fn:escapeXml(nextMessage.link)}" rel=next rev=prev>
                     <%= StringUtil.makeTitle(nextMessage.getTitle()) %>
                   </a>
                   <c:if test="${!scrollGroup}">
@@ -228,7 +228,7 @@
                   </c:if>
                 </td>
                 <td align="right" valign="middle" style="padding-left: 5px">
-                  <a href="${fn:escapeXml(nextMessage.linkLastmod)}" rel=next rev=prev>→</a>
+                  <a href="${fn:escapeXml(nextMessage.link)}" rel=next rev=prev>→</a>
                 </td>
               </tr>
             </table>
