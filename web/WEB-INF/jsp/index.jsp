@@ -46,11 +46,11 @@
   <div class="<%= columns3?"newsblog-in2":"newsblog-in"%>">
 
 <h1><a href="/news/">Новости</a></h1>
-
+<%--
 <c:if test="${template.style != 'black'}">
 <div class="nav">DEVCONF 17 мая : <a href="http://devconf.ru/phpconf/page/programm/" target=_blank>PHP</a> | <a href="http://devconf.ru/python/page/programm/" target=_blank>Python</a> | <a href="http://devconf.ru/perl/page/programm/" target=_blank>Perl</a> | <a href="http://devconf.ru/ruby/page/programm/" target=_blank>Ruby</a> | <a href="http://devconf.ru/asp.net/page/programm/" target=_blank>.NET</a> | <a href="http://devconf.ru/richclient/page/programm/" target=_blank>RichClient</a> и многое другое...</div>
 </c:if>
-
+--%>
 <c:if test="${template.moderatorSession or template.correctorSession}">
 <div class="nav"   style="border-bottom: none">
 <%
