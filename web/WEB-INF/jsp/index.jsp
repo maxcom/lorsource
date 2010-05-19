@@ -118,9 +118,9 @@
 <div class=column>
   <% if (Template.isSessionAuthorized(session)) { %>
 <div class=boxlet>
-<h2>Вход на сайт</h2>
+<h2>Добро пожаловать!</h2>
 <div class="boxlet_content">
-Вы вошли как <b><a href="/people/<%= session.getAttribute("nick") %>/profile"><%= session.getAttribute("nick") %></a></b>
+Ваш статус:
 <%
   if (db==null) {
     db = LorDataSource.getConnection();
@@ -128,16 +128,15 @@
   
   User user = User.getUser(db, (String) session.getAttribute("nick"));
 
-  out.print("<br>(статус: " + user.getStatus() + ')');
+  out.print(user.getStatus());
 %>
-  <ul>
-    <li><a href="rules.jsp">Правила</a></li>
-    <li><a href="edit-profile.jsp">Настройки</a></li>
-  </ul>
   <ul>
     <li><a href="tracker.jsp?filter=mine">Мои темы</a></li>
     <li><a href="show-comments.jsp?nick=<%= user.getNick() %>">Мои комментарии</a></li>
     <li><a href="show-replies.jsp?nick=<%= user.getNick() %>">Ответы на мои комментарии</a></li>
+  </ul>
+  <ul>
+    <li><a href="edit-profile.jsp">Настройки</a></li>
   </ul>
 </div>
 </div>
