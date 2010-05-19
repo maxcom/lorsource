@@ -39,11 +39,7 @@ a {
 }
 
 #bd .column .boxlet {
-	background-color: inherit;
-}
-
-#bd .column .boxlet h2 {
-    background: #555753;
+	background-color: #272C2D;
 }
 
 #bd .forum table thead {

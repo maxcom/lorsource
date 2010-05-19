@@ -31,7 +31,7 @@
   $(document).ready(function() {
     if ($.browser.msie || $.browser.opera) {
       $('.msg').corner();
-      $('.column .boxlet h2').corner();
+      $('.column .boxlet').corner();
     }
   });
 </script>

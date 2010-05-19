@@ -148,13 +148,15 @@ p {
 
 #bd .column .boxlet {
 	padding-bottom: 1em;
+    margin-bottom: 1em;
 }
 
 #bd .column .boxlet h2 {
 	font-weight: bold;
-	text-align: center;
 	padding: 0.25em;
 	margin-bottom: 1em;
+    font-size: 1.5em;
+    margin-top: 0;
 }
 
 #bd .column .boxlet p.image {
@@ -223,7 +225,7 @@ pre {
      margin-left: 1em;
 }
 
-#bd .column .boxlet h2 {
+#bd .column .boxlet {
 -moz-border-radius: 1em;
 -webkit-border-radius: 1em;
 -khtml-border-radius: 1em;
