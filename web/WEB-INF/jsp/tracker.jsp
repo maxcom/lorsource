@@ -1,7 +1,7 @@
 <%@ page info="last active topics" %>
 <%@ page contentType="text/html; charset=utf-8" %>
 <%@ page
-        import="java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.sql.Timestamp,ru.org.linux.site.BadInputException,ru.org.linux.site.LorDataSource,ru.org.linux.site.Template,ru.org.linux.util.ServletParameterParser"
+        import="java.sql.Connection,ru.org.linux.site.LorDataSource,ru.org.linux.site.Template"
         buffer="200kb" %>
 <%--
   ~ Copyright 1998-2010 Linux.org.ru
@@ -18,6 +18,7 @@
   ~    limitations under the License.
   --%>
 <%--@elvariable id="newUsers" type="java.util.List<ru.org.linux.site.User>"--%>
+<%--@elvariable id="msgs" type="java.util.List<ru.org.linux.spring.TrackerController.Item>"--%>
 
 <% Template tmpl = Template.getTemplate(request); %>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
@@ -109,6 +110,9 @@
           <a href="group.jsp?group=${msg.groupId}">
               ${msg.groupTitle}
           </a>
+          <c:if test="${msg.uncommited}">
+            (не подтверждено)
+          </c:if>
         </td>
         <td>
           <c:if test="${filter=='mine' && msg.resolved}">
