@@ -23,7 +23,7 @@
 <a href="/">
 <img style="float: left; border: 0" src="/black/lorlogo-try.png" alt="Русская информация об ОС LINUX" width="270" height="208">
 </a>
-<div style="float: left" class="head-main">
+<div id="head-main">
 <table>
 <tr>
   <td><a href="/news/">Новости</a></td>
@@ -51,7 +51,16 @@
     <img src="/adv/devconf2010.gif" alt="DevConf 2010" width="468" height="60">
   </a>
 --%>
+<c:if test="${not empty param.samsung}">
+  <div  style="border: 1px solid #777; font-size: small; padding: 5px; background-color: #000040">
+    <a href="http://job.samsung.ru/"><img src="/adv/Samsung_Logo.png" alt="" style="float: right; border: 0"></a>
+    Samsung Electronics приглашает разработчиков LINUX на работу R&D центры в Южной Корее (г. Сувон)<br>
+    Область специализации: Linux Kernel, TV Server SW, Open OS, Mobile Platform SW, Service
+    Platform, Convergence, SW Platform<br>
 
+    <a href="http://job.samsung.ru/">http://job.samsung.ru</a>
+  </div>
+</c:if>
 </div>
 
 <div style="right: 5px; text-align: right; top: 5px; position: absolute" class="head">
@@ -59,8 +68,8 @@
   <c:url var="userUrl" value="/people/${template.nick}/profile"/>
   добро пожаловать, <a style="text-decoration: none" href="${userUrl}">${template.nick}</a>
   [<a href="logout.jsp?sessionId=<%= session.getId() %>" title="Выйти">x</a>]
-  <br>
-  <img src="/black/pingvin.gif" alt="Linux Logo" height=114 width=102>
+  <%--<br>--%>
+  <%--<img src="/black/pingvin.gif" alt="Linux Logo" height=114 width=102>--%>
 </c:if>
 
 <c:if test="${not template.sessionAuthorized}">

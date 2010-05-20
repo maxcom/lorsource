@@ -140,20 +140,24 @@ DIV.notes
     border: solid white;
    }
 
-.head-main A { text-decoration: none; color: white }
-.head-main A:visited { text-decoration: none; color: white }
+#head-main {
+    margin-left: 270px;
+}
+
+#head-main A { text-decoration: none; color: white }
+#head-main A:visited { text-decoration: none; color: white }
 
 .head A { text-decoration: none; color: white }
 .head A:visited { text-decoration: none; color: white }
 
-.head-main table {
+#head-main table {
   border-collapse: collapse;
   margin-top: 5px;
   border-style: solid;
   border-color: black;
 }
 
-.head-main td { border: 1px solid #808080; padding: 3px; text-align: right; }
+#head-main td { border: 1px solid #808080; padding: 3px; text-align: right; }
 
 .messages .msg {
   border: 1px solid #000040;
