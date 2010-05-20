@@ -214,14 +214,28 @@
       if (pages != 1) {
         String urlAdd = message.isExpired() ? "" : ("?lastmod=" + message.getLastModified().getTime());
 
+        final int PG_COUNT=3;
+
         out.append("&nbsp;(стр.");
+        boolean dots = false;
+
         for (int i = 1; i < pages; i++) {
+          if (i>PG_COUNT && i<pages-PG_COUNT) {
+            if (!dots) {
+              out.append(" ...");
+              dots = true;
+            }
+            
+            continue;
+          }
+
           if (i == pages - 1) {
             out.append(" <a href=\"").append(message.getLinkPage(i)).append(urlAdd).append("\">").append(Integer.toString(i + 1)).append("</a>");
           } else {
             out.append(" <a href=\"").append(message.getLinkPage(i)).append("\">").append(Integer.toString(i + 1)).append("</a>");
           }
         }
+
         out.append(')');
       }
       out.append(']');
