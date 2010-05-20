@@ -46,11 +46,20 @@
   <div class="<%= columns3?"newsblog-in2":"newsblog-in"%>">
 
 <h1><a href="/news/">Новости</a></h1>
-<%--
+
 <c:if test="${template.style != 'black'}">
-<div class="nav">DEVCONF 17 мая : <a href="http://devconf.ru/phpconf/page/programm/" target=_blank>PHP</a> | <a href="http://devconf.ru/python/page/programm/" target=_blank>Python</a> | <a href="http://devconf.ru/perl/page/programm/" target=_blank>Perl</a> | <a href="http://devconf.ru/ruby/page/programm/" target=_blank>Ruby</a> | <a href="http://devconf.ru/asp.net/page/programm/" target=_blank>.NET</a> | <a href="http://devconf.ru/richclient/page/programm/" target=_blank>RichClient</a> и многое другое...</div>
+  <div  style="border: 1px solid #777; font-size: small; padding: 5px; background-color: #272C2D; text-align: justify; color: #BABDB6">
+    <a href="http://job.samsung.ru/"><img width="130" height="43" src="/adv/Samsung_Logo.png" alt="" style="float: left; border: 0"></a>
+    <div style="margin-left: 135px">
+    <span style="color: white; font-size: large; font-weight: bold;">Вакансии</span><br>
+    Samsung Electronics приглашает разработчиков LINUX на работу в R&D центры в Южной Корее (г. Сувон)<br>
+    Область специализации: Linux Kernel, TV Server SW, Open OS, Mobile Platform SW, Service
+    Platform, Convergence, SW Platform, Multicore SW, System SW Tool.
+    <a href="http://job.samsung.ru/" style="color: white">http://job.samsung.ru</a>
+    </div>
+  </div>
 </c:if>
---%>
+
 <c:if test="${template.moderatorSession or template.correctorSession}">
 <div class="nav"   style="border-bottom: none">
 <%
