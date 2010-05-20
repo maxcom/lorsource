@@ -215,7 +215,13 @@
         String urlAdd = message.isExpired() ? "" : ("?lastmod=" + message.getLastModified().getTime());
 
         out.append("&nbsp;(стр.");
-        out.append(" <a href=\"").append(message.getLinkPage(pages-1)).append(urlAdd).append("\">").append(Integer.toString(pages)).append("</a>");
+        for (int i = 1; i < pages; i++) {
+          if (i == pages - 1) {
+            out.append(" <a href=\"").append(message.getLinkPage(i)).append(urlAdd).append("\">").append(Integer.toString(i + 1)).append("</a>");
+          } else {
+            out.append(" <a href=\"").append(message.getLinkPage(i)).append("\">").append(Integer.toString(i + 1)).append("</a>");
+          }
+        }
         out.append(')');
       }
       out.append(']');
