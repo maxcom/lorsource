@@ -76,8 +76,8 @@
   <div id="regmenu" class="head">
     <a href="/register.jsp">Регистрация</a> -
     <a id="loginbutton" href="/login.jsp">Вход</a>
-    <br>
-    <img src="/black/pingvin.gif" alt="Linux Logo" height=114 width=102>
+    <%--<br>--%>
+    <%--<img src="/black/pingvin.gif" alt="Linux Logo" height=114 width=102>--%>
   </div>
 
   <form method=POST action="login.jsp" style="display: none" id="regform">
