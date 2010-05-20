@@ -286,6 +286,17 @@ public class HTMLFormatterTest {
     String s = formatter.process();
     assertTrue("All text should be inside link", s.endsWith("</a>"));
   }
+/*
+TODO
+
+  @Test
+  public void testURLWithLastQ() {
+    HTMLFormatter formatter = new HTMLFormatter("http://www.w3.org/1999/xhtml?");
+    formatter.enableUrlHighLightMode();
+    String s = formatter.process();
+    assertTrue("Last question in url must not be highlighted", s.endsWith("</a>?"));
+  }
+*/
 
   @Test
   public void testLatin1Supplement() {
