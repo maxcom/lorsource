@@ -640,6 +640,10 @@ public class Message implements Serializable {
       return false;
     }
 
+    if (by.isAnonymous() || by.isBlocked()) {
+      return false;
+    }
+
     if (expired) {
       return by.canModerate() && section.isPremoderated();
     }
@@ -652,11 +656,15 @@ public class Message implements Serializable {
       return section.isPremoderated();
     }
 
-    if (by.canCorrect()) {
-      return section.isPremoderated() && lorcode;
+    if (!lorcode) {
+      return false;
+    }
+
+    if (by.canCorrect() && by.getId()!=userid) {
+      return section.isPremoderated();
     }
     
-    if (by.getId()==userid && !moderate && lorcode && !by.isAnonymous() && !by.isBlocked()) {
+    if (by.getId()==userid && !moderate) {
       return section.isPremoderated() || (new Date().getTime() - postdate.getTime()) < 60 * 60 * 1000;
     }
 
