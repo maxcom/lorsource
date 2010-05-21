@@ -269,3 +269,12 @@ input[type="radio"] {
 .boxlet h3 {
     margin-bottom: 0.5em;
 }
+
+.infoblock {
+    -moz-border-radius: 1em;
+    -webkit-border-radius: 1em;
+    -khtml-border-radius: 1em;
+    border-radius: 1em;
+    border: 0;
+    margin-bottom: 1em;
+}

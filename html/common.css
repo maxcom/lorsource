@@ -314,3 +314,15 @@ pre code span {
 .sign_more {
     font-size: small;
 }
+
+.infoblock {
+    font-size: small;
+    padding: 5px;
+    border: 1px solid;
+    margin-bottom: 1em;
+}
+
+.infoblock h2 {
+    font-size: large; font-weight: bold;
+    margin: 0;
+}

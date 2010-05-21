@@ -170,3 +170,10 @@ DIV.notes
 .nav A {
   text-decoration: none
 }
+
+.infoblock {
+    background-color: #000040;
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+    border: #808080 1px solid;
+}

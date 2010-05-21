@@ -48,10 +48,10 @@
 <h1><a href="/news/">Новости</a></h1>
 
 <c:if test="${template.style != 'black'}">
-  <div  style="border: 1px solid #777; font-size: small; padding: 5px; background-color: #272C2D; text-align: justify; color: #BABDB6">
+  <div class="infoblock" style="border: 1px solid #777; margin: 0; text-align: justify;">
     <a href="http://job.samsung.ru/"><img width="130" height="43" src="/adv/Samsung_Logo.png" alt="" style="float: left; border: 0"></a>
     <div style="margin-left: 135px">
-    <span style="color: white; font-size: large; font-weight: bold;">Вакансии</span><br>
+    <h2>Вакансии</h2>
     Samsung Electronics приглашает разработчиков LINUX на работу в R&D центры в Южной Корее (г. Сувон)<br>
     Область специализации: Linux Kernel, TV Server SW, Open OS, Mobile Platform SW, Service
     Platform, Convergence, SW Platform, Multicore SW, System SW Tool.
