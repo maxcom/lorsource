@@ -36,7 +36,19 @@
 <link rel="alternate" title="RSS" href="show-replies.jsp?output=rss&amp;nick=${nick}" type="application/rss+xml"/>
 <link rel="alternate" title="Atom" href="show-replies.jsp?output=atom&amp;nick=${nick}" type="application/atom+xml"/>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
-<h1>${title}</h1>
+<table class=nav>
+<tr>
+<td align=left valign=middle id="navPath">
+  ${title}
+</td>
+  <td align=right>
+    <ul>
+      <li>[<a href="show-replies.jsp?output=rss&amp;nick=${nick}">RSS</a>]</li>
+    </ul>
+  </td>
+</table>
+
+<h1 class="optional">${title}</h1>
 
 <div class=forum>
 <table width="100%" class="message-table">
