@@ -2,7 +2,7 @@
 	border-top: none;
 }
 
-.newsblog .nav {
+.newsblog .nav, .newsblog2 .nav {
     border: none;
 }
 
@@ -22,7 +22,7 @@ h1 {
     font-size: 1.5em;
 }
 
-.newsblog h1 {
+.newsblog h1, .newsblog2 h1 {
     display: none;
 }
 
@@ -140,17 +140,17 @@ p {
 	text-align: left;
 }
 
-#bd .column {
+#bd .column, #bd .column2 {
 	font-size: 0.8em;
 	text-align: left;
 }
 
-#bd .column .boxlet {
+.boxlet {
 	padding-bottom: 1em;
     margin-bottom: 1em;
 }
 
-#bd .column .boxlet h2 {
+.boxlet h2 {
 	font-weight: bold;
 	padding: 0.25em;
 	margin-bottom: 0.25em;
@@ -158,7 +158,7 @@ p {
     margin-top: 0;
 }
 
-#bd .column .boxlet p.image {
+.boxlet p.image {
 	text-align: center;
 	margin-bottom: 0;
 }
@@ -224,7 +224,7 @@ pre {
      margin-left: 1em;
 }
 
-#bd .column .boxlet {
+.boxlet {
 -moz-border-radius: 1em;
 -webkit-border-radius: 1em;
 -khtml-border-radius: 1em;
