@@ -67,6 +67,10 @@
         [<a href="${archiveLink}">Архив</a>]
       </c:if>
 
+      <c:if test="${whoisLink != null}">
+        [<a href="${whoisLink}">Профиль</a>]
+      </c:if>
+
       <c:if test="${rssLink != null}">
         [<a href="${rssLink}">RSS</a>]
       </c:if>

@@ -245,6 +245,7 @@ public class NewsViewerController {
     Map<String, Object> params = new HashMap<String, Object>();
 
     params.put("url", "/people/"+nick+"/");
+    params.put("whoisLink", "/people/"+nick+"/"+"profile");
 // TODO    params.put("archiveLink", "/people/"+nick+"/archive/");
 
     try {
