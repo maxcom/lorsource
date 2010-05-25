@@ -24,9 +24,9 @@
 <!-- #defefc #aea6f2 -->
 
 <table width="100%" border=0 cellpadding=0 cellspacing=0>
-<tr><td bgcolor="#defefc"><img src="/white2/h1.png" alt="Русская информация об ОС Linux" width=452 height=72></td><td bgcolor="#defefc" align=right valign=top><span class=head></span>
+<tr><td class="bluehead"><img src="/white2/h1.png" alt="Русская информация об ОС Linux" width=452 height=72></td><td class="bluehead" align=right valign=top><span class=head></span>
 </td>
-  <td align="right" valign="top" bgcolor="#defefc">
+  <td align="right" valign="top" class="bluehead">
     <c:if test="${template.sessionAuthorized}">
       <c:url var="userUrl" value="/people/${template.nick}/profile"/>
   добро пожаловать, <a style="text-decoration: none" href="${userUrl}">${template.nick}</a>
