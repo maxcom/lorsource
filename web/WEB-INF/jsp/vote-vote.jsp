@@ -14,6 +14,9 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
+<%--@elvariable id="message" type="ru.org.linux.site.Message"--%>
+<%--@elvariable id="poll" type="ru.org.linux.site.Poll"--%>
+<%--@elvariable id="votes" type="java.util.List<ru.org.linux.spring.dao.VoteDTO>"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
@@ -22,10 +25,10 @@
 
 <H1>Голосование</H1>
 <h2><a href="view-message.jsp?msgid=${poll.topicId}">Опрос</a></h2>
-<h3><c:out value="${poll.title}" escapeXml="true"/></h3>
+<h3><c:out value="${message.title}" escapeXml="true"/></h3>
 <form method=POST action=vote.jsp>
   <input type=hidden name=voteid value=${poll.id}>
-  <input type=hidden name=msgid value=${msgid}>
+  <input type=hidden name=msgid value=${message.id}>
   <c:forEach var="item" items="${votes}">
     <input type="radio" name="vote" id="poll-${item.id}" value="${item.id}"><label for="poll-${item.id}"><c:out escapeXml="true" value="${item.label}"/></label> <br/>
   </c:forEach>

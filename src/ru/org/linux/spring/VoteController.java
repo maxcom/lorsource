@@ -97,12 +97,12 @@ public class VoteController {
 
     Map<String, Object> params = new HashMap<String, Object>();
 
-    params.put("msgid", msgid);
-
     Connection db = null;
     try {
       db = LorDataSource.getConnection();
 
+      Message msg = new Message(db, msgid);
+      params.put("message", msg);
       Poll poll = Poll.getPollByTopic(db, msgid);
 
       if (!poll.isCurrent()) {
