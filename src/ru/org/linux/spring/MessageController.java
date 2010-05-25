@@ -360,7 +360,7 @@ public class MessageController {
     return "msg-"+message.getMessageId()+ '-' +message.getLastModified().getTime()+userAddon;
   }
 
-  @RequestMapping(value = "/jump-message.jsp", method = RequestMethod.GET)
+  @RequestMapping(value = "/jump-message.jsp", method = {RequestMethod.GET, RequestMethod.HEAD})
   public ModelAndView jumpMessage(
     HttpServletRequest request,
     @RequestParam int msgid,
