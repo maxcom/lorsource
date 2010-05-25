@@ -80,12 +80,12 @@ public class AddCommentController extends ApplicationObjectSupport {
     }
   }
 
-  private void createReplyTo(Integer replyTo, Map<String, Object> params, Connection db) throws SQLException, MessageNotFoundException {
+  private void createReplyTo(Integer replyTo, Map<String, Object> params, Connection db) throws SQLException, MessageNotFoundException, AccessViolationException {
     if (replyTo != null && replyTo>0) {
       Comment onComment = new Comment(db, replyTo);
       params.put("onComment", onComment);
       if (onComment.isDeleted()) {
-        throw new MessageNotFoundException(replyTo);
+        throw new AccessViolationException("нельзя комментировать удаленные комментарии");
       }
     }
   }
