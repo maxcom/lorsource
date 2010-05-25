@@ -33,6 +33,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 
 import ru.org.linux.site.*;
+import ru.org.linux.util.StringUtil;
 
 @Controller
 public class LoginController {
@@ -59,8 +60,13 @@ public class LoginController {
       db = LorDataSource.getConnection();
       db.setAutoCommit(false);
       String nick = request.getParameter("nick");
+
       if (nick == null || "".equals(nick)) {
         return new ModelAndView(ajax ? "login-xml" : "login-form", Collections.singletonMap("error", "Не указан nick"));
+      }
+
+      if (!!StringUtil.checkLoginName(nick)) {
+        return new ModelAndView(ajax ? "login-xml" : "login-form", Collections.singletonMap("error", "Некорректный nick"));
       }
 
       User user = User.getUser(db, nick);
