@@ -186,7 +186,7 @@ public class Section implements Serializable {
     }
   }
 
-  public static String getNewsViewerLink(int section) {
+  public static String getNewsViewerLink(int section) throws SectionNotFoundException {
     switch (section) {
       case SECTION_FORUM:
         return "/forum/lenta/";
@@ -197,7 +197,7 @@ public class Section implements Serializable {
       case SECTION_POLLS:
         return "/polls/";
       default:
-        throw new RuntimeException("unknown section");
+        throw new SectionNotFoundException(section);
     }
   }
 

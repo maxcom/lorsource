@@ -467,7 +467,7 @@ public class NewsViewerController {
   }
 
   @RequestMapping(value="/view-news.jsp", params={ "section" })
-  public View galleryOldLink(
+  public View oldLink(
     @RequestParam int section,
     @RequestParam(required=false) Integer offset,
     @RequestParam(value="month", required=false) Integer month,
