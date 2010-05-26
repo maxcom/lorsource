@@ -16,19 +16,23 @@
   --%><%@ attribute name="db" required="true" type="java.sql.Connection" %><%@
         attribute name="decorate" required="false" type="java.lang.Boolean" %><%@
         attribute name="id" required="true" type="java.lang.Integer" %><%
-  User user = User.getUserCached(db, id);
+  if (id == 2) {
+    out.print("anonymous");
+  } else {
+    User user = User.getUserCached(db, id);
 
-  if (decorate!=null && decorate) {
-    if (user.isBlocked()) {
-      out.print("<s>");
+    if (decorate != null && decorate) {
+      if (user.isBlocked()) {
+        out.print("<s>");
+      }
     }
-  }
 
-  out.print(user.getNick());
+    out.print(user.getNick());
 
-  if (decorate!=null && decorate) {
-    if (user.isBlocked()) {
-      out.print("</s>");
+    if (decorate != null && decorate) {
+      if (user.isBlocked()) {
+        out.print("</s>");
+      }
     }
   }
 %>
