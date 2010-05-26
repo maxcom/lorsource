@@ -447,10 +447,15 @@ public class User implements Serializable {
       out.append("<s>");
     }
 
-    out.append("<a href=\"/people/").append(URLEncoder.encode(nick)).append("/profile\">");
+    if (!anonymous) {
+      out.append("<a href=\"/people/").append(URLEncoder.encode(nick)).append("/profile\">");
+    }
+
     out.append(nick);
 
-    out.append("</a>");
+    if (!anonymous) {
+      out.append("</a>");
+    }
 
     if (blocked) {
       out.append("</s>");
@@ -458,7 +463,7 @@ public class User implements Serializable {
 
     out.append(' ');
 
-    if (!"anonymous".equals(nick) && !shortMode) {
+    if (!anonymous && !shortMode) {
       out.append(getStars(score, maxScore)).append(' ');
       if (moderatorMode) {
         out.append("(Score: ").append(score).append(" MaxScore: ").append(maxScore).append(") ");
