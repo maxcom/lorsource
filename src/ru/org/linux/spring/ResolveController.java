@@ -16,28 +16,21 @@
 package ru.org.linux.spring;
 
 import java.sql.Connection;
+
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
-import ru.org.linux.site.AccessViolationException;
-import ru.org.linux.site.Group;
-import ru.org.linux.site.LorDataSource;
-import ru.org.linux.site.Message;
-import ru.org.linux.site.Template;
-import ru.org.linux.site.User;
+
+import ru.org.linux.site.*;
 
 @Controller
 public class ResolveController  {
   @RequestMapping("/resolve.jsp")
   public ModelAndView resolve(
-    WebRequest webRequest,
     HttpServletRequest request,
-    HttpServletResponse response,
     @RequestParam("msgid") int msgid,
     @RequestParam("resolve") String resolved
   ) throws Exception {
