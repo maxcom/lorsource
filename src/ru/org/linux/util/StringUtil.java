@@ -18,12 +18,15 @@ package ru.org.linux.util;
 import java.math.BigInteger;
 import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
+import java.util.Random;
 import java.util.StringTokenizer;
 
 import gnu.regexp.RE;
 import gnu.regexp.REException;
 
 public final class StringUtil {
+  private static Random random = new Random();
+
   private StringUtil() {
   }
 
@@ -87,5 +90,17 @@ public final class StringUtil {
     } catch (GeneralSecurityException gse) {
       throw new RuntimeException(gse);
     }
+  }
+
+  public static String generatePassword() {
+    StringBuilder builder = new StringBuilder();
+
+    for (int i=0; i<10; i++) {
+      int r = Math.abs(random.nextInt());
+
+      builder.append((char) (33 + r%(126-33)));
+    }
+
+    return builder.toString();
   }
 }

@@ -332,6 +332,25 @@ public class User implements Serializable {
     }
   }
 
+  public void resetPassword(Connection db) throws SQLException {
+    String password = StringUtil.generatePassword();
+
+    PreparedStatement st = null;
+
+    try {
+      st = db.prepareStatement("UPDATE users SET passwd=? WHERE id=?");
+      st.setString(1, password);
+      st.setInt(2, id);
+      st.executeUpdate();
+
+      updateCache(db);
+    } finally {
+      if (st!=null) {
+        st.close();
+      }
+    }
+  }
+
   public String deleteAllComments(Connection db, User moderator) throws SQLException, ScriptErrorException {
     Statement st = null;
     ResultSet rs = null;

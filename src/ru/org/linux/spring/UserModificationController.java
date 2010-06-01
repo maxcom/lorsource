@@ -68,6 +68,7 @@ public class UserModificationController extends ApplicationObjectSupport {
         }
 
         user.block(db);
+        user.resetPassword(db);
         logger.info("User " + user.getNick() + " blocked by " + session.getValue("nick"));
 
         if ("block-n-delete-comments".equals(action)) {
