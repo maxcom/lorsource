@@ -17,15 +17,15 @@ package ru.org.linux.site;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class UserStatistics {
   private final int ignoreCount;
   private final int commentCount;
 
   public UserStatistics(Connection db, int id) throws SQLException {
-    PreparedStatement ignoreStat = db.prepareStatement("SELECT count(*) as inum FROM ignore_list WHERE ignored=?");
+    PreparedStatement ignoreStat = db.prepareStatement("SELECT count(*) as inum FROM ignore_list JOIN users ON  ignore_list.userid = users.id WHERE ignored=? AND not blocked");
     PreparedStatement commentStat = db.prepareStatement("SELECT count(*) as c FROM comments WHERE userid=?");
 
     ignoreStat.setInt(1, id);
