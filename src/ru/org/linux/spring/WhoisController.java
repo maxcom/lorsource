@@ -44,6 +44,10 @@ public class WhoisController {
       mv.getModel().put("user", user);
       mv.getModel().put("userInfo", new UserInfo(db, user.getId()));
 
+      if (!user.isAnonymous()) {
+        mv.getModel().put("userStat", new UserStatistics(db, user.getId()));
+      }
+
       boolean moderatorOrCurrentUser = Template.isSessionAuthorized(session) && (session.getValue("nick").equals(nick) ||
               (Boolean) session.getValue("moderator"));
 

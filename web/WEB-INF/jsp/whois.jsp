@@ -28,6 +28,7 @@
   --%>
 <%--@elvariable id="user" type="ru.org.linux.site.User"--%>
 <%--@elvariable id="userInfo" type="ru.org.linux.site.UserInfo"--%>
+<%--@elvariable id="userStat" type="ru.org.linux.site.UserStatistics"--%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <%--@elvariable id="moderatorOrCurrentUser" type="java.lang.Boolean"--%>
 
@@ -57,19 +58,15 @@
 
 <h1>Информация о пользователе <%= nick %></h1>
 <%
-  PreparedStatement stat1 = db.prepareStatement("SELECT count(*) as c FROM comments WHERE userid=?");
   PreparedStatement stat2 = db.prepareStatement("SELECT sections.name as pname, count(*) as c FROM topics, groups, sections WHERE topics.userid=? AND groups.id=topics.groupid AND sections.id=groups.section AND not deleted GROUP BY sections.name");
   PreparedStatement stat3 = db.prepareStatement("SELECT min(postdate) as first,max(postdate) as last FROM topics WHERE topics.userid=?");
   PreparedStatement stat4 = db.prepareStatement("SELECT min(postdate) as first,max(postdate) as last FROM comments WHERE comments.userid=?");
-  PreparedStatement stat5 = db.prepareStatement("SELECT count(*) as inum FROM ignore_list WHERE ignored=?");
 
   int userid = user.getId();
 
-  stat1.setInt(1, userid);
   stat2.setInt(1, userid);
   stat3.setInt(1, userid);
   stat4.setInt(1, userid);
-  stat5.setInt(1, userid);
 %>
 <div id="whois_userpic">
   <lor:userpic author="${user}"/>
@@ -127,12 +124,7 @@
     <c:if test="${user.email!=null}">
       <b>Email:</b> ${user.email}<br>
       <b>Score:</b> ${user.score}<br>
-    <%
-      ResultSet rs = stat5.executeQuery();
-      rs.next();
-      out.println("<b>Игнорируется</b>: " + rs.getInt("inum") + "<br>\n");
-      rs.close();
-    %>
+      <b>Игнорируется</b>: ${userStat.ignoreCount}<br>
     </c:if>
   </c:if>
 <%
@@ -216,6 +208,9 @@
 %>
 <b>Первый комментарий:</b> <%= firstComment==null?"нет":tmpl.dateFormat.format(firstComment) %><br>
 <b>Последний комментарий:</b> <%= lastComment==null?"нет":tmpl.dateFormat.format(lastComment) %>
+<c:if test="${not user.anonymous}">
+  <b>Число комментариев: ${userStat.commentCount}</b>
+</c:if>
 <% rs.close(); %>
 <p>
 
@@ -233,10 +228,6 @@
    }
 %>
 <% rs.close(); %>
-<%
-rs=stat1.executeQuery();
-rs.next(); %>
-<tr><td>Комментарии</td><td valign='top'><%= rs.getInt("c") %></td></tr>
 </table>
 </div>
 
