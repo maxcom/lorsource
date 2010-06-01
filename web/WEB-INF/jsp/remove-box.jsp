@@ -29,7 +29,7 @@
   <s:hidden path="position"/>
   <s:hidden path="tag"/>
 
-  <input type=submit value="Remove/Удалить">
+  <input type=submit value="Удалить">
 </s:form>
 
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>

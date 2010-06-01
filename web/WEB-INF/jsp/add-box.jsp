@@ -31,7 +31,7 @@
 
   <s:radiobuttons path="boxName" items="${allboxes}" element="div"/> 
   <br/>
-  <input type=submit value="Add/Добавить">
+  <input type=submit value="Добавить">
 </s:form>
 
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>
