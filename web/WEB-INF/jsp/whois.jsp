@@ -207,7 +207,7 @@
   Timestamp lastComment = rs.getTimestamp("last");
 %>
 <b>Первый комментарий:</b> <%= firstComment==null?"нет":tmpl.dateFormat.format(firstComment) %><br>
-<b>Последний комментарий:</b> <%= lastComment==null?"нет":tmpl.dateFormat.format(lastComment) %>
+<b>Последний комментарий:</b> <%= lastComment==null?"нет":tmpl.dateFormat.format(lastComment) %><br>
 <c:if test="${not user.anonymous}">
   <b>Число комментариев: ${userStat.commentCount}</b>
 </c:if>
