@@ -278,3 +278,7 @@ input[type="radio"] {
     border: 0;
     margin-bottom: 1em;
 }
+
+.boxlet H3 {
+    margin-bottom: 5px;
+}
