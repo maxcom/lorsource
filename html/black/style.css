@@ -44,6 +44,7 @@ DIV.boxlet H2
 DIV.boxlet H3
    {
     font-size: small;
+    margin-bottom: 5px;
    }
 
 DIV.boxlet H2 A { text-decoration: none; color: white }
