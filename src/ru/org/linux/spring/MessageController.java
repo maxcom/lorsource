@@ -282,16 +282,18 @@ public class MessageController {
         throw new AccessViolationException("Это сообщение нельзя посмотреть");
       }
 
-      String etag = getEtag(message, tmpl);
-      response.setHeader("Etag", etag);
+      if (!tmpl.isSessionAuthorized()) { // because users have IgnoreList and memories
+        String etag = getEtag(message, tmpl);
+        response.setHeader("Etag", etag);
 
-      if (request.getHeader("If-None-Match")!=null) {
-        if (etag.equals(request.getHeader("If-None-Match"))) {
-          response.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
+        if (request.getHeader("If-None-Match") != null) {
+          if (etag.equals(request.getHeader("If-None-Match"))) {
+            response.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
+            return null;
+          }
+        } else if (webRequest.checkNotModified(message.getLastModified().getTime())) {
           return null;
         }
-      } else if (webRequest.checkNotModified(message.getLastModified().getTime())) {
-        return null;
       }
 
       params.put("message", message);
