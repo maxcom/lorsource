@@ -19,13 +19,6 @@
   <iframe src="dw.jsp?height=400&amp;width=219&amp;main=1" width="222" height="400" scrolling="no"
           frameborder="0"></iframe>
   <br>&nbsp;<br>
-  Профессиональный ресурс от IBM для специалистов в области разработки ПО. Рассылка выходит 1 раз в
-  неделю.
-  <form id="data1" method="post" enctype="multipart/form-data"
-        action="http://www-931.ibm.com/bin/subscriptions/esi/subscribe/RURU/10209/">
-    e-mail:<br>
-    <input type="text" size="15" name="email" style="width: 90%" value="">
-    <br>
-    <input alt="subscribe" type="submit" name="butSubmit1" value="Подписаться">
-  </form>
+  <a style="text-decoration: underline" href="http://www.ibm.com/developerworks/mydeveloperworks/?lang=ru" title="">Вступай</a> в сообщество профессионалов&nbsp;IBM!<br>
+Нас уже более 3000 только в России.
 </div>
