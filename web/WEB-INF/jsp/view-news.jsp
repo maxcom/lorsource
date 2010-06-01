@@ -19,6 +19,7 @@
   ~    limitations under the License.
   --%>
 <%--@elvariable id="messages" type="java.util.List<ru.org.linux.site.Message>"--%>
+<%--@elvariable id="section" type="ru.org.linux.site.Section"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 	<title>${ptitle}</title>
@@ -42,6 +43,9 @@
     </td>
     <td align=right valign=middle>
       <c:if test="${section != null}">
+        <c:if test="${section.premoderated}">
+          [<a href="/view-all.jsp?section=${section.id}">Неподтвержденные</a>]
+        </c:if>
         <%
           if (section.isVotePoll()) {
             out.print("[<a href=\"add-poll.jsp?group=19387\">Добавить голосование</a>]");
