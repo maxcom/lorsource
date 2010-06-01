@@ -26,7 +26,7 @@ public class UserStatistics {
 
   public UserStatistics(Connection db, int id) throws SQLException {
     PreparedStatement ignoreStat = db.prepareStatement("SELECT count(*) as inum FROM ignore_list JOIN users ON  ignore_list.userid = users.id WHERE ignored=? AND not blocked");
-    PreparedStatement commentStat = db.prepareStatement("SELECT count(*) as c FROM comments WHERE userid=?");
+    PreparedStatement commentStat = db.prepareStatement("SELECT count(*) as c FROM comments WHERE userid=? AND not deleted");
 
     ignoreStat.setInt(1, id);
     commentStat.setInt(1, id);
