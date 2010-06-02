@@ -56,7 +56,7 @@
 
 %>
 
-<h1>Информация о пользователе <%= nick %></h1>
+<h1>Информация о пользователе ${user.nick}</h1>
 <%
   PreparedStatement stat2 = db.prepareStatement("SELECT sections.name as pname, count(*) as c FROM topics, groups, sections WHERE topics.userid=? AND groups.id=topics.groupid AND sections.id=groups.section AND not deleted GROUP BY sections.name");
   PreparedStatement stat3 = db.prepareStatement("SELECT min(postdate) as first,max(postdate) as last FROM topics WHERE topics.userid=?");
@@ -82,20 +82,17 @@
 </div>
 <div>
 <h2>Регистрация</h2>
-<b>ID:</b> <%= userid %><br>
-<b>Nick:</b> <%= nick %><br>
-<%
-   String fullname=user.getName();
+<div class="vcard">
+<b>ID:</b> ${user.id}<br>
+<b>Nick:</b> <span class="nickname">${user.nick}</span><br>
+<c:if test="${user.name!=null and not empty user.name}">
+  <b>Полное имя:</b> <span class="fn">${user.name}</span><br>
+</c:if>
 
-   if (fullname!=null) {
-     if (!"".equals(fullname)) {
-       out.println("<b>Полное имя:</b> " + fullname + "<br>");
-     }
-   }
-%>
-  <c:if test="${userInfo.url != null}">
-    <b>URL:</b> <a href="${fn:escapeXml(userInfo.url)}">${fn:escapeXml(userInfo.url)}</a><br>
-  </c:if>
+<c:if test="${userInfo.url != null}">
+    <b>URL:</b> <a class="url" href="${fn:escapeXml(userInfo.url)}">${fn:escapeXml(userInfo.url)}</a><br>
+</c:if>
+
   <c:if test="${userInfo.town != null}">
     <b>Город:</b> <c:out value="${userInfo.town}" escapeXml="true"/><br>
   </c:if>
@@ -122,11 +119,12 @@
   <br>
   <c:if test="${moderatorOrCurrentUser}">
     <c:if test="${user.email!=null}">
-      <b>Email:</b> ${user.email}<br>
+      <b>Email:</b> <a href="mailto:${user.email}">${user.email}</a><br>
       <b>Score:</b> ${user.score}<br>
       <b>Игнорируется</b>: ${userStat.ignoreCount}<br>
     </c:if>
   </c:if>
+</div>
 <%
   if (Template.isSessionAuthorized(session) && !session.getValue("nick").equals(nick) && !"anonymous".equals(session.getValue("nick"))) {
     out.println("<br>");
@@ -238,11 +236,11 @@
   </li>
 
   <li>
-    <a href="show-comments.jsp?nick=<%= nick %>">Комментарии</a>
+    <a href="show-comments.jsp?nick=${user.nick}">Комментарии</a>
   </li>
 <c:if test="${moderatorOrCurrentUser}">
   <li>
-    <a href="show-replies.jsp?nick=<%= nick %>">Ответы на комментарии</a>
+    <a href="show-replies.jsp?nick=${user.nick}">Ответы на комментарии</a>
   </li>
 </c:if>
 </ul>
