@@ -185,6 +185,9 @@ public class NewsViewerController {
 
       if (section!=null) {
         newsViewer.addSection(sectionid);
+        if (section.isPremoderated()) {
+          newsViewer.setCommitMode(NewsViewer.CommitMode.COMMITED_ONLY);
+        }
       }
 
       if (group != null) {
