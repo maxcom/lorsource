@@ -1,7 +1,6 @@
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="java.sql.Connection,java.sql.ResultSet,java.sql.Statement,ru.org.linux.site.AccessViolationException,ru.org.linux.site.LorDataSource"  %>
-<%@ page import="ru.org.linux.site.Template"%>
-<%@ page import="ru.org.linux.site.User"%>
+<%@ page import="java.sql.Connection,java.sql.ResultSet,java.sql.Statement"  %>
+<%@ page import="ru.org.linux.site.*" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 
@@ -108,9 +107,7 @@ URL (не забудьте добавить <b>http://</b>): <br>
     User user = User.getUser(db, nick);
     user.checkAnonymous();
 
-    Statement st = db.createStatement();
-    ResultSet rs = st.executeQuery("SELECT * FROM users WHERE id=" + user.getId());
-    rs.next();
+    UserInfo userInfo = new UserInfo(db, user.getId());
 %>
 
 <c:if test="${error!=null}">
@@ -120,7 +117,11 @@ URL (не забудьте добавить <b>http://</b>): <br>
 <form method=POST action="register.jsp" id="changeForm">
 <input type=hidden name=mode value="change">
 Полное имя:
-<input type=text name="name" size="40" value="<%= rs.getString("name") %>"><br>
+<input type=text name="name" size="40" value="<%
+if (user.getName()!=null) {
+ out.print(user.getName());
+}
+%>"><br>
 Пароль:
 <input class="required" type=password name="oldpass" size="20"><br>
 Новый пароль:
@@ -129,24 +130,26 @@ URL (не забудьте добавить <b>http://</b>): <br>
 <input type=password name="password2" size="20"><br>
 URL:
 <input type=text name="url" size="50" value="<%
-	if (rs.getString("url")!=null) {
-      out.print(rs.getString("url"));
+	if (userInfo.getUrl()!=null) {
+      out.print(userInfo.getUrl());
     }
 %>"><br>
 (не забудьте добавить <b>http://</b>)<br>
 Email:
-<input type=text class="required email" name="email" size="50" value="<%= rs.getString("email") %>"><br>
+<input type=text class="required email" name="email" size="50" value="<%= user.getEmail() %>"><br>
 Город (просьба писать русскими буквами без сокращений, например: <b>Москва</b>,
 <b>Нижний Новгород</b>, <b>Троицк (Московская область)</b>):
-<input type=text name="town" size="50" value="<%= rs.getString("town") %>"><br>
+<input type=text name="town" size="50" value="<%
+ if (userInfo.getTown()!=null) {
+  out.print(userInfo.getTown());
+ }
+%>"><br>
 Дополнительная информация:<br>
 <textarea name=info cols=50 rows=5><%= user.getUserinfo(db) %></textarea>
 <br>
 <input type=submit value="Update/Обновить">
 </form>
 <%
-    rs.close();
-    st.close();
   } finally {
     if (db!=null) {
       db.close();
