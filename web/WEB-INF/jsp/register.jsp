@@ -1,6 +1,5 @@
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="java.sql.Connection,java.sql.ResultSet,java.sql.Statement"  %>
-<%@ page import="ru.org.linux.site.*" %>
+<%@ page import="java.sql.Connection,ru.org.linux.site.*"  %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 
@@ -81,7 +80,7 @@ URL (не забудьте добавить <b>http://</b>): <br>
 } else if ("change".equals(request.getParameter("mode"))) {
 %>
   <table class=nav><tr>
-    <td align=left valign=middle>
+    <td id="navPath" align=left valign=middle>
       Изменение регистрации
     </td>
 
@@ -91,7 +90,7 @@ URL (не забудьте добавить <b>http://</b>): <br>
      </td>
     </tr>
  </table>
-<h1>Изменение регистрации</h1>
+<h1 class="optional">Изменение регистрации</h1>
 <%
   if (!Template.isSessionAuthorized(session)) {
     throw new AccessViolationException("Not authorized");
@@ -147,7 +146,7 @@ Email:
 Дополнительная информация:<br>
 <textarea name=info cols=50 rows=5><%= user.getUserinfo(db) %></textarea>
 <br>
-<input type=submit value="Update/Обновить">
+<input type=submit value="Обновить">
 </form>
 <%
   } finally {
