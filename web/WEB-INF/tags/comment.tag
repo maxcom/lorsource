@@ -43,7 +43,7 @@
 <c:if test="${showMenu}">
   <div class=title>
 <%
-    DateFormat dateFormat = DateFormats.createDefault();
+    DateFormat dateFormat = tmpl.dateFormat;
 
     if (!comment.isDeleted()) {
       out.append("[<a href=\"/jump-message.jsp?msgid=").append(Integer.toString(comment.getTopic())).append("&amp;cid=").append(Integer.toString(comment.getMessageId())).append("\">#</a>]");
@@ -107,7 +107,7 @@
   %>
     <div class=sign>
     <%
-  out.append(author.getSignature(moderatorMode, comment.getPostdate(), tmpl.isMobile()));
+  out.append(author.getSignature(tmpl.dateFormat, moderatorMode, comment.getPostdate(), tmpl.isMobile()));
 %>
       <c:if test="${template.moderatorSession}">
         (<a href="sameip.jsp?msgid=${comment.id}"">${comment.postIP}</a>)

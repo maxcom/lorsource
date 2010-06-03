@@ -457,9 +457,7 @@ public class User implements Serializable {
   }
 
   /* Todo: move to jsp tag */
-  public String getSignature(boolean moderatorMode, Date postdate, boolean shortMode) {
-    DateFormat dateFormat = DateFormats.createDefault();
-
+  public String getSignature(DateFormat dateFormat, boolean moderatorMode, Date postdate, boolean shortMode) {
     StringBuilder out = new StringBuilder();
 
     if (blocked) {

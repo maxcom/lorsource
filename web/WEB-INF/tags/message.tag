@@ -120,7 +120,7 @@
 
 <div class=sign>
 <%
-  out.append(author.getSignature(tmpl.isModeratorSession(), message.getPostdate(), tmpl.isMobile()));
+  out.append(author.getSignature(tmpl.dateFormat, tmpl.isModeratorSession(), message.getPostdate(), tmpl.isMobile()));
 %>
   <c:if test="${template.moderatorSession}">
     (<a href="sameip.jsp?msgid=${message.id}">${message.postIP}</a>)
@@ -139,7 +139,7 @@
 
     if (commiter.getId()!=message.getUid()) {
       Timestamp commitDate = message.getCommitDate();
-      DateFormat dateFormat = DateFormats.createDefault();
+      DateFormat dateFormat = tmpl.dateFormat;
       out.append("<br>");
 
       out.append("Проверено: <a href=\"/people/").append(URLEncoder.encode(commiter.getNick())).append("/profile\">").append(commiter.getNick()).append("</a>");

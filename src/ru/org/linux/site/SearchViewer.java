@@ -164,7 +164,7 @@ public class SearchViewer {
       out.append("</p>");
 
       out.append("<div class=sign>");
-      out.append(user.getSignature(false, postdate, false));
+      out.append(user.getSignature(DateFormats.createDefault(), false, postdate, false));
       out.append("</div>");
 
       out.append("</div></td></tr></table><p>");
