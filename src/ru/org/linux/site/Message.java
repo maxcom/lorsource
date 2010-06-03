@@ -70,14 +70,13 @@ public class Message implements Serializable {
 
     ResultSet rs=st.executeQuery(
         "SELECT " +
-            "postdate, topics.id as msgid, users.id as userid, topics.title, " +
+            "postdate, topics.id as msgid, userid, topics.title, " +
             "topics.groupid as guid, topics.url, topics.linktext, user_agents.name as useragent, " +
             "groups.title as gtitle, urlname, vote, havelink, section, topics.sticky, topics.postip, " +
             "postdate<(CURRENT_TIMESTAMP-sections.expire) as expired, deleted, lastmod, commitby, " +
             "commitdate, topics.stat1, postscore, topics.moderate, message, notop,bbcode, " +
             "topics.resolved " +
             "FROM topics " +
-            "INNER JOIN users ON (users.id=topics.userid) " +
             "INNER JOIN groups ON (groups.id=topics.groupid) " +
             "INNER JOIN sections ON (sections.id=groups.section) " +
             "INNER JOIN msgbase ON (msgbase.id=topics.id) " +

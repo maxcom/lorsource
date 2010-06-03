@@ -156,13 +156,13 @@ public class MessageController {
       if (!group.getUrlName().equals(groupName) || group.getSectionId() != section) {
         return new ModelAndView(new RedirectView(message.getLink()));
       }
+
+      return getMessage(webRequest, request, response, message, group, page, filter);
     } finally {
       if (db!=null) {
         db.close();
       }
     }
-
-    return getMessage(webRequest, request, response, msgid, page, filter);
   }
 
   @RequestMapping("/view-message.jsp")
@@ -220,11 +220,12 @@ public class MessageController {
     }
   }
 
-  public ModelAndView getMessage(
+  private ModelAndView getMessage(
     WebRequest webRequest,
     HttpServletRequest request,
     HttpServletResponse response,
-    int msgid,
+    Message message,
+    Group group,
     Integer page,
     String filter
   ) throws Exception {
@@ -234,7 +235,7 @@ public class MessageController {
 
     params.put("showAdsense", !tmpl.isSessionAuthorized() || !tmpl.getProf().getBoolean(DefaultProfile.HIDE_ADSENSE));
 
-    params.put("msgid", msgid);
+    params.put("msgid", message.getId());
 
     if (page!=null) {
       params.put("page", page);
@@ -244,7 +245,7 @@ public class MessageController {
     boolean rss = request.getParameter("output")!=null && "rss".equals(request.getParameter("output"));
 
     if (showDeleted && !"POST".equals(request.getMethod())) {
-      return new ModelAndView(new RedirectView("view-message.jsp?msgid=" + msgid));
+      return new ModelAndView(new RedirectView("view-message.jsp?msgid=" + message.getId()));
     }
 
     if (showDeleted) {
@@ -260,8 +261,6 @@ public class MessageController {
     try {
       db = LorDataSource.getConnection();
 
-      Message message = new Message(db, msgid);
-
       if (message.isExpired() && showDeleted && !tmpl.isModeratorSession()) {
         throw new MessageNotFoundException(message.getId(), "нельзя посмотреть удаленные комментарии в устаревших темах");
       }
@@ -273,8 +272,6 @@ public class MessageController {
       if (message.isDeleted() && !Template.isSessionAuthorized(request.getSession())) {
         throw new MessageNotFoundException(message.getId(), "Сообщение удалено");
       }
-
-      Group group = new Group(db, message.getGroupId());
 
       params.put("group", group);
 
