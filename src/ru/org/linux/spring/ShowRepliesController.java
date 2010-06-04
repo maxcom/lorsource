@@ -60,6 +60,13 @@ public class ShowRepliesController {
 
     boolean firstPage = !(offset > 0);
     int topics = tmpl.getProf().getInt("topics");
+    if (feedRequested) {
+      topics = 50;
+    }
+
+    if (topics>200) {
+      topics = 200;
+    }
 
     params.put("firstPage", firstPage);
     params.put("topics", topics);
