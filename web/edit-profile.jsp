@@ -164,7 +164,7 @@
     int messages = Integer.parseInt(request.getParameter("messages"));
     int tags = Integer.parseInt(request.getParameter("tags"));
 
-    if (topics <= 0 || topics > 1000)
+    if (topics <= 0 || topics > 500)
       throw new BadInputException("некорректное число тем");
     if (messages <= 0 || messages > 1000)
       throw new BadInputException("некорректное число сообщений");
