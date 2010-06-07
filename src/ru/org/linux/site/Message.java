@@ -62,6 +62,7 @@ public class Message implements Serializable {
   private final String postIP;
   private final boolean lorcode;
   private final boolean resolved;
+  private final int groupCommentsRestriction;
 
   private final Section section;
 
@@ -75,7 +76,7 @@ public class Message implements Serializable {
             "groups.title as gtitle, urlname, vote, havelink, section, topics.sticky, topics.postip, " +
             "postdate<(CURRENT_TIMESTAMP-sections.expire) as expired, deleted, lastmod, commitby, " +
             "commitdate, topics.stat1, postscore, topics.moderate, message, notop,bbcode, " +
-            "topics.resolved " +
+            "topics.resolved, restrict_comments " +
             "FROM topics " +
             "INNER JOIN groups ON (groups.id=topics.groupid) " +
             "INNER JOIN sections ON (sections.id=groups.section) " +
@@ -115,6 +116,7 @@ public class Message implements Serializable {
     postIP = rs.getString("postip");
     lorcode = rs.getBoolean("bbcode");
     resolved = rs.getBoolean("resolved");
+    groupCommentsRestriction = rs.getInt("restrict_comments");
 
     rs.close();
     st.close();
@@ -155,6 +157,7 @@ public class Message implements Serializable {
     postIP = rs.getString("postip");
     lorcode = rs.getBoolean("bbcode");
     resolved = rs.getBoolean("resolved");
+    groupCommentsRestriction = rs.getInt("restrict_comments");
 
     try {
       section = new Section(db, sectionid);
@@ -173,6 +176,8 @@ public class Message implements Serializable {
     guid = form.getGuid();
 
     Group group = new Group(db, guid);
+
+    groupCommentsRestriction = group.getCommentsRestriction();
 
     linktext = form.getLinktextHTML();
     url = form.getUrl();
@@ -226,6 +231,7 @@ public class Message implements Serializable {
     guid = original.guid;
 
     Group group = new Group(db, guid);
+    groupCommentsRestriction = group.getCommentsRestriction();
 
     if (request.getParameter("linktext")!=null) {
       linktext = request.getParameter("linktext");
@@ -344,7 +350,7 @@ public class Message implements Serializable {
     return commentCount;
   }
 
-  public int getPostScore() {
+  private int getPostScoreOld() {
     if (postscore==-1) {
       return -1;
     }
@@ -366,20 +372,22 @@ public class Message implements Serializable {
     return totalPS;
   }
 
-  public int getEffectivePostScore(Connection db) throws BadGroupException, SQLException {
-    int postscore = getPostScore();
-
-    Group group = new Group(db, guid);
+  public int getPostScore() {
+    int postscore = getPostScoreOld();
 
     if (postscore>=0) {
-      if (group.getCommentsRestriction()==-1) {
+      if (groupCommentsRestriction==-1) {
         postscore = -1;
       } else {
-        postscore = Math.max(postscore, group.getCommentsRestriction());
+        postscore = Math.max(postscore, groupCommentsRestriction);
       }
     }
 
     return postscore;
+  }
+
+  public String getPostScoreInfo() {
+    return getPostScoreInfo(getPostScore());
   }
 
   public static String getPostScoreInfo(int postscore) {
@@ -622,10 +630,10 @@ public class Message implements Serializable {
     }
 
     if (expired) {
-      throw new AccessViolationException("группа уже устарела");
+      throw new AccessViolationException("Сообщение уже устарело");
     }
 
-    int score = getEffectivePostScore(db);
+    int score = getPostScore();
 
     if (score != 0) {
       if (user.getScore() < score || user.isAnonymous() || (score == -1 && !user.canModerate())) {

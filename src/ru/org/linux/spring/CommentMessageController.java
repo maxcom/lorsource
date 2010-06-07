@@ -48,8 +48,7 @@ public class CommentMessageController {
 
       HashMap<String, Object> params = new HashMap<String, Object>();
 
-      int postscore = message.getEffectivePostScore(db);
-      params.put("postscore", postscore);
+      params.put("postscore", message.getPostScore());
 
       params.put("message", message);
 

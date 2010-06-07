@@ -169,13 +169,10 @@
 </div>
     <c:if test="${!message.deleted && showMenu}">
       <div class=reply>
+        <c:if test="${not message.expired}">
+          [<a href="comment-message.jsp?msgid=${message.id}">Ответить на это сообщение</a>]
+        </c:if>
 <%
-    if (!message.isExpired()) {
-      out.append("[<a href=\"comment-message.jsp?msgid=");
-      out.print(msgid);
-      out.append("\">Ответить на это сообщение</a>] ");
-    }
-
     if (currentUser!=null && message.isEditable(db, currentUser)) {
       out.append("[<a href=\"edit.jsp?msgid=");
       out.print(msgid);
@@ -199,6 +196,7 @@
       }
     }
 %>
+        <br>${message.postScoreInfo}
         </div>
       </c:if>
 </div>
