@@ -84,8 +84,6 @@ table {
 
 pre, code, kbd, samp, tt {
     font-family: monospace;
-    *font-size: 108%;
-    line-height: 100%;
 }
 
 body {
