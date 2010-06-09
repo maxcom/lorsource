@@ -79,8 +79,8 @@
 
 <c:forEach var="topic" items="${topicsList}">
 <tr>
-  <td>${topic.sectionTitle}</td>
-  <td>${topic.groupTitle}</td>
+  <td><a href="${topic.sectionUrl}">${topic.sectionTitle}</a></td>
+  <td><a href="${topic.groupUrl}">${topic.groupTitle}</a></td>
   <td><a href="jump-message.jsp?msgid=${topic.msgid}&amp;cid=${topic.cid}">${topic.subj}</a> </td>
   <td><lor:user db="<%= db %>" id="${topic.commentAuthor}" decorate="true"/></td>
   <td><lor:dateinterval date="${topic.commentDate}"/></td>

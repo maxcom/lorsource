@@ -25,7 +25,6 @@ import ru.org.linux.util.StringUtil;
 
 public class TopicsListItem implements Serializable {
   private final String subj;
-  private final String sectionTitle;
   private final Timestamp lastmod;
   private final int msgid;
   private final boolean deleted;
@@ -55,7 +54,6 @@ public class TopicsListItem implements Serializable {
     stat3 = rs.getInt("stat3");
     stat4 = rs.getInt("stat4");
     sticky = rs.getBoolean("sticky");
-    sectionTitle = rs.getString("name");
     resolved = rs.getBoolean("resolved");
 
     pages = Message.getPageCount(stat1, messagesInPage);
@@ -99,10 +97,6 @@ public class TopicsListItem implements Serializable {
 
   public int getPages() {
     return pages;
-  }
-
-  public String getSectionTitle() {
-    return sectionTitle;
   }
 
   public boolean isResolved(){

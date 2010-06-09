@@ -101,7 +101,7 @@ public class ShowRepliesController {
           " comments.id AS cid, " +
           "comments.postdate AS cDate, " +
           "comments.userid AS cAuthor, " +
-          " topics.resolved as resolved " +
+          " topics.resolved as resolved, urlname, sections.name, sections.id as section " +
           "FROM sections, groups, topics, comments, comments AS parents " +
           "WHERE sections.id=groups.section AND groups.id=topics.groupid " +
           "AND comments.topic=topics.id AND parents.userid = ? " +
@@ -118,7 +118,7 @@ public class ShowRepliesController {
             " comments.postdate AS cDate, " +
             " comments.userid AS cAuthor, " +
             " msgbase.message AS cMessage, bbcode, " +
-            " topics.resolved as resolved " +
+            " topics.resolved as resolved, urlname, sections.name, sections.id as section " +
             " FROM sections INNER JOIN groups ON (sections.id = groups.section) " +
             " INNER JOIN topics ON (groups.id=topics.groupid) " +
             " INNER JOIN comments ON (comments.topic=topics.id) " +
@@ -175,6 +175,9 @@ public class ShowRepliesController {
     private final String messageText;
     private final String nick;
     private final String groupTitle;
+    private final String groupUrlName;
+    private final String sectionTitle;
+    private final int sectionId;
     private static final long serialVersionUID = -8433869244309809050L;
 
     public MyTopicsListItem(Connection db, ResultSet rs, int messages, boolean readMessage) throws SQLException, UserNotFoundException {
@@ -183,7 +186,10 @@ public class ShowRepliesController {
       cAuthor = rs.getInt("cAuthor");
       cDate = rs.getTimestamp("cDate");
       groupTitle = rs.getString("gtitle");
-      
+      groupUrlName = rs.getString("urlname");
+      sectionTitle = rs.getString("name");
+      sectionId = rs.getInt("section");
+
       if (readMessage) {
         String text = rs.getString("cMessage");
         if (rs.getBoolean("bbcode")) {
@@ -221,6 +227,18 @@ public class ShowRepliesController {
 
     public String getGroupTitle() {
       return groupTitle;
+    }
+
+    public String getSectionTitle() {
+      return sectionTitle;
+    }
+
+    public String getGroupUrl() {
+      return Section.getSectionLink(sectionId)+groupUrlName+"/";
+    }
+
+    public String getSectionUrl() {
+      return Section.getSectionLink(sectionId);
     }
   }
 }

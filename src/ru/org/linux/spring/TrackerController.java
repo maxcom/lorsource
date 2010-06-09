@@ -241,14 +241,14 @@ public class TrackerController {
 
     public String getUrl() {
       if (pages>1) {
-        return Section.getSectionLink(section)+groupUrlName+"/"+msgid+"/page"+Integer.toString(pages-1)+"?lastmod="+lastmod.getTime();
+        return getGroupUrl()+msgid+"/page"+Integer.toString(pages-1)+"?lastmod="+lastmod.getTime();
       } else {
-        return Section.getSectionLink(section)+groupUrlName+"/"+msgid+"?lastmod="+lastmod.getTime();
+        return getGroupUrl()+msgid+"?lastmod="+lastmod.getTime();
       }
     }
 
     public String getUrlReverse() {
-      return Section.getSectionLink(section)+groupUrlName+"/"+msgid+"?lastmod="+lastmod.getTime();
+      return getGroupUrl()+"/"+msgid+"?lastmod="+lastmod.getTime();
     }
 
     public Timestamp getPostdate() {
@@ -257,6 +257,10 @@ public class TrackerController {
 
     public boolean isUncommited() {
       return uncommited;
+    }
+
+    public String getGroupUrl() {
+      return Section.getSectionLink(section)+groupUrlName+"/";
     }
   }
 }
