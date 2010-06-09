@@ -11,7 +11,7 @@ h1,h2 {
 }
 
 #bd h1,h2 {
-    margin-top: 1em;
+    margin-top: 0.5em;
 }
 
 #bd .messages h1, .messages h2 {
@@ -20,6 +20,10 @@ h1,h2 {
 
 h1 {
     font-size: 1.5em;
+}
+
+h2 {
+    font-size: 1.3em;
 }
 
 .newsblog h1, .newsblog2 h1 {

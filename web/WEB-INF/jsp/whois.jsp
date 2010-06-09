@@ -117,14 +117,16 @@
   }
 %>
   <br>
+</div>
   <c:if test="${moderatorOrCurrentUser}">
+    <div>
     <c:if test="${user.email!=null}">
       <b>Email:</b> <a href="mailto:${user.email}">${user.email}</a><br>
       <b>Score:</b> ${user.score}<br>
       <b>Игнорируется</b>: ${userStat.ignoreCount}<br>
     </c:if>
+    </div>      
   </c:if>
-</div>
 <%
   if (Template.isSessionAuthorized(session) && !session.getValue("nick").equals(nick) && !"anonymous".equals(session.getValue("nick"))) {
     out.println("<br>");
