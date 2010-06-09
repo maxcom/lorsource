@@ -107,7 +107,7 @@
 
       <tr>
         <td>
-          <a href="group.jsp?group=${msg.groupId}">
+          <a href="${msg.groupUrl}">
               ${msg.groupTitle}
           </a>
           <c:if test="${msg.uncommited}">
