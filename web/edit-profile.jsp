@@ -66,8 +66,6 @@
 <td><input type=checkbox name=newfirst <%= profHash.getBooleanPropertyHTML("newfirst")%>></td></tr>
 <tr><td>Показывать фотографии</td>
 <td><input type=checkbox name=photos <%= profHash.getBooleanPropertyHTML("photos")%>></td></tr>
-<tr><td>Показывать сообщение о порядке сортировки комментариев</td>
-<td><input type=checkbox name=sortwarning <%= profHash.getBooleanPropertyHTML("sortwarning")%>></td></tr>
 <tr><td>Число тем форума на странице</td>
 <td><input type=text size="5" name=topics value=<%= profHash.getInt("topics")%>></td></tr>
 <tr><td>Число комментариев на странице</td>
@@ -181,8 +179,6 @@
       out.print("Установлен параметр <i>newfirst</i><br>");
     if (tmpl.getProf().setBoolean("photos", request.getParameter("photos")))
       out.print("Установлен параметр <i>photos</i><br>");
-    if (tmpl.getProf().setBoolean("sortwarning", request.getParameter("sortwarning")))
-      out.print("Установлен параметр <i>sortwarning</i><br>");
     if (tmpl.getProf().setBoolean(DefaultProfile.HIDE_ADSENSE, request.getParameter(DefaultProfile.HIDE_ADSENSE)));
       out.print("Установлен параметр <i>hideAdsense</i><br>");
     if (tmpl.getProf().setBoolean(DefaultProfile.MAIN_GALLERY, request.getParameter(DefaultProfile.MAIN_GALLERY)));
