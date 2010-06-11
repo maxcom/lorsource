@@ -20,7 +20,7 @@
   ~    limitations under the License.
   --%>
 
-<%--@elvariable id="topicsList" type="java.util.List<ru.org.linux.site.TopicsListItem>"--%>
+<%--@elvariable id="topicsList" type="java.util.List<ru.org.linux.spring.TopicsListItem>"--%>
 <%--@elvariable id="group" type="ru.org.linux.site.Group"--%>
 <%--@elvariable id="firstPage" type="java.lang.Boolean"--%>
 <%--@elvariable id="groupList" type="java.util.List<ru.org.linux.site.Group>"--%>

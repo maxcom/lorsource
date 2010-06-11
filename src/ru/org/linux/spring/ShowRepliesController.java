@@ -21,18 +21,18 @@ import java.sql.*;
 import java.util.*;
 import java.util.Date;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.ServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import com.danga.MemCached.MemCachedClient;
+import org.javabb.bbcode.BBCodeProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
-import org.javabb.bbcode.BBCodeProcessor;
 
 import ru.org.linux.site.*;
+import ru.org.linux.util.StringUtil;
 
 @Controller
 public class ShowRepliesController {
@@ -84,7 +84,7 @@ public class ShowRepliesController {
     if (feedRequested) {
       cacheKey = cacheKey + "&output=true";
     }
-    List<TopicsListItem> list = (List<TopicsListItem>) mcc.get(cacheKey);
+    List<MyTopicsListItem> list = (List<MyTopicsListItem>) mcc.get(cacheKey);
     int messages = tmpl.getProf().getInt("messages");
 
     if (list == null) {
@@ -95,42 +95,26 @@ public class ShowRepliesController {
 
         User user = User.getUser(db, nick);
 
-        list = new ArrayList<TopicsListItem>();
+        list = new ArrayList<MyTopicsListItem>();
 
-        String sql = "SELECT topics.title as subj, sections.name, groups.title as gtitle, lastmod, topics.userid, topics.id as msgid, topics.deleted, topics.stat1, topics.stat3, topics.stat4, topics.sticky, " +
+        String sql = "SELECT " +
+          " topics.title as subj, sections.name, groups.title as gtitle, " +
+          " lastmod, topics.id as msgid, " +
           " comments.id AS cid, " +
-          "comments.postdate AS cDate, " +
-          "comments.userid AS cAuthor, " +
-          " topics.resolved as resolved, urlname, sections.name, sections.id as section " +
-          "FROM sections, groups, topics, comments, comments AS parents " +
-          "WHERE sections.id=groups.section AND groups.id=topics.groupid " +
-          "AND comments.topic=topics.id AND parents.userid = ? " +
-          " AND comments.replyto = parents.id AND parents.postdate>CURRENT_TIMESTAMP-'6 month'::interval " +
-          "AND NOT comments.deleted AND NOT comments.topic_deleted " +
-          "AND  comments.userid NOT IN (select ignored from ignore_list where userid=?) " +
-          "AND NOT comments.userid=parents.userid "+
-          "ORDER BY cDate DESC LIMIT " + topics +
+          " comments.postdate AS cDate, " +
+          " comments.userid AS cAuthor, " +
+          " msgbase.message AS cMessage, bbcode, " +
+          " urlname, sections.id as section " +
+          " FROM sections INNER JOIN groups ON (sections.id = groups.section) " +
+          " INNER JOIN topics ON (groups.id=topics.groupid) " +
+          " INNER JOIN comments ON (comments.topic=topics.id) " +
+          " INNER JOIN user_events ON (comment_id=comments.id)" +
+          " INNER JOIN msgbase ON (msgbase.id = comments.id)" +
+          " WHERE user_events.userid = ? " +
+          " AND NOT comments.deleted AND NOT comments.topic_deleted" +
+          " AND comments.userid NOT IN (select ignored from ignore_list where userid=?)" +
+          " ORDER BY event_date DESC LIMIT " + topics +
           " OFFSET " + offset;
-
-        if (feedRequested) {
-          sql = "SELECT topics.title as subj, sections.name, groups.title as gtitle, lastmod, topics.userid, topics.id as msgid, topics.deleted, topics.stat1, topics.stat3, topics.stat4, topics.sticky, " +
-            " comments.id AS cid, " +
-            " comments.postdate AS cDate, " +
-            " comments.userid AS cAuthor, " +
-            " msgbase.message AS cMessage, bbcode, " +
-            " topics.resolved as resolved, urlname, sections.name, sections.id as section " +
-            " FROM sections INNER JOIN groups ON (sections.id = groups.section) " +
-            " INNER JOIN topics ON (groups.id=topics.groupid) " +
-            " INNER JOIN comments ON (comments.topic=topics.id) " +
-            " INNER JOIN comments AS parents ON (parents.id=comments.replyto)" +
-            " INNER JOIN msgbase ON (msgbase.id = comments.id)" +
-            " WHERE  parents.userid = ? " +
-            " AND NOT comments.deleted  AND NOT comments.topic_deleted AND parents.postdate>CURRENT_TIMESTAMP-'6 month'::interval" +
-            " AND comments.userid NOT IN (select ignored from ignore_list where userid=?) " +
-            "AND NOT comments.userid=parents.userid "+
-            " ORDER BY cDate DESC LIMIT " + topics +
-            " OFFSET " + offset;
-        }
 
         PreparedStatement pst = db.prepareStatement(
           sql
@@ -168,7 +152,7 @@ public class ShowRepliesController {
     return result;
   }
 
-  public static class MyTopicsListItem extends TopicsListItem implements Serializable {
+  public static class MyTopicsListItem implements Serializable {
     private final int cid;
     private final int cAuthor;
     private final Timestamp cDate;
@@ -179,9 +163,20 @@ public class ShowRepliesController {
     private final String sectionTitle;
     private final int sectionId;
     private static final long serialVersionUID = -8433869244309809050L;
+    private final String subj;
+    private final Timestamp lastmod;
+    private final int msgid;
 
     public MyTopicsListItem(Connection db, ResultSet rs, int messages, boolean readMessage) throws SQLException, UserNotFoundException {
-      super(rs, messages);
+      subj = StringUtil.makeTitle(rs.getString("subj"));
+
+      Timestamp lastmod = rs.getTimestamp("lastmod");
+      if (lastmod==null) {
+        this.lastmod = new Timestamp(0);
+      } else {
+        this.lastmod = lastmod;
+      }
+
       cid = rs.getInt("cid");
       cAuthor = rs.getInt("cAuthor");
       cDate = rs.getTimestamp("cDate");
@@ -189,6 +184,7 @@ public class ShowRepliesController {
       groupUrlName = rs.getString("urlname");
       sectionTitle = rs.getString("name");
       sectionId = rs.getInt("section");
+      msgid = rs.getInt("msgid");
 
       if (readMessage) {
         String text = rs.getString("cMessage");
@@ -239,6 +235,18 @@ public class ShowRepliesController {
 
     public String getSectionUrl() {
       return Section.getSectionLink(sectionId);
+    }
+
+    public String getSubj() {
+      return subj;
+    }
+
+    public Timestamp getLastmod() {
+      return lastmod;
+    }
+
+    public int getMsgid() {
+      return msgid;
     }
   }
 }
