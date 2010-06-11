@@ -245,11 +245,15 @@ public class MessageController {
     boolean rss = request.getParameter("output")!=null && "rss".equals(request.getParameter("output"));
 
     if (showDeleted && !"POST".equals(request.getMethod())) {
-      return new ModelAndView(new RedirectView("view-message.jsp?msgid=" + message.getId()));
+      return new ModelAndView(new RedirectView(message.getLink()));
+    }
+
+    if (page!=null && page==-1 && !tmpl.isSessionAuthorized()) {
+      return new ModelAndView(new RedirectView(message.getLink()));
     }
 
     if (showDeleted) {
-      if (!Template.isSessionAuthorized(request.getSession())) {
+      if (!tmpl.isSessionAuthorized()) {
         throw new BadInputException("Вы уже вышли из системы");
       }
     }
