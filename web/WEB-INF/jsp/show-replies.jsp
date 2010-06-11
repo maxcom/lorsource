@@ -74,7 +74,7 @@
       </div>
 
 </td></tr>
-<tr><th>Раздел</th><th>Группа</th><th>Заглавие темы</th><th>Автор</th><th>Дата</th></tr>
+<tr><th>Раздел</th><th>Группа</th><th>Заголовок</th><th>Комментарий</th></tr>
 <tbody>
 
 <c:forEach var="topic" items="${topicsList}">
@@ -82,8 +82,7 @@
   <td><a href="${topic.sectionUrl}">${topic.sectionTitle}</a></td>
   <td><a href="${topic.groupUrl}">${topic.groupTitle}</a></td>
   <td><a href="jump-message.jsp?msgid=${topic.msgid}&amp;cid=${topic.cid}">${topic.subj}</a> </td>
-  <td><lor:user db="<%= db %>" id="${topic.commentAuthor}" decorate="true"/></td>
-  <td><lor:dateinterval date="${topic.commentDate}"/></td>
+  <td><lor:dateinterval date="${topic.commentDate}"/> (<lor:user db="<%= db %>" id="${topic.commentAuthor}" decorate="true"/>)</td>
 </tr>
 </c:forEach>
 
