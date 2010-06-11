@@ -30,7 +30,7 @@
       db = LorDataSource.getConnection();
 %>
 <c:set var="title">
-  Последние ответы на комментарии пользователя ${nick}
+  Уведомления пользователя ${nick}
 </c:set>
 <title>${title}</title>
 <link rel="alternate" title="RSS" href="show-replies.jsp?output=rss&amp;nick=${nick}" type="application/rss+xml"/>
@@ -74,14 +74,33 @@
       </div>
 
 </td></tr>
-<tr><th>Раздел</th><th>Группа</th><th>Заголовок</th><th>Комментарий</th></tr>
+<tr><th></th><th>Группа</th><th>Заголовок</th><th>Комментарий</th><th></th></tr>
 <tbody>
 
 <c:forEach var="topic" items="${topicsList}">
 <tr>
-  <td><a href="${topic.sectionUrl}">${topic.sectionTitle}</a></td>
+  <td align="center">
+    <c:choose>
+      <c:when test="${topic.type == 'DEL'}">
+        <img src="/img/del.png" border="0" alt="[X]" title="Сообщение удалено" width="15" height="15">
+      </c:when>
+      <c:when test="${topic.type == 'REPLY'}">
+        <img src="/img/mail_reply.png" border="0" title="Ответ" alt="[R]" width="16" height="16">
+      </c:when>
+    </c:choose>
+  </td>
   <td><a href="${topic.groupUrl}">${topic.groupTitle}</a></td>
-  <td><a href="jump-message.jsp?msgid=${topic.msgid}&amp;cid=${topic.cid}">${topic.subj}</a> </td>
+  <td>
+    <c:if test="${topic.type != 'DEL'}">
+      <a href="jump-message.jsp?msgid=${topic.msgid}&amp;cid=${topic.cid}">${topic.subj}</a>
+    </c:if>
+
+    <c:if test="${topic.type == 'DEL'}">
+      <a href="view-message.jsp?msgid=${topic.msgid}">${topic.subj}</a>
+      <br>
+      <c:out value="${topic.eventMessage}" escapeXml="true"/>
+    </c:if>
+  </td>
   <td><lor:dateinterval date="${topic.commentDate}"/> (<lor:user db="<%= db %>" id="${topic.commentAuthor}" decorate="true"/>)</td>
 </tr>
 </c:forEach>

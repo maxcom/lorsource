@@ -242,7 +242,7 @@
   </li>
 <c:if test="${moderatorOrCurrentUser}">
   <li>
-    <a href="show-replies.jsp?nick=${user.nick}">Ответы на комментарии</a>
+    <a href="show-replies.jsp?nick=${user.nick}">Уведомления</a>
   </li>
 </c:if>
 </ul>

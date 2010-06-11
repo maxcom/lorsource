@@ -23,6 +23,7 @@ import java.util.Date;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpServletRequest;
 import com.danga.MemCached.MemCachedClient;
 import org.javabb.bbcode.BBCodeProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +42,7 @@ public class ShowRepliesController {
 
   @RequestMapping("/show-replies.jsp")
   public ModelAndView showReplies(
-    ServletRequest request,
+    HttpServletRequest request,
     HttpServletResponse response,
     @RequestParam("nick") String nick,
     @RequestParam(value = "offset", defaultValue = "0") int offset
@@ -97,6 +98,14 @@ public class ShowRepliesController {
 
         list = new ArrayList<MyTopicsListItem>();
 
+        boolean showPrivate = tmpl.isModeratorSession();
+
+        User currentUser = User.getCurrentUser(db, request.getSession());
+
+        if (currentUser!=null && currentUser.getId() == user.getId()) {
+          showPrivate = true;
+        }
+
         String sql = "SELECT " +
           " topics.title as subj, sections.name, groups.title as gtitle, " +
           " lastmod, topics.id as msgid, " +
@@ -104,15 +113,16 @@ public class ShowRepliesController {
           " comments.postdate AS cDate, " +
           " comments.userid AS cAuthor, " +
           " msgbase.message AS cMessage, bbcode, " +
-          " urlname, sections.id as section " +
+          " urlname, sections.id as section, comments.deleted," +
+          " type, user_events.message as ev_msg" +
           " FROM sections INNER JOIN groups ON (sections.id = groups.section) " +
           " INNER JOIN topics ON (groups.id=topics.groupid) " +
           " INNER JOIN comments ON (comments.topic=topics.id) " +
           " INNER JOIN user_events ON (comment_id=comments.id)" +
           " INNER JOIN msgbase ON (msgbase.id = comments.id)" +
           " WHERE user_events.userid = ? " +
-          " AND NOT comments.deleted AND NOT comments.topic_deleted" +
-          " AND comments.userid NOT IN (select ignored from ignore_list where userid=?)" +
+          (showPrivate?"":" AND NOT private ")+
+          " AND NOT comments.topic_deleted" +
           " ORDER BY event_date DESC LIMIT " + topics +
           " OFFSET " + offset;
 
@@ -121,7 +131,6 @@ public class ShowRepliesController {
         );
 
         pst.setInt(1, user.getId());
-        pst.setInt(2, user.getId());
         ResultSet rs = pst.executeQuery();
 
         while (rs.next()) {
@@ -152,6 +161,10 @@ public class ShowRepliesController {
     return result;
   }
 
+  public enum EventType {
+    REPLY, DEL, WATCH, OTHER
+  }
+
   public static class MyTopicsListItem implements Serializable {
     private final int cid;
     private final int cAuthor;
@@ -166,6 +179,8 @@ public class ShowRepliesController {
     private final String subj;
     private final Timestamp lastmod;
     private final int msgid;
+    private final EventType type;
+    private final String eventMessage;
 
     public MyTopicsListItem(Connection db, ResultSet rs, int messages, boolean readMessage) throws SQLException, UserNotFoundException {
       subj = StringUtil.makeTitle(rs.getString("subj"));
@@ -185,6 +200,8 @@ public class ShowRepliesController {
       sectionTitle = rs.getString("name");
       sectionId = rs.getInt("section");
       msgid = rs.getInt("msgid");
+      type = EventType.valueOf(rs.getString("type"));
+      eventMessage = rs.getString("ev_msg");
 
       if (readMessage) {
         String text = rs.getString("cMessage");
@@ -247,6 +264,14 @@ public class ShowRepliesController {
 
     public int getMsgid() {
       return msgid;
+    }
+
+    public EventType getType() {
+      return type;
+    }
+
+    public String getEventMessage() {
+      return eventMessage;
     }
   }
 }
