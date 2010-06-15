@@ -50,10 +50,6 @@
 
 <h1 class="optional">${title}</h1>
 
-<div class=forum>
-<table width="100%" class="message-table">
-<thead>
-<tr><td colspan=5>
 <%
   boolean firstPage = (Boolean) request.getAttribute("firstPage");
   int offset = (Integer) request.getAttribute("offset");
@@ -72,9 +68,12 @@
   	out.print("<a rel=next rev=prev href=\"show-replies.jsp?nick=" + nick + "&amp;offset=" + (offset + topics) + "\">вперед →</a>");
 %>
       </div>
+<p style="clear: both;"> </p>
 
-</td></tr>
-<tr><th></th><th>Группа</th><th>Заголовок</th><th>Комментарий</th><th></th></tr>
+<div class=forum>
+<table width="100%" class="message-table">
+<thead>
+<tr><th></th><th>Группа</th><th>Заголовок</th><th>Комментарий</th></tr>
 <tbody>
 
 <c:forEach var="topic" items="${topicsList}">
