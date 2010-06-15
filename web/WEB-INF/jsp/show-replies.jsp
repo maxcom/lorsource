@@ -18,6 +18,9 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%--@elvariable id="topicsList" type="java.util.List<ru.org.linux.spring.ShowRepliesController.MyTopicsListItem>"--%>
+<%--@elvariable id="firstPage" type="Boolean"--%>
+<%--@elvariable id="nick" type="String"--%>
+<%--@elvariable id="hasMore" type="String"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
@@ -51,23 +54,21 @@
 <h1 class="optional">${title}</h1>
 
 <%
-  boolean firstPage = (Boolean) request.getAttribute("firstPage");
   int offset = (Integer) request.getAttribute("offset");
   int topics = (Integer) request.getAttribute("topics");
 %>
-<div style="float: left"><%
-  if (firstPage || (offset - topics)<0) {
-	out.print("");
-  } else {
-	out.print("<a rel=prev rev=next href=\"show-replies.jsp?nick=" + nick + "&amp;offset=" + (offset - topics) + "\">← назад</a>");
-  }
-%>
+<div style="float: left">
+<c:if test="${not firstPage}">
+  <a rel=prev rev=next href="show-replies.jsp?nick=${nick}&amp;offset=<%= offset - topics %>">← назад</a>
+</c:if>
 </div>
-    <div style="float: right">
-<%
-  	out.print("<a rel=next rev=prev href=\"show-replies.jsp?nick=" + nick + "&amp;offset=" + (offset + topics) + "\">вперед →</a>");
-%>
-      </div>
+
+<div style="float: right">
+<c:if test="${hasMore}">
+  <a rel=next rev=prev href="show-replies.jsp?nick=${nick}&amp;offset=<%= offset + topics %>">вперед →</a>
+</c:if>
+</div>
+
 <p style="clear: both;"> </p>
 
 <div class=forum>
@@ -105,25 +106,21 @@
 </c:forEach>
 
 </tbody>
-<tfoot>
-  <tr><td colspan=5><p>
-<div style="float: left"><%
-  if (firstPage || (offset - topics)<0) {
-	out.print("");
-  } else {
-	out.print("<a rel=prev rev=next href=\"show-replies.jsp?nick=" + nick + "&amp;offset=" + (offset - topics) + "\">← назад</a>");
-  }
-%>
-</div>
-    <div style="float: right">
-<%
-  	out.print("<a rel=next rev=prev href=\"show-replies.jsp?nick=" + nick + "&amp;offset=" + (offset + topics) + "\">вперед →</a>");
-%>
-      </div>
-  </td></tr>
-</tfoot>
 </table>
 </div>
+<p></p>
+<div style="float: left">
+<c:if test="${not firstPage}">
+  <a rel=prev rev=next href="show-replies.jsp?nick=${nick}&amp;offset=<%= offset - topics %>">← назад</a>
+</c:if>
+</div>
+
+<div style="float: right">
+<c:if test="${hasMore}">
+  <a rel=next rev=prev href="show-replies.jsp?nick=${nick}&amp;offset=<%= offset + topics %>">вперед →</a>
+</c:if>
+</div>
+
 
 <%
   } finally {

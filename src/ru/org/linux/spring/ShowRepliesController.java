@@ -58,7 +58,7 @@ public class ShowRepliesController {
       offset = 0;
     }
 
-    boolean firstPage = !(offset > 0);
+    boolean firstPage = offset == 0;
     int topics = tmpl.getProf().getInt("topics");
     if (feedRequested) {
       topics = 50;
@@ -135,6 +135,7 @@ public class ShowRepliesController {
     }
 
     params.put("topicsList", list);
+    params.put("hasMore", list.size()==topics);
 
     ModelAndView result = new ModelAndView("show-replies", params);
 
