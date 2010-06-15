@@ -120,7 +120,7 @@ public class NewsViewer {
         sort = "ORDER BY postdate DESC";
         break;
       case POSTMODERATED_ONLY:
-        where.append(" NOT sections.moderate");
+        where.append(" AND NOT sections.moderate");
         sort = "ORDER BY postdate DESC";
         break;
     }
