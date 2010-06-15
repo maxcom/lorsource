@@ -177,7 +177,7 @@ public class NewsViewer {
     ResultSet res = st.executeQuery(
       "SELECT " +
           "postdate, topics.id as msgid, userid, topics.title, " +
-          "topics.groupid as guid, topics.url, topics.linktext, user_agents.name as useragent, " +
+          "topics.groupid as guid, topics.url, topics.linktext, NULL as useragent, " +
           "groups.title as gtitle, urlname, vote, havelink, section, topics.sticky, topics.postip, " +
           "postdate<(CURRENT_TIMESTAMP-sections.expire) as expired, deleted, lastmod, commitby, " +
           "commitdate, topics.stat1, postscore, topics.moderate, message, notop,bbcode, " +
@@ -186,7 +186,6 @@ public class NewsViewer {
           "INNER JOIN groups ON (groups.id=topics.groupid) " +
           "INNER JOIN sections ON (sections.id=groups.section) " +
           "INNER JOIN msgbase ON (msgbase.id=topics.id) " +
-          "LEFT JOIN user_agents ON (user_agents.id=topics.ua_id) " +
 
 //        "SELECT topics.title as subj, topics.lastmod, topics.stat1, postdate, nick, image, " +
 //            "groups.title as gtitle, topics.id as msgid, groups.id as guid, " +
