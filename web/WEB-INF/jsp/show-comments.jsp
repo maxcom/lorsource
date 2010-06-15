@@ -56,12 +56,10 @@
 <div class=forum>
 <table width="100%" class="message-table">
 <thead>
-<tr><td colspan=5>
+<tr><th colspan=5>
 <div style="float: left">
 <%
-  if (firstPage || (offset - topics)<0) {
-	out.print("");
-  } else {
+  if (!firstPage) {
 	out.print("<a rel=prev rev=next href=\"show-comments.jsp?nick=" + nick + "&amp;offset=" + (offset - topics) + "\">← назад</a>");
   }%>
 </div>
@@ -74,7 +72,7 @@
   }
 %>
 </div>
-</td></tr>
+</th></tr>
 <tr><th>Раздел</th><th>Группа</th><th>Заглавие темы</th><th>Дата</th></tr>
 <tbody>
 <%
@@ -87,9 +85,7 @@
   <tr><td colspan=5><p>
 <div style="float: left">
 <%
-  if (firstPage || (offset - topics)<0) {
-	out.print("");
-  } else {
+  if (!firstPage) {
 	out.print("<a rel=prev rev=next href=\"show-comments.jsp?nick=" + nick + "&amp;offset=" + (offset - topics) + "\">← назад</a>");
   }
 %>
