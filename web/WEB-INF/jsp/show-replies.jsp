@@ -33,8 +33,8 @@
   Уведомления пользователя ${nick}
 </c:set>
 <title>${title}</title>
-<link rel="alternate" title="RSS" href="show-replies.jsp?output=rss&amp;nick=${nick}" type="application/rss+xml"/>
-<link rel="alternate" title="Atom" href="show-replies.jsp?output=atom&amp;nick=${nick}" type="application/atom+xml"/>
+<link rel="alternate" title="RSS" href="show-replies.jsp?output=rss&amp;nick=${nick}" type="application/rss+xml">
+<link rel="alternate" title="Atom" href="show-replies.jsp?output=atom&amp;nick=${nick}" type="application/atom+xml">
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 <table class=nav>
 <tr>
