@@ -16,15 +16,14 @@
 package ru.org.linux.spring;
 
 import java.io.Serializable;
-import java.net.URLEncoder;
 import java.sql.*;
-import java.util.*;
-import java.util.Date;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import javax.servlet.ServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletRequest;
-import com.danga.MemCached.MemCachedClient;
+import javax.servlet.http.HttpServletResponse;
 import org.javabb.bbcode.BBCodeProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -65,7 +64,7 @@ public class ShowRepliesController {
       topics = 50;
     }
 
-    if (topics>200) {
+    if (topics > 200) {
       topics = 200;
     }
 
@@ -78,35 +77,28 @@ public class ShowRepliesController {
     int delay = firstPage ? 90 : 60 * 60;
     response.setDateHeader("Expires", time + 1000 * delay);
 
-    MemCachedClient mcc = MemCachedSettings.getClient();
-    String cacheKey = MemCachedSettings.getId(
-      "show-replies?id=" + URLEncoder.encode(nick) + "&offset=" + offset
-    );
-    if (feedRequested) {
-      cacheKey = cacheKey + "&output=true";
-    }
-    List<MyTopicsListItem> list = (List<MyTopicsListItem>) mcc.get(cacheKey);
+    List<MyTopicsListItem> list;
     int messages = tmpl.getProf().getInt("messages");
 
-    if (list == null) {
-      Connection db = null;
+    Connection db = null;
 
-      try {
-        db = LorDataSource.getConnection();
+    try {
+      db = LorDataSource.getConnection();
 
-        User user = User.getUser(db, nick);
+      User user = User.getUser(db, nick);
 
-        list = new ArrayList<MyTopicsListItem>();
+      list = new ArrayList<MyTopicsListItem>();
 
-        boolean showPrivate = tmpl.isModeratorSession();
+      boolean showPrivate = tmpl.isModeratorSession();
 
-        User currentUser = User.getCurrentUser(db, request.getSession());
+      User currentUser = User.getCurrentUser(db, request.getSession());
 
-        if (currentUser!=null && currentUser.getId() == user.getId()) {
-          showPrivate = true;
-        }
+      if (currentUser != null && currentUser.getId() == user.getId()) {
+        showPrivate = true;
+      }
 
-        String sql = "SELECT " +
+      PreparedStatement pst = db.prepareStatement(
+        "SELECT " +
           " topics.title as subj, sections.name, groups.title as gtitle, " +
           " lastmod, topics.id as msgid, " +
           " comments.id AS cid, " +
@@ -121,29 +113,24 @@ public class ShowRepliesController {
           " INNER JOIN user_events ON (comment_id=comments.id)" +
           " INNER JOIN msgbase ON (msgbase.id = comments.id)" +
           " WHERE user_events.userid = ? " +
-          (showPrivate?"":" AND NOT private ")+
+          (showPrivate ? "" : " AND NOT private ") +
           " AND NOT comments.topic_deleted" +
           " ORDER BY event_date DESC LIMIT " + topics +
-          " OFFSET " + offset;
+          " OFFSET " + offset
+      );
 
-        PreparedStatement pst = db.prepareStatement(
-          sql
-        );
+      pst.setInt(1, user.getId());
+      ResultSet rs = pst.executeQuery();
 
-        pst.setInt(1, user.getId());
-        ResultSet rs = pst.executeQuery();
+      while (rs.next()) {
+        list.add(new MyTopicsListItem(db, rs, messages, feedRequested));
+      }
 
-        while (rs.next()) {
-          list.add(new MyTopicsListItem(db, rs, messages, feedRequested));
-        }
+      rs.close();
 
-        rs.close();
-
-        mcc.add(cacheKey, list, new Date(time + 1000L * delay));
-      } finally {
-        if (db != null) {
-          db.close();
-        }
+    } finally {
+      if (db != null) {
+        db.close();
       }
     }
 
@@ -186,7 +173,7 @@ public class ShowRepliesController {
       subj = StringUtil.makeTitle(rs.getString("subj"));
 
       Timestamp lastmod = rs.getTimestamp("lastmod");
-      if (lastmod==null) {
+      if (lastmod == null) {
         this.lastmod = new Timestamp(0);
       } else {
         this.lastmod = lastmod;
@@ -210,7 +197,7 @@ public class ShowRepliesController {
         } else {
           messageText = text;
         }
-        
+
         nick = User.getUserCached(db, cAuthor).getNick();
       } else {
         messageText = null;
@@ -247,7 +234,7 @@ public class ShowRepliesController {
     }
 
     public String getGroupUrl() {
-      return Section.getSectionLink(sectionId)+groupUrlName+"/";
+      return Section.getSectionLink(sectionId) + groupUrlName + "/";
     }
 
     public String getSectionUrl() {
