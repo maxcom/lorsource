@@ -75,7 +75,9 @@
 
 <c:if test="${section.forum}">
 <h1>Настройки</h1>
+<c:if test="${not template.sessionAuthorized}">
 Если вы еще не зарегистрировались - вам <a href="register.jsp">сюда</a>.
+</c:if>
 <ul>
 <li><a href="addphoto.jsp">Добавить фотографию</a>
 <li><a href="register.jsp?mode=change">Изменение регистрации</a>
