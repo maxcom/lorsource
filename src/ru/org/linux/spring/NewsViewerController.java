@@ -187,6 +187,8 @@ public class NewsViewerController {
         newsViewer.addSection(sectionid);
         if (section.isPremoderated()) {
           newsViewer.setCommitMode(NewsViewer.CommitMode.COMMITED_ONLY);
+        } else {
+          newsViewer.setCommitMode(NewsViewer.CommitMode.POSTMODERATED_ONLY);          
         }
       }
 

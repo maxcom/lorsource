@@ -37,6 +37,7 @@ public class NewsViewer {
   public enum CommitMode {
     COMMITED_ONLY,
     UNCOMMITED_ONLY,
+    POSTMODERATED_ONLY,
     COMMITED_AND_POSTMODERATED,
     ALL
   }
@@ -116,6 +117,10 @@ public class NewsViewer {
         break;
       case UNCOMMITED_ONLY:
         where.append(" AND (NOT topics.moderate) AND sections.moderate");
+        sort = "ORDER BY postdate DESC";
+        break;
+      case POSTMODERATED_ONLY:
+        where.append(" NOT sections.moderate");
         sort = "ORDER BY postdate DESC";
         break;
     }
