@@ -26,10 +26,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
-import ru.org.linux.site.LorDataSource;
-import ru.org.linux.site.MemCachedSettings;
-import ru.org.linux.site.MessageTable;
-import ru.org.linux.site.User;
+import ru.org.linux.site.*;
 import ru.org.linux.util.ServletParameterException;
 
 @Controller
@@ -72,6 +69,10 @@ public class ShowCommentsController {
       User user = User.getUser(db, nick);
 
       mv.getModel().put("user", user);
+
+      if (user.isAnonymous()) {
+        throw new UserErrorException("Функция только для зарегистрированных пользователей");
+      }
 
       String res = (String) mcc.get(showCommentsId);
 
