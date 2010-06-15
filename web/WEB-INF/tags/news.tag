@@ -220,7 +220,7 @@
         boolean dots = false;
 
         for (int i = 1; i < pages; i++) {
-          if (i>PG_COUNT && i<pages-PG_COUNT) {
+          if (pages>PG_COUNT*3 && (i>PG_COUNT && i<pages-PG_COUNT)) {
             if (!dots) {
               out.append(" ...");
               dots = true;
