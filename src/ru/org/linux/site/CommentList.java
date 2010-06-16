@@ -22,10 +22,10 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.*;
 
-import com.danga.MemCached.MemCachedClient;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import ru.org.linux.spring.commons.CacheProvider;
 import ru.org.linux.util.UtilException;
 
 public class CommentList implements Serializable {
@@ -119,17 +119,17 @@ public class CommentList implements Serializable {
   }
 
   public static CommentList getCommentList(Connection db, Message topic, boolean showDeleted) throws SQLException {
-    MemCachedClient mcc = MemCachedSettings.getClient();
+    CacheProvider mcc = MemCachedSettings.getCache();
 
     String shortCacheId = "commentList?msgid="+topic.getMessageId()+"&showDeleted="+showDeleted;
 
     String cacheId = MemCachedSettings.getId(shortCacheId);
 
-    CommentList res = (CommentList) mcc.get(cacheId);
+    CommentList res = (CommentList) mcc.getFromCache(cacheId);
 
     if (res==null || res.lastmod !=topic.getLastModified().getTime()) {
       res = new CommentList(db, topic.getMessageId(), topic.getLastModified().getTime(), showDeleted);
-      mcc.set(cacheId, res);
+      mcc.storeToCache(cacheId, res);
     }
 
     return res;

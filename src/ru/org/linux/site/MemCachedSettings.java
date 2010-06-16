@@ -19,9 +19,13 @@ import com.danga.MemCached.Logger;
 import com.danga.MemCached.MemCachedClient;
 import com.danga.MemCached.SockIOPool;
 
+import ru.org.linux.spring.commons.CacheProvider;
+import ru.org.linux.spring.commons.MemCachedProvider;
+
 public class MemCachedSettings {
   private static final MemCachedSettings me = new MemCachedSettings();
   private final MemCachedClient mc = new MemCachedClient();
+  private final MemCachedProvider provider = new MemCachedProvider();
 
   private static String mainUrl = "uninitialized/";
 
@@ -39,8 +43,12 @@ public class MemCachedSettings {
     mc.setSanitizeKeys(false);
   }
 
-  public static MemCachedClient getClient() {
+  public static MemCachedClient getMemCachedClient() {
     return me.mc;
+  }
+
+  public static CacheProvider getCache() {
+    return me.provider;
   }
 
   public static String getId(String suffix) {

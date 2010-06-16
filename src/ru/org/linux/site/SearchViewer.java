@@ -18,7 +18,6 @@ package ru.org.linux.site;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.sql.*;
-import java.util.Date;
 
 import org.javabb.bbcode.BBCodeProcessor;
 
@@ -183,8 +182,8 @@ public class SearchViewer {
     }
   }
 
-  public static Date getExpire() {
-    return new java.util.Date(new java.util.Date().getTime() + 15*60*1000);
+  public static int getExpire() {
+    return 15*60*1000;
   }
 
   public void setInclude(int include) {

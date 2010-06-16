@@ -19,7 +19,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Date;
 
-import com.danga.MemCached.MemCachedClient;
+import ru.org.linux.spring.commons.CacheProvider;
 
 public class ViewerCacher {
   private boolean fromCache;
@@ -30,7 +30,7 @@ public class ViewerCacher {
   }
 
   public String get(SearchViewer viewer, boolean nocache) throws SQLException, UserErrorException {
-    MemCachedClient mcc = MemCachedSettings.getClient();
+    CacheProvider mcc = MemCachedSettings.getCache();
 
     String cacheId = MemCachedSettings.getId(viewer.getVariantID());
 
@@ -39,7 +39,7 @@ public class ViewerCacher {
     if (!nocache) {
       time = 0;
       long current = new Date().getTime();
-      res = (String) mcc.get(cacheId);
+      res = (String) mcc.getFromCache(cacheId);
       time = new Date().getTime() - current;
       fromCache = true;
     }
@@ -58,7 +58,7 @@ public class ViewerCacher {
         }
       }
 
-      mcc.add(cacheId, res, viewer.getExpire());
+      mcc.storeToCache(cacheId, res, viewer.getExpire());
     }
 
     return res;

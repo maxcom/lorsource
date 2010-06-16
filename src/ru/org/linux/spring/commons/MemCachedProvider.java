@@ -23,18 +23,18 @@ public class MemCachedProvider implements CacheProvider {
   @Override
   public Object getFromCache(String key) {
     String s = MemCachedSettings.getId(key);
-    return MemCachedSettings.getClient().get(s);
+    return MemCachedSettings.getMemCachedClient().get(s);
   }
 
   @Override
   public <T> boolean storeToCache(String key, T value, int expire) {
     String s = MemCachedSettings.getId(key);
-    return MemCachedSettings.getClient().set(s, value, expire);
+    return MemCachedSettings.getMemCachedClient().set(s, value, expire);
   }
 
   @Override
   public <T> boolean storeToCache(String key, T value) {
     String s = MemCachedSettings.getId(key);
-    return MemCachedSettings.getClient().set(s, value, 0);
+    return MemCachedSettings.getMemCachedClient().set(s, value, 0);
   }
 }

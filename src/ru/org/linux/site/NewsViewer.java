@@ -20,13 +20,15 @@ import java.io.IOException;
 import java.io.Writer;
 import java.net.URLEncoder;
 import java.sql.*;
-import java.util.*;
-import java.util.Date;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
-import com.danga.MemCached.MemCachedClient;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import ru.org.linux.spring.commons.CacheProvider;
 import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.ImageInfo;
 import ru.org.linux.util.UtilException;
@@ -82,15 +84,15 @@ public class NewsViewer {
       return getMessages(db);
     }
 
-    MemCachedClient mcc = MemCachedSettings.getClient();
+    CacheProvider mcc = MemCachedSettings.getCache();
 
     String cacheId = MemCachedSettings.getId(getVariantID());
 
-    List<Message> res = (List<Message>) mcc.get(cacheId);
+    List<Message> res = (List<Message>) mcc.getFromCache(cacheId);
 
     if (res == null) {
       res = getMessages(db);
-      mcc.add(cacheId, res, new Date(System.currentTimeMillis()+getCacheAge()));
+      mcc.storeToCache(cacheId, res, getCacheAge());
     }
 
     return res;
@@ -268,7 +270,7 @@ public class NewsViewer {
     return id.toString();
   }
 
-  public long getCacheAge() {
+  public int getCacheAge() {
     if (limit==null || limit.length()==0) {
       return 10*60*1000;
     }

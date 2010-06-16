@@ -24,9 +24,9 @@ import java.util.Date;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import com.danga.MemCached.MemCachedClient;
 import org.apache.commons.codec.binary.Base64;
 
+import ru.org.linux.spring.commons.CacheProvider;
 import ru.org.linux.util.StringUtil;
 
 public class User implements Serializable {
@@ -414,7 +414,7 @@ public class User implements Serializable {
   }
 
   public static User getUser(Connection con, String name) throws SQLException, UserNotFoundException {
-    MemCachedClient mcc = MemCachedSettings.getClient();
+    CacheProvider mcc = MemCachedSettings.getCache();
 
     User user = new User(con, name);
 
@@ -422,7 +422,7 @@ public class User implements Serializable {
 
     String cacheId = MemCachedSettings.getId(shortCacheId);
 
-    mcc.set(cacheId, user, new Date(new Date().getTime() + CACHE_MILLIS));
+    mcc.storeToCache(cacheId, user, CACHE_MILLIS);
 
     return user;
   }
@@ -436,7 +436,7 @@ public class User implements Serializable {
   }
 
   private static User getUser(Connection db, int id, boolean useCache) throws SQLException, UserNotFoundException {
-    MemCachedClient mcc = MemCachedSettings.getClient();
+    CacheProvider mcc = MemCachedSettings.getCache();
 
     String shortCacheId = "User?id="+id;
 
@@ -445,12 +445,12 @@ public class User implements Serializable {
     User res = null;
 
     if (useCache) {
-      res = (User) mcc.get(cacheId);
+      res = (User) mcc.getFromCache(cacheId);
     }
 
     if (res==null) {
       res = new User(db, id);
-      mcc.set(cacheId, res, new Date(new Date().getTime() + CACHE_MILLIS));
+      mcc.storeToCache(cacheId, res, CACHE_MILLIS);
     }
 
     return res;
