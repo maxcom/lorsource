@@ -17,6 +17,6 @@ package ru.org.linux.spring.commons;
 
 public interface CacheProvider {
   Object getFromCache(String key);
-  <T> boolean storeToCache(String key, T value, int expire);
-  <T> boolean storeToCache(String key, T value);  
+  <T> void storeToCache(String key, T value, int expire);
+  <T> void storeToCache(String key, T value);  
 }

@@ -15,35 +15,33 @@
 
 package ru.org.linux.site;
 
-import com.danga.MemCached.Logger;
-import com.danga.MemCached.MemCachedClient;
-import com.danga.MemCached.SockIOPool;
+import java.net.InetSocketAddress;
+import java.io.IOException;
+
+import net.spy.memcached.MemcachedClient;
 
 import ru.org.linux.spring.commons.CacheProvider;
 import ru.org.linux.spring.commons.MemCachedProvider;
 
 public class MemCachedSettings {
-  private static final MemCachedSettings me = new MemCachedSettings();
-  private final MemCachedClient mc = new MemCachedClient();
+  private static final MemCachedSettings me;static {
+    try {
+      me = new MemCachedSettings();
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  private final MemcachedClient mc;
   private final MemCachedProvider provider = new MemCachedProvider();
 
   private static String mainUrl = "uninitialized/";
 
-  private MemCachedSettings() {
-    Logger logger = Logger.getLogger("com.danga.MemCached.MemCachedClient");
-    logger.setLevel(Logger.LEVEL_WARN);
-
-    SockIOPool pool = SockIOPool.getInstance();
-    pool.setServers(new String[] { "localhost:11211" });
-
-    pool.setNagle(false);
-
-    pool.initialize();
-
-    mc.setSanitizeKeys(false);
+  private MemCachedSettings() throws IOException {
+    mc = new MemcachedClient(new InetSocketAddress("127.0.0.1", 11211));
   }
 
-  public static MemCachedClient getMemCachedClient() {
+  public static MemcachedClient getMemCachedClient() {
     return me.mc;
   }
 

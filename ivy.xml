@@ -36,5 +36,6 @@
         <dependency org="rome" name="rome" rev="1.0" conf="build->default"/>
         <dependency org="net.tanesha.recaptcha4j" name="recaptcha4j" rev="0.0.7" conf="build->default"/>
         <dependency org="com.yahoo.platform.yui" name="yuicompressor" rev="2.3.6" conf="compile-only->default" />
+        <dependency org="spy" name="memcached" rev="2.5" conf="build->default"/>
     </dependencies>
 </ivy-module>

@@ -17,24 +17,52 @@ package ru.org.linux.spring.commons;
 
 import java.util.Date;
 
+import net.spy.memcached.OperationTimeoutException;
+
 import ru.org.linux.site.MemCachedSettings;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 public class MemCachedProvider implements CacheProvider {
+  private final static Log logger = LogFactory.getLog(MemCachedProvider.class);
+
   @Override
   public Object getFromCache(String key) {
     String s = MemCachedSettings.getId(key);
-    return MemCachedSettings.getMemCachedClient().get(s);
+    try {
+      if (MemCachedSettings.getMemCachedClient().getAvailableServers().isEmpty()) {
+        return null;
+      }
+
+      return MemCachedSettings.getMemCachedClient().get(s);
+    } catch (IllegalStateException ex) {
+      logger.info("Memcached GET failed", ex);
+      return null;
+    } catch (OperationTimeoutException ex) {
+      logger.info("Memcached GET failed", ex);
+      return null;
+    }
   }
 
   @Override
-  public <T> boolean storeToCache(String key, T value, int expire) {
+  public <T> void storeToCache(String key, T value, int expire) {
     String s = MemCachedSettings.getId(key);
-    return MemCachedSettings.getMemCachedClient().set(s, value, expire);
+    try {
+      if (MemCachedSettings.getMemCachedClient().getAvailableServers().isEmpty()) {
+        return;
+      }
+
+      MemCachedSettings.getMemCachedClient().set(s, expire, value);
+    } catch (IllegalStateException ex) {
+      logger.info("Memcached SET failed", ex);
+    } catch (OperationTimeoutException ex) {
+      logger.info("Memcached SET failed", ex);
+    }
   }
 
   @Override
-  public <T> boolean storeToCache(String key, T value) {
-    String s = MemCachedSettings.getId(key);
-    return MemCachedSettings.getMemCachedClient().set(s, value, 0);
+  public <T> void storeToCache(String key, T value) {
+    storeToCache(key, value, 0);
   }
 }
