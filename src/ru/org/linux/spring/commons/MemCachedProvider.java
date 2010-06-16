@@ -54,6 +54,8 @@ public class MemCachedProvider implements CacheProvider {
       }
 
       MemCachedSettings.getMemCachedClient().set(s, expire, value);
+    } catch (IllegalArgumentException ex) {
+      logger.info("Memcached SET failed", ex);
     } catch (IllegalStateException ex) {
       logger.info("Memcached SET failed", ex);
     } catch (OperationTimeoutException ex) {
