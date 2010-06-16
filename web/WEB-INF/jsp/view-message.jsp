@@ -310,13 +310,13 @@
       bufInfo.append(" →");
     }
 
-    if (Template.isSessionAuthorized(session)) {
-      if (npage!=-1) {
-        bufInfo.append("&emsp;<a href=\"").append(message.getLinkPage(-1)).append(urlAdd).append("\">все").append("</a>");
-      } else {
-        bufInfo.append("&emsp;<strong>все").append("</strong>");      
-      }
-    }
+//    if (Template.isSessionAuthorized(session)) {
+//      if (npage!=-1) {
+//        bufInfo.append("&emsp;<a href=\"").append(message.getLinkPage(-1)).append(urlAdd).append("\">все").append("</a>");
+//      } else {
+//        bufInfo.append("&emsp;<strong>все").append("</strong>");
+//      }
+//    }
 
     bufInfo.append(']');
     pageInfo = bufInfo.toString();
