@@ -202,7 +202,7 @@ public class Section implements Serializable {
   }
 
   public String getArchiveLink(int year, int month) {
-    return getArchiveLink(id)+"/"+year+"/"+month+"/";
+    return getArchiveLink(id)+year+"/"+month+"/";
   }
 
   public String getArchiveLink() {
