@@ -67,7 +67,7 @@ public class TagCloudBoxletImpl extends SpringBoxlet {
 
 
   @Override
-  public Long getExpiryTime() {
+  public int getExpiryTime() {
     return super.getExpiryTime() * 10;
   }
 }

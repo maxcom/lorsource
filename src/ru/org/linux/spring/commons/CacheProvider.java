@@ -15,14 +15,8 @@
 
 package ru.org.linux.spring.commons;
 
-import java.io.Serializable;
-
-/**
- * User: rsvato
- * Date: May 6, 2009
- * Time: 4:27:50 PM
- */
 public interface CacheProvider {
   Object getFromCache(String key);
-  <T> boolean storeToCache(String key, T value, long expire);
+  <T> boolean storeToCache(String key, T value, int expire);
+  <T> boolean storeToCache(String key, T value);  
 }

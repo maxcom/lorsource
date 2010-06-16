@@ -86,7 +86,7 @@ public class PollBoxletImpl extends SpringBoxlet implements CacheableController 
   }
 
   @Override
-  public Long getExpiryTime() {
+  public int getExpiryTime() {
     return super.getExpiryTime() * 2;
   }
 }

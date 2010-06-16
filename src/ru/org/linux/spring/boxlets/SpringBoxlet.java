@@ -73,7 +73,7 @@ public abstract class SpringBoxlet extends AbstractController implements Cacheab
   }
 
   @Override
-  public Long getExpiryTime(){
+  public int getExpiryTime(){
     return DEFAULT_EXPIRE;
   }
 }

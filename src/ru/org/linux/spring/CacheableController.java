@@ -15,14 +15,9 @@
 
 package ru.org.linux.spring;
 
-/**
- * User: sreentenko
- * Date: 27.06.2009
- * Time: 1:45:02
- */
 public interface CacheableController {
-  Long DEFAULT_EXPIRE = 30000l;
+  int DEFAULT_EXPIRE = 30000;
 
   String getCacheKey();
-  Long getExpiryTime();
+  int getExpiryTime();
 }

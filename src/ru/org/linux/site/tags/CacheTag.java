@@ -33,7 +33,7 @@ import ru.org.linux.spring.commons.MemCachedProvider;
 public class CacheTag extends BodyTagSupport {
   private static final Log log = LogFactory.getLog(CacheTag.class);
   private String key;
-  private Long expire;
+  private int expire;
   private boolean foundInCache;
 
   private final CacheProvider provider = new MemCachedProvider();
@@ -47,11 +47,11 @@ public class CacheTag extends BodyTagSupport {
     this.key = key;
   }
 
-  public Long getExpire() {
+  public int getExpire() {
     return expire;
   }
 
-  public void setExpire(Long expire) {
+  public void setExpire(int expire) {
     this.expire = expire;
   }
 
