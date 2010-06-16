@@ -29,5 +29,5 @@
     <a href="${fn:escapeXml(item_url)}"><fmt:formatDate value="${item_date}" pattern="yyyy MMMM"/>
       (${item.count})</a> <br/>
   </c:forEach>
-  <br>&gt;&gt;&gt; <a href="${head_url}/archive/"> Предыдущие месяцы</a> (с октября 1998)
+  <br>&gt;&gt;&gt; <a href="${head_url}archive/"> Предыдущие месяцы</a> (с октября 1998)
 </div>
