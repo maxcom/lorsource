@@ -34,10 +34,9 @@
   String nick = user.getNick();
 
 
-      int offset = (Integer) request.getAttribute("offset");
-      int topics = (Integer) request.getAttribute("topics");
-      boolean firstPage = (Boolean) request.getAttribute("firstPage");
-      String res = (String) request.getAttribute("list");
+  int offset = (Integer) request.getAttribute("offset");
+  int topics = (Integer) request.getAttribute("topics");
+  String res = (String) request.getAttribute("list");
 %>
 <c:if test="${firstPage}">
   <title>Последние ${topics} комментариев пользователя ${user.nick}</title>
@@ -58,17 +57,14 @@
 <thead>
 <tr><th colspan=5>
 <div style="float: left">
-<%
-  if (!firstPage) {
-	out.print("<a rel=prev rev=next href=\"show-comments.jsp?nick=" + nick + "&amp;offset=" + (offset - topics) + "\">← назад</a>");
-  }%>
+<c:if test="${not firstPage}">
+  <a rel=prev rev=next href="show-comments.jsp?nick=${user.nick}&amp;offset=<%= offset - topics %>">← назад</a>
+</c:if>  
 </div>
 <div style="float: right">
     <%
   if (res!=null && !"".equals(res)) {
 	out.print("<a rel=next rev=prev href=\"show-comments.jsp?nick=" + nick + "&amp;offset=" + (offset + topics) + "\">вперед →</a>");
-  } else {
-	out.print("<a rel=next rev=prev href=\"show-comments.jsp?nick=" + nick + "&amp;offset=0\">первая →</a>");
   }
 %>
 </div>
@@ -84,18 +80,14 @@
 <tfoot>
   <tr><td colspan=5><p>
 <div style="float: left">
-<%
-  if (!firstPage) {
-	out.print("<a rel=prev rev=next href=\"show-comments.jsp?nick=" + nick + "&amp;offset=" + (offset - topics) + "\">← назад</a>");
-  }
-%>
+<c:if test="${not firstPage}">
+  <a rel=prev rev=next href="show-comments.jsp?nick=${user.nick}&amp;offset=<%= offset - topics %>">← назад</a>
+</c:if>  
 </div>
 <div style="float: right">
     <%
   if (res!=null && !"".equals(res)) {
 	out.print("<a rel=next rev=prev href=\"show-comments.jsp?nick=" + nick + "&amp;offset=" + (offset + topics) + "\">вперед →</a>");
-  } else {
-	out.print("<a rel=next rev=prev href=\"show-comments.jsp?nick=" + nick + "&amp;offset=0\">первая →</a>");    
   }
 %>
 </div>
