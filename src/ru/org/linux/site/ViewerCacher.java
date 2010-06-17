@@ -32,7 +32,7 @@ public class ViewerCacher {
   public String get(SearchViewer viewer, boolean nocache) throws SQLException, UserErrorException {
     CacheProvider mcc = MemCachedSettings.getCache();
 
-    String cacheId = MemCachedSettings.getId(viewer.getVariantID());
+    String cacheId = viewer.getVariantID();
 
     String res = null;
 

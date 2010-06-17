@@ -121,9 +121,7 @@ public class CommentList implements Serializable {
   public static CommentList getCommentList(Connection db, Message topic, boolean showDeleted) throws SQLException {
     CacheProvider mcc = MemCachedSettings.getCache();
 
-    String shortCacheId = "commentList?msgid="+topic.getMessageId()+"&showDeleted="+showDeleted;
-
-    String cacheId = MemCachedSettings.getId(shortCacheId);
+    String cacheId = "commentList?msgid="+topic.getMessageId()+"&showDeleted="+showDeleted;
 
     CommentList res = (CommentList) mcc.getFromCache(cacheId);
 

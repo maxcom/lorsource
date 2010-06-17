@@ -418,9 +418,7 @@ public class User implements Serializable {
 
     User user = new User(con, name);
 
-    String shortCacheId = "User?id="+ user.id;
-
-    String cacheId = MemCachedSettings.getId(shortCacheId);
+    String cacheId = "User?id="+ user.id;
 
     mcc.storeToCache(cacheId, user, CACHE_MILLIS);
 
@@ -438,9 +436,7 @@ public class User implements Serializable {
   private static User getUser(Connection db, int id, boolean useCache) throws SQLException, UserNotFoundException {
     CacheProvider mcc = MemCachedSettings.getCache();
 
-    String shortCacheId = "User?id="+id;
-
-    String cacheId = MemCachedSettings.getId(shortCacheId);
+    String cacheId = "User?id="+id;
 
     User res = null;
 

@@ -89,7 +89,7 @@ public class NewsViewer {
 
     CacheProvider mcc = MemCachedSettings.getCache();
 
-    String cacheId = MemCachedSettings.getId(getVariantID());
+    String cacheId = getVariantID();
 
     List<Message> res = (List<Message>) mcc.getFromCache(cacheId);
 
