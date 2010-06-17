@@ -17,6 +17,8 @@ package ru.org.linux.spring;
 
 import java.net.URLEncoder;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
@@ -197,7 +199,18 @@ public class NewsViewerController {
       }
 
       if (tag!=null) {
-        newsViewer.setTag(tag);
+        PreparedStatement pst = db.prepareStatement("SELECT id FROM tags_values WHERE value=? AND counter>0");
+        pst.setString(1,tag);
+        ResultSet rs = pst.executeQuery();
+
+        if (rs.next()) {
+          newsViewer.setTag(rs.getInt("id"));
+        } else {
+          throw new UserErrorException("Tag not found");
+        }
+
+        rs.close();
+        pst.close();
       }
 
       offset = fixOffset(offset);

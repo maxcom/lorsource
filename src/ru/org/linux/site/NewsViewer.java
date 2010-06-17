@@ -19,7 +19,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
 import java.net.URLEncoder;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -51,7 +54,7 @@ public class NewsViewer {
   private int userid = 0;
   private String datelimit = null;
   private String limit="";
-  private String tag="";
+  private int tag=0;
 
   private CommitMode commitMode = CommitMode.COMMITED_AND_POSTMODERATED;
 
@@ -160,20 +163,8 @@ public class NewsViewer {
         where.append(" AND not topics.groupid=8404 AND not topics.groupid=4068 AND groups.section=2");
     }
 
-    if (tag!=null && !"".equals(tag)) {
-      PreparedStatement pst = db.prepareStatement("SELECT id FROM tags_values WHERE value=? AND counter>0");
-      pst.setString(1,tag);
-      ResultSet rs = pst.executeQuery();
-      if (rs.next()) {
-        int tagid=rs.getInt("id");
-        if (tagid>0) {
-          where.append(" AND topics.moderate AND topics.id IN (SELECT msgid FROM tags WHERE tagid=").append(tagid).append(')');
-        }
-      } else {
-        throw new UserErrorException("Tag not found");
-      }
-      rs.close();
-      pst.close();
+    if (tag!=0) {
+        where.append(" AND topics.moderate AND topics.id IN (SELECT msgid FROM tags WHERE tagid=").append(tag).append(')');
     }
     
     ResultSet res = st.executeQuery(
@@ -215,7 +206,7 @@ public class NewsViewer {
     this.commitMode = commitMode;
   }
 
-  public void setTag(String tag) {
+  public void setTag(int tag) {
     this.tag = tag;
   }
 
@@ -237,7 +228,7 @@ public class NewsViewer {
 
   public String getVariantID()  {
     StringBuilder id = new StringBuilder("view-news?"+
-        "&tg=" + URLEncoder.encode(tag));
+        "&tg=" + tag);
 
     id.append("&cm="+commitMode);
 
