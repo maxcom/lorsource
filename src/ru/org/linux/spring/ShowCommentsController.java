@@ -15,29 +15,23 @@
 
 package ru.org.linux.spring;
 
-import java.net.URLEncoder;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.text.DateFormat;
 
 import javax.servlet.http.HttpServletResponse;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 import ru.org.linux.site.*;
-import ru.org.linux.spring.commons.CacheProvider;
 import ru.org.linux.util.ServletParameterException;
+import ru.org.linux.util.StringUtil;
 
 @Controller
 public class ShowCommentsController {
-  private CacheProvider cacheProvider;
-
-  @Autowired
-  public void setCacheProvider(CacheProvider cacheProvider) {
-    this.cacheProvider = cacheProvider;
-  }
-
   @RequestMapping("/show-comments.jsp")
   public ModelAndView showComments(
     @RequestParam String nick,
@@ -67,8 +61,6 @@ public class ShowCommentsController {
 
     Connection db = null;
 
-    String showCommentsId = MemCachedSettings.getId( "show-comments?id="+ URLEncoder.encode(nick)+"&offset="+offset);
-
     try {
       db = LorDataSource.getConnection();
 
@@ -80,19 +72,40 @@ public class ShowCommentsController {
         throw new UserErrorException("Функция только для зарегистрированных пользователей");
       }
 
-      String res = (String) cacheProvider.getFromCache(showCommentsId);
+      DateFormat dateFormat = DateFormats.createDefault();
 
-      if (res == null) {
-        res = MessageTable.showComments(db, user, offset, topics);
+      StringBuilder out = new StringBuilder();
 
-        if (firstPage) {
-          cacheProvider.storeToCache(showCommentsId, res, 90 * 1000);
-        } else {
-          cacheProvider.storeToCache(showCommentsId, res, 60 * 60 * 1000);
+      PreparedStatement pst=null;
+
+      try {
+        pst = db.prepareStatement(
+          "SELECT sections.name as ptitle, groups.title as gtitle, topics.title, " +
+            "topics.id as topicid, comments.id as msgid, comments.postdate " +
+            "FROM sections, groups, topics, comments " +
+            "WHERE sections.id=groups.section AND groups.id=topics.groupid " +
+            "AND comments.topic=topics.id " +
+            "AND comments.userid=? AND NOT comments.deleted ORDER BY postdate DESC LIMIT " + topics + " OFFSET " + offset
+        );
+
+        pst.setInt(1, user.getId());
+        ResultSet rs = pst.executeQuery();
+
+        while (rs.next()) {
+          out.append("<tr><td>").append(rs.getString("ptitle")).append("</td>");
+          out.append("<td>").append(rs.getString("gtitle")).append("</td>");
+          out.append("<td><a href=\"jump-message.jsp?msgid=").append(rs.getInt("topicid")).append("&amp;cid=").append(rs.getInt("msgid")).append("\" rev=contents>").append(StringUtil.makeTitle(rs.getString("title"))).append("</a></td>");
+          out.append("<td>").append(dateFormat.format(rs.getTimestamp("postdate"))).append("</td></tr>");
+        }
+
+        rs.close();
+      } finally {
+        if (pst != null) {
+          pst.close();
         }
       }
 
-      mv.getModel().put("list", res);
+      mv.getModel().put("list", out.toString());
 
       return mv;
     } finally {

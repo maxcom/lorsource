@@ -17,14 +17,10 @@ package ru.org.linux.site;
 
 import java.io.IOException;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.DateFormat;
 
 import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.ImageInfo;
-import ru.org.linux.util.StringUtil;
 
 public class MessageTable {
   public static final int RSS_MIN = 10;
@@ -32,43 +28,6 @@ public class MessageTable {
   public static final int RSS_DEFAULT = 20;
 
   private MessageTable() {
-  }
-
-  public static String showComments(Connection db, User user, int offset, int limit) throws SQLException {
-    DateFormat dateFormat = DateFormats.createDefault();
-
-    StringBuilder out = new StringBuilder();
-
-    PreparedStatement pst=null;
-
-    try {
-      pst = db.prepareStatement(
-        "SELECT sections.name as ptitle, groups.title as gtitle, topics.title, " +
-          "topics.id as topicid, comments.id as msgid, comments.postdate " +
-          "FROM sections, groups, topics, comments " +
-          "WHERE sections.id=groups.section AND groups.id=topics.groupid " +
-          "AND comments.topic=topics.id " +
-          "AND comments.userid=? AND NOT comments.deleted ORDER BY postdate DESC LIMIT " + limit + " OFFSET " + offset
-      );
-      
-      pst.setInt(1, user.getId());
-      ResultSet rs = pst.executeQuery();
-
-      while (rs.next()) {
-        out.append("<tr><td>").append(rs.getString("ptitle")).append("</td>");
-        out.append("<td>").append(rs.getString("gtitle")).append("</td>");
-        out.append("<td><a href=\"jump-message.jsp?msgid=").append(rs.getInt("topicid")).append("&amp;cid=").append(rs.getInt("msgid")).append("\" rev=contents>").append(StringUtil.makeTitle(rs.getString("title"))).append("</a></td>");
-        out.append("<td>").append(dateFormat.format(rs.getTimestamp("postdate"))).append("</td></tr>");
-      }
-
-      rs.close();
-    } finally {
-      if (pst != null) {
-        pst.close();
-      }
-    }
-
-    return out.toString();
   }
 
   public static String getTopicRss(Connection db, String htmlPath, String fullUrl, Message topic) throws SQLException, PollNotFoundException, IOException, BadImageException {
