@@ -667,8 +667,8 @@ public class Message implements Serializable {
       return false;
     }
 
-    if (by.canCorrect() && by.getId()!=userid) {
-      return section.isPremoderated();
+    if (by.canCorrect() && section.isPremoderated()) {
+      return true;
     }
     
     if (by.getId()==userid && !moderate) {
