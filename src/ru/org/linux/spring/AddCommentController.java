@@ -179,7 +179,7 @@ public class AddCommentController extends ApplicationObjectSupport {
         user = User.getUser(db, request.getParameter("nick"));
         user.checkPassword(request.getParameter("password"));
       } else {
-        user = User.getUser(db, (String) session.getAttribute("nick"));
+        user = User.getCurrentUser(db, session);
       }
 
       user.checkBlocked();

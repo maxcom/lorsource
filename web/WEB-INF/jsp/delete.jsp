@@ -34,7 +34,7 @@ function change(dest,source)
 его помещения.
 <form method=POST action="delete.jsp">
 <table>
-<% if (session == null || session.getAttribute("login") == null || !(Boolean) session.getAttribute("login")) { %>
+<% if (!tmpl.isSessionAuthorized()) { %>
 <tr>
 <td>Имя:</td>
 <td><input type=text name=nick size=40>

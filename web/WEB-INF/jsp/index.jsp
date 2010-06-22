@@ -1,6 +1,5 @@
 <%@ page contentType="text/html; charset=utf-8"%>
 <%@ page import="java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.util.Date"   buffer="60kb"%>
-<%@ page import="java.util.List" %>
 <%@ page import="ru.org.linux.site.*" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib prefix="lor" uri="http://www.linux.org.ru" %>
@@ -135,7 +134,7 @@
     db = LorDataSource.getConnection();
   }
   
-  User user = User.getUser(db, (String) session.getAttribute("nick"));
+  User user = User.getCurrentUser(db, session);
 
   out.print(user.getStatus());
 %>

@@ -22,10 +22,10 @@
   --%>
 
 <% Template tmpl = Template.getTemplate(request); %>
-<jsp:include page="WEB-INF/jsp/head.jsp"/>
+<jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
         <title>Настройки профиля</title>
-<jsp:include page="WEB-INF/jsp/header.jsp"/>
+<jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
   <table class=nav><tr>
     <td align=left valign=middle id="navPath">
@@ -155,7 +155,7 @@
     if (!Template.isSessionAuthorized(session)) {
       throw new AccessViolationException("Not authorized");
     } else {
-      profile = (String) session.getAttribute("nick");
+      profile = tmpl.getNick();
     }
 
     int topics = Integer.parseInt(request.getParameter("topics"));
@@ -221,4 +221,4 @@
 <p><b>Внимание!</b> настройки на некоторых уже посещенных страницах могут
 не отображаться. Используйте кнопку <i>Reload</i> вашего броузера.
 
-  <jsp:include page="WEB-INF/jsp/footer.jsp"/>
+<jsp:include page="/WEB-INF/jsp/footer.jsp"/>

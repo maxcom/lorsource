@@ -98,12 +98,10 @@ URL (не забудьте добавить <b>http://</b>): <br>
 
   Connection db = null;
   try {
-    String nick = (String) session.getAttribute("nick");
-
     db = LorDataSource.getConnection();
     db.setAutoCommit(false);
 
-    User user = User.getUser(db, nick);
+    User user = User.getCurrentUser(db, session);
     user.checkAnonymous();
 
     UserInfo userInfo = new UserInfo(db, user.getId());

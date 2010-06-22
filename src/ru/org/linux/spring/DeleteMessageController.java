@@ -83,15 +83,15 @@ public class DeleteMessageController extends ApplicationObjectSupport {
 
       User user;
 
-      if (session == null || session.getAttribute("login") == null || !(Boolean) session.getAttribute("login")) {
+      if (!Template.isSessionAuthorized(session)) {
         if (nick == null) {
           throw new BadInputException("Вы уже вышли из системы");
         }
         user = User.getUser(db, nick);
         user.checkPassword(request.getParameter("password"));
       } else {
-        user = User.getUser(db, (String) session.getAttribute("nick"));
-        nick = (String) session.getAttribute("nick");
+        user = User.getCurrentUser(db, session);
+        nick = user.getNick();
       }
 
       user.checkAnonymous();
