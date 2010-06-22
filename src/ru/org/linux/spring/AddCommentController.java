@@ -69,7 +69,7 @@ public class AddCommentController extends ApplicationObjectSupport {
     }
   }
 
-  private void checkTopic(Message topic) throws AccessViolationException {
+  private static void checkTopic(Message topic) throws AccessViolationException {
     if (topic.isExpired()) {
       throw new AccessViolationException("нельзя добавлять в устаревшие темы");
     }
@@ -79,7 +79,7 @@ public class AddCommentController extends ApplicationObjectSupport {
     }
   }
 
-  private void createReplyTo(Integer replyTo, Map<String, Object> params, Connection db) throws SQLException, MessageNotFoundException, AccessViolationException {
+  private static void createReplyTo(Integer replyTo, Map<String, Object> params, Connection db) throws SQLException, MessageNotFoundException, AccessViolationException {
     if (replyTo != null && replyTo>0) {
       Comment onComment = new Comment(db, replyTo);
       params.put("onComment", onComment);
@@ -89,7 +89,7 @@ public class AddCommentController extends ApplicationObjectSupport {
     }
   }
 
-  private String processMessage(String msg, String mode) {
+  private static String processMessage(String msg, String mode) {
     if ("lorcode".equals(mode)) {
       return msg;
     }

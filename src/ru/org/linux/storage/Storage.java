@@ -46,7 +46,7 @@ private static final RE DOMAIN_CHECK_RE;
     }
   }
 
-  private void check(String domain, String msgid) throws StorageException {
+  private static void check(String domain, String msgid) throws StorageException {
     if (!DOMAIN_CHECK_RE.isMatch(domain)) {
       throw new StorageBadDomainException(domain);
     }

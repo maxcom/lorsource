@@ -121,7 +121,6 @@ public class UserModificationController extends ApplicationObjectSupport {
   @RequestMapping(value="/remove-userpic.jsp", method= RequestMethod.POST)
   public ModelAndView removeUserpic(
     HttpServletRequest request,
-    HttpSession session,
     @RequestParam("id") int id
   ) throws Exception {
     Template tmpl = Template.getTemplate(request);

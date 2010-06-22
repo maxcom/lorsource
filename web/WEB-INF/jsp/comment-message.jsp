@@ -18,7 +18,6 @@
   ~    limitations under the License.
   --%>
 
-<% Template tmpl = Template.getTemplate(request); %>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
 <%

@@ -167,7 +167,7 @@ public class Template {
     userProfile.getHashtable().setString("format.mode", formatMode);
   }
 
-  private String getFormatMode(String mode) {
+  private static String getFormatMode(String mode) {
     if (!"ntobrq".equals(mode) &&
         !"quot".equals(mode) &&
         !"tex".equals(mode) &&

@@ -22,8 +22,6 @@ import java.util.Map;
 
 import org.javabb.bbcode.BBCodeProcessor;
 
-import ru.org.linux.util.StringUtil;
-
 public class Comment implements Serializable {
   private final int msgid;
   private final String title;

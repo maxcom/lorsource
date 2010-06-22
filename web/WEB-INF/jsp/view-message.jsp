@@ -266,9 +266,9 @@
 
     if (filterMode!=defaultFilterMode) {
       if (urlAdd.length()>0) {
-        urlAdd.append("&");
+        urlAdd.append('&');
       } else {
-        urlAdd.append("?");
+        urlAdd.append('?');
       }
 
       filterAdd="?filter="+CommentFilter.toString(filterMode);

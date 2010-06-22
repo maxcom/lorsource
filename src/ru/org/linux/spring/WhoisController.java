@@ -62,7 +62,7 @@ public class WhoisController {
   }
 
   @RequestMapping("/whois.jsp")
-  public View getInfo(@RequestParam("nick") String nick) throws SQLException, UserNotFoundException {
+  public View getInfo(@RequestParam("nick") String nick) {
     return new RedirectView("/people/"+ URLEncoder.encode(nick)+"/profile");
   }
 }

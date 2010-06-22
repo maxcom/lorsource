@@ -25,8 +25,6 @@
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
 <% 
-	String nick=(String) request.getAttribute("nick");
-
 	Connection db = null;
 
 	try {

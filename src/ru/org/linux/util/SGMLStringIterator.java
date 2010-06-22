@@ -43,7 +43,7 @@ public class SGMLStringIterator implements Iterator<String> {
     }
 
     if (str.charAt(index)=='&') {
-      StringBuffer buf = new StringBuffer();
+      StringBuilder buf = new StringBuilder();
 
       while (str.charAt(index)!=';') {
         buf.append(str.charAt(index));

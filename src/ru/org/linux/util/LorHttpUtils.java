@@ -31,10 +31,10 @@ public final class LorHttpUtils {
       return c;
     }
 
-    for (int i = 0; i < cookies.length; i++) {
-      String n = cookies[i].getName();
+    for (Cookie cooky : cookies) {
+      String n = cooky.getName();
       if (n != null) {
-        c.put(n, cookies[i].getValue());
+        c.put(n, cooky.getValue());
       }
     }
 

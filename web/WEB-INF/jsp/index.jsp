@@ -83,7 +83,7 @@
       int count = rs.getInt("count");
 
       if (count>0) {
-        out.print(", в том числе <a href=\"view-all.jsp?section=1\">новостей</a>: " + count + "]");
+        out.print(", в том числе <a href=\"view-all.jsp?section=1\">новостей</a>: " + count + ']');
       } else {
         out.print(", новостей нет]");
       }

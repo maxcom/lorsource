@@ -101,7 +101,7 @@ public class BBCodeProcessor implements Serializable {
 
     data = processSimpleTag(db, cutTag, data);
 
-    data = processNestedTags(buffer,
+    data = processNestedTags(data,
       "quote",
       "<div class=\"quote\"><h3>{BBCODE_PARAM}</h3><p>",
       "</div><p>",

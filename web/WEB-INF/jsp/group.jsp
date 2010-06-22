@@ -67,7 +67,7 @@
 <title>${group.sectionName} - ${group.title}
   <c:if test="${not firstPage}">
 <%
-    out.print(" (сообщения " + (count - offset) + '-' + (count - offset - topics) + ")");
+    out.print(" (сообщения " + (count - offset) + '-' + (count - offset - topics) + ')');
 %>
 </c:if>
 </title>
@@ -232,7 +232,7 @@
   if (!firstPage) {
     if ((!lastmod && offset == pages * topics) || (lastmod && offset == topics)) {
       if (urlAdd.length()>0) {
-        out.print("<a href=\""+group.getUrl()+"?"+urlAdd.substring(5) + "\">← начало</a> ");
+        out.print("<a href=\""+group.getUrl()+ '?' +urlAdd.substring(5) + "\">← начало</a> ");
       } else {
         out.print("<a href=\""+group.getUrl()+ "\">← начало</a> ");
       }
@@ -286,7 +286,7 @@
         out.print("[<b>первая</b>] ");
       } else {
         if (urlAdd.length()>0) {
-          out.print("[<a href=\""+group.getUrl()+"?" + urlAdd.substring(5) + "\">первая</a>] ");
+          out.print("[<a href=\""+group.getUrl()+ '?' + urlAdd.substring(5) + "\">первая</a>] ");
         } else {
           out.print("[<a href=\""+group.getUrl()+ "\">первая</a>] ");
         }

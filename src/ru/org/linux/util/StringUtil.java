@@ -25,7 +25,7 @@ import gnu.regexp.RE;
 import gnu.regexp.REException;
 
 public final class StringUtil {
-  private static Random random = new Random();
+  private static final Random random = new Random();
 
   private StringUtil() {
   }
@@ -77,7 +77,7 @@ public final class StringUtil {
       BigInteger bi = new BigInteger(1, md.digest(pass.getBytes()));
       String hash = bi.toString(16);
       if (hash.length() < 32) {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         for (int i = 0; i < 32 - hash.length(); i++) {
           buf.append('0');
         }

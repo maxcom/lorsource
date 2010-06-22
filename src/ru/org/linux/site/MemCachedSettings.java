@@ -15,8 +15,8 @@
 
 package ru.org.linux.site;
 
-import java.net.InetSocketAddress;
 import java.io.IOException;
+import java.net.InetSocketAddress;
 
 import net.spy.memcached.MemcachedClient;
 

@@ -32,7 +32,7 @@ public final class DefaultProfile {
   private static final Predicate isBoxPredicate = new Predicate() {
       @Override
       public boolean evaluate(Object o) {
-        return DefaultProfile.isBox((String)o);
+        return isBox((String)o);
       }
     };
   public static final String HIDE_ADSENSE = "hideAdsense";
@@ -49,7 +49,7 @@ public final class DefaultProfile {
     return boxSet.contains(name);
   }
 
-  public static Hashtable getDefaultProfile() {
+  public static Map getDefaultProfile() {
     Hashtable defaults = new Hashtable();
 
     defaults.put("newfirst", Boolean.FALSE);

@@ -96,22 +96,11 @@ public class ProfileHashtable {
     }
   }
 
-  public boolean setObject(String prop, Object value) {
+  public void setObject(String prop, Object value) {
     if (value != null) {
       settings.put(prop, value);
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  public boolean setBoolean(String prop, Boolean value) throws UtilException {
-    if (value != null && value != getBoolean(prop)) {
-      settings.put(prop, value);
-      return true;
-    } else {
-      return false;
-    }
+      } else {
+      }
   }
 
   public boolean setBoolean(String prop, boolean value) throws UtilException {
@@ -125,11 +114,11 @@ public class ProfileHashtable {
 
   public boolean setBoolean(String prop, String value) throws UtilException {
     if (value == null) {
-      return setBoolean(prop, Boolean.FALSE);
+      return setBoolean(prop, false);
     }
 
     if ("on".equals(value)) {
-      return setBoolean(prop, Boolean.TRUE);
+      return setBoolean(prop, true);
     }
 
     return false;

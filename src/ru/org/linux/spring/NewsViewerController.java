@@ -50,8 +50,6 @@ public class NewsViewerController {
     @RequestParam(value="offset", required=false) Integer offset,
     HttpServletResponse response
   ) throws Exception {
-    Connection db = null;
-
     Map<String, Object> params = new HashMap<String, Object>();
 
     params.put("url", "view-news.jsp");
@@ -62,7 +60,7 @@ public class NewsViewerController {
 
     if (tag!=null) {
       if (urlParams.length()>0) {
-        urlParams.append("&");
+        urlParams.append('&');
       }
 
       urlParams.append("tag="+ URLEncoder.encode(tag));
@@ -70,13 +68,15 @@ public class NewsViewerController {
 
     if (groupid!=null) {
       if (urlParams.length()>0) {
-        urlParams.append("&");
+        urlParams.append('&');
       }
 
       urlParams.append("group="+Integer.toString(groupid));
     }
 
     params.put("params", urlParams);
+
+    Connection db = null;
 
     try {
       if (month == null) {
@@ -258,13 +258,13 @@ public class NewsViewerController {
     @RequestParam(value="output", required=false) String output,
     HttpServletResponse response
   ) throws Exception {
-    Connection db = null;
-
     Map<String, Object> params = new HashMap<String, Object>();
 
-    params.put("url", "/people/"+nick+"/");
-    params.put("whoisLink", "/people/"+nick+"/"+"profile");
+    params.put("url", "/people/"+nick+ '/');
+    params.put("whoisLink", "/people/"+nick+ '/' +"profile");
 // TODO    params.put("archiveLink", "/people/"+nick+"/archive/");
+
+    Connection db = null;
 
     try {
       response.setDateHeader("Expires", System.currentTimeMillis() + 60 * 1000);
@@ -369,12 +369,12 @@ public class NewsViewerController {
   public View showUserTopics(
     @RequestParam("nick") String nick,
     @RequestParam(value="output", required=false) String output
-  ) throws Exception {
+  ) {
     if (output!=null) {
       return new RedirectView("/people/"+nick+"/?output=rss");
     }
     
-    return new RedirectView("/people/"+nick+"/");
+    return new RedirectView("/people/"+nick+ '/');
   }
 
   @RequestMapping("/gallery/")
@@ -497,7 +497,7 @@ public class NewsViewerController {
     }
 
     if (year!=null) {
-      return new RedirectView(Section.getArchiveLink(section)+Integer.toString(year)+"/"+Integer.toString(month));
+      return new RedirectView(Section.getArchiveLink(section)+Integer.toString(year)+ '/' +Integer.toString(month));
     }
 
     if (groupId!=null) {
@@ -508,7 +508,7 @@ public class NewsViewerController {
 
         Group group = new Group(db, groupId);
 
-        return new RedirectView(Section.getNewsViewerLink(section)+group.getUrlName()+"/");
+        return new RedirectView(Section.getNewsViewerLink(section)+group.getUrlName()+ '/');
       } finally {
         if (db!=null) {
           db.close();
@@ -528,7 +528,7 @@ public class NewsViewerController {
   ) throws Exception {
     ModelAndView mv = showNews(month, year, Section.getSection(section), null, null, null, response);
 
-    mv.getModel().put("url", "/gallery/archive/"+year+"/"+month+"/");
+    mv.getModel().put("url", "/gallery/archive/"+year+ '/' +month+ '/');
     mv.getModel().put("params", null);
 
     return mv;

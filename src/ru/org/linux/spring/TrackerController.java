@@ -28,8 +28,8 @@ import ru.org.linux.site.*;
 
 @Controller
 public class TrackerController {
-  private final static String[] filterValues = { "all", "notalks", "tech", "mine" };
-  private final static Set<String> filterValuesSet = new HashSet<String>(Arrays.asList(filterValues));
+  private static final String[] filterValues = { "all", "notalks", "tech", "mine" };
+  private static final Set<String> filterValuesSet = new HashSet<String>(Arrays.asList(filterValues));
 
   @RequestMapping("/tracker.jsp")
   public ModelAndView tracker(
@@ -136,7 +136,7 @@ public class TrackerController {
     ResultSet rs = st.executeQuery("SELECT id FROM users where regdate IS NOT null " +
           "AND regdate > CURRENT_TIMESTAMP - interval '3 days' ORDER BY regdate");
 
-    ArrayList<User> list = new ArrayList<User>();
+    List<User> list = new ArrayList<User>();
 
     while (rs.next()) {
       list.add(User.getUser(db, rs.getInt("id")));
@@ -248,7 +248,7 @@ public class TrackerController {
     }
 
     public String getUrlReverse() {
-      return getGroupUrl()+"/"+msgid+"?lastmod="+lastmod.getTime();
+      return getGroupUrl()+ '/' +msgid+"?lastmod="+lastmod.getTime();
     }
 
     public Timestamp getPostdate() {
@@ -260,7 +260,7 @@ public class TrackerController {
     }
 
     public String getGroupUrl() {
-      return Section.getSectionLink(section)+groupUrlName+"/";
+      return Section.getSectionLink(section)+groupUrlName+ '/';
     }
   }
 }

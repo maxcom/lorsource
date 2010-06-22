@@ -15,14 +15,10 @@
 
 package ru.org.linux.site;
 
-import java.io.IOException;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Set;
-
-import ru.org.linux.util.UtilException;
 
 public class CommentFilter {
   public static final int COMMENTS_INITIAL_BUFSIZE = 50;

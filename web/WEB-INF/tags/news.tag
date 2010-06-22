@@ -214,7 +214,7 @@
       if (pages != 1) {
         String urlAdd = message.isExpired() ? "" : ("?lastmod=" + message.getLastModified().getTime());
 
-        final int PG_COUNT=3;
+        int PG_COUNT=3;
 
         out.append("&nbsp;(стр.");
         boolean dots = false;

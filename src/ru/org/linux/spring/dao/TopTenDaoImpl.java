@@ -50,7 +50,7 @@ public class TopTenDaoImpl {
       @Override
       public TopTenMessageDTO mapRow(ResultSet rs, int i) throws SQLException {
         TopTenMessageDTO result = new TopTenMessageDTO();
-        result.setUrl(Section.getSectionLink(rs.getInt("section"))+rs.getString("urlname")+"/"+rs.getInt("msgid"));
+        result.setUrl(Section.getSectionLink(rs.getInt("section"))+rs.getString("urlname")+ '/' +rs.getInt("msgid"));
         result.setTitle(rs.getString("title"));
         result.setLastmod(rs.getTimestamp("lastmod"));
         result.setAnswers(rs.getInt("c"));

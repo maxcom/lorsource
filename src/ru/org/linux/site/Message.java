@@ -270,7 +270,7 @@ public class Message implements Serializable {
     }
 
     if (request.getParameter("resolve")!=null){
-        resolved = "yes".equals(request.getParameter("resolve"))?true:false;
+        resolved = "yes".equals(request.getParameter("resolve"));
     }else{
         resolved = original.resolved;
     }
@@ -784,18 +784,18 @@ public class Message implements Serializable {
   }
 
   public boolean isResolved(){
-      return this.resolved;
+      return resolved;
   }
 
   public void resolveMessage(Connection db, boolean b) throws SQLException {
     PreparedStatement pstMsgbase = db.prepareStatement("UPDATE topics SET resolved=?,lastmod=CURRENT_TIMESTAMP WHERE id=?");
     pstMsgbase.setBoolean(1, b);
-    pstMsgbase.setInt(2, this.msgid);
+    pstMsgbase.setInt(2, msgid);
     pstMsgbase.executeUpdate();
   }
 
   public String getLink() {
-    return Section.getSectionLink(sectionid) + groupUrl+"/"+msgid;
+    return Section.getSectionLink(sectionid) + groupUrl+ '/' +msgid;
   }
 
   public String getLinkPage(int page) {
@@ -803,7 +803,7 @@ public class Message implements Serializable {
       return getLink();
     }
     
-    return Section.getSectionLink(sectionid) + groupUrl+"/"+msgid+"/page"+page;
+    return Section.getSectionLink(sectionid) + groupUrl+ '/' +msgid+"/page"+page;
   }
 
   public void commit(Connection db, User commiter, int bonus) throws SQLException, UserErrorException {

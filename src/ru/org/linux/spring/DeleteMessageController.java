@@ -180,7 +180,7 @@ public class DeleteMessageController extends ApplicationObjectSupport {
 
         User author = User.getUser(db, message.getUid());
         author.changeScore(db, -bonus);
-        reason+=" ("+bonus+")";
+        reason+=" ("+bonus+ ')';
       }
 
       st2.setString(3, reason);

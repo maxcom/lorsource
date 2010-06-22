@@ -226,8 +226,6 @@ public class Group {
     try {
       st = db.createStatement();
 
-      ResultSet rs;
-
       String query = "SELECT count(topics.id) " +
         "FROM topics WHERE " +
         (moderate?"moderate AND ":"") +
@@ -237,7 +235,7 @@ public class Group {
         query+=" AND NOT topics.deleted";
       }
 
-      rs = st.executeQuery(query);
+      ResultSet rs = st.executeQuery(query);
 
       if (rs.next()) {
         return rs.getInt("count");
@@ -264,7 +262,7 @@ public class Group {
   }
 
   public boolean isResolvable() {
-    return this.resolvable;
+    return resolvable;
   }
 
   public String getSectionLink() {
@@ -272,7 +270,7 @@ public class Group {
   }
 
   public String getUrl() {
-    return getSectionLink()+urlName+"/";
+    return getSectionLink()+urlName+ '/';
   }
 
   public String getUrlName() {

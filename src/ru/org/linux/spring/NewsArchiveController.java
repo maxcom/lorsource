@@ -100,10 +100,10 @@ public class NewsArchiveController {
   }
 
   public class NewsArchiveListItem {
-    private int year;
-    private int month;
-    private int count;
-    private Section section;
+    private final int year;
+    private final int month;
+    private final int count;
+    private final Section section;
 
     public NewsArchiveListItem(Section section, int year, int month, int count) {
       this.year = year;

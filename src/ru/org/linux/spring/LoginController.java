@@ -44,7 +44,7 @@ public class LoginController {
   }
 
   @RequestMapping(value="/login.jsp", method= RequestMethod.GET)
-  public ModelAndView loginForm() throws Exception {
+  public ModelAndView loginForm() {
     return new ModelAndView("login-form");
   }
 
@@ -120,17 +120,20 @@ public class LoginController {
   }
 
   @RequestMapping(value="/activate.jsp", method= RequestMethod.GET)
-  public ModelAndView activateForm() throws Exception {
+  public ModelAndView activateForm() {
     return new ModelAndView("activate");
   }
 
   @RequestMapping(value = "/logout.jsp", method = RequestMethod.GET)
   public ModelAndView logout(
+    HttpServletRequest request,
     HttpSession session,
     HttpServletResponse response,
     @RequestParam(required=false) String sessionId
-  ) throws Exception {
-    if (session != null && session.getValue("login") != null && (Boolean) session.getValue("login")) {
+  )  {
+    Template tmpl = Template.getTemplate(request);
+
+    if (tmpl.isSessionAuthorized()) {
       if (sessionId==null || !session.getId().equals(sessionId)) {
         return new ModelAndView("logout");
       }

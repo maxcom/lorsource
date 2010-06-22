@@ -22,7 +22,7 @@ import org.apache.commons.logging.LogFactory;
 import ru.org.linux.site.MemCachedSettings;
 
 public class MemCachedProvider implements CacheProvider {
-  private final static Log logger = LogFactory.getLog(MemCachedProvider.class);
+  private static final Log logger = LogFactory.getLog(MemCachedProvider.class);
 
   @Override
   public Object getFromCache(String key) {

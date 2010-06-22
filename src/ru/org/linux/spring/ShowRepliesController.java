@@ -78,7 +78,6 @@ public class ShowRepliesController {
     response.setDateHeader("Expires", time + 1000 * delay);
 
     List<MyTopicsListItem> list;
-    int messages = tmpl.getProf().getInt("messages");
 
     Connection db = null;
 
@@ -123,7 +122,7 @@ public class ShowRepliesController {
       ResultSet rs = pst.executeQuery();
 
       while (rs.next()) {
-        list.add(new MyTopicsListItem(db, rs, messages, feedRequested));
+        list.add(new MyTopicsListItem(db, rs, feedRequested));
       }
 
       rs.close();
@@ -170,7 +169,7 @@ public class ShowRepliesController {
     private final EventType type;
     private final String eventMessage;
 
-    public MyTopicsListItem(Connection db, ResultSet rs, int messages, boolean readMessage) throws SQLException, UserNotFoundException {
+    public MyTopicsListItem(Connection db, ResultSet rs, boolean readMessage) throws SQLException, UserNotFoundException {
       subj = StringUtil.makeTitle(rs.getString("subj"));
 
       Timestamp lastmod = rs.getTimestamp("lastmod");
@@ -235,7 +234,7 @@ public class ShowRepliesController {
     }
 
     public String getGroupUrl() {
-      return Section.getSectionLink(sectionId) + groupUrlName + "/";
+      return Section.getSectionLink(sectionId) + groupUrlName + '/';
     }
 
     public String getSectionUrl() {

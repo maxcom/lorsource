@@ -26,8 +26,6 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
-import ru.org.linux.util.StringUtil;
-
 public class TemplateFilter implements Filter {
   private static final Log logger = LogFactory.getLog(TemplateFilter.class);
 

@@ -34,7 +34,6 @@ import org.apache.commons.logging.LogFactory;
 import ru.org.linux.spring.commons.CacheProvider;
 import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.ImageInfo;
-import ru.org.linux.util.UtilException;
 
 public class NewsViewer {
   private static final Log logger = LogFactory.getLog("ru.org.linux");
@@ -82,7 +81,7 @@ public class NewsViewer {
     out.append("</p>");
   }
 
-  public List<Message> getMessagesCached(Connection db) throws UtilException, SQLException, UserErrorException {
+  public List<Message> getMessagesCached(Connection db) throws SQLException, UserErrorException {
     if (getCacheAge()==0) {
       return getMessages(db);
     }
@@ -101,7 +100,7 @@ public class NewsViewer {
     return res;
   }
 
-  public List<Message> getMessages(Connection db) throws SQLException,  UserErrorException {
+  public List<Message> getMessages(Connection db) throws SQLException {
     Statement st = db.createStatement();
 
     StringBuilder where = new StringBuilder(
@@ -140,7 +139,7 @@ public class NewsViewer {
         where.append(section);
         first = false;
       }
-      where.append(")");
+      where.append(')');
     }
 
     if (group!=0) {
@@ -187,7 +186,7 @@ public class NewsViewer {
 //            "sections.id as section, NOT topics.sticky AS ssticky, sections.moderate " +
 //            "FROM topics,groups,users,sections,msgbase " +
             "WHERE " + where+ ' ' +
-            sort+" "+limit
+            sort+ ' ' +limit
     );
 
     List<Message> messages = new ArrayList<Message>();
@@ -278,7 +277,7 @@ public class NewsViewer {
     nv.addSection(1);
     nv.limit = "LIMIT 20";
     nv.datelimit = "commitdate>(CURRENT_TIMESTAMP-'1 month'::interval)";
-    nv.setCommitMode(CommitMode.COMMITED_ONLY);
+    nv.commitMode = CommitMode.COMMITED_ONLY;
     return nv;
   }
 

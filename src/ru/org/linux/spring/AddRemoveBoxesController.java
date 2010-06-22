@@ -141,7 +141,7 @@ public class AddRemoveBoxesController extends ApplicationObjectSupport {
     return "redirect:/edit-boxes.jsp";
   }
 
-  private String getObjectName(EditBoxesForm form, HttpServletRequest request) throws AccessViolationException, UtilException {
+  private static String getObjectName(EditBoxesForm form, HttpServletRequest request) throws AccessViolationException, UtilException {
     String objectName;
     if ("left".equals(form.getTag())) {
       if (EditBoxesController.getThreeColumns(request)) {

@@ -17,8 +17,8 @@ package ru.org.linux.site;
 
 import java.io.Serializable;
 import java.sql.*;
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
 
 public class Section implements Serializable {
   private final String name;
@@ -202,7 +202,7 @@ public class Section implements Serializable {
   }
 
   public String getArchiveLink(int year, int month) {
-    return getArchiveLink(id)+year+"/"+month+"/";
+    return getArchiveLink(id)+year+ '/' +month+ '/';
   }
 
   public String getArchiveLink() {

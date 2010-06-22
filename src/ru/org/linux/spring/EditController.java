@@ -114,7 +114,7 @@ public class EditController extends ApplicationObjectSupport {
   private ModelAndView prepareModel(
     Connection db,
     Message message
-  ) throws SQLException, MessageNotFoundException, BadGroupException, UserNotFoundException, AccessViolationException {
+  ) throws SQLException, BadGroupException {
     Map<String, Object> params = new HashMap<String, Object>();
 
     params.put("message", message);

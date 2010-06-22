@@ -68,10 +68,10 @@ public class VoteController {
 
       if (!rs.next()) {
         if (st.executeUpdate("UPDATE votes SET votes=votes+1 WHERE id=" + vote + " AND vote=" + voteid) == 0) {
-          throw new BadVoteException(vote, voteid);
+          throw new BadVoteException();
         }
 
-        st.executeUpdate("INSERT INTO vote_users VALUES("+voteid+", "+user.getId()+")");
+        st.executeUpdate("INSERT INTO vote_users VALUES("+voteid+", "+user.getId()+ ')');
       }
 
       rs.close();

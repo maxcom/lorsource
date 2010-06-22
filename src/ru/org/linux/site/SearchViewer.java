@@ -182,10 +182,6 @@ public class SearchViewer {
     }
   }
 
-  public static int getExpire() {
-    return 15*60*1000;
-  }
-
   public void setInclude(int include) {
     this.include = include;
   }

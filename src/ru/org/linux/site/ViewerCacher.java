@@ -58,7 +58,7 @@ public class ViewerCacher {
         }
       }
 
-      mcc.storeToCache(cacheId, res, viewer.getExpire());
+      mcc.storeToCache(cacheId, res, 15 * 60 * 1000);
     }
 
     return res;

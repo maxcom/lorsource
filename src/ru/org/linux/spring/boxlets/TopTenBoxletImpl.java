@@ -52,7 +52,7 @@ public class TopTenBoxletImpl extends SpringBoxlet {
     final int itemsPerPage = profile.getInt("messages");
     String style = profile.getString("style");
 
-    List<TopTenDaoImpl.TopTenMessageDTO> list = getTopTenDao().getMessages();
+    List<TopTenDaoImpl.TopTenMessageDTO> list = topTenDao.getMessages();
     CollectionUtils.forAllDo(list, new Closure() {
       @Override
       public void execute(Object o) {

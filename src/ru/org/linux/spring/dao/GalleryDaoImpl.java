@@ -82,7 +82,7 @@ public class GalleryDaoImpl {
     item.setIcon(rs.getString("linktext"));
     item.setNick(rs.getString("nick"));
     item.setStat(rs.getInt("stat1"));
-    item.setLink(Section.getSectionLink(Section.SECTION_GALLERY)+rs.getString("urlname")+"/"+rs.getInt("msgid"));
+    item.setLink(Section.getSectionLink(Section.SECTION_GALLERY)+rs.getString("urlname")+ '/' +rs.getInt("msgid"));
 
     String htmlPath = properties.getProperty("HTMLPathPrefix");
     item.setHtmlPath(htmlPath);

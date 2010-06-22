@@ -194,18 +194,18 @@ public class MessageController {
 
       if (filter!=null) {
         if (params.length()==0) {
-          params.append("?");
+          params.append('?');
         } else {
-          params.append("&");
+          params.append('&');
         }
         params.append("filter="+filter);
       }
 
       if (output!=null) {
         if (params.length()==0) {
-          params.append("?");
+          params.append('?');
         } else {
-          params.append("&");
+          params.append('&');
         }
         params.append("output="+output);
       }
@@ -408,7 +408,7 @@ public class MessageController {
 
         if (!topic.isExpired() && topic.getPageCount(tmpl.getProf().getInt("messages")) - 1 == pagenum) {
           if (options.length()>0) {
-            options.append("&");
+            options.append('&');
           }
           options.append("lastmod=");
           options.append(topic.getLastModified().getTime());

@@ -124,7 +124,7 @@
   <td><a href="/people/<%= URLEncoder.encode(nick) %>/profile"><%=nick %></a></td>
   <td><a href="group.jsp?group=<%= guid %>">
       <%
-	out.print(rs.getString("ptitle")+" - " + rs.getString("gtitle")+"");
+	out.print(rs.getString("ptitle") + " - " + rs.getString("gtitle"));
 %>
     </a></td>
 <%

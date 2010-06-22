@@ -34,8 +34,8 @@ import ru.org.linux.site.*;
 
 @Controller
 public class SectionRSSController {
-  private final static String[] filterValues = { "all", "notalks", "tech"};
-  private final static Set<String> filterValuesSet = new HashSet<String>(Arrays.asList(filterValues));
+  private static final String[] filterValues = { "all", "notalks", "tech"};
+  private static final Set<String> filterValuesSet = new HashSet<String>(Arrays.asList(filterValues));
 
   @RequestMapping("/section-rss.jsp")
   public ModelAndView showRSS(
