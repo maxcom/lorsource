@@ -58,7 +58,7 @@ public class SearchViewer {
       select.append(" FROM msgs, msgbase, plainto_tsquery(?) as q");
     }
 
-    if (section!=0 || userTopic) {
+    if (section!=0 || (userTopic && username.length()>0)) {
       select.append(", topics");
     }
 
