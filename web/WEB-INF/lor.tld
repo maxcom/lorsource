@@ -41,21 +41,4 @@
             <rtexprvalue>false</rtexprvalue>
         </attribute>
     </tag>
-    <tag>
-        <description>Caching tag</description>
-        <display-name>cache</display-name>
-        <name>cache</name>
-        <tag-class>ru.org.linux.site.tags.CacheTag</tag-class>
-        <body-content>JSP</body-content>
-        <attribute>
-            <name>key</name>
-            <required>true</required>
-            <rtexprvalue>true</rtexprvalue>
-        </attribute>
-        <attribute>
-            <name>expire</name>
-            <required>true</required>
-            <rtexprvalue>true</rtexprvalue>
-        </attribute>
-    </tag>
 </taglib>
