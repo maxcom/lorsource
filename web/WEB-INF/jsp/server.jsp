@@ -49,7 +49,7 @@
 Мы работаем на
   </p>
     <ul>
-      <li>Fedora 11</li>
+      <li>Fedora 12</li>
       <li>СУБД PostgreSQL 8.4</li>
       <li>OpenJDK 1.6.0</li>
       <li>Apache Tomcat 6</li>
