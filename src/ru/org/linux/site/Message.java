@@ -556,13 +556,17 @@ public class Message implements Serializable {
   }
 
   public int addTopicFromPreview(Connection db, Template tmpl, HttpServletRequest request, String previewImagePath, User user)
-      throws SQLException, UtilException, IOException, BadImageException, InterruptedException,   BadGroupException {
+    throws SQLException, UtilException, IOException, BadImageException, InterruptedException, ScriptErrorException {
 
     Group group = new Group(db, guid);
 	
     int msgid = allocateMsgid(db);
 
     if (group.isImagePostAllowed()) {
+      if (previewImagePath==null) {
+        throw new ScriptErrorException("previewImagePath==null!?");
+      }
+
       ScreenshotProcessor screenshot = new ScreenshotProcessor(previewImagePath);
       screenshot.copyScreenshotFromPreview(tmpl, msgid);
 
