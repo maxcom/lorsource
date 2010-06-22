@@ -99,7 +99,7 @@ public class BBCodeProcessor implements Serializable {
     RegexTag cutTag = includeCut ? ENABLED_CUT : DISABLED_CUT;
     CharSequence data = buffer;
 
-    data = processSimpleTag(db, cutTag, data);
+//    data = processSimpleTag(db, cutTag, data);
 
     data = processNestedTags(data,
       "quote",
