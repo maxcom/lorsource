@@ -1,3 +1,4 @@
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page import="ru.org.linux.site.Template" %>
 <%@ page contentType="text/html; charset=utf-8"%>
 
@@ -34,20 +35,10 @@ function change(dest,source)
 его помещения.
 <form method=POST action="delete.jsp">
 <table>
-<% if (!tmpl.isSessionAuthorized()) { %>
 <tr>
-<td>Имя:</td>
-<td><input type=text name=nick size=40>
-</td>
-</tr>
-<tr>
-<td>Пароль:</td>
-<td><input type=password name=password size=40></td>
-</tr>
-<% } %>
-<tr>
-<td>Причина удаления<br>Выберите из меню или напишите сами</td>
+<td>Причина удаления
 <td>
+<c:if test="${template.moderatorSession}">
 <select name=reason_select onChange="change(reason,reason_select);">
 <option value="">
 <option value="3.1 Дубль">3.1 Дубль
@@ -70,16 +61,17 @@ function change(dest,source)
 <option value="6.2 Warez">6.2 Warez
 <option value="7.1 Ответ на некорректное сообщение">7.1 Ответ на некорректное сообщение
 </select>
+</c:if>
 </td>
 <tr><td></td>
 <td><input type=text name=reason size=40></td>
 </tr>
-  <% if (tmpl.isModeratorSession() && (Boolean) request.getAttribute("bonus")) { %>
+  <c:if test="${template.moderatorSession and bonus}">
   <tr>
     <td>Штраф score (от 0 до 20)</td>
     <td><input type=text name=bonus size=40 value="0"></td>
   </tr>
-  <% } %>
+</c:if>
 
 </table>
 <input type=hidden name=msgid value="${msgid}">

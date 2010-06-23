@@ -35,8 +35,13 @@ import ru.org.linux.site.*;
 public class DeleteMessageController extends ApplicationObjectSupport {
   @RequestMapping(value="/delete.jsp", method= RequestMethod.GET)
   public ModelAndView showForm(
-    @RequestParam("msgid") int msgid
+    @RequestParam("msgid") int msgid,
+    HttpSession session
   ) throws Exception {
+    if (!Template.isSessionAuthorized(session)) {
+      throw new AccessViolationException("Not authorized");
+    }
+
     Connection db = null;
     try {
       db = LorDataSource.getConnection();
@@ -63,12 +68,16 @@ public class DeleteMessageController extends ApplicationObjectSupport {
   @RequestMapping(value="/delete.jsp", method= RequestMethod.POST)
   public ModelAndView deleteMessage(
     @RequestParam("msgid") int msgid,
-    @RequestParam(value="nick", required = false) String nick,
     @RequestParam("reason") String reason,
-    @RequestParam(value="bonus", required = false) Integer bonus,
+    @RequestParam(value="bonus", defaultValue = "0") int bonus,
     HttpServletRequest request
   ) throws Exception {
     HttpSession session = request.getSession();
+
+    if (!Template.isSessionAuthorized(session)) {
+      throw new AccessViolationException("Not authorized");
+    }
+
     Connection db = null;
     try {
       db = LorDataSource.getConnection();
@@ -81,18 +90,7 @@ public class DeleteMessageController extends ApplicationObjectSupport {
       st1.setInt(1, msgid);
       st2.setInt(1, msgid);
 
-      User user;
-
-      if (!Template.isSessionAuthorized(session)) {
-        if (nick == null) {
-          throw new BadInputException("Вы уже вышли из системы");
-        }
-        user = User.getUser(db, nick);
-        user.checkPassword(request.getParameter("password"));
-      } else {
-        user = User.getCurrentUser(db, session);
-        nick = user.getNick();
-      }
+      User user = User.getCurrentUser(db, session);
 
       user.checkAnonymous();
       st2.setInt(2, user.getId());
@@ -105,9 +103,9 @@ public class DeleteMessageController extends ApplicationObjectSupport {
 
       Message message = new Message(db, msgid);
 
-      PreparedStatement pr = db.prepareStatement("SELECT postdate>CURRENT_TIMESTAMP-'1 hour'::interval as perm FROM users, topics WHERE topics.id=? AND topics.userid=users.id AND users.nick=?");
+      PreparedStatement pr = db.prepareStatement("SELECT postdate>CURRENT_TIMESTAMP-'1 hour'::interval as perm FROM topics WHERE topics.id=? AND topics.userid=?");
       pr.setInt(1, msgid);
-      pr.setString(2, nick);
+      pr.setInt(2, user.getId());
       ResultSet rs = pr.executeQuery();
       boolean perm = false;
 
@@ -173,7 +171,7 @@ public class DeleteMessageController extends ApplicationObjectSupport {
 
       st1.executeUpdate();
 
-      if (user.canModerate() && bonus!=null && bonus!=0 && user.getId()!=message.getUid()) {
+      if (user.canModerate() && bonus!=0 && user.getId()!=message.getUid()) {
         if (bonus>20 || bonus<0) {
           throw new UserErrorException("Некорректное значение bonus");
         }
@@ -186,7 +184,7 @@ public class DeleteMessageController extends ApplicationObjectSupport {
       st2.setString(3, reason);
       st2.executeUpdate();
 
-      logger.info("Удалено сообщение " + msgid + " пользователем " + nick + " по причине `" + reason + '\'');
+      logger.info("Удалено сообщение " + msgid + " пользователем " + user.getNick() + " по причине `" + reason + '\'');
 
       st1.close();
       st2.close();
