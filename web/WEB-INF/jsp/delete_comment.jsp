@@ -1,6 +1,6 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page contentType="text/html; charset=utf-8" %>
-<%@ page import="java.sql.Connection,ru.org.linux.site.*" %>
+<%@ page import="java.sql.Connection,ru.org.linux.site.LorDataSource" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 
 <%--
@@ -17,8 +17,9 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
+<%--@elvariable id="topic" type="ru.org.linux.site.Message"--%>
+<%--@elvariable id="msgid" type="java.lang.Integer"--%>
 
-<% Template tmpl = Template.getTemplate(request); %>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
 <title>Удаление сообщения</title>
@@ -41,20 +42,10 @@
 его помещения.
 <form method=POST action="delete_comment.jsp">
   <table>
-    <% if (!tmpl.isSessionAuthorized()) { %>
     <tr>
-      <td>Имя:</td>
-      <td><input type=text name=nick size=40>
-      </td>
-    </tr>
-    <tr>
-      <td>Пароль:</td>
-      <td><input type=password name=password size=40></td>
-    </tr>
-    <% } %>
-    <tr>
-      <td>Причина удаления<br>Выберите из меню или напишите сами</td>
+      <td>Причина удаления
       <td>
+        <c:if test="${template.moderatorSession}">
         <select name=reason_select onChange="change(reason,reason_select);">
           <option value="">
           <option value="3.1 Дубль">3.1 Дубль
@@ -79,45 +70,32 @@
           <option value="6.2 Warez">6.2 Warez
           <option value="7.1 Ответ на некорректное сообщение">7.1 Ответ на некорректное сообщение
         </select>
+        </c:if>
       </td>
+    </tr>
     <tr>
       <td></td>
       <td><input type=text name=reason size=40></td>
     </tr>
 
-    <% if (tmpl.isModeratorSession()) { %>
+    <c:if test="${template.moderatorSession}">
     <tr>
       <td>Штраф score (от 0 до 20)</td>
       <td><input type=text name=bonus size=40 value="7"></td>
     </tr>
-    <% } %>
+    </c:if>
   </table>
-  <% if (!tmpl.isModeratorSession()) { %>
-  <input type=hidden name=bonus size=40 value="0">
-  <% } %>
-  <input type=hidden name=msgid value="<%= request.getParameter("msgid") %>">
+  <input type=hidden name=msgid value="${msgid}">
   <input type=submit value="Delete/Удалить">
 </form>
 <div class="messages">
   <div class="comment">
     <%
-      /* TODO надо сделать проверку на то, что коммент уже удален. И еще логику с select for update */
-
-      boolean showDeleted = tmpl.isModeratorSession();
-
-      int msgid = (Integer) request.getAttribute("msgid");
-      Message topic = (Message) request.getAttribute("topic");
       db = LorDataSource.getConnection();
-
-      CommentList comments = CommentList.getCommentList(db, topic, showDeleted);
-
-      CommentFilter cv = new CommentFilter(comments);
     %>
-    <c:set var="commentsPrepared" value="<%= cv.getCommentsSubtree(msgid) %>"/>
-
     <c:forEach var="comment" items="${commentsPrepared}">
-      <lor:comment showMenu="true" comment="${comment}" db="<%= db %>" comments="<%= comments %>"
-                   expired="<%= topic.isExpired() %>" topic="<%= topic %>"/>
+      <lor:comment showMenu="true" comment="${comment}" db="<%= db %>" comments="${comments}"
+                   expired="${topic.expired}" topic="${topic}"/>
     </c:forEach>
 
   </div>

@@ -19,6 +19,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -34,8 +35,18 @@ import ru.org.linux.site.*;
 @Controller
 public class DeleteCommentController {
   @RequestMapping(value = "/delete_comment.jsp", method = RequestMethod.GET)
-  public ModelAndView showForm(@RequestParam("msgid") int msgid) throws Exception {
+  public ModelAndView showForm(
+    HttpSession session,
+    HttpServletRequest request,
+    @RequestParam("msgid") int msgid
+  ) throws Exception {
     Map<String, Object> params = new HashMap<String, Object>();
+
+    if (!Template.isSessionAuthorized(session)) {
+      throw new AccessViolationException("Not authorized");
+    }
+
+    Template tmpl = Template.getTemplate(request);
 
     params.put("msgid", msgid);
 
@@ -60,6 +71,14 @@ public class DeleteCommentController {
 
       params.put("topic", topic);
 
+      CommentList comments = CommentList.getCommentList(db, topic, tmpl.isModeratorSession());
+
+      CommentFilter cv = new CommentFilter(comments);
+
+      List<Comment> list = cv.getCommentsSubtree(msgid);
+      params.put("commentsPrepared", list);
+      params.put("comments", comments);
+
       return new ModelAndView("delete_comment", params);
     } finally {
       if (db!=null) {
@@ -71,17 +90,19 @@ public class DeleteCommentController {
   @RequestMapping(value = "/delete_comment.jsp", method = RequestMethod.POST)
   public ModelAndView deleteComments(
     @RequestParam("msgid") int msgid,
-    @RequestParam(value="nick", required=false) String nick,
     @RequestParam("reason") String reason,
-    @RequestParam("bonus") int bonus,
-    HttpServletRequest request
+    @RequestParam(value="bonus", defaultValue="0") int bonus,
+    HttpSession session
   ) throws Exception {
     if (bonus < 0 || bonus > 20) {
       throw new BadParameterException("incorrect bonus value");
     }
 
+    if (!Template.isSessionAuthorized(session)) {
+      throw new AccessViolationException("Not authorized");
+    }
+
     Connection db = null;
-    HttpSession session = request.getSession();
 
     try {
       db = LorDataSource.getConnection();
@@ -89,31 +110,22 @@ public class DeleteCommentController {
 
       CommentDeleter deleter = new CommentDeleter(db);
 
-      User user;
-
-      if (!Template.isSessionAuthorized(session)) {
-        if (nick == null) {
-          throw new BadInputException("Вы уже вышли из системы");
-        }
-        user = User.getUser(db, nick);
-        user.checkPassword(request.getParameter("password"));
-      } else {
-        user = User.getCurrentUser(db, session);
-        nick = user.getNick();
-      }
-
+      User user = User.getCurrentUser(db, session);
+      user.checkBlocked();
       user.checkAnonymous();
 
-      PreparedStatement pr = db.prepareStatement("SELECT postdate>CURRENT_TIMESTAMP-'1 hour'::interval as perm FROM users, comments WHERE comments.id=? AND comments.userid=users.id AND users.nick=?");
+      PreparedStatement pr = db.prepareStatement("SELECT postdate>CURRENT_TIMESTAMP-'1 hour'::interval as perm FROM comments WHERE comments.id=? AND comments.userid=?");
       pr.setInt(1, msgid);
-      pr.setString(2, nick);
+      pr.setInt(2, user.getId());
       ResultSet rs = pr.executeQuery();
       boolean perm = false;
 
       if (rs.next()) {
         perm = rs.getBoolean("perm");
       }
+
       boolean selfDel = false;
+
       if (perm) {
         selfDel = true;
       }
