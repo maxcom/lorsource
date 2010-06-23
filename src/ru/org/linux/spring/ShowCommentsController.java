@@ -18,7 +18,10 @@ package ru.org.linux.spring;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Timestamp;
 import java.text.DateFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Controller;
@@ -26,7 +29,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
-import ru.org.linux.site.*;
+import ru.org.linux.site.DateFormats;
+import ru.org.linux.site.LorDataSource;
+import ru.org.linux.site.User;
+import ru.org.linux.site.UserErrorException;
 import ru.org.linux.util.ServletParameterException;
 import ru.org.linux.util.StringUtil;
 
@@ -74,7 +80,7 @@ public class ShowCommentsController {
 
       DateFormat dateFormat = DateFormats.createDefault();
 
-      StringBuilder out = new StringBuilder();
+      List<CommentsListItem> out = new ArrayList<CommentsListItem>(topics);
 
       PreparedStatement pst=null;
 
@@ -92,10 +98,16 @@ public class ShowCommentsController {
         ResultSet rs = pst.executeQuery();
 
         while (rs.next()) {
-          out.append("<tr><td>").append(rs.getString("ptitle")).append("</td>");
-          out.append("<td>").append(rs.getString("gtitle")).append("</td>");
-          out.append("<td><a href=\"jump-message.jsp?msgid=").append(rs.getInt("topicid")).append("&amp;cid=").append(rs.getInt("msgid")).append("\" rev=contents>").append(StringUtil.makeTitle(rs.getString("title"))).append("</a></td>");
-          out.append("<td>").append(dateFormat.format(rs.getTimestamp("postdate"))).append("</td></tr>");
+          CommentsListItem item = new CommentsListItem();
+
+          item.setSectionTitle(rs.getString("ptitle"));
+          item.setGroupTitle(rs.getString("gtitle"));
+          item.setTopicId(rs.getInt("topicid"));
+          item.setCommentId(rs.getInt("msgid"));
+          item.setTitle(StringUtil.makeTitle(rs.getString("title")));
+          item.setPostdate(rs.getTimestamp("postdate"));
+
+          out.add(item);
         }
 
         rs.close();
@@ -105,13 +117,70 @@ public class ShowCommentsController {
         }
       }
 
-      mv.getModel().put("list", out.toString());
+      mv.getModel().put("list", out);
 
       return mv;
     } finally {
       if (db!=null) {
         db.close();
       }
+    }
+  }
+
+  public class CommentsListItem {
+    private String sectionTitle;
+    private String groupTitle;
+    private int topicId;
+    private int commentId;
+    private String title;
+    private Timestamp postdate;
+
+    public String getSectionTitle() {
+      return sectionTitle;
+    }
+
+    public void setSectionTitle(String sectionTitle) {
+      this.sectionTitle = sectionTitle;
+    }
+
+    public String getGroupTitle() {
+      return groupTitle;
+    }
+
+    public void setGroupTitle(String groupTitle) {
+      this.groupTitle = groupTitle;
+    }
+
+    public int getTopicId() {
+      return topicId;
+    }
+
+    public void setTopicId(int topicId) {
+      this.topicId = topicId;
+    }
+
+    public int getCommentId() {
+      return commentId;
+    }
+
+    public void setCommentId(int commentId) {
+      this.commentId = commentId;
+    }
+
+    public String getTitle() {
+      return title;
+    }
+
+    public void setTitle(String title) {
+      this.title = title;
+    }
+
+    public Timestamp getPostdate() {
+      return postdate;
+    }
+
+    public void setPostdate(Timestamp postdate) {
+      this.postdate = postdate;
     }
   }
 }

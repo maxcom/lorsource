@@ -6,7 +6,7 @@
 <%@ page import="ru.org.linux.util.StringUtil" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%--
   ~ Copyright 1998-2010 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,32 +25,20 @@
 <%--@elvariable id="user" type="ru.org.linux.site.User"--%>
 <%--@elvariable id="topics" type="Integer"--%>
 <%--@elvariable id="offset" type="Integer"--%>
+<%--@elvariable id="list" type="java.util.List<ru.org.linux.spring.ShowCommentsController.CommentsListItem>"--%>
 
 <% Template tmpl = Template.getTemplate(request); %>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
 <%
   User user=(User) request.getAttribute("user");
-  String nick = user.getNick();
-
 
   int offset = (Integer) request.getAttribute("offset");
   int topics = (Integer) request.getAttribute("topics");
-  String res = (String) request.getAttribute("list");
 %>
-<c:if test="${firstPage}">
-  <title>Последние ${topics} комментариев пользователя ${user.nick}</title>
-</c:if>
-<c:if test="${not firstPage}">
-  <title>Последние ${offset + topics} - ${offset} комментариев пользователя ${user.nick}</title>
-</c:if>
+<title>Комментарии пользователя ${user.nick}</title>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
-<c:if test="${firstPage}">
-  <h1>Последние ${topics} комментариев пользователя ${user.nick}</h1>
-</c:if>
-<c:if test="${not firstPage}">
-  <h1>Последние ${offset + topics} - ${offset} комментариев пользователя ${user.nick}</h1>
-</c:if>
+<h1>Комментарии пользователя ${user.nick}</h1>
 
 <div class=forum>
 <table width="100%" class="message-table">
@@ -62,20 +50,22 @@
 </c:if>  
 </div>
 <div style="float: right">
-    <%
-  if (res!=null && !"".equals(res)) {
-	out.print("<a rel=next rev=prev href=\"show-comments.jsp?nick=" + nick + "&amp;offset=" + (offset + topics) + "\">вперед →</a>");
-  }
-%>
+<c:if test="${fn:length(list)==topics}">
+  <a rel=next rev=prev href="show-comments.jsp?nick=${user.nick}&amp;offset=<%= offset + topics %>">вперед →</a>
+</c:if>
 </div>
 </th></tr>
 <tr><th>Раздел</th><th>Группа</th><th>Заглавие темы</th><th>Дата</th></tr>
 <tbody>
-<%
 
-  out.print(res);
+<c:forEach items="${list}" var="comment">
+<tr>
+  <td>${comment.sectionTitle}</td>
+  <td>${comment.groupTitle}</td>
+  <td><a href="jump-message.jsp?msgid=${comment.topicId}&amp;cid=${comment.commentId}" rev=contents>${comment.title}</a></td>
+  <td><lor:dateinterval date="${comment.postdate}"/></td>
+</c:forEach>
 
-%>
 </tbody>
 <tfoot>
   <tr><td colspan=5><p>
@@ -85,18 +75,16 @@
 </c:if>  
 </div>
 <div style="float: right">
-    <%
-  if (res!=null && !"".equals(res)) {
-	out.print("<a rel=next rev=prev href=\"show-comments.jsp?nick=" + nick + "&amp;offset=" + (offset + topics) + "\">вперед →</a>");
-  }
-%>
+  <c:if test="${fn:length(list)==topics}">
+    <a rel=next rev=prev href="show-comments.jsp?nick=${user.nick}&amp;offset=<%= offset + topics %>">вперед →</a>
+  </c:if>
 </div>
   </td></tr>
 </tfoot>
 </table>
 </div>
 
-<% if (Template.isSessionAuthorized(session) && (tmpl.isModeratorSession() || nick.equals(session.getValue("nick")))) { %>
+<% if (tmpl.isModeratorSession()) { %>
 
 <h2>Последние 20 удаленных модераторами комментариев</h2>
 
