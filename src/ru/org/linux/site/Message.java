@@ -394,8 +394,6 @@ public class Message implements Serializable {
     switch (postscore) {
       case 0:
         return "";
-      case 50:
-        return "<b>Ограничение на отправку комментариев</b>: только для зарегистрированных пользователей";
       case 100:
         return "<b>Ограничение на отправку комментариев</b>: "+ User.getStars(100, 100);
       case 200:
@@ -409,7 +407,7 @@ public class Message implements Serializable {
       case -1:
         return "<b>Ограничение на отправку комментариев</b>: только для модераторов";
       default:
-        return "<b>Ограничение на отправку комментариев</b>: score="+postscore;
+        return "<b>Ограничение на отправку комментариев</b>: только для зарегистрированных пользователей, score>="+postscore;
     }
   }
 
