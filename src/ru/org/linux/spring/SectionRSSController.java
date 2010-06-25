@@ -72,6 +72,7 @@ public class SectionRSSController {
     NewsViewer nv = new NewsViewer();
     nv.addSection(sectionId);
     nv.setDatelimit(" postdate>(CURRENT_TIMESTAMP-'3 month'::interval) ");
+
     if (groupId !=0) {
       nv.setGroup(groupId);
     }
@@ -87,6 +88,12 @@ public class SectionRSSController {
 
       Section section = new Section(db, sectionId);
       params.put("section", section);
+
+      if (section.isPremoderated()) {
+        nv.setCommitMode(NewsViewer.CommitMode.COMMITED_ONLY);
+      } else {
+        nv.setCommitMode(NewsViewer.CommitMode.POSTMODERATED_ONLY);
+      }
 
       Group group = null;
       if (groupId!=0) {
