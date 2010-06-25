@@ -218,7 +218,11 @@ public class RegisterController extends ApplicationObjectSupport {
         rs.close();
         st.close();
 
-        PreparedStatement ist = db.prepareStatement("INSERT INTO users (id, name, nick, passwd, url, email, town, score, max_score,regdate) VALUES (?,?,?,?,?,?,?,50,50,current_timestamp)");
+        PreparedStatement ist = db.prepareStatement(
+          "INSERT INTO users " +
+            "(id, name, nick, passwd, url, email, town, score, max_score,regdate) " +
+            "VALUES (?,?,?,?,?,?,?,45,45,current_timestamp)"
+        );
         ist.setInt(1, userid);
         ist.setString(2, name);
         ist.setString(3, nick);
