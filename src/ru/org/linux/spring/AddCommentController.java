@@ -179,7 +179,7 @@ public class AddCommentController extends ApplicationObjectSupport {
         user = User.getUser(db, request.getParameter("nick"));
         user.checkPassword(request.getParameter("password"));
       } else {
-        user = User.getCurrentUser(db, session);
+        user = Template.getCurrentUser(db, session);
       }
 
       user.checkBlocked();
@@ -230,7 +230,7 @@ public class AddCommentController extends ApplicationObjectSupport {
         }
       }
 
-      topic.checkCommentsAllowed(db, user);
+      topic.checkCommentsAllowed(user);
 
       if (!preview) {
         DupeProtector.getInstance().checkDuplication(request.getRemoteAddr(), user.getScore() > 100);

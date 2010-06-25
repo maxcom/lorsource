@@ -50,6 +50,8 @@ public class Template {
   private final Config config;
   private final HttpSession session;
 
+  private User currentUser = null;
+
   public final DateFormat dateFormat = DateFormats.createDefault();
   public static final String PROPERTY_MAIN_URL = "MainUrl";
 
@@ -301,5 +303,29 @@ public class Template {
     }
 
     return userAgent.detectAndroidWebKit();
+  }
+
+  public User getCurrentUser(Connection db) throws SQLException, UserNotFoundException {
+    if (!isSessionAuthorized()) {
+      return null;
+    }
+
+    if (currentUser != null) {
+      return currentUser;
+    }
+
+    currentUser = User.getUser(db, (String) session.getAttribute("nick"));
+
+    return currentUser;
+  }
+
+  /** @deprecated Use template.getCurrentUser for better caching */
+  @Deprecated
+  public static User getCurrentUser(Connection db, HttpSession session) throws SQLException, UserNotFoundException {
+    if (!isSessionAuthorized(session)) {
+      return null;
+    }
+
+    return User.getUser(db, (String) session.getAttribute("nick"));
   }
 }

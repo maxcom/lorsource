@@ -40,7 +40,7 @@ public class IgnoreListController {
     Connection db = null;
     try {
       db = LorDataSource.getConnection();
-      User user = User.getCurrentUser(db, request.getSession());
+      User user = Template.getCurrentUser(db, request.getSession());
       user.checkAnonymous();
 
       IgnoreList ignore = new IgnoreList(db, user.getId());
@@ -68,7 +68,7 @@ public class IgnoreListController {
     try {
       db = LorDataSource.getConnection();
       db.setAutoCommit(false);
-      User user = User.getCurrentUser(db, request.getSession());
+      User user = Template.getCurrentUser(db, request.getSession());
       user.checkAnonymous();
 
       IgnoreList ignoreList = new IgnoreList(db, user.getId());
@@ -107,7 +107,7 @@ public class IgnoreListController {
     try {
       db = LorDataSource.getConnection();
       db.setAutoCommit(false);
-      User user = User.getCurrentUser(db, request.getSession());
+      User user = Template.getCurrentUser(db, request.getSession());
       user.checkAnonymous();
 
       IgnoreList ignoreList = new IgnoreList(db, user.getId());

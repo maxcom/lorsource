@@ -87,7 +87,7 @@
       <% } %>
       [<a href="/wiki/en/lor-faq">FAQ</a>]
 <%
-  User currentUser = User.getCurrentUser(db, session);
+  User currentUser = Template.getCurrentUser(db, session);
 
   if (group.isTopicPostingAllowed(currentUser)) {
 %>

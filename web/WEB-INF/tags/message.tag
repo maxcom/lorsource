@@ -33,7 +33,7 @@
   Template tmpl = Template.getTemplate(request);
 
   User author = User.getUserCached(db, message.getUid());
-  User currentUser = User.getCurrentUser(db, session);
+  User currentUser = tmpl.getCurrentUser(db);
 
   int msgid = message.getMessageId();
 %>
@@ -170,7 +170,9 @@
     <c:if test="${!message.deleted && showMenu}">
       <div class=reply>
         <c:if test="${not message.expired}">
+          <% if (message.isCommentsAllowed(currentUser)) { %>
           [<a href="comment-message.jsp?msgid=${message.id}">Ответить на это сообщение</a>]
+          <% } %>
         </c:if>
 <%
     if (currentUser!=null && message.isEditable(db, currentUser)) {

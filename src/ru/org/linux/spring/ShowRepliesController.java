@@ -90,7 +90,7 @@ public class ShowRepliesController {
 
       boolean showPrivate = tmpl.isModeratorSession();
 
-      User currentUser = User.getCurrentUser(db, request.getSession());
+      User currentUser = tmpl.getCurrentUser(db);
 
       if (currentUser != null && currentUser.getId() == user.getId()) {
         showPrivate = true;

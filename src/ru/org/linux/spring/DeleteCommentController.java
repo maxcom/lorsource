@@ -110,7 +110,7 @@ public class DeleteCommentController {
 
       CommentDeleter deleter = new CommentDeleter(db);
 
-      User user = User.getCurrentUser(db, session);
+      User user = Template.getCurrentUser(db, session);
       user.checkBlocked();
       user.checkAnonymous();
 

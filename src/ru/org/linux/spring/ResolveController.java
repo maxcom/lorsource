@@ -41,7 +41,7 @@ public class ResolveController  {
       db = LorDataSource.getConnection();
       Message message = new Message(db, msgid);
       Group group = new Group(db, message.getGroupId());
-      User currentUser = User.getCurrentUser(db, request.getSession());
+      User currentUser = tmpl.getCurrentUser(db);
       if (!group.isResolvable()) {
         throw new AccessViolationException("В данной группе нельзя помечать темы как решенные");
       }

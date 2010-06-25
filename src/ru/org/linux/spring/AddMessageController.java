@@ -56,7 +56,7 @@ public class AddMessageController extends ApplicationObjectSupport {
 
       Group group = new Group(db, groupId);
 
-      User currentUser = User.getCurrentUser(db, session);
+      User currentUser = Template.getCurrentUser(db, session);
 
       if (!group.isTopicPostingAllowed(currentUser)) {
         throw new AccessViolationException("Не достаточно прав для постинга тем в эту группу");

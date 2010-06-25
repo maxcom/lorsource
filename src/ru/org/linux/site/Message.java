@@ -620,13 +620,35 @@ public class Message implements Serializable {
     }
   }
 
-  public void checkCommentsAllowed(Connection db, User user) throws AccessViolationException, SQLException, BadGroupException {
-//    Group group = new Group(db, guid);
-//
-//    if (!group.isCommentPostingAllowed(user)) {
-//      throw new AccessViolationException("В эту группу нельзя добавлять комментарии");
-//    }
+  public boolean isCommentsAllowed(User user) {
+    if (user!=null && user.isBlocked()) {
+      return false;
+    }
 
+    if (deleted || expired) {
+      return false;
+    }
+
+    int score = getPostScore();
+
+    if (score!=0) {
+      if (user==null || user.isAnonymous()) {
+        return false;
+      }
+
+      if (score == -1 && !user.canModerate()) {
+        return false;
+      }
+
+      if (user.getScore() < score) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  public void checkCommentsAllowed(User user) throws AccessViolationException {
     user.checkBlocked();
 
     if (deleted) {

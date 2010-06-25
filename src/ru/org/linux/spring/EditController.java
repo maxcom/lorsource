@@ -97,7 +97,7 @@ public class EditController extends ApplicationObjectSupport {
 
       Message message = new Message(db, msgid);
 
-      User user = User.getCurrentUser(db, session);
+      User user = Template.getCurrentUser(db, session);
 
       if (!message.isEditable(db, user)) {
         throw new AccessViolationException("это сообщение нельзя править");
@@ -167,7 +167,7 @@ public class EditController extends ApplicationObjectSupport {
 
       params.put("groups", Group.getGroups(db, message.getSection()));
 
-      User user = User.getCurrentUser(db, session);
+      User user = Template.getCurrentUser(db, session);
 
       if (!message.isEditable(db, user)) {
         throw new AccessViolationException("это сообщение нельзя править");

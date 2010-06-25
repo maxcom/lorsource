@@ -101,7 +101,7 @@ URL (не забудьте добавить <b>http://</b>): <br>
     db = LorDataSource.getConnection();
     db.setAutoCommit(false);
 
-    User user = User.getCurrentUser(db, session);
+    User user = Template.getCurrentUser(db, session);
     user.checkAnonymous();
 
     UserInfo userInfo = new UserInfo(db, user.getId());

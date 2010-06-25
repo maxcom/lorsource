@@ -79,7 +79,7 @@ public class TrackerController {
     try {
       db = LorDataSource.getConnection();
 
-      User user = User.getCurrentUser(db, request.getSession());
+      User user = Template.getCurrentUser(db, request.getSession());
 
       if (mine) {
         if (!tmpl.isSessionAuthorized()) {

@@ -302,14 +302,6 @@ public class User implements Serializable {
     return (maxScore < BLOCK_MAX_SCORE) && (score < BLOCK_SCORE);
   }
 
-  public static User getCurrentUser(Connection db, HttpSession session) throws SQLException, UserNotFoundException {
-    if (!Template.isSessionAuthorized(session)) {
-      return null;
-    }
-
-    return getUser(db, (String) session.getAttribute("nick"));
-  }
-
   public boolean isActivated() {
     return activated;
   }

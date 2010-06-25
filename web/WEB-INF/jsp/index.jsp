@@ -134,7 +134,7 @@
     db = LorDataSource.getConnection();
   }
   
-  User user = User.getCurrentUser(db, session);
+  User user = Template.getCurrentUser(db, session);
 
   out.print(user.getStatus());
 %>

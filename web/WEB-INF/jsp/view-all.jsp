@@ -4,6 +4,7 @@
 <%@ page import="ru.org.linux.site.LorDataSource" %>
 <%@ page import="ru.org.linux.site.Section" %>
 <%@ page import="ru.org.linux.site.User" %>
+<%@ page import="ru.org.linux.site.Template" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%--
   ~ Copyright 1998-2010 Linux.org.ru
@@ -82,7 +83,7 @@
 <strong>Внимание модераторам!</strong> Не подтверждайте сразу
 много скриншотов, дайте им повисеть на главной странице.<p>
 <%
-  User currentUser = User.getCurrentUser(db, session);
+  User currentUser = Template.getCurrentUser(db, session);
 %>
 <c:forEach var="msg" items="${messages}">
   <lor:news

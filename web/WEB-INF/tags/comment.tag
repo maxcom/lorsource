@@ -103,7 +103,7 @@
       <h2>${comment.title}</h2>
     </c:if>
   <%
-  out.append(comment.getProcessedMessage(db));
+    out.append(comment.getProcessedMessage(db));
   %>
     <div class=sign>
     <%
@@ -117,8 +117,10 @@
         </c:if>
       </c:if>
     </div>
-    <%
-  if (!comment.isDeleted() && showMenu) {
+<%
+  User currentUser = tmpl.getCurrentUser(db);
+
+  if (!comment.isDeleted() && showMenu && topic.isCommentsAllowed(currentUser)) {
     out.append("<div class=reply>");
     if (!expired) {
       out.append("[<a href=\"add_comment.jsp?topic=").append(Integer.toString(comment.getTopic())).append("&amp;replyto=").append(Integer.toString(comment.getMessageId())).append("\">Ответить на это сообщение</a>] ");

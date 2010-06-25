@@ -90,7 +90,7 @@ public class DeleteMessageController extends ApplicationObjectSupport {
       st1.setInt(1, msgid);
       st2.setInt(1, msgid);
 
-      User user = User.getCurrentUser(db, session);
+      User user = Template.getCurrentUser(db, session);
 
       user.checkAnonymous();
       st2.setInt(2, user.getId());

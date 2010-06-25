@@ -259,7 +259,7 @@ public class AddMessageForm {
       user = User.getUser(db, nick);
       user.checkPassword(password);
     } else {
-      user = User.getCurrentUser(db, session);
+      user = Template.getCurrentUser(db, session);
     }
 
     user.checkBlocked();
