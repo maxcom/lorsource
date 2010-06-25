@@ -178,15 +178,8 @@ public class NewsViewer {
           "INNER JOIN groups ON (groups.id=topics.groupid) " +
           "INNER JOIN sections ON (sections.id=groups.section) " +
           "INNER JOIN msgbase ON (msgbase.id=topics.id) " +
-
-//        "SELECT topics.title as subj, topics.lastmod, topics.stat1, postdate, nick, image, " +
-//            "groups.title as gtitle, topics.id as msgid, groups.id as guid, " +
-//            "topics.url, topics.linktext, imagepost, vote, sections.name as pname, " +
-//            "postdate<(CURRENT_TIMESTAMP-expire) as expired, message, bbcode, " +
-//            "sections.id as section, NOT topics.sticky AS ssticky, sections.moderate " +
-//            "FROM topics,groups,users,sections,msgbase " +
-            "WHERE " + where+ ' ' +
-            sort+ ' ' +limit
+          "WHERE " + where+ ' ' +
+          sort+ ' ' +limit
     );
 
     List<Message> messages = new ArrayList<Message>();
