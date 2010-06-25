@@ -28,7 +28,7 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
-
+<%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <%
   Template tmpl = Template.getTemplate(request);
 
@@ -198,7 +198,9 @@
       }
     }
 %>
-        <br>${message.postScoreInfo}
+        <c:if test="${template.sessionAuthorized}">
+          <br>${message.postScoreInfo}
+        </c:if>
         </div>
       </c:if>
 </div>
