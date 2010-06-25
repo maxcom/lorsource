@@ -116,7 +116,7 @@ public class NewsViewer {
         where.append(" AND (topics.moderate OR NOT sections.moderate)");
         break;
       case COMMITED_ONLY:
-        where.append(" AND topics.moderate AND sections.moderate AND commitdate is not null");
+        where.append(" AND sections.moderate AND commitdate is not null");
         sort = "ORDER BY commitdate DESC";
         break;
       case UNCOMMITED_ONLY:
