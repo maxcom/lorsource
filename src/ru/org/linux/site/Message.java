@@ -381,7 +381,17 @@ public class Message implements Serializable {
       return -1;
     }
 
-    return Math.max(getPostScoreOld(), groupCommentsRestriction);
+    int totalPS = getPostScoreOld();
+
+    if (groupCommentsRestriction!=0) {
+      if (totalPS!=0) {
+        return Math.max(totalPS, groupCommentsRestriction);
+      } else {
+        return groupCommentsRestriction;
+      }
+    } else {
+      return totalPS; 
+    }
   }
 
   public String getPostScoreInfo() {
