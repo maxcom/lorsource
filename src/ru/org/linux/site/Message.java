@@ -373,17 +373,11 @@ public class Message implements Serializable {
   }
 
   public int getPostScore() {
-    int postscore = getPostScoreOld();
-
-    if (postscore>=0) {
-      if (groupCommentsRestriction==-1) {
-        postscore = -1;
-      } else {
-        postscore = Math.max(postscore, groupCommentsRestriction);
-      }
+    if (this.postscore==-1 || groupCommentsRestriction==-1) {
+      return -1;
     }
 
-    return postscore;
+    return Math.max(getPostScoreOld(), groupCommentsRestriction);
   }
 
   public String getPostScoreInfo() {
@@ -406,6 +400,8 @@ public class Message implements Serializable {
         return "<b>Ограничение на отправку комментариев</b>: "+ User.getStars(500, 500);
       case -1:
         return "<b>Ограничение на отправку комментариев</b>: только для модераторов";
+      case -50:
+        return "<b>Ограничение на отправку комментариев</b>: только для зарегистрированных пользователей";
       default:
         return "<b>Ограничение на отправку комментариев</b>: только для зарегистрированных пользователей, score>="+postscore;
     }
