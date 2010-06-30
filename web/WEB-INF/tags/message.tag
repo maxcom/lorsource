@@ -206,7 +206,7 @@
         <form id="memories_form" action="/memories.jsp" method="POST" style="display: inline">
           <input type="hidden" name="id" value="<%= memId %>">
           <input type="hidden" name="remove" value="remove">
-          [<a onclick="memories_form.submit(); return false;" href="#">Удалить из избранного</a>]
+          [<a onclick="document.memories_form.submit(); return false;" href="#">Удалить из избранного</a>]
         </form>
 <%
       } else {
@@ -214,7 +214,7 @@
         <form id="memories_form" action="/memories.jsp" method="POST" style="display: inline">
           <input type="hidden" name="msgid" value="${message.id}">
           <input type="hidden" name="add" value="add">
-          [<a onclick="memories_form.submit(); return false;" href="#">Добавить в избранное</a>]
+          [<a onclick="document.memories_form.submit(); return false;" href="#">Добавить в избранное</a>]
         </form>
         <%
       }
