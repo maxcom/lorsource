@@ -197,6 +197,28 @@
         out.append("&amp;resolve=yes\">Отметить как решенную</a>]");
       }
     }
+
+    if (tmpl.isSessionAuthorized() && tmpl.getStyle().equals("tango")) {
+      int memId = MemoriesListItem.getId(db, currentUser.getId(), msgid);
+
+      if (memId!=0) {
+%>
+        <form id="memories_form" action="/memories.jsp" method="POST" style="display: inline">
+          <input type="hidden" name="id" value="<%= memId %>">
+          <input type="hidden" name="remove" value="remove">
+          [<a onclick="memories_form.submit(); return false;" href="#">Удалить из избранного</a>]
+        </form>
+<%
+      } else {
+%>
+        <form id="memories_form" action="/memories.jsp" method="POST" style="display: inline">
+          <input type="hidden" name="msgid" value="${message.id}">
+          <input type="hidden" name="add" value="add">
+          [<a onclick="memories_form.submit(); return false;" href="#">Добавить в избранное</a>]
+        </form>
+        <%
+      }
+    }
 %>
         <c:if test="${template.sessionAuthorized}">
           <br>${message.postScoreInfo}
