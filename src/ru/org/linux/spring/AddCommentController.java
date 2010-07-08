@@ -53,6 +53,7 @@ public class AddCommentController extends ApplicationObjectSupport {
 
     try {
       db = LorDataSource.getConnection();
+      tmpl.initCurrentUser(db);
 
       Message topic = new Message(db, topicId);
       checkTopic(topic);
@@ -143,6 +144,8 @@ public class AddCommentController extends ApplicationObjectSupport {
 
     Connection db = null;
 
+    Template tmpl = Template.getTemplate(request);
+
     try {
       if (title == null) {
         title = "";
@@ -155,6 +158,8 @@ public class AddCommentController extends ApplicationObjectSupport {
       // prechecks is over
       db = LorDataSource.getConnection();
       db.setAutoCommit(false);
+      tmpl.initCurrentUser(db);
+
 
       Message topic = new Message(db, topicId);
       formParams.put("postscore", topic.getPostScore());

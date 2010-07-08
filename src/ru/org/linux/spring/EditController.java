@@ -54,6 +54,7 @@ public class EditController extends ApplicationObjectSupport {
     Connection db = null;
     try {
       db = LorDataSource.getConnection();
+      tmpl.initCurrentUser(db);
 
       Message message = new Message(db, msgid);
 
@@ -94,6 +95,7 @@ public class EditController extends ApplicationObjectSupport {
 
     try {
       db = LorDataSource.getConnection();
+      tmpl.initCurrentUser(db);
 
       Message message = new Message(db, msgid);
 
@@ -158,6 +160,7 @@ public class EditController extends ApplicationObjectSupport {
     try {
       db = LorDataSource.getConnection();
       db.setAutoCommit(false);
+      tmpl.initCurrentUser(db);
 
       Message message = new Message(db, msgid);
       params.put("message", message);

@@ -33,7 +33,7 @@
   Template tmpl = Template.getTemplate(request);
 
   User author = User.getUserCached(db, message.getUid());
-  User currentUser = tmpl.getCurrentUser(db);
+  User currentUser = tmpl.getCurrentUser();
 
   int msgid = message.getMessageId();
 %>

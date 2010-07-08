@@ -83,6 +83,7 @@ public class ShowRepliesController {
 
     try {
       db = LorDataSource.getConnection();
+      tmpl.initCurrentUser(db);
 
       User user = User.getUser(db, nick);
 
@@ -90,7 +91,7 @@ public class ShowRepliesController {
 
       boolean showPrivate = tmpl.isModeratorSession();
 
-      User currentUser = tmpl.getCurrentUser(db);
+      User currentUser = tmpl.getCurrentUser();
 
       if (currentUser != null && currentUser.getId() == user.getId()) {
         showPrivate = true;

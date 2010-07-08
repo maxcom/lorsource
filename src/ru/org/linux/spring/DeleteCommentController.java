@@ -54,6 +54,7 @@ public class DeleteCommentController {
 
     try {
       db = LorDataSource.getConnection();
+      tmpl.initCurrentUser(db);
 
       Comment comment = new Comment(db, msgid);
 
@@ -92,7 +93,8 @@ public class DeleteCommentController {
     @RequestParam("msgid") int msgid,
     @RequestParam("reason") String reason,
     @RequestParam(value="bonus", defaultValue="0") int bonus,
-    HttpSession session
+    HttpSession session,
+    HttpServletRequest request
   ) throws Exception {
     if (bonus < 0 || bonus > 20) {
       throw new BadParameterException("incorrect bonus value");
@@ -102,11 +104,14 @@ public class DeleteCommentController {
       throw new AccessViolationException("Not authorized");
     }
 
+    Template tmpl = Template.getTemplate(request);
+
     Connection db = null;
 
     try {
       db = LorDataSource.getConnection();
       db.setAutoCommit(false);
+      tmpl.initCurrentUser(db);
 
       CommentDeleter deleter = new CommentDeleter(db);
 

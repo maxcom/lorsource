@@ -51,6 +51,7 @@ public class AddMessageController extends ApplicationObjectSupport {
 
     try {
       db = LorDataSource.getConnection();
+      tmpl.initCurrentUser(db);
 
       Integer groupId = form.getGuid();
 
@@ -90,6 +91,7 @@ public class AddMessageController extends ApplicationObjectSupport {
     try {
       db = LorDataSource.getConnection();
       db.setAutoCommit(false);
+      tmpl.initCurrentUser(db);
 
       Group group = new Group(db, form.getGuid());
       params.put("group", group);

@@ -118,7 +118,7 @@
       </c:if>
     </div>
 <%
-  User currentUser = tmpl.getCurrentUser(db);
+  User currentUser = tmpl.getCurrentUser();
 
   if (!comment.isDeleted() && showMenu && topic.isCommentsAllowed(currentUser)) {
     out.append("<div class=reply>");

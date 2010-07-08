@@ -305,16 +305,26 @@ public class Template {
     return userAgent.detectAndroidWebKit();
   }
 
-  public User getCurrentUser(Connection db) throws SQLException, UserNotFoundException {
+  public void initCurrentUser(Connection db) throws UserNotFoundException, SQLException {
+    if (!isSessionAuthorized()) {
+      return;
+    }
+
+    if (currentUser != null) {
+      return;
+    }
+
+    currentUser = User.getUser(db, (String) session.getAttribute("nick"));
+  }
+
+  public User getCurrentUser() throws SQLException, UserNotFoundException {
     if (!isSessionAuthorized()) {
       return null;
     }
 
-    if (currentUser != null) {
-      return currentUser;
+    if (currentUser == null) {
+      throw new IllegalStateException("currentUser==null!? Please call initCurrentUser() first");
     }
-
-    currentUser = User.getUser(db, (String) session.getAttribute("nick"));
 
     return currentUser;
   }

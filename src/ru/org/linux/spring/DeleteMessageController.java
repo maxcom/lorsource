@@ -36,16 +36,20 @@ public class DeleteMessageController extends ApplicationObjectSupport {
   @RequestMapping(value="/delete.jsp", method= RequestMethod.GET)
   public ModelAndView showForm(
     @RequestParam("msgid") int msgid,
-    HttpSession session
+    HttpSession session,
+    HttpServletRequest request
   ) throws Exception {
     if (!Template.isSessionAuthorized(session)) {
       throw new AccessViolationException("Not authorized");
     }
 
+    Template tmpl = Template.getTemplate(request);
+
     Connection db = null;
     try {
       db = LorDataSource.getConnection();
-      
+      tmpl.initCurrentUser(db);
+
       Message msg = new Message(db, msgid);
 
       if (msg.isDeleted()) {
@@ -78,10 +82,13 @@ public class DeleteMessageController extends ApplicationObjectSupport {
       throw new AccessViolationException("Not authorized");
     }
 
+    Template tmpl = Template.getTemplate(request);
+
     Connection db = null;
     try {
       db = LorDataSource.getConnection();
       db.setAutoCommit(false);
+      tmpl.initCurrentUser(db);
 
       PreparedStatement lock = db.prepareStatement("SELECT deleted FROM topics WHERE id=? FOR UPDATE");
       PreparedStatement st1 = db.prepareStatement("UPDATE topics SET deleted='t',sticky='f' WHERE id=?");
@@ -212,6 +219,7 @@ public class DeleteMessageController extends ApplicationObjectSupport {
     Connection db = null;
     try {
       db = LorDataSource.getConnection();
+      tmpl.initCurrentUser(db);
 
       Message message = new Message(db, msgid);
 
@@ -243,6 +251,7 @@ public class DeleteMessageController extends ApplicationObjectSupport {
     try {
       db = LorDataSource.getConnection();
       db.setAutoCommit(false);
+      tmpl.initCurrentUser(db);
 
       Message message = new Message(db, msgid);
 

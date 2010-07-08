@@ -18,6 +18,7 @@ package ru.org.linux.spring;
 import java.sql.Connection;
 import java.util.HashMap;
 
+import javax.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -26,15 +27,21 @@ import org.springframework.web.servlet.ModelAndView;
 import ru.org.linux.site.AccessViolationException;
 import ru.org.linux.site.LorDataSource;
 import ru.org.linux.site.Message;
+import ru.org.linux.site.Template;
 
 @Controller
 public class CommentMessageController {
   @RequestMapping("/comment-message.jsp")
-  public ModelAndView showController(@RequestParam("msgid") int msgid) throws Exception {
+  public ModelAndView showController(
+    @RequestParam("msgid") int msgid,
+    HttpServletRequest request
+  ) throws Exception {
     Connection db = null;
+    Template tmpl = Template.getTemplate(request);
 
     try {
       db = LorDataSource.getConnection();
+      tmpl.initCurrentUser(db);
 
       Message message = new Message(db, msgid);
 

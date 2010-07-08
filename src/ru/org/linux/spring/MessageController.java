@@ -266,6 +266,7 @@ public class MessageController {
 
     try {
       db = LorDataSource.getConnection();
+      tmpl.initCurrentUser(db);
 
       if (message.isExpired() && showDeleted && !tmpl.isModeratorSession()) {
         throw new MessageNotFoundException(message.getId(), "нельзя посмотреть удаленные комментарии в устаревших темах");
