@@ -359,10 +359,6 @@ public class MessageController {
 
       List<PreparedComment> commentsPrepared = PreparedComment.prepare(db, comments, commentsFiltred);
 
-      for (Comment comment: commentsFiltred) {
-        commentsPrepared.add(new PreparedComment(db, comments, comment));
-      }
-
       params.put("commentsPrepared", commentsPrepared);      
 
       return new ModelAndView(rss?"view-message-rss":"view-message", params);
