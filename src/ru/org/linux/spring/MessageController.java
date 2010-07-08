@@ -45,7 +45,7 @@ public class MessageController {
     @PathVariable("group") String groupName,
     @PathVariable("id") int msgid
   ) throws Exception {
-    return getMessageNew(Section.SECTION_FORUM, webRequest, request, response, null, filter, groupName, msgid);
+    return getMessageNew(Section.SECTION_FORUM, webRequest, request, response, 0, filter, groupName, msgid);
   }
 
   @RequestMapping("/news/{group}/{id}")
@@ -57,7 +57,7 @@ public class MessageController {
     @PathVariable("group") String groupName,
     @PathVariable("id") int msgid
   ) throws Exception {
-    return getMessageNew(Section.SECTION_NEWS, webRequest, request, response, null, filter, groupName, msgid);
+    return getMessageNew(Section.SECTION_NEWS, webRequest, request, response, 0, filter, groupName, msgid);
   }
 
   @RequestMapping("/polls/{group}/{id}")
@@ -69,7 +69,7 @@ public class MessageController {
     @PathVariable("group") String groupName,
     @PathVariable("id") int msgid
   ) throws Exception {
-    return getMessageNew(Section.SECTION_POLLS, webRequest, request, response, null, filter, groupName, msgid);
+    return getMessageNew(Section.SECTION_POLLS, webRequest, request, response, 0, filter, groupName, msgid);
   }
 
   @RequestMapping("/gallery/{group}/{id}")
@@ -81,7 +81,7 @@ public class MessageController {
     @PathVariable("group") String groupName,
     @PathVariable("id") int msgid
   ) throws Exception {
-    return getMessageNew(Section.SECTION_GALLERY, webRequest, request, response, null, filter, groupName, msgid);
+    return getMessageNew(Section.SECTION_GALLERY, webRequest, request, response, 0, filter, groupName, msgid);
   }
 
   @RequestMapping("/forum/{group}/{id}/page{page}")
@@ -141,7 +141,7 @@ public class MessageController {
     WebRequest webRequest,
     HttpServletRequest request,
     HttpServletResponse response,
-    Integer page,
+    int page,
     String filter,
     String groupName,
     int msgid
@@ -226,7 +226,7 @@ public class MessageController {
     HttpServletResponse response,
     Message message,
     Group group,
-    Integer page,
+    int page,
     String filter
   ) throws Exception {
     Template tmpl = Template.getTemplate(request);
@@ -237,18 +237,20 @@ public class MessageController {
 
     params.put("msgid", message.getId());
 
-    if (page!=null) {
-      params.put("page", page);
-    }
+    params.put("page", page);
 
     boolean showDeleted = request.getParameter("deleted") != null;
+    if (showDeleted) {
+      page = -1;
+    }
+
     boolean rss = request.getParameter("output")!=null && "rss".equals(request.getParameter("output"));
 
     if (showDeleted && !"POST".equals(request.getMethod())) {
       return new ModelAndView(new RedirectView(message.getLink()));
     }
 
-    if (page!=null && page==-1 && !tmpl.isSessionAuthorized()) {
+    if (page==-1 && !tmpl.isSessionAuthorized()) {
       return new ModelAndView(new RedirectView(message.getLink()));
     }
 
@@ -341,7 +343,20 @@ public class MessageController {
       params.put("defaultFilterMode", defaultFilterMode);
 
       Set<Integer> hideSet = CommentList.makeHideSet(db, comments, filterMode, ignoreList);
-      params.put("hideSet", hideSet);
+
+      int offset = 0;
+      int limit = 0;
+      boolean reverse = tmpl.getProf().getBoolean("newfirst");
+      int messages = tmpl.getProf().getInt("messages");
+
+      if (page != -1) {
+        limit = messages;
+        offset = messages * page;
+      }
+
+      CommentFilter cv = new CommentFilter(comments);
+
+      params.put("commentsPrepared", cv.getComments(reverse, offset, limit, hideSet));      
 
       return new ModelAndView(rss?"view-message-rss":"view-message", params);
     } finally {

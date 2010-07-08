@@ -1,5 +1,5 @@
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="java.sql.Connection,java.util.Set,ru.org.linux.site.*,ru.org.linux.util.ServletParameterParser,ru.org.linux.util.StringUtil"   buffer="200kb"%>
+<%@ page import="java.sql.Connection,ru.org.linux.site.*,ru.org.linux.util.ServletParameterParser,ru.org.linux.util.StringUtil"   buffer="200kb"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
@@ -26,6 +26,8 @@
 <%--@elvariable id="showDeleted" type="Boolean"--%>
 <%--@elvariable id="comments" type="ru.org.linux.site.CommentList"--%>
 <%--@elvariable id="group" type="ru.org.linux.site.Group"--%>
+<%--@elvariable id="commentsPrepared" type="java.util.List<ru.org.linux.site.Comment>"--%>
+<%--@elvariable id="page" type="Integer"--%>
 
 <% Template tmpl = Template.getTemplate(request); %>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
@@ -41,16 +43,9 @@
     int filterMode = (Integer) request.getAttribute("filterMode");
     int defaultFilterMode = (Integer) request.getAttribute("defaultFilterMode");
 
-    int npage = 0;
-    if (request.getAttribute("page") != null) {
-      npage = (Integer) request.getAttribute("page");
-    }
+    int npage = (Integer) request.getAttribute("page");
 
     boolean showDeleted = (Boolean) request.getAttribute("showDeleted");
-
-    if (showDeleted) {
-      npage = -1;
-    }
 
   Message message = (Message) request.getAttribute("message");
   Message prevMessage = (Message) request.getAttribute("prevMessage");
@@ -96,11 +91,7 @@
       <li>[<a href="${message.link}?output=rss">RSS</a>]</li>
 
       <c:if test="${!showDeleted}">
-<%
-    if (npage != 0) {
-      out.print("<input type=hidden name=page value=\"" + npage + "\">");
-    }
-%>
+        <input type=hidden name=page value="${page}">
         <c:if test="${not template.usingDefaultProfile}">
            <li>[<a href="ignore-list.jsp">Фильтр</a>]</li>
         </c:if>
@@ -256,7 +247,6 @@
 
     bufInfo.append("[страница");
 
-
     StringBuilder urlAdd = new StringBuilder();
     if (!message.isExpired()) {
       urlAdd.append("?lastmod="+message.getLastModified().getTime());
@@ -310,14 +300,6 @@
       bufInfo.append(" →");
     }
 
-//    if (Template.isSessionAuthorized(session)) {
-//      if (npage!=-1) {
-//        bufInfo.append("&emsp;<a href=\"").append(message.getLinkPage(-1)).append(urlAdd).append("\">все").append("</a>");
-//      } else {
-//        bufInfo.append("&emsp;<strong>все").append("</strong>");
-//      }
-//    }
-
     bufInfo.append(']');
     pageInfo = bufInfo.toString();
   }
@@ -344,22 +326,6 @@
   <br>
 </c:if>
 
-<%
-    int offset = 0;
-    int limit = 0;
-    boolean reverse = tmpl.getProf().getBoolean("newfirst");
-
-    if (npage != -1) {
-      limit = messages;
-      offset = messages * npage;
-    }
-
-    CommentList comments = (CommentList) request.getAttribute("comments");
-    Set<Integer> hideSet = (Set<Integer>) request.getAttribute("hideSet");
-
-    CommentFilter cv = new CommentFilter(comments);
-%>
-<c:set var="commentsPrepared" value="<%= cv.getComments(reverse, offset, limit, hideSet) %>"/>
 <c:if test="${fn:length(commentsPrepared)>0}">
   <div class=nav>
 <%
