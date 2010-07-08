@@ -36,9 +36,13 @@ public class PreparedComment {
     if (comment.getReplyTo()!=0 && comments!=null) {
       CommentNode replyNode = comments.getNode(comment.getReplyTo());
 
-      Comment reply = replyNode.getComment();
+      if (replyNode!=null) {
+        Comment reply = replyNode.getComment();
 
-      replyAuthor = User.getUserCached(db, reply.getUserid());
+        replyAuthor = User.getUserCached(db, reply.getUserid());
+      } else {
+        replyAuthor = null;
+      }
     } else {
       replyAuthor = null;
     }
