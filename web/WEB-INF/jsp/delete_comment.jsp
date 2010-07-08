@@ -1,6 +1,6 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page contentType="text/html; charset=utf-8" %>
-<%@ page import="java.sql.Connection,ru.org.linux.site.LorDataSource" %>
+<%@ page import="java.sql.Connection" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 
 <%--
@@ -24,11 +24,6 @@
 
 <title>Удаление сообщения</title>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
-<%
-  Connection db = null;
-
-  try {
-%>
 <script language="Javascript" type="text/javascript">
   <!--
   function change(dest, source)
@@ -90,21 +85,11 @@
 </form>
 <div class="messages">
   <div class="comment">
-    <%
-      db = LorDataSource.getConnection();
-    %>
     <c:forEach var="comment" items="${commentsPrepared}">
-      <lor:comment showMenu="true" comment="${comment}" db="<%= db %>" comments="${comments}"
+      <lor:comment showMenu="true" comment="${comment}" comments="${comments}"
                    expired="${topic.expired}" topic="${topic}"/>
     </c:forEach>
 
   </div>
 </div>
-<%
-  } finally {
-    if (db != null) {
-      db.close();
-    }
-  }
-%>
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>

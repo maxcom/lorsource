@@ -18,8 +18,7 @@
   ~    limitations under the License.
   --%>
 
-<%@ attribute name="comment" required="true" type="ru.org.linux.site.Comment" %>
-<%@ attribute name="db" required="true" type="java.sql.Connection" %>
+<%@ attribute name="comment" required="true" type="ru.org.linux.site.PreparedComment" %>
 <%@ attribute name="comments" required="true" type="ru.org.linux.site.CommentList" %>
 <%@ attribute name="expired" required="true" type="java.lang.Boolean"%>
 <%@ attribute name="showMenu" required="true" type="java.lang.Boolean"%>
@@ -34,32 +33,32 @@
   boolean moderatorMode = tmpl.isModeratorSession();
 
   out.append("\n\n<!-- ");
-  out.append(Integer.toString(comment.getMessageId()));
+  out.append(Integer.toString(comment.getComment().getMessageId()));
   out.append(" -->\n");
 
-  User author = User.getUserCached(db, comment.getUserid());
+  User author = comment.getAuthor();
 %>
-<div class="msg" id="comment-${comment.messageId}">
+<div class="msg" id="comment-${comment.comment.messageId}">
 <c:if test="${showMenu}">
   <div class=title>
 <%
     DateFormat dateFormat = tmpl.dateFormat;
 
-    if (!comment.isDeleted()) {
-      out.append("[<a href=\"/jump-message.jsp?msgid=").append(Integer.toString(comment.getTopic())).append("&amp;cid=").append(Integer.toString(comment.getMessageId())).append("\">#</a>]");
+    if (!comment.getComment().isDeleted()) {
+      out.append("[<a href=\"/jump-message.jsp?msgid=").append(Integer.toString(comment.getComment().getTopic())).append("&amp;cid=").append(Integer.toString(comment.getComment().getMessageId())).append("\">#</a>]");
     }
 
-    if (comment.isDeleted()) {
-      if (comment.getDeleteInfo() ==null) {
+    if (comment.getComment().isDeleted()) {
+      if (comment.getComment().getDeleteInfo() ==null) {
         out.append("<strong>Сообщение удалено</strong>");
       } else {
-        out.append("<strong>Сообщение удалено ").append(comment.getDeleteInfo().getNick()).append(" по причине '").append(HTMLFormatter.htmlSpecialChars(comment.getDeleteInfo().getReason())).append("'</strong>");
+        out.append("<strong>Сообщение удалено ").append(comment.getComment().getDeleteInfo().getNick()).append(" по причине '").append(HTMLFormatter.htmlSpecialChars(comment.getComment().getDeleteInfo().getReason())).append("'</strong>");
       }
     }
 %>
-<c:if test="${comment.replyTo!=0}">
+<c:if test="${comment.comment.replyTo!=0}">
     <%
-      CommentNode replyNode = comments.getNode(comment.getReplyTo());
+      CommentNode replyNode = comments.getNode(comment.getComment().getReplyTo());
       if (replyNode != null) {
         Comment reply = replyNode.getComment();
 
@@ -72,11 +71,11 @@
           urladd = "?lastmod=" + comments.getLastModified();
         }
 
-        out.append(topic.getLinkPage(replyPage)).append(urladd).append("#comment-").append(Integer.toString(comment.getReplyTo()));
+        out.append(topic.getLinkPage(replyPage)).append(urladd).append("#comment-").append(Integer.toString(comment.getComment().getReplyTo()));
 
         out.append("\" onclick=\"highlightMessage(").append(Integer.toString(reply.getMessageId())).append(");\">");
 
-        User replyAuthor = User.getUserCached(db, reply.getUserid());
+        User replyAuthor = comment.getReplyAuthor();
 
         String title = reply.getTitle();
 
@@ -99,35 +98,35 @@
   </c:if>
 
   <div class="msg_body ${msgBodyStyle}">
-    <c:if test="${fn:length(comment.title)>0}">
-      <h2>${comment.title}</h2>
+    <c:if test="${fn:length(comment.comment.title)>0}">
+      <h2>${comment.comment.title}</h2>
     </c:if>
   <%
-    out.append(comment.getProcessedMessage(db));
+    out.append(comment.getProcessedMessage());
   %>
     <div class=sign>
     <%
-  out.append(author.getSignature(tmpl.dateFormat, moderatorMode, comment.getPostdate(), tmpl.isMobile()));
+  out.append(author.getSignature(tmpl.dateFormat, moderatorMode, comment.getComment().getPostdate(), tmpl.isMobile()));
 %>
       <c:if test="${template.moderatorSession}">
-        (<a href="sameip.jsp?msgid=${comment.id}"">${comment.postIP}</a>)
-        <c:if test="${comment.userAgent!=null and not template.mobile}">
+        (<a href="sameip.jsp?msgid=${comment.comment.id}"">${comment.comment.postIP}</a>)
+        <c:if test="${comment.comment.userAgent!=null and not template.mobile}">
           <br>
-          <span class="sign_more"><c:out value="${comment.userAgent}" escapeXml="true"/></span>
+          <span class="sign_more"><c:out value="${comment.comment.userAgent}" escapeXml="true"/></span>
         </c:if>
       </c:if>
     </div>
 <%
   User currentUser = tmpl.getCurrentUser();
 
-  if (!comment.isDeleted() && showMenu && topic.isCommentsAllowed(currentUser)) {
+  if (!comment.getComment().isDeleted() && showMenu && topic.isCommentsAllowed(currentUser)) {
     out.append("<div class=reply>");
     if (!expired) {
-      out.append("[<a href=\"add_comment.jsp?topic=").append(Integer.toString(comment.getTopic())).append("&amp;replyto=").append(Integer.toString(comment.getMessageId())).append("\">Ответить на это сообщение</a>] ");
+      out.append("[<a href=\"add_comment.jsp?topic=").append(Integer.toString(comment.getComment().getTopic())).append("&amp;replyto=").append(Integer.toString(comment.getComment().getMessageId())).append("\">Ответить на это сообщение</a>] ");
     }
 
     if ((moderatorMode || author.getNick().equals(Template.getNick(session)))) {
-      out.append("[<a href=\"delete_comment.jsp?msgid=").append(Integer.toString(comment.getMessageId())).append("\">Удалить</a>]");
+      out.append("[<a href=\"delete_comment.jsp?msgid=").append(Integer.toString(comment.getComment().getMessageId())).append("\">Удалить</a>]");
     }
 
     out.append("</div>");

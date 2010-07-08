@@ -80,10 +80,10 @@ public class AddCommentController extends ApplicationObjectSupport {
     }
   }
 
-  private static void createReplyTo(Integer replyTo, Map<String, Object> params, Connection db) throws SQLException, MessageNotFoundException, AccessViolationException {
+  private static void createReplyTo(Integer replyTo, Map<String, Object> params, Connection db) throws SQLException, MessageNotFoundException, AccessViolationException, UserNotFoundException {
     if (replyTo != null && replyTo>0) {
       Comment onComment = new Comment(db, replyTo);
-      params.put("onComment", onComment);
+      params.put("onComment", new PreparedComment(db, null, onComment));
       if (onComment.isDeleted()) {
         throw new AccessViolationException("нельзя комментировать удаленные комментарии");
       }
@@ -184,7 +184,7 @@ public class AddCommentController extends ApplicationObjectSupport {
         user = User.getUser(db, request.getParameter("nick"));
         user.checkPassword(request.getParameter("password"));
       } else {
-        user = Template.getCurrentUser(db, session);
+        user = tmpl.getCurrentUser();
       }
 
       user.checkBlocked();
@@ -195,7 +195,7 @@ public class AddCommentController extends ApplicationObjectSupport {
 
       comment.setAuthor(user.getId());
 
-      formParams.put("comment", comment);
+      formParams.put("comment", new PreparedComment(db, null, comment));
 
       if (title.length() > Comment.TITLE_LENGTH) {
         throw new BadInputException("заголовок превышает " + Comment.TITLE_LENGTH + " символов");

@@ -26,7 +26,7 @@
 <%--@elvariable id="showDeleted" type="Boolean"--%>
 <%--@elvariable id="comments" type="ru.org.linux.site.CommentList"--%>
 <%--@elvariable id="group" type="ru.org.linux.site.Group"--%>
-<%--@elvariable id="commentsPrepared" type="java.util.List<ru.org.linux.site.Comment>"--%>
+<%--@elvariable id="commentsPrepared" type="java.util.List<ru.org.linux.site.CommentPrepared>"--%>
 <%--@elvariable id="page" type="Integer"--%>
 
 <% Template tmpl = Template.getTemplate(request); %>
@@ -35,7 +35,6 @@
 <%
   Connection db = null;
 
-  try {
     int msgid = (Integer) request.getAttribute("msgid");
 
     String nick = Template.getNick(session);
@@ -304,6 +303,8 @@
     pageInfo = bufInfo.toString();
   }
 
+  try {
+
   db = LorDataSource.getConnection();
 
   if (request.getParameter("highlight") != null) {
@@ -314,6 +315,13 @@
 %>
 <lor:message db="<%= db %>" message="${message}" showMenu="true" user="<%= nick %>"/>
 <%
+  }
+%>
+<%
+  } finally {
+    if (db!=null) {
+      db.close();
+    }
   }
 %>
 
@@ -344,7 +352,7 @@
   </c:if>
   <div class="comment">
     <c:forEach var="comment" items="${commentsPrepared}">
-      <lor:comment topic="${message}" showMenu="true" comment="${comment}" db="<%= db %>" comments="${comments}" expired="${message.expired}"/>
+      <lor:comment topic="${message}" showMenu="true" comment="${comment}" comments="${comments}" expired="${message.expired}"/>
     </c:forEach>
   </div>
 <c:if test="${fn:length(commentsPrepared) > 0}">
@@ -367,13 +375,6 @@
 <hr>
 <% } %>
 
-<%
-  } finally {
-    if (db!=null) {
-      db.close();
-    }
-  }
-%>
 
 <c:if test="${not template.mobile}">
   <script type="text/javascript">

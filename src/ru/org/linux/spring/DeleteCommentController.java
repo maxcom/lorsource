@@ -77,7 +77,8 @@ public class DeleteCommentController {
       CommentFilter cv = new CommentFilter(comments);
 
       List<Comment> list = cv.getCommentsSubtree(msgid);
-      params.put("commentsPrepared", list);
+
+      params.put("commentsPrepared", PreparedComment.prepare(db, comments, list));
       params.put("comments", comments);
 
       return new ModelAndView("delete_comment", params);

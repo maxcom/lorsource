@@ -17,9 +17,7 @@ package ru.org.linux.spring;
 
 import java.net.URLEncoder;
 import java.sql.Connection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -357,7 +355,15 @@ public class MessageController {
 
       CommentFilter cv = new CommentFilter(comments);
 
-      params.put("commentsPrepared", cv.getComments(reverse, offset, limit, hideSet));      
+      List<Comment> commentsFiltred = cv.getComments(reverse, offset, limit, hideSet);
+
+      List<PreparedComment> commentsPrepared = PreparedComment.prepare(db, comments, commentsFiltred);
+
+      for (Comment comment: commentsFiltred) {
+        commentsPrepared.add(new PreparedComment(db, comments, comment));
+      }
+
+      params.put("commentsPrepared", commentsPrepared);      
 
       return new ModelAndView(rss?"view-message-rss":"view-message", params);
     } finally {

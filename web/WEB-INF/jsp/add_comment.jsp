@@ -2,6 +2,7 @@
 <%@ page
         import="java.sql.Connection,ru.org.linux.site.Comment,ru.org.linux.site.LorDataSource" %>
 <%@ page import="ru.org.linux.util.HTMLFormatter" %>
+<%@ page import="ru.org.linux.site.PreparedComment" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
@@ -50,21 +51,17 @@
 <p>
 
   <%
-    Connection db = null;
-
-    try {
-      db = LorDataSource.getConnection();
 
       String title = "";
       Integer replyto = null;
 
-      Comment onComment = (Comment) request.getAttribute("onComment");
+      PreparedComment onComment = (PreparedComment) request.getAttribute("onComment");
 
       if (onComment != null) {
-        replyto = onComment.getId();
+        replyto = onComment.getComment().getId();
 
-        if (onComment.getTitle().length()>0) {
-          title = onComment.getTitle();
+        if (onComment.getComment().getTitle().length()>0) {
+          title = onComment.getComment().getTitle();
           if (!title.startsWith("Re:")) {
             title = "Re: " + title;
           }
@@ -74,7 +71,6 @@
   <lor:comment
           showMenu="false"
           comment="${onComment}"
-          db="<%= db %>"
           comments="${null}"
           expired="${false}" topic="${null}"/>
 </div>
@@ -88,7 +84,7 @@
 <c:if test="${comment!=null}">
   <p><b>Ваше сообщение</b></p>
   <div class=messages>
-    <lor:comment showMenu="false" comment="${comment}" db="<%= db %>" comments="${null}" expired="${false}" topic="${null}"/>
+    <lor:comment showMenu="false" comment="${comment}" comments="${null}" expired="${false}" topic="${null}"/>
   </div>
 </c:if>
 
@@ -105,13 +101,5 @@
         msg="<%=request.getParameter(&quot;msg&quot;)%>"
         mode="${mode}"
         postscore="${postscore}"/>
-
-<%
-    } finally {
-      if (db != null) {
-        db.close();
-      }
-    }
-  %>
 
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>
