@@ -198,7 +198,7 @@
       }
     }
 
-    if (tmpl.isSessionAuthorized() && tmpl.getStyle().equals("tango")) {
+    if (tmpl.isSessionAuthorized()) {
       int memId = MemoriesListItem.getId(db, currentUser.getId(), msgid);
 
       if (memId!=0) {
