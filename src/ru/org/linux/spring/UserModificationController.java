@@ -75,6 +75,7 @@ public class UserModificationController extends ApplicationObjectSupport {
           Map<String, Object> params = new HashMap<String, Object>();
           params.put("message", "Удалено");
           params.put("bigMessage", user.deleteAllComments(db, moderator));
+          db.commit();
           return new ModelAndView("action-done", params);
         }
       } else if ("toggle_corrector".equals(action)) {
