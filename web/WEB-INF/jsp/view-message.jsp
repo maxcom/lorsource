@@ -346,9 +346,11 @@
     </div>
   </c:if>
   <c:if test="<%= pageInfo!=null %>">
+    <c:if test="${not showDeleted}">
     <div class="nav">
       <%= pageInfo %>
     </div>
+    </c:if>
   </c:if>
   <div class="comment">
     <c:forEach var="comment" items="${commentsPrepared}">
