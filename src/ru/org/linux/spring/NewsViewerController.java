@@ -40,7 +40,7 @@ import ru.org.linux.util.ServletParameterMissingException;
 
 @Controller
 public class NewsViewerController {
-  @RequestMapping(value = "/view-news.jsp", method = RequestMethod.GET)
+  @RequestMapping(value = "/view-news.jsp", method = {RequestMethod.GET, RequestMethod.HEAD})
   public ModelAndView showNews(
     @RequestParam(value="month", required=false) Integer month,
     @RequestParam(value="year", required=false) Integer year,
@@ -328,7 +328,7 @@ public class NewsViewerController {
     }
   }
 
-  @RequestMapping(value="/view-all.jsp", method=RequestMethod.GET)
+  @RequestMapping(value="/view-all.jsp", method={RequestMethod.GET, RequestMethod.HEAD})
   public ModelAndView viewAll(
     @RequestParam(value="section", required = false, defaultValue = "0") int sectionId
   ) throws Exception {
