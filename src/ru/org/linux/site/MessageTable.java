@@ -16,6 +16,7 @@
 package ru.org.linux.site;
 
 import java.io.IOException;
+import java.io.File;
 import java.sql.Connection;
 import java.sql.SQLException;
 
@@ -35,7 +36,7 @@ public class MessageTable {
 
     if (topic.getSection().isImagepost()) {
       ImageInfo iconInfo = new ImageInfo(htmlPath + topic.getLinktext());
-      ImageInfo info = new ImageInfo(htmlPath + topic.getUrl());
+      ImageInfo info = new ImageInfo(htmlPath + topic.getUrl(), ImageInfo.detectImageType(new File(htmlPath + topic.getUrl())));
 
       buf.append(topic.getProcessedMessage(db));
       buf.append("<p><img src=\"" + fullUrl + topic.getLinktext() + "\" ALT=\"" + topic.getTitle() + "\" " + iconInfo.getCode() + " >");
