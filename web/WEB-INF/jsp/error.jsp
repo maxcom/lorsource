@@ -81,11 +81,15 @@
   }
   text.append("\n\n");
   text.append("Main URL: ").append(tmpl.getMainUrl()).append('\n');
-  text.append("Req. URI: ").append(request.getAttribute("javax.servlet.error.request_uri")).append('\n');
+  text.append("Req. URI: ").append(request.getAttribute("javax.servlet.error.request_uri"));
 
   if (request.getQueryString()!=null) {
-    text.append("Req. Query: ").append(request.getQueryString()).append('\n');
+    text.append("?").append(request.getQueryString()).append('\n');
   }
+
+  text.append("\n");
+
+  text.append("IP: "+request.getRemoteAddr()+"\n");
   
   text.append(" Headers: ");
   Enumeration enu = request.getHeaderNames();
