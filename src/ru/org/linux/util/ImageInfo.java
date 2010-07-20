@@ -34,6 +34,8 @@ public class ImageInfo{
   private int width = -1;
   private int size = 0;
 
+  private final String filename;
+
   @SuppressWarnings({"UseOfSystemOutOrSystemErr"})
   public static void main(String[] args) throws Exception {
     ImageInfo info = new ImageInfo(args[0]);
@@ -87,10 +89,11 @@ public class ImageInfo{
    */
   public ImageInfo(String filename) throws BadImageException, IOException {
     FileInputStream fileStream = null;
+    this.filename = filename;
 
     try {
       fileStream = new FileInputStream(filename);
-      size = fileStream.available();
+      size = (int) new File(filename).length();
 
       String lowname = filename.toLowerCase();
 
@@ -116,6 +119,7 @@ public class ImageInfo{
 
   public ImageInfo(String filename, String extension) throws BadImageException, IOException {
     FileInputStream fileStream = null;
+    this.filename = filename;
 
     try {
       fileStream = new FileInputStream(filename);
@@ -151,7 +155,7 @@ public class ImageInfo{
         width = shortLittleEndian(bytes[6], bytes[7]);
         height = shortLittleEndian(bytes[8], bytes[9]);
       } else {
-        throw new BadImageException();
+        throw new BadImageException("Bad GIF image: "+filename);
       }
     }
   }
@@ -165,7 +169,7 @@ public class ImageInfo{
         width = intBigEndian(bytes[16], bytes[17], bytes[18], bytes[19]);
         height = intBigEndian(bytes[20], bytes[21], bytes[22], bytes[23]);
       } else {
-        throw new BadImageException();
+        throw new BadImageException("Bad PNG image: "+filename);
       }
     }
   }
@@ -193,7 +197,7 @@ public class ImageInfo{
         }
       }
     } else {
-      throw new BadImageException();
+      throw new BadImageException("Bad JPG image: "+filename);
     }
   }
 
@@ -207,10 +211,6 @@ public class ImageInfo{
 
   private int intBigEndian(byte a1, byte a2, byte a3, byte a4) {
     return ((a1 & 0xFF) << 24) | ((a2 & 0xFF) << 16) | ((a3 & 0xFF) << 8) | a4 & 0xFF;
-  }
-
-  private int intLittleEndian(byte a1, byte a2, byte a3, byte a4) {
-    return intBigEndian(a4, a3, a2, a1);
   }
 
   public int getHeight() {
