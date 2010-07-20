@@ -29,7 +29,7 @@ import ru.org.linux.site.*;
 
 @Controller
 public class IgnoreListController {
-  @RequestMapping(value="/ignore-list.jsp", method= RequestMethod.GET)
+  @RequestMapping(value="/ignore-list.jsp", method={RequestMethod.GET, RequestMethod.HEAD})
   public ModelAndView showList(HttpServletRequest request) throws Exception {
     Template tmpl = Template.getTemplate(request);
 
