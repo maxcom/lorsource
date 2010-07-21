@@ -154,14 +154,15 @@
   <c:if test="${template.sessionAuthorized}">
   <%
   List<EditInfoDTO> editInfo = message.loadEditInfo(db);
-  if (editInfo!=null) {
-    for (EditInfoDTO info : editInfo) {
+  if (editInfo!=null && editInfo.size()>0) {
+    EditInfoDTO info = editInfo.get(0);
       User editor = User.getUserCached(db, info.getEditor());
 %>
   <br>
-  Исправлено: <%= editor.getNick() %> <lor:date date="<%= info.getEditdate() %>"/>
+  Последнее исправление: <%= editor.getNick() %> <lor:date date="<%= info.getEditdate() %>"/>
+    (всего <a href="${message.link}/history">исправлений: <%= editInfo.size() %></a>)
   <%
-    }
+
   }
 %>
     </c:if>

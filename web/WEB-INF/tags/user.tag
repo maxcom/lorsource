@@ -13,13 +13,20 @@
   ~    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
-  --%><%@ attribute name="db" required="true" type="java.sql.Connection" %><%@
+  --%><%@ attribute name="db" required="false" type="java.sql.Connection" %><%@
         attribute name="decorate" required="false" type="java.lang.Boolean" %><%@
-        attribute name="id" required="true" type="java.lang.Integer" %><%
+        attribute name="user" required="false" type="ru.org.linux.site.User" %><%@
+        attribute name="id" required="false" type="java.lang.Integer" %><%
+  if (user!=null) {
+    id = user.getId();
+  }
+
   if (id == 2) {
     out.print("anonymous");
   } else {
-    User user = User.getUserCached(db, id);
+    if (user==null) {
+      user = User.getUserCached(db, id);
+    }
 
     if (decorate != null && decorate) {
       if (user.isBlocked()) {
