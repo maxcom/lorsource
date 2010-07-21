@@ -50,6 +50,8 @@ public class EditInfoController {
 
       Message message = new Message(db, msgid);
 
+      String messageText = message.getProcessedMessage(db);
+
       List<EditInfoDTO> editInfoDTOs = message.loadEditInfo(db);
       List<PreparedEditInfo> editInfos = new ArrayList<PreparedEditInfo>(editInfoDTOs.size());
 
@@ -58,6 +60,7 @@ public class EditInfoController {
       }
 
       mv.getModel().put("message", message);
+      mv.getModel().put("messageText", messageText);
       mv.getModel().put("editInfos", editInfos);
 
       return mv;
