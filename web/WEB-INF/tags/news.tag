@@ -3,6 +3,7 @@
 <%@ tag import="ru.org.linux.util.BadImageException" %>
 <%@ tag import="ru.org.linux.util.HTMLFormatter" %>
 <%@ tag import="ru.org.linux.util.ImageInfo" %>
+<%@ tag import="java.io.File" %>
 <%@ tag pageEncoding="UTF-8"%>
 <%@ attribute name="db" required="true" type="java.sql.Connection" %>
 <%@ attribute name="message" required="true" type="ru.org.linux.site.Message" %>
@@ -99,7 +100,8 @@
 
     out.append("<p>&gt;&gt;&gt; <a href=\"").append(HTMLFormatter.htmlSpecialChars(url)).append("\">").append(message.getLinktext()).append("</a>");
   } else if (imagepost) {
-    ImageInfo info = new ImageInfo(tmpl.getConfig().getProperty("HTMLPathPrefix") + url);
+    String imageFilename = tmpl.getConfig().getProperty("HTMLPathPrefix") + url;
+    ImageInfo info = new ImageInfo(imageFilename, ImageInfo.detectImageType(new File(imageFilename)));
 
     out.append("<p>&gt;&gt;&gt; <a href=\"/").append(url).append("\">Просмотр</a>");
     out.append(" (<i>").append(Integer.toString(info.getWidth())).append('x').append(Integer.toString(info.getHeight())).append(", ").append(info.getSizeString()).append("</i>)");
