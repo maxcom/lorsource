@@ -29,7 +29,7 @@ import ru.org.linux.site.ViewerCacher;
 
 @Controller
 public class SearchController {
-  @RequestMapping(value="/search.jsp", method= RequestMethod.GET)
+  @RequestMapping(value="/search.jsp", method={RequestMethod.GET, RequestMethod.HEAD})
   public ModelAndView search(
     @RequestParam(value="q", required=false) String q,
     @RequestParam(value="include", required=false) String includeString,
