@@ -28,6 +28,8 @@
 <h1>История изменений</h1>
 
 <div class="messages">
+  <p>Текущая версия</p>
+
   <div class="msg">
     <div class="msg_body">
       ${messageText}
@@ -45,6 +47,8 @@
       </div>
     </div>
 </c:forEach>
+
+  <p>Исходная версия</p>
 </div>
 
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>
