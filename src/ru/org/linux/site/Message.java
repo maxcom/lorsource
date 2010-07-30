@@ -637,6 +637,10 @@ public class Message implements Serializable {
       return false;
     }
 
+    if (user!=null && !user.isAnonymous() && user.getId()==userid) {
+      return true;
+    }
+
     int score = getPostScore();
 
     if (score!=0) {
@@ -665,6 +669,10 @@ public class Message implements Serializable {
 
     if (expired) {
       throw new AccessViolationException("Сообщение уже устарело");
+    }
+
+    if (!user.isAnonymous() && user.getId()==userid) {
+      return;
     }
 
     int score = getPostScore();
