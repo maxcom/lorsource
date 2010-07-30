@@ -17,7 +17,10 @@ package ru.org.linux.spring;
 
 import java.net.URLEncoder;
 import java.sql.Connection;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -155,7 +158,7 @@ public class MessageController {
         return new ModelAndView(new RedirectView(message.getLink()));
       }
 
-      return getMessage(webRequest, request, response, message, group, page, filter);
+      return getMessage(db, webRequest, request, response, message, group, page, filter);
     } finally {
       if (db!=null) {
         db.close();
@@ -219,6 +222,7 @@ public class MessageController {
   }
 
   private ModelAndView getMessage(
+    Connection db,
     WebRequest webRequest,
     HttpServletRequest request,
     HttpServletResponse response,
@@ -242,13 +246,13 @@ public class MessageController {
       page = -1;
     }
 
-    boolean rss = request.getParameter("output")!=null && "rss".equals(request.getParameter("output"));
+    boolean rss = request.getParameter("output") != null && "rss".equals(request.getParameter("output"));
 
     if (showDeleted && !"POST".equals(request.getMethod())) {
       return new ModelAndView(new RedirectView(message.getLink()));
     }
 
-    if (page==-1 && !tmpl.isSessionAuthorized()) {
+    if (page == -1 && !tmpl.isSessionAuthorized()) {
       return new ModelAndView(new RedirectView(message.getLink()));
     }
 
@@ -260,113 +264,104 @@ public class MessageController {
 
     params.put("showDeleted", showDeleted);
 
-    Connection db = null;
+    tmpl.initCurrentUser(db);
 
-    try {
-      db = LorDataSource.getConnection();
-      tmpl.initCurrentUser(db);
+    if (message.isExpired() && showDeleted && !tmpl.isModeratorSession()) {
+      throw new MessageNotFoundException(message.getId(), "нельзя посмотреть удаленные комментарии в устаревших темах");
+    }
 
-      if (message.isExpired() && showDeleted && !tmpl.isModeratorSession()) {
-        throw new MessageNotFoundException(message.getId(), "нельзя посмотреть удаленные комментарии в устаревших темах");
-      }
+    if (message.isExpired() && message.isDeleted() && !tmpl.isModeratorSession()) {
+      throw new MessageNotFoundException(message.getId(), "нельзя посмотреть устаревшие удаленные сообщения");
+    }
 
-      if (message.isExpired() && message.isDeleted() && !tmpl.isModeratorSession()) {
-        throw new MessageNotFoundException(message.getId(), "нельзя посмотреть устаревшие удаленные сообщения");
-      }
+    if (message.isDeleted() && !Template.isSessionAuthorized(request.getSession())) {
+      throw new MessageNotFoundException(message.getId(), "Сообщение удалено");
+    }
 
-      if (message.isDeleted() && !Template.isSessionAuthorized(request.getSession())) {
-        throw new MessageNotFoundException(message.getId(), "Сообщение удалено");
-      }
+    params.put("group", group);
 
-      params.put("group", group);
+    if (group.getCommentsRestriction() == -1 && !Template.isSessionAuthorized(request.getSession())) {
+      throw new AccessViolationException("Это сообщение нельзя посмотреть");
+    }
 
-      if (group.getCommentsRestriction()==-1 && !Template.isSessionAuthorized(request.getSession())) {
-        throw new AccessViolationException("Это сообщение нельзя посмотреть");
-      }
+    if (!tmpl.isSessionAuthorized()) { // because users have IgnoreList and memories
+      String etag = getEtag(message, tmpl);
+      response.setHeader("Etag", etag);
 
-      if (!tmpl.isSessionAuthorized()) { // because users have IgnoreList and memories
-        String etag = getEtag(message, tmpl);
-        response.setHeader("Etag", etag);
-
-        if (request.getHeader("If-None-Match") != null) {
-          if (etag.equals(request.getHeader("If-None-Match"))) {
-            response.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
-            return null;
-          }
-        } else if (webRequest.checkNotModified(message.getLastModified().getTime())) {
+      if (request.getHeader("If-None-Match") != null) {
+        if (etag.equals(request.getHeader("If-None-Match"))) {
+          response.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
           return null;
         }
-      }
-
-      params.put("message", message);
-
-      if (message.isExpired()) {
-        response.setDateHeader("Expires", System.currentTimeMillis() + 30 * 24 * 60 * 60 * 1000L);
-      }
-
-      params.put("prevMessage", message.getPreviousMessage(db));
-      params.put("nextMessage", message.getNextMessage(db));
-
-      CommentList comments = CommentList.getCommentList(db, message, showDeleted);
-
-      params.put("comments", comments);
-
-      String nick = Template.getNick(request.getSession());
-
-      Map<Integer, String> ignoreList = null;
-
-      if (nick!=null) {
-        ignoreList = IgnoreList.getIgnoreList(db, nick);
-      }
-
-      int filterMode = CommentFilter.FILTER_IGNORED;
-
-      if (!tmpl.getProf().getBoolean("showanonymous")) {
-        filterMode += CommentFilter.FILTER_ANONYMOUS;
-      }
-
-      if (ignoreList==null || ignoreList.isEmpty()) {
-        filterMode = filterMode & ~CommentFilter.FILTER_IGNORED;
-      }
-
-      int defaultFilterMode = filterMode;
-
-      if (filter != null) {
-        filterMode = CommentFilter.parseFilterChain(filter);
-        if (ignoreList!=null && filterMode == CommentFilter.FILTER_ANONYMOUS) {
-          filterMode += CommentFilter.FILTER_IGNORED;
-        }
-      }
-
-      params.put("filterMode", filterMode);
-      params.put("defaultFilterMode", defaultFilterMode);
-
-      Set<Integer> hideSet = CommentList.makeHideSet(db, comments, filterMode, ignoreList);
-
-      int offset = 0;
-      int limit = 0;
-      boolean reverse = tmpl.getProf().getBoolean("newfirst");
-      int messages = tmpl.getProf().getInt("messages");
-
-      if (page != -1) {
-        limit = messages;
-        offset = messages * page;
-      }
-
-      CommentFilter cv = new CommentFilter(comments);
-
-      List<Comment> commentsFiltred = cv.getComments(reverse, offset, limit, hideSet);
-
-      List<PreparedComment> commentsPrepared = PreparedComment.prepare(db, comments, commentsFiltred);
-
-      params.put("commentsPrepared", commentsPrepared);      
-
-      return new ModelAndView(rss?"view-message-rss":"view-message", params);
-    } finally {
-      if (db!=null) {
-        db.close();
+      } else if (webRequest.checkNotModified(message.getLastModified().getTime())) {
+        return null;
       }
     }
+
+    params.put("message", message);
+
+    if (message.isExpired()) {
+      response.setDateHeader("Expires", System.currentTimeMillis() + 30 * 24 * 60 * 60 * 1000L);
+    }
+
+    params.put("prevMessage", message.getPreviousMessage(db));
+    params.put("nextMessage", message.getNextMessage(db));
+
+    CommentList comments = CommentList.getCommentList(db, message, showDeleted);
+
+    params.put("comments", comments);
+
+    String nick = Template.getNick(request.getSession());
+
+    Map<Integer, String> ignoreList = null;
+
+    if (nick != null) {
+      ignoreList = IgnoreList.getIgnoreList(db, nick);
+    }
+
+    int filterMode = CommentFilter.FILTER_IGNORED;
+
+    if (!tmpl.getProf().getBoolean("showanonymous")) {
+      filterMode += CommentFilter.FILTER_ANONYMOUS;
+    }
+
+    if (ignoreList == null || ignoreList.isEmpty()) {
+      filterMode = filterMode & ~CommentFilter.FILTER_IGNORED;
+    }
+
+    int defaultFilterMode = filterMode;
+
+    if (filter != null) {
+      filterMode = CommentFilter.parseFilterChain(filter);
+      if (ignoreList != null && filterMode == CommentFilter.FILTER_ANONYMOUS) {
+        filterMode += CommentFilter.FILTER_IGNORED;
+      }
+    }
+
+    params.put("filterMode", filterMode);
+    params.put("defaultFilterMode", defaultFilterMode);
+
+    Set<Integer> hideSet = CommentList.makeHideSet(db, comments, filterMode, ignoreList);
+
+    int offset = 0;
+    int limit = 0;
+    boolean reverse = tmpl.getProf().getBoolean("newfirst");
+    int messages = tmpl.getProf().getInt("messages");
+
+    if (page != -1) {
+      limit = messages;
+      offset = messages * page;
+    }
+
+    CommentFilter cv = new CommentFilter(comments);
+
+    List<Comment> commentsFiltred = cv.getComments(reverse, offset, limit, hideSet);
+
+    List<PreparedComment> commentsPrepared = PreparedComment.prepare(db, comments, commentsFiltred);
+
+    params.put("commentsPrepared", commentsPrepared);
+
+    return new ModelAndView(rss ? "view-message-rss" : "view-message", params);
   }
 
   private String getEtag(Message message, Template tmpl) {
