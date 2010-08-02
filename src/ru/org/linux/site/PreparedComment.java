@@ -16,7 +16,9 @@
 package ru.org.linux.site;
 
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,11 +53,20 @@ public class PreparedComment {
   }
 
   private static String getProcessedMessage(Connection db, Comment comment) throws SQLException {
-    if (comment.isLorcode()) {
+    Statement st = db.createStatement();
+    ResultSet rs = st.executeQuery("SELECT message, bbcode FROM msgbase WHERE id=" + comment.getId());
+    rs.next();
+    String text = rs.getString("message");
+    boolean bbcode = rs.getBoolean("bbcode");
+
+    rs.close();
+    st.close();
+
+    if (bbcode) {
       BBCodeProcessor proc = new BBCodeProcessor();
-      return proc.preparePostText(db, comment.getMessageText());
+      return proc.preparePostText(db, text);
     } else {
-      return "<p>"+comment.getMessageText();
+      return "<p>"+text;
     }
   }
 

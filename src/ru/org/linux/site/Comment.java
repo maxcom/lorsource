@@ -28,12 +28,10 @@ public class Comment implements Serializable {
   private final int topic;
   private final boolean deleted;
   private final Timestamp postdate;
-  private final String message;
   private final DeleteInfo deleteInfo;
   private final String userAgent;
   private final String postIP;
   public static final int TITLE_LENGTH = 250;
-  private final boolean lorcode;
 
   public Comment(Connection db, ResultSet rs) throws SQLException {
     msgid=rs.getInt("msgid");
@@ -43,10 +41,8 @@ public class Comment implements Serializable {
     deleted=rs.getBoolean("deleted");
     postdate=rs.getTimestamp("postdate");
     userid=rs.getInt("userid");
-    message=rs.getString("message");
     userAgent=rs.getString("useragent");
     postIP=rs.getString("postip");
-    lorcode=rs.getBoolean("bbcode");
 
     if (deleted) {
       deleteInfo = DeleteInfo.getDeleteInfo(db, msgid);
@@ -60,10 +56,9 @@ public class Comment implements Serializable {
 
     ResultSet rs=st.executeQuery("SELECT " +
         "postdate, topic, users.id as userid, comments.id as msgid, comments.title, " +
-        "deleted, replyto, message, user_agents.name AS useragent, comments.postip, bbcode " +
+        "deleted, replyto, user_agents.name AS useragent, comments.postip " +
         "FROM comments " + 
         "INNER JOIN users ON (users.id=comments.userid) " +
-        "INNER JOIN msgbase ON (msgbase.id=comments.id) " +
         "LEFT JOIN user_agents ON (user_agents.id=comments.ua_id) " +
         "WHERE comments.id="+msgid);
 
@@ -77,11 +72,9 @@ public class Comment implements Serializable {
     replyto=rs.getInt("replyto");
     deleted=rs.getBoolean("deleted");
     postdate=rs.getTimestamp("postdate");
-    message=rs.getString("message");
     userid=rs.getInt("userid");
     userAgent=rs.getString("useragent");
     postIP=rs.getString("postip");
-    lorcode=rs.getBoolean("bbcode");
 
     st.close();
 
@@ -99,12 +92,10 @@ public class Comment implements Serializable {
     this.replyto=replyto;
     deleted =false;
     postdate =new Timestamp(System.currentTimeMillis());
-    this.message=message;
     this.userid=userid;
     deleteInfo = null;
     this.userAgent=userAgent;
     this.postIP=postIP;
-    this.lorcode = lorcode;
   }
 
   public int getMessageId() {
@@ -143,10 +134,6 @@ public class Comment implements Serializable {
     return userid;
   }
 
-  public String getMessageText() {
-    return message;
-  }
-
   public DeleteInfo getDeleteInfo() {
     return deleteInfo;
   }
@@ -159,7 +146,7 @@ public class Comment implements Serializable {
     return postIP;
   }
 
-  public int saveNewMessage(Connection db, String remoteAddr, String userAgent) throws SQLException {
+  public int saveNewMessage(Connection db, String remoteAddr, String userAgent, String message) throws SQLException {
     PreparedStatement pstMsgbase = null;
     PreparedStatement pst = null;
     try {
@@ -190,7 +177,7 @@ public class Comment implements Serializable {
       pstMsgbase = db.prepareStatement("INSERT INTO msgbase (id, message, bbcode) values (?,?,?)");
       pstMsgbase.setLong(1, msgid);
       pstMsgbase.setString(2, message);
-      pstMsgbase.setBoolean(3, lorcode);
+      pstMsgbase.setBoolean(3, true);
       pstMsgbase.executeUpdate();
 
       rs.close();
@@ -214,9 +201,5 @@ public class Comment implements Serializable {
     }
 
     this.userid = userid;
-  }
-
-  public boolean isLorcode() {
-    return lorcode;
   }
 }

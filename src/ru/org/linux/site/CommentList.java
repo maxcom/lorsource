@@ -46,9 +46,8 @@ public class CommentList implements Serializable {
     ResultSet rs = st.executeQuery(
         "SELECT " +
             "comments.title, topic, postdate, userid, comments.id as msgid, " +
-            "replyto, deleted, message, user_agents.name AS useragent, comments.postip, bbcode " +
+            "replyto, deleted, user_agents.name AS useragent, comments.postip " +
             "FROM comments " +
-            "INNER JOIN msgbase ON (msgbase.id=comments.id) " + 
             "LEFT JOIN user_agents ON (user_agents.id=comments.ua_id) " +
             "WHERE topic=" + topicId + ' ' + delq + ' ' +
             "ORDER BY msgid ASC"

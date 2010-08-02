@@ -240,7 +240,7 @@ public class AddCommentController extends ApplicationObjectSupport {
       if (!preview) {
         DupeProtector.getInstance().checkDuplication(request.getRemoteAddr(), user.getScore() > 100);
 
-        int msgid = comment.saveNewMessage(db, request.getRemoteAddr(), request.getHeader("user-agent"));
+        int msgid = comment.saveNewMessage(db, request.getRemoteAddr(), request.getHeader("user-agent"), msg);
 
         String logmessage = "Написан комментарий " + msgid + " ip:" + request.getRemoteAddr();
         if (request.getHeader("X-Forwarded-For") != null) {
