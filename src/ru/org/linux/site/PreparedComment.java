@@ -17,8 +17,10 @@ package ru.org.linux.site;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
+
+import org.javabb.bbcode.BBCodeProcessor;
 
 public class PreparedComment {
   private final Comment comment;
@@ -31,7 +33,7 @@ public class PreparedComment {
 
     this.author = User.getUserCached(db, comment.getUserid());
 
-    processedMessage = comment.getProcessedMessage(db);
+    processedMessage = getProcessedMessage(db, comment);
 
     if (comment.getReplyTo()!=0 && comments!=null) {
       CommentNode replyNode = comments.getNode(comment.getReplyTo());
@@ -47,6 +49,16 @@ public class PreparedComment {
       replyAuthor = null;
     }
   }
+
+  private static String getProcessedMessage(Connection db, Comment comment) throws SQLException {
+    if (comment.isLorcode()) {
+      BBCodeProcessor proc = new BBCodeProcessor();
+      return proc.preparePostText(db, comment.getMessageText());
+    } else {
+      return "<p>"+comment.getMessageText();
+    }
+  }
+
 
   public Comment getComment() {
     return comment;

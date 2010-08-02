@@ -20,8 +20,6 @@ import java.sql.*;
 import java.util.Date;
 import java.util.Map;
 
-import org.javabb.bbcode.BBCodeProcessor;
-
 public class Comment implements Serializable {
   private final int msgid;
   private final String title;
@@ -218,12 +216,7 @@ public class Comment implements Serializable {
     this.userid = userid;
   }
 
-  public String getProcessedMessage(Connection db) throws SQLException {
-    if (lorcode) {
-      BBCodeProcessor proc = new BBCodeProcessor();
-      return proc.preparePostText(db, message);
-    } else {
-      return "<p>"+message;
-    }
+  public boolean isLorcode() {
+    return lorcode;
   }
 }
