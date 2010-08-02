@@ -339,25 +339,35 @@ public class MessageController {
     params.put("filterMode", filterMode);
     params.put("defaultFilterMode", defaultFilterMode);
 
-    Set<Integer> hideSet = CommentList.makeHideSet(db, comments, filterMode, ignoreList);
+    if (!rss) {
+      Set<Integer> hideSet = CommentList.makeHideSet(db, comments, filterMode, ignoreList);
 
-    int offset = 0;
-    int limit = 0;
-    boolean reverse = tmpl.getProf().getBoolean("newfirst");
-    int messages = tmpl.getProf().getInt("messages");
+      CommentFilter cv = new CommentFilter(comments);
 
-    if (page != -1) {
-      limit = messages;
-      offset = messages * page;
+      boolean reverse = tmpl.getProf().getBoolean("newfirst");
+      int offset = 0;
+      int limit = 0;
+      int messages = tmpl.getProf().getInt("messages");
+
+      if (page != -1) {
+        limit = messages;
+        offset = messages * page;
+      }
+
+      List<Comment> commentsFiltred = cv.getComments(reverse, offset, limit, hideSet);
+
+      List<PreparedComment> commentsPrepared = PreparedComment.prepare(db, comments, commentsFiltred);
+
+      params.put("commentsPrepared", commentsPrepared);
+    } else {
+      CommentFilter cv = new CommentFilter(comments);
+
+      List<Comment> commentsFiltred = cv.getComments(true, 0, MessageTable.RSS_DEFAULT, null);
+
+      List<PreparedComment> commentsPrepared = PreparedComment.prepare(db, comments, commentsFiltred);
+
+      params.put("commentsPrepared", commentsPrepared);
     }
-
-    CommentFilter cv = new CommentFilter(comments);
-
-    List<Comment> commentsFiltred = cv.getComments(reverse, offset, limit, hideSet);
-
-    List<PreparedComment> commentsPrepared = PreparedComment.prepare(db, comments, commentsFiltred);
-
-    params.put("commentsPrepared", commentsPrepared);
 
     return new ModelAndView(rss ? "view-message-rss" : "view-message", params);
   }

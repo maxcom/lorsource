@@ -26,7 +26,7 @@
 <%--@elvariable id="showDeleted" type="Boolean"--%>
 <%--@elvariable id="comments" type="ru.org.linux.site.CommentList"--%>
 <%--@elvariable id="group" type="ru.org.linux.site.Group"--%>
-<%--@elvariable id="commentsPrepared" type="java.util.List<ru.org.linux.site.CommentPrepared>"--%>
+<%--@elvariable id="commentsPrepared" type="java.util.List<ru.org.linux.site.PreparedComment>"--%>
 <%--@elvariable id="page" type="Integer"--%>
 
 <% Template tmpl = Template.getTemplate(request); %>

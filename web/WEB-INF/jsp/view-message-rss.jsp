@@ -17,40 +17,22 @@
 <%@ page import="java.sql.Connection"   buffer="200kb"%>
 <%@ page import="java.util.List" %>
 <%@ page import="ru.org.linux.site.*" %>
-<%@ page import="ru.org.linux.util.ServletParameterParser" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%--@elvariable id="message" type="ru.org.linux.site.Message"--%>
 <%--@elvariable id="comments" type="ru.org.linux.site.CommentList"--%>
+<%--@elvariable id="commentsPrepared" type="java.util.List<ru.org.linux.site.PreparedComment>"--%>
 <% Template tmpl = Template.getTemplate(request); %>
 
-<%
-  int num = MessageTable.RSS_DEFAULT;
-  if (request.getParameter("num") != null) {
-    num = new ServletParameterParser(request).getInt("num");
-	if (num < MessageTable.RSS_MIN || num > MessageTable.RSS_MAX) {
-	  num = MessageTable.RSS_DEFAULT;
-	}
-  }
-
-%>
 <rss version="2.0">
 <channel>
 <link>http://www.linux.org.ru/view-message.jsp?msgid=${message.id}</link>
 <language>ru</language>
 <title>Linux.org.ru: ${message.title}</title>
-<%
+  <description><![CDATA[<%
   Connection db = null;
   try {
-    List<Comment> list = ((CommentList) request.getAttribute("comments")).getList();
-    int fromIndex = list.size() - num;
-    if (fromIndex<0) {
-      fromIndex = 0;
-    }
-%>
-  <c:set var="list" value="${comments.list}"/>
-  <description><![CDATA[<%
     db = LorDataSource.getConnection();
 
     out.print(MessageTable.getTopicRss(
@@ -58,36 +40,30 @@
             tmpl.getConfig().getProperty("HTMLPathPrefix"),
             tmpl.getMainUrl(),
             (Message) request.getAttribute("message")));
-%>]]>
-  </description>
-  <c:forEach items="${list}" var="comment" begin="<%= fromIndex %>">
-    <item>
-      <title>
-        <c:if test="${fn:length(comment.title)>0}">
-          <c:out escapeXml="true" value="${comment.title}"/>
-        </c:if>
-        <c:if test="${fn:length(comment.title)==0}">
-          <c:out escapeXml="true" value="${message.title}"/>
-        </c:if>
-      </title>
-      <author><lor:user db="<%= db %>" id="${comment.userid}"/></author>
-      <link>http://www.linux.org.ru/jump-message.jsp?msgid=${message.id}&amp;cid=${comment.id}</link>
-      <guid>http://www.linux.org.ru/jump-message.jsp?msgid=${message.id}&amp;cid=${comment.id}</guid>
-      <pubDate><lor:rfc822date date="${comment.postdate}"/></pubDate>
-      <description ><![CDATA[<%
-          Comment comment = (Comment) pageContext.getAttribute("comment");
-          out.print(comment.getProcessedMessage(db));
-              %>]]>
-      </description>
-    </item>
-  </c:forEach>
-
-<%
   } finally {
     if (db!=null) {
       db.close();
     }
   }
-%>
+%>]]>
+  </description>
+  <c:forEach items="${commentsPrepared}" var="comment">
+    <item>
+      <title>
+        <c:if test="${fn:length(comment.comment.title)>0}">
+          <c:out escapeXml="true" value="${comment.comment.title}"/>
+        </c:if>
+        <c:if test="${fn:length(comment.comment.title)==0}">
+          <c:out escapeXml="true" value="${message.title}"/>
+        </c:if>
+      </title>
+      <author><lor:user user="${comment.author}"/></author>
+      <link>http://www.linux.org.ru/jump-message.jsp?msgid=${message.id}&amp;cid=${comment.comment.id}</link>
+      <guid>http://www.linux.org.ru/jump-message.jsp?msgid=${message.id}&amp;cid=${comment.comment.id}</guid>
+      <pubDate><lor:rfc822date date="${comment.comment.postdate}"/></pubDate>
+      <description ><![CDATA[${comment.processedMessage}]]>
+      </description>
+    </item>
+  </c:forEach>
 </channel>
 </rss>
