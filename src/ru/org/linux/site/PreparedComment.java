@@ -52,6 +52,16 @@ public class PreparedComment {
     }
   }
 
+  public PreparedComment(Connection db, Comment comment, String message) throws UserNotFoundException, SQLException {
+    this.comment = comment;
+
+    this.author = User.getUserCached(db, comment.getUserid());
+
+    processedMessage = getProcessedMessage(db, comment, message);
+
+    replyAuthor = null;
+  }
+
   private static String getProcessedMessage(Connection db, Comment comment) throws SQLException {
     Statement st = db.createStatement();
     ResultSet rs = st.executeQuery("SELECT message, bbcode FROM msgbase WHERE id=" + comment.getId());
@@ -70,6 +80,10 @@ public class PreparedComment {
     }
   }
 
+  private static String getProcessedMessage(Connection db, Comment comment, String message) throws SQLException {
+    BBCodeProcessor proc = new BBCodeProcessor();
+    return proc.preparePostText(db, message);
+  }
 
   public Comment getComment() {
     return comment;

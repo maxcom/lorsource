@@ -195,7 +195,7 @@ public class AddCommentController extends ApplicationObjectSupport {
 
       comment.setAuthor(user.getId());
 
-      formParams.put("comment", new PreparedComment(db, null, comment));
+      formParams.put("comment", new PreparedComment(db, comment, msg));
 
       if (title.length() > Comment.TITLE_LENGTH) {
         throw new BadInputException("заголовок превышает " + Comment.TITLE_LENGTH + " символов");
