@@ -35,8 +35,6 @@
 <%
   Connection db = null;
 
-    int msgid = (Integer) request.getAttribute("msgid");
-
     String nick = Template.getNick(session);
 
     int filterMode = (Integer) request.getAttribute("filterMode");
@@ -77,7 +75,7 @@
 <div class=messages>
 
 <form method="GET" action="view-message.jsp">
-<input type=hidden name=msgid value="<%= msgid %>">
+<input type=hidden name=msgid value="${message.id}">
   <table class=nav>
   <tr>
   <td align=left valign=middle id="navPath">

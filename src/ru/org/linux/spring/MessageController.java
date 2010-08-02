@@ -237,8 +237,6 @@ public class MessageController {
 
     params.put("showAdsense", !tmpl.isSessionAuthorized() || !tmpl.getProf().getBoolean(DefaultProfile.HIDE_ADSENSE));
 
-    params.put("msgid", message.getId());
-
     params.put("page", page);
 
     boolean showDeleted = request.getParameter("deleted") != null;

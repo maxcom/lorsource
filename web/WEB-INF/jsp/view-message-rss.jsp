@@ -21,6 +21,8 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%--@elvariable id="message" type="ru.org.linux.site.Message"--%>
+<%--@elvariable id="comments" type="ru.org.linux.site.CommentList"--%>
 <% Template tmpl = Template.getTemplate(request); %>
 
 <%
@@ -35,7 +37,7 @@
 %>
 <rss version="2.0">
 <channel>
-<link>http://www.linux.org.ru/view-message.jsp?msgid=${msgid}</link>
+<link>http://www.linux.org.ru/view-message.jsp?msgid=${message.id}</link>
 <language>ru</language>
 <title>Linux.org.ru: ${message.title}</title>
 <%
@@ -47,7 +49,7 @@
       fromIndex = 0;
     }
 %>
-  <c:set var="list" value="<%= list %>"/>
+  <c:set var="list" value="${comments.list}"/>
   <description><![CDATA[<%
     db = LorDataSource.getConnection();
 
