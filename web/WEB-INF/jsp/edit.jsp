@@ -77,7 +77,7 @@
   <input type=text name=title class="required" size=40 value="<%= newMsg.getTitle()==null?"":HTMLFormatter.htmlSpecialChars(newMsg.getTitle()) %>" ><br>
 
   <br>
-  <textarea name="newmsg" cols="70" rows="20">${newMsg.message}</textarea>
+  <textarea name="newmsg" cols="70" rows="20"><c:out escapeXml="true" value="${newMsg.message}"/></textarea>
   <br><br>
     <c:if test="${message.haveLink}">
       Текст ссылки:
