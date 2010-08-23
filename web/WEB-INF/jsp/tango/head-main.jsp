@@ -29,7 +29,7 @@
 <script type="text/javascript">
   $.stylesheetInit();
   $(document).ready(function() {
-    if ($.browser.msie || $.browser.opera) {
+    if ($.browser.msie) {
       $('.msg').corner();
       $('.column .boxlet').corner();
     }
