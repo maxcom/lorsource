@@ -51,6 +51,7 @@
     <img src="/adv/devconf2010.gif" alt="DevConf 2010" width="468" height="60">
   </a>
 --%>
+<%--
   <div class="infoblock" style="margin:0; text-align: justify">
     <a href="http://job.samsung.ru/"><img width="130" height="43" src="/adv/Samsung_Logo.png" alt="" style="float: left; border: 0"></a>
     <div style="margin-left: 135px">
@@ -61,6 +62,7 @@
     <a href="http://job.samsung.ru/">http://job.samsung.ru</a>
     </div>
   </div>
+--%>
 </div>
 
 <div style="right: 5px; text-align: right; top: 5px; position: absolute" class="head">
