@@ -49,7 +49,7 @@ public class NewsArchiveController {
       ModelAndView mv = new ModelAndView("view-news-archive");
       mv.getModel().put("section", section);
 
-      ResultSet rs = st.executeQuery("select year, month, c from monthly_stats where section=" + sectionid + " order by year, month");
+      ResultSet rs = st.executeQuery("select year, month, c from monthly_stats where section=" + sectionid + " and groupid is null order by year, month");
 
       List<NewsArchiveListItem> items = new ArrayList<NewsArchiveListItem>();
 

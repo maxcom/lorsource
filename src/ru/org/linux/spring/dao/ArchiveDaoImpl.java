@@ -42,7 +42,7 @@ public class ArchiveDaoImpl {
   }
 
   public List<ArchiveDTO> getArchiveDTO(){
-    String sql = "select year, month, c from monthly_stats where section=1" +
+    String sql = "select year, month, c from monthly_stats where section=1 and groupid is null" +
       " order by year desc, month desc limit 13";
     return jdbcTemplate.query(sql, new ParameterizedRowMapper<ArchiveDTO>() {
       @Override
