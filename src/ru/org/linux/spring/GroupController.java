@@ -84,7 +84,7 @@ public class GroupController {
   @RequestMapping(value = "/forum/{group}")
   public ModelAndView forum(
     @PathVariable("group") String groupName,
-    @RequestParam(required = false, value="offset") Integer offsetObject,
+    @RequestParam(defaultValue = "0", value="offset") int offset,
     @RequestParam(defaultValue = "false") boolean lastmod,
     HttpServletRequest request
   ) throws Exception {
@@ -98,6 +98,8 @@ public class GroupController {
     try {
       db = LorDataSource.getConnection();
       db.setAutoCommit(false);
+
+      tmpl.initCurrentUser(db);
 
       Section section = new Section(db, Section.SECTION_FORUM);
       Group group = section.getGroup(db, groupName);
@@ -115,10 +117,8 @@ public class GroupController {
       }
 
       boolean firstPage;
-      int offset;
 
-      if (offsetObject != null) {
-        offset = offsetObject;
+      if (offset != 0) {
         firstPage = false;
 
         if (offset < 0) {
@@ -126,7 +126,6 @@ public class GroupController {
         }
       } else {
         firstPage = true;
-        offset = 0;
       }
 
       params.put("firstPage", firstPage);
@@ -139,8 +138,6 @@ public class GroupController {
       }
 
       params.put("showIgnored", showIgnored);
-
-      int messages = tmpl.getProf().getInt("messages");
 
       params.put("group", group);
 
@@ -163,21 +160,24 @@ public class GroupController {
       String delq = showDeleted ? "" : " AND NOT deleted ";
       int topics = tmpl.getProf().getInt("topics");
 
+      String q = "SELECT topics.title as subj, lastmod, userid, topics.id as msgid, deleted, topics.stat1, topics.stat3, topics.stat4, topics.sticky, topics.resolved FROM topics,groups, sections WHERE sections.id=groups.section AND (topics.moderate OR NOT sections.moderate) AND topics.groupid=groups.id AND groups.id=" + groupId + delq;
+
       if (!lastmod) {
         if (firstPage) {
-          rs = st.executeQuery("SELECT topics.title as subj, lastmod, userid, topics.id as msgid, deleted, topics.stat1, topics.stat3, topics.stat4, topics.sticky, topics.resolved FROM topics,groups, sections WHERE sections.id=groups.section AND (topics.moderate OR NOT sections.moderate) AND topics.groupid=groups.id AND groups.id=" + groupId + delq + ignq + " AND (postdate>(CURRENT_TIMESTAMP-'3 month'::interval) or sticky) ORDER BY sticky desc,msgid DESC LIMIT " + topics);
+          rs = st.executeQuery(q + ignq + " AND (postdate>(CURRENT_TIMESTAMP-'3 month'::interval) or sticky) ORDER BY sticky desc,msgid DESC LIMIT " + topics);
         } else {
-          rs = st.executeQuery("SELECT topics.title as subj, lastmod, userid, topics.id as msgid, deleted, topics.stat1, topics.stat3, topics.stat4, topics.sticky,topics.resolved FROM topics,groups, sections WHERE sections.id=groups.section AND (topics.moderate OR NOT sections.moderate) AND topics.groupid=groups.id AND groups.id=" + groupId + delq + " ORDER BY sticky,msgid ASC LIMIT " + topics + " OFFSET " + offset);
+          rs = st.executeQuery(q + " ORDER BY sticky,msgid ASC LIMIT " + topics + " OFFSET " + offset);
         }
       } else {
         if (firstPage) {
-          rs = st.executeQuery("SELECT topics.title as subj, lastmod, userid, topics.id as msgid, deleted, topics.stat1, topics.stat3, topics.stat4, topics.sticky, topics.resolved FROM topics,groups, sections WHERE sections.id=groups.section AND (topics.moderate OR NOT sections.moderate) AND topics.groupid=groups.id AND groups.id=" + groupId + " AND NOT deleted " + ignq + " ORDER BY sticky DESC,lastmod DESC LIMIT " + topics + " OFFSET " + offset);
+          rs = st.executeQuery(q + ignq + " ORDER BY sticky DESC,lastmod DESC LIMIT " + topics + " OFFSET " + offset);
         } else {
-          rs = st.executeQuery("SELECT topics.title as subj, lastmod, userid, topics.id as msgid, deleted, topics.stat1, topics.stat3, topics.stat4, topics.sticky, topics.resolved FROM topics,groups, sections WHERE sections.id=groups.section AND (topics.moderate OR NOT sections.moderate) AND topics.groupid=groups.id AND groups.id=" + groupId + " AND NOT deleted ORDER BY sticky DESC,lastmod DESC LIMIT " + topics + " OFFSET " + offset);
+          rs = st.executeQuery(q + " ORDER BY sticky DESC,lastmod DESC LIMIT " + topics + " OFFSET " + offset);
         }
       }
 
       List<TopicsListItem> topicsList = new ArrayList<TopicsListItem>();
+      int messages = tmpl.getProf().getInt("messages");
 
       while (rs.next()) {
         TopicsListItem topic = new TopicsListItem(rs, messages);
@@ -197,6 +197,8 @@ public class GroupController {
       }
 
       params.put("topicsList", topicsList);
+
+      params.put("count", group.calcTopicsCount(db, showDeleted));
 
       return new ModelAndView("group", params);
     } finally {

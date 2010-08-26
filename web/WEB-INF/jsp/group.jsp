@@ -25,6 +25,8 @@
 <%--@elvariable id="firstPage" type="java.lang.Boolean"--%>
 <%--@elvariable id="groupList" type="java.util.List<ru.org.linux.site.Group>"--%>
 <%--@elvariable id="lastmod" type="java.lang.Boolean"--%>
+<%--@elvariable id="count" type="java.lang.Integer"--%>
+<%--@elvariable id="showDeleted" type="java.lang.Boolean"--%>
 
 <% Template tmpl = Template.getTemplate(request); %>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
@@ -45,12 +47,9 @@
     boolean firstPage = (Boolean) request.getAttribute("firstPage");
     int offset = (Integer) request.getAttribute("offset");
 
-    db = LorDataSource.getConnection();
-    db.setAutoCommit(false);
-
     Group group = (Group) request.getAttribute("group");
 
-    int count = group.calcTopicsCount(db, showDeleted);
+    int count = (Integer) request.getAttribute("count");
     int topics = tmpl.getProf().getInt("topics");
 
     int pages = count / topics;
@@ -87,7 +86,7 @@
       <% } %>
       [<a href="/wiki/en/lor-faq">FAQ</a>]
 <%
-  User currentUser = Template.getCurrentUser(db, session);
+  User currentUser = tmpl.getCurrentUser();
 
   if (group.isTopicPostingAllowed(currentUser)) {
 %>
@@ -96,7 +95,7 @@
   }
 %>
   [<a href="section-rss.jsp?section=${group.sectionId}&amp;group=${group.id}">RSS</a>]
-      <select name=group onchange="goto(this)" title="Быстрый переход">
+      <select name=group onchange="goto(this);" title="Быстрый переход">
         <c:forEach items="${groupList}" var="item">
           <c:if test="${item.id == group.id}">
             <c:if test="${lastmod}">
@@ -134,6 +133,10 @@
     }
     out.print("</div>");
   }
+
+  db = LorDataSource.getConnection();
+  db.setAutoCommit(false);
+  
 %>
 <lor:groupinfo group="${group}" db="<%= db %>"/>
 <div class=forum>
