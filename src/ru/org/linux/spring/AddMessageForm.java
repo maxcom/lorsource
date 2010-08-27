@@ -60,6 +60,7 @@ public class AddMessageForm {
   private static final int MAX_MESSAGE_LENGTH_ANONYMOUS = 4096;
   private static final int MAX_MESSAGE_LENGTH = 8192;
   private static final int MAX_TITLE_LENGTH = 255;
+  private static final int MAX_URL_LENGTH = 255;
 
   public boolean isPreview() {
     return preview;
@@ -277,6 +278,10 @@ public class AddMessageForm {
 
     if (title.length() > MAX_TITLE_LENGTH) {
       throw new BadInputException("Слишком большой заголовок");
+    }
+
+    if (url!=null && url.length() > MAX_URL_LENGTH) {
+      throw new BadInputException("Слишком длинный URL");
     }
 
     return user;
