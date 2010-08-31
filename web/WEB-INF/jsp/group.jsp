@@ -1,6 +1,7 @@
 <%@ page contentType="text/html; charset=utf-8"%>
 <%@ page import="java.sql.Connection,ru.org.linux.site.Group,ru.org.linux.site.LorDataSource,ru.org.linux.site.Template,ru.org.linux.site.User"   buffer="200kb"%>
 <%@ page import="ru.org.linux.util.BadImageException" %>
+<%@ page import="ru.org.linux.util.DateUtil" %>
 <%@ page import="ru.org.linux.util.ImageInfo" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
@@ -27,6 +28,9 @@
 <%--@elvariable id="lastmod" type="java.lang.Boolean"--%>
 <%--@elvariable id="count" type="java.lang.Integer"--%>
 <%--@elvariable id="showDeleted" type="java.lang.Boolean"--%>
+<%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
+<%--@elvariable id="year" type="java.lang.Integer"--%>
+<%--@elvariable id="month" type="java.lang.Integer"--%>
 
 <% Template tmpl = Template.getTemplate(request); %>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
@@ -41,7 +45,6 @@
 <%
   Connection db = null;
   try {
-    boolean showDeleted = (Boolean) request.getAttribute("showDeleted");
     boolean showIgnored = (Boolean) request.getAttribute("showIgnored");
 
     boolean firstPage = (Boolean) request.getAttribute("firstPage");
@@ -64,6 +67,9 @@
     }
 %>
 <title>${group.sectionName} - ${group.title}
+  <c:if test="${year != null}">
+    - Архив ${year}, <%= DateUtil.getMonth((Integer) request.getAttribute("month")) %>
+  </c:if>
   <c:if test="${not firstPage}">
 <%
     out.print(" (сообщения " + (count - offset) + '-' + (count - offset - topics) + ')');
@@ -77,7 +83,11 @@
   <table class=nav>
     <tr>
     <td align=left valign=middle id="navPath">
-      <a href="${group.sectionLink}">${group.sectionName}</a> - <strong>${group.title}</strong>
+      <a href="${group.sectionLink}">${group.sectionName}</a> - ${group.title}
+      <c:if test="${year != null}">
+        - Архив ${year}, <%= DateUtil.getMonth((Integer) request.getAttribute("month")) %>
+      </c:if>
+
     </td>
 
     <td align=right valign=middle>
@@ -304,14 +314,14 @@
 <p>
 </div>
 
-<% if (Template.isSessionAuthorized(session) && !showDeleted) { %>
+<c:if test="${template.sessionAuthorized and not showDeleted}">
   <hr>
   <form action="${group.url}" method=POST>
   <input type=hidden name=deleted value=1>
   <input type=submit value="Показать удаленные сообщения">
   </form>
   <hr>
-<% } %>
+</c:if>
 
 </c:if>
 

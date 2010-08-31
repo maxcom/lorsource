@@ -80,6 +80,16 @@ public class GroupController {
       }
     }
   }
+  @RequestMapping(value = {"/forum/{group}/{year}/{month}"})
+  public ModelAndView forumArchive(
+    @PathVariable("group") String groupName,
+    @RequestParam(defaultValue = "0", value="offset") int offset,
+    @PathVariable int year,
+    @PathVariable int month,
+    HttpServletRequest request
+  ) throws Exception {
+    return forum(groupName, offset, false, request, year, month);
+  }
 
   @RequestMapping(value = "/forum/{group}")
   public ModelAndView forum(
@@ -87,6 +97,17 @@ public class GroupController {
     @RequestParam(defaultValue = "0", value="offset") int offset,
     @RequestParam(defaultValue = "false") boolean lastmod,
     HttpServletRequest request
+  ) throws Exception {
+    return forum(groupName, offset, lastmod, request, null, null);
+  }
+
+  private ModelAndView forum(
+    @PathVariable("group") String groupName,
+    @RequestParam(defaultValue = "0", value="offset") int offset,
+    @RequestParam(defaultValue = "false") boolean lastmod,
+    HttpServletRequest request,
+    Integer year,
+    Integer month
   ) throws Exception {
     Map<String, Object> params = new HashMap<String, Object>();
     Template tmpl = Template.getTemplate(request);
@@ -156,14 +177,21 @@ public class GroupController {
       params.put("ignoreList", ignoreList);
 
       Statement st = db.createStatement();
-      ResultSet rs;
       String delq = showDeleted ? "" : " AND NOT deleted ";
       int topics = tmpl.getProf().getInt("topics");
 
       String q = "SELECT topics.title as subj, lastmod, userid, topics.id as msgid, deleted, topics.stat1, topics.stat3, topics.stat4, topics.sticky, topics.resolved FROM topics,groups, sections WHERE sections.id=groups.section AND (topics.moderate OR NOT sections.moderate) AND topics.groupid=groups.id AND groups.id=" + groupId + delq;
 
+      if (year!=null) {
+        q+=" AND postdate>='" + year + '-' + month + "-01'::timestamp AND (postdate<'" + year + '-' + month + "-01'::timestamp+'1 month'::interval)";
+        params.put("year", year);
+        params.put("month", month);
+      }
+
+      ResultSet rs;
+
       if (!lastmod) {
-        if (firstPage) {
+        if (firstPage && year==null) {
           rs = st.executeQuery(q + ignq + " AND (postdate>(CURRENT_TIMESTAMP-'3 month'::interval) or sticky) ORDER BY sticky desc,msgid DESC LIMIT " + topics);
         } else {
           rs = st.executeQuery(q + " ORDER BY sticky,msgid ASC LIMIT " + topics + " OFFSET " + offset);
