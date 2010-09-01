@@ -194,14 +194,16 @@ public class GroupController {
       if (!lastmod) {
         if (firstPage && year==null) {
           rs = st.executeQuery(q + ignq + " AND (postdate>(CURRENT_TIMESTAMP-'3 month'::interval) or sticky) ORDER BY sticky desc,msgid DESC LIMIT " + topics);
+        } else if (year==null) { // TODO: удалить старый архив когда новый будет готов и попадет в поисковики
+          rs = st.executeQuery(q + " ORDER BY msgid ASC LIMIT " + topics + " OFFSET " + offset);
         } else {
-          rs = st.executeQuery(q + " ORDER BY sticky,msgid ASC LIMIT " + topics + " OFFSET " + offset);
+          rs = st.executeQuery(q + " ORDER BY msgid DESC LIMIT " + topics + " OFFSET " + offset);
         }
       } else {
         if (firstPage) {
           rs = st.executeQuery(q + ignq + " ORDER BY sticky DESC,lastmod DESC LIMIT " + topics + " OFFSET " + offset);
         } else {
-          rs = st.executeQuery(q + " ORDER BY sticky DESC,lastmod DESC LIMIT " + topics + " OFFSET " + offset);
+          rs = st.executeQuery(q + " ORDER BY lastmod DESC LIMIT " + topics + " OFFSET " + offset);
         }
       }
 
@@ -221,7 +223,7 @@ public class GroupController {
         topicsList.add(topic);
       }
 
-      if (!firstPage && !lastmod) {
+      if (!firstPage && !lastmod && year==null) {
         Collections.reverse(topicsList);
       }
 

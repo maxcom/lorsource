@@ -54,6 +54,7 @@
 
     int count = (Integer) request.getAttribute("count");
     int topics = tmpl.getProf().getInt("topics");
+    Integer year = (Integer) request.getAttribute("year");
 
     int pages = count / topics;
     if (count % topics != 0) {
@@ -261,9 +262,9 @@
   <%
   // ВПЕРЕД
     if (offset != 0 || firstPage) {
-      if (firstPage && !lastmod) {
+      if (firstPage && !lastmod && year==null) {
         out.print("<a rel=next rev=prev href=\""+group.getUrl()+"?offset=" + (pages * topics) + urlAdd + "\">архив →</a>");
-      } else  if (!lastmod) {
+      } else  if (!lastmod && year==null) {
         out.print("<a rel=next rev=prev href=\""+group.getUrl()+"?offset=" + (offset - topics) + urlAdd + "\">вперед →</a>");
       } else {
         out.print("<a rel=next rev=prev href=\""+group.getUrl()+"?offset=" + (offset + topics) + urlAdd + "\">вперед →</a>");
