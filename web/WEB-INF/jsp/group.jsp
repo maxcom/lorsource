@@ -92,6 +92,7 @@
     </td>
 
     <td align=right valign=middle>
+      <c:if test="${year==null}">
       <% if (tmpl.isModeratorSession()) { %>
         [<a href="groupmod.jsp?group=${group.id}">Править группу</a>]
       <% } %>
@@ -126,6 +127,7 @@
           </c:if>
         </c:forEach>
       </select>
+      </c:if>
      </td>
     </tr>
  </table>
