@@ -17,6 +17,7 @@ package ru.org.linux.spring;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.*;
 
@@ -226,13 +227,27 @@ public class GroupController {
 
       params.put("topicsList", topicsList);
 
-      params.put("count", group.calcTopicsCount(db, showDeleted));
+      if (year==null) {
+        params.put("count", group.calcTopicsCount(db, showDeleted));
+      } else {
+        params.put("count", getArchiveCount(db, groupId, year, month));
+      }
 
       return new ModelAndView("group", params);
     } finally {
       if (db != null) {
         db.close();
       }
+    }
+  }
+
+  private int getArchiveCount(Connection db, int groupid, int year, int month) throws SQLException {
+    Statement st = db.createStatement();
+    ResultSet rs = st.executeQuery("SELECT c FROM monthly_stats WHERE groupid="+groupid+" AND year="+year+" AND month="+month);
+    if (!rs.next()) {
+      return 0;
+    } else {
+      return rs.getInt(1);
     }
   }
 }
