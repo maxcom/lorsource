@@ -31,6 +31,7 @@
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <%--@elvariable id="year" type="java.lang.Integer"--%>
 <%--@elvariable id="month" type="java.lang.Integer"--%>
+<%--@elvariable id="url" type="java.lang.String"--%>
 
 <% Template tmpl = Template.getTemplate(request); %>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
@@ -55,6 +56,7 @@
     int count = (Integer) request.getAttribute("count");
     int topics = tmpl.getProf().getInt("topics");
     Integer year = (Integer) request.getAttribute("year");
+    String url = (String) request.getAttribute("url");
 
     int pages = count / topics;
     if (count % topics != 0) {
@@ -157,7 +159,7 @@
 <thead>
 <tr>
   <th>Тема<br>
-    <form action="${group.url}" method="GET" style="font-weight: normal; display: inline;">
+    <form action="$url}" method="GET" style="font-weight: normal; display: inline;">
       фильтр:
       <c:if test="${lastmod}">
         <input type=hidden name=lastmod value=true>
@@ -172,11 +174,13 @@
     </form>
   </th>
   <th>Последнее сообщение<br>
+    <c:if test="${year==null}">
     <c:if test="${lastmod}">
-      <span style="font-weight: normal">[<a href="${group.url}" style="text-decoration: underline">отменить</a>]</span>
+      <span style="font-weight: normal">[<a href="${url}" style="text-decoration: underline">отменить</a>]</span>
     </c:if>
     <c:if test="${not lastmod}">
-      <span style="font-weight: normal">[<a href="${group.url}?lastmod=true" style="text-decoration: underline">упорядочить</a>]</span>
+      <span style="font-weight: normal">[<a href="${url}?lastmod=true" style="text-decoration: underline">упорядочить</a>]</span>
+    </c:if>
     </c:if>
   </th>
   <th>Число ответов<br>всего/день/час</th>
@@ -219,7 +223,7 @@
 
     <c:if test="${topic.pages>1}">
       (стр.
-      <c:forEach var="i" begin="1" end="${topic.pages-1}"> <c:if test="${i==(topic.pages-1) and firstPage}"><a href="${group.url}${topic.msgid}/page${i}?lastmod=${topic.lastmod.time}">${i+1}</a></c:if><c:if test="${i!=(topic.pages-1) or not firstPage}"><a href="${group.url}${topic.msgid}/page${i}">${i+1}</a></c:if></c:forEach>)
+      <c:forEach var="i" begin="1" end="${topic.pages-1}"> <c:if test="${i==(topic.pages-1) and firstPage}"><a href="${url}${topic.msgid}/page${i}?lastmod=${topic.lastmod.time}">${i+1}</a></c:if><c:if test="${i!=(topic.pages-1) or not firstPage}"><a href="${url}${topic.msgid}/page${i}">${i+1}</a></c:if></c:forEach>)
     </c:if>
     (<lor:user id="${topic.author}" db="<%= db %>" decorate="true"/>)
   </td>
@@ -244,18 +248,24 @@
     urlAdd+="&amp;lastmod=true";
   }
 
-  // НАЗАД
-  if (!firstPage) {
-    if ((!lastmod && offset == pages * topics) || (lastmod && offset == topics)) {
-      if (urlAdd.length()>0) {
-        out.print("<a href=\""+group.getUrl()+ '?' +urlAdd.substring(5) + "\">← начало</a> ");
+  if (year != null) {
+    if (offset-topics>=0) {
+      out.print("<a rel=prev rev=next href=\"" + url + "?offset=" + (offset - topics) + urlAdd + "\">← назад</a>");
+    }
+  } else {
+    // НАЗАД
+    if (!firstPage) {
+      if ((!lastmod && offset == pages * topics) || (lastmod && offset == topics)) {
+        if (urlAdd.length() > 0) {
+          out.print("<a href=\"" + url + '?' + urlAdd.substring(5) + "\">← начало</a> ");
+        } else {
+          out.print("<a href=\"" + url + "\">← начало</a> ");
+        }
+      } else if (!lastmod) {
+        out.print("<a rel=prev rev=next href=\"" + url + "?offset=" + (offset + topics) + urlAdd + "\">← назад</a>");
       } else {
-        out.print("<a href=\""+group.getUrl()+ "\">← начало</a> ");
+        out.print("<a rel=prev rev=next href=\"" + url + "?offset=" + (offset - topics) + urlAdd + "\">← назад</a>");
       }
-    } else if (!lastmod) {
-      out.print("<a rel=prev rev=next href=\""+group.getUrl()+ "?offset=" + (offset + topics) + urlAdd + "\">← назад</a>");
-    } else {
-      out.print("<a rel=prev rev=next href=\""+group.getUrl()+"?offset=" + (offset - topics) + urlAdd + "\">← назад</a>");
     }
   }
 %>
@@ -265,11 +275,13 @@
   // ВПЕРЕД
     if (offset != 0 || firstPage) {
       if (firstPage && !lastmod && year==null) {
-        out.print("<a rel=next rev=prev href=\""+group.getUrl()+"?offset=" + (pages * topics) + urlAdd + "\">архив →</a>");
+        out.print("<a rel=next rev=prev href=\""+url+"?offset=" + (pages * topics) + urlAdd + "\">архив →</a>");
       } else  if (!lastmod && year==null) {
-        out.print("<a rel=next rev=prev href=\""+group.getUrl()+"?offset=" + (offset - topics) + urlAdd + "\">вперед →</a>");
+        out.print("<a rel=next rev=prev href=\""+url+"?offset=" + (offset - topics) + urlAdd + "\">вперед →</a>");
       } else {
-        out.print("<a rel=next rev=prev href=\""+group.getUrl()+"?offset=" + (offset + topics) + urlAdd + "\">вперед →</a>");
+        if (offset+topics < count) {
+          out.print("<a rel=next rev=prev href=\""+url+"?offset=" + (offset + topics) + urlAdd + "\">вперед →</a>");
+        }
       }
     }
   %>
@@ -293,7 +305,7 @@
 
     if (i==pages+1) {
       if (offset != 0 || firstPage) {
-        out.print("[<a href=\""+group.getUrl()+"?offset=0" + urlAdd + "\">последняя</a>] ");
+        out.print("[<a href=\""+url+"?offset=0" + urlAdd + "\">последняя</a>] ");
       } else {
         out.print("[<b>последняя</b>] ");
       }
@@ -302,15 +314,15 @@
         out.print("[<b>первая</b>] ");
       } else {
         if (urlAdd.length()>0) {
-          out.print("[<a href=\""+group.getUrl()+ '?' + urlAdd.substring(5) + "\">первая</a>] ");
+          out.print("[<a href=\""+url+ '?' + urlAdd.substring(5) + "\">первая</a>] ");
         } else {
-          out.print("[<a href=\""+group.getUrl()+ "\">первая</a>] ");
+          out.print("[<a href=\""+url+ "\">первая</a>] ");
         }
       }
     } else if ((pages + 1 - i) * topics == offset) {
       out.print("<b>" + (pages + 1 - i) + "</b> ");
     } else {
-      out.print("<a href=\""+group.getUrl()+"?offset=" + ((pages + 1 - i) * topics) + urlAdd + "\">" + (pages + 1 - i) + "</a> ");
+      out.print("<a href=\""+url+"?offset=" + ((pages + 1 - i) * topics) + urlAdd + "\">" + (pages + 1 - i) + "</a> ");
     }
   }
 %>
@@ -319,7 +331,7 @@
 
 <c:if test="${template.sessionAuthorized and not showDeleted}">
   <hr>
-  <form action="${group.url}" method=POST>
+  <form action="${url}" method=POST>
   <input type=hidden name=deleted value=1>
   <input type=submit value="Показать удаленные сообщения">
   </form>

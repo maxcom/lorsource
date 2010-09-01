@@ -187,6 +187,9 @@ public class GroupController {
         q+=" AND postdate>='" + year + '-' + month + "-01'::timestamp AND (postdate<'" + year + '-' + month + "-01'::timestamp+'1 month'::interval)";
         params.put("year", year);
         params.put("month", month);
+        params.put("url", group.getUrl()+year+ '/' +month+ '/');
+      } else {
+        params.put("url", group.getUrl());
       }
 
       ResultSet rs;
