@@ -159,7 +159,7 @@
 <thead>
 <tr>
   <th>Тема<br>
-    <form action="$url}" method="GET" style="font-weight: normal; display: inline;">
+    <form action="${url}" method="GET" style="font-weight: normal; display: inline;">
       фильтр:
       <c:if test="${lastmod}">
         <input type=hidden name=lastmod value=true>
