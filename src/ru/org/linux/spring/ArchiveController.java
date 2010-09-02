@@ -56,7 +56,7 @@ public class ArchiveController {
 
       Group group = null;
       if (groupName!=null) {
-        group = new Group(db, groupName);
+        group = new Group(db, sectionid, groupName);
       }
 
       PreparedStatement pst;

@@ -68,13 +68,14 @@ public class Group {
     }
   }
 
-  public Group(Connection db, String urlname) throws SQLException, BadGroupException {
+  public Group(Connection db, int section, String urlname) throws SQLException, BadGroupException {
     ResultSet rs = null;
     PreparedStatement pst = null;
     try {
-      pst = db.prepareStatement("SELECT sections.moderate, sections.preformat, imagepost, vote, section, havelink, linktext, sections.name as sname, title, urlname, image, restrict_topics, restrict_comments,stat1,stat2,stat3,groups.id, groups.info, groups.longinfo, groups.resolvable FROM groups, sections WHERE groups.urlname=? AND groups.section=sections.id");
+      pst = db.prepareStatement("SELECT sections.moderate, sections.preformat, imagepost, vote, section, havelink, linktext, sections.name as sname, title, urlname, image, restrict_topics, restrict_comments,stat1,stat2,stat3,groups.id, groups.info, groups.longinfo, groups.resolvable FROM groups, sections WHERE groups.urlname=? AND groups.section=sections.id AND groups.section=?");
 
       pst.setString(1, urlname);
+      pst.setInt(2, section);
       
       rs = pst.executeQuery();
 
