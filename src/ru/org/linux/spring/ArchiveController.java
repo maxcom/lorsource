@@ -15,9 +15,7 @@
 
 package ru.org.linux.spring;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,17 +23,26 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.view.RedirectView;
 
 import ru.org.linux.site.LorDataSource;
 import ru.org.linux.site.Section;
+import ru.org.linux.site.Group;
 
 @Controller
-public class NewsArchiveController {
+public class ArchiveController {
   public ModelAndView archiveList(
     int sectionid
+  ) throws Exception {
+    return archiveList(sectionid, null);
+  }
+
+  public ModelAndView archiveList(
+    int sectionid,
+    String groupName
   ) throws Exception {
     Connection db = null;
 
@@ -44,21 +51,35 @@ public class NewsArchiveController {
 
       Section section = new Section(db, sectionid);
 
-      Statement st = db.createStatement();
-
       ModelAndView mv = new ModelAndView("view-news-archive");
       mv.getModel().put("section", section);
 
-      ResultSet rs = st.executeQuery("select year, month, c from monthly_stats where section=" + sectionid + " and groupid is null order by year, month");
+      Group group = null;
+      if (groupName!=null) {
+        group = new Group(db, groupName);
+      }
+
+      PreparedStatement pst;
+      if (group==null) {
+        pst = db.prepareStatement("select year, month, c from monthly_stats where section=? and groupid is null order by year, month");
+      } else {
+        pst = db.prepareStatement("select year, month, c from monthly_stats where section=? and groupid=? order by year, month");
+        pst.setInt(2, group.getId());
+      }
+      pst.setInt(1, sectionid);
+
+      mv.getModel().put("group", group);
+
+      ResultSet rs = pst.executeQuery();
 
       List<NewsArchiveListItem> items = new ArrayList<NewsArchiveListItem>();
 
       while (rs.next()) {
-        items.add(new NewsArchiveListItem(section, rs.getInt("year"), rs.getInt("month"), rs.getInt("c")));
+        items.add(new NewsArchiveListItem(section, group, rs.getInt("year"), rs.getInt("month"), rs.getInt("c")));
       }
 
       rs.close();
-      st.close();
+      pst.close();
 
       mv.getModel().put("items", items);
 
@@ -87,12 +108,19 @@ public class NewsArchiveController {
     return archiveList(Section.SECTION_POLLS);
   }
 
+  @RequestMapping("/forum/{group}/archive")
+  public ModelAndView forumArchive(
+    @PathVariable String group
+  ) throws Exception {
+    return archiveList(Section.SECTION_FORUM, group);
+  }
+
   @RequestMapping(value="/view-news-archive.jsp")
   public View galleryArchiveOld(@RequestParam("section") int id, HttpServletResponse response) throws Exception {
     String link = Section.getArchiveLink(id);
 
     if (link==null) {
-      response.sendError(404, "Now archive for this section");
+      response.sendError(404, "No archive for this section");
       return null;
     }
 
@@ -104,11 +132,13 @@ public class NewsArchiveController {
     private final int month;
     private final int count;
     private final Section section;
+    private final Group group;
 
-    public NewsArchiveListItem(Section section, int year, int month, int count) {
+    public NewsArchiveListItem(Section section, Group group, int year, int month, int count) {
       this.year = year;
       this.month = month;
       this.count = count;
+      this.group = group;
       this.section = section;
     }
 
@@ -125,6 +155,9 @@ public class NewsArchiveController {
     }
 
     public String getLink() {
+      if (group!=null) {
+        return group.getArchiveLink(year, month);
+      }
       return section.getArchiveLink(year, month);
     }
   }

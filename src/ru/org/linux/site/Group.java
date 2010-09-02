@@ -15,10 +15,7 @@
 
 package ru.org.linux.site;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -65,6 +62,32 @@ public class Group {
       if (st != null) {
         st.close();
       }
+      if (rs != null) {
+        rs.close();
+      }
+    }
+  }
+
+  public Group(Connection db, String urlname) throws SQLException, BadGroupException {
+    ResultSet rs = null;
+    PreparedStatement pst = null;
+    try {
+      pst = db.prepareStatement("SELECT sections.moderate, sections.preformat, imagepost, vote, section, havelink, linktext, sections.name as sname, title, urlname, image, restrict_topics, restrict_comments,stat1,stat2,stat3,groups.id, groups.info, groups.longinfo, groups.resolvable FROM groups, sections WHERE groups.urlname=? AND groups.section=sections.id");
+
+      pst.setString(1, urlname);
+      
+      rs = pst.executeQuery();
+
+      if (!rs.next()) {
+        throw new BadGroupException("Группа " + id + " не существует");
+      }
+
+      init(rs);
+    } finally {
+      if (pst != null) {
+        pst.close();
+      }
+
       if (rs != null) {
         rs.close();
       }
@@ -275,6 +298,10 @@ public class Group {
 
   public String getUrlName() {
     return urlName;
+  }
+
+  public String getArchiveLink(int year, int month) {
+    return getUrl() +year+ '/' +month+ '/';
   }
 }
 
