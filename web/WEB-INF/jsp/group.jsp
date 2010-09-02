@@ -289,7 +289,7 @@
 </tfoot>
 </table>
 </div>
-<c:if test="${not lastmod and not showDeleted}">
+<c:if test="${not lastmod and not showDeleted and year==null}">
 <div align=center><p>
 <%
   for (int i=0; i<=pages+1; i++) {
