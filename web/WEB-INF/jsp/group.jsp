@@ -1,5 +1,6 @@
 <%@ page contentType="text/html; charset=utf-8"%>
 <%@ page import="java.sql.Connection,ru.org.linux.site.Group,ru.org.linux.site.LorDataSource,ru.org.linux.site.Template,ru.org.linux.site.User"   buffer="200kb"%>
+<%@ page import="ru.org.linux.spring.GroupController" %>
 <%@ page import="ru.org.linux.util.BadImageException" %>
 <%@ page import="ru.org.linux.util.DateUtil" %>
 <%@ page import="ru.org.linux.util.ImageInfo" %>
@@ -27,6 +28,7 @@
 <%--@elvariable id="groupList" type="java.util.List<ru.org.linux.site.Group>"--%>
 <%--@elvariable id="lastmod" type="java.lang.Boolean"--%>
 <%--@elvariable id="count" type="java.lang.Integer"--%>
+<%--@elvariable id="offset" type="java.lang.Integer"--%>
 <%--@elvariable id="showDeleted" type="java.lang.Boolean"--%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <%--@elvariable id="year" type="java.lang.Integer"--%>
@@ -63,21 +65,12 @@
       count = (pages + 1) * topics;
     }
 
-    if (firstPage || offset >= pages * topics) {
-      response.setDateHeader("Expires", System.currentTimeMillis() + 90 * 1000);
-    } else {
-      response.setDateHeader("Expires", System.currentTimeMillis() + 30 * 24 * 60 * 60 * 1000L);
-    }
+    response.setDateHeader("Expires", System.currentTimeMillis() + 90 * 1000);
 %>
 <title>${group.sectionName} - ${group.title}
   <c:if test="${year != null}">
     - Архив ${year}, <%= DateUtil.getMonth((Integer) request.getAttribute("month")) %>
   </c:if>
-  <c:if test="${not firstPage}">
-<%
-    out.print(" (сообщения " + (count - offset) + '-' + (count - offset - topics) + ')');
-%>
-</c:if>
 </title>
     <LINK REL="alternate" HREF="/section-rss.jsp?section=${group.sectionId}&amp;group=${group.id}" TYPE="application/rss+xml">
     <link rel="parent" title="${group.title}" href="${group.sectionLink}">
@@ -166,7 +159,7 @@
         <input type=hidden name=lastmod value=true>
       </c:if>
       <% if (!firstPage) { %>
-        <input type=hidden name=offset value="<%= offset %>">
+        <input type=hidden name=offset value="${offset}">
       <% } %>
         <select name="showignored" onchange="submit();">
           <option value="t" <%= (showIgnored?"selected":"") %>>все темы</option>
@@ -249,40 +242,18 @@
     urlAdd+="&amp;lastmod=true";
   }
 
-  if (year != null) {
-    if (offset-topics>=0) {
-      out.print("<a rel=prev rev=next href=\"" + url + "?offset=" + (offset - topics) + urlAdd + "\">← назад</a>");
-    }
-  } else {
-    // НАЗАД
-    if (!firstPage) {
-      if ((!lastmod && offset == pages * topics) || (lastmod && offset == topics)) {
-        if (urlAdd.length() > 0) {
-          out.print("<a href=\"" + url + '?' + urlAdd.substring(5) + "\">← начало</a> ");
-        } else {
-          out.print("<a href=\"" + url + "\">← начало</a> ");
-        }
-      } else if (!lastmod) {
-        out.print("<a rel=prev rev=next href=\"" + url + "?offset=" + (offset + topics) + urlAdd + "\">← назад</a>");
-      } else {
-        out.print("<a rel=prev rev=next href=\"" + url + "?offset=" + (offset - topics) + urlAdd + "\">← назад</a>");
-      }
-    }
+  if (offset - topics > 0) {
+    out.print("<a rel=prev rev=next href=\"" + url + "?offset=" + (offset - topics) + urlAdd + "\">← назад</a>");
+  } else if (offset - topics == 0) {
+    out.print("<a rel=prev rev=next href=\"" + url + (urlAdd.length() > 0 ? ("?" + urlAdd.substring(5)) : "") + "\">← назад</a>");
   }
 %>
 </div>
 <div style="float: right">
   <%
-  // ВПЕРЕД
-    if (offset != 0 || firstPage) {
-      if (firstPage && !lastmod && year==null) {
-        out.print("<a rel=next rev=prev href=\""+url+"?offset=" + (pages * topics) + urlAdd + "\">архив →</a>");
-      } else  if (!lastmod && year==null) {
-        out.print("<a rel=next rev=prev href=\""+url+"?offset=" + (offset - topics) + urlAdd + "\">вперед →</a>");
-      } else {
-        if (offset+topics < count) {
-          out.print("<a rel=next rev=prev href=\""+url+"?offset=" + (offset + topics) + urlAdd + "\">вперед →</a>");
-        }
+    if (offset + topics < count) {
+      if (year!=null || (offset+topics) < GroupController.MAX_OFFSET) {
+        out.print("<a rel=next rev=prev href=\"" + url + "?offset=" + (offset + topics) + urlAdd + "\">вперед →</a>");
       }
     }
   %>

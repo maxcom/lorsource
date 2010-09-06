@@ -19,7 +19,10 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Controller;
@@ -34,6 +37,8 @@ import ru.org.linux.util.ServletParameterBadValueException;
 
 @Controller
 public class GroupController {
+  public static final int MAX_OFFSET = 300;
+
   @RequestMapping("/group.jsp")
   public ModelAndView topics(
     @RequestParam("group") int groupId,
@@ -146,6 +151,10 @@ public class GroupController {
         if (offset < 0) {
           throw new ServletParameterBadValueException("offset", "offset не может быть отрицательным");
         }
+
+        if (year == null && offset>MAX_OFFSET) {
+          return new ModelAndView(new RedirectView(group.getUrl()+"archive"));
+        }
       } else {
         firstPage = true;
       }
@@ -195,10 +204,8 @@ public class GroupController {
       ResultSet rs;
 
       if (!lastmod) {
-        if (firstPage && year==null) {
-          rs = st.executeQuery(q + ignq + " AND (postdate>(CURRENT_TIMESTAMP-'3 month'::interval) or sticky) ORDER BY sticky desc,msgid DESC LIMIT " + topics);
-        } else if (year==null) { // TODO: удалить старый архив когда новый будет готов и попадет в поисковики
-          rs = st.executeQuery(q + " ORDER BY msgid ASC LIMIT " + topics + " OFFSET " + offset);
+        if (year==null) {
+          rs = st.executeQuery(q + ignq + " ORDER BY sticky DESC, msgid DESC LIMIT " + topics + " OFFSET " + offset);
         } else {
           rs = st.executeQuery(q + " ORDER BY msgid DESC LIMIT " + topics + " OFFSET " + offset);
         }
@@ -224,10 +231,6 @@ public class GroupController {
         }
 
         topicsList.add(topic);
-      }
-
-      if (!firstPage && !lastmod && year==null) {
-        Collections.reverse(topicsList);
       }
 
       params.put("topicsList", topicsList);
