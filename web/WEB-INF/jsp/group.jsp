@@ -290,55 +290,13 @@
 </tfoot>
 </table>
 </div>
-<c:if test="${not lastmod and not showDeleted and year==null}">
-<div align=center><p>
-<%
-  for (int i=0; i<=pages+1; i++) {
-    if (firstPage) {
-      if (i != 0 && i != (pages + 1) && i > 7) {
-        continue;
-      }
-    } else {
-      if (i != 0 && i != (pages + 1) && Math.abs((pages + 1 - i) * topics - offset) > 7 * topics) {
-        continue;
-      }
-    }
-
-    if (i==pages+1) {
-      if (offset != 0 || firstPage) {
-        out.print("[<a href=\""+url+"?offset=0" + urlAdd + "\">последняя</a>] ");
-      } else {
-        out.print("[<b>последняя</b>] ");
-      }
-    } else if (i==0) {
-      if (firstPage) {
-        out.print("[<b>первая</b>] ");
-      } else {
-        if (urlAdd.length()>0) {
-          out.print("[<a href=\""+url+ '?' + urlAdd.substring(5) + "\">первая</a>] ");
-        } else {
-          out.print("[<a href=\""+url+ "\">первая</a>] ");
-        }
-      }
-    } else if ((pages + 1 - i) * topics == offset) {
-      out.print("<b>" + (pages + 1 - i) + "</b> ");
-    } else {
-      out.print("<a href=\""+url+"?offset=" + ((pages + 1 - i) * topics) + urlAdd + "\">" + (pages + 1 - i) + "</a> ");
-    }
-  }
-%>
-<p>
-</div>
-
-<c:if test="${template.sessionAuthorized and not showDeleted}">
+<c:if test="${not lastmod and not showDeleted and year==null and template.sessionAuthorized}">
   <hr>
   <form action="${url}" method=POST>
   <input type=hidden name=deleted value=1>
   <input type=submit value="Показать удаленные сообщения">
   </form>
   <hr>
-</c:if>
-
 </c:if>
 
 <%
