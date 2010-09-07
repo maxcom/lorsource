@@ -15,16 +15,11 @@
 
 package ru.org.linux.site;
 
-import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 
-import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.HTMLFormatter;
-import ru.org.linux.util.ImageInfo;
-import ru.org.linux.util.ProfileHashtable;
 
 public class Poll {
   public static final int MAX_POLL_SIZE = 15;
@@ -158,7 +153,7 @@ public class Poll {
     return topic;
   }
 
-  private int getMaxVote(Connection db) throws SQLException {
+  public int getMaxVote(Connection db) throws SQLException {
     Statement st = db.createStatement();
     ResultSet rs=st.executeQuery("SELECT max(votes) FROM votes WHERE vote="+id);
     rs.next();
@@ -181,42 +176,6 @@ public class Poll {
     addPst.setString(2, label);
 
     addPst.executeUpdate();
-  }
-
-  /* TODO: move to JSP */
-  public String renderPoll(Connection db, Properties config, ProfileHashtable profile) throws SQLException, BadImageException, IOException {
-    return renderPoll(db, config, profile, 0);
-  }
-  
-  /* TODO: move to JSP */
-  public String renderPoll(Connection db, Properties config, ProfileHashtable profile, int highlight) throws SQLException, BadImageException, IOException {
-    StringBuilder out = new StringBuilder();
-    int max = getMaxVote(db);
-    List<PollVariant> vars = getPollVariants(db, ORDER_VOTES);
-    out.append("<table class=poll>");    
-    ImageInfo info = new ImageInfo(config.getProperty("HTMLPathPrefix") + profile.getString("style") + "/img/votes.png");
-    int total = 0;
-    for (PollVariant var : vars) {
-      out.append("<tr><td>");
-      int id = var.getId();
-      int votes = var.getVotes();
-      if (id == highlight) {
-        out.append("<b>");
-      }
-      out.append(HTMLFormatter.htmlSpecialChars(var.getLabel()));
-      if (id == highlight) {
-        out.append("</b>");
-      }
-      out.append("</td><td>").append(votes).append("</td><td>");
-      total += votes;
-      for (int i = 0; i < 20 * votes / max; i++) {
-        out.append("<img src=\"/").append(profile.getString("style")).append("/img/votes.png\" alt=\"*\" ").append(info.getCode()).append('>');
-      }
-      out.append("</td></tr>");
-    }
-    out.append("<tr><td colspan=2>Всего голосов: ").append(total).append("</td></tr>");
-    out.append("</table>");
-    return out.toString();
   }
 
   /* TODO: move to JSP */

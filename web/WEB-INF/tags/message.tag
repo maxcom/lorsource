@@ -93,8 +93,8 @@
     <c:if test="${message.votePoll}">
         <%
           Poll poll = Poll.getPollByTopic(db, msgid);
-          out.append(poll.renderPoll(db, tmpl.getConfig(), tmpl.getProf(), highlight != null ? highlight : 0));
         %>
+        <lor:poll db="<%= db %>" poll="<%= poll %>" highlight="<%= highlight %>"/>
 
       <p>&gt;&gt;&gt; <a href="vote-vote.jsp?msgid=${message.id}">Проголосовать</a></p>
     </c:if>
