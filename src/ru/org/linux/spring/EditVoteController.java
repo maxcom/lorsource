@@ -17,10 +17,10 @@ package ru.org.linux.spring;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.util.List;
-import java.util.Random;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.context.support.ApplicationObjectSupport;
@@ -76,9 +76,10 @@ public class EditVoteController extends ApplicationObjectSupport {
   @RequestMapping(value="/edit-vote.jsp", method= RequestMethod.POST)
   public ModelAndView editVote(
     HttpServletRequest request,
-    @RequestParam("msgid") int msgid,
-    @RequestParam("id") int id,
-    @RequestParam("title") String title
+    @RequestParam int msgid,
+    @RequestParam int id,
+    @RequestParam String title,
+    @RequestParam(defaultValue="false") boolean multiSelect
   ) throws Exception {
     Template tmpl = Template.getTemplate(request);
 
@@ -102,6 +103,13 @@ public class EditVoteController extends ApplicationObjectSupport {
       pstTopic.setString(1, HTMLFormatter.htmlSpecialChars(title));
 
       pstTopic.executeUpdate();
+
+      PreparedStatement pstPoll = db.prepareStatement("UPDATE votenames SET multiselect=? WHERE id=?");
+      pstPoll.setBoolean(1, multiSelect);
+      pstPoll.setInt(2, poll.getId());
+
+      pstPoll.executeUpdate();
+
 
       List<PollVariant> variants = poll.getPollVariants(db, Poll.ORDER_ID);
       for (PollVariant var : variants) {

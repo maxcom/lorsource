@@ -16,6 +16,10 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
+<%--@elvariable id="poll" type="ru.org.linux.site.Poll"--%>
+<%--@elvariable id="msgid" type="java.lang.Integer"--%>
+<%--@elvariable id="msg" type="ru.org.linux.site.Message"--%>
+<%--@elvariable id="variants" type="java.util.List<ru.org.linux.site.PollVariant>"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
@@ -41,8 +45,10 @@
 </c:forEach>
   Еще вариант: <input type="text" name="new1" size="40"><br>
   Еще вариант: <input type="text" name="new2" size="40"><br>
-  Еще вариант: <input type="text" name="new3" size="40"><br>
-
+  Еще вариант: <input type="text" name="new3" size="40">
+<p>
+  <label>Мультивыбор: <input type=checkbox name=multiSelect size=40 value="true" <c:if test="${poll.multiSelect}">checked</c:if>></label>
+</p>
 <input type=submit name="change" value="Изменить">
 </form>
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>

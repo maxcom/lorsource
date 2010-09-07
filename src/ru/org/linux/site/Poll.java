@@ -35,6 +35,7 @@ public class Poll {
   private final int topic;
 
   private final boolean current;
+  private final boolean multiSelect;
 
   public static Poll getPollByTopic(Connection db, int msgid) throws SQLException, PollNotFoundException {
     PreparedStatement pst = db.prepareStatement("SELECT votenames.id FROM votenames,topics WHERE topics.id=? AND votenames.topic=topics.id");
@@ -77,13 +78,14 @@ public class Poll {
 
     Statement st = db.createStatement();
 
-    ResultSet rs = st.executeQuery("SELECT topic FROM votenames WHERE id="+id);
+    ResultSet rs = st.executeQuery("SELECT topic, multiselect FROM votenames WHERE id="+id);
 
     if (!rs.next()) {
       throw new PollNotFoundException(id);
     }
 
     topic = rs.getInt("topic");
+    multiSelect = rs.getBoolean("multiselect");
 
     current = getCurrentPollId(db)==id;
   }
@@ -181,10 +183,12 @@ public class Poll {
     addPst.executeUpdate();
   }
 
+  /* TODO: move to JSP */
   public String renderPoll(Connection db, Properties config, ProfileHashtable profile) throws SQLException, BadImageException, IOException {
     return renderPoll(db, config, profile, 0);
   }
   
+  /* TODO: move to JSP */
   public String renderPoll(Connection db, Properties config, ProfileHashtable profile, int highlight) throws SQLException, BadImageException, IOException {
     StringBuilder out = new StringBuilder();
     int max = getMaxVote(db);
@@ -214,7 +218,8 @@ public class Poll {
     out.append("</table>");
     return out.toString();
   }
-  
+
+  /* TODO: move to JSP */
   public String renderPoll(Connection db, String fullUrl) throws SQLException {
     StringBuilder out = new StringBuilder();
     int max = getMaxVote(db);
@@ -239,5 +244,9 @@ public class Poll {
 
   public boolean isCurrent() {
     return current;
+  }
+
+  public boolean isMultiSelect() {
+    return multiSelect;
   }
 }
