@@ -74,14 +74,14 @@ public class PollBoxletImpl extends SpringBoxlet implements CacheableController 
       }
     });
 
-    List<VoteDTO> votes = getFromCache(cacheProvider, getCacheKey() + "votes", new GetCommand<List<VoteDTO>>() {
+    List<VoteDTO> votes = getFromCache(cacheProvider, getCacheKey() + "votes"+poll.getId(), new GetCommand<List<VoteDTO>>() {
       @Override
       public List<VoteDTO> get() {
         return pollDao.getVoteDTO(poll.getId());
       }
     });
 
-    Message msg = getFromCache(cacheProvider, getCacheKey() + "topic", new GetCommand<Message>() {
+    Message msg = getFromCache(cacheProvider, getCacheKey() + "topic"+poll.getId(), new GetCommand<Message>() {
       @Override
       public Message get() throws SQLException, MessageNotFoundException {
         Connection db = null;
@@ -98,7 +98,7 @@ public class PollBoxletImpl extends SpringBoxlet implements CacheableController 
       }
     });
 
-    Integer count = getFromCache(cacheProvider, getCacheKey() + "count", new GetCommand<Integer>() {
+    Integer count = getFromCache(cacheProvider, getCacheKey() + "count"+poll.getId(), new GetCommand<Integer>() {
       @Override
       public Integer get() {
         return pollDao.getVotersCount(poll.getId());
