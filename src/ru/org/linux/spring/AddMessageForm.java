@@ -61,6 +61,7 @@ public class AddMessageForm {
   private static final int MAX_MESSAGE_LENGTH = 8192;
   private static final int MAX_TITLE_LENGTH = 255;
   private static final int MAX_URL_LENGTH = 255;
+  private boolean multiSelect = false;
 
   public boolean isPreview() {
     return preview;
@@ -195,6 +196,10 @@ public class AddMessageForm {
 
     if (pollList.isEmpty()) {
       pollList = null;
+    }
+
+    if (request.getParameter("multiSelect")!=null) {
+      multiSelect = true;
     }
   }
 
@@ -334,5 +339,9 @@ public class AddMessageForm {
 
   public List<String> getPollList() {
     return pollList;
+  }
+
+  public boolean getMultiSelect() {
+    return multiSelect;
   }
 }

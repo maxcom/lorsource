@@ -96,12 +96,13 @@ public class Poll {
     return rs.getInt("voteid");
   }
 
-  public static int createPoll(Connection db, List<String> pollList) throws SQLException {
+  public static int createPoll(Connection db, List<String> pollList, boolean multiSelect) throws SQLException {
     int voteid = getNextPollId(db);
 
-    PreparedStatement pst = db.prepareStatement("INSERT INTO votenames (id) values (?)");
+    PreparedStatement pst = db.prepareStatement("INSERT INTO votenames (id, multiselect) values (?,?)");
 
     pst.setInt(1, voteid);
+    pst.setBoolean(2, multiSelect);
 
     pst.executeUpdate();
 

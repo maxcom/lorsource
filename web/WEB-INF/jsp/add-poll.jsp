@@ -1,3 +1,4 @@
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page import="ru.org.linux.site.AccessViolationException"%>
 <%@ page import="ru.org.linux.site.Poll"%>
 <%@ page import="ru.org.linux.site.Template"%>
@@ -40,6 +41,10 @@
       <%
     }
   %>
+  <p>
+    <label>Мультивыбор: <input type=checkbox name=multiSelect size=40 value="true"></label>
+  </p>
+  
   <input type="submit" value="Добавить">
 </form>
 
