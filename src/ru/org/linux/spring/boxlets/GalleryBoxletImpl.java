@@ -48,7 +48,7 @@ public class GalleryBoxletImpl extends SpringBoxlet {
 
   @Override
   @RequestMapping("/gallery.boxlet")
-  protected ModelAndView getData(HttpServletRequest request, HttpServletResponse response) {
+  protected ModelAndView getData(HttpServletRequest request, HttpServletResponse response) throws Exception {
     ModelAndView mav = new ModelAndView();
     mav.setViewName("boxlets/gallery");
     List<GalleryItem> list = getFromCache(cacheProvider, new GetCommand<List<GalleryItem>>() {

@@ -17,13 +17,10 @@ package ru.org.linux.spring.dao;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.List;
 
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
-
-import ru.org.linux.site.PollNotFoundException;
 
 public class PollDaoImpl {
   private SimpleJdbcTemplate jdbcTemplate;
@@ -34,28 +31,6 @@ public class PollDaoImpl {
 
   public void setJdbcTemplate(SimpleJdbcTemplate jdbcTemplate) {
     this.jdbcTemplate = jdbcTemplate;
-  }
-
-  public PollDTO getCurrentPoll() throws PollNotFoundException {
-    String sql = "SELECT votenames.id, topics.title, votenames.topic FROM votenames" +
-      " JOIN topics on votenames.topic = topics.id WHERE" +
-      " topics.moderate AND not topics.deleted " +
-      " AND topics.commitdate = (select max(commitdate)" +
-      " from topics where groupid=19387 AND moderate AND NOT deleted)";
-    PollDTO result = jdbcTemplate.queryForObject(sql, new ParameterizedRowMapper<PollDTO>() {
-      @Override
-      public PollDTO mapRow(ResultSet rs, int rowNum) throws SQLException {
-        PollDTO result = new PollDTO();
-        result.setId(rs.getInt("id"));
-        result.setTitle(rs.getString("title"));
-        result.setTopic(rs.getInt("topic"));
-        return result;
-      }
-    }, new HashMap());
-    if (result == null) {
-      throw new PollNotFoundException(-1);
-    }
-    return result;
   }
 
   public List<VoteDTO> getVoteDTO(final Integer pollId) {
@@ -76,5 +51,4 @@ public class PollDaoImpl {
     String sql = "SELECT sum(votes) as s FROM votes WHERE vote= ?";
     return jdbcTemplate.queryForInt(sql, pollId);
   }
-
 }

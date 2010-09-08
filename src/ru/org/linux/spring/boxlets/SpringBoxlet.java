@@ -23,15 +23,10 @@ import org.springframework.web.servlet.mvc.AbstractController;
 import ru.org.linux.spring.CacheableController;
 import ru.org.linux.spring.commons.CacheProvider;
 
-/**
- * User: sreentenko
- * Date: 01.05.2009
- * Time: 0:55:16
- */
 public abstract class SpringBoxlet extends AbstractController implements CacheableController{
 
   protected abstract ModelAndView getData(HttpServletRequest request,
-                                          HttpServletResponse response);
+                                          HttpServletResponse response) throws Exception;
 
   
   @Override
@@ -48,11 +43,11 @@ public abstract class SpringBoxlet extends AbstractController implements Cacheab
     return mav;
   }
 
-  protected <T> T getFromCache(CacheProvider cacheProvider, GetCommand<T> callback){
+  protected <T> T getFromCache(CacheProvider cacheProvider, GetCommand<T> callback) throws Exception {
     return getFromCache(cacheProvider, getCacheKey(), callback);
   }
 
-  protected <T> T getFromCache(CacheProvider cacheProvider, String key, GetCommand<T> callback){
+  protected <T> T getFromCache(CacheProvider cacheProvider, String key, GetCommand<T> callback) throws Exception {
     @SuppressWarnings("unchecked")
     T result = (T) cacheProvider.getFromCache(key);
     if (result == null){
@@ -64,7 +59,7 @@ public abstract class SpringBoxlet extends AbstractController implements Cacheab
   }
 
   public interface GetCommand<T>{
-    T get();
+    T get() throws Exception;
   }
 
   @Override
