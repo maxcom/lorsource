@@ -81,7 +81,7 @@ public class PollBoxletImpl extends SpringBoxlet implements CacheableController 
       }
     });
 
-    Message msg = getFromCache(cacheProvider, getCacheKey() + "votes", new GetCommand<Message>() {
+    Message msg = getFromCache(cacheProvider, getCacheKey() + "topic", new GetCommand<Message>() {
       @Override
       public Message get() throws SQLException, MessageNotFoundException {
         Connection db = null;
