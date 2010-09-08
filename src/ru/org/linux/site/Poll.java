@@ -18,10 +18,11 @@ package ru.org.linux.site;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.io.Serializable;
 
 import ru.org.linux.util.HTMLFormatter;
 
-public class Poll {
+public class Poll implements Serializable {
   public static final int MAX_POLL_SIZE = 15;
   public static final int ORDER_ID = 1;
   public static final int ORDER_VOTES = 2;
@@ -31,6 +32,7 @@ public class Poll {
 
   private final boolean current;
   private final boolean multiSelect;
+  private static final long serialVersionUID = -6541849807995680089L;
 
   public static Poll getPollByTopic(Connection db, int msgid) throws SQLException, PollNotFoundException {
     PreparedStatement pst = db.prepareStatement("SELECT votenames.id FROM votenames,topics WHERE topics.id=? AND votenames.topic=topics.id");
