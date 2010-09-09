@@ -245,6 +245,9 @@
     <a href="show-replies.jsp?nick=${user.nick}">Уведомления</a>
   </li>
 </c:if>
+  <li>
+    <a href="/people/${user.nick}/favs">Избранные темы</a>
+  </li>
 </ul>
 </c:if>
 

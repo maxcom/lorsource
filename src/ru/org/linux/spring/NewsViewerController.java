@@ -312,6 +312,69 @@ public class NewsViewerController {
     }
   }
 
+  @RequestMapping(value="/people/{nick}/favs")
+  public ModelAndView showUserFavs(
+    @PathVariable String nick,
+    @RequestParam(value="offset", required=false) Integer offset,
+    @RequestParam(value="output", required=false) String output,
+    HttpServletResponse response
+  ) throws Exception {
+    Map<String, Object> params = new HashMap<String, Object>();
+
+    params.put("url", "/people/"+nick+ "/favs");
+    params.put("whoisLink", "/people/"+nick+ '/' +"profile");
+
+    Connection db = null;
+
+    try {
+      response.setDateHeader("Expires", System.currentTimeMillis() + 60 * 1000);
+      response.setDateHeader("Last-Modified", System.currentTimeMillis());
+
+      db = LorDataSource.getConnection();
+
+      User user = User.getUser(db, nick);
+      UserInfo userInfo = new UserInfo(db, user.getId());
+      params.put("meLink", userInfo.getUrl());
+
+      params.put("ptitle", "Избранные сообщения "+user.getNick());
+      params.put("navtitle", "Избранные сообщения "+user.getNick());
+
+      params.put("user", user);
+
+      NewsViewer newsViewer = new NewsViewer();
+
+      offset = fixOffset(offset);
+
+      newsViewer.setLimit("LIMIT 20" + (offset > 0 ? (" OFFSET " + offset) : ""));
+
+      newsViewer.setCommitMode(NewsViewer.CommitMode.ALL);
+
+      if (user.getId()==2) {
+        throw new UserErrorException("Лента для пользователя anonymous не доступна");
+      }
+
+      newsViewer.setUserid(user.getId());
+      newsViewer.setUserFavs(true);
+
+      params.put("messages", newsViewer.getMessagesCached(db));
+
+      params.put("offsetNavigation", true);
+      params.put("offset", offset);
+
+      params.put("rssLink", "/people/"+nick+"/favs?output=rss");
+
+      if (output!=null && output.equals("rss")) {
+        return new ModelAndView("section-rss", params);
+      } else {
+        return new ModelAndView("view-news", params);
+      }
+    } finally {
+      if (db != null) {
+        db.close();
+      }
+    }
+  }
+
   private int fixOffset(Integer offset) {
     if (offset!=null) {
       if (offset<0) {

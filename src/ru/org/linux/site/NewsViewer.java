@@ -37,6 +37,11 @@ import ru.org.linux.util.ImageInfo;
 
 public class NewsViewer {
   private static final Log logger = LogFactory.getLog("ru.org.linux");
+  private boolean userFavs = false;
+
+  public void setUserFavs(boolean userFavs) {
+    this.userFavs = userFavs;
+  }
 
   public enum CommitMode {
     COMMITED_ONLY,
@@ -151,7 +156,11 @@ public class NewsViewer {
     }
 
     if (userid!=0) {
-      where.append(" AND userid=").append(userid);
+      if (userFavs) {
+        where.append(" AND memories.userid=").append(userid);
+      } else {
+        where.append(" AND userid=").append(userid);
+      }
     }
 
     if (notalks){
@@ -168,7 +177,7 @@ public class NewsViewer {
     
     ResultSet res = st.executeQuery(
       "SELECT " +
-          "postdate, topics.id as msgid, userid, topics.title, " +
+          "postdate, topics.id as msgid, topics.userid, topics.title, " +
           "topics.groupid as guid, topics.url, topics.linktext, NULL as useragent, " +
           "groups.title as gtitle, urlname, vote, havelink, section, topics.sticky, topics.postip, " +
           "postdate<(CURRENT_TIMESTAMP-sections.expire) as expired, deleted, lastmod, commitby, " +
@@ -178,6 +187,7 @@ public class NewsViewer {
           "INNER JOIN groups ON (groups.id=topics.groupid) " +
           "INNER JOIN sections ON (sections.id=groups.section) " +
           "INNER JOIN msgbase ON (msgbase.id=topics.id) " +
+          (userFavs?"INNER JOIN memories ON (memories.topic = topics.id) ":"")+
           "WHERE " + where+ ' ' +
           sort+ ' ' +limit
     );
@@ -238,6 +248,10 @@ public class NewsViewer {
 
     if (userid!=0) {
       id.append("&u=").append(userid);
+    }
+
+    if (userFavs) {
+      id.append("&f");
     }
 
     if (limit!=null && limit.length()>0) {

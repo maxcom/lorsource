@@ -111,7 +111,7 @@
     multiPortal = true;
   }
 %>
-    <c:forEach var="msg" items="<%= nv.getMessagesCached(db ) %>">
+    <c:forEach var="msg" items="<%= nv.getMessages(db) %>">
       <lorDir:news db="<%= db %>" message="${msg}" multiPortal="<%= multiPortal %>" moderateMode="false"/>
     </c:forEach>
 <%
@@ -144,6 +144,7 @@
     <li><a href="tracker.jsp?filter=mine">Мои темы</a></li>
     <li><a href="show-comments.jsp?nick=<%= user.getNick() %>">Мои комментарии</a></li>
     <li><a href="show-replies.jsp?nick=<%= user.getNick() %>">Уведомления</a></li>
+    <li><a href="/people/<%= user.getNick() %>/favs">Избранные темы</a></li>
   </ul>
   <ul>
     <li><a href="edit-profile.jsp">Настройки</a></li>

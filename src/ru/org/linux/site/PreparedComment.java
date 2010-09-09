@@ -104,7 +104,7 @@ public class PreparedComment {
   public static List<PreparedComment> prepare(Connection db, CommentList comments, List<Comment> list) throws UserNotFoundException, SQLException {
     List<PreparedComment> commentsPrepared = new ArrayList<PreparedComment>(list.size());
 
-    for (Comment comment: list) {
+    for (Comment comment : list) {
       commentsPrepared.add(new PreparedComment(db, comments, comment));
     }
 
