@@ -205,6 +205,10 @@ public class GroupController {
 
       if (!lastmod) {
         if (year==null) {
+          if (offset==0) {
+            q += " AND (sticky or postdate>CURRENT_TIMESTAMP-'3 month'::interval) ";
+          }
+
           rs = st.executeQuery(q + ignq + " ORDER BY sticky DESC, msgid DESC LIMIT " + topics + " OFFSET " + offset);
         } else {
           rs = st.executeQuery(q + " ORDER BY msgid DESC LIMIT " + topics + " OFFSET " + offset);
