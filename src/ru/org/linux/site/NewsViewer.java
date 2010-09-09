@@ -134,6 +134,10 @@ public class NewsViewer {
         break;
     }
 
+    if (userFavs) {
+      sort = "ORDER BY memories.id DESC";
+    }
+
     if (!sections.isEmpty()) {
       where.append(" AND section in (");
       boolean first = true;
