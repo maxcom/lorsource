@@ -30,7 +30,12 @@
   <input type=hidden name=voteid value=${poll.id}>
   <input type=hidden name=msgid value=${message.id}>
   <c:forEach var="item" items="${votes}">
-    <input type="radio" name="vote" id="poll-${item.id}" value="${item.id}"><label for="poll-${item.id}"><c:out escapeXml="true" value="${item.label}"/></label> <br/>
+    <c:if test="${poll.multiSelect}">
+      <input type="checkbox" name="vote" id="poll-${item.id}" value="${item.id}"><label for="poll-${item.id}"><c:out escapeXml="true" value="${item.label}"/></label> <br/>
+    </c:if>
+    <c:if test="${not poll.multiSelect}">
+      <input type="radio" name="vote" id="poll-${item.id}" value="${item.id}"><label for="poll-${item.id}"><c:out escapeXml="true" value="${item.label}"/></label> <br/>
+    </c:if>
   </c:forEach>
 
 <input type=submit value=vote>  

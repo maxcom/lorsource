@@ -18,12 +18,25 @@
   --%>
 
 <%--@elvariable id="section" type="ru.org.linux.site.Section"--%>
-<%--@elvariable id="items" type="ru.org.linux.spring.NewsArchiveController.NewsArchiveListItem"--%>
+<%--@elvariable id="group" type="ru.org.linux.site.Group"--%>
+<%--@elvariable id="items" type="ru.org.linux.spring.ArchiveController.NewsArchiveListItem"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
-<title>${section.name} - Архив</title>
+<title>
+${section.name}
+  <c:if test="${group!=null}">
+    - ${group.title}
+  </c:if>
+  - Архив
+</title>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
-<H1>${section.name} - Архив</H1>
+<H1>
+${section.name}
+  <c:if test="${group!=null}">
+    - ${group.title}
+  </c:if>
+  - Архив
+</H1>
 <c:forEach items="${items}" var="item">
   <c:url value="${item.link}" var="item_url"/>
   <fmt:parseDate var="item_date" value="${item.year} ${item.month}" pattern="yyyy M"/>

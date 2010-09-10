@@ -23,7 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequest;import javax.servlet.ServletRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -38,8 +38,8 @@ import ru.org.linux.spring.dao.VoteDTO;
 public class VoteController {
   @RequestMapping(value="/vote.jsp", method= RequestMethod.POST)
   public ModelAndView vote(
-    HttpServletRequest request,
-    @RequestParam("vote") int vote,
+    ServletRequest request,
+    @RequestParam("vote") int[] votes,
     @RequestParam("voteid") int voteid
   ) throws Exception {
     Template tmpl = Template.getTemplate(request);
@@ -58,8 +58,18 @@ public class VoteController {
 
       Poll poll = Poll.getCurrentPoll(db);
 
+      Message msg = new Message(db, poll.getTopicId());
+
       if (voteid != poll.getId()) {
         throw new BadVoteException("голосовать можно только в текущий опрос");
+      }
+
+      if (votes==null || votes.length==0) {
+        throw new BadVoteException("ничего не выбрано");
+      }
+
+      if (!poll.isMultiSelect() && votes.length!=1) {
+        throw new BadVoteException("этот опрос допускает только один вариант ответа");
       }
 
       Statement st = db.createStatement();
@@ -67,8 +77,10 @@ public class VoteController {
       ResultSet rs = st.executeQuery("SELECT * FROM vote_users WHERE vote="+voteid+" AND userid="+user.getId());
 
       if (!rs.next()) {
-        if (st.executeUpdate("UPDATE votes SET votes=votes+1 WHERE id=" + vote + " AND vote=" + voteid) == 0) {
-          throw new BadVoteException();
+        for (int vote : votes) {
+          if (st.executeUpdate("UPDATE votes SET votes=votes+1 WHERE id=" + vote + " AND vote=" + voteid) == 0) {
+            throw new BadVoteException();
+          }
         }
 
         st.executeUpdate("INSERT INTO vote_users VALUES("+voteid+", "+user.getId()+ ')');
@@ -78,7 +90,7 @@ public class VoteController {
       st.close();
       db.commit();
 
-      return new ModelAndView(new RedirectView("view-message.jsp?msgid=" + poll.getTopicId() + "&highlight=" + vote));
+      return new ModelAndView(new RedirectView(msg.getLink() + "?highlight=" + votes[0]));
     } finally {
       if (db != null) {
         db.close();

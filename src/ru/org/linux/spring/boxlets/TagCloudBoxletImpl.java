@@ -49,7 +49,7 @@ public class TagCloudBoxletImpl extends SpringBoxlet {
 
   @Override
   @RequestMapping("/tagcloud.boxlet")
-  protected ModelAndView getData(HttpServletRequest request, HttpServletResponse response) {
+  protected ModelAndView getData(HttpServletRequest request, HttpServletResponse response) throws Exception {
     ProfileHashtable profile = Template.getTemplate(request).getProf();
     final int i = profile.getInt("tags");
     String key = getCacheKey() + "?count=" + i;

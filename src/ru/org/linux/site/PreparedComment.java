@@ -57,7 +57,7 @@ public class PreparedComment {
 
     this.author = User.getUserCached(db, comment.getUserid());
 
-    processedMessage = getProcessedMessage(db, comment, message);
+    processedMessage = getProcessedMessage(db, message);
 
     replyAuthor = null;
   }
@@ -80,7 +80,7 @@ public class PreparedComment {
     }
   }
 
-  private static String getProcessedMessage(Connection db, Comment comment, String message) throws SQLException {
+  private static String getProcessedMessage(Connection db, String message) throws SQLException {
     BBCodeProcessor proc = new BBCodeProcessor();
     return proc.preparePostText(db, message);
   }
@@ -104,7 +104,7 @@ public class PreparedComment {
   public static List<PreparedComment> prepare(Connection db, CommentList comments, List<Comment> list) throws UserNotFoundException, SQLException {
     List<PreparedComment> commentsPrepared = new ArrayList<PreparedComment>(list.size());
 
-    for (Comment comment: list) {
+    for (Comment comment : list) {
       commentsPrepared.add(new PreparedComment(db, comments, comment));
     }
 

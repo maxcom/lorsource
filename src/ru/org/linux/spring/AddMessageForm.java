@@ -60,6 +60,8 @@ public class AddMessageForm {
   private static final int MAX_MESSAGE_LENGTH_ANONYMOUS = 4096;
   private static final int MAX_MESSAGE_LENGTH = 8192;
   private static final int MAX_TITLE_LENGTH = 255;
+  private static final int MAX_URL_LENGTH = 255;
+  private boolean multiSelect = false;
 
   public boolean isPreview() {
     return preview;
@@ -195,6 +197,10 @@ public class AddMessageForm {
     if (pollList.isEmpty()) {
       pollList = null;
     }
+
+    if (request.getParameter("multiSelect")!=null) {
+      multiSelect = true;
+    }
   }
 
   public void validate(Group group, User user) throws BadInputException, AccessViolationException {
@@ -279,6 +285,10 @@ public class AddMessageForm {
       throw new BadInputException("Слишком большой заголовок");
     }
 
+    if (url!=null && url.length() > MAX_URL_LENGTH) {
+      throw new BadInputException("Слишком длинный URL");
+    }
+
     return user;
   }
 
@@ -329,5 +339,9 @@ public class AddMessageForm {
 
   public List<String> getPollList() {
     return pollList;
+  }
+
+  public boolean getMultiSelect() {
+    return multiSelect;
   }
 }

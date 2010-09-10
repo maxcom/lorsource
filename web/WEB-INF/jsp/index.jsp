@@ -18,6 +18,7 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
+<%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 
 <% Template tmpl = Template.getTemplate(request); %>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
@@ -45,20 +46,17 @@
   <div class="<%= columns3?"newsblog-in2":"newsblog-in"%>">
 
 <h1><a href="/news/">Новости</a></h1>
-
 <c:if test="${template.style != 'black'}">
   <div class="infoblock" style="border: 1px solid #777; margin: 0; text-align: justify;">
     <a href="http://job.samsung.ru/"><img width="130" height="43" src="/adv/Samsung_Logo.png" alt="" style="float: left; border: 0"></a>
     <div style="margin-left: 135px">
     <h2>Вакансии</h2>
     Samsung Electronics приглашает разработчиков LINUX на работу в R&amp;D центры в Южной Корее (г. Сувон) и России (г. Москва).<br>
-    Область специализации: Linux Kernel, Linux Drivers, Java Virtual Machine (JVM), TV Server SW, Open OS, Mobile Platform SW, Service
-    Platform, Convergence, SW Platform, Multicore SW, System SW Tool.
+    Область специализации: Linux Kernel, Drivers, System Programming.
     <a href="http://job.samsung.ru/" style="color: white">http://job.samsung.ru</a>
     </div>
   </div>
 </c:if>
-
 <c:if test="${template.moderatorSession or template.correctorSession}">
 <div class="nav"   style="border-bottom: none">
 <%
@@ -109,7 +107,7 @@
     multiPortal = true;
   }
 %>
-    <c:forEach var="msg" items="<%= nv.getMessagesCached(db ) %>">
+    <c:forEach var="msg" items="<%= nv.getMessages(db) %>">
       <lorDir:news db="<%= db %>" message="${msg}" multiPortal="<%= multiPortal %>" moderateMode="false"/>
     </c:forEach>
 <%
@@ -124,31 +122,26 @@
 </div>
 </div>
 <div class=column>
-  <% if (Template.isSessionAuthorized(session)) { %>
-<div class=boxlet>
-<h2>Добро пожаловать!</h2>
-<div class="boxlet_content">
-Ваш статус:
-<%
-  if (db==null) {
-    db = LorDataSource.getConnection();
-  }
-  
-  User user = Template.getCurrentUser(db, session);
 
-  out.print(user.getStatus());
-%>
-  <ul>
-    <li><a href="tracker.jsp?filter=mine">Мои темы</a></li>
-    <li><a href="show-comments.jsp?nick=<%= user.getNick() %>">Мои комментарии</a></li>
-    <li><a href="show-replies.jsp?nick=<%= user.getNick() %>">Уведомления</a></li>
-  </ul>
-  <ul>
-    <li><a href="edit-profile.jsp">Настройки</a></li>
-  </ul>
-</div>
-</div>
-  <% db.close(); db=null; } %>
+  <c:if test="${template.sessionAuthorized}">
+    <div class=boxlet>
+      <h2>Добро пожаловать!</h2>
+
+      <div class="boxlet_content">
+        Ваш статус: ${template.currentUser.status}
+        <ul>
+          <li><a href="tracker.jsp?filter=mine">Мои темы</a></li>
+          <li><a href="show-comments.jsp?nick=${template.nick}">Мои комментарии</a></li>
+          <li><a href="show-replies.jsp?nick=${template.nick}">Уведомления</a></li>
+          <li><a href="/people/${template.nick}/favs">Избранные темы</a></li>
+        </ul>
+        <ul>
+          <li><a href="edit-profile.jsp">Настройки</a></li>
+        </ul>
+      </div>
+    </div>
+  </c:if>
+
   <lor:boxlets object="<%= columns3 ? \"main3-1\" : \"main2\" %>" var="boxes">
       <c:forEach var="boxlet" items="${boxes}">
         <div class="boxlet">

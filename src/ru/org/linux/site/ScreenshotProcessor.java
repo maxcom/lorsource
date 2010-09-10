@@ -25,7 +25,7 @@ import ru.org.linux.util.ImageInfo;
 import ru.org.linux.util.UtilException;
 
 public class ScreenshotProcessor {
-  public static final int MAX_SCREENSHOT_FILESIZE = 1000000;
+  public static final int MAX_SCREENSHOT_FILESIZE = 1500000;
   public static final int MIN_SCREENSHOT_SIZE = 400;
   public static final int MAX_SCREENSHOT_SIZE = 3000;
 

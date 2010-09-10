@@ -56,8 +56,7 @@
     <div style="margin-left: 135px">
     <h2>Вакансии</h2>
     Samsung Electronics приглашает разработчиков LINUX на работу в R&amp;D центры в Южной Корее (г. Сувон) и России (г. Москва).<br>
-    Область специализации: Linux Kernel, Linux Drivers, Java Virtual Machine (JVM), TV Server SW, Open OS, Mobile Platform SW, Service
-    Platform, Convergence, SW Platform, Multicore SW, System SW Tool.
+    Область специализации: Linux Kernel, Drivers, System Programming. 
     <a href="http://job.samsung.ru/">http://job.samsung.ru</a>
     </div>
   </div>

@@ -1,6 +1,8 @@
 <%@ page contentType="text/html; charset=utf-8"%>
 <%@ page import="java.sql.Connection,ru.org.linux.site.Group,ru.org.linux.site.LorDataSource,ru.org.linux.site.Template,ru.org.linux.site.User"   buffer="200kb"%>
+<%@ page import="ru.org.linux.spring.GroupController" %>
 <%@ page import="ru.org.linux.util.BadImageException" %>
+<%@ page import="ru.org.linux.util.DateUtil" %>
 <%@ page import="ru.org.linux.util.ImageInfo" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
@@ -25,6 +27,13 @@
 <%--@elvariable id="firstPage" type="java.lang.Boolean"--%>
 <%--@elvariable id="groupList" type="java.util.List<ru.org.linux.site.Group>"--%>
 <%--@elvariable id="lastmod" type="java.lang.Boolean"--%>
+<%--@elvariable id="count" type="java.lang.Integer"--%>
+<%--@elvariable id="offset" type="java.lang.Integer"--%>
+<%--@elvariable id="showDeleted" type="java.lang.Boolean"--%>
+<%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
+<%--@elvariable id="year" type="java.lang.Integer"--%>
+<%--@elvariable id="month" type="java.lang.Integer"--%>
+<%--@elvariable id="url" type="java.lang.String"--%>
 
 <% Template tmpl = Template.getTemplate(request); %>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
@@ -39,37 +48,29 @@
 <%
   Connection db = null;
   try {
-    boolean showDeleted = (Boolean) request.getAttribute("showDeleted");
     boolean showIgnored = (Boolean) request.getAttribute("showIgnored");
 
     boolean firstPage = (Boolean) request.getAttribute("firstPage");
     int offset = (Integer) request.getAttribute("offset");
 
-    db = LorDataSource.getConnection();
-    db.setAutoCommit(false);
-
     Group group = (Group) request.getAttribute("group");
 
-    int count = group.calcTopicsCount(db, showDeleted);
+    int count = (Integer) request.getAttribute("count");
     int topics = tmpl.getProf().getInt("topics");
+    Integer year = (Integer) request.getAttribute("year");
+    String url = (String) request.getAttribute("url");
 
     int pages = count / topics;
     if (count % topics != 0) {
       count = (pages + 1) * topics;
     }
 
-    if (firstPage || offset >= pages * topics) {
-      response.setDateHeader("Expires", System.currentTimeMillis() + 90 * 1000);
-    } else {
-      response.setDateHeader("Expires", System.currentTimeMillis() + 30 * 24 * 60 * 60 * 1000L);
-    }
+    response.setDateHeader("Expires", System.currentTimeMillis() + 90 * 1000);
 %>
 <title>${group.sectionName} - ${group.title}
-  <c:if test="${not firstPage}">
-<%
-    out.print(" (сообщения " + (count - offset) + '-' + (count - offset - topics) + ')');
-%>
-</c:if>
+  <c:if test="${year != null}">
+    - Архив ${year}, <%= DateUtil.getMonth((Integer) request.getAttribute("month")) %>
+  </c:if>
 </title>
     <LINK REL="alternate" HREF="/section-rss.jsp?section=${group.sectionId}&amp;group=${group.id}" TYPE="application/rss+xml">
     <link rel="parent" title="${group.title}" href="${group.sectionLink}">
@@ -78,16 +79,22 @@
   <table class=nav>
     <tr>
     <td align=left valign=middle id="navPath">
-      <a href="${group.sectionLink}">${group.sectionName}</a> - <strong>${group.title}</strong>
+      <a href="${group.sectionLink}">${group.sectionName}</a> - ${group.title}
+      <c:if test="${year != null}">
+        - Архив ${year}, <%= DateUtil.getMonth((Integer) request.getAttribute("month")) %>
+      </c:if>
+
     </td>
 
     <td align=right valign=middle>
+      [<a href="${group.url}archive/">Архив</a>]
+      <c:if test="${year==null}">
       <% if (tmpl.isModeratorSession()) { %>
         [<a href="groupmod.jsp?group=${group.id}">Править группу</a>]
       <% } %>
       [<a href="/wiki/en/lor-faq">FAQ</a>]
 <%
-  User currentUser = Template.getCurrentUser(db, session);
+  User currentUser = tmpl.getCurrentUser();
 
   if (group.isTopicPostingAllowed(currentUser)) {
 %>
@@ -96,7 +103,7 @@
   }
 %>
   [<a href="section-rss.jsp?section=${group.sectionId}&amp;group=${group.id}">RSS</a>]
-      <select name=group onchange="goto(this)" title="Быстрый переход">
+      <select name=group onchange="goto(this);" title="Быстрый переход">
         <c:forEach items="${groupList}" var="item">
           <c:if test="${item.id == group.id}">
             <c:if test="${lastmod}">
@@ -116,6 +123,7 @@
           </c:if>
         </c:forEach>
       </select>
+      </c:if>
      </td>
     </tr>
  </table>
@@ -134,6 +142,10 @@
     }
     out.print("</div>");
   }
+
+  db = LorDataSource.getConnection();
+  db.setAutoCommit(false);
+  
 %>
 <lor:groupinfo group="${group}" db="<%= db %>"/>
 <div class=forum>
@@ -141,13 +153,13 @@
 <thead>
 <tr>
   <th>Тема<br>
-    <form action="${group.url}" method="GET" style="font-weight: normal; display: inline;">
+    <form action="${url}" method="GET" style="font-weight: normal; display: inline;">
       фильтр:
       <c:if test="${lastmod}">
         <input type=hidden name=lastmod value=true>
       </c:if>
       <% if (!firstPage) { %>
-        <input type=hidden name=offset value="<%= offset %>">
+        <input type=hidden name=offset value="${offset}">
       <% } %>
         <select name="showignored" onchange="submit();">
           <option value="t" <%= (showIgnored?"selected":"") %>>все темы</option>
@@ -156,11 +168,13 @@
     </form>
   </th>
   <th>Последнее сообщение<br>
+    <c:if test="${year==null}">
     <c:if test="${lastmod}">
-      <span style="font-weight: normal">[<a href="${group.url}" style="text-decoration: underline">отменить</a>]</span>
+      <span style="font-weight: normal">[<a href="${url}" style="text-decoration: underline">отменить</a>]</span>
     </c:if>
     <c:if test="${not lastmod}">
-      <span style="font-weight: normal">[<a href="${group.url}?lastmod=true" style="text-decoration: underline">упорядочить</a>]</span>
+      <span style="font-weight: normal">[<a href="${url}?lastmod=true" style="text-decoration: underline">упорядочить</a>]</span>
+    </c:if>
     </c:if>
   </th>
   <th>Число ответов<br>всего/день/час</th>
@@ -203,7 +217,7 @@
 
     <c:if test="${topic.pages>1}">
       (стр.
-      <c:forEach var="i" begin="1" end="${topic.pages-1}"> <c:if test="${i==(topic.pages-1) and firstPage}"><a href="${group.url}${topic.msgid}/page${i}?lastmod=${topic.lastmod.time}">${i+1}</a></c:if><c:if test="${i!=(topic.pages-1) or not firstPage}"><a href="${group.url}${topic.msgid}/page${i}">${i+1}</a></c:if></c:forEach>)
+      <c:forEach var="i" begin="1" end="${topic.pages-1}"> <c:if test="${i==(topic.pages-1) and firstPage}"><a href="${url}${topic.msgid}/page${i}?lastmod=${topic.lastmod.time}">${i+1}</a></c:if><c:if test="${i!=(topic.pages-1) or not firstPage}"><a href="${url}${topic.msgid}/page${i}">${i+1}</a></c:if></c:forEach>)
     </c:if>
     (<lor:user id="${topic.author}" db="<%= db %>" decorate="true"/>)
   </td>
@@ -228,32 +242,18 @@
     urlAdd+="&amp;lastmod=true";
   }
 
-  // НАЗАД
-  if (!firstPage) {
-    if ((!lastmod && offset == pages * topics) || (lastmod && offset == topics)) {
-      if (urlAdd.length()>0) {
-        out.print("<a href=\""+group.getUrl()+ '?' +urlAdd.substring(5) + "\">← начало</a> ");
-      } else {
-        out.print("<a href=\""+group.getUrl()+ "\">← начало</a> ");
-      }
-    } else if (!lastmod) {
-      out.print("<a rel=prev rev=next href=\""+group.getUrl()+ "?offset=" + (offset + topics) + urlAdd + "\">← назад</a>");
-    } else {
-      out.print("<a rel=prev rev=next href=\""+group.getUrl()+"?offset=" + (offset - topics) + urlAdd + "\">← назад</a>");
-    }
+  if (offset - topics > 0) {
+    out.print("<a rel=prev rev=next href=\"" + url + "?offset=" + (offset - topics) + urlAdd + "\">← назад</a>");
+  } else if (offset - topics == 0) {
+    out.print("<a rel=prev rev=next href=\"" + url + (urlAdd.length() > 0 ? ("?" + urlAdd.substring(5)) : "") + "\">← назад</a>");
   }
 %>
 </div>
 <div style="float: right">
   <%
-  // ВПЕРЕД
-    if (offset != 0 || firstPage) {
-      if (firstPage && !lastmod) {
-        out.print("<a rel=next rev=prev href=\""+group.getUrl()+"?offset=" + (pages * topics) + urlAdd + "\">архив →</a>");
-      } else  if (!lastmod) {
-        out.print("<a rel=next rev=prev href=\""+group.getUrl()+"?offset=" + (offset - topics) + urlAdd + "\">вперед →</a>");
-      } else {
-        out.print("<a rel=next rev=prev href=\""+group.getUrl()+"?offset=" + (offset + topics) + urlAdd + "\">вперед →</a>");
+    if (offset + topics < count) {
+      if (year!=null || (offset+topics) < GroupController.MAX_OFFSET) {
+        out.print("<a rel=next rev=prev href=\"" + url + "?offset=" + (offset + topics) + urlAdd + "\">вперед →</a>");
       }
     }
   %>
@@ -261,55 +261,13 @@
 </tfoot>
 </table>
 </div>
-<c:if test="${not lastmod and not showDeleted}">
-<div align=center><p>
-<%
-  for (int i=0; i<=pages+1; i++) {
-    if (firstPage) {
-      if (i != 0 && i != (pages + 1) && i > 7) {
-        continue;
-      }
-    } else {
-      if (i != 0 && i != (pages + 1) && Math.abs((pages + 1 - i) * topics - offset) > 7 * topics) {
-        continue;
-      }
-    }
-
-    if (i==pages+1) {
-      if (offset != 0 || firstPage) {
-        out.print("[<a href=\""+group.getUrl()+"?offset=0" + urlAdd + "\">последняя</a>] ");
-      } else {
-        out.print("[<b>последняя</b>] ");
-      }
-    } else if (i==0) {
-      if (firstPage) {
-        out.print("[<b>первая</b>] ");
-      } else {
-        if (urlAdd.length()>0) {
-          out.print("[<a href=\""+group.getUrl()+ '?' + urlAdd.substring(5) + "\">первая</a>] ");
-        } else {
-          out.print("[<a href=\""+group.getUrl()+ "\">первая</a>] ");
-        }
-      }
-    } else if ((pages + 1 - i) * topics == offset) {
-      out.print("<b>" + (pages + 1 - i) + "</b> ");
-    } else {
-      out.print("<a href=\""+group.getUrl()+"?offset=" + ((pages + 1 - i) * topics) + urlAdd + "\">" + (pages + 1 - i) + "</a> ");
-    }
-  }
-%>
-<p>
-</div>
-
-<% if (Template.isSessionAuthorized(session) && !showDeleted) { %>
+<c:if test="${not lastmod and not showDeleted and year==null and template.sessionAuthorized}">
   <hr>
-  <form action="${group.url}" method=POST>
+  <form action="${url}" method=POST>
   <input type=hidden name=deleted value=1>
   <input type=submit value="Показать удаленные сообщения">
   </form>
   <hr>
-<% } %>
-
 </c:if>
 
 <%

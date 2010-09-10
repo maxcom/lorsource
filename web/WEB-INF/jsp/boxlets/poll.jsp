@@ -12,7 +12,10 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
-<%--@elvariable id="poll" type="ru.org.linux.spring.dao.PollDTO"--%>
+<%--@elvariable id="poll" type="ru.org.linux.site.Poll"--%>
+<%--@elvariable id="message" type="ru.org.linux.site.Message"--%>
+<%--@elvariable id="count" type="java.lang.Integer"--%>
+<%--@elvariable id="votes" type="java.util.List<ru.org.linux.spring.dao.VoteDTO>"--%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="lor" uri="http://www.linux.org.ru" %>
@@ -20,12 +23,17 @@
   <h2><a href="${main_url}">Опрос</a></h2>
 
   <div class="boxlet_content">
-    <h3>${poll.title}</h3>
+    <h3>${message.title}</h3>
 
     <form action="/vote.jsp" method="POST">
       <input type="hidden" name="voteid" value="${poll.id}"/>
       <c:forEach var="item" items="${votes}">
-        <input type="radio" name="vote" id="poll-${item.id}" value="${item.id}"><label for="poll-${item.id}"><c:out escapeXml="true" value="${item.label}"/></label> <br/>
+        <c:if test="${poll.multiSelect}">
+          <input type="checkbox" name="vote" id="poll-${item.id}" value="${item.id}"><label for="poll-${item.id}"><c:out escapeXml="true" value="${item.label}"/></label> <br/>
+        </c:if>
+        <c:if test="${not poll.multiSelect}">
+          <input type="radio" name="vote" id="poll-${item.id}" value="${item.id}"><label for="poll-${item.id}"><c:out escapeXml="true" value="${item.label}"/></label> <br/>
+        </c:if>
       </c:forEach>
       <input type="submit" value="vote"/>
     </form>

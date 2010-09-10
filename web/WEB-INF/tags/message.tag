@@ -93,31 +93,30 @@
     <c:if test="${message.votePoll}">
         <%
           Poll poll = Poll.getPollByTopic(db, msgid);
-          out.append(poll.renderPoll(db, tmpl.getConfig(), tmpl.getProf(), highlight != null ? highlight : 0));
         %>
+        <lor:poll db="<%= db %>" poll="<%= poll %>" highlight="<%= highlight %>"/>
 
-      <p>&gt;&gt;&gt; <a href="vote-vote.jsp?msgid=${msgid}">Проголосовать</a></p>
+      <p>&gt;&gt;&gt; <a href="vote-vote.jsp?msgid=${message.id}">Проголосовать</a></p>
     </c:if>
     <%
   if (message.getUrl() != null && message.isHaveLink() && message.getUrl().length()>0) {
-    out.append("<p>&gt;&gt;&gt; <a href=\"").append(HTMLFormatter.htmlSpecialChars(message.getUrl())).append("\">").append(message.getLinktext()).append("</a>.");
+    out.append("<p>&gt;&gt;&gt; <a href=\"").append(HTMLFormatter.htmlSpecialChars(message.getUrl())).append("\">").append(message.getLinktext()).append("</a>");
   }
 
   if (message.getUrl() != null && message.getSection().isImagepost()) {
     NewsViewer.showMediumImage(tmpl.getObjectConfig().getHTMLPathPrefix(), out, message.getUrl(), message.getTitle(), message.getLinktext(), true);
   }
-
-  if (message.getSection().isPremoderated()) {
-    String tagLinks = Tags.getTagLinks(message.getTags());
+%>
+<c:if test="${message.section.premoderated}"><%
+String tagLinks = Tags.getTagLinks(message.getTags());
 
     if (tagLinks.length() > 0) {
       out.append("<p class=tags>Метки: <span class=tag>");
       out.append(tagLinks);
       out.append("</span></p>");
     }
-  }
 %>
-
+</c:if>
 <div class=sign>
 <%
   out.append(author.getSignature(tmpl.dateFormat, tmpl.isModeratorSession(), message.getPostdate(), tmpl.isMobile()));

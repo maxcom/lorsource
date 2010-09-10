@@ -47,7 +47,7 @@ public class ArchiveBoxletImpl extends SpringBoxlet{
 
   @Override
   @RequestMapping("/archive.boxlet")
-  protected ModelAndView getData(HttpServletRequest request, HttpServletResponse response) {
+  protected ModelAndView getData(HttpServletRequest request, HttpServletResponse response) throws Exception {
     List<ArchiveDaoImpl.ArchiveDTO> list = getFromCache(cacheProvider, new GetCommand<List<ArchiveDaoImpl.ArchiveDTO>>() {
       @Override
       public List<ArchiveDaoImpl.ArchiveDTO> get() {
