@@ -18,6 +18,7 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
+<%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 
 <% Template tmpl = Template.getTemplate(request); %>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
@@ -121,32 +122,26 @@
 </div>
 </div>
 <div class=column>
-  <% if (Template.isSessionAuthorized(session)) { %>
-<div class=boxlet>
-<h2>Добро пожаловать!</h2>
-<div class="boxlet_content">
-Ваш статус:
-<%
-  if (db==null) {
-    db = LorDataSource.getConnection();
-  }
-  
-  User user = Template.getCurrentUser(db, session);
 
-  out.print(user.getStatus());
-%>
-  <ul>
-    <li><a href="tracker.jsp?filter=mine">Мои темы</a></li>
-    <li><a href="show-comments.jsp?nick=<%= user.getNick() %>">Мои комментарии</a></li>
-    <li><a href="show-replies.jsp?nick=<%= user.getNick() %>">Уведомления</a></li>
-    <li><a href="/people/<%= user.getNick() %>/favs">Избранные темы</a></li>
-  </ul>
-  <ul>
-    <li><a href="edit-profile.jsp">Настройки</a></li>
-  </ul>
-</div>
-</div>
-  <% db.close(); db=null; } %>
+  <c:if test="${template.sessionAuthorized}">
+    <div class=boxlet>
+      <h2>Добро пожаловать!</h2>
+
+      <div class="boxlet_content">
+        Ваш статус: ${template.currentUser.status}
+        <ul>
+          <li><a href="tracker.jsp?filter=mine">Мои темы</a></li>
+          <li><a href="show-comments.jsp?nick=${template.nick}">Мои комментарии</a></li>
+          <li><a href="show-replies.jsp?nick=${template.nick}">Уведомления</a></li>
+          <li><a href="/people/${template.nick}/favs">Избранные темы</a></li>
+        </ul>
+        <ul>
+          <li><a href="edit-profile.jsp">Настройки</a></li>
+        </ul>
+      </div>
+    </div>
+  </c:if>
+
   <lor:boxlets object="<%= columns3 ? \"main3-1\" : \"main2\" %>" var="boxes">
       <c:forEach var="boxlet" items="${boxes}">
         <div class="boxlet">

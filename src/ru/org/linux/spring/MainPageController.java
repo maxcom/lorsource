@@ -15,14 +15,38 @@
 
 package ru.org.linux.spring;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+
+import javax.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
+import ru.org.linux.site.Template;
+import ru.org.linux.site.LorDataSource;
+import ru.org.linux.site.UserNotFoundException;
+
 @Controller
 public class MainPageController {
   @RequestMapping({"/", "/index.jsp"})
-  public ModelAndView mainPage() {
-    return new ModelAndView("index");
+  public ModelAndView mainPage(HttpServletRequest request) throws Exception {
+    Template tmpl = Template.getTemplate(request);
+
+    Connection db = null;
+
+    try {
+      if (tmpl.isSessionAuthorized()) {
+        db = LorDataSource.getConnection();
+
+        tmpl.initCurrentUser(db);
+      }
+
+      return new ModelAndView("index");
+    } finally {
+      if (db != null) {
+        db.close();
+      }
+    }
   }
 }
