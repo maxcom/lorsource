@@ -292,7 +292,11 @@
     }
 
     if (npage!=-1 && npage+1!=pages) {
-      bufInfo.append(" <a href=\"").append(message.getLinkPage(npage+1)).append(urlAdd).append("\">→</a>");
+      if (npage+1==pages-1) {
+        bufInfo.append(" <a href=\"").append(message.getLinkPage(npage+1)).append(urlAdd).append("\">→</a>");
+      } else {
+        bufInfo.append(" <a href=\"").append(message.getLinkPage(npage+1)).append(filterAdd).append("\">→</a>");
+      }
     } else {
       bufInfo.append(" →");
     }
