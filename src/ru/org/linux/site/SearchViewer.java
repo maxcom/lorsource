@@ -69,9 +69,9 @@ public class SearchViewer {
     select.append(" WHERE msgs.id = msgbase.id AND not msgs.deleted AND idxFTI @@ q");
 
     if (date==SEARCH_3MONTH) {
-      select.append(" AND msgs.postdate>CURRENT_TIMESTAMP-'3 month'::interval");
+      select.append(" AND msgbase_postdate>CURRENT_TIMESTAMP-'3 month'::interval");
     } else if (date == SEARCH_YEAR) {
-      select.append(" AND msgs.postdate>CURRENT_TIMESTAMP-'1 year'::interval");
+      select.append(" AND msgbase_postdate>CURRENT_TIMESTAMP-'1 year'::interval");
     }
 
     if (section!=0) {
