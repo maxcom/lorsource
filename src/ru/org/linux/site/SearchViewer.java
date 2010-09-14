@@ -66,7 +66,7 @@ public class SearchViewer {
       select.append(", groups");
     }
 
-    select.append(" WHERE msgs.id = msgbase.id AND idxFTI @@ q");
+    select.append(" WHERE msgs.id = msgbase.id AND not msgs.deleted AND idxFTI @@ q");
 
     if (date==SEARCH_3MONTH) {
       select.append(" AND msgs.postdate>CURRENT_TIMESTAMP-'3 month'::interval");
