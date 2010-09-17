@@ -231,6 +231,10 @@ pre {
      margin-left: 1em;
 }
 
+.msg .code .title {
+    margin-left: inherit;
+}
+
 .boxlet {
 -moz-border-radius: 1em;
 -webkit-border-radius: 1em;
