@@ -140,7 +140,7 @@ public class User implements Serializable {
       throw new BadPasswordException(nick);
     }
 
-    if (!password.equals(this.password)) {
+    if (password==null || !password.equals(this.password)) {
       throw new BadPasswordException(nick);
     }
   }
