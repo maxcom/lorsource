@@ -38,6 +38,25 @@ public class MemoriesListItem {
     this.topic = rs.getInt("topic");
   }
 
+  private MemoriesListItem(ResultSet rs) throws SQLException {
+    this.id = rs.getInt("id");
+    this.userid = rs.getInt("userid");
+    this.timestamp = rs.getTimestamp("add_date");
+    this.topic = rs.getInt("topic");
+  }
+
+  public static MemoriesListItem getMemoriesListItem(Connection db, int id) throws SQLException {
+    Statement st = db.createStatement();
+
+    ResultSet rs = st.executeQuery("SELECT * FROM memories WHERE id="+id);
+
+    if (!rs.next()) {
+      return null;
+    } else {
+      return new MemoriesListItem(rs);
+    }
+  }
+
   public int getId() {
     return id;
   }

@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.View;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 
 import ru.org.linux.site.*;
@@ -71,7 +72,7 @@ public class MemoriesController {
   }
 
   @RequestMapping(value="/memories.jsp", params = {"remove"}, method= RequestMethod.POST)
-  public View remove(
+  public ModelAndView remove(
     HttpServletRequest request,
     @RequestParam("id") int id
   ) throws Exception {
@@ -91,19 +92,24 @@ public class MemoriesController {
       user.checkBlocked();
       user.checkAnonymous();
 
-      MemoriesListItem m = new MemoriesListItem(db, id);
+      MemoriesListItem m = MemoriesListItem.getMemoriesListItem(db, id);
 
-      if (m.getUserid()!=user.getId()) {
-        throw new AccessViolationException("Нельзя удалить чужую запись");
+      if (m != null) {
+        if (m.getUserid() != user.getId()) {
+          throw new AccessViolationException("Нельзя удалить чужую запись");
+        }
+
+        Message topic = new Message(db, m.getTopic());
+
+        PreparedStatement pst = db.prepareStatement("DELETE FROM memories WHERE id=?");
+        pst.setInt(1, id);
+        pst.executeUpdate();
+
+        return new ModelAndView(new RedirectView(topic.getLink()));
+      } else {
+        return new ModelAndView("action-done", "message", "Запись уже удалена");
       }
 
-      Message topic = new Message(db, m.getTopic());
-
-      PreparedStatement pst = db.prepareStatement("DELETE FROM memories WHERE id=?");
-      pst.setInt(1, id);
-      pst.executeUpdate();
-
-      return new RedirectView(topic.getLink());
     } finally {
       if (db!=null) {
         db.close();
