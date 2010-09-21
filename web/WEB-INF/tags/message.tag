@@ -60,8 +60,9 @@
           [<a href="mtn.jsp?msgid=${message.id}">Группа</a>]
         </c:if>
       </c:if>
-    </c:if><%
-    if (message.isDeleted()) {
+    </c:if>
+    <c:if test="${message.deleted}">
+    <%
       DeleteInfo deleteInfo = DeleteInfo.getDeleteInfo(db, msgid);
 
       if (deleteInfo==null) {
@@ -71,9 +72,8 @@
 
         out.append("<strong>Сообщение удалено ").append(deleteUser.getNick()).append(" по причине '").append(deleteInfo.getReason()).append("'</strong>");
       }
-    }
-
 %>
+    </c:if>
   &nbsp;</div>
 </c:if>
 
