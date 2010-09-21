@@ -1,9 +1,9 @@
+<%@ tag import="java.io.File" %>
 <%@ tag import="java.io.IOException" %>
 <%@ tag import="ru.org.linux.site.*" %>
 <%@ tag import="ru.org.linux.util.BadImageException" %>
 <%@ tag import="ru.org.linux.util.HTMLFormatter" %>
 <%@ tag import="ru.org.linux.util.ImageInfo" %>
-<%@ tag import="java.io.File" %>
 <%@ tag pageEncoding="UTF-8"%>
 <%@ attribute name="db" required="true" type="java.sql.Connection" %>
 <%@ attribute name="message" required="true" type="ru.org.linux.site.Message" %>
@@ -109,7 +109,7 @@
     try {
       Poll poll = Poll.getPollByTopic(db, msgid);
       %>
-        <lor:poll db="<%= db %>" poll="<%= poll %>"/>
+        <lor:poll poll="<%= new PreparedPoll(db, poll) %>"/>
       <%
       if (poll.isCurrent()) {
         out.append("<p>&gt;&gt;&gt; <a href=\"").append("vote-vote.jsp?msgid=").append(Integer.toString(msgid)).append("\">Голосовать</a>");

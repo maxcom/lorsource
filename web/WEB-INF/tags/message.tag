@@ -1,10 +1,9 @@
-<%@ tag import="ru.org.linux.site.*" %>
-<%@ tag import="ru.org.linux.util.BadImageException" %>
-<%@ tag import="ru.org.linux.util.HTMLFormatter" %>
-<%@ tag import="java.util.List" %>
+<%@ tag import="java.net.URLEncoder" %>
 <%@ tag import="java.sql.Timestamp" %>
 <%@ tag import="java.text.DateFormat" %>
-<%@ tag import="java.net.URLEncoder" %>
+<%@ tag import="java.util.List" %>
+<%@ tag import="ru.org.linux.site.*" %>
+<%@ tag import="ru.org.linux.util.HTMLFormatter" %>
 <%@ tag pageEncoding="UTF-8"%>
 <%@ attribute name="db" required="true" type="java.sql.Connection" %>
 <%@ attribute name="message" required="true" type="ru.org.linux.site.Message" %>
@@ -94,7 +93,7 @@
         <%
           Poll poll = Poll.getPollByTopic(db, msgid);
         %>
-        <lor:poll db="<%= db %>" poll="<%= poll %>" highlight="<%= highlight %>"/>
+        <lor:poll poll="<%= new PreparedPoll(db, poll) %>" highlight="<%= highlight %>"/>
 
       <p>&gt;&gt;&gt; <a href="vote-vote.jsp?msgid=${message.id}">Проголосовать</a></p>
     </c:if>
@@ -153,9 +152,9 @@ String tagLinks = Tags.getTagLinks(message.getTags());
   <c:if test="${template.sessionAuthorized}">
   <%
   List<EditInfoDTO> editInfo = message.loadEditInfo(db);
-  if (editInfo!=null && editInfo.size()>0) {
+  if (editInfo!=null && !editInfo.isEmpty()) {
     EditInfoDTO info = editInfo.get(0);
-      User editor = User.getUserCached(db, info.getEditor());
+    User editor = User.getUserCached(db, info.getEditor());
 %>
   <br>
   Последнее исправление: <%= editor.getNick() %> <lor:date date="<%= info.getEditdate() %>"/>

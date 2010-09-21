@@ -1,9 +1,7 @@
 <%@ tag import="ru.org.linux.site.PollVariant" %>
-<%@ tag import="java.util.List" %>
-<%@ tag import="ru.org.linux.util.ImageInfo" %>
-<%@ tag import="ru.org.linux.util.HTMLFormatter" %>
-<%@ tag import="ru.org.linux.site.Poll" %>
 <%@ tag import="ru.org.linux.site.Template" %>
+<%@ tag import="ru.org.linux.util.HTMLFormatter" %>
+<%@ tag import="ru.org.linux.util.ImageInfo" %>
 <%@ tag pageEncoding="UTF-8"%>
 <%--
   ~ Copyright 1998-2010 Linux.org.ru
@@ -19,18 +17,16 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
-<%@ attribute name="db" required="true" type="java.sql.Connection" %>
-<%@ attribute name="poll" required="true" type="ru.org.linux.site.Poll" %>
+<%@ attribute name="poll" required="true" type="ru.org.linux.site.PreparedPoll" %>
 <%@ attribute name="highlight" required="false" type="java.lang.Integer" %>
 <table class=poll>
 <%
   Template tmpl = Template.getTemplate(request);
 
-  int max = poll.getMaxVote(db);
-  List<PollVariant> vars = poll.getPollVariants(db, Poll.ORDER_VOTES);
+  int max = poll.getMaximumValue();
   ImageInfo info = new ImageInfo(tmpl.getConfig().getProperty("HTMLPathPrefix") + tmpl.getProf().getString("style") + "/img/votes.png");
   int total = 0;
-  for (PollVariant var : vars) {
+  for (PollVariant var : poll.getVariants()) {
     out.append("<tr><td>");
     int id = var.getId();
     int votes = var.getVotes();
