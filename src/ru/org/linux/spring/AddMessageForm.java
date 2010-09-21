@@ -35,6 +35,8 @@ import org.springframework.web.multipart.MultipartRequest;
 import ru.org.linux.site.*;
 import ru.org.linux.util.*;
 
+import com.google.common.collect.ImmutableList;
+
 public class AddMessageForm {
   private static final Log logger = LogFactory.getLog(AddMessageForm.class);
 
@@ -56,7 +58,7 @@ public class AddMessageForm {
   private final String userAgent;
   private final String postIP;
   private String previewImagePath = null;
-  private final List<String> pollList;
+  private final ImmutableList<String> pollList;
   private static final int MAX_MESSAGE_LENGTH_ANONYMOUS = 4096;
   private static final int MAX_MESSAGE_LENGTH = 8192;
   private static final int MAX_TITLE_LENGTH = 255;
@@ -197,7 +199,7 @@ public class AddMessageForm {
     if (pollList.isEmpty()) {
       this.pollList = null;
     } else {
-      this.pollList = pollList;
+      this.pollList = ImmutableList.copyOf(pollList);
     }
 
     if (request.getParameter("multiSelect")!=null) {
@@ -339,7 +341,7 @@ public class AddMessageForm {
     return previewImagePath;
   }
 
-  public List<String> getPollList() {
+  public ImmutableList<String> getPollList() {
     return pollList;
   }
 

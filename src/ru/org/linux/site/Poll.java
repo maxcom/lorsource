@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.io.Serializable;
 
+import com.google.common.collect.ImmutableList;
+
 import ru.org.linux.util.HTMLFormatter;
 
 public class Poll implements Serializable {
@@ -125,7 +127,7 @@ public class Poll implements Serializable {
     return voteid;
   }
 
-  public List<PollVariant> getPollVariants(Connection db, int order) throws SQLException {
+  public ImmutableList<PollVariant> getPollVariants(Connection db, int order) throws SQLException {
     List<PollVariant> variants = new ArrayList<PollVariant>();
     Statement st = db.createStatement();
     ResultSet rs;
@@ -149,7 +151,7 @@ public class Poll implements Serializable {
       variants.add(new PollVariant(varId, label, votes));
     }
 
-    return variants;
+    return ImmutableList.copyOf(variants);
   }
 
   public int getTopicId() {
