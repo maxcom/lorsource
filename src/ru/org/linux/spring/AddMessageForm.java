@@ -281,7 +281,7 @@ public class AddMessageForm {
       }
     }
 
-    if (title.length() > MAX_TITLE_LENGTH) {
+    if (title!=null && title.length() > MAX_TITLE_LENGTH) {
       throw new BadInputException("Слишком большой заголовок");
     }
 
