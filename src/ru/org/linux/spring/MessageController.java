@@ -297,6 +297,9 @@ public class MessageController {
     }
 
     params.put("message", message);
+    PreparedMessage preparedMessage = new PreparedMessage(db, message);
+    params.put("preparedMessage", preparedMessage);
+    params.put("messageMenu", new MessageMenu(db, preparedMessage, tmpl.getCurrentUser()));
 
     if (message.isExpired()) {
       response.setDateHeader("Expires", System.currentTimeMillis() + 30 * 24 * 60 * 60 * 1000L);

@@ -1,5 +1,7 @@
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="java.sql.Connection,ru.org.linux.site.*,ru.org.linux.util.ServletParameterParser,ru.org.linux.util.StringUtil"   buffer="200kb"%>
+<%@ page import="ru.org.linux.site.CommentFilter,ru.org.linux.site.Message,ru.org.linux.site.Section,ru.org.linux.site.Template"   buffer="200kb"%>
+<%@ page import="ru.org.linux.util.ServletParameterParser" %>
+<%@ page import="ru.org.linux.util.StringUtil" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
@@ -20,6 +22,8 @@
 
 <%--@elvariable id="showAdsense" type="Boolean"--%>
 <%--@elvariable id="message" type="ru.org.linux.site.Message"--%>
+<%--@elvariable id="preparedMessage" type="ru.org.linux.site.PreparedMessage"--%>
+<%--@elvariable id="messageMenu" type="ru.org.linux.site.MessageMenu"--%>
 <%--@elvariable id="prevMessage" type="ru.org.linux.site.Message"--%>
 <%--@elvariable id="nextMessage" type="ru.org.linux.site.Message"--%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
@@ -33,22 +37,13 @@
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
 <%
-  Connection db = null;
+  int filterMode = (Integer) request.getAttribute("filterMode");
 
-    String nick = Template.getNick(session);
-
-    int filterMode = (Integer) request.getAttribute("filterMode");
-    int defaultFilterMode = (Integer) request.getAttribute("defaultFilterMode");
-
-    int npage = (Integer) request.getAttribute("page");
-
-    boolean showDeleted = (Boolean) request.getAttribute("showDeleted");
+  int npage = (Integer) request.getAttribute("page");
 
   Message message = (Message) request.getAttribute("message");
   Message prevMessage = (Message) request.getAttribute("prevMessage");
   Message nextMessage = (Message) request.getAttribute("nextMessage");
-
-  String mainurl = message.getLink();
 %>
 
 <title>${message.sectionTitle} - ${message.groupTitle} - ${message.title}</title>
@@ -251,7 +246,7 @@
 
     String filterAdd="";
 
-    if (filterMode!=defaultFilterMode) {
+    if (filterMode!= (Integer) request.getAttribute("defaultFilterMode")) {
       if (urlAdd.length()>0) {
         urlAdd.append('&');
       } else {
@@ -282,7 +277,7 @@
             bufInfo.append("<a href=\"").append(message.getLinkPage(i)).append(filterAdd);
           }
         } else {
-          bufInfo.append("<a href=\"").append(mainurl).append(filterAdd);
+          bufInfo.append("<a href=\"").append(message.getLink()).append(filterAdd);
         }
 
         bufInfo.append("\">").append(i + 1).append("</a>");
@@ -305,25 +300,14 @@
     pageInfo = bufInfo.toString();
   }
 
-  try {
-
-  db = LorDataSource.getConnection();
-
   if (request.getParameter("highlight") != null) {
 %>
-<lor:message db="<%= db %>" message="${message}" showMenu="true" user="<%= nick %>" highlight="<%= new ServletParameterParser(request).getInt(&quot;highlight&quot;)%>"/>
+<lor:message messageMenu="${messageMenu}" preparedMessage="${preparedMessage}" message="${message}" showMenu="true" user="<%= Template.getNick(session) %>" highlight="<%= new ServletParameterParser(request).getInt(&quot;highlight&quot;)%>"/>
 <%
   } else {
 %>
-<lor:message db="<%= db %>" message="${message}" showMenu="true" user="<%= nick %>"/>
+<lor:message messageMenu="${messageMenu}" preparedMessage="${preparedMessage}" message="${message}" showMenu="true" user="<%= Template.getNick(session) %>"/>
 <%
-  }
-%>
-<%
-  } finally {
-    if (db!=null) {
-      db.close();
-    }
   }
 %>
 
@@ -370,7 +354,7 @@
 </c:if>
 </div>
 
-<% if (Template.isSessionAuthorized(session) && (!message.isExpired() || tmpl.isModeratorSession()) && !showDeleted) { %>
+<% if (Template.isSessionAuthorized(session) && (!message.isExpired() || tmpl.isModeratorSession()) && !(Boolean) request.getAttribute("showDeleted")) { %>
 <hr>
 <form action="${message.link}" method=POST>
 <input type=hidden name=deleted value=1>

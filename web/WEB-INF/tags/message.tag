@@ -1,12 +1,12 @@
 <%@ tag import="java.net.URLEncoder" %>
 <%@ tag import="java.sql.Timestamp" %>
 <%@ tag import="java.text.DateFormat" %>
-<%@ tag import="java.util.List" %>
 <%@ tag import="ru.org.linux.site.*" %>
 <%@ tag import="ru.org.linux.util.HTMLFormatter" %>
 <%@ tag pageEncoding="UTF-8"%>
-<%@ attribute name="db" required="true" type="java.sql.Connection" %>
 <%@ attribute name="message" required="true" type="ru.org.linux.site.Message" %>
+<%@ attribute name="preparedMessage" required="true" type="ru.org.linux.site.PreparedMessage" %>
+<%@ attribute name="messageMenu" required="true" type="ru.org.linux.site.MessageMenu" %>
 <%@ attribute name="showMenu" required="true" type="java.lang.Boolean" %>
 <%@ attribute name="user" type="java.lang.String"%>
 <%@ attribute name="highlight" type="java.lang.Integer" %>
@@ -31,7 +31,7 @@
 <%
   Template tmpl = Template.getTemplate(request);
 
-  User author = User.getUserCached(db, message.getUid());
+  User author = preparedMessage.getAuthor();
   User currentUser = tmpl.getCurrentUser();
 
   int msgid = message.getMessageId();
@@ -62,12 +62,12 @@
     </c:if>
     <c:if test="${message.deleted}">
     <%
-      DeleteInfo deleteInfo = DeleteInfo.getDeleteInfo(db, msgid);
+      DeleteInfo deleteInfo = preparedMessage.getDeleteInfo();
 
       if (deleteInfo==null) {
         out.append("<strong>Сообщение удалено</strong>");
       } else {
-        User deleteUser = User.getUserCached(db, deleteInfo.getUserid());
+        User deleteUser = preparedMessage.getDeleteUser();
 
         out.append("<strong>Сообщение удалено ").append(deleteUser.getNick()).append(" по причине '").append(deleteInfo.getReason()).append("'</strong>");
       }
@@ -78,7 +78,7 @@
 
 <c:set var="showPhotos" value="<%= tmpl.getProf().getBoolean(&quot;photos&quot;)%>"/>
   <c:if test="${showPhotos}">
-    <lor:userpic author="<%= author %>"/>
+    <lor:userpic author="${preparedMessage.author}"/>
     <c:set var="msgBodyStyle" value="message-w-userpic"/>
   </c:if>
 
@@ -87,13 +87,12 @@
     ${message.title}
   </h1>
 
-    <%= message.getProcessedMessage(db, true) %>
+    ${preparedMessage.processedMessage}
 
     <c:if test="${message.votePoll}">
         <%
-          Poll poll = Poll.getPollByTopic(db, msgid);
         %>
-        <lor:poll poll="<%= new PreparedPoll(db, poll) %>" highlight="<%= highlight %>"/>
+        <lor:poll poll="${preparedMessage.poll}" highlight="<%= highlight %>"/>
 
       <p>&gt;&gt;&gt; <a href="vote-vote.jsp?msgid=${message.id}">Проголосовать</a></p>
     </c:if>
@@ -133,7 +132,7 @@ String tagLinks = Tags.getTagLinks(message.getTags());
   </c:if>
   <%
   if (message.getCommitby() != 0) {
-    User commiter = User.getUserCached(db, message.getCommitby());
+    User commiter = preparedMessage.getCommiter();
 
     if (commiter.getId()!=message.getUid()) {
       Timestamp commitDate = message.getCommitDate();
@@ -151,16 +150,12 @@ String tagLinks = Tags.getTagLinks(message.getTags());
 %>
   <c:if test="${template.sessionAuthorized}">
   <%
-  List<EditInfoDTO> editInfo = message.loadEditInfo(db);
-  if (editInfo!=null && !editInfo.isEmpty()) {
-    EditInfoDTO info = editInfo.get(0);
-    User editor = User.getUserCached(db, info.getEditor());
-%>
+  if (preparedMessage.getEditCount()>0) {
+  %>
   <br>
-  Последнее исправление: <%= editor.getNick() %> <lor:date date="<%= info.getEditdate() %>"/>
-    (всего <a href="${message.link}/history">исправлений: <%= editInfo.size() %></a>)
+  Последнее исправление: <%= preparedMessage.getLastEditor().getNick() %> <lor:date date="<%= preparedMessage.getLastEditInfo().getEditdate() %>"/>
+    (всего <a href="${message.link}/history">исправлений: ${preparedMessage.editCount}</a>)
   <%
-
   }
 %>
     </c:if>
@@ -174,7 +169,7 @@ String tagLinks = Tags.getTagLinks(message.getTags());
           <% } %>
         </c:if>
 <%
-    if (currentUser!=null && message.isEditable(db, currentUser)) {
+    if (messageMenu.isEditable()) {
       out.append("[<a href=\"edit.jsp?msgid=");
       out.print(msgid);
       out.append("\">Править</a>] ");
@@ -186,8 +181,7 @@ String tagLinks = Tags.getTagLinks(message.getTags());
       out.append("\">Удалить</a>]");
     }
 
-    if ((tmpl.isModeratorSession() || author.getNick().equals(user)) &&
-            new Group(db, message.getGroupId()).isResolvable()){
+    if (messageMenu.isResolvable()) {
       out.append("[<a href=\"resolve.jsp?msgid=");
       out.print(msgid);
       if (message.isResolved()){
@@ -198,7 +192,7 @@ String tagLinks = Tags.getTagLinks(message.getTags());
     }
 
     if (tmpl.isSessionAuthorized()) {
-      int memId = MemoriesListItem.getId(db, currentUser.getId(), msgid);
+      int memId = messageMenu.getMemoriesId();
 
       if (memId!=0) {
 %>

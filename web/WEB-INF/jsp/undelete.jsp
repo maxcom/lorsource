@@ -16,8 +16,9 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
-
 <%--@elvariable id="message" type="ru.org.linux.site.Message"--%>
+<%--@elvariable id="preparedMessage" type="ru.org.linux.site.PreparedMessage"--%>
+
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
 <title>Восстановление сообщения</title>
@@ -33,7 +34,7 @@ try {
 <form method=POST action="undelete.jsp">
 <input type=hidden name=msgid value="<%= request.getParameter("msgid") %>">
 <div class=messages>
-  <lor:message db="<%= db %>" message="${message}" showMenu="false"/>
+  <lor:message messageMenu="<%= null %>" preparedMessage="${preparedMessage}" message="${message}" showMenu="false"/>
 </div>
 <input type=submit name=undel value="Undelete/Восстановить">
 </form>

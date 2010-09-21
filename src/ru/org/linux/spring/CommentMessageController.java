@@ -24,10 +24,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
-import ru.org.linux.site.AccessViolationException;
-import ru.org.linux.site.LorDataSource;
-import ru.org.linux.site.Message;
-import ru.org.linux.site.Template;
+import ru.org.linux.site.*;
 
 @Controller
 public class CommentMessageController {
@@ -58,6 +55,8 @@ public class CommentMessageController {
       params.put("postscore", message.getPostScore());
 
       params.put("message", message);
+
+      params.put("preparedMessage", new PreparedMessage(db, message));
 
       return new ModelAndView("comment-message", params);
     } finally {

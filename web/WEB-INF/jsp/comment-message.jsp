@@ -17,6 +17,8 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
+<%--@elvariable id="message" type="ru.org.linux.site.Message"--%>
+<%--@elvariable id="preparedMessage" type="ru.org.linux.site.PreparedMessage"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
@@ -30,7 +32,7 @@
 <title>${message.sectionTitle} - ${message.groupTitle} - ${message.title}</title>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 <div class=messages>
-  <lor:message db="<%= db %>" message="${message}" showMenu="false" user="<%= Template.getNick(session) %>"/>
+  <lor:message messageMenu="<%= null %>" preparedMessage="${preparedMessage}" message="${message}" showMenu="false" user="<%= Template.getNick(session) %>"/>
 </div>
 
 <h2><a name=rep>Добавить сообщение:</a></h2>

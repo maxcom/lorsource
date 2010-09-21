@@ -59,7 +59,7 @@
 <% if (preview && previewMsg!=null) { %>
 <h1>Предпросмотр</h1>
 <div class=messages>
-  <lor:message db="<%= db %>" message="<%= previewMsg %>" showMenu="false" user="<%= Template.getNick(session) %>"/>
+  <lor:message messageMenu="<%= null %>" preparedMessage="<%= new PreparedMessage(db, previewMsg) %>" message="<%= previewMsg %>" showMenu="false" user="<%= Template.getNick(session) %>"/>
 </div>
 <% } %>
 <h1>Добавить</h1>

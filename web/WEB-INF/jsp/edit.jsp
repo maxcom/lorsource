@@ -1,9 +1,8 @@
 <%@ page contentType="text/html; charset=utf-8"%>
 <%@ page
-    import="java.sql.Connection,ru.org.linux.site.LorDataSource,ru.org.linux.site.Message" %>
-<%@ page import="ru.org.linux.site.Tags" %>
-<%@ page import="ru.org.linux.site.Template" %>
+    import="java.sql.Connection" %>
 <%@ page import="ru.org.linux.util.HTMLFormatter" %>
+<%@ page import="ru.org.linux.site.*" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%--
@@ -22,7 +21,9 @@
   --%>
 
 <%--@elvariable id="message" type="ru.org.linux.site.Message"--%>
+<%--@elvariable id="preparedMessage" type="ru.org.linux.site.PreparedMessage"--%>
 <%--@elvariable id="newMsg" type="ru.org.linux.site.Message"--%>
+<%--@elvariable id="newPreparedMessage" type="ru.org.linux.site.PreparedMessage"--%>
 <%--@elvariable id="group" type="ru.org.linux.site.Group"--%>
 <%--@elvariable id="info" type="java.lang.String"--%>
 <%--@elvariable id="editInfo" type="ru.org.linux.site.EditInfoDTO"--%>
@@ -54,7 +55,7 @@
   <h1>${info}</h1>
   <h2>Текущая версия сообщения</h2>
   <div class=messages>
-    <lor:message db="<%= db %>" message="${message}" showMenu="false" user="<%= Template.getNick(session) %>"/>
+    <lor:message messageMenu="<%= null %>" preparedMessage="${preparedMessage}" message="${message}" showMenu="false" user="<%= Template.getNick(session) %>"/>
   </div>
   <h2>Ваше сообщение</h2>
 </c:if>
@@ -63,7 +64,7 @@
 </c:if>
 
 <div class=messages>
-  <lor:message db="<%= db %>" message="${newMsg}" showMenu="false" user="<%= Template.getNick(session) %>"/>
+  <lor:message messageMenu="<%= null %>" preparedMessage="${newPreparedMessage}" message="${newMsg}" showMenu="false" user="<%= Template.getNick(session) %>"/>
 </div>
 
 <form action="edit.jsp" name="edit" method="post" id="messageForm">

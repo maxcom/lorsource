@@ -116,10 +116,12 @@ public class EditController extends ApplicationObjectSupport {
   private ModelAndView prepareModel(
     Connection db,
     Message message
-  ) throws SQLException, BadGroupException {
+  ) throws SQLException, BadGroupException, UserNotFoundException, PollNotFoundException {
     Map<String, Object> params = new HashMap<String, Object>();
 
     params.put("message", message);
+    PreparedMessage preparedMessage = new PreparedMessage(db, message);
+    params.put("preparedMessage", preparedMessage);
 
     Group group = new Group(db, message.getGroupId());
     params.put("group", group);
@@ -127,6 +129,7 @@ public class EditController extends ApplicationObjectSupport {
     params.put("groups", Group.getGroups(db, message.getSection()));
 
     params.put("newMsg", message);
+    params.put("newPreparedMessage", preparedMessage);
 
     List<EditInfoDTO> editInfoList = message.loadEditInfo(db);
     if (editInfoList != null) {
@@ -164,6 +167,7 @@ public class EditController extends ApplicationObjectSupport {
 
       Message message = new Message(db, msgid);
       params.put("message", message);
+      params.put("preparedMessage", new PreparedMessage(db, message));
 
       Group group = new Group(db, message.getGroupId());
       params.put("group", group);
@@ -310,6 +314,7 @@ public class EditController extends ApplicationObjectSupport {
       }
 
       params.put("newMsg", newMsg);
+      params.put("newPreparedMessage", new PreparedMessage(db, newMsg));
 
       return new ModelAndView("edit", params);
     } finally {

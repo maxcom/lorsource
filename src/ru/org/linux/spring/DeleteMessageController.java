@@ -227,6 +227,7 @@ public class DeleteMessageController extends ApplicationObjectSupport {
 
       ModelAndView mv = new ModelAndView("undelete");
       mv.getModel().put("message", message);
+      mv.getModel().put("preparedMessage", new PreparedMessage(db, message));
 
       return mv;
     } finally {
