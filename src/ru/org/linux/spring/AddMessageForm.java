@@ -56,7 +56,7 @@ public class AddMessageForm {
   private final String userAgent;
   private final String postIP;
   private String previewImagePath = null;
-  private List<String> pollList;
+  private final List<String> pollList;
   private static final int MAX_MESSAGE_LENGTH_ANONYMOUS = 4096;
   private static final int MAX_MESSAGE_LENGTH = 8192;
   private static final int MAX_TITLE_LENGTH = 255;
@@ -184,7 +184,7 @@ public class AddMessageForm {
       }
     }
 
-    pollList = new ArrayList<String>();
+    List<String> pollList = new ArrayList<String>();
 
     for (int i = 0; i < Poll.MAX_POLL_SIZE; i++) {
       String poll = request.getParameter("var" + i);
@@ -195,7 +195,9 @@ public class AddMessageForm {
     }
 
     if (pollList.isEmpty()) {
-      pollList = null;
+      this.pollList = null;
+    } else {
+      this.pollList = pollList;
     }
 
     if (request.getParameter("multiSelect")!=null) {
