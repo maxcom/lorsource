@@ -32,12 +32,12 @@ import ru.org.linux.util.StringUtil;
 public class User implements Serializable {
   private static final int ANONYMOUS_LEVEL_SCORE = 50;
 
-  private String nick;
+  private final String nick;
   private final int id;
-  private boolean canmod;
-  private boolean candel;
-  private boolean anonymous;
-  private boolean corrector;
+  private final boolean canmod;
+  private final boolean candel;
+  private final boolean anonymous;
+  private final boolean corrector;
   private final boolean blocked;
   private final String password;
   private final int score;
@@ -53,6 +53,8 @@ public class User implements Serializable {
   private static final int CACHE_MILLIS = 300*1000;
   private static final int BLOCK_SCORE = 200;
   public static final int MAX_NICK_LENGTH = 40;
+
+  private static final long serialVersionUID = 69986652856916540L;
 
   private User(Connection con, String name) throws SQLException, UserNotFoundException {
     if (name == null) {
@@ -273,21 +275,16 @@ public class User implements Serializable {
   }
 
   /**
+   * Update lastlogin time in database
    * @param dbconn already opened database connection
-   * @param nick   username
-   * @param lTime
+   * @throws SQLException on database failure
    */
-  public static void updateUserLastlogin(Connection dbconn, String nick, Date lTime)
-    throws SQLException {
-
-    // update lastlogin time in database
-    String sSql = "UPDATE users SET lastlogin=? WHERE nick=?";
+  public void updateUserLastlogin(Connection dbconn) throws SQLException {
+    String sSql = "UPDATE users SET lastlogin=CURRENT_TIMESTAMP WHERE id=?";
     PreparedStatement pst = dbconn.prepareStatement(sSql);
-    pst.setTimestamp(1, new Timestamp(lTime.getTime()));
-    pst.setString(2, nick);
+    pst.setInt(1, id);
     pst.executeUpdate();
     pst.close();
-    // getLogger().notice("template" , "User "+nick+" logged in.");
   }
 
   public boolean isBlockable() {
@@ -501,7 +498,7 @@ public class User implements Serializable {
 
     // Add remember me cookie
     Cookie acegi = new Cookie(cookieName, tokenValueBase64);
-    acegi.setMaxAge(new Long(expiryTime).intValue());
+    acegi.setMaxAge(Long.valueOf(expiryTime).intValue());
     acegi.setPath("/wiki");
     response.addCookie(acegi);
 

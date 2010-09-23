@@ -21,7 +21,6 @@ import java.io.OutputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.text.DateFormat;
-import java.util.Date;
 import java.util.Properties;
 
 import javax.servlet.ServletRequest;
@@ -46,7 +45,7 @@ public class Template {
   private final Properties cookies;
   private String style;
   private String formatMode;
-  private Profile userProfile;
+  private final Profile userProfile;
   private final Config config;
   private final HttpSession session;
 
@@ -108,12 +107,7 @@ public class Template {
           User user = User.getUser(db, profile);
 
           if (user.getMD5(getSecret()).equals(getCookie("password")) && !user.isBlocked()) {
-            session.putValue("login", Boolean.TRUE);
-            session.putValue("nick", profile);
-            session.putValue("moderator", user.canModerate());
-            session.putValue("corrector", user.canCorrect());
-            User.updateUserLastlogin(db, profile, new Date()); // update user `lastlogin` time in DB
-            user.acegiSecurityHack(response, session);
+            performLogin(response, db, user);
           } else {
             profile = null;
           }
@@ -130,7 +124,7 @@ public class Template {
       }
     }
 
-    userProfile = new Profile(profile);
+    Profile userProfile = new Profile(profile);
 
     if (profile != null) {
       try {
@@ -143,10 +137,21 @@ public class Template {
 
     userProfile.getHashtable().addBoolean("DebugMode", debugMode);
 
+    this.userProfile = userProfile;
+
     styleFixup();
     formatModeFixup();
 
     response.addHeader("Cache-Control", "private");
+  }
+
+  public void performLogin(HttpServletResponse response, Connection db, User user) throws SQLException {
+    session.putValue("login", Boolean.TRUE);
+    session.putValue("nick", user.getNick());
+    session.putValue("moderator", user.canModerate());
+    session.putValue("corrector", user.canCorrect());
+    user.updateUserLastlogin(db);
+    user.acegiSecurityHack(response, session);
   }
 
   private void styleFixup() {
@@ -317,7 +322,7 @@ public class Template {
     currentUser = User.getUser(db, (String) session.getAttribute("nick"));
   }
 
-  public User getCurrentUser() throws SQLException, UserNotFoundException {
+  public User getCurrentUser()  {
     if (!isSessionAuthorized()) {
       return null;
     }

@@ -19,7 +19,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Collections;
-import java.util.Date;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -37,7 +36,7 @@ import ru.org.linux.util.StringUtil;
 
 @Controller
 public class LoginController {
-  private boolean isAjax(HttpServletRequest request) {
+  private static boolean isAjax(HttpServletRequest request) {
     String header = request.getHeader("X-Requested-With");
 
     return header != null && "XMLHttpRequest".equals(header);
@@ -103,7 +102,7 @@ public class LoginController {
         throw new BadInputException("не удалось открыть сессию; созможно отсутствует поддержка Cookie");
       }
 
-      performLogin(response, db, tmpl, session, nick, user);
+      performLogin(response, db, tmpl, session, user);
 
       db.commit();
 
@@ -161,23 +160,19 @@ public class LoginController {
     return new ModelAndView(new RedirectView("/"));
   }
 
-  private void performLogin(HttpServletResponse response, Connection db, Template tmpl, HttpSession session, String nick, User user) throws SQLException {
-    session.putValue("login", Boolean.TRUE);
-    session.putValue("nick", nick);
-    session.putValue("moderator", user.canModerate());
+  private static void performLogin(HttpServletResponse response, Connection db, Template tmpl, HttpSession session, User user) throws SQLException {
+    createCookies(response, tmpl, session, user);
 
-    createCookies(response, tmpl, session, nick, user);
-
-    User.updateUserLastlogin(db, nick, new Date());
+    tmpl.performLogin(response, db, user);
   }
 
-  private void createCookies(HttpServletResponse response, Template tmpl, HttpSession session, String nick, User user) {
+  private static void createCookies(HttpServletResponse response, Template tmpl, HttpSession session, User user) {
     Cookie cookie = new Cookie("password", user.getMD5(tmpl.getSecret()));
     cookie.setMaxAge(60 * 60 * 24 * 31 * 24);
     cookie.setPath("/");
     response.addCookie(cookie);
 
-    Cookie prof = new Cookie("profile", nick);
+    Cookie prof = new Cookie("profile", user.getNick());
     prof.setMaxAge(60 * 60 * 24 * 31 * 12);
     prof.setPath("/");
     response.addCookie(prof);
