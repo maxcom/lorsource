@@ -51,7 +51,7 @@ public class NewsViewer {
     ALL
   }
 
-  private Set<Integer> sections = new HashSet<Integer>();
+  private final Set<Integer> sections = new HashSet<Integer>();
   private int group = 0;
   private boolean notalks = false;
   private boolean tech = false;
@@ -86,7 +86,7 @@ public class NewsViewer {
     out.append("</p>");
   }
 
-  public List<Message> getMessagesCached(Connection db) throws SQLException, UserErrorException {
+  public List<Message> getMessagesCached(Connection db) throws SQLException {
     if (getCacheAge()==0) {
       return getMessages(db);
     }
@@ -182,7 +182,7 @@ public class NewsViewer {
     ResultSet res = st.executeQuery(
       "SELECT " +
           "postdate, topics.id as msgid, topics.userid, topics.title, " +
-          "topics.groupid as guid, topics.url, topics.linktext, NULL as useragent, " +
+          "topics.groupid as guid, topics.url, topics.linktext, ua_id, " +
           "groups.title as gtitle, urlname, vote, havelink, section, topics.sticky, topics.postip, " +
           "postdate<(CURRENT_TIMESTAMP-sections.expire) as expired, deleted, lastmod, commitby, " +
           "commitdate, topics.stat1, postscore, topics.moderate, message, notop,bbcode, " +
@@ -236,7 +236,7 @@ public class NewsViewer {
     StringBuilder id = new StringBuilder("view-news?"+
         "&tg=" + tag);
 
-    id.append("&cm="+commitMode);
+    id.append("&cm=").append(commitMode);
 
     for (int section : sections) {
       id.append("&sec=").append(section);

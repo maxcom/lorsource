@@ -125,9 +125,9 @@ String tagLinks = Tags.getTagLinks(message.getTags());
 
   <span class="sign_more">
   <c:if test="${template.moderatorSession}">
-    <c:if test="${message.userAgent!=null and not template.mobile}">
+    <c:if test="${preparedMessage.userAgent!=null and not template.mobile}">
       <br>
-      <c:out value="${message.userAgent}" escapeXml="true"/>
+      <c:out value="${preparedMessage.userAgent}" escapeXml="true"/>
     </c:if>
   </c:if>
   <%

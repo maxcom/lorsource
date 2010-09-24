@@ -24,6 +24,7 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import com.google.common.collect.ImmutableList;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -34,8 +35,6 @@ import org.springframework.web.multipart.MultipartRequest;
 
 import ru.org.linux.site.*;
 import ru.org.linux.util.*;
-
-import com.google.common.collect.ImmutableList;
 
 public class AddMessageForm {
   private static final Log logger = LogFactory.getLog(AddMessageForm.class);
@@ -55,7 +54,6 @@ public class AddMessageForm {
   private String tags = null;
   private String url = null;
   private String linktext = null;
-  private final String userAgent;
   private final String postIP;
   private String previewImagePath = null;
   private final ImmutableList<String> pollList;
@@ -142,7 +140,6 @@ public class AddMessageForm {
   }
 
   public AddMessageForm(HttpServletRequest request, Template tmpl) throws IOException, ScriptErrorException, ServletParameterException {
-    userAgent = request.getHeader("user-agent");
     postIP = request.getRemoteAddr();
 
     noinfo = request.getParameter("noinfo");
@@ -327,10 +324,6 @@ public class AddMessageForm {
 
       return formatter.process();
     }
-  }
-
-  public String getUserAgent() {
-    return userAgent;
   }
 
   public String getPostIP() {

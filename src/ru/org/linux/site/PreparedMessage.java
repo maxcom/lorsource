@@ -16,6 +16,8 @@
 package ru.org.linux.site;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -31,6 +33,8 @@ public class PreparedMessage {
   private final EditInfoDTO lastEditInfo;
   private final User lastEditor;
   private final int editCount;
+
+  private final String userAgent;  
 
   public PreparedMessage(Connection db, Message message) throws UserNotFoundException, SQLException, PollNotFoundException {
     this.message = message;
@@ -51,8 +55,7 @@ public class PreparedMessage {
     }
 
     if (message.isVotePoll()) {
-      Poll rawPoll = Poll.getPollByTopic(db, message.getId());
-      poll = new PreparedPoll(db, rawPoll);
+      poll = new PreparedPoll(db, Poll.getPollByTopic(db, message.getId()));
     } else {
       poll = null;
     }
@@ -75,6 +78,28 @@ public class PreparedMessage {
     }
 
     processedMessage = message.getProcessedMessage(db, true);
+    
+    userAgent = loadUserAgent(db, message.getUserAgent());
+  }
+
+  private static String loadUserAgent(Connection db, int id) throws SQLException {
+    if (id==0) {
+      return null;
+    }
+
+    PreparedStatement pst = db.prepareStatement("SELECT name FROM user_agents WHERE id=?");
+
+    try {
+      pst.setInt(1, id);
+      ResultSet rs = pst.executeQuery();
+      if (rs.next()) {
+        return rs.getString(1);
+      } else {
+        return null;
+      }
+    } finally {
+      pst.close();
+    }
   }
 
   public Message getMessage() {
@@ -119,5 +144,9 @@ public class PreparedMessage {
 
   public int getId() {
     return message.getId();
+  }
+
+  public String getUserAgent() {
+    return userAgent;
   }
 }

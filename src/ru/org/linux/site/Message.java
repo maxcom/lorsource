@@ -58,7 +58,7 @@ public class Message implements Serializable {
   private final boolean moderate;
   private final String message;
   private final boolean notop;
-  private final String userAgent;
+  private final int userAgent;
   private final String postIP;
   private final boolean lorcode;
   private final boolean resolved;
@@ -66,13 +66,15 @@ public class Message implements Serializable {
 
   private final Section section;
 
+  private static final long serialVersionUID = 807240555706110851L;
+
   public Message(Connection db, int msgid) throws SQLException, MessageNotFoundException {
     Statement st=db.createStatement();
 
     ResultSet rs=st.executeQuery(
         "SELECT " +
             "postdate, topics.id as msgid, userid, topics.title, " +
-            "topics.groupid as guid, topics.url, topics.linktext, user_agents.name as useragent, " +
+            "topics.groupid as guid, topics.url, topics.linktext, ua_id, " +
             "groups.title as gtitle, urlname, vote, havelink, section, topics.sticky, topics.postip, " +
             "postdate<(CURRENT_TIMESTAMP-sections.expire) as expired, deleted, lastmod, commitby, " +
             "commitdate, topics.stat1, postscore, topics.moderate, message, notop,bbcode, " +
@@ -81,7 +83,6 @@ public class Message implements Serializable {
             "INNER JOIN groups ON (groups.id=topics.groupid) " +
             "INNER JOIN sections ON (sections.id=groups.section) " +
             "INNER JOIN msgbase ON (msgbase.id=topics.id) " +
-            "LEFT JOIN user_agents ON (user_agents.id=topics.ua_id) " +
             "WHERE topics.id="+msgid
     );
     if (!rs.next()) {
@@ -112,7 +113,7 @@ public class Message implements Serializable {
     moderate = rs.getBoolean("moderate");
     message = rs.getString("message");
     notop = rs.getBoolean("notop");
-    userAgent = rs.getString("useragent");
+    userAgent = rs.getInt("ua_id");
     postIP = rs.getString("postip");
     lorcode = rs.getBoolean("bbcode");
     resolved = rs.getBoolean("resolved");
@@ -153,7 +154,7 @@ public class Message implements Serializable {
     moderate = rs.getBoolean("moderate");
     message = rs.getString("message");
     notop = rs.getBoolean("notop");
-    userAgent = rs.getString("useragent");
+    userAgent = rs.getInt("ua_id");
     postIP = rs.getString("postip");
     lorcode = rs.getBoolean("bbcode");
     resolved = rs.getBoolean("resolved");
@@ -170,7 +171,7 @@ public class Message implements Serializable {
       throws  SQLException, UtilException, ScriptErrorException, UserErrorException {
     // Init fields
 
-    userAgent = form.getUserAgent();
+    userAgent = 0;
     postIP = form.getPostIP();
 
     guid = form.getGuid();
@@ -377,7 +378,7 @@ public class Message implements Serializable {
   }
 
   public int getPostScore() {
-    if (this.postscore==-1 || groupCommentsRestriction==-1) {
+    if (postscore==-1 || groupCommentsRestriction==-1) {
       return -1;
     }
 
@@ -748,7 +749,7 @@ public class Message implements Serializable {
     return msgid;
   }
 
-  public String getUserAgent() {
+  public int getUserAgent() {
     return userAgent;
   }
 
