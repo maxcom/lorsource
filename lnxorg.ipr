@@ -519,6 +519,21 @@
         <inspection_tool class="StringLiteralBreaksHTMLJS" level="WARNING" enabled="true" />
         <inspection_tool class="OctalIntegerJS" level="WARNING" enabled="true" />
         <inspection_tool class="StaticMethodOnlyUsedInOneClass" level="WARNING" enabled="true" />
+        <inspection_tool class="UnnecessaryConstantArrayCreationExpression" level="WARNING" enabled="true" />
+        <inspection_tool class="EqualsCalledOnEnumConstant" level="WARNING" enabled="true" />
+        <inspection_tool class="FieldMayBeFinal" level="WARNING" enabled="true" />
+        <inspection_tool class="UnnecessarySuperQualifier" level="WARNING" enabled="true" />
+        <inspection_tool class="UnnecessaryCallToStringValueOf" level="WARNING" enabled="true" />
+        <inspection_tool class="CollectionsFieldAccessReplaceableByMethodCall" level="WARNING" enabled="true" />
+        <inspection_tool class="ConstantValueVariableUse" level="WARNING" enabled="true" />
+        <inspection_tool class="LoggerInitializedWithForeignClass" level="WARNING" enabled="true">
+          <option name="loggerClassName" value="org.apache.log4j.Logger" />
+          <option name="loggerFactoryMethodName" value="getLogger" />
+        </inspection_tool>
+        <inspection_tool class="LoggingConditionDisagreesWithLogStatement" level="WARNING" enabled="true" />
+        <inspection_tool class="KeySetIterationMayUseEntrySet" level="WARNING" enabled="true" />
+        <inspection_tool class="RedundantStringFormatCall" level="WARNING" enabled="true" />
+        <inspection_tool class="VariableNotUsedInsideIf" level="WARNING" enabled="true" />
       </profile>
     </profiles>
     <list size="4">

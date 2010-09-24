@@ -18,13 +18,13 @@ package ru.org.linux.spring;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 
-import javax.servlet.http.HttpServletRequest;
+import javax.servlet.ServletRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.view.RedirectView;
 
 import ru.org.linux.site.*;
@@ -33,7 +33,7 @@ import ru.org.linux.site.*;
 public class MemoriesController {
   @RequestMapping(value="/memories.jsp", params = {"add"}, method= RequestMethod.POST)
   public View add(
-    HttpServletRequest request,
+    ServletRequest request,
     @RequestParam("msgid") int msgid
   ) throws Exception {
     Template tmpl = Template.getTemplate(request);
@@ -75,7 +75,7 @@ public class MemoriesController {
 
   @RequestMapping(value="/memories.jsp", params = {"remove"}, method= RequestMethod.POST)
   public ModelAndView remove(
-    HttpServletRequest request,
+    ServletRequest request,
     @RequestParam("id") int id
   ) throws Exception {
     Template tmpl = Template.getTemplate(request);

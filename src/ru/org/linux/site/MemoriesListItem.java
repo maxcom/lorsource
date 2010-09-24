@@ -18,10 +18,10 @@ package ru.org.linux.site;
 import java.sql.*;
 
 public class MemoriesListItem {
-  private int id;
-  private int userid;
-  private Timestamp timestamp;
-  private int topic;
+  private final int id;
+  private final int userid;
+  private final Timestamp timestamp;
+  private final int topic;
 
   public MemoriesListItem(Connection db, int id) throws SQLException, RecordNotFoundException {
     Statement st = db.createStatement();
@@ -33,16 +33,16 @@ public class MemoriesListItem {
     }
 
     this.id = id;
-    this.userid = rs.getInt("userid");
-    this.timestamp = rs.getTimestamp("add_date");
-    this.topic = rs.getInt("topic");
+    userid = rs.getInt("userid");
+    timestamp = rs.getTimestamp("add_date");
+    topic = rs.getInt("topic");
   }
 
   private MemoriesListItem(ResultSet rs) throws SQLException {
-    this.id = rs.getInt("id");
-    this.userid = rs.getInt("userid");
-    this.timestamp = rs.getTimestamp("add_date");
-    this.topic = rs.getInt("topic");
+    id = rs.getInt("id");
+    userid = rs.getInt("userid");
+    timestamp = rs.getTimestamp("add_date");
+    topic = rs.getInt("topic");
   }
 
   public static MemoriesListItem getMemoriesListItem(Connection db, int id) throws SQLException {
