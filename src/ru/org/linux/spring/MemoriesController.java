@@ -58,10 +58,12 @@ public class MemoriesController {
         throw new UserErrorException("Тема удалена");
       }
 
-      PreparedStatement pst = db.prepareStatement("INSERT INTO memories (userid, topic) values (?,?)");
-      pst.setInt(1, user.getId());
-      pst.setInt(2, topic.getId());
-      pst.executeUpdate();
+      if (MemoriesListItem.getId(db, user.getId(), topic.getId()) == 0) {
+        PreparedStatement pst = db.prepareStatement("INSERT INTO memories (userid, topic) values (?,?)");
+        pst.setInt(1, user.getId());
+        pst.setInt(2, topic.getId());
+        pst.executeUpdate();
+      }
 
       return new RedirectView(topic.getLink());
     } finally {
