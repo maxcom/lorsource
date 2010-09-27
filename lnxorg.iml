@@ -4,7 +4,7 @@
     <facet type="web" name="lnxorg">
       <configuration>
         <descriptors>
-          <deploymentDescriptor name="web.xml" url="file://$MODULE_DIR$/web/WEB-INF/web.xml" optional="false" version="2.5" />
+          <deploymentDescriptor name="web.xml" url="file://$MODULE_DIR$/web/WEB-INF/web.xml" />
         </descriptors>
         <webroots>
           <root url="file://$MODULE_DIR$/html" relative="/" />
@@ -13,135 +13,7 @@
         <sourceRoots>
           <root url="file://$MODULE_DIR$/src" />
         </sourceRoots>
-        <building>
-          <setting name="EXPLODED_URL" value="file://$MODULE_DIR$/dist" />
-          <setting name="EXPLODED_ENABLED" value="true" />
-          <setting name="JAR_URL" value="file://$MODULE_DIR$/lnxorg.war" />
-          <setting name="JAR_ENABLED" value="false" />
-          <setting name="EXCLUDE_EXPLODED_DIRECTORY" value="true" />
-        </building>
-        <packaging>
-          <containerElement type="module" name="lnxorg">
-            <attribute name="method" value="1" />
-            <attribute name="URI" value="/WEB-INF/classes" />
-          </containerElement>
-          <containerElement type="library" name="acegi" level="project">
-            <attribute name="method" value="0" />
-            <attribute name="URI" value="/WEB-INF/lib" />
-          </containerElement>
-          <containerElement type="library" name="commons-codec" level="project">
-            <attribute name="method" value="1" />
-            <attribute name="URI" value="/WEB-INF/lib" />
-          </containerElement>
-          <containerElement type="library" name="commons-fileupload-1.2" level="project">
-            <attribute name="method" value="1" />
-            <attribute name="URI" value="/WEB-INF/lib" />
-          </containerElement>
-          <containerElement type="library" name="commons-io-1.3.2" level="project">
-            <attribute name="method" value="1" />
-            <attribute name="URI" value="/WEB-INF/lib" />
-          </containerElement>
-          <containerElement type="library" name="commons-lang-2.3" level="project">
-            <attribute name="method" value="1" />
-            <attribute name="URI" value="/WEB-INF/lib" />
-          </containerElement>
-          <containerElement type="library" name="javamail" level="project">
-            <attribute name="method" value="1" />
-            <attribute name="URI" value="/WEB-INF/lib" />
-          </containerElement>
-          <containerElement type="library" name="jcaptcha-all-1.0-RC6" level="project">
-            <attribute name="method" value="1" />
-            <attribute name="URI" value="/WEB-INF/lib" />
-          </containerElement>
-          <containerElement type="library" name="jstl" level="project">
-            <attribute name="method" value="1" />
-            <attribute name="URI" value="/WEB-INF/lib" />
-          </containerElement>
-          <containerElement type="library" name="memcached" level="project">
-            <attribute name="method" value="1" />
-            <attribute name="URI" value="/WEB-INF/lib" />
-          </containerElement>
-          <containerElement type="library" name="spring" level="project">
-            <attribute name="method" value="1" />
-            <attribute name="URI" value="/WEB-INF/lib" />
-          </containerElement>
-          <containerElement type="library" name="standard" level="project">
-            <attribute name="method" value="1" />
-            <attribute name="URI" value="/WEB-INF/lib" />
-          </containerElement>
-          <containerElement type="library" name="urlrewrite" level="project">
-            <attribute name="method" value="1" />
-            <attribute name="URI" value="/WEB-INF/lib" />
-          </containerElement>
-          <containerElement type="library" level="module">
-            <attribute name="method" value="1" />
-            <attribute name="URI" value="/WEB-INF/lib" />
-            <url>jar://$MODULE_DIR$/lib/commons-collections-2.1.1.jar!/</url>
-          </containerElement>
-          <containerElement type="library" level="module">
-            <attribute name="method" value="1" />
-            <attribute name="URI" value="/WEB-INF/lib" />
-            <url>jar://$MODULE_DIR$/lib/commons-logging-1.0.4.jar!/</url>
-          </containerElement>
-          <containerElement type="library" level="module">
-            <attribute name="method" value="1" />
-            <attribute name="URI" value="/WEB-INF/lib" />
-            <url>jar://$MODULE_DIR$/lib/dnsjava-2.0.3.jar!/</url>
-          </containerElement>
-          <containerElement type="library" level="module">
-            <attribute name="method" value="1" />
-            <attribute name="URI" value="/WEB-INF/lib" />
-            <url>jar://$MODULE_DIR$/lib/ehcache-1.2.jar!/</url>
-          </containerElement>
-          <containerElement type="library" level="module">
-            <attribute name="method" value="1" />
-            <attribute name="URI" value="/WEB-INF/lib" />
-            <url>jar://$MODULE_DIR$/lib/gnu-regexp-1.0.8.jar!/</url>
-          </containerElement>
-          <containerElement type="library" level="module">
-            <attribute name="method" value="0" />
-            <attribute name="URI" value="&lt;N/A&gt;" />
-            <url>jar://$APPLICATION_HOME_DIR$/lib/javaee.jar!/</url>
-          </containerElement>
-          <containerElement type="library" level="module">
-            <attribute name="method" value="0" />
-            <attribute name="URI" value="&lt;N/A&gt;" />
-            <url>jar://$MODULE_DIR$/lib/jsdk23.jar!/</url>
-          </containerElement>
-          <containerElement type="library" level="module">
-            <attribute name="method" value="0" />
-            <attribute name="URI" value="/WEB-INF/lib" />
-            <url>jar://$APPLICATION_HOME_DIR$/lib/junit-4.4.jar!/</url>
-          </containerElement>
-          <containerElement type="library" level="module">
-            <attribute name="method" value="0" />
-            <attribute name="URI" value="/WEB-INF/lib" />
-            <url>jar://$APPLICATION_HOME_DIR$/lib/junit.jar!/</url>
-          </containerElement>
-          <containerElement type="library" level="module">
-            <attribute name="method" value="1" />
-            <attribute name="URI" value="/WEB-INF/lib" />
-            <url>jar://$MODULE_DIR$/lib/postgresql-jdbc-8.2.504.jar!/</url>
-          </containerElement>
-          <containerElement type="library" level="module">
-            <attribute name="method" value="1" />
-            <attribute name="URI" value="/WEB-INF/lib" />
-            <url>jar://$MODULE_DIR$/lib/urlrewrite-2.6.0.jar!/</url>
-          </containerElement>
-          <containerElement type="library" level="module">
-            <attribute name="method" value="1" />
-            <attribute name="URI" value="/WEB-INF/lib" />
-            <url>jar://$MODULE_DIR$/lib/xercesImpl.jar!/</url>
-          </containerElement>
-          <containerElement type="library" name="junit" level="project">
-            <attribute name="method" value="1" />
-            <attribute name="URI" value="/WEB-INF/lib" />
-          </containerElement>
-          <containerElement type="library" name="ivy libs" level="project">
-            <attribute name="method" value="1" />
-            <attribute name="URI" value="/WEB-INF/lib" />
-          </containerElement>
-        </packaging>
+        <context-artifact name="lnxorg:lnxorg exploded" />
       </configuration>
     </facet>
     <facet type="Spring" name="Spring">
@@ -149,7 +21,7 @@
     </facet>
   </component>
   <component name="NewModuleRootManager" inherit-compiler-output="false">
-    <output url="file://$MODULE_DIR$/exploded/WEB-INF/classes" />
+    <output url="file://$MODULE_DIR$/dist/WEB-INF/classes" />
     <exclude-output />
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/html" isTestSource="false" />
@@ -165,79 +37,7 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib/gnu-regexp-1.0.8.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib/jsdk23.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib/xercesImpl.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib/ehcache-1.2.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib/commons-logging-1.0.4.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib/commons-collections-2.1.1.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
           <root url="jar://$APPLICATION_HOME_DIR$/lib/junit.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib/postgresql-jdbc-8.2.504.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib/java_memcached-1.6maxcom.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -261,37 +61,8 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="library" name="commons-fileupload-1.2" level="project" />
-    <orderEntry type="library" name="commons-io-1.3.2" level="project" />
-    <orderEntry type="library" name="jcaptcha-all-1.0-RC6" level="project" />
-    <orderEntry type="library" name="javamail" level="project" />
-    <orderEntry type="library" name="jstl" level="project" />
-    <orderEntry type="library" name="standard" level="project" />
-    <orderEntry type="library" name="commons-lang-2.3" level="project" />
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$APPLICATION_HOME_DIR$/lib/javaee.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
+    <orderEntry type="library" exported="" name="javamail" level="project" />
     <orderEntry type="library" exported="" name="urlrewrite" level="project" />
-    <orderEntry type="library" name="spring" level="project" />
-    <orderEntry type="library" name="acegi" level="project" />
-    <orderEntry type="library" name="commons-codec" level="project" />
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$APPLICATION_HOME_DIR$/lib/junit-4.4.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="library" name="memcached" level="project" />
-    <orderEntry type="library" name="junit" level="project" />
     <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
@@ -312,7 +83,8 @@
         <jarDirectory url="file://$MODULE_DIR$/ivy-lib/test" recursive="false" />
       </library>
     </orderEntry>
-    <orderEntry type="library" name="ivy libs" level="project" />
+    <orderEntry type="library" exported="" name="ivy-libs" level="project" />
+    <orderEntry type="library" exported="" name="ivy-libs provided" level="project" />
   </component>
 </module>
 
