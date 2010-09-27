@@ -32,11 +32,19 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.org.linux.site.*;
 
 @Controller
 public class MessageController {
+  private SectionStore sectionStore;
+
+  @Autowired
+  public void setSectionStore(SectionStore sectionStore) {
+    this.sectionStore = sectionStore;
+  }
+
   @RequestMapping("/forum/{group}/{id}")
   public ModelAndView getMessageNewForum(
     WebRequest webRequest,
@@ -179,7 +187,7 @@ public class MessageController {
     try {
       db = LorDataSource.getConnection();
 
-      Message message = new Message(db, msgid);
+      Message message = new Message(db, sectionStore, msgid);
 
       StringBuilder link = new StringBuilder(message.getLink());
 
@@ -305,8 +313,8 @@ public class MessageController {
       response.setDateHeader("Expires", System.currentTimeMillis() + 30 * 24 * 60 * 60 * 1000L);
     }
 
-    params.put("prevMessage", message.getPreviousMessage(db));
-    params.put("nextMessage", message.getNextMessage(db));
+    params.put("prevMessage", message.getPreviousMessage(db, sectionStore));
+    params.put("nextMessage", message.getNextMessage(db, sectionStore));
 
     CommentList comments = CommentList.getCommentList(db, message, showDeleted);
 
@@ -375,7 +383,7 @@ public class MessageController {
     return new ModelAndView(rss ? "view-message-rss" : "view-message", params);
   }
 
-  private String getEtag(Message message, Template tmpl) {
+  private static String getEtag(Message message, Template tmpl) {
     String nick = tmpl.getNick();
 
     String userAddon = nick!=null?('-' +nick):"";

@@ -43,6 +43,10 @@
         <constructor-arg ref="datasource"/>
     </bean>
 
+    <bean class="ru.org.linux.spring.SectionStore" id="sectionStore" scope="singleton">
+        <constructor-arg ref="datasource"/>
+    </bean>
+
     <bean class="ru.org.linux.spring.dao.GalleryDaoImpl" id="galleryDao">
         <property name="properties" ref="properties"/>
         <property name="template" ref="jdbcTemplate"/>

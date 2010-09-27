@@ -29,6 +29,7 @@ import org.apache.commons.logging.LogFactory;
 import org.javabb.bbcode.BBCodeProcessor;
 
 import ru.org.linux.spring.AddMessageForm;
+import ru.org.linux.spring.SectionStore;
 import ru.org.linux.util.*;
 
 public class Message implements Serializable {
@@ -68,6 +69,10 @@ public class Message implements Serializable {
   private static final long serialVersionUID = 807240555706110851L;
 
   public Message(Connection db, int msgid) throws SQLException, MessageNotFoundException {
+    this(db, null, msgid);
+  }
+
+  public Message(Connection db, SectionStore sectionStore, int msgid) throws SQLException, MessageNotFoundException {
     Statement st=db.createStatement();
 
     ResultSet rs=st.executeQuery(
@@ -121,13 +126,17 @@ public class Message implements Serializable {
     st.close();
 
     try {
-      section = new Section(db, sectionid);
+      if (sectionStore==null) {
+        section = new Section(db, sectionid);
+      } else {
+        section = sectionStore.getSection(sectionid);
+      }
     } catch (SectionNotFoundException ex) {
       throw new RuntimeException(ex);
     }
   }
 
-  public Message(Connection db, ResultSet rs) throws SQLException {
+  public Message(SectionStore sectionStore, ResultSet rs) throws SQLException {
     msgid=rs.getInt("msgid");
     postscore =rs.getInt("postscore");
     votepoll=rs.getBoolean("vote");
@@ -158,7 +167,7 @@ public class Message implements Serializable {
     groupCommentsRestriction = rs.getInt("restrict_comments");
 
     try {
-      section = new Section(db, sectionid);
+      section = sectionStore.getSection(sectionid);
     } catch (SectionNotFoundException ex) {
       throw new RuntimeException(ex);
     }
@@ -419,7 +428,7 @@ public class Message implements Serializable {
     }
   }
 
-  public Message getNextMessage(Connection db) throws SQLException {
+  public Message getNextMessage(Connection db, SectionStore sectionStore) throws SQLException {
     PreparedStatement pst;
 
     int scrollMode = Section.getScrollMode(sectionid);
@@ -455,7 +464,7 @@ public class Message implements Serializable {
         return null;
       }
 
-      return new Message(db, nextMsgid);
+      return new Message(db, sectionStore, nextMsgid);
     } catch (MessageNotFoundException e) {
       throw new RuntimeException(e);
     } finally {
@@ -463,7 +472,7 @@ public class Message implements Serializable {
     }
   }
 
-  public Message getPreviousMessage(Connection db) throws SQLException {
+  public Message getPreviousMessage(Connection db, SectionStore sectionStore) throws SQLException {
     PreparedStatement pst;
 
     int scrollMode = Section.getScrollMode(sectionid);
@@ -499,7 +508,7 @@ public class Message implements Serializable {
         return null;
       }
 
-      return new Message(db, prevMsgid);
+      return new Message(db, sectionStore, prevMsgid);
     } catch (MessageNotFoundException e) {
       throw new RuntimeException(e);
     } finally {

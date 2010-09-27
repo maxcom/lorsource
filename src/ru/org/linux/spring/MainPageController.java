@@ -16,19 +16,24 @@
 package ru.org.linux.spring;
 
 import java.sql.Connection;
-import java.sql.SQLException;
 
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.beans.factory.annotation.Autowired;
 
-import ru.org.linux.site.Template;
-import ru.org.linux.site.LorDataSource;
-import ru.org.linux.site.UserNotFoundException;
+import ru.org.linux.site.*;
 
 @Controller
 public class MainPageController {
+  private final SectionStore sectionStore;
+
+  @Autowired
+  public MainPageController(SectionStore sectionStore) {
+    this.sectionStore = sectionStore;
+  }
+
   @RequestMapping({"/", "/index.jsp"})
   public ModelAndView mainPage(HttpServletRequest request) throws Exception {
     Template tmpl = Template.getTemplate(request);
@@ -36,13 +41,23 @@ public class MainPageController {
     Connection db = null;
 
     try {
-      if (tmpl.isSessionAuthorized()) {
-        db = LorDataSource.getConnection();
+      db = LorDataSource.getConnection();
 
+      if (tmpl.isSessionAuthorized()) {
         tmpl.initCurrentUser(db);
       }
 
-      return new ModelAndView("index");
+      NewsViewer nv = NewsViewer.getMainpage(sectionStore);
+
+      if (tmpl.getProf().getBoolean(DefaultProfile.MAIN_GALLERY)) {
+        nv.addSection(3);
+      }
+
+      ModelAndView mv = new ModelAndView("index");
+
+      mv.getModel().put("news", nv.getMessages(db));
+
+      return mv;
     } finally {
       if (db != null) {
         db.close();
