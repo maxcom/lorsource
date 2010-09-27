@@ -40,7 +40,6 @@ public class Message implements Serializable {
   private final boolean sticky;
   private String linktext;
   private String url;
-  private final Tags tags;
   private final String title;
   private final int userid;
   private final int guid;
@@ -95,7 +94,6 @@ public class Message implements Serializable {
     sticky=rs.getBoolean("sticky");
     linktext=rs.getString("linktext");
     url=rs.getString("url");
-    tags=new Tags(db, msgid);
     userid = rs.getInt("userid");
     title=StringUtil.makeTitle(rs.getString("title"));
     guid=rs.getInt("guid");
@@ -136,7 +134,6 @@ public class Message implements Serializable {
     sticky=rs.getBoolean("sticky");
     linktext=rs.getString("linktext");
     url=rs.getString("url");
-    tags=new Tags(db, msgid);
     userid = rs.getInt("userid");
     title=StringUtil.makeTitle(rs.getString("title"));
     guid=rs.getInt("guid");
@@ -193,7 +190,7 @@ public class Message implements Serializable {
       }
     }
     // Setting Message fields
-    tags = new Tags(Tags.parseTags(form.getTagsHTML()));
+//    tags = new Tags(Tags.parseTags(form.getTagsHTML()));
     title = form.getTitleHTML();
     havelink = form.getUrl() != null && form.getLinktext() != null && form.getUrl().length() > 0 && form.getLinktext().length() > 0 && !group.isImagePostAllowed();
     sectionid = group.getSectionId();
@@ -246,13 +243,13 @@ public class Message implements Serializable {
       url = original.url;
     }
 
-    if (request.getParameter("tags")!=null) {
-      List<String> newTags = Tags.parseTags(request.getParameter("tags"));
-
-      tags = new Tags(newTags);
-    } else {
-      tags = original.tags;
-    }
+//    if (request.getParameter("tags")!=null) {
+//      List<String> newTags = Tags.parseTags(request.getParameter("tags"));
+//
+//      tags = new Tags(newTags);
+//    } else {
+//      tags = original.tags;
+//    }
 
     // url check
     if (!group.isImagePostAllowed()) {
@@ -735,10 +732,6 @@ public class Message implements Serializable {
     } else {
       return getLink()+"?lastmod="+getLastModified().getTime();
     }
-  }
-
-  public Tags getTags() {
-    return tags;
   }
 
   public boolean isHaveLink() {

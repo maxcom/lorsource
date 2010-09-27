@@ -29,14 +29,19 @@ public class PreparedMessage {
   private final String processedMessage;
   private final PreparedPoll poll;
   private final User commiter;
+  private final Tags tags;
 
   private final EditInfoDTO lastEditInfo;
   private final User lastEditor;
   private final int editCount;
 
-  private final String userAgent;  
+  private final String userAgent;
 
   public PreparedMessage(Connection db, Message message) throws UserNotFoundException, SQLException, PollNotFoundException {
+    this(db, message, new Tags(db, message.getId()));
+  }
+
+  public PreparedMessage(Connection db, Message message, Tags tags) throws UserNotFoundException, SQLException, PollNotFoundException {
     this.message = message;
 
     author = User.getUserCached(db, message.getUid());
@@ -80,6 +85,8 @@ public class PreparedMessage {
     processedMessage = message.getProcessedMessage(db, true);
     
     userAgent = loadUserAgent(db, message.getUserAgent());
+
+    this.tags=tags;
   }
 
   private static String loadUserAgent(Connection db, int id) throws SQLException {
@@ -148,5 +155,9 @@ public class PreparedMessage {
 
   public String getUserAgent() {
     return userAgent;
+  }
+
+  public Tags getTags() {
+    return tags;
   }
 }

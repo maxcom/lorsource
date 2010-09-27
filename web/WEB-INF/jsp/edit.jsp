@@ -49,6 +49,7 @@
   try {
     db = LorDataSource.getConnection();
     Message newMsg = (Message) request.getAttribute("newMsg");
+    PreparedMessage newPreparedMsg = (PreparedMessage) request.getAttribute("newPreparedMessage");
 
 %>
 <c:if test="${info!=null}">
@@ -92,7 +93,7 @@
 
   <c:if test="${group.moderated}">
   Теги:
-  <input type="text" size="70" name="tags" id="tags" value="<%= newMsg.getTags().toString() %>"><br>
+  <input type="text" size="70" name="tags" id="tags" value="<%= newPreparedMsg.getTags().toString() %>"><br>
   Популярные теги: <%= Tags.getEditTags(Tags.getTopTags(db)) %> <br>
     </c:if>
   <br>

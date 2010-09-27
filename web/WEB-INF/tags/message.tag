@@ -106,7 +106,7 @@
   }
 %>
 <c:if test="${message.section.premoderated}"><%
-String tagLinks = Tags.getTagLinks(message.getTags());
+String tagLinks = Tags.getTagLinks(preparedMessage.getTags());
 
     if (tagLinks.length() > 0) {
       out.append("<p class=tags>Метки: <span class=tag>");

@@ -24,6 +24,9 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+
+import ru.org.linux.site.*;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.ApplicationObjectSupport;
 import org.springframework.stereotype.Controller;
@@ -32,8 +35,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
-
-import ru.org.linux.site.*;
 
 @Controller
 public class EditController extends ApplicationObjectSupport {
@@ -113,7 +114,7 @@ public class EditController extends ApplicationObjectSupport {
     }
   }
 
-  private ModelAndView prepareModel(
+  private static ModelAndView prepareModel(
     Connection db,
     Message message
   ) throws SQLException, BadGroupException, UserNotFoundException, PollNotFoundException {
@@ -250,6 +251,15 @@ public class EditController extends ApplicationObjectSupport {
         throw new AccessViolationException("нельзя править устаревшие сообщения");
       }
 
+      List<String> oldTags = new Tags(db, message.getId()).getTags();
+      List<String> newTags;
+
+      if (request.getParameter("tags")!=null) {
+        newTags = Tags.parseTags(request.getParameter("tags"));
+      } else {
+        newTags = oldTags;
+      }
+
       if (!preview) {
         PreparedStatement pst = db.prepareStatement("UPDATE topics SET title=?, linktext=?, url=? WHERE id=?");
 
@@ -265,9 +275,6 @@ public class EditController extends ApplicationObjectSupport {
         if (messageModified) {
           newMsg.updateMessageText(db, user);
         }
-
-        List<String> oldTags = message.getTags().getTags();
-        List<String> newTags = Tags.parseTags(newMsg.getTags().toString());
 
         boolean modifiedTags = Tags.updateTags(db, message.getId(), newTags);
         if (modifiedTags) {
@@ -314,7 +321,7 @@ public class EditController extends ApplicationObjectSupport {
       }
 
       params.put("newMsg", newMsg);
-      params.put("newPreparedMessage", new PreparedMessage(db, newMsg));
+      params.put("newPreparedMessage", new PreparedMessage(db, newMsg, new Tags(newTags)));
 
       return new ModelAndView("edit", params);
     } finally {
