@@ -27,12 +27,13 @@ import com.google.common.collect.ImmutableMap;
 
 import ru.org.linux.site.Section;
 import ru.org.linux.site.SectionNotFoundException;
+import ru.org.linux.site.LorDataSource;
 
 public class SectionStore {
   private final ImmutableMap<Integer, Section> sections;
 
-  public SectionStore(DataSource ds) throws SQLException {
-    Connection db = ds.getConnection();
+  public SectionStore() throws SQLException {
+    Connection db = LorDataSource.getConnection();
 
     try {
       Map<Integer, Section> sections = new HashMap<Integer, Section>();
