@@ -26,6 +26,7 @@ public class Section implements Serializable {
   private final boolean moderate;
   private final int id;
   private final boolean votepoll;
+  
   public static final int SCROLL_NOSCROLL = 0;
   public static final int SCROLL_SECTION = 1;
   public static final int SCROLL_GROUP = 2;
@@ -61,6 +62,14 @@ public class Section implements Serializable {
     imagepost = rs.getBoolean("imagepost");
     votepoll = rs.getBoolean("vote");
     moderate = rs.getBoolean("moderate");
+  }
+
+  public Section(ResultSet rs) throws SQLException {
+    name = rs.getString("name");
+    imagepost = rs.getBoolean("imagepost");
+    votepoll = rs.getBoolean("vote");
+    moderate = rs.getBoolean("moderate");
+    id = rs.getInt("id");
   }
 
   public String getName() {

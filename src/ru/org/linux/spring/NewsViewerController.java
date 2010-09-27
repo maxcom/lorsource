@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -40,6 +41,13 @@ import ru.org.linux.util.ServletParameterMissingException;
 
 @Controller
 public class NewsViewerController {
+  private final SectionStore sectionStore;
+
+  @Autowired
+  public NewsViewerController(SectionStore sectionStore) {
+    this.sectionStore = sectionStore;
+  }
+
   @RequestMapping(value = "/view-news.jsp", method = {RequestMethod.GET, RequestMethod.HEAD})
   public ModelAndView showNews(
     @RequestParam(value="month", required=false) Integer month,
@@ -183,7 +191,7 @@ public class NewsViewerController {
       params.put("ptitle", ptitle);
       params.put("navtitle", navtitle);
 
-      NewsViewer newsViewer = new NewsViewer();
+      NewsViewer newsViewer = new NewsViewer(sectionStore);
 
       if (section!=null) {
         newsViewer.addSection(sectionid);
@@ -279,7 +287,7 @@ public class NewsViewerController {
 
       params.put("user", user);
 
-      NewsViewer newsViewer = new NewsViewer();
+      NewsViewer newsViewer = new NewsViewer(sectionStore);
 
       offset = fixOffset(offset);
 
@@ -341,7 +349,7 @@ public class NewsViewerController {
 
       params.put("user", user);
 
-      NewsViewer newsViewer = new NewsViewer();
+      NewsViewer newsViewer = new NewsViewer(sectionStore);
 
       offset = fixOffset(offset);
 
@@ -375,7 +383,7 @@ public class NewsViewerController {
     }
   }
 
-  private int fixOffset(Integer offset) {
+  private static int fixOffset(Integer offset) {
     if (offset!=null) {
       if (offset<0) {
           return 0;
@@ -409,7 +417,7 @@ public class NewsViewerController {
         modelAndView.getModel().put("section", section);
       }
 
-      NewsViewer newsViewer = new NewsViewer();
+      NewsViewer newsViewer = new NewsViewer(sectionStore);
       newsViewer.setCommitMode(NewsViewer.CommitMode.UNCOMMITED_ONLY);
       newsViewer.setDatelimit("postdate>(CURRENT_TIMESTAMP-'1 month'::interval)");
       if (section != null) {

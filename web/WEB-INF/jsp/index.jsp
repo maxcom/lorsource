@@ -19,6 +19,7 @@
   ~    limitations under the License.
   --%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
+<%--@elvariable id="news" type="java.util.List<Message>"--%>
 
 <% Template tmpl = Template.getTemplate(request); %>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
@@ -98,16 +99,13 @@
     <%
   db = LorDataSource.getConnection();
 
-  NewsViewer nv = NewsViewer.getMainpage();
-
   boolean multiPortal = false;
 
   if (tmpl.getProf().getBoolean(DefaultProfile.MAIN_GALLERY)) {
-    nv.addSection(3);
     multiPortal = true;
   }
 %>
-    <c:forEach var="msg" items="<%= nv.getMessages(db) %>">
+    <c:forEach var="msg" items="${news}">
       <lorDir:news db="<%= db %>" message="${msg}" multiPortal="<%= multiPortal %>" moderateMode="false"/>
     </c:forEach>
 <%

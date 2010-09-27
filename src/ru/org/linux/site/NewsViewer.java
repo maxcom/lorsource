@@ -32,6 +32,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import ru.org.linux.spring.commons.CacheProvider;
+import ru.org.linux.spring.SectionStore;
 import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.ImageInfo;
 
@@ -61,6 +62,12 @@ public class NewsViewer {
   private int tag=0;
 
   private CommitMode commitMode = CommitMode.COMMITED_AND_POSTMODERATED;
+
+  private final SectionStore sectionStore;
+
+  public NewsViewer(SectionStore sectionStore) {
+    this.sectionStore = sectionStore;
+  }
 
   public static void showMediumImage(String htmlPath, Writer out, String url, String subj, String linktext, boolean showMedium) throws IOException {
     try {
@@ -199,7 +206,7 @@ public class NewsViewer {
     List<Message> messages = new ArrayList<Message>();
 
     while (res.next()) {
-      Message message = new Message(db, res);
+      Message message = new Message(sectionStore, res);
       messages.add(message);
     }
 
@@ -283,8 +290,8 @@ public class NewsViewer {
     return 30*1000;
   }
 
-  public static NewsViewer getMainpage() {
-    NewsViewer nv = new NewsViewer();
+  public static NewsViewer getMainpage(SectionStore sectionStore) {
+    NewsViewer nv = new NewsViewer(sectionStore);
     nv.addSection(1);
     nv.limit = "LIMIT 20";
     nv.datelimit = "commitdate>(CURRENT_TIMESTAMP-'1 month'::interval)";
