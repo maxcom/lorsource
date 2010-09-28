@@ -15,10 +15,7 @@
 
 package ru.org.linux.site;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,12 +27,12 @@ public class PreparedComment {
   private final String processedMessage;
   private final User replyAuthor;
 
-  public PreparedComment(Connection db, CommentList comments, Comment comment) throws UserNotFoundException, SQLException {
+  private PreparedComment(Connection db, PreparedStatement pst, CommentList comments, Comment comment) throws UserNotFoundException, SQLException {
     this.comment = comment;
 
     this.author = User.getUserCached(db, comment.getUserid());
 
-    processedMessage = getProcessedMessage(db, comment);
+    processedMessage = getProcessedMessage(db, pst, comment);
 
     if (comment.getReplyTo()!=0 && comments!=null) {
       CommentNode replyNode = comments.getNode(comment.getReplyTo());
@@ -62,15 +59,18 @@ public class PreparedComment {
     replyAuthor = null;
   }
 
-  private static String getProcessedMessage(Connection db, Comment comment) throws SQLException {
-    Statement st = db.createStatement();
-    ResultSet rs = st.executeQuery("SELECT message, bbcode FROM msgbase WHERE id=" + comment.getId());
+  private static PreparedStatement prepare(Connection db) throws SQLException {
+    return db.prepareStatement("SELECT message, bbcode FROM msgbase WHERE id=?");
+  }
+
+  private static String getProcessedMessage(Connection db, PreparedStatement pst, Comment comment) throws SQLException {
+    pst.setInt(1, comment.getId());
+    ResultSet rs = pst.executeQuery();
     rs.next();
-    String text = rs.getString("message");
-    boolean bbcode = rs.getBoolean("bbcode");
+    String text = rs.getString(1);
+    boolean bbcode = rs.getBoolean(2);
 
     rs.close();
-    st.close();
 
     if (bbcode) {
       BBCodeProcessor proc = new BBCodeProcessor();
@@ -101,13 +101,28 @@ public class PreparedComment {
     return replyAuthor;
   }
 
+  public static PreparedComment prepare(Connection db, CommentList comments, Comment comment) throws UserNotFoundException, SQLException {
+    PreparedStatement pst = prepare(db);
+
+    try {
+      return new PreparedComment(db, pst, comments, comment);
+    } finally {
+      pst.close();
+    }
+  }
+
   public static List<PreparedComment> prepare(Connection db, CommentList comments, List<Comment> list) throws UserNotFoundException, SQLException {
     List<PreparedComment> commentsPrepared = new ArrayList<PreparedComment>(list.size());
+    PreparedStatement pst = prepare(db);
 
-    for (Comment comment : list) {
-      commentsPrepared.add(new PreparedComment(db, comments, comment));
+    try {
+      for (Comment comment : list) {
+        commentsPrepared.add(new PreparedComment(db, pst, comments, comment));
+      }
+
+      return commentsPrepared;
+    } finally {
+      pst.close();
     }
-
-    return commentsPrepared;
   }
 }
