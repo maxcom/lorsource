@@ -313,9 +313,6 @@ public class MessageController {
       response.setDateHeader("Expires", System.currentTimeMillis() + 30 * 24 * 60 * 60 * 1000L);
     }
 
-    params.put("prevMessage", message.getPreviousMessage(db, sectionStore));
-    params.put("nextMessage", message.getNextMessage(db, sectionStore));
-
     CommentList comments = CommentList.getCommentList(db, message, showDeleted);
 
     params.put("comments", comments);
@@ -351,6 +348,9 @@ public class MessageController {
     params.put("defaultFilterMode", defaultFilterMode);
 
     if (!rss) {
+      params.put("prevMessage", message.getPreviousMessage(db, sectionStore));
+      params.put("nextMessage", message.getNextMessage(db, sectionStore));
+
       Set<Integer> hideSet = CommentList.makeHideSet(db, comments, filterMode, ignoreList);
 
       CommentFilter cv = new CommentFilter(comments);
