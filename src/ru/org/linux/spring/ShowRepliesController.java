@@ -24,15 +24,17 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import ru.org.linux.site.*;
+import ru.org.linux.util.StringUtil;
+
 import org.javabb.bbcode.BBCodeProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.support.JdbcUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
-
-import ru.org.linux.site.*;
-import ru.org.linux.util.StringUtil;
 
 @Controller
 public class ShowRepliesController {
@@ -80,6 +82,7 @@ public class ShowRepliesController {
     List<MyTopicsListItem> list;
 
     Connection db = null;
+    PreparedStatement pst = null;
 
     try {
       db = LorDataSource.getConnection();
@@ -97,7 +100,7 @@ public class ShowRepliesController {
         showPrivate = true;
       }
 
-      PreparedStatement pst = db.prepareStatement(
+      pst = db.prepareStatement(
         "SELECT " +
           " topics.title as subj, sections.name, groups.title as gtitle, " +
           " lastmod, topics.id as msgid, " +
@@ -129,9 +132,8 @@ public class ShowRepliesController {
       rs.close();
 
     } finally {
-      if (db != null) {
-        db.close();
-      }
+      JdbcUtils.closeStatement(pst);
+      JdbcUtils.closeConnection(db);
     }
 
     params.put("topicsList", list);

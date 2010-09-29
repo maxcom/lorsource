@@ -24,13 +24,14 @@ import java.util.List;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.javabb.bbcode.BBCodeProcessor;
 
 import ru.org.linux.spring.AddMessageForm;
 import ru.org.linux.spring.SectionStore;
 import ru.org.linux.util.*;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.javabb.bbcode.BBCodeProcessor;
 
 public class Message implements Serializable {
   private static final Log logger = LogFactory.getLog(Message.class);
@@ -799,29 +800,33 @@ public class Message implements Serializable {
 
   public List<EditInfoDTO> loadEditInfo(Connection db) throws SQLException {
     PreparedStatement pst = db.prepareStatement("SELECT * FROM edit_info WHERE msgid=? ORDER BY id DESC");
-    pst.setInt(1, msgid);
+    try {
+      pst.setInt(1, msgid);
 
-    ResultSet rs = pst.executeQuery();
+      ResultSet rs = pst.executeQuery();
 
-    List<EditInfoDTO> list = null;
+      List<EditInfoDTO> list = null;
 
-    while(rs.next()) {
-      if (list==null) {
-        list = new ArrayList<EditInfoDTO>();
+      while (rs.next()) {
+        if (list == null) {
+          list = new ArrayList<EditInfoDTO>();
+        }
+
+        EditInfoDTO dto = new EditInfoDTO();
+
+        dto.setId(rs.getInt("id"));
+        dto.setEditdate(rs.getTimestamp("editdate"));
+        dto.setEditor(rs.getInt("editor"));
+        dto.setOldmessage(rs.getString("oldmessage"));
+        dto.setMsgid(rs.getInt("msgid"));
+
+        list.add(dto);
       }
 
-      EditInfoDTO dto = new EditInfoDTO();
-
-      dto.setId(rs.getInt("id"));
-      dto.setEditdate(rs.getTimestamp("editdate"));
-      dto.setEditor(rs.getInt("editor"));
-      dto.setOldmessage(rs.getString("oldmessage"));
-      dto.setMsgid(rs.getInt("msgid"));
-
-      list.add(dto);
+      return list;
+    } finally {
+      pst.close();
     }
-
-    return list;
   }
 
   public boolean isResolved(){
