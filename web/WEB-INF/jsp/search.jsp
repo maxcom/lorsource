@@ -38,7 +38,7 @@
 %>
 
 <FORM METHOD=GET ACTION="search.jsp">
-<INPUT TYPE="text" NAME="q" SIZE=50 VALUE="${fn:escapeXml(q)}">
+<INPUT TYPE="text" NAME="q" SIZE=50 maxlength="250" VALUE="${fn:escapeXml(q)}">
   <input TYPE="submit" VALUE="Поиск"><BR>
   
   <p>
