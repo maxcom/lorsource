@@ -17,9 +17,18 @@ package ru.org.linux.spring;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
+
+import ru.org.linux.site.AccessViolationException;
+import ru.org.linux.site.DefaultProfile;
+import ru.org.linux.site.Template;
+import ru.org.linux.spring.validators.EditBoxesFormValidator;
+import ru.org.linux.storage.StorageException;
+import ru.org.linux.util.UtilException;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.context.support.ApplicationObjectSupport;
@@ -30,13 +39,6 @@ import org.springframework.validation.FieldError;
 import org.springframework.validation.ValidationUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.support.SessionStatus;
-
-import ru.org.linux.site.AccessViolationException;
-import ru.org.linux.site.DefaultProfile;
-import ru.org.linux.site.Template;
-import ru.org.linux.spring.validators.EditBoxesFormValidator;
-import ru.org.linux.storage.StorageException;
-import ru.org.linux.util.UtilException;
 
 @Controller
 @SessionAttributes("allboxes")
@@ -94,8 +96,8 @@ public class AddRemoveBoxesController extends ApplicationObjectSupport {
   }
 
   @ModelAttribute("allboxes")
-  public String[] getAllBoxes() {
-    return DefaultProfile.getBoxlist();
+  public Set<String> getAllBoxes() {
+    return DefaultProfile.getAllBoxes();
   }
 
   @RequestMapping(value = "/add-box.jsp", method = RequestMethod.POST)
@@ -141,7 +143,7 @@ public class AddRemoveBoxesController extends ApplicationObjectSupport {
     return "redirect:/edit-boxes.jsp";
   }
 
-  private static String getObjectName(EditBoxesForm form, HttpServletRequest request) throws AccessViolationException, UtilException {
+  private static String getObjectName(EditBoxesForm form, HttpServletRequest request) throws UtilException {
     String objectName;
     if ("left".equals(form.getTag())) {
       if (EditBoxesController.getThreeColumns(request)) {

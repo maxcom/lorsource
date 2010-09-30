@@ -24,13 +24,9 @@ import java.text.DateFormat;
 import java.util.Properties;
 
 import javax.servlet.ServletRequest;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import com.handinteractive.mobile.UAgentInfo;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import ru.org.linux.storage.StorageException;
 import ru.org.linux.storage.StorageNotFoundException;
@@ -39,7 +35,12 @@ import ru.org.linux.util.ProfileHashtable;
 import ru.org.linux.util.StringUtil;
 import ru.org.linux.util.UtilException;
 
-public class Template {
+import com.handinteractive.mobile.UAgentInfo;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.jdbc.support.JdbcUtils;
+
+public final class Template {
   private static final Log logger = LogFactory.getLog(Template.class);
 
   private final Properties cookies;
@@ -62,75 +63,54 @@ public class Template {
 
   public Template(HttpServletRequest request, Properties properties, HttpServletResponse response)
       throws ClassNotFoundException, IOException, SQLException, StorageException {
-//    request.setCharacterEncoding("koi8-r"); // блядский tomcat
     request.setCharacterEncoding("utf-8"); // блядский tomcat
 
     userAgent = new UAgentInfo(request.getHeader("User-Agent"), request.getHeader("Accept"));
 
-    boolean debugMode= false;
+    boolean debugMode = false;
     if (request.getParameter("debug") != null) {
       debugMode = true;
     }
 
     // TODO use better initialization
-
     config = new Config(properties);
 
     // read profiles
     cookies = LorHttpUtils.getCookies(request.getCookies());
 
-    String profile = getCookie("profile");
-
-    if (profile != null && ("".equals(profile) || "anonymous".equals(profile))) {
-      profile = null;
-    }
-
     /* restore password */
     session = request.getSession();
 
-    if (isSessionAuthorized(session)) {
-      if (!session.getValue("nick").equals(profile)) {
-        profile = (String) session.getValue("nick");
+    if (!isSessionAuthorized(session) && session != null) {
+      String profileCookie = getCookie("profile");
 
-        Cookie prof = new Cookie("profile", profile);
-        prof.setMaxAge(60 * 60 * 24 * 31 * 12);
-        prof.setPath("/");
-        response.addCookie(prof);
-      }
-    } else if (session==null) {
-      profile = null;
-    } else {
-      if (profile!=null && getCookie("password") != null) {
+      if (profileCookie != null && !profileCookie.isEmpty() &&
+          !"anonymous".equals(profileCookie) && getCookie("password") != null) {
+
         Connection db = null;
+        
         try {
           db = LorDataSource.getConnection();
-          User user = User.getUser(db, profile);
+          User user = User.getUser(db, profileCookie);
 
           if (user.getMD5(getSecret()).equals(getCookie("password")) && !user.isBlocked()) {
             performLogin(response, db, user);
-          } else {
-            profile = null;
           }
         } catch (UserNotFoundException ex) {
-          logger.warn("Can't restore password for user: " + profile + " - " + ex.toString());
-          profile = null;
+          logger.warn("Can't restore password for user: " + profileCookie, ex);
         } finally {
-          if (db != null) {
-            db.close();
-          }
+          JdbcUtils.closeConnection(db);
         }
-      } else {
-        profile = null;
       }
     }
 
-    Profile userProfile = new Profile(profile);
+    Profile userProfile = new Profile();
 
-    if (profile != null) {
+    if (getNick() != null) {
       try {
-        userProfile = readProfile(profile);
+        userProfile = readProfile();
       } catch (IOException e) {
-        logger.info("Bad profile: "+profile, e);
+        logger.info("Bad profile for user "+getNick(), e);
       } catch (StorageNotFoundException e) {
       }
     }
@@ -146,12 +126,13 @@ public class Template {
   }
 
   public void performLogin(HttpServletResponse response, Connection db, User user) throws SQLException {
-    session.putValue("login", Boolean.TRUE);
-    session.putValue("nick", user.getNick());
-    session.putValue("moderator", user.canModerate());
-    session.putValue("corrector", user.canCorrect());
+    session.setAttribute("login", Boolean.TRUE);
+    session.setAttribute("nick", user.getNick());
+    session.setAttribute("moderator", user.canModerate());
+    session.setAttribute("corrector", user.canCorrect());
     user.updateUserLastlogin(db);
     user.acegiSecurityHack(response, session);
+    currentUser = user;
   }
 
   private void styleFixup() {
@@ -191,15 +172,15 @@ public class Template {
   }
 
   public String getProfileName() {
-    return userProfile.getName();
+    return getNick();
   }
 
-  private Profile readProfile(String name) throws ClassNotFoundException, IOException, StorageException {
+  private Profile readProfile() throws ClassNotFoundException, IOException, StorageException {
     InputStream df = null;
     try {
-      df = config.getStorage().getReadStream("profile", name);
+      df = config.getStorage().getReadStream("profile", getNick());
 
-      return new Profile(df, name);
+      return new Profile(df);
     } finally {
       if (df!=null) {
         df.close();
@@ -276,23 +257,27 @@ public class Template {
       return false;
     }
 
-    return (Boolean) session.getValue("moderator");
+    return (Boolean) session.getAttribute("moderator");
   }
 
   public boolean isCorrectorSession() {
     if (!isSessionAuthorized(session)) {
       return false;
     }
-    return session.getValue("corrector")!=null ? (Boolean) session.getValue("corrector") : false;
+    return session.getAttribute("corrector")!=null ? (Boolean) session.getAttribute("corrector") : false;
   }
 
+  /**
+   * Get current authorized users nick
+   * @return nick or null if not authorized
+   */
   public String getNick() {
     return getNick(session);
   }
 
   public static String getNick(HttpSession session) {
     if (isSessionAuthorized(session)) {
-      return (String) session.getValue("nick");
+      return (String) session.getAttribute("nick");
     } else {
       return null;
     }
@@ -303,7 +288,7 @@ public class Template {
   }
 
   public boolean isMobile() {
-    if (!style.equals("tango")) {
+    if (!"tango".equals(style)) {
       return false;
     }
 

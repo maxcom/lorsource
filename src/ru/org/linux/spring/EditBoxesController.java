@@ -20,14 +20,13 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
-import ru.org.linux.site.AccessViolationException;
 import ru.org.linux.site.Template;
 import ru.org.linux.util.UtilException;
 
 @Controller
 public class EditBoxesController{
   @RequestMapping(value = "/edit-boxes.jsp")
-  public ModelAndView view(HttpServletRequest request) throws AccessViolationException, UtilException {
+  public ModelAndView view(HttpServletRequest request) throws UtilException {
     boolean isThreeColumn = getThreeColumns(request);
     ModelAndView result = new ModelAndView("edit-boxes");
     result.addObject("isThreeColumn", isThreeColumn);
@@ -35,11 +34,9 @@ public class EditBoxesController{
   }
 
   protected static boolean getThreeColumns(HttpServletRequest request)
-    throws AccessViolationException, UtilException {
+    throws UtilException {
     Template t = Template.getTemplate(request);
-    if (t.isUsingDefaultProfile() || t.getProfileName().charAt(0) == '_') {
-      throw new AccessViolationException("нельзя изменить системный профиль; создайте сначала свой");
-    }
+
     return t.getProf().getBoolean("main.3columns");
   }
 

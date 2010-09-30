@@ -18,10 +18,10 @@ package ru.org.linux.util;
 import java.util.Map;
 
 public class ProfileHashtable {
-  private final Map Defaults;
-  private final Map settings;
+  private final Map<String, Object> Defaults;
+  private final Map<String, Object> settings;
 
-  public ProfileHashtable(Map defaults, Map settings) {
+  public ProfileHashtable(Map<String, Object> defaults, Map<String, Object> settings) {
     Defaults = defaults;
     this.settings = settings;
 
@@ -136,7 +136,7 @@ public class ProfileHashtable {
     settings.remove(key);
   }
 
-  public Map getSettings() {
+  public Map<String, Object> getSettings() {
     return settings;
   }
 }
