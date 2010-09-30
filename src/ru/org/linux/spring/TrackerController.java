@@ -49,9 +49,9 @@ public class TrackerController {
       }
     }
 
-    boolean noTalks = filter!=null && filter.equals("notalks");
-    boolean tech = filter!=null && filter.equals("tech");
-    boolean mine = filter!=null && filter.equals("mine");
+    boolean noTalks = filter!=null && "notalks".equals(filter);
+    boolean tech = filter!=null && "tech".equals(filter);
+    boolean mine = filter!=null && "mine".equals(filter);
 
     Map<String, Object> params = new HashMap<String, Object>();
 
@@ -147,7 +147,7 @@ public class TrackerController {
     return list;
   }
 
-  public class Item {
+  public static class Item {
     private final int author;
     private final int msgid;
     private final Timestamp lastmod;

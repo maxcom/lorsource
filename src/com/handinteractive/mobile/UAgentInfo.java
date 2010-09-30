@@ -161,7 +161,7 @@ public class UAgentInfo {
      */
     public boolean detectIphone() {
         // The iPod touch says it's an iPhone! So let's disambiguate.
-        if (userAgent.indexOf(deviceIphone) != -1 && !detectIpod()) {
+        if (userAgent.contains(deviceIphone) && !detectIpod()) {
             return true;
         }
         return false;
@@ -171,7 +171,7 @@ public class UAgentInfo {
      * Detects if the current device is an iPod Touch.
      */
     public boolean detectIpod() {
-        if (userAgent.indexOf(deviceIpod) != -1) {
+        if (userAgent.contains(deviceIpod)) {
             return true;
         }
         return false;
@@ -182,8 +182,8 @@ public class UAgentInfo {
      */
     public boolean detectIphoneOrIpod() {
         //We repeat the searches here because some iPods may report themselves as an iPhone, which would be okay.
-        if (userAgent.indexOf(deviceIphone) != -1 ||
-                userAgent.indexOf(deviceIpod) != -1) {
+        if (userAgent.contains(deviceIphone) ||
+          userAgent.contains(deviceIpod)) {
             return true;
         }
         return false;
@@ -193,7 +193,7 @@ public class UAgentInfo {
      * Detects if the current device is an Android OS-based device.
      */
     public boolean detectAndroid() {
-        if (userAgent.indexOf(deviceAndroid) != -1) {
+        if (userAgent.contains(deviceAndroid)) {
             return true;
         }
         return false;
@@ -214,7 +214,7 @@ public class UAgentInfo {
      * Detects if the current browser is based on WebKit.
      */
     public boolean detectWebkit() {
-        if (userAgent.indexOf(engineWebKit) != -1) {
+        if (userAgent.contains(engineWebKit)) {
             return true;
         }
         return false;
@@ -226,8 +226,8 @@ public class UAgentInfo {
     public boolean detectS60OssBrowser() {
         //First, test for WebKit, then make sure it's either Symbian or S60.
         if (detectWebkit() &&
-                (userAgent.indexOf(deviceSymbian) != -1 || 
-                userAgent.indexOf(deviceS60) != -1)) {
+                (userAgent.contains(deviceSymbian) ||
+                  userAgent.contains(deviceS60))) {
             return true;
         }
         return false;
@@ -240,11 +240,11 @@ public class UAgentInfo {
      *   or other browsers running on these devices.
      */
     public boolean detectSymbianOS() {
-        if (userAgent.indexOf(deviceSymbian) != -1 ||
-                userAgent.indexOf(deviceS60) != -1 ||
-                userAgent.indexOf(deviceS70) != -1 ||
-                userAgent.indexOf(deviceS80) != -1 ||
-                userAgent.indexOf(deviceS90) != -1) {
+        if (userAgent.contains(deviceSymbian) ||
+          userAgent.contains(deviceS60) ||
+          userAgent.contains(deviceS70) ||
+          userAgent.contains(deviceS80) ||
+          userAgent.contains(deviceS90)) {
             return true;
         }
         return false;
@@ -256,10 +256,10 @@ public class UAgentInfo {
     public boolean detectWindowsMobile() {
         //Most devices use 'Windows CE', but some report 'iemobile' 
         //  and some older ones report as 'PIE' for Pocket IE. 
-        if (userAgent.indexOf(deviceWinMob) != -1 ||
-                userAgent.indexOf(deviceIeMob) != -1 ||
-                userAgent.indexOf(enginePie) != -1 ||
-                (detectWapWml() && userAgent.indexOf(deviceWindows) != -1)) {
+        if (userAgent.contains(deviceWinMob) ||
+          userAgent.contains(deviceIeMob) ||
+          userAgent.contains(enginePie) ||
+                (detectWapWml() && userAgent.contains(deviceWindows))) {
             return true;
         }
         return false;
@@ -269,7 +269,7 @@ public class UAgentInfo {
      * Detects if the current browser is a BlackBerry of some sort.
      */
     public boolean detectBlackBerry() {
-        if (userAgent.indexOf(deviceBB) != -1 || httpAccept.indexOf(vndRIM) != -1) {
+        if (userAgent.contains(deviceBB) || httpAccept.contains(vndRIM)) {
             return true;
         }
         return false;
@@ -281,8 +281,8 @@ public class UAgentInfo {
     public boolean detectPalmOS() {
         //Most devices nowadays report as 'Palm', but some older ones reported as Blazer or Xiino.
         if (userAgent.indexOf(devicePalm) != -1 ||
-                userAgent.indexOf(engineBlazer) != -1 ||
-                userAgent.indexOf(engineXiino) != -1) {
+          userAgent.contains(engineBlazer) ||
+          userAgent.contains(engineXiino)) {
             return true;
         }
         return false;
@@ -306,7 +306,7 @@ public class UAgentInfo {
      * Detects whether the device is a Brew-powered device.
      */
     public boolean detectBrewDevice() {
-        if (userAgent.indexOf(deviceBrew) != -1) {
+        if (userAgent.contains(deviceBrew)) {
             return true;
         }
         return false;
@@ -316,8 +316,8 @@ public class UAgentInfo {
      * Detects the Danger Hiptop device.
      */
     public boolean detectDangerHiptop() {
-        if (userAgent.indexOf(deviceDanger) != -1 ||
-                userAgent.indexOf(deviceHiptop) != -1) {
+        if (userAgent.contains(deviceDanger) ||
+          userAgent.contains(deviceHiptop)) {
             return true;
         }
         return false;
@@ -328,9 +328,9 @@ public class UAgentInfo {
      * Added by AHand
      */
     public boolean detectOperaMobile() {
-        if (userAgent.indexOf(engineOpera) != -1 &&
-                (userAgent.indexOf(mini) != -1 ||
-                userAgent.indexOf(mobi) != -1)) {
+        if (userAgent.contains(engineOpera) &&
+                (userAgent.contains(mini) ||
+                  userAgent.contains(mobi))) {
             return true;
         }
         return false;
@@ -341,7 +341,7 @@ public class UAgentInfo {
      */
     public boolean detectWapWml() {
         if (httpAccept.indexOf(vndwap) != -1 ||
-                httpAccept.indexOf(wml) != -1) {
+          httpAccept.contains(wml)) {
             return true;
         }
         return false;
@@ -360,26 +360,26 @@ public class UAgentInfo {
         // Updated by AHand
         if (detectOperaMobile()) { return true; }
         
-        if (userAgent.indexOf(engineUpBrowser) != -1) { return true; }
-        if (userAgent.indexOf(engineOpenWeb) != -1) { return true; }
-        if (userAgent.indexOf(deviceMidp) != -1) { return true; }
+        if (userAgent.contains(engineUpBrowser)) { return true; }
+        if (userAgent.contains(engineOpenWeb)) { return true; }
+        if (userAgent.contains(deviceMidp)) { return true; }
 
         if (detectSmartphone()) { return true; }
         if (detectDangerHiptop()) { return true; }
 
         if (detectMidpCapable()) { return true; }
 
-        if (userAgent.indexOf(devicePda) != -1) { return true; }
-        if (userAgent.indexOf(mobile) != -1) { return true; }
+        if (userAgent.contains(devicePda)) { return true; }
+        if (userAgent.contains(mobile)) { return true; }
 
         //detect older phones from certain manufacturers and operators.
-        if (userAgent.indexOf(uplink) != -1) { return true; }
-        if (userAgent.indexOf(manuSonyEricsson) != -1) { return true; }
-        if (userAgent.indexOf(manuericsson) != -1) { return true; }
-        if (userAgent.indexOf(manuSamsung1) != -1) { return true; }
-        if (userAgent.indexOf(svcDocomo) != -1) { return true; }
-        if (userAgent.indexOf(svcKddi) != -1) { return true; }
-        if (userAgent.indexOf(svcVodafone) != -1) { return true; }
+        if (userAgent.contains(uplink)) { return true; }
+        if (userAgent.contains(manuSonyEricsson)) { return true; }
+        if (userAgent.contains(manuericsson)) { return true; }
+        if (userAgent.contains(manuSamsung1)) { return true; }
+        if (userAgent.contains(svcDocomo)) { return true; }
+        if (userAgent.contains(svcKddi)) { return true; }
+        if (userAgent.contains(svcVodafone)) { return true; }
 
         return false;
     }
@@ -388,7 +388,7 @@ public class UAgentInfo {
      * Detects if the current device is a Sony Playstation.
      */
     public boolean detectSonyPlaystation() {
-        if (userAgent.indexOf(devicePlaystation) != -1) {
+        if (userAgent.contains(devicePlaystation)) {
             return true;
         }
         return false;
@@ -398,9 +398,9 @@ public class UAgentInfo {
      * Detects if the current device is a Nintendo game device.
      */
     public boolean detectNintendo() {
-        if (userAgent.indexOf(deviceNintendo) != -1 ||
-                userAgent.indexOf(deviceWii) != -1 ||
-                userAgent.indexOf(deviceNintendoDs) != -1) {
+        if (userAgent.contains(deviceNintendo) ||
+          userAgent.contains(deviceWii) ||
+          userAgent.contains(deviceNintendoDs)) {
             return true;
         }
         return false;
@@ -410,7 +410,7 @@ public class UAgentInfo {
      * Detects if the current device is a Microsoft Xbox.
      */
     public boolean detectXbox() {
-        if (userAgent.indexOf(deviceXbox) != -1) {
+        if (userAgent.contains(deviceXbox)) {
             return true;
         }
         return false;
@@ -432,8 +432,8 @@ public class UAgentInfo {
      * Detects if the current device supports MIDP, a mobile Java technology.
      */
     public boolean detectMidpCapable() {
-        if (userAgent.indexOf(deviceMidp) != -1 ||
-                httpAccept.indexOf(deviceMidp) != -1) {
+        if (userAgent.contains(deviceMidp) ||
+          httpAccept.contains(deviceMidp)) {
             return true;
         }
         return false;
@@ -443,10 +443,10 @@ public class UAgentInfo {
      * Detects if the current device is on one of the Maemo-based Nokia Internet Tablets.
      */
     public boolean detectMaemoTablet() {
-        if (userAgent.indexOf(maemo) != -1) {
+        if (userAgent.contains(maemo)) {
             return true;
-        } else if (userAgent.indexOf(maemoTablet) != -1 &&
-                userAgent.indexOf(linux) != -1) {
+        } else if (userAgent.contains(maemoTablet) &&
+          userAgent.contains(linux)) {
             return true;
         }
         return false;
@@ -456,7 +456,7 @@ public class UAgentInfo {
      * Detects if the current device is an Archos media player/Internet tablet.
      */
     public boolean detectArchos() {
-        if (userAgent.indexOf(deviceArchos) != -1) {
+        if (userAgent.contains(deviceArchos)) {
             return true;
         }
         return false;
@@ -467,9 +467,9 @@ public class UAgentInfo {
      * Updated by AHand
      */
     public boolean detectSonyMylo() {
-        if (userAgent.indexOf(manuSony) != -1 &&
-                (userAgent.indexOf(qtembedded) != -1 ||
-                 userAgent.indexOf(mylocom2) != -1)) {
+        if (userAgent.contains(manuSony) &&
+                (userAgent.contains(qtembedded) ||
+                  userAgent.contains(mylocom2))) {
             return true;
         }
         return false;

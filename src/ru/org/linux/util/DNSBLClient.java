@@ -23,7 +23,7 @@ import org.apache.commons.logging.LogFactory;
 import org.xbill.DNS.*;
 
 public class DNSBLClient {
-  public final int DNSBL_TIMEOUT_SEC = 10;
+  public static final int DNSBL_TIMEOUT_SEC = 10;
 
   private static final Log logger = LogFactory.getLog(DNSBLClient.class);
 

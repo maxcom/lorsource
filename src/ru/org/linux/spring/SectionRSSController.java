@@ -67,8 +67,8 @@ public class SectionRSSController {
       groupId = 0;
     }
 
-    boolean notalks = filter!=null && filter.equals("notalks");
-    boolean tech = filter!=null && filter.equals("tech");
+    boolean notalks = filter!=null && "notalks".equals(filter);
+    boolean tech = filter!=null && "tech".equals(filter);
     
     String userAgent = request.getHeader("User-Agent");
     boolean feedBurner = userAgent!=null && userAgent.contains("FeedBurner");

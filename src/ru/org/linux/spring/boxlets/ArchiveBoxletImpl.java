@@ -18,7 +18,7 @@ package ru.org.linux.spring.boxlets;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -47,7 +47,7 @@ public class ArchiveBoxletImpl extends SpringBoxlet{
 
   @Override
   @RequestMapping("/archive.boxlet")
-  protected ModelAndView getData(HttpServletRequest request, HttpServletResponse response) throws Exception {
+  protected ModelAndView getData(HttpServletRequest request) throws Exception {
     List<ArchiveDaoImpl.ArchiveDTO> list = getFromCache(cacheProvider, new GetCommand<List<ArchiveDaoImpl.ArchiveDTO>>() {
       @Override
       public List<ArchiveDaoImpl.ArchiveDTO> get() {

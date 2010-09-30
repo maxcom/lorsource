@@ -25,7 +25,7 @@ import java.util.Map;
 public class IgnoreList {
   private final int userId;
   
-  private Map<Integer, String> ignoreList;
+  private final Map<Integer, String> ignoreList;
 
   public static Map<Integer, String> getIgnoreList(Connection db, String nick) throws SQLException {
     PreparedStatement pst = db.prepareStatement("SELECT a.ignored,b.nick FROM ignore_list a, users b WHERE a.userid=(SELECT id FROM users WHERE nick=?) AND b.id=a.ignored");

@@ -1,4 +1,4 @@
-.dw-feed-main { padding:0px; }
+.dw-feed-main { padding:0; }
 .dw-feed-items { background:#000030; }
 .dw-feed-title-box { font-size:small; color:#ffffff; background:#000030; }
 
@@ -13,9 +13,9 @@ a.dw-feed-item:hover { text-decoration:underline; color:#E65D29; }
 
 body {
   background-image: url();
-  margin-left: 0px;
-  margin-top: 0px;
-  margin-right: 0px;
-  margin-bottom: 0px;
+  margin-left: 0;
+  margin-top: 0;
+  margin-right: 0;
+  margin-bottom: 0;
   background: #000030;
 }

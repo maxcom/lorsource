@@ -127,7 +127,7 @@ public class ShowCommentsController {
     }
   }
 
-  public class CommentsListItem {
+  public static class CommentsListItem {
     private String sectionTitle;
     private String groupTitle;
     private int topicId;

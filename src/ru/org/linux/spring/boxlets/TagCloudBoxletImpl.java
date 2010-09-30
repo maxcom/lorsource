@@ -18,7 +18,7 @@ package ru.org.linux.spring.boxlets;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -49,7 +49,7 @@ public class TagCloudBoxletImpl extends SpringBoxlet {
 
   @Override
   @RequestMapping("/tagcloud.boxlet")
-  protected ModelAndView getData(HttpServletRequest request, HttpServletResponse response) throws Exception {
+  protected ModelAndView getData(HttpServletRequest request) throws Exception {
     ProfileHashtable profile = Template.getTemplate(request).getProf();
     final int i = profile.getInt("tags");
     String key = getCacheKey() + "?count=" + i;

@@ -88,8 +88,9 @@ public class ImageInfo{
    * file type is determined from file's extension
    */
   public ImageInfo(String filename) throws BadImageException, IOException {
-    FileInputStream fileStream = null;
     this.filename = filename;
+
+    FileInputStream fileStream = null;
 
     try {
       fileStream = new FileInputStream(filename);
@@ -118,8 +119,9 @@ public class ImageInfo{
   }
 
   public ImageInfo(String filename, String extension) throws BadImageException, IOException {
-    FileInputStream fileStream = null;
     this.filename = filename;
+
+    FileInputStream fileStream = null;
 
     try {
       fileStream = new FileInputStream(filename);

@@ -85,7 +85,7 @@ public class Comment implements Serializable {
     }
   }
 
-  public Comment(int replyto, String title, String message, int topic, int userid, String userAgent, String postIP, boolean lorcode) {
+  public Comment(int replyto, String title, int topic, int userid, String userAgent, String postIP) {
     msgid =0;
     this.title=title;
     this.topic=topic;

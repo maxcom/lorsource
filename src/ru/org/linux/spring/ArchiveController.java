@@ -127,7 +127,7 @@ public class ArchiveController {
     return new RedirectView(link);
   }
 
-  public class NewsArchiveListItem {
+  public static class NewsArchiveListItem {
     private final int year;
     private final int month;
     private final int count;
