@@ -17,26 +17,36 @@ package ru.org.linux.site;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 
-public class ProfileTest extends TestCase {
+import static org.junit.Assert.*;
+
+public class ProfileTest {
+  @Test
   public void testDefaultProfile() {
-    new Profile(null);
+    Profile profile = new Profile();
+
+    assertTrue(profile.isDefault());
   }
 
-  public void testDefaultProfileSave() throws IOException, ClassNotFoundException {
-    Profile profile = new Profile(null);
+  @Test
+  public void testDefaultProfileSave() throws Exception {
+    Profile profile = new Profile();
     ByteArrayOutputStream os = new ByteArrayOutputStream();
 
     profile.write(os);
 
-    new Profile(new ByteArrayInputStream(os.toByteArray()) , "test");
+    Profile profile1 = new Profile(new ByteArrayInputStream(os.toByteArray()));
+
+    assertFalse(profile1.isDefault());
   }
 
-  public void testModification() throws IOException, ClassNotFoundException {
-    Profile profile = new Profile(null);
+  @Test
+  public void testModification() throws Exception {
+    Profile profile = new Profile();
+
+    assertNotSame(125, profile.getHashtable().getInt("messages"));
 
     profile.getHashtable().setInt("messages", 125);
 
@@ -44,7 +54,9 @@ public class ProfileTest extends TestCase {
 
     profile.write(os);
 
-    new Profile(new ByteArrayInputStream(os.toByteArray()) , "test");
+    Profile profile1 = new Profile(new ByteArrayInputStream(os.toByteArray()));
+
+    assertEquals(125, profile1.getHashtable().getInt("messages"));
   }
 
 }

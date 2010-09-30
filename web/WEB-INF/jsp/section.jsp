@@ -15,7 +15,9 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
-
+<%--@elvariable id="section" type="ru.org.linux.site.Section"--%>
+<%--@elvariable id="groups" type="java.util.List<ru.org.linux.site.Group>"--%>
+<%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 <%
 
@@ -59,7 +61,7 @@
 
   <c:forEach var="group" items="${groups}">
     <li>
-      <a href="${group.url}">${group.title}</a>
+      <a class="navLink" href="${group.url}">${group.title}</a>
 
       (${group.stat1}/${group.stat2}/${group.stat3})
 

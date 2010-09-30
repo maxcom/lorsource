@@ -16,32 +16,32 @@
 package ru.org.linux.site;
 
 import java.io.*;
-import java.util.Collections;
 import java.util.Date;
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.Map;
 
 import ru.org.linux.util.ProfileHashtable;
 
+import com.google.common.collect.ImmutableMap;
+
 public class Profile {
   private final ProfileHashtable profileHashtable;
-  private final String profileName;
 
   private final boolean isdefault;
   public static final String SYSTEM_TIMESTAMP = "system.timestamp";
 
-  public Profile(InputStream df, String profileName) throws IOException, ClassNotFoundException {
+  public Profile(InputStream df) throws IOException, ClassNotFoundException {
+    if (df==null) {
+      throw new NullPointerException();
+    }
+
     ObjectInputStream dof = null;
     try {
       dof = new ObjectInputStream(df);
-      Map userProfile = (Map) dof.readObject();
+      Map<String, Object> userProfile = (Map<String, Object>) dof.readObject();
       dof.close();
       df.close();
 
-      this.profileName = profileName;
-
-      userProfile.put("ProfileName", profileName);
-      
       profileHashtable = new ProfileHashtable(getDefaults(), userProfile);
 
       isdefault = false;
@@ -52,15 +52,10 @@ public class Profile {
     }
   }
 
-  public Profile(String profile) {
-    profileHashtable = new ProfileHashtable(getDefaults(), new Hashtable());
-    profileName = profile;
+  public Profile() {
+    profileHashtable = new ProfileHashtable(getDefaults(), new HashMap<String, Object>());
 
-    isdefault = profile==null;
-  }
-
-  public String getName() {
-    return profileName;
+    isdefault = true;
   }
 
   public boolean isDefault() {
@@ -71,8 +66,8 @@ public class Profile {
     return profileHashtable;
   }
 
-  public static Map getDefaults() {
-    return Collections.unmodifiableMap(DefaultProfile.getDefaultProfile());
+  public static ImmutableMap<String, Object> getDefaults() {
+    return DefaultProfile.getDefaultProfile();
   }
 
   public void write(OutputStream df) throws IOException {
