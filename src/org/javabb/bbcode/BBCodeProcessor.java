@@ -48,7 +48,7 @@ import ru.org.linux.util.HTMLFormatter;
 public class BBCodeProcessor implements Serializable {
   private static final String CR_LF = "(?:\r\n|\r|\n)?";
 
-  private static final RegexTag[] REGEX_TAGS = new RegexTag[]{
+  private static final RegexTag[] REGEX_TAGS = {
     new SimpleRegexTag("", "(\r\n\r\n|\n\r\n\r|\n\n|\r\r)", "<p>"),
 //        new SimpleRegexTag("color",
 //            "\\[color=['\"]?(.*?[^'\"])['\"]?\\](.*?)\\[/color\\]",

@@ -38,7 +38,7 @@ public class BBCodeTest {
   private static final String BADLIST_RESULT="<p><ul><li>1<li>2</ul><p>";
 
   @Test
-  public void testLineBreak() throws BadURLException, SQLException {
+  public void testLineBreak() throws Exception {
     BBCodeProcessor proc = new BBCodeProcessor();
 
     String result = proc.preparePostText(null, LINE_BREAK_TEST);
@@ -47,7 +47,7 @@ public class BBCodeTest {
   }
 
   @Test
-  public void testTagExcape() throws BadURLException, SQLException {
+  public void testTagExcape() throws Exception {
     BBCodeProcessor proc = new BBCodeProcessor();
 
     String result = proc.preparePostText(null, TAG_ESCAPE_TEST);
@@ -56,7 +56,7 @@ public class BBCodeTest {
   }
 
   @Test
-  public void testJavascriptURL() throws BadURLException, SQLException {
+  public void testJavascriptURL() throws Exception {
     BBCodeProcessor proc = new BBCodeProcessor();
 
     String result = proc.preparePostText(null, JAVASCRIPT_URL);
@@ -65,7 +65,7 @@ public class BBCodeTest {
   }
 
   @Test
-  public void testCodeExcape() throws BadURLException, SQLException {
+  public void testCodeExcape() throws Exception {
     BBCodeProcessor proc = new BBCodeProcessor();
 
     String result = proc.preparePostText(null, "[code]\"code&code\"[/code]");
@@ -74,7 +74,7 @@ public class BBCodeTest {
   }
 
   @Test
-  public void testList() throws BadURLException, SQLException {
+  public void testList() throws Exception {
     BBCodeProcessor proc = new BBCodeProcessor();
 
     String result = proc.preparePostText(null, LIST_TEST);
@@ -83,7 +83,7 @@ public class BBCodeTest {
   }
 
   @Test
-  public void testBadList() throws BadURLException, SQLException {
+  public void testBadList() throws Exception {
     BBCodeProcessor proc = new BBCodeProcessor();
 
     String result = proc.preparePostText(null, BADLIST_TEST);
@@ -92,7 +92,7 @@ public class BBCodeTest {
   }
 
   @Test
-  public void testUnexceptedCut() throws BadURLException, SQLException {
+  public void testUnexceptedCut() throws Exception {
     BBCodeProcessor proc = new BBCodeProcessor();
     proc.setIncludeCut(true);
     String result = proc.preparePostText(null, "[list][*][cut][/cut][/list]");
@@ -101,7 +101,7 @@ public class BBCodeTest {
   }
 
   @Test
-  public void testUnexceptedCut2() throws BadURLException, SQLException {
+  public void testUnexceptedCut2() throws Exception {
     BBCodeProcessor proc = new BBCodeProcessor();
     proc.setIncludeCut(false);
     String result = proc.preparePostText(null, "[list=\"[cut]\"][/list][/cut][list=\"[cut]\"][/list][/cut] onclick='alert(\"нифига не fixed\");return false'");

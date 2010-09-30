@@ -28,7 +28,9 @@ public class TopicsListItem implements Serializable {
   private final Timestamp lastmod;
   private final int msgid;
   private final boolean deleted;
-  private final int stat1, stat3, stat4;
+  private final int stat1;
+  private final int stat3;
+  private final int stat4;
   private final boolean sticky;
   private final int pages;
   private final int author;

@@ -18,10 +18,10 @@ package ru.org.linux.site;
 import java.sql.*;
 
 public class UserInfo {
-  private String url;
-  private String town;
-  private Timestamp lastLogin;
-  private Timestamp registrationDate;
+  private final String url;
+  private final String town;
+  private final Timestamp lastLogin;
+  private final Timestamp registrationDate;
 
   public UserInfo(Connection db, int id) throws SQLException, UserNotFoundException {
     PreparedStatement userInfo = db.prepareStatement("SELECT url, town, lastlogin, regdate FROM users WHERE id=?");

@@ -25,14 +25,14 @@ import ru.org.linux.spring.commons.CacheProvider;
 
 public abstract class SpringBoxlet extends AbstractController implements CacheableController{
 
-  protected abstract ModelAndView getData(HttpServletRequest request,
-                                          HttpServletResponse response) throws Exception;
+  protected abstract ModelAndView getData(HttpServletRequest request
+  ) throws Exception;
 
   
   @Override
   protected ModelAndView handleRequestInternal(HttpServletRequest request,
                                                HttpServletResponse response) throws Exception {
-    ModelAndView mav = getData(request, response);
+    ModelAndView mav = getData(request);
     if (mav == null){
       mav = new ModelAndView();
     }

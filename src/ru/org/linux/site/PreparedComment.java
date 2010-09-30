@@ -30,7 +30,7 @@ public class PreparedComment {
   private PreparedComment(Connection db, PreparedStatement pst, CommentList comments, Comment comment) throws UserNotFoundException, SQLException {
     this.comment = comment;
 
-    this.author = User.getUserCached(db, comment.getUserid());
+    author = User.getUserCached(db, comment.getUserid());
 
     processedMessage = getProcessedMessage(db, pst, comment);
 
@@ -52,7 +52,7 @@ public class PreparedComment {
   public PreparedComment(Connection db, Comment comment, String message) throws UserNotFoundException, SQLException {
     this.comment = comment;
 
-    this.author = User.getUserCached(db, comment.getUserid());
+    author = User.getUserCached(db, comment.getUserid());
 
     processedMessage = getProcessedMessage(db, message);
 

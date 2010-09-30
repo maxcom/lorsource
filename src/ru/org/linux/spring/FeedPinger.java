@@ -45,7 +45,7 @@ public class FeedPinger extends ApplicationObjectSupport {
 
       client.setConfig(config);
 
-      Object[] params = new Object[]{"Linux.org.ru", properties.getProperty(Template.PROPERTY_MAIN_URL)};
+      Object[] params = {"Linux.org.ru", properties.getProperty(Template.PROPERTY_MAIN_URL)};
 
       Map r = (Map) client.execute("weblogUpdates.ping", params);
 

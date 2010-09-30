@@ -1,4 +1,4 @@
-.dw-feed-main { padding:0px; }
+.dw-feed-main { padding:0; }
 .dw-feed-items { background:#defefc; }
 .dw-feed-title-box { font-size:small; color:black; background:#defefc; }
 
@@ -12,10 +12,9 @@ a.dw-feed-item:visited { text-decoration:none;  }
 a.dw-feed-item:hover { text-decoration:underline;  }
 
 body {
-  background-image: url();
-  margin-left: 0px;
-  margin-top: 0px;
-  margin-right: 0px;
-  margin-bottom: 0px;
-  background: #defefc;
-}
+  background: #defefc url();
+  margin-left: 0;
+  margin-top: 0;
+  margin-right: 0;
+  margin-bottom: 0;
+  }

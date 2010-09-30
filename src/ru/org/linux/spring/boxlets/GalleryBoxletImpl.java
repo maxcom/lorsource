@@ -18,7 +18,7 @@ package ru.org.linux.spring.boxlets;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -48,7 +48,7 @@ public class GalleryBoxletImpl extends SpringBoxlet {
 
   @Override
   @RequestMapping("/gallery.boxlet")
-  protected ModelAndView getData(HttpServletRequest request, HttpServletResponse response) throws Exception {
+  protected ModelAndView getData(HttpServletRequest request) throws Exception {
     ModelAndView mav = new ModelAndView();
     mav.setViewName("boxlets/gallery");
     List<GalleryItem> list = getFromCache(cacheProvider, new GetCommand<List<GalleryItem>>() {

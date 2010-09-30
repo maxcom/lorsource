@@ -72,7 +72,7 @@
   String email = "bugz@linux.org.ru";
 
   InternetAddress mail = new InternetAddress(email);
-  StringBuffer text = new StringBuffer();
+  StringBuilder text = new StringBuilder();
 
   if (exception.getMessage()==null) {
     text.append(exception.getClass().getName());
@@ -84,12 +84,12 @@
   text.append("Req. URI: ").append(request.getAttribute("javax.servlet.error.request_uri"));
 
   if (request.getQueryString()!=null) {
-    text.append("?").append(request.getQueryString()).append('\n');
+    text.append('?').append(request.getQueryString()).append('\n');
   }
 
-  text.append("\n");
+  text.append('\n');
 
-  text.append("IP: "+request.getRemoteAddr()+"\n");
+  text.append("IP: "+request.getRemoteAddr()+ '\n');
   
   text.append(" Headers: ");
   Enumeration enu = request.getHeaderNames();

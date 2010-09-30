@@ -191,7 +191,7 @@ public class AddCommentController extends ApplicationObjectSupport {
 
       boolean lorcode = true;
 
-      Comment comment = new Comment(replyto, title, msg, topicId, 0, request.getHeader("user-agent"), request.getRemoteAddr(), lorcode);
+      Comment comment = new Comment(replyto, title, topicId, 0, request.getHeader("user-agent"), request.getRemoteAddr());
 
       comment.setAuthor(user.getId());
 

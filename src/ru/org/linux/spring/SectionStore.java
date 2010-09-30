@@ -22,7 +22,6 @@ import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.sql.DataSource;
 import com.google.common.collect.ImmutableMap;
 
 import ru.org.linux.site.Section;

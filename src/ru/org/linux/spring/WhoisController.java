@@ -17,7 +17,6 @@ package ru.org.linux.spring;
 
 import java.net.URLEncoder;
 import java.sql.Connection;
-import java.sql.SQLException;
 
 import javax.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;

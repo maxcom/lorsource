@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+
 import org.apache.commons.collections.Closure;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,7 +47,7 @@ public class TopTenBoxletImpl extends SpringBoxlet {
 
   @Override
   @RequestMapping("/top10.boxlet")
-  protected ModelAndView getData(HttpServletRequest request, HttpServletResponse response) {
+  protected ModelAndView getData(HttpServletRequest request) {
     ProfileHashtable profile = Template.getTemplate(request).getProf();
     final int itemsPerPage = profile.getInt("messages");
     String style = profile.getString("style");

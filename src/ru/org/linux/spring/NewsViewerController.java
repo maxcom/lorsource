@@ -308,7 +308,7 @@ public class NewsViewerController {
 
       params.put("rssLink", "/people/"+nick+"/?output=rss");
 
-      if (output!=null && output.equals("rss")) {
+      if (output!=null && "rss".equals(output)) {
         return new ModelAndView("section-rss", params);
       } else {
         return new ModelAndView("view-news", params);
@@ -371,7 +371,7 @@ public class NewsViewerController {
 
       params.put("rssLink", "/people/"+nick+"/favs?output=rss");
 
-      if (output!=null && output.equals("rss")) {
+      if (output!=null && "rss".equals(output)) {
         return new ModelAndView("section-rss", params);
       } else {
         return new ModelAndView("view-news", params);
