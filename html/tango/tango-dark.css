@@ -46,6 +46,10 @@ a {
 	background-color: #555753;
 }
 
+#bd .forum table thead a {
+	color: #BABDB6;
+}
+
 #bd .forum table tbody td {
 	border-color: #555753;
 }
@@ -85,4 +89,12 @@ color: #babdb6;
 
 .infoblock {
     background-color: #272C2D;
+}
+
+#bd a.navLink:visited {
+    color: #729fcf;
+}
+
+#bd .nav a:visited {
+    color: #729fcf;    
 }
