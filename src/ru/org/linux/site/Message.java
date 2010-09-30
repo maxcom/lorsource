@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -821,6 +822,10 @@ public class Message implements Serializable {
         dto.setMsgid(rs.getInt("msgid"));
 
         list.add(dto);
+      }
+
+      if (list==null) {
+        return Collections.emptyList();
       }
 
       return list;

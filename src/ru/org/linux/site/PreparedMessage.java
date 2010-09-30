@@ -72,7 +72,7 @@ public class PreparedMessage {
     }
 
     List<EditInfoDTO> editInfo = message.loadEditInfo(db);
-    if (editInfo!=null && !editInfo.isEmpty()) {
+    if (!editInfo.isEmpty()) {
       lastEditInfo = editInfo.get(0);
       lastEditor = User.getUserCached(db, lastEditInfo.getEditor());
       editCount = editInfo.size();
