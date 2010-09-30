@@ -133,7 +133,7 @@ public class EditController extends ApplicationObjectSupport {
     params.put("newPreparedMessage", preparedMessage);
 
     List<EditInfoDTO> editInfoList = message.loadEditInfo(db);
-    if (editInfoList != null) {
+    if (!editInfoList.isEmpty()) {
       params.put("editInfo", editInfoList.get(0));
     }
 
@@ -195,7 +195,7 @@ public class EditController extends ApplicationObjectSupport {
         params.put("info", "Предпросмотр");
       }
 
-      if (editInfoList!=null) {
+      if (!editInfoList.isEmpty()) {
         EditInfoDTO dbEditInfo = editInfoList.get(0);
         params.put("editInfo", dbEditInfo);
 
