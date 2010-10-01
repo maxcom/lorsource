@@ -305,11 +305,19 @@ public final class Template {
   }
 
   public void initCurrentUser(Connection db) throws SQLException {
+    initCurrentUser(db, false);
+  }
+
+  public void updateCurrentUser(Connection db) throws SQLException {
+    initCurrentUser(db, true);
+  }
+
+  private void initCurrentUser(Connection db, boolean forceUpdate) throws SQLException {
     if (!isSessionAuthorized()) {
       return;
     }
 
-    if (currentUser != null) {
+    if (currentUser != null && !forceUpdate) {
       return;
     }
 

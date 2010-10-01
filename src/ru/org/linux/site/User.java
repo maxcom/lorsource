@@ -25,6 +25,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import org.apache.commons.codec.binary.Base64;
+import org.springframework.jdbc.support.JdbcUtils;
 
 import ru.org.linux.spring.commons.CacheProvider;
 import ru.org.linux.util.StringUtil;
@@ -608,5 +609,16 @@ public class User implements Serializable {
 
   public int getUnreadEvents() {
     return unreadEvents;
+  }
+
+  public void resetUnreadEvents(Connection db) throws SQLException {
+    PreparedStatement st = db.prepareStatement("UPDATE users SET unread_events=0 where id=?");
+    try {
+      st.setInt(1, id);
+
+      st.executeUpdate();
+    } finally {
+      JdbcUtils.closeStatement(st);
+    }
   }
 }

@@ -131,6 +131,10 @@ public class ShowRepliesController {
 
       rs.close();
 
+      if ("POST".equalsIgnoreCase(request.getMethod())) {
+        user.resetUnreadEvents(db);
+        tmpl.updateCurrentUser(db);
+      }
     } finally {
       JdbcUtils.closeStatement(pst);
       JdbcUtils.closeConnection(db);

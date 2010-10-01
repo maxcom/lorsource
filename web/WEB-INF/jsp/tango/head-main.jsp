@@ -14,6 +14,7 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
+<%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 
 <!-- head-main -->
 <c:if test="${not template.mobile}">
@@ -81,7 +82,19 @@
                 <li><a href="/wiki/en/%D0%94%D0%B8%D1%81%D1%82%D1%80%D0%B8%D0%B1%D1%83%D1%82%D0%B8%D0%B2%D1%8B">Дистрибутивы</a></li>
 
                 <c:if test="${template.sessionAuthorized}">
-                  <li><a href="show-replies.jsp?nick=${template.nick}">Уведомления</a></li>
+                  <li>
+                    <form id="events_form" action="/show-replies.jsp" method="POST" style="display: inline">
+                      <input type="hidden" name="nick" value="${template.nick}">
+                    </form>
+
+                    <c:if test="${template.currentUser.unreadEvents > 0}">
+                      <a href="show-replies.jsp?nick=${template.nick}" onclick="$('#events_form').submit(); return false;">
+                        Уведомления (${template.currentUser.unreadEvents})</a>
+                    </c:if>
+                    <c:if test="${template.currentUser.unreadEvents == 0}">
+                      <a href="show-replies.jsp?nick=${template.nick}">Уведомления</a>
+                    </c:if>
+                  </li>
                 </c:if>
 
                 <li class="last"><a href="/server.jsp">О сервере</a></li>
