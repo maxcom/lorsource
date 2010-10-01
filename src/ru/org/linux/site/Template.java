@@ -81,7 +81,16 @@ public final class Template {
     /* restore password */
     session = request.getSession();
 
-    if (!isSessionAuthorized(session) && session != null) {
+    if (isSessionAuthorized(session)) {
+      Connection db = null;
+
+      try {
+        db = LorDataSource.getConnection();
+        initCurrentUser(db);
+      } finally {
+        JdbcUtils.closeConnection(db);
+      }
+    } else if (session != null) {
       String profileCookie = getCookie("profile");
 
       if (profileCookie != null && !profileCookie.isEmpty() &&
@@ -295,7 +304,7 @@ public final class Template {
     return userAgent.detectAndroidWebKit();
   }
 
-  public void initCurrentUser(Connection db) throws UserNotFoundException, SQLException {
+  public void initCurrentUser(Connection db) throws SQLException {
     if (!isSessionAuthorized()) {
       return;
     }
@@ -304,7 +313,11 @@ public final class Template {
       return;
     }
 
-    currentUser = User.getUser(db, (String) session.getAttribute("nick"));
+    try {
+      currentUser = User.getUser(db, (String) session.getAttribute("nick"));
+    } catch (UserNotFoundException e) {
+      throw new RuntimeException("Can't find currentUser!?", e);
+    }
   }
 
   public User getCurrentUser()  {
