@@ -57,8 +57,8 @@
           </div>
 
           <form method=POST action="login.jsp" style="display: none" id="regform">
-            Имя: <input type=text name=nick size=15><br>
-            Пароль: <input type=password name=passwd size=15><br>
+            <label>Имя: <input type=text name=nick size=15></label><br>
+            <label>Пароль: <input type=password name=passwd size=15></label><br>
             <input type=submit value="Вход">
             <input id="hide_loginbutton" type="button" value="Отмена">
           </form>
