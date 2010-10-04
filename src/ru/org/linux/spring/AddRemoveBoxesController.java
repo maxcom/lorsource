@@ -16,6 +16,7 @@
 package ru.org.linux.spring;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -83,14 +84,16 @@ public class AddRemoveBoxesController extends ApplicationObjectSupport {
     }
 
     String objectName = getObjectName(form, request);
-    List boxlets = (List) t.getProf().getObject(objectName);
-    if (boxlets != null && !boxlets.isEmpty()) {
+    List boxlets = new ArrayList((List) t.getProf().getObject(objectName));
+
+    if (!boxlets.isEmpty()) {
       if (boxlets.size() > form.position) {
         boxlets.remove(form.position.intValue());
         t.getProf().setObject(objectName, boxlets);
         t.writeProfile(t.getProfileName());
       }
     }
+    
     status.setComplete();
     return "redirect:/edit-boxes.jsp";
   }
