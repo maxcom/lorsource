@@ -17,12 +17,14 @@ package ru.org.linux.site;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
-import org.javabb.bbcode.BBCodeProcessor;
-
-import ru.org.linux.util.HTMLFormatter;
-import ru.org.linux.util.StringUtil;
+import com.google.common.collect.ImmutableList;
 
 public class SearchViewer {
   public static final int SEARCH_TOPICS = 1;
@@ -47,7 +49,7 @@ public class SearchViewer {
     this.query = query;
   }
 
-  public String show(Connection db) throws SQLException, UserErrorException {
+  public List<SearchItem> show(Connection db) throws SQLException, UserErrorException {
     StringBuilder select = new StringBuilder(""+
         "SELECT " +
         "msgs.id, msgs.title, msgs.postdate, topic, msgs.userid, rank(idxFTI, q) as rank, message, bbcode");
@@ -103,6 +105,7 @@ public class SearchViewer {
     select.append(" LIMIT 100");
 
     PreparedStatement pst = null;
+
     try {
       pst = db.prepareStatement(select.toString());
 
@@ -110,68 +113,18 @@ public class SearchViewer {
 
       ResultSet rs = pst.executeQuery();
 
-      return printResults(db, rs);
-    } catch (UserNotFoundException ex) {
-      throw new RuntimeException(ex);
+      List<SearchItem> items = new ArrayList<SearchItem>();
+
+      while (rs.next()) {
+        items.add(new SearchItem(db, rs));
+      }
+
+      return ImmutableList.copyOf(items);
     } finally {
       if (pst!=null) {
         pst.close();
       }
     }
-  }
-
-  private static String printResults(Connection db, ResultSet rs) throws SQLException, UserNotFoundException {
-    StringBuilder out = new StringBuilder("<h1>Результаты поиска</h1>");
-
-    out.append("<div class=\"messages\"><div class=\"comment\">");
-
-    while (rs.next()) {
-      String title = rs.getString("title");
-      int topic = rs.getInt("topic");
-      int id = rs.getInt("id");
-      String message = rs.getString("message");
-      boolean lorcode = rs.getBoolean("bbcode");
-      Timestamp postdate = rs.getTimestamp("postdate");
-      int userid = rs.getInt("userid");
-      User user = User.getUserCached(db, userid);
-
-      String url;
-
-      if (topic==0 || topic==id) {
-        url = "view-message.jsp?msgid="+id;
-      } else {
-        url = "jump-message.jsp?msgid="+topic+"&amp;cid="+id;
-      }
-
-      out.append("<table width=\"100%\" cellspacing=0 cellpadding=0 border=0>");
-      out.append("<tr class=body><td>");
-      out.append("<div class=msg>");
-
-      out.append("<h2><a href=\"").append(url).append("\">");
-      out.append(HTMLFormatter.htmlSpecialChars(StringUtil.makeTitle(title)));
-      out.append("</a></h2>");
-
-      out.append("<p>");
-
-      if (lorcode) {
-        BBCodeProcessor proc = new BBCodeProcessor();
-        out.append(proc.preparePostText(db, message));
-      } else {
-        out.append(message);
-      }
-
-      out.append("</p>");
-
-      out.append("<div class=sign>");
-      out.append(user.getSignature(DateFormats.createDefault(), false, postdate, false));
-      out.append("</div>");
-
-      out.append("</div></td></tr></table><p>");
-    }
-
-    out.append("</div></div>");
-
-    return out.toString();
   }
 
   public String getVariantID() {

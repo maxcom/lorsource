@@ -1,8 +1,10 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="ru.org.linux.site.SearchViewer"  %>
-
+<%@ page import="ru.org.linux.site.SearchItem"  %>
+<%@ page import="ru.org.linux.site.SearchViewer" %>
+<%@ page import="ru.org.linux.site.Template" %>
+<%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%--
   ~ Copyright 1998-2010 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,8 +19,19 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
+<%--@elvariable id="result" type="java.util.List<ru.org.linux.site.SearchItem>"--%>
+<%--@elvariable id="boolean" type="java.lang.Boolean"--%>
+<%--@elvariable id="initial" type="java.lang.Boolean"--%>
+<%--@elvariable id="cached" type="java.lang.Boolean"--%>
+<%--@elvariable id="q" type="java.lang.String"--%>
+<%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
+<%--@elvariable id="usertopic" type="java.lang.String"--%>
+<%--@elvariable id="time" type="java.lang.Long"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
+<%
+  Template tmpl = Template.getTemplate(request);
+%>
 
 <title>Поиск по сайту
   <c:if test="${not initial}">
@@ -47,20 +60,20 @@
     <option value="all" <%= (include==SearchViewer.SEARCH_ALL)?"selected":"" %>>темы и комментарии</option>
   </select>
 
-  За:
+  <label>За:
   <select name="date">
     <option value="3month" <%= (date==SearchViewer.SEARCH_3MONTH)?"selected":"" %>>три месяца</option>
     <option value="year" <%= (date==SearchViewer.SEARCH_YEAR)?"selected":"" %>>год</option>
     <option value="all" <%= (date==SearchViewer.SEARCH_ALL)?"selected":"" %>>весь период</option>
-  </select>
+  </select></label>
 <br>
-  Раздел:
+  <label>Раздел:
   <select name="section">
     <option value="1" <%= (section == 1) ? "selected" : "" %>>новости</option>
     <option value="2" <%= (section == 2) ? "selected" : "" %>>форум</option>
     <option value="3" <%= (section == 3) ? "selected" : "" %>>галерея</option>
     <option value="0" <%= (section == 0) ? "selected" : "" %>>все</option>
-  </select>
+  </select></label>
 
   <label for="search_username">Пользователь:</label>
   <INPUT TYPE="text" NAME="username" id="search_username" SIZE=20 VALUE="${fn:escapeXml(username)}">
@@ -73,18 +86,42 @@
       <INPUT type="checkbox" id="id_user_topic" NAME="usertopic"><br>
     </c:if>
 
-  Сортировать
+  <label>Сортировать
   <select name="sort">
   <option value="<%= SearchViewer.SORT_DATE %>" <%= (sort==SearchViewer.SORT_DATE)?"selected":"" %>>по дате</option>
 
   <option value="<%= SearchViewer.SORT_R %>" <%= (sort==SearchViewer.SORT_R)?"selected":"" %>>по релевантности</option>
-  </select>
+  </select></label>
 
   <br>
 </form>
 
 <c:if test="${not initial}">
-  <c:out value="${result}" escapeXml="false"/>
+  <h1>Результаты поиска</h1>
+  <div class="messages">
+  <div class="comment">
+  <c:forEach items="${result}" var="item">
+    <table width="100%" cellspacing=0 cellpadding=0 border=0>
+      <tr class=body>
+        <td>
+          <div class=msg>
+            <h2><a href="${item.url}"><c:out escapeXml="true" value="${item.title}"/></a></h2>
+            <p>${item.message}</p>
+            <div class=sign>
+    <%
+      SearchItem item = (SearchItem) pageContext.getAttribute("item");
+      out.append(item.getUser().getSignature(tmpl.dateFormat, tmpl.isModeratorSession(), item.getPostdate(), tmpl.isMobile()));
+    %>
+            </div>
+          </div>
+        </td>
+      </tr>
+    </table>
+    <p>
+  </c:forEach>
+  </div>
+  </div>
+
   <p>
     <i>
       <c:if test="${cached}">

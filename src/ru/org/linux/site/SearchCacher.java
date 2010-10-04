@@ -18,28 +18,25 @@ package ru.org.linux.site;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Date;
+import java.util.List;
 
 import ru.org.linux.spring.commons.CacheProvider;
 
-public class ViewerCacher {
+public class SearchCacher {
   private boolean fromCache;
   private long time = -1;
 
-  public static String getViewer(SearchViewer viewer, boolean nocache) throws SQLException, UserErrorException {
-    return new ViewerCacher().get(viewer, nocache);
-  }
-
-  public String get(SearchViewer viewer, boolean nocache) throws SQLException, UserErrorException {
+  public List<SearchItem> get(SearchViewer viewer, boolean nocache) throws SQLException, UserErrorException {
     CacheProvider mcc = MemCachedSettings.getCache();
 
     String cacheId = viewer.getVariantID();
 
-    String res = null;
+    List<SearchItem> res = null;
 
     if (!nocache) {
       time = 0;
-      long current = new Date().getTime();
-      res = (String) mcc.getFromCache(cacheId);
+      long current = System.currentTimeMillis();
+      res = (List<SearchItem>) mcc.getFromCache(cacheId);
       time = new Date().getTime() - current;
       fromCache = true;
     }
@@ -47,7 +44,7 @@ public class ViewerCacher {
     if (res==null) {
       Connection db = null;
       try{
-        long current = new Date().getTime();
+        long current = System.currentTimeMillis();
         db = LorDataSource.getConnection();
         res = viewer.show(db);
         time = new Date().getTime() - current;

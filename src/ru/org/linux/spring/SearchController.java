@@ -18,14 +18,14 @@ package ru.org.linux.spring;
 import java.util.HashMap;
 import java.util.Map;
 
+import ru.org.linux.site.SearchCacher;
+import ru.org.linux.site.SearchViewer;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
-
-import ru.org.linux.site.SearchViewer;
-import ru.org.linux.site.ViewerCacher;
 
 @Controller
 public class SearchController {
@@ -92,7 +92,7 @@ public class SearchController {
       sv.setUser(username);
       sv.setUserTopic(usertopic);
 
-      ViewerCacher cacher = new ViewerCacher();
+      SearchCacher cacher = new SearchCacher();
 
       params.put("result", cacher.get(sv, false));
 
