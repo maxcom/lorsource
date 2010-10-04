@@ -37,7 +37,7 @@ public class SearchCacher {
       time = 0;
       long current = System.currentTimeMillis();
       res = (List<SearchItem>) mcc.getFromCache(cacheId);
-      time = new Date().getTime() - current;
+      time = System.currentTimeMillis() - current;
       fromCache = true;
     }
 
@@ -47,7 +47,7 @@ public class SearchCacher {
         long current = System.currentTimeMillis();
         db = LorDataSource.getConnection();
         res = viewer.show(db);
-        time = new Date().getTime() - current;
+        time = System.currentTimeMillis() - current;
         fromCache = false;
       } finally {
         if (db!=null) {
