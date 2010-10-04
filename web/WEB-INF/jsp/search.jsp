@@ -1,9 +1,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="ru.org.linux.site.SearchItem"  %>
-<%@ page import="ru.org.linux.site.SearchViewer" %>
-<%@ page import="ru.org.linux.site.Template" %>
+<%@ page import="ru.org.linux.site.SearchViewer"  %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%--
   ~ Copyright 1998-2010 Linux.org.ru
@@ -29,10 +27,6 @@
 <%--@elvariable id="time" type="java.lang.Long"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
-<%
-  Template tmpl = Template.getTemplate(request);
-%>
-
 <title>Поиск по сайту
   <c:if test="${not initial}">
     - <c:out value="${q}" escapeXml="true"/>
@@ -108,10 +102,7 @@
             <h2><a href="${item.url}"><c:out escapeXml="true" value="${item.title}"/></a></h2>
             <p>${item.message}</p>
             <div class=sign>
-    <%
-      SearchItem item = (SearchItem) pageContext.getAttribute("item");
-      out.append(item.getUser().getSignature(tmpl.dateFormat, tmpl.isModeratorSession(), item.getPostdate(), tmpl.isMobile()));
-    %>
+              <lor:sign postdate="${item.postdate}" shortMode="${template.mobile}" user="${item.user}"/>
             </div>
           </div>
         </td>

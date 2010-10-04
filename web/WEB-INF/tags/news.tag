@@ -145,13 +145,14 @@
   }
 %>
 <div class=sign>
-  <%
-  if (message.getSection().isPremoderated() && message.isCommited()) {
-    out.append(user.getSignature(tmpl.dateFormat, false, message.getCommitDate(), true));
-  } else {
-    out.append(user.getSignature(tmpl.dateFormat, false, message.getPostdate(), true));
-  }
-%>
+  <c:choose>
+    <c:when test="${message.section.premoderated and message.commited}">
+      <lor:sign shortMode="true" postdate="${message.commitDate}" user="<%= user %>"/>
+    </c:when>
+    <c:otherwise>
+      <lor:sign shortMode="true" postdate="${message.postdate}" user="<%= user %>"/>
+    </c:otherwise>
+  </c:choose>
 </div>
 <div class="nav">
   <%

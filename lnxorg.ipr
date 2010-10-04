@@ -12,7 +12,7 @@
     </buildFile>
   </component>
   <component name="ArtifactManager">
-    <artifact type="exploded-war" name="lnxorg:lnxorg exploded">
+    <artifact type="exploded-war" build-on-make="true" name="lnxorg:lnxorg exploded">
       <output-path>$PROJECT_DIR$/dist</output-path>
       <root id="root">
         <element id="javaee-facet-resources" facet="lnxorg/web/lnxorg" />

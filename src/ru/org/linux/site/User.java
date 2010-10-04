@@ -18,17 +18,16 @@ package ru.org.linux.site;
 import java.io.Serializable;
 import java.net.URLEncoder;
 import java.sql.*;
-import java.text.DateFormat;
-import java.util.Date;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import org.apache.commons.codec.binary.Base64;
-import org.springframework.jdbc.support.JdbcUtils;
 
 import ru.org.linux.spring.commons.CacheProvider;
 import ru.org.linux.util.StringUtil;
+
+import org.apache.commons.codec.binary.Base64;
+import org.springframework.jdbc.support.JdbcUtils;
 
 public class User implements Serializable {
   private static final int ANONYMOUS_LEVEL_SCORE = 50;
@@ -233,6 +232,10 @@ public class User implements Serializable {
     } else {
       return maxScore;
     }
+  }
+
+  public String getStars() {
+    return getStars(score, maxScore);
   }
 
   public static String getStars(int score, int maxScore) {
@@ -444,42 +447,6 @@ public class User implements Serializable {
     }
 
     return res;
-  }
-
-  /* Todo: move to jsp tag */
-  public String getSignature(DateFormat dateFormat, boolean moderatorMode, Date postdate, boolean shortMode) {
-    StringBuilder out = new StringBuilder();
-
-    if (blocked) {
-      out.append("<s>");
-    }
-
-    if (!anonymous) {
-      out.append("<a href=\"/people/").append(URLEncoder.encode(nick)).append("/profile\">");
-    }
-
-    out.append(nick);
-
-    if (!anonymous) {
-      out.append("</a>");
-    }
-
-    if (blocked) {
-      out.append("</s>");
-    }
-
-    out.append(' ');
-
-    if (!anonymous && !shortMode) {
-      out.append(getStars(score, maxScore)).append(' ');
-      if (moderatorMode) {
-        out.append("(Score: ").append(score).append(" MaxScore: ").append(maxScore).append(") ");
-      }
-    }
-
-    out.append(" (").append(dateFormat.format(postdate)).append(')');
-
-    return out.toString();
   }
 
   public boolean isAnonymousScore() {

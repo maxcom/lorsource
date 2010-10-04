@@ -116,9 +116,7 @@ String tagLinks = Tags.getTagLinks(preparedMessage.getTags());
 %>
 </c:if>
 <div class=sign>
-<%
-  out.append(author.getSignature(tmpl.dateFormat, tmpl.isModeratorSession(), message.getPostdate(), tmpl.isMobile()));
-%>
+  <lor:sign postdate="${message.postdate}" user="${preparedMessage.author}" shortMode="${template.mobile}"/>
   <c:if test="${template.moderatorSession}">
     (<a href="sameip.jsp?msgid=${message.id}">${message.postIP}</a>)
   </c:if>

@@ -105,9 +105,7 @@
     out.append(comment.getProcessedMessage());
   %>
     <div class=sign>
-    <%
-  out.append(author.getSignature(tmpl.dateFormat, moderatorMode, comment.getComment().getPostdate(), tmpl.isMobile()));
-%>
+      <lor:sign postdate="${comment.comment.postdate}" user="${comment.author}" shortMode="${template.mobile}"/>
       <c:if test="${template.moderatorSession}">
         (<a href="sameip.jsp?msgid=${comment.comment.id}"">${comment.comment.postIP}</a>)
         <c:if test="${comment.comment.userAgent!=null and not template.mobile}">
