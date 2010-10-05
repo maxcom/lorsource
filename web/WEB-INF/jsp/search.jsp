@@ -94,22 +94,20 @@
   <h1>Результаты поиска</h1>
   <div class="messages">
   <div class="comment">
-  <c:forEach items="${result}" var="item">
-    <table width="100%" cellspacing=0 cellpadding=0 border=0>
-      <tr class=body>
-        <td>
-          <div class=msg>
-            <h2><a href="${item.url}"><c:out escapeXml="true" value="${item.title}"/></a></h2>
-            <p>${item.message}</p>
-            <div class=sign>
-              <lor:sign postdate="${item.postdate}" shortMode="${template.mobile}" user="${item.user}"/>
-            </div>
+    <c:forEach items="${result}" var="item">
+      <div class=msg>
+        <div class="msg_body">
+          <h2><a href="${item.url}"><c:out escapeXml="true" value="${item.title}"/></a></h2>
+
+          <p>${item.message}</p>
+
+          <div class=sign>
+            <lor:sign postdate="${item.postdate}" shortMode="${template.mobile}"
+                      user="${item.user}"/>
           </div>
-        </td>
-      </tr>
-    </table>
-    <p>
-  </c:forEach>
+        </div>
+      </div>
+    </c:forEach>
   </div>
   </div>
 
