@@ -133,7 +133,7 @@ public class BBCodeTest {
     proc.setIncludeCut(false);
     String result = proc.preparePostText(null, "[code]test\n\ntest[/code]");
 
-    assertEquals("<p><div class=code><pre class=\"no-highlight\"><code>test \n \ntest</code></pre></div><p>", result);
+    assertEquals("<p><div class=code><pre class=\"no-highlight\"><code>test\n\ntest</code></pre></div><p>", result);
   }
 
   @Test

@@ -135,7 +135,7 @@ public class CodeTag {
         "&#123;",
         "&#125;",
         "&nbsp; &nbsp;",
-        " \n",
+        "[code-br]",
         ""});
     
     return content;
