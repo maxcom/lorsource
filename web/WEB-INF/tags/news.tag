@@ -27,7 +27,7 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
-
+<%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <div class=news id="topic-${message.id}">
 <%
   Template tmpl = Template.getTemplate(request);
@@ -87,11 +87,11 @@
       NewsViewer.showMediumImage(tmpl.getConfig().getProperty("HTMLPathPrefix"), out, url, message.getTitle(), message.getLinktext(), !tmpl.isMobile());
     %>
   </c:if>
+<c:if test="${not message.votePoll}">
 <%
-  if (!votepoll) {
       out.append(message.getProcessedMessage(db, moderateMode));
-  }
 %>
+</c:if>
 <%
   if (url != null && !imagepost && !votepoll) {
     if (url.length()==0) {
@@ -126,17 +126,18 @@
   }
 %>
   </div>
+<c:if test="${message.section.premoderated}">
 <%
-  if (message.getSection().isPremoderated()) {
-    String tagLinks = Tags.getTagLinks(db, msgid);
+  String tagLinks = Tags.getTagLinks(db, msgid);
 
-    if (tagLinks.length()>0) {
-      out.append("<p class=\"tags\">Метки: <span class=tag>");
-      out.append(tagLinks);
-      out.append("</span></p>");
-    }
+  if (tagLinks.length() > 0) {
+    out.append("<p class=\"tags\">Метки: <span class=tag>");
+    out.append(tagLinks);
+    out.append("</span></p>");
   }
-
+%>
+</c:if>
+  <%
   User user;
   try {
     user = User.getUserCached(db, message.getUid());
@@ -155,31 +156,27 @@
   </c:choose>
 </div>
 <div class="nav">
-  <%
-    if (!moderateMode) {
-      if (!message.isExpired()) {
-        out.append("[<a href=\"comment-message.jsp?msgid=").append(Integer.toString(msgid)).append("\">Добавить&nbsp;комментарий</a>]");
+<c:if test="${not moderateMode and not message.expired}">
+  [<a href="comment-message.jsp?msgid=${message.id}">Добавить&nbsp;комментарий</a>]
+</c:if>
+  <c:if test="${moderateMode and template.sessionAuthorized}">
+    <c:if test="${template.moderatorSession}">
+      [<a href="commit.jsp?msgid=${message.id}">Подтвердить</a>]
+    </c:if>
+<%
+      if (tmpl.isModeratorSession() || currentUser.getId() == message.getUid()) {
+        out.append(" [<a href=\"delete.jsp?msgid=").append(Integer.toString(msgid)).append("\">Удалить</a>]");
       }
-    } else {
-      if (currentUser != null) {
-        if (tmpl.isModeratorSession()) {
-          out.append("[<a href=\"commit.jsp?msgid=").append(Integer.toString(msgid)).append("\">Подтвердить</a>]");
-        }
 
-        if (tmpl.isModeratorSession() || currentUser.getId() == message.getUid()) {
-          out.append(" [<a href=\"delete.jsp?msgid=").append(Integer.toString(msgid)).append("\">Удалить</a>]");
-        }
-
-        if (message.isEditable(db, currentUser)) {
-          if (!votepoll) {
-            out.append(" [<a href=\"edit.jsp?msgid=").append(Integer.toString(msgid)).append("\">Править</a>]");
-          } else {
-            out.append(" [<a href=\"edit-vote.jsp?msgid=").append(Integer.toString(msgid)).append("\">Править</a>]");
-          }
+      if (message.isEditable(db, currentUser)) {
+        if (!votepoll) {
+          out.append(" [<a href=\"edit.jsp?msgid=").append(Integer.toString(msgid)).append("\">Править</a>]");
+        } else {
+          out.append(" [<a href=\"edit-vote.jsp?msgid=").append(Integer.toString(msgid)).append("\">Править</a>]");
         }
       }
-    }
 %>
+  </c:if>
   <c:if test="${message.commentCount > 0}">
   <%
       out.append(" [<a href=\"");
