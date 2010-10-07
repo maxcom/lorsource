@@ -63,6 +63,10 @@ public class User implements Serializable {
     }
     nick = name;
 
+    if (!StringUtil.checkLoginName(name)) {
+      throw new UserNotFoundException("<invalid name>");
+    }
+
     PreparedStatement st = con.prepareStatement("SELECT id,candel,canmod,corrector,passwd,blocked,score,max_score,activated,photo,email,name,unread_events FROM users where nick=?");
     st.setString(1, name);
 
