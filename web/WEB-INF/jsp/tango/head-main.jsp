@@ -1,5 +1,6 @@
 <%@ page contentType="text/html; charset=utf-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%--
   ~ Copyright 1998-2010 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -83,17 +84,7 @@
 
                 <c:if test="${template.sessionAuthorized}">
                   <li>
-                    <form id="events_form" action="/show-replies.jsp" method="POST" style="display: inline">
-                      <input type="hidden" name="nick" value="${template.nick}">
-                    </form>
-
-                    <c:if test="${template.currentUser.unreadEvents > 0}">
-                      <a href="show-replies.jsp?nick=${template.nick}" onclick="$('#events_form').submit(); return false;">
-                        Уведомления (${template.currentUser.unreadEvents})</a>
-                    </c:if>
-                    <c:if test="${template.currentUser.unreadEvents == 0}">
-                      <a href="show-replies.jsp?nick=${template.nick}">Уведомления</a>
-                    </c:if>
+                    <lor:events/>
                   </li>
                 </c:if>
 

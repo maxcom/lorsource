@@ -131,7 +131,7 @@
           <li><a href="tracker.jsp?filter=mine">Мои темы</a></li>
           <li><a href="/people/${template.nick}/favs">Избранные темы</a></li>
           <li><a href="show-comments.jsp?nick=${template.nick}">Мои комментарии</a></li>
-          <li><a href="show-replies.jsp?nick=${template.nick}">Уведомления</a></li>
+          <li><lorDir:events/></li>
         </ul>
         <ul>
           <li><a href="edit-profile.jsp">Настройки</a></li>
