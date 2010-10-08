@@ -20,6 +20,7 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
+<%--@elvariable id="messages" type="java.util.List<ru.org.linux.site.PreparedMessage>"--%>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
 <%
@@ -88,7 +89,7 @@
 <c:forEach var="msg" items="${messages}">
   <lor:news
           db="<%= db %>"
-          message="${msg}"
+          message="${msg.message}" preparedMessage="${msg}"
           multiPortal="<%= sectionid==0 %>"
           moderateMode="true"
           currentUser="<%= currentUser %>"/>

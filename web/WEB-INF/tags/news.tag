@@ -7,6 +7,7 @@
 <%@ tag pageEncoding="UTF-8"%>
 <%@ attribute name="db" required="true" type="java.sql.Connection" %>
 <%@ attribute name="message" required="true" type="ru.org.linux.site.Message" %>
+<%@ attribute name="preparedMessage" required="true" type="ru.org.linux.site.PreparedMessage" %>
 <%@ attribute name="multiPortal" required="true" type="java.lang.Boolean" %>
 <%@ attribute name="moderateMode" required="true" type="java.lang.Boolean" %>
 <%@ attribute name="currentUser" required="false" type="ru.org.linux.site.User" %>
@@ -88,9 +89,7 @@
     %>
   </c:if>
 <c:if test="${not message.votePoll}">
-<%
-      out.append(message.getProcessedMessage(db, moderateMode));
-%>
+  ${preparedMessage.processedMessage}
 </c:if>
 <%
   if (url != null && !imagepost && !votepoll) {
@@ -106,29 +105,20 @@
     out.append("<p>&gt;&gt;&gt; <a href=\"/").append(url).append("\">Просмотр</a>");
     out.append(" (<i>").append(Integer.toString(info.getWidth())).append('x').append(Integer.toString(info.getHeight())).append(", ").append(info.getSizeString()).append("</i>)");
   } else if (votepoll) {
-    try {
-      Poll poll = Poll.getPollByTopic(db, msgid);
       %>
-        <lor:poll poll="<%= new PreparedPoll(db, poll) %>"/>
-      <%
-      if (poll.isCurrent()) {
-        out.append("<p>&gt;&gt;&gt; <a href=\"").append("vote-vote.jsp?msgid=").append(Integer.toString(msgid)).append("\">Голосовать</a>");
-      }
+        <lor:poll poll="${preparedMessage.poll}"/>
+        <c:if test="${preparedMessage.poll.poll.current}">
+          <p>&gt;&gt;&gt; <a href="vote-vote.jsp?msgid=${message.id}">Голосовать</a>
+        </c:if>
 
-      out.append("<p>&gt;&gt;&gt; <a href=\"").append(message.getLinkLastmod()).append("\">Результаты</a>");
-    } catch (IOException e) {
-//      NewsViewer.logger.warn("Bad Image for poll msgid="+msgid, e);
-      out.append("<p>&gt;&gt;&gt; <a href=\"").append("\">[BAD POLL!] Просмотр</a>");
-    } catch (PollNotFoundException e) {
-//     NewsViewer.logger.warn("Bad poll msgid="+msgid, e);
-      out.append("<p>&gt;&gt;&gt; <a href=\"").append("\">[BAD POLL!] Просмотр</a>");
-    }
+        <p>&gt;&gt;&gt; <a href="${message.linkLastmod}">Результаты</a>
+  <%
   }
 %>
   </div>
 <c:if test="${message.section.premoderated}">
 <%
-  String tagLinks = Tags.getTagLinks(db, msgid);
+  String tagLinks = Tags.getTagLinks(preparedMessage.getTags());
 
   if (tagLinks.length() > 0) {
     out.append("<p class=\"tags\">Метки: <span class=tag>");
@@ -137,21 +127,14 @@
   }
 %>
 </c:if>
-  <%
-  User user;
-  try {
-    user = User.getUserCached(db, message.getUid());
-  } catch (UserNotFoundException e) {
-    throw new RuntimeException(e);
-  }
-%>
-<div class=sign>
+
+  <div class=sign>
   <c:choose>
     <c:when test="${message.section.premoderated and message.commited}">
-      <lor:sign shortMode="true" postdate="${message.commitDate}" user="<%= user %>"/>
+      <lor:sign shortMode="true" postdate="${message.commitDate}" user="${preparedMessage.author}"/>
     </c:when>
     <c:otherwise>
-      <lor:sign shortMode="true" postdate="${message.postdate}" user="<%= user %>"/>
+      <lor:sign shortMode="true" postdate="${message.postdate}" user="${preparedMessage.author}"/>
     </c:otherwise>
   </c:choose>
 </div>

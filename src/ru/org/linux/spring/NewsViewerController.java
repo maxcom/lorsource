@@ -63,7 +63,7 @@ public class NewsViewerController {
     params.put("url", "view-news.jsp");
     StringBuilder urlParams = new StringBuilder();
     if (sectionid!=null) {
-      urlParams.append("section="+Integer.toString(sectionid));
+      urlParams.append("section=").append(Integer.toString(sectionid));
     }
 
     if (tag!=null) {
@@ -71,7 +71,7 @@ public class NewsViewerController {
         urlParams.append('&');
       }
 
-      urlParams.append("tag="+ URLEncoder.encode(tag));
+      urlParams.append("tag=").append(URLEncoder.encode(tag));
     }
 
     if (groupid!=null) {
@@ -79,7 +79,7 @@ public class NewsViewerController {
         urlParams.append('&');
       }
 
-      urlParams.append("group="+Integer.toString(groupid));
+      urlParams.append("group=").append(Integer.toString(groupid));
     }
 
     params.put("params", urlParams);
@@ -235,7 +235,7 @@ public class NewsViewerController {
         newsViewer.setLimit("LIMIT 20" + (offset > 0 ? (" OFFSET " + offset) : ""));
       }
 
-      params.put("messages", newsViewer.getMessagesCached(db));
+      params.put("messages", newsViewer.getPreparedMessagesCached(db));
 
       params.put("offsetNavigation", month==null);
       params.put("offset", offset);
@@ -301,7 +301,7 @@ public class NewsViewerController {
 
       newsViewer.setUserid(user.getId());
 
-      params.put("messages", newsViewer.getMessagesCached(db));
+      params.put("messages", newsViewer.getPreparedMessagesCached(db));
 
       params.put("offsetNavigation", true);
       params.put("offset", offset);
@@ -364,7 +364,7 @@ public class NewsViewerController {
       newsViewer.setUserid(user.getId());
       newsViewer.setUserFavs(true);
 
-      params.put("messages", newsViewer.getMessagesCached(db));
+      params.put("messages", newsViewer.getPreparedMessagesCached(db));
 
       params.put("offsetNavigation", true);
       params.put("offset", offset);
@@ -424,7 +424,7 @@ public class NewsViewerController {
         newsViewer.addSection(section.getId());
       }
 
-      modelAndView.getModel().put("messages", newsViewer.getMessages(db));
+      modelAndView.getModel().put("messages", newsViewer.getPreparedMessages(db));
 
       return modelAndView;
     } finally {

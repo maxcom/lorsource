@@ -112,6 +112,31 @@ public class NewsViewer {
     return res;
   }
 
+  public List<PreparedMessage> getPreparedMessages(Connection db) throws SQLException {
+    return getPreparedMessages(db, false);
+  }
+
+  public List<PreparedMessage> getPreparedMessagesCached(Connection db) throws SQLException {
+    return getPreparedMessages(db, true);
+  }
+
+  private List<PreparedMessage> getPreparedMessages(Connection db, boolean cached) throws SQLException {
+    List<Message> messages = cached?getMessagesCached(db):getMessages(db);
+    List<PreparedMessage> pm = new ArrayList<PreparedMessage>(messages.size());
+
+    for (Message message : messages) {
+      try {
+        pm.add(new PreparedMessage(db , message, false));
+      } catch (UserNotFoundException e) {
+        throw new RuntimeException(e);
+      } catch (PollNotFoundException e) {
+        throw new RuntimeException(e);
+      }
+    }
+
+    return pm;
+  }
+
   public List<Message> getMessages(Connection db) throws SQLException {
     Statement st = db.createStatement();
 

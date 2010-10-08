@@ -227,7 +227,7 @@ public class DeleteMessageController extends ApplicationObjectSupport {
 
       ModelAndView mv = new ModelAndView("undelete");
       mv.getModel().put("message", message);
-      mv.getModel().put("preparedMessage", new PreparedMessage(db, message));
+      mv.getModel().put("preparedMessage", new PreparedMessage(db, message, true));
 
       return mv;
     } finally {
@@ -289,7 +289,7 @@ public class DeleteMessageController extends ApplicationObjectSupport {
     }
   }
 
-  private void checkUndeletable(Message message) throws AccessViolationException {
+  private static void checkUndeletable(Message message) throws AccessViolationException {
     if (message.isExpired()) {
       throw new AccessViolationException("нельзя восстанавливать устаревшие сообщения");
     }

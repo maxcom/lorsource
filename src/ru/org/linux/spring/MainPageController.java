@@ -55,7 +55,7 @@ public class MainPageController {
 
       ModelAndView mv = new ModelAndView("index");
 
-      mv.getModel().put("news", nv.getMessages(db));
+      mv.getModel().put("news", nv.getPreparedMessages(db));
 
       return mv;
     } finally {

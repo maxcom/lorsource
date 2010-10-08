@@ -19,7 +19,7 @@
   ~    limitations under the License.
   --%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
-<%--@elvariable id="news" type="java.util.List<Message>"--%>
+<%--@elvariable id="news" type="java.util.List<ru.org.linux.site.PreparedMessage>"--%>
 
 <% Template tmpl = Template.getTemplate(request); %>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
@@ -106,7 +106,7 @@
   }
 %>
     <c:forEach var="msg" items="${news}">
-      <lorDir:news db="<%= db %>" message="${msg}" multiPortal="<%= multiPortal %>" moderateMode="false"/>
+      <lorDir:news db="<%= db %>" message="${msg.message}" preparedMessage="${msg}" multiPortal="<%= multiPortal %>" moderateMode="false"/>
     </c:forEach>
 <%
   db.close(); db=null;

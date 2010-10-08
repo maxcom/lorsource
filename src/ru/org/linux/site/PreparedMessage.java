@@ -37,11 +37,15 @@ public class PreparedMessage {
 
   private final String userAgent;
 
-  public PreparedMessage(Connection db, Message message) throws UserNotFoundException, SQLException, PollNotFoundException {
-    this(db, message, new Tags(db, message.getId()));
+  public PreparedMessage(Connection db, Message message, boolean includeCut) throws UserNotFoundException, SQLException, PollNotFoundException {
+    this(db, message, new Tags(db, message.getId()), includeCut);
   }
 
   public PreparedMessage(Connection db, Message message, Tags tags) throws UserNotFoundException, SQLException, PollNotFoundException {
+    this(db, message, tags, true);
+  }
+
+  public PreparedMessage(Connection db, Message message, Tags tags, boolean includeCut) throws UserNotFoundException, SQLException, PollNotFoundException {
     this.message = message;
 
     author = User.getUserCached(db, message.getUid());
@@ -82,7 +86,7 @@ public class PreparedMessage {
       editCount = 0;
     }
 
-    processedMessage = message.getProcessedMessage(db, true);
+    processedMessage = message.getProcessedMessage(db, includeCut);
     
     userAgent = loadUserAgent(db, message.getUserAgent());
 

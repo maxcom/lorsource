@@ -18,7 +18,7 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
-<%--@elvariable id="messages" type="java.util.List<ru.org.linux.site.Message>"--%>
+<%--@elvariable id="messages" type="java.util.List<ru.org.linux.site.PreparedMessage>"--%>
 <%--@elvariable id="section" type="ru.org.linux.site.Section"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
@@ -90,7 +90,7 @@
     db = LorDataSource.getConnection();
 %>
 <c:forEach var="msg" items="${messages}">
-  <lor:news db="<%= db %>" message="${msg}" multiPortal="<%= section==null && group==null %>" moderateMode="false"/>
+  <lor:news db="<%= db %>" message="${msg.message}" preparedMessage="${msg}" multiPortal="<%= section==null && group==null %>" moderateMode="false"/>
 </c:forEach>
 
 <c:if test="${offsetNavigation}">

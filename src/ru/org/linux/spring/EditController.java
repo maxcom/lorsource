@@ -121,7 +121,7 @@ public class EditController extends ApplicationObjectSupport {
     Map<String, Object> params = new HashMap<String, Object>();
 
     params.put("message", message);
-    PreparedMessage preparedMessage = new PreparedMessage(db, message);
+    PreparedMessage preparedMessage = new PreparedMessage(db, message, true);
     params.put("preparedMessage", preparedMessage);
 
     Group group = new Group(db, message.getGroupId());
@@ -168,7 +168,7 @@ public class EditController extends ApplicationObjectSupport {
 
       Message message = new Message(db, msgid);
       params.put("message", message);
-      params.put("preparedMessage", new PreparedMessage(db, message));
+      params.put("preparedMessage", new PreparedMessage(db, message, true));
 
       Group group = new Group(db, message.getGroupId());
       params.put("group", group);

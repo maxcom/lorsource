@@ -194,11 +194,11 @@ public class MessageController {
       StringBuilder params = new StringBuilder();
 
       if (page!=null) {
-        link.append("/page"+page);
+        link.append("/page").append(page);
       }
 
       if (lastmod!=null && !message.isExpired()) {
-        params.append("?lastmod="+message.getLastModified().getTime());
+        params.append("?lastmod=").append(message.getLastModified().getTime());
       }
 
       if (filter!=null) {
@@ -207,7 +207,7 @@ public class MessageController {
         } else {
           params.append('&');
         }
-        params.append("filter="+filter);
+        params.append("filter=").append(filter);
       }
 
       if (output!=null) {
@@ -216,7 +216,7 @@ public class MessageController {
         } else {
           params.append('&');
         }
-        params.append("output="+output);
+        params.append("output=").append(output);
       }
 
       link.append(params);
@@ -305,7 +305,7 @@ public class MessageController {
     }
 
     params.put("message", message);
-    PreparedMessage preparedMessage = new PreparedMessage(db, message);
+    PreparedMessage preparedMessage = new PreparedMessage(db, message, true);
     params.put("preparedMessage", preparedMessage);
     params.put("messageMenu", new MessageMenu(db, preparedMessage, tmpl.getCurrentUser()));
 

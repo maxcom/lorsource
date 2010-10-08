@@ -56,7 +56,7 @@ public class CommentMessageController {
 
       params.put("message", message);
 
-      params.put("preparedMessage", new PreparedMessage(db, message));
+      params.put("preparedMessage", new PreparedMessage(db, message, true));
 
       return new ModelAndView("comment-message", params);
     } finally {
