@@ -299,7 +299,7 @@ public class MessageController {
           response.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
           return null;
         }
-      } else if (webRequest.checkNotModified(message.getLastModified().getTime())) {
+      } else if (checkLastModified(webRequest, message)) {
         return null;
       }
     }
@@ -381,6 +381,14 @@ public class MessageController {
     }
 
     return new ModelAndView(rss ? "view-message-rss" : "view-message", params);
+  }
+
+  private static boolean checkLastModified(WebRequest webRequest, Message message) {
+    try {
+      return webRequest.checkNotModified(message.getLastModified().getTime());
+    } catch (IllegalArgumentException ignored) {
+      return false;
+    }
   }
 
   private static String getEtag(Message message, Template tmpl) {
