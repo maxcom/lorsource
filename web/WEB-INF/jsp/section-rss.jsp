@@ -13,12 +13,10 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
-<%--@elvariable id="messages" type="java.util.List<ru.org.linux.site.Message>"--%>
+<%--@elvariable id="messages" type="java.util.List<ru.org.linux.site.PreparedMessage>"--%>
 <%@ page contentType="application/rss+xml; charset=utf-8"%>
-<%@ page import="java.sql.Connection,java.util.Date,ru.org.linux.site.LorDataSource"   buffer="200kb"%>
-<%@ page import="ru.org.linux.site.Message" %>
-<%@ page import="ru.org.linux.site.MessageTable" %>
-<%@ page import="ru.org.linux.site.Template" %>
+<%@ page import="java.sql.Connection,java.util.Date"   buffer="200kb"%>
+<%@ page import="ru.org.linux.site.*" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <% Template tmpl = Template.getTemplate(request); %>
@@ -42,19 +40,19 @@
   %>
   <c:forEach var="msg" items="${messages}">
     <item>
-      <author><lor:user db="<%= db %>" id="${msg.uid}"/></author>
-      <link>http://www.linux.org.ru${msg.link}</link>
-      <guid>http://www.linux.org.ru${msg.link}</guid>
-      <title><c:out escapeXml="true" value="${msg.title}"/></title>
-      <c:if test="${msg.commitDate!=null}">
-        <pubDate><lor:rfc822date date="${msg.commitDate}"/></pubDate>
+      <author><lor:user user="${msg.author}"/></author>
+      <link>http://www.linux.org.ru${msg.message.link}</link>
+      <guid>http://www.linux.org.ru${msg.message.link}</guid>
+      <title><c:out escapeXml="true" value="${msg.message.title}"/></title>
+      <c:if test="${msg.message.commitDate!=null}">
+        <pubDate><lor:rfc822date date="${msg.message.commitDate}"/></pubDate>
       </c:if>
-      <c:if test="${msg.commitDate==null}">
-        <pubDate><lor:rfc822date date="${msg.postdate}"/></pubDate>      
+      <c:if test="${msg.message.commitDate==null}">
+        <pubDate><lor:rfc822date date="${msg.message.postdate}"/></pubDate>
       </c:if>
       <description><![CDATA[
       <%
-        out.print(MessageTable.getTopicRss(db, tmpl.getConfig().getProperty("HTMLPathPrefix"), tmpl.getMainUrl(), (Message) pageContext.getAttribute("msg")));
+        out.print(MessageTable.getTopicRss(db, tmpl.getConfig().getProperty("HTMLPathPrefix"), tmpl.getMainUrl(), (PreparedMessage) pageContext.getAttribute("msg")));
       %>
       ]]></description>
     </item>

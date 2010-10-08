@@ -31,21 +31,23 @@ public class MessageTable {
   private MessageTable() {
   }
 
-  public static String getTopicRss(Connection db, String htmlPath, String fullUrl, Message topic) throws SQLException, PollNotFoundException, IOException, BadImageException {
+  public static String getTopicRss(Connection db, String htmlPath, String fullUrl, PreparedMessage preparedTopic) throws SQLException, PollNotFoundException, IOException, BadImageException {
     StringBuilder buf = new StringBuilder();
+
+    Message topic = preparedTopic.getMessage();
 
     if (topic.getSection().isImagepost()) {
       ImageInfo iconInfo = new ImageInfo(htmlPath + topic.getLinktext());
       ImageInfo info = new ImageInfo(htmlPath + topic.getUrl(), ImageInfo.detectImageType(new File(htmlPath + topic.getUrl())));
 
-      buf.append(topic.getProcessedMessage(db));
+      buf.append(preparedTopic.getProcessedMessage());
       buf.append("<p><img src=\"" + fullUrl + topic.getLinktext() + "\" ALT=\"" + topic.getTitle() + "\" " + iconInfo.getCode() + " >");
       buf.append("<p><i>" + info.getWidth() + 'x' + info.getHeight() + ", " + info.getSizeString() + "</i>");
     } else if (topic.isVotePoll()) {
-      Poll poll = Poll.getPollByTopic(db, topic.getId());
-      buf.append(poll.renderPoll(db, fullUrl));
+      PreparedPoll poll = preparedTopic.getPoll();
+      buf.append(poll.getPoll().renderPoll(db, fullUrl));
     } else {
-      buf.append(topic.getProcessedMessage(db));
+      buf.append(preparedTopic.getProcessedMessage());
     }
 
     return buf.toString();

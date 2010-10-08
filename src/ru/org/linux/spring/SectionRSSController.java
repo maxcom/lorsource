@@ -121,7 +121,7 @@ public class SectionRSSController {
 
       params.put("ptitle", ptitle);
 
-      List<Message> messages=feedBurner?nv.getMessages(db):nv.getMessagesCached(db);
+      List<PreparedMessage> messages=feedBurner?nv.getPreparedMessages(db):nv.getPreparedMessagesCached(db);
       params.put("messages", messages);
 
       return new ModelAndView("section-rss", params);
