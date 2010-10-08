@@ -23,6 +23,7 @@
 <%--@elvariable id="message" type="ru.org.linux.site.Message"--%>
 <%--@elvariable id="comments" type="ru.org.linux.site.CommentList"--%>
 <%--@elvariable id="commentsPrepared" type="java.util.List<ru.org.linux.site.PreparedComment>"--%>
+<%--@elvariable id="preparedMessage" type="ru.org.linux.site.PreparedMessage"--%>
 <% Template tmpl = Template.getTemplate(request); %>
 
 <rss version="2.0">
@@ -39,7 +40,7 @@
             db,
             tmpl.getConfig().getProperty("HTMLPathPrefix"),
             tmpl.getMainUrl(),
-            (Message) request.getAttribute("message")));
+            (PreparedMessage) request.getAttribute("preparedMessage")));
   } finally {
     if (db!=null) {
       db.close();
