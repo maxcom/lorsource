@@ -141,6 +141,7 @@
 		<fileset file="${dist}/js/jquery.validate.ru.js"/>
 		<fileset file="${dist}/js/stylesheetToggle.js"/>
 		<fileset file="${dist}/js/highlight.pack.js"/>
+		<fileset file="${dist}/js/jquery.swfobject.1-1-1.min.js"/> <!-- for highload -->
 	</concat>
 
 	<apply executable="java" parallel="false" verbose="true"

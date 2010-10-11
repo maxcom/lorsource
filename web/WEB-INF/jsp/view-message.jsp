@@ -61,6 +61,12 @@
   <!--
   $(document).bind('keydown', {combi:'Ctrl+left', disableInInput: true}, function(){ jump(document.getElementById ('PrevLink')) });
   $(document).bind('keydown', {combi:'Ctrl+right', disableInInput: true}, function(){ jump(document.getElementById ('NextLink')) });
+
+  $(document).ready(
+	function() {
+		$('#highload2010').flash({swf:'/adv/highload-2010.swf',width:728,height:90});
+	}
+  );
   -->
 </script>
 <c:if test="${not message.expired and template.sessionAuthorized}">
@@ -314,11 +320,19 @@
 <c:out value="${scroller}" escapeXml="false"/>
 
 <c:if test="${showAdsense}">
+<%--
   <div style="text-align: center; margin-top: 1em">
     <jsp:include page="/WEB-INF/jsp/${template.style}/adsense.jsp"/>
   </div>
+--%>
+
+  <div id="highload2010" style="text-align: center; margin-top: 1em; height: 90px;">
+
+  </div>
+
   <br>
 </c:if>
+
 
 <c:if test="${fn:length(commentsPrepared)>0}">
   <div class=nav>
