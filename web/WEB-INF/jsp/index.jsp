@@ -97,8 +97,6 @@
   </div>
   </c:if>
     <%
-  db = LorDataSource.getConnection();
-
   boolean multiPortal = false;
 
   if (tmpl.getProf().getBoolean(DefaultProfile.MAIN_GALLERY)) {
@@ -106,11 +104,8 @@
   }
 %>
     <c:forEach var="msg" items="${news}">
-      <lorDir:news db="<%= db %>" message="${msg.message}" preparedMessage="${msg}" multiPortal="<%= multiPortal %>" moderateMode="false"/>
+      <lorDir:news message="${msg.message}" preparedMessage="${msg}" multiPortal="<%= multiPortal %>" moderateMode="false"/>
     </c:forEach>
-<%
-  db.close(); db=null;
-%>
 <div class="nav">
   [<a href="/news/?offset=20">← предыдущие</a>]
   [<a href="add-section.jsp?section=1">добавить новость</a>]

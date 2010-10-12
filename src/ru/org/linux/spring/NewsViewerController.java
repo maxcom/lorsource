@@ -23,6 +23,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -401,15 +402,19 @@ public class NewsViewerController {
 
   @RequestMapping(value="/view-all.jsp", method={RequestMethod.GET, RequestMethod.HEAD})
   public ModelAndView viewAll(
-    @RequestParam(value="section", required = false, defaultValue = "0") int sectionId
+    @RequestParam(value="section", required = false, defaultValue = "0") int sectionId,
+    HttpServletRequest request
   ) throws Exception {
     Connection db = null;
+
+    Template tmpl = Template.getTemplate(request);
 
     ModelAndView modelAndView = new ModelAndView("view-all");
 
     try {
       db = LorDataSource.getConnection();
-      
+      tmpl.initCurrentUser(db);
+
       Section section = null;
 
       if (sectionId!=0) {

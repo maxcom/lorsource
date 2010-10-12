@@ -21,6 +21,8 @@
   ~    limitations under the License.
   --%>
 <%--@elvariable id="messages" type="java.util.List<ru.org.linux.site.PreparedMessage>"--%>
+<%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
+
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
 <%
@@ -83,16 +85,12 @@
 исправьте его.<p>
 <strong>Внимание модераторам!</strong> Не подтверждайте сразу
 много скриншотов, дайте им повисеть на главной странице.<p>
-<%
-  User currentUser = Template.getCurrentUser(db, session);
-%>
 <c:forEach var="msg" items="${messages}">
   <lor:news
-          db="<%= db %>"
           message="${msg.message}" preparedMessage="${msg}"
           multiPortal="<%= sectionid==0 %>"
           moderateMode="true"
-          currentUser="<%= currentUser %>"/>
+          currentUser="${template.currentUser}"/>
 </c:forEach>
 <%
   Statement st = db.createStatement();

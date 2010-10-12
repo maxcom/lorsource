@@ -23,12 +23,12 @@ public class MessageMenu {
   private final boolean resolvable;
   private final int memoriesId;
 
-  public MessageMenu(Connection db, PreparedMessage message, User currentUser) throws UserNotFoundException, SQLException, BadGroupException {
-    editable = currentUser!=null && message.getMessage().isEditable(db, currentUser);
+  public MessageMenu(Connection db, PreparedMessage message, User currentUser) throws SQLException {
+    editable = currentUser!=null && message.isEditable(currentUser);
 
     if (currentUser!=null) {
-      resolvable = currentUser.canModerate() || (message.getAuthor().getNick().equals(currentUser.getNick()) &&
-            new Group(db, message.getMessage().getGroupId()).isResolvable());
+      resolvable = (currentUser.canModerate() || (message.getAuthor().getId()==currentUser.getId())) &&
+            message.getGroup().isResolvable();
       memoriesId = MemoriesListItem.getId(db, currentUser.getId(), message.getId());
     } else {
       resolvable = false;

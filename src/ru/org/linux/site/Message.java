@@ -20,7 +20,6 @@ import java.io.Serializable;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
 import javax.servlet.ServletRequest;
@@ -691,42 +690,6 @@ public class Message implements Serializable {
         throw new AccessViolationException("Вы не можете добавлять комментарии в эту тему");
       }
     }
-  }
-
-  public boolean isEditable(Connection db, User by) throws SQLException, UserNotFoundException {
-    if (deleted) {
-      return false;
-    }
-
-    if (by.isAnonymous() || by.isBlocked()) {
-      return false;
-    }
-
-    if (expired) {
-      return by.canModerate() && section.isPremoderated();
-    }
-
-    if (by.canModerate()) {
-      if (User.getUserCached(db, userid).canModerate()) {
-        return true;
-      }
-
-      return section.isPremoderated();
-    }
-
-    if (!lorcode) {
-      return false;
-    }
-
-    if (by.canCorrect() && section.isPremoderated()) {
-      return true;
-    }
-    
-    if (by.getId()==userid && !moderate) {
-      return section.isPremoderated() || (new Date().getTime() - postdate.getTime()) < 60 * 60 * 1000;
-    }
-
-    return false;
   }
 
   public int getUid() {

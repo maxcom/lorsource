@@ -21,7 +21,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
-public class PreparedMessage {
+public final class PreparedMessage {
   private final Message message;
   private final User author;
   private final DeleteInfo deleteInfo;
@@ -37,6 +37,8 @@ public class PreparedMessage {
   private final int editCount;
 
   private final String userAgent;
+
+  private static final int EDIT_PEDIOD = 60 * 60 * 1000; // milliseconds
 
   public PreparedMessage(Connection db, Message message, boolean includeCut) throws SQLException {
     this(db, message, new Tags(db, message.getId()), includeCut);
@@ -178,5 +180,41 @@ public class PreparedMessage {
 
   public Group getGroup() {
     return group;
+  }
+
+  public boolean isEditable(User by) {
+    if (message.isDeleted()) {
+      return false;
+    }
+
+    if (by.isAnonymous() || by.isBlocked()) {
+      return false;
+    }
+
+    if (message.isExpired()) {
+      return by.canModerate() && message.getSection().isPremoderated();
+    }
+
+    if (by.canModerate()) {
+      if (author.canModerate()) {
+        return true;
+      }
+
+      return message.getSection().isPremoderated();
+    }
+
+    if (!message.isLorcode()) {
+      return false;
+    }
+
+    if (by.canCorrect() && message.getSection().isPremoderated()) {
+      return true;
+    }
+
+    if (by.getId()==author.getId() && !message.isCommited()) {
+      return message.getSection().isPremoderated() || (System.currentTimeMillis() - message.getPostdate().getTime()) < EDIT_PEDIOD;
+    }
+
+    return false;
   }
 }

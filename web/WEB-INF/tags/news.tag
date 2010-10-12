@@ -8,7 +8,6 @@
 <%@ tag import="ru.org.linux.util.HTMLFormatter" %>
 <%@ tag import="ru.org.linux.util.ImageInfo" %>
 <%@ tag pageEncoding="UTF-8"%>
-<%@ attribute name="db" required="true" type="java.sql.Connection" %>
 <%@ attribute name="message" required="true" type="ru.org.linux.site.Message" %>
 <%@ attribute name="preparedMessage" required="true" type="ru.org.linux.site.PreparedMessage" %>
 <%@ attribute name="multiPortal" required="true" type="java.lang.Boolean" %>
@@ -147,7 +146,7 @@
        [<a href="delete.jsp?msgid=${message.id}">Удалить</a>]
     </c:if>
 <%
-      if (message.isEditable(db, currentUser)) {
+      if (preparedMessage.isEditable(currentUser)) {
         if (!votepoll) {
           out.append(" [<a href=\"edit.jsp?msgid=").append(Integer.toString(msgid)).append("\">Править</a>]");
         } else {

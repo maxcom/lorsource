@@ -1,5 +1,5 @@
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="java.sql.Connection,ru.org.linux.site.Group,ru.org.linux.site.LorDataSource,ru.org.linux.site.Section"   buffer="200kb"%>
+<%@ page import="ru.org.linux.site.Group,ru.org.linux.site.Section"   buffer="200kb"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
@@ -83,14 +83,8 @@
 </table>
 
 <H1 class="optional">${ptitle}</H1>
-<%
-
-  Connection db = null;
-  try {
-    db = LorDataSource.getConnection();
-%>
 <c:forEach var="msg" items="${messages}">
-  <lor:news db="<%= db %>" message="${msg.message}" preparedMessage="${msg}" multiPortal="<%= section==null && group==null %>" moderateMode="false"/>
+  <lor:news message="${msg.message}" preparedMessage="${msg}" multiPortal="<%= section==null && group==null %>" moderateMode="false"/>
 </c:forEach>
 
 <c:if test="${offsetNavigation}">
@@ -123,13 +117,6 @@
     </tr>
   </table>
 </c:if>
-<%
-  } finally {
-    if (db!=null) {
-      db.close();
-    }
-  }
-%>
 
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>
 

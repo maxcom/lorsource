@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
@@ -67,7 +68,9 @@ public class EditController extends ApplicationObjectSupport {
         throw new UserErrorException("Раздел не премодерируемый");
       }
 
-      ModelAndView mv = prepareModel(db, message);
+      PreparedMessage preparedMessage = new PreparedMessage(db, message, true);
+
+      ModelAndView mv = prepareModel(db, preparedMessage);
 
       mv.getModel().put("commit", true);
 
@@ -81,12 +84,11 @@ public class EditController extends ApplicationObjectSupport {
 
   @RequestMapping(value = "/edit.jsp", method = RequestMethod.GET)
   public ModelAndView showEditForm(
-    HttpServletRequest request,
+    ServletRequest request,
     @RequestParam("msgid") int msgid)
     throws Exception {
 
     Template tmpl = Template.getTemplate(request);
-    HttpSession session = request.getSession();
 
     if (!tmpl.isSessionAuthorized()) {
       throw new AccessViolationException("Not authorized");
@@ -100,13 +102,15 @@ public class EditController extends ApplicationObjectSupport {
 
       Message message = new Message(db, msgid);
 
-      User user = Template.getCurrentUser(db, session);
+      User user = tmpl.getCurrentUser();
 
-      if (!message.isEditable(db, user)) {
+      PreparedMessage preparedMessage = new PreparedMessage(db, message, true);
+
+      if (!preparedMessage.isEditable(user)) {
         throw new AccessViolationException("это сообщение нельзя править");
       }
 
-      return prepareModel(db, message);
+      return prepareModel(db, preparedMessage);
     } finally {
       if (db != null) {
         db.close();
@@ -116,12 +120,13 @@ public class EditController extends ApplicationObjectSupport {
 
   private static ModelAndView prepareModel(
     Connection db,
-    Message message
-  ) throws SQLException, BadGroupException, UserNotFoundException, PollNotFoundException {
+    PreparedMessage preparedMessage
+  ) throws SQLException, BadGroupException {
     Map<String, Object> params = new HashMap<String, Object>();
 
+    Message message = preparedMessage.getMessage();
+
     params.put("message", message);
-    PreparedMessage preparedMessage = new PreparedMessage(db, message, true);
     params.put("preparedMessage", preparedMessage);
 
     Group group = new Group(db, message.getGroupId());
@@ -167,17 +172,18 @@ public class EditController extends ApplicationObjectSupport {
       tmpl.initCurrentUser(db);
 
       Message message = new Message(db, msgid);
+      PreparedMessage preparedMessage = new PreparedMessage(db, message, true);
       params.put("message", message);
-      params.put("preparedMessage", new PreparedMessage(db, message, true));
+      params.put("preparedMessage", preparedMessage);
 
       Group group = new Group(db, message.getGroupId());
       params.put("group", group);
 
       params.put("groups", Group.getGroups(db, message.getSection()));
 
-      User user = Template.getCurrentUser(db, session);
+      User user = tmpl.getCurrentUser();
 
-      if (!message.isEditable(db, user)) {
+      if (!preparedMessage.isEditable(user)) {
         throw new AccessViolationException("это сообщение нельзя править");
       }
 
