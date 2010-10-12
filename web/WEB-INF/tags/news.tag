@@ -142,11 +142,11 @@
     <c:if test="${template.moderatorSession}">
       [<a href="commit.jsp?msgid=${message.id}">Подтвердить</a>]
     </c:if>
-<%
-      if (tmpl.isModeratorSession() || currentUser.getId() == message.getUid()) {
-        out.append(" [<a href=\"delete.jsp?msgid=").append(Integer.toString(msgid)).append("\">Удалить</a>]");
-      }
 
+    <c:if test="${template.moderatorSession or template.currentUser.id == message.uid}">
+       [<a href="delete.jsp?msgid=${message.id}">Удалить</a>]
+    </c:if>
+<%
       if (message.isEditable(db, currentUser)) {
         if (!votepoll) {
           out.append(" [<a href=\"edit.jsp?msgid=").append(Integer.toString(msgid)).append("\">Править</a>]");
