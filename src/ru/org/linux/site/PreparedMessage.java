@@ -30,6 +30,7 @@ public class PreparedMessage {
   private final PreparedPoll poll;
   private final User commiter;
   private final Tags tags;
+  private final Group group;
 
   private final EditInfoDTO lastEditInfo;
   private final User lastEditor;
@@ -37,60 +38,70 @@ public class PreparedMessage {
 
   private final String userAgent;
 
-  public PreparedMessage(Connection db, Message message, boolean includeCut) throws UserNotFoundException, SQLException, PollNotFoundException {
+  public PreparedMessage(Connection db, Message message, boolean includeCut) throws SQLException {
     this(db, message, new Tags(db, message.getId()), includeCut);
   }
 
-  public PreparedMessage(Connection db, Message message, Tags tags) throws UserNotFoundException, SQLException, PollNotFoundException {
+  public PreparedMessage(Connection db, Message message, Tags tags) throws SQLException {
     this(db, message, tags, true);
   }
 
-  public PreparedMessage(Connection db, Message message, Tags tags, boolean includeCut) throws UserNotFoundException, SQLException, PollNotFoundException {
-    this.message = message;
+  public PreparedMessage(Connection db, Message message, Tags tags, boolean includeCut) throws SQLException {
+    try {
+      this.message = message;
 
-    author = User.getUserCached(db, message.getUid());
+      group = new Group(db, message.getGroupId());
 
-    if (message.isDeleted()) {
-      deleteInfo = DeleteInfo.getDeleteInfo(db, message.getId());
+      author = User.getUserCached(db, message.getUid());
 
-      if (deleteInfo!=null) {
-        deleteUser = User.getUserCached(db, deleteInfo.getUserid());
+      if (message.isDeleted()) {
+        deleteInfo = DeleteInfo.getDeleteInfo(db, message.getId());
+
+        if (deleteInfo!=null) {
+          deleteUser = User.getUserCached(db, deleteInfo.getUserid());
+        } else {
+          deleteUser = null;
+        }
       } else {
+        deleteInfo = null;
         deleteUser = null;
       }
-    } else {
-      deleteInfo = null;
-      deleteUser = null;
+
+      if (message.isVotePoll()) {
+        poll = new PreparedPoll(db, Poll.getPollByTopic(db, message.getId()));
+      } else {
+        poll = null;
+      }
+
+      if (message.getCommitby()!=0) {
+        commiter = User.getUserCached(db, message.getCommitby());
+      } else {
+        commiter = null;
+      }
+
+      List<EditInfoDTO> editInfo = message.loadEditInfo(db);
+      if (!editInfo.isEmpty()) {
+        lastEditInfo = editInfo.get(0);
+        lastEditor = User.getUserCached(db, lastEditInfo.getEditor());
+        editCount = editInfo.size();
+      } else {
+        lastEditInfo = null;
+        lastEditor = null;
+        editCount = 0;
+      }
+
+      processedMessage = message.getProcessedMessage(db, includeCut);
+
+      userAgent = loadUserAgent(db, message.getUserAgent());
+
+      this.tags=tags;
+    } catch (BadGroupException e) {
+      throw new RuntimeException(e);
+    } catch (UserNotFoundException e) {
+      throw new RuntimeException(e);
+    } catch (PollNotFoundException e) {
+      throw new RuntimeException(e);
     }
-
-    if (message.isVotePoll()) {
-      poll = new PreparedPoll(db, Poll.getPollByTopic(db, message.getId()));
-    } else {
-      poll = null;
-    }
-
-    if (message.getCommitby()!=0) {
-      commiter = User.getUserCached(db, message.getCommitby());
-    } else {
-      commiter = null;
-    }
-
-    List<EditInfoDTO> editInfo = message.loadEditInfo(db);
-    if (!editInfo.isEmpty()) {
-      lastEditInfo = editInfo.get(0);
-      lastEditor = User.getUserCached(db, lastEditInfo.getEditor());
-      editCount = editInfo.size();
-    } else {
-      lastEditInfo = null;
-      lastEditor = null;
-      editCount = 0;
-    }
-
-    processedMessage = message.getProcessedMessage(db, includeCut);
-    
-    userAgent = loadUserAgent(db, message.getUserAgent());
-
-    this.tags=tags;
   }
 
   private static String loadUserAgent(Connection db, int id) throws SQLException {
@@ -163,5 +174,9 @@ public class PreparedMessage {
 
   public Tags getTags() {
     return tags;
+  }
+
+  public Group getGroup() {
+    return group;
   }
 }

@@ -125,13 +125,7 @@ public class NewsViewer {
     List<PreparedMessage> pm = new ArrayList<PreparedMessage>(messages.size());
 
     for (Message message : messages) {
-      try {
-        pm.add(new PreparedMessage(db , message, false));
-      } catch (UserNotFoundException e) {
-        throw new RuntimeException(e);
-      } catch (PollNotFoundException e) {
-        throw new RuntimeException(e);
-      }
+      pm.add(new PreparedMessage(db , message, false));
     }
 
     return pm;

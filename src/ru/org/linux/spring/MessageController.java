@@ -160,13 +160,14 @@ public class MessageController {
       db = LorDataSource.getConnection();
 
       Message message = new Message(db, msgid);
-      Group group = new Group(db, message.getGroupId());
+      PreparedMessage preparedMessage = new PreparedMessage(db, message, true);
+      Group group = preparedMessage.getGroup();
 
       if (!group.getUrlName().equals(groupName) || group.getSectionId() != section) {
         return new ModelAndView(new RedirectView(message.getLink()));
       }
 
-      return getMessage(db, webRequest, request, response, message, group, page, filter);
+      return getMessage(db, webRequest, request, response, preparedMessage, group, page, filter);
     } finally {
       if (db!=null) {
         db.close();
@@ -234,11 +235,13 @@ public class MessageController {
     WebRequest webRequest,
     HttpServletRequest request,
     HttpServletResponse response,
-    Message message,
+    PreparedMessage preparedMessage,
     Group group,
     int page,
     String filter
   ) throws Exception {
+    Message message = preparedMessage.getMessage();
+
     Template tmpl = Template.getTemplate(request);
 
     Map<String, Object> params = new HashMap<String, Object>();
@@ -305,7 +308,6 @@ public class MessageController {
     }
 
     params.put("message", message);
-    PreparedMessage preparedMessage = new PreparedMessage(db, message, true);
     params.put("preparedMessage", preparedMessage);
     params.put("messageMenu", new MessageMenu(db, preparedMessage, tmpl.getCurrentUser()));
 

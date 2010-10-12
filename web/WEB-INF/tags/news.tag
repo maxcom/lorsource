@@ -1,6 +1,9 @@
 <%@ tag import="java.io.File" %>
 <%@ tag import="java.io.IOException" %>
-<%@ tag import="ru.org.linux.site.*" %>
+<%@ tag import="ru.org.linux.site.Group" %>
+<%@ tag import="ru.org.linux.site.NewsViewer" %>
+<%@ tag import="ru.org.linux.site.Tags" %>
+<%@ tag import="ru.org.linux.site.Template" %>
 <%@ tag import="ru.org.linux.util.BadImageException" %>
 <%@ tag import="ru.org.linux.util.HTMLFormatter" %>
 <%@ tag import="ru.org.linux.util.ImageInfo" %>
@@ -38,16 +41,9 @@
   boolean imagepost = message.getSection().isImagepost();
   boolean votepoll = message.isVotePoll();
 
-  Group group;
-  try {
-    group = new Group(db, message.getGroupId());
-  } catch (BadGroupException e) {
-    throw new RuntimeException(e);
-  }
-
-  String image = group.getImage();
-
   int pages = message.getPageCount(tmpl.getProf().getInt("messages"));
+  String image = preparedMessage.getGroup().getImage();
+  Group group = preparedMessage.getGroup();
 %>
 <h2>
   <a href="${fn:escapeXml(message.link)}">${message.title}</a>
@@ -60,7 +56,7 @@
     </c:if>
   </div>
 </c:if>
-<c:set var="group" value="<%= group %>"/>
+<c:set var="group" value="${preparedMessage.group}"/>
 
 <c:if test="${group.image != null}">
 <div class="entry-userpic">
