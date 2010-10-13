@@ -17,7 +17,9 @@
         <dependency org="commons-io" name="commons-io" rev="1.3.2" conf="build->default"/>
         <dependency org="commons-collections" name="commons-collections" rev="3.2.1" conf="build->default"/>
         <dependency org="commons-fileupload" name="commons-fileupload" rev="1.2.1" conf="build->default"/>
-        <dependency org="org.apache.xmlrpc" name="xmlrpc-client" rev="3.1.2" conf="build->default"/>
+        <dependency org="org.apache.xmlrpc" name="xmlrpc-client" rev="3.1.3" conf="build->default">
+          <exclude module="junit"/>
+        </dependency>
         <dependency org="dnsjava" name="dnsjava" rev="2.0.3" conf="build->default"/>
         <dependency org="gnu-regexp" name="gnu-regexp" rev="1.1.4" conf="build->default"/>
         <dependency org="urlrewrite" name="urlrewrite" rev="2.6.0" conf="build->default"/>

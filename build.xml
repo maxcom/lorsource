@@ -1,6 +1,6 @@
 <project name="lnxorg" default="dist" xmlns:ivy="antlib:org.apache.ivy.ant">
     <!-- ivy setup -->
-    <property name="ivy.version" value="2.0.0"/>
+    <property name="ivy.version" value="2.2.0"/>
     <property environment="env"/>
     <condition property="ivy.home" value="${env.IVY_HOME}">
         <isset property="env.IVY_HOME"/>
