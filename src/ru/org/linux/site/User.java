@@ -459,7 +459,8 @@ public class User implements Serializable {
 
   public void acegiSecurityHack(HttpServletResponse response, HttpSession session) {
     String username = nick;
-    String cookieName = "ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE"; //ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE_KEY;
+    //String cookieName = "ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE"; //ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE_KEY;
+    String cookieName = "SPRING_SECURITY_HASHED_REMEMBER_ME_COOKIE"; //ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE_KEY;
     long tokenValiditySeconds = 1209600; // 14 days
     String key = "jam35Wiki"; // from applicationContext-acegi-security.xml
     long expiryTime = System.currentTimeMillis() + (tokenValiditySeconds * 1000);
