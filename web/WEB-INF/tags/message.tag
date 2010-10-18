@@ -183,7 +183,7 @@ String tagLinks = Tags.getTagLinks(preparedMessage.getTags());
       out.append("[<a href=\"resolve.jsp?msgid=");
       out.print(msgid);
       if (message.isResolved()){
-        out.append("&amp;resolve=no\">Отметить как не решенную</a>]");
+        out.append("&amp;resolve=no\">Отметить как нерешенную</a>]");
       }else{
         out.append("&amp;resolve=yes\">Отметить как решенную</a>]");
       }
