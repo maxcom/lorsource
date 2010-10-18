@@ -217,7 +217,7 @@
 
     <c:if test="${topic.pages>1}">
       (стр.
-      <c:forEach var="i" begin="1" end="${topic.pages-1}"> <c:if test="${i==(topic.pages-1) and firstPage}"><a href="${url}${topic.msgid}/page${i}?lastmod=${topic.lastmod.time}">${i+1}</a></c:if><c:if test="${i!=(topic.pages-1) or not firstPage}"><a href="${url}${topic.msgid}/page${i}">${i+1}</a></c:if></c:forEach>)
+      <c:forEach var="i" begin="1" end="${topic.pages-1}"> <c:if test="${i==(topic.pages-1) and firstPage and year==null}"><a href="${group.url}${topic.msgid}/page${i}?lastmod=${topic.lastmod.time}">${i+1}</a></c:if><c:if test="${i!=(topic.pages-1) or not firstPage or year!=null}"><a href="${group.url}${topic.msgid}/page${i}">${i+1}</a></c:if></c:forEach>)
     </c:if>
     (<lor:user id="${topic.author}" db="<%= db %>" decorate="true"/>)
   </td>

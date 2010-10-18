@@ -272,7 +272,7 @@ public class Message implements Serializable {
     }
 
     if (request.getParameter("title")!=null) {
-      title = request.getParameter("title");
+      title = HTMLFormatter.htmlSpecialChars(request.getParameter("title"));
     } else {
       title = original.title;
     }
