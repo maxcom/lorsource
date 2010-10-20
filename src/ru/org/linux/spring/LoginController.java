@@ -139,9 +139,9 @@ public class LoginController {
         return new ModelAndView("logout");
       }
 
-      session.removeValue("login");
-      session.removeValue("nick");
-      session.removeValue("moderator");
+      session.removeAttribute("login");
+      session.removeAttribute("nick");
+      session.removeAttribute("moderator");
       session.removeAttribute("ACEGI_SECURITY_CONTEXT"); // if any
       Cookie cookie = new Cookie("password", "");
       cookie.setMaxAge(60 * 60 * 24 * 31 * 24);
