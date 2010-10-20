@@ -23,6 +23,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import ru.org.linux.spring.LoginController;
 import ru.org.linux.spring.commons.CacheProvider;
 import ru.org.linux.util.StringUtil;
 
@@ -460,7 +461,7 @@ public class User implements Serializable {
   public void acegiSecurityHack(HttpServletResponse response, HttpSession session) {
     String username = nick;
     //String cookieName = "ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE"; //ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE_KEY;
-    String cookieName = "SPRING_SECURITY_REMEMBER_ME_COOKIE"; //ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE_KEY;
+    String cookieName = LoginController.ACEGE_COOKIE_NAME; //ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE_KEY;
     long tokenValiditySeconds = 1209600; // 14 days
     String key = "jam35Wiki"; // from applicationContext-acegi-security.xml
     long expiryTime = System.currentTimeMillis() + (tokenValiditySeconds * 1000);
