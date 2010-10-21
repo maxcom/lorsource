@@ -64,7 +64,7 @@ public final class DefaultProfile {
 
     defaults.put("newfirst", Boolean.FALSE);
     defaults.put("hover", Boolean.TRUE);
-    defaults.put("style", "black");
+    defaults.put("style", "tango");
     defaults.put("format.mode", "quot");
     defaults.put("topics", 30);
     defaults.put("messages", 50);
