@@ -113,7 +113,7 @@ public class TrackerController {
       List<Item> msgs = new ArrayList<Item>();
 
       while (rs.next()) {
-        msgs.add(new Item(rs, messages));
+        msgs.add(new Item(db, rs, messages));
       }
 
       params.put("msgs", msgs);
@@ -148,7 +148,7 @@ public class TrackerController {
   }
 
   public static class Item {
-    private final int author;
+    private final User author;
     private final int msgid;
     private final Timestamp lastmod;
     private final int stat1;
@@ -159,15 +159,20 @@ public class TrackerController {
     private final String title;
     private final int pages;
     private final int cid;
-    private final int lastCommentBy;
+    private final User lastCommentBy;
     private final boolean resolved;
     private final int section;
     private final String groupUrlName;
     private final Timestamp postdate;
     private final boolean uncommited;
 
-    public Item(ResultSet rs, int messagesInPage) throws SQLException {
-      author = rs.getInt("author");
+    public Item(Connection db, ResultSet rs, int messagesInPage) throws SQLException {
+      try {
+        author = User.getUserCached(db, rs.getInt("author"));
+      } catch (UserNotFoundException e) {
+        throw new RuntimeException(e);
+      }
+
       msgid = rs.getInt("id");
       lastmod = rs.getTimestamp("lastmod");
       stat1 = rs.getInt("stat1");
@@ -177,7 +182,17 @@ public class TrackerController {
       groupTitle = rs.getString("gtitle");
       title = rs.getString("title");
       cid = rs.getInt("cid");
-      lastCommentBy = rs.getInt("last_comment_by");
+      try {
+        int id = rs.getInt("last_comment_by");
+
+        if (id!=0) {
+          lastCommentBy = User.getUserCached(db, id);
+        } else {
+          lastCommentBy = null;
+        }
+      } catch (UserNotFoundException e) {
+        throw new RuntimeException(e);
+      }
       resolved = rs.getBoolean("resolved");
       section = rs.getInt("section");
       groupUrlName = rs.getString("urlname");
@@ -187,7 +202,7 @@ public class TrackerController {
       pages = Message.getPageCount(stat1, messagesInPage);
     }
 
-    public int getAuthor() {
+    public User getAuthor() {
       return author;
     }
 
@@ -231,7 +246,7 @@ public class TrackerController {
       return cid;
     }
 
-    public int getLastCommentBy() {
+    public User getLastCommentBy() {
       return lastCommentBy;
     }
 

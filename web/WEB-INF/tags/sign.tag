@@ -1,4 +1,3 @@
-<%@ tag import="java.net.URLEncoder" %>
 <%@ tag
         pageEncoding="UTF-8"
 %><%--
@@ -21,21 +20,8 @@
 <%@ attribute name="shortMode" type="java.lang.Boolean" %><%@
         attribute name="user" type="ru.org.linux.site.User" %><%@
         attribute name="postdate" type="java.sql.Timestamp" %>
-<c:if test="${user.blocked}">
-  <s>
-</c:if>
 
-<c:if test="${not user.anonymous}">
-  <a href="/people/${user.nick}/profile">${user.nick}</a>
-</c:if>
-
-<c:if test="${user.anonymous}">
-  ${user.nick}
-</c:if>
-
-<c:if test="${user.blocked}">
-  </s>
-</c:if>
+<lor:user decorate="true" link="true" user="${user}"/>
 
 <c:if test="${not shortMode and not user.anonymous}">
   ${user.stars}

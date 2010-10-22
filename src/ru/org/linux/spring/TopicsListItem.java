@@ -16,11 +16,14 @@
 package ru.org.linux.spring;
 
 import java.io.Serializable;
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 
 import ru.org.linux.site.Message;
+import ru.org.linux.site.User;
+import ru.org.linux.site.UserNotFoundException;
 import ru.org.linux.util.StringUtil;
 
 public class TopicsListItem implements Serializable {
@@ -33,13 +36,13 @@ public class TopicsListItem implements Serializable {
   private final int stat4;
   private final boolean sticky;
   private final int pages;
-  private final int author;
+  private final User author;
   private final boolean resolved;
   
   private static final long serialVersionUID = 5344250574674257995L;
 
   // SELECT topics.title as subj, sections.name, lastmod, topics.id as msgid, topics.deleted, topics.stat1, topics.stat3, topics.stat4, topics.sticky, userid
-  public TopicsListItem(ResultSet rs, int messagesInPage) throws SQLException {
+  public TopicsListItem(Connection db, ResultSet rs, int messagesInPage) throws SQLException {
     subj = StringUtil.makeTitle(rs.getString("subj"));
 
     Timestamp lastmod = rs.getTimestamp("lastmod");
@@ -49,7 +52,12 @@ public class TopicsListItem implements Serializable {
       this.lastmod = lastmod;
     }
 
-    author = rs.getInt("userid");
+    try {
+      author = User.getUserCached(db, rs.getInt("userid"));
+    } catch (UserNotFoundException e) {
+      throw new RuntimeException(e);
+    }
+
     msgid = rs.getInt("msgid");
     deleted = rs.getBoolean("deleted");
     stat1 = rs.getInt("stat1");
@@ -69,7 +77,7 @@ public class TopicsListItem implements Serializable {
     return lastmod;
   }
 
-  public int getAuthor() {
+  public User getAuthor() {
     return author;
   }
 

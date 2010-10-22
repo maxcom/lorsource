@@ -35,7 +35,7 @@
 
   <c:forEach items="${editInfos}" var="editInfo">
     <p>
-      Исправление <lor:user user="${editInfo.editor}"/>,
+      Исправление <lor:user link="true" decorate="true" user="${editInfo.editor}"/>,
       <lor:dateinterval date="${editInfo.editInfo.editdate}"/>
     </p>
     <div class="msg">

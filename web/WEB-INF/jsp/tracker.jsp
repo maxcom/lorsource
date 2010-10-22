@@ -27,11 +27,6 @@
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
 <%
-  Connection db = null;
-  try {
-    // defaults
-    db = LorDataSource.getConnection();
-
     String title = "Последние сообщения";
     if ((Boolean) request.getAttribute("mine")) {
       title += " (мои темы)";
@@ -124,12 +119,12 @@
             <a href="${msg.url}">
               <% } %>
                 ${msg.title}
-            </a> (<lor:user id="${msg.author}" db="<%= db %>" decorate="true"/>)
+            </a> (<lor:user user="${msg.author}" decorate="true"/>)
         </td>
         <td class="dateinterval">
           <lor:dateinterval date="${msg.postdate}"/>
-          <c:if test="${msg.lastCommentBy != 0}">
-            (<lor:user id="${msg.lastCommentBy}" db="<%= db %>" decorate="true"/>)
+          <c:if test="${msg.lastCommentBy != null}">
+            (<lor:user user="${msg.lastCommentBy}" decorate="true"/>)
           </c:if>
         </td>
         <td align='center'>
@@ -181,11 +176,4 @@
   </c:forEach>
   (всего ${fn:length(newUsers)})
 </c:if>
-<%
-  } finally {
-    if (db != null) {
-      db.close();
-    }
-  }
-%>
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>

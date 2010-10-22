@@ -24,12 +24,6 @@
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
-<% 
-	Connection db = null;
-
-	try {
-      db = LorDataSource.getConnection();
-%>
 <c:set var="title">
   Уведомления пользователя ${nick}
 </c:set>
@@ -99,7 +93,7 @@
       <c:out value="${topic.eventMessage}" escapeXml="true"/>
     </c:if>
   </td>
-  <td><lor:dateinterval date="${topic.commentDate}"/> (<lor:user db="<%= db %>" id="${topic.commentAuthor}" decorate="true"/>)</td>
+  <td><lor:dateinterval date="${topic.commentDate}"/> (<lor:user user="${topic.commentAuthor}" decorate="true"/>)</td>
 </tr>
 </c:forEach>
 
@@ -119,12 +113,4 @@
 </c:if>
 </div>
 
-
-<%
-  } finally {
-    if (db!=null) {
-      db.close();
-    }
-  }
-%>
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>

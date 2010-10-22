@@ -225,10 +225,10 @@ public class GroupController {
       int messages = tmpl.getProf().getInt("messages");
 
       while (rs.next()) {
-        TopicsListItem topic = new TopicsListItem(rs, messages);
+        TopicsListItem topic = new TopicsListItem(db, rs, messages);
 
         // TODO: надо проверять просто ID в списке игнорирования
-        User author = User.getUserCached(db, topic.getAuthor());
+        User author = topic.getAuthor();
 
         if (!firstPage && ignoreList != null && !ignoreList.isEmpty() && ignoreList.containsValue(author.getNick())) {
           continue;

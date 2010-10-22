@@ -1,4 +1,4 @@
-<%@ tag import="ru.org.linux.site.User"
+<%@ tag
         pageEncoding="UTF-8"
 %><%--
   ~ Copyright 1998-2010 Linux.org.ru
@@ -13,33 +13,21 @@
   ~    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
-  --%><%@ attribute name="db" required="false" type="java.sql.Connection" %><%@
+  --%><%@
         attribute name="decorate" required="false" type="java.lang.Boolean" %><%@
-        attribute name="user" required="false" type="ru.org.linux.site.User" %><%@
-        attribute name="id" required="false" type="java.lang.Integer" %><%
-  if (user!=null) {
-    id = user.getId();
-  }
-
-  if (id == 2) {
-    out.print("anonymous");
-  } else {
-    if (user==null) {
-      user = User.getUserCached(db, id);
-    }
-
-    if (decorate != null && decorate) {
-      if (user.isBlocked()) {
-        out.print("<s>");
-      }
-    }
-
-    out.print(user.getNick());
-
-    if (decorate != null && decorate) {
-      if (user.isBlocked()) {
-        out.print("</s>");
-      }
-    }
-  }
-%>
+        attribute name="link" required="false" type="java.lang.Boolean" %><%@
+        attribute name="user" type="ru.org.linux.site.User" %><%@
+        taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %><%@
+        taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %><%--
+--%><c:if test="${decorate != null and decorate and user.blocked}"><s></c:if><%--
+--%><c:choose><%--
+--%><c:when test="${link!=null and link and not user.anonymous}"><%--
+--%><a href="/people/${user.nick}/profile">${user.nick}</a><%--
+--%></c:when><%--
+--%><c:otherwise><%--
+--%>${user.nick}<%--
+--%></c:otherwise><%--
+--%></c:choose><%--
+--%><c:if test="${decorate != null and decorate and user.blocked}"><%--
+--%></s><%--
+--%></c:if>

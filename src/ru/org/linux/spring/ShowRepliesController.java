@@ -161,10 +161,9 @@ public class ShowRepliesController {
 
   public static class MyTopicsListItem implements Serializable {
     private final int cid;
-    private final int cAuthor;
+    private final User cAuthor;
     private final Timestamp cDate;
     private final String messageText;
-    private final String nick;
     private final String groupTitle;
     private final String groupUrlName;
     private final String sectionTitle;
@@ -187,7 +186,7 @@ public class ShowRepliesController {
       }
 
       cid = rs.getInt("cid");
-      cAuthor = rs.getInt("cAuthor");
+      cAuthor = User.getUserCached(db, rs.getInt("cAuthor"));
       cDate = rs.getTimestamp("cDate");
       groupTitle = rs.getString("gtitle");
       groupUrlName = rs.getString("urlname");
@@ -204,11 +203,8 @@ public class ShowRepliesController {
         } else {
           messageText = text;
         }
-
-        nick = User.getUserCached(db, cAuthor).getNick();
       } else {
         messageText = null;
-        nick = null;
       }
     }
 
@@ -216,7 +212,7 @@ public class ShowRepliesController {
       return cid;
     }
 
-    public int getCommentAuthor() {
+    public User getCommentAuthor() {
       return cAuthor;
     }
 
@@ -229,7 +225,7 @@ public class ShowRepliesController {
     }
 
     public String getNick() {
-      return nick;
+      return cAuthor.getNick();
     }
 
     public String getGroupTitle() {
