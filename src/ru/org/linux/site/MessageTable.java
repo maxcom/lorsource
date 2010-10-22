@@ -31,7 +31,7 @@ public class MessageTable {
   private MessageTable() {
   }
 
-  public static String getTopicRss(Connection db, String htmlPath, String fullUrl, PreparedMessage preparedTopic) throws SQLException, PollNotFoundException, IOException, BadImageException {
+  public static String getTopicRss(Connection db, String htmlPath, String fullUrl, PreparedMessage preparedTopic) throws SQLException,  IOException, BadImageException {
     StringBuilder buf = new StringBuilder();
 
     Message topic = preparedTopic.getMessage();
