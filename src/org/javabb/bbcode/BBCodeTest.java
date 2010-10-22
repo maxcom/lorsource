@@ -20,8 +20,6 @@ import java.sql.SQLException;
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
-import ru.org.linux.util.BadURLException;
-
 public class BBCodeTest {
   private static final String LINE_BREAK_TEST = "test\ntest\n\ntest";
   private static final String LINE_BREAK_RESULT = "<p>test\ntest<p>test";
