@@ -320,13 +320,11 @@
 <c:out value="${scroller}" escapeXml="false"/>
 
 <c:if test="${showAdsense}">
-<%--
   <div style="text-align: center; margin-top: 1em">
     <jsp:include page="/WEB-INF/jsp/${template.style}/adsense.jsp"/>
   </div>
---%>
 
-  <div id="highload2010" style="text-align: center; margin-top: 1em; height: 90px;">
+  <%--<div id="highload2010" style="text-align: center; margin-top: 1em; height: 90px;">--%>
 
   </div>
 
