@@ -193,6 +193,14 @@ public class GroupController {
       String q = "SELECT topics.title as subj, lastmod, userid, topics.id as msgid, deleted, topics.stat1, topics.stat3, topics.stat4, topics.sticky, topics.resolved FROM topics,groups, sections WHERE sections.id=groups.section AND (topics.moderate OR NOT sections.moderate) AND topics.groupid=groups.id AND groups.id=" + groupId + delq;
 
       if (year!=null) {
+        if (year<1990 || year > 3000) {
+          throw new ServletParameterBadValueException("year", "указан некорректный год");
+        }
+
+        if (month<1 || month > 12) {
+          throw new ServletParameterBadValueException("month", "указан некорректный месяц");
+        }
+
         q+=" AND postdate>='" + year + '-' + month + "-01'::timestamp AND (postdate<'" + year + '-' + month + "-01'::timestamp+'1 month'::interval)";
         params.put("year", year);
         params.put("month", month);
