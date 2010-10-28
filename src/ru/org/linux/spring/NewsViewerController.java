@@ -215,7 +215,7 @@ public class NewsViewerController {
         if (rs.next()) {
           newsViewer.setTag(rs.getInt("id"));
         } else {
-          throw new UserErrorException("Tag not found");
+          throw new TagNotFoundException();
         }
 
         rs.close();
