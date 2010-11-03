@@ -142,13 +142,6 @@
         </div>
       </c:forEach>
   </lor:boxlets>
-
-  <c:if test="<%= !tmpl.isSessionAuthorized() || !tmpl.getProf().getBoolean(DefaultProfile.HIDE_ADSENSE) %>">
-  <a href="http://www.linuxformat.ru/subscribe">
-    <img src="/adv/linuxformat_240x400.jpg" width="240" height="400"
-         alt="Подписка на журнал LinuxFormat">
-  </a>
-  </c:if>
 </div>
 <% if (columns3) { %>
 <div class=column2>
