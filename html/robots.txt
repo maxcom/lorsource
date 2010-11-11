@@ -20,3 +20,5 @@ Disallow: /delete_comment.jsp
 Disallow: /edit-vote.jsp
 Disallow: /add-poll.jsp
 Disallow: /addphoto.jsp
+
+Disallow: /wiki/en/Special:History
