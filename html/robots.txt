@@ -22,3 +22,4 @@ Disallow: /add-poll.jsp
 Disallow: /addphoto.jsp
 
 Disallow: /wiki/en/Special:History
+Disallow: /wiki/en/Special:Diff
