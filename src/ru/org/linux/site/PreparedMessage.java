@@ -38,7 +38,7 @@ public final class PreparedMessage {
 
   private final String userAgent;
 
-  private static final int EDIT_PEDIOD = 60 * 60 * 1000; // milliseconds
+  private static final int EDIT_PEDIOD = 2 * 60 * 60 * 1000; // milliseconds
 
   public PreparedMessage(Connection db, Message message, boolean includeCut) throws SQLException {
     this(db, message, new Tags(db, message.getId()), includeCut);
