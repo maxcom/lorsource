@@ -5,4 +5,3 @@ sleep 3
 /usr/bin/psql -c "set sort_mem=10240; select stat_update2()" linux >/dev/null
 sleep 3
 /usr/bin/psql -c "select update_monthly_stats()" linux > /dev/null
-/usr/bin/psql -c "select set_role_map()" linux > /dev/null
