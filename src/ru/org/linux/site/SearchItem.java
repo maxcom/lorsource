@@ -20,6 +20,10 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.sql.PreparedStatement;
+import java.lang.Integer;
+import java.util.Date;
+import org.apache.solr.common.SolrDocument;
 
 import ru.org.linux.util.StringUtil;
 
@@ -37,7 +41,41 @@ public class SearchItem implements Serializable {
 
   private static final long serialVersionUID = -8100510220616995405L;
 
-  SearchItem(Connection db, ResultSet rs) throws SQLException {
+  SearchItem(Connection db, SolrDocument doc) throws SQLException {
+    String dbquery="select message,bbcode from msgbase where id=?";
+    msgid = Integer.valueOf(doc.getFieldValue("id").toString());
+    title = (String) doc.getFieldValue("title");
+    int userid = (Integer) doc.getFieldValue("userid");
+    Date postdate_dt = (Date) doc.getFieldValue("postdate");
+    postdate = new Timestamp(postdate_dt.getTime());
+    topic = (Integer) doc.getFieldValue("topic_id");
+    
+    PreparedStatement pst = null;
+    try {
+      pst = db.prepareStatement(dbquery.toString());
+      pst.setInt(1, msgid);
+      ResultSet rs = pst.executeQuery();
+      rs.next();
+      String rawMessage = rs.getString("message");
+      bbcode = rs.getBoolean("bbcode");
+      if (bbcode) {
+        BBCodeProcessor proc = new BBCodeProcessor();
+        message = proc.preparePostText(db, rawMessage);
+      } else {
+        message = rawMessage;
+      }
+      try{
+        user = User.getUserCached(db, userid);
+      } catch (UserNotFoundException e) {
+        throw new RuntimeException(e);
+      }
+
+    }finally {
+      if (pst!=null) {
+        pst.close();
+      }
+    }
+    /*
     msgid = rs.getInt("id");
     title = StringUtil.makeTitle(rs.getString("title"));
     postdate = rs.getTimestamp("postdate");
@@ -55,7 +93,7 @@ public class SearchItem implements Serializable {
       message = proc.preparePostText(db, rawMessage);
     } else {
       message = rawMessage;
-    }
+    }*/
   }
 
   public int getMsgid() {

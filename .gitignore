@@ -3,3 +3,5 @@ test-reports
 dist
 ivy-lib
 build-test
+*~
+*.swp

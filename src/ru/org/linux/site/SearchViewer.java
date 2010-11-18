@@ -23,6 +23,16 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.impl.CommonsHttpSolrServer;
+import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.common.params.ModifiableSolrParams;
+import org.apache.solr.common.SolrDocument;
+import org.apache.solr.common.SolrDocumentList;
+import org.apache.solr.common.util.SimpleOrderedMap;
+import java.net.MalformedURLException;
+import org.apache.solr.client.solrj.SolrServerException;
 
 import com.google.common.collect.ImmutableList;
 
@@ -49,7 +59,21 @@ public class SearchViewer {
     this.query = query;
   }
 
-  public List<SearchItem> show(Connection db) throws SQLException, UserErrorException {
+  public List<SearchItem> show(Connection db) throws SQLException, UserErrorException,MalformedURLException,SolrServerException {
+    QueryResponse response;
+    SolrServer solr = new CommonsHttpSolrServer("http://stress.vyborg.ru/solr");
+    ModifiableSolrParams params = new ModifiableSolrParams();
+    List<SearchItem> items = new ArrayList<SearchItem>();
+    params.set("q", query);
+    params.set("rows", 100);
+    response = solr.query(params);
+    SolrDocumentList list = response.getResults();
+    for (SolrDocument doc : list) {
+        items.add(new SearchItem(db, doc));
+    }
+    return ImmutableList.copyOf(items);
+
+    /*
     StringBuilder select = new StringBuilder(""+
         "SELECT " +
         "msgs.id, msgs.title, msgs.postdate, topic, msgs.userid, rank(idxFTI, q) as rank, message, bbcode");
@@ -125,6 +149,8 @@ public class SearchViewer {
         pst.close();
       }
     }
+    */
+
   }
 
   public String getVariantID() {
