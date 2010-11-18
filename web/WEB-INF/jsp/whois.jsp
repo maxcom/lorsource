@@ -31,6 +31,7 @@
 <%--@elvariable id="userStat" type="ru.org.linux.site.UserStatistics"--%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <%--@elvariable id="moderatorOrCurrentUser" type="java.lang.Boolean"--%>
+<%--@elvariable id="banInfo" type="ru.org.linux.site.BanInfo"--%>
 
 <% Template tmpl = Template.getTemplate(request); %>
 <%
@@ -117,6 +118,10 @@
   }
 %>
   <br>
+  <c:if test="${banInfo != null}">
+    Блокирован <lor:date date="${banInfo.date}"/>, <lor:user link="true" decorate="true" user="${banInfo.moderator}"/>:
+    <c:out escapeXml="true" value="${banInfo.reason}"/>
+  </c:if>
 </div>
   <c:if test="${moderatorOrCurrentUser}">
     <div>
@@ -148,16 +153,19 @@
 %>
   <br>
   <c:if test="${template.moderatorSession and user.blockable}">
+    <div style="border: 1px dotted; padding: 1em;">
     <form method='post' action='usermod.jsp'>
       <input type='hidden' name='id' value='${user.id}'>
       <c:if test="${user.blocked}">
         <input type='submit' name='action' value='unblock'>
       </c:if>
       <c:if test="${not user.blocked}">
+        Причина: <input type="text" name="reason"><br>
         <input type='submit' name='action' value='block'>
         <input type='submit' name='action' value='block-n-delete-comments'>
       </c:if>
     </form>
+    </div>
   </c:if>
 <br>
 <p>

@@ -42,7 +42,8 @@ public class UserModificationController extends ApplicationObjectSupport {
     HttpServletRequest request,
     HttpSession session,
     @RequestParam("action") String action,
-    @RequestParam("id") int id
+    @RequestParam("id") int id,
+    @RequestParam(value="reason", required = false) String reason
   ) throws Exception {
     Template tmpl = Template.getTemplate(request);
 
@@ -67,7 +68,7 @@ public class UserModificationController extends ApplicationObjectSupport {
           throw new AccessViolationException("Пользователя " + user.getNick() + " нельзя заблокировать");
         }
 
-        user.block(db);
+        user.block(db, moderator, reason);
         user.resetPassword(db);
         logger.info("User " + user.getNick() + " blocked by " + session.getValue("nick"));
 
@@ -94,6 +95,7 @@ public class UserModificationController extends ApplicationObjectSupport {
         }
 
         st.executeUpdate("UPDATE users SET blocked='f' WHERE id=" + id);
+        st.executeUpdate("DELETE FROM ban_info WHERE userid="+id);
         logger.info("User " + user.getNick() + " unblocked by " + session.getValue("nick"));
       } else if ("remove_userinfo".equals(action)) {
         if (user.canModerate()) {

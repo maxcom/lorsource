@@ -320,17 +320,24 @@ public class User implements Serializable {
     return photo;
   }
 
-  public void block(Connection db) throws SQLException {
+  public void block(Connection db, User by, String reason) throws SQLException {
     Statement st = null;
+    PreparedStatement pst = null;
 
     try {
       st = db.createStatement();
       st.executeUpdate("UPDATE users SET blocked='t' WHERE id=" + id);
+
+      pst = db.prepareStatement("INSERT INTO ban_info (userid, reason, ban_by) VALUES (?, ?, ?)");
+      pst.setInt(1, id);
+      pst.setString(2, reason);
+      pst.setInt(3, by.getId());
+      pst.executeUpdate();
+
       updateCache(db);
     } finally {
-      if (st!=null) {
-        st.close();
-      }
+      JdbcUtils.closeStatement(st);
+      JdbcUtils.closeStatement(pst);
     }
   }
 
