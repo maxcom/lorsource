@@ -1,0 +1,38 @@
+<dataConfig>
+	<dataSource driver="org.postgresql.Driver" url="jdbc:postgresql://127.0.0.1:5432/lor?characterEncoding=UTF-8" user="linuxweb" password="linuxweb"/>
+	<document name="messages">
+		<entity name="message" query="
+			select msgbase.id as id,			      
+			       topics.id as topic_id,	
+                               0 as comment_id,
+			       topics.title as title, 
+			       topics.postdate, 
+			       msgbase.message, 
+			       users.nick as user,
+			       topics.userid as userid,
+			       groups.title as group, 
+			       'f' as is_comment 
+			from topics 
+			       join groups on (topics.groupid = groups.id)
+			       join msgbase on (topics.id = msgbase.id) 
+			       join users on (topics.userid = users.id)
+			union 
+			select msgbase.id as id, 
+			       topics.id as topic_id,
+			       comments.id as comment_id,
+			       comments.title as title, 
+			       comments.postdate as postdate,  
+			       msgbase.message as message, 
+			       users.nick as user, 
+			       comments.userid as userid,
+			       groups.title as group, 
+			       't' as is_comment 
+			from comments 
+			       join topics on ( comments.topic = topics.id)
+                               join groups on ( topics.groupid = groups.id)
+			       join msgbase on ( comments.id = msgbase.id )
+			       join users on ( comments.userid = users.id)
+			" />
+	</document>
+</dataConfig>
+
