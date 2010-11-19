@@ -1,7 +1,8 @@
 <dataConfig>
 	<dataSource driver="org.postgresql.Driver" url="jdbc:postgresql://127.0.0.1:5432/lor?characterEncoding=UTF-8" user="linuxweb" password="linuxweb"/>
 	<document name="messages">
-		<entity name="message" query="
+		<entity name="message" 
+			query="
 			select msgbase.id      as id,			      
 			       topics.id       as topic_id,	
                                0               as comment_id,

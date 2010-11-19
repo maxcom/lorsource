@@ -31,6 +31,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
+import org.apache.solr.client.solrj.SolrServer;
 
 import ru.org.linux.site.*;
 import ru.org.linux.util.HTMLFormatter;
@@ -143,6 +144,8 @@ public class AddCommentController extends ApplicationObjectSupport {
     HttpSession session = request.getSession();
 
     Connection db = null;
+    SolrServer search = null;
+    
 
     Template tmpl = Template.getTemplate(request);
 
@@ -157,6 +160,7 @@ public class AddCommentController extends ApplicationObjectSupport {
 
       // prechecks is over
       db = LorDataSource.getConnection();
+      search = LorSearchSource.getConnection();
       db.setAutoCommit(false);
       tmpl.initCurrentUser(db);
 
@@ -250,6 +254,7 @@ public class AddCommentController extends ApplicationObjectSupport {
         logger.info(logmessage);
 
         db.commit();
+        LorSearchSource.updateComment(search, comment, msgid, topic.getSectionId(), msg);  
 
         String returnUrl = "jump-message.jsp?msgid=" + topicId + "&cid=" + msgid;
 
