@@ -79,7 +79,7 @@ public class SearchViewer {
     if (section != 0 ){
       params.set("fq","section_id:"+section);
     }
-    if (username.length()>0) {
+    if(username.length() > 0) {
       try {
         User user = User.getUser(db, username);
         if (userTopic) {
@@ -90,6 +90,9 @@ public class SearchViewer {
         throw new UserErrorException("User not found: "+username);
       }
     }
+    if(sort == SORT_DATE){
+      params.set("sort:postdate desc");
+    }
 
     // send search query to solr
     response = solr.query(params);
@@ -98,85 +101,6 @@ public class SearchViewer {
         items.add(new SearchItem(db, doc));
     }
     return ImmutableList.copyOf(items);
-
-    /*
-    StringBuilder select = new StringBuilder(""+
-        "SELECT " +
-        "msgs.id, msgs.title, msgs.postdate, topic, msgs.userid, rank(idxFTI, q) as rank, message, bbcode");
-
-    if (include==SEARCH_ALL) {
-      select.append(" FROM msgs_and_cmts as msgs, msgbase, plainto_tsquery(?) as q");
-    } else {
-      select.append(" FROM msgs, msgbase, plainto_tsquery(?) as q");
-    }
-
-    if (section!=0 || (userTopic && username.length()>0)) {
-      select.append(", topics");
-    }
-
-    if (section!=0) {
-      select.append(", groups");
-    }
-
-    select.append(" WHERE msgs.id = msgbase.id AND not msgs.deleted AND idxFTI @@ q");
-
-    if (date==SEARCH_3MONTH) {
-      select.append(" AND msgbase_postdate>CURRENT_TIMESTAMP-'3 month'::interval");
-    } else if (date == SEARCH_YEAR) {
-      select.append(" AND msgbase_postdate>CURRENT_TIMESTAMP-'1 year'::interval");
-    }
-
-    if (section!=0) {
-      select.append(" AND section=").append(section);
-      select.append(" AND topics.id = topic AND groups.id = topics.groupid");
-    }
-
-    if (username.length()>0) {
-      try {
-        User user = User.getUser(db, username);
-
-        if (userTopic) {
-          select.append(" AND topics.userid=").append(user.getId());
-          select.append(" AND topics.id = topic");
-        } else {
-          select.append(" AND msgs.userid=").append(user.getId());
-        }
-      } catch (UserNotFoundException ex) {
-        throw new UserErrorException("User not found: "+username);
-      }
-    }
-
-    if (sort==SORT_DATE) {
-      select.append(" ORDER BY postdate DESC");
-    } else {
-      select.append(" ORDER BY rank DESC");
-    }
-
-    select.append(" LIMIT 100");
-
-    PreparedStatement pst = null;
-
-    try {
-      pst = db.prepareStatement(select.toString());
-
-      pst.setString(1, query);
-
-      ResultSet rs = pst.executeQuery();
-
-      List<SearchItem> items = new ArrayList<SearchItem>();
-
-      while (rs.next()) {
-        items.add(new SearchItem(db, rs));
-      }
-
-      return ImmutableList.copyOf(items);
-    } finally {
-      if (pst!=null) {
-        pst.close();
-      }
-    }
-    */
-
   }
 
   public String getVariantID() {
