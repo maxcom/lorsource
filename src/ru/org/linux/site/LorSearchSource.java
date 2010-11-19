@@ -4,6 +4,8 @@ import java.net.MalformedURLException;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.Date;
+import org.apache.commons.logging.Log;                                                                                                                                           
+import org.apache.commons.logging.LogFactory; 
 
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -17,6 +19,7 @@ import ru.org.linux.site.Message;
 
 
 public class LorSearchSource {
+  private static final Log logger = LogFactory.getLog(LorSearchSource.class);
   private LorSearchSource(){
   }
   public static SolrServer getConnection(){
@@ -24,6 +27,7 @@ public class LorSearchSource {
     try{
       solrServer = new CommonsHttpSolrServer("http://stress.vyborg.ru/solr");
     }catch(MalformedURLException ex){
+      logger.error("Connection to solr fail:"+ex.toString())
       throw new RuntimeException(ex);
     }
     return solrServer;
@@ -52,9 +56,9 @@ public class LorSearchSource {
     try{
       updateRequest.process(server);
     }catch(SolrServerException ex){
-      throw new RuntimeException(ex);
+      logger.error("Update comment solr fail:"+ex.toString())
     }catch(java.io.IOException ex){
-      throw new RuntimeException(ex);
+      logger.error("Update comment solr fail:"+ex.toString())
     }
   }
 
@@ -81,9 +85,9 @@ public class LorSearchSource {
     try{
       updateRequest.process(server);
     }catch(SolrServerException ex){
-      throw new RuntimeException(ex);
+      logger.error("Update topic solr fail:"+ex.toString())
     }catch(java.io.IOException ex){
-      throw new RuntimeException(ex);
+      logger.error("Update topic solr fail:"+ex.toString())
     }
   }
 }
