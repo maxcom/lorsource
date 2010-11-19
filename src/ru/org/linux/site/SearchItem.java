@@ -45,7 +45,7 @@ public class SearchItem implements Serializable {
     String dbquery="select message,bbcode from msgbase where id=?";
     msgid = Integer.valueOf(doc.getFieldValue("id").toString());
     title = (String) doc.getFieldValue("title");
-    int userid = (Integer) doc.getFieldValue("userid");
+    int userid = (Integer) doc.getFieldValue("user_id");
     Date postdate_dt = (Date) doc.getFieldValue("postdate");
     postdate = new Timestamp(postdate_dt.getTime());
     topic = (Integer) doc.getFieldValue("topic_id");

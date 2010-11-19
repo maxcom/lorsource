@@ -60,16 +60,13 @@
  </types>
 
  <fields>
-   <field name="id" type="string" stored="true" required="true" /> 
-   <field name="topic_id" type="int" stored="true" /> 
-   <field name="comment_id" type="int" stored="true" /> 
-   <field name="user" type="string" indexed="true" stored="true" /> 
-   <field name="userid" type="int" stored="true" /> 
-   <field name="group" type="string" indexed="true" stored="true" /> 
-   <field name="title" type="text" indexed="true" stored="true" />
-   <field name="message" type="text" indexed="true" stored="true"/>
-   <field name="postdate" type="date" indexed="true" stored="true" />
-   <field name="is_comment" type="boolean" indexed="true" stored="true" />
+   <field name="id"           type="string"                 stored="true" required="true" /> 
+   <field name="group"        type="string"  indexed="true" stored="true" /> 
+   <field name="title"        type="text"    indexed="true" stored="true" />
+   <field name="message"      type="text"    indexed="true" />
+   <field name="postdate"     type="date"    indexed="true" stored="true" />
+   <field name="is_comment"   type="boolean" indexed="true" stored="true" />
+   <dynamicField name="*_id"  type="int" stored="true"/>
  </fields>
 
  <uniqueKey>id</uniqueKey>

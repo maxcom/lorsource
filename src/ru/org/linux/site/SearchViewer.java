@@ -64,8 +64,34 @@ public class SearchViewer {
     SolrServer solr = new CommonsHttpSolrServer("http://stress.vyborg.ru/solr");
     ModifiableSolrParams params = new ModifiableSolrParams();
     List<SearchItem> items = new ArrayList<SearchItem>();
+    // set search query params
     params.set("q", query);
+    params.set("q.op", "AND");
     params.set("rows", 100);
+    if(include != SEARCH_ALL){
+      params.set("fq","is_comment:false");      
+    }
+    if(date == SEARCH_3MONTH){
+      params.set("fq","postdate:[NOW-3MONTH TO NOW]");
+    }else if (date == SEARCH_YEAR){
+      params.set("fq","postdate:[NOW-1YEAR TO NOW]");
+    }
+    if (section != 0 ){
+      params.set("fq","section_id:"+section);
+    }
+    if (username.length()>0) {
+      try {
+        User user = User.getUser(db, username);
+        if (userTopic) {
+          params.set("fq","user_id:"+user.getId());
+
+        }
+      } catch (UserNotFoundException ex) {
+        throw new UserErrorException("User not found: "+username);
+      }
+    }
+
+    // send search query to solr
     response = solr.query(params);
     SolrDocumentList list = response.getResults();
     for (SolrDocument doc : list) {
