@@ -49,12 +49,18 @@
 Мы работаем на
   </p>
     <ul>
-      <li>Fedora 12</li>
+      <li>Fedora 13</li>
       <li>СУБД PostgreSQL 8.4</li>
       <li>OpenJDK 1.6.0</li>
       <li>Apache Tomcat 6</li>
       <li>memcached 1.2</li>
-    </ul>        
+      <li>Spring 3.0</li>
+      <li>Wiki: JamWiki 0.8.4</li>
+    </ul>
+
+<h1>Исходные тексты</h1>
+
+  Исходные тексты доступны под лицензией Apache License 2.0: <a href="https://github.com/maxcom/lorsource">https://github.com/maxcom/lorsource</a>
 
 <h1>Наша команда</h1>
 Проект реализован и&nbsp;развивается исключительно в&nbsp;свободное время авторов.
