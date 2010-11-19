@@ -33,7 +33,9 @@ import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.util.SimpleOrderedMap;
 import java.net.MalformedURLException;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.commons.logging.Log;                                                                                                                                           
+import org.apache.commons.logging.Log;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 import org.apache.commons.logging.LogFactory; 
 
 import com.google.common.collect.ImmutableList;
@@ -66,8 +68,12 @@ public class SearchViewer {
     QueryResponse response;
     SolrServer solr;
     try{
-      solr = new CommonsHttpSolrServer("http://stress.vyborg.ru/solr");
+      InitialContext cxt = new InitialContext();
+      String url = (String) cxt.lookup("java:/comp/env/solr/url");
+      solr = new CommonsHttpSolrServer(url);
     }catch (MalformedURLException ex){
+      throw new RuntimeException(ex);
+    }catch (NamingException ex) {
       throw new RuntimeException(ex);
     }
     ModifiableSolrParams params = new ModifiableSolrParams();

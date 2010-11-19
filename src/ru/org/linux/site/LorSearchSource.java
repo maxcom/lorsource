@@ -6,6 +6,8 @@ import java.sql.Timestamp;
 import java.util.Date;
 import org.apache.commons.logging.Log;                                                                                                                                           
 import org.apache.commons.logging.LogFactory; 
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -25,69 +27,80 @@ public class LorSearchSource {
   public static SolrServer getConnection(){
     SolrServer solrServer = null;
     try{
-      solrServer = new CommonsHttpSolrServer("http://stress.vyborg.ru/solr");
+      InitialContext cxt = new InitialContext();
+      String url = (String) cxt.lookup("java:/comp/env/solr/url");
+      solrServer = new CommonsHttpSolrServer(url);
     }catch(MalformedURLException ex){
-      logger.error("Connection to solr fail:"+ex.toString())
-      throw new RuntimeException(ex);
+      logger.error("Connection to solr fail:"+ex.toString());
+    }catch (NamingException ex) {
+      logger.error("Connection to solr fail:"+ex.toString());
     }
     return solrServer;
   }
 
   public static void updateMessage(SolrServer server, Message topic, int msgid){
-    UpdateRequest updateRequest = new UpdateRequest();
-    updateRequest.setAction(AbstractUpdateRequest.ACTION.COMMIT, false, false);
+    if(server != null){
+      UpdateRequest updateRequest = new UpdateRequest();
+      updateRequest.setAction(AbstractUpdateRequest.ACTION.COMMIT, false, false);
 
-    SolrInputDocument doc = new SolrInputDocument();
+      SolrInputDocument doc = new SolrInputDocument();
 
-    doc.addField("id", msgid);
+      doc.addField("id", msgid);
 
-    doc.addField("section_id", msgid );
-    doc.addField("user_id", topic.getUid() );
-    doc.addField("topic_id", topic.getMessageId() );
+      doc.addField("section_id", msgid );
+      doc.addField("user_id", topic.getUid() );
+      doc.addField("topic_id", topic.getMessageId() );
 
-    doc.addField("title", topic.getTitle() );
-    doc.addField("message", topic.getMessage() );
-    Date postdate = topic.getPostdate();
-    doc.addField("postdate", new Timestamp(postdate.getTime()));
+      doc.addField("title", topic.getTitle() );
+      doc.addField("message", topic.getMessage() );
+      Date postdate = topic.getPostdate();
+      doc.addField("postdate", new Timestamp(postdate.getTime()));
 
-    doc.addField("is_comment", false);
+      doc.addField("is_comment", false);
 
-    updateRequest.add(doc);
-    try{
-      updateRequest.process(server);
-    }catch(SolrServerException ex){
-      logger.error("Update comment solr fail:"+ex.toString())
-    }catch(java.io.IOException ex){
-      logger.error("Update comment solr fail:"+ex.toString())
+      updateRequest.add(doc);
+      try{
+        updateRequest.process(server);
+      }catch(SolrServerException ex){
+        logger.error("Update comment solr fail:"+ex.toString());
+      }catch(java.io.IOException ex){
+        logger.error("Update comment solr fail:"+ex.toString());
+      }
+    }else{
+      logger.error("solr fail");
     }
   }
 
   public static void updateComment(SolrServer server, Comment comment, int msgid, int sectionId, String message){
-    UpdateRequest updateRequest = new UpdateRequest();
-    updateRequest.setAction(AbstractUpdateRequest.ACTION.COMMIT, false, false);
+    if(server != null){
+      UpdateRequest updateRequest = new UpdateRequest();
+      updateRequest.setAction(AbstractUpdateRequest.ACTION.COMMIT, false, false);
 
-    SolrInputDocument doc = new SolrInputDocument();
+      SolrInputDocument doc = new SolrInputDocument();
 
-    doc.addField("id", msgid);
+      doc.addField("id", msgid);
 
-    doc.addField("section_id", sectionId );
-    doc.addField("user_id", comment.getUserid() );
-    doc.addField("topic_id", comment.getTopic() );
+      doc.addField("section_id", sectionId );
+      doc.addField("user_id", comment.getUserid() );
+      doc.addField("topic_id", comment.getTopic() );
 
-    doc.addField("title", comment.getTitle() );
-    doc.addField("message", message);
-    Date postdate = comment.getPostdate();
-    doc.addField("postdate", new Timestamp(postdate.getTime()));
+      doc.addField("title", comment.getTitle() );
+      doc.addField("message", message);
+      Date postdate = comment.getPostdate();
+      doc.addField("postdate", new Timestamp(postdate.getTime()));
 
-    doc.addField("is_comment", true);
+      doc.addField("is_comment", true);
 
-    updateRequest.add(doc);
-    try{
-      updateRequest.process(server);
-    }catch(SolrServerException ex){
-      logger.error("Update topic solr fail:"+ex.toString())
-    }catch(java.io.IOException ex){
-      logger.error("Update topic solr fail:"+ex.toString())
+      updateRequest.add(doc);
+      try{
+        updateRequest.process(server);
+      }catch(SolrServerException ex){
+        logger.error("Update topic solr fail:"+ex.toString());
+      }catch(java.io.IOException ex){
+        logger.error("Update topic solr fail:"+ex.toString());
+      }
+    }else{
+      logger.error("solr fail");
     }
   }
 }
