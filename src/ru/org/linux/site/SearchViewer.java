@@ -33,10 +33,13 @@ import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.util.SimpleOrderedMap;
 import java.net.MalformedURLException;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.commons.logging.Log;                                                                                                                                           
+import org.apache.commons.logging.LogFactory; 
 
 import com.google.common.collect.ImmutableList;
 
 public class SearchViewer {
+  private static final Log logger = LogFactory.getLog(SearchViewer.class);
   public static final int SEARCH_TOPICS = 1;
   public static final int SEARCH_ALL = 0;
 
@@ -103,14 +106,14 @@ public class SearchViewer {
     // send search query to solr
     try{
       response = solr.query(params);
+      SolrDocumentList list = response.getResults();
+      for (SolrDocument doc : list) {
+          items.add(new SearchItem(db, doc));
+      }
     }catch(SolrServerException ex){
-      throw new RuntimeException(ex);
+      logger.error("Error search:"+ex.toString());
     }
 
-    SolrDocumentList list = response.getResults();
-    for (SolrDocument doc : list) {
-        items.add(new SearchItem(db, doc));
-    }
     return ImmutableList.copyOf(items);
   }
 
