@@ -29,6 +29,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
+import org.apache.solr.client.solrj.SolrServer;
 
 import ru.org.linux.site.*;
 import ru.org.linux.util.BadImageException;
@@ -86,10 +87,12 @@ public class AddMessageController extends ApplicationObjectSupport {
     params.put("form", form);
 
     Connection db = null;
+    SolrServer search = null;
     Exception error = null;
     Message previewMsg = null;
     try {
       db = LorDataSource.getConnection();
+      search = LorSearchSource.getConnection();
       db.setAutoCommit(false);
       tmpl.initCurrentUser(db);
 
@@ -140,6 +143,7 @@ public class AddMessageController extends ApplicationObjectSupport {
         }
 
         db.commit();
+        LorSearchSource.updateMessage(search, previewMsg, msgid);  
 
         Random random = new Random();
 

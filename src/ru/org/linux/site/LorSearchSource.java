@@ -13,6 +13,7 @@ import org.apache.solr.client.solrj.impl.CommonsHttpSolrServer;
 import org.apache.solr.common.SolrInputDocument;
 
 import ru.org.linux.site.Comment;
+import ru.org.linux.site.Message;
 
 
 public class LorSearchSource {
@@ -27,6 +28,36 @@ public class LorSearchSource {
     }
     return solrServer;
   }
+
+  public static void updateMessage(SolrServer server, Message topic, int msgid){
+    UpdateRequest updateRequest = new UpdateRequest();
+    updateRequest.setAction(AbstractUpdateRequest.ACTION.COMMIT, false, false);
+
+    SolrInputDocument doc = new SolrInputDocument();
+
+    doc.addField("id", msgid);
+
+    doc.addField("section_id", msgid );
+    doc.addField("user_id", topic.getUid() );
+    doc.addField("topic_id", topic.getMessageId() );
+
+    doc.addField("title", topic.getTitle() );
+    doc.addField("message", topic.getMessage() );
+    Date postdate = topic.getPostdate();
+    doc.addField("postdate", new Timestamp(postdate.getTime()));
+
+    doc.addField("is_comment", false);
+
+    updateRequest.add(doc);
+    try{
+      updateRequest.process(server);
+    }catch(SolrServerException ex){
+      throw new RuntimeException(ex);
+    }catch(java.io.IOException ex){
+      throw new RuntimeException(ex);
+    }
+  }
+
   public static void updateComment(SolrServer server, Comment comment, int msgid, int sectionId, String message){
     UpdateRequest updateRequest = new UpdateRequest();
     updateRequest.setAction(AbstractUpdateRequest.ACTION.COMMIT, false, false);
