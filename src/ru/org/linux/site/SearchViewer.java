@@ -59,9 +59,14 @@ public class SearchViewer {
     this.query = query;
   }
 
-  public List<SearchItem> show(Connection db) throws SQLException, UserErrorException,MalformedURLException,SolrServerException {
+  public List<SearchItem> show(Connection db) throws SQLException, UserErrorException{
     QueryResponse response;
-    SolrServer solr = new CommonsHttpSolrServer("http://stress.vyborg.ru/solr");
+    SolrServer solr;
+    try{
+      solr = new CommonsHttpSolrServer("http://stress.vyborg.ru/solr");
+    }catch (MalformedURLException ex){
+      throw new RuntimeException(ex);
+    }
     ModifiableSolrParams params = new ModifiableSolrParams();
     List<SearchItem> items = new ArrayList<SearchItem>();
     // set search query params
@@ -93,9 +98,15 @@ public class SearchViewer {
     if(sort == SORT_DATE){
       params.set("sort:postdate desc");
     }
+    params.set("rows:100"); // maximum number of documents from the complete result set to return to the client
 
     // send search query to solr
-    response = solr.query(params);
+    try{
+      response = solr.query(params);
+    }catch(SolrServerException ex){
+      throw new RuntimeException(ex);
+    }
+
     SolrDocumentList list = response.getResults();
     for (SolrDocument doc : list) {
         items.add(new SearchItem(db, doc));

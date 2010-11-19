@@ -75,25 +75,6 @@ public class SearchItem implements Serializable {
         pst.close();
       }
     }
-    /*
-    msgid = rs.getInt("id");
-    title = StringUtil.makeTitle(rs.getString("title"));
-    postdate = rs.getTimestamp("postdate");
-    topic = rs.getInt("topic");
-    try {
-      user = User.getUserCached(db, rs.getInt("userid"));
-    } catch (UserNotFoundException e) {
-      throw new RuntimeException(e);
-    }
-    String rawMessage = rs.getString("message");
-    bbcode = rs.getBoolean("bbcode");
-
-    if (bbcode) {
-      BBCodeProcessor proc = new BBCodeProcessor();
-      message = proc.preparePostText(db, rawMessage);
-    } else {
-      message = rawMessage;
-    }*/
   }
 
   public int getMsgid() {
