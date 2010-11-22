@@ -33,6 +33,8 @@
 		replace="first"
 		/>
         <filter class="solr.LowerCaseFilterFactory"/>
+	<filter class="solr.SnowballPorterFilterFactory" language="Russian"/>
+	<filter class="solr.LengthFilterFactory" min="2" max="50" />
       </analyzer>
     </fieldType>
 
