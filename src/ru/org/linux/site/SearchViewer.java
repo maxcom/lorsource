@@ -76,21 +76,21 @@ public class SearchViewer {
     params.set("defType", "dismax");
     params.set("qf", "message title");
     if(include != SEARCH_ALL){
-      params.set("fq","is_comment:false");      
+      params.add("fq","is_comment:false");      
     }
     if(date == SEARCH_3MONTH){
-      params.set("fq","postdate:[NOW-3MONTH TO NOW]");
+      params.add("fq","postdate:[NOW-3MONTH TO NOW]");
     }else if (date == SEARCH_YEAR){
-      params.set("fq","postdate:[NOW-1YEAR TO NOW]");
+      params.add("fq","postdate:[NOW-1YEAR TO NOW]");
     }
     if (section != 0 ){
-      params.set("fq","section_id:"+section);
+      params.add("fq","section_id:"+section);
     }
     if(username.length() > 0) {
       try {
         User user = User.getUser(db, username);
         if (userTopic) {
-          params.set("fq","user_id:"+user.getId());
+          params.add("fq","user_id:"+user.getId());
 
         }
       } catch (UserNotFoundException ex) {
