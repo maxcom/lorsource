@@ -90,7 +90,7 @@
    <field name="id"           type="string"                 stored="true" required="true" multiValued="false"/> 
    <field name="group"        type="string"  indexed="true" stored="true"                 multiValued="false"/> 
    <field name="title"        type="text_ws" indexed="true" stored="true"                 multiValued="false"/>
-   <field name="message"      type="text"    indexed="true"                               multiValued="true"/>
+   <field name="message"      type="text"    indexed="true" stored="false"                multiValued="true"/>
    <field name="postdate"     type="date"    indexed="true" stored="true"                 multiValued="false"/>
    <field name="is_comment"   type="boolean" indexed="true" stored="true"                 multiValued="false"/>
    <dynamicField name="*_id"  type="int"                    stored="true"/>
