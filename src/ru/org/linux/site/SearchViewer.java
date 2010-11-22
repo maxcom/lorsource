@@ -66,16 +66,7 @@ public class SearchViewer {
 
   public List<SearchItem> show(Connection db) throws SQLException, UserErrorException{
     QueryResponse response;
-    SolrServer solr;
-    try{
-      InitialContext cxt = new InitialContext();
-      String url = (String) cxt.lookup("java:/comp/env/solr/url");
-      solr = new CommonsHttpSolrServer(url);
-    }catch (MalformedURLException ex){
-      throw new RuntimeException(ex);
-    }catch (NamingException ex) {
-      throw new RuntimeException(ex);
-    }
+    SolrServer search = LorSearchSource.getConnection();
     ModifiableSolrParams params = new ModifiableSolrParams();
     List<SearchItem> items = new ArrayList<SearchItem>();
     // set search query params
@@ -111,7 +102,7 @@ public class SearchViewer {
 
     // send search query to solr
     try{
-      response = solr.query(params);
+      response = search.query(params);
       SolrDocumentList list = response.getResults();
       for (SolrDocument doc : list) {
           items.add(new SearchItem(db, doc));
