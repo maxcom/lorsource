@@ -32,17 +32,13 @@
 		replacement=""
 		replace="first"
 		/>
+        <filter class="solr.LowerCaseFilterFactory"/>
       </analyzer>
     </fieldType>
 
     <fieldType name="text" class="solr.TextField" positionIncrementGap="100">
       <analyzer type="index">
 	<tokenizer class="solr.HTMLStripWhitespaceTokenizerFactory"/>
-	<filter class="solr.PatternReplaceFilterFactory"
-		pattern="^(Re:)++"
-		replacement=""
-		replace="first"
-		/>
 	<filter class="solr.PatternReplaceFilterFactory"
 		pattern="\[\/?(?:b|i|u|url|quote|code|img|color|size)*?.*?\]"
 		replacement=""
@@ -60,11 +56,6 @@
       </analyzer>
       <analyzer type="query">
         <tokenizer class="solr.HTMLStripWhitespaceTokenizerFactory"/>
-	<filter class="solr.PatternReplaceFilterFactory"
-		pattern="^(Re:)++"
-		replacement=""
-		replace="first"
-		/>
 	<filter class="solr.PatternReplaceFilterFactory"
 		pattern="\[\/?(?:b|i|u|url|quote|code|img|color|size)*?.*?\]"
 		replacement=""
@@ -88,9 +79,8 @@
 
  <fields>
    <field name="id"           type="string"                 stored="true" required="true" multiValued="false"/> 
-   <field name="group"        type="string"  indexed="true" stored="true"                 multiValued="false"/> 
    <field name="title"        type="text_ws" indexed="true" stored="true"                 multiValued="false"/>
-   <field name="message"      type="text"    indexed="true" stored="false"                multiValued="true"/>
+   <field name="message"      type="text"    indexed="true" stored="false"                multiValued="false"/>
    <field name="postdate"     type="date"    indexed="true" stored="true"                 multiValued="false"/>
    <field name="is_comment"   type="boolean" indexed="true" stored="true"                 multiValued="false"/>
    <dynamicField name="*_id"  type="int"                    stored="true"/>
@@ -99,5 +89,4 @@
  <uniqueKey>id</uniqueKey>
  <defaultSearchField>message</defaultSearchField>
  <solrQueryParser defaultOperator="OR"/>
- <copyField source="title" dest="message"/>
 </schema>
