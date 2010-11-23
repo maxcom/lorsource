@@ -10,19 +10,21 @@
 			       msgbase.message as message, 
 			       topics.userid   as user_id,
 			       groups.section  as section_id,
-			       'f' as is_comment 
+			       'f'             as is_comment 
 			from topics 
 			       join groups on (topics.groupid = groups.id)
 			       join msgbase on (topics.id = msgbase.id) 
 			union all 
 			select msgbase.id        as id, 
 			       topics.id         as topic_id,
-			       comments.title    as title, 
+			       case when comments.title != '' then comments.title 
+			                                      else topics.title
+                               end               as title, 
 			       comments.postdate as postdate,  
 			       msgbase.message   as message, 
 			       comments.userid   as user_id,
 			       groups.section    as section_id, 
-			       't' as is_comment 
+			       't'               as is_comment 
 			from comments 
 			       join topics on ( comments.topic = topics.id)
                                join groups on ( topics.groupid = groups.id)

@@ -3,6 +3,7 @@ package ru.org.linux.site;
 import java.net.MalformedURLException;
 import java.io.IOException;
 import java.sql.Timestamp;
+import java.sql.Connection;
 import java.util.Date;
 import org.apache.commons.logging.Log;                                                                                                                                           
 import org.apache.commons.logging.LogFactory; 
@@ -18,6 +19,7 @@ import org.apache.solr.common.SolrInputDocument;
 
 import ru.org.linux.site.Comment;
 import ru.org.linux.site.Message;
+import ru.org.linux.site.MessageNotFoundException;
 
 
 public class LorSearchSource {
@@ -71,7 +73,7 @@ public class LorSearchSource {
     }
   }
 
-  public static void updateComment(SolrServer server, Comment comment, int msgid, int sectionId, String message){
+  public static void updateComment(SolrServer server, Comment comment, int msgid, int sectionId, String message) throws java.sql.SQLException{
     if(server != null){
       UpdateRequest updateRequest = new UpdateRequest();
       updateRequest.setAction(AbstractUpdateRequest.ACTION.COMMIT, false, false);
@@ -83,8 +85,24 @@ public class LorSearchSource {
       doc.addField("section_id", sectionId );
       doc.addField("user_id", comment.getUserid() );
       doc.addField("topic_id", comment.getTopic() );
-
-      doc.addField("title", comment.getTitle() );
+      if(comment.getTitle().length() == 0){
+        Connection db = null;
+        try{
+          db = LorDataSource.getConnection();
+          Message topic = new Message(db, comment.getTopic());
+          doc.addField("title", topic.getTitle() );
+        } catch(java.sql.SQLException ex) {
+          logger.error("get title topic solr fail:"+ex.toString());
+        } catch(ru.org.linux.site.MessageNotFoundException ex) {
+          logger.error("get title topic solr fail:"+ex.toString());
+        } finally {
+          if (db!=null) {
+            db.close();
+          }
+        }
+      }else{
+        doc.addField("title", comment.getTitle() );
+      }
       doc.addField("message", message);
       Date postdate = comment.getPostdate();
       doc.addField("postdate", new Timestamp(postdate.getTime()));
