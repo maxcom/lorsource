@@ -15,11 +15,13 @@
 
 package ru.org.linux.spring.commons;
 
+import javax.annotation.PreDestroy;
+
+import ru.org.linux.site.MemCachedSettings;
+
 import net.spy.memcached.OperationTimeoutException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import ru.org.linux.site.MemCachedSettings;
 
 public class MemCachedProvider implements CacheProvider {
   private static final Log logger = LogFactory.getLog(MemCachedProvider.class);
@@ -63,5 +65,10 @@ public class MemCachedProvider implements CacheProvider {
   @Override
   public <T> void storeToCache(String key, T value) {
     storeToCache(key, value, 0);
+  }
+
+  public void destroy() {
+    logger.debug("Shutting down memcached");
+    MemCachedSettings.getMemCachedClient().shutdown();
   }
 }
