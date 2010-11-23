@@ -18,7 +18,6 @@ import org.apache.solr.common.SolrInputDocument;
 
 import ru.org.linux.site.Comment;
 import ru.org.linux.site.Message;
-import ru.org.linux.site.MessageNotFoundException;
 
 
 public class LorSearchSource {
@@ -81,7 +80,7 @@ public class LorSearchSource {
 
       doc.addField("id", msgid);
 
-      doc.addField("section_id", topic.getSectioId() );
+      doc.addField("section_id", topic.getSectionId() );
       doc.addField("user_id", comment.getUserid() );
       doc.addField("topic_id", comment.getTopic() );
       if(comment.getTitle().length() == 0){
