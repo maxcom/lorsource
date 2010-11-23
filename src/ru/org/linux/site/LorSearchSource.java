@@ -3,7 +3,6 @@ package ru.org.linux.site;
 import java.net.MalformedURLException;
 import java.io.IOException;
 import java.sql.Timestamp;
-import java.sql.Connection;
 import java.util.Date;
 import org.apache.commons.logging.Log;                                                                                                                                           
 import org.apache.commons.logging.LogFactory; 
@@ -73,7 +72,7 @@ public class LorSearchSource {
     }
   }
 
-  public static void updateComment(SolrServer server, Comment comment, int msgid, int sectionId, String message) throws java.sql.SQLException{
+  public static void updateComment(SolrServer server, Comment comment, Message topic, int msgid, String message){
     if(server != null){
       UpdateRequest updateRequest = new UpdateRequest();
       updateRequest.setAction(AbstractUpdateRequest.ACTION.COMMIT, false, false);
@@ -82,24 +81,11 @@ public class LorSearchSource {
 
       doc.addField("id", msgid);
 
-      doc.addField("section_id", sectionId );
+      doc.addField("section_id", topic.getSectioId() );
       doc.addField("user_id", comment.getUserid() );
       doc.addField("topic_id", comment.getTopic() );
       if(comment.getTitle().length() == 0){
-        Connection db = null;
-        try{
-          db = LorDataSource.getConnection();
-          Message topic = new Message(db, comment.getTopic());
-          doc.addField("title", topic.getTitle() );
-        } catch(java.sql.SQLException ex) {
-          logger.error("get title topic solr fail:"+ex.toString());
-        } catch(ru.org.linux.site.MessageNotFoundException ex) {
-          logger.error("get title topic solr fail:"+ex.toString());
-        } finally {
-          if (db!=null) {
-            db.close();
-          }
-        }
+        doc.addField("title", topic.getTitle() );
       }else{
         doc.addField("title", comment.getTitle() );
       }
