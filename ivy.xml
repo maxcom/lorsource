@@ -29,6 +29,10 @@
             <exclude module="servlet-api"/>
         </dependency>
         <dependency org="org.springframework" name="spring-jdbc" rev="3.0.5.RELEASE" conf="build->default"/>
+        <dependency org="org.springframework" name="spring-jms" rev="3.0.5.RELEASE" conf="build->default"/>
+        <dependency org="org.springframework" name="spring-context" rev="3.0.5.RELEASE" conf="build->default">
+            <exclude module="javax.ejb"/>
+        </dependency>
         <dependency org="taglibs" name="standard" rev="1.1.2" conf="build->default"/>
         <dependency org="jstl" name="jstl" rev="1.1.2" conf="build->default"/>
         <dependency org="javax.servlet" name="servlet-api" rev="2.4" conf="provided->default"/>
@@ -40,5 +44,9 @@
         <dependency org="spy" name="memcached" rev="2.5" conf="build->default"/>
 	<dependency org="com.google.collections" name="google-collections" rev="1.0" conf="build->default"/>
 	<dependency org="org.apache.solr" name="solr-solrj" rev="1.4.1" conf="build->default"/>
+	<dependency org="org.apache.activemq" name="activemq-core" rev="5.4.1" conf="build->default"/>
+	<dependency org="org.apache.xbean" name="xbean-spring" rev="3.7" conf="build->default">
+            <exclude module="spring-context"/>
+        </dependency>
     </dependencies>
 </ivy-module>
