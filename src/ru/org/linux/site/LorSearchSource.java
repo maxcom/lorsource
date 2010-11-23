@@ -83,10 +83,11 @@ public class LorSearchSource {
       doc.addField("section_id", topic.getSectionId() );
       doc.addField("user_id", comment.getUserid() );
       doc.addField("topic_id", comment.getTopic() );
-      if(comment.getTitle().length() == 0){
+      String comment_title = comment.getTitle();
+      if(comment_title == null || (comment_title != null && comment_title.length() == 0)){
         doc.addField("title", topic.getTitle() );
       }else{
-        doc.addField("title", comment.getTitle() );
+        doc.addField("title", comment_title );
       }
       doc.addField("message", message);
       Date postdate = comment.getPostdate();
