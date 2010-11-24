@@ -4,6 +4,7 @@ import java.net.MalformedURLException;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.Date;
+import java.lang.Integer;
 import org.apache.commons.logging.Log;                                                                                                                                           
 import org.apache.commons.logging.LogFactory; 
 import javax.naming.InitialContext;
@@ -109,7 +110,7 @@ public class LorSearchSource {
   }
   public static void delete(SolrServer server, int msgid){
     try {
-      //server.deleteById((string) msgid);
+      server.deleteById((Integer.toString(msgid)));
     } catch (Exception ex) {
       logger.error("[SolR]: the index cannot be cleaned :"+ex.toString());
     }

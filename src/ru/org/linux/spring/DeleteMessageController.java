@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
+import org.apache.solr.client.solrj.SolrServer;
 
 import ru.org.linux.site.*;
 
@@ -85,8 +86,10 @@ public class DeleteMessageController extends ApplicationObjectSupport {
     Template tmpl = Template.getTemplate(request);
 
     Connection db = null;
+    SolrServer search = null;
     try {
       db = LorDataSource.getConnection();
+      search = LorSearchSource.getConnection();
       db.setAutoCommit(false);
       tmpl.initCurrentUser(db);
 
@@ -195,6 +198,7 @@ public class DeleteMessageController extends ApplicationObjectSupport {
 
       st1.close();
       st2.close();
+      LorSearchSource.delete(search, msgid);  
       db.commit();
 
       return new ModelAndView("action-done", "message", "Сообщение удалено");
@@ -249,8 +253,10 @@ public class DeleteMessageController extends ApplicationObjectSupport {
     }
 
     Connection db = null;
+    SolrServer search = null;
     try {
       db = LorDataSource.getConnection();
+      search = LorSearchSource.getConnection();
       db.setAutoCommit(false);
       tmpl.initCurrentUser(db);
 
@@ -278,6 +284,7 @@ public class DeleteMessageController extends ApplicationObjectSupport {
 
       st1.close();
       st2.close();
+      LorSearchSource.updateMessage(search, message, msgid);  
 
       db.commit();
 
