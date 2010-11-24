@@ -107,4 +107,12 @@ public class LorSearchSource {
       logger.error("solr fail");
     }
   }
+  public static void delete(SolrServer server, int msgid){
+    try {
+      //server.deleteById((string) msgid);
+    } catch (Exception ex) {
+      logger.error("[SolR]: the index cannot be cleaned :"+ex.toString());
+    }
+  }
+  
 }

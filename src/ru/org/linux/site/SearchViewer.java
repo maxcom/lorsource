@@ -97,7 +97,7 @@ public class SearchViewer {
       }
     }
     if(sort == SORT_DATE){
-      params.set("sort:postdate desc");
+      params.set("sort","postdate desc");
     }
     params.set("rows:100"); // maximum number of documents from the complete result set to return to the client
 
