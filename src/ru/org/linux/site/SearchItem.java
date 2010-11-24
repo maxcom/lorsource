@@ -16,17 +16,10 @@
 package ru.org.linux.site;
 
 import java.io.Serializable;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.sql.PreparedStatement;
-import java.lang.Integer;
+import java.sql.*;
 import java.util.Date;
+
 import org.apache.solr.common.SolrDocument;
-
-import ru.org.linux.util.StringUtil;
-
 import org.javabb.bbcode.BBCodeProcessor;
 
 public class SearchItem implements Serializable {
@@ -42,7 +35,6 @@ public class SearchItem implements Serializable {
   private static final long serialVersionUID = -8100510220616995405L;
 
   SearchItem(Connection db, SolrDocument doc) throws SQLException {
-    String dbquery="select message,bbcode from msgbase where id=?";
     msgid = Integer.valueOf(doc.getFieldValue("id").toString());
     title = (String) doc.getFieldValue("title");
     int userid = (Integer) doc.getFieldValue("user_id");
@@ -52,7 +44,8 @@ public class SearchItem implements Serializable {
     
     PreparedStatement pst = null;
     try {
-      pst = db.prepareStatement(dbquery.toString());
+      String dbquery = "select message,bbcode from msgbase where id=?";
+      pst = db.prepareStatement(dbquery);
       pst.setInt(1, msgid);
       ResultSet rs = pst.executeQuery();
       
