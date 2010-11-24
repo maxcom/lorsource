@@ -203,13 +203,13 @@ public class DeleteMessageController extends ApplicationObjectSupport {
 
       // Delete msgs from search index 
       
-      PreparedStatement psCommentsTopic = db.prepareStatement("SELECT msgid FROM comments WHERE topic=? AND deleted='f'");
+      PreparedStatement psCommentsTopic = db.prepareStatement("SELECT id FROM comments WHERE topic=? AND deleted='f'");
       psCommentsTopic.setInt(1, msgid);
       ResultSet rsCommentsTopic = psCommentsTopic.executeQuery();
       List<String> msgids = new ArrayList<String>();
       msgids.add(Integer.toString(msgid));
       while (rsCommentsTopic.next()) {
-        int r = rsCommentsTopic.getInt("msgid");
+        int r = rsCommentsTopic.getInt("id");
         msgids.add(Integer.toString(r));
       }
 

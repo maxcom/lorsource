@@ -106,7 +106,7 @@ public class LorSearchSource {
 
     while (comments.next()) {
       SolrInputDocument doc = new SolrInputDocument();
-      doc.addField("id", comments.getString("section_id"));
+      doc.addField("id", comments.getInt("id"));
       doc.addField("section_id", comments.getString("section_id"));
       doc.addField("user_id", comments.getInt("user_id"));
       doc.addField("topic_id", topicid);
