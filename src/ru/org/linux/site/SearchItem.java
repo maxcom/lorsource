@@ -55,7 +55,11 @@ public class SearchItem implements Serializable {
       pst = db.prepareStatement(dbquery.toString());
       pst.setInt(1, msgid);
       ResultSet rs = pst.executeQuery();
-      rs.next();
+      
+      if (!rs.next()) {
+        throw new RuntimeException("Can't find msgid "+msgid);
+      }
+
       String rawMessage = rs.getString("message");
       bbcode = rs.getBoolean("bbcode");
       if (bbcode) {

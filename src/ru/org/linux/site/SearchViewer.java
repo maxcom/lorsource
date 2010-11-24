@@ -64,7 +64,7 @@ public class SearchViewer {
     this.query = query;
   }
 
-  public List<SearchItem> show(Connection db) throws SQLException, UserErrorException{
+  public List<SearchItem> show(Connection db) throws SQLException, UserErrorException, SolrServerException {
     QueryResponse response;
     SolrServer search = LorSearchSource.getConnection();
     ModifiableSolrParams params = new ModifiableSolrParams();
@@ -102,14 +102,10 @@ public class SearchViewer {
     params.set("rows:100"); // maximum number of documents from the complete result set to return to the client
 
     // send search query to solr
-    try{
-      response = search.query(params);
-      SolrDocumentList list = response.getResults();
-      for (SolrDocument doc : list) {
-          items.add(new SearchItem(db, doc));
-      }
-    }catch(SolrServerException ex){
-      logger.error("Error search:"+ex.toString());
+    response = search.query(params);
+    SolrDocumentList list = response.getResults();
+    for (SolrDocument doc : list) {
+      items.add(new SearchItem(db, doc));
     }
 
     return ImmutableList.copyOf(items);

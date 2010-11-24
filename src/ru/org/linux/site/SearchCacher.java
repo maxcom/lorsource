@@ -21,11 +21,13 @@ import java.util.List;
 
 import ru.org.linux.spring.commons.CacheProvider;
 
+import org.apache.solr.client.solrj.SolrServerException;
+
 public class SearchCacher {
   private boolean fromCache;
   private long time = -1;
 
-  public List<SearchItem> get(SearchViewer viewer, boolean nocache) throws SQLException, UserErrorException {
+  public List<SearchItem> get(SearchViewer viewer, boolean nocache) throws SQLException, UserErrorException, SolrServerException {
     CacheProvider mcc = MemCachedSettings.getCache();
 
     String cacheId = viewer.getVariantID();
