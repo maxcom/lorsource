@@ -15,6 +15,7 @@
 
 package ru.org.linux.site;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.net.URLEncoder;
 import java.sql.*;
@@ -28,6 +29,7 @@ import ru.org.linux.spring.commons.CacheProvider;
 import ru.org.linux.util.StringUtil;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.solr.client.solrj.SolrServerException;
 import org.springframework.jdbc.support.JdbcUtils;
 
 public class User implements Serializable {
@@ -360,7 +362,7 @@ public class User implements Serializable {
     }
   }
 
-  public String deleteAllComments(Connection db, User moderator) throws SQLException, ScriptErrorException {
+  public String deleteAllComments(Connection db, User moderator) throws SQLException, ScriptErrorException, IOException, SolrServerException {
     Statement st = null;
     ResultSet rs = null;
     CommentDeleter deleter = null;
