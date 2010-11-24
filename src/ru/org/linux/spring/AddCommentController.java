@@ -23,6 +23,10 @@ import java.util.Map;
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+
+import ru.org.linux.site.*;
+import ru.org.linux.util.HTMLFormatter;
+
 import org.jdom.Verifier;
 import org.springframework.context.support.ApplicationObjectSupport;
 import org.springframework.stereotype.Controller;
@@ -31,10 +35,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
-import org.apache.solr.client.solrj.SolrServer;
-
-import ru.org.linux.site.*;
-import ru.org.linux.util.HTMLFormatter;
 
 @Controller
 public class AddCommentController extends ApplicationObjectSupport {
@@ -144,8 +144,6 @@ public class AddCommentController extends ApplicationObjectSupport {
     HttpSession session = request.getSession();
 
     Connection db = null;
-    SolrServer search = null;
-    
 
     Template tmpl = Template.getTemplate(request);
 
@@ -160,7 +158,6 @@ public class AddCommentController extends ApplicationObjectSupport {
 
       // prechecks is over
       db = LorDataSource.getConnection();
-      search = LorSearchSource.getConnection();
       db.setAutoCommit(false);
       tmpl.initCurrentUser(db);
 
@@ -192,8 +189,6 @@ public class AddCommentController extends ApplicationObjectSupport {
       }
 
       user.checkBlocked();
-
-      boolean lorcode = true;
 
       Comment comment = new Comment(replyto, title, topicId, 0, request.getHeader("user-agent"), request.getRemoteAddr());
 
@@ -253,8 +248,9 @@ public class AddCommentController extends ApplicationObjectSupport {
 
         logger.info(logmessage);
 
+        LorSearchSource.updateComment(LorSearchSource.getConnection(), comment, topic, msgid, msg);
+
         db.commit();
-        LorSearchSource.updateComment(search, comment, topic, msgid, msg);  
 
         String returnUrl = "jump-message.jsp?msgid=" + topicId + "&cid=" + msgid;
 
