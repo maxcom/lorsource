@@ -20,7 +20,6 @@
 <%--@elvariable id="result" type="java.util.List<ru.org.linux.site.SearchItem>"--%>
 <%--@elvariable id="boolean" type="java.lang.Boolean"--%>
 <%--@elvariable id="initial" type="java.lang.Boolean"--%>
-<%--@elvariable id="cached" type="java.lang.Boolean"--%>
 <%--@elvariable id="q" type="java.lang.String"--%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <%--@elvariable id="usertopic" type="java.lang.String"--%>
@@ -113,12 +112,7 @@
 
   <p>
     <i>
-      <c:if test="${cached}">
-        Результаты извлечены из кеша, время поиска: ${time} ms
-      </c:if>
-      <c:if test="${not cached}">
-        Результаты извлечены из БД, время поиска: ${time} ms 
-      </c:if>
+      Результаты извлечены из БД, время поиска: ${time} ms
     </i>
   </p>
 </c:if>
