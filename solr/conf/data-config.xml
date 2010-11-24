@@ -13,7 +13,8 @@
 			       'f'             as is_comment 
 			from topics 
 			       join groups on (topics.groupid = groups.id)
-			       join msgbase on (topics.id = msgbase.id) 
+			       join msgbase on (topics.id = msgbase.id)
+			where  topics.deleted = 'f'
 			union all 
 			select msgbase.id        as id, 
 			       topics.id         as topic_id,
@@ -29,6 +30,7 @@
 			       join topics on ( comments.topic = topics.id)
                                join groups on ( topics.groupid = groups.id)
 			       join msgbase on ( comments.id = msgbase.id )
+			where  comments.deleted = 'f' and comments.topic_deleted = 'f'
 			" />
 	</document>
 </dataConfig>

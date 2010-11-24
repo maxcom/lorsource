@@ -19,8 +19,11 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrServerException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -40,7 +43,7 @@ public class CommentDeleter {
     updateScore = db.prepareStatement("UPDATE users SET score=score+? WHERE id=(SELECT userid FROM comments WHERE id=?)");
   }
 
-  public String deleteComment(int msgid, String reason, User user, int scoreBonus) throws SQLException, ScriptErrorException {
+  public String deleteComment(int msgid, String reason, User user, int scoreBonus) throws SQLException, ScriptErrorException, IOException, SolrServerException {
     if (!getReplys(msgid).isEmpty()) {
       throw new ScriptErrorException("Нельзя удалить комментарий с ответами");
     }
@@ -59,16 +62,17 @@ public class CommentDeleter {
     deleteComment.executeUpdate();
     insertDelinfo.executeUpdate();
     updateScore.executeUpdate();
+    LorSearchSource.delete(LorSearchSource.getConnection(), msgid);  
 
     logger.info("Удалено сообщение " + msgid + " пользователем " + user.getNick() + " по причине `" + reason + '\'');
     return "Сообщение " + msgid + " удалено";
   }
 
-  public String deleteReplys(int msgid, User user, boolean score) throws SQLException, ScriptErrorException {
+  public String deleteReplys(int msgid, User user, boolean score) throws SQLException, ScriptErrorException, IOException, SolrServerException {
     return deleteReplys(msgid, user, score, 0);
   }
 
-  private String deleteReplys(int msgid, User user, boolean score, int depth) throws SQLException, ScriptErrorException {
+  private String deleteReplys(int msgid, User user, boolean score, int depth) throws SQLException, ScriptErrorException, IOException, SolrServerException {
     List<Integer> replys = getReplys(msgid);
 
     StringBuilder out = new StringBuilder();

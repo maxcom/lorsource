@@ -3,10 +3,12 @@ package ru.org.linux.site;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.sql.Timestamp;
-import java.util.Date;
 import java.lang.Integer;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Date;
 
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -85,6 +87,11 @@ public class LorSearchSource {
   }
   public static void delete(SolrServer server, int msgid) throws IOException, SolrServerException {
     server.deleteById((Integer.toString(msgid)));
+    server.commit();
+  }
+  public static void delete(SolrServer server, List<String> msgids) throws IOException, SolrServerException {
+    server.deleteById(msgids);
+    server.commit();
   }
   
 }

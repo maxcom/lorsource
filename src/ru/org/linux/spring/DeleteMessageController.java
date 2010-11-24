@@ -19,6 +19,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
+import java.lang.Integer;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -86,10 +89,8 @@ public class DeleteMessageController extends ApplicationObjectSupport {
     Template tmpl = Template.getTemplate(request);
 
     Connection db = null;
-    SolrServer search = null;
     try {
       db = LorDataSource.getConnection();
-      search = LorSearchSource.getConnection();
       db.setAutoCommit(false);
       tmpl.initCurrentUser(db);
 
@@ -198,8 +199,21 @@ public class DeleteMessageController extends ApplicationObjectSupport {
 
       st1.close();
       st2.close();
-      LorSearchSource.delete(search, msgid);  
       db.commit();
+
+      // Delete msgs from search index 
+      
+      PreparedStatement psCommentsTopic = db.prepareStatement("SELECT msgid FROM comments WHERE topic=? AND deleted='f'");
+      psCommentsTopic.setInt(1, msgid);
+      ResultSet rsCommentsTopic = psCommentsTopic.executeQuery();
+      List<String> msgids = new ArrayList<String>();
+      msgids.add(Integer.toString(msgid));
+      while (rsCommentsTopic.next()) {
+        int r = rsCommentsTopic.getInt("msgid");
+        msgids.add(Integer.toString(r));
+      }
+
+      LorSearchSource.delete(LorSearchSource.getConnection(), msgids);
 
       return new ModelAndView("action-done", "message", "Сообщение удалено");
     } finally {
@@ -253,10 +267,8 @@ public class DeleteMessageController extends ApplicationObjectSupport {
     }
 
     Connection db = null;
-    SolrServer search = null;
     try {
       db = LorDataSource.getConnection();
-      search = LorSearchSource.getConnection();
       db.setAutoCommit(false);
       tmpl.initCurrentUser(db);
 
@@ -284,7 +296,7 @@ public class DeleteMessageController extends ApplicationObjectSupport {
 
       st1.close();
       st2.close();
-      LorSearchSource.updateMessage(search, message, msgid);  
+      LorSearchSource.updateMessage(LorSearchSource.getConnection(), message, msgid);  
 
       db.commit();
 
