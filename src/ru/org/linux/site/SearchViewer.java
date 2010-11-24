@@ -15,33 +15,20 @@
 
 package ru.org.linux.site;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.solr.client.solrj.SolrServer;
-import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.CommonsHttpSolrServer;
-import org.apache.solr.client.solrj.response.QueryResponse;
-import org.apache.solr.common.params.ModifiableSolrParams;
-import org.apache.solr.common.SolrDocument;
-import org.apache.solr.common.SolrDocumentList;
-import org.apache.solr.common.util.SimpleOrderedMap;
-import java.net.MalformedURLException;
-import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.commons.logging.Log;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
-import org.apache.commons.logging.LogFactory; 
 
 import com.google.common.collect.ImmutableList;
+import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.common.SolrDocument;
+import org.apache.solr.common.SolrDocumentList;
+import org.apache.solr.common.params.ModifiableSolrParams;
 
 public class SearchViewer {
-  private static final Log logger = LogFactory.getLog(SearchViewer.class);
   public static final int SEARCH_TOPICS = 1;
   public static final int SEARCH_ALL = 0;
 
@@ -64,8 +51,7 @@ public class SearchViewer {
     this.query = query;
   }
 
-  public List<SearchItem> show(Connection db) throws SQLException, UserErrorException{
-    QueryResponse response;
+  public List<SearchItem> show(Connection db) throws SQLException, UserErrorException, SolrServerException {
     SolrServer search = LorSearchSource.getConnection();
     ModifiableSolrParams params = new ModifiableSolrParams();
     List<SearchItem> items = new ArrayList<SearchItem>();
@@ -102,25 +88,13 @@ public class SearchViewer {
     params.set("rows:100"); // maximum number of documents from the complete result set to return to the client
 
     // send search query to solr
-    try{
-      response = search.query(params);
-      SolrDocumentList list = response.getResults();
-      for (SolrDocument doc : list) {
-          items.add(new SearchItem(db, doc));
-      }
-    }catch(SolrServerException ex){
-      logger.error("Error search:"+ex.toString());
+    QueryResponse response = search.query(params);
+    SolrDocumentList list = response.getResults();
+    for (SolrDocument doc : list) {
+      items.add(new SearchItem(db, doc));
     }
 
     return ImmutableList.copyOf(items);
-  }
-
-  public String getVariantID() {
-    try {
-      return "search?q="+ URLEncoder.encode(query, "koi8-r")+"&include="+include+"&date="+date+"&section="+section+"&sort="+sort+"&username="+URLEncoder.encode(username);
-    } catch (UnsupportedEncodingException e) {
-      throw new RuntimeException(e);
-    }
   }
 
   public void setInclude(int include) {

@@ -36,7 +36,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
-import org.apache.solr.client.solrj.SolrServer;
 
 @Controller
 public class EditController extends ApplicationObjectSupport {
@@ -167,10 +166,8 @@ public class EditController extends ApplicationObjectSupport {
     Map<String, Object> params = new HashMap<String, Object>();
 
     Connection db = null;
-    SolrServer search = null;
     try {
       db = LorDataSource.getConnection();
-      search = LorSearchSource.getConnection();
       db.setAutoCommit(false);
       tmpl.initCurrentUser(db);
 
@@ -316,7 +313,8 @@ public class EditController extends ApplicationObjectSupport {
           if (modified || messageModified || modifiedTags) {
             logger.info("сообщение " + message.getId() + " исправлено " + session.getValue("nick"));
           }
-          LorSearchSource.updateMessage(search, newMsg, newMsg.getId());
+
+          LorSearchSource.updateMessage(LorSearchSource.getConnection(), newMsg, newMsg.getId());
 
           db.commit();
 

@@ -15,10 +15,13 @@
 
 package ru.org.linux.spring;
 
+import java.sql.Connection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-import ru.org.linux.site.SearchCacher;
+import ru.org.linux.site.LorDataSource;
+import ru.org.linux.site.SearchItem;
 import ru.org.linux.site.SearchViewer;
 
 import org.springframework.stereotype.Controller;
@@ -92,13 +95,24 @@ public class SearchController {
       sv.setUser(username);
       sv.setUserTopic(usertopic);
 
-      SearchCacher cacher = new SearchCacher();
+      List<SearchItem> res = null;
+      long time;
 
-      params.put("result", cacher.get(sv, false));
+      Connection db = null;
+      try {
+        long current = System.currentTimeMillis();
+        db = LorDataSource.getConnection();
+        res = sv.show(db);
+        time = System.currentTimeMillis() - current;
+      } finally {
+        if (db != null) {
+          db.close();
+        }
+      }
 
-      params.put("cached", cacher.isFromCache());
+      params.put("result", res);
 
-      params.put("time", cacher.getTime());
+      params.put("time", time);
     }
 
     return new ModelAndView("search", params);
