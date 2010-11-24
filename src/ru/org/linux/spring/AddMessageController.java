@@ -23,6 +23,8 @@ import java.util.Random;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.ApplicationObjectSupport;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -36,6 +38,13 @@ import ru.org.linux.util.BadURLException;
 
 @Controller
 public class AddMessageController extends ApplicationObjectSupport {
+  private SearchQueueSender searchQueueSender;
+
+  @Autowired
+  public void setSearchQueueSender(SearchQueueSender searchQueueSender) {
+    this.searchQueueSender = searchQueueSender;
+  }
+
   @RequestMapping(value = "/add.jsp", method = RequestMethod.GET)
   public ModelAndView add(HttpServletRequest request) throws Exception {
     Map<String, Object> params = new HashMap<String, Object>();
@@ -141,7 +150,9 @@ public class AddMessageController extends ApplicationObjectSupport {
 
         db.commit();
 
-        LorSearchSource.updateMessage(LorSearchSource.getConnection(), previewMsg, msgid);  
+        searchQueueSender.updateMessageOnly(msgid);
+
+//        LorSearchSource.updateMessage(LorSearchSource.getConnection(), previewMsg, msgid);
 
         Random random = new Random();
 
