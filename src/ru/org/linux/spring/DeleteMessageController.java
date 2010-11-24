@@ -296,9 +296,16 @@ public class DeleteMessageController extends ApplicationObjectSupport {
 
       st1.close();
       st2.close();
-      LorSearchSource.updateMessage(LorSearchSource.getConnection(), message, msgid);  
 
       db.commit();
+      // Undelete msgs from search index 
+      
+      PreparedStatement psCommentsTopic = db.prepareStatement("select msgbase.id as id, case when comments.title != '' then comments.title else topics.title end as title, comments.postdate as postdate, msgbase.message as message, comments.userid as user_id, groups.section as section_id from comments join topics on ( comments.topic = topics.id) join groups on ( topics.groupid = groups.id) join msgbase on ( comments.id = msgbase.id ) where  comments.deleted = 'f' and topics.id=?");
+      psCommentsTopic.setInt(1, msgid);
+      ResultSet rsCommentsTopic = psCommentsTopic.executeQuery();
+
+      LorSearchSource.updateMessage(LorSearchSource.getConnection(), message, msgid); 
+      LorSearchSource.undeleteComments(LorSearchSource.getConnection(), msgid, rsCommentsTopic);
 
       return new ModelAndView("action-done", "message", "Сообщение восстановлено");
     } finally {

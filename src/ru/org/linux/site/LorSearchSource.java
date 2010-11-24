@@ -3,10 +3,13 @@ package ru.org.linux.site;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.sql.Timestamp;
+import java.sql.ResultSet;
+import java.sql.SQLException; 
 import java.lang.Integer;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Date;
 
@@ -85,13 +88,37 @@ public class LorSearchSource {
 
     updateRequest.process(server);
   }
+
   public static void delete(SolrServer server, int msgid) throws IOException, SolrServerException {
     server.deleteById((Integer.toString(msgid)));
     server.commit();
   }
+
   public static void delete(SolrServer server, List<String> msgids) throws IOException, SolrServerException {
     server.deleteById(msgids);
     server.commit();
+  }
+
+  public static void undeleteComments(SolrServer server, int topicid, ResultSet comments) throws IOException, SolrServerException, SQLException {
+    Collection<SolrInputDocument> docs = new ArrayList<SolrInputDocument>();
+    UpdateRequest updateRequest = new UpdateRequest();
+    updateRequest.setAction(AbstractUpdateRequest.ACTION.COMMIT, false, false);
+
+    while (comments.next()) {
+      SolrInputDocument doc = new SolrInputDocument();
+      doc.addField("id", comments.getString("section_id"));
+      doc.addField("section_id", comments.getString("section_id"));
+      doc.addField("user_id", comments.getInt("user_id"));
+      doc.addField("topic_id", topicid);
+      doc.addField("title", comments.getString("title"));
+      doc.addField("message", comments.getString("message"));
+      doc.addField("postdate", comments.getTimestamp("postdate"));
+      doc.addField("is_comment", true);
+      docs.add(doc);
+
+    }
+    updateRequest.add(docs);
+    updateRequest.process(server);
   }
   
 }
