@@ -16,6 +16,8 @@
 package ru.org.linux.spring;
 
 import java.io.Serializable;
+import java.util.Collections;
+import java.util.List;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
@@ -62,7 +64,16 @@ public class SearchQueueSender {
     jmsTemplate.send(queue, new MessageCreator() {
       @Override
       public Message createMessage(Session session) throws JMSException {
-        return session.createObjectMessage(new UpdateComment(msgid));
+        return session.createObjectMessage(new UpdateComments(Collections.singletonList(msgid)));
+      }
+    });
+  }
+
+  public void updateComment(final List<Integer> msgids) {
+    jmsTemplate.send(queue, new MessageCreator() {
+      @Override
+      public Message createMessage(Session session) throws JMSException {
+        return session.createObjectMessage(new UpdateComments(msgids));
       }
     });
   }
@@ -87,16 +98,16 @@ public class SearchQueueSender {
     }
   }
 
-  public static class UpdateComment implements Serializable {
-    private final int msgid;
-    private static final long serialVersionUID = 569168126267654895L;
+  public static class UpdateComments implements Serializable {
+    private final List<Integer> msgids;
+    private static final long serialVersionUID = 8277563519169476453L;
 
-    public UpdateComment(int msgid) {
-      this.msgid = msgid;
+    public UpdateComments(List<Integer> msgids) {
+      this.msgids = msgids;
     }
 
-    public int getMsgid() {
-      return msgid;
+    public List<Integer> getMsgids() {
+      return Collections.unmodifiableList(msgids);
     }
   }
 }

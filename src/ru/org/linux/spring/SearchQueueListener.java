@@ -62,7 +62,7 @@ public class SearchQueueListener {
       if (!msg.isDeleted()) {
         updateMessage(msg);
       } else {
-        LorSearchSource.delete(solrServer, msg.getId());
+        delete(msg.getId());
       }
       
       if (msgUpdate.isWithComments()) {
@@ -86,25 +86,33 @@ public class SearchQueueListener {
     }
   }
 
-  public void handleMessage(SearchQueueSender.UpdateComment msgUpdate) throws SQLException, MessageNotFoundException, IOException, SolrServerException {
-    logger.info("Indexing "+msgUpdate.getMsgid());
+  public void handleMessage(SearchQueueSender.UpdateComments msgUpdate) throws SQLException, MessageNotFoundException, IOException, SolrServerException {
+    logger.info("Indexing "+msgUpdate.getMsgids());
 
     Connection db = LorDataSource.getConnection();
     PreparedStatement pst = null;
 
     try {
-      Comment comment = new Comment(db, msgUpdate.getMsgid());
-      Message topic = new Message(db, comment.getTopic());
       pst = db.prepareStatement("SELECT message FROM msgbase WHERE id=?");
-      pst.setInt(1, comment.getId());
-      ResultSet rs = pst.executeQuery();
-      if (!rs.next()) {
-        throw new RuntimeException("Can't load message text for "+comment.getId());
+
+      for (Integer msgid : msgUpdate.getMsgids()) {
+        Comment comment = new Comment(db, msgid);
+
+        // комментарии могут быть из разного топика в функция массового удаления
+        // возможно для скорости нужен какой-то кеш топиков, т.к. чаще бывает что все
+        // комментарии из одного топика
+        Message topic = new Message(db, comment.getTopic()); 
+
+        pst.setInt(1, comment.getId());
+        ResultSet rs = pst.executeQuery();
+        if (!rs.next()) {
+          throw new RuntimeException("Can't load message text for " + comment.getId());
+        }
+
+        String message = rs.getString(1);
+
+        updateComment(comment, topic, comment.getId(), message);
       }
-
-      String message = rs.getString(1);
-
-      updateComment(comment, topic, comment.getId(), message);
     } finally {
       JdbcUtils.closeStatement(pst);
       JdbcUtils.closeConnection(db);
@@ -196,6 +204,11 @@ public class SearchQueueListener {
 
   private void delete(List<String> msgids) throws IOException, SolrServerException {
     solrServer.deleteById(msgids);
+    solrServer.commit();
+  }
+
+  private void delete(int msgid) throws IOException, SolrServerException {
+    solrServer.deleteById((Integer.toString(msgid)));
     solrServer.commit();
   }
 }

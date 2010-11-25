@@ -24,6 +24,9 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Required;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -34,6 +37,14 @@ import ru.org.linux.site.*;
 
 @Controller
 public class DeleteCommentController {
+  private SearchQueueSender searchQueueSender;
+
+  @Autowired
+  @Required
+  public void setSearchQueueSender(SearchQueueSender searchQueueSender) {
+    this.searchQueueSender = searchQueueSender;
+  }
+
   @RequestMapping(value = "/delete_comment.jsp", method = RequestMethod.GET)
   public ModelAndView showForm(
     HttpSession session,
@@ -114,7 +125,7 @@ public class DeleteCommentController {
       db.setAutoCommit(false);
       tmpl.initCurrentUser(db);
 
-      CommentDeleter deleter = new CommentDeleter(db);
+      CommentDeleter deleter = new CommentDeleter(db, searchQueueSender);
 
       User user = Template.getCurrentUser(db, session);
       user.checkBlocked();
@@ -168,7 +179,7 @@ public class DeleteCommentController {
       if (!selfDel) {
         List<Integer> deletedReplys = deleter.deleteReplys(msgid, user, bonus > 2);
         if (!deletedReplys.isEmpty()) {
-          out.append("Удаленные ответы: "+ deletedReplys+"<br>");
+          out.append("Удаленные ответы: ").append(deletedReplys).append("<br>");
         }
 
         deleter.deleteComment(msgid, reason, user, -bonus);
@@ -176,7 +187,7 @@ public class DeleteCommentController {
         deleter.deleteComment(msgid, reason, user, 0);
       }
 
-      out.append("Сообщение "+msgid+" удалено");
+      out.append("Сообщение ").append(msgid).append(" удалено");
 
       deleter.close();
 

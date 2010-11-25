@@ -26,6 +26,9 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Required;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -36,6 +39,14 @@ import ru.org.linux.site.*;
 
 @Controller
 public class DelIPController {
+  private SearchQueueSender searchQueueSender;
+
+  @Autowired
+  @Required
+  public void setSearchQueueSender(SearchQueueSender searchQueueSender) {
+    this.searchQueueSender = searchQueueSender;
+  }
+
   @RequestMapping(value="/delip.jsp", method= RequestMethod.POST)
   public ModelAndView delIp(HttpServletRequest request,
                             @RequestParam("reason") String reason,
@@ -107,7 +118,7 @@ public class DelIPController {
         params.put("topics", topicCounter);
     
         // Delete user comments
-        deleter = new CommentDeleter(db);
+        deleter = new CommentDeleter(db, searchQueueSender);
     
         st = db.prepareStatement("SELECT id FROM comments WHERE postip=?::inet AND not deleted AND postdate>? ORDER BY id DESC FOR update");
         st.setString(1,ip);
