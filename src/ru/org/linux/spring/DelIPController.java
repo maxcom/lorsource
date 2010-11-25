@@ -123,7 +123,8 @@ public class DelIPController {
             continue;
           }
 
-          deleted.put(msgid, deleter.deleteComment(msgid, reason, moderator, 0));
+          deleter.deleteComment(msgid, reason, moderator, 0);
+          deleted.put(msgid, "Сообщение "+msgid+" удалено");
         }
 
         params.put("deleted", deleted);        

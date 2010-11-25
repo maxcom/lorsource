@@ -166,11 +166,17 @@ public class DeleteCommentController {
       StringBuilder out = new StringBuilder();
 
       if (!selfDel) {
-        out.append(deleter.deleteReplys(msgid, user, bonus > 2));
-        out.append(deleter.deleteComment(msgid, reason, user, -bonus));
+        List<Integer> deletedReplys = deleter.deleteReplys(msgid, user, bonus > 2);
+        if (!deletedReplys.isEmpty()) {
+          out.append("Удаленные ответы: "+ deletedReplys+"<br>");
+        }
+
+        deleter.deleteComment(msgid, reason, user, -bonus);
       } else {
-        out.append(deleter.deleteComment(msgid, reason, user, 0));
+        deleter.deleteComment(msgid, reason, user, 0);
       }
+
+      out.append("Сообщение "+msgid+" удалено");
 
       deleter.close();
 
