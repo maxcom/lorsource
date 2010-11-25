@@ -116,8 +116,16 @@
 
     <jee:jndi-lookup jndi-name="java:/comp/env/solr/url" id="solr-url"/>
 
+    <!-- unfortunately shutdown method do not kill all threads, we need to call shutdownAll -->
+    <bean id="httpConnectionManager" destroy-method="shutdownAll" class="org.apache.commons.httpclient.MultiThreadedHttpConnectionManager"/>
+
+    <bean id="httpClient" class="org.apache.commons.httpclient.HttpClient">
+        <constructor-arg ref="httpConnectionManager"/>
+    </bean>
+
     <bean id="solr" class="org.apache.solr.client.solrj.impl.CommonsHttpSolrServer">
         <constructor-arg type="java.lang.String" ref="solr-url"/>
+        <constructor-arg ref="httpClient"/>
     </bean>
 
     <bean id="searchQueueListener" class="ru.org.linux.spring.SearchQueueListener">
