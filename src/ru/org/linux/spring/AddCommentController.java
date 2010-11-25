@@ -28,6 +28,8 @@ import ru.org.linux.site.*;
 import ru.org.linux.util.HTMLFormatter;
 
 import org.jdom.Verifier;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.support.ApplicationObjectSupport;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -38,6 +40,14 @@ import org.springframework.web.servlet.view.RedirectView;
 
 @Controller
 public class AddCommentController extends ApplicationObjectSupport {
+  private SearchQueueSender searchQueueSender;
+
+  @Autowired
+  @Required
+  public void setSearchQueueSender(SearchQueueSender searchQueueSender) {
+    this.searchQueueSender = searchQueueSender;
+  }
+
   @RequestMapping(value = "/add_comment.jsp", method = RequestMethod.GET)
   public ModelAndView showForm(
     @RequestParam("topic") int topicId,
@@ -248,7 +258,7 @@ public class AddCommentController extends ApplicationObjectSupport {
 
         logger.info(logmessage);
 
-        LorSearchSource.updateComment(LorSearchSource.getConnection(), comment, topic, msgid, msg);
+        searchQueueSender.updateComment(msgid);
 
         db.commit();
 

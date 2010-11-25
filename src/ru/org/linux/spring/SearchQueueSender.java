@@ -45,21 +45,53 @@ public class SearchQueueSender {
     this.queue = queue;
   }
 
-  public void updateMessageOnly(final int msgid) {
+  public void updateMessageOnly(int msgid) {
+    updateMessage(msgid, false);
+  }
+
+  public void updateMessage(final int msgid, final boolean withComments) {
     jmsTemplate.send(queue, new MessageCreator() {
       @Override
       public Message createMessage(Session session) throws JMSException {
-        return session.createObjectMessage(new UpdateMessage(msgid));
+        return session.createObjectMessage(new UpdateMessage(msgid, withComments));
+      }
+    });
+  }
+
+  public void updateComment(final int msgid) {
+    jmsTemplate.send(queue, new MessageCreator() {
+      @Override
+      public Message createMessage(Session session) throws JMSException {
+        return session.createObjectMessage(new UpdateComment(msgid));
       }
     });
   }
 
   public static class UpdateMessage implements Serializable {
     private final int msgid;
+    private final boolean withComments;
 
     private static final long serialVersionUID = 5080317225175809364L;
 
-    public UpdateMessage(int msgid) {
+    public UpdateMessage(int msgid, boolean withComments) {
+      this.msgid = msgid;
+      this.withComments = withComments;
+    }
+
+    public int getMsgid() {
+      return msgid;
+    }
+
+    public boolean isWithComments() {
+      return withComments;
+    }
+  }
+
+  public static class UpdateComment implements Serializable {
+    private final int msgid;
+    private static final long serialVersionUID = 569168126267654895L;
+
+    public UpdateComment(int msgid) {
       this.msgid = msgid;
     }
 

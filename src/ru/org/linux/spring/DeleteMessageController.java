@@ -19,24 +19,31 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.HashMap;
-import java.util.ArrayList;
-import java.util.List;
-import java.lang.Integer;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+
+import ru.org.linux.site.*;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.support.ApplicationObjectSupport;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
-import org.apache.solr.client.solrj.SolrServer;
-
-import ru.org.linux.site.*;
 
 @Controller
 public class DeleteMessageController extends ApplicationObjectSupport {
+  private SearchQueueSender searchQueueSender;
+
+  @Autowired
+  @Required
+  public void setSearchQueueSender(SearchQueueSender searchQueueSender) {
+    this.searchQueueSender = searchQueueSender;
+  }
+
   @RequestMapping(value="/delete.jsp", method= RequestMethod.GET)
   public ModelAndView showForm(
     @RequestParam("msgid") int msgid,
@@ -202,18 +209,7 @@ public class DeleteMessageController extends ApplicationObjectSupport {
       db.commit();
 
       // Delete msgs from search index 
-      
-      PreparedStatement psCommentsTopic = db.prepareStatement("SELECT id FROM comments WHERE topic=? AND deleted='f'");
-      psCommentsTopic.setInt(1, msgid);
-      ResultSet rsCommentsTopic = psCommentsTopic.executeQuery();
-      List<String> msgids = new ArrayList<String>();
-      msgids.add(Integer.toString(msgid));
-      while (rsCommentsTopic.next()) {
-        int r = rsCommentsTopic.getInt("id");
-        msgids.add(Integer.toString(r));
-      }
-
-      LorSearchSource.delete(LorSearchSource.getConnection(), msgids);
+      searchQueueSender.updateMessage(msgid, true);
 
       return new ModelAndView("action-done", "message", "Сообщение удалено");
     } finally {
@@ -300,12 +296,7 @@ public class DeleteMessageController extends ApplicationObjectSupport {
       db.commit();
       // Undelete msgs from search index 
       
-      PreparedStatement psCommentsTopic = db.prepareStatement("select msgbase.id as id, case when comments.title != '' then comments.title else topics.title end as title, comments.postdate as postdate, msgbase.message as message, comments.userid as user_id, groups.section as section_id from comments join topics on ( comments.topic = topics.id) join groups on ( topics.groupid = groups.id) join msgbase on ( comments.id = msgbase.id ) where  comments.deleted = 'f' and topics.id=?");
-      psCommentsTopic.setInt(1, msgid);
-      ResultSet rsCommentsTopic = psCommentsTopic.executeQuery();
-
-      LorSearchSource.updateMessage(LorSearchSource.getConnection(), message, msgid); 
-      LorSearchSource.undeleteComments(LorSearchSource.getConnection(), msgid, rsCommentsTopic);
+      searchQueueSender.updateMessage(msgid, true);
 
       return new ModelAndView("action-done", "message", "Сообщение восстановлено");
     } finally {

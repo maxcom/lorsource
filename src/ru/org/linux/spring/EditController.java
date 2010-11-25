@@ -29,6 +29,7 @@ import javax.servlet.http.HttpSession;
 import ru.org.linux.site.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.support.ApplicationObjectSupport;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -39,6 +40,14 @@ import org.springframework.web.servlet.view.RedirectView;
 
 @Controller
 public class EditController extends ApplicationObjectSupport {
+  private SearchQueueSender searchQueueSender;
+
+  @Autowired
+  @Required
+  public void setSearchQueueSender(SearchQueueSender searchQueueSender) {
+    this.searchQueueSender = searchQueueSender;
+  }
+
   @Autowired(required=true)
   private FeedPinger feedPinger;
 
@@ -314,7 +323,7 @@ public class EditController extends ApplicationObjectSupport {
             logger.info("сообщение " + message.getId() + " исправлено " + session.getValue("nick"));
           }
 
-          LorSearchSource.updateMessage(LorSearchSource.getConnection(), newMsg, newMsg.getId());
+          searchQueueSender.updateMessageOnly(newMsg.getId());
 
           db.commit();
 
