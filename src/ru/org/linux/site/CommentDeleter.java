@@ -20,6 +20,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -40,7 +41,7 @@ public class CommentDeleter {
     updateScore = db.prepareStatement("UPDATE users SET score=score+? WHERE id=(SELECT userid FROM comments WHERE id=?)");
   }
 
-  public String deleteComment(int msgid, String reason, User user, int scoreBonus) throws SQLException, ScriptErrorException {
+  public void deleteComment(int msgid, String reason, User user, int scoreBonus) throws SQLException, ScriptErrorException {
     if (!getReplys(msgid).isEmpty()) {
       throw new ScriptErrorException("Нельзя удалить комментарий с ответами");
     }
@@ -61,21 +62,21 @@ public class CommentDeleter {
     updateScore.executeUpdate();
 
     logger.info("Удалено сообщение " + msgid + " пользователем " + user.getNick() + " по причине `" + reason + '\'');
-    return "Сообщение " + msgid + " удалено";
   }
 
-  public String deleteReplys(int msgid, User user, boolean score) throws SQLException, ScriptErrorException {
+  public List<Integer> deleteReplys(int msgid, User user, boolean score) throws SQLException, ScriptErrorException {
     return deleteReplys(msgid, user, score, 0);
   }
 
-  private String deleteReplys(int msgid, User user, boolean score, int depth) throws SQLException, ScriptErrorException {
+  private List<Integer> deleteReplys(int msgid, User user, boolean score, int depth) throws SQLException, ScriptErrorException {
     List<Integer> replys = getReplys(msgid);
 
-    StringBuilder out = new StringBuilder();
+    List<Integer> deleted = new LinkedList<Integer>();
 
     for (Integer r : replys) {
-      out.append(deleteReplys(r, user, score, depth+1));
-      out.append("Удаляем ответ ").append(r).append("<br>");
+      deleted.addAll(deleteReplys(r, user, score, depth+1));
+      deleted.add(r);
+
       switch (depth) {
         case 0:
           if (score) {
@@ -97,7 +98,7 @@ public class CommentDeleter {
       }
     }
 
-    return out.toString();
+    return deleted;
   }
 
   public List<Integer> getReplys(int msgid) throws SQLException {
