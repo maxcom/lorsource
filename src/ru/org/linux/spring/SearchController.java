@@ -24,6 +24,9 @@ import ru.org.linux.site.LorDataSource;
 import ru.org.linux.site.SearchItem;
 import ru.org.linux.site.SearchViewer;
 
+import org.apache.solr.client.solrj.SolrServer;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Required;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -32,6 +35,14 @@ import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 public class SearchController {
+  private SolrServer solrServer;
+
+  @Autowired
+  @Required
+  public void setSolrServer(SolrServer solrServer) {
+    this.solrServer = solrServer;
+  }
+
   @RequestMapping(value="/search.jsp", method={RequestMethod.GET, RequestMethod.HEAD})
   public ModelAndView search(
     @RequestParam(value="q", required=false) String q,
@@ -102,7 +113,7 @@ public class SearchController {
       try {
         long current = System.currentTimeMillis();
         db = LorDataSource.getConnection();
-        res = sv.show(db);
+        res = sv.show(solrServer, db);
         time = System.currentTimeMillis() - current;
       } finally {
         if (db != null) {

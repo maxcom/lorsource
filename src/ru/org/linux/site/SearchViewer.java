@@ -51,8 +51,7 @@ public class SearchViewer {
     this.query = query;
   }
 
-  public List<SearchItem> show(Connection db) throws SQLException, UserErrorException, SolrServerException {
-    SolrServer search = LorSearchSource.getConnection();
+  public List<SearchItem> show(SolrServer search, Connection db) throws SQLException, UserErrorException, SolrServerException {
     ModifiableSolrParams params = new ModifiableSolrParams();
     List<SearchItem> items = new ArrayList<SearchItem>();
     // set search query params
