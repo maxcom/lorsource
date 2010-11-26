@@ -55,12 +55,23 @@ public class SearchQueueSender {
   }
 
   public void updateMessage(final int msgid, final boolean withComments) {
-    logger.debug("Scheduling reindex #"+msgid+" withComments="+withComments);
+    logger.info("Scheduling reindex #"+msgid+" withComments="+withComments);
 
     jmsTemplate.send(queue, new MessageCreator() {
       @Override
       public Message createMessage(Session session) throws JMSException {
         return session.createObjectMessage(new UpdateMessage(msgid, withComments));
+      }
+    });
+  }
+
+  public void updateMonth(final int year, final int month) {
+    logger.info("Scheduling reindex by date "+year+ '/' +month);
+
+    jmsTemplate.send(queue, new MessageCreator() {
+      @Override
+      public Message createMessage(Session session) throws JMSException {
+        return session.createObjectMessage(new UpdateMonth(year, month));
       }
     });
   }
@@ -113,6 +124,25 @@ public class SearchQueueSender {
 
     public List<Integer> getMsgids() {
       return Collections.unmodifiableList(msgids);
+    }
+  }
+
+  public static class UpdateMonth implements Serializable {
+    private final int year;
+    private final int month;
+    private static final long serialVersionUID = -7803422618174957487L;
+
+    public UpdateMonth(int year, int month) {
+      this.year = year;
+      this.month = month;
+    }
+
+    public int getYear() {
+      return year;
+    }
+
+    public int getMonth() {
+      return month;
     }
   }
 }

@@ -57,32 +57,36 @@ public class SearchQueueListener {
     Connection db = LorDataSource.getConnection();
 
     try {
-      Message msg = new Message(db, msgUpdate.getMsgid());
-
-      if (!msg.isDeleted()) {
-        updateMessage(msg);
-      } else {
-        delete(msg.getId());
-      }
-      
-      if (msgUpdate.isWithComments()) {
-        CommentList commentList = CommentList.getCommentList(db, msg, false);
-
-        if (!msg.isDeleted()) {
-          reindexComments(db, msg, commentList);
-        } else {
-          List<String> msgids = Lists.transform(commentList.getList(), new Function<Comment, String>() {
-            @Override
-            public String apply(@Nullable Comment comment) {
-              return Integer.toString(comment.getId());
-            }
-          });
-
-          delete(msgids);
-        }
-      }
+      reindexMessage(db, msgUpdate.getMsgid(), msgUpdate.isWithComments());
     } finally {
       JdbcUtils.closeConnection(db);
+    }
+  }
+
+  private void reindexMessage(Connection db, int msgid, boolean withComments) throws IOException, SolrServerException, SQLException, MessageNotFoundException {
+    Message msg = new Message(db, msgid);
+
+    if (!msg.isDeleted()) {
+      updateMessage(msg);
+    } else {
+      delete(msg.getId());
+    }
+
+    if (withComments) {
+      CommentList commentList = CommentList.getCommentList(db, msg, false);
+
+      if (!msg.isDeleted()) {
+        reindexComments(db, msg, commentList);
+      } else {
+        List<String> msgids = Lists.transform(commentList.getList(), new Function<Comment, String>() {
+          @Override
+          public String apply(@Nullable Comment comment) {
+            return Integer.toString(comment.getId());
+          }
+        });
+
+        delete(msgids);
+      }
     }
   }
 
@@ -115,6 +119,33 @@ public class SearchQueueListener {
       }
     } finally {
       JdbcUtils.closeStatement(pst);
+      JdbcUtils.closeConnection(db);
+    }
+  }
+
+  public void handleMessage(SearchQueueSender.UpdateMonth msgUpdate) throws SQLException, MessageNotFoundException, IOException, SolrServerException {
+    int month = msgUpdate.getMonth();
+    int year = msgUpdate.getYear();
+
+    logger.info("Indexing month "+ year + '/' + month);
+
+    Connection db = LorDataSource.getConnection();
+
+    try {
+      long startTime = System.nanoTime();
+
+      Statement st = db.createStatement();
+
+      ResultSet rs = st.executeQuery("SELECT id FROM topics WHERE postdate>='" + year + '-' + month + "-01'::timestamp AND (postdate<'" + year + '-' + month + "-01'::timestamp+'1 month'::interval)");
+
+      while (rs.next()) {
+        reindexMessage(db, rs.getInt(1), true);
+      }
+
+      long endTime = System.nanoTime();
+
+      logger.info("Reindex month "+year+'/'+month+" done, "+(endTime-startTime)/1000000+" millis");
+    } finally {
       JdbcUtils.closeConnection(db);
     }
   }
