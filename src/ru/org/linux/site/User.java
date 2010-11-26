@@ -194,6 +194,11 @@ public class User implements Serializable {
     return blocked;
   }
 
+  /**
+   * Check if use is super-moderator
+   *
+   * @throws AccessViolationException if use is not super-moderator
+   */
   public void checkDelete() throws AccessViolationException {
     if (anonymous || blocked) {
       throw new AccessViolationException("Delete access denied for anonymous user");
