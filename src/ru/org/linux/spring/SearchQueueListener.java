@@ -115,7 +115,7 @@ public class SearchQueueListener {
 
         String message = rs.getString(1);
 
-        updateComment(comment, topic, comment.getId(), message);
+        updateComment(comment, topic, message);
       }
     } finally {
       JdbcUtils.closeStatement(pst);
@@ -193,7 +193,7 @@ public class SearchQueueListener {
 
         rs.close();
 
-        updateComment(comment, topic, comment.getId(), message);
+        docs.add(processComment(topic, comment, message));
       }
     } finally {
       JdbcUtils.closeStatement(pst);
@@ -203,13 +203,10 @@ public class SearchQueueListener {
     updateRequest.process(solrServer);
   }
 
-  private void updateComment(Comment comment, Message topic, int msgid, String message) throws IOException, SolrServerException {
-    UpdateRequest updateRequest = new UpdateRequest();
-    updateRequest.setAction(AbstractUpdateRequest.ACTION.COMMIT, false, false);
-
+  private SolrInputDocument processComment(Message topic, Comment comment, String message) {
     SolrInputDocument doc = new SolrInputDocument();
 
-    doc.addField("id", msgid);
+    doc.addField("id", comment.getId());
 
     doc.addField("section_id", topic.getSectionId());
     doc.addField("user_id", comment.getUserid());
@@ -228,7 +225,14 @@ public class SearchQueueListener {
 
     doc.addField("is_comment", true);
 
-    updateRequest.add(doc);
+    return doc;
+  }
+
+  private void updateComment(Comment comment, Message topic, String message) throws IOException, SolrServerException {
+    UpdateRequest updateRequest = new UpdateRequest();
+    updateRequest.setAction(AbstractUpdateRequest.ACTION.COMMIT, false, false);
+
+    updateRequest.add(processComment(topic, comment, message));
 
     updateRequest.process(solrServer);
   }
