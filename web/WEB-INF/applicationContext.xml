@@ -94,12 +94,14 @@
         </amq:transportConnectors>
     </amq:broker>
 
-    <amq:connectionFactory id="jmsFactory" brokerURL="vm://localhost"/>
+    <amq:connectionFactory id="jmsFactory" brokerURL="vm://localhost?create=false" />
 
     <amq:queue id="searchQueue" physicalName="lor.searchQueue"/>
 
     <!-- lets wrap in a pool to avoid creating a connection per send -->
-    <bean id="jmsConnectionFactory" class="org.springframework.jms.connection.SingleConnectionFactory">
+    <bean
+            id="jmsConnectionFactory"
+            class="org.springframework.jms.connection.SingleConnectionFactory">
         <property name="targetConnectionFactory">
             <ref local="jmsFactory"/>
         </property>
@@ -141,5 +143,7 @@
         <property name="messageListener" ref="messageListener"/>
         <property name="connectionFactory" ref="jmsConnectionFactory"/>
         <property name="destination" ref="searchQueue"/>
+        <property name="sessionTransacted" value="true"/>
+        <property name="concurrency" value="1"/>
     </bean>
 </beans>
