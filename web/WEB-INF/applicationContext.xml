@@ -132,6 +132,11 @@
     <bean id="solr" class="org.apache.solr.client.solrj.impl.CommonsHttpSolrServer">
         <constructor-arg type="java.lang.String" ref="solr-url"/>
         <constructor-arg ref="httpClient"/>
+
+        <property name="requestWriter">
+            <bean id="binaryRequestWriter" class="org.apache.solr.client.solrj.impl.BinaryRequestWriter"/>
+        </property>
+        <property name="maxRetries" value="1"/>
     </bean>
 
     <bean id="searchQueueListener" class="ru.org.linux.spring.SearchQueueListener">
