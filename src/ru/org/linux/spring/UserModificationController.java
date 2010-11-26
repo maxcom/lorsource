@@ -24,6 +24,9 @@ import java.util.Random;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.support.ApplicationObjectSupport;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -37,6 +40,14 @@ import ru.org.linux.util.HTMLFormatter;
 
 @Controller
 public class UserModificationController extends ApplicationObjectSupport {
+  private SearchQueueSender searchQueueSender;
+
+  @Autowired
+  @Required
+  public void setSearchQueueSender(SearchQueueSender searchQueueSender) {
+    this.searchQueueSender = searchQueueSender;
+  }
+
   @RequestMapping(value="/usermod.jsp", method= RequestMethod.POST)
   public ModelAndView modifyUser(
     HttpServletRequest request,
@@ -75,7 +86,7 @@ public class UserModificationController extends ApplicationObjectSupport {
         if ("block-n-delete-comments".equals(action)) {
           Map<String, Object> params = new HashMap<String, Object>();
           params.put("message", "Удалено");
-          params.put("bigMessage", user.deleteAllComments(db, moderator));
+          params.put("bigMessage", user.deleteAllComments(db, moderator, searchQueueSender));
           db.commit();
           return new ModelAndView("action-done", params);
         }

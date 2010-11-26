@@ -25,6 +25,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import ru.org.linux.spring.LoginController;
+import ru.org.linux.spring.SearchQueueSender;
 import ru.org.linux.spring.commons.CacheProvider;
 import ru.org.linux.util.StringUtil;
 
@@ -362,7 +363,7 @@ public class User implements Serializable {
     }
   }
 
-  public String deleteAllComments(Connection db, User moderator) throws SQLException, ScriptErrorException, IOException, SolrServerException {
+  public String deleteAllComments(Connection db, User moderator, SearchQueueSender searchQueueSender) throws SQLException, ScriptErrorException, IOException, SolrServerException {
     Statement st = null;
     ResultSet rs = null;
     CommentDeleter deleter = null;
@@ -391,7 +392,7 @@ public class User implements Serializable {
       lock.close();
 
       // Delete user comments
-      deleter = new CommentDeleter(db);
+      deleter = new CommentDeleter(db, searchQueueSender);
 
       st = db.createStatement();
 
