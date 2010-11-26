@@ -24,6 +24,8 @@ import javax.jms.Message;
 import javax.jms.Queue;
 import javax.jms.Session;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.jms.core.JmsTemplate;
@@ -34,6 +36,7 @@ import org.springframework.stereotype.Component;
 public class SearchQueueSender {
   private JmsTemplate jmsTemplate;
   private Queue queue;
+  private static final Log logger = LogFactory.getLog(SearchQueueSender.class);
 
   @Autowired
   @Required
@@ -52,6 +55,8 @@ public class SearchQueueSender {
   }
 
   public void updateMessage(final int msgid, final boolean withComments) {
+    logger.debug("Scheduling reindex #"+msgid+" withComments="+withComments);
+
     jmsTemplate.send(queue, new MessageCreator() {
       @Override
       public Message createMessage(Session session) throws JMSException {
