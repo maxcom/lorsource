@@ -23,6 +23,7 @@ import java.util.Calendar;
 
 import javax.servlet.ServletRequest;
 
+import ru.org.linux.site.AccessViolationException;
 import ru.org.linux.site.LorDataSource;
 import ru.org.linux.site.Template;
 
@@ -52,6 +53,10 @@ public class SearchControlController {
 
     try {
       tmpl.initCurrentUser(db);
+      if (!tmpl.isSessionAuthorized()) {
+        throw new AccessViolationException("Not authorized");
+      }
+
       tmpl.getCurrentUser().checkDelete();
 
       Statement st = db.createStatement();
