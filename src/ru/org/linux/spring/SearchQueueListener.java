@@ -58,6 +58,7 @@ public class SearchQueueListener {
 
     try {
       reindexMessage(db, msgUpdate.getMsgid(), msgUpdate.isWithComments());
+      solrServer.commit();
     } finally {
       JdbcUtils.closeConnection(db);
     }
@@ -69,7 +70,7 @@ public class SearchQueueListener {
     if (!msg.isDeleted()) {
       updateMessage(msg);
     } else {
-      delete(msg.getId());
+      solrServer.deleteById((Integer.toString(msg.getId())));
     }
 
     if (withComments) {
@@ -85,7 +86,7 @@ public class SearchQueueListener {
           }
         });
 
-        delete(msgids);
+        solrServer.deleteById(msgids);
       }
     }
   }
@@ -117,6 +118,8 @@ public class SearchQueueListener {
 
         updateComment(comment, topic, message);
       }
+
+      solrServer.commit();
     } finally {
       JdbcUtils.closeStatement(pst);
       JdbcUtils.closeConnection(db);
@@ -142,6 +145,8 @@ public class SearchQueueListener {
         reindexMessage(db, rs.getInt(1), true);
       }
 
+      solrServer.commit();
+
       long endTime = System.nanoTime();
 
       logger.info("Reindex month "+year+'/'+month+" done, "+(endTime-startTime)/1000000+" millis");
@@ -151,9 +156,6 @@ public class SearchQueueListener {
   }
 
   private void updateMessage(Message topic) throws IOException, SolrServerException {
-    UpdateRequest updateRequest = new UpdateRequest();
-    updateRequest.setAction(AbstractUpdateRequest.ACTION.COMMIT, false, false);
-
     SolrInputDocument doc = new SolrInputDocument();
 
     doc.addField("id", topic.getId());
@@ -169,15 +171,11 @@ public class SearchQueueListener {
 
     doc.addField("is_comment", false);
 
-    updateRequest.add(doc);
-
-    updateRequest.process(solrServer);
+    solrServer.add(doc);
   }
 
   private void reindexComments(Connection db, Message topic, CommentList comments) throws IOException, SolrServerException, SQLException {
     Collection<SolrInputDocument> docs = new ArrayList<SolrInputDocument>();
-    UpdateRequest updateRequest = new UpdateRequest();
-    updateRequest.setAction(AbstractUpdateRequest.ACTION.COMMIT, false, false);
 
     PreparedStatement pst = db.prepareStatement("SELECT message FROM msgbase WHERE id=?");
 
@@ -199,11 +197,10 @@ public class SearchQueueListener {
       JdbcUtils.closeStatement(pst);
     }
 
-    updateRequest.add(docs);
-    updateRequest.process(solrServer);
+    solrServer.add(docs);
   }
 
-  private SolrInputDocument processComment(Message topic, Comment comment, String message) {
+  private static SolrInputDocument processComment(Message topic, Comment comment, String message) {
     SolrInputDocument doc = new SolrInputDocument();
 
     doc.addField("id", comment.getId());
@@ -229,21 +226,6 @@ public class SearchQueueListener {
   }
 
   private void updateComment(Comment comment, Message topic, String message) throws IOException, SolrServerException {
-    UpdateRequest updateRequest = new UpdateRequest();
-    updateRequest.setAction(AbstractUpdateRequest.ACTION.COMMIT, false, false);
-
-    updateRequest.add(processComment(topic, comment, message));
-
-    updateRequest.process(solrServer);
-  }
-
-  private void delete(List<String> msgids) throws IOException, SolrServerException {
-    solrServer.deleteById(msgids);
-    solrServer.commit();
-  }
-
-  private void delete(int msgid) throws IOException, SolrServerException {
-    solrServer.deleteById((Integer.toString(msgid)));
-    solrServer.commit();
+    solrServer.add(processComment(topic, comment, message));
   }
 }
