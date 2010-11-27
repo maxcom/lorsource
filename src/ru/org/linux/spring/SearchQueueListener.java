@@ -86,7 +86,9 @@ public class SearchQueueListener {
           }
         });
 
-        solrServer.deleteById(msgids);
+        if (!msgids.isEmpty()) {
+          solrServer.deleteById(msgids);
+        }
       }
     }
   }
