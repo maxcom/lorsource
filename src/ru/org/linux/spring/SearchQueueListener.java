@@ -199,7 +199,9 @@ public class SearchQueueListener {
       JdbcUtils.closeStatement(pst);
     }
 
-    solrServer.add(docs);
+    if (!docs.isEmpty()) {
+      solrServer.add(docs);
+    }
   }
 
   private static SolrInputDocument processComment(Message topic, Comment comment, String message) {
