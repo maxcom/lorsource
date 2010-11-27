@@ -18,11 +18,10 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:amq="http://activemq.apache.org/schema/core"
        xmlns:jee="http://www.springframework.org/schema/jee"
-       xsi:schemaLocation="
-       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+       xmlns:task="http://www.springframework.org/schema/task"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
        http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd
-       http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-3.0.xsd
-       ">
+       http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-3.0.xsd http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.0.xsd">
 
     <bean class="org.springframework.beans.factory.config.PropertiesFactoryBean" scope="singleton"
           name="properties">
@@ -72,7 +71,8 @@
         <property name="jdbcTemplate" ref="jdbcTemplate"/>
     </bean>
 
-    <bean class="ru.org.linux.spring.commons.MemCachedProvider" id="cacheProvider" destroy-method="destroy"/>
+    <bean class="ru.org.linux.spring.commons.MemCachedProvider" id="cacheProvider"
+          destroy-method="destroy"/>
 
     <bean id="reCaptcha" class="net.tanesha.recaptcha.ReCaptchaImpl">
         <property name="privateKey" value="${recaptcha.private}"/>
@@ -94,7 +94,8 @@
         </amq:transportConnectors>
     </amq:broker>
 
-    <amq:redeliveryPolicy id="redeliveryPolicy"  maximumRedeliveries="-1" initialRedeliveryDelay="60000"/>
+    <amq:redeliveryPolicy id="redeliveryPolicy" maximumRedeliveries="-1"
+                          initialRedeliveryDelay="60000"/>
 
     <amq:connectionFactory id="jmsFactory" brokerURL="vm://localhost?create=false">
         <property name="redeliveryPolicy" ref="redeliveryPolicy"/>
@@ -123,7 +124,8 @@
     <jee:jndi-lookup jndi-name="java:/comp/env/solr/url" id="solr-url"/>
 
     <!-- unfortunately shutdown method do not kill all threads, we need to call shutdownAll -->
-    <bean id="httpConnectionManager" destroy-method="shutdownAll" class="org.apache.commons.httpclient.MultiThreadedHttpConnectionManager"/>
+    <bean id="httpConnectionManager" destroy-method="shutdownAll"
+          class="org.apache.commons.httpclient.MultiThreadedHttpConnectionManager"/>
 
     <bean id="httpClient" class="org.apache.commons.httpclient.HttpClient">
         <constructor-arg ref="httpConnectionManager"/>
@@ -134,7 +136,8 @@
         <constructor-arg ref="httpClient"/>
 
         <property name="requestWriter">
-            <bean id="binaryRequestWriter" class="org.apache.solr.client.solrj.impl.BinaryRequestWriter"/>
+            <bean id="binaryRequestWriter"
+                  class="org.apache.solr.client.solrj.impl.BinaryRequestWriter"/>
         </property>
         <property name="maxRetries" value="1"/>
     </bean>
@@ -143,7 +146,8 @@
         <property name="solrServer" ref="solr"/>
     </bean>
 
-    <bean id="messageListener" class="org.springframework.jms.listener.adapter.MessageListenerAdapter">
+    <bean id="messageListener"
+          class="org.springframework.jms.listener.adapter.MessageListenerAdapter">
         <constructor-arg ref="searchQueueListener"/>
     </bean>
 
@@ -154,5 +158,11 @@
         <property name="destination" ref="searchQueue"/>
         <property name="sessionTransacted" value="true"/>
         <property name="concurrency" value="1"/>
+    </bean>
+
+    <task:annotation-driven/>
+
+    <bean class="ru.org.linux.spring.SolrOptimizer">
+        <property name="solrServer" ref="solr"/>
     </bean>
 </beans>
