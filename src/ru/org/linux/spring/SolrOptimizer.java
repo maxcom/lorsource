@@ -38,7 +38,7 @@ public class SolrOptimizer {
     this.solrServer = solrServer;
   }
 
-  @Scheduled(cron="1 1 * * * *")
+  @Scheduled(cron="0 0 1 * * *")
   public void optimize() throws IOException, SolrServerException {
     logger.info("Optimizing solr index");
     solrServer.optimize();
