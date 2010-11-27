@@ -45,7 +45,7 @@
 	    <dependency org="com.google.collections" name="google-collections" rev="1.0" conf="build->default"/>
 	    <dependency org="org.apache.solr" name="solr-solrj" rev="1.4.1" conf="build->default"/>
         <dependency org="org.slf4j" name="slf4j-jcl" rev="1.6.1" conf="build->default"/>
-	    <dependency org="org.apache.activemq" name="activemq-core" rev="5.4.1" conf="build->default"/>
+	    <dependency org="org.apache.activemq" name="activemq-core" rev="5.3.2" conf="build->default"/>
 	    <dependency org="org.apache.xbean" name="xbean-spring" rev="3.7" conf="build->default">
             <exclude module="spring-context"/>
         </dependency>
