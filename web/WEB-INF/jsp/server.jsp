@@ -54,8 +54,10 @@
       <li>OpenJDK 1.6.0</li>
       <li>Apache Tomcat 6</li>
       <li>memcached 1.2</li>
+      <li>ActiveMQ 5.3.2</li>
       <li>Spring 3.0</li>
       <li>Wiki: JamWiki 0.8.4</li>
+      <li>Поиск: Apache Solr 1.4.1</li>
     </ul>
 
 <h1>Исходные тексты</h1>
