@@ -45,7 +45,7 @@ public class SearchController {
 
   @RequestMapping(value="/search.jsp", method={RequestMethod.GET, RequestMethod.HEAD})
   public ModelAndView search(
-    @RequestParam(value="q", required=false) String q,
+    @RequestParam(value="q", defaultValue="") String q,
     @RequestParam(value="include", required=false) String includeString,
     @RequestParam(value="date", required=false) String dateString,
     @RequestParam(value="section", required=false) Integer section,
@@ -55,12 +55,8 @@ public class SearchController {
   ) throws Exception {
     Map<String, Object> params = new HashMap<String, Object>();
 
-    boolean initial = q == null;
+    boolean initial = q.isEmpty();
     params.put("initial", initial);
-
-    if (q==null) {
-      q="";
-    }
 
     if (usertopic==null) {
       usertopic = false;
