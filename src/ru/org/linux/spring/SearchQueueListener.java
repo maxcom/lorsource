@@ -162,7 +162,7 @@ public class SearchQueueListener {
 
     doc.addField("id", topic.getId());
 
-    doc.addField("section_id", topic.getId());
+    doc.addField("section_id", topic.getSectionId());
     doc.addField("user_id", topic.getUid());
     doc.addField("topic_id", topic.getMessageId());
 
