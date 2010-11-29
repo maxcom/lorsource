@@ -72,18 +72,18 @@ public class SearchControlController {
       rs.close();
       st.close();
 
-      Calendar calendar = Calendar.getInstance();
-      calendar.setTime(startDate);
+      Calendar start = Calendar.getInstance();
+      start.setTime(startDate);
 
-      calendar.set(Calendar.DAY_OF_MONTH, 1);
+      start.set(Calendar.DAY_OF_MONTH, 1);
+      start.set(Calendar.HOUR, 0);
+      start.set(Calendar.MINUTE, 0);
 
-      Calendar now = Calendar.getInstance();
-
-      while (calendar.before(now)) {
-        searchQueueSender.updateMonth(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH)+1);
-
-        calendar.add(Calendar.MONTH, 1);
+      for  (Calendar i = Calendar.getInstance(); i.after(start); i.add(Calendar.MONTH, -1)) {
+        searchQueueSender.updateMonth(i.get(Calendar.YEAR), i.get(Calendar.MONTH)+1);
       }
+
+      searchQueueSender.updateMonth(1970, 1);
 
       return new ModelAndView("action-done", "message", "Scheduled reindex");
     } finally {
