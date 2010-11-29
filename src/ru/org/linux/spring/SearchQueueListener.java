@@ -164,6 +164,7 @@ public class SearchQueueListener {
 
     doc.addField("section_id", topic.getSectionId());
     doc.addField("user_id", topic.getUid());
+    doc.addField("topic_user_id", topic.getUid());
     doc.addField("topic_id", topic.getMessageId());
 
     doc.addField("title", topic.getTitle());
@@ -211,6 +212,7 @@ public class SearchQueueListener {
 
     doc.addField("section_id", topic.getSectionId());
     doc.addField("user_id", comment.getUserid());
+    doc.addField("topic_user_id", topic.getUid());
     doc.addField("topic_id", comment.getTopic());
     String commentTitle = comment.getTitle();
 
