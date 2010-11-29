@@ -26,7 +26,6 @@ import ru.org.linux.site.*;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
-import com.sun.istack.internal.Nullable;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.solr.client.solrj.SolrServer;
@@ -81,7 +80,7 @@ public class SearchQueueListener {
       } else {
         List<String> msgids = Lists.transform(commentList.getList(), new Function<Comment, String>() {
           @Override
-          public String apply(@Nullable Comment comment) {
+          public String apply(Comment comment) {
             return Integer.toString(comment.getId());
           }
         });
@@ -164,6 +163,7 @@ public class SearchQueueListener {
 
     doc.addField("section_id", topic.getSectionId());
     doc.addField("user_id", topic.getUid());
+    doc.addField("topic_user_id", topic.getUid());
     doc.addField("topic_id", topic.getMessageId());
 
     doc.addField("title", topic.getTitle());
@@ -211,6 +211,7 @@ public class SearchQueueListener {
 
     doc.addField("section_id", topic.getSectionId());
     doc.addField("user_id", comment.getUserid());
+    doc.addField("topic_user_id", topic.getUid());
     doc.addField("topic_id", comment.getTopic());
     String commentTitle = comment.getTitle();
 

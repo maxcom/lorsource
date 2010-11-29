@@ -74,8 +74,9 @@ public class SearchViewer {
       try {
         User user = User.getUser(db, username);
         if (userTopic) {
+          params.add("fq","topic_user_id:"+user.getId());
+        } else {
           params.add("fq","user_id:"+user.getId());
-
         }
       } catch (UserNotFoundException ex) {
         throw new UserErrorException("User not found: "+username);
