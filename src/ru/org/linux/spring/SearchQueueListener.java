@@ -69,6 +69,7 @@ public class SearchQueueListener {
     if (!msg.isDeleted()) {
       updateMessage(msg);
     } else {
+      logger.info("Deleting message "+msgid+" from solr");      
       solrServer.deleteById((Integer.toString(msg.getId())));
     }
 
@@ -105,6 +106,7 @@ public class SearchQueueListener {
         Comment comment = new Comment(db, msgid);
 
         if (comment.isDeleted()) {
+          logger.info("Deleting comment "+comment.getId()+" from solr");
           solrServer.deleteById(Integer.toString(comment.getId()));
         } else {
 
