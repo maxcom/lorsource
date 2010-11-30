@@ -104,20 +104,25 @@ public class SearchQueueListener {
       for (Integer msgid : msgUpdate.getMsgids()) {
         Comment comment = new Comment(db, msgid);
 
-        // комментарии могут быть из разного топика в функция массового удаления
-        // возможно для скорости нужен какой-то кеш топиков, т.к. чаще бывает что все
-        // комментарии из одного топика
-        Message topic = new Message(db, comment.getTopic()); 
+        if (comment.isDeleted()) {
+          solrServer.deleteById(Integer.toString(comment.getId()));
+        } else {
 
-        pst.setInt(1, comment.getId());
-        ResultSet rs = pst.executeQuery();
-        if (!rs.next()) {
-          throw new RuntimeException("Can't load message text for " + comment.getId());
+          // комментарии могут быть из разного топика в функция массового удаления
+          // возможно для скорости нужен какой-то кеш топиков, т.к. чаще бывает что все
+          // комментарии из одного топика
+          Message topic = new Message(db, comment.getTopic());
+
+          pst.setInt(1, comment.getId());
+          ResultSet rs = pst.executeQuery();
+          if (!rs.next()) {
+            throw new RuntimeException("Can't load message text for " + comment.getId());
+          }
+
+          String message = rs.getString(1);
+
+          updateComment(comment, topic, message);
         }
-
-        String message = rs.getString(1);
-
-        updateComment(comment, topic, message);
       }
 
       solrServer.commit();
