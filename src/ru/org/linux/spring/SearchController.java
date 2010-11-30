@@ -51,16 +51,12 @@ public class SearchController {
     @RequestParam(value="section", required=false) Integer section,
     @RequestParam(value="sort", required=false) Integer sort,
     @RequestParam(value="username", required=false) String username,
-    @RequestParam(value="usertopic", required=false) Boolean usertopic
+    @RequestParam(value="usertopic", defaultValue="false") boolean usertopic
   ) throws Exception {
     Map<String, Object> params = new HashMap<String, Object>();
 
     boolean initial = q.isEmpty();
     params.put("initial", initial);
-
-    if (usertopic==null) {
-      usertopic = false;
-    }
 
     params.put("usertopic", usertopic);
 
