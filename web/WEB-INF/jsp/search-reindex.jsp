@@ -18,8 +18,12 @@
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 <title>Search Reindex</title>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
-
+<h1>Reindex</h1>
 <form action="/admin/search-reindex" method="POST">
+  <select name="action">
+    <option value="all">all</option>
+    <option value="current">current</option>
+  </select>
   <input type="submit"> 
 </form>
 

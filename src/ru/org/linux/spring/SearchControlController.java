@@ -33,6 +33,7 @@ import org.springframework.jdbc.support.JdbcUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 @Controller
@@ -45,7 +46,7 @@ public class SearchControlController {
     this.searchQueueSender = searchQueueSender;
   }
 
-  @RequestMapping(value="/admin/search-reindex", method=RequestMethod.POST)
+  @RequestMapping(value="/admin/search-reindex", method=RequestMethod.POST, params = "action=all")
   public ModelAndView reindexAll(ServletRequest request) throws Exception {
     Template tmpl = Template.getTemplate(request);
 
@@ -86,6 +87,30 @@ public class SearchControlController {
       searchQueueSender.updateMonth(1970, 1);
 
       return new ModelAndView("action-done", "message", "Scheduled reindex");
+    } finally {
+      JdbcUtils.closeConnection(db);
+    }
+  }
+
+  @RequestMapping(value="/admin/search-reindex", method=RequestMethod.POST, params = "action=current")
+  public ModelAndView reindexCurrentMonth(ServletRequest request) throws Exception {
+    Template tmpl = Template.getTemplate(request);
+
+    Connection db = LorDataSource.getConnection();
+
+    try {
+      tmpl.initCurrentUser(db);
+      if (!tmpl.isSessionAuthorized()) {
+        throw new AccessViolationException("Not authorized");
+      }
+
+      tmpl.getCurrentUser().checkDelete();
+
+      Calendar current = Calendar.getInstance();
+
+      searchQueueSender.updateMonth(current.get(Calendar.YEAR), current.get(Calendar.MONTH)+1);
+
+      return new ModelAndView("action-done", "message", "Scheduled reindex current month");
     } finally {
       JdbcUtils.closeConnection(db);
     }
