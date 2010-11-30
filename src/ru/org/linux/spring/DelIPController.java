@@ -19,10 +19,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -90,6 +87,7 @@ public class DelIPController {
       PreparedStatement st = null;
       ResultSet rs = null;
       CommentDeleter deleter = null;
+      LinkedList<Integer> deletedIds = new LinkedList<Integer>();
       
       try {
         // Delete IP topics
@@ -118,7 +116,7 @@ public class DelIPController {
         params.put("topics", topicCounter);
     
         // Delete user comments
-        deleter = new CommentDeleter(db, searchQueueSender);
+        deleter = new CommentDeleter(db);
     
         st = db.prepareStatement("SELECT id FROM comments WHERE postip=?::inet AND not deleted AND postdate>? ORDER BY id DESC FOR update");
         st.setString(1,ip);
@@ -134,6 +132,7 @@ public class DelIPController {
             continue;
           }
 
+          deletedIds.add(msgid);
           deleter.deleteComment(msgid, reason, moderator, 0);
           deleted.put(msgid, "Сообщение "+msgid+" удалено");
         }
@@ -154,6 +153,8 @@ public class DelIPController {
       }
       
       db.commit();
+
+      searchQueueSender.updateComment(deletedIds);
       
       return new ModelAndView("delip", params);
     } finally {

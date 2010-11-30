@@ -19,6 +19,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -125,7 +126,7 @@ public class DeleteCommentController {
       db.setAutoCommit(false);
       tmpl.initCurrentUser(db);
 
-      CommentDeleter deleter = new CommentDeleter(db, searchQueueSender);
+      CommentDeleter deleter = new CommentDeleter(db);
 
       User user = Template.getCurrentUser(db, session);
       user.checkBlocked();
@@ -176,11 +177,16 @@ public class DeleteCommentController {
 
       StringBuilder out = new StringBuilder();
 
+      LinkedList<Integer> deleted = new LinkedList<Integer>();
+      deleted.add(msgid);
+
       if (!selfDel) {
         List<Integer> deletedReplys = deleter.deleteReplys(msgid, user, bonus > 2);
         if (!deletedReplys.isEmpty()) {
           out.append("Удаленные ответы: ").append(deletedReplys).append("<br>");
         }
+
+        deleted.addAll(deletedReplys);
 
         deleter.deleteComment(msgid, reason, user, -bonus);
       } else {
@@ -192,6 +198,8 @@ public class DeleteCommentController {
       deleter.close();
 
       db.commit();
+
+      searchQueueSender.updateComment(deleted);
 
       Map<String, Object> params = new HashMap<String, Object>();
       params.put("message", "Удалено успешно");

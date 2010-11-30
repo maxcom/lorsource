@@ -19,6 +19,7 @@ import java.net.URLEncoder;
 import java.sql.Connection;
 import java.sql.Statement;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
@@ -86,8 +87,11 @@ public class UserModificationController extends ApplicationObjectSupport {
         if ("block-n-delete-comments".equals(action)) {
           Map<String, Object> params = new HashMap<String, Object>();
           params.put("message", "Удалено");
-          params.put("bigMessage", user.deleteAllComments(db, moderator, searchQueueSender));
+          List<Integer> deleted = user.deleteAllComments(db, moderator, searchQueueSender);
+          params.put("bigMessage", deleted);
           db.commit();
+          
+          searchQueueSender.updateComment(deleted);
           return new ModelAndView("action-done", params);
         }
       } else if ("toggle_corrector".equals(action)) {
