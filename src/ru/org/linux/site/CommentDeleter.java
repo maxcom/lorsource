@@ -36,11 +36,7 @@ public class CommentDeleter {
   private final PreparedStatement replysForComment;
   private final PreparedStatement updateScore;
 
-  private final SearchQueueSender searchQueueSender;
-
-  public CommentDeleter(Connection db, SearchQueueSender searchQueueSender) throws SQLException {
-    this.searchQueueSender = searchQueueSender;
-
+  public CommentDeleter(Connection db) throws SQLException {
     deleteComment = db.prepareStatement("UPDATE comments SET deleted='t' WHERE id=?");
     insertDelinfo = db.prepareStatement("INSERT INTO del_info (msgid, delby, reason, deldate) values(?,?,?, CURRENT_TIMESTAMP)");
     replysForComment = db.prepareStatement("SELECT id FROM comments WHERE replyto=? AND NOT deleted FOR UPDATE");
@@ -49,8 +45,6 @@ public class CommentDeleter {
 
   public void deleteComment(int msgid, String reason, User user, int scoreBonus) throws SQLException, ScriptErrorException  {
     doDeleteComment(msgid, reason, user, scoreBonus);
-
-    searchQueueSender.updateComment(msgid);
   }
 
   private void doDeleteComment(int msgid, String reason, User user, int scoreBonus) throws SQLException, ScriptErrorException {
@@ -77,11 +71,7 @@ public class CommentDeleter {
   }
 
   public List<Integer> deleteReplys(int msgid, User user, boolean score) throws SQLException, ScriptErrorException {
-    List<Integer> deleted = deleteReplys(msgid, user, score, 0);
-
-    searchQueueSender.updateComment(deleted);
-
-    return deleted;
+    return deleteReplys(msgid, user, score, 0);
   }
 
   private List<Integer> deleteReplys(int msgid, User user, boolean score, int depth) throws SQLException, ScriptErrorException {

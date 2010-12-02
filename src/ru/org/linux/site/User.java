@@ -19,6 +19,8 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.net.URLEncoder;
 import java.sql.*;
+import java.util.LinkedList;
+import java.util.List;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
@@ -368,12 +370,11 @@ public class User implements Serializable {
     }
   }
 
-  public String deleteAllComments(Connection db, User moderator, SearchQueueSender searchQueueSender) throws SQLException, ScriptErrorException, IOException, SolrServerException {
+  public List<Integer> deleteAllComments(Connection db, User moderator, SearchQueueSender searchQueueSender) throws SQLException, ScriptErrorException, IOException, SolrServerException {
     Statement st = null;
     ResultSet rs = null;
     CommentDeleter deleter = null;
-
-    StringBuilder out = new StringBuilder();
+    List<Integer> deleted = new LinkedList<Integer>();
 
     try {
       // Delete user topics
@@ -397,7 +398,7 @@ public class User implements Serializable {
       lock.close();
 
       // Delete user comments
-      deleter = new CommentDeleter(db, searchQueueSender);
+      deleter = new CommentDeleter(db);
 
       st = db.createStatement();
 
@@ -406,14 +407,11 @@ public class User implements Serializable {
       while(rs.next()) {
         int msgid = rs.getInt("id");
 
-        out.append("Сообщение #").append(msgid).append("<br>");
+        deleted.add(msgid);
 
-        out.append(deleter.deleteReplys(msgid, moderator, false));
+        deleted.addAll(deleter.deleteReplys(msgid, moderator, false));
         
         deleter.deleteComment(msgid, "4.7 Flood (auto)", moderator, -20);
-        out.append("Сообщение "+msgid+" удалено");
-
-        out.append("<br>");
       }
     } finally {
       if (deleter!=null) {
@@ -429,7 +427,7 @@ public class User implements Serializable {
       }
     }
 
-    return out.toString();
+    return deleted;
   }
 
   public static User getUser(Connection con, String name) throws SQLException, UserNotFoundException {

@@ -108,9 +108,12 @@ public class SearchControlController {
 
       Calendar current = Calendar.getInstance();
 
-      searchQueueSender.updateMonth(current.get(Calendar.YEAR), current.get(Calendar.MONTH)+1);
+      for (int i=0; i<3; i++) {
+        searchQueueSender.updateMonth(current.get(Calendar.YEAR), current.get(Calendar.MONTH)+1);
+        current.add(Calendar.MONTH, -1);
+      }
 
-      return new ModelAndView("action-done", "message", "Scheduled reindex current month");
+      return new ModelAndView("action-done", "message", "Scheduled reindex last 3 month");
     } finally {
       JdbcUtils.closeConnection(db);
     }

@@ -258,9 +258,9 @@ public class AddCommentController extends ApplicationObjectSupport {
 
         logger.info(logmessage);
 
-        searchQueueSender.updateComment(msgid);
-
         db.commit();
+
+        searchQueueSender.updateComment(msgid);
 
         String returnUrl = "jump-message.jsp?msgid=" + topicId + "&cid=" + msgid;
 

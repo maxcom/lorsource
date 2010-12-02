@@ -69,11 +69,12 @@ public class SearchQueueListener {
     if (!msg.isDeleted()) {
       updateMessage(msg);
     } else {
+      logger.info("Deleting message "+msgid+" from solr");      
       solrServer.deleteById((Integer.toString(msg.getId())));
     }
 
     if (withComments) {
-      CommentList commentList = CommentList.getCommentList(db, msg, false);
+      CommentList commentList = CommentList.getCommentList(db, msg, true);
 
       if (!msg.isDeleted()) {
         reindexComments(db, msg, commentList);
@@ -105,6 +106,7 @@ public class SearchQueueListener {
         Comment comment = new Comment(db, msgid);
 
         if (comment.isDeleted()) {
+          logger.info("Deleting comment "+comment.getId()+" from solr");
           solrServer.deleteById(Integer.toString(comment.getId()));
         } else {
 
@@ -183,11 +185,16 @@ public class SearchQueueListener {
 
   private void reindexComments(Connection db, Message topic, CommentList comments) throws IOException, SolrServerException, SQLException {
     Collection<SolrInputDocument> docs = new ArrayList<SolrInputDocument>();
+    List<String> delete = new ArrayList<String>();
 
     PreparedStatement pst = db.prepareStatement("SELECT message FROM msgbase WHERE id=?");
 
     try {
       for (Comment comment : comments.getList()) {
+        if (comment.isDeleted()) {
+          delete.add(Integer.toString(comment.getId()));
+        }
+
         pst.setInt(1, comment.getId());
         ResultSet rs = pst.executeQuery();
         if (!rs.next()) {
@@ -206,6 +213,10 @@ public class SearchQueueListener {
 
     if (!docs.isEmpty()) {
       solrServer.add(docs);
+    }
+    if (!delete.isEmpty()) {
+      logger.info("Deleting comments: "+delete);
+      solrServer.deleteById(delete);
     }
   }
 
