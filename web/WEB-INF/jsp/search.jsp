@@ -25,6 +25,7 @@
 <%--@elvariable id="usertopic" type="java.lang.String"--%>
 <%--@elvariable id="time" type="java.lang.Long"--%>
 <%--@elvariable id="searchTime" type="java.lang.Long"--%>
+<%--@elvariable id="numFound" type="java.lang.Long"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 <title>Поиск по сайту
@@ -92,6 +93,9 @@
 
 <c:if test="${not initial}">
   <h1>Результаты поиска</h1>
+  <p>
+  Всего найдено ${numFound} результатов, показаны ${fn:length(result)}
+  </p>
   <div class="messages">
   <div class="comment">
     <c:forEach items="${result}" var="item">

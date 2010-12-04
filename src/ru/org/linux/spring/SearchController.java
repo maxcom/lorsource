@@ -108,7 +108,7 @@ public class SearchController {
         QueryResponse response = sv.performSearch(solrServer, db);
 
         SolrDocumentList list = response.getResults();
-        ArrayList<SearchItem> res = new ArrayList<SearchItem>(100);
+        ArrayList<SearchItem> res = new ArrayList<SearchItem>(list.size());
         for (SolrDocument doc : list) {
           res.add(new SearchItem(db, doc));
         }
@@ -117,6 +117,7 @@ public class SearchController {
 
         params.put("result", res);
         params.put("searchTime", response.getElapsedTime());
+        params.put("numFound", list.getNumFound());
 
         params.put("time", time);
       } finally {
