@@ -16,8 +16,8 @@
 package ru.org.linux.spring;
 
 import java.sql.Connection;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import ru.org.linux.site.LorDataSource;
@@ -25,6 +25,9 @@ import ru.org.linux.site.SearchItem;
 import ru.org.linux.site.SearchViewer;
 
 import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.common.SolrDocument;
+import org.apache.solr.common.SolrDocumentList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.stereotype.Controller;
@@ -98,24 +101,29 @@ public class SearchController {
       sv.setUser(username);
       sv.setUserTopic(usertopic);
 
-      List<SearchItem> res = null;
-      long time;
-
       Connection db = null;
       try {
         long current = System.currentTimeMillis();
         db = LorDataSource.getConnection();
-        res = sv.show(solrServer, db);
-        time = System.currentTimeMillis() - current;
+        QueryResponse response = sv.performSearch(solrServer, db);
+
+        SolrDocumentList list = response.getResults();
+        ArrayList<SearchItem> res = new ArrayList<SearchItem>(100);
+        for (SolrDocument doc : list) {
+          res.add(new SearchItem(db, doc));
+        }
+
+        long time = System.currentTimeMillis() - current;
+
+        params.put("result", res);
+        params.put("searchTime", response.getElapsedTime());
+
+        params.put("time", time);
       } finally {
         if (db != null) {
           db.close();
         }
       }
-
-      params.put("result", res);
-
-      params.put("time", time);
     }
 
     return new ModelAndView("search", params);

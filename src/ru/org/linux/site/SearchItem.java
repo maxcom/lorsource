@@ -34,7 +34,7 @@ public class SearchItem implements Serializable {
 
   private static final long serialVersionUID = -8100510220616995405L;
 
-  SearchItem(Connection db, SolrDocument doc) throws SQLException {
+  public SearchItem(Connection db, SolrDocument doc) throws SQLException {
     msgid = Integer.valueOf(doc.getFieldValue("id").toString());
     title = (String) doc.getFieldValue("title");
     int userid = (Integer) doc.getFieldValue("user_id");

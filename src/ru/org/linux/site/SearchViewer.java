@@ -20,12 +20,9 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.common.collect.ImmutableList;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
-import org.apache.solr.common.SolrDocument;
-import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.params.ModifiableSolrParams;
 
 public class SearchViewer {
@@ -51,7 +48,7 @@ public class SearchViewer {
     this.query = query;
   }
 
-  public List<SearchItem> show(SolrServer search, Connection db) throws SQLException, UserErrorException, SolrServerException {
+  public QueryResponse performSearch(SolrServer search, Connection db) throws SQLException, UserErrorException, SolrServerException {
     ModifiableSolrParams params = new ModifiableSolrParams();
     List<SearchItem> items = new ArrayList<SearchItem>();
     // set search query params
@@ -87,14 +84,7 @@ public class SearchViewer {
     }
     params.set("rows:100"); // maximum number of documents from the complete result set to return to the client
 
-    // send search query to solr
-    QueryResponse response = search.query(params);
-    SolrDocumentList list = response.getResults();
-    for (SolrDocument doc : list) {
-      items.add(new SearchItem(db, doc));
-    }
-
-    return ImmutableList.copyOf(items);
+    return search.query(params);
   }
 
   public void setInclude(int include) {

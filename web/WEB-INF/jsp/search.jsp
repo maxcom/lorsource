@@ -24,6 +24,7 @@
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <%--@elvariable id="usertopic" type="java.lang.String"--%>
 <%--@elvariable id="time" type="java.lang.Long"--%>
+<%--@elvariable id="searchTime" type="java.lang.Long"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 <title>Поиск по сайту
@@ -112,7 +113,7 @@
 
   <p>
     <i>
-      Результаты извлечены из БД, время поиска: ${time} ms
+      Общее время запроса ${time} ms (время поиска: ${searchTime} ms)
     </i>
   </p>
 </c:if>
