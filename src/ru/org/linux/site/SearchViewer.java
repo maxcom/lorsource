@@ -30,11 +30,11 @@ public class SearchViewer {
   public static final int SEARCH_ALL = 0;
 
   public enum SearchInterval {
-    MONTH("postdate:[NOW-1MONTH TO NOW]", "месЯц"),
-    THREE_MONTH("postdate:[NOW-3MONTH TO NOW]", "три месЯца"),
-    YEAR("postdate:[NOW-1YEAR TO NOW]", "год"),
-    THREE_YEAR("postdate:[NOW-3YEAR TO NOW]", "три года"),
-    ALL(null, "весь период");
+    MONTH("postdate:[NOW-1MONTH TO NOW]", "РјРµСЃСЏС†"),
+    THREE_MONTH("postdate:[NOW-3MONTH TO NOW]", "С‚СЂРё РјРµСЃСЏС†Р°"),
+    YEAR("postdate:[NOW-1YEAR TO NOW]", "РіРѕРґ"),
+    THREE_YEAR("postdate:[NOW-3YEAR TO NOW]", "С‚СЂРё РіРѕРґР°"),
+    ALL(null, "РІРµСЃСЊ РїРµСЂРёРѕРґ");
 
 
     private final String range;
