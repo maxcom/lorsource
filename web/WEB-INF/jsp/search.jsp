@@ -26,6 +26,7 @@
 <%--@elvariable id="time" type="java.lang.Long"--%>
 <%--@elvariable id="searchTime" type="java.lang.Long"--%>
 <%--@elvariable id="numFound" type="java.lang.Long"--%>
+<%--@elvariable id="date" type="ru.org.linux.site.SearchViewer.SearchInterval"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 <title>Поиск по сайту
@@ -40,7 +41,6 @@
 
 <%
   int include = (Integer) request.getAttribute("include");
-  int date = (Integer) request.getAttribute("date");
   int section = (Integer) request.getAttribute("section");
   int sort = (Integer) request.getAttribute("sort");  
 %>
@@ -57,9 +57,14 @@
 
   <label>За:
   <select name="date">
-    <option value="3month" <%= (date==SearchViewer.SEARCH_3MONTH)?"selected":"" %>>три месяца</option>
-    <option value="year" <%= (date==SearchViewer.SEARCH_YEAR)?"selected":"" %>>год</option>
-    <option value="all" <%= (date==SearchViewer.SEARCH_ALL)?"selected":"" %>>весь период</option>
+    <c:forEach var="interval" items="<%= SearchViewer.SearchInterval.values() %>">
+      <c:if test="${date == interval}">
+        <option value="${interval}" selected>${interval.title}</option>
+      </c:if>
+      <c:if test="${date != interval}">
+        <option value="${interval}">${interval.title}</option>
+      </c:if>
+    </c:forEach>
   </select></label>
 <br>
   <label>Раздел:

@@ -29,15 +29,39 @@ public class SearchViewer {
   public static final int SEARCH_TOPICS = 1;
   public static final int SEARCH_ALL = 0;
 
-  public static final int SEARCH_3MONTH = 1;
-  public static final int SEARCH_YEAR = 2;
+  public enum SearchInterval {
+    MONTH("postdate:[NOW-1MONTH TO NOW]", "месяц"),
+    THREE_MONTH("postdate:[NOW-3MONTH TO NOW]", "три месяца"),
+    YEAR("postdate:[NOW-1YEAR TO NOW]", "год"),
+    THREE_YEAR("postdate:[NOW-3YEAR TO NOW]", "три года"),
+    ALL(null, "весь период");
+
+
+    private final String range;
+    private final String title;
+
+    SearchInterval(String range, String title) {
+      this.range = range;
+      this.title = title;
+    }
+
+    String getRange() {
+      return range;
+    }
+
+    public String getTitle() {
+      return title;
+    }
+  }
+
+  public static final SearchInterval DEFAULT_INTERVAL = SearchInterval.THREE_YEAR;
 
   public static final int SORT_R = 1;
   public static final int SORT_DATE = 2;
 
   private final String query;
   private int include = SEARCH_ALL;
-  private int date = SEARCH_ALL;
+  private SearchInterval interval = DEFAULT_INTERVAL;
   private int section = 0;
   private int sort = SORT_R;
 
@@ -59,14 +83,15 @@ public class SearchViewer {
     if(include != SEARCH_ALL){
       params.add("fq","is_comment:false");      
     }
-    if(date == SEARCH_3MONTH){
-      params.add("fq","postdate:[NOW-3MONTH TO NOW]");
-    }else if (date == SEARCH_YEAR){
-      params.add("fq","postdate:[NOW-1YEAR TO NOW]");
+
+    if (interval.getRange()!=null) {
+      params.add("fq", interval.getRange());
     }
+
     if (section != 0 ){
       params.add("fq","section_id:"+section);
     }
+
     if(username.length() > 0) {
       try {
         User user = User.getUser(db, username);
@@ -91,8 +116,8 @@ public class SearchViewer {
     this.include = include;
   }
 
-  public void setDate(int date) {
-    this.date = date;
+  public void setInterval(SearchInterval interval) {
+    this.interval = interval;
   }
 
   public void setSection(int section) {

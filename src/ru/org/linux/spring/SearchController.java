@@ -18,6 +18,7 @@ package ru.org.linux.spring;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import ru.org.linux.site.LorDataSource;
@@ -69,7 +70,7 @@ public class SearchController {
 
     params.put("include", include);
 
-    int date = parseDate(dateString);
+    SearchViewer.SearchInterval date = parseInterval(dateString);
 
     params.put("date", date);
 
@@ -94,7 +95,7 @@ public class SearchController {
     if (!initial) {
       SearchViewer sv = new SearchViewer(q);
 
-      sv.setDate(date);
+      sv.setInterval(date);
       sv.setInclude(include);
       sv.setSection(section);
       sv.setSort(sort);
@@ -108,7 +109,7 @@ public class SearchController {
         QueryResponse response = sv.performSearch(solrServer, db);
 
         SolrDocumentList list = response.getResults();
-        ArrayList<SearchItem> res = new ArrayList<SearchItem>(list.size());
+        List<SearchItem> res = new ArrayList<SearchItem>(list.size());
         for (SolrDocument doc : list) {
           res.add(new SearchItem(db, doc));
         }
@@ -142,19 +143,11 @@ public class SearchController {
     return SearchViewer.SEARCH_ALL;
   }
 
-  public static int parseDate(String date) {
+  public static SearchViewer.SearchInterval parseInterval(String date) {
     if (date==null) {
-      return SearchViewer.SEARCH_YEAR;
+      return SearchViewer.DEFAULT_INTERVAL;
     }
 
-    if ("3month".equals(date)) {
-      return SearchViewer.SEARCH_3MONTH;
-    }
-
-    if ("all".equals(date)) {
-      return SearchViewer.SEARCH_ALL;
-    }
-
-    return SearchViewer.SEARCH_YEAR;
+    return SearchViewer.SearchInterval.valueOf(date);
   }
 }
