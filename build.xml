@@ -135,7 +135,7 @@
          </apply>
 
 	<concat destfile="${dist}/js/head.js">
-		<fileset file="${dist}/js/jquery.form.2.34.min.js"/>
+		<fileset file="${dist}/js/jquery.form.js"/>
 		<fileset file="${dist}/js/jquery.hotkeys-0.7.8-packed.js"/>
 		<fileset file="${dist}/js/jquery.validate.pack.js"/>
 		<fileset file="${dist}/js/jquery.validate.ru.js"/>
