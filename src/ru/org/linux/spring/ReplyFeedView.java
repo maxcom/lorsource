@@ -23,17 +23,12 @@ import java.util.Map;
 
 import com.sun.syndication.feed.synd.*;
 
-/**
- * User: rsvato
- * Date: Jun 1, 2009
- * Time: 3:21:53 PM
- */
 public class ReplyFeedView extends AbstractRomeView {
   @Override
   protected void createFeed(SyndFeed feed, Map model) {
     @SuppressWarnings("unchecked")
     List<ShowRepliesController.MyTopicsListItem> list = (List<ShowRepliesController.MyTopicsListItem>) model.get("topicsList");
-    String s = "Ответы на комментарии пользователя " + String.valueOf(model.get("nick"));
+    String s = "Ответы на комментарии пользователя " + model.get("nick");
     feed.setTitle(s);
     feed.setLink("http://www.linux.org.ru");
     feed.setUri("http://www.linux.org.ru");
@@ -49,9 +44,9 @@ public class ReplyFeedView extends AbstractRomeView {
     feed.setEntries(entries);
     for (ShowRepliesController.MyTopicsListItem item : list) {
       SyndEntry feedEntry = new SyndEntryImpl();
-      feedEntry.setPublishedDate(new Date(item.getCommentDate().getTime()));
+      feedEntry.setPublishedDate(item.getCommentDate());
       feedEntry.setTitle(item.getSubj());
-      feedEntry.setAuthor(String.valueOf(item.getNick()));
+      feedEntry.setAuthor(item.getNick());
       String link = String.format("http://www.linux.org.ru/jump-message.jsp?msgid=%s&cid=%s",
         String.valueOf(item.getMsgid()), String.valueOf(item.getCid()));
       feedEntry.setLink(link);
