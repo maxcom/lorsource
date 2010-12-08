@@ -101,7 +101,7 @@ public class ShowRepliesController {
       }
 
       pst = db.prepareStatement(
-        "SELECT " +
+        "SELECT event_date, " +
           " topics.title as subj, sections.name, groups.title as gtitle, " +
           " lastmod, topics.id as msgid, " +
           " comments.id AS cid, " +
@@ -110,14 +110,14 @@ public class ShowRepliesController {
           " msgbase.message AS cMessage, bbcode, " +
           " urlname, sections.id as section, comments.deleted," +
           " type, user_events.message as ev_msg" +
-          " FROM sections INNER JOIN groups ON (sections.id = groups.section) " +
-          " INNER JOIN topics ON (groups.id=topics.groupid) " +
-          " INNER JOIN comments ON (comments.topic=topics.id) " +
-          " INNER JOIN user_events ON (comment_id=comments.id)" +
-          " INNER JOIN msgbase ON (msgbase.id = comments.id)" +
+          " FROM user_events INNER JOIN topics ON (topics.id = message_id)" +
+          " INNER JOIN groups ON (groups.id = topics.groupid) " +
+          " INNER JOIN sections ON (sections.id = groups.section) " +
+          " LEFT JOIN comments ON (comments.id=comment_id) " +
+          " LEFT JOIN msgbase ON (msgbase.id = comments.id)" +
           " WHERE user_events.userid = ? " +
           (showPrivate ? "" : " AND NOT private ") +
-          " AND NOT comments.topic_deleted" +
+          " AND (comments.id is null or NOT comments.topic_deleted)" +
           " ORDER BY event_date DESC LIMIT " + topics +
           " OFFSET " + offset
       );
@@ -174,8 +174,9 @@ public class ShowRepliesController {
     private final int msgid;
     private final EventType type;
     private final String eventMessage;
+    private final Timestamp eventDate;
 
-    public MyTopicsListItem(Connection db, ResultSet rs, boolean readMessage) throws SQLException, UserNotFoundException {
+    public MyTopicsListItem(Connection db, ResultSet rs, boolean readMessage) throws SQLException {
       subj = StringUtil.makeTitle(rs.getString("subj"));
 
       Timestamp lastmod = rs.getTimestamp("lastmod");
@@ -185,9 +186,22 @@ public class ShowRepliesController {
         this.lastmod = lastmod;
       }
 
+      eventDate = rs.getTimestamp("event_date");
+
       cid = rs.getInt("cid");
-      cAuthor = User.getUserCached(db, rs.getInt("cAuthor"));
-      cDate = rs.getTimestamp("cDate");
+      if (!rs.wasNull()) {
+        try {
+          cAuthor = User.getUserCached(db, rs.getInt("cAuthor"));
+        } catch (UserNotFoundException e) {
+          throw new RuntimeException(e);
+        }
+
+        cDate = rs.getTimestamp("cDate");
+      } else {
+        cDate = null;
+        cAuthor = null;
+      }
+
       groupTitle = rs.getString("gtitle");
       groupUrlName = rs.getString("urlname");
       sectionTitle = rs.getString("name");
@@ -262,6 +276,10 @@ public class ShowRepliesController {
 
     public String getEventMessage() {
       return eventMessage;
+    }
+
+    public Timestamp getEventDate() {
+      return eventDate;
     }
   }
 }

@@ -93,7 +93,13 @@
       <c:out value="${topic.eventMessage}" escapeXml="true"/>
     </c:if>
   </td>
-  <td><lor:dateinterval date="${topic.commentDate}"/> (<lor:user user="${topic.commentAuthor}" decorate="true"/>)</td>
+  <td>
+    <lor:dateinterval date="${topic.eventDate}"/>
+
+    <c:if test="${topic.cid != 0}">
+       (<lor:user user="${topic.commentAuthor}" decorate="true"/>)
+    </c:if>
+  </td>
 </tr>
 </c:forEach>
 

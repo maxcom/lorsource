@@ -46,11 +46,27 @@ public class ReplyFeedView extends AbstractRomeView {
       SyndEntry feedEntry = new SyndEntryImpl();
       feedEntry.setPublishedDate(item.getCommentDate());
       feedEntry.setTitle(item.getSubj());
-      feedEntry.setAuthor(item.getNick());
-      String link = String.format("http://www.linux.org.ru/jump-message.jsp?msgid=%s&cid=%s",
-        String.valueOf(item.getMsgid()), String.valueOf(item.getCid()));
+
+      String link;
+
+      if (item.getCid()!=0) {
+        feedEntry.setAuthor(item.getNick());
+
+        link = String.format(
+          "http://www.linux.org.ru/jump-message.jsp?msgid=%s&cid=%s",
+          String.valueOf(item.getMsgid()),
+          String.valueOf(item.getCid())
+        );
+      } else {
+        link = String.format(
+          "http://www.linux.org.ru/view-message.jsp?msgid=%s",
+          String.valueOf(item.getMsgid())
+        );
+      }
+
       feedEntry.setLink(link);
       feedEntry.setUri(link);
+
       if (item.getMessageText() != null){
         SyndContent message = new SyndContentImpl();
         message.setValue(item.getMessageText());
