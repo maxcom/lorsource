@@ -25,6 +25,27 @@
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
         <title>Настройки профиля</title>
+<script type="text/javascript">
+$(document).ready(function() {
+  $("#profileForm").validate({
+  rules: {
+    topics: {
+      required: true,
+      range: [ 1, 500 ]
+    },
+    messages: {
+      required: true,
+      range: [ 1, 1000 ]
+    },
+    tags: {
+      required: true,
+      range: [ 1, 100 ]
+    }
+  }
+  });
+});
+</script>
+
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
   <table class=nav><tr>
@@ -58,7 +79,7 @@
 
 <h2>Параметры профиля</h2>
 <% ProfileHashtable profHash=tmpl.getProf(); %>
-<form method=POST action="edit-profile.jsp">
+<form method=POST id="profileForm" action="edit-profile.jsp">
 <input type=hidden name=mode value=set>
 <table>
 <tr><td colspan=2><hr></td></tr>
@@ -66,12 +87,12 @@
 <td><input type=checkbox name=newfirst <%= profHash.getBooleanPropertyHTML("newfirst")%>></td></tr>
 <tr><td>Показывать фотографии</td>
 <td><input type=checkbox name=photos <%= profHash.getBooleanPropertyHTML("photos")%>></td></tr>
-<tr><td>Число тем форума на странице</td>
-<td><input type=text size="5" name=topics value=<%= profHash.getInt("topics")%>></td></tr>
-<tr><td>Число комментариев на странице</td>
-<td><input type=text size="5" name=messages value=<%= profHash.getInt("messages")%>></td></tr>
-<tr><td>Число меток в облаке</td>
-<td><input type=text size="5" name=tags value=<%= profHash.getInt("tags")%>></td></tr>
+<tr><td><label for="topics">Число тем форума на странице</label> </td>
+<td><input type=text size="5" id="topics" name=topics value=<%= profHash.getInt("topics")%>></td></tr>
+<tr><td><label for="messages">Число комментариев на странице</label></td>
+<td><input type=text size="5" id="messages" name=messages value=<%= profHash.getInt("messages")%>></td></tr>
+<tr><td><label for="tags">Число меток в облаке</label></td>
+<td><input type=text size="5" id="tags" name=tags value=<%= profHash.getInt("tags")%>></td></tr>
 <tr><td>Верстка главной страницы в 3 колонки</td>
 <td><input type=checkbox name=3column <%= profHash.getBooleanPropertyHTML("main.3columns")%>></td></tr>
 <tr><td>Показывать информацию о регистрации перед формами добавления сообщений</td>
