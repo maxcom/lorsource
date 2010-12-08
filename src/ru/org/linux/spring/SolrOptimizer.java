@@ -41,7 +41,7 @@ public class SolrOptimizer {
   @Scheduled(cron="0 0 1 * * *")
   public void optimize() throws IOException, SolrServerException {
     logger.info("Optimizing solr index");
-    solrServer.optimize();
+    solrServer.optimize(true, true, 5);
     logger.info("Finished solr index optimization");
   }
 }
