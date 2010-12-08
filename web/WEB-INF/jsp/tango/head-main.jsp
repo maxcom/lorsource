@@ -31,7 +31,7 @@
 <script type="text/javascript">
   $.stylesheetInit();
   $(document).ready(function() {
-    if ($.browser.msie) {
+    if ($.browser.msie || ($.browser.opera && $.browser.version < 10.50)) {
       $('.msg').corner();
       $('.column .boxlet').corner();
     }
