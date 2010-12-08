@@ -148,6 +148,6 @@ public class SearchController {
       return SearchViewer.DEFAULT_INTERVAL;
     }
 
-    return SearchViewer.SearchInterval.valueOf(date);
+    return SearchViewer.SearchInterval.valueOf(date.toUpperCase());
   }
 }
