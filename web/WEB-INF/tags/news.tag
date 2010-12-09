@@ -158,13 +158,7 @@
   <c:if test="${message.commentCount > 0}">
   <%
       out.append(" [<a href=\"");
-
-      if (pages <= 1) {
-        out.append(message.getLinkLastmod());
-      } else {
-        out.append(message.getLink());
-      }
-
+      out.append(message.getLink());
       out.append("\">");
 
       int stat1 = message.getCommentCount();
@@ -189,8 +183,6 @@
       }
 
       if (pages != 1) {
-        String urlAdd = message.isExpired() ? "" : ("?lastmod=" + message.getLastModified().getTime());
-
         int PG_COUNT=3;
 
         out.append("&nbsp;(стр.");
@@ -206,11 +198,7 @@
             continue;
           }
 
-          if (i == pages - 1) {
-            out.append(" <a href=\"").append(message.getLinkPage(i)).append(urlAdd).append("\">").append(Integer.toString(i + 1)).append("</a>");
-          } else {
-            out.append(" <a href=\"").append(message.getLinkPage(i)).append("\">").append(Integer.toString(i + 1)).append("</a>");
-          }
+          out.append(" <a href=\"").append(message.getLinkPage(i)).append("\">").append(Integer.toString(i + 1)).append("</a>");
         }
 
         out.append(')');
