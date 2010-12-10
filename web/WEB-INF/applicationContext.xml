@@ -167,4 +167,6 @@
     <bean class="ru.org.linux.spring.SolrOptimizer">
         <property name="solrServer" ref="solr"/>
     </bean>
+
+    <bean class="ru.org.linux.spring.ScoreUpdater"/>
 </beans>
