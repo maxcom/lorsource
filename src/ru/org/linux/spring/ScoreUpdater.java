@@ -30,7 +30,7 @@ import org.springframework.stereotype.Component;
 public class ScoreUpdater {
   private static final Log logger = LogFactory.getLog(ScoreUpdater.class);
 
-  @Scheduled(cron="1 0 */2 * * *")
+  @Scheduled(cron="1 0 1 */2 * *")
   public void updateScore() throws Exception {
     logger.info("Updating score");
 
