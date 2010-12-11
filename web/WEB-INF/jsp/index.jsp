@@ -47,6 +47,7 @@
   <div class="<%= columns3?"newsblog-in2":"newsblog-in"%>">
 
 <h1><a href="/news/">Новости</a></h1>
+<%--
 <c:if test="${template.style != 'black'}">
   <div class="infoblock" style="border: 1px solid #777; margin: 0; text-align: justify;">
     <a href="http://job.samsung.ru/"><img width="130" height="43" src="/adv/Samsung_Logo.png" alt="" style="float: left; border: 0"></a>
@@ -58,6 +59,7 @@
     </div>
   </div>
 </c:if>
+--%>
 <c:if test="${template.moderatorSession or template.correctorSession}">
 <div class="nav"   style="border-bottom: none">
 <%
