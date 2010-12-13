@@ -1,7 +1,5 @@
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="java.sql.Connection,ru.org.linux.site.Group,ru.org.linux.site.LorDataSource,ru.org.linux.site.Template,ru.org.linux.site.User"   buffer="200kb"%>
-<%@ page import="ru.org.linux.spring.GroupController" %>
-<%@ page import="ru.org.linux.util.BadImageException" %>
+<%@ page import="ru.org.linux.site.Group,ru.org.linux.site.Template,ru.org.linux.site.User,ru.org.linux.spring.GroupController,ru.org.linux.util.BadImageException"   buffer="200kb"%>
 <%@ page import="ru.org.linux.util.DateUtil" %>
 <%@ page import="ru.org.linux.util.ImageInfo" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
@@ -34,6 +32,7 @@
 <%--@elvariable id="year" type="java.lang.Integer"--%>
 <%--@elvariable id="month" type="java.lang.Integer"--%>
 <%--@elvariable id="url" type="java.lang.String"--%>
+<%--@elvariable id="groupInfo" type="ru.org.linux.site.PreparedGroupInfo"--%>
 
 <% Template tmpl = Template.getTemplate(request); %>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
@@ -46,8 +45,6 @@
 </script>
 
 <%
-  Connection db = null;
-  try {
     boolean showIgnored = (Boolean) request.getAttribute("showIgnored");
 
     boolean firstPage = (Boolean) request.getAttribute("firstPage");
@@ -142,11 +139,8 @@
     }
     out.print("</div>");
   }
-
-  db = LorDataSource.getConnection();
-
 %>
-<lor:groupinfo group="${group}" db="<%= db %>"/>
+<lor:groupinfo group="${groupInfo}"/>
 <div class=forum>
 <table width="100%" class="message-table">
 <thead>
@@ -268,11 +262,4 @@
   </form>
   <hr>
 </c:if>
-<%
-  } finally {
-    if (db != null) {
-      db.close();
-    }
-  }
-%>
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>

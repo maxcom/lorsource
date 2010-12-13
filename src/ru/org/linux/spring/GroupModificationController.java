@@ -31,6 +31,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import ru.org.linux.site.AccessViolationException;
 import ru.org.linux.site.Group;
+import ru.org.linux.site.PreparedGroupInfo;
 import ru.org.linux.site.Template;
 
 @Controller
@@ -50,8 +51,10 @@ public class GroupModificationController {
       db = dataSource.getConnection();
 
       Group group = new Group(db, id);
+      ModelAndView mv = new ModelAndView("groupmod", "group", group);
+      mv.getModel().put("groupInfo", new PreparedGroupInfo(db, group));
 
-      return new ModelAndView("groupmod", "group", group);
+      return mv;
     } finally {
       if (db!=null) {
         db.close();

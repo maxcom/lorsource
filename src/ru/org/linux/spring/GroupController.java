@@ -171,6 +171,7 @@ public class GroupController {
       params.put("showIgnored", showIgnored);
 
       params.put("group", group);
+      params.put("groupInfo", new PreparedGroupInfo(db, group));
 
       params.put("section", new Section(db, group.getSectionId()));
 

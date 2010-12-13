@@ -1,6 +1,5 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ tag import="ru.org.linux.site.Template" %>
-<%@ tag import="org.javabb.bbcode.BBCodeProcessor" %>
 
 <%--
   ~ Copyright 1998-2010 Linux.org.ru
@@ -17,8 +16,7 @@
   ~    limitations under the License.
   --%>
 <%@ tag pageEncoding="utf-8" %>
-<%@ attribute name="group" required="true" type="ru.org.linux.site.Group" %>
-<%@ attribute name="db" required="true" type="java.sql.Connection" %>
+<%@ attribute name="group" required="true" type="ru.org.linux.site.PreparedGroupInfo" %>
 <% Template tmpl = Template.getTemplate(request); %>
 <c:if test="${group.info != null}">
   <p style="margin-top: 0"><em>${group.info}</em></p>
@@ -26,7 +24,7 @@
 
 <c:if test="${group.longInfo != null}">
   <div class="infoblock" style="text-align: left; padding: 5px; font-size: smaller">
-  <%= new BBCodeProcessor().preparePostText(db, group.getLongInfo()) %>
+  ${group.longInfo}
     <% if (tmpl.isModeratorSession()) { %>
     <p>[<a href="groupmod.jsp?group=${group.id}">править</a>]</p>
     <% } %>
