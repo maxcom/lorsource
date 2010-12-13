@@ -30,8 +30,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.request.AbstractUpdateRequest;
-import org.apache.solr.client.solrj.request.UpdateRequest;
 import org.apache.solr.common.SolrInputDocument;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
@@ -109,7 +107,6 @@ public class SearchQueueListener {
           logger.info("Deleting comment "+comment.getId()+" from solr");
           solrServer.deleteById(Integer.toString(comment.getId()));
         } else {
-
           // комментарии могут быть из разного топика в функция массового удаления
           // возможно для скорости нужен какой-то кеш топиков, т.к. чаще бывает что все
           // комментарии из одного топика
@@ -123,7 +120,7 @@ public class SearchQueueListener {
 
           String message = rs.getString(1);
 
-          updateComment(comment, topic, message);
+          solrServer.add(processComment(topic, comment, message));
         }
       }
 
@@ -244,9 +241,5 @@ public class SearchQueueListener {
     doc.addField("is_comment", true);
 
     return doc;
-  }
-
-  private void updateComment(Comment comment, Message topic, String message) throws IOException, SolrServerException {
-    solrServer.add(processComment(topic, comment, message));
   }
 }
