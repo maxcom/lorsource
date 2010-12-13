@@ -1,7 +1,7 @@
-<%@ page contentType="text/html; charset=utf-8" import="java.sql.Connection,org.apache.commons.lang.StringUtils"  %>
-<%@ page import="ru.org.linux.site.*"%>
+<%@ page contentType="text/html; charset=utf-8" import="java.sql.Connection,ru.org.linux.site.*"  %>
 <%@ page import="ru.org.linux.spring.AddMessageForm"%>
-<%@ page import="ru.org.linux.util.HTMLFormatter" %>
+<%@ page import="ru.org.linux.util.HTMLFormatter"%>
+<%@ page import="org.apache.commons.lang.StringUtils" %>
 <%--
   ~ Copyright 1998-2010 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");

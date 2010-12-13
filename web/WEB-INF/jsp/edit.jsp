@@ -1,8 +1,8 @@
 <%@ page contentType="text/html; charset=utf-8"%>
 <%@ page
     import="java.sql.Connection" %>
-<%@ page import="ru.org.linux.util.HTMLFormatter" %>
 <%@ page import="ru.org.linux.site.*" %>
+<%@ page import="ru.org.linux.util.HTMLFormatter" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%--

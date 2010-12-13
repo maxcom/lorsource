@@ -1,9 +1,7 @@
-<%@ tag import="ru.org.linux.util.ImageInfo" %>
-<%@ tag import="ru.org.linux.util.BadImageException" %>
-<%@ tag import="ru.org.linux.util.StringUtil" %>
 <%@ tag import="java.io.IOException" %>
 <%@ tag import="ru.org.linux.site.Template" %>
-<%@ tag import="ru.org.linux.site.DefaultProfile" %>
+<%@ tag import="ru.org.linux.util.BadImageException" %>
+<%@ tag import="ru.org.linux.util.ImageInfo" %>
 
 <%--
   ~ Copyright 1998-2010 Linux.org.ru

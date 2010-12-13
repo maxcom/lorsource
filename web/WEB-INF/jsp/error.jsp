@@ -7,14 +7,14 @@
 <%@ page import="javax.mail.Transport"%>
 <%@ page import="javax.mail.internet.InternetAddress"%>
 <%@ page import="javax.mail.internet.MimeMessage"%>
-<%@ page import="org.apache.commons.logging.Log"%>
-<%@ page import="org.apache.commons.logging.LogFactory"%>
 <%@ page import="ru.org.linux.site.MessageNotFoundException"%>
 <%@ page import="ru.org.linux.site.ScriptErrorException"%>
 <%@ page import="ru.org.linux.site.Template"%>
 <%@ page import="ru.org.linux.site.UserErrorException"%>
-<%@ page import="ru.org.linux.util.HTMLFormatter" %>
-<%@ page import="ru.org.linux.util.ServletParameterException" %>
+<%@ page import="ru.org.linux.util.HTMLFormatter"%>
+<%@ page import="ru.org.linux.util.ServletParameterException"%>
+<%@ page import="org.apache.commons.logging.Log" %>
+<%@ page import="org.apache.commons.logging.LogFactory" %>
 <%--
   ~ Copyright 1998-2010 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");

@@ -1,7 +1,7 @@
+<%@ tag import="ru.org.linux.site.Template" %>
 <%@ tag import="net.tanesha.recaptcha.ReCaptcha" %>
 <%@ tag import="org.springframework.web.context.WebApplicationContext" %>
 <%@ tag import="org.springframework.web.servlet.support.RequestContextUtils" %>
-<%@ tag import="ru.org.linux.site.Template" %>
 <%@ tag pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib prefix="lor" uri="http://www.linux.org.ru" %>

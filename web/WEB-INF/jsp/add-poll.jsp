@@ -1,7 +1,5 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ page import="ru.org.linux.site.AccessViolationException"%>
 <%@ page import="ru.org.linux.site.Poll"%>
-<%@ page import="ru.org.linux.site.Template"%>
 <%@ page import="ru.org.linux.util.HTMLFormatter"%>
 <%@ page contentType="text/html; charset=utf-8"  %>
 <%--

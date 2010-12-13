@@ -1,6 +1,6 @@
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="org.apache.commons.logging.Log,org.apache.commons.logging.LogFactory" isErrorPage="true" %>
-<%@ page import="ru.org.linux.util.HTMLFormatter"%>
+<%@ page import="ru.org.linux.util.HTMLFormatter,org.apache.commons.logging.Log" isErrorPage="true" %>
+<%@ page import="org.apache.commons.logging.LogFactory"%>
 <%--
   ~ Copyright 1998-2010 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");

@@ -1,7 +1,9 @@
 <%@ tag import="java.text.DateFormat" %>
-<%@ tag import="ru.org.linux.site.*" %>
+<%@ tag import="ru.org.linux.site.Comment" %>
+<%@ tag import="ru.org.linux.site.CommentNode" %>
+<%@ tag import="ru.org.linux.site.Template" %>
+<%@ tag import="ru.org.linux.site.User" %>
 <%@ tag import="ru.org.linux.util.HTMLFormatter" %>
-<%@ tag import="ru.org.linux.util.StringUtil" %>
 <%@ tag pageEncoding="UTF-8"%>
 <%--
   ~ Copyright 1998-2010 Linux.org.ru

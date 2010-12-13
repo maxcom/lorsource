@@ -1,6 +1,6 @@
-<%@ tag import="ru.org.linux.util.HTMLFormatter" %>
-<%@ tag import="ru.org.linux.site.Template" %>
 <%@ tag import="ru.org.linux.site.Message" %>
+<%@ tag import="ru.org.linux.site.Template" %>
+<%@ tag import="ru.org.linux.util.HTMLFormatter" %>
 
 <%--
   ~ Copyright 1998-2010 Linux.org.ru

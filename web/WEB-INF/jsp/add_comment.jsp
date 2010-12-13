@@ -1,8 +1,6 @@
 <%@ page contentType="text/html; charset=utf-8" %>
 <%@ page
-        import="java.sql.Connection,ru.org.linux.site.Comment,ru.org.linux.site.LorDataSource" %>
-<%@ page import="ru.org.linux.util.HTMLFormatter" %>
-<%@ page import="ru.org.linux.site.PreparedComment" %>
+        import="ru.org.linux.site.PreparedComment,ru.org.linux.util.HTMLFormatter" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 

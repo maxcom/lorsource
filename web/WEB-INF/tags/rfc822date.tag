@@ -1,10 +1,5 @@
-<%@ tag import="java.sql.Connection" %>
 <%@ tag import="java.text.DateFormat" %>
-<%@ tag import="java.util.List" %>
-<%@ tag import="java.util.Set" %>
-<%@ tag import="ru.org.linux.site.*" %>
-<%@ tag import="ru.org.linux.util.ServletParameterParser" %>
-<%@ tag import="ru.org.linux.util.StringUtil" %>
+<%@ tag import="ru.org.linux.site.DateFormats" %>
 <%@ tag pageEncoding="UTF-8"%>
 
 <%--

@@ -1,7 +1,7 @@
 <%@ page info="last active topics" %>
 <%@ page contentType="text/html; charset=utf-8" %>
 <%@ page
-        import="java.sql.Connection,ru.org.linux.site.LorDataSource,ru.org.linux.site.Template"
+        import="ru.org.linux.site.Template"
         buffer="200kb" %>
 <%--
   ~ Copyright 1998-2010 Linux.org.ru

@@ -16,7 +16,10 @@
 <%--@elvariable id="messages" type="java.util.List<ru.org.linux.site.PreparedMessage>"--%>
 <%@ page contentType="application/rss+xml; charset=utf-8"%>
 <%@ page import="java.sql.Connection,java.util.Date"   buffer="200kb"%>
-<%@ page import="ru.org.linux.site.*" %>
+<%@ page import="ru.org.linux.site.LorDataSource" %>
+<%@ page import="ru.org.linux.site.MessageTable" %>
+<%@ page import="ru.org.linux.site.PreparedMessage" %>
+<%@ page import="ru.org.linux.site.Template" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <% Template tmpl = Template.getTemplate(request); %>

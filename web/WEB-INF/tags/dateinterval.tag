@@ -1,7 +1,4 @@
-<%@ tag import="java.text.SimpleDateFormat" %>
-<%@ tag import="java.text.DateFormat" %>
 <%@ tag import="java.util.Calendar" %>
-<%@ tag import="ru.org.linux.site.Template" %>
 <%@ tag import="ru.org.linux.site.DateFormats" %>
 <%@ tag pageEncoding="utf-8" %>
 

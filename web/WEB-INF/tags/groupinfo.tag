@@ -1,6 +1,6 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ tag import="org.javabb.bbcode.BBCodeProcessor" %>
 <%@ tag import="ru.org.linux.site.Template" %>
+<%@ tag import="org.javabb.bbcode.BBCodeProcessor" %>
 
 <%--
   ~ Copyright 1998-2010 Linux.org.ru
