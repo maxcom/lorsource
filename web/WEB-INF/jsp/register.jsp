@@ -1,8 +1,6 @@
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="java.sql.Connection,ru.org.linux.site.*"  %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-
 <%--
   ~ Copyright 1998-2010 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,7 +15,7 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
-
+<%--@elvariable id="error" type="java.lang.String"--%>
 <jsp:include page="head.jsp"/>
 
 <title>Регистрация пользователя</title>
@@ -40,7 +38,6 @@
 <%
   response.addHeader("Cache-Control", "no-store, no-cache, must-revalidate");
 
-   if (request.getParameter("mode")==null) {
      session.setAttribute("register-visited", Boolean.TRUE);
 
 %>
@@ -76,83 +73,4 @@ URL (не забудьте добавить <b>http://</b>): <br>
 <br>
 <input type=submit value="Зарегистрироваться">
 </form>
-<%
-} else if ("change".equals(request.getParameter("mode"))) {
-%>
-  <table class=nav><tr>
-    <td id="navPath" align=left valign=middle>
-      Изменение регистрации
-    </td>
-
-    <td align=right valign=middle>
-      [<a style="text-decoration: none" href="../../addphoto.jsp">Добавить фотографию</a>]
-      [<a style="text-decoration: none" href="../../rules.jsp">Правила форума</a>]
-     </td>
-    </tr>
- </table>
-<h1 class="optional">Изменение регистрации</h1>
-<%
-  if (!Template.isSessionAuthorized(session)) {
-    throw new AccessViolationException("Not authorized");
-  }
-
-  Connection db = null;
-  try {
-    db = LorDataSource.getConnection();
-    db.setAutoCommit(false);
-
-    User user = Template.getCurrentUser(db, session);
-    user.checkAnonymous();
-
-    UserInfo userInfo = new UserInfo(db, user.getId());
-%>
-
-<c:if test="${error!=null}">
-  <div class="error">Ошибка: ${error}</div>
-</c:if>
-
-<form method=POST action="register.jsp" id="changeForm">
-<input type=hidden name=mode value="change">
-Полное имя:
-<input type=text name="name" size="40" value="<%
-if (user.getName()!=null) {
- out.print(user.getName());
-}
-%>"><br>
-Пароль:
-<input class="required" type=password name="oldpass" size="20"><br>
-Новый пароль:
-<input type=password name="password" size="20"> (не заполняйте если не хотите менять)<br>
-Повторите новый пароль:
-<input type=password name="password2" size="20"><br>
-URL:
-<input type=text name="url" size="50" value="<%
-	if (userInfo.getUrl()!=null) {
-      out.print(userInfo.getUrl());
-    }
-%>"><br>
-(не забудьте добавить <b>http://</b>)<br>
-Email:
-<input type=text class="required email" name="email" size="50" value="<%= user.getEmail() %>"><br>
-Город (просьба писать русскими буквами без сокращений, например: <b>Москва</b>,
-<b>Нижний Новгород</b>, <b>Троицк (Московская область)</b>):
-<input type=text name="town" size="50" value="<%
- if (userInfo.getTown()!=null) {
-  out.print(userInfo.getTown());
- }
-%>"><br>
-Дополнительная информация:<br>
-<textarea name=info cols=50 rows=5><%= user.getUserinfo(db) %></textarea>
-<br>
-<input type=submit value="Обновить">
-</form>
-<%
-  } finally {
-    if (db!=null) {
-      db.close();
-    }
-  }
-%>
-
-<% } %>
 <jsp:include page="footer.jsp"/>

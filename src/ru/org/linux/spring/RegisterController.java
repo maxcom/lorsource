@@ -31,6 +31,7 @@ import javax.mail.internet.MimeMessage;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import org.springframework.context.support.ApplicationObjectSupport;
+import org.springframework.jdbc.support.JdbcUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -44,8 +45,40 @@ import ru.org.linux.util.*;
 @Controller
 public class RegisterController extends ApplicationObjectSupport {
   @RequestMapping(value = "/register.jsp", method = RequestMethod.GET)
-  public ModelAndView register()  {
-    return new ModelAndView("register");
+  public ModelAndView register(
+    HttpServletRequest request
+  ) throws Exception {
+    Template tmpl = Template.getTemplate(request);
+
+    if (tmpl.isSessionAuthorized()) {
+      Connection db = null;
+
+      try {
+        db = LorDataSource.getConnection();
+        db.setAutoCommit(false);
+
+        tmpl.initCurrentUser(db);
+
+        User user = tmpl.getCurrentUser();
+        user.checkAnonymous();
+
+        UserInfo userInfo = new UserInfo(db, user.getId());
+
+        ModelAndView mv = new ModelAndView("register-update");
+
+        mv.getModel().put("user", user);
+        mv.getModel().put("userInfo", userInfo);
+        mv.getModel().put("userInfoText", user.getUserinfo(db));
+
+        db.commit();
+
+        return mv;
+      } finally {
+        JdbcUtils.closeConnection(db);
+      }
+    } else {
+      return new ModelAndView("register");
+    }
   }
 
   @RequestMapping(value = "/register.jsp", method = RequestMethod.POST)
