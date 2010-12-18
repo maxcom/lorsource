@@ -77,9 +77,7 @@ public class SearchViewer {
     List<SearchItem> items = new ArrayList<SearchItem>();
     // set search query params
     params.set("q", query);
-    params.set("q.op", "AND");
     params.set("rows", 100);
-    params.set("qt", "dismax");
     if(include != SEARCH_ALL){
       params.add("fq","is_comment:false");      
     }
@@ -107,7 +105,6 @@ public class SearchViewer {
     if(sort == SORT_DATE){
       params.set("sort","postdate desc");
     }
-    params.set("rows:100"); // maximum number of documents from the complete result set to return to the client
 
     return search.query(params);
   }
