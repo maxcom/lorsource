@@ -33,6 +33,11 @@
 		replace="first"
 		/>
         <filter class="solr.LowerCaseFilterFactory"/>
+        <filter class="solr.StopFilterFactory"
+                ignoreCase="true"
+                words="stopwords.txt"
+                enablePositionIncrements="true"
+                />
 	<filter class="solr.SnowballPorterFilterFactory" language="Russian"/>
 	<filter class="solr.LengthFilterFactory" min="2" max="50" />
       </analyzer>
@@ -82,7 +87,7 @@
  <fields>
    <field name="id"           type="string"                 stored="true" required="true" multiValued="false"/> 
    <field name="title"        type="text_ws" indexed="true" stored="true"                 multiValued="false"/>
-   <field name="message"      type="text"    indexed="true" stored="false"                multiValued="true"/>
+   <field name="message"      type="text"    indexed="true" stored="false"                multiValued="false"/>
    <field name="postdate"     type="date"    indexed="true" stored="true"                 multiValued="false"/>
    <field name="is_comment"   type="boolean" indexed="true" stored="true"                 multiValued="false"/>
    <dynamicField name="*_id"  type="int"                    stored="true"/>
@@ -91,5 +96,4 @@
  <uniqueKey>id</uniqueKey>
  <defaultSearchField>message</defaultSearchField>
  <solrQueryParser defaultOperator="AND"/>
- <copyField source="title" dest="message"/>
 </schema>

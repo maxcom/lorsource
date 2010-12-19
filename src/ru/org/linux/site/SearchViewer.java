@@ -78,6 +78,7 @@ public class SearchViewer {
     // set search query params
     params.set("q", query);
     params.set("rows", 100);
+    params.set("qt", "dismax");
     if(include != SEARCH_ALL){
       params.add("fq","is_comment:false");      
     }
