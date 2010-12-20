@@ -1,17 +1,17 @@
-# Licensed to the Apache Software Foundation (ASF) under one or more
-# contributor license agreements.  See the NOTICE file distributed with
+# licensed to the apache software foundation (asf) under one or more
+# contributor license agreements.  see the notice file distributed with
 # this work for additional information regarding copyright ownership.
-# The ASF licenses this file to You under the Apache License, Version 2.0
-# (the "License"); you may not use this file except in compliance with
-# the License.  You may obtain a copy of the License at
+# the asf licenses this file to you under the apache license, version 2.0
+# (the "license"); you may not use this file except in compliance with
+# the license.  you may obtain a copy of the license at
 #
-#     http://www.apache.org/licenses/LICENSE-2.0
+#     http://www.apache.org/licenses/license-2.0
 #
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# unless required by applicable law or agreed to in writing, software
+# distributed under the license is distributed on an "as is" basis,
+# without warranties or conditions of any kind, either express or implied.
+# see the license for the specific language governing permissions and
+# limitations under the license.
 
 #-----------------------------------------------------------------------
 # a couple of test stopwords to test that the words are really being
@@ -19,7 +19,7 @@
 stopworda
 stopwordb
 
-#Standard english stop words taken from Lucene's StopAnalyzer
+#standard english stop words taken from lucene's stopanalyzer
 a
 an
 and
@@ -66,60 +66,60 @@ with
 к
 для
 a
-ЭТА
-ЭТОЙ
-ЭТУ
-ЭТОТ
-ЭТОГО
-ЭТОМУ
-ЭТИМ
-ЭТОМ
-ЭТО
-ЭТИ
-ЭТИХ
-ЭТИМ
-ЭТИМИ
-ЭТАК
-ЭТАКИЙ
-ЭТАКОГО
-ЭТАКОМУ
-ЭТАКИМ
-ЭТАКОМ
-ЭТАКАЯ
-ЭТУКОЙ
-ЭТУКУЮ
-ЭТАКОЕ
-ЭТАКИЕ
-ЭТАКИХ
-ЭТАКИМ
-ЭТАКИМИ
-ТОТ
-ТОГО
-ТОМУ
-ТЕМ
-ТОМ
-ТА
-ТОЙ
-ТУ
-ТО
-ТЕ
+эта
+этой
+эту
+этот
+этого
+этому
+этим
+этом
+это
+эти
+этих
+этим
+этими
+этак
+этакий
+этакого
+этакому
+этаким
+этаком
+этакая
+этукой
+этукую
+этакое
+этакие
+этаких
+этаким
+этакими
+тот
+того
+тому
+тем
+том
+та
+той
+ту
+то
+те
 но
 из
 я
-ТАК
-ТАКЖЕ
-ТАКОЙ
-ТАКОГО
-ТАКОМУ
-ТАКИМ
-ТАКАЯ
-ТАКОЙ
-ТАКУЮ
-ТАКОЕ
-ТАКИЕ
-ТАКИХ
-ТАКИМ
-ТАКИМИ
+так
+также
+такой
+такого
+такому
+таким
+такая
+такой
+такую
+такое
+такие
+таких
+таким
+такими
 он
 она
 оно
@@ -139,69 +139,69 @@ a
 зато
 зачем
 же
-БЫ
-БЫЛ
-БЫЛА
-БЫЛО
-БЫЛИ
-БЫТЬ
+бы
+был
+была
+было
+были
+быть
 можно
 от
-КОТОРЫЙ
-КОТОРОГО
-КОТОРОМУ
-КОТОРЫМ
-КОТОРОМ
-КОТОРАЯ
-КОТОРОЙ
-КОТОРУЮ
-КОТОРОЕ
-КОТОРЫЕ
-КОТОРЫХ
-КОТОРЫМ
-КОТОРЫМИ
-САМ
-САМОГО
-САМОМУ
-САМИМ
-САМОМ
-САМА
-САМОЙ
-САМУ
-САМО
-САМЫЕ
-САМЫХ
-САМЫМ
-САМЫМИ
-САМЫЙ
-САМОГО
-САМОМУ
-САМЫМ
-САМОМ
-САМАЯ
-САМОЕ
-САМЫЕ
-САМЫХ
-САМЫМ
-САМЫМИ
-САМИХ
-БЫ
-БЫЛ
-БЫЛА
-БЫЛО
-БЫЛИ
-БЫТЬ
-КАК
-КАКОЙ
-КАКОГО
-КАКОМУ
-КАКИМ
-КАКОМ
-КАКАЯ
-КАКОЙ
-КАКУЮ
-КАКОЕ
-КАКИЕ
-КАКИХ
-КАКИМ
-КАКИМИ
+который
+которого
+которому
+которым
+котором
+которая
+которой
+которую
+которое
+которые
+которых
+которым
+которыми
+сам
+самого
+самому
+самим
+самом
+сама
+самой
+саму
+само
+самые
+самых
+самым
+самыми
+самый
+самого
+самому
+самым
+самом
+самая
+самое
+самые
+самых
+самым
+самыми
+самих
+бы
+был
+была
+было
+были
+быть
+как
+какой
+какого
+какому
+каким
+каком
+какая
+какой
+какую
+какое
+какие
+каких
+каким
+какими
