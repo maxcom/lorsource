@@ -103,6 +103,7 @@ public class SearchViewer {
         throw new UserErrorException("User not found: "+username);
       }
     }
+
     if(sort == SORT_DATE){
       params.set("sort","postdate desc");
     }
