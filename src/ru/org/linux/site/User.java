@@ -28,9 +28,11 @@ import javax.servlet.http.HttpSession;
 
 import ru.org.linux.spring.LoginController;
 import ru.org.linux.spring.SearchQueueSender;
-import ru.org.linux.spring.commons.CacheProvider;
 import ru.org.linux.util.StringUtil;
 
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Element;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.springframework.jdbc.support.JdbcUtils;
@@ -431,14 +433,14 @@ public class User implements Serializable {
   }
 
   public static User getUser(Connection con, String name) throws SQLException, UserNotFoundException {
-    CacheProvider mcc = MemCachedSettings.getCache();
+    Cache cache = CacheManager.create().getCache("Users");
 
     User user = new User(con, name);
 
     String cacheId = "User?id="+ user.id;
 
-    mcc.storeToCache(cacheId, user, CACHE_MILLIS);
-
+    cache.put(new Element(cacheId, user));
+    
     return user;
   }
 
@@ -451,19 +453,23 @@ public class User implements Serializable {
   }
 
   private static User getUser(Connection db, int id, boolean useCache) throws SQLException, UserNotFoundException {
-    CacheProvider mcc = MemCachedSettings.getCache();
+    Cache cache = CacheManager.create().getCache("Users");
 
     String cacheId = "User?id="+id;
 
     User res = null;
 
     if (useCache) {
-      res = (User) mcc.getFromCache(cacheId);
+      Element element = cache.get(cacheId);
+      
+      if (element!=null) {
+        res = (User) element.getObjectValue();
+      }
     }
 
     if (res==null) {
       res = new User(db, id);
-      mcc.storeToCache(cacheId, res, CACHE_MILLIS);
+      cache.put(new Element(cacheId, res));
     }
 
     return res;

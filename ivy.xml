@@ -49,5 +49,10 @@
 	    <dependency org="org.apache.xbean" name="xbean-spring" rev="3.7" conf="build->default">
             <exclude module="spring-context"/>
         </dependency>
+        <dependency org="net.sf.ehcache" name="ehcache-core" rev="2.3.0" conf="build->default">
+            <exclude module="slf4j-jdk14"/>
+            <exclude module="hibernate-core"/>
+            <exclude module="hibernate-ehcache"/>
+        </dependency>
     </dependencies>
 </ivy-module>
