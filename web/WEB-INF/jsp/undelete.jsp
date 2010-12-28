@@ -1,5 +1,4 @@
 <%@ page pageEncoding="utf-8" contentType="text/html; charset=utf-8"%>
-<%@ page import="java.sql.Connection,ru.org.linux.site.LorDataSource"  %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 
 <%--
@@ -24,11 +23,6 @@
 <title>Восстановление сообщения</title>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
-<%
-Connection db = null;
-try {
-  db = LorDataSource.getConnection();
-%>
 <h1>Восстановление сообщения</h1>
 Вы можете восстановить удалённое сообщение.
 <form method=POST action="undelete.jsp">
@@ -38,11 +32,4 @@ try {
 </div>
 <input type=submit name=undel value="Undelete/Восстановить">
 </form>
-<%
-} finally {
-  if (db != null) {
-    db.close();
-  }
-}
-%>
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>
