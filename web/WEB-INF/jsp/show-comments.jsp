@@ -1,9 +1,5 @@
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.sql.Timestamp"   buffer="60kb" %>
-<%@ page import="ru.org.linux.site.LorDataSource"%>
-<%@ page import="ru.org.linux.site.Template" %>
-<%@ page import="ru.org.linux.site.User" %>
-<%@ page import="ru.org.linux.util.StringUtil" %>
+<%@ page buffer="60kb" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
@@ -26,13 +22,11 @@
 <%--@elvariable id="topics" type="Integer"--%>
 <%--@elvariable id="offset" type="Integer"--%>
 <%--@elvariable id="list" type="java.util.List<ru.org.linux.spring.ShowCommentsController.CommentsListItem>"--%>
+<%--@elvariable id="deletedList" type="java.util.List<ru.org.linux.spring.ShowCommentsController.DeletedListItem>"--%>
 
-<% Template tmpl = Template.getTemplate(request); %>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
 <%
-  User user=(User) request.getAttribute("user");
-
   int offset = (Integer) request.getAttribute("offset");
   int topics = (Integer) request.getAttribute("topics");
 %>
@@ -84,61 +78,38 @@
 </table>
 </div>
 
-<% if (tmpl.isModeratorSession()) { %>
+<c:if test="${deletedList != null}">
+  <h2>Последние 20 удаленных модераторами комментариев</h2>
 
-<h2>Последние 20 удаленных модераторами комментариев</h2>
+  <div class=forum>
+    <table width="100%" class="message-table">
+      <thead>
+      <tr>
+        <th>Раздел</th>
+        <th>Группа</th>
+        <th>Заглавие темы</th>
+        <th>Причина удаления</th>
+        <th>Дата</th>
+      </tr>
+      <tbody>
+      <c:forEach items="${deletedList}" var="item">
 
-<div class=forum>
-<table width="100%" class="message-table">
-<thead>
-<tr><th>Раздел</th><th>Группа</th><th>Заглавие темы</th><th>Причина удаления</th><th>Дата</th></tr>
-<tbody>
-<%
-	Connection db = null;
+      <tr>
+        <td>${item.ptitle}</td>
+        <td>${item.gtitle}</td>
+        <td>
+          <a href="view-message.jsp?msgid=${item.msgid}" rev=contents>${item.title}</a>
+        </td>
+        <td><c:out value="${item.reason}" escapeXml="true"/></td>
+        <td>
+          <c:if test="${item.delDate != null}">
+            <lor:dateinterval date="${item.delDate}"/>
+          </c:if>
+        </td>
+      </tr>
+      </c:forEach>
 
-	try {
-      db = LorDataSource.getConnection();
-
-  Statement st=db.createStatement();
-  ResultSet rs=st.executeQuery("SELECT sections.name as ptitle, groups.title as gtitle, topics.title, topics.id as msgid, del_info.reason, deldate FROM sections, groups, topics, comments, del_info WHERE sections.id=groups.section AND groups.id=topics.groupid AND comments.topic=topics.id AND del_info.msgid=comments.id AND comments.userid="+user.getId()+" AND del_info.delby!="+user.getId()+" ORDER BY del_info.delDate DESC NULLS LAST, del_info.msgid DESC LIMIT 20;");
-  while (rs.next()) {
-%>
-  <tr>
-    <td><%= rs.getString("ptitle") %></td>
-    <td><%= rs.getString("gtitle") %></td>
-    <td>
-      <%
-      out.print("<a href=\"view-message.jsp?msgid=" + rs.getInt("msgid") + "\" rev=contents>" + StringUtil.makeTitle(rs.getString("title")) + "</a>");
-      %>
-    </td>
-    <td><%= rs.getString("reason") %></td>
-    <td>
-<%
-  Timestamp delDate = rs.getTimestamp("deldate");
-  if (delDate!=null) {
-%>
-      <lor:dateinterval date="<%= delDate %>"/>
-<%
-  }
-%>
-    </td>
-  </tr>
-<%  }
-
-  rs.close();
-  st.close();
-
-%>
-
-</table>
-</div>
-
-<%
-  } finally {
-    if (db!=null) {
-      db.close();
-    }
-  }
-  }
-%>
+    </table>
+  </div>
+</c:if>
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>
