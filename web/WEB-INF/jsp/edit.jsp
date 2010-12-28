@@ -1,7 +1,10 @@
 <%@ page contentType="text/html; charset=utf-8"%>
 <%@ page
-    import="java.sql.Connection" %>
-<%@ page import="ru.org.linux.site.*" %>
+    import="java.util.SortedSet" %>
+<%@ page import="ru.org.linux.site.Message" %>
+<%@ page import="ru.org.linux.site.PreparedMessage" %>
+<%@ page import="ru.org.linux.site.Tags" %>
+<%@ page import="ru.org.linux.site.Template" %>
 <%@ page import="ru.org.linux.util.HTMLFormatter" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
@@ -29,6 +32,7 @@
 <%--@elvariable id="editInfo" type="ru.org.linux.site.EditInfoDTO"--%>
 <%--@elvariable id="commit" type="java.lang.Boolean"--%>
 <%--@elvariable id="groups" type="java.util.List<ru.org.linux.site.Group>"--%>
+<%--@elvariable id="topTags" type="java.util.SortedSet<String>"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 <title>Редактирование сообщения</title>
@@ -45,12 +49,9 @@
 </script>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 <%
-  Connection db = null;
-  try {
-    db = LorDataSource.getConnection();
     Message newMsg = (Message) request.getAttribute("newMsg");
     PreparedMessage newPreparedMsg = (PreparedMessage) request.getAttribute("newPreparedMessage");
-
+    SortedSet<String> topTags = (SortedSet<String>) request.getAttribute("topTags");
 %>
 <c:if test="${info!=null}">
   <h1>${info}</h1>
@@ -92,9 +93,9 @@
   </c:if>
 
   <c:if test="${group.moderated}">
-  Теги:
+  <label>Теги:
   <input type="text" size="70" name="tags" id="tags" value="<%= newPreparedMsg.getTags().toString() %>"><br>
-  Популярные теги: <%= Tags.getEditTags(Tags.getTopTags(db)) %> <br>
+  Популярные теги: <%= Tags.getEditTags(topTags) %></label> <br>
     </c:if>
   <br>
   <input type="submit" value="Отредактировать">
@@ -119,12 +120,4 @@
     <input type=submit name=commit value="Подтвердить">
   </c:if>
 </form>
-<%
-  } finally {
-    if (db != null) {
-      db.close();
-    }
-  }
-
-%>
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>
