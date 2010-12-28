@@ -1,7 +1,5 @@
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="java.sql.Connection"   buffer="200kb"%>
-<%@ page import="ru.org.linux.site.LorDataSource" %>
-<%@ page import="ru.org.linux.site.Template" %>
+<%@ page import="ru.org.linux.site.Template"   buffer="200kb"%>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%--
   ~ Copyright 1998-2010 Linux.org.ru
@@ -22,13 +20,6 @@
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
-<%
-  Connection db = null;
-
-  try {
-    db = LorDataSource.getConnection();
-
-%>
 <title>${message.sectionTitle} - ${message.groupTitle} - ${message.title}</title>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 <div class=messages>
@@ -49,12 +40,4 @@
 
 <lor:commentForm topicId="${message.id}" title="" postscore="${postscore}"/>
 
-
-<%
-  } finally {
-    if (db!=null) {
-      db.close();
-    }
-  }
-%>
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>
