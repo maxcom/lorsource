@@ -15,9 +15,7 @@
   --%>
 <%--@elvariable id="messages" type="java.util.List<ru.org.linux.site.PreparedMessage>"--%>
 <%@ page contentType="application/rss+xml; charset=utf-8"%>
-<%@ page import="java.sql.Connection,java.util.Date"   buffer="200kb"%>
-<%@ page import="ru.org.linux.site.LorDataSource" %>
-<%@ page import="ru.org.linux.site.MessageTable" %>
+<%@ page import="java.util.Date,ru.org.linux.site.MessageTable"   buffer="200kb"%>
 <%@ page import="ru.org.linux.site.PreparedMessage" %>
 <%@ page import="ru.org.linux.site.Template" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
@@ -35,12 +33,6 @@
     <pubDate>
       <lor:rfc822date date="<%= new Date() %>"/>
     </pubDate>
-    <%
-  Connection db = null;
-  try {
-    db = LorDataSource.getConnection();
-
-  %>
   <c:forEach var="msg" items="${messages}">
     <item>
       <author><lor:user user="${msg.author}"/></author>
@@ -55,17 +47,10 @@
       </c:if>
       <description><![CDATA[
       <%
-        out.print(MessageTable.getTopicRss(db, tmpl.getConfig().getProperty("HTMLPathPrefix"), tmpl.getMainUrl(), (PreparedMessage) pageContext.getAttribute("msg")));
+        out.print(MessageTable.getTopicRss(tmpl.getConfig().getProperty("HTMLPathPrefix"), tmpl.getMainUrl(), (PreparedMessage) pageContext.getAttribute("msg")));
       %>
       ]]></description>
     </item>
   </c:forEach>
-<%
-  } finally {
-    if (db!=null) {
-      db.close();
-    }
-  }
-%>
 </channel>
 </rss>

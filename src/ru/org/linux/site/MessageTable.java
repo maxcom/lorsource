@@ -17,7 +17,6 @@ package ru.org.linux.site;
 
 import java.io.IOException;
 import java.io.File;
-import java.sql.Connection;
 import java.sql.SQLException;
 
 import ru.org.linux.util.BadImageException;
@@ -31,7 +30,7 @@ public class MessageTable {
   private MessageTable() {
   }
 
-  public static String getTopicRss(Connection db, String htmlPath, String fullUrl, PreparedMessage preparedTopic) throws SQLException,  IOException, BadImageException {
+  public static String getTopicRss(String htmlPath, String fullUrl, PreparedMessage preparedTopic) throws SQLException,  IOException, BadImageException {
     StringBuilder buf = new StringBuilder();
 
     Message topic = preparedTopic.getMessage();
@@ -45,7 +44,7 @@ public class MessageTable {
       buf.append("<p><i>" + info.getWidth() + 'x' + info.getHeight() + ", " + info.getSizeString() + "</i>");
     } else if (topic.isVotePoll()) {
       PreparedPoll poll = preparedTopic.getPoll();
-      buf.append(poll.getPoll().renderPoll(db, fullUrl));
+      buf.append(poll.renderPoll(fullUrl));
     } else {
       buf.append(preparedTopic.getProcessedMessage());
     }
