@@ -14,9 +14,7 @@
   ~    limitations under the License.
   --%>
 <%@ page contentType="application/rss+xml; charset=utf-8"%>
-<%@ page import="java.sql.Connection"   buffer="200kb"%>
-<%@ page import="ru.org.linux.site.LorDataSource" %>
-<%@ page import="ru.org.linux.site.MessageTable" %>
+<%@ page import="ru.org.linux.site.MessageTable"   buffer="200kb"%>
 <%@ page import="ru.org.linux.site.PreparedMessage" %>
 <%@ page import="ru.org.linux.site.Template" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
