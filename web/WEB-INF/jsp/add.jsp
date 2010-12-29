@@ -1,6 +1,9 @@
-<%@ page contentType="text/html; charset=utf-8" import="java.sql.Connection,ru.org.linux.site.*"  %>
-<%@ page import="ru.org.linux.spring.AddMessageForm"%>
-<%@ page import="ru.org.linux.util.HTMLFormatter"%>
+<%@ page contentType="text/html; charset=utf-8" import="java.util.SortedSet,ru.org.linux.site.Group"  %>
+<%@ page import="ru.org.linux.site.ScreenshotProcessor"%>
+<%@ page import="ru.org.linux.site.Tags"%>
+<%@ page import="ru.org.linux.site.Template" %>
+<%@ page import="ru.org.linux.spring.AddMessageForm" %>
+<%@ page import="ru.org.linux.util.HTMLFormatter" %>
 <%@ page import="org.apache.commons.lang.StringUtils" %>
 <%--
   ~ Copyright 1998-2010 Linux.org.ru
@@ -16,23 +19,16 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
-
+<%--@elvariable id="message" type="ru.org.linux.site.PreparedMessage"--%>
 <% Template tmpl = Template.getTemplate(request);%>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
 <%
-  Connection db = null;
-
-  try {
-    db = LorDataSource.getConnection();
-    
-    Message previewMsg = (Message) request.getAttribute("message");
     AddMessageForm form = (AddMessageForm) request.getAttribute("form");
     Group group = (Group) request.getAttribute("group");
-
-    boolean preview = previewMsg!=null;
+    SortedSet<String> topTags = (SortedSet<String>) request.getAttribute("topTags");
 
     String mode = form.getMode();
 %>
@@ -56,12 +52,12 @@
     out.print(request.getAttribute("addportal"));
   }
 %>
-<% if (preview && previewMsg!=null) { %>
+<c:if test="${message != null}">
 <h1>Предпросмотр</h1>
 <div class=messages>
-  <lor:message messageMenu="<%= null %>" preparedMessage="<%= new PreparedMessage(db, previewMsg, true) %>" message="<%= previewMsg %>" showMenu="false" user="<%= Template.getNick(session) %>"/>
+  <lor:message messageMenu="<%= null %>" preparedMessage="${message}" message="${message.message}" showMenu="false" user="<%= Template.getNick(session) %>"/>
 </div>
-<% } %>
+</c:if>
 <h1>Добавить</h1>
 <%--<% if (tmpl.getProf().getBoolean("showinfo") && !Template.isSessionAuthorized(session)) { %>--%>
 <%--<font size=2>Чтобы просто поместить сообщение, используйте login `anonymous',--%>
@@ -124,15 +120,17 @@
   %></textarea><br>
 
 <% if (group.isLinksAllowed()) { %>
+<label>
 Текст ссылки:
-<input type=text name=linktext size=60 value="<%= form.getLinktext()==null?group.getDefaultLinkText():HTMLFormatter.htmlSpecialChars(form.getLinktext()) %>"><br>
+<input type=text name=linktext size=60 value="<%= form.getLinktext()==null?group.getDefaultLinkText():HTMLFormatter.htmlSpecialChars(form.getLinktext()) %>">
+</label><br>
 Ссылка (не забудьте <b>http://</b>)
 <input type=text name=url size=70 value="<%= form.getUrl()==null?"":HTMLFormatter.htmlSpecialChars(form.getUrl()) %>"><br>
 <% } %>
   <c:if test="${group.moderated}">
 Метки (разделенные запятой)
 <input type=text name=tags id="tags" size=70 value="<%= form.getTags()==null?"":HTMLFormatter.htmlSpecialChars(StringUtils.strip(form.getTags())) %>"><br>
-  Популярные теги: <%= Tags.getEditTags(Tags.getTopTags(db)) %> <br>
+  Популярные теги: <%= Tags.getEditTags(topTags) %> <br>
   </c:if>
 <select name=mode>
 <option value=tex <%= ("tex".equals(mode))?"selected":""%> >TeX paragraphs
@@ -145,11 +143,4 @@
 <input type=submit value="Поместить">
 <input type=submit name=preview value="Предпросмотр">
 </form>
-<%
-  } finally {
-    if (db!=null) {
-      db.close();
-    }
-  }
-%>
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>
