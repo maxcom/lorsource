@@ -190,6 +190,10 @@ public class EditController extends ApplicationObjectSupport {
       Group group = new Group(db, message.getGroupId());
       params.put("group", group);
 
+      if (group.isModerated()) {
+        params.put("topTags", Tags.getTopTags(db));
+      }      
+
       params.put("groups", Group.getGroups(db, message.getSection()));
 
       User user = tmpl.getCurrentUser();
