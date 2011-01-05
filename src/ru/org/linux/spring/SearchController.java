@@ -148,6 +148,10 @@ public class SearchController {
       return SearchViewer.DEFAULT_INTERVAL;
     }
 
+    if ("3month".equalsIgnoreCase(date)) {
+      return SearchViewer.SearchInterval.THREE_MONTH; // support for old url's
+    }
+
     return SearchViewer.SearchInterval.valueOf(date.toUpperCase());
   }
 }
