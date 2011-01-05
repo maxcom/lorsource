@@ -128,19 +128,18 @@ public class AddRemoveBoxesController extends ApplicationObjectSupport {
     }
 
     String objectName = getObjectName(form, request);
-    List boxlets = (List) t.getProf().getObject(objectName);
+    List<String> boxlets = new ArrayList<String>((List<String>) t.getProf().getObject(objectName));
 
     CollectionUtils.filter(boxlets, DefaultProfile.getBoxPredicate());
 
-    if (boxlets != null) {
-      if (boxlets.size() > form.position) {
-        boxlets.add(form.position, form.boxName);
-      } else {
-        boxlets.add(form.boxName);
-      }
-      t.getProf().setObject(objectName, boxlets);
-      t.writeProfile(t.getProfileName());
+    if (boxlets.size() > form.position) {
+      boxlets.add(form.position, form.boxName);
+    } else {
+      boxlets.add(form.boxName);
     }
+    
+    t.getProf().setObject(objectName, boxlets);
+    t.writeProfile(t.getProfileName());
 
     status.setComplete();
     return "redirect:/edit-boxes.jsp";
