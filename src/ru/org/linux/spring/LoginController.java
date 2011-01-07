@@ -101,7 +101,7 @@ public class LoginController {
       }
 
       if (session == null) {
-        throw new BadInputException("не удалось открыть сессию; созможно отсутствует поддержка Cookie");
+        throw new BadInputException("не удалось открыть сессию; возможно отсутствует поддержка Cookie");
       }
 
       performLogin(response, db, tmpl, session, user);
