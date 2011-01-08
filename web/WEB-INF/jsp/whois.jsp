@@ -28,6 +28,7 @@
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <%--@elvariable id="moderatorOrCurrentUser" type="java.lang.Boolean"--%>
 <%--@elvariable id="banInfo" type="ru.org.linux.site.BanInfo"--%>
+<%--@elvariable id="ignoreList" type="java.lang.Map<Integer, String>"--%>
 
 <% Template tmpl = Template.getTemplate(request); %>
 <%
@@ -119,11 +120,10 @@
     </c:if>
     </div>      
   </c:if>
+<c:if test="${ignoreList != null}">
 <%
-  if (Template.isSessionAuthorized(session) && !tmpl.getNick().equals(nick) && !"anonymous".equals(tmpl.getNick())) {
-    out.println("<br>");
-    Map<Integer,String> ignoreList = IgnoreList.getIgnoreList(db, user.getId());
-    if (ignoreList != null && !ignoreList.isEmpty() && ignoreList.containsValue(nick)) {
+    Map<Integer,String> ignoreList = (Map<Integer,String>) request.getAttribute("ignoreList");
+    if (!ignoreList.isEmpty() && ignoreList.containsValue(nick)) {
       out.print("<form name='i_unblock' method='post' action='ignore-list.jsp'>\n");
       out.print("<input type='hidden' name='id' value='" + user.getId() + "'>\n");
       out.print("Вы игнорируете этого пользователя &nbsp; \n");
@@ -136,8 +136,8 @@
       out.print("<input type='submit' name='add' value='игнорировать'>\n");
       out.print("</form>");
     }
-  }
 %>
+</c:if>
   <br>
   <c:if test="${template.moderatorSession and user.blockable}">
     <div style="border: 1px dotted; padding: 1em;">
