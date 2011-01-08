@@ -19,10 +19,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Controller;
@@ -175,13 +172,19 @@ public class GroupController {
 
       params.put("section", new Section(db, group.getSectionId()));
 
+      Map<Integer, String> ignoreList;
+
+      if (tmpl.getCurrentUser()!=null) {
+        ignoreList = IgnoreList.getIgnoreList(db, tmpl.getCurrentUser().getId());
+      } else {
+        ignoreList = Collections.emptyMap();
+      }
+
       String ignq = "";
 
-      Map<Integer, String> ignoreList = IgnoreList.getIgnoreList(db, (String) request.getSession().getValue("nick"));
-
-      if (!showIgnored && Template.isSessionAuthorized(request.getSession())) {
-        if (firstPage && ignoreList != null && !ignoreList.isEmpty()) {
-          ignq = " AND topics.userid NOT IN (SELECT ignored FROM ignore_list, users WHERE userid=users.id and nick='" + request.getSession().getValue("nick") + "')";
+      if (!showIgnored && tmpl.isSessionAuthorized()) {
+        if (firstPage && !ignoreList.isEmpty()) {
+          ignq = " AND topics.userid NOT IN (SELECT ignored FROM ignore_list, users WHERE userid=users.id and nick='" + tmpl.getNick() + "')";
         }
       }
 
@@ -239,7 +242,7 @@ public class GroupController {
         // TODO: надо проверять просто ID в списке игнорирования
         User author = topic.getAuthor();
 
-        if (!firstPage && ignoreList != null && !ignoreList.isEmpty() && ignoreList.containsValue(author.getNick())) {
+        if (!firstPage && !ignoreList.isEmpty() && ignoreList.containsValue(author.getNick())) {
           continue;
         }
 

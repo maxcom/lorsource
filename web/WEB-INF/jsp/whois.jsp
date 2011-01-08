@@ -122,7 +122,7 @@
 <%
   if (Template.isSessionAuthorized(session) && !tmpl.getNick().equals(nick) && !"anonymous".equals(tmpl.getNick())) {
     out.println("<br>");
-    Map<Integer,String> ignoreList = IgnoreList.getIgnoreList(db, tmpl.getNick());
+    Map<Integer,String> ignoreList = IgnoreList.getIgnoreList(db, user.getId());
     if (ignoreList != null && !ignoreList.isEmpty() && ignoreList.containsValue(nick)) {
       out.print("<form name='i_unblock' method='post' action='ignore-list.jsp'>\n");
       out.print("<input type='hidden' name='id' value='" + user.getId() + "'>\n");
