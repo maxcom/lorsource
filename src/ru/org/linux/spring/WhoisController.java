@@ -18,7 +18,8 @@ package ru.org.linux.spring;
 import java.net.URLEncoder;
 import java.sql.Connection;
 
-import javax.servlet.http.HttpSession;
+import javax.servlet.ServletRequest;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,10 +33,12 @@ import ru.org.linux.site.*;
 @Controller
 public class WhoisController {
   @RequestMapping("/people/{nick}/profile")
-  public ModelAndView getInfoNew(@PathVariable String nick, HttpSession session) throws Exception {
+  public ModelAndView getInfoNew(@PathVariable String nick, ServletRequest request) throws Exception {
     Connection db = null;
     try {
       db = LorDataSource.getConnection();
+      Template tmpl = Template.getTemplate(request);
+      tmpl.initCurrentUser(db);
 
       User user = User.getUser(db, nick);
 
@@ -51,10 +54,15 @@ public class WhoisController {
         mv.getModel().put("userStat", new UserStatistics(db, user.getId()));
       }
 
-      boolean moderatorOrCurrentUser = Template.isSessionAuthorized(session) && (session.getValue("nick").equals(nick) ||
-              (Boolean) session.getValue("moderator"));
+      boolean currentUser = tmpl.isSessionAuthorized() && tmpl.getNick().equals(nick);
 
-      mv.getModel().put("moderatorOrCurrentUser", moderatorOrCurrentUser);
+      mv.getModel().put("moderatorOrCurrentUser", currentUser || tmpl.isModeratorSession());
+
+      if (tmpl.isSessionAuthorized() && !currentUser) {
+        mv.getModel().put("ignoreList", IgnoreList.getIgnoreList(db, tmpl.getCurrentUser().getId()));
+      }
+
+      mv.getModel().put("userInfoText", user.getUserinfo(db));
 
       return mv;
     } finally {

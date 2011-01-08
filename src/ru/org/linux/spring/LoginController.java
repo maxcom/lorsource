@@ -36,7 +36,7 @@ import ru.org.linux.util.StringUtil;
 
 @Controller
 public class LoginController {
-  public static final String ACEGE_COOKIE_NAME = "SPRING_SECURITY_REMEMBER_ME_COOKIE";
+  public static final String ACEGI_COOKIE_NAME = "SPRING_SECURITY_REMEMBER_ME_COOKIE";
 
   private static boolean isAjax(HttpServletRequest request) {
     String header = request.getHeader("X-Requested-With");
@@ -101,7 +101,7 @@ public class LoginController {
       }
 
       if (session == null) {
-        throw new BadInputException("не удалось открыть сессию; созможно отсутствует поддержка Cookie");
+        throw new BadInputException("не удалось открыть сессию; возможно отсутствует поддержка Cookie");
       }
 
       performLogin(response, db, tmpl, session, user);
@@ -153,7 +153,7 @@ public class LoginController {
       cookie2.setPath("/");
       response.addCookie(cookie2);
 
-      Cookie cookie3 = new Cookie(ACEGE_COOKIE_NAME, "");
+      Cookie cookie3 = new Cookie(ACEGI_COOKIE_NAME, "");
       cookie3.setMaxAge(60 * 60 * 24 * 31 * 24);
       cookie3.setPath("/wiki");
       response.addCookie(cookie3);

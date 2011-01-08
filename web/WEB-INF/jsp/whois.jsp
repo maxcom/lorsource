@@ -1,17 +1,10 @@
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="java.sql.Connection,java.sql.PreparedStatement"   buffer="60kb" %>
-<%@ page import="java.sql.ResultSet"%>
-<%@ page import="java.sql.Timestamp"%>
-<%@ page import="java.util.Map"%>
-<%@ page import="ru.org.linux.site.IgnoreList" %>
-<%@ page import="ru.org.linux.site.LorDataSource" %>
-<%@ page import="ru.org.linux.site.Template" %>
-<%@ page import="ru.org.linux.site.User" %>
-<%@ page import="ru.org.linux.util.HTMLFormatter" %>
+<%@ page import="java.util.Map,ru.org.linux.site.Template"   buffer="60kb" %>
+<%@ page import="ru.org.linux.site.User"%>
+<%@ page import="ru.org.linux.util.HTMLFormatter"%>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
-
 <%--
   ~ Copyright 1998-2010 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -32,6 +25,7 @@
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <%--@elvariable id="moderatorOrCurrentUser" type="java.lang.Boolean"--%>
 <%--@elvariable id="banInfo" type="ru.org.linux.site.BanInfo"--%>
+<%--@elvariable id="ignoreList" type="java.lang.Map<Integer, String>"--%>
 
 <% Template tmpl = Template.getTemplate(request); %>
 <%
@@ -51,23 +45,8 @@
 
 <jsp:include page="header.jsp"/>
 
-<% Connection db = null;
-  try {
-    db = LorDataSource.getConnection();
-
-%>
-
 <h1>Информация о пользователе ${user.nick}</h1>
 <%
-  PreparedStatement stat2 = db.prepareStatement("SELECT sections.name as pname, count(*) as c FROM topics, groups, sections WHERE topics.userid=? AND groups.id=topics.groupid AND sections.id=groups.section AND not deleted GROUP BY sections.name");
-  PreparedStatement stat3 = db.prepareStatement("SELECT min(postdate) as first,max(postdate) as last FROM topics WHERE topics.userid=?");
-  PreparedStatement stat4 = db.prepareStatement("SELECT min(postdate) as first,max(postdate) as last FROM comments WHERE comments.userid=?");
-
-  int userid = user.getId();
-
-  stat2.setInt(1, userid);
-  stat3.setInt(1, userid);
-  stat4.setInt(1, userid);
 %>
 <div id="whois_userpic">
   <lor:userpic author="${user}"/>
@@ -132,13 +111,12 @@
     </c:if>
     </div>      
   </c:if>
+<c:if test="${ignoreList != null}">
 <%
-  if (Template.isSessionAuthorized(session) && !session.getValue("nick").equals(nick) && !"anonymous".equals(session.getValue("nick"))) {
-    out.println("<br>");
-    Map<Integer,String> ignoreList = IgnoreList.getIgnoreList(db, (String) session.getValue("nick"));
-    if (ignoreList != null && !ignoreList.isEmpty() && ignoreList.containsValue(nick)) {
+    Map<Integer,String> ignoreList = (Map<Integer,String>) request.getAttribute("ignoreList");
+    if (!ignoreList.isEmpty() && ignoreList.containsValue(nick)) {
       out.print("<form name='i_unblock' method='post' action='ignore-list.jsp'>\n");
-      out.print("<input type='hidden' name='id' value='" + userid + "'>\n");
+      out.print("<input type='hidden' name='id' value='" + user.getId() + "'>\n");
       out.print("Вы игнорируете этого пользователя &nbsp; \n");
       out.print("<input type='submit' name='del' value='не игнорировать'>\n");
       out.print("</form>");
@@ -149,8 +127,8 @@
       out.print("<input type='submit' name='add' value='игнорировать'>\n");
       out.print("</form>");
     }
-  }
 %>
+</c:if>
   <br>
   <c:if test="${template.moderatorSession and user.blockable}">
     <div style="border: 1px dotted; padding: 1em;">
@@ -171,7 +149,7 @@
 <p>
 <cite>
 <%
-  out.print(HTMLFormatter.nl2br(user.getUserinfo(db)));
+  out.print(HTMLFormatter.nl2br((String) request.getAttribute("userInfoText")));
 %>
   </cite>
   <c:if test="${template.moderatorSession}">
@@ -197,29 +175,23 @@
   </c:if>
   </c:if>
   <%
-  if (Template.isSessionAuthorized(session) && (session.getValue("nick").equals(nick))) {
+  if (Template.isSessionAuthorized(session) && (tmpl.getNick().equals(nick))) {
     out.print("<p><a href=\"register.jsp?mode=change\">Изменить регистрацию</a>.");
   }
 %>
 
 <h2>Статистика</h2>
-<% ResultSet rs=stat3.executeQuery(); rs.next();
-  Timestamp first = rs.getTimestamp("first");
-  Timestamp last = rs.getTimestamp("last");
- %>
-<b>Первая созданная тема:</b> <%= first==null?"нет":tmpl.dateFormat.format(first) %><br>
-<b>Последняя созданная тема:</b> <%= last==null?"нет":tmpl.dateFormat.format(last) %><br>
-<% rs.close(); %>
-<% rs=stat4.executeQuery(); rs.next();
-  Timestamp firstComment = rs.getTimestamp("first");
-  Timestamp lastComment = rs.getTimestamp("last");
-%>
-<b>Первый комментарий:</b> <%= firstComment==null?"нет":tmpl.dateFormat.format(firstComment) %><br>
-<b>Последний комментарий:</b> <%= lastComment==null?"нет":tmpl.dateFormat.format(lastComment) %><br>
+<c:if test="${userStat.firstTopic != null}">
+  <b>Первая созданная тема:</b> <lor:date date="${userStat.firstTopic}"/><br>
+  <b>Последняя созданная тема:</b> <lor:date date="${userStat.lastTopic}"/><br>
+</c:if>
+<c:if test="${userStat.firstComment != null}">
+  <b>Первый комментарий:</b> <lor:date date="${userStat.firstComment}"/><br>
+  <b>Последний комментарий:</b> <lor:date date="${userStat.lastComment}"/><br>
+</c:if>
 <c:if test="${not user.anonymous}">
   <b>Число комментариев: ${userStat.commentCount}</b>
 </c:if>
-<% rs.close(); %>
 <p>
 
   <c:if test="${user.id!=2}">
@@ -229,13 +201,9 @@
 <thead>
 <tr><th>Раздел</th><th>Число сообщений (тем)</th></tr>
 <tbody>
-<% rs=stat2.executeQuery(); %>
-<%
-   while (rs.next()) {
-   	out.print("<tr><td>"+rs.getString("pname")+"</td><td>"+rs.getInt("c")+"</td></tr>");
-   }
-%>
-<% rs.close(); %>
+<c:forEach items="${userStat.commentsBySection}" var="i">
+  <tr><td>${i.key}</td><td>${i.value}</td></tr>
+</c:forEach>
 </table>
 </div>
 
@@ -260,11 +228,5 @@
 </c:if>
 
 </div>
-<%
-  } finally {
-    if (db!=null) {
-      db.close();
-    }
-  }
-%>
+
 <jsp:include page="footer.jsp"/>

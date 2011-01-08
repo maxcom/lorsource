@@ -319,12 +319,10 @@ public class MessageController {
 
     params.put("comments", comments);
 
-    String nick = Template.getNick(request.getSession());
-
     Map<Integer, String> ignoreList = null;
 
-    if (nick != null) {
-      ignoreList = IgnoreList.getIgnoreList(db, nick);
+    if (tmpl.getCurrentUser() != null) {
+      ignoreList = IgnoreList.getIgnoreList(db, tmpl.getCurrentUser().getId());
     }
 
     int filterMode = CommentFilter.FILTER_IGNORED;
