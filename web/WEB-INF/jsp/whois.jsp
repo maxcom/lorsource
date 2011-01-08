@@ -1,11 +1,8 @@
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="java.sql.Connection,java.sql.PreparedStatement"   buffer="60kb" %>
-<%@ page import="java.sql.ResultSet"%>
-<%@ page import="java.sql.Timestamp"%>
-<%@ page import="java.util.Map"%>
-<%@ page import="ru.org.linux.site.IgnoreList" %>
-<%@ page import="ru.org.linux.site.LorDataSource" %>
-<%@ page import="ru.org.linux.site.Template" %>
+<%@ page import="java.sql.Connection,java.util.Map"   buffer="60kb" %>
+<%@ page import="ru.org.linux.site.IgnoreList"%>
+<%@ page import="ru.org.linux.site.LorDataSource"%>
+<%@ page import="ru.org.linux.site.Template"%>
 <%@ page import="ru.org.linux.site.User" %>
 <%@ page import="ru.org.linux.util.HTMLFormatter" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
@@ -58,11 +55,6 @@
 
 <h1>Информация о пользователе ${user.nick}</h1>
 <%
-  PreparedStatement stat2 = db.prepareStatement("SELECT sections.name as pname, count(*) as c FROM topics, groups, sections WHERE topics.userid=? AND groups.id=topics.groupid AND sections.id=groups.section AND not deleted GROUP BY sections.name");
-
-  int userid = user.getId();
-
-  stat2.setInt(1, userid);
 %>
 <div id="whois_userpic">
   <lor:userpic author="${user}"/>
@@ -133,7 +125,7 @@
     Map<Integer,String> ignoreList = IgnoreList.getIgnoreList(db, tmpl.getNick());
     if (ignoreList != null && !ignoreList.isEmpty() && ignoreList.containsValue(nick)) {
       out.print("<form name='i_unblock' method='post' action='ignore-list.jsp'>\n");
-      out.print("<input type='hidden' name='id' value='" + userid + "'>\n");
+      out.print("<input type='hidden' name='id' value='" + user.getId() + "'>\n");
       out.print("Вы игнорируете этого пользователя &nbsp; \n");
       out.print("<input type='submit' name='del' value='не игнорировать'>\n");
       out.print("</form>");
@@ -218,13 +210,9 @@
 <thead>
 <tr><th>Раздел</th><th>Число сообщений (тем)</th></tr>
 <tbody>
-<% ResultSet rs=stat2.executeQuery(); %>
-<%
-   while (rs.next()) {
-   	out.print("<tr><td>"+rs.getString("pname")+"</td><td>"+rs.getInt("c")+"</td></tr>");
-   }
-%>
-<% rs.close(); %>
+<c:forEach items="${userStat.commentsBySection}" var="i">
+  <tr><td>${i.key}</td><td>${i.value}</td></tr>
+</c:forEach>
 </table>
 </div>
 
