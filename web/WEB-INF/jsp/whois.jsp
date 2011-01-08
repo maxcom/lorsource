@@ -11,7 +11,7 @@
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
-
+<%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%--
   ~ Copyright 1998-2010 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -60,14 +60,10 @@
 <h1>Информация о пользователе ${user.nick}</h1>
 <%
   PreparedStatement stat2 = db.prepareStatement("SELECT sections.name as pname, count(*) as c FROM topics, groups, sections WHERE topics.userid=? AND groups.id=topics.groupid AND sections.id=groups.section AND not deleted GROUP BY sections.name");
-  PreparedStatement stat3 = db.prepareStatement("SELECT min(postdate) as first,max(postdate) as last FROM topics WHERE topics.userid=?");
-  PreparedStatement stat4 = db.prepareStatement("SELECT min(postdate) as first,max(postdate) as last FROM comments WHERE comments.userid=?");
 
   int userid = user.getId();
 
   stat2.setInt(1, userid);
-  stat3.setInt(1, userid);
-  stat4.setInt(1, userid);
 %>
 <div id="whois_userpic">
   <lor:userpic author="${user}"/>
@@ -133,9 +129,9 @@
     </div>      
   </c:if>
 <%
-  if (Template.isSessionAuthorized(session) && !session.getValue("nick").equals(nick) && !"anonymous".equals(session.getValue("nick"))) {
+  if (Template.isSessionAuthorized(session) && !tmpl.getNick().equals(nick) && !"anonymous".equals(tmpl.getNick())) {
     out.println("<br>");
-    Map<Integer,String> ignoreList = IgnoreList.getIgnoreList(db, (String) session.getValue("nick"));
+    Map<Integer,String> ignoreList = IgnoreList.getIgnoreList(db, tmpl.getNick());
     if (ignoreList != null && !ignoreList.isEmpty() && ignoreList.containsValue(nick)) {
       out.print("<form name='i_unblock' method='post' action='ignore-list.jsp'>\n");
       out.print("<input type='hidden' name='id' value='" + userid + "'>\n");
@@ -197,29 +193,23 @@
   </c:if>
   </c:if>
   <%
-  if (Template.isSessionAuthorized(session) && (session.getValue("nick").equals(nick))) {
+  if (Template.isSessionAuthorized(session) && (tmpl.getNick().equals(nick))) {
     out.print("<p><a href=\"register.jsp?mode=change\">Изменить регистрацию</a>.");
   }
 %>
 
 <h2>Статистика</h2>
-<% ResultSet rs=stat3.executeQuery(); rs.next();
-  Timestamp first = rs.getTimestamp("first");
-  Timestamp last = rs.getTimestamp("last");
- %>
-<b>Первая созданная тема:</b> <%= first==null?"нет":tmpl.dateFormat.format(first) %><br>
-<b>Последняя созданная тема:</b> <%= last==null?"нет":tmpl.dateFormat.format(last) %><br>
-<% rs.close(); %>
-<% rs=stat4.executeQuery(); rs.next();
-  Timestamp firstComment = rs.getTimestamp("first");
-  Timestamp lastComment = rs.getTimestamp("last");
-%>
-<b>Первый комментарий:</b> <%= firstComment==null?"нет":tmpl.dateFormat.format(firstComment) %><br>
-<b>Последний комментарий:</b> <%= lastComment==null?"нет":tmpl.dateFormat.format(lastComment) %><br>
+<c:if test="${userStat.firstTopic != null}">
+  <b>Первая созданная тема:</b> <lor:date date="${userStat.firstTopic}"/><br>
+  <b>Последняя созданная тема:</b> <lor:date date="${userStat.lastTopic}"/><br>
+</c:if>
+<c:if test="${userStat.firstComment != null}">
+  <b>Первый комментарий:</b> <lor:date date="${userStat.firstComment}"/><br>
+  <b>Последний комментарий:</b> <lor:date date="${userStat.lastComment}"/><br>
+</c:if>
 <c:if test="${not user.anonymous}">
   <b>Число комментариев: ${userStat.commentCount}</b>
 </c:if>
-<% rs.close(); %>
 <p>
 
   <c:if test="${user.id!=2}">
@@ -229,7 +219,7 @@
 <thead>
 <tr><th>Раздел</th><th>Число сообщений (тем)</th></tr>
 <tbody>
-<% rs=stat2.executeQuery(); %>
+<% ResultSet rs=stat2.executeQuery(); %>
 <%
    while (rs.next()) {
    	out.print("<tr><td>"+rs.getString("pname")+"</td><td>"+rs.getInt("c")+"</td></tr>");
