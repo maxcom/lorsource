@@ -62,6 +62,8 @@ public class WhoisController {
         mv.getModel().put("ignoreList", IgnoreList.getIgnoreList(db, tmpl.getCurrentUser().getId()));
       }
 
+      mv.getModel().put("userInfoText", user.getUserinfo(db));
+
       return mv;
     } finally {
       if (db!=null) {

@@ -1,10 +1,7 @@
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="java.sql.Connection,java.util.Map"   buffer="60kb" %>
-<%@ page import="ru.org.linux.site.IgnoreList"%>
-<%@ page import="ru.org.linux.site.LorDataSource"%>
-<%@ page import="ru.org.linux.site.Template"%>
-<%@ page import="ru.org.linux.site.User" %>
-<%@ page import="ru.org.linux.util.HTMLFormatter" %>
+<%@ page import="java.util.Map,ru.org.linux.site.Template"   buffer="60kb" %>
+<%@ page import="ru.org.linux.site.User"%>
+<%@ page import="ru.org.linux.util.HTMLFormatter"%>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
@@ -47,12 +44,6 @@
 <LINK REL="alternate" HREF="/people/${user.nick}/?output=rss" TYPE="application/rss+xml">
 
 <jsp:include page="header.jsp"/>
-
-<% Connection db = null;
-  try {
-    db = LorDataSource.getConnection();
-
-%>
 
 <h1>Информация о пользователе ${user.nick}</h1>
 <%
@@ -158,7 +149,7 @@
 <p>
 <cite>
 <%
-  out.print(HTMLFormatter.nl2br(user.getUserinfo(db)));
+  out.print(HTMLFormatter.nl2br((String) request.getAttribute("userInfoText")));
 %>
   </cite>
   <c:if test="${template.moderatorSession}">
@@ -237,11 +228,5 @@
 </c:if>
 
 </div>
-<%
-  } finally {
-    if (db!=null) {
-      db.close();
-    }
-  }
-%>
+
 <jsp:include page="footer.jsp"/>
