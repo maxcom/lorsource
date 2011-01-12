@@ -20,6 +20,8 @@
   --%>
 <%--@elvariable id="messages" type="java.util.List<ru.org.linux.site.PreparedMessage>"--%>
 <%--@elvariable id="section" type="ru.org.linux.site.Section"--%>
+<%--@elvariable id="offset" type="java.lang.Integer"--%>
+<%--@elvariable id="ptitle" type="java.lang.String"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 	<title>${ptitle}</title>
@@ -94,7 +96,7 @@
   
   <table class="nav">
     <tr>
-      <c:if test="${offset < 200}">
+      <c:if test="${offset < 200 && fn:length(messages) == 20}">
         <td align="left" width="35%">
           <a href="${url}?${aparams}offset=${offset+20}">← предыдущие</a>
         </td>
