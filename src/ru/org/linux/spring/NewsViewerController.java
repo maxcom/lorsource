@@ -448,6 +448,8 @@ public class NewsViewerController {
 
       modelAndView.getModel().put("deletedTopics", deleted.build());
 
+      modelAndView.getModel().put("sections", sectionStore.getSectionsList());
+
       return modelAndView;
     } finally {
       if (db != null) {

@@ -1,8 +1,5 @@
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.util.Date"   buffer="60kb"%>
-<%@ page import="ru.org.linux.site.DefaultProfile" %>
-<%@ page import="ru.org.linux.site.LorDataSource" %>
-<%@ page import="ru.org.linux.site.Template" %>
+<%@ page import="java.util.Date,ru.org.linux.site.DefaultProfile,ru.org.linux.site.Template"   buffer="60kb"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib prefix="lor" uri="http://www.linux.org.ru" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lorDir" %>
@@ -22,6 +19,8 @@
   --%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <%--@elvariable id="news" type="java.util.List<ru.org.linux.site.PreparedMessage>"--%>
+<%--@elvariable id="uncommited" type="java.lang.Integer"--%>
+<%--@elvariable id="uncommitedNews" type="java.lang.Integer"--%>
 
 <% Template tmpl = Template.getTemplate(request); %>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
@@ -39,9 +38,6 @@
 <jsp:include page="/WEB-INF/jsp/header-main.jsp"/>
 <%
   boolean columns3 = tmpl.getProf().getBoolean("main.3columns");
-
-  Connection db = null;
-  try {
 %>
 
 <div style="clear: both"></div>
@@ -64,43 +60,19 @@
 --%>
 <c:if test="${template.moderatorSession or template.correctorSession}">
 <div class="nav"   style="border-bottom: none">
-<%
-    if (db==null) {
-      db = LorDataSource.getConnection();
-    }
+  <c:if test="${uncommited > 0}">
+    [<a href="view-all.jsp">Неподтвержденных</a>: ${uncommited},
 
-    Statement st = db.createStatement();
-    ResultSet rs = st.executeQuery("select count(*) from topics,groups,sections where section=sections.id AND sections.moderate and topics.groupid=groups.id and not deleted and not topics.moderate AND postdate>(CURRENT_TIMESTAMP-'1 month'::interval)");
-
-    if (rs.next()) {
-      int count = rs.getInt("count");
-
-      out.print("[<a href=\"view-all.jsp\">Неподтвержденных</a>: " + count);
-    }
-
-    rs.close();
-
-    rs = st.executeQuery("select count(*) from topics,groups where section=1 AND topics.groupid=groups.id and not deleted and not topics.moderate AND postdate>(CURRENT_TIMESTAMP-'1 month'::interval)");
-
-    if (rs.next()) {
-      int count = rs.getInt("count");
-
-      if (count>0) {
-        out.print(", в том числе <a href=\"view-all.jsp?section=1\">новостей</a>: " + count + ']');
-      } else {
-        out.print(", новостей нет]");
-      }
-    }
-
-    rs.close();
-
-    st.close();
-
-    db.close(); db=null;
-%>
-  </div>
+    <c:if test="${uncommitedNews > 0}">
+      в том числе <a href="view-all.jsp?section=1">новостей</a>: ${uncommitedNews}]
+    </c:if>
+    <c:if test="${uncommitedNews == 0}">
+      новостей нет
+    </c:if>
   </c:if>
-    <%
+</div>
+</c:if>
+<%
   boolean multiPortal = false;
 
   if (tmpl.getProf().getBoolean(DefaultProfile.MAIN_GALLERY)) {
@@ -161,10 +133,4 @@
 
 <div style="clear: both"></div>
 
-<% } finally {
-    if (db!=null) {
-      db.close();
-    }
-  }
-%>
 <jsp:include page="/WEB-INF/jsp/footer-main.jsp"/>

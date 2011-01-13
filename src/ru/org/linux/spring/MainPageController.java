@@ -16,6 +16,8 @@
 package ru.org.linux.spring;
 
 import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.Statement;
 
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Controller;
@@ -56,6 +58,35 @@ public class MainPageController {
       ModelAndView mv = new ModelAndView("index");
 
       mv.getModel().put("news", nv.getPreparedMessages(db));
+
+      if (tmpl.isModeratorSession() || tmpl.isCorrectorSession()) {
+        Statement st = db.createStatement();
+        ResultSet allUncommited = st.executeQuery("select count(*) from topics,groups,sections where section=sections.id AND sections.moderate and topics.groupid=groups.id and not deleted and not topics.moderate AND postdate>(CURRENT_TIMESTAMP-'1 month'::interval)");
+
+        int uncommited = 0;
+
+        if (allUncommited.next()) {
+          uncommited = allUncommited.getInt(1);
+        }
+
+        allUncommited.close();
+
+        mv.getModel().put("uncommited", uncommited);
+
+        int uncommitedNews = 0;
+
+        if (uncommited>0) {
+          ResultSet rs = st.executeQuery("select count(*) from topics,groups where section=1 AND topics.groupid=groups.id and not deleted and not topics.moderate AND postdate>(CURRENT_TIMESTAMP-'1 month'::interval)");
+
+          if (rs.next()) {
+            uncommitedNews = rs.getInt(1);
+          }
+
+          rs.close();
+        }
+
+        mv.getModel().put("uncommitedNews", uncommitedNews);
+      }
 
       return mv;
     } finally {
