@@ -15,19 +15,20 @@
 
 package ru.org.linux.spring;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.Statement;
+import java.sql.*;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import ru.org.linux.site.*;
+import ru.org.linux.util.ServletParameterParser;
+import ru.org.linux.util.StringUtil;
+
+import com.google.common.collect.ImmutableList;
 import org.springframework.jdbc.support.JdbcUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
-
-import ru.org.linux.site.*;
-import ru.org.linux.util.ServletParameterParser;
 
 @Controller
 public class SameIPController {
@@ -81,9 +82,62 @@ public class SameIPController {
 
       mv.getModel().put("blockInfo", IPBlockInfo.getBlockInfo(db, ip));
 
+      mv.getModel().put("topics", getTopics(db, ip));
+
       return mv;
     } finally {
       JdbcUtils.closeConnection(db);
+    }
+  }
+
+  private List<TopicItem> getTopics(Connection db, String ip) throws SQLException {
+    Statement st=db.createStatement();
+    ResultSet rs=st.executeQuery("SELECT sections.name as ptitle, groups.title as gtitle, topics.title as title, topics.id as msgid, postdate FROM topics, groups, sections, users WHERE topics.groupid=groups.id AND sections.id=groups.section AND users.id=topics.userid AND topics.postip='"+ip+"' AND postdate>CURRENT_TIMESTAMP-'3 days'::interval ORDER BY msgid DESC");
+
+    ImmutableList.Builder<TopicItem> res = ImmutableList.builder();
+
+    while (rs.next()) {
+      res.add(new TopicItem(rs));
+    }
+
+    rs.close();
+
+    return res.build();
+  }
+
+  public static class TopicItem {
+    private final String ptitle;
+    private final String gtitle;
+    private final int id;
+    private final String title;
+    private final Timestamp postdate;
+
+    public TopicItem(ResultSet rs) throws SQLException {
+      ptitle = rs.getString("ptitle");
+      gtitle = rs.getString("gtitle");
+      id = rs.getInt("msgid");
+      title = StringUtil.makeTitle(rs.getString("title"));
+      postdate = rs.getTimestamp("postdate");
+    }
+
+    public String getPtitle() {
+      return ptitle;
+    }
+
+    public String getGtitle() {
+      return gtitle;
+    }
+
+    public int getId() {
+      return id;
+    }
+
+    public String getTitle() {
+      return title;
+    }
+
+    public Timestamp getPostdate() {
+      return postdate;
     }
   }
 }
