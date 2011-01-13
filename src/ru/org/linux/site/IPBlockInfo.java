@@ -27,13 +27,18 @@ public class IPBlockInfo {
   private final String reason;
   private final Timestamp banDate;
   private final Timestamp originalDate;
-  private final int moderatorId;
+  private final User moderator;
 
-  private IPBlockInfo(ResultSet rs) throws SQLException {
+  private IPBlockInfo(Connection db, ResultSet rs) throws SQLException {
     reason = rs.getString("reason");
     banDate = rs.getTimestamp("ban_date");
     originalDate = rs.getTimestamp("date");
-    moderatorId = rs.getInt("mod_id");
+    int moderatorId = rs.getInt("mod_id");
+    try {
+      moderator = User.getUser(db, moderatorId);
+    } catch (UserNotFoundException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   public static IPBlockInfo getBlockInfo(Connection db, String addr) throws SQLException {
@@ -47,7 +52,7 @@ public class IPBlockInfo {
       ResultSet rs = st.executeQuery();
 
       if (rs.next()) {
-        return new IPBlockInfo(rs);
+        return new IPBlockInfo(db, rs);
       } else {
 	return null;
       }
@@ -80,8 +85,8 @@ public class IPBlockInfo {
     return reason;
   }
 
-  public int getModeratorId() {
-    return moderatorId;
+  public User getModerator() {
+    return moderator;
   }
 
   public static boolean getTor(String addr) throws TextParseException, UnknownHostException {
