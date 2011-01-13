@@ -1,7 +1,6 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.util.Date,ru.org.linux.site.LorDataSource"   buffer="60kb"%>
-<%@ page import="ru.org.linux.site.Section" %>
+<%@ page import="java.util.Date,ru.org.linux.site.Section"   buffer="60kb"%>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%--
   ~ Copyright 1998-2010 Linux.org.ru
@@ -20,16 +19,14 @@
 <%--@elvariable id="messages" type="java.util.List<ru.org.linux.site.PreparedMessage>"--%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <%--@elvariable id="deletedTopics" type="java.util.List<ru.org.linux.spring.NewsViewerController.DeletedTopic>"--%>
+<%--@elvariable id="sections" type="java.util.List<ru.org.linux.site.Section>"--%>
+<%--@elvariable id="section" type="ru.org.linux.site.Section"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
 <%
-  Connection db = null;
-  try {
     response.setDateHeader("Expires", new Date(new Date().getTime() - 20 * 3600 * 1000).getTime());
     response.setDateHeader("Last-Modified", new Date(new Date().getTime() - 120 * 1000).getTime());
-
-    db = LorDataSource.getConnection();
 
     Section section = (Section) request.getAttribute("section");
     int sectionid = 0;
@@ -54,21 +51,14 @@
 
       <select name=section onChange="submit();" title="Быстрый переход">
         <option value=0>Все</option>
-        <%
-                Statement sectionListSt = db.createStatement();
-                ResultSet sectionList = sectionListSt.executeQuery("SELECT id, name FROM sections WHERE moderate order by id");
-
-                while (sectionList.next()) {
-                        int id = sectionList.getInt("id");
-        %>
-                <option value=<%= id %> <%= id==sectionid?"selected":"" %> ><%= sectionList.getString("name") %></option>
-        <%
-                }
-
-                sectionList.close();
-                sectionListSt.close();
-        %>
-
+        <c:forEach items="${sections}" var="item">
+          <c:if test="${section!=null && item.id == section.id}">
+            <option value="${item.id}" selected>${item.name}</option>
+          </c:if>
+          <c:if test="${item.id != section.id}">
+            <option value="${item.id}">${item.name}</option>
+          </c:if>
+        </c:forEach>
       </select>
     </td>
 
@@ -115,12 +105,4 @@
 </c:forEach>
 </table>
 </div>
-
-<%
-  } finally {
-    if (db!=null) {
-      db.close();
-    }
-  }
-%>
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>
