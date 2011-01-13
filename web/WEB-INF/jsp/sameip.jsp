@@ -20,6 +20,8 @@
   ~    limitations under the License.
   --%>
 <%--@elvariable id="blockInfo" type="ru.org.linux.site.IPBlockInfo"--%>
+<%--@elvariable id="topics" type="java.util.List<ru.org.linux.spring.SameIPController.TopicItem>"--%>
+<%--@elvariable id="ip" type="java.lang.String"--%>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
 <%
@@ -33,27 +35,27 @@
 
 <%
   String ip = (String) request.getAttribute("ip");
-  int ua_id = (Integer) request.getAttribute("uaId");
+  int uaId = (Integer) request.getAttribute("uaId");
 %>
-<table class=nav><tr>
-			<td align=left valign=middle id="navPath">
-			<strong>Интерфейс модератора - Сообщения с <%= ip %></strong>
-			</td>
+<table class=nav>
+  <tr>
+    <td align=left valign=middle id="navPath">
+      <strong>Интерфейс модератора - Сообщения с ${ip}</strong>
+    </td>
 
-			<td align=right valign=middle>
+    <td align=right valign=middle>
 
-[<a href="http://www.radio-msu.net/serv/wwwnslookup/nph-wwwtr.cgi?server=<%= ip%>">NSLOOKUP</a>] [WHOIS
-<% 
-      // URLs ripped off from ACID snort project with corrections
-      out.print("<a href='http://www.ripe.net/perl/whois?query="+ip+"'>RIPE</a> / "); 
-      out.print("<a href='http://ws.arin.net/whois/?queryinput="+ip+"'>ARIN</a> / ");
-      out.print("<a href='http://www.apnic.net/apnic-bin/whois.pl?search="+ip+"'>APNIC</a> / ");
-      out.print("<a href='http://lacnic.net/cgi-bin/lacnic/whois?lg=EN&query="+ip+"'>LACNIC</a>\n");
-%>
-]
-			</td>   </tr>
+      [<a href="http://www.radio-msu.net/serv/wwwnslookup/nph-wwwtr.cgi?server=${ip}">NSLOOKUP</a>]
+      [WHOIS
+      <a href='http://www.ripe.net/perl/whois?query=${ip}'>RIPE</a> /
+      <a href='http://ws.arin.net/whois/?queryinput=${ip}'>ARIN</a> /
+      <a href='http://www.apnic.net/apnic-bin/whois.pl?search=${ip}'>APNIC</a> /
+      <a href='http://lacnic.net/cgi-bin/lacnic/whois?lg=EN&query=${ip}'>LACNIC</a>
+      ]
+    </td>
+  </tr>
 
-			</table>
+</table>
 
 <h1 class="optional">Сообщения с <%= ip %> (за 3 дня)</h1>
 
@@ -138,28 +140,33 @@ function checkCustomBan(idx) {
 <input type="submit" name="del" value="del from ip">
 </form>
 
-<h2>Темы</h2>
+<h2>Темы за 3 дня</h2>
 
 <div class=forum>
 <table  width="100%" class="message-table">
 <thead>
 <tr><th>Раздел</th><th>Группа</th><th>Заглавие</th><th>Дата</th></tr>
 <tbody>
-<%
-  db = LorDataSource.getConnection();
-
-  Statement st=db.createStatement();
-  ResultSet rs=st.executeQuery("SELECT sections.name as ptitle, groups.title as gtitle, topics.title as title, topics.id as msgid, postdate FROM topics, groups, sections, users WHERE topics.groupid=groups.id AND sections.id=groups.section AND users.id=topics.userid AND topics.postip='"+ip+"' AND postdate>CURRENT_TIMESTAMP-'3 days'::interval ORDER BY msgid DESC");
-  while (rs.next()) {
-    out.print("<tr><td>" + rs.getString("ptitle") + "</td><td>" + rs.getString("gtitle") + "</td><td><a href=\"view-message.jsp?msgid=" + rs.getInt("msgid") + "\" rev=contents>" + StringUtil.makeTitle(rs.getString("title")) + "</a></td><td>" + tmpl.dateFormat.format(rs.getTimestamp("postdate")) + "</td></tr>");
-  }
-
-  rs.close();
-  st.close();
-%>
+<c:forEach items="${topics}" var="topic">
+<tr>
+  <td>
+    ${topic.ptitle}
+  </td>
+  <td>
+    ${topic.gtitle}
+  </td>
+  <td>
+    <a href="view-message.jsp?msgid=${topic.id}" rev=contents>${topic.title}</a>
+  </td>
+  <td>
+    <lor:date date="${topic.postdate}"/>
+  </td>
+</tr>
+</c:forEach>
 </table>
 </div>
-<h2>Комментарии</h2>
+
+<h2>Комментарии за 24 часа</h2>
 
 <div class=forum>
 <table width="100%" class="message-table">
@@ -167,9 +174,10 @@ function checkCustomBan(idx) {
 <tr><th>Раздел</th><th>Группа</th><th>Заглавие темы</th><th>Дата</th></tr>
 <tbody>
 <%
+  db = LorDataSource.getConnection();
 
-  st=db.createStatement();
-  rs=st.executeQuery("SELECT sections.name as ptitle, groups.title as gtitle, topics.title, topics.id as topicid, comments.id as msgid, comments.postdate FROM sections, groups, topics, comments WHERE sections.id=groups.section AND groups.id=topics.groupid AND comments.topic=topics.id AND comments.postip='"+ip+"' AND comments.postdate>CURRENT_TIMESTAMP-'24 hour'::interval ORDER BY postdate DESC;");
+  Statement st=db.createStatement();
+  ResultSet rs=st.executeQuery("SELECT sections.name as ptitle, groups.title as gtitle, topics.title, topics.id as topicid, comments.id as msgid, comments.postdate FROM sections, groups, topics, comments WHERE sections.id=groups.section AND groups.id=topics.groupid AND comments.topic=topics.id AND comments.postip='"+ip+"' AND comments.postdate>CURRENT_TIMESTAMP-'24 hour'::interval ORDER BY postdate DESC;");
   while (rs.next()) {
     out.print("<tr><td>" + rs.getString("ptitle") + "</td><td>" + rs.getString("gtitle") + "</td><td><a href=\"jump-message.jsp?msgid=" + rs.getInt("topicid") + "&amp;cid=" + rs.getInt("msgid") + "\" rev=contents>" + StringUtil.makeTitle(rs.getString("title")) + "</a></td><td>" + tmpl.dateFormat.format(rs.getTimestamp("postdate")) + "</td></tr>");
   }
@@ -182,7 +190,6 @@ function checkCustomBan(idx) {
 </div>
 
 <h2>Все пользователи, использовавшие данный IP</h2>
-
 <div class=forum>
 <table width="100%" class="message-table">
 <thead>
@@ -194,7 +201,7 @@ function checkCustomBan(idx) {
   rs=st.executeQuery("SELECT MAX(c.postdate) AS lastdate, u.nick, c.ua_id, ua.name AS user_agent FROM comments c LEFT JOIN user_agents ua ON c.ua_id = ua.id JOIN users u ON c.userid = u.id WHERE c.postip='" + ip + "' GROUP BY u.nick, c.ua_id, ua.name ORDER BY MAX(c.postdate) DESC, u.nick, ua.name");
 
   while (rs.next()) {
-    boolean sameUserAgent = ua_id == rs.getInt("ua_id");
+    boolean sameUserAgent = uaId == rs.getInt("ua_id");
 
     out.print("<tr><td>" + tmpl.dateFormat.format(rs.getTimestamp("lastdate")) + "</td>" +
                   "<td><a href=\"/people/" + rs.getString("nick") + "/profile\">" + rs.getString("nick") + "</a></td>" +
@@ -204,7 +211,6 @@ function checkCustomBan(idx) {
   rs.close();
   st.close();
 %>
-
 </table>
 </div>
 <%
