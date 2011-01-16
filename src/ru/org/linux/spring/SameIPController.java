@@ -150,6 +150,7 @@ public class SameIPController {
       id = rs.getInt("msgid");
       title = StringUtil.makeTitle(rs.getString("title"));
       postdate = rs.getTimestamp("postdate");
+
       if (isComment) {
         topicId = rs.getInt("topicid");
       } else {

@@ -173,7 +173,7 @@ function checkCustomBan(idx) {
 <thead>
 <tr><th>Раздел</th><th>Группа</th><th>Заглавие темы</th><th>Дата</th></tr>
 <tbody>
-<c:forEach items="${topics}" var="topic">
+<c:forEach items="${comments}" var="topic">
 <tr>
   <td>${topic.ptitle}</td>
   <td>${topic.gtitle}</td>
