@@ -105,7 +105,7 @@ public class SameIPController {
     ImmutableList.Builder<TopicItem> res = ImmutableList.builder();
 
     while (rs.next()) {
-      res.add(new TopicItem(rs));
+      res.add(new TopicItem(rs, false));
     }
 
     rs.close();
@@ -128,7 +128,7 @@ public class SameIPController {
     ImmutableList.Builder<TopicItem> res = ImmutableList.builder();
 
     while (rs.next()) {
-      res.add(new TopicItem(rs));
+      res.add(new TopicItem(rs, true));
     }
 
     rs.close();
@@ -144,13 +144,17 @@ public class SameIPController {
     private final Timestamp postdate;
     private final int topicId;
 
-    public TopicItem(ResultSet rs) throws SQLException {
+    private TopicItem(ResultSet rs, boolean isComment) throws SQLException {
       ptitle = rs.getString("ptitle");
       gtitle = rs.getString("gtitle");
       id = rs.getInt("msgid");
       title = StringUtil.makeTitle(rs.getString("title"));
       postdate = rs.getTimestamp("postdate");
-      topicId = rs.getInt("topicid");
+      if (isComment) {
+        topicId = rs.getInt("topicid");
+      } else {
+        topicId = 0;
+      }
     }
 
     public String getPtitle() {
