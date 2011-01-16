@@ -45,19 +45,24 @@
   <div class="<%= columns3?"newsblog-in2":"newsblog-in"%>">
 
 <h1><a href="/news/">Новости</a></h1>
-<%--
+
 <c:if test="${template.style != 'black'}">
   <div class="infoblock" style="border: 1px solid #777; margin: 0; text-align: justify;">
     <a href="http://job.samsung.ru/"><img width="130" height="43" src="/adv/Samsung_Logo.png" alt="" style="float: left; border: 0"></a>
     <div style="margin-left: 135px">
+<%--
     <h2>Вакансии</h2>
-    Samsung Electronics приглашает разработчиков LINUX на работу в R&amp;D центры в Южной Корее (г. Сувон) и России (г. Москва).<br>
-    Область специализации: Linux Kernel, Drivers, System Programming.
+--%>
+    SAMSUNG Electronics&nbsp;&mdash; мировой лидер в&nbsp;производстве полупроводников,
+телекоммуникационного оборудования и&nbsp;цифровой конвергенции&nbsp;&mdash; объявляет о&nbsp;приеме
+на&nbsp;работу программистов, инженеров-разработчик, физиков и&nbsp;химиков: LINUX,
+Android, C/C++, Smart Phones, Smart TV, 3D&nbsp;Imaging, 3D&nbsp;Graphics, ASIC, FPGA,
+SoC, Graphene, MEMS, Biomedical Engineering. Дополнительная информация:
     <a href="http://job.samsung.ru/" style="color: white">http://job.samsung.ru</a>
     </div>
   </div>
 </c:if>
---%>
+
 <c:if test="${template.moderatorSession or template.correctorSession}">
 <div class="nav"   style="border-bottom: none">
   <c:if test="${uncommited > 0}">
