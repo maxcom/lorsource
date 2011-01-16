@@ -47,7 +47,7 @@
     }
   %>
 
-  <h2><%= header %></h2>
+  <h2><a href="http://www.unicontrollers.com/products/unc001"><%= header %></a></h2>
   <%= text %><br>
   <a href="http://www.unicontrollers.com/products/unc001">http://www.unicontrollers.com/products/unc001</a>
 </div>

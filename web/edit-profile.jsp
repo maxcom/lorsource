@@ -119,7 +119,6 @@ $(document).ready(function() {
         <input type=radio name=style id="style-${s}" value="${s}"><label for="style-${s}">${s}</label><br>
       </c:if>
     </c:forEach>
-    Внимание! Тема "tango" находится в состоянии разработки
   </td>
 </tr>
   <tr><td colspan=2><hr></td></tr>
