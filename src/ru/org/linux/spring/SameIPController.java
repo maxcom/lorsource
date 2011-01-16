@@ -83,6 +83,7 @@ public class SameIPController {
       mv.getModel().put("blockInfo", IPBlockInfo.getBlockInfo(db, ip));
 
       mv.getModel().put("topics", getTopics(db, ip));
+      mv.getModel().put("comments", getComments(db, ip));
 
       return mv;
     } finally {
@@ -90,9 +91,39 @@ public class SameIPController {
     }
   }
 
-  private List<TopicItem> getTopics(Connection db, String ip) throws SQLException {
+  private static List<TopicItem> getTopics(Connection db, String ip) throws SQLException {
     Statement st=db.createStatement();
-    ResultSet rs=st.executeQuery("SELECT sections.name as ptitle, groups.title as gtitle, topics.title as title, topics.id as msgid, postdate FROM topics, groups, sections, users WHERE topics.groupid=groups.id AND sections.id=groups.section AND users.id=topics.userid AND topics.postip='"+ip+"' AND postdate>CURRENT_TIMESTAMP-'3 days'::interval ORDER BY msgid DESC");
+    ResultSet rs=st.executeQuery(
+      "SELECT sections.name as ptitle, groups.title as gtitle, topics.title as title, topics.id as msgid, postdate " +
+        "FROM topics, groups, sections, users " +
+        "WHERE topics.groupid=groups.id " +
+        "AND sections.id=groups.section " +
+        "AND users.id=topics.userid " +
+        "AND topics.postip='"+ip+"' " +
+        "AND postdate>CURRENT_TIMESTAMP-'3 days'::interval ORDER BY msgid DESC");
+
+    ImmutableList.Builder<TopicItem> res = ImmutableList.builder();
+
+    while (rs.next()) {
+      res.add(new TopicItem(rs));
+    }
+
+    rs.close();
+
+    return res.build();
+  }
+
+  private static List<TopicItem> getComments(Connection db, String ip) throws SQLException {
+    Statement st=db.createStatement();
+    ResultSet rs=st.executeQuery(
+      "SELECT sections.name as ptitle, groups.title as gtitle, topics.title, topics.id as topicid, comments.id as msgid, comments.postdate " +
+        "FROM sections, groups, topics, comments " +
+        "WHERE sections.id=groups.section " +
+        "AND groups.id=topics.groupid " +
+        "AND comments.topic=topics.id " +
+        "AND comments.postip='"+ip+"' " +
+        "AND comments.postdate>CURRENT_TIMESTAMP-'24 hour'::interval " +
+        "ORDER BY postdate DESC;");
 
     ImmutableList.Builder<TopicItem> res = ImmutableList.builder();
 
@@ -111,6 +142,7 @@ public class SameIPController {
     private final int id;
     private final String title;
     private final Timestamp postdate;
+    private final int topicId;
 
     public TopicItem(ResultSet rs) throws SQLException {
       ptitle = rs.getString("ptitle");
@@ -118,6 +150,7 @@ public class SameIPController {
       id = rs.getInt("msgid");
       title = StringUtil.makeTitle(rs.getString("title"));
       postdate = rs.getTimestamp("postdate");
+      topicId = rs.getInt("topicid");
     }
 
     public String getPtitle() {
@@ -138,6 +171,10 @@ public class SameIPController {
 
     public Timestamp getPostdate() {
       return postdate;
+    }
+
+    public int getTopicId() {
+      return topicId;
     }
   }
 }
