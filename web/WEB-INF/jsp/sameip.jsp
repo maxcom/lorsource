@@ -3,7 +3,6 @@
 <%@ page import="java.sql.Connection,java.sql.ResultSet,java.sql.Statement,ru.org.linux.site.IPBlockInfo"   buffer="60kb" %>
 <%@ page import="ru.org.linux.site.LorDataSource"%>
 <%@ page import="ru.org.linux.site.Template"%>
-<%@ page import="ru.org.linux.util.StringUtil"%>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%--
   ~ Copyright 1998-2010 Linux.org.ru
@@ -21,6 +20,7 @@
   --%>
 <%--@elvariable id="blockInfo" type="ru.org.linux.site.IPBlockInfo"--%>
 <%--@elvariable id="topics" type="java.util.List<ru.org.linux.spring.SameIPController.TopicItem>"--%>
+<%--@elvariable id="comments" type="java.util.List<ru.org.linux.spring.SameIPController.TopicItem>"--%>
 <%--@elvariable id="ip" type="java.lang.String"--%>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
@@ -173,19 +173,16 @@ function checkCustomBan(idx) {
 <thead>
 <tr><th>Раздел</th><th>Группа</th><th>Заглавие темы</th><th>Дата</th></tr>
 <tbody>
-<%
-  db = LorDataSource.getConnection();
-
-  Statement st=db.createStatement();
-  ResultSet rs=st.executeQuery("SELECT sections.name as ptitle, groups.title as gtitle, topics.title, topics.id as topicid, comments.id as msgid, comments.postdate FROM sections, groups, topics, comments WHERE sections.id=groups.section AND groups.id=topics.groupid AND comments.topic=topics.id AND comments.postip='"+ip+"' AND comments.postdate>CURRENT_TIMESTAMP-'24 hour'::interval ORDER BY postdate DESC;");
-  while (rs.next()) {
-    out.print("<tr><td>" + rs.getString("ptitle") + "</td><td>" + rs.getString("gtitle") + "</td><td><a href=\"jump-message.jsp?msgid=" + rs.getInt("topicid") + "&amp;cid=" + rs.getInt("msgid") + "\" rev=contents>" + StringUtil.makeTitle(rs.getString("title")) + "</a></td><td>" + tmpl.dateFormat.format(rs.getTimestamp("postdate")) + "</td></tr>");
-  }
-
-  rs.close();
-  st.close();
-%>
-
+<c:forEach items="${topics}" var="topic">
+<tr>
+  <td>${topic.ptitle}</td>
+  <td>${topic.gtitle}</td>
+  <td><a href="jump-message.jsp?msgid=${topic.topicId}&amp;cid=${topic.id}" rev=contents>${topic.title}</a></td>
+  <td>
+    <lor:date date="${topic.postdate}"/>
+  </td>
+</tr>
+</c:forEach>
 </table>
 </div>
 
@@ -196,9 +193,10 @@ function checkCustomBan(idx) {
 <tr><th>Последний визит</th><th>Пользователь</th><th>User Agent</th></tr>
 <tbody>
 <%
+  db = LorDataSource.getConnection();
 
-  st=db.createStatement();
-  rs=st.executeQuery("SELECT MAX(c.postdate) AS lastdate, u.nick, c.ua_id, ua.name AS user_agent FROM comments c LEFT JOIN user_agents ua ON c.ua_id = ua.id JOIN users u ON c.userid = u.id WHERE c.postip='" + ip + "' GROUP BY u.nick, c.ua_id, ua.name ORDER BY MAX(c.postdate) DESC, u.nick, ua.name");
+  Statement st=db.createStatement();
+  ResultSet rs=st.executeQuery("SELECT MAX(c.postdate) AS lastdate, u.nick, c.ua_id, ua.name AS user_agent FROM comments c LEFT JOIN user_agents ua ON c.ua_id = ua.id JOIN users u ON c.userid = u.id WHERE c.postip='" + ip + "' GROUP BY u.nick, c.ua_id, ua.name ORDER BY MAX(c.postdate) DESC, u.nick, ua.name");
 
   while (rs.next()) {
     boolean sameUserAgent = uaId == rs.getInt("ua_id");
