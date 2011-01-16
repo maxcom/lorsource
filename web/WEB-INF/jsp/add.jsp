@@ -112,7 +112,7 @@
 
 <label for="form_msg">Сообщение:</label><br>
 <font size=2>(В режиме <i>Tex paragraphs</i> игнорируются переносы строк.<br> Пустая строка (два раза Enter) начинает новый абзац)</font><br>
-<font size="2"><b>Внимание:</b> Новый экспериментальный режим - <a href="/wiki/en/Lorcode">LORCODE</a></font><br>
+<font size="2"><b>Внимание:</b> Новый режим - <a href="/wiki/en/Lorcode">LORCODE</a></font><br>
 <textarea name=msg id="form_msg" cols=70 rows=20><%
     if (form.getMsg()!=null) {
       out.print(HTMLFormatter.htmlSpecialChars(form.getMsg()));
