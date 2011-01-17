@@ -1,8 +1,6 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="java.sql.Connection,java.sql.ResultSet,java.sql.Statement,ru.org.linux.site.IPBlockInfo"   buffer="60kb" %>
-<%@ page import="ru.org.linux.site.LorDataSource"%>
-<%@ page import="ru.org.linux.site.Template"%>
+<%@ page import="ru.org.linux.site.IPBlockInfo" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%--
   ~ Copyright 1998-2010 Linux.org.ru
@@ -21,21 +19,14 @@
 <%--@elvariable id="blockInfo" type="ru.org.linux.site.IPBlockInfo"--%>
 <%--@elvariable id="topics" type="java.util.List<ru.org.linux.spring.SameIPController.TopicItem>"--%>
 <%--@elvariable id="comments" type="java.util.List<ru.org.linux.spring.SameIPController.TopicItem>"--%>
+<%--@elvariable id="users" type="java.util.List<ru.org.linux.spring.SameIPController.UserItem>"--%>
 <%--@elvariable id="ip" type="java.lang.String"--%>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
-<%
-  Template tmpl = Template.getTemplate(request);
-%>
 <title>Поиск писем с IP-адреса</title>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
-<% Connection db = null;
-  try {
-%>
-
 <%
   String ip = (String) request.getAttribute("ip");
-  int uaId = (Integer) request.getAttribute("uaId");
 %>
 <table class=nav>
   <tr>
@@ -192,31 +183,24 @@ function checkCustomBan(idx) {
 <thead>
 <tr><th>Последний визит</th><th>Пользователь</th><th>User Agent</th></tr>
 <tbody>
-<%
-  db = LorDataSource.getConnection();
-
-  Statement st=db.createStatement();
-  ResultSet rs=st.executeQuery("SELECT MAX(c.postdate) AS lastdate, u.nick, c.ua_id, ua.name AS user_agent FROM comments c LEFT JOIN user_agents ua ON c.ua_id = ua.id JOIN users u ON c.userid = u.id WHERE c.postip='" + ip + "' GROUP BY u.nick, c.ua_id, ua.name ORDER BY MAX(c.postdate) DESC, u.nick, ua.name");
-
-  while (rs.next()) {
-    boolean sameUserAgent = uaId == rs.getInt("ua_id");
-
-    out.print("<tr><td>" + tmpl.dateFormat.format(rs.getTimestamp("lastdate")) + "</td>" +
-                  "<td><a href=\"/people/" + rs.getString("nick") + "/profile\">" + rs.getString("nick") + "</a></td>" +
-		  "<td>" + (sameUserAgent ? "<b>" : "") + rs.getString("user_agent") + (sameUserAgent ? "</b>" : "") + "</td></tr>");
-  }
-
-  rs.close();
-  st.close();
-%>
+<c:forEach items="${users}" var="item">
+<tr>
+  <td>
+      <lor:date date="${item.lastdate}"/>
+  </td>
+  <td>
+    <a href="/people/${item.nick}/profile">${item.nick}</a>
+  </td>
+  <td>
+    <c:if test="${item.sameUa}">
+      <b>${item.userAgent}</b>
+    </c:if>
+    <c:if test="${item.sameUa}">
+      ${item.userAgent}
+    </c:if>
+  </td>
+</tr>
+</c:forEach>
 </table>
 </div>
-<%
-  } finally {
-    if (db!=null) {
-      db.close();
-    }
-  }
-%>
-
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>

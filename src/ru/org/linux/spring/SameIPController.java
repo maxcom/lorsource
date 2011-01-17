@@ -84,6 +84,7 @@ public class SameIPController {
 
       mv.getModel().put("topics", getTopics(db, ip));
       mv.getModel().put("comments", getComments(db, ip));
+      mv.getModel().put("users", getUsers(db, ip, userAgentId));
 
       return mv;
     } finally {
@@ -109,6 +110,7 @@ public class SameIPController {
     }
 
     rs.close();
+    st.close();
 
     return res.build();
   }
@@ -132,6 +134,29 @@ public class SameIPController {
     }
 
     rs.close();
+    st.close();
+
+    return res.build();
+  }
+
+  private static List<UserItem> getUsers(Connection db, String ip, int uaId) throws SQLException {
+    Statement st=db.createStatement();
+    ResultSet rs=st.executeQuery(
+      "SELECT MAX(c.postdate) AS lastdate, u.nick, c.ua_id, ua.name AS user_agent " +
+        "FROM comments c LEFT JOIN user_agents ua ON c.ua_id = ua.id " +
+        "JOIN users u ON c.userid = u.id " +
+        "WHERE c.postip='" + ip + "' " +
+        "GROUP BY u.nick, c.ua_id, ua.name " +
+        "ORDER BY MAX(c.postdate) DESC, u.nick, ua.name");
+
+    ImmutableList.Builder<UserItem> res = ImmutableList.builder();
+
+    while (rs.next()) {
+      res.add(new UserItem(rs, uaId));
+    }
+
+    rs.close();
+    st.close();
 
     return res.build();
   }
@@ -180,6 +205,36 @@ public class SameIPController {
 
     public int getTopicId() {
       return topicId;
+    }
+  }
+
+  public static class UserItem {
+    private final Timestamp lastdate;
+    private final String nick;
+    private final boolean sameUa;
+    private final String userAgent;
+
+    private UserItem(ResultSet rs, int uaId) throws SQLException {
+      lastdate = rs.getTimestamp("lastdate");
+      nick = rs.getString("nick");
+      sameUa = uaId == rs.getInt("ua_id");
+      userAgent = rs.getString("user_agent");
+    }
+
+    public Timestamp getLastdate() {
+      return lastdate;
+    }
+
+    public String getNick() {
+      return nick;
+    }
+
+    public boolean isSameUa() {
+      return sameUa;
+    }
+
+    public String getUserAgent() {
+      return userAgent;
     }
   }
 }
