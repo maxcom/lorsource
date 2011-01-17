@@ -195,7 +195,7 @@ function checkCustomBan(idx) {
     <c:if test="${item.sameUa}">
       <b>${item.userAgent}</b>
     </c:if>
-    <c:if test="${item.sameUa}">
+    <c:if test="${not item.sameUa}">
       ${item.userAgent}
     </c:if>
   </td>
