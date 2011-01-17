@@ -70,6 +70,7 @@
         <javac classpathref="compile.classpath" srcdir="src" destdir="${build}" optimize="yes"
                debug="yes" encoding="utf-8" excludes="**/*Test.java"/>
         <copy file="src/log4j.properties" todir="${build}"/>
+        <copy file="src/ehcache.xml" todir="${build}"/>
     </target>
 
      <path id="test.compile.classpath">
@@ -99,7 +100,7 @@
         <jar jarfile="${dist}/WEB-INF/lib/lnxorgutil.jar" basedir="${build}"
              includes="ru/org/linux/util/*,ru/org/linux/storage/*,ru/org/linux/cache/*,ru/org/linux/boxlet/*,ru/org/linux/logger/*,org/**,com/**"/>
         <jar jarfile="${dist}/WEB-INF/lib/lnxorgsite.jar" basedir="${build}"
-             includes="ru/org/linux/site/**,ru/org/linux/spring/**,log4j.properties"/>
+             includes="ru/org/linux/site/**,ru/org/linux/spring/**,log4j.properties,ehcache.xml"/>
         <copy todir="${dist}/WEB-INF">
             <fileset dir="web/WEB-INF"/>
         </copy>
