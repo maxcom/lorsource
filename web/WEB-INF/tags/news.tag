@@ -95,10 +95,14 @@
     out.append("<p>&gt;&gt;&gt; <a href=\"").append(HTMLFormatter.htmlSpecialChars(url)).append("\">").append(message.getLinktext()).append("</a>");
   } else if (imagepost) {
     String imageFilename = tmpl.getConfig().getProperty("HTMLPathPrefix") + url;
-    ImageInfo info = new ImageInfo(imageFilename, ImageInfo.detectImageType(new File(imageFilename)));
-
     out.append("<p>&gt;&gt;&gt; <a href=\"/").append(url).append("\">Просмотр</a>");
-    out.append(" (<i>").append(Integer.toString(info.getWidth())).append('x').append(Integer.toString(info.getHeight())).append(", ").append(info.getSizeString()).append("</i>)");
+    try {
+      ImageInfo info = new ImageInfo(imageFilename, ImageInfo.detectImageType(new File(imageFilename)));
+
+      out.append(" (<i>").append(Integer.toString(info.getWidth())).append('x').append(Integer.toString(info.getHeight())).append(", ").append(info.getSizeString()).append("</i>)");
+    } catch (BadImageException e) {
+      out.append("(BAD IMAGE)");
+    }
   } else if (votepoll) {
       %>
         <lor:poll poll="${preparedMessage.poll}"/>
