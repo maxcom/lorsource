@@ -100,6 +100,8 @@
       ImageInfo info = new ImageInfo(imageFilename, ImageInfo.detectImageType(new File(imageFilename)));
 
       out.append(" (<i>").append(Integer.toString(info.getWidth())).append('x').append(Integer.toString(info.getHeight())).append(", ").append(info.getSizeString()).append("</i>)");
+    } catch (IOException e) {
+      out.append("(BAD IMAGE)");
     } catch (BadImageException e) {
       out.append("(BAD IMAGE)");
     }
