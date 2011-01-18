@@ -87,7 +87,7 @@ public class UserModificationController extends ApplicationObjectSupport {
         if ("block-n-delete-comments".equals(action)) {
           Map<String, Object> params = new HashMap<String, Object>();
           params.put("message", "Удалено");
-          List<Integer> deleted = user.deleteAllComments(db, moderator, searchQueueSender);
+          List<Integer> deleted = user.deleteAllComments(db, moderator);
           params.put("bigMessage", deleted);
           db.commit();
           

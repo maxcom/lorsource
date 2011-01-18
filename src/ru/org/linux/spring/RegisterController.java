@@ -16,7 +16,6 @@
 package ru.org.linux.spring;
 
 import java.sql.*;
-import java.util.Collections;
 import java.util.Date;
 import java.util.Properties;
 
@@ -27,7 +26,6 @@ import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import org.springframework.context.support.ApplicationObjectSupport;
 import org.springframework.jdbc.support.JdbcUtils;
@@ -318,7 +316,7 @@ public class RegisterController extends ApplicationObjectSupport {
     }
   }
 
-  private int getUserCount(Connection db, String email) throws SQLException {
+  private static int getUserCount(Connection db, String email) throws SQLException {
     PreparedStatement pst2 = db.prepareStatement("SELECT count(*) as c FROM users WHERE email=?");
     ResultSet rs = null;
 
@@ -336,7 +334,7 @@ public class RegisterController extends ApplicationObjectSupport {
     }
   }
 
-  private void sendEmail(Template tmpl, String nick, String email, boolean isNew) throws MessagingException {
+  private static void sendEmail(Template tmpl, String nick, String email, boolean isNew) throws MessagingException {
     StringBuilder text = new StringBuilder();
 
     text.append("Здравствуйте!\n\n");
@@ -391,12 +389,13 @@ public class RegisterController extends ApplicationObjectSupport {
     HttpServletRequest request,
     @RequestParam String activation
   ) throws Exception {
-    Connection db = null;
     Template tmpl = Template.getTemplate(request);
 
     if (!tmpl.isSessionAuthorized()) {
       throw new AccessViolationException("Not authorized!");
     }
+
+    Connection db = null;
 
     try {
       db = LorDataSource.getConnection();
