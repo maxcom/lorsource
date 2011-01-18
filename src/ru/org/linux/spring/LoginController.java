@@ -15,9 +15,7 @@
 
 package ru.org.linux.spring;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.Collections;
 
 import javax.servlet.http.Cookie;
@@ -50,7 +48,11 @@ public class LoginController {
   }
 
   @RequestMapping(value = "/login.jsp", method = RequestMethod.POST)
-  public ModelAndView doLogin(HttpServletRequest request, HttpServletResponse response) throws Exception {
+  public ModelAndView doLogin(
+    HttpServletRequest request,
+    HttpServletResponse response,
+    @RequestParam(required = false) String activation
+  ) throws Exception {
     Connection db = null;
     Template tmpl = Template.getTemplate(request);
     HttpSession session = request.getSession();
@@ -72,16 +74,17 @@ public class LoginController {
 
       User user = User.getUser(db, nick);
 
-      if (!user.isActivated()) {
-        String activation = request.getParameter("activate");
+      user.checkAnonymous();
 
+      if (!user.isActivated()) {
         if (activation == null) {
           return new ModelAndView(ajax ? "login-xml" : "login-form", Collections.singletonMap("error", "Требуется активация"));
         }
 
         String regcode = user.getActivationCode(tmpl.getSecret());
+        String oldRegcode = user.getOldActivationCode(tmpl.getSecret()); // remove after 25 jan 2010
 
-        if (regcode.equals(activation)) {
+        if (regcode.equals(activation) || oldRegcode.equals(activation)) {
           PreparedStatement pst = db.prepareStatement("UPDATE users SET activated='t' WHERE id=?");
           pst.setInt(1, user.getId());
           pst.executeUpdate();
@@ -92,8 +95,6 @@ public class LoginController {
           throw new AccessViolationException("Bad activation code");
         }
       }
-
-      user.checkAnonymous();
 
       String password = request.getParameter("passwd");
       if (password==null || !user.matchPassword(password)) {
@@ -118,11 +119,6 @@ public class LoginController {
         db.close();
       }
     }
-  }
-
-  @RequestMapping(value="/activate.jsp", method= RequestMethod.GET)
-  public ModelAndView activateForm() {
-    return new ModelAndView("activate");
   }
 
   @RequestMapping(value = "/logout.jsp", method = RequestMethod.GET)

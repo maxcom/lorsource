@@ -15,10 +15,8 @@
 
 package ru.org.linux.spring;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.Statement;
+import java.sql.*;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Properties;
 
@@ -29,6 +27,7 @@ import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import org.springframework.context.support.ApplicationObjectSupport;
 import org.springframework.jdbc.support.JdbcUtils;
@@ -37,6 +36,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.view.RedirectView;
 
 import ru.org.linux.site.*;
 import ru.org.linux.util.*;
@@ -187,13 +187,15 @@ public class RegisterController extends ApplicationObjectSupport {
 
       int userid;
 
+      boolean emailChanged = false;
+
       if (changeMode) {
         User user = User.getUser(db, nick);
         userid = user.getId();
         user.checkPassword(request.getParameter("oldpass"));
         user.checkAnonymous();
 
-        PreparedStatement ist = db.prepareStatement("UPDATE users SET  name=?, passwd=?, url=?, email=?, town=? WHERE id=" + userid);
+        PreparedStatement ist = db.prepareStatement("UPDATE users SET  name=?, passwd=?, url=?, new_email=?, town=? WHERE id=" + userid);
         ist.setString(1, name);
         if (password == null) {
           ist.setString(2, request.getParameter("oldpass"));
@@ -207,7 +209,21 @@ public class RegisterController extends ApplicationObjectSupport {
           ist.setString(3, null);
         }
 
-        ist.setString(4, mail.getAddress());
+        if (user.getEmail().equals(email)) {
+          ist.setString(4, null);
+        } else {
+          int emailCount = getUserCount(db, mail.getAddress());
+
+          if (emailCount != 0) {
+            throw new BadInputException("такой email уже используется");
+          }
+
+          ist.setString(4, mail.getAddress());
+
+          sendEmail(tmpl, user.getNick(), mail.getAddress(), false);
+
+          emailChanged = true;
+        }
 
         ist.setString(5, town);
 
@@ -231,18 +247,12 @@ public class RegisterController extends ApplicationObjectSupport {
         rs.close();
         pst.close();
 
-        PreparedStatement pst2 = db.prepareStatement("SELECT count(*) as c FROM users WHERE email=?");
-        pst2.setString(1, mail.getAddress());
-        rs = pst2.executeQuery();
-        rs.next();
+        int emailCount = getUserCount(db, mail.getAddress());
 
-        if (rs.getInt("c") != 0) {
+        if (emailCount != 0) {
           throw new BadInputException("пользователь с таким e-mail уже зарегистрирован.<br>" +
             "Если вы забыли параметры своего аккаунта, воспользуйтесь <a href=\"/lostpwd.jsp\">формой восстановления пароля</a>");
         }
-
-        rs.close();
-        pst2.close();
 
         Statement st = db.createStatement();
         rs = st.executeQuery("select nextval('s_uid') as userid");
@@ -279,15 +289,21 @@ public class RegisterController extends ApplicationObjectSupport {
           User.setUserinfo(db, userid, info);
         }
 
-        sendEmail(tmpl, nick, password, email);
+        sendEmail(tmpl, nick, email, true);
       }
 
       db.commit();
 
       if (changeMode) {
-        return new ModelAndView("action-done", "message", "Обновление регистрации прошло успешно");
+        if (emailChanged) {
+          String msg = "Обновление регистрации прошло успешно. Ожидайте письма с кодом активации смены email.";
+
+          return new ModelAndView("action-done", "message", msg);
+        } else {
+          return new ModelAndView(new RedirectView("/people/"+nick+"/profile"));
+        }
       } else {
-        return new ModelAndView("action-done", "message", "Добавление пользователя прошло успешно");
+        return new ModelAndView("action-done", "message", "Добавление пользователя прошло успешно. Ожидайте письма с кодом активации.");
       }
     } catch (BadInputException e) {
       return new ModelAndView("register", "error", e.getMessage());
@@ -302,20 +318,49 @@ public class RegisterController extends ApplicationObjectSupport {
     }
   }
 
-  private void sendEmail(Template tmpl, String nick, String password, String email) throws MessagingException {
+  private int getUserCount(Connection db, String email) throws SQLException {
+    PreparedStatement pst2 = db.prepareStatement("SELECT count(*) as c FROM users WHERE email=?");
+    ResultSet rs = null;
+
+    try {
+      pst2.setString(1, email);
+      rs = pst2.executeQuery();
+      if (!rs.next()) {
+        return 0;
+      }
+
+      return rs.getInt("c");
+    } finally {
+      JdbcUtils.closeResultSet(rs);
+      JdbcUtils.closeStatement(pst2);
+    }
+  }
+
+  private void sendEmail(Template tmpl, String nick, String email, boolean isNew) throws MessagingException {
     StringBuilder text = new StringBuilder();
 
     text.append("Здравствуйте!\n\n");
-    text.append("\tВ форуме по адресу http://www.linux.org.ru/ появилась регистрационная запись,\n");
+    if (isNew) {
+      text.append("\tВ форуме по адресу http://www.linux.org.ru/ появилась регистрационная запись,\n");
+    } else {
+      text.append("\tВ форуме по адресу http://www.linux.org.ru/ была изменена регистрационная запись,\n");
+    }
+
     text.append("в которой был указал ваш электронный адрес (e-mail).\n\n");
     text.append("При заполнении регистрационной формы было указано следующее имя пользователя: '");
     text.append(nick);
     text.append("'\n\n");
     text.append("Если вы не понимаете, о чем идет речь - просто проигнорируйте это сообщение!\n\n");
-    text.append("Если же именно вы решили зарегистрироваться в форуме по адресу http://www.linux.org.ru/,\n");
-    text.append("то вам следует подтвердить свою регистрацию и тем самым активировать вашу учетную запись.\n\n");
 
-    String regcode = StringUtil.md5hash(tmpl.getSecret() + ':' + nick + ':' + password);
+    if (isNew) {
+      text.append("Если же именно вы решили зарегистрироваться в форуме по адресу http://www.linux.org.ru/,\n");
+      text.append("то вам следует подтвердить свою регистрацию и тем самым активировать вашу учетную запись.\n\n");
+    } else {
+      text.append("Если же именно вы решили изменить свою регистрационную запись http://www.linux.org.ru/,\n");
+      text.append("то вам следует подтвердить свое изменение.\n\n");
+    }
+
+    String regcode = User.getActivationCode(tmpl.getSecret(), nick, email);
 
     text.append("Для активации перейдите по ссылке http://www.linux.org.ru/activate.jsp\n\n");
     text.append("Код активации: ").append(regcode).append("\n\n");
@@ -334,5 +379,57 @@ public class RegisterController extends ApplicationObjectSupport {
     emailMessage.setText(text.toString(), "UTF-8");
 
     Transport.send(emailMessage);
+  }
+
+  @RequestMapping(value="/activate.jsp", method= RequestMethod.GET)
+  public ModelAndView activateForm() {
+    return new ModelAndView("activate");
+  }
+
+  @RequestMapping(value = "/activate.jsp", method = RequestMethod.POST)
+  public ModelAndView activate(
+    HttpServletRequest request,
+    @RequestParam String activation
+  ) throws Exception {
+    Connection db = null;
+    Template tmpl = Template.getTemplate(request);
+
+    if (!tmpl.isSessionAuthorized()) {
+      throw new AccessViolationException("Not authorized!");
+    }
+
+    try {
+      db = LorDataSource.getConnection();
+      db.setAutoCommit(false);
+
+      User user = tmpl.getCurrentUser();
+
+      Statement st = db.createStatement();
+      ResultSet rs = st.executeQuery("SELECT new_email FROM users WHERE id=" + user.getId());
+      rs.next();
+
+      String newEmail = rs.getString("new_email");
+      if (newEmail == null) {
+        throw new AccessViolationException("new_email == null?!");
+      }
+
+      String regcode = user.getActivationCode(tmpl.getSecret(), newEmail);
+
+      if (regcode.equals(activation)) {
+        PreparedStatement pst = db.prepareStatement("UPDATE users SET email=new_email WHERE id=?");
+        pst.setInt(1, user.getId());
+        pst.executeUpdate();
+      } else {
+        throw new AccessViolationException("Bad activation code");
+      }
+
+      db.commit();
+
+      return new ModelAndView(new RedirectView("/people/"+user.getNick()+"/profile"));
+    } finally {
+      if (db != null) {
+        db.close();
+      }
+    }
   }
 }

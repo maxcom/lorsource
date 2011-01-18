@@ -231,8 +231,20 @@ public class User implements Serializable {
     return StringUtil.md5hash(base + password);
   }
 
-  public String getActivationCode(String base) {
+  public String getOldActivationCode(String base) {
     return StringUtil.md5hash(base + ':' + nick + ':' + password);
+  }
+
+  public String getActivationCode(String base) {
+    return getActivationCode(base, nick, email);
+  }
+
+  public String getActivationCode(String base, String email) {
+    return StringUtil.md5hash(base + ':' + nick + ':' + email);
+  }
+
+  public static String getActivationCode(String base, String nick, String email) {
+    return StringUtil.md5hash(base + ':' + nick + ':' + email);
   }
 
   public int getScore() {
