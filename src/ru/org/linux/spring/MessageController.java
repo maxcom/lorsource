@@ -274,18 +274,13 @@ public class MessageController {
     params.put("showDeleted", showDeleted);
 
     tmpl.initCurrentUser(db);
+    User currentUser = tmpl.getCurrentUser();
 
     if (message.isExpired() && showDeleted && !tmpl.isModeratorSession()) {
       throw new MessageNotFoundException(message.getId(), "нельзя посмотреть удаленные комментарии в устаревших темах");
     }
 
-    if (message.isExpired() && message.isDeleted() && !tmpl.isModeratorSession()) {
-      throw new MessageNotFoundException(message.getId(), "нельзя посмотреть устаревшие удаленные сообщения");
-    }
-
-    if (message.isDeleted() && !Template.isSessionAuthorized(request.getSession())) {
-      throw new MessageNotFoundException(message.getId(), "Сообщение удалено");
-    }
+    checkView(message, tmpl, currentUser);
 
     params.put("group", group);
 
@@ -309,7 +304,7 @@ public class MessageController {
 
     params.put("message", message);
     params.put("preparedMessage", preparedMessage);
-    params.put("messageMenu", new MessageMenu(db, preparedMessage, tmpl.getCurrentUser()));
+    params.put("messageMenu", new MessageMenu(db, preparedMessage, currentUser));
 
     if (message.isExpired()) {
       response.setDateHeader("Expires", System.currentTimeMillis() + 30 * 24 * 60 * 60 * 1000L);
@@ -321,8 +316,8 @@ public class MessageController {
 
     Map<Integer, String> ignoreList = null;
 
-    if (tmpl.getCurrentUser() != null) {
-      ignoreList = IgnoreList.getIgnoreList(db, tmpl.getCurrentUser().getId());
+    if (currentUser != null) {
+      ignoreList = IgnoreList.getIgnoreList(db, currentUser.getId());
     }
 
     int filterMode = CommentFilter.FILTER_IGNORED;
@@ -381,6 +376,30 @@ public class MessageController {
     }
 
     return new ModelAndView(rss ? "view-message-rss" : "view-message", params);
+  }
+
+  private static void checkView(Message message, Template tmpl, User currentUser) throws MessageNotFoundException {
+    if (tmpl.isModeratorSession()) {
+      return;
+    }
+
+    if (message.isDeleted()) {
+      if (message.isExpired()) {
+        throw new MessageNotFoundException(message.getId(), "нельзя посмотреть устаревшие удаленные сообщения");
+      }
+
+      if (!tmpl.isSessionAuthorized()) {
+        throw new MessageNotFoundException(message.getId(), "Сообщение удалено");
+      }
+
+      if (currentUser.getId() == message.getUid()) {
+        return;
+      }
+
+      if (currentUser.getScore() < User.VIEW_DELETED_SCORE) {
+        throw new MessageNotFoundException(message.getId(), "Сообщение удалено");
+      }
+    }
   }
 
   private static boolean checkLastModified(WebRequest webRequest, Message message) {
