@@ -26,6 +26,9 @@ import java.util.Random;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import ru.org.linux.site.*;
+import ru.org.linux.util.HTMLFormatter;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.support.ApplicationObjectSupport;
@@ -35,9 +38,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
-
-import ru.org.linux.site.*;
-import ru.org.linux.util.HTMLFormatter;
 
 @Controller
 public class UserModificationController extends ApplicationObjectSupport {
@@ -76,7 +76,7 @@ public class UserModificationController extends ApplicationObjectSupport {
       User moderator = User.getUser(db, tmpl.getNick());
 
       if ("block".equals(action) || "block-n-delete-comments".equals(action)) {
-        if (!user.isBlockable()) {
+        if (!user.isBlockable() || !moderator.isAdministrator()) {
           throw new AccessViolationException("Пользователя " + user.getNick() + " нельзя заблокировать");
         }
 
@@ -105,7 +105,7 @@ public class UserModificationController extends ApplicationObjectSupport {
           st.executeUpdate("UPDATE users SET corrector='t' WHERE id=" + id);
         }
       } else if ("unblock".equals(action)) {
-        if (!user.isBlockable()) {
+        if (!user.isBlockable() || !moderator.isAdministrator()) {
           throw new AccessViolationException("Пользователя " + user.getNick() + " нельзя разблокировать");
         }
 

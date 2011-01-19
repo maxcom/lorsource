@@ -88,6 +88,10 @@
     out.print(" (модератор)");
   }
 
+  if (user.isAdministrator()) {
+    out.print(" (администратор)");
+  }
+
   if (user.isCorrector()) {
     out.print(" (корректор)");
   }
@@ -130,7 +134,7 @@
 %>
 </c:if>
   <br>
-  <c:if test="${template.moderatorSession and user.blockable}">
+  <c:if test="${(template.moderatorSession and user.blockable) or template.currentUser.administrator}">
     <div style="border: 1px dotted; padding: 1em;">
     <form method='post' action='usermod.jsp'>
       <input type='hidden' name='id' value='${user.id}'>

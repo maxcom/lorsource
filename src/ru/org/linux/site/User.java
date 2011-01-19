@@ -216,6 +216,10 @@ public class User implements Serializable {
     return canmod;
   }
 
+  public boolean isAdministrator() {
+    return candel;
+  }
+
   public boolean canCorrect() {
     return corrector && score>= CORRECTOR_SCORE;
   }
