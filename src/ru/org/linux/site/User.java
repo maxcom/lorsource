@@ -56,7 +56,6 @@ public class User implements Serializable {
   public static final int CORRECTOR_SCORE = 100;
   private static final int BLOCK_MAX_SCORE = 400;
 
-  private static final int CACHE_MILLIS = 300*1000;
   private static final int BLOCK_SCORE = 200;
   public static final int MAX_NICK_LENGTH = 40;
 

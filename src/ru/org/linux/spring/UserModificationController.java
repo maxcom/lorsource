@@ -76,7 +76,7 @@ public class UserModificationController extends ApplicationObjectSupport {
       User moderator = User.getUser(db, tmpl.getNick());
 
       if ("block".equals(action) || "block-n-delete-comments".equals(action)) {
-        if (!user.isBlockable() || !moderator.isAdministrator()) {
+        if (!user.isBlockable() && !moderator.isAdministrator()) {
           throw new AccessViolationException("Пользователя " + user.getNick() + " нельзя заблокировать");
         }
 
@@ -105,7 +105,7 @@ public class UserModificationController extends ApplicationObjectSupport {
           st.executeUpdate("UPDATE users SET corrector='t' WHERE id=" + id);
         }
       } else if ("unblock".equals(action)) {
-        if (!user.isBlockable() || !moderator.isAdministrator()) {
+        if (!user.isBlockable() && !moderator.isAdministrator()) {
           throw new AccessViolationException("Пользователя " + user.getNick() + " нельзя разблокировать");
         }
 
