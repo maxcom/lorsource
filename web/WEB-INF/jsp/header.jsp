@@ -1,6 +1,5 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
-
 <%--
   ~ Copyright 1998-2010 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,12 +14,19 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
+<%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 
 <link rel="search" title="Search L.O.R." href="/search.jsp">
 <link rel="top" title="Linux.org.ru" href="/">
 <script src="/js/lor.js" type="text/javascript">;</script>
 
-<base href="${fn:escapeXml(template.mainUrl)}">
+<c:if test="${pageContext.request.secure}">
+  <base href="${fn:escapeXml(template.secureMainUrl)}">
+</c:if>
+
+<c:if test="${not pageContext.request.secure}">
+  <base href="${fn:escapeXml(template.mainUrl)}">
+</c:if>
 
 <jsp:include page="${template.style}/head.jsp"/>
 
