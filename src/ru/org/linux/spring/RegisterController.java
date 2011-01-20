@@ -207,7 +207,7 @@ public class RegisterController extends ApplicationObjectSupport {
           ist.setString(3, null);
         }
 
-        if (user.getEmail().equals(email)) {
+        if (user.getEmail()!=null && user.getEmail().equals(email)) {
           ist.setString(4, null);
         } else {
           int emailCount = getUserCount(db, mail.getAddress());
