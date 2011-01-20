@@ -24,6 +24,7 @@ import java.util.Properties;
 
 import javax.mail.Session;
 import javax.mail.Transport;
+import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import org.springframework.stereotype.Controller;
@@ -32,10 +33,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
-import ru.org.linux.site.AccessViolationException;
-import ru.org.linux.site.BadInputException;
-import ru.org.linux.site.LorDataSource;
-import ru.org.linux.site.User;
+import ru.org.linux.site.*;
 
 @Controller
 public class LostPasswordController {
@@ -106,6 +104,8 @@ public class LostPasswordController {
       st.close();
 
       return new ModelAndView("action-done", "message", "Ваш пароль был выслан на ваш email");
+    } catch (AddressException ex) {
+      throw new UserErrorException("Incorrect email address");
     } finally {
       if (db != null) {
         db.close();
