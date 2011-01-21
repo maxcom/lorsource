@@ -39,7 +39,9 @@
 %>
 <title>Информация о пользователе ${user.nick}</title>
 <c:if test="${userInfo.url != null}">
-  <link rel="me" href="${fn:escapeXml(userInfo.url)}">
+  <c:if test="${user.score >= 100 && not user.blocked && user.activated}">
+      <link rel="me" href="${fn:escapeXml(userInfo.url)}">
+  </c:if>
 </c:if>
 <LINK REL="alternate" HREF="/people/${user.nick}/?output=rss" TYPE="application/rss+xml">
 
@@ -70,7 +72,16 @@
 </c:if>
 
 <c:if test="${userInfo.url != null}">
-    <b>URL:</b> <a class="url" href="${fn:escapeXml(userInfo.url)}">${fn:escapeXml(userInfo.url)}</a><br>
+  <b>URL:</b>
+
+  <c:choose>
+    <c:when test="${user.score < 100 || user.blocked || not user.activated}">
+      <a class="url" href="${fn:escapeXml(userInfo.url)}" rel="nofollow">${fn:escapeXml(userInfo.url)}</a><br>
+    </c:when>
+    <c:otherwise>
+      <a class="url" href="${fn:escapeXml(userInfo.url)}">${fn:escapeXml(userInfo.url)}</a><br>
+    </c:otherwise>
+  </c:choose>
 </c:if>
 
   <c:if test="${userInfo.town != null}">
