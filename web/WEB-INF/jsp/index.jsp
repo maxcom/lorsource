@@ -72,7 +72,7 @@ SoC, Graphene, MEMS, Biomedical Engineering. Дополнительная инф
       в том числе <a href="view-all.jsp?section=1">новостей</a>: ${uncommitedNews}]
     </c:if>
     <c:if test="${uncommitedNews == 0}">
-      новостей нет
+      новостей нет]
     </c:if>
   </c:if>
 </div>
