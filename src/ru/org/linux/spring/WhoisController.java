@@ -42,6 +42,10 @@ public class WhoisController {
 
       User user = User.getUser(db, nick);
 
+      if (user.isBlocked() && !tmpl.isSessionAuthorized()) {
+        throw new UserNotFoundException(nick);
+      }
+
       ModelAndView mv = new ModelAndView("whois");
       mv.getModel().put("user", user);
       mv.getModel().put("userInfo", new UserInfo(db, user.getId()));
