@@ -71,7 +71,7 @@
   <b>Полное имя:</b> <span class="fn">${user.name}</span><br>
 </c:if>
 
-<c:if test="${userInfo.url != null}">
+<c:if test="${userInfo.url != null and (template.sessionAuthorized or user.maxScore>=50)}">
   <b>URL:</b>
 
   <c:choose>
@@ -162,11 +162,14 @@
   </c:if>
 <br>
 <p>
+<c:if test="${template.sessionAuthorized or user.maxScore>=50}">
 <cite>
 <%
   out.print(HTMLFormatter.nl2br((String) request.getAttribute("userInfoText")));
 %>
   </cite>
+</c:if>
+
   <c:if test="${template.moderatorSession}">
 
   <p>
