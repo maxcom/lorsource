@@ -30,7 +30,7 @@ public final class DefaultProfile {
   private static final ImmutableList<String> STYLE_LIST = ImmutableList.of(STYLES);
   private static final ImmutableSet<String> STYLE_SET = ImmutableSet.of(STYLES);
 
-  private static final ImmutableList<String> AVATAR_TYPES = ImmutableList.of("empty", "identicon", "monsterid", "wavatar");
+  private static final ImmutableList<String> AVATAR_TYPES = ImmutableList.of("empty", "identicon", "monsterid", "wavatar", "retro");
 
   private static final Predicate isBoxPredicate = new Predicate() {
       @Override
