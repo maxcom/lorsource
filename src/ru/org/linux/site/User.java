@@ -366,18 +366,20 @@ public class User implements Serializable {
     }
   }
 
-  public void resetPassword(Connection db) throws SQLException {
+  public String resetPassword(Connection db) throws SQLException {
     String password = StringUtil.generatePassword();
 
     PreparedStatement st = null;
 
     try {
-      st = db.prepareStatement("UPDATE users SET passwd=? WHERE id=?");
+      st = db.prepareStatement("UPDATE users SET passwd=?,lostpwd = 'epoch' WHERE id=?");
       st.setString(1, password);
       st.setInt(2, id);
       st.executeUpdate();
 
       updateCache(db);
+
+      return password;
     } finally {
       if (st!=null) {
         st.close();
