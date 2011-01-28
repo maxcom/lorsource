@@ -27,6 +27,9 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+
+import org.jasypt.util.password.BasicPasswordEncryptor;
+import org.jasypt.util.password.PasswordEncryptor;
 import org.springframework.context.support.ApplicationObjectSupport;
 import org.springframework.jdbc.support.JdbcUtils;
 import org.springframework.stereotype.Controller;
@@ -198,7 +201,9 @@ public class RegisterController extends ApplicationObjectSupport {
         if (password == null) {
           ist.setString(2, request.getParameter("oldpass"));
         } else {
-          ist.setString(2, password);
+          PasswordEncryptor encryptor = new BasicPasswordEncryptor();
+
+          ist.setString(2, encryptor.encryptPassword(password));
         }
 
         if (url != null) {
@@ -267,7 +272,10 @@ public class RegisterController extends ApplicationObjectSupport {
         ist.setInt(1, userid);
         ist.setString(2, name);
         ist.setString(3, nick);
-        ist.setString(4, password);
+
+        PasswordEncryptor encryptor = new BasicPasswordEncryptor();
+        ist.setString(4, encryptor.encryptPassword(password));
+
         if (url != null) {
           ist.setString(5, URLUtil.fixURL(url));
         } else {

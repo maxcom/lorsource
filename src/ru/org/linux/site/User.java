@@ -32,6 +32,8 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 import org.apache.commons.codec.binary.Base64;
+import org.jasypt.util.password.BasicPasswordEncryptor;
+import org.jasypt.util.password.PasswordEncryptor;
 import org.springframework.jdbc.support.JdbcUtils;
 
 public class User implements Serializable {
@@ -155,12 +157,22 @@ public class User implements Serializable {
       throw new BadPasswordException(nick);
     }
 
-    if (password==null || !password.equals(this.password)) {
+    if (password==null) {
+      throw new BadPasswordException(nick);
+    }
+
+    if (!matchPassword(password)) {
       throw new BadPasswordException(nick);
     }
   }
 
   public boolean matchPassword(String password) {
+    PasswordEncryptor encryptor = new BasicPasswordEncryptor();
+
+    if (encryptor.checkPassword(password, this.password)) {
+      return true;
+    }
+
     return password.equals(this.password);
   }
 
@@ -369,11 +381,15 @@ public class User implements Serializable {
   public String resetPassword(Connection db) throws SQLException {
     String password = StringUtil.generatePassword();
 
+    PasswordEncryptor encryptor = new BasicPasswordEncryptor();
+
+    String encryptedPassword = encryptor.encryptPassword(password);
+
     PreparedStatement st = null;
 
     try {
       st = db.prepareStatement("UPDATE users SET passwd=?,lostpwd = 'epoch' WHERE id=?");
-      st.setString(1, password);
+      st.setString(1, encryptedPassword);
       st.setInt(2, id);
       st.executeUpdate();
 

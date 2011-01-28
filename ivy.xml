@@ -54,5 +54,6 @@
             <exclude module="hibernate-core"/>
             <exclude module="hibernate-ehcache"/>
         </dependency>
+        <dependency org="org.jasypt" name="jasypt" rev="1.7" conf="build->default"/>
     </dependencies>
 </ivy-module>
