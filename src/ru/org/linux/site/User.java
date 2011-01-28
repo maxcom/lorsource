@@ -32,6 +32,7 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 import org.apache.commons.codec.binary.Base64;
+import org.jasypt.exceptions.EncryptionOperationNotPossibleException;
 import org.jasypt.util.password.BasicPasswordEncryptor;
 import org.jasypt.util.password.PasswordEncryptor;
 import org.springframework.jdbc.support.JdbcUtils;
@@ -169,8 +170,12 @@ public class User implements Serializable {
   public boolean matchPassword(String password) {
     PasswordEncryptor encryptor = new BasicPasswordEncryptor();
 
-    if (encryptor.checkPassword(password, this.password)) {
-      return true;
+    try {
+      if (encryptor.checkPassword(password, this.password)) {
+        return true;
+      }
+    } catch (EncryptionOperationNotPossibleException ex) {
+      return password.equals(this.password);
     }
 
     return password.equals(this.password);
