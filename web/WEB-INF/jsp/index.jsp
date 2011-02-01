@@ -3,6 +3,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib prefix="lor" uri="http://www.linux.org.ru" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lorDir" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%--
   ~ Copyright 1998-2010 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -107,7 +108,10 @@ SoC, Graphene, MEMS, Biomedical Engineering. Дополнительная инф
           <li><a href="tracker.jsp?filter=mine">Мои темы</a></li>
           <li><a href="/people/${template.nick}/favs">Избранные темы</a></li>
           <li><a href="show-comments.jsp?nick=${template.nick}">Мои комментарии</a></li>
-          <li><lorDir:events/></li>
+          <c:set var="events">
+             <lorDir:events/>
+          </c:set>
+          <li>${fn:trim(events)}</li>
         </ul>
         <ul>
           <li><a href="edit-profile.jsp">Настройки</a></li>
