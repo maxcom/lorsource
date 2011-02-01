@@ -82,9 +82,8 @@ public class LoginController {
         }
 
         String regcode = user.getActivationCode(tmpl.getSecret());
-        String oldRegcode = user.getOldActivationCode(tmpl.getSecret()); // remove after 25 jan 2010
 
-        if (regcode.equals(activation) || oldRegcode.equals(activation)) {
+        if (regcode.equals(activation)) {
           PreparedStatement pst = db.prepareStatement("UPDATE users SET activated='t' WHERE id=?");
           pst.setInt(1, user.getId());
           pst.executeUpdate();

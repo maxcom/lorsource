@@ -249,10 +249,6 @@ public class User implements Serializable {
     return StringUtil.md5hash(base + password);
   }
 
-  public String getOldActivationCode(String base) {
-    return StringUtil.md5hash(base + ':' + nick + ':' + password);
-  }
-
   public String getActivationCode(String base) {
     return getActivationCode(base, nick, email);
   }
