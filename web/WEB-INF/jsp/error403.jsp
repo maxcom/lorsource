@@ -1,3 +1,4 @@
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page contentType="text/html; charset=utf-8"%>
 <%--
   ~ Copyright 1998-2010 Linux.org.ru
@@ -24,6 +25,10 @@
 
 <h1>Error 403</h1>
 
-Доступ запрещен
+Доступ запрещен.
+
+<c:if test="${exception != null}">
+  Причина: ${exception.message}
+</c:if>
 
   <jsp:include page="footer.jsp"/>
