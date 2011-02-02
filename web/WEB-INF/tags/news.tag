@@ -78,7 +78,7 @@
 
 <div class="entry-body">
 <div class=msg>
-  <c:if test="<%= imagepost %>">
+  <c:if test="${message.section.imagepost}">
     <%
       NewsViewer.showMediumImage(tmpl.getConfig().getProperty("HTMLPathPrefix"), out, url, message.getTitle(), message.getLinktext(), !tmpl.isMobile());
     %>
