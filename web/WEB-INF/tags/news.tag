@@ -83,9 +83,8 @@
       NewsViewer.showMediumImage(tmpl.getConfig().getProperty("HTMLPathPrefix"), out, url, message.getTitle(), message.getLinktext(), !tmpl.isMobile());
     %>
   </c:if>
-<c:if test="${not message.votePoll}">
+  
   ${preparedMessage.processedMessage}
-</c:if>
 <%
   if (url != null && !imagepost && !votepoll) {
     if (url.length()==0) {
