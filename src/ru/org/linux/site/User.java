@@ -181,6 +181,10 @@ public class User implements Serializable {
     return password.equals(this.password);
   }
 
+  public boolean isPlainPassword(String password) {
+    return password.equals(this.password);
+  }
+
   public void checkAnonymous() throws AccessViolationException {
     if (anonymous || blocked) {
       throw new AccessViolationException("Anonymous user");
@@ -382,6 +386,12 @@ public class User implements Serializable {
   public String resetPassword(Connection db) throws SQLException {
     String password = StringUtil.generatePassword();
 
+    setPassword(db, password);
+
+    return password;
+  }
+
+  public void setPassword(Connection db, String password) throws SQLException {
     PasswordEncryptor encryptor = new BasicPasswordEncryptor();
 
     String encryptedPassword = encryptor.encryptPassword(password);
@@ -395,8 +405,6 @@ public class User implements Serializable {
       st.executeUpdate();
 
       updateCache(db);
-
-      return password;
     } finally {
       if (st!=null) {
         st.close();

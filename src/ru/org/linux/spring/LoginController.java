@@ -22,6 +22,9 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+
+import org.jasypt.util.password.BasicPasswordEncryptor;
+import org.jasypt.util.password.PasswordEncryptor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -42,7 +45,7 @@ public class LoginController {
     return header != null && "XMLHttpRequest".equals(header);
   }
 
-  @RequestMapping(value="/login.jsp", method= RequestMethod.GET)
+  @RequestMapping(value = "/login.jsp", method = RequestMethod.GET)
   public ModelAndView loginForm() {
     return new ModelAndView("login-form");
   }
@@ -96,12 +99,16 @@ public class LoginController {
       }
 
       String password = request.getParameter("passwd");
-      if (password==null || !user.matchPassword(password)) {
+      if (password == null || !user.matchPassword(password)) {
         return new ModelAndView(ajax ? "login-xml" : "login-form", Collections.singletonMap("error", "Неверный пароль"));
       }
 
       if (session == null) {
         throw new BadInputException("не удалось открыть сессию; возможно отсутствует поддержка Cookie");
+      }
+
+      if (user.isPlainPassword(password)) {
+        user.setPassword(db, password);
       }
 
       performLogin(response, db, tmpl, session, user);
@@ -125,12 +132,12 @@ public class LoginController {
     HttpServletRequest request,
     HttpSession session,
     HttpServletResponse response,
-    @RequestParam(required=false) String sessionId
-  )  {
+    @RequestParam(required = false) String sessionId
+  ) {
     Template tmpl = Template.getTemplate(request);
 
     if (tmpl.isSessionAuthorized()) {
-      if (sessionId==null || !session.getId().equals(sessionId)) {
+      if (sessionId == null || !session.getId().equals(sessionId)) {
         return new ModelAndView("logout");
       }
 
