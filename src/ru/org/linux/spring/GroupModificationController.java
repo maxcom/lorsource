@@ -65,6 +65,7 @@ public class GroupModificationController {
   @RequestMapping(value="/groupmod.jsp", method = RequestMethod.POST)
   public ModelAndView modifyGroup(
     @RequestParam("group") int id,
+    @RequestParam("title") String title,
     @RequestParam("info") String info,
     @RequestParam("urlName") String urlName,
     @RequestParam("longinfo") String longInfo,
@@ -86,6 +87,7 @@ public class GroupModificationController {
       Group group = new Group(db, id);
 
       if (preview!=null) {
+        group.setTitle(title);
         group.setInfo(info);
         group.setLongInfo(longInfo);
 
@@ -96,23 +98,25 @@ public class GroupModificationController {
         return new ModelAndView("groupmod", params);
       }
 
-      PreparedStatement pst = db.prepareStatement("UPDATE groups SET info=?, longinfo=?,resolvable=?,urlname=? WHERE id=?");
+      PreparedStatement pst = db.prepareStatement("UPDATE groups SET title=?, info=?, longinfo=?,resolvable=?,urlname=? WHERE id=?");
+
+      pst.setString(1, title);
 
       if (info.length()>0) {
-        pst.setString(1, info);
-      } else {
-        pst.setString(1, null);
-      }
-
-      if (longInfo.length()>0) {
-        pst.setString(2, longInfo);
+        pst.setString(2, info);
       } else {
         pst.setString(2, null);
       }
 
-      pst.setBoolean(3, resolvable!=null);
-      pst.setString(4, urlName);
-      pst.setInt(5, id);
+      if (longInfo.length()>0) {
+        pst.setString(3, longInfo);
+      } else {
+        pst.setString(3, null);
+      }
+
+      pst.setBoolean(4, resolvable!=null);
+      pst.setString(5, urlName);
+      pst.setInt(6, id);
 
       pst.executeUpdate();
 
