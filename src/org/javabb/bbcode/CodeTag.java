@@ -31,40 +31,41 @@
 
 package org.javabb.bbcode;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import com.google.common.collect.ImmutableMap;
 
 public class CodeTag {
   private final Pattern codePattern = Pattern.compile("\\[code(=\\w+)?\\]");
 
-  private static final Map<String, String> brushes = new HashMap<String, String>();
+  private static final ImmutableMap<String, String> brushes =
+    ImmutableMap.<String, String>builder().
+      put("bash", "language-bash")
+      .put("shell", "language-bash")
+      .put("cpp", "language-cpp")
+      .put("cxx", "language-cpp")
+      .put("cc", "language-cpp")
+      .put("c", "language-cpp")
+      .put("diff", "language-diff")
+      .put("patch", "language-diff")
+      .put("java", "language-java")
+      .put("js", "language-javascript")
+      .put("javascript", "language-javascript")
+      .put("perl", "language-perl")
+      .put("php", "language-php")
+      .put("plain", "no-highlight")
+      .put("python", "language-python")
 
-  static {
-    brushes.put("bash", "language-bash");
-    brushes.put("shell", "language-bash");
-    brushes.put("cpp", "language-cpp");
-    brushes.put("c", "language-cpp");
-    brushes.put("diff", "language-diff");
-    brushes.put("patch", "language-diff");
-    brushes.put("java", "language-java");
-    brushes.put("js", "language-javascript");
-    brushes.put("javascript", "language-javascript");
-    brushes.put("perl", "language-perl");
-    brushes.put("php", "language-php");
-    brushes.put("plain", "no-highlight");
-    brushes.put("python", "language-python");
-
-    brushes.put("css", "language-css");
-    brushes.put("delphi", "language-delphi");
-    brushes.put("pascal", "language-delphi");
-    brushes.put("html", "language-html");
-    brushes.put("xml", "language-xml");
-    brushes.put("lisp", "language-lisp");
-    brushes.put("scheme", "language-lisp");
-    brushes.put("ruby", "language-ruby");
-  }
+      .put("css", "language-css")
+      .put("delphi", "language-delphi")
+      .put("pascal", "language-delphi")
+      .put("html", "language-html")
+      .put("xml", "language-xml")
+      .put("lisp", "language-lisp")
+      .put("scheme", "language-lisp")
+      .put("ruby", "language-ruby")
+      .build();
 
   /**
    * @return tag name
@@ -100,8 +101,8 @@ public class CodeTag {
 
       String brush = "no-highlight";
 
-      if (matcher.group(1)!=null) {
-        String value = matcher.group(1).substring(1);
+      if (matcher.group(1) != null) {
+        String value = matcher.group(1).substring(1).toLowerCase();
 
         if (brushes.containsKey(value)) {
           brush = brushes.get(value);
@@ -109,9 +110,9 @@ public class CodeTag {
       }
 
       String replacement =
-          "<div class=code><pre class=\""+brush+"\"><code>"
-              + content
-              + "</code></pre></div><p>";
+        "<div class=code><pre class=\"" + brush + "\"><code>"
+          + content
+          + "</code></pre></div><p>";
       buffer.replace(start, end, replacement);
 
       end = start + replacement.length();
@@ -126,18 +127,18 @@ public class CodeTag {
     // escaping single characters
     content = replaceAll(content, "[]<>(){}\t\n\r".toCharArray(), new String[]{
 //  :       "&#58;",
-        "&#91;",
-        "&#93;",
-        "&lt;",
-        "&gt;",
-        "&#40;",
-        "&#41;",
-        "&#123;",
-        "&#125;",
-        "&nbsp; &nbsp;",
-        "[code-br]",
-        ""});
-    
+      "&#91;",
+      "&#93;",
+      "&lt;",
+      "&gt;",
+      "&#40;",
+      "&#41;",
+      "&#123;",
+      "&#125;",
+      "&nbsp; &nbsp;",
+      "[code-br]",
+      ""});
+
     return content;
   }
 
