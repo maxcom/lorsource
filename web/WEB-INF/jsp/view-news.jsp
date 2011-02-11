@@ -20,8 +20,10 @@
   --%>
 <%--@elvariable id="messages" type="java.util.List<ru.org.linux.site.PreparedMessage>"--%>
 <%--@elvariable id="section" type="ru.org.linux.site.Section"--%>
+<%--@elvariable id="group" type="ru.org.linux.site.Group"--%>
 <%--@elvariable id="offset" type="java.lang.Integer"--%>
 <%--@elvariable id="ptitle" type="java.lang.String"--%>
+<%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 	<title>${ptitle}</title>
@@ -44,6 +46,9 @@
       ${navtitle}
     </td>
     <td align=right valign=middle>
+      <c:if test="${template.moderatorSession and group!=null}">
+        [<a href="groupmod.jsp?group=${group.id}">Править группу</a>]
+      </c:if>
       <c:if test="${section != null}">
         <c:if test="${section.premoderated}">
           [<a href="/view-all.jsp?section=${section.id}">Неподтвержденные</a>]

@@ -86,9 +86,9 @@
     <td align=right valign=middle>
       [<a href="${group.url}archive/">Архив</a>]
       <c:if test="${year==null}">
-      <% if (tmpl.isModeratorSession()) { %>
-        [<a href="groupmod.jsp?group=${group.id}">Править группу</a>]
-      <% } %>
+        <c:if test="${template.moderatorSession}">
+          [<a href="groupmod.jsp?group=${group.id}">Править группу</a>]
+        </c:if>
       [<a href="/wiki/en/lor-faq">FAQ</a>]
 <%
   User currentUser = tmpl.getCurrentUser();
