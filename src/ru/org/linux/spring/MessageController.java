@@ -24,6 +24,8 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.jdbc.support.JdbcUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -169,9 +171,7 @@ public class MessageController {
 
       return getMessage(db, webRequest, request, response, preparedMessage, group, page, filter);
     } finally {
-      if (db!=null) {
-        db.close();
-      }
+      JdbcUtils.closeConnection(db);
     }
   }
 
