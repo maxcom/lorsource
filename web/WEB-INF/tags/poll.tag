@@ -18,7 +18,7 @@
   ~    limitations under the License.
   --%>
 <%@ attribute name="poll" required="true" type="ru.org.linux.site.PreparedPoll" %>
-<%@ attribute name="highlight" required="false" type="java.lang.Integer" %>
+<%@ attribute name="highlight" required="false" type="java.util.Set" %>
 <table class=poll>
 <%
   Template tmpl = Template.getTemplate(request);
@@ -30,11 +30,11 @@
     out.append("<tr><td>");
     int id = var.getId();
     int votes = var.getVotes();
-    if (highlight!=null && id == highlight) {
+    if (highlight!=null && highlight.contains(id)) {
       out.append("<b>");
     }
     out.append(HTMLFormatter.htmlSpecialChars(var.getLabel()));
-    if (highlight!=null && id == highlight) {
+    if (highlight!=null && highlight.contains(id)) {
       out.append("</b>");
     }
     out.append("</td><td>");

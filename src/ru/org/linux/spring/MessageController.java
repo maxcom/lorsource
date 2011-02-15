@@ -56,7 +56,7 @@ public class MessageController {
     @PathVariable("group") String groupName,
     @PathVariable("id") int msgid
   ) throws Exception {
-    return getMessageNew(Section.SECTION_FORUM, webRequest, request, response, 0, filter, groupName, msgid);
+    return getMessageNew(Section.SECTION_FORUM, webRequest, request, response, 0, filter, groupName, msgid, null);
   }
 
   @RequestMapping("/news/{group}/{id}")
@@ -68,7 +68,7 @@ public class MessageController {
     @PathVariable("group") String groupName,
     @PathVariable("id") int msgid
   ) throws Exception {
-    return getMessageNew(Section.SECTION_NEWS, webRequest, request, response, 0, filter, groupName, msgid);
+    return getMessageNew(Section.SECTION_NEWS, webRequest, request, response, 0, filter, groupName, msgid, null);
   }
 
   @RequestMapping("/polls/{group}/{id}")
@@ -78,9 +78,18 @@ public class MessageController {
     HttpServletResponse response,
     @RequestParam(value="filter", required=false) String filter,
     @PathVariable("group") String groupName,
-    @PathVariable("id") int msgid
+    @PathVariable("id") int msgid,
+    @RequestParam(value="highlight", required=false) Set<Integer> highlight
   ) throws Exception {
-    return getMessageNew(Section.SECTION_POLLS, webRequest, request, response, 0, filter, groupName, msgid);
+    return getMessageNew(
+      Section.SECTION_POLLS,
+      webRequest,
+      request,
+      response,
+      0,
+      filter,
+      groupName,
+      msgid, highlight);
   }
 
   @RequestMapping("/gallery/{group}/{id}")
@@ -92,7 +101,7 @@ public class MessageController {
     @PathVariable("group") String groupName,
     @PathVariable("id") int msgid
   ) throws Exception {
-    return getMessageNew(Section.SECTION_GALLERY, webRequest, request, response, 0, filter, groupName, msgid);
+    return getMessageNew(Section.SECTION_GALLERY, webRequest, request, response, 0, filter, groupName, msgid, null);
   }
 
   @RequestMapping("/forum/{group}/{id}/page{page}")
@@ -105,7 +114,7 @@ public class MessageController {
     @PathVariable("id") int msgid,
     @PathVariable("page") int page
   ) throws Exception {
-    return getMessageNew(Section.SECTION_FORUM, webRequest, request, response, page, filter, groupName, msgid);
+    return getMessageNew(Section.SECTION_FORUM, webRequest, request, response, page, filter, groupName, msgid, null);
   }
 
   @RequestMapping("/news/{group}/{id}/page{page}")
@@ -118,7 +127,7 @@ public class MessageController {
     @PathVariable("id") int msgid,
     @PathVariable("page") int page
   ) throws Exception {
-    return getMessageNew(Section.SECTION_NEWS, webRequest, request, response, page, filter, groupName, msgid);
+    return getMessageNew(Section.SECTION_NEWS, webRequest, request, response, page, filter, groupName, msgid, null);
   }
 
   @RequestMapping("/polls/{group}/{id}/page{page}")
@@ -131,7 +140,7 @@ public class MessageController {
     @PathVariable("id") int msgid,
     @PathVariable("page") int page
   ) throws Exception {
-    return getMessageNew(Section.SECTION_POLLS, webRequest, request, response, page, filter, groupName, msgid);
+    return getMessageNew(Section.SECTION_POLLS, webRequest, request, response, page, filter, groupName, msgid, null);
   }
 
   @RequestMapping("/gallery/{group}/{id}/page{page}")
@@ -144,7 +153,7 @@ public class MessageController {
     @PathVariable("id") int msgid,
     @PathVariable("page") int page
   ) throws Exception {
-    return getMessageNew(Section.SECTION_GALLERY, webRequest, request, response, page, filter, groupName, msgid);
+    return getMessageNew(Section.SECTION_GALLERY, webRequest, request, response, page, filter, groupName, msgid, null);
   }
 
   public ModelAndView getMessageNew(
@@ -155,8 +164,8 @@ public class MessageController {
     int page,
     String filter,
     String groupName,
-    int msgid
-  ) throws Exception {
+    int msgid,
+    Set<Integer> highlight) throws Exception {
     Connection db = null;
     try {
       db = LorDataSource.getConnection();
@@ -169,7 +178,7 @@ public class MessageController {
         return new ModelAndView(new RedirectView(message.getLink()));
       }
 
-      return getMessage(db, webRequest, request, response, preparedMessage, group, page, filter);
+      return getMessage(db, webRequest, request, response, preparedMessage, group, page, filter, highlight);
     } finally {
       JdbcUtils.closeConnection(db);
     }
@@ -238,7 +247,8 @@ public class MessageController {
     PreparedMessage preparedMessage,
     Group group,
     int page,
-    String filter
+    String filter,
+    Set<Integer> highlight
   ) throws Exception {
     Message message = preparedMessage.getMessage();
 
@@ -249,6 +259,8 @@ public class MessageController {
     params.put("showAdsense", !tmpl.isSessionAuthorized() || !tmpl.getProf().getBoolean(DefaultProfile.HIDE_ADSENSE));
 
     params.put("page", page);
+
+    params.put("highlight", highlight);
 
     boolean showDeleted = request.getParameter("deleted") != null;
     if (showDeleted) {

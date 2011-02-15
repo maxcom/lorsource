@@ -90,7 +90,20 @@ public class VoteController {
       st.close();
       db.commit();
 
-      return new ModelAndView(new RedirectView(msg.getLink() + "?highlight=" + votes[0]));
+      StringBuilder url = new StringBuilder();
+
+      for (int vote : votes) {
+        if (url.length()==0) {
+          url.append('?');
+        } else {
+          url.append('&');
+        }
+
+        url.append("highlight=");
+        url.append(Integer.toString(vote));
+      }
+
+      return new ModelAndView(new RedirectView(msg.getLink() + url));
     } finally {
       if (db != null) {
         db.close();
