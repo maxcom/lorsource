@@ -23,22 +23,13 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.regex.Pattern;
 
-import gnu.regexp.RE;
-import gnu.regexp.REException;
 import org.apache.commons.lang.StringUtils;
 
 public class Tags implements Serializable {
-  private static final RE tagRE;  
-  
-  static {
-    try {
-      tagRE = new RE("([\\w\\ \\+-]+)", RE.REG_ICASE);
-    } catch (REException e) {
-      throw new RuntimeException(e);
-    }
-  }                          
-  
+  private static final Pattern tagRE = Pattern.compile("([\\w\\ \\+-]+)", Pattern.CASE_INSENSITIVE);
+
   private final List<String> tags;
   private static final int TOP_TAGS_COUNT = 50;
 
@@ -139,7 +130,7 @@ public class Tags implements Serializable {
 
   public static void checkTag(String tag) throws UserErrorException {
     // обработка тега: только буквы/цифры/пробелы, никаких спецсимволов, запятых, амперсандов и <>
-    if (!tagRE.isMatch(tag)) {
+    if (!tagRE.matcher(tag).matches()) {
       throw new UserErrorException("Invalid tag: '"+tag+ '\'');
     }
   }
