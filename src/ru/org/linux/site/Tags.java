@@ -28,7 +28,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang.StringUtils;
 
 public class Tags implements Serializable {
-  private static final Pattern tagRE = Pattern.compile("([\\p{L} \\+-]+)", Pattern.CASE_INSENSITIVE);
+  private static final Pattern tagRE = Pattern.compile("([\\p{L}\\d \\+-]+)", Pattern.CASE_INSENSITIVE);
 
   private final List<String> tags;
   private static final int TOP_TAGS_COUNT = 50;
