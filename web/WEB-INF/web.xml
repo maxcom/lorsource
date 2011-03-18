@@ -345,6 +345,12 @@
       <servlet-name>springapp</servlet-name>
       <url-pattern>/memories.jsp</url-pattern>
     </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>springapp</servlet-name>
+        <url-pattern>/uncommit.jsp</url-pattern>
+    </servlet-mapping>
+
     <listener>
   <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
 </listener>

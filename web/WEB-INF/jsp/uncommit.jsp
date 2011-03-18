@@ -15,21 +15,22 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
+
 <%--@elvariable id="message" type="ru.org.linux.site.Message"--%>
 <%--@elvariable id="preparedMessage" type="ru.org.linux.site.PreparedMessage"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
-<title>Восстановление сообщения</title>
+<title>Возврат в неподтвержденные</title>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
-<h1>Восстановление сообщения</h1>
-Вы можете восстановить удалённое сообщение.
-<form method=POST action="undelete.jsp">
+<h1>Возврат в неподтвержденные</h1>
+Вы можете отменить подтверждение и вернуть топик в список неподтвержденных.
+<form method=POST action="uncommit.jsp">
 <input type=hidden name=msgid value="${message.id}">
 <div class=messages>
   <lor:message messageMenu="<%= null %>" preparedMessage="${preparedMessage}" message="${message}" showMenu="false"/>
 </div>
-<input type=submit name=undel value="Восстановить">
+<input type=submit value="Отменить подтверждение">
 </form>
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>

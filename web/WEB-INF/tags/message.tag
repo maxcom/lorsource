@@ -58,6 +58,10 @@
         <c:if test="${message.section.premoderated}">
           [<a href="mtn.jsp?msgid=${message.id}">Группа</a>]
         </c:if>
+
+        <c:if test="${message.commited and not message.expired}">
+          [<a href="uncommit.jsp?msgid=${message.id}">Отменить подтверждение</a>]
+        </c:if>
       </c:if>
     </c:if>
     <c:if test="${message.deleted}">
