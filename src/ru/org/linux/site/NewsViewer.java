@@ -17,7 +17,6 @@ package ru.org.linux.site;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.Writer;
 import java.net.URLEncoder;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -69,18 +68,21 @@ public class NewsViewer {
     this.sectionStore = sectionStore;
   }
 
-  public static void showMediumImage(String htmlPath, Writer out, String url, String subj, String linktext, boolean showMedium) throws IOException {
+  public static String showMediumImage(String htmlPath, Message topic, boolean showMedium) {
+    StringBuilder out = new StringBuilder();
+    String url = topic.getUrl();
+
     try {
       String mediumName = ScreenshotProcessor.getMediumName(url);
 
       if (!showMedium || !new File(htmlPath, mediumName).exists()) {
-        mediumName = linktext;
+        mediumName = topic.getLinktext();
       }
 
       ImageInfo iconInfo = new ImageInfo(htmlPath + mediumName);
 
       out.append("<p>");
-      out.append("<a href=\"/").append(url).append("\"><img src=\"/").append(mediumName).append("\" ALT=\"").append(subj).append("\" ").append(iconInfo.getCode()).append(" ></a>");
+      out.append("<a href=\"/").append(url).append("\"><img src=\"/").append(mediumName).append("\" ALT=\"").append(topic.getTitle()).append("\" ").append(iconInfo.getCode()).append(" ></a>");
       out.append("</p>");
     } catch (BadImageException e) {
       logger.warn("Bad image", e);
@@ -91,6 +93,8 @@ public class NewsViewer {
     }
 
     out.append("</p>");
+
+    return out.toString();
   }
 
   public List<Message> getMessagesCached(Connection db) throws SQLException {

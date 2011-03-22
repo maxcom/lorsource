@@ -15,8 +15,8 @@
 
 package ru.org.linux.site;
 
-import java.io.IOException;
 import java.io.File;
+import java.io.IOException;
 import java.sql.SQLException;
 
 import ru.org.linux.util.BadImageException;
@@ -36,11 +36,11 @@ public class MessageTable {
     Message topic = preparedTopic.getMessage();
 
     if (topic.getSection().isImagepost()) {
-      ImageInfo iconInfo = new ImageInfo(htmlPath + topic.getLinktext());
+      buf.append(NewsViewer.showMediumImage(htmlPath, topic, true));
+
       ImageInfo info = new ImageInfo(htmlPath + topic.getUrl(), ImageInfo.detectImageType(new File(htmlPath + topic.getUrl())));
 
       buf.append(preparedTopic.getProcessedMessage());
-      buf.append("<p><img src=\"" + fullUrl + topic.getLinktext() + "\" ALT=\"" + topic.getTitle() + "\" " + iconInfo.getCode() + " >");
       buf.append("<p><i>" + info.getWidth() + 'x' + info.getHeight() + ", " + info.getSizeString() + "</i>");
     } else if (topic.isVotePoll()) {
       PreparedPoll poll = preparedTopic.getPoll();

@@ -104,7 +104,7 @@
   }
 
   if (message.getUrl() != null && message.getSection().isImagepost()) {
-    NewsViewer.showMediumImage(tmpl.getObjectConfig().getHTMLPathPrefix(), out, message.getUrl(), message.getTitle(), message.getLinktext(), true);
+    out.append(NewsViewer.showMediumImage(tmpl.getObjectConfig().getHTMLPathPrefix(), message, true));
   }
 %>
 <c:if test="${message.section.premoderated}"><%
