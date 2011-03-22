@@ -192,37 +192,4 @@ public class UserModificationController extends ApplicationObjectSupport {
       }
     }
   }
-
-  @RequestMapping("/admin/encode-passwords")
-  public ModelAndView encodePasswords(HttpServletRequest request) throws Exception {
-    Template tmpl = Template.getTemplate(request);
-
-    Connection db = LorDataSource.getConnection();
-
-    try {
-      db.setAutoCommit(false);
-
-      tmpl.initCurrentUser(db);
-      if (!tmpl.isSessionAuthorized()) {
-        throw new AccessViolationException("Not authorized");
-      }
-
-      tmpl.getCurrentUser().checkDelete();
-
-      Statement st = db.createStatement();
-      ResultSet rs = st.executeQuery("SELECT id FROM users WHERE length(passwd)<>32 FOR UPDATE");
-
-      while (rs.next()) {
-        User user = User.getUser(db, rs.getInt(1));
-
-        user.setPassword(db, user.getPassword());
-      }
-
-      db.commit();
-
-      return new ModelAndView("action-done", "message", "Ok!");
-    } finally {
-      JdbcUtils.closeConnection(db);
-    }
-  }
 }

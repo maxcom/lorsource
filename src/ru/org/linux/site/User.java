@@ -171,18 +171,10 @@ public class User implements Serializable {
     PasswordEncryptor encryptor = new BasicPasswordEncryptor();
 
     try {
-      if (encryptor.checkPassword(password, this.password)) {
-        return true;
-      }
+      return encryptor.checkPassword(password, this.password);
     } catch (EncryptionOperationNotPossibleException ex) {
-      return password.equals(this.password);
+      return false;
     }
-
-    return password.equals(this.password);
-  }
-
-  public boolean isPlainPassword(String password) {
-    return password.equals(this.password);
   }
 
   public void checkAnonymous() throws AccessViolationException {
@@ -654,10 +646,5 @@ public class User implements Serializable {
     } finally {
       JdbcUtils.closeStatement(st);
     }
-  }
-
-  /* for /admin/encode-password; remove it latter */
-  public String getPassword() {
-    return password;
   }
 }

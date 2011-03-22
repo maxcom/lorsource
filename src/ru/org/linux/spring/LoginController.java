@@ -107,10 +107,6 @@ public class LoginController {
         throw new BadInputException("не удалось открыть сессию; возможно отсутствует поддержка Cookie");
       }
 
-      if (user.isPlainPassword(password)) {
-        user.setPassword(db, password);
-      }
-
       performLogin(response, db, tmpl, session, user);
 
       db.commit();
