@@ -655,4 +655,9 @@ public class User implements Serializable {
       JdbcUtils.closeStatement(st);
     }
   }
+
+  /* for /admin/encode-password; remove it latter */
+  public String getPassword() {
+    return password;
+  }
 }

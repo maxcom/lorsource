@@ -17,6 +17,7 @@ package ru.org.linux.spring;
 
 import java.net.URLEncoder;
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.HashMap;
 import java.util.List;
@@ -32,6 +33,7 @@ import ru.org.linux.util.HTMLFormatter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.support.ApplicationObjectSupport;
+import org.springframework.jdbc.support.JdbcUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -188,6 +190,39 @@ public class UserModificationController extends ApplicationObjectSupport {
       if (db != null) {
         db.close();
       }
+    }
+  }
+
+  @RequestMapping("/admin/encode-passwords")
+  public ModelAndView encodePasswords(HttpServletRequest request) throws Exception {
+    Template tmpl = Template.getTemplate(request);
+
+    Connection db = LorDataSource.getConnection();
+
+    try {
+      db.setAutoCommit(false);
+
+      tmpl.initCurrentUser(db);
+      if (!tmpl.isSessionAuthorized()) {
+        throw new AccessViolationException("Not authorized");
+      }
+
+      tmpl.getCurrentUser().checkDelete();
+
+      Statement st = db.createStatement();
+      ResultSet rs = st.executeQuery("SELECT id FROM users WHERE length(passwd)<>32 FOR UPDATE");
+
+      while (rs.next()) {
+        User user = User.getUser(db, rs.getInt(1));
+
+        user.setPassword(db, user.getPassword());
+      }
+
+      db.commit();
+
+      return new ModelAndView("action-done", "message", "Ok!");
+    } finally {
+      JdbcUtils.closeConnection(db);
     }
   }
 }
