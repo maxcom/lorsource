@@ -162,6 +162,10 @@ public class User implements Serializable {
       throw new BadPasswordException(nick);
     }
 
+    if (anonymous && password.isEmpty()) {
+      return;
+    }
+
     if (!matchPassword(password)) {
       throw new BadPasswordException(nick);
     }
