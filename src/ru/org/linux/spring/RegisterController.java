@@ -196,24 +196,22 @@ public class RegisterController extends ApplicationObjectSupport {
         user.checkPassword(request.getParameter("oldpass"));
         user.checkAnonymous();
 
-        PreparedStatement ist = db.prepareStatement("UPDATE users SET  name=?, passwd=?, url=?, new_email=?, town=? WHERE id=" + userid);
+        PreparedStatement ist = db.prepareStatement(
+          "UPDATE users SET  name=?, url=?, new_email=?, town=? WHERE id=" + userid);
         ist.setString(1, name);
-        if (password == null) {
-          ist.setString(2, request.getParameter("oldpass"));
-        } else {
-          PasswordEncryptor encryptor = new BasicPasswordEncryptor();
-
-          ist.setString(2, encryptor.encryptPassword(password));
+        
+        if (password != null) {
+          user.setPassword(db, password);
         }
 
         if (url != null) {
-          ist.setString(3, url);
+          ist.setString(2, url);
         } else {
-          ist.setString(3, null);
+          ist.setString(2, null);
         }
 
         if (user.getEmail()!=null && user.getEmail().equals(email)) {
-          ist.setString(4, null);
+          ist.setString(3, null);
         } else {
           int emailCount = getUserCount(db, mail.getAddress());
 
@@ -221,14 +219,14 @@ public class RegisterController extends ApplicationObjectSupport {
             throw new BadInputException("такой email уже используется");
           }
 
-          ist.setString(4, mail.getAddress());
+          ist.setString(3, mail.getAddress());
 
           sendEmail(tmpl, user.getNick(), mail.getAddress(), false);
 
           emailChanged = true;
         }
 
-        ist.setString(5, town);
+        ist.setString(4, town);
 
         ist.executeUpdate();
 
