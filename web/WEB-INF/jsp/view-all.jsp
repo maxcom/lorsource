@@ -1,8 +1,6 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="java.net.URLEncoder,java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.util.Date"   buffer="60kb"%>
-<%@ page import="ru.org.linux.site.LorDataSource" %>
-<%@ page import="ru.org.linux.site.Section" %>
+<%@ page import="java.util.Date,ru.org.linux.site.Section"   buffer="60kb"%>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%--
   ~ Copyright 1998-2010 Linux.org.ru
@@ -20,16 +18,15 @@
   --%>
 <%--@elvariable id="messages" type="java.util.List<ru.org.linux.site.PreparedMessage>"--%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
+<%--@elvariable id="deletedTopics" type="java.util.List<ru.org.linux.spring.NewsViewerController.DeletedTopic>"--%>
+<%--@elvariable id="sections" type="java.util.List<ru.org.linux.site.Section>"--%>
+<%--@elvariable id="section" type="ru.org.linux.site.Section"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
 <%
-  Connection db = null;
-  try {
     response.setDateHeader("Expires", new Date(new Date().getTime() - 20 * 3600 * 1000).getTime());
     response.setDateHeader("Last-Modified", new Date(new Date().getTime() - 120 * 1000).getTime());
-
-    db = LorDataSource.getConnection();
 
     Section section = (Section) request.getAttribute("section");
     int sectionid = 0;
@@ -54,21 +51,16 @@
 
       <select name=section onChange="submit();" title="Быстрый переход">
         <option value=0>Все</option>
-        <%
-                Statement sectionListSt = db.createStatement();
-                ResultSet sectionList = sectionListSt.executeQuery("SELECT id, name FROM sections WHERE moderate order by id");
-
-                while (sectionList.next()) {
-                        int id = sectionList.getInt("id");
-        %>
-                <option value=<%= id %> <%= id==sectionid?"selected":"" %> ><%= sectionList.getString("name") %></option>
-        <%
-                }
-
-                sectionList.close();
-                sectionListSt.close();
-        %>
-
+        <c:forEach items="${sections}" var="item">
+          <c:if test="${item.premoderated}">
+            <c:if test="${section!=null && item.id == section.id}">
+              <option value="${item.id}" selected>${item.name}</option>
+            </c:if>
+            <c:if test="${item.id != section.id}">
+              <option value="${item.id}">${item.name}</option>
+            </c:if>
+          </c:if>
+        </c:forEach>
       </select>
     </td>
 
@@ -91,14 +83,6 @@
           currentUser="${template.currentUser}"/>
 </c:forEach>
 <%
-  Statement st = db.createStatement();
-  ResultSet rs;
-
-  if (sectionid == 0) {
-    rs = st.executeQuery("SELECT topics.title as subj, nick, groups.section, groups.title as gtitle, topics.id as msgid, groups.id as guid, sections.name as ptitle, reason FROM topics,groups,users,sections,del_info WHERE sections.id=groups.section AND topics.userid=users.id AND topics.groupid=groups.id AND sections.moderate AND deleted AND del_info.msgid=topics.id AND topics.userid!=del_info.delby AND delDate is not null ORDER BY del_info.delDate DESC LIMIT 20");
-  } else {
-    rs = st.executeQuery("SELECT topics.title as subj, nick, groups.section, groups.title as gtitle, topics.id as msgid, groups.id as guid, sections.name as ptitle, reason FROM topics,groups,users,sections,del_info WHERE sections.id=groups.section AND topics.userid=users.id AND topics.groupid=groups.id AND sections.moderate AND deleted AND del_info.msgid=topics.id AND topics.userid!=del_info.delby AND delDate is not null AND section=" + sectionid + " ORDER BY del_info.delDate DESC LIMIT 20");
-  }
 %>
 <h2>Последние удаленные неподтвержденные</h2>
 <div class=forum>
@@ -107,42 +91,20 @@
 <tr><th>&nbsp;<a name="undelete" title="Восстановить">#</a>&nbsp;</th><th>Автор</th><th>Группа</th><th>Заголовок</th><th>Причина удаления</th></tr>
 <tbody>
 
-<%
-  while (rs.next()) {
-  	String nick=rs.getString("nick");
-	int msgid=rs.getInt("msgid");
-	int guid=rs.getInt("guid");
-%>
+<c:forEach items="${deletedTopics}" var="topic">
+
 <tr>
   <td align="center">
     <c:if test="${template.moderatorSession}">
-      <a href="/undelete.jsp?msgid=<%= msgid %>" title="Восстановить">#</a>
+      <a href="/undelete.jsp?msgid=${topic.id}" title="Восстановить">#</a>
     </c:if>
   </td>
-  <td><a href="/people/<%= URLEncoder.encode(nick) %>/profile"><%=nick %></a></td>
-  <td><a href="group.jsp?group=<%= guid %>">
-      <%
-	out.print(rs.getString("ptitle") + " - " + rs.getString("gtitle"));
-%>
-    </a></td>
-<%
-	out.print("<td><a href=\"view-message.jsp?msgid="+msgid+"\">"+rs.getString("subj")+"</a></td>");
-	out.print("<td>"+rs.getString("reason")+"</td>");
-%>
+  <td><a href="/people/${topic.nick}/profile">${topic.nick}</a></td>
+  <td><a href="group.jsp?group=${topic.groupId}">${topic.ptitle} - ${topic.gtitle}</a></td>
+  <td><a href="view-message.jsp?msgid=${topic.id}">${topic.title}</a></td>
+  <td>${topic.reason}</td>
 </tr>
-  <%
-  }
-%>
+</c:forEach>
 </table>
 </div>
-
-<%
-  rs.close();
-  st.close();
-  } finally {
-    if (db!=null) {
-      db.close();
-    }
-  }
-%>
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>

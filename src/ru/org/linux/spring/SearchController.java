@@ -31,6 +31,7 @@ import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
+import org.springframework.jdbc.support.JdbcUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -122,9 +123,7 @@ public class SearchController {
 
         params.put("time", time);
       } finally {
-        if (db != null) {
-          db.close();
-        }
+        JdbcUtils.closeConnection(db);
       }
     }
 
@@ -146,6 +145,10 @@ public class SearchController {
   public static SearchViewer.SearchInterval parseInterval(String date) {
     if (date==null) {
       return SearchViewer.DEFAULT_INTERVAL;
+    }
+
+    if ("3month".equalsIgnoreCase(date)) {
+      return SearchViewer.SearchInterval.THREE_MONTH; // support for old url's
     }
 
     return SearchViewer.SearchInterval.valueOf(date.toUpperCase());

@@ -9,7 +9,7 @@
 <%@ attribute name="messageMenu" required="true" type="ru.org.linux.site.MessageMenu" %>
 <%@ attribute name="showMenu" required="true" type="java.lang.Boolean" %>
 <%@ attribute name="user" type="java.lang.String"%>
-<%@ attribute name="highlight" type="java.lang.Integer" %>
+<%@ attribute name="highlight" type="java.util.Set" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
@@ -58,6 +58,10 @@
         <c:if test="${message.section.premoderated}">
           [<a href="mtn.jsp?msgid=${message.id}">Группа</a>]
         </c:if>
+
+        <c:if test="${message.commited and not message.expired}">
+          [<a href="uncommit.jsp?msgid=${message.id}">Отменить подтверждение</a>]
+        </c:if>
       </c:if>
     </c:if>
     <c:if test="${message.deleted}">
@@ -90,9 +94,7 @@
     ${preparedMessage.processedMessage}
 
     <c:if test="${message.votePoll}">
-        <%
-        %>
-        <lor:poll poll="${preparedMessage.poll}" highlight="<%= highlight %>"/>
+      <lor:poll poll="${preparedMessage.poll}" highlight="${highlight}"/>
 
       <p>&gt;&gt;&gt; <a href="vote-vote.jsp?msgid=${message.id}">Проголосовать</a></p>
     </c:if>
@@ -102,7 +104,7 @@
   }
 
   if (message.getUrl() != null && message.getSection().isImagepost()) {
-    NewsViewer.showMediumImage(tmpl.getObjectConfig().getHTMLPathPrefix(), out, message.getUrl(), message.getTitle(), message.getLinktext(), true);
+    out.append(NewsViewer.showMediumImage(tmpl.getObjectConfig().getHTMLPathPrefix(), message, true));
   }
 %>
 <c:if test="${message.section.premoderated}"><%

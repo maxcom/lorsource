@@ -52,7 +52,6 @@ public class AddMessageController extends ApplicationObjectSupport {
     Map<String, Object> params = new HashMap<String, Object>();
 
     Template tmpl = Template.getTemplate(request);
-    HttpSession session = request.getSession();
 
     AddMessageForm form = new AddMessageForm(request, tmpl);
     form.setMode(tmpl.getFormatMode());
@@ -68,7 +67,11 @@ public class AddMessageController extends ApplicationObjectSupport {
 
       Group group = new Group(db, groupId);
 
-      User currentUser = Template.getCurrentUser(db, session);
+      if (group.isModerated()) {
+        params.put("topTags", Tags.getTopTags(db));
+      }
+
+      User currentUser = tmpl.getCurrentUser();
 
       if (!group.isTopicPostingAllowed(currentUser)) {
         throw new AccessViolationException("Не достаточно прав для постинга тем в эту группу");
@@ -98,13 +101,18 @@ public class AddMessageController extends ApplicationObjectSupport {
 
     Connection db = null;
     Exception error = null;
-    Message previewMsg = null;
+
     try {
       db = LorDataSource.getConnection();
       db.setAutoCommit(false);
       tmpl.initCurrentUser(db);
 
       Group group = new Group(db, form.getGuid());
+
+      if (group.isModerated()) {
+        params.put("topTags", Tags.getTopTags(db));
+      }
+
       params.put("group", group);
       Section section = new Section(db, group.getSectionId());
       params.put("addportal", section.getAddInfo(db));
@@ -117,7 +125,8 @@ public class AddMessageController extends ApplicationObjectSupport {
         form.processUpload(session, tmpl);
       }
 
-      previewMsg = new Message(db, form, user);
+      Message previewMsg = new Message(db, form, user);
+      params.put("message", new PreparedMessage(db, previewMsg, true));
 
       if (!form.isPreview()) {
         // Flood protection
@@ -200,7 +209,6 @@ public class AddMessageController extends ApplicationObjectSupport {
       return new ModelAndView("error", params);
     }
 
-    params.put("message", previewMsg);
     params.put("error", error);
     return new ModelAndView("add", params);
   }

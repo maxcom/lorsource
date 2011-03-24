@@ -120,6 +120,8 @@ public class SearchQueueListener {
 
           String message = rs.getString(1);
 
+          rs.close();
+
           solrServer.add(processComment(topic, comment, message));
         }
       }

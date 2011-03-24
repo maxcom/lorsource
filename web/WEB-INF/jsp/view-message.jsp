@@ -1,7 +1,7 @@
 <%@ page contentType="text/html; charset=utf-8"%>
 <%@ page import="ru.org.linux.site.CommentFilter,ru.org.linux.site.Message,ru.org.linux.site.Section,ru.org.linux.site.Template"   buffer="200kb"%>
-<%@ page import="ru.org.linux.util.ServletParameterParser" %>
 <%@ page import="ru.org.linux.util.StringUtil" %>
+<%@ page import="org.apache.commons.lang.math.RandomUtils" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
@@ -241,7 +241,7 @@
 
     StringBuilder urlAdd = new StringBuilder();
     if (!message.isExpired()) {
-      urlAdd.append("?lastmod="+message.getLastModified().getTime());
+      urlAdd.append("?lastmod=").append(message.getLastModified().getTime());
     }
 
     String filterAdd="";
@@ -300,9 +300,9 @@
     pageInfo = bufInfo.toString();
   }
 
-  if (request.getParameter("highlight") != null) {
+  if (request.getAttribute("highlight") != null) {
 %>
-<lor:message messageMenu="${messageMenu}" preparedMessage="${preparedMessage}" message="${message}" showMenu="true" user="<%= Template.getNick(session) %>" highlight="<%= new ServletParameterParser(request).getInt(&quot;highlight&quot;)%>"/>
+<lor:message messageMenu="${messageMenu}" preparedMessage="${preparedMessage}" message="${message}" showMenu="true" user="<%= Template.getNick(session) %>" highlight="${highlight}"/>
 <%
   } else {
 %>
@@ -314,9 +314,17 @@
 <c:out value="${scroller}" escapeXml="false"/>
 
 <c:if test="${showAdsense}">
+  <%
+  if (RandomUtils.nextInt(3)==0) {
+  %>
+  <jsp:include page="/WEB-INF/jsp/croco-adv.jsp"/>
+  <%
+  } else {
+  %>
   <div style="text-align: center; margin-top: 1em">
     <jsp:include page="/WEB-INF/jsp/${template.style}/adsense.jsp"/>
   </div>
+  <% } %>
 
   <br>
 </c:if>

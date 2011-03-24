@@ -15,24 +15,21 @@
 
 package ru.org.linux.spring;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.Timestamp;
+import java.sql.*;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import com.google.common.collect.ImmutableList;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
-import ru.org.linux.site.DateFormats;
-import ru.org.linux.site.LorDataSource;
-import ru.org.linux.site.User;
-import ru.org.linux.site.UserErrorException;
+import ru.org.linux.site.*;
 import ru.org.linux.util.ServletParameterException;
 import ru.org.linux.util.StringUtil;
 
@@ -42,8 +39,11 @@ public class ShowCommentsController {
   public ModelAndView showComments(
     @RequestParam String nick,
     @RequestParam(defaultValue="0") int offset,
+    HttpServletRequest request,
     HttpServletResponse response
   ) throws Exception {
+    Template tmpl = Template.getTemplate(request);
+
     ModelAndView mv = new ModelAndView("show-comments");
 
     int topics = 50;
@@ -77,8 +77,6 @@ public class ShowCommentsController {
       if (user.isAnonymous()) {
         throw new UserErrorException("Функция только для зарегистрированных пользователей");
       }
-
-      DateFormat dateFormat = DateFormats.createDefault();
 
       List<CommentsListItem> out = new ArrayList<CommentsListItem>(topics);
 
@@ -119,11 +117,73 @@ public class ShowCommentsController {
 
       mv.getModel().put("list", out);
 
+      if (tmpl.isModeratorSession()) {
+        mv.getModel().put("deletedList", getDeletedComments(db, user.getId()));
+      }
+
       return mv;
     } finally {
       if (db!=null) {
         db.close();
       }
+    }
+  }
+
+  private static List<DeletedListItem> getDeletedComments(Connection db, int userid) throws SQLException {
+    Statement st=db.createStatement();
+    ResultSet rs=st.executeQuery("SELECT sections.name as ptitle, groups.title as gtitle, topics.title, topics.id as msgid, del_info.reason, deldate FROM sections, groups, topics, comments, del_info WHERE sections.id=groups.section AND groups.id=topics.groupid AND comments.topic=topics.id AND del_info.msgid=comments.id AND comments.userid="+userid+" AND del_info.delby!="+userid+" ORDER BY del_info.delDate DESC NULLS LAST, del_info.msgid DESC LIMIT 20;");
+
+    ImmutableList.Builder<DeletedListItem> builder = ImmutableList.builder();
+
+    while (rs.next()) {
+      builder.add(new DeletedListItem(rs));
+    }
+
+    rs.close();
+    st.close();
+    
+    return builder.build();
+  }
+
+  public static class DeletedListItem {
+    private final String ptitle;
+    private final String gtitle;
+    private final int msgid;
+    private final String title;
+    private final String reason;
+    private final Timestamp delDate;
+
+    public DeletedListItem(ResultSet rs) throws SQLException {
+      ptitle = rs.getString("ptitle");
+      gtitle = rs.getString("gtitle");
+      msgid = rs.getInt("msgid");
+      title = StringUtil.makeTitle(rs.getString("title"));
+      reason = rs.getString("reason");
+      delDate = rs.getTimestamp("deldate");
+    }
+
+    public String getPtitle() {
+      return ptitle;
+    }
+
+    public String getGtitle() {
+      return gtitle;
+    }
+
+    public int getMsgid() {
+      return msgid;
+    }
+
+    public String getTitle() {
+      return title;
+    }
+
+    public String getReason() {
+      return reason;
+    }
+
+    public Timestamp getDelDate() {
+      return delDate;
     }
   }
 

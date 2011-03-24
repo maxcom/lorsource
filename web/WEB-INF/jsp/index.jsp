@@ -1,11 +1,9 @@
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="java.sql.Connection,java.sql.ResultSet,java.sql.Statement,java.util.Date"   buffer="60kb"%>
-<%@ page import="ru.org.linux.site.DefaultProfile" %>
-<%@ page import="ru.org.linux.site.LorDataSource" %>
-<%@ page import="ru.org.linux.site.Template" %>
+<%@ page import="java.util.Date,ru.org.linux.site.DefaultProfile,ru.org.linux.site.Template"   buffer="60kb"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib prefix="lor" uri="http://www.linux.org.ru" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lorDir" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%--
   ~ Copyright 1998-2010 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,6 +20,8 @@
   --%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <%--@elvariable id="news" type="java.util.List<ru.org.linux.site.PreparedMessage>"--%>
+<%--@elvariable id="uncommited" type="java.lang.Integer"--%>
+<%--@elvariable id="uncommitedNews" type="java.lang.Integer"--%>
 
 <% Template tmpl = Template.getTemplate(request); %>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
@@ -39,9 +39,6 @@
 <jsp:include page="/WEB-INF/jsp/header-main.jsp"/>
 <%
   boolean columns3 = tmpl.getProf().getBoolean("main.3columns");
-
-  Connection db = null;
-  try {
 %>
 
 <div style="clear: both"></div>
@@ -49,58 +46,39 @@
   <div class="<%= columns3?"newsblog-in2":"newsblog-in"%>">
 
 <h1><a href="/news/">Новости</a></h1>
-<%--
+
 <c:if test="${template.style != 'black'}">
   <div class="infoblock" style="border: 1px solid #777; margin: 0; text-align: justify;">
     <a href="http://job.samsung.ru/"><img width="130" height="43" src="/adv/Samsung_Logo.png" alt="" style="float: left; border: 0"></a>
     <div style="margin-left: 135px">
+<%--
     <h2>Вакансии</h2>
-    Samsung Electronics приглашает разработчиков LINUX на работу в R&amp;D центры в Южной Корее (г. Сувон) и России (г. Москва).<br>
-    Область специализации: Linux Kernel, Drivers, System Programming.
+--%>
+    SAMSUNG Electronics&nbsp;&mdash; мировой лидер в&nbsp;производстве полупроводников,
+телекоммуникационного оборудования и&nbsp;цифровой конвергенции&nbsp;&mdash; объявляет о&nbsp;приеме
+на&nbsp;работу программистов, инженеров-разработчик, физиков и&nbsp;химиков: LINUX,
+Android, C/C++, Smart Phones, Smart TV, 3D&nbsp;Imaging, 3D&nbsp;Graphics, ASIC, FPGA,
+SoC, Graphene, MEMS, Biomedical Engineering. Дополнительная информация:
     <a href="http://job.samsung.ru/" style="color: white">http://job.samsung.ru</a>
     </div>
   </div>
 </c:if>
---%>
+
 <c:if test="${template.moderatorSession or template.correctorSession}">
 <div class="nav"   style="border-bottom: none">
-<%
-    if (db==null) {
-      db = LorDataSource.getConnection();
-    }
+  <c:if test="${uncommited > 0}">
+    [<a href="view-all.jsp">Неподтвержденных</a>: ${uncommited},
 
-    Statement st = db.createStatement();
-    ResultSet rs = st.executeQuery("select count(*) from topics,groups,sections where section=sections.id AND sections.moderate and topics.groupid=groups.id and not deleted and not topics.moderate AND postdate>(CURRENT_TIMESTAMP-'1 month'::interval)");
-
-    if (rs.next()) {
-      int count = rs.getInt("count");
-
-      out.print("[<a href=\"view-all.jsp\">Неподтвержденных</a>: " + count);
-    }
-
-    rs.close();
-
-    rs = st.executeQuery("select count(*) from topics,groups where section=1 AND topics.groupid=groups.id and not deleted and not topics.moderate AND postdate>(CURRENT_TIMESTAMP-'1 month'::interval)");
-
-    if (rs.next()) {
-      int count = rs.getInt("count");
-
-      if (count>0) {
-        out.print(", в том числе <a href=\"view-all.jsp?section=1\">новостей</a>: " + count + ']');
-      } else {
-        out.print(", новостей нет]");
-      }
-    }
-
-    rs.close();
-
-    st.close();
-
-    db.close(); db=null;
-%>
-  </div>
+    <c:if test="${uncommitedNews > 0}">
+      в том числе <a href="view-all.jsp?section=1">новостей</a>: ${uncommitedNews}]
+    </c:if>
+    <c:if test="${uncommitedNews == 0}">
+      новостей нет]
+    </c:if>
   </c:if>
-    <%
+</div>
+</c:if>
+<%
   boolean multiPortal = false;
 
   if (tmpl.getProf().getBoolean(DefaultProfile.MAIN_GALLERY)) {
@@ -130,7 +108,10 @@
           <li><a href="tracker.jsp?filter=mine">Мои темы</a></li>
           <li><a href="/people/${template.nick}/favs">Избранные темы</a></li>
           <li><a href="show-comments.jsp?nick=${template.nick}">Мои комментарии</a></li>
-          <li><lorDir:events/></li>
+          <c:set var="events">
+             <lorDir:events/>
+          </c:set>
+          <li>${fn:trim(events)}</li>
         </ul>
         <ul>
           <li><a href="edit-profile.jsp">Настройки</a></li>
@@ -161,10 +142,4 @@
 
 <div style="clear: both"></div>
 
-<% } finally {
-    if (db!=null) {
-      db.close();
-    }
-  }
-%>
 <jsp:include page="/WEB-INF/jsp/footer-main.jsp"/>

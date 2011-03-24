@@ -24,6 +24,8 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.jdbc.support.JdbcUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -54,7 +56,7 @@ public class MessageController {
     @PathVariable("group") String groupName,
     @PathVariable("id") int msgid
   ) throws Exception {
-    return getMessageNew(Section.SECTION_FORUM, webRequest, request, response, 0, filter, groupName, msgid);
+    return getMessageNew(Section.SECTION_FORUM, webRequest, request, response, 0, filter, groupName, msgid, null);
   }
 
   @RequestMapping("/news/{group}/{id}")
@@ -66,7 +68,7 @@ public class MessageController {
     @PathVariable("group") String groupName,
     @PathVariable("id") int msgid
   ) throws Exception {
-    return getMessageNew(Section.SECTION_NEWS, webRequest, request, response, 0, filter, groupName, msgid);
+    return getMessageNew(Section.SECTION_NEWS, webRequest, request, response, 0, filter, groupName, msgid, null);
   }
 
   @RequestMapping("/polls/{group}/{id}")
@@ -76,9 +78,18 @@ public class MessageController {
     HttpServletResponse response,
     @RequestParam(value="filter", required=false) String filter,
     @PathVariable("group") String groupName,
-    @PathVariable("id") int msgid
+    @PathVariable("id") int msgid,
+    @RequestParam(value="highlight", required=false) Set<Integer> highlight
   ) throws Exception {
-    return getMessageNew(Section.SECTION_POLLS, webRequest, request, response, 0, filter, groupName, msgid);
+    return getMessageNew(
+      Section.SECTION_POLLS,
+      webRequest,
+      request,
+      response,
+      0,
+      filter,
+      groupName,
+      msgid, highlight);
   }
 
   @RequestMapping("/gallery/{group}/{id}")
@@ -90,7 +101,7 @@ public class MessageController {
     @PathVariable("group") String groupName,
     @PathVariable("id") int msgid
   ) throws Exception {
-    return getMessageNew(Section.SECTION_GALLERY, webRequest, request, response, 0, filter, groupName, msgid);
+    return getMessageNew(Section.SECTION_GALLERY, webRequest, request, response, 0, filter, groupName, msgid, null);
   }
 
   @RequestMapping("/forum/{group}/{id}/page{page}")
@@ -103,7 +114,7 @@ public class MessageController {
     @PathVariable("id") int msgid,
     @PathVariable("page") int page
   ) throws Exception {
-    return getMessageNew(Section.SECTION_FORUM, webRequest, request, response, page, filter, groupName, msgid);
+    return getMessageNew(Section.SECTION_FORUM, webRequest, request, response, page, filter, groupName, msgid, null);
   }
 
   @RequestMapping("/news/{group}/{id}/page{page}")
@@ -116,7 +127,7 @@ public class MessageController {
     @PathVariable("id") int msgid,
     @PathVariable("page") int page
   ) throws Exception {
-    return getMessageNew(Section.SECTION_NEWS, webRequest, request, response, page, filter, groupName, msgid);
+    return getMessageNew(Section.SECTION_NEWS, webRequest, request, response, page, filter, groupName, msgid, null);
   }
 
   @RequestMapping("/polls/{group}/{id}/page{page}")
@@ -129,7 +140,7 @@ public class MessageController {
     @PathVariable("id") int msgid,
     @PathVariable("page") int page
   ) throws Exception {
-    return getMessageNew(Section.SECTION_POLLS, webRequest, request, response, page, filter, groupName, msgid);
+    return getMessageNew(Section.SECTION_POLLS, webRequest, request, response, page, filter, groupName, msgid, null);
   }
 
   @RequestMapping("/gallery/{group}/{id}/page{page}")
@@ -142,7 +153,7 @@ public class MessageController {
     @PathVariable("id") int msgid,
     @PathVariable("page") int page
   ) throws Exception {
-    return getMessageNew(Section.SECTION_GALLERY, webRequest, request, response, page, filter, groupName, msgid);
+    return getMessageNew(Section.SECTION_GALLERY, webRequest, request, response, page, filter, groupName, msgid, null);
   }
 
   public ModelAndView getMessageNew(
@@ -153,8 +164,8 @@ public class MessageController {
     int page,
     String filter,
     String groupName,
-    int msgid
-  ) throws Exception {
+    int msgid,
+    Set<Integer> highlight) throws Exception {
     Connection db = null;
     try {
       db = LorDataSource.getConnection();
@@ -167,11 +178,9 @@ public class MessageController {
         return new ModelAndView(new RedirectView(message.getLink()));
       }
 
-      return getMessage(db, webRequest, request, response, preparedMessage, group, page, filter);
+      return getMessage(db, webRequest, request, response, preparedMessage, group, page, filter, highlight);
     } finally {
-      if (db!=null) {
-        db.close();
-      }
+      JdbcUtils.closeConnection(db);
     }
   }
 
@@ -238,7 +247,8 @@ public class MessageController {
     PreparedMessage preparedMessage,
     Group group,
     int page,
-    String filter
+    String filter,
+    Set<Integer> highlight
   ) throws Exception {
     Message message = preparedMessage.getMessage();
 
@@ -249,6 +259,8 @@ public class MessageController {
     params.put("showAdsense", !tmpl.isSessionAuthorized() || !tmpl.getProf().getBoolean(DefaultProfile.HIDE_ADSENSE));
 
     params.put("page", page);
+
+    params.put("highlight", highlight);
 
     boolean showDeleted = request.getParameter("deleted") != null;
     if (showDeleted) {
@@ -274,18 +286,13 @@ public class MessageController {
     params.put("showDeleted", showDeleted);
 
     tmpl.initCurrentUser(db);
+    User currentUser = tmpl.getCurrentUser();
 
     if (message.isExpired() && showDeleted && !tmpl.isModeratorSession()) {
       throw new MessageNotFoundException(message.getId(), "нельзя посмотреть удаленные комментарии в устаревших темах");
     }
 
-    if (message.isExpired() && message.isDeleted() && !tmpl.isModeratorSession()) {
-      throw new MessageNotFoundException(message.getId(), "нельзя посмотреть устаревшие удаленные сообщения");
-    }
-
-    if (message.isDeleted() && !Template.isSessionAuthorized(request.getSession())) {
-      throw new MessageNotFoundException(message.getId(), "Сообщение удалено");
-    }
+    checkView(message, tmpl, currentUser);
 
     params.put("group", group);
 
@@ -309,7 +316,7 @@ public class MessageController {
 
     params.put("message", message);
     params.put("preparedMessage", preparedMessage);
-    params.put("messageMenu", new MessageMenu(db, preparedMessage, tmpl.getCurrentUser()));
+    params.put("messageMenu", new MessageMenu(db, preparedMessage, currentUser));
 
     if (message.isExpired()) {
       response.setDateHeader("Expires", System.currentTimeMillis() + 30 * 24 * 60 * 60 * 1000L);
@@ -319,12 +326,10 @@ public class MessageController {
 
     params.put("comments", comments);
 
-    String nick = Template.getNick(request.getSession());
-
     Map<Integer, String> ignoreList = null;
 
-    if (nick != null) {
-      ignoreList = IgnoreList.getIgnoreList(db, nick);
+    if (currentUser != null) {
+      ignoreList = IgnoreList.getIgnoreList(db, currentUser.getId());
     }
 
     int filterMode = CommentFilter.FILTER_IGNORED;
@@ -383,6 +388,30 @@ public class MessageController {
     }
 
     return new ModelAndView(rss ? "view-message-rss" : "view-message", params);
+  }
+
+  private static void checkView(Message message, Template tmpl, User currentUser) throws MessageNotFoundException {
+    if (tmpl.isModeratorSession()) {
+      return;
+    }
+
+    if (message.isDeleted()) {
+      if (message.isExpired()) {
+        throw new MessageNotFoundException(message.getId(), "нельзя посмотреть устаревшие удаленные сообщения");
+      }
+
+      if (!tmpl.isSessionAuthorized()) {
+        throw new MessageNotFoundException(message.getId(), "Сообщение удалено");
+      }
+
+      if (currentUser.getId() == message.getUid()) {
+        return;
+      }
+
+      if (currentUser.getScore() < User.VIEW_DELETED_SCORE) {
+        throw new MessageNotFoundException(message.getId(), "Сообщение удалено");
+      }
+    }
   }
 
   private static boolean checkLastModified(WebRequest webRequest, Message message) {

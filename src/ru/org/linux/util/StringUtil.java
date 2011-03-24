@@ -20,9 +20,7 @@ import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
 import java.util.Random;
 import java.util.StringTokenizer;
-
-import gnu.regexp.RE;
-import gnu.regexp.REException;
+import java.util.regex.Pattern;
 
 public final class StringUtil {
   private static final Random random = new Random();
@@ -39,16 +37,7 @@ public final class StringUtil {
     return filename;
   }
 
-  private static final RE loginCheckRE;
-
-  static {
-    try {
-      loginCheckRE = new RE("[a-z][a-z0-9_-]*");
-    } catch (REException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
+  private static final Pattern loginCheckRE = Pattern.compile("[a-z][a-z0-9_-]*");
 
   public static boolean checkLoginName(String login) {
     login = login.toLowerCase();
@@ -61,7 +50,7 @@ public final class StringUtil {
       return false;
     }
 
-    return loginCheckRE.isMatch(login);
+    return loginCheckRE.matcher(login).matches();
   }
 
   public static String makeTitle(String title) {

@@ -16,15 +16,15 @@
 package ru.org.linux.spring;
 
 import java.net.URLEncoder;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+import java.sql.*;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import com.google.common.collect.ImmutableList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -431,11 +431,78 @@ public class NewsViewerController {
 
       modelAndView.getModel().put("messages", newsViewer.getPreparedMessages(db));
 
+      Statement st = db.createStatement();
+      ResultSet rs;
+
+      if (sectionId == 0) {
+        rs = st.executeQuery("SELECT topics.title as subj, nick, groups.section, groups.title as gtitle, topics.id as msgid, groups.id as guid, sections.name as ptitle, reason FROM topics,groups,users,sections,del_info WHERE sections.id=groups.section AND topics.userid=users.id AND topics.groupid=groups.id AND sections.moderate AND deleted AND del_info.msgid=topics.id AND topics.userid!=del_info.delby AND delDate is not null ORDER BY del_info.delDate DESC LIMIT 20");
+      } else {
+        rs = st.executeQuery("SELECT topics.title as subj, nick, groups.section, groups.title as gtitle, topics.id as msgid, groups.id as guid, sections.name as ptitle, reason FROM topics,groups,users,sections,del_info WHERE sections.id=groups.section AND topics.userid=users.id AND topics.groupid=groups.id AND sections.moderate AND deleted AND del_info.msgid=topics.id AND topics.userid!=del_info.delby AND delDate is not null AND section=" + sectionId + " ORDER BY del_info.delDate DESC LIMIT 20");
+      }
+
+      ImmutableList.Builder<Object> deleted = ImmutableList.builder();
+
+      while (rs.next()) {
+        deleted.add(new DeletedTopic(rs));
+      }
+
+      modelAndView.getModel().put("deletedTopics", deleted.build());
+
+      modelAndView.getModel().put("sections", sectionStore.getSectionsList());
+
       return modelAndView;
     } finally {
       if (db != null) {
         db.close();
       }
+    }
+  }
+
+  public static class DeletedTopic {
+    private final String nick;
+    private final int id;
+    private final int groupId;
+    private final String ptitle;
+    private final String gtitle;
+    private final String title;
+    private final String reason;
+
+    public DeletedTopic(ResultSet rs) throws SQLException {
+      nick = rs.getString("nick");
+      id = rs.getInt("msgid");
+      groupId = rs.getInt("guid");
+      ptitle = rs.getString("ptitle");
+      gtitle = rs.getString("gtitle");
+      title = rs.getString("subj");
+      reason = rs.getString("reason");
+    }
+
+    public String getNick() {
+      return nick;
+    }
+
+    public int getId() {
+      return id;
+    }
+
+    public int getGroupId() {
+      return groupId;
+    }
+
+    public String getPtitle() {
+      return ptitle;
+    }
+
+    public String getGtitle() {
+      return gtitle;
+    }
+
+    public String getTitle() {
+      return title;
+    }
+
+    public String getReason() {
+      return reason;
     }
   }
 

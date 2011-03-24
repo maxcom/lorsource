@@ -22,6 +22,7 @@ import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
 import ru.org.linux.site.Section;
@@ -30,24 +31,28 @@ import ru.org.linux.site.LorDataSource;
 
 public class SectionStore {
   private final ImmutableMap<Integer, Section> sections;
+  private final ImmutableList<Section> sectionsList;
 
   public SectionStore() throws SQLException {
     Connection db = LorDataSource.getConnection();
 
     try {
-      Map<Integer, Section> sections = new HashMap<Integer, Section>();
+      ImmutableMap.Builder<Integer, Section> sections = ImmutableMap.builder();
+      ImmutableList.Builder<Section> sectionsList = ImmutableList.builder();
 
       Statement st = db.createStatement();
 
-      ResultSet rs = st.executeQuery("SELECT id, name, imagepost, vote, moderate FROM sections");
+      ResultSet rs = st.executeQuery("SELECT id, name, imagepost, vote, moderate FROM sections ORDER BY id");
 
       while (rs.next()) {
         Section section = new Section(rs);
 
         sections.put(section.getId(), section);
+        sectionsList.add(section);
       }
 
-      this.sections = ImmutableMap.copyOf(sections);
+      this.sections = sections.build();
+      this.sectionsList = sectionsList.build();
     } finally {
       db.close();
     }
@@ -61,5 +66,9 @@ public class SectionStore {
     }
 
     return section;
+  }
+
+  public ImmutableList<Section> getSectionsList() {
+    return sectionsList;
   }
 }

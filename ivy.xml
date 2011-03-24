@@ -21,7 +21,6 @@
           <exclude module="junit"/>
         </dependency>
         <dependency org="dnsjava" name="dnsjava" rev="2.0.3" conf="build->default"/>
-        <dependency org="gnu-regexp" name="gnu-regexp" rev="1.1.4" conf="build->default"/>
         <dependency org="urlrewrite" name="urlrewrite" rev="2.6.0" conf="build->default"/>
         <dependency org="postgresql" name="postgresql" rev="8.2-504.jdbc3" conf="provided->default"/>
         <dependency org="junit" name="junit" rev="4.5" conf="test->default"/>
@@ -49,5 +48,11 @@
 	    <dependency org="org.apache.xbean" name="xbean-spring" rev="3.7" conf="build->default">
             <exclude module="spring-context"/>
         </dependency>
+        <dependency org="net.sf.ehcache" name="ehcache-core" rev="2.3.0" conf="build->default">
+            <exclude module="slf4j-jdk14"/>
+            <exclude module="hibernate-core"/>
+            <exclude module="hibernate-ehcache"/>
+        </dependency>
+        <dependency org="org.jasypt" name="jasypt" rev="1.7" conf="build->default"/>
     </dependencies>
 </ivy-module>

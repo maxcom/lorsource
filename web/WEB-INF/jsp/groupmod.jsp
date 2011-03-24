@@ -35,11 +35,12 @@
 
 <form action="groupmod.jsp" method="POST">
   <input type="hidden" name="group" value="${group.id}">
-  Строка описания: <input type="text" name="info" size="70" value="${fn:escapeXml(group.info)}"><br>
+  <label>Заголовок: <input type="text" name="title" size="70" value="${fn:escapeXml(group.title)}"></label><br>
+  <label>Строка описания: <input type="text" name="info" size="70" value="${fn:escapeXml(group.info)}"></label><br>
   <label>Имя для URL: <input type="text" name="urlName" size="70" value="${fn:escapeXml(group.urlName)}"></label><br>
-  Можно помечать темы как решенные: <input type="checkbox" name="resolvable" <c:if test="${group.resolvable}">checked="checked"</c:if>/><br />
-  Подробное описание:<br>
-  <textarea rows="20" cols="70" name="longinfo"><c:out value="${group.longInfo}" escapeXml="true"/></textarea><br>
+  <label>Можно помечать темы как решенные: <input type="checkbox" name="resolvable" <c:if test="${group.resolvable}">checked="checked"</c:if>></label><br>
+  <label>Подробное описание:<br>
+  <textarea rows="20" cols="70" name="longinfo"><c:out value="${group.longInfo}" escapeXml="true"/></textarea></label><br>
   <input type="submit" value="Изменить">
   <input type="submit" name="preview" value="Предпросмотр">
 </form>

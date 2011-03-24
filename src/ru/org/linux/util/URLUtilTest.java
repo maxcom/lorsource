@@ -39,4 +39,9 @@ public class URLUtilTest {
   public void testIPUrl() {
     assertTrue(URLUtil.isUrl("http://127.0.0.1/"));
   }
+
+  @Test
+  public void testCyrillicURL() {
+    assertTrue(URLUtil.isUrl("http://президент.рф/"));
+  }
 }

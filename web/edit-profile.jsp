@@ -1,5 +1,5 @@
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="javax.servlet.http.Cookie,javax.servlet.http.HttpServletResponse"   buffer="20kb" %>
+<%@ page import="javax.servlet.http.Cookie,javax.servlet.http.HttpServletResponse" %>
 <%@ page import="ru.org.linux.site.AccessViolationException" %>
 <%@ page import="ru.org.linux.site.BadInputException" %>
 <%@ page import="ru.org.linux.site.DefaultProfile" %>
@@ -119,7 +119,6 @@ $(document).ready(function() {
         <input type=radio name=style id="style-${s}" value="${s}"><label for="style-${s}">${s}</label><br>
       </c:if>
     </c:forEach>
-    Внимание! Тема "tango" находится в состоянии разработки
   </td>
 </tr>
   <tr><td colspan=2><hr></td></tr>

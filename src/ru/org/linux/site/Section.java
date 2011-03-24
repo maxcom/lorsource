@@ -20,6 +20,8 @@ import java.sql.*;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.jdbc.support.JdbcUtils;
+
 public class Section implements Serializable {
   private final String name;
   private final boolean imagepost;
@@ -48,20 +50,24 @@ public class Section implements Serializable {
     this.id = id;
 
     Statement st = db.createStatement();
-    ResultSet rs = st.executeQuery(
+    try {
+      ResultSet rs = st.executeQuery(
         "SELECT name, imagepost, vote, moderate " +
-            "FROM sections " +
-            "WHERE id="+id
-    );
+          "FROM sections " +
+          "WHERE id=" + id
+      );
 
-    if (!rs.next()) {
-      throw new SectionNotFoundException(id);
+      if (!rs.next()) {
+        throw new SectionNotFoundException(id);
+      }
+
+      name = rs.getString("name");
+      imagepost = rs.getBoolean("imagepost");
+      votepoll = rs.getBoolean("vote");
+      moderate = rs.getBoolean("moderate");
+    } finally {
+      JdbcUtils.closeStatement(st);
     }
-
-    name = rs.getString("name");
-    imagepost = rs.getBoolean("imagepost");
-    votepoll = rs.getBoolean("vote");
-    moderate = rs.getBoolean("moderate");
   }
 
   public Section(ResultSet rs) throws SQLException {

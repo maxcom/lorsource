@@ -15,14 +15,12 @@
 
 package ru.org.linux.site;
 
+import java.io.Serializable;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.io.Serializable;
 
 import com.google.common.collect.ImmutableList;
-
-import ru.org.linux.util.HTMLFormatter;
 
 public class Poll implements Serializable {
   public static final int MAX_POLL_SIZE = 15;
@@ -181,29 +179,6 @@ public class Poll implements Serializable {
     addPst.setString(2, label);
 
     addPst.executeUpdate();
-  }
-
-  /* TODO: move to JSP */
-  public String renderPoll(Connection db, String fullUrl) throws SQLException {
-    StringBuilder out = new StringBuilder();
-    int max = getMaxVote(db);
-    List<PollVariant> vars = getPollVariants(db, ORDER_VOTES);
-    out.append("<table>");
-    int total = 0;
-    for (PollVariant var : vars) {
-      out.append("<tr><td>");
-      int votes = var.getVotes();
-      out.append(HTMLFormatter.htmlSpecialChars(var.getLabel()));
-      out.append("</td><td>").append(votes).append("</td><td>");
-      total += votes;
-      for (int i = 0; i < 20 * votes / max; i++) {
-        out.append("<img src=\"").append(fullUrl).append("white/img/votes.png\" alt=\"*\">");
-      }
-      out.append("</td></tr>");
-    }
-    out.append("<tr><td colspan=2>Всего голосов: ").append(total).append("</td></tr>");
-    out.append("</table>");
-    return out.toString();
   }
 
   public boolean isCurrent() {

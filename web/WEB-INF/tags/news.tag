@@ -78,14 +78,13 @@
 
 <div class="entry-body">
 <div class=msg>
-  <c:if test="<%= imagepost %>">
+  <c:if test="${message.section.imagepost}">
     <%
-      NewsViewer.showMediumImage(tmpl.getConfig().getProperty("HTMLPathPrefix"), out, url, message.getTitle(), message.getLinktext(), !tmpl.isMobile());
+      out.append(NewsViewer.showMediumImage(tmpl.getConfig().getProperty("HTMLPathPrefix"), message, !tmpl.isMobile()));
     %>
   </c:if>
-<c:if test="${not message.votePoll}">
+  
   ${preparedMessage.processedMessage}
-</c:if>
 <%
   if (url != null && !imagepost && !votepoll) {
     if (url.length()==0) {
@@ -95,10 +94,16 @@
     out.append("<p>&gt;&gt;&gt; <a href=\"").append(HTMLFormatter.htmlSpecialChars(url)).append("\">").append(message.getLinktext()).append("</a>");
   } else if (imagepost) {
     String imageFilename = tmpl.getConfig().getProperty("HTMLPathPrefix") + url;
-    ImageInfo info = new ImageInfo(imageFilename, ImageInfo.detectImageType(new File(imageFilename)));
-
     out.append("<p>&gt;&gt;&gt; <a href=\"/").append(url).append("\">Просмотр</a>");
-    out.append(" (<i>").append(Integer.toString(info.getWidth())).append('x').append(Integer.toString(info.getHeight())).append(", ").append(info.getSizeString()).append("</i>)");
+    try {
+      ImageInfo info = new ImageInfo(imageFilename, ImageInfo.detectImageType(new File(imageFilename)));
+
+      out.append(" (<i>").append(Integer.toString(info.getWidth())).append('x').append(Integer.toString(info.getHeight())).append(", ").append(info.getSizeString()).append("</i>)");
+    } catch (IOException e) {
+      out.append("(BAD IMAGE)");
+    } catch (BadImageException e) {
+      out.append("(BAD IMAGE)");
+    }
   } else if (votepoll) {
       %>
         <lor:poll poll="${preparedMessage.poll}"/>

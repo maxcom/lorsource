@@ -14,9 +14,7 @@
   ~    limitations under the License.
   --%>
 <%@ page contentType="application/rss+xml; charset=utf-8"%>
-<%@ page import="java.sql.Connection"   buffer="200kb"%>
-<%@ page import="ru.org.linux.site.LorDataSource" %>
-<%@ page import="ru.org.linux.site.MessageTable" %>
+<%@ page import="ru.org.linux.site.MessageTable"   buffer="200kb"%>
 <%@ page import="ru.org.linux.site.PreparedMessage" %>
 <%@ page import="ru.org.linux.site.Template" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
@@ -34,20 +32,10 @@
 <language>ru</language>
 <title>Linux.org.ru: ${message.title}</title>
   <description><![CDATA[<%
-  Connection db = null;
-  try {
-    db = LorDataSource.getConnection();
-
     out.print(MessageTable.getTopicRss(
-            db,
             tmpl.getConfig().getProperty("HTMLPathPrefix"),
             tmpl.getMainUrl(),
             (PreparedMessage) request.getAttribute("preparedMessage")));
-  } finally {
-    if (db!=null) {
-      db.close();
-    }
-  }
 %>]]>
   </description>
   <c:forEach items="${commentsPrepared}" var="comment">

@@ -27,10 +27,10 @@ public class IgnoreList {
   
   private final Map<Integer, String> ignoreList;
 
-  public static Map<Integer, String> getIgnoreList(Connection db, String nick) throws SQLException {
-    PreparedStatement pst = db.prepareStatement("SELECT a.ignored,b.nick FROM ignore_list a, users b WHERE a.userid=(SELECT id FROM users WHERE nick=?) AND b.id=a.ignored");
+  public static Map<Integer, String> getIgnoreList(Connection db, int userid) throws SQLException {
+    PreparedStatement pst = db.prepareStatement("SELECT a.ignored,b.nick FROM ignore_list a, users b WHERE a.userid=? AND b.id=a.ignored");
     pst.clearParameters();
-    pst.setString(1, nick);
+    pst.setInt(1, userid);
     ResultSet rs = pst.executeQuery();
     Map<Integer, String> cignored = new HashMap<Integer, String>();
 

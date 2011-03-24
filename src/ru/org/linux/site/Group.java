@@ -304,5 +304,9 @@ public class Group {
   public String getArchiveLink(int year, int month) {
     return getUrl() +year+ '/' +month+ '/';
   }
+
+  public void setTitle(String title) {
+    this.title = title;
+  }
 }
 

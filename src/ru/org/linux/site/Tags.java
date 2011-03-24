@@ -23,22 +23,13 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.regex.Pattern;
 
-import gnu.regexp.RE;
-import gnu.regexp.REException;
 import org.apache.commons.lang.StringUtils;
 
 public class Tags implements Serializable {
-  private static final RE tagRE;  
-  
-  static {
-    try {
-      tagRE = new RE("([\\w\\ \\+-]+)", RE.REG_ICASE);
-    } catch (REException e) {
-      throw new RuntimeException(e);
-    }
-  }                          
-  
+  private static final Pattern tagRE = Pattern.compile("([\\p{L}\\d \\+-]+)", Pattern.CASE_INSENSITIVE);
+
   private final List<String> tags;
   private static final int TOP_TAGS_COUNT = 50;
 
@@ -88,37 +79,29 @@ public class Tags implements Serializable {
 
   @Override
   public String toString() {
-    if (tags==null || tags.isEmpty()) {
-      return "";
-    }
-    String str = "";
-
-    for (String tag : tags) {
-      str += (str.length() > 0 ? "," : "") + tag;
-    }
-    
-    return str;
+    return toString(tags);
   }
 
   public static String toString(List<String> tags) {
     if (tags==null || tags.isEmpty()) {
       return "";
     }
-    String str = "";
+
+    StringBuilder str = new StringBuilder();
 
     for (String tag : tags) {
-      str += (str.length() > 0 ? "," : "") + tag;
+      str.append(str.length() > 0 ? "," : "").append(tag);
     }
 
-    return str;
+    return str.toString();
   }
 
   public List<String> getTags() {
     return tags;
   }
 
-  public static Set<String> getTopTags(Connection con) throws SQLException {
-    Set<String> set = new TreeSet<String>();
+  public static SortedSet<String> getTopTags(Connection con) throws SQLException {
+    SortedSet<String> set = new TreeSet<String>();
     PreparedStatement st = con.prepareStatement("SELECT counter,value FROM tags_values WHERE counter>1 ORDER BY counter DESC LIMIT " + TOP_TAGS_COUNT);
     ResultSet rs = st.executeQuery();
 
@@ -147,7 +130,7 @@ public class Tags implements Serializable {
 
   public static void checkTag(String tag) throws UserErrorException {
     // обработка тега: только буквы/цифры/пробелы, никаких спецсимволов, запятых, амперсандов и <>
-    if (!tagRE.isMatch(tag)) {
+    if (!tagRE.matcher(tag).matches()) {
       throw new UserErrorException("Invalid tag: '"+tag+ '\'');
     }
   }
@@ -204,6 +187,7 @@ public class Tags implements Serializable {
     return new ArrayList<String>(tagSet);
   }
 
+  // TODO: move to JSP
   public static String getEditTags(Collection<String> tags) {
     StringBuilder out = new StringBuilder();
     boolean first = true;

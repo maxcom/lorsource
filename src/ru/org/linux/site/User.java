@@ -15,7 +15,6 @@
 
 package ru.org.linux.site;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.net.URLEncoder;
 import java.sql.*;
@@ -27,12 +26,15 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import ru.org.linux.spring.LoginController;
-import ru.org.linux.spring.SearchQueueSender;
-import ru.org.linux.spring.commons.CacheProvider;
 import ru.org.linux.util.StringUtil;
 
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Element;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.solr.client.solrj.SolrServerException;
+import org.jasypt.exceptions.EncryptionOperationNotPossibleException;
+import org.jasypt.util.password.BasicPasswordEncryptor;
+import org.jasypt.util.password.PasswordEncryptor;
 import org.springframework.jdbc.support.JdbcUtils;
 
 public class User implements Serializable {
@@ -56,9 +58,9 @@ public class User implements Serializable {
   private final boolean activated;
   public static final int CORRECTOR_SCORE = 100;
   private static final int BLOCK_MAX_SCORE = 400;
-
-  private static final int CACHE_MILLIS = 300*1000;
   private static final int BLOCK_SCORE = 200;
+  public static final int VIEW_DELETED_SCORE = 100;
+
   public static final int MAX_NICK_LENGTH = 40;
 
   private static final long serialVersionUID = 69986652856916540L;
@@ -156,13 +158,27 @@ public class User implements Serializable {
       throw new BadPasswordException(nick);
     }
 
-    if (password==null || !password.equals(this.password)) {
+    if (password==null) {
+      throw new BadPasswordException(nick);
+    }
+
+    if (anonymous && password.isEmpty()) {
+      return;
+    }
+
+    if (!matchPassword(password)) {
       throw new BadPasswordException(nick);
     }
   }
 
   public boolean matchPassword(String password) {
-    return password.equals(this.password);
+    PasswordEncryptor encryptor = new BasicPasswordEncryptor();
+
+    try {
+      return encryptor.checkPassword(password, this.password);
+    } catch (EncryptionOperationNotPossibleException ex) {
+      return false;
+    }
   }
 
   public void checkAnonymous() throws AccessViolationException {
@@ -217,6 +233,10 @@ public class User implements Serializable {
     return canmod;
   }
 
+  public boolean isAdministrator() {
+    return candel;
+  }
+
   public boolean canCorrect() {
     return corrector && score>= CORRECTOR_SCORE;
   }
@@ -230,7 +250,15 @@ public class User implements Serializable {
   }
 
   public String getActivationCode(String base) {
-    return StringUtil.md5hash(base + ':' + nick + ':' + password);
+    return getActivationCode(base, nick, email);
+  }
+
+  public String getActivationCode(String base, String email) {
+    return StringUtil.md5hash(base + ':' + nick + ':' + email);
+  }
+
+  public static String getActivationCode(String base, String nick, String email) {
+    return StringUtil.md5hash(base + ':' + nick + ':' + email);
   }
 
   public int getScore() {
@@ -351,14 +379,24 @@ public class User implements Serializable {
     }
   }
 
-  public void resetPassword(Connection db) throws SQLException {
+  public String resetPassword(Connection db) throws SQLException {
     String password = StringUtil.generatePassword();
+
+    setPassword(db, password);
+
+    return password;
+  }
+
+  public void setPassword(Connection db, String password) throws SQLException {
+    PasswordEncryptor encryptor = new BasicPasswordEncryptor();
+
+    String encryptedPassword = encryptor.encryptPassword(password);
 
     PreparedStatement st = null;
 
     try {
-      st = db.prepareStatement("UPDATE users SET passwd=? WHERE id=?");
-      st.setString(1, password);
+      st = db.prepareStatement("UPDATE users SET passwd=?,lostpwd = 'epoch' WHERE id=?");
+      st.setString(1, encryptedPassword);
       st.setInt(2, id);
       st.executeUpdate();
 
@@ -370,7 +408,7 @@ public class User implements Serializable {
     }
   }
 
-  public List<Integer> deleteAllComments(Connection db, User moderator, SearchQueueSender searchQueueSender) throws SQLException, ScriptErrorException, IOException, SolrServerException {
+  public List<Integer> deleteAllComments(Connection db, User moderator) throws SQLException, ScriptErrorException {
     Statement st = null;
     ResultSet rs = null;
     CommentDeleter deleter = null;
@@ -431,14 +469,14 @@ public class User implements Serializable {
   }
 
   public static User getUser(Connection con, String name) throws SQLException, UserNotFoundException {
-    CacheProvider mcc = MemCachedSettings.getCache();
+    Cache cache = CacheManager.create().getCache("Users");
 
     User user = new User(con, name);
 
     String cacheId = "User?id="+ user.id;
 
-    mcc.storeToCache(cacheId, user, CACHE_MILLIS);
-
+    cache.put(new Element(cacheId, user));
+    
     return user;
   }
 
@@ -451,19 +489,23 @@ public class User implements Serializable {
   }
 
   private static User getUser(Connection db, int id, boolean useCache) throws SQLException, UserNotFoundException {
-    CacheProvider mcc = MemCachedSettings.getCache();
+    Cache cache = CacheManager.create().getCache("Users");
 
     String cacheId = "User?id="+id;
 
     User res = null;
 
     if (useCache) {
-      res = (User) mcc.getFromCache(cacheId);
+      Element element = cache.get(cacheId);
+      
+      if (element!=null) {
+        res = (User) element.getObjectValue();
+      }
     }
 
     if (res==null) {
       res = new User(db, id);
-      mcc.storeToCache(cacheId, res, CACHE_MILLIS);
+      cache.put(new Element(cacheId, res));
     }
 
     return res;
@@ -476,7 +518,7 @@ public class User implements Serializable {
   public void acegiSecurityHack(HttpServletResponse response, HttpSession session) {
     String username = nick;
     //String cookieName = "ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE"; //ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE_KEY;
-    String cookieName = LoginController.ACEGE_COOKIE_NAME; //ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE_KEY;
+    String cookieName = LoginController.ACEGI_COOKIE_NAME; //ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE_KEY;
     long tokenValiditySeconds = 1209600; // 14 days
     String key = "jam35Wiki"; // from applicationContext-acegi-security.xml
     long expiryTime = System.currentTimeMillis() + (tokenValiditySeconds * 1000);

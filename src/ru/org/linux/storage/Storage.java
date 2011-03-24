@@ -18,9 +18,7 @@ package ru.org.linux.storage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-
-import gnu.regexp.RE;
-import gnu.regexp.REException;
+import java.util.regex.Pattern;
 
 public abstract class Storage {
   public InputStream getReadStream(String domain, String msgid) throws StorageException {
@@ -33,25 +31,15 @@ public abstract class Storage {
     return getWriteStreamImpl(domain, msgid);
   }
 
-// private
-private static final RE DOMAIN_CHECK_RE;
-  private static final RE NAME_CHECK_RE;
-
-  static {
-    try {
-      DOMAIN_CHECK_RE = new RE("[a-z]*");
-      NAME_CHECK_RE = new RE("([_a-z][a-z0-9_-]*)|([0-9]*)", RE.REG_ICASE);
-    } catch (REException e) {
-      throw new RuntimeException(e);
-    }
-  }
+  private static final Pattern DOMAIN_CHECK_RE = Pattern.compile("[a-z]*");
+  private static final Pattern NAME_CHECK_RE = Pattern.compile("([_a-z][a-z0-9_-]*)|([0-9]*)", Pattern.CASE_INSENSITIVE);
 
   private static void check(String domain, String msgid) throws StorageException {
-    if (!DOMAIN_CHECK_RE.isMatch(domain)) {
+    if (!DOMAIN_CHECK_RE.matcher(domain).matches()) {
       throw new StorageBadDomainException(domain);
     }
 
-    if (!NAME_CHECK_RE.isMatch(msgid)) {
+    if (!NAME_CHECK_RE.matcher(msgid).matches()) {
       throw new StorageBadMsgidException(msgid);
     }
   }

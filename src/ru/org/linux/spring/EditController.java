@@ -24,7 +24,6 @@ import java.util.Map;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 
 import ru.org.linux.site.*;
 
@@ -153,6 +152,10 @@ public class EditController extends ApplicationObjectSupport {
 
     params.put("commit", false);
 
+    if (group.isModerated()) {
+      params.put("topTags", Tags.getTopTags(db));
+    }
+
     return new ModelAndView("edit", params);
   }
 
@@ -164,9 +167,7 @@ public class EditController extends ApplicationObjectSupport {
     @RequestParam(value="bonus", required=false, defaultValue="3") int bonus,
     @RequestParam(value="chgrp", required=false) Integer changeGroupId
   ) throws Exception {
-
     Template tmpl = Template.getTemplate(request);
-    HttpSession session = request.getSession();
 
     if (!tmpl.isSessionAuthorized()) {
       throw new AccessViolationException("Not authorized");
@@ -187,6 +188,10 @@ public class EditController extends ApplicationObjectSupport {
 
       Group group = new Group(db, message.getGroupId());
       params.put("group", group);
+
+      if (group.isModerated()) {
+        params.put("topTags", Tags.getTopTags(db));
+      }      
 
       params.put("groups", Group.getGroups(db, message.getSection()));
 
@@ -320,7 +325,7 @@ public class EditController extends ApplicationObjectSupport {
 
         if (modified || messageModified || modifiedTags || commit) {
           if (modified || messageModified || modifiedTags) {
-            logger.info("сообщение " + message.getId() + " исправлено " + session.getValue("nick"));
+            logger.info("сообщение " + message.getId() + " исправлено " + user.getNick());
           }
 
           searchQueueSender.updateMessageOnly(newMsg.getId());

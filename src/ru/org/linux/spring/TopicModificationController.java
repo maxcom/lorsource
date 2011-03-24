@@ -20,6 +20,8 @@ import java.sql.PreparedStatement;
 import java.sql.Statement;
 
 import javax.servlet.ServletRequest;
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.context.support.ApplicationObjectSupport;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -272,4 +274,91 @@ public class TopicModificationController extends ApplicationObjectSupport {
       }
     }
   }
+
+  @RequestMapping(value = "/uncommit.jsp", method = RequestMethod.GET)
+  public ModelAndView uncommitForm(
+    HttpServletRequest request,
+    @RequestParam int msgid
+  ) throws Exception {
+    Template tmpl = Template.getTemplate(request);
+
+    if (!tmpl.isModeratorSession()) {
+      throw new AccessViolationException("Not authorized");
+    }
+
+    Connection db = null;
+    try {
+      db = LorDataSource.getConnection();
+      tmpl.initCurrentUser(db);
+
+      Message message = new Message(db, msgid);
+
+      checkUncommitable(message);
+
+      ModelAndView mv = new ModelAndView("uncommit");
+      mv.getModel().put("message", message);
+      mv.getModel().put("preparedMessage", new PreparedMessage(db, message, true));
+
+      return mv;
+    } finally {
+      if (db != null) {
+        db.close();
+      }
+    }
+  }
+
+  @RequestMapping(value="/uncommit.jsp", method=RequestMethod.POST)
+  public ModelAndView undelete(
+    HttpServletRequest request,
+    @RequestParam int msgid
+  ) throws Exception {
+    Template tmpl = Template.getTemplate(request);
+
+    if (!tmpl.isModeratorSession()) {
+      throw new AccessViolationException("Not authorized");
+    }
+
+    Connection db = null;
+    try {
+      db = LorDataSource.getConnection();
+      db.setAutoCommit(false);
+      tmpl.initCurrentUser(db);
+
+      Message message = new Message(db, msgid);
+
+      checkUncommitable(message);
+
+      PreparedStatement st1 = db.prepareStatement("UPDATE topics SET moderate='f',commitby=NULL,commitdate=NULL WHERE id=?");
+      st1.setInt(1, msgid);
+
+      st1.executeUpdate();
+
+      logger.info("Отменено подтверждение сообщения " + msgid + " пользователем " + tmpl.getNick());
+
+      st1.close();
+
+      db.commit();
+
+      return new ModelAndView("action-done", "message", "Подтверждение отменено");
+    } finally {
+      if (db != null) {
+        db.close();
+      }
+    }
+  }
+
+  private static void checkUncommitable(Message message) throws AccessViolationException {
+    if (message.isExpired()) {
+      throw new AccessViolationException("нельзя восстанавливать устаревшие сообщения");
+    }
+
+    if (message.isDeleted()) {
+      throw new AccessViolationException("сообщение удалено");
+    }
+
+    if (!message.isCommited()) {
+      throw new AccessViolationException("сообщение не подтверждено");
+    }
+  }
+
 }

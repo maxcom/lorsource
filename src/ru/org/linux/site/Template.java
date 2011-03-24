@@ -249,6 +249,10 @@ public final class Template {
     return config.getProperties().getProperty(PROPERTY_MAIN_URL);
   }
 
+  public String getSecureMainUrl() {
+    return config.getProperties().getProperty(PROPERTY_MAIN_URL).replaceFirst("http", "https");
+  }
+
   public Config getObjectConfig() {
     return config;
   }

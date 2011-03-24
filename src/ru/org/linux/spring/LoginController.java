@@ -15,15 +15,16 @@
 
 package ru.org.linux.spring;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.Collections;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+
+import org.jasypt.util.password.BasicPasswordEncryptor;
+import org.jasypt.util.password.PasswordEncryptor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -36,7 +37,7 @@ import ru.org.linux.util.StringUtil;
 
 @Controller
 public class LoginController {
-  public static final String ACEGE_COOKIE_NAME = "SPRING_SECURITY_REMEMBER_ME_COOKIE";
+  public static final String ACEGI_COOKIE_NAME = "SPRING_SECURITY_REMEMBER_ME_COOKIE";
 
   private static boolean isAjax(HttpServletRequest request) {
     String header = request.getHeader("X-Requested-With");
@@ -44,13 +45,17 @@ public class LoginController {
     return header != null && "XMLHttpRequest".equals(header);
   }
 
-  @RequestMapping(value="/login.jsp", method= RequestMethod.GET)
+  @RequestMapping(value = "/login.jsp", method = RequestMethod.GET)
   public ModelAndView loginForm() {
     return new ModelAndView("login-form");
   }
 
   @RequestMapping(value = "/login.jsp", method = RequestMethod.POST)
-  public ModelAndView doLogin(HttpServletRequest request, HttpServletResponse response) throws Exception {
+  public ModelAndView doLogin(
+    HttpServletRequest request,
+    HttpServletResponse response,
+    @RequestParam(required = false) String activation
+  ) throws Exception {
     Connection db = null;
     Template tmpl = Template.getTemplate(request);
     HttpSession session = request.getSession();
@@ -72,9 +77,9 @@ public class LoginController {
 
       User user = User.getUser(db, nick);
 
-      if (!user.isActivated()) {
-        String activation = request.getParameter("activate");
+      user.checkAnonymous();
 
+      if (!user.isActivated()) {
         if (activation == null) {
           return new ModelAndView(ajax ? "login-xml" : "login-form", Collections.singletonMap("error", "Требуется активация"));
         }
@@ -93,15 +98,13 @@ public class LoginController {
         }
       }
 
-      user.checkAnonymous();
-
       String password = request.getParameter("passwd");
-      if (password==null || !user.matchPassword(password)) {
+      if (password == null || !user.matchPassword(password)) {
         return new ModelAndView(ajax ? "login-xml" : "login-form", Collections.singletonMap("error", "Неверный пароль"));
       }
 
       if (session == null) {
-        throw new BadInputException("не удалось открыть сессию; созможно отсутствует поддержка Cookie");
+        throw new BadInputException("не удалось открыть сессию; возможно отсутствует поддержка Cookie");
       }
 
       performLogin(response, db, tmpl, session, user);
@@ -120,22 +123,17 @@ public class LoginController {
     }
   }
 
-  @RequestMapping(value="/activate.jsp", method= RequestMethod.GET)
-  public ModelAndView activateForm() {
-    return new ModelAndView("activate");
-  }
-
   @RequestMapping(value = "/logout.jsp", method = RequestMethod.GET)
   public ModelAndView logout(
     HttpServletRequest request,
     HttpSession session,
     HttpServletResponse response,
-    @RequestParam(required=false) String sessionId
-  )  {
+    @RequestParam(required = false) String sessionId
+  ) {
     Template tmpl = Template.getTemplate(request);
 
     if (tmpl.isSessionAuthorized()) {
-      if (sessionId==null || !session.getId().equals(sessionId)) {
+      if (sessionId == null || !session.getId().equals(sessionId)) {
         return new ModelAndView("logout");
       }
 
@@ -153,7 +151,7 @@ public class LoginController {
       cookie2.setPath("/");
       response.addCookie(cookie2);
 
-      Cookie cookie3 = new Cookie(ACEGE_COOKIE_NAME, "");
+      Cookie cookie3 = new Cookie(ACEGI_COOKIE_NAME, "");
       cookie3.setMaxAge(60 * 60 * 24 * 31 * 24);
       cookie3.setPath("/wiki");
       response.addCookie(cookie3);
