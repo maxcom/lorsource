@@ -54,6 +54,13 @@
     <option value="topics" <%= (include==SearchViewer.SEARCH_TOPICS)?"selected":"" %>>только темы</option>
     <option value="all" <%= (include==SearchViewer.SEARCH_ALL)?"selected":"" %>>темы и комментарии</option>
   </select>
+  <label for="id_noinclude_title">Не искать по заголовкам сообщений</label>
+    <c:if test="${noinclude_title}">
+      <INPUT type="checkbox" id="id_noinclude_title" NAME="noinclude_title" checked><br>
+    </c:if>
+    <c:if test="${!noinclude_title}">
+      <INPUT type="checkbox" id="id_noinclude_title" NAME="noinclude_title"><br>
+    </c:if>
 
   <label>За:
   <select name="date">

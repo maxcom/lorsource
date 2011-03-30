@@ -61,6 +61,7 @@ public class SearchViewer {
 
   private final String query;
   private int include = SEARCH_ALL;
+  private boolean noincludeTitle = false;
   private SearchInterval interval = DEFAULT_INTERVAL;
   private int section = 0;
   private int sort = SORT_R;
@@ -78,7 +79,13 @@ public class SearchViewer {
     // set search query params
     params.set("q", query);
     params.set("rows", 100);
-    params.set("qt", "dismax");
+
+    if(noincludeTitle){
+      params.set("qt", "dismax-message");
+    }else{
+      params.set("qt", "dismax");
+    }
+
     if(include != SEARCH_ALL){
       params.add("fq","is_comment:false");      
     }
@@ -111,8 +118,9 @@ public class SearchViewer {
     return search.query(params);
   }
 
-  public void setInclude(int include) {
+  public void setInclude(int include, boolean noinclude_title) {
     this.include = include;
+    this.noincludeTitle = noinclude_title;
   }
 
   public void setInterval(SearchInterval interval) {
