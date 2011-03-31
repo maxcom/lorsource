@@ -15,6 +15,7 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
+<%--@elvariable id="message" type="ru.org.linux.site.Message"--%>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
 <title>Смена параметров сообщения</title>
@@ -33,20 +34,25 @@
 <form method=POST action="setpostscore.jsp">
   <input type=hidden name=msgid value="${message.id}">
   <br>
-  Текущий уровень
-  записи: <%= (postscore < 0 ? "только для модераторов" : Integer.toString(postscore)) %>
+  <label>
+  Ограничение комментирования:
+
   <select name="postscore">
-    <option value="0">0 - без ограничений</option>
-    <option value="50">50 - для зарегистрированных</option>
-    <option value="100">100 - одна "звезда"</option>
-    <option value="200">200 - две "звезды"</option>
-    <option value="300">300 - три "звезды"</option>
-    <option value="400">400 - четыре "звезды"</option>
-    <option value="500">500 - пять "звезд"</option>
-    <option value="-1">только для модераторов</option>
-  </select><br>
-  Прикрепить сообщение <input type=checkbox name="sticky" <%= sticky?"checked":"" %>><br>
-  Удалить из top10 <input type=checkbox name="notop" <%= notop?"checked":"" %>><br>
+    <option <%= postscore==Message.POSTSCORE_UNRESTRICTED?"selected":"" %> value="<%= Message.POSTSCORE_UNRESTRICTED %>">без ограничений</option>
+    <option <%= postscore==Message.POSTSCORE_REGISTERED_ONLY?"selected":"" %> value="<%= Message.POSTSCORE_REGISTERED_ONLY %>">для зарегистрированных</option>
+    <option <%= postscore==50?"selected":"" %> value="50">score>=50</option>
+    <option <%= postscore==100?"selected":"" %> value="100">100 - одна "звезда"</option>
+    <option <%= postscore==200?"selected":"" %> value="200">200 - две "звезды"</option>
+    <option <%= postscore==300?"selected":"" %> value="300">300 - три "звезды"</option>
+    <option <%= postscore==400?"selected":"" %> value="400">400 - четыре "звезды"</option>
+    <option <%= postscore==500?"selected":"" %> value="500">500 - пять "звезд"</option>
+    <option <%= postscore==Message.POSTSCORE_MOD_AUTHOR?"selected":"" %> value="<%= Message.POSTSCORE_MOD_AUTHOR%>">только для модераторов и автора</option>
+    <option <%= postscore==Message.POSTSCORE_MODERATORS_ONLY?"selected":"" %> value="<%= Message.POSTSCORE_MODERATORS_ONLY%>">только для модераторов</option>
+  </select>
+    </label>
+    <br>
+  <label>Прикрепить сообщение <input type=checkbox name="sticky" <%= sticky?"checked":"" %>></label><br>
+  <label>Удалить из top10 <input type=checkbox name="notop" <%= notop?"checked":"" %>></label><br>
   <input type=submit value="Изменить">
 </form>
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>

@@ -68,51 +68,62 @@ public class Message implements Serializable {
   private final Section section;
 
   private static final long serialVersionUID = 807240555706110851L;
+  public static final int POSTSCORE_MOD_AUTHOR = 9999;
+  public static final int POSTSCORE_UNRESTRICTED = -9999;
+  public static final int POSTSCORE_MODERATORS_ONLY = 10000;
+  public static final int POSTSCORE_REGISTERED_ONLY = -50;
 
   public Message(Connection db, int msgid) throws SQLException, MessageNotFoundException {
     this(db, null, msgid);
   }
 
   public Message(Connection db, SectionStore sectionStore, int msgid) throws SQLException, MessageNotFoundException {
-    Statement st=db.createStatement();
+    Statement st = db.createStatement();
 
-    ResultSet rs=st.executeQuery(
-        "SELECT " +
-            "postdate, topics.id as msgid, userid, topics.title, " +
-            "topics.groupid as guid, topics.url, topics.linktext, ua_id, " +
-            "groups.title as gtitle, urlname, vote, havelink, section, topics.sticky, topics.postip, " +
-            "postdate<(CURRENT_TIMESTAMP-sections.expire) as expired, deleted, lastmod, commitby, " +
-            "commitdate, topics.stat1, postscore, topics.moderate, message, notop,bbcode, " +
-            "topics.resolved, restrict_comments " +
-            "FROM topics " +
-            "INNER JOIN groups ON (groups.id=topics.groupid) " +
-            "INNER JOIN sections ON (sections.id=groups.section) " +
-            "INNER JOIN msgbase ON (msgbase.id=topics.id) " +
-            "WHERE topics.id="+msgid
+    ResultSet rs = st.executeQuery(
+      "SELECT " +
+        "postdate, topics.id as msgid, userid, topics.title, " +
+        "topics.groupid as guid, topics.url, topics.linktext, ua_id, " +
+        "groups.title as gtitle, urlname, vote, havelink, section, topics.sticky, topics.postip, " +
+        "postdate<(CURRENT_TIMESTAMP-sections.expire) as expired, deleted, lastmod, commitby, " +
+        "commitdate, topics.stat1, postscore, topics.moderate, message, notop,bbcode, " +
+        "topics.resolved, restrict_comments " +
+        "FROM topics " +
+        "INNER JOIN groups ON (groups.id=topics.groupid) " +
+        "INNER JOIN sections ON (sections.id=groups.section) " +
+        "INNER JOIN msgbase ON (msgbase.id=topics.id) " +
+        "WHERE topics.id=" + msgid
     );
     if (!rs.next()) {
       throw new MessageNotFoundException(msgid);
     }
 
-    this.msgid=rs.getInt("msgid");
-    postscore =rs.getInt("postscore");
-    votepoll=rs.getBoolean("vote");
-    sticky=rs.getBoolean("sticky");
-    linktext=rs.getString("linktext");
-    url=rs.getString("url");
+    this.msgid = rs.getInt("msgid");
+    int ps = rs.getInt("postscore");
+    
+    if (rs.wasNull()) {
+      postscore = POSTSCORE_UNRESTRICTED;
+    } else {
+      postscore = ps;
+    }
+
+    votepoll = rs.getBoolean("vote");
+    sticky = rs.getBoolean("sticky");
+    linktext = rs.getString("linktext");
+    url = rs.getString("url");
     userid = rs.getInt("userid");
-    title=StringUtil.makeTitle(rs.getString("title"));
-    guid=rs.getInt("guid");
-    deleted=rs.getBoolean("deleted");
-    expired= !sticky && rs.getBoolean("expired");
-    havelink=rs.getBoolean("havelink");
-    postdate=rs.getTimestamp("postdate");
-    commitDate=rs.getTimestamp("commitdate");
+    title = StringUtil.makeTitle(rs.getString("title"));
+    guid = rs.getInt("guid");
+    deleted = rs.getBoolean("deleted");
+    expired = !sticky && rs.getBoolean("expired");
+    havelink = rs.getBoolean("havelink");
+    postdate = rs.getTimestamp("postdate");
+    commitDate = rs.getTimestamp("commitdate");
     commitby = rs.getInt("commitby");
     groupTitle = rs.getString("gtitle");
     groupUrl = rs.getString("urlname");
     lastModified = rs.getTimestamp("lastmod");
-    sectionid =rs.getInt("section");
+    sectionid = rs.getInt("section");
     commentCount = rs.getInt("stat1");
     moderate = rs.getBoolean("moderate");
     message = rs.getString("message");
@@ -127,7 +138,7 @@ public class Message implements Serializable {
     st.close();
 
     try {
-      if (sectionStore==null) {
+      if (sectionStore == null) {
         section = new Section(db, sectionid);
       } else {
         section = sectionStore.getSection(sectionid);
@@ -138,25 +149,25 @@ public class Message implements Serializable {
   }
 
   public Message(SectionStore sectionStore, ResultSet rs) throws SQLException {
-    msgid=rs.getInt("msgid");
-    postscore =rs.getInt("postscore");
-    votepoll=rs.getBoolean("vote");
-    sticky=rs.getBoolean("sticky");
-    linktext=rs.getString("linktext");
-    url=rs.getString("url");
+    msgid = rs.getInt("msgid");
+    postscore = rs.getInt("postscore");
+    votepoll = rs.getBoolean("vote");
+    sticky = rs.getBoolean("sticky");
+    linktext = rs.getString("linktext");
+    url = rs.getString("url");
     userid = rs.getInt("userid");
-    title=StringUtil.makeTitle(rs.getString("title"));
-    guid=rs.getInt("guid");
-    deleted=rs.getBoolean("deleted");
-    expired= !sticky && rs.getBoolean("expired");
-    havelink=rs.getBoolean("havelink");
-    postdate=rs.getTimestamp("postdate");
-    commitDate=rs.getTimestamp("commitdate");
+    title = StringUtil.makeTitle(rs.getString("title"));
+    guid = rs.getInt("guid");
+    deleted = rs.getBoolean("deleted");
+    expired = !sticky && rs.getBoolean("expired");
+    havelink = rs.getBoolean("havelink");
+    postdate = rs.getTimestamp("postdate");
+    commitDate = rs.getTimestamp("commitdate");
     commitby = rs.getInt("commitby");
     groupTitle = rs.getString("gtitle");
     groupUrl = rs.getString("urlname");
     lastModified = rs.getTimestamp("lastmod");
-    sectionid =rs.getInt("section");
+    sectionid = rs.getInt("section");
     commentCount = rs.getInt("stat1");
     moderate = rs.getBoolean("moderate");
     message = rs.getString("message");
@@ -175,7 +186,7 @@ public class Message implements Serializable {
   }
 
   public Message(Connection db, AddMessageForm form, User user)
-      throws  SQLException, UtilException, ScriptErrorException, UserErrorException {
+    throws SQLException, UtilException, ScriptErrorException, UserErrorException {
     // Init fields
 
     userAgent = 0;
@@ -222,7 +233,7 @@ public class Message implements Serializable {
     notop = false;
     userid = user.getId();
     lorcode = true;
-    resolved=false;
+    resolved = false;
 
     message = form.processMessage(group);
 
@@ -241,13 +252,13 @@ public class Message implements Serializable {
     Group group = new Group(db, guid);
     groupCommentsRestriction = group.getCommentsRestriction();
 
-    if (request.getParameter("linktext")!=null) {
+    if (request.getParameter("linktext") != null) {
       linktext = request.getParameter("linktext");
     } else {
       linktext = original.linktext;
     }
 
-    if (request.getParameter("url")!=null) {
+    if (request.getParameter("url") != null) {
       url = request.getParameter("url");
     } else {
       url = original.url;
@@ -271,16 +282,16 @@ public class Message implements Serializable {
       }
     }
 
-    if (request.getParameter("title")!=null) {
+    if (request.getParameter("title") != null) {
       title = HTMLFormatter.htmlSpecialChars(request.getParameter("title"));
     } else {
       title = original.title;
     }
 
-    if (request.getParameter("resolve")!=null){
-        resolved = "yes".equals(request.getParameter("resolve"));
-    }else{
-        resolved = original.resolved;
+    if (request.getParameter("resolve") != null) {
+      resolved = "yes".equals(request.getParameter("resolve"));
+    } else {
+      resolved = original.resolved;
     }
 
     havelink = original.havelink;
@@ -305,7 +316,7 @@ public class Message implements Serializable {
     userid = original.userid;
     lorcode = original.lorcode;
 
-    if (request.getParameter("newmsg")!=null) {
+    if (request.getParameter("newmsg") != null) {
       message = request.getParameter("newmsg");
     } else {
       message = original.message;
@@ -339,7 +350,7 @@ public class Message implements Serializable {
   }
 
   public Timestamp getLastModified() {
-    if (lastModified==null) {
+    if (lastModified == null) {
       return new Timestamp(0);
     }
 
@@ -358,70 +369,67 @@ public class Message implements Serializable {
     return commentCount;
   }
 
-  private int getPostScoreOld() {
-    int totalPS = postscore;
+  private int getCommentCountRestriction() {
+    int commentCountPS = POSTSCORE_UNRESTRICTED;
 
-    if (section.getCommentPostscore()!=0) {
-      totalPS = Math.max(postscore, section.getCommentPostscore());
+    if (!sticky) {
+      if (commentCount > 3000) {
+        commentCountPS = 200;
+      } else if (commentCount > 2000) {
+        commentCountPS = 100;
+      } else if (commentCount > 1000) {
+        commentCountPS = 50;
+      }
     }
 
-    if (commentCount>3000 && totalPS < 200  && !sticky) {
-      return 200;
-    }
-
-    if (commentCount>2000 && totalPS < 100  && !sticky) {
-      return 100;
-    }
-
-    if (commentCount>1000 && totalPS < 50 && !sticky) {
-      return 50;
-    }
-
-    return totalPS;
+    return commentCountPS;
   }
 
   public int getPostScore() {
-    if (postscore==-1 || groupCommentsRestriction==-1) {
-      return -1;
-    }
+    int effective = Math.max(postscore, groupCommentsRestriction);
 
-    int totalPS = getPostScoreOld();
+    effective = Math.max(effective, section.getCommentPostscore());
 
-    if (groupCommentsRestriction!=0) {
-      if (totalPS!=0) {
-        return Math.max(totalPS, groupCommentsRestriction);
-      } else {
-        return groupCommentsRestriction;
-      }
-    } else {
-      return totalPS; 
-    }
+    effective = Math.max(effective, getCommentCountRestriction());
+
+    return effective;
   }
 
   public String getPostScoreInfo() {
     return getPostScoreInfo(getPostScore());
   }
 
+  public static String getPostScoreInfoFull(int postscore) {
+    String info = getPostScoreInfo(postscore);
+    if (info.isEmpty()) {
+      return "без ограничений";
+    } else {
+      return info;
+    }
+  }
+
   public static String getPostScoreInfo(int postscore) {
     switch (postscore) {
-      case 0:
+      case POSTSCORE_UNRESTRICTED:
         return "";
       case 100:
-        return "<b>Ограничение на отправку комментариев</b>: "+ User.getStars(100, 100);
+        return "<b>Ограничение на отправку комментариев</b>: " + User.getStars(100, 100);
       case 200:
-        return "<b>Ограничение на отправку комментариев</b>: "+ User.getStars(200, 200);
+        return "<b>Ограничение на отправку комментариев</b>: " + User.getStars(200, 200);
       case 300:
-        return "<b>Ограничение на отправку комментариев</b>: "+ User.getStars(300, 300);
+        return "<b>Ограничение на отправку комментариев</b>: " + User.getStars(300, 300);
       case 400:
-        return "<b>Ограничение на отправку комментариев</b>: "+ User.getStars(400, 400);
+        return "<b>Ограничение на отправку комментариев</b>: " + User.getStars(400, 400);
       case 500:
-        return "<b>Ограничение на отправку комментариев</b>: "+ User.getStars(500, 500);
-      case -1:
+        return "<b>Ограничение на отправку комментариев</b>: " + User.getStars(500, 500);
+      case POSTSCORE_MOD_AUTHOR:
+        return "<b>Ограничение на отправку комментариев</b>: только для модераторов и автора";
+      case POSTSCORE_MODERATORS_ONLY:
         return "<b>Ограничение на отправку комментариев</b>: только для модераторов";
-      case -50:
+      case POSTSCORE_REGISTERED_ONLY:
         return "<b>Ограничение на отправку комментариев</b>: только для зарегистрированных пользователей";
       default:
-        return "<b>Ограничение на отправку комментариев</b>: только для зарегистрированных пользователей, score>="+postscore;
+        return "<b>Ограничение на отправку комментариев</b>: только для зарегистрированных пользователей, score>=" + postscore;
     }
   }
 
@@ -522,11 +530,11 @@ public class Message implements Serializable {
   }
 
   public int getPageCount(int messages) {
-    return (int) Math.ceil(commentCount/((double) messages));
+    return (int) Math.ceil(commentCount / ((double) messages));
   }
 
   public static int getPageCount(int commentCount, int messages) {
-    return (int) Math.ceil(commentCount/((double) messages));
+    return (int) Math.ceil(commentCount / ((double) messages));
   }
 
   public boolean isVotePoll() {
@@ -571,11 +579,11 @@ public class Message implements Serializable {
     throws SQLException, UtilException, IOException, BadImageException, InterruptedException, ScriptErrorException {
 
     Group group = new Group(db, guid);
-	
+
     int msgid = allocateMsgid(db);
 
     if (group.isImagePostAllowed()) {
-      if (previewImagePath==null) {
+      if (previewImagePath == null) {
         throw new ScriptErrorException("previewImagePath==null!?");
       }
 
@@ -622,18 +630,18 @@ public class Message implements Serializable {
       rs.next();
       return rs.getInt("msgid");
     } finally {
-      if (rs!=null) {
+      if (rs != null) {
         rs.close();
       }
 
-      if (st!=null) {
+      if (st != null) {
         st.close();
       }
     }
   }
 
   public boolean isCommentsAllowed(User user) {
-    if (user!=null && user.isBlocked()) {
+    if (user != null && user.isBlocked()) {
       return false;
     }
 
@@ -641,27 +649,33 @@ public class Message implements Serializable {
       return false;
     }
 
-    if (user!=null && !user.isAnonymous() && user.getId()==userid) {
+    int score = getPostScore();
+
+    if (score == POSTSCORE_UNRESTRICTED) {
       return true;
     }
 
-    int score = getPostScore();
-
-    if (score!=0) {
-      if (user==null || user.isAnonymous()) {
-        return false;
-      }
-
-      if (score == -1 && !user.canModerate()) {
-        return false;
-      }
-
-      if (user.getScore() < score) {
-        return false;
-      }
+    if (user == null || user.isAnonymous()) {
+      return false;
     }
 
-    return true;
+    if (user.canModerate()) {
+      return true;
+    }
+
+    if (score == POSTSCORE_REGISTERED_ONLY) {
+      return true;
+    }
+
+    if (score == POSTSCORE_MODERATORS_ONLY) {
+      return false;
+    }
+
+    if (score == POSTSCORE_MOD_AUTHOR) {
+      return user.getId() == userid;
+    }
+
+    return user.getScore() >= score;
   }
 
   public void checkCommentsAllowed(User user) throws AccessViolationException {
@@ -675,16 +689,8 @@ public class Message implements Serializable {
       throw new AccessViolationException("Сообщение уже устарело");
     }
 
-    if (!user.isAnonymous() && user.getId()==userid) {
-      return;
-    }
-
-    int score = getPostScore();
-
-    if (score != 0) {
-      if (user.getScore() < score || user.isAnonymous() || (score == -1 && !user.canModerate())) {
-        throw new AccessViolationException("Вы не можете добавлять комментарии в эту тему");
-      }
+    if (!isCommentsAllowed(user)) {
+      throw new AccessViolationException("Вы не можете добавлять комментарии в эту тему");
     }
   }
 
@@ -700,7 +706,7 @@ public class Message implements Serializable {
     if (expired) {
       return getLink();
     } else {
-      return getLink()+"?lastmod="+getLastModified().getTime();
+      return getLink() + "?lastmod=" + getLastModified().getTime();
     }
   }
 
@@ -732,9 +738,9 @@ public class Message implements Serializable {
     if (lorcode) {
       BBCodeProcessor proc = new BBCodeProcessor();
       proc.setIncludeCut(includeCut);
-      return proc.preparePostText(db, message);      
+      return proc.preparePostText(db, message);
     } else {
-      return "<p>"+message;
+      return "<p>" + message;
     }
   }
 
@@ -783,7 +789,7 @@ public class Message implements Serializable {
         list.add(dto);
       }
 
-      if (list==null) {
+      if (list == null) {
         return Collections.emptyList();
       }
 
@@ -793,8 +799,8 @@ public class Message implements Serializable {
     }
   }
 
-  public boolean isResolved(){
-      return resolved;
+  public boolean isResolved() {
+    return resolved;
   }
 
   public void resolveMessage(Connection db, boolean b) throws SQLException {
@@ -805,19 +811,19 @@ public class Message implements Serializable {
   }
 
   public String getLink() {
-    return Section.getSectionLink(sectionid) + groupUrl+ '/' +msgid;
+    return Section.getSectionLink(sectionid) + groupUrl + '/' + msgid;
   }
 
   public String getLinkPage(int page) {
-    if (page==0) {
+    if (page == 0) {
       return getLink();
     }
-    
-    return Section.getSectionLink(sectionid) + groupUrl+ '/' +msgid+"/page"+page;
+
+    return Section.getSectionLink(sectionid) + groupUrl + '/' + msgid + "/page" + page;
   }
 
   public void commit(Connection db, User commiter, int bonus) throws SQLException, UserErrorException {
-    if (bonus<0 || bonus>20) {
+    if (bonus < 0 || bonus > 20) {
       throw new UserErrorException("Неверное значение bonus");
     }
 
@@ -835,7 +841,7 @@ public class Message implements Serializable {
         throw new RuntimeException(e);
       }
 
-      if (author.getScore()<300) {
+      if (author.getScore() < 300) {
         author.changeScore(db, bonus);
       }
     } finally {

@@ -82,11 +82,16 @@ public class TopicModificationController extends ApplicationObjectSupport {
       notop = false;
     }
 
-    if (postscore < -1) {
-      postscore = 0;
+    if (postscore < Message.POSTSCORE_UNRESTRICTED) {
+      throw new UserErrorException("invalid postscore " + postscore);
     }
-    if (postscore > 500) {
-      postscore = 500;
+
+    if (postscore > Message.POSTSCORE_UNRESTRICTED && postscore < Message.POSTSCORE_REGISTERED_ONLY) {
+      throw new UserErrorException("invalid postscore " + postscore);
+    }
+
+    if (postscore > Message.POSTSCORE_MODERATORS_ONLY) {
+      throw new UserErrorException("invalid postscore " + postscore);
     }
 
     Connection db = null;
@@ -110,7 +115,7 @@ public class TopicModificationController extends ApplicationObjectSupport {
       StringBuilder out = new StringBuilder();
 
       if (msg.getPostScore() != postscore) {
-        out.append("Установлен новый уровень записи ").append(postscore < 0 ? "только для модераторов" : Integer.toString(postscore)).append("<br>");
+        out.append("Установлен новый уровень записи: ").append(Message.getPostScoreInfoFull(postscore)).append("<br>");
         logger.info("Установлен новый уровень записи " + postscore + " для " + msgid + " пользователем " + user.getNick());
       }
 
