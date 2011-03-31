@@ -32,7 +32,7 @@ public class PreparedComment {
 
     author = User.getUserCached(db, comment.getUserid());
 
-    processedMessage = getProcessedMessage(db, pst, comment);
+    String processedMessage = getProcessedMessage(db, pst, comment);
 
     if (comment.getReplyTo()!=0 && comments!=null) {
       CommentNode replyNode = comments.getNode(comment.getReplyTo());
@@ -47,6 +47,25 @@ public class PreparedComment {
     } else {
       replyAuthor = null;
     }
+
+//    if (comment.getPostdate().getTime()>new java.util.Date(2011,4,1).getTime()) {
+       if (author.getKarma()<0) {
+         switch (comment.getId()%10) {
+           case 9:
+             processedMessage = processedMessage.replaceFirst(", ", " <img src=\"/img/s1.gif\"> ");
+             break;
+           case 1:
+             processedMessage = processedMessage.replaceFirst(", ", " <img src=\"/img/s2.gif\"> ");
+             break;
+           case 2:
+             processedMessage = processedMessage.replaceFirst(", ", " <img src=\"/img/s3.gif\"> ");
+             break;
+         }
+       }
+//    }
+
+    this.processedMessage = processedMessage;
+
   }
 
   public PreparedComment(Connection db, Comment comment, String message) throws UserNotFoundException, SQLException {
@@ -74,7 +93,9 @@ public class PreparedComment {
 
     if (bbcode) {
       BBCodeProcessor proc = new BBCodeProcessor();
-      return proc.preparePostText(db, text);
+      String s = proc.preparePostText(db, text);
+
+      return s;
     } else {
       return "<p>"+text;
     }
