@@ -48,13 +48,13 @@ public class PreparedComment {
       replyAuthor = null;
     }
 
-    if (comment.getPostdate().getTime()>new java.util.Date(2011,4,1).getTime()) {
+    if (comment.getPostdate().getTime()>new java.util.Date(111,3,1).getTime()) {
        if (author.getKarma()<0) {
          switch (comment.getId()%10) {
            case 9:
              processedMessage = processedMessage.replaceFirst(", ", " <img src=\"/img/s1.gif\"> ");
              break;
-           case 1:
+           case 5:
              processedMessage = processedMessage.replaceFirst(", ", " <img src=\"/img/s2.gif\"> ");
              break;
            case 2:
