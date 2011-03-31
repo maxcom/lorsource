@@ -91,7 +91,7 @@
   <table width="100%" class="message-table">
     <thead>
     <tr>
-      <th>Форум</th>
+      <th>Группа</th>
       <th>Заголовок</th>
       <th>Последнее<br>сообщение</th>
       <th>Число ответов<br>всего/день/час</th>
