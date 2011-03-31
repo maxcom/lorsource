@@ -54,6 +54,8 @@ public class User implements Serializable {
   private final String email;
   private final String fullName;
   private final int unreadEvents;
+  private final int karma;
+  private final int karmaVotes;
 
   private final boolean activated;
   public static final int CORRECTOR_SCORE = 100;
@@ -75,7 +77,7 @@ public class User implements Serializable {
       throw new UserNotFoundException("<invalid name>");
     }
 
-    PreparedStatement st = con.prepareStatement("SELECT id,candel,canmod,corrector,passwd,blocked,score,max_score,activated,photo,email,name,unread_events FROM users where nick=?");
+    PreparedStatement st = con.prepareStatement("SELECT id,candel,canmod,corrector,passwd,blocked,score,max_score,activated,photo,email,name,unread_events, karma, karma_votes FROM users where nick=?");
     st.setString(1, name);
 
     ResultSet rs = st.executeQuery();
@@ -105,6 +107,8 @@ public class User implements Serializable {
     email = rs.getString("email");
 
     unreadEvents = rs.getInt("unread_events");
+    karma = rs.getInt("karma");
+    karmaVotes = rs.getInt("karma_votes");
 
     rs.close();
     st.close();
@@ -113,7 +117,7 @@ public class User implements Serializable {
   private User(Connection con, int id) throws SQLException, UserNotFoundException {
     this.id = id;
 
-    PreparedStatement st = con.prepareStatement("SELECT nick,score, max_score, candel,canmod,corrector,passwd,blocked,activated,photo,email,name,unread_events FROM users where id=?");
+    PreparedStatement st = con.prepareStatement("SELECT karma, karma_votes, nick,score, max_score, candel,canmod,corrector,passwd,blocked,activated,photo,email,name,unread_events FROM users where id=?");
     st.setInt(1, id);
 
     ResultSet rs = st.executeQuery();
@@ -140,9 +144,19 @@ public class User implements Serializable {
     photo=rs.getString("photo");
     email = rs.getString("email");
     unreadEvents = rs.getInt("unread_events");
+    karma = rs.getInt("karma");
+    karmaVotes = rs.getInt("karma_votes");
 
     rs.close();
     st.close();
+  }
+
+  public int getKarma() {
+    return karma;
+  }
+
+  public int getKarmaVotes() {
+    return karmaVotes;
   }
 
   public int getId() {

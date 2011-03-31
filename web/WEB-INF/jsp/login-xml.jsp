@@ -22,7 +22,7 @@
   </c:if>
 
   <c:if test="${ok!=null}">
-    <ok><c:out escapeXml="true" value="$ok"/></ok>
+    <ok><c:out escapeXml="true" value="${ok}"/></ok>
   </c:if>
 
 </login>

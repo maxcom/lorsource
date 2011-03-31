@@ -21,7 +21,9 @@ import java.io.OutputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.text.DateFormat;
+import java.util.Collections;
 import java.util.Properties;
+import java.util.Set;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
@@ -56,6 +58,7 @@ public final class Template {
   public static final String PROPERTY_MAIN_URL = "MainUrl";
 
   private final UAgentInfo userAgent;
+  private Set<Integer> karmaVotes = Collections.emptySet();
 
   public String getSecret() {
     return config.getProperties().getProperty("Secret");
@@ -327,9 +330,14 @@ public final class Template {
 
     try {
       currentUser = User.getUser(db, (String) session.getAttribute("nick"));
+      karmaVotes = KarmaVotes.getKarmaVotes(db, currentUser.getId());
     } catch (UserNotFoundException e) {
       throw new RuntimeException("Can't find currentUser!?", e);
     }
+  }
+
+  public Set<Integer> getKarmaVotes() {
+    return karmaVotes;
   }
 
   public User getCurrentUser()  {

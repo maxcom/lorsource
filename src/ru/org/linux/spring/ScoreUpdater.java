@@ -16,6 +16,7 @@
 package ru.org.linux.spring;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.sql.Statement;
 
 import ru.org.linux.site.LorDataSource;
@@ -55,6 +56,22 @@ public class ScoreUpdater {
 
       st.close();
 
+      db.commit();
+    } finally {
+      JdbcUtils.closeConnection(db);
+    }
+  }
+
+  @Scheduled(cron="0 * * * * *")
+  public void optimize() throws SQLException {
+    Connection db = LorDataSource.getConnection();
+
+    try {
+      db.setAutoCommit(false);
+      Statement st = db.createStatement();
+      st.executeUpdate("UPDATE users SET karma_votes = karma WHERE karma < 10");
+      st.executeUpdate("UPDATE users SET karma_votes = 10 WHERE karma>=10");
+      st.executeUpdate("DELETE FROM karma_voted");
       db.commit();
     } finally {
       JdbcUtils.closeConnection(db);

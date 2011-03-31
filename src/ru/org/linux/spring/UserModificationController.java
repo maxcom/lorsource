@@ -18,11 +18,9 @@ package ru.org.linux.spring;
 import java.net.URLEncoder;
 import java.sql.Connection;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -34,6 +32,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.support.ApplicationObjectSupport;
 import org.springframework.jdbc.support.JdbcUtils;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -190,6 +190,69 @@ public class UserModificationController extends ApplicationObjectSupport {
       if (db != null) {
         db.close();
       }
+    }
+  }
+  @RequestMapping(value="/karmaplus", method= RequestMethod.POST)
+  public ModelAndView karmaPlus(
+    HttpServletRequest request,
+    @RequestParam("id") int id
+  ) throws Exception {
+    return karma(request, id, 1);
+  }
+
+  @RequestMapping(value="/karmaminus", method= RequestMethod.POST)
+  public ModelAndView karmaMinus(
+    HttpServletRequest request,
+    @RequestParam("id") int id
+  ) throws Exception {
+    return karma(request, id, -1);
+  }
+
+  public ModelAndView karma(
+    HttpServletRequest request,
+    @RequestParam("id") int id,
+    int value
+  ) throws Exception {
+    Template tmpl = Template.getTemplate(request);
+
+    Connection db = LorDataSource.getConnection();
+
+    try {
+      db.setAutoCommit(false);
+
+      if (tmpl.getKarmaVotes().contains(id)) {
+        return new ModelAndView("login-xml", Collections.singletonMap("error", "нельзя повторно голосовать"));
+      }
+
+      User currentUser = tmpl.getCurrentUser();
+
+      if (id==currentUser.getId()) {
+        return new ModelAndView("login-xml", Collections.singletonMap("error", "нельзя голосовать за себя"));
+      }
+
+      if (currentUser.getKarmaVotes()<=0) {
+        return new ModelAndView("login-xml", Collections.singletonMap("error", "голоса закончились"));
+      }
+
+      Statement st = db.createStatement();
+
+      st.executeUpdate("INSERT INTO karma_voted VALUES ("+currentUser.getId()+","+id+")");
+
+      if (value>0) {
+        st.executeUpdate("UPDATE users SET karma=karma+1 WHERE id="+id);
+      } else {
+        st.executeUpdate("UPDATE users SET karma=karma-1 WHERE id="+id);
+      }
+
+      st.executeUpdate("UPDATE users SET karma_votes=karma_votes-1 WHERE id="+currentUser.getId());
+
+      User user = User.getUser(db, id);
+
+      db.commit();
+
+      return new ModelAndView("login-xml", Collections.singletonMap("ok", Integer.toString(user.getKarma())));
+    } finally {
+      JdbcUtils.closeConnection(db);
     }
   }
 }

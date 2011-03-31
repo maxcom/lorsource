@@ -1,3 +1,4 @@
+<%@ tag import="ru.org.linux.site.Template" %>
 <%@ tag
         pageEncoding="UTF-8"
 %><%--
@@ -25,6 +26,20 @@
 
 <c:if test="${not shortMode and not user.anonymous}">
   ${user.stars}
+
+  <c:if test="${template.sessionAuthorized}">
+    ( Карма: <span id="karma-${user.id}">${user.karma}</span>
+    <%
+      Template tmpl = Template.getTemplate(request);
+
+      if (!tmpl.getKarmaVotes().contains(user.getId()) && tmpl.getCurrentUser().getKarmaVotes()>0) {
+%>
+      <a id="karmaplus-${user.id}" xx="${user.id}" href="#">+</a>
+      <a id="karmaminus-${user.id}" xx="${user.id}" href="#">-</a>
+    <%
+      }
+    %>)
+  </c:if>
 
   <c:if test="${template.moderatorSession}">
     (Score: ${user.score} MaxScore: ${user.maxScore})

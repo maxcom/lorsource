@@ -84,6 +84,38 @@ $(document).ready(function() {
 
   $('#regform').ajaxForm(options);
 
+  $('a[id|="karmaplus"]').bind('click',
+          function(e) {
+            uid = this.getAttribute('xx');
+            $.post('/karmaplus', {id: uid}, function(data) {
+              if ($(data).find("error").length) {
+                alert($(data).find("error").text());
+              } else {
+                $('#karma-'+uid).html($(data).find("ok").text());
+                $('a[id|="karmaminus-'+uid+'"]').hide();
+                $('a[id|="karmaplus-'+uid+'"]').hide();
+              }
+            }, "xml");
+            return false;
+          }
+  );
+
+  $('a[id|="karmaminus"]').bind('click',
+          function(e) {
+            uid = this.getAttribute('xx');
+            $.post('/karmaminus', {id: uid}, function(data) {
+              if ($(data).find("error").length) {
+                alert($(data).find("error").text());
+              } else {
+                $('#karma-'+uid).html($(data).find("ok").text());
+                $('a[id|="karmaminus-'+uid+'"]').hide();
+                $('a[id|="karmaplus-'+uid+'"]').hide();
+              }
+            }, "xml");
+            return false;
+          }
+  );
+
   if (navigator.userAgent.indexOf('Opera Mini') == -1) {
     $('#loginbutton').bind('click', function(e) {
       $("#regmenu").fadeOut("fast", function() {
