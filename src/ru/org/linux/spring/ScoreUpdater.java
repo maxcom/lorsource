@@ -62,7 +62,7 @@ public class ScoreUpdater {
     }
   }
 
-  @Scheduled(cron="0 * * * * *")
+  @Scheduled(cron="0 0 * * * *")
   public void optimize() throws SQLException {
     Connection db = LorDataSource.getConnection();
 
