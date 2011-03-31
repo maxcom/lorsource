@@ -69,6 +69,7 @@ public class ScoreUpdater {
     try {
       db.setAutoCommit(false);
       Statement st = db.createStatement();
+      st.executeUpdate("SELECT * FROM users FOR UPDATE");
       st.executeUpdate("UPDATE users SET karma_votes = karma WHERE karma < 10");
       st.executeUpdate("UPDATE users SET karma_votes = 10 WHERE karma>=10");
       st.executeUpdate("DELETE FROM karma_voted");
