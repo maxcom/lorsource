@@ -26,11 +26,11 @@
 
 <c:if test="${not shortMode and not user.anonymous}">
   ${user.stars}
-   <%     if (System.currentTimeMillis()>new java.util.Date(2011,4,1).getTime()) { %>
+   <%        Template tmpl = Template.getTemplate(request);
+   if (System.currentTimeMillis()>new java.util.Date(2011,4,1).getTime() || tmpl.isModeratorSession()) { %>
   <c:if test="${template.sessionAuthorized}">
     ( Карма: <span id="karma-${user.id}">${user.karma}</span>
     <%
-      Template tmpl = Template.getTemplate(request);
 
       if (!tmpl.getKarmaVotes().contains(user.getId()) && tmpl.getCurrentUser().getKarmaVotes()>0) {
 %>
