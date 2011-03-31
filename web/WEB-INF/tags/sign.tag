@@ -26,7 +26,7 @@
 
 <c:if test="${not shortMode and not user.anonymous}">
   ${user.stars}
-
+   <%     if (System.currentTimeMillis()>new java.util.Date(2011,4,1).getTime()) { %>
   <c:if test="${template.sessionAuthorized}">
     ( Карма: <span id="karma-${user.id}">${user.karma}</span>
     <%
@@ -40,7 +40,8 @@
       }
     %>)
   </c:if>
-
+  <% } %>
+   
   <c:if test="${template.moderatorSession}">
     (Score: ${user.score} MaxScore: ${user.maxScore})
   </c:if>

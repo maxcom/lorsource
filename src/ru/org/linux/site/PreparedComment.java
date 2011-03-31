@@ -48,7 +48,7 @@ public class PreparedComment {
       replyAuthor = null;
     }
 
-//    if (comment.getPostdate().getTime()>new java.util.Date(2011,4,1).getTime()) {
+    if (comment.getPostdate().getTime()>new java.util.Date(2011,4,1).getTime()) {
        if (author.getKarma()<0) {
          switch (comment.getId()%10) {
            case 9:
@@ -62,7 +62,7 @@ public class PreparedComment {
              break;
          }
        }
-//    }
+    }
 
     this.processedMessage = processedMessage;
 
