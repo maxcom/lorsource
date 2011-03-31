@@ -1,7 +1,5 @@
 <%@ tag import="ru.org.linux.site.Template" %>
-<%@ tag
-        pageEncoding="UTF-8"
-%><%--
+<%@ tag pageEncoding="UTF-8"%><%--
   ~ Copyright 1998-2010 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
