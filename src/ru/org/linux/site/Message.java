@@ -359,10 +359,6 @@ public class Message implements Serializable {
   }
 
   private int getPostScoreOld() {
-    if (postscore==-1) {
-      return -1;
-    }
-
     int totalPS = postscore;
 
     if (section.getCommentPostscore()!=0) {
