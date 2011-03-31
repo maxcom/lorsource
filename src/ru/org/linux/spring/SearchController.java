@@ -52,6 +52,7 @@ public class SearchController {
   public ModelAndView search(
     @RequestParam(value="q", defaultValue="") String q,
     @RequestParam(value="include", required=false) String includeString,
+    @RequestParam(value="noinclude_title", defaultValue="false") boolean noinclude_title,
     @RequestParam(value="date", required=false) String dateString,
     @RequestParam(value="section", required=false) Integer section,
     @RequestParam(value="sort", required=false) Integer sort,
@@ -70,6 +71,7 @@ public class SearchController {
     int include = parseInclude(includeString);
 
     params.put("include", include);
+    params.put("noinclude_title", noinclude_title);
 
     SearchViewer.SearchInterval date = parseInterval(dateString);
 
@@ -97,7 +99,7 @@ public class SearchController {
       SearchViewer sv = new SearchViewer(q);
 
       sv.setInterval(date);
-      sv.setInclude(include);
+      sv.setInclude(include, noinclude_title);
       sv.setSection(section);
       sv.setSort(sort);
       sv.setUser(username);
