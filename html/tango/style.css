@@ -87,12 +87,6 @@ p {
 	font-size: 0.9em;
 }
 
-#bd {
-	margin-bottom: 2em;
-    padding-left: 1em;
-    padding-right: 1em;
-}
-
 #bd div.news {
 	margin-bottom: 2em;
 }
@@ -148,13 +142,12 @@ p {
 }
 
 #bd .column, #bd .column2 {
-	font-size: 0.8em;
+	font-size: 0.85em;
 	text-align: left;
 }
 
 .boxlet {
-	padding-bottom: 1em;
-    margin-bottom: 1em;
+	padding: 5px !important;
 }
 
 .boxlet h2 {
@@ -298,3 +291,5 @@ input[type="checkbox"] {
 .boxlet H3 {
     margin-bottom: 5px;
 }
+
+.newsblog-in {margin-left: 255px !important;}
