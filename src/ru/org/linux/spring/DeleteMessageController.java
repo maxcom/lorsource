@@ -134,24 +134,6 @@ public class DeleteMessageController extends ApplicationObjectSupport {
       rs.close();
 
       if (!perm) {
-        PreparedStatement mod = db.prepareStatement("SELECT moderator FROM groups,topics WHERE topics.groupid=groups.id AND topics.id=?");
-        mod.setInt(1, msgid);
-
-        rs = mod.executeQuery();
-
-        if (!rs.next()) {
-          throw new MessageNotFoundException(msgid);
-        }
-
-        if (rs.getInt("moderator") == user.getId()) {
-          perm = true; // NULL is ok
-        }
-
-        mod.close();
-        rs.close();
-      }
-
-      if (!perm) {
         PreparedStatement mod = db.prepareStatement("SELECT topics.moderate as mod, sections.moderate as needmod FROM groups,topics,sections WHERE topics.groupid=groups.id AND topics.id=? AND groups.section=sections.id");
         mod.setInt(1, msgid);
 

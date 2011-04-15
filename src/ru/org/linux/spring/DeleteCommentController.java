@@ -16,8 +16,6 @@
 package ru.org.linux.spring;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -25,6 +23,8 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+
+import ru.org.linux.site.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
@@ -34,11 +34,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
-import ru.org.linux.site.*;
-
 @Controller
 public class DeleteCommentController {
   private SearchQueueSender searchQueueSender;
+  private static final int DELETE_PERIOD = 60 * 60 * 1000; // milliseconds
 
   @Autowired
   @Required
@@ -128,47 +127,26 @@ public class DeleteCommentController {
 
       CommentDeleter deleter = new CommentDeleter(db);
 
-      User user = Template.getCurrentUser(db, session);
+      User user = tmpl.getCurrentUser();
       user.checkBlocked();
       user.checkAnonymous();
 
-      PreparedStatement pr = db.prepareStatement("SELECT postdate>CURRENT_TIMESTAMP-'1 hour'::interval as perm FROM comments WHERE comments.id=? AND comments.userid=?");
-      pr.setInt(1, msgid);
-      pr.setInt(2, user.getId());
-      ResultSet rs = pr.executeQuery();
+      Comment comment = new Comment(db, msgid);
+      Message topic = new Message(db, comment.getTopic());
+
       boolean perm = false;
-
-      if (rs.next()) {
-        perm = rs.getBoolean("perm");
-      }
-
       boolean selfDel = false;
 
-      if (perm) {
-        selfDel = true;
-      }
+      if (comment.getUserid() == user.getId()) {
+        perm = (System.currentTimeMillis() - comment.getPostdate().getTime()) < DELETE_PERIOD;
 
-      rs.close();
+        if (perm) {
+          selfDel = true;
+        }
+      }
 
       if (!perm && user.canModerate()) {
         perm = true;
-      }
-
-      if (!perm) {
-        PreparedStatement mod = db.prepareStatement("SELECT moderator FROM groups,topics,comments WHERE topics.groupid=groups.id AND comments.id=? AND comments.topic=topics.id");
-        mod.setInt(1, msgid);
-
-        rs = mod.executeQuery();
-        if (!rs.next()) {
-          throw new MessageNotFoundException(msgid);
-        }
-
-        if (rs.getInt("moderator") == user.getId()) {
-          perm = true; // NULL is ok
-        }
-
-        rs.close();
-        mod.close();
       }
 
       if (!perm) {
@@ -204,6 +182,8 @@ public class DeleteCommentController {
       Map<String, Object> params = new HashMap<String, Object>();
       params.put("message", "Удалено успешно");
       params.put("bigMessage", out.toString());
+
+      params.put("link", topic.getLink());
 
       return new ModelAndView("action-done", params);
     } finally {
