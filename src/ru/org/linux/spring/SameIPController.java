@@ -95,7 +95,7 @@ public class SameIPController {
   private static List<TopicItem> getTopics(Connection db, String ip) throws SQLException {
     Statement st=db.createStatement();
     ResultSet rs=st.executeQuery(
-      "SELECT sections.name as ptitle, groups.title as gtitle, topics.title as title, topics.id as msgid, postdate " +
+      "SELECT sections.name as ptitle, groups.title as gtitle, topics.title as title, topics.id as msgid, postdate, deleted " +
         "FROM topics, groups, sections, users " +
         "WHERE topics.groupid=groups.id " +
         "AND sections.id=groups.section " +
@@ -118,7 +118,7 @@ public class SameIPController {
   private static List<TopicItem> getComments(Connection db, String ip) throws SQLException {
     Statement st=db.createStatement();
     ResultSet rs=st.executeQuery(
-      "SELECT sections.name as ptitle, groups.title as gtitle, topics.title, topics.id as topicid, comments.id as msgid, comments.postdate " +
+      "SELECT sections.name as ptitle, groups.title as gtitle, topics.title, topics.id as topicid, comments.id as msgid, comments.postdate, comments.deleted " +
         "FROM sections, groups, topics, comments " +
         "WHERE sections.id=groups.section " +
         "AND groups.id=topics.groupid " +
@@ -168,6 +168,7 @@ public class SameIPController {
     private final String title;
     private final Timestamp postdate;
     private final int topicId;
+    private final boolean deleted;
 
     private TopicItem(ResultSet rs, boolean isComment) throws SQLException {
       ptitle = rs.getString("ptitle");
@@ -181,6 +182,8 @@ public class SameIPController {
       } else {
         topicId = 0;
       }
+
+      deleted = rs.getBoolean("deleted");
     }
 
     public String getPtitle() {
@@ -205,6 +208,10 @@ public class SameIPController {
 
     public int getTopicId() {
       return topicId;
+    }
+
+    public boolean isDeleted() {
+      return deleted;
     }
   }
 
