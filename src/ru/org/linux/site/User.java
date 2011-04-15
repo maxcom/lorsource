@@ -583,7 +583,11 @@ public class User implements Serializable {
     String nonExist;
 
     if ("empty".equals(avatarStyle)) {
-      nonExist = URLEncoder.encode("http://www.linux.org.ru/img/p.gif");
+      if (secure) {
+        nonExist = URLEncoder.encode("https://www.linux.org.ru/img/p.gif");
+      } else {
+        nonExist = URLEncoder.encode("http://www.linux.org.ru/img/p.gif");
+      }
     } else {
       nonExist = avatarStyle;
     }
