@@ -1,3 +1,4 @@
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page contentType="text/html; charset=utf-8"%>
 <%@ page import="ru.org.linux.site.Template"  %>
 <%@ page import="ru.org.linux.util.ServletParameterParser" %>
@@ -50,9 +51,17 @@
       var enc = 'UTF-8';
 
     </script>
-          <script type="text/javascript"
+<c:if test="${pageContext.request.secure}">
+  <script type="text/javascript"
+    src="https://www.ibm.com/developerworks/everywhere/ew.js" language="Javascript">
+  </script>
+</c:if>
+<c:if test="${not pageContext.request.secure}">
+    <script type="text/javascript"
       src="http://www.ibm.com/developerworks/everywhere/ew.js" language="Javascript">
     </script>
+</c:if>
+          
           </marquee>
         </td>
       </tr>
