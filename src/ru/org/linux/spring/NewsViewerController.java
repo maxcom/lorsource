@@ -637,7 +637,7 @@ public class NewsViewerController {
       return new RedirectView(Section.getNewsViewerLink(section)+"?offset="+Integer.toString(offset));
     }
 
-    if (year!=null) {
+    if (year!=null && month!=null) {
       return new RedirectView(Section.getArchiveLink(section)+Integer.toString(year)+ '/' +Integer.toString(month));
     }
 
