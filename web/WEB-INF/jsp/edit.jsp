@@ -76,19 +76,19 @@
   </c:if>
 
   <c:if test="${not message.expired}">
-  Заголовок:
-  <input type=text name=title class="required" size=40 value="<%= newMsg.getTitle()==null?"":HTMLFormatter.htmlSpecialChars(newMsg.getTitle()) %>" ><br>
+  <label>Заголовок:
+  <input type=text name=title class="required" size=40 value="<%= newMsg.getTitle()==null?"":HTMLFormatter.htmlSpecialChars(newMsg.getTitle()) %>" ></label><br>
 
   <br>
   <textarea name="newmsg" cols="70" rows="20"><c:out escapeXml="true" value="${newMsg.message}"/></textarea>
   <br><br>
     <c:if test="${message.haveLink}">
-      Текст ссылки:
+      <label>Текст ссылки:
       <input type=text name=linktext size=60
-             value="<%= newMsg.getLinktext()==null?"":HTMLFormatter.htmlSpecialChars(newMsg.getLinktext()) %>"><br>
-      Ссылка :
+             value="<%= newMsg.getLinktext()==null?"":HTMLFormatter.htmlSpecialChars(newMsg.getLinktext()) %>"></label><br>
+      <label>Ссылка :
       <input type=text name=url size=70
-             value="<%= newMsg.getUrl()==null?"":HTMLFormatter.htmlSpecialChars(newMsg.getUrl()) %>"><br>
+             value="<%= newMsg.getUrl()==null?"":HTMLFormatter.htmlSpecialChars(newMsg.getUrl()) %>"></label><br>
     </c:if>
   </c:if>
 
@@ -103,7 +103,7 @@
   <input type=submit name=preview value="Предпросмотр">
   <c:if test="${commit}">
     <br><br>
-    Группа:
+    <label>Группа:
     <select name="chgrp">
       <c:forEach var="group" items="${groups}">
         <c:if test="${group.id != message.groupId}">
@@ -113,10 +113,17 @@
           <option value="${group.id}" selected="selected">${group.title}</option>
         </c:if>
       </c:forEach>
-    </select><br>
-    Bonus score (от 0 до 20):
-    <input type=text name=bonus size=40 value="3">
-  <br>
+    </select></label><br>
+    <label>Bonus score (от 0 до 20):
+    <input type=text name=bonus size=40 value="3"></label><br>
+    <label>Мини-новость:
+      <c:if test="${message.minor}">
+        <input type="checkbox" checked="checked" name="minor">
+      </c:if>
+      <c:if test="${not message.minor}">
+        <input type="checkbox" name="minor">
+      </c:if>
+    </label> <br>
     <input type=submit name=commit value="Подтвердить">
   </c:if>
 </form>

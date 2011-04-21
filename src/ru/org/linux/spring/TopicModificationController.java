@@ -65,21 +65,14 @@ public class TopicModificationController extends ApplicationObjectSupport {
     ServletRequest request,
     @RequestParam int msgid,
     @RequestParam int postscore,
-    @RequestParam(required=false) Boolean sticky,
-    @RequestParam(required=false) Boolean notop
+    @RequestParam(defaultValue="false") boolean sticky,
+    @RequestParam(defaultValue="false") boolean notop,
+    @RequestParam(defaultValue="false") boolean minor
   ) throws Exception {
     Template tmpl = Template.getTemplate(request);
 
     if (!tmpl.isModeratorSession()) {
       throw new AccessViolationException("Not moderator");
-    }
-
-    if (sticky==null) {
-      sticky = false;
-    }
-
-    if (notop==null) {
-      notop = false;
     }
 
     if (postscore < Message.POSTSCORE_UNRESTRICTED) {
@@ -101,11 +94,12 @@ public class TopicModificationController extends ApplicationObjectSupport {
 
       Message msg = new Message(db, msgid);
 
-      PreparedStatement pst = db.prepareStatement("UPDATE topics SET postscore=?, sticky=?, notop=?, lastmod=CURRENT_TIMESTAMP WHERE id=?");
+      PreparedStatement pst = db.prepareStatement("UPDATE topics SET postscore=?, sticky=?, notop=?, lastmod=CURRENT_TIMESTAMP,minor=? WHERE id=?");
       pst.setInt(1, postscore);
       pst.setBoolean(2, sticky);
       pst.setBoolean(3, notop);
-      pst.setInt(4, msgid);
+      pst.setBoolean(4, minor);
+      pst.setInt(5, msgid);
 
       User user = User.getUser(db, tmpl.getNick());
       user.checkCommit();

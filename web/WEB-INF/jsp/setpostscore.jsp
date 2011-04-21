@@ -1,6 +1,5 @@
 <%@ page contentType="text/html; charset=utf-8" %>
 <%@ page import="ru.org.linux.site.Message" %>
-
 <%--
   ~ Copyright 1998-2010 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,7 +25,7 @@
   int postscore = msg.getPostScore();
   boolean sticky = msg.isSticky();
   boolean notop = msg.isNotop();
-
+  boolean minor = msg.isMinor();
 %>
 <h1>Смена режима параметров сообщения</h1>
 Данная форма предназначена для администраторов сайта и пользователей,
@@ -53,6 +52,7 @@
     <br>
   <label>Прикрепить сообщение <input type=checkbox name="sticky" <%= sticky?"checked":"" %>></label><br>
   <label>Удалить из top10 <input type=checkbox name="notop" <%= notop?"checked":"" %>></label><br>
+  <label>Мини-новость <input type=checkbox name="minor" <%= minor?"checked":"" %>></label><br>
   <input type=submit value="Изменить">
 </form>
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>
