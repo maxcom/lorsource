@@ -38,7 +38,6 @@ public class WhoisController {
     try {
       db = LorDataSource.getConnection();
       Template tmpl = Template.getTemplate(request);
-      tmpl.initCurrentUser(db);
 
       User user = User.getUser(db, nick);
 

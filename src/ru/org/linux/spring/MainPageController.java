@@ -45,10 +45,6 @@ public class MainPageController {
     try {
       db = LorDataSource.getConnection();
 
-      if (tmpl.isSessionAuthorized()) {
-        tmpl.initCurrentUser(db);
-      }
-
       NewsViewer nv = NewsViewer.getMainpage(sectionStore);
 
       if (tmpl.getProf().getBoolean(DefaultProfile.MAIN_GALLERY)) {

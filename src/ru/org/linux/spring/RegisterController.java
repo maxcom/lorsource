@@ -58,7 +58,7 @@ public class RegisterController extends ApplicationObjectSupport {
         db = LorDataSource.getConnection();
         db.setAutoCommit(false);
 
-        tmpl.initCurrentUser(db);
+        tmpl.updateCurrentUser(db);
 
         User user = tmpl.getCurrentUser();
         user.checkAnonymous();

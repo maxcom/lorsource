@@ -47,8 +47,6 @@ public class MemoriesController {
     try {
       db = LorDataSource.getConnection();
 
-      tmpl.initCurrentUser(db);
-
       User user = tmpl.getCurrentUser();
       user.checkBlocked();
       user.checkAnonymous();
@@ -88,7 +86,6 @@ public class MemoriesController {
 
     try {
       db = LorDataSource.getConnection();
-      tmpl.initCurrentUser(db);
 
       User user = tmpl.getCurrentUser();
       user.checkBlocked();

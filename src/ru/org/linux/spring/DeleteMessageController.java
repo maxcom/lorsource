@@ -54,12 +54,9 @@ public class DeleteMessageController extends ApplicationObjectSupport {
       throw new AccessViolationException("Not authorized");
     }
 
-    Template tmpl = Template.getTemplate(request);
-
     Connection db = null;
     try {
       db = LorDataSource.getConnection();
-      tmpl.initCurrentUser(db);
 
       Message msg = new Message(db, msgid);
 
@@ -99,7 +96,7 @@ public class DeleteMessageController extends ApplicationObjectSupport {
     try {
       db = LorDataSource.getConnection();
       db.setAutoCommit(false);
-      tmpl.initCurrentUser(db);
+      tmpl.updateCurrentUser(db);
 
       PreparedStatement lock = db.prepareStatement("SELECT deleted FROM topics WHERE id=? FOR UPDATE");
       PreparedStatement st1 = db.prepareStatement("UPDATE topics SET deleted='t',sticky='f' WHERE id=?");
@@ -108,7 +105,7 @@ public class DeleteMessageController extends ApplicationObjectSupport {
       st1.setInt(1, msgid);
       st2.setInt(1, msgid);
 
-      User user = Template.getCurrentUser(db, session);
+      User user = tmpl.getCurrentUser();
 
       user.checkAnonymous();
       st2.setInt(2, user.getId());
@@ -215,7 +212,6 @@ public class DeleteMessageController extends ApplicationObjectSupport {
     Connection db = null;
     try {
       db = LorDataSource.getConnection();
-      tmpl.initCurrentUser(db);
 
       Message message = new Message(db, msgid);
 
@@ -248,7 +244,7 @@ public class DeleteMessageController extends ApplicationObjectSupport {
     try {
       db = LorDataSource.getConnection();
       db.setAutoCommit(false);
-      tmpl.initCurrentUser(db);
+      tmpl.updateCurrentUser(db);
 
       Message message = new Message(db, msgid);
 

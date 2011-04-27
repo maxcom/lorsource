@@ -33,7 +33,6 @@ import org.springframework.jdbc.support.JdbcUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 @Controller
@@ -53,7 +52,6 @@ public class SearchControlController {
     Connection db = LorDataSource.getConnection();
 
     try {
-      tmpl.initCurrentUser(db);
       if (!tmpl.isSessionAuthorized()) {
         throw new AccessViolationException("Not authorized");
       }
@@ -99,7 +97,6 @@ public class SearchControlController {
     Connection db = LorDataSource.getConnection();
 
     try {
-      tmpl.initCurrentUser(db);
       if (!tmpl.isSessionAuthorized()) {
         throw new AccessViolationException("Not authorized");
       }

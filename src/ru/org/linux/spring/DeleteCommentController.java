@@ -65,7 +65,6 @@ public class DeleteCommentController {
 
     try {
       db = LorDataSource.getConnection();
-      tmpl.initCurrentUser(db);
 
       Comment comment = new Comment(db, msgid);
 
@@ -123,7 +122,7 @@ public class DeleteCommentController {
     try {
       db = LorDataSource.getConnection();
       db.setAutoCommit(false);
-      tmpl.initCurrentUser(db);
+      tmpl.updateCurrentUser(db);
 
       CommentDeleter deleter = new CommentDeleter(db);
 
