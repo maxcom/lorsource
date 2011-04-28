@@ -37,11 +37,7 @@
          value="<%= HTMLFormatter.htmlSpecialChars(session.getId()) %>">
   <% if (!Template.isSessionAuthorized(session)) { %>
   <label for="nick">Имя:</label>
-  <% if (request.getParameter("nick") != null) { %>
-  <input id="nick" type='text' name='nick' value="<%= request.getParameter("nick") %>" size=40><br><%
-} else { %>
-  <input id="nick" type='text' name='nick' value="<%= "anonymous" %>" size=40><br>
-  <% } %>
+  <input id="nick" type='text' name='nick' value="anonymous" size=40><br>
   <label for="password">Пароль:</label>
   <input id="password" type=password name=password size=40><br>
   <%
