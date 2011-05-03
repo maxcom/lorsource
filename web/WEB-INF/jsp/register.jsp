@@ -51,22 +51,22 @@
 
 <form method=POST action="register.jsp" id="registerForm">
 <b>Login:</b>
-<input class="required" type=text name=nick size=40 value="<c:out value="${param.nick}"/>"><br>
+<input class="required" type=text name=nick size=40 value="<c:out value="${param.nick}" escapeXml="true"/>"><br>
 Полное имя:
-<input type=text name=name size=40 value="<c:out value="${param.name}"/>"><br>
+<input type=text name=name size=40 value="<c:out value="${param.name}" escapeXml="true"/>"><br>
 <b>Пароль:</b>
 <input class="required" id="password" type=password name=password size=20 maxlength="40"><br>
 <b>Повторите Пароль:</b>
 <input class="required" id="password2" type=password name=password2 size=20 maxlength="40"><br>
 URL (не забудьте добавить <b>http://</b>): <br>
-<input type=text name=url size="50" value="<c:out value="${param.url}"/>"><br>
+<input type=text name=url size="50" value="<c:out value="${param.url}" escapeXml="true"/>"><br>
 <b>E-mail</b> (ваш email не будет публиковаться на сайте):<br>
-<input class="required email" type=text name=email size="50" value="<c:out value="${param.email}"/>"><br>
+<input class="required email" type=text name=email size="50" value="<c:out value="${param.email}" escapeXml="true"/>"><br>
 Город (просьба писать русскими буквами без сокращений, например: <b>Москва</b>,
 <b>Нижний Новгород</b>, <b>Троицк (Московская область)</b>):
-<input type=text name=town size=50 value="<c:out value="${param.town}"/>"><br>
+<input type=text name=town size=50 value="<c:out value="${param.town}" escapeXml="true"/>"><br>
 Дополнительная информация:<br>
-<textarea name=info cols=50 rows=5><c:out value="${param.info}"/></textarea><br>
+<textarea name=info cols=50 rows=5><c:out value="${param.info}" escapeXml="true"/></textarea><br>
 <p>
   <lor:captcha/>
 
