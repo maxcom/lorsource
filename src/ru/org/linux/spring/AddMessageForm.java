@@ -45,7 +45,7 @@ public class AddMessageForm {
   private String title = null;
   private String returnUrl = null;
   private String sessionId = null;
-  private String noinfo = null;
+  private boolean noinfo = false;
   private String password = null;
   private String nick = null;
   private String image = "";
@@ -91,7 +91,7 @@ public class AddMessageForm {
     return sessionId;
   }
 
-  public String getNoinfo() {
+  public boolean getNoinfo() {
     return noinfo;
   }
 
@@ -142,7 +142,7 @@ public class AddMessageForm {
   public AddMessageForm(HttpServletRequest request, Template tmpl) throws IOException, ScriptErrorException, ServletParameterException {
     postIP = request.getRemoteAddr();
 
-    noinfo = request.getParameter("noinfo");
+    noinfo = "1".equals(request.getParameter("noinfo"));
     sessionId = request.getParameter("session");
     preview = request.getParameter("preview") != null;
     if (!"GET".equals(request.getMethod())) {

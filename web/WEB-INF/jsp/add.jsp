@@ -48,7 +48,7 @@
   <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
 <%
-  if (form.getNoinfo() == null || !"1".equals(form.getNoinfo())) {
+  if (!form.getNoinfo()) {
     out.print(request.getAttribute("addportal"));
   }
 %>
@@ -85,9 +85,9 @@
 </c:if>
 <form id="messageForm" method=POST action="add.jsp" <%= group.isImagePostAllowed()?"enctype=\"multipart/form-data\"":"" %> >
   <input type="hidden" name="session" value="<%= HTMLFormatter.htmlSpecialChars(session.getId()) %>">
-<%  if (form.getNoinfo()!=null) {
+<%  if (form.getNoinfo()) {
   %>
-  <input type="hidden" name="noinfo" value="<%= form.getNoinfo() %>">
+  <input type="hidden" name="noinfo" value="1">
  <% }
 %>
 <% if (!tmpl.isSessionAuthorized()) { %>
