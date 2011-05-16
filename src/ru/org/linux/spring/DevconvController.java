@@ -50,7 +50,7 @@ public class DevconvController {
 
       UserInfo info = new UserInfo(db, user.getId());
 
-      if (info.getRegistrationDate()!=null && info.getRegistrationDate().after(new Date(110, 4, 15))) {
+      if (info.getRegistrationDate()!=null && info.getRegistrationDate().after(new Date(111, 4, 15))) {
         throw new UserErrorException("Дата регистрации после 15/05/2010");
       }
 
