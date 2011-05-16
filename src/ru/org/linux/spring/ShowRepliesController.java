@@ -86,7 +86,6 @@ public class ShowRepliesController {
 
     try {
       db = LorDataSource.getConnection();
-      tmpl.initCurrentUser(db);
 
       User user = User.getUser(db, nick);
 

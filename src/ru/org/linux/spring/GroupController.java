@@ -104,7 +104,7 @@ public class GroupController {
     return forum(groupName, offset, lastmod, request, null, null);
   }
 
-  private ModelAndView forum(
+  private static ModelAndView forum(
     @PathVariable("group") String groupName,
     @RequestParam(defaultValue = "0", value="offset") int offset,
     @RequestParam(defaultValue = "false") boolean lastmod,
@@ -123,7 +123,7 @@ public class GroupController {
       db = LorDataSource.getConnection();
       db.setAutoCommit(false);
 
-      tmpl.initCurrentUser(db);
+      tmpl.updateCurrentUser(db);
 
       Section section = new Section(db, Section.SECTION_FORUM);
       Group group = section.getGroup(db, groupName);
@@ -265,7 +265,7 @@ public class GroupController {
     }
   }
 
-  private int getArchiveCount(Connection db, int groupid, int year, int month) throws SQLException {
+  private static int getArchiveCount(Connection db, int groupid, int year, int month) throws SQLException {
     Statement st = db.createStatement();
     ResultSet rs = st.executeQuery("SELECT c FROM monthly_stats WHERE groupid="+groupid+" AND year="+year+" AND month="+month);
     if (!rs.next()) {

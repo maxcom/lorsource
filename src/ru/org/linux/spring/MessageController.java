@@ -285,7 +285,6 @@ public class MessageController {
 
     params.put("showDeleted", showDeleted);
 
-    tmpl.initCurrentUser(db);
     User currentUser = tmpl.getCurrentUser();
 
     if (message.isExpired() && showDeleted && !tmpl.isModeratorSession()) {

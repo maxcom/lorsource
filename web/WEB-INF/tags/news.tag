@@ -31,16 +31,73 @@
   ~    limitations under the License.
   --%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
-<div class=news id="topic-${message.id}">
 <%
   Template tmpl = Template.getTemplate(request);
+  int pages = message.getPageCount(tmpl.getProf().getInt("messages"));
+%>
 
+<c:set var="commentsLinks">
+  <c:if test="${message.commentCount > 0}">
+  <%
+      out.append(" [<a href=\"");
+      out.append(message.getLink());
+      out.append("\">");
+
+      int stat1 = message.getCommentCount();
+      out.append(Integer.toString(stat1));
+
+      if (stat1 % 100 >= 10 && stat1 % 100 <= 20) {
+        out.append("&nbsp;комментариев</a>");
+      } else {
+        switch (stat1 % 10) {
+          case 1:
+            out.append("&nbsp;комментарий</a>");
+            break;
+          case 2:
+          case 3:
+          case 4:
+            out.append("&nbsp;комментария</a>");
+            break;
+          default:
+            out.append("&nbsp;комментариев</a>");
+            break;
+        }
+      }
+
+      if (pages != 1) {
+        int PG_COUNT=3;
+
+        out.append("&nbsp;(стр.");
+        boolean dots = false;
+
+        for (int i = 1; i < pages; i++) {
+          if (pages>PG_COUNT*3 && (i>PG_COUNT && i<pages-PG_COUNT)) {
+            if (!dots) {
+              out.append(" ...");
+              dots = true;
+            }
+
+            continue;
+          }
+
+          out.append(" <a href=\"").append(message.getLinkPage(i)).append("\">").append(Integer.toString(i + 1)).append("</a>");
+        }
+
+        out.append(')');
+      }
+      out.append(']');
+  %>
+  </c:if>
+</c:set>
+
+<c:if test="${not message.minor}">
+<div class=news id="topic-${message.id}">
+<%
   int msgid = message.getId();
   String url = message.getUrl();
   boolean imagepost = message.getSection().isImagepost();
   boolean votepoll = message.isVotePoll();
 
-  int pages = message.getPageCount(tmpl.getProf().getInt("messages"));
   String image = preparedMessage.getGroup().getImage();
   Group group = preparedMessage.getGroup();
 %>
@@ -160,57 +217,23 @@
       }
 %>
   </c:if>
-  <c:if test="${message.commentCount > 0}">
-  <%
-      out.append(" [<a href=\"");
-      out.append(message.getLink());
-      out.append("\">");
-
-      int stat1 = message.getCommentCount();
-      out.append(Integer.toString(stat1));
-
-      if (stat1 % 100 >= 10 && stat1 % 100 <= 20) {
-        out.append("&nbsp;комментариев</a>");
-      } else {
-        switch (stat1 % 10) {
-          case 1:
-            out.append("&nbsp;комментарий</a>");
-            break;
-          case 2:
-          case 3:
-          case 4:
-            out.append("&nbsp;комментария</a>");
-            break;
-          default:
-            out.append("&nbsp;комментариев</a>");
-            break;
-        }
-      }
-
-      if (pages != 1) {
-        int PG_COUNT=3;
-
-        out.append("&nbsp;(стр.");
-        boolean dots = false;
-
-        for (int i = 1; i < pages; i++) {
-          if (pages>PG_COUNT*3 && (i>PG_COUNT && i<pages-PG_COUNT)) {
-            if (!dots) {
-              out.append(" ...");
-              dots = true;
-            }
-            
-            continue;
-          }
-
-          out.append(" <a href=\"").append(message.getLinkPage(i)).append("\">").append(Integer.toString(i + 1)).append("</a>");
-        }
-
-        out.append(')');
-      }
-      out.append(']');
-  %>
-  </c:if>
+  <c:out value="${commentsLinks}" escapeXml="false"/>
   </div>
   </div>
 </div>
+</c:if>
+
+<c:if test="${message.minor}">
+<div class=infoblock id="topic-${message.id}">
+Мини-новость:
+  <a href="${fn:escapeXml(message.link)}">${message.title}</a>
+
+<c:if test="${multiPortal}">
+    <c:if test="${not message.commited and message.section.premoderated}">
+      (не подтверждено)
+    </c:if>
+</c:if>
+
+  <c:out value="${commentsLinks}" escapeXml="false"/>
+</div>
+</c:if>

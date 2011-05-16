@@ -42,9 +42,9 @@
       String avatarStyle = tmpl.getProf().getString("avatar");
 
       if (tmpl.isMobile()) {
-        out.append("<img width=50 height=50 class=\"photo\" src=\""+author.getGravatar(avatarStyle, 50)+"\">");
+        out.append("<img width=50 height=50 class=\"photo\" src=\""+author.getGravatar(avatarStyle, 50, request.isSecure())+"\">");
       } else {
-        out.append("<img width=150 height=150 class=\"photo\" src=\""+author.getGravatar(avatarStyle, 150)+"\">");
+        out.append("<img width=150 height=150 class=\"photo\" src=\""+author.getGravatar(avatarStyle, 150, request.isSecure())+"\">");
       }
     }
   }

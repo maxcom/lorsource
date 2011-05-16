@@ -134,7 +134,7 @@ function checkCustomBan(idx) {
 <h2>Темы за 3 дня</h2>
 
 <div class=forum>
-<table  width="100%" class="message-table">
+<table width="100%" class="message-table">
 <thead>
 <tr><th>Раздел</th><th>Группа</th><th>Заглавие</th><th>Дата</th></tr>
 <tbody>
@@ -147,7 +147,13 @@ function checkCustomBan(idx) {
     ${topic.gtitle}
   </td>
   <td>
+    <c:if test="${topic.deleted}">
+      <s>
+    </c:if>
     <a href="view-message.jsp?msgid=${topic.id}" rev=contents>${topic.title}</a>
+    <c:if test="${topic.deleted}">
+      </s>
+    </c:if>
   </td>
   <td>
     <lor:date date="${topic.postdate}"/>
@@ -168,7 +174,15 @@ function checkCustomBan(idx) {
 <tr>
   <td>${topic.ptitle}</td>
   <td>${topic.gtitle}</td>
-  <td><a href="jump-message.jsp?msgid=${topic.topicId}&amp;cid=${topic.id}" rev=contents>${topic.title}</a></td>
+  <td>
+    <c:if test="${topic.deleted}">
+      <s>
+    </c:if>
+    <a href="jump-message.jsp?msgid=${topic.topicId}&amp;cid=${topic.id}" rev=contents>${topic.title}</a>
+    <c:if test="${topic.deleted}">
+      </s>
+    </c:if>
+  </td>
   <td>
     <lor:date date="${topic.postdate}"/>
   </td>

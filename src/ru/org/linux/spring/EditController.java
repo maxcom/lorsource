@@ -64,7 +64,6 @@ public class EditController extends ApplicationObjectSupport {
     Connection db = null;
     try {
       db = LorDataSource.getConnection();
-      tmpl.initCurrentUser(db);
 
       Message message = new Message(db, msgid);
 
@@ -106,7 +105,6 @@ public class EditController extends ApplicationObjectSupport {
 
     try {
       db = LorDataSource.getConnection();
-      tmpl.initCurrentUser(db);
 
       Message message = new Message(db, msgid);
 
@@ -165,7 +163,8 @@ public class EditController extends ApplicationObjectSupport {
     @RequestParam("msgid") int msgid,
     @RequestParam(value="lastEdit", required=false) Long lastEdit,
     @RequestParam(value="bonus", required=false, defaultValue="3") int bonus,
-    @RequestParam(value="chgrp", required=false) Integer changeGroupId
+    @RequestParam(value="chgrp", required=false) Integer changeGroupId,
+    @RequestParam(value="minor", required=false) Boolean minor
   ) throws Exception {
     Template tmpl = Template.getTemplate(request);
 
@@ -179,7 +178,7 @@ public class EditController extends ApplicationObjectSupport {
     try {
       db = LorDataSource.getConnection();
       db.setAutoCommit(false);
-      tmpl.initCurrentUser(db);
+      tmpl.updateCurrentUser(db);
 
       Message message = new Message(db, msgid);
       PreparedMessage preparedMessage = new PreparedMessage(db, message, true);
@@ -244,6 +243,14 @@ public class EditController extends ApplicationObjectSupport {
         modified = true;
       }
 
+      if (minor==null) {
+        minor = message.isMinor();
+      }
+
+      if (minor!=message.isMinor()) {
+        modified = true;
+      }
+
       boolean messageModified = false;
       if (!message.getMessage().equals(newMsg.getMessage())) {
         messageModified = true;
@@ -281,12 +288,13 @@ public class EditController extends ApplicationObjectSupport {
       }
 
       if (!preview) {
-        PreparedStatement pst = db.prepareStatement("UPDATE topics SET title=?, linktext=?, url=? WHERE id=?");
+        PreparedStatement pst = db.prepareStatement("UPDATE topics SET title=?, linktext=?, url=?, minor=? WHERE id=?");
 
         pst.setString(1, newMsg.getTitle());
         pst.setString(2, newMsg.getLinktext());
         pst.setString(3, newMsg.getUrl());
-        pst.setInt(4, message.getId());
+        pst.setBoolean(4, minor);
+        pst.setInt(5, message.getId());
 
         if (modified) {
           pst.executeUpdate();

@@ -64,6 +64,7 @@ public class Message implements Serializable {
   private final boolean lorcode;
   private final boolean resolved;
   private final int groupCommentsRestriction;
+  private final boolean minor;
 
   private final Section section;
 
@@ -87,7 +88,7 @@ public class Message implements Serializable {
         "groups.title as gtitle, urlname, vote, havelink, section, topics.sticky, topics.postip, " +
         "postdate<(CURRENT_TIMESTAMP-sections.expire) as expired, deleted, lastmod, commitby, " +
         "commitdate, topics.stat1, postscore, topics.moderate, message, notop,bbcode, " +
-        "topics.resolved, restrict_comments " +
+        "topics.resolved, restrict_comments, minor " +
         "FROM topics " +
         "INNER JOIN groups ON (groups.id=topics.groupid) " +
         "INNER JOIN sections ON (sections.id=groups.section) " +
@@ -133,6 +134,7 @@ public class Message implements Serializable {
     lorcode = rs.getBoolean("bbcode");
     resolved = rs.getBoolean("resolved");
     groupCommentsRestriction = rs.getInt("restrict_comments");
+    minor = rs.getBoolean("minor");
 
     rs.close();
     st.close();
@@ -177,6 +179,7 @@ public class Message implements Serializable {
     lorcode = rs.getBoolean("bbcode");
     resolved = rs.getBoolean("resolved");
     groupCommentsRestriction = rs.getInt("restrict_comments");
+    minor = rs.getBoolean("minor");
 
     try {
       section = sectionStore.getSection(sectionid);
@@ -234,6 +237,7 @@ public class Message implements Serializable {
     userid = user.getId();
     lorcode = true;
     resolved = false;
+    minor = false;
 
     message = form.processMessage(group);
 
@@ -315,6 +319,7 @@ public class Message implements Serializable {
     notop = original.notop;
     userid = original.userid;
     lorcode = original.lorcode;
+    minor = original.minor;
 
     if (request.getParameter("newmsg") != null) {
       message = request.getParameter("newmsg");
@@ -857,5 +862,9 @@ public class Message implements Serializable {
     /* to recalc counters */
     st.executeUpdate("UPDATE groups SET stat4=stat4+1 WHERE id=" + guid + " or id=" + changeGroupId);
     st.close();
+  }
+
+  public boolean isMinor() {
+    return minor;
   }
 }

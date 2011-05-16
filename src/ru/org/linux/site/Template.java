@@ -86,7 +86,7 @@ public final class Template {
 
       try {
         db = LorDataSource.getConnection();
-        initCurrentUser(db);
+        initCurrentUser(db, false);
       } finally {
         JdbcUtils.closeConnection(db);
       }
@@ -306,10 +306,6 @@ public final class Template {
     }
 
     return userAgent.detectAndroidWebKit();
-  }
-
-  public void initCurrentUser(Connection db) throws SQLException {
-    initCurrentUser(db, false);
   }
 
   public void updateCurrentUser(Connection db) throws SQLException {

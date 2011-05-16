@@ -53,6 +53,7 @@ pageTracker._setCustomVar(2, "Style", "${template.style}");
 pageTracker._setCustomVar(3, "Mobile View", "${template.mobile}");
 
 pageTracker._trackPageview();
+pageTracker._trackPageLoadTime();
 } catch(err) {}</script>
 
 </div>

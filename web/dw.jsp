@@ -1,3 +1,4 @@
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page contentType="text/html; charset=utf-8"%>
 <%@ page import="ru.org.linux.site.Template"  %>
 <%@ page import="ru.org.linux.util.ServletParameterParser" %>
@@ -29,14 +30,13 @@
 <% } else { %>
 <LINK REL=STYLESHEET TYPE="text/css" HREF="/<%= tmpl.getStyle() %>/dw.css">
 <% }
-//  ServletParameterParser result = new ServletParameterParser(request);
-  ServletParameterParser result1 = new ServletParameterParser(request);%>
+  ServletParameterParser params = new ServletParameterParser(request);%>
 <base target="_top">   
 </head>
 <body>
 <table border="0" cellspacing="0" cellpadding="0">
       <tr>
-        <td><marquee behavior="scroll" direction="up" height="<%= result1.getString("height") %>" ScrollAmount="1" ScrollDelay="100" onMouseOver="this.stop()" onMouseOut="this.start()">
+        <td><marquee behavior="scroll" direction="up" height="<%= params.getInt("height") %>" ScrollAmount="1" ScrollDelay="100" onMouseOver="this.stop()" onMouseOut="this.start()">
           <script type="text/javascript" language="Javascript">
 
       var site_id = 40;
@@ -50,9 +50,17 @@
       var enc = 'UTF-8';
 
     </script>
-          <script type="text/javascript"
+<c:if test="${pageContext.request.secure}">
+  <script type="text/javascript"
+    src="https://www.ibm.com/developerworks/everywhere/ew.js" language="Javascript">
+  </script>
+</c:if>
+<c:if test="${not pageContext.request.secure}">
+    <script type="text/javascript"
       src="http://www.ibm.com/developerworks/everywhere/ew.js" language="Javascript">
     </script>
+</c:if>
+          
           </marquee>
         </td>
       </tr>

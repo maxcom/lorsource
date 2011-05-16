@@ -402,18 +402,14 @@ public class NewsViewerController {
 
   @RequestMapping(value="/view-all.jsp", method={RequestMethod.GET, RequestMethod.HEAD})
   public ModelAndView viewAll(
-    @RequestParam(value="section", required = false, defaultValue = "0") int sectionId,
-    HttpServletRequest request
+    @RequestParam(value="section", required = false, defaultValue = "0") int sectionId
   ) throws Exception {
     Connection db = null;
-
-    Template tmpl = Template.getTemplate(request);
 
     ModelAndView modelAndView = new ModelAndView("view-all");
 
     try {
       db = LorDataSource.getConnection();
-      tmpl.initCurrentUser(db);
 
       Section section = null;
 
@@ -637,7 +633,7 @@ public class NewsViewerController {
       return new RedirectView(Section.getNewsViewerLink(section)+"?offset="+Integer.toString(offset));
     }
 
-    if (year!=null) {
+    if (year!=null && month!=null) {
       return new RedirectView(Section.getArchiveLink(section)+Integer.toString(year)+ '/' +Integer.toString(month));
     }
 

@@ -579,16 +579,22 @@ public class User implements Serializable {
     }
   }
 
-  public String getGravatar(String avatarStyle, int size) {
+  public String getGravatar(String avatarStyle, int size, boolean secure) {
     String nonExist;
 
     if ("empty".equals(avatarStyle)) {
-      nonExist = URLEncoder.encode("http://www.linux.org.ru/img/p.gif");
+      if (secure) {
+        nonExist = URLEncoder.encode("https://www.linux.org.ru/img/p.gif");
+      } else {
+        nonExist = URLEncoder.encode("http://www.linux.org.ru/img/p.gif");
+      }
     } else {
       nonExist = avatarStyle;
     }
 
-    return "http://www.gravatar.com/avatar/"
+    String grUrl = secure?"https://secure.gravatar.com/avatar/":"http://www.gravatar.com/avatar/";
+
+    return grUrl
       + StringUtil.md5hash(email.toLowerCase())
       + "?s="+size+"&amp;r=g&amp;d="+nonExist;
   }
