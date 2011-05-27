@@ -676,11 +676,17 @@ public class Message implements Serializable {
       return false;
     }
 
+    boolean isAuthor = user.getId() == userid;
+
     if (score == POSTSCORE_MOD_AUTHOR) {
-      return user.getId() == userid;
+      return isAuthor;
     }
 
-    return user.getScore() >= score;
+    if (isAuthor) {
+      return true;
+    } else {
+      return user.getScore() >= score;
+    }
   }
 
   public void checkCommentsAllowed(User user) throws AccessViolationException {
