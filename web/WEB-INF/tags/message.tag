@@ -131,7 +131,7 @@ String tagLinks = Tags.getTagLinks(preparedMessage.getTags());
     </c:if>
   </c:if>
   <%
-  if (message.getCommitby() != 0) {
+  if (message.getSection().isPremoderated() && message.getCommitby() != 0) {
     User commiter = preparedMessage.getCommiter();
 
     if (commiter.getId()!=message.getUid()) {
@@ -146,7 +146,6 @@ String tagLinks = Tags.getTagLinks(preparedMessage.getTags());
       }
     }
   }
-
 %>
   <c:if test="${template.sessionAuthorized}">
   <%
