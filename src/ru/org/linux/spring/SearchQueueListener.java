@@ -67,7 +67,7 @@ public class SearchQueueListener {
     if (!msg.isDeleted()) {
       updateMessage(msg);
     } else {
-      logger.info("Deleting message "+msgid+" from solr");      
+      //logger.info("Deleting message "+msgid+" from solr");      
       solrServer.deleteById((Integer.toString(msg.getId())));
     }
 
