@@ -45,7 +45,8 @@
 
     <fieldType name="text" class="solr.TextField" positionIncrementGap="100">
       <analyzer type="index">
-	<tokenizer class="solr.HTMLStripWhitespaceTokenizerFactory"/>
+        <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+        <charFilter class="solr.HTMLStripCharFilterFactory"/>
 	<filter class="solr.LowerCaseFilterFactory"/>
 	<filter class="solr.PatternReplaceFilterFactory"
 		pattern="\[\/?(?:b|i|u|url|quote|code|img|color|size)*?.*?\]"
@@ -62,7 +63,8 @@
 	<filter class="solr.LengthFilterFactory" min="2" max="50" />
       </analyzer>
       <analyzer type="query">
-        <tokenizer class="solr.HTMLStripWhitespaceTokenizerFactory"/>
+        <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+        <charFilter class="solr.HTMLStripCharFilterFactory"/>
         <filter class="solr.LowerCaseFilterFactory"/>
 	<filter class="solr.PatternReplaceFilterFactory"
 		pattern="\[\/?(?:b|i|u|url|quote|code|img|color|size)*?.*?\]"
