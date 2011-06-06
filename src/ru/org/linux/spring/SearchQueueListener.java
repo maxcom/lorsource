@@ -214,7 +214,7 @@ public class SearchQueueListener {
       solrServer.add(docs);
     }
     if (!delete.isEmpty()) {
-      logger.info("Deleting comments: "+delete);
+      //logger.info("Deleting comments: "+delete);
       solrServer.deleteById(delete);
     }
   }
