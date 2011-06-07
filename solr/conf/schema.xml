@@ -45,7 +45,7 @@
 
     <fieldType name="text" class="solr.TextField" positionIncrementGap="100">
       <analyzer type="index">
-        <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+        <tokenizer class="solr.UAX29URLEmailTokenizerFactory"/>
         <charFilter class="solr.HTMLStripCharFilterFactory"/>
 	<filter class="solr.LowerCaseFilterFactory"/>
 	<filter class="solr.PatternReplaceFilterFactory"
@@ -58,12 +58,11 @@
                 words="stopwords.txt"
                 enablePositionIncrements="true"
                 />
-        <filter class="solr.WordDelimiterFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="1" catenateNumbers="1" catenateAll="0" splitOnCaseChange="1"/>
 	<filter class="solr.SnowballPorterFilterFactory" language="Russian"/>
 	<filter class="solr.LengthFilterFactory" min="2" max="50" />
       </analyzer>
       <analyzer type="query">
-        <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+        <tokenizer class="solr.UAX29URLEmailTokenizerFactory"/>
         <charFilter class="solr.HTMLStripCharFilterFactory"/>
         <filter class="solr.LowerCaseFilterFactory"/>
 	<filter class="solr.PatternReplaceFilterFactory"
@@ -77,7 +76,6 @@
                 words="stopwords.txt"
                 enablePositionIncrements="true"
                 />
-        <filter class="solr.WordDelimiterFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="0" catenateNumbers="0" catenateAll="0" splitOnCaseChange="1"/>
 	<filter class="solr.SnowballPorterFilterFactory" language="Russian"/>
 	<filter class="solr.LengthFilterFactory" min="2" max="50" />
       </analyzer>
