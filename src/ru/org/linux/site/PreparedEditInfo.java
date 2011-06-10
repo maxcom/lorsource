@@ -23,15 +23,20 @@ import org.javabb.bbcode.BBCodeProcessor;
 public class PreparedEditInfo {
   private final EditInfoDTO editInfo;
   private final User editor;
-  private final String oldMessage;
+  private final String message;
+  private final boolean current;
+  private final boolean original;
 
-  public PreparedEditInfo(Connection db, EditInfoDTO editInfo) throws UserNotFoundException, SQLException {
+  public PreparedEditInfo(Connection db, EditInfoDTO editInfo, EditInfoDTO prev, boolean current, boolean original) throws UserNotFoundException, SQLException {
     this.editInfo = editInfo;
 
     editor = User.getUserCached(db, editInfo.getEditor());
 
     BBCodeProcessor proc = new BBCodeProcessor();
-    oldMessage = proc.preparePostText(db, editInfo.getOldmessage());
+    message = proc.preparePostText(db, prev.getOldmessage());
+
+    this.current = current;
+    this.original = original;
   }
 
   public EditInfoDTO getEditInfo() {
@@ -42,7 +47,15 @@ public class PreparedEditInfo {
     return editor;
   }
 
-  public String getOldMessage() {
-    return oldMessage;
+  public String getMessage() {
+    return message;
+  }
+
+  public boolean isCurrent() {
+    return current;
+  }
+
+  public boolean isOriginal() {
+    return original;
   }
 }

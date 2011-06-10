@@ -16,8 +16,10 @@
 package ru.org.linux.spring;
 
 import java.sql.Connection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.ListIterator;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -50,17 +52,31 @@ public class EditInfoController {
 
       Message message = new Message(db, msgid);
 
-      String messageText = message.getProcessedMessage(db);
-
       List<EditInfoDTO> editInfoDTOs = message.loadEditInfo(db);
       List<PreparedEditInfo> editInfos = new ArrayList<PreparedEditInfo>(editInfoDTOs.size());
 
-      for (EditInfoDTO dto : editInfoDTOs) {
-        editInfos.add(new PreparedEditInfo(db, dto));
+      EditInfoDTO current = new EditInfoDTO();
+      current.setOldmessage(message.getMessage());
+      current.setEditdate(message.getPostdate());
+      current.setEditor(message.getUid());
+      current.setMsgid(message.getMessageId());
+
+      for (int i = 0; i<editInfoDTOs.size(); i++) {
+        EditInfoDTO dto = editInfoDTOs.get(i);
+
+        if (i>0) {
+          editInfos.add(new PreparedEditInfo(db, dto, editInfoDTOs.get(i-1), false, false));
+        } else {
+          editInfos.add(new PreparedEditInfo(db, dto, current, true, false));
+        }
+
+      }
+
+      if (!editInfoDTOs.isEmpty()) {
+        editInfos.add(new PreparedEditInfo(db, current, editInfoDTOs.get(editInfoDTOs.size()-1), false, true));
       }
 
       mv.getModel().put("message", message);
-      mv.getModel().put("messageText", messageText);
       mv.getModel().put("editInfos", editInfos);
 
       return mv;

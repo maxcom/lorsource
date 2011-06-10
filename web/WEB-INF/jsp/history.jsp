@@ -16,7 +16,6 @@
   ~    limitations under the License.
   --%>
 <%--@elvariable id="message" type="ru.org.linux.site.Message"--%>
-<%--@elvariable id="messageText" type="java.lang.String"--%>
 <%--@elvariable id="editInfos" type="java.util.List<ru.org.linux.site.PreparedEditInfo>"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
@@ -25,27 +24,31 @@
 <h1>История изменений</h1>
 
 <div class="messages">
-  <p>Текущая версия</p>
-
-  <div class="msg">
-    <div class="msg_body">
-      ${messageText}
-    </div>
-  </div>
-
   <c:forEach items="${editInfos}" var="editInfo">
     <p>
-      Исправление <lor:user link="true" decorate="true" user="${editInfo.editor}"/>,
+      <c:if test="${editInfo.original}">
+        Исходная версия
+      </c:if>
+
+      <c:if test="${not editInfo.original}">
+        Исправление
+      </c:if>
+
+      <lor:user link="true" decorate="true" user="${editInfo.editor}"/>,
       <lor:dateinterval date="${editInfo.editInfo.editdate}"/>
+
+      <c:if test="${editInfo.current}">
+        (текущая версия)
+      </c:if>
+
+      :
     </p>
     <div class="msg">
       <div class="msg_body">
-        ${editInfo.oldMessage}
+        ${editInfo.message}
       </div>
     </div>
 </c:forEach>
-
-  <p>Исходная версия</p>
 </div>
 
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>
