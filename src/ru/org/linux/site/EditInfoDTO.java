@@ -23,6 +23,7 @@ public class EditInfoDTO {
   private int editor;
   private String oldmessage;
   private Timestamp editdate;
+  private String oldtitle;
 
   public int getId() {
     return id;
@@ -62,5 +63,13 @@ public class EditInfoDTO {
 
   public void setEditdate(Timestamp editdate) {
     this.editdate = editdate;
+  }
+
+  public String getOldtitle() {
+    return oldtitle;
+  }
+
+  public void setOldtitle(String oldtitle) {
+    this.oldtitle = oldtitle;
   }
 }

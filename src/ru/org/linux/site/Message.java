@@ -29,6 +29,7 @@ import ru.org.linux.spring.AddMessageForm;
 import ru.org.linux.spring.SectionStore;
 import ru.org.linux.util.*;
 
+import com.google.common.collect.ImmutableList;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.javabb.bbcode.BBCodeProcessor;
@@ -551,9 +552,9 @@ public class Message implements Serializable {
   }
 
   public void updateMessageText(Connection db, User editor) throws SQLException {
-    PreparedStatement pstGet = db.prepareStatement("SELECT message FROM msgbase WHERE id=? FOR UPDATE");
+    PreparedStatement pstGet = db.prepareStatement("SELECT message,title FROM msgbase JOIN topics ON msgbase.id=topics.id WHERE topics.id=? FOR UPDATE");
     PreparedStatement pst = db.prepareStatement("UPDATE msgbase SET message=? WHERE id=?");
-    PreparedStatement pstInfo = db.prepareStatement("INSERT INTO edit_info (msgid, editor, oldmessage) VALUES(?,?,?)");
+    PreparedStatement pstInfo = db.prepareStatement("INSERT INTO edit_info (msgid, editor, oldmessage, oldtitle) VALUES(?,?,?,?)");
 
     pstGet.setInt(1, msgid);
     ResultSet rs = pstGet.executeQuery();
@@ -563,13 +564,33 @@ public class Message implements Serializable {
 
     pst.setString(1, message);
     pst.setInt(2, msgid);
-    pst.executeUpdate();
 
     pstInfo.setInt(1, msgid);
     pstInfo.setInt(2, editor.getId());
-    pstInfo.setString(3, rs.getString("message"));
 
-    pstInfo.executeUpdate();
+    String oldMessage = rs.getString("message");
+    String oldTitle = rs.getString("title");
+
+    boolean modified = false;
+
+    if (!oldMessage.equals(message)) {
+      pstInfo.setString(3, oldMessage);
+      modified = true;
+    } else {
+      pstInfo.setString(3, null);
+    }
+
+    if (!oldTitle.equals(title)) {
+      modified = true;
+      pstInfo.setString(4, oldTitle);
+    } else {
+      pstInfo.setString(4, null);
+    }
+
+    if (modified) {
+      pstInfo.executeUpdate();
+      pst.executeUpdate();
+    }
   }
 
   public String getUrl() {
@@ -782,29 +803,22 @@ public class Message implements Serializable {
 
       ResultSet rs = pst.executeQuery();
 
-      List<EditInfoDTO> list = null;
+      ImmutableList.Builder<EditInfoDTO> list = ImmutableList.builder();
 
       while (rs.next()) {
-        if (list == null) {
-          list = new ArrayList<EditInfoDTO>();
-        }
-
         EditInfoDTO dto = new EditInfoDTO();
 
         dto.setId(rs.getInt("id"));
         dto.setEditdate(rs.getTimestamp("editdate"));
         dto.setEditor(rs.getInt("editor"));
         dto.setOldmessage(rs.getString("oldmessage"));
+        dto.setOldtitle(rs.getString("oldtitle"));
         dto.setMsgid(rs.getInt("msgid"));
 
         list.add(dto);
       }
 
-      if (list == null) {
-        return Collections.emptyList();
-      }
-
-      return list;
+      return list.build();
     } finally {
       pst.close();
     }

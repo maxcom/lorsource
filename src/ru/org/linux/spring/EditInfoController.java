@@ -16,20 +16,21 @@
 package ru.org.linux.spring;
 
 import java.sql.Connection;
-import java.util.Iterator;
-import java.util.List;
 import java.util.ArrayList;
-import java.util.ListIterator;
-
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.servlet.ModelAndView;
+import java.util.List;
 
 import ru.org.linux.site.EditInfoDTO;
 import ru.org.linux.site.LorDataSource;
 import ru.org.linux.site.Message;
 import ru.org.linux.site.PreparedEditInfo;
+
+import com.google.common.base.Predicate;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 public class EditInfoController {
@@ -52,7 +53,12 @@ public class EditInfoController {
 
       Message message = new Message(db, msgid);
 
-      List<EditInfoDTO> editInfoDTOs = message.loadEditInfo(db);
+      List<EditInfoDTO> editInfoDTOs = ImmutableList.copyOf(Iterables.filter(message.loadEditInfo(db), new Predicate<EditInfoDTO>() {
+        @Override
+        public boolean apply(EditInfoDTO dto) {
+          return dto.getOldmessage()!=null;
+        }
+      }));
       List<PreparedEditInfo> editInfos = new ArrayList<PreparedEditInfo>(editInfoDTOs.size());
 
       EditInfoDTO current = new EditInfoDTO();

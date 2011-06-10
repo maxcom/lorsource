@@ -251,9 +251,8 @@ public class EditController extends ApplicationObjectSupport {
         modified = true;
       }
 
-      boolean messageModified = false;
       if (!message.getMessage().equals(newMsg.getMessage())) {
-        messageModified = true;
+        modified = true;
       }
 
       if (message.getLinktext() == null) {
@@ -274,7 +273,7 @@ public class EditController extends ApplicationObjectSupport {
         }
       }
 
-      if (message.isExpired() && (modified || messageModified)) {
+      if (message.isExpired() && (modified)) {
         throw new AccessViolationException("нельзя править устаревшие сообщения");
       }
 
@@ -297,20 +296,20 @@ public class EditController extends ApplicationObjectSupport {
         pst.setInt(5, message.getId());
 
         if (modified) {
-          pst.executeUpdate();
-        }
-
-        if (messageModified) {
           newMsg.updateMessageText(db, user);
         }
 
+        if (modified) {
+          pst.executeUpdate();
+        }
+        
         boolean modifiedTags = Tags.updateTags(db, message.getId(), newTags);
         if (modifiedTags) {
           Tags.updateCounters(db, oldTags, newTags);
         }
 
         params.put("modifiedTags", modifiedTags);
-        params.put("modified", modified || messageModified || modifiedTags);
+        params.put("modified", modified || modifiedTags);
 
         if (commit) {
           if (changeGroupId != null) {
@@ -331,8 +330,8 @@ public class EditController extends ApplicationObjectSupport {
           message.commit(db, user, bonus);
         }
 
-        if (modified || messageModified || modifiedTags || commit) {
-          if (modified || messageModified || modifiedTags) {
+        if (modified || modifiedTags || commit) {
+          if (modified || modifiedTags) {
             logger.info("сообщение " + message.getId() + " исправлено " + user.getNick());
           }
 
