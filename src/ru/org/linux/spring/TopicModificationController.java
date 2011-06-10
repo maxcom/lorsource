@@ -191,6 +191,10 @@ public class TopicModificationController extends ApplicationObjectSupport {
 
       Message msg = new Message(db, msgid);
 
+      if (msg.isDeleted()) {
+        throw new AccessViolationException("Сообщение удалено");
+      }
+
       Statement st1 = db.createStatement();
 
       Group newGrp = new Group(db, newgr);
