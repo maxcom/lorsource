@@ -49,14 +49,14 @@
 Мы работаем на
   </p>
     <ul>
-      <li>Fedora 13</li>
+      <li>Fedora 14</li>
       <li>СУБД PostgreSQL 8.4</li>
       <li>OpenJDK 1.6.0</li>
       <li>Apache Tomcat 6</li>
       <li>memcached 1.2</li>
       <li>ActiveMQ 5.3.2</li>
       <li>Spring 3.0</li>
-      <li>Wiki: JamWiki 0.8.4</li>
+      <li>Wiki: JamWiki 0.9.5</li>
       <li>Поиск: Apache Solr 3.2.0</li>
     </ul>
 
