@@ -24,9 +24,6 @@ import ru.org.linux.site.LorDataSource;
 import ru.org.linux.site.Message;
 import ru.org.linux.site.PreparedEditInfo;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -53,33 +50,43 @@ public class EditInfoController {
 
       Message message = new Message(db, msgid);
 
-      List<EditInfoDTO> editInfoDTOs = ImmutableList.copyOf(Iterables.filter(message.loadEditInfo(db), new Predicate<EditInfoDTO>() {
-        @Override
-        public boolean apply(EditInfoDTO dto) {
-          return dto.getOldmessage()!=null;
-        }
-      }));
+      List<EditInfoDTO> editInfoDTOs = message.loadEditInfo(db);
       List<PreparedEditInfo> editInfos = new ArrayList<PreparedEditInfo>(editInfoDTOs.size());
 
-      EditInfoDTO current = new EditInfoDTO();
-      current.setOldmessage(message.getMessage());
-      current.setEditdate(message.getPostdate());
-      current.setEditor(message.getUid());
-      current.setMsgid(message.getMessageId());
+      String currentMessage = message.getMessage();
+      String currentTitle = message.getTitle();
 
       for (int i = 0; i<editInfoDTOs.size(); i++) {
         EditInfoDTO dto = editInfoDTOs.get(i);
 
-        if (i>0) {
-          editInfos.add(new PreparedEditInfo(db, dto, editInfoDTOs.get(i-1), false, false));
-        } else {
-          editInfos.add(new PreparedEditInfo(db, dto, current, true, false));
+        editInfos.add(
+          new PreparedEditInfo(
+            db,
+            dto,
+            dto.getOldmessage()!=null ? currentMessage : null,
+            dto.getOldtitle()!=null ? currentTitle : null,
+            i==0,
+            false
+          )
+        );
+
+        if (dto.getOldmessage() !=null) {
+          currentMessage = dto.getOldmessage();
         }
 
+        if (dto.getOldtitle() != null) {
+          currentTitle = dto.getOldtitle();
+        }
       }
 
       if (!editInfoDTOs.isEmpty()) {
-        editInfos.add(new PreparedEditInfo(db, current, editInfoDTOs.get(editInfoDTOs.size()-1), false, true));
+        EditInfoDTO current = new EditInfoDTO();
+        current.setOldmessage(message.getMessage());
+        current.setEditdate(message.getPostdate());
+        current.setEditor(message.getUid());
+        current.setMsgid(message.getMessageId());
+
+        editInfos.add(new PreparedEditInfo(db, current, currentMessage, currentTitle, false, true));
       }
 
       mv.getModel().put("message", message);

@@ -45,6 +45,7 @@
     </p>
     <div class="msg">
       <div class="msg_body">
+        <h2>${editInfo.title}</h2>
         ${editInfo.message}
       </div>
     </div>
