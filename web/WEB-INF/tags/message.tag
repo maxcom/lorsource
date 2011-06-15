@@ -107,15 +107,10 @@
     out.append(NewsViewer.showMediumImage(tmpl.getObjectConfig().getHTMLPathPrefix(), message, true));
   }
 %>
-<c:if test="${message.section.premoderated}"><%
-String tagLinks = Tags.getTagLinks(preparedMessage.getTags());
-
-    if (tagLinks.length() > 0) {
-      out.append("<p class=tags>Метки: <span class=tag>");
-      out.append(tagLinks);
-      out.append("</span></p>");
-    }
-%>
+<c:if test="${message.section.premoderated and not empty preparedMessage.tags}">
+  <p class=tags>
+    Метки: <span class=tag><%= Tags.getTagLinks(preparedMessage.getTags()) %></span>
+  </p>
 </c:if>
 <div class=sign>
   <lor:sign postdate="${message.postdate}" user="${preparedMessage.author}" shortMode="${template.mobile}"/>
