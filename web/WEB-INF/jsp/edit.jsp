@@ -94,7 +94,7 @@
 
   <c:if test="${group.moderated}">
   <label>Теги:
-  <input type="text" size="70" name="tags" id="tags" value="<%= newPreparedMsg.getTags().toString() %>"><br>
+  <input type="text" size="70" name="tags" id="tags" value="<%= Tags.toString(newPreparedMsg.getTags()) %>"><br>
   Популярные теги: <%= Tags.getEditTags(topTags) %></label> <br>
     </c:if>
   <br>
