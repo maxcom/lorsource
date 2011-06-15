@@ -16,10 +16,7 @@
 package ru.org.linux.spring;
 
 import java.sql.Connection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -155,7 +152,7 @@ public class AddMessageController extends ApplicationObjectSupport {
         if (form.getTags() != null) {
           List<String> tags = Tags.parseTags(form.getTags());
           Tags.updateTags(db, msgid, tags);
-          Tags.updateCounters(db, null, tags);          
+          Tags.updateCounters(db, Collections.<String>emptyList(), tags);          
         }
 
         db.commit();

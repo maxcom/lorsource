@@ -79,11 +79,7 @@ public class Tags implements Serializable {
 
   @Override
   public String toString() {
-    return toString(tags);
-  }
-
-  public static String toString(List<String> tags) {
-    if (tags==null || tags.isEmpty()) {
+    if (tags.isEmpty()) {
       return "";
     }
 
@@ -124,10 +120,6 @@ public class Tags implements Serializable {
     return map;
   }
 
-  public static List<String> getMessageTags(Connection con, int msgid) throws SQLException {
-    return new Tags(con, msgid).tags;
-  }
-
   public static void checkTag(String tag) throws UserErrorException {
     // обработка тега: только буквы/цифры/пробелы, никаких спецсимволов, запятых, амперсандов и <>
     if (!tagRE.matcher(tag).matches()) {
@@ -138,10 +130,6 @@ public class Tags implements Serializable {
   public static void updateCounters(Connection con, List<String> oldTags, List<String> newTags) throws SQLException {
     PreparedStatement stInc = con.prepareStatement("UPDATE tags_values SET counter=counter+1 WHERE id=?");
     PreparedStatement stDec = con.prepareStatement("UPDATE tags_values SET counter=counter-1 WHERE id=?");
-
-    if (oldTags==null) {
-      oldTags = Collections.emptyList();
-    }
 
     for (String tag : newTags) {
       if (!oldTags.contains(tag)) {
@@ -206,7 +194,7 @@ public class Tags implements Serializable {
   }
 
   public static boolean updateTags(Connection con, int msgid, List<String> tagList) throws SQLException {
-    List<String> oldTags = getMessageTags(con, msgid);
+    List<String> oldTags = new Tags(con, msgid).tags;
 
     PreparedStatement insertStatement = con.prepareStatement("INSERT INTO tags VALUES(?,?)");
     PreparedStatement deleteStatement = con.prepareStatement("DELETE FROM tags WHERE msgid=? and tagid=?");
@@ -239,16 +227,6 @@ public class Tags implements Serializable {
     deleteStatement.close();
 
     return modified;
-  }
-
-  public static String getPlainTags(Connection con, int msgid) throws SQLException {
-    return new Tags(con,msgid).toString();
-  }
-
-  public static String getTagLinks(Connection con, int msgid) throws SQLException {
-    Tags tags = new Tags(con, msgid);
-
-    return getTagLinks(tags);
   }
 
   public static String getTagLinks(Tags tags)  {
