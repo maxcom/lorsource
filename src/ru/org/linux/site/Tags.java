@@ -25,13 +25,16 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.regex.Pattern;
 
+import com.google.common.collect.ImmutableList;
 import org.apache.commons.lang.StringUtils;
 
-public class Tags implements Serializable {
+public final class Tags implements Serializable {
   private static final Pattern tagRE = Pattern.compile("([\\p{L}\\d \\+-]+)", Pattern.CASE_INSENSITIVE);
 
-  private final List<String> tags;
   private static final int TOP_TAGS_COUNT = 50;
+
+  private Tags() {
+  }
 
   private static synchronized int getOrCreateTag(Connection con, String tag) throws SQLException {
     PreparedStatement st2 = con.prepareStatement("SELECT id FROM tags_values WHERE value=?");
@@ -58,8 +61,8 @@ public class Tags implements Serializable {
     return id;
   }
 
-  public Tags(Connection con, int msgid) throws SQLException {
-    tags = new ArrayList<String>();
+  public static ImmutableList<String> getMessageTags(Connection con, int msgid) throws SQLException {
+    ImmutableList.Builder<String> tags = ImmutableList.builder();
     
     PreparedStatement st = con.prepareStatement("SELECT tags_values.value FROM tags, tags_values WHERE tags.msgid=? AND tags_values.id=tags.tagid ORDER BY value");
     st.setInt(1, msgid);
@@ -71,14 +74,11 @@ public class Tags implements Serializable {
     }
 
     st.close();
+
+    return tags.build();
   }
 
-  public Tags(List<String> tags) {
-    this.tags = tags;
-  }
-
-  @Override
-  public String toString() {
+  public static String toString(Collection<String> tags) {
     if (tags.isEmpty()) {
       return "";
     }
@@ -90,10 +90,6 @@ public class Tags implements Serializable {
     }
 
     return str.toString();
-  }
-
-  public List<String> getTags() {
-    return tags;
   }
 
   public static SortedSet<String> getTopTags(Connection con) throws SQLException {
@@ -148,7 +144,7 @@ public class Tags implements Serializable {
     }
   }
 
-  public static List<String> parseTags(String tags) throws UserErrorException {
+  public static ImmutableList<String> parseTags(String tags) throws UserErrorException {
     Set<String> tagSet = new HashSet<String>();
 
     // Теги разделяютчя пайпом или запятой
@@ -156,7 +152,7 @@ public class Tags implements Serializable {
     String [] tagsArr = tags.split(",");
 
     if (tagsArr.length==0) {
-      return Collections.emptyList();
+      return ImmutableList.of();
     }
 
     for (String aTagsArr : tagsArr) {
@@ -172,7 +168,7 @@ public class Tags implements Serializable {
       tagSet.add(tag);
     }
 
-    return new ArrayList<String>(tagSet);
+    return ImmutableList.copyOf(tagSet);
   }
 
   // TODO: move to JSP
@@ -194,7 +190,7 @@ public class Tags implements Serializable {
   }
 
   public static boolean updateTags(Connection con, int msgid, List<String> tagList) throws SQLException {
-    List<String> oldTags = new Tags(con, msgid).tags;
+    List<String> oldTags = getMessageTags(con, msgid);
 
     PreparedStatement insertStatement = con.prepareStatement("INSERT INTO tags VALUES(?,?)");
     PreparedStatement deleteStatement = con.prepareStatement("DELETE FROM tags WHERE msgid=? and tagid=?");
@@ -229,14 +225,12 @@ public class Tags implements Serializable {
     return modified;
   }
 
-  public static String getTagLinks(Tags tags)  {
-    List<String> mtags = tags.tags;
-
+  public static String getTagLinks(Collection<String> tags)  {
     StringBuilder buf = new StringBuilder();
-    if (mtags.isEmpty()) {
+    if (tags.isEmpty()) {
       return "";
     }
-    for (String mtag : mtags) {
+    for (String mtag : tags) {
       if (buf.length() > 0) {
         buf.append(", ");
       }

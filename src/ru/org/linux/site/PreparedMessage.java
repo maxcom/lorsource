@@ -21,6 +21,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
+import com.google.common.collect.ImmutableList;
+
 public final class PreparedMessage {
   private final Message message;
   private final User author;
@@ -29,7 +31,7 @@ public final class PreparedMessage {
   private final String processedMessage;
   private final PreparedPoll poll;
   private final User commiter;
-  private final Tags tags;
+  private final ImmutableList<String> tags;
   private final Group group;
 
   private final EditInfoDTO lastEditInfo;
@@ -41,14 +43,14 @@ public final class PreparedMessage {
   private static final int EDIT_PERIOD = 2 * 60 * 60 * 1000; // milliseconds
 
   public PreparedMessage(Connection db, Message message, boolean includeCut) throws SQLException {
-    this(db, message, new Tags(db, message.getId()), includeCut);
+    this(db, message, Tags.getMessageTags(db, message.getId()), includeCut);
   }
 
-  public PreparedMessage(Connection db, Message message, Tags tags) throws SQLException {
+  public PreparedMessage(Connection db, Message message, List<String> tags) throws SQLException {
     this(db, message, tags, true);
   }
 
-  public PreparedMessage(Connection db, Message message, Tags tags, boolean includeCut) throws SQLException {
+  public PreparedMessage(Connection db, Message message, List<String> tags, boolean includeCut) throws SQLException {
     try {
       this.message = message;
 
@@ -96,7 +98,7 @@ public final class PreparedMessage {
 
       userAgent = loadUserAgent(db, message.getUserAgent());
 
-      this.tags=tags;
+      this.tags=ImmutableList.copyOf(tags);
     } catch (BadGroupException e) {
       throw new RuntimeException(e);
     } catch (UserNotFoundException e) {
@@ -174,7 +176,7 @@ public final class PreparedMessage {
     return userAgent;
   }
 
-  public Tags getTags() {
+  public ImmutableList<String> getTags() {
     return tags;
   }
 

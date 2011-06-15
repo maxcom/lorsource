@@ -277,7 +277,7 @@ public class EditController extends ApplicationObjectSupport {
         throw new AccessViolationException("нельзя править устаревшие сообщения");
       }
 
-      List<String> oldTags = new Tags(db, message.getId()).getTags();
+      List<String> oldTags = Tags.getMessageTags(db, message.getId());
       List<String> newTags;
 
       if (request.getParameter("tags")!=null) {
@@ -350,7 +350,7 @@ public class EditController extends ApplicationObjectSupport {
       }
 
       params.put("newMsg", newMsg);
-      params.put("newPreparedMessage", new PreparedMessage(db, newMsg, new Tags(newTags)));
+      params.put("newPreparedMessage", new PreparedMessage(db, newMsg, newTags));
 
       return new ModelAndView("edit", params);
     } finally {
