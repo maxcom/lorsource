@@ -30,6 +30,7 @@ import ru.org.linux.site.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.support.ApplicationObjectSupport;
+import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -287,6 +288,8 @@ public class EditController extends ApplicationObjectSupport {
       }
 
       if (!preview) {
+        SingleConnectionDataSource scds = new SingleConnectionDataSource(db, true);
+
         PreparedStatement pst = db.prepareStatement("UPDATE topics SET linktext=?, url=?, minor=? WHERE id=?");
 
         pst.setString(1, newMsg.getLinktext());

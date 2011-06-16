@@ -28,9 +28,15 @@ import ru.org.linux.spring.SectionStore;
 import ru.org.linux.util.*;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.javabb.bbcode.BBCodeProcessor;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
+import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
+import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
+import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
+import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 
 public class Message implements Serializable {
   private static final Log logger = LogFactory.getLog(Message.class);
@@ -541,9 +547,9 @@ public class Message implements Serializable {
   }
 
   public void updateMessageText(Connection db, User editor) throws SQLException {
+    SingleConnectionDataSource scds = new SingleConnectionDataSource(db, true);
+
     PreparedStatement pstGet = db.prepareStatement("SELECT message,title FROM msgbase JOIN topics ON msgbase.id=topics.id WHERE topics.id=? FOR UPDATE");
-    PreparedStatement pst = db.prepareStatement("UPDATE msgbase SET message=? WHERE id=?");
-    PreparedStatement pstInfo = db.prepareStatement("INSERT INTO edit_info (msgid, editor, oldmessage, oldtitle) VALUES(?,?,?,?)");
 
     pstGet.setInt(1, msgid);
     ResultSet rs = pstGet.executeQuery();
@@ -551,48 +557,49 @@ public class Message implements Serializable {
       throw new RuntimeException("Can't fetch previous message text");
     }
 
-    pst.setString(1, message);
-    pst.setInt(2, msgid);
-
-    pstInfo.setInt(1, msgid);
-    pstInfo.setInt(2, editor.getId());
-
     String oldMessage = rs.getString("message");
     String oldTitle = rs.getString("title");
 
     rs.close();
     pstGet.close();
 
+    EditInfoDTO editInfo = new EditInfoDTO();
+
+    editInfo.setMsgid(msgid);
+    editInfo.setEditor(editor.getId());
+
     boolean modified = false;
 
     if (!oldMessage.equals(message)) {
-      pstInfo.setString(3, oldMessage);
+      editInfo.setOldmessage(oldMessage);
       modified = true;
-    } else {
-      pstInfo.setString(3, null);
     }
+
+    SimpleJdbcTemplate jdbcTemplate = new SimpleJdbcTemplate(scds);
 
     if (!oldTitle.equals(title)) {
       modified = true;
-      pstInfo.setString(4, oldTitle);
+      editInfo.setOldtitle(oldTitle);
 
-      PreparedStatement pstMeta = db.prepareStatement("UPDATE topics SET title=? WHERE id=?");
-
-      pstMeta.setString(1, title);
-      pstMeta.setInt(2, msgid);
-      pstMeta.executeUpdate();
-
-      pstMeta.close();
-    } else {
-      pstInfo.setString(4, null);
+      jdbcTemplate.update(
+        "UPDATE topics SET title=:title WHERE id=:id",
+        ImmutableMap.of("title", title, "id", msgid)
+      );
     }
 
     if (modified) {
-      pstInfo.executeUpdate();
-      pst.executeUpdate();
-    }
+      SimpleJdbcInsert insert =
+        new SimpleJdbcInsert(scds)
+          .withTableName("edit_info")
+          .usingColumns("msgid", "editor", "oldmessage", "oldtitle");
 
-    pst.close();
+      insert.execute(new BeanPropertySqlParameterSource(editInfo));
+
+      jdbcTemplate.update(
+        "UPDATE msgbase SET message=:message WHERE id=:msgid",
+        ImmutableMap.of("message", message, "msgid", msgid)
+      );
+    }
   }
 
   public String getUrl() {
@@ -799,31 +806,17 @@ public class Message implements Serializable {
   }
 
   public List<EditInfoDTO> loadEditInfo(Connection db) throws SQLException {
-    PreparedStatement pst = db.prepareStatement("SELECT * FROM edit_info WHERE msgid=? ORDER BY id DESC");
-    try {
-      pst.setInt(1, msgid);
+    SingleConnectionDataSource scds = new SingleConnectionDataSource(db, true);
 
-      ResultSet rs = pst.executeQuery();
+    SimpleJdbcTemplate jdbcTemplate = new SimpleJdbcTemplate(scds);
 
-      ImmutableList.Builder<EditInfoDTO> list = ImmutableList.builder();
+    List<EditInfoDTO> list = jdbcTemplate.query(
+      "SELECT * FROM edit_info WHERE msgid=? ORDER BY id DESC",
+      BeanPropertyRowMapper.newInstance(EditInfoDTO.class),
+      msgid
+    );
 
-      while (rs.next()) {
-        EditInfoDTO dto = new EditInfoDTO();
-
-        dto.setId(rs.getInt("id"));
-        dto.setEditdate(rs.getTimestamp("editdate"));
-        dto.setEditor(rs.getInt("editor"));
-        dto.setOldmessage(rs.getString("oldmessage"));
-        dto.setOldtitle(rs.getString("oldtitle"));
-        dto.setMsgid(rs.getInt("msgid"));
-
-        list.add(dto);
-      }
-
-      return list.build();
-    } finally {
-      pst.close();
-    }
+    return ImmutableList.copyOf(list);
   }
 
   public boolean isResolved() {
