@@ -64,7 +64,7 @@ URL (не забудьте добавить <b>http://</b>): <br>
 <input class="required email" type=text name=email size="50" value="<c:out value="${param.email}" escapeXml="true"/>"><br>
 Город (просьба писать русскими буквами без сокращений, например: <b>Москва</b>,
 <b>Нижний Новгород</b>, <b>Троицк (Московская область)</b>):
-<input type=text name=town size=50 value="<c:out value="${param.town}" escapeXml="true"/>"><br>
+<input type=text name=town maxlength="100" size=50 value="<c:out value="${param.town}" escapeXml="true"/>"><br>
 Дополнительная информация:<br>
 <textarea name=info cols=50 rows=5><c:out value="${param.info}" escapeXml="true"/></textarea><br>
 <p>
