@@ -287,13 +287,12 @@ public class EditController extends ApplicationObjectSupport {
       }
 
       if (!preview) {
-        PreparedStatement pst = db.prepareStatement("UPDATE topics SET title=?, linktext=?, url=?, minor=? WHERE id=?");
+        PreparedStatement pst = db.prepareStatement("UPDATE topics SET linktext=?, url=?, minor=? WHERE id=?");
 
-        pst.setString(1, newMsg.getTitle());
-        pst.setString(2, newMsg.getLinktext());
-        pst.setString(3, newMsg.getUrl());
-        pst.setBoolean(4, minor);
-        pst.setInt(5, message.getId());
+        pst.setString(1, newMsg.getLinktext());
+        pst.setString(2, newMsg.getUrl());
+        pst.setBoolean(3, minor);
+        pst.setInt(4, message.getId());
 
         if (modified) {
           newMsg.updateMessageText(db, user);

@@ -571,6 +571,9 @@ public class Message implements Serializable {
     String oldMessage = rs.getString("message");
     String oldTitle = rs.getString("title");
 
+    rs.close();
+    pstGet.close();
+
     boolean modified = false;
 
     if (!oldMessage.equals(message)) {
@@ -583,6 +586,14 @@ public class Message implements Serializable {
     if (!oldTitle.equals(title)) {
       modified = true;
       pstInfo.setString(4, oldTitle);
+
+      PreparedStatement pstMeta = db.prepareStatement("UPDATE topics SET title=? WHERE id=?");
+
+      pstMeta.setString(1, title);
+      pstMeta.setInt(2, msgid);
+      pstMeta.executeUpdate();
+
+      pstMeta.close();
     } else {
       pstInfo.setString(4, null);
     }
@@ -591,6 +602,8 @@ public class Message implements Serializable {
       pstInfo.executeUpdate();
       pst.executeUpdate();
     }
+
+    pst.close();
   }
 
   public String getUrl() {
