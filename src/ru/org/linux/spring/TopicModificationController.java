@@ -109,7 +109,7 @@ public class TopicModificationController extends ApplicationObjectSupport {
       StringBuilder out = new StringBuilder();
 
       if (msg.getPostScore() != postscore) {
-        out.append("Установлен новый уровень записи: ").append(Message.getPostScoreInfoFull(postscore)).append("<br>");
+        out.append("Установлен новый уровень записи: ").append(getPostScoreInfoFull(postscore)).append("<br>");
         logger.info("Установлен новый уровень записи " + postscore + " для " + msgid + " пользователем " + user.getNick());
       }
 
@@ -363,4 +363,12 @@ public class TopicModificationController extends ApplicationObjectSupport {
     }
   }
 
+  public static String getPostScoreInfoFull(int postscore) {
+    String info = Message.getPostScoreInfo(postscore);
+    if (info.isEmpty()) {
+      return "без ограничений";
+    } else {
+      return info;
+    }
+  }
 }

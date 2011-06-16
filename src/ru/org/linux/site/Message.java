@@ -18,8 +18,6 @@ package ru.org.linux.site;
 import java.io.IOException;
 import java.io.Serializable;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import javax.servlet.ServletRequest;
@@ -403,15 +401,6 @@ public class Message implements Serializable {
 
   public String getPostScoreInfo() {
     return getPostScoreInfo(getPostScore());
-  }
-
-  public static String getPostScoreInfoFull(int postscore) {
-    String info = getPostScoreInfo(postscore);
-    if (info.isEmpty()) {
-      return "без ограничений";
-    } else {
-      return info;
-    }
   }
 
   public static String getPostScoreInfo(int postscore) {
