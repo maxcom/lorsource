@@ -46,7 +46,7 @@ public class PreparedPoll {
   }
 
   /* TODO: move to JSP */
-  public String renderPoll(String fullUrl) throws SQLException {
+  public String renderPoll(String fullUrl)  {
     StringBuilder out = new StringBuilder();
     int max = maximumValue;
     out.append("<table>");

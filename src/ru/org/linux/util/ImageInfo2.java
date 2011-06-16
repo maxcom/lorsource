@@ -28,13 +28,10 @@
 
 package ru.org.linux.util;
 
-import java.io.DataInput;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.RandomAccessFile;
+import java.io.*;
 import java.net.URL;
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Get file format, image resolution, number of bits per pixel and optionally 
@@ -267,7 +264,7 @@ public class ImageInfo2 {
 	private InputStream in;
 	private DataInput din;
 	private boolean collectComments = true;
-	private Vector comments;
+	private List<String> comments;
 	private boolean determineNumberOfImages;
 	private int numberOfImages;
 	private int physicalHeightDpi;
@@ -275,9 +272,9 @@ public class ImageInfo2 {
 
 	private void addComment(String s) {
 		if (comments == null) {
-			comments = new Vector();
+			comments = new ArrayList<String>();
 		}
-		comments.addElement(s);
+		comments.add(s);
 	}
 
 	/**
@@ -808,7 +805,7 @@ public class ImageInfo2 {
 		if (comments == null || index < 0 || index >= comments.size()) {
 			throw new IllegalArgumentException("Not a valid comment index: " + index);
 		}
-		return (String)comments.elementAt(index);
+		return comments.get(index);
 	}
 
 	/**

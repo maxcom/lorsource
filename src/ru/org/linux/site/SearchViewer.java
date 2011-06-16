@@ -17,8 +17,6 @@ package ru.org.linux.site;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -75,7 +73,6 @@ public class SearchViewer {
 
   public QueryResponse performSearch(SolrServer search, Connection db) throws SQLException, UserErrorException, SolrServerException {
     ModifiableSolrParams params = new ModifiableSolrParams();
-    List<SearchItem> items = new ArrayList<SearchItem>();
     // set search query params
     params.set("q", query);
     params.set("rows", 100);
@@ -118,9 +115,9 @@ public class SearchViewer {
     return search.query(params);
   }
 
-  public void setInclude(int include, boolean noinclude_title) {
+  public void setInclude(int include, boolean noincludeTitle) {
     this.include = include;
-    this.noincludeTitle = noinclude_title;
+    this.noincludeTitle = noincludeTitle;
   }
 
   public void setInterval(SearchInterval interval) {

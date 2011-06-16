@@ -805,7 +805,7 @@ public class Message implements Serializable {
     return lorcode;
   }
 
-  public List<EditInfoDTO> loadEditInfo(Connection db) throws SQLException {
+  public List<EditInfoDTO> loadEditInfo(Connection db)  {
     SingleConnectionDataSource scds = new SingleConnectionDataSource(db, true);
 
     SimpleJdbcTemplate jdbcTemplate = new SimpleJdbcTemplate(scds);

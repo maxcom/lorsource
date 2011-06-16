@@ -15,8 +15,6 @@
 
 package ru.org.linux.spring.commons;
 
-import javax.annotation.PreDestroy;
-
 import ru.org.linux.site.MemCachedSettings;
 
 import net.spy.memcached.OperationTimeoutException;

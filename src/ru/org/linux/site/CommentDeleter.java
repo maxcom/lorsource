@@ -23,8 +23,6 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import ru.org.linux.spring.SearchQueueSender;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 

@@ -22,21 +22,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
-
 import ru.org.linux.site.GalleryItem;
 import ru.org.linux.site.Section;
 import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.ImageInfo;
 
-/**
- * User: sreentenko
- * Date: 01.05.2009
- * Time: 1:12:45
- */
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
+import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
+
 public class GalleryDaoImpl {
   private static final Log log = LogFactory.getLog(GalleryDaoImpl.class);
 
@@ -68,32 +63,28 @@ public class GalleryDaoImpl {
     return template.query(sql, new ParameterizedRowMapper<GalleryItem>() {
       @Override
       public GalleryItem mapRow(ResultSet rs, int rowNum) throws SQLException {
-        return createGalleryItem(rs);
+        GalleryItem item = new GalleryItem();
+        item.setMsgid(rs.getInt("msgid"));
+        item.setStat(rs.getInt("stat1"));
+        item.setTitle(rs.getString("title"));
+        item.setUrl(rs.getString("url"));
+        item.setIcon(rs.getString("linktext"));
+        item.setNick(rs.getString("nick"));
+        item.setStat(rs.getInt("stat1"));
+        item.setLink(Section.getSectionLink(Section.SECTION_GALLERY)+ rs.getString("urlname")+ '/' + rs.getInt("msgid"));
+
+        String htmlPath = properties.getProperty("HTMLPathPrefix");
+        item.setHtmlPath(htmlPath);
+        try {
+          item.setInfo(new ImageInfo(htmlPath + item.getIcon()));
+          item.setImginfo(new ImageInfo(htmlPath + item.getUrl()));
+        } catch (BadImageException e) {
+          log.error(e);
+        } catch (IOException e) {
+          log.error(e);
+        }
+        return item;
       }
-    }, new HashMap());
-  }
-
-  private GalleryItem createGalleryItem(ResultSet rs) throws SQLException {
-    GalleryItem item = new GalleryItem();
-    item.setMsgid(rs.getInt("msgid"));
-    item.setStat(rs.getInt("stat1"));
-    item.setTitle(rs.getString("title"));
-    item.setUrl(rs.getString("url"));
-    item.setIcon(rs.getString("linktext"));
-    item.setNick(rs.getString("nick"));
-    item.setStat(rs.getInt("stat1"));
-    item.setLink(Section.getSectionLink(Section.SECTION_GALLERY)+rs.getString("urlname")+ '/' +rs.getInt("msgid"));
-
-    String htmlPath = properties.getProperty("HTMLPathPrefix");
-    item.setHtmlPath(htmlPath);
-    try {
-      item.setInfo(new ImageInfo(htmlPath + item.getIcon()));
-      item.setImginfo(new ImageInfo(htmlPath + item.getUrl()));
-    } catch (BadImageException e) {
-      log.error(e);
-    } catch (IOException e) {
-      log.error(e);
-    }
-    return item;
+    }, new HashMap<String, Object>());
   }
 }
