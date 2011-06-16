@@ -18,14 +18,16 @@ package ru.org.linux.spring;
 import java.sql.Connection;
 import java.util.Map;
 
+import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
+
+import ru.org.linux.site.*;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
-
-import ru.org.linux.site.*;
 
 @Controller
 public class IgnoreListController {
@@ -40,7 +42,7 @@ public class IgnoreListController {
     Connection db = null;
     try {
       db = LorDataSource.getConnection();
-      User user = Template.getCurrentUser(db, request.getSession());
+      User user = tmpl.getCurrentUser();
       user.checkAnonymous();
 
       IgnoreList ignore = new IgnoreList(db, user.getId());
@@ -60,7 +62,9 @@ public class IgnoreListController {
     HttpServletRequest request,
     @RequestParam String nick
   ) throws Exception {
-    if (!Template.isSessionAuthorized(request.getSession())) {
+    Template tmpl = Template.getTemplate(request);
+
+    if (!tmpl.isSessionAuthorized()) {
       throw new AccessViolationException("Not authorized");
     }
 
@@ -68,7 +72,7 @@ public class IgnoreListController {
     try {
       db = LorDataSource.getConnection();
       db.setAutoCommit(false);
-      User user = Template.getCurrentUser(db, request.getSession());
+      User user = tmpl.getCurrentUser();
       user.checkAnonymous();
 
       IgnoreList ignoreList = new IgnoreList(db, user.getId());
@@ -96,10 +100,12 @@ public class IgnoreListController {
 
   @RequestMapping(value="/ignore-list.jsp", method= RequestMethod.POST, params = "del")
   public ModelAndView listDel(
-    HttpServletRequest request,
+    ServletRequest request,
     @RequestParam int id
   ) throws Exception {
-    if (!Template.isSessionAuthorized(request.getSession())) {
+    Template tmpl = Template.getTemplate(request);
+
+    if (!tmpl.isSessionAuthorized()) {
       throw new AccessViolationException("Not authorized");
     }
 
@@ -107,7 +113,7 @@ public class IgnoreListController {
     try {
       db = LorDataSource.getConnection();
       db.setAutoCommit(false);
-      User user = Template.getCurrentUser(db, request.getSession());
+      User user = tmpl.getCurrentUser();
       user.checkAnonymous();
 
       IgnoreList ignoreList = new IgnoreList(db, user.getId());

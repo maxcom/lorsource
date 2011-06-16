@@ -15,7 +15,10 @@
 
 package ru.org.linux.site;
 
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -24,11 +27,11 @@ import org.apache.commons.collections.Predicate;
 
 public final class DefaultProfile {
   private static final String[] BOXLIST = {"poll", "top10", "gallery", "tagcloud", "archive", "ibm", "tshirt"};
-  private static final ImmutableSet<String> BOX_SET = ImmutableSet.of(BOXLIST);
+  private static final ImmutableSet<String> BOX_SET = ImmutableSet.copyOf(BOXLIST);
 
   private static final String[] STYLES = { "black", "white", "white2", "tango" };
-  private static final ImmutableList<String> STYLE_LIST = ImmutableList.of(STYLES);
-  private static final ImmutableSet<String> STYLE_SET = ImmutableSet.of(STYLES);
+  private static final ImmutableList<String> STYLE_LIST = ImmutableList.copyOf(STYLES);
+  private static final ImmutableSet<String> STYLE_SET = ImmutableSet.copyOf(STYLES);
 
   private static final ImmutableList<String> AVATAR_TYPES = ImmutableList.of("empty", "identicon", "monsterid", "wavatar", "retro");
 

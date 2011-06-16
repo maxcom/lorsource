@@ -18,7 +18,6 @@ package ru.org.linux.spring.dao;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
 
@@ -29,7 +28,7 @@ import ru.org.linux.util.ImageInfo;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 
 public class GalleryDaoImpl {
@@ -60,7 +59,7 @@ public class GalleryDaoImpl {
       " JOIN groups ON topics.groupid = groups.id " +
       " JOIN users ON users.id = topics.userid WHERE topics.moderate AND section=3 " +
       " AND NOT deleted AND commitdate is not null ORDER BY commitdate DESC LIMIT 3";
-    return template.query(sql, new ParameterizedRowMapper<GalleryItem>() {
+    return template.query(sql, new RowMapper<GalleryItem>() {
       @Override
       public GalleryItem mapRow(ResultSet rs, int rowNum) throws SQLException {
         GalleryItem item = new GalleryItem();
@@ -85,6 +84,6 @@ public class GalleryDaoImpl {
         }
         return item;
       }
-    }, new HashMap<String, Object>());
+    });
   }
 }

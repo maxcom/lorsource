@@ -18,10 +18,9 @@ package ru.org.linux.spring.dao;
 import java.io.Serializable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.List;
 
-import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 
 /**
@@ -42,9 +41,10 @@ public class ArchiveDaoImpl {
   }
 
   public List<ArchiveDTO> getArchiveDTO(){
-    String sql = "select year, month, c from monthly_stats where section=1 and groupid is null" +
-      " order by year desc, month desc limit 13";
-    return jdbcTemplate.query(sql, new ParameterizedRowMapper<ArchiveDTO>() {
+    return jdbcTemplate.query(
+      "select year, month, c from monthly_stats where section=1 and groupid is null" +
+        " order by year desc, month desc limit 13",
+      new RowMapper<ArchiveDTO>() {
       @Override
       public ArchiveDTO mapRow(ResultSet rs, int rowNum) throws SQLException {
         ArchiveDTO dto = new ArchiveDTO();
@@ -53,7 +53,7 @@ public class ArchiveDaoImpl {
         dto.setCount(rs.getInt("c"));
         return dto;
       }
-    }, new HashMap());
+    });
   }
 
   public static class ArchiveDTO implements Serializable {

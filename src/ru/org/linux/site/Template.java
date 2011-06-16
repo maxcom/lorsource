@@ -339,14 +339,4 @@ public final class Template {
 
     return currentUser;
   }
-
-  /** @deprecated Use template.getCurrentUser for better caching */
-  @Deprecated
-  public static User getCurrentUser(Connection db, HttpSession session) throws SQLException, UserNotFoundException {
-    if (!isSessionAuthorized(session)) {
-      return null;
-    }
-
-    return User.getUser(db, (String) session.getAttribute("nick"));
-  }
 }

@@ -19,12 +19,13 @@ import java.sql.*;
 import java.util.*;
 
 import javax.servlet.http.HttpServletRequest;
+
+import ru.org.linux.site.*;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
-
-import ru.org.linux.site.*;
 
 @Controller
 public class TrackerController {
@@ -79,7 +80,7 @@ public class TrackerController {
     try {
       db = LorDataSource.getConnection();
 
-      User user = Template.getCurrentUser(db, request.getSession());
+      User user = tmpl.getCurrentUser();
 
       if (mine) {
         if (!tmpl.isSessionAuthorized()) {

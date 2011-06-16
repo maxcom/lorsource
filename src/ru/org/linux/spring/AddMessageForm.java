@@ -24,6 +24,10 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+
+import ru.org.linux.site.*;
+import ru.org.linux.util.*;
+
 import com.google.common.collect.ImmutableList;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -32,9 +36,6 @@ import org.jdom.Verifier;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.multipart.MultipartRequest;
-
-import ru.org.linux.site.*;
-import ru.org.linux.util.*;
 
 public class AddMessageForm {
   private static final Log logger = LogFactory.getLog(AddMessageForm.class);
@@ -256,17 +257,17 @@ public class AddMessageForm {
     }
   }
 
-  public User validateAndGetUser(HttpSession session, Connection db) throws BadInputException, UserNotFoundException, SQLException, BadPasswordException, AccessViolationException {
+  public User validateAndGetUser(Template tmpl, Connection db) throws BadInputException, UserNotFoundException, SQLException, BadPasswordException, AccessViolationException {
     User user;
 
-    if (!Template.isSessionAuthorized(session)) {
+    if (!tmpl.isSessionAuthorized()) {
       if (nick == null) {
         throw new BadInputException("Вы уже вышли из системы");
       }
       user = User.getUser(db, nick);
       user.checkPassword(password);
     } else {
-      user = Template.getCurrentUser(db, session);
+      user = tmpl.getCurrentUser();
     }
 
     user.checkBlocked();

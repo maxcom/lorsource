@@ -17,7 +17,6 @@ package ru.org.linux.site;
 
 import java.io.File;
 import java.io.IOException;
-import java.sql.SQLException;
 
 import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.ImageInfo;

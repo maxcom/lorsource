@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
@@ -82,7 +83,7 @@ public class UserModificationController extends ApplicationObjectSupport {
 
         user.block(db, moderator, reason);
         user.resetPassword(db);
-        logger.info("User " + user.getNick() + " blocked by " + session.getValue("nick"));
+        logger.info("User " + user.getNick() + " blocked by " + moderator.getNick());
 
         if ("block-n-delete-comments".equals(action)) {
           Map<String, Object> params = new HashMap<String, Object>();
@@ -111,7 +112,7 @@ public class UserModificationController extends ApplicationObjectSupport {
 
         st.executeUpdate("UPDATE users SET blocked='f' WHERE id=" + id);
         st.executeUpdate("DELETE FROM ban_info WHERE userid="+id);
-        logger.info("User " + user.getNick() + " unblocked by " + session.getValue("nick"));
+        logger.info("User " + user.getNick() + " unblocked by " + moderator.getNick());
       } else if ("remove_userinfo".equals(action)) {
         if (user.canModerate()) {
           throw new AccessViolationException("Пользователю " + user.getNick() + " нельзя удалить сведения");
@@ -138,7 +139,7 @@ public class UserModificationController extends ApplicationObjectSupport {
 
   @RequestMapping(value="/remove-userpic.jsp", method= RequestMethod.POST)
   public ModelAndView removeUserpic(
-    HttpServletRequest request,
+    ServletRequest request,
     @RequestParam("id") int id
   ) throws Exception {
     Template tmpl = Template.getTemplate(request);

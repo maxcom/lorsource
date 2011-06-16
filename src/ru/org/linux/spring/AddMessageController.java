@@ -113,7 +113,7 @@ public class AddMessageController extends ApplicationObjectSupport {
       Section section = new Section(db, group.getSectionId());
       params.put("addportal", section.getAddInfo(db));
 
-      User user = form.validateAndGetUser(session, db);
+      User user = form.validateAndGetUser(tmpl, db);
 
       form.validate(group, user);
 

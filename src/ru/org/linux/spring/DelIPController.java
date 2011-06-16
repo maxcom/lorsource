@@ -22,7 +22,8 @@ import java.sql.Timestamp;
 import java.util.*;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
+
+import ru.org.linux.site.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
@@ -31,8 +32,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
-
-import ru.org.linux.site.*;
 
 @Controller
 public class DelIPController {
@@ -54,8 +53,7 @@ public class DelIPController {
     Map<Integer, String> deleted = new HashMap<Integer, String>();
     
     Template tmpl = Template.getTemplate(request);
-    HttpSession session = request.getSession();
-    
+
     if (!tmpl.isModeratorSession()) {
       throw new AccessViolationException("Not moderator");
     }
@@ -82,7 +80,7 @@ public class DelIPController {
 
       db.setAutoCommit(false);
     
-      User moderator = User.getUser(db, (String) session.getValue("nick"));
+      User moderator = tmpl.getCurrentUser();
     
       PreparedStatement st = null;
       ResultSet rs = null;

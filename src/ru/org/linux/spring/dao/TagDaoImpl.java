@@ -15,17 +15,17 @@
 
 package ru.org.linux.spring.dao;
 
-import java.util.List;
-import java.util.Collections;
+import java.io.Serializable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.io.Serializable;
+import java.util.Collections;
+import java.util.List;
 
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
-import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
-import org.apache.commons.lang.mutable.MutableDouble;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Closure;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.mutable.MutableDouble;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 
 public class TagDaoImpl {
   private SimpleJdbcTemplate jdbcTemplate;
@@ -42,7 +42,7 @@ public class TagDaoImpl {
     String sql = "select value,counter from tags_values where counter>0 order by counter desc limit ?";
     final MutableDouble maxc = new MutableDouble(1);
     final MutableDouble minc = new MutableDouble(-1);
-    List<TagDTO> result = jdbcTemplate.query(sql, new ParameterizedRowMapper<TagDTO>() {
+    List<TagDTO> result = jdbcTemplate.query(sql, new RowMapper<TagDTO>() {
       @Override
       public TagDTO mapRow(ResultSet rs, int rowNum) throws SQLException {
         TagDTO result = new TagDTO();

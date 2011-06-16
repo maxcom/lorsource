@@ -19,7 +19,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
-import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 
 public class PollDaoImpl {
@@ -35,7 +35,7 @@ public class PollDaoImpl {
 
   public List<VoteDTO> getVoteDTO(final Integer pollId) {
     String sql = "SELECT id, label FROM votes WHERE vote= ? ORDER BY id";
-    return jdbcTemplate.query(sql, new ParameterizedRowMapper<VoteDTO>() {
+    return jdbcTemplate.query(sql, new RowMapper<VoteDTO>() {
       @Override
       public VoteDTO mapRow(ResultSet rs, int rowNum) throws SQLException {
         VoteDTO dto = new VoteDTO();
