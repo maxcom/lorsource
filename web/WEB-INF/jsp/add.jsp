@@ -20,6 +20,7 @@
   ~    limitations under the License.
   --%>
 <%--@elvariable id="message" type="ru.org.linux.site.PreparedMessage"--%>
+<%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <% Template tmpl = Template.getTemplate(request);%>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
@@ -55,7 +56,7 @@
 <c:if test="${message != null}">
 <h1>Предпросмотр</h1>
 <div class=messages>
-  <lor:message messageMenu="<%= null %>" preparedMessage="${message}" message="${message.message}" showMenu="false" user="<%= Template.getNick(session) %>"/>
+  <lor:message messageMenu="<%= null %>" preparedMessage="${message}" message="${message.message}" showMenu="false" user="${template.nick}"/>
 </div>
 </c:if>
 <h1>Добавить</h1>

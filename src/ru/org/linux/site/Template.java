@@ -285,14 +285,10 @@ public final class Template {
    * @return nick or null if not authorized
    */
   public String getNick() {
-    return getNick(session);
-  }
-
-  public static String getNick(HttpSession session) {
-    if (isSessionAuthorized(session)) {
-      return (String) session.getAttribute("nick");
-    } else {
+    if (!isSessionAuthorized()) {
       return null;
+    } else {
+      return currentUser.getNick();
     }
   }
 

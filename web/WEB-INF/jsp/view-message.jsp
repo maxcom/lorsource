@@ -301,11 +301,11 @@
 
   if (request.getAttribute("highlight") != null) {
 %>
-<lor:message messageMenu="${messageMenu}" preparedMessage="${preparedMessage}" message="${message}" showMenu="true" user="<%= Template.getNick(session) %>" highlight="${highlight}"/>
+<lor:message messageMenu="${messageMenu}" preparedMessage="${preparedMessage}" message="${message}" showMenu="true" user="${template.nick}" highlight="${highlight}"/>
 <%
   } else {
 %>
-<lor:message messageMenu="${messageMenu}" preparedMessage="${preparedMessage}" message="${message}" showMenu="true" user="<%= Template.getNick(session) %>"/>
+<lor:message messageMenu="${messageMenu}" preparedMessage="${preparedMessage}" message="${message}" showMenu="true" user="${template.nick}"/>
 <%
   }
 %>

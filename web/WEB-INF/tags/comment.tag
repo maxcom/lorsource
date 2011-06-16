@@ -125,7 +125,7 @@
       out.append("[<a href=\"add_comment.jsp?topic=").append(Integer.toString(comment.getComment().getTopic())).append("&amp;replyto=").append(Integer.toString(comment.getComment().getMessageId())).append("\">Ответить на это сообщение</a>] ");
     }
 
-    if ((moderatorMode || author.getNick().equals(Template.getNick(session)))) {
+    if ((moderatorMode || author.getNick().equals(tmpl.getNick()))) {
       out.append("[<a href=\"delete_comment.jsp?msgid=").append(Integer.toString(comment.getComment().getMessageId())).append("\">Удалить</a>]");
     }
 

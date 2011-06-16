@@ -33,6 +33,7 @@
 <%--@elvariable id="commit" type="java.lang.Boolean"--%>
 <%--@elvariable id="groups" type="java.util.List<ru.org.linux.site.Group>"--%>
 <%--@elvariable id="topTags" type="java.util.SortedSet<String>"--%>
+<%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 <title>Редактирование сообщения</title>
@@ -57,7 +58,7 @@
   <h1>${info}</h1>
   <h2>Текущая версия сообщения</h2>
   <div class=messages>
-    <lor:message messageMenu="<%= null %>" preparedMessage="${preparedMessage}" message="${message}" showMenu="false" user="<%= Template.getNick(session) %>"/>
+    <lor:message messageMenu="<%= null %>" preparedMessage="${preparedMessage}" message="${message}" showMenu="false" user="${template.nick}"/>
   </div>
   <h2>Ваше сообщение</h2>
 </c:if>
@@ -66,7 +67,7 @@
 </c:if>
 
 <div class=messages>
-  <lor:message messageMenu="<%= null %>" preparedMessage="${newPreparedMessage}" message="${newMsg}" showMenu="false" user="<%= Template.getNick(session) %>"/>
+  <lor:message messageMenu="<%= null %>" preparedMessage="${newPreparedMessage}" message="${newMsg}" showMenu="false" user="${template.nick}"/>
 </div>
 
 <form action="edit.jsp" name="edit" method="post" id="messageForm">
