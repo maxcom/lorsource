@@ -854,7 +854,7 @@ public class Message implements Serializable {
       pst.setInt(1, commiter.getId());
       pst.executeUpdate();
 
-      User author = null;
+      User author;
       try {
         author = User.getUser(db, userid);
       } catch (UserNotFoundException e) {
