@@ -17,6 +17,8 @@ package ru.org.linux.site;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.javabb.bbcode.BBCodeProcessor;
 
@@ -27,8 +29,17 @@ public class PreparedEditInfo {
   private final String message;
   private final boolean current;
   private final String title;
+  private final List<String> tags;
 
-  public PreparedEditInfo(Connection db, EditInfoDTO editInfo, String message, String title, boolean current, boolean original) throws UserNotFoundException, SQLException {
+  public PreparedEditInfo(
+    Connection db,
+    EditInfoDTO editInfo,
+    String message,
+    String title,
+    List<String> tags,
+    boolean current,
+    boolean original
+  ) throws UserNotFoundException, SQLException {
     this.editInfo = editInfo;
     this.original = original;
 
@@ -45,6 +56,8 @@ public class PreparedEditInfo {
     this.title = title;
 
     this.current = current;
+
+    this.tags = tags;
   }
 
   public EditInfoDTO getEditInfo() {
@@ -69,5 +82,54 @@ public class PreparedEditInfo {
 
   public boolean isOriginal() {
     return original;
+  }
+
+  public List<String> getTags() {
+    return tags;
+  }
+
+  public static List<PreparedEditInfo> build(Connection db, Message message) throws SQLException, UserNotFoundException, UserErrorException {
+    List<EditInfoDTO> editInfoDTOs = message.loadEditInfo(db);
+    List<PreparedEditInfo> editInfos = new ArrayList<PreparedEditInfo>(editInfoDTOs.size());
+
+    String currentMessage = message.getMessage();
+    String currentTitle = message.getTitle();
+    List<String> currentTags = Tags.getMessageTags(db, message.getMessageId());
+
+    for (int i = 0; i<editInfoDTOs.size(); i++) {
+      EditInfoDTO dto = editInfoDTOs.get(i);
+
+      editInfos.add(
+        new PreparedEditInfo(
+          db,
+          dto,
+          dto.getOldmessage()!=null ? currentMessage : null,
+          dto.getOldtitle()!=null ? currentTitle : null,
+          dto.getOldtags()!=null ? currentTags : null,
+          i==0,
+          false
+        )
+      );
+
+      if (dto.getOldmessage() !=null) {
+        currentMessage = dto.getOldmessage();
+      }
+
+      if (dto.getOldtitle() != null) {
+        currentTitle = dto.getOldtitle();
+      }
+
+      if (dto.getOldtags()!=null) {
+        currentTags = Tags.parseTags(dto.getOldtags());
+      }
+    }
+
+    if (!editInfoDTOs.isEmpty()) {
+      EditInfoDTO current = EditInfoDTO.createFromMessage(db, message);
+
+      editInfos.add(new PreparedEditInfo(db, current, currentMessage, currentTitle, currentTags, false, true));
+    }
+
+    return editInfos;
   }
 }

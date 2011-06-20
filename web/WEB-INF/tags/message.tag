@@ -108,9 +108,7 @@
   }
 %>
 <c:if test="${message.section.premoderated and not empty preparedMessage.tags}">
-  <p class=tags>
-    Метки: <span class=tag><%= Tags.getTagLinks(preparedMessage.getTags()) %></span>
-  </p>
+  <lor:tags list="${preparedMessage.tags}"/>
 </c:if>
 <div class=sign>
   <lor:sign postdate="${message.postdate}" user="${preparedMessage.author}" shortMode="${template.mobile}"/>

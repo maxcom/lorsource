@@ -16,10 +16,8 @@
 package ru.org.linux.spring;
 
 import java.sql.Connection;
-import java.util.ArrayList;
 import java.util.List;
 
-import ru.org.linux.site.EditInfoDTO;
 import ru.org.linux.site.LorDataSource;
 import ru.org.linux.site.Message;
 import ru.org.linux.site.PreparedEditInfo;
@@ -31,7 +29,6 @@ import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 public class EditInfoController {
-
   @RequestMapping({
     "/news/{group}/{id}/history",
     "/forum/{group}/{id}/history",
@@ -46,48 +43,11 @@ public class EditInfoController {
     try {
       db = LorDataSource.getConnection();
 
-      ModelAndView mv = new ModelAndView("history");
-
       Message message = new Message(db, msgid);
 
-      List<EditInfoDTO> editInfoDTOs = message.loadEditInfo(db);
-      List<PreparedEditInfo> editInfos = new ArrayList<PreparedEditInfo>(editInfoDTOs.size());
+      List<PreparedEditInfo> editInfos = PreparedEditInfo.build(db, message);
 
-      String currentMessage = message.getMessage();
-      String currentTitle = message.getTitle();
-
-      for (int i = 0; i<editInfoDTOs.size(); i++) {
-        EditInfoDTO dto = editInfoDTOs.get(i);
-
-        editInfos.add(
-          new PreparedEditInfo(
-            db,
-            dto,
-            dto.getOldmessage()!=null ? currentMessage : null,
-            dto.getOldtitle()!=null ? currentTitle : null,
-            i==0,
-            false
-          )
-        );
-
-        if (dto.getOldmessage() !=null) {
-          currentMessage = dto.getOldmessage();
-        }
-
-        if (dto.getOldtitle() != null) {
-          currentTitle = dto.getOldtitle();
-        }
-      }
-
-      if (!editInfoDTOs.isEmpty()) {
-        EditInfoDTO current = new EditInfoDTO();
-        current.setOldmessage(message.getMessage());
-        current.setEditdate(message.getPostdate());
-        current.setEditor(message.getUid());
-        current.setMsgid(message.getMessageId());
-
-        editInfos.add(new PreparedEditInfo(db, current, currentMessage, currentTitle, false, true));
-      }
+      ModelAndView mv = new ModelAndView("history");
 
       mv.getModel().put("message", message);
       mv.getModel().put("editInfos", editInfos);
@@ -99,5 +59,4 @@ public class EditInfoController {
       }
     }
   }
-
 }

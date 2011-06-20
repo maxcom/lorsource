@@ -15,6 +15,8 @@
 
 package ru.org.linux.site;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.sql.Timestamp;
 
 public class EditInfoDTO {
@@ -24,6 +26,7 @@ public class EditInfoDTO {
   private String oldmessage;
   private Timestamp editdate;
   private String oldtitle;
+  private String oldtags;
 
   public int getId() {
     return id;
@@ -71,5 +74,25 @@ public class EditInfoDTO {
 
   public void setOldtitle(String oldtitle) {
     this.oldtitle = oldtitle;
+  }
+
+  public String getOldtags() {
+    return oldtags;
+  }
+
+  public void setOldtags(String oldtags) {
+    this.oldtags = oldtags;
+  }
+
+  public static EditInfoDTO createFromMessage(Connection db, Message message) throws SQLException {
+    EditInfoDTO current = new EditInfoDTO();
+
+    current.setOldmessage(message.getMessage());
+    current.setEditdate(message.getPostdate());
+    current.setEditor(message.getUid());
+    current.setMsgid(message.getMessageId());
+    current.setOldtags(Tags.toString(Tags.getMessageTags(db, message.getMessageId())));
+
+    return current;
   }
 }

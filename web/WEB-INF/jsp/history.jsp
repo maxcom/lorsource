@@ -1,3 +1,4 @@
+<%@ page import="ru.org.linux.site.Tags" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page contentType="text/html; charset=utf-8"%>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
@@ -47,6 +48,9 @@
       <div class="msg_body">
         <h2>${editInfo.title}</h2>
         ${editInfo.message}
+        <c:if test="${editInfo.tags != null}">
+          <lor:tags list="${editInfo.tags}"/>
+        </c:if>
       </div>
     </div>
 </c:forEach>

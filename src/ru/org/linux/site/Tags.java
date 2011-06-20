@@ -16,8 +16,6 @@
 package ru.org.linux.site;
 
 import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -225,23 +223,4 @@ public final class Tags implements Serializable {
     return modified;
   }
 
-  public static String getTagLinks(Collection<String> tags)  {
-    StringBuilder buf = new StringBuilder();
-    if (tags.isEmpty()) {
-      return "";
-    }
-    for (String mtag : tags) {
-      if (buf.length() > 0) {
-        buf.append(", ");
-      }
-
-      try {
-        buf.append("<a href=\"view-news.jsp?tag=").append(URLEncoder.encode(mtag, "UTF-8")).append("\">").append(mtag).append("</a>");
-      } catch (UnsupportedEncodingException e) {
-        throw new RuntimeException(e);
-      }
-    }
-    
-    return buf.toString();
-  }
 }

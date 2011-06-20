@@ -546,7 +546,7 @@ public class Message implements Serializable {
     return sticky;
   }
 
-  public void updateMessageText(Connection db, User editor) throws SQLException {
+  public boolean updateMessageText(Connection db, User editor, List<String> newTags) throws SQLException {
     SingleConnectionDataSource scds = new SingleConnectionDataSource(db, true);
 
     PreparedStatement pstGet = db.prepareStatement("SELECT message,title FROM msgbase JOIN topics ON msgbase.id=topics.id WHERE topics.id=? FOR UPDATE");
@@ -563,6 +563,8 @@ public class Message implements Serializable {
     rs.close();
     pstGet.close();
 
+    List<String> oldTags = Tags.getMessageTags(db, msgid);
+
     EditInfoDTO editInfo = new EditInfoDTO();
 
     editInfo.setMsgid(msgid);
@@ -570,12 +572,17 @@ public class Message implements Serializable {
 
     boolean modified = false;
 
+    SimpleJdbcTemplate jdbcTemplate = new SimpleJdbcTemplate(scds);
+
     if (!oldMessage.equals(message)) {
       editInfo.setOldmessage(oldMessage);
       modified = true;
-    }
 
-    SimpleJdbcTemplate jdbcTemplate = new SimpleJdbcTemplate(scds);
+      jdbcTemplate.update(
+        "UPDATE msgbase SET message=:message WHERE id=:msgid",
+        ImmutableMap.of("message", message, "msgid", msgid)
+      );
+    }
 
     if (!oldTitle.equals(title)) {
       modified = true;
@@ -587,19 +594,26 @@ public class Message implements Serializable {
       );
     }
 
+    if (newTags != null) {
+      boolean modifiedTags = Tags.updateTags(db, msgid, newTags);
+
+      if (modifiedTags) {
+        editInfo.setOldtags(Tags.toString(oldTags));
+        Tags.updateCounters(db, oldTags, newTags);
+        modified = true;
+      }
+    }
+
     if (modified) {
       SimpleJdbcInsert insert =
         new SimpleJdbcInsert(scds)
           .withTableName("edit_info")
-          .usingColumns("msgid", "editor", "oldmessage", "oldtitle");
+          .usingColumns("msgid", "editor", "oldmessage", "oldtitle", "oldtags");
 
       insert.execute(new BeanPropertySqlParameterSource(editInfo));
-
-      jdbcTemplate.update(
-        "UPDATE msgbase SET message=:message WHERE id=:msgid",
-        ImmutableMap.of("message", message, "msgid", msgid)
-      );
     }
+
+    return modified;
   }
 
   public String getUrl() {
