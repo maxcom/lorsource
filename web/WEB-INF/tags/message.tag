@@ -170,7 +170,7 @@
     if (tmpl.isModeratorSession() || author.getNick().equals(user)) {
       out.append("[<a href=\"delete.jsp?msgid=");
       out.print(msgid);
-      out.append("\">Удалить</a>]");
+      out.append("\">Удалить</a>] ");
     }
 
     if (messageMenu.isResolvable()) {
