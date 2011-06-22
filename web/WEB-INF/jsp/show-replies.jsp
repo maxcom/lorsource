@@ -20,6 +20,9 @@
 <%--@elvariable id="firstPage" type="Boolean"--%>
 <%--@elvariable id="nick" type="String"--%>
 <%--@elvariable id="hasMore" type="String"--%>
+<%--@elvariable id="unreadCount" type="Integer"--%>
+<%--@elvariable id="enableReset" type="Boolean"--%>
+<%--@elvariable id="forceReset" type="Boolean"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
@@ -43,6 +46,32 @@
 </table>
 
 <h1 class="optional">${title}</h1>
+
+<c:if test="${unreadCount > 0 && !forceReset}">
+  <div class="infoblock">
+    <c:choose>
+      <c:when test="${unreadCount == 1 || (unreadCount>20 && unreadCount%10==1) }">
+        У вас ${unreadCount} непрочитанное уведомление
+      </c:when>
+      <c:when test="${unreadCount == 2 || (unreadCount>20 && unreadCount%10==2)}">
+        У вас ${unreadCount} непрочитанных уведомления
+      </c:when>
+      <c:when test="${unreadCount == 3 || (unreadCount>20 && unreadCount%10==3)}">
+        У вас ${unreadCount} непрочитанных уведомления
+      </c:when>
+      <c:otherwise>
+        У вас ${unreadCount} непрочитанных уведомлений
+      </c:otherwise>
+    </c:choose>
+
+    <c:if test="${enableReset}">
+      <form id="events_form" action="/show-replies.jsp" method="POST" style="display: inline;">
+        <input type="hidden" name="forceReset" value="true">
+        <input type="submit" value="Сбросить">
+      </form>
+    </c:if>
+  </div>
+</c:if>
 
 <%
   int offset = (Integer) request.getAttribute("offset");

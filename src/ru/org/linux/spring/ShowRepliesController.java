@@ -45,14 +45,25 @@ public class ShowRepliesController {
   public ModelAndView showReplies(
     HttpServletRequest request,
     HttpServletResponse response,
-    @RequestParam("nick") String nick,
-    @RequestParam(value = "offset", defaultValue = "0") int offset
+    @RequestParam(value = "nick", required=false) String nick,
+    @RequestParam(value = "offset", defaultValue = "0") int offset,
+    @RequestParam(value = "forceReset", defaultValue = "false") boolean forceReset
   ) throws Exception {
-    User.checkNick(nick);
+    Template tmpl = Template.getTemplate(request);
+
+    if (nick==null) {
+      if (!tmpl.isSessionAuthorized()) {
+        throw new AccessViolationException("not authorized");
+      }
+
+      nick = tmpl.getCurrentUser().getNick();
+    } else {
+      User.checkNick(nick);
+    }
 
     Map<String, Object> params = new HashMap<String, Object>();
     params.put("nick", nick);
-    Template tmpl = Template.getTemplate(request);
+    params.put("forceReset", forceReset);
 
     boolean feedRequested = request.getParameterMap().containsKey("output");
 
@@ -79,8 +90,6 @@ public class ShowRepliesController {
     int delay = firstPage ? 90 : 60 * 60;
     response.setDateHeader("Expires", time + 1000 * delay);
 
-    List<MyTopicsListItem> list;
-
     Connection db = null;
     PreparedStatement pst = null;
 
@@ -89,7 +98,7 @@ public class ShowRepliesController {
 
       User user = User.getUser(db, nick);
 
-      list = new ArrayList<MyTopicsListItem>();
+      List<MyTopicsListItem> list = new ArrayList<MyTopicsListItem>();
 
       boolean showPrivate = tmpl.isModeratorSession();
 
@@ -97,6 +106,10 @@ public class ShowRepliesController {
 
       if (currentUser != null && currentUser.getId() == user.getId()) {
         showPrivate = true;
+
+        params.put("unreadCount", user.getUnreadEvents());
+
+        response.addHeader("Cache-Control", "no-cache");
       }
 
       pst = db.prepareStatement(
@@ -131,16 +144,18 @@ public class ShowRepliesController {
       rs.close();
 
       if ("POST".equalsIgnoreCase(request.getMethod())) {
-        user.resetUnreadEvents(db);
+        currentUser.resetUnreadEvents(db);
         tmpl.updateCurrentUser(db);
+      } else {
+        params.put("enableReset", true);
       }
+
+      params.put("topicsList", list);
+      params.put("hasMore", list.size()==topics);
     } finally {
       JdbcUtils.closeStatement(pst);
       JdbcUtils.closeConnection(db);
     }
-
-    params.put("topicsList", list);
-    params.put("hasMore", list.size()==topics);
 
     ModelAndView result = new ModelAndView("show-replies", params);
 
