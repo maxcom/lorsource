@@ -128,12 +128,12 @@
           </c:if>
         </td>
         <td align='center'>
-          <c:if test="${msg.stat1==0}">-</c:if>
-          <c:if test="${msg.stat1>0}"><b>${msg.stat1}</b></c:if>/<c:if
-                test="${msg.stat3==0}">-</c:if>
-          <c:if test="${msg.stat3>0}"><b>${msg.stat3}</b></c:if>/<c:if
-                test="${msg.stat4==0}">-</c:if>
-          <c:if test="${msg.stat4>0}"><b>${msg.stat4}</b></c:if>
+          <c:if test="${msg.stat1==0}">-</c:if><%--
+          --%><c:if test="${msg.stat1>0}"><b>${msg.stat1}</b></c:if>/<c:if
+                test="${msg.stat3==0}">-</c:if><%--
+          --%><c:if test="${msg.stat3>0}"><b>${msg.stat3}</b></c:if>/<c:if
+                test="${msg.stat4==0}">-</c:if><%--
+          --%><c:if test="${msg.stat4>0}"><b>${msg.stat4}</b></c:if>
       </tr>
     </c:forEach>
     </tbody>
