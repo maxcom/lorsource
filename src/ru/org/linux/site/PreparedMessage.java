@@ -98,7 +98,11 @@ public final class PreparedMessage {
 
       userAgent = loadUserAgent(db, message.getUserAgent());
 
-      this.tags=ImmutableList.copyOf(tags);
+      if (tags!=null) {
+        this.tags=ImmutableList.copyOf(tags);
+      } else {
+        this.tags=ImmutableList.of();
+      }
     } catch (BadGroupException e) {
       throw new RuntimeException(e);
     } catch (UserNotFoundException e) {
