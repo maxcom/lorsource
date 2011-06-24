@@ -1,9 +1,5 @@
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="javax.servlet.http.Cookie,javax.servlet.http.HttpServletResponse" %>
-<%@ page import="ru.org.linux.site.AccessViolationException" %>
-<%@ page import="ru.org.linux.site.BadInputException" %>
-<%@ page import="ru.org.linux.site.DefaultProfile" %>
-<%@ page import="ru.org.linux.site.Template" %>
+<%@ page import="ru.org.linux.site.DefaultProfile,ru.org.linux.site.Template" %>
 <%@ page import="ru.org.linux.util.ProfileHashtable" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%--
@@ -63,24 +59,9 @@ $(document).ready(function() {
 
 <h1 class="optional">Настройки профиля</h1>
 
-<%
-  if (request.getParameter("mode") == null) {
-    if (!tmpl.isSessionAuthorized()) {
-      throw new AccessViolationException("Not authorized");
-    }
-
-    if (tmpl.isUsingDefaultProfile()) {
-      out.print("Используется профиль по умолчанию");
-    } else {
-      out.print("Используется профиль: <i>" + tmpl.getProfileName() + "</i>");
-    }
-
-%>
-
 <h2>Параметры профиля</h2>
 <% ProfileHashtable profHash=tmpl.getProf(); %>
 <form method=POST id="profileForm" action="edit-profile.jsp">
-<input type=hidden name=mode value=set>
 <table>
 <tr><td colspan=2><hr></td></tr>
 <tr><td>Новые комментарии в начале</td>
@@ -168,76 +149,6 @@ $(document).ready(function() {
 <li><a href="ignore-list.jsp">настройка фильтрации сообщений</a>
 </ul>
 
-<%
-  } else if ("set".equals(request.getParameter("mode"))) {
-    String profile;
-
-    if (!Template.isSessionAuthorized(session)) {
-      throw new AccessViolationException("Not authorized");
-    } else {
-      profile = tmpl.getNick();
-    }
-
-    int topics = Integer.parseInt(request.getParameter("topics"));
-    int messages = Integer.parseInt(request.getParameter("messages"));
-    int tags = Integer.parseInt(request.getParameter("tags"));
-
-    if (topics <= 0 || topics > 500)
-      throw new BadInputException("некорректное число тем");
-    if (messages <= 0 || messages > 1000)
-      throw new BadInputException("некорректное число сообщений");
-    if (tags<=0 || tags>100)
-      throw new BadInputException("некорректное число меток в облаке");
-
-    if (tmpl.getProf().setInt("topics", topics)) ;
-    out.print("Установлен параметр <i>topics</i><br>");
-    if (tmpl.getProf().setInt("messages", messages)) ;
-    out.print("Установлен параметр <i>messages</i><br>");
-    if (tmpl.getProf().setInt("tags", tags)) ;
-    out.print("Установлен параметр <i>tags</i><br>");
-    if (tmpl.getProf().setBoolean("newfirst", request.getParameter("newfirst")))
-      out.print("Установлен параметр <i>newfirst</i><br>");
-    if (tmpl.getProf().setBoolean("photos", request.getParameter("photos")))
-      out.print("Установлен параметр <i>photos</i><br>");
-    if (tmpl.getProf().setBoolean(DefaultProfile.HIDE_ADSENSE, request.getParameter(DefaultProfile.HIDE_ADSENSE)));
-      out.print("Установлен параметр <i>hideAdsense</i><br>");
-    if (tmpl.getProf().setBoolean(DefaultProfile.MAIN_GALLERY, request.getParameter(DefaultProfile.MAIN_GALLERY)));
-      out.print("Установлен параметр <i>mainGallery</i><br>");
-    if (tmpl.getProf().setString("format.mode", request.getParameter("format_mode")))
-      out.print("Установлен параметр <i>format.mode</i><br>");
-    if (tmpl.getProf().setString("style", request.getParameter("style")))
-      out.print("Установлен параметр <i>style</i><br>");
-
-    String avatar = request.getParameter("avatar");
-
-    if (!DefaultProfile.getAvatars().contains(avatar)) {
-      throw new BadInputException("invalid avatar value");
-    }
-
-    if (tmpl.getProf().setString("avatar", avatar))
-      out.print("Установлен параметр <i>avatar</i><br>");
-    if (tmpl.getProf().setBoolean("main.3columns", request.getParameter("3column")))
-      out.print("Установлен параметр <i>main.3columns</i><br>");
-    if (tmpl.getProf().setBoolean("showinfo", request.getParameter("showinfo")))
-      out.print("Установлен параметр <i>showinfo</i><br>");
-    if (tmpl.getProf().setBoolean("showanonymous", request.getParameter("showanonymous")))
-      out.print("Установлен параметр <i>showanonymous</i><br>");
-    if (tmpl.getProf().setBoolean("hover", request.getParameter("hover")))
-      out.print("Установлен параметр <i>hover</i><br>");
-
-    tmpl.writeProfile(profile);
-
-    Cookie prof = new Cookie("profile", profile);
-    prof.setMaxAge(60 * 60 * 24 * 31 * 12);
-    prof.setPath("/");
-    response.addCookie(prof);
-
-    response.setHeader("Location", tmpl.getMainUrl());
-    response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
-
-    out.print("Ok");
-  }
-%>
 <p><b>Внимание!</b> настройки на некоторых уже посещенных страницах могут
 не отображаться. Используйте кнопку <i>Reload</i> вашего броузера.
 
