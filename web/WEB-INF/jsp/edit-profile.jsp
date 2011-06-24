@@ -96,7 +96,7 @@ $(document).ready(function() {
       <c:if test="${s == style}">
         <input type=radio name=style value="${s}" id="style-${s}" checked><label for="style-${s}">${s}</label><br>
       </c:if>
-      <c:if test="${s != style}">
+      <c:if test="${s != style && s!='white'}">
         <input type=radio name=style id="style-${s}" value="${s}"><label for="style-${s}">${s}</label><br>
       </c:if>
     </c:forEach>
