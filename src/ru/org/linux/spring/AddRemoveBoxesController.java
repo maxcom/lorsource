@@ -84,12 +84,12 @@ public class AddRemoveBoxesController extends ApplicationObjectSupport {
     }
 
     String objectName = getObjectName(form, request);
-    List boxlets = new ArrayList((List) t.getProf().getObject(objectName));
+    List<String> boxlets = new ArrayList<String>(t.getProf().getList(objectName));
 
     if (!boxlets.isEmpty()) {
       if (boxlets.size() > form.position) {
         boxlets.remove(form.position.intValue());
-        t.getProf().setObject(objectName, boxlets);
+        t.getProf().setList(objectName, boxlets);
         t.writeProfile(t.getProfileName());
       }
     }
@@ -128,7 +128,7 @@ public class AddRemoveBoxesController extends ApplicationObjectSupport {
     }
 
     String objectName = getObjectName(form, request);
-    List<String> boxlets = new ArrayList<String>((List<String>) t.getProf().getObject(objectName));
+    List<String> boxlets = new ArrayList<String>(t.getProf().getList(objectName));
 
     CollectionUtils.filter(boxlets, DefaultProfile.getBoxPredicate());
 
@@ -138,14 +138,14 @@ public class AddRemoveBoxesController extends ApplicationObjectSupport {
       boxlets.add(form.boxName);
     }
     
-    t.getProf().setObject(objectName, boxlets);
+    t.getProf().setList(objectName, boxlets);
     t.writeProfile(t.getProfileName());
 
     status.setComplete();
     return "redirect:/edit-boxes.jsp";
   }
 
-  private static String getObjectName(EditBoxesForm form, HttpServletRequest request) throws UtilException {
+  private static String getObjectName(EditBoxesForm form, HttpServletRequest request)  {
     String objectName;
     if ("left".equals(form.getTag())) {
       if (EditBoxesController.getThreeColumns(request)) {

@@ -256,7 +256,7 @@ public class MessageController {
 
     Map<String, Object> params = new HashMap<String, Object>();
 
-    params.put("showAdsense", !tmpl.isSessionAuthorized() || !tmpl.getProf().getBoolean(DefaultProfile.HIDE_ADSENSE));
+    params.put("showAdsense", !tmpl.isSessionAuthorized() || !tmpl.getProf().isHideAdsense());
 
     params.put("page", page);
 
@@ -333,7 +333,7 @@ public class MessageController {
 
     int filterMode = CommentFilter.FILTER_IGNORED;
 
-    if (!tmpl.getProf().getBoolean("showanonymous")) {
+    if (!tmpl.getProf().isShowAnonymous()) {
       filterMode += CommentFilter.FILTER_ANONYMOUS;
     }
 
@@ -361,10 +361,10 @@ public class MessageController {
 
       CommentFilter cv = new CommentFilter(comments);
 
-      boolean reverse = tmpl.getProf().getBoolean("newfirst");
+      boolean reverse = tmpl.getProf().isShowNewFirst();
       int offset = 0;
       int limit = 0;
-      int messages = tmpl.getProf().getInt("messages");
+      int messages = tmpl.getProf().getMessages();
 
       if (page != -1) {
         limit = messages;
@@ -427,7 +427,7 @@ public class MessageController {
     String userAddon = nick!=null?('-' +nick):"";
 
     if (!tmpl.isUsingDefaultProfile()) {
-      userAddon+=tmpl.getProf().getLong(Profile.SYSTEM_TIMESTAMP);
+      userAddon+=tmpl.getProf().getTimestamp();
     }
 
     return "msg-"+message.getMessageId()+ '-' +message.getLastModified().getTime()+userAddon;
@@ -476,7 +476,7 @@ public class MessageController {
           redirectUrl = topic.getLinkPage(pagenum);
         }
 
-        if (!topic.isExpired() && topic.getPageCount(tmpl.getProf().getInt("messages")) - 1 == pagenum) {
+        if (!topic.isExpired() && topic.getPageCount(tmpl.getProf().getMessages()) - 1 == pagenum) {
           if (options.length()>0) {
             options.append('&');
           }

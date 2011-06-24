@@ -19,6 +19,7 @@
   --%>
 <%--@elvariable id="newUsers" type="java.util.List<ru.org.linux.site.User>"--%>
 <%--@elvariable id="msgs" type="java.util.List<ru.org.linux.spring.TrackerController.Item>"--%>
+<%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 
 <% Template tmpl = Template.getTemplate(request); %>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
@@ -113,7 +114,7 @@
           <c:if test="${filter=='mine' && msg.resolved}">
             <img src="/img/solved.png" alt="решено" title="решено"/>
           </c:if>
-          <% if (tmpl.getProf().getBoolean("newfirst")) { %>
+          <% if (tmpl.getProf().isShowNewFirst()) { %>
           <a href="${msg.urlReverse}">
                 <% } else { %>
             <a href="${msg.url}">

@@ -68,15 +68,15 @@ public class EditProfileController {
       throw new BadInputException("некорректное число меток в облаке");
     }
 
-    tmpl.getProf().setInt("topics", topics);
-    tmpl.getProf().setInt("messages", messages);
-    tmpl.getProf().setInt("tags", tags);
-    tmpl.getProf().setBoolean("newfirst", request.getParameter("newfirst"));
-    tmpl.getProf().setBoolean("photos", request.getParameter("photos"));
-    tmpl.getProf().setBoolean(DefaultProfile.HIDE_ADSENSE, request.getParameter(DefaultProfile.HIDE_ADSENSE));
-    tmpl.getProf().setBoolean(DefaultProfile.MAIN_GALLERY, request.getParameter(DefaultProfile.MAIN_GALLERY));
-    tmpl.getProf().setString("format.mode", request.getParameter("format_mode"));
-    tmpl.getProf().setString("style", request.getParameter("style"));
+    tmpl.getProf().setTopics(topics);
+    tmpl.getProf().setMessages(messages);
+    tmpl.getProf().setTags(tags);
+    tmpl.getProf().setShowNewFirst("on".equals(request.getParameter("newfirst")));
+    tmpl.getProf().setShowPhotos("on".equals(request.getParameter("photos")));
+    tmpl.getProf().setHideAdsense("on".equals(request.getParameter("hide_adsense")));
+    tmpl.getProf().setShowGalleryOnMain("on".equals(request.getParameter("mainGallery")));
+    tmpl.getProf().setFormatMode(request.getParameter("format_mode"));
+    tmpl.getProf().setStyle(request.getParameter("style"));
 
     String avatar = request.getParameter("avatar");
 
@@ -84,11 +84,13 @@ public class EditProfileController {
       throw new BadInputException("invalid avatar value");
     }
 
-    tmpl.getProf().setString("avatar", avatar);
-    tmpl.getProf().setBoolean("main.3columns", request.getParameter("3column"));
-    tmpl.getProf().setBoolean("showinfo", request.getParameter("showinfo"));
-    tmpl.getProf().setBoolean("showanonymous", request.getParameter("showanonymous"));
-    tmpl.getProf().setBoolean("hover", request.getParameter("hover"));
+    tmpl.getProf().setAvatarMode(avatar);
+
+    tmpl.getProf().setThreeColumnsOnMain("on".equals(request.getParameter("3column")));
+
+    tmpl.getProf().setShowInfo("on".equals(request.getParameter("showinfo")));
+    tmpl.getProf().setShowAnonymous("on".equals(request.getParameter("showanonymous")));
+    tmpl.getProf().setUseHover("on".equals(request.getParameter("hover")));
 
     tmpl.writeProfile(profile);
 

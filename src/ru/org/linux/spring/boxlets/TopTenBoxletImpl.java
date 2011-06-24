@@ -28,9 +28,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
+import ru.org.linux.site.ProfileProperties;
 import ru.org.linux.site.Template;
 import ru.org.linux.spring.dao.TopTenDaoImpl;
-import ru.org.linux.util.ProfileHashtable;
 
 @Controller
 public class TopTenBoxletImpl extends SpringBoxlet {
@@ -48,9 +48,9 @@ public class TopTenBoxletImpl extends SpringBoxlet {
   @Override
   @RequestMapping("/top10.boxlet")
   protected ModelAndView getData(HttpServletRequest request) {
-    ProfileHashtable profile = Template.getTemplate(request).getProf();
-    final int itemsPerPage = profile.getInt("messages");
-    String style = profile.getString("style");
+    ProfileProperties profile = Template.getTemplate(request).getProf();
+    final int itemsPerPage = profile.getMessages();
+    String style = profile.getStyle();
 
     List<TopTenDaoImpl.TopTenMessageDTO> list = topTenDao.getMessages();
     CollectionUtils.forAllDo(list, new Closure() {

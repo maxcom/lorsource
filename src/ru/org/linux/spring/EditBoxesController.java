@@ -34,10 +34,10 @@ public class EditBoxesController{
   }
 
   protected static boolean getThreeColumns(HttpServletRequest request)
-    throws UtilException {
+    {
     Template t = Template.getTemplate(request);
 
-    return t.getProf().getBoolean("main.3columns");
+    return t.getProf().isThreeColumnsOnMain();
   }
 
 

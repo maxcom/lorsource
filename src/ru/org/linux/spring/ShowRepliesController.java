@@ -72,7 +72,7 @@ public class ShowRepliesController {
     }
 
     boolean firstPage = offset == 0;
-    int topics = tmpl.getProf().getInt("topics");
+    int topics = tmpl.getProf().getTopics();
     if (feedRequested) {
       topics = 50;
     }

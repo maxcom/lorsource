@@ -38,7 +38,7 @@
 %>
 <jsp:include page="/WEB-INF/jsp/header-main.jsp"/>
 <%
-  boolean columns3 = tmpl.getProf().getBoolean("main.3columns");
+  boolean columns3 = tmpl.getProf().isThreeColumnsOnMain();
 %>
 
 <div style="clear: both"></div>
@@ -81,7 +81,7 @@ SoC, Graphene, MEMS, Biomedical Engineering. Дополнительная инф
 <%
   boolean multiPortal = false;
 
-  if (tmpl.getProf().getBoolean(DefaultProfile.MAIN_GALLERY)) {
+  if (tmpl.getProf().isShowGalleryOnMain()) {
     multiPortal = true;
   }
 %>

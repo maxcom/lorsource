@@ -15,10 +15,10 @@
 
 package ru.org.linux.site;
 
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import static ru.org.linux.site.ProfileProperties.*;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -41,9 +41,6 @@ public final class DefaultProfile {
         return isBox((String)o);
       }
     };
-  public static final String HIDE_ADSENSE = "hideAdsense";
-  public static final String MAIN_GALLERY = "mainGallery";
-
 
   private static final ImmutableMap<String, Object> defaultProfile = ImmutableMap.copyOf(createDefaultProfile());
 
@@ -65,44 +62,44 @@ public final class DefaultProfile {
   private static Map<String, Object> createDefaultProfile() {
     Map<String, Object> defaults = new HashMap<String, Object>();
 
-    defaults.put("newfirst", Boolean.FALSE);
-    defaults.put("hover", Boolean.TRUE);
-    defaults.put("style", "tango");
-    defaults.put("format.mode", "quot");
-    defaults.put("topics", 30);
-    defaults.put("messages", 50);
-    defaults.put("tags", 50);
-    defaults.put("photos", Boolean.TRUE);
-    defaults.put("system.timestamp", new Date().getTime());
-    defaults.put("showinfo", Boolean.TRUE);
-    defaults.put("showanonymous", Boolean.TRUE);
+    defaults.put(NEWFIRST_PROPERTY, Boolean.FALSE);
+    defaults.put(HOVER_PROPERTY, Boolean.TRUE);
+    defaults.put(STYLE_PROPERTY, "tango");
+    defaults.put(FORMAT_MODE_PROPERTY, "quot");
+    defaults.put(TOPICS_PROPERTY, 30);
+    defaults.put(MESSAGES_PROPERTY, 50);
+    defaults.put(TAGS_PROPERTY, 50);
+    defaults.put(PHOTOS_PROPERTY, Boolean.TRUE);
+    defaults.put(TIMESTAMP_PROPERTY, System.currentTimeMillis());
+    defaults.put(SHOWINFO_PROPERTY, Boolean.TRUE);
+    defaults.put(SHOW_ANONYMOUS_PROPERTY, Boolean.TRUE);
     defaults.put("showsticky", Boolean.TRUE);
-    defaults.put("avatar", "empty");
-    defaults.put(HIDE_ADSENSE, true);
-    defaults.put(MAIN_GALLERY, false);
+    defaults.put(AVATAR_PROPERTY, "empty");
+    defaults.put(HIDE_ADSENSE_PROPERTY, true);
+    defaults.put(MAIN_GALLERY_PROPERTY, false);
 
     defaults.put("DebugMode", Boolean.FALSE);
 
 // main page settings
-    defaults.put("main.3columns", Boolean.FALSE);
+    defaults.put(MAIN_3COLUMNS_PROPERTY, Boolean.FALSE);
 
     ImmutableList<String> boxes = ImmutableList.of(
       "ibm", "poll", "top10", "gallery", "tagcloud", "archive", "tshirt"
     );
 
-    defaults.put("main2", boxes);
+    defaults.put(BOXES_MAIN2_PROPERTY, boxes);
 
     ImmutableList<String> boxes31 = ImmutableList.of(
       "ibm", "poll", "archive", "tagcloud"
     );
 
-    defaults.put("main3-1", boxes31);
+    defaults.put(BOXES_MAIN31_PROPERTY, boxes31);
 
     ImmutableList<String> boxes32 = ImmutableList.of(
       "top10", "gallery", "tshirt"
     );
 
-    defaults.put("main3-2", boxes32);
+    defaults.put(BOXES_MAIN32_PROPERTY, boxes32);
 
     return defaults;
   }

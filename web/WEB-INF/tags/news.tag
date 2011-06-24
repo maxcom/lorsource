@@ -33,7 +33,7 @@
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <%
   Template tmpl = Template.getTemplate(request);
-  int pages = message.getPageCount(tmpl.getProf().getInt("messages"));
+  int pages = message.getPageCount(tmpl.getProf().getMessages());
 %>
 
 <c:set var="commentsLinks">
@@ -119,14 +119,14 @@
   <a href="${group.url}">
   <%
     try {
-      ImageInfo info = new ImageInfo(tmpl.getConfig().getProperty("HTMLPathPrefix") + tmpl.getProf().getString("style") + image);
-      out.append("<img src=\"/").append(tmpl.getProf().getString("style")).append(image).append("\" ").append(info.getCode()).append(" border=0 alt=\"Группа ").append(group.getTitle()).append("\">");
+      ImageInfo info = new ImageInfo(tmpl.getConfig().getProperty("HTMLPathPrefix") + tmpl.getProf().getStyle() + image);
+      out.append("<img src=\"/").append(tmpl.getProf().getStyle()).append(image).append("\" ").append(info.getCode()).append(" border=0 alt=\"Группа ").append(group.getTitle()).append("\">");
     } catch (IOException e) {
 //      NewsViewer.logger.warn("Bad Image for group "+ message.getGroupId(), e);
-      out.append("[bad image] <img class=newsimage src=\"/").append(tmpl.getProf().getString("style")).append(image).append("\" " + " border=0 alt=\"Группа ").append(group.getTitle()).append("\">");
+      out.append("[bad image] <img class=newsimage src=\"/").append(tmpl.getProf().getStyle()).append(image).append("\" " + " border=0 alt=\"Группа ").append(group.getTitle()).append("\">");
     } catch (BadImageException e) {
 //      NewsViewer.logger.warn("Bad Image for group "+ message.getGroupId(), e);
-      out.append("[bad image] <img class=newsimage src=\"/").append(tmpl.getProf().getString("style")).append(image).append("\" " + " border=0 alt=\"Группа ").append(group.getTitle()).append("\">");
+      out.append("[bad image] <img class=newsimage src=\"/").append(tmpl.getProf().getStyle()).append(image).append("\" " + " border=0 alt=\"Группа ").append(group.getTitle()).append("\">");
     }
 %>
     </a>

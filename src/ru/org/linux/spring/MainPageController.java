@@ -47,7 +47,7 @@ public class MainPageController {
 
       NewsViewer nv = NewsViewer.getMainpage(sectionStore);
 
-      if (tmpl.getProf().getBoolean(DefaultProfile.MAIN_GALLERY)) {
+      if (tmpl.getProf().isShowGalleryOnMain()) {
         nv.addSection(3);
       }
 

@@ -38,13 +38,13 @@ public class ProfileHashtable {
     }
   }
 
-  public boolean getBoolean(String prop) throws UtilException {
+  public boolean getBoolean(String prop) {
     if (settings.get(prop) != null) {
       return (Boolean) settings.get(prop);
     } else {
       Boolean value = (Boolean) Defaults.get(prop);
       if (value == null) {
-        throw new UtilKeyNotFoundException(prop);
+        throw new RuntimeException("unknown property '"+prop+"'; no default value");
       }
       return value;
     }
@@ -56,10 +56,6 @@ public class ProfileHashtable {
     } else {
       return Defaults.get(prop);
     }
-  }
-
-  public String getBooleanPropertyHTML(String prop) throws UtilException {
-    return getBoolean(prop) ? "checked" : "";
   }
 
   public int getInt(String prop) {
@@ -103,7 +99,7 @@ public class ProfileHashtable {
       }
   }
 
-  public boolean setBoolean(String prop, boolean value) throws UtilException {
+  public boolean setBoolean(String prop, boolean value) {
     if (value != getBoolean(prop)) {
       settings.put(prop, value);
       return true;
@@ -112,7 +108,7 @@ public class ProfileHashtable {
     }
   }
 
-  public boolean setBoolean(String prop, String value) throws UtilException {
+  public boolean setBoolean(String prop, String value)  {
     if (value == null) {
       return setBoolean(prop, false);
     }

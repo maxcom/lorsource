@@ -89,7 +89,7 @@ public class LoginController {
           pst.setInt(1, user.getId());
           pst.executeUpdate();
 
-          tmpl.getProf().setBoolean(DefaultProfile.HIDE_ADSENSE, false);
+          tmpl.getProf().setHideAdsense(false);
           tmpl.writeProfile(user.getNick());
         } else {
           throw new AccessViolationException("Bad activation code");

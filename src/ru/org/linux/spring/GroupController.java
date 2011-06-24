@@ -192,7 +192,7 @@ public class GroupController {
 
       Statement st = db.createStatement();
       String delq = showDeleted ? "" : " AND NOT deleted ";
-      int topics = tmpl.getProf().getInt("topics");
+      int topics = tmpl.getProf().getTopics();
 
       String q = "SELECT topics.title as subj, lastmod, userid, topics.id as msgid, deleted, topics.stat1, topics.stat3, topics.stat4, topics.sticky, topics.resolved FROM topics,groups, sections WHERE sections.id=groups.section AND (topics.moderate OR NOT sections.moderate) AND topics.groupid=groups.id AND groups.id=" + groupId + delq;
 
@@ -234,7 +234,7 @@ public class GroupController {
       }
 
       List<TopicsListItem> topicsList = new ArrayList<TopicsListItem>();
-      int messages = tmpl.getProf().getInt("messages");
+      int messages = tmpl.getProf().getMessages();
 
       while (rs.next()) {
         TopicsListItem topic = new TopicsListItem(db, rs, messages);

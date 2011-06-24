@@ -39,7 +39,7 @@
     }
   } else {
     if (author.hasGravatar()) {
-      String avatarStyle = tmpl.getProf().getString("avatar");
+      String avatarStyle = tmpl.getProf().getAvatarMode();
 
       if (tmpl.isMobile()) {
         out.append("<img width=50 height=50 class=\"photo\" src=\""+author.getGravatar(avatarStyle, 50, request.isSecure())+"\">");

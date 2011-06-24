@@ -69,7 +69,7 @@
         int replyPage = comments.getCommentPage(reply, tmpl);
 
         String urladd = "";
-        if (!expired && replyPage==topic.getPageCount(tmpl.getProf().getInt("messages"))-1) {
+        if (!expired && replyPage==topic.getPageCount(tmpl.getProf().getMessages())-1) {
           urladd = "?lastmod=" + comments.getLastModified();
         }
 
@@ -92,7 +92,7 @@
     %>
 </c:if>    &nbsp;</div>
   </c:if>
-  <c:set var="showPhotos" value="<%= tmpl.getProf().getBoolean(&quot;photos&quot;)%>"/>
+  <c:set var="showPhotos" value="<%= tmpl.getProf().isShowPhotos() %>"/>
 
   <c:if test="${showPhotos}">
     <lor:userpic author="<%= author %>"/>

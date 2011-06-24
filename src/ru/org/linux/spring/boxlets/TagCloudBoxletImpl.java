@@ -24,10 +24,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
+import ru.org.linux.site.ProfileProperties;
 import ru.org.linux.site.Template;
 import ru.org.linux.spring.commons.CacheProvider;
 import ru.org.linux.spring.dao.TagDaoImpl;
-import ru.org.linux.util.ProfileHashtable;
 
 @Controller
 public class TagCloudBoxletImpl extends SpringBoxlet {
@@ -50,8 +50,8 @@ public class TagCloudBoxletImpl extends SpringBoxlet {
   @Override
   @RequestMapping("/tagcloud.boxlet")
   protected ModelAndView getData(HttpServletRequest request) throws Exception {
-    ProfileHashtable profile = Template.getTemplate(request).getProf();
-    final int i = profile.getInt("tags");
+    ProfileProperties profile = Template.getTemplate(request).getProf();
+    final int i = profile.getTags();
     String key = getCacheKey() + "?count=" + i;
 
     List<TagDaoImpl.TagDTO> list = getFromCache(cacheProvider, key, new GetCommand<List<TagDaoImpl.TagDTO>>() {

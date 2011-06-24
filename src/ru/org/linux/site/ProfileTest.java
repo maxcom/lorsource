@@ -46,9 +46,9 @@ public class ProfileTest {
   public void testModification() throws Exception {
     Profile profile = new Profile();
 
-    assertNotSame(125, profile.getHashtable().getInt("messages"));
+    assertNotSame(125, profile.getProperties().getMessages());
 
-    profile.getHashtable().setInt("messages", 125);
+    profile.getProperties().setMessages(125);
 
     ByteArrayOutputStream os = new ByteArrayOutputStream();
 
@@ -56,7 +56,7 @@ public class ProfileTest {
 
     Profile profile1 = new Profile(new ByteArrayInputStream(os.toByteArray()));
 
-    assertEquals(125, profile1.getHashtable().getInt("messages"));
+    assertEquals(125, profile1.getProperties().getMessages());
   }
 
 }

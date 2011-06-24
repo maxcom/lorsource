@@ -31,9 +31,7 @@ import javax.servlet.http.HttpSession;
 import ru.org.linux.storage.StorageException;
 import ru.org.linux.storage.StorageNotFoundException;
 import ru.org.linux.util.LorHttpUtils;
-import ru.org.linux.util.ProfileHashtable;
 import ru.org.linux.util.StringUtil;
-import ru.org.linux.util.UtilException;
 
 import com.handinteractive.mobile.UAgentInfo;
 import org.apache.commons.logging.Log;
@@ -44,8 +42,6 @@ public final class Template {
   private static final Log logger = LogFactory.getLog(Template.class);
 
   private final Properties cookies;
-  private String style;
-  private String formatMode;
   private final Profile userProfile;
   private final Config config;
   private final HttpSession session;
@@ -66,11 +62,6 @@ public final class Template {
     request.setCharacterEncoding("utf-8"); // блядский tomcat
 
     userAgent = new UAgentInfo(request.getHeader("User-Agent"), request.getHeader("Accept"));
-
-    boolean debugMode = false;
-    if (request.getParameter("debug") != null) {
-      debugMode = true;
-    }
 
     // TODO use better initialization
     config = new Config(properties);
@@ -124,12 +115,7 @@ public final class Template {
       }
     }
 
-    userProfile.getHashtable().addBoolean("DebugMode", debugMode);
-
     this.userProfile = userProfile;
-
-    styleFixup();
-    formatModeFixup();
 
     response.addHeader("Cache-Control", "private");
   }
@@ -142,38 +128,6 @@ public final class Template {
     user.updateUserLastlogin(db);
     user.acegiSecurityHack(response, session);
     currentUser = user;
-  }
-
-  private void styleFixup() {
-    style = getStyle(getProf().getString("style"));
-
-    userProfile.getHashtable().setString("style", style);
-  }
-
-  private static String getStyle(String style) {
-    if (!DefaultProfile.isStyle(style)) {
-      return (String) Profile.getDefaults().get("style");
-    }
-
-    return style;
-  }
-
-  private void formatModeFixup() {
-    formatMode = getFormatMode(getProf().getString("format.mode"));
-
-    userProfile.getHashtable().setString("format.mode", formatMode);
-  }
-
-  private static String getFormatMode(String mode) {
-    if (!"ntobrq".equals(mode) &&
-        !"quot".equals(mode) &&
-        !"tex".equals(mode) &&
-        !"ntobr".equals(mode) &&
-        !"lorcode".equals(mode)) {
-      return (String) Profile.getDefaults().get("format.mode");
-    }
-
-    return mode;
   }
 
   public Properties getConfig() {
@@ -226,19 +180,19 @@ public final class Template {
   }
 
   public String getStyle() {
-    return style;
+    return userProfile.getProperties().getStyle();
   }
 
   public String getFormatMode() {
-    return formatMode;
+    return userProfile.getProperties().getFormatMode();
   }
 
-  public ProfileHashtable getProf() {
-    return userProfile.getHashtable();
+  public ProfileProperties getProf() {
+    return userProfile.getProperties();
   }
 
-  public boolean getHover() throws UtilException {
-    return getProf().getBoolean("hover");
+  public boolean getHover() {
+    return getProf().isUseHover();
   }
 
   public boolean isUsingDefaultProfile() {
@@ -297,7 +251,7 @@ public final class Template {
   }
 
   public boolean isMobile() {
-    if (!"tango".equals(style)) {
+    if (!"tango".equals(userProfile.getProperties().getStyle())) {
       return false;
     }
 

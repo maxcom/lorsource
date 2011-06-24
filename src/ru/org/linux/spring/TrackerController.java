@@ -64,8 +64,8 @@ public class TrackerController {
     String dateLimit = mine?"6 month":"24 hours";
 
     Template tmpl = Template.getTemplate(request);
-    int messages = tmpl.getProf().getInt("messages");
-    int topics = tmpl.getProf().getInt("topics");
+    int messages = tmpl.getProf().getMessages();
+    int topics = tmpl.getProf().getTopics();
 
     params.put("topics", topics);
 

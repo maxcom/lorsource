@@ -111,8 +111,8 @@ public class CommentList implements Serializable {
   }
 
   public int getCommentPage(Comment comment, Template tmpl) throws UtilException {
-    int messages = tmpl.getProf().getInt("messages");
-    boolean reverse = tmpl.getProf().getBoolean("newfirst");
+    int messages = tmpl.getProf().getMessages();
+    boolean reverse = tmpl.getProf().isShowNewFirst();
 
     return getCommentPage(comment, messages, reverse);
   }

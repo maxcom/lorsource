@@ -80,7 +80,7 @@
   &nbsp;</div>
 </c:if>
 
-<c:set var="showPhotos" value="<%= tmpl.getProf().getBoolean(&quot;photos&quot;)%>"/>
+<c:set var="showPhotos" value="<%= tmpl.getProf().isShowPhotos() %>"/>
   <c:if test="${showPhotos}">
     <lor:userpic author="${preparedMessage.author}"/>
     <c:set var="msgBodyStyle" value="message-w-userpic"/>

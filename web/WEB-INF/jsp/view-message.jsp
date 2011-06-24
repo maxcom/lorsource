@@ -229,7 +229,7 @@
 </c:if>
 
 <%
-  int messages = tmpl.getProf().getInt("messages");
+  int messages = tmpl.getProf().getMessages();
   int pages = message.getPageCount(messages);
 
   String pageInfo = null;
@@ -323,7 +323,7 @@
 <c:if test="${fn:length(commentsPrepared)>0}">
   <div class=nav>
 <%
-      if (tmpl.getProf().getBoolean("newfirst")) {
+      if (tmpl.getProf().isShowNewFirst()) {
         out.print("сообщения отсортированы в порядке убывания даты их написания");
       } else {
         out.print("сообщения отсортированы в порядке возрастания даты их написания");

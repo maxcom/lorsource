@@ -24,7 +24,7 @@
   Template tmpl = Template.getTemplate(request);
 
   int max = poll.getMaximumValue();
-  ImageInfo info = new ImageInfo(tmpl.getConfig().getProperty("HTMLPathPrefix") + tmpl.getProf().getString("style") + "/img/votes.png");
+  ImageInfo info = new ImageInfo(tmpl.getConfig().getProperty("HTMLPathPrefix") + tmpl.getProf().getStyle() + "/img/votes.png");
   int total = 0;
   for (PollVariant var : poll.getVariants()) {
     out.append("<tr><td>");
@@ -42,7 +42,7 @@
     out.append("</td><td>");
     total += votes;
     for (int i = 0; i < 20 * votes / max; i++) {
-      out.append("<img src=\"/").append(tmpl.getProf().getString("style")).append("/img/votes.png\" alt=\"*\" ").append(info.getCode()).append('>');
+      out.append("<img src=\"/").append(tmpl.getProf().getStyle()).append("/img/votes.png\" alt=\"*\" ").append(info.getCode()).append('>');
     }
     out.append("</td></tr>");
   }

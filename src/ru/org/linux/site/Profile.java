@@ -16,7 +16,6 @@
 package ru.org.linux.site;
 
 import java.io.*;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,10 +24,9 @@ import ru.org.linux.util.ProfileHashtable;
 import com.google.common.collect.ImmutableMap;
 
 public class Profile {
-  private final ProfileHashtable profileHashtable;
+  private final ProfileProperties properties;
 
   private final boolean isdefault;
-  public static final String SYSTEM_TIMESTAMP = "system.timestamp";
 
   public Profile(InputStream df) throws IOException, ClassNotFoundException {
     if (df==null) {
@@ -42,7 +40,7 @@ public class Profile {
       dof.close();
       df.close();
 
-      profileHashtable = new ProfileHashtable(getDefaults(), userProfile);
+      properties = new ProfileProperties(new ProfileHashtable(getDefaults(), userProfile));
 
       isdefault = false;
     } finally {
@@ -53,7 +51,7 @@ public class Profile {
   }
 
   public Profile() {
-    profileHashtable = new ProfileHashtable(getDefaults(), new HashMap<String, Object>());
+    properties = new ProfileProperties(new ProfileHashtable(getDefaults(), new HashMap<String, Object>()));
 
     isdefault = true;
   }
@@ -62,8 +60,8 @@ public class Profile {
     return isdefault;
   }
 
-  public ProfileHashtable getHashtable() {
-    return profileHashtable;
+  public ProfileProperties getProperties() {
+    return properties;
   }
 
   public static ImmutableMap<String, Object> getDefaults() {
@@ -71,7 +69,9 @@ public class Profile {
   }
 
   public void write(OutputStream df) throws IOException {
-    profileHashtable.setObject(SYSTEM_TIMESTAMP, new Date().getTime());
+    ProfileHashtable profileHashtable = properties.getHashtable();
+
+    profileHashtable.setObject(ProfileProperties.TIMESTAMP_PROPERTY, System.currentTimeMillis());
 
     ObjectOutputStream dof = null;
     try {

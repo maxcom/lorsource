@@ -55,7 +55,7 @@ public class BoxListTag extends BodyTagSupport {
       s = "main2";
     }
     @SuppressWarnings("unchecked")
-    List<String> boxnames = (List<String>) t.getProf().getObject(s);
+    List<String> boxnames = t.getProf().getList(s);
     CollectionUtils.filter(boxnames, new Predicate() {
       @Override
       public boolean evaluate(Object o) {

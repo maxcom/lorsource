@@ -53,7 +53,7 @@
     Group group = (Group) request.getAttribute("group");
 
     int count = (Integer) request.getAttribute("count");
-    int topics = tmpl.getProf().getInt("topics");
+    int topics = tmpl.getProf().getTopics();
     Integer year = (Integer) request.getAttribute("year");
     String url = (String) request.getAttribute("url");
 
