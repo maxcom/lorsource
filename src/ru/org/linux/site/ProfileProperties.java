@@ -76,6 +76,10 @@ public class ProfileProperties {
     showInfo = p.getBoolean(SHOWINFO_PROPERTY);
     showAnonymous = p.getBoolean(SHOW_ANONYMOUS_PROPERTY);
     timestamp = p.getLong(TIMESTAMP_PROPERTY);
+
+    boxes.put(BOXES_MAIN2_PROPERTY, (List<String>) p.getSettings().get(BOXES_MAIN2_PROPERTY));
+    boxes.put(BOXES_MAIN31_PROPERTY, (List<String>) p.getSettings().get(BOXES_MAIN31_PROPERTY));
+    boxes.put(BOXES_MAIN32_PROPERTY, (List<String>) p.getSettings().get(BOXES_MAIN32_PROPERTY));
   }
 
   public ProfileHashtable getHashtable() {
