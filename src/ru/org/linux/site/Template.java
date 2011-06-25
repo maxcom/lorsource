@@ -247,11 +247,15 @@ public final class Template {
   }
 
   public boolean isMobile() {
+    return false;
+/*
+
     if (!"tango".equals(userProfile.getProperties().getStyle())) {
       return false;
     }
 
     return userAgent.detectAndroidWebKit();
+*/
   }
 
   public void updateCurrentUser(Connection db) throws SQLException {
