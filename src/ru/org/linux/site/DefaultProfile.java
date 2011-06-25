@@ -71,9 +71,7 @@ public final class DefaultProfile {
     defaults.put(TAGS_PROPERTY, 50);
     defaults.put(PHOTOS_PROPERTY, Boolean.TRUE);
     defaults.put(TIMESTAMP_PROPERTY, System.currentTimeMillis());
-    defaults.put(SHOWINFO_PROPERTY, Boolean.TRUE);
     defaults.put(SHOW_ANONYMOUS_PROPERTY, Boolean.TRUE);
-    defaults.put("showsticky", Boolean.TRUE);
     defaults.put(AVATAR_PROPERTY, "empty");
     defaults.put(HIDE_ADSENSE_PROPERTY, true);
     defaults.put(MAIN_GALLERY_PROPERTY, false);

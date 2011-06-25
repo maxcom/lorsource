@@ -88,7 +88,6 @@ public class EditProfileController {
 
     tmpl.getProf().setThreeColumnsOnMain("on".equals(request.getParameter("3column")));
 
-    tmpl.getProf().setShowInfo("on".equals(request.getParameter("showinfo")));
     tmpl.getProf().setShowAnonymous("on".equals(request.getParameter("showanonymous")));
     tmpl.getProf().setUseHover("on".equals(request.getParameter("hover")));
 

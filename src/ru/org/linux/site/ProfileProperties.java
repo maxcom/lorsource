@@ -35,7 +35,6 @@ public class ProfileProperties {
   public static final String MAIN_GALLERY_PROPERTY = "mainGallery";
   public static final String AVATAR_PROPERTY = "avatar";
   public static final String MAIN_3COLUMNS_PROPERTY = "main.3columns";
-  public static final String SHOWINFO_PROPERTY = "showinfo";
   public static final String SHOW_ANONYMOUS_PROPERTY = "showanonymous";
   public static final String BOXES_MAIN2_PROPERTY = "main2";
   public static final String BOXES_MAIN31_PROPERTY = "main3-1";
@@ -54,7 +53,6 @@ public class ProfileProperties {
   private boolean showGalleryOnMain;
   private String avatarMode;
   private boolean threeColumnsOnMain;
-  private boolean showInfo;
   private boolean showAnonymous;
   private final long timestamp;
 
@@ -73,7 +71,6 @@ public class ProfileProperties {
     showGalleryOnMain = p.getBoolean(MAIN_GALLERY_PROPERTY);
     avatarMode = p.getString(AVATAR_PROPERTY);
     threeColumnsOnMain = p.getBoolean(MAIN_3COLUMNS_PROPERTY);
-    showInfo = p.getBoolean(SHOWINFO_PROPERTY);
     showAnonymous = p.getBoolean(SHOW_ANONYMOUS_PROPERTY);
     timestamp = p.getLong(TIMESTAMP_PROPERTY);
 
@@ -97,7 +94,6 @@ public class ProfileProperties {
     p.setBoolean(MAIN_GALLERY_PROPERTY, showGalleryOnMain);
     p.setString(AVATAR_PROPERTY, avatarMode);
     p.setBoolean(MAIN_3COLUMNS_PROPERTY, threeColumnsOnMain);
-    p.setBoolean(SHOWINFO_PROPERTY, showInfo);
     p.setBoolean(SHOW_ANONYMOUS_PROPERTY, showAnonymous);
 
     p.setObject(BOXES_MAIN2_PROPERTY, boxes.get(BOXES_MAIN2_PROPERTY));
@@ -128,7 +124,7 @@ public class ProfileProperties {
   }
 
   public void setUseHover(boolean hover) {
-    this.useHover = hover;
+    useHover = hover;
   }
 
   public int getMessages() {
@@ -144,7 +140,7 @@ public class ProfileProperties {
   }
 
   public void setShowNewFirst(boolean newFirst) {
-    this.showNewFirst = newFirst;
+    showNewFirst = newFirst;
   }
 
   public int getTopics() {
@@ -201,14 +197,6 @@ public class ProfileProperties {
 
   public void setThreeColumnsOnMain(boolean threeColumnsOnMain) {
     this.threeColumnsOnMain = threeColumnsOnMain;
-  }
-
-  public boolean isShowInfo() {
-    return showInfo;
-  }
-
-  public void setShowInfo(boolean showInfo) {
-    this.showInfo = showInfo;
   }
 
   public boolean isShowAnonymous() {

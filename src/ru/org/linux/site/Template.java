@@ -28,7 +28,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import ru.org.linux.storage.StorageException;
+import ru.org.linux.site.config.PathConfig;import ru.org.linux.storage.StorageException;
 import ru.org.linux.storage.StorageNotFoundException;
 import ru.org.linux.util.LorHttpUtils;
 import ru.org.linux.util.StringUtil;
@@ -191,10 +191,6 @@ public final class Template {
     return userProfile.getProperties();
   }
 
-  public boolean getHover() {
-    return getProf().isUseHover();
-  }
-
   public boolean isUsingDefaultProfile() {
     return userProfile.isDefault();
   }
@@ -207,7 +203,7 @@ public final class Template {
     return config.getProperties().getProperty(PROPERTY_MAIN_URL).replaceFirst("http", "https");
   }
 
-  public Config getObjectConfig() {
+  public PathConfig getObjectConfig() {
     return config;
   }
 

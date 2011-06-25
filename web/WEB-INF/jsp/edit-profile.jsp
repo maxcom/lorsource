@@ -77,8 +77,6 @@ $(document).ready(function() {
 <td><input type=text size="5" id="tags" name=tags value=<%= profHash.getTags()%>></td></tr>
 <tr><td>Верстка главной страницы в 3 колонки</td>
 <td><input type=checkbox name=3column <%= profHash.isThreeColumnsOnMain()?"checked":"" %>></td></tr>
-<tr><td>Показывать информацию о регистрации перед формами добавления сообщений</td>
-<td><input type=checkbox name=showinfo <%= profHash.isShowInfo()?"checked":"" %>></td></tr>
 <tr><td>Показывать анонимные комментарии</td>
 <td><input type=checkbox name=showanonymous <%= profHash.isShowAnonymous()?"checked":"" %>></td></tr>
 <tr><td>Подсветка строчек в таблицах сообщений (tr:hover)</td>
