@@ -24,7 +24,7 @@
     <LINK REL=STYLESHEET TYPE="text/css" HREF="/common-mobile.css">
   </c:if>
 
-  <c:if test="${template.hover}">
+  <c:if test="${template.prof.useHover}">
     <LINK REL=STYLESHEET TYPE="text/css" HREF="/${template.style}/hover.css">
   </c:if>
 
