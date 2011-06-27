@@ -73,7 +73,7 @@ public class EditProfileController {
     tmpl.getProf().setTags(tags);
     tmpl.getProf().setShowNewFirst("on".equals(request.getParameter("newfirst")));
     tmpl.getProf().setShowPhotos("on".equals(request.getParameter("photos")));
-    tmpl.getProf().setHideAdsense("on".equals(request.getParameter("hide_adsense")));
+    tmpl.getProf().setHideAdsense("on".equals(request.getParameter("hideAdsense")));
     tmpl.getProf().setShowGalleryOnMain("on".equals(request.getParameter("mainGallery")));
     tmpl.getProf().setFormatMode(request.getParameter("format_mode"));
     tmpl.getProf().setStyle(request.getParameter("style"));
