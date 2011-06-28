@@ -169,4 +169,8 @@
     </bean>
 
     <bean class="ru.org.linux.spring.ScoreUpdater"/>
+
+    <bean class="ru.org.linux.spring.StatUpdater">
+        <property name="dataSource" ref="datasource"/>
+    </bean>
 </beans>
