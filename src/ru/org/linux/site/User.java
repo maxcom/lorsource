@@ -421,7 +421,7 @@ public class User implements Serializable {
       PreparedStatement st2 = db.prepareStatement("INSERT INTO del_info (msgid, delby, reason, deldate) values(?,?,?, CURRENT_TIMESTAMP)");
       lock.setInt(1, id);
       st2.setInt(2, moderator.id);
-      st2.setString(3,"Автоматически: удаление всех коментариев");
+      st2.setString(3, "Блокировка пользователя с удалением сообщений");
       ResultSet lockResult = lock.executeQuery(); // lock another delete on this row
       while (lockResult.next()) {
         int mid = lockResult.getInt("id");
@@ -449,7 +449,7 @@ public class User implements Serializable {
 
         deleted.addAll(deleter.deleteReplys(msgid, moderator, false));
         
-        deleter.deleteComment(msgid, "4.7 Flood (auto)", moderator, -20);
+        deleter.deleteComment(msgid, "Блокировка пользователя с удалением сообщений", moderator, 0);
       }
     } finally {
       if (deleter!=null) {
