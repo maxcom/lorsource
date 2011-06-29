@@ -17,7 +17,10 @@ package ru.org.linux.site;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Collection;
+import java.util.Set;
 
+import com.google.common.collect.ImmutableSet;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
@@ -25,6 +28,7 @@ import org.apache.solr.common.params.ModifiableSolrParams;
 
 public class SearchViewer {
   public static final int SEARCH_TOPICS = 1;
+  public static final int SEARCH_COMMENTS = 2;
   public static final int SEARCH_ALL = 0;
 
   public enum SearchInterval {
@@ -33,7 +37,6 @@ public class SearchViewer {
     YEAR("postdate:[NOW-1YEAR TO NOW]", "год"),
     THREE_YEAR("postdate:[NOW-3YEAR TO NOW]", "три года"),
     ALL(null, "весь период");
-
 
     private final String range;
     private final String title;
@@ -53,6 +56,7 @@ public class SearchViewer {
   }
 
   public static final SearchInterval DEFAULT_INTERVAL = SearchInterval.THREE_YEAR;
+  public static final int SEARCH_ROWS = 100;
 
   public static final int SORT_R = 1;
   public static final int SORT_DATE = 2;
@@ -63,6 +67,8 @@ public class SearchViewer {
   private SearchInterval interval = DEFAULT_INTERVAL;
   private int section = 0;
   private int sort = SORT_R;
+  private int offset = 0;
+  private Set<Integer> groups = ImmutableSet.of();
 
   private String username = "";
   private boolean userTopic = false;
@@ -75,16 +81,19 @@ public class SearchViewer {
     ModifiableSolrParams params = new ModifiableSolrParams();
     // set search query params
     params.set("q", query);
-    params.set("rows", 100);
+    params.set("rows", SEARCH_ROWS);
+    params.set("start", offset);
 
-    if(noincludeTitle){
+    if (noincludeTitle){
       params.set("qt", "dismax-message");
     }else{
       params.set("qt", "dismax");
     }
 
-    if(include != SEARCH_ALL){
+    if(include == SEARCH_TOPICS){
       params.add("fq","is_comment:false");      
+    }else if(include == SEARCH_COMMENTS){
+      params.add("fq","is_comment:true");
     }
 
     if (interval.getRange()!=null) {
@@ -92,10 +101,10 @@ public class SearchViewer {
     }
 
     if (section != 0 ){
-      params.add("fq","section_id:"+section);
+      params.add("fq", "section_id:"+section);
     }
 
-    if(username.length() > 0) {
+    if(username != null && username.length() > 0) {
       try {
         User user = User.getUser(db, username);
         if (userTopic) {
@@ -108,7 +117,27 @@ public class SearchViewer {
       }
     }
 
-    if(sort == SORT_DATE){
+    if (!groups.isEmpty()) {
+      if (groups.size() == 1) {
+        params.add("fq", "group_id:" + groups.iterator().next());
+      } else {
+        StringBuilder buffer = new StringBuilder("group_id:(");
+
+        for (int gId : groups) {
+          if (buffer.length() > 0) {
+            buffer.append(" OR ");
+          }
+
+          buffer.append(Integer.toString(gId));
+        }
+
+        buffer.append(')');
+
+        params.add("fq", buffer.toString());
+      }
+    }
+
+    if(sort == SORT_DATE) {
       params.set("sort","postdate desc");
     }
 
@@ -138,5 +167,13 @@ public class SearchViewer {
 
   public void setUserTopic(boolean userTopic) {
     this.userTopic = userTopic;
+  }
+
+  public void setOffset(int offset) {
+    this.offset = offset;
+  }
+
+  public void setGroups(Collection<Integer> groups){
+    this.groups = ImmutableSet.copyOf(groups);
   }
 }
