@@ -238,12 +238,13 @@ public class AddMessageForm {
 
   public void processUpload(HttpSession session, Template tmpl) throws IOException, BadImageException, UtilException, InterruptedException {
     File uploadedFile = null;
+
     if (image != null && !"".equals(image)) {
       uploadedFile = new File(image);
-    } else
-    if (sessionId != null && !"".equals(sessionId) && session.getAttribute("image") != null && !"".equals(session.getAttribute("image"))) {
+    } else if (sessionId != null && !"".equals(sessionId) && session.getAttribute("image") != null && !"".equals(session.getAttribute("image"))) {
       uploadedFile = new File((String) session.getAttribute("image"));
     }
+
     if (uploadedFile != null && uploadedFile.isFile() && uploadedFile.canRead()) {
       ScreenshotProcessor screenshot = new ScreenshotProcessor(uploadedFile.getAbsolutePath());
       logger.info("SCREEN: " + uploadedFile.getAbsolutePath() + "\nINFO: SCREEN: " + image);
