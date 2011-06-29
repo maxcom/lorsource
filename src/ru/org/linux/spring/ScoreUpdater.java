@@ -15,49 +15,36 @@
 
 package ru.org.linux.spring;
 
-import java.sql.Connection;
-import java.sql.Statement;
-
-import ru.org.linux.site.LorDataSource;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.jdbc.support.JdbcUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
-@Component
 public class ScoreUpdater {
   private static final Log logger = LogFactory.getLog(ScoreUpdater.class);
 
+  private SimpleJdbcTemplate jdbcTemplate;
+
+  @Autowired
+  public void setJdbcTemplate(SimpleJdbcTemplate jdbcTemplate) {
+    this.jdbcTemplate = jdbcTemplate;
+  }
+
   @Scheduled(cron="1 0 1 */2 * *")
+  @Transactional
   public void updateScore() throws Exception {
     logger.info("Updating score");
 
-    Connection db = LorDataSource.getConnection();
-
-    try {
-      db.setAutoCommit(false);
-
-      Statement st = db.createStatement();
-
-      st.executeUpdate(
-        "update users set score=score+1 " +
+    jdbcTemplate.update("update users set score=score+1 " +
           "where id in " +
             "(select distinct comments.userid from comments, topics " +
             "where comments.postdate>CURRENT_TIMESTAMP-'2 days'::interval " +
             "and topics.id=comments.topic and " +
             "groupid!=8404 and groupid!=4068 and groupid!=19390 and " +
-            "not comments.deleted and not topics.deleted)"
-      );
+            "not comments.deleted and not topics.deleted)");
 
-      st.executeUpdate("update users set max_score=score where score>max_score");
-
-      st.close();
-
-      db.commit();
-    } finally {
-      JdbcUtils.closeConnection(db);
-    }
+    jdbcTemplate.update("update users set max_score=score where score>max_score");
   }
 }

@@ -19,9 +19,10 @@
        xmlns:amq="http://activemq.apache.org/schema/core"
        xmlns:jee="http://www.springframework.org/schema/jee"
        xmlns:task="http://www.springframework.org/schema/task"
+       xmlns:tx="http://www.springframework.org/schema/tx"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
        http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd
-       http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-3.0.xsd http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.0.xsd">
+       http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-3.0.xsd http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.0.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
 
     <bean class="org.springframework.beans.factory.config.PropertiesFactoryBean" scope="singleton"
           name="properties">
@@ -43,6 +44,12 @@
     <bean class="org.springframework.jndi.JndiObjectFactoryBean" name="datasource">
         <property name="jndiName" value="${datasource.name}"/>
     </bean>
+
+    <bean id="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="datasource"/>
+    </bean>
+
+    <tx:annotation-driven transaction-manager="txManager"/>
 
     <bean class="org.springframework.jdbc.core.simple.SimpleJdbcTemplate" id="jdbcTemplate">
         <constructor-arg ref="datasource"/>

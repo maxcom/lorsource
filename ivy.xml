@@ -33,6 +33,9 @@
         <dependency org="org.springframework" name="spring-context" rev="3.0.5.RELEASE" conf="build->default">
             <exclude module="javax.ejb"/>
         </dependency>
+        <dependency org="cglib" name="cglib" rev="2.2.2" conf="build->default">
+            <exclude module="ant"/>
+        </dependency>
         <dependency org="taglibs" name="standard" rev="1.1.2" conf="build->default"/>
         <dependency org="jstl" name="jstl" rev="1.1.2" conf="build->default"/>
         <dependency org="javax.servlet" name="servlet-api" rev="2.4" conf="provided->default"/>
