@@ -28,12 +28,16 @@ import com.google.common.collect.ImmutableList;
 import org.springframework.jdbc.support.JdbcUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 public class SameIPController {
   @RequestMapping("/sameip.jsp")
-  public ModelAndView sameIP(HttpServletRequest request) throws Exception {
+  public ModelAndView sameIP(
+    HttpServletRequest request,
+    @RequestParam(required = false) Integer msgid
+  ) throws Exception {
     Template tmpl = Template.getTemplate(request);
 
     if (!tmpl.isModeratorSession()) {
@@ -47,10 +51,8 @@ public class SameIPController {
 
       int userAgentId = 0;
       String ip;
-      if (request.getParameter("msgid") != null) {
+      if (msgid != null) {
         Statement ipst = db.createStatement();
-        int msgid = new ServletParameterParser(request).getInt("msgid");
-
         ResultSet rs = ipst.executeQuery("SELECT postip, ua_id FROM topics WHERE id=" + msgid);
 
         if (!rs.next()) {
@@ -71,7 +73,7 @@ public class SameIPController {
         rs.close();
         ipst.close();
       } else {
-        ip = new ServletParameterParser(request).getIP("ip");
+        ip = ServletParameterParser.getIP(request, "ip");
       }
 
 

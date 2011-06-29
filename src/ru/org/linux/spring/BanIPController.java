@@ -23,15 +23,16 @@ import java.util.Calendar;
 import java.util.Date;
 
 import javax.servlet.http.HttpServletRequest;
+
+import ru.org.linux.site.*;
+
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
-
-import ru.org.linux.site.*;
-import ru.org.linux.util.ServletParameterParser;
 
 @Controller
 public class BanIPController {
@@ -63,7 +64,7 @@ public class BanIPController {
       calendar.add(Calendar.MONTH, 6);
     } else if ("remove".equals(time)) {
     } else if ("custom".equals(time)) {
-      int days = new ServletParameterParser(request).getInt("ban_days");
+      int days = ServletRequestUtils.getRequiredIntParameter(request, "ban_days");
 
       if (days <= 0 || days > 180) {
         throw new UserErrorException("Invalid days count");

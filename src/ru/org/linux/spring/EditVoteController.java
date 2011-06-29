@@ -25,6 +25,7 @@ import java.util.Random;
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.context.support.ApplicationObjectSupport;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -33,7 +34,6 @@ import org.springframework.web.servlet.view.RedirectView;
 
 import ru.org.linux.site.*;
 import ru.org.linux.util.HTMLFormatter;
-import ru.org.linux.util.ServletParameterParser;
 
 @Controller
 public class EditVoteController extends ApplicationObjectSupport {
@@ -110,10 +110,9 @@ public class EditVoteController extends ApplicationObjectSupport {
 
       pstPoll.executeUpdate();
 
-
       List<PollVariant> variants = poll.getPollVariants(db, Poll.ORDER_ID);
       for (PollVariant var : variants) {
-        String label = new ServletParameterParser(request).getString("var" + var.getId());
+        String label = ServletRequestUtils.getRequiredStringParameter(request, "var" + var.getId());
 
         if (label == null || label.trim().length() == 0) {
           var.remove(db);
@@ -123,7 +122,7 @@ public class EditVoteController extends ApplicationObjectSupport {
       }
 
       for (int i = 1; i <= 3; i++) {
-        String label = new ServletParameterParser(request).getString("new" + i);
+        String label = ServletRequestUtils.getRequiredStringParameter(request, "new" + i);
 
         if (label != null && label.trim().length() > 0) {
           poll.addNewVariant(db, label);

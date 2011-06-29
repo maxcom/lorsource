@@ -19,53 +19,17 @@ import java.util.regex.Pattern;
 
 import javax.servlet.ServletRequest;
 
+import org.springframework.web.bind.ServletRequestBindingException;
+import org.springframework.web.bind.ServletRequestUtils;
+
 public class ServletParameterParser {
   private static final Pattern ipRE = Pattern.compile("^[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+$");
 
-  private final ServletRequest rq;
-
-  public ServletParameterParser(ServletRequest request) {
-    rq = request;
+  private ServletParameterParser() {
   }
 
-  public String getString(String name) throws ServletParameterException {
-    if (name == null) {
-      throw new ServletParameterBadNameException(name);
-    }
-
-    String value = rq.getParameter(name);
-
-    if (value == null) {
-      throw new ServletParameterMissingException(name);
-    }
-
-    return value;
-  }
-
-  public int getInt(String name) throws ServletParameterException {
-    if (name == null) {
-      throw new ServletParameterBadNameException(name);
-    }
-
-    String svalue = rq.getParameter(name);
-
-    if (svalue == null) {
-      throw new ServletParameterMissingException(name);
-    }
-
-    int value;
-
-    try {
-      value = Integer.parseInt(svalue);
-    } catch (NumberFormatException e) {
-      throw new ServletParameterBadValueException(name, e);
-    }
-
-    return value;
-  }
-
-  public boolean getBoolean(String name) throws ServletParameterException {
-    int value = getInt(name);
+  public static boolean getBoolean(ServletRequest rq, String name) throws ServletParameterException, ServletRequestBindingException {
+    int value = ServletRequestUtils.getRequiredIntParameter(rq, name);
 
     switch (value) {
       case 0:
@@ -77,8 +41,8 @@ public class ServletParameterParser {
     }
   }
 
-  public String getIP(String name) throws ServletParameterException {
-    String ip = getString(name);
+  public static String getIP(ServletRequest rq, String name) throws ServletParameterException, ServletRequestBindingException {
+    String ip = ServletRequestUtils.getRequiredStringParameter(rq, name);
 
     if (!ipRE.matcher(ip).matches()) {
       throw new ServletParameterBadValueException(name, "not ip");

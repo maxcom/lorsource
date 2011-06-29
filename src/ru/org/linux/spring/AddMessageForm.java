@@ -26,13 +26,17 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import ru.org.linux.site.*;
-import ru.org.linux.util.*;
+import ru.org.linux.util.BadImageException;
+import ru.org.linux.util.HTMLFormatter;
+import ru.org.linux.util.UtilException;
 
 import com.google.common.collect.ImmutableList;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jdom.Verifier;
+import org.springframework.web.bind.ServletRequestBindingException;
+import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.multipart.MultipartRequest;
@@ -140,7 +144,7 @@ public class AddMessageForm {
     return linktext == null ? "" : HTMLFormatter.htmlSpecialChars(linktext);
   }
 
-  public AddMessageForm(HttpServletRequest request, Template tmpl) throws IOException, ScriptErrorException, ServletParameterException {
+  public AddMessageForm(HttpServletRequest request, Template tmpl) throws IOException, ScriptErrorException,  ServletRequestBindingException {
     postIP = request.getRemoteAddr();
 
     noinfo = "1".equals(request.getParameter("noinfo"));
@@ -159,7 +163,7 @@ public class AddMessageForm {
       throw new ScriptErrorException("missing group parameter");
     }
 
-    guid = new ServletParameterParser(request).getInt("group");
+    guid = ServletRequestUtils.getRequiredIntParameter(request, "group");
 
     linktext = request.getParameter("linktext");
     url = request.getParameter("url");
