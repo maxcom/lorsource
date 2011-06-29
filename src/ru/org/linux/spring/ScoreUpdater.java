@@ -47,4 +47,15 @@ public class ScoreUpdater {
 
     jdbcTemplate.update("update users set max_score=score where score>max_score");
   }
+
+  @Scheduled(cron="0 1 * * * *")
+  public void block() throws Exception {
+    jdbcTemplate.update("update users set blocked='t' where id in (select id from users where score<-50 and nick!='anonymous' and max_score<150 and not blocked)");
+    jdbcTemplate.update("update users set blocked='t' where id in (select id from users where score<-50 and nick!='anonymous' and max_score<150 and blocked is null)");
+  }
+
+  @Scheduled(cron="0 1 2 * * *")
+  public void deleteInactivated() throws Exception {
+    jdbcTemplate.update("delete from users where not activated and not blocked and regdate<CURRENT_TIMESTAMP-'1 week'::interval");
+  }
 }
