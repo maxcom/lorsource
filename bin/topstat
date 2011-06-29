@@ -1,3 +1,0 @@
-#!/bin/bash
-
-/usr/bin/lynx -source http://www.linux.org.ru/_topstat.jsp > /dev/null
