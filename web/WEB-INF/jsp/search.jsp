@@ -54,13 +54,14 @@
     <option value="topics" <%= (include==SearchViewer.SEARCH_TOPICS)?"selected":"" %>>только темы</option>
     <option value="all" <%= (include==SearchViewer.SEARCH_ALL)?"selected":"" %>>темы и комментарии</option>
   </select>
-  <label for="id_noinclude_title">Не искать по заголовкам сообщений</label>
+  <label>Не искать по заголовкам сообщений
     <c:if test="${noinclude_title}">
-      <INPUT type="checkbox" id="id_noinclude_title" NAME="noinclude_title" checked><br>
+      <INPUT type="checkbox" NAME="noinclude_title" checked><br>
     </c:if>
     <c:if test="${!noinclude_title}">
-      <INPUT type="checkbox" id="id_noinclude_title" NAME="noinclude_title"><br>
+      <INPUT type="checkbox" NAME="noinclude_title"><br>
     </c:if>
+  </label>
 
   <label>За:
   <select name="date">
@@ -82,18 +83,20 @@
     <option value="0" <%= (section == 0) ? "selected" : "" %>>все</option>
   </select></label>
 
-  <label for="search_username">Пользователь:</label>
-  <INPUT TYPE="text" NAME="username" id="search_username" SIZE=20 VALUE="${fn:escapeXml(username)}">
-  <br>
-    <label for="id_user_topic">В темах пользователя</label>
-    <c:if test="${usertopic}">
-      <INPUT type="checkbox" id="id_user_topic" NAME="usertopic" checked><br>
-    </c:if>
-    <c:if test="${!usertopic}">
-      <INPUT type="checkbox" id="id_user_topic" NAME="usertopic"><br>
-    </c:if>
+    <label>Пользователь:
+      <INPUT TYPE="text" NAME="username" SIZE=20 VALUE="${fn:escapeXml(username)}">
+    </label>
+    <br>
+    <label>В темах пользователя
+      <c:if test="${usertopic}">
+        <INPUT type="checkbox" NAME="usertopic" checked><br>
+      </c:if>
+      <c:if test="${!usertopic}">
+        <INPUT type="checkbox" NAME="usertopic"><br>
+      </c:if>
+    </label>
 
-  <label>Сортировать
+    <label>Сортировать
   <select name="sort">
   <option value="<%= SearchViewer.SORT_DATE %>" <%= (sort==SearchViewer.SORT_DATE)?"selected":"" %>>по дате</option>
 
