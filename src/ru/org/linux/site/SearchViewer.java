@@ -20,6 +20,8 @@ import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Set;
 
+import ru.org.linux.spring.SearchRequest;
+
 import com.google.common.collect.ImmutableSet;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -61,30 +63,27 @@ public class SearchViewer {
   public static final int SORT_R = 1;
   public static final int SORT_DATE = 2;
 
-  private final String query;
   private int include = SEARCH_ALL;
-  private boolean noincludeTitle = false;
   private SearchInterval interval = DEFAULT_INTERVAL;
   private int section = 0;
   private int sort = SORT_R;
   private int offset = 0;
   private Set<Integer> groups = ImmutableSet.of();
 
-  private String username = "";
-  private boolean userTopic = false;
+  private final SearchRequest query;
 
-  public SearchViewer(String query) {
+  public SearchViewer(SearchRequest query) {
     this.query = query;
   }
 
   public QueryResponse performSearch(SolrServer search, Connection db) throws SQLException, UserErrorException, SolrServerException {
     ModifiableSolrParams params = new ModifiableSolrParams();
     // set search query params
-    params.set("q", query);
+    params.set("q", query.getQ());
     params.set("rows", SEARCH_ROWS);
     params.set("start", offset);
 
-    if (noincludeTitle){
+    if (query.isIgnoreTitle()){
       params.set("qt", "dismax-message");
     }else{
       params.set("qt", "dismax");
@@ -104,10 +103,12 @@ public class SearchViewer {
       params.add("fq", "section_id:"+section);
     }
 
+    String username = query.getUsername();
+
     if(username != null && username.length() > 0) {
       try {
         User user = User.getUser(db, username);
-        if (userTopic) {
+        if (query.isUsertopic()) {
           params.add("fq","topic_user_id:"+user.getId());
         } else {
           params.add("fq","user_id:"+user.getId());
@@ -144,9 +145,8 @@ public class SearchViewer {
     return search.query(params);
   }
 
-  public void setInclude(int include, boolean noincludeTitle) {
+  public void setInclude(int include) {
     this.include = include;
-    this.noincludeTitle = noincludeTitle;
   }
 
   public void setInterval(SearchInterval interval) {
@@ -159,14 +159,6 @@ public class SearchViewer {
 
   public void setSort(int sort) {
     this.sort = sort;
-  }
-
-  public void setUser(String username) {
-    this.username = username;
-  }
-
-  public void setUserTopic(boolean userTopic) {
-    this.userTopic = userTopic;
   }
 
   public void setOffset(int offset) {

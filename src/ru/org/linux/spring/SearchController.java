@@ -17,7 +17,6 @@ package ru.org.linux.spring;
 
 import java.sql.Connection;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -33,10 +32,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.jdbc.support.JdbcUtils;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 public class SearchController {
@@ -48,30 +48,23 @@ public class SearchController {
     this.solrServer = solrServer;
   }
 
+  @SuppressWarnings({"SameReturnValue"})
   @RequestMapping(value="/search.jsp", method={RequestMethod.GET, RequestMethod.HEAD})
-  public ModelAndView search(
-    @RequestParam(value="q", defaultValue="") String q,
+  public String search(
+    Model model,
+    @ModelAttribute("query") SearchRequest query,
     @RequestParam(value="include", required=false) String includeString,
-    @RequestParam(value="noinclude_title", defaultValue="false") boolean noinclude_title,
     @RequestParam(value="date", required=false) String dateString,
     @RequestParam(value="section", required=false) Integer section,
-    @RequestParam(value="sort", required=false) Integer sort,
-    @RequestParam(value="username", required=false) String username,
-    @RequestParam(value="usertopic", defaultValue="false") boolean usertopic
+    @RequestParam(value="sort", required=false) Integer sort
   ) throws Exception {
-    Map<String, Object> params = new HashMap<String, Object>();
+    Map<String, Object> params = model.asMap();
 
-    boolean initial = q.isEmpty();
-    params.put("initial", initial);
-
-    params.put("usertopic", usertopic);
-
-    params.put("q", q);
+    boolean initial = query.isInitial();
 
     int include = parseInclude(includeString);
 
     params.put("include", include);
-    params.put("noinclude_title", noinclude_title);
 
     SearchViewer.SearchInterval date = parseInterval(dateString);
 
@@ -89,21 +82,13 @@ public class SearchController {
 
     params.put("sort", sort);
 
-    if (username==null) {
-      username = "";
-    }
-
-    params.put("username", username);
-
     if (!initial) {
-      SearchViewer sv = new SearchViewer(q);
+      SearchViewer sv = new SearchViewer(query);
 
       sv.setInterval(date);
-      sv.setInclude(include, noinclude_title);
+      sv.setInclude(include);
       sv.setSection(section);
       sv.setSort(sort);
-      sv.setUser(username);
-      sv.setUserTopic(usertopic);
 
       Connection db = null;
       try {
@@ -129,7 +114,7 @@ public class SearchController {
       }
     }
 
-    return new ModelAndView("search", params);
+    return "search";
   }
 
   public static int parseInclude(String include) {

@@ -3,6 +3,7 @@
 <%@ page contentType="text/html; charset=utf-8"%>
 <%@ page import="ru.org.linux.site.SearchViewer"  %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%--
   ~ Copyright 1998-2010 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,10 +20,8 @@
   --%>
 <%--@elvariable id="result" type="java.util.List<ru.org.linux.site.SearchItem>"--%>
 <%--@elvariable id="boolean" type="java.lang.Boolean"--%>
-<%--@elvariable id="initial" type="java.lang.Boolean"--%>
-<%--@elvariable id="q" type="java.lang.String"--%>
+<%--@elvariable id="query" type="ru.org.linux.spring.SearchRequest"--%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
-<%--@elvariable id="usertopic" type="java.lang.String"--%>
 <%--@elvariable id="time" type="java.lang.Long"--%>
 <%--@elvariable id="searchTime" type="java.lang.Long"--%>
 <%--@elvariable id="numFound" type="java.lang.Long"--%>
@@ -30,8 +29,8 @@
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 <title>Поиск по сайту
-  <c:if test="${not initial}">
-    - <c:out value="${q}" escapeXml="true"/>
+  <c:if test="${not query.initial}">
+    - <c:out value="${query.q}" escapeXml="true"/>
   </c:if>
 </title>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
@@ -45,8 +44,8 @@
   int sort = (Integer) request.getAttribute("sort");  
 %>
 
-<FORM METHOD=GET ACTION="search.jsp">
-<INPUT TYPE="text" NAME="q" SIZE=50 maxlength="250" VALUE="${fn:escapeXml(q)}">
+<form:form method="GET" commandName="query" ACTION="search.jsp">
+<form:input path="q" TYPE="text" SIZE="50" maxlength="250"/>
   <input TYPE="submit" VALUE="Поиск"><BR>
   
   <p>
@@ -54,14 +53,7 @@
     <option value="topics" <%= (include==SearchViewer.SEARCH_TOPICS)?"selected":"" %>>только темы</option>
     <option value="all" <%= (include==SearchViewer.SEARCH_ALL)?"selected":"" %>>темы и комментарии</option>
   </select>
-  <label>Не искать по заголовкам сообщений
-    <c:if test="${noinclude_title}">
-      <INPUT type="checkbox" NAME="noinclude_title" checked><br>
-    </c:if>
-    <c:if test="${!noinclude_title}">
-      <INPUT type="checkbox" NAME="noinclude_title"><br>
-    </c:if>
-  </label>
+  <label>Не искать по заголовкам сообщений <form:checkbox path="ignoreTitle"/></label><br>
 
   <label>За:
   <select name="date">
@@ -83,18 +75,8 @@
     <option value="0" <%= (section == 0) ? "selected" : "" %>>все</option>
   </select></label>
 
-    <label>Пользователь:
-      <INPUT TYPE="text" NAME="username" SIZE=20 VALUE="${fn:escapeXml(username)}">
-    </label>
-    <br>
-    <label>В темах пользователя
-      <c:if test="${usertopic}">
-        <INPUT type="checkbox" NAME="usertopic" checked><br>
-      </c:if>
-      <c:if test="${!usertopic}">
-        <INPUT type="checkbox" NAME="usertopic"><br>
-      </c:if>
-    </label>
+    <label>Пользователь: <form:input path="username" TYPE="text" SIZE="20"/></label><br>
+    <label>В темах пользователя <form:checkbox path="usertopic"/></label><br>
 
     <label>Сортировать
   <select name="sort">
@@ -104,9 +86,9 @@
   </select></label>
 
   <br>
-</form>
+</form:form>
 
-<c:if test="${not initial}">
+<c:if test="${not query.initial}">
   <h1>Результаты поиска</h1>
   <p>
   Всего найдено ${numFound} результатов, показаны ${fn:length(result)}
@@ -137,7 +119,7 @@
   </p>
 </c:if>
 
-<c:if test="${initial}">
+<c:if test="${query.initial}">
   <h2>Поиск через Google</h2>
   <jsp:include page="/WEB-INF/jsp/${template.style}/google-search.jsp"/>
 </c:if>
