@@ -11,7 +11,5 @@ sudo rm -f /var/lib/tomcat6/webapps/ROOT/WEB-INF/lib/*.jar
 sudo cp -R dist/* /var/lib/tomcat6/webapps/ROOT
 sudo touch /var/lib/tomcat6/webapps/ROOT/WEB-INF/web.xml
 
-cp bin/* ~/bin/
-
 echo done
 
