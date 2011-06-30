@@ -175,7 +175,9 @@
         <property name="solrServer" ref="solr"/>
     </bean>
 
-    <bean class="ru.org.linux.spring.ScoreUpdater"/>
+    <bean class="ru.org.linux.spring.ScoreUpdater">
+        <property name="jdbcTemplate" ref="jdbcTemplate"/>
+    </bean>
 
     <bean class="ru.org.linux.spring.StatUpdater">
         <property name="dataSource" ref="datasource"/>
