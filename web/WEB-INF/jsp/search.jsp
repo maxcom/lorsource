@@ -84,9 +84,9 @@
 
 <c:if test="${not query.initial}">
   <h1>Результаты поиска</h1>
-  <p>
+  <div class="infoblock">
   Всего найдено ${numFound} результатов, показаны ${fn:length(result)}
-  </p>
+  </div>
   <div class="messages">
   <div class="comment">
     <c:forEach items="${result}" var="item">
