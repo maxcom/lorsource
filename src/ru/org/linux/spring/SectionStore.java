@@ -16,16 +16,16 @@
 package ru.org.linux.spring;
 
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
+
+import ru.org.linux.site.LorDataSource;
+import ru.org.linux.site.Section;
+import ru.org.linux.site.SectionNotFoundException;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-
-import ru.org.linux.site.Section;
-import ru.org.linux.site.SectionNotFoundException;
-import ru.org.linux.site.LorDataSource;
 
 public class SectionStore {
   private final ImmutableMap<Integer, Section> sections;
