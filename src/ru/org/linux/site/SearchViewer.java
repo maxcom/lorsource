@@ -23,6 +23,7 @@ import java.util.Set;
 import ru.org.linux.spring.SearchRequest;
 
 import com.google.common.collect.ImmutableSet;
+import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
@@ -76,7 +77,7 @@ public class SearchViewer {
   }
 
   public QueryResponse performSearch(SolrServer search, Connection db) throws SQLException, UserErrorException, SolrServerException {
-    ModifiableSolrParams params = new ModifiableSolrParams();
+    SolrQuery params = new SolrQuery();
     // set search query params
     params.set("q", query.getQ());
     params.set("rows", SEARCH_ROWS);
@@ -100,6 +101,9 @@ public class SearchViewer {
 
     if (query.getSection() != 0 ){
       params.add("fq", "section_id:"+query.getSection());
+    } else {
+      params.addFacetField("section_id");
+      params.setFacet(true);
     }
 
     String username = query.getUsername();
