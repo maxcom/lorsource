@@ -65,7 +65,6 @@ public class SearchViewer {
 
   private int include = SEARCH_ALL;
   private SearchInterval interval = DEFAULT_INTERVAL;
-  private int section = 0;
   private int sort = SORT_R;
   private int offset = 0;
   private Set<Integer> groups = ImmutableSet.of();
@@ -99,8 +98,8 @@ public class SearchViewer {
       params.add("fq", interval.getRange());
     }
 
-    if (section != 0 ){
-      params.add("fq", "section_id:"+section);
+    if (query.getSection() != 0 ){
+      params.add("fq", "section_id:"+query.getSection());
     }
 
     String username = query.getUsername();
@@ -151,10 +150,6 @@ public class SearchViewer {
 
   public void setInterval(SearchInterval interval) {
     this.interval = interval;
-  }
-
-  public void setSection(int section) {
-    this.section = section;
   }
 
   public void setSort(int sort) {

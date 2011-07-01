@@ -23,7 +23,10 @@ import java.util.Map;
 import ru.org.linux.site.LorDataSource;
 import ru.org.linux.site.SearchItem;
 import ru.org.linux.site.SearchViewer;
+import ru.org.linux.site.Section;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSortedMap;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
@@ -41,11 +44,29 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Controller
 public class SearchController {
   private SolrServer solrServer;
+  private Map<Integer, String> sections;
 
   @Autowired
   @Required
   public void setSolrServer(SolrServer solrServer) {
     this.solrServer = solrServer;
+  }
+
+  @ModelAttribute("sections")
+  public Map<Integer, String> getSections() {
+    return sections;
+  }
+
+  @Autowired
+  public void setSectionStore(SectionStore sectionStore) {
+    ImmutableMap.Builder<Integer, String> builder = ImmutableSortedMap.naturalOrder();
+
+    builder.put(0, "все");
+    for (Section section : sectionStore.getSectionsList()) {
+      builder.put(section.getId(), section.getTitle().toLowerCase());
+    }
+
+    sections = builder.build();
   }
 
   @SuppressWarnings({"SameReturnValue"})
@@ -55,7 +76,6 @@ public class SearchController {
     @ModelAttribute("query") SearchRequest query,
     @RequestParam(value="include", required=false) String includeString,
     @RequestParam(value="date", required=false) String dateString,
-    @RequestParam(value="section", required=false) Integer section,
     @RequestParam(value="sort", required=false) Integer sort
   ) throws Exception {
     Map<String, Object> params = model.asMap();
@@ -70,12 +90,6 @@ public class SearchController {
 
     params.put("date", date);
 
-    if (section==null) {
-      section = 0;
-    }
-
-    params.put("section", section);
-
     if (sort==null) {
       sort = SearchViewer.SORT_R;
     }
@@ -87,7 +101,6 @@ public class SearchController {
 
       sv.setInterval(date);
       sv.setInclude(include);
-      sv.setSection(section);
       sv.setSort(sort);
 
       Connection db = null;

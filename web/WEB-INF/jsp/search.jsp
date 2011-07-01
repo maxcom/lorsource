@@ -26,6 +26,7 @@
 <%--@elvariable id="searchTime" type="java.lang.Long"--%>
 <%--@elvariable id="numFound" type="java.lang.Long"--%>
 <%--@elvariable id="date" type="ru.org.linux.site.SearchViewer.SearchInterval"--%>
+<%--@elvariable id="sections" type="java.util.Map<Integer, String>"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 <title>Поиск по сайту
@@ -40,8 +41,7 @@
 
 <%
   int include = (Integer) request.getAttribute("include");
-  int section = (Integer) request.getAttribute("section");
-  int sort = (Integer) request.getAttribute("sort");  
+  int sort = (Integer) request.getAttribute("sort");
 %>
 
 <form:form method="GET" commandName="query" ACTION="search.jsp">
@@ -67,13 +67,7 @@
     </c:forEach>
   </select></label>
 <br>
-  <label>Раздел:
-  <select name="section">
-    <option value="1" <%= (section == 1) ? "selected" : "" %>>новости</option>
-    <option value="2" <%= (section == 2) ? "selected" : "" %>>форум</option>
-    <option value="3" <%= (section == 3) ? "selected" : "" %>>галерея</option>
-    <option value="0" <%= (section == 0) ? "selected" : "" %>>все</option>
-  </select></label>
+  <label>Раздел: <form:select path="section" items="${sections}" /></label>
 
     <label>Пользователь: <form:input path="username" TYPE="text" SIZE="20"/></label><br>
     <label>В темах пользователя <form:checkbox path="usertopic"/></label><br>

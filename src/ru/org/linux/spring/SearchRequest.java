@@ -20,6 +20,7 @@ public class SearchRequest {
   private boolean usertopic = false;
   private boolean ignoreTitle = false;
   private String username="";
+  private int section;
 
   public String getQ() {
     return q;
@@ -55,5 +56,13 @@ public class SearchRequest {
 
   public void setUsername(String username) {
     this.username = username;
+  }
+
+  public int getSection() {
+    return section;
+  }
+
+  public void setSection(int section) {
+    this.section = section;
   }
 }
