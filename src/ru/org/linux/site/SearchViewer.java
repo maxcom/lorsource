@@ -58,7 +58,7 @@ public class SearchViewer {
     }
   }
 
-  public static final SearchInterval DEFAULT_INTERVAL = SearchInterval.THREE_YEAR;
+  public static final SearchInterval DEFAULT_INTERVAL = SearchInterval.ALL;
   public static final int SEARCH_ROWS = 100;
 
   public static final int SORT_R = 1;
