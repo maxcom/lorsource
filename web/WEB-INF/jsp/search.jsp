@@ -81,7 +81,7 @@
 
     <c:if test="${numFound > 1}">
       <div style="float: right">
-        <label>Сортировать
+        <label>сортировать
           <form:select path="sort" onchange="submit()" items="${sorts}"/>
         </label>
       </div>
