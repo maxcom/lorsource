@@ -85,7 +85,6 @@
 </form:form>
 
 <c:if test="${not query.initial}">
-  <h1>Результаты поиска</h1>
   <div class="infoblock">
   Всего найдено ${numFound} результатов, показаны ${fn:length(result)}
   </div>
