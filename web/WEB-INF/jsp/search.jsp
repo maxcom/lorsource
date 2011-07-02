@@ -37,7 +37,9 @@
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
 <H1>Поиск по сайту</h1>
-<h2>Поисковая система сайта</h2>
+<c:if test="${query.initial}">
+  <h2>Поисковая система сайта</h2>
+</c:if>
 
 <%
   int include = (Integer) request.getAttribute("include");
