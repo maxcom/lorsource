@@ -15,6 +15,7 @@
 
 package ru.org.linux.spring;
 
+import java.beans.PropertyEditorSupport;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,10 +37,8 @@ import org.springframework.beans.factory.annotation.Required;
 import org.springframework.jdbc.support.JdbcUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.*;
 
 @Controller
 public class SearchController {
@@ -69,14 +68,24 @@ public class SearchController {
     sections = builder.build();
   }
 
+  @ModelAttribute("sorts")
+  public static Map<SearchViewer.SearchOrder, String> getSorts() {
+    ImmutableMap.Builder<SearchViewer.SearchOrder, String> builder = ImmutableSortedMap.naturalOrder();
+
+    for (SearchViewer.SearchOrder value : SearchViewer.SearchOrder.values()) {
+      builder.put(value, value.getName());
+    }
+
+    return builder.build();
+  }
+
   @SuppressWarnings({"SameReturnValue"})
   @RequestMapping(value="/search.jsp", method={RequestMethod.GET, RequestMethod.HEAD})
   public String search(
     Model model,
     @ModelAttribute("query") SearchRequest query,
     @RequestParam(value="include", required=false) String includeString,
-    @RequestParam(value="date", required=false) String dateString,
-    @RequestParam(value="sort", required=false) Integer sort
+    @RequestParam(value="date", required=false) String dateString
   ) throws Exception {
     Map<String, Object> params = model.asMap();
 
@@ -90,18 +99,11 @@ public class SearchController {
 
     params.put("date", date);
 
-    if (sort==null) {
-      sort = SearchViewer.SORT_R;
-    }
-
-    params.put("sort", sort);
-
     if (!initial) {
       SearchViewer sv = new SearchViewer(query);
 
       sv.setInterval(date);
       sv.setInclude(include);
-      sv.setSort(sort);
 
       Connection db = null;
       try {
@@ -130,7 +132,7 @@ public class SearchController {
     return "search";
   }
 
-  public static int parseInclude(String include) {
+  private static int parseInclude(String include) {
     if (include==null) {
       return SearchViewer.SEARCH_ALL;
     }
@@ -142,7 +144,7 @@ public class SearchController {
     return SearchViewer.SEARCH_ALL;
   }
 
-  public static SearchViewer.SearchInterval parseInterval(String date) {
+  private static SearchViewer.SearchInterval parseInterval(String date) {
     if (date==null) {
       return SearchViewer.DEFAULT_INTERVAL;
     }
@@ -153,4 +155,21 @@ public class SearchController {
 
     return SearchViewer.SearchInterval.valueOf(date.toUpperCase());
   }
+
+  @InitBinder
+  public static void initBinder(WebDataBinder binder) {
+    binder.registerCustomEditor(SearchViewer.SearchOrder.class, new PropertyEditorSupport() {
+      @Override
+      public void setAsText(String s) throws IllegalArgumentException {
+        if ("1".equals(s)) { // for old links
+          setValue(SearchViewer.SearchOrder.RELEVANCE);
+        } else if ("2".equals(s)) {
+          setValue(SearchViewer.SearchOrder.DATE);
+        } else {
+          setValue(SearchViewer.SearchOrder.valueOf(s));
+        }
+      }
+    });
+  }
+
 }

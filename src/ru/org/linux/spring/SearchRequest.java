@@ -15,12 +15,15 @@
 
 package ru.org.linux.spring;
 
+import ru.org.linux.site.SearchViewer;
+
 public class SearchRequest {
   private String q = "";
   private boolean usertopic = false;
   private boolean ignoreTitle = false;
   private String username="";
   private int section;
+  private SearchViewer.SearchOrder sort = SearchViewer.SearchOrder.RELEVANCE;
 
   public String getQ() {
     return q;
@@ -64,5 +67,13 @@ public class SearchRequest {
 
   public void setSection(int section) {
     this.section = section;
+  }
+
+  public SearchViewer.SearchOrder getSort() {
+    return sort;
+  }
+
+  public void setSort(SearchViewer.SearchOrder sort) {
+    this.sort = sort;
   }
 }

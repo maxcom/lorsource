@@ -27,6 +27,7 @@
 <%--@elvariable id="numFound" type="java.lang.Long"--%>
 <%--@elvariable id="date" type="ru.org.linux.site.SearchViewer.SearchInterval"--%>
 <%--@elvariable id="sections" type="java.util.Map<Integer, String>"--%>
+<%--@elvariable id="sorts" type="java.util.Map<SearchViewer.SearchOrder, String>"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 <title>Поиск по сайту
@@ -45,7 +46,6 @@
 
 <%
   int include = (Integer) request.getAttribute("include");
-  int sort = (Integer) request.getAttribute("sort");
 %>
 
 <form:input path="q" TYPE="text" SIZE="50" maxlength="250"/>
@@ -82,15 +82,7 @@
     <c:if test="${numFound > 1}">
       <div style="float: right">
         <label>Сортировать
-          <select name="sort" onchange="submit()">
-            <option value="<%= SearchViewer.SORT_DATE %>" <%= (sort == SearchViewer.SORT_DATE) ? "selected" : "" %>>
-              по дате
-            </option>
-
-            <option value="<%= SearchViewer.SORT_R %>" <%= (sort == SearchViewer.SORT_R) ? "selected" : "" %>>
-              по релевантности
-            </option>
-          </select>
+          <form:select path="sort" onchange="submit()" items="${sorts}"/>
         </label>
       </div>
     </c:if>

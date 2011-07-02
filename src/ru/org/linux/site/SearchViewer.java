@@ -27,7 +27,6 @@ import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
-import org.apache.solr.common.params.ModifiableSolrParams;
 
 public class SearchViewer {
   public static final int SEARCH_TOPICS = 1;
@@ -58,15 +57,26 @@ public class SearchViewer {
     }
   }
 
+  public enum SearchOrder {
+    RELEVANCE("по релевантности"),
+    DATE("по дате");
+
+    private final String name;
+
+    private SearchOrder(String name) {
+      this.name = name;
+    }
+
+    public String getName() {
+      return name;
+    }
+  }
+
   public static final SearchInterval DEFAULT_INTERVAL = SearchInterval.ALL;
   public static final int SEARCH_ROWS = 100;
 
-  public static final int SORT_R = 1;
-  public static final int SORT_DATE = 2;
-
   private int include = SEARCH_ALL;
   private SearchInterval interval = DEFAULT_INTERVAL;
-  private int sort = SORT_R;
   private int offset = 0;
   private Set<Integer> groups = ImmutableSet.of();
 
@@ -141,7 +151,7 @@ public class SearchViewer {
       }
     }
 
-    if(sort == SORT_DATE) {
+    if(query.getSort() == SearchOrder.DATE) {
       params.set("sort","postdate desc");
     }
 
@@ -154,10 +164,6 @@ public class SearchViewer {
 
   public void setInterval(SearchInterval interval) {
     this.interval = interval;
-  }
-
-  public void setSort(int sort) {
-    this.sort = sort;
   }
 
   public void setOffset(int offset) {
