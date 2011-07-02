@@ -19,7 +19,6 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
-
 <%@ attribute name="comment" required="true" type="ru.org.linux.site.PreparedComment" %>
 <%@ attribute name="comments" required="true" type="ru.org.linux.site.CommentList" %>
 <%@ attribute name="expired" required="true" type="java.lang.Boolean"%>
@@ -28,7 +27,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
-
+<%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <%
   Template tmpl = Template.getTemplate(request);
 
@@ -107,10 +106,10 @@
     out.append(comment.getProcessedMessage());
   %>
     <div class=sign>
-      <lor:sign postdate="${comment.comment.postdate}" user="${comment.author}" shortMode="${template.mobile}"/>
+      <lor:sign postdate="${comment.comment.postdate}" user="${comment.author}" shortMode="false"/>
       <c:if test="${template.moderatorSession}">
-        (<a href="sameip.jsp?msgid=${comment.comment.id}"">${comment.comment.postIP}</a>)
-        <c:if test="${comment.comment.userAgent!=null and not template.mobile}">
+        (<a href="sameip.jsp?msgid=${comment.comment.id}">${comment.comment.postIP}</a>)
+        <c:if test="${comment.comment.userAgent!=null}">
           <br>
           <span class="sign_more"><c:out value="${comment.comment.userAgent}" escapeXml="true"/></span>
         </c:if>

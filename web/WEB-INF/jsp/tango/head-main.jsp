@@ -18,14 +18,9 @@
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 
 <!-- head-main -->
-<c:if test="${not template.mobile}">
 <LINK REL="stylesheet" TYPE="text/css" HREF="/tango/combined.css">
 <LINK REL="stylesheet" TYPE="text/css" HREF="/tango/tango-dark.css" TITLE="dark">
 <LINK REL="alternate stylesheet" TYPE="text/css" HREF="/tango/tango-swamp.css" TITLE="swamp">
-</c:if>
-<c:if test="${template.mobile}">
-<LINK REL=STYLESHEET TYPE="text/css" HREF="/tango/combined-mobile.css">
-</c:if>
 <LINK REL="shortcut icon" HREF="/favicon.ico" TYPE="image/x-icon">
 <script src="/js/jquery.corner.js" type="text/javascript"></script>
 <script type="text/javascript">

@@ -137,7 +137,7 @@
 <div class=msg>
   <c:if test="${message.section.imagepost}">
     <%
-      out.append(NewsViewer.showMediumImage(tmpl.getConfig().getProperty("HTMLPathPrefix"), message, !tmpl.isMobile()));
+      out.append(NewsViewer.showMediumImage(tmpl.getConfig().getProperty("HTMLPathPrefix"), message, true));
     %>
   </c:if>
   

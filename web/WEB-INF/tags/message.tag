@@ -111,14 +111,14 @@
   <lor:tags list="${preparedMessage.tags}"/>
 </c:if>
 <div class=sign>
-  <lor:sign postdate="${message.postdate}" user="${preparedMessage.author}" shortMode="${template.mobile}"/>
+  <lor:sign postdate="${message.postdate}" user="${preparedMessage.author}" shortMode="false"/>
   <c:if test="${template.moderatorSession}">
     (<a href="sameip.jsp?msgid=${message.id}">${message.postIP}</a>)
   </c:if>
 
   <span class="sign_more">
   <c:if test="${template.moderatorSession}">
-    <c:if test="${preparedMessage.userAgent!=null and not template.mobile}">
+    <c:if test="${preparedMessage.userAgent!=null}">
       <br>
       <c:out value="${preparedMessage.userAgent}" escapeXml="true"/>
     </c:if>

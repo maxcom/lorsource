@@ -97,7 +97,7 @@
           <p>${item.message}</p>
 
           <div class=sign>
-            <lor:sign postdate="${item.postdate}" shortMode="${template.mobile}"
+            <lor:sign postdate="${item.postdate}" shortMode="false"
                       user="${item.user}"/>
           </div>
         </div>

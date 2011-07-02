@@ -14,6 +14,7 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
+<%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 </div>
 <div id="ft">
 
@@ -41,7 +42,6 @@ try {
 var pageTracker = _gat._getTracker("UA-2184304-1");
 pageTracker._setCustomVar(1, "Authorized", "${template.sessionAuthorized}");
 pageTracker._setCustomVar(2, "Style", "${template.style}");
-pageTracker._setCustomVar(3, "Mobile View", "${template.mobile}");
 pageTracker._trackPageview();
 pageTracker._trackPageLoadTime();
 } catch(err) {}</script>

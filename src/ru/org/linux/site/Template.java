@@ -33,7 +33,6 @@ import ru.org.linux.storage.StorageNotFoundException;
 import ru.org.linux.util.LorHttpUtils;
 import ru.org.linux.util.StringUtil;
 
-import com.handinteractive.mobile.UAgentInfo;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.jdbc.support.JdbcUtils;
@@ -51,8 +50,6 @@ public final class Template {
   public final DateFormat dateFormat = DateFormats.createDefault();
   public static final String PROPERTY_MAIN_URL = "MainUrl";
 
-  private final UAgentInfo userAgent;
-
   public String getSecret() {
     return config.getProperties().getProperty("Secret");
   }
@@ -60,8 +57,6 @@ public final class Template {
   public Template(HttpServletRequest request, Properties properties, HttpServletResponse response)
       throws ClassNotFoundException, IOException, SQLException, StorageException {
     request.setCharacterEncoding("utf-8"); // блядский tomcat
-
-    userAgent = new UAgentInfo(request.getHeader("User-Agent"), request.getHeader("Accept"));
 
     // TODO use better initialization
     config = new Config(properties);
@@ -244,18 +239,6 @@ public final class Template {
 
   public static Template getTemplate(ServletRequest request) {
     return (Template) request.getAttribute("template");
-  }
-
-  public boolean isMobile() {
-    return false;
-/*
-
-    if (!"tango".equals(userProfile.getProperties().getStyle())) {
-      return false;
-    }
-
-    return userAgent.detectAndroidWebKit();
-*/
   }
 
   public void updateCurrentUser(Connection db) throws SQLException {

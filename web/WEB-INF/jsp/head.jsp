@@ -20,10 +20,6 @@
 <html lang=ru>
 <head>
 <LINK REL=STYLESHEET TYPE="text/css" HREF="/common.css">
-  <c:if test="${template.mobile}">
-    <LINK REL=STYLESHEET TYPE="text/css" HREF="/common-mobile.css">
-  </c:if>
-
   <c:if test="${template.prof.useHover}">
     <LINK REL=STYLESHEET TYPE="text/css" HREF="/${template.style}/hover.css">
   </c:if>
