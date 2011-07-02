@@ -37,7 +37,9 @@
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
 <H1>Поиск по сайту</h1>
-<c:if test="${query.initial}">
+<form:form method="GET" commandName="query" ACTION="search.jsp">
+
+  <c:if test="${query.initial}">
   <h2>Поисковая система сайта</h2>
 </c:if>
 
@@ -46,7 +48,6 @@
   int sort = (Integer) request.getAttribute("sort");
 %>
 
-<form:form method="GET" commandName="query" ACTION="search.jsp">
 <form:input path="q" TYPE="text" SIZE="50" maxlength="250"/>
   <input TYPE="submit" VALUE="Поиск"><BR>
   
@@ -74,20 +75,27 @@
     <label>Пользователь: <form:input path="username" TYPE="text" SIZE="20"/></label><br>
     <label>В темах пользователя <form:checkbox path="usertopic"/></label><br>
 
-    <label>Сортировать
-  <select name="sort">
-  <option value="<%= SearchViewer.SORT_DATE %>" <%= (sort==SearchViewer.SORT_DATE)?"selected":"" %>>по дате</option>
-
-  <option value="<%= SearchViewer.SORT_R %>" <%= (sort==SearchViewer.SORT_R)?"selected":"" %>>по релевантности</option>
-  </select></label>
-
-  <br>
-</form:form>
-
 <c:if test="${not query.initial}">
   <div class="infoblock">
   Всего найдено ${numFound} результатов, показаны ${fn:length(result)}
+
+    <c:if test="${numFound > 1}">
+      <div style="float: right">
+        <label>Сортировать
+          <select name="sort" onchange="submit()">
+            <option value="<%= SearchViewer.SORT_DATE %>" <%= (sort == SearchViewer.SORT_DATE) ? "selected" : "" %>>
+              по дате
+            </option>
+
+            <option value="<%= SearchViewer.SORT_R %>" <%= (sort == SearchViewer.SORT_R) ? "selected" : "" %>>
+              по релевантности
+            </option>
+          </select>
+        </label>
+      </div>
+    </c:if>
   </div>
+
   <div class="messages">
   <div class="comment">
     <c:forEach items="${result}" var="item">
@@ -113,6 +121,7 @@
     </i>
   </p>
 </c:if>
+</form:form>
 
 <c:if test="${query.initial}">
   <h2>Поиск через Google</h2>
