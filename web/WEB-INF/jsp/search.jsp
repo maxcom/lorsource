@@ -69,8 +69,8 @@
       </c:if>
     </c:forEach>
   </select></label>
-<br>
-  <label>Раздел: <form:select path="section" items="${sections}" /></label>
+
+  <label>Раздел: <form:select path="section" items="${sections}" /></label><br>
 
     <label>Пользователь: <form:input path="username" TYPE="text" SIZE="20"/></label><br>
     <label>В темах пользователя <form:checkbox path="usertopic"/></label><br>
