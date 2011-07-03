@@ -58,9 +58,9 @@ public class SearchViewer {
   }
 
   public enum SearchOrder {
-    RELEVANCE("по релевантности", null),
+    RELEVANCE("по релевантности", "score desc"),
     DATE("по дате: от новых к старым", "postdate desc"),
-    DATE_OLD_TO_NEW("по дате: от старых к новым", "postdate");
+    DATE_OLD_TO_NEW("по дате: от старых к новым", "postdate asc");
 
     private final String name;
     private final String param;
@@ -158,9 +158,7 @@ public class SearchViewer {
       }
     }
 
-    if(query.getSort().getParam()!=null) {
-      params.set("sort", query.getSort().getParam());
-    }
+    params.set("sort", query.getSort().getParam());
 
     return search.query(params);
   }
