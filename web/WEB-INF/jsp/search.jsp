@@ -28,6 +28,7 @@
 <%--@elvariable id="date" type="ru.org.linux.site.SearchViewer.SearchInterval"--%>
 <%--@elvariable id="sorts" type="java.util.Map<SearchViewer.SearchOrder, String>"--%>
 <%--@elvariable id="sectionFacet" type="java.util.Map<Integer, String>"--%>
+<%--@elvariable id="groupFacet" type="java.util.Map<Integer, String>"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 <title>Поиск по сайту
@@ -91,6 +92,13 @@
         <c:forEach items="${sectionFacet}" var="facet">
           <form:radiobutton path="section" onchange="submit()" value="${facet.key}" label="${facet.value}"/>
         </c:forEach>
+      </div>
+    </c:if>
+
+    <c:if test="${groupFacet!=null}">
+      <div>
+        Группа:
+        <form:select path="group" items="${groupFacet}" onchange="submit()"/>
       </div>
     </c:if>
 

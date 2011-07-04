@@ -17,6 +17,7 @@ package ru.org.linux.spring;
 
 import java.beans.PropertyEditorSupport;
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
@@ -101,6 +102,15 @@ public class SearchController {
       try {
         long current = System.currentTimeMillis();
         db = LorDataSource.getConnection();
+
+        if (query.getGroup()!=0) {
+          Group group = new Group(db, query.getGroup());
+
+          if (group.getSectionId()!=query.getSection()) {
+            query.setGroup(0);
+          }
+        }
+
         QueryResponse response = sv.performSearch(solrServer, db);
 
         SolrDocumentList list = response.getResults();
@@ -113,6 +123,12 @@ public class SearchController {
 
         if (sectionFacet!=null && sectionFacet.getValueCount()>1) {
           params.put("sectionFacet", buildSectionFacet(sectionFacet));
+        }
+
+        FacetField groupFacet = response.getFacetField("group_id");
+
+        if (groupFacet!=null && groupFacet.getValueCount()>1) {
+          params.put("groupFacet", buildGroupFacet(db, query.getSection(), groupFacet));
         }
 
         long time = System.currentTimeMillis() - current;
@@ -148,6 +164,38 @@ public class SearchController {
     builder.put(0, "все ("+Integer.toString(totalCount)+ ')');
 
     return builder.build();
+  }
+
+  private static Map<Integer, String> buildGroupFacet(Connection db, int sectionId, FacetField groupFacet) throws  BadGroupException, SQLException {
+    ImmutableMap.Builder<Integer, String> builder = ImmutableSortedMap.naturalOrder();
+
+    int totalCount = 0;
+
+    for (FacetField.Count count : groupFacet.getValues()) {
+      int groupId = Integer.parseInt(count.getName());
+
+      Group group = new Group(db, groupId);
+
+      if (group.getSectionId()!=sectionId) {
+        continue;
+      }
+
+      String name = group.getTitle().toLowerCase();
+
+      builder.put(groupId, name+" ("+count.getCount()+ ')');
+
+      totalCount += count.getCount();
+    }
+
+    builder.put(0, "все ("+Integer.toString(totalCount)+ ')');
+
+    ImmutableMap<Integer, String> r = builder.build();
+    
+    if (r.size()==2) {
+      return null;
+    } else {
+      return r;
+    }
   }
 
   private static int parseInclude(String include) {

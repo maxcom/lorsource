@@ -17,12 +17,9 @@ package ru.org.linux.site;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Collection;
-import java.util.Set;
 
 import ru.org.linux.spring.SearchRequest;
 
-import com.google.common.collect.ImmutableSet;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -85,7 +82,6 @@ public class SearchViewer {
   private int include = SEARCH_ALL;
   private SearchInterval interval = DEFAULT_INTERVAL;
   private int offset = 0;
-  private Set<Integer> groups = ImmutableSet.of();
 
   private final SearchRequest query;
 
@@ -122,6 +118,8 @@ public class SearchViewer {
     if (query.getSection() != 0 ){
       params.add("fq", "{!tag=dt}section_id:"+query.getSection());
       params.addFacetField("{!ex=dt}section_id");
+
+      params.addFacetField("{!ex=dt}group_id");
     } else {
       params.addFacetField("section_id");
     }
@@ -141,24 +139,8 @@ public class SearchViewer {
       }
     }
 
-    if (!groups.isEmpty()) {
-      if (groups.size() == 1) {
-        params.add("fq", "group_id:" + groups.iterator().next());
-      } else {
-        StringBuilder buffer = new StringBuilder("group_id:(");
-
-        for (int gId : groups) {
-          if (buffer.length() > 0) {
-            buffer.append(" OR ");
-          }
-
-          buffer.append(Integer.toString(gId));
-        }
-
-        buffer.append(')');
-
-        params.add("fq", buffer.toString());
-      }
+    if (query.getGroup()!=0) {
+      params.add("fq", "{!tag=dt}group_id:" + query.getGroup());
     }
 
     params.set("sort", query.getSort().getParam());
@@ -176,9 +158,5 @@ public class SearchViewer {
 
   public void setOffset(int offset) {
     this.offset = offset;
-  }
-
-  public void setGroups(Collection<Integer> groups){
-    this.groups = ImmutableSet.copyOf(groups);
   }
 }

@@ -17,7 +17,6 @@ package ru.org.linux.spring;
 
 import ru.org.linux.site.SearchViewer;
 
-@SuppressWarnings({"SameParameterValue"})
 public class SearchRequest {
   private String q = "";
   private String oldQ = "";
@@ -26,6 +25,7 @@ public class SearchRequest {
   private String username="";
   private int section = 0;
   private SearchViewer.SearchOrder sort = SearchViewer.SearchOrder.RELEVANCE;
+  private int group = 0;
 
   public String getQ() {
     return q;
@@ -85,5 +85,13 @@ public class SearchRequest {
 
   public void setOldQ(String oldQ) {
     this.oldQ = oldQ;
+  }
+
+  public int getGroup() {
+    return group;
+  }
+
+  public void setGroup(int group) {
+    this.group = group;
   }
 }
