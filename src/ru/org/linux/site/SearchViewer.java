@@ -65,7 +65,7 @@ public class SearchViewer {
     private final String name;
     private final String param;
 
-    private SearchOrder(String name, String param) {
+    SearchOrder(String name, String param) {
       this.name = name;
       this.param = param;
     }
@@ -116,11 +116,14 @@ public class SearchViewer {
       params.add("fq", interval.getRange());
     }
 
+    params.setFacetMinCount(1);
+    params.setFacet(true);
+
     if (query.getSection() != 0 ){
-      params.add("fq", "section_id:"+query.getSection());
+      params.add("fq", "{!tag=dt}section_id:"+query.getSection());
+      params.addFacetField("{!ex=dt}section_id");
     } else {
       params.addFacetField("section_id");
-      params.setFacet(true);
     }
 
     String username = query.getUsername();

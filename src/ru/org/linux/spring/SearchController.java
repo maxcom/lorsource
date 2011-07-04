@@ -18,17 +18,15 @@ package ru.org.linux.spring;
 import java.beans.PropertyEditorSupport;
 import java.sql.Connection;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 import java.util.Map;
 
-import ru.org.linux.site.LorDataSource;
-import ru.org.linux.site.SearchItem;
-import ru.org.linux.site.SearchViewer;
-import ru.org.linux.site.Section;
+import ru.org.linux.site.*;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSortedMap;
 import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
@@ -43,7 +41,7 @@ import org.springframework.web.bind.annotation.*;
 @Controller
 public class SearchController {
   private SolrServer solrServer;
-  private Map<Integer, String> sections;
+  private SectionStore sectionStore;
 
   @Autowired
   @Required
@@ -51,21 +49,9 @@ public class SearchController {
     this.solrServer = solrServer;
   }
 
-  @ModelAttribute("sections")
-  public Map<Integer, String> getSections() {
-    return sections;
-  }
-
   @Autowired
   public void setSectionStore(SectionStore sectionStore) {
-    ImmutableMap.Builder<Integer, String> builder = ImmutableSortedMap.naturalOrder();
-
-    builder.put(0, "все");
-    for (Section section : sectionStore.getSectionsList()) {
-      builder.put(section.getId(), section.getTitle().toLowerCase());
-    }
-
-    sections = builder.build();
+    this.sectionStore = sectionStore;
   }
 
   @ModelAttribute("sorts")
@@ -100,6 +86,12 @@ public class SearchController {
     params.put("date", date);
 
     if (!initial) {
+      if (!query.getQ().equals(query.getOldQ())) {
+        query.setSection(0);
+      }
+
+      query.setOldQ(query.getQ());
+
       SearchViewer sv = new SearchViewer(query);
 
       sv.setInterval(date);
@@ -112,9 +104,15 @@ public class SearchController {
         QueryResponse response = sv.performSearch(solrServer, db);
 
         SolrDocumentList list = response.getResults();
-        List<SearchItem> res = new ArrayList<SearchItem>(list.size());
+        Collection<SearchItem> res = new ArrayList<SearchItem>(list.size());
         for (SolrDocument doc : list) {
           res.add(new SearchItem(db, doc));
+        }
+
+        FacetField sectionFacet = response.getFacetField("section_id");
+
+        if (sectionFacet!=null && sectionFacet.getValueCount()>1) {
+          params.put("sectionFacet", buildSectionFacet(sectionFacet));
         }
 
         long time = System.currentTimeMillis() - current;
@@ -130,6 +128,26 @@ public class SearchController {
     }
 
     return "search";
+  }
+
+  private Map<Integer, String> buildSectionFacet(FacetField sectionFacet) throws SectionNotFoundException {
+    ImmutableMap.Builder<Integer, String> builder = ImmutableSortedMap.naturalOrder();
+
+    int totalCount = 0;
+
+    for (FacetField.Count count : sectionFacet.getValues()) {
+      int sectionId = Integer.parseInt(count.getName());
+
+      String name = sectionStore.getSection(sectionId).getName().toLowerCase();
+
+      builder.put(sectionId, name+" ("+count.getCount()+ ')');
+
+      totalCount += count.getCount();
+    }
+
+    builder.put(0, "все ("+Integer.toString(totalCount)+ ')');
+
+    return builder.build();
   }
 
   private static int parseInclude(String include) {

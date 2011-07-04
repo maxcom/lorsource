@@ -17,12 +17,14 @@ package ru.org.linux.spring;
 
 import ru.org.linux.site.SearchViewer;
 
+@SuppressWarnings({"SameParameterValue"})
 public class SearchRequest {
   private String q = "";
+  private String oldQ = "";
   private boolean usertopic = false;
   private boolean ignoreTitle = false;
   private String username="";
-  private int section;
+  private int section = 0;
   private SearchViewer.SearchOrder sort = SearchViewer.SearchOrder.RELEVANCE;
 
   public String getQ() {
@@ -75,5 +77,13 @@ public class SearchRequest {
 
   public void setSort(SearchViewer.SearchOrder sort) {
     this.sort = sort;
+  }
+
+  public String getOldQ() {
+    return oldQ;
+  }
+
+  public void setOldQ(String oldQ) {
+    this.oldQ = oldQ;
   }
 }

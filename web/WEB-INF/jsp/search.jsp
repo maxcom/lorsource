@@ -26,8 +26,8 @@
 <%--@elvariable id="searchTime" type="java.lang.Long"--%>
 <%--@elvariable id="numFound" type="java.lang.Long"--%>
 <%--@elvariable id="date" type="ru.org.linux.site.SearchViewer.SearchInterval"--%>
-<%--@elvariable id="sections" type="java.util.Map<Integer, String>"--%>
 <%--@elvariable id="sorts" type="java.util.Map<SearchViewer.SearchOrder, String>"--%>
+<%--@elvariable id="sectionFacet" type="java.util.Map<Integer, String>"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 <title>Поиск по сайту
@@ -50,6 +50,8 @@
 
 <form:input path="q" TYPE="text" SIZE="50" maxlength="250"/>
   <input TYPE="submit" VALUE="Поиск"><BR>
+
+  <form:hidden path="oldQ"/>
   
   <p>
   <select name="include">
@@ -70,15 +72,11 @@
     </c:forEach>
   </select></label>
 
-  <label>Раздел: <form:select path="section" items="${sections}" /></label><br>
-
     <label>Пользователь: <form:input path="username" TYPE="text" SIZE="20"/></label><br>
     <label>В темах пользователя <form:checkbox path="usertopic"/></label><br>
 
 <c:if test="${not query.initial}">
   <div class="infoblock">
-  Всего найдено ${numFound} результатов, показаны ${fn:length(result)}
-
     <c:if test="${numFound > 1}">
       <div style="float: right">
         <label>сортировать
@@ -86,6 +84,22 @@
         </label>
       </div>
     </c:if>
+
+    <c:if test="${sectionFacet !=null}">
+      <div>
+        Раздел:
+        <c:forEach items="${sectionFacet}" var="facet">
+          <form:radiobutton path="section" onchange="submit()" value="${facet.key}" label="${facet.value}"/>
+        </c:forEach>
+      </div>
+    </c:if>
+
+    <div>
+      Всего найдено ${numFound} результатов<!--
+      --><c:if test="${numFound > fn:length(result)}"><!--
+      -->, показаны ${fn:length(result)}
+     </c:if>
+    </div>
   </div>
 
   <div class="messages">
