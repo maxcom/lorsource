@@ -89,6 +89,7 @@ public class SearchController {
     if (!initial) {
       if (!query.getQ().equals(query.getOldQ())) {
         query.setSection(0);
+        query.setGroup(0);
       }
 
       query.setOldQ(query.getQ());
@@ -123,6 +124,10 @@ public class SearchController {
 
         if (sectionFacet!=null && sectionFacet.getValueCount()>1) {
           params.put("sectionFacet", buildSectionFacet(sectionFacet));
+        } else if (sectionFacet!=null && sectionFacet.getValueCount()==1) {
+          FacetField.Count first = sectionFacet.getValues().get(0);
+
+          query.setSection(Integer.parseInt(first.getName()));
         }
 
         FacetField groupFacet = response.getFacetField("group_id");
@@ -191,7 +196,7 @@ public class SearchController {
 
     ImmutableMap<Integer, String> r = builder.build();
     
-    if (r.size()==2) {
+    if (r.size()<=2) {
       return null;
     } else {
       return r;

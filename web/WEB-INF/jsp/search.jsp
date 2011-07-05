@@ -86,14 +86,21 @@
       </div>
     </c:if>
 
-    <c:if test="${sectionFacet !=null}">
-      <div>
-        Раздел:
-        <c:forEach items="${sectionFacet}" var="facet">
-          <form:radiobutton path="section" onchange="submit()" value="${facet.key}" label="${facet.value}"/>
-        </c:forEach>
-      </div>
-    </c:if>
+    <c:choose>
+      <c:when test="${sectionFacet !=null}">
+        <div>
+          Раздел:
+          <c:forEach items="${sectionFacet}" var="facet">
+            <form:radiobutton path="section" onchange="submit()" value="${facet.key}"
+                              label="${facet.value}"/>
+          </c:forEach>
+        </div>
+      </c:when>
+
+      <c:otherwise>
+        <form:hidden path="section"/>
+      </c:otherwise>
+    </c:choose>
 
     <c:if test="${groupFacet!=null}">
       <div>

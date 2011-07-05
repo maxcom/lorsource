@@ -122,6 +122,7 @@ public class SearchViewer {
       params.addFacetField("{!ex=dt}group_id");
     } else {
       params.addFacetField("section_id");
+      params.addFacetField("group_id");
     }
 
     String username = query.getUsername();
