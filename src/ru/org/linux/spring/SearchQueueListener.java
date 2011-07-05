@@ -174,6 +174,7 @@ public class SearchQueueListener {
     doc.addField("group_id", topic.getGroupId());
 
     doc.addField("title", topic.getTitle());
+    doc.addField("topic_title", topic.getTitle());
     doc.addField("message", topic.getMessage());
     Date postdate = topic.getPostdate();
     doc.addField("postdate", new Timestamp(postdate.getTime()));
@@ -230,6 +231,8 @@ public class SearchQueueListener {
     doc.addField("topic_user_id", topic.getUid());
     doc.addField("topic_id", comment.getTopic());
     doc.addField("group_id", topic.getGroupId());
+    doc.addField("topic_title", topic.getTitle());
+    
     String commentTitle = comment.getTitle();
 
     if (commentTitle == null || commentTitle.isEmpty()) {
