@@ -26,6 +26,7 @@ public class SearchItem implements Serializable {
 //  "msgs.id, msgs.title, msgs.postdate, topic, msgs.userid, rank(idxFTI, q) as rank, message, bbcode"
   private final int msgid;
   private final String title;
+  private final String topicTitle;
   private final Timestamp postdate;
   private final int topic;
   private final User user;
@@ -37,6 +38,7 @@ public class SearchItem implements Serializable {
   public SearchItem(Connection db, SolrDocument doc) throws SQLException {
     msgid = Integer.valueOf(doc.getFieldValue("id").toString());
     title = (String) doc.getFieldValue("title");
+    topicTitle = (String) doc.getFieldValue("topic_title");
     int userid = (Integer) doc.getFieldValue("user_id");
     Date postdate_dt = (Date) doc.getFieldValue("postdate");
     postdate = new Timestamp(postdate_dt.getTime());
@@ -79,7 +81,11 @@ public class SearchItem implements Serializable {
   }
 
   public String getTitle() {
-    return title;
+    if (title!=null && !title.isEmpty()) {
+      return title;
+    } else {
+      return topicTitle;
+    }
   }
 
   public Timestamp getPostdate() {

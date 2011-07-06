@@ -231,13 +231,15 @@ public class SearchQueueListener {
     doc.addField("topic_user_id", topic.getUid());
     doc.addField("topic_id", comment.getTopic());
     doc.addField("group_id", topic.getGroupId());
-    doc.addField("topic_title", topic.getTitle());
+    String topicTitle = topic.getTitle();
+    doc.addField("topic_title", topicTitle);
     
     String commentTitle = comment.getTitle();
 
-    if (commentTitle == null || commentTitle.isEmpty()) {
-      doc.addField("title", topic.getTitle());
-    } else {
+    if (commentTitle != null &&
+        !commentTitle.isEmpty() &&
+        !commentTitle.equals(topicTitle) &&
+        !commentTitle.startsWith("Re:")) {
       doc.addField("title", commentTitle);
     }
 
