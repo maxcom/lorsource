@@ -530,15 +530,6 @@
     </lst>
   </requestHandler>
 
-  <requestHandler name="dismax-message" class="solr.SearchHandler" >
-    <lst name="defaults">
-     <str name="defType">dismax</str>
-     <str name="qf">
-	message
-     </str>
-    </lst>
-  </requestHandler>
-
   <!-- Note how you can register the same handler multiple times with
        different names (and different init parameters)
     -->

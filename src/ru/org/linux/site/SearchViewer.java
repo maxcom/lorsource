@@ -96,11 +96,7 @@ public class SearchViewer {
     params.set("rows", SEARCH_ROWS);
     params.set("start", offset);
 
-    if (query.isIgnoreTitle()){
-      params.set("qt", "dismax-message");
-    }else{
-      params.set("qt", "dismax");
-    }
+    params.set("qt", "dismax");
 
     if(include == SEARCH_TOPICS){
       params.add("fq","is_comment:false");      

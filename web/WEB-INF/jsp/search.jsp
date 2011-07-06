@@ -59,7 +59,6 @@
     <option value="topics" <%= (include==SearchViewer.SEARCH_TOPICS)?"selected":"" %>>только темы</option>
     <option value="all" <%= (include==SearchViewer.SEARCH_ALL)?"selected":"" %>>темы и комментарии</option>
   </select>
-  <label>Не искать по заголовкам сообщений <form:checkbox path="ignoreTitle"/></label><br>
 
   <label>За:
   <select name="date">
@@ -71,9 +70,9 @@
         <option value="${interval}">${interval.title}</option>
       </c:if>
     </c:forEach>
-  </select></label>
+  </select></label><br>
 
-    <label>Пользователь: <form:input path="username" TYPE="text" SIZE="20"/></label><br>
+    <label>Пользователь: <form:input path="username" TYPE="text" SIZE="20"/></label>
     <label>В темах пользователя <form:checkbox path="usertopic"/></label><br>
 
 <c:if test="${not query.initial}">

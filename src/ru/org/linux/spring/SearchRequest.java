@@ -21,7 +21,6 @@ public class SearchRequest {
   private String q = "";
   private String oldQ = "";
   private boolean usertopic = false;
-  private boolean ignoreTitle = false;
   private String username="";
   private int section = 0;
   private SearchViewer.SearchOrder sort = SearchViewer.SearchOrder.RELEVANCE;
@@ -45,14 +44,6 @@ public class SearchRequest {
 
   public void setUsertopic(boolean usertopic) {
     this.usertopic = usertopic;
-  }
-
-  public boolean isIgnoreTitle() {
-    return ignoreTitle;
-  }
-
-  public void setIgnoreTitle(boolean ignoreTitle) {
-    this.ignoreTitle = ignoreTitle;
   }
 
   public String getUsername() {
