@@ -76,11 +76,9 @@ public class SearchViewer {
     }
   }
 
-  public static final SearchInterval DEFAULT_INTERVAL = SearchInterval.ALL;
   public static final int SEARCH_ROWS = 100;
 
   private int include = SEARCH_ALL;
-  private SearchInterval interval = DEFAULT_INTERVAL;
   private int offset = 0;
 
   private final SearchRequest query;
@@ -104,8 +102,8 @@ public class SearchViewer {
       params.add("fq","is_comment:true");
     }
 
-    if (interval.getRange()!=null) {
-      params.add("fq", interval.getRange());
+    if (query.getInterval().getRange()!=null) {
+      params.add("fq", query.getInterval().getRange());
     }
 
     params.setFacetMinCount(1);
@@ -147,10 +145,6 @@ public class SearchViewer {
 
   public void setInclude(int include) {
     this.include = include;
-  }
-
-  public void setInterval(SearchInterval interval) {
-    this.interval = interval;
   }
 
   public void setOffset(int offset) {

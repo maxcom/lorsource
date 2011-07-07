@@ -66,13 +66,23 @@ public class SearchController {
     return builder.build();
   }
 
+  @ModelAttribute("intervals")
+  public static Map<SearchViewer.SearchInterval, String> getIntervals() {
+    ImmutableMap.Builder<SearchViewer.SearchInterval, String> builder = ImmutableSortedMap.naturalOrder();
+
+    for (SearchViewer.SearchInterval value : SearchViewer.SearchInterval.values()) {
+      builder.put(value, value.getTitle());
+    }
+
+    return builder.build();
+  }
+
   @SuppressWarnings({"SameReturnValue"})
   @RequestMapping(value="/search.jsp", method={RequestMethod.GET, RequestMethod.HEAD})
   public String search(
     Model model,
     @ModelAttribute("query") SearchRequest query,
-    @RequestParam(value="include", required=false) String includeString,
-    @RequestParam(value="date", required=false) String dateString
+    @RequestParam(value="include", required=false) String includeString
   ) throws Exception {
     Map<String, Object> params = model.asMap();
 
@@ -81,10 +91,6 @@ public class SearchController {
     int include = parseInclude(includeString);
 
     params.put("include", include);
-
-    SearchViewer.SearchInterval date = parseInterval(dateString);
-
-    params.put("date", date);
 
     if (!initial) {
       if (!query.getQ().equals(query.getOldQ())) {
@@ -96,7 +102,6 @@ public class SearchController {
 
       SearchViewer sv = new SearchViewer(query);
 
-      sv.setInterval(date);
       sv.setInclude(include);
 
       Connection db = null;
@@ -215,18 +220,6 @@ public class SearchController {
     return SearchViewer.SEARCH_ALL;
   }
 
-  private static SearchViewer.SearchInterval parseInterval(String date) {
-    if (date==null) {
-      return SearchViewer.DEFAULT_INTERVAL;
-    }
-
-    if ("3month".equalsIgnoreCase(date)) {
-      return SearchViewer.SearchInterval.THREE_MONTH; // support for old url's
-    }
-
-    return SearchViewer.SearchInterval.valueOf(date.toUpperCase());
-  }
-
   @InitBinder
   public static void initBinder(WebDataBinder binder) {
     binder.registerCustomEditor(SearchViewer.SearchOrder.class, new PropertyEditorSupport() {
@@ -239,6 +232,13 @@ public class SearchController {
         } else {
           setValue(SearchViewer.SearchOrder.valueOf(s));
         }
+      }
+    });
+
+    binder.registerCustomEditor(SearchViewer.SearchInterval.class, new PropertyEditorSupport() {
+      @Override
+      public void setAsText(String s) throws IllegalArgumentException {
+        setValue(SearchViewer.SearchInterval.valueOf(s.toUpperCase()));
       }
     });
   }

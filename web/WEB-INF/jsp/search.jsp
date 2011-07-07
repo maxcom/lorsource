@@ -27,6 +27,7 @@
 <%--@elvariable id="numFound" type="java.lang.Long"--%>
 <%--@elvariable id="date" type="ru.org.linux.site.SearchViewer.SearchInterval"--%>
 <%--@elvariable id="sorts" type="java.util.Map<SearchViewer.SearchOrder, String>"--%>
+<%--@elvariable id="intervals" type="java.util.Map<SearchViewer.SearchInterval, String>"--%>
 <%--@elvariable id="sectionFacet" type="java.util.Map<Integer, String>"--%>
 <%--@elvariable id="groupFacet" type="java.util.Map<Integer, String>"--%>
 
@@ -61,16 +62,8 @@
   </select>
 
   <label>За:
-  <select name="date">
-    <c:forEach var="interval" items="<%= SearchViewer.SearchInterval.values() %>">
-      <c:if test="${date == interval}">
-        <option value="${interval}" selected>${interval.title}</option>
-      </c:if>
-      <c:if test="${date != interval}">
-        <option value="${interval}">${interval.title}</option>
-      </c:if>
-    </c:forEach>
-  </select></label><br>
+    <form:select path="interval" items="${intervals}"/>
+  </label><br>
 
     <label>Пользователь: <form:input path="username" TYPE="text" SIZE="20"/></label>
     <label>В темах пользователя <form:checkbox path="usertopic"/></label><br>
