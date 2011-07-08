@@ -67,10 +67,10 @@
     </target>
 
     <target name="build" depends="prepare, -resolve">
-        <javac classpathref="compile.classpath" srcdir="src" destdir="${build}" optimize="yes"
-               debug="yes" encoding="utf-8" excludes="**/*Test.java"/>
-        <copy file="src/log4j.properties" todir="${build}"/>
-        <copy file="src/ehcache.xml" todir="${build}"/>
+        <javac classpathref="compile.classpath" srcdir="src/main/java" destdir="${build}" optimize="yes"
+               debug="yes" encoding="utf-8"/>
+        <copy file="src/main/resources/log4j.properties" todir="${build}"/>
+        <copy file="src/main/resources/ehcache.xml" todir="${build}"/>
     </target>
 
      <path id="test.compile.classpath">
@@ -83,8 +83,8 @@
     </path>
 
     <target name="build-tests" depends="build">
-        <javac srcdir="src" destdir="${build.test.dir}"
-               debug="yes" encoding="utf-8" includes="**/*Test.java">
+        <javac srcdir="src/test/java" destdir="${build.test.dir}"
+               debug="yes" encoding="utf-8">
             <classpath>
                 <pathelement location="${build}"/>
                 <path refid="test.compile.classpath"/>
@@ -184,7 +184,7 @@
 
     <target name="doc" depends="build">
         <mkdir dir="docs/api"/>
-        <javadoc sourcepath="src" destdir="docs/api" packagenames="ru.org.linux.*" encoding="utf-8"
+        <javadoc sourcepath="src/main/java" destdir="docs/api" packagenames="ru.org.linux.*" encoding="utf-8"
                  docencoding="utf-8"/>
     </target>
 
