@@ -15,9 +15,6 @@
 
 package ru.org.linux.site;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-
 import ru.org.linux.spring.SearchRequest;
 
 import org.apache.solr.client.solrj.SolrQuery;
@@ -104,7 +101,7 @@ public class SearchViewer {
     this.query = query;
   }
 
-  public QueryResponse performSearch(SolrServer search, Connection db) throws SQLException, UserErrorException, SolrServerException {
+  public QueryResponse performSearch(SolrServer search) throws SolrServerException {
     SolrQuery params = new SolrQuery();
     // set search query params
     params.set("q", query.getQ());
@@ -134,18 +131,13 @@ public class SearchViewer {
       params.addFacetField("group_id");
     }
 
-    String username = query.getUsername();
+    if (query.getUser() != null) {
+      User user = query.getUser();
 
-    if(username != null && username.length() > 0) {
-      try {
-        User user = User.getUser(db, username);
-        if (query.isUsertopic()) {
-          params.add("fq","topic_user_id:"+user.getId());
-        } else {
-          params.add("fq","user_id:"+user.getId());
-        }
-      } catch (UserNotFoundException ex) {
-        throw new UserErrorException("User not found: "+username);
+      if (query.isUsertopic()) {
+        params.add("fq", "topic_user_id:" + user.getId());
+      } else {
+        params.add("fq", "user_id:" + user.getId());
       }
     }
 

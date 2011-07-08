@@ -56,10 +56,12 @@
     <form:select path="interval" items="${intervals}"/>
   </label><br>
 
-    <label>Пользователь: <form:input path="username" TYPE="text" SIZE="20"/></label>
+    <label>Пользователь: <form:input path="user" TYPE="text" SIZE="20"/></label>
     <label>В темах пользователя <form:checkbox path="usertopic"/></label><br>
 
-<c:if test="${not query.initial}">
+  <form:errors element="div" cssClass="error" path="*"/>
+
+<c:if test="${not query.initial && numFound!=null}">
   <div class="infoblock">
     <c:if test="${numFound > 1}">
       <div style="float: right">

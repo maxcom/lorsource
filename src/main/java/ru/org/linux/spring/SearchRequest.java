@@ -16,12 +16,13 @@
 package ru.org.linux.spring;
 
 import ru.org.linux.site.SearchViewer;
+import ru.org.linux.site.User;
 
 public class SearchRequest {
   private String q = "";
   private String oldQ = "";
   private boolean usertopic = false;
-  private String username="";
+  private User user=null;
   private int section = 0;
   private SearchViewer.SearchOrder sort = SearchViewer.SearchOrder.RELEVANCE;
   private int group = 0;
@@ -48,12 +49,12 @@ public class SearchRequest {
     this.usertopic = usertopic;
   }
 
-  public String getUsername() {
-    return username;
+  public User getUser() {
+    return user;
   }
 
-  public void setUsername(String username) {
-    this.username = username;
+  public void setUser(User user) {
+    this.user = user;
   }
 
   public int getSection() {

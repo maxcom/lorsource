@@ -31,11 +31,15 @@ import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
-import org.springframework.beans.PropertyEditorRegistry;import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.PropertyAccessException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.jdbc.support.JdbcUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.DefaultBindingErrorProcessor;
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 
 @Controller
@@ -91,13 +95,14 @@ public class SearchController {
   @RequestMapping(value="/search.jsp", method={RequestMethod.GET, RequestMethod.HEAD})
   public String search(
     Model model,
-    @ModelAttribute("query") SearchRequest query
+    @ModelAttribute("query") SearchRequest query,
+    BindingResult bindingResult
   ) throws Exception {
     Map<String, Object> params = model.asMap();
 
     boolean initial = query.isInitial();
 
-    if (!initial) {
+    if (!initial && !bindingResult.hasErrors()) {
       if (!query.getQ().equals(query.getOldQ())) {
         query.setSection(0);
         query.setGroup(0);
@@ -120,7 +125,7 @@ public class SearchController {
           }
         }
 
-        QueryResponse response = sv.performSearch(solrServer, db);
+        QueryResponse response = sv.performSearch(solrServer);
 
         SolrDocumentList list = response.getResults();
         Collection<SearchItem> res = new ArrayList<SearchItem>(list.size());
@@ -212,7 +217,7 @@ public class SearchController {
   }
 
   @InitBinder
-  public static void initBinder(PropertyEditorRegistry binder) {
+  public static void initBinder(WebDataBinder binder) {
     binder.registerCustomEditor(SearchViewer.SearchOrder.class, new PropertyEditorSupport() {
       @Override
       public void setAsText(String s) throws IllegalArgumentException {
@@ -239,6 +244,53 @@ public class SearchController {
         setValue(SearchViewer.SearchRange.valueOf(s.toUpperCase()));
       }
     });
-  }
 
+    binder.registerCustomEditor(User.class, new PropertyEditorSupport() {
+      @Override
+      public void setAsText(String s) throws IllegalArgumentException {
+        if (s.isEmpty()) {
+          setValue(null);
+          return;
+        }
+
+        Connection db = null;
+
+        try {
+          db = LorDataSource.getConnection();
+          setValue(User.getUser(db, s));
+        } catch (SQLException e) {
+          throw new RuntimeException(e);
+        } catch (UserNotFoundException e) {
+          throw new IllegalArgumentException(e);
+        } finally {
+          JdbcUtils.closeConnection(db);
+        }
+      }
+
+      @Override
+      public String getAsText() {
+        if (getValue()==null) {
+          return "";
+        }
+
+        return ((User) getValue()).getNick();
+      }
+    });
+
+    binder.setBindingErrorProcessor(new DefaultBindingErrorProcessor() {
+      @Override
+      public void processPropertyAccessException(PropertyAccessException e, BindingResult bindingResult) {
+        if (e.getCause() instanceof IllegalArgumentException &&
+            e.getCause().getCause() instanceof UserNotFoundException) {
+          bindingResult.rejectValue(
+            e.getPropertyChangeEvent().getPropertyName(),
+            null,
+            e.getCause().getCause().getMessage()
+          );
+        } else {
+          super.processPropertyAccessException(e, bindingResult);
+        }
+      }
+    });
+  }
 }
