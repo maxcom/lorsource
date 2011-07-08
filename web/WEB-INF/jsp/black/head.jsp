@@ -1,7 +1,6 @@
 <%@ page contentType="text/html; charset=utf-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-
-
+<%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%--
   ~ Copyright 1998-2010 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +15,6 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
-
 <LINK REL=STYLESHEET TYPE="text/css" HREF="/black/combined.css" TITLE="Normal">
 <LINK REL="shortcut icon" HREF="/favicon.ico" TYPE="image/x-icon">
 </head>
@@ -38,7 +36,7 @@
             </div>
 
             <form method=POST action="login.jsp" style="display: none" id="regform">
-              Имя: <input type=text name=nick size=15>
+              <Имя: <input type=text name=nick size=15>
               Пароль: <input type=password name=passwd size=15>
               <input type=submit value="Вход">
               <input type="button" value="Отмена" id="hide_loginbutton">
