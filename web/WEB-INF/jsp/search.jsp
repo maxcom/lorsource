@@ -19,13 +19,11 @@
   ~    limitations under the License.
   --%>
 <%--@elvariable id="result" type="java.util.List<ru.org.linux.site.SearchItem>"--%>
-<%--@elvariable id="boolean" type="java.lang.Boolean"--%>
 <%--@elvariable id="query" type="ru.org.linux.spring.SearchRequest"--%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <%--@elvariable id="time" type="java.lang.Long"--%>
 <%--@elvariable id="searchTime" type="java.lang.Long"--%>
 <%--@elvariable id="numFound" type="java.lang.Long"--%>
-<%--@elvariable id="date" type="ru.org.linux.site.SearchViewer.SearchInterval"--%>
 <%--@elvariable id="sorts" type="java.util.Map<SearchViewer.SearchOrder, String>"--%>
 <%--@elvariable id="intervals" type="java.util.Map<SearchViewer.SearchInterval, String>"--%>
 <%--@elvariable id="sectionFacet" type="java.util.Map<Integer, String>"--%>
