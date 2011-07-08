@@ -31,12 +31,11 @@ import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.PropertyEditorRegistry;import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.jdbc.support.JdbcUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 
 @Controller
@@ -77,20 +76,26 @@ public class SearchController {
     return builder.build();
   }
 
+  @ModelAttribute("ranges")
+  public static Map<SearchViewer.SearchRange, String> getRanges() {
+    ImmutableMap.Builder<SearchViewer.SearchRange, String> builder = ImmutableSortedMap.naturalOrder();
+
+    for (SearchViewer.SearchRange value : SearchViewer.SearchRange.values()) {
+      builder.put(value, value.getTitle());
+    }
+
+    return builder.build();
+  }
+
   @SuppressWarnings({"SameReturnValue"})
   @RequestMapping(value="/search.jsp", method={RequestMethod.GET, RequestMethod.HEAD})
   public String search(
     Model model,
-    @ModelAttribute("query") SearchRequest query,
-    @RequestParam(value="include", required=false) String includeString
+    @ModelAttribute("query") SearchRequest query
   ) throws Exception {
     Map<String, Object> params = model.asMap();
 
     boolean initial = query.isInitial();
-
-    int include = parseInclude(includeString);
-
-    params.put("include", include);
 
     if (!initial) {
       if (!query.getQ().equals(query.getOldQ())) {
@@ -101,8 +106,6 @@ public class SearchController {
       query.setOldQ(query.getQ());
 
       SearchViewer sv = new SearchViewer(query);
-
-      sv.setInclude(include);
 
       Connection db = null;
       try {
@@ -208,20 +211,8 @@ public class SearchController {
     }
   }
 
-  private static int parseInclude(String include) {
-    if (include==null) {
-      return SearchViewer.SEARCH_ALL;
-    }
-
-    if ("topics".equals(include)) {
-      return SearchViewer.SEARCH_TOPICS;
-    }
-
-    return SearchViewer.SEARCH_ALL;
-  }
-
   @InitBinder
-  public static void initBinder(WebDataBinder binder) {
+  public static void initBinder(PropertyEditorRegistry binder) {
     binder.registerCustomEditor(SearchViewer.SearchOrder.class, new PropertyEditorSupport() {
       @Override
       public void setAsText(String s) throws IllegalArgumentException {
@@ -239,6 +230,13 @@ public class SearchController {
       @Override
       public void setAsText(String s) throws IllegalArgumentException {
         setValue(SearchViewer.SearchInterval.valueOf(s.toUpperCase()));
+      }
+    });
+
+    binder.registerCustomEditor(SearchViewer.SearchRange.class, new PropertyEditorSupport() {
+      @Override
+      public void setAsText(String s) throws IllegalArgumentException {
+        setValue(SearchViewer.SearchRange.valueOf(s.toUpperCase()));
       }
     });
   }

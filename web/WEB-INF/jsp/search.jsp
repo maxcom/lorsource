@@ -1,7 +1,6 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="ru.org.linux.site.SearchViewer"  %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%--
@@ -26,6 +25,7 @@
 <%--@elvariable id="numFound" type="java.lang.Long"--%>
 <%--@elvariable id="sorts" type="java.util.Map<SearchViewer.SearchOrder, String>"--%>
 <%--@elvariable id="intervals" type="java.util.Map<SearchViewer.SearchInterval, String>"--%>
+<%--@elvariable id="ranges" type="java.util.Map<SearchViewer.SearchRange, String>"--%>
 <%--@elvariable id="sectionFacet" type="java.util.Map<Integer, String>"--%>
 <%--@elvariable id="groupFacet" type="java.util.Map<Integer, String>"--%>
 
@@ -44,20 +44,13 @@
   <h2>Поисковая система сайта</h2>
 </c:if>
 
-<%
-  int include = (Integer) request.getAttribute("include");
-%>
-
 <form:input path="q" TYPE="text" SIZE="50" maxlength="250"/>
   <input TYPE="submit" VALUE="Поиск"><BR>
 
   <form:hidden path="oldQ"/>
   
   <p>
-  <select name="include">
-    <option value="topics" <%= (include==SearchViewer.SEARCH_TOPICS)?"selected":"" %>>только темы</option>
-    <option value="all" <%= (include==SearchViewer.SEARCH_ALL)?"selected":"" %>>темы и комментарии</option>
-  </select>
+  <form:select path="range" items="${ranges}"/>
 
   <label>За:
     <form:select path="interval" items="${intervals}"/>

@@ -26,6 +26,7 @@ public class SearchRequest {
   private SearchViewer.SearchOrder sort = SearchViewer.SearchOrder.RELEVANCE;
   private int group = 0;
   private SearchViewer.SearchInterval interval = SearchViewer.SearchInterval.ALL;
+  private SearchViewer.SearchRange range = SearchViewer.SearchRange.ALL;
 
   public String getQ() {
     return q;
@@ -93,5 +94,13 @@ public class SearchRequest {
 
   public void setInterval(SearchViewer.SearchInterval interval) {
     this.interval = interval;
+  }
+
+  public SearchViewer.SearchRange getRange() {
+    return range;
+  }
+
+  public void setRange(SearchViewer.SearchRange range) {
+    this.range = range;
   }
 }

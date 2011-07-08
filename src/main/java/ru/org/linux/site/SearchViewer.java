@@ -26,9 +26,27 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 
 public class SearchViewer {
-  public static final int SEARCH_TOPICS = 1;
-  public static final int SEARCH_COMMENTS = 2;
-  public static final int SEARCH_ALL = 0;
+  public enum SearchRange {
+    ALL(null, "темы и комментарии"),
+    TOPICS("is_comment:false", "только темы"),
+    COMMENTS("is_comment:true", "только комментарии");
+
+    private final String param;
+    private final String title;
+
+    SearchRange(String param, String title) {
+      this.param = param;
+      this.title = title;
+    }
+
+    private String getParam() {
+      return param;
+    }
+
+    public String getTitle() {
+      return title;
+    }
+  }
 
   public enum SearchInterval {
     MONTH("postdate:[NOW-1MONTH TO NOW]", "месяц"),
@@ -45,7 +63,7 @@ public class SearchViewer {
       this.title = title;
     }
 
-    String getRange() {
+    private String getRange() {
       return range;
     }
 
@@ -71,14 +89,13 @@ public class SearchViewer {
       return name;
     }
 
-    public String getParam() {
+    private String getParam() {
       return param;
     }
   }
 
-  public static final int SEARCH_ROWS = 100;
+  private static final int SEARCH_ROWS = 100;
 
-  private int include = SEARCH_ALL;
   private int offset = 0;
 
   private final SearchRequest query;
@@ -96,10 +113,8 @@ public class SearchViewer {
 
     params.set("qt", "dismax");
 
-    if(include == SEARCH_TOPICS){
-      params.add("fq","is_comment:false");      
-    }else if(include == SEARCH_COMMENTS){
-      params.add("fq","is_comment:true");
+    if (query.getRange().getParam()!=null) {
+      params.add("fq", query.getRange().getParam());
     }
 
     if (query.getInterval().getRange()!=null) {
@@ -141,10 +156,6 @@ public class SearchViewer {
     params.set("sort", query.getSort().getParam());
 
     return search.query(params);
-  }
-
-  public void setInclude(int include) {
-    this.include = include;
   }
 
   public void setOffset(int offset) {
