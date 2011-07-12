@@ -65,6 +65,8 @@ public class Parser {
     public static Set<String> OTHER_TAGS;
     public static Set<String> ANCHOR_TAGS;
 
+    public static Set<String> ALLOWED_LIST_TYPE;
+
     public static List<Tag> TAGS;
     public static Map<String,Tag> TAG_DICT;
     public static Set<String> TAG_NAMES;
@@ -75,6 +77,14 @@ public class Parser {
 
 
     static{
+        ALLOWED_LIST_TYPE = new HashSet<String>();
+        ALLOWED_LIST_TYPE.add("A");
+        ALLOWED_LIST_TYPE.add("a");
+        ALLOWED_LIST_TYPE.add("I");
+        ALLOWED_LIST_TYPE.add("i");
+        ALLOWED_LIST_TYPE.add("1");
+
+
         INLINE_TAGS = new HashSet<String>();
         INLINE_TAGS.add("b");
         INLINE_TAGS.add("i");
@@ -186,8 +196,7 @@ public class Parser {
             Set<String> el = new HashSet<String>();
             el.add("*");
             el.add("softbr");
-            HtmlEquivTag tag = new HtmlEquivTag("list", el, null);
-            tag.setHtmlEquiv("ul");
+            ListTag tag = new ListTag("list", el, null);
             TAGS.add(tag);
         }
         { // <pre> (only img currently needed out of the prohibited elements)
@@ -383,6 +392,7 @@ public class Parser {
                 }else{
                     if(parameter != null && parameter.length() > 0){
                         parameter = parameter.substring(1);
+                        log.debug("parameter:"+parameter);
                     }
                     if(TAG_NAMES.contains(tagname)){
                         if(wholematch.startsWith("[[")){
