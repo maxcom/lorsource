@@ -91,7 +91,7 @@ public class SearchViewer {
     }
   }
 
-  public static final int SEARCH_ROWS = 100;
+  public static final int SEARCH_ROWS = 50;
 
   private final SearchRequest query;
 
