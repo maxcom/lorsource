@@ -65,13 +65,13 @@ public class QuoteTag extends Tag {
             ret.append("<p class=\"cite\"><cite>");
             ret.append(Parser.escape(node.getParameter()));
             ret.append(":</cite></p>");
-            ret.append("<blockquote>");
+            ret.append("<blockquote class=\"quote\">");
             ret.append(node.renderChildrenXHtml());
             ret.append("</blockquote>");
         }else{
-            ret.append("<blockquote>");
+            ret.append("<div class=\"quote\">");
             ret.append(node.renderChildrenXHtml());
-            ret.append("</blockquote>");
+            ret.append("</div>");
         }
         return ret.toString();
     }

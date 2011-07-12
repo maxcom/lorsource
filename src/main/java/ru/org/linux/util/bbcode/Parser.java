@@ -45,6 +45,10 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+
 /**
  * Created by IntelliJ IDEA.
  * User: hizel
@@ -52,6 +56,8 @@ import java.util.regex.Pattern;
  * Time: 1:18 PM
  */
 public class Parser {
+	
+	private static final Log log = LogFactory.getLog(Parser.class);
 
     public static Set<String> INLINE_TAGS;
     public static Set<String> BLOCK_LEVEL_TAGS;
@@ -173,7 +179,7 @@ public class Parser {
             Set<String> el = new HashSet<String>();
             el.addAll(BLOCK_LEVEL_TAGS);
             el.add("softbr");
-            QuoteTag tag = new QuoteTag("quote", el, "div");
+            QuoteTag tag = new QuoteTag("quote", el, null);
             TAGS.add(tag);
         }
         { // <ul>
@@ -256,6 +262,7 @@ public class Parser {
     }
 
     private Node pushTextNode(Node currentNode, String text, boolean escaped){
+		log.debug("push text:"+text);
 
         if(!currentNode.allows("text")){
             if(text.trim().length() == 0){
@@ -265,8 +272,8 @@ public class Parser {
                     currentNode.getChildren().add(new TextNode(currentNode, text));
                 }
             }else{
-                if(currentNode.allows("div")){
-                    currentNode.getChildren().add(new TagNode(currentNode,"div", ""));
+                if(currentNode.allows("p")){
+                    currentNode.getChildren().add(new TagNode(currentNode,"p", ""));
                     currentNode = descend(currentNode);
                 }else{
                     currentNode = ascend(currentNode);
@@ -277,10 +284,10 @@ public class Parser {
             Matcher matcher = P_REGEXP.matcher(text);
 
             if(matcher.find()){
+				currentNode = pushTextNode(currentNode, text.substring(0, matcher.start()), false);
+				currentNode = ascend(currentNode);
                 currentNode.getChildren().add(new TagNode(currentNode, "p", " "));
                 currentNode = descend(currentNode);
-                currentNode = pushTextNode(currentNode, text.substring(0, matcher.start()), false);
-                currentNode = ascend(currentNode);
                 currentNode = pushTextNode(currentNode, text.substring(matcher.end()), false);
             }else{
                 if(escaped){
@@ -302,6 +309,7 @@ public class Parser {
     }
 
     private Node pushTagNode(RootNode rootNode, Node currentNode, String name, String parameter, boolean renderCut, String cutUrl){
+		log.debug("push tag node:"+name);
         if(!currentNode.allows(name)){
             Tag newTag = TAG_DICT.get(name);
 
@@ -328,6 +336,7 @@ public class Parser {
     }
 
     private Node closeTagNode(RootNode rootNode, Node currentNode, String name){
+		log.debug("close tag node:"+name);		
         Node tempNode = currentNode;
         while (true){
             if(tempNode == rootNode){
@@ -347,7 +356,7 @@ public class Parser {
     }
 
     protected String prepare(String bbcode){
-        return bbcode.replaceAll("\r\n", "\n").replaceAll("\n", "");
+        return bbcode.replaceAll("\r\n", "\n").replaceAll("\n\n", "[softbr]");
     }
 
     public RootNode parse(String rawbbcode){
