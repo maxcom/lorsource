@@ -62,12 +62,12 @@ public class QuoteTag extends Tag {
         }
 
         if(!node.getParameter().isEmpty()){
-            ret.append("<p class=\"cite\"><cite>");
-            ret.append(Parser.escape(node.getParameter()));
-            ret.append(":</cite></p>");
-            ret.append("<blockquote class=\"quote\">");
+            ret.append("<div class=\"quote\">");
+            ret.append("<h3>");
+            ret.append(Parser.escape(node.getParameter().replaceAll("\"","")));
+            ret.append("</h3>");
             ret.append(node.renderChildrenXHtml());
-            ret.append("</blockquote>");
+            ret.append("</div>");
         }else{
             ret.append("<div class=\"quote\">");
             ret.append(node.renderChildrenXHtml());
