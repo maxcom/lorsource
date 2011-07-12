@@ -110,7 +110,7 @@ public class Parser {
 
         TAGS = new ArrayList<Tag>();
         { // <br/>
-            HtmlEquivTag tag = new HtmlEquivTag("br", new HashSet<String>(), "div");
+            HtmlEquivTag tag = new HtmlEquivTag("br", new HashSet<String>(), null);
             tag.setSelfClosing(true);
             //tag.setDiscardable(true);
             tag.setHtmlEquiv("br");
@@ -118,38 +118,38 @@ public class Parser {
         }
         { // <br/>, but can adapt during render ?
             Set<String> children = new HashSet<String>();
-            SoftBrTag tag = new SoftBrTag("softbr", children, "div");
+            SoftBrTag tag = new SoftBrTag("softbr", children, null);
             tag.setSelfClosing(true);
             tag.setDiscardable(true);
             TAGS.add(tag);
         }
         { // <b>
-            HtmlEquivTag tag = new HtmlEquivTag("b", INLINE_TAGS, "div");
+            HtmlEquivTag tag = new HtmlEquivTag("b", INLINE_TAGS, null);
             tag.setHtmlEquiv("b");
             TAGS.add(tag);
         }
         { // <i>
-            HtmlEquivTag tag = new HtmlEquivTag("i", INLINE_TAGS, "div");
+            HtmlEquivTag tag = new HtmlEquivTag("i", INLINE_TAGS, null);
             tag.setHtmlEquiv("i");
             TAGS.add(tag);
         }
         { // <u> TODO Allert: The U tag has been deprecated in favor of the text-decoration style property.
-            HtmlEquivTag tag = new HtmlEquivTag("u", INLINE_TAGS, "div");
+            HtmlEquivTag tag = new HtmlEquivTag("u", INLINE_TAGS, null);
             tag.setHtmlEquiv("u");
             TAGS.add(tag);
         }
         { // <s> TODO Allert: The S tag has been deprecated in favor of the text-decoration style property.
-            HtmlEquivTag tag = new HtmlEquivTag("s", INLINE_TAGS, "div");
+            HtmlEquivTag tag = new HtmlEquivTag("s", INLINE_TAGS, null);
             tag.setHtmlEquiv("s");
             TAGS.add(tag);
         }
         { // <em>
-            HtmlEquivTag tag = new HtmlEquivTag("em", INLINE_TAGS, "div");
+            HtmlEquivTag tag = new HtmlEquivTag("em", INLINE_TAGS, null);
             tag.setHtmlEquiv("em");
             TAGS.add(tag);
         }
         { // <strong>
-            HtmlEquivTag tag = new HtmlEquivTag("strong", INLINE_TAGS, "div");
+            HtmlEquivTag tag = new HtmlEquivTag("strong", INLINE_TAGS, null);
             tag.setHtmlEquiv("strong");
             TAGS.add(tag);
         }
@@ -162,7 +162,7 @@ public class Parser {
         { // <a> member
             Set<String> el = new HashSet<String>();
             el.add("text");
-            MemberTag tag = new MemberTag("user", el, "div");
+            MemberTag tag = new MemberTag("user", el, null);
             TAGS.add(tag);
         }
         { // <p>

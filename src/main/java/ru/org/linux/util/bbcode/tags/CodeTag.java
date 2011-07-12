@@ -57,12 +57,13 @@ public class CodeTag extends Tag{
         StringBuilder ret = new StringBuilder();
         if(node.isParameter()){
             String lang = node.getParameter().trim();
-            ret.append("<pre class=\"language-").append(Parser.escape(lang)).append("\"><code>");
+            // TODO в оригинале есть список поддерживаемых языков
+            ret.append("<div class=\"code\"><pre class=\"language-").append(Parser.escape(lang)).append("\"><code>"); 
         }else{
-            ret.append("<pre><code>");
+            ret.append("<div class=\"code\"><pre class=\"no-highlight\"><code>");
         }
         ret.append(node.renderChildrenXHtml());
-        ret.append("</code></pre>");
+        ret.append("</code></pre></div>");
         return ret.toString();
     }
 }
