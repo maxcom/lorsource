@@ -15,18 +15,6 @@
 
 package ru.org.linux.site;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.sql.*;
-import java.util.List;
-
-import javax.servlet.ServletRequest;
-import javax.servlet.http.HttpServletRequest;
-
-import ru.org.linux.spring.AddMessageForm;
-import ru.org.linux.spring.SectionStore;
-import ru.org.linux.util.*;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.logging.Log;
@@ -37,6 +25,17 @@ import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.jdbc.datasource.SingleConnectionDataSource;
+import ru.org.linux.spring.AddMessageForm;
+import ru.org.linux.spring.SectionStore;
+import ru.org.linux.util.*;
+import ru.org.linux.util.bbcode.ParserUtil;
+
+import javax.servlet.ServletRequest;
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.io.Serializable;
+import java.sql.*;
+import java.util.List;
 
 public class Message implements Serializable {
   private static final Log logger = LogFactory.getLog(Message.class);
@@ -793,7 +792,7 @@ public class Message implements Serializable {
     if (lorcode) {
       BBCodeProcessor proc = new BBCodeProcessor();
       proc.setIncludeCut(includeCut);
-      return proc.preparePostText(db, message);
+      return proc.preparePostText(db, message) + "<p>----------new------------</p>"+ ParserUtil.bb2xhtml(message, false);
     } else {
       return "<p>" + message;
     }

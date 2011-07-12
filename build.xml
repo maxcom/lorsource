@@ -98,7 +98,7 @@
         <mkdir dir="${dist}/WEB-INF/classes"/>
         <mkdir dir="${dist}/WEB-INF/lib"/>
         <jar jarfile="${dist}/WEB-INF/lib/lnxorgutil.jar" basedir="${build}"
-             includes="ru/org/linux/util/*,ru/org/linux/storage/*,ru/org/linux/cache/*,ru/org/linux/boxlet/*,ru/org/linux/logger/*,org/**,com/**"/>
+             includes="ru/org/linux/util/**,ru/org/linux/storage/*,ru/org/linux/cache/*,ru/org/linux/boxlet/*,ru/org/linux/logger/*,org/**,com/**"/>
         <jar jarfile="${dist}/WEB-INF/lib/lnxorgsite.jar" basedir="${build}"
              includes="ru/org/linux/site/**,ru/org/linux/spring/**,log4j.properties,ehcache.xml"/>
         <copy todir="${dist}/WEB-INF">
