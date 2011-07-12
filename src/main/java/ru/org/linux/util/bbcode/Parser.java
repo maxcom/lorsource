@@ -38,9 +38,11 @@
 
 package ru.org.linux.util.bbcode;
 
+import ru.org.linux.site.User;
 import ru.org.linux.util.bbcode.nodes.*;
 import ru.org.linux.util.bbcode.tags.*;
 
+import java.sql.Connection;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -120,7 +122,7 @@ public class Parser {
 
         TAGS = new ArrayList<Tag>();
         { // <br/>
-            HtmlEquivTag tag = new HtmlEquivTag("br", new HashSet<String>(), null);
+            HtmlEquivTag tag = new HtmlEquivTag("br", new HashSet<String>(), "p");
             tag.setSelfClosing(true);
             //tag.setDiscardable(true);
             tag.setHtmlEquiv("br");
@@ -128,51 +130,51 @@ public class Parser {
         }
         { // <br/>, but can adapt during render ?
             Set<String> children = new HashSet<String>();
-            SoftBrTag tag = new SoftBrTag("softbr", children, null);
+            SoftBrTag tag = new SoftBrTag("softbr", children,"p");
             tag.setSelfClosing(true);
             tag.setDiscardable(true);
             TAGS.add(tag);
         }
         { // <b>
-            HtmlEquivTag tag = new HtmlEquivTag("b", INLINE_TAGS, null);
+            HtmlEquivTag tag = new HtmlEquivTag("b", INLINE_TAGS, "p");
             tag.setHtmlEquiv("b");
             TAGS.add(tag);
         }
         { // <i>
-            HtmlEquivTag tag = new HtmlEquivTag("i", INLINE_TAGS, null);
+            HtmlEquivTag tag = new HtmlEquivTag("i", INLINE_TAGS, "p");
             tag.setHtmlEquiv("i");
             TAGS.add(tag);
         }
         { // <u> TODO Allert: The U tag has been deprecated in favor of the text-decoration style property.
-            HtmlEquivTag tag = new HtmlEquivTag("u", INLINE_TAGS, null);
+            HtmlEquivTag tag = new HtmlEquivTag("u", INLINE_TAGS, "p");
             tag.setHtmlEquiv("u");
             TAGS.add(tag);
         }
         { // <s> TODO Allert: The S tag has been deprecated in favor of the text-decoration style property.
-            HtmlEquivTag tag = new HtmlEquivTag("s", INLINE_TAGS, null);
+            HtmlEquivTag tag = new HtmlEquivTag("s", INLINE_TAGS, "p");
             tag.setHtmlEquiv("s");
             TAGS.add(tag);
         }
         { // <em>
-            HtmlEquivTag tag = new HtmlEquivTag("em", INLINE_TAGS, null);
+            HtmlEquivTag tag = new HtmlEquivTag("em", INLINE_TAGS, "p");
             tag.setHtmlEquiv("em");
             TAGS.add(tag);
         }
         { // <strong>
-            HtmlEquivTag tag = new HtmlEquivTag("strong", INLINE_TAGS, null);
+            HtmlEquivTag tag = new HtmlEquivTag("strong", INLINE_TAGS, "p");
             tag.setHtmlEquiv("strong");
             TAGS.add(tag);
         }
         { // <a>
             Set<String> el = new HashSet<String>();
             el.add("text");
-            UrlTag tag = new UrlTag("url", el, "div");
+            UrlTag tag = new UrlTag("url", el, "p");
             TAGS.add(tag);
         }
         { // <a> member
             Set<String> el = new HashSet<String>();
             el.add("text");
-            MemberTag tag = new MemberTag("user", el, null);
+            MemberTag tag = new MemberTag("user", el, "p");
             TAGS.add(tag);
         }
         { // <p>
@@ -254,8 +256,18 @@ public class Parser {
     }
 
     public static String getMemberLink(String name){
-        String pattern = "<span style=\"white-space: nowrap\"><img src=\"/img/tuxlor.png\"><a style=\"text-decoration: none\" href='/people/%s/profile'>%s</a></span>";
-        return String.format(pattern, name, name); // TODO
+        User user = User.getUser(name);
+        String pattern;
+        if(user == null){
+            pattern = "<s>%s</s>";
+        }else{
+            if(!user.isBlocked()){
+                pattern = "<span style=\"white-space: nowrap\"><img src=\"/img/tuxlor.png\"><a style=\"text-decoration: none\" href='/people/%s/profile'>%s</a></span>";
+            }else{
+                pattern = "<span style=\"white-space: nowrap\"><img src=\"/img/tuxlor.png\"><s><a style=\"text-decoration: none\" href='/people/%s/profile'>%s</a></s></span>";
+            }
+        }
+        return String.format(pattern, name, name);
     }
 
 
@@ -374,7 +386,7 @@ public class Parser {
     }
 
     public RootNode parse(String rawbbcode, boolean renderCut, String cutUrl){
-        RootNode rootNode = new RootNode(rootAllowsInline);
+        RootNode rootNode = new RootNode(false);
         Node currentNode = rootNode;
         String bbcode = rawbbcode;
         int pos = 0;

@@ -1,5 +1,9 @@
 package ru.org.linux.util.bbcode;
 
+import org.apache.activemq.transport.stomp.Stomp;
+
+import java.sql.Connection;
+
 /**
  * Created by IntelliJ IDEA.
  * User: hizel
@@ -10,20 +14,15 @@ public class ParserUtil {
 
     private static final Parser parser = new Parser();
 
-    public static String bb2xhtml(String bbcode, boolean rootAllowsInline){
+    public static String bb2xhtml(String bbcode){
         return parser.parse(bbcode).renderXHtml();
     }
 
-    public static String bb2xhtml(String bbcode, boolean rootAllowsInline, boolean renderCut, String cutUrl){
+    public static String bb2xhtml(String bbcode, boolean renderCut, String cutUrl){
         return parser.parse(bbcode, renderCut, cutUrl).renderXHtml();
     }
 
-    public static String correct(String bbcode, boolean rootAllowsInline){
+    public static String correct(String bbcode){
         return parser.parse(bbcode).renderBBCode();
     }
-
-    public static String to_html(String text){
-        return bb2xhtml(text, false);
-    }
-
 }

@@ -38,6 +38,7 @@
 
 package ru.org.linux.util.bbcode.tags;
 
+import ru.org.linux.site.User;
 import ru.org.linux.util.bbcode.Parser;
 import ru.org.linux.util.bbcode.nodes.Node;
 import ru.org.linux.util.bbcode.nodes.TextNode;
@@ -60,7 +61,7 @@ public class MemberTag extends Tag{
             return "";
         }
         TextNode txtNode = (TextNode)node.getChildren().iterator().next();
-        String memberName = Parser.escape(txtNode.getText());
+        String memberName = Parser.escape(txtNode.getText()).trim().toLowerCase();
         return Parser.getMemberLink(memberName);
 
     }

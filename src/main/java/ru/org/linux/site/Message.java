@@ -793,7 +793,7 @@ public class Message implements Serializable {
       BBCodeProcessor proc = new BBCodeProcessor();
       proc.setIncludeCut(includeCut);
       logger.debug("Message:" + message);
-      return proc.preparePostText(db, message) + "<p>----------new------------</p>"+ ParserUtil.bb2xhtml(message, false);
+      return proc.preparePostText(db, message) + "<p>----------new------------</p>"+ ParserUtil.bb2xhtml(message);
     } else {
       return "<p>" + message;
     }

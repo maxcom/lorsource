@@ -25,6 +25,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.activemq.transport.stomp.Stomp;
 import ru.org.linux.spring.LoginController;
 import ru.org.linux.util.StringUtil;
 
@@ -466,6 +467,26 @@ public class User implements Serializable {
     }
 
     return deleted;
+  }
+
+  public static User getUser(String name){
+      Connection db = null;
+      User user = null;
+      try{
+          db = LorDataSource.getConnection();
+          user = getUser(db, name);
+      }catch (Exception ex){
+          // TODO как сделать чтобы не городить так?
+      }finally {
+          if(db != null){
+              try{
+              db.close();
+              }catch (Exception ex){
+                  // TODO как сделать чтобы не городить так?
+              }
+          }
+      }
+      return user;
   }
 
   public static User getUser(Connection con, String name) throws SQLException, UserNotFoundException {
