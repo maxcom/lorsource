@@ -335,6 +335,7 @@ public class Parser {
         }else{
             TagNode node = new TagNode(currentNode, name, parameter);
             if("cut".equals(name)){
+                log.debug("cut: "+renderCut+" url:"+cutUrl);
                 ((CutTag)(node.getBbtag())).setRenderOptions(renderCut, cutUrl);
             }
             currentNode.getChildren().add(node);

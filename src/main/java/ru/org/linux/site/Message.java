@@ -792,8 +792,7 @@ public class Message implements Serializable {
     if (lorcode) {
       BBCodeProcessor proc = new BBCodeProcessor();
       proc.setIncludeCut(includeCut);
-      logger.debug("Message:" + message);
-      return proc.preparePostText(db, message) + "<p>----------new------------</p>"+ ParserUtil.bb2xhtml(message, db);
+      return proc.preparePostText(db, message) + "<p>----------new------------</p>"+ ParserUtil.bb2xhtml(message, includeCut, getLink(), db);
     } else {
       return "<p>" + message;
     }
