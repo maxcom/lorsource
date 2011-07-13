@@ -21,7 +21,6 @@
         <dependency org="org.apache.xmlrpc" name="xmlrpc-client" rev="3.1.3" conf="build->default">
           <exclude module="junit"/>
         </dependency>
-        <dependency org="urlrewrite" name="urlrewrite" rev="2.6.0" conf="build->default"/>
         <dependency org="postgresql" name="postgresql" rev="8.2-504.jdbc3" conf="provided->default"/>
         <dependency org="junit" name="junit" rev="4.5" conf="test->default"/>
         <dependency org="org.springframework" name="spring-webmvc" rev="3.0.5.RELEASE" conf="build->default">
@@ -59,5 +58,6 @@
         </dependency>
         <dependency org="org.jasypt" name="jasypt" rev="1.7" conf="build->default"/>
         <dependency org="org.dnsjava" name="dnsjava" rev="2.0.6" conf="build->default"/>
+        <dependency org="org.tuckey" name="urlrewritefilter" rev="3.1.0" conf="build->default"/>
     </dependencies>
 </ivy-module>
