@@ -59,5 +59,6 @@
             <exclude module="hibernate-ehcache"/>
         </dependency>
         <dependency org="org.jasypt" name="jasypt" rev="1.7" conf="build->default"/>
+        <dependency org="org.dnsjava" name="dnsjava" rev="2.0.6" conf="build->default"/>
     </dependencies>
 </ivy-module>
