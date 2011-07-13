@@ -40,7 +40,6 @@ package ru.org.linux.util.bbcode;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import ru.org.linux.site.User;
 import ru.org.linux.util.bbcode.nodes.*;
 import ru.org.linux.util.bbcode.tags.*;
 
@@ -286,7 +285,15 @@ public class Parser {
         }else{
             Matcher matcher = P_REGEXP.matcher(text);
 
-            if(matcher.find()){
+            boolean isCode = false;
+            if(TagNode.class.isInstance(currentNode)){
+                TagNode tempNode  = (TagNode)currentNode;
+                if(CodeTag.class.isInstance(tempNode.getBbtag())){
+                    isCode = true;
+                }
+            }
+
+            if(matcher.find() && !isCode){
 				currentNode = pushTextNode(currentNode, text.substring(0, matcher.start()), false);
 				currentNode = ascend(currentNode);
                 currentNode.getChildren().add(new TagNode(currentNode, "p", " "));
@@ -405,7 +412,7 @@ public class Parser {
                             }
                         }else{
                             if(isCode && !"code".equals(tagname)){
-                                currentNode = pushTextNode(currentNode, wholematch,false);
+                                currentNode = pushTextNode(currentNode, wholematch, false);
                             }else if("code".equals(tagname)){
                                 isCode = true;
                                 currentNode = pushTagNode(rootNode, currentNode, tagname, parameter, renderCut, cutUrl);
