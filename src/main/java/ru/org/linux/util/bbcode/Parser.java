@@ -38,9 +38,11 @@
 
 package ru.org.linux.util.bbcode;
 
+import com.google.common.collect.ImmutableSet;
 import ru.org.linux.util.bbcode.nodes.*;
 import ru.org.linux.util.bbcode.tags.*;
 
+import java.lang.reflect.Array;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -66,75 +68,51 @@ public class Parser {
     public static final Pattern P_REGEXP = Pattern.compile("(\r?\n){2,}");
 
 
-    private Set<String> inlineTags;
-    private Set<String> blockLevelTags;
-    private Set<String> flowTags;
-    private Set<String> otherTags;
-    private Set<String> anchorTags;
+    private ImmutableSet<String> inlineTags;
+    private ImmutableSet<String> blockLevelTags;
+    private ImmutableSet<String> flowTags;
+    private ImmutableSet<String> otherTags;
+    private ImmutableSet<String> anchorTags;
 
-    private Set<String> allowedListParameters;
+    private ImmutableSet<String> allowedListParameters;
 
     private List<Tag> allTags;
     private Map<String,Tag> allTagsDict;
-    private Set<String> allTagsNames;
+    private ImmutableSet<String> allTagsNames;
 
 
     public Parser(int flags){
-        allowedListParameters = new HashSet<String>();
-        allowedListParameters.add("A");
-        allowedListParameters.add("a");
-        allowedListParameters.add("I");
-        allowedListParameters.add("i");
-        allowedListParameters.add("1");
+        // разрешенные параметры для [list]
+        allowedListParameters = ImmutableSet.of("A", "a", "I", "i", "1");
 
         // Простые тэги, в детях им подобные и текст
-        inlineTags = new HashSet<String>();
-        inlineTags.add("b");
-        inlineTags.add("i");
-        inlineTags.add("u");
-        inlineTags.add("s");
-        inlineTags.add("em");
-        inlineTags.add("strong");
-        inlineTags.add("url");
-        inlineTags.add("user");
-        inlineTags.add("br");
-        inlineTags.add("text");
-        inlineTags.add("img");
-        inlineTags.add("softbr");
+        inlineTags = ImmutableSet.of("b", "i", "u", "s", "em", "strong", "url", "user", "br", "text", "img", "softbr");
 
         //Блочные тэги
-        blockLevelTags = new HashSet<String>();
-        blockLevelTags.add("p");
-        blockLevelTags.add("quote");
-        blockLevelTags.add("list");
-        blockLevelTags.add("pre");
-        blockLevelTags.add("code");
-        blockLevelTags.add("div");
-        blockLevelTags.add("cut");
+        blockLevelTags = ImmutableSet.of("p", "quote", "list", "pre", "code", "div", "cut");
 
         // Все тэги кроме специальных
-        flowTags = new HashSet<String>();
-        flowTags.addAll(inlineTags);
-        flowTags.addAll(blockLevelTags);
+        flowTags = new ImmutableSet.Builder<String>()
+                .addAll(inlineTags)
+                .addAll(blockLevelTags)
+                .build();
 
         // специальный дурацкий тэг
-        otherTags = new HashSet<String>();
-        otherTags.add("*");
+        otherTags = ImmutableSet.of("*");
 
-        anchorTags = new HashSet<String>();
-        anchorTags.add("url");
+        // незнаю зачем этот тэг выделен
+        anchorTags = ImmutableSet.of("url");
 
         allTags = new ArrayList<Tag>();
         { // <br/>
-            HtmlEquivTag tag = new HtmlEquivTag("br", new HashSet<String>(), "div", this);
+            HtmlEquivTag tag = new HtmlEquivTag("br", ImmutableSet.<String>of(), "div", this);
             tag.setSelfClosing(true);
             //tag.setDiscardable(true);
             tag.setHtmlEquiv("br");
             allTags.add(tag);
         }
         { // <br/>, but can adapt during render ?
-            Set<String> children = new HashSet<String>();
-            SoftBrTag tag = new SoftBrTag("softbr", children, "div", this);
+            SoftBrTag tag = new SoftBrTag("softbr", ImmutableSet.<String>of(), "div", this);
             tag.setSelfClosing(true);
             tag.setDiscardable(true);
             allTags.add(tag);
@@ -170,21 +148,15 @@ public class Parser {
             allTags.add(tag);
         }
         { // <a>
-            Set<String> el = new HashSet<String>();
-            el.add("text");
-            UrlTag tag = new UrlTag("url", el, "div", this);
+            UrlTag tag = new UrlTag("url", ImmutableSet.<String>of("text"), "div", this);
             allTags.add(tag);
         }
         { // <a> member
-            Set<String> el = new HashSet<String>();
-            el.add("text");
-            MemberTag tag = new MemberTag("user", el, "div", this);
+            MemberTag tag = new MemberTag("user", ImmutableSet.<String>of("text"), "div", this);
             allTags.add(tag);
         }
         if((flags & flagSupportImgTag) == flagSupportImgTag){ // <img>
-            Set<String> el = new HashSet<String>();
-            el.add("text");
-            ImageTag tag = new ImageTag("img", el, "div", this);
+            ImageTag tag = new ImageTag("img", ImmutableSet.<String>of("text"), "div", this);
             allTags.add(tag);
         }
         { // <p>
@@ -198,41 +170,22 @@ public class Parser {
             allTags.add(tag);
         }
         { // <blockquote>
-            Set<String> el = new HashSet<String>();
-            el.addAll(blockLevelTags);
-            el.add("softbr");
-            QuoteTag tag = new QuoteTag("quote", el, "div", this);
+            QuoteTag tag = new QuoteTag("quote", blockLevelTags, "div", this);
             allTags.add(tag);
         }
         { // <ul>
-            Set<String> el = new HashSet<String>();
-            el.add("*");
-            el.add("softbr");
-            ListTag tag = new ListTag("list", el, null, this);
+            ListTag tag = new ListTag("list", ImmutableSet.<String>of("*", "softbr"), null, this);
             allTags.add(tag);
         }
         { // <pre> (only img currently needed out of the prohibited elements)
-            Set<String> elements = new HashSet<String>();
-            elements.add("img");
-            elements.add("big");
-            elements.add("small");
-            elements.add("sub");
-            elements.add("sup");
             HtmlEquivTag tag = new HtmlEquivTag("pre", inlineTags, null, this);
             tag.setHtmlEquiv("pre");
-            tag.setProhibitedElements(elements);
+            tag.setProhibitedElements(ImmutableSet.<String>of("img", "big", "small", "sub", "sup"));
             allTags.add(tag);
         }
         { // <pre class="code">
-            Set<String> elements = new HashSet<String>();
-            elements.add("img");
-            elements.add("big");
-            elements.add("small");
-            elements.add("sub");
-            elements.add("sup");
-
             CodeTag tag = new CodeTag("code", inlineTags, null, this);
-            tag.setProhibitedElements(elements);
+            tag.setProhibitedElements(ImmutableSet.<String>of("img", "big", "small", "sub", "sup"));
             allTags.add(tag);
         }
         {   // [cut]
@@ -251,10 +204,11 @@ public class Parser {
                 allTagsDict.put(tag.getName(), tag);
             }
         }
-        allTagsNames = new HashSet<String>();
+        ImmutableSet.Builder<String> allTagsBuilder = new ImmutableSet.Builder<String>();
         for(Tag tag : allTags){
-            allTagsNames.add(tag.getName());
+            allTagsBuilder.add(tag.getName());
         }
+        allTagsNames = allTagsBuilder.build();
     }
 
     public static String escape(String html){
