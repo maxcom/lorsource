@@ -794,9 +794,7 @@ public class Message implements Serializable {
         BBCodeProcessor proc = new BBCodeProcessor();
         proc.setIncludeCut(includeCut);
 
-
-
-        builder.append("<div style=\"display:inline-block\"><div style=\"float:left;width:49%\">");
+        builder.append("<div style=\"display:inline-block;width:99%\"><div style=\"float:left;width:49%;display:inline-block\">");
         builder.append(proc.preparePostText(db, message));
         builder.append("</div><div>");
         builder.append(ParserUtil.bb2xhtml(message, includeCut, getLink(), db));

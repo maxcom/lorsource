@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.javabb.bbcode.BBCodeProcessor;
+import ru.org.linux.util.bbcode.ParserUtil;
 
 public class PreparedComment {
   private final Comment comment;
@@ -73,16 +74,32 @@ public class PreparedComment {
     rs.close();
 
     if (bbcode) {
-      BBCodeProcessor proc = new BBCodeProcessor();
-      return proc.preparePostText(db, text);
+        StringBuilder builder = new StringBuilder();
+        BBCodeProcessor proc = new BBCodeProcessor();
+
+        builder.append("<div style=\"display:inline-block;width:99%\"><div style=\"float:left;width:49%;display:inline-block\">");
+        builder.append(proc.preparePostText(db, text));
+        builder.append("</div><div>");
+        builder.append(ParserUtil.bb2xhtml(text, true, "", db));
+        builder.append("</div></div>");
+
+        return builder.toString();
     } else {
       return "<p>"+text;
     }
   }
 
   private static String getProcessedMessage(Connection db, String message) throws SQLException {
-    BBCodeProcessor proc = new BBCodeProcessor();
-    return proc.preparePostText(db, message);
+      StringBuilder builder = new StringBuilder();
+      BBCodeProcessor proc = new BBCodeProcessor();
+
+      builder.append("<div style=\"display:inline-block;width:99%\"><div style=\"float:left;width:49%;display:inline-block\">");
+      builder.append(proc.preparePostText(db, message));
+      builder.append("</div><div>");
+      builder.append(ParserUtil.bb2xhtml(message, true, "", db));
+      builder.append("</div></div>");
+      return builder.toString();
+
   }
 
   public Comment getComment() {
