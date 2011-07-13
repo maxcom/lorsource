@@ -7,10 +7,6 @@
     <!--include url="${ivy.default.settings.dir}/ivysettings-default-chain.xml"/-->
     <resolvers>
         <chain name="default">
-            <filesystem name="provided-libs">
-                <artifact pattern="${basedir}/lib/[artifact]-[revision].[ext]"/>
-            </filesystem>
-
             <ibiblio name="maven2" m2compatible="true"/>
             <ibiblio name="java.net" m2compatible="true" root="http://download.java.net/maven/2/"/>
             <ibiblio name="net.tanesha" m2compatible="true" root="http://tanesha.net/maven2"/>
