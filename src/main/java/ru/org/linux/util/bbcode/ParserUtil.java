@@ -1,6 +1,7 @@
 package ru.org.linux.util.bbcode;
 
 import java.sql.Connection;
+import java.util.EnumSet;
 
 /**
  * Created by IntelliJ IDEA.
@@ -10,7 +11,7 @@ import java.sql.Connection;
  */
 public class ParserUtil {
 
-    private static final Parser parserWithImages = new Parser(Parser.flagSupportImgTag);
+    private static final Parser parserWithImages = new Parser(EnumSet.of(Parser.ParserFlags.ENABLE_IMG_TAG));
 
     public static String bb2xhtml(String bbcode, Connection db){
         return parserWithImages.parse(bbcode).renderXHtml(db);

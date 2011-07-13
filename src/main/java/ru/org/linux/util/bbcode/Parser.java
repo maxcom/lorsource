@@ -56,10 +56,10 @@ import java.util.regex.Pattern;
  */
 public class Parser {
 
-    // флаги для конструктора
-    public static final int flagRenderDefaultTags = 0;
-    public static final int flagIgnoreCut = 1;
-    public static final int flagSupportImgTag = 2;
+    public static enum ParserFlags{
+        ENABLE_IMG_TAG,
+        IGNORE_CUT_TAG
+    }
 
     // регулярное выражения поиска bbcode тэга
     public static final Pattern BBTAG_REGEXP = Pattern.compile("\\[\\[?/?([A-Za-z\\*]+)(:[a-f0-9]+)?(=[^\\]]+)?\\]?\\]");
@@ -81,7 +81,7 @@ public class Parser {
     private ImmutableSet<String> allTagsNames;
 
 
-    public Parser(int flags){
+    public Parser(EnumSet<ParserFlags> flags){
         // разрешенные параметры для [list]
         allowedListParameters = ImmutableSet.of("A", "a", "I", "i", "1");
 
@@ -154,8 +154,8 @@ public class Parser {
         { // <a> member
             MemberTag tag = new MemberTag("user", ImmutableSet.<String>of("text"), "div", this);
             allTags.add(tag);
-        }
-        if((flags & flagSupportImgTag) == flagSupportImgTag){ // <img>
+        } // <img>
+        if(flags.contains(ParserFlags.ENABLE_IMG_TAG)){
             ImageTag tag = new ImageTag("img", ImmutableSet.<String>of("text"), "div", this);
             allTags.add(tag);
         }
