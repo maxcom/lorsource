@@ -36,33 +36,49 @@
  * E-mail: <hizel@vyborg.ru>
  */
 
-package ru.org.linux.util.bbcode.nodes;
+package ru.org.linux.util.bbcode.tags;
 
 import ru.org.linux.util.bbcode.Parser;
+import ru.org.linux.util.bbcode.nodes.Node;
+import ru.org.linux.util.bbcode.nodes.TextNode;
 
-import java.sql.Connection;
+import java.util.Set;
+import java.util.regex.Pattern;
 
 /**
  * Created by IntelliJ IDEA.
  * User: hizel
- * Date: 6/30/11
- * Time: 3:01 PM
+ * Date: 7/13/11
+ * Time: 3:42 PM
  */
-public class RootNode extends Node{
+public class ImageTag extends Tag{
+    public static final Pattern IMG_URL_REGEXP = Pattern.compile("(\\w+)://([\\w\\d]+)/?(.*)?");
 
-    public RootNode(Parser parser){
-        super(parser);
+    public ImageTag(String name, Set<String> allowedChildren, String implicitTag, Parser parser){
+        super(name, allowedChildren, implicitTag, parser);
     }
 
-    public String renderXHtml(Connection db){
-        return renderChildrenXHtml(db);
-    }
-
-    public boolean allows(String tagname){
-        return parser.getBlockLevelTags().contains(tagname);
-    }
-
-    public String renderBBCode(){
-        return renderChildrenBBCode();
+    public String renderNodeXhtml(Node node){
+        if(node.lengthChildren() == 0){
+            return "";
+        }
+        TextNode txtNode = (TextNode)node.getChildren().iterator().next();
+        String imageUrl = Parser.escape(txtNode.getText()).trim();
+        return String.format("<img src=\"%s\" />", imageUrl);
+        // TODO надо отладить
+/*        Matcher matcher = IMG_URL_REGEXP.matcher(imageUrl);
+        try {
+            if(matcher.find()){
+                String scheme = matcher.group(1);
+                String domain = matcher.group(2);
+                String param = matcher.group(3);
+                URI uri = new URI(scheme, domain, param);
+                return String.format("<img src=\"http://%s\" />", uri.toASCIIString());
+            }else{
+                return "";
+            }
+        } catch (Exception ex){
+            return "";
+        }*/
     }
 }

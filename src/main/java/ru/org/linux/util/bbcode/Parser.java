@@ -41,7 +41,6 @@ package ru.org.linux.util.bbcode;
 import ru.org.linux.util.bbcode.nodes.*;
 import ru.org.linux.util.bbcode.tags.*;
 
-import java.sql.Connection;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -56,9 +55,9 @@ import java.util.regex.Pattern;
 public class Parser {
 
     // флаги для конструктора
-    public static final int flagRenderAll = 0;
+    public static final int flagRenderDefaultTags = 0;
     public static final int flagIgnoreCut = 1;
-    public static final int flagIgnoreImg = 2;
+    public static final int flagSupportImgTag = 2;
 
     // регулярное выражения поиска bbcode тэга
     public static final Pattern BBTAG_REGEXP = Pattern.compile("\\[\\[?/?([A-Za-z\\*]+)(:[a-f0-9]+)?(=[^\\]]+)?\\]?\\]");
@@ -67,144 +66,150 @@ public class Parser {
     public static final Pattern P_REGEXP = Pattern.compile("(\r?\n){2,}");
 
 
-    private Set<String> INLINE_TAGS;
-    private Set<String> BLOCK_LEVEL_TAGS;
-    private Set<String> FLOW_TAGS;
-    private Set<String> OTHER_TAGS;
-    private Set<String> ANCHOR_TAGS;
+    private Set<String> inlineTags;
+    private Set<String> blockLevelTags;
+    private Set<String> flowTags;
+    private Set<String> otherTags;
+    private Set<String> anchorTags;
 
-    private Set<String> ALLOWED_LIST_TYPE;
+    private Set<String> allowedListParameters;
 
-    private List<Tag> TAGS;
-    private Map<String,Tag> TAG_DICT;
-    private Set<String> TAG_NAMES;
+    private List<Tag> allTags;
+    private Map<String,Tag> allTagsDict;
+    private Set<String> allTagsNames;
 
 
     public Parser(int flags){
-        ALLOWED_LIST_TYPE = new HashSet<String>();
-        ALLOWED_LIST_TYPE.add("A");
-        ALLOWED_LIST_TYPE.add("a");
-        ALLOWED_LIST_TYPE.add("I");
-        ALLOWED_LIST_TYPE.add("i");
-        ALLOWED_LIST_TYPE.add("1");
+        allowedListParameters = new HashSet<String>();
+        allowedListParameters.add("A");
+        allowedListParameters.add("a");
+        allowedListParameters.add("I");
+        allowedListParameters.add("i");
+        allowedListParameters.add("1");
 
         // Простые тэги, в детях им подобные и текст
-        INLINE_TAGS = new HashSet<String>();
-        INLINE_TAGS.add("b");
-        INLINE_TAGS.add("i");
-        INLINE_TAGS.add("u");
-        INLINE_TAGS.add("s");
-        INLINE_TAGS.add("em");
-        INLINE_TAGS.add("strong");
-        INLINE_TAGS.add("url");
-        INLINE_TAGS.add("user");
-        INLINE_TAGS.add("br");
-        INLINE_TAGS.add("text");
-        INLINE_TAGS.add("img");
-        INLINE_TAGS.add("softbr");
+        inlineTags = new HashSet<String>();
+        inlineTags.add("b");
+        inlineTags.add("i");
+        inlineTags.add("u");
+        inlineTags.add("s");
+        inlineTags.add("em");
+        inlineTags.add("strong");
+        inlineTags.add("url");
+        inlineTags.add("user");
+        inlineTags.add("br");
+        inlineTags.add("text");
+        inlineTags.add("img");
+        inlineTags.add("softbr");
 
         //Блочные тэги
-        BLOCK_LEVEL_TAGS = new HashSet<String>();
-        BLOCK_LEVEL_TAGS.add("p");
-        BLOCK_LEVEL_TAGS.add("quote");
-        BLOCK_LEVEL_TAGS.add("list");
-        BLOCK_LEVEL_TAGS.add("pre");
-        BLOCK_LEVEL_TAGS.add("code");
-        BLOCK_LEVEL_TAGS.add("div");
-        BLOCK_LEVEL_TAGS.add("cut");
+        blockLevelTags = new HashSet<String>();
+        blockLevelTags.add("p");
+        blockLevelTags.add("quote");
+        blockLevelTags.add("list");
+        blockLevelTags.add("pre");
+        blockLevelTags.add("code");
+        blockLevelTags.add("div");
+        blockLevelTags.add("cut");
 
         // Все тэги кроме специальных
-        FLOW_TAGS = new HashSet<String>();
-        FLOW_TAGS.addAll(INLINE_TAGS);
-        FLOW_TAGS.addAll(BLOCK_LEVEL_TAGS);
+        flowTags = new HashSet<String>();
+        flowTags.addAll(inlineTags);
+        flowTags.addAll(blockLevelTags);
 
         // специальный дурацкий тэг
-        OTHER_TAGS = new HashSet<String>();
-        OTHER_TAGS.add("*");
+        otherTags = new HashSet<String>();
+        otherTags.add("*");
 
-        ANCHOR_TAGS = new HashSet<String>();
-        ANCHOR_TAGS.add("url");
+        anchorTags = new HashSet<String>();
+        anchorTags.add("url");
 
-        TAGS = new ArrayList<Tag>();
+        allTags = new ArrayList<Tag>();
         { // <br/>
             HtmlEquivTag tag = new HtmlEquivTag("br", new HashSet<String>(), "div", this);
             tag.setSelfClosing(true);
             //tag.setDiscardable(true);
             tag.setHtmlEquiv("br");
-            TAGS.add(tag);
+            allTags.add(tag);
         }
         { // <br/>, but can adapt during render ?
             Set<String> children = new HashSet<String>();
             SoftBrTag tag = new SoftBrTag("softbr", children, "div", this);
             tag.setSelfClosing(true);
             tag.setDiscardable(true);
-            TAGS.add(tag);
+            allTags.add(tag);
         }
         { // <b>
-            HtmlEquivTag tag = new HtmlEquivTag("b", INLINE_TAGS, "div", this);
+            HtmlEquivTag tag = new HtmlEquivTag("b", inlineTags, "div", this);
             tag.setHtmlEquiv("b");
-            TAGS.add(tag);
+            allTags.add(tag);
         }
         { // <i>
-            HtmlEquivTag tag = new HtmlEquivTag("i", INLINE_TAGS, "div", this);
+            HtmlEquivTag tag = new HtmlEquivTag("i", inlineTags, "div", this);
             tag.setHtmlEquiv("i");
-            TAGS.add(tag);
+            allTags.add(tag);
         }
         { // <u> TODO Allert: The U tag has been deprecated in favor of the text-decoration style property.
-            HtmlEquivTag tag = new HtmlEquivTag("u", INLINE_TAGS, "div", this);
+            HtmlEquivTag tag = new HtmlEquivTag("u", inlineTags, "div", this);
             tag.setHtmlEquiv("u");
-            TAGS.add(tag);
+            allTags.add(tag);
         }
         { // <s> TODO Allert: The S tag has been deprecated in favor of the text-decoration style property.
-            HtmlEquivTag tag = new HtmlEquivTag("s", INLINE_TAGS, "div", this);
+            HtmlEquivTag tag = new HtmlEquivTag("s", inlineTags, "div", this);
             tag.setHtmlEquiv("s");
-            TAGS.add(tag);
+            allTags.add(tag);
         }
         { // <em>
-            HtmlEquivTag tag = new HtmlEquivTag("em", INLINE_TAGS, "div", this);
+            HtmlEquivTag tag = new HtmlEquivTag("em", inlineTags, "div", this);
             tag.setHtmlEquiv("em");
-            TAGS.add(tag);
+            allTags.add(tag);
         }
         { // <strong>
-            HtmlEquivTag tag = new HtmlEquivTag("strong", INLINE_TAGS, "div", this);
+            HtmlEquivTag tag = new HtmlEquivTag("strong", inlineTags, "div", this);
             tag.setHtmlEquiv("strong");
-            TAGS.add(tag);
+            allTags.add(tag);
         }
         { // <a>
             Set<String> el = new HashSet<String>();
             el.add("text");
             UrlTag tag = new UrlTag("url", el, "div", this);
-            TAGS.add(tag);
+            allTags.add(tag);
         }
         { // <a> member
             Set<String> el = new HashSet<String>();
             el.add("text");
             MemberTag tag = new MemberTag("user", el, "div", this);
-            TAGS.add(tag);
+            allTags.add(tag);
+        }
+        if((flags & flagSupportImgTag) == flagSupportImgTag){ // <img>
+            Set<String> el = new HashSet<String>();
+            el.add("text");
+            ImageTag tag = new ImageTag("img", el, "div", this);
+            allTags.add(tag);
         }
         { // <p>
-            HtmlEquivTag tag = new HtmlEquivTag("p", INLINE_TAGS, null, this);
+            HtmlEquivTag tag = new HtmlEquivTag("p", inlineTags, null, this);
             tag.setHtmlEquiv("p");
-            TAGS.add(tag);
+            allTags.add(tag);
         }
         { // <div>
-            HtmlEquivTag tag = new HtmlEquivTag("div", FLOW_TAGS, null, this);
+            HtmlEquivTag tag = new HtmlEquivTag("div", flowTags, null, this);
             tag.setHtmlEquiv("");
-            TAGS.add(tag);
+            allTags.add(tag);
         }
         { // <blockquote>
             Set<String> el = new HashSet<String>();
-            el.addAll(BLOCK_LEVEL_TAGS);
+            el.addAll(blockLevelTags);
             el.add("softbr");
             QuoteTag tag = new QuoteTag("quote", el, "div", this);
-            TAGS.add(tag);
+            allTags.add(tag);
         }
         { // <ul>
             Set<String> el = new HashSet<String>();
             el.add("*");
             el.add("softbr");
             ListTag tag = new ListTag("list", el, null, this);
-            TAGS.add(tag);
+            allTags.add(tag);
         }
         { // <pre> (only img currently needed out of the prohibited elements)
             Set<String> elements = new HashSet<String>();
@@ -213,10 +218,10 @@ public class Parser {
             elements.add("small");
             elements.add("sub");
             elements.add("sup");
-            HtmlEquivTag tag = new HtmlEquivTag("pre", INLINE_TAGS, null, this);
+            HtmlEquivTag tag = new HtmlEquivTag("pre", inlineTags, null, this);
             tag.setHtmlEquiv("pre");
             tag.setProhibitedElements(elements);
-            TAGS.add(tag);
+            allTags.add(tag);
         }
         { // <pre class="code">
             Set<String> elements = new HashSet<String>();
@@ -226,29 +231,29 @@ public class Parser {
             elements.add("sub");
             elements.add("sup");
 
-            CodeTag tag = new CodeTag("code", INLINE_TAGS, null, this);
+            CodeTag tag = new CodeTag("code", inlineTags, null, this);
             tag.setProhibitedElements(elements);
-            TAGS.add(tag);
+            allTags.add(tag);
         }
         {   // [cut]
-            CutTag tag = new CutTag("cut", FLOW_TAGS, null, this);
+            CutTag tag = new CutTag("cut", flowTags, null, this);
             tag.setHtmlEquiv("div");
-            TAGS.add(tag);
+            allTags.add(tag);
         }
         { //  <li>
-            LiTag tag = new LiTag("*", FLOW_TAGS, "list", this);
-            TAGS.add(tag);
+            LiTag tag = new LiTag("*", flowTags, "list", this);
+            allTags.add(tag);
         }
 
-        TAG_DICT = new HashMap<String, Tag>();
-        for(Tag tag : TAGS){
+        allTagsDict = new HashMap<String, Tag>();
+        for(Tag tag : allTags){
             if(!"text".equals(tag.getName())){
-                TAG_DICT.put(tag.getName(), tag);
+                allTagsDict.put(tag.getName(), tag);
             }
         }
-        TAG_NAMES = new HashSet<String>();
-        for(Tag tag : TAGS){
-            TAG_NAMES.add(tag.getName());
+        allTagsNames = new HashSet<String>();
+        for(Tag tag : allTags){
+            allTagsNames.add(tag.getName());
         }
     }
 
@@ -317,11 +322,11 @@ public class Parser {
 
     private Node pushTagNode(RootNode rootNode, Node currentNode, String name, String parameter, boolean renderCut, String cutUrl){
         if(!currentNode.allows(name)){
-            Tag newTag = TAG_DICT.get(name);
+            Tag newTag = allTagsDict.get(name);
 
             if(newTag.isDiscardable()){
                 return currentNode;
-            }else if(currentNode == rootNode || BLOCK_LEVEL_TAGS.contains(((TagNode)currentNode).getBbtag().getName()) && newTag.getImplicitTag() != null){
+            }else if(currentNode == rootNode || blockLevelTags.contains(((TagNode)currentNode).getBbtag().getName()) && newTag.getImplicitTag() != null){
                 currentNode = pushTagNode(rootNode, currentNode, newTag.getImplicitTag(), "", renderCut, cutUrl);
                 currentNode = pushTagNode(rootNode, currentNode, name, parameter, renderCut, cutUrl);
             }else{
@@ -389,7 +394,7 @@ public class Parser {
                     if(parameter != null && parameter.length() > 0){
                         parameter = parameter.substring(1);
                     }
-                    if(TAG_NAMES.contains(tagname)){
+                    if(allTagsNames.contains(tagname)){
                         if(wholematch.startsWith("[[")){
                             currentNode = pushTextNode(currentNode, "[", false);
                         }
@@ -431,43 +436,35 @@ public class Parser {
         return rootNode;
     }
 
-    public String renderXHtml(RootNode rootNode, Connection db){
-        return rootNode.renderXHtml(db);
+    public Set<String> getAllowedListParameters() {
+        return allowedListParameters;
     }
 
-    public String renderBBCode(RootNode rootNode){
-        return rootNode.renderBBCode();
+    public Set<String> getInlineTags() {
+        return inlineTags;
     }
 
-    public Set<String> getALLOWED_LIST_TYPE() {
-        return ALLOWED_LIST_TYPE;
+    public Set<String> getBlockLevelTags() {
+        return blockLevelTags;
     }
 
-    public Set<String> getINLINE_TAGS() {
-        return INLINE_TAGS;
+    public Set<String> getFlowTags() {
+        return flowTags;
     }
 
-    public Set<String> getBLOCK_LEVEL_TAGS() {
-        return BLOCK_LEVEL_TAGS;
+    public Set<String> getOtherTags() {
+        return otherTags;
     }
 
-    public Set<String> getFLOW_TAGS() {
-        return FLOW_TAGS;
+    public List<Tag> getAllTags() {
+        return allTags;
     }
 
-    public Set<String> getOTHER_TAGS() {
-        return OTHER_TAGS;
+    public Map<String, Tag> getAllTagsDict() {
+        return allTagsDict;
     }
 
-    public List<Tag> getTAGS() {
-        return TAGS;
-    }
-
-    public Map<String, Tag> getTAG_DICT() {
-        return TAG_DICT;
-    }
-
-    public Set<String> getTAG_NAMES() {
-        return TAG_NAMES;
+    public Set<String> getAllTagsNames() {
+        return allTagsNames;
     }
 }

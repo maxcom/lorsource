@@ -61,7 +61,7 @@ public class ListTag extends Tag{
         if(node.isParameter()){
            param = node.getParameter().trim().replaceAll("\"","");
         }
-        if(parser.getALLOWED_LIST_TYPE().contains(param)){
+        if(parser.getAllowedListParameters().contains(param)){
             ret.append("<ol type=\"");
             ret.append(param);
             ret.append("\">");

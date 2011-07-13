@@ -10,17 +10,13 @@ import java.sql.Connection;
  */
 public class ParserUtil {
 
-    private static final Parser parser = new Parser(Parser.flagRenderAll);
+    private static final Parser parserWithImages = new Parser(Parser.flagSupportImgTag);
 
     public static String bb2xhtml(String bbcode, Connection db){
-        return parser.parse(bbcode).renderXHtml(db);
+        return parserWithImages.parse(bbcode).renderXHtml(db);
     }
 
     public static String bb2xhtml(String bbcode, boolean renderCut, String cutUrl, Connection db){
-        return parser.parse(bbcode, renderCut, cutUrl).renderXHtml(db);
-    }
-
-    public static String correct(String bbcode){
-        return parser.parse(bbcode).renderBBCode();
+        return parserWithImages.parse(bbcode, renderCut, cutUrl).renderXHtml(db);
     }
 }

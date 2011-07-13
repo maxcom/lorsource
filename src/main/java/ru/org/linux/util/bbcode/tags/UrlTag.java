@@ -67,6 +67,9 @@ public class UrlTag extends Tag {
             url = txtNode.getText().trim();
         }
         String linkText = txtNode.getText().trim();
+        if(linkText == null || linkText.isEmpty()){
+            linkText = url;
+        }
         if(url.length() != 0){
             ret.append("<a href=\"");
             ret.append(Parser.escape(url));

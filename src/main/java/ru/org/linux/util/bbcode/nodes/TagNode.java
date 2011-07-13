@@ -54,7 +54,7 @@ public class TagNode extends Node{
 
     public TagNode(Node node, Parser parser, String name, String parameter){
         super(node, parser);
-        bbtag = parser.getTAG_DICT().get(name);
+        bbtag = parser.getAllTagsDict().get(name);
         this.parameter = parameter;
     }
 
