@@ -38,6 +38,8 @@
 
 package ru.org.linux.util.bbcode.nodes;
 
+import ru.org.linux.util.bbcode.Parser;
+
 /**
  * Created by IntelliJ IDEA.
  * User: hizel
@@ -46,8 +48,8 @@ package ru.org.linux.util.bbcode.nodes;
  * To change this template use File | Settings | File Templates.
  */
 public class EscapedTextNode extends TextNode{
-    public EscapedTextNode(Node node, String text){
-        super(node, text);
+    public EscapedTextNode(Node node, Parser parser, String text){
+        super(node, parser, text);
     }
 
     public String renderBBCode(){

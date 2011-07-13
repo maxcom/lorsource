@@ -10,7 +10,7 @@ import java.sql.Connection;
  */
 public class ParserUtil {
 
-    private static final Parser parser = new Parser();
+    private static final Parser parser = new Parser(Parser.flagRenderAll);
 
     public static String bb2xhtml(String bbcode, Connection db){
         return parser.parse(bbcode).renderXHtml(db);

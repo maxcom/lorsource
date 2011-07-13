@@ -38,6 +38,8 @@
 
 package ru.org.linux.util.bbcode.nodes;
 
+import ru.org.linux.util.bbcode.Parser;
+
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
@@ -52,12 +54,15 @@ public class Node {
     protected Node parent=null;
     protected List<Node> children;
     protected String parameter;
+    protected Parser parser;
 
-    public Node(){
+    public Node(Parser parser){
+        this.parser = parser;
         children = new ArrayList<Node>();
     }
 
-    public Node(Node parent){
+    public Node(Node parent, Parser parser){
+        this.parser = parser;
         this.parent = parent;
         children = new ArrayList<Node>();
     }

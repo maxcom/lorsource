@@ -51,8 +51,8 @@ import java.util.Set;
  * Time: 1:00 PM
  */
 public class CodeTag extends Tag{
-    public CodeTag(String name, Set<String> allowedChildren, String implicitTag){
-        super(name, allowedChildren, implicitTag);
+    public CodeTag(String name, Set<String> allowedChildren, String implicitTag, Parser parser){
+        super(name, allowedChildren, implicitTag, parser);
     }
     public String renderNodeXhtml(Node node, Connection db){
         StringBuilder ret = new StringBuilder();

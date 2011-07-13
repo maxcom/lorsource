@@ -56,8 +56,8 @@ public class HtmlEquivTag extends Tag {
     protected String htmlEquiv;
     protected Map<String, String> attributes;
 
-    public HtmlEquivTag(String name, Set<String> allowedChildren, String implicitTag){
-        super(name, allowedChildren, implicitTag);
+    public HtmlEquivTag(String name, Set<String> allowedChildren, String implicitTag, Parser parser){
+        super(name, allowedChildren, implicitTag, parser);
     }
 
     public void setHtmlEquiv(String htmlEquiv) {

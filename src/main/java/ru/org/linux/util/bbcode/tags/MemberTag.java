@@ -53,8 +53,8 @@ import java.util.Set;
  * Time: 12:27 AM
  */
 public class MemberTag extends Tag{
-    public MemberTag(String name, Set<String> allowedChildren, String implicitTag){
-        super(name, allowedChildren, implicitTag);
+    public MemberTag(String name, Set<String> allowedChildren, String implicitTag, Parser parser){
+        super(name, allowedChildren, implicitTag, parser);
     }
 
     public String renderNodeXhtml(Node node, Connection db){

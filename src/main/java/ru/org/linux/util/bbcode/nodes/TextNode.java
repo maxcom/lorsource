@@ -52,8 +52,8 @@ import java.sql.Connection;
 public class TextNode extends Node {
     protected String text;
 
-    public TextNode(Node parent, String text){
-        super(parent);
+    public TextNode(Node parent, Parser parser, String text){
+        super(parent, parser);
         this.text = text;
     }
 

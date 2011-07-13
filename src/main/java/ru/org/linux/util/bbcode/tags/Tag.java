@@ -38,6 +38,7 @@
 
 package ru.org.linux.util.bbcode.tags;
 
+import ru.org.linux.util.bbcode.Parser;
 import ru.org.linux.util.bbcode.nodes.Node;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
@@ -57,11 +58,13 @@ public class Tag {
     protected boolean selfClosing=false;
     protected Set<String> prohibitedElements;
     protected boolean discardable=false;
+    protected Parser parser;
 
-    public Tag(String name, Set<String> allowedChildren, String implicitTag){
+    public Tag(String name, Set<String> allowedChildren, String implicitTag, Parser parser){
         this.name = name;
         this.implicitTag = implicitTag;
         this.allowedChildren = allowedChildren;
+        this.parser = parser;
     }
 
     public void setProhibitedElements(Set<String> prohibitedElements) {

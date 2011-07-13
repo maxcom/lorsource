@@ -51,8 +51,8 @@ import java.util.Set;
  * Time: 12:34 PM
  */
 public class QuoteTag extends Tag {
-    public QuoteTag(String name, Set<String> allowedChildren, String implicitTag){
-        super(name, allowedChildren, implicitTag);
+    public QuoteTag(String name, Set<String> allowedChildren, String implicitTag, Parser parser){
+        super(name, allowedChildren, implicitTag, parser);
     }
     public String renderNodeXhtml(Node node, Connection db){
         StringBuilder ret = new StringBuilder();

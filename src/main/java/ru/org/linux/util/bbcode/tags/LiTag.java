@@ -38,6 +38,7 @@
 
 package ru.org.linux.util.bbcode.tags;
 
+import ru.org.linux.util.bbcode.Parser;
 import ru.org.linux.util.bbcode.nodes.Node;
 
 import java.util.Set;
@@ -49,8 +50,8 @@ import java.util.Set;
  * Time: 2:55 PM
  */
 public class LiTag extends HtmlEquivTag{
-    public LiTag(String name, Set<String> allowedChildren, String implicitTag){
-        super(name, allowedChildren, implicitTag);
+    public LiTag(String name, Set<String> allowedChildren, String implicitTag, Parser parser){
+        super(name, allowedChildren, implicitTag, parser);
         setHtmlEquiv("li");
     }
 

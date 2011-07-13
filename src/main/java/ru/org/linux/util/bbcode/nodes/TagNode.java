@@ -52,9 +52,9 @@ import java.sql.Connection;
 public class TagNode extends Node{
     protected Tag bbtag;
 
-    public TagNode(Node node, String name, String parameter){
-        super(node);
-        bbtag = Parser.TAG_DICT.get(name);
+    public TagNode(Node node, Parser parser, String name, String parameter){
+        super(node, parser);
+        bbtag = parser.getTAG_DICT().get(name);
         this.parameter = parameter;
     }
 

@@ -38,6 +38,7 @@
 
 package ru.org.linux.util.bbcode.tags;
 
+import ru.org.linux.util.bbcode.Parser;
 import ru.org.linux.util.bbcode.nodes.Node;
 
 import java.util.Set;
@@ -49,8 +50,8 @@ import java.util.Set;
  * Time: 11:45 AM
  */
 public class SoftBrTag extends Tag {
-    public SoftBrTag(String name, Set<String> allowedChildren, String implicitTag){
-        super(name, allowedChildren, implicitTag);
+    public SoftBrTag(String name, Set<String> allowedChildren, String implicitTag, Parser parser){
+        super(name, allowedChildren, implicitTag, parser);
     }
     public String renderNodeXhtml(Node node){
         if(node.getParent().allows("br")){

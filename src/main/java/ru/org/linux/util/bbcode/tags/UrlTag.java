@@ -51,8 +51,8 @@ import java.util.Set;
  * Time: 12:20 PM
  */
 public class UrlTag extends Tag {
-    public UrlTag(String name, Set<String> allowedChildren, String implicitTag){
-        super(name, allowedChildren, implicitTag);
+    public UrlTag(String name, Set<String> allowedChildren, String implicitTag, Parser parser){
+        super(name, allowedChildren, implicitTag, parser);
     }
     public String renderNodeXhtml(Node node){
         StringBuilder ret = new StringBuilder();

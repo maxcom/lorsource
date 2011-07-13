@@ -51,8 +51,8 @@ import java.util.Set;
  * Time: 10:07 PM
  */
 public class ListTag extends Tag{
-    public ListTag(String name, Set<String> allowedChildren, String implicitTag){
-        super(name, allowedChildren, implicitTag);
+    public ListTag(String name, Set<String> allowedChildren, String implicitTag, Parser parser){
+        super(name, allowedChildren, implicitTag, parser);
     }
 
     public String renderNodeXhtml(Node node, Connection db){
@@ -61,7 +61,7 @@ public class ListTag extends Tag{
         if(node.isParameter()){
            param = node.getParameter().trim().replaceAll("\"","");
         }
-        if(Parser.ALLOWED_LIST_TYPE.contains(param)){
+        if(parser.getALLOWED_LIST_TYPE().contains(param)){
             ret.append("<ol type=\"");
             ret.append(param);
             ret.append("\">");

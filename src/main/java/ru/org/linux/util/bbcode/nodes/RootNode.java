@@ -49,11 +49,9 @@ import java.sql.Connection;
  * Time: 3:01 PM
  */
 public class RootNode extends Node{
-    protected boolean allowInline;
 
-    public RootNode(boolean allowInline){
-        super();
-        this.allowInline = allowInline;
+    public RootNode(Parser parser){
+        super(parser);
     }
 
     public String renderXHtml(Connection db){
@@ -61,11 +59,7 @@ public class RootNode extends Node{
     }
 
     public boolean allows(String tagname){
-        if(allowInline){
-            return Parser.FLOW_TAGS.contains(tagname);
-        }else{
-            return Parser.BLOCK_LEVEL_TAGS.contains(tagname);
-        }
+        return parser.getBLOCK_LEVEL_TAGS().contains(tagname);
     }
 
     public String renderBBCode(){

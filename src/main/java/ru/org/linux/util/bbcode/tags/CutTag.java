@@ -38,6 +38,7 @@
 
 package ru.org.linux.util.bbcode.tags;
 
+import ru.org.linux.util.bbcode.Parser;
 import ru.org.linux.util.bbcode.nodes.Node;
 
 import java.sql.Connection;
@@ -54,8 +55,8 @@ public class CutTag extends HtmlEquivTag{
     private boolean renderCut;
     private String cutUrl;
 
-    public CutTag(String name, Set<String> allowedChildren, String implicitTag){
-        super(name, allowedChildren, implicitTag);
+    public CutTag(String name, Set<String> allowedChildren, String implicitTag, Parser parser){
+        super(name, allowedChildren, implicitTag, parser);
         renderCut = false;
         cutUrl = "";
     }
