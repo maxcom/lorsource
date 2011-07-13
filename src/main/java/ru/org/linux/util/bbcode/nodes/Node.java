@@ -38,6 +38,7 @@
 
 package ru.org.linux.util.bbcode.nodes;
 
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -94,7 +95,7 @@ public class Node {
         this.parameter = parameter;
     }
 
-    public String renderXHtml(){
+    public String renderXHtml(Connection db){
         assert false;
         return "";
     }
@@ -104,10 +105,10 @@ public class Node {
         return "";
     }
 
-    public String renderChildrenXHtml(){
+    public String renderChildrenXHtml(Connection db){
         StringBuilder stringBuilder = new StringBuilder();
         for( Node child : children){
-            stringBuilder.append(child.renderXHtml());
+            stringBuilder.append(child.renderXHtml(db));
         }
         return stringBuilder.toString();
     }

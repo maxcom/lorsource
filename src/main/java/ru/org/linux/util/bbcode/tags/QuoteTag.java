@@ -41,6 +41,7 @@ package ru.org.linux.util.bbcode.tags;
 import ru.org.linux.util.bbcode.Parser;
 import ru.org.linux.util.bbcode.nodes.Node;
 
+import java.sql.Connection;
 import java.util.Set;
 
 /**
@@ -53,7 +54,7 @@ public class QuoteTag extends Tag {
     public QuoteTag(String name, Set<String> allowedChildren, String implicitTag){
         super(name, allowedChildren, implicitTag);
     }
-    public String renderNodeXhtml(Node node){
+    public String renderNodeXhtml(Node node, Connection db){
         StringBuilder ret = new StringBuilder();
         if(!node.isParameter()){
             node.setParameter("");
@@ -66,11 +67,11 @@ public class QuoteTag extends Tag {
             ret.append("<h3>");
             ret.append(Parser.escape(node.getParameter().replaceAll("\"","")));
             ret.append("</h3>");
-            ret.append(node.renderChildrenXHtml());
+            ret.append(node.renderChildrenXHtml(db));
             ret.append("</div>");
         }else{
             ret.append("<div class=\"quote\">");
-            ret.append(node.renderChildrenXHtml());
+            ret.append(node.renderChildrenXHtml(db));
             ret.append("</div>");
         }
         return ret.toString();

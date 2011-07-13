@@ -41,6 +41,7 @@ package ru.org.linux.util.bbcode.tags;
 import ru.org.linux.util.bbcode.Parser;
 import ru.org.linux.util.bbcode.nodes.Node;
 
+import java.sql.Connection;
 import java.util.Set;
 
 /**
@@ -54,7 +55,7 @@ public class ListTag extends Tag{
         super(name, allowedChildren, implicitTag);
     }
 
-    public String renderNodeXhtml(Node node){
+    public String renderNodeXhtml(Node node, Connection db){
         StringBuilder ret = new StringBuilder();
         String param = null;
         if(node.isParameter()){
@@ -64,11 +65,11 @@ public class ListTag extends Tag{
             ret.append("<ol type=\"");
             ret.append(param);
             ret.append("\">");
-            ret.append(node.renderChildrenXHtml());
+            ret.append(node.renderChildrenXHtml(db));
             ret.append("</ol>");
         }else{
             ret.append("<ul>");
-            ret.append(node.renderChildrenXHtml());
+            ret.append(node.renderChildrenXHtml(db));
             ret.append("</ul>");
         }
         return ret.toString();

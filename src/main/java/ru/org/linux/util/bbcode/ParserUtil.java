@@ -1,7 +1,5 @@
 package ru.org.linux.util.bbcode;
 
-import org.apache.activemq.transport.stomp.Stomp;
-
 import java.sql.Connection;
 
 /**
@@ -14,12 +12,12 @@ public class ParserUtil {
 
     private static final Parser parser = new Parser();
 
-    public static String bb2xhtml(String bbcode){
-        return parser.parse(bbcode).renderXHtml();
+    public static String bb2xhtml(String bbcode, Connection db){
+        return parser.parse(bbcode).renderXHtml(db);
     }
 
-    public static String bb2xhtml(String bbcode, boolean renderCut, String cutUrl){
-        return parser.parse(bbcode, renderCut, cutUrl).renderXHtml();
+    public static String bb2xhtml(String bbcode, boolean renderCut, String cutUrl, Connection db){
+        return parser.parse(bbcode, renderCut, cutUrl).renderXHtml(db);
     }
 
     public static String correct(String bbcode){

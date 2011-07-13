@@ -41,6 +41,7 @@ package ru.org.linux.util.bbcode.tags;
 import ru.org.linux.util.bbcode.nodes.Node;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
+import java.sql.Connection;
 import java.util.Set;
 
 /**
@@ -77,6 +78,10 @@ public class Tag {
 
     public String renderNodeXhtml(Node node){
         throw new NotImplementedException();
+    }
+
+    public String renderNodeXhtml(Node node, Connection db){
+        return renderNodeXhtml(node);
     }
 
     public String renderNodeBBCode(Node node){

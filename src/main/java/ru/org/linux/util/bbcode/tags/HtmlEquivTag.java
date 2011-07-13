@@ -41,6 +41,7 @@ package ru.org.linux.util.bbcode.tags;
 import ru.org.linux.util.bbcode.Parser;
 import ru.org.linux.util.bbcode.nodes.Node;
 
+import java.sql.Connection;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -67,7 +68,7 @@ public class HtmlEquivTag extends Tag {
         this.attributes = attributes;
     }
 
-    public String renderNodeXhtml(Node node){
+    public String renderNodeXhtml(Node node, Connection db){
         StringBuilder opening = new StringBuilder(htmlEquiv);
         StringBuilder ret = new StringBuilder();
         if(attributes != null){
@@ -84,14 +85,14 @@ public class HtmlEquivTag extends Tag {
             }
         }
         if(htmlEquiv.isEmpty()){
-            ret.append(node.renderChildrenXHtml());
+            ret.append(node.renderChildrenXHtml(db));
         }else{
             if(selfClosing){
                 ret.append('<').append(opening).append("/>");
             }else{
                 if(node.lengthChildren() > 0){
                     ret.append('<').append(opening).append('>');
-                    ret.append(node.renderChildrenXHtml());
+                    ret.append(node.renderChildrenXHtml(db));
                     ret.append("</").append(htmlEquiv).append('>');
                 }
             }

@@ -41,6 +41,7 @@ package ru.org.linux.util.bbcode.tags;
 import ru.org.linux.util.bbcode.nodes.Node;
 import ru.org.linux.util.bbcode.nodes.TextNode;
 
+import java.sql.Connection;
 import java.util.Set;
 
 /**
@@ -54,7 +55,7 @@ public class ImgTag extends Tag {
         super(name, allowedChildren, implicitTag);
     }
 
-    public String renderNodeXhtml(Node node){
+    public String renderNodeXhtml(Node node, Connection db){
         StringBuilder ret = new StringBuilder();
         if(node.lengthChildren() == 0){
             return "";

@@ -15,20 +15,6 @@
 
 package ru.org.linux.site;
 
-import java.io.Serializable;
-import java.net.URLEncoder;
-import java.sql.*;
-import java.util.LinkedList;
-import java.util.List;
-
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-
-import org.apache.activemq.transport.stomp.Stomp;
-import ru.org.linux.spring.LoginController;
-import ru.org.linux.util.StringUtil;
-
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
@@ -37,6 +23,17 @@ import org.jasypt.exceptions.EncryptionOperationNotPossibleException;
 import org.jasypt.util.password.BasicPasswordEncryptor;
 import org.jasypt.util.password.PasswordEncryptor;
 import org.springframework.jdbc.support.JdbcUtils;
+import ru.org.linux.spring.LoginController;
+import ru.org.linux.util.StringUtil;
+
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import java.io.Serializable;
+import java.net.URLEncoder;
+import java.sql.*;
+import java.util.LinkedList;
+import java.util.List;
 
 public class User implements Serializable {
   private static final int ANONYMOUS_LEVEL_SCORE = 50;
@@ -467,26 +464,6 @@ public class User implements Serializable {
     }
 
     return deleted;
-  }
-
-  public static User getUser(String name){
-      Connection db = null;
-      User user = null;
-      try{
-          db = LorDataSource.getConnection();
-          user = getUser(db, name);
-      }catch (Exception ex){
-          // TODO как сделать чтобы не городить так?
-      }finally {
-          if(db != null){
-              try{
-              db.close();
-              }catch (Exception ex){
-                  // TODO как сделать чтобы не городить так?
-              }
-          }
-      }
-      return user;
   }
 
   public static User getUser(Connection con, String name) throws SQLException, UserNotFoundException {

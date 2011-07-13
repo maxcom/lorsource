@@ -41,6 +41,7 @@ package ru.org.linux.util.bbcode.tags;
 import ru.org.linux.util.bbcode.Parser;
 import ru.org.linux.util.bbcode.nodes.Node;
 
+import java.sql.Connection;
 import java.util.Set;
 
 /**
@@ -53,7 +54,7 @@ public class CodeTag extends Tag{
     public CodeTag(String name, Set<String> allowedChildren, String implicitTag){
         super(name, allowedChildren, implicitTag);
     }
-    public String renderNodeXhtml(Node node){
+    public String renderNodeXhtml(Node node, Connection db){
         StringBuilder ret = new StringBuilder();
         if(node.isParameter()){
             String lang = node.getParameter().trim();
@@ -62,7 +63,7 @@ public class CodeTag extends Tag{
         }else{
             ret.append("<div class=\"code\"><pre class=\"no-highlight\"><code>");
         }
-        ret.append(node.renderChildrenXHtml());
+        ret.append(node.renderChildrenXHtml(db));
         ret.append("</code></pre></div>");
         return ret.toString();
     }

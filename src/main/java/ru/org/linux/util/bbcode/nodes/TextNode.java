@@ -40,6 +40,8 @@ package ru.org.linux.util.bbcode.nodes;
 
 import ru.org.linux.util.bbcode.Parser;
 
+import java.sql.Connection;
+
 /**
  * Created by IntelliJ IDEA.
  * User: hizel
@@ -59,7 +61,7 @@ public class TextNode extends Node {
         return text;
     }
 
-    public String renderXHtml(){
+    public String renderXHtml(Connection db){
         return Parser.escape(text);
     }
 

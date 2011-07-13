@@ -43,6 +43,7 @@ import ru.org.linux.util.bbcode.Parser;
 import ru.org.linux.util.bbcode.nodes.Node;
 import ru.org.linux.util.bbcode.nodes.TextNode;
 
+import java.sql.Connection;
 import java.util.Set;
 
 /**
@@ -56,14 +57,29 @@ public class MemberTag extends Tag{
         super(name, allowedChildren, implicitTag);
     }
 
-    public String renderNodeXhtml(Node node){
+    public String renderNodeXhtml(Node node, Connection db){
         if(node.lengthChildren() == 0){
             return "";
         }
         TextNode txtNode = (TextNode)node.getChildren().iterator().next();
         String memberName = Parser.escape(txtNode.getText()).trim();
-        return Parser.getMemberLink(memberName);
+        String pattern;
+        try{
+            User user = User.getUser(db, memberName);
+            if(!user.isBlocked()){
+                pattern = "<span style=\"white-space: nowrap\"><img src=\"/img/tuxlor.png\"><a style=\"text-decoration: none\" href='/people/%s/profile'>%s</a></span>";
+            }else{
+                pattern = "<span style=\"white-space: nowrap\"><img src=\"/img/tuxlor.png\"><s><a style=\"text-decoration: none\" href='/people/%s/profile'>%s</a></s></span>";
+            }
+        }catch (Exception ex){
+            pattern = "<s>%s</s>";
+        }
+        return String.format(pattern, Parser.escape(memberName), Parser.escape(memberName));
 
+    }
+
+    public String renderNodeXhtml(Node node){
+        return renderNodeXhtml(node, null); // TODO там мы эксцепшн то перехватим? :-)
     }
 
 }

@@ -44,6 +44,7 @@ import ru.org.linux.site.User;
 import ru.org.linux.util.bbcode.nodes.*;
 import ru.org.linux.util.bbcode.tags.*;
 
+import java.sql.Connection;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -253,23 +254,6 @@ public class Parser {
                 .replace("\"", "&quot;");
     }
 
-    public static String getMemberLink(String name){
-        User user = User.getUser(name);
-        String pattern;
-        if(user == null){
-            pattern = "<s>%s</s>";
-        }else{
-            if(!user.isBlocked()){
-                pattern = "<span style=\"white-space: nowrap\"><img src=\"/img/tuxlor.png\"><a style=\"text-decoration: none\" href='/people/%s/profile'>%s</a></span>";
-            }else{
-                pattern = "<span style=\"white-space: nowrap\"><img src=\"/img/tuxlor.png\"><s><a style=\"text-decoration: none\" href='/people/%s/profile'>%s</a></s></span>";
-            }
-        }
-        return String.format(pattern, name, name);
-    }
-
-
-
     protected boolean rootAllowsInline;
 
     public Parser(boolean rootAllowsInline){
@@ -446,8 +430,8 @@ public class Parser {
         return rootNode;
     }
 
-    public String renderXHtml(RootNode rootNode){
-        return rootNode.renderXHtml();
+    public String renderXHtml(RootNode rootNode, Connection db){
+        return rootNode.renderXHtml(db);
     }
 
     public String renderBBCode(RootNode rootNode){

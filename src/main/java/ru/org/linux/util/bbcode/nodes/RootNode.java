@@ -40,6 +40,8 @@ package ru.org.linux.util.bbcode.nodes;
 
 import ru.org.linux.util.bbcode.Parser;
 
+import java.sql.Connection;
+
 /**
  * Created by IntelliJ IDEA.
  * User: hizel
@@ -54,8 +56,8 @@ public class RootNode extends Node{
         this.allowInline = allowInline;
     }
 
-    public String renderXHtml(){
-        return renderChildrenXHtml();
+    public String renderXHtml(Connection db){
+        return renderChildrenXHtml(db);
     }
 
     public boolean allows(String tagname){
