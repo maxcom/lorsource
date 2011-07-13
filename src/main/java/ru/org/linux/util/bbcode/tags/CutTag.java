@@ -69,7 +69,7 @@ public class CutTag extends HtmlEquivTag{
         if(renderCut){
             return super.renderNodeXhtml(node, db);
         }else{
-            return "<a href=\""+cutUrl+"\">Подробности</a>";
+            return "<p><a href=\""+cutUrl+"\">Подробности</a></p>";
         }
     }
 }

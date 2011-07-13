@@ -38,8 +38,6 @@
 
 package ru.org.linux.util.bbcode;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import ru.org.linux.util.bbcode.nodes.*;
 import ru.org.linux.util.bbcode.tags.*;
 
@@ -56,9 +54,6 @@ import java.util.regex.Pattern;
  * Time: 1:18 PM
  */
 public class Parser {
-	
-	private static final Log log = LogFactory.getLog(Parser.class);
-
     public static Set<String> INLINE_TAGS;
     public static Set<String> BLOCK_LEVEL_TAGS;
     public static Set<String> FLOW_TAGS;
@@ -264,8 +259,6 @@ public class Parser {
     }
 
     private Node pushTextNode(Node currentNode, String text, boolean escaped){
-		log.debug("push text:"+text);
-
         if(!currentNode.allows("text")){
             if(text.trim().length() == 0){
                 if(escaped){
@@ -319,7 +312,6 @@ public class Parser {
     }
 
     private Node pushTagNode(RootNode rootNode, Node currentNode, String name, String parameter, boolean renderCut, String cutUrl){
-		log.debug("push tag node:"+name);
         if(!currentNode.allows(name)){
             Tag newTag = TAG_DICT.get(name);
 
@@ -335,7 +327,6 @@ public class Parser {
         }else{
             TagNode node = new TagNode(currentNode, name, parameter);
             if("cut".equals(name)){
-                log.debug("cut: "+renderCut+" url:"+cutUrl);
                 ((CutTag)(node.getBbtag())).setRenderOptions(renderCut, cutUrl);
             }
             currentNode.getChildren().add(node);
@@ -347,7 +338,6 @@ public class Parser {
     }
 
     private Node closeTagNode(RootNode rootNode, Node currentNode, String name){
-		log.debug("close tag node:"+name);		
         Node tempNode = currentNode;
         while (true){
             if(tempNode == rootNode){
@@ -394,7 +384,6 @@ public class Parser {
                 }else{
                     if(parameter != null && parameter.length() > 0){
                         parameter = parameter.substring(1);
-                        log.debug("parameter:"+parameter);
                     }
                     if(TAG_NAMES.contains(tagname)){
                         if(wholematch.startsWith("[[")){
