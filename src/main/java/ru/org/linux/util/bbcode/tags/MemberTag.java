@@ -61,7 +61,7 @@ public class MemberTag extends Tag{
             return "";
         }
         TextNode txtNode = (TextNode)node.getChildren().iterator().next();
-        String memberName = Parser.escape(txtNode.getText()).trim().toLowerCase();
+        String memberName = Parser.escape(txtNode.getText()).trim();
         return Parser.getMemberLink(memberName);
 
     }

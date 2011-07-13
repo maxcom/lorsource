@@ -83,14 +83,17 @@ public class HtmlEquivTag extends Tag {
                 opening.append(' ');
             }
         }
-
-        if(selfClosing){
-            ret.append('<').append(opening).append("/>");
+        if(htmlEquiv.isEmpty()){
+            ret.append(node.renderChildrenXHtml());
         }else{
-            if(node.lengthChildren() > 0){
-                ret.append('<').append(opening).append('>');
-                ret.append(node.renderChildrenXHtml());
-                ret.append("</").append(htmlEquiv).append('>');
+            if(selfClosing){
+                ret.append('<').append(opening).append("/>");
+            }else{
+                if(node.lengthChildren() > 0){
+                    ret.append('<').append(opening).append('>');
+                    ret.append(node.renderChildrenXHtml());
+                    ret.append("</").append(htmlEquiv).append('>');
+                }
             }
         }
         return ret.toString();

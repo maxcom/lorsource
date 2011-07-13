@@ -38,17 +38,15 @@
 
 package ru.org.linux.util.bbcode;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import ru.org.linux.site.User;
 import ru.org.linux.util.bbcode.nodes.*;
 import ru.org.linux.util.bbcode.tags.*;
 
-import java.sql.Connection;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 
 /**
@@ -122,7 +120,7 @@ public class Parser {
 
         TAGS = new ArrayList<Tag>();
         { // <br/>
-            HtmlEquivTag tag = new HtmlEquivTag("br", new HashSet<String>(), "p");
+            HtmlEquivTag tag = new HtmlEquivTag("br", new HashSet<String>(), "div");
             tag.setSelfClosing(true);
             //tag.setDiscardable(true);
             tag.setHtmlEquiv("br");
@@ -130,51 +128,51 @@ public class Parser {
         }
         { // <br/>, but can adapt during render ?
             Set<String> children = new HashSet<String>();
-            SoftBrTag tag = new SoftBrTag("softbr", children,"p");
+            SoftBrTag tag = new SoftBrTag("softbr", children,"div");
             tag.setSelfClosing(true);
             tag.setDiscardable(true);
             TAGS.add(tag);
         }
         { // <b>
-            HtmlEquivTag tag = new HtmlEquivTag("b", INLINE_TAGS, "p");
+            HtmlEquivTag tag = new HtmlEquivTag("b", INLINE_TAGS, "div");
             tag.setHtmlEquiv("b");
             TAGS.add(tag);
         }
         { // <i>
-            HtmlEquivTag tag = new HtmlEquivTag("i", INLINE_TAGS, "p");
+            HtmlEquivTag tag = new HtmlEquivTag("i", INLINE_TAGS, "div");
             tag.setHtmlEquiv("i");
             TAGS.add(tag);
         }
         { // <u> TODO Allert: The U tag has been deprecated in favor of the text-decoration style property.
-            HtmlEquivTag tag = new HtmlEquivTag("u", INLINE_TAGS, "p");
+            HtmlEquivTag tag = new HtmlEquivTag("u", INLINE_TAGS, "div");
             tag.setHtmlEquiv("u");
             TAGS.add(tag);
         }
         { // <s> TODO Allert: The S tag has been deprecated in favor of the text-decoration style property.
-            HtmlEquivTag tag = new HtmlEquivTag("s", INLINE_TAGS, "p");
+            HtmlEquivTag tag = new HtmlEquivTag("s", INLINE_TAGS, "div");
             tag.setHtmlEquiv("s");
             TAGS.add(tag);
         }
         { // <em>
-            HtmlEquivTag tag = new HtmlEquivTag("em", INLINE_TAGS, "p");
+            HtmlEquivTag tag = new HtmlEquivTag("em", INLINE_TAGS, "div");
             tag.setHtmlEquiv("em");
             TAGS.add(tag);
         }
         { // <strong>
-            HtmlEquivTag tag = new HtmlEquivTag("strong", INLINE_TAGS, "p");
+            HtmlEquivTag tag = new HtmlEquivTag("strong", INLINE_TAGS, "div");
             tag.setHtmlEquiv("strong");
             TAGS.add(tag);
         }
         { // <a>
             Set<String> el = new HashSet<String>();
             el.add("text");
-            UrlTag tag = new UrlTag("url", el, "p");
+            UrlTag tag = new UrlTag("url", el, "div");
             TAGS.add(tag);
         }
         { // <a> member
             Set<String> el = new HashSet<String>();
             el.add("text");
-            MemberTag tag = new MemberTag("user", el, "p");
+            MemberTag tag = new MemberTag("user", el, "div");
             TAGS.add(tag);
         }
         { // <p>
@@ -184,14 +182,14 @@ public class Parser {
         }
         { // <div>
             HtmlEquivTag tag = new HtmlEquivTag("div", FLOW_TAGS, null);
-            tag.setHtmlEquiv("div");
+            tag.setHtmlEquiv("");
             TAGS.add(tag);
         }
         { // <blockquote>
             Set<String> el = new HashSet<String>();
             el.addAll(BLOCK_LEVEL_TAGS);
             el.add("softbr");
-            QuoteTag tag = new QuoteTag("quote", el, null);
+            QuoteTag tag = new QuoteTag("quote", el, "div");
             TAGS.add(tag);
         }
         { // <ul>
@@ -293,8 +291,8 @@ public class Parser {
                     currentNode.getChildren().add(new TextNode(currentNode, text));
                 }
             }else{
-                if(currentNode.allows("p")){
-                    currentNode.getChildren().add(new TagNode(currentNode,"p", ""));
+                if(currentNode.allows("div")){
+                    currentNode.getChildren().add(new TagNode(currentNode,"div", ""));
                     currentNode = descend(currentNode);
                 }else{
                     currentNode = ascend(currentNode);
