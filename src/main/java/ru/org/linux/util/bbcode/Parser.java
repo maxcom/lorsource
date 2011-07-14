@@ -42,7 +42,6 @@ import com.google.common.collect.ImmutableSet;
 import ru.org.linux.util.bbcode.nodes.*;
 import ru.org.linux.util.bbcode.tags.*;
 
-import java.lang.reflect.Array;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -148,7 +147,7 @@ public class Parser {
             allTags.add(tag);
         }
         { // <a>
-            UrlTag tag = new UrlTag("url", ImmutableSet.<String>of("text"), "div", this);
+            UrlTag tag = new UrlTag("url", flowTags, "div", this);
             allTags.add(tag);
         }
         { // <a> member

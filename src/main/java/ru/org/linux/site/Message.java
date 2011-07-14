@@ -796,7 +796,7 @@ public class Message implements Serializable {
 
         builder.append("<div style=\"display:inline-block;width:99%\"><div style=\"float:left;width:49%;display:inline-block\">");
         builder.append(proc.preparePostText(db, message));
-        builder.append("</div><div>");
+        builder.append("</div><div style=\"float:left;width:49%;display:inline-block\">");
         builder.append(ParserUtil.bb2xhtml(message, includeCut, getLink(), db));
         builder.append("</div></div>");
         return builder.toString();

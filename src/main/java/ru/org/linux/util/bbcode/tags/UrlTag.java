@@ -38,10 +38,13 @@
 
 package ru.org.linux.util.bbcode.tags;
 
+import org.springframework.web.util.UriUtils;
 import ru.org.linux.util.bbcode.Parser;
 import ru.org.linux.util.bbcode.nodes.Node;
 import ru.org.linux.util.bbcode.nodes.TextNode;
 
+import java.io.UnsupportedEncodingException;
+import java.sql.Connection;
 import java.util.Set;
 
 /**
@@ -54,28 +57,41 @@ public class UrlTag extends Tag {
     public UrlTag(String name, Set<String> allowedChildren, String implicitTag, Parser parser){
         super(name, allowedChildren, implicitTag, parser);
     }
-    public String renderNodeXhtml(Node node){
+    public String renderNodeXhtml(Node node, Connection db){
         StringBuilder ret = new StringBuilder();
         String url;
         if(node.lengthChildren() == 0){
             return "";
         }
-        TextNode txtNode = (TextNode)node.getChildren().iterator().next();
-        if(node.isParameter()){
+
+        if(node.isParameter()){ // если url с параметрами и рендерим всех его детишек
             url = node.getParameter().trim();
+            if(url.length() != 0){
+                ret.append("<a href=\"");
+                ret.append(Parser.escape(url));
+                ret.append("\">");
+                ret.append(node.renderChildrenXHtml(db));
+                ret.append("</a>");
+            }
         }else{
-            url = txtNode.getText().trim();
-        }
-        String linkText = txtNode.getText().trim();
-        if(linkText == null || linkText.isEmpty()){
-            linkText = url;
-        }
-        if(url.length() != 0){
-            ret.append("<a href=\"");
-            ret.append(Parser.escape(url));
-            ret.append("\">");
-            ret.append(Parser.escape(linkText));
-            ret.append("</a>");
+            Node childNode = node.getChildren().iterator().next();
+            // если url без параметров то проверяем что первый детишко текст и его считаем url, остальное игнорируем
+            // нет так не пойдет
+            // берем всех
+            if(TextNode.class.isInstance(childNode)){
+                TextNode txtNode = (TextNode)childNode;
+                url = txtNode.getText().trim();
+                try{
+                    ret.append("<a href=\"");
+                    ret.append(UriUtils.encodeQuery(url, "UTF-8"));
+                    ret.append("\">");
+                    ret.append(UriUtils.encodeQuery(url, "UTF-8"));
+                    ret.append("</a>");
+                }catch (UnsupportedEncodingException e){
+                    ret.append(Parser.escape(url));
+
+                }
+            }
         }
         return ret.toString();
     }

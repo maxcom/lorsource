@@ -3,6 +3,8 @@ package ru.org.linux.util.bbcode;
 import junit.framework.Assert;
 import org.junit.Test;
 
+import org.apache.commons.httpclient.util.URIUtil;
+
 /**
  * Created by IntelliJ IDEA.
  * User: hizel
@@ -35,6 +37,15 @@ public class OldParseTest {
     @Test
     public void codeEscapeTest(){
         Assert.assertEquals(ParserUtil.bb2xhtml("[code]\"code&code\"[/code]", null), "<div class=\"code\"><pre class=\"no-highlight\"><code>&quot;code&amp;code&quot;</code></pre></div>");
+    }
+
+    @Test
+    public void uriTest(){
+        try{
+            Assert.assertEquals(URIUtil.encodeQuery("http://search.barnesandnoble.com/booksearch/first book.pdf"), "http://search.barnesandnoble.com/booksearch/first%20book.pdf");
+        }catch (Exception ex){
+            Assert.assertFalse(true);
+        }
     }
 
 }

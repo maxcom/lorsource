@@ -38,6 +38,7 @@
 
 package ru.org.linux.util.bbcode.tags;
 
+import org.springframework.web.util.UriUtils;
 import ru.org.linux.util.bbcode.Parser;
 import ru.org.linux.util.bbcode.nodes.Node;
 import ru.org.linux.util.bbcode.nodes.TextNode;
@@ -65,10 +66,18 @@ public class ImgTag extends Tag {
         String imgurl = txtNode.getText();
         if(node.getParent().allows("img")){
             ret.append("<img src=\"");
-            ret.append(imgurl); // TODO need escape
+            try{
+                ret.append(UriUtils.encodeQuery(imgurl, "UTF-8"));
+            }catch (Exception ex){
+                ret.append(imgurl);
+            }
             ret.append("\"/>");
         }else{
-            ret.append(imgurl); // TODO need escape
+            try{
+                ret.append(UriUtils.encodeQuery(imgurl, "UTF-8"));
+            }catch (Exception ex){
+                ret.append(Parser.escape(imgurl));
+            }
         }
         return ret.toString();
     }

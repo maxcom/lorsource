@@ -15,12 +15,15 @@
 
 package ru.org.linux.site;
 
-import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.javabb.bbcode.BBCodeProcessor;
 import ru.org.linux.util.bbcode.ParserUtil;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class PreparedComment {
   private final Comment comment;
@@ -79,7 +82,7 @@ public class PreparedComment {
 
         builder.append("<div style=\"display:inline-block;width:99%\"><div style=\"float:left;width:49%;display:inline-block\">");
         builder.append(proc.preparePostText(db, text));
-        builder.append("</div><div>");
+        builder.append("</div><div style=\"float:left;width:49%;display:inline-block\">");
         builder.append(ParserUtil.bb2xhtml(text, true, "", db));
         builder.append("</div></div>");
 
@@ -95,7 +98,7 @@ public class PreparedComment {
 
       builder.append("<div style=\"display:inline-block;width:99%\"><div style=\"float:left;width:49%;display:inline-block\">");
       builder.append(proc.preparePostText(db, message));
-      builder.append("</div><div>");
+      builder.append("</div><div style=\"float:left;width:49%;display:inline-block\">");
       builder.append(ParserUtil.bb2xhtml(message, true, "", db));
       builder.append("</div></div>");
       return builder.toString();
