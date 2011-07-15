@@ -17,6 +17,8 @@ package ru.org.linux.site;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.sql.*;
 import java.util.List;
 
@@ -78,6 +80,7 @@ public class Message implements Serializable {
   public static final int POSTSCORE_UNRESTRICTED = -9999;
   public static final int POSTSCORE_MODERATORS_ONLY = 10000;
   public static final int POSTSCORE_REGISTERED_ONLY = -50;
+  private static final String UTF8 = "UTF-8";
 
   public Message(Connection db, int msgid) throws SQLException, MessageNotFoundException {
     this(db, null, msgid);
@@ -845,7 +848,11 @@ public class Message implements Serializable {
   }
 
   public String getLink() {
-    return Section.getSectionLink(sectionid) + groupUrl + '/' + msgid;
+    try {
+      return Section.getSectionLink(sectionid) + URLEncoder.encode(groupUrl, UTF8) + '/' + msgid;
+    } catch (UnsupportedEncodingException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   public String getLinkPage(int page) {
@@ -853,7 +860,11 @@ public class Message implements Serializable {
       return getLink();
     }
 
-    return Section.getSectionLink(sectionid) + groupUrl + '/' + msgid + "/page" + page;
+    try {
+      return Section.getSectionLink(sectionid) + URLEncoder.encode(groupUrl, UTF8) + '/' + msgid + "/page" + page;
+    } catch (UnsupportedEncodingException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   public void commit(Connection db, User commiter, int bonus) throws SQLException, UserErrorException {
