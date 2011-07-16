@@ -41,6 +41,7 @@ package ru.org.linux.util.bbcode;
 import com.google.common.collect.ImmutableSet;
 import ru.org.linux.util.bbcode.nodes.*;
 import ru.org.linux.util.bbcode.tags.*;
+import ru.org.linux.util.HTMLFormatter;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -147,7 +148,7 @@ public class Parser {
             allTags.add(tag);
         }
         { // <a>
-            UrlTag tag = new UrlTag("url", flowTags, "div", this);
+            UrlTag tag = new UrlTag("url", ImmutableSet.<String>of("text"), "div", this);
             allTags.add(tag);
         }
         { // <a> member
@@ -211,11 +212,7 @@ public class Parser {
     }
 
     public static String escape(String html){
-        return html
-                .replace("&", "&amp;")
-                .replace("<","&lt;")
-                .replace(">","&gt;")
-                .replace("\"", "&quot;");
+        return HTMLFormatter.htmlSpecialChars(html);
     }
 
     protected boolean rootAllowsInline;

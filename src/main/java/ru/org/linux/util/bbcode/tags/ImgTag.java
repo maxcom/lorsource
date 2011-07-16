@@ -39,6 +39,7 @@
 package ru.org.linux.util.bbcode.tags;
 
 import org.springframework.web.util.UriUtils;
+import ru.org.linux.util.URLUtil;
 import ru.org.linux.util.bbcode.Parser;
 import ru.org.linux.util.bbcode.nodes.Node;
 import ru.org.linux.util.bbcode.nodes.TextNode;
@@ -64,20 +65,15 @@ public class ImgTag extends Tag {
         }
         TextNode txtNode = (TextNode)node.getChildren().iterator().next();
         String imgurl = txtNode.getText();
-        if(node.getParent().allows("img")){
+        try{
+            String fixUrl = UriUtils.encodeQuery(URLUtil.fixURL(imgurl), "UTF-8");
             ret.append("<img src=\"");
-            try{
-                ret.append(UriUtils.encodeQuery(imgurl, "UTF-8"));
-            }catch (Exception ex){
-                ret.append(imgurl);
-            }
+            ret.append(UriUtils.encodeQuery(fixUrl, "UTF-8"));
             ret.append("\"/>");
-        }else{
-            try{
-                ret.append(UriUtils.encodeQuery(imgurl, "UTF-8"));
-            }catch (Exception ex){
-                ret.append(Parser.escape(imgurl));
-            }
+        }catch (Exception ex){
+            ret.append("<s>");
+            ret.append(Parser.escape(imgurl));
+            ret.append("</s>");
         }
         return ret.toString();
     }

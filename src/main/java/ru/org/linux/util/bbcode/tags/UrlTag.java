@@ -39,6 +39,7 @@
 package ru.org.linux.util.bbcode.tags;
 
 import org.springframework.web.util.UriUtils;
+import ru.org.linux.util.URLUtil;
 import ru.org.linux.util.bbcode.Parser;
 import ru.org.linux.util.bbcode.nodes.Node;
 import ru.org.linux.util.bbcode.nodes.TextNode;
@@ -63,36 +64,30 @@ public class UrlTag extends Tag {
         if(node.lengthChildren() == 0){
             return "";
         }
-
-        if(node.isParameter()){ // если url с параметрами и рендерим всех его детишек
-            url = node.getParameter().trim();
-            if(url.length() != 0){
-                ret.append("<a href=\"");
-                ret.append(Parser.escape(url));
-                ret.append("\">");
-                ret.append(node.renderChildrenXHtml(db));
-                ret.append("</a>");
-            }
+        // Внцтри [url] только текст
+        TextNode txtNode = (TextNode)node.getChildren().iterator().next();
+        if(node.isParameter()){
+          url = node.getParameter().trim();
         }else{
-            Node childNode = node.getChildren().iterator().next();
-            // если url без параметров то проверяем что первый детишко текст и его считаем url, остальное игнорируем
-            // нет так не пойдет
-            // берем всех
-            if(TextNode.class.isInstance(childNode)){
-                TextNode txtNode = (TextNode)childNode;
-                url = txtNode.getText().trim();
-                try{
-                    ret.append("<a href=\"");
-                    ret.append(UriUtils.encodeQuery(url, "UTF-8"));
-                    ret.append("\">");
-                    ret.append(UriUtils.encodeQuery(url, "UTF-8"));
-                    ret.append("</a>");
-                }catch (UnsupportedEncodingException e){
-                    ret.append(Parser.escape(url));
-
-                }
-            }
+          url = txtNode.getText().trim();
         }
+        String linkText = txtNode.getText().trim();
+        if(linkText == null || linkText.isEmpty()){
+          linkText = url;
+        }
+        try{
+          String escapedUrl = URLUtil.fixURL(url);
+          ret.append("<a href=\"");
+          ret.append(escapedUrl);
+          ret.append("\">");
+          ret.append(Parser.escape(linkText));
+          ret.append("</a>");
+        }catch(Exception ex){
+          ret.append("<s>");
+          ret.append(Parser.escape(url));
+          ret.append("</s>");
+        }
+
         return ret.toString();
     }
 
