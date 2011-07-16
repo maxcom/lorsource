@@ -73,6 +73,7 @@ public class Parser {
     private ImmutableSet<String> flowTags;
     private ImmutableSet<String> otherTags;
     private ImmutableSet<String> anchorTags;
+    private ImmutableSet<String> autoLinkTags;
 
     private ImmutableSet<String> allowedListParameters;
 
@@ -90,6 +91,9 @@ public class Parser {
 
         //Блочные тэги
         blockLevelTags = ImmutableSet.of("p", "quote", "list", "pre", "code", "div", "cut");
+
+        //Тэги в которых разрешен автоматическое выделение ссылок
+        autoLinkTags = ImmutableSet.of("b", "i", "u", "s", "em", "strong", "p", "quote", "div", "cut");
 
         // Все тэги кроме специальных
         flowTags = new ImmutableSet.Builder<String>()
@@ -416,5 +420,9 @@ public class Parser {
 
     public Set<String> getAllTagsNames() {
         return allTagsNames;
+    }
+
+    public ImmutableSet<String> getAutoLinkTags() {
+        return autoLinkTags;
     }
 }

@@ -38,6 +38,10 @@
 
 package ru.org.linux.util.bbcode.nodes;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import ru.org.linux.spring.SolrOptimizer;
+import ru.org.linux.util.HTMLFormatter;
 import ru.org.linux.util.bbcode.Parser;
 
 import java.sql.Connection;
@@ -47,9 +51,9 @@ import java.sql.Connection;
  * User: hizel
  * Date: 6/30/11
  * Time: 11:57 AM
- * To change this template use File | Settings | File Templates.
  */
 public class TextNode extends Node {
+    private static final Log logger = LogFactory.getLog(TextNode.class);
     protected String text;
 
     public TextNode(Node parent, Parser parser, String text){
@@ -62,6 +66,18 @@ public class TextNode extends Node {
     }
 
     public String renderXHtml(Connection db){
+        logger.debug("enter render html:"+text);
+        if(TagNode.class.isInstance(parent)){
+            logger.debug("parent allow");
+            TagNode tagNode = (TagNode)parent;
+            if(parser.getAutoLinkTags().contains(tagNode.bbtag.getName())){
+                logger.debug("run formatter");
+                HTMLFormatter formatter = new HTMLFormatter(text);
+                formatter.enableUrlHighLightMode();
+                return formatter.process();
+
+            }
+        }
         return Parser.escape(text);
     }
 
