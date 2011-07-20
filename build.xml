@@ -159,11 +159,6 @@
 		<fileset file="${dist}/tango/style.css"/>
 	</concat>
 
-	<concat destfile="${dist}/tango/combined-mobile.css">
-		<fileset file="${dist}/tango/syntax.css"/>
-		<fileset file="${dist}/tango/style-mobile.css"/>
-		<fileset file="${dist}/tango/tango-dark.css"/>
-	</concat>
 	<concat destfile="${dist}/black/combined.css">
 		<fileset file="${dist}/black/style.css"/>
 		<fileset file="${dist}/black/ir_black.css"/>
