@@ -101,12 +101,8 @@
              includes="ru/org/linux/util/*,ru/org/linux/storage/*,ru/org/linux/cache/*,ru/org/linux/boxlet/*,ru/org/linux/logger/*,org/**,com/**"/>
         <jar jarfile="${dist}/WEB-INF/lib/lnxorgsite.jar" basedir="${build}"
              includes="ru/org/linux/site/**,ru/org/linux/spring/**,log4j.properties,ehcache.xml"/>
-        <copy todir="${dist}/WEB-INF">
-            <fileset dir="web/WEB-INF"/>
-        </copy>
-        <copy todir="${dist}">
-            <fileset dir="web" includes="*.jsp"/>
-            <fileset dir="html"/>
+        <copy todir="${dist}/">
+            <fileset dir="src/main/webapp/"/>
         </copy>
         <copy todir="${dist}/WEB-INF/lib">
             <fileset dir="${lib.dir}/build" includes="*.jar"/>
@@ -123,7 +119,7 @@
 
 	<apply executable="java" parallel="false" verbose="true"
                               dest="${dist}">
-             <fileset dir="html">
+             <fileset dir="src/main/webapp">
              	<include name="js/*.js"/>
              </fileset>
              <arg line="-jar"/>
@@ -147,7 +143,7 @@
 
 	<apply executable="java" parallel="false" verbose="true"
                               dest="${dist}">
-             <fileset dir="html" includes="**/*.css"/>
+             <fileset dir="src/main/webapp" includes="**/*.css"/>
              <arg line="-jar"/>
              <arg path="ivy-lib/compile-only/yuicompressor-2.3.6.jar"/>
              <arg line="--type css"/>
