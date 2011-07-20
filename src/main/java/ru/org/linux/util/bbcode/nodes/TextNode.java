@@ -53,7 +53,6 @@ import java.sql.Connection;
  * Time: 11:57 AM
  */
 public class TextNode extends Node {
-    private static final Log logger = LogFactory.getLog(TextNode.class);
     protected String text;
 
     public TextNode(Node parent, Parser parser, String text){
@@ -66,12 +65,9 @@ public class TextNode extends Node {
     }
 
     public String renderXHtml(Connection db){
-        logger.debug("enter render html:"+text);
         if(TagNode.class.isInstance(parent)){
-            logger.debug("parent allow");
             TagNode tagNode = (TagNode)parent;
             if(parser.getAutoLinkTags().contains(tagNode.bbtag.getName())){
-                logger.debug("run formatter");
                 HTMLFormatter formatter = new HTMLFormatter(text);
                 formatter.enableUrlHighLightMode();
                 return formatter.process();

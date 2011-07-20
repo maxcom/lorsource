@@ -250,8 +250,8 @@ public class Parser {
             }
 
             if(matcher.find() && !isCode){
-				currentNode = pushTextNode(currentNode, text.substring(0, matcher.start()), false);
-				currentNode = ascend(currentNode);
+		currentNode = pushTextNode(currentNode, text.substring(0, matcher.start()), false);
+		currentNode = ascend(currentNode);
                 currentNode.getChildren().add(new TagNode(currentNode, this, "p", " "));
                 currentNode = descend(currentNode);
                 currentNode = pushTextNode(currentNode, text.substring(matcher.end()), false);

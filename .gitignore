@@ -5,5 +5,4 @@ ivy-lib
 build-test
 *~
 *.swp
-lorsource.*
-*.iml
+

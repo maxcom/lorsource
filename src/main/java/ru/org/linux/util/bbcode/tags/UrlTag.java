@@ -58,6 +58,8 @@ public class UrlTag extends Tag {
     public UrlTag(String name, Set<String> allowedChildren, String implicitTag, Parser parser){
         super(name, allowedChildren, implicitTag, parser);
     }
+
+    @Override
     public String renderNodeXhtml(Node node, Connection db){
         StringBuilder ret = new StringBuilder();
         String url;

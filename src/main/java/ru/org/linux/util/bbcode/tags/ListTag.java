@@ -50,14 +50,18 @@ import java.util.Set;
  * Date: 7/12/11
  * Time: 10:07 PM
  */
-public class ListTag extends Tag{
+public class ListTag extends HtmlEquivTag{
     public ListTag(String name, Set<String> allowedChildren, String implicitTag, Parser parser){
         super(name, allowedChildren, implicitTag, parser);
+        setHtmlEquiv("ul");
     }
 
     public String renderNodeXhtml(Node node, Connection db){
         StringBuilder ret = new StringBuilder();
         String param = null;
+        if(node.lengthChildren() == 0){
+          return "";
+        }
         if(node.isParameter()){
            param = node.getParameter().trim().replaceAll("\"","");
         }
