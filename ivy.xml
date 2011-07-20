@@ -54,6 +54,7 @@
         <dependency org="spy" name="memcached" rev="2.5" conf="build->default"/>
         <dependency org="org.apache.solr" name="solr-solrj" rev="3.2.0" conf="build->default">
             <exclude module="mail"/>
+            <exclude module="zookeeper"/>
         </dependency>
         <dependency org="org.slf4j" name="slf4j-jcl" rev="1.6.1" conf="build->default"/>
         <dependency org="org.apache.activemq" name="activemq-core" rev="5.4.2"
