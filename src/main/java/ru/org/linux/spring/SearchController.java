@@ -155,6 +155,14 @@ public class SearchController {
         params.put("searchTime", response.getElapsedTime());
         params.put("numFound", list.getNumFound());
 
+        if (list.getNumFound()>query.getOffset() + SearchViewer.SEARCH_ROWS) {
+          params.put("nextLink", "/search.jsp?"+query.getQuery(query.getOffset()+SearchViewer.SEARCH_ROWS));
+        }
+
+        if (query.getOffset() - SearchViewer.SEARCH_ROWS >= 0) {
+          params.put("prevLink", "/search.jsp?"+query.getQuery(query.getOffset() - SearchViewer.SEARCH_ROWS));
+        }
+
         params.put("time", time);
       } finally {
         JdbcUtils.closeConnection(db);

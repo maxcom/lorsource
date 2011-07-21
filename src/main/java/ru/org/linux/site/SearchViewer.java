@@ -91,9 +91,7 @@ public class SearchViewer {
     }
   }
 
-  private static final int SEARCH_ROWS = 100;
-
-  private int offset = 0;
+  public static final int SEARCH_ROWS = 50;
 
   private final SearchRequest query;
 
@@ -106,7 +104,7 @@ public class SearchViewer {
     // set search query params
     params.set("q", query.getQ());
     params.set("rows", SEARCH_ROWS);
-    params.set("start", offset);
+    params.set("start", query.getOffset());
 
     params.set("qt", "dismax");
 
@@ -148,9 +146,5 @@ public class SearchViewer {
     params.set("sort", query.getSort().getParam());
 
     return search.query(params);
-  }
-
-  public void setOffset(int offset) {
-    this.offset = offset;
   }
 }

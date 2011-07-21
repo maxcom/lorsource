@@ -15,6 +15,11 @@
 
 package ru.org.linux.spring;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import ru.org.linux.site.SearchViewer;
 import ru.org.linux.site.User;
 
@@ -28,6 +33,7 @@ public class SearchRequest {
   private int group = 0;
   private SearchViewer.SearchInterval interval = SearchViewer.SearchInterval.ALL;
   private SearchViewer.SearchRange range = SearchViewer.SearchRange.ALL;
+  private int offset = 0;
 
   public String getQ() {
     return q;
@@ -103,5 +109,75 @@ public class SearchRequest {
 
   public void setRange(SearchViewer.SearchRange range) {
     this.range = range;
+  }
+
+  public int getOffset() {
+    return offset;
+  }
+
+  public void setOffset(int offset) {
+    this.offset = offset;
+  }
+
+  public String getQuery(int newOffset) {
+    Map<String, String> params = new LinkedHashMap<String, String>();
+
+    if (q!=null && !q.isEmpty()) {
+      params.put("q", q);
+    }
+
+    if (range != SearchViewer.SearchRange.ALL) {
+      params.put("range", range.toString());
+    }
+
+    if (interval != SearchViewer.SearchInterval.ALL) {
+      params.put("interval", interval.toString());
+    }
+
+    if (user!=null) {
+      params.put("user", user.getNick());
+    }
+
+    if (usertopic) {
+      params.put("usertopic", "true");
+    }
+
+    if (sort!=SearchViewer.SearchOrder.RELEVANCE) {
+      params.put("search", sort.toString());
+    }
+
+    if (section!=0) {
+      params.put("section", Integer.toString(section));
+    }
+
+    if (group!=0) {
+      params.put("group", Integer.toString(group));
+    }
+
+    if (newOffset!=0) {
+      params.put("offset", Integer.toString(newOffset));
+    }
+
+    return buildParams(params);
+  }
+
+  private static String buildParams(Map<String, String> params) {
+    StringBuilder str = new StringBuilder();
+
+    for (Map.Entry<String, String> entry : params.entrySet()) {
+      if (str.length()>0) {
+        str.append('&');
+      }
+
+      try {
+        str.append(URLEncoder.encode(entry.getKey(), "UTF-8"));
+        str.append('=');
+        str.append(URLEncoder.encode(entry.getValue(), "UTF-8"));
+      } catch (UnsupportedEncodingException e) {
+        throw new RuntimeException(e);
+      }
+    }
+
+    return str.toString();
   }
 }

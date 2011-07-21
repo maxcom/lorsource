@@ -52,6 +52,9 @@ public class HTMLFormatterTest {
 
   private static final String TEXT9 = "(http://ru.wikipedia.org/wiki/Blah_(blah))";
   private static final String RESULT9 = "(<a href=\"http://ru.wikipedia.org/wiki/Blah_(blah)\">http://ru.wikipedia.org/wiki/Blah_(blah)</a>)";
+  
+  private static final String TEXT10 = "Twitter url: https://twitter.com/#!/l_o_r";
+  private static final String RESULT10 = "Twitter url: <a href=\"https://twitter.com/#!/l_o_r\">https://twitter.com/#!/l_o_r</a>";
 
   private static final String GUARANTEED_CRASH = "\"http://www.google.com/\"";
 
@@ -126,6 +129,15 @@ public class HTMLFormatterTest {
     formatter.setOutputLorcode(true);
 
     assertEquals("([url=http://ozpp.ru/laws2/pravila-prod/tovar5.html]http://ozpp.ru/laws2/pravila-prod/tovar5.html[/url])", formatter.process());
+  }
+
+  @Test
+  public void testURLHighlight7() throws UtilException {
+    HTMLFormatter formatter = new HTMLFormatter(TEXT10);
+
+    formatter.enableUrlHighLightMode();
+
+    assertEquals(RESULT10, formatter.process());
   }
 
   @Test

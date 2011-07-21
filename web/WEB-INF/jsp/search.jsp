@@ -28,6 +28,8 @@
 <%--@elvariable id="ranges" type="java.util.Map<SearchViewer.SearchRange, String>"--%>
 <%--@elvariable id="sectionFacet" type="java.util.Map<Integer, String>"--%>
 <%--@elvariable id="groupFacet" type="java.util.Map<Integer, String>"--%>
+<%--@elvariable id="prevLink" type="java.lang.String"--%>
+<%--@elvariable id="nextLink" type="java.lang.String"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 <title>Поиск по сайту
@@ -120,6 +122,21 @@
     </c:forEach>
   </div>
   </div>
+
+  <table class="nav">
+    <tr>
+      <c:if test="${prevLink!=null}">
+        <td align="left" width="35%">
+          <a href="${prevLink}">← предыдущие</a>
+        </td>
+      </c:if>
+      <c:if test="${nextLink!=null}">
+        <td width="35%" align="right">
+          <a href="${nextLink}">следующие →</a>
+        </td>
+      </c:if>
+    </tr>
+  </table>
 
   <p>
     <i>
