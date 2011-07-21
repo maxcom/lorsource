@@ -65,7 +65,7 @@
             <groupId>postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <version>8.2-504.jdbc3</version>
-            <scope>provided</scope>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -192,6 +192,14 @@
             <artifactId>urlrewritefilter</artifactId>
             <version>3.1.0</version>
         </dependency>
+
+        <dependency>
+            <groupId>commons-dbcp</groupId>
+            <artifactId>commons-dbcp</artifactId>
+            <version>1.4</version>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -281,6 +289,23 @@
                             </includes>
                         </aggregation>
                     </aggregations>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.mortbay.jetty</groupId>
+                <artifactId>jetty-maven-plugin</artifactId>
+                <configuration>
+                    <stopKey>foo</stopKey>
+                    <stopPort>9999</stopPort>
+
+                    <webAppConfig>
+                        <jettyEnvXml>${project.build.directory}/test-classes/jetty-env.xml</jettyEnvXml>
+                    </webAppConfig>
+
+                    <webAppSourceDirectory>${project.build.directory}/${project.build.finalName}</webAppSourceDirectory>
+
+                    <useTestClasspath>true</useTestClasspath>
                 </configuration>
             </plugin>
         </plugins>
