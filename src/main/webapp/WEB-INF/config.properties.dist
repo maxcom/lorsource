@@ -13,8 +13,8 @@
 #    limitations under the License.
 #
 
-MainUrl=http://test-lor:8080/
-PathPrefix=/var/www/test-lor/
+MainUrl=http://localhost:8080/
+PathPrefix=target/tmp/
 HTMLPathPrefix=/var/www/test-lor/webapps/lor/
 Secret=secret
 recaptcha.private=6LclXgcAAAAAAKeX4IoMTUdy1nUSzXRXSH7KcrHM

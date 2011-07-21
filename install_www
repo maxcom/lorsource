@@ -2,13 +2,13 @@
 
 set -e
 
-ant clean
-ant
+mvn clean package
 
 echo Copying files...
 
 sudo rm -f /var/lib/tomcat6/webapps/ROOT/WEB-INF/lib/*.jar
-sudo cp -R dist/* /var/lib/tomcat6/webapps/ROOT
+sudo rm -rf /var/lib/tomcat6/webapps/ROOT/WEB-INF/classes
+sudo cp -R --preserve=timestamp target/lor-1.0-SNAPSHOT/* /var/lib/tomcat6/webapps/ROOT
 sudo touch /var/lib/tomcat6/webapps/ROOT/WEB-INF/web.xml
 
 echo done
