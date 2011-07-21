@@ -54,6 +54,7 @@ public class CutTag extends HtmlEquivTag{
 
     private boolean renderCut;
     private String cutUrl;
+    private int cutId;
 
     public CutTag(String name, Set<String> allowedChildren, String implicitTag, Parser parser){
         super(name, allowedChildren, implicitTag, parser);
@@ -68,9 +69,19 @@ public class CutTag extends HtmlEquivTag{
 
     public String renderNodeXhtml(Node node, Connection db){
         if(renderCut){
-            return super.renderNodeXhtml(node, db);
+            StringBuilder ret = new StringBuilder();
+            ret.append("<div id=\"cut")
+              .append(Integer.toString(cutId))
+              .append("\">")
+              .append(node.renderChildrenXHtml(db))
+              .append("</div>");
+            return ret.toString();
         }else{
-            return "<p><a href=\""+cutUrl+"\">Подробности</a></p>";
+            return "<br/><a href=\""+cutUrl+"#cut"+Integer.toString(cutId)+"\">Подробности</a><br/>";
         }
     }
+
+  public void setCutId(int cutId) {
+    this.cutId = cutId;
+  }
 }

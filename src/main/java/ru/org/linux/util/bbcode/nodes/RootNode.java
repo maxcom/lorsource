@@ -50,8 +50,11 @@ import java.sql.Connection;
  */
 public class RootNode extends Node{
 
+    private int cutCount;
+
     public RootNode(Parser parser){
         super(parser);
+        cutCount = 0;
     }
 
     public String renderXHtml(Connection db){
@@ -65,4 +68,13 @@ public class RootNode extends Node{
     public String renderBBCode(){
         return renderChildrenBBCode();
     }
+
+  public int getCutCount() {
+    return cutCount;
+  }
+
+  public void incCutCount() {
+    cutCount += 1;
+  }
+
 }

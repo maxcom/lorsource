@@ -290,7 +290,10 @@ public class Parser {
         }else{
             TagNode node = new TagNode(currentNode, this, name, parameter);
             if("cut".equals(name)){
-                ((CutTag)(node.getBbtag())).setRenderOptions(renderCut, cutUrl);
+                CutTag cutTag = ((CutTag)(node.getBbtag()));
+                cutTag.setRenderOptions(renderCut, cutUrl);
+                cutTag.setCutId(rootNode.getCutCount());
+                rootNode.incCutCount();
             }
             currentNode.getChildren().add(node);
             if(!node.getBbtag().isSelfClosing()){

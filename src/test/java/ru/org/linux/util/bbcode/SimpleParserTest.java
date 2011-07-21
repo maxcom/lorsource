@@ -62,7 +62,7 @@ public class SimpleParserTest {
     public void codeTest(){
         Assert.assertEquals(ParserUtil.bb2xhtml("[code][list][*]one[*]two[*]three[/list][/code]",null), "<div class=\"code\"><pre class=\"no-highlight\"><code>[list][*]one[*]two[*]three[/list]</code></pre></div>");
     }
-// TODO а как тестировать если базы нет :-(    
+// TODO а как тестировать если базы нет :-(
 //    @Test
 //    public void userTest(){
 //        Assert.assertEquals(ParserUtil.bb2xhtml("[user]maxcom[/user]",null), "<div><span style=\"white-space: nowrap\"><img src=\"/img/tuxlor.png\"><a style=\"text-decoration: none\" href='/people/maxcom/profile'>maxcom</a></span></div>");
