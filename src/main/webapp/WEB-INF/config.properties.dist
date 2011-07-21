@@ -14,7 +14,7 @@
 #
 
 MainUrl=http://localhost:8080/
-PathPrefix=/var/www/test-lor/
+PathPrefix=target/tmp/
 HTMLPathPrefix=/var/www/test-lor/webapps/lor/
 Secret=secret
 recaptcha.private=6LclXgcAAAAAAKeX4IoMTUdy1nUSzXRXSH7KcrHM

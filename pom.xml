@@ -308,6 +308,26 @@
                     <useTestClasspath>true</useTestClasspath>
                 </configuration>
             </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>create-temp-storage</id>
+                        <phase>generate-test-resources</phase>
+                        <configuration>       
+                            <tasks>
+                                <mkdir dir="${project.build.directory}/tmp/linux-storage/profile"/>
+                            </tasks>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
         </plugins>
     </build>
 
