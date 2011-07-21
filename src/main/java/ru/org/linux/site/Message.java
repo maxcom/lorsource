@@ -15,6 +15,21 @@
 
 package ru.org.linux.site;
 
+import java.io.IOException;
+import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.sql.*;
+import java.util.List;
+
+import javax.servlet.ServletRequest;
+import javax.servlet.http.HttpServletRequest;
+
+import ru.org.linux.spring.AddMessageForm;
+import ru.org.linux.spring.SectionStore;
+import ru.org.linux.util.*;
+import ru.org.linux.util.bbcode.ParserUtil;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.logging.Log;
@@ -25,17 +40,6 @@ import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.jdbc.datasource.SingleConnectionDataSource;
-import ru.org.linux.spring.AddMessageForm;
-import ru.org.linux.spring.SectionStore;
-import ru.org.linux.util.*;
-import ru.org.linux.util.bbcode.ParserUtil;
-
-import javax.servlet.ServletRequest;
-import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
-import java.io.Serializable;
-import java.sql.*;
-import java.util.List;
 
 public class Message implements Serializable {
   private static final Log logger = LogFactory.getLog(Message.class);
@@ -77,6 +81,7 @@ public class Message implements Serializable {
   public static final int POSTSCORE_UNRESTRICTED = -9999;
   public static final int POSTSCORE_MODERATORS_ONLY = 10000;
   public static final int POSTSCORE_REGISTERED_ONLY = -50;
+  private static final String UTF8 = "UTF-8";
 
   public Message(Connection db, int msgid) throws SQLException, MessageNotFoundException {
     this(db, null, msgid);
@@ -851,7 +856,11 @@ public class Message implements Serializable {
   }
 
   public String getLink() {
-    return Section.getSectionLink(sectionid) + groupUrl + '/' + msgid;
+    try {
+      return Section.getSectionLink(sectionid) + URLEncoder.encode(groupUrl, UTF8) + '/' + msgid;
+    } catch (UnsupportedEncodingException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   public String getLinkPage(int page) {
@@ -859,7 +868,11 @@ public class Message implements Serializable {
       return getLink();
     }
 
-    return Section.getSectionLink(sectionid) + groupUrl + '/' + msgid + "/page" + page;
+    try {
+      return Section.getSectionLink(sectionid) + URLEncoder.encode(groupUrl, UTF8) + '/' + msgid + "/page" + page;
+    } catch (UnsupportedEncodingException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   public void commit(Connection db, User commiter, int bonus) throws SQLException, UserErrorException {
