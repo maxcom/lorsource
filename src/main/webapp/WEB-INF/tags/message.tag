@@ -72,6 +72,10 @@
             <strong>Сообщение удалено ${preparedMessage.deleteUser.nick}
                 по причине '${preparedMessage.deleteInfo.reason}'</strong>
         </c:if>
+
+        <c:if test="${template.moderatorSession and not message.expired}">
+            [<a href="/undelete.jsp?msgid=${message.id}">восстановить</a>]
+        </c:if>
     </c:if>
   &nbsp;</div>
 </c:if>
