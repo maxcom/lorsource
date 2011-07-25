@@ -164,7 +164,7 @@ public class Parser {
             allTags.add(tag);
         }
         { // <p>
-            HtmlEquivTag tag = new HtmlEquivTag("p", inlineTags, null, this);
+            HtmlEquivTag tag = new HtmlEquivTag("p", flowTags, null, this);
             tag.setHtmlEquiv("p");
             allTags.add(tag);
         }
