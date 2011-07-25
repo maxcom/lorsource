@@ -244,7 +244,7 @@
                             <output>${project.build.directory}/${project.build.finalName}/js/head.js</output>
                             <includes>
                                 <include>${project.build.directory}/${project.build.finalName}/js/jquery.form.js</include>
-                                <include>${project.build.directory}/${project.build.finalName}/js/jquery.hotkeys-0.7.8-packed.js</include>
+                                <include>${project.build.directory}/${project.build.finalName}/js/jquery.hotkeys-0.7.9.js</include>
                                 <include>${project.build.directory}/${project.build.finalName}/js/jquery.validate.pack.js</include>
                                 <include>${project.build.directory}/${project.build.finalName}/js/jquery.validate.ru.js</include>
                                 <include>${project.build.directory}/${project.build.finalName}/js/stylesheetToggle.js</include>
