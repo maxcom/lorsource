@@ -13,46 +13,46 @@ public class SimpleParserTest {
 
     @Test
     public void brTest(){
-        Assert.assertEquals(ParserUtil.bb2xhtml("[br]",null), "<br/>");
+        Assert.assertEquals(ParserUtil.bb2xhtml("[br]",null), "<p><br/></p>");
     }
 
     @Test
     public void boldTest(){
-        Assert.assertEquals(ParserUtil.bb2xhtml("[b]hello world[/b]",null), "<b>hello world</b>");
+        Assert.assertEquals(ParserUtil.bb2xhtml("[b]hello world[/b]",null), "<p><b>hello world</b></p>");
     }
 
     @Test
     public void italicTest(){
-        Assert.assertEquals(ParserUtil.bb2xhtml("[i]hello world[/i]",null), "<i>hello world</i>");
+        Assert.assertEquals(ParserUtil.bb2xhtml("[i]hello world[/i]",null), "<p><i>hello world</i></p>");
     }
 
     @Test
     public void strikeoutTest(){
-        Assert.assertEquals(ParserUtil.bb2xhtml("[s]hello world[/s]",null), "<s>hello world</s>");
+        Assert.assertEquals(ParserUtil.bb2xhtml("[s]hello world[/s]",null), "<p><s>hello world</s></p>");
     }
 
     @Test
     public void emphasisTest(){
-        Assert.assertEquals(ParserUtil.bb2xhtml("[strong]hello world[/strong]",null), "<strong>hello world</strong>");
+        Assert.assertEquals(ParserUtil.bb2xhtml("[strong]hello world[/strong]",null), "<p><strong>hello world</strong></p>");
     }
 
     @Test
     public void quoteTest(){
         // TODO я нрипонял зачем <div> :-(
-        Assert.assertEquals(ParserUtil.bb2xhtml("[quote]hello world[/quote]",null), "<div class=\"quote\">hello world</div>");
+        Assert.assertEquals(ParserUtil.bb2xhtml("[quote]hello world[/quote]",null), "<div class=\"quote\"><p>hello world</p></div>");
     }
     @Test
     public void quoteParamTest(){
         // TODO я нрипонял зачем <div> :-(
-        Assert.assertEquals(ParserUtil.bb2xhtml("[quote=maxcom]hello world[/quote]",null), "<div class=\"quote\"><h3>maxcom</h3>hello world</div>");
+        Assert.assertEquals(ParserUtil.bb2xhtml("[quote=maxcom]hello world[/quote]",null), "<div class=\"quote\"><h3>maxcom</h3><p>hello world</p></div>");
     }
     @Test
     public void urlTest(){
-        Assert.assertEquals(ParserUtil.bb2xhtml("[url]http://linux.org.ru[/url]",null), "<a href=\"http://linux.org.ru\">http://linux.org.ru</a>");
+        Assert.assertEquals(ParserUtil.bb2xhtml("[url]http://linux.org.ru[/url]",null), "<p><a href=\"http://linux.org.ru\">http://linux.org.ru</a></p>");
     }
     @Test
     public void urlParamTest(){
-        Assert.assertEquals(ParserUtil.bb2xhtml("[url=http://linux.org.ru]linux[/url]",null), "<a href=\"http://linux.org.ru\">linux</a>");
+        Assert.assertEquals(ParserUtil.bb2xhtml("[url=http://linux.org.ru]linux[/url]",null), "<p><a href=\"http://linux.org.ru\">linux</a></p>");
     }
     @Test
     public void listTest(){

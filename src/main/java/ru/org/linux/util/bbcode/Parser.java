@@ -109,58 +109,58 @@ public class Parser {
 
         allTags = new ArrayList<Tag>();
         { // <br/>
-            HtmlEquivTag tag = new HtmlEquivTag("br", ImmutableSet.<String>of(), "div", this);
+            HtmlEquivTag tag = new HtmlEquivTag("br", ImmutableSet.<String>of(), "p", this);
             tag.setSelfClosing(true);
             //tag.setDiscardable(true);
             tag.setHtmlEquiv("br");
             allTags.add(tag);
         }
         { // <br/>, but can adapt during render ?
-            SoftBrTag tag = new SoftBrTag("softbr", ImmutableSet.<String>of(), "div", this);
+            SoftBrTag tag = new SoftBrTag("softbr", ImmutableSet.<String>of(), "p", this);
             tag.setSelfClosing(true);
             tag.setDiscardable(true);
             allTags.add(tag);
         }
         { // <b>
-            HtmlEquivTag tag = new HtmlEquivTag("b", inlineTags, "div", this);
+            HtmlEquivTag tag = new HtmlEquivTag("b", inlineTags, "p", this);
             tag.setHtmlEquiv("b");
             allTags.add(tag);
         }
         { // <i>
-            HtmlEquivTag tag = new HtmlEquivTag("i", inlineTags, "div", this);
+            HtmlEquivTag tag = new HtmlEquivTag("i", inlineTags, "p", this);
             tag.setHtmlEquiv("i");
             allTags.add(tag);
         }
         { // <u> TODO Allert: The U tag has been deprecated in favor of the text-decoration style property.
-            HtmlEquivTag tag = new HtmlEquivTag("u", inlineTags, "div", this);
+            HtmlEquivTag tag = new HtmlEquivTag("u", inlineTags, "p", this);
             tag.setHtmlEquiv("u");
             allTags.add(tag);
         }
         { // <s> TODO Allert: The S tag has been deprecated in favor of the text-decoration style property.
-            HtmlEquivTag tag = new HtmlEquivTag("s", inlineTags, "div", this);
+            HtmlEquivTag tag = new HtmlEquivTag("s", inlineTags, "p", this);
             tag.setHtmlEquiv("s");
             allTags.add(tag);
         }
         { // <em>
-            HtmlEquivTag tag = new HtmlEquivTag("em", inlineTags, "div", this);
+            HtmlEquivTag tag = new HtmlEquivTag("em", inlineTags, "p", this);
             tag.setHtmlEquiv("em");
             allTags.add(tag);
         }
         { // <strong>
-            HtmlEquivTag tag = new HtmlEquivTag("strong", inlineTags, "div", this);
+            HtmlEquivTag tag = new HtmlEquivTag("strong", inlineTags, "p", this);
             tag.setHtmlEquiv("strong");
             allTags.add(tag);
         }
         { // <a>
-            UrlTag tag = new UrlTag("url", ImmutableSet.<String>of("text"), "div", this);
+            UrlTag tag = new UrlTag("url", ImmutableSet.<String>of("text"), "p", this);
             allTags.add(tag);
         }
         { // <a> member
-            MemberTag tag = new MemberTag("user", ImmutableSet.<String>of("text"), "div", this);
+            MemberTag tag = new MemberTag("user", ImmutableSet.<String>of("text"), "p", this);
             allTags.add(tag);
         } // <img>
         if(flags.contains(ParserFlags.ENABLE_IMG_TAG)){
-            ImageTag tag = new ImageTag("img", ImmutableSet.<String>of("text"), "div", this);
+            ImageTag tag = new ImageTag("img", ImmutableSet.<String>of("text"), "p", this);
             allTags.add(tag);
         }
         { // <p>
@@ -174,7 +174,7 @@ public class Parser {
             allTags.add(tag);
         }
         { // <blockquote>
-            QuoteTag tag = new QuoteTag("quote", blockLevelTags, "div", this);
+            QuoteTag tag = new QuoteTag("quote", blockLevelTags, "p", this);
             allTags.add(tag);
         }
         { // <ul>
@@ -230,8 +230,8 @@ public class Parser {
                     currentNode.getChildren().add(new TextNode(currentNode, this, text));
                 }
             }else{
-                if(currentNode.allows("div")){
-                    currentNode.getChildren().add(new TagNode(currentNode, this, "div", ""));
+                if(currentNode.allows("p")){
+                    currentNode.getChildren().add(new TagNode(currentNode, this, "p", ""));
                     currentNode = descend(currentNode);
                 }else{
                     currentNode = ascend(currentNode);
