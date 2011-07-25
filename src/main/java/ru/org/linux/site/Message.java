@@ -795,16 +795,18 @@ public class Message implements Serializable {
 
   public String getProcessedMessage(Connection db, boolean includeCut) throws SQLException {
     if (lorcode) {
-        StringBuilder builder = new StringBuilder();
-        BBCodeProcessor proc = new BBCodeProcessor();
-        proc.setIncludeCut(includeCut);
-
-        builder.append("<div style=\"display:inline-block;width:99%\"><div style=\"float:left;width:49%;display:inline-block\">");
-        builder.append(proc.preparePostText(db, message));
-        builder.append("</div><div style=\"float:left;width:49%;display:inline-block\">");
-        builder.append(ParserUtil.bb2xhtml(message, includeCut, getLink(), db));
-        builder.append("</div></div>");
-        return builder.toString();
+      BBCodeProcessor proc = new BBCodeProcessor();
+      proc.setIncludeCut(includeCut);
+      return proc.preparePostText(db, message);
+/*
+      StringBuilder builder = new StringBuilder();
+      builder.append("<div style=\"display:inline-block;width:99%\"><div style=\"float:left;width:49%;display:inline-block\">");
+      builder.append(proc.preparePostText(db, message));
+      builder.append("</div><div style=\"float:left;width:49%;display:inline-block\">");
+      builder.append(ParserUtil.bb2xhtml(message, includeCut, getLink(), db));
+      builder.append("</div></div>");
+      return builder.toString();
+*/
     } else {
       return "<p>" + message;
     }
