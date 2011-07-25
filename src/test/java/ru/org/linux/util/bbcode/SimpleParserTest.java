@@ -62,6 +62,10 @@ public class SimpleParserTest {
     public void codeTest(){
         Assert.assertEquals(ParserUtil.bb2xhtml("[code][list][*]one[*]two[*]three[/list][/code]",null), "<div class=\"code\"><pre class=\"no-highlight\"><code>[list][*]one[*]two[*]three[/list]</code></pre></div>");
     }
+    @Test
+    public void overflow1Test(){
+        Assert.assertEquals("<p>ololo<div class=\"quote\"><p><i>hz</i></p></div></p>", ParserUtil.bb2xhtml("ololo[quote][i]hz[/i][/quote]", null));
+    }
 // TODO а как тестировать если базы нет :-(
 //    @Test
 //    public void userTest(){
