@@ -10,8 +10,7 @@ import java.util.EnumSet;
  * Time: 9:51 PM
  */
 public class ParserUtil {
-
-    private static final Parser parserWithImages = new Parser(EnumSet.of(Parser.ParserFlags.ENABLE_IMG_TAG));
+    private static final Parser parserWithImages = new Parser(EnumSet.noneOf(Parser.ParserFlags.class));
 
     public static String bb2xhtml(String bbcode, Connection db){
         return parserWithImages.parse(bbcode).renderXHtml(db);
