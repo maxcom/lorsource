@@ -65,17 +65,17 @@
       </c:if>
     </c:if>
     <c:if test="${message.deleted}">
-    <%
-      DeleteInfo deleteInfo = preparedMessage.getDeleteInfo();
+        <c:if test="${preparedMessage.deleteInfo == null}">
+            <strong>Сообщение удалено</strong>
+        </c:if>
+        <c:if test="${preparedMessage.deleteInfo != null}">
+            <strong>Сообщение удалено ${preparedMessage.deleteUser.nick}
+                по причине '${preparedMessage.deleteInfo.reason}'</strong>
+        </c:if>
 
-      if (deleteInfo==null) {
-        out.append("<strong>Сообщение удалено</strong>");
-      } else {
-        User deleteUser = preparedMessage.getDeleteUser();
-
-        out.append("<strong>Сообщение удалено ").append(deleteUser.getNick()).append(" по причине '").append(deleteInfo.getReason()).append("'</strong>");
-      }
-%>
+        <c:if test="${template.moderatorSession and not message.expired}">
+            [<a href="/undelete.jsp?msgid=${message.id}">восстановить</a>]
+        </c:if>
     </c:if>
   &nbsp;</div>
 </c:if>
