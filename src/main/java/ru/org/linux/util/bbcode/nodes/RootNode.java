@@ -57,14 +57,17 @@ public class RootNode extends Node{
         cutCount = 0;
     }
 
+    @Override
     public String renderXHtml(Connection db){
         return renderChildrenXHtml(db);
     }
 
+    @Override
     public boolean allows(String tagname){
         return parser.getBlockLevelTags().contains(tagname);
     }
 
+    @Override
     public String renderBBCode(){
         return renderChildrenBBCode();
     }

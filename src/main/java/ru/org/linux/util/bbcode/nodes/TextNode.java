@@ -64,6 +64,7 @@ public class TextNode extends Node {
         return text;
     }
 
+    @Override
     public String renderXHtml(Connection db){
         if(TagNode.class.isInstance(parent)){
             TagNode tagNode = (TagNode)parent;
@@ -77,10 +78,12 @@ public class TextNode extends Node {
         return Parser.escape(text);
     }
 
+    @Override
     public String renderBBCode(){
         return text;
     }
 
+    @Override
     public boolean allows(String tagname){
         return false;
     }

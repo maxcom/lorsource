@@ -54,6 +54,7 @@ public class CodeTag extends Tag{
     public CodeTag(String name, Set<String> allowedChildren, String implicitTag, Parser parser){
         super(name, allowedChildren, implicitTag, parser);
     }
+    @Override
     public String renderNodeXhtml(Node node, Connection db){
         StringBuilder ret = new StringBuilder();
         if(node.isParameter()){

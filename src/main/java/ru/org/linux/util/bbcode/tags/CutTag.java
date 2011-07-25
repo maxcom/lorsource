@@ -67,6 +67,7 @@ public class CutTag extends HtmlEquivTag{
         this.cutUrl = cutUrl;
     }
 
+    @Override
     public String renderNodeXhtml(Node node, Connection db){
         if(renderCut){
             StringBuilder ret = new StringBuilder();

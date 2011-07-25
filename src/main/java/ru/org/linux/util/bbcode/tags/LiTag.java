@@ -55,6 +55,7 @@ public class LiTag extends HtmlEquivTag{
         setHtmlEquiv("li");
     }
 
+    @Override
     public String renderNodeBBCode(Node node){
         StringBuilder ret = new StringBuilder();
         return ret

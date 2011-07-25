@@ -68,6 +68,7 @@ public class HtmlEquivTag extends Tag {
         this.attributes = attributes;
     }
 
+    @Override
     public String renderNodeXhtml(Node node, Connection db){
         StringBuilder opening = new StringBuilder(htmlEquiv);
         StringBuilder ret = new StringBuilder();
@@ -100,6 +101,7 @@ public class HtmlEquivTag extends Tag {
         return ret.toString();
     }
 
+    @Override
     public String renderNodeBBCode(Node node){
         if("div".equals(name)){
             return node.renderChildrenBBCode();

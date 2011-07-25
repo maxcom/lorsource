@@ -58,6 +58,7 @@ public class ImgTag extends Tag {
         super(name, allowedChildren, implicitTag, parser);
     }
 
+    @Override
     public String renderNodeXhtml(Node node, Connection db){
         StringBuilder ret = new StringBuilder();
         if(node.lengthChildren() == 0){
@@ -77,6 +78,7 @@ public class ImgTag extends Tag {
         }
         return ret.toString();
     }
+    @Override
     public String renderNodeBBCode(Node node){
         TextNode txtNode = (TextNode)node.getChildren().iterator().next();
         return txtNode.getText();

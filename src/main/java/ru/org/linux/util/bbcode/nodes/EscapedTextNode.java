@@ -52,6 +52,7 @@ public class EscapedTextNode extends TextNode{
         super(node, parser, text);
     }
 
+    @Override
     public String renderBBCode(){
         StringBuilder ret = new StringBuilder();
         ret.append('[').append(text).append(']');

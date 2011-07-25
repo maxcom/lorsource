@@ -53,6 +53,7 @@ public class SoftBrTag extends Tag {
     public SoftBrTag(String name, Set<String> allowedChildren, String implicitTag, Parser parser){
         super(name, allowedChildren, implicitTag, parser);
     }
+    @Override
     public String renderNodeXhtml(Node node){
         if(node.getParent().allows("br")){
             return "<br/>";
@@ -60,6 +61,7 @@ public class SoftBrTag extends Tag {
             return "\n";
         }
     }
+    @Override
     public String renderNodeBBCode(Node node){
         return "\n";
     }

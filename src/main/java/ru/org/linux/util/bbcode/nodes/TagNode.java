@@ -58,6 +58,7 @@ public class TagNode extends Node{
         this.parameter = parameter;
     }
 
+    @Override
     public boolean prohibited(String tagName){
         if(bbtag.getProhibitedElements() != null && bbtag.getProhibitedElements().contains(tagName)){
             return true;
@@ -69,6 +70,7 @@ public class TagNode extends Node{
             }
         }
     }
+    @Override
     public boolean allows(String tagName){
         if(bbtag.getAllowedChildren().contains(tagName)){
             return !prohibited(tagName);
@@ -81,10 +83,12 @@ public class TagNode extends Node{
         return bbtag;
     }
 
+    @Override
     public String renderXHtml(Connection db){
         return bbtag.renderNodeXhtml(this, db);
     }
 
+    @Override
     public String renderBBCode(){
         return bbtag.renderNodeBBCode(this);
     }

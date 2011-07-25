@@ -57,6 +57,7 @@ public class MemberTag extends Tag{
         super(name, allowedChildren, implicitTag, parser);
     }
 
+    @Override
     public String renderNodeXhtml(Node node, Connection db){
         if(node.lengthChildren() == 0){
             return "";
@@ -78,6 +79,7 @@ public class MemberTag extends Tag{
 
     }
 
+    @Override
     public String renderNodeXhtml(Node node){
         return renderNodeXhtml(node, null); // TODO там мы эксцепшн то перехватим? :-)
     }
