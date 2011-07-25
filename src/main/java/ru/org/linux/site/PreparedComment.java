@@ -36,7 +36,7 @@ public class PreparedComment {
 
     author = User.getUserCached(db, comment.getUserid());
 
-    processedMessage = getProcessedMessage(db, pst, comment);
+    processedMessage = getProcessedMessage(db, pst, comment, author);
 
     if (comment.getReplyTo()!=0 && comments!=null) {
       CommentNode replyNode = comments.getNode(comment.getReplyTo());
@@ -58,7 +58,7 @@ public class PreparedComment {
 
     author = User.getUserCached(db, comment.getUserid());
 
-    processedMessage = getProcessedMessage(db, message);
+    processedMessage = getProcessedMessage(db, message, author);
 
     replyAuthor = null;
   }
@@ -67,7 +67,7 @@ public class PreparedComment {
     return db.prepareStatement("SELECT message, bbcode FROM msgbase WHERE id=?");
   }
 
-  private static String getProcessedMessage(Connection db, PreparedStatement pst, Comment comment) throws SQLException {
+  private static String getProcessedMessage(Connection db, PreparedStatement pst, Comment comment, User author) throws SQLException {
     pst.setInt(1, comment.getId());
     ResultSet rs = pst.executeQuery();
     rs.next();
@@ -77,32 +77,24 @@ public class PreparedComment {
     rs.close();
 
     if (bbcode) {
-        StringBuilder builder = new StringBuilder();
+      if (author.getScore()>=200) {
+        return ParserUtil.bb2xhtml(text, true, "", db);
+      } else {
         BBCodeProcessor proc = new BBCodeProcessor();
-
-        builder.append("<div style=\"display:inline-block;width:99%\"><div style=\"float:left;width:49%;display:inline-block\">");
-        builder.append(proc.preparePostText(db, text));
-        builder.append("</div><div style=\"float:left;width:49%;display:inline-block\">");
-        builder.append(ParserUtil.bb2xhtml(text, true, "", db));
-        builder.append("</div></div>");
-
-        return builder.toString();
+        return proc.preparePostText(db, text);
+      }
     } else {
-      return "<p>"+text;
+      return "<p>" + text;
     }
   }
 
-  private static String getProcessedMessage(Connection db, String message) throws SQLException {
-      StringBuilder builder = new StringBuilder();
+  private static String getProcessedMessage(Connection db, String message, User author) throws SQLException {
+    if (author.getScore()>=200) {
+      return ParserUtil.bb2xhtml(message, true, "", db);
+    } else {
       BBCodeProcessor proc = new BBCodeProcessor();
-
-      builder.append("<div style=\"display:inline-block;width:99%\"><div style=\"float:left;width:49%;display:inline-block\">");
-      builder.append(proc.preparePostText(db, message));
-      builder.append("</div><div style=\"float:left;width:49%;display:inline-block\">");
-      builder.append(ParserUtil.bb2xhtml(message, true, "", db));
-      builder.append("</div></div>");
-      return builder.toString();
-
+      return proc.preparePostText(db, message);
+    }
   }
 
   public Comment getComment() {
