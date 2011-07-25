@@ -52,9 +52,9 @@ import java.util.List;
 */
 public class Node {
     protected Node parent=null;
-    protected List<Node> children;
+    protected final List<Node> children;
     protected String parameter;
-    protected Parser parser;
+    protected final Parser parser;
 
     public Node(Parser parser){
         this.parser = parser;

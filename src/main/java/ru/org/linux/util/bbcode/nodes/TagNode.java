@@ -50,7 +50,7 @@ import java.sql.Connection;
  * Time: 3:09 PM
  */
 public class TagNode extends Node{
-    protected Tag bbtag;
+    protected final Tag bbtag;
 
     public TagNode(Node node, Parser parser, String name, String parameter){
         super(node, parser);

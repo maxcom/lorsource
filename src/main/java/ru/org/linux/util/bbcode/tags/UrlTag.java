@@ -38,13 +38,11 @@
 
 package ru.org.linux.util.bbcode.tags;
 
-import org.springframework.web.util.UriUtils;
 import ru.org.linux.util.URLUtil;
 import ru.org.linux.util.bbcode.Parser;
 import ru.org.linux.util.bbcode.nodes.Node;
 import ru.org.linux.util.bbcode.nodes.TextNode;
 
-import java.io.UnsupportedEncodingException;
 import java.sql.Connection;
 import java.util.Set;
 

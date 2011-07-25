@@ -56,7 +56,7 @@ import java.util.regex.Pattern;
  */
 public class Parser {
 
-    public static enum ParserFlags{
+    public enum ParserFlags{
         ENABLE_IMG_TAG,
         IGNORE_CUT_TAG
     }
@@ -68,18 +68,18 @@ public class Parser {
     public static final Pattern P_REGEXP = Pattern.compile("(\r?\n){2,}");
 
 
-    private ImmutableSet<String> inlineTags;
-    private ImmutableSet<String> blockLevelTags;
-    private ImmutableSet<String> flowTags;
-    private ImmutableSet<String> otherTags;
-    private ImmutableSet<String> anchorTags;
-    private ImmutableSet<String> autoLinkTags;
+    private final ImmutableSet<String> inlineTags;
+    private final ImmutableSet<String> blockLevelTags;
+    private final ImmutableSet<String> flowTags;
+    private final ImmutableSet<String> otherTags;
+    private final ImmutableSet<String> anchorTags;
+    private final ImmutableSet<String> autoLinkTags;
 
-    private ImmutableSet<String> allowedListParameters;
+    private final ImmutableSet<String> allowedListParameters;
 
-    private List<Tag> allTags;
-    private Map<String,Tag> allTagsDict;
-    private ImmutableSet<String> allTagsNames;
+    private final List<Tag> allTags;
+    private final Map<String,Tag> allTagsDict;
+    private final ImmutableSet<String> allTagsNames;
 
 
     public Parser(EnumSet<ParserFlags> flags){
@@ -266,11 +266,11 @@ public class Parser {
         return currentNode;
     }
 
-    private Node descend(Node currentNode){
+    private static Node descend(Node currentNode){
         return currentNode.getChildren().get(currentNode.getChildren().size()-1);
     }
 
-    private Node ascend(Node currentNode){
+    private static Node ascend(Node currentNode){
         return currentNode.getParent();
     }
 

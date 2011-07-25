@@ -38,9 +38,6 @@
 
 package ru.org.linux.util.bbcode.nodes;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import ru.org.linux.spring.SolrOptimizer;
 import ru.org.linux.util.HTMLFormatter;
 import ru.org.linux.util.bbcode.Parser;
 
@@ -53,7 +50,7 @@ import java.sql.Connection;
  * Time: 11:57 AM
  */
 public class TextNode extends Node {
-    protected String text;
+    protected final String text;
 
     public TextNode(Node parent, Parser parser, String text){
         super(parent, parser);

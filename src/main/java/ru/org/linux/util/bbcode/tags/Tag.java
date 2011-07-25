@@ -38,9 +38,9 @@
 
 package ru.org.linux.util.bbcode.tags;
 
+import org.apache.commons.lang.NotImplementedException;
 import ru.org.linux.util.bbcode.Parser;
 import ru.org.linux.util.bbcode.nodes.Node;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.sql.Connection;
 import java.util.Set;
@@ -52,13 +52,13 @@ import java.util.Set;
  * Time: 11:20 PM
  */
 public class Tag {
-    protected String name;
-    protected Set<String> allowedChildren;
-    protected String implicitTag;
+    protected final String name;
+    protected final Set<String> allowedChildren;
+    protected final String implicitTag;
     protected boolean selfClosing=false;
     protected Set<String> prohibitedElements;
     protected boolean discardable=false;
-    protected Parser parser;
+    protected final Parser parser;
 
     public Tag(String name, Set<String> allowedChildren, String implicitTag, Parser parser){
         this.name = name;

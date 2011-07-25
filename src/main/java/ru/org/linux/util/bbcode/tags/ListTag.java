@@ -59,10 +59,12 @@ public class ListTag extends HtmlEquivTag{
     @Override
     public String renderNodeXhtml(Node node, Connection db){
         StringBuilder ret = new StringBuilder();
-        String param = null;
         if(node.lengthChildren() == 0){
           return "";
         }
+
+        String param = null;
+      
         if(node.isParameter()){
            param = node.getParameter().trim().replaceAll("\"","");
         }
