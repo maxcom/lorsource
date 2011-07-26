@@ -38,76 +38,43 @@
 
 package ru.org.linux.util.bbcode.tags;
 
+import ru.org.linux.util.URLUtil;
 import ru.org.linux.util.bbcode.Parser;
 import ru.org.linux.util.bbcode.nodes.Node;
 
 import java.sql.Connection;
-import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
 
 /**
  * Created by IntelliJ IDEA.
  * User: hizel
- * Date: 6/30/11
- * Time: 10:40 AM
+ * Date: 7/26/11
+ * Time: 12:09 PM
  */
-public class HtmlEquivTag extends Tag {
-    protected String htmlEquiv;
-    protected Map<String, String> attributes;
-
-    public HtmlEquivTag(String name, Set<String> allowedChildren, String implicitTag, Parser parser){
+public class UrlWithParamTag extends Tag {
+    public UrlWithParamTag(String name, Set<String> allowedChildren, String implicitTag, Parser parser){
         super(name, allowedChildren, implicitTag, parser);
     }
 
-    public void setHtmlEquiv(String htmlEquiv) {
-        this.htmlEquiv = htmlEquiv;
-    }
-
-    public void setAttributes(Map<String, String> attributes) {
-        this.attributes = attributes;
-    }
-
-    @Override
     public String renderNodeXhtml(Node node, Connection db){
-        StringBuilder opening = new StringBuilder(htmlEquiv);
         StringBuilder ret = new StringBuilder();
-        if(attributes != null){
-            Iterator i = attributes.keySet().iterator();
-            opening.append(' ');
-            while(i.hasNext()){
-                Map.Entry<String,String> entry = (Map.Entry<String,String>)i.next();
-                String key = entry.getKey();
-                String value = entry.getValue();
-                opening.append(key);
-                opening.append('=');
-                opening.append(Parser.escape(value));
-                opening.append(' ');
-            }
+        String url = "";
+        if(node.isParameter()){
+            url = node.getParameter().trim();
         }
-        if(htmlEquiv.isEmpty()){
-            ret.append(node.renderChildrenXHtml(db));
-        }else{
-            if(selfClosing){
-                ret.append('<').append(opening).append(">"); // для xhtml по идее />
-            }else{
-                if(node.lengthChildren() > 0){
-                    ret.append('<').append(opening).append('>');
-                    ret.append(node.renderChildrenXHtml(db));
-                    ret.append("</").append(htmlEquiv).append('>');
-                }
-            }
+        try{
+            String escapedUrl = URLUtil.fixURL(url);
+            ret.append("<a href=\"")
+                    .append(escapedUrl)
+                    .append("\">")
+                    .append(node.renderChildrenXHtml(db))
+                    .append("</a>");
+        }catch (Exception ex){
+            ret.append("<s>")
+                    .append(node.renderChildrenXHtml(db))
+                    .append("</s>");
         }
+
         return ret.toString();
     }
-
-    @Override
-    public String renderNodeBBCode(Node node){
-        if("div".equals(name)){
-            return node.renderChildrenBBCode();
-        }else{
-            return super.renderNodeBBCode(node);
-        }
-    }
-
 }

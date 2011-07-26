@@ -69,6 +69,7 @@ public class Parser {
 
 
     private final ImmutableSet<String> inlineTags;
+    private final ImmutableSet<String> urlTags;
     private final ImmutableSet<String> blockLevelTags;
     private final ImmutableSet<String> flowTags;
     private final ImmutableSet<String> otherTags;
@@ -87,7 +88,10 @@ public class Parser {
         allowedListParameters = ImmutableSet.of("A", "a", "I", "i", "1");
 
         // Простые тэги, в детях им подобные и текст
-        inlineTags = ImmutableSet.of("b", "i", "u", "s", "em", "strong", "url", "user", "br", "text", "img", "softbr");
+        inlineTags = ImmutableSet.of("b", "i", "u", "s", "em", "strong", "url", "url2", "user", "br", "text", "img", "softbr");
+
+        // Тэги разрешенные внутри [url]
+        urlTags = ImmutableSet.of("b", "i", "u", "s", "strong", "text");
 
         //Блочные тэги
         blockLevelTags = ImmutableSet.of("p", "quote", "list", "pre", "code", "div", "cut");
@@ -153,6 +157,10 @@ public class Parser {
         }
         { // <a>
             UrlTag tag = new UrlTag("url", ImmutableSet.<String>of("text"), "p", this);
+            allTags.add(tag);
+        }
+        { // <a> специальный случай с парамтром
+            UrlWithParamTag tag = new UrlWithParamTag("url2", urlTags, "p", this);
             allTags.add(tag);
         }
         { // <a> member
@@ -373,7 +381,12 @@ public class Parser {
                                 isCode = true;
                                 currentNode = pushTagNode(rootNode, currentNode, tagname, parameter, renderCut, cutUrl);
                             }else{
-                                currentNode = pushTagNode(rootNode, currentNode, tagname, parameter, renderCut, cutUrl);
+                                if("url".equals(tagname) && parameter != null && parameter.length() > 0){
+                                    // специальная проверка для [url] с параметром
+                                    currentNode = pushTagNode(rootNode, currentNode, "url2", parameter, renderCut, cutUrl);
+                                }else{
+                                    currentNode = pushTagNode(rootNode, currentNode, tagname, parameter, renderCut, cutUrl);
+                                }
                             }
                         }
 

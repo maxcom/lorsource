@@ -13,7 +13,7 @@ public class SimpleParserTest {
 
     @Test
     public void brTest(){
-        Assert.assertEquals(ParserUtil.bb2xhtml("[br]",null), "<p><br/></p>");
+        Assert.assertEquals(ParserUtil.bb2xhtml("[br]",null), "<p><br></p>");
     }
 
     @Test
@@ -53,6 +53,10 @@ public class SimpleParserTest {
     @Test
     public void urlParamTest(){
         Assert.assertEquals(ParserUtil.bb2xhtml("[url=http://linux.org.ru]linux[/url]",null), "<p><a href=\"http://linux.org.ru\">linux</a></p>");
+    }
+    @Test
+    public void urlParamWithTagTest(){
+        Assert.assertEquals(ParserUtil.bb2xhtml("[url=http://linux.org.ru][b]l[/b]inux[/url]",null), "<p><a href=\"http://linux.org.ru\"><b>l</b>inux</a></p>");
     }
     @Test
     public void listTest(){
