@@ -96,5 +96,5 @@
 
     <uniqueKey>id</uniqueKey>
     <defaultSearchField>message</defaultSearchField>
-    <solrQueryParser defaultOperator="AND"/>
+    <solrQueryParser defaultOperator="OR"/>
 </schema>
