@@ -319,7 +319,8 @@ public class Parser {
             }
             if(TagNode.class.isInstance(tempNode)){
                 TagNode node = (TagNode)tempNode;
-                if(node.getBbtag().getName().equals(name)){
+                String tagName = node.getBbtag().getName();
+                if(tagName.equals(name) || ("url".equals(name) && tagName.equals("url2"))){
                     currentNode = tempNode;
                     currentNode = ascend(currentNode);
                     break;
