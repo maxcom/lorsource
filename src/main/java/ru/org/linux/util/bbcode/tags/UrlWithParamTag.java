@@ -41,6 +41,7 @@ package ru.org.linux.util.bbcode.tags;
 import ru.org.linux.util.URLUtil;
 import ru.org.linux.util.bbcode.Parser;
 import ru.org.linux.util.bbcode.nodes.Node;
+import ru.org.linux.util.bbcode.nodes.TextNode;
 
 import java.sql.Connection;
 import java.util.Set;
@@ -62,17 +63,34 @@ public class UrlWithParamTag extends Tag {
         if(node.isParameter()){
             url = node.getParameter().trim();
         }
-        try{
-            String escapedUrl = URLUtil.fixURL(url);
-            ret.append("<a href=\"")
-                    .append(escapedUrl)
-                    .append("\">")
-                    .append(node.renderChildrenXHtml(db))
-                    .append("</a>");
-        }catch (Exception ex){
-            ret.append("<s>")
-                    .append(node.renderChildrenXHtml(db))
-                    .append("</s>");
+        if(node.lengthChildren() == 0 ||
+                (node.lengthChildren() == 1 && ((TextNode)(node.getChildren().iterator().next())).getText().trim().length() == 0)){
+            try{
+                String escapedUrl = URLUtil.fixURL(url);
+                ret.append("<a href=\"")
+                        .append(escapedUrl)
+                        .append("\">")
+                        .append(escapedUrl)
+                        .append("</a>");
+            }catch (Exception ex){
+                ret.append("<s>")
+                        .append(Parser.escape(url))
+                        .append("</s>");
+            }
+
+        }else{
+            try{
+                String escapedUrl = URLUtil.fixURL(url);
+                ret.append("<a href=\"")
+                        .append(escapedUrl)
+                        .append("\">")
+                        .append(node.renderChildrenXHtml(db))
+                        .append("</a>");
+            }catch (Exception ex){
+                ret.append("<s>")
+                        .append(node.renderChildrenXHtml(db))
+                        .append("</s>");
+            }
         }
 
         return ret.toString();
