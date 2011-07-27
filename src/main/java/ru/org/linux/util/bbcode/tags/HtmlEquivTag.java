@@ -89,7 +89,7 @@ public class HtmlEquivTag extends Tag {
             ret.append(node.renderChildrenXHtml(db));
         }else{
             if(selfClosing){
-                ret.append('<').append(opening).append("/>");
+                ret.append('<').append(opening).append(">"); // для xhtml по идее />
             }else{
                 if(node.lengthChildren() > 0){
                     ret.append('<').append(opening).append('>');

@@ -38,6 +38,7 @@
 
 package ru.org.linux.util.bbcode.tags;
 
+import ru.org.linux.util.URLUtil;
 import ru.org.linux.util.bbcode.Parser;
 import ru.org.linux.util.bbcode.nodes.Node;
 import ru.org.linux.util.bbcode.nodes.TextNode;
@@ -48,53 +49,50 @@ import java.util.Set;
 /**
  * Created by IntelliJ IDEA.
  * User: hizel
- * Date: 7/5/11
- * Time: 11:55 AM
+ * Date: 7/26/11
+ * Time: 12:09 PM
  */
-public class CutTag extends HtmlEquivTag{
-
-    private boolean renderCut;
-    private String cutUrl;
-    private int cutId;
-
-    public CutTag(String name, Set<String> allowedChildren, String implicitTag, Parser parser){
+public class UrlWithParamTag extends Tag {
+    public UrlWithParamTag(String name, Set<String> allowedChildren, String implicitTag, Parser parser){
         super(name, allowedChildren, implicitTag, parser);
-        renderCut = false;
-        cutUrl = "";
     }
 
-    public void setRenderOptions(boolean renderCut, String cutUrl) {
-        this.renderCut = renderCut;
-        this.cutUrl = cutUrl;
-    }
-
-    @Override
     public String renderNodeXhtml(Node node, Connection db){
-        if(node.lengthChildren() == 0){
-            return "";
+        StringBuilder ret = new StringBuilder();
+        String url = "";
+        if(node.isParameter()){
+            url = node.getParameter().trim();
+        }
+        if(node.lengthChildren() == 0 ||
+                (node.lengthChildren() == 1 && ((TextNode)(node.getChildren().iterator().next())).getText().trim().length() == 0)){
+            try{
+                String escapedUrl = URLUtil.fixURL(url);
+                ret.append("<a href=\"")
+                        .append(escapedUrl)
+                        .append("\">")
+                        .append(escapedUrl)
+                        .append("</a>");
+            }catch (Exception ex){
+                ret.append("<s>")
+                        .append(Parser.escape(url))
+                        .append("</s>");
+            }
+
         }else{
-            // обработка пустого тэга
-            if(node.lengthChildren() == 1){
-                Node child = node.getChildren().iterator().next();
-                if(TextNode.class.isInstance(child) && ((TextNode)child).getText().trim().length()==0){
-                    return "";
-                }
+            try{
+                String escapedUrl = URLUtil.fixURL(url);
+                ret.append("<a href=\"")
+                        .append(escapedUrl)
+                        .append("\">")
+                        .append(node.renderChildrenXHtml(db))
+                        .append("</a>");
+            }catch (Exception ex){
+                ret.append("<s>")
+                        .append(node.renderChildrenXHtml(db))
+                        .append("</s>");
             }
         }
-        if(renderCut){
-            StringBuilder ret = new StringBuilder();
-            ret.append("<div id=\"cut")
-              .append(Integer.toString(cutId))
-              .append("\">")
-              .append(node.renderChildrenXHtml(db))
-              .append("</div>");
-            return ret.toString();
-        }else{
-            return "<br/><a href=\""+cutUrl+"#cut"+Integer.toString(cutId)+"\">Подробности</a><br/>";
-        }
-    }
 
-  public void setCutId(int cutId) {
-    this.cutId = cutId;
-  }
+        return ret.toString();
+    }
 }

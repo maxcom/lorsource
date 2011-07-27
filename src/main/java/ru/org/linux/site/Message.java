@@ -795,18 +795,20 @@ public class Message implements Serializable {
 
   public String getProcessedMessage(Connection db, boolean includeCut) throws SQLException {
     if (lorcode) {
-      BBCodeProcessor proc = new BBCodeProcessor();
-      proc.setIncludeCut(includeCut);
-      return proc.preparePostText(db, message);
-/*
-      StringBuilder builder = new StringBuilder();
-      builder.append("<div style=\"display:inline-block;width:99%\"><div style=\"float:left;width:49%;display:inline-block\">");
-      builder.append(proc.preparePostText(db, message));
-      builder.append("</div><div style=\"float:left;width:49%;display:inline-block\">");
-      builder.append(ParserUtil.bb2xhtml(message, includeCut, getLink(), db));
-      builder.append("</div></div>");
-      return builder.toString();
-*/
+      User author;
+
+      try {
+        author = User.getUserCached(db, userid);
+      } catch (UserNotFoundException e) {
+        throw new RuntimeException(e);
+      }
+
+      if (author.getScore()>=100) {
+        return ParserUtil.bb2xhtml(message, includeCut, getLink(), db);
+      } else {
+        BBCodeProcessor proc = new BBCodeProcessor();
+        return proc.preparePostText(db, message);
+      }
     } else {
       return "<p>" + message;
     }

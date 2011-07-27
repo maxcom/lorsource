@@ -13,7 +13,7 @@ public class SimpleParserTest {
 
     @Test
     public void brTest(){
-        Assert.assertEquals(ParserUtil.bb2xhtml("[br]",null), "<p><br/></p>");
+        Assert.assertEquals(ParserUtil.bb2xhtml("[br]",null), "<p><br></p>");
     }
 
     @Test
@@ -47,6 +47,10 @@ public class SimpleParserTest {
         Assert.assertEquals(ParserUtil.bb2xhtml("[quote=maxcom]hello world[/quote]",null), "<div class=\"quote\"><h3>maxcom</h3><p>hello world</p></div>");
     }
     @Test
+    public void quoteCleanTest(){
+        Assert.assertEquals("", ParserUtil.bb2xhtml("[quote][/quote]", null));
+    }
+    @Test
     public void urlTest(){
         Assert.assertEquals(ParserUtil.bb2xhtml("[url]http://linux.org.ru[/url]",null), "<p><a href=\"http://linux.org.ru\">http://linux.org.ru</a></p>");
     }
@@ -55,12 +59,28 @@ public class SimpleParserTest {
         Assert.assertEquals(ParserUtil.bb2xhtml("[url=http://linux.org.ru]linux[/url]",null), "<p><a href=\"http://linux.org.ru\">linux</a></p>");
     }
     @Test
+    public void urlParamWithTagTest(){
+        Assert.assertEquals(ParserUtil.bb2xhtml("[url=http://linux.org.ru][b]l[/b]inux[/url]",null), "<p><a href=\"http://linux.org.ru\"><b>l</b>inux</a></p>");
+    }
+    @Test
     public void listTest(){
         Assert.assertEquals(ParserUtil.bb2xhtml("[list][*]one[*]two[*]three[/list]",null), "<ul><li>one</li><li>two</li><li>three</li></ul>");
     }
     @Test
     public void codeTest(){
         Assert.assertEquals(ParserUtil.bb2xhtml("[code][list][*]one[*]two[*]three[/list][/code]",null), "<div class=\"code\"><pre class=\"no-highlight\"><code>[list][*]one[*]two[*]three[/list]</code></pre></div>");
+    }
+    @Test
+    public void codeCleanTest(){
+        Assert.assertEquals("", ParserUtil.bb2xhtml("[code][/code]", null));
+    }
+    @Test
+    public void codeKnowTest(){
+        Assert.assertEquals("<div class=\"code\"><pre class=\"language-cpp\"><code>#include &lt;stdio.h&gt;</code></pre></div>", ParserUtil.bb2xhtml("[code=cxx]#include <stdio.h>[/code]", null));
+    }
+    @Test
+    public void codeUnKnowTest(){
+        Assert.assertEquals("<div class=\"code\"><pre class=\"no-highlight\"><code>#include &lt;stdio.h&gt;</code></pre></div>", ParserUtil.bb2xhtml("[code=foo]#include <stdio.h>[/code]", null));
     }
     @Test
     public void overflow1Test(){

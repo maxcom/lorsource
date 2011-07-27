@@ -67,6 +67,7 @@ public class UrlTag extends Tag {
         // Внцтри [url] только текст
         TextNode txtNode = (TextNode)node.getChildren().iterator().next();
         if(node.isParameter()){
+            // сюда никогда не должна попасть обрабатывается специально в Parser
           url = node.getParameter().trim();
         }else{
           url = txtNode.getText().trim();
