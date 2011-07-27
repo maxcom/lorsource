@@ -803,7 +803,7 @@ public class Message implements Serializable {
         throw new RuntimeException(e);
       }
 
-      if (author.getScore()>=200) {
+      if (author.getScore()>=100) {
         return ParserUtil.bb2xhtml(message, includeCut, getLink(), db);
       } else {
         BBCodeProcessor proc = new BBCodeProcessor();
