@@ -210,7 +210,6 @@ public class ProfileProperties {
   private static String fixFormat(String mode) {
     if (!"ntobrq".equals(mode) &&
         !"quot".equals(mode) &&
-        !"tex".equals(mode) &&
         !"ntobr".equals(mode) &&
         !"lorcode".equals(mode)) {
       return (String) Profile.getDefaults().get("format.mode");

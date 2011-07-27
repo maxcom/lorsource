@@ -324,9 +324,6 @@ public class AddMessageForm {
       if ("ntobr".equals(mode)) {
         formatter.enableNewLineMode();
       }
-      if ("tex".equals(mode)) {
-        formatter.enableTexNewLineMode();
-      }
 
       return formatter.process();
     }

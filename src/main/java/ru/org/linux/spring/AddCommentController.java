@@ -117,9 +117,6 @@ public class AddCommentController extends ApplicationObjectSupport {
     if ("ntobr".equals(mode)) {
       form.enableNewLineMode();
     }
-    if ("tex".equals(mode)) {
-      form.enableTexNewLineMode();
-    }
     if ("quot".equals(mode)) {
       form.enableTexNewLineMode();
       form.enableQuoting();
