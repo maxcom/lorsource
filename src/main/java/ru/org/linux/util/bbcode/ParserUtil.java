@@ -1,5 +1,7 @@
 package ru.org.linux.util.bbcode;
 
+import ru.org.linux.util.bbcode.nodes.RootNode;
+
 import java.sql.Connection;
 import java.util.EnumSet;
 
@@ -17,6 +19,7 @@ public class ParserUtil {
     }
 
     public static String bb2xhtml(String bbcode, boolean renderCut, boolean cleanCut, String cutUrl, Connection db){
-        return parserWithImages.parse(bbcode, renderCut, cleanCut, cutUrl).renderXHtml(db);
+        RootNode rootNode = parserWithImages.parse(bbcode, renderCut, cleanCut, cutUrl);
+        return rootNode.renderXHtml(db);
     }
 }

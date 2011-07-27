@@ -258,8 +258,8 @@ public class Parser {
             }
 
             if(matcher.find() && !isCode){
-		currentNode = pushTextNode(currentNode, text.substring(0, matcher.start()), false);
-		currentNode = ascend(currentNode);
+		        currentNode = pushTextNode(currentNode, text.substring(0, matcher.start()), false);
+		        currentNode = ascend(currentNode);
                 currentNode.getChildren().add(new TagNode(currentNode, this, "p", " "));
                 currentNode = descend(currentNode);
                 currentNode = pushTextNode(currentNode, text.substring(matcher.end()), false);
@@ -282,24 +282,28 @@ public class Parser {
         return currentNode.getParent();
     }
 
-    private Node pushTagNode(RootNode rootNode, Node currentNode, String name, String parameter, boolean renderCut, boolean cleanCut, String cutUrl){
+    private Node pushTagNode(RootNode rootNode, Node currentNode, String name, String parameter){
         if(!currentNode.allows(name)){
             Tag newTag = allTagsDict.get(name);
 
             if(newTag.isDiscardable()){
                 return currentNode;
             }else if(currentNode == rootNode || blockLevelTags.contains(((TagNode)currentNode).getBbtag().getName()) && newTag.getImplicitTag() != null){
-                currentNode = pushTagNode(rootNode, currentNode, newTag.getImplicitTag(), "", renderCut, cleanCut, cutUrl);
-                currentNode = pushTagNode(rootNode, currentNode, name, parameter, renderCut, cleanCut, cutUrl);
+                currentNode = pushTagNode(rootNode, currentNode, newTag.getImplicitTag(), "");
+                currentNode = pushTagNode(rootNode, currentNode, name, parameter);
             }else{
                 currentNode = currentNode.getParent();
-                currentNode = pushTagNode(rootNode, currentNode, name, parameter, renderCut, cleanCut, cutUrl);
+                currentNode = pushTagNode(rootNode, currentNode, name, parameter);
             }
         }else{
             TagNode node = new TagNode(currentNode, this, name, parameter);
             if("cut".equals(name)){
                 CutTag cutTag = ((CutTag)(node.getBbtag()));
-                cutTag.setRenderOptions(renderCut, cleanCut, cutUrl);
+                cutTag.setRenderOptions(
+                        rootNode.isRenderCut(),
+                        rootNode.isCleanCut(),
+                        rootNode.getCutUrl()
+                );
                 cutTag.setCutId(rootNode.getCutCount());
                 rootNode.incCutCount();
             }
@@ -336,7 +340,7 @@ public class Parser {
     }
 
     public RootNode parse(String rawbbcode){
-        return parse(rawbbcode, true, false, "");
+        return parse(rawbbcode, true, true, "");
 
     }
 
@@ -351,6 +355,7 @@ public class Parser {
 
     public RootNode parse(String rawbbcode, boolean renderCut, boolean cleanCut, String cutUrl){
         RootNode rootNode = new RootNode(this);
+        rootNode.setRenderOptions(renderCut, cleanCut, cutUrl);
         Node currentNode = rootNode;
         String bbcode = rawbbcode;
         int pos = 0;
@@ -389,13 +394,13 @@ public class Parser {
                                 currentNode = pushTextNode(currentNode, wholematch, false);
                             }else if("code".equals(tagname)){
                                 isCode = true;
-                                currentNode = pushTagNode(rootNode, currentNode, tagname, parameter, renderCut, cleanCut, cutUrl);
+                                currentNode = pushTagNode(rootNode, currentNode, tagname, parameter);
                             }else{
                                 if("url".equals(tagname) && parameter != null && parameter.length() > 0){
                                     // специальная проверка для [url] с параметром
-                                    currentNode = pushTagNode(rootNode, currentNode, "url2", parameter, renderCut, cleanCut, cutUrl);
+                                    currentNode = pushTagNode(rootNode, currentNode, "url2", parameter);
                                 }else{
-                                    currentNode = pushTagNode(rootNode, currentNode, tagname, parameter, renderCut, cleanCut, cutUrl);
+                                    currentNode = pushTagNode(rootNode, currentNode, tagname, parameter);
                                 }
                             }
                         }
