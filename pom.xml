@@ -306,6 +306,12 @@
                     <webAppSourceDirectory>${project.build.directory}/${project.build.finalName}</webAppSourceDirectory>
 
                     <useTestClasspath>true</useTestClasspath>
+                    <systemProperties>
+                        <systemProperty>
+                            <name>java.net.preferIPv4Stack</name>
+                            <value>true</value>
+                        </systemProperty>
+                    </systemProperties>
                 </configuration>
             </plugin>
 
