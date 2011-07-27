@@ -16,7 +16,7 @@ public class ParserUtil {
         return parserWithImages.parse(bbcode).renderXHtml(db);
     }
 
-    public static String bb2xhtml(String bbcode, boolean renderCut, String cutUrl, Connection db){
-        return parserWithImages.parse(bbcode, renderCut, cutUrl).renderXHtml(db);
+    public static String bb2xhtml(String bbcode, boolean renderCut, boolean cleanCut, String cutUrl, Connection db){
+        return parserWithImages.parse(bbcode, renderCut, cleanCut, cutUrl).renderXHtml(db);
     }
 }

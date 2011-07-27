@@ -282,24 +282,24 @@ public class Parser {
         return currentNode.getParent();
     }
 
-    private Node pushTagNode(RootNode rootNode, Node currentNode, String name, String parameter, boolean renderCut, String cutUrl){
+    private Node pushTagNode(RootNode rootNode, Node currentNode, String name, String parameter, boolean renderCut, boolean cleanCut, String cutUrl){
         if(!currentNode.allows(name)){
             Tag newTag = allTagsDict.get(name);
 
             if(newTag.isDiscardable()){
                 return currentNode;
             }else if(currentNode == rootNode || blockLevelTags.contains(((TagNode)currentNode).getBbtag().getName()) && newTag.getImplicitTag() != null){
-                currentNode = pushTagNode(rootNode, currentNode, newTag.getImplicitTag(), "", renderCut, cutUrl);
-                currentNode = pushTagNode(rootNode, currentNode, name, parameter, renderCut, cutUrl);
+                currentNode = pushTagNode(rootNode, currentNode, newTag.getImplicitTag(), "", renderCut, cleanCut, cutUrl);
+                currentNode = pushTagNode(rootNode, currentNode, name, parameter, renderCut, cleanCut, cutUrl);
             }else{
                 currentNode = currentNode.getParent();
-                currentNode = pushTagNode(rootNode, currentNode, name, parameter, renderCut, cutUrl);
+                currentNode = pushTagNode(rootNode, currentNode, name, parameter, renderCut, cleanCut, cutUrl);
             }
         }else{
             TagNode node = new TagNode(currentNode, this, name, parameter);
             if("cut".equals(name)){
                 CutTag cutTag = ((CutTag)(node.getBbtag()));
-                cutTag.setRenderOptions(renderCut, cutUrl);
+                cutTag.setRenderOptions(renderCut, cleanCut, cutUrl);
                 cutTag.setCutId(rootNode.getCutCount());
                 rootNode.incCutCount();
             }
@@ -336,11 +336,20 @@ public class Parser {
     }
 
     public RootNode parse(String rawbbcode){
-        return parse(rawbbcode, true, "");
+        return parse(rawbbcode, true, false, "");
 
     }
 
-    public RootNode parse(String rawbbcode, boolean renderCut, String cutUrl){
+    /**
+     * Основная функция
+     * @param rawbbcode сырой bbcode
+     * @param renderCut флаг, если true отображаем содержимое [cut] иначе вставляем ссылку на него
+     * @param cleanCut флаг, если true не оборачиваем содержимое cut в div
+     * @param cutUrl ссылка, которя подставляется если renderCut false
+     * @return возвращает инвалидный html
+     */
+
+    public RootNode parse(String rawbbcode, boolean renderCut, boolean cleanCut, String cutUrl){
         RootNode rootNode = new RootNode(this);
         Node currentNode = rootNode;
         String bbcode = rawbbcode;
@@ -380,13 +389,13 @@ public class Parser {
                                 currentNode = pushTextNode(currentNode, wholematch, false);
                             }else if("code".equals(tagname)){
                                 isCode = true;
-                                currentNode = pushTagNode(rootNode, currentNode, tagname, parameter, renderCut, cutUrl);
+                                currentNode = pushTagNode(rootNode, currentNode, tagname, parameter, renderCut, cleanCut, cutUrl);
                             }else{
                                 if("url".equals(tagname) && parameter != null && parameter.length() > 0){
                                     // специальная проверка для [url] с параметром
-                                    currentNode = pushTagNode(rootNode, currentNode, "url2", parameter, renderCut, cutUrl);
+                                    currentNode = pushTagNode(rootNode, currentNode, "url2", parameter, renderCut, cleanCut, cutUrl);
                                 }else{
-                                    currentNode = pushTagNode(rootNode, currentNode, tagname, parameter, renderCut, cutUrl);
+                                    currentNode = pushTagNode(rootNode, currentNode, tagname, parameter, renderCut, cleanCut, cutUrl);
                                 }
                             }
                         }

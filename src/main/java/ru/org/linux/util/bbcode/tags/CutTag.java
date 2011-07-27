@@ -54,6 +54,7 @@ import java.util.Set;
 public class CutTag extends HtmlEquivTag{
 
     private boolean renderCut;
+    private boolean cleanCut;
     private String cutUrl;
     private int cutId;
 
@@ -63,8 +64,9 @@ public class CutTag extends HtmlEquivTag{
         cutUrl = "";
     }
 
-    public void setRenderOptions(boolean renderCut, String cutUrl) {
+    public void setRenderOptions(boolean renderCut, boolean cleanCut, String cutUrl) {
         this.renderCut = renderCut;
+        this.cleanCut = cleanCut;
         this.cutUrl = cutUrl;
     }
 
@@ -81,7 +83,7 @@ public class CutTag extends HtmlEquivTag{
                 }
             }
         }
-        if(renderCut){
+        if(renderCut && !cleanCut){
             StringBuilder ret = new StringBuilder();
             ret.append("<div id=\"cut")
               .append(Integer.toString(cutId))
@@ -89,12 +91,15 @@ public class CutTag extends HtmlEquivTag{
               .append(node.renderChildrenXHtml(db))
               .append("</div>");
             return ret.toString();
+        }else if(renderCut && cleanCut){
+            return node.renderChildrenXHtml(db);
         }else{
             return "<br/><a href=\""+cutUrl+"#cut"+Integer.toString(cutId)+"\">Подробности</a><br/>";
         }
     }
 
-  public void setCutId(int cutId) {
+
+    public void setCutId(int cutId) {
     this.cutId = cutId;
   }
 }
