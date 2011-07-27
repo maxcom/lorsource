@@ -340,22 +340,18 @@ public class Parser {
     }
 
     public RootNode parse(String rawbbcode){
-        return parse(rawbbcode, true, true, "");
-
+        RootNode rootNode = new RootNode(this);
+        rootNode.setRenderOptions(true, true, "");
+        return parse(rootNode, rawbbcode);
     }
 
     /**
      * Основная функция
      * @param rawbbcode сырой bbcode
-     * @param renderCut флаг, если true отображаем содержимое [cut] иначе вставляем ссылку на него
-     * @param cleanCut флаг, если true не оборачиваем содержимое cut в div
-     * @param cutUrl ссылка, которя подставляется если renderCut false
      * @return возвращает инвалидный html
      */
 
-    public RootNode parse(String rawbbcode, boolean renderCut, boolean cleanCut, String cutUrl){
-        RootNode rootNode = new RootNode(this);
-        rootNode.setRenderOptions(renderCut, cleanCut, cutUrl);
+    public RootNode parse(RootNode rootNode, String rawbbcode){
         Node currentNode = rootNode;
         String bbcode = rawbbcode;
         int pos = 0;
