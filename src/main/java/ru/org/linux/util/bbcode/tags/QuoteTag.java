@@ -40,6 +40,7 @@ package ru.org.linux.util.bbcode.tags;
 
 import ru.org.linux.util.bbcode.Parser;
 import ru.org.linux.util.bbcode.nodes.Node;
+import ru.org.linux.util.bbcode.nodes.TextNode;
 
 import java.sql.Connection;
 import java.util.Set;
@@ -57,6 +58,17 @@ public class QuoteTag extends Tag {
     @Override
     public String renderNodeXhtml(Node node, Connection db){
         StringBuilder ret = new StringBuilder();
+        if(node.lengthChildren() == 0){
+            return "";
+        }else{
+            // обработка пустого тэга
+            if(node.lengthChildren() == 1){
+                Node child = node.getChildren().iterator().next();
+                if(TextNode.class.isInstance(child) && ((TextNode)child).getText().trim().length()==0){
+                    return "";
+                }
+            }
+        }
         if(!node.isParameter()){
             node.setParameter("");
         }else{
