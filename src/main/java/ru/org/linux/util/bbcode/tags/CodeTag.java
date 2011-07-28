@@ -79,6 +79,20 @@ public class CodeTag extends Tag{
       .put("lisp", "language-lisp")
       .put("scheme", "language-lisp")
       .put("ruby", "language-ruby")
+      .put("cs", "language-cs").put("c#", "language-cs")
+      .put("sql", "language-sql")
+      .put("ini", "language-ini")
+      .put("cmake", "language-cmake")
+      .put("erlang", "language-erlang")
+      .put("objectivec", "language-objectivec").put("objc","language-objectivec")
+      .put("scala", "language-scala")
+      .put("vhdl", "language-vhdl")
+      .put("lua", "language-lua")
+      .put("smalltalk", "language-smalltalk")
+      .put("vala", "language-vala")
+      .put("go", "language-go")
+      .put("tex", "language-tex")
+      .put("vbscript", "language-vbsript")
       .build();
 
     public CodeTag(String name, Set<String> allowedChildren, String implicitTag, Parser parser){
