@@ -94,7 +94,7 @@ public class CutTag extends HtmlEquivTag{
         }else if(renderCut && cleanCut){
             return node.renderChildrenXHtml(db);
         }else{
-            return "<br/><a href=\""+cutUrl+"#cut"+Integer.toString(cutId)+"\">Подробности</a><br/>";
+            return "<br><a href=\""+cutUrl+"#cut"+Integer.toString(cutId)+"\">Подробности</a><br>";
         }
     }
 
