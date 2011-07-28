@@ -318,14 +318,8 @@ public class AddMessageForm {
       formatter.enableUrlHighLightMode();
       formatter.setOutputLorcode(true);
 
-      if ("ntobrq".equals(mode)) {
-        formatter.enableNewLineMode();
-      }
       if ("ntobr".equals(mode)) {
         formatter.enableNewLineMode();
-      }
-      if ("tex".equals(mode)) {
-        formatter.enableTexNewLineMode();
       }
 
       return formatter.process();

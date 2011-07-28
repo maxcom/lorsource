@@ -123,9 +123,7 @@ $(document).ready(function() {
   <td valign=top>Форматирование по умолчанию</td>
   <td>
     <% String formatMode=tmpl.getFormatMode(); %>
-    <input type=radio name=format_mode id="format-ntobrq" value=ntobrq <%= "ntobrq".equals(formatMode)?"checked":"" %>><label for="format-ntobrq">User line break w/quoting</label><br>
     <input type=radio name=format_mode id="format-quot"  value=quot   <%= "quot".equals(formatMode)?"checked":"" %>><label for="format-quot">TeX paragraphs w/quoting (default)</label><br>
-    <input type=radio name=format_mode id="format-tex" value=tex    <%= "tex".equals(formatMode)?"checked":"" %>><label for="format-tex">TeX paragraphs w/o quoting</label><br>
     <input type=radio name=format_mode id="format-ntobr" value=ntobr  <%= "ntobr".equals(formatMode)?"checked":"" %>><label for="format-ntobr">User line break w/o quoting</label><br>
     <input type=radio name=format_mode id="format-lorcode" value=lorcode  <%= "lorcode".equals(formatMode)?"checked":"" %>><label for="format-lorcode">LORCODE</label><br>
   </td>

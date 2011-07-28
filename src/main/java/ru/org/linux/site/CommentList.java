@@ -26,7 +26,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import ru.org.linux.spring.commons.CacheProvider;
-import ru.org.linux.util.UtilException;
 
 public class CommentList implements Serializable {
   private static final Log logger = LogFactory.getLog(CommentList.class);
@@ -110,7 +109,7 @@ public class CommentList implements Serializable {
     }
   }
 
-  public int getCommentPage(Comment comment, Template tmpl) throws UtilException {
+  public int getCommentPage(Comment comment, Template tmpl) {
     int messages = tmpl.getProf().getMessages();
     boolean reverse = tmpl.getProf().isShowNewFirst();
 

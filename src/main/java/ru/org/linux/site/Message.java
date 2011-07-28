@@ -15,21 +15,6 @@
 
 package ru.org.linux.site;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.sql.*;
-import java.util.List;
-
-import javax.servlet.ServletRequest;
-import javax.servlet.http.HttpServletRequest;
-
-import ru.org.linux.spring.AddMessageForm;
-import ru.org.linux.spring.SectionStore;
-import ru.org.linux.util.*;
-import ru.org.linux.util.bbcode.ParserUtil;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.logging.Log;
@@ -40,6 +25,19 @@ import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.jdbc.datasource.SingleConnectionDataSource;
+import ru.org.linux.spring.AddMessageForm;
+import ru.org.linux.spring.SectionStore;
+import ru.org.linux.util.*;
+import ru.org.linux.util.bbcode.ParserUtil;
+
+import javax.servlet.ServletRequest;
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.sql.*;
+import java.util.List;
 
 public class Message implements Serializable {
   private static final Log logger = LogFactory.getLog(Message.class);
@@ -803,8 +801,8 @@ public class Message implements Serializable {
         throw new RuntimeException(e);
       }
 
-      if (author.getScore()>=100) {
-        return ParserUtil.bb2xhtml(message, includeCut, getLink(), db);
+      if (author.getScore()>=50) {
+        return ParserUtil.bb2xhtml(message, includeCut, false, getLink(), db);
       } else {
         BBCodeProcessor proc = new BBCodeProcessor();
         return proc.preparePostText(db, message);
@@ -898,9 +896,7 @@ public class Message implements Serializable {
         throw new RuntimeException(e);
       }
 
-      if (author.getScore() < 300) {
-        author.changeScore(db, bonus);
-      }
+      author.changeScore(db, bonus);
     } finally {
       if (pst != null) {
         pst.close();

@@ -51,10 +51,10 @@ import java.util.List;
  * Time: 11:49 PM
 */
 public class Node {
-    protected Node parent=null;
-    protected final List<Node> children;
-    protected String parameter;
-    protected final Parser parser;
+    Node parent=null;
+    private final List<Node> children;
+    String parameter;
+    final Parser parser;
 
     public Node(Parser parser){
         this.parser = parser;

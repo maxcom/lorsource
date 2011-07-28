@@ -39,11 +39,13 @@
 package ru.org.linux.util.bbcode.tags;
 
 import ru.org.linux.site.User;
+import ru.org.linux.site.UserNotFoundException;
 import ru.org.linux.util.bbcode.Parser;
 import ru.org.linux.util.bbcode.nodes.Node;
 import ru.org.linux.util.bbcode.nodes.TextNode;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Set;
 
 /**
@@ -58,7 +60,7 @@ public class MemberTag extends Tag{
     }
 
     @Override
-    public String renderNodeXhtml(Node node, Connection db){
+    public String renderNodeXhtml(Node node, Connection db) {
         if(node.lengthChildren() == 0){
             return "";
         }
@@ -72,10 +74,12 @@ public class MemberTag extends Tag{
             }else{
                 pattern = "<span style=\"white-space: nowrap\"><img src=\"/img/tuxlor.png\"><s><a style=\"text-decoration: none\" href='/people/%s/profile'>%s</a></s></span>";
             }
-        }catch (Exception ex){
+        }catch (UserNotFoundException ex){
             pattern = "<s>%s</s>";
+        } catch (SQLException e) {
+            pattern = "<s>%s</s>"; // TODO throw this exception up
         }
-        return String.format(pattern, Parser.escape(memberName), Parser.escape(memberName));
+      return String.format(pattern, Parser.escape(memberName), Parser.escape(memberName));
 
     }
 

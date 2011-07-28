@@ -78,7 +78,7 @@ public class PreparedComment {
 
     if (bbcode) {
       if (author.getScore()>=100) {
-        return ParserUtil.bb2xhtml(text, true, "", db);
+        return ParserUtil.bb2xhtml(text, true, true, "", db);
       } else {
         BBCodeProcessor proc = new BBCodeProcessor();
         return proc.preparePostText(db, text);
@@ -89,8 +89,8 @@ public class PreparedComment {
   }
 
   private static String getProcessedMessage(Connection db, String message, User author) throws SQLException {
-    if (author.getScore()>=100) {
-      return ParserUtil.bb2xhtml(message, true, "", db);
+    if (author.getScore()>=50) {
+      return ParserUtil.bb2xhtml(message, true, true, "", db);
     } else {
       BBCodeProcessor proc = new BBCodeProcessor();
       return proc.preparePostText(db, message);

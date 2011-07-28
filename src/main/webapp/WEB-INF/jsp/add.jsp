@@ -134,9 +134,8 @@
   Популярные теги: <%= Tags.getEditTags(topTags) %> <br>
   </c:if>
 <select name=mode>
-<option value=tex <%= ("tex".equals(mode))?"selected":""%> >TeX paragraphs
-<option value=ntobr <%= ("ntobr".equals(mode))?"selected":""%> >User line break
 <option value=lorcode <%= ("lorcode".equals(mode))?"selected":""%> >LORCODE
+<option value=ntobr <%= ("ntobr".equals(mode))?"selected":""%> >User line break
 </select>
 
   <lor:captcha/>

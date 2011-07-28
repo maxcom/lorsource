@@ -39,9 +39,9 @@
 package ru.org.linux.util.bbcode;
 
 import com.google.common.collect.ImmutableSet;
+import ru.org.linux.util.HTMLFormatter;
 import ru.org.linux.util.bbcode.nodes.*;
 import ru.org.linux.util.bbcode.tags.*;
-import ru.org.linux.util.HTMLFormatter;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -72,6 +72,7 @@ public class Parser {
     private final ImmutableSet<String> urlTags;
     private final ImmutableSet<String> blockLevelTags;
     private final ImmutableSet<String> flowTags;
+    private final ImmutableSet<String> pTags;
     private final ImmutableSet<String> otherTags;
     private final ImmutableSet<String> anchorTags;
     private final ImmutableSet<String> autoLinkTags;
@@ -97,7 +98,12 @@ public class Parser {
         blockLevelTags = ImmutableSet.of("p", "quote", "list", "pre", "code", "div", "cut");
 
         //Тэги в которых разрешен автоматическое выделение ссылок
-        autoLinkTags = ImmutableSet.of("b", "i", "u", "s", "em", "strong", "p", "quote", "div", "cut");
+        autoLinkTags = ImmutableSet.of("b", "i", "u", "s", "em", "strong", "p", "quote", "div", "cut", "pre");
+
+        pTags = new ImmutableSet.Builder<String>()
+                .addAll(inlineTags)
+                .add("p", "pre", "code", "div")
+                .build();
 
         // Все тэги кроме специальных
         flowTags = new ImmutableSet.Builder<String>()
@@ -172,8 +178,9 @@ public class Parser {
             allTags.add(tag);
         }
         { // <p>
-            HtmlEquivTag tag = new HtmlEquivTag("p", flowTags, null, this);
+            HtmlEquivTag tag = new HtmlEquivTag("p", pTags, null, this);
             tag.setHtmlEquiv("p");
+            tag.setProhibitedElements(ImmutableSet.<String>of("div"));
             allTags.add(tag);
         }
         { // <div>
@@ -182,26 +189,26 @@ public class Parser {
             allTags.add(tag);
         }
         { // <blockquote>
-            QuoteTag tag = new QuoteTag("quote", blockLevelTags, "p", this);
+            QuoteTag tag = new QuoteTag("quote", blockLevelTags, "div", this);
             allTags.add(tag);
         }
         { // <ul>
-            ListTag tag = new ListTag("list", ImmutableSet.<String>of("*", "softbr"), null, this);
+            ListTag tag = new ListTag("list", ImmutableSet.<String>of("*", "softbr"), "div", this);
             allTags.add(tag);
         }
         { // <pre> (only img currently needed out of the prohibited elements)
-            HtmlEquivTag tag = new HtmlEquivTag("pre", inlineTags, null, this);
+            HtmlEquivTag tag = new HtmlEquivTag("pre", inlineTags, "div", this);
             tag.setHtmlEquiv("pre");
-            tag.setProhibitedElements(ImmutableSet.<String>of("img", "big", "small", "sub", "sup"));
+            tag.setProhibitedElements(ImmutableSet.<String>of("img"));
             allTags.add(tag);
         }
         { // <pre class="code">
-            CodeTag tag = new CodeTag("code", inlineTags, null, this);
-            tag.setProhibitedElements(ImmutableSet.<String>of("img", "big", "small", "sub", "sup"));
+            CodeTag tag = new CodeTag("code", inlineTags, "div", this);
+            tag.setProhibitedElements(ImmutableSet.<String>of("img"));
             allTags.add(tag);
         }
         {   // [cut]
-            CutTag tag = new CutTag("cut", flowTags, null, this);
+            CutTag tag = new CutTag("cut", flowTags, "div", this);
             tag.setHtmlEquiv("div");
             allTags.add(tag);
         }
@@ -227,7 +234,7 @@ public class Parser {
         return HTMLFormatter.htmlSpecialChars(html);
     }
 
-    protected boolean rootAllowsInline;
+    private boolean rootAllowsInline;
 
     private Node pushTextNode(Node currentNode, String text, boolean escaped){
         if(!currentNode.allows("text")){
@@ -241,6 +248,9 @@ public class Parser {
                 if(currentNode.allows("p")){
                     currentNode.getChildren().add(new TagNode(currentNode, this, "p", ""));
                     currentNode = descend(currentNode);
+                }else if(currentNode.allows("div")){
+                    currentNode.getChildren().add(new TagNode(currentNode, this, "div", ""));
+                    currentNode = descend(currentNode);
                 }else{
                     currentNode = ascend(currentNode);
                 }
@@ -250,16 +260,20 @@ public class Parser {
             Matcher matcher = P_REGEXP.matcher(text);
 
             boolean isCode = false;
+            boolean isPre = false;
             if(TagNode.class.isInstance(currentNode)){
                 TagNode tempNode  = (TagNode)currentNode;
                 if(CodeTag.class.isInstance(tempNode.getBbtag())){
                     isCode = true;
                 }
+                if("pre".equals(tempNode.getBbtag().getName())){
+                    isPre = true;
+                }
             }
 
-            if(matcher.find() && !isCode){
-		currentNode = pushTextNode(currentNode, text.substring(0, matcher.start()), false);
-		currentNode = ascend(currentNode);
+            if(matcher.find() && !isCode && !isPre){
+		        currentNode = pushTextNode(currentNode, text.substring(0, matcher.start()), false);
+		        currentNode = ascend(currentNode);
                 currentNode.getChildren().add(new TagNode(currentNode, this, "p", " "));
                 currentNode = descend(currentNode);
                 currentNode = pushTextNode(currentNode, text.substring(matcher.end()), false);
@@ -282,24 +296,28 @@ public class Parser {
         return currentNode.getParent();
     }
 
-    private Node pushTagNode(RootNode rootNode, Node currentNode, String name, String parameter, boolean renderCut, String cutUrl){
+    private Node pushTagNode(RootNode rootNode, Node currentNode, String name, String parameter){
         if(!currentNode.allows(name)){
             Tag newTag = allTagsDict.get(name);
 
             if(newTag.isDiscardable()){
                 return currentNode;
             }else if(currentNode == rootNode || blockLevelTags.contains(((TagNode)currentNode).getBbtag().getName()) && newTag.getImplicitTag() != null){
-                currentNode = pushTagNode(rootNode, currentNode, newTag.getImplicitTag(), "", renderCut, cutUrl);
-                currentNode = pushTagNode(rootNode, currentNode, name, parameter, renderCut, cutUrl);
+                currentNode = pushTagNode(rootNode, currentNode, newTag.getImplicitTag(), "");
+                currentNode = pushTagNode(rootNode, currentNode, name, parameter);
             }else{
                 currentNode = currentNode.getParent();
-                currentNode = pushTagNode(rootNode, currentNode, name, parameter, renderCut, cutUrl);
+                currentNode = pushTagNode(rootNode, currentNode, name, parameter);
             }
         }else{
             TagNode node = new TagNode(currentNode, this, name, parameter);
             if("cut".equals(name)){
                 CutTag cutTag = ((CutTag)(node.getBbtag()));
-                cutTag.setRenderOptions(renderCut, cutUrl);
+                cutTag.setRenderOptions(
+                        rootNode.isRenderCut(),
+                        rootNode.isCleanCut(),
+                        rootNode.getCutUrl()
+                );
                 cutTag.setCutId(rootNode.getCutCount());
                 rootNode.incCutCount();
             }
@@ -311,7 +329,7 @@ public class Parser {
         return currentNode;
     }
 
-    private Node closeTagNode(RootNode rootNode, Node currentNode, String name){
+    private static Node closeTagNode(RootNode rootNode, Node currentNode, String name){
         Node tempNode = currentNode;
         while (true){
             if(tempNode == rootNode){
@@ -336,12 +354,18 @@ public class Parser {
     }
 
     public RootNode parse(String rawbbcode){
-        return parse(rawbbcode, true, "");
-
+        RootNode rootNode = new RootNode(this);
+        rootNode.setRenderOptions(true, true, "");
+        return parse(rootNode, rawbbcode);
     }
 
-    public RootNode parse(String rawbbcode, boolean renderCut, String cutUrl){
-        RootNode rootNode = new RootNode(this);
+    /**
+     * Основная функция
+     * @param rawbbcode сырой bbcode
+     * @return возвращает инвалидный html
+     */
+
+    public RootNode parse(RootNode rootNode, String rawbbcode){
         Node currentNode = rootNode;
         String bbcode = rawbbcode;
         int pos = 0;
@@ -380,13 +404,13 @@ public class Parser {
                                 currentNode = pushTextNode(currentNode, wholematch, false);
                             }else if("code".equals(tagname)){
                                 isCode = true;
-                                currentNode = pushTagNode(rootNode, currentNode, tagname, parameter, renderCut, cutUrl);
+                                currentNode = pushTagNode(rootNode, currentNode, tagname, parameter);
                             }else{
                                 if("url".equals(tagname) && parameter != null && parameter.length() > 0){
                                     // специальная проверка для [url] с параметром
-                                    currentNode = pushTagNode(rootNode, currentNode, "url2", parameter, renderCut, cutUrl);
+                                    currentNode = pushTagNode(rootNode, currentNode, "url2", parameter);
                                 }else{
-                                    currentNode = pushTagNode(rootNode, currentNode, tagname, parameter, renderCut, cutUrl);
+                                    currentNode = pushTagNode(rootNode, currentNode, tagname, parameter);
                                 }
                             }
                         }

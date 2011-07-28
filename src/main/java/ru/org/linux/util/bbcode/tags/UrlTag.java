@@ -39,6 +39,7 @@
 package ru.org.linux.util.bbcode.tags;
 
 import ru.org.linux.util.URLUtil;
+import ru.org.linux.util.UtilException;
 import ru.org.linux.util.bbcode.Parser;
 import ru.org.linux.util.bbcode.nodes.Node;
 import ru.org.linux.util.bbcode.nodes.TextNode;
@@ -83,7 +84,7 @@ public class UrlTag extends Tag {
           ret.append("\">");
           ret.append(Parser.escape(linkText));
           ret.append("</a>");
-        }catch(Exception ex){
+        }catch(UtilException ex){
           ret.append("<s>");
           ret.append(Parser.escape(url));
           ret.append("</s>");

@@ -38,6 +38,7 @@
 
 package ru.org.linux.util.bbcode.tags;
 
+import com.google.common.collect.ImmutableMap;
 import ru.org.linux.util.bbcode.Parser;
 import ru.org.linux.util.bbcode.nodes.Node;
 
@@ -53,8 +54,8 @@ import java.util.Set;
  * Time: 10:40 AM
  */
 public class HtmlEquivTag extends Tag {
-    protected String htmlEquiv;
-    protected Map<String, String> attributes;
+    private String htmlEquiv;
+    private Map<String, String> attributes = ImmutableMap.of();
 
     public HtmlEquivTag(String name, Set<String> allowedChildren, String implicitTag, Parser parser){
         super(name, allowedChildren, implicitTag, parser);
@@ -72,24 +73,23 @@ public class HtmlEquivTag extends Tag {
     public String renderNodeXhtml(Node node, Connection db){
         StringBuilder opening = new StringBuilder(htmlEquiv);
         StringBuilder ret = new StringBuilder();
-        if(attributes != null){
-            Iterator i = attributes.keySet().iterator();
+
+        if(!attributes.isEmpty()){
             opening.append(' ');
-            while(i.hasNext()){
-                Map.Entry<String,String> entry = (Map.Entry<String,String>)i.next();
-                String key = entry.getKey();
-                String value = entry.getValue();
-                opening.append(key);
+          
+            for (Map.Entry<String, String> entry : attributes.entrySet()) {
+                opening.append(entry.getKey());
                 opening.append('=');
-                opening.append(Parser.escape(value));
+                opening.append(Parser.escape(entry.getValue()));
                 opening.append(' ');
             }
         }
+
         if(htmlEquiv.isEmpty()){
             ret.append(node.renderChildrenXHtml(db));
-        }else{
+        } else {
             if(selfClosing){
-                ret.append('<').append(opening).append(">"); // для xhtml по идее />
+                ret.append('<').append(opening).append('>'); // для xhtml по идее />
             }else{
                 if(node.lengthChildren() > 0){
                     ret.append('<').append(opening).append('>');
@@ -109,5 +109,4 @@ public class HtmlEquivTag extends Tag {
             return super.renderNodeBBCode(node);
         }
     }
-
 }

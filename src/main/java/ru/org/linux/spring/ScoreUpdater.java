@@ -17,7 +17,6 @@ package ru.org.linux.spring;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -35,7 +34,7 @@ public class ScoreUpdater {
 
   @Scheduled(cron="1 0 1 */2 * *")
   @Transactional
-  public void updateScore() throws Exception {
+  public void updateScore() {
     logger.info("Updating score");
 
     jdbcTemplate.update("update users set score=score+1 " +
@@ -50,13 +49,13 @@ public class ScoreUpdater {
   }
 
   @Scheduled(cron="0 1 * * * *")
-  public void block() throws Exception {
+  public void block() {
     jdbcTemplate.update("update users set blocked='t' where id in (select id from users where score<-50 and nick!='anonymous' and max_score<150 and not blocked)");
     jdbcTemplate.update("update users set blocked='t' where id in (select id from users where score<-50 and nick!='anonymous' and max_score<150 and blocked is null)");
   }
 
   @Scheduled(cron="0 1 2 * * *")
-  public void deleteInactivated() throws Exception {
+  public void deleteInactivated() {
     jdbcTemplate.update("delete from users where not activated and not blocked and regdate<CURRENT_TIMESTAMP-'1 week'::interval");
   }
 }

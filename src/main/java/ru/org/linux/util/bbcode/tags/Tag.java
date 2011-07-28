@@ -52,13 +52,13 @@ import java.util.Set;
  * Time: 11:20 PM
  */
 public class Tag {
-    protected final String name;
-    protected final Set<String> allowedChildren;
-    protected final String implicitTag;
-    protected boolean selfClosing=false;
-    protected Set<String> prohibitedElements;
-    protected boolean discardable=false;
-    protected final Parser parser;
+    final String name;
+    private final Set<String> allowedChildren;
+    private final String implicitTag;
+    boolean selfClosing=false;
+    private Set<String> prohibitedElements;
+    private boolean discardable=false;
+    final Parser parser;
 
     public Tag(String name, Set<String> allowedChildren, String implicitTag, Parser parser){
         this.name = name;

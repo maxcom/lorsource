@@ -110,15 +110,9 @@ public class AddCommentController extends ApplicationObjectSupport {
     form.enableUrlHighLightMode();
     form.setOutputLorcode(true);
 
-    if ("ntobrq".equals(mode)) {
-      form.enableNewLineMode();
-      form.enableQuoting();
-    }
     if ("ntobr".equals(mode)) {
       form.enableNewLineMode();
-    }
-    if ("tex".equals(mode)) {
-      form.enableTexNewLineMode();
+      form.enableQuoting();
     }
     if ("quot".equals(mode)) {
       form.enableTexNewLineMode();

@@ -50,7 +50,7 @@ import java.sql.Connection;
  * Time: 11:57 AM
  */
 public class TextNode extends Node {
-    protected final String text;
+    final String text;
 
     public TextNode(Node parent, Parser parser, String text){
         super(parent, parser);

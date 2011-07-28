@@ -16,29 +16,24 @@
 package ru.org.linux.spring;
 
 import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import ru.org.linux.site.Template;
-import ru.org.linux.util.UtilException;
 
 @Controller
-public class EditBoxesController{
+public class EditBoxesController {
   @RequestMapping(value = "/edit-boxes.jsp")
-  public ModelAndView view(HttpServletRequest request) throws UtilException {
+  public ModelAndView view(HttpServletRequest request) {
     boolean isThreeColumn = getThreeColumns(request);
     ModelAndView result = new ModelAndView("edit-boxes");
     result.addObject("isThreeColumn", isThreeColumn);
     return result;
   }
 
-  protected static boolean getThreeColumns(HttpServletRequest request)
-    {
-    Template t = Template.getTemplate(request);
-
-    return t.getProf().isThreeColumnsOnMain();
+  protected static boolean getThreeColumns(HttpServletRequest request) {
+    return Template.getTemplate(request).getProf().isThreeColumnsOnMain();
   }
-
-
 }

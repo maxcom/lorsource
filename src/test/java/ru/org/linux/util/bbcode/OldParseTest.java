@@ -36,7 +36,7 @@ public class OldParseTest {
 
     @Test
     public void badListTest(){
-        Assert.assertEquals(ParserUtil.bb2xhtml("[list]0[*]1[*]2[/list]", null), "<p>0<ul><li>1</li><li>2</li></ul></p>");
+        Assert.assertEquals(ParserUtil.bb2xhtml("[list]0[*]1[*]2[/list]", null), "<p>0</p><ul><li>1</li><li>2</li></ul>");
     }
 
     @Test
