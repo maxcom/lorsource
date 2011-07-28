@@ -898,9 +898,7 @@ public class Message implements Serializable {
         throw new RuntimeException(e);
       }
 
-      if (author.getScore() < 300) {
-        author.changeScore(db, bonus);
-      }
+      author.changeScore(db, bonus);
     } finally {
       if (pst != null) {
         pst.close();
