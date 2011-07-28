@@ -311,7 +311,7 @@ public class Parser {
         return currentNode;
     }
 
-    private Node closeTagNode(RootNode rootNode, Node currentNode, String name){
+    private static Node closeTagNode(RootNode rootNode, Node currentNode, String name){
         Node tempNode = currentNode;
         while (true){
             if(tempNode == rootNode){

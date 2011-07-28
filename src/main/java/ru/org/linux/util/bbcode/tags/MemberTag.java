@@ -60,7 +60,7 @@ public class MemberTag extends Tag{
     }
 
     @Override
-    public String renderNodeXhtml(Node node, Connection db){
+    public String renderNodeXhtml(Node node, Connection db) {
         if(node.lengthChildren() == 0){
             return "";
         }
