@@ -86,6 +86,25 @@ public class SimpleParserTest {
     public void overflow1Test(){
         Assert.assertEquals("<p>ololo<div class=\"quote\"><p><i>hz</i></p></div></p>", ParserUtil.bb2xhtml("ololo[quote][i]hz[/i][/quote]", null));
     }
+    @Test
+    public void preTest(){
+        Assert.assertEquals(
+                "<pre>Тег используем мы этот,\n"+
+                "Чтобы строки разделять,\n"+
+                "Если вдруг стихи захочем\n"+
+                "Здесь, на ЛОРе, запощать.\n\n"+
+                "Ну а строфы разделяем\n"+
+                "Как привыкли уж давно!</pre>"
+                , ParserUtil.bb2xhtml(
+                "[pre]Тег используем мы этот,\n"+
+                "Чтобы строки разделять,\n"+
+                "Если вдруг стихи захочем\n"+
+                "Здесь, на ЛОРе, запощать.\n\n"+
+                "Ну а строфы разделяем\n"+
+                "Как привыкли уж давно![/pre]"
+                , null));
+
+    }
 // TODO а как тестировать если базы нет :-(
 //    @Test
 //    public void userTest(){

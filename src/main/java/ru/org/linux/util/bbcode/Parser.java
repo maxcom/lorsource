@@ -250,14 +250,18 @@ public class Parser {
             Matcher matcher = P_REGEXP.matcher(text);
 
             boolean isCode = false;
+            boolean isPre = false;
             if(TagNode.class.isInstance(currentNode)){
                 TagNode tempNode  = (TagNode)currentNode;
                 if(CodeTag.class.isInstance(tempNode.getBbtag())){
                     isCode = true;
                 }
+                if("pre".equals(tempNode.getBbtag().getName())){
+                    isPre = true;
+                }
             }
 
-            if(matcher.find() && !isCode){
+            if(matcher.find() && !isCode && !isPre){
 		        currentNode = pushTextNode(currentNode, text.substring(0, matcher.start()), false);
 		        currentNode = ascend(currentNode);
                 currentNode.getChildren().add(new TagNode(currentNode, this, "p", " "));
