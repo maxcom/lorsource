@@ -53,8 +53,8 @@ import java.util.Set;
  * Time: 10:40 AM
  */
 public class HtmlEquivTag extends Tag {
-    protected String htmlEquiv;
-    protected Map<String, String> attributes;
+    private String htmlEquiv;
+    private Map<String, String> attributes;
 
     public HtmlEquivTag(String name, Set<String> allowedChildren, String implicitTag, Parser parser){
         super(name, allowedChildren, implicitTag, parser);

@@ -227,7 +227,7 @@ public class Parser {
         return HTMLFormatter.htmlSpecialChars(html);
     }
 
-    protected boolean rootAllowsInline;
+    private boolean rootAllowsInline;
 
     private Node pushTextNode(Node currentNode, String text, boolean escaped){
         if(!currentNode.allows("text")){
