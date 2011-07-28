@@ -28,7 +28,6 @@ import ru.org.linux.site.DefaultProfile;
 import ru.org.linux.site.Template;
 import ru.org.linux.spring.validators.EditBoxesFormValidator;
 import ru.org.linux.storage.StorageException;
-import ru.org.linux.util.UtilException;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -107,7 +106,7 @@ public class AddRemoveBoxesController extends ApplicationObjectSupport {
   public String doAdd(@ModelAttribute("form") EditBoxesForm form, BindingResult result,
                       SessionStatus status, HttpServletRequest request)
     throws IOException,
-    UtilException, AccessViolationException, StorageException {
+          AccessViolationException, StorageException {
 
     new EditBoxesFormValidator().validate(form, result);
     ValidationUtils.rejectIfEmptyOrWhitespace(result, "boxName", "boxName.empty", "Не выбран бокслет");

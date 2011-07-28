@@ -40,10 +40,12 @@ package ru.org.linux.util.bbcode.tags;
 
 import org.springframework.web.util.UriUtils;
 import ru.org.linux.util.URLUtil;
+import ru.org.linux.util.UtilException;
 import ru.org.linux.util.bbcode.Parser;
 import ru.org.linux.util.bbcode.nodes.Node;
 import ru.org.linux.util.bbcode.nodes.TextNode;
 
+import java.io.UnsupportedEncodingException;
 import java.sql.Connection;
 import java.util.Set;
 
@@ -66,17 +68,20 @@ public class ImgTag extends Tag {
         }
         TextNode txtNode = (TextNode)node.getChildren().iterator().next();
         String imgurl = txtNode.getText();
-        try{
+
+        try {
             String fixUrl = UriUtils.encodeQuery(URLUtil.fixURL(imgurl), "UTF-8");
             ret.append("<img src=\"");
             ret.append(UriUtils.encodeQuery(fixUrl, "UTF-8"));
             ret.append("\"/>");
-        }catch (Exception ex){
+        } catch (UtilException ex){
             ret.append("<s>");
             ret.append(Parser.escape(imgurl));
             ret.append("</s>");
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
         }
-        return ret.toString();
+      return ret.toString();
     }
     @Override
     public String renderNodeBBCode(Node node){

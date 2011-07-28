@@ -39,6 +39,7 @@
 package ru.org.linux.util.bbcode.tags;
 
 import ru.org.linux.util.URLUtil;
+import ru.org.linux.util.UtilException;
 import ru.org.linux.util.bbcode.Parser;
 import ru.org.linux.util.bbcode.nodes.Node;
 import ru.org.linux.util.bbcode.nodes.TextNode;
@@ -72,7 +73,7 @@ public class UrlWithParamTag extends Tag {
                         .append("\">")
                         .append(escapedUrl)
                         .append("</a>");
-            }catch (Exception ex){
+            }catch (UtilException ex){
                 ret.append("<s>")
                         .append(Parser.escape(url))
                         .append("</s>");
@@ -86,7 +87,7 @@ public class UrlWithParamTag extends Tag {
                         .append("\">")
                         .append(node.renderChildrenXHtml(db))
                         .append("</a>");
-            }catch (Exception ex){
+            }catch (UtilException ex){
                 ret.append("<s>")
                         .append(node.renderChildrenXHtml(db))
                         .append("</s>");
