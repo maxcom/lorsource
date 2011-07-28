@@ -84,7 +84,7 @@ public class SimpleParserTest {
     }
     @Test
     public void overflow1Test(){
-        Assert.assertEquals("<p>ololo<div class=\"quote\"><p><i>hz</i></p></div></p>", ParserUtil.bb2xhtml("ololo[quote][i]hz[/i][/quote]", null));
+        Assert.assertEquals("<p>ololo</p><div class=\"quote\"><p><i>hz</i></p></div>", ParserUtil.bb2xhtml("ololo[quote][i]hz[/i][/quote]", null));
     }
     @Test
     public void preTest(){

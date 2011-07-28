@@ -39,9 +39,9 @@
 package ru.org.linux.util.bbcode;
 
 import com.google.common.collect.ImmutableSet;
+import ru.org.linux.util.HTMLFormatter;
 import ru.org.linux.util.bbcode.nodes.*;
 import ru.org.linux.util.bbcode.tags.*;
-import ru.org.linux.util.HTMLFormatter;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -72,6 +72,7 @@ public class Parser {
     private final ImmutableSet<String> urlTags;
     private final ImmutableSet<String> blockLevelTags;
     private final ImmutableSet<String> flowTags;
+    private final ImmutableSet<String> pTags;
     private final ImmutableSet<String> otherTags;
     private final ImmutableSet<String> anchorTags;
     private final ImmutableSet<String> autoLinkTags;
@@ -97,7 +98,12 @@ public class Parser {
         blockLevelTags = ImmutableSet.of("p", "quote", "list", "pre", "code", "div", "cut");
 
         //Тэги в которых разрешен автоматическое выделение ссылок
-        autoLinkTags = ImmutableSet.of("b", "i", "u", "s", "em", "strong", "p", "quote", "div", "cut");
+        autoLinkTags = ImmutableSet.of("b", "i", "u", "s", "em", "strong", "p", "quote", "div", "cut", "pre");
+
+        pTags = new ImmutableSet.Builder<String>()
+                .addAll(inlineTags)
+                .add("p", "pre", "code", "div")
+                .build();
 
         // Все тэги кроме специальных
         flowTags = new ImmutableSet.Builder<String>()
@@ -172,8 +178,9 @@ public class Parser {
             allTags.add(tag);
         }
         { // <p>
-            HtmlEquivTag tag = new HtmlEquivTag("p", flowTags, null, this);
+            HtmlEquivTag tag = new HtmlEquivTag("p", pTags, null, this);
             tag.setHtmlEquiv("p");
+            tag.setProhibitedElements(ImmutableSet.<String>of("div"));
             allTags.add(tag);
         }
         { // <div>
@@ -182,26 +189,26 @@ public class Parser {
             allTags.add(tag);
         }
         { // <blockquote>
-            QuoteTag tag = new QuoteTag("quote", blockLevelTags, "p", this);
+            QuoteTag tag = new QuoteTag("quote", blockLevelTags, "div", this);
             allTags.add(tag);
         }
         { // <ul>
-            ListTag tag = new ListTag("list", ImmutableSet.<String>of("*", "softbr"), null, this);
+            ListTag tag = new ListTag("list", ImmutableSet.<String>of("*", "softbr"), "div", this);
             allTags.add(tag);
         }
         { // <pre> (only img currently needed out of the prohibited elements)
-            HtmlEquivTag tag = new HtmlEquivTag("pre", inlineTags, null, this);
+            HtmlEquivTag tag = new HtmlEquivTag("pre", inlineTags, "div", this);
             tag.setHtmlEquiv("pre");
-            tag.setProhibitedElements(ImmutableSet.<String>of("img", "big", "small", "sub", "sup"));
+            tag.setProhibitedElements(ImmutableSet.<String>of("img"));
             allTags.add(tag);
         }
         { // <pre class="code">
-            CodeTag tag = new CodeTag("code", inlineTags, null, this);
-            tag.setProhibitedElements(ImmutableSet.<String>of("img", "big", "small", "sub", "sup"));
+            CodeTag tag = new CodeTag("code", inlineTags, "div", this);
+            tag.setProhibitedElements(ImmutableSet.<String>of("img"));
             allTags.add(tag);
         }
         {   // [cut]
-            CutTag tag = new CutTag("cut", flowTags, null, this);
+            CutTag tag = new CutTag("cut", flowTags, "div", this);
             tag.setHtmlEquiv("div");
             allTags.add(tag);
         }
@@ -240,6 +247,9 @@ public class Parser {
             }else{
                 if(currentNode.allows("p")){
                     currentNode.getChildren().add(new TagNode(currentNode, this, "p", ""));
+                    currentNode = descend(currentNode);
+                }else if(currentNode.allows("div")){
+                    currentNode.getChildren().add(new TagNode(currentNode, this, "div", ""));
                     currentNode = descend(currentNode);
                 }else{
                     currentNode = ascend(currentNode);
