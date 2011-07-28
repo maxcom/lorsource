@@ -70,9 +70,8 @@
     }
   %>
   <select name=mode>
-  <option value=ntobrq <%= "ntobrq".equals(mode)?"selected":""%> >User line breaks w/quoting
   <option value=quot <%= "quot".equals(mode)?"selected":""%> >TeX paragraphs w/quoting
-  <option value=ntobr <%= "ntobr".equals(mode)?"selected":""%> >User line breaks w/o quoting
+  <option value=ntobr <%= "ntobr".equals(mode)?"selected":""%> >User line breaks w/quoting
   <option value=lorcode <%= "lorcode".equals(mode)?"selected":""%> >LORCODE
   </select>  <br>
 
