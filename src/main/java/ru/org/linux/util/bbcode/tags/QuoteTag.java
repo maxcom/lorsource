@@ -83,7 +83,7 @@ public class QuoteTag extends Tag {
             ret.append(node.renderChildrenXHtml(db));
             ret.append("</div>");
         }else{
-            ret.append("<div class=\"quote\">");
+            ret.append("<div class=\"quote\"><h3>Цитата</h3>");
             ret.append(node.renderChildrenXHtml(db));
             ret.append("</div>");
         }
