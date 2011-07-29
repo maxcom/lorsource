@@ -15,7 +15,6 @@
 
 package ru.org.linux.site;
 
-import org.javabb.bbcode.BBCodeProcessor;
 import ru.org.linux.util.bbcode.ParserUtil;
 
 import java.sql.Connection;
@@ -36,7 +35,7 @@ public class PreparedComment {
 
     author = User.getUserCached(db, comment.getUserid());
 
-    processedMessage = getProcessedMessage(db, pst, comment, author);
+    processedMessage = getProcessedMessage(db, pst, comment);
 
     if (comment.getReplyTo()!=0 && comments!=null) {
       CommentNode replyNode = comments.getNode(comment.getReplyTo());
@@ -58,7 +57,7 @@ public class PreparedComment {
 
     author = User.getUserCached(db, comment.getUserid());
 
-    processedMessage = getProcessedMessage(db, message, author);
+    processedMessage = getProcessedMessage(db, message);
 
     replyAuthor = null;
   }
@@ -67,7 +66,7 @@ public class PreparedComment {
     return db.prepareStatement("SELECT message, bbcode FROM msgbase WHERE id=?");
   }
 
-  private static String getProcessedMessage(Connection db, PreparedStatement pst, Comment comment, User author) throws SQLException {
+  private static String getProcessedMessage(Connection db, PreparedStatement pst, Comment comment) throws SQLException {
     pst.setInt(1, comment.getId());
     ResultSet rs = pst.executeQuery();
     rs.next();
@@ -77,24 +76,14 @@ public class PreparedComment {
     rs.close();
 
     if (bbcode) {
-      if (author.getScore()>=100) {
-        return ParserUtil.bb2xhtml(text, true, true, "", db);
-      } else {
-        BBCodeProcessor proc = new BBCodeProcessor();
-        return proc.preparePostText(db, text);
-      }
+      return ParserUtil.bb2xhtml(text, true, true, "", db);
     } else {
       return "<p>" + text;
     }
   }
 
-  private static String getProcessedMessage(Connection db, String message, User author) throws SQLException {
-    if (author.getScore()>=50) {
-      return ParserUtil.bb2xhtml(message, true, true, "", db);
-    } else {
-      BBCodeProcessor proc = new BBCodeProcessor();
-      return proc.preparePostText(db, message);
-    }
+  private static String getProcessedMessage(Connection db, String message) throws SQLException {
+    return ParserUtil.bb2xhtml(message, true, true, "", db);
   }
 
   public Comment getComment() {

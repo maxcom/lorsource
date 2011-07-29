@@ -15,12 +15,12 @@
 
 package ru.org.linux.site;
 
+import org.apache.solr.common.SolrDocument;
+import ru.org.linux.util.bbcode.ParserUtil;
+
 import java.io.Serializable;
 import java.sql.*;
 import java.util.Date;
-
-import org.apache.solr.common.SolrDocument;
-import org.javabb.bbcode.BBCodeProcessor;
 
 public class SearchItem implements Serializable {
 //  "msgs.id, msgs.title, msgs.postdate, topic, msgs.userid, rank(idxFTI, q) as rank, message, bbcode"
@@ -58,8 +58,7 @@ public class SearchItem implements Serializable {
       String rawMessage = rs.getString("message");
       bbcode = rs.getBoolean("bbcode");
       if (bbcode) {
-        BBCodeProcessor proc = new BBCodeProcessor();
-        message = proc.preparePostText(db, rawMessage);
+        message = ParserUtil.bb2xhtml(rawMessage, true, true, "", db);
       } else {
         message = rawMessage;
       }

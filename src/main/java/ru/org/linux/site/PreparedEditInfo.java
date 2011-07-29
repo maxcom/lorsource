@@ -15,12 +15,12 @@
 
 package ru.org.linux.site;
 
+import ru.org.linux.util.bbcode.ParserUtil;
+
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.javabb.bbcode.BBCodeProcessor;
 
 public class PreparedEditInfo {
   private final EditInfoDTO editInfo;
@@ -45,10 +45,8 @@ public class PreparedEditInfo {
 
     editor = User.getUserCached(db, editInfo.getEditor());
 
-    BBCodeProcessor proc = new BBCodeProcessor();
-    
     if (message!=null) {
-      this.message = proc.preparePostText(db, message);
+      this.message = ParserUtil.bb2xhtml(message, true, true, "", db);
     } else {
       this.message = null;
     }

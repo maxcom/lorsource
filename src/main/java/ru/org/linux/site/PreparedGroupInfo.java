@@ -15,10 +15,10 @@
 
 package ru.org.linux.site;
 
+import ru.org.linux.util.bbcode.ParserUtil;
+
 import java.sql.Connection;
 import java.sql.SQLException;
-
-import org.javabb.bbcode.BBCodeProcessor;
 
 public class PreparedGroupInfo {
   private final Group group;
@@ -28,7 +28,7 @@ public class PreparedGroupInfo {
     this.group = group;
 
     if (group.getLongInfo()!=null) {
-      longInfo = new BBCodeProcessor().preparePostText(db, group.getLongInfo());
+      longInfo = ParserUtil.bb2xhtml(group.getLongInfo(), db);
     } else {
       longInfo = null;
     }

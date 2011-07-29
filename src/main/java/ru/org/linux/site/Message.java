@@ -19,7 +19,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.javabb.bbcode.BBCodeProcessor;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
@@ -793,20 +792,7 @@ public class Message implements Serializable {
 
   public String getProcessedMessage(Connection db, boolean includeCut) throws SQLException {
     if (lorcode) {
-      User author;
-
-      try {
-        author = User.getUserCached(db, userid);
-      } catch (UserNotFoundException e) {
-        throw new RuntimeException(e);
-      }
-
-      if (author.getScore()>=50) {
-        return ParserUtil.bb2xhtml(message, includeCut, false, getLink(), db);
-      } else {
-        BBCodeProcessor proc = new BBCodeProcessor();
-        return proc.preparePostText(db, message);
-      }
+      return ParserUtil.bb2xhtml(message, includeCut, false, getLink(), db);
     } else {
       return "<p>" + message;
     }

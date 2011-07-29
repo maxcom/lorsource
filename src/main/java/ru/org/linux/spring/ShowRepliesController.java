@@ -15,26 +15,24 @@
 
 package ru.org.linux.spring;
 
-import java.io.Serializable;
-import java.sql.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import ru.org.linux.site.*;
-import ru.org.linux.util.StringUtil;
-
-import org.javabb.bbcode.BBCodeProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.support.JdbcUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
+import ru.org.linux.site.*;
+import ru.org.linux.util.StringUtil;
+import ru.org.linux.util.bbcode.ParserUtil;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.Serializable;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Controller
 public class ShowRepliesController {
@@ -227,7 +225,7 @@ public class ShowRepliesController {
       if (readMessage) {
         String text = rs.getString("cMessage");
         if (rs.getBoolean("bbcode")) {
-          messageText = new BBCodeProcessor().preparePostText(db, text);
+          messageText = ParserUtil.bb2xhtml(text, db);
         } else {
           messageText = text;
         }
