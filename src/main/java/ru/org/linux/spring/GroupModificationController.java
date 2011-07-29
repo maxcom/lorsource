@@ -93,6 +93,7 @@ public class GroupModificationController {
 
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("group", group);
+        params.put("groupInfo", new PreparedGroupInfo(db, group));
         params.put("preview", true);
 
         return new ModelAndView("groupmod", params);
