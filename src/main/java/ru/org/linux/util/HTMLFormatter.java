@@ -25,8 +25,6 @@ import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.javabb.bbcode.CodeTag;
-
 public class HTMLFormatter {
   private final String text;
   private int maxlength = 80;
@@ -438,7 +436,7 @@ public class HTMLFormatter {
 
   public static String escapeHtmlBBcode(String content) {
     // escaping single characters
-    content = CodeTag.replaceAll(content, "[]{}\t".toCharArray(), new String[]{
+    content = replaceAll(content, "[]{}\t".toCharArray(), new String[]{
         "&#91;",
         "&#93;",
         "&#123;",
@@ -448,4 +446,21 @@ public class HTMLFormatter {
     return content;
   }
 
+  public static String replaceAll(CharSequence str, char[] chars, String[] replacement) {
+    StringBuilder buffer = new StringBuilder();
+    for (int i = 0; i < str.length(); i++) {
+      char c = str.charAt(i);
+      boolean matched = false;
+      for (int j = 0; j < chars.length; j++) {
+        if (c == chars[j]) {
+          buffer.append(replacement[j]);
+          matched = true;
+        }
+      }
+      if (!matched) {
+        buffer.append(c);
+      }
+    }
+    return buffer.toString();
+  }
 }
