@@ -68,8 +68,7 @@
   <!-- Used to specify an alternate directory to hold all index data
        other than the default ./data under the Solr home.
        If replication is in use, this should match the replication configuration. -->
-  <dataDir>/usr/local/apache-tomcat-6.0/solr/data/</dataDir>
-
+  <dataDir>${solr.data.dir:}</dataDir>
 
   <!-- WARNING: this <indexDefaults> section only provides defaults for index writers
        in general. See also the <mainIndex> section after that when changing parameters
@@ -784,12 +783,12 @@
 
   <!-- a search component that enables you to configure the top results for
        a given query regardless of the normal lucene scoring.-->
-  <searchComponent name="elevator" class="solr.QueryElevationComponent" >
-    <!-- pick a fieldType to analyze queries -->
+<!--  <searchComponent name="elevator" class="solr.QueryElevationComponent" >
+    <- pick a fieldType to analyze queries ->
     <str name="queryFieldType">string</str>
     <str name="config-file">elevate.xml</str>
-  </searchComponent>
-
+  </searchComponent> 
+-->
   <!-- a request handler utilizing the elevator component -->
   <requestHandler name="/elevate" class="solr.SearchHandler" startup="lazy">
     <lst name="defaults">
