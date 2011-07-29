@@ -39,7 +39,7 @@ public class SimpleParserTest {
     @Test
     public void quoteTest(){
         // TODO я нрипонял зачем <div> :-(
-        Assert.assertEquals(ParserUtil.bb2xhtml("[quote]hello world[/quote]",null), "<div class=\"quote\"><p>hello world</p></div>");
+        Assert.assertEquals(ParserUtil.bb2xhtml("[quote]hello world[/quote]",null), "<div class=\"quote\"><h3>Цитата</h3><p>hello world</p></div>");
     }
     @Test
     public void quoteParamTest(){
