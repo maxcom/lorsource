@@ -837,7 +837,7 @@ public class Message implements Serializable {
   }
 
   public void resolveMessage(Connection db, boolean b) throws SQLException {
-    PreparedStatement pstMsgbase = db.prepareStatement("UPDATE topics SET resolved=?,lastmod=CURRENT_TIMESTAMP WHERE id=?");
+    PreparedStatement pstMsgbase = db.prepareStatement("UPDATE topics SET resolved=?,lastmod=lastmod+'1 second'::interval WHERE id=?");
     pstMsgbase.setBoolean(1, b);
     pstMsgbase.setInt(2, msgid);
     pstMsgbase.executeUpdate();
