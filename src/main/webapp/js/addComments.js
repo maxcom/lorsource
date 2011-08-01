@@ -46,12 +46,12 @@ $(document).ready(function() {
   }
 
   $('div.reply').each(function() {
-    $('a[href^=comment-message.jsp]', this).bind("click", function() {
+    $('a[href^="comment-message.jsp"]', this).bind("click", function() {
       sh(0, 0);
       return false;
     });
 
-    var lnk = $("a[href^=add_comment.jsp]", this);
+    var lnk = $('a[href^="add_comment.jsp"]', this);
     if (lnk.length>0) {
       var buff = lnk.attr('href').match(/\d+/g);
       var idr = buff[1];
