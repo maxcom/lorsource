@@ -30,7 +30,6 @@
             <list>
                 <value>/WEB-INF/config.properties.dist</value>
                 <value>/WEB-INF/config.properties</value>
-                <value>/WEB-INF/jndi.properties</value>
             </list>
         </property>
         <property name="ignoreResourceNotFound" value="true"/>
@@ -42,7 +41,7 @@
     </bean>
 
     <bean class="org.springframework.jndi.JndiObjectFactoryBean" name="datasource">
-        <property name="jndiName" value="${datasource.name}"/>
+        <property name="jndiName" value="java:/comp/env/jdbc/lor"/>
     </bean>
 
     <bean id="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
