@@ -12,7 +12,7 @@ import org.junit.Test;
 public class OldParseTest {
     @Test
     public void pTest(){
-        Assert.assertEquals(ParserUtil.bb2xhtml("test\ntest1\n\ntest2", null), "<p>test\ntest1</p><p>test2</p>");
+        Assert.assertEquals("<p>test\ntest1</p><p>test2</p>",ParserUtil.bb2xhtml("test\ntest1\n\ntest2", null));
     }
 
     @Test

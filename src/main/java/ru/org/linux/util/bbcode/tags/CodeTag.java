@@ -52,74 +52,75 @@ import java.util.Set;
  * Date: 6/30/11
  * Time: 1:00 PM
  */
-public class CodeTag extends Tag{
+public class CodeTag extends Tag {
     private static final ImmutableMap<String, String> langHash =
-    ImmutableMap.<String, String>builder().
-      put("bash", "language-bash")
-      .put("shell", "language-bash")
-      .put("cpp", "language-cpp")
-      .put("cxx", "language-cpp")
-      .put("cc", "language-cpp")
-      .put("c", "language-cpp")
-      .put("diff", "language-diff")
-      .put("patch", "language-diff")
-      .put("java", "language-java")
-      .put("js", "language-javascript")
-      .put("javascript", "language-javascript")
-      .put("perl", "language-perl")
-      .put("php", "language-php")
-      .put("plain", "no-highlight")
-      .put("python", "language-python")
+        ImmutableMap.<String, String>builder().
+            put("bash", "language-bash")
+            .put("shell", "language-bash")
+            .put("cpp", "language-cpp")
+            .put("cxx", "language-cpp")
+            .put("cc", "language-cpp")
+            .put("c", "language-cpp")
+            .put("diff", "language-diff")
+            .put("patch", "language-diff")
+            .put("java", "language-java")
+            .put("js", "language-javascript")
+            .put("javascript", "language-javascript")
+            .put("perl", "language-perl")
+            .put("php", "language-php")
+            .put("plain", "no-highlight")
+            .put("python", "language-python")
 
-      .put("css", "language-css")
-      .put("delphi", "language-delphi")
-      .put("pascal", "language-delphi")
-      .put("html", "language-html")
-      .put("xml", "language-xml")
-      .put("lisp", "language-lisp")
-      .put("scheme", "language-lisp")
-      .put("ruby", "language-ruby")
-      .put("cs", "language-cs").put("c#", "language-cs")
-      .put("sql", "language-sql")
-      .put("ini", "language-ini")
-      .put("cmake", "language-cmake")
-      .put("erlang", "language-erlang")
-      .put("objectivec", "language-objectivec").put("objc","language-objectivec")
-      .put("scala", "language-scala")
-      .put("vhdl", "language-vhdl")
-      .put("lua", "language-lua")
-      .put("smalltalk", "language-smalltalk")
-      .put("vala", "language-vala")
-      .put("go", "language-go")
-      .put("tex", "language-tex")
-      .put("vbscript", "language-vbsript")
-      .build();
+            .put("css", "language-css")
+            .put("delphi", "language-delphi")
+            .put("pascal", "language-delphi")
+            .put("html", "language-html")
+            .put("xml", "language-xml")
+            .put("lisp", "language-lisp")
+            .put("scheme", "language-lisp")
+            .put("ruby", "language-ruby")
+            .put("cs", "language-cs").put("c#", "language-cs")
+            .put("sql", "language-sql")
+            .put("ini", "language-ini")
+            .put("cmake", "language-cmake")
+            .put("erlang", "language-erlang")
+            .put("objectivec", "language-objectivec").put("objc", "language-objectivec")
+            .put("scala", "language-scala")
+            .put("vhdl", "language-vhdl")
+            .put("lua", "language-lua")
+            .put("smalltalk", "language-smalltalk")
+            .put("vala", "language-vala")
+            .put("go", "language-go")
+            .put("tex", "language-tex")
+            .put("vbscript", "language-vbsript")
+            .build();
 
-    public CodeTag(String name, Set<String> allowedChildren, String implicitTag, Parser parser){
+    public CodeTag(String name, Set<String> allowedChildren, String implicitTag, Parser parser) {
         super(name, allowedChildren, implicitTag, parser);
     }
+
     @Override
-    public String renderNodeXhtml(Node node, Connection db){
-        if(node.lengthChildren() == 0){
+    public String renderNodeXhtml(Node node, Connection db) {
+        if (node.lengthChildren() == 0) {
             return "";
-        }else{
+        } else {
             // обработка пустого тэга
-            if(node.lengthChildren() == 1){
+            if (node.lengthChildren() == 1) {
                 Node child = node.getChildren().iterator().next();
-                if(TextNode.class.isInstance(child) && ((TextNode)child).getText().trim().length()==0){
+                if (TextNode.class.isInstance(child) && ((TextNode) child).getText().trim().length() == 0) {
                     return "";
                 }
             }
         }
         StringBuilder ret = new StringBuilder();
-        if(node.isParameter()){
+        if (node.isParameter()) {
             String lang = node.getParameter().trim();
-            if (langHash.containsKey(lang)){
+            if (langHash.containsKey(lang)) {
                 ret.append("<div class=\"code\"><pre class=\"").append(langHash.get(lang)).append("\"><code>");
-            }else{
+            } else {
                 ret.append("<div class=\"code\"><pre class=\"no-highlight\"><code>");
             }
-        }else{
+        } else {
             ret.append("<div class=\"code\"><pre class=\"no-highlight\"><code>");
         }
         ret.append(node.renderChildrenXHtml(db));

@@ -57,7 +57,7 @@ public class HtmlEquivTag extends Tag {
     private String htmlEquiv;
     private Map<String, String> attributes = ImmutableMap.of();
 
-    public HtmlEquivTag(String name, Set<String> allowedChildren, String implicitTag, Parser parser){
+    public HtmlEquivTag(String name, Set<String> allowedChildren, String implicitTag, Parser parser) {
         super(name, allowedChildren, implicitTag, parser);
     }
 
@@ -70,13 +70,13 @@ public class HtmlEquivTag extends Tag {
     }
 
     @Override
-    public String renderNodeXhtml(Node node, Connection db){
+    public String renderNodeXhtml(Node node, Connection db) {
         StringBuilder opening = new StringBuilder(htmlEquiv);
         StringBuilder ret = new StringBuilder();
 
-        if(!attributes.isEmpty()){
+        if (!attributes.isEmpty()) {
             opening.append(' ');
-          
+
             for (Map.Entry<String, String> entry : attributes.entrySet()) {
                 opening.append(entry.getKey());
                 opening.append('=');
@@ -85,13 +85,13 @@ public class HtmlEquivTag extends Tag {
             }
         }
 
-        if(htmlEquiv.isEmpty()){
+        if (htmlEquiv.isEmpty()) {
             ret.append(node.renderChildrenXHtml(db));
         } else {
-            if(selfClosing){
+            if (selfClosing) {
                 ret.append('<').append(opening).append('>'); // для xhtml по идее />
-            }else{
-                if(node.lengthChildren() > 0){
+            } else {
+                if (node.lengthChildren() > 0) {
                     ret.append('<').append(opening).append('>');
                     ret.append(node.renderChildrenXHtml(db));
                     ret.append("</").append(htmlEquiv).append('>');
@@ -102,10 +102,10 @@ public class HtmlEquivTag extends Tag {
     }
 
     @Override
-    public String renderNodeBBCode(Node node){
-        if("div".equals(name)){
+    public String renderNodeBBCode(Node node) {
+        if ("div".equals(name)) {
             return node.renderChildrenBBCode();
-        }else{
+        } else {
             return super.renderNodeBBCode(node);
         }
     }

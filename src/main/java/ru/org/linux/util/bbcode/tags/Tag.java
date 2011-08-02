@@ -55,12 +55,12 @@ public class Tag {
     final String name;
     private final Set<String> allowedChildren;
     private final String implicitTag;
-    boolean selfClosing=false;
+    boolean selfClosing = false;
     private Set<String> prohibitedElements;
-    private boolean discardable=false;
+    private boolean discardable = false;
     final Parser parser;
 
-    public Tag(String name, Set<String> allowedChildren, String implicitTag, Parser parser){
+    public Tag(String name, Set<String> allowedChildren, String implicitTag, Parser parser) {
         this.name = name;
         this.implicitTag = implicitTag;
         this.allowedChildren = allowedChildren;
@@ -79,32 +79,32 @@ public class Tag {
         this.discardable = discardable;
     }
 
-    public String renderNodeXhtml(Node node){
+    public String renderNodeXhtml(Node node) {
         throw new NotImplementedException();
     }
 
-    public String renderNodeXhtml(Node node, Connection db){
+    public String renderNodeXhtml(Node node, Connection db) {
         return renderNodeXhtml(node);
     }
 
-    public String renderNodeBBCode(Node node){
+    public String renderNodeBBCode(Node node) {
         StringBuilder opening = new StringBuilder(name);
         StringBuilder render = new StringBuilder();
-        if(node.isParameter()){
+        if (node.isParameter()) {
             opening.append('=');
             opening.append(node.getParameter());
         }
-        if(selfClosing){
+        if (selfClosing) {
             render.append('[')
-                    .append(opening)
-                    .append("/]");
-        }else{
+                .append(opening)
+                .append("/]");
+        } else {
             render.append('[')
-                    .append(opening).append(']')
-                    .append(node.renderChildrenBBCode())
-                    .append("[/")
-                    .append(name)
-                    .append(']');
+                .append(opening).append(']')
+                .append(node.renderChildrenBBCode())
+                .append("[/")
+                .append(name)
+                .append(']');
         }
         return render.toString();
     }

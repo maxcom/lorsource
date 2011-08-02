@@ -52,7 +52,7 @@ import java.sql.Connection;
 public class TextNode extends Node {
     final String text;
 
-    public TextNode(Node parent, Parser parser, String text){
+    public TextNode(Node parent, Parser parser, String text) {
         super(parent, parser);
         this.text = text;
     }
@@ -62,10 +62,10 @@ public class TextNode extends Node {
     }
 
     @Override
-    public String renderXHtml(Connection db){
-        if(TagNode.class.isInstance(parent)){
-            TagNode tagNode = (TagNode)parent;
-            if(parser.getAutoLinkTags().contains(tagNode.bbtag.getName())){
+    public String renderXHtml(Connection db) {
+        if (TagNode.class.isInstance(parent)) {
+            TagNode tagNode = (TagNode) parent;
+            if (parser.getAutoLinkTags().contains(tagNode.bbtag.getName())) {
                 HTMLFormatter formatter = new HTMLFormatter(text);
                 formatter.enableUrlHighLightMode();
                 return formatter.process();
@@ -76,12 +76,12 @@ public class TextNode extends Node {
     }
 
     @Override
-    public String renderBBCode(){
+    public String renderBBCode() {
         return text;
     }
 
     @Override
-    public boolean allows(String tagname){
+    public boolean allows(String tagname) {
         return false;
     }
 }

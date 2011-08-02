@@ -54,37 +54,37 @@ import java.util.Set;
  * Date: 7/6/11
  * Time: 12:27 AM
  */
-public class MemberTag extends Tag{
-    public MemberTag(String name, Set<String> allowedChildren, String implicitTag, Parser parser){
+public class MemberTag extends Tag {
+    public MemberTag(String name, Set<String> allowedChildren, String implicitTag, Parser parser) {
         super(name, allowedChildren, implicitTag, parser);
     }
 
     @Override
     public String renderNodeXhtml(Node node, Connection db) {
-        if(node.lengthChildren() == 0){
+        if (node.lengthChildren() == 0) {
             return "";
         }
-        TextNode txtNode = (TextNode)node.getChildren().iterator().next();
+        TextNode txtNode = (TextNode) node.getChildren().iterator().next();
         String memberName = Parser.escape(txtNode.getText()).trim();
         String pattern;
-        try{
+        try {
             User user = User.getUser(db, memberName);
-            if(!user.isBlocked()){
+            if (!user.isBlocked()) {
                 pattern = "<span style=\"white-space: nowrap\"><img src=\"/img/tuxlor.png\"><a style=\"text-decoration: none\" href='/people/%s/profile'>%s</a></span>";
-            }else{
+            } else {
                 pattern = "<span style=\"white-space: nowrap\"><img src=\"/img/tuxlor.png\"><s><a style=\"text-decoration: none\" href='/people/%s/profile'>%s</a></s></span>";
             }
-        }catch (UserNotFoundException ex){
+        } catch (UserNotFoundException ex) {
             pattern = "<s>%s</s>";
         } catch (SQLException e) {
             pattern = "<s>%s</s>"; // TODO throw this exception up
         }
-      return String.format(pattern, Parser.escape(memberName), Parser.escape(memberName));
+        return String.format(pattern, Parser.escape(memberName), Parser.escape(memberName));
 
     }
 
     @Override
-    public String renderNodeXhtml(Node node){
+    public String renderNodeXhtml(Node node) {
         return renderNodeXhtml(node, null); // TODO там мы эксцепшн то перехватим? :-)
     }
 

@@ -51,14 +51,14 @@ import java.util.Set;
  * Date: 7/5/11
  * Time: 11:55 AM
  */
-public class CutTag extends HtmlEquivTag{
+public class CutTag extends HtmlEquivTag {
 
     private boolean renderCut;
     private boolean cleanCut;
     private String cutUrl;
     private int cutId;
 
-    public CutTag(String name, Set<String> allowedChildren, String implicitTag, Parser parser){
+    public CutTag(String name, Set<String> allowedChildren, String implicitTag, Parser parser) {
         super(name, allowedChildren, implicitTag, parser);
         renderCut = false;
         cutUrl = "";
@@ -71,35 +71,35 @@ public class CutTag extends HtmlEquivTag{
     }
 
     @Override
-    public String renderNodeXhtml(Node node, Connection db){
-        if(node.lengthChildren() == 0){
+    public String renderNodeXhtml(Node node, Connection db) {
+        if (node.lengthChildren() == 0) {
             return "";
-        }else{
+        } else {
             // обработка пустого тэга
-            if(node.lengthChildren() == 1){
+            if (node.lengthChildren() == 1) {
                 Node child = node.getChildren().iterator().next();
-                if(TextNode.class.isInstance(child) && ((TextNode)child).getText().trim().length()==0){
+                if (TextNode.class.isInstance(child) && ((TextNode) child).getText().trim().length() == 0) {
                     return "";
                 }
             }
         }
-        if(renderCut && !cleanCut){
+        if (renderCut && !cleanCut) {
             StringBuilder ret = new StringBuilder();
             ret.append("<div id=\"cut")
-              .append(Integer.toString(cutId))
-              .append("\">")
-              .append(node.renderChildrenXHtml(db))
-              .append("</div>");
+                .append(Integer.toString(cutId))
+                .append("\">")
+                .append(node.renderChildrenXHtml(db))
+                .append("</div>");
             return ret.toString();
-        }else if(renderCut && cleanCut){
+        } else if (renderCut && cleanCut) {
             return node.renderChildrenXHtml(db);
-        }else{
-            return "<br>( <a href=\""+cutUrl+"#cut"+Integer.toString(cutId)+"\">читать дальше...</a> )<br>";
+        } else {
+            return "<br>( <a href=\"" + cutUrl + "#cut" + Integer.toString(cutId) + "\">читать дальше...</a> )<br>";
         }
     }
 
 
     public void setCutId(int cutId) {
-    this.cutId = cutId;
-  }
+        this.cutId = cutId;
+    }
 }

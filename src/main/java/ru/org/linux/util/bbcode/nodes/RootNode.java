@@ -48,14 +48,14 @@ import java.sql.Connection;
  * Date: 6/30/11
  * Time: 3:01 PM
  */
-public class RootNode extends Node{
+public class RootNode extends Node {
 
     private int cutCount;
     private boolean renderCut;
     private boolean cleanCut;
     private String cutUrl;
 
-    public RootNode(Parser parser){
+    public RootNode(Parser parser) {
         super(parser);
         cutCount = 0;
         renderCut = true;
@@ -70,26 +70,26 @@ public class RootNode extends Node{
     }
 
     @Override
-    public String renderXHtml(Connection db){
+    public String renderXHtml(Connection db) {
         return renderChildrenXHtml(db);
     }
 
     @Override
-    public boolean allows(String tagname){
+    public boolean allows(String tagname) {
         return parser.getBlockLevelTags().contains(tagname);
     }
 
     @Override
-    public String renderBBCode(){
+    public String renderBBCode() {
         return renderChildrenBBCode();
     }
 
     public int getCutCount() {
-      return cutCount;
+        return cutCount;
     }
 
     public void incCutCount() {
-      cutCount += 1;
+        cutCount += 1;
     }
 
     public boolean isRenderCut() {

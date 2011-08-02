@@ -49,46 +49,46 @@ import java.util.List;
  * User: hizel
  * Date: 6/29/11
  * Time: 11:49 PM
-*/
+ */
 public class Node {
-    Node parent=null;
+    Node parent = null;
     private final List<Node> children;
     String parameter;
     final Parser parser;
 
-    public Node(Parser parser){
+    public Node(Parser parser) {
         this.parser = parser;
         children = new ArrayList<Node>();
     }
 
-    public Node(Node parent, Parser parser){
+    public Node(Node parent, Parser parser) {
         this.parser = parser;
         this.parent = parent;
         children = new ArrayList<Node>();
     }
 
-    public Node getParent(){
+    public Node getParent() {
         return parent;
     }
 
-    public boolean allows(String tagname){
+    public boolean allows(String tagname) {
         assert false;
         return false;
     }
 
-    public boolean prohibited(String tagname){
+    public boolean prohibited(String tagname) {
         return false;
     }
 
-    public int lengthChildren(){
+    public int lengthChildren() {
         return children.size();
     }
 
-    public List<Node> getChildren(){
+    public List<Node> getChildren() {
         return children;
     }
 
-    public boolean isParameter(){
+    public boolean isParameter() {
         return (parameter != null) && (parameter.length() > 0);
     }
 
@@ -100,27 +100,27 @@ public class Node {
         this.parameter = parameter;
     }
 
-    public String renderXHtml(Connection db){
+    public String renderXHtml(Connection db) {
         assert false;
         return "";
     }
 
-    public String renderBBCode(){
+    public String renderBBCode() {
         assert false;
         return "";
     }
 
-    public String renderChildrenXHtml(Connection db){
+    public String renderChildrenXHtml(Connection db) {
         StringBuilder stringBuilder = new StringBuilder();
-        for( Node child : children){
+        for (Node child : children) {
             stringBuilder.append(child.renderXHtml(db));
         }
         return stringBuilder.toString();
     }
 
-    public String renderChildrenBBCode(){
+    public String renderChildrenBBCode() {
         StringBuilder stringBuilder = new StringBuilder();
-        for( Node child : children){
+        for (Node child : children) {
             stringBuilder.append(child.renderBBCode());
         }
         return stringBuilder.toString();

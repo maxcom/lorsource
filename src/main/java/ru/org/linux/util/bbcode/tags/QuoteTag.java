@@ -52,37 +52,38 @@ import java.util.Set;
  * Time: 12:34 PM
  */
 public class QuoteTag extends Tag {
-    public QuoteTag(String name, Set<String> allowedChildren, String implicitTag, Parser parser){
+    public QuoteTag(String name, Set<String> allowedChildren, String implicitTag, Parser parser) {
         super(name, allowedChildren, implicitTag, parser);
     }
+
     @Override
-    public String renderNodeXhtml(Node node, Connection db){
+    public String renderNodeXhtml(Node node, Connection db) {
         StringBuilder ret = new StringBuilder();
-        if(node.lengthChildren() == 0){
+        if (node.lengthChildren() == 0) {
             return "";
-        }else{
+        } else {
             // обработка пустого тэга
-            if(node.lengthChildren() == 1){
+            if (node.lengthChildren() == 1) {
                 Node child = node.getChildren().iterator().next();
-                if(TextNode.class.isInstance(child) && ((TextNode)child).getText().trim().length()==0){
+                if (TextNode.class.isInstance(child) && ((TextNode) child).getText().trim().length() == 0) {
                     return "";
                 }
             }
         }
-        if(!node.isParameter()){
+        if (!node.isParameter()) {
             node.setParameter("");
-        }else{
+        } else {
             node.setParameter(node.getParameter().trim());
         }
 
-        if(!node.getParameter().isEmpty()){
+        if (!node.getParameter().isEmpty()) {
             ret.append("<div class=\"quote\">");
             ret.append("<h3>");
-            ret.append(Parser.escape(node.getParameter().replaceAll("\"","")));
+            ret.append(Parser.escape(node.getParameter().replaceAll("\"", "")));
             ret.append("</h3>");
             ret.append(node.renderChildrenXHtml(db));
             ret.append("</div>");
-        }else{
+        } else {
             ret.append("<div class=\"quote\"><h3>Цитата</h3>");
             ret.append(node.renderChildrenXHtml(db));
             ret.append("</div>");

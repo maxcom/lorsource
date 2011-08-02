@@ -49,32 +49,33 @@ import java.sql.Connection;
  * Date: 6/30/11
  * Time: 3:09 PM
  */
-public class TagNode extends Node{
+public class TagNode extends Node {
     final Tag bbtag;
 
-    public TagNode(Node node, Parser parser, String name, String parameter){
+    public TagNode(Node node, Parser parser, String name, String parameter) {
         super(node, parser);
         bbtag = parser.getAllTagsDict().get(name);
         this.parameter = parameter;
     }
 
     @Override
-    public boolean prohibited(String tagName){
-        if(bbtag.getProhibitedElements() != null && bbtag.getProhibitedElements().contains(tagName)){
+    public boolean prohibited(String tagName) {
+        if (bbtag.getProhibitedElements() != null && bbtag.getProhibitedElements().contains(tagName)) {
             return true;
-        }else{
-            if(parent == null){
+        } else {
+            if (parent == null) {
                 return false;
-            }else{
+            } else {
                 return parent.prohibited(tagName);
             }
         }
     }
+
     @Override
-    public boolean allows(String tagName){
-        if(bbtag.getAllowedChildren().contains(tagName)){
+    public boolean allows(String tagName) {
+        if (bbtag.getAllowedChildren().contains(tagName)) {
             return !prohibited(tagName);
-        }else{
+        } else {
             return false;
         }
     }
@@ -84,12 +85,12 @@ public class TagNode extends Node{
     }
 
     @Override
-    public String renderXHtml(Connection db){
+    public String renderXHtml(Connection db) {
         return bbtag.renderNodeXhtml(this, db);
     }
 
     @Override
-    public String renderBBCode(){
+    public String renderBBCode() {
         return bbtag.renderNodeBBCode(this);
     }
 

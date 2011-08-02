@@ -50,19 +50,21 @@ import java.util.Set;
  * Time: 11:45 AM
  */
 public class SoftBrTag extends Tag {
-    public SoftBrTag(String name, Set<String> allowedChildren, String implicitTag, Parser parser){
+    public SoftBrTag(String name, Set<String> allowedChildren, String implicitTag, Parser parser) {
         super(name, allowedChildren, implicitTag, parser);
     }
+
     @Override
-    public String renderNodeXhtml(Node node){
-        if(node.getParent().allows("br")){
+    public String renderNodeXhtml(Node node) {
+        if (node.getParent().allows("br")) {
             return "<br/>";
-        }else{
+        } else {
             return "\n";
         }
     }
+
     @Override
-    public String renderNodeBBCode(Node node){
+    public String renderNodeBBCode(Node node) {
         return "\n";
     }
 }

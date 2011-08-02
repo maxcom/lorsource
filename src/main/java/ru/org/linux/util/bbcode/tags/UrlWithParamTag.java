@@ -54,44 +54,44 @@ import java.util.Set;
  * Time: 12:09 PM
  */
 public class UrlWithParamTag extends Tag {
-    public UrlWithParamTag(String name, Set<String> allowedChildren, String implicitTag, Parser parser){
+    public UrlWithParamTag(String name, Set<String> allowedChildren, String implicitTag, Parser parser) {
         super(name, allowedChildren, implicitTag, parser);
     }
 
     @Override
-    public String renderNodeXhtml(Node node, Connection db){
+    public String renderNodeXhtml(Node node, Connection db) {
         StringBuilder ret = new StringBuilder();
         String url = "";
-        if(node.isParameter()){
+        if (node.isParameter()) {
             url = node.getParameter().trim();
         }
-        if(node.lengthChildren() == 0 ||
-                (node.lengthChildren() == 1 && ((TextNode)(node.getChildren().iterator().next())).getText().trim().length() == 0)){
-            try{
+        if (node.lengthChildren() == 0 ||
+            (node.lengthChildren() == 1 && ((TextNode) (node.getChildren().iterator().next())).getText().trim().length() == 0)) {
+            try {
                 String escapedUrl = URLUtil.fixURL(url);
                 ret.append("<a href=\"")
-                        .append(escapedUrl)
-                        .append("\">")
-                        .append(escapedUrl)
-                        .append("</a>");
-            }catch (UtilException ex){
+                    .append(escapedUrl)
+                    .append("\">")
+                    .append(escapedUrl)
+                    .append("</a>");
+            } catch (UtilException ex) {
                 ret.append("<s>")
-                        .append(Parser.escape(url))
-                        .append("</s>");
+                    .append(Parser.escape(url))
+                    .append("</s>");
             }
 
-        }else{
-            try{
+        } else {
+            try {
                 String escapedUrl = URLUtil.fixURL(url);
                 ret.append("<a href=\"")
-                        .append(escapedUrl)
-                        .append("\">")
-                        .append(node.renderChildrenXHtml(db))
-                        .append("</a>");
-            }catch (UtilException ex){
+                    .append(escapedUrl)
+                    .append("\">")
+                    .append(node.renderChildrenXHtml(db))
+                    .append("</a>");
+            } catch (UtilException ex) {
                 ret.append("<s>")
-                        .append(node.renderChildrenXHtml(db))
-                        .append("</s>");
+                    .append(node.renderChildrenXHtml(db))
+                    .append("</s>");
             }
         }
 

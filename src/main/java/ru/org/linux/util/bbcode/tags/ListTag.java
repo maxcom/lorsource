@@ -50,31 +50,31 @@ import java.util.Set;
  * Date: 7/12/11
  * Time: 10:07 PM
  */
-public class ListTag extends HtmlEquivTag{
-    public ListTag(String name, Set<String> allowedChildren, String implicitTag, Parser parser){
+public class ListTag extends HtmlEquivTag {
+    public ListTag(String name, Set<String> allowedChildren, String implicitTag, Parser parser) {
         super(name, allowedChildren, implicitTag, parser);
         setHtmlEquiv("ul");
     }
 
     @Override
-    public String renderNodeXhtml(Node node, Connection db){
+    public String renderNodeXhtml(Node node, Connection db) {
         StringBuilder ret = new StringBuilder();
-        if(node.lengthChildren() == 0){
-          return "";
+        if (node.lengthChildren() == 0) {
+            return "";
         }
 
         String param = null;
-      
-        if(node.isParameter()){
-           param = node.getParameter().trim().replaceAll("\"","");
+
+        if (node.isParameter()) {
+            param = node.getParameter().trim().replaceAll("\"", "");
         }
-        if(parser.getAllowedListParameters().contains(param)){
+        if (parser.getAllowedListParameters().contains(param)) {
             ret.append("<ol type=\"");
             ret.append(param);
             ret.append("\">");
             ret.append(node.renderChildrenXHtml(db));
             ret.append("</ol>");
-        }else{
+        } else {
             ret.append("<ul>");
             ret.append(node.renderChildrenXHtml(db));
             ret.append("</ul>");
