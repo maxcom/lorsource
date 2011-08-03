@@ -48,14 +48,14 @@ import ru.org.linux.util.bbcode.Parser;
  * To change this template use File | Settings | File Templates.
  */
 public class EscapedTextNode extends TextNode {
-    public EscapedTextNode(Node node, Parser parser, String text) {
-        super(node, parser, text);
-    }
+  public EscapedTextNode(Node node, Parser parser, String text) {
+    super(node, parser, text);
+  }
 
-    @Override
-    public String renderBBCode() {
-        StringBuilder ret = new StringBuilder();
-        ret.append('[').append(text).append(']');
-        return ret.toString();
-    }
+  @Override
+  public String renderBBCode() {
+    StringBuilder ret = new StringBuilder();
+    ret.append('[').append(text).append(']');
+    return ret.toString();
+  }
 }

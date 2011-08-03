@@ -53,53 +53,53 @@ import java.util.Set;
  */
 public class CutTag extends HtmlEquivTag {
 
-    private boolean renderCut;
-    private boolean cleanCut;
-    private String cutUrl;
-    private int cutId;
+  private boolean renderCut;
+  private boolean cleanCut;
+  private String cutUrl;
+  private int cutId;
 
-    public CutTag(String name, Set<String> allowedChildren, String implicitTag, Parser parser) {
-        super(name, allowedChildren, implicitTag, parser);
-        renderCut = false;
-        cutUrl = "";
-    }
+  public CutTag(String name, Set<String> allowedChildren, String implicitTag, Parser parser) {
+    super(name, allowedChildren, implicitTag, parser);
+    renderCut = false;
+    cutUrl = "";
+  }
 
-    public void setRenderOptions(boolean renderCut, boolean cleanCut, String cutUrl) {
-        this.renderCut = renderCut;
-        this.cleanCut = cleanCut;
-        this.cutUrl = cutUrl;
-    }
+  public void setRenderOptions(boolean renderCut, boolean cleanCut, String cutUrl) {
+    this.renderCut = renderCut;
+    this.cleanCut = cleanCut;
+    this.cutUrl = cutUrl;
+  }
 
-    @Override
-    public String renderNodeXhtml(Node node, Connection db) {
-        if (node.lengthChildren() == 0) {
-            return "";
-        } else {
-            // обработка пустого тэга
-            if (node.lengthChildren() == 1) {
-                Node child = node.getChildren().iterator().next();
-                if (TextNode.class.isInstance(child) && ((TextNode) child).getText().trim().length() == 0) {
-                    return "";
-                }
-            }
+  @Override
+  public String renderNodeXhtml(Node node, Connection db) {
+    if (node.lengthChildren() == 0) {
+      return "";
+    } else {
+      // обработка пустого тэга
+      if (node.lengthChildren() == 1) {
+        Node child = node.getChildren().iterator().next();
+        if (TextNode.class.isInstance(child) && ((TextNode) child).getText().trim().length() == 0) {
+          return "";
         }
-        if (renderCut && !cleanCut) {
-            StringBuilder ret = new StringBuilder();
-            ret.append("<div id=\"cut")
-                .append(Integer.toString(cutId))
-                .append("\">")
-                .append(node.renderChildrenXHtml(db))
-                .append("</div>");
-            return ret.toString();
-        } else if (renderCut && cleanCut) {
-            return node.renderChildrenXHtml(db);
-        } else {
-            return "<br>( <a href=\"" + cutUrl + "#cut" + Integer.toString(cutId) + "\">читать дальше...</a> )<br>";
-        }
+      }
     }
+    if (renderCut && !cleanCut) {
+      StringBuilder ret = new StringBuilder();
+      ret.append("<div id=\"cut")
+              .append(Integer.toString(cutId))
+              .append("\">")
+              .append(node.renderChildrenXHtml(db))
+              .append("</div>");
+      return ret.toString();
+    } else if (renderCut && cleanCut) {
+      return node.renderChildrenXHtml(db);
+    } else {
+      return "<p>( <a href=\"" + cutUrl + "#cut" + Integer.toString(cutId) + "\">читать дальше...</a> )</p>";
+    }
+  }
 
 
-    public void setCutId(int cutId) {
-        this.cutId = cutId;
-    }
+  public void setCutId(int cutId) {
+    this.cutId = cutId;
+  }
 }

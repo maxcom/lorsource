@@ -52,84 +52,84 @@ import java.util.Set;
  * Time: 11:20 PM
  */
 public class Tag {
-    final String name;
-    private final Set<String> allowedChildren;
-    private final String implicitTag;
-    boolean selfClosing = false;
-    private Set<String> prohibitedElements;
-    private boolean discardable = false;
-    final Parser parser;
+  final String name;
+  private final Set<String> allowedChildren;
+  private final String implicitTag;
+  boolean selfClosing = false;
+  private Set<String> prohibitedElements;
+  private boolean discardable = false;
+  final Parser parser;
 
-    public Tag(String name, Set<String> allowedChildren, String implicitTag, Parser parser) {
-        this.name = name;
-        this.implicitTag = implicitTag;
-        this.allowedChildren = allowedChildren;
-        this.parser = parser;
-    }
+  public Tag(String name, Set<String> allowedChildren, String implicitTag, Parser parser) {
+    this.name = name;
+    this.implicitTag = implicitTag;
+    this.allowedChildren = allowedChildren;
+    this.parser = parser;
+  }
 
-    public void setProhibitedElements(Set<String> prohibitedElements) {
-        this.prohibitedElements = prohibitedElements;
-    }
+  public void setProhibitedElements(Set<String> prohibitedElements) {
+    this.prohibitedElements = prohibitedElements;
+  }
 
-    public void setSelfClosing(boolean selfClosing) {
-        this.selfClosing = selfClosing;
-    }
+  public void setSelfClosing(boolean selfClosing) {
+    this.selfClosing = selfClosing;
+  }
 
-    public void setDiscardable(boolean discardable) {
-        this.discardable = discardable;
-    }
+  public void setDiscardable(boolean discardable) {
+    this.discardable = discardable;
+  }
 
-    public String renderNodeXhtml(Node node) {
-        throw new NotImplementedException();
-    }
+  public String renderNodeXhtml(Node node) {
+    throw new NotImplementedException();
+  }
 
-    public String renderNodeXhtml(Node node, Connection db) {
-        return renderNodeXhtml(node);
-    }
+  public String renderNodeXhtml(Node node, Connection db) {
+    return renderNodeXhtml(node);
+  }
 
-    public String renderNodeBBCode(Node node) {
-        StringBuilder opening = new StringBuilder(name);
-        StringBuilder render = new StringBuilder();
-        if (node.isParameter()) {
-            opening.append('=');
-            opening.append(node.getParameter());
-        }
-        if (selfClosing) {
-            render.append('[')
-                .append(opening)
-                .append("/]");
-        } else {
-            render.append('[')
-                .append(opening).append(']')
-                .append(node.renderChildrenBBCode())
-                .append("[/")
-                .append(name)
-                .append(']');
-        }
-        return render.toString();
+  public String renderNodeBBCode(Node node) {
+    StringBuilder opening = new StringBuilder(name);
+    StringBuilder render = new StringBuilder();
+    if (node.isParameter()) {
+      opening.append('=');
+      opening.append(node.getParameter());
     }
+    if (selfClosing) {
+      render.append('[')
+              .append(opening)
+              .append("/]");
+    } else {
+      render.append('[')
+              .append(opening).append(']')
+              .append(node.renderChildrenBBCode())
+              .append("[/")
+              .append(name)
+              .append(']');
+    }
+    return render.toString();
+  }
 
-    public Set<String> getAllowedChildren() {
-        return allowedChildren;
-    }
+  public Set<String> getAllowedChildren() {
+    return allowedChildren;
+  }
 
-    public Set<String> getProhibitedElements() {
-        return prohibitedElements;
-    }
+  public Set<String> getProhibitedElements() {
+    return prohibitedElements;
+  }
 
-    public String getName() {
-        return name;
-    }
+  public String getName() {
+    return name;
+  }
 
-    public String getImplicitTag() {
-        return implicitTag;
-    }
+  public String getImplicitTag() {
+    return implicitTag;
+  }
 
-    public boolean isSelfClosing() {
-        return selfClosing;
-    }
+  public boolean isSelfClosing() {
+    return selfClosing;
+  }
 
-    public boolean isDiscardable() {
-        return discardable;
-    }
+  public boolean isDiscardable() {
+    return discardable;
+  }
 }

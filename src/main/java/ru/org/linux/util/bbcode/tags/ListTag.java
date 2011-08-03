@@ -51,34 +51,34 @@ import java.util.Set;
  * Time: 10:07 PM
  */
 public class ListTag extends HtmlEquivTag {
-    public ListTag(String name, Set<String> allowedChildren, String implicitTag, Parser parser) {
-        super(name, allowedChildren, implicitTag, parser);
-        setHtmlEquiv("ul");
+  public ListTag(String name, Set<String> allowedChildren, String implicitTag, Parser parser) {
+    super(name, allowedChildren, implicitTag, parser);
+    setHtmlEquiv("ul");
+  }
+
+  @Override
+  public String renderNodeXhtml(Node node, Connection db) {
+    StringBuilder ret = new StringBuilder();
+    if (node.lengthChildren() == 0) {
+      return "";
     }
 
-    @Override
-    public String renderNodeXhtml(Node node, Connection db) {
-        StringBuilder ret = new StringBuilder();
-        if (node.lengthChildren() == 0) {
-            return "";
-        }
+    String param = null;
 
-        String param = null;
-
-        if (node.isParameter()) {
-            param = node.getParameter().trim().replaceAll("\"", "");
-        }
-        if (parser.getAllowedListParameters().contains(param)) {
-            ret.append("<ol type=\"");
-            ret.append(param);
-            ret.append("\">");
-            ret.append(node.renderChildrenXHtml(db));
-            ret.append("</ol>");
-        } else {
-            ret.append("<ul>");
-            ret.append(node.renderChildrenXHtml(db));
-            ret.append("</ul>");
-        }
-        return ret.toString();
+    if (node.isParameter()) {
+      param = node.getParameter().trim().replaceAll("\"", "");
     }
+    if (parser.getAllowedListParameters().contains(param)) {
+      ret.append("<ol type=\"");
+      ret.append(param);
+      ret.append("\">");
+      ret.append(node.renderChildrenXHtml(db));
+      ret.append("</ol>");
+    } else {
+      ret.append("<ul>");
+      ret.append(node.renderChildrenXHtml(db));
+      ret.append("</ul>");
+    }
+    return ret.toString();
+  }
 }
