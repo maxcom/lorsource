@@ -43,7 +43,6 @@ import ru.org.linux.util.bbcode.Parser;
 import ru.org.linux.util.bbcode.nodes.Node;
 
 import java.sql.Connection;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 

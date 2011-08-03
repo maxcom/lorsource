@@ -366,13 +366,12 @@ public class Parser {
   /**
    * Основная функция
    *
-   * @param rawbbcode сырой bbcode
+   * @param bbcode сырой bbcode
    * @return возвращает инвалидный html
    */
 
-  public RootNode parse(RootNode rootNode, String rawbbcode) {
+  public RootNode parse(RootNode rootNode, String bbcode) {
     Node currentNode = rootNode;
-    String bbcode = rawbbcode;
     int pos = 0;
     boolean isCode = false;
     while (pos < bbcode.length()) {
