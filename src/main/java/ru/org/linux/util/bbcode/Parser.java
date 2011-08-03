@@ -270,18 +270,16 @@ public class Parser {
       }
 
       if (matcher.find() && !isCode && !isPre) {
-        String textHead = text.substring(0, matcher.start()).trim();
-        String textFooter = text.substring(matcher.end()).trim();
-        if(textHead.length() != 0){
-          currentNode = pushTextNode(rootNode, currentNode, textHead, false);
+        if(matcher.start() != 0){
+          currentNode = pushTextNode(rootNode, currentNode, text.substring(0, matcher.start()), false);
         }
         if (isP) {
           currentNode = ascend(currentNode);
         }
-        if(textFooter.length() != 0){
+        if(matcher.end() != text.length()){
           currentNode.getChildren().add(new TagNode(currentNode, this, "p", " "));
           currentNode = descend(currentNode);
-          currentNode = pushTextNode(rootNode, currentNode, textFooter, false);
+          currentNode = pushTextNode(rootNode, currentNode, text.substring(matcher.end()), false);
         }
       } else {
         if (escaped) {
