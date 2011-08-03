@@ -127,6 +127,11 @@ public class SimpleParserTest {
                 , null));
 
     }
+  @Test
+  public void spacesTest(){
+    Assert.assertEquals("<p>some text</p><p> some again text <a href=\"http://example.com\">example</a> example</p>",
+            ParserUtil.bb2xhtml("some text\n\n some again text [url=http://example.com]example[/url] example", null));
+  }
 // TODO а как тестировать если базы нет :-(
 //    @Test
 //    public void userTest(){
