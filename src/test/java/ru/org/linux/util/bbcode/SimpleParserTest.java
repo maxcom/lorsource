@@ -59,11 +59,17 @@ public class SimpleParserTest {
   }
 
   @Test
-  public void cut2Tes(){
+  public void cut2Test(){
     Assert.assertEquals("<p>test</p>", ParserUtil.bb2xhtml("[cut]\n\ntest[/cut]", true, true, "", null));
     Assert.assertEquals("<br>( <a href=\"#cut0\">читать дальше...</a> )<br>", ParserUtil.bb2xhtml("[cut]\n\ntest[/cut]", false, false, "", null));
     Assert.assertEquals("<br>( <a href=\"#cut0\">читать дальше...</a> )<br>", ParserUtil.bb2xhtml("[cut]\n\ntest[/cut]", false, true, "", null));
     Assert.assertEquals("<div id=\"cut0\"><p>test</p></div>", ParserUtil.bb2xhtml("[cut]\n\ntest[/cut]", true, false, "", null));
+  }
+
+  @Test
+  public void cut3Test(){
+    Assert.assertEquals("<p>some text</p><p></p><div id=\"cut0\"><p></p><ul><li>one<p></p><ul><li><p>two</p></li></ul></li></ul></div>", ParserUtil.bb2xhtml("some text\n\n[cut]\n\n[list][*]one\n\n[*]\n\ntwo[/cut]", true, false, "", null));
+    Assert.assertEquals("<p>some text</p><p></p><br>( <a href=\"#cut0\">читать дальше...</a> )<br>", ParserUtil.bb2xhtml("some text\n\n[cut]\n\n[list][*]one\n\n[*]\n\ntwo[/cut]", false, false, "", null));
   }
     @Test
     public void urlTest(){
