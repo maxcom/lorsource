@@ -311,6 +311,12 @@
                             <war>${project.build.directory}/test-wars/solr.war</war>
                             <contextPath>/solr</contextPath>
                         </contextHandler>
+
+                        <contextHandler implementation="org.eclipse.jetty.webapp.WebAppContext">
+                            <war>${project.build.directory}/test-wars/wiki.war</war>
+                            <contextPath>/wiki</contextPath>
+                            <extraClasspath>${project.build.directory}/test-classes;${project.build.directory}/test-wars/postgresql.jar</extraClasspath>
+                        </contextHandler>
                     </contextHandlers>
 
                     <useTestClasspath>true</useTestClasspath>
@@ -337,6 +343,7 @@
                         <configuration>       
                             <tasks>
                                 <mkdir dir="${project.build.directory}/tmp/linux-storage/profile"/>
+                                <mkdir dir="${project.build.directory}/tmp/jamwiki/upload"/>
                             </tasks>
                         </configuration>
                         <goals>
@@ -366,6 +373,26 @@
                                     <overWrite>false</overWrite>
                                     <outputDirectory>${project.build.directory}/test-wars</outputDirectory>
                                     <destFileName>solr.war</destFileName>
+                                </artifactItem>
+
+                                <artifactItem>
+                                    <groupId>org.jamwiki</groupId>
+                                    <artifactId>jamwiki-war</artifactId>
+                                    <version>0.9.5</version>
+                                    <type>war</type>
+                                    <overWrite>false</overWrite>
+                                    <outputDirectory>${project.build.directory}/test-wars</outputDirectory>
+                                    <destFileName>wiki.war</destFileName>
+                                </artifactItem>
+
+                                <artifactItem>
+                                    <groupId>postgresql</groupId>
+                                    <artifactId>postgresql</artifactId>
+                                    <version>8.2-504.jdbc3</version>
+                                    <type>jar</type>
+                                    <overWrite>false</overWrite>
+                                    <outputDirectory>${project.build.directory}/test-wars</outputDirectory>
+                                    <destFileName>postgresql.jar</destFileName>
                                 </artifactItem>
                             </artifactItems>
                         </configuration>
