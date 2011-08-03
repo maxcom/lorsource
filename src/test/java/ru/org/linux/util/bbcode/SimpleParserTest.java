@@ -72,6 +72,14 @@ public class SimpleParserTest {
             ParserUtil.bb2xhtml("some text\n\n[cut]\n\n[list][*]one\n\n[*]\n\ntwo[/cut]", true, false, "", null));
     Assert.assertEquals("<p>some text</p><br>( <a href=\"#cut0\">читать дальше...</a> )<br>", ParserUtil.bb2xhtml("some text\n\n[cut]\n\n[list][*]one\n\n[*]\n\ntwo[/cut]", false, false, "", null));
   }
+
+  @Test
+  public void cut4Test(){
+    Assert.assertEquals("<p>some text</p><div id=\"cut0\"><ul><li>one</li><li><p>two</p></li></ul></div>",
+            ParserUtil.bb2xhtml("some text \n\n  [cut]   \n\n  [list][*]  one  \n\n[*]  \n\n  two[/cut]", true, false, "", null));
+    Assert.assertEquals("<p>some text</p><br>( <a href=\"#cut0\">читать дальше...</a> )<br>", ParserUtil.bb2xhtml("some text\n\n[cut]\n\n[list][*]one\n\n[*]\n\ntwo[/cut]", false, false, "", null));
+  }
+
     @Test
     public void urlTest(){
         Assert.assertEquals(ParserUtil.bb2xhtml("[url]http://linux.org.ru[/url]",null), "<p><a href=\"http://linux.org.ru\">http://linux.org.ru</a></p>");
