@@ -50,49 +50,49 @@ import java.sql.Connection;
  * Time: 3:09 PM
  */
 public class TagNode extends Node {
-    final Tag bbtag;
+  final Tag bbtag;
 
-    public TagNode(Node node, Parser parser, String name, String parameter) {
-        super(node, parser);
-        bbtag = parser.getAllTagsDict().get(name);
-        this.parameter = parameter;
-    }
+  public TagNode(Node node, Parser parser, String name, String parameter) {
+    super(node, parser);
+    bbtag = parser.getAllTagsDict().get(name);
+    this.parameter = parameter;
+  }
 
-    @Override
-    public boolean prohibited(String tagName) {
-        if (bbtag.getProhibitedElements() != null && bbtag.getProhibitedElements().contains(tagName)) {
-            return true;
-        } else {
-            if (parent == null) {
-                return false;
-            } else {
-                return parent.prohibited(tagName);
-            }
-        }
+  @Override
+  public boolean prohibited(String tagName) {
+    if (bbtag.getProhibitedElements() != null && bbtag.getProhibitedElements().contains(tagName)) {
+      return true;
+    } else {
+      if (parent == null) {
+        return false;
+      } else {
+        return parent.prohibited(tagName);
+      }
     }
+  }
 
-    @Override
-    public boolean allows(String tagName) {
-        if (bbtag.getAllowedChildren().contains(tagName)) {
-            return !prohibited(tagName);
-        } else {
-            return false;
-        }
+  @Override
+  public boolean allows(String tagName) {
+    if (bbtag.getAllowedChildren().contains(tagName)) {
+      return !prohibited(tagName);
+    } else {
+      return false;
     }
+  }
 
-    public Tag getBbtag() {
-        return bbtag;
-    }
+  public Tag getBbtag() {
+    return bbtag;
+  }
 
-    @Override
-    public String renderXHtml(Connection db) {
-        return bbtag.renderNodeXhtml(this, db);
-    }
+  @Override
+  public String renderXHtml(Connection db) {
+    return bbtag.renderNodeXhtml(this, db);
+  }
 
-    @Override
-    public String renderBBCode() {
-        return bbtag.renderNodeBBCode(this);
-    }
+  @Override
+  public String renderBBCode() {
+    return bbtag.renderNodeBBCode(this);
+  }
 
 
 }

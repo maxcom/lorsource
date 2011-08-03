@@ -54,43 +54,43 @@ import java.util.Set;
  * Time: 12:20 PM
  */
 public class UrlTag extends Tag {
-    public UrlTag(String name, Set<String> allowedChildren, String implicitTag, Parser parser) {
-        super(name, allowedChildren, implicitTag, parser);
+  public UrlTag(String name, Set<String> allowedChildren, String implicitTag, Parser parser) {
+    super(name, allowedChildren, implicitTag, parser);
+  }
+
+  @Override
+  public String renderNodeXhtml(Node node, Connection db) {
+    StringBuilder ret = new StringBuilder();
+    String url;
+    if (node.lengthChildren() == 0) {
+      return "";
+    }
+    // Внцтри [url] только текст
+    TextNode txtNode = (TextNode) node.getChildren().iterator().next();
+    if (node.isParameter()) {
+      // сюда никогда не должна попасть обрабатывается специально в Parser
+      url = node.getParameter().trim();
+    } else {
+      url = txtNode.getText().trim();
+    }
+    String linkText = txtNode.getText().trim();
+    if (linkText == null || linkText.isEmpty()) {
+      linkText = url;
+    }
+    try {
+      String escapedUrl = URLUtil.fixURL(url);
+      ret.append("<a href=\"");
+      ret.append(escapedUrl);
+      ret.append("\">");
+      ret.append(Parser.escape(linkText));
+      ret.append("</a>");
+    } catch (UtilException ex) {
+      ret.append("<s>");
+      ret.append(Parser.escape(url));
+      ret.append("</s>");
     }
 
-    @Override
-    public String renderNodeXhtml(Node node, Connection db) {
-        StringBuilder ret = new StringBuilder();
-        String url;
-        if (node.lengthChildren() == 0) {
-            return "";
-        }
-        // Внцтри [url] только текст
-        TextNode txtNode = (TextNode) node.getChildren().iterator().next();
-        if (node.isParameter()) {
-            // сюда никогда не должна попасть обрабатывается специально в Parser
-            url = node.getParameter().trim();
-        } else {
-            url = txtNode.getText().trim();
-        }
-        String linkText = txtNode.getText().trim();
-        if (linkText == null || linkText.isEmpty()) {
-            linkText = url;
-        }
-        try {
-            String escapedUrl = URLUtil.fixURL(url);
-            ret.append("<a href=\"");
-            ret.append(escapedUrl);
-            ret.append("\">");
-            ret.append(Parser.escape(linkText));
-            ret.append("</a>");
-        } catch (UtilException ex) {
-            ret.append("<s>");
-            ret.append(Parser.escape(url));
-            ret.append("</s>");
-        }
-
-        return ret.toString();
-    }
+    return ret.toString();
+  }
 
 }

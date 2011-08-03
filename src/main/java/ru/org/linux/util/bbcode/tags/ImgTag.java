@@ -56,37 +56,37 @@ import java.util.Set;
  * Time: 11:52 AM
  */
 public class ImgTag extends Tag {
-    public ImgTag(String name, Set<String> allowedChildren, String implicitTag, Parser parser) {
-        super(name, allowedChildren, implicitTag, parser);
-    }
+  public ImgTag(String name, Set<String> allowedChildren, String implicitTag, Parser parser) {
+    super(name, allowedChildren, implicitTag, parser);
+  }
 
-    @Override
-    public String renderNodeXhtml(Node node, Connection db) {
-        StringBuilder ret = new StringBuilder();
-        if (node.lengthChildren() == 0) {
-            return "";
-        }
-        TextNode txtNode = (TextNode) node.getChildren().iterator().next();
-        String imgurl = txtNode.getText();
-
-        try {
-            String fixUrl = UriUtils.encodeQuery(URLUtil.fixURL(imgurl), "UTF-8");
-            ret.append("<img src=\"");
-            ret.append(UriUtils.encodeQuery(fixUrl, "UTF-8"));
-            ret.append("\"/>");
-        } catch (UtilException ex) {
-            ret.append("<s>");
-            ret.append(Parser.escape(imgurl));
-            ret.append("</s>");
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
-        }
-        return ret.toString();
+  @Override
+  public String renderNodeXhtml(Node node, Connection db) {
+    StringBuilder ret = new StringBuilder();
+    if (node.lengthChildren() == 0) {
+      return "";
     }
+    TextNode txtNode = (TextNode) node.getChildren().iterator().next();
+    String imgurl = txtNode.getText();
 
-    @Override
-    public String renderNodeBBCode(Node node) {
-        TextNode txtNode = (TextNode) node.getChildren().iterator().next();
-        return txtNode.getText();
+    try {
+      String fixUrl = UriUtils.encodeQuery(URLUtil.fixURL(imgurl), "UTF-8");
+      ret.append("<img src=\"");
+      ret.append(UriUtils.encodeQuery(fixUrl, "UTF-8"));
+      ret.append("\"/>");
+    } catch (UtilException ex) {
+      ret.append("<s>");
+      ret.append(Parser.escape(imgurl));
+      ret.append("</s>");
+    } catch (UnsupportedEncodingException e) {
+      throw new RuntimeException(e);
     }
+    return ret.toString();
+  }
+
+  @Override
+  public String renderNodeBBCode(Node node) {
+    TextNode txtNode = (TextNode) node.getChildren().iterator().next();
+    return txtNode.getText();
+  }
 }

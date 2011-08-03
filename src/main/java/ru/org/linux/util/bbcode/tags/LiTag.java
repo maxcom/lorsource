@@ -50,19 +50,19 @@ import java.util.Set;
  * Time: 2:55 PM
  */
 public class LiTag extends HtmlEquivTag {
-    public LiTag(String name, Set<String> allowedChildren, String implicitTag, Parser parser) {
-        super(name, allowedChildren, implicitTag, parser);
-        setHtmlEquiv("li");
-    }
+  public LiTag(String name, Set<String> allowedChildren, String implicitTag, Parser parser) {
+    super(name, allowedChildren, implicitTag, parser);
+    setHtmlEquiv("li");
+  }
 
-    @Override
-    public String renderNodeBBCode(Node node) {
-        StringBuilder ret = new StringBuilder();
-        return ret
+  @Override
+  public String renderNodeBBCode(Node node) {
+    StringBuilder ret = new StringBuilder();
+    return ret
             .append('[')
             .append(name)
             .append(']')
             .append(node.renderChildrenBBCode())
             .toString();
-    }
+  }
 }

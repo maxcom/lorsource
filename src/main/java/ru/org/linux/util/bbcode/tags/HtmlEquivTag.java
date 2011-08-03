@@ -54,59 +54,59 @@ import java.util.Set;
  * Time: 10:40 AM
  */
 public class HtmlEquivTag extends Tag {
-    private String htmlEquiv;
-    private Map<String, String> attributes = ImmutableMap.of();
+  private String htmlEquiv;
+  private Map<String, String> attributes = ImmutableMap.of();
 
-    public HtmlEquivTag(String name, Set<String> allowedChildren, String implicitTag, Parser parser) {
-        super(name, allowedChildren, implicitTag, parser);
+  public HtmlEquivTag(String name, Set<String> allowedChildren, String implicitTag, Parser parser) {
+    super(name, allowedChildren, implicitTag, parser);
+  }
+
+  public void setHtmlEquiv(String htmlEquiv) {
+    this.htmlEquiv = htmlEquiv;
+  }
+
+  public void setAttributes(Map<String, String> attributes) {
+    this.attributes = attributes;
+  }
+
+  @Override
+  public String renderNodeXhtml(Node node, Connection db) {
+    StringBuilder opening = new StringBuilder(htmlEquiv);
+    StringBuilder ret = new StringBuilder();
+
+    if (!attributes.isEmpty()) {
+      opening.append(' ');
+
+      for (Map.Entry<String, String> entry : attributes.entrySet()) {
+        opening.append(entry.getKey());
+        opening.append('=');
+        opening.append(Parser.escape(entry.getValue()));
+        opening.append(' ');
+      }
     }
 
-    public void setHtmlEquiv(String htmlEquiv) {
-        this.htmlEquiv = htmlEquiv;
-    }
-
-    public void setAttributes(Map<String, String> attributes) {
-        this.attributes = attributes;
-    }
-
-    @Override
-    public String renderNodeXhtml(Node node, Connection db) {
-        StringBuilder opening = new StringBuilder(htmlEquiv);
-        StringBuilder ret = new StringBuilder();
-
-        if (!attributes.isEmpty()) {
-            opening.append(' ');
-
-            for (Map.Entry<String, String> entry : attributes.entrySet()) {
-                opening.append(entry.getKey());
-                opening.append('=');
-                opening.append(Parser.escape(entry.getValue()));
-                opening.append(' ');
-            }
+    if (htmlEquiv.isEmpty()) {
+      ret.append(node.renderChildrenXHtml(db));
+    } else {
+      if (selfClosing) {
+        ret.append('<').append(opening).append('>'); // для xhtml по идее />
+      } else {
+        if (node.lengthChildren() > 0) {
+          ret.append('<').append(opening).append('>');
+          ret.append(node.renderChildrenXHtml(db));
+          ret.append("</").append(htmlEquiv).append('>');
         }
-
-        if (htmlEquiv.isEmpty()) {
-            ret.append(node.renderChildrenXHtml(db));
-        } else {
-            if (selfClosing) {
-                ret.append('<').append(opening).append('>'); // для xhtml по идее />
-            } else {
-                if (node.lengthChildren() > 0) {
-                    ret.append('<').append(opening).append('>');
-                    ret.append(node.renderChildrenXHtml(db));
-                    ret.append("</").append(htmlEquiv).append('>');
-                }
-            }
-        }
-        return ret.toString();
+      }
     }
+    return ret.toString();
+  }
 
-    @Override
-    public String renderNodeBBCode(Node node) {
-        if ("div".equals(name)) {
-            return node.renderChildrenBBCode();
-        } else {
-            return super.renderNodeBBCode(node);
-        }
+  @Override
+  public String renderNodeBBCode(Node node) {
+    if ("div".equals(name)) {
+      return node.renderChildrenBBCode();
+    } else {
+      return super.renderNodeBBCode(node);
     }
+  }
 }

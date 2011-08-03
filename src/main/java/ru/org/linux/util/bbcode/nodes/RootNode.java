@@ -50,57 +50,57 @@ import java.sql.Connection;
  */
 public class RootNode extends Node {
 
-    private int cutCount;
-    private boolean renderCut;
-    private boolean cleanCut;
-    private String cutUrl;
+  private int cutCount;
+  private boolean renderCut;
+  private boolean cleanCut;
+  private String cutUrl;
 
-    public RootNode(Parser parser) {
-        super(parser);
-        cutCount = 0;
-        renderCut = true;
-        cleanCut = true;
-        cutUrl = "";
-    }
+  public RootNode(Parser parser) {
+    super(parser);
+    cutCount = 0;
+    renderCut = true;
+    cleanCut = true;
+    cutUrl = "";
+  }
 
-    public void setRenderOptions(boolean renderCut, boolean cleanCut, String cutUrl) {
-        this.renderCut = renderCut;
-        this.cleanCut = cleanCut;
-        this.cutUrl = cutUrl;
-    }
+  public void setRenderOptions(boolean renderCut, boolean cleanCut, String cutUrl) {
+    this.renderCut = renderCut;
+    this.cleanCut = cleanCut;
+    this.cutUrl = cutUrl;
+  }
 
-    @Override
-    public String renderXHtml(Connection db) {
-        return renderChildrenXHtml(db);
-    }
+  @Override
+  public String renderXHtml(Connection db) {
+    return renderChildrenXHtml(db);
+  }
 
-    @Override
-    public boolean allows(String tagname) {
-        return parser.getBlockLevelTags().contains(tagname);
-    }
+  @Override
+  public boolean allows(String tagname) {
+    return parser.getBlockLevelTags().contains(tagname);
+  }
 
-    @Override
-    public String renderBBCode() {
-        return renderChildrenBBCode();
-    }
+  @Override
+  public String renderBBCode() {
+    return renderChildrenBBCode();
+  }
 
-    public int getCutCount() {
-        return cutCount;
-    }
+  public int getCutCount() {
+    return cutCount;
+  }
 
-    public void incCutCount() {
-        cutCount += 1;
-    }
+  public void incCutCount() {
+    cutCount += 1;
+  }
 
-    public boolean isRenderCut() {
-        return renderCut;
-    }
+  public boolean isRenderCut() {
+    return renderCut;
+  }
 
-    public boolean isCleanCut() {
-        return cleanCut;
-    }
+  public boolean isCleanCut() {
+    return cleanCut;
+  }
 
-    public String getCutUrl() {
-        return cutUrl;
-    }
+  public String getCutUrl() {
+    return cutUrl;
+  }
 }

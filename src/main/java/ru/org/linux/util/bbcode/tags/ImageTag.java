@@ -52,21 +52,21 @@ import java.util.regex.Pattern;
  * Time: 3:42 PM
  */
 public class ImageTag extends Tag {
-    public static final Pattern IMG_URL_REGEXP = Pattern.compile("(\\w+)://([\\w\\d]+)/?(.*)?");
+  public static final Pattern IMG_URL_REGEXP = Pattern.compile("(\\w+)://([\\w\\d]+)/?(.*)?");
 
-    public ImageTag(String name, Set<String> allowedChildren, String implicitTag, Parser parser) {
-        super(name, allowedChildren, implicitTag, parser);
+  public ImageTag(String name, Set<String> allowedChildren, String implicitTag, Parser parser) {
+    super(name, allowedChildren, implicitTag, parser);
+  }
+
+  @Override
+  public String renderNodeXhtml(Node node) {
+    if (node.lengthChildren() == 0) {
+      return "";
     }
-
-    @Override
-    public String renderNodeXhtml(Node node) {
-        if (node.lengthChildren() == 0) {
-            return "";
-        }
-        TextNode txtNode = (TextNode) node.getChildren().iterator().next();
-        String imageUrl = Parser.escape(txtNode.getText()).trim();
-        return String.format("<img src=\"%s\" />", imageUrl);
-        // TODO надо отладить
+    TextNode txtNode = (TextNode) node.getChildren().iterator().next();
+    String imageUrl = Parser.escape(txtNode.getText()).trim();
+    return String.format("<img src=\"%s\" />", imageUrl);
+    // TODO надо отладить
 /*        Matcher matcher = IMG_URL_REGEXP.matcher(imageUrl);
         try {
             if(matcher.find()){
@@ -81,5 +81,5 @@ public class ImageTag extends Tag {
         } catch (Exception ex){
             return "";
         }*/
-    }
+  }
 }

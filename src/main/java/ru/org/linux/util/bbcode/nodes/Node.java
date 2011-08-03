@@ -51,79 +51,79 @@ import java.util.List;
  * Time: 11:49 PM
  */
 public class Node {
-    Node parent = null;
-    private final List<Node> children;
-    String parameter;
-    final Parser parser;
+  Node parent = null;
+  private final List<Node> children;
+  String parameter;
+  final Parser parser;
 
-    public Node(Parser parser) {
-        this.parser = parser;
-        children = new ArrayList<Node>();
+  public Node(Parser parser) {
+    this.parser = parser;
+    children = new ArrayList<Node>();
+  }
+
+  public Node(Node parent, Parser parser) {
+    this.parser = parser;
+    this.parent = parent;
+    children = new ArrayList<Node>();
+  }
+
+  public Node getParent() {
+    return parent;
+  }
+
+  public boolean allows(String tagname) {
+    assert false;
+    return false;
+  }
+
+  public boolean prohibited(String tagname) {
+    return false;
+  }
+
+  public int lengthChildren() {
+    return children.size();
+  }
+
+  public List<Node> getChildren() {
+    return children;
+  }
+
+  public boolean isParameter() {
+    return (parameter != null) && (parameter.length() > 0);
+  }
+
+  public String getParameter() {
+    return parameter;
+  }
+
+  public void setParameter(String parameter) {
+    this.parameter = parameter;
+  }
+
+  public String renderXHtml(Connection db) {
+    assert false;
+    return "";
+  }
+
+  public String renderBBCode() {
+    assert false;
+    return "";
+  }
+
+  public String renderChildrenXHtml(Connection db) {
+    StringBuilder stringBuilder = new StringBuilder();
+    for (Node child : children) {
+      stringBuilder.append(child.renderXHtml(db));
     }
+    return stringBuilder.toString();
+  }
 
-    public Node(Node parent, Parser parser) {
-        this.parser = parser;
-        this.parent = parent;
-        children = new ArrayList<Node>();
+  public String renderChildrenBBCode() {
+    StringBuilder stringBuilder = new StringBuilder();
+    for (Node child : children) {
+      stringBuilder.append(child.renderBBCode());
     }
+    return stringBuilder.toString();
 
-    public Node getParent() {
-        return parent;
-    }
-
-    public boolean allows(String tagname) {
-        assert false;
-        return false;
-    }
-
-    public boolean prohibited(String tagname) {
-        return false;
-    }
-
-    public int lengthChildren() {
-        return children.size();
-    }
-
-    public List<Node> getChildren() {
-        return children;
-    }
-
-    public boolean isParameter() {
-        return (parameter != null) && (parameter.length() > 0);
-    }
-
-    public String getParameter() {
-        return parameter;
-    }
-
-    public void setParameter(String parameter) {
-        this.parameter = parameter;
-    }
-
-    public String renderXHtml(Connection db) {
-        assert false;
-        return "";
-    }
-
-    public String renderBBCode() {
-        assert false;
-        return "";
-    }
-
-    public String renderChildrenXHtml(Connection db) {
-        StringBuilder stringBuilder = new StringBuilder();
-        for (Node child : children) {
-            stringBuilder.append(child.renderXHtml(db));
-        }
-        return stringBuilder.toString();
-    }
-
-    public String renderChildrenBBCode() {
-        StringBuilder stringBuilder = new StringBuilder();
-        for (Node child : children) {
-            stringBuilder.append(child.renderBBCode());
-        }
-        return stringBuilder.toString();
-
-    }
+  }
 }
