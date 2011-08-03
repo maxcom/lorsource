@@ -64,7 +64,7 @@
         <dependency>
             <groupId>postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>8.2-504.jdbc3</version>
+            <version>8.4-702.jdbc4</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -388,7 +388,7 @@
                                 <artifactItem>
                                     <groupId>postgresql</groupId>
                                     <artifactId>postgresql</artifactId>
-                                    <version>8.2-504.jdbc3</version>
+                                    <version>8.4-702.jdbc4</version>
                                     <type>jar</type>
                                     <overWrite>false</overWrite>
                                     <outputDirectory>${project.build.directory}/test-wars</outputDirectory>
