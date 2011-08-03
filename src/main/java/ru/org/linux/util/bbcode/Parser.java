@@ -174,7 +174,7 @@ public class Parser {
     { // <p>
       HtmlEquivTag tag = new HtmlEquivTag("p", flowTags, null, this);
       tag.setHtmlEquiv("p");
-      tag.setProhibitedElements(ImmutableSet.<String>of("div", "list", "quote"));
+      tag.setProhibitedElements(ImmutableSet.<String>of("div", "list", "quote", "cut"));
       allTags.add(tag);
     }
     { // <div>
