@@ -378,7 +378,7 @@
                                 <artifactItem>
                                     <groupId>org.jamwiki</groupId>
                                     <artifactId>jamwiki-war</artifactId>
-                                    <version>0.9.5</version>
+                                    <version>1.0.5</version>
                                     <type>war</type>
                                     <overWrite>false</overWrite>
                                     <outputDirectory>${project.build.directory}/test-wars</outputDirectory>
