@@ -68,8 +68,9 @@ public class SimpleParserTest {
 
   @Test
   public void cut3Test(){
-    Assert.assertEquals("<p>some text</p><p></p><div id=\"cut0\"><p></p><ul><li>one<p></p><ul><li><p>two</p></li></ul></li></ul></div>", ParserUtil.bb2xhtml("some text\n\n[cut]\n\n[list][*]one\n\n[*]\n\ntwo[/cut]", true, false, "", null));
-    Assert.assertEquals("<p>some text</p><p></p><br>( <a href=\"#cut0\">читать дальше...</a> )<br>", ParserUtil.bb2xhtml("some text\n\n[cut]\n\n[list][*]one\n\n[*]\n\ntwo[/cut]", false, false, "", null));
+    Assert.assertEquals("<p>some text</p><div id=\"cut0\"><ul><li>one</li><li><p>two</p></li></ul></div>",
+            ParserUtil.bb2xhtml("some text\n\n[cut]\n\n[list][*]one\n\n[*]\n\ntwo[/cut]", true, false, "", null));
+    Assert.assertEquals("<p>some text</p><br>( <a href=\"#cut0\">читать дальше...</a> )<br>", ParserUtil.bb2xhtml("some text\n\n[cut]\n\n[list][*]one\n\n[*]\n\ntwo[/cut]", false, false, "", null));
   }
     @Test
     public void urlTest(){
