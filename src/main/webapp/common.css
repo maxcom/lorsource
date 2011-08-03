@@ -237,6 +237,7 @@ label.error {
 }
 
 #commentForm {
+    margin-top: 0.5em;
     font-size: medium;
 }
 
