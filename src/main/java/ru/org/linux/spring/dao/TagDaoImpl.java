@@ -24,9 +24,12 @@ import java.util.List;
 import org.apache.commons.collections.Closure;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.mutable.MutableDouble;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
+import org.springframework.stereotype.Repository;
 
+@Repository
 public class TagDaoImpl {
   private SimpleJdbcTemplate jdbcTemplate;
 
@@ -34,6 +37,7 @@ public class TagDaoImpl {
     return jdbcTemplate;
   }
 
+  @Autowired
   public void setJdbcTemplate(SimpleJdbcTemplate jdbcTemplate) {
     this.jdbcTemplate = jdbcTemplate;
   }

@@ -27,7 +27,6 @@ import javax.jms.Session;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Required;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.core.MessageCreator;
 import org.springframework.stereotype.Component;
@@ -39,13 +38,11 @@ public class SearchQueueSender {
   private static final Log logger = LogFactory.getLog(SearchQueueSender.class);
 
   @Autowired
-  @Required
   public void setJmsTemplate(JmsTemplate jmsTemplate) {
     this.jmsTemplate = jmsTemplate;
   }
 
   @Autowired
-  @Required
   public void setQueue(Queue queue) {
     this.queue = queue;
   }

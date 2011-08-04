@@ -17,17 +17,19 @@ package ru.org.linux.spring;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Required;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+@Component
 public class ScoreUpdater {
   private static final Log logger = LogFactory.getLog(ScoreUpdater.class);
 
   private SimpleJdbcTemplate jdbcTemplate;
 
-  @Required
+  @Autowired
   public void setJdbcTemplate(SimpleJdbcTemplate jdbcTemplate) {
     this.jdbcTemplate = jdbcTemplate;
   }

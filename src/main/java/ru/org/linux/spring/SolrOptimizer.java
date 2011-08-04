@@ -22,7 +22,6 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Required;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -33,7 +32,6 @@ public class SolrOptimizer {
   private SolrServer solrServer;
 
   @Autowired
-  @Required
   public void setSolrServer(SolrServer solrServer) {
     this.solrServer = solrServer;
   }

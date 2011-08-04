@@ -20,14 +20,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
+import org.springframework.stereotype.Repository;
 
-/**
- * User: sreentenko
- * Date: 01.05.2009
- * Time: 23:34:51
- */
+@Repository
 public class ArchiveDaoImpl {
 
   private SimpleJdbcTemplate jdbcTemplate;
@@ -36,24 +34,25 @@ public class ArchiveDaoImpl {
     return jdbcTemplate;
   }
 
+  @Autowired
   public void setJdbcTemplate(SimpleJdbcTemplate jdbcTemplate) {
     this.jdbcTemplate = jdbcTemplate;
   }
 
-  public List<ArchiveDTO> getArchiveDTO(){
+  public List<ArchiveDTO> getArchiveDTO() {
     return jdbcTemplate.query(
-      "select year, month, c from monthly_stats where section=1 and groupid is null" +
-        " order by year desc, month desc limit 13",
-      new RowMapper<ArchiveDTO>() {
-      @Override
-      public ArchiveDTO mapRow(ResultSet rs, int rowNum) throws SQLException {
-        ArchiveDTO dto = new ArchiveDTO();
-        dto.setYear(rs.getInt("year"));
-        dto.setMonth(rs.getInt("month"));
-        dto.setCount(rs.getInt("c"));
-        return dto;
-      }
-    });
+            "select year, month, c from monthly_stats where section=1 and groupid is null" +
+                    " order by year desc, month desc limit 13",
+            new RowMapper<ArchiveDTO>() {
+              @Override
+              public ArchiveDTO mapRow(ResultSet rs, int rowNum) throws SQLException {
+                ArchiveDTO dto = new ArchiveDTO();
+                dto.setYear(rs.getInt("year"));
+                dto.setMonth(rs.getInt("month"));
+                dto.setCount(rs.getInt("c"));
+                return dto;
+              }
+            });
   }
 
   public static class ArchiveDTO implements Serializable {

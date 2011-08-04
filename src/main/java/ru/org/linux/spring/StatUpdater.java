@@ -19,10 +19,12 @@ import javax.sql.DataSource;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Required;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.simple.SimpleJdbcCall;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 
+@Component
 public class StatUpdater {
   private static final Log logger = LogFactory.getLog(StatUpdater.class);
 
@@ -30,7 +32,7 @@ public class StatUpdater {
   private SimpleJdbcCall statUpdate2;
   private SimpleJdbcCall statMonthly;
 
-  @Required
+  @Autowired
   public void setDataSource(DataSource dataSource) {
     statUpdate = new SimpleJdbcCall(dataSource).withFunctionName("stat_update");
     statUpdate2 = new SimpleJdbcCall(dataSource).withFunctionName("stat_update2");

@@ -20,6 +20,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import org.springframework.stereotype.Component;
 import ru.org.linux.site.LorDataSource;
 import ru.org.linux.site.Section;
 import ru.org.linux.site.SectionNotFoundException;
@@ -27,6 +28,7 @@ import ru.org.linux.site.SectionNotFoundException;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
+@Component
 public class SectionStore {
   private final ImmutableMap<Integer, Section> sections;
   private final ImmutableList<Section> sectionsList;

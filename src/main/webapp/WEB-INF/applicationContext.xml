@@ -19,10 +19,16 @@
        xmlns:amq="http://activemq.apache.org/schema/core"
        xmlns:jee="http://www.springframework.org/schema/jee"
        xmlns:task="http://www.springframework.org/schema/task"
-       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:tx="http://www.springframework.org/schema/tx" xmlns:context="http://www.springframework.org/schema/context"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
        http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd
-       http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-3.0.xsd http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.0.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+       http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-3.0.xsd http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.0.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <context:component-scan base-package="ru.org.linux">
+        <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+    </context:component-scan>
+    
+    <context:annotation-config/>
 
     <bean class="org.springframework.beans.factory.config.PropertiesFactoryBean" scope="singleton"
           name="properties">
@@ -54,29 +60,6 @@
         <constructor-arg ref="datasource"/>
     </bean>
 
-    <bean class="ru.org.linux.spring.SectionStore" id="sectionStore" scope="singleton"/>
-
-    <bean class="ru.org.linux.spring.dao.GalleryDaoImpl" id="galleryDao">
-        <property name="properties" ref="properties"/>
-        <property name="template" ref="jdbcTemplate"/>
-    </bean>
-
-    <bean class="ru.org.linux.spring.dao.ArchiveDaoImpl" id="archiveDao">
-        <property name="jdbcTemplate" ref="jdbcTemplate"/>
-    </bean>
-
-    <bean class="ru.org.linux.spring.dao.PollDaoImpl" id="pollDao">
-        <property name="jdbcTemplate" ref="jdbcTemplate"/>
-    </bean>
-
-    <bean class="ru.org.linux.spring.dao.TopTenDaoImpl" id="topTenDao">
-        <property name="jdbcTemplate" ref="jdbcTemplate"/>
-    </bean>
-
-    <bean class="ru.org.linux.spring.dao.TagDaoImpl" id="tagDao">
-        <property name="jdbcTemplate" ref="jdbcTemplate"/>
-    </bean>
-
     <bean class="ru.org.linux.spring.commons.MemCachedProvider" id="cacheProvider"
           destroy-method="destroy"/>
 
@@ -90,8 +73,7 @@
         <property name="includeNoscript" value="true"/>
     </bean>
 
-    <bean class="org.apache.xmlrpc.client.XmlRpcClientConfigImpl">
-    </bean>
+    <bean class="org.apache.xmlrpc.client.XmlRpcClientConfigImpl"/>
 
     <!-- enabling jmx causes tomcat stop lock -->
     <amq:broker useJmx="false" persistent="true" dataDirectory="${PathPrefix}/activemq">
@@ -122,11 +104,6 @@
         <property name="connectionFactory" ref="jmsConnectionFactory"/>
     </bean>
 
-    <bean id="searchQueueSender" class="ru.org.linux.spring.SearchQueueSender">
-        <property name="queue" ref="searchQueue"/>
-        <property name="jmsTemplate" ref="myJmsTemplate"/>
-    </bean>
-
     <!-- unfortunately shutdown method do not kill all threads, we need to call shutdownAll -->
     <bean id="httpConnectionManager" destroy-method="shutdownAll"
           class="org.apache.commons.httpclient.MultiThreadedHttpConnectionManager"/>
@@ -150,10 +127,6 @@
         <property name="maxRetries" value="1"/>
     </bean>
 
-    <bean id="searchQueueListener" class="ru.org.linux.spring.SearchQueueListener">
-        <property name="solrServer" ref="solr"/>
-    </bean>
-
     <bean id="messageListener"
           class="org.springframework.jms.listener.adapter.MessageListenerAdapter">
         <constructor-arg ref="searchQueueListener"/>
@@ -169,16 +142,4 @@
     </bean>
 
     <task:annotation-driven/>
-
-    <bean class="ru.org.linux.spring.SolrOptimizer">
-        <property name="solrServer" ref="solr"/>
-    </bean>
-
-    <bean class="ru.org.linux.spring.ScoreUpdater">
-        <property name="jdbcTemplate" ref="jdbcTemplate"/>
-    </bean>
-
-    <bean class="ru.org.linux.spring.StatUpdater">
-        <property name="dataSource" ref="datasource"/>
-    </bean>
 </beans>

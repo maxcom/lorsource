@@ -21,11 +21,14 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 
+import org.springframework.stereotype.Repository;
 import ru.org.linux.site.Section;
 
+@Repository
 public class TopTenDaoImpl {
   private SimpleJdbcTemplate jdbcTemplate;
 
@@ -33,6 +36,7 @@ public class TopTenDaoImpl {
     return jdbcTemplate;
   }
 
+  @Autowired
   public void setJdbcTemplate(SimpleJdbcTemplate jdbcTemplate) {
     this.jdbcTemplate = jdbcTemplate;
   }

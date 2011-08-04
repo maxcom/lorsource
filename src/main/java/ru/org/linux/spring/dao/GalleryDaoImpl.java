@@ -15,22 +15,24 @@
 
 package ru.org.linux.spring.dao;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
+import org.springframework.stereotype.Repository;
+import ru.org.linux.site.GalleryItem;
+import ru.org.linux.site.Section;
+import ru.org.linux.util.BadImageException;
+import ru.org.linux.util.ImageInfo;
+
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Properties;
 
-import ru.org.linux.site.GalleryItem;
-import ru.org.linux.site.Section;
-import ru.org.linux.util.BadImageException;
-import ru.org.linux.util.ImageInfo;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
-
+@Repository
 public class GalleryDaoImpl {
   private static final Log log = LogFactory.getLog(GalleryDaoImpl.class);
 
@@ -41,6 +43,7 @@ public class GalleryDaoImpl {
     return template;
   }
 
+  @Autowired
   public void setTemplate(SimpleJdbcTemplate template) {
     this.template = template;
   }
@@ -49,6 +52,7 @@ public class GalleryDaoImpl {
     return properties;
   }
 
+  @Autowired
   public void setProperties(Properties properties) {
     this.properties = properties;
   }
