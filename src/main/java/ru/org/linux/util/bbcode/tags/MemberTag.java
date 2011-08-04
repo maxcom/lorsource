@@ -45,7 +45,6 @@ import ru.org.linux.util.bbcode.nodes.Node;
 import ru.org.linux.util.bbcode.nodes.TextNode;
 
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.Set;
 
 /**
@@ -76,8 +75,6 @@ public class MemberTag extends Tag {
       }
     } catch (UserNotFoundException ex) {
       pattern = "<s>%s</s>";
-    } catch (SQLException e) {
-      pattern = "<s>%s</s>"; // TODO throw this exception up
     }
     return String.format(pattern, Parser.escape(memberName), Parser.escape(memberName));
 

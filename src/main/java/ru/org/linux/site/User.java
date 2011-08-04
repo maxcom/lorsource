@@ -15,27 +15,25 @@
 
 package ru.org.linux.site;
 
+import org.apache.commons.codec.binary.Base64;
+import org.jasypt.exceptions.EncryptionOperationNotPossibleException;
+import org.jasypt.util.password.BasicPasswordEncryptor;
+import org.jasypt.util.password.PasswordEncryptor;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.datasource.SingleConnectionDataSource;
+import org.springframework.jdbc.support.JdbcUtils;
+import ru.org.linux.spring.LoginController;
+import ru.org.linux.spring.dao.UserDao;
+import ru.org.linux.util.StringUtil;
+
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.Serializable;
 import java.net.URLEncoder;
 import java.sql.*;
 import java.util.LinkedList;
 import java.util.List;
-
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-
-import ru.org.linux.spring.LoginController;
-import ru.org.linux.util.StringUtil;
-
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Element;
-import org.apache.commons.codec.binary.Base64;
-import org.jasypt.exceptions.EncryptionOperationNotPossibleException;
-import org.jasypt.util.password.BasicPasswordEncryptor;
-import org.jasypt.util.password.PasswordEncryptor;
-import org.springframework.jdbc.support.JdbcUtils;
 
 public class User implements Serializable {
   private static final int ANONYMOUS_LEVEL_SCORE = 50;
@@ -65,84 +63,29 @@ public class User implements Serializable {
 
   private static final long serialVersionUID = 69986652856916540L;
 
-  private User(Connection con, String name) throws SQLException, UserNotFoundException {
-    if (name == null) {
-      throw new NullPointerException();
-    }
-    nick = name;
-
-    if (!StringUtil.checkLoginName(name)) {
-      throw new UserNotFoundException("<invalid name>");
-    }
-
-    PreparedStatement st = con.prepareStatement("SELECT id,candel,canmod,corrector,passwd,blocked,score,max_score,activated,photo,email,name,unread_events FROM users where nick=?");
-    st.setString(1, name);
-
-    ResultSet rs = st.executeQuery();
-
-    if (!rs.next()) {
-      throw new UserNotFoundException(name);
-    }
-
+  public User(ResultSet rs) throws SQLException {
     id = rs.getInt("id");
-    canmod = rs.getBoolean("canmod");
-    candel = rs.getBoolean("candel");
-    corrector = rs.getBoolean("corrector");
-    activated = rs.getBoolean("activated");
-    blocked = rs.getBoolean("blocked");
-    score = rs.getInt("score");
-    maxScore = rs.getInt("max_score");
-    fullName = rs.getString("name");
-    String pwd = rs.getString("passwd");
-    if (pwd == null) {
-      pwd = "";
-    }
-    anonymous = "".equals(pwd);
-    password = pwd;
-
-    photo=rs.getString("photo");
-
-    email = rs.getString("email");
-
-    unreadEvents = rs.getInt("unread_events");
-
-    rs.close();
-    st.close();
-  }
-
-  private User(Connection con, int id) throws SQLException, UserNotFoundException {
-    this.id = id;
-
-    PreparedStatement st = con.prepareStatement("SELECT nick,score, max_score, candel,canmod,corrector,passwd,blocked,activated,photo,email,name,unread_events FROM users where id=?");
-    st.setInt(1, id);
-
-    ResultSet rs = st.executeQuery();
-
-    if (!rs.next()) {
-      throw new UserNotFoundException(id);
-    }
-
     nick = rs.getString("nick");
     canmod = rs.getBoolean("canmod");
-    corrector = rs.getBoolean("corrector");
-    blocked = rs.getBoolean("blocked");
     candel = rs.getBoolean("candel");
+    corrector = rs.getBoolean("corrector");
     activated = rs.getBoolean("activated");
-    String pwd = rs.getString("passwd");
+    blocked = rs.getBoolean("blocked");
     score = rs.getInt("score");
     maxScore = rs.getInt("max_score");
     fullName = rs.getString("name");
+    String pwd = rs.getString("passwd");
     if (pwd == null) {
       pwd = "";
     }
-    password = pwd;
     anonymous = "".equals(pwd);
-    photo=rs.getString("photo");
-    email = rs.getString("email");
-    unreadEvents = rs.getInt("unread_events");
+    password = pwd;
 
-    rs.close();
-    st.close();
+    photo=rs.getString("photo");
+
+    email = rs.getString("email");
+
+    unreadEvents = rs.getInt("unread_events");
   }
 
   public int getId() {
@@ -420,7 +363,7 @@ public class User implements Serializable {
       PreparedStatement st1 = db.prepareStatement("UPDATE topics SET deleted='t',sticky='f' WHERE id=?");
       PreparedStatement st2 = db.prepareStatement("INSERT INTO del_info (msgid, delby, reason, deldate) values(?,?,?, CURRENT_TIMESTAMP)");
       lock.setInt(1, id);
-      st2.setInt(2, moderator.id);
+      st2.setInt(2, moderator.getId());
       st2.setString(3, "Блокировка пользователя с удалением сообщений");
       ResultSet lockResult = lock.executeQuery(); // lock another delete on this row
       while (lockResult.next()) {
@@ -468,47 +411,30 @@ public class User implements Serializable {
     return deleted;
   }
 
-  public static User getUser(Connection con, String name) throws SQLException, UserNotFoundException {
-    Cache cache = CacheManager.create().getCache("Users");
+  @Deprecated
+  public static User getUser(Connection db, String nick) throws UserNotFoundException {
+    SingleConnectionDataSource scds = new SingleConnectionDataSource(db, true);
+    JdbcTemplate jdbcTemplate = new JdbcTemplate(scds);
 
-    User user = new User(con, name);
-
-    String cacheId = "User?id="+ user.id;
-
-    cache.put(new Element(cacheId, user));
-    
-    return user;
+    return UserDao.getUser(jdbcTemplate, nick);
   }
 
-  public static User getUser(Connection db, int id) throws SQLException, UserNotFoundException {
+  @Deprecated
+  public static User getUser(Connection db, int id) throws UserNotFoundException {
     return getUser(db, id, false);
   }
 
-  public static User getUserCached(Connection db, int id) throws SQLException, UserNotFoundException {
+  @Deprecated
+  public static User getUserCached(Connection db, int id) throws UserNotFoundException {
     return getUser(db, id, true);
   }
 
-  private static User getUser(Connection db, int id, boolean useCache) throws SQLException, UserNotFoundException {
-    Cache cache = CacheManager.create().getCache("Users");
+  @Deprecated
+  private static User getUser(Connection db, int id, boolean useCache) throws UserNotFoundException {
+    SingleConnectionDataSource scds = new SingleConnectionDataSource(db, true);
+    JdbcTemplate jdbcTemplate = new JdbcTemplate(scds);
 
-    String cacheId = "User?id="+id;
-
-    User res = null;
-
-    if (useCache) {
-      Element element = cache.get(cacheId);
-      
-      if (element!=null) {
-        res = (User) element.getObjectValue();
-      }
-    }
-
-    if (res==null) {
-      res = new User(db, id);
-      cache.put(new Element(cacheId, res));
-    }
-
-    return res;
+    return UserDao.getUser(jdbcTemplate, id, useCache);
   }
 
   public boolean isAnonymousScore() {
@@ -541,7 +467,7 @@ public class User implements Serializable {
     session.removeAttribute("ACEGI_SECURITY_CONTEXT"); // if any
   }
 
-  private void updateCache(Connection db) throws SQLException {
+  private void updateCache(Connection db) {
     try {
       getUser(db, id);
     } catch (UserNotFoundException e) {

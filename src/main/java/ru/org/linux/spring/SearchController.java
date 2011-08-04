@@ -15,15 +15,6 @@
 
 package ru.org.linux.spring;
 
-import java.beans.PropertyEditorSupport;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Map;
-
-import ru.org.linux.site.*;
-
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSortedMap;
 import org.apache.solr.client.solrj.SolrServer;
@@ -40,12 +31,25 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.DefaultBindingErrorProcessor;
 import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import ru.org.linux.site.*;
+import ru.org.linux.spring.dao.UserDao;
+
+import java.beans.PropertyEditorSupport;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Map;
 
 @Controller
 public class SearchController {
   private SolrServer solrServer;
   private SectionStore sectionStore;
+  private UserDao userDao;
 
   @Autowired
   @Required
@@ -56,6 +60,11 @@ public class SearchController {
   @Autowired
   public void setSectionStore(SectionStore sectionStore) {
     this.sectionStore = sectionStore;
+  }
+
+  @Autowired
+  public void setUserDao(UserDao userDao) {
+    this.userDao = userDao;
   }
 
   @ModelAttribute("sorts")
@@ -225,7 +234,7 @@ public class SearchController {
   }
 
   @InitBinder
-  public static void initBinder(WebDataBinder binder) {
+  public void initBinder(WebDataBinder binder) {
     binder.registerCustomEditor(SearchViewer.SearchOrder.class, new PropertyEditorSupport() {
       @Override
       public void setAsText(String s) throws IllegalArgumentException {
@@ -261,17 +270,10 @@ public class SearchController {
           return;
         }
 
-        Connection db = null;
-
         try {
-          db = LorDataSource.getConnection();
-          setValue(User.getUser(db, s));
-        } catch (SQLException e) {
-          throw new RuntimeException(e);
+          setValue(userDao.getUser(s));
         } catch (UserNotFoundException e) {
           throw new IllegalArgumentException(e);
-        } finally {
-          JdbcUtils.closeConnection(db);
         }
       }
 
