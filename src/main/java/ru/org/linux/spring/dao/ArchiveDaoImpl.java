@@ -15,28 +15,24 @@
 
 package ru.org.linux.spring.dao;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.stereotype.Repository;
+
+import javax.sql.DataSource;
 import java.io.Serializable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
-import org.springframework.stereotype.Repository;
-
 @Repository
 public class ArchiveDaoImpl {
-
-  private SimpleJdbcTemplate jdbcTemplate;
-
-  public SimpleJdbcTemplate getJdbcTemplate() {
-    return jdbcTemplate;
-  }
+  private JdbcTemplate jdbcTemplate;
 
   @Autowired
-  public void setJdbcTemplate(SimpleJdbcTemplate jdbcTemplate) {
-    this.jdbcTemplate = jdbcTemplate;
+  public void setDataSource(DataSource dataSource) {
+    this.jdbcTemplate = new JdbcTemplate(dataSource);
   }
 
   public List<ArchiveDTO> getArchiveDTO() {
