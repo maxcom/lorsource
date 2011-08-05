@@ -312,6 +312,14 @@
 
 <c:out value="${scroller}" escapeXml="false"/>
 
+<div style="text-align: center; margin-top: 1em; margin-bottom: 1em">
+    <a href="http://www.vkusnoserver.ru/">
+        <img src="/adv/vkusnoserver.png" alt="Вкусносервер: ВКУСНЫЕ серверы для друзей" width="720" height="90">
+    </a>
+</div>
+
+<%--
+
 <c:if test="${showAdsense}">
   <div style="text-align: center; margin-top: 1em">
     <jsp:include page="/WEB-INF/jsp/${template.style}/adsense.jsp"/>
@@ -319,6 +327,7 @@
   <br>
 </c:if>
 
+--%>
 
 <c:if test="${fn:length(commentsPrepared)>0}">
   <div class=nav>
