@@ -372,7 +372,7 @@
 <hr>
 <% } %>
 
-
+<c:if test="${showAdsense}">
   <script type="text/javascript">
     <!--
     $(document).ready(function(){
@@ -383,6 +383,7 @@
   </script>
 <div align=center id="dw">
 </div>
+</c:if>
 
 <c:if test="${not message.expired and template.sessionAuthorized}">
   <div style="display: none">
