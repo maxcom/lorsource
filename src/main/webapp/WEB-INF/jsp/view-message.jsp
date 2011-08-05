@@ -312,11 +312,15 @@
 
 <c:out value="${scroller}" escapeXml="false"/>
 
+<c:if test="${showAdsense}">
+
 <div style="text-align: center; margin-top: 1em; margin-bottom: 1em">
     <a href="http://www.vkusnoserver.ru/">
         <img src="/adv/vkusnoserver.png" alt="Вкусносервер: ВКУСНЫЕ серверы для друзей" width="720" height="90">
     </a>
 </div>
+
+</c:if>
 
 <%--
 
