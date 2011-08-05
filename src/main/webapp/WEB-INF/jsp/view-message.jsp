@@ -322,6 +322,14 @@
 
 </c:if>
 
+<c:if test="${not showAdsense}">
+
+<div class="infoblock" style="border: 1px solid #777; margin-left: auto; margin-right: auto; text-align: center; width: 728px">
+      Вкусносервер — вкусные серверы для друзей. <a href="http://www.vkusnoserver.ru/">http://www.vkusnoserver.ru/</a>
+</div>
+
+</c:if>
+
 <%--
 
 <c:if test="${showAdsense}">
