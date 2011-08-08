@@ -178,7 +178,7 @@ public class Parser {
       allTags.add(tag);
     }
     { // <div>
-      HtmlEquivTag tag = new HtmlEquivTag("div", flowTags, null, this);
+      HtmlEquivTag tag = new HtmlEquivTag("div", blockLevelTags, null, this);
       tag.setHtmlEquiv("");
       allTags.add(tag);
     }
