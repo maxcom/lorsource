@@ -119,6 +119,10 @@ public class SearchController {
 
       query.setOldQ(query.getQ());
 
+      if(query.getQ().trim().isEmpty()){
+        return "redirect:/search.jsp";
+      }
+
       SearchViewer sv = new SearchViewer(query);
 
       Connection db = null;
