@@ -92,6 +92,11 @@ public class SimpleParserTest {
   }
 
   @Test
+  public void urlParamWithTagTest2() {
+    Assert.assertEquals(ParserUtil.bb2xhtml("[url=http://linux.org.ru][b]linux[/b][/url]", null), "<p><a href=\"http://linux.org.ru\"><b>linux</b></a></p>");
+  }
+
+  @Test
   public void listTest() {
     Assert.assertEquals(ParserUtil.bb2xhtml("[list][*]one[*]two[*]three[/list]", null), "<ul><li>one</li><li>two</li><li>three</li></ul>");
   }
