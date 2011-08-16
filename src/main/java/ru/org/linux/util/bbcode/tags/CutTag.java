@@ -42,7 +42,6 @@ import ru.org.linux.util.bbcode.Parser;
 import ru.org.linux.util.bbcode.nodes.Node;
 import ru.org.linux.util.bbcode.nodes.TextNode;
 
-import java.sql.Connection;
 import java.util.Set;
 
 /**
@@ -71,7 +70,7 @@ public class CutTag extends HtmlEquivTag {
   }
 
   @Override
-  public String renderNodeXhtml(Node node, Connection db) {
+  public String renderNodeXhtml(Node node) {
     if (node.lengthChildren() == 0) {
       return "";
     } else {
@@ -88,11 +87,11 @@ public class CutTag extends HtmlEquivTag {
       ret.append("<div id=\"cut")
               .append(Integer.toString(cutId))
               .append("\">")
-              .append(node.renderChildrenXHtml(db))
+              .append(node.renderChildrenXHtml())
               .append("</div>");
       return ret.toString();
     } else if (renderCut && cleanCut) {
-      return node.renderChildrenXHtml(db);
+      return node.renderChildrenXHtml();
     } else {
       return "<p>( <a href=\"" + cutUrl + "#cut" + Integer.toString(cutId) + "\">читать дальше...</a> )</p>";
     }

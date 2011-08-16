@@ -42,7 +42,6 @@ import org.apache.commons.lang.NotImplementedException;
 import ru.org.linux.util.bbcode.Parser;
 import ru.org.linux.util.bbcode.nodes.Node;
 
-import java.sql.Connection;
 import java.util.Set;
 
 /**
@@ -81,10 +80,6 @@ public class Tag {
 
   public String renderNodeXhtml(Node node) {
     throw new NotImplementedException();
-  }
-
-  public String renderNodeXhtml(Node node, Connection db) {
-    return renderNodeXhtml(node);
   }
 
   public String renderNodeBBCode(Node node) {

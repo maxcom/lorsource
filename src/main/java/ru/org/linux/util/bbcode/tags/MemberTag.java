@@ -54,12 +54,20 @@ import java.util.Set;
  * Time: 12:27 AM
  */
 public class MemberTag extends Tag {
+
+  private Connection db;
+
   public MemberTag(String name, Set<String> allowedChildren, String implicitTag, Parser parser) {
     super(name, allowedChildren, implicitTag, parser);
+    db = null;
+  }
+
+  public void setConnection(Connection db){
+    this.db = db;
   }
 
   @Override
-  public String renderNodeXhtml(Node node, Connection db) {
+  public String renderNodeXhtml(Node node) {
     if (node.lengthChildren() == 0) {
       return "";
     }
@@ -67,22 +75,21 @@ public class MemberTag extends Tag {
     String memberName = Parser.escape(txtNode.getText()).trim();
     String pattern;
     try {
-      User user = User.getUser(db, memberName);
-      if (!user.isBlocked()) {
-        pattern = "<span style=\"white-space: nowrap\"><img src=\"/img/tuxlor.png\"><a style=\"text-decoration: none\" href='/people/%s/profile'>%s</a></span>";
-      } else {
-        pattern = "<span style=\"white-space: nowrap\"><img src=\"/img/tuxlor.png\"><s><a style=\"text-decoration: none\" href='/people/%s/profile'>%s</a></s></span>";
+      if(db != null){
+        User user = User.getUser(db, memberName);
+        if (!user.isBlocked()) {
+          pattern = "<span style=\"white-space: nowrap\"><img src=\"/img/tuxlor.png\"><a style=\"text-decoration: none\" href='/people/%s/profile'>%s</a></span>";
+        } else {
+          pattern = "<span style=\"white-space: nowrap\"><img src=\"/img/tuxlor.png\"><s><a style=\"text-decoration: none\" href='/people/%s/profile'>%s</a></s></span>";
+        }
+      }else{
+        pattern = "%s";
       }
     } catch (UserNotFoundException ex) {
       pattern = "<s>%s</s>";
     }
     return String.format(pattern, Parser.escape(memberName), Parser.escape(memberName));
 
-  }
-
-  @Override
-  public String renderNodeXhtml(Node node) {
-    return renderNodeXhtml(node, null); // TODO там мы эксцепшн то перехватим? :-)
   }
 
 }

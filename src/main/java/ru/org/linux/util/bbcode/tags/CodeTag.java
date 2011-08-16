@@ -43,7 +43,6 @@ import ru.org.linux.util.bbcode.Parser;
 import ru.org.linux.util.bbcode.nodes.Node;
 import ru.org.linux.util.bbcode.nodes.TextNode;
 
-import java.sql.Connection;
 import java.util.Set;
 
 /**
@@ -100,7 +99,7 @@ public class CodeTag extends Tag {
   }
 
   @Override
-  public String renderNodeXhtml(Node node, Connection db) {
+  public String renderNodeXhtml(Node node) {
     if (node.lengthChildren() == 0) {
       return "";
     } else {
@@ -123,7 +122,7 @@ public class CodeTag extends Tag {
     } else {
       ret.append("<div class=\"code\"><pre class=\"no-highlight\"><code>");
     }
-    ret.append(node.renderChildrenXHtml(db));
+    ret.append(node.renderChildrenXHtml());
     ret.append("</code></pre></div>");
     return ret.toString();
   }

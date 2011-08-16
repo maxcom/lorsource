@@ -28,7 +28,7 @@ public class PreparedGroupInfo {
     this.group = group;
 
     if (group.getLongInfo()!=null) {
-      longInfo = ParserUtil.bb2xhtml(group.getLongInfo(), db);
+      longInfo = ParserUtil.bb2xhtml(group.getLongInfo()); // TODO нет доступа к БД ?
     } else {
       longInfo = null;
     }

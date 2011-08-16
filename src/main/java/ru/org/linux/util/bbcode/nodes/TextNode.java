@@ -41,8 +41,6 @@ package ru.org.linux.util.bbcode.nodes;
 import ru.org.linux.util.HTMLFormatter;
 import ru.org.linux.util.bbcode.Parser;
 
-import java.sql.Connection;
-
 /**
  * Created by IntelliJ IDEA.
  * User: hizel
@@ -62,7 +60,7 @@ public class TextNode extends Node {
   }
 
   @Override
-  public String renderXHtml(Connection db) {
+  public String renderXHtml() {
     if (TagNode.class.isInstance(parent)) {
       TagNode tagNode = (TagNode) parent;
       if (parser.getAutoLinkTags().contains(tagNode.bbtag.getName())) {

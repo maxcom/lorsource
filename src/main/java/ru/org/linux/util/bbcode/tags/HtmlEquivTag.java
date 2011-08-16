@@ -69,7 +69,7 @@ public class HtmlEquivTag extends Tag {
   }
 
   @Override
-  public String renderNodeXhtml(Node node, Connection db) {
+  public String renderNodeXhtml(Node node) {
     StringBuilder opening = new StringBuilder(htmlEquiv);
     StringBuilder ret = new StringBuilder();
 
@@ -85,14 +85,14 @@ public class HtmlEquivTag extends Tag {
     }
 
     if (htmlEquiv.isEmpty()) {
-      ret.append(node.renderChildrenXHtml(db));
+      ret.append(node.renderChildrenXHtml());
     } else {
       if (selfClosing) {
         ret.append('<').append(opening).append('>'); // для xhtml по идее />
       } else {
         if (node.lengthChildren() > 0) {
           ret.append('<').append(opening).append('>');
-          ret.append(node.renderChildrenXHtml(db));
+          ret.append(node.renderChildrenXHtml());
           ret.append("</").append(htmlEquiv).append('>');
         }
       }

@@ -41,7 +41,6 @@ package ru.org.linux.util.bbcode.tags;
 import ru.org.linux.util.bbcode.Parser;
 import ru.org.linux.util.bbcode.nodes.Node;
 
-import java.sql.Connection;
 import java.util.Set;
 
 /**
@@ -57,7 +56,7 @@ public class ListTag extends HtmlEquivTag {
   }
 
   @Override
-  public String renderNodeXhtml(Node node, Connection db) {
+  public String renderNodeXhtml(Node node) {
     StringBuilder ret = new StringBuilder();
     if (node.lengthChildren() == 0) {
       return "";
@@ -72,11 +71,11 @@ public class ListTag extends HtmlEquivTag {
       ret.append("<ol type=\"");
       ret.append(param);
       ret.append("\">");
-      ret.append(node.renderChildrenXHtml(db));
+      ret.append(node.renderChildrenXHtml());
       ret.append("</ol>");
     } else {
       ret.append("<ul>");
-      ret.append(node.renderChildrenXHtml(db));
+      ret.append(node.renderChildrenXHtml());
       ret.append("</ul>");
     }
     return ret.toString();

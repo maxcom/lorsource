@@ -44,7 +44,6 @@ import ru.org.linux.util.bbcode.Parser;
 import ru.org.linux.util.bbcode.nodes.Node;
 import ru.org.linux.util.bbcode.nodes.TextNode;
 
-import java.sql.Connection;
 import java.util.Set;
 
 /**
@@ -59,7 +58,7 @@ public class UrlTag extends Tag {
   }
 
   @Override
-  public String renderNodeXhtml(Node node, Connection db) {
+  public String renderNodeXhtml(Node node) {
     StringBuilder ret = new StringBuilder();
     String url;
     if (node.lengthChildren() == 0) {

@@ -54,6 +54,7 @@ public class RootNode extends Node {
   private boolean renderCut;
   private boolean cleanCut;
   private String cutUrl;
+  private Connection db;
 
   public RootNode(Parser parser) {
     super(parser);
@@ -61,6 +62,15 @@ public class RootNode extends Node {
     renderCut = true;
     cleanCut = true;
     cutUrl = "";
+    db = null;
+  }
+
+  public void setConnection(Connection db){
+    this.db = db;
+  }
+
+  public Connection getConnection() {
+    return db;
   }
 
   public void setRenderOptions(boolean renderCut, boolean cleanCut, String cutUrl) {
@@ -70,8 +80,8 @@ public class RootNode extends Node {
   }
 
   @Override
-  public String renderXHtml(Connection db) {
-    return renderChildrenXHtml(db);
+  public String renderXHtml() {
+    return renderChildrenXHtml();
   }
 
   @Override

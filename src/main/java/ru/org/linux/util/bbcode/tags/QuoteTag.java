@@ -42,7 +42,6 @@ import ru.org.linux.util.bbcode.Parser;
 import ru.org.linux.util.bbcode.nodes.Node;
 import ru.org.linux.util.bbcode.nodes.TextNode;
 
-import java.sql.Connection;
 import java.util.Set;
 
 /**
@@ -57,7 +56,7 @@ public class QuoteTag extends Tag {
   }
 
   @Override
-  public String renderNodeXhtml(Node node, Connection db) {
+  public String renderNodeXhtml(Node node) {
     StringBuilder ret = new StringBuilder();
     if (node.lengthChildren() == 0) {
       return "";
@@ -81,11 +80,11 @@ public class QuoteTag extends Tag {
       ret.append("<h3>");
       ret.append(Parser.escape(node.getParameter().replaceAll("\"", "")));
       ret.append("</h3>");
-      ret.append(node.renderChildrenXHtml(db));
+      ret.append(node.renderChildrenXHtml());
       ret.append("</div>");
     } else {
       ret.append("<div class=\"quote\"><h3>Цитата</h3>");
-      ret.append(node.renderChildrenXHtml(db));
+      ret.append(node.renderChildrenXHtml());
       ret.append("</div>");
     }
     return ret.toString();

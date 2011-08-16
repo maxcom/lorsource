@@ -325,6 +325,10 @@ public class Parser {
         cutTag.setCutId(rootNode.getCutCount());
         rootNode.incCutCount();
       }
+      if("user".equals(name)) {
+        MemberTag memberTag = ((MemberTag) (node.getBbtag()));
+        memberTag.setConnection(rootNode.getConnection());
+      }
       currentNode.getChildren().add(node);
       if (!node.getBbtag().isSelfClosing()) {
         currentNode = descend(currentNode);
@@ -366,6 +370,7 @@ public class Parser {
   /**
    * Основная функция
    *
+   * @param rootNode корневой узел
    * @param bbcode сырой bbcode
    * @return возвращает инвалидный html
    */

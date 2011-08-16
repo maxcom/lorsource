@@ -41,8 +41,6 @@ package ru.org.linux.util.bbcode.nodes;
 import ru.org.linux.util.bbcode.Parser;
 import ru.org.linux.util.bbcode.tags.Tag;
 
-import java.sql.Connection;
-
 /**
  * Created by IntelliJ IDEA.
  * User: hizel
@@ -85,8 +83,8 @@ public class TagNode extends Node {
   }
 
   @Override
-  public String renderXHtml(Connection db) {
-    return bbtag.renderNodeXhtml(this, db);
+  public String renderXHtml() {
+    return bbtag.renderNodeXhtml(this);
   }
 
   @Override

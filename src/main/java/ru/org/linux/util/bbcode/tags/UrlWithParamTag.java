@@ -44,7 +44,6 @@ import ru.org.linux.util.bbcode.Parser;
 import ru.org.linux.util.bbcode.nodes.Node;
 import ru.org.linux.util.bbcode.nodes.TextNode;
 
-import java.sql.Connection;
 import java.util.Set;
 
 /**
@@ -59,7 +58,7 @@ public class UrlWithParamTag extends Tag {
   }
 
   @Override
-  public String renderNodeXhtml(Node node, Connection db) {
+  public String renderNodeXhtml(Node node) {
     StringBuilder ret = new StringBuilder();
     String url = "";
     Node child = null;
@@ -95,11 +94,11 @@ public class UrlWithParamTag extends Tag {
         ret.append("<a href=\"")
                 .append(escapedUrl)
                 .append("\">")
-                .append(node.renderChildrenXHtml(db))
+                .append(node.renderChildrenXHtml())
                 .append("</a>");
       } catch (UtilException ex) {
         ret.append("<s>")
-                .append(node.renderChildrenXHtml(db))
+                .append(node.renderChildrenXHtml())
                 .append("</s>");
       }
     }

@@ -14,13 +14,14 @@ import java.util.EnumSet;
 public class ParserUtil {
   private static final Parser parserWithOutImages = new Parser(EnumSet.noneOf(Parser.ParserFlags.class));
 
-  public static String bb2xhtml(String bbcode, Connection db) {
-    return parserWithOutImages.parse(new RootNode(parserWithOutImages), bbcode).renderXHtml(db);
+  public static String bb2xhtml(String bbcode) {
+    return parserWithOutImages.parse(new RootNode(parserWithOutImages), bbcode).renderXHtml();
   }
 
   public static String bb2xhtml(String bbcode, boolean renderCut, boolean cleanCut, String cutUrl, Connection db) {
     RootNode rootNode = new RootNode(parserWithOutImages);
     rootNode.setRenderOptions(renderCut, cleanCut, cutUrl);
-    return parserWithOutImages.parse(rootNode, bbcode).renderXHtml(db);
+    rootNode.setConnection(db);
+    return parserWithOutImages.parse(rootNode, bbcode).renderXHtml();
   }
 }

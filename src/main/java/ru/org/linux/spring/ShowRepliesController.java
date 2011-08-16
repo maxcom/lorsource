@@ -225,7 +225,7 @@ public class ShowRepliesController {
       if (readMessage) {
         String text = rs.getString("cMessage");
         if (rs.getBoolean("bbcode")) {
-          messageText = ParserUtil.bb2xhtml(text, db);
+          messageText = ParserUtil.bb2xhtml(text); // TODO нет доступа к БД
         } else {
           messageText = text;
         }

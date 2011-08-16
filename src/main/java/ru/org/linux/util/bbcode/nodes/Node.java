@@ -40,7 +40,6 @@ package ru.org.linux.util.bbcode.nodes;
 
 import ru.org.linux.util.bbcode.Parser;
 
-import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -100,20 +99,18 @@ public class Node {
     this.parameter = parameter;
   }
 
-  public String renderXHtml(Connection db) {
-    assert false;
-    return "";
+  public String renderXHtml() {
+    throw new UnsupportedOperationException();
   }
 
   public String renderBBCode() {
-    assert false;
-    return "";
+    throw new UnsupportedOperationException();
   }
 
-  public String renderChildrenXHtml(Connection db) {
+  public String renderChildrenXHtml() {
     StringBuilder stringBuilder = new StringBuilder();
     for (Node child : children) {
-      stringBuilder.append(child.renderXHtml(db));
+      stringBuilder.append(child.renderXHtml());
     }
     return stringBuilder.toString();
   }
