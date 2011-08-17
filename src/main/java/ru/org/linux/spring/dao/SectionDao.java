@@ -15,47 +15,43 @@
 
 package ru.org.linux.spring.dao;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.stereotype.Component;
-import ru.org.linux.site.LorDataSource;
 import ru.org.linux.site.Section;
 import ru.org.linux.site.SectionNotFoundException;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
+import javax.sql.DataSource;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 @Component
 public class SectionDao {
   private final ImmutableMap<Integer, Section> sections;
   private final ImmutableList<Section> sectionsList;
 
-  public SectionDao() throws SQLException {
-    Connection db = LorDataSource.getConnection();
+  @Autowired
+  public SectionDao(DataSource ds) throws SQLException {
+    JdbcTemplate jdbcTemplate = new JdbcTemplate(ds);
 
-    try {
-      ImmutableMap.Builder<Integer, Section> sections = ImmutableMap.builder();
-      ImmutableList.Builder<Section> sectionsList = ImmutableList.builder();
+    final ImmutableMap.Builder<Integer, Section> sections = ImmutableMap.builder();
+    final ImmutableList.Builder<Section> sectionsList = ImmutableList.builder();
 
-      Statement st = db.createStatement();
-
-      ResultSet rs = st.executeQuery("SELECT id, name, imagepost, vote, moderate FROM sections ORDER BY id");
-
-      while (rs.next()) {
+    jdbcTemplate.query("SELECT id, name, imagepost, vote, moderate FROM sections ORDER BY id", new RowCallbackHandler() {
+      @Override
+      public void processRow(ResultSet rs) throws SQLException {
         Section section = new Section(rs);
 
         sections.put(section.getId(), section);
         sectionsList.add(section);
       }
+    });
 
-      this.sections = sections.build();
-      this.sectionsList = sectionsList.build();
-    } finally {
-      db.close();
-    }
+    this.sections = sections.build();
+    this.sectionsList = sectionsList.build();
   }
 
   public Section getSection(int id) throws SectionNotFoundException {
