@@ -32,16 +32,17 @@ import org.springframework.web.servlet.view.RedirectView;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.org.linux.site.*;
+import ru.org.linux.spring.dao.SectionDao;
 
 @Controller
 public class SectionRSSController {
   private static final String[] filterValues = { "all", "notalks", "tech"};
   private static final Set<String> filterValuesSet = new HashSet<String>(Arrays.asList(filterValues));
 
-  private final SectionStore sectionStore;
+  private final SectionDao sectionStore;
 
   @Autowired
-  public SectionRSSController(SectionStore sectionStore) {
+  public SectionRSSController(SectionDao sectionStore) {
     this.sectionStore = sectionStore;
   }
 

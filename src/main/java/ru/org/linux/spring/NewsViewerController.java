@@ -35,16 +35,17 @@ import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.view.RedirectView;
 
 import ru.org.linux.site.*;
+import ru.org.linux.spring.dao.SectionDao;
 import ru.org.linux.util.DateUtil;
 import ru.org.linux.util.ServletParameterException;
 import ru.org.linux.util.ServletParameterMissingException;
 
 @Controller
 public class NewsViewerController {
-  private final SectionStore sectionStore;
+  private final SectionDao sectionStore;
 
   @Autowired
-  public NewsViewerController(SectionStore sectionStore) {
+  public NewsViewerController(SectionDao sectionStore) {
     this.sectionStore = sectionStore;
   }
 

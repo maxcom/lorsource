@@ -36,6 +36,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import ru.org.linux.site.*;
+import ru.org.linux.spring.dao.SectionDao;
 import ru.org.linux.spring.dao.UserDao;
 
 import java.beans.PropertyEditorSupport;
@@ -48,7 +49,7 @@ import java.util.Map;
 @Controller
 public class SearchController {
   private SolrServer solrServer;
-  private SectionStore sectionStore;
+  private SectionDao sectionStore;
   private UserDao userDao;
 
   @Autowired
@@ -58,7 +59,7 @@ public class SearchController {
   }
 
   @Autowired
-  public void setSectionStore(SectionStore sectionStore) {
+  public void setSectionStore(SectionDao sectionStore) {
     this.sectionStore = sectionStore;
   }
 

@@ -31,7 +31,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import ru.org.linux.spring.commons.CacheProvider;
-import ru.org.linux.spring.SectionStore;
+import ru.org.linux.spring.dao.SectionDao;
 import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.ImageInfo;
 
@@ -62,9 +62,9 @@ public class NewsViewer {
 
   private CommitMode commitMode = CommitMode.COMMITED_AND_POSTMODERATED;
 
-  private final SectionStore sectionStore;
+  private final SectionDao sectionStore;
 
-  public NewsViewer(SectionStore sectionStore) {
+  public NewsViewer(SectionDao sectionStore) {
     this.sectionStore = sectionStore;
   }
 
@@ -313,7 +313,7 @@ public class NewsViewer {
     return 30*1000;
   }
 
-  public static NewsViewer getMainpage(SectionStore sectionStore) {
+  public static NewsViewer getMainpage(SectionDao sectionStore) {
     NewsViewer nv = new NewsViewer(sectionStore);
     nv.addSection(1);
     nv.limit = "LIMIT 20";

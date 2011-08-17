@@ -26,13 +26,14 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.org.linux.site.*;
+import ru.org.linux.spring.dao.SectionDao;
 
 @Controller
 public class MainPageController {
-  private final SectionStore sectionStore;
+  private final SectionDao sectionStore;
 
   @Autowired
-  public MainPageController(SectionStore sectionStore) {
+  public MainPageController(SectionDao sectionStore) {
     this.sectionStore = sectionStore;
   }
 

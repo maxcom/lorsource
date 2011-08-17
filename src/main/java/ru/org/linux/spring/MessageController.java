@@ -37,13 +37,14 @@ import org.springframework.web.servlet.view.RedirectView;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.org.linux.site.*;
+import ru.org.linux.spring.dao.SectionDao;
 
 @Controller
 public class MessageController {
-  private SectionStore sectionStore;
+  private SectionDao sectionStore;
 
   @Autowired
-  public void setSectionStore(SectionStore sectionStore) {
+  public void setSectionStore(SectionDao sectionStore) {
     this.sectionStore = sectionStore;
   }
 

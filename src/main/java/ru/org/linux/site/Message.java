@@ -25,7 +25,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 import ru.org.linux.spring.AddMessageForm;
-import ru.org.linux.spring.SectionStore;
+import ru.org.linux.spring.dao.SectionDao;
 import ru.org.linux.util.*;
 import ru.org.linux.util.bbcode.ParserUtil;
 
@@ -84,7 +84,7 @@ public class Message implements Serializable {
     this(db, null, msgid);
   }
 
-  public Message(Connection db, SectionStore sectionStore, int msgid) throws SQLException, MessageNotFoundException {
+  public Message(Connection db, SectionDao sectionStore, int msgid) throws SQLException, MessageNotFoundException {
     Statement st = db.createStatement();
 
     ResultSet rs = st.executeQuery(
@@ -156,7 +156,7 @@ public class Message implements Serializable {
     }
   }
 
-  public Message(SectionStore sectionStore, ResultSet rs) throws SQLException {
+  public Message(SectionDao sectionStore, ResultSet rs) throws SQLException {
     msgid = rs.getInt("msgid");
     postscore = rs.getInt("postscore");
     votepoll = rs.getBoolean("vote");
@@ -435,7 +435,7 @@ public class Message implements Serializable {
     }
   }
 
-  public Message getNextMessage(Connection db, SectionStore sectionStore) throws SQLException {
+  public Message getNextMessage(Connection db, SectionDao sectionStore) throws SQLException {
     PreparedStatement pst;
 
     int scrollMode = Section.getScrollMode(sectionid);
@@ -479,7 +479,7 @@ public class Message implements Serializable {
     }
   }
 
-  public Message getPreviousMessage(Connection db, SectionStore sectionStore) throws SQLException {
+  public Message getPreviousMessage(Connection db, SectionDao sectionStore) throws SQLException {
     PreparedStatement pst;
 
     int scrollMode = Section.getScrollMode(sectionid);

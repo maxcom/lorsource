@@ -13,7 +13,7 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.spring;
+package ru.org.linux.spring.dao;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -29,11 +29,11 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
 @Component
-public class SectionStore {
+public class SectionDao {
   private final ImmutableMap<Integer, Section> sections;
   private final ImmutableList<Section> sectionsList;
 
-  public SectionStore() throws SQLException {
+  public SectionDao() throws SQLException {
     Connection db = LorDataSource.getConnection();
 
     try {
