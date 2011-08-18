@@ -143,7 +143,7 @@ public class SearchRequest {
     }
 
     if (sort!=SearchViewer.SearchOrder.RELEVANCE) {
-      params.put("search", sort.toString());
+      params.put("sort", sort.toString());
     }
 
     if (section!=0) {
