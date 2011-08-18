@@ -256,20 +256,22 @@ public class Parser {
       boolean isCode = false;
       boolean isPre = false;
       boolean isP = false;
+      boolean isAllow = true;
       if (TagNode.class.isInstance(currentNode)) {
         TagNode tempNode = (TagNode) currentNode;
         if (CodeTag.class.isInstance(tempNode.getBbtag())) {
           isCode = true;
         }
-        if ("pre".equals(tempNode.getBbtag().getName())) {
-          isPre = true;
+        if ("pre".equals(tempNode.getBbtag().getName()) ||
+            "url".equals(tempNode.getBbtag().getName())) {
+          isAllow = false;
         }
         if ("p".equals(tempNode.getBbtag().getName())) {
           isP = true;
         }
       }
 
-      if (matcher.find() && !isCode && !isPre) {
+      if (matcher.find() && !isCode && isAllow) {
         if(matcher.start() != 0){
           currentNode = pushTextNode(rootNode, currentNode, text.substring(0, matcher.start()), false);
         }
