@@ -263,7 +263,8 @@ public class Parser {
           isCode = true;
         }
         if ("pre".equals(tempNode.getBbtag().getName()) ||
-            "url".equals(tempNode.getBbtag().getName())) {
+            "url".equals(tempNode.getBbtag().getName()) ||
+            "user".equals(tempNode.getBbtag().getName())) {
           isAllow = false;
         }
         if ("p".equals(tempNode.getBbtag().getName())) {
