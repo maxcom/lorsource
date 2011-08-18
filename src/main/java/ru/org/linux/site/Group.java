@@ -15,6 +15,10 @@
 
 package ru.org.linux.site;
 
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.datasource.SingleConnectionDataSource;
+import ru.org.linux.spring.dao.GroupDao;
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,29 +47,12 @@ public class Group {
 
   private boolean resolvable;
 
-  public Group(Connection db, int id) throws SQLException, BadGroupException {
-    this.id = id;
+  @Deprecated
+  public static Group getGroup(Connection db, int id) throws SQLException, BadGroupException {
+    SingleConnectionDataSource scds = new SingleConnectionDataSource(db, true);
+    JdbcTemplate jdbcTemplate = new JdbcTemplate(scds);
 
-    ResultSet rs = null;
-    Statement st = null;
-    try {
-      st = db.createStatement();
-
-      rs = st.executeQuery("SELECT sections.moderate, sections.preformat, imagepost, vote, section, havelink, linktext, sections.name as sname, title, urlname, image, restrict_topics, restrict_comments,stat1,stat2,stat3,groups.id, groups.info, groups.longinfo, groups.resolvable FROM groups, sections WHERE groups.id=" + id + " AND groups.section=sections.id");
-
-      if (!rs.next()) {
-        throw new BadGroupException("Группа " + id + " не существует");
-      }
-
-      init(rs);
-    } finally {
-      if (st != null) {
-        st.close();
-      }
-      if (rs != null) {
-        rs.close();
-      }
-    }
+    return GroupDao.getGroup(jdbcTemplate, id);
   }
 
   public Group(Connection db, int section, String urlname) throws SQLException, BadGroupException {
@@ -95,7 +82,7 @@ public class Group {
     }
   }
 
-  private Group(ResultSet rs) throws SQLException {
+  public Group(ResultSet rs) throws SQLException {
     init(rs);
   }
 

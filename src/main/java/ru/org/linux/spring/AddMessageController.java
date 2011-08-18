@@ -61,7 +61,7 @@ public class AddMessageController extends ApplicationObjectSupport {
 
       Integer groupId = form.getGuid();
 
-      Group group = new Group(db, groupId);
+      Group group = Group.getGroup(db, groupId);
 
       if (group.isModerated()) {
         params.put("topTags", Tags.getTopTags(db));
@@ -103,7 +103,7 @@ public class AddMessageController extends ApplicationObjectSupport {
       db.setAutoCommit(false);
       tmpl.updateCurrentUser(db);
 
-      Group group = new Group(db, form.getGuid());
+      Group group = Group.getGroup(db, form.getGuid());
 
       if (group.isModerated()) {
         params.put("topTags", Tags.getTopTags(db));

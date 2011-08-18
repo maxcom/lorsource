@@ -242,7 +242,7 @@ public class Section implements Serializable {
       throw new BadGroupException("group not found");
     }
 
-    return new Group(db, rs.getInt(1));
+    return Group.getGroup(db, rs.getInt(1));
   }
 
   public static int getSection(String name) throws SectionNotFoundException {

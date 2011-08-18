@@ -22,4 +22,8 @@ public class BadGroupException extends ScriptErrorException {
   public BadGroupException(String info) {
     super(info);
   }
+
+  public BadGroupException(String info, Exception cause) {
+    super(info, cause);
+  }
 }

@@ -135,7 +135,7 @@ public class EditController extends ApplicationObjectSupport {
     params.put("message", message);
     params.put("preparedMessage", preparedMessage);
 
-    Group group = new Group(db, message.getGroupId());
+    Group group = Group.getGroup(db, message.getGroupId());
     params.put("group", group);
 
     params.put("groups", Group.getGroups(db, message.getSection()));
@@ -185,7 +185,7 @@ public class EditController extends ApplicationObjectSupport {
       params.put("message", message);
       params.put("preparedMessage", preparedMessage);
 
-      Group group = new Group(db, message.getGroupId());
+      Group group = Group.getGroup(db, message.getGroupId());
       params.put("group", group);
 
       if (group.isModerated()) {
@@ -305,7 +305,7 @@ public class EditController extends ApplicationObjectSupport {
           if (changeGroupId != null) {
             int oldgrp = message.getGroupId();
             if (oldgrp != changeGroupId) {
-              Group changeGroup = new Group(db, changeGroupId);
+              Group changeGroup = Group.getGroup(db, changeGroupId);
 
               int section = message.getSectionId();
 

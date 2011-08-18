@@ -203,7 +203,7 @@ public class Message implements Serializable {
 
     guid = form.getGuid();
 
-    Group group = new Group(db, guid);
+    Group group = Group.getGroup(db, guid);
 
     groupCommentsRestriction = group.getCommentsRestriction();
 
@@ -259,7 +259,7 @@ public class Message implements Serializable {
     postIP = original.postIP;
     guid = original.guid;
 
-    Group group = new Group(db, guid);
+    Group group = Group.getGroup(db, guid);
     groupCommentsRestriction = group.getCommentsRestriction();
 
     if (request.getParameter("linktext") != null) {
@@ -628,7 +628,7 @@ public class Message implements Serializable {
   public int addTopicFromPreview(Connection db, Template tmpl, HttpServletRequest request, String previewImagePath, User user)
     throws SQLException, UtilException, IOException, BadImageException, InterruptedException, ScriptErrorException {
 
-    Group group = new Group(db, guid);
+    Group group = Group.getGroup(db, guid);
 
     int msgid = allocateMsgid(db);
 

@@ -130,7 +130,7 @@ public class NewsViewerController {
       Group group = null;
 
       if (groupid != null) {
-        group = new Group(db, groupid);
+        group = Group.getGroup(db, groupid);
 
         if (group.getSectionId() != sectionid) {
           throw new ScriptErrorException("группа #" + groupid + " не принадлежит разделу #" + sectionid);
@@ -643,7 +643,7 @@ public class NewsViewerController {
       try {
         db=LorDataSource.getConnection();
 
-        Group group = new Group(db, groupId);
+        Group group = Group.getGroup(db, groupId);
 
         return new RedirectView(Section.getNewsViewerLink(section)+group.getUrlName()+ '/');
       } finally {

@@ -106,7 +106,7 @@ public class SectionRSSController {
 
       Group group = null;
       if (groupId!=0) {
-        group = new Group(db, groupId);
+        group = Group.getGroup(db, groupId);
 
         if (group.getSectionId()!=sectionId) {
           throw new BadGroupException("группа #"+groupId+" не принадлежит разделу #"+sectionId);

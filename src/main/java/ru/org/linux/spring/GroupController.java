@@ -46,7 +46,7 @@ public class GroupController {
     try {
       db = LorDataSource.getConnection();
 
-      Group group = new Group(db, groupId);
+      Group group = Group.getGroup(db, groupId);
 
       if (offsetObject != null) {
         return new ModelAndView(new RedirectView(group.getUrl() + "?offset=" + offsetObject.toString()));
@@ -70,7 +70,7 @@ public class GroupController {
     try {
       db = LorDataSource.getConnection();
 
-      Group group = new Group(db, groupId);
+      Group group = Group.getGroup(db, groupId);
 
       if (offsetObject != null) {
         return new ModelAndView(new RedirectView(group.getUrl() + "?offset=" + offsetObject.toString() + "&lastmod=true"));

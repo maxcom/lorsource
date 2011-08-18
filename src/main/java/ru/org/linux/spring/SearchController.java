@@ -36,6 +36,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import ru.org.linux.site.*;
+import ru.org.linux.spring.dao.GroupDao;
 import ru.org.linux.spring.dao.SectionDao;
 import ru.org.linux.spring.dao.UserDao;
 
@@ -51,6 +52,7 @@ public class SearchController {
   private SolrServer solrServer;
   private SectionDao sectionStore;
   private UserDao userDao;
+  private GroupDao groupDao;
 
   @Autowired
   @Required
@@ -66,6 +68,11 @@ public class SearchController {
   @Autowired
   public void setUserDao(UserDao userDao) {
     this.userDao = userDao;
+  }
+
+  @Autowired
+  public void setGroupDao(GroupDao groupDao) {
+    this.groupDao = groupDao;
   }
 
   @ModelAttribute("sorts")
@@ -126,20 +133,21 @@ public class SearchController {
 
       SearchViewer sv = new SearchViewer(query);
 
+      if (query.getGroup()!=0) {
+        Group group = groupDao.getGroup(query.getGroup());
+
+        if (group.getSectionId()!=query.getSection()) {
+          query.setGroup(0);
+        }
+      }
+
+      QueryResponse response = sv.performSearch(solrServer);
+
       Connection db = null;
+
       try {
         long current = System.currentTimeMillis();
         db = LorDataSource.getConnection();
-
-        if (query.getGroup()!=0) {
-          Group group = new Group(db, query.getGroup());
-
-          if (group.getSectionId()!=query.getSection()) {
-            query.setGroup(0);
-          }
-        }
-
-        QueryResponse response = sv.performSearch(solrServer);
 
         SolrDocumentList list = response.getResults();
         Collection<SearchItem> res = new ArrayList<SearchItem>(list.size());
@@ -214,7 +222,7 @@ public class SearchController {
     for (FacetField.Count count : groupFacet.getValues()) {
       int groupId = Integer.parseInt(count.getName());
 
-      Group group = new Group(db, groupId);
+      Group group = Group.getGroup(db, groupId);
 
       if (group.getSectionId()!=sectionId) {
         continue;
