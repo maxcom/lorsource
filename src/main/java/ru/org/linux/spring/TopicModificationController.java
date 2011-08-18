@@ -197,7 +197,7 @@ public class TopicModificationController extends ApplicationObjectSupport {
 
       Statement st1 = db.createStatement();
 
-      Group newGrp = new Group(db, newgr);
+      Group newGrp = Group.getGroup(db, newgr);
       String url = msg.getUrl();
 
       PreparedStatement movePst = db.prepareStatement("UPDATE topics SET groupid=?,lastmod=CURRENT_TIMESTAMP WHERE id=?");

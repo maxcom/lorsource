@@ -50,7 +50,7 @@ public class GroupModificationController {
     try {
       db = dataSource.getConnection();
 
-      Group group = new Group(db, id);
+      Group group = Group.getGroup(db, id);
       ModelAndView mv = new ModelAndView("groupmod", "group", group);
       mv.getModel().put("groupInfo", new PreparedGroupInfo(db, group));
 
@@ -84,7 +84,7 @@ public class GroupModificationController {
     try {
       db = dataSource.getConnection();
 
-      Group group = new Group(db, id);
+      Group group = Group.getGroup(db, id);
 
       if (preview!=null) {
         group.setTitle(title);

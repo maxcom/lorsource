@@ -140,7 +140,7 @@
 
   <p>
     <i>
-      Общее время запроса ${time} ms (время поиска: ${searchTime} ms)
+      Время поиска ${searchTime} ms, время БД ${time} ms
     </i>
   </p>
 </c:if>

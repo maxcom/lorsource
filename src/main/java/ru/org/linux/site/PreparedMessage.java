@@ -54,7 +54,7 @@ public final class PreparedMessage {
     try {
       this.message = message;
 
-      group = new Group(db, message.getGroupId());
+      group = Group.getGroup(db, message.getGroupId());
 
       author = User.getUserCached(db, message.getUid());
 
