@@ -123,7 +123,7 @@ public class NewsViewer {
     List<PreparedMessage> pm = new ArrayList<PreparedMessage>(messages.size());
 
     for (Message message : messages) {
-      pm.add(new PreparedMessage(db , message, false));
+      pm.add(new PreparedMessage(db, message, false));
     }
 
     return pm;
