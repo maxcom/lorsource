@@ -111,6 +111,12 @@ public class Parser {
   private final ImmutableSet<String> disallowedParagraphTags;
 
   /**
+   * Тэги внутри которых двойной перенос не работает и остается
+   * двойным переносом
+   */
+  private final ImmutableSet<String> paragraphedTags;
+
+  /**
    * Список всех тэгов
    */
   private final List<Tag> allTags;
@@ -136,6 +142,7 @@ public class Parser {
     blockLevelTags = ImmutableSet.of("p", "quote", "list", "pre", "code", "div", "cut");
     autoLinkTags = ImmutableSet.of("b", "i", "u", "s", "em", "strong", "p", "quote", "div", "cut", "pre");
     disallowedParagraphTags = ImmutableSet.of("pre", "url", "user", "code");
+    paragraphedTags = ImmutableSet.of("pre", "code");
     flowTags = new ImmutableSet.Builder<String>()
             .addAll(inlineTags)
             .addAll(blockLevelTags)
@@ -270,7 +277,7 @@ public class Parser {
   private Node pushTextNode(RootNode rootNode, Node currentNode, String text) {
     if (!currentNode.allows("text")) {
       if (text.trim().length() == 0) {
-        currentNode.getChildren().add(new TextNode(currentNode, this, text));
+        //currentNode.getChildren().add(new TextNode(currentNode, this, text));
       } else {
         if (currentNode.allows("p")) {
           currentNode.getChildren().add(new TagNode(currentNode, this, "p", ""));
@@ -288,10 +295,14 @@ public class Parser {
 
       boolean isParagraph = false;
       boolean isAllow = true;
+      boolean isParagraphed = false;
       if (TagNode.class.isInstance(currentNode)) {
         TagNode tempNode = (TagNode) currentNode;
-        if (disallowedParagraphTags.contains(tempNode.getBbtag().getName())){
+        if (disallowedParagraphTags.contains(tempNode.getBbtag().getName())) {
           isAllow = false;
+        }
+        if (paragraphedTags.contains(tempNode.getBbtag().getName())) {
+          isParagraphed = true;
         }
         if ("p".equals(tempNode.getBbtag().getName())) {
           isParagraph = true;
@@ -299,22 +310,35 @@ public class Parser {
       }
 
       /**
-       * Если мы находим двойной пеернос строки и текущий в текущем тэге
-       * разрешен вставка нового тэга p, то вставляем p
+       * Если мы находим двойной пеернос строки и в тексте
+       * и в текущем тэге разрешена вставка нового тэга p -
+       * вставляем p
        * за исключеним, если текущий тэг p, тогда поднимаемся на уровень
        * выше в дереве и вставляем p с текстом
        */
-      if (matcher.find() && isAllow) {
-        if(matcher.start() != 0){
-          currentNode = pushTextNode(rootNode, currentNode, text.substring(0, matcher.start()));
-        }
-        if (isParagraph) {
-          currentNode = ascend(currentNode);
-        }
-        if(matcher.end() != text.length()){
-          currentNode.getChildren().add(new TagNode(currentNode, this, "p", " "));
-          currentNode = descend(currentNode);
-          currentNode = pushTextNode(rootNode, currentNode, text.substring(matcher.end()));
+      if (matcher.find()) {
+        if(isAllow){
+          if(matcher.start() != 0){
+            currentNode = pushTextNode(rootNode, currentNode, text.substring(0, matcher.start()));
+          }
+          if (isParagraph) {
+            currentNode = ascend(currentNode);
+          }
+          if(matcher.end() != text.length()){
+            currentNode.getChildren().add(new TagNode(currentNode, this, "p", " "));
+            currentNode = descend(currentNode);
+            currentNode = pushTextNode(rootNode, currentNode, text.substring(matcher.end()));
+          }
+        } else if (!isParagraphed) {
+          if(matcher.start() != 0){
+            currentNode.getChildren().add(new TextNode(currentNode, this, text.substring(0, matcher.start())));
+          }
+          if(matcher.end() != text.length()){
+            currentNode.getChildren().add(new TextNode(currentNode, this, text.substring(matcher.end())));
+          }
+
+        }else{
+          currentNode.getChildren().add(new TextNode(currentNode, this, text));
         }
       } else {
         currentNode.getChildren().add(new TextNode(currentNode, this, text));
