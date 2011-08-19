@@ -47,69 +47,95 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-
 /**
- * Created by IntelliJ IDEA.
- * User: hizel
- * Date: 6/30/11
- * Time: 1:18 PM
+ * Основной класс преобразования LORCODE в html
  */
 public class Parser {
 
+  /**
+   * Флаги для конструктора
+   */
   public enum ParserFlags {
     ENABLE_IMG_TAG,
     IGNORE_CUT_TAG
   }
 
-  // регулярное выражения поиска bbcode тэга
+  /**
+   * Регулярное выражение поиска тэга
+   */
   public static final Pattern BBTAG_REGEXP = Pattern.compile("\\[\\[?/?([A-Za-z\\*]+)(:[a-f0-9]+)?(=[^\\]]+)?\\]?\\]");
-  // регулярное выражения поиска перевода строк два и более раз подряд
-  // TODO не надо ли учитывать проеблы между ними? :-|
+
+  /**
+   * Регулярное выражения поиска двойного перевода строки
+   */
   public static final Pattern P_REGEXP = Pattern.compile("(\r?\n){2,}");
 
-
+  /**
+   * Множество тэгов которое содержат или текст или себе подобных
+   */
   private final ImmutableSet<String> inlineTags;
+
+  /**
+   * Множество тэгов которым разрешено присутствовать в тэге url с параметром, вида [url=http://some]....[/url]
+   */
   private final ImmutableSet<String> urlTags;
+
+  /**
+   * Множество тэгов которые могут содержать любые тэги
+   */
   private final ImmutableSet<String> blockLevelTags;
+
+  /**
+   * Все тэги из inlineTags и blockLevelTags
+   */
   private final ImmutableSet<String> flowTags;
+
+  /**
+   * Тэг списка :-|
+   */
   private final ImmutableSet<String> otherTags;
-  private final ImmutableSet<String> anchorTags;
+
+  /**
+   * Тэги внутри которых работает автовыделение ссылок
+   */
   private final ImmutableSet<String> autoLinkTags;
 
+  /**
+   * Разрешенные параметры для тэга list
+   */
   private final ImmutableSet<String> allowedListParameters;
 
+  /**
+   * Список всех тэгов
+   */
   private final List<Tag> allTags;
+
+  /**
+   * Хэш соответствия имя тэга -> класс тэга
+   */
   private final Map<String, Tag> allTagsDict;
+
+  /**
+   * Множество всех имен тэгов
+   */
   private final ImmutableSet<String> allTagsNames;
 
-
+  /**
+   * Конструктор
+   * @param flags флаги которые влияют на созданный объект
+   */
   public Parser(EnumSet<ParserFlags> flags) {
-    // разрешенные параметры для [list]
     allowedListParameters = ImmutableSet.of("A", "a", "I", "i", "1");
-
-    // Простые тэги, в детях им подобные и текст
     inlineTags = ImmutableSet.of("b", "i", "u", "s", "em", "strong", "url", "url2", "user", "br", "text", "img", "softbr");
-
-    // Тэги разрешенные внутри [url]
     urlTags = ImmutableSet.of("b", "i", "u", "s", "strong", "text");
-
-    //Блочные тэги
     blockLevelTags = ImmutableSet.of("p", "quote", "list", "pre", "code", "div", "cut");
-
-    //Тэги в которых разрешен автоматическое выделение ссылок
     autoLinkTags = ImmutableSet.of("b", "i", "u", "s", "em", "strong", "p", "quote", "div", "cut", "pre");
-
-    // Все тэги кроме специальных
     flowTags = new ImmutableSet.Builder<String>()
             .addAll(inlineTags)
             .addAll(blockLevelTags)
             .build();
 
-    // специальный дурацкий тэг
     otherTags = ImmutableSet.of("*");
-
-    // незнаю зачем этот тэг выделен
-    anchorTags = ImmutableSet.of("url");
 
     allTags = new ArrayList<Tag>();
     { // <br/>
@@ -228,16 +254,17 @@ public class Parser {
     return HTMLFormatter.htmlSpecialChars(html);
   }
 
-  private boolean rootAllowsInline;
-
-  private Node pushTextNode(RootNode rootNode, Node currentNode, String text, boolean escaped) {
+  /**
+   * Добавление текстового узда
+   * @param rootNode корневой узел
+   * @param currentNode текущий узел
+   * @param text текст
+   * @return возвращает новй текущий узел
+   */
+  private Node pushTextNode(RootNode rootNode, Node currentNode, String text) {
     if (!currentNode.allows("text")) {
       if (text.trim().length() == 0) {
-        if (escaped) {
-          currentNode.getChildren().add(new EscapedTextNode(currentNode, this, text));
-        } else {
-          currentNode.getChildren().add(new TextNode(currentNode, this, text));
-        }
+        currentNode.getChildren().add(new TextNode(currentNode, this, text));
       } else {
         if (currentNode.allows("p")) {
           currentNode.getChildren().add(new TagNode(currentNode, this, "p", ""));
@@ -248,13 +275,12 @@ public class Parser {
         } else {
           currentNode = ascend(currentNode);
         }
-        currentNode = pushTextNode(rootNode, currentNode, text, false);
+        currentNode = pushTextNode(rootNode, currentNode, text);
       }
     } else {
       Matcher matcher = P_REGEXP.matcher(text);
 
       boolean isCode = false;
-      boolean isPre = false;
       boolean isP = false;
       boolean isAllow = true;
       if (TagNode.class.isInstance(currentNode)) {
@@ -274,7 +300,7 @@ public class Parser {
 
       if (matcher.find() && !isCode && isAllow) {
         if(matcher.start() != 0){
-          currentNode = pushTextNode(rootNode, currentNode, text.substring(0, matcher.start()), false);
+          currentNode = pushTextNode(rootNode, currentNode, text.substring(0, matcher.start()));
         }
         if (isP) {
           currentNode = ascend(currentNode);
@@ -282,27 +308,41 @@ public class Parser {
         if(matcher.end() != text.length()){
           currentNode.getChildren().add(new TagNode(currentNode, this, "p", " "));
           currentNode = descend(currentNode);
-          currentNode = pushTextNode(rootNode, currentNode, text.substring(matcher.end()), false);
+          currentNode = pushTextNode(rootNode, currentNode, text.substring(matcher.end()));
         }
       } else {
-        if (escaped) {
-          currentNode.getChildren().add(new EscapedTextNode(currentNode, this, text));
-        } else {
-          currentNode.getChildren().add(new TextNode(currentNode, this, text));
-        }
+        currentNode.getChildren().add(new TextNode(currentNode, this, text));
       }
     }
     return currentNode;
   }
 
-  private static Node descend(Node currentNode) {
+  /**
+   * Сдвигает текущий узед в дереве на уровень ниже текущего узла
+   * @param currentNode текщуий узел
+   * @return новый текущий узел
+   */
+  private Node descend(Node currentNode) {
     return currentNode.getChildren().get(currentNode.getChildren().size() - 1);
   }
 
-  private static Node ascend(Node currentNode) {
+  /**
+   * Сдвигает текущий узел на уровень выше текущего узла
+   * @param currentNode текущий узел
+   * @return новый текущий узел
+   */
+  private Node ascend(Node currentNode) {
     return currentNode.getParent();
   }
 
+  /**
+   * Добавление в дерево нового узла с тэгом
+   * @param rootNode корневой узел дерева
+   * @param currentNode текущий узел
+   * @param name название тэга
+   * @param parameter параметры тэга
+   * @return возвращает новый текущий узел дерева
+   */
   private Node pushTagNode(RootNode rootNode, Node currentNode, String name, String parameter) {
     if (!currentNode.allows(name)) {
       Tag newTag = allTagsDict.get(name);
@@ -340,7 +380,14 @@ public class Parser {
     return currentNode;
   }
 
-  private static Node closeTagNode(RootNode rootNode, Node currentNode, String name) {
+  /**
+   * Обрабатывает закрытие тэга
+   * @param rootNode корневой узел
+   * @param currentNode текущий узел
+   * @param name имя закрываемого тэга
+   * @return новый текущий узел после закрытия тэга
+   */
+  private Node closeTagNode(RootNode rootNode, Node currentNode, String name) {
     Node tempNode = currentNode;
     while (true) {
       if (tempNode == rootNode) {
@@ -360,10 +407,11 @@ public class Parser {
     return currentNode;
   }
 
-  protected String prepare(String bbcode) {
-    return bbcode.replaceAll("\r\n", "\n").replaceAll("\n\n", "[softbr]");
-  }
-
+  /**
+   * Точка входа для разбора LORCODE в которой rootNode создается
+   * @param rawbbcode обрабатываемый LORCODE
+   * @return дерево разбора
+   */
   public RootNode parse(String rawbbcode) {
     RootNode rootNode = new RootNode(this);
     rootNode.setRenderOptions(true, true, "");
@@ -371,13 +419,12 @@ public class Parser {
   }
 
   /**
-   * Основная функция
+   * Точка входа для разбора LORCODE
    *
-   * @param rootNode корневой узел
-   * @param bbcode сырой bbcode
+   * @param rootNode корневой узел новго дерева
+   * @param bbcode обрабатываемы LORCODE
    * @return возвращает инвалидный html
    */
-
   public RootNode parse(RootNode rootNode, String bbcode) {
     Node currentNode = rootNode;
     int pos = 0;
@@ -385,20 +432,20 @@ public class Parser {
     while (pos < bbcode.length()) {
       Matcher match = BBTAG_REGEXP.matcher(bbcode).region(pos, bbcode.length());
       if (match.find()) {
-        currentNode = pushTextNode(rootNode, currentNode, bbcode.substring(pos, match.start()), false);
+        currentNode = pushTextNode(rootNode, currentNode, bbcode.substring(pos, match.start()));
         String tagname = match.group(1);
         String parameter = match.group(3);
         String wholematch = match.group(0);
 
         if (wholematch.startsWith("[[") && wholematch.endsWith("]]")) {
-          currentNode = pushTextNode(rootNode, currentNode, wholematch.substring(1, wholematch.length() - 1), true);
+          currentNode = pushTextNode(rootNode, currentNode, wholematch.substring(1, wholematch.length() - 1));
         } else {
           if (parameter != null && parameter.length() > 0) {
             parameter = parameter.substring(1);
           }
           if (allTagsNames.contains(tagname)) {
             if (wholematch.startsWith("[[")) {
-              currentNode = pushTextNode(rootNode, currentNode, "[", false);
+              currentNode = pushTextNode(rootNode, currentNode, "[");
             }
 
 
@@ -406,14 +453,14 @@ public class Parser {
               if (!isCode || "code".equals(tagname)) {
                 currentNode = closeTagNode(rootNode, currentNode, tagname);
               } else {
-                currentNode = pushTextNode(rootNode, currentNode, wholematch, false);
+                currentNode = pushTextNode(rootNode, currentNode, wholematch);
               }
               if ("code".equals(tagname)) {
                 isCode = false;
               }
             } else {
               if (isCode && !"code".equals(tagname)) {
-                currentNode = pushTextNode(rootNode, currentNode, wholematch, false);
+                currentNode = pushTextNode(rootNode, currentNode, wholematch);
               } else if ("code".equals(tagname)) {
                 isCode = true;
                 currentNode = pushTagNode(rootNode, currentNode, tagname, parameter);
@@ -428,15 +475,15 @@ public class Parser {
             }
 
             if (wholematch.endsWith("]]")) {
-              currentNode = pushTextNode(rootNode, currentNode, "]", false);
+              currentNode = pushTextNode(rootNode, currentNode, "]");
             }
           } else {
-            currentNode = pushTextNode(rootNode, currentNode, wholematch, false);
+            currentNode = pushTextNode(rootNode, currentNode, wholematch);
           }
         }
         pos = match.end();
       } else {
-        currentNode = pushTextNode(rootNode, currentNode, bbcode.substring(pos), false);
+        currentNode = pushTextNode(rootNode, currentNode, bbcode.substring(pos));
         pos = bbcode.length();
       }
     }
