@@ -16,14 +16,16 @@
 package ru.org.linux.site;
 
 import org.apache.solr.common.SolrDocument;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
+import ru.org.linux.spring.dao.UserDao;
 import ru.org.linux.util.bbcode.ParserUtil;
 
-import java.io.Serializable;
-import java.sql.*;
+import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.Date;
 
-public class SearchItem implements Serializable {
-//  "msgs.id, msgs.title, msgs.postdate, topic, msgs.userid, rank(idxFTI, q) as rank, message, bbcode"
+public class SearchItem {
   private final int msgid;
   private final String title;
   private final String topicTitle;
@@ -31,11 +33,8 @@ public class SearchItem implements Serializable {
   private final int topic;
   private final User user;
   private final String message;
-  private final boolean bbcode;
 
-  private static final long serialVersionUID = -8100510220616995405L;
-
-  public SearchItem(Connection db, SolrDocument doc) throws SQLException {
+  public SearchItem(SolrDocument doc, UserDao userDao, JdbcTemplate jdbcTemplate) throws SQLException {
     msgid = Integer.valueOf(doc.getFieldValue("id").toString());
     title = (String) doc.getFieldValue("title");
     topicTitle = (String) doc.getFieldValue("topic_title");
@@ -43,35 +42,25 @@ public class SearchItem implements Serializable {
     Date postdate_dt = (Date) doc.getFieldValue("postdate");
     postdate = new Timestamp(postdate_dt.getTime());
     topic = (Integer) doc.getFieldValue("topic_id");
-    
-    PreparedStatement pst = null;
+
+    SqlRowSet rs = jdbcTemplate.queryForRowSet("select message,bbcode from msgbase where id=?", msgid);
+
+    if (!rs.next()) {
+      throw new RuntimeException("text not found! msgid="+msgid);
+    }
+
+    String rawMessage = rs.getString("message");
+
+    if (rs.getBoolean("bbcode")) {
+      message = ParserUtil.bb2xhtml(rawMessage, true, true, "", userDao);
+    } else {
+      message = rawMessage;
+    }
+
     try {
-      String dbquery = "select message,bbcode from msgbase where id=?";
-      pst = db.prepareStatement(dbquery);
-      pst.setInt(1, msgid);
-      ResultSet rs = pst.executeQuery();
-      
-      if (!rs.next()) {
-        throw new RuntimeException("Can't find msgid "+msgid);
-      }
-
-      String rawMessage = rs.getString("message");
-      bbcode = rs.getBoolean("bbcode");
-      if (bbcode) {
-        message = ParserUtil.bb2xhtml(rawMessage, true, true, "", db);
-      } else {
-        message = rawMessage;
-      }
-      try{
-        user = User.getUserCached(db, userid);
-      } catch (UserNotFoundException e) {
-        throw new RuntimeException(e);
-      }
-
-    }finally {
-      if (pst!=null) {
-        pst.close();
-      }
+      user = userDao.getUserCached(userid);
+    } catch (UserNotFoundException e) {
+      throw new RuntimeException(e);
     }
   }
 
@@ -101,10 +90,6 @@ public class SearchItem implements Serializable {
 
   public String getMessage() {
     return message;
-  }
-
-  public boolean isBbcode() {
-    return bbcode;
   }
 
   public String getUrl() {

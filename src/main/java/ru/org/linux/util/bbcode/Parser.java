@@ -135,7 +135,7 @@ public class Parser {
    * Конструктор
    * @param flags флаги которые влияют на созданный объект
    */
-  public Parser(EnumSet<ParserFlags> flags) {
+  public Parser(Set<ParserFlags> flags) {
     allowedListParameters = ImmutableSet.of("A", "a", "I", "i", "1");
     inlineTags = ImmutableSet.of("b", "i", "u", "s", "em", "strong", "url", "url2", "user", "br", "text", "img", "softbr");
     urlTags = ImmutableSet.of("b", "i", "u", "s", "strong", "text");
@@ -400,7 +400,7 @@ public class Parser {
       }
       if("user".equals(name)) {
         MemberTag memberTag = ((MemberTag) (node.getBbtag()));
-        memberTag.setConnection(rootNode.getConnection());
+        memberTag.setUserDao(rootNode.getUserDao());
       }
       currentNode.getChildren().add(node);
       if (!node.getBbtag().isSelfClosing()) {

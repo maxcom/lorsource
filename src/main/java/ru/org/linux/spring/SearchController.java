@@ -25,7 +25,7 @@ import org.apache.solr.common.SolrDocumentList;
 import org.springframework.beans.PropertyAccessException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
-import org.springframework.jdbc.support.JdbcUtils;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -40,8 +40,8 @@ import ru.org.linux.spring.dao.GroupDao;
 import ru.org.linux.spring.dao.SectionDao;
 import ru.org.linux.spring.dao.UserDao;
 
+import javax.sql.DataSource;
 import java.beans.PropertyEditorSupport;
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -53,6 +53,7 @@ public class SearchController {
   private SectionDao sectionStore;
   private UserDao userDao;
   private GroupDao groupDao;
+  private JdbcTemplate jdbcTemplate;
 
   @Autowired
   @Required
@@ -73,6 +74,11 @@ public class SearchController {
   @Autowired
   public void setGroupDao(GroupDao groupDao) {
     this.groupDao = groupDao;
+  }
+
+  @Autowired
+  public void setDataSource(DataSource ds) {
+    jdbcTemplate = new JdbcTemplate(ds);
   }
 
   @ModelAttribute("sorts")
@@ -109,11 +115,11 @@ public class SearchController {
   }
 
   @SuppressWarnings({"SameReturnValue"})
-  @RequestMapping(value="/search.jsp", method={RequestMethod.GET, RequestMethod.HEAD})
+  @RequestMapping(value = "/search.jsp", method = {RequestMethod.GET, RequestMethod.HEAD})
   public String search(
-    Model model,
-    @ModelAttribute("query") SearchRequest query,
-    BindingResult bindingResult
+          Model model,
+          @ModelAttribute("query") SearchRequest query,
+          BindingResult bindingResult
   ) throws Exception {
     Map<String, Object> params = model.asMap();
 
@@ -127,68 +133,62 @@ public class SearchController {
 
       query.setOldQ(query.getQ());
 
-      if(query.getQ().trim().isEmpty()){
+      if (query.getQ().trim().isEmpty()) {
         return "redirect:/search.jsp";
       }
 
       SearchViewer sv = new SearchViewer(query);
 
-      if (query.getGroup()!=0) {
+      if (query.getGroup() != 0) {
         Group group = groupDao.getGroup(query.getGroup());
 
-        if (group.getSectionId()!=query.getSection()) {
+        if (group.getSectionId() != query.getSection()) {
           query.setGroup(0);
         }
       }
 
       QueryResponse response = sv.performSearch(solrServer);
 
-      Connection db = null;
+      long current = System.currentTimeMillis();
 
-      try {
-        long current = System.currentTimeMillis();
-        db = LorDataSource.getConnection();
+      SolrDocumentList list = response.getResults();
+      Collection<SearchItem> res = new ArrayList<SearchItem>(list.size());
 
-        SolrDocumentList list = response.getResults();
-        Collection<SearchItem> res = new ArrayList<SearchItem>(list.size());
-        for (SolrDocument doc : list) {
-          res.add(new SearchItem(db, doc));
-        }
-
-        FacetField sectionFacet = response.getFacetField("section_id");
-
-        if (sectionFacet!=null && sectionFacet.getValueCount()>1) {
-          params.put("sectionFacet", buildSectionFacet(sectionFacet));
-        } else if (sectionFacet!=null && sectionFacet.getValueCount()==1) {
-          FacetField.Count first = sectionFacet.getValues().get(0);
-
-          query.setSection(Integer.parseInt(first.getName()));
-        }
-
-        FacetField groupFacet = response.getFacetField("group_id");
-
-        if (groupFacet!=null && groupFacet.getValueCount()>1) {
-          params.put("groupFacet", buildGroupFacet(db, query.getSection(), groupFacet));
-        }
-
-        long time = System.currentTimeMillis() - current;
-
-        params.put("result", res);
-        params.put("searchTime", response.getElapsedTime());
-        params.put("numFound", list.getNumFound());
-
-        if (list.getNumFound()>query.getOffset() + SearchViewer.SEARCH_ROWS) {
-          params.put("nextLink", "/search.jsp?"+query.getQuery(query.getOffset()+SearchViewer.SEARCH_ROWS));
-        }
-
-        if (query.getOffset() - SearchViewer.SEARCH_ROWS >= 0) {
-          params.put("prevLink", "/search.jsp?"+query.getQuery(query.getOffset() - SearchViewer.SEARCH_ROWS));
-        }
-
-        params.put("time", time);
-      } finally {
-        JdbcUtils.closeConnection(db);
+      for (SolrDocument doc : list) {
+        res.add(new SearchItem(doc, userDao, jdbcTemplate));
       }
+
+      FacetField sectionFacet = response.getFacetField("section_id");
+
+      if (sectionFacet != null && sectionFacet.getValueCount() > 1) {
+        params.put("sectionFacet", buildSectionFacet(sectionFacet));
+      } else if (sectionFacet != null && sectionFacet.getValueCount() == 1) {
+        FacetField.Count first = sectionFacet.getValues().get(0);
+
+        query.setSection(Integer.parseInt(first.getName()));
+      }
+
+      FacetField groupFacet = response.getFacetField("group_id");
+
+      if (groupFacet != null && groupFacet.getValueCount() > 1) {
+        params.put("groupFacet", buildGroupFacet(query.getSection(), groupFacet));
+      }
+
+      long time = System.currentTimeMillis() - current;
+
+      params.put("result", res);
+      params.put("searchTime", response.getElapsedTime());
+      params.put("numFound", list.getNumFound());
+
+      if (list.getNumFound() > query.getOffset() + SearchViewer.SEARCH_ROWS) {
+        params.put("nextLink", "/search.jsp?" + query.getQuery(query.getOffset() + SearchViewer.SEARCH_ROWS));
+      }
+
+      if (query.getOffset() - SearchViewer.SEARCH_ROWS >= 0) {
+        params.put("prevLink", "/search.jsp?" + query.getQuery(query.getOffset() - SearchViewer.SEARCH_ROWS));
+      }
+
+      params.put("time", time);
     }
 
     return "search";
@@ -204,17 +204,17 @@ public class SearchController {
 
       String name = sectionStore.getSection(sectionId).getName().toLowerCase();
 
-      builder.put(sectionId, name+" ("+count.getCount()+ ')');
+      builder.put(sectionId, name + " (" + count.getCount() + ')');
 
       totalCount += count.getCount();
     }
 
-    builder.put(0, "все ("+Integer.toString(totalCount)+ ')');
+    builder.put(0, "все (" + Integer.toString(totalCount) + ')');
 
     return builder.build();
   }
 
-  private static Map<Integer, String> buildGroupFacet(Connection db, int sectionId, FacetField groupFacet) throws  BadGroupException, SQLException {
+  private Map<Integer, String> buildGroupFacet(int sectionId, FacetField groupFacet) throws BadGroupException, SQLException {
     ImmutableMap.Builder<Integer, String> builder = ImmutableSortedMap.naturalOrder();
 
     int totalCount = 0;
@@ -222,24 +222,24 @@ public class SearchController {
     for (FacetField.Count count : groupFacet.getValues()) {
       int groupId = Integer.parseInt(count.getName());
 
-      Group group = Group.getGroup(db, groupId);
+      Group group = groupDao.getGroup(groupId);
 
-      if (group.getSectionId()!=sectionId) {
+      if (group.getSectionId() != sectionId) {
         continue;
       }
 
       String name = group.getTitle().toLowerCase();
 
-      builder.put(groupId, name+" ("+count.getCount()+ ')');
+      builder.put(groupId, name + " (" + count.getCount() + ')');
 
       totalCount += count.getCount();
     }
 
-    builder.put(0, "все ("+Integer.toString(totalCount)+ ')');
+    builder.put(0, "все (" + Integer.toString(totalCount) + ')');
 
     ImmutableMap<Integer, String> r = builder.build();
-    
-    if (r.size()<=2) {
+
+    if (r.size() <= 2) {
       return null;
     } else {
       return r;
@@ -292,7 +292,7 @@ public class SearchController {
 
       @Override
       public String getAsText() {
-        if (getValue()==null) {
+        if (getValue() == null) {
           return "";
         }
 
@@ -304,11 +304,11 @@ public class SearchController {
       @Override
       public void processPropertyAccessException(PropertyAccessException e, BindingResult bindingResult) {
         if (e.getCause() instanceof IllegalArgumentException &&
-            e.getCause().getCause() instanceof UserNotFoundException) {
+                e.getCause().getCause() instanceof UserNotFoundException) {
           bindingResult.rejectValue(
-            e.getPropertyChangeEvent().getPropertyName(),
-            null,
-            e.getCause().getCause().getMessage()
+                  e.getPropertyChangeEvent().getPropertyName(),
+                  null,
+                  e.getCause().getCause().getMessage()
           );
         } else {
           super.processPropertyAccessException(e, bindingResult);

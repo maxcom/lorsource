@@ -40,11 +40,11 @@ package ru.org.linux.util.bbcode.tags;
 
 import ru.org.linux.site.User;
 import ru.org.linux.site.UserNotFoundException;
+import ru.org.linux.spring.dao.UserDao;
 import ru.org.linux.util.bbcode.Parser;
 import ru.org.linux.util.bbcode.nodes.Node;
 import ru.org.linux.util.bbcode.nodes.TextNode;
 
-import java.sql.Connection;
 import java.util.Set;
 
 /**
@@ -54,16 +54,14 @@ import java.util.Set;
  * Time: 12:27 AM
  */
 public class MemberTag extends Tag {
-
-  private Connection db;
+  private UserDao userDao;
 
   public MemberTag(String name, Set<String> allowedChildren, String implicitTag, Parser parser) {
     super(name, allowedChildren, implicitTag, parser);
-    db = null;
   }
 
-  public void setConnection(Connection db){
-    this.db = db;
+  public void setUserDao(UserDao userDao) {
+    this.userDao = userDao;
   }
 
   @Override
@@ -75,8 +73,8 @@ public class MemberTag extends Tag {
     String memberName = Parser.escape(txtNode.getText()).trim();
     String pattern;
     try {
-      if(db != null){
-        User user = User.getUser(db, memberName);
+      if(userDao != null){
+        User user = userDao.getUser(memberName);
         if (!user.isBlocked()) {
           pattern = "<span style=\"white-space: nowrap\"><img src=\"/img/tuxlor.png\"><a style=\"text-decoration: none\" href='/people/%s/profile'>%s</a></span>";
         } else {
@@ -89,7 +87,5 @@ public class MemberTag extends Tag {
       pattern = "<s>%s</s>";
     }
     return String.format(pattern, Parser.escape(memberName), Parser.escape(memberName));
-
   }
-
 }
