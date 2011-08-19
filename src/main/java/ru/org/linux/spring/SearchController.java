@@ -25,7 +25,7 @@ import org.apache.solr.common.SolrDocumentList;
 import org.springframework.beans.PropertyAccessException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
-import org.springframework.jdbc.support.JdbcUtils;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -40,8 +40,8 @@ import ru.org.linux.spring.dao.GroupDao;
 import ru.org.linux.spring.dao.SectionDao;
 import ru.org.linux.spring.dao.UserDao;
 
+import javax.sql.DataSource;
 import java.beans.PropertyEditorSupport;
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -53,6 +53,7 @@ public class SearchController {
   private SectionDao sectionStore;
   private UserDao userDao;
   private GroupDao groupDao;
+  private JdbcTemplate jdbcTemplate;
 
   @Autowired
   @Required
@@ -73,6 +74,11 @@ public class SearchController {
   @Autowired
   public void setGroupDao(GroupDao groupDao) {
     this.groupDao = groupDao;
+  }
+
+  @Autowired
+  public void setDataSource(DataSource ds) {
+    jdbcTemplate = new JdbcTemplate(ds);
   }
 
   @ModelAttribute("sorts")
@@ -143,21 +149,13 @@ public class SearchController {
 
       QueryResponse response = sv.performSearch(solrServer);
 
-      Connection db = null;
-
       long current = System.currentTimeMillis();
 
       SolrDocumentList list = response.getResults();
       Collection<SearchItem> res = new ArrayList<SearchItem>(list.size());
 
-      try {
-        db = LorDataSource.getConnection();
-
-        for (SolrDocument doc : list) {
-          res.add(new SearchItem(db, doc));
-        }
-      } finally {
-        JdbcUtils.closeConnection(db);
+      for (SolrDocument doc : list) {
+        res.add(new SearchItem(doc, userDao, jdbcTemplate));
       }
 
       FacetField sectionFacet = response.getFacetField("section_id");
