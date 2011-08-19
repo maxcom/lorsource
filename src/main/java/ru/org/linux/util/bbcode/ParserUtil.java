@@ -1,5 +1,7 @@
 package ru.org.linux.util.bbcode;
 
+import org.springframework.jdbc.datasource.SingleConnectionDataSource;
+import ru.org.linux.spring.dao.UserDao;
 import ru.org.linux.util.bbcode.nodes.RootNode;
 
 import java.sql.Connection;
@@ -18,10 +20,24 @@ public class ParserUtil {
     return parserWithOutImages.parse(new RootNode(parserWithOutImages), bbcode).renderXHtml();
   }
 
+  @Deprecated
   public static String bb2xhtml(String bbcode, boolean renderCut, boolean cleanCut, String cutUrl, Connection db) {
     RootNode rootNode = new RootNode(parserWithOutImages);
     rootNode.setRenderOptions(renderCut, cleanCut, cutUrl);
-    rootNode.setConnection(db);
+    rootNode.setUserDao(new UserDao(new SingleConnectionDataSource(db, true)));
+    return parserWithOutImages.parse(rootNode, bbcode).renderXHtml();
+  }
+
+  public static String bb2xhtml(String bbcode, boolean renderCut, boolean cleanCut, String cutUrl, UserDao userDao) {
+    RootNode rootNode = new RootNode(parserWithOutImages);
+    rootNode.setRenderOptions(renderCut, cleanCut, cutUrl);
+    rootNode.setUserDao(userDao);
+    return parserWithOutImages.parse(rootNode, bbcode).renderXHtml();
+  }
+  
+  public static String bb2xhtml(String bbcode, boolean renderCut, boolean cleanCut, String cutUrl) {
+    RootNode rootNode = new RootNode(parserWithOutImages);
+    rootNode.setRenderOptions(renderCut, cleanCut, cutUrl);
     return parserWithOutImages.parse(rootNode, bbcode).renderXHtml();
   }
 }

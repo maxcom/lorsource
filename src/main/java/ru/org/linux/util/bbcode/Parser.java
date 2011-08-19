@@ -82,8 +82,7 @@ public class Parser {
   private final Map<String, Tag> allTagsDict;
   private final ImmutableSet<String> allTagsNames;
 
-
-  public Parser(EnumSet<ParserFlags> flags) {
+  public Parser(Set<ParserFlags> flags) {
     // разрешенные параметры для [list]
     allowedListParameters = ImmutableSet.of("A", "a", "I", "i", "1");
 
@@ -330,7 +329,7 @@ public class Parser {
       }
       if("user".equals(name)) {
         MemberTag memberTag = ((MemberTag) (node.getBbtag()));
-        memberTag.setConnection(rootNode.getConnection());
+        memberTag.setUserDao(rootNode.getUserDao());
       }
       currentNode.getChildren().add(node);
       if (!node.getBbtag().isSelfClosing()) {

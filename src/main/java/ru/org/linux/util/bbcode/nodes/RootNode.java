@@ -38,9 +38,8 @@
 
 package ru.org.linux.util.bbcode.nodes;
 
+import ru.org.linux.spring.dao.UserDao;
 import ru.org.linux.util.bbcode.Parser;
-
-import java.sql.Connection;
 
 /**
  * Created by IntelliJ IDEA.
@@ -49,12 +48,11 @@ import java.sql.Connection;
  * Time: 3:01 PM
  */
 public class RootNode extends Node {
-
   private int cutCount;
   private boolean renderCut;
   private boolean cleanCut;
   private String cutUrl;
-  private Connection db;
+  private UserDao userDao;
 
   public RootNode(Parser parser) {
     super(parser);
@@ -62,15 +60,14 @@ public class RootNode extends Node {
     renderCut = true;
     cleanCut = true;
     cutUrl = "";
-    db = null;
   }
 
-  public void setConnection(Connection db){
-    this.db = db;
+  public void setUserDao(UserDao userDao) {
+    this.userDao = userDao;
   }
 
-  public Connection getConnection() {
-    return db;
+  public UserDao getUserDao() {
+    return userDao;
   }
 
   public void setRenderOptions(boolean renderCut, boolean cleanCut, String cutUrl) {

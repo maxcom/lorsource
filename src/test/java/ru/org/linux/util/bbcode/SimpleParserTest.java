@@ -55,25 +55,25 @@ public class SimpleParserTest {
 
   @Test
   public void cutTest() {
-    Assert.assertEquals("test", ParserUtil.bb2xhtml("[cut]test[/cut]", true, true, "", null));
-    Assert.assertEquals("<p>( <a href=\"#cut0\">читать дальше...</a> )</p>", ParserUtil.bb2xhtml("[cut]test[/cut]", false, false, "", null));
-    Assert.assertEquals("<p>( <a href=\"#cut0\">читать дальше...</a> )</p>", ParserUtil.bb2xhtml("[cut]test[/cut]", false, true, "", null));
-    Assert.assertEquals("<div id=\"cut0\">test</div>", ParserUtil.bb2xhtml("[cut]test[/cut]", true, false, "", null));
+    Assert.assertEquals("test", ParserUtil.bb2xhtml("[cut]test[/cut]", true, true, ""));
+    Assert.assertEquals("<p>( <a href=\"#cut0\">читать дальше...</a> )</p>", ParserUtil.bb2xhtml("[cut]test[/cut]", false, false, ""));
+    Assert.assertEquals("<p>( <a href=\"#cut0\">читать дальше...</a> )</p>", ParserUtil.bb2xhtml("[cut]test[/cut]", false, true, ""));
+    Assert.assertEquals("<div id=\"cut0\">test</div>", ParserUtil.bb2xhtml("[cut]test[/cut]", true, false, ""));
   }
 
   @Test
   public void cut2Test() {
-    Assert.assertEquals("<p>test</p>", ParserUtil.bb2xhtml("[cut]\n\ntest[/cut]", true, true, "", null));
-    Assert.assertEquals("<p>( <a href=\"#cut0\">читать дальше...</a> )</p>", ParserUtil.bb2xhtml("[cut]\n\ntest[/cut]", false, false, "", null));
-    Assert.assertEquals("<p>( <a href=\"#cut0\">читать дальше...</a> )</p>", ParserUtil.bb2xhtml("[cut]\n\ntest[/cut]", false, true, "", null));
-    Assert.assertEquals("<div id=\"cut0\"><p>test</p></div>", ParserUtil.bb2xhtml("[cut]\n\ntest[/cut]", true, false, "", null));
+    Assert.assertEquals("<p>test</p>", ParserUtil.bb2xhtml("[cut]\n\ntest[/cut]", true, true, ""));
+    Assert.assertEquals("<p>( <a href=\"#cut0\">читать дальше...</a> )</p>", ParserUtil.bb2xhtml("[cut]\n\ntest[/cut]", false, false, ""));
+    Assert.assertEquals("<p>( <a href=\"#cut0\">читать дальше...</a> )</p>", ParserUtil.bb2xhtml("[cut]\n\ntest[/cut]", false, true, ""));
+    Assert.assertEquals("<div id=\"cut0\"><p>test</p></div>", ParserUtil.bb2xhtml("[cut]\n\ntest[/cut]", true, false, ""));
   }
 
   @Test
   public void cut3Test() {
     Assert.assertEquals("<p>some text</p><div id=\"cut0\"><ul><li>one</li><li><p>two</p></li></ul></div>",
-        ParserUtil.bb2xhtml("some text\n\n[cut]\n\n[list][*]one\n\n[*]\n\ntwo[/cut]", true, false, "", null));
-    Assert.assertEquals("<p>some text</p><p>( <a href=\"#cut0\">читать дальше...</a> )</p>", ParserUtil.bb2xhtml("some text\n\n[cut]\n\n[list][*]one\n\n[*]\n\ntwo[/cut]", false, false, "", null));
+        ParserUtil.bb2xhtml("some text\n\n[cut]\n\n[list][*]one\n\n[*]\n\ntwo[/cut]", true, false, ""));
+    Assert.assertEquals("<p>some text</p><p>( <a href=\"#cut0\">читать дальше...</a> )</p>", ParserUtil.bb2xhtml("some text\n\n[cut]\n\n[list][*]one\n\n[*]\n\ntwo[/cut]", false, false, ""));
   }
 
   @Test

@@ -18,10 +18,10 @@ import java.util.List;
 
 @Repository
 public class UserDao {
-  private JdbcTemplate jdbcTemplate;
+  private final JdbcTemplate jdbcTemplate;
 
   @Autowired
-  public void setDataSource(DataSource dataSource) {
+  public UserDao(DataSource dataSource) {
     jdbcTemplate = new JdbcTemplate(dataSource);
   }
 
