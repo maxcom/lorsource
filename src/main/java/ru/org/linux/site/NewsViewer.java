@@ -62,12 +62,6 @@ public class NewsViewer {
 
   private CommitMode commitMode = CommitMode.COMMITED_AND_POSTMODERATED;
 
-  private final SectionDao sectionStore;
-
-  public NewsViewer(SectionDao sectionStore) {
-    this.sectionStore = sectionStore;
-  }
-
   public static String showMediumImage(String htmlPath, Message topic, boolean showMedium) {
     StringBuilder out = new StringBuilder();
     String url = topic.getUrl();
@@ -229,7 +223,7 @@ public class NewsViewer {
     List<Message> messages = new ArrayList<Message>();
 
     while (res.next()) {
-      Message message = new Message(sectionStore, res);
+      Message message = new Message(res);
       messages.add(message);
     }
 
@@ -314,7 +308,7 @@ public class NewsViewer {
   }
 
   public static NewsViewer getMainpage(SectionDao sectionStore) {
-    NewsViewer nv = new NewsViewer(sectionStore);
+    NewsViewer nv = new NewsViewer();
     nv.addSection(1);
     nv.limit = "LIMIT 20";
     nv.datelimit = "commitdate>(CURRENT_TIMESTAMP-'1 month'::interval)";

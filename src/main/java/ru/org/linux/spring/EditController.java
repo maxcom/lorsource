@@ -71,11 +71,11 @@ public class EditController extends ApplicationObjectSupport {
         throw new UserErrorException("Сообщение уже подтверждено");
       }
 
-      if (!message.getSection().isPremoderated()) {
+      PreparedMessage preparedMessage = new PreparedMessage(db, message, true);
+
+      if (!preparedMessage.getSection().isPremoderated()) {
         throw new UserErrorException("Раздел не премодерируемый");
       }
-
-      PreparedMessage preparedMessage = new PreparedMessage(db, message, true);
 
       ModelAndView mv = prepareModel(db, preparedMessage);
 
@@ -138,7 +138,7 @@ public class EditController extends ApplicationObjectSupport {
     Group group = Group.getGroup(db, message.getGroupId());
     params.put("group", group);
 
-    params.put("groups", Group.getGroups(db, message.getSection()));
+    params.put("groups", Group.getGroups(db, preparedMessage.getSection()));
 
     params.put("newMsg", message);
     params.put("newPreparedMessage", preparedMessage);
@@ -192,7 +192,7 @@ public class EditController extends ApplicationObjectSupport {
         params.put("topTags", Tags.getTopTags(db));
       }      
 
-      params.put("groups", Group.getGroups(db, message.getSection()));
+      params.put("groups", Group.getGroups(db, preparedMessage.getSection()));
 
       User user = tmpl.getCurrentUser();
 
@@ -233,7 +233,7 @@ public class EditController extends ApplicationObjectSupport {
         }
       }
 
-      params.put("commit", !message.isCommited() && message.getSection().isPremoderated() && user.canModerate());
+      params.put("commit", !message.isCommited() && preparedMessage.getSection().isPremoderated() && user.canModerate());
 
       Message newMsg = new Message(db, message, request);
 

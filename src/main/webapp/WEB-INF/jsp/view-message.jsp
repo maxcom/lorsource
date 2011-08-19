@@ -45,8 +45,8 @@
   Message nextMessage = (Message) request.getAttribute("nextMessage");
 %>
 
-<title>${message.sectionTitle} - ${message.groupTitle} - ${message.title}</title>
-<link rel="parent" title="${message.sectionTitle} - ${message.groupTitle}" href="group.jsp?group=${message.groupId}">
+<title>${preparedMessage.section.title} - ${message.groupTitle} - ${message.title}</title>
+<link rel="parent" title="${preparedMessage.section.title} - ${message.groupTitle}" href="group.jsp?group=${message.groupId}">
 <c:if test="${prevMessage != null}">
   <link rel="Previous" id="PrevLink" href="${fn:escapeXml(prevMessage.link)}" title="<%= StringUtil.makeTitle(prevMessage.getTitle()) %>">
 </c:if>
@@ -73,7 +73,7 @@
   <table class=nav>
   <tr>
   <td align=left valign=middle id="navPath">
-    <a href="<%= Section.getSectionLink(message.getSectionId()) %>"><%= message.getSectionTitle() %></a> -
+    <a href="${preparedMessage.section.sectionLink}">${preparedMessage.section.title}</a> -
     <a href="${group.url}">${group.title}</a>
   </td>
 
@@ -190,9 +190,9 @@
           <table>
             <tr valign=middle>
               <td>
-                <a title="<%=  message.getSectionTitle() + " - " + message.getGroupTitle() %>"
+                <a title="${preparedMessage.section.title} - ${message.groupTitle}"
                    href="${group.url}">
-                  <%= message.getSectionTitle() + " - " + message.getGroupTitle() %>
+                  ${preparedMessage.section.title} - ${message.groupTitle}
                 </a>
               </td>
             </tr>

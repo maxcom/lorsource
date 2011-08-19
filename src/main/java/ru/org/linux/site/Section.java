@@ -46,6 +46,7 @@ public class Section implements Serializable {
     sections.put("polls", SECTION_POLLS);
   }
 
+  @Deprecated
   public Section(Connection db, int id) throws SQLException, SectionNotFoundException {
     this.id = id;
 
@@ -177,7 +178,7 @@ public class Section implements Serializable {
     }
   }
 
-  public int getCommentPostscore() {
+  public static int getCommentPostscore(int id) {
     //TODO move this to database
     if (id==1 || id==2) {
       return Message.POSTSCORE_UNRESTRICTED;
@@ -186,7 +187,16 @@ public class Section implements Serializable {
     }
   }
 
+  public String getSectionLink() {
+    return getSectionLinkInternal(id);
+  }
+
+  @Deprecated
   public static String getSectionLink(int section) {
+    return getSectionLinkInternal(section);
+  }
+
+  private static String getSectionLinkInternal(int section) {
     switch (section) {
       case SECTION_FORUM:
         return "/forum/";

@@ -64,8 +64,10 @@ public class DeleteMessageController extends ApplicationObjectSupport {
         throw new UserErrorException("Сообщение уже удалено");
       }
 
+      Section section = new Section(db, msg.getSectionId());
+
       HashMap<String, Object> params = new HashMap<String, Object>();
-      params.put("bonus", !msg.getSection().isPremoderated());
+      params.put("bonus", !section.isPremoderated());
 
       params.put("msgid", msgid);
 
