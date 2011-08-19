@@ -18,12 +18,10 @@ package ru.org.linux.site;
 import org.apache.solr.common.SolrDocument;
 import ru.org.linux.util.bbcode.ParserUtil;
 
-import java.io.Serializable;
 import java.sql.*;
 import java.util.Date;
 
-public class SearchItem implements Serializable {
-//  "msgs.id, msgs.title, msgs.postdate, topic, msgs.userid, rank(idxFTI, q) as rank, message, bbcode"
+public class SearchItem {
   private final int msgid;
   private final String title;
   private final String topicTitle;
@@ -32,8 +30,6 @@ public class SearchItem implements Serializable {
   private final User user;
   private final String message;
   private final boolean bbcode;
-
-  private static final long serialVersionUID = -8100510220616995405L;
 
   public SearchItem(Connection db, SolrDocument doc) throws SQLException {
     msgid = Integer.valueOf(doc.getFieldValue("id").toString());
