@@ -106,6 +106,11 @@ public class Parser {
   private final ImmutableSet<String> allowedListParameters;
 
   /**
+   * Тэги в нутри которых не работает двойной перевод строк
+   */
+  private final ImmutableSet<String> disallowedParagraphTags;
+
+  /**
    * Список всех тэгов
    */
   private final List<Tag> allTags;
@@ -130,6 +135,7 @@ public class Parser {
     urlTags = ImmutableSet.of("b", "i", "u", "s", "strong", "text");
     blockLevelTags = ImmutableSet.of("p", "quote", "list", "pre", "code", "div", "cut");
     autoLinkTags = ImmutableSet.of("b", "i", "u", "s", "em", "strong", "p", "quote", "div", "cut", "pre");
+    disallowedParagraphTags = ImmutableSet.of("pre", "url", "user", "code");
     flowTags = new ImmutableSet.Builder<String>()
             .addAll(inlineTags)
             .addAll(blockLevelTags)
@@ -280,29 +286,29 @@ public class Parser {
     } else {
       Matcher matcher = P_REGEXP.matcher(text);
 
-      boolean isCode = false;
-      boolean isP = false;
+      boolean isParagraph = false;
       boolean isAllow = true;
       if (TagNode.class.isInstance(currentNode)) {
         TagNode tempNode = (TagNode) currentNode;
-        if (CodeTag.class.isInstance(tempNode.getBbtag())) {
-          isCode = true;
-        }
-        if ("pre".equals(tempNode.getBbtag().getName()) ||
-            "url".equals(tempNode.getBbtag().getName()) ||
-            "user".equals(tempNode.getBbtag().getName())) {
+        if (disallowedParagraphTags.contains(tempNode.getBbtag().getName())){
           isAllow = false;
         }
         if ("p".equals(tempNode.getBbtag().getName())) {
-          isP = true;
+          isParagraph = true;
         }
       }
 
-      if (matcher.find() && !isCode && isAllow) {
+      /**
+       * Если мы находим двойной пеернос строки и текущий в текущем тэге
+       * разрешен вставка нового тэга p, то вставляем p
+       * за исключеним, если текущий тэг p, тогда поднимаемся на уровень
+       * выше в дереве и вставляем p с текстом
+       */
+      if (matcher.find() && isAllow) {
         if(matcher.start() != 0){
           currentNode = pushTextNode(rootNode, currentNode, text.substring(0, matcher.start()));
         }
-        if (isP) {
+        if (isParagraph) {
           currentNode = ascend(currentNode);
         }
         if(matcher.end() != text.length()){
