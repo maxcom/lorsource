@@ -192,7 +192,7 @@ public class NewsViewerController {
       params.put("ptitle", ptitle);
       params.put("navtitle", navtitle);
 
-      NewsViewer newsViewer = new NewsViewer(sectionStore);
+      NewsViewer newsViewer = new NewsViewer();
 
       if (section!=null) {
         newsViewer.addSection(sectionid);
@@ -288,7 +288,7 @@ public class NewsViewerController {
 
       params.put("user", user);
 
-      NewsViewer newsViewer = new NewsViewer(sectionStore);
+      NewsViewer newsViewer = new NewsViewer();
 
       offset = fixOffset(offset);
 
@@ -350,7 +350,7 @@ public class NewsViewerController {
 
       params.put("user", user);
 
-      NewsViewer newsViewer = new NewsViewer(sectionStore);
+      NewsViewer newsViewer = new NewsViewer();
 
       offset = fixOffset(offset);
 
@@ -418,7 +418,7 @@ public class NewsViewerController {
         modelAndView.getModel().put("section", section);
       }
 
-      NewsViewer newsViewer = new NewsViewer(sectionStore);
+      NewsViewer newsViewer = new NewsViewer();
       newsViewer.setCommitMode(NewsViewer.CommitMode.UNCOMMITED_ONLY);
       newsViewer.setDatelimit("postdate>(CURRENT_TIMESTAMP-'1 month'::interval)");
       if (section != null) {

@@ -25,7 +25,6 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 import ru.org.linux.spring.AddMessageForm;
-import ru.org.linux.spring.dao.SectionDao;
 import ru.org.linux.util.*;
 import ru.org.linux.util.bbcode.ParserUtil;
 
@@ -69,9 +68,8 @@ public class Message implements Serializable {
   private final boolean lorcode;
   private final boolean resolved;
   private final int groupCommentsRestriction;
+  private final int sectionCommentsRestriction;
   private final boolean minor;
-
-  private final Section section;
 
   private static final long serialVersionUID = 807240555706110851L;
   public static final int POSTSCORE_MOD_AUTHOR = 9999;
@@ -81,10 +79,6 @@ public class Message implements Serializable {
   private static final String UTF8 = "UTF-8";
 
   public Message(Connection db, int msgid) throws SQLException, MessageNotFoundException {
-    this(db, null, msgid);
-  }
-
-  public Message(Connection db, SectionDao sectionStore, int msgid) throws SQLException, MessageNotFoundException {
     Statement st = db.createStatement();
 
     ResultSet rs = st.executeQuery(
@@ -145,18 +139,10 @@ public class Message implements Serializable {
     rs.close();
     st.close();
 
-    try {
-      if (sectionStore == null) {
-        section = new Section(db, sectionid);
-      } else {
-        section = sectionStore.getSection(sectionid);
-      }
-    } catch (SectionNotFoundException ex) {
-      throw new RuntimeException(ex);
-    }
+    sectionCommentsRestriction = Section.getCommentPostscore(sectionid);
   }
 
-  public Message(SectionDao sectionStore, ResultSet rs) throws SQLException {
+  public Message(ResultSet rs) throws SQLException {
     msgid = rs.getInt("msgid");
     postscore = rs.getInt("postscore");
     votepoll = rs.getBoolean("vote");
@@ -186,12 +172,7 @@ public class Message implements Serializable {
     resolved = rs.getBoolean("resolved");
     groupCommentsRestriction = rs.getInt("restrict_comments");
     minor = rs.getBoolean("minor");
-
-    try {
-      section = sectionStore.getSection(sectionid);
-    } catch (SectionNotFoundException ex) {
-      throw new RuntimeException(ex);
-    }
+    sectionCommentsRestriction = Section.getCommentPostscore(sectionid);
   }
 
   public Message(Connection db, AddMessageForm form, User user)
@@ -246,12 +227,7 @@ public class Message implements Serializable {
     minor = false;
 
     message = form.processMessage(group);
-
-    try {
-      section = new Section(db, sectionid);
-    } catch (SectionNotFoundException ex) {
-      throw new RuntimeException(ex);
-    }
+    sectionCommentsRestriction = Section.getCommentPostscore(sectionid);
   }
 
   public Message(Connection db, Message original, ServletRequest request) throws BadGroupException, SQLException, UtilException, UserErrorException {
@@ -333,11 +309,7 @@ public class Message implements Serializable {
       message = original.message;
     }
 
-    try {
-      section = new Section(db, sectionid);
-    } catch (SectionNotFoundException ex) {
-      throw new RuntimeException(ex);
-    }
+    sectionCommentsRestriction = Section.getCommentPostscore(sectionid);
   }
 
   public boolean isExpired() {
@@ -350,10 +322,6 @@ public class Message implements Serializable {
 
   public String getTitle() {
     return title;
-  }
-
-  public String getSectionTitle() {
-    return section.getName();
   }
 
   public String getGroupTitle() {
@@ -399,7 +367,7 @@ public class Message implements Serializable {
   public int getPostScore() {
     int effective = Math.max(postscore, groupCommentsRestriction);
 
-    effective = Math.max(effective, section.getCommentPostscore());
+    effective = Math.max(effective, sectionCommentsRestriction);
 
     effective = Math.max(effective, getCommentCountRestriction());
 
@@ -435,7 +403,7 @@ public class Message implements Serializable {
     }
   }
 
-  public Message getNextMessage(Connection db, SectionDao sectionStore) throws SQLException {
+  public Message getNextMessage(Connection db) throws SQLException {
     PreparedStatement pst;
 
     int scrollMode = Section.getScrollMode(sectionid);
@@ -471,7 +439,7 @@ public class Message implements Serializable {
         return null;
       }
 
-      return new Message(db, sectionStore, nextMsgid);
+      return new Message(db, nextMsgid);
     } catch (MessageNotFoundException e) {
       throw new RuntimeException(e);
     } finally {
@@ -479,7 +447,7 @@ public class Message implements Serializable {
     }
   }
 
-  public Message getPreviousMessage(Connection db, SectionDao sectionStore) throws SQLException {
+  public Message getPreviousMessage(Connection db) throws SQLException {
     PreparedStatement pst;
 
     int scrollMode = Section.getScrollMode(sectionid);
@@ -515,7 +483,7 @@ public class Message implements Serializable {
         return null;
       }
 
-      return new Message(db, sectionStore, prevMsgid);
+      return new Message(db, prevMsgid);
     } catch (MessageNotFoundException e) {
       throw new RuntimeException(e);
     } finally {
@@ -778,19 +746,15 @@ public class Message implements Serializable {
     return userAgent;
   }
 
-  public Section getSection() {
-    return section;
-  }
-
   public String getMessage() {
     return message;
   }
 
-  public String getProcessedMessage(Connection db) throws SQLException {
+  public String getProcessedMessage(Connection db) {
     return getProcessedMessage(db, false);
   }
 
-  public String getProcessedMessage(Connection db, boolean includeCut) throws SQLException {
+  public String getProcessedMessage(Connection db, boolean includeCut) {
     if (lorcode) {
       return ParserUtil.bb2xhtml(message, includeCut, false, getLink(), db);
     } else {

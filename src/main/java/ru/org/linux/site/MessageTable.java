@@ -34,7 +34,7 @@ public class MessageTable {
 
     Message topic = preparedTopic.getMessage();
 
-    if (topic.getSection().isImagepost()) {
+    if (preparedTopic.getSection().isImagepost()) {
       buf.append(NewsViewer.showMediumImage(htmlPath, topic, true));
 
       ImageInfo info = new ImageInfo(htmlPath + topic.getUrl(), ImageInfo.detectImageType(new File(htmlPath + topic.getUrl())));

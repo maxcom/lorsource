@@ -161,7 +161,9 @@ public class TopicModificationController extends ApplicationObjectSupport {
 
       mv.getModel().put("message", message);
 
-      mv.getModel().put("groups", Group.getGroups(db, message.getSection()));
+      Section section = new Section(db, message.getSectionId());
+
+      mv.getModel().put("groups", Group.getGroups(db, section));
 
       return mv;
     } finally {

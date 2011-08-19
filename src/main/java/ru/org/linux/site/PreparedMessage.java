@@ -33,6 +33,7 @@ public final class PreparedMessage {
   private final User commiter;
   private final ImmutableList<String> tags;
   private final Group group;
+  private final Section section;
 
   private final EditInfoDTO lastEditInfo;
   private final User lastEditor;
@@ -57,6 +58,8 @@ public final class PreparedMessage {
       group = Group.getGroup(db, message.getGroupId());
 
       author = User.getUserCached(db, message.getUid());
+
+      section = new Section(db, message.getSectionId());
 
       if (message.isDeleted()) {
         deleteInfo = DeleteInfo.getDeleteInfo(db, message.getId());
@@ -108,6 +111,8 @@ public final class PreparedMessage {
     } catch (UserNotFoundException e) {
       throw new RuntimeException(e);
     } catch (PollNotFoundException e) {
+      throw new RuntimeException(e);
+    } catch (SectionNotFoundException e) {
       throw new RuntimeException(e);
     }
   }
@@ -198,7 +203,7 @@ public final class PreparedMessage {
     }
 
     if (message.isExpired()) {
-      return by.canModerate() && message.getSection().isPremoderated();
+      return by.canModerate() && section.isPremoderated();
     }
 
     if (by.canModerate()) {
@@ -206,21 +211,25 @@ public final class PreparedMessage {
         return true;
       }
 
-      return message.getSection().isPremoderated();
+      return section.isPremoderated();
     }
 
     if (!message.isLorcode()) {
       return false;
     }
 
-    if (by.canCorrect() && message.getSection().isPremoderated()) {
+    if (by.canCorrect() && section.isPremoderated()) {
       return true;
     }
 
     if (by.getId()==author.getId() && !message.isCommited()) {
-      return message.getSection().isPremoderated() || (System.currentTimeMillis() - message.getPostdate().getTime()) < EDIT_PERIOD;
+      return section.isPremoderated() || (System.currentTimeMillis() - message.getPostdate().getTime()) < EDIT_PERIOD;
     }
 
     return false;
+  }
+
+  public Section getSection() {
+    return section;
   }
 }
