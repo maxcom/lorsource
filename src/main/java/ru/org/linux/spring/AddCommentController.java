@@ -41,10 +41,16 @@ import java.util.Map;
 @Controller
 public class AddCommentController extends ApplicationObjectSupport {
   private SearchQueueSender searchQueueSender;
+  private CaptchaUtils captcha;
 
   @Autowired
   public void setSearchQueueSender(SearchQueueSender searchQueueSender) {
     this.searchQueueSender = searchQueueSender;
+  }
+
+  @Autowired
+  public void setCaptcha(CaptchaUtils captcha) {
+    this.captcha = captcha;
   }
 
   @RequestMapping(value = "/add_comment.jsp", method = RequestMethod.GET)
@@ -130,6 +136,12 @@ public class AddCommentController extends ApplicationObjectSupport {
     Errors errors,
     HttpServletRequest request
   ) throws Exception {
+    String title = HTMLFormatter.htmlSpecialChars(add.getTitle());
+
+    if (title.length() > Comment.TITLE_LENGTH) {
+      errors.rejectValue("title", null, "заголовок превышает " + Comment.TITLE_LENGTH + " символов");
+    }
+
     Map<String, Object> formParams = new HashMap<String, Object>();
 
     HttpSession session = request.getSession();
@@ -139,8 +151,6 @@ public class AddCommentController extends ApplicationObjectSupport {
     Template tmpl = Template.getTemplate(request);
 
     try {
-      String title = HTMLFormatter.htmlSpecialChars(add.getTitle());
-
       String msg = processMessage(add.getMsg(), add.getMode());
 
       // prechecks is over
@@ -166,7 +176,7 @@ public class AddCommentController extends ApplicationObjectSupport {
 
       if (!Template.isSessionAuthorized(session)) {
         if (request.getParameter("nick") == null) {
-          throw new BadInputException("Вы уже вышли из системы");
+          throw new AccessViolationException("Вы уже вышли из системы");
         }
         user = User.getUser(db, request.getParameter("nick"));
         user.checkPassword(request.getParameter("password"));
@@ -184,10 +194,6 @@ public class AddCommentController extends ApplicationObjectSupport {
 
       formParams.put("comment", new PreparedComment(db, comment, msg));
 
-      if (title.length() > Comment.TITLE_LENGTH) {
-        errors.rejectValue("title", null, "заголовок превышает " + Comment.TITLE_LENGTH + " символов");
-      }
-
       if ("".equals(msg)) {
         errors.rejectValue("msg", null, "комментарий не может быть пустым");
       }
@@ -198,7 +204,7 @@ public class AddCommentController extends ApplicationObjectSupport {
       }
 
       if (!add.isPreviewMode() && !Template.isSessionAuthorized(session)) {
-        CaptchaUtils.checkCaptcha(request);
+        captcha.checkCaptcha(request, errors);
       }
 
       if (user.isAnonymous()) {
@@ -232,11 +238,6 @@ public class AddCommentController extends ApplicationObjectSupport {
         String returnUrl = "jump-message.jsp?msgid=" + add.getTopic() + "&cid=" + msgid;
 
         return new ModelAndView(new RedirectView(returnUrl));
-      }
-    } catch (UserErrorException e) {
-      formParams.put("error", e);
-      if (db != null) {
-        db.rollback();
       }
     } catch (UserNotFoundException e) {
       formParams.put("error", e);
