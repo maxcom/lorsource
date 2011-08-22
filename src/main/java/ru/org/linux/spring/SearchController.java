@@ -275,30 +275,7 @@ public class SearchController {
       }
     });
 
-    binder.registerCustomEditor(User.class, new PropertyEditorSupport() {
-      @Override
-      public void setAsText(String s) throws IllegalArgumentException {
-        if (s.isEmpty()) {
-          setValue(null);
-          return;
-        }
-
-        try {
-          setValue(userDao.getUser(s));
-        } catch (UserNotFoundException e) {
-          throw new IllegalArgumentException(e);
-        }
-      }
-
-      @Override
-      public String getAsText() {
-        if (getValue() == null) {
-          return "";
-        }
-
-        return ((User) getValue()).getNick();
-      }
-    });
+    binder.registerCustomEditor(User.class, new UserPropertyEditor(userDao));
 
     binder.setBindingErrorProcessor(new DefaultBindingErrorProcessor() {
       @Override
@@ -316,4 +293,5 @@ public class SearchController {
       }
     });
   }
+
 }
