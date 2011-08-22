@@ -13,20 +13,19 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.site;
+package ru.org.linux.spring;
 
 import net.tanesha.recaptcha.ReCaptcha;
 import net.tanesha.recaptcha.ReCaptchaResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
-import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.servlet.support.RequestContextUtils;
+import ru.org.linux.site.BadInputException;
 
 import javax.servlet.ServletRequest;
 
 @Component
-public class CaptchaUtils {
+public class CaptchaService {
   private ReCaptcha captcha;
 
   @Autowired
@@ -34,11 +33,7 @@ public class CaptchaUtils {
     this.captcha = captcha;
   }
 
-  @Deprecated
-  public static void checkCaptcha(ServletRequest request) throws BadInputException {
-    WebApplicationContext ctx= RequestContextUtils.getWebApplicationContext(request);
-    ReCaptcha captcha = (ReCaptcha) ctx.getBean("reCaptcha");
-
+  public void checkCaptcha(ServletRequest request) throws BadInputException {
     String captchaChallenge = request.getParameter("recaptcha_challenge_field");
     String captchaResponse = request.getParameter("recaptcha_response_field");
 

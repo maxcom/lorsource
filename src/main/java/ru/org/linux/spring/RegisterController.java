@@ -30,6 +30,7 @@ import javax.servlet.http.HttpSession;
 
 import org.jasypt.util.password.BasicPasswordEncryptor;
 import org.jasypt.util.password.PasswordEncryptor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.ApplicationObjectSupport;
 import org.springframework.jdbc.support.JdbcUtils;
 import org.springframework.stereotype.Controller;
@@ -45,6 +46,13 @@ import ru.org.linux.util.*;
 @SuppressWarnings({"ProhibitedExceptionDeclared"})
 @Controller
 public class RegisterController extends ApplicationObjectSupport {
+  private CaptchaService captcha;
+
+  @Autowired
+  public void setCaptcha(CaptchaService captcha) {
+    this.captcha = captcha;
+  }
+
   @RequestMapping(value = "/register.jsp", method = RequestMethod.GET)
   public ModelAndView register(
     HttpServletRequest request
@@ -173,7 +181,7 @@ public class RegisterController extends ApplicationObjectSupport {
       }
 
       if (!changeMode) {
-        CaptchaUtils.checkCaptcha(request);
+        captcha.checkCaptcha(request);
 
         if (session.getAttribute("register-visited") == null) {
           logger.info("Flood protection (not visited register.jsp) " + request.getRemoteAddr());

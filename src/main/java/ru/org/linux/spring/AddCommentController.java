@@ -41,7 +41,7 @@ import java.util.Map;
 @Controller
 public class AddCommentController extends ApplicationObjectSupport {
   private SearchQueueSender searchQueueSender;
-  private CaptchaUtils captcha;
+  private CaptchaService captcha;
 
   @Autowired
   public void setSearchQueueSender(SearchQueueSender searchQueueSender) {
@@ -49,7 +49,7 @@ public class AddCommentController extends ApplicationObjectSupport {
   }
 
   @Autowired
-  public void setCaptcha(CaptchaUtils captcha) {
+  public void setCaptcha(CaptchaService captcha) {
     this.captcha = captcha;
   }
 
