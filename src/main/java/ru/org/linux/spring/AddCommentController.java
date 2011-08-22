@@ -160,7 +160,7 @@ public class AddCommentController extends ApplicationObjectSupport {
         errors.reject(null, "нельзя добавлять в удаленные темы");
       }
 
-      if (add.getReplyto() != null && add.getReplyto() > 0) {
+      if (add.getReplyto() > 0) {
         Comment onComment = new Comment(db, add.getReplyto());
 
         if (onComment.isDeleted()) {

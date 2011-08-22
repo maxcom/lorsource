@@ -36,8 +36,12 @@ public class AddCommentRequest {
     this.msg = msg;
   }
 
-  public Integer getReplyto() {
-    return replyto;
+  public int getReplyto() {
+    if (replyto!=null) {
+      return replyto;
+    } else {
+      return 0;
+    }
   }
 
   public void setReplyto(Integer replyto) {
