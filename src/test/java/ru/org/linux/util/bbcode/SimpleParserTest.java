@@ -1,7 +1,14 @@
 package ru.org.linux.util.bbcode;
 
 import junit.framework.Assert;
+import org.junit.Before;
 import org.junit.Test;
+import ru.org.linux.site.User;
+import ru.org.linux.site.UserNotFoundException;
+import ru.org.linux.spring.dao.UserDao;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Created by IntelliJ IDEA.
@@ -10,6 +17,30 @@ import org.junit.Test;
  * Time: 5:06 PM
  */
 public class SimpleParserTest {
+
+  private UserDao userDao;
+  private User maxcom; // Администратор
+  private User JB;     // Модератор
+  private User isden;  // Заблокированный пользователь
+
+  @Before
+  public void initTest() throws Exception{
+    maxcom = mock(User.class);
+    JB = mock(User.class);
+    isden = mock(User.class);
+
+    when(maxcom.isBlocked()).thenReturn(false);
+    when(JB.isBlocked()).thenReturn(false);
+    when(isden.isBlocked()).thenReturn(true);
+
+    userDao = mock(UserDao.class);
+    when(userDao.getUser("maxcom")).thenReturn(maxcom);
+    when(userDao.getUser("JB")).thenReturn(JB);
+    when(userDao.getUser("isden")).thenReturn(isden);
+    when(userDao.getUser("hizel")).thenThrow(new UserNotFoundException("hizel"));
+
+  }
+
 
   @Test
   public void brTest() {
@@ -153,6 +184,16 @@ public class SimpleParserTest {
   public void spacesTest() {
     Assert.assertEquals("<p>some text</p><p> some again text <a href=\"http://example.com\">example</a> example</p>",
         ParserUtil.bb2xhtml("some text\n\n some again text [url=http://example.com]example[/url] example"));
+  }
+
+  @Test
+  public void userTest() {
+    Assert.assertEquals("<p><span style=\"white-space: nowrap\"><img src=\"/img/tuxlor.png\"><a style=\"text-decoration: none\" href='/people/maxcom/profile'>maxcom</a></span></p>",
+        ParserUtil.bb2xhtml("[user]maxcom[/user]", true, true, "", userDao));
+    Assert.assertEquals("<p><span style=\"white-space: nowrap\"><img src=\"/img/tuxlor.png\"><s><a style=\"text-decoration: none\" href='/people/isden/profile'>isden</a></s></span></p>",
+        ParserUtil.bb2xhtml("[user]isden[/user]", true, true, "", userDao));
+    Assert.assertEquals("<p><s>hizel</s></p>",
+        ParserUtil.bb2xhtml("[user]hizel[/user]", true, true, "", userDao));
   }
 // TODO а как тестировать если базы нет :-(
 //    @Test
