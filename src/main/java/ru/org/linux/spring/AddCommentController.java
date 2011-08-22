@@ -24,6 +24,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.springframework.web.bind.annotation.ModelAttribute;
 import ru.org.linux.site.*;
 import ru.org.linux.util.HTMLFormatter;
 
@@ -124,25 +125,12 @@ public class AddCommentController extends ApplicationObjectSupport {
 
   @RequestMapping(value = "/add_comment.jsp", method = RequestMethod.POST)
   public ModelAndView addComment(
-    @RequestParam(value = "preview", required = false) String previewStr,
-    @RequestParam("mode") String mode,
-    @RequestParam("msg") String msg,
-    @RequestParam(value = "replyto", required = false) Integer replyToObject,
-    @RequestParam("title") String title,
-    @RequestParam("topic") int topicId,
+    @ModelAttribute("add") AddCommentRequest add,
     HttpServletRequest request
   ) throws Exception {
-    boolean preview = previewStr != null;
     Map<String, Object> formParams = new HashMap<String, Object>();
 
-    formParams.put("topic", topicId);
-    formParams.put("mode", mode);
-
     int replyto = 0;
-
-    if (replyToObject != null) {
-      replyto = replyToObject;
-    }
 
     HttpSession session = request.getSession();
 
@@ -151,28 +139,23 @@ public class AddCommentController extends ApplicationObjectSupport {
     Template tmpl = Template.getTemplate(request);
 
     try {
-      if (title == null) {
-        title = "";
-      }
+      String title = HTMLFormatter.htmlSpecialChars(add.getTitle());
 
-      title = HTMLFormatter.htmlSpecialChars(title);
-
-      msg = processMessage(msg, mode);
+      String msg = processMessage(add.getMsg(), add.getMode());
 
       // prechecks is over
       db = LorDataSource.getConnection();
       db.setAutoCommit(false);
       tmpl.updateCurrentUser(db);
 
-
-      Message topic = new Message(db, topicId);
+      Message topic = new Message(db, add.getTopic());
       formParams.put("postscore", topic.getPostScore());
 
-      createReplyTo(replyToObject, formParams, db);
+      createReplyTo(add.getReplyto(), formParams, db);
 
       checkTopic(topic);
 
-      if (!preview && !session.getId().equals(request.getParameter("session"))) {
+      if (!add.isPreviewMode() && !session.getId().equals(request.getParameter("session"))) {
         logger.info("Flood protection (session variable differs: " + session.getId() + ") " + request.getRemoteAddr());
         throw new BadInputException("сбой добавления");
       }
@@ -193,7 +176,7 @@ public class AddCommentController extends ApplicationObjectSupport {
 
       user.checkBlocked();
 
-      Comment comment = new Comment(replyto, title, topicId, 0, request.getHeader("user-agent"), request.getRemoteAddr());
+      Comment comment = new Comment(replyto, title, add.getTopic(), 0, request.getHeader("user-agent"), request.getRemoteAddr());
 
       comment.setAuthor(user.getId());
 
@@ -212,7 +195,7 @@ public class AddCommentController extends ApplicationObjectSupport {
         throw new BadInputException(error);
       }
 
-      if (!preview && !Template.isSessionAuthorized(session)) {
+      if (!add.isPreviewMode() && !Template.isSessionAuthorized(session)) {
         CaptchaUtils.checkCaptcha(request);
       }
 
@@ -232,14 +215,14 @@ public class AddCommentController extends ApplicationObjectSupport {
           throw new AccessViolationException("Комментарий был удален");
         }
 
-        if (reply.getTopic() != topicId) {
+        if (reply.getTopic() != add.getTopic()) {
           throw new AccessViolationException("Некорректная тема?!");
         }
       }
 
       topic.checkCommentsAllowed(user);
 
-      if (!preview) {
+      if (!add.isPreviewMode()) {
         DupeProtector.getInstance().checkDuplication(request.getRemoteAddr(), user.getScore() > 100);
 
         int msgid = comment.saveNewMessage(db, request.getRemoteAddr(), request.getHeader("user-agent"), msg);
@@ -255,7 +238,7 @@ public class AddCommentController extends ApplicationObjectSupport {
 
         searchQueueSender.updateComment(msgid);
 
-        String returnUrl = "jump-message.jsp?msgid=" + topicId + "&cid=" + msgid;
+        String returnUrl = "jump-message.jsp?msgid=" + add.getTopic() + "&cid=" + msgid;
 
         return new ModelAndView(new RedirectView(returnUrl));
       }

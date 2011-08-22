@@ -3,7 +3,6 @@
         import="ru.org.linux.site.PreparedComment,ru.org.linux.util.HTMLFormatter" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-
 <%--
   ~ Copyright 1998-2010 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,6 +17,9 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
+<%--@elvariable id="add" type="ru.org.linux.spring.AddCommentRequest"--%>
+<%--@elvariable id="onComment" type="ru.org.linux.site.PreparedComment"--%>
+<%--@elvariable id="comment" type="ru.org.linux.site.PreparedComment"--%>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
 <title>Добавить сообщение</title>
@@ -29,7 +31,7 @@
 Добавить комментарий
 </td>
   <td align=right>
-    [<a href="/view-message.jsp?msgid=${topic}">Читать комментарии</a>]
+    [<a href="/view-message.jsp?msgid=${add.topic}">Читать комментарии</a>]
   </td>
 </tr>
   </table>
@@ -52,29 +54,31 @@
 
       String title = "";
       Integer replyto = null;
+%>
+<c:if test="${onComment != null}">
+    <%
+        PreparedComment onComment = (PreparedComment) request.getAttribute("onComment");
 
-      PreparedComment onComment = (PreparedComment) request.getAttribute("onComment");
-
-      if (onComment != null) {
         replyto = onComment.getComment().getId();
 
-        if (onComment.getComment().getTitle().length()>0) {
-          title = onComment.getComment().getTitle();
-          if (!title.startsWith("Re:")) {
-            title = "Re: " + title;
-          }
+        if (onComment.getComment().getTitle().length() > 0) {
+            title = onComment.getComment().getTitle();
+            if (!title.startsWith("Re:")) {
+                title = "Re: " + title;
+            }
         }
-%>
-<div class=messages>
-  <lor:comment
-          showMenu="false"
-          comment="${onComment}"
-          comments="${null}"
-          expired="${false}" topic="${null}"/>
-</div>
-  <%
-      }
+    %>
 
+    <div class=messages>
+        <lor:comment
+                showMenu="false"
+                comment="${onComment}"
+                comments="${null}"
+                expired="${false}" topic="${null}"/>
+    </div>
+</c:if>
+
+<%
       if (request.getParameter("title") != null) {
         title = HTMLFormatter.htmlSpecialChars(request.getParameter("title"));
       }
@@ -93,11 +97,11 @@
 </c:if>
 
 <lor:commentForm
-        topicId="${topic}"
+        topicId="${add.topic}"
         title="<%= title %>"
         replyto="<%= replyto %>"
-        msg="<%=request.getParameter(&quot;msg&quot;)%>"
-        mode="${mode}"
+        msg="${add.msg}"
+        mode="${add.mode}"
         postscore="${postscore}"/>
 
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>

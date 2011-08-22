@@ -48,7 +48,7 @@
 
   <input type=hidden name=topic value="<%= topicId %>">
   <c:if test="${replyto != null}">
-    <input type=hidden name=replyto value="<%= replyto %>">    
+    <input type=hidden name=replyto value="<%= replyto %>">
   </c:if>
 
   <label for="title">Заглавие:</label>
