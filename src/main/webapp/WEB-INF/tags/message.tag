@@ -157,7 +157,7 @@
       <div class=reply>
         <c:if test="${not message.expired}">
           <% if (message.isCommentsAllowed(currentUser)) { %>
-          [<a href="comment-message.jsp?msgid=${message.id}">Ответить на это сообщение</a>]
+          [<a href="comment-message.jsp?topic=${message.id}">Ответить на это сообщение</a>]
           <% } %>
         </c:if>
 <%

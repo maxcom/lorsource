@@ -53,7 +53,7 @@ public class AddCommentController extends ApplicationObjectSupport {
   }
 
   @RequestMapping(value = "/add_comment.jsp", method = RequestMethod.GET)
-  public ModelAndView showForm(
+  public ModelAndView showFormReply(
     @ModelAttribute("add") AddCommentRequest add,
     Errors errors,
     ServletRequest request
@@ -76,6 +76,32 @@ public class AddCommentController extends ApplicationObjectSupport {
       return new ModelAndView("add_comment", params);
     } finally {
       if (db != null) {
+        db.close();
+      }
+    }
+  }
+
+  @RequestMapping("/comment-message.jsp")
+  public ModelAndView showFormTopic(
+    @ModelAttribute("add") AddCommentRequest add,
+    Errors errors
+  ) throws Exception {
+    Connection db = null;
+
+    try {
+      db = LorDataSource.getConnection();
+
+      HashMap<String, Object> params = new HashMap<String, Object>();
+
+      Message message = checkTopic(add, errors, params, db);
+
+      params.put("message", message);
+
+      params.put("preparedMessage", new PreparedMessage(db, message, true));
+
+      return new ModelAndView("comment-message", params);
+    } finally {
+      if (db!=null) {
         db.close();
       }
     }
@@ -219,7 +245,7 @@ public class AddCommentController extends ApplicationObjectSupport {
     return new ModelAndView("add_comment", formParams);
   }
 
-  private void checkAndCreateReplyto(AddCommentRequest add, Errors errors, Map<String, Object> formParams, Connection db, Message topic) throws SQLException, MessageNotFoundException, UserNotFoundException {
+  private static void checkAndCreateReplyto(AddCommentRequest add, Errors errors, Map<String, Object> formParams, Connection db, Message topic) throws SQLException, MessageNotFoundException, UserNotFoundException {
     if (add.getReplyto()!=null && add.getReplyto() > 0) {
       Comment onComment = new Comment(db, add.getReplyto());
 
@@ -234,7 +260,7 @@ public class AddCommentController extends ApplicationObjectSupport {
     }
   }
 
-  private Message checkTopic(AddCommentRequest add, Errors errors, Map<String, Object> formParams, Connection db) throws SQLException, MessageNotFoundException {
+  private static Message checkTopic(AddCommentRequest add, Errors errors, Map<String, Object> formParams, Connection db) throws SQLException, MessageNotFoundException {
     Message topic = new Message(db, add.getTopic());
 
     if (topic.isExpired()) {

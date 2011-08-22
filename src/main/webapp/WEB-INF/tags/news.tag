@@ -189,7 +189,7 @@
 </div>
 <div class="nav">
 <c:if test="${not moderateMode and not message.expired}">
-  [<a href="comment-message.jsp?msgid=${message.id}">Добавить&nbsp;комментарий</a>]
+  [<a href="comment-message.jsp?topic=${message.id}">Добавить&nbsp;комментарий</a>]
 </c:if>
   <c:if test="${moderateMode and template.sessionAuthorized}">
     <c:if test="${template.moderatorSession}">
