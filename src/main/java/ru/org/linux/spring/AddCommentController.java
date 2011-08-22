@@ -24,7 +24,6 @@ import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.site.*;
@@ -34,6 +33,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -55,10 +55,9 @@ public class AddCommentController extends ApplicationObjectSupport {
   @RequestMapping(value = "/add_comment.jsp", method = RequestMethod.GET)
   public ModelAndView showForm(
     @ModelAttribute("add") AddCommentRequest add,
+    Errors errors,
     ServletRequest request
   ) throws Exception {
-    Template tmpl = Template.getTemplate(request);
-
     Map<String, Object> params = new HashMap<String, Object>();
 
     Connection db = null;
@@ -66,27 +65,12 @@ public class AddCommentController extends ApplicationObjectSupport {
     try {
       db = LorDataSource.getConnection();
 
-      Message topic = new Message(db, add.getTopic());
+      Message topic = checkTopic(add, errors, params, db);
 
-      if (topic.isExpired()) {
-        throw new AccessViolationException("нельзя добавлять в устаревшие темы");
-      }
+      checkAndCreateReplyto(add, errors, params, db, topic);
 
-      if (topic.isDeleted()) {
-        throw new AccessViolationException("нельзя добавлять в удаленные темы");
-      }
-
-      params.put("postscore", topic.getPostScore());
-
-      if (add.getReplyto() != null && add.getReplyto() >0) {
-        Comment onComment = new Comment(db, add.getReplyto());
-        if (onComment.isDeleted()) {
-          throw new AccessViolationException("нельзя комментировать удаленные комментарии");
-        }
-        if (onComment.getTopic() != topic.getId()) {
-          throw new AccessViolationException("Некорректная тема?!");
-        }
-        params.put("onComment", PreparedComment.prepare(db, null, onComment));
+      if (errors.hasGlobalErrors()) {
+        throw new UserErrorException(errors.getGlobalError().getDefaultMessage());
       }
 
       return new ModelAndView("add_comment", params);
@@ -146,29 +130,9 @@ public class AddCommentController extends ApplicationObjectSupport {
       db.setAutoCommit(false);
       tmpl.updateCurrentUser(db);
 
-      Message topic = new Message(db, add.getTopic());
-      formParams.put("postscore", topic.getPostScore());
+      Message topic = checkTopic(add, errors, formParams, db);
 
-      if (topic.isExpired()) {
-        errors.reject(null, "нельзя добавлять в устаревшие темы");
-      }
-
-      if (topic.isDeleted()) {
-        errors.reject(null, "нельзя добавлять в удаленные темы");
-      }
-
-      if (add.getReplyto()!=null && add.getReplyto() > 0) {
-        Comment onComment = new Comment(db, add.getReplyto());
-
-        if (onComment.isDeleted()) {
-          errors.reject(null, "нельзя комментировать удаленные комментарии");
-        }
-        if (onComment.getTopic() != topic.getId()) {
-          errors.reject(null, "Некорректная тема?!");
-        }
-
-        formParams.put("onComment", PreparedComment.prepare(db, null, onComment));
-      }
+      checkAndCreateReplyto(add, errors, formParams, db, topic);
 
       if (!add.isPreviewMode() && !session.getId().equals(request.getParameter("session"))) {
         logger.info("Flood protection (session variable differs: " + session.getId() + ") " + request.getRemoteAddr());
@@ -253,5 +217,36 @@ public class AddCommentController extends ApplicationObjectSupport {
     }
 
     return new ModelAndView("add_comment", formParams);
+  }
+
+  private void checkAndCreateReplyto(AddCommentRequest add, Errors errors, Map<String, Object> formParams, Connection db, Message topic) throws SQLException, MessageNotFoundException, UserNotFoundException {
+    if (add.getReplyto()!=null && add.getReplyto() > 0) {
+      Comment onComment = new Comment(db, add.getReplyto());
+
+      if (onComment.isDeleted()) {
+        errors.reject(null, "нельзя комментировать удаленные комментарии");
+      }
+      if (onComment.getTopic() != topic.getId()) {
+        errors.reject(null, "Некорректная тема?!");
+      }
+
+      formParams.put("onComment", PreparedComment.prepare(db, null, onComment));
+    }
+  }
+
+  private Message checkTopic(AddCommentRequest add, Errors errors, Map<String, Object> formParams, Connection db) throws SQLException, MessageNotFoundException {
+    Message topic = new Message(db, add.getTopic());
+
+    if (topic.isExpired()) {
+      errors.reject(null, "нельзя добавлять в устаревшие темы");
+    }
+
+    if (topic.isDeleted()) {
+      errors.reject(null, "нельзя добавлять в удаленные темы");
+    }
+
+    formParams.put("postscore", topic.getPostScore());
+
+    return topic;
   }
 }
