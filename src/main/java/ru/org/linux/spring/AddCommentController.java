@@ -24,6 +24,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import ru.org.linux.site.*;
 import ru.org.linux.util.HTMLFormatter;
@@ -71,7 +72,7 @@ public class AddCommentController extends ApplicationObjectSupport {
 
       params.put("postscore", topic.getPostScore());
 
-      createReplyTo(replyTo, params, db);
+      createReplyTo(topic, replyTo, params, db);
 
       return new ModelAndView("add_comment", params);
     } finally {
@@ -91,13 +92,16 @@ public class AddCommentController extends ApplicationObjectSupport {
     }
   }
 
-  private static void createReplyTo(Integer replyTo, Map<String, Object> params, Connection db) throws SQLException, MessageNotFoundException, AccessViolationException, UserNotFoundException {
+  private static void createReplyTo(Message topic, Integer replyTo, Map<String, Object> params, Connection db) throws SQLException, MessageNotFoundException, AccessViolationException, UserNotFoundException {
     if (replyTo != null && replyTo>0) {
       Comment onComment = new Comment(db, replyTo);
-      params.put("onComment", PreparedComment.prepare(db, null, onComment));
       if (onComment.isDeleted()) {
         throw new AccessViolationException("нельзя комментировать удаленные комментарии");
       }
+      if (onComment.getTopic() != topic.getId()) {
+        throw new AccessViolationException("Некорректная тема?!");
+      }
+      params.put("onComment", PreparedComment.prepare(db, null, onComment));
     }
   }
 
@@ -126,11 +130,10 @@ public class AddCommentController extends ApplicationObjectSupport {
   @RequestMapping(value = "/add_comment.jsp", method = RequestMethod.POST)
   public ModelAndView addComment(
     @ModelAttribute("add") AddCommentRequest add,
+    Errors errors,
     HttpServletRequest request
   ) throws Exception {
     Map<String, Object> formParams = new HashMap<String, Object>();
-
-    int replyto = 0;
 
     HttpSession session = request.getSession();
 
@@ -151,13 +154,13 @@ public class AddCommentController extends ApplicationObjectSupport {
       Message topic = new Message(db, add.getTopic());
       formParams.put("postscore", topic.getPostScore());
 
-      createReplyTo(add.getReplyto(), formParams, db);
+      createReplyTo(topic, add.getReplyto(), formParams, db);
 
       checkTopic(topic);
 
       if (!add.isPreviewMode() && !session.getId().equals(request.getParameter("session"))) {
         logger.info("Flood protection (session variable differs: " + session.getId() + ") " + request.getRemoteAddr());
-        throw new BadInputException("сбой добавления");
+        errors.reject(null, "сбой добавления");
       }
 
       IPBlockInfo.checkBlockIP(db, request.getRemoteAddr());
@@ -176,6 +179,8 @@ public class AddCommentController extends ApplicationObjectSupport {
 
       user.checkBlocked();
 
+      int replyto = 0;
+
       Comment comment = new Comment(replyto, title, add.getTopic(), 0, request.getHeader("user-agent"), request.getRemoteAddr());
 
       comment.setAuthor(user.getId());
@@ -183,16 +188,16 @@ public class AddCommentController extends ApplicationObjectSupport {
       formParams.put("comment", new PreparedComment(db, comment, msg));
 
       if (title.length() > Comment.TITLE_LENGTH) {
-        throw new BadInputException("заголовок превышает " + Comment.TITLE_LENGTH + " символов");
+        errors.rejectValue("title", null, "заголовок превышает " + Comment.TITLE_LENGTH + " символов");
       }
 
       if ("".equals(msg)) {
-        throw new BadInputException("комментарий не может быть пустым");
+        errors.rejectValue("msg", null, "комментарий не может быть пустым");
       }
 
       String error = Verifier.checkCharacterData(msg);
       if (error!=null) {
-        throw new BadInputException(error);
+        errors.rejectValue("msg", null, error);
       }
 
       if (!add.isPreviewMode() && !Template.isSessionAuthorized(session)) {
@@ -201,28 +206,17 @@ public class AddCommentController extends ApplicationObjectSupport {
 
       if (user.isAnonymous()) {
         if (msg.length() > 4096) {
-          throw new BadInputException("Слишком большое сообщение");
+          errors.rejectValue("msg", "Слишком большое сообщение");
         }
       } else {
         if (msg.length() > 8192) {
-          throw new BadInputException("Слишком большое сообщение");
-        }
-      }
-
-      if (replyto != 0) {
-        Comment reply = new Comment(db, replyto);
-        if (reply.isDeleted()) {
-          throw new AccessViolationException("Комментарий был удален");
-        }
-
-        if (reply.getTopic() != add.getTopic()) {
-          throw new AccessViolationException("Некорректная тема?!");
+          errors.rejectValue("msg", "Слишком большое сообщение");
         }
       }
 
       topic.checkCommentsAllowed(user);
 
-      if (!add.isPreviewMode()) {
+      if (!add.isPreviewMode() && !errors.hasErrors()) {
         DupeProtector.getInstance().checkDuplication(request.getRemoteAddr(), user.getScore() > 100);
 
         int msgid = comment.saveNewMessage(db, request.getRemoteAddr(), request.getHeader("user-agent"), msg);

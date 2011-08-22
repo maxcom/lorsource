@@ -3,6 +3,7 @@
         import="ru.org.linux.site.PreparedComment,ru.org.linux.util.HTMLFormatter" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%--
   ~ Copyright 1998-2010 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -49,12 +50,10 @@
   <a href="rules.jsp">правилами</a> сайта.</font>
 
 <p>
-
   <%
-
-      String title = "";
       Integer replyto = null;
-%>
+      String title = "";
+  %>
 <c:if test="${onComment != null}">
     <%
         PreparedComment onComment = (PreparedComment) request.getAttribute("onComment");
@@ -89,6 +88,10 @@
     <lor:comment showMenu="false" comment="${comment}" comments="${null}" expired="${false}" topic="${null}"/>
   </div>
 </c:if>
+
+<form:form modelAttribute="add">
+    <form:errors path="*" cssClass="error" element="div" />
+</form:form>
 
 <c:if test="${error!=null}">
   <div class="error">
