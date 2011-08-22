@@ -1,7 +1,7 @@
 package ru.org.linux.spring.dao;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.IncorrectResultSizeDataAccessException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -42,7 +42,7 @@ public class GroupDao {
               },
               id
       );
-    } catch (IncorrectResultSizeDataAccessException ex) {
+    } catch (EmptyResultDataAccessException ex) {
       throw new BadGroupException("Группа " + id + " не существует", ex);
     }
   }
