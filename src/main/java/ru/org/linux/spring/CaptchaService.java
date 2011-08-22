@@ -53,14 +53,14 @@ public class CaptchaService {
     String captchaResponse = request.getParameter("recaptcha_response_field");
 
     if (captchaChallenge==null || captchaResponse==null) {
-      errors.rejectValue(null, "Код проверки не указан");
+      errors.reject(null, "Код проверки не указан");
       return;
     }
 
     ReCaptchaResponse response = captcha.checkAnswer(request.getRemoteAddr(), captchaChallenge, captchaResponse);
 
     if (!response.isValid()) {
-      errors.rejectValue(null, "Код проверки не совпадает");
+      errors.reject(null, "Код проверки не совпадает");
     }
   }
 }
