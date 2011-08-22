@@ -32,7 +32,7 @@
   Template tmpl = Template.getTemplate(request);
 %>
 
-<form method=POST action="add_comment.jsp" id="commentForm">
+<form method="POST" action="add_comment.jsp" id="commentForm">
   <input type="hidden" name="session"
          value="<%= HTMLFormatter.htmlSpecialChars(session.getId()) %>">
   <% if (!Template.isSessionAuthorized(session)) { %>
