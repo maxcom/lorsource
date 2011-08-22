@@ -54,22 +54,19 @@ public class AddCommentController extends ApplicationObjectSupport {
 
   @RequestMapping(value = "/add_comment.jsp", method = RequestMethod.GET)
   public ModelAndView showForm(
-    @RequestParam("topic") int topicId,
-    @RequestParam(value = "replyto", required = false) Integer replyTo,
+    @ModelAttribute("add") AddCommentRequest add,
     ServletRequest request
   ) throws Exception {
     Template tmpl = Template.getTemplate(request);
 
     Map<String, Object> params = new HashMap<String, Object>();
-    params.put("topic", topicId);
-    params.put("mode", tmpl.getFormatMode());
 
     Connection db = null;
 
     try {
       db = LorDataSource.getConnection();
 
-      Message topic = new Message(db, topicId);
+      Message topic = new Message(db, add.getTopic());
 
       if (topic.isExpired()) {
         throw new AccessViolationException("нельзя добавлять в устаревшие темы");
@@ -81,8 +78,8 @@ public class AddCommentController extends ApplicationObjectSupport {
 
       params.put("postscore", topic.getPostScore());
 
-      if (replyTo != null && replyTo >0) {
-        Comment onComment = new Comment(db, replyTo);
+      if (add.getReplyto() != null && add.getReplyto() >0) {
+        Comment onComment = new Comment(db, add.getReplyto());
         if (onComment.isDeleted()) {
           throw new AccessViolationException("нельзя комментировать удаленные комментарии");
         }
