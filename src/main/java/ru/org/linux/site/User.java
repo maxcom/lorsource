@@ -22,6 +22,7 @@ import org.jasypt.util.password.PasswordEncryptor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 import org.springframework.jdbc.support.JdbcUtils;
+import org.springframework.validation.Errors;
 import ru.org.linux.spring.LoginController;
 import ru.org.linux.spring.dao.UserDao;
 import ru.org.linux.util.StringUtil;
@@ -132,18 +133,23 @@ public class User implements Serializable {
 
   public void checkBlocked() throws AccessViolationException {
     if (blocked) {
-      throw new AccessViolationException("Blocked user");
+      throw new AccessViolationException("Пользователь заблокирован");
     }
 
     if (!activated) {
-      throw new AccessViolationException("Not activated user");
+      throw new AccessViolationException("Пользователь не активирован");
     }
-
-//    if (anonymous) {
-//      throw new AccessViolationException("Anonymous user - disabled");
-//    }
   }
 
+  public void checkBlocked(Errors errors) {
+    if (blocked) {
+      errors.reject(null, "Пользователь заблокирован");
+    }
+
+    if (!activated) {
+      errors.reject(null, "Пользователь не активирован");
+    }
+  }
 
   public void checkCommit() throws AccessViolationException {
     if (anonymous || blocked) {
@@ -581,6 +587,14 @@ public class User implements Serializable {
       st.executeUpdate();
     } finally {
       JdbcUtils.closeStatement(st);
+    }
+  }
+
+  public static User getAnonymous(Connection db) {
+    try {
+      return getUser(db, 2);
+    } catch (UserNotFoundException e) {
+      throw new RuntimeException(e);
     }
   }
 }

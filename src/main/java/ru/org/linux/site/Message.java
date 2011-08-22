@@ -24,6 +24,7 @@ import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.jdbc.datasource.SingleConnectionDataSource;
+import org.springframework.validation.Errors;
 import ru.org.linux.spring.AddMessageForm;
 import ru.org.linux.util.*;
 import ru.org.linux.util.bbcode.ParserUtil;
@@ -702,19 +703,17 @@ public class Message implements Serializable {
     }
   }
 
-  public void checkCommentsAllowed(User user) throws AccessViolationException {
-    user.checkBlocked();
-
+  public void checkCommentsAllowed(User user, Errors errors) {
     if (deleted) {
-      throw new AccessViolationException("Нельзя добавлять комментарии к удаленному сообщению");
+      errors.reject(null, "Нельзя добавлять комментарии к удаленному сообщению");
     }
 
     if (expired) {
-      throw new AccessViolationException("Сообщение уже устарело");
+      errors.reject(null, "Сообщение уже устарело");
     }
 
     if (!isCommentsAllowed(user)) {
-      throw new AccessViolationException("Вы не можете добавлять комментарии в эту тему");
+      errors.reject(null, "Вы не можете добавлять комментарии в эту тему");
     }
   }
 

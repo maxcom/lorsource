@@ -34,7 +34,6 @@ import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -71,40 +70,33 @@ public class AddCommentController extends ApplicationObjectSupport {
       db = LorDataSource.getConnection();
 
       Message topic = new Message(db, topicId);
-      checkTopic(topic);
+
+      if (topic.isExpired()) {
+        throw new AccessViolationException("нельзя добавлять в устаревшие темы");
+      }
+
+      if (topic.isDeleted()) {
+        throw new AccessViolationException("нельзя добавлять в удаленные темы");
+      }
 
       params.put("postscore", topic.getPostScore());
 
-      createReplyTo(topic, replyTo, params, db);
+      if (replyTo != null && replyTo >0) {
+        Comment onComment = new Comment(db, replyTo);
+        if (onComment.isDeleted()) {
+          throw new AccessViolationException("нельзя комментировать удаленные комментарии");
+        }
+        if (onComment.getTopic() != topic.getId()) {
+          throw new AccessViolationException("Некорректная тема?!");
+        }
+        params.put("onComment", PreparedComment.prepare(db, null, onComment));
+      }
 
       return new ModelAndView("add_comment", params);
     } finally {
       if (db != null) {
         db.close();
       }
-    }
-  }
-
-  private static void checkTopic(Message topic) throws AccessViolationException {
-    if (topic.isExpired()) {
-      throw new AccessViolationException("нельзя добавлять в устаревшие темы");
-    }
-
-    if (topic.isDeleted()) {
-      throw new AccessViolationException("нельзя добавлять в удаленные темы");
-    }
-  }
-
-  private static void createReplyTo(Message topic, Integer replyTo, Map<String, Object> params, Connection db) throws SQLException, MessageNotFoundException, AccessViolationException, UserNotFoundException {
-    if (replyTo != null && replyTo>0) {
-      Comment onComment = new Comment(db, replyTo);
-      if (onComment.isDeleted()) {
-        throw new AccessViolationException("нельзя комментировать удаленные комментарии");
-      }
-      if (onComment.getTopic() != topic.getId()) {
-        throw new AccessViolationException("Некорректная тема?!");
-      }
-      params.put("onComment", PreparedComment.prepare(db, null, onComment));
     }
   }
 
@@ -137,6 +129,7 @@ public class AddCommentController extends ApplicationObjectSupport {
     HttpServletRequest request
   ) throws Exception {
     String title = HTMLFormatter.htmlSpecialChars(add.getTitle());
+    Template tmpl = Template.getTemplate(request);
 
     if (title.length() > Comment.TITLE_LENGTH) {
       errors.rejectValue("title", null, "заголовок превышает " + Comment.TITLE_LENGTH + " символов");
@@ -147,8 +140,6 @@ public class AddCommentController extends ApplicationObjectSupport {
     HttpSession session = request.getSession();
 
     Connection db = null;
-
-    Template tmpl = Template.getTemplate(request);
 
     try {
       String msg = processMessage(add.getMsg(), add.getMode());
@@ -161,9 +152,26 @@ public class AddCommentController extends ApplicationObjectSupport {
       Message topic = new Message(db, add.getTopic());
       formParams.put("postscore", topic.getPostScore());
 
-      createReplyTo(topic, add.getReplyto(), formParams, db);
+      if (topic.isExpired()) {
+        errors.reject(null, "нельзя добавлять в устаревшие темы");
+      }
 
-      checkTopic(topic);
+      if (topic.isDeleted()) {
+        errors.reject(null, "нельзя добавлять в удаленные темы");
+      }
+
+      if (add.getReplyto() != null && add.getReplyto() > 0) {
+        Comment onComment = new Comment(db, add.getReplyto());
+
+        if (onComment.isDeleted()) {
+          errors.reject(null, "нельзя комментировать удаленные комментарии");
+        }
+        if (onComment.getTopic() != topic.getId()) {
+          errors.reject(null, "Некорректная тема?!");
+        }
+
+        formParams.put("onComment", PreparedComment.prepare(db, null, onComment));
+      }
 
       if (!add.isPreviewMode() && !session.getId().equals(request.getParameter("session"))) {
         logger.info("Flood protection (session variable differs: " + session.getId() + ") " + request.getRemoteAddr());
@@ -178,17 +186,23 @@ public class AddCommentController extends ApplicationObjectSupport {
         if (request.getParameter("nick") == null) {
           throw new AccessViolationException("Вы уже вышли из системы");
         }
-        user = User.getUser(db, request.getParameter("nick"));
-        user.checkPassword(request.getParameter("password"));
+        try {
+          user = User.getUser(db, request.getParameter("nick"));
+          user.checkPassword(request.getParameter("password"));
+        } catch (UserNotFoundException ex) {
+          errors.rejectValue("nick", null, "Пользователь не найден");
+          user = User.getAnonymous(db);
+        } catch (BadPasswordException ex) {
+          errors.rejectValue("password", null, ex.getMessage());
+          user = User.getAnonymous(db);
+        }
       } else {
         user = tmpl.getCurrentUser();
       }
 
-      user.checkBlocked();
+      user.checkBlocked(errors);
 
-      int replyto = 0;
-
-      Comment comment = new Comment(replyto, title, add.getTopic(), 0, request.getHeader("user-agent"), request.getRemoteAddr());
+      Comment comment = new Comment(add.getReplyto(), title, add.getTopic(), 0, request.getHeader("user-agent"), request.getRemoteAddr());
 
       comment.setAuthor(user.getId());
 
@@ -209,15 +223,15 @@ public class AddCommentController extends ApplicationObjectSupport {
 
       if (user.isAnonymous()) {
         if (msg.length() > 4096) {
-          errors.rejectValue("msg", "Слишком большое сообщение");
+          errors.rejectValue("msg", null, "Слишком большое сообщение");
         }
       } else {
         if (msg.length() > 8192) {
-          errors.rejectValue("msg", "Слишком большое сообщение");
+          errors.rejectValue("msg", null, "Слишком большое сообщение");
         }
       }
 
-      topic.checkCommentsAllowed(user);
+      topic.checkCommentsAllowed(user, errors);
 
       if (!add.isPreviewMode() && !errors.hasErrors()) {
         DupeProtector.getInstance().checkDuplication(request.getRemoteAddr(), user.getScore() > 100);
@@ -238,11 +252,6 @@ public class AddCommentController extends ApplicationObjectSupport {
         String returnUrl = "jump-message.jsp?msgid=" + add.getTopic() + "&cid=" + msgid;
 
         return new ModelAndView(new RedirectView(returnUrl));
-      }
-    } catch (UserNotFoundException e) {
-      formParams.put("error", e);
-      if (db != null) {
-        db.rollback();
       }
     } finally {
       JdbcUtils.closeConnection(db);
