@@ -15,18 +15,27 @@
 
 package ru.org.linux.site;
 
-import javax.servlet.ServletRequest;
 import net.tanesha.recaptcha.ReCaptcha;
 import net.tanesha.recaptcha.ReCaptchaResponse;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.validation.Errors;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.support.RequestContextUtils;
 
+import javax.servlet.ServletRequest;
+
+@Component
 public class CaptchaUtils {
-  private CaptchaUtils() {
+  private ReCaptcha captcha;
+
+  @Autowired
+  public void setCaptcha(ReCaptcha captcha) {
+    this.captcha = captcha;
   }
 
+  @Deprecated
   public static void checkCaptcha(ServletRequest request) throws BadInputException {
-    // TODO find better way to get ReCaptcha from Spring
     WebApplicationContext ctx= RequestContextUtils.getWebApplicationContext(request);
     ReCaptcha captcha = (ReCaptcha) ctx.getBean("reCaptcha");
 
@@ -41,6 +50,22 @@ public class CaptchaUtils {
 
     if (!response.isValid()) {
       throw new BadInputException("Код проверки не совпадает");
+    }
+  }
+
+  public void checkCaptcha(ServletRequest request, Errors errors) {
+    String captchaChallenge = request.getParameter("recaptcha_challenge_field");
+    String captchaResponse = request.getParameter("recaptcha_response_field");
+
+    if (captchaChallenge==null || captchaResponse==null) {
+      errors.rejectValue(null, "Код проверки не указан");
+      return;
+    }
+
+    ReCaptchaResponse response = captcha.checkAnswer(request.getRemoteAddr(), captchaChallenge, captchaResponse);
+
+    if (!response.isValid()) {
+      errors.rejectValue(null, "Код проверки не совпадает");
     }
   }
 }
