@@ -85,11 +85,17 @@ public class Comment implements Serializable {
     }
   }
 
-  public Comment(int replyto, String title, int topic, int userid, String userAgent, String postIP) {
+  public Comment(Integer replyto, String title, int topic, int userid, String userAgent, String postIP) {
     msgid =0;
     this.title=title;
     this.topic=topic;
-    this.replyto=replyto;
+
+    if (replyto!=null) {
+      this.replyto=replyto;
+    } else {
+      this.replyto=0;
+    }
+
     deleted =false;
     postdate =new Timestamp(System.currentTimeMillis());
     this.userid=userid;
@@ -193,13 +199,5 @@ public class Comment implements Serializable {
         pstMsgbase.close();
       }
     }
-  }
-
-  public void setAuthor(int userid) {
-    if (msgid!=0) {
-      throw new IllegalArgumentException("cant change author to stored message");
-    }
-
-    this.userid = userid;
   }
 }

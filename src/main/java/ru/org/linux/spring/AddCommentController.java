@@ -160,7 +160,7 @@ public class AddCommentController extends ApplicationObjectSupport {
         errors.reject(null, "нельзя добавлять в удаленные темы");
       }
 
-      if (add.getReplyto() > 0) {
+      if (add.getReplyto()!=null && add.getReplyto() > 0) {
         Comment onComment = new Comment(db, add.getReplyto());
 
         if (onComment.isDeleted()) {
@@ -190,10 +190,10 @@ public class AddCommentController extends ApplicationObjectSupport {
           user = User.getUser(db, request.getParameter("nick"));
           user.checkPassword(request.getParameter("password"));
         } catch (UserNotFoundException ex) {
-          errors.rejectValue("nick", null, "Пользователь не найден");
+          errors.reject(null, "Пользователь не найден");
           user = User.getAnonymous(db);
         } catch (BadPasswordException ex) {
-          errors.rejectValue("password", null, ex.getMessage());
+          errors.reject(null, ex.getMessage());
           user = User.getAnonymous(db);
         }
       } else {
@@ -202,9 +202,7 @@ public class AddCommentController extends ApplicationObjectSupport {
 
       user.checkBlocked(errors);
 
-      Comment comment = new Comment(add.getReplyto(), title, add.getTopic(), 0, request.getHeader("user-agent"), request.getRemoteAddr());
-
-      comment.setAuthor(user.getId());
+      Comment comment = new Comment(add.getReplyto(), title, add.getTopic(), user.getId(), request.getHeader("user-agent"), request.getRemoteAddr());
 
       formParams.put("comment", new PreparedComment(db, comment, msg));
 
