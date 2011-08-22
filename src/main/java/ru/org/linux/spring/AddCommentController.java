@@ -15,37 +15,34 @@
 
 package ru.org.linux.spring;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.servlet.ServletRequest;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-
-import org.springframework.validation.Errors;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import ru.org.linux.site.*;
-import ru.org.linux.util.HTMLFormatter;
-
 import org.jdom.Verifier;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.support.ApplicationObjectSupport;
+import org.springframework.jdbc.support.JdbcUtils;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.Errors;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
+import ru.org.linux.site.*;
+import ru.org.linux.util.HTMLFormatter;
+
+import javax.servlet.ServletRequest;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 
 @Controller
 public class AddCommentController extends ApplicationObjectSupport {
   private SearchQueueSender searchQueueSender;
 
   @Autowired
-  @Required
   public void setSearchQueueSender(SearchQueueSender searchQueueSender) {
     this.searchQueueSender = searchQueueSender;
   }
@@ -240,18 +237,14 @@ public class AddCommentController extends ApplicationObjectSupport {
       formParams.put("error", e);
       if (db != null) {
         db.rollback();
-        db.setAutoCommit(true);
       }
     } catch (UserNotFoundException e) {
       formParams.put("error", e);
       if (db != null) {
         db.rollback();
-        db.setAutoCommit(true);
       }
     } finally {
-      if (db != null) {
-        db.close();
-      }
+      JdbcUtils.closeConnection(db);
     }
 
     return new ModelAndView("add_comment", formParams);
