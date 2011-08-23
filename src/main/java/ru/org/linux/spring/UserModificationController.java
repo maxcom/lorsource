@@ -19,6 +19,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.support.ApplicationObjectSupport;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -66,7 +68,7 @@ public class UserModificationController extends ApplicationObjectSupport {
   public ModelAndView modifyUser(
           HttpServletRequest request,
           @RequestParam("action") String action,
-          @RequestParam("id") int id,
+          @RequestParam("id") User user,
           @RequestParam(value = "reason", required = false) String reason
   ) throws Exception {
     Template tmpl = Template.getTemplate(request);
@@ -75,7 +77,6 @@ public class UserModificationController extends ApplicationObjectSupport {
       throw new AccessViolationException("Not moderator");
     }
 
-    User user = userDao.getUser(id);
     User moderator = tmpl.getCurrentUser();
 
     if ("block".equals(action)) { // Блокировка пользователя
@@ -85,7 +86,6 @@ public class UserModificationController extends ApplicationObjectSupport {
 
       userDao.blockWithResetPassword(user, moderator, reason);
       logger.info("User " + user.getNick() + " blocked by " + moderator.getNick());
-
     } else if ("block-n-delete-comments".equals(action)) { // Блокировка и массовое удаление
       if (!user.isBlockable() && !moderator.isAdministrator()) {
         throw new AccessViolationException("Пользователя " + user.getNick() + " нельзя заблокировать");
@@ -127,7 +127,7 @@ public class UserModificationController extends ApplicationObjectSupport {
   @RequestMapping(value="/remove-userpic.jsp", method= RequestMethod.POST)
   public ModelAndView removeUserpic(
     ServletRequest request,
-    @RequestParam("id") int id
+    @RequestParam("id") User user
   ) throws Exception {
     Template tmpl = Template.getTemplate(request);
 
@@ -135,8 +135,7 @@ public class UserModificationController extends ApplicationObjectSupport {
       throw new AccessViolationException("Not autorized");
     }
 
-    User user = userDao.getUser(id);
-    User currentUser = userDao.getUser(tmpl.getNick());
+    User currentUser = tmpl.getCurrentUser();
 
     if (!currentUser.canModerate() && currentUser.getId()!=user.getId()) {
       throw new AccessViolationException("Not permitted");
@@ -156,5 +155,10 @@ public class UserModificationController extends ApplicationObjectSupport {
     Random random = new Random();
 
     return new ModelAndView(new RedirectView("/people/" + URLEncoder.encode(user.getNick()) + "/profile?nocache=" + random.nextInt()));
+  }
+
+  @InitBinder
+  public void initBinder(WebDataBinder binder) {
+    binder.registerCustomEditor(User.class, new UserIdPropertyEditor(userDao));
   }
 }
