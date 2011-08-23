@@ -15,6 +15,9 @@
 
 package ru.org.linux.site;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -23,9 +26,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
+@Deprecated
 public class CommentDeleter {
   private static final Log logger = LogFactory.getLog(CommentDeleter.class);
 

@@ -15,21 +15,6 @@
 
 package ru.org.linux.spring;
 
-import java.net.URLEncoder;
-import java.sql.Connection;
-import java.sql.Statement;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-
-import javax.servlet.ServletRequest;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-
-import ru.org.linux.site.*;
-import ru.org.linux.util.HTMLFormatter;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.support.ApplicationObjectSupport;
@@ -39,15 +24,43 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
+import ru.org.linux.site.AccessViolationException;
+import ru.org.linux.site.Template;
+import ru.org.linux.site.User;
+import ru.org.linux.site.UserErrorException;
+import ru.org.linux.spring.dao.CommentDao;
+import ru.org.linux.spring.dao.UserDao;
+import ru.org.linux.util.HTMLFormatter;
+
+import javax.servlet.ServletRequest;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import java.net.URLEncoder;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
 
 @Controller
 public class UserModificationController extends ApplicationObjectSupport {
   private SearchQueueSender searchQueueSender;
+  private UserDao userDao;
+  private CommentDao commentDao;
 
   @Autowired
   @Required
   public void setSearchQueueSender(SearchQueueSender searchQueueSender) {
     this.searchQueueSender = searchQueueSender;
+  }
+
+  @Autowired
+  public void setCommentDao(CommentDao commentDao){
+    this.commentDao = commentDao;
+  }
+
+  @Autowired
+  public void setUserDao(UserDao userDao) {
+    this.userDao = userDao;
   }
 
   @RequestMapping(value="/usermod.jsp", method= RequestMethod.POST)
@@ -64,77 +77,53 @@ public class UserModificationController extends ApplicationObjectSupport {
       throw new AccessViolationException("Not moderator");
     }
 
-    Connection db = null;
+    User user = userDao.getUser(id);
+    User moderator = userDao.getUser(tmpl.getNick());
 
-    try {
-      db = LorDataSource.getConnection();
-      db.setAutoCommit(false);
-
-      Statement st = db.createStatement();
-
-      User user = User.getUser(db, id);
-
-      User moderator = User.getUser(db, tmpl.getNick());
-
-      if ("block".equals(action) || "block-n-delete-comments".equals(action)) {
-        if (!user.isBlockable() && !moderator.isAdministrator()) {
-          throw new AccessViolationException("Пользователя " + user.getNick() + " нельзя заблокировать");
-        }
-
-        user.block(db, moderator, reason);
-        user.resetPassword(db);
-        logger.info("User " + user.getNick() + " blocked by " + moderator.getNick());
-
-        if ("block-n-delete-comments".equals(action)) {
-          Map<String, Object> params = new HashMap<String, Object>();
-          params.put("message", "Удалено");
-          List<Integer> deleted = user.deleteAllComments(db, moderator);
-          params.put("bigMessage", deleted);
-          db.commit();
-          
-          searchQueueSender.updateComment(deleted);
-          return new ModelAndView("action-done", params);
-        }
-      } else if ("toggle_corrector".equals(action)) {
-        if (user.getScore()<User.CORRECTOR_SCORE) {
-          throw new AccessViolationException("Пользователя " + user.getNick() + " нельзя сделать корректором");
-        }
-
-        if (user.canCorrect()) {
-          st.executeUpdate("UPDATE users SET corrector='f' WHERE id=" + id);
-        } else {
-          st.executeUpdate("UPDATE users SET corrector='t' WHERE id=" + id);
-        }
-      } else if ("unblock".equals(action)) {
-        if (!user.isBlockable() && !moderator.isAdministrator()) {
-          throw new AccessViolationException("Пользователя " + user.getNick() + " нельзя разблокировать");
-        }
-
-        st.executeUpdate("UPDATE users SET blocked='f' WHERE id=" + id);
-        st.executeUpdate("DELETE FROM ban_info WHERE userid="+id);
-        logger.info("User " + user.getNick() + " unblocked by " + moderator.getNick());
-      } else if ("remove_userinfo".equals(action)) {
-        if (user.canModerate()) {
-          throw new AccessViolationException("Пользователю " + user.getNick() + " нельзя удалить сведения");
-        }
-
-        user.setUserinfo(db, null);
-        user.changeScore(db, -10);
-        logger.info("Clearing " + user.getNick() + " userinfo");
-      } else {
-        throw new UserErrorException("Invalid action=" + HTMLFormatter.htmlSpecialChars(action));
+    if ("block".equals(action)) { // Блокировка пользователя
+      if (!user.isBlockable() && !moderator.isAdministrator()) {
+        throw new AccessViolationException("Пользователя " + user.getNick() + " нельзя заблокировать");
       }
 
-      db.commit();
+      userDao.blockWithResetPassword(user, moderator, reason);
+      logger.info("User " + user.getNick() + " blocked by " + moderator.getNick());
 
-      Random random = new Random();
-
-      return new ModelAndView(new RedirectView("/people/" + URLEncoder.encode(user.getNick()) + "/profile?nocache=" + random.nextInt()));
-    } finally {
-      if (db != null) {
-        db.close();
+    } else if ("block-n-delete-comments".equals(action)) { // Блокировка и массовое удаление
+      if (!user.isBlockable() && !moderator.isAdministrator()) {
+        throw new AccessViolationException("Пользователя " + user.getNick() + " нельзя заблокировать");
       }
+
+      Map<String, Object> params = new HashMap<String, Object>();
+      params.put("message", "Удалено");
+      List<Integer> deleted = commentDao.deleteAllCommentsAndBlock(user, moderator, reason);
+      logger.info("User " + user.getNick() + " blocked by " + moderator.getNick());
+      params.put("bigMessage", deleted);
+      searchQueueSender.updateComment(deleted);
+      return new ModelAndView("action-done", params);
+    } else if ("toggle_corrector".equals(action)) { // Смена признака корректора
+      if (user.getScore()<User.CORRECTOR_SCORE) {
+        throw new AccessViolationException("Пользователя " + user.getNick() + " нельзя сделать корректором");
+      }
+      userDao.toggleCorrector(user);
+    } else if ("unblock".equals(action)) { // Разблокировка
+      if (!user.isBlockable() && !moderator.isAdministrator()) {
+        throw new AccessViolationException("Пользователя " + user.getNick() + " нельзя разблокировать");
+      }
+      userDao.unblock(user);
+      logger.info("User " + user.getNick() + " unblocked by " + moderator.getNick());
+    } else if ("remove_userinfo".equals(action)) { // Очистка дополнительной информации
+      if (user.canModerate()) {
+        throw new AccessViolationException("Пользователю " + user.getNick() + " нельзя удалить сведения");
+      }
+      userDao.removeUserInfo(user);
+      logger.info("Clearing " + user.getNick() + " userinfo");
+    } else {
+      throw new UserErrorException("Invalid action=" + HTMLFormatter.htmlSpecialChars(action));
     }
+
+    Random random = new Random();
+
+    return new ModelAndView(new RedirectView("/people/" + URLEncoder.encode(user.getNick()) + "/profile?nocache=" + random.nextInt()));
   }
 
   @RequestMapping(value="/remove-userpic.jsp", method= RequestMethod.POST)
@@ -148,47 +137,26 @@ public class UserModificationController extends ApplicationObjectSupport {
       throw new AccessViolationException("Not autorized");
     }
 
-    Connection db = null;
+    User user = userDao.getUser(id);
+    User currentUser = userDao.getUser(tmpl.getNick());
 
-    try {
-      db = LorDataSource.getConnection();
-      db.setAutoCommit(false);
-
-      Statement st = db.createStatement();
-
-      User user = User.getUser(db, id);
-
-      User currentUser = User.getUser(db, tmpl.getNick());
-
-      if (!currentUser.canModerate() && currentUser.getId()!=user.getId()) {
-        throw new AccessViolationException("Not permitted");
-      }
-
-      if (user.canModerate()) {
-        throw new AccessViolationException("Пользователю " + user.getNick() + " нельзя удалить картинку");
-      }
-
-      if (user.getPhoto() == null) {
-        throw new AccessViolationException("Пользователь " + user.getNick() + " картинки не имеет");
-      }
-
-      st.executeUpdate("UPDATE users SET photo=null WHERE id=" + id);
-
-      if (currentUser.canModerate() && currentUser.getId()!=user.getId()) {
-        user.changeScore(db, -10);
-      }
-
-      logger.info("Clearing " + user.getNick() + " userpic by " + currentUser.getNick());
-
-      db.commit();
-
-      Random random = new Random();
-
-      return new ModelAndView(new RedirectView("/people/" + URLEncoder.encode(user.getNick()) + "/profile?nocache=" + random.nextInt()));
-    } finally {
-      if (db != null) {
-        db.close();
-      }
+    if (!currentUser.canModerate() && currentUser.getId()!=user.getId()) {
+      throw new AccessViolationException("Not permitted");
     }
+
+    if (user.canModerate()) {
+      throw new AccessViolationException("Пользователю " + user.getNick() + " нельзя удалить картинку");
+    }
+
+    if (user.getPhoto() == null) {
+      throw new AccessViolationException("Пользователь " + user.getNick() + " картинки не имеет");
+    }
+
+    userDao.removePhoto(user, currentUser);
+    logger.info("Clearing " + user.getNick() + " userpic by " + currentUser.getNick());
+
+    Random random = new Random();
+
+    return new ModelAndView(new RedirectView("/people/" + URLEncoder.encode(user.getNick()) + "/profile?nocache=" + random.nextInt()));
   }
 }

@@ -3,10 +3,14 @@ package ru.org.linux.spring.dao;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
+import org.jasypt.util.password.BasicPasswordEncryptor;
+import org.jasypt.util.password.PasswordEncryptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import ru.org.linux.site.User;
 import ru.org.linux.site.UserNotFoundException;
 import ru.org.linux.util.StringUtil;
@@ -18,11 +22,11 @@ import java.util.List;
 
 @Repository
 public class UserDao {
-  private final JdbcTemplate jdbcTemplate;
+  private JdbcTemplate jdbcTemplate;
 
   @Autowired
-  public UserDao(DataSource dataSource) {
-    jdbcTemplate = new JdbcTemplate(dataSource);
+  public void setJdbcTemplate(DataSource dataSource) {
+    this.jdbcTemplate = new JdbcTemplate(dataSource);
   }
 
   @Deprecated
@@ -130,5 +134,156 @@ public class UserDao {
     }
 
     return res;
+  }
+
+  public String getUserInfo(User user) {
+    return jdbcTemplate.queryForObject("SELECT userinfo FROM users where id=?",
+        new Object[] {user.getId()}, String.class);
+  }
+
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
+  public void removeUserInfo(User user) {
+    String userInfo = getUserInfo(user);
+    if(userInfo == null || userInfo.trim().isEmpty()) return;
+    setUserInfo(user, null);
+    changeScore(user, -10);
+  }
+
+  /**
+   * Отчистка userpicture пользователя, с обрезанием шкворца если удляет моедратор
+   * @param user пользовтель у которого чистят
+   * @param cleaner пользователь который чистит
+   */
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
+  public void removePhoto(User user, User cleaner) {
+    setPhoto(user, null);
+    if(cleaner.canModerate() && cleaner.getId() != user.getId()){
+      changeScore(user, -10);
+    }
+  }
+
+  /**
+   * Обновление userpic-а пользовтаеля
+   * @param user пользователь
+   * @param photo userpick
+   */
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
+  public void setPhoto(User user, String photo){
+    jdbcTemplate.update("UPDATE users SET photo=? WHERE id=?", photo, user.getId());
+  }
+
+  /**
+   * Обновление дополнительной информации пользователя
+   * @param user пользователь
+   * @param text текст дополнительной информации
+   */
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
+  public void setUserInfo(User user, String text){
+    jdbcTemplate.update("UPDATE users SET userinfo=? where id=?", text, user.getId());
+  }
+
+  /**
+   * Изменение шкворца пользовтаеля, принимает отрицательные и положительные значения
+   * не накладывает никаких ограничений на параметры
+   * @param user пользователь
+   * @param delta дельта на которую меняется шкворец
+   */
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
+  public void changeScore(User user, int delta) {
+    jdbcTemplate.update("UPDATE users SET score=score+? WHERE id=?", delta, user.getId());
+  }
+
+  /**
+   * Смена признака корректора для пользователя
+   * @param user пользователь у которого меняется признак корректора
+   */
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
+  public void toggleCorrector(User user){
+    if(user.canCorrect()){
+      jdbcTemplate.update("UPDATE users SET corrector='f' WHERE id=?", user.getId());
+    }else{
+      jdbcTemplate.update("UPDATE users SET corrector='t' WHERE id=?", user.getId());
+    }
+  }
+
+  /**
+   * Смена пароля пользователю
+   * @param user пользователь которому меняется пароль
+   * @param password пароль в открытом виде
+   */
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
+  public void setPassword(User user, String password){
+    setPasswordWithoutTransaction(user, password);
+  }
+
+  public void setPasswordWithoutTransaction(User user, String password) {
+    PasswordEncryptor encryptor = new BasicPasswordEncryptor();
+    String encryptedPassword = encryptor.encryptPassword(password);
+    jdbcTemplate.update("UPDATE users SET passwd=?, lostpwd = 'epoch' WHERE id=?",
+        encryptedPassword, user.getId());
+  }
+
+  /**
+   * Сброс пороля на случайный
+   * @param user пользователь которому сбрасывается пароль
+   * @return новый пароь в открытом виде
+   */
+  public String resetPassword(User user){
+    String password = StringUtil.generatePassword();
+    setPassword(user, password);
+    return password;
+  }
+
+  public String resetPasswordWithoutTransaction(User user) {
+    String password = StringUtil.generatePassword();
+    setPasswordWithoutTransaction(user, password);
+    return password;
+  }
+
+  /**
+   * Блокирование пользователя без транзакации(используется в CommentDao для массового удаления с блокировкой)
+   * @param user пользователь которого блокируем
+   * @param moderator моджератор который блокирует
+   * @param reason причина блокировки
+   * @throws UserNotFoundException если пользовтаеля нет, генерируем это исклюучение
+   */
+  public void blockWithoutTransaction(User user, User moderator, String reason) throws UserNotFoundException {
+    jdbcTemplate.update("UPDATE users SET blocked='t' WHERE id=?", user.getId());
+    jdbcTemplate.update("INSERT INTO ban_info (userid, reason, ban_by) VALUES (?, ?, ?)",
+        user.getId(), reason, moderator.getId());
+    // Update cache
+    getUser(user.getId());
+  }
+
+  /**
+   * Блокировка пользователя и сброс пароля одной транзикацией
+   * @param user блокируемый пользователь
+   * @param moderator модератор который блокирует пользователя
+   * @param reason причина блокировки
+   * @throws UserNotFoundException исключение, если отсутстсвует пользователь
+   */
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
+  public void blockWithResetPassword(User user, User moderator, String reason) throws UserNotFoundException {
+
+    jdbcTemplate.update("UPDATE users SET blocked='t' WHERE id=?", user.getId());
+    jdbcTemplate.update("INSERT INTO ban_info (userid, reason, ban_by) VALUES (?, ?, ?)",
+        user.getId(), reason, moderator.getId());
+    PasswordEncryptor encryptor = new BasicPasswordEncryptor();
+    String password = encryptor.encryptPassword(StringUtil.generatePassword());
+    jdbcTemplate.update("UPDATE users SET passwd=?, lostpwd = 'epoch' WHERE id=?",
+        password, user.getId());
+    // Update cache
+    getUser(user.getId());
+  }
+
+
+  /**
+   * Разблокировка пользователя
+   * @param user разблокируемый пользователь
+   */
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
+  public void unblock(User user){
+    jdbcTemplate.update("UPDATE users SET blocked='f' WHERE id=?", user.getId());
+    jdbcTemplate.update("DELETE FROM ban_info WHERE userid=?", user.getId());
   }
 }

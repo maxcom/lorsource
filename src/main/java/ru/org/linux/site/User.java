@@ -33,8 +33,6 @@ import javax.servlet.http.HttpSession;
 import java.io.Serializable;
 import java.net.URLEncoder;
 import java.sql.*;
-import java.util.LinkedList;
-import java.util.List;
 
 public class User implements Serializable {
   private static final int ANONYMOUS_LEVEL_SCORE = 50;
@@ -307,27 +305,7 @@ public class User implements Serializable {
     return photo;
   }
 
-  public void block(Connection db, User by, String reason) throws SQLException {
-    Statement st = null;
-    PreparedStatement pst = null;
-
-    try {
-      st = db.createStatement();
-      st.executeUpdate("UPDATE users SET blocked='t' WHERE id=" + id);
-
-      pst = db.prepareStatement("INSERT INTO ban_info (userid, reason, ban_by) VALUES (?, ?, ?)");
-      pst.setInt(1, id);
-      pst.setString(2, reason);
-      pst.setInt(3, by.getId());
-      pst.executeUpdate();
-
-      updateCache(db);
-    } finally {
-      JdbcUtils.closeStatement(st);
-      JdbcUtils.closeStatement(pst);
-    }
-  }
-
+  @Deprecated
   public String resetPassword(Connection db) throws SQLException {
     String password = StringUtil.generatePassword();
 
@@ -336,6 +314,7 @@ public class User implements Serializable {
     return password;
   }
 
+  @Deprecated
   public void setPassword(Connection db, String password) throws SQLException {
     PasswordEncryptor encryptor = new BasicPasswordEncryptor();
 
@@ -355,66 +334,6 @@ public class User implements Serializable {
         st.close();
       }
     }
-  }
-
-  public List<Integer> deleteAllComments(Connection db, User moderator) throws SQLException, ScriptErrorException {
-    Statement st = null;
-    ResultSet rs = null;
-    CommentDeleter deleter = null;
-    List<Integer> deleted = new LinkedList<Integer>();
-
-    try {
-      // Delete user topics
-      PreparedStatement lock = db.prepareStatement("SELECT id FROM topics WHERE userid=? AND not deleted FOR UPDATE");
-      PreparedStatement st1 = db.prepareStatement("UPDATE topics SET deleted='t',sticky='f' WHERE id=?");
-      PreparedStatement st2 = db.prepareStatement("INSERT INTO del_info (msgid, delby, reason, deldate) values(?,?,?, CURRENT_TIMESTAMP)");
-      lock.setInt(1, id);
-      st2.setInt(2, moderator.getId());
-      st2.setString(3, "Блокировка пользователя с удалением сообщений");
-      ResultSet lockResult = lock.executeQuery(); // lock another delete on this row
-      while (lockResult.next()) {
-        int mid = lockResult.getInt("id");
-        st1.setInt(1,mid);
-        st2.setInt(1,mid);
-        st1.executeUpdate();
-        st2.executeUpdate();
-      }
-      st1.close();
-      st2.close();
-      lockResult.close();
-      lock.close();
-
-      // Delete user comments
-      deleter = new CommentDeleter(db);
-
-      st = db.createStatement();
-
-      rs = st.executeQuery("SELECT id FROM comments WHERE userid="+id+" AND not deleted ORDER BY id DESC FOR update");
-
-      while(rs.next()) {
-        int msgid = rs.getInt("id");
-
-        deleted.add(msgid);
-
-        deleted.addAll(deleter.deleteReplys(msgid, moderator, false));
-        
-        deleter.deleteComment(msgid, "Блокировка пользователя с удалением сообщений", moderator, 0);
-      }
-    } finally {
-      if (deleter!=null) {
-        deleter.close();
-      }
-
-      if (rs!=null) {
-        rs.close();
-      }
-
-      if (st!=null) {
-        st.close();
-      }
-    }
-
-    return deleted;
   }
 
   @Deprecated
@@ -480,7 +399,7 @@ public class User implements Serializable {
       throw new RuntimeException(e);
     }
   }
-
+  @Deprecated
   public void changeScore(Connection db, int delta) throws SQLException {
     PreparedStatement st = null;
     try {
@@ -555,6 +474,7 @@ public class User implements Serializable {
     }
   }
 
+  @Deprecated
   public void setUserinfo(Connection db, String text) throws SQLException {
     PreparedStatement st = db.prepareStatement("UPDATE users SET userinfo=? where id=?");
     st.setString(1, text);
@@ -563,6 +483,7 @@ public class User implements Serializable {
     st.executeUpdate();
   }
 
+  @Deprecated
   public static void setUserinfo(Connection db, int id, String text) throws SQLException {
     PreparedStatement st = db.prepareStatement("UPDATE users SET userinfo=? where id=?");
     st.setString(1, text);
