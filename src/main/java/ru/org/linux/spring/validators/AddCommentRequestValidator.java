@@ -36,7 +36,7 @@ public class AddCommentRequestValidator implements Validator {
     Message topic = add.getTopic();
 
     if (topic == null) {
-      errors.reject(null, "тема не задана");
+      errors.rejectValue("topic", null, "тема не задана");
     } else {
       if (topic.isExpired()) {
         errors.reject(null, "нельзя добавлять в устаревшие темы");

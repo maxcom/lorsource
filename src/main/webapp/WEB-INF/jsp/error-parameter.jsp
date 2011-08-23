@@ -1,6 +1,8 @@
+<%@ taglib prefix="c" uri="http://java.sun.com/jstl/core" %>
 <%@ page contentType="text/html; charset=utf-8"%>
 <%@ page import="ru.org.linux.util.HTMLFormatter,org.apache.commons.logging.Log" isErrorPage="true" %>
 <%@ page import="org.apache.commons.logging.LogFactory"%>
+<%@ page import="org.springframework.validation.BindException" %>
 <%--
   ~ Copyright 1998-2010 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,7 +31,23 @@
 
 <title>Ошибка: <%= HTMLFormatter.htmlSpecialChars(exception.getClass().getName()) %></title>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
-<h1><%=exception.getMessage()==null?HTMLFormatter.htmlSpecialChars(exception.getClass().getName()):HTMLFormatter.htmlSpecialChars(exception.getMessage()) %></h1>
+<h1>
+    <%
+        String message = exception.getMessage()==null?exception.getClass().getName():exception.getMessage();
+
+        if (exception instanceof org.springframework.validation.BindException) {
+            org.springframework.validation.BindException b = (org.springframework.validation.BindException) exception;
+
+            if (b.hasGlobalErrors()) {
+                message = b.getGlobalError().getDefaultMessage();
+            } else if (b.hasFieldErrors()) {
+                message = b.getFieldError().getDefaultMessage();
+            }
+        }
+
+        out.print(HTMLFormatter.htmlSpecialChars(message));
+    %>
+</h1>
 
 Скрипту, генерирующему страничку были переданы некорректные
 параметры. Если на эту страничку вас привела одна из
