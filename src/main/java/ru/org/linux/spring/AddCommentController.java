@@ -108,8 +108,6 @@ public class AddCommentController extends ApplicationObjectSupport {
 
       Message message = checkTopic(add, errors, params, db);
 
-      params.put("message", message);
-
       params.put("preparedMessage", new PreparedMessage(db, message, true));
 
       return new ModelAndView("comment-message", params);
@@ -288,7 +286,7 @@ public class AddCommentController extends ApplicationObjectSupport {
       errors.reject(null, "нельзя добавлять в удаленные темы");
     }
 
-    formParams.put("postscore", topic.getPostScore());
+    formParams.put("topic", topic);
 
     return topic;
   }

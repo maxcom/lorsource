@@ -19,12 +19,11 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 
-<%@ attribute name="topicId" required="true" type="java.lang.Integer" %>
+<%@ attribute name="topic" required="true" type="ru.org.linux.site.Message" %>
 <%@ attribute name="title" required="true" type="java.lang.String" %>
 <%@ attribute name="replyto" required="false" type="java.lang.Integer" %>
 <%@ attribute name="msg" required="false" type="java.lang.String" %>
 <%@ attribute name="mode" required="true" type="java.lang.String" %>
-<%@ attribute name="postscore" required="true" type="java.lang.Integer" %>
 <%@ attribute name="cancel" required="false" type="java.lang.Boolean" %>
 <form method="POST" action="add_comment.jsp" id="commentForm">
   <input type="hidden" name="session"
@@ -34,13 +33,11 @@
   <input id="nick" type='text' name='nick' value="anonymous" size=40><br>
   <label for="password">Пароль:</label>
   <input id="password" type=password name=password size=40><br>
-  <%
-    out.print(Message.getPostScoreInfo(postscore));
-  %>
+  ${topic.postScoreInfo}
   <br>
   <% } %>
 
-  <input type=hidden name=topic value="<%= topicId %>">
+  <input type=hidden name=topic value="${topic.id}">
   <c:if test="${replyto != null}">
     <input type=hidden name=replyto value="<%= replyto %>">
   </c:if>
@@ -64,9 +61,7 @@
   <option value=lorcode <%= "lorcode".equals(mode)?"selected":""%> >LORCODE
   </select>  <br>
 
-  <%
-    out.print(Message.getPostScoreInfo(postscore));
-  %>
+  ${topic.postScoreInfo}
 
   <br>
   <lor:captcha/>

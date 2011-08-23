@@ -15,16 +15,17 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
-<%--@elvariable id="message" type="ru.org.linux.site.Message"--%>
+<%--@elvariable id="topic" type="ru.org.linux.site.Message"--%>
 <%--@elvariable id="preparedMessage" type="ru.org.linux.site.PreparedMessage"--%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
+<%--@elvariable id="add" type="ru.org.linux.spring.AddCommentRequest"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
-<title>${preparedMessage.section.title} - ${message.groupTitle} - ${message.title}</title>
+<title>${preparedMessage.section.title} - ${topic.groupTitle} - ${topic.title}</title>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 <div class=messages>
-  <lor:message messageMenu="<%= null %>" preparedMessage="${preparedMessage}" message="${message}" showMenu="false" user="${template.nick}"/>
+  <lor:message messageMenu="<%= null %>" preparedMessage="${preparedMessage}" message="${topic}" showMenu="false" user="${template.nick}"/>
 </div>
 
 <h2><a name=rep>Добавить сообщение:</a></h2>
@@ -39,6 +40,6 @@
 <font size=2><strong>Внимание!</strong> Перед написанием комментария ознакомьтесь с
 <a href="rules.jsp">правилами</a> сайта.</font><p>
 
-<lor:commentForm topicId="${message.id}" title="" postscore="${postscore}" mode="${add.mode}"/>
+<lor:commentForm topic="${topic}" title="" mode="${add.mode}"/>
 
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>

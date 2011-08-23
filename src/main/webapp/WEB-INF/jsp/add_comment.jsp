@@ -51,10 +51,9 @@
 
 <p>
   <%
-      Integer replyto = null;
       String title = "";
-  %>
-<c:if test="${onComment != null}">
+      Integer replyto = null; 
+  %><c:if test="${onComment != null}">
     <%
         PreparedComment onComment = (PreparedComment) request.getAttribute("onComment");
 
@@ -100,11 +99,10 @@
 </c:if>
 
 <lor:commentForm
-        topicId="${add.topic}"
+        topic="${topic}"
         title="<%= title %>"
         replyto="<%= replyto %>"
         msg="${add.msg}"
-        mode="${add.mode}"
-        postscore="${postscore}"/>
+        mode="${add.mode}"/>
 
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>
