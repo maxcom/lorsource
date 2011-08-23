@@ -136,6 +136,19 @@ public class UserDao {
     return res;
   }
 
+  public String getUserInfo(User user) {
+    return jdbcTemplate.queryForObject("SELECT userinfo FROM users where id=?",
+        new Object[] {user.getId()}, String.class);
+  }
+
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
+  public void removeUserInfo(User user) {
+    String userInfo = getUserInfo(user);
+    if(userInfo == null || userInfo.trim().isEmpty()) return;
+    setUserInfo(user, null);
+    changeScore(user, -10);
+  }
+
   /**
    * Отчистка userpicture пользователя, с обрезанием шкворца если удляет моедратор
    * @param user пользовтель у которого чистят
@@ -200,6 +213,10 @@ public class UserDao {
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   public void setPassword(User user, String password){
+    setPasswordWithoutTransaction(user, password);
+  }
+
+  public void setPasswordWithoutTransaction(User user, String password) {
     PasswordEncryptor encryptor = new BasicPasswordEncryptor();
     String encryptedPassword = encryptor.encryptPassword(password);
     jdbcTemplate.update("UPDATE users SET passwd=?, lostpwd = 'epoch' WHERE id=?",
@@ -217,6 +234,12 @@ public class UserDao {
     return password;
   }
 
+  public String resetPasswordWithoutTransaction(User user) {
+    String password = StringUtil.generatePassword();
+    setPasswordWithoutTransaction(user, password);
+    return password;
+  }
+
   /**
    * Блокирование пользователя
    * @param user пользователь которого блокируем
@@ -226,12 +249,37 @@ public class UserDao {
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   public void block(User user, User moderator, String reason) throws UserNotFoundException{
+    blockWithoutTransaction(user, moderator, reason);
+  }
+
+  public void blockWithoutTransaction(User user, User moderator, String reason) throws UserNotFoundException {
     jdbcTemplate.update("UPDATE users SET blocked='t' WHERE id=?", user.getId());
     jdbcTemplate.update("INSERT INTO ban_info (userid, reason, ban_by) VALUES (?, ?, ?)",
         user.getId(), reason, moderator.getId());
     // Update cache
     getUser(user.getId());
   }
+
+  /**
+   * Блокировка пользователя и сброс пароля одной транзикацией
+   * @param user блокируемый пользователь
+   * @param moderator модератор который блокирует пользователя
+   * @param reason причина блокировки
+   * @throws UserNotFoundException исключение, если отсутстсвует пользователь
+   */
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
+  public void blockWithResetPassword(User user, User moderator, String reason) throws UserNotFoundException {
+    jdbcTemplate.update("UPDATE users SET blocked='t' WHERE id=?", user.getId());
+    jdbcTemplate.update("INSERT INTO ban_info (userid, reason, ban_by) VALUES (?, ?, ?)",
+        user.getId(), reason, moderator.getId());
+    PasswordEncryptor encryptor = new BasicPasswordEncryptor();
+    String password = encryptor.encryptPassword(StringUtil.generatePassword());
+    jdbcTemplate.update("UPDATE users SET passwd=?, lostpwd = 'epoch' WHERE id=?",
+        password, user.getId());
+    // Update cache
+    getUser(user.getId());
+  }
+
 
   /**
    * Разблокировка пользователя

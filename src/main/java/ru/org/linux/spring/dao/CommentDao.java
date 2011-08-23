@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.org.linux.site.ScriptErrorException;
 import ru.org.linux.site.User;
+import ru.org.linux.site.UserNotFoundException;
 
 import javax.sql.DataSource;
 import java.sql.ResultSet;
@@ -32,10 +33,16 @@ public class CommentDao {
   private final static String updateScore = "UPDATE users SET score=score+? WHERE id=(SELECT userid FROM comments WHERE id=?)";
 
   private JdbcTemplate jdbcTemplate;
+  private UserDao userDao;
 
   @Autowired
   public void setJdbcTemplate(DataSource dataSource) {
     jdbcTemplate = new JdbcTemplate(dataSource);
+  }
+
+  @Autowired
+  public void setUserDao(UserDao userDao) {
+    this.userDao = userDao;
   }
 
 
@@ -47,7 +54,7 @@ public class CommentDao {
    * @param scoreBonus кол-во отрезаемого шкворца
    * @throws ScriptErrorException генерируем исключение если на комментарий есть ответы
    */
-
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   public void deleteComment(int msgid, String reason, User user, int scoreBonus) throws ScriptErrorException {
     if (!getReplys(msgid).isEmpty()) {
         throw new ScriptErrorException("Нельзя удалить комментарий с ответами");
@@ -64,6 +71,7 @@ public class CommentDao {
    * @param scoreBonus кол-во отрезаемого шкворца
    * @throws SQLException генерируем исключение если на комментарий есть ответы
    */
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   public void deleteCommentWithSQLException(int msgid, String reason, User user, int scoreBonus) throws SQLException {
     if (!getReplys(msgid).isEmpty()) {
         throw new SQLException("Нельзя удалить комментарий с ответами");
@@ -71,7 +79,6 @@ public class CommentDao {
     doDeleteComment(msgid, reason, user, scoreBonus);
   }
 
-  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   private void doDeleteComment(int msgid, String reason, User user, int scoreBonus) {
     jdbcTemplate.update(deleteComment, msgid);
     jdbcTemplate.update(insertDelinfo, msgid, user.getId(), reason+" ("+scoreBonus+')');
@@ -129,8 +136,10 @@ public class CommentDao {
    * @return список удаленных комментариев
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public List<Integer> deleteAllComments(final User user, final User moderator) {
+  public List<Integer> deleteAllCommentsAndBlock(final User user, final User moderator, String reason) throws UserNotFoundException {
     final List<Integer> deleted = new LinkedList<Integer>();
+
+    userDao.blockWithoutTransaction(user, moderator, reason);
 
     // Удаляем все топики
     jdbcTemplate.query("SELECT id FROM topics WHERE userid=? AND not deleted FOR UPDATE",

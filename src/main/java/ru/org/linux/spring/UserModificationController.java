@@ -80,25 +80,22 @@ public class UserModificationController extends ApplicationObjectSupport {
     User user = userDao.getUser(id);
     User moderator = userDao.getUser(tmpl.getNick());
 
-    if ("block".equals(action) || "block-n-delete-comments".equals(action)) {
+    if ("block".equals(action)) {
       if (!user.isBlockable() && !moderator.isAdministrator()) {
         throw new AccessViolationException("Пользователя " + user.getNick() + " нельзя заблокировать");
       }
 
-      userDao.block(user, moderator, reason);
-      userDao.resetPassword(user);
-
+      userDao.blockWithResetPassword(user, moderator, reason);
       logger.info("User " + user.getNick() + " blocked by " + moderator.getNick());
 
-      if ("block-n-delete-comments".equals(action)) {
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put("message", "Удалено");
-        List<Integer> deleted = commentDao.deleteAllComments(user, moderator);
-        params.put("bigMessage", deleted);
-
-        searchQueueSender.updateComment(deleted);
-        return new ModelAndView("action-done", params);
-      }
+    } else if ("block-n-delete-comments".equals(action)) {
+      Map<String, Object> params = new HashMap<String, Object>();
+      params.put("message", "Удалено");
+      List<Integer> deleted = commentDao.deleteAllCommentsAndBlock(user, moderator, reason);
+      logger.info("User " + user.getNick() + " blocked by " + moderator.getNick());
+      params.put("bigMessage", deleted);
+      searchQueueSender.updateComment(deleted);
+      return new ModelAndView("action-done", params);
     } else if ("toggle_corrector".equals(action)) {
       if (user.getScore()<User.CORRECTOR_SCORE) {
         throw new AccessViolationException("Пользователя " + user.getNick() + " нельзя сделать корректором");
@@ -114,8 +111,7 @@ public class UserModificationController extends ApplicationObjectSupport {
       if (user.canModerate()) {
         throw new AccessViolationException("Пользователю " + user.getNick() + " нельзя удалить сведения");
       }
-      userDao.setUserInfo(user, null);
-      userDao.changeScore(user, -10);
+      userDao.removeUserInfo(user);
       logger.info("Clearing " + user.getNick() + " userinfo");
     } else {
       throw new UserErrorException("Invalid action=" + HTMLFormatter.htmlSpecialChars(action));
