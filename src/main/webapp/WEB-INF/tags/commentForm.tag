@@ -1,7 +1,6 @@
 <%@ tag import="ru.org.linux.site.Message" %>
 <%@ tag import="ru.org.linux.site.Template" %>
 <%@ tag import="ru.org.linux.util.HTMLFormatter" %>
-
 <%--
   ~ Copyright 1998-2010 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,14 +23,9 @@
 <%@ attribute name="title" required="true" type="java.lang.String" %>
 <%@ attribute name="replyto" required="false" type="java.lang.Integer" %>
 <%@ attribute name="msg" required="false" type="java.lang.String" %>
-<%@ attribute name="mode" required="false" type="java.lang.String" %>
+<%@ attribute name="mode" required="true" type="java.lang.String" %>
 <%@ attribute name="postscore" required="true" type="java.lang.Integer" %>
 <%@ attribute name="cancel" required="false" type="java.lang.Boolean" %>
-
-<%
-  Template tmpl = Template.getTemplate(request);
-%>
-
 <form method="POST" action="add_comment.jsp" id="commentForm">
   <input type="hidden" name="session"
          value="<%= HTMLFormatter.htmlSpecialChars(session.getId()) %>">
@@ -64,11 +58,6 @@
             rows="20"><%= msg == null ? "" : HTMLFormatter.htmlSpecialChars(msg)
   %></textarea><br>
 
-  <%
-    if (mode==null) {
-      mode = tmpl.getFormatMode();
-    }
-  %>
   <select name=mode>
   <option value=quot <%= "quot".equals(mode)?"selected":""%> >TeX paragraphs w/quoting
   <option value=ntobr <%= "ntobr".equals(mode)?"selected":""%> >User line breaks w/quoting

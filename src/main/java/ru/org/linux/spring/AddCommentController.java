@@ -58,7 +58,13 @@ public class AddCommentController extends ApplicationObjectSupport {
     Errors errors,
     ServletRequest request
   ) throws Exception {
+    Template tmpl = Template.getTemplate(request);
+    
     Map<String, Object> params = new HashMap<String, Object>();
+
+    if (add.getMode()==null) {
+      add.setMode(tmpl.getFormatMode());
+    }
 
     Connection db = null;
 
@@ -84,12 +90,19 @@ public class AddCommentController extends ApplicationObjectSupport {
   @RequestMapping("/comment-message.jsp")
   public ModelAndView showFormTopic(
     @ModelAttribute("add") AddCommentRequest add,
-    Errors errors
+    Errors errors,
+    HttpServletRequest request
   ) throws Exception {
+    Template tmpl = Template.getTemplate(request);
+
     Connection db = null;
 
     try {
       db = LorDataSource.getConnection();
+
+      if (add.getMode()==null) {
+        add.setMode(tmpl.getFormatMode());
+      }
 
       HashMap<String, Object> params = new HashMap<String, Object>();
 
@@ -140,6 +153,10 @@ public class AddCommentController extends ApplicationObjectSupport {
 
     if (title.length() > Comment.TITLE_LENGTH) {
       errors.rejectValue("title", null, "заголовок превышает " + Comment.TITLE_LENGTH + " символов");
+    }
+
+    if (add.getMode()==null) {
+      add.setMode(tmpl.getFormatMode());
     }
 
     Map<String, Object> formParams = new HashMap<String, Object>();

@@ -39,6 +39,6 @@
 <font size=2><strong>Внимание!</strong> Перед написанием комментария ознакомьтесь с
 <a href="rules.jsp">правилами</a> сайта.</font><p>
 
-<lor:commentForm topicId="${message.id}" title="" postscore="${postscore}"/>
+<lor:commentForm topicId="${message.id}" title="" postscore="${postscore}" mode="${add.mode}"/>
 
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>
