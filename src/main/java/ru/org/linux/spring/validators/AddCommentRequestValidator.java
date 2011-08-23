@@ -35,12 +35,16 @@ public class AddCommentRequestValidator implements Validator {
 
     Message topic = add.getTopic();
 
-    if (topic.isExpired()) {
-      errors.reject(null, "нельзя добавлять в устаревшие темы");
-    }
+    if (topic == null) {
+      errors.reject(null, "тема не задана");
+    } else {
+      if (topic.isExpired()) {
+        errors.reject(null, "нельзя добавлять в устаревшие темы");
+      }
 
-    if (topic.isDeleted()) {
-      errors.reject(null, "нельзя добавлять в удаленные темы");
+      if (topic.isDeleted()) {
+        errors.reject(null, "нельзя добавлять в удаленные темы");
+      }
     }
   }
 }
