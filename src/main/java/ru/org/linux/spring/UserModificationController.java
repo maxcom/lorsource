@@ -34,7 +34,6 @@ import ru.org.linux.util.HTMLFormatter;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.List;
@@ -65,11 +64,10 @@ public class UserModificationController extends ApplicationObjectSupport {
 
   @RequestMapping(value="/usermod.jsp", method= RequestMethod.POST)
   public ModelAndView modifyUser(
-    HttpServletRequest request,
-    HttpSession session,
-    @RequestParam("action") String action,
-    @RequestParam("id") int id,
-    @RequestParam(value="reason", required = false) String reason
+          HttpServletRequest request,
+          @RequestParam("action") String action,
+          @RequestParam("id") int id,
+          @RequestParam(value = "reason", required = false) String reason
   ) throws Exception {
     Template tmpl = Template.getTemplate(request);
 
@@ -78,7 +76,7 @@ public class UserModificationController extends ApplicationObjectSupport {
     }
 
     User user = userDao.getUser(id);
-    User moderator = userDao.getUser(tmpl.getNick());
+    User moderator = tmpl.getCurrentUser();
 
     if ("block".equals(action)) { // Блокировка пользователя
       if (!user.isBlockable() && !moderator.isAdministrator()) {
