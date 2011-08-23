@@ -19,17 +19,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.ApplicationObjectSupport;
 import org.springframework.jdbc.support.JdbcUtils;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.InitBinder;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.site.*;
 import ru.org.linux.spring.validators.AddCommentRequestValidator;
 import ru.org.linux.util.HTMLFormatter;
+import ru.org.linux.util.ServletParameterException;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
@@ -62,6 +61,10 @@ public class AddCommentController extends ApplicationObjectSupport {
     Errors errors,
     ServletRequest request
   ) throws Exception {
+    if (add.getTopic()==null) {
+      throw new ServletParameterException("тема на задана");
+    }
+
     Template tmpl = Template.getTemplate(request);
     
     Map<String, Object> params = new HashMap<String, Object>();
@@ -90,7 +93,6 @@ public class AddCommentController extends ApplicationObjectSupport {
   @RequestMapping("/comment-message.jsp")
   public ModelAndView showFormTopic(
     @ModelAttribute("add") @Valid AddCommentRequest add,
-    Errors errors,
     HttpServletRequest request
   ) throws Exception {
     Template tmpl = Template.getTemplate(request);
@@ -103,7 +105,7 @@ public class AddCommentController extends ApplicationObjectSupport {
       if (add.getMode()==null) {
         add.setMode(tmpl.getFormatMode());
       }
-
+      
       HashMap<String, Object> params = new HashMap<String, Object>();
 
       params.put("preparedMessage", new PreparedMessage(db, add.getTopic(), true));
@@ -294,5 +296,10 @@ public class AddCommentController extends ApplicationObjectSupport {
         }
       }
     });
+  }
+
+  @ExceptionHandler(BindException.class)
+  public String handleInvalidRequest() {
+    return "error-parameter"; 
   }
 }
