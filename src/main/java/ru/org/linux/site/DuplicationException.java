@@ -16,7 +16,9 @@
 package ru.org.linux.site;
 
 public class DuplicationException extends AccessViolationException {
+  public static final String MESSAGE = "Следующее сообщение может быть записано не менее чем через 30 секунд после предыдущего";
+
   public DuplicationException() {
-    super("Следующее сообщение может быть записано не менее чем через 30 секунд после предыдущего");
+    super(MESSAGE);
   }
 }

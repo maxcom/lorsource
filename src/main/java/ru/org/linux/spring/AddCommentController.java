@@ -225,8 +225,10 @@ public class AddCommentController extends ApplicationObjectSupport {
       add.getTopic().checkCommentsAllowed(user, errors);
 
       if (!add.isPreviewMode() && !errors.hasErrors()) {
-        DupeProtector.getInstance().checkDuplication(request.getRemoteAddr(), user.getScore() > 100);
+        DupeProtector.getInstance().checkDuplication(request.getRemoteAddr(), user.getScore() > 100, errors);
+      }
 
+      if (!add.isPreviewMode() && !errors.hasErrors()) {
         int msgid = comment.saveNewMessage(db, request.getRemoteAddr(), request.getHeader("user-agent"), msg);
 
         String logmessage = "Написан комментарий " + msgid + " ip:" + request.getRemoteAddr();

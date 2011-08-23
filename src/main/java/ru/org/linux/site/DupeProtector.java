@@ -15,6 +15,8 @@
 
 package ru.org.linux.site;
 
+import org.springframework.validation.Errors;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -49,9 +51,9 @@ public class DupeProtector {
     }
   }
 
-  public void checkDuplication(String ip,boolean trusted) throws DuplicationException {
+  public void checkDuplication(String ip,boolean trusted, Errors errors) throws DuplicationException {
     if (!check(ip,trusted)) {
-      throw new DuplicationException();
+      errors.reject(null, DuplicationException.MESSAGE);
     }
   }
 
