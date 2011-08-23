@@ -241,17 +241,12 @@ public class UserDao {
   }
 
   /**
-   * Блокирование пользователя
+   * Блокирование пользователя без транзакации(используется в CommentDao для массового удаления с блокировкой)
    * @param user пользователь которого блокируем
    * @param moderator моджератор который блокирует
    * @param reason причина блокировки
    * @throws UserNotFoundException если пользовтаеля нет, генерируем это исклюучение
    */
-  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public void block(User user, User moderator, String reason) throws UserNotFoundException{
-    blockWithoutTransaction(user, moderator, reason);
-  }
-
   public void blockWithoutTransaction(User user, User moderator, String reason) throws UserNotFoundException {
     jdbcTemplate.update("UPDATE users SET blocked='t' WHERE id=?", user.getId());
     jdbcTemplate.update("INSERT INTO ban_info (userid, reason, ban_by) VALUES (?, ?, ?)",
@@ -269,6 +264,7 @@ public class UserDao {
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   public void blockWithResetPassword(User user, User moderator, String reason) throws UserNotFoundException {
+
     jdbcTemplate.update("UPDATE users SET blocked='t' WHERE id=?", user.getId());
     jdbcTemplate.update("INSERT INTO ban_info (userid, reason, ban_by) VALUES (?, ?, ?)",
         user.getId(), reason, moderator.getId());

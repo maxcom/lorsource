@@ -80,7 +80,7 @@ public class UserModificationController extends ApplicationObjectSupport {
     User user = userDao.getUser(id);
     User moderator = userDao.getUser(tmpl.getNick());
 
-    if ("block".equals(action)) {
+    if ("block".equals(action)) { // Блокировка пользователя
       if (!user.isBlockable() && !moderator.isAdministrator()) {
         throw new AccessViolationException("Пользователя " + user.getNick() + " нельзя заблокировать");
       }
@@ -88,7 +88,11 @@ public class UserModificationController extends ApplicationObjectSupport {
       userDao.blockWithResetPassword(user, moderator, reason);
       logger.info("User " + user.getNick() + " blocked by " + moderator.getNick());
 
-    } else if ("block-n-delete-comments".equals(action)) {
+    } else if ("block-n-delete-comments".equals(action)) { // Блокировка и массовое удаление
+      if (!user.isBlockable() && !moderator.isAdministrator()) {
+        throw new AccessViolationException("Пользователя " + user.getNick() + " нельзя заблокировать");
+      }
+
       Map<String, Object> params = new HashMap<String, Object>();
       params.put("message", "Удалено");
       List<Integer> deleted = commentDao.deleteAllCommentsAndBlock(user, moderator, reason);
@@ -96,18 +100,18 @@ public class UserModificationController extends ApplicationObjectSupport {
       params.put("bigMessage", deleted);
       searchQueueSender.updateComment(deleted);
       return new ModelAndView("action-done", params);
-    } else if ("toggle_corrector".equals(action)) {
+    } else if ("toggle_corrector".equals(action)) { // Смена признака корректора
       if (user.getScore()<User.CORRECTOR_SCORE) {
         throw new AccessViolationException("Пользователя " + user.getNick() + " нельзя сделать корректором");
       }
       userDao.toggleCorrector(user);
-    } else if ("unblock".equals(action)) {
+    } else if ("unblock".equals(action)) { // Разблокировка
       if (!user.isBlockable() && !moderator.isAdministrator()) {
         throw new AccessViolationException("Пользователя " + user.getNick() + " нельзя разблокировать");
       }
       userDao.unblock(user);
       logger.info("User " + user.getNick() + " unblocked by " + moderator.getNick());
-    } else if ("remove_userinfo".equals(action)) {
+    } else if ("remove_userinfo".equals(action)) { // Очистка дополнительной информации
       if (user.canModerate()) {
         throw new AccessViolationException("Пользователю " + user.getNick() + " нельзя удалить сведения");
       }
@@ -116,7 +120,6 @@ public class UserModificationController extends ApplicationObjectSupport {
     } else {
       throw new UserErrorException("Invalid action=" + HTMLFormatter.htmlSpecialChars(action));
     }
-
 
     Random random = new Random();
 

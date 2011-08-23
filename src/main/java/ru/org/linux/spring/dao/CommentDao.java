@@ -130,10 +130,12 @@ public class CommentDao {
   }
 
   /**
-   * Массивное удаление всех комментариев пользователя, чо всеми ответами на них
+   * Блокировка и массивное удаление всех топиков и комментариев пользователя со всеми ответами на комментарии
    * @param user пользователь для экзекуции
    * @param moderator экзекутор-модератор
+   * @param reason прична блокировки
    * @return список удаленных комментариев
+   * @throws UserNotFoundException генерирует исключение если пользователь отсутствует
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   public List<Integer> deleteAllCommentsAndBlock(final User user, final User moderator, String reason) throws UserNotFoundException {
