@@ -307,6 +307,7 @@ public class User implements Serializable {
     return photo;
   }
 
+  @Deprecated
   public void block(Connection db, User by, String reason) throws SQLException {
     Statement st = null;
     PreparedStatement pst = null;
@@ -328,6 +329,7 @@ public class User implements Serializable {
     }
   }
 
+  @Deprecated
   public String resetPassword(Connection db) throws SQLException {
     String password = StringUtil.generatePassword();
 
@@ -336,6 +338,7 @@ public class User implements Serializable {
     return password;
   }
 
+  @Deprecated
   public void setPassword(Connection db, String password) throws SQLException {
     PasswordEncryptor encryptor = new BasicPasswordEncryptor();
 
@@ -480,7 +483,7 @@ public class User implements Serializable {
       throw new RuntimeException(e);
     }
   }
-
+  @Deprecated
   public void changeScore(Connection db, int delta) throws SQLException {
     PreparedStatement st = null;
     try {
@@ -555,6 +558,7 @@ public class User implements Serializable {
     }
   }
 
+  @Deprecated
   public void setUserinfo(Connection db, String text) throws SQLException {
     PreparedStatement st = db.prepareStatement("UPDATE users SET userinfo=? where id=?");
     st.setString(1, text);
@@ -563,6 +567,7 @@ public class User implements Serializable {
     st.executeUpdate();
   }
 
+  @Deprecated
   public static void setUserinfo(Connection db, int id, String text) throws SQLException {
     PreparedStatement st = db.prepareStatement("UPDATE users SET userinfo=? where id=?");
     st.setString(1, text);

@@ -3,10 +3,15 @@ package ru.org.linux.spring.dao;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
+import org.jasypt.util.password.BasicPasswordEncryptor;
+import org.jasypt.util.password.PasswordEncryptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import ru.org.linux.site.User;
 import ru.org.linux.site.UserNotFoundException;
 import ru.org.linux.util.StringUtil;
@@ -14,15 +19,22 @@ import ru.org.linux.util.StringUtil;
 import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.LinkedList;
 import java.util.List;
 
 @Repository
 public class UserDao {
   private final JdbcTemplate jdbcTemplate;
+  private CommentDao commentDao;
 
   @Autowired
   public UserDao(DataSource dataSource) {
     jdbcTemplate = new JdbcTemplate(dataSource);
+  }
+
+  @Autowired
+  public void setCommentDao(CommentDao commentDao) {
+    this.commentDao = commentDao;
   }
 
   @Deprecated
@@ -131,4 +143,127 @@ public class UserDao {
 
     return res;
   }
+
+  /**
+   * Обновление дополнительной информации пользователя
+   * @param user пользователь
+   * @param text текст дополнительной информации
+   */
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
+  public void setUserInfo(User user, String text){
+    jdbcTemplate.update("UPDATE users SET userinfo=? where id=?", text, user.getId());
+  }
+
+  /**
+   * Изменение шкворца пользовтаеля, принимает отрицательные и положительные значения
+   * не накладывает никаких ограничений на параметры
+   * @param user пользователь
+   * @param delta дельта на которую меняется шкворец
+   */
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
+  public void changeScore(User user, int delta) {
+    jdbcTemplate.update("UPDATE users SET score=score+? WHERE id=?", delta, user.getId());
+  }
+
+  /**
+   * Смена признака корректора для пользователя
+   * @param user пользователь у которого меняется признак корректора
+   */
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
+  public void toggleCorrector(User user){
+    if(user.canCorrect()){
+      jdbcTemplate.update("UPDATE users SET corrector='f' WHERE id=?", user.getId());
+    }else{
+      jdbcTemplate.update("UPDATE users SET corrector='t' WHERE id=?", user.getId());
+    }
+  }
+
+  /**
+   * Смена пароля пользователю
+   * @param user пользователь которому меняется пароль
+   * @param password пароль в открытом виде
+   */
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
+  public void setPassword(User user, String password){
+    PasswordEncryptor encryptor = new BasicPasswordEncryptor();
+    String encryptedPassword = encryptor.encryptPassword(password);
+    jdbcTemplate.update("UPDATE users SET passwd=?, lostpwd = 'epoch' WHERE id=?",
+        encryptedPassword, user.getId());
+  }
+
+  /**
+   * Сброс пороля на случайный
+   * @param user пользователь которому сбрасывается пароль
+   * @return новый пароь в открытом виде
+   */
+  public String resetPassword(User user){
+    String password = StringUtil.generatePassword();
+    setPassword(user, password);
+    return password;
+  }
+
+  /**
+   * Блокирование пользователя
+   * @param user пользователь которого блокируем
+   * @param moderator моджератор который блокирует
+   * @param reason причина блокировки
+   * @throws UserNotFoundException если пользовтаеля нет, генерируем это исклюучение
+   */
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
+  public void block(User user, User moderator, String reason) throws UserNotFoundException{
+    jdbcTemplate.update("UPDATE users SET blocked='t' WHERE id=?", user.getId());
+    jdbcTemplate.update("INSERT INTO ban_info (userid, reason, ban_by) VALUES (?, ?, ?)",
+        user.getId(), reason, moderator.getId());
+    // Update cache
+    getUser(user.getId());
+  }
+
+  /**
+   * Разблокировка пользователя
+   * @param user разблокируемый пользователь
+   */
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
+  public void unblock(User user){
+    jdbcTemplate.update("UPDATE users SET blocked='f' WHERE id=?", user.getId());
+    jdbcTemplate.update("DELETE FROM ban_info WHERE userid=?", user.getId());
+  }
+
+  /**
+   * Массивное удаление всех комментариев пользователя, чо всеми ответами на них
+   * @param user пользователь для экзекуции
+   * @param moderator экзекутор-модератор
+   * @return список удаленных комментариев
+   */
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
+  public List<Integer> deleteAllComments(final User user, final User moderator) {
+    final List<Integer> deleted = new LinkedList<Integer>();
+
+    // Удаляем все топики
+    jdbcTemplate.query("SELECT id FROM topics WHERE userid=? AND not deleted FOR UPDATE",
+        new RowCallbackHandler(){
+          @Override
+          public void processRow(ResultSet rs) throws SQLException {
+            int mid = rs.getInt("id");
+            jdbcTemplate.update("UPDATE topics SET deleted='t',sticky='f' WHERE id=?", mid);
+            jdbcTemplate.update("INSERT INTO del_info (msgid, delby, reason, deldate) values(?,?,?, CURRENT_TIMESTAMP)", mid);
+          }
+        },
+        user.getId());
+
+    // Удаляем все комментарии
+    jdbcTemplate.query("SELECT id FROM comments WHERE userid=? AND not deleted ORDER BY id DESC FOR update",
+        new RowCallbackHandler() {
+          @Override
+          public void processRow(ResultSet resultSet) throws SQLException {
+            int msgid = resultSet.getInt("id");
+            deleted.add(msgid);
+            deleted.addAll(commentDao.deleteReplys(msgid, moderator, false));
+            commentDao.deleteCommentWithSQLException(msgid, "Блокировка пользователя с удалением сообщений", moderator, 0);
+          }
+        },
+        user.getId());
+
+    return deleted;
+  }
+
 }
