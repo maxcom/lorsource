@@ -17,30 +17,35 @@ package ru.org.linux.site;
 
 import org.springframework.validation.Errors;
 
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
 public class DupeProtector {
-  private static final int THRESHHOLD = 30000;
-  private static final int THRESHHOLD_TRUSTED = 3000;
+  private static final int THRESHOLD = 30000;
+  private static final int THRESHOLD_TRUSTED = 3000;
   
   private static final DupeProtector instance = new DupeProtector();
 
-  private final Map<String,Date> hash = new HashMap<String,Date>();
+  private final Map<String,Long> hash = new HashMap<String,Long>();
 
   private DupeProtector() {
   }
 
-  public synchronized boolean check(String ip,boolean trusted) {
-    cleanup(trusted);
+  private synchronized boolean check(String ip, boolean trusted) {
+    cleanup();
+
+    long current = System.currentTimeMillis();
 
     if (hash.containsKey(ip)) {
-      return false;
+      long date = hash.get(ip);
+
+      if ((current-date)<(trusted?THRESHOLD_TRUSTED:THRESHOLD)) {
+        return false;
+      }
     }
 
-    hash.put(ip, new Date());
+    hash.put(ip, current);
 
     return true;
   }
@@ -57,17 +62,13 @@ public class DupeProtector {
     }
   }
 
-  private synchronized void cleanup(boolean trusted) {
-    Date current = new Date();
+  private synchronized void cleanup() {
+    long current = System.currentTimeMillis();
 
-    for (Iterator<Map.Entry<String,Date>> i = hash.entrySet().iterator(); i.hasNext(); ) {
-      Map.Entry<String,Date> entry = i.next();
-      Date date = entry.getValue();
+    for (Iterator<Long> i = hash.values().iterator(); i.hasNext(); ) {
+      long date = i.next();
 
-      if (trusted && (current.getTime()-date.getTime())>THRESHHOLD_TRUSTED) {
-        i.remove();
-      }
-      else if ((current.getTime()-date.getTime())>THRESHHOLD) {
+      if ((current-date)>THRESHOLD) {
         i.remove();
       }
     }
