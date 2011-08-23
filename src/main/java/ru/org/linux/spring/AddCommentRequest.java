@@ -1,12 +1,14 @@
 package ru.org.linux.spring;
 
+import ru.org.linux.site.Message;
+
 public class AddCommentRequest {
   private String preview;
   private String mode;
   private String msg;
   private Integer replyto;
   private String title;
-  private int topic;
+  private Message topic;
 
   public void setPreview(String preview) {
     this.preview = preview;
@@ -52,11 +54,11 @@ public class AddCommentRequest {
     this.title = title;
   }
 
-  public int getTopic() {
+  public Message getTopic() {
     return topic;
   }
 
-  public void setTopic(int topic) {
+  public void setTopic(Message topic) {
     this.topic = topic;
   }
 }

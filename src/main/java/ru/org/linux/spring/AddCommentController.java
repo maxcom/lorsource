@@ -35,6 +35,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
+import java.beans.PropertyEditorSupport;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -74,9 +75,7 @@ public class AddCommentController extends ApplicationObjectSupport {
     try {
       db = LorDataSource.getConnection();
 
-      Message topic = checkTopic(add, errors, params, db);
-
-      checkAndCreateReplyto(add, errors, params, db, topic);
+      checkAndCreateReplyto(add, errors, params, db);
 
       if (errors.hasGlobalErrors()) {
         throw new UserErrorException(errors.getGlobalError().getDefaultMessage());
@@ -84,9 +83,7 @@ public class AddCommentController extends ApplicationObjectSupport {
 
       return new ModelAndView("add_comment", params);
     } finally {
-      if (db != null) {
-        db.close();
-      }
+      JdbcUtils.closeConnection(db);
     }
   }
 
@@ -109,15 +106,11 @@ public class AddCommentController extends ApplicationObjectSupport {
 
       HashMap<String, Object> params = new HashMap<String, Object>();
 
-      Message message = checkTopic(add, errors, params, db);
-
-      params.put("preparedMessage", new PreparedMessage(db, message, true));
+      params.put("preparedMessage", new PreparedMessage(db, add.getTopic(), true));
 
       return new ModelAndView("comment-message", params);
     } finally {
-      if (db!=null) {
-        db.close();
-      }
+      JdbcUtils.closeConnection(db);
     }
   }
 
@@ -151,11 +144,9 @@ public class AddCommentController extends ApplicationObjectSupport {
   ) throws Exception {
     Template tmpl = Template.getTemplate(request);
 
-    String title = HTMLFormatter.htmlSpecialChars(add.getTitle());
-
     String msg = processMessage(add.getMsg(), add.getMode());
 
-    if ("".equals(msg)) {
+    if (add.getMsg()==null || add.getMsg().trim().isEmpty()) {
       errors.rejectValue("msg", null, "комментарий не может быть пустым");
     }
 
@@ -165,13 +156,13 @@ public class AddCommentController extends ApplicationObjectSupport {
 
     HttpSession session = request.getSession();
 
-    if (!add.isPreviewMode() && !session.getId().equals(request.getParameter("session"))) {
-      logger.info("Flood protection (session variable differs: " + session.getId() + ") " + request.getRemoteAddr());
-      errors.reject(null, "сбой добавления");
-    }
-
     if (!add.isPreviewMode() && !Template.isSessionAuthorized(session)) {
       captcha.checkCaptcha(request, errors);
+    }
+
+    if (!add.isPreviewMode() && !errors.hasErrors() && !session.getId().equals(request.getParameter("session"))) {
+      logger.info("Flood protection (session variable differs: " + session.getId() + ") " + request.getRemoteAddr());
+      errors.reject(null, "сбой добавления");
     }
 
     Connection db = null;
@@ -186,9 +177,7 @@ public class AddCommentController extends ApplicationObjectSupport {
 
       Map<String, Object> formParams = new HashMap<String, Object>();
 
-      Message topic = checkTopic(add, errors, formParams, db);
-
-      checkAndCreateReplyto(add, errors, formParams, db, topic);
+      checkAndCreateReplyto(add, errors, formParams, db);
 
       User user;
 
@@ -212,7 +201,14 @@ public class AddCommentController extends ApplicationObjectSupport {
 
       user.checkBlocked(errors);
 
-      Comment comment = new Comment(add.getReplyto(), title, add.getTopic(), user.getId(), request.getHeader("user-agent"), request.getRemoteAddr());
+      Comment comment = new Comment(
+              add.getReplyto(),
+              HTMLFormatter.htmlSpecialChars(add.getTitle()),
+              add.getTopic().getId(),
+              user.getId(),
+              request.getHeader("user-agent"),
+              request.getRemoteAddr()
+      );
 
       formParams.put("comment", new PreparedComment(db, comment, msg));
 
@@ -226,7 +222,7 @@ public class AddCommentController extends ApplicationObjectSupport {
         }
       }
 
-      topic.checkCommentsAllowed(user, errors);
+      add.getTopic().checkCommentsAllowed(user, errors);
 
       if (!add.isPreviewMode() && !errors.hasErrors()) {
         DupeProtector.getInstance().checkDuplication(request.getRemoteAddr(), user.getScore() > 100);
@@ -244,7 +240,7 @@ public class AddCommentController extends ApplicationObjectSupport {
 
         searchQueueSender.updateComment(msgid);
 
-        String returnUrl = "jump-message.jsp?msgid=" + add.getTopic() + "&cid=" + msgid;
+        String returnUrl = "jump-message.jsp?msgid=" + add.getTopic().getId() + "&cid=" + msgid;
 
         return new ModelAndView(new RedirectView(returnUrl));
       }
@@ -255,14 +251,15 @@ public class AddCommentController extends ApplicationObjectSupport {
     }
   }
 
-  private static void checkAndCreateReplyto(AddCommentRequest add, Errors errors, Map<String, Object> formParams, Connection db, Message topic) throws SQLException, MessageNotFoundException, UserNotFoundException {
+  private static void checkAndCreateReplyto(AddCommentRequest add, Errors errors, Map<String, Object> formParams, Connection db) throws SQLException, MessageNotFoundException, UserNotFoundException {
     if (add.getReplyto()!=null && add.getReplyto() > 0) {
       Comment onComment = new Comment(db, add.getReplyto());
 
       if (onComment.isDeleted()) {
         errors.reject(null, "нельзя комментировать удаленные комментарии");
       }
-      if (onComment.getTopic() != topic.getId()) {
+
+      if (onComment.getTopic() != add.getTopic().getId()) {
         errors.reject(null, "Некорректная тема?!");
       }
 
@@ -270,24 +267,30 @@ public class AddCommentController extends ApplicationObjectSupport {
     }
   }
 
-  private static Message checkTopic(AddCommentRequest add, Errors errors, Map<String, Object> formParams, Connection db) throws SQLException, MessageNotFoundException {
-    Message topic = new Message(db, add.getTopic());
-
-    if (topic.isExpired()) {
-      errors.reject(null, "нельзя добавлять в устаревшие темы");
-    }
-
-    if (topic.isDeleted()) {
-      errors.reject(null, "нельзя добавлять в удаленные темы");
-    }
-
-    formParams.put("topic", topic);
-
-    return topic;
+  @InitBinder("add")
+  public void requestValidator(WebDataBinder binder) {
+    binder.setValidator(new AddCommentRequestValidator());
   }
 
-  @InitBinder("add")
+  @InitBinder
   public void initBinder(WebDataBinder binder) {
-    binder.setValidator(new AddCommentRequestValidator());
+    binder.registerCustomEditor(Message.class, new PropertyEditorSupport() {
+      @Override
+      public void setAsText(String text) throws IllegalArgumentException {
+        Connection db=null;
+
+        try {
+          db = LorDataSource.getConnection();
+
+          setValue(new Message(db, Integer.parseInt(text)));
+        } catch (SQLException e) {
+          throw new RuntimeException(e);
+        } catch (MessageNotFoundException e) {
+          throw new IllegalArgumentException(e);
+        } finally {
+          JdbcUtils.closeConnection(db);
+        }
+      }
+    });
   }
 }

@@ -32,7 +32,7 @@
 Добавить комментарий
 </td>
   <td align=right>
-    [<a href="/view-message.jsp?msgid=${add.topic}">Читать комментарии</a>]
+    [<a href="/view-message.jsp?msgid=${add.topic.id}">Читать комментарии</a>]
   </td>
 </tr>
   </table>
@@ -72,7 +72,7 @@
                 showMenu="false"
                 comment="${onComment}"
                 comments="${null}"
-                expired="${false}" topic="${null}"/>
+                expired="${false}" topic="${add.topic}"/>
     </div>
 </c:if>
 
@@ -99,7 +99,7 @@
 </c:if>
 
 <lor:commentForm
-        topic="${topic}"
+        topic="${add.topic}"
         title="<%= title %>"
         replyto="<%= replyto %>"
         msg="${add.msg}"

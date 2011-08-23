@@ -706,10 +706,12 @@ public class Message implements Serializable {
   public void checkCommentsAllowed(User user, Errors errors) {
     if (deleted) {
       errors.reject(null, "Нельзя добавлять комментарии к удаленному сообщению");
+      return;
     }
 
     if (expired) {
       errors.reject(null, "Сообщение уже устарело");
+      return;
     }
 
     if (!isCommentsAllowed(user)) {
