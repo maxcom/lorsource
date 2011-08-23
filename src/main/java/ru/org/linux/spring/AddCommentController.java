@@ -15,23 +15,26 @@
 
 package ru.org.linux.spring;
 
-import org.jdom.Verifier;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.ApplicationObjectSupport;
 import org.springframework.jdbc.support.JdbcUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.Errors;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.site.*;
+import ru.org.linux.spring.validators.AddCommentRequestValidator;
 import ru.org.linux.util.HTMLFormatter;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import javax.validation.Valid;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -54,7 +57,7 @@ public class AddCommentController extends ApplicationObjectSupport {
 
   @RequestMapping(value = "/add_comment.jsp", method = RequestMethod.GET)
   public ModelAndView showFormReply(
-    @ModelAttribute("add") AddCommentRequest add,
+    @ModelAttribute("add") @Valid AddCommentRequest add,
     Errors errors,
     ServletRequest request
   ) throws Exception {
@@ -89,7 +92,7 @@ public class AddCommentController extends ApplicationObjectSupport {
 
   @RequestMapping("/comment-message.jsp")
   public ModelAndView showFormTopic(
-    @ModelAttribute("add") AddCommentRequest add,
+    @ModelAttribute("add") @Valid AddCommentRequest add,
     Errors errors,
     HttpServletRequest request
   ) throws Exception {
@@ -142,45 +145,50 @@ public class AddCommentController extends ApplicationObjectSupport {
 
   @RequestMapping(value = "/add_comment.jsp", method = RequestMethod.POST)
   public ModelAndView addComment(
-    @ModelAttribute("add") AddCommentRequest add,
+    @ModelAttribute("add") @Valid AddCommentRequest add,
     Errors errors,
     HttpServletRequest request
   ) throws Exception {
-    String title = HTMLFormatter.htmlSpecialChars(add.getTitle());
     Template tmpl = Template.getTemplate(request);
 
-    if (title.length() > Comment.TITLE_LENGTH) {
-      errors.rejectValue("title", null, "заголовок превышает " + Comment.TITLE_LENGTH + " символов");
+    String title = HTMLFormatter.htmlSpecialChars(add.getTitle());
+
+    String msg = processMessage(add.getMsg(), add.getMode());
+
+    if ("".equals(msg)) {
+      errors.rejectValue("msg", null, "комментарий не может быть пустым");
     }
 
     if (add.getMode()==null) {
       add.setMode(tmpl.getFormatMode());
     }
 
-    Map<String, Object> formParams = new HashMap<String, Object>();
-
     HttpSession session = request.getSession();
+
+    if (!add.isPreviewMode() && !session.getId().equals(request.getParameter("session"))) {
+      logger.info("Flood protection (session variable differs: " + session.getId() + ") " + request.getRemoteAddr());
+      errors.reject(null, "сбой добавления");
+    }
+
+    if (!add.isPreviewMode() && !Template.isSessionAuthorized(session)) {
+      captcha.checkCaptcha(request, errors);
+    }
 
     Connection db = null;
 
     try {
-      String msg = processMessage(add.getMsg(), add.getMode());
-
       // prechecks is over
       db = LorDataSource.getConnection();
       db.setAutoCommit(false);
+      IPBlockInfo.checkBlockIP(db, request.getRemoteAddr());
+
       tmpl.updateCurrentUser(db);
+
+      Map<String, Object> formParams = new HashMap<String, Object>();
 
       Message topic = checkTopic(add, errors, formParams, db);
 
       checkAndCreateReplyto(add, errors, formParams, db, topic);
-
-      if (!add.isPreviewMode() && !session.getId().equals(request.getParameter("session"))) {
-        logger.info("Flood protection (session variable differs: " + session.getId() + ") " + request.getRemoteAddr());
-        errors.reject(null, "сбой добавления");
-      }
-
-      IPBlockInfo.checkBlockIP(db, request.getRemoteAddr());
 
       User user;
 
@@ -207,19 +215,6 @@ public class AddCommentController extends ApplicationObjectSupport {
       Comment comment = new Comment(add.getReplyto(), title, add.getTopic(), user.getId(), request.getHeader("user-agent"), request.getRemoteAddr());
 
       formParams.put("comment", new PreparedComment(db, comment, msg));
-
-      if ("".equals(msg)) {
-        errors.rejectValue("msg", null, "комментарий не может быть пустым");
-      }
-
-      String error = Verifier.checkCharacterData(msg);
-      if (error!=null) {
-        errors.rejectValue("msg", null, error);
-      }
-
-      if (!add.isPreviewMode() && !Template.isSessionAuthorized(session)) {
-        captcha.checkCaptcha(request, errors);
-      }
 
       if (user.isAnonymous()) {
         if (msg.length() > 4096) {
@@ -253,11 +248,11 @@ public class AddCommentController extends ApplicationObjectSupport {
 
         return new ModelAndView(new RedirectView(returnUrl));
       }
+
+      return new ModelAndView("add_comment", formParams);
     } finally {
       JdbcUtils.closeConnection(db);
     }
-
-    return new ModelAndView("add_comment", formParams);
   }
 
   private static void checkAndCreateReplyto(AddCommentRequest add, Errors errors, Map<String, Object> formParams, Connection db, Message topic) throws SQLException, MessageNotFoundException, UserNotFoundException {
@@ -289,5 +284,10 @@ public class AddCommentController extends ApplicationObjectSupport {
     formParams.put("topic", topic);
 
     return topic;
+  }
+
+  @InitBinder("add")
+  public void initBinder(WebDataBinder binder) {
+    binder.setValidator(new AddCommentRequestValidator());
   }
 }
