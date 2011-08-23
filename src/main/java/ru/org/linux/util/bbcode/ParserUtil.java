@@ -35,7 +35,9 @@ public class ParserUtil {
   public static String bb2xhtml(String bbcode, boolean renderCut, boolean cleanCut, String cutUrl, Connection db) {
     RootNode rootNode = new RootNode(parserWithOutImages);
     rootNode.setRenderOptions(renderCut, cleanCut, cutUrl);
-    rootNode.setUserDao(new UserDao(new SingleConnectionDataSource(db, true)));
+    UserDao singleUserDao = new UserDao();
+    singleUserDao.setJdbcTemplate(new SingleConnectionDataSource(db, true));
+    rootNode.setUserDao(singleUserDao);
     return parserWithOutImages.parse(rootNode, bbcode).renderXHtml();
   }
 

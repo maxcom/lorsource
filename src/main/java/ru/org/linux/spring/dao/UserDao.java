@@ -7,7 +7,6 @@ import org.jasypt.util.password.BasicPasswordEncryptor;
 import org.jasypt.util.password.PasswordEncryptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
@@ -19,22 +18,15 @@ import ru.org.linux.util.StringUtil;
 import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.LinkedList;
 import java.util.List;
 
 @Repository
 public class UserDao {
-  private final JdbcTemplate jdbcTemplate;
-  private CommentDao commentDao;
+  private JdbcTemplate jdbcTemplate;
 
   @Autowired
-  public UserDao(DataSource dataSource) {
-    jdbcTemplate = new JdbcTemplate(dataSource);
-  }
-
-  @Autowired
-  public void setCommentDao(CommentDao commentDao) {
-    this.commentDao = commentDao;
+  public void setJdbcTemplate(DataSource dataSource) {
+    this.jdbcTemplate = new JdbcTemplate(dataSource);
   }
 
   @Deprecated
@@ -145,6 +137,29 @@ public class UserDao {
   }
 
   /**
+   * Отчистка userpicture пользователя, с обрезанием шкворца если удляет моедратор
+   * @param user пользовтель у которого чистят
+   * @param cleaner пользователь который чистит
+   */
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
+  public void removePhoto(User user, User cleaner) {
+    setPhoto(user, null);
+    if(cleaner.canModerate() && cleaner.getId() != user.getId()){
+      changeScore(user, -10);
+    }
+  }
+
+  /**
+   * Обновление userpic-а пользовтаеля
+   * @param user пользователь
+   * @param photo userpick
+   */
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
+  public void setPhoto(User user, String photo){
+    jdbcTemplate.update("UPDATE users SET photo=? WHERE id=?", photo, user.getId());
+  }
+
+  /**
    * Обновление дополнительной информации пользователя
    * @param user пользователь
    * @param text текст дополнительной информации
@@ -227,43 +242,4 @@ public class UserDao {
     jdbcTemplate.update("UPDATE users SET blocked='f' WHERE id=?", user.getId());
     jdbcTemplate.update("DELETE FROM ban_info WHERE userid=?", user.getId());
   }
-
-  /**
-   * Массивное удаление всех комментариев пользователя, чо всеми ответами на них
-   * @param user пользователь для экзекуции
-   * @param moderator экзекутор-модератор
-   * @return список удаленных комментариев
-   */
-  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public List<Integer> deleteAllComments(final User user, final User moderator) {
-    final List<Integer> deleted = new LinkedList<Integer>();
-
-    // Удаляем все топики
-    jdbcTemplate.query("SELECT id FROM topics WHERE userid=? AND not deleted FOR UPDATE",
-        new RowCallbackHandler(){
-          @Override
-          public void processRow(ResultSet rs) throws SQLException {
-            int mid = rs.getInt("id");
-            jdbcTemplate.update("UPDATE topics SET deleted='t',sticky='f' WHERE id=?", mid);
-            jdbcTemplate.update("INSERT INTO del_info (msgid, delby, reason, deldate) values(?,?,?, CURRENT_TIMESTAMP)", mid);
-          }
-        },
-        user.getId());
-
-    // Удаляем все комментарии
-    jdbcTemplate.query("SELECT id FROM comments WHERE userid=? AND not deleted ORDER BY id DESC FOR update",
-        new RowCallbackHandler() {
-          @Override
-          public void processRow(ResultSet resultSet) throws SQLException {
-            int msgid = resultSet.getInt("id");
-            deleted.add(msgid);
-            deleted.addAll(commentDao.deleteReplys(msgid, moderator, false));
-            commentDao.deleteCommentWithSQLException(msgid, "Блокировка пользователя с удалением сообщений", moderator, 0);
-          }
-        },
-        user.getId());
-
-    return deleted;
-  }
-
 }

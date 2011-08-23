@@ -360,6 +360,7 @@ public class User implements Serializable {
     }
   }
 
+  @Deprecated
   public List<Integer> deleteAllComments(Connection db, User moderator) throws SQLException, ScriptErrorException {
     Statement st = null;
     ResultSet rs = null;

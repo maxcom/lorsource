@@ -4,6 +4,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
@@ -30,13 +31,13 @@ public class CommentDao {
   private final static String insertDelinfo = "INSERT INTO del_info (msgid, delby, reason, deldate) values(?,?,?, CURRENT_TIMESTAMP)";
   private final static String updateScore = "UPDATE users SET score=score+? WHERE id=(SELECT userid FROM comments WHERE id=?)";
 
-
-  private final JdbcTemplate jdbcTemplate;
+  private JdbcTemplate jdbcTemplate;
 
   @Autowired
-  public CommentDao(DataSource dataSource){
+  public void setJdbcTemplate(DataSource dataSource) {
     jdbcTemplate = new JdbcTemplate(dataSource);
   }
+
 
   /**
    * Удаляем клментарий, если на комментарий есть ответы - генерируем исключение
@@ -120,4 +121,44 @@ public class CommentDao {
       }
     },msgid);
   }
+
+  /**
+   * Массивное удаление всех комментариев пользователя, чо всеми ответами на них
+   * @param user пользователь для экзекуции
+   * @param moderator экзекутор-модератор
+   * @return список удаленных комментариев
+   */
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
+  public List<Integer> deleteAllComments(final User user, final User moderator) {
+    final List<Integer> deleted = new LinkedList<Integer>();
+
+    // Удаляем все топики
+    jdbcTemplate.query("SELECT id FROM topics WHERE userid=? AND not deleted FOR UPDATE",
+        new RowCallbackHandler(){
+          @Override
+          public void processRow(ResultSet rs) throws SQLException {
+            int mid = rs.getInt("id");
+            jdbcTemplate.update("UPDATE topics SET deleted='t',sticky='f' WHERE id=?", mid);
+            jdbcTemplate.update("INSERT INTO del_info (msgid, delby, reason, deldate) values(?,?,?, CURRENT_TIMESTAMP)",
+                mid, moderator.getId(), "Блокировка пользователя с удалением сообщений");
+          }
+        },
+        user.getId());
+
+    // Удаляем все комментарии
+    jdbcTemplate.query("SELECT id FROM comments WHERE userid=? AND not deleted ORDER BY id DESC FOR update",
+        new RowCallbackHandler() {
+          @Override
+          public void processRow(ResultSet resultSet) throws SQLException {
+            int msgid = resultSet.getInt("id");
+            deleted.add(msgid);
+            deleted.addAll(deleteReplys(msgid, moderator, false));
+            deleteCommentWithSQLException(msgid, "Блокировка пользователя с удалением сообщений", moderator, 0);
+          }
+        },
+        user.getId());
+
+    return deleted;
+  }
+
 }
