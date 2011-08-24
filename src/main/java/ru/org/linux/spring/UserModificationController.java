@@ -81,7 +81,6 @@ public class UserModificationController extends ApplicationObjectSupport {
   /**
    * Контроллер блокировки пользователя
    * @param request http запрос
-   * @param action всегда block
    * @param user блокируемый пользователь
    * @param reason причина блокировки
    * @return возвращаемся в профиль
