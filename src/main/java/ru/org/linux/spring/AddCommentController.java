@@ -19,17 +19,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.ApplicationObjectSupport;
 import org.springframework.jdbc.support.JdbcUtils;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindException;
+import org.springframework.validation.BindingResult;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.InitBinder;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.site.*;
 import ru.org.linux.spring.validators.AddCommentRequestValidator;
 import ru.org.linux.util.HTMLFormatter;
+import ru.org.linux.util.ServletParameterException;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
@@ -45,6 +45,7 @@ import java.util.Map;
 public class AddCommentController extends ApplicationObjectSupport {
   private SearchQueueSender searchQueueSender;
   private CaptchaService captcha;
+  private DupeProtector dupeProtector;
 
   @Autowired
   public void setSearchQueueSender(SearchQueueSender searchQueueSender) {
@@ -56,12 +57,25 @@ public class AddCommentController extends ApplicationObjectSupport {
     this.captcha = captcha;
   }
 
+  @Autowired
+  public void setDupeProtector(DupeProtector dupeProtector) {
+    this.dupeProtector = dupeProtector;
+  }
+
   @RequestMapping(value = "/add_comment.jsp", method = RequestMethod.GET)
   public ModelAndView showFormReply(
     @ModelAttribute("add") @Valid AddCommentRequest add,
-    Errors errors,
+    BindingResult errors,
     ServletRequest request
   ) throws Exception {
+    if (errors.hasErrors()) {
+      throw new BindException(errors);
+    }
+
+    if (add.getTopic()==null) {
+      throw new ServletParameterException("тема на задана");
+    }
+
     Template tmpl = Template.getTemplate(request);
     
     Map<String, Object> params = new HashMap<String, Object>();
@@ -77,8 +91,8 @@ public class AddCommentController extends ApplicationObjectSupport {
 
       checkAndCreateReplyto(add, errors, params, db);
 
-      if (errors.hasGlobalErrors()) {
-        throw new UserErrorException(errors.getGlobalError().getDefaultMessage());
+      if (errors.hasErrors()) {
+        throw new BindException(errors);
       }
 
       return new ModelAndView("add_comment", params);
@@ -90,7 +104,6 @@ public class AddCommentController extends ApplicationObjectSupport {
   @RequestMapping("/comment-message.jsp")
   public ModelAndView showFormTopic(
     @ModelAttribute("add") @Valid AddCommentRequest add,
-    Errors errors,
     HttpServletRequest request
   ) throws Exception {
     Template tmpl = Template.getTemplate(request);
@@ -103,7 +116,7 @@ public class AddCommentController extends ApplicationObjectSupport {
       if (add.getMode()==null) {
         add.setMode(tmpl.getFormatMode());
       }
-
+      
       HashMap<String, Object> params = new HashMap<String, Object>();
 
       params.put("preparedMessage", new PreparedMessage(db, add.getTopic(), true));
@@ -201,17 +214,6 @@ public class AddCommentController extends ApplicationObjectSupport {
 
       user.checkBlocked(errors);
 
-      Comment comment = new Comment(
-              add.getReplyto(),
-              HTMLFormatter.htmlSpecialChars(add.getTitle()),
-              add.getTopic().getId(),
-              user.getId(),
-              request.getHeader("user-agent"),
-              request.getRemoteAddr()
-      );
-
-      formParams.put("comment", new PreparedComment(db, comment, msg));
-
       if (user.isAnonymous()) {
         if (msg.length() > 4096) {
           errors.rejectValue("msg", null, "Слишком большое сообщение");
@@ -225,10 +227,25 @@ public class AddCommentController extends ApplicationObjectSupport {
       add.getTopic().checkCommentsAllowed(user, errors);
 
       if (!add.isPreviewMode() && !errors.hasErrors()) {
-        DupeProtector.getInstance().checkDuplication(request.getRemoteAddr(), user.getScore() > 100, errors);
+        dupeProtector.checkDuplication(request.getRemoteAddr(), user.getScore() > 100, errors);
       }
 
-      if (!add.isPreviewMode() && !errors.hasErrors()) {
+      Comment comment = null;
+
+      if (add.getTopic() != null) {
+        comment = new Comment(
+                add.getReplyto(),
+                HTMLFormatter.htmlSpecialChars(add.getTitle()),
+                add.getTopic().getId(),
+                user.getId(),
+                request.getHeader("user-agent"),
+                request.getRemoteAddr()
+        );
+
+        formParams.put("comment", new PreparedComment(db, comment, msg));
+      }
+
+      if (!add.isPreviewMode() && !errors.hasErrors() && comment!=null) {
         int msgid = comment.saveNewMessage(db, request.getRemoteAddr(), request.getHeader("user-agent"), msg);
 
         String logmessage = "Написан комментарий " + msgid + " ip:" + request.getRemoteAddr();
@@ -272,6 +289,8 @@ public class AddCommentController extends ApplicationObjectSupport {
   @InitBinder("add")
   public void requestValidator(WebDataBinder binder) {
     binder.setValidator(new AddCommentRequestValidator());
+
+    binder.setBindingErrorProcessor(new ExceptionBindingErrorProcessor());
   }
 
   @InitBinder
@@ -294,5 +313,10 @@ public class AddCommentController extends ApplicationObjectSupport {
         }
       }
     });
+  }
+
+  @ExceptionHandler(BindException.class)
+  public String handleInvalidRequest() {
+    return "error-parameter"; 
   }
 }

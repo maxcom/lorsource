@@ -54,7 +54,7 @@ public class VoteController {
       db = LorDataSource.getConnection();
       db.setAutoCommit(false);
 
-      User user = User.getUser(db, tmpl.getNick());
+      User user = tmpl.getCurrentUser();
 
       Poll poll = Poll.getCurrentPoll(db);
 

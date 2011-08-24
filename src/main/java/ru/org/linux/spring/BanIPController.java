@@ -85,7 +85,7 @@ public class BanIPController {
       db = LorDataSource.getConnection();
       db.setAutoCommit(false);
 
-      User user = User.getUser(db, tmpl.getNick());
+      User user = tmpl.getCurrentUser();
 
       IPBlockInfo blockInfo = IPBlockInfo.getBlockInfo(db, ip);
       user.checkCommit();

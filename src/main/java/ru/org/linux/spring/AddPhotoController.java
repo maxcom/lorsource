@@ -70,8 +70,7 @@ public class AddPhotoController extends ApplicationObjectSupport {
       Userpic.checkUserpic(uploadedFile);
       String extension = ImageInfo.detectImageType(uploadedFile);
 
-      db = LorDataSource.getConnection();
-      User user = User.getUser(db, tmpl.getNick());
+      User user = tmpl.getCurrentUser();
       user.checkAnonymous();
 
       Random random = new Random();
@@ -88,6 +87,8 @@ public class AddPhotoController extends ApplicationObjectSupport {
         logger.warn("Can't move photo to " + photofile);
         throw new ScriptErrorException("Can't move photo: internal error");
       }
+
+      db = LorDataSource.getConnection();
 
       PreparedStatement pst = db.prepareStatement("UPDATE users SET photo=? WHERE id=?");
       pst.setString(1, photoname);

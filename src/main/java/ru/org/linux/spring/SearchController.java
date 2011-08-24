@@ -22,14 +22,12 @@ import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
-import org.springframework.beans.PropertyAccessException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.DefaultBindingErrorProcessor;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -42,7 +40,6 @@ import ru.org.linux.spring.dao.UserDao;
 
 import javax.sql.DataSource;
 import java.beans.PropertyEditorSupport;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
@@ -214,7 +211,7 @@ public class SearchController {
     return builder.build();
   }
 
-  private Map<Integer, String> buildGroupFacet(int sectionId, FacetField groupFacet) throws BadGroupException, SQLException {
+  private Map<Integer, String> buildGroupFacet(int sectionId, FacetField groupFacet) throws BadGroupException {
     ImmutableMap.Builder<Integer, String> builder = ImmutableSortedMap.naturalOrder();
 
     int totalCount = 0;
@@ -277,21 +274,6 @@ public class SearchController {
 
     binder.registerCustomEditor(User.class, new UserPropertyEditor(userDao));
 
-    binder.setBindingErrorProcessor(new DefaultBindingErrorProcessor() {
-      @Override
-      public void processPropertyAccessException(PropertyAccessException e, BindingResult bindingResult) {
-        if (e.getCause() instanceof IllegalArgumentException &&
-                e.getCause().getCause() instanceof UserNotFoundException) {
-          bindingResult.rejectValue(
-                  e.getPropertyChangeEvent().getPropertyName(),
-                  null,
-                  e.getCause().getCause().getMessage()
-          );
-        } else {
-          super.processPropertyAccessException(e, bindingResult);
-        }
-      }
-    });
+    binder.setBindingErrorProcessor(new ExceptionBindingErrorProcessor());
   }
-
 }
