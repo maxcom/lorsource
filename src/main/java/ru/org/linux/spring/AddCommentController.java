@@ -157,15 +157,16 @@ public class AddCommentController extends ApplicationObjectSupport {
   ) throws Exception {
     Template tmpl = Template.getTemplate(request);
 
-    String msg = processMessage(add.getMsg(), add.getMode());
-
     if (add.getMsg()==null || add.getMsg().trim().isEmpty()) {
       errors.rejectValue("msg", null, "комментарий не может быть пустым");
+      add.setMsg("");
     }
 
     if (add.getMode()==null) {
       add.setMode(tmpl.getFormatMode());
     }
+
+    String msg = processMessage(add.getMsg(), add.getMode());
 
     HttpSession session = request.getSession();
 
