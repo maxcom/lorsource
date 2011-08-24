@@ -64,63 +64,153 @@ public class UserModificationController extends ApplicationObjectSupport {
     this.userDao = userDao;
   }
 
-  @RequestMapping(value="/usermod.jsp", method= RequestMethod.POST)
-  public ModelAndView modifyUser(
-          HttpServletRequest request,
-          @RequestParam("action") String action,
-          @RequestParam("id") User user,
-          @RequestParam(value = "reason", required = false) String reason
-  ) throws Exception {
+  /**
+   * Возвращает объект User модератора, если текущая сессия не модераторская, тогда исключение
+   * @param request текущий http запрос
+   * @return текущий модератор
+   * @throws Exception если модератора нет
+   */
+  private User getModerator(HttpServletRequest request) throws Exception {
     Template tmpl = Template.getTemplate(request);
-
     if (!tmpl.isModeratorSession()) {
       throw new AccessViolationException("Not moderator");
     }
+    return tmpl.getCurrentUser();
+  }
 
-    User moderator = tmpl.getCurrentUser();
+  /**
+   * Контроллер блокировки пользователя
+   * @param request http запрос
+   * @param action всегда block
+   * @param user блокируемый пользователь
+   * @param reason причина блокировки
+   * @return возвращаемся в профиль
+   * @throws Exception обычно если текущий пользователь не модератор или блокируемого пользователя
+   * нельзя блокировать
+   */
+  @RequestMapping(value = "/usermod.jsp", method = RequestMethod.POST, params = "action=block")
+  public ModelAndView blockUser(
+      HttpServletRequest request,
+      @RequestParam("action") String action,
+      @RequestParam("id") User user,
+      @RequestParam(value = "reason", required = false) String reason
+  ) throws Exception {
 
-    if ("block".equals(action)) { // Блокировка пользователя
-      if (!user.isBlockable() && !moderator.isAdministrator()) {
-        throw new AccessViolationException("Пользователя " + user.getNick() + " нельзя заблокировать");
-      }
-
-      userDao.blockWithResetPassword(user, moderator, reason);
-      logger.info("User " + user.getNick() + " blocked by " + moderator.getNick());
-    } else if ("block-n-delete-comments".equals(action)) { // Блокировка и массовое удаление
-      if (!user.isBlockable() && !moderator.isAdministrator()) {
-        throw new AccessViolationException("Пользователя " + user.getNick() + " нельзя заблокировать");
-      }
-
-      Map<String, Object> params = new HashMap<String, Object>();
-      params.put("message", "Удалено");
-      List<Integer> deleted = commentDao.deleteAllCommentsAndBlock(user, moderator, reason);
-      logger.info("User " + user.getNick() + " blocked by " + moderator.getNick());
-      params.put("bigMessage", deleted);
-      searchQueueSender.updateComment(deleted);
-      return new ModelAndView("action-done", params);
-    } else if ("toggle_corrector".equals(action)) { // Смена признака корректора
-      if (user.getScore()<User.CORRECTOR_SCORE) {
-        throw new AccessViolationException("Пользователя " + user.getNick() + " нельзя сделать корректором");
-      }
-      userDao.toggleCorrector(user);
-    } else if ("unblock".equals(action)) { // Разблокировка
-      if (!user.isBlockable() && !moderator.isAdministrator()) {
-        throw new AccessViolationException("Пользователя " + user.getNick() + " нельзя разблокировать");
-      }
-      userDao.unblock(user);
-      logger.info("User " + user.getNick() + " unblocked by " + moderator.getNick());
-    } else if ("remove_userinfo".equals(action)) { // Очистка дополнительной информации
-      if (user.canModerate()) {
-        throw new AccessViolationException("Пользователю " + user.getNick() + " нельзя удалить сведения");
-      }
-      userDao.removeUserInfo(user);
-      logger.info("Clearing " + user.getNick() + " userinfo");
-    } else {
-      throw new UserErrorException("Invalid action=" + HTMLFormatter.htmlSpecialChars(action));
+    User moderator = getModerator(request);
+    if (!user.isBlockable() && !moderator.isAdministrator()) {
+      throw new AccessViolationException("Пользователя " + user.getNick() + " нельзя заблокировать");
     }
 
+    userDao.blockWithResetPassword(user, moderator, reason);
+    logger.info("User " + user.getNick() + " blocked by " + moderator.getNick());
     Random random = new Random();
+    return new ModelAndView(new RedirectView("/people/" + URLEncoder.encode(user.getNick()) + "/profile?nocache=" + random.nextInt()));
+  }
 
+  /**
+   * Контроллер разблокировки пользователя
+   * @param request http запрос
+   * @param action всегда unblock
+   * @param user разблокируемый пользователь
+   * @return возвращаемся в профиль
+   * @throws Exception обычно если текущий пользователь не модератор или пользователя нельзя разблокировать
+   */
+  @RequestMapping(value = "/usermod.jsp", method = RequestMethod.POST, params = "action=unblock")
+  public ModelAndView unblockUser(
+      HttpServletRequest request,
+      @RequestParam("action") String action,
+      @RequestParam("id") User user
+  ) throws Exception {
+
+    User moderator = getModerator(request);
+    if (!user.isBlockable() && !moderator.isAdministrator()) {
+      throw new AccessViolationException("Пользователя " + user.getNick() + " нельзя разблокировать");
+    }
+    userDao.unblock(user);
+    logger.info("User " + user.getNick() + " unblocked by " + moderator.getNick());
+    Random random = new Random();
+    return new ModelAndView(new RedirectView("/people/" + URLEncoder.encode(user.getNick()) + "/profile?nocache=" + random.nextInt()));
+  }
+
+  /**
+   * Контроллер блокирования и полного удаления комментариев и топиков пользователя
+   * @param request http запрос
+   * @param action всегда block-n-delete-comments
+   * @param user блокируемый пользователь
+   * @return возвращаемся в профиль
+   * @throws Exception обычно если текущий пользователь не модератор или пользователя нельзя блокировать
+   */
+  @RequestMapping(value = "/usermod.jsp", method = RequestMethod.POST, params = "action=block-n-delete-comments")
+  public ModelAndView blockAndMassiveDeleteCommentUser(
+      HttpServletRequest request,
+      @RequestParam("action") String action,
+      @RequestParam("id") User user,
+      @RequestParam(value = "reason", required = false) String reason
+  ) throws Exception {
+
+    User moderator = getModerator(request);
+    if (!user.isBlockable() && !moderator.isAdministrator()) {
+      throw new AccessViolationException("Пользователя " + user.getNick() + " нельзя заблокировать");
+    }
+    Map<String, Object> params = new HashMap<String, Object>();
+    params.put("message", "Удалено");
+    List<Integer> deleted = commentDao.deleteAllCommentsAndBlock(user, moderator, reason);
+    logger.info("User " + user.getNick() + " blocked by " + moderator.getNick());
+    params.put("bigMessage", deleted);
+    searchQueueSender.updateComment(deleted);
+    return new ModelAndView("action-done", params);
+  }
+
+  /**
+   * Контроллер смена признака корректора
+   * @param request http запрос
+   * @param action всегда toggle_corrector
+   * @param user блокируемый пользователь
+   * @return возвращаемся в профиль
+   * @throws Exception обычно если текущий пользователь не модератор или пользователя нельзя сделать корректором
+   */
+  @RequestMapping(value = "/usermod.jsp", method = RequestMethod.POST, params = "action=toggle_corrector")
+  public ModelAndView toggleUserCorrector(
+      HttpServletRequest request,
+      @RequestParam("action") String action,
+      @RequestParam("id") User user,
+      @RequestParam(value = "reason", required = false) String reason
+  ) throws Exception {
+
+    User moderator = getModerator(request);
+    if (user.getScore()<User.CORRECTOR_SCORE) {
+      throw new AccessViolationException("Пользователя " + user.getNick() + " нельзя сделать корректором");
+    }
+    userDao.toggleCorrector(user);
+
+    Random random = new Random();
+    return new ModelAndView(new RedirectView("/people/" + URLEncoder.encode(user.getNick()) + "/profile?nocache=" + random.nextInt()));
+  }
+
+  /**
+   * Контроллер отчистки дополнительной информации в профиле
+   * @param request http запрос
+   * @param action всегда remove_userinfo
+   * @param user блокируемый пользователь
+   * @return возвращаемся в профиль
+   * @throws Exception обычно если текущий пользователь не модератор или нельзя трогать дополнительные сведения
+   */
+  @RequestMapping(value = "/usermod.jsp", method = RequestMethod.POST, params = "action=remove_userinfo")
+  public ModelAndView removeUserInfo(
+      HttpServletRequest request,
+      @RequestParam("action") String action,
+      @RequestParam("id") User user,
+      @RequestParam(value = "reason", required = false) String reason
+  ) throws Exception {
+
+    User moderator = getModerator(request);
+    if (user.canModerate()) {
+      throw new AccessViolationException("Пользователю " + user.getNick() + " нельзя удалить сведения");
+    }
+    userDao.removeUserInfo(user);
+    logger.info("Clearing " + user.getNick() + " userinfo");
+
+    Random random = new Random();
     return new ModelAndView(new RedirectView("/people/" + URLEncoder.encode(user.getNick()) + "/profile?nocache=" + random.nextInt()));
   }
 
