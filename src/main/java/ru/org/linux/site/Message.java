@@ -759,7 +759,7 @@ public class Message implements Serializable {
     if (lorcode) {
       String okMainUrl;
       // Откусяываем последний слэш у mainUrl если он есть
-      if(mainUrl.length() > 1 && mainUrl.lastIndexOf('/') == mainUrl.length()-1){
+      if(mainUrl.endsWith("/")){
         okMainUrl = mainUrl.substring(0, mainUrl.length()-1);
       }else{
         okMainUrl = mainUrl;
