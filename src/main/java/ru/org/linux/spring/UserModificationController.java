@@ -81,7 +81,6 @@ public class UserModificationController extends ApplicationObjectSupport {
   /**
    * Контроллер блокировки пользователя
    * @param request http запрос
-   * @param action всегда block
    * @param user блокируемый пользователь
    * @param reason причина блокировки
    * @return возвращаемся в профиль
@@ -91,14 +90,16 @@ public class UserModificationController extends ApplicationObjectSupport {
   @RequestMapping(value = "/usermod.jsp", method = RequestMethod.POST, params = "action=block")
   public ModelAndView blockUser(
       HttpServletRequest request,
-      @RequestParam("action") String action,
       @RequestParam("id") User user,
       @RequestParam(value = "reason", required = false) String reason
   ) throws Exception {
-
     User moderator = getModerator(request);
     if (!user.isBlockable() && !moderator.isAdministrator()) {
       throw new AccessViolationException("Пользователя " + user.getNick() + " нельзя заблокировать");
+    }
+
+    if (user.isBlocked()) {
+      throw new UserErrorException("Пользователь уже блокирован");
     }
 
     userDao.blockWithResetPassword(user, moderator, reason);
