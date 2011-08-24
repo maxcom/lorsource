@@ -7,6 +7,9 @@ import ru.org.linux.site.User;
 import ru.org.linux.site.UserNotFoundException;
 import ru.org.linux.spring.dao.UserDao;
 
+import java.util.List;
+import java.util.Set;
+
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -17,30 +20,6 @@ import static org.mockito.Mockito.when;
  * Time: 5:06 PM
  */
 public class SimpleParserTest {
-
-  private UserDao userDao;
-  private User maxcom; // Администратор
-  private User JB;     // Модератор
-  private User isden;  // Заблокированный пользователь
-
-  @Before
-  public void initTest() throws Exception{
-    maxcom = mock(User.class);
-    JB = mock(User.class);
-    isden = mock(User.class);
-
-    when(maxcom.isBlocked()).thenReturn(false);
-    when(JB.isBlocked()).thenReturn(false);
-    when(isden.isBlocked()).thenReturn(true);
-
-    userDao = mock(UserDao.class);
-    when(userDao.getUser("maxcom")).thenReturn(maxcom);
-    when(userDao.getUser("JB")).thenReturn(JB);
-    when(userDao.getUser("isden")).thenReturn(isden);
-    when(userDao.getUser("hizel")).thenThrow(new UserNotFoundException("hizel"));
-
-  }
-
 
   @Test
   public void brTest() {
@@ -187,7 +166,26 @@ public class SimpleParserTest {
   }
 
   @Test
-  public void userTest() {
+  public void userTest() throws Exception{
+    UserDao userDao;
+    User maxcom; // Администратор
+    User JB;     // Модератор
+    User isden;  // Заблокированный пользователь
+
+    maxcom = mock(User.class);
+    JB = mock(User.class);
+    isden = mock(User.class);
+
+    when(maxcom.isBlocked()).thenReturn(false);
+    when(JB.isBlocked()).thenReturn(false);
+    when(isden.isBlocked()).thenReturn(true);
+
+    userDao = mock(UserDao.class);
+    when(userDao.getUser("maxcom")).thenReturn(maxcom);
+    when(userDao.getUser("JB")).thenReturn(JB);
+    when(userDao.getUser("isden")).thenReturn(isden);
+    when(userDao.getUser("hizel")).thenThrow(new UserNotFoundException("hizel"));
+
     Assert.assertEquals("<p><span style=\"white-space: nowrap\"><img src=\"/img/tuxlor.png\"><a style=\"text-decoration: none\" href='/people/maxcom/profile'>maxcom</a></span></p>",
         ParserUtil.bb2xhtml("[user]maxcom[/user]", true, true, "", userDao));
     Assert.assertEquals("<p><span style=\"white-space: nowrap\"><img src=\"/img/tuxlor.png\"><s><a style=\"text-decoration: none\" href='/people/isden/profile'>isden</a></s></span></p>",
@@ -195,9 +193,37 @@ public class SimpleParserTest {
     Assert.assertEquals("<p><s>hizel</s></p>",
         ParserUtil.bb2xhtml("[user]hizel[/user]", true, true, "", userDao));
   }
-// TODO а как тестировать если базы нет :-(
-//    @Test
-//    public void userTest(){
-//        Assert.assertEquals(ParserUtil.bb2xhtml("[user]maxcom[/user]",null), "<div><span style=\"white-space: nowrap\"><img src=\"/img/tuxlor.png\"><a style=\"text-decoration: none\" href='/people/maxcom/profile'>maxcom</a></span></div>");
-//    }
+
+  @Test
+  public void parserResultTest() throws Exception {
+    UserDao userDao;
+    User maxcom; // Администратор
+    User JB;     // Модератор
+    User isden;  // Заблокированный пользователь
+
+    maxcom = mock(User.class);
+    JB = mock(User.class);
+    isden = mock(User.class);
+
+    when(maxcom.isBlocked()).thenReturn(false);
+    when(maxcom.getId()).thenReturn(1);
+    when(JB.isBlocked()).thenReturn(false);
+    when(JB.getId()).thenReturn(2);
+    when(isden.isBlocked()).thenReturn(true);
+    when(isden.getId()).thenReturn(3);
+
+
+    userDao = mock(UserDao.class);
+    when(userDao.getUser("maxcom")).thenReturn(maxcom);
+    when(userDao.getUser("JB")).thenReturn(JB);
+    when(userDao.getUser("isden")).thenReturn(isden);
+    when(userDao.getUser("hizel")).thenThrow(new UserNotFoundException("hizel"));
+
+    ParserResult parserResult = ParserUtil.bb2xhtm("[user]hizel[/user][user]JB[/user][user]maxcom[/user]", true, true, "", userDao);
+
+    Assert.assertTrue(parserResult.getReplier().contains(maxcom));
+    Assert.assertTrue(parserResult.getReplier().contains(JB));
+    Assert.assertFalse(parserResult.getReplier().contains(isden));
+
+  }
 }

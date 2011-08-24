@@ -43,6 +43,7 @@ import ru.org.linux.site.UserNotFoundException;
 import ru.org.linux.spring.dao.UserDao;
 import ru.org.linux.util.bbcode.Parser;
 import ru.org.linux.util.bbcode.nodes.Node;
+import ru.org.linux.util.bbcode.nodes.RootNode;
 import ru.org.linux.util.bbcode.nodes.TextNode;
 
 import java.util.Set;
@@ -55,6 +56,7 @@ import java.util.Set;
  */
 public class MemberTag extends Tag {
   private UserDao userDao;
+  private RootNode rootNode;
 
   public MemberTag(String name, Set<String> allowedChildren, String implicitTag, Parser parser) {
     super(name, allowedChildren, implicitTag, parser);
@@ -62,6 +64,10 @@ public class MemberTag extends Tag {
 
   public void setUserDao(UserDao userDao) {
     this.userDao = userDao;
+  }
+
+  public void setRootNode(RootNode rootNode) {
+    this.rootNode = rootNode;
   }
 
   @Override
@@ -77,6 +83,9 @@ public class MemberTag extends Tag {
         User user = userDao.getUser(memberName);
         if (!user.isBlocked()) {
           pattern = "<span style=\"white-space: nowrap\"><img src=\"/img/tuxlor.png\"><a style=\"text-decoration: none\" href='/people/%s/profile'>%s</a></span>";
+          if(rootNode != null){
+            rootNode.addReplier(user);
+          }
         } else {
           pattern = "<span style=\"white-space: nowrap\"><img src=\"/img/tuxlor.png\"><s><a style=\"text-decoration: none\" href='/people/%s/profile'>%s</a></s></span>";
         }

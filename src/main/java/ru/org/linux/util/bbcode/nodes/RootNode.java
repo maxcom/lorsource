@@ -38,8 +38,14 @@
 
 package ru.org.linux.util.bbcode.nodes;
 
+import ru.org.linux.site.User;
 import ru.org.linux.spring.dao.UserDao;
 import ru.org.linux.util.bbcode.Parser;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Created by IntelliJ IDEA.
@@ -53,6 +59,7 @@ public class RootNode extends Node {
   private boolean cleanCut;
   private String cutUrl;
   private UserDao userDao;
+  private Set<User> replier;
 
   public RootNode(Parser parser) {
     super(parser);
@@ -60,6 +67,7 @@ public class RootNode extends Node {
     renderCut = true;
     cleanCut = true;
     cutUrl = "";
+    replier = new HashSet<User>();
   }
 
   public void setUserDao(UserDao userDao) {
@@ -68,6 +76,14 @@ public class RootNode extends Node {
 
   public UserDao getUserDao() {
     return userDao;
+  }
+
+  public void addReplier(User nick) {
+    replier.add(nick);
+  }
+
+  public Set<User> getReplier() {
+    return replier;
   }
 
   public void setRenderOptions(boolean renderCut, boolean cleanCut, String cutUrl) {

@@ -401,6 +401,7 @@ public class Parser {
       if("user".equals(name)) {
         MemberTag memberTag = ((MemberTag) (node.getBbtag()));
         memberTag.setUserDao(rootNode.getUserDao());
+        memberTag.setRootNode(rootNode);
       }
       currentNode.getChildren().add(node);
       if (!node.getBbtag().isSelfClosing()) {
