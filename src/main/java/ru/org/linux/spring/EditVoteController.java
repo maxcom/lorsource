@@ -93,7 +93,7 @@ public class EditVoteController extends ApplicationObjectSupport {
       db = LorDataSource.getConnection();
       db.setAutoCommit(false);
 
-      User user = User.getUser(db, tmpl.getNick());
+      User user = tmpl.getCurrentUser();
       user.checkCommit();
 
       Poll poll = new Poll(db, id);

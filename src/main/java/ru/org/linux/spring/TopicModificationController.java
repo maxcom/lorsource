@@ -101,7 +101,7 @@ public class TopicModificationController extends ApplicationObjectSupport {
       pst.setBoolean(4, minor);
       pst.setInt(5, msgid);
 
-      User user = User.getUser(db, tmpl.getNick());
+      User user = tmpl.getCurrentUser();
       user.checkCommit();
 
       pst.executeUpdate();

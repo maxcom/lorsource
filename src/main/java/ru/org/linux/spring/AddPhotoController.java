@@ -71,7 +71,7 @@ public class AddPhotoController extends ApplicationObjectSupport {
       String extension = ImageInfo.detectImageType(uploadedFile);
 
       db = LorDataSource.getConnection();
-      User user = User.getUser(db, tmpl.getNick());
+      User user = tmpl.getCurrentUser();
       user.checkAnonymous();
 
       Random random = new Random();
