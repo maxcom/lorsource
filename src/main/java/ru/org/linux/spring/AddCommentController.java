@@ -214,17 +214,6 @@ public class AddCommentController extends ApplicationObjectSupport {
 
       user.checkBlocked(errors);
 
-      Comment comment = new Comment(
-              add.getReplyto(),
-              HTMLFormatter.htmlSpecialChars(add.getTitle()),
-              add.getTopic().getId(),
-              user.getId(),
-              request.getHeader("user-agent"),
-              request.getRemoteAddr()
-      );
-
-      formParams.put("comment", new PreparedComment(db, comment, msg));
-
       if (user.isAnonymous()) {
         if (msg.length() > 4096) {
           errors.rejectValue("msg", null, "Слишком большое сообщение");
@@ -241,7 +230,22 @@ public class AddCommentController extends ApplicationObjectSupport {
         dupeProtector.checkDuplication(request.getRemoteAddr(), user.getScore() > 100, errors);
       }
 
-      if (!add.isPreviewMode() && !errors.hasErrors()) {
+      Comment comment = null;
+
+      if (add.getTopic() != null) {
+        comment = new Comment(
+                add.getReplyto(),
+                HTMLFormatter.htmlSpecialChars(add.getTitle()),
+                add.getTopic().getId(),
+                user.getId(),
+                request.getHeader("user-agent"),
+                request.getRemoteAddr()
+        );
+
+        formParams.put("comment", new PreparedComment(db, comment, msg));
+      }
+
+      if (!add.isPreviewMode() && !errors.hasErrors() && comment!=null) {
         int msgid = comment.saveNewMessage(db, request.getRemoteAddr(), request.getHeader("user-agent"), msg);
 
         String logmessage = "Написан комментарий " + msgid + " ip:" + request.getRemoteAddr();
