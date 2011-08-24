@@ -37,6 +37,7 @@ import org.springframework.web.servlet.view.RedirectView;
 public class AddMessageController extends ApplicationObjectSupport {
   private SearchQueueSender searchQueueSender;
   private CaptchaService captcha;
+  private DupeProtector dupeProtector;
 
   @Autowired
   public void setSearchQueueSender(SearchQueueSender searchQueueSender) {
@@ -46,6 +47,11 @@ public class AddMessageController extends ApplicationObjectSupport {
   @Autowired
   public void setCaptcha(CaptchaService captcha) {
     this.captcha = captcha;
+  }
+
+  @Autowired
+  public void setDupeProtector(DupeProtector dupeProtector) {
+    this.dupeProtector = dupeProtector;
   }
 
   @RequestMapping(value = "/add.jsp", method = RequestMethod.GET)
@@ -142,7 +148,7 @@ public class AddMessageController extends ApplicationObjectSupport {
         }
         // Blocked IP
         IPBlockInfo.checkBlockIP(db, request.getRemoteAddr());
-        DupeProtector.getInstance().checkDuplication(request.getRemoteAddr());
+        dupeProtector.checkDuplication(request.getRemoteAddr());
 
         int msgid = previewMsg.addTopicFromPreview(db, tmpl, request, form.getPreviewImagePath(), user);
 

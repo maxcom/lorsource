@@ -45,6 +45,7 @@ import java.util.Map;
 public class AddCommentController extends ApplicationObjectSupport {
   private SearchQueueSender searchQueueSender;
   private CaptchaService captcha;
+  private DupeProtector dupeProtector;
 
   @Autowired
   public void setSearchQueueSender(SearchQueueSender searchQueueSender) {
@@ -54,6 +55,11 @@ public class AddCommentController extends ApplicationObjectSupport {
   @Autowired
   public void setCaptcha(CaptchaService captcha) {
     this.captcha = captcha;
+  }
+
+  @Autowired
+  public void setDupeProtector(DupeProtector dupeProtector) {
+    this.dupeProtector = dupeProtector;
   }
 
   @RequestMapping(value = "/add_comment.jsp", method = RequestMethod.GET)
@@ -232,7 +238,7 @@ public class AddCommentController extends ApplicationObjectSupport {
       add.getTopic().checkCommentsAllowed(user, errors);
 
       if (!add.isPreviewMode() && !errors.hasErrors()) {
-        DupeProtector.getInstance().checkDuplication(request.getRemoteAddr(), user.getScore() > 100, errors);
+        dupeProtector.checkDuplication(request.getRemoteAddr(), user.getScore() > 100, errors);
       }
 
       if (!add.isPreviewMode() && !errors.hasErrors()) {

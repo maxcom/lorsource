@@ -15,22 +15,19 @@
 
 package ru.org.linux.site;
 
+import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+@Component
 public class DupeProtector {
   private static final int THRESHOLD = 30000;
   private static final int THRESHOLD_TRUSTED = 3000;
   
-  private static final DupeProtector instance = new DupeProtector();
-
   private final Map<String,Long> hash = new HashMap<String,Long>();
-
-  private DupeProtector() {
-  }
 
   private synchronized boolean check(String ip, boolean trusted) {
     cleanup();
@@ -56,7 +53,7 @@ public class DupeProtector {
     }
   }
 
-  public void checkDuplication(String ip,boolean trusted, Errors errors) throws DuplicationException {
+  public void checkDuplication(String ip,boolean trusted, Errors errors) {
     if (!check(ip,trusted)) {
       errors.reject(null, DuplicationException.MESSAGE);
     }
@@ -72,9 +69,5 @@ public class DupeProtector {
         i.remove();
       }
     }
-  }
-
-  public static DupeProtector getInstance() {
-    return instance;
   }
 }
