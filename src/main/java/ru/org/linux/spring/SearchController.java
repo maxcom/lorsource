@@ -40,7 +40,6 @@ import ru.org.linux.spring.dao.UserDao;
 
 import javax.sql.DataSource;
 import java.beans.PropertyEditorSupport;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
