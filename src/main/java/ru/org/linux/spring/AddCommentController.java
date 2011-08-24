@@ -20,6 +20,7 @@ import org.springframework.context.support.ApplicationObjectSupport;
 import org.springframework.jdbc.support.JdbcUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindException;
+import org.springframework.validation.BindingResult;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
@@ -58,9 +59,13 @@ public class AddCommentController extends ApplicationObjectSupport {
   @RequestMapping(value = "/add_comment.jsp", method = RequestMethod.GET)
   public ModelAndView showFormReply(
     @ModelAttribute("add") @Valid AddCommentRequest add,
-    Errors errors,
+    BindingResult errors,
     ServletRequest request
   ) throws Exception {
+    if (errors.hasErrors()) {
+      throw new BindException(errors);
+    }
+
     if (add.getTopic()==null) {
       throw new ServletParameterException("тема на задана");
     }
@@ -80,8 +85,8 @@ public class AddCommentController extends ApplicationObjectSupport {
 
       checkAndCreateReplyto(add, errors, params, db);
 
-      if (errors.hasGlobalErrors()) {
-        throw new UserErrorException(errors.getGlobalError().getDefaultMessage());
+      if (errors.hasErrors()) {
+        throw new BindException(errors);
       }
 
       return new ModelAndView("add_comment", params);
@@ -274,6 +279,8 @@ public class AddCommentController extends ApplicationObjectSupport {
   @InitBinder("add")
   public void requestValidator(WebDataBinder binder) {
     binder.setValidator(new AddCommentRequestValidator());
+
+    binder.setBindingErrorProcessor(new ExceptionBindingErrorProcessor());
   }
 
   @InitBinder
