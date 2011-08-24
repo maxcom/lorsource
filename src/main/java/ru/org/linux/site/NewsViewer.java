@@ -15,6 +15,13 @@
 
 package ru.org.linux.site;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import ru.org.linux.spring.commons.CacheProvider;
+import ru.org.linux.spring.dao.SectionDao;
+import ru.org.linux.util.BadImageException;
+import ru.org.linux.util.ImageInfo;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URLEncoder;
@@ -26,14 +33,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import ru.org.linux.spring.commons.CacheProvider;
-import ru.org.linux.spring.dao.SectionDao;
-import ru.org.linux.util.BadImageException;
-import ru.org.linux.util.ImageInfo;
 
 public class NewsViewer {
   private static final Log logger = LogFactory.getLog("ru.org.linux");
@@ -59,6 +58,7 @@ public class NewsViewer {
   private String datelimit = null;
   private String limit="";
   private int tag=0;
+  private String mainUrl = "";
 
   private CommitMode commitMode = CommitMode.COMMITED_AND_POSTMODERATED;
 
@@ -123,7 +123,8 @@ public class NewsViewer {
     List<PreparedMessage> pm = new ArrayList<PreparedMessage>(messages.size());
 
     for (Message message : messages) {
-      pm.add(new PreparedMessage(db, message, false));
+      PreparedMessage preparedMessage = new PreparedMessage(db, message, false, mainUrl);
+      pm.add(preparedMessage);
     }
 
     return pm;
@@ -254,6 +255,10 @@ public class NewsViewer {
 
   public void setLimit(String limit) {
     this.limit = limit;
+  }
+
+  public void setMainUrl(String url) {
+    this.mainUrl = url;
   }
 
   public String getVariantID()  {

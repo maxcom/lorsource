@@ -15,13 +15,13 @@
 
 package ru.org.linux.site;
 
+import com.google.common.collect.ImmutableList;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
-
-import com.google.common.collect.ImmutableList;
 
 public final class PreparedMessage {
   private final Message message;
@@ -44,14 +44,19 @@ public final class PreparedMessage {
   private static final int EDIT_PERIOD = 2 * 60 * 60 * 1000; // milliseconds
 
   public PreparedMessage(Connection db, Message message, boolean includeCut) throws SQLException {
-    this(db, message, Tags.getMessageTags(db, message.getId()), includeCut);
+    this(db, message, Tags.getMessageTags(db, message.getId()), includeCut, "");
   }
+
+  public PreparedMessage(Connection db, Message message, boolean includeCut, String mainUrl) throws SQLException {
+    this(db, message, Tags.getMessageTags(db, message.getId()), includeCut, mainUrl);
+  }
+
 
   public PreparedMessage(Connection db, Message message, List<String> tags) throws SQLException {
-    this(db, message, tags, true);
+    this(db, message, tags, true, "");
   }
 
-  public PreparedMessage(Connection db, Message message, List<String> tags, boolean includeCut) throws SQLException {
+  public PreparedMessage(Connection db, Message message, List<String> tags, boolean includeCut, String mainUrl) throws SQLException {
     try {
       this.message = message;
 
@@ -97,7 +102,7 @@ public final class PreparedMessage {
         editCount = 0;
       }
 
-      processedMessage = message.getProcessedMessage(db, includeCut);
+      processedMessage = message.getProcessedMessage(db, includeCut, mainUrl);
 
       userAgent = loadUserAgent(db, message.getUserAgent());
 

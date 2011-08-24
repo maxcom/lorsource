@@ -15,22 +15,16 @@
 
 package ru.org.linux.spring;
 
-import java.sql.Connection;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
-
 import ru.org.linux.site.*;
+
+import javax.servlet.http.HttpServletRequest;
+import java.sql.Connection;
+import java.util.*;
 
 @Controller
 public class SectionRSSController {
@@ -79,6 +73,8 @@ public class SectionRSSController {
 
     nv.setNotalks(notalks);
     nv.setTech(tech);
+
+    nv.setMainUrl(Template.getTemplate(request).getMainUrl());
 
     nv.setLimit("LIMIT 20");
 
