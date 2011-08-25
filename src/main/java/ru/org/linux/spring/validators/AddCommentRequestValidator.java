@@ -46,5 +46,15 @@ public class AddCommentRequestValidator implements Validator {
         errors.reject(null, "нельзя добавлять в удаленные темы");
       }
     }
+
+    if (add.getReplyto()!=null) {
+      if (add.getReplyto().isDeleted()) {
+        errors.reject(null, "нельзя комментировать удаленные комментарии");
+      }
+
+      if (topic==null || add.getReplyto().getTopic() != topic.getId()) {
+        errors.reject(null, "некорректная тема");
+      }
+    }
   }
 }

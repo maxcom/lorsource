@@ -20,7 +20,6 @@ import org.springframework.context.support.ApplicationObjectSupport;
 import org.springframework.jdbc.support.JdbcUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindException;
-import org.springframework.validation.BindingResult;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
@@ -65,13 +64,8 @@ public class AddCommentController extends ApplicationObjectSupport {
   @RequestMapping(value = "/add_comment.jsp", method = RequestMethod.GET)
   public ModelAndView showFormReply(
     @ModelAttribute("add") @Valid AddCommentRequest add,
-    BindingResult errors,
     ServletRequest request
   ) throws Exception {
-    if (errors.hasErrors()) {
-      throw new BindException(errors);
-    }
-
     if (add.getTopic()==null) {
       throw new ServletParameterException("тема на задана");
     }
@@ -89,11 +83,7 @@ public class AddCommentController extends ApplicationObjectSupport {
     try {
       db = LorDataSource.getConnection();
 
-      checkAndCreateReplyto(add, errors, params, db);
-
-      if (errors.hasErrors()) {
-        throw new BindException(errors);
-      }
+      checkAndCreateReplyto(add, params, db);
 
       return new ModelAndView("add_comment", params);
     } finally {
@@ -191,7 +181,7 @@ public class AddCommentController extends ApplicationObjectSupport {
 
       Map<String, Object> formParams = new HashMap<String, Object>();
 
-      checkAndCreateReplyto(add, errors, formParams, db);
+      checkAndCreateReplyto(add, formParams, db);
 
       User user;
 
@@ -233,9 +223,11 @@ public class AddCommentController extends ApplicationObjectSupport {
 
       Comment comment = null;
 
+      Integer replyto = add.getReplyto()!=null?add.getReplyto().getId():null;
+
       if (add.getTopic() != null) {
         comment = new Comment(
-                add.getReplyto(),
+                replyto,
                 HTMLFormatter.htmlSpecialChars(add.getTitle()),
                 add.getTopic().getId(),
                 user.getId(),
@@ -271,19 +263,9 @@ public class AddCommentController extends ApplicationObjectSupport {
     }
   }
 
-  private static void checkAndCreateReplyto(AddCommentRequest add, Errors errors, Map<String, Object> formParams, Connection db) throws SQLException, MessageNotFoundException, UserNotFoundException {
-    if (add.getReplyto()!=null && add.getReplyto() > 0) {
-      Comment onComment = new Comment(db, add.getReplyto());
-
-      if (onComment.isDeleted()) {
-        errors.reject(null, "нельзя комментировать удаленные комментарии");
-      }
-
-      if (onComment.getTopic() != add.getTopic().getId()) {
-        errors.reject(null, "Некорректная тема?!");
-      }
-
-      formParams.put("onComment", PreparedComment.prepare(db, null, onComment));
+  private static void checkAndCreateReplyto(AddCommentRequest add, Map<String, Object> formParams, Connection db) throws SQLException, UserNotFoundException {
+    if (add.getReplyto()!=null) {
+      formParams.put("onComment", PreparedComment.prepare(db, null, add.getReplyto()));
     }
   }
 
@@ -305,6 +287,30 @@ public class AddCommentController extends ApplicationObjectSupport {
           db = LorDataSource.getConnection();
 
           setValue(new Message(db, Integer.parseInt(text)));
+        } catch (SQLException e) {
+          throw new RuntimeException(e);
+        } catch (MessageNotFoundException e) {
+          throw new IllegalArgumentException(e);
+        } finally {
+          JdbcUtils.closeConnection(db);
+        }
+      }
+    });
+
+    binder.registerCustomEditor(Comment.class, new PropertyEditorSupport() {
+      @Override
+      public void setAsText(String text) throws IllegalArgumentException {
+        if (text.isEmpty() || text.equals("0")) {
+          setValue(null);
+          return;
+        }
+
+        Connection db=null;
+
+        try {
+          db = LorDataSource.getConnection();
+
+          setValue(new Comment(db, Integer.parseInt(text)));
         } catch (SQLException e) {
           throw new RuntimeException(e);
         } catch (MessageNotFoundException e) {

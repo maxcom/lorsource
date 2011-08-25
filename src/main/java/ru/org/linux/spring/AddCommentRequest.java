@@ -1,12 +1,13 @@
 package ru.org.linux.spring;
 
+import ru.org.linux.site.Comment;
 import ru.org.linux.site.Message;
 
 public class AddCommentRequest {
   private String preview;
   private String mode;
   private String msg;
-  private Integer replyto;
+  private Comment replyto;
   private String title;
   private Message topic;
 
@@ -38,11 +39,11 @@ public class AddCommentRequest {
     this.msg = msg;
   }
 
-  public Integer getReplyto() {
+  public Comment getReplyto() {
     return replyto;
   }
 
-  public void setReplyto(Integer replyto) {
+  public void setReplyto(Comment replyto) {
     this.replyto = replyto;
   }
 
