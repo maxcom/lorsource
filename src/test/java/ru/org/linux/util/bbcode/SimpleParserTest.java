@@ -220,6 +220,7 @@ public class SimpleParserTest {
     Assert.assertTrue(parserResult.getReplier().contains(maxcom));
     Assert.assertTrue(parserResult.getReplier().contains(JB));
     Assert.assertFalse(parserResult.getReplier().contains(isden));
+    Assert.assertEquals("<p><s>hizel</s><span style=\"white-space: nowrap\"><img src=\"/img/tuxlor.png\"><a style=\"text-decoration: none\" href='/people/JB/profile'>JB</a></span><span style=\"white-space: nowrap\"><img src=\"/img/tuxlor.png\"><a style=\"text-decoration: none\" href='/people/maxcom/profile'>maxcom</a></span></p>", parserResult.getHtml());
 
   }
 }
