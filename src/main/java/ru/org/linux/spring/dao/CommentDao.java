@@ -14,10 +14,10 @@ import ru.org.linux.site.User;
 import ru.org.linux.site.UserNotFoundException;
 
 import javax.sql.DataSource;
+import java.sql.Timestamp;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 /**
  * Пока замена CommentDeleter в будущем должен содержать остальную часть доступа из Comments
@@ -28,6 +28,7 @@ public class CommentDao {
   private static final Log logger = LogFactory.getLog(CommentDao.class);
 
   private final static String replysForComment = "SELECT id FROM comments WHERE replyto=? AND NOT deleted FOR UPDATE";
+  private final static String replysForCommentCount = "SELECT count(id) FROM comments WHERE replyto=? AND NOT deleted";
   private final static String deleteComment = "UPDATE comments SET deleted='t' WHERE id=?";
   private final static String insertDelinfo = "INSERT INTO del_info (msgid, delby, reason, deldate) values(?,?,?, CURRENT_TIMESTAMP)";
   private final static String updateScore = "UPDATE users SET score=score+? WHERE id=(SELECT userid FROM comments WHERE id=?)";
@@ -56,7 +57,7 @@ public class CommentDao {
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   public void deleteComment(int msgid, String reason, User user, int scoreBonus) throws ScriptErrorException {
-    if (!getReplys(msgid).isEmpty()) {
+    if (getReplaysCount(msgid) != 0) {
         throw new ScriptErrorException("Нельзя удалить комментарий с ответами");
     }
     doDeleteComment(msgid, reason, user, scoreBonus);
@@ -73,7 +74,11 @@ public class CommentDao {
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   public void deleteCommentWithSQLException(int msgid, String reason, User user, int scoreBonus) throws SQLException {
-    if (!getReplys(msgid).isEmpty()) {
+    deleteCommentWithoutTransaction(msgid, reason, user, scoreBonus);
+  }
+
+  private void deleteCommentWithoutTransaction(int msgid, String reason, User user, int scoreBonus) throws SQLException {
+    if (getReplaysCount(msgid) != 0) {
         throw new SQLException("Нельзя удалить комментарий с ответами");
     }
     doDeleteComment(msgid, reason, user, scoreBonus);
@@ -120,6 +125,11 @@ public class CommentDao {
     return deleted;
   }
 
+  /**
+   * Какие ответы на комментарий
+   * @param msgid id комментария
+   * @return список ответов на комментарий
+   */
   public List<Integer> getReplys(int msgid){
     return jdbcTemplate.query(replysForComment, new RowMapper<Integer>() {
       @Override
@@ -127,6 +137,15 @@ public class CommentDao {
         return rs.getInt(1);
       }
     },msgid);
+  }
+
+  /**
+   * Сколько ответов на комментарий
+   * @param msgid id комментария
+   * @return число ответов на комментарий
+   */
+  public int getReplaysCount(int msgid) {
+    return jdbcTemplate.queryForInt(replysForCommentCount, msgid);
   }
 
   /**
@@ -164,7 +183,7 @@ public class CommentDao {
             int msgid = resultSet.getInt("id");
             deleted.add(msgid);
             deleted.addAll(deleteReplys(msgid, moderator, false));
-            deleteCommentWithSQLException(msgid, "Блокировка пользователя с удалением сообщений", moderator, 0);
+            deleteCommentWithoutTransaction(msgid, "Блокировка пользователя с удалением сообщений", moderator, 0);
           }
         },
         user.getId());
@@ -172,4 +191,52 @@ public class CommentDao {
     return deleted;
   }
 
+  /**
+   * Удаление топиков, сообщений по ip и за определнный период времени, те комментарии на которые существуют ответы пропускаем
+   * @param ip ip для которых удаляем сообщения (не проверяется на корректность)
+   * @param timedelta врменной промежуток удаления (не проверяется на корректность)
+   * @param moderator экзекутор-можератор
+   * @param reason причина удаления, которая будет вписана для удаляемых топиков
+   * @return список id удаленных сообщений
+   */
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
+  public DeleteCommentResult deleteCommentsByIPAddress(final String ip, final Timestamp timedelta, final User moderator, final String reason) {
+
+    final List<Integer> deletedTopicIds = new ArrayList<Integer>();
+    final List<Integer> deletedCommentIds = new ArrayList<Integer>();
+
+    final Map<Integer, String> deleteInfo = new HashMap<Integer, String>();
+    // Удаляем топики
+    jdbcTemplate.query("SELECT id FROM topics WHERE postip=?::inet AND not deleted AND postdate>? FOR UPDATE",
+        new RowCallbackHandler() {
+          @Override
+          public void processRow(ResultSet resultSet) throws SQLException {
+            int msgid = resultSet.getInt("id");
+            deletedTopicIds.add(msgid);
+            deleteInfo.put(msgid, "Топик " + msgid + " удален");
+            jdbcTemplate.update("UPDATE topics SET deleted='t',sticky='f' WHERE id=?", msgid);
+            jdbcTemplate.update("INSERT INTO del_info (msgid, delby, reason, deldate) values(?,?,?, CURRENT_TIMESTAMP)",
+                msgid, moderator.getId(), reason);
+          }
+        },
+        ip, timedelta);
+    // Удаляем комментарии если на них нет ответа
+    jdbcTemplate.query("SELECT id FROM comments WHERE postip=?::inet AND not deleted AND postdate>? ORDER BY id DESC FOR update",
+        new RowCallbackHandler() {
+          @Override
+          public void processRow(ResultSet resultSet) throws SQLException {
+            int msgid = resultSet.getInt("id");
+            if (getReplaysCount(msgid) == 0) {
+              deletedCommentIds.add(msgid);
+              deleteInfo.put(msgid, "Комментарий " + msgid + " удален");
+              deleteCommentWithoutTransaction(msgid, reason, moderator, 0);
+            } else {
+              deleteInfo.put(msgid, "Комментарий " + msgid + " пропущен");
+            }
+          }
+        },
+        ip, timedelta);
+
+    return new DeleteCommentResult(deletedTopicIds, deletedCommentIds, deleteInfo);
+  }
 }

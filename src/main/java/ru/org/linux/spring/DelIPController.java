@@ -15,16 +15,6 @@
 
 package ru.org.linux.spring;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.Timestamp;
-import java.util.*;
-
-import javax.servlet.http.HttpServletRequest;
-
-import ru.org.linux.site.*;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.stereotype.Controller;
@@ -32,15 +22,32 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
+import ru.org.linux.site.AccessViolationException;
+import ru.org.linux.site.Template;
+import ru.org.linux.site.User;
+import ru.org.linux.site.UserErrorException;
+import ru.org.linux.spring.dao.CommentDao;
+import ru.org.linux.spring.dao.DeleteCommentResult;
+import ru.org.linux.spring.dao.UserDao;
+
+import javax.servlet.http.HttpServletRequest;
+import java.sql.Timestamp;
+import java.util.*;
 
 @Controller
 public class DelIPController {
   private SearchQueueSender searchQueueSender;
+  private CommentDao commentDao;
 
   @Autowired
   @Required
   public void setSearchQueueSender(SearchQueueSender searchQueueSender) {
     this.searchQueueSender = searchQueueSender;
+  }
+
+  @Autowired
+  public void setCommentDao(CommentDao commentDao) {
+    this.commentDao = commentDao;
   }
 
   @RequestMapping(value="/delip.jsp", method= RequestMethod.POST)
@@ -58,107 +65,33 @@ public class DelIPController {
       throw new AccessViolationException("Not moderator");
     }
 
-    Connection db = null;
-    try {
-      db = LorDataSource.getConnection();
+    Calendar calendar = Calendar.getInstance();
+    calendar.setTime(new Date());
 
-      Calendar calendar = Calendar.getInstance();
-      calendar.setTime(new Date());
-
-      if ("hour".equals(time)) {
-        calendar.add(Calendar.HOUR_OF_DAY, -1);
-      } else if ("day".equals(time)) {
-        calendar.add(Calendar.DAY_OF_MONTH, -1);
-      } else if ("3day".equals(time)) {
-        calendar.add(Calendar.DAY_OF_MONTH, -3);
-      } else {
-        throw new UserErrorException("Invalid count");
-      }
-
-      Timestamp ts = new Timestamp(calendar.getTimeInMillis());
-      params.put("message", "Удаляем темы и сообщения после "+ts.toString()+" с IP "+ip+"<br>");
-
-      db.setAutoCommit(false);
-    
-      User moderator = tmpl.getCurrentUser();
-    
-      PreparedStatement st = null;
-      ResultSet rs = null;
-      CommentDeleter deleter = null;
-      LinkedList<Integer> deletedIds = new LinkedList<Integer>();
-      
-      try {
-        // Delete IP topics
-        PreparedStatement lock = db.prepareStatement("SELECT id FROM topics WHERE postip=?::inet AND not deleted AND postdate>? FOR UPDATE");
-        PreparedStatement st1 = db.prepareStatement("UPDATE topics SET deleted='t',sticky='f' WHERE id=?");
-        PreparedStatement st2 = db.prepareStatement("INSERT INTO del_info (msgid, delby, reason, deldate) values(?,?,?, CURRENT_TIMESTAMP)");
-        lock.setString(1, ip);
-        lock.setTimestamp(2, ts);
-        st2.setInt(2, moderator.getId());
-        st2.setString(3, reason);
-       
-        int topicCounter = 0;
-        ResultSet lockResult = lock.executeQuery(); // lock another delete on this row
-        while (lockResult.next()) {
-          int mid = lockResult.getInt("id");
-          st1.setInt(1,mid);
-          st2.setInt(1,mid);
-          st1.executeUpdate();
-          st2.executeUpdate();
-          topicCounter++;
-        }
-        st1.close();
-        st2.close();
-        lockResult.close();
-        lock.close(); 
-        params.put("topics", topicCounter);
-    
-        // Delete user comments
-        deleter = new CommentDeleter(db);
-    
-        st = db.prepareStatement("SELECT id FROM comments WHERE postip=?::inet AND not deleted AND postdate>? ORDER BY id DESC FOR update");
-        st.setString(1,ip);
-        st.setTimestamp(2, ts);
-
-        rs = st.executeQuery();
-    
-        while (rs.next()) {
-          int msgid = rs.getInt("id");
-
-          if (!deleter.getReplys(msgid).isEmpty()) {
-            deleted.put(msgid, "пропущен");
-            continue;
-          }
-
-          deletedIds.add(msgid);
-          deleter.deleteComment(msgid, reason, moderator, 0);
-          deleted.put(msgid, "Сообщение "+msgid+" удалено");
-        }
-
-        params.put("deleted", deleted);        
-      } finally {
-        if (deleter!=null) {
-          deleter.close();
-        }
-      
-        if (rs!=null) {
-          rs.close();
-        }
-      
-        if (st!=null) {
-          st.close();
-        }
-      }
-      
-      db.commit();
-
-      searchQueueSender.updateComment(deletedIds);
-      
-      return new ModelAndView("delip", params);
-    } finally {
-      if (db!=null) {
-        db.close();
-      }
+    if ("hour".equals(time)) {
+      calendar.add(Calendar.HOUR_OF_DAY, -1);
+    } else if ("day".equals(time)) {
+      calendar.add(Calendar.DAY_OF_MONTH, -1);
+    } else if ("3day".equals(time)) {
+      calendar.add(Calendar.DAY_OF_MONTH, -3);
+    } else {
+      throw new UserErrorException("Invalid count");
     }
+
+    Timestamp ts = new Timestamp(calendar.getTimeInMillis());
+    params.put("message", "Удаляем темы и сообщения после "+ts.toString()+" с IP "+ip+"<br>");
+
+    User moderator = tmpl.getCurrentUser();
+
+    LinkedList<Integer> deletedIds = new LinkedList<Integer>();
+
+    DeleteCommentResult deleteResult = commentDao.deleteCommentsByIPAddress(ip, ts, moderator, reason);
+
+    params.put("topics", deleteResult.getDeletedTopicIds().size()); // кол-во удаленных топиков
+    params.put("deleted", deleteResult.getDeleteInfo());
+
+    searchQueueSender.updateComment(deletedIds);
+
+    return new ModelAndView("delip", params);
   }
 }
