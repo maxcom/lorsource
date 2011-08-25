@@ -241,7 +241,7 @@ public class Parser {
       allTags.add(tag);
     }
     {   // [cut]
-      CutTag tag = new CutTag("cut", flowTags, "div", this);
+      CutTag tag = new CutTag("cut", blockLevelTags, "div", this);
       tag.setHtmlEquiv("div");
       allTags.add(tag);
     }

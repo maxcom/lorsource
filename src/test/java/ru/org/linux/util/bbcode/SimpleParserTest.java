@@ -1,14 +1,10 @@
 package ru.org.linux.util.bbcode;
 
 import junit.framework.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import ru.org.linux.site.User;
 import ru.org.linux.site.UserNotFoundException;
 import ru.org.linux.spring.dao.UserDao;
-
-import java.util.List;
-import java.util.Set;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -65,10 +61,10 @@ public class SimpleParserTest {
 
   @Test
   public void cutTest() {
-    Assert.assertEquals("test", ParserUtil.bb2xhtml("[cut]test[/cut]", true, true, ""));
+    Assert.assertEquals("<p>test</p>", ParserUtil.bb2xhtml("[cut]test[/cut]", true, true, ""));
     Assert.assertEquals("<p>( <a href=\"#cut0\">читать дальше...</a> )</p>", ParserUtil.bb2xhtml("[cut]test[/cut]", false, false, ""));
     Assert.assertEquals("<p>( <a href=\"#cut0\">читать дальше...</a> )</p>", ParserUtil.bb2xhtml("[cut]test[/cut]", false, true, ""));
-    Assert.assertEquals("<div id=\"cut0\">test</div>", ParserUtil.bb2xhtml("[cut]test[/cut]", true, false, ""));
+    Assert.assertEquals("<div id=\"cut0\"><p>test</p></div>", ParserUtil.bb2xhtml("[cut]test[/cut]", true, false, ""));
   }
 
   @Test
