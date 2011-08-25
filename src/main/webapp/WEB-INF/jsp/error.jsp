@@ -1,20 +1,19 @@
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="java.io.PrintWriter,java.io.StringWriter" isErrorPage="true" %>
-<%@ page import="java.util.Date"%>
-<%@ page import="java.util.Enumeration"%>
-<%@ page import="java.util.Properties"%>
-<%@ page import="javax.mail.Session"%>
-<%@ page import="javax.mail.Transport"%>
-<%@ page import="javax.mail.internet.InternetAddress"%>
-<%@ page import="javax.mail.internet.MimeMessage"%>
-<%@ page import="ru.org.linux.site.MessageNotFoundException"%>
+<%@ page import="org.apache.commons.logging.Log,org.apache.commons.logging.LogFactory" isErrorPage="true" %>
 <%@ page import="ru.org.linux.site.ScriptErrorException"%>
 <%@ page import="ru.org.linux.site.Template"%>
 <%@ page import="ru.org.linux.site.UserErrorException"%>
 <%@ page import="ru.org.linux.util.HTMLFormatter"%>
 <%@ page import="ru.org.linux.util.ServletParameterException"%>
-<%@ page import="org.apache.commons.logging.Log" %>
-<%@ page import="org.apache.commons.logging.LogFactory" %>
+<%@ page import="javax.mail.Session"%>
+<%@ page import="javax.mail.Transport"%>
+<%@ page import="javax.mail.internet.InternetAddress"%>
+<%@ page import="javax.mail.internet.MimeMessage"%>
+<%@ page import="java.io.PrintWriter"%>
+<%@ page import="java.io.StringWriter"%>
+<%@ page import="java.util.Date"%>
+<%@ page import="java.util.Enumeration"%>
+<%@ page import="java.util.Properties" %>
 <%--
   ~ Copyright 1998-2010 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -35,12 +34,6 @@
 
   if (exception==null) {
     exception = (Throwable) request.getAttribute("exception");
-  }
-
-  if (exception instanceof MessageNotFoundException) {
-    response.setStatus(404);
-  } else {
-    response.setStatus(500);    
   }
 %>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
