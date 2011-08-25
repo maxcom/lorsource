@@ -241,7 +241,7 @@ public class Parser {
       allTags.add(tag);
     }
     {   // [cut]
-      CutTag tag = new CutTag("cut", flowTags, "div", this);
+      CutTag tag = new CutTag("cut", blockLevelTags, "div", this);
       tag.setHtmlEquiv("div");
       allTags.add(tag);
     }
@@ -401,6 +401,7 @@ public class Parser {
       if("user".equals(name)) {
         MemberTag memberTag = ((MemberTag) (node.getBbtag()));
         memberTag.setUserDao(rootNode.getUserDao());
+        memberTag.setRootNode(rootNode);
       }
       currentNode.getChildren().add(node);
       if (!node.getBbtag().isSelfClosing()) {
