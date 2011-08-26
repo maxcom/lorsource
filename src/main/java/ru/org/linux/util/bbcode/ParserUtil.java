@@ -7,7 +7,6 @@ import ru.org.linux.util.bbcode.nodes.RootNode;
 
 import java.sql.Connection;
 import java.util.EnumSet;
-import java.util.List;
 import java.util.Set;
 
 /**
