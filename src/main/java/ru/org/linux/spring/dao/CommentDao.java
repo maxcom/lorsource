@@ -3,7 +3,7 @@ package ru.org.linux.spring.dao;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.IncorrectResultSizeDataAccessException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.core.RowMapper;
@@ -74,7 +74,7 @@ public class CommentDao {
           return new Comment(resultSet, deleteInfoDao);
         }
       }, id);
-    } catch (IncorrectResultSizeDataAccessException exception) {
+    } catch (EmptyResultDataAccessException exception) {
       throw new MessageNotFoundException(id);
     }
     return  comment;
