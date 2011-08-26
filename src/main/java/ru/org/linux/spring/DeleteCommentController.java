@@ -33,6 +33,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
+import ru.org.linux.spring.dao.CommentDao;
 
 @Controller
 public class DeleteCommentController {
@@ -66,7 +67,7 @@ public class DeleteCommentController {
     try {
       db = LorDataSource.getConnection();
 
-      Comment comment = Comment.getComment(db, msgid);
+      Comment comment = CommentDao.getComment(db, msgid);
 
       if (comment.isDeleted()) {
         throw new AccessViolationException("комментарий уже удален");
@@ -130,7 +131,7 @@ public class DeleteCommentController {
       user.checkBlocked();
       user.checkAnonymous();
 
-      Comment comment = Comment.getComment(db, msgid);
+      Comment comment = CommentDao.getComment(db, msgid);
       Message topic = new Message(db, comment.getTopic());
 
       boolean perm = false;

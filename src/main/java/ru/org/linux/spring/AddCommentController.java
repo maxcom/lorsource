@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.site.*;
+import ru.org.linux.spring.dao.CommentDao;
 import ru.org.linux.spring.validators.AddCommentRequestValidator;
 import ru.org.linux.util.HTMLFormatter;
 import ru.org.linux.util.ServletParameterException;
@@ -310,7 +311,7 @@ public class AddCommentController extends ApplicationObjectSupport {
         try {
           db = LorDataSource.getConnection();
 
-          setValue(Comment.getComment(db, Integer.parseInt(text)));
+          setValue(CommentDao.getComment(db, Integer.parseInt(text)));
         } catch (SQLException e) {
           throw new RuntimeException(e);
         } catch (MessageNotFoundException e) {

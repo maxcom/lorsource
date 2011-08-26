@@ -51,24 +51,6 @@ public class Comment implements Serializable {
     }
   }
 
-  public static Comment getComment(Connection db, int msgid) throws SQLException, MessageNotFoundException {
-    Statement st = db.createStatement();
-
-    ResultSet rs=st.executeQuery("SELECT " +
-        "postdate, topic, users.id as userid, comments.id as msgid, comments.title, " +
-        "deleted, replyto, user_agents.name AS useragent, comments.postip " +
-        "FROM comments " + 
-        "INNER JOIN users ON (users.id=comments.userid) " +
-        "LEFT JOIN user_agents ON (user_agents.id=comments.ua_id) " +
-        "WHERE comments.id="+msgid);
-
-    if (!rs.next()) {
-      throw new MessageNotFoundException(msgid);
-    }
-
-    return new Comment(db, rs);
-  }
-
   public Comment(Integer replyto, String title, int topic, int userid, String userAgent, String postIP) {
     msgid =0;
     this.title=title;

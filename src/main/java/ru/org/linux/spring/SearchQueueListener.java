@@ -35,6 +35,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.jdbc.support.JdbcUtils;
 import org.springframework.stereotype.Component;
+import ru.org.linux.spring.dao.CommentDao;
 
 @Component
 public class SearchQueueListener {
@@ -101,7 +102,7 @@ public class SearchQueueListener {
       pst = db.prepareStatement("SELECT message FROM msgbase WHERE id=?");
 
       for (Integer msgid : msgUpdate.getMsgids()) {
-        Comment comment = Comment.getComment(db, msgid);
+        Comment comment = CommentDao.getComment(db, msgid);
 
         if (comment.isDeleted()) {
           logger.info("Deleting comment "+comment.getId()+" from solr");
