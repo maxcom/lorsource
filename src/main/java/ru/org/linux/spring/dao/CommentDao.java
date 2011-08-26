@@ -27,11 +27,11 @@ import java.util.*;
 public class CommentDao {
   private static final Log logger = LogFactory.getLog(CommentDao.class);
 
-  private final static String replysForComment = "SELECT id FROM comments WHERE replyto=? AND NOT deleted FOR UPDATE";
-  private final static String replysForCommentCount = "SELECT count(id) FROM comments WHERE replyto=? AND NOT deleted";
-  private final static String deleteComment = "UPDATE comments SET deleted='t' WHERE id=?";
-  private final static String insertDelinfo = "INSERT INTO del_info (msgid, delby, reason, deldate) values(?,?,?, CURRENT_TIMESTAMP)";
-  private final static String updateScore = "UPDATE users SET score=score+? WHERE id=(SELECT userid FROM comments WHERE id=?)";
+  private static final String replysForComment = "SELECT id FROM comments WHERE replyto=? AND NOT deleted FOR UPDATE";
+  private static final String replysForCommentCount = "SELECT count(id) FROM comments WHERE replyto=? AND NOT deleted";
+  private static final String deleteComment = "UPDATE comments SET deleted='t' WHERE id=?";
+  private static final String insertDelinfo = "INSERT INTO del_info (msgid, delby, reason, deldate) values(?,?,?, CURRENT_TIMESTAMP)";
+  private static final String updateScore = "UPDATE users SET score=score+? WHERE id=(SELECT userid FROM comments WHERE id=?)";
 
   private JdbcTemplate jdbcTemplate;
   private UserDao userDao;
