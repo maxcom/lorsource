@@ -59,7 +59,7 @@ public class EditVoteController extends ApplicationObjectSupport {
       Poll poll = Poll.getPollByTopic(db, msgid);
       params.put("poll", poll);
 
-      Message msg = new Message(db, msgid);
+      Message msg = Message.getMessage(db, msgid);
       params.put("msg", msg);
 
       List<PollVariant> variants = poll.getPollVariants(db, Poll.ORDER_ID);

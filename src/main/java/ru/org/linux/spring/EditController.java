@@ -65,7 +65,7 @@ public class EditController extends ApplicationObjectSupport {
     try {
       db = LorDataSource.getConnection();
 
-      Message message = new Message(db, msgid);
+      Message message = Message.getMessage(db, msgid);
 
       if (message.isCommited()) {
         throw new UserErrorException("Сообщение уже подтверждено");
@@ -106,7 +106,7 @@ public class EditController extends ApplicationObjectSupport {
     try {
       db = LorDataSource.getConnection();
 
-      Message message = new Message(db, msgid);
+      Message message = Message.getMessage(db, msgid);
 
       User user = tmpl.getCurrentUser();
 
@@ -180,7 +180,7 @@ public class EditController extends ApplicationObjectSupport {
       db.setAutoCommit(false);
       tmpl.updateCurrentUser(db);
 
-      Message message = new Message(db, msgid);
+      Message message = Message.getMessage(db, msgid);
       PreparedMessage preparedMessage = new PreparedMessage(db, message, true);
       params.put("message", message);
       params.put("preparedMessage", preparedMessage);

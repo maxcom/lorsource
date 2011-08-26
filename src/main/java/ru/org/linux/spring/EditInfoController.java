@@ -43,7 +43,7 @@ public class EditInfoController {
     try {
       db = LorDataSource.getConnection();
 
-      Message message = new Message(db, msgid);
+      Message message = Message.getMessage(db, msgid);
 
       List<PreparedEditInfo> editInfos = PreparedEditInfo.build(db, message);
 

@@ -75,7 +75,7 @@ public class DeleteCommentController {
 
       int topicId = comment.getTopic();
 
-      Message topic = new Message(db, topicId);
+      Message topic = Message.getMessage(db, topicId);
 
       if (topic.isDeleted()) {
         throw new AccessViolationException("тема удалена");
@@ -132,7 +132,7 @@ public class DeleteCommentController {
       user.checkAnonymous();
 
       Comment comment = CommentDao.getComment(db, msgid);
-      Message topic = new Message(db, comment.getTopic());
+      Message topic = Message.getMessage(db, comment.getTopic());
 
       boolean perm = false;
       boolean selfDel = false;

@@ -63,7 +63,7 @@ public class SearchQueueListener {
   }
 
   private void reindexMessage(Connection db, int msgid, boolean withComments) throws IOException, SolrServerException, SQLException, MessageNotFoundException {
-    Message msg = new Message(db, msgid);
+    Message msg = Message.getMessage(db, msgid);
 
     if (!msg.isDeleted()) {
       updateMessage(msg);
@@ -111,7 +111,7 @@ public class SearchQueueListener {
           // комментарии могут быть из разного топика в функция массового удаления
           // возможно для скорости нужен какой-то кеш топиков, т.к. чаще бывает что все
           // комментарии из одного топика
-          Message topic = new Message(db, comment.getTopic());
+          Message topic = Message.getMessage(db, comment.getTopic());
 
           pst.setInt(1, comment.getId());
           ResultSet rs = pst.executeQuery();

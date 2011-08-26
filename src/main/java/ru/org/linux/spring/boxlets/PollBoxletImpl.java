@@ -88,7 +88,7 @@ public class PollBoxletImpl extends SpringBoxlet  {
         try {
           db = LorDataSource.getConnection();
 
-          return new Message(db, poll.getTopicId());
+          return Message.getMessage(db, poll.getTopicId());
         } finally {
           if (db!=null) {
             db.close();
