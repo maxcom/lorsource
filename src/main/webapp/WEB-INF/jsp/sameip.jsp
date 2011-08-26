@@ -40,7 +40,7 @@
       [<a href="http://www.radio-msu.net/serv/wwwnslookup/nph-wwwtr.cgi?server=${ip}">NSLOOKUP</a>]
       [WHOIS
       <a href='http://www.ripe.net/perl/whois?query=${ip}'>RIPE</a> /
-      <a href='http://ws.arin.net/whois/?queryinput=${ip}'>ARIN</a> /
+      <a href='http://ws.arin.net/iu/query.do?queryinput=${ip}'>ARIN</a> /
       <a href='http://www.apnic.net/apnic-bin/whois.pl?search=${ip}'>APNIC</a> /
       <a href='http://lacnic.net/cgi-bin/lacnic/whois?lg=EN&query=${ip}'>LACNIC</a>
       ]
