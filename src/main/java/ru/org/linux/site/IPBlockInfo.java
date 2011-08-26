@@ -15,30 +15,25 @@
 
 package ru.org.linux.site;
 
+import org.springframework.jdbc.support.JdbcUtils;
+import org.xbill.DNS.TextParseException;
+import ru.org.linux.util.DNSBLClient;
+
 import java.net.UnknownHostException;
 import java.sql.*;
 import java.util.Date;
-
-import org.xbill.DNS.TextParseException;
-
-import ru.org.linux.util.DNSBLClient;
 
 public class IPBlockInfo {
   private final String reason;
   private final Timestamp banDate;
   private final Timestamp originalDate;
-  private final User moderator;
+  private final int moderator;
 
-  private IPBlockInfo(Connection db, ResultSet rs) throws SQLException {
+  private IPBlockInfo(ResultSet rs) throws SQLException {
     reason = rs.getString("reason");
     banDate = rs.getTimestamp("ban_date");
     originalDate = rs.getTimestamp("date");
-    int moderatorId = rs.getInt("mod_id");
-    try {
-      moderator = User.getUser(db, moderatorId);
-    } catch (UserNotFoundException e) {
-      throw new RuntimeException(e);
-    }
+    moderator = rs.getInt("mod_id");
   }
 
   public static IPBlockInfo getBlockInfo(Connection db, String addr) throws SQLException {
@@ -52,14 +47,12 @@ public class IPBlockInfo {
       ResultSet rs = st.executeQuery();
 
       if (rs.next()) {
-        return new IPBlockInfo(db, rs);
+        return new IPBlockInfo(rs);
       } else {
 	return null;
       }
     } finally {
-      if (st!=null) {
-    	st.close();
-      }
+      JdbcUtils.closeStatement(st);
     }
   }
 
@@ -85,7 +78,7 @@ public class IPBlockInfo {
     return reason;
   }
 
-  public User getModerator() {
+  public int getModerator() {
     return moderator;
   }
 

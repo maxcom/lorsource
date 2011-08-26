@@ -82,7 +82,11 @@ public class SameIPController {
       mv.getModel().put("ip", ip);
       mv.getModel().put("uaId", userAgentId);
 
-      mv.getModel().put("blockInfo", IPBlockInfo.getBlockInfo(db, ip));
+      IPBlockInfo blockInfo = IPBlockInfo.getBlockInfo(db, ip);
+      if (blockInfo!=null) {
+        mv.getModel().put("blockInfo", blockInfo);
+        mv.getModel().put("blockModerator", User.getUserCached(db, blockInfo.getModerator()));
+      }
 
       mv.getModel().put("topics", getTopics(db, ip));
       mv.getModel().put("comments", getComments(db, ip));

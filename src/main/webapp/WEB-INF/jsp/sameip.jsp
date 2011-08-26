@@ -17,6 +17,7 @@
   ~    limitations under the License.
   --%>
 <%--@elvariable id="blockInfo" type="ru.org.linux.site.IPBlockInfo"--%>
+<%--@elvariable id="blockModerator" type="ru.org.linux.site.User"--%>
 <%--@elvariable id="topics" type="java.util.List<ru.org.linux.spring.SameIPController.TopicItem>"--%>
 <%--@elvariable id="comments" type="java.util.List<ru.org.linux.spring.SameIPController.TopicItem>"--%>
 <%--@elvariable id="users" type="java.util.List<ru.org.linux.spring.SameIPController.UserItem>"--%>
@@ -77,7 +78,7 @@
   <br>
   <strong>Причина блокировки: </strong><c:out value="${blockInfo.reason}" escapeXml="true"/><br>
   <strong>Дата блокировки: </strong><lor:date date="${blockInfo.originalDate}"/><br>
-  <strong>Адрес блокирован: </strong>${blockInfo.moderator.nick}
+  <strong>Адрес блокирован: </strong>${blockModerator.nick}
 </c:if>
 
 <p>
