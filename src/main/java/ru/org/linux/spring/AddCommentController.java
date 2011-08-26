@@ -27,6 +27,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.site.*;
 import ru.org.linux.spring.dao.CommentDao;
+import ru.org.linux.spring.dao.IPBlockDao;
 import ru.org.linux.spring.dao.MessageDao;
 import ru.org.linux.spring.dao.UserDao;
 import ru.org.linux.spring.validators.AddCommentRequestValidator;
@@ -51,6 +52,7 @@ public class AddCommentController extends ApplicationObjectSupport {
   private CommentDao commentDao;
   private MessageDao messageDao;
   private UserDao userDao;
+  private IPBlockDao ipBlockDao;
 
   @Autowired
   public void setSearchQueueSender(SearchQueueSender searchQueueSender) {
@@ -80,6 +82,11 @@ public class AddCommentController extends ApplicationObjectSupport {
   @Autowired
   public void setUserDao(UserDao userDao) {
     this.userDao = userDao;
+  }
+
+  @Autowired
+  public void setIpBlockDao(IPBlockDao ipBlockDao) {
+    this.ipBlockDao = ipBlockDao;
   }
 
   @RequestMapping(value = "/add_comment.jsp", method = RequestMethod.GET)
@@ -189,6 +196,8 @@ public class AddCommentController extends ApplicationObjectSupport {
       logger.info("Flood protection (session variable differs: " + session.getId() + ") " + request.getRemoteAddr());
       errors.reject(null, "сбой добавления");
     }
+    
+    ipBlockDao.checkBlockIP(request.getRemoteAddr(), errors);
 
     Connection db = null;
 
@@ -196,7 +205,6 @@ public class AddCommentController extends ApplicationObjectSupport {
       // prechecks is over
       db = LorDataSource.getConnection();
       db.setAutoCommit(false);
-      IPBlockInfo.checkBlockIP(db, request.getRemoteAddr());
 
       tmpl.updateCurrentUser(db);
 

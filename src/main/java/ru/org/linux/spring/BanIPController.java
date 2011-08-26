@@ -15,17 +15,7 @@
 
 package ru.org.linux.spring;
 
-import java.net.URLEncoder;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.Timestamp;
-import java.util.Calendar;
-import java.util.Date;
-
-import javax.servlet.http.HttpServletRequest;
-
-import ru.org.linux.site.*;
-
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -33,9 +23,26 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
+import ru.org.linux.site.*;
+import ru.org.linux.spring.dao.IPBlockDao;
+
+import javax.servlet.http.HttpServletRequest;
+import java.net.URLEncoder;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.Timestamp;
+import java.util.Calendar;
+import java.util.Date;
 
 @Controller
 public class BanIPController {
+  private IPBlockDao ipBlockDao;
+
+  @Autowired
+  public void setIpBlockDao(IPBlockDao ipBlockDao) {
+    this.ipBlockDao = ipBlockDao;
+  }
+
   @RequestMapping(value="/banip.jsp", method= RequestMethod.POST)
   public ModelAndView banIP(
     HttpServletRequest request,
@@ -82,13 +89,14 @@ public class BanIPController {
 
     Connection db = null;
     try {
-      db = LorDataSource.getConnection();
-      db.setAutoCommit(false);
+      IPBlockInfo blockInfo = ipBlockDao.getBlockInfo(ip);
 
       User user = tmpl.getCurrentUser();
 
-      IPBlockInfo blockInfo = IPBlockInfo.getBlockInfo(db, ip);
       user.checkCommit();
+
+      db = LorDataSource.getConnection();
+      db.setAutoCommit(false);
 
       PreparedStatement pst;
 

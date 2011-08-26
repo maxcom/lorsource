@@ -15,16 +15,6 @@
 
 package ru.org.linux.spring;
 
-import java.sql.Connection;
-import java.util.*;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-
-import ru.org.linux.site.*;
-import ru.org.linux.util.BadImageException;
-import ru.org.linux.util.BadURLException;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.ApplicationObjectSupport;
 import org.springframework.stereotype.Controller;
@@ -32,12 +22,22 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
+import ru.org.linux.site.*;
+import ru.org.linux.spring.dao.IPBlockDao;
+import ru.org.linux.util.BadImageException;
+import ru.org.linux.util.BadURLException;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import java.sql.Connection;
+import java.util.*;
 
 @Controller
 public class AddMessageController extends ApplicationObjectSupport {
   private SearchQueueSender searchQueueSender;
   private CaptchaService captcha;
   private DupeProtector dupeProtector;
+  private IPBlockDao ipBlockDao;
 
   @Autowired
   public void setSearchQueueSender(SearchQueueSender searchQueueSender) {
@@ -52,6 +52,11 @@ public class AddMessageController extends ApplicationObjectSupport {
   @Autowired
   public void setDupeProtector(DupeProtector dupeProtector) {
     this.dupeProtector = dupeProtector;
+  }
+
+  @Autowired
+  public void setIpBlockDao(IPBlockDao ipBlockDao) {
+    this.ipBlockDao = ipBlockDao;
   }
 
   @RequestMapping(value = "/add.jsp", method = RequestMethod.GET)
@@ -109,11 +114,10 @@ public class AddMessageController extends ApplicationObjectSupport {
     Exception error = null;
 
     try {
+      ipBlockDao.checkBlockIP(request.getRemoteAddr());
+
       db = LorDataSource.getConnection();
       db.setAutoCommit(false);
-
-      // Blocked IP
-      IPBlockInfo.checkBlockIP(db, request.getRemoteAddr());
 
       tmpl.updateCurrentUser(db);
 

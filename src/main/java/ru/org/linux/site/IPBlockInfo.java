@@ -15,12 +15,9 @@
 
 package ru.org.linux.site;
 
-import org.springframework.jdbc.support.JdbcUtils;
-import org.xbill.DNS.TextParseException;
-import ru.org.linux.util.DNSBLClient;
-
-import java.net.UnknownHostException;
-import java.sql.*;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.Date;
 
 public class IPBlockInfo {
@@ -29,37 +26,18 @@ public class IPBlockInfo {
   private final Timestamp originalDate;
   private final int moderator;
 
-  private IPBlockInfo(ResultSet rs) throws SQLException {
+  public IPBlockInfo(ResultSet rs) throws SQLException {
     reason = rs.getString("reason");
     banDate = rs.getTimestamp("ban_date");
     originalDate = rs.getTimestamp("date");
     moderator = rs.getInt("mod_id");
   }
 
-  public static IPBlockInfo getBlockInfo(Connection db, String addr) throws SQLException {
-    PreparedStatement st = null;
-
-    try {
-      st= db.prepareStatement("SELECT reason, ban_date, date, mod_id FROM b_ips WHERE ip = ?::inet");
-
-      st.setString(1, addr);
-  
-      ResultSet rs = st.executeQuery();
-
-      if (rs.next()) {
-        return new IPBlockInfo(rs);
-      } else {
-	return null;
-      }
-    } finally {
-      JdbcUtils.closeStatement(st);
-    }
-  }
-
   public boolean isBlocked() {
     return banDate == null || banDate.after(new Date());
   }
 
+  @Deprecated
   public void checkBlock() throws AccessViolationException {
     if (isBlocked()) {
       throw new AccessViolationException("Постинг заблокирован: "+reason);
@@ -80,24 +58,5 @@ public class IPBlockInfo {
 
   public int getModerator() {
     return moderator;
-  }
-
-  public static boolean getTor(String addr) throws TextParseException, UnknownHostException {
-    DNSBLClient dnsbl = new DNSBLClient("tor.ahbl.org");
-    return (dnsbl.checkIP(addr));
-  }
-
-  public static void checkBlockIP(Connection db, String addr) throws AccessViolationException, SQLException, UnknownHostException, TextParseException {
-    if (getTor(addr)) {
-      throw new AccessViolationException("Постинг заблокирован: tor.ahbl.org");      
-    }
-
-    IPBlockInfo block = getBlockInfo(db, addr);
-
-    if (block == null) {
-      return;
-    }
-
-    block.checkBlock();
   }
 }
