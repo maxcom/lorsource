@@ -1,6 +1,5 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="ru.org.linux.site.IPBlockInfo" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%--
   ~ Copyright 1998-2010 Linux.org.ru
@@ -22,6 +21,7 @@
 <%--@elvariable id="comments" type="java.util.List<ru.org.linux.spring.SameIPController.TopicItem>"--%>
 <%--@elvariable id="users" type="java.util.List<ru.org.linux.spring.SameIPController.UserItem>"--%>
 <%--@elvariable id="ip" type="java.lang.String"--%>
+<%--@elvariable id="tor" type="java.lang.Boolean"--%>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
 <title>Поиск писем с IP-адреса</title>
@@ -53,11 +53,9 @@
 
 <strong>Текущий статус: </strong>
 
-<%
-  if (IPBlockInfo.getTor(ip)) {
-    out.print("адрес заблокирован: tor.ahbl.org; база: ");
-  }
-%>
+<c:if test="${tor}">
+  адрес заблокирован: tor.ahbl.org; база:
+</c:if>
 
 <c:if test="${blockInfo == null}">
   адрес не заблокирован

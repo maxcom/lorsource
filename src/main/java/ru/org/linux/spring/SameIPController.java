@@ -111,6 +111,8 @@ public class SameIPController {
       mv.getModel().put("blockModerator", userDao.getUserCached(blockInfo.getModerator()));
     }
 
+    mv.getModel().put("tor", IPBlockDao.getTor(ip));
+
     return mv;
   }
 
