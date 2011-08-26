@@ -83,7 +83,7 @@ public class AddCommentController extends ApplicationObjectSupport {
     try {
       db = LorDataSource.getConnection();
 
-      checkAndCreateReplyto(add, params, db);
+      prepareReplyto(add, params, db);
 
       return new ModelAndView("add_comment", params);
     } finally {
@@ -181,7 +181,7 @@ public class AddCommentController extends ApplicationObjectSupport {
 
       Map<String, Object> formParams = new HashMap<String, Object>();
 
-      checkAndCreateReplyto(add, formParams, db);
+      prepareReplyto(add, formParams, db);
 
       User user;
 
@@ -263,7 +263,7 @@ public class AddCommentController extends ApplicationObjectSupport {
     }
   }
 
-  private static void checkAndCreateReplyto(AddCommentRequest add, Map<String, Object> formParams, Connection db) throws SQLException, UserNotFoundException {
+  private static void prepareReplyto(AddCommentRequest add, Map<String, Object> formParams, Connection db) throws SQLException, UserNotFoundException {
     if (add.getReplyto()!=null) {
       formParams.put("onComment", PreparedComment.prepare(db, null, add.getReplyto()));
     }
