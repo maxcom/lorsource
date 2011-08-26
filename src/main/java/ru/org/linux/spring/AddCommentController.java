@@ -28,6 +28,7 @@ import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.site.*;
 import ru.org.linux.spring.dao.CommentDao;
 import ru.org.linux.spring.dao.MessageDao;
+import ru.org.linux.spring.dao.UserDao;
 import ru.org.linux.spring.validators.AddCommentRequestValidator;
 import ru.org.linux.util.HTMLFormatter;
 import ru.org.linux.util.ServletParameterException;
@@ -49,6 +50,7 @@ public class AddCommentController extends ApplicationObjectSupport {
   private DupeProtector dupeProtector;
   private CommentDao commentDao;
   private MessageDao messageDao;
+  private UserDao userDao;
 
   @Autowired
   public void setSearchQueueSender(SearchQueueSender searchQueueSender) {
@@ -73,6 +75,11 @@ public class AddCommentController extends ApplicationObjectSupport {
   @Autowired
   public void setMessageDao(MessageDao messageDao) {
     this.messageDao = messageDao;
+  }
+
+  @Autowired
+  public void setUserDao(UserDao userDao) {
+    this.userDao = userDao;
   }
 
   @RequestMapping(value = "/add_comment.jsp", method = RequestMethod.GET)
@@ -200,18 +207,14 @@ public class AddCommentController extends ApplicationObjectSupport {
       User user;
 
       if (!Template.isSessionAuthorized(session)) {
-        if (request.getParameter("nick") == null) {
-          throw new AccessViolationException("Вы уже вышли из системы");
+        if (add.getNick() != null) {
+          user = add.getNick();
+        } else {
+          user = User.getAnonymous(db);
         }
-        try {
-          user = User.getUser(db, request.getParameter("nick"));
-          user.checkPassword(request.getParameter("password"));
-        } catch (UserNotFoundException ex) {
-          errors.reject(null, "Пользователь не найден");
-          user = User.getAnonymous(db);
-        } catch (BadPasswordException ex) {
-          errors.reject(null, ex.getMessage());
-          user = User.getAnonymous(db);
+
+        if (add.getPassword()==null) {
+          errors.reject(null, "Требуется авторизация");
         }
       } else {
         user = tmpl.getCurrentUser();
@@ -318,6 +321,8 @@ public class AddCommentController extends ApplicationObjectSupport {
         }
       }
     });
+
+    binder.registerCustomEditor(User.class, new UserPropertyEditor(userDao));
   }
 
   @ExceptionHandler(BindException.class)
