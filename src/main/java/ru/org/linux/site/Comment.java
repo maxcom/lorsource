@@ -23,7 +23,7 @@ import java.util.Map;
 public class Comment implements Serializable {
   private final int msgid;
   private final String title;
-  private int userid;
+  private final int userid;
   private final int replyto;
   private final int topic;
   private final boolean deleted;
