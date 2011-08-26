@@ -57,8 +57,7 @@ public class DelIPController {
                             @RequestParam("time") String time
                             ) throws Exception {
     Map<String, Object> params = new HashMap<String, Object>();
-    Map<Integer, String> deleted = new HashMap<Integer, String>();
-    
+
     Template tmpl = Template.getTemplate(request);
 
     if (!tmpl.isModeratorSession()) {
