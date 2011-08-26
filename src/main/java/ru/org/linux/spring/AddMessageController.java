@@ -111,6 +111,10 @@ public class AddMessageController extends ApplicationObjectSupport {
     try {
       db = LorDataSource.getConnection();
       db.setAutoCommit(false);
+
+      // Blocked IP
+      IPBlockInfo.checkBlockIP(db, request.getRemoteAddr());
+
       tmpl.updateCurrentUser(db);
 
       Group group = Group.getGroup(db, form.getGuid());
@@ -146,8 +150,6 @@ public class AddMessageController extends ApplicationObjectSupport {
         if (!Template.isSessionAuthorized(session)) {
           captcha.checkCaptcha(request);
         }
-        // Blocked IP
-        IPBlockInfo.checkBlockIP(db, request.getRemoteAddr());
         dupeProtector.checkDuplication(request.getRemoteAddr());
 
         int msgid = previewMsg.addTopicFromPreview(db, tmpl, request, form.getPreviewImagePath(), user);
@@ -168,8 +170,6 @@ public class AddMessageController extends ApplicationObjectSupport {
         db.commit();
 
         searchQueueSender.updateMessageOnly(msgid);
-
-//        LorSearchSource.updateMessage(LorSearchSource.getConnection(), previewMsg, msgid);
 
         Random random = new Random();
 
