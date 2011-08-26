@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.org.linux.site.*;
+import ru.org.linux.util.bbcode.ParserUtil;
 
 import javax.sql.DataSource;
 import java.sql.ResultSet;
@@ -33,6 +34,31 @@ public class CommentDao {
         "INNER JOIN users ON (users.id=comments.userid) " +
         "LEFT JOIN user_agents ON (user_agents.id=comments.ua_id) " +
         "WHERE comments.id=?";
+
+  /**
+   * Запрос списка комментариев для топика ВКЛЮЧАЯ удаленные
+   */
+  private final static String queryCommentListByTopicId = "SELECT " +
+            "comments.title, topic, postdate, userid, comments.id as msgid, " +
+            "replyto, deleted, user_agents.name AS useragent, comments.postip " +
+            "FROM comments " +
+            "LEFT JOIN user_agents ON (user_agents.id=comments.ua_id) " +
+            "WHERE topic=? ORDER BY msgid ASC";
+
+  /**
+   * Запрос списка комментариев для топика ИСКЛЮЧАЯ удаленные
+   */
+  private final static String queryCommentListByTopicIdWithoutDeleted = "SELECT " +
+            "comments.title, topic, postdate, userid, comments.id as msgid, " +
+            "replyto, deleted, user_agents.name AS useragent, comments.postip " +
+            "FROM comments " +
+            "LEFT JOIN user_agents ON (user_agents.id=comments.ua_id) " +
+            "WHERE topic=?  AND NOT deleted ORDER BY msgid ASC";
+
+  /**
+   * Запрос тела сообщения и признака bbcode для сообщения
+   */
+  private final static String queryCommentForPrepare = "SELECT message, bbcode FROM msgbase WHERE id=?";
 
   private final static String replysForComment = "SELECT id FROM comments WHERE replyto=? AND NOT deleted FOR UPDATE";
   private final static String replysForCommentCount = "SELECT count(id) FROM comments WHERE replyto=? AND NOT deleted";
@@ -80,6 +106,53 @@ public class CommentDao {
     return  comment;
   }
 
+  /**
+   * Список комментариев топикоа
+   * @param topicId id топика
+   * @param showDeleted вместе с удаленными
+   * @return список комментариев топика
+   */
+  public List<Comment> getCommentList(int topicId, boolean showDeleted) {
+    final List<Comment> comments = new ArrayList<Comment>();
+
+    if(showDeleted) {
+      jdbcTemplate.query(queryCommentListByTopicId, new RowCallbackHandler() {
+        @Override
+        public void processRow(ResultSet resultSet) throws SQLException {
+          comments.add(new Comment(resultSet, deleteInfoDao));
+        }
+      }, topicId);
+    } else {
+      jdbcTemplate.query(queryCommentListByTopicIdWithoutDeleted, new RowCallbackHandler() {
+        @Override
+        public void processRow(ResultSet resultSet) throws SQLException {
+          comments.add(new Comment(resultSet, deleteInfoDao));
+        }
+      }, topicId);
+    }
+
+    return comments;
+  }
+
+  /**
+   * Получить html представление текста комментария
+   * @param id id комментария
+   * @return строку html комментария
+   */
+  public String getPreparedComment(int id) {
+    return jdbcTemplate.queryForObject(queryCommentForPrepare, new RowMapper<String>() {
+      @Override
+      public String mapRow(ResultSet resultSet, int i) throws SQLException {
+        String text = resultSet.getString("message");
+        boolean isLorcode = resultSet.getBoolean("bbcode");
+        if(isLorcode){
+          return ParserUtil.bb2xhtml(text, true, true, "", userDao);
+        } else {
+          return "<p>" + text + "</p>";
+        }
+      }
+    }, id);
+  }
 
   /**
    * Удаляем клментарий, если на комментарий есть ответы - генерируем исключение

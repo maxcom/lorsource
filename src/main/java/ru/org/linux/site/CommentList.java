@@ -15,17 +15,17 @@
 
 package ru.org.linux.site;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import ru.org.linux.spring.commons.CacheProvider;
+import ru.org.linux.spring.dao.CommentDao;
+
 import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.*;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import ru.org.linux.spring.commons.CacheProvider;
 
 public class CommentList implements Serializable {
   private static final Log logger = LogFactory.getLog(CommentList.class);
@@ -35,6 +35,13 @@ public class CommentList implements Serializable {
   private final Map<Integer, CommentNode> treeHash = new HashMap<Integer, CommentNode>(CommentFilter.COMMENTS_INITIAL_BUFSIZE);
 
   private final long lastmod;
+
+  public CommentList(List<Comment> comments, long lastmod) {
+    this.lastmod = lastmod;
+    this.comments.addAll(comments);
+    logger.debug("Read list size = " +comments.size());
+    buildTree();
+  }
 
   private CommentList(Connection db, int topicId, long lastmod, boolean deleted) throws SQLException {
     this.lastmod = lastmod;
@@ -116,6 +123,22 @@ public class CommentList implements Serializable {
     return getCommentPage(comment, messages, reverse);
   }
 
+  public static CommentList getCommentList(CommentDao commentDao, Message topic, boolean showDeleted) {
+    CacheProvider mcc = MemCachedSettings.getCache();
+
+    String cacheId = "commentList?msgid="+topic.getMessageId()+"&showDeleted="+showDeleted;
+
+    CommentList commentList = (CommentList) mcc.getFromCache(cacheId);
+
+    if (commentList == null || commentList.lastmod != topic.getLastModified().getTime()) {
+      commentList = new CommentList(commentDao.getCommentList(topic.getId(), showDeleted), topic.getLastModified().getTime());
+      mcc.storeToCache(cacheId, commentList);
+    }
+
+    return commentList;
+  }
+
+  @Deprecated
   public static CommentList getCommentList(Connection db, Message topic, boolean showDeleted) throws SQLException {
     CacheProvider mcc = MemCachedSettings.getCache();
 

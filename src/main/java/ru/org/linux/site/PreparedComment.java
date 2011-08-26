@@ -15,6 +15,8 @@
 
 package ru.org.linux.site;
 
+import ru.org.linux.spring.dao.CommentDao;
+import ru.org.linux.spring.dao.UserDao;
 import ru.org.linux.util.bbcode.ParserUtil;
 
 import java.sql.Connection;
@@ -30,6 +32,26 @@ public class PreparedComment {
   private final String processedMessage;
   private final User replyAuthor;
 
+  private PreparedComment(CommentDao commentDao, UserDao userDao, CommentList comments, Comment comment) throws UserNotFoundException {
+    this.comment = comment;
+    this.author = userDao.getUser(comment.getUserid());
+    this.processedMessage = commentDao.getPreparedComment(comment.getId());
+
+    if (comment.getReplyTo()!=0 && comments!=null) {
+      CommentNode replyNode = comments.getNode(comment.getReplyTo());
+
+      if (replyNode!=null) {
+        Comment reply = replyNode.getComment();
+        this.replyAuthor = userDao.getUser(reply.getUserid());
+      } else {
+        this.replyAuthor = null;
+      }
+    } else {
+      this.replyAuthor = null;
+    }
+  }
+
+  @Deprecated
   private PreparedComment(Connection db, PreparedStatement pst, CommentList comments, Comment comment) throws UserNotFoundException, SQLException {
     this.comment = comment;
 
@@ -112,6 +134,7 @@ public class PreparedComment {
     }
   }
 
+  @Deprecated
   public static List<PreparedComment> prepare(Connection db, CommentList comments, List<Comment> list) throws UserNotFoundException, SQLException {
     List<PreparedComment> commentsPrepared = new ArrayList<PreparedComment>(list.size());
     PreparedStatement pst = prepare(db);
@@ -125,5 +148,13 @@ public class PreparedComment {
     } finally {
       pst.close();
     }
+  }
+
+  public static List<PreparedComment> prepare(CommentDao commentDao, UserDao userDao, CommentList comments, List<Comment> list) throws UserNotFoundException, SQLException {
+    List<PreparedComment> commentsPrepared = new ArrayList<PreparedComment>(list.size());
+    for (Comment comment : list) {
+      commentsPrepared.add(new PreparedComment(commentDao, userDao, comments, comment));
+    }
+    return commentsPrepared;
   }
 }

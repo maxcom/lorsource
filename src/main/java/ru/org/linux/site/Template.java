@@ -15,6 +15,20 @@
 
 package ru.org.linux.site;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.jdbc.support.JdbcUtils;
+import ru.org.linux.site.config.PathConfig;
+import ru.org.linux.spring.dao.UserDao;
+import ru.org.linux.storage.StorageException;
+import ru.org.linux.storage.StorageNotFoundException;
+import ru.org.linux.util.LorHttpUtils;
+import ru.org.linux.util.StringUtil;
+
+import javax.servlet.ServletRequest;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -22,20 +36,6 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.text.DateFormat;
 import java.util.Properties;
-
-import javax.servlet.ServletRequest;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-
-import ru.org.linux.site.config.PathConfig;import ru.org.linux.storage.StorageException;
-import ru.org.linux.storage.StorageNotFoundException;
-import ru.org.linux.util.LorHttpUtils;
-import ru.org.linux.util.StringUtil;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.jdbc.support.JdbcUtils;
 
 public final class Template {
   private static final Log logger = LogFactory.getLog(Template.class);
@@ -241,10 +241,16 @@ public final class Template {
     return (Template) request.getAttribute("template");
   }
 
+  @Deprecated
   public void updateCurrentUser(Connection db) throws SQLException {
     initCurrentUser(db, true);
   }
 
+  public void updateCurrentUser(UserDao userDao) {
+    initCurrentUser(userDao, true);
+  }
+
+  @Deprecated
   private void initCurrentUser(Connection db, boolean forceUpdate) throws SQLException {
     if (!isSessionAuthorized()) {
       return;
@@ -256,6 +262,22 @@ public final class Template {
 
     try {
       currentUser = User.getUser(db, (String) session.getAttribute("nick"));
+    } catch (UserNotFoundException e) {
+      throw new RuntimeException("Can't find currentUser!?", e);
+    }
+  }
+
+  private void initCurrentUser(UserDao userDao, boolean forceUpdate) {
+    if (!isSessionAuthorized()) {
+      return;
+    }
+
+    if (currentUser != null && !forceUpdate) {
+      return;
+    }
+
+    try {
+      currentUser = userDao.getUser((String) session.getAttribute("nick"));
     } catch (UserNotFoundException e) {
       throw new RuntimeException("Can't find currentUser!?", e);
     }

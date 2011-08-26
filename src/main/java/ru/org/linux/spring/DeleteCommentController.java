@@ -15,17 +15,6 @@
 
 package ru.org.linux.spring;
 
-import java.sql.Connection;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-
-import ru.org.linux.site.*;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.stereotype.Controller;
@@ -33,16 +22,47 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
+import ru.org.linux.site.*;
+import ru.org.linux.spring.dao.CommentDao;
+import ru.org.linux.spring.dao.MessageDao;
+import ru.org.linux.spring.dao.UserDao;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import java.sql.Connection;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 @Controller
 public class DeleteCommentController {
   private SearchQueueSender searchQueueSender;
+  private CommentDao commentDao;
+  private MessageDao messageDao;
+  private UserDao userDao;
+
   private static final int DELETE_PERIOD = 60 * 60 * 1000; // milliseconds
 
   @Autowired
   @Required
   public void setSearchQueueSender(SearchQueueSender searchQueueSender) {
     this.searchQueueSender = searchQueueSender;
+  }
+
+  @Autowired
+  public void setMessageDao(MessageDao messageDao) {
+    this.messageDao = messageDao;
+  }
+
+  @Autowired
+  public void setCommentDao(CommentDao commentDao) {
+    this.commentDao = commentDao;
+  }
+
+  @Autowired
+  public void setUserDao(UserDao userDao) {
+    this.userDao = userDao;
   }
 
   @RequestMapping(value = "/delete_comment.jsp", method = RequestMethod.GET)
@@ -61,42 +81,32 @@ public class DeleteCommentController {
 
     params.put("msgid", msgid);
 
-    Connection db = null;
+    Comment comment = commentDao.getById(msgid);
 
-    try {
-      db = LorDataSource.getConnection();
-
-      Comment comment = new Comment(db, msgid);
-
-      if (comment.isDeleted()) {
-        throw new AccessViolationException("комментарий уже удален");
-      }
-
-      int topicId = comment.getTopic();
-
-      Message topic = new Message(db, topicId);
-
-      if (topic.isDeleted()) {
-        throw new AccessViolationException("тема удалена");
-      }
-
-      params.put("topic", topic);
-
-      CommentList comments = CommentList.getCommentList(db, topic, tmpl.isModeratorSession());
-
-      CommentFilter cv = new CommentFilter(comments);
-
-      List<Comment> list = cv.getCommentsSubtree(msgid);
-
-      params.put("commentsPrepared", PreparedComment.prepare(db, comments, list));
-      params.put("comments", comments);
-
-      return new ModelAndView("delete_comment", params);
-    } finally {
-      if (db!=null) {
-        db.close();
-      }
+    if (comment.isDeleted()) {
+      throw new AccessViolationException("комментарий уже удален");
     }
+
+    int topicId = comment.getTopicId();
+
+    Message topic = messageDao.getById(topicId);
+
+    if (topic.isDeleted()) {
+      throw new AccessViolationException("тема удалена");
+    }
+
+    params.put("topic", topic);
+
+    CommentList comments = CommentList.getCommentList(commentDao, topic, tmpl.isModeratorSession());
+
+    CommentFilter cv = new CommentFilter(comments);
+
+    List<Comment> list = cv.getCommentsSubtree(msgid);
+
+    params.put("commentsPrepared", PreparedComment.prepare(commentDao, userDao, comments, list));
+    params.put("comments", comments);
+
+    return new ModelAndView("delete_comment", params);
   }
 
   @RequestMapping(value = "/delete_comment.jsp", method = RequestMethod.POST)
@@ -117,78 +127,62 @@ public class DeleteCommentController {
 
     Template tmpl = Template.getTemplate(request);
 
-    Connection db = null;
+    tmpl.updateCurrentUser(userDao);
 
-    try {
-      db = LorDataSource.getConnection();
-      db.setAutoCommit(false);
-      tmpl.updateCurrentUser(db);
+    User user = tmpl.getCurrentUser();
+    user.checkBlocked();
+    user.checkAnonymous();
 
-      CommentDeleter deleter = new CommentDeleter(db);
+    Comment comment = commentDao.getById(msgid);
+    Message topic = messageDao.getById(comment.getTopicId());
 
-      User user = tmpl.getCurrentUser();
-      user.checkBlocked();
-      user.checkAnonymous();
+    boolean perm = false;
+    boolean selfDel = false;
 
-      Comment comment = new Comment(db, msgid);
-      Message topic = new Message(db, comment.getTopic());
+    if (comment.getUserid() == user.getId() && !user.canModerate()) {
+      perm = (System.currentTimeMillis() - comment.getPostdate().getTime()) < DELETE_PERIOD;
 
-      boolean perm = false;
-      boolean selfDel = false;
-
-      if (comment.getUserid() == user.getId() && !user.canModerate()) {
-        perm = (System.currentTimeMillis() - comment.getPostdate().getTime()) < DELETE_PERIOD;
-
-        if (perm) {
-          selfDel = true;
-        }
-      }
-
-      if (!perm && user.canModerate()) {
-        perm = true;
-      }
-
-      if (!perm) {
-        user.checkDelete();
-      }
-
-      StringBuilder out = new StringBuilder();
-
-      LinkedList<Integer> deleted = new LinkedList<Integer>();
-      deleted.add(msgid);
-
-      if (!selfDel) {
-        List<Integer> deletedReplys = deleter.deleteReplys(msgid, user, bonus > 2);
-        if (!deletedReplys.isEmpty()) {
-          out.append("Удаленные ответы: ").append(deletedReplys).append("<br>");
-        }
-
-        deleted.addAll(deletedReplys);
-
-        deleter.deleteComment(msgid, reason, user, -bonus);
-      } else {
-        deleter.deleteComment(msgid, reason, user, 0);
-      }
-
-      out.append("Сообщение ").append(msgid).append(" удалено");
-
-      deleter.close();
-
-      db.commit();
-
-      searchQueueSender.updateComment(deleted);
-
-      Map<String, Object> params = new HashMap<String, Object>();
-      params.put("message", "Удалено успешно");
-      params.put("bigMessage", out.toString());
-
-      params.put("link", topic.getLink());
-
-      return new ModelAndView("action-done", params);
-    } finally {
-      if (db != null) {
-        db.close();
+      if (perm) {
+        selfDel = true;
       }
     }
+
+    if (!perm && user.canModerate()) {
+      perm = true;
+    }
+
+    if (!perm) {
+      user.checkDelete();
+    }
+
+    StringBuilder out = new StringBuilder();
+
+    LinkedList<Integer> deleted = new LinkedList<Integer>();
+    deleted.add(msgid);
+
+    if (!selfDel) {
+      List<Integer> deletedReplys = commentDao.deleteReplys(msgid, user, bonus > 2);
+      if (!deletedReplys.isEmpty()) {
+        out.append("Удаленные ответы: ").append(deletedReplys).append("<br>");
+      }
+
+      deleted.addAll(deletedReplys);
+
+      commentDao.deleteComment(msgid, reason, user, -bonus);
+    } else {
+      commentDao.deleteComment(msgid, reason, user, 0);
+    }
+
+    out.append("Сообщение ").append(msgid).append(" удалено");
+
+    searchQueueSender.updateComment(deleted);
+
+    Map<String, Object> params = new HashMap<String, Object>();
+    params.put("message", "Удалено успешно");
+    params.put("bigMessage", out.toString());
+
+    params.put("link", topic.getLink());
+
+    return new ModelAndView("action-done", params);
   }
 }
