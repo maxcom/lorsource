@@ -28,7 +28,6 @@ import ru.org.linux.site.User;
 import ru.org.linux.site.UserErrorException;
 import ru.org.linux.spring.dao.CommentDao;
 import ru.org.linux.spring.dao.DeleteCommentResult;
-import ru.org.linux.spring.dao.UserDao;
 
 import javax.servlet.http.HttpServletRequest;
 import java.sql.Timestamp;
@@ -49,7 +48,15 @@ public class DelIPController {
   public void setCommentDao(CommentDao commentDao) {
     this.commentDao = commentDao;
   }
-
+  /**
+   * Контроллер удаление топиков и сообщений по ip и времени
+   * @param request http запрос (для получения текущего пользователя)
+   * @param reason причина удаления
+   * @param ip ip по которому удаляем
+   * @param time время за которое удаляем (hour, day, 3day)
+   * @return возвращаем страничку с результатом выполнения
+   * @throws Exception по дороге может что-то сучится
+   */
   @RequestMapping(value="/delip.jsp", method= RequestMethod.POST)
   public ModelAndView delIp(HttpServletRequest request,
                             @RequestParam("reason") String reason,
