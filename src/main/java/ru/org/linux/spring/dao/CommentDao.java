@@ -3,29 +3,36 @@ package ru.org.linux.spring.dao;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import ru.org.linux.site.ScriptErrorException;
-import ru.org.linux.site.User;
-import ru.org.linux.site.UserNotFoundException;
+import ru.org.linux.site.*;
 
 import javax.sql.DataSource;
-import java.sql.Timestamp;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.*;
 
 /**
- * Пока замена CommentDeleter в будущем должен содержать остальную часть доступа из Comments
+ * Операции над комментариями
  */
 
 @Repository
 public class CommentDao {
   private static final Log logger = LogFactory.getLog(CommentDao.class);
+
+  private final static String queryCommentById = "SELECT " +
+        "postdate, topic, users.id as userid, comments.id as msgid, comments.title, " +
+        "deleted, replyto, user_agents.name AS useragent, comments.postip " +
+        "FROM comments " +
+        "INNER JOIN users ON (users.id=comments.userid) " +
+        "LEFT JOIN user_agents ON (user_agents.id=comments.ua_id) " +
+        "WHERE comments.id=?";
 
   private final static String replysForComment = "SELECT id FROM comments WHERE replyto=? AND NOT deleted FOR UPDATE";
   private final static String replysForCommentCount = "SELECT count(id) FROM comments WHERE replyto=? AND NOT deleted";
@@ -35,6 +42,7 @@ public class CommentDao {
 
   private JdbcTemplate jdbcTemplate;
   private UserDao userDao;
+  private DeleteInfoDao deleteInfoDao;
 
   @Autowired
   public void setJdbcTemplate(DataSource dataSource) {
@@ -44,6 +52,32 @@ public class CommentDao {
   @Autowired
   public void setUserDao(UserDao userDao) {
     this.userDao = userDao;
+  }
+
+  @Autowired
+  public void setDeleteInfoDao(DeleteInfoDao deleteInfoDao) {
+    this.deleteInfoDao = deleteInfoDao;
+  }
+
+  /**
+   * Получить комментарий по id
+   * @param id id нужного комментария
+   * @return нужный комментарий
+   * @throws MessageNotFoundException при отсутствии сообщения
+   */
+  public Comment getById(int id) throws MessageNotFoundException {
+    Comment comment;
+    try {
+      comment = jdbcTemplate.queryForObject(queryCommentById, new RowMapper<Comment>() {
+        @Override
+        public Comment mapRow(ResultSet resultSet, int i) throws SQLException {
+          return new Comment(resultSet, deleteInfoDao);
+        }
+      }, id);
+    } catch (IncorrectResultSizeDataAccessException exception) {
+      throw new MessageNotFoundException(id);
+    }
+    return  comment;
   }
 
 

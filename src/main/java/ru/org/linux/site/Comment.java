@@ -15,6 +15,8 @@
 
 package ru.org.linux.site;
 
+import ru.org.linux.spring.dao.DeleteInfoDao;
+
 import java.io.Serializable;
 import java.sql.*;
 import java.util.Date;
@@ -32,6 +34,24 @@ public class Comment implements Serializable {
   private final String userAgent;
   private final String postIP;
   public static final int TITLE_LENGTH = 250;
+
+  public Comment(ResultSet rs, DeleteInfoDao deleteInfoDao) throws SQLException {
+    msgid=rs.getInt("msgid");
+    title=rs.getString("title");
+    topic=rs.getInt("topic");
+    replyto=rs.getInt("replyto");
+    deleted=rs.getBoolean("deleted");
+    postdate=rs.getTimestamp("postdate");
+    userid=rs.getInt("userid");
+    userAgent=rs.getString("useragent");
+    postIP=rs.getString("postip");
+
+    if (deleted) {
+      deleteInfo = deleteInfoDao.getDeleteInfo(msgid);
+    } else {
+      deleteInfo = null;
+    }
+  }
 
   public Comment(Connection db, ResultSet rs) throws SQLException {
     msgid=rs.getInt("msgid");
@@ -124,7 +144,15 @@ public class Comment implements Serializable {
     return deleted;
   }
 
+  @Deprecated
   public int getTopic() {
+    return topic;
+  }
+
+  /**
+   * @return id топика в котором находится сообщение
+   */
+  public int getTopicId() {
     return topic;
   }
 

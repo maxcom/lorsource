@@ -145,7 +145,12 @@ public class Message implements Serializable {
 
   public Message(ResultSet rs) throws SQLException {
     msgid = rs.getInt("msgid");
-    postscore = rs.getInt("postscore");
+    int ps = rs.getInt("postscore");
+    if (rs.wasNull()) { // если из postscore прочитали NULL
+      postscore = POSTSCORE_UNRESTRICTED;
+    } else {
+      postscore = ps;
+    }
     votepoll = rs.getBoolean("vote");
     sticky = rs.getBoolean("sticky");
     linktext = rs.getString("linktext");

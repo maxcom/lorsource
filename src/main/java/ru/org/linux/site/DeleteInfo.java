@@ -24,13 +24,14 @@ public class DeleteInfo implements Serializable {
   private final String reason;
   private final Timestamp delDate;
 
-  private DeleteInfo(String nick, int userid, String reason, Timestamp delDate) {
+  public DeleteInfo(String nick, int userid, String reason, Timestamp delDate) {
     this.nick = nick;
     this.reason = reason;
     this.userid = userid;
     this.delDate = delDate;
   }
 
+  @Deprecated
   public static DeleteInfo getDeleteInfo(Connection db, int msgid) throws SQLException {
     PreparedStatement pst = null;
     try {
