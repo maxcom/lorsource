@@ -15,24 +15,38 @@
 
 package ru.org.linux.spring;
 
-import java.sql.*;
-import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-
-import ru.org.linux.site.*;
-import ru.org.linux.util.ServletParameterParser;
-import ru.org.linux.util.StringUtil;
-
 import com.google.common.collect.ImmutableList;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.support.JdbcUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
+import ru.org.linux.site.*;
+import ru.org.linux.spring.dao.IPBlockDao;
+import ru.org.linux.spring.dao.UserDao;
+import ru.org.linux.util.ServletParameterParser;
+import ru.org.linux.util.StringUtil;
+
+import javax.servlet.http.HttpServletRequest;
+import java.sql.*;
+import java.util.List;
 
 @Controller
 public class SameIPController {
+  private IPBlockDao ipBlockDao;
+  private UserDao userDao;
+
+  @Autowired
+  public void setIpBlockDao(IPBlockDao ipBlockDao) {
+    this.ipBlockDao = ipBlockDao;
+  }
+
+  @Autowired
+  public void setUserDao(UserDao userDao) {
+    this.userDao = userDao;
+  }
+
   @RequestMapping("/sameip.jsp")
   public ModelAndView sameIP(
     HttpServletRequest request,
@@ -44,13 +58,16 @@ public class SameIPController {
       throw new AccessViolationException("Not moderator");
     }
 
+    String ip;
+
+    ModelAndView mv = new ModelAndView("sameip");
+
     Connection db = null;
 
     try {
       db = LorDataSource.getConnection();
 
       int userAgentId = 0;
-      String ip;
       if (msgid != null) {
         Statement ipst = db.createStatement();
         ResultSet rs = ipst.executeQuery("SELECT postip, ua_id FROM topics WHERE id=" + msgid);
@@ -76,26 +93,25 @@ public class SameIPController {
         ip = ServletParameterParser.getIP(request, "ip");
       }
 
-
-      ModelAndView mv = new ModelAndView("sameip");
-
       mv.getModel().put("ip", ip);
       mv.getModel().put("uaId", userAgentId);
-
-      IPBlockInfo blockInfo = IPBlockInfo.getBlockInfo(db, ip);
-      if (blockInfo!=null) {
-        mv.getModel().put("blockInfo", blockInfo);
-        mv.getModel().put("blockModerator", User.getUserCached(db, blockInfo.getModerator()));
-      }
 
       mv.getModel().put("topics", getTopics(db, ip));
       mv.getModel().put("comments", getComments(db, ip));
       mv.getModel().put("users", getUsers(db, ip, userAgentId));
 
-      return mv;
     } finally {
       JdbcUtils.closeConnection(db);
     }
+
+    IPBlockInfo blockInfo = ipBlockDao.getBlockInfo(ip);
+
+    if (blockInfo!=null) {
+      mv.getModel().put("blockInfo", blockInfo);
+      mv.getModel().put("blockModerator", userDao.getUserCached(blockInfo.getModerator()));
+    }
+
+    return mv;
   }
 
   private static List<TopicItem> getTopics(Connection db, String ip) throws SQLException {
