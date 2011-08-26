@@ -66,7 +66,7 @@ public class DeleteCommentController {
     try {
       db = LorDataSource.getConnection();
 
-      Comment comment = new Comment(db, msgid);
+      Comment comment = Comment.getComment(db, msgid);
 
       if (comment.isDeleted()) {
         throw new AccessViolationException("комментарий уже удален");
@@ -130,7 +130,7 @@ public class DeleteCommentController {
       user.checkBlocked();
       user.checkAnonymous();
 
-      Comment comment = new Comment(db, msgid);
+      Comment comment = Comment.getComment(db, msgid);
       Message topic = new Message(db, comment.getTopic());
 
       boolean perm = false;

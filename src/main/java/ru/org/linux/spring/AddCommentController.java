@@ -300,7 +300,7 @@ public class AddCommentController extends ApplicationObjectSupport {
     binder.registerCustomEditor(Comment.class, new PropertyEditorSupport() {
       @Override
       public void setAsText(String text) throws IllegalArgumentException {
-        if (text.isEmpty() || text.equals("0")) {
+        if (text.isEmpty() || "0".equals(text)) {
           setValue(null);
           return;
         }
@@ -310,7 +310,7 @@ public class AddCommentController extends ApplicationObjectSupport {
         try {
           db = LorDataSource.getConnection();
 
-          setValue(new Comment(db, Integer.parseInt(text)));
+          setValue(Comment.getComment(db, Integer.parseInt(text)));
         } catch (SQLException e) {
           throw new RuntimeException(e);
         } catch (MessageNotFoundException e) {

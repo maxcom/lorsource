@@ -51,7 +51,7 @@ public class Comment implements Serializable {
     }
   }
 
-  public Comment(Connection db, int msgid) throws SQLException, MessageNotFoundException {
+  public static Comment getComment(Connection db, int msgid) throws SQLException, MessageNotFoundException {
     Statement st = db.createStatement();
 
     ResultSet rs=st.executeQuery("SELECT " +
@@ -66,23 +66,7 @@ public class Comment implements Serializable {
       throw new MessageNotFoundException(msgid);
     }
 
-    this.msgid=rs.getInt("msgid");
-    title=rs.getString("title");
-    topic=rs.getInt("topic");
-    replyto=rs.getInt("replyto");
-    deleted=rs.getBoolean("deleted");
-    postdate=rs.getTimestamp("postdate");
-    userid=rs.getInt("userid");
-    userAgent=rs.getString("useragent");
-    postIP=rs.getString("postip");
-
-    st.close();
-
-    if (deleted) {
-      deleteInfo = DeleteInfo.getDeleteInfo(db, msgid);
-    } else {
-      deleteInfo = null;
-    }
+    return new Comment(db, rs);
   }
 
   public Comment(Integer replyto, String title, int topic, int userid, String userAgent, String postIP) {

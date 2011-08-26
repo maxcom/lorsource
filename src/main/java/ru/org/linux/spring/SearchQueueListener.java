@@ -101,7 +101,7 @@ public class SearchQueueListener {
       pst = db.prepareStatement("SELECT message FROM msgbase WHERE id=?");
 
       for (Integer msgid : msgUpdate.getMsgids()) {
-        Comment comment = new Comment(db, msgid);
+        Comment comment = Comment.getComment(db, msgid);
 
         if (comment.isDeleted()) {
           logger.info("Deleting comment "+comment.getId()+" from solr");
