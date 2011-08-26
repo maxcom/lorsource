@@ -232,7 +232,9 @@ public class AddCommentController extends ApplicationObjectSupport {
         }
       }
 
-      add.getTopic().checkCommentsAllowed(user, errors);
+      if (add.getTopic()!=null) {
+        add.getTopic().checkCommentsAllowed(user, errors);
+      }
 
       if (!add.isPreviewMode() && !errors.hasErrors()) {
         dupeProtector.checkDuplication(request.getRemoteAddr(), user.getScore() > 100, errors);
