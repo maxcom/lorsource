@@ -27,6 +27,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.site.*;
 import ru.org.linux.spring.dao.CommentDao;
+import ru.org.linux.spring.dao.MessageDao;
 import ru.org.linux.spring.validators.AddCommentRequestValidator;
 import ru.org.linux.util.HTMLFormatter;
 import ru.org.linux.util.ServletParameterException;
@@ -46,6 +47,8 @@ public class AddCommentController extends ApplicationObjectSupport {
   private SearchQueueSender searchQueueSender;
   private CaptchaService captcha;
   private DupeProtector dupeProtector;
+  private CommentDao commentDao;
+  private MessageDao messageDao;
 
   @Autowired
   public void setSearchQueueSender(SearchQueueSender searchQueueSender) {
@@ -60,6 +63,16 @@ public class AddCommentController extends ApplicationObjectSupport {
   @Autowired
   public void setDupeProtector(DupeProtector dupeProtector) {
     this.dupeProtector = dupeProtector;
+  }
+
+  @Autowired
+  public void setCommentDao(CommentDao commentDao) {
+    this.commentDao = commentDao;
+  }
+
+  @Autowired
+  public void setMessageDao(MessageDao messageDao) {
+    this.messageDao = messageDao;
   }
 
   @RequestMapping(value = "/add_comment.jsp", method = RequestMethod.GET)
@@ -102,13 +115,13 @@ public class AddCommentController extends ApplicationObjectSupport {
     Connection db = null;
 
     try {
-      db = LorDataSource.getConnection();
-
       if (add.getMode()==null) {
         add.setMode(tmpl.getFormatMode());
       }
       
       HashMap<String, Object> params = new HashMap<String, Object>();
+
+      db = LorDataSource.getConnection();
 
       params.put("preparedMessage", new PreparedMessage(db, add.getTopic(), true));
 
@@ -282,18 +295,10 @@ public class AddCommentController extends ApplicationObjectSupport {
     binder.registerCustomEditor(Message.class, new PropertyEditorSupport() {
       @Override
       public void setAsText(String text) throws IllegalArgumentException {
-        Connection db=null;
-
         try {
-          db = LorDataSource.getConnection();
-
-          setValue(new Message(db, Integer.parseInt(text)));
-        } catch (SQLException e) {
-          throw new RuntimeException(e);
+          setValue(messageDao.getById(Integer.parseInt(text)));
         } catch (MessageNotFoundException e) {
           throw new IllegalArgumentException(e);
-        } finally {
-          JdbcUtils.closeConnection(db);
         }
       }
     });
@@ -306,18 +311,10 @@ public class AddCommentController extends ApplicationObjectSupport {
           return;
         }
 
-        Connection db=null;
-
         try {
-          db = LorDataSource.getConnection();
-
-          setValue(CommentDao.getComment(db, Integer.parseInt(text)));
-        } catch (SQLException e) {
-          throw new RuntimeException(e);
+          setValue(commentDao.getComment(Integer.parseInt(text)));
         } catch (MessageNotFoundException e) {
           throw new IllegalArgumentException(e);
-        } finally {
-          JdbcUtils.closeConnection(db);
         }
       }
     });
