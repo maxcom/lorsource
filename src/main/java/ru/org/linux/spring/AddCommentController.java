@@ -253,9 +253,15 @@ public class AddCommentController extends ApplicationObjectSupport {
       Integer replyto = add.getReplyto()!=null?add.getReplyto().getId():null;
 
       if (add.getTopic() != null) {
+        String title = add.getTitle();
+
+        if (title==null) {
+          title="";
+        }
+
         comment = new Comment(
                 replyto,
-                HTMLFormatter.htmlSpecialChars(add.getTitle()),
+                HTMLFormatter.htmlSpecialChars(title),
                 add.getTopic().getId(),
                 user.getId(),
                 request.getHeader("user-agent"),
