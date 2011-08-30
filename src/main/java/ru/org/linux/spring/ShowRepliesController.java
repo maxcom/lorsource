@@ -170,7 +170,7 @@ public class ShowRepliesController {
   }
 
   public enum EventType {
-    REPLY, DEL, WATCH, OTHER
+    REPLY, DEL, WATCH, OTHER, REF
   }
 
   public static class MyTopicsListItem implements Serializable {

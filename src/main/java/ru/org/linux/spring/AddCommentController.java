@@ -42,6 +42,7 @@ import java.beans.PropertyEditorSupport;
 import java.sql.Connection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 @Controller
 public class AddCommentController extends ApplicationObjectSupport {
@@ -252,7 +253,9 @@ public class AddCommentController extends ApplicationObjectSupport {
     }
 
     if (!add.isPreviewMode() && !errors.hasErrors() && comment != null) {
-      int msgid = commentDao.saveNewMessage(comment, msg);
+      Set<User> userRefs = PreparedComment.getProcessedMessage(userDao, msg).getReplier();
+
+      int msgid = commentDao.saveNewMessage(comment, msg, userRefs);
 
       String logmessage = "Написан комментарий " + msgid + " ip:" + request.getRemoteAddr();
       if (request.getHeader("X-Forwarded-For") != null) {

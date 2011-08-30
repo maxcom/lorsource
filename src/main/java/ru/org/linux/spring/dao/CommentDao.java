@@ -72,6 +72,8 @@ public class CommentDao {
 
   private SimpleJdbcInsert insertMsgbase;
 
+  private UserEventsDao userEventsDao;
+
   @Autowired
   public void setDataSource(DataSource dataSource) {
     jdbcTemplate = new JdbcTemplate(dataSource);
@@ -89,6 +91,11 @@ public class CommentDao {
   @Autowired
   public void setDeleteInfoDao(DeleteInfoDao deleteInfoDao) {
     this.deleteInfoDao = deleteInfoDao;
+  }
+
+  @Autowired
+  public void setUserEventsDao(UserEventsDao userEventsDao) {
+    this.userEventsDao = userEventsDao;
   }
 
   /**
@@ -404,7 +411,7 @@ public class CommentDao {
   }
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public int saveNewMessage(final Comment comment, final String message) throws SQLException {
+  public int saveNewMessage(final Comment comment, String message, Set<User> userRefs)  {
     final int msgid = jdbcTemplate.queryForInt("select nextval('s_msgid') as msgid");
 
     jdbcTemplate.execute(
@@ -437,6 +444,8 @@ public class CommentDao {
             "message", message,
             "bbcode", true)
     );
+
+    userEventsDao.addUserRefEvent(userRefs.toArray(new User[userRefs.size()]), comment.getTopicId(), msgid);
 
     return msgid;
   }

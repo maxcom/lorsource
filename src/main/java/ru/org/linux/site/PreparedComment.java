@@ -17,6 +17,7 @@ package ru.org.linux.site;
 
 import ru.org.linux.spring.dao.CommentDao;
 import ru.org.linux.spring.dao.UserDao;
+import ru.org.linux.util.bbcode.ParserResult;
 import ru.org.linux.util.bbcode.ParserUtil;
 
 import java.sql.Connection;
@@ -79,7 +80,7 @@ public class PreparedComment {
 
     author = userDao.getUserCached(comment.getUserid());
 
-    processedMessage = getProcessedMessage(userDao, message);
+    processedMessage = getProcessedMessage(userDao, message).getHtml();
 
     replyAuthor = null;
   }
@@ -104,8 +105,8 @@ public class PreparedComment {
     }
   }
 
-  private static String getProcessedMessage(UserDao userDao, String message) {
-    return ParserUtil.bb2xhtml(message, true, true, "", userDao);
+  public static ParserResult getProcessedMessage(UserDao userDao, String message) {
+    return ParserUtil.bb2xhtm(message, true, true, "", userDao);
   }
 
   public Comment getComment() {
