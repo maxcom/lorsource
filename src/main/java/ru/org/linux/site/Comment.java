@@ -71,7 +71,14 @@ public class Comment implements Serializable {
     }
   }
 
-  public Comment(Integer replyto, String title, int topic, int userid, String userAgent, String postIP) {
+  public Comment(
+          Integer replyto,
+          String title,
+          int topic,
+          int userid,
+          String userAgent,
+          String postIP
+  ) {
     msgid =0;
     this.title=title;
     this.topic=topic;
@@ -146,7 +153,7 @@ public class Comment implements Serializable {
     return postIP;
   }
 
-  public int saveNewMessage(Connection db, String remoteAddr, String userAgent, String message) throws SQLException {
+  public int saveNewMessage(Connection db, String message) throws SQLException {
     PreparedStatement pstMsgbase = null;
     PreparedStatement pst = null;
     try {
@@ -157,12 +164,12 @@ public class Comment implements Serializable {
       int msgid = rs.getInt("msgid");
 
       // insert headers
-      pst = db.prepareStatement("INSERT INTO comments (id, userid, title, postdate, replyto, deleted, topic, postip, ua_id) VALUES (?, ?, ?, CURRENT_TIMESTAMP, ?, 'f', ?, '" + remoteAddr + "',create_user_agent(?))");
+      pst = db.prepareStatement("INSERT INTO comments (id, userid, title, postdate, replyto, deleted, topic, postip, ua_id) VALUES (?, ?, ?, CURRENT_TIMESTAMP, ?, 'f', ?, '" + postIP + "',create_user_agent(?))");
       pst.setInt(1, msgid);
       pst.setInt(2, userid);
       pst.setString(3, title);
       pst.setInt(5, topic);
-      pst.setString(6, userAgent);
+      pst.setString(6, this.userAgent);
 
       if (replyto != 0) {
         pst.setInt(4, replyto);
@@ -170,7 +177,6 @@ public class Comment implements Serializable {
         pst.setNull(4, Types.INTEGER);
       }
 
-      //pst.setString(6, request.getRemoteAddr());
       pst.executeUpdate();
 
       // insert message text
