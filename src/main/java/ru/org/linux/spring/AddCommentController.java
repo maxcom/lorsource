@@ -152,7 +152,7 @@ public class AddCommentController extends ApplicationObjectSupport {
 
     HTMLFormatter form = new HTMLFormatter(msg);
     form.setMaxLength(80);
-    form.enableUrlHighLightMode();
+//    form.enableUrlHighLightMode();
     form.setOutputLorcode(true);
 
     if ("ntobr".equals(mode)) {

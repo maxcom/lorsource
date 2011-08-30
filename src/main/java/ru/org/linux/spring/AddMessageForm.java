@@ -315,7 +315,7 @@ public class AddMessageForm {
       }
 
       formatter.setMaxLength(maxlength);
-      formatter.enableUrlHighLightMode();
+//      formatter.enableUrlHighLightMode();
       formatter.setOutputLorcode(true);
 
       if ("ntobr".equals(mode)) {
