@@ -194,75 +194,70 @@ public class AddCommentController extends ApplicationObjectSupport {
 
     prepareReplyto(add, formParams);
 
-    Connection db = null;
+    User user;
 
-    try {
-      // prechecks is over
-      db = LorDataSource.getConnection();
-      db.setAutoCommit(false);
-
-      tmpl.updateCurrentUser(db);
-
-      User user;
-
-      if (!Template.isSessionAuthorized(session)) {
-        if (add.getNick() != null) {
-          user = add.getNick();
-        } else {
-          user = User.getAnonymous(db);
-        }
-
-        if (add.getPassword()==null) {
-          errors.reject(null, "Требуется авторизация");
-        }
+    if (!Template.isSessionAuthorized(session)) {
+      if (add.getNick() != null) {
+        user = add.getNick();
       } else {
-        user = tmpl.getCurrentUser();
+        user = userDao.getAnonymous();
       }
 
-      user.checkBlocked(errors);
-
-      if (user.isAnonymous()) {
-        if (msg.length() > 4096) {
-          errors.rejectValue("msg", null, "Слишком большое сообщение");
-        }
-      } else {
-        if (msg.length() > 8192) {
-          errors.rejectValue("msg", null, "Слишком большое сообщение");
-        }
+      if (add.getPassword()==null) {
+        errors.reject(null, "Требуется авторизация");
       }
+    } else {
+      user = tmpl.getCurrentUser();
+    }
 
-      if (add.getTopic()!=null) {
-        add.getTopic().checkCommentsAllowed(user, errors);
+    user.checkBlocked(errors);
+
+    if (user.isAnonymous()) {
+      if (msg.length() > 4096) {
+        errors.rejectValue("msg", null, "Слишком большое сообщение");
       }
-
-      if (!add.isPreviewMode() && !errors.hasErrors()) {
-        dupeProtector.checkDuplication(request.getRemoteAddr(), user.getScore() > 100, errors);
+    } else {
+      if (msg.length() > 8192) {
+        errors.rejectValue("msg", null, "Слишком большое сообщение");
       }
+    }
 
-      Comment comment = null;
+    Comment comment = null;
+
+    if (add.getTopic()!=null) {
+      add.getTopic().checkCommentsAllowed(user, errors);
+
+      String title = add.getTitle();
+
+      if (title==null) {
+        title="";
+      }
 
       Integer replyto = add.getReplyto()!=null?add.getReplyto().getId():null;
 
-      if (add.getTopic() != null) {
-        String title = add.getTitle();
+      comment = new Comment(
+              replyto,
+              HTMLFormatter.htmlSpecialChars(title),
+              add.getTopic().getId(),
+              user.getId(),
+              request.getHeader("user-agent"),
+              request.getRemoteAddr()
+      );
 
-        if (title==null) {
-          title="";
-        }
+      formParams.put("comment", new PreparedComment(userDao, comment, msg));
+    }
 
-        comment = new Comment(
-                replyto,
-                HTMLFormatter.htmlSpecialChars(title),
-                add.getTopic().getId(),
-                user.getId(),
-                request.getHeader("user-agent"),
-                request.getRemoteAddr()
-        );
+    if (!add.isPreviewMode() && !errors.hasErrors()) {
+      dupeProtector.checkDuplication(request.getRemoteAddr(), user.getScore() > 100, errors);
+    }
 
-        formParams.put("comment", new PreparedComment(db, comment, msg));
-      }
+    if (!add.isPreviewMode() && !errors.hasErrors() && comment != null) {
+      Connection db = null;
 
-      if (!add.isPreviewMode() && !errors.hasErrors() && comment!=null) {
+      try {
+        db = LorDataSource.getConnection();
+        db.setAutoCommit(false);
+
         int msgid = comment.saveNewMessage(db, request.getRemoteAddr(), request.getHeader("user-agent"), msg);
 
         String logmessage = "Написан комментарий " + msgid + " ip:" + request.getRemoteAddr();
@@ -279,12 +274,12 @@ public class AddCommentController extends ApplicationObjectSupport {
         String returnUrl = "jump-message.jsp?msgid=" + add.getTopic().getId() + "&cid=" + msgid;
 
         return new ModelAndView(new RedirectView(returnUrl));
+      } finally {
+        JdbcUtils.closeConnection(db);
       }
-
-      return new ModelAndView("add_comment", formParams);
-    } finally {
-      JdbcUtils.closeConnection(db);
     }
+
+    return new ModelAndView("add_comment", formParams);
   }
 
   private void prepareReplyto(AddCommentRequest add, Map<String, Object> formParams) throws UserNotFoundException {

@@ -74,12 +74,12 @@ public class PreparedComment {
     }
   }
 
-  public PreparedComment(Connection db, Comment comment, String message) throws UserNotFoundException {
+  public PreparedComment(UserDao userDao, Comment comment, String message) throws UserNotFoundException {
     this.comment = comment;
 
-    author = User.getUserCached(db, comment.getUserid());
+    author = userDao.getUserCached(comment.getUserid());
 
-    processedMessage = getProcessedMessage(db, message);
+    processedMessage = getProcessedMessage(userDao, message);
 
     replyAuthor = null;
   }
@@ -104,8 +104,8 @@ public class PreparedComment {
     }
   }
 
-  private static String getProcessedMessage(Connection db, String message) {
-    return ParserUtil.bb2xhtml(message, true, true, "", db);
+  private static String getProcessedMessage(UserDao userDao, String message) {
+    return ParserUtil.bb2xhtml(message, true, true, "", userDao);
   }
 
   public Comment getComment() {

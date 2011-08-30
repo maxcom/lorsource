@@ -32,7 +32,10 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.Serializable;
 import java.net.URLEncoder;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class User implements Serializable {
   private static final int ANONYMOUS_LEVEL_SCORE = 50;
@@ -508,14 +511,6 @@ public class User implements Serializable {
       st.executeUpdate();
     } finally {
       JdbcUtils.closeStatement(st);
-    }
-  }
-
-  public static User getAnonymous(Connection db) {
-    try {
-      return getUser(db, 2);
-    } catch (UserNotFoundException e) {
-      throw new RuntimeException(e);
     }
   }
 }
