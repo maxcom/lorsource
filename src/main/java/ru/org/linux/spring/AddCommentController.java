@@ -40,7 +40,6 @@ import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 import java.beans.PropertyEditorSupport;
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -106,17 +105,9 @@ public class AddCommentController extends ApplicationObjectSupport {
       add.setMode(tmpl.getFormatMode());
     }
 
-    Connection db = null;
+    prepareReplyto(add, params);
 
-    try {
-      db = LorDataSource.getConnection();
-
-      prepareReplyto(add, params, db);
-
-      return new ModelAndView("add_comment", params);
-    } finally {
-      JdbcUtils.closeConnection(db);
-    }
+    return new ModelAndView("add_comment", params);
   }
 
   @RequestMapping("/comment-message.jsp")
@@ -199,6 +190,10 @@ public class AddCommentController extends ApplicationObjectSupport {
     
     ipBlockDao.checkBlockIP(request.getRemoteAddr(), errors);
 
+    Map<String, Object> formParams = new HashMap<String, Object>();
+
+    prepareReplyto(add, formParams);
+
     Connection db = null;
 
     try {
@@ -207,10 +202,6 @@ public class AddCommentController extends ApplicationObjectSupport {
       db.setAutoCommit(false);
 
       tmpl.updateCurrentUser(db);
-
-      Map<String, Object> formParams = new HashMap<String, Object>();
-
-      prepareReplyto(add, formParams, db);
 
       User user;
 
@@ -296,9 +287,9 @@ public class AddCommentController extends ApplicationObjectSupport {
     }
   }
 
-  private static void prepareReplyto(AddCommentRequest add, Map<String, Object> formParams, Connection db) throws SQLException, UserNotFoundException {
+  private void prepareReplyto(AddCommentRequest add, Map<String, Object> formParams) throws UserNotFoundException {
     if (add.getReplyto()!=null) {
-      formParams.put("onComment", PreparedComment.prepare(db, null, add.getReplyto()));
+      formParams.put("onComment", PreparedComment.prepare(commentDao, userDao, add.getReplyto()));
     }
   }
 
