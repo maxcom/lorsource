@@ -98,10 +98,10 @@ public class DeleteMessageController extends ApplicationObjectSupport {
       throw new UserErrorException("Сообщение уже удалено");
     }
 
-    boolean perm = message.isUserCanDelete(user);
+    boolean perm = message.isDeletableByUser(user);
 
     if (!perm && user.canModerate()) {
-      perm = message.isModeratorCanDelete(user, section);
+      perm = message.isDeletableByModerator(user, section);
     }
 
     if (!perm) {
@@ -112,7 +112,6 @@ public class DeleteMessageController extends ApplicationObjectSupport {
     logger.info("Удалено сообщение " + msgid + " пользователем " + user.getNick() + " по причине `" + reason + '\'');
 
     // Delete msgs from search index
-    //TODO кроме удаления из поискового индекса топика, надо удалить сообщения к нему
     searchQueueSender.updateMessage(msgid, true);
 
     return new ModelAndView("action-done", "message", "Сообщение удалено");

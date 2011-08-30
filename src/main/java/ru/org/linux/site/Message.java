@@ -858,11 +858,11 @@ public class Message implements Serializable {
    * @param user пользователь удаляющий сообщение
    * @return признак возможности удаления
    */
-  public boolean isUserCanDelete(User user) {
+  public boolean isDeletableByUser(User user) {
     Calendar calendar = Calendar.getInstance();
 
     calendar.setTime(new Date());
-    calendar.add(Calendar.DAY_OF_MONTH, -1);
+    calendar.add(Calendar.HOUR_OF_DAY, -1);
     Timestamp hourDeltaTime = new Timestamp(calendar.getTimeInMillis());
 
     return (postdate.compareTo(hourDeltaTime) >= 0 && userid == user.getId());
@@ -874,7 +874,8 @@ public class Message implements Serializable {
    * @param section местоположение топика
    * @return признак возможности удаления
    */
-  public boolean isModeratorCanDelete(User user, Section section) {
+  public boolean isDeletableByModerator(User user, Section section) {
+    // TODO убрать от сюда аргумент функции section
     if(!user.canModerate()) {
       return false;
     }
@@ -886,11 +887,18 @@ public class Message implements Serializable {
 
     boolean ret = false;
 
+    // Если раздел премодерируемый и топик не подтвержден удалять можно
     if(section.isPremoderated() && !moderate) {
       ret = true;
     }
 
-    if(!ret && postdate.compareTo(monthDeltaTime) >= 0) {
+    // Если раздел премодерируемый, топик подтвержден и прошло меньше месяца с подтверждения удалять можно
+    if(section.isPremoderated() && moderate && postdate.compareTo(monthDeltaTime) >= 0) {
+      ret = true;
+    }
+
+    // Если раздел не премодерируем, удалять можно
+    if(!section.isPremoderated()) {
       ret = true;
     }
 
