@@ -1,14 +1,13 @@
 package ru.org.linux.spring.dao;
 
+import com.google.common.collect.ImmutableMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.ConnectionCallback;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowCallbackHandler;
-import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.*;
+import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.support.JdbcUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
@@ -28,7 +27,7 @@ import java.util.*;
 public class CommentDao {
   private static final Log logger = LogFactory.getLog(CommentDao.class);
 
-  private final static String queryCommentById = "SELECT " +
+  private static final String queryCommentById = "SELECT " +
         "postdate, topic, users.id as userid, comments.id as msgid, comments.title, " +
         "deleted, replyto, user_agents.name AS useragent, comments.postip " +
         "FROM comments " +
@@ -39,7 +38,7 @@ public class CommentDao {
   /**
    * Запрос списка комментариев для топика ВКЛЮЧАЯ удаленные
    */
-  private final static String queryCommentListByTopicId = "SELECT " +
+  private static final String queryCommentListByTopicId = "SELECT " +
             "comments.title, topic, postdate, userid, comments.id as msgid, " +
             "replyto, deleted, user_agents.name AS useragent, comments.postip " +
             "FROM comments " +
@@ -49,7 +48,7 @@ public class CommentDao {
   /**
    * Запрос списка комментариев для топика ИСКЛЮЧАЯ удаленные
    */
-  private final static String queryCommentListByTopicIdWithoutDeleted = "SELECT " +
+  private static final String queryCommentListByTopicIdWithoutDeleted = "SELECT " +
             "comments.title, topic, postdate, userid, comments.id as msgid, " +
             "replyto, deleted, user_agents.name AS useragent, comments.postip " +
             "FROM comments " +
@@ -59,21 +58,29 @@ public class CommentDao {
   /**
    * Запрос тела сообщения и признака bbcode для сообщения
    */
-  private final static String queryCommentForPrepare = "SELECT message, bbcode FROM msgbase WHERE id=?";
+  private static final String queryCommentForPrepare = "SELECT message, bbcode FROM msgbase WHERE id=?";
 
-  private final static String replysForComment = "SELECT id FROM comments WHERE replyto=? AND NOT deleted FOR UPDATE";
-  private final static String replysForCommentCount = "SELECT count(id) FROM comments WHERE replyto=? AND NOT deleted";
-  private final static String deleteComment = "UPDATE comments SET deleted='t' WHERE id=?";
-  private final static String insertDelinfo = "INSERT INTO del_info (msgid, delby, reason, deldate) values(?,?,?, CURRENT_TIMESTAMP)";
-  private final static String updateScore = "UPDATE users SET score=score+? WHERE id=(SELECT userid FROM comments WHERE id=?)";
+  private static final String replysForComment = "SELECT id FROM comments WHERE replyto=? AND NOT deleted FOR UPDATE";
+  private static final String replysForCommentCount = "SELECT count(id) FROM comments WHERE replyto=? AND NOT deleted";
+  private static final String deleteComment = "UPDATE comments SET deleted='t' WHERE id=?";
+  private static final String insertDelinfo = "INSERT INTO del_info (msgid, delby, reason, deldate) values(?,?,?, CURRENT_TIMESTAMP)";
+  private static final String updateScore = "UPDATE users SET score=score+? WHERE id=(SELECT userid FROM comments WHERE id=?)";
 
   private JdbcTemplate jdbcTemplate;
   private UserDao userDao;
   private DeleteInfoDao deleteInfoDao;
 
+  private SimpleJdbcInsert insertMsgbase;
+
+  private UserEventsDao userEventsDao;
+
   @Autowired
-  public void setJdbcTemplate(DataSource dataSource) {
+  public void setDataSource(DataSource dataSource) {
     jdbcTemplate = new JdbcTemplate(dataSource);
+
+    insertMsgbase = new SimpleJdbcInsert(dataSource);
+    insertMsgbase.setTableName("msgbase");
+    insertMsgbase.usingColumns("id", "message", "bbcode");
   }
 
   @Autowired
@@ -84,6 +91,11 @@ public class CommentDao {
   @Autowired
   public void setDeleteInfoDao(DeleteInfoDao deleteInfoDao) {
     this.deleteInfoDao = deleteInfoDao;
+  }
+
+  @Autowired
+  public void setUserEventsDao(UserEventsDao userEventsDao) {
+    this.userEventsDao = userEventsDao;
   }
 
   /**
@@ -265,7 +277,7 @@ public class CommentDao {
    * @throws UserNotFoundException генерирует исключение если пользователь отсутствует
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public List<Integer> deleteAllCommentsAndBlock(final User user, final User moderator, String reason) throws UserNotFoundException {
+  public List<Integer> deleteAllCommentsAndBlock(User user, final User moderator, String reason) throws UserNotFoundException {
     final List<Integer> deleted = new LinkedList<Integer>();
 
     userDao.blockWithoutTransaction(user, moderator, reason);
@@ -308,7 +320,7 @@ public class CommentDao {
    * @return список id удаленных сообщений
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public DeleteCommentResult deleteCommentsByIPAddress(final String ip, final Timestamp timedelta, final User moderator, final String reason) {
+  public DeleteCommentResult deleteCommentsByIPAddress(String ip, Timestamp timedelta, final User moderator, final String reason) {
 
     final List<Integer> deletedTopicIds = new ArrayList<Integer>();
     final List<Integer> deletedCommentIds = new ArrayList<Integer>();
@@ -396,5 +408,45 @@ public class CommentDao {
       JdbcUtils.closeResultSet(rs);
       JdbcUtils.closeStatement(st);
     }
+  }
+
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
+  public int saveNewMessage(final Comment comment, String message, Set<User> userRefs)  {
+    final int msgid = jdbcTemplate.queryForInt("select nextval('s_msgid') as msgid");
+
+    jdbcTemplate.execute(
+            "INSERT INTO comments (id, userid, title, postdate, replyto, deleted, topic, postip, ua_id) VALUES (?, ?, ?, CURRENT_TIMESTAMP, ?, 'f', ?, ?::inet, create_user_agent(?))",
+            new PreparedStatementCallback<Object>() {
+              @Override
+              public Object doInPreparedStatement(PreparedStatement pst) throws SQLException, DataAccessException {
+                pst.setInt(1, msgid);
+                pst.setInt(2, comment.getUserid());
+                pst.setString(3, comment.getTitle());
+                pst.setInt(5, comment.getTopicId());
+                pst.setString(6, comment.getPostIP());
+                pst.setString(7, comment.getUserAgent());
+
+                if (comment.getReplyTo() != 0) {
+                  pst.setInt(4, comment.getReplyTo());
+                } else {
+                  pst.setNull(4, Types.INTEGER);
+                }
+
+                pst.executeUpdate();
+
+                return null;
+              }
+            }
+    );
+
+    insertMsgbase.execute(ImmutableMap.<String, Object>of(
+            "id", msgid,
+            "message", message,
+            "bbcode", true)
+    );
+
+    userEventsDao.addUserRefEvent(userRefs.toArray(new User[userRefs.size()]), comment.getTopicId(), msgid);
+
+    return msgid;
   }
 }

@@ -40,9 +40,9 @@ import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 import java.beans.PropertyEditorSupport;
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 @Controller
 public class AddCommentController extends ApplicationObjectSupport {
@@ -106,17 +106,9 @@ public class AddCommentController extends ApplicationObjectSupport {
       add.setMode(tmpl.getFormatMode());
     }
 
-    Connection db = null;
+    prepareReplyto(add, params);
 
-    try {
-      db = LorDataSource.getConnection();
-
-      prepareReplyto(add, params, db);
-
-      return new ModelAndView("add_comment", params);
-    } finally {
-      JdbcUtils.closeConnection(db);
-    }
+    return new ModelAndView("add_comment", params);
   }
 
   @RequestMapping("/comment-message.jsp")
@@ -152,7 +144,7 @@ public class AddCommentController extends ApplicationObjectSupport {
 
     HTMLFormatter form = new HTMLFormatter(msg);
     form.setMaxLength(80);
-    form.enableUrlHighLightMode();
+//    form.enableUrlHighLightMode();
     form.setOutputLorcode(true);
 
     if ("ntobr".equals(mode)) {
@@ -199,100 +191,93 @@ public class AddCommentController extends ApplicationObjectSupport {
     
     ipBlockDao.checkBlockIP(request.getRemoteAddr(), errors);
 
-    Connection db = null;
+    Map<String, Object> formParams = new HashMap<String, Object>();
 
-    try {
-      // prechecks is over
-      db = LorDataSource.getConnection();
-      db.setAutoCommit(false);
+    prepareReplyto(add, formParams);
 
-      tmpl.updateCurrentUser(db);
+    User user;
 
-      Map<String, Object> formParams = new HashMap<String, Object>();
-
-      prepareReplyto(add, formParams, db);
-
-      User user;
-
-      if (!Template.isSessionAuthorized(session)) {
-        if (add.getNick() != null) {
-          user = add.getNick();
-        } else {
-          user = User.getAnonymous(db);
-        }
-
-        if (add.getPassword()==null) {
-          errors.reject(null, "Требуется авторизация");
-        }
+    if (!Template.isSessionAuthorized(session)) {
+      if (add.getNick() != null) {
+        user = add.getNick();
       } else {
-        user = tmpl.getCurrentUser();
+        user = userDao.getAnonymous();
       }
 
-      user.checkBlocked(errors);
-
-      if (user.isAnonymous()) {
-        if (msg.length() > 4096) {
-          errors.rejectValue("msg", null, "Слишком большое сообщение");
-        }
-      } else {
-        if (msg.length() > 8192) {
-          errors.rejectValue("msg", null, "Слишком большое сообщение");
-        }
+      if (add.getPassword()==null) {
+        errors.reject(null, "Требуется авторизация");
       }
+    } else {
+      user = tmpl.getCurrentUser();
+    }
 
-      if (add.getTopic()!=null) {
-        add.getTopic().checkCommentsAllowed(user, errors);
+    user.checkBlocked(errors);
+
+    if (user.isAnonymous()) {
+      if (msg.length() > 4096) {
+        errors.rejectValue("msg", null, "Слишком большое сообщение");
       }
-
-      if (!add.isPreviewMode() && !errors.hasErrors()) {
-        dupeProtector.checkDuplication(request.getRemoteAddr(), user.getScore() > 100, errors);
+    } else {
+      if (msg.length() > 8192) {
+        errors.rejectValue("msg", null, "Слишком большое сообщение");
       }
+    }
 
-      Comment comment = null;
+    Comment comment = null;
+
+    if (add.getTopic()!=null) {
+      add.getTopic().checkCommentsAllowed(user, errors);
+
+      String title = add.getTitle();
+
+      if (title==null) {
+        title="";
+      }
 
       Integer replyto = add.getReplyto()!=null?add.getReplyto().getId():null;
 
-      if (add.getTopic() != null) {
-        comment = new Comment(
-                replyto,
-                HTMLFormatter.htmlSpecialChars(add.getTitle()),
-                add.getTopic().getId(),
-                user.getId(),
-                request.getHeader("user-agent"),
-                request.getRemoteAddr()
-        );
+      comment = new Comment(
+              replyto,
+              HTMLFormatter.htmlSpecialChars(title),
+              add.getTopic().getId(),
+              user.getId(),
+              request.getHeader("user-agent"),
+              request.getRemoteAddr()
+      );
 
-        formParams.put("comment", new PreparedComment(db, comment, msg));
-      }
-
-      if (!add.isPreviewMode() && !errors.hasErrors() && comment!=null) {
-        int msgid = comment.saveNewMessage(db, request.getRemoteAddr(), request.getHeader("user-agent"), msg);
-
-        String logmessage = "Написан комментарий " + msgid + " ip:" + request.getRemoteAddr();
-        if (request.getHeader("X-Forwarded-For") != null) {
-          logmessage = logmessage + " XFF:" + request.getHeader(("X-Forwarded-For"));
-        }
-
-        logger.info(logmessage);
-
-        db.commit();
-
-        searchQueueSender.updateComment(msgid);
-
-        String returnUrl = "jump-message.jsp?msgid=" + add.getTopic().getId() + "&cid=" + msgid;
-
-        return new ModelAndView(new RedirectView(returnUrl));
-      }
-
-      return new ModelAndView("add_comment", formParams);
-    } finally {
-      JdbcUtils.closeConnection(db);
+      formParams.put("comment", new PreparedComment(userDao, comment, msg));
     }
+
+    if (!add.isPreviewMode() && !errors.hasErrors()) {
+      dupeProtector.checkDuplication(request.getRemoteAddr(), user.getScore() > 100, errors);
+    }
+
+    if (!add.isPreviewMode() && !errors.hasErrors() && comment != null) {
+      Set<User> userRefs = PreparedComment.getProcessedMessage(userDao, msg).getReplier();
+
+      int msgid = commentDao.saveNewMessage(comment, msg, userRefs);
+
+      String logmessage = "Написан комментарий " + msgid + " ip:" + request.getRemoteAddr();
+      if (request.getHeader("X-Forwarded-For") != null) {
+        logmessage = logmessage + " XFF:" + request.getHeader(("X-Forwarded-For"));
+      }
+
+      logger.info(logmessage);
+
+      // TODO надо разобраться с транзакциями и засунуть это в saveNewMessage
+      searchQueueSender.updateComment(msgid);
+
+      String returnUrl = "jump-message.jsp?msgid=" + add.getTopic().getId() + "&cid=" + msgid;
+
+      return new ModelAndView(new RedirectView(returnUrl));
+    }
+
+    return new ModelAndView("add_comment", formParams);
   }
 
-  private static void prepareReplyto(AddCommentRequest add, Map<String, Object> formParams, Connection db) throws SQLException, UserNotFoundException {
+  private void prepareReplyto(AddCommentRequest add, Map<String, Object> formParams) throws UserNotFoundException {
     if (add.getReplyto()!=null) {
-      formParams.put("onComment", PreparedComment.prepare(db, null, add.getReplyto()));
+      formParams.put("onComment", PreparedComment.prepare(commentDao, userDao, add.getReplyto()));
     }
   }
 

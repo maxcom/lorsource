@@ -107,6 +107,9 @@
       <c:when test="${topic.type == 'REPLY'}">
         <img src="/img/mail_reply.png" border="0" title="Ответ" alt="[R]" width="16" height="16">
       </c:when>
+      <c:when test="${topic.type == 'REF'}">
+        <img src="/img/tuxlor.png" border="0" title="Упоминание" alt="[U]" width="7" height="16">
+      </c:when>
     </c:choose>
   </td>
   <td><a href="${topic.groupUrl}">${topic.groupTitle}</a></td>

@@ -31,7 +31,7 @@ public class UserDao {
 
   @Autowired
   public void setJdbcTemplate(DataSource dataSource) {
-    this.jdbcTemplate = new JdbcTemplate(dataSource);
+    jdbcTemplate = new JdbcTemplate(dataSource);
   }
 
   @Deprecated
@@ -149,7 +149,9 @@ public class UserDao {
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   public void removeUserInfo(User user) {
     String userInfo = getUserInfo(user);
-    if(userInfo == null || userInfo.trim().isEmpty()) return;
+    if(userInfo == null || userInfo.trim().isEmpty()) {
+      return;
+    }
     setUserInfo(user, null);
     changeScore(user.getId(), -10);
   }
@@ -290,5 +292,13 @@ public class UserDao {
   public void unblock(User user){
     jdbcTemplate.update("UPDATE users SET blocked='f' WHERE id=?", user.getId());
     jdbcTemplate.update("DELETE FROM ban_info WHERE userid=?", user.getId());
+  }
+
+  public User getAnonymous() {
+    try {
+      return getUser(2);
+    } catch (UserNotFoundException e) {
+      throw new RuntimeException("Anonymous not found!?", e);
+    }
   }
 }

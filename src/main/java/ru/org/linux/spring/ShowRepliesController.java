@@ -141,11 +141,13 @@ public class ShowRepliesController {
 
       rs.close();
 
-      if ("POST".equalsIgnoreCase(request.getMethod())) {
-        currentUser.resetUnreadEvents(db);
-        tmpl.updateCurrentUser(db);
-      } else {
-        params.put("enableReset", true);
+      if (tmpl.isSessionAuthorized()) {
+        if ("POST".equalsIgnoreCase(request.getMethod())) {
+          currentUser.resetUnreadEvents(db);
+          tmpl.updateCurrentUser(db);
+        } else {
+          params.put("enableReset", true);
+        }
       }
 
       params.put("topicsList", list);
@@ -168,7 +170,7 @@ public class ShowRepliesController {
   }
 
   public enum EventType {
-    REPLY, DEL, WATCH, OTHER
+    REPLY, DEL, WATCH, OTHER, REF
   }
 
   public static class MyTopicsListItem implements Serializable {

@@ -17,6 +17,7 @@ package ru.org.linux.site;
 
 import ru.org.linux.spring.dao.CommentDao;
 import ru.org.linux.spring.dao.UserDao;
+import ru.org.linux.util.bbcode.ParserResult;
 import ru.org.linux.util.bbcode.ParserUtil;
 
 import java.sql.Connection;
@@ -34,20 +35,20 @@ public class PreparedComment {
 
   private PreparedComment(CommentDao commentDao, UserDao userDao, CommentList comments, Comment comment) throws UserNotFoundException {
     this.comment = comment;
-    this.author = userDao.getUser(comment.getUserid());
-    this.processedMessage = commentDao.getPreparedComment(comment.getId());
+    author = userDao.getUser(comment.getUserid());
+    processedMessage = commentDao.getPreparedComment(comment.getId());
 
     if (comment.getReplyTo()!=0 && comments!=null) {
       CommentNode replyNode = comments.getNode(comment.getReplyTo());
 
       if (replyNode!=null) {
         Comment reply = replyNode.getComment();
-        this.replyAuthor = userDao.getUser(reply.getUserid());
+        replyAuthor = userDao.getUser(reply.getUserid());
       } else {
-        this.replyAuthor = null;
+        replyAuthor = null;
       }
     } else {
-      this.replyAuthor = null;
+      replyAuthor = null;
     }
   }
 
@@ -74,12 +75,12 @@ public class PreparedComment {
     }
   }
 
-  public PreparedComment(Connection db, Comment comment, String message) throws UserNotFoundException, SQLException {
+  public PreparedComment(UserDao userDao, Comment comment, String message) throws UserNotFoundException {
     this.comment = comment;
 
-    author = User.getUserCached(db, comment.getUserid());
+    author = userDao.getUserCached(comment.getUserid());
 
-    processedMessage = getProcessedMessage(db, message);
+    processedMessage = getProcessedMessage(userDao, message).getHtml();
 
     replyAuthor = null;
   }
@@ -104,8 +105,8 @@ public class PreparedComment {
     }
   }
 
-  private static String getProcessedMessage(Connection db, String message) throws SQLException {
-    return ParserUtil.bb2xhtml(message, true, true, "", db);
+  public static ParserResult getProcessedMessage(UserDao userDao, String message) {
+    return ParserUtil.bb2xhtm(message, true, true, "", userDao);
   }
 
   public Comment getComment() {
@@ -124,14 +125,8 @@ public class PreparedComment {
     return replyAuthor;
   }
 
-  public static PreparedComment prepare(Connection db, CommentList comments, Comment comment) throws UserNotFoundException, SQLException {
-    PreparedStatement pst = prepare(db);
-
-    try {
-      return new PreparedComment(db, pst, comments, comment);
-    } finally {
-      pst.close();
-    }
+  public static PreparedComment prepare(CommentDao commentDao, UserDao userDao, Comment comment) throws UserNotFoundException {
+    return new PreparedComment(commentDao, userDao, null, comment);
   }
 
   @Deprecated
@@ -150,7 +145,7 @@ public class PreparedComment {
     }
   }
 
-  public static List<PreparedComment> prepare(CommentDao commentDao, UserDao userDao, CommentList comments, List<Comment> list) throws UserNotFoundException, SQLException {
+  public static List<PreparedComment> prepare(CommentDao commentDao, UserDao userDao, CommentList comments, List<Comment> list) throws UserNotFoundException {
     List<PreparedComment> commentsPrepared = new ArrayList<PreparedComment>(list.size());
     for (Comment comment : list) {
       commentsPrepared.add(new PreparedComment(commentDao, userDao, comments, comment));
