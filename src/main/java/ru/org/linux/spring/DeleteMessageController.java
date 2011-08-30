@@ -58,7 +58,7 @@ public class DeleteMessageController extends ApplicationObjectSupport {
     try {
       db = LorDataSource.getConnection();
 
-      Message msg = new Message(db, msgid);
+      Message msg = Message.getMessage(db, msgid);
 
       if (msg.isDeleted()) {
         throw new UserErrorException("Сообщение уже удалено");
@@ -118,7 +118,7 @@ public class DeleteMessageController extends ApplicationObjectSupport {
         throw new UserErrorException("Сообщение уже удалено");
       }
 
-      Message message = new Message(db, msgid);
+      Message message = Message.getMessage(db, msgid);
 
       PreparedStatement pr = db.prepareStatement("SELECT postdate>CURRENT_TIMESTAMP-'1 hour'::interval as perm FROM topics WHERE topics.id=? AND topics.userid=?");
       pr.setInt(1, msgid);
@@ -215,7 +215,7 @@ public class DeleteMessageController extends ApplicationObjectSupport {
     try {
       db = LorDataSource.getConnection();
 
-      Message message = new Message(db, msgid);
+      Message message = Message.getMessage(db, msgid);
 
       checkUndeletable(message);
 
@@ -248,7 +248,7 @@ public class DeleteMessageController extends ApplicationObjectSupport {
       db.setAutoCommit(false);
       tmpl.updateCurrentUser(db);
 
-      Message message = new Message(db, msgid);
+      Message message = Message.getMessage(db, msgid);
 
       checkUndeletable(message);
 

@@ -50,7 +50,7 @@ public class TopicModificationController extends ApplicationObjectSupport {
     try {
       db = LorDataSource.getConnection();
 
-      Message msg = new Message(db, msgid);
+      Message msg = Message.getMessage(db, msgid);
 
       return new ModelAndView("setpostscore", "message", msg);
     } finally {
@@ -92,7 +92,7 @@ public class TopicModificationController extends ApplicationObjectSupport {
       db = LorDataSource.getConnection();
       db.setAutoCommit(false);
 
-      Message msg = new Message(db, msgid);
+      Message msg = Message.getMessage(db, msgid);
 
       PreparedStatement pst = db.prepareStatement("UPDATE topics SET postscore=?, sticky=?, notop=?, lastmod=CURRENT_TIMESTAMP,minor=? WHERE id=?");
       pst.setInt(1, postscore);
@@ -157,7 +157,7 @@ public class TopicModificationController extends ApplicationObjectSupport {
     try {
       db = LorDataSource.getConnection();
 
-      Message message = new Message(db, msgid);
+      Message message = Message.getMessage(db, msgid);
 
       mv.getModel().put("message", message);
 
@@ -191,7 +191,7 @@ public class TopicModificationController extends ApplicationObjectSupport {
       db = LorDataSource.getConnection();
       db.setAutoCommit(false);
 
-      Message msg = new Message(db, msgid);
+      Message msg = Message.getMessage(db, msgid);
 
       if (msg.isDeleted()) {
         throw new AccessViolationException("Сообщение удалено");
@@ -266,7 +266,7 @@ public class TopicModificationController extends ApplicationObjectSupport {
     try {
       db = LorDataSource.getConnection();
 
-      Message message = new Message(db, msgid);
+      Message message = Message.getMessage(db, msgid);
 
       mv.getModel().put("message", message);
 
@@ -295,7 +295,7 @@ public class TopicModificationController extends ApplicationObjectSupport {
     try {
       db = LorDataSource.getConnection();
 
-      Message message = new Message(db, msgid);
+      Message message = Message.getMessage(db, msgid);
 
       checkUncommitable(message);
 
@@ -328,7 +328,7 @@ public class TopicModificationController extends ApplicationObjectSupport {
       db.setAutoCommit(false);
       tmpl.updateCurrentUser(db);
 
-      Message message = new Message(db, msgid);
+      Message message = Message.getMessage(db, msgid);
 
       checkUncommitable(message);
 

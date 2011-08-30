@@ -79,78 +79,17 @@ public class Message implements Serializable {
   public static final int POSTSCORE_REGISTERED_ONLY = -50;
   private static final String UTF8 = "UTF-8";
 
-  public Message(Connection db, int msgid) throws SQLException, MessageNotFoundException {
-    Statement st = db.createStatement();
+  public Message(ResultSet rs) throws SQLException {
+    msgid = rs.getInt("msgid");
 
-    ResultSet rs = st.executeQuery(
-      "SELECT " +
-        "postdate, topics.id as msgid, userid, topics.title, " +
-        "topics.groupid as guid, topics.url, topics.linktext, ua_id, " +
-        "groups.title as gtitle, urlname, vote, havelink, section, topics.sticky, topics.postip, " +
-        "postdate<(CURRENT_TIMESTAMP-sections.expire) as expired, deleted, lastmod, commitby, " +
-        "commitdate, topics.stat1, postscore, topics.moderate, message, notop,bbcode, " +
-        "topics.resolved, restrict_comments, minor " +
-        "FROM topics " +
-        "INNER JOIN groups ON (groups.id=topics.groupid) " +
-        "INNER JOIN sections ON (sections.id=groups.section) " +
-        "INNER JOIN msgbase ON (msgbase.id=topics.id) " +
-        "WHERE topics.id=" + msgid
-    );
-    if (!rs.next()) {
-      throw new MessageNotFoundException(msgid);
-    }
-
-    this.msgid = rs.getInt("msgid");
     int ps = rs.getInt("postscore");
-    
+
     if (rs.wasNull()) {
       postscore = POSTSCORE_UNRESTRICTED;
     } else {
       postscore = ps;
     }
 
-    votepoll = rs.getBoolean("vote");
-    sticky = rs.getBoolean("sticky");
-    linktext = rs.getString("linktext");
-    url = rs.getString("url");
-    userid = rs.getInt("userid");
-    title = StringUtil.makeTitle(rs.getString("title"));
-    guid = rs.getInt("guid");
-    deleted = rs.getBoolean("deleted");
-    expired = !sticky && rs.getBoolean("expired");
-    havelink = rs.getBoolean("havelink");
-    postdate = rs.getTimestamp("postdate");
-    commitDate = rs.getTimestamp("commitdate");
-    commitby = rs.getInt("commitby");
-    groupTitle = rs.getString("gtitle");
-    groupUrl = rs.getString("urlname");
-    lastModified = rs.getTimestamp("lastmod");
-    sectionid = rs.getInt("section");
-    commentCount = rs.getInt("stat1");
-    moderate = rs.getBoolean("moderate");
-    message = rs.getString("message");
-    notop = rs.getBoolean("notop");
-    userAgent = rs.getInt("ua_id");
-    postIP = rs.getString("postip");
-    lorcode = rs.getBoolean("bbcode");
-    resolved = rs.getBoolean("resolved");
-    groupCommentsRestriction = rs.getInt("restrict_comments");
-    minor = rs.getBoolean("minor");
-
-    rs.close();
-    st.close();
-
-    sectionCommentsRestriction = Section.getCommentPostscore(sectionid);
-  }
-
-  public Message(ResultSet rs) throws SQLException {
-    msgid = rs.getInt("msgid");
-    int ps = rs.getInt("postscore");
-    if (rs.wasNull()) { // если из postscore прочитали NULL
-      postscore = POSTSCORE_UNRESTRICTED;
-    } else {
-      postscore = ps;
-    }
     votepoll = rs.getBoolean("vote");
     sticky = rs.getBoolean("sticky");
     linktext = rs.getString("linktext");
@@ -445,7 +384,7 @@ public class Message implements Serializable {
         return null;
       }
 
-      return new Message(db, nextMsgid);
+      return getMessage(db, nextMsgid);
     } catch (MessageNotFoundException e) {
       throw new RuntimeException(e);
     } finally {
@@ -489,7 +428,7 @@ public class Message implements Serializable {
         return null;
       }
 
-      return new Message(db, prevMsgid);
+      return getMessage(db, prevMsgid);
     } catch (MessageNotFoundException e) {
       throw new RuntimeException(e);
     } finally {
@@ -885,5 +824,30 @@ public class Message implements Serializable {
 
   public boolean isMinor() {
     return minor;
+  }
+
+  public static Message getMessage(Connection db, int msgid) throws SQLException, MessageNotFoundException {
+    Statement st = db.createStatement();
+
+    ResultSet rs = st.executeQuery(
+      "SELECT " +
+        "postdate, topics.id as msgid, userid, topics.title, " +
+        "topics.groupid as guid, topics.url, topics.linktext, ua_id, " +
+        "groups.title as gtitle, urlname, vote, havelink, section, topics.sticky, topics.postip, " +
+        "postdate<(CURRENT_TIMESTAMP-sections.expire) as expired, deleted, lastmod, commitby, " +
+        "commitdate, topics.stat1, postscore, topics.moderate, message, notop,bbcode, " +
+        "topics.resolved, restrict_comments, minor " +
+        "FROM topics " +
+        "INNER JOIN groups ON (groups.id=topics.groupid) " +
+        "INNER JOIN sections ON (sections.id=groups.section) " +
+        "INNER JOIN msgbase ON (msgbase.id=topics.id) " +
+        "WHERE topics.id=" + msgid
+    );
+
+    if (!rs.next()) {
+      throw new MessageNotFoundException(msgid);
+    }
+
+    return new Message(rs);
   }
 }

@@ -162,7 +162,7 @@ public class MessageController {
     try {
       db = LorDataSource.getConnection();
 
-      Message message = new Message(db, msgid);
+      Message message = Message.getMessage(db, msgid);
       PreparedMessage preparedMessage = new PreparedMessage(db, message, true);
       Group group = preparedMessage.getGroup();
 
@@ -189,7 +189,7 @@ public class MessageController {
     try {
       db = LorDataSource.getConnection();
 
-      Message message = new Message(db, msgid);
+      Message message = Message.getMessage(db, msgid);
 
       StringBuilder link = new StringBuilder(message.getLink());
 
@@ -439,7 +439,7 @@ public class MessageController {
     try {
       db = LorDataSource.getConnection();
 
-      Message topic = new Message(db, msgid);
+      Message topic = Message.getMessage(db, msgid);
 
       String redirectUrl = topic.getLink();
       StringBuffer options = new StringBuffer();

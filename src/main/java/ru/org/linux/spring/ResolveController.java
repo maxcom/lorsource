@@ -39,7 +39,7 @@ public class ResolveController  {
 
     try {
       db = LorDataSource.getConnection();
-      Message message = new Message(db, msgid);
+      Message message = Message.getMessage(db, msgid);
       Group group = Group.getGroup(db, message.getGroupId());
       User currentUser = tmpl.getCurrentUser();
       if (!group.isResolvable()) {

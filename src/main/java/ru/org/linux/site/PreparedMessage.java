@@ -56,7 +56,7 @@ public final class PreparedMessage {
     this(db, message, tags, true, "");
   }
 
-  public PreparedMessage(Connection db, Message message, List<String> tags, boolean includeCut, String mainUrl) throws SQLException {
+  private PreparedMessage(Connection db, Message message, List<String> tags, boolean includeCut, String mainUrl) throws SQLException {
     try {
       this.message = message;
 

@@ -51,7 +51,7 @@ public class MemoriesController {
       user.checkBlocked();
       user.checkAnonymous();
 
-      Message topic = new Message(db, msgid);
+      Message topic = Message.getMessage(db, msgid);
       if (topic.isDeleted()) {
         throw new UserErrorException("Тема удалена");
       }
@@ -98,7 +98,7 @@ public class MemoriesController {
           throw new AccessViolationException("Нельзя удалить чужую запись");
         }
 
-        Message topic = new Message(db, m.getTopic());
+        Message topic = Message.getMessage(db, m.getTopic());
 
         PreparedStatement pst = db.prepareStatement("DELETE FROM memories WHERE id=?");
         pst.setInt(1, id);

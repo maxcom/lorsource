@@ -3,6 +3,7 @@ package ru.org.linux.spring.validators;
 import org.jdom.Verifier;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
+import ru.org.linux.site.BadPasswordException;
 import ru.org.linux.site.Comment;
 import ru.org.linux.site.Message;
 import ru.org.linux.spring.AddCommentRequest;
@@ -54,6 +55,15 @@ public class AddCommentRequestValidator implements Validator {
 
       if (topic==null || add.getReplyto().getTopic() != topic.getId()) {
         errors.reject(null, "некорректная тема");
+      }
+    }
+
+    if (add.getNick()!=null) {
+      try {
+        add.getNick().checkPassword(add.getPassword());
+      } catch (BadPasswordException e) {
+        errors.rejectValue("password", null, e.getMessage());
+        add.setNick(null);
       }
     }
   }

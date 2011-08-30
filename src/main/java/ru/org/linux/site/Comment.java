@@ -25,7 +25,7 @@ import java.util.Map;
 public class Comment implements Serializable {
   private final int msgid;
   private final String title;
-  private int userid;
+  private final int userid;
   private final int replyto;
   private final int topic;
   private final boolean deleted;
@@ -63,40 +63,6 @@ public class Comment implements Serializable {
     userid=rs.getInt("userid");
     userAgent=rs.getString("useragent");
     postIP=rs.getString("postip");
-
-    if (deleted) {
-      deleteInfo = DeleteInfo.getDeleteInfo(db, msgid);
-    } else {
-      deleteInfo = null;
-    }
-  }
-
-  public Comment(Connection db, int msgid) throws SQLException, MessageNotFoundException {
-    Statement st = db.createStatement();
-
-    ResultSet rs=st.executeQuery("SELECT " +
-        "postdate, topic, users.id as userid, comments.id as msgid, comments.title, " +
-        "deleted, replyto, user_agents.name AS useragent, comments.postip " +
-        "FROM comments " + 
-        "INNER JOIN users ON (users.id=comments.userid) " +
-        "LEFT JOIN user_agents ON (user_agents.id=comments.ua_id) " +
-        "WHERE comments.id="+msgid);
-
-    if (!rs.next()) {
-      throw new MessageNotFoundException(msgid);
-    }
-
-    this.msgid=rs.getInt("msgid");
-    title=rs.getString("title");
-    topic=rs.getInt("topic");
-    replyto=rs.getInt("replyto");
-    deleted=rs.getBoolean("deleted");
-    postdate=rs.getTimestamp("postdate");
-    userid=rs.getInt("userid");
-    userAgent=rs.getString("useragent");
-    postIP=rs.getString("postip");
-
-    st.close();
 
     if (deleted) {
       deleteInfo = DeleteInfo.getDeleteInfo(db, msgid);

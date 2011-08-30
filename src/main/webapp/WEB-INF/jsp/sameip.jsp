@@ -1,6 +1,5 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="ru.org.linux.site.IPBlockInfo" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%--
   ~ Copyright 1998-2010 Linux.org.ru
@@ -17,10 +16,12 @@
   ~    limitations under the License.
   --%>
 <%--@elvariable id="blockInfo" type="ru.org.linux.site.IPBlockInfo"--%>
+<%--@elvariable id="blockModerator" type="ru.org.linux.site.User"--%>
 <%--@elvariable id="topics" type="java.util.List<ru.org.linux.spring.SameIPController.TopicItem>"--%>
 <%--@elvariable id="comments" type="java.util.List<ru.org.linux.spring.SameIPController.TopicItem>"--%>
 <%--@elvariable id="users" type="java.util.List<ru.org.linux.spring.SameIPController.UserItem>"--%>
 <%--@elvariable id="ip" type="java.lang.String"--%>
+<%--@elvariable id="tor" type="java.lang.Boolean"--%>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
 <title>Поиск писем с IP-адреса</title>
@@ -39,7 +40,7 @@
       [<a href="http://www.radio-msu.net/serv/wwwnslookup/nph-wwwtr.cgi?server=${ip}">NSLOOKUP</a>]
       [WHOIS
       <a href='http://www.ripe.net/perl/whois?query=${ip}'>RIPE</a> /
-      <a href='http://ws.arin.net/whois/?queryinput=${ip}'>ARIN</a> /
+      <a href='http://whois.arin.net/ui/query.do?flushCache=false&q=${ip}&whoisSubmitButton=%20$'>ARIN</a> /
       <a href='http://www.apnic.net/apnic-bin/whois.pl?search=${ip}'>APNIC</a> /
       <a href='http://lacnic.net/cgi-bin/lacnic/whois?lg=EN&query=${ip}'>LACNIC</a>
       ]
@@ -52,11 +53,9 @@
 
 <strong>Текущий статус: </strong>
 
-<%
-  if (IPBlockInfo.getTor(ip)) {
-    out.print("адрес заблокирован: tor.ahbl.org; база: ");
-  }
-%>
+<c:if test="${tor}">
+  адрес заблокирован: tor.ahbl.org; база:
+</c:if>
 
 <c:if test="${blockInfo == null}">
   адрес не заблокирован
@@ -77,7 +76,7 @@
   <br>
   <strong>Причина блокировки: </strong><c:out value="${blockInfo.reason}" escapeXml="true"/><br>
   <strong>Дата блокировки: </strong><lor:date date="${blockInfo.originalDate}"/><br>
-  <strong>Адрес блокирован: </strong>${blockInfo.moderator.nick}
+  <strong>Адрес блокирован: </strong>${blockModerator.nick}
 </c:if>
 
 <p>

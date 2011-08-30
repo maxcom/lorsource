@@ -26,6 +26,10 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.site.*;
+import ru.org.linux.spring.dao.CommentDao;
+import ru.org.linux.spring.dao.IPBlockDao;
+import ru.org.linux.spring.dao.MessageDao;
+import ru.org.linux.spring.dao.UserDao;
 import ru.org.linux.spring.validators.AddCommentRequestValidator;
 import ru.org.linux.util.HTMLFormatter;
 import ru.org.linux.util.ServletParameterException;
@@ -45,6 +49,10 @@ public class AddCommentController extends ApplicationObjectSupport {
   private SearchQueueSender searchQueueSender;
   private CaptchaService captcha;
   private DupeProtector dupeProtector;
+  private CommentDao commentDao;
+  private MessageDao messageDao;
+  private UserDao userDao;
+  private IPBlockDao ipBlockDao;
 
   @Autowired
   public void setSearchQueueSender(SearchQueueSender searchQueueSender) {
@@ -59,6 +67,26 @@ public class AddCommentController extends ApplicationObjectSupport {
   @Autowired
   public void setDupeProtector(DupeProtector dupeProtector) {
     this.dupeProtector = dupeProtector;
+  }
+
+  @Autowired
+  public void setCommentDao(CommentDao commentDao) {
+    this.commentDao = commentDao;
+  }
+
+  @Autowired
+  public void setMessageDao(MessageDao messageDao) {
+    this.messageDao = messageDao;
+  }
+
+  @Autowired
+  public void setUserDao(UserDao userDao) {
+    this.userDao = userDao;
+  }
+
+  @Autowired
+  public void setIpBlockDao(IPBlockDao ipBlockDao) {
+    this.ipBlockDao = ipBlockDao;
   }
 
   @RequestMapping(value = "/add_comment.jsp", method = RequestMethod.GET)
@@ -101,13 +129,13 @@ public class AddCommentController extends ApplicationObjectSupport {
     Connection db = null;
 
     try {
-      db = LorDataSource.getConnection();
-
       if (add.getMode()==null) {
         add.setMode(tmpl.getFormatMode());
       }
       
       HashMap<String, Object> params = new HashMap<String, Object>();
+
+      db = LorDataSource.getConnection();
 
       params.put("preparedMessage", new PreparedMessage(db, add.getTopic(), true));
 
@@ -168,6 +196,8 @@ public class AddCommentController extends ApplicationObjectSupport {
       logger.info("Flood protection (session variable differs: " + session.getId() + ") " + request.getRemoteAddr());
       errors.reject(null, "сбой добавления");
     }
+    
+    ipBlockDao.checkBlockIP(request.getRemoteAddr(), errors);
 
     Connection db = null;
 
@@ -175,7 +205,6 @@ public class AddCommentController extends ApplicationObjectSupport {
       // prechecks is over
       db = LorDataSource.getConnection();
       db.setAutoCommit(false);
-      IPBlockInfo.checkBlockIP(db, request.getRemoteAddr());
 
       tmpl.updateCurrentUser(db);
 
@@ -186,18 +215,14 @@ public class AddCommentController extends ApplicationObjectSupport {
       User user;
 
       if (!Template.isSessionAuthorized(session)) {
-        if (request.getParameter("nick") == null) {
-          throw new AccessViolationException("Вы уже вышли из системы");
+        if (add.getNick() != null) {
+          user = add.getNick();
+        } else {
+          user = User.getAnonymous(db);
         }
-        try {
-          user = User.getUser(db, request.getParameter("nick"));
-          user.checkPassword(request.getParameter("password"));
-        } catch (UserNotFoundException ex) {
-          errors.reject(null, "Пользователь не найден");
-          user = User.getAnonymous(db);
-        } catch (BadPasswordException ex) {
-          errors.reject(null, ex.getMessage());
-          user = User.getAnonymous(db);
+
+        if (add.getPassword()==null) {
+          errors.reject(null, "Требуется авторизация");
         }
       } else {
         user = tmpl.getCurrentUser();
@@ -215,7 +240,9 @@ public class AddCommentController extends ApplicationObjectSupport {
         }
       }
 
-      add.getTopic().checkCommentsAllowed(user, errors);
+      if (add.getTopic()!=null) {
+        add.getTopic().checkCommentsAllowed(user, errors);
+      }
 
       if (!add.isPreviewMode() && !errors.hasErrors()) {
         dupeProtector.checkDuplication(request.getRemoteAddr(), user.getScore() > 100, errors);
@@ -281,18 +308,10 @@ public class AddCommentController extends ApplicationObjectSupport {
     binder.registerCustomEditor(Message.class, new PropertyEditorSupport() {
       @Override
       public void setAsText(String text) throws IllegalArgumentException {
-        Connection db=null;
-
         try {
-          db = LorDataSource.getConnection();
-
-          setValue(new Message(db, Integer.parseInt(text)));
-        } catch (SQLException e) {
-          throw new RuntimeException(e);
+          setValue(messageDao.getById(Integer.parseInt(text)));
         } catch (MessageNotFoundException e) {
           throw new IllegalArgumentException(e);
-        } finally {
-          JdbcUtils.closeConnection(db);
         }
       }
     });
@@ -300,26 +319,20 @@ public class AddCommentController extends ApplicationObjectSupport {
     binder.registerCustomEditor(Comment.class, new PropertyEditorSupport() {
       @Override
       public void setAsText(String text) throws IllegalArgumentException {
-        if (text.isEmpty() || text.equals("0")) {
+        if (text.isEmpty() || "0".equals(text)) {
           setValue(null);
           return;
         }
 
-        Connection db=null;
-
         try {
-          db = LorDataSource.getConnection();
-
-          setValue(new Comment(db, Integer.parseInt(text)));
-        } catch (SQLException e) {
-          throw new RuntimeException(e);
+          setValue(commentDao.getComment(Integer.parseInt(text)));
         } catch (MessageNotFoundException e) {
           throw new IllegalArgumentException(e);
-        } finally {
-          JdbcUtils.closeConnection(db);
         }
       }
     });
+
+    binder.registerCustomEditor(User.class, new UserPropertyEditor(userDao));
   }
 
   @ExceptionHandler(BindException.class)

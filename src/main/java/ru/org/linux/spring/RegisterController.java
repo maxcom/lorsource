@@ -41,16 +41,23 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 
 import ru.org.linux.site.*;
+import ru.org.linux.spring.dao.IPBlockDao;
 import ru.org.linux.util.*;
 
 @SuppressWarnings({"ProhibitedExceptionDeclared"})
 @Controller
 public class RegisterController extends ApplicationObjectSupport {
   private CaptchaService captcha;
+  private IPBlockDao ipBlockDao;
 
   @Autowired
   public void setCaptcha(CaptchaService captcha) {
     this.captcha = captcha;
+  }
+
+  @Autowired
+  public void setIpBlockDao(IPBlockDao ipBlockDao) {
+    this.ipBlockDao = ipBlockDao;
   }
 
   @RequestMapping(value = "/register.jsp", method = RequestMethod.GET)
@@ -189,10 +196,10 @@ public class RegisterController extends ApplicationObjectSupport {
         }
       }
 
+      ipBlockDao.checkBlockIP(request.getRemoteAddr());
+
       db = LorDataSource.getConnection();
       db.setAutoCommit(false);
-
-      IPBlockInfo.checkBlockIP(db, request.getRemoteAddr());
 
       int userid;
 

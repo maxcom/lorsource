@@ -35,6 +35,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.jdbc.support.JdbcUtils;
 import org.springframework.stereotype.Component;
+import ru.org.linux.spring.dao.CommentDao;
 
 @Component
 public class SearchQueueListener {
@@ -62,7 +63,7 @@ public class SearchQueueListener {
   }
 
   private void reindexMessage(Connection db, int msgid, boolean withComments) throws IOException, SolrServerException, SQLException, MessageNotFoundException {
-    Message msg = new Message(db, msgid);
+    Message msg = Message.getMessage(db, msgid);
 
     if (!msg.isDeleted()) {
       updateMessage(msg);
@@ -101,7 +102,7 @@ public class SearchQueueListener {
       pst = db.prepareStatement("SELECT message FROM msgbase WHERE id=?");
 
       for (Integer msgid : msgUpdate.getMsgids()) {
-        Comment comment = new Comment(db, msgid);
+        Comment comment = CommentDao.getComment(db, msgid);
 
         if (comment.isDeleted()) {
           logger.info("Deleting comment "+comment.getId()+" from solr");
@@ -110,7 +111,7 @@ public class SearchQueueListener {
           // комментарии могут быть из разного топика в функция массового удаления
           // возможно для скорости нужен какой-то кеш топиков, т.к. чаще бывает что все
           // комментарии из одного топика
-          Message topic = new Message(db, comment.getTopic());
+          Message topic = Message.getMessage(db, comment.getTopic());
 
           pst.setInt(1, comment.getId());
           ResultSet rs = pst.executeQuery();

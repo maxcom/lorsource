@@ -58,7 +58,7 @@ public class VoteController {
 
       Poll poll = Poll.getCurrentPoll(db);
 
-      Message msg = new Message(db, poll.getTopicId());
+      Message msg = Message.getMessage(db, poll.getTopicId());
 
       if (voteid != poll.getId()) {
         throw new BadVoteException("голосовать можно только в текущий опрос");
@@ -126,7 +126,7 @@ public class VoteController {
     try {
       db = LorDataSource.getConnection();
 
-      Message msg = new Message(db, msgid);
+      Message msg = Message.getMessage(db, msgid);
       params.put("message", msg);
       Poll poll = Poll.getPollByTopic(db, msgid);
 
