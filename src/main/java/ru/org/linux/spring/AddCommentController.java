@@ -252,31 +252,21 @@ public class AddCommentController extends ApplicationObjectSupport {
     }
 
     if (!add.isPreviewMode() && !errors.hasErrors() && comment != null) {
-      Connection db = null;
+      int msgid = commentDao.saveNewMessage(comment, msg);
 
-      try {
-        db = LorDataSource.getConnection();
-        db.setAutoCommit(false);
-
-        int msgid = CommentDao.saveNewMessage(db, comment, msg);
-
-        String logmessage = "Написан комментарий " + msgid + " ip:" + request.getRemoteAddr();
-        if (request.getHeader("X-Forwarded-For") != null) {
-          logmessage = logmessage + " XFF:" + request.getHeader(("X-Forwarded-For"));
-        }
-
-        logger.info(logmessage);
-
-        db.commit();
-
-        searchQueueSender.updateComment(msgid);
-
-        String returnUrl = "jump-message.jsp?msgid=" + add.getTopic().getId() + "&cid=" + msgid;
-
-        return new ModelAndView(new RedirectView(returnUrl));
-      } finally {
-        JdbcUtils.closeConnection(db);
+      String logmessage = "Написан комментарий " + msgid + " ip:" + request.getRemoteAddr();
+      if (request.getHeader("X-Forwarded-For") != null) {
+        logmessage = logmessage + " XFF:" + request.getHeader(("X-Forwarded-For"));
       }
+
+      logger.info(logmessage);
+
+      // TODO надо разобраться с транзакциями и засунуть это в saveNewMessage
+      searchQueueSender.updateComment(msgid);
+
+      String returnUrl = "jump-message.jsp?msgid=" + add.getTopic().getId() + "&cid=" + msgid;
+
+      return new ModelAndView(new RedirectView(returnUrl));
     }
 
     return new ModelAndView("add_comment", formParams);

@@ -398,51 +398,55 @@ public class CommentDao {
     }
   }
 
-  public static int saveNewMessage(Connection db, Comment comment, String message) throws SQLException {
-    PreparedStatement pstMsgbase = null;
-    PreparedStatement pst = null;
-    try {
-      // allocation MSGID
-      Statement st = db.createStatement();
-      ResultSet rs = st.executeQuery("select nextval('s_msgid') as msgid");
-      rs.next();
-      int msgid = rs.getInt("msgid");
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
+  public int saveNewMessage(final Comment comment, final String message) throws SQLException {
+    // TODO переписать без использования ConnectionCallback
+    return jdbcTemplate.execute(new ConnectionCallback<Integer>() {
+      @Override
+      public Integer doInConnection(Connection db) throws SQLException, DataAccessException {
+        PreparedStatement pstMsgbase = null;
+        PreparedStatement pst = null;
+        ResultSet rs = null;
+        Statement st = null;
 
-      // insert headers
-      pst = db.prepareStatement("INSERT INTO comments (id, userid, title, postdate, replyto, deleted, topic, postip, ua_id) VALUES (?, ?, ?, CURRENT_TIMESTAMP, ?, 'f', ?, '" + comment.getPostIP() + "',create_user_agent(?))");
-      pst.setInt(1, msgid);
-      pst.setInt(2, comment.getUserid());
-      pst.setString(3, comment.getTitle());
-      pst.setInt(5, comment.getTopicId());
-      pst.setString(6, comment.getUserAgent());
+        try {
+          // allocation MSGID
+          st = db.createStatement();
+          rs = st.executeQuery("select nextval('s_msgid') as msgid");
+          rs.next();
+          int msgid = rs.getInt("msgid");
 
-      if (comment.getReplyTo() != 0) {
-        pst.setInt(4, comment.getReplyTo());
-      } else {
-        pst.setNull(4, Types.INTEGER);
+          // insert headers
+          pst = db.prepareStatement("INSERT INTO comments (id, userid, title, postdate, replyto, deleted, topic, postip, ua_id) VALUES (?, ?, ?, CURRENT_TIMESTAMP, ?, 'f', ?, '" + comment.getPostIP() + "',create_user_agent(?))");
+          pst.setInt(1, msgid);
+          pst.setInt(2, comment.getUserid());
+          pst.setString(3, comment.getTitle());
+          pst.setInt(5, comment.getTopicId());
+          pst.setString(6, comment.getUserAgent());
+
+          if (comment.getReplyTo() != 0) {
+            pst.setInt(4, comment.getReplyTo());
+          } else {
+            pst.setNull(4, Types.INTEGER);
+          }
+
+          pst.executeUpdate();
+
+          // insert message text
+          pstMsgbase = db.prepareStatement("INSERT INTO msgbase (id, message, bbcode) values (?,?,?)");
+          pstMsgbase.setLong(1, msgid);
+          pstMsgbase.setString(2, message);
+          pstMsgbase.setBoolean(3, true);
+          pstMsgbase.executeUpdate();
+
+          return msgid;
+        } finally {
+          JdbcUtils.closeStatement(pst);
+          JdbcUtils.closeStatement(pstMsgbase);
+          JdbcUtils.closeResultSet(rs);
+          JdbcUtils.closeStatement(st);
+        }
       }
-
-      pst.executeUpdate();
-
-      // insert message text
-      pstMsgbase = db.prepareStatement("INSERT INTO msgbase (id, message, bbcode) values (?,?,?)");
-      pstMsgbase.setLong(1, msgid);
-      pstMsgbase.setString(2, message);
-      pstMsgbase.setBoolean(3, true);
-      pstMsgbase.executeUpdate();
-
-      rs.close();
-      st.close();
-
-      return msgid;
-    } finally {
-      if (pst != null) {
-        pst.close();
-      }
-
-      if (pstMsgbase!=null) {
-        pstMsgbase.close();
-      }
-    }
+    });
   }
 }
