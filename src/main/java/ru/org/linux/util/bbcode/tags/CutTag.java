@@ -40,6 +40,8 @@ package ru.org.linux.util.bbcode.tags;
 
 import ru.org.linux.util.bbcode.Parser;
 import ru.org.linux.util.bbcode.nodes.Node;
+import ru.org.linux.util.bbcode.nodes.RootNode;
+import ru.org.linux.util.bbcode.nodes.TagNode;
 import ru.org.linux.util.bbcode.nodes.TextNode;
 
 import java.util.Set;
@@ -52,21 +54,8 @@ import java.util.Set;
  */
 public class CutTag extends HtmlEquivTag {
 
-  private boolean renderCut;
-  private boolean cleanCut;
-  private String cutUrl;
-  private int cutId;
-
   public CutTag(String name, Set<String> allowedChildren, String implicitTag, Parser parser) {
     super(name, allowedChildren, implicitTag, parser);
-    renderCut = false;
-    cutUrl = "";
-  }
-
-  public void setRenderOptions(boolean renderCut, boolean cleanCut, String cutUrl) {
-    this.renderCut = renderCut;
-    this.cleanCut = cleanCut;
-    this.cutUrl = cutUrl;
   }
 
   @Override
@@ -82,23 +71,20 @@ public class CutTag extends HtmlEquivTag {
         }
       }
     }
-    if (renderCut && !cleanCut) {
+    TagNode tagNode = (TagNode)node;
+    RootNode rootNode = tagNode.getRootNode();
+    if (rootNode.isRenderCut() && !rootNode.isCleanCut()) {
       StringBuilder ret = new StringBuilder();
       ret.append("<div id=\"cut")
-              .append(Integer.toString(cutId))
+              .append(Integer.toString(rootNode.getCutCount()))
               .append("\">")
               .append(node.renderChildrenXHtml())
               .append("</div>");
       return ret.toString();
-    } else if (renderCut && cleanCut) {
+    } else if (rootNode.isRenderCut() && rootNode.isCleanCut()) {
       return node.renderChildrenXHtml();
     } else {
-      return "<p>( <a href=\"" + cutUrl + "#cut" + Integer.toString(cutId) + "\">читать дальше...</a> )</p>";
+      return "<p>( <a href=\"" + rootNode.getCutUrl() + "#cut" + Integer.toString(rootNode.getCutCount()) + "\">читать дальше...</a> )</p>";
     }
-  }
-
-
-  public void setCutId(int cutId) {
-    this.cutId = cutId;
   }
 }

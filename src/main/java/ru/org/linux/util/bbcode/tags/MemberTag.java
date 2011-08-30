@@ -44,6 +44,7 @@ import ru.org.linux.spring.dao.UserDao;
 import ru.org.linux.util.bbcode.Parser;
 import ru.org.linux.util.bbcode.nodes.Node;
 import ru.org.linux.util.bbcode.nodes.RootNode;
+import ru.org.linux.util.bbcode.nodes.TagNode;
 import ru.org.linux.util.bbcode.nodes.TextNode;
 
 import java.util.Set;
@@ -55,19 +56,8 @@ import java.util.Set;
  * Time: 12:27 AM
  */
 public class MemberTag extends Tag {
-  private UserDao userDao;
-  private RootNode rootNode;
-
   public MemberTag(String name, Set<String> allowedChildren, String implicitTag, Parser parser) {
     super(name, allowedChildren, implicitTag, parser);
-  }
-
-  public void setUserDao(UserDao userDao) {
-    this.userDao = userDao;
-  }
-
-  public void setRootNode(RootNode rootNode) {
-    this.rootNode = rootNode;
   }
 
   @Override
@@ -78,14 +68,14 @@ public class MemberTag extends Tag {
     TextNode txtNode = (TextNode) node.getChildren().iterator().next();
     String memberName = Parser.escape(txtNode.getText()).trim();
     String pattern;
+    TagNode tagNode = (TagNode)node;
+    RootNode rootNode = tagNode.getRootNode();
     try {
-      if(userDao != null){
-        User user = userDao.getUser(memberName);
+      if(rootNode.getUserDao() != null){
+        User user = rootNode.getUserDao().getUser(memberName);
         if (!user.isBlocked()) {
           pattern = "<span style=\"white-space: nowrap\"><img src=\"/img/tuxlor.png\"><a style=\"text-decoration: none\" href='/people/%s/profile'>%s</a></span>";
-          if(rootNode != null){
-            rootNode.addReplier(user);
-          }
+          rootNode.addReplier(user);
         } else {
           pattern = "<span style=\"white-space: nowrap\"><img src=\"/img/tuxlor.png\"><s><a style=\"text-decoration: none\" href='/people/%s/profile'>%s</a></s></span>";
         }

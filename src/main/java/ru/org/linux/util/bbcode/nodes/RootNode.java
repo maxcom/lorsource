@@ -63,7 +63,7 @@ public class RootNode extends Node {
 
   public RootNode(Parser parser) {
     super(parser);
-    cutCount = 0;
+    cutCount = -1;
     renderCut = true;
     cleanCut = true;
     cutUrl = "";
@@ -108,11 +108,8 @@ public class RootNode extends Node {
   }
 
   public int getCutCount() {
-    return cutCount;
-  }
-
-  public void incCutCount() {
     cutCount += 1;
+    return cutCount;
   }
 
   public boolean isRenderCut() {

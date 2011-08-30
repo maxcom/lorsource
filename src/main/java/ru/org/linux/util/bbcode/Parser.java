@@ -280,10 +280,10 @@ public class Parser {
         //currentNode.getChildren().add(new TextNode(currentNode, this, text));
       } else {
         if (currentNode.allows("p")) {
-          currentNode.getChildren().add(new TagNode(currentNode, this, "p", ""));
+          currentNode.getChildren().add(new TagNode(currentNode, this, "p", "", rootNode));
           currentNode = descend(currentNode);
         } else if (currentNode.allows("div")) {
-          currentNode.getChildren().add(new TagNode(currentNode, this, "div", ""));
+          currentNode.getChildren().add(new TagNode(currentNode, this, "div", "", rootNode));
           currentNode = descend(currentNode);
         } else {
           currentNode = ascend(currentNode);
@@ -325,7 +325,7 @@ public class Parser {
             currentNode = ascend(currentNode);
           }
           if(matcher.end() != text.length()){
-            currentNode.getChildren().add(new TagNode(currentNode, this, "p", " "));
+            currentNode.getChildren().add(new TagNode(currentNode, this, "p", " ", rootNode));
             currentNode = descend(currentNode);
             currentNode = pushTextNode(rootNode, currentNode, text.substring(matcher.end()));
           }
@@ -387,22 +387,7 @@ public class Parser {
         currentNode = pushTagNode(rootNode, currentNode, name, parameter);
       }
     } else {
-      TagNode node = new TagNode(currentNode, this, name, parameter);
-      if ("cut".equals(name)) {
-        CutTag cutTag = ((CutTag) (node.getBbtag()));
-        cutTag.setRenderOptions(
-                rootNode.isRenderCut(),
-                rootNode.isCleanCut(),
-                rootNode.getCutUrl()
-        );
-        cutTag.setCutId(rootNode.getCutCount());
-        rootNode.incCutCount();
-      }
-      if("user".equals(name)) {
-        MemberTag memberTag = ((MemberTag) (node.getBbtag()));
-        memberTag.setUserDao(rootNode.getUserDao());
-        memberTag.setRootNode(rootNode);
-      }
+      TagNode node = new TagNode(currentNode, this, name, parameter, rootNode);
       currentNode.getChildren().add(node);
       if (!node.getBbtag().isSelfClosing()) {
         currentNode = descend(currentNode);
