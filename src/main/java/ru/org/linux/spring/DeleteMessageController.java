@@ -15,34 +15,35 @@
 
 package ru.org.linux.spring;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.util.HashMap;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-
-import ru.org.linux.site.*;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.support.ApplicationObjectSupport;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
+import ru.org.linux.site.*;
+import ru.org.linux.spring.dao.MessageDao;
+import ru.org.linux.spring.dao.SectionDao;
+import ru.org.linux.spring.dao.UserDao;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.HashMap;
 
 @Controller
 public class DeleteMessageController extends ApplicationObjectSupport {
-  private SearchQueueSender searchQueueSender;
-
   @Autowired
-  @Required
-  public void setSearchQueueSender(SearchQueueSender searchQueueSender) {
-    this.searchQueueSender = searchQueueSender;
-  }
+  private SearchQueueSender searchQueueSender;
+  @Autowired
+  private UserDao userDao;
+  @Autowired
+  private SectionDao sectionDao;
+  @Autowired
+  private MessageDao messageDao;
 
   @RequestMapping(value="/delete.jsp", method= RequestMethod.GET)
   public ModelAndView showForm(
@@ -54,29 +55,20 @@ public class DeleteMessageController extends ApplicationObjectSupport {
       throw new AccessViolationException("Not authorized");
     }
 
-    Connection db = null;
-    try {
-      db = LorDataSource.getConnection();
+    Message msg = messageDao.getById(msgid);
 
-      Message msg = Message.getMessage(db, msgid);
-
-      if (msg.isDeleted()) {
-        throw new UserErrorException("Сообщение уже удалено");
-      }
-
-      Section section = new Section(db, msg.getSectionId());
-
-      HashMap<String, Object> params = new HashMap<String, Object>();
-      params.put("bonus", !section.isPremoderated());
-
-      params.put("msgid", msgid);
-
-      return new ModelAndView("delete", params);
-    } finally {
-      if (db != null) {
-        db.close();
-      }
+    if (msg.isDeleted()) {
+      throw new UserErrorException("Сообщение уже удалено");
     }
+
+    Section section = sectionDao.getSection(msg.getSectionId());
+
+    HashMap<String, Object> params = new HashMap<String, Object>();
+    params.put("bonus", !section.isPremoderated());
+
+    params.put("msgid", msgid);
+
+    return new ModelAndView("delete", params);
   }
 
   @RequestMapping(value="/delete.jsp", method= RequestMethod.POST)
@@ -93,111 +85,37 @@ public class DeleteMessageController extends ApplicationObjectSupport {
     }
 
     Template tmpl = Template.getTemplate(request);
+    tmpl.updateCurrentUser(userDao);
 
-    Connection db = null;
-    try {
-      db = LorDataSource.getConnection();
-      db.setAutoCommit(false);
-      tmpl.updateCurrentUser(db);
+    User user = tmpl.getCurrentUser();
 
-      PreparedStatement lock = db.prepareStatement("SELECT deleted FROM topics WHERE id=? FOR UPDATE");
-      PreparedStatement st1 = db.prepareStatement("UPDATE topics SET deleted='t',sticky='f' WHERE id=?");
-      PreparedStatement st2 = db.prepareStatement("INSERT INTO del_info (msgid, delby, reason, deldate) values(?,?,?, CURRENT_TIMESTAMP)");
-      lock.setInt(1, msgid);
-      st1.setInt(1, msgid);
-      st2.setInt(1, msgid);
+    user.checkAnonymous();
 
-      User user = tmpl.getCurrentUser();
+    Message message = messageDao.getById(msgid);
+    Section section = sectionDao.getSection(message.getSectionId());
 
-      user.checkAnonymous();
-      st2.setInt(2, user.getId());
-
-      ResultSet lockResult = lock.executeQuery(); // lock another delete.jsp on this row
-
-      if (lockResult.next() && lockResult.getBoolean("deleted")) {
-        throw new UserErrorException("Сообщение уже удалено");
-      }
-
-      Message message = Message.getMessage(db, msgid);
-
-      PreparedStatement pr = db.prepareStatement("SELECT postdate>CURRENT_TIMESTAMP-'1 hour'::interval as perm FROM topics WHERE topics.id=? AND topics.userid=?");
-      pr.setInt(1, msgid);
-      pr.setInt(2, user.getId());
-      ResultSet rs = pr.executeQuery();
-      boolean perm = false;
-
-      if (rs.next()) {
-        perm = rs.getBoolean("perm");
-      }
-
-      rs.close();
-
-      if (!perm) {
-        PreparedStatement mod = db.prepareStatement("SELECT topics.moderate as mod, sections.moderate as needmod FROM groups,topics,sections WHERE topics.groupid=groups.id AND topics.id=? AND groups.section=sections.id");
-        mod.setInt(1, msgid);
-
-        rs = mod.executeQuery();
-        if (!rs.next()) {
-          throw new MessageNotFoundException(msgid);
-        }
-
-        if (rs.getBoolean("needmod") && !rs.getBoolean("mod") && user.canModerate()) {
-          perm = true;
-        }
-
-        rs.close();
-      }
-
-      if (!perm && user.canModerate()) {
-        PreparedStatement mod = db.prepareStatement("SELECT postdate>CURRENT_TIMESTAMP-'1 month'::interval as perm, section FROM topics,groups WHERE topics.groupid=groups.id AND topics.id=?");
-        mod.setInt(1, msgid);
-
-        rs = mod.executeQuery();
-        if (!rs.next()) {
-          throw new MessageNotFoundException(msgid);
-        }
-
-        if (rs.getBoolean("perm")) {
-          perm = true;
-        }
-
-        rs.close();
-      }
-
-      if (!perm) {
-        user.checkDelete();
-      }
-
-      st1.executeUpdate();
-
-      if (user.canModerate() && bonus!=0 && user.getId()!=message.getUid()) {
-        if (bonus>20 || bonus<0) {
-          throw new UserErrorException("Некорректное значение bonus");
-        }
-
-        User author = User.getUser(db, message.getUid());
-        author.changeScore(db, -bonus);
-        reason+=" ("+bonus+ ')';
-      }
-
-      st2.setString(3, reason);
-      st2.executeUpdate();
-
-      logger.info("Удалено сообщение " + msgid + " пользователем " + user.getNick() + " по причине `" + reason + '\'');
-
-      st1.close();
-      st2.close();
-      db.commit();
-
-      // Delete msgs from search index 
-      searchQueueSender.updateMessage(msgid, true);
-
-      return new ModelAndView("action-done", "message", "Сообщение удалено");
-    } finally {
-      if (db != null) {
-        db.close();
-      }
+    if(message.isDeleted()) {
+      throw new UserErrorException("Сообщение уже удалено");
     }
+
+    boolean perm = message.isUserCanDelete(user);
+
+    if (!perm && user.canModerate()) {
+      perm = message.isModeratorCanDelete(user, section);
+    }
+
+    if (!perm) {
+      user.checkDelete();
+    }
+
+    messageDao.deleteWithBonus(message, user, reason, bonus);
+    logger.info("Удалено сообщение " + msgid + " пользователем " + user.getNick() + " по причине `" + reason + '\'');
+
+    // Delete msgs from search index
+    //TODO кроме удаления из поискового индекса топика, надо удалить сообщения к нему
+    searchQueueSender.updateMessage(msgid, true);
+
+    return new ModelAndView("action-done", "message", "Сообщение удалено");
   }
 
   @RequestMapping(value = "/undelete.jsp", method = RequestMethod.GET)

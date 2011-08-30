@@ -36,6 +36,8 @@ import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.sql.*;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 public class Message implements Serializable {
@@ -849,5 +851,49 @@ public class Message implements Serializable {
     }
 
     return new Message(rs);
+  }
+
+  /**
+   * Проверка может ли пользователь удалить топик
+   * @param user пользователь удаляющий сообщение
+   * @return признак возможности удаления
+   */
+  public boolean isUserCanDelete(User user) {
+    Calendar calendar = Calendar.getInstance();
+
+    calendar.setTime(new Date());
+    calendar.add(Calendar.DAY_OF_MONTH, -1);
+    Timestamp hourDeltaTime = new Timestamp(calendar.getTimeInMillis());
+
+    return (postdate.compareTo(hourDeltaTime) >= 0 && userid == user.getId());
+  }
+
+  /**
+   * Проверка, может ли модератор удалить топик
+   * @param user пользователь удаляющий сообщение
+   * @param section местоположение топика
+   * @return признак возможности удаления
+   */
+  public boolean isModeratorCanDelete(User user, Section section) {
+    if(!user.canModerate()) {
+      return false;
+    }
+    Calendar calendar = Calendar.getInstance();
+
+    calendar.setTime(new Date());
+    calendar.add(Calendar.MONTH, -1);
+    Timestamp monthDeltaTime = new Timestamp(calendar.getTimeInMillis());
+
+    boolean ret = false;
+
+    if(section.isPremoderated() && !moderate) {
+      ret = true;
+    }
+
+    if(!ret && postdate.compareTo(monthDeltaTime) >= 0) {
+      ret = true;
+    }
+
+    return ret;
   }
 }
