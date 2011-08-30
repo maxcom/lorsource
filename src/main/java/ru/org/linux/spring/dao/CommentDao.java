@@ -1,14 +1,13 @@
 package ru.org.linux.spring.dao;
 
+import com.google.common.collect.ImmutableMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.ConnectionCallback;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowCallbackHandler;
-import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.*;
+import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.support.JdbcUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
@@ -71,9 +70,15 @@ public class CommentDao {
   private UserDao userDao;
   private DeleteInfoDao deleteInfoDao;
 
+  private SimpleJdbcInsert insertMsgbase;
+
   @Autowired
-  public void setJdbcTemplate(DataSource dataSource) {
+  public void setDataSource(DataSource dataSource) {
     jdbcTemplate = new JdbcTemplate(dataSource);
+
+    insertMsgbase = new SimpleJdbcInsert(dataSource);
+    insertMsgbase.setTableName("msgbase");
+    insertMsgbase.usingColumns("id", "message", "bbcode");
   }
 
   @Autowired
@@ -400,53 +405,39 @@ public class CommentDao {
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   public int saveNewMessage(final Comment comment, final String message) throws SQLException {
-    // TODO переписать без использования ConnectionCallback
-    return jdbcTemplate.execute(new ConnectionCallback<Integer>() {
-      @Override
-      public Integer doInConnection(Connection db) throws SQLException, DataAccessException {
-        PreparedStatement pstMsgbase = null;
-        PreparedStatement pst = null;
-        ResultSet rs = null;
-        Statement st = null;
+    final int msgid = jdbcTemplate.queryForInt("select nextval('s_msgid') as msgid");
 
-        try {
-          // allocation MSGID
-          st = db.createStatement();
-          rs = st.executeQuery("select nextval('s_msgid') as msgid");
-          rs.next();
-          int msgid = rs.getInt("msgid");
+    jdbcTemplate.execute(
+            "INSERT INTO comments (id, userid, title, postdate, replyto, deleted, topic, postip, ua_id) VALUES (?, ?, ?, CURRENT_TIMESTAMP, ?, 'f', ?, ?::inet, create_user_agent(?))",
+            new PreparedStatementCallback<Object>() {
+              @Override
+              public Object doInPreparedStatement(PreparedStatement pst) throws SQLException, DataAccessException {
+                pst.setInt(1, msgid);
+                pst.setInt(2, comment.getUserid());
+                pst.setString(3, comment.getTitle());
+                pst.setInt(5, comment.getTopicId());
+                pst.setString(6, comment.getPostIP());
+                pst.setString(7, comment.getUserAgent());
 
-          // insert headers
-          pst = db.prepareStatement("INSERT INTO comments (id, userid, title, postdate, replyto, deleted, topic, postip, ua_id) VALUES (?, ?, ?, CURRENT_TIMESTAMP, ?, 'f', ?, '" + comment.getPostIP() + "',create_user_agent(?))");
-          pst.setInt(1, msgid);
-          pst.setInt(2, comment.getUserid());
-          pst.setString(3, comment.getTitle());
-          pst.setInt(5, comment.getTopicId());
-          pst.setString(6, comment.getUserAgent());
+                if (comment.getReplyTo() != 0) {
+                  pst.setInt(4, comment.getReplyTo());
+                } else {
+                  pst.setNull(4, Types.INTEGER);
+                }
 
-          if (comment.getReplyTo() != 0) {
-            pst.setInt(4, comment.getReplyTo());
-          } else {
-            pst.setNull(4, Types.INTEGER);
-          }
+                pst.executeUpdate();
 
-          pst.executeUpdate();
+                return null;
+              }
+            }
+    );
 
-          // insert message text
-          pstMsgbase = db.prepareStatement("INSERT INTO msgbase (id, message, bbcode) values (?,?,?)");
-          pstMsgbase.setLong(1, msgid);
-          pstMsgbase.setString(2, message);
-          pstMsgbase.setBoolean(3, true);
-          pstMsgbase.executeUpdate();
+    insertMsgbase.execute(ImmutableMap.<String, Object>of(
+            "id", msgid,
+            "message", message,
+            "bbcode", true)
+    );
 
-          return msgid;
-        } finally {
-          JdbcUtils.closeStatement(pst);
-          JdbcUtils.closeStatement(pstMsgbase);
-          JdbcUtils.closeResultSet(rs);
-          JdbcUtils.closeStatement(st);
-        }
-      }
-    });
+    return msgid;
   }
 }
