@@ -83,6 +83,11 @@ public class SimpleParserTest {
   }
 
   @Test
+  public void cut4Test() {
+    Assert.assertEquals("<div id=\"cut0\"><p>test</p></div><div id=\"cut1\"><p>test</p></div>", ParserUtil.bb2xhtml("[cut]\n\ntest[/cut][cut]test[/cut]", true, false, ""));
+  }
+
+  @Test
   public void urlTest() {
     Assert.assertEquals(ParserUtil.bb2xhtml("[url]http://linux.org.ru[/url]"), "<p><a href=\"http://linux.org.ru\">http://linux.org.ru</a></p>");
   }

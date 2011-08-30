@@ -49,10 +49,12 @@ import ru.org.linux.util.bbcode.tags.Tag;
  */
 public class TagNode extends Node {
   final Tag bbtag;
+  final RootNode rootNode;
 
-  public TagNode(Node node, Parser parser, String name, String parameter) {
+  public TagNode(Node node, Parser parser, String name, String parameter, RootNode rootNode) {
     super(node, parser);
     bbtag = parser.getAllTagsDict().get(name);
+    this.rootNode = rootNode;
     this.parameter = parameter;
   }
 
@@ -80,6 +82,10 @@ public class TagNode extends Node {
 
   public Tag getBbtag() {
     return bbtag;
+  }
+
+  public RootNode getRootNode() {
+    return rootNode;
   }
 
   @Override
