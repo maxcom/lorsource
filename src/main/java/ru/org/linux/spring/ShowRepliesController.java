@@ -141,11 +141,13 @@ public class ShowRepliesController {
 
       rs.close();
 
-      if ("POST".equalsIgnoreCase(request.getMethod())) {
-        currentUser.resetUnreadEvents(db);
-        tmpl.updateCurrentUser(db);
-      } else {
-        params.put("enableReset", true);
+      if (tmpl.isSessionAuthorized()) {
+        if ("POST".equalsIgnoreCase(request.getMethod())) {
+          currentUser.resetUnreadEvents(db);
+          tmpl.updateCurrentUser(db);
+        } else {
+          params.put("enableReset", true);
+        }
       }
 
       params.put("topicsList", list);
