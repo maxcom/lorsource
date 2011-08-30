@@ -18,7 +18,10 @@ package ru.org.linux.site;
 import ru.org.linux.spring.dao.DeleteInfoDao;
 
 import java.io.Serializable;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.Date;
 import java.util.Map;
 
@@ -151,53 +154,5 @@ public class Comment implements Serializable {
 
   public String getPostIP() {
     return postIP;
-  }
-
-  public int saveNewMessage(Connection db, String message) throws SQLException {
-    PreparedStatement pstMsgbase = null;
-    PreparedStatement pst = null;
-    try {
-      // allocation MSGID
-      Statement st = db.createStatement();
-      ResultSet rs = st.executeQuery("select nextval('s_msgid') as msgid");
-      rs.next();
-      int msgid = rs.getInt("msgid");
-
-      // insert headers
-      pst = db.prepareStatement("INSERT INTO comments (id, userid, title, postdate, replyto, deleted, topic, postip, ua_id) VALUES (?, ?, ?, CURRENT_TIMESTAMP, ?, 'f', ?, '" + postIP + "',create_user_agent(?))");
-      pst.setInt(1, msgid);
-      pst.setInt(2, userid);
-      pst.setString(3, title);
-      pst.setInt(5, topic);
-      pst.setString(6, this.userAgent);
-
-      if (replyto != 0) {
-        pst.setInt(4, replyto);
-      } else {
-        pst.setNull(4, Types.INTEGER);
-      }
-
-      pst.executeUpdate();
-
-      // insert message text
-      pstMsgbase = db.prepareStatement("INSERT INTO msgbase (id, message, bbcode) values (?,?,?)");
-      pstMsgbase.setLong(1, msgid);
-      pstMsgbase.setString(2, message);
-      pstMsgbase.setBoolean(3, true);
-      pstMsgbase.executeUpdate();
-
-      rs.close();
-      st.close();
-
-      return msgid;
-    } finally {
-      if (pst != null) {
-        pst.close();
-      }
-
-      if (pstMsgbase!=null) {
-        pstMsgbase.close();
-      }
-    }
   }
 }

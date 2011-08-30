@@ -258,7 +258,7 @@ public class AddCommentController extends ApplicationObjectSupport {
         db = LorDataSource.getConnection();
         db.setAutoCommit(false);
 
-        int msgid = comment.saveNewMessage(db, msg);
+        int msgid = CommentDao.saveNewMessage(db, comment, msg);
 
         String logmessage = "Написан комментарий " + msgid + " ip:" + request.getRemoteAddr();
         if (request.getHeader("X-Forwarded-For") != null) {
