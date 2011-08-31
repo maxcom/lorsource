@@ -17,7 +17,6 @@ package ru.org.linux.spring;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.ApplicationObjectSupport;
-import org.springframework.jdbc.support.JdbcUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
@@ -39,7 +38,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 import java.beans.PropertyEditorSupport;
-import java.sql.Connection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -53,6 +51,7 @@ public class AddCommentController extends ApplicationObjectSupport {
   private MessageDao messageDao;
   private UserDao userDao;
   private IPBlockDao ipBlockDao;
+  private PrepareService prepareService;
 
   @Autowired
   public void setSearchQueueSender(SearchQueueSender searchQueueSender) {
@@ -89,6 +88,11 @@ public class AddCommentController extends ApplicationObjectSupport {
     this.ipBlockDao = ipBlockDao;
   }
 
+  @Autowired
+  public void setPrepareService(PrepareService prepareService) {
+    this.prepareService = prepareService;
+  }
+
   @RequestMapping(value = "/add_comment.jsp", method = RequestMethod.GET)
   public ModelAndView showFormReply(
     @ModelAttribute("add") @Valid AddCommentRequest add,
@@ -118,23 +122,15 @@ public class AddCommentController extends ApplicationObjectSupport {
   ) throws Exception {
     Template tmpl = Template.getTemplate(request);
 
-    Connection db = null;
-
-    try {
-      if (add.getMode()==null) {
-        add.setMode(tmpl.getFormatMode());
-      }
-      
-      HashMap<String, Object> params = new HashMap<String, Object>();
-
-      db = LorDataSource.getConnection();
-
-      params.put("preparedMessage", new PreparedMessage(db, add.getTopic(), true));
-
-      return new ModelAndView("comment-message", params);
-    } finally {
-      JdbcUtils.closeConnection(db);
+    if (add.getMode()==null) {
+      add.setMode(tmpl.getFormatMode());
     }
+
+    HashMap<String, Object> params = new HashMap<String, Object>();
+
+    params.put("preparedMessage", prepareService.prepareMessage(add.getTopic(), true));
+
+    return new ModelAndView("comment-message", params);
   }
 
   private static String processMessage(String msg, String mode) {
