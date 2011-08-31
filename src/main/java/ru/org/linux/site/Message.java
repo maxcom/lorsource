@@ -26,6 +26,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 import org.springframework.validation.Errors;
 import ru.org.linux.spring.AddMessageForm;
+import ru.org.linux.spring.dao.UserDao;
 import ru.org.linux.util.*;
 import ru.org.linux.util.bbcode.ParserUtil;
 
@@ -701,6 +702,7 @@ public class Message implements Serializable {
     return getProcessedMessage(db, false);
   }
 
+  @Deprecated
   public String getProcessedMessage(Connection db, boolean includeCut, String mainUrl) {
     if (lorcode) {
       String okMainUrl;
@@ -711,6 +713,21 @@ public class Message implements Serializable {
         okMainUrl = mainUrl;
       }
       return ParserUtil.bb2xhtml(message, includeCut, false, okMainUrl + getLink(), db);
+    } else {
+      return "<p>" + message;
+    }
+  }
+
+  public String getProcessedMessage(UserDao userDao, boolean includeCut, String mainUrl) {
+    if (lorcode) {
+      String okMainUrl;
+      // Откусяываем последний слэш у mainUrl если он есть
+      if(mainUrl.endsWith("/")){
+        okMainUrl = mainUrl.substring(0, mainUrl.length()-1);
+      }else{
+        okMainUrl = mainUrl;
+      }
+      return ParserUtil.bb2xhtml(message, includeCut, false, okMainUrl + getLink(), userDao);
     } else {
       return "<p>" + message;
     }
@@ -744,6 +761,7 @@ public class Message implements Serializable {
     return lorcode;
   }
 
+  @Deprecated
   public List<EditInfoDTO> loadEditInfo(Connection db)  {
     SingleConnectionDataSource scds = new SingleConnectionDataSource(db, true);
 

@@ -1,20 +1,21 @@
 package ru.org.linux.spring.dao;
 
+import com.google.common.collect.ImmutableList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import ru.org.linux.site.Message;
-import ru.org.linux.site.MessageNotFoundException;
-import ru.org.linux.site.User;
-import ru.org.linux.site.UserErrorException;
+import ru.org.linux.site.*;
 
 import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Операции над сообщениями
@@ -46,6 +47,10 @@ public class MessageDao {
    */
   private final static String updateDeleteInfo = "INSERT INTO del_info (msgid, delby, reason, deldate) values(?,?,?, CURRENT_TIMESTAMP)";
 
+  private final static String queryEditInfo = "SELECT * FROM edit_info WHERE msgid=? ORDER BY id DESC";
+
+  private final static String queryTags = "SELECT tags_values.value FROM tags, tags_values WHERE tags.msgid=? AND tags_values.id=tags.tagid ORDER BY value";
+
   private JdbcTemplate jdbcTemplate;
 
   @Autowired
@@ -75,6 +80,49 @@ public class MessageDao {
       throw new MessageNotFoundException(id);
     }
     return message;
+  }
+
+  /**
+   * Получить информации о редактировании топика
+   * @param id id топика
+   * @return список изменений топика
+   */
+  public List<EditInfoDTO> getEditInfo(int id) {
+    final List<EditInfoDTO> editInfoDTOs = new ArrayList<EditInfoDTO>();
+    jdbcTemplate.query(queryEditInfo, new RowCallbackHandler() {
+      @Override
+      public void processRow(ResultSet resultSet) throws SQLException {
+        EditInfoDTO editInfoDTO = new EditInfoDTO();
+        editInfoDTO.setId(resultSet.getInt("id"));
+        editInfoDTO.setMsgid(resultSet.getInt("msgid"));
+        editInfoDTO.setEditor(resultSet.getInt("editor"));
+        editInfoDTO.setOldmessage(resultSet.getString("oldmessage"));
+        editInfoDTO.setEditdate(resultSet.getTimestamp("editdate"));
+        editInfoDTO.setOldtitle(resultSet.getString("oldtitle"));
+        editInfoDTO.setOldtags(resultSet.getString("oldtags"));
+        editInfoDTOs.add(editInfoDTO);
+      }
+    }, id);
+    return editInfoDTOs;
+  }
+
+  /**
+   * Получить тэги топика
+   * TODO возможно надо сделать TagDao ?
+   * @param message топик
+   * @return список тэгов
+   */
+  public ImmutableList<String> getTags(Message message) {
+    final ImmutableList.Builder<String> tags = ImmutableList.builder();
+
+    jdbcTemplate.query(queryTags, new RowCallbackHandler() {
+      @Override
+      public void processRow(ResultSet resultSet) throws SQLException {
+        tags.add(resultSet.getString("value"));
+      }
+    }, message.getId());
+
+    return tags.build();
   }
 
   /**

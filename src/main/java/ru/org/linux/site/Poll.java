@@ -136,6 +136,7 @@ public class Poll implements Serializable {
     return voteid;
   }
 
+  @Deprecated
   public ImmutableList<PollVariant> getPollVariants(Connection db, int order) throws SQLException {
     List<PollVariant> variants = new ArrayList<PollVariant>();
     Statement st = db.createStatement();
@@ -167,6 +168,7 @@ public class Poll implements Serializable {
     return topic;
   }
 
+  @Deprecated
   public int getMaxVote(Connection db) throws SQLException {
     Statement st = db.createStatement();
     ResultSet rs=st.executeQuery("SELECT max(votes) FROM votes WHERE vote="+id);
