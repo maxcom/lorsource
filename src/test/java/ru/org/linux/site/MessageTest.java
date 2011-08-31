@@ -52,6 +52,10 @@ public class MessageTest {
 
     Message message = new Message(resultSet);
 
+    Assert.assertEquals(false, user.canModerate());
+    Assert.assertTrue(user.getId() == resultSet.getInt("userid"));
+    Assert.assertTrue(user.getId() == message.getUid());
+
     Assert.assertTrue(message.isDeletableByUser(user));
   }
   /**
@@ -87,6 +91,10 @@ public class MessageTest {
     when(user.getId()).thenReturn(13);
 
     Message message = new Message(resultSet);
+
+    Assert.assertEquals(false, user.canModerate());
+    Assert.assertTrue(user.getId() == resultSet.getInt("userid"));
+    Assert.assertTrue(user.getId() == message.getUid());
 
     Assert.assertFalse(message.isDeletableByUser(user));
   }
@@ -125,6 +133,10 @@ public class MessageTest {
 
     Message message = new Message(resultSet);
 
+    Assert.assertEquals(false, user.canModerate());
+    Assert.assertFalse(user.getId() == resultSet.getInt("userid"));
+    Assert.assertFalse(user.getId() == message.getUid());
+
     Assert.assertFalse(message.isDeletableByUser(user));
   }
 
@@ -161,6 +173,10 @@ public class MessageTest {
     when(user.getId()).thenReturn(14);
 
     Message message = new Message(resultSet);
+
+    Assert.assertEquals(false, user.canModerate());
+    Assert.assertFalse(user.getId() == resultSet.getInt("userid"));
+    Assert.assertFalse(user.getId() == message.getUid());
 
     Assert.assertFalse(message.isDeletableByUser(user));
   }
@@ -254,16 +270,42 @@ public class MessageTest {
     when(user.canModerate()).thenReturn(true);
     when(user.getId()).thenReturn(13);
 
+    // проверка что данные в mock user верные
+    Assert.assertEquals(true, user.canModerate());
+
+
     sectionModerate = mock(Section.class);
     when(sectionModerate.isPremoderated()).thenReturn(true);
     sectionNotModerate = mock(Section.class);
     when(sectionNotModerate.isPremoderated()).thenReturn(false);
+
+    // проверка что данные в mock resultSet верные
+    Assert.assertEquals(true, resultSetModerateNew.getBoolean("moderate"));
+    Assert.assertEquals(true, resultSetModerateOld.getBoolean("moderate"));
+    Assert.assertEquals(false, resultSetNotModerateNew.getBoolean("moderate"));
+    Assert.assertEquals(false, resultSetNotModerateOld.getBoolean("moderate"));
+
+    Assert.assertTrue((new Timestamp(newTime)).compareTo(resultSetModerateNew.getTimestamp("postdate")) == 0);
+    Assert.assertTrue((new Timestamp(oldTime)).compareTo(resultSetModerateOld.getTimestamp("postdate")) == 0);
+    Assert.assertTrue((new Timestamp(newTime)).compareTo(resultSetNotModerateNew.getTimestamp("postdate")) == 0);
+    Assert.assertTrue((new Timestamp(oldTime)).compareTo(resultSetNotModerateOld.getTimestamp("postdate")) == 0);
+
 
     Message messageModerateOld = new Message(resultSetModerateOld);
     Message messageNotModerateOld = new Message(resultSetNotModerateOld);
     Message messageModerateNew = new Message(resultSetModerateNew);
     Message messageNotModerateNew = new Message(resultSetNotModerateNew);
 
+    // проверка что данные в mock message верные
+    Assert.assertEquals(true, messageModerateNew.isCommited());
+    Assert.assertEquals(true, messageModerateOld.isCommited());
+    Assert.assertEquals(false, messageNotModerateNew.isCommited());
+    Assert.assertEquals(false, messageNotModerateOld.isCommited());
+
+    Assert.assertTrue((new Timestamp(newTime)).compareTo(messageModerateNew.getPostdate()) == 0);
+    Assert.assertTrue((new Timestamp(oldTime)).compareTo(messageModerateOld.getPostdate()) == 0);
+    Assert.assertTrue((new Timestamp(newTime)).compareTo(messageNotModerateNew.getPostdate()) == 0);
+    Assert.assertTrue((new Timestamp(oldTime)).compareTo(messageNotModerateOld.getPostdate()) == 0);
 
     // нельзя удалять старые подтвержденные топики в премодерируемом разделе
     Assert.assertFalse(messageModerateOld.isDeletableByModerator(user, sectionModerate));

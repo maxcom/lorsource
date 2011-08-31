@@ -43,17 +43,42 @@ public final class PreparedMessage {
 
   private static final int EDIT_PERIOD = 2 * 60 * 60 * 1000; // milliseconds
 
+  @Deprecated
   public PreparedMessage(Connection db, Message message, boolean includeCut) throws SQLException {
     this(db, message, Tags.getMessageTags(db, message.getId()), includeCut, "");
   }
 
+  @Deprecated
   public PreparedMessage(Connection db, Message message, boolean includeCut, String mainUrl) throws SQLException {
     this(db, message, Tags.getMessageTags(db, message.getId()), includeCut, mainUrl);
   }
 
-
+  @Deprecated
   public PreparedMessage(Connection db, Message message, List<String> tags) throws SQLException {
     this(db, message, tags, true, "");
+  }
+
+  public PreparedMessage(Message message, User author, DeleteInfo deleteInfo, User deleteUser, String processedMessage,
+                          PreparedPoll poll, User commiter, List<String> tags, Group group, Section section,
+                          EditInfoDTO lastEditInfo, User lastEditor, int editorCount, String userAgent) {
+    this.message = message;
+    this.author = author;
+    this.deleteInfo = deleteInfo;
+    this.deleteUser = deleteUser;
+    this.processedMessage = processedMessage;
+    this.poll = poll;
+    this.commiter = commiter;
+    if (tags!=null) {
+      this.tags=ImmutableList.copyOf(tags);
+    } else {
+      this.tags=ImmutableList.of();
+    }
+    this.group = group;
+    this.section = section;
+    this.lastEditInfo = lastEditInfo;
+    this.lastEditor = lastEditor;
+    this.editCount = editorCount;
+    this.userAgent = userAgent;
   }
 
   private PreparedMessage(Connection db, Message message, List<String> tags, boolean includeCut, String mainUrl) throws SQLException {
@@ -122,6 +147,14 @@ public final class PreparedMessage {
     }
   }
 
+  /**
+   * См. UserAgentDao
+   * @param db подключение к БД
+   * @param id id UA
+   * @return название UA
+   * @throws SQLException если что-то не так
+   */
+  @Deprecated
   private static String loadUserAgent(Connection db, int id) throws SQLException {
     if (id==0) {
       return null;

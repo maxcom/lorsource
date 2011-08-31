@@ -15,12 +15,12 @@
 
 package ru.org.linux.site;
 
+import com.google.common.collect.ImmutableList;
+
 import java.io.Serializable;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.google.common.collect.ImmutableList;
 
 public class Poll implements Serializable {
   public static final int MAX_POLL_SIZE = 15;
@@ -34,6 +34,7 @@ public class Poll implements Serializable {
   private final boolean multiSelect;
   private static final long serialVersionUID = -6541849807995680089L;
 
+  @Deprecated
   public static Poll getPollByTopic(Connection db, int msgid) throws SQLException, PollNotFoundException {
     PreparedStatement pst = db.prepareStatement("SELECT votenames.id FROM votenames,topics WHERE topics.id=? AND votenames.topic=topics.id");
     pst.clearParameters();
@@ -54,6 +55,7 @@ public class Poll implements Serializable {
     addPst.executeUpdate();
   }
 
+  @Deprecated
   public static int getCurrentPollId(Connection db) throws SQLException {
     Statement st = db.createStatement();
 
@@ -62,6 +64,7 @@ public class Poll implements Serializable {
     return rs.next()?rs.getInt("id"):0;
   }
 
+  @Deprecated
   public static Poll getCurrentPoll(Connection db) throws SQLException {
     try {
       return new Poll(db, getCurrentPollId(db));
@@ -70,6 +73,7 @@ public class Poll implements Serializable {
     }
   }
 
+  @Deprecated
   public Poll(Connection db, int id) throws SQLException, PollNotFoundException {
     this.id = id;
 
@@ -85,6 +89,13 @@ public class Poll implements Serializable {
     multiSelect = rs.getBoolean("multiselect");
 
     current = getCurrentPollId(db)==id;
+  }
+
+  public Poll(int id, int topic, boolean multiSelect, boolean current) {
+    this.id = id;
+    this.topic = topic;
+    this.multiSelect = multiSelect;
+    this.current = current;
   }
 
   public int getId() {
@@ -125,6 +136,7 @@ public class Poll implements Serializable {
     return voteid;
   }
 
+  @Deprecated
   public ImmutableList<PollVariant> getPollVariants(Connection db, int order) throws SQLException {
     List<PollVariant> variants = new ArrayList<PollVariant>();
     Statement st = db.createStatement();
@@ -156,6 +168,7 @@ public class Poll implements Serializable {
     return topic;
   }
 
+  @Deprecated
   public int getMaxVote(Connection db) throws SQLException {
     Statement st = db.createStatement();
     ResultSet rs=st.executeQuery("SELECT max(votes) FROM votes WHERE vote="+id);

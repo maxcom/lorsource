@@ -15,6 +15,9 @@
 
 package ru.org.linux.site;
 
+import com.google.common.collect.ImmutableList;
+import org.apache.commons.lang.StringUtils;
+
 import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -22,9 +25,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.regex.Pattern;
-
-import com.google.common.collect.ImmutableList;
-import org.apache.commons.lang.StringUtils;
 
 public final class Tags implements Serializable {
   private static final Pattern tagRE = Pattern.compile("([\\p{L}\\d \\+-]+)", Pattern.CASE_INSENSITIVE);
@@ -59,6 +59,7 @@ public final class Tags implements Serializable {
     return id;
   }
 
+  @Deprecated
   public static ImmutableList<String> getMessageTags(Connection con, int msgid) throws SQLException {
     ImmutableList.Builder<String> tags = ImmutableList.builder();
     
