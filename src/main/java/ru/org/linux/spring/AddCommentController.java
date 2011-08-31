@@ -126,11 +126,11 @@ public class AddCommentController extends ApplicationObjectSupport {
       add.setMode(tmpl.getFormatMode());
     }
 
-    HashMap<String, Object> params = new HashMap<String, Object>();
-
-    params.put("preparedMessage", prepareService.prepareMessage(add.getTopic(), true));
-
-    return new ModelAndView("comment-message", params);
+    return new ModelAndView(
+            "comment-message",
+            "preparedMessage",
+            prepareService.prepareMessage(add.getTopic(), true)
+    );
   }
 
   private static String processMessage(String msg, String mode) {
