@@ -36,6 +36,8 @@ import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.sql.*;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 public class Message implements Serializable {
@@ -849,5 +851,57 @@ public class Message implements Serializable {
     }
 
     return new Message(rs);
+  }
+
+  /**
+   * Проверка может ли пользователь удалить топик
+   * @param user пользователь удаляющий сообщение
+   * @return признак возможности удаления
+   */
+  public boolean isDeletableByUser(User user) {
+    Calendar calendar = Calendar.getInstance();
+
+    calendar.setTime(new Date());
+    calendar.add(Calendar.HOUR_OF_DAY, -1);
+    Timestamp hourDeltaTime = new Timestamp(calendar.getTimeInMillis());
+
+    return (postdate.compareTo(hourDeltaTime) >= 0 && userid == user.getId());
+  }
+
+  /**
+   * Проверка, может ли модератор удалить топик
+   * @param user пользователь удаляющий сообщение
+   * @param section местоположение топика
+   * @return признак возможности удаления
+   */
+  public boolean isDeletableByModerator(User user, Section section) {
+    // TODO убрать от сюда аргумент функции section
+    if(!user.canModerate()) {
+      return false;
+    }
+    Calendar calendar = Calendar.getInstance();
+
+    calendar.setTime(new Date());
+    calendar.add(Calendar.MONTH, -1);
+    Timestamp monthDeltaTime = new Timestamp(calendar.getTimeInMillis());
+
+    boolean ret = false;
+
+    // Если раздел премодерируемый и топик не подтвержден удалять можно
+    if(section.isPremoderated() && !moderate) {
+      ret = true;
+    }
+
+    // Если раздел премодерируемый, топик подтвержден и прошло меньше месяца с подтверждения удалять можно
+    if(section.isPremoderated() && moderate && postdate.compareTo(monthDeltaTime) >= 0) {
+      ret = true;
+    }
+
+    // Если раздел не премодерируем, удалять можно
+    if(!section.isPremoderated()) {
+      ret = true;
+    }
+
+    return ret;
   }
 }

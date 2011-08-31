@@ -24,6 +24,11 @@ import java.util.List;
 public class UserDao {
   private JdbcTemplate jdbcTemplate;
 
+  /**
+   * изменение score пользователю
+   */
+  private final static String queryChangeScore = "UPDATE users SET score=score+? WHERE id=?";
+
   @Autowired
   public void setJdbcTemplate(DataSource dataSource) {
     jdbcTemplate = new JdbcTemplate(dataSource);
@@ -148,7 +153,7 @@ public class UserDao {
       return;
     }
     setUserInfo(user, null);
-    changeScore(user, -10);
+    changeScore(user.getId(), -10);
   }
 
   /**
@@ -160,7 +165,7 @@ public class UserDao {
   public void removePhoto(User user, User cleaner) {
     setPhoto(user, null);
     if(cleaner.canModerate() && cleaner.getId() != user.getId()){
-      changeScore(user, -10);
+      changeScore(user.getId(), -10);
     }
   }
 
@@ -186,13 +191,13 @@ public class UserDao {
 
   /**
    * Изменение шкворца пользовтаеля, принимает отрицательные и положительные значения
-   * не накладывает никаких ограничений на параметры
-   * @param user пользователь
+   * не накладывает никаких ограничений на параметры используется в купэ с другими
+   * методами и не является транзакцией
+   * @param id id пользователя
    * @param delta дельта на которую меняется шкворец
    */
-  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public void changeScore(User user, int delta) {
-    jdbcTemplate.update("UPDATE users SET score=score+? WHERE id=?", delta, user.getId());
+  public void changeScore(int id, int delta) {
+    jdbcTemplate.update(queryChangeScore, delta, id);
   }
 
   /**
