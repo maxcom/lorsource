@@ -15,17 +15,25 @@
 
 package ru.org.linux.spring.dao;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
+import org.springframework.stereotype.Repository;
+import ru.org.linux.site.Poll;
+import ru.org.linux.site.PollNotFoundException;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
-import org.springframework.stereotype.Repository;
-
 @Repository
 public class PollDaoImpl {
+
+  private static final String queryPoolIdByTopicId = "SELECT votenames.id FROM votenames,topics WHERE topics.id=? AND votenames.topic=topics.id";
+  private static final String queryCurrentPollId = "SELECT votenames.id FROM votenames,topics WHERE topics.id=votenames.topic AND topics.moderate = 't' AND topics.deleted = 'f' AND topics.commitdate = (select max(commitdate) from topics where groupid=19387 AND moderate AND NOT deleted)";
+  private static final String queryPool = "SELECT topic, multiselect FROM votenames WHERE id=?";
+
   private SimpleJdbcTemplate jdbcTemplate;
 
   public SimpleJdbcTemplate getJdbcTemplate() {
@@ -54,5 +62,62 @@ public class PollDaoImpl {
   public Integer getVotersCount(Integer pollId) {
     String sql = "SELECT sum(votes) as s FROM votes WHERE vote= ?";
     return jdbcTemplate.queryForInt(sql, pollId);
+  }
+
+  /**
+   * Получить id Голосования по id топика
+   * @param topicId id топика
+   * @return id голосования
+   * @throws PollNotFoundException гененрируется если такого голосования не существует
+   */
+  public int getPollId(int topicId) throws PollNotFoundException {
+    try {
+      return jdbcTemplate.queryForObject(queryPoolIdByTopicId, Integer.class, topicId);
+    } catch (EmptyResultDataAccessException exception) {
+      throw new PollNotFoundException();
+    }
+  }
+
+  /**
+   * Возвращает текщее авктивное голосование
+   * @return id текущего голосования
+   */
+  public int getCurrentPollId() {
+    try {
+      return jdbcTemplate.queryForObject(queryCurrentPollId, Integer.class);
+    } catch (EmptyResultDataAccessException exception) {
+      return 0;
+    }
+  }
+
+  /**
+   * Получить текщее голосование
+   * @return текушие голование
+   * @throws PollNotFoundException при отсутствии голосования
+   */
+  public Poll getCurrentPoll() throws PollNotFoundException{
+    return getPoll(getCurrentPollId());
+  }
+
+
+  /**
+   * Получить голосование по id
+   * @param poolId голосование
+   * @return голосование
+   * @throws PollNotFoundException если не существует такого голосования
+   */
+  public Poll getPoll(final int poolId) throws PollNotFoundException {
+    final int currentPollId = getCurrentPollId();
+    try {
+    return jdbcTemplate.queryForObject(queryPool,
+        new RowMapper<Poll>() {
+          @Override
+          public Poll mapRow(ResultSet resultSet, int i) throws SQLException {
+            return new Poll(poolId, resultSet.getInt("topic"), resultSet.getBoolean("multiselect"), poolId == currentPollId);
+          }
+        }, poolId);
+    } catch (EmptyResultDataAccessException exception) {
+      throw new PollNotFoundException();
+    }
   }
 }
