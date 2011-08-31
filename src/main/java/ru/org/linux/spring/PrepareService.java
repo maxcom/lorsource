@@ -81,7 +81,7 @@ public class PrepareService {
   public PreparedMessage prepareMessage(Message message, List<String> tags, boolean includeCut, String mainUrl) {
     try {
       Group group = groupDao.getGroup(message.getGroupId());
-      User author = userDao.getUser(message.getId());
+      User author = userDao.getUser(message.getUid());
       Section section = sectionDao.getSection(message.getSectionId());
 
       DeleteInfo deleteInfo;
