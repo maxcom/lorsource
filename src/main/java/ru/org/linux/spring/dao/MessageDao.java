@@ -51,6 +51,9 @@ public class MessageDao {
 
   private final static String queryTags = "SELECT tags_values.value FROM tags, tags_values WHERE tags.msgid=? AND tags_values.id=tags.tagid ORDER BY value";
 
+  private final static String updateUndeleteMessage = "UPDATE topics SET deleted='f' WHERE id=?";
+  private final static String updateUneleteInfo = "DELETE FROM del_info WHERE msgid=?";
+
   private JdbcTemplate jdbcTemplate;
 
   @Autowired
@@ -147,4 +150,12 @@ public class MessageDao {
     }
     jdbcTemplate.update(updateDeleteInfo, message.getId(), user.getId(), finalReason);
   }
+
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
+  public void undelete(Message message) {
+    jdbcTemplate.update(updateUndeleteMessage, message.getId());
+    jdbcTemplate.update(updateUneleteInfo, message.getId());
+  }
+
+
 }
