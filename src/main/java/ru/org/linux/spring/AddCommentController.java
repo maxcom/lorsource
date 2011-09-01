@@ -241,7 +241,7 @@ public class AddCommentController extends ApplicationObjectSupport {
               request.getRemoteAddr()
       );
 
-      formParams.put("comment", new PreparedComment(userDao, comment, msg));
+      formParams.put("comment", prepareService.prepareComment(comment, msg));
     }
 
     if (!add.isPreviewMode() && !errors.hasErrors()) {
@@ -273,7 +273,7 @@ public class AddCommentController extends ApplicationObjectSupport {
 
   private void prepareReplyto(AddCommentRequest add, Map<String, Object> formParams) throws UserNotFoundException {
     if (add.getReplyto()!=null) {
-      formParams.put("onComment", PreparedComment.prepare(commentDao, userDao, add.getReplyto()));
+      formParams.put("onComment", prepareService.prepareComment(add.getReplyto()));
     }
   }
 

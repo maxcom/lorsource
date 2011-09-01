@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import ru.org.linux.site.*;
 import ru.org.linux.spring.dao.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -28,26 +29,54 @@ import java.util.List;
 @Service
 public class PrepareService {
 
-  @Autowired
   PollDaoImpl pollDao;
-
-  @Autowired
   GroupDao groupDao;
-
-  @Autowired
   UserDao userDao;
-
-  @Autowired
   SectionDao sectionDao;
-
-  @Autowired
   DeleteInfoDao deleteInfoDao;
-
-  @Autowired
   MessageDao messageDao;
+  CommentDao commentDao;
+  UserAgentDao userAgentDao;
 
   @Autowired
-  UserAgentDao userAgentDao;
+  public void setPollDao(PollDaoImpl pollDao) {
+    this.pollDao = pollDao;
+  }
+
+  @Autowired
+  public void setGroupDao(GroupDao groupDao) {
+    this.groupDao = groupDao;
+  }
+
+  @Autowired
+  public void setUserDao(UserDao userDao) {
+    this.userDao = userDao;
+  }
+
+  @Autowired
+  public void setSectionDao(SectionDao sectionDao) {
+    this.sectionDao = sectionDao;
+  }
+
+  @Autowired
+  public void setDeleteInfoDao(DeleteInfoDao deleteInfoDao) {
+    this.deleteInfoDao = deleteInfoDao;
+  }
+
+  @Autowired
+  public void setMessageDao(MessageDao messageDao) {
+    this.messageDao = messageDao;
+  }
+
+  @Autowired
+  public void setCommentDao(CommentDao commentDao) {
+    this.commentDao = commentDao;
+  }
+
+  @Autowired
+  public void setUserAgentDao(UserAgentDao userAgentDao) {
+    this.userAgentDao = userAgentDao;
+  }
 
   /**
    * Функция подготовки голосования
@@ -143,5 +172,43 @@ public class PrepareService {
     } catch (SectionNotFoundException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  public PreparedComment prepareComment(Comment comment, CommentList comments) throws UserNotFoundException {
+    User author = userDao.getUser(comment.getUserid());
+    String processedMessage = commentDao.getPreparedComment(comment.getId());
+    User replyAuthor;
+    if (comment.getReplyTo()!=0 && comments!=null) {
+      CommentNode replyNode = comments.getNode(comment.getReplyTo());
+
+      if (replyNode!=null) {
+        Comment reply = replyNode.getComment();
+        replyAuthor = userDao.getUser(reply.getUserid());
+      } else {
+        replyAuthor = null;
+      }
+    } else {
+      replyAuthor = null;
+    }
+    return new PreparedComment(comment, author, processedMessage, replyAuthor);
+  }
+
+  public PreparedComment prepareComment(Comment comment) throws UserNotFoundException {
+    return prepareComment(comment, (CommentList)null);
+  }
+
+  public PreparedComment prepareComment(Comment comment, String message) throws UserNotFoundException {
+    User author = userDao.getUserCached(comment.getUserid());
+    String processedMessage = PreparedComment.getProcessedMessage(userDao, message).getHtml();
+
+    return new PreparedComment(comment, author, processedMessage, null);
+  }
+
+  public List<PreparedComment> prepareCommentList(CommentList comments, List<Comment> list) throws UserNotFoundException {
+    List<PreparedComment> commentsPrepared = new ArrayList<PreparedComment>(list.size());
+    for (Comment comment : list) {
+      commentsPrepared.add(prepareComment(comment, comments));
+    }
+    return commentsPrepared;
   }
 }
