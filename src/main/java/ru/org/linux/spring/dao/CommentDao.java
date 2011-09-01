@@ -13,6 +13,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.org.linux.site.*;
+import ru.org.linux.spring.SearchQueueSender;
 import ru.org.linux.util.bbcode.ParserUtil;
 
 import javax.sql.DataSource;
@@ -74,6 +75,8 @@ public class CommentDao {
 
   private UserEventsDao userEventsDao;
 
+  private SearchQueueSender searchQueueSender;
+
   @Autowired
   public void setDataSource(DataSource dataSource) {
     jdbcTemplate = new JdbcTemplate(dataSource);
@@ -96,6 +99,11 @@ public class CommentDao {
   @Autowired
   public void setUserEventsDao(UserEventsDao userEventsDao) {
     this.userEventsDao = userEventsDao;
+  }
+
+  @Autowired
+  public void setSearchQueueSender(SearchQueueSender searchQueueSender) {
+    this.searchQueueSender = searchQueueSender;
   }
 
   /**
@@ -356,6 +364,14 @@ public class CommentDao {
           }
         },
         ip, timedelta);
+
+    for(int topicId : deletedTopicIds) {
+      searchQueueSender.updateMessageOnly(topicId);
+    }
+
+    for(int commentId : deletedCommentIds) {
+      searchQueueSender.updateComment(commentId);
+    }
 
     return new DeleteCommentResult(deletedTopicIds, deletedCommentIds, deleteInfo);
   }

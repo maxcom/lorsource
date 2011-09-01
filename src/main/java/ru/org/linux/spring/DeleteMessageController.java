@@ -44,6 +44,8 @@ public class DeleteMessageController extends ApplicationObjectSupport {
   private SectionDao sectionDao;
   @Autowired
   private MessageDao messageDao;
+  @Autowired
+  private PrepareService prepareService;
 
   @RequestMapping(value="/delete.jsp", method= RequestMethod.GET)
   public ModelAndView showForm(
@@ -128,24 +130,15 @@ public class DeleteMessageController extends ApplicationObjectSupport {
       throw new AccessViolationException("Not authorized");
     }
 
-    Connection db = null;
-    try {
-      db = LorDataSource.getConnection();
+    Message message = messageDao.getById(msgid);
 
-      Message message = Message.getMessage(db, msgid);
+    checkUndeletable(message);
 
-      checkUndeletable(message);
+    ModelAndView mv = new ModelAndView("undelete");
+    mv.getModel().put("message", message);
+    mv.getModel().put("preparedMessage", prepareService.prepareMessage(message, true));
 
-      ModelAndView mv = new ModelAndView("undelete");
-      mv.getModel().put("message", message);
-      mv.getModel().put("preparedMessage", new PreparedMessage(db, message, true));
-
-      return mv;
-    } finally {
-      if (db != null) {
-        db.close();
-      }
-    }
+    return mv;
   }
 
   @RequestMapping(value="/undelete.jsp", method=RequestMethod.POST)
@@ -159,48 +152,22 @@ public class DeleteMessageController extends ApplicationObjectSupport {
       throw new AccessViolationException("Not authorized");
     }
 
-    Connection db = null;
-    try {
-      db = LorDataSource.getConnection();
-      db.setAutoCommit(false);
-      tmpl.updateCurrentUser(db);
+    tmpl.updateCurrentUser(userDao);
 
-      Message message = Message.getMessage(db, msgid);
+    Message message = messageDao.getById(msgid);
 
-      checkUndeletable(message);
+    checkUndeletable(message);
 
-      PreparedStatement lock = db.prepareStatement("SELECT deleted FROM topics WHERE id=? FOR UPDATE");
-      PreparedStatement st1 = db.prepareStatement("UPDATE topics SET deleted='f' WHERE id=?");
-      PreparedStatement st2 = db.prepareStatement("DELETE FROM del_info WHERE msgid=?");
-      lock.setInt(1, msgid);
-      st1.setInt(1, msgid);
-      st2.setInt(1, msgid);
-
-      ResultSet lockResult = lock.executeQuery(); // lock another undelete.jsp on this row
-
-      if (lockResult.next() && !lockResult.getBoolean("deleted")) {
-        throw new UserErrorException("Сообщение уже восстановлено");
-      }
-
-      st1.executeUpdate();
-      st2.executeUpdate();
-
-      logger.info("Восстановлено сообщение " + msgid + " пользователем " + tmpl.getNick());
-
-      st1.close();
-      st2.close();
-
-      db.commit();
-      // Undelete msgs from search index 
-      
-      searchQueueSender.updateMessage(msgid, true);
-
-      return new ModelAndView("action-done", "message", "Сообщение восстановлено");
-    } finally {
-      if (db != null) {
-        db.close();
-      }
+    if(message.isDeleted()) {
+      messageDao.undelete(message);
     }
+
+    logger.info("Восстановлено сообщение " + msgid + " пользователем " + tmpl.getNick());
+
+    // Undelete msgs from search index
+    searchQueueSender.updateMessage(msgid, true);
+
+    return new ModelAndView("action-done", "message", "Сообщение восстановлено");
   }
 
   private static void checkUndeletable(Message message) throws AccessViolationException {
