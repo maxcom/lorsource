@@ -96,6 +96,10 @@ public class DelIPController {
     params.put("topics", deleteResult.getDeletedTopicIds().size()); // кол-во удаленных топиков
     params.put("deleted", deleteResult.getDeleteInfo());
 
+    for(int topicId : deleteResult.getDeletedTopicIds()) {
+      searchQueueSender.updateMessage(topicId, true);
+    }
+
     searchQueueSender.updateComment(deletedIds);
 
     return new ModelAndView("delip", params);

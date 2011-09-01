@@ -277,8 +277,12 @@ public class CommentDao {
    * @throws UserNotFoundException генерирует исключение если пользователь отсутствует
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public List<Integer> deleteAllCommentsAndBlock(User user, final User moderator, String reason) throws UserNotFoundException {
-    final List<Integer> deleted = new LinkedList<Integer>();
+  public DeleteCommentResult deleteAllCommentsAndBlock(User user, final User moderator, String reason) throws UserNotFoundException {
+
+    final List<Integer> deletedTopicIds = new ArrayList<Integer>();
+    final List<Integer> deletedCommentIds = new ArrayList<Integer>();
+
+    final Map<Integer, String> deleteInfo = new HashMap<Integer, String>();
 
     userDao.blockWithoutTransaction(user, moderator, reason);
 
@@ -291,6 +295,7 @@ public class CommentDao {
             jdbcTemplate.update("UPDATE topics SET deleted='t',sticky='f' WHERE id=?", mid);
             jdbcTemplate.update("INSERT INTO del_info (msgid, delby, reason, deldate) values(?,?,?, CURRENT_TIMESTAMP)",
                 mid, moderator.getId(), "Блокировка пользователя с удалением сообщений");
+            deletedTopicIds.add(mid);
           }
         },
         user.getId());
@@ -301,14 +306,14 @@ public class CommentDao {
           @Override
           public void processRow(ResultSet resultSet) throws SQLException {
             int msgid = resultSet.getInt("id");
-            deleted.add(msgid);
-            deleted.addAll(deleteReplys(msgid, moderator, false));
+            deletedCommentIds.add(msgid);
+            deletedCommentIds.addAll(deleteReplys(msgid, moderator, false));
             deleteCommentWithoutTransaction(msgid, "Блокировка пользователя с удалением сообщений", moderator, 0);
           }
         },
         user.getId());
 
-    return deleted;
+    return new DeleteCommentResult(deletedTopicIds, deletedCommentIds, null);
   }
 
   /**
