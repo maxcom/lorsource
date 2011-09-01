@@ -32,7 +32,6 @@ import ru.org.linux.site.User;
 import ru.org.linux.site.UserErrorException;
 import ru.org.linux.spring.dao.CommentDao;
 import ru.org.linux.spring.dao.UserDao;
-import ru.org.linux.util.HTMLFormatter;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
@@ -70,7 +69,7 @@ public class UserModificationController extends ApplicationObjectSupport {
    * @return текущий модератор
    * @throws Exception если модератора нет
    */
-  private User getModerator(HttpServletRequest request) throws Exception {
+  private static User getModerator(HttpServletRequest request) throws Exception {
     Template tmpl = Template.getTemplate(request);
     if (!tmpl.isModeratorSession()) {
       throw new AccessViolationException("Not moderator");
@@ -104,14 +103,12 @@ public class UserModificationController extends ApplicationObjectSupport {
 
     userDao.blockWithResetPassword(user, moderator, reason);
     logger.info("User " + user.getNick() + " blocked by " + moderator.getNick());
-    Random random = new Random();
-    return new ModelAndView(new RedirectView("/people/" + URLEncoder.encode(user.getNick()) + "/profile?nocache=" + random.nextInt()));
+    return redirectToProfile(user);
   }
 
   /**
    * Контроллер разблокировки пользователя
    * @param request http запрос
-   * @param action всегда unblock
    * @param user разблокируемый пользователь
    * @return возвращаемся в профиль
    * @throws Exception обычно если текущий пользователь не модератор или пользователя нельзя разблокировать
@@ -119,7 +116,6 @@ public class UserModificationController extends ApplicationObjectSupport {
   @RequestMapping(value = "/usermod.jsp", method = RequestMethod.POST, params = "action=unblock")
   public ModelAndView unblockUser(
       HttpServletRequest request,
-      @RequestParam("action") String action,
       @RequestParam("id") User user
   ) throws Exception {
 
@@ -129,6 +125,10 @@ public class UserModificationController extends ApplicationObjectSupport {
     }
     userDao.unblock(user);
     logger.info("User " + user.getNick() + " unblocked by " + moderator.getNick());
+    return redirectToProfile(user);
+  }
+
+  private static ModelAndView redirectToProfile(User user) {
     Random random = new Random();
     return new ModelAndView(new RedirectView("/people/" + URLEncoder.encode(user.getNick()) + "/profile?nocache=" + random.nextInt()));
   }
@@ -136,7 +136,6 @@ public class UserModificationController extends ApplicationObjectSupport {
   /**
    * Контроллер блокирования и полного удаления комментариев и топиков пользователя
    * @param request http запрос
-   * @param action всегда block-n-delete-comments
    * @param user блокируемый пользователь
    * @return возвращаемся в профиль
    * @throws Exception обычно если текущий пользователь не модератор или пользователя нельзя блокировать
@@ -144,11 +143,9 @@ public class UserModificationController extends ApplicationObjectSupport {
   @RequestMapping(value = "/usermod.jsp", method = RequestMethod.POST, params = "action=block-n-delete-comments")
   public ModelAndView blockAndMassiveDeleteCommentUser(
       HttpServletRequest request,
-      @RequestParam("action") String action,
       @RequestParam("id") User user,
       @RequestParam(value = "reason", required = false) String reason
   ) throws Exception {
-
     User moderator = getModerator(request);
     if (!user.isBlockable() && !moderator.isAdministrator()) {
       throw new AccessViolationException("Пользователя " + user.getNick() + " нельзя заблокировать");
@@ -165,7 +162,6 @@ public class UserModificationController extends ApplicationObjectSupport {
   /**
    * Контроллер смена признака корректора
    * @param request http запрос
-   * @param action всегда toggle_corrector
    * @param user блокируемый пользователь
    * @return возвращаемся в профиль
    * @throws Exception обычно если текущий пользователь не модератор или пользователя нельзя сделать корректором
@@ -173,25 +169,21 @@ public class UserModificationController extends ApplicationObjectSupport {
   @RequestMapping(value = "/usermod.jsp", method = RequestMethod.POST, params = "action=toggle_corrector")
   public ModelAndView toggleUserCorrector(
       HttpServletRequest request,
-      @RequestParam("action") String action,
-      @RequestParam("id") User user,
-      @RequestParam(value = "reason", required = false) String reason
+      @RequestParam("id") User user
   ) throws Exception {
-
     User moderator = getModerator(request);
     if (user.getScore()<User.CORRECTOR_SCORE) {
       throw new AccessViolationException("Пользователя " + user.getNick() + " нельзя сделать корректором");
     }
     userDao.toggleCorrector(user);
+    logger.info("Toggle corrector " + user.getNick() + " by " + moderator.getNick());
 
-    Random random = new Random();
-    return new ModelAndView(new RedirectView("/people/" + URLEncoder.encode(user.getNick()) + "/profile?nocache=" + random.nextInt()));
+    return redirectToProfile(user);
   }
 
   /**
    * Контроллер отчистки дополнительной информации в профиле
    * @param request http запрос
-   * @param action всегда remove_userinfo
    * @param user блокируемый пользователь
    * @return возвращаемся в профиль
    * @throws Exception обычно если текущий пользователь не модератор или нельзя трогать дополнительные сведения
@@ -199,20 +191,16 @@ public class UserModificationController extends ApplicationObjectSupport {
   @RequestMapping(value = "/usermod.jsp", method = RequestMethod.POST, params = "action=remove_userinfo")
   public ModelAndView removeUserInfo(
       HttpServletRequest request,
-      @RequestParam("action") String action,
-      @RequestParam("id") User user,
-      @RequestParam(value = "reason", required = false) String reason
+      @RequestParam("id") User user
   ) throws Exception {
-
     User moderator = getModerator(request);
     if (user.canModerate()) {
       throw new AccessViolationException("Пользователю " + user.getNick() + " нельзя удалить сведения");
     }
     userDao.removeUserInfo(user);
-    logger.info("Clearing " + user.getNick() + " userinfo");
+    logger.info("Clearing " + user.getNick() + " userinfo by " + moderator.getNick());
 
-    Random random = new Random();
-    return new ModelAndView(new RedirectView("/people/" + URLEncoder.encode(user.getNick()) + "/profile?nocache=" + random.nextInt()));
+    return redirectToProfile(user);
   }
 
   @RequestMapping(value="/remove-userpic.jsp", method= RequestMethod.POST)
@@ -243,9 +231,7 @@ public class UserModificationController extends ApplicationObjectSupport {
     userDao.removePhoto(user, currentUser);
     logger.info("Clearing " + user.getNick() + " userpic by " + currentUser.getNick());
 
-    Random random = new Random();
-
-    return new ModelAndView(new RedirectView("/people/" + URLEncoder.encode(user.getNick()) + "/profile?nocache=" + random.nextInt()));
+    return redirectToProfile(user);
   }
 
   @InitBinder
