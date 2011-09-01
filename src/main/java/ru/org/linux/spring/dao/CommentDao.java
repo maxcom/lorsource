@@ -75,8 +75,6 @@ public class CommentDao {
 
   private UserEventsDao userEventsDao;
 
-  private SearchQueueSender searchQueueSender;
-
   @Autowired
   public void setDataSource(DataSource dataSource) {
     jdbcTemplate = new JdbcTemplate(dataSource);
@@ -99,11 +97,6 @@ public class CommentDao {
   @Autowired
   public void setUserEventsDao(UserEventsDao userEventsDao) {
     this.userEventsDao = userEventsDao;
-  }
-
-  @Autowired
-  public void setSearchQueueSender(SearchQueueSender searchQueueSender) {
-    this.searchQueueSender = searchQueueSender;
   }
 
   /**
@@ -369,14 +362,6 @@ public class CommentDao {
           }
         },
         ip, timedelta);
-
-    for(int topicId : deletedTopicIds) {
-      searchQueueSender.updateMessageOnly(topicId);
-    }
-
-    for(int commentId : deletedCommentIds) {
-      searchQueueSender.updateComment(commentId);
-    }
 
     return new DeleteCommentResult(deletedTopicIds, deletedCommentIds, deleteInfo);
   }
