@@ -26,6 +26,7 @@ import ru.org.linux.site.*;
 import ru.org.linux.spring.dao.GroupDao;
 import ru.org.linux.spring.dao.IPBlockDao;
 import ru.org.linux.spring.dao.SectionDao;
+import ru.org.linux.spring.dao.TagDao;
 import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.BadURLException;
 
@@ -42,6 +43,7 @@ public class AddMessageController extends ApplicationObjectSupport {
   private IPBlockDao ipBlockDao;
   private GroupDao groupDao;
   private SectionDao sectionDao;
+  private TagDao tagDao;
 
   @Autowired
   public void setSearchQueueSender(SearchQueueSender searchQueueSender) {
@@ -73,6 +75,11 @@ public class AddMessageController extends ApplicationObjectSupport {
     this.sectionDao = sectionDao;
   }
 
+  @Autowired
+  public void setTagDao(TagDao tagDao) {
+    this.tagDao = tagDao;
+  }
+
   @RequestMapping(value = "/add.jsp", method = RequestMethod.GET)
   public ModelAndView add(HttpServletRequest request) throws Exception {
     Map<String, Object> params = new HashMap<String, Object>();
@@ -93,14 +100,14 @@ public class AddMessageController extends ApplicationObjectSupport {
 
     Section section = sectionDao.getSection(group.getSectionId());
 
+    if (group.isModerated()) {
+      params.put("topTags", tagDao.getTopTags());
+    }
+
     Connection db = null;
 
     try {
       db = LorDataSource.getConnection();
-
-      if (group.isModerated()) {
-        params.put("topTags", Tags.getTopTags(db));
-      }
 
       params.put("addportal", section.getAddInfo(db));
     } finally {
@@ -125,6 +132,10 @@ public class AddMessageController extends ApplicationObjectSupport {
     Group group = groupDao.getGroup(form.getGuid());
     params.put("group", group);
 
+    if (group.isModerated()) {
+      params.put("topTags", tagDao.getTopTags());
+    }
+
     Section section = sectionDao.getSection(group.getSectionId());
 
     Connection db = null;
@@ -137,10 +148,6 @@ public class AddMessageController extends ApplicationObjectSupport {
       db.setAutoCommit(false);
 
       tmpl.updateCurrentUser(db);
-
-      if (group.isModerated()) {
-        params.put("topTags", Tags.getTopTags(db));
-      }
 
       params.put("addportal", section.getAddInfo(db));
 
@@ -179,9 +186,9 @@ public class AddMessageController extends ApplicationObjectSupport {
         }
 
         if (form.getTags() != null) {
-          List<String> tags = Tags.parseTags(form.getTags());
-          Tags.updateTags(db, msgid, tags);
-          Tags.updateCounters(db, Collections.<String>emptyList(), tags);          
+          List<String> tags = TagDao.parseTags(form.getTags());
+          TagDao.updateTags(db, msgid, tags);
+          TagDao.updateCounters(db, Collections.<String>emptyList(), tags);
         }
 
         db.commit();

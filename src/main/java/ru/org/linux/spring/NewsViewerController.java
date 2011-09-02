@@ -36,6 +36,7 @@ import org.springframework.web.servlet.view.RedirectView;
 
 import ru.org.linux.site.*;
 import ru.org.linux.spring.dao.SectionDao;
+import ru.org.linux.spring.dao.TagDao;
 import ru.org.linux.util.DateUtil;
 import ru.org.linux.util.ServletParameterException;
 import ru.org.linux.util.ServletParameterMissingException;
@@ -140,7 +141,7 @@ public class NewsViewerController {
       }
 
       if (tag != null) {
-        Tags.checkTag(tag);
+        TagDao.checkTag(tag);
         params.put("tag", tag);
       }
 

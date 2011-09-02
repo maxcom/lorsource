@@ -1,6 +1,6 @@
 <%@ page contentType="text/html; charset=utf-8" import="java.util.SortedSet,ru.org.linux.site.Group"  %>
 <%@ page import="ru.org.linux.site.ScreenshotProcessor"%>
-<%@ page import="ru.org.linux.site.Tags"%>
+<%@ page import="ru.org.linux.spring.dao.TagDao"%>
 <%@ page import="ru.org.linux.site.Template" %>
 <%@ page import="ru.org.linux.spring.AddMessageForm" %>
 <%@ page import="ru.org.linux.util.HTMLFormatter" %>
@@ -20,6 +20,7 @@
   ~    limitations under the License.
   --%>
 <%--@elvariable id="message" type="ru.org.linux.site.PreparedMessage"--%>
+<%--@elvariable id="group" type="ru.org.linux.site.Group"--%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <% Template tmpl = Template.getTemplate(request);%>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
@@ -131,7 +132,7 @@
   <c:if test="${group.moderated}">
 Метки (разделенные запятой)
 <input type=text name=tags id="tags" size=70 value="<%= form.getTags()==null?"":HTMLFormatter.htmlSpecialChars(StringUtils.strip(form.getTags())) %>"><br>
-  Популярные теги: <%= Tags.getEditTags(topTags) %> <br>
+  Популярные теги: <%= TagDao.getEditTags(topTags) %> <br>
   </c:if>
 <select name=mode>
 <option value=lorcode <%= ("lorcode".equals(mode))?"selected":""%> >LORCODE

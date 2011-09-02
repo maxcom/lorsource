@@ -13,12 +13,18 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.site;
+package ru.org.linux.spring.dao;
 
 import com.google.common.collect.ImmutableList;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.ConnectionCallback;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Repository;
+import ru.org.linux.site.UserErrorException;
 
-import java.io.Serializable;
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -26,12 +32,17 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.regex.Pattern;
 
-public final class Tags implements Serializable {
+@Repository
+public final class TagDao {
   private static final Pattern tagRE = Pattern.compile("([\\p{L}\\d \\+-]+)", Pattern.CASE_INSENSITIVE);
 
   private static final int TOP_TAGS_COUNT = 50;
 
-  private Tags() {
+  private JdbcTemplate jdbcTemplate;
+
+  @Autowired
+  public void setDataSource(DataSource ds) {
+    jdbcTemplate = new JdbcTemplate(ds);
   }
 
   private static synchronized int getOrCreateTag(Connection con, String tag) throws SQLException {
@@ -91,7 +102,21 @@ public final class Tags implements Serializable {
     return str.toString();
   }
 
+  public SortedSet<String> getTopTags()  {
+    return jdbcTemplate.execute(new ConnectionCallback<SortedSet<String>>() {
+      @Override
+      public SortedSet<String> doInConnection(Connection con) throws SQLException, DataAccessException {
+        return getTopTagsInternal(con);
+      }
+    });
+  }
+
+  @Deprecated
   public static SortedSet<String> getTopTags(Connection con) throws SQLException {
+    return getTopTagsInternal(con);
+  }
+
+  private static SortedSet<String> getTopTagsInternal(Connection con) throws SQLException {
     SortedSet<String> set = new TreeSet<String>();
     PreparedStatement st = con.prepareStatement("SELECT counter,value FROM tags_values WHERE counter>1 ORDER BY counter DESC LIMIT " + TOP_TAGS_COUNT);
     ResultSet rs = st.executeQuery();
@@ -223,5 +248,4 @@ public final class Tags implements Serializable {
 
     return modified;
   }
-
 }

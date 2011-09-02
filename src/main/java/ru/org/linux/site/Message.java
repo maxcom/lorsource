@@ -26,6 +26,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 import org.springframework.validation.Errors;
 import ru.org.linux.spring.AddMessageForm;
+import ru.org.linux.spring.dao.TagDao;
 import ru.org.linux.spring.dao.UserDao;
 import ru.org.linux.util.*;
 import ru.org.linux.util.bbcode.ParserUtil;
@@ -480,7 +481,7 @@ public class Message implements Serializable {
     rs.close();
     pstGet.close();
 
-    List<String> oldTags = Tags.getMessageTags(db, msgid);
+    List<String> oldTags = TagDao.getMessageTags(db, msgid);
 
     EditInfoDTO editInfo = new EditInfoDTO();
 
@@ -512,11 +513,11 @@ public class Message implements Serializable {
     }
 
     if (newTags != null) {
-      boolean modifiedTags = Tags.updateTags(db, msgid, newTags);
+      boolean modifiedTags = TagDao.updateTags(db, msgid, newTags);
 
       if (modifiedTags) {
-        editInfo.setOldtags(Tags.toString(oldTags));
-        Tags.updateCounters(db, oldTags, newTags);
+        editInfo.setOldtags(TagDao.toString(oldTags));
+        TagDao.updateCounters(db, oldTags, newTags);
         modified = true;
       }
     }

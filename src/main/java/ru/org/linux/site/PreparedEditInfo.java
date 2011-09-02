@@ -15,6 +15,7 @@
 
 package ru.org.linux.site;
 
+import ru.org.linux.spring.dao.TagDao;
 import ru.org.linux.util.bbcode.ParserUtil;
 
 import java.sql.Connection;
@@ -39,7 +40,7 @@ public class PreparedEditInfo {
     List<String> tags,
     boolean current,
     boolean original
-  ) throws UserNotFoundException, SQLException {
+  ) throws UserNotFoundException {
     this.editInfo = editInfo;
     this.original = original;
 
@@ -92,7 +93,7 @@ public class PreparedEditInfo {
 
     String currentMessage = message.getMessage();
     String currentTitle = message.getTitle();
-    List<String> currentTags = Tags.getMessageTags(db, message.getMessageId());
+    List<String> currentTags = TagDao.getMessageTags(db, message.getMessageId());
 
     for (int i = 0; i<editInfoDTOs.size(); i++) {
       EditInfoDTO dto = editInfoDTOs.get(i);
@@ -118,7 +119,7 @@ public class PreparedEditInfo {
       }
 
       if (dto.getOldtags()!=null) {
-        currentTags = Tags.parseTags(dto.getOldtags());
+        currentTags = TagDao.parseTags(dto.getOldtags());
       }
     }
 

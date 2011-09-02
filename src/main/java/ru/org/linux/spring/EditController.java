@@ -36,6 +36,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
+import ru.org.linux.spring.dao.TagDao;
 
 @Controller
 public class EditController extends ApplicationObjectSupport {
@@ -151,7 +152,7 @@ public class EditController extends ApplicationObjectSupport {
     params.put("commit", false);
 
     if (group.isModerated()) {
-      params.put("topTags", Tags.getTopTags(db));
+      params.put("topTags", TagDao.getTopTags(db));
     }
 
     return new ModelAndView("edit", params);
@@ -189,7 +190,7 @@ public class EditController extends ApplicationObjectSupport {
       params.put("group", group);
 
       if (group.isModerated()) {
-        params.put("topTags", Tags.getTopTags(db));
+        params.put("topTags", TagDao.getTopTags(db));
       }      
 
       params.put("groups", Group.getGroups(db, preparedMessage.getSection()));
@@ -280,7 +281,7 @@ public class EditController extends ApplicationObjectSupport {
       List<String> newTags = null;
 
       if (request.getParameter("tags")!=null) {
-        newTags = Tags.parseTags(request.getParameter("tags"));
+        newTags = TagDao.parseTags(request.getParameter("tags"));
       }
 
       if (!preview) {

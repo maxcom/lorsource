@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import ru.org.linux.site.LorDataSource;
-import ru.org.linux.site.Tags;
+import ru.org.linux.spring.dao.TagDao;
 
 @Controller
 public class TagsController  {
@@ -35,7 +35,7 @@ public class TagsController  {
       db = LorDataSource.getConnection();
 
       Map<String, Object> params = new HashMap<String, Object>();
-      params.put("tags", Tags.getAllTags(db));
+      params.put("tags", TagDao.getAllTags(db));
 
       return new ModelAndView("tags", params);
     } finally {

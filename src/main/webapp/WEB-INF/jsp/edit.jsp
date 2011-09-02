@@ -3,7 +3,7 @@
     import="java.util.SortedSet" %>
 <%@ page import="ru.org.linux.site.Message" %>
 <%@ page import="ru.org.linux.site.PreparedMessage" %>
-<%@ page import="ru.org.linux.site.Tags" %>
+<%@ page import="ru.org.linux.spring.dao.TagDao" %>
 <%@ page import="ru.org.linux.site.Template" %>
 <%@ page import="ru.org.linux.util.HTMLFormatter" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
@@ -95,8 +95,8 @@
 
   <c:if test="${group.moderated}">
   <label>Теги:
-  <input type="text" size="70" name="tags" id="tags" value="<%= Tags.toString(newPreparedMsg.getTags()) %>"><br>
-  Популярные теги: <%= Tags.getEditTags(topTags) %></label> <br>
+  <input type="text" size="70" name="tags" id="tags" value="<%= TagDao.toString(newPreparedMsg.getTags()) %>"><br>
+  Популярные теги: <%= TagDao.getEditTags(topTags) %></label> <br>
     </c:if>
   <br>
   <input type="submit" value="Отредактировать">

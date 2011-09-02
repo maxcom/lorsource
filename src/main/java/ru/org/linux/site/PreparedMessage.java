@@ -16,6 +16,7 @@
 package ru.org.linux.site;
 
 import com.google.common.collect.ImmutableList;
+import ru.org.linux.spring.dao.TagDao;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -45,12 +46,12 @@ public final class PreparedMessage {
 
   @Deprecated
   public PreparedMessage(Connection db, Message message, boolean includeCut) throws SQLException {
-    this(db, message, Tags.getMessageTags(db, message.getId()), includeCut, "");
+    this(db, message, TagDao.getMessageTags(db, message.getId()), includeCut, "");
   }
 
   @Deprecated
   public PreparedMessage(Connection db, Message message, boolean includeCut, String mainUrl) throws SQLException {
-    this(db, message, Tags.getMessageTags(db, message.getId()), includeCut, mainUrl);
+    this(db, message, TagDao.getMessageTags(db, message.getId()), includeCut, mainUrl);
   }
 
   @Deprecated

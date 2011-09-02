@@ -15,6 +15,8 @@
 
 package ru.org.linux.site;
 
+import ru.org.linux.spring.dao.TagDao;
+
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -91,7 +93,7 @@ public class EditInfoDTO {
     current.setEditdate(message.getPostdate());
     current.setEditor(message.getUid());
     current.setMsgid(message.getMessageId());
-    current.setOldtags(Tags.toString(Tags.getMessageTags(db, message.getMessageId())));
+    current.setOldtags(TagDao.toString(TagDao.getMessageTags(db, message.getMessageId())));
 
     return current;
   }
