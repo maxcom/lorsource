@@ -31,6 +31,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 
 import ru.org.linux.site.*;
+import ru.org.linux.spring.dao.GroupDao;
 
 @Controller
 public class TopicModificationController extends ApplicationObjectSupport {
@@ -163,7 +164,7 @@ public class TopicModificationController extends ApplicationObjectSupport {
 
       Section section = new Section(db, message.getSectionId());
 
-      mv.getModel().put("groups", Group.getGroups(db, section));
+      mv.getModel().put("groups", GroupDao.getGroups(db, section));
 
       return mv;
     } finally {
@@ -270,7 +271,7 @@ public class TopicModificationController extends ApplicationObjectSupport {
 
       mv.getModel().put("message", message);
 
-      mv.getModel().put("groups", Group.getGroups(db, new Section(db, 2)));
+      mv.getModel().put("groups", GroupDao.getGroups(db, new Section(db, 2)));
 
       return mv;
     } finally {

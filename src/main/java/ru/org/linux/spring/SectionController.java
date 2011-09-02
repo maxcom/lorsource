@@ -26,9 +26,9 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.view.RedirectView;
 
-import ru.org.linux.site.Group;
 import ru.org.linux.site.LorDataSource;
 import ru.org.linux.site.Section;
+import ru.org.linux.spring.dao.GroupDao;
 
 @Controller
 public class SectionController {
@@ -42,7 +42,7 @@ public class SectionController {
 
       Map<String, Object> params = new HashMap<String, Object>();
       params.put("section", section);
-      params.put("groups", Group.getGroups(db, section));
+      params.put("groups", GroupDao.getGroups(db, section));
 
       return new ModelAndView("section", params);
     } finally {

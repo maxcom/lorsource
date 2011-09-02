@@ -30,6 +30,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 
 import ru.org.linux.site.*;
+import ru.org.linux.spring.dao.GroupDao;
 import ru.org.linux.util.ServletParameterBadValueException;
 
 @Controller
@@ -128,7 +129,7 @@ public class GroupController {
       Section section = new Section(db, Section.SECTION_FORUM);
       Group group = section.getGroup(db, groupName);
 
-      params.put("groupList", Group.getGroups(db, section));
+      params.put("groupList", GroupDao.getGroups(db, section));
 
       if (showDeleted && !"POST".equals(request.getMethod())) {
         return new ModelAndView(new RedirectView(group.getUrl()));

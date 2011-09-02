@@ -36,6 +36,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
+import ru.org.linux.spring.dao.GroupDao;
 import ru.org.linux.spring.dao.TagDao;
 
 @Controller
@@ -139,7 +140,7 @@ public class EditController extends ApplicationObjectSupport {
     Group group = Group.getGroup(db, message.getGroupId());
     params.put("group", group);
 
-    params.put("groups", Group.getGroups(db, preparedMessage.getSection()));
+    params.put("groups", GroupDao.getGroups(db, preparedMessage.getSection()));
 
     params.put("newMsg", message);
     params.put("newPreparedMessage", preparedMessage);
@@ -193,7 +194,7 @@ public class EditController extends ApplicationObjectSupport {
         params.put("topTags", TagDao.getTopTags(db));
       }      
 
-      params.put("groups", Group.getGroups(db, preparedMessage.getSection()));
+      params.put("groups", GroupDao.getGroups(db, preparedMessage.getSection()));
 
       User user = tmpl.getCurrentUser();
 

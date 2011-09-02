@@ -251,17 +251,8 @@ public class AddMessageController extends ApplicationObjectSupport {
 
     params.put("info", sectionDao.getAddInfo(section.getId()));
 
-    Connection db = null;
-    try {
-      db = LorDataSource.getConnection();
+    params.put("groups", groupDao.getGroups(section));
 
-      params.put("groups", Group.getGroups(db, section));
-
-      return new ModelAndView("add-section", params);
-    } finally {
-      if (db!=null) {
-        db.close();
-      }
-    }
+    return new ModelAndView("add-section", params);
   }
 }
