@@ -27,15 +27,17 @@ import ru.org.linux.site.SectionNotFoundException;
 import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 
 @Component
 public class SectionDao {
   private final ImmutableMap<Integer, Section> sections;
   private final ImmutableList<Section> sectionsList;
+  private final JdbcTemplate jdbcTemplate;
 
   @Autowired
-  public SectionDao(DataSource ds) throws SQLException {
-    JdbcTemplate jdbcTemplate = new JdbcTemplate(ds);
+  public SectionDao(DataSource ds) {
+    jdbcTemplate = new JdbcTemplate(ds);
 
     final ImmutableMap.Builder<Integer, Section> sections = ImmutableMap.builder();
     final ImmutableList.Builder<Section> sectionsList = ImmutableList.builder();
@@ -66,5 +68,15 @@ public class SectionDao {
 
   public ImmutableList<Section> getSectionsList() {
     return sectionsList;
+  }
+
+  public String getAddInfo(int id) {
+    List<String> infos = jdbcTemplate.queryForList("select add_info from sections where id=?", String.class, id);
+
+    if (infos.isEmpty()) {
+      return null;
+    } else {
+      return infos.get(0);
+    }
   }
 }

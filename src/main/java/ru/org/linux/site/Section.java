@@ -15,12 +15,12 @@
 
 package ru.org.linux.site;
 
+import org.springframework.jdbc.support.JdbcUtils;
+
 import java.io.Serializable;
 import java.sql.*;
 import java.util.HashMap;
 import java.util.Map;
-
-import org.springframework.jdbc.support.JdbcUtils;
 
 public class Section implements Serializable {
   private final String name;
@@ -141,31 +141,6 @@ public class Section implements Serializable {
         return null;
       } else {
         return rs.getTimestamp("max");
-      }
-    } finally {
-      if (rs!=null) {
-        rs.close();
-      }
-
-      if (st!=null) {
-        st.close();
-      }
-    }
-  }
-
-  public String getAddInfo(Connection db) throws SQLException {
-    Statement st = null;
-    ResultSet rs = null;
-
-    try {
-      st = db.createStatement();
-
-      rs = st.executeQuery("select add_info from sections where id=" + id);
-
-      if (!rs.next()) {
-        return null;
-      } else {
-        return rs.getString("add_info");
       }
     } finally {
       if (rs!=null) {

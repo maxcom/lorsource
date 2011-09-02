@@ -99,23 +99,11 @@ public class AddMessageController extends ApplicationObjectSupport {
 
     params.put("group", group);
 
-    Section section = sectionDao.getSection(group.getSectionId());
-
     if (group.isModerated()) {
       params.put("topTags", tagDao.getTopTags());
     }
 
-    Connection db = null;
-
-    try {
-      db = LorDataSource.getConnection();
-
-      params.put("addportal", section.getAddInfo(db));
-    } finally {
-      if (db != null) {
-        db.close();
-      }
-    }
+    params.put("addportal", sectionDao.getAddInfo(group.getSectionId()));
 
     return new ModelAndView("add", params);
   }
@@ -137,7 +125,7 @@ public class AddMessageController extends ApplicationObjectSupport {
       params.put("topTags", tagDao.getTopTags());
     }
 
-    Section section = sectionDao.getSection(group.getSectionId());
+    params.put("addportal", sectionDao.getAddInfo(group.getSectionId()));
 
     Connection db = null;
     Exception error = null;
@@ -149,8 +137,6 @@ public class AddMessageController extends ApplicationObjectSupport {
       db.setAutoCommit(false);
 
       tmpl.updateCurrentUser(db);
-
-      params.put("addportal", section.getAddInfo(db));
 
       User user = form.validateAndGetUser(tmpl, db);
 
@@ -259,15 +245,15 @@ public class AddMessageController extends ApplicationObjectSupport {
 
     params.put("sectionId", sectionId);
 
+    Section section = sectionDao.getSection(sectionId);
+
+    params.put("section", section);
+
+    params.put("info", sectionDao.getAddInfo(section.getId()));
+
     Connection db = null;
     try {
       db = LorDataSource.getConnection();
-
-      Section section = new Section(db, sectionId);
-
-      params.put("section", section);
-
-      params.put("info", section.getAddInfo(db));
 
       params.put("groups", Group.getGroups(db, section));
 
