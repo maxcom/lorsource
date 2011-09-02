@@ -188,7 +188,8 @@
   </c:choose>
 </div>
 <div class="nav">
-<c:if test="${not moderateMode and not message.expired}">
+<c:set var="commentsAllowed"><%= message.isCommentsAllowed(currentUser) %></c:set>
+<c:if test="${not moderateMode and commentsAllowed}">
   [<a href="comment-message.jsp?topic=${message.id}">Добавить&nbsp;комментарий</a>]
 </c:if>
   <c:if test="${moderateMode and template.sessionAuthorized}">
