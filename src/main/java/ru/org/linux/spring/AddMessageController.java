@@ -20,6 +20,7 @@ import org.springframework.context.support.ApplicationObjectSupport;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.site.*;
@@ -250,5 +251,31 @@ public class AddMessageController extends ApplicationObjectSupport {
     }
 
     return new ModelAndView("add-poll");
+  }
+
+  @RequestMapping(value = "/add-section.jsp")
+  public ModelAndView showForm(@RequestParam("section") int sectionId) throws Exception {
+    Map<String, Object> params = new HashMap<String, Object>();
+
+    params.put("sectionId", sectionId);
+
+    Connection db = null;
+    try {
+      db = LorDataSource.getConnection();
+
+      Section section = new Section(db, sectionId);
+
+      params.put("section", section);
+
+      params.put("info", section.getAddInfo(db));
+
+      params.put("groups", Group.getGroups(db, section));
+
+      return new ModelAndView("add-section", params);
+    } finally {
+      if (db!=null) {
+        db.close();
+      }
+    }
   }
 }
