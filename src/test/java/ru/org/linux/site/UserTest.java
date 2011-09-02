@@ -291,4 +291,213 @@ public class UserTest {
     Assert.assertEquals(resultSet.getString("name"), user.getName());
   }
 
+  /**
+   * проверка для пользователя с 1-ой звездами
+   * @throws Exception хм
+   */
+  @Test
+  public void user1starTest() throws Exception {
+    ResultSet resultSet;
+    resultSet = mock(ResultSet.class);
+    when(resultSet.getInt("id")).thenReturn(14);
+    when(resultSet.getString("nick")).thenReturn("user1star");
+    when(resultSet.getBoolean("canmod")).thenReturn(false);
+    when(resultSet.getBoolean("candel")).thenReturn(false);
+    when(resultSet.getBoolean("corrector")).thenReturn(false);
+    when(resultSet.getBoolean("activated")).thenReturn(true);
+    when(resultSet.getBoolean("blocked")).thenReturn(false);
+    when(resultSet.getInt("score")).thenReturn(110);
+    when(resultSet.getInt("max_score")).thenReturn(110);
+    when(resultSet.getString("name")).thenReturn("1 star");
+    when(resultSet.getString("passwd")).thenReturn("S+Q/c5dtkvNxO42uEcQBdP8r32zOfdUq");
+    when(resultSet.getString("photo")).thenReturn(null);
+    when(resultSet.getString("email")).thenReturn(null);
+    when(resultSet.getInt("unread_events")).thenReturn(13);
+
+    User user = new User(resultSet);
+
+    Assert.assertEquals(resultSet.getInt("id"), user.getId());
+    Assert.assertEquals(resultSet.getString("nick"), user.getNick());
+    Assert.assertTrue(user.matchPassword("passwd"));
+    try {
+      user.checkAnonymous();
+    } catch (AccessViolationException e) {
+      Assert.fail();
+    }
+    try {
+      user.checkBlocked();
+    } catch (AccessViolationException e) {
+      Assert.fail();
+    }
+    try {
+      user.checkCommit();
+      Assert.fail();
+    } catch (AccessViolationException e) {
+      Assert.assertEquals("Commit access denied for user "+
+          resultSet.getString("nick") + " (" +
+          resultSet.getInt("id") + ") ", e.getMessage());
+    }
+    Assert.assertFalse(user.isBlocked());
+    try {
+      user.checkDelete();
+      Assert.fail();
+    } catch (AccessViolationException e) {
+      Assert.assertEquals("Delete access denied for user "+
+          resultSet.getString("nick") + " (" +
+          resultSet.getInt("id") + ") ", e.getMessage());
+    }
+    Assert.assertFalse(user.canModerate());
+    Assert.assertFalse(user.isAdministrator());
+    Assert.assertFalse(user.canCorrect());
+    Assert.assertFalse(user.isAnonymous());
+    Assert.assertEquals(resultSet.getInt("score"), user.getScore());
+    Assert.assertEquals("<img src=\"/img/normal-star.gif\" width=9 height=9 alt=\"*\">", user.getStatus());
+    Assert.assertTrue(user.isBlockable());
+    Assert.assertTrue(user.isActivated());
+    Assert.assertFalse(user.isAnonymousScore());
+    Assert.assertEquals(resultSet.getBoolean("corrector"), user.isCorrector());
+    Assert.assertEquals(resultSet.getString("email"), user.getEmail());
+    Assert.assertFalse(user.hasGravatar());
+    Assert.assertEquals(resultSet.getString("name"), user.getName());
+  }
+
+  /**
+   * проверка для пользователя с < 50 score
+   * @throws Exception хм
+   */
+  @Test
+  public void user45scoreTest() throws Exception {
+    ResultSet resultSet;
+    resultSet = mock(ResultSet.class);
+    when(resultSet.getInt("id")).thenReturn(15);
+    when(resultSet.getString("nick")).thenReturn("user45score");
+    when(resultSet.getBoolean("canmod")).thenReturn(false);
+    when(resultSet.getBoolean("candel")).thenReturn(false);
+    when(resultSet.getBoolean("corrector")).thenReturn(false);
+    when(resultSet.getBoolean("activated")).thenReturn(true);
+    when(resultSet.getBoolean("blocked")).thenReturn(false);
+    when(resultSet.getInt("score")).thenReturn(45);
+    when(resultSet.getInt("max_score")).thenReturn(45);
+    when(resultSet.getString("name")).thenReturn("45 score");
+    when(resultSet.getString("passwd")).thenReturn("S+Q/c5dtkvNxO42uEcQBdP8r32zOfdUq");
+    when(resultSet.getString("photo")).thenReturn(null);
+    when(resultSet.getString("email")).thenReturn(null);
+    when(resultSet.getInt("unread_events")).thenReturn(13);
+
+    User user = new User(resultSet);
+
+    Assert.assertEquals(resultSet.getInt("id"), user.getId());
+    Assert.assertEquals(resultSet.getString("nick"), user.getNick());
+    Assert.assertTrue(user.matchPassword("passwd"));
+    try {
+      user.checkAnonymous();
+    } catch (AccessViolationException e) {
+      Assert.fail();
+    }
+    try {
+      user.checkBlocked();
+    } catch (AccessViolationException e) {
+      Assert.fail();
+    }
+    try {
+      user.checkCommit();
+      Assert.fail();
+    } catch (AccessViolationException e) {
+      Assert.assertEquals("Commit access denied for user "+
+          resultSet.getString("nick") + " (" +
+          resultSet.getInt("id") + ") ", e.getMessage());
+    }
+    Assert.assertFalse(user.isBlocked());
+    try {
+      user.checkDelete();
+      Assert.fail();
+    } catch (AccessViolationException e) {
+      Assert.assertEquals("Delete access denied for user "+
+          resultSet.getString("nick") + " (" +
+          resultSet.getInt("id") + ") ", e.getMessage());
+    }
+    Assert.assertFalse(user.canModerate());
+    Assert.assertFalse(user.isAdministrator());
+    Assert.assertFalse(user.canCorrect());
+    Assert.assertFalse(user.isAnonymous());
+    Assert.assertEquals(resultSet.getInt("score"), user.getScore());
+    Assert.assertEquals("анонимный", user.getStatus());
+    Assert.assertTrue(user.isBlockable());
+    Assert.assertTrue(user.isActivated());
+    Assert.assertTrue(user.isAnonymousScore());
+    Assert.assertEquals(resultSet.getBoolean("corrector"), user.isCorrector());
+    Assert.assertEquals(resultSet.getString("email"), user.getEmail());
+    Assert.assertFalse(user.hasGravatar());
+    Assert.assertEquals(resultSet.getString("name"), user.getName());
+  }
+
+  /**
+   * проверка для пользователя с < 50 score
+   * @throws Exception хм
+   */
+  @Test
+  public void userBlockedTest() throws Exception {
+    ResultSet resultSet;
+    resultSet = mock(ResultSet.class);
+    when(resultSet.getInt("id")).thenReturn(16);
+    when(resultSet.getString("nick")).thenReturn("userBlocked");
+    when(resultSet.getBoolean("canmod")).thenReturn(false);
+    when(resultSet.getBoolean("candel")).thenReturn(false);
+    when(resultSet.getBoolean("corrector")).thenReturn(false);
+    when(resultSet.getBoolean("activated")).thenReturn(true);
+    when(resultSet.getBoolean("blocked")).thenReturn(true);
+    when(resultSet.getInt("score")).thenReturn(45);
+    when(resultSet.getInt("max_score")).thenReturn(45);
+    when(resultSet.getString("name")).thenReturn("blocked");
+    when(resultSet.getString("passwd")).thenReturn("S+Q/c5dtkvNxO42uEcQBdP8r32zOfdUq");
+    when(resultSet.getString("photo")).thenReturn(null);
+    when(resultSet.getString("email")).thenReturn(null);
+    when(resultSet.getInt("unread_events")).thenReturn(13);
+
+    User user = new User(resultSet);
+
+    Assert.assertEquals(resultSet.getInt("id"), user.getId());
+    Assert.assertEquals(resultSet.getString("nick"), user.getNick());
+    Assert.assertTrue(user.matchPassword("passwd"));
+    try {
+      user.checkAnonymous();
+      Assert.fail();
+    } catch (AccessViolationException e) {
+      Assert.assertEquals("Anonymous user", e.getMessage());
+    }
+    try {
+      user.checkBlocked();
+      Assert.fail();
+    } catch (AccessViolationException e) {
+      Assert.assertEquals("Пользователь заблокирован", e.getMessage());
+    }
+    try {
+      user.checkCommit();
+      Assert.fail();
+    } catch (AccessViolationException e) {
+      Assert.assertEquals("Commit access denied for anonymous user", e.getMessage());
+    }
+    Assert.assertTrue(user.isBlocked());
+    try {
+      user.checkDelete();
+      Assert.fail();
+    } catch (AccessViolationException e) {
+      Assert.assertEquals("Delete access denied for anonymous user", e.getMessage());
+    }
+    Assert.assertFalse(user.canModerate());
+    Assert.assertFalse(user.isAdministrator());
+    Assert.assertFalse(user.canCorrect());
+    Assert.assertFalse(user.isAnonymous());  // TODO для заблокированного ананомного пользователя False :-\
+    Assert.assertEquals(resultSet.getInt("score"), user.getScore());
+    Assert.assertEquals("анонимный", user.getStatus());
+    Assert.assertTrue(user.isBlockable());
+    Assert.assertTrue(user.isActivated());
+    Assert.assertTrue(user.isAnonymousScore());
+    Assert.assertEquals(resultSet.getBoolean("corrector"), user.isCorrector());
+    Assert.assertEquals(resultSet.getString("email"), user.getEmail());
+    Assert.assertFalse(user.hasGravatar());
+    Assert.assertEquals(resultSet.getString("name"), user.getName());
+  }
+
+
 }
