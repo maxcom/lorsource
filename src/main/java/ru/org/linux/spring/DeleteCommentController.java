@@ -29,7 +29,6 @@ import ru.org.linux.spring.dao.UserDao;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import java.sql.Connection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -41,6 +40,7 @@ public class DeleteCommentController {
   private CommentDao commentDao;
   private MessageDao messageDao;
   private UserDao userDao;
+  private PrepareService prepareService;
 
   private static final int DELETE_PERIOD = 60 * 60 * 1000; // milliseconds
 
@@ -63,6 +63,11 @@ public class DeleteCommentController {
   @Autowired
   public void setUserDao(UserDao userDao) {
     this.userDao = userDao;
+  }
+
+  @Autowired
+  public void setPrepareService(PrepareService prepareService) {
+    this.prepareService = prepareService;
   }
 
   @RequestMapping(value = "/delete_comment.jsp", method = RequestMethod.GET)
@@ -103,7 +108,7 @@ public class DeleteCommentController {
 
     List<Comment> list = cv.getCommentsSubtree(msgid);
 
-    params.put("commentsPrepared", PreparedComment.prepare(commentDao, userDao, comments, list));
+    params.put("commentsPrepared", prepareService.prepareCommentList(comments, list));
     params.put("comments", comments);
 
     return new ModelAndView("delete_comment", params);

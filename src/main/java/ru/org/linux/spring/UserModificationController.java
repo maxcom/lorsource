@@ -31,13 +31,13 @@ import ru.org.linux.site.Template;
 import ru.org.linux.site.User;
 import ru.org.linux.site.UserErrorException;
 import ru.org.linux.spring.dao.CommentDao;
+import ru.org.linux.spring.dao.DeleteCommentResult;
 import ru.org.linux.spring.dao.UserDao;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import java.net.URLEncoder;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
@@ -152,10 +152,17 @@ public class UserModificationController extends ApplicationObjectSupport {
     }
     Map<String, Object> params = new HashMap<String, Object>();
     params.put("message", "Удалено");
-    List<Integer> deleted = commentDao.deleteAllCommentsAndBlock(user, moderator, reason);
+    DeleteCommentResult deleteCommentResult = commentDao.deleteAllCommentsAndBlock(user, moderator, reason);
+
     logger.info("User " + user.getNick() + " blocked by " + moderator.getNick());
-    params.put("bigMessage", deleted);
-    searchQueueSender.updateComment(deleted);
+
+    params.put("bigMessage", deleteCommentResult.getDeletedCommentIds()); // TODO
+
+    for(int topicId : deleteCommentResult.getDeletedTopicIds()) {
+      searchQueueSender.updateMessage(topicId, true);
+    }
+    searchQueueSender.updateComment(deleteCommentResult.getDeletedCommentIds());
+
     return new ModelAndView("action-done", params);
   }
 
