@@ -1,9 +1,9 @@
-<%@ tag import="java.text.DateFormat" %>
 <%@ tag import="ru.org.linux.site.Comment" %>
 <%@ tag import="ru.org.linux.site.CommentNode" %>
 <%@ tag import="ru.org.linux.site.Template" %>
 <%@ tag import="ru.org.linux.site.User" %>
 <%@ tag import="ru.org.linux.util.HTMLFormatter" %>
+<%@ tag import="java.text.DateFormat" %>
 <%@ tag pageEncoding="UTF-8"%>
 <%--
   ~ Copyright 1998-2010 Linux.org.ru
@@ -46,7 +46,7 @@
     DateFormat dateFormat = tmpl.dateFormat;
 
     if (!comment.getComment().isDeleted()) {
-      out.append("[<a href=\"/jump-message.jsp?msgid=").append(Integer.toString(comment.getComment().getTopic())).append("&amp;cid=").append(Integer.toString(comment.getComment().getMessageId())).append("\">#</a>]");
+      out.append("[<a href=\"/jump-message.jsp?msgid=").append(Integer.toString(comment.getComment().getTopicId())).append("&amp;cid=").append(Integer.toString(comment.getComment().getMessageId())).append("\">#</a>]");
     }
 
     if (comment.getComment().isDeleted()) {
@@ -102,9 +102,9 @@
     <c:if test="${fn:length(comment.comment.title)>0}">
       <h2>${comment.comment.title}</h2>
     </c:if>
-  <%
-    out.append(comment.getProcessedMessage());
-  %>
+
+    ${comment.processedMessage}
+
     <div class=sign>
       <lor:sign postdate="${comment.comment.postdate}" user="${comment.author}" shortMode="false"/>
       <c:if test="${template.moderatorSession}">
@@ -115,22 +115,21 @@
         </c:if>
       </c:if>
     </div>
+<c:if test="${not comment.comment.deleted and showMenu}">
+    <div class=reply>
 <%
-  User currentUser = tmpl.getCurrentUser();
-
-  if (!comment.getComment().isDeleted() && showMenu) {
-    out.append("<div class=reply>");
+    User currentUser = tmpl.getCurrentUser();
 
     if (topic.isCommentsAllowed(currentUser)) {
-      out.append("[<a href=\"add_comment.jsp?topic=").append(Integer.toString(comment.getComment().getTopic())).append("&amp;replyto=").append(Integer.toString(comment.getComment().getMessageId())).append("\">Ответить на это сообщение</a>] ");
+      out.append("[<a href=\"add_comment.jsp?topic=").append(Integer.toString(comment.getComment().getTopicId())).append("&amp;replyto=").append(Integer.toString(comment.getComment().getMessageId())).append("\">Ответить на это сообщение</a>] ");
     }
 
-    if (moderatorMode || author.getNick().equals(tmpl.getNick())) {
+    if (moderatorMode || (!topic.isExpired() && author.getNick().equals(tmpl.getNick()))) {
       out.append("[<a href=\"delete_comment.jsp?msgid=").append(Integer.toString(comment.getComment().getMessageId())).append("\">Удалить</a>]");
     }
-
-    out.append("</div>");
-  }
 %>
+     </div>
+</c:if>
+
   </div><div style="clear: both"></div>
 </div>
