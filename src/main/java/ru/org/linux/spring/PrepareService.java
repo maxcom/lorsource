@@ -37,6 +37,7 @@ public class PrepareService {
   MessageDao messageDao;
   CommentDao commentDao;
   UserAgentDao userAgentDao;
+  Configuration configuration;
 
   @Autowired
   public void setPollDao(PollDaoImpl pollDao) {
@@ -78,6 +79,11 @@ public class PrepareService {
     this.userAgentDao = userAgentDao;
   }
 
+  @Autowired
+  public void setConfiguration(Configuration configuration) {
+    this.configuration = configuration;
+  }
+
   /**
    * Функция подготовки голосования
    * @param poll голосование
@@ -88,15 +94,11 @@ public class PrepareService {
   }
 
   public PreparedMessage prepareMessage(Message message, boolean includeCut) {
-    return prepareMessage(message, includeCut, "");
-  }
-
-  public PreparedMessage prepareMessage(Message message, boolean includeCut, String mainUrl) {
-    return prepareMessage(message, messageDao.getTags(message), includeCut, mainUrl);
+    return prepareMessage(message, messageDao.getTags(message), includeCut);
   }
 
   public PreparedMessage prepareMessage(Message message, List<String> tags) {
-    return prepareMessage(message, tags, true, "");
+    return prepareMessage(message, tags, true);
   }
 
   /**
@@ -104,10 +106,9 @@ public class PrepareService {
    * @param message топик
    * @param tags список тэгов
    * @param includeCut отображать ли cut
-   * @param mainUrl базовый URL сайта, обычно (http://www.linux.org.ru/)
    * @return подготовленный топик
    */
-  public PreparedMessage prepareMessage(Message message, List<String> tags, boolean includeCut, String mainUrl) {
+  public PreparedMessage prepareMessage(Message message, List<String> tags, boolean includeCut) {
     try {
       Group group = groupDao.getGroup(message.getGroupId());
       User author = userDao.getUser(message.getUid());
@@ -159,7 +160,7 @@ public class PrepareService {
         editCount = 0;
       }
 
-      String processedMessage = message.getProcessedMessage(userDao, includeCut, mainUrl);
+      String processedMessage = message.getProcessedMessage(userDao, includeCut, configuration.getMainUrl());
       String userAgent = userAgentDao.getUserAgentById(message.getUserAgent());
 
       return new PreparedMessage(message, author, deleteInfo, deleteUser, processedMessage, preparedPoll, commiter, tags, group, section, lastEditInfo, lastEditor, editCount, userAgent);
