@@ -23,7 +23,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.site.*;
+import ru.org.linux.spring.dao.GroupDao;
 import ru.org.linux.spring.dao.IPBlockDao;
+import ru.org.linux.spring.dao.SectionDao;
 import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.BadURLException;
 
@@ -38,6 +40,8 @@ public class AddMessageController extends ApplicationObjectSupport {
   private CaptchaService captcha;
   private DupeProtector dupeProtector;
   private IPBlockDao ipBlockDao;
+  private GroupDao groupDao;
+  private SectionDao sectionDao;
 
   @Autowired
   public void setSearchQueueSender(SearchQueueSender searchQueueSender) {
@@ -59,6 +63,16 @@ public class AddMessageController extends ApplicationObjectSupport {
     this.ipBlockDao = ipBlockDao;
   }
 
+  @Autowired
+  public void setGroupDao(GroupDao groupDao) {
+    this.groupDao = groupDao;
+  }
+
+  @Autowired
+  public void setSectionDao(SectionDao sectionDao) {
+    this.sectionDao = sectionDao;
+  }
+
   @RequestMapping(value = "/add.jsp", method = RequestMethod.GET)
   public ModelAndView add(HttpServletRequest request) throws Exception {
     Map<String, Object> params = new HashMap<String, Object>();
@@ -69,28 +83,26 @@ public class AddMessageController extends ApplicationObjectSupport {
     form.setMode(tmpl.getFormatMode());
     params.put("form", form);
 
+    Group group = groupDao.getGroup(form.getGuid());
+
+    if (!group.isTopicPostingAllowed(tmpl.getCurrentUser())) {
+      throw new AccessViolationException("Не достаточно прав для постинга тем в эту группу");
+    }
+
+    params.put("group", group);
+
+    Section section = sectionDao.getSection(group.getSectionId());
+
     Connection db = null;
 
     try {
       db = LorDataSource.getConnection();
 
-      Integer groupId = form.getGuid();
-
-      Group group = Group.getGroup(db, groupId);
-
       if (group.isModerated()) {
         params.put("topTags", Tags.getTopTags(db));
       }
 
-      User currentUser = tmpl.getCurrentUser();
-
-      if (!group.isTopicPostingAllowed(currentUser)) {
-        throw new AccessViolationException("Не достаточно прав для постинга тем в эту группу");
-      }
-
-      Section section = new Section(db, group.getSectionId());
       params.put("addportal", section.getAddInfo(db));
-      params.put("group", group);
     } finally {
       if (db != null) {
         db.close();
@@ -110,6 +122,11 @@ public class AddMessageController extends ApplicationObjectSupport {
     AddMessageForm form = new AddMessageForm(request, tmpl);
     params.put("form", form);
 
+    Group group = groupDao.getGroup(form.getGuid());
+    params.put("group", group);
+
+    Section section = sectionDao.getSection(group.getSectionId());
+
     Connection db = null;
     Exception error = null;
 
@@ -121,14 +138,10 @@ public class AddMessageController extends ApplicationObjectSupport {
 
       tmpl.updateCurrentUser(db);
 
-      Group group = Group.getGroup(db, form.getGuid());
-
       if (group.isModerated()) {
         params.put("topTags", Tags.getTopTags(db));
       }
 
-      params.put("group", group);
-      Section section = new Section(db, group.getSectionId());
       params.put("addportal", section.getAddInfo(db));
 
       User user = form.validateAndGetUser(tmpl, db);
