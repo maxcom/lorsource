@@ -197,7 +197,11 @@ public class UserDao {
    * @param delta дельта на которую меняется шкворец
    */
   public void changeScore(int id, int delta) {
-    jdbcTemplate.update(queryChangeScore, delta, id);
+    if (jdbcTemplate.update(queryChangeScore, delta, id)==0) {
+      throw new IllegalArgumentException(new UserNotFoundException(id));
+    }
+
+    updateCache(id);
   }
 
   /**
@@ -250,16 +254,22 @@ public class UserDao {
   /**
    * Блокирование пользователя без транзакации(используется в CommentDao для массового удаления с блокировкой)
    * @param user пользователь которого блокируем
-   * @param moderator моджератор который блокирует
+   * @param moderator модератор который блокирует
    * @param reason причина блокировки
-   * @throws UserNotFoundException если пользовтаеля нет, генерируем это исклюучение
    */
-  public void blockWithoutTransaction(User user, User moderator, String reason) throws UserNotFoundException {
+  public void blockWithoutTransaction(User user, User moderator, String reason) {
     jdbcTemplate.update("UPDATE users SET blocked='t' WHERE id=?", user.getId());
     jdbcTemplate.update("INSERT INTO ban_info (userid, reason, ban_by) VALUES (?, ?, ?)",
         user.getId(), reason, moderator.getId());
-    // Update cache
-    getUser(user.getId());
+    updateCache(user.getId());
+  }
+
+  private void updateCache(int id) {
+    try {
+      getUser(id);
+    } catch (UserNotFoundException e) {
+      throw new IllegalArgumentException(e);
+    }
   }
 
   /**
@@ -267,10 +277,9 @@ public class UserDao {
    * @param user блокируемый пользователь
    * @param moderator модератор который блокирует пользователя
    * @param reason причина блокировки
-   * @throws UserNotFoundException исключение, если отсутстсвует пользователь
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public void blockWithResetPassword(User user, User moderator, String reason) throws UserNotFoundException {
+  public void blockWithResetPassword(User user, User moderator, String reason) {
 
     jdbcTemplate.update("UPDATE users SET blocked='t' WHERE id=?", user.getId());
     jdbcTemplate.update("INSERT INTO ban_info (userid, reason, ban_by) VALUES (?, ?, ?)",
@@ -279,8 +288,7 @@ public class UserDao {
     String password = encryptor.encryptPassword(StringUtil.generatePassword());
     jdbcTemplate.update("UPDATE users SET passwd=?, lostpwd = 'epoch' WHERE id=?",
         password, user.getId());
-    // Update cache
-    getUser(user.getId());
+    updateCache(user.getId());
   }
 
 

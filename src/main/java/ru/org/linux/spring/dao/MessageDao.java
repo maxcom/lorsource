@@ -134,18 +134,17 @@ public class MessageDao {
    * @param user удаляющий пользователь
    * @param reason прчина удаления
    * @param bonus дельта изменения score автора топика
-   * @throws MessageNotFoundException генерируется если сообщение не существует
    * @throws UserErrorException генерируется если некорректная делта score
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public void deleteWithBonus(Message message, User user, String reason, int bonus) throws MessageNotFoundException, UserErrorException {
+  public void deleteWithBonus(Message message, User user, String reason, int bonus) throws UserErrorException {
     String finalReason = reason;
     jdbcTemplate.update(updateDeleteMessage, message.getId());
     if (user.canModerate() && bonus!=0 && user.getId()!=message.getUid()) {
       if (bonus>20 || bonus<0) {
         throw new UserErrorException("Некорректное значение bonus");
       }
-      userDao.changeScore(message.getId(), -bonus);
+      userDao.changeScore(message.getUid(), -bonus);
       finalReason += " ("+bonus+ ')';
     }
     jdbcTemplate.update(updateDeleteInfo, message.getId(), user.getId(), finalReason);
@@ -156,6 +155,4 @@ public class MessageDao {
     jdbcTemplate.update(updateUndeleteMessage, message.getId());
     jdbcTemplate.update(updateUneleteInfo, message.getId());
   }
-
-
 }
