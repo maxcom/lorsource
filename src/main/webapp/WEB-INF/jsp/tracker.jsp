@@ -18,7 +18,7 @@
   ~    limitations under the License.
   --%>
 <%--@elvariable id="newUsers" type="java.util.List<ru.org.linux.site.User>"--%>
-<%--@elvariable id="msgs" type="java.util.List<ru.org.linux.spring.TrackerController.Item>"--%>
+<%--@elvariable id="msgs" type="java.util.List<ru.org.linux.spring.dao.TrackerItem>"--%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 
 <% Template tmpl = Template.getTemplate(request); %>
@@ -26,6 +26,7 @@
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 
 <%
     String title = "Последние сообщения";
@@ -38,8 +39,7 @@
 </title>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
-<form action="tracker.jsp">
-
+<form:form commandName="tracker" ACTION="tracker.jsp" method="GET">
   <table class=nav>
     <tr>
       <td align=left valign=middle id="navPath">
@@ -47,43 +47,14 @@
       </td>
 
       <td align=right valign=middle>
-        <select name="filter">
-          <c:if test="${filter=='notalks'}">
-            <option value="all">все сообщения</option>
-            <option value="notalks" selected="selected">без Talks</option>
-            <option value="tech">тех. разделы форума</option>
-            <c:if test="${template.sessionAuthorized}">
-              <option value="mine">мои темы</option>
-            </c:if>
-          </c:if>
-          <c:if test="${filter=='tech'}">
-            <option value="all">все сообщения</option>
-            <option value="notalks">без Talks</option>
-            <option value="tech" selected="selected">тех. разделы форума</option>
-            <c:if test="${template.sessionAuthorized}">
-              <option value="mine">мои темы</option>
-            </c:if>
-          </c:if>
-          <c:if test="${filter==null || filter == 'all'}">
-            <option value="all" selected="selected">все сообщения</option>
-            <option value="notalks">без Talks</option>
-            <option value="tech">тех. разделы форума</option>
-            <c:if test="${template.sessionAuthorized}">
-              <option value="mine">мои темы</option>
-            </c:if>
-          </c:if>
-          <c:if test="${filter=='mine'}">
-            <option value="all">все сообщения</option>
-            <option value="notalks">без Talks</option>
-            <option value="tech">тех. разделы форума</option>
-            <option value="mine" selected="selected">мои темы</option>
-          </c:if>
-        </select>
+        <form:select path="filter">
+            <form:options items="${filterItems}" />
+        </form:select>
         <input type="submit" value="показать">
       </td>
     </tr>
   </table>
-</form>
+</form:form>
 
 <h1 class="optional"><%= title %>
 </h1>
@@ -157,7 +128,7 @@
   </tr>
 </table>
 
-<c:if test="${newUsers!=null}">
+<c:if test="${newUsers!=null} && ${fn:length(newUsers)!=0}">
   <h2>Новые пользователи</h2>
   Новые пользователи за последние 3 дня:
   <c:forEach items="${newUsers}" var="user">
