@@ -19,6 +19,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
@@ -45,12 +46,23 @@ public class TrackerController {
 
   private static final String[] filterValues = { "all", "notalks", "tech", "mine" };
   private static final Set<String> filterValuesSet = new HashSet<String>(Arrays.asList(filterValues));
+  private static final Map<String,String> filterItems;
+
+  static {
+    filterItems = new LinkedHashMap<String, String>();
+    filterItems.put("all", "все сообщения");
+    filterItems.put("notalks", "без talks");
+    filterItems.put("tech", "тех. разделы форума");
+    filterItems.put("mine", "мои темы");
+  }
 
   @RequestMapping("/tracker.jsp")
   public ModelAndView tracker(
-      @RequestParam(value="filter", required = false) String filter,
+      @ModelAttribute("tracker") TrackerFilterAction action,
       @RequestParam(value="offset", required = false) Integer offset,
       HttpServletRequest request) throws Exception {
+
+    String filter = action.getFilter();
 
     if (filter!=null && !filterValuesSet.contains(filter)) {
       throw new UserErrorException("Некорректное значение filter");
@@ -83,6 +95,8 @@ public class TrackerController {
     params.put("mine", trackerFilter == TrackerDao.TrackerFilter.ALL);
     params.put("offset", offset);
     params.put("filter", filter);
+    params.put("tracker", new TrackerFilterAction(filter));
+    params.put("filterItems", filterItems);
     Calendar calendar = Calendar.getInstance();
     calendar.setTime(new Date());
     Timestamp dateLimit;
