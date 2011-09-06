@@ -29,6 +29,11 @@ public class UserDao {
    */
   private final static String queryChangeScore = "UPDATE users SET score=score+? WHERE id=?";
 
+  private final static String queryNewUsers = "SELECT id FROM users where " +
+                                                "regdate IS NOT null " +
+                                                "AND regdate > CURRENT_TIMESTAMP - interval '3 days' " +
+                                              "ORDER BY regdate";
+
   @Autowired
   public void setJdbcTemplate(DataSource dataSource) {
     jdbcTemplate = new JdbcTemplate(dataSource);
@@ -144,6 +149,23 @@ public class UserDao {
   public String getUserInfo(User user) {
     return jdbcTemplate.queryForObject("SELECT userinfo FROM users where id=?",
         new Object[] {user.getId()}, String.class);
+  }
+
+  /**
+   * Получить список новых пользователей зарегистрирововавшихся за последние 3(три) дня
+   * @return список новых пользователей
+   */
+  public List<User> getNewUsers() {
+    return jdbcTemplate.query(queryNewUsers, new RowMapper<User>() {
+      @Override
+      public User mapRow(ResultSet resultSet, int i) throws SQLException {
+        try {
+          return getUser(resultSet.getInt("id"));
+        } catch (UserNotFoundException e) {
+          throw new SQLException(e.getMessage());
+        }
+      }
+    });
   }
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
