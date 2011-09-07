@@ -46,14 +46,10 @@ public class TrackerController {
 
   private static final String[] filterValues = { "all", "notalks", "tech", "mine" };
   private static final Set<String> filterValuesSet = new HashSet<String>(Arrays.asList(filterValues));
-  private static final Map<String,String> filterItems;
 
-  static {
-    filterItems = new LinkedHashMap<String, String>();
-    filterItems.put("all", "все сообщения");
-    filterItems.put("notalks", "без talks");
-    filterItems.put("tech", "тех. разделы форума");
-    filterItems.put("mine", "мои темы");
+  @ModelAttribute("filterItems")
+  public static List<TrackerDao.TrackerFilter> getFilter() {
+    return Arrays.asList(TrackerDao.TrackerFilter.values());
   }
 
   @RequestMapping("/tracker.jsp")
@@ -92,11 +88,11 @@ public class TrackerController {
     }
 
     Map<String, Object> params = new HashMap<String, Object>();
-    params.put("mine", trackerFilter == TrackerDao.TrackerFilter.ALL);
+    params.put("mine", trackerFilter == TrackerDao.TrackerFilter.MINE);
     params.put("offset", offset);
     params.put("filter", filter);
     params.put("tracker", new TrackerFilterAction(filter));
-    params.put("filterItems", filterItems);
+    /*params.put("filterItems", filterItems);*/
     Calendar calendar = Calendar.getInstance();
     calendar.setTime(new Date());
     Timestamp dateLimit;
