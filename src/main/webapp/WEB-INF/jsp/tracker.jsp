@@ -48,7 +48,7 @@
 
       <td align=right valign=middle>
         <form:select path="filter">
-            <form:options items="${filterItems}" />
+            <form:options items="${filterItems}" itemValue="value" itemLabel="label"/>
         </form:select>
         <input type="submit" value="показать">
       </td>
