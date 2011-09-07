@@ -46,7 +46,22 @@ public class TrackerDao {
   UserDao userDao;
 
   public enum TrackerFilter {
-    ALL, NOTALKS, TECH, MINE
+    ALL("all", "все сообщения"),
+    NOTALKS("notalks", "без talks"),
+    TECH("tech", "тех. разделы форума"),
+    MINE("mine", "мои темы");
+    private final String value;
+    private final String label;
+    TrackerFilter(String value, String label) {
+      this.value = value;
+      this.label = label;
+    }
+    public String getValue() {
+      return value;
+    }
+    public String getLabel() {
+      return label;
+    }
   }
 
   private static final String queryTrackerMain =
