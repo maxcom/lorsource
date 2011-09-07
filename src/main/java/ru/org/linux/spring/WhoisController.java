@@ -15,11 +15,7 @@
 
 package ru.org.linux.spring;
 
-import java.net.URLEncoder;
-import java.sql.Connection;
-
-import javax.servlet.ServletRequest;
-
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,52 +23,51 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.view.RedirectView;
-
 import ru.org.linux.site.*;
+import ru.org.linux.spring.dao.UserDao;
+
+import javax.servlet.ServletRequest;
+import java.net.URLEncoder;
 
 @Controller
 public class WhoisController {
+
+  @Autowired
+  UserDao userDao;
+
   @RequestMapping("/people/{nick}/profile")
   public ModelAndView getInfoNew(@PathVariable String nick, ServletRequest request) throws Exception {
-    Connection db = null;
-    try {
-      db = LorDataSource.getConnection();
-      Template tmpl = Template.getTemplate(request);
+    Template tmpl = Template.getTemplate(request);
 
-      User user = User.getUser(db, nick);
+    User user = userDao.getUser(nick);
 
-      if (user.isBlocked() && !tmpl.isSessionAuthorized()) {
-        throw new UserNotFoundException(nick);
-      }
-
-      ModelAndView mv = new ModelAndView("whois");
-      mv.getModel().put("user", user);
-      mv.getModel().put("userInfo", new UserInfo(db, user.getId()));
-
-      if (user.isBlocked()) {
-        mv.getModel().put("banInfo", BanInfo.getBanInfo(db, user));        
-      }
-
-      if (!user.isAnonymous()) {
-        mv.getModel().put("userStat", new UserStatistics(db, user.getId()));
-      }
-
-      boolean currentUser = tmpl.isSessionAuthorized() && tmpl.getNick().equals(nick);
-
-      mv.getModel().put("moderatorOrCurrentUser", currentUser || tmpl.isModeratorSession());
-
-      if (tmpl.isSessionAuthorized() && !currentUser) {
-        mv.getModel().put("ignoreList", IgnoreList.getIgnoreList(db, tmpl.getCurrentUser().getId()));
-      }
-
-      mv.getModel().put("userInfoText", user.getUserinfo(db));
-
-      return mv;
-    } finally {
-      if (db!=null) {
-        db.close();
-      }
+    if (user.isBlocked() && !tmpl.isSessionAuthorized()) {
+      throw new UserNotFoundException(nick);
     }
+
+    ModelAndView mv = new ModelAndView("whois");
+    mv.getModel().put("user", user);
+    mv.getModel().put("userInfo", userDao.getUserInfoClass(user));
+
+    if (user.isBlocked()) {
+      mv.getModel().put("banInfo", userDao.getBanInfoClass(user));
+    }
+
+    if (!user.isAnonymous()) {
+      mv.getModel().put("userStat", userDao.getUserStatisticsClass(user));
+    }
+
+    boolean currentUser = tmpl.isSessionAuthorized() && tmpl.getNick().equals(nick);
+
+    mv.getModel().put("moderatorOrCurrentUser", currentUser || tmpl.isModeratorSession());
+
+    if (tmpl.isSessionAuthorized() && !currentUser) {
+      mv.getModel().put("ignoreList", userDao.getIgnoreList(userDao.getUser(tmpl.getCurrentUser().getId())));
+    }
+
+    mv.getModel().put("userInfoText", userDao.getUserInfo(user));
+
+    return mv;
   }
 
   @RequestMapping("/whois.jsp")

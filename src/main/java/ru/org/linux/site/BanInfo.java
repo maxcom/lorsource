@@ -15,9 +15,9 @@
 
 package ru.org.linux.site;
 
-import java.sql.*;
-
 import org.springframework.jdbc.support.JdbcUtils;
+
+import java.sql.*;
 
 public class BanInfo {
   private final Timestamp date;
@@ -30,6 +30,7 @@ public class BanInfo {
     this.moderator = moderator;
   }
 
+  @Deprecated
   public static BanInfo getBanInfo(Connection db, User user) throws SQLException {
     Statement st = null;
 

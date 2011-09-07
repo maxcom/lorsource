@@ -15,10 +15,10 @@
 
 package ru.org.linux.site;
 
+import com.google.common.collect.ImmutableMap;
+
 import java.sql.*;
 import java.util.Map;
-
-import com.google.common.collect.ImmutableMap;
 
 public class UserStatistics {
   private final int ignoreCount;
@@ -31,6 +31,20 @@ public class UserStatistics {
 
   private final Map<String, Integer> commentsBySection;
 
+  public UserStatistics(int ignoreCount, int commentCount,
+                        Timestamp firstComment, Timestamp lastComment,
+                        Timestamp firstTopic, Timestamp lastTopic,
+                        Map<String, Integer> commentsBySection) {
+    this.ignoreCount = ignoreCount;
+    this.commentCount = commentCount;
+    this.firstComment = firstComment;
+    this.lastComment = lastComment;
+    this.firstTopic = firstTopic;
+    this.lastTopic = lastTopic;
+    this.commentsBySection = commentsBySection;
+  }
+
+  @Deprecated
   public UserStatistics(Connection db, int id) throws SQLException {
     PreparedStatement ignoreStat = db.prepareStatement("SELECT count(*) as inum FROM ignore_list JOIN users ON  ignore_list.userid = users.id WHERE ignored=? AND not blocked");
     PreparedStatement commentStat = db.prepareStatement("SELECT count(*) as c FROM comments WHERE userid=? AND not deleted");

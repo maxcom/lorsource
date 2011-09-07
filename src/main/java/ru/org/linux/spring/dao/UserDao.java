@@ -1,24 +1,28 @@
 package ru.org.linux.spring.dao;
 
+import com.google.common.collect.ImmutableMap;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 import org.jasypt.util.password.BasicPasswordEncryptor;
 import org.jasypt.util.password.PasswordEncryptor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import ru.org.linux.site.User;
-import ru.org.linux.site.UserNotFoundException;
+import ru.org.linux.site.*;
 import ru.org.linux.util.StringUtil;
 
 import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.List;
+import java.util.Map;
 
 @Repository
 public class UserDao {
@@ -33,6 +37,24 @@ public class UserDao {
                                                 "regdate IS NOT null " +
                                                 "AND regdate > CURRENT_TIMESTAMP - interval '3 days' " +
                                               "ORDER BY regdate";
+
+  private final static String queryUserInfoClass = "SELECT url, town, lastlogin, regdate FROM users WHERE id=?";
+  private final static String queryBanInfoClass = "SELECT * FROM ban_info WHERE userid=?";
+
+  private final static String queryIgnoreStat = "SELECT count(*) as inum FROM ignore_list JOIN users ON  ignore_list.userid = users.id WHERE ignored=? AND not blocked";
+  private final static String queryCommentStat = "SELECT count(*) as c FROM comments WHERE userid=? AND not deleted";
+  private final static String queryTopicDates = "SELECT min(postdate) as first,max(postdate) as last FROM topics WHERE topics.userid=?";
+  private final static String queryCommentDates = "SELECT min(postdate) as first,max(postdate) as last FROM comments WHERE comments.userid=?";
+  private final static String queryCommentsBySectionStat =
+            "SELECT sections.name as pname, count(*) as c " +
+                    "FROM topics, groups, sections " +
+                    "WHERE topics.userid=? " +
+                    "AND groups.id=topics.groupid " +
+                    "AND sections.id=groups.section " +
+                    "AND not deleted " +
+                    "GROUP BY sections.name";
+
+  private final static String queryIgnoreList = "SELECT a.ignored,b.nick FROM ignore_list a, users b WHERE a.userid=? AND b.id=a.ignored";
 
   @Autowired
   public void setJdbcTemplate(DataSource dataSource) {
@@ -146,9 +168,114 @@ public class UserDao {
     return res;
   }
 
+  /**
+   * Получить поле userinfo пользователя
+   * TODO надо переименовать?
+   * @param user пользователь
+   * @return поле userinfo
+   */
   public String getUserInfo(User user) {
     return jdbcTemplate.queryForObject("SELECT userinfo FROM users where id=?",
         new Object[] {user.getId()}, String.class);
+  }
+
+  /**
+   * Получить информацию о пользователе
+   * @param user пользователь
+   * @return информация
+   */
+  public UserInfo getUserInfoClass(User user) {
+    return jdbcTemplate.queryForObject(queryUserInfoClass, new RowMapper<UserInfo>() {
+      @Override
+      public UserInfo mapRow(ResultSet resultSet, int i) throws SQLException {
+        return new UserInfo(resultSet);
+      }
+    }, user.getId());
+  }
+
+  /**
+   * Получить информацию о бане
+   * @param user пользователь
+   * @return информация о бане :-)
+   */
+  public BanInfo getBanInfoClass(User user) {
+    return jdbcTemplate.queryForObject(queryBanInfoClass, new RowMapper<BanInfo>() {
+      @Override
+      public BanInfo mapRow(ResultSet resultSet, int i) throws SQLException {
+        Timestamp date = resultSet.getTimestamp("bandate");
+        String reason = resultSet.getString("reason");
+        User moderator;
+        try {
+          moderator = getUser(resultSet.getInt("ban_by"));
+        } catch (UserNotFoundException exception) {
+          throw new SQLException(exception.getMessage());
+        }
+        return new BanInfo(date, reason, moderator);
+      }
+    }, user.getId());
+  }
+
+  /**
+   * Получить статситику пользователя
+   * @param user пользователь
+   * @return статистика
+   */
+  public UserStatistics getUserStatisticsClass(User user) {
+    int ignoreCount;
+    int commentCount;
+    Timestamp[] commentStat;
+    Timestamp[] topicStat;
+    Map<String, Integer> commentsBySection;
+    try {
+      ignoreCount = jdbcTemplate.queryForInt(queryIgnoreStat, user.getId());
+    } catch (EmptyResultDataAccessException exception) {
+      ignoreCount = 0;
+    }
+    try {
+      commentCount = jdbcTemplate.queryForInt(queryCommentStat, user.getId());
+    } catch (EmptyResultDataAccessException exception) {
+      commentCount = 0;
+    }
+
+    try {
+      commentStat = jdbcTemplate.queryForObject(queryCommentDates, Timestamp[].class, user.getId());
+    } catch (EmptyResultDataAccessException exception) {
+      commentStat = null;
+    }
+
+    try {
+      topicStat = jdbcTemplate.queryForObject(queryTopicDates, Timestamp[].class, user.getId());
+    } catch (EmptyResultDataAccessException exception) {
+      topicStat = null;
+    }
+
+    final ImmutableMap.Builder<String, Integer> builder = ImmutableMap.builder();
+    jdbcTemplate.query(queryCommentsBySectionStat, new RowCallbackHandler() {
+      @Override
+      public void processRow(ResultSet resultSet) throws SQLException {
+        builder.put(resultSet.getString("pname"), resultSet.getInt("c"));
+      }
+    }, user.getId());
+    return new UserStatistics(ignoreCount, commentCount,
+        commentStat[0], commentStat[1],
+        topicStat[0], topicStat[1],
+        builder.build());
+  }
+
+  /**
+   * Получить список игнорируемых
+   * @param user пользователь который игнорирует
+   * @return список игнорируемых
+   */
+  public Map<Integer, String> getIgnoreList(User user) {
+    final ImmutableMap.Builder<Integer, String> builder = ImmutableMap.builder();
+    jdbcTemplate.query(queryIgnoreList, new RowCallbackHandler() {
+      @Override
+      public void processRow(ResultSet resultSet) throws SQLException {
+        builder.put(resultSet.getInt("ignored"),resultSet.getString("nick"));
+      }
+    }, user.getId());
+    return builder.build();
   }
 
   /**

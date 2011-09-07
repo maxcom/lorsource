@@ -23,6 +23,14 @@ public class UserInfo {
   private final Timestamp lastLogin;
   private final Timestamp registrationDate;
 
+  public UserInfo(ResultSet resultSet) throws SQLException {
+    url = resultSet.getString("url");
+    town = resultSet.getString("town");
+    lastLogin = resultSet.getTimestamp("lastlogin");
+    registrationDate = resultSet.getTimestamp("regdate");
+  }
+
+  @Deprecated
   public UserInfo(Connection db, int id) throws SQLException, UserNotFoundException {
     PreparedStatement userInfo = db.prepareStatement("SELECT url, town, lastlogin, regdate FROM users WHERE id=?");
 
