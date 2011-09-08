@@ -15,33 +15,32 @@
 
 package ru.org.linux.spring;
 
-import java.sql.Connection;
-import java.util.HashMap;
-import java.util.Map;
-
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.servlet.ModelAndView;
-
-import ru.org.linux.site.LorDataSource;
 import ru.org.linux.spring.dao.TagDao;
+
+import java.util.Map;
 
 @Controller
 public class TagsController  {
+
+  @Autowired
+  TagDao tagDao;
+
+  @ModelAttribute("tags")
+  public Map<String, Integer> getTags() {
+    return tagDao.getAllTags();
+  }
+
+  @RequestMapping("/tags")
+  public String tags() throws Exception {
+    return "tags";
+  }
+
   @RequestMapping("/tags.jsp")  
-  protected ModelAndView getTags() throws Exception {
-    Connection db = null;
-    try {
-      db = LorDataSource.getConnection();
-
-      Map<String, Object> params = new HashMap<String, Object>();
-      params.put("tags", TagDao.getAllTags(db));
-
-      return new ModelAndView("tags", params);
-    } finally {
-      if (db!=null) {
-        db.close();
-      }
-    }
+  public String oldTags() throws Exception {
+    return "redirect:/tags";
   }
 }
