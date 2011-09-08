@@ -57,6 +57,8 @@ public class UserDao {
 
   private final static String queryIgnoreList = "SELECT a.ignored,b.nick FROM ignore_list a, users b WHERE a.userid=? AND b.id=a.ignored";
 
+  private final static String updateResetUnreadReplies = "UPDATE users SET unread_events=0 where id=?";
+
   @Autowired
   public void setJdbcTemplate(DataSource dataSource) {
     jdbcTemplate = new JdbcTemplate(dataSource);
@@ -347,6 +349,15 @@ public class UserDao {
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   public void setUserInfo(User user, String text){
     jdbcTemplate.update("UPDATE users SET userinfo=? where id=?", text, user.getId());
+  }
+
+  /**
+   * Сброс уведомлений
+   * @param user пользователь которому сбрасываем
+   */
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
+  public void resetUnreadReplies(User user) {
+    jdbcTemplate.update(updateResetUnreadReplies, user.getId());
   }
 
   /**
