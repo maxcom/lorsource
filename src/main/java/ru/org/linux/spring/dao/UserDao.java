@@ -2,6 +2,7 @@ package ru.org.linux.spring.dao;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
@@ -253,7 +254,7 @@ public class UserDao {
       topicStat = jdbcTemplate.queryForObject(queryTopicDates, new RowMapper<List<Timestamp>>() {
         @Override
         public List<Timestamp> mapRow(ResultSet resultSet, int i) throws SQLException {
-          return ImmutableList.of(resultSet.getTimestamp("first"), resultSet.getTimestamp("last"));
+          return Lists.newArrayList(resultSet.getTimestamp("first"), resultSet.getTimestamp("last"));
         }
       }, user.getId());
     } catch (EmptyResultDataAccessException exception) {
