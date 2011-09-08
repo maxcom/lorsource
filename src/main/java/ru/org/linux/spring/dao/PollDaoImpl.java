@@ -22,9 +22,9 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
-import ru.org.linux.site.Poll;
-import ru.org.linux.site.PollNotFoundException;
-import ru.org.linux.site.PollVariant;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+import ru.org.linux.site.*;
 
 import javax.sql.DataSource;
 import java.sql.ResultSet;
@@ -41,6 +41,10 @@ public class PollDaoImpl {
   private static final String queryMaxVotes = "SELECT max(votes) FROM votes WHERE vote=?";
   private static final String queryPollVariantsOrderById = "SELECT * FROM votes WHERE vote=? ORDER BY id";
   private static final String queryPollVariantsOrderByVotes = "SELECT * FROM votes WHERE vote=? ORDER BY votes DESC, id";
+
+  private static final String queryVotes = "SELECT count(vote) FROM vote_users WHERE vote=? AND userid=?";
+  private static final String updateVote = "UPDATE votes SET votes=votes+1 WHERE id=? AND vote=?";
+  private static final String insertVote = "INSERT INTO vote_users VALUES(?, ?)";
 
   private JdbcTemplate jdbcTemplate;
 
@@ -66,6 +70,25 @@ public class PollDaoImpl {
   public Integer getVotersCount(Integer pollId) {
     String sql = "SELECT sum(votes) as s FROM votes WHERE vote= ?";
     return jdbcTemplate.queryForInt(sql, pollId);
+  }
+
+  /**
+   * Применение голоса к голосванию
+   * @param voteId id голосования
+   * @param votes пункты за которые голосует пользователь
+   * @param user голосующий пользователь
+   * @throws BadVoteException неправильное голосование
+   */
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
+  public void updateVotes(final int voteId, final int votes[], final User user) throws BadVoteException {
+    if(jdbcTemplate.queryForInt(queryVotes, voteId, user.getId()) == 0){
+      for(int vote : votes) {
+        if(jdbcTemplate.update(updateVote, vote, voteId) == 0) {
+          throw new BadVoteException();
+        }
+      }
+      jdbcTemplate.update(insertVote, voteId, user.getId());
+    }
   }
 
   /**
@@ -123,6 +146,16 @@ public class PollDaoImpl {
     } catch (EmptyResultDataAccessException exception) {
       throw new PollNotFoundException();
     }
+  }
+
+  /**
+   * Получить голосование по topic id
+   * @param topicId id топика голосования
+   * @return голосование
+   * @throws PollNotFoundException отсутствует такое голосование
+   */
+  public Poll getPollByTopicId(int topicId) throws PollNotFoundException {
+    return getPoll(getPollId(topicId));
   }
 
   /**
