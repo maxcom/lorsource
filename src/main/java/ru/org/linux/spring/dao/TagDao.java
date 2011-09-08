@@ -16,11 +16,13 @@
 package ru.org.linux.spring.dao;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ConnectionCallback;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.stereotype.Repository;
 import ru.org.linux.site.UserErrorException;
 
@@ -37,6 +39,8 @@ public final class TagDao {
   private static final Pattern tagRE = Pattern.compile("([\\p{L}\\d \\+-]+)", Pattern.CASE_INSENSITIVE);
 
   private static final int TOP_TAGS_COUNT = 50;
+
+  private static final String queryAllTags = "SELECT counter,value FROM tags_values WHERE counter>0";
 
   private JdbcTemplate jdbcTemplate;
 
@@ -128,6 +132,22 @@ public final class TagDao {
     return set;
   }
 
+  /**
+   * Получить все тэги со счетчиком
+   * @return список всех тегов
+   */
+  public Map<String,Integer> getAllTags() {
+    final ImmutableMap.Builder<String, Integer> builder = ImmutableMap.builder();
+    jdbcTemplate.query(queryAllTags, new RowCallbackHandler() {
+      @Override
+      public void processRow(ResultSet resultSet) throws SQLException {
+        builder.put(resultSet.getString("value"), resultSet.getInt("counter"));
+      }
+    });
+    return builder.build();
+  }
+
+  @Deprecated
   public static Map<String,Integer> getAllTags(Connection con) throws SQLException {
     Map<String,Integer> map = new TreeMap<String,Integer>();
     PreparedStatement st = con.prepareStatement("SELECT counter,value FROM tags_values WHERE counter>0");
