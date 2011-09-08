@@ -15,6 +15,8 @@
 
 package ru.org.linux.spring;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,12 +27,15 @@ import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.site.*;
 import ru.org.linux.spring.dao.UserDao;
+import ru.org.linux.util.HTMLFormatter;
 
 import javax.servlet.ServletRequest;
 import java.net.URLEncoder;
 
 @Controller
 public class WhoisController {
+
+  private static final Log logger = LogFactory.getLog(VoteController.class);
 
   @Autowired
   UserDao userDao;
@@ -65,7 +70,8 @@ public class WhoisController {
       mv.getModel().put("ignoreList", userDao.getIgnoreList(userDao.getUser(tmpl.getCurrentUser().getId())));
     }
 
-    mv.getModel().put("userInfoText", userDao.getUserInfo(user));
+    String userinfo = userDao.getUserInfo(user);
+    mv.getModel().put("userInfoText", (userinfo == null)?"":HTMLFormatter.nl2br(userinfo));
 
     return mv;
   }

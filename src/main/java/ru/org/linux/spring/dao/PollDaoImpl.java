@@ -42,7 +42,7 @@ public class PollDaoImpl {
   private static final String queryPollVariantsOrderById = "SELECT * FROM votes WHERE vote=? ORDER BY id";
   private static final String queryPollVariantsOrderByVotes = "SELECT * FROM votes WHERE vote=? ORDER BY votes DESC, id";
 
-  private static final String queryVotes = "SELECT vote FROM vote_users WHERE vote=? AND userid=?";
+  private static final String queryVotes = "SELECT count(vote) FROM vote_users WHERE vote=? AND userid=?";
   private static final String updateVote = "UPDATE votes SET votes=votes+1 WHERE id=? AND vote=?";
   private static final String insertVote = "INSERT INTO vote_users VALUES(?, ?)";
 
@@ -81,10 +81,7 @@ public class PollDaoImpl {
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   public void updateVotes(final int voteId, final int votes[], final User user) throws BadVoteException {
-    try {
-      jdbcTemplate.queryForInt(queryVotes, voteId, user.getId());
-    } catch (EmptyResultDataAccessException exception) {
-      // Если пользователь user не голосовал за голосование с voteId
+    if(jdbcTemplate.queryForInt(queryVotes, voteId, user.getId()) == 0){
       for(int vote : votes) {
         if(jdbcTemplate.update(updateVote, vote, voteId) == 0) {
           throw new BadVoteException();

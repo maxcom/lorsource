@@ -1,5 +1,6 @@
 package ru.org.linux.spring.dao;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
@@ -223,8 +224,8 @@ public class UserDao {
   public UserStatistics getUserStatisticsClass(User user) {
     int ignoreCount;
     int commentCount;
-    Timestamp[] commentStat;
-    Timestamp[] topicStat;
+    List<Timestamp> commentStat;
+    List<Timestamp> topicStat;
     Map<String, Integer> commentsBySection;
     try {
       ignoreCount = jdbcTemplate.queryForInt(queryIgnoreStat, user.getId());
@@ -238,13 +239,23 @@ public class UserDao {
     }
 
     try {
-      commentStat = jdbcTemplate.queryForObject(queryCommentDates, Timestamp[].class, user.getId());
+      commentStat = jdbcTemplate.queryForObject(queryCommentDates, new RowMapper<List<Timestamp>>() {
+        @Override
+        public List<Timestamp> mapRow(ResultSet resultSet, int i) throws SQLException {
+          return ImmutableList.of(resultSet.getTimestamp("first"), resultSet.getTimestamp("last"));
+        }
+      }, user.getId());
     } catch (EmptyResultDataAccessException exception) {
       commentStat = null;
     }
 
     try {
-      topicStat = jdbcTemplate.queryForObject(queryTopicDates, Timestamp[].class, user.getId());
+      topicStat = jdbcTemplate.queryForObject(queryTopicDates, new RowMapper<List<Timestamp>>() {
+        @Override
+        public List<Timestamp> mapRow(ResultSet resultSet, int i) throws SQLException {
+          return ImmutableList.of(resultSet.getTimestamp("first"), resultSet.getTimestamp("last"));
+        }
+      }, user.getId());
     } catch (EmptyResultDataAccessException exception) {
       topicStat = null;
     }
@@ -257,8 +268,8 @@ public class UserDao {
       }
     }, user.getId());
     return new UserStatistics(ignoreCount, commentCount,
-        commentStat[0], commentStat[1],
-        topicStat[0], topicStat[1],
+        commentStat.get(0), commentStat.get(1),
+        topicStat.get(0), topicStat.get(1),
         builder.build());
   }
 
