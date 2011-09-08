@@ -164,10 +164,8 @@
 <p>
 <c:if test="${template.sessionAuthorized or user.maxScore>=50}">
 <cite>
-<%
-  out.print(HTMLFormatter.nl2br((String) request.getAttribute("userInfoText")));
-%>
-  </cite>
+  ${userInfoText}
+</cite>
 </c:if>
 
   <c:if test="${template.moderatorSession}">

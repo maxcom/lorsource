@@ -15,27 +15,33 @@
 
 package ru.org.linux.spring;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;import javax.servlet.ServletRequest;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
-
 import ru.org.linux.site.*;
+import ru.org.linux.spring.dao.MessageDao;
+import ru.org.linux.spring.dao.PollDaoImpl;
 import ru.org.linux.spring.dao.VoteDTO;
+
+import javax.servlet.ServletRequest;
+import javax.servlet.http.HttpServletRequest;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Controller
 public class VoteController {
+
+  @Autowired
+  PollDaoImpl pollDao;
+
+  @Autowired
+  MessageDao messageDao;
+
   @RequestMapping(value="/vote.jsp", method= RequestMethod.POST)
   public ModelAndView vote(
     ServletRequest request,
@@ -48,67 +54,39 @@ public class VoteController {
       throw new AccessViolationException("Not authorized");
     }
 
-    Connection db = null;
+    User user = tmpl.getCurrentUser();
 
-    try {
-      db = LorDataSource.getConnection();
-      db.setAutoCommit(false);
+    Poll poll = pollDao.getCurrentPoll();
+    Message msg = messageDao.getById(poll.getTopicId());
 
-      User user = tmpl.getCurrentUser();
-
-      Poll poll = Poll.getCurrentPoll(db);
-
-      Message msg = Message.getMessage(db, poll.getTopicId());
-
-      if (voteid != poll.getId()) {
-        throw new BadVoteException("голосовать можно только в текущий опрос");
-      }
-
-      if (votes==null || votes.length==0) {
-        throw new BadVoteException("ничего не выбрано");
-      }
-
-      if (!poll.isMultiSelect() && votes.length!=1) {
-        throw new BadVoteException("этот опрос допускает только один вариант ответа");
-      }
-
-      Statement st = db.createStatement();
-
-      ResultSet rs = st.executeQuery("SELECT * FROM vote_users WHERE vote="+voteid+" AND userid="+user.getId());
-
-      if (!rs.next()) {
-        for (int vote : votes) {
-          if (st.executeUpdate("UPDATE votes SET votes=votes+1 WHERE id=" + vote + " AND vote=" + voteid) == 0) {
-            throw new BadVoteException();
-          }
-        }
-
-        st.executeUpdate("INSERT INTO vote_users VALUES("+voteid+", "+user.getId()+ ')');
-      }
-
-      rs.close();
-      st.close();
-      db.commit();
-
-      StringBuilder url = new StringBuilder();
-
-      for (int vote : votes) {
-        if (url.length()==0) {
-          url.append('?');
-        } else {
-          url.append('&');
-        }
-
-        url.append("highlight=");
-        url.append(Integer.toString(vote));
-      }
-
-      return new ModelAndView(new RedirectView(msg.getLink() + url));
-    } finally {
-      if (db != null) {
-        db.close();
-      }
+    if (voteid != poll.getId()) {
+      throw new BadVoteException("голосовать можно только в текущий опрос");
     }
+
+    if (votes==null || votes.length==0) {
+      throw new BadVoteException("ничего не выбрано");
+    }
+
+    if (!poll.isMultiSelect() && votes.length!=1) {
+      throw new BadVoteException("этот опрос допускает только один вариант ответа");
+    }
+
+    pollDao.updateVotes(voteid, votes, user);
+
+    StringBuilder url = new StringBuilder();
+
+    for (int vote : votes) {
+      if (url.length()==0) {
+        url.append('?');
+      } else {
+        url.append('&');
+      }
+
+      url.append("highlight=");
+      url.append(Integer.toString(vote));
+    }
+
+    return new ModelAndView(new RedirectView(msg.getLink() + url));
   }
 
   @RequestMapping(value="/vote-vote.jsp", method=RequestMethod.GET)
@@ -122,57 +100,24 @@ public class VoteController {
 
     Map<String, Object> params = new HashMap<String, Object>();
 
-    Connection db = null;
-    try {
-      db = LorDataSource.getConnection();
+    Message msg = messageDao.getById(msgid);
+    params.put("message", msg);
 
-      Message msg = Message.getMessage(db, msgid);
-      params.put("message", msg);
-      Poll poll = Poll.getPollByTopic(db, msgid);
-
-      if (!poll.isCurrent()) {
-        throw new BadVoteException("голосовать можно только в текущий опрос");
-      }
-
-      params.put("poll", poll);
-
-      Statement st = db.createStatement();
-      ResultSet rs = st.executeQuery("SELECT id, label FROM votes WHERE vote=" + poll.getId() + " ORDER BY id");
-
-      List<VoteDTO> votes = new ArrayList<VoteDTO>();
-
-      while (rs.next()) {
-        VoteDTO dto = new VoteDTO();
-        dto.setId(rs.getInt("id"));
-        dto.setLabel(rs.getString("label"));
-        dto.setPollId(poll.getId());
-        votes.add(dto);
-      }
-
-      params.put("votes", votes);
-
-      return new ModelAndView("vote-vote", params);
-    } finally {
-      if (db!=null) {
-        db.close();
-      }
+    Poll poll = pollDao.getPollByTopicId(msgid);
+    if (!poll.isCurrent()) {
+      throw new BadVoteException("голосовать можно только в текущий опрос");
     }
+    params.put("poll", poll);
+
+    List<VoteDTO> votes = pollDao.getVoteDTO(poll.getId());
+    params.put("votes", votes);
+
+    return new ModelAndView("vote-vote", params);
   }
 
   @RequestMapping("/view-vote.jsp")
   public ModelAndView viewVote(@RequestParam("vote") int voteid) throws Exception {
-    Connection db = null;
-
-    try {
-      db = LorDataSource.getConnection();
-
-      Poll poll = new Poll(db, voteid);
-
-      return new ModelAndView(new RedirectView("/jump-message.jsp?msgid=" + poll.getTopicId()));
-    } finally {
-      if (db != null) {
-        db.close();
-      }
-    }
+    Poll poll = pollDao.getPoll(voteid);
+    return new ModelAndView(new RedirectView("/jump-message.jsp?msgid=" + poll.getTopicId()));
   }
 }
