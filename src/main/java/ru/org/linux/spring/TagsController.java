@@ -34,8 +34,13 @@ public class TagsController  {
     return tagDao.getAllTags();
   }
 
-  @RequestMapping("/tags.jsp")  
+  @RequestMapping("/tags")
   public String tags() throws Exception {
     return "tags";
+  }
+
+  @RequestMapping("/tags.jsp")  
+  public String oldTags() throws Exception {
+    return "redirect:/tags";
   }
 }
