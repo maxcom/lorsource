@@ -20,6 +20,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.site.AccessViolationException;
 import ru.org.linux.site.Template;
 import ru.org.linux.site.User;
@@ -41,6 +42,70 @@ public class ShowRepliesController {
   @Autowired
   private RepliesDao repliesDao;
 
+  /**
+   * Показывает уведомления для текущего пользоваетля
+   * @param request запрос
+   * @param response ответ
+   * @param offset смещение
+   * @param forceReset принудительная отсчистка уведомлений
+   * @return вьюшку
+   * @throws Exception возможны исключительные ситуации :-(
+   */
+  @RequestMapping("/notifications")
+  public ModelAndView showNotifications(
+      HttpServletRequest request,
+      HttpServletResponse response,
+      @RequestParam(value = "offset", defaultValue = "0") int offset,
+      @RequestParam(value = "forceReset", defaultValue = "false") boolean forceReset
+  ) throws Exception {
+    Template tmpl = Template.getTemplate(request);
+    if (!tmpl.isSessionAuthorized()) {
+      throw new AccessViolationException("not authorized");
+    }
+
+    User currentUser = tmpl.getCurrentUser();
+    String nick = currentUser.getNick();
+
+    Map<String, Object> params = new HashMap<String, Object>();
+    params.put("nick", nick);
+    params.put("forceReset", forceReset);
+
+    if (offset < 0) {
+      offset = 0;
+    }
+
+    boolean firstPage = offset == 0;
+    int topics = tmpl.getProf().getTopics();
+
+    if (topics > 200) {
+      topics = 200;
+    }
+
+    params.put("firstPage", firstPage);
+    params.put("topics", topics);
+    params.put("offset", offset);
+
+    /* define timestamps for caching */
+    long time = System.currentTimeMillis();
+    int delay = firstPage ? 90 : 60 * 60;
+    response.setDateHeader("Expires", time + 1000 * delay);
+    params.put("unreadCount", currentUser.getUnreadEvents());
+    params.put("isMyNotifications", true);
+
+    response.addHeader("Cache-Control", "no-cache");
+    List<RepliesListItem> list = repliesDao.getRepliesForUser(currentUser, true, topics, offset, false);
+    if ("POST".equalsIgnoreCase(request.getMethod())) {
+      userDao.resetUnreadReplies(currentUser);
+      tmpl.updateCurrentUser(userDao);
+    } else {
+      params.put("enableReset", true);
+    }
+    params.put("topicsList", list);
+    params.put("hasMore", list.size()==topics);
+
+    return new ModelAndView("show-replies", params);
+  }
+
   @RequestMapping("/show-replies.jsp")
   public ModelAndView showReplies(
     HttpServletRequest request,
@@ -50,22 +115,32 @@ public class ShowRepliesController {
     @RequestParam(value = "forceReset", defaultValue = "false") boolean forceReset
   ) throws Exception {
     Template tmpl = Template.getTemplate(request);
+    boolean feedRequested = request.getParameterMap().containsKey("output");
 
     if (nick==null) {
+      if(tmpl.isSessionAuthorized()) {
+        return new ModelAndView(new RedirectView("/notifications"));
+      }
       if (!tmpl.isSessionAuthorized()) {
         throw new AccessViolationException("not authorized");
       }
-
-      nick = tmpl.getCurrentUser().getNick();
     } else {
       User.checkNick(nick);
+      if (!tmpl.isSessionAuthorized() && !feedRequested) {
+        throw new AccessViolationException("not authorized");
+      }
+      if(tmpl.isSessionAuthorized() && nick.equals(tmpl.getCurrentUser().getNick())) {
+        return new ModelAndView(new RedirectView("/notifications"));
+      }
+      if(!feedRequested && !tmpl.isModeratorSession()) {
+        throw new AccessViolationException("нельзя смотреть чужие уведомления");
+      }
     }
 
     Map<String, Object> params = new HashMap<String, Object>();
     params.put("nick", nick);
     params.put("forceReset", forceReset);
 
-    boolean feedRequested = request.getParameterMap().containsKey("output");
 
     if (offset < 0) {
       offset = 0;
@@ -95,6 +170,7 @@ public class ShowRepliesController {
     boolean showPrivate = tmpl.isModeratorSession();
 
     User currentUser = tmpl.getCurrentUser();
+    params.put("currentUser", currentUser);
 
     if (currentUser != null && currentUser.getId() == user.getId()) {
       showPrivate = true;
@@ -111,7 +187,7 @@ public class ShowRepliesController {
         params.put("enableReset", true);
       }
     }
-
+    params.put("isMyNotifications", false);
     params.put("topicsList", list);
     params.put("hasMore", list.size()==topics);
 
