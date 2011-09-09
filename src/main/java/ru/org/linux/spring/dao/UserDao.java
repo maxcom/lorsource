@@ -203,7 +203,7 @@ public class UserDao {
    * @return информация о бане :-)
    */
   public BanInfo getBanInfoClass(User user) {
-    return jdbcTemplate.queryForObject(queryBanInfoClass, new RowMapper<BanInfo>() {
+    List<BanInfo> infoList = jdbcTemplate.query(queryBanInfoClass, new RowMapper<BanInfo>() {
       @Override
       public BanInfo mapRow(ResultSet resultSet, int i) throws SQLException {
         Timestamp date = resultSet.getTimestamp("bandate");
@@ -217,6 +217,12 @@ public class UserDao {
         return new BanInfo(date, reason, moderator);
       }
     }, user.getId());
+
+    if (infoList.isEmpty()) {
+      return null;
+    } else {
+      return infoList.get(0);
+    }
   }
 
   /**
