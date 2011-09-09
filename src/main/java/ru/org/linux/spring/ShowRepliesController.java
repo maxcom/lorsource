@@ -129,7 +129,7 @@ public class ShowRepliesController {
       if (!tmpl.isSessionAuthorized() && !feedRequested) {
         throw new AccessViolationException("not authorized");
       }
-      if(tmpl.isSessionAuthorized() && nick.equals(tmpl.getCurrentUser().getNick())) {
+      if(tmpl.isSessionAuthorized() && nick.equals(tmpl.getCurrentUser().getNick()) && !feedRequested) {
         return new ModelAndView(new RedirectView("/notifications"));
       }
       if(!feedRequested && !tmpl.isModeratorSession()) {
