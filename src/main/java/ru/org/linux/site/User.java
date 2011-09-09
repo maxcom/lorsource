@@ -503,6 +503,7 @@ public class User implements Serializable {
     return unreadEvents;
   }
 
+  @Deprecated
   public void resetUnreadEvents(Connection db) throws SQLException {
     PreparedStatement st = db.prepareStatement("UPDATE users SET unread_events=0 where id=?");
     try {
