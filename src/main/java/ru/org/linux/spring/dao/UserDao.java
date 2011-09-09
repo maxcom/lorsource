@@ -245,7 +245,7 @@ public class UserDao {
       commentStat = jdbcTemplate.queryForObject(queryCommentDates, new RowMapper<List<Timestamp>>() {
         @Override
         public List<Timestamp> mapRow(ResultSet resultSet, int i) throws SQLException {
-          return ImmutableList.of(resultSet.getTimestamp("first"), resultSet.getTimestamp("last"));
+          return Lists.newArrayList(resultSet.getTimestamp("first"), resultSet.getTimestamp("last"));
         }
       }, user.getId());
     } catch (EmptyResultDataAccessException exception) {
