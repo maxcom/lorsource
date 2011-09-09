@@ -21,7 +21,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import com.sun.org.apache.regexp.internal.RE;
 import com.sun.syndication.feed.synd.*;
 
 public class ReplyFeedView extends AbstractRomeView {
