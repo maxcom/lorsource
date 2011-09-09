@@ -79,13 +79,27 @@
 %>
 <div style="float: left">
 <c:if test="${not firstPage}">
+<c:choose>
+<c:when test="${not isMyNotifications}">
   <a rel=prev rev=next href="show-replies.jsp?nick=${nick}&amp;offset=<%= offset - topics %>">← назад</a>
+</c:when>
+<c:otherwise>
+  <a rel=prev rev=next href="notifications?offset=<%= offset - topics %>">← назад</a>
+</c:otherwise>
+</c:choose>
 </c:if>
 </div>
 
 <div style="float: right">
 <c:if test="${hasMore}">
+<c:choose>
+<c:when test="${not isMyNotifications}">
   <a rel=next rev=prev href="show-replies.jsp?nick=${nick}&amp;offset=<%= offset + topics %>">вперед →</a>
+</c:when>
+<c:otherwise>
+  <a rel=next rev=prev href="notifications?offset=<%= offset + topics %>">вперед →</a>
+</c:otherwise>
+</c:choose>
 </c:if>
 </div>
 
@@ -140,13 +154,27 @@
 <p></p>
 <div style="float: left">
 <c:if test="${not firstPage}">
+<c:choose>
+<c:when test="${not isMyNotifications}">
   <a rel=prev rev=next href="show-replies.jsp?nick=${nick}&amp;offset=<%= offset - topics %>">← назад</a>
+</c:when>
+<c:otherwise>
+  <a rel=prev rev=next href="notifications?offset=<%= offset - topics %>">← назад</a>
+</c:otherwise>
+</c:choose>
 </c:if>
 </div>
 
 <div style="float: right">
 <c:if test="${hasMore}">
+<c:choose>
+<c:when test="${not isMyNotifications}">
   <a rel=next rev=prev href="show-replies.jsp?nick=${nick}&amp;offset=<%= offset + topics %>">вперед →</a>
+</c:when>
+<c:otherwise>
+  <a rel=next rev=prev href="notifications?offset=<%= offset + topics %>">вперед →</a>
+</c:otherwise>
+</c:choose>
 </c:if>
 </div>
 
