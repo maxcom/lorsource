@@ -144,8 +144,12 @@ public class DeleteCommentController {
     boolean perm = false;
     boolean selfDel = false;
 
-    if (comment.getUserid() == user.getId() && !user.canModerate()) {
-      perm = (System.currentTimeMillis() - comment.getPostdate().getTime()) < DELETE_PERIOD;
+    if (comment.getUserid() == user.getId()) {
+      if(!user.canModerate()) {
+        perm = (System.currentTimeMillis() - comment.getPostdate().getTime()) < DELETE_PERIOD;
+      } else {
+        perm = true;
+      }
 
       if (perm) {
         selfDel = true;
