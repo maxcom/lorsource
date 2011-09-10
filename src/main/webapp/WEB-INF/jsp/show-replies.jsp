@@ -65,7 +65,7 @@
     </c:choose>
 
     <c:if test="${enableReset}">
-      <form id="events_form" action="/show-replies.jsp" method="POST" style="display: inline;">
+      <form id="events_form" action="/notifications" method="POST" style="display: inline;">
         <input type="hidden" name="forceReset" value="true">
         <input type="submit" value="Сбросить">
       </form>
