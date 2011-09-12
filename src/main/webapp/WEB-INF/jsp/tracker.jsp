@@ -128,7 +128,7 @@
   </tr>
 </table>
 
-<c:if test="${newUsers!=null} && ${fn:length(newUsers)!=0}">
+<c:if test="${newUsers!=null and fn:length(newUsers)!=0}">
   <h2>Новые пользователи</h2>
   Новые пользователи за последние 3 дня:
   <c:forEach items="${newUsers}" var="user">
