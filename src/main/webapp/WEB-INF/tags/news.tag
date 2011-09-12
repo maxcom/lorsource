@@ -12,7 +12,6 @@
 <%@ attribute name="preparedMessage" required="true" type="ru.org.linux.site.PreparedMessage" %>
 <%@ attribute name="multiPortal" required="true" type="java.lang.Boolean" %>
 <%@ attribute name="moderateMode" required="true" type="java.lang.Boolean" %>
-<%@ attribute name="currentUser" required="false" type="ru.org.linux.site.User" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
@@ -188,7 +187,7 @@
   </c:choose>
 </div>
 <div class="nav">
-<c:set var="commentsAllowed"><%= message.isCommentsAllowed(currentUser) %></c:set>
+<c:set var="commentsAllowed"><%= message.isCommentsAllowed(tmpl.getCurrentUser()) %></c:set>
 <c:if test="${not moderateMode and commentsAllowed}">
   [<a href="comment-message.jsp?topic=${message.id}">Добавить&nbsp;комментарий</a>]
 </c:if>
@@ -201,7 +200,7 @@
        [<a href="delete.jsp?msgid=${message.id}">Удалить</a>]
     </c:if>
 <%
-      if (preparedMessage.isEditable(currentUser)) {
+      if (preparedMessage.isEditable(tmpl.getCurrentUser())) {
         if (!votepoll) {
           out.append(" [<a href=\"edit.jsp?msgid=").append(Integer.toString(msgid)).append("\">Править</a>]");
         } else {
