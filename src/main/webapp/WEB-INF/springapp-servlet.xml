@@ -48,7 +48,6 @@
             <props>
                 <prop key="ru.org.linux.site.MessageNotFoundException">error404</prop>
                 <prop key="ru.org.linux.site.SectionNotFoundException">error404</prop>                
-                <prop key="ru.org.linux.site.UserNotFoundException">error404</prop>                
                 <prop key="org.springframework.web.HttpRequestMethodNotSupportedException">error404</prop>
                 <prop key="java.lang.Exception">error</prop>
                 <prop key="ru.org.linux.site.AccessViolationException">error403</prop>
