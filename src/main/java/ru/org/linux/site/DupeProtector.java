@@ -28,6 +28,7 @@ public class DupeProtector {
   private static final int THRESHOLD_TRUSTED = 3000;
   
   private final Map<String,Long> hash = new HashMap<String,Long>();
+  public static final String MESSAGE = "Следующее сообщение может быть записано не менее чем через 30 секунд после предыдущего";
 
   private synchronized boolean check(String ip, boolean trusted) {
     cleanup();
@@ -47,15 +48,9 @@ public class DupeProtector {
     return true;
   }
 
-  public void checkDuplication(String ip) throws DuplicationException {
-    if (!check(ip,false)) {
-      throw new DuplicationException();
-    }
-  }
-
   public void checkDuplication(String ip,boolean trusted, Errors errors) {
     if (!check(ip,trusted)) {
-      errors.reject(null, DuplicationException.MESSAGE);
+      errors.reject(null, MESSAGE);
     }
   }
 

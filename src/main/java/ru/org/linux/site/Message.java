@@ -26,6 +26,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 import org.springframework.validation.Errors;
 import ru.org.linux.spring.AddMessageForm;
+import ru.org.linux.spring.AddMessageRequest;
 import ru.org.linux.spring.dao.TagDao;
 import ru.org.linux.spring.dao.UserDao;
 import ru.org.linux.util.*;
@@ -124,20 +125,20 @@ public class Message implements Serializable {
     sectionCommentsRestriction = Section.getCommentPostscore(sectionid);
   }
 
-  public Message(Connection db, AddMessageForm form, User user)
+  public Message(Connection db, AddMessageForm oldForm, AddMessageRequest form, User user, String message)
     throws SQLException, UtilException, ScriptErrorException, UserErrorException {
     // Init fields
 
     userAgent = 0;
-    postIP = form.getPostIP();
+    postIP = oldForm.getPostIP();
 
-    guid = form.getGuid();
+    guid = oldForm.getGuid();
 
     Group group = Group.getGroup(db, guid);
 
     groupCommentsRestriction = group.getCommentsRestriction();
 
-    linktext = form.getLinktextHTML();
+    linktext = oldForm.getLinktextHTML();
     url = form.getUrl();
 
     // url check
@@ -150,9 +151,13 @@ public class Message implements Serializable {
       }
     }
     // Setting Message fields
-//    tags = new Tags(Tags.parseTags(form.getTagsHTML()));
-    title = form.getTitleHTML();
-    havelink = form.getUrl() != null && form.getLinktext() != null && form.getUrl().length() > 0 && form.getLinktext().length() > 0 && !group.isImagePostAllowed();
+    if (form.getTitle()!=null) {
+      title = HTMLFormatter.htmlSpecialChars(form.getTitle());
+    } else {
+      title = null;
+    }
+
+    havelink = form.getUrl() != null && oldForm.getLinktext() != null && !form.getUrl().isEmpty() && oldForm.getLinktext().length() > 0 && !group.isImagePostAllowed();
     sectionid = group.getSectionId();
     // Defaults
     msgid = 0;
@@ -175,7 +180,7 @@ public class Message implements Serializable {
     resolved = false;
     minor = false;
 
-    message = form.processMessage(group);
+    this.message = message;
     sectionCommentsRestriction = Section.getCommentPostscore(sectionid);
   }
 

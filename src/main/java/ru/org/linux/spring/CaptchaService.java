@@ -33,6 +33,7 @@ public class CaptchaService {
     this.captcha = captcha;
   }
 
+  @Deprecated
   public void checkCaptcha(ServletRequest request) throws BadInputException {
     String captchaChallenge = request.getParameter("recaptcha_challenge_field");
     String captchaResponse = request.getParameter("recaptcha_response_field");

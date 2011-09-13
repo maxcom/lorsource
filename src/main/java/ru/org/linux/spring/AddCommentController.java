@@ -18,10 +18,12 @@ package ru.org.linux.spring;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.ApplicationObjectSupport;
 import org.springframework.stereotype.Controller;
-import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.site.*;
@@ -140,7 +142,6 @@ public class AddCommentController extends ApplicationObjectSupport {
 
     HTMLFormatter form = new HTMLFormatter(msg);
     form.setMaxLength(80);
-//    form.enableUrlHighLightMode();
     form.setOutputLorcode(true);
 
     if ("ntobr".equals(mode)) {
@@ -314,10 +315,5 @@ public class AddCommentController extends ApplicationObjectSupport {
     });
 
     binder.registerCustomEditor(User.class, new UserPropertyEditor(userDao));
-  }
-
-  @ExceptionHandler(BindException.class)
-  public String handleInvalidRequest() {
-    return "error-parameter"; 
   }
 }

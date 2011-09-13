@@ -1,10 +1,10 @@
-<%@ page contentType="text/html; charset=utf-8" import="java.util.SortedSet,ru.org.linux.site.Group"  %>
+<%@ page contentType="text/html; charset=utf-8" import="org.apache.commons.lang.StringUtils,ru.org.linux.site.Group"  %>
 <%@ page import="ru.org.linux.site.ScreenshotProcessor"%>
-<%@ page import="ru.org.linux.spring.dao.TagDao"%>
-<%@ page import="ru.org.linux.site.Template" %>
+<%@ page import="ru.org.linux.site.Template"%>
 <%@ page import="ru.org.linux.spring.AddMessageForm" %>
+<%@ page import="ru.org.linux.spring.dao.TagDao" %>
 <%@ page import="ru.org.linux.util.HTMLFormatter" %>
-<%@ page import="org.apache.commons.lang.StringUtils" %>
+<%@ page import="java.util.SortedSet" %>
 <%--
   ~ Copyright 1998-2010 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,13 +26,14 @@
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 
 <%
-    AddMessageForm form = (AddMessageForm) request.getAttribute("form");
+    AddMessageForm oldForm = (AddMessageForm) request.getAttribute("oldForm");
     Group group = (Group) request.getAttribute("group");
     SortedSet<String> topTags = (SortedSet<String>) request.getAttribute("topTags");
 
-    String mode = form.getMode();
+    String mode = oldForm.getMode();
 %>
 
 <title>Добавить сообщение</title>
@@ -50,7 +51,7 @@
   <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
 <%
-  if (!form.getNoinfo()) {
+  if (!oldForm.getNoinfo()) {
     out.print(request.getAttribute("addportal"));
   }
 %>
@@ -82,30 +83,30 @@
 </p>
 <%   } %>
 
-<c:if test="${error!=null}">
-  <div class="error">Ошибка: <c:out value="${error.message}" escapeXml="true"/></div>
-</c:if>
-<form id="messageForm" method=POST action="add.jsp" <%= group.isImagePostAllowed()?"enctype=\"multipart/form-data\"":"" %> >
+<form:form modelAttribute="form" id="messageForm" method="POST" action="add.jsp" enctype="${group.imagePostAllowed?'multipart/form-data':'application/x-www-form-urlencoded'}" >
+  <form:errors path="*" element="div" cssClass="error"/>
+
   <input type="hidden" name="session" value="<%= HTMLFormatter.htmlSpecialChars(session.getId()) %>">
-<%  if (form.getNoinfo()) {
+<%  if (oldForm.getNoinfo()) {
   %>
   <input type="hidden" name="noinfo" value="1">
  <% }
 %>
 <% if (!tmpl.isSessionAuthorized()) { %>
 Имя:
-<input type=text name=nick value="<%= form.getNick()==null?"anonymous":HTMLFormatter.htmlSpecialChars(form.getNick()) %>" size=40><br>
+<input type=text name=nick value="<%= oldForm.getNick()==null?"anonymous":HTMLFormatter.htmlSpecialChars(oldForm.getNick()) %>" size=40><br>
 Пароль:
 <input type=password name=password size=40><br>
 <% } %>
-<input type=hidden name=group value="<%= form.getGuid() %>">
+<input type=hidden name=group value="<%= oldForm.getGuid() %>">
 
-<% if (form.getReturnUrl()!=null) { %>
-<input type=hidden name=return value="<%= HTMLFormatter.htmlSpecialChars(form.getReturnUrl()) %>">
+<% if (oldForm.getReturnUrl()!=null) { %>
+<input type=hidden name=return value="<%= HTMLFormatter.htmlSpecialChars(oldForm.getReturnUrl()) %>">
 <% } %>
 
-<label for="form_title">Заглавие</label>:
-<input type=text id="form_title" class="required" name=title size=40 value="<%= form.getTitle()==null?"":HTMLFormatter.htmlSpecialChars(form.getTitle()) %>" ><br>
+<label>Заглавие:
+<form:input path="title" cssClass="required" size="40"/><br>
+</label>
 
   <% if (group.isImagePostAllowed()) { %>
   Изображение:
@@ -115,23 +116,21 @@
 <label for="form_msg">Сообщение:</label><br>
 <font size=2>(В режиме <i>Tex paragraphs</i> игнорируются переносы строк.<br> Пустая строка (два раза Enter) начинает новый абзац)</font><br>
 <font size="2"><b>Внимание:</b> Новый режим - <a href="/wiki/en/Lorcode">LORCODE</a></font><br>
-<textarea name=msg id="form_msg" cols=70 rows=20><%
-    if (form.getMsg()!=null) {
-      out.print(HTMLFormatter.htmlSpecialChars(form.getMsg()));
-    }
-  %></textarea><br>
+<form:textarea path="msg" cols="70" rows="20" id="form_msg"/><br>
 
 <% if (group.isLinksAllowed()) { %>
 <label>
 Текст ссылки:
-<input type=text name=linktext size=60 value="<%= form.getLinktext()==null?group.getDefaultLinkText():HTMLFormatter.htmlSpecialChars(form.getLinktext()) %>">
+<input type=text name=linktext size=60 value="<%= oldForm.getLinktext()==null?group.getDefaultLinkText():HTMLFormatter.htmlSpecialChars(oldForm.getLinktext()) %>">
 </label><br>
+<label>
 Ссылка (не забудьте <b>http://</b>)
-<input type=text name=url size=70 value="<%= form.getUrl()==null?"":HTMLFormatter.htmlSpecialChars(form.getUrl()) %>"><br>
+<form:input path="url" size="70"/><br>
+</label>
 <% } %>
   <c:if test="${group.moderated}">
 Метки (разделенные запятой)
-<input type=text name=tags id="tags" size=70 value="<%= form.getTags()==null?"":HTMLFormatter.htmlSpecialChars(StringUtils.strip(form.getTags())) %>"><br>
+<input type=text name=tags id="tags" size=70 value="<%= oldForm.getTags()==null?"":HTMLFormatter.htmlSpecialChars(StringUtils.strip(oldForm.getTags())) %>"><br>
   Популярные теги: <%= TagDao.getEditTags(topTags) %> <br>
   </c:if>
 <select name=mode>
@@ -143,5 +142,5 @@
 <br>
 <input type=submit value="Поместить">
 <input type=submit name=preview value="Предпросмотр">
-</form>
+</form:form>
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>

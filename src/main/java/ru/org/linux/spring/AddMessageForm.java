@@ -15,39 +15,34 @@
 
 package ru.org.linux.spring;
 
-import java.io.File;
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-
-import ru.org.linux.site.*;
-import ru.org.linux.util.BadImageException;
-import ru.org.linux.util.HTMLFormatter;
-import ru.org.linux.util.UtilException;
-
 import com.google.common.collect.ImmutableList;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.jdom.Verifier;
 import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.multipart.MultipartRequest;
+import ru.org.linux.site.*;
+import ru.org.linux.util.BadImageException;
+import ru.org.linux.util.HTMLFormatter;
+import ru.org.linux.util.UtilException;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import java.io.File;
+import java.io.IOException;
+import java.sql.Connection;
+import java.util.ArrayList;
+import java.util.List;
+
+// TODO: move content to AddMessageRequest
 public class AddMessageForm {
   private static final Log logger = LogFactory.getLog(AddMessageForm.class);
 
   private final boolean preview;
   private int guid = 0;
-  private String msg = "";
-  private String title = null;
   private String returnUrl = null;
   private String sessionId = null;
   private boolean noinfo = false;
@@ -57,15 +52,14 @@ public class AddMessageForm {
   private String captchaResponse = "";
   private String mode = "";
   private String tags = null;
-  private String url = null;
   private String linktext = null;
   private final String postIP;
   private String previewImagePath = null;
   private final ImmutableList<String> pollList;
-  private static final int MAX_MESSAGE_LENGTH_ANONYMOUS = 4096;
-  private static final int MAX_MESSAGE_LENGTH = 16384;
-  private static final int MAX_TITLE_LENGTH = 255;
-  private static final int MAX_URL_LENGTH = 255;
+  public static final int MAX_MESSAGE_LENGTH_ANONYMOUS = 4096;
+  public static final int MAX_MESSAGE_LENGTH = 16384;
+  public static final int MAX_TITLE_LENGTH = 255;
+  public static final int MAX_URL_LENGTH = 255;
   private boolean multiSelect = false;
 
   public boolean isPreview() {
@@ -74,18 +68,6 @@ public class AddMessageForm {
 
   public int getGuid() {
     return guid;
-  }
-
-  public String getMsg() {
-    return msg;
-  }
-
-  public String getTitle() {
-    return title;
-  }
-
-  public String getTitleHTML() {
-    return title == null ? "" : HTMLFormatter.htmlSpecialChars(title);
   }
 
   public String getReturnUrl() {
@@ -132,10 +114,6 @@ public class AddMessageForm {
     return tags == null ? "" : StringUtils.strip(tags);
   }
 
-  public String getUrl() {
-    return url;
-  }
-
   public String getLinktext() {
     return linktext;
   }
@@ -155,8 +133,6 @@ public class AddMessageForm {
       nick = request.getParameter("nick");
       password = request.getParameter("password");
       mode = request.getParameter("mode");
-      title = request.getParameter("title");
-      msg = request.getParameter("msg");
     }
 
     if (request.getParameter("group") == null) {
@@ -166,7 +142,6 @@ public class AddMessageForm {
     guid = ServletRequestUtils.getRequiredIntParameter(request, "group");
 
     linktext = request.getParameter("linktext");
-    url = request.getParameter("url");
     returnUrl = request.getParameter("return");
     tags = request.getParameter("tags");
 
@@ -209,38 +184,7 @@ public class AddMessageForm {
     }
   }
 
-  public void validate(Group group, User user) throws BadInputException, AccessViolationException {
-    if ("".equals(title.trim())) {
-      throw new BadInputException("заголовок сообщения не может быть пустым");
-    }
-
-    if (guid < 1) {
-      throw new BadInputException("Bad group id");
-    }
-
-    String message = processMessage(group);
-
-    String error = Verifier.checkCharacterData(message);
-    if (error!=null) {
-      throw new BadInputException(error);
-    }
-
-    if (user.isAnonymous()) {
-      if (message.length() > MAX_MESSAGE_LENGTH_ANONYMOUS) {
-        throw new BadInputException("Слишком большое сообщение");
-      }
-    } else {
-      if (message.length() > MAX_MESSAGE_LENGTH) {
-        throw new BadInputException("Слишком большое сообщение");
-      }
-    }
-
-    if (!group.isTopicPostingAllowed(user)) {
-      throw new AccessViolationException("Не достаточно прав для постинга тем в эту группу");
-    }
-  }
-
-  public void processUpload(HttpSession session, Template tmpl) throws IOException, BadImageException, UtilException, InterruptedException {
+  public String processUpload(HttpSession session, Template tmpl) throws IOException, BadImageException, UtilException, InterruptedException {
     File uploadedFile = null;
 
     if (image != null && !"".equals(image)) {
@@ -255,14 +199,16 @@ public class AddMessageForm {
       if (image != null && !"".equals("image")) {
         screenshot.copyScreenshot(tmpl, sessionId);
       }
-      url = "gallery/preview/" + screenshot.getMainFile().getName();
       linktext = "gallery/preview/" + screenshot.getIconFile().getName();
       previewImagePath = screenshot.getMainFile().getAbsolutePath();
       session.setAttribute("image", screenshot.getMainFile().getAbsolutePath());
+      return "gallery/preview/" + screenshot.getMainFile().getName();
     }
+
+    return null;
   }
 
-  public User validateAndGetUser(Template tmpl, Connection db) throws BadInputException, UserNotFoundException, SQLException, BadPasswordException, AccessViolationException {
+  public User validateAndGetUser(Template tmpl, Connection db) throws UserNotFoundException, BadPasswordException, AccessViolationException, BadInputException {
     User user;
 
     if (!tmpl.isSessionAuthorized()) {
@@ -278,52 +224,7 @@ public class AddMessageForm {
     user.checkBlocked();
     user.checkAnonymous();
 
-    if (user.isAnonymous()) {
-      if (msg!=null && msg.length() > MAX_MESSAGE_LENGTH_ANONYMOUS) {
-        throw new BadInputException("Слишком большое сообщение");
-      }
-    } else {
-      if (msg!=null && msg.length() > MAX_MESSAGE_LENGTH) {
-        throw new BadInputException("Слишком большое сообщение");
-      }
-    }
-
-    if (title!=null && title.length() > MAX_TITLE_LENGTH) {
-      throw new BadInputException("Слишком большой заголовок");
-    }
-
-    if (url!=null && url.length() > MAX_URL_LENGTH) {
-      throw new BadInputException("Слишком длинный URL");
-    }
-
     return user;
-  }
-
-  public String processMessage(Group group) {
-    if (msg == null) {
-      return "";
-    }
-
-    if ("lorcode".equals(mode)) {
-      return msg;
-    } else {
-      // Format message
-      HTMLFormatter formatter = new HTMLFormatter(msg);
-      int maxlength = 80;
-      if (group.getSectionId() == 1) {
-        maxlength = 40;
-      }
-
-      formatter.setMaxLength(maxlength);
-//      formatter.enableUrlHighLightMode();
-      formatter.setOutputLorcode(true);
-
-      if ("ntobr".equals(mode)) {
-        formatter.enableNewLineMode();
-      }
-
-      return formatter.process();
-    }
   }
 
   public String getPostIP() {

@@ -18,6 +18,9 @@ package ru.org.linux.spring;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.ApplicationObjectSupport;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindException;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -30,6 +33,7 @@ import ru.org.linux.spring.dao.SectionDao;
 import ru.org.linux.spring.dao.TagDao;
 import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.BadURLException;
+import ru.org.linux.util.HTMLFormatter;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -82,16 +86,16 @@ public class AddMessageController extends ApplicationObjectSupport {
   }
 
   @RequestMapping(value = "/add.jsp", method = RequestMethod.GET)
-  public ModelAndView add(HttpServletRequest request) throws Exception {
+  public ModelAndView add(@ModelAttribute("form") AddMessageRequest form, HttpServletRequest request) throws Exception {
     Map<String, Object> params = new HashMap<String, Object>();
 
     Template tmpl = Template.getTemplate(request);
 
-    AddMessageForm form = new AddMessageForm(request, tmpl);
-    form.setMode(tmpl.getFormatMode());
-    params.put("form", form);
+    AddMessageForm oldForm = new AddMessageForm(request, tmpl);
+    oldForm.setMode(tmpl.getFormatMode());
+    params.put("oldForm", oldForm);
 
-    Group group = groupDao.getGroup(form.getGuid());
+    Group group = groupDao.getGroup(oldForm.getGuid());
 
     if (!group.isTopicPostingAllowed(tmpl.getCurrentUser())) {
       throw new AccessViolationException("Не достаточно прав для постинга тем в эту группу");
@@ -108,17 +112,44 @@ public class AddMessageController extends ApplicationObjectSupport {
     return new ModelAndView("add", params);
   }
 
+  private static String processMessage(String msg, String mode) {
+    if (msg == null) {
+      return "";
+    }
+
+    if ("lorcode".equals(mode)) {
+      return msg;
+    } else {
+      // Format message
+      HTMLFormatter formatter = new HTMLFormatter(msg);
+
+      formatter.setMaxLength(80);
+      formatter.setOutputLorcode(true);
+
+      if ("ntobr".equals(mode)) {
+        formatter.enableNewLineMode();
+      }
+
+      return formatter.process();
+    }
+  }
+
+
   @RequestMapping(value="/add.jsp", method=RequestMethod.POST)
-  public ModelAndView doAdd(HttpServletRequest request) throws Exception {
+  public ModelAndView doAdd(
+          HttpServletRequest request,
+          @ModelAttribute("form") AddMessageRequest form,
+          BindingResult errors
+  ) throws Exception {
     Map<String, Object> params = new HashMap<String, Object>();
 
     Template tmpl = Template.getTemplate(request);
     HttpSession session = request.getSession();
 
-    AddMessageForm form = new AddMessageForm(request, tmpl);
-    params.put("form", form);
+    AddMessageForm oldForm = new AddMessageForm(request, tmpl);
+    params.put("oldForm", oldForm);
 
-    Group group = groupDao.getGroup(form.getGuid());
+    Group group = groupDao.getGroup(oldForm.getGuid());
     params.put("group", group);
 
     if (group.isModerated()) {
@@ -128,52 +159,70 @@ public class AddMessageController extends ApplicationObjectSupport {
     params.put("addportal", sectionDao.getAddInfo(group.getSectionId()));
 
     Connection db = null;
-    Exception error = null;
 
     try {
-      ipBlockDao.checkBlockIP(request.getRemoteAddr());
+      ipBlockDao.checkBlockIP(request.getRemoteAddr(), errors);
 
       db = LorDataSource.getConnection();
       db.setAutoCommit(false);
 
       tmpl.updateCurrentUser(db);
 
-      User user = form.validateAndGetUser(tmpl, db);
+      User user = oldForm.validateAndGetUser(tmpl, db);
 
-      form.validate(group, user);
+      if (!group.isTopicPostingAllowed(user)) {
+        throw new AccessViolationException("Не достаточно прав для постинга тем в эту группу");
+      }
+      form.validate(errors);
 
-      if (group.isImagePostAllowed()) {
-        form.processUpload(session, tmpl);
+      String message = processMessage(form.getMsg(), oldForm.getMode());
+
+      if (user.isAnonymous()) {
+        if (message.length() > AddMessageForm.MAX_MESSAGE_LENGTH_ANONYMOUS) {
+          errors.rejectValue("msg", null, "Слишком большое сообщение");
+        }
+      } else {
+        if (message.length() > AddMessageForm.MAX_MESSAGE_LENGTH) {
+          errors.rejectValue("msg", null, "Слишком большое сообщение");
+        }
       }
 
-      Message previewMsg = new Message(db, form, user);
+      if (group.isImagePostAllowed()) {
+        form.setUrl(oldForm.processUpload(session, tmpl));
+      }
+
+      Message previewMsg = new Message(db, oldForm, form, user, message);
       params.put("message", new PreparedMessage(db, previewMsg, true));
 
-      if (!form.isPreview()) {
+      if (!oldForm.isPreview() && !errors.hasErrors()) {
         // Flood protection
-        if (!session.getId().equals(form.getSessionId())) {
+        if (!session.getId().equals(oldForm.getSessionId())) {
           logger.info("Flood protection (session variable differs) " + request.getRemoteAddr());
-          logger.info("Flood protection (session variable differs) " + session.getId() + " != " + form.getSessionId());
-          throw new BadInputException("сбой добавления");
+          logger.info("Flood protection (session variable differs) " + session.getId() + " != " + oldForm.getSessionId());
+          errors.reject(null, "сбой добавления");
         }
+      }
 
-        // Captch
-        if (!Template.isSessionAuthorized(session)) {
-          captcha.checkCaptcha(request);
-        }
-        dupeProtector.checkDuplication(request.getRemoteAddr());
+      if (!oldForm.isPreview() && !errors.hasErrors() && !Template.isSessionAuthorized(session)) {
+        captcha.checkCaptcha(request, errors);
+      }
 
-        int msgid = previewMsg.addTopicFromPreview(db, tmpl, request, form.getPreviewImagePath(), user);
+      if (!oldForm.isPreview() && !errors.hasErrors()) {
+        dupeProtector.checkDuplication(request.getRemoteAddr(), false, errors);
+      }
 
-        if (form.getPollList() != null) {
-          int pollId = Poll.createPoll(db, form.getPollList(), form.getMultiSelect());
+      if (!oldForm.isPreview() && !errors.hasErrors()) {
+        int msgid = previewMsg.addTopicFromPreview(db, tmpl, request, oldForm.getPreviewImagePath(), user);
+
+        if (oldForm.getPollList() != null) {
+          int pollId = Poll.createPoll(db, oldForm.getPollList(), oldForm.getMultiSelect());
 
           Poll poll = new Poll(db, pollId);
           poll.setTopicId(db, msgid);
         }
 
-        if (form.getTags() != null) {
-          List<String> tags = TagDao.parseTags(form.getTags());
+        if (oldForm.getTags() != null) {
+          List<String> tags = TagDao.parseTags(oldForm.getTags());
           TagDao.updateTags(db, msgid, tags);
           TagDao.updateCounters(db, Collections.<String>emptyList(), tags);
         }
@@ -196,22 +245,22 @@ public class AddMessageController extends ApplicationObjectSupport {
         return new ModelAndView("add-done-moderated", params);
       }
     } catch (UserErrorException e) {
-      error = e;
+      errors.reject(null, e.getMessage());
       if (db != null) {
         db.rollback();
       }
     } catch (UserNotFoundException e) {
-      error = e;
+      errors.reject(null, e.getMessage());
       if (db != null) {
         db.rollback();
       }
     } catch (BadURLException e) {
-      error = e;
+      errors.reject(null, e.getMessage());
       if (db != null) {
         db.rollback();
       }
     } catch (BadImageException e) {
-      error = e;
+      errors.reject(null, e.getMessage());
       if (db != null) {
         db.rollback();
       }
@@ -221,12 +270,11 @@ public class AddMessageController extends ApplicationObjectSupport {
       }
     }
 
-    if (form.getPollList() != null) {
-      params.put("exception", error);
+    if (oldForm.getPollList() != null) {
+      params.put("exception", new BindException(errors));
       return new ModelAndView("error", params);
     }
 
-    params.put("error", error);
     return new ModelAndView("add", params);
   }
 
