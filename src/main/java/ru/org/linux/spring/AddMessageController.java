@@ -20,10 +20,8 @@ import org.springframework.context.support.ApplicationObjectSupport;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.site.*;
@@ -31,12 +29,16 @@ import ru.org.linux.spring.dao.GroupDao;
 import ru.org.linux.spring.dao.IPBlockDao;
 import ru.org.linux.spring.dao.SectionDao;
 import ru.org.linux.spring.dao.TagDao;
+import ru.org.linux.spring.validators.AddCommentRequestValidator;
+import ru.org.linux.spring.validators.AddMessageRequestValidator;
 import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.BadURLException;
 import ru.org.linux.util.HTMLFormatter;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import javax.validation.Valid;
+import java.beans.PropertyEditorSupport;
 import java.sql.Connection;
 import java.util.*;
 
@@ -86,7 +88,7 @@ public class AddMessageController extends ApplicationObjectSupport {
   }
 
   @RequestMapping(value = "/add.jsp", method = RequestMethod.GET)
-  public ModelAndView add(@ModelAttribute("form") AddMessageRequest form, HttpServletRequest request) throws Exception {
+  public ModelAndView add(@Valid @ModelAttribute("form") AddMessageRequest form, HttpServletRequest request) throws Exception {
     Map<String, Object> params = new HashMap<String, Object>();
 
     Template tmpl = Template.getTemplate(request);
@@ -95,7 +97,7 @@ public class AddMessageController extends ApplicationObjectSupport {
     oldForm.setMode(tmpl.getFormatMode());
     params.put("oldForm", oldForm);
 
-    Group group = groupDao.getGroup(oldForm.getGuid());
+    Group group = form.getGroup();
 
     if (!group.isTopicPostingAllowed(tmpl.getCurrentUser())) {
       throw new AccessViolationException("Не достаточно прав для постинга тем в эту группу");
@@ -138,7 +140,7 @@ public class AddMessageController extends ApplicationObjectSupport {
   @RequestMapping(value="/add.jsp", method=RequestMethod.POST)
   public ModelAndView doAdd(
           HttpServletRequest request,
-          @ModelAttribute("form") AddMessageRequest form,
+          @Valid @ModelAttribute("form") AddMessageRequest form,
           BindingResult errors
   ) throws Exception {
     Map<String, Object> params = new HashMap<String, Object>();
@@ -149,14 +151,16 @@ public class AddMessageController extends ApplicationObjectSupport {
     AddMessageForm oldForm = new AddMessageForm(request, tmpl);
     params.put("oldForm", oldForm);
 
-    Group group = groupDao.getGroup(oldForm.getGuid());
+    Group group = form.getGroup();
     params.put("group", group);
 
-    if (group.isModerated()) {
+    if (group!=null && group.isModerated()) {
       params.put("topTags", tagDao.getTopTags());
     }
 
-    params.put("addportal", sectionDao.getAddInfo(group.getSectionId()));
+    if (group!=null) {
+      params.put("addportal", sectionDao.getAddInfo(group.getSectionId()));
+    }
 
     Connection db = null;
 
@@ -170,7 +174,7 @@ public class AddMessageController extends ApplicationObjectSupport {
 
       User user = oldForm.validateAndGetUser(tmpl, db);
 
-      if (!group.isTopicPostingAllowed(user)) {
+      if (group!=null && !group.isTopicPostingAllowed(user)) {
         throw new AccessViolationException("Не достаточно прав для постинга тем в эту группу");
       }
       form.validate(errors);
@@ -187,12 +191,16 @@ public class AddMessageController extends ApplicationObjectSupport {
         }
       }
 
-      if (group.isImagePostAllowed()) {
+      if (group!=null && group.isImagePostAllowed()) {
         form.setUrl(oldForm.processUpload(session, tmpl));
       }
 
-      Message previewMsg = new Message(db, oldForm, form, user, message);
-      params.put("message", new PreparedMessage(db, previewMsg, true));
+      Message previewMsg = null;
+
+      if (group!=null) {
+        previewMsg = new Message(oldForm, form, user, message);
+        params.put("message", new PreparedMessage(db, previewMsg, true));
+      }
 
       if (!oldForm.isPreview() && !errors.hasErrors()) {
         // Flood protection
@@ -302,5 +310,35 @@ public class AddMessageController extends ApplicationObjectSupport {
     params.put("groups", groupDao.getGroups(section));
 
     return new ModelAndView("add-section", params);
+  }
+
+  @InitBinder
+  public void initBinder(WebDataBinder binder) {
+    binder.registerCustomEditor(Group.class, new PropertyEditorSupport() {
+      @Override
+      public void setAsText(String text) throws IllegalArgumentException {
+        try {
+          setValue(groupDao.getGroup(Integer.parseInt(text)));
+        } catch (BadGroupException e) {
+          throw new IllegalArgumentException(e);
+        }
+      }
+
+      @Override
+      public String getAsText() {
+        if (getValue()==null) {
+          return null;
+        } else {
+          return Integer.toString(((Group) getValue()).getId());
+        }
+      }
+    });
+  }
+
+  @InitBinder("form")
+  public void requestValidator(WebDataBinder binder) {
+    binder.setValidator(new AddMessageRequestValidator());
+
+    binder.setBindingErrorProcessor(new ExceptionBindingErrorProcessor());
   }
 }

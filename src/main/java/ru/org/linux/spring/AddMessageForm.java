@@ -42,7 +42,6 @@ public class AddMessageForm {
   private static final Log logger = LogFactory.getLog(AddMessageForm.class);
 
   private final boolean preview;
-  private int guid = 0;
   private String returnUrl = null;
   private String sessionId = null;
   private boolean noinfo = false;
@@ -64,10 +63,6 @@ public class AddMessageForm {
 
   public boolean isPreview() {
     return preview;
-  }
-
-  public int getGuid() {
-    return guid;
   }
 
   public String getReturnUrl() {
@@ -134,12 +129,6 @@ public class AddMessageForm {
       password = request.getParameter("password");
       mode = request.getParameter("mode");
     }
-
-    if (request.getParameter("group") == null) {
-      throw new ScriptErrorException("missing group parameter");
-    }
-
-    guid = ServletRequestUtils.getRequiredIntParameter(request, "group");
 
     linktext = request.getParameter("linktext");
     returnUrl = request.getParameter("return");

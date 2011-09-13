@@ -125,16 +125,16 @@ public class Message implements Serializable {
     sectionCommentsRestriction = Section.getCommentPostscore(sectionid);
   }
 
-  public Message(Connection db, AddMessageForm oldForm, AddMessageRequest form, User user, String message)
+  public Message(AddMessageForm oldForm, AddMessageRequest form, User user, String message)
     throws SQLException, UtilException, ScriptErrorException, UserErrorException {
     // Init fields
 
     userAgent = 0;
     postIP = oldForm.getPostIP();
 
-    guid = oldForm.getGuid();
+    guid = form.getGroup().getId();
 
-    Group group = Group.getGroup(db, guid);
+    Group group = form.getGroup();
 
     groupCommentsRestriction = group.getCommentsRestriction();
 

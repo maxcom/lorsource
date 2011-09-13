@@ -3,11 +3,13 @@ package ru.org.linux.spring;
 import org.jdom.Verifier;
 import org.springframework.validation.Errors;
 import ru.org.linux.site.AccessViolationException;
+import ru.org.linux.site.Group;
 
 public class AddMessageRequest {
   private String title;
   private String msg;
   private String url;
+  private Group group;
 
   public String getTitle() {
     return title;
@@ -34,23 +36,13 @@ public class AddMessageRequest {
   }
 
   public void validate(Errors errors) throws AccessViolationException {
-    if ("".equals(title.trim())) {
-      errors.rejectValue("title", null, "заголовок сообщения не может быть пустым");
-    }
+  }
 
-    if (title!=null && title.length() > AddMessageForm.MAX_TITLE_LENGTH) {
-      errors.rejectValue("title", null, "Слишком большой заголовок");
-    }
+  public Group getGroup() {
+    return group;
+  }
 
-    if (msg != null) {
-      String error = Verifier.checkCharacterData(msg);
-      if (error != null) {
-        errors.rejectValue("msg", null, error);
-      }
-    }
-
-    if (url!=null && url.length() > AddMessageForm.MAX_URL_LENGTH) {
-      errors.rejectValue("url", null, "Слишком длинный URL");
-    }
+  public void setGroup(Group group) {
+    this.group = group;
   }
 }

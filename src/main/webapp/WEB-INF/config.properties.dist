@@ -13,7 +13,7 @@
 #    limitations under the License.
 #
 
-MainUrl=http://localhost:8080/
+MainUrl=http://127.0.0.1:8080/
 PathPrefix=target/tmp/
 HTMLPathPrefix=/var/www/test-lor/webapps/lor/
 Secret=secret

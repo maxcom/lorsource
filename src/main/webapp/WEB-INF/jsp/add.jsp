@@ -70,7 +70,7 @@
 <%--<p>--%>
 <%--<% } %>--%>
 
-<% if (group.isImagePostAllowed()) { %>
+<% if (group!=null && group.isImagePostAllowed()) { %>
 <p>
   Технические требования к изображению:
   <ul>
@@ -98,7 +98,7 @@
 Пароль:
 <input type=password name=password size=40><br>
 <% } %>
-<input type=hidden name=group value="<%= oldForm.getGuid() %>">
+<form:hidden path="group"/>
 
 <% if (oldForm.getReturnUrl()!=null) { %>
 <input type=hidden name=return value="<%= HTMLFormatter.htmlSpecialChars(oldForm.getReturnUrl()) %>">
@@ -108,7 +108,7 @@
 <form:input path="title" cssClass="required" size="40"/><br>
 </label>
 
-  <% if (group.isImagePostAllowed()) { %>
+  <% if (group!=null && group.isImagePostAllowed()) { %>
   Изображение:
   <input type="file" name="image"><br>
   <% } %>
@@ -118,7 +118,7 @@
 <font size="2"><b>Внимание:</b> Новый режим - <a href="/wiki/en/Lorcode">LORCODE</a></font><br>
 <form:textarea path="msg" cols="70" rows="20" id="form_msg"/><br>
 
-<% if (group.isLinksAllowed()) { %>
+<% if (group!=null && group.isLinksAllowed()) { %>
 <label>
 Текст ссылки:
 <input type=text name=linktext size=60 value="<%= oldForm.getLinktext()==null?group.getDefaultLinkText():HTMLFormatter.htmlSpecialChars(oldForm.getLinktext()) %>">
