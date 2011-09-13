@@ -42,9 +42,11 @@ public class AddMessageRequest {
       errors.rejectValue("title", null, "Слишком большой заголовок");
     }
 
-    String error = Verifier.checkCharacterData(msg);
-    if (error!=null) {
-      errors.rejectValue("msg", null, error);
+    if (msg != null) {
+      String error = Verifier.checkCharacterData(msg);
+      if (error != null) {
+        errors.rejectValue("msg", null, error);
+      }
     }
 
     if (url!=null && url.length() > AddMessageForm.MAX_URL_LENGTH) {
