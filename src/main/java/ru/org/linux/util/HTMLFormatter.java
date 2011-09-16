@@ -46,7 +46,7 @@ public class HTMLFormatter {
     String str; 
 
     if (outputLorcode) {
-      str = text;
+      str = text.replaceAll("\\[(/?code)\\]", "[[$1]]");
 //      str = escapeHtmlBBcode(text);
     } else {
       str = htmlSpecialChars(text);
