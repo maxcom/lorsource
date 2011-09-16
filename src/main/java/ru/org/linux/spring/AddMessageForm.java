@@ -44,7 +44,6 @@ public class AddMessageForm {
   private String sessionId = null;
   private boolean noinfo = false;
   private String image = "";
-  private String captchaResponse = "";
   private String mode = "";
   private String tags = null;
   private final String postIP;
@@ -72,10 +71,6 @@ public class AddMessageForm {
     return image;
   }
 
-  public String getCaptchaResponse() {
-    return captchaResponse;
-  }
-
   public String getMode() {
     return mode;
   }
@@ -99,7 +94,6 @@ public class AddMessageForm {
     sessionId = request.getParameter("session");
     preview = request.getParameter("preview") != null;
     if (!"GET".equals(request.getMethod())) {
-      captchaResponse = request.getParameter("j_captcha_response");
       mode = request.getParameter("mode");
     }
 
