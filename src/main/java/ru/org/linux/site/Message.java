@@ -126,7 +126,7 @@ public class Message implements Serializable {
   }
 
   public Message(AddMessageForm oldForm, AddMessageRequest form, User user, String message)
-          throws BadInputException, UtilException {
+          throws UtilException {
     // Init fields
 
     userAgent = 0;
@@ -138,15 +138,17 @@ public class Message implements Serializable {
 
     groupCommentsRestriction = group.getCommentsRestriction();
 
-    linktext = oldForm.getLinktextHTML();
+    if (form.getLinktext()!=null) {
+      linktext = HTMLFormatter.htmlSpecialChars(form.getLinktext());
+    } else {
+      linktext = null;
+    }
+
     url = form.getUrl();
 
     // url check
     if (!group.isImagePostAllowed()) {
       if (url != null && !"".equals(url)) {
-        if (linktext == null) {
-          throw new BadInputException("указан URL без текста");
-        }
         url = URLUtil.fixURL(url);
       }
     }
@@ -157,7 +159,7 @@ public class Message implements Serializable {
       title = null;
     }
 
-    havelink = form.getUrl() != null && oldForm.getLinktext() != null && !form.getUrl().isEmpty() && oldForm.getLinktext().length() > 0 && !group.isImagePostAllowed();
+    havelink = form.getUrl() != null && form.getLinktext() != null && !form.getUrl().isEmpty() && !form.getLinktext().isEmpty() && !group.isImagePostAllowed();
     sectionid = group.getSectionId();
     // Defaults
     msgid = 0;
@@ -184,7 +186,7 @@ public class Message implements Serializable {
     sectionCommentsRestriction = Section.getCommentPostscore(sectionid);
   }
 
-  public Message(Connection db, Message original, ServletRequest request) throws BadGroupException, SQLException, UtilException, UserErrorException {
+  public Message(Connection db, Message original, ServletRequest request) throws BadGroupException, UtilException, UserErrorException {
     userAgent = original.userAgent;
     postIP = original.postIP;
     guid = original.guid;

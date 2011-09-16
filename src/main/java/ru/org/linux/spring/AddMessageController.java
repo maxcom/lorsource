@@ -29,7 +29,6 @@ import ru.org.linux.spring.dao.GroupDao;
 import ru.org.linux.spring.dao.IPBlockDao;
 import ru.org.linux.spring.dao.SectionDao;
 import ru.org.linux.spring.dao.TagDao;
-import ru.org.linux.spring.validators.AddCommentRequestValidator;
 import ru.org.linux.spring.validators.AddMessageRequestValidator;
 import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.BadURLException;
@@ -177,7 +176,6 @@ public class AddMessageController extends ApplicationObjectSupport {
       if (group!=null && !group.isTopicPostingAllowed(user)) {
         throw new AccessViolationException("Не достаточно прав для постинга тем в эту группу");
       }
-      form.validate(errors);
 
       String message = processMessage(form.getMsg(), oldForm.getMode());
 
@@ -192,7 +190,12 @@ public class AddMessageController extends ApplicationObjectSupport {
       }
 
       if (group!=null && group.isImagePostAllowed()) {
-        form.setUrl(oldForm.processUpload(session, tmpl));
+        List<String> pair = oldForm.processUpload(session, tmpl);
+
+        if (pair!=null) {
+          form.setLinktext(pair.get(0));
+          form.setUrl(pair.get(1));
+        }
       }
 
       Message previewMsg = null;

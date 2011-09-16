@@ -40,5 +40,9 @@ public class AddMessageRequestValidator implements Validator {
     if (form.getUrl()!=null && form.getUrl().length() > AddMessageForm.MAX_URL_LENGTH) {
       errors.rejectValue("url", null, "Слишком длинный URL");
     }
+
+    if (form.getUrl()!=null && !form.getUrl().isEmpty() && (form.getLinktext()==null || form.getLinktext().isEmpty())) {
+      errors.rejectValue("linktext", null, "URL указан без текста ссылки");
+    }
   }
 }

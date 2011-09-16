@@ -1,8 +1,5 @@
 package ru.org.linux.spring;
 
-import org.jdom.Verifier;
-import org.springframework.validation.Errors;
-import ru.org.linux.site.AccessViolationException;
 import ru.org.linux.site.Group;
 
 public class AddMessageRequest {
@@ -10,6 +7,7 @@ public class AddMessageRequest {
   private String msg;
   private String url;
   private Group group;
+  private String linktext;
 
   public String getTitle() {
     return title;
@@ -35,14 +33,23 @@ public class AddMessageRequest {
     this.url = url;
   }
 
-  public void validate(Errors errors) throws AccessViolationException {
-  }
-
   public Group getGroup() {
     return group;
   }
 
   public void setGroup(Group group) {
     this.group = group;
+  }
+
+  public String getLinktext() {
+    if (linktext==null && group!=null) {
+      return group.getDefaultLinkText();
+    } else {
+      return linktext;
+    }
+  }
+
+  public void setLinktext(String linktext) {
+    this.linktext = linktext;
   }
 }

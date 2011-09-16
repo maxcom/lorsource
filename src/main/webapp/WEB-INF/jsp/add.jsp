@@ -116,13 +116,11 @@
 
 <% if (group!=null && group.isLinksAllowed()) { %>
 <label>
-Текст ссылки:
-<input type=text name=linktext size=60 value="<%= oldForm.getLinktext()==null?group.getDefaultLinkText():HTMLFormatter.htmlSpecialChars(oldForm.getLinktext()) %>">
+Текст ссылки: <form:input path="linktext" size="60"/>
 </label><br>
 <label>
-Ссылка (не забудьте <b>http://</b>)
-<form:input path="url" size="70"/><br>
-</label>
+Ссылка (не забудьте <b>http://</b>) <form:input path="url" size="70"/>
+</label><br>
 <% } %>
   <c:if test="${group.moderated}">
 Метки (разделенные запятой)

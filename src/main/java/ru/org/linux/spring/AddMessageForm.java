@@ -19,13 +19,11 @@ import com.google.common.collect.ImmutableList;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.multipart.MultipartRequest;
 import ru.org.linux.site.*;
 import ru.org.linux.util.BadImageException;
-import ru.org.linux.util.HTMLFormatter;
 import ru.org.linux.util.UtilException;
 
 import javax.servlet.http.HttpServletRequest;
@@ -49,7 +47,6 @@ public class AddMessageForm {
   private String captchaResponse = "";
   private String mode = "";
   private String tags = null;
-  private String linktext = null;
   private final String postIP;
   private String previewImagePath = null;
   private final ImmutableList<String> pollList;
@@ -103,15 +100,7 @@ public class AddMessageForm {
     return tags == null ? "" : StringUtils.strip(tags);
   }
 
-  public String getLinktext() {
-    return linktext;
-  }
-
-  public String getLinktextHTML() {
-    return linktext == null ? "" : HTMLFormatter.htmlSpecialChars(linktext);
-  }
-
-  public AddMessageForm(HttpServletRequest request, Template tmpl) throws IOException, ScriptErrorException,  ServletRequestBindingException {
+  public AddMessageForm(HttpServletRequest request, Template tmpl) throws IOException, ScriptErrorException {
     postIP = request.getRemoteAddr();
 
     noinfo = "1".equals(request.getParameter("noinfo"));
@@ -124,7 +113,6 @@ public class AddMessageForm {
       mode = request.getParameter("mode");
     }
 
-    linktext = request.getParameter("linktext");
     tags = request.getParameter("tags");
 
     if (request instanceof MultipartHttpServletRequest) {
@@ -166,7 +154,17 @@ public class AddMessageForm {
     }
   }
 
-  public String processUpload(HttpSession session, Template tmpl) throws IOException, BadImageException, UtilException, InterruptedException {
+  /**
+   *
+   * @param session
+   * @param tmpl
+   * @return pair <icon, image> or null
+   * @throws IOException
+   * @throws BadImageException
+   * @throws UtilException
+   * @throws InterruptedException
+   */
+  public List<String> processUpload(HttpSession session, Template tmpl) throws IOException, BadImageException, UtilException, InterruptedException {
     File uploadedFile = null;
 
     if (image != null && !"".equals(image)) {
@@ -181,10 +179,12 @@ public class AddMessageForm {
       if (image != null && !"".equals("image")) {
         screenshot.copyScreenshot(tmpl, sessionId);
       }
-      linktext = "gallery/preview/" + screenshot.getIconFile().getName();
       previewImagePath = screenshot.getMainFile().getAbsolutePath();
       session.setAttribute("image", screenshot.getMainFile().getAbsolutePath());
-      return "gallery/preview/" + screenshot.getMainFile().getName();
+      return ImmutableList.of(
+              "gallery/preview/" + screenshot.getIconFile().getName(),
+              "gallery/preview/" + screenshot.getMainFile().getName()
+      );
     }
 
     return null;
