@@ -31,12 +31,16 @@ public class PreparedEditInfo {
   private final boolean current;
   private final String title;
   private final List<String> tags;
+  private final String url;
+  private final String linktext;
 
   public PreparedEditInfo(
     Connection db,
     EditInfoDTO editInfo,
     String message,
     String title,
+    String url,
+    String linktext,
     List<String> tags,
     boolean current,
     boolean original
@@ -53,6 +57,8 @@ public class PreparedEditInfo {
     }
 
     this.title = title;
+    this.url = url;
+    this.linktext = linktext;
 
     this.current = current;
 
@@ -79,6 +85,14 @@ public class PreparedEditInfo {
     return title;
   }
 
+  public String getUrl() {
+    return url;
+  }
+
+  public String getLinktext() {
+    return linktext;
+  }
+
   public boolean isOriginal() {
     return original;
   }
@@ -93,6 +107,8 @@ public class PreparedEditInfo {
 
     String currentMessage = message.getMessage();
     String currentTitle = message.getTitle();
+    String currentUrl = message.getUrl();
+    String currentLinktext = message.getLinktext();
     List<String> currentTags = TagDao.getMessageTags(db, message.getMessageId());
 
     for (int i = 0; i<editInfoDTOs.size(); i++) {
@@ -104,6 +120,8 @@ public class PreparedEditInfo {
           dto,
           dto.getOldmessage()!=null ? currentMessage : null,
           dto.getOldtitle()!=null ? currentTitle : null,
+          dto.getOldurl()!=null ? currentUrl : null,
+          dto.getOldlinktext()!=null ? currentLinktext : null,
           dto.getOldtags()!=null ? currentTags : null,
           i==0,
           false
@@ -118,6 +136,14 @@ public class PreparedEditInfo {
         currentTitle = dto.getOldtitle();
       }
 
+      if (dto.getOldurl() != null) {
+        currentUrl = dto.getOldurl();
+      }
+
+      if (dto.getOldlinktext() != null) {
+        currentLinktext = dto.getOldlinktext();
+      }
+
       if (dto.getOldtags()!=null) {
         currentTags = TagDao.parseTags(dto.getOldtags());
       }
@@ -126,7 +152,7 @@ public class PreparedEditInfo {
     if (!editInfoDTOs.isEmpty()) {
       EditInfoDTO current = EditInfoDTO.createFromMessage(db, message);
 
-      editInfos.add(new PreparedEditInfo(db, current, currentMessage, currentTitle, currentTags, false, true));
+      editInfos.add(new PreparedEditInfo(db, current, currentMessage, currentTitle, currentUrl, currentLinktext, currentTags, false, true));
     }
 
     return editInfos;
