@@ -15,12 +15,14 @@
 
 package ru.org.linux.spring;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.ApplicationObjectSupport;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.Errors;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
@@ -31,11 +33,14 @@ import ru.org.linux.spring.validators.AddMessageRequestValidator;
 import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.BadURLException;
 import ru.org.linux.util.HTMLFormatter;
+import ru.org.linux.util.UtilException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 import java.beans.PropertyEditorSupport;
+import java.io.File;
+import java.io.IOException;
 import java.sql.Connection;
 import java.util.*;
 
@@ -212,12 +217,15 @@ public class AddMessageController extends ApplicationObjectSupport {
     Connection db = null;
 
     try {
+      String previewImagePath = null;
+
       if (group!=null && group.isImagePostAllowed()) {
-        List<String> pair = oldForm.processUpload(session, tmpl);
+        List<String> pair = processUpload(session, tmpl, oldForm, errors);
 
         if (pair!=null) {
           form.setLinktext(pair.get(0));
           form.setUrl(pair.get(1));
+          previewImagePath = pair.get(2);
         }
       }
 
@@ -249,7 +257,13 @@ public class AddMessageController extends ApplicationObjectSupport {
       }
 
       if (!oldForm.isPreview() && !errors.hasErrors()) {
-        int msgid = previewMsg.addTopicFromPreview(db, tmpl, request, oldForm.getPreviewImagePath(), user);
+        int msgid = previewMsg.addTopicFromPreview(
+                db,
+                tmpl,
+                request,
+                previewImagePath,
+                user
+        );
 
         if (oldForm.getPollList() != null) {
           int pollId = Poll.createPoll(db, oldForm.getPollList(), oldForm.getMultiSelect());
@@ -292,11 +306,6 @@ public class AddMessageController extends ApplicationObjectSupport {
         db.rollback();
       }
     } catch (BadURLException e) {
-      errors.reject(null, e.getMessage());
-      if (db != null) {
-        db.rollback();
-      }
-    } catch (BadImageException e) {
       errors.reject(null, e.getMessage());
       if (db != null) {
         db.rollback();
@@ -376,5 +385,57 @@ public class AddMessageController extends ApplicationObjectSupport {
   @ModelAttribute("modes")
   public Map<String, String> getModes() {
     return ImmutableMap.of("lorcode", "LORCODE", "ntobr", "User line break");
+  }
+
+  /**
+   *
+   * @param session
+   * @param tmpl
+   * @return <icon, image, previewImagePath> or null
+   * @throws IOException
+   * @throws BadImageException
+   * @throws UtilException
+   */
+  public List<String> processUpload(
+          HttpSession session,
+          Template tmpl,
+          AddMessageForm form,
+          Errors errors
+  ) throws IOException, UtilException {
+    File uploadedFile = null;
+
+    if (session==null) {
+      return null;
+    }
+
+    String image = form.getImage();
+
+    if (image != null && !form.getImage().isEmpty()) {
+      uploadedFile = new File(form.getImage());
+    } else if (session.getAttribute("image") != null && !"".equals(session.getAttribute("image"))) {
+      uploadedFile = new File((String) session.getAttribute("image"));
+    }
+
+    if (uploadedFile != null && uploadedFile.isFile() && uploadedFile.canRead()) {
+      try {
+        ScreenshotProcessor screenshot = new ScreenshotProcessor(uploadedFile.getAbsolutePath());
+        logger.info("SCREEN: " + uploadedFile.getAbsolutePath() + "\nINFO: SCREEN: " + image);
+        if (image != null && !"".equals("image")) {
+          screenshot.copyScreenshot(tmpl, session.getId());
+        }
+
+        session.setAttribute("image", screenshot.getMainFile().getAbsolutePath());
+
+        return ImmutableList.of(
+                "gallery/preview/" + screenshot.getIconFile().getName(),
+                "gallery/preview/" + screenshot.getMainFile().getName(),
+                screenshot.getMainFile().getAbsolutePath()
+        );
+      } catch (BadImageException e) {
+        errors.reject(null, "Некорректное изображение: "+e.getMessage());
+      }
+    }
+
+    return null;
   }
 }

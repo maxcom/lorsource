@@ -35,6 +35,7 @@ public class ScreenshotProcessor {
   private File mainFile;
   private File mediumFile;
   private File iconFile;
+
   private static final Pattern GALLERY_NAME = Pattern.compile("(gallery/[^.]+)(\\.\\w+)");
   private static final int ICON_WIDTH = 200;
   private static final int MEDIUM_WIDTH = 500;

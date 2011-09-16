@@ -353,6 +353,7 @@
                         <configuration>       
                             <tasks>
                                 <mkdir dir="${project.build.directory}/tmp/linux-storage/profile"/>
+                                <mkdir dir="${project.build.directory}/tmp/linux-storage/tmp"/>
                                 <mkdir dir="${project.build.directory}/tmp/jamwiki/upload"/>
                             </tasks>
                         </configuration>

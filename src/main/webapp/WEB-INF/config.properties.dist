@@ -15,7 +15,7 @@
 
 MainUrl=http://127.0.0.1:8080/
 PathPrefix=target/tmp/
-HTMLPathPrefix=/var/www/test-lor/webapps/lor/
+HTMLPathPrefix=target/lor-1.0-SNAPSHOT/
 Secret=secret
 recaptcha.private=6LclXgcAAAAAAKeX4IoMTUdy1nUSzXRXSH7KcrHM
 recaptcha.public=6LclXgcAAAAAAIRhcA0V1DNiTT_AGUg_baM3-vc8

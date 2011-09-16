@@ -23,14 +23,10 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.multipart.MultipartRequest;
 import ru.org.linux.site.Poll;
-import ru.org.linux.site.ScreenshotProcessor;
 import ru.org.linux.site.ScriptErrorException;
 import ru.org.linux.site.Template;
-import ru.org.linux.util.BadImageException;
-import ru.org.linux.util.UtilException;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -46,7 +42,6 @@ public class AddMessageForm {
   private String image = "";
   private String tags = null;
   private final String postIP;
-  private String previewImagePath = null;
   private final ImmutableList<String> pollList;
   public static final int MAX_MESSAGE_LENGTH_ANONYMOUS = 4096;
   public static final int MAX_MESSAGE_LENGTH = 16384;
@@ -126,48 +121,8 @@ public class AddMessageForm {
     }
   }
 
-  /**
-   *
-   * @param session
-   * @param tmpl
-   * @return pair <icon, image> or null
-   * @throws IOException
-   * @throws BadImageException
-   * @throws UtilException
-   * @throws InterruptedException
-   */
-  public List<String> processUpload(HttpSession session, Template tmpl) throws IOException, BadImageException, UtilException {
-    File uploadedFile = null;
-
-    if (image != null && !"".equals(image)) {
-      uploadedFile = new File(image);
-    } else if (sessionId != null && !"".equals(sessionId) && session.getAttribute("image") != null && !"".equals(session.getAttribute("image"))) {
-      uploadedFile = new File((String) session.getAttribute("image"));
-    }
-
-    if (uploadedFile != null && uploadedFile.isFile() && uploadedFile.canRead()) {
-      ScreenshotProcessor screenshot = new ScreenshotProcessor(uploadedFile.getAbsolutePath());
-      logger.info("SCREEN: " + uploadedFile.getAbsolutePath() + "\nINFO: SCREEN: " + image);
-      if (image != null && !"".equals("image")) {
-        screenshot.copyScreenshot(tmpl, sessionId);
-      }
-      previewImagePath = screenshot.getMainFile().getAbsolutePath();
-      session.setAttribute("image", screenshot.getMainFile().getAbsolutePath());
-      return ImmutableList.of(
-              "gallery/preview/" + screenshot.getIconFile().getName(),
-              "gallery/preview/" + screenshot.getMainFile().getName()
-      );
-    }
-
-    return null;
-  }
-
   public String getPostIP() {
     return postIP;
-  }
-
-  public String getPreviewImagePath() {
-    return previewImagePath;
   }
 
   public ImmutableList<String> getPollList() {
