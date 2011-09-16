@@ -15,6 +15,7 @@
 
 package ru.org.linux.site;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.logging.Log;
@@ -521,7 +522,7 @@ public class Message implements Serializable {
       );
     }
 
-    if (!oldLinkText.equals(linktext)) {
+    if (!equalStrings(oldLinkText, linktext)) {
       modified = true;
       editInfo.setOldlinktext(oldLinkText);
 
@@ -531,7 +532,7 @@ public class Message implements Serializable {
       );
     }
 
-    if (!oldURL.equals(url)) {
+    if (!equalStrings(oldURL, url)) {
       modified = true;
       editInfo.setOldurl(oldURL);
 
@@ -561,6 +562,14 @@ public class Message implements Serializable {
     }
 
     return modified;
+  }
+
+  private boolean equalStrings(String s1, String s2) {
+    if (Strings.isNullOrEmpty(s1)) {
+      return Strings.isNullOrEmpty(s2);
+    }
+
+    return s1.equals(s2);
   }
 
   public String getUrl() {
