@@ -100,10 +100,6 @@
 <% } %>
 <form:hidden path="group"/>
 
-<% if (oldForm.getReturnUrl()!=null) { %>
-<input type=hidden name=return value="<%= HTMLFormatter.htmlSpecialChars(oldForm.getReturnUrl()) %>">
-<% } %>
-
 <label>Заглавие:
 <form:input path="title" cssClass="required" size="40"/><br>
 </label>

@@ -20,7 +20,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.web.bind.ServletRequestBindingException;
-import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.multipart.MultipartRequest;
@@ -42,7 +41,6 @@ public class AddMessageForm {
   private static final Log logger = LogFactory.getLog(AddMessageForm.class);
 
   private final boolean preview;
-  private String returnUrl = null;
   private String sessionId = null;
   private boolean noinfo = false;
   private String password = null;
@@ -63,10 +61,6 @@ public class AddMessageForm {
 
   public boolean isPreview() {
     return preview;
-  }
-
-  public String getReturnUrl() {
-    return returnUrl;
   }
 
   public String getSessionId() {
@@ -131,7 +125,6 @@ public class AddMessageForm {
     }
 
     linktext = request.getParameter("linktext");
-    returnUrl = request.getParameter("return");
     tags = request.getParameter("tags");
 
     if (request instanceof MultipartHttpServletRequest) {
