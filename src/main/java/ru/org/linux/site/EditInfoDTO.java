@@ -29,6 +29,8 @@ public class EditInfoDTO {
   private Timestamp editdate;
   private String oldtitle;
   private String oldtags;
+  private String oldlinktext;
+  private String oldurl;
 
   public int getId() {
     return id;
@@ -86,6 +88,22 @@ public class EditInfoDTO {
     this.oldtags = oldtags;
   }
 
+  public String getOldlinktext() {
+    return oldlinktext;
+  }
+
+  public void setOldlinktext(String oldlinktext) {
+    this.oldlinktext = oldlinktext;
+  }
+
+  public String getOldurl() {
+    return oldurl;
+  }
+
+  public void setOldurl(String oldurl) {
+    this.oldurl = oldurl;
+  }
+
   public static EditInfoDTO createFromMessage(Connection db, Message message) throws SQLException {
     EditInfoDTO current = new EditInfoDTO();
 
@@ -94,6 +112,8 @@ public class EditInfoDTO {
     current.setEditor(message.getUid());
     current.setMsgid(message.getMessageId());
     current.setOldtags(TagDao.toString(TagDao.getMessageTags(db, message.getMessageId())));
+    current.setOldlinktext(message.getLinktext());
+    current.setOldurl(message.getUrl());
 
     return current;
   }
