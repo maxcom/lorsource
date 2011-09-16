@@ -474,7 +474,7 @@ public class Message implements Serializable {
   public boolean updateMessageText(Connection db, User editor, List<String> newTags) throws SQLException {
     SingleConnectionDataSource scds = new SingleConnectionDataSource(db, true);
 
-    PreparedStatement pstGet = db.prepareStatement("SELECT message,title FROM msgbase JOIN topics ON msgbase.id=topics.id WHERE topics.id=? FOR UPDATE");
+    PreparedStatement pstGet = db.prepareStatement("SELECT message,title,linktext,url FROM msgbase JOIN topics ON msgbase.id=topics.id WHERE topics.id=? FOR UPDATE");
 
     pstGet.setInt(1, msgid);
     ResultSet rs = pstGet.executeQuery();
@@ -484,6 +484,8 @@ public class Message implements Serializable {
 
     String oldMessage = rs.getString("message");
     String oldTitle = rs.getString("title");
+    String oldLinkText = rs.getString("linktext");
+    String oldURL = rs.getString("url");
 
     rs.close();
     pstGet.close();
@@ -519,6 +521,26 @@ public class Message implements Serializable {
       );
     }
 
+    if (!oldLinkText.equals(linktext)) {
+      modified = true;
+      editInfo.setOldlinktext(oldLinkText);
+
+      jdbcTemplate.update(
+        "UPDATE topics SET linktext=:linktext WHERE id=:id",
+        ImmutableMap.of("linktext", linktext, "id", msgid)
+      );
+    }
+
+    if (!oldURL.equals(url)) {
+      modified = true;
+      editInfo.setOldurl(oldURL);
+
+      jdbcTemplate.update(
+        "UPDATE topics SET url=:url WHERE id=:id",
+        ImmutableMap.of("url", url, "id", msgid)
+      );
+    }
+
     if (newTags != null) {
       boolean modifiedTags = TagDao.updateTags(db, msgid, newTags);
 
@@ -533,7 +555,7 @@ public class Message implements Serializable {
       SimpleJdbcInsert insert =
         new SimpleJdbcInsert(scds)
           .withTableName("edit_info")
-          .usingColumns("msgid", "editor", "oldmessage", "oldtitle", "oldtags");
+          .usingColumns("msgid", "editor", "oldmessage", "oldtitle", "oldtags", "oldlinktext", "oldurl");
 
       insert.execute(new BeanPropertySqlParameterSource(editInfo));
     }
