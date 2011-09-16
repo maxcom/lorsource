@@ -15,6 +15,7 @@
 
 package ru.org.linux.spring;
 
+import com.google.common.collect.ImmutableMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.ApplicationObjectSupport;
 import org.springframework.stereotype.Controller;
@@ -96,7 +97,11 @@ public class AddMessageController extends ApplicationObjectSupport {
     Template tmpl = Template.getTemplate(request);
 
     AddMessageForm oldForm = new AddMessageForm(request, tmpl);
-    oldForm.setMode(tmpl.getFormatMode());
+
+    if (form.getMode()==null) {
+      form.setMode(tmpl.getFormatMode());
+    }
+
     params.put("oldForm", oldForm);
 
     Group group = form.getGroup();
@@ -192,7 +197,7 @@ public class AddMessageController extends ApplicationObjectSupport {
       errors.reject(null, "Не достаточно прав для постинга тем в эту группу");
     }
 
-    String message = processMessage(form.getMsg(), oldForm.getMode());
+    String message = processMessage(form.getMsg(), form.getMode());
 
     if (user.isAnonymous()) {
       if (message.length() > AddMessageForm.MAX_MESSAGE_LENGTH_ANONYMOUS) {
@@ -366,5 +371,10 @@ public class AddMessageController extends ApplicationObjectSupport {
     binder.setValidator(new AddMessageRequestValidator());
 
     binder.setBindingErrorProcessor(new ExceptionBindingErrorProcessor());
+  }
+
+  @ModelAttribute("modes")
+  public Map<String, String> getModes() {
+    return ImmutableMap.of("lorcode", "LORCODE", "ntobr", "User line break");
   }
 }

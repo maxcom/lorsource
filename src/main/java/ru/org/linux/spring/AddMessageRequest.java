@@ -9,6 +9,7 @@ public class AddMessageRequest {
   private String url;
   private Group group;
   private String linktext;
+  private String mode;
 
   private User nick;
   private String password;
@@ -71,5 +72,13 @@ public class AddMessageRequest {
 
   public void setPassword(String password) {
     this.password = password;
+  }
+
+  public String getMode() {
+    return mode;
+  }
+
+  public void setMode(String mode) {
+    this.mode = mode;
   }
 }

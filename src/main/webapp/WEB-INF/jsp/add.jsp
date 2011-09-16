@@ -22,6 +22,7 @@
 <%--@elvariable id="message" type="ru.org.linux.site.PreparedMessage"--%>
 <%--@elvariable id="group" type="ru.org.linux.site.Group"--%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
+<%--@elvariable id="modes" type="java.util.Map"--%>
 <% Template tmpl = Template.getTemplate(request);%>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
@@ -32,8 +33,6 @@
     AddMessageForm oldForm = (AddMessageForm) request.getAttribute("oldForm");
     Group group = (Group) request.getAttribute("group");
     SortedSet<String> topTags = (SortedSet<String>) request.getAttribute("topTags");
-
-    String mode = oldForm.getMode();
 %>
 
 <title>Добавить сообщение</title>
@@ -131,10 +130,8 @@
 <input type=text name=tags id="tags" size=70 value="<%= oldForm.getTags()==null?"":HTMLFormatter.htmlSpecialChars(StringUtils.strip(oldForm.getTags())) %>"><br>
   Популярные теги: <%= TagDao.getEditTags(topTags) %> <br>
   </c:if>
-<select name=mode>
-<option value=lorcode <%= ("lorcode".equals(mode))?"selected":""%> >LORCODE
-<option value=ntobr <%= ("ntobr".equals(mode))?"selected":""%> >User line break
-</select>
+
+<form:select path="mode" items="${modes}"/>
 
   <lor:captcha/>
 <br>

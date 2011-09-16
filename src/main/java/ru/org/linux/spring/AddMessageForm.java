@@ -44,7 +44,6 @@ public class AddMessageForm {
   private String sessionId = null;
   private boolean noinfo = false;
   private String image = "";
-  private String mode = "";
   private String tags = null;
   private final String postIP;
   private String previewImagePath = null;
@@ -71,14 +70,6 @@ public class AddMessageForm {
     return image;
   }
 
-  public String getMode() {
-    return mode;
-  }
-
-  public void setMode(String mode) {
-    this.mode = mode;
-  }
-
   public String getTags() {
     return tags;
   }
@@ -93,9 +84,6 @@ public class AddMessageForm {
     noinfo = "1".equals(request.getParameter("noinfo"));
     sessionId = request.getParameter("session");
     preview = request.getParameter("preview") != null;
-    if (!"GET".equals(request.getMethod())) {
-      mode = request.getParameter("mode");
-    }
 
     tags = request.getParameter("tags");
 
