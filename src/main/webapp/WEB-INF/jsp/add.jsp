@@ -93,10 +93,14 @@
  <% }
 %>
 <% if (!tmpl.isSessionAuthorized()) { %>
+<label>
 Имя:
-<input type=text name=nick value="<%= oldForm.getNick()==null?"anonymous":HTMLFormatter.htmlSpecialChars(oldForm.getNick()) %>" size=40><br>
+<input type=text name="nick" size=40>
+</label><br>
+<label>
 Пароль:
 <input type=password name=password size=40><br>
+</label>
 <% } %>
 <form:hidden path="group"/>
 

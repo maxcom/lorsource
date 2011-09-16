@@ -22,7 +22,10 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.multipart.MultipartRequest;
-import ru.org.linux.site.*;
+import ru.org.linux.site.Poll;
+import ru.org.linux.site.ScreenshotProcessor;
+import ru.org.linux.site.ScriptErrorException;
+import ru.org.linux.site.Template;
 import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.UtilException;
 
@@ -30,7 +33,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.io.File;
 import java.io.IOException;
-import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,8 +43,6 @@ public class AddMessageForm {
   private final boolean preview;
   private String sessionId = null;
   private boolean noinfo = false;
-  private String password = null;
-  private String nick = null;
   private String image = "";
   private String captchaResponse = "";
   private String mode = "";
@@ -66,14 +66,6 @@ public class AddMessageForm {
 
   public boolean getNoinfo() {
     return noinfo;
-  }
-
-  public String getPassword() {
-    return password;
-  }
-
-  public String getNick() {
-    return nick;
   }
 
   public String getImage() {
@@ -108,8 +100,6 @@ public class AddMessageForm {
     preview = request.getParameter("preview") != null;
     if (!"GET".equals(request.getMethod())) {
       captchaResponse = request.getParameter("j_captcha_response");
-      nick = request.getParameter("nick");
-      password = request.getParameter("password");
       mode = request.getParameter("mode");
     }
 
@@ -188,25 +178,6 @@ public class AddMessageForm {
     }
 
     return null;
-  }
-
-  public User validateAndGetUser(Template tmpl, Connection db) throws UserNotFoundException, BadPasswordException, AccessViolationException, BadInputException {
-    User user;
-
-    if (!tmpl.isSessionAuthorized()) {
-      if (nick == null) {
-        throw new BadInputException("Вы уже вышли из системы");
-      }
-      user = User.getUser(db, nick);
-      user.checkPassword(password);
-    } else {
-      user = tmpl.getCurrentUser();
-    }
-
-    user.checkBlocked();
-    user.checkAnonymous();
-
-    return user;
   }
 
   public String getPostIP() {

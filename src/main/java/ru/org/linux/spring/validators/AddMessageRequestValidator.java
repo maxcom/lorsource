@@ -3,6 +3,7 @@ package ru.org.linux.spring.validators;
 import org.jdom.Verifier;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
+import ru.org.linux.site.BadPasswordException;
 import ru.org.linux.spring.AddMessageForm;
 import ru.org.linux.spring.AddMessageRequest;
 
@@ -43,6 +44,15 @@ public class AddMessageRequestValidator implements Validator {
 
     if (form.getUrl()!=null && !form.getUrl().isEmpty() && (form.getLinktext()==null || form.getLinktext().isEmpty())) {
       errors.rejectValue("linktext", null, "URL указан без текста ссылки");
+    }
+
+    if (form.getNick()!=null) {
+      try {
+        form.getNick().checkPassword(form.getPassword());
+      } catch (BadPasswordException e) {
+        errors.rejectValue("password", null, e.getMessage());
+        form.setNick(null);
+      }
     }
   }
 }

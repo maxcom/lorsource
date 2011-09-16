@@ -25,10 +25,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.site.*;
-import ru.org.linux.spring.dao.GroupDao;
-import ru.org.linux.spring.dao.IPBlockDao;
-import ru.org.linux.spring.dao.SectionDao;
-import ru.org.linux.spring.dao.TagDao;
+import ru.org.linux.spring.dao.*;
 import ru.org.linux.spring.validators.AddMessageRequestValidator;
 import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.BadURLException;
@@ -50,6 +47,7 @@ public class AddMessageController extends ApplicationObjectSupport {
   private GroupDao groupDao;
   private SectionDao sectionDao;
   private TagDao tagDao;
+  private UserDao userDao;
 
   @Autowired
   public void setSearchQueueSender(SearchQueueSender searchQueueSender) {
@@ -84,6 +82,11 @@ public class AddMessageController extends ApplicationObjectSupport {
   @Autowired
   public void setTagDao(TagDao tagDao) {
     this.tagDao = tagDao;
+  }
+
+  @Autowired
+  public void setUserDao(UserDao userDao) {
+    this.userDao = userDao;
   }
 
   @RequestMapping(value = "/add.jsp", method = RequestMethod.GET)
@@ -161,34 +164,49 @@ public class AddMessageController extends ApplicationObjectSupport {
       params.put("addportal", sectionDao.getAddInfo(group.getSectionId()));
     }
 
+    User user;
+
+    if (!Template.isSessionAuthorized(session)) {
+      if (form.getNick() != null) {
+        user = form.getNick();
+      } else {
+        user = userDao.getAnonymous();
+      }
+
+      if (form.getPassword()==null) {
+        errors.rejectValue("password", null, "Требуется авторизация");
+      }
+    } else {
+      user = tmpl.getCurrentUser();
+    }
+
+    user.checkBlocked(errors);
+
+    if (user.isAnonymous()) {
+      errors.reject(null, "Анонимный пользователь");
+    }
+
+    ipBlockDao.checkBlockIP(request.getRemoteAddr(), errors);
+
+    if (group!=null && !group.isTopicPostingAllowed(user)) {
+      errors.reject(null, "Не достаточно прав для постинга тем в эту группу");
+    }
+
+    String message = processMessage(form.getMsg(), oldForm.getMode());
+
+    if (user.isAnonymous()) {
+      if (message.length() > AddMessageForm.MAX_MESSAGE_LENGTH_ANONYMOUS) {
+        errors.rejectValue("msg", null, "Слишком большое сообщение");
+      }
+    } else {
+      if (message.length() > AddMessageForm.MAX_MESSAGE_LENGTH) {
+        errors.rejectValue("msg", null, "Слишком большое сообщение");
+      }
+    }
+
     Connection db = null;
 
     try {
-      ipBlockDao.checkBlockIP(request.getRemoteAddr(), errors);
-
-      db = LorDataSource.getConnection();
-      db.setAutoCommit(false);
-
-      tmpl.updateCurrentUser(db);
-
-      User user = oldForm.validateAndGetUser(tmpl, db);
-
-      if (group!=null && !group.isTopicPostingAllowed(user)) {
-        throw new AccessViolationException("Не достаточно прав для постинга тем в эту группу");
-      }
-
-      String message = processMessage(form.getMsg(), oldForm.getMode());
-
-      if (user.isAnonymous()) {
-        if (message.length() > AddMessageForm.MAX_MESSAGE_LENGTH_ANONYMOUS) {
-          errors.rejectValue("msg", null, "Слишком большое сообщение");
-        }
-      } else {
-        if (message.length() > AddMessageForm.MAX_MESSAGE_LENGTH) {
-          errors.rejectValue("msg", null, "Слишком большое сообщение");
-        }
-      }
-
       if (group!=null && group.isImagePostAllowed()) {
         List<String> pair = oldForm.processUpload(session, tmpl);
 
@@ -197,6 +215,9 @@ public class AddMessageController extends ApplicationObjectSupport {
           form.setUrl(pair.get(1));
         }
       }
+
+      db = LorDataSource.getConnection();
+      db.setAutoCommit(false);
 
       Message previewMsg = null;
 
@@ -336,6 +357,8 @@ public class AddMessageController extends ApplicationObjectSupport {
         }
       }
     });
+
+    binder.registerCustomEditor(User.class, new UserPropertyEditor(userDao));
   }
 
   @InitBinder("form")
