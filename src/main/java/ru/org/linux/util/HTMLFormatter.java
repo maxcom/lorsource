@@ -46,7 +46,8 @@ public class HTMLFormatter {
     String str; 
 
     if (outputLorcode) {
-      str = escapeHtmlBBcode(text);
+      str = text;
+//      str = escapeHtmlBBcode(text);
     } else {
       str = htmlSpecialChars(text);
     }
