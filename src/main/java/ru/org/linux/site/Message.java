@@ -550,7 +550,7 @@ public class Message implements Serializable {
   }
 
   public int addTopicFromPreview(Connection db, Template tmpl, HttpServletRequest request, String previewImagePath, User user)
-    throws SQLException, UtilException, IOException, BadImageException, InterruptedException, ScriptErrorException {
+    throws SQLException, UtilException, IOException, BadImageException, ScriptErrorException {
 
     Group group = Group.getGroup(db, guid);
 

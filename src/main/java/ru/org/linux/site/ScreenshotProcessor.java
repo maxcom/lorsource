@@ -15,14 +15,14 @@
 
 package ru.org.linux.site;
 
+import ru.org.linux.util.BadImageException;
+import ru.org.linux.util.ImageInfo;
+import ru.org.linux.util.UtilException;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import ru.org.linux.util.BadImageException;
-import ru.org.linux.util.ImageInfo;
-import ru.org.linux.util.UtilException;
 
 public class ScreenshotProcessor {
   public static final int MAX_SCREENSHOT_FILESIZE = 1500000;
@@ -73,13 +73,13 @@ public class ScreenshotProcessor {
     mediumFile = new File(path, medname);
   }
 
-  public void copyScreenshotFromPreview(Template tmpl, int msgid) throws IOException, UtilException, InterruptedException {
+  public void copyScreenshotFromPreview(Template tmpl, int msgid) throws IOException, UtilException {
     initFiles(Integer.toString(msgid), tmpl.getObjectConfig().getHTMLPathPrefix() + "/gallery");
 
     doResize();
   }
 
-  private void doResize() throws IOException, UtilException, InterruptedException {
+  private void doResize() throws IOException, UtilException {
     file.renameTo(mainFile);
 
     boolean error = true;
@@ -88,6 +88,8 @@ public class ScreenshotProcessor {
       ImageInfo.resizeImage(mainFile.getAbsolutePath(), iconFile.getAbsolutePath(), ICON_WIDTH);
       ImageInfo.resizeImage(mainFile.getAbsolutePath(), mediumFile.getAbsolutePath(), MEDIUM_WIDTH);
       error = false;
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
     } finally {
       if (error) {
         if (mainFile.exists()) {
@@ -105,7 +107,7 @@ public class ScreenshotProcessor {
     }
   }
 
-  public void copyScreenshot(Template tmpl, String sessionId) throws IOException, UtilException, InterruptedException {
+  public void copyScreenshot(Template tmpl, String sessionId) throws IOException, UtilException {
     initFiles(sessionId, tmpl.getObjectConfig().getHTMLPathPrefix() + "/gallery/preview");
 
     doResize();

@@ -164,7 +164,7 @@ public class AddMessageForm {
    * @throws UtilException
    * @throws InterruptedException
    */
-  public List<String> processUpload(HttpSession session, Template tmpl) throws IOException, BadImageException, UtilException, InterruptedException {
+  public List<String> processUpload(HttpSession session, Template tmpl) throws IOException, BadImageException, UtilException {
     File uploadedFile = null;
 
     if (image != null && !"".equals(image)) {
