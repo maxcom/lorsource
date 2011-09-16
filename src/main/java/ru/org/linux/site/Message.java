@@ -126,7 +126,7 @@ public class Message implements Serializable {
   }
 
   public Message(AddMessageForm oldForm, AddMessageRequest form, User user, String message)
-    throws SQLException, UtilException, ScriptErrorException, UserErrorException {
+          throws BadInputException, UtilException {
     // Init fields
 
     userAgent = 0;
