@@ -564,7 +564,7 @@ public class Message implements Serializable {
     return modified;
   }
 
-  private boolean equalStrings(String s1, String s2) {
+  private static boolean equalStrings(String s1, String s2) {
     if (Strings.isNullOrEmpty(s1)) {
       return Strings.isNullOrEmpty(s2);
     }
