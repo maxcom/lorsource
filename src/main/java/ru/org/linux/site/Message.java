@@ -599,8 +599,7 @@ public class Message implements Serializable {
       linktext = "gallery/" + screenshot.getIconFile().getName();
     }
 
-    PreparedStatement pst = db.prepareStatement("INSERT INTO topics (postip, groupid, userid, title, url, moderate, postdate, id, linktext, deleted, ua_id) VALUES ('" + request.getRemoteAddr() + "',?, ?, ?, ?, 'f', CURRENT_TIMESTAMP, ?, ?, 'f', create_user_agent(?))");
-//                pst.setString(1, request.getRemoteAddr());
+    PreparedStatement pst = db.prepareStatement("INSERT INTO topics (groupid, userid, title, url, moderate, postdate, id, linktext, deleted, ua_id, postip) VALUES (?, ?, ?, ?, 'f', CURRENT_TIMESTAMP, ?, ?, 'f', create_user_agent(?),?::inet)");
     pst.setInt(1, group.getId());
     pst.setInt(2, user.getId());
     pst.setString(3, title);
@@ -608,6 +607,7 @@ public class Message implements Serializable {
     pst.setInt(5, msgid);
     pst.setString(6, linktext);
     pst.setString(7, request.getHeader("User-Agent"));
+    pst.setString(8, postIP);
     pst.executeUpdate();
     pst.close();
 
