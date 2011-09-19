@@ -45,8 +45,6 @@ public class AddMessageForm {
   private final ImmutableList<String> pollList;
   public static final int MAX_MESSAGE_LENGTH_ANONYMOUS = 4096;
   public static final int MAX_MESSAGE_LENGTH = 16384;
-  public static final int MAX_TITLE_LENGTH = 255;
-  public static final int MAX_URL_LENGTH = 255;
   private boolean multiSelect = false;
 
   public boolean isPreview() {
