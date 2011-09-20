@@ -90,7 +90,7 @@
     <condition name="host" operator="notequal">^127.0.0.1</condition>  
     <condition name="host" operator="notequal">^$</condition>
     <from>^/(.*)</from>
-    <to type="redirect" last="true">http://www.linux.org.ru/$1</to>
+    <to type="redirect" last="true">%{scheme}://www.linux.org.ru/$1</to>
   </rule>
 
   <rule>
