@@ -30,7 +30,9 @@
 
 <jsp:include page="${template.style}/head.jsp"/>
 
-<!--TopList COUNTER-->
-<img height=1 width=1 src="http://top.list.ru/counter?id=71642" alt="">
-<!--TopList COUNTER-->
+<c:if test="${not pageContext.request.secure}">
+    <!--TopList COUNTER-->
+    <img height=1 width=1 src="http://top.list.ru/counter?id=71642" alt="">
+    <!--TopList COUNTER-->
+</c:if>
 <div id="bd">
