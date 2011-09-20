@@ -384,7 +384,7 @@
 <hr>
 <% } %>
 
-<c:if test="${showAdsense}">
+<c:if test="${showAdsense and not pageContext.request.secure}">
   <script type="text/javascript">
     <!--
     $(document).ready(function(){
