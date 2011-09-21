@@ -5,7 +5,9 @@ import org.jdom.Verifier;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 import ru.org.linux.site.BadPasswordException;
+import ru.org.linux.site.UserErrorException;
 import ru.org.linux.spring.AddMessageRequest;
+import ru.org.linux.spring.dao.TagDao;
 import ru.org.linux.util.URLUtil;
 
 public class AddMessageRequestValidator implements Validator {
@@ -60,6 +62,14 @@ public class AddMessageRequestValidator implements Validator {
       } catch (BadPasswordException e) {
         errors.rejectValue("password", null, e.getMessage());
         form.setNick(null);
+      }
+    }
+
+    if (form.getTags()!=null) {
+      try {
+        TagDao.parseTags(form.getTags());
+      } catch (UserErrorException ex) {
+        errors.rejectValue("tags", null, ex.getMessage());
       }
     }
   }

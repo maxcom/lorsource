@@ -300,11 +300,6 @@ public class AddMessageController extends ApplicationObjectSupport {
 
         return new ModelAndView("add-done-moderated", params);
       }
-    } catch (UserErrorException e) {
-      errors.reject(null, e.getMessage());
-      if (db != null) {
-        db.rollback();
-      }
     } finally {
       if (db != null) {
         db.close();
