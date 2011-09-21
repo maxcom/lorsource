@@ -60,12 +60,12 @@ public class UrlTag extends Tag {
   @Override
   public String renderNodeXhtml(Node node) {
     StringBuilder ret = new StringBuilder();
-    String url;
     if (node.lengthChildren() == 0) {
       return "";
     }
     // Внцтри [url] только текст
     TextNode txtNode = (TextNode) node.getChildren().iterator().next();
+    String url;
     if (node.isParameter()) {
       // сюда никогда не должна попасть обрабатывается специально в Parser
       url = node.getParameter().trim();
@@ -77,7 +77,7 @@ public class UrlTag extends Tag {
       linkText = url;
     }
     try {
-      String escapedUrl = URLUtil.fixURL(url);
+      String escapedUrl = URLUtil.checkAndFixURL(url);
       ret.append("<a href=\"");
       ret.append(escapedUrl);
       ret.append("\">");

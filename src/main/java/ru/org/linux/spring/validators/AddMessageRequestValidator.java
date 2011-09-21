@@ -5,6 +5,7 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 import ru.org.linux.site.BadPasswordException;
 import ru.org.linux.spring.AddMessageRequest;
+import ru.org.linux.util.URLUtil;
 
 public class AddMessageRequestValidator implements Validator {
   public static final int MAX_TITLE_LENGTH = 255;
@@ -42,6 +43,10 @@ public class AddMessageRequestValidator implements Validator {
 
     if (form.getUrl()!=null && form.getUrl().length() > MAX_URL_LENGTH) {
       errors.rejectValue("url", null, "Слишком длинный URL");
+    }
+
+    if (form.getUrl()!=null && !URLUtil.isUrl(form.getUrl())) {
+      errors.rejectValue("url", null, "Некорректный URL");
     }
 
     if (form.getUrl()!=null && !form.getUrl().isEmpty() && (form.getLinktext()==null || form.getLinktext().isEmpty())) {

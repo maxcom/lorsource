@@ -126,10 +126,7 @@ public class Message implements Serializable {
     sectionCommentsRestriction = Section.getCommentPostscore(sectionid);
   }
 
-  public Message(AddMessageForm oldForm, AddMessageRequest form, User user, String message)
-          throws UtilException {
-    // Init fields
-
+  public Message(AddMessageForm oldForm, AddMessageRequest form, User user, String message) {
     userAgent = 0;
     postIP = oldForm.getPostIP();
 
@@ -221,7 +218,7 @@ public class Message implements Serializable {
         if (linktext == null) {
           throw new BadInputException("указан URL без текста");
         }
-        url = URLUtil.fixURL(url);
+        url = URLUtil.checkAndFixURL(url);
       }
     }
 

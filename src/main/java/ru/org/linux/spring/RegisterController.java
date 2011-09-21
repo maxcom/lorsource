@@ -146,7 +146,7 @@ public class RegisterController extends ApplicationObjectSupport {
       }
 
       if (url != null) {
-        url = URLUtil.fixURL(url);
+        url = URLUtil.checkAndFixURL(url);
       }
 
       if (!changeMode) {
@@ -290,7 +290,7 @@ public class RegisterController extends ApplicationObjectSupport {
         ist.setString(4, encryptor.encryptPassword(password));
 
         if (url != null) {
-          ist.setString(5, URLUtil.fixURL(url));
+          ist.setString(5, URLUtil.checkAndFixURL(url));
         } else {
           ist.setString(5, null);
         }

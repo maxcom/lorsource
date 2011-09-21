@@ -31,7 +31,6 @@ import ru.org.linux.site.*;
 import ru.org.linux.spring.dao.*;
 import ru.org.linux.spring.validators.AddMessageRequestValidator;
 import ru.org.linux.util.BadImageException;
-import ru.org.linux.util.BadURLException;
 import ru.org.linux.util.HTMLFormatter;
 import ru.org.linux.util.UtilException;
 
@@ -305,11 +304,6 @@ public class AddMessageController extends ApplicationObjectSupport {
       if (db != null) {
         db.rollback();
       }
-    } catch (BadURLException e) {
-      errors.reject(null, e.getMessage());
-      if (db != null) {
-        db.rollback();
-      }
     } finally {
       if (db != null) {
         db.close();
@@ -393,7 +387,6 @@ public class AddMessageController extends ApplicationObjectSupport {
    * @param tmpl
    * @return <icon, image, previewImagePath> or null
    * @throws IOException
-   * @throws BadImageException
    * @throws UtilException
    */
   public List<String> processUpload(
@@ -402,13 +395,13 @@ public class AddMessageController extends ApplicationObjectSupport {
           AddMessageForm form,
           Errors errors
   ) throws IOException, UtilException {
-    File uploadedFile = null;
-
     if (session==null) {
       return null;
     }
 
     String image = form.getImage();
+
+    File uploadedFile = null;
 
     if (image != null && !form.getImage().isEmpty()) {
       uploadedFile = new File(form.getImage());

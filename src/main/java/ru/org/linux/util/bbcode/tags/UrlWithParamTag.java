@@ -61,14 +61,14 @@ public class UrlWithParamTag extends Tag {
   public String renderNodeXhtml(Node node) {
     StringBuilder ret = new StringBuilder();
     String url = "";
-    Node child = null;
-    TextNode textChild = null;
     if (node.isParameter()) {
       url = node.getParameter().trim();
     }
 
+    TextNode textChild = null;
+
     if(node.lengthChildren() == 1){
-      child = node.getChildren().iterator().next();
+      Node child = node.getChildren().iterator().next();
       if(TextNode.class.isInstance(child)){
         textChild = (TextNode)child;
       }
@@ -76,7 +76,7 @@ public class UrlWithParamTag extends Tag {
 
     if (node.lengthChildren() == 0 || (textChild != null && textChild.getText().trim().length() == 0)){
       try {
-        String escapedUrl = URLUtil.fixURL(url);
+        String escapedUrl = URLUtil.checkAndFixURL(url);
         ret.append("<a href=\"")
                 .append(escapedUrl)
                 .append("\">")
@@ -90,7 +90,7 @@ public class UrlWithParamTag extends Tag {
 
     } else {
       try {
-        String escapedUrl = URLUtil.fixURL(url);
+        String escapedUrl = URLUtil.checkAndFixURL(url);
         ret.append("<a href=\"")
                 .append(escapedUrl)
                 .append("\">")

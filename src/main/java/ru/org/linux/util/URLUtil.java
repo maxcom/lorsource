@@ -30,7 +30,8 @@ public final class URLUtil {
   private URLUtil() {
   }
 
-  public static String fixURL(String url) throws UtilException {
+  @Deprecated
+  public static String checkAndFixURL(String url) throws BadURLException {
     url = url.trim();
 
     if (isUrl(url)) {
@@ -44,6 +45,22 @@ public final class URLUtil {
     }
 
     throw new BadURLException(url);
+  }
+
+  public static String fixURL(String url) {
+    url = url.trim();
+
+    if (isUrl(url)) {
+      if (url.toLowerCase().startsWith("www.")) {
+        return "http://" + url;
+      }
+      if (url.toLowerCase().startsWith("ftp.")) {
+        return "ftp://" + url;
+      }
+      return url;
+    }
+
+    return url;
   }
 
   public static boolean isUrl(String x) {
