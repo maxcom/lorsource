@@ -37,7 +37,6 @@ public class AddMessageForm {
 
   private final boolean preview;
   private String sessionId = null;
-  private boolean noinfo = false;
   private String image = "";
   private final String postIP;
   private final ImmutableList<String> pollList;
@@ -53,10 +52,6 @@ public class AddMessageForm {
     return sessionId;
   }
 
-  public boolean getNoinfo() {
-    return noinfo;
-  }
-
   public String getImage() {
     return image;
   }
@@ -64,7 +59,6 @@ public class AddMessageForm {
   public AddMessageForm(HttpServletRequest request, Template tmpl) throws IOException, ScriptErrorException {
     postIP = request.getRemoteAddr();
 
-    noinfo = "1".equals(request.getParameter("noinfo"));
     sessionId = request.getParameter("session");
     preview = request.getParameter("preview") != null;
 

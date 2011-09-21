@@ -11,6 +11,7 @@ public class AddMessageRequest {
   private String linktext;
   private String mode;
   private String tags;
+  private boolean noinfo;
 
   private User nick;
   private String password;
@@ -89,5 +90,13 @@ public class AddMessageRequest {
 
   public void setTags(String tags) {
     this.tags = tags;
+  }
+
+  public boolean isNoinfo() {
+    return noinfo;
+  }
+
+  public void setNoinfo(boolean noinfo) {
+    this.noinfo = noinfo;
   }
 }

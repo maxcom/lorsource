@@ -106,13 +106,9 @@ public class AddMessageController extends ApplicationObjectSupport {
 
     Template tmpl = Template.getTemplate(request);
 
-    AddMessageForm oldForm = new AddMessageForm(request, tmpl);
-
     if (form.getMode()==null) {
       form.setMode(tmpl.getFormatMode());
     }
-
-    params.put("oldForm", oldForm);
 
     Group group = form.getGroup();
 
@@ -166,7 +162,6 @@ public class AddMessageController extends ApplicationObjectSupport {
     HttpSession session = request.getSession();
 
     AddMessageForm oldForm = new AddMessageForm(request, tmpl);
-    params.put("oldForm", oldForm);
 
     Group group = form.getGroup();
     params.put("group", group);

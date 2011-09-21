@@ -23,6 +23,8 @@
 <%--@elvariable id="group" type="ru.org.linux.site.Group"--%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <%--@elvariable id="modes" type="java.util.Map"--%>
+<%--@elvariable id="addportal" type="java.lang.String"--%>
+<%--@elvariable id="form" type="ru.org.linux.spring.AddMessageRequest"--%>
 <% Template tmpl = Template.getTemplate(request);%>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
@@ -30,7 +32,6 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 
 <%
-    AddMessageForm oldForm = (AddMessageForm) request.getAttribute("oldForm");
     Group group = (Group) request.getAttribute("group");
     SortedSet<String> topTags = (SortedSet<String>) request.getAttribute("topTags");
 %>
@@ -48,12 +49,9 @@
   });
 </script>
   <jsp:include page="/WEB-INF/jsp/header.jsp"/>
-
-<%
-  if (!oldForm.getNoinfo()) {
-    out.print(request.getAttribute("addportal"));
-  }
-%>
+  <c:if test="${not form.noinfo}">
+      ${addportal}
+  </c:if>
 <c:if test="${message != null}">
 <h1>Предпросмотр</h1>
 <div class=messages>
@@ -86,26 +84,22 @@
   <form:errors path="*" element="div" cssClass="error"/>
 
   <input type="hidden" name="session" value="<%= HTMLFormatter.htmlSpecialChars(session.getId()) %>">
-<%  if (oldForm.getNoinfo()) {
-  %>
-  <input type="hidden" name="noinfo" value="1">
- <% }
-%>
-<% if (!tmpl.isSessionAuthorized()) { %>
-<label>
-Имя:
-<input type=text name="nick" size=40>
-</label><br>
-<label>
-Пароль:
-<input type=password name=password size=40><br>
-</label>
-<% } %>
-<form:hidden path="group"/>
+  <form:hidden path="noinfo"/>
 
-<label>Заглавие:
-<form:input path="title" cssClass="required" size="40"/><br>
-</label>
+  <c:if test="${not template.sessionAuthorized}">
+    <label>
+        Имя: <input type=text name="nick" size=40>
+    </label><br>
+    <label>
+        Пароль: <input type=password name=password size=40><br>
+    </label>
+  </c:if>
+
+  <form:hidden path="group"/>
+
+  <label>Заглавие:
+    <form:input path="title" cssClass="required" size="40"/><br>
+   </label>
 
   <% if (group!=null && group.isImagePostAllowed()) { %>
   Изображение:
