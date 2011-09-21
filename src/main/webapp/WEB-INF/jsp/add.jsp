@@ -125,11 +125,13 @@
 Ссылка (не забудьте <b>http://</b>) <form:input path="url" size="70"/>
 </label><br>
 <% } %>
-  <c:if test="${group.moderated}">
-Метки (разделенные запятой)
-<input type=text name=tags id="tags" size=70 value="<%= oldForm.getTags()==null?"":HTMLFormatter.htmlSpecialChars(StringUtils.strip(oldForm.getTags())) %>"><br>
-  Популярные теги: <%= TagDao.getEditTags(topTags) %> <br>
-  </c:if>
+<c:if test="${group.moderated}">
+    <label>
+    Метки (разделенные запятой)
+    <form:input path="tags" size="70"/>
+    </label><br>
+    Популярные теги: <%= TagDao.getEditTags(topTags) %> <br>
+</c:if>
 
 <form:select path="mode" items="${modes}"/>
 

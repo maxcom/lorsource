@@ -10,6 +10,7 @@ public class AddMessageRequest {
   private Group group;
   private String linktext;
   private String mode;
+  private String tags;
 
   private User nick;
   private String password;
@@ -80,5 +81,13 @@ public class AddMessageRequest {
 
   public void setMode(String mode) {
     this.mode = mode;
+  }
+
+  public String getTags() {
+    return tags;
+  }
+
+  public void setTags(String tags) {
+    this.tags = tags;
   }
 }

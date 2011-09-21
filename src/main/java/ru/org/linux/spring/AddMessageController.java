@@ -277,8 +277,8 @@ public class AddMessageController extends ApplicationObjectSupport {
           poll.setTopicId(db, msgid);
         }
 
-        if (oldForm.getTags() != null) {
-          List<String> tags = TagDao.parseTags(oldForm.getTags());
+        if (form.getTags() != null) {
+          List<String> tags = TagDao.parseTags(form.getTags());
           TagDao.updateTags(db, msgid, tags);
           TagDao.updateCounters(db, Collections.<String>emptyList(), tags);
         }

@@ -16,7 +16,6 @@
 package ru.org.linux.spring;
 
 import com.google.common.collect.ImmutableList;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.web.multipart.MultipartFile;
@@ -40,7 +39,6 @@ public class AddMessageForm {
   private String sessionId = null;
   private boolean noinfo = false;
   private String image = "";
-  private String tags = null;
   private final String postIP;
   private final ImmutableList<String> pollList;
   public static final int MAX_MESSAGE_LENGTH_ANONYMOUS = 4096;
@@ -63,22 +61,12 @@ public class AddMessageForm {
     return image;
   }
 
-  public String getTags() {
-    return tags;
-  }
-
-  public String getTagsHTML() {
-    return tags == null ? "" : StringUtils.strip(tags);
-  }
-
   public AddMessageForm(HttpServletRequest request, Template tmpl) throws IOException, ScriptErrorException {
     postIP = request.getRemoteAddr();
 
     noinfo = "1".equals(request.getParameter("noinfo"));
     sessionId = request.getParameter("session");
     preview = request.getParameter("preview") != null;
-
-    tags = request.getParameter("tags");
 
     if (request instanceof MultipartHttpServletRequest) {
       MultipartFile multipartFile = ((MultipartRequest) request).getFile("image");
