@@ -53,6 +53,7 @@ public class AddMessageController extends ApplicationObjectSupport {
   private SectionDao sectionDao;
   private TagDao tagDao;
   private UserDao userDao;
+  private PrepareService prepareService;
 
   @Autowired
   public void setSearchQueueSender(SearchQueueSender searchQueueSender) {
@@ -92,6 +93,11 @@ public class AddMessageController extends ApplicationObjectSupport {
   @Autowired
   public void setUserDao(UserDao userDao) {
     this.userDao = userDao;
+  }
+
+  @Autowired
+  public void setPrepareService(PrepareService prepareService) {
+    this.prepareService = prepareService;
   }
 
   @RequestMapping(value = "/add.jsp", method = RequestMethod.GET)
@@ -213,47 +219,47 @@ public class AddMessageController extends ApplicationObjectSupport {
       }
     }
 
+    String previewImagePath = null;
+
+    if (group!=null && group.isImagePostAllowed()) {
+      List<String> pair = processUpload(session, tmpl, oldForm, errors);
+
+      if (pair!=null) {
+        form.setLinktext(pair.get(0));
+        form.setUrl(pair.get(1));
+        previewImagePath = pair.get(2);
+      }
+    }
+
+    Message previewMsg = null;
+
+    if (group!=null) {
+      previewMsg = new Message(oldForm, form, user, message);
+      params.put("message", prepareService.prepareMessage(previewMsg, true));
+    }
+
+    if (!oldForm.isPreview() && !errors.hasErrors()) {
+      // Flood protection
+      if (!session.getId().equals(oldForm.getSessionId())) {
+        logger.info("Flood protection (session variable differs) " + request.getRemoteAddr());
+        logger.info("Flood protection (session variable differs) " + session.getId() + " != " + oldForm.getSessionId());
+        errors.reject(null, "сбой добавления");
+      }
+    }
+
+    if (!oldForm.isPreview() && !errors.hasErrors() && !Template.isSessionAuthorized(session)) {
+      captcha.checkCaptcha(request, errors);
+    }
+
+    if (!oldForm.isPreview() && !errors.hasErrors()) {
+      dupeProtector.checkDuplication(request.getRemoteAddr(), false, errors);
+    }
+
     Connection db = null;
 
     try {
-      String previewImagePath = null;
-
-      if (group!=null && group.isImagePostAllowed()) {
-        List<String> pair = processUpload(session, tmpl, oldForm, errors);
-
-        if (pair!=null) {
-          form.setLinktext(pair.get(0));
-          form.setUrl(pair.get(1));
-          previewImagePath = pair.get(2);
-        }
-      }
-
       db = LorDataSource.getConnection();
       db.setAutoCommit(false);
-
-      Message previewMsg = null;
-
-      if (group!=null) {
-        previewMsg = new Message(oldForm, form, user, message);
-        params.put("message", new PreparedMessage(db, previewMsg, true));
-      }
-
-      if (!oldForm.isPreview() && !errors.hasErrors()) {
-        // Flood protection
-        if (!session.getId().equals(oldForm.getSessionId())) {
-          logger.info("Flood protection (session variable differs) " + request.getRemoteAddr());
-          logger.info("Flood protection (session variable differs) " + session.getId() + " != " + oldForm.getSessionId());
-          errors.reject(null, "сбой добавления");
-        }
-      }
-
-      if (!oldForm.isPreview() && !errors.hasErrors() && !Template.isSessionAuthorized(session)) {
-        captcha.checkCaptcha(request, errors);
-      }
-
-      if (!oldForm.isPreview() && !errors.hasErrors()) {
-        dupeProtector.checkDuplication(request.getRemoteAddr(), false, errors);
-      }
 
       if (!oldForm.isPreview() && !errors.hasErrors()) {
         int msgid = previewMsg.addTopicFromPreview(
@@ -295,11 +301,6 @@ public class AddMessageController extends ApplicationObjectSupport {
         return new ModelAndView("add-done-moderated", params);
       }
     } catch (UserErrorException e) {
-      errors.reject(null, e.getMessage());
-      if (db != null) {
-        db.rollback();
-      }
-    } catch (UserNotFoundException e) {
       errors.reject(null, e.getMessage());
       if (db != null) {
         db.rollback();
