@@ -1,5 +1,6 @@
 package ru.org.linux.spring.validators;
 
+import com.google.common.base.Strings;
 import org.jdom.Verifier;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
@@ -45,7 +46,7 @@ public class AddMessageRequestValidator implements Validator {
       errors.rejectValue("url", null, "Слишком длинный URL");
     }
 
-    if (form.getUrl()!=null && !URLUtil.isUrl(form.getUrl())) {
+    if (!Strings.isNullOrEmpty(form.getUrl()) && !URLUtil.isUrl(form.getUrl())) {
       errors.rejectValue("url", null, "Некорректный URL");
     }
 
