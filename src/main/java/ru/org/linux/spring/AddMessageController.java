@@ -233,7 +233,7 @@ public class AddMessageController extends ApplicationObjectSupport {
       params.put("message", prepareService.prepareMessage(previewMsg, true));
     }
 
-    if (!oldForm.isPreview() && !errors.hasErrors()) {
+    if (!form.isPreviewMode() && !errors.hasErrors()) {
       // Flood protection
       if (!session.getId().equals(oldForm.getSessionId())) {
         logger.info("Flood protection (session variable differs) " + request.getRemoteAddr());
@@ -242,11 +242,11 @@ public class AddMessageController extends ApplicationObjectSupport {
       }
     }
 
-    if (!oldForm.isPreview() && !errors.hasErrors() && !Template.isSessionAuthorized(session)) {
+    if (!form.isPreviewMode() && !errors.hasErrors() && !Template.isSessionAuthorized(session)) {
       captcha.checkCaptcha(request, errors);
     }
 
-    if (!oldForm.isPreview() && !errors.hasErrors()) {
+    if (!form.isPreviewMode() && !errors.hasErrors()) {
       dupeProtector.checkDuplication(request.getRemoteAddr(), false, errors);
     }
 
@@ -256,7 +256,7 @@ public class AddMessageController extends ApplicationObjectSupport {
       db = LorDataSource.getConnection();
       db.setAutoCommit(false);
 
-      if (!oldForm.isPreview() && !errors.hasErrors()) {
+      if (!form.isPreviewMode() && !errors.hasErrors()) {
         int msgid = previewMsg.addTopicFromPreview(
                 db,
                 tmpl,

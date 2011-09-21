@@ -35,7 +35,6 @@ import java.util.List;
 public class AddMessageForm {
   private static final Log logger = LogFactory.getLog(AddMessageForm.class);
 
-  private final boolean preview;
   private String sessionId = null;
   private String image = "";
   private final String postIP;
@@ -43,10 +42,6 @@ public class AddMessageForm {
   public static final int MAX_MESSAGE_LENGTH_ANONYMOUS = 4096;
   public static final int MAX_MESSAGE_LENGTH = 16384;
   private boolean multiSelect = false;
-
-  public boolean isPreview() {
-    return preview;
-  }
 
   public String getSessionId() {
     return sessionId;
@@ -60,7 +55,6 @@ public class AddMessageForm {
     postIP = request.getRemoteAddr();
 
     sessionId = request.getParameter("session");
-    preview = request.getParameter("preview") != null;
 
     if (request instanceof MultipartHttpServletRequest) {
       MultipartFile multipartFile = ((MultipartRequest) request).getFile("image");

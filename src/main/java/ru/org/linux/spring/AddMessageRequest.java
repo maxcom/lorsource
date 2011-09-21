@@ -16,6 +16,8 @@ public class AddMessageRequest {
   private User nick;
   private String password;
 
+  private String preview;
+
   public String getTitle() {
     return title;
   }
@@ -98,5 +100,17 @@ public class AddMessageRequest {
 
   public void setNoinfo(boolean noinfo) {
     this.noinfo = noinfo;
+  }
+
+  public String getPreview() {
+    return preview;
+  }
+
+  public void setPreview(String preview) {
+    this.preview = preview;
+  }
+
+  public boolean isPreviewMode() {
+    return preview!=null;
   }
 }
