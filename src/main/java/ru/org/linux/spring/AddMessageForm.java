@@ -35,7 +35,6 @@ import java.util.List;
 public class AddMessageForm {
   private static final Log logger = LogFactory.getLog(AddMessageForm.class);
 
-  private String sessionId = null;
   private String image = "";
   private final String postIP;
   private final ImmutableList<String> pollList;
@@ -43,18 +42,12 @@ public class AddMessageForm {
   public static final int MAX_MESSAGE_LENGTH = 16384;
   private boolean multiSelect = false;
 
-  public String getSessionId() {
-    return sessionId;
-  }
-
   public String getImage() {
     return image;
   }
 
   public AddMessageForm(HttpServletRequest request, Template tmpl) throws IOException, ScriptErrorException {
     postIP = request.getRemoteAddr();
-
-    sessionId = request.getParameter("session");
 
     if (request instanceof MultipartHttpServletRequest) {
       MultipartFile multipartFile = ((MultipartRequest) request).getFile("image");

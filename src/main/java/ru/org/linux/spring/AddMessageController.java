@@ -233,13 +233,9 @@ public class AddMessageController extends ApplicationObjectSupport {
       params.put("message", prepareService.prepareMessage(previewMsg, true));
     }
 
-    if (!form.isPreviewMode() && !errors.hasErrors()) {
-      // Flood protection
-      if (!session.getId().equals(oldForm.getSessionId())) {
-        logger.info("Flood protection (session variable differs) " + request.getRemoteAddr());
-        logger.info("Flood protection (session variable differs) " + session.getId() + " != " + oldForm.getSessionId());
-        errors.reject(null, "сбой добавления");
-      }
+    if (!form.isPreviewMode() && !errors.hasErrors() && !session.getId().equals(request.getParameter("session"))) {
+      logger.info("Flood protection (session variable differs: " + session.getId() + ") " + request.getRemoteAddr());
+      errors.reject(null, "сбой добавления");
     }
 
     if (!form.isPreviewMode() && !errors.hasErrors() && !Template.isSessionAuthorized(session)) {
