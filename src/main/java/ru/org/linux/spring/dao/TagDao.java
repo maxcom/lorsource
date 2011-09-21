@@ -163,7 +163,7 @@ public final class TagDao {
   public static void checkTag(String tag) throws UserErrorException {
     // обработка тега: только буквы/цифры/пробелы, никаких спецсимволов, запятых, амперсандов и <>
     if (!tagRE.matcher(tag).matches()) {
-      throw new UserErrorException("Invalid tag: '"+tag+ '\'');
+      throw new UserErrorException("Некорректный тег: '"+tag+ '\'');
     }
   }
 
