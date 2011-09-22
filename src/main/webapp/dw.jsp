@@ -43,7 +43,7 @@
           <script type="text/javascript" language="Javascript">
 
       var site_id = 40;
-      var dw_rss_feed = 'http://www.ibm.com/developerworks/ru/views/rss'
+      var dw_rss_feed = 'https://www.ibm.com/developerworks/ru/views/rss'
       +'/customrssatom.jsp?feed_by=rss&zone_by=IBM+Systems'
       +',Java+technology,Web+services,Linux,XML,Open+sourc'
       +'e&type_by=Articles,Tutorials&search_by=&pubdate=01'
