@@ -31,11 +31,11 @@
 <input type="hidden" name="mode" value="html">
 <input type="hidden" name="texttype" value="0">
 
-  Вопрос: <input type="text" name="title" size="40"><br>
+  <label>Вопрос: <input type="text" name="title" size="40"></label>br>
   <%
     for (int i=0; i< Poll.MAX_POLL_SIZE; i++) {
       %>
-        Вариант #<%= i%>: <input type="text" name="var<%= i%>" size="40"><br>
+        <label>Вариант #<%= i%>: <input type="text" name="var<%= i%>" size="40"></label><br>
       <%
     }
   %>
