@@ -1,6 +1,7 @@
 package ru.org.linux.spring;
 
 import ru.org.linux.site.Group;
+import ru.org.linux.site.Poll;
 import ru.org.linux.site.User;
 
 public class AddMessageRequest {
@@ -12,6 +13,8 @@ public class AddMessageRequest {
   private String mode;
   private String tags;
   private boolean noinfo;
+  private String[] poll = new String[Poll.MAX_POLL_SIZE];
+  private boolean multiSelect;
 
   private User nick;
   private String password;
@@ -112,5 +115,21 @@ public class AddMessageRequest {
 
   public boolean isPreviewMode() {
     return preview!=null;
+  }
+
+  public String[] getPoll() {
+    return poll;
+  }
+
+  public void setPoll(String[] poll) {
+    this.poll = poll;
+  }
+
+  public boolean isMultiSelect() {
+    return multiSelect;
+  }
+
+  public void setMultiSelect(boolean multiSelect) {
+    this.multiSelect = multiSelect;
   }
 }

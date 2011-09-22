@@ -55,7 +55,7 @@
         </c:if>
         <%
           if (section.isVotePoll()) {
-            out.print("[<a href=\"add-poll.jsp?group=19387\">Добавить голосование</a>]");
+            out.print("[<a href=\"add.jsp?group=19387\">Добавить голосование</a>]");
           } else {
             if (group == null) {
               out.print("[<a href=\"add-section.jsp?section=" + section.getId() + "\">Добавить</a>]");

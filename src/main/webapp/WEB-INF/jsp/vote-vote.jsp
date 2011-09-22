@@ -42,6 +42,6 @@
 </form><br>
 <a href="view-vote.jsp?vote=${poll.id}">результаты</a>
 <br><a href="view-news.jsp?section=5">итоги прошедших опросов...</a>
-<br>[<a href="add-poll.jsp">добавить опрос</a>]
+<br>[<a href="add.jsp?group=19387">добавить опрос</a>]
 
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>

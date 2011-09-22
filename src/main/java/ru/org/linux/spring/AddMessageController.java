@@ -20,7 +20,6 @@ import com.google.common.collect.ImmutableMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.ApplicationObjectSupport;
 import org.springframework.stereotype.Controller;
-import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.WebDataBinder;
@@ -261,8 +260,8 @@ public class AddMessageController extends ApplicationObjectSupport {
                 user
         );
 
-        if (oldForm.getPollList() != null) {
-          int pollId = Poll.createPoll(db, oldForm.getPollList(), oldForm.getMultiSelect());
+        if (group.isPollPostAllowed()) {
+          int pollId = Poll.createPoll(db, Arrays.asList(form.getPoll()), form.isMultiSelect());
 
           Poll poll = new Poll(db, pollId);
           poll.setTopicId(db, msgid);
@@ -297,21 +296,7 @@ public class AddMessageController extends ApplicationObjectSupport {
       }
     }
 
-    if (oldForm.getPollList() != null) {
-      params.put("exception", new BindException(errors));
-      return new ModelAndView("error", params);
-    }
-
     return new ModelAndView("add", params);
-  }
-
-  @RequestMapping(value="/add-poll.jsp", method=RequestMethod.GET)
-  public ModelAndView addPoll(HttpServletRequest request) throws Exception {
-    if (!Template.isSessionAuthorized(request.getSession())) {
-      throw new AccessViolationException("Not authorized");
-    }
-
-    return new ModelAndView("add-poll");
   }
 
   @RequestMapping(value = "/add-section.jsp")

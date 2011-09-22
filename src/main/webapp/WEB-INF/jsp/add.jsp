@@ -1,9 +1,6 @@
-<%@ page contentType="text/html; charset=utf-8" import="org.apache.commons.lang.StringUtils,ru.org.linux.site.Group"  %>
-<%@ page import="ru.org.linux.site.ScreenshotProcessor"%>
-<%@ page import="ru.org.linux.site.Template"%>
-<%@ page import="ru.org.linux.spring.AddMessageForm" %>
-<%@ page import="ru.org.linux.spring.dao.TagDao" %>
-<%@ page import="ru.org.linux.util.HTMLFormatter" %>
+<%@ page contentType="text/html; charset=utf-8" import="ru.org.linux.site.Group,ru.org.linux.site.ScreenshotProcessor"  %>
+<%@ page import="ru.org.linux.spring.dao.TagDao"%>
+<%@ page import="ru.org.linux.util.HTMLFormatter"%>
 <%@ page import="java.util.SortedSet" %>
 <%--
   ~ Copyright 1998-2010 Linux.org.ru
@@ -25,7 +22,6 @@
 <%--@elvariable id="modes" type="java.util.Map"--%>
 <%--@elvariable id="addportal" type="java.lang.String"--%>
 <%--@elvariable id="form" type="ru.org.linux.spring.AddMessageRequest"--%>
-<% Template tmpl = Template.getTemplate(request);%>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
@@ -101,10 +97,23 @@
     <form:input path="title" cssClass="required" size="40"/><br>
    </label>
 
-  <% if (group!=null && group.isImagePostAllowed()) { %>
-  Изображение:
-  <input type="file" name="image"><br>
-  <% } %>
+  <c:if test="${group!=null and group.imagePostAllowed}">
+    <label>Изображение: <input type="file" name="image"></label><br>
+  </c:if>
+
+  <c:if test="${group!=null and group.pollPostAllowed}">
+      Внимание! Вопрос должен быть задан в поле «заглавие». В поле «сообщение» можно написать
+      дополнительное описание опроса, которое будет видно только при на странице опроса (и не будет
+      видно в форме голосования на главной странице)<br>
+
+      <c:forEach var="v" items="${form.poll}" varStatus="i">
+            <label>Вариант #${i.index}:
+                <form:input path="poll[${i.index}]" size="40"/></label><br>
+      </c:forEach>
+      <p>
+        <label>Мультивыбор: <form:checkbox path="multiSelect" size="40"/></label>
+      </p>
+  </c:if>
 
 <label for="form_msg">Сообщение:</label><br>
 <font size=2>(В режиме <i>Tex paragraphs</i> игнорируются переносы строк.<br> Пустая строка (два раза Enter) начинает новый абзац)</font><br>

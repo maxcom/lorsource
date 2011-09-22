@@ -45,5 +45,5 @@
     <br/>
     <a href="${main_url}">итоги прошедших опросов...</a>
     <br/>
-    [<a href="<c:url value="/add-poll.jsp"/>">добавить опрос</a>]
+    [<a href="<c:url value="/add.jsp?group=19387"/>">добавить опрос</a>]
   </div>

@@ -15,21 +15,17 @@
 
 package ru.org.linux.spring;
 
-import com.google.common.collect.ImmutableList;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.multipart.MultipartRequest;
-import ru.org.linux.site.Poll;
 import ru.org.linux.site.ScriptErrorException;
 import ru.org.linux.site.Template;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 // TODO: move content to AddMessageRequest
 public class AddMessageForm {
@@ -37,10 +33,8 @@ public class AddMessageForm {
 
   private String image = "";
   private final String postIP;
-  private final ImmutableList<String> pollList;
   public static final int MAX_MESSAGE_LENGTH_ANONYMOUS = 4096;
   public static final int MAX_MESSAGE_LENGTH = 16384;
-  private boolean multiSelect = false;
 
   public String getImage() {
     return image;
@@ -66,37 +60,9 @@ public class AddMessageForm {
         }
       }
     }
-
-    List<String> pollList = new ArrayList<String>();
-
-    for (int i = 0; i < Poll.MAX_POLL_SIZE; i++) {
-      String poll = request.getParameter("var" + i);
-
-      if (poll != null) {
-        pollList.add(poll);
-      }
-    }
-
-    if (pollList.isEmpty()) {
-      this.pollList = null;
-    } else {
-      this.pollList = ImmutableList.copyOf(pollList);
-    }
-
-    if (request.getParameter("multiSelect")!=null) {
-      multiSelect = true;
-    }
   }
 
   public String getPostIP() {
     return postIP;
-  }
-
-  public ImmutableList<String> getPollList() {
-    return pollList;
-  }
-
-  public boolean getMultiSelect() {
-    return multiSelect;
   }
 }
