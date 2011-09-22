@@ -51,9 +51,6 @@
   <div class="infoblock" style="border: 1px solid #777; text-align: justify;">
     <a href="http://job.samsung.ru/"><img width="130" height="43" src="/adv/Samsung_Logo.png" alt="" style="float: left; border: 0"></a>
     <div style="margin-left: 135px">
-<%--
-    <h2>Вакансии</h2>
---%>
     SAMSUNG Electronics&nbsp;&mdash; мировой лидер в&nbsp;производстве полупроводников,
 телекоммуникационного оборудования и&nbsp;цифровой конвергенции&nbsp;&mdash; объявляет о&nbsp;приеме
 на&nbsp;работу программистов, инженеров-разработчик, физиков и&nbsp;химиков: LINUX,
@@ -120,7 +117,22 @@ SoC, Graphene, MEMS, Biomedical Engineering. Дополнительная инф
     </div>
   </c:if>
 
-  <lor:boxlets object="<%= columns3 ? \"main3-1\" : \"main2\" %>" var="boxes">
+<c:if test="${showAdsense}">
+      <div class="boxlet adv">
+        <h2>Петр Зайцев: MySQL-тренинг для разработчиков от Percona</h2>
+        <div class="boxlet_content">
+            Организаторы HighLoad++ и Percona с радостью представляют абсолютно
+            эксклюзивный для России мастер-класс Петра Зайцева, владельца
+            сильнейшей в мире компании-консультанта по MySQL — мастер-класс
+            "MySQL-тренинг для разработчиков от Percona".
+            <a href="http://www.highload.ru/2011/news/13508.html?partner=linuxorgru">Подробнее...</a><br>
+            <a href="http://www.highload.ru/?partner=linuxorgru"><p>
+            <img src="/adv/hl.png" alt="HighLoad++" width="151" height="113">
+            </a>
+          </div>
+      </div>
+</c:if>
+          <lor:boxlets object="<%= columns3 ? \"main3-1\" : \"main2\" %>" var="boxes">
       <c:forEach var="boxlet" items="${boxes}">
         <div class="boxlet">
             <c:import url="/${boxlet}.boxlet"/>
