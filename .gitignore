@@ -1,3 +1,6 @@
 *~
 *.swp
 target
+*.iml
+*.ipr
+*.iws
