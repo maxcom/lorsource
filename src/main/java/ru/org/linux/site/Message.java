@@ -882,6 +882,7 @@ public class Message implements Serializable {
     return minor;
   }
 
+  @Deprecated
   public static Message getMessage(Connection db, int msgid) throws SQLException, MessageNotFoundException {
     Statement st = db.createStatement();
 
