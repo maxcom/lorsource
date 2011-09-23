@@ -15,17 +15,10 @@
 
 package ru.org.linux.spring.boxlets;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
-
 import ru.org.linux.site.LorDataSource;
 import ru.org.linux.site.Message;
 import ru.org.linux.site.MessageNotFoundException;
@@ -33,6 +26,11 @@ import ru.org.linux.site.Poll;
 import ru.org.linux.spring.commons.CacheProvider;
 import ru.org.linux.spring.dao.PollDaoImpl;
 import ru.org.linux.spring.dao.VoteDTO;
+
+import javax.servlet.http.HttpServletRequest;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.List;
 
 @Controller
 public class PollBoxletImpl extends SpringBoxlet  {
@@ -59,17 +57,7 @@ public class PollBoxletImpl extends SpringBoxlet  {
     final Poll poll = getFromCache(cacheProvider, getCacheKey() + "poll", new GetCommand<Poll>() {
       @Override
       public Poll get() throws Exception {
-        Connection db = null;
-
-        try {
-          db = LorDataSource.getConnection();
-
-          return Poll.getCurrentPoll(db);
-        } finally {
-          if (db!=null) {
-            db.close();
-          }
-        }
+        return pollDao.getCurrentPoll();
       }
     });
 

@@ -41,36 +41,19 @@ public class Poll implements Serializable {
     pst.setInt(1, msgid);
     ResultSet rs = pst.executeQuery();
     if (!rs.next()) {
-      throw new PollNotFoundException();
+      throw new PollNotFoundException("Голосование не найдено для темы #"+msgid);
     }
     
     return new Poll(db, rs.getInt("id"));
   }
 
-  public void setTopicId(Connection db, int msgid) throws SQLException {
-    PreparedStatement addPst = db.prepareStatement("UPDATE votenames SET topic=? WHERE id=?");
-    addPst.clearParameters();
-    addPst.setInt(1, msgid);
-    addPst.setInt(2, id);
-    addPst.executeUpdate();
-  }
-
   @Deprecated
-  public static int getCurrentPollId(Connection db) throws SQLException {
+  private static int getCurrentPollId(Connection db) throws SQLException {
     Statement st = db.createStatement();
 
     ResultSet rs = st.executeQuery("SELECT votenames.id FROM votenames,topics WHERE topics.id=votenames.topic AND topics.moderate = 't' AND topics.deleted = 'f' AND topics.commitdate = (select max(commitdate) from topics where groupid=19387 AND moderate AND NOT deleted)");
 
     return rs.next()?rs.getInt("id"):0;
-  }
-
-  @Deprecated
-  public static Poll getCurrentPoll(Connection db) throws SQLException {
-    try {
-      return new Poll(db, getCurrentPollId(db));
-    } catch (PollNotFoundException ex) {
-      throw new RuntimeException(ex);
-    }
   }
 
   @Deprecated
@@ -100,40 +83,6 @@ public class Poll implements Serializable {
 
   public int getId() {
     return id;
-  }
-
-  private static int getNextPollId(Connection db) throws SQLException {
-    Statement st = db.createStatement();
-    ResultSet rs = st.executeQuery("select nextval('vote_id') as voteid");
-    rs.next();
-    return rs.getInt("voteid");
-  }
-
-  public static int createPoll(Connection db, List<String> pollList, boolean multiSelect) throws SQLException {
-    int voteid = getNextPollId(db);
-
-    PreparedStatement pst = db.prepareStatement("INSERT INTO votenames (id, multiselect) values (?,?)");
-
-    pst.setInt(1, voteid);
-    pst.setBoolean(2, multiSelect);
-
-    pst.executeUpdate();
-
-    try {
-      Poll poll = new Poll(db, voteid);
-
-      for (String variant : pollList) {
-        if (variant.trim().length() == 0) {
-          continue;
-        }
-
-        poll.addNewVariant(db, variant);
-      }
-    } catch (PollNotFoundException ex) {
-      throw new RuntimeException(ex);
-    }
-
-    return voteid;
   }
 
   @Deprecated

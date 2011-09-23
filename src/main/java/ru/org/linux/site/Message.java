@@ -34,8 +34,6 @@ import ru.org.linux.util.*;
 import ru.org.linux.util.bbcode.ParserUtil;
 
 import javax.servlet.ServletRequest;
-import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -51,7 +49,7 @@ public class Message implements Serializable {
   private final int postscore;
   private final boolean votepoll;
   private final boolean sticky;
-  private String linktext;
+  private final String linktext;
   private String url;
   private final String title;
   private final int userid;
@@ -575,71 +573,6 @@ public class Message implements Serializable {
 
   public String getLinktext() {
     return linktext;
-  }
-
-  public int saveNewMessage(Connection db, Template tmpl, HttpServletRequest request, String previewImagePath, User user)
-    throws SQLException, UtilException, IOException, BadImageException, ScriptErrorException {
-
-    Group group = Group.getGroup(db, guid);
-
-    int msgid = allocateMsgid(db);
-
-    if (group.isImagePostAllowed()) {
-      if (previewImagePath == null) {
-        throw new ScriptErrorException("previewImagePath==null!?");
-      }
-
-      ScreenshotProcessor screenshot = new ScreenshotProcessor(previewImagePath);
-      screenshot.copyScreenshotFromPreview(tmpl, msgid);
-
-      url = "gallery/" + screenshot.getMainFile().getName();
-      linktext = "gallery/" + screenshot.getIconFile().getName();
-    }
-
-    PreparedStatement pst = db.prepareStatement("INSERT INTO topics (groupid, userid, title, url, moderate, postdate, id, linktext, deleted, ua_id, postip) VALUES (?, ?, ?, ?, 'f', CURRENT_TIMESTAMP, ?, ?, 'f', create_user_agent(?),?::inet)");
-    pst.setInt(1, group.getId());
-    pst.setInt(2, user.getId());
-    pst.setString(3, title);
-    pst.setString(4, url);
-    pst.setInt(5, msgid);
-    pst.setString(6, linktext);
-    pst.setString(7, request.getHeader("User-Agent"));
-    pst.setString(8, postIP);
-    pst.executeUpdate();
-    pst.close();
-
-    // insert message text
-    PreparedStatement pstMsgbase = db.prepareStatement("INSERT INTO msgbase (id, message, bbcode) values (?,?, ?)");
-    pstMsgbase.setLong(1, msgid);
-    pstMsgbase.setString(2, message);
-    pstMsgbase.setBoolean(3, lorcode);
-    pstMsgbase.executeUpdate();
-    pstMsgbase.close();
-
-    String logmessage = "Написана тема " + msgid + ' ' + LorHttpUtils.getRequestIP(request);
-    logger.info(logmessage);
-
-    return msgid;
-  }
-
-  private static int allocateMsgid(Connection db) throws SQLException {
-    Statement st = null;
-    ResultSet rs = null;
-
-    try {
-      st = db.createStatement();
-      rs = st.executeQuery("select nextval('s_msgid') as msgid");
-      rs.next();
-      return rs.getInt("msgid");
-    } finally {
-      if (rs != null) {
-        rs.close();
-      }
-
-      if (st != null) {
-        st.close();
-      }
-    }
   }
 
   public boolean isCommentsAllowed(User user) {

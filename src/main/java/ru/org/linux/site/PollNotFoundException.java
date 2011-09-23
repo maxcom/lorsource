@@ -22,4 +22,8 @@ public class PollNotFoundException extends ScriptErrorException {
   public PollNotFoundException() {
     super("Голосование не существует");
   }
+
+  public PollNotFoundException(String info) {
+    super(info);
+  }
 }

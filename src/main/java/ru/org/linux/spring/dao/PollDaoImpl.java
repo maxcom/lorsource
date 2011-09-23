@@ -17,7 +17,9 @@ package ru.org.linux.spring.dao;
 
 import com.google.common.collect.ImmutableList;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.ConnectionCallback;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.core.RowMapper;
@@ -27,14 +29,12 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.org.linux.site.*;
 
 import javax.sql.DataSource;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 @Repository
 public class PollDaoImpl {
-
   private static final String queryPoolIdByTopicId = "SELECT votenames.id FROM votenames,topics WHERE topics.id=? AND votenames.topic=topics.id";
   private static final String queryCurrentPollId = "SELECT votenames.id FROM votenames,topics WHERE topics.id=votenames.topic AND topics.moderate = 't' AND topics.deleted = 'f' AND topics.commitdate = (select max(commitdate) from topics where groupid=19387 AND moderate AND NOT deleted)";
   private static final String queryPool = "SELECT topic, multiselect FROM votenames WHERE id=?";
@@ -80,7 +80,7 @@ public class PollDaoImpl {
    * @throws BadVoteException неправильное голосование
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public void updateVotes(final int voteId, final int votes[], final User user) throws BadVoteException {
+  public void updateVotes(int voteId, int[] votes, User user) throws BadVoteException {
     if(jdbcTemplate.queryForInt(queryVotes, voteId, user.getId()) == 0){
       for(int vote : votes) {
         if(jdbcTemplate.update(updateVote, vote, voteId) == 0) {
@@ -205,5 +205,37 @@ public class PollDaoImpl {
         throw new RuntimeException("Oops!? order="+order);
     }
     return ImmutableList.copyOf(variants);
+  }
+
+  // call in @Transactional
+  public void createPoll(final List<String> pollList, boolean multiSelect, int msgid) {
+    final int voteid = getNextPollId();
+
+    jdbcTemplate.update("INSERT INTO votenames (id, multiselect, topic) values (?,?,?)", voteid, multiSelect, msgid);
+
+    try {
+      final Poll poll = getPoll(voteid);
+
+      jdbcTemplate.execute(new ConnectionCallback<String>() {
+        @Override
+        public String doInConnection(Connection db) throws SQLException, DataAccessException {
+          for (String variant : pollList) {
+            if (variant.trim().length() == 0) {
+              continue;
+            }
+
+            poll.addNewVariant(db, variant);
+          }
+
+          return null;
+        }
+      });
+    } catch (PollNotFoundException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  private int getNextPollId() {
+    return jdbcTemplate.queryForInt("select nextval('vote_id') as voteid");
   }
 }

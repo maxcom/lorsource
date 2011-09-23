@@ -1,20 +1,28 @@
 package ru.org.linux.spring.dao;
 
 import com.google.common.collect.ImmutableList;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowCallbackHandler;
-import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.*;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.org.linux.site.*;
+import ru.org.linux.spring.AddMessageRequest;
+import ru.org.linux.util.BadImageException;
+import ru.org.linux.util.LorHttpUtils;
+import ru.org.linux.util.UtilException;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.sql.DataSource;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.io.IOException;
+import java.sql.*;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -23,10 +31,18 @@ import java.util.List;
 
 @Repository
 public class MessageDao {
+  private static final Log logger = LogFactory.getLog(MessageDao.class);
+
+  @Autowired
+  private GroupDao groupDao;
+
+  @Autowired
+  private PollDaoImpl pollDao;
+
   /**
    * Запрос получения полной информации о топике
    */
-  private final static String queryMessage = "SELECT " +
+  private static final String queryMessage = "SELECT " +
         "postdate, topics.id as msgid, userid, topics.title, " +
         "topics.groupid as guid, topics.url, topics.linktext, ua_id, " +
         "groups.title as gtitle, urlname, vote, havelink, section, topics.sticky, topics.postip, " +
@@ -41,28 +57,28 @@ public class MessageDao {
   /**
    * Удаление топика
    */
-  private final static String updateDeleteMessage = "UPDATE topics SET deleted='t',sticky='f' WHERE id=?";
+  private static final String updateDeleteMessage = "UPDATE topics SET deleted='t',sticky='f' WHERE id=?";
   /**
    * Обновление информации о удалении
    */
-  private final static String updateDeleteInfo = "INSERT INTO del_info (msgid, delby, reason, deldate) values(?,?,?, CURRENT_TIMESTAMP)";
+  private static final String updateDeleteInfo = "INSERT INTO del_info (msgid, delby, reason, deldate) values(?,?,?, CURRENT_TIMESTAMP)";
 
-  private final static String queryEditInfo = "SELECT * FROM edit_info WHERE msgid=? ORDER BY id DESC";
+  private static final String queryEditInfo = "SELECT * FROM edit_info WHERE msgid=? ORDER BY id DESC";
 
-  private final static String queryTags = "SELECT tags_values.value FROM tags, tags_values WHERE tags.msgid=? AND tags_values.id=tags.tagid ORDER BY value";
+  private static final String queryTags = "SELECT tags_values.value FROM tags, tags_values WHERE tags.msgid=? AND tags_values.id=tags.tagid ORDER BY value";
 
-  private final static String updateUndeleteMessage = "UPDATE topics SET deleted='f' WHERE id=?";
-  private final static String updateUneleteInfo = "DELETE FROM del_info WHERE msgid=?";
+  private static final String updateUndeleteMessage = "UPDATE topics SET deleted='f' WHERE id=?";
+  private static final String updateUneleteInfo = "DELETE FROM del_info WHERE msgid=?";
 
   private JdbcTemplate jdbcTemplate;
+
+  @Autowired
+  private UserDao userDao;
 
   @Autowired
   public void setJdbcTemplate(DataSource dataSource) {
     jdbcTemplate = new JdbcTemplate(dataSource);
   }
-
-  @Autowired
-  UserDao userDao;
 
   /**
    * Получить сообщение по id
@@ -154,5 +170,97 @@ public class MessageDao {
   public void undelete(Message message) {
     jdbcTemplate.update(updateUndeleteMessage, message.getId());
     jdbcTemplate.update(updateUneleteInfo, message.getId());
+  }
+
+  private int allocateMsgid() {
+    return jdbcTemplate.queryForInt("select nextval('s_msgid') as msgid");
+  }
+
+  // call in @Transactional environment
+  public int saveNewMessage(final Message msg, Template tmpl, final HttpServletRequest request, String previewImagePath, final User user)
+    throws UtilException, IOException, BadImageException, ScriptErrorException {
+
+    final Group group = groupDao.getGroup(msg.getGroupId());
+
+    final int msgid = allocateMsgid();
+
+    String url = msg.getUrl();
+    String linktext = msg.getLinktext();
+
+    if (group.isImagePostAllowed()) {
+      if (previewImagePath == null) {
+        throw new ScriptErrorException("previewImagePath==null!?");
+      }
+
+      ScreenshotProcessor screenshot = new ScreenshotProcessor(previewImagePath);
+      screenshot.copyScreenshotFromPreview(tmpl, msgid);
+
+      url = "gallery/" + screenshot.getMainFile().getName();
+      linktext = "gallery/" + screenshot.getIconFile().getName();
+    }
+
+    final String finalUrl = url;
+    final String finalLinktext = linktext;
+    jdbcTemplate.execute(
+            "INSERT INTO topics (groupid, userid, title, url, moderate, postdate, id, linktext, deleted, ua_id, postip) VALUES (?, ?, ?, ?, 'f', CURRENT_TIMESTAMP, ?, ?, 'f', create_user_agent(?),?::inet)",
+            new PreparedStatementCallback<String>() {
+              @Override
+              public String doInPreparedStatement(PreparedStatement pst) throws SQLException, DataAccessException {
+                pst.setInt(1, group.getId());
+                pst.setInt(2, user.getId());
+                pst.setString(3, msg.getTitle());
+                pst.setString(4, finalUrl);
+                pst.setInt(5, msgid);
+                pst.setString(6, finalLinktext);
+                pst.setString(7, request.getHeader("User-Agent"));
+                pst.setString(8, msg.getPostIP());
+                pst.executeUpdate();
+
+                return null;
+              }
+            }
+    );
+
+    // insert message text
+    jdbcTemplate.update(
+            "INSERT INTO msgbase (id, message, bbcode) values (?,?, ?)",
+            msgid, msg.getMessage(), msg.isLorcode()
+    );
+
+    String logmessage = "Написана тема " + msgid + ' ' + LorHttpUtils.getRequestIP(request);
+    logger.info(logmessage);
+
+    return msgid;
+  }
+
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
+  public int addMessage(HttpServletRequest request, AddMessageRequest form, Template tmpl, Group group, User user, String previewImagePath, Message previewMsg) throws  UtilException, IOException, BadImageException, ScriptErrorException, UserErrorException {
+    final int msgid = saveNewMessage(
+            previewMsg,
+            tmpl,
+            request,
+            previewImagePath,
+            user
+    );
+
+    if (group.isPollPostAllowed()) {
+      pollDao.createPoll(Arrays.asList(form.getPoll()), form.isMultiSelect(), msgid);
+    }
+
+    if (form.getTags() != null) {
+      final List<String> tags = TagDao.parseTags(form.getTags());
+
+      jdbcTemplate.execute(new ConnectionCallback<String>() {
+        @Override
+        public String doInConnection(Connection db) throws SQLException, DataAccessException {
+          TagDao.updateTags(db, msgid, tags);
+          TagDao.updateCounters(db, Collections.<String>emptyList(), tags);
+
+          return null;
+        }
+      });
+    }
+
+    return msgid;
   }
 }

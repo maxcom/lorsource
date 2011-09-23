@@ -39,8 +39,10 @@ import javax.validation.Valid;
 import java.beans.PropertyEditorSupport;
 import java.io.File;
 import java.io.IOException;
-import java.sql.Connection;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
 
 @Controller
 public class AddMessageController extends ApplicationObjectSupport {
@@ -53,6 +55,7 @@ public class AddMessageController extends ApplicationObjectSupport {
   private TagDao tagDao;
   private UserDao userDao;
   private PrepareService prepareService;
+  private MessageDao messageDao;
 
   @Autowired
   public void setSearchQueueSender(SearchQueueSender searchQueueSender) {
@@ -97,6 +100,11 @@ public class AddMessageController extends ApplicationObjectSupport {
   @Autowired
   public void setPrepareService(PrepareService prepareService) {
     this.prepareService = prepareService;
+  }
+
+  @Autowired
+  public void setMessageDao(MessageDao messageDao) {
+    this.messageDao = messageDao;
   }
 
   @RequestMapping(value = "/add.jsp", method = RequestMethod.GET)
@@ -245,58 +253,26 @@ public class AddMessageController extends ApplicationObjectSupport {
       dupeProtector.checkDuplication(request.getRemoteAddr(), false, errors);
     }
 
-    Connection db = null;
+    if (!form.isPreviewMode() && !errors.hasErrors() && group!=null) {
+      int msgid = messageDao.addMessage(request, form, tmpl, group, user, previewImagePath, previewMsg);
 
-    try {
-      db = LorDataSource.getConnection();
-      db.setAutoCommit(false);
+      searchQueueSender.updateMessageOnly(msgid);
 
-      if (!form.isPreviewMode() && !errors.hasErrors()) {
-        int msgid = previewMsg.saveNewMessage(
-                db,
-                tmpl,
-                request,
-                previewImagePath,
-                user
-        );
+      Random random = new Random();
 
-        if (group.isPollPostAllowed()) {
-          int pollId = Poll.createPoll(db, Arrays.asList(form.getPoll()), form.isMultiSelect());
+      String messageUrl = "view-message.jsp?msgid=" + msgid;
 
-          Poll poll = new Poll(db, pollId);
-          poll.setTopicId(db, msgid);
-        }
-
-        if (form.getTags() != null) {
-          List<String> tags = TagDao.parseTags(form.getTags());
-          TagDao.updateTags(db, msgid, tags);
-          TagDao.updateCounters(db, Collections.<String>emptyList(), tags);
-        }
-
-        db.commit();
-
-        searchQueueSender.updateMessageOnly(msgid);
-
-        Random random = new Random();
-
-        String messageUrl = "view-message.jsp?msgid=" + msgid;
-
-        if (!group.isModerated()) {
-          return new ModelAndView(new RedirectView(messageUrl + "&nocache=" + random.nextInt()));
-        }
-
-        params.put("moderated", group.isModerated());
-        params.put("url", messageUrl);
-
-        return new ModelAndView("add-done-moderated", params);
+      if (!group.isModerated()) {
+        return new ModelAndView(new RedirectView(messageUrl + "&nocache=" + random.nextInt()));
       }
-    } finally {
-      if (db != null) {
-        db.close();
-      }
+
+      params.put("moderated", group.isModerated());
+      params.put("url", messageUrl);
+
+      return new ModelAndView("add-done-moderated", params);
+    } else {
+      return new ModelAndView("add", params);
     }
-
-    return new ModelAndView("add", params);
   }
 
   @RequestMapping(value = "/add-section.jsp")
