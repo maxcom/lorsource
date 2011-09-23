@@ -26,7 +26,6 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 import org.springframework.validation.Errors;
-import ru.org.linux.spring.AddMessageForm;
 import ru.org.linux.spring.AddMessageRequest;
 import ru.org.linux.spring.dao.TagDao;
 import ru.org.linux.spring.dao.UserDao;
@@ -124,9 +123,9 @@ public class Message implements Serializable {
     sectionCommentsRestriction = Section.getCommentPostscore(sectionid);
   }
 
-  public Message(AddMessageForm oldForm, AddMessageRequest form, User user, String message) {
+  public Message(AddMessageRequest form, User user, String message, String postIP) {
     userAgent = 0;
-    postIP = oldForm.getPostIP();
+    this.postIP = postIP;
 
     guid = form.getGroup().getId();
 

@@ -24,6 +24,9 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
+import org.springframework.web.multipart.MultipartRequest;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.site.*;
@@ -56,6 +59,8 @@ public class AddMessageController extends ApplicationObjectSupport {
   private UserDao userDao;
   private PrepareService prepareService;
   private MessageDao messageDao;
+  public static final int MAX_MESSAGE_LENGTH_ANONYMOUS = 4096;
+  public static final int MAX_MESSAGE_LENGTH = 16384;
 
   @Autowired
   public void setSearchQueueSender(SearchQueueSender searchQueueSender) {
@@ -168,7 +173,7 @@ public class AddMessageController extends ApplicationObjectSupport {
     Template tmpl = Template.getTemplate(request);
     HttpSession session = request.getSession();
 
-    AddMessageForm oldForm = new AddMessageForm(request, tmpl);
+    String image = processUploadImage(request, tmpl);
 
     Group group = form.getGroup();
     params.put("group", group);
@@ -212,11 +217,11 @@ public class AddMessageController extends ApplicationObjectSupport {
     String message = processMessage(form.getMsg(), form.getMode());
 
     if (user.isAnonymous()) {
-      if (message.length() > AddMessageForm.MAX_MESSAGE_LENGTH_ANONYMOUS) {
+      if (message.length() > MAX_MESSAGE_LENGTH_ANONYMOUS) {
         errors.rejectValue("msg", null, "Слишком большое сообщение");
       }
     } else {
-      if (message.length() > AddMessageForm.MAX_MESSAGE_LENGTH) {
+      if (message.length() > MAX_MESSAGE_LENGTH) {
         errors.rejectValue("msg", null, "Слишком большое сообщение");
       }
     }
@@ -224,7 +229,7 @@ public class AddMessageController extends ApplicationObjectSupport {
     String previewImagePath = null;
 
     if (group!=null && group.isImagePostAllowed()) {
-      List<String> pair = processUpload(session, tmpl, oldForm, errors);
+      List<String> pair = processUpload(session, tmpl, image, errors);
 
       if (pair!=null) {
         form.setLinktext(pair.get(0));
@@ -236,7 +241,7 @@ public class AddMessageController extends ApplicationObjectSupport {
     Message previewMsg = null;
 
     if (group!=null) {
-      previewMsg = new Message(oldForm, form, user, message);
+      previewMsg = new Message(form, user, message, request.getRemoteAddr());
       params.put("message", prepareService.prepareMessage(previewMsg, true));
     }
 
@@ -337,22 +342,20 @@ public class AddMessageController extends ApplicationObjectSupport {
    * @throws IOException
    * @throws UtilException
    */
-  public List<String> processUpload(
+  private List<String> processUpload(
           HttpSession session,
           Template tmpl,
-          AddMessageForm form,
+          String image,
           Errors errors
   ) throws IOException, UtilException {
     if (session==null) {
       return null;
     }
 
-    String image = form.getImage();
-
     File uploadedFile = null;
 
-    if (image != null && !form.getImage().isEmpty()) {
-      uploadedFile = new File(form.getImage());
+    if (image != null && !image.isEmpty()) {
+      uploadedFile = new File(image);
     } else if (session.getAttribute("image") != null && !"".equals(session.getAttribute("image"))) {
       uploadedFile = new File((String) session.getAttribute("image"));
     }
@@ -374,6 +377,29 @@ public class AddMessageController extends ApplicationObjectSupport {
         );
       } catch (BadImageException e) {
         errors.reject(null, "Некорректное изображение: "+e.getMessage());
+      }
+    }
+
+    return null;
+  }
+
+  private String processUploadImage(HttpServletRequest request, Template tmpl) throws IOException, ScriptErrorException {
+    if (request instanceof MultipartHttpServletRequest) {
+      MultipartFile multipartFile = ((MultipartRequest) request).getFile("image");
+      if (multipartFile != null && !multipartFile.isEmpty()) {
+        File uploadedFile = File.createTempFile("preview", "", new File(tmpl.getObjectConfig().getPathPrefix() + "/linux-storage/tmp/"));
+        String image = uploadedFile.getPath();
+        if ((uploadedFile.canWrite() || uploadedFile.createNewFile())) {
+          try {
+            logger.debug("Transfering upload to: " + image);
+            multipartFile.transferTo(uploadedFile);
+            return image;
+          } catch (Exception e) {
+            throw new ScriptErrorException("Failed to write uploaded file", e);
+          }
+        } else {
+          logger.info("Bad target file name: " + image);
+        }
       }
     }
 
