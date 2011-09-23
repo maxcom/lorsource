@@ -577,7 +577,7 @@ public class Message implements Serializable {
     return linktext;
   }
 
-  public int addTopicFromPreview(Connection db, Template tmpl, HttpServletRequest request, String previewImagePath, User user)
+  public int saveNewMessage(Connection db, Template tmpl, HttpServletRequest request, String previewImagePath, User user)
     throws SQLException, UtilException, IOException, BadImageException, ScriptErrorException {
 
     Group group = Group.getGroup(db, guid);

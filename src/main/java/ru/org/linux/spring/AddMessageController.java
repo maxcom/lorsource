@@ -252,7 +252,7 @@ public class AddMessageController extends ApplicationObjectSupport {
       db.setAutoCommit(false);
 
       if (!form.isPreviewMode() && !errors.hasErrors()) {
-        int msgid = previewMsg.addTopicFromPreview(
+        int msgid = previewMsg.saveNewMessage(
                 db,
                 tmpl,
                 request,
