@@ -29,7 +29,7 @@ import java.util.List;
 @Service
 public class PrepareService {
 
-  PollDaoImpl pollDao;
+  PollDao pollDao;
   GroupDao groupDao;
   UserDao userDao;
   SectionDao sectionDao;
@@ -40,7 +40,7 @@ public class PrepareService {
   Configuration configuration;
 
   @Autowired
-  public void setPollDao(PollDaoImpl pollDao) {
+  public void setPollDao(PollDao pollDao) {
     this.pollDao = pollDao;
   }
 

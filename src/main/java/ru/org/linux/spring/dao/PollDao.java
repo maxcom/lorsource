@@ -34,7 +34,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Repository
-public class PollDaoImpl {
+public class PollDao {
   private static final String queryPoolIdByTopicId = "SELECT votenames.id FROM votenames,topics WHERE topics.id=? AND votenames.topic=topics.id";
   private static final String queryCurrentPollId = "SELECT votenames.id FROM votenames,topics WHERE topics.id=votenames.topic AND topics.moderate = 't' AND topics.deleted = 'f' AND topics.commitdate = (select max(commitdate) from topics where groupid=19387 AND moderate AND NOT deleted)";
   private static final String queryPool = "SELECT topic, multiselect FROM votenames WHERE id=?";

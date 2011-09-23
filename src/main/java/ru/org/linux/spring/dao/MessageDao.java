@@ -37,7 +37,7 @@ public class MessageDao {
   private GroupDao groupDao;
 
   @Autowired
-  private PollDaoImpl pollDao;
+  private PollDao pollDao;
 
   /**
    * Запрос получения полной информации о топике

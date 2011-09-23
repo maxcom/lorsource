@@ -34,7 +34,7 @@ public class PrepareServiceTest {
     ImmutableList<String> tags = ImmutableList.of("one", "two");
     Message message = mock(Message.class);
 
-    PollDaoImpl pollDao = mock(PollDaoImpl.class);
+    PollDao pollDao = mock(PollDao.class);
     GroupDao groupDao = mock(GroupDao.class);
     UserDao userDao = mock(UserDao.class);
     SectionDao sectionDao = mock(SectionDao.class);

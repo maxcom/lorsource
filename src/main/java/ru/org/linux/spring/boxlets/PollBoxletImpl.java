@@ -24,7 +24,7 @@ import ru.org.linux.site.Message;
 import ru.org.linux.site.MessageNotFoundException;
 import ru.org.linux.site.Poll;
 import ru.org.linux.spring.commons.CacheProvider;
-import ru.org.linux.spring.dao.PollDaoImpl;
+import ru.org.linux.spring.dao.PollDao;
 import ru.org.linux.spring.dao.VoteDTO;
 
 import javax.servlet.http.HttpServletRequest;
@@ -35,14 +35,14 @@ import java.util.List;
 @Controller
 public class PollBoxletImpl extends SpringBoxlet  {
   private CacheProvider cacheProvider;
-  private PollDaoImpl pollDao;
+  private PollDao pollDao;
 
-  public PollDaoImpl getPollDao() {
+  public PollDao getPollDao() {
     return pollDao;
   }
 
   @Autowired
-  public void setPollDao(PollDaoImpl pollDao) {
+  public void setPollDao(PollDao pollDao) {
     this.pollDao = pollDao;
   }
 
