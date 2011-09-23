@@ -56,6 +56,7 @@ public class Comment implements Serializable {
     }
   }
 
+  @Deprecated
   public Comment(Connection db, ResultSet rs) throws SQLException {
     msgid=rs.getInt("msgid");
     title=rs.getString("title");
