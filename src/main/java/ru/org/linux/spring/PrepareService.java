@@ -28,16 +28,15 @@ import java.util.List;
  */
 @Service
 public class PrepareService {
-
-  PollDao pollDao;
-  GroupDao groupDao;
-  UserDao userDao;
-  SectionDao sectionDao;
-  DeleteInfoDao deleteInfoDao;
-  MessageDao messageDao;
-  CommentDao commentDao;
-  UserAgentDao userAgentDao;
-  Configuration configuration;
+  private PollDao pollDao;
+  private GroupDao groupDao;
+  private UserDao userDao;
+  private SectionDao sectionDao;
+  private DeleteInfoDao deleteInfoDao;
+  private MessageDao messageDao;
+  private CommentDao commentDao;
+  private UserAgentDao userAgentDao;
+  private Configuration configuration;
 
   @Autowired
   public void setPollDao(PollDao pollDao) {

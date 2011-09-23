@@ -37,10 +37,10 @@ import java.util.Map;
 public class VoteController {
 
   @Autowired
-  PollDao pollDao;
+  private PollDao pollDao;
 
   @Autowired
-  MessageDao messageDao;
+  private MessageDao messageDao;
 
   @RequestMapping(value="/vote.jsp", method= RequestMethod.POST)
   public ModelAndView vote(
