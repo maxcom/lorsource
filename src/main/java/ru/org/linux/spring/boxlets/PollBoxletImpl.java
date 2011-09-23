@@ -19,16 +19,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
-import ru.org.linux.site.LorDataSource;
 import ru.org.linux.site.Message;
 import ru.org.linux.site.MessageNotFoundException;
 import ru.org.linux.site.Poll;
 import ru.org.linux.spring.commons.CacheProvider;
+import ru.org.linux.spring.dao.MessageDao;
 import ru.org.linux.spring.dao.PollDao;
 import ru.org.linux.spring.dao.VoteDTO;
 
 import javax.servlet.http.HttpServletRequest;
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -36,10 +35,7 @@ import java.util.List;
 public class PollBoxletImpl extends SpringBoxlet  {
   private CacheProvider cacheProvider;
   private PollDao pollDao;
-
-  public PollDao getPollDao() {
-    return pollDao;
-  }
+  private MessageDao messageDao;
 
   @Autowired
   public void setPollDao(PollDao pollDao) {
@@ -49,6 +45,11 @@ public class PollBoxletImpl extends SpringBoxlet  {
   @Autowired
   public void setCacheProvider(CacheProvider cacheProvider) {
     this.cacheProvider = cacheProvider;
+  }
+
+  @Autowired
+  public void setMessageDao(MessageDao messageDao) {
+    this.messageDao = messageDao;
   }
 
   @Override
@@ -71,17 +72,7 @@ public class PollBoxletImpl extends SpringBoxlet  {
     Message msg = getFromCache(cacheProvider, getCacheKey() + "topic"+poll.getId(), new GetCommand<Message>() {
       @Override
       public Message get() throws SQLException, MessageNotFoundException {
-        Connection db = null;
-
-        try {
-          db = LorDataSource.getConnection();
-
-          return Message.getMessage(db, poll.getTopicId());
-        } finally {
-          if (db!=null) {
-            db.close();
-          }
-        }
+        return messageDao.getById(poll.getTopicId());
       }
     });
 
