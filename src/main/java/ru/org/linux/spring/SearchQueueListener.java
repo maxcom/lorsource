@@ -176,7 +176,7 @@ public class SearchQueueListener {
 
     doc.addField("title", StringEscapeUtils.unescapeHtml(topic.getTitle()));
     doc.addField("topic_title", topic.getTitle());
-    doc.addField("message", StringEscapeUtils.unescapeHtml(topic.getMessage()));
+    doc.addField("message", topic.getMessage());
     Date postdate = topic.getPostdate();
     doc.addField("postdate", new Timestamp(postdate.getTime()));
 
@@ -244,7 +244,7 @@ public class SearchQueueListener {
       doc.addField("title", StringEscapeUtils.unescapeHtml(commentTitle));
     }
 
-    doc.addField("message", StringEscapeUtils.unescapeHtml(message));
+    doc.addField("message", message);
     Date postdate = comment.getPostdate();
     doc.addField("postdate", new Timestamp(postdate.getTime()));
 
