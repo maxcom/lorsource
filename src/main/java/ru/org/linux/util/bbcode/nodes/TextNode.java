@@ -40,6 +40,7 @@ package ru.org.linux.util.bbcode.nodes;
 
 import ru.org.linux.util.HTMLFormatter;
 import ru.org.linux.util.bbcode.Parser;
+import ru.org.linux.util.bbcode.ParserParameters;
 
 /**
  * Created by IntelliJ IDEA.
@@ -50,8 +51,8 @@ import ru.org.linux.util.bbcode.Parser;
 public class TextNode extends Node {
   final String text;
 
-  public TextNode(Node parent, Parser parser, String text) {
-    super(parent, parser);
+  public TextNode(Node parent, ParserParameters parserParameters, String text) {
+    super(parent, parserParameters);
     this.text = text;
   }
 
@@ -63,7 +64,7 @@ public class TextNode extends Node {
   public String renderXHtml() {
     if (TagNode.class.isInstance(parent)) {
       TagNode tagNode = (TagNode) parent;
-      if (parser.getAutoLinkTags().contains(tagNode.bbtag.getName())) {
+      if (parserParameters.getAutoLinkTags().contains(tagNode.bbtag.getName())) {
         HTMLFormatter formatter = new HTMLFormatter(text);
         formatter.enableUrlHighLightMode();
         return formatter.process();

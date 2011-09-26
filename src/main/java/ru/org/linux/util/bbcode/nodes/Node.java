@@ -38,7 +38,7 @@
 
 package ru.org.linux.util.bbcode.nodes;
 
-import ru.org.linux.util.bbcode.Parser;
+import ru.org.linux.util.bbcode.ParserParameters;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,15 +53,15 @@ public class Node {
   Node parent = null;
   private final List<Node> children;
   String parameter;
-  final Parser parser;
+  protected ParserParameters parserParameters;
 
-  public Node(Parser parser) {
-    this.parser = parser;
+  public Node(ParserParameters parserParameters) {
+    this.parserParameters = parserParameters;
     children = new ArrayList<Node>();
   }
 
-  public Node(Node parent, Parser parser) {
-    this.parser = parser;
+  public Node(Node parent, ParserParameters parserParameters) {
+    this.parserParameters = parserParameters;
     this.parent = parent;
     children = new ArrayList<Node>();
   }

@@ -40,9 +40,9 @@ package ru.org.linux.util.bbcode.tags;
 
 import com.google.common.collect.ImmutableMap;
 import ru.org.linux.util.bbcode.Parser;
+import ru.org.linux.util.bbcode.ParserParameters;
 import ru.org.linux.util.bbcode.nodes.Node;
 
-import java.sql.Connection;
 import java.util.Map;
 import java.util.Set;
 
@@ -56,8 +56,8 @@ public class HtmlEquivTag extends Tag {
   private String htmlEquiv;
   private Map<String, String> attributes = ImmutableMap.of();
 
-  public HtmlEquivTag(String name, Set<String> allowedChildren, String implicitTag, Parser parser) {
-    super(name, allowedChildren, implicitTag, parser);
+  public HtmlEquivTag(String name, Set<String> allowedChildren, String implicitTag, ParserParameters parserParameters) {
+    super(name, allowedChildren, implicitTag, parserParameters);
   }
 
   public void setHtmlEquiv(String htmlEquiv) {

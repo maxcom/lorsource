@@ -39,6 +39,7 @@
 package ru.org.linux.util.bbcode.tags;
 
 import ru.org.linux.util.bbcode.Parser;
+import ru.org.linux.util.bbcode.ParserParameters;
 import ru.org.linux.util.bbcode.nodes.Node;
 import ru.org.linux.util.bbcode.nodes.TextNode;
 
@@ -54,8 +55,8 @@ import java.util.regex.Pattern;
 public class ImageTag extends Tag {
   public static final Pattern IMG_URL_REGEXP = Pattern.compile("(\\w+)://([\\w\\d]+)/?(.*)?");
 
-  public ImageTag(String name, Set<String> allowedChildren, String implicitTag, Parser parser) {
-    super(name, allowedChildren, implicitTag, parser);
+  public ImageTag(String name, Set<String> allowedChildren, String implicitTag, ParserParameters parserParameters) {
+    super(name, allowedChildren, implicitTag, parserParameters);
   }
 
   @Override

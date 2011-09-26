@@ -40,11 +40,9 @@ package ru.org.linux.util.bbcode.nodes;
 
 import ru.org.linux.site.User;
 import ru.org.linux.spring.dao.UserDao;
-import ru.org.linux.util.bbcode.Parser;
+import ru.org.linux.util.bbcode.ParserParameters;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -61,8 +59,8 @@ public class RootNode extends Node {
   private UserDao userDao;
   private Set<User> replier;
 
-  public RootNode(Parser parser) {
-    super(parser);
+  public RootNode(ParserParameters parserParameters) {
+    super(parserParameters);
     cutCount = -1;
     renderCut = true;
     cleanCut = true;
@@ -99,7 +97,7 @@ public class RootNode extends Node {
 
   @Override
   public boolean allows(String tagname) {
-    return parser.getBlockLevelTags().contains(tagname);
+    return parserParameters.getBlockLevelTags().contains(tagname);
   }
 
   @Override

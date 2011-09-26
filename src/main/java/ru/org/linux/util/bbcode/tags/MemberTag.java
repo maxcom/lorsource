@@ -40,8 +40,8 @@ package ru.org.linux.util.bbcode.tags;
 
 import ru.org.linux.site.User;
 import ru.org.linux.site.UserNotFoundException;
-import ru.org.linux.spring.dao.UserDao;
 import ru.org.linux.util.bbcode.Parser;
+import ru.org.linux.util.bbcode.ParserParameters;
 import ru.org.linux.util.bbcode.nodes.Node;
 import ru.org.linux.util.bbcode.nodes.RootNode;
 import ru.org.linux.util.bbcode.nodes.TagNode;
@@ -56,8 +56,8 @@ import java.util.Set;
  * Time: 12:27 AM
  */
 public class MemberTag extends Tag {
-  public MemberTag(String name, Set<String> allowedChildren, String implicitTag, Parser parser) {
-    super(name, allowedChildren, implicitTag, parser);
+  public MemberTag(String name, Set<String> allowedChildren, String implicitTag, ParserParameters parserParameters) {
+    super(name, allowedChildren, implicitTag, parserParameters);
   }
 
   @Override
