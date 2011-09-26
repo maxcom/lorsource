@@ -67,7 +67,7 @@ public class NewsViewer {
     String url = topic.getUrl();
 
     try {
-      String mediumName = ScreenshotProcessor.getMediumName(url);
+      String mediumName = Screenshot.getMediumName(url);
 
       if (!showMedium || !new File(htmlPath, mediumName).exists()) {
         mediumName = topic.getLinktext();
@@ -258,7 +258,7 @@ public class NewsViewer {
   }
 
   public void setMainUrl(String url) {
-    this.mainUrl = url;
+    mainUrl = url;
   }
 
   public String getVariantID()  {

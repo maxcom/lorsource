@@ -1,4 +1,4 @@
-<%@ page contentType="text/html; charset=utf-8" import="ru.org.linux.site.Group,ru.org.linux.site.ScreenshotProcessor"  %>
+<%@ page contentType="text/html; charset=utf-8" import="ru.org.linux.site.Group,ru.org.linux.site.Screenshot"  %>
 <%@ page import="ru.org.linux.spring.dao.TagDao"%>
 <%@ page import="ru.org.linux.util.HTMLFormatter"%>
 <%@ page import="java.util.SortedSet" %>
@@ -68,10 +68,10 @@
   Технические требования к изображению:
   <ul>
     <li>Ширина x Высота:
-      от <%= ScreenshotProcessor.MIN_SCREENSHOT_SIZE %>x<%= ScreenshotProcessor.MIN_SCREENSHOT_SIZE %>
-      до <%= ScreenshotProcessor.MAX_SCREENSHOT_SIZE %>x<%= ScreenshotProcessor.MAX_SCREENSHOT_SIZE %> пикселей</li>
+      от <%= Screenshot.MIN_SCREENSHOT_SIZE %>x<%= Screenshot.MIN_SCREENSHOT_SIZE %>
+      до <%= Screenshot.MAX_SCREENSHOT_SIZE %>x<%= Screenshot.MAX_SCREENSHOT_SIZE %> пикселей</li>
     <li>Тип: jpeg, gif, png</li>
-    <li>Размер не более <%= (ScreenshotProcessor.MAX_SCREENSHOT_FILESIZE / 1024) - 50 %> Kb</li>
+    <li>Размер не более <%= (Screenshot.MAX_SCREENSHOT_FILESIZE / 1024) - 50 %> Kb</li>
   </ul>
 </p>
 <%   } %>

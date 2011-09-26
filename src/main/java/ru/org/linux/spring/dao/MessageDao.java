@@ -192,7 +192,7 @@ public class MessageDao {
         throw new ScriptErrorException("previewImagePath==null!?");
       }
 
-      ScreenshotProcessor screenshot = new ScreenshotProcessor(previewImagePath);
+      Screenshot screenshot = new Screenshot(previewImagePath);
       screenshot.copyScreenshotFromPreview(tmpl, msgid);
 
       url = "gallery/" + screenshot.getMainFile().getName();

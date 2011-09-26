@@ -362,7 +362,7 @@ public class AddMessageController extends ApplicationObjectSupport {
 
     if (uploadedFile != null && uploadedFile.isFile() && uploadedFile.canRead()) {
       try {
-        ScreenshotProcessor screenshot = new ScreenshotProcessor(uploadedFile.getAbsolutePath());
+        Screenshot screenshot = new Screenshot(uploadedFile.getAbsolutePath());
         logger.info("SCREEN: " + uploadedFile.getAbsolutePath() + "\nINFO: SCREEN: " + image);
 
         screenshot.copyScreenshot(tmpl, session.getId());

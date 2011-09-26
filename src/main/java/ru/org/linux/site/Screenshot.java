@@ -24,7 +24,7 @@ import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class ScreenshotProcessor {
+public class Screenshot {
   public static final int MAX_SCREENSHOT_FILESIZE = 1500000;
   public static final int MIN_SCREENSHOT_SIZE = 400;
   public static final int MAX_SCREENSHOT_SIZE = 3000;
@@ -40,7 +40,7 @@ public class ScreenshotProcessor {
   private static final int ICON_WIDTH = 200;
   private static final int MEDIUM_WIDTH = 500;
 
-  public ScreenshotProcessor(String filename) throws IOException, BadImageException {
+  public Screenshot(String filename) throws IOException, BadImageException {
     file = new File(filename);
 
     if (!file.isFile()) {
