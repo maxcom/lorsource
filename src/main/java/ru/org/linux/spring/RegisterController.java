@@ -247,9 +247,7 @@ public class RegisterController extends ApplicationObjectSupport {
 
         ist.close();
 
-        if (info != null) {
-          user.setUserinfo(db, info);
-        }
+        user.setUserinfo(db, info);
       } else {
         PreparedStatement pst = db.prepareStatement("SELECT count(*) as c FROM users WHERE nick=?");
         pst.setString(1, nick);
