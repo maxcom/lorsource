@@ -29,6 +29,7 @@ import org.springframework.jdbc.support.JdbcUtils;
 import org.springframework.stereotype.Component;
 import ru.org.linux.site.*;
 import ru.org.linux.spring.dao.CommentDao;
+import ru.org.linux.spring.dao.MessageDao;
 
 import java.io.IOException;
 import java.sql.*;
@@ -42,6 +43,8 @@ public class SearchQueueListener {
   private static final Log logger = LogFactory.getLog(SearchQueueListener.class);
   
   private SolrServer solrServer;
+  private MessageDao messageDao;
+  private CommentDao commentDao;
 
   @Autowired
   @Required
@@ -49,21 +52,25 @@ public class SearchQueueListener {
     this.solrServer = solrServer;
   }
 
+  @Autowired
+  public void setMessageDao(MessageDao messageDao) {
+    this.messageDao = messageDao;
+  }
+
+  @Autowired
+  public void setCommentDao(CommentDao commentDao) {
+    this.commentDao = commentDao;
+  }
+
   public void handleMessage(SearchQueueSender.UpdateMessage msgUpdate) throws SQLException, MessageNotFoundException, IOException, SolrServerException {
     logger.info("Indexing "+msgUpdate.getMsgid());
 
-    Connection db = LorDataSource.getConnection();
-
-    try {
-      reindexMessage(db, msgUpdate.getMsgid(), msgUpdate.isWithComments());
-      solrServer.commit();
-    } finally {
-      JdbcUtils.closeConnection(db);
-    }
+    reindexMessage(msgUpdate.getMsgid(), msgUpdate.isWithComments());
+    solrServer.commit();
   }
 
-  private void reindexMessage(Connection db, int msgid, boolean withComments) throws IOException, SolrServerException, SQLException, MessageNotFoundException {
-    Message msg = Message.getMessage(db, msgid);
+  private void reindexMessage(int msgid, boolean withComments) throws IOException, SolrServerException, SQLException, MessageNotFoundException {
+    Message msg = messageDao.getById(msgid);
 
     if (!msg.isDeleted()) {
       updateMessage(msg);
@@ -73,10 +80,10 @@ public class SearchQueueListener {
     }
 
     if (withComments) {
-      CommentList commentList = CommentList.getCommentList(db, msg, true);
+      CommentList commentList = CommentList.getCommentList(commentDao, msg, true);
 
       if (!msg.isDeleted()) {
-        reindexComments(db, msg, commentList);
+        reindexComments(msg, commentList);
       } else {
         List<String> msgids = Lists.transform(commentList.getList(), new Function<Comment, String>() {
           @Override
@@ -95,43 +102,22 @@ public class SearchQueueListener {
   public void handleMessage(SearchQueueSender.UpdateComments msgUpdate) throws SQLException, MessageNotFoundException, IOException, SolrServerException {
     logger.info("Indexing "+msgUpdate.getMsgids());
 
-    Connection db = LorDataSource.getConnection();
-    PreparedStatement pst = null;
+    for (Integer msgid : msgUpdate.getMsgids()) {
+      Comment comment = commentDao.getById(msgid);
 
-    try {
-      pst = db.prepareStatement("SELECT message FROM msgbase WHERE id=?");
-
-      for (Integer msgid : msgUpdate.getMsgids()) {
-        Comment comment = CommentDao.getComment(db, msgid);
-
-        if (comment.isDeleted()) {
-          logger.info("Deleting comment "+comment.getId()+" from solr");
-          solrServer.deleteById(Integer.toString(comment.getId()));
-        } else {
-          // комментарии могут быть из разного топика в функция массового удаления
-          // возможно для скорости нужен какой-то кеш топиков, т.к. чаще бывает что все
-          // комментарии из одного топика
-          Message topic = Message.getMessage(db, comment.getTopic());
-
-          pst.setInt(1, comment.getId());
-          ResultSet rs = pst.executeQuery();
-          if (!rs.next()) {
-            throw new RuntimeException("Can't load message text for " + comment.getId());
-          }
-
-          String message = rs.getString(1);
-
-          rs.close();
-
-          solrServer.add(processComment(topic, comment, message));
-        }
+      if (comment.isDeleted()) {
+        logger.info("Deleting comment "+comment.getId()+" from solr");
+        solrServer.deleteById(Integer.toString(comment.getId()));
+      } else {
+        // комментарии могут быть из разного топика в функция массового удаления
+        // возможно для скорости нужен какой-то кеш топиков, т.к. чаще бывает что все
+        // комментарии из одного топика
+        Message topic = messageDao.getById(comment.getTopicId());
+        String message = commentDao.getMessage(comment);
+        solrServer.add(processComment(topic, comment, message));
       }
-
-      solrServer.commit();
-    } finally {
-      JdbcUtils.closeStatement(pst);
-      JdbcUtils.closeConnection(db);
     }
+    solrServer.commit();
   }
 
   public void handleMessage(SearchQueueSender.UpdateMonth msgUpdate) throws SQLException, MessageNotFoundException, IOException, SolrServerException {
@@ -139,28 +125,16 @@ public class SearchQueueListener {
     int year = msgUpdate.getYear();
 
     logger.info("Indexing month "+ year + '/' + month);
+    long startTime = System.nanoTime();
 
-    Connection db = LorDataSource.getConnection();
-
-    try {
-      long startTime = System.nanoTime();
-
-      Statement st = db.createStatement();
-
-      ResultSet rs = st.executeQuery("SELECT id FROM topics WHERE postdate>='" + year + '-' + month + "-01'::timestamp AND (postdate<'" + year + '-' + month + "-01'::timestamp+'1 month'::interval)");
-
-      while (rs.next()) {
-        reindexMessage(db, rs.getInt(1), true);
-      }
-
-      solrServer.commit();
-
-      long endTime = System.nanoTime();
-
-      logger.info("Reindex month "+year+'/'+month+" done, "+(endTime-startTime)/1000000+" millis");
-    } finally {
-      JdbcUtils.closeConnection(db);
+    List<Integer> topicIds = messageDao.getMessageForMonth(year, month);
+    for(int topicId : topicIds) {
+      reindexMessage(topicId, true);
     }
+
+    solrServer.commit();
+    long endTime = System.nanoTime();
+    logger.info("Reindex month "+year+'/'+month+" done, "+(endTime-startTime)/1000000+" millis");
   }
 
   private void updateMessage(Message topic) throws IOException, SolrServerException {
@@ -185,32 +159,16 @@ public class SearchQueueListener {
     solrServer.add(doc);
   }
 
-  private void reindexComments(Connection db, Message topic, CommentList comments) throws IOException, SolrServerException, SQLException {
+  private void reindexComments(Message topic, CommentList comments) throws IOException, SolrServerException, SQLException {
     Collection<SolrInputDocument> docs = new ArrayList<SolrInputDocument>();
     List<String> delete = new ArrayList<String>();
 
-    PreparedStatement pst = db.prepareStatement("SELECT message FROM msgbase WHERE id=?");
-
-    try {
-      for (Comment comment : comments.getList()) {
-        if (comment.isDeleted()) {
-          delete.add(Integer.toString(comment.getId()));
-        }
-
-        pst.setInt(1, comment.getId());
-        ResultSet rs = pst.executeQuery();
-        if (!rs.next()) {
-          throw new RuntimeException("Can't load message text for "+comment.getId());
-        }
-
-        String message = rs.getString(1);
-
-        rs.close();
-
-        docs.add(processComment(topic, comment, message));
+    for (Comment comment : comments.getList()) {
+      if (comment.isDeleted()) {
+        delete.add(Integer.toString(comment.getId()));
       }
-    } finally {
-      JdbcUtils.closeStatement(pst);
+      String message = commentDao.getMessage(comment);
+      docs.add(processComment(topic, comment, message));
     }
 
     if (!docs.isEmpty()) {

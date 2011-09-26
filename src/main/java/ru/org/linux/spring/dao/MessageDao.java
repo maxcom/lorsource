@@ -20,10 +20,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 /**
  * Операции над сообщениями
@@ -70,6 +67,12 @@ public class MessageDao {
   private static final String updateUndeleteMessage = "UPDATE topics SET deleted='f' WHERE id=?";
   private static final String updateUneleteInfo = "DELETE FROM del_info WHERE msgid=?";
 
+  private static final String queryOnlyMessage = "SELECT message FROM msgbase WHERE id=?";
+
+  private static final String queryTopicsIdByTime = "SELECT id FROM topics WHERE postdate>=? AND postdate<?";
+
+  public static final String queryTimeFirstTopic = "SELECT min(postdate) FROM topics WHERE postdate!='epoch'::timestamp";
+
   private JdbcTemplate jdbcTemplate;
 
   @Autowired
@@ -78,6 +81,23 @@ public class MessageDao {
   @Autowired
   public void setJdbcTemplate(DataSource dataSource) {
     jdbcTemplate = new JdbcTemplate(dataSource);
+  }
+
+  /**
+   * Время создания первого топика
+   * @return время
+   */
+  public Timestamp getTimeFirstTopic() {
+    return jdbcTemplate.queryForObject(queryTimeFirstTopic, Timestamp.class);
+  }
+
+  /**
+   * Получить содержимое топика
+   * @param message топик
+   * @return содержимое
+   */
+  public String getMessage(Message message) {
+    return jdbcTemplate.queryForObject(queryOnlyMessage, String.class, message.getId());
   }
 
   /**
@@ -99,6 +119,26 @@ public class MessageDao {
       throw new MessageNotFoundException(id);
     }
     return message;
+  }
+
+  /**
+   * Получить список топиков за месяц
+   * @param year год
+   * @param month месяц
+   * @return список топиков
+   */
+  public List<Integer> getMessageForMonth(int year, int month){
+    Calendar calendar = Calendar.getInstance();
+    calendar.set(year, month, 1);
+    Timestamp ts_start = new Timestamp(calendar.getTimeInMillis());
+    calendar.add(Calendar.MONTH, 1);
+    Timestamp ts_end = new Timestamp(calendar.getTimeInMillis());
+    return jdbcTemplate.query(queryTopicsIdByTime, new RowMapper<Integer>() {
+      @Override
+      public Integer mapRow(ResultSet resultSet, int i) throws SQLException {
+        return resultSet.getInt("id");
+      }
+    }, ts_start, ts_end);
   }
 
   /**
