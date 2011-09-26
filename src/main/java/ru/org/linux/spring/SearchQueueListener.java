@@ -15,17 +15,9 @@
 
 package ru.org.linux.spring;
 
-import java.io.IOException;
-import java.sql.*;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-
-import ru.org.linux.site.*;
-
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.solr.client.solrj.SolrServer;
@@ -35,7 +27,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.jdbc.support.JdbcUtils;
 import org.springframework.stereotype.Component;
+import ru.org.linux.site.*;
 import ru.org.linux.spring.dao.CommentDao;
+
+import java.io.IOException;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
 
 @Component
 public class SearchQueueListener {
@@ -174,7 +174,7 @@ public class SearchQueueListener {
     doc.addField("topic_id", topic.getMessageId());
     doc.addField("group_id", topic.getGroupId());
 
-    doc.addField("title", topic.getTitle());
+    doc.addField("title", StringEscapeUtils.unescapeHtml(topic.getTitle()));
     doc.addField("topic_title", topic.getTitle());
     doc.addField("message", topic.getMessage());
     Date postdate = topic.getPostdate();
@@ -233,7 +233,7 @@ public class SearchQueueListener {
     doc.addField("topic_id", comment.getTopic());
     doc.addField("group_id", topic.getGroupId());
     String topicTitle = topic.getTitle();
-    doc.addField("topic_title", topicTitle);
+    doc.addField("topic_title", StringEscapeUtils.unescapeHtml(topicTitle));
     
     String commentTitle = comment.getTitle();
 
@@ -241,7 +241,7 @@ public class SearchQueueListener {
         !commentTitle.isEmpty() &&
         !commentTitle.equals(topicTitle) &&
         !commentTitle.startsWith("Re:")) {
-      doc.addField("title", commentTitle);
+      doc.addField("title", StringEscapeUtils.unescapeHtml(commentTitle));
     }
 
     doc.addField("message", message);

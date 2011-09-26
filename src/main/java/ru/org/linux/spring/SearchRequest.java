@@ -15,13 +15,13 @@
 
 package ru.org.linux.spring;
 
+import ru.org.linux.site.SearchViewer;
+import ru.org.linux.site.User;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.LinkedHashMap;
 import java.util.Map;
-
-import ru.org.linux.site.SearchViewer;
-import ru.org.linux.site.User;
 
 public class SearchRequest {
   private String q = "";
