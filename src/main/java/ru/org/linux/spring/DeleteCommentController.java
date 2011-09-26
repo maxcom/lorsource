@@ -89,7 +89,7 @@ public class DeleteCommentController {
     Comment comment = commentDao.getById(msgid);
 
     if (comment.isDeleted()) {
-      throw new AccessViolationException("комментарий уже удален");
+      throw new UserErrorException("комментарий уже удален");
     }
 
     int topicId = comment.getTopicId();
@@ -140,6 +140,10 @@ public class DeleteCommentController {
 
     Comment comment = commentDao.getById(msgid);
     Message topic = messageDao.getById(comment.getTopicId());
+
+    if (comment.isDeleted()) {
+      throw new UserErrorException("комментарий уже удален");
+    }
 
     boolean perm = false;
     boolean selfDel = false;
