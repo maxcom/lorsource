@@ -15,6 +15,8 @@
 
 package ru.org.linux.site;
 
+import org.apache.commons.io.FileUtils;
+import org.springframework.validation.Errors;
 import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.ImageInfo;
 import ru.org.linux.util.UtilException;
@@ -29,42 +31,59 @@ public class Screenshot {
   public static final int MIN_SCREENSHOT_SIZE = 400;
   public static final int MAX_SCREENSHOT_SIZE = 3000;
 
-  private final File file;
+  private final File mainFile;
+  private final File mediumFile;
+  private final File iconFile;
   private final String extension;
-
-  private File mainFile;
-  private File mediumFile;
-  private File iconFile;
 
   private static final Pattern GALLERY_NAME = Pattern.compile("(gallery/[^.]+)(\\.\\w+)");
   private static final int ICON_WIDTH = 200;
   private static final int MEDIUM_WIDTH = 500;
 
-  public Screenshot(String filename) throws IOException, BadImageException {
-    file = new File(filename);
+  public static Screenshot createScreenshot(File file, Errors errors, String dir, String name) throws IOException, BadImageException, UtilException {
+    boolean error = false;
 
     if (!file.isFile()) {
-      throw new BadImageException("Сбой загрузки изображения: не файл");
+      errors.reject(null, "Сбой загрузки изображения: не файл");
+      error = true;
+    }
+
+    if (!file.canRead()) {
+      errors.reject(null, "Сбой загрузки изображения: файл нельзя прочитать");
+      error = true;
     }
 
     if (file.length() > MAX_SCREENSHOT_FILESIZE) {
-      throw new BadImageException("Сбой загрузки изображения: слишком большой файл");
+      errors.reject(null, "Сбой загрузки изображения: слишком большой файл");
+      error = true;
     }
 
-    extension = ImageInfo.detectImageType(file);
+    String extension = ImageInfo.detectImageType(file);
 
-    ImageInfo info = new ImageInfo(filename, extension);
+    ImageInfo info = new ImageInfo(file, extension);
 
     if (info.getHeight()< MIN_SCREENSHOT_SIZE || info.getHeight() > MAX_SCREENSHOT_SIZE) {
-      throw new BadImageException("Сбой загрузки изображения: недопустимые размеры изображения");
+      errors.reject(null, "Сбой загрузки изображения: недопустимые размеры изображения");
+      error = true;
     }
 
     if (info.getWidth()<MIN_SCREENSHOT_SIZE || info.getWidth() > MAX_SCREENSHOT_SIZE) {
-      throw new BadImageException("Сбой загрузки изображения: недопустимые размеры изображения");
+      errors.reject(null, "Сбой загрузки изображения: недопустимые размеры изображения");
+      error = true;
+    }
+
+    if (!error) {
+      Screenshot scrn = new Screenshot(name, dir, extension);
+
+      scrn.doResize(file);
+
+      return scrn;
+    } else {
+      return null;
     }
   }
 
-  private void initFiles(String name, String path) {
+  private Screenshot(String name, String path, String extension) {
     String mainname = name + '.' + extension;
     String iconname = name + "-icon.jpg";
     String medname = name + "-med.jpg";
@@ -72,16 +91,22 @@ public class Screenshot {
     mainFile = new File(path, mainname);
     iconFile = new File(path, iconname);
     mediumFile = new File(path, medname);
+
+    this.extension = extension;
   }
 
-  public void copyScreenshotFromPreview(Template tmpl, int msgid) throws IOException, UtilException {
-    initFiles(Integer.toString(msgid), tmpl.getObjectConfig().getHTMLPathPrefix() + "/gallery");
+  public Screenshot moveTo(String dir, String name) throws IOException {
+    Screenshot dest = new Screenshot(name, dir, extension);
 
-    doResize();
+    FileUtils.moveFile(mainFile, dest.mainFile);
+    FileUtils.moveFile(iconFile, dest.iconFile);
+    FileUtils.moveFile(mediumFile, dest.mediumFile);
+
+    return dest;
   }
 
-  private void doResize() throws IOException, UtilException {
-    file.renameTo(mainFile);
+  private void doResize(File uploadedFile) throws IOException, UtilException {
+    FileUtils.moveFile(uploadedFile, mainFile);
 
     boolean error = true;
 
@@ -106,12 +131,6 @@ public class Screenshot {
         }
       }
     }
-  }
-
-  public void copyScreenshot(Template tmpl, String sessionId) throws IOException, UtilException {
-    initFiles(sessionId, tmpl.getObjectConfig().getHTMLPathPrefix() + "/gallery/preview");
-
-    doResize();
   }
 
   public File getMainFile() {

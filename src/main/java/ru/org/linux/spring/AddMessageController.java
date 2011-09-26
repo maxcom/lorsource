@@ -15,7 +15,6 @@
 
 package ru.org.linux.spring;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.ApplicationObjectSupport;
@@ -43,7 +42,6 @@ import java.beans.PropertyEditorSupport;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
@@ -226,15 +224,14 @@ public class AddMessageController extends ApplicationObjectSupport {
       }
     }
 
-    String previewImagePath = null;
+    Screenshot scrn = null;
 
     if (group!=null && group.isImagePostAllowed()) {
-      List<String> pair = processUpload(session, tmpl, image, errors);
+      scrn = processUpload(session, tmpl, image, errors);
 
-      if (pair!=null) {
-        form.setLinktext(pair.get(0));
-        form.setUrl(pair.get(1));
-        previewImagePath = pair.get(2);
+      if (scrn!=null) {
+        form.setLinktext("gallery/preview/" + scrn.getIconFile().getName());
+        form.setUrl("gallery/preview/" + scrn.getMainFile().getName());
       }
     }
 
@@ -259,7 +256,7 @@ public class AddMessageController extends ApplicationObjectSupport {
     }
 
     if (!form.isPreviewMode() && !errors.hasErrors() && group!=null) {
-      int msgid = messageDao.addMessage(request, form, tmpl, group, user, previewImagePath, previewMsg);
+      int msgid = messageDao.addMessage(request, form, tmpl, group, user, scrn, previewMsg);
 
       searchQueueSender.updateMessageOnly(msgid);
 
@@ -342,7 +339,7 @@ public class AddMessageController extends ApplicationObjectSupport {
    * @throws IOException
    * @throws UtilException
    */
-  private List<String> processUpload(
+  private Screenshot processUpload(
           HttpSession session,
           Template tmpl,
           String image,
@@ -352,34 +349,32 @@ public class AddMessageController extends ApplicationObjectSupport {
       return null;
     }
 
-    File uploadedFile = null;
+    Screenshot screenshot = null;
 
     if (image != null && !image.isEmpty()) {
-      uploadedFile = new File(image);
-    } else if (session.getAttribute("image") != null && !"".equals(session.getAttribute("image"))) {
-      uploadedFile = new File((String) session.getAttribute("image"));
-    }
+      File uploadedFile = new File(image);
 
-    if (uploadedFile != null && uploadedFile.isFile() && uploadedFile.canRead()) {
       try {
-        Screenshot screenshot = new Screenshot(uploadedFile.getAbsolutePath());
-        logger.info("SCREEN: " + uploadedFile.getAbsolutePath() + "\nINFO: SCREEN: " + image);
-
-        screenshot.copyScreenshot(tmpl, session.getId());
-
-        session.setAttribute("image", screenshot.getMainFile().getAbsolutePath());
-
-        return ImmutableList.of(
-                "gallery/preview/" + screenshot.getIconFile().getName(),
-                "gallery/preview/" + screenshot.getMainFile().getName(),
-                screenshot.getMainFile().getAbsolutePath()
+        screenshot = Screenshot.createScreenshot(
+                uploadedFile,
+                errors,
+                tmpl.getObjectConfig().getHTMLPathPrefix() + "/gallery/preview",
+                session.getId()
         );
+
+        if (screenshot != null) {
+          logger.info("SCREEN: " + uploadedFile.getAbsolutePath() + "\nINFO: SCREEN: " + image);
+
+          session.setAttribute("image", screenshot);
+        }
       } catch (BadImageException e) {
-        errors.reject(null, "Некорректное изображение: "+e.getMessage());
+        errors.reject(null, "Некорректное изображение: " + e.getMessage());
       }
+    } else if (session.getAttribute("image") != null && !"".equals(session.getAttribute("image"))) {
+      screenshot = (Screenshot) session.getAttribute("image");
     }
 
-    return null;
+    return screenshot;
   }
 
   private String processUploadImage(HttpServletRequest request, Template tmpl) throws IOException, ScriptErrorException {

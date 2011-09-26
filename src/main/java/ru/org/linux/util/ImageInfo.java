@@ -119,12 +119,16 @@ public class ImageInfo{
   }
 
   public ImageInfo(String filename, String extension) throws BadImageException, IOException {
-    this.filename = filename;
+    this(new File(filename), extension);
+  }
+
+  public ImageInfo(File file, String extension) throws BadImageException, IOException {
+    filename = file.getName();
 
     FileInputStream fileStream = null;
 
     try {
-      fileStream = new FileInputStream(filename);
+      fileStream = new FileInputStream(file);
       size = fileStream.available();
 
       if ("gif".equals(extension)) {
@@ -203,15 +207,15 @@ public class ImageInfo{
     }
   }
 
-  private short shortBigEndian(byte firstRead, byte lastRead) {
+  private static short shortBigEndian(byte firstRead, byte lastRead) {
     return (short) (((firstRead & 0xFF) << 8) | lastRead & 0xFF);
   }
 
-  private short shortLittleEndian(byte firstRead, byte lastRead) {
+  private static short shortLittleEndian(byte firstRead, byte lastRead) {
     return shortBigEndian(lastRead, firstRead);
   }
 
-  private int intBigEndian(byte a1, byte a2, byte a3, byte a4) {
+  private static int intBigEndian(byte a1, byte a2, byte a3, byte a4) {
     return ((a1 & 0xFF) << 24) | ((a2 & 0xFF) << 16) | ((a3 & 0xFF) << 8) | a4 & 0xFF;
   }
 

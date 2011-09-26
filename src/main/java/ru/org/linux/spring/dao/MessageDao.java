@@ -177,8 +177,8 @@ public class MessageDao {
   }
 
   // call in @Transactional environment
-  public int saveNewMessage(final Message msg, Template tmpl, final HttpServletRequest request, String previewImagePath, final User user)
-    throws UtilException, IOException, BadImageException, ScriptErrorException {
+  public int saveNewMessage(final Message msg, Template tmpl, final HttpServletRequest request, Screenshot scrn, final User user)
+    throws  IOException,  ScriptErrorException {
 
     final Group group = groupDao.getGroup(msg.getGroupId());
 
@@ -188,12 +188,11 @@ public class MessageDao {
     String linktext = msg.getLinktext();
 
     if (group.isImagePostAllowed()) {
-      if (previewImagePath == null) {
-        throw new ScriptErrorException("previewImagePath==null!?");
+      if (scrn == null) {
+        throw new ScriptErrorException("scrn==null!?");
       }
 
-      Screenshot screenshot = new Screenshot(previewImagePath);
-      screenshot.copyScreenshotFromPreview(tmpl, msgid);
+      Screenshot screenshot = scrn.moveTo(tmpl.getObjectConfig().getHTMLPathPrefix() + "/gallery", Integer.toString(msgid));
 
       url = "gallery/" + screenshot.getMainFile().getName();
       linktext = "gallery/" + screenshot.getIconFile().getName();
@@ -234,12 +233,12 @@ public class MessageDao {
   }
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public int addMessage(HttpServletRequest request, AddMessageRequest form, Template tmpl, Group group, User user, String previewImagePath, Message previewMsg) throws  UtilException, IOException, BadImageException, ScriptErrorException, UserErrorException {
+  public int addMessage(HttpServletRequest request, AddMessageRequest form, Template tmpl, Group group, User user, Screenshot scrn, Message previewMsg) throws  UtilException, IOException, BadImageException, ScriptErrorException, UserErrorException {
     final int msgid = saveNewMessage(
             previewMsg,
             tmpl,
             request,
-            previewImagePath,
+            scrn,
             user
     );
 
