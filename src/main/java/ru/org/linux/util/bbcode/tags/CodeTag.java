@@ -39,7 +39,7 @@
 package ru.org.linux.util.bbcode.tags;
 
 import com.google.common.collect.ImmutableMap;
-import ru.org.linux.util.bbcode.Parser;
+import ru.org.linux.util.bbcode.ParserParameters;
 import ru.org.linux.util.bbcode.nodes.Node;
 import ru.org.linux.util.bbcode.nodes.TextNode;
 
@@ -94,8 +94,8 @@ public class CodeTag extends Tag {
                   .put("vbscript", "language-vbsript")
                   .build();
 
-  public CodeTag(String name, Set<String> allowedChildren, String implicitTag, Parser parser) {
-    super(name, allowedChildren, implicitTag, parser);
+  public CodeTag(String name, Set<String> allowedChildren, String implicitTag, ParserParameters parserParameters) {
+    super(name, allowedChildren, implicitTag, parserParameters);
   }
 
   @Override

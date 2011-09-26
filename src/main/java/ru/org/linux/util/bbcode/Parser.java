@@ -38,12 +38,16 @@
 
 package ru.org.linux.util.bbcode;
 
-import com.google.common.collect.ImmutableSet;
+import ru.org.linux.spring.dao.UserDao;
 import ru.org.linux.util.HTMLFormatter;
-import ru.org.linux.util.bbcode.nodes.*;
-import ru.org.linux.util.bbcode.tags.*;
+import ru.org.linux.util.bbcode.nodes.Node;
+import ru.org.linux.util.bbcode.nodes.RootNode;
+import ru.org.linux.util.bbcode.nodes.TagNode;
+import ru.org.linux.util.bbcode.nodes.TextNode;
+import ru.org.linux.util.bbcode.tags.Tag;
 
-import java.util.*;
+import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -51,15 +55,6 @@ import java.util.regex.Pattern;
  * Основной класс преобразования LORCODE в html
  */
 public class Parser {
-
-  /**
-   * Флаги для конструктора
-   */
-  public enum ParserFlags {
-    ENABLE_IMG_TAG,
-    IGNORE_CUT_TAG
-  }
-
   /**
    * Регулярное выражение поиска тэга
    */
@@ -70,197 +65,11 @@ public class Parser {
    */
   public static final Pattern P_REGEXP = Pattern.compile("(\r?\n){2,}");
 
-  /**
-   * Множество тэгов которое содержат или текст или себе подобных
-   */
-  private final ImmutableSet<String> inlineTags;
+  private final ParserParameters parserParameters;
 
-  /**
-   * Множество тэгов которым разрешено присутствовать в тэге url с параметром, вида [url=http://some]....[/url]
-   */
-  private final ImmutableSet<String> urlTags;
 
-  /**
-   * Множество тэгов которые могут содержать любые тэги
-   */
-  private final ImmutableSet<String> blockLevelTags;
-
-  /**
-   * Все тэги из inlineTags и blockLevelTags
-   */
-  private final ImmutableSet<String> flowTags;
-
-  /**
-   * Тэг списка :-|
-   */
-  private final ImmutableSet<String> otherTags;
-
-  /**
-   * Тэги внутри которых работает автовыделение ссылок
-   */
-  private final ImmutableSet<String> autoLinkTags;
-
-  /**
-   * Разрешенные параметры для тэга list
-   */
-  private final ImmutableSet<String> allowedListParameters;
-
-  /**
-   * Тэги в нутри которых не работает двойной перевод строк
-   */
-  private final ImmutableSet<String> disallowedParagraphTags;
-
-  /**
-   * Тэги внутри которых двойной перенос не работает и остается
-   * двойным переносом
-   */
-  private final ImmutableSet<String> paragraphedTags;
-
-  /**
-   * Список всех тэгов
-   */
-  private final List<Tag> allTags;
-
-  /**
-   * Хэш соответствия имя тэга -> класс тэга
-   */
-  private final Map<String, Tag> allTagsDict;
-
-  /**
-   * Множество всех имен тэгов
-   */
-  private final ImmutableSet<String> allTagsNames;
-
-  /**
-   * Конструктор
-   * @param flags флаги которые влияют на созданный объект
-   */
-  public Parser(Set<ParserFlags> flags) {
-    allowedListParameters = ImmutableSet.of("A", "a", "I", "i", "1");
-    inlineTags = ImmutableSet.of("b", "i", "u", "s", "em", "strong", "url", "url2", "user", "br", "text", "img", "softbr");
-    urlTags = ImmutableSet.of("b", "i", "u", "s", "strong", "text");
-    blockLevelTags = ImmutableSet.of("p", "quote", "list", "pre", "code", "div", "cut");
-    autoLinkTags = ImmutableSet.of("b", "i", "u", "s", "em", "strong", "p", "quote", "div", "cut", "pre");
-    disallowedParagraphTags = ImmutableSet.of("pre", "url", "user", "code");
-    paragraphedTags = ImmutableSet.of("pre", "code");
-    flowTags = new ImmutableSet.Builder<String>()
-            .addAll(inlineTags)
-            .addAll(blockLevelTags)
-            .build();
-
-    otherTags = ImmutableSet.of("*");
-
-    allTags = new ArrayList<Tag>();
-    { // <br/>
-      HtmlEquivTag tag = new HtmlEquivTag("br", ImmutableSet.<String>of(), "p", this);
-      tag.setSelfClosing(true);
-      //tag.setDiscardable(true);
-      tag.setHtmlEquiv("br");
-      allTags.add(tag);
-    }
-    { // <br/>, but can adapt during render ?
-      SoftBrTag tag = new SoftBrTag("softbr", ImmutableSet.<String>of(), "p", this);
-      tag.setSelfClosing(true);
-      tag.setDiscardable(true);
-      allTags.add(tag);
-    }
-    { // <b>
-      HtmlEquivTag tag = new HtmlEquivTag("b", inlineTags, "p", this);
-      tag.setHtmlEquiv("b");
-      allTags.add(tag);
-    }
-    { // <i>
-      HtmlEquivTag tag = new HtmlEquivTag("i", inlineTags, "p", this);
-      tag.setHtmlEquiv("i");
-      allTags.add(tag);
-    }
-    { // <u> TODO Allert: The U tag has been deprecated in favor of the text-decoration style property.
-      HtmlEquivTag tag = new HtmlEquivTag("u", inlineTags, "p", this);
-      tag.setHtmlEquiv("u");
-      allTags.add(tag);
-    }
-    { // <s> TODO Allert: The S tag has been deprecated in favor of the text-decoration style property.
-      HtmlEquivTag tag = new HtmlEquivTag("s", inlineTags, "p", this);
-      tag.setHtmlEquiv("s");
-      allTags.add(tag);
-    }
-    { // <em>
-      HtmlEquivTag tag = new HtmlEquivTag("em", inlineTags, "p", this);
-      tag.setHtmlEquiv("em");
-      allTags.add(tag);
-    }
-    { // <strong>
-      HtmlEquivTag tag = new HtmlEquivTag("strong", inlineTags, "p", this);
-      tag.setHtmlEquiv("strong");
-      allTags.add(tag);
-    }
-    { // <a>
-      UrlTag tag = new UrlTag("url", ImmutableSet.<String>of("text"), "p", this);
-      allTags.add(tag);
-    }
-    { // <a> специальный случай с парамтром
-      UrlWithParamTag tag = new UrlWithParamTag("url2", urlTags, "p", this);
-      allTags.add(tag);
-    }
-    { // <a> member
-      MemberTag tag = new MemberTag("user", ImmutableSet.<String>of("text"), "p", this);
-      allTags.add(tag);
-    } // <img>
-    if (flags.contains(ParserFlags.ENABLE_IMG_TAG)) {
-      ImageTag tag = new ImageTag("img", ImmutableSet.<String>of("text"), "p", this);
-      allTags.add(tag);
-    }
-    { // <p>
-      HtmlEquivTag tag = new HtmlEquivTag("p", flowTags, null, this);
-      tag.setHtmlEquiv("p");
-      tag.setProhibitedElements(ImmutableSet.<String>of("div", "list", "quote", "cut"));
-      allTags.add(tag);
-    }
-    { // <div>
-      HtmlEquivTag tag = new HtmlEquivTag("div", blockLevelTags, null, this);
-      tag.setHtmlEquiv("");
-      allTags.add(tag);
-    }
-    { // <blockquote>
-      QuoteTag tag = new QuoteTag("quote", blockLevelTags, "div", this);
-      allTags.add(tag);
-    }
-    { // <ul>
-      ListTag tag = new ListTag("list", ImmutableSet.<String>of("*", "softbr"), "div", this);
-      allTags.add(tag);
-    }
-    { // <pre> (only img currently needed out of the prohibited elements)
-      HtmlEquivTag tag = new HtmlEquivTag("pre", inlineTags, "div", this);
-      tag.setHtmlEquiv("pre");
-      tag.setProhibitedElements(ImmutableSet.<String>of("img"));
-      allTags.add(tag);
-    }
-    { // <pre class="code">
-      CodeTag tag = new CodeTag("code", inlineTags, "div", this);
-      tag.setProhibitedElements(ImmutableSet.<String>of("img"));
-      allTags.add(tag);
-    }
-    {   // [cut]
-      CutTag tag = new CutTag("cut", blockLevelTags, "div", this);
-      tag.setHtmlEquiv("div");
-      allTags.add(tag);
-    }
-    { //  <li>
-      LiTag tag = new LiTag("*", flowTags, "list", this);
-      allTags.add(tag);
-    }
-
-    allTagsDict = new HashMap<String, Tag>();
-    for (Tag tag : allTags) {
-      if (!"text".equals(tag.getName())) {
-        allTagsDict.put(tag.getName(), tag);
-      }
-    }
-    ImmutableSet.Builder<String> allTagsBuilder = new ImmutableSet.Builder<String>();
-    for (Tag tag : allTags) {
-      allTagsBuilder.add(tag.getName());
-    }
-    allTagsNames = allTagsBuilder.build();
+  public Parser(ParserParameters parserParameters) {
+    this.parserParameters = parserParameters;
   }
 
   public static String escape(String html) {
@@ -280,10 +89,10 @@ public class Parser {
         //currentNode.getChildren().add(new TextNode(currentNode, this, text));
       } else {
         if (currentNode.allows("p")) {
-          currentNode.getChildren().add(new TagNode(currentNode, this, "p", "", rootNode));
+          currentNode.getChildren().add(new TagNode(currentNode, parserParameters, "p", "", rootNode));
           currentNode = descend(currentNode);
         } else if (currentNode.allows("div")) {
-          currentNode.getChildren().add(new TagNode(currentNode, this, "div", "", rootNode));
+          currentNode.getChildren().add(new TagNode(currentNode, parserParameters, "div", "", rootNode));
           currentNode = descend(currentNode);
         } else {
           currentNode = ascend(currentNode);
@@ -298,6 +107,8 @@ public class Parser {
       boolean isParagraphed = false;
       if (TagNode.class.isInstance(currentNode)) {
         TagNode tempNode = (TagNode) currentNode;
+        Set<String> disallowedParagraphTags = parserParameters.getDisallowedParagraphTags();
+        Set<String> paragraphedTags = parserParameters.getParagraphedTags();
         if (disallowedParagraphTags.contains(tempNode.getBbtag().getName())) {
           isAllow = false;
         }
@@ -325,23 +136,23 @@ public class Parser {
             currentNode = ascend(currentNode);
           }
           if(matcher.end() != text.length()){
-            currentNode.getChildren().add(new TagNode(currentNode, this, "p", " ", rootNode));
+            currentNode.getChildren().add(new TagNode(currentNode, parserParameters, "p", " ", rootNode));
             currentNode = descend(currentNode);
             currentNode = pushTextNode(rootNode, currentNode, text.substring(matcher.end()));
           }
         } else if (!isParagraphed) {
           if(matcher.start() != 0){
-            currentNode.getChildren().add(new TextNode(currentNode, this, text.substring(0, matcher.start())));
+            currentNode.getChildren().add(new TextNode(currentNode, parserParameters, text.substring(0, matcher.start())));
           }
           if(matcher.end() != text.length()){
-            currentNode.getChildren().add(new TextNode(currentNode, this, text.substring(matcher.end())));
+            currentNode.getChildren().add(new TextNode(currentNode, parserParameters, text.substring(matcher.end())));
           }
 
         }else{
-          currentNode.getChildren().add(new TextNode(currentNode, this, text));
+          currentNode.getChildren().add(new TextNode(currentNode, parserParameters, text));
         }
       } else {
-        currentNode.getChildren().add(new TextNode(currentNode, this, text));
+        currentNode.getChildren().add(new TextNode(currentNode, parserParameters, text));
       }
     }
     return currentNode;
@@ -375,6 +186,8 @@ public class Parser {
    */
   private Node pushTagNode(RootNode rootNode, Node currentNode, String name, String parameter) {
     if (!currentNode.allows(name)) {
+      Map<String, Tag> allTagsDict = parserParameters.getAllTagsDict();
+      Set<String> blockLevelTags = parserParameters.getBlockLevelTags();
       Tag newTag = allTagsDict.get(name);
 
       if (newTag.isDiscardable()) {
@@ -387,7 +200,7 @@ public class Parser {
         currentNode = pushTagNode(rootNode, currentNode, name, parameter);
       }
     } else {
-      TagNode node = new TagNode(currentNode, this, name, parameter, rootNode);
+      TagNode node = new TagNode(currentNode, parserParameters, name, parameter, rootNode);
       currentNode.getChildren().add(node);
       if (!node.getBbtag().isSelfClosing()) {
         currentNode = descend(currentNode);
@@ -425,13 +238,20 @@ public class Parser {
 
   /**
    * Точка входа для разбора LORCODE в которой rootNode создается
-   * @param rawbbcode обрабатываемый LORCODE
+   * @param bbcode обрабатываемый LORCODE
    * @return дерево разбора
    */
-  public RootNode parse(String rawbbcode) {
-    RootNode rootNode = new RootNode(this);
+  public RootNode parse(String bbcode) {
+    RootNode rootNode = new RootNode(parserParameters);
     rootNode.setRenderOptions(true, true, "");
-    return parse(rootNode, rawbbcode);
+    return parse(rootNode, bbcode);
+  }
+
+  public RootNode parse(String bbcode, boolean renderCut, boolean cleanCut, String cutUrl, UserDao userDao) {
+    RootNode rootNode = new RootNode(parserParameters);
+    rootNode.setRenderOptions(renderCut, cleanCut, cutUrl);
+    rootNode.setUserDao(userDao);
+    return parse(rootNode, bbcode);
   }
 
   /**
@@ -441,7 +261,7 @@ public class Parser {
    * @param bbcode обрабатываемы LORCODE
    * @return возвращает инвалидный html
    */
-  public RootNode parse(RootNode rootNode, String bbcode) {
+  private RootNode parse(RootNode rootNode, String bbcode) {
     Node currentNode = rootNode;
     int pos = 0;
     boolean isCode = false;
@@ -459,6 +279,7 @@ public class Parser {
           if (parameter != null && parameter.length() > 0) {
             parameter = parameter.substring(1);
           }
+          Set<String> allTagsNames = parserParameters.getAllTagsNames();
           if (allTagsNames.contains(tagname)) {
             if (wholematch.startsWith("[[")) {
               currentNode = pushTextNode(rootNode, currentNode, "[");
@@ -504,41 +325,5 @@ public class Parser {
       }
     }
     return rootNode;
-  }
-
-  public Set<String> getAllowedListParameters() {
-    return allowedListParameters;
-  }
-
-  public Set<String> getInlineTags() {
-    return inlineTags;
-  }
-
-  public Set<String> getBlockLevelTags() {
-    return blockLevelTags;
-  }
-
-  public Set<String> getFlowTags() {
-    return flowTags;
-  }
-
-  public Set<String> getOtherTags() {
-    return otherTags;
-  }
-
-  public List<Tag> getAllTags() {
-    return allTags;
-  }
-
-  public Map<String, Tag> getAllTagsDict() {
-    return allTagsDict;
-  }
-
-  public Set<String> getAllTagsNames() {
-    return allTagsNames;
-  }
-
-  public ImmutableSet<String> getAutoLinkTags() {
-    return autoLinkTags;
   }
 }

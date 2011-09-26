@@ -38,7 +38,7 @@
 
 package ru.org.linux.util.bbcode.nodes;
 
-import ru.org.linux.util.bbcode.Parser;
+import ru.org.linux.util.bbcode.ParserParameters;
 import ru.org.linux.util.bbcode.tags.Tag;
 
 /**
@@ -51,9 +51,9 @@ public class TagNode extends Node {
   final Tag bbtag;
   final RootNode rootNode;
 
-  public TagNode(Node node, Parser parser, String name, String parameter, RootNode rootNode) {
-    super(node, parser);
-    bbtag = parser.getAllTagsDict().get(name);
+  public TagNode(Node node, ParserParameters parserParameters, String name, String parameter, RootNode rootNode) {
+    super(node, parserParameters);
+    bbtag = parserParameters.getAllTagsDict().get(name);
     this.rootNode = rootNode;
     this.parameter = parameter;
   }

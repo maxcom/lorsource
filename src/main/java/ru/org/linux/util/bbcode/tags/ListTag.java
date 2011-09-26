@@ -38,7 +38,7 @@
 
 package ru.org.linux.util.bbcode.tags;
 
-import ru.org.linux.util.bbcode.Parser;
+import ru.org.linux.util.bbcode.ParserParameters;
 import ru.org.linux.util.bbcode.nodes.Node;
 
 import java.util.Set;
@@ -50,8 +50,8 @@ import java.util.Set;
  * Time: 10:07 PM
  */
 public class ListTag extends HtmlEquivTag {
-  public ListTag(String name, Set<String> allowedChildren, String implicitTag, Parser parser) {
-    super(name, allowedChildren, implicitTag, parser);
+  public ListTag(String name, Set<String> allowedChildren, String implicitTag, ParserParameters parserParameters) {
+    super(name, allowedChildren, implicitTag, parserParameters);
     setHtmlEquiv("ul");
   }
 
@@ -67,7 +67,7 @@ public class ListTag extends HtmlEquivTag {
     if (node.isParameter()) {
       param = node.getParameter().trim().replaceAll("\"", "");
     }
-    if (parser.getAllowedListParameters().contains(param)) {
+    if (parserParameters.getAllowedListParameters().contains(param)) {
       ret.append("<ol type=\"");
       ret.append(param);
       ret.append("\">");
