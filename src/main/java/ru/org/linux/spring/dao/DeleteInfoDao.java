@@ -24,6 +24,7 @@ import ru.org.linux.site.DeleteInfo;
 import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 
 /**
  * Получение информации кем и почему удален топик
@@ -44,15 +45,21 @@ public class DeleteInfoDao {
    * @return информация о удаленном сообщении
    */
   public DeleteInfo getDeleteInfo(int id) {
-    return jdbcTemplate.queryForObject(queryDeleteInfo, new RowMapper<DeleteInfo>() {
+    List<DeleteInfo> list = jdbcTemplate.query(queryDeleteInfo, new RowMapper<DeleteInfo>() {
       @Override
       public DeleteInfo mapRow(ResultSet resultSet, int i) throws SQLException {
         return new DeleteInfo(
-            resultSet.getString("nick"),
-            resultSet.getInt("userid"),
-            resultSet.getString("reason"),
-            resultSet.getTimestamp("deldate"));
+                resultSet.getString("nick"),
+                resultSet.getInt("userid"),
+                resultSet.getString("reason"),
+                resultSet.getTimestamp("deldate"));
       }
     }, id);
+
+    if (list.isEmpty()) {
+      return null;
+    } else {
+      return list.get(0);
+    }
   }
 }
