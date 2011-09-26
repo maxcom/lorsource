@@ -39,7 +39,7 @@
 package ru.org.linux.util.bbcode.tags;
 
 import org.apache.commons.lang.NotImplementedException;
-import ru.org.linux.util.bbcode.Parser;
+import ru.org.linux.util.bbcode.ParserParameters;
 import ru.org.linux.util.bbcode.nodes.Node;
 
 import java.util.Set;
@@ -57,13 +57,13 @@ public class Tag {
   boolean selfClosing = false;
   private Set<String> prohibitedElements;
   private boolean discardable = false;
-  final Parser parser;
+  protected ParserParameters parserParameters;
 
-  public Tag(String name, Set<String> allowedChildren, String implicitTag, Parser parser) {
+  public Tag(String name, Set<String> allowedChildren, String implicitTag, ParserParameters parserParameters) {
     this.name = name;
     this.implicitTag = implicitTag;
     this.allowedChildren = allowedChildren;
-    this.parser = parser;
+    this.parserParameters = parserParameters;
   }
 
   public void setProhibitedElements(Set<String> prohibitedElements) {

@@ -41,6 +41,7 @@ package ru.org.linux.util.bbcode.tags;
 import ru.org.linux.util.URLUtil;
 import ru.org.linux.util.UtilException;
 import ru.org.linux.util.bbcode.Parser;
+import ru.org.linux.util.bbcode.ParserParameters;
 import ru.org.linux.util.bbcode.nodes.Node;
 import ru.org.linux.util.bbcode.nodes.TextNode;
 
@@ -53,8 +54,8 @@ import java.util.Set;
  * Time: 12:09 PM
  */
 public class UrlWithParamTag extends Tag {
-  public UrlWithParamTag(String name, Set<String> allowedChildren, String implicitTag, Parser parser) {
-    super(name, allowedChildren, implicitTag, parser);
+  public UrlWithParamTag(String name, Set<String> allowedChildren, String implicitTag, ParserParameters parserParameters) {
+    super(name, allowedChildren, implicitTag, parserParameters);
   }
 
   @Override

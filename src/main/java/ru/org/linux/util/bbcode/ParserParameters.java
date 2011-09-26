@@ -36,19 +36,25 @@
  * E-mail: <hizel@vyborg.ru>
  */
 
-package ru.org.linux.util.bbcode.nodes;
+package ru.org.linux.util.bbcode;
 
-import ru.org.linux.util.bbcode.ParserParameters;
+import ru.org.linux.util.bbcode.tags.Tag;
 
-public class EscapedTextNode extends TextNode {
-  public EscapedTextNode(Node node, ParserParameters parserParameters, String text) {
-    super(node, parserParameters, text);
-  }
+import java.util.Map;
+import java.util.Set;
 
-  @Override
-  public String renderBBCode() {
-    StringBuilder ret = new StringBuilder();
-    ret.append('[').append(text).append(']');
-    return ret.toString();
-  }
+public interface ParserParameters {
+  public Set<String> getAllowedListParameters();
+
+  public Set<String> getBlockLevelTags();
+
+  public Map<String, Tag> getAllTagsDict();
+
+  public Set<String> getAllTagsNames();
+
+  public Set<String> getAutoLinkTags();
+
+  public Set<String> getDisallowedParagraphTags();
+
+  public Set<String> getParagraphedTags();
 }

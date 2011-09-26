@@ -6,14 +6,13 @@ import ru.org.linux.spring.dao.UserDao;
 import ru.org.linux.util.bbcode.nodes.RootNode;
 
 import java.sql.Connection;
-import java.util.EnumSet;
 import java.util.Set;
 
 /**
  * Вспомогательный класс, для разбора LORCODE
  */
 public class ParserUtil {
-  private static final Parser parserWithOutImages = new Parser(EnumSet.noneOf(Parser.ParserFlags.class));
+  private static final Parser defaultParser = new Parser(new DefaultParserParameters());
 
   /**
    * Функция разбора LORCODE в HTML с параметрами по умолчанию
@@ -21,7 +20,7 @@ public class ParserUtil {
    * @return результирующий HTML
    */
   public static String bb2xhtml(String bbcode) {
-    return parserWithOutImages.parse(new RootNode(parserWithOutImages), bbcode).renderXHtml();
+    return defaultParser.parse(bbcode).renderXHtml();
   }
 
   /**
@@ -35,32 +34,22 @@ public class ParserUtil {
    */
   @Deprecated
   public static String bb2xhtml(String bbcode, boolean renderCut, boolean cleanCut, String cutUrl, Connection db) {
-    RootNode rootNode = new RootNode(parserWithOutImages);
-    rootNode.setRenderOptions(renderCut, cleanCut, cutUrl);
     UserDao singleUserDao = new UserDao();
     singleUserDao.setJdbcTemplate(new SingleConnectionDataSource(db, true));
-    rootNode.setUserDao(singleUserDao);
-    return parserWithOutImages.parse(rootNode, bbcode).renderXHtml();
+    return bb2xhtml(bbcode, renderCut, cleanCut, cutUrl, singleUserDao);
   }
 
   public static String bb2xhtml(String bbcode, boolean renderCut, boolean cleanCut, String cutUrl, UserDao userDao) {
-    RootNode rootNode = new RootNode(parserWithOutImages);
-    rootNode.setRenderOptions(renderCut, cleanCut, cutUrl);
-    rootNode.setUserDao(userDao);
-    return parserWithOutImages.parse(rootNode, bbcode).renderXHtml();
+    return defaultParser.parse(bbcode, renderCut, cleanCut, cutUrl, userDao).renderXHtml();
   }
   
   public static String bb2xhtml(String bbcode, boolean renderCut, boolean cleanCut, String cutUrl) {
-    RootNode rootNode = new RootNode(parserWithOutImages);
-    rootNode.setRenderOptions(renderCut, cleanCut, cutUrl);
-    return parserWithOutImages.parse(rootNode, bbcode).renderXHtml();
+    return defaultParser.parse(bbcode, renderCut, cleanCut, cutUrl, null).renderXHtml();
   }
 
   public static ParserResult bb2xhtm(String bbcode, boolean renderCut, boolean cleanCut, String cutUrl, UserDao userDao) {
-    RootNode rootNode = new RootNode(parserWithOutImages);
-    rootNode.setRenderOptions(renderCut, cleanCut, cutUrl);
-    rootNode.setUserDao(userDao);
-    String html = parserWithOutImages.parse(rootNode, bbcode).renderXHtml();
+    RootNode rootNode = defaultParser.parse(bbcode, renderCut, cleanCut, cutUrl, userDao);
+    String html = rootNode.renderXHtml();
     Set<User> replier = rootNode.getReplier();
     return new ParserResult(html, replier);
   }
