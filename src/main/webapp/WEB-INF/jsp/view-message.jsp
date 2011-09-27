@@ -31,6 +31,7 @@
 <%--@elvariable id="group" type="ru.org.linux.site.Group"--%>
 <%--@elvariable id="commentsPrepared" type="java.util.List<ru.org.linux.site.PreparedComment>"--%>
 <%--@elvariable id="page" type="Integer"--%>
+<%--@elvariable id="highlight" type="java.util.Set"--%>
 
 <% Template tmpl = Template.getTemplate(request); %>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
@@ -301,17 +302,14 @@
     bufInfo.append(']');
     pageInfo = bufInfo.toString();
   }
+%>
 
-  if (request.getAttribute("highlight") != null) {
-%>
-<lor:message messageMenu="${messageMenu}" preparedMessage="${preparedMessage}" message="${message}" showMenu="true" user="${template.nick}" highlight="${highlight}"/>
-<%
-  } else {
-%>
-<lor:message messageMenu="${messageMenu}" preparedMessage="${preparedMessage}" message="${message}" showMenu="true" user="${template.nick}"/>
-<%
-  }
-%>
+<lor:message
+        messageMenu="${messageMenu}"
+        preparedMessage="${preparedMessage}" 
+        message="${message}"
+        showMenu="true"
+        highlight="${highlight}"/>
 
 <c:out value="${scroller}" escapeXml="false"/>
 

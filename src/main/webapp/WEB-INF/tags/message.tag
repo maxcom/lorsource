@@ -1,14 +1,15 @@
+<%@ tag import="ru.org.linux.site.NewsViewer" %>
+<%@ tag import="ru.org.linux.site.Template" %>
+<%@ tag import="ru.org.linux.site.User" %>
+<%@ tag import="ru.org.linux.util.HTMLFormatter" %>
 <%@ tag import="java.net.URLEncoder" %>
 <%@ tag import="java.sql.Timestamp" %>
 <%@ tag import="java.text.DateFormat" %>
-<%@ tag import="ru.org.linux.site.*" %>
-<%@ tag import="ru.org.linux.util.HTMLFormatter" %>
 <%@ tag pageEncoding="UTF-8"%>
 <%@ attribute name="message" required="true" type="ru.org.linux.site.Message" %>
 <%@ attribute name="preparedMessage" required="true" type="ru.org.linux.site.PreparedMessage" %>
 <%@ attribute name="messageMenu" required="true" type="ru.org.linux.site.MessageMenu" %>
 <%@ attribute name="showMenu" required="true" type="java.lang.Boolean" %>
-<%@ attribute name="user" type="java.lang.String"%>
 <%@ attribute name="highlight" type="java.util.Set" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
@@ -160,29 +161,26 @@
           [<a href="comment-message.jsp?topic=${message.id}">Ответить на это сообщение</a>]
           <% } %>
         </c:if>
+        <c:if test="${messageMenu.editable}">
+            [<a href="edit.jsp?msgid=${message.id}">Править</a>]
+        </c:if>
+
 <%
-    if (messageMenu.isEditable()) {
-      out.append("[<a href=\"edit.jsp?msgid=");
-      out.print(msgid);
-      out.append("\">Править</a>] ");
-    }
-  
-    if (tmpl.isModeratorSession() || author.getNick().equals(user)) {
+    if (tmpl.isModeratorSession() || author.equals(tmpl.getCurrentUser())) {
       out.append("[<a href=\"delete.jsp?msgid=");
       out.print(msgid);
       out.append("\">Удалить</a>] ");
     }
-
-    if (messageMenu.isResolvable()) {
-      out.append("[<a href=\"resolve.jsp?msgid=");
-      out.print(msgid);
-      if (message.isResolved()){
-        out.append("&amp;resolve=no\">Отметить как нерешенную</a>]");
-      }else{
-        out.append("&amp;resolve=yes\">Отметить как решенную</a>]");
-      }
-    }
-
+%>
+        <c:if test="${messageMenu.resolvable}">
+            <c:if test="${message.resolved}">
+                [<a href="resolve.jsp?msgid=${message.id}&amp;resolve=no">Отметить как нерешенную</a>]
+            </c:if>
+            <c:if test="${not message.resolved}">
+                [<a href="resolve.jsp?msgid=${message.id}&amp;resolve=yes">Отметить как решенную</a>]
+            </c:if>
+        </c:if>
+<%
     if (tmpl.isSessionAuthorized()) {
       int memId = messageMenu.getMemoriesId();
 

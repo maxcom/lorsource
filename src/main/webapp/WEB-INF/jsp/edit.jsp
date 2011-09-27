@@ -58,7 +58,7 @@
   <h1>${info}</h1>
   <h2>Текущая версия сообщения</h2>
   <div class=messages>
-    <lor:message messageMenu="<%= null %>" preparedMessage="${preparedMessage}" message="${message}" showMenu="false" user="${template.nick}"/>
+    <lor:message messageMenu="<%= null %>" preparedMessage="${preparedMessage}" message="${message}" showMenu="false"/>
   </div>
   <h2>Ваше сообщение</h2>
 </c:if>
@@ -67,7 +67,7 @@
 </c:if>
 
 <div class=messages>
-  <lor:message messageMenu="<%= null %>" preparedMessage="${newPreparedMessage}" message="${newMsg}" showMenu="false" user="${template.nick}"/>
+  <lor:message messageMenu="<%= null %>" preparedMessage="${newPreparedMessage}" message="${newMsg}" showMenu="false"/>
 </div>
 
 <form action="edit.jsp" name="edit" method="post" id="messageForm">
