@@ -121,7 +121,7 @@ public class AddCommentController extends ApplicationObjectSupport {
   public ModelAndView showFormTopic(
     @ModelAttribute("add") @Valid AddCommentRequest add,
     HttpServletRequest request
-  ) throws Exception {
+  ) {
     Template tmpl = Template.getTemplate(request);
 
     if (add.getMode()==null) {
@@ -307,7 +307,7 @@ public class AddCommentController extends ApplicationObjectSupport {
         }
 
         try {
-          setValue(commentDao.getComment(Integer.parseInt(text)));
+          setValue(commentDao.getById(Integer.parseInt(text)));
         } catch (MessageNotFoundException e) {
           throw new IllegalArgumentException(e);
         }

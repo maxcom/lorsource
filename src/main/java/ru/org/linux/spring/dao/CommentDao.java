@@ -8,7 +8,6 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.*;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
-import org.springframework.jdbc.support.JdbcUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -381,56 +380,6 @@ public class CommentDao {
         ip, timedelta);
 
     return new DeleteCommentResult(deletedTopicIds, deletedCommentIds, deleteInfo);
-  }
-
-  public Comment getComment(final int msgid) throws MessageNotFoundException {
-    Comment comment = jdbcTemplate.execute(new ConnectionCallback<Comment>() {
-      @Override
-      public Comment doInConnection(Connection con) throws SQLException, DataAccessException {
-        return getCommentInternal(con, msgid);
-      }
-    });
-
-    if (comment==null) {
-      throw new MessageNotFoundException(msgid);
-    } else {
-      return comment;
-    }
-  }
-
-  @Deprecated
-  public static Comment getComment(Connection db, int msgid) throws SQLException, MessageNotFoundException {
-    Comment comment = getCommentInternal(db, msgid);
-
-    if (comment==null) {
-      throw new MessageNotFoundException(msgid);
-    }
-
-    return comment;
-  }
-
-  private static Comment getCommentInternal(Connection db, int msgid) throws SQLException {
-    Statement st = db.createStatement();
-    ResultSet rs = null;
-
-    try {
-      rs = st.executeQuery("SELECT " +
-              "postdate, topic, users.id as userid, comments.id as msgid, comments.title, " +
-              "deleted, replyto, user_agents.name AS useragent, comments.postip " +
-              "FROM comments " +
-              "INNER JOIN users ON (users.id=comments.userid) " +
-              "LEFT JOIN user_agents ON (user_agents.id=comments.ua_id) " +
-              "WHERE comments.id=" + msgid);
-
-      if (!rs.next()) {
-        return null;
-      }
-
-      return new Comment(db, rs);
-    } finally {
-      JdbcUtils.closeResultSet(rs);
-      JdbcUtils.closeStatement(st);
-    }
   }
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
