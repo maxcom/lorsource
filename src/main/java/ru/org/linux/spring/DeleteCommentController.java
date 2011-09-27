@@ -180,12 +180,16 @@ public class DeleteCommentController {
 
       deleted.addAll(deletedReplys);
 
-      commentDao.deleteComment(msgid, reason, user, -bonus);
+      if (commentDao.deleteComment(msgid, reason, user, -bonus)) {
+        out.append("Сообщение ").append(msgid).append(" удалено");
+      }
     } else {
-      commentDao.deleteComment(msgid, reason, user, 0);
+      if (commentDao.deleteComment(msgid, reason, user, 0)) {
+        out.append("Сообщение ").append(msgid).append(" удалено");
+      } else {
+        out.append("Сообщение ").append(msgid).append(" уже было удалено");
+      }
     }
-
-    out.append("Сообщение ").append(msgid).append(" удалено");
 
     searchQueueSender.updateComment(deleted);
 

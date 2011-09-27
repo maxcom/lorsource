@@ -13,7 +13,6 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.org.linux.site.*;
-import ru.org.linux.spring.SearchQueueSender;
 import ru.org.linux.util.bbcode.ParserUtil;
 
 import javax.sql.DataSource;
@@ -65,7 +64,7 @@ public class CommentDao {
 
   private static final String replysForComment = "SELECT id FROM comments WHERE replyto=? AND NOT deleted FOR UPDATE";
   private static final String replysForCommentCount = "SELECT count(id) FROM comments WHERE replyto=? AND NOT deleted";
-  private static final String deleteComment = "UPDATE comments SET deleted='t' WHERE id=?";
+  private static final String deleteComment = "UPDATE comments SET deleted='t' WHERE id=? AND not deleted";
   private static final String insertDelinfo = "INSERT INTO del_info (msgid, delby, reason, deldate) values(?,?,?, CURRENT_TIMESTAMP)";
   private static final String updateScore = "UPDATE users SET score=score+? WHERE id=(SELECT userid FROM comments WHERE id=?)";
 
@@ -188,39 +187,39 @@ public class CommentDao {
    * @throws ScriptErrorException генерируем исключение если на комментарий есть ответы
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public void deleteComment(int msgid, String reason, User user, int scoreBonus) throws ScriptErrorException {
+  public boolean deleteComment(int msgid, String reason, User user, int scoreBonus) throws ScriptErrorException {
     if (getReplaysCount(msgid) != 0) {
         throw new ScriptErrorException("Нельзя удалить комментарий с ответами");
     }
-    doDeleteComment(msgid, reason, user, scoreBonus);
+
+    return doDeleteComment(msgid, reason, user, scoreBonus);
   }
 
-  /**
-   * Удаляем клментарий, если на комментарий есть ответы генерируем исключений SQL, используется в
-   * массовом удалении коментариев @see UserDao
-   * @param msgid id удаляемого сообщения
-   * @param reason причина удаления
-   * @param user модератор который удаляет
-   * @param scoreBonus кол-во отрезаемого шкворца
-   * @throws SQLException генерируем исключение если на комментарий есть ответы
-   */
-  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public void deleteCommentWithSQLException(int msgid, String reason, User user, int scoreBonus) throws SQLException {
-    deleteCommentWithoutTransaction(msgid, reason, user, scoreBonus);
-  }
-
-  private void deleteCommentWithoutTransaction(int msgid, String reason, User user, int scoreBonus) throws SQLException {
+  private boolean deleteCommentWithoutTransaction(int msgid, String reason, User user) throws SQLException {
     if (getReplaysCount(msgid) != 0) {
         throw new SQLException("Нельзя удалить комментарий с ответами");
     }
-    doDeleteComment(msgid, reason, user, scoreBonus);
+
+    return doDeleteComment(msgid, reason, user, 0);
   }
 
-  private void doDeleteComment(int msgid, String reason, User user, int scoreBonus) {
-    jdbcTemplate.update(deleteComment, msgid);
-    jdbcTemplate.update(insertDelinfo, msgid, user.getId(), reason+" ("+scoreBonus+')');
-    jdbcTemplate.update(updateScore, scoreBonus, msgid);
-    logger.info("Удалено сообщение " + msgid + " пользователем " + user.getNick() + " по причине `" + reason + '\'');
+  private boolean doDeleteComment(int msgid, String reason, User user, int scoreBonus) {
+    int deleteCount = jdbcTemplate.update(deleteComment, msgid);
+
+    if (deleteCount > 0) {
+      jdbcTemplate.update(insertDelinfo, msgid, user.getId(), reason + " (" + scoreBonus + ')');
+      
+      if (scoreBonus!=0) {
+        jdbcTemplate.update(updateScore, scoreBonus, msgid);
+      }
+
+      logger.info("Удалено сообщение " + msgid + " пользователем " + user.getNick() + " по причине `" + reason + '\'');
+
+      return true;
+    } else {
+      logger.info("Пропускаем удаление уже удаленного "+ msgid);
+      return false;
+    }
   }
 
   public List<Integer> deleteReplys(int msgid, User user, boolean score)  {
@@ -232,25 +231,31 @@ public class CommentDao {
     List<Integer> deleted = new LinkedList<Integer>();
     for (Integer r : replys) {
       deleted.addAll(deleteReplys(r, user, score, depth+1));
-      deleted.add(r);
+      
+      boolean del;
+
       switch (depth) {
         case 0:
           if (score) {
-            doDeleteComment(r, "7.1 Ответ на некорректное сообщение (авто, уровень 0)", user, -2);
+            del = doDeleteComment(r, "7.1 Ответ на некорректное сообщение (авто, уровень 0)", user, -2);
           } else {
-            doDeleteComment(r, "7.1 Ответ на некорректное сообщение (авто)", user, 0);
+            del = doDeleteComment(r, "7.1 Ответ на некорректное сообщение (авто)", user, 0);
           }
           break;
         case 1:
           if (score) {
-            doDeleteComment(r, "7.1 Ответ на некорректное сообщение (авто, уровень 1)", user, -1);
+            del = doDeleteComment(r, "7.1 Ответ на некорректное сообщение (авто, уровень 1)", user, -1);
           } else {
-            doDeleteComment(r, "7.1 Ответ на некорректное сообщение (авто)", user, 0);
+            del = doDeleteComment(r, "7.1 Ответ на некорректное сообщение (авто)", user, 0);
           }
           break;
         default:
-          doDeleteComment(r, "7.1 Ответ на некорректное сообщение (авто, уровень >1)", user, 0);
+          del = doDeleteComment(r, "7.1 Ответ на некорректное сообщение (авто, уровень >1)", user, 0);
           break;
+      }
+
+      if (del) {
+        deleted.add(r);
       }
     }
 
@@ -289,12 +294,9 @@ public class CommentDao {
    * @throws UserNotFoundException генерирует исключение если пользователь отсутствует
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public DeleteCommentResult deleteAllCommentsAndBlock(User user, final User moderator, String reason) throws UserNotFoundException {
-
+  public DeleteCommentResult deleteAllCommentsAndBlock(User user, final User moderator, String reason) {
     final List<Integer> deletedTopicIds = new ArrayList<Integer>();
     final List<Integer> deletedCommentIds = new ArrayList<Integer>();
-
-    final Map<Integer, String> deleteInfo = new HashMap<Integer, String>();
 
     userDao.blockWithoutTransaction(user, moderator, reason);
 
@@ -318,9 +320,10 @@ public class CommentDao {
           @Override
           public void processRow(ResultSet resultSet) throws SQLException {
             int msgid = resultSet.getInt("id");
-            deletedCommentIds.add(msgid);
             deletedCommentIds.addAll(deleteReplys(msgid, moderator, false));
-            deleteCommentWithoutTransaction(msgid, "Блокировка пользователя с удалением сообщений", moderator, 0);
+            if (deleteCommentWithoutTransaction(msgid, "Блокировка пользователя с удалением сообщений", moderator)) {
+              deletedCommentIds.add(msgid);
+            }
           }
         },
         user.getId());
@@ -364,9 +367,12 @@ public class CommentDao {
           public void processRow(ResultSet resultSet) throws SQLException {
             int msgid = resultSet.getInt("id");
             if (getReplaysCount(msgid) == 0) {
-              deletedCommentIds.add(msgid);
-              deleteInfo.put(msgid, "Комментарий " + msgid + " удален");
-              deleteCommentWithoutTransaction(msgid, reason, moderator, 0);
+              if (deleteCommentWithoutTransaction(msgid, reason, moderator)) {
+                deletedCommentIds.add(msgid);
+                deleteInfo.put(msgid, "Комментарий " + msgid + " удален");
+              } else {
+                deleteInfo.put(msgid, "Комментарий " + msgid + " уже был удален");
+              }
             } else {
               deleteInfo.put(msgid, "Комментарий " + msgid + " пропущен");
             }
