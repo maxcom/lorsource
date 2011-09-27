@@ -61,6 +61,8 @@ public class CommentDao {
    */
   private static final String queryCommentForPrepare = "SELECT message, bbcode FROM msgbase WHERE id=?";
 
+  private static final String queryOnlyMessage = "SELECT message FROM msgbase WHERE id=?";
+
   private static final String replysForComment = "SELECT id FROM comments WHERE replyto=? AND NOT deleted FOR UPDATE";
   private static final String replysForCommentCount = "SELECT count(id) FROM comments WHERE replyto=? AND NOT deleted";
   private static final String deleteComment = "UPDATE comments SET deleted='t' WHERE id=?";
@@ -97,6 +99,15 @@ public class CommentDao {
   @Autowired
   public void setUserEventsDao(UserEventsDao userEventsDao) {
     this.userEventsDao = userEventsDao;
+  }
+
+  /**
+   * Получить содержимое комментария
+   * @param comment комментарий
+   * @return содержимое комментария
+   */
+  public String getMessage(Comment comment) {
+    return jdbcTemplate.queryForObject(queryOnlyMessage, String.class, comment.getId());
   }
 
   /**
