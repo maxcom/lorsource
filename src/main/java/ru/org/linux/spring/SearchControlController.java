@@ -34,10 +34,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
+import ru.org.linux.spring.dao.MessageDao;
 
 @Controller
 public class SearchControlController {
   private SearchQueueSender searchQueueSender;
+  private MessageDao messageDao;
 
   @Autowired
   @Required
@@ -45,75 +47,57 @@ public class SearchControlController {
     this.searchQueueSender = searchQueueSender;
   }
 
+  @Autowired
+  public void setMessageDao(MessageDao messageDao) {
+    this.messageDao = messageDao;
+  }
+
   @RequestMapping(value="/admin/search-reindex", method=RequestMethod.POST, params = "action=all")
   public ModelAndView reindexAll(ServletRequest request) throws Exception {
     Template tmpl = Template.getTemplate(request);
 
-    Connection db = LorDataSource.getConnection();
-
-    try {
-      if (!tmpl.isSessionAuthorized()) {
-        throw new AccessViolationException("Not authorized");
-      }
-
-      tmpl.getCurrentUser().checkDelete();
-
-      Statement st = db.createStatement();
-
-      ResultSet rs = st.executeQuery("SELECT min(postdate) FROM topics WHERE postdate!='epoch'::timestamp");
-
-      if (!rs.next()) {
-        throw new RuntimeException("no topics?!");
-      }
-
-      Timestamp startDate = rs.getTimestamp(1);
-
-      rs.close();
-      st.close();
-
-      Calendar start = Calendar.getInstance();
-      start.setTime(startDate);
-
-      start.set(Calendar.DAY_OF_MONTH, 1);
-      start.set(Calendar.HOUR, 0);
-      start.set(Calendar.MINUTE, 0);
-
-      for  (Calendar i = Calendar.getInstance(); i.after(start); i.add(Calendar.MONTH, -1)) {
-        searchQueueSender.updateMonth(i.get(Calendar.YEAR), i.get(Calendar.MONTH)+1);
-      }
-
-      searchQueueSender.updateMonth(1970, 1);
-
-      return new ModelAndView("action-done", "message", "Scheduled reindex");
-    } finally {
-      JdbcUtils.closeConnection(db);
+    if (!tmpl.isSessionAuthorized()) {
+      throw new AccessViolationException("Not authorized");
     }
+
+    tmpl.getCurrentUser().checkDelete();
+
+    Timestamp startDate = messageDao.getTimeFirstTopic();
+
+    Calendar start = Calendar.getInstance();
+    start.setTime(startDate);
+
+    start.set(Calendar.DAY_OF_MONTH, 1);
+    start.set(Calendar.HOUR, 0);
+    start.set(Calendar.MINUTE, 0);
+
+    for  (Calendar i = Calendar.getInstance(); i.after(start); i.add(Calendar.MONTH, -1)) {
+      searchQueueSender.updateMonth(i.get(Calendar.YEAR), i.get(Calendar.MONTH)+1);
+    }
+
+    searchQueueSender.updateMonth(1970, 1);
+
+    return new ModelAndView("action-done", "message", "Scheduled reindex");
   }
 
   @RequestMapping(value="/admin/search-reindex", method=RequestMethod.POST, params = "action=current")
   public ModelAndView reindexCurrentMonth(ServletRequest request) throws Exception {
     Template tmpl = Template.getTemplate(request);
 
-    Connection db = LorDataSource.getConnection();
-
-    try {
-      if (!tmpl.isSessionAuthorized()) {
-        throw new AccessViolationException("Not authorized");
-      }
-
-      tmpl.getCurrentUser().checkDelete();
-
-      Calendar current = Calendar.getInstance();
-
-      for (int i=0; i<3; i++) {
-        searchQueueSender.updateMonth(current.get(Calendar.YEAR), current.get(Calendar.MONTH)+1);
-        current.add(Calendar.MONTH, -1);
-      }
-
-      return new ModelAndView("action-done", "message", "Scheduled reindex last 3 month");
-    } finally {
-      JdbcUtils.closeConnection(db);
+    if (!tmpl.isSessionAuthorized()) {
+      throw new AccessViolationException("Not authorized");
     }
+
+    tmpl.getCurrentUser().checkDelete();
+
+    Calendar current = Calendar.getInstance();
+
+    for (int i=0; i<3; i++) {
+      searchQueueSender.updateMonth(current.get(Calendar.YEAR), current.get(Calendar.MONTH)+1);
+      current.add(Calendar.MONTH, -1);
+    }
+
+    return new ModelAndView("action-done", "message", "Scheduled reindex last 3 month");
   }
 
   @RequestMapping(value="/admin/search-reindex", method=RequestMethod.GET)
