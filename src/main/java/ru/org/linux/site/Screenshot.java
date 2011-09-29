@@ -40,7 +40,7 @@ public class Screenshot {
   private static final int ICON_WIDTH = 200;
   private static final int MEDIUM_WIDTH = 500;
 
-  public static Screenshot createScreenshot(File file, Errors errors, String dir, String name) throws IOException, BadImageException, UtilException {
+  public static Screenshot createScreenshot(File file, Errors errors, String dir) throws IOException, BadImageException, UtilException {
     boolean error = false;
 
     if (!file.isFile()) {
@@ -73,11 +73,19 @@ public class Screenshot {
     }
 
     if (!error) {
-      Screenshot scrn = new Screenshot(name, dir, extension);
+      File tempFile = File.createTempFile("preview-", "", new File(dir));
 
-      scrn.doResize(file);
+      try {
+        String name = tempFile.getName();
 
-      return scrn;
+        Screenshot scrn = new Screenshot(name, dir, extension);
+
+        scrn.doResize(file);
+
+        return scrn;
+      } finally {
+        tempFile.delete();
+      }
     } else {
       return null;
     }
@@ -106,6 +114,10 @@ public class Screenshot {
   }
 
   private void doResize(File uploadedFile) throws IOException, UtilException {
+    if (mainFile.exists()) {
+      mainFile.delete();
+    }
+    
     FileUtils.moveFile(uploadedFile, mainFile);
 
     boolean error = true;

@@ -232,6 +232,10 @@ public class AddMessageController extends ApplicationObjectSupport {
       if (scrn!=null) {
         form.setLinktext("gallery/preview/" + scrn.getIconFile().getName());
         form.setUrl("gallery/preview/" + scrn.getMainFile().getName());
+      } else {
+        if (!errors.hasErrors()) {
+          errors.reject(null, "Изображение отсутствует");
+        }
       }
     }
 
@@ -256,6 +260,8 @@ public class AddMessageController extends ApplicationObjectSupport {
     }
 
     if (!form.isPreviewMode() && !errors.hasErrors() && group!=null) {
+      session.removeAttribute("image");
+
       int msgid = messageDao.addMessage(request, form, tmpl, group, user, scrn, previewMsg);
 
       searchQueueSender.updateMessageOnly(msgid);
@@ -358,8 +364,7 @@ public class AddMessageController extends ApplicationObjectSupport {
         screenshot = Screenshot.createScreenshot(
                 uploadedFile,
                 errors,
-                tmpl.getObjectConfig().getHTMLPathPrefix() + "/gallery/preview",
-                session.getId()
+                tmpl.getObjectConfig().getHTMLPathPrefix() + "/gallery/preview"
         );
 
         if (screenshot != null) {
@@ -372,6 +377,10 @@ public class AddMessageController extends ApplicationObjectSupport {
       }
     } else if (session.getAttribute("image") != null && !"".equals(session.getAttribute("image"))) {
       screenshot = (Screenshot) session.getAttribute("image");
+
+      if (!screenshot.getMainFile().exists()) {
+        screenshot = null;
+      }
     }
 
     return screenshot;
