@@ -520,9 +520,9 @@
        of "dismax". 
        see http://wiki.apache.org/solr/DisMaxRequestHandler
    -->
-  <requestHandler name="dismax" class="solr.SearchHandler" >
+  <requestHandler name="edismax" class="solr.SearchHandler" >
     <lst name="defaults">
-     <str name="defType">dismax</str>
+     <str name="defType">edismax</str>
      <str name="qf">
 	message title
      </str>

@@ -106,7 +106,7 @@ public class SearchViewer {
     params.set("rows", SEARCH_ROWS);
     params.set("start", query.getOffset());
 
-    params.set("qt", "dismax");
+    params.set("qt", "edismax");
 
     if (query.getRange().getParam()!=null) {
       params.add("fq", query.getRange().getParam());
