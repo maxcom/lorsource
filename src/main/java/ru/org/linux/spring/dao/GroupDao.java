@@ -13,10 +13,7 @@ import ru.org.linux.site.Group;
 import ru.org.linux.site.Section;
 
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.List;
 
 @Repository
@@ -82,5 +79,15 @@ public class GroupDao {
     }
 
     return list.build();
+  }
+
+  public Group getGroup(Section section, String name) throws BadGroupException {
+    try {
+      int id = jdbcTemplate.queryForInt("SELECT id FROM groups WHERE section=? AND urlname=?", section.getId(), name);
+
+      return getGroup(id);
+    } catch (EmptyResultDataAccessException ex) {
+      throw new BadGroupException("group not found");
+    }
   }
 }

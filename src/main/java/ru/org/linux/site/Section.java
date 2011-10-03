@@ -217,6 +217,7 @@ public class Section implements Serializable {
     return getSectionLink(id)+"archive/";
   }
 
+  @Deprecated
   public Group getGroup(Connection db, String name) throws SQLException, BadGroupException {
     PreparedStatement st = db.prepareStatement("SELECT id FROM groups WHERE section=? AND urlname=?");
     st.setInt(1, id);
