@@ -56,8 +56,6 @@ public class MainPageController {
 
       mv.getModel().put("news", nv.getPreparedMessages(db));
 
-      mv.getModel().put("showAdsense", !tmpl.isSessionAuthorized() || !tmpl.getProf().isHideAdsense());
-
       if (tmpl.isModeratorSession() || tmpl.isCorrectorSession()) {
         Statement st = db.createStatement();
         ResultSet allUncommited = st.executeQuery("select count(*) from topics,groups,sections where section=sections.id AND sections.moderate and topics.groupid=groups.id and not deleted and not topics.moderate AND postdate>(CURRENT_TIMESTAMP-'1 month'::interval)");
