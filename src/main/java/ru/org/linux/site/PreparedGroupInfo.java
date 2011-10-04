@@ -24,6 +24,7 @@ public class PreparedGroupInfo {
   private final Group group;
   private final String longInfo;
 
+  @Deprecated
   public PreparedGroupInfo(Connection db, Group group) throws SQLException {
     this.group = group;
 
@@ -32,6 +33,11 @@ public class PreparedGroupInfo {
     } else {
       longInfo = null;
     }
+  }
+
+  public PreparedGroupInfo(Group group, String longInfo) {
+    this.group = group;
+    this.longInfo = longInfo;
   }
 
   public Group getGroup() {

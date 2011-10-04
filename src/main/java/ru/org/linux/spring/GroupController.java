@@ -34,6 +34,7 @@ import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.site.*;
 import ru.org.linux.spring.dao.GroupDao;
 import ru.org.linux.spring.dao.SectionDao;
+import ru.org.linux.spring.dao.UserDao;
 import ru.org.linux.util.ServletParameterBadValueException;
 
 @Controller
@@ -45,6 +46,12 @@ public class GroupController {
 
   @Autowired
   private SectionDao sectionDao;
+
+  @Autowired
+  private UserDao userDao;
+
+  @Autowired
+  private PrepareService prepareService;
 
   @RequestMapping("/group.jsp")
   public ModelAndView topics(
@@ -153,31 +160,30 @@ public class GroupController {
 
     params.put("section", section);
 
+    Map<Integer, String> ignoreList;
+
+    if (tmpl.getCurrentUser()!=null) {
+      ignoreList = userDao.getIgnoreList(tmpl.getCurrentUser());
+    } else {
+      ignoreList = Collections.emptyMap();
+    }
+
+    params.put("ignoreList", ignoreList);
+
+    params.put("groupInfo", prepareService.prepareGroupInfo(group));
+
     Connection db = null;
 
     try {
       db = LorDataSource.getConnection();
-      db.setAutoCommit(false);
-
-      params.put("groupInfo", new PreparedGroupInfo(db, group));
-
-      Map<Integer, String> ignoreList;
-
-      if (tmpl.getCurrentUser()!=null) {
-        ignoreList = IgnoreList.getIgnoreList(db, tmpl.getCurrentUser().getId());
-      } else {
-        ignoreList = Collections.emptyMap();
-      }
 
       String ignq = "";
 
       if (!showIgnored && tmpl.isSessionAuthorized()) {
         if (firstPage && !ignoreList.isEmpty()) {
-          ignq = " AND topics.userid NOT IN (SELECT ignored FROM ignore_list, users WHERE userid=users.id and nick='" + tmpl.getNick() + "')";
+          ignq = " AND topics.userid NOT IN (SELECT ignored FROM ignore_list WHERE userid=" + tmpl.getCurrentUser().getId() + ")";
         }
       }
-
-      params.put("ignoreList", ignoreList);
 
       Statement st = db.createStatement();
       String delq = showDeleted ? "" : " AND NOT deleted ";
