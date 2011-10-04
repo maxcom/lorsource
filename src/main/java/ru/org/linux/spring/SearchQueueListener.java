@@ -126,7 +126,7 @@ public class SearchQueueListener {
       }
     }
 
-    if (!rq.getDocuments().isEmpty())  {
+    if (rq.getDocuments()!=null && !rq.getDocuments().isEmpty())  {
       rq.process(solrServer);
     }
 
