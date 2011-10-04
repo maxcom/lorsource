@@ -22,6 +22,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.request.UpdateRequest;
 import org.apache.solr.common.SolrInputDocument;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
@@ -100,7 +101,13 @@ public class SearchQueueListener {
   }
 
   public void handleMessage(SearchQueueSender.UpdateComments msgUpdate) throws SQLException, MessageNotFoundException, IOException, SolrServerException {
-    logger.info("Indexing "+msgUpdate.getMsgids());
+    logger.info("Indexing comments "+msgUpdate.getMsgids());
+
+    UpdateRequest rq = new UpdateRequest();
+
+    rq.setCommitWithin(10000);
+
+    boolean delete = false;
 
     for (Integer msgid : msgUpdate.getMsgids()) {
       Comment comment = commentDao.getById(msgid);
@@ -108,16 +115,24 @@ public class SearchQueueListener {
       if (comment.isDeleted()) {
         logger.info("Deleting comment "+comment.getId()+" from solr");
         solrServer.deleteById(Integer.toString(comment.getId()));
+        delete = true;
       } else {
         // комментарии могут быть из разного топика в функция массового удаления
         // возможно для скорости нужен какой-то кеш топиков, т.к. чаще бывает что все
         // комментарии из одного топика
         Message topic = messageDao.getById(comment.getTopicId());
         String message = commentDao.getMessage(comment);
-        solrServer.add(processComment(topic, comment, message));
+        rq.add(processComment(topic, comment, message));
       }
     }
-    solrServer.commit();
+
+    if (!rq.getDocuments().isEmpty())  {
+      rq.process(solrServer);
+    }
+
+    if (delete) {
+      solrServer.commit();
+    }
   }
 
   public void handleMessage(SearchQueueSender.UpdateMonth msgUpdate) throws SQLException, MessageNotFoundException, IOException, SolrServerException {
