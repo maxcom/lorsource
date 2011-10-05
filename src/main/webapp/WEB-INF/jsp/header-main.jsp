@@ -31,9 +31,10 @@
 <jsp:include page="${template.style}/head-main.jsp"/>
 
 <c:if test="${not pageContext.request.secure}">
-    <!--TopList COUNTER-->
-    <img height=1 width=1 src="http://top.list.ru/counter?id=71642" alt="">
-    <!--TopList COUNTER-->
+    <!-- Rating@Mail.ru counter -->
+    <img src="http://d7.c1.b1.a0.top.mail.ru/counter?id=71642"
+    border="0" height="1" width="1" alt="Рейтинг@Mail.ru">
+    <!-- //Rating@Mail.ru counter -->
 </c:if>
 
 <div id="bd">

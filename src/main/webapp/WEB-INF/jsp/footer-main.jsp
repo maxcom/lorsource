@@ -32,9 +32,12 @@
 <!-- begin of Top100 logo -->
 <a href="http://top100.rambler.ru/home?id=29833" target="_blank"><img src="http://top100-images.rambler.ru/top100/banner-88x31-rambler-black2.gif" alt="Rambler's Top100" width="88" height="31" border="0" /></a>
 <!-- end of Top100 logo -->
-  <!--TopList LOGO-->
-  <a target="_top" href="http://top.list.ru/jump?from=71642"><img src="http://top.list.ru/counter?id=71642;t=11;l=1" border=0 height=31 width=88 alt="TopList"></a>
-  <!--TopList LOGO-->
+
+    <!-- Rating@Mail.ru logo -->
+    <a target="_top" href="http://top.mail.ru/jump?from=71642">
+    <img src="http://d7.c1.b1.a0.top.mail.ru/counter?id=71642;t=11;l=1"
+    border="0" height="31" width="88" alt="Рейтинг@Mail.ru"></a>
+    <!-- //Rating@Mail.ru logo -->
 </c:if>
   <c:if test="${template.style == 'tango'}"><br>
            Стиль: <a href="#" rel="dark" class="styleswitch">Dark</a></li> -
