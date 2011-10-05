@@ -312,7 +312,7 @@ public class NewsViewer {
     return 30*1000;
   }
 
-  public static NewsViewer getMainpage(SectionDao sectionStore) {
+  public static NewsViewer getMainpage() {
     NewsViewer nv = new NewsViewer();
     nv.addSection(1);
     nv.limit = "LIMIT 20";

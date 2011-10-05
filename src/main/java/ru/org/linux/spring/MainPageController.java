@@ -15,28 +15,20 @@
 
 package ru.org.linux.spring;
 
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
+import ru.org.linux.site.LorDataSource;
+import ru.org.linux.site.NewsViewer;
+import ru.org.linux.site.Template;
+
+import javax.servlet.http.HttpServletRequest;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
 
-import javax.servlet.http.HttpServletRequest;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.servlet.ModelAndView;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import ru.org.linux.site.*;
-import ru.org.linux.spring.dao.SectionDao;
-
 @Controller
 public class MainPageController {
-  private final SectionDao sectionStore;
-
-  @Autowired
-  public MainPageController(SectionDao sectionStore) {
-    this.sectionStore = sectionStore;
-  }
-
   @RequestMapping({"/", "/index.jsp"})
   public ModelAndView mainPage(HttpServletRequest request) throws Exception {
     Template tmpl = Template.getTemplate(request);
@@ -46,7 +38,7 @@ public class MainPageController {
     try {
       db = LorDataSource.getConnection();
 
-      NewsViewer nv = NewsViewer.getMainpage(sectionStore);
+      NewsViewer nv = NewsViewer.getMainpage();
 
       if (tmpl.getProf().isShowGalleryOnMain()) {
         nv.addSection(3);
