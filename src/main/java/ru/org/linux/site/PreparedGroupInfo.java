@@ -18,14 +18,13 @@ package ru.org.linux.site;
 import ru.org.linux.util.bbcode.ParserUtil;
 
 import java.sql.Connection;
-import java.sql.SQLException;
 
 public class PreparedGroupInfo {
   private final Group group;
   private final String longInfo;
 
   @Deprecated
-  public PreparedGroupInfo(Connection db, Group group) throws SQLException {
+  public PreparedGroupInfo(Connection db, Group group) {
     this.group = group;
 
     if (group.getLongInfo()!=null) {

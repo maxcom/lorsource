@@ -12,9 +12,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.org.linux.site.*;
 import ru.org.linux.spring.AddMessageRequest;
-import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.LorHttpUtils;
-import ru.org.linux.util.UtilException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.sql.DataSource;
@@ -273,7 +271,7 @@ public class MessageDao {
   }
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public int addMessage(HttpServletRequest request, AddMessageRequest form, Template tmpl, Group group, User user, Screenshot scrn, Message previewMsg) throws  UtilException, IOException, BadImageException, ScriptErrorException, UserErrorException {
+  public int addMessage(HttpServletRequest request, AddMessageRequest form, Template tmpl, Group group, User user, Screenshot scrn, Message previewMsg) throws IOException, ScriptErrorException, UserErrorException {
     final int msgid = saveNewMessage(
             previewMsg,
             tmpl,

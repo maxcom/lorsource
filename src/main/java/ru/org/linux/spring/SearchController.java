@@ -111,7 +111,6 @@ public class SearchController {
     return builder.build();
   }
 
-  @SuppressWarnings({"SameReturnValue"})
   @RequestMapping(value = "/search.jsp", method = {RequestMethod.GET, RequestMethod.HEAD})
   public String search(
           Model model,

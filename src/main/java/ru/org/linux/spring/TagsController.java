@@ -35,12 +35,12 @@ public class TagsController  {
   }
 
   @RequestMapping("/tags")
-  public String tags() throws Exception {
+  public String tags() {
     return "tags";
   }
 
   @RequestMapping("/tags.jsp")  
-  public String oldTags() throws Exception {
+  public String oldTags() {
     return "redirect:/tags";
   }
 }

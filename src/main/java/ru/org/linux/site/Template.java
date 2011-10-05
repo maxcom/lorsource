@@ -242,7 +242,7 @@ public final class Template {
   }
 
   @Deprecated
-  public void updateCurrentUser(Connection db) throws SQLException {
+  public void updateCurrentUser(Connection db) {
     initCurrentUser(db, true);
   }
 
@@ -251,7 +251,7 @@ public final class Template {
   }
 
   @Deprecated
-  private void initCurrentUser(Connection db, boolean forceUpdate) throws SQLException {
+  private void initCurrentUser(Connection db, boolean forceUpdate) {
     if (!isSessionAuthorized()) {
       return;
     }

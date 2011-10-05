@@ -28,7 +28,6 @@ import ru.org.linux.spring.dao.PollDao;
 import ru.org.linux.spring.dao.VoteDTO;
 
 import javax.servlet.http.HttpServletRequest;
-import java.sql.SQLException;
 import java.util.List;
 
 @Controller
@@ -71,7 +70,7 @@ public class PollBoxletImpl extends SpringBoxlet  {
 
     Message msg = getFromCache(cacheProvider, getCacheKey() + "topic"+poll.getId(), new GetCommand<Message>() {
       @Override
-      public Message get() throws SQLException, MessageNotFoundException {
+      public Message get() throws MessageNotFoundException {
         return messageDao.getById(poll.getTopicId());
       }
     });

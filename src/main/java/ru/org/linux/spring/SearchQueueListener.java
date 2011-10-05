@@ -27,12 +27,16 @@ import org.apache.solr.common.SolrInputDocument;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.stereotype.Component;
-import ru.org.linux.site.*;
+import ru.org.linux.site.Comment;
+import ru.org.linux.site.CommentList;
+import ru.org.linux.site.Message;
+import ru.org.linux.site.MessageNotFoundException;
 import ru.org.linux.spring.dao.CommentDao;
 import ru.org.linux.spring.dao.MessageDao;
 
 import java.io.IOException;
-import java.sql.*;
+import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -69,7 +73,7 @@ public class SearchQueueListener {
     solrServer.commit();
   }
 
-  private void reindexMessage(int msgid, boolean withComments) throws IOException, SolrServerException, SQLException, MessageNotFoundException {
+  private void reindexMessage(int msgid, boolean withComments) throws IOException, SolrServerException,  MessageNotFoundException {
     Message msg = messageDao.getById(msgid);
 
     if (!msg.isDeleted()) {
@@ -173,7 +177,7 @@ public class SearchQueueListener {
     solrServer.add(doc);
   }
 
-  private void reindexComments(Message topic, CommentList comments) throws IOException, SolrServerException, SQLException {
+  private void reindexComments(Message topic, CommentList comments) throws IOException, SolrServerException {
     Collection<SolrInputDocument> docs = new ArrayList<SolrInputDocument>();
     List<String> delete = new ArrayList<String>();
 

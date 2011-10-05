@@ -21,7 +21,6 @@ import org.springframework.jdbc.support.rowset.SqlRowSet;
 import ru.org.linux.spring.dao.UserDao;
 import ru.org.linux.util.bbcode.ParserUtil;
 
-import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Date;
 
@@ -34,7 +33,7 @@ public class SearchItem {
   private final User user;
   private final String message;
 
-  public SearchItem(SolrDocument doc, UserDao userDao, JdbcTemplate jdbcTemplate) throws SQLException {
+  public SearchItem(SolrDocument doc, UserDao userDao, JdbcTemplate jdbcTemplate) {
     msgid = Integer.valueOf(doc.getFieldValue("id").toString());
     title = (String) doc.getFieldValue("title");
     topicTitle = (String) doc.getFieldValue("topic_title");
