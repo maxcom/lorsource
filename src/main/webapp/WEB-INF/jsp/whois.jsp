@@ -2,6 +2,7 @@
 <%@ page import="java.util.Map,ru.org.linux.site.Template"   buffer="60kb" %>
 <%@ page import="ru.org.linux.site.User"%>
 <%@ page import="ru.org.linux.util.HTMLFormatter"%>
+<%@ page import="java.util.Set" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
@@ -25,7 +26,7 @@
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <%--@elvariable id="moderatorOrCurrentUser" type="java.lang.Boolean"--%>
 <%--@elvariable id="banInfo" type="ru.org.linux.site.BanInfo"--%>
-<%--@elvariable id="ignoreList" type="java.lang.Map<Integer, String>"--%>
+<%--@elvariable id="ignoreList" type="java.lang.Set<Integer>"--%>
 
 <% Template tmpl = Template.getTemplate(request); %>
 <%
@@ -35,7 +36,6 @@
 
 <%
   User user = (User) request.getAttribute("user");
-  String nick = user.getNick();
 %>
 <title>Информация о пользователе ${user.nick}</title>
 <c:if test="${userInfo.url != null}">
@@ -128,8 +128,8 @@
   </c:if>
 <c:if test="${ignoreList != null}">
 <%
-    Map<Integer,String> ignoreList = (Map<Integer,String>) request.getAttribute("ignoreList");
-    if (!ignoreList.isEmpty() && ignoreList.containsValue(nick)) {
+    Set<Integer> ignoreList = (Set<Integer>) request.getAttribute("ignoreList");
+    if (!ignoreList.isEmpty() && ignoreList.contains(user.getId())) {
       out.print("<form name='i_unblock' method='post' action='ignore-list.jsp'>\n");
       out.print("<input type='hidden' name='id' value='" + user.getId() + "'>\n");
       out.print("Вы игнорируете этого пользователя &nbsp; \n");
@@ -137,7 +137,7 @@
       out.print("</form>");
     } else {
       out.print("<form name='i_block' method='post' action='ignore-list.jsp'>\n");
-      out.print("<input type='hidden' name='nick' value='" + nick + "'>\n");
+      out.print("<input type='hidden' name='nick' value='" + user.getNick() + "'>\n");
       out.print("Вы не игнорируете этого пользователя &nbsp; \n");
       out.print("<input type='submit' name='add' value='игнорировать'>\n");
       out.print("</form>");
@@ -191,7 +191,7 @@
   </c:if>
   </c:if>
   <%
-  if (Template.isSessionAuthorized(session) && (tmpl.getNick().equals(nick))) {
+  if (Template.isSessionAuthorized(session) && (tmpl.getNick().equals(user.getNick()))) {
     out.print("<p><a href=\"register.jsp?mode=change\">Изменить регистрацию</a>.");
   }
 %>

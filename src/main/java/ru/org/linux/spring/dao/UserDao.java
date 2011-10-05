@@ -1,7 +1,7 @@
 package ru.org.linux.spring.dao;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
@@ -24,7 +24,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
 @Repository
 public class UserDao {
@@ -33,21 +33,21 @@ public class UserDao {
   /**
    * изменение score пользователю
    */
-  private final static String queryChangeScore = "UPDATE users SET score=score+? WHERE id=?";
+  private static final String queryChangeScore = "UPDATE users SET score=score+? WHERE id=?";
 
-  private final static String queryNewUsers = "SELECT id FROM users where " +
+  private static final String queryNewUsers = "SELECT id FROM users where " +
                                                 "regdate IS NOT null " +
                                                 "AND regdate > CURRENT_TIMESTAMP - interval '3 days' " +
                                               "ORDER BY regdate";
 
-  private final static String queryUserInfoClass = "SELECT url, town, lastlogin, regdate FROM users WHERE id=?";
-  private final static String queryBanInfoClass = "SELECT * FROM ban_info WHERE userid=?";
+  private static final String queryUserInfoClass = "SELECT url, town, lastlogin, regdate FROM users WHERE id=?";
+  private static final String queryBanInfoClass = "SELECT * FROM ban_info WHERE userid=?";
 
-  private final static String queryIgnoreStat = "SELECT count(*) as inum FROM ignore_list JOIN users ON  ignore_list.userid = users.id WHERE ignored=? AND not blocked";
-  private final static String queryCommentStat = "SELECT count(*) as c FROM comments WHERE userid=? AND not deleted";
-  private final static String queryTopicDates = "SELECT min(postdate) as first,max(postdate) as last FROM topics WHERE topics.userid=?";
-  private final static String queryCommentDates = "SELECT min(postdate) as first,max(postdate) as last FROM comments WHERE comments.userid=?";
-  private final static String queryCommentsBySectionStat =
+  private static final String queryIgnoreStat = "SELECT count(*) as inum FROM ignore_list JOIN users ON  ignore_list.userid = users.id WHERE ignored=? AND not blocked";
+  private static final String queryCommentStat = "SELECT count(*) as c FROM comments WHERE userid=? AND not deleted";
+  private static final String queryTopicDates = "SELECT min(postdate) as first,max(postdate) as last FROM topics WHERE topics.userid=?";
+  private static final String queryCommentDates = "SELECT min(postdate) as first,max(postdate) as last FROM comments WHERE comments.userid=?";
+  private static final String queryCommentsBySectionStat =
             "SELECT sections.name as pname, count(*) as c " +
                     "FROM topics, groups, sections " +
                     "WHERE topics.userid=? " +
@@ -56,9 +56,9 @@ public class UserDao {
                     "AND not deleted " +
                     "GROUP BY sections.name";
 
-  private final static String queryIgnoreList = "SELECT a.ignored,b.nick FROM ignore_list a, users b WHERE a.userid=? AND b.id=a.ignored";
+  private static final String queryIgnoreList = "SELECT a.ignored FROM ignore_list a WHERE a.userid=?";
 
-  private final static String updateResetUnreadReplies = "UPDATE users SET unread_events=0 where id=?";
+  private static final String updateResetUnreadReplies = "UPDATE users SET unread_events=0 where id=?";
 
   @Autowired
   public void setJdbcTemplate(DataSource dataSource) {
@@ -232,20 +232,22 @@ public class UserDao {
    */
   public UserStatistics getUserStatisticsClass(User user) {
     int ignoreCount;
-    int commentCount;
-    List<Timestamp> commentStat;
-    List<Timestamp> topicStat;
-    Map<String, Integer> commentsBySection;
+
     try {
       ignoreCount = jdbcTemplate.queryForInt(queryIgnoreStat, user.getId());
     } catch (EmptyResultDataAccessException exception) {
       ignoreCount = 0;
     }
+
+    int commentCount;
+
     try {
       commentCount = jdbcTemplate.queryForInt(queryCommentStat, user.getId());
     } catch (EmptyResultDataAccessException exception) {
       commentCount = 0;
     }
+
+    List<Timestamp> commentStat;
 
     try {
       commentStat = jdbcTemplate.queryForObject(queryCommentDates, new RowMapper<List<Timestamp>>() {
@@ -257,6 +259,8 @@ public class UserDao {
     } catch (EmptyResultDataAccessException exception) {
       commentStat = null;
     }
+
+    List<Timestamp> topicStat;
 
     try {
       topicStat = jdbcTemplate.queryForObject(queryTopicDates, new RowMapper<List<Timestamp>>() {
@@ -276,6 +280,7 @@ public class UserDao {
         builder.put(resultSet.getString("pname"), resultSet.getInt("c"));
       }
     }, user.getId());
+    
     return new UserStatistics(ignoreCount, commentCount,
         commentStat.get(0), commentStat.get(1),
         topicStat.get(0), topicStat.get(1),
@@ -287,12 +292,12 @@ public class UserDao {
    * @param user пользователь который игнорирует
    * @return список игнорируемых
    */
-  public Map<Integer, String> getIgnoreList(User user) {
-    final ImmutableMap.Builder<Integer, String> builder = ImmutableMap.builder();
+  public Set<Integer> getIgnoreList(User user) {
+    final ImmutableSet.Builder<Integer> builder = ImmutableSet.builder();
     jdbcTemplate.query(queryIgnoreList, new RowCallbackHandler() {
       @Override
       public void processRow(ResultSet resultSet) throws SQLException {
-        builder.put(resultSet.getInt("ignored"),resultSet.getString("nick"));
+        builder.add(resultSet.getInt("ignored"));
       }
     }, user.getId());
     return builder.build();

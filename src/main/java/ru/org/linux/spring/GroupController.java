@@ -164,15 +164,13 @@ public class GroupController {
 
     params.put("section", section);
 
-    Map<Integer, String> ignoreList;
+    Set<Integer> ignoreList;
 
     if (tmpl.getCurrentUser()!=null) {
       ignoreList = userDao.getIgnoreList(tmpl.getCurrentUser());
     } else {
-      ignoreList = Collections.emptyMap();
+      ignoreList = Collections.emptySet();
     }
-
-    params.put("ignoreList", ignoreList);
 
     params.put("groupInfo", prepareService.prepareGroupInfo(group));
 
@@ -235,7 +233,7 @@ public class GroupController {
       // TODO: надо проверять просто ID в списке игнорирования
       User author = topic.getAuthor();
 
-      if (!firstPage && !ignoreList.isEmpty() && ignoreList.containsValue(author.getNick())) {
+      if (!firstPage && !ignoreList.isEmpty() && ignoreList.contains(author.getId())) {
         continue;
       }
 

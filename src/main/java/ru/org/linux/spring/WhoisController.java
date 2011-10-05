@@ -15,8 +15,6 @@
 
 package ru.org.linux.spring;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,7 +23,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.view.RedirectView;
-import ru.org.linux.site.*;
+import ru.org.linux.site.Template;
+import ru.org.linux.site.User;
+import ru.org.linux.site.UserNotFoundException;
 import ru.org.linux.spring.dao.UserDao;
 import ru.org.linux.util.HTMLFormatter;
 
@@ -34,11 +34,8 @@ import java.net.URLEncoder;
 
 @Controller
 public class WhoisController {
-
-  private static final Log logger = LogFactory.getLog(VoteController.class);
-
   @Autowired
-  UserDao userDao;
+  private UserDao userDao;
 
   @RequestMapping("/people/{nick}/profile")
   public ModelAndView getInfoNew(@PathVariable String nick, ServletRequest request) throws Exception {
