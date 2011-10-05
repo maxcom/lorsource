@@ -26,7 +26,6 @@ import org.apache.solr.client.solrj.request.UpdateRequest;
 import org.apache.solr.common.SolrInputDocument;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
-import org.springframework.jdbc.support.JdbcUtils;
 import org.springframework.stereotype.Component;
 import ru.org.linux.site.*;
 import ru.org.linux.spring.dao.CommentDao;

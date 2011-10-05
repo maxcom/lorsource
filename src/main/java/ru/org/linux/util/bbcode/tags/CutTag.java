@@ -38,7 +38,6 @@
 
 package ru.org.linux.util.bbcode.tags;
 
-import ru.org.linux.util.bbcode.Parser;
 import ru.org.linux.util.bbcode.ParserParameters;
 import ru.org.linux.util.bbcode.nodes.Node;
 import ru.org.linux.util.bbcode.nodes.RootNode;

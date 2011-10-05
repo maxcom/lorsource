@@ -15,21 +15,16 @@
 
 package ru.org.linux.spring;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.Calendar;
 
 import javax.servlet.ServletRequest;
 
 import ru.org.linux.site.AccessViolationException;
-import ru.org.linux.site.LorDataSource;
 import ru.org.linux.site.Template;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
-import org.springframework.jdbc.support.JdbcUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;

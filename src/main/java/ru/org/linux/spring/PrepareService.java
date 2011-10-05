@@ -21,7 +21,6 @@ import ru.org.linux.site.*;
 import ru.org.linux.spring.dao.*;
 import ru.org.linux.util.bbcode.ParserUtil;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
