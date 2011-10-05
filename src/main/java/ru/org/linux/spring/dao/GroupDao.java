@@ -13,7 +13,10 @@ import ru.org.linux.site.Group;
 import ru.org.linux.site.Section;
 
 import javax.sql.DataSource;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.List;
 
 @Repository
@@ -88,6 +91,25 @@ public class GroupDao {
       return getGroup(id);
     } catch (EmptyResultDataAccessException ex) {
       throw new BadGroupException("group not found");
+    }
+  }
+
+  public int calcTopicsCount(Group group, boolean showDeleted) throws SQLException {
+    String query = "SELECT count(topics.id) " +
+            "FROM topics WHERE " +
+            (group.isModerated() ? "moderate AND " : "") +
+            "groupid=?";
+
+    if (!showDeleted) {
+      query += " AND NOT topics.deleted";
+    }
+
+    List<Integer> res = jdbcTemplate.queryForList(query, Integer.class, group.getId());
+
+    if (!res.isEmpty()) {
+      return res.get(0);
+    } else {
+      return 0;
     }
   }
 }

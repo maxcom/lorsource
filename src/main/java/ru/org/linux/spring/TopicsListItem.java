@@ -15,16 +15,15 @@
 
 package ru.org.linux.spring;
 
-import java.io.Serializable;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
-
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 import ru.org.linux.site.Message;
 import ru.org.linux.site.User;
 import ru.org.linux.site.UserNotFoundException;
+import ru.org.linux.spring.dao.UserDao;
 import ru.org.linux.util.StringUtil;
+
+import java.io.Serializable;
+import java.sql.Timestamp;
 
 public class TopicsListItem implements Serializable {
   private final String subj;
@@ -42,7 +41,7 @@ public class TopicsListItem implements Serializable {
   private static final long serialVersionUID = 5344250574674257995L;
 
   // SELECT topics.title as subj, sections.name, lastmod, topics.id as msgid, topics.deleted, topics.stat1, topics.stat3, topics.stat4, topics.sticky, userid
-  public TopicsListItem(Connection db, ResultSet rs, int messagesInPage) throws SQLException {
+  public TopicsListItem(UserDao userDao, SqlRowSet rs, int messagesInPage) {
     subj = StringUtil.makeTitle(rs.getString("subj"));
 
     Timestamp lastmod = rs.getTimestamp("lastmod");
@@ -53,7 +52,7 @@ public class TopicsListItem implements Serializable {
     }
 
     try {
-      author = User.getUserCached(db, rs.getInt("userid"));
+      author = userDao.getUserCached(rs.getInt("userid"));
     } catch (UserNotFoundException e) {
       throw new RuntimeException(e);
     }

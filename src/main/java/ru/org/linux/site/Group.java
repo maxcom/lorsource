@@ -19,7 +19,10 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 import ru.org.linux.spring.dao.GroupDao;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class Group {
   private boolean moderate;
@@ -211,35 +214,6 @@ public class Group {
 
   public String getInfo() {
     return info;
-  }
-
-  public int calcTopicsCount(Connection db, boolean showDeleted) throws SQLException {
-    Statement st = null;
-
-    try {
-      st = db.createStatement();
-
-      String query = "SELECT count(topics.id) " +
-        "FROM topics WHERE " +
-        (moderate?"moderate AND ":"") +
-        "groupid=" + id;
-
-      if (!showDeleted) {
-        query+=" AND NOT topics.deleted";
-      }
-
-      ResultSet rs = st.executeQuery(query);
-
-      if (rs.next()) {
-        return rs.getInt("count");
-      } else {
-        return 0;
-      }
-    } finally {
-      if (st != null) {
-        st.close();
-      }
-    }
   }
 
   public String getLongInfo() {
