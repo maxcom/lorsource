@@ -321,24 +321,24 @@
 </c:if>
 
 <c:if test="${fn:length(commentsPrepared)>0}">
-  <div class=nav>
-<%
-      if (tmpl.getProf().isShowNewFirst()) {
-        out.print("сообщения отсортированы в порядке убывания даты их написания");
-      } else {
-        out.print("сообщения отсортированы в порядке возрастания даты их написания");
-      }
-%>
+    <div class=nav>
+        <c:if test="${template.prof.showNewFirst}">
+            сообщения отсортированы в порядке убывания даты их написания
+        </c:if>
+        <c:if test="${not template.prof.showNewFirst}">
+            сообщения отсортированы в порядке возрастания даты их написания
+        </c:if>
     </div>
-  </c:if>
-  <c:if test="<%= pageInfo!=null %>">
+</c:if>
+
+<c:if test="<%= pageInfo!=null %>">
     <c:if test="${not showDeleted}">
-    <div class="nav">
-      <%= pageInfo %>
-    </div>
+        <div class="nav">
+            <%= pageInfo %>
+        </div>
     </c:if>
-  </c:if>
-  <div class="comment">
+</c:if>
+<div class="comment">
     <c:forEach var="comment" items="${commentsPrepared}">
       <lor:comment topic="${message}" showMenu="true" comment="${comment}" comments="${comments}" expired="${message.expired}"/>
     </c:forEach>
