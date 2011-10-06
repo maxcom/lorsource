@@ -15,20 +15,7 @@
 
 package ru.org.linux.spring;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.ServletRequest;
-import javax.servlet.http.HttpServletRequest;
-
-import ru.org.linux.site.*;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.support.ApplicationObjectSupport;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -36,21 +23,38 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
+import ru.org.linux.site.*;
 import ru.org.linux.spring.dao.GroupDao;
+import ru.org.linux.spring.dao.MessageDao;
 import ru.org.linux.spring.dao.TagDao;
+
+import javax.servlet.ServletRequest;
+import javax.servlet.http.HttpServletRequest;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Controller
 public class EditController extends ApplicationObjectSupport {
+  @Autowired
   private SearchQueueSender searchQueueSender;
 
   @Autowired
-  @Required
-  public void setSearchQueueSender(SearchQueueSender searchQueueSender) {
-    this.searchQueueSender = searchQueueSender;
-  }
-
-  @Autowired(required=true)
   private FeedPinger feedPinger;
+
+  @Autowired
+  private MessageDao messageDao;
+
+  @Autowired
+  private PrepareService prepareService;
+
+  @Autowired
+  private GroupDao groupDao;
+
+  @Autowired
+  private TagDao tagDao;
 
   @RequestMapping(value = "/commit.jsp", method = RequestMethod.GET)
   public ModelAndView showCommitForm(
@@ -63,32 +67,23 @@ public class EditController extends ApplicationObjectSupport {
       throw new AccessViolationException("Not authorized");
     }
 
-    Connection db = null;
-    try {
-      db = LorDataSource.getConnection();
+    Message message = messageDao.getById(msgid);
 
-      Message message = Message.getMessage(db, msgid);
-
-      if (message.isCommited()) {
-        throw new UserErrorException("Сообщение уже подтверждено");
-      }
-
-      PreparedMessage preparedMessage = new PreparedMessage(db, message, true);
-
-      if (!preparedMessage.getSection().isPremoderated()) {
-        throw new UserErrorException("Раздел не премодерируемый");
-      }
-
-      ModelAndView mv = prepareModel(db, preparedMessage);
-
-      mv.getModel().put("commit", true);
-
-      return mv;
-    } finally {
-      if (db != null) {
-        db.close();
-      }
+    if (message.isCommited()) {
+      throw new UserErrorException("Сообщение уже подтверждено");
     }
+
+    PreparedMessage preparedMessage = prepareService.prepareMessage(message, true);
+
+    if (!preparedMessage.getSection().isPremoderated()) {
+      throw new UserErrorException("Раздел не премодерируемый");
+    }
+
+    ModelAndView mv = prepareModel(preparedMessage);
+
+    mv.getModel().put("commit", true);
+
+    return mv;
   }
 
   @RequestMapping(value = "/edit.jsp", method = RequestMethod.GET)
@@ -103,33 +98,22 @@ public class EditController extends ApplicationObjectSupport {
       throw new AccessViolationException("Not authorized");
     }
 
-    Connection db = null;
+    Message message = messageDao.getById(msgid);
 
-    try {
-      db = LorDataSource.getConnection();
+    User user = tmpl.getCurrentUser();
 
-      Message message = Message.getMessage(db, msgid);
+    PreparedMessage preparedMessage = prepareService.prepareMessage(message, true);
 
-      User user = tmpl.getCurrentUser();
-
-      PreparedMessage preparedMessage = new PreparedMessage(db, message, true);
-
-      if (!preparedMessage.isEditable(user)) {
-        throw new AccessViolationException("это сообщение нельзя править");
-      }
-
-      return prepareModel(db, preparedMessage);
-    } finally {
-      if (db != null) {
-        db.close();
-      }
+    if (!preparedMessage.isEditable(user)) {
+      throw new AccessViolationException("это сообщение нельзя править");
     }
+
+    return prepareModel(preparedMessage);
   }
 
-  private static ModelAndView prepareModel(
-    Connection db,
+  private ModelAndView prepareModel(
     PreparedMessage preparedMessage
-  ) throws SQLException, BadGroupException {
+  ) {
     Map<String, Object> params = new HashMap<String, Object>();
 
     Message message = preparedMessage.getMessage();
@@ -137,15 +121,15 @@ public class EditController extends ApplicationObjectSupport {
     params.put("message", message);
     params.put("preparedMessage", preparedMessage);
 
-    Group group = Group.getGroup(db, message.getGroupId());
+    Group group = preparedMessage.getGroup();
     params.put("group", group);
 
-    params.put("groups", GroupDao.getGroups(db, preparedMessage.getSection()));
+    params.put("groups", groupDao.getGroups(preparedMessage.getSection()));
 
     params.put("newMsg", message);
     params.put("newPreparedMessage", preparedMessage);
 
-    List<EditInfoDTO> editInfoList = message.loadEditInfo(db);
+    List<EditInfoDTO> editInfoList = messageDao.getEditInfo(message.getId());
     if (!editInfoList.isEmpty()) {
       params.put("editInfo", editInfoList.get(0));
     }
@@ -153,7 +137,7 @@ public class EditController extends ApplicationObjectSupport {
     params.put("commit", false);
 
     if (group.isModerated()) {
-      params.put("topTags", TagDao.getTopTags(db));
+      params.put("topTags", tagDao.getTopTags());
     }
 
     return new ModelAndView("edit", params);
@@ -176,66 +160,66 @@ public class EditController extends ApplicationObjectSupport {
 
     Map<String, Object> params = new HashMap<String, Object>();
 
+    Message message = messageDao.getById(msgid);
+    PreparedMessage preparedMessage = prepareService.prepareMessage(message, true);
+    Group group = preparedMessage.getGroup();
+
+    params.put("message", message);
+    params.put("preparedMessage", preparedMessage);
+    params.put("group", group);
+
+    if (group.isModerated()) {
+      params.put("topTags", tagDao.getTopTags());
+    }
+
+    params.put("groups", groupDao.getGroups(preparedMessage.getSection()));
+
+    User user = tmpl.getCurrentUser();
+
+    if (!preparedMessage.isEditable(user)) {
+      throw new AccessViolationException("это сообщение нельзя править");
+    }
+
+    if (!message.isExpired()) {
+      String title = request.getParameter("title");
+      if (title == null || title.trim().length() == 0) {
+        throw new BadInputException("заголовок сообщения не может быть пустым");
+      }
+    }
+
+    List<EditInfoDTO> editInfoList = messageDao.getEditInfo(message.getId());
+
+    boolean preview = request.getParameter("preview") != null;
+    if (preview) {
+      params.put("info", "Предпросмотр");
+    }
+
+    if (!editInfoList.isEmpty()) {
+      EditInfoDTO dbEditInfo = editInfoList.get(0);
+      params.put("editInfo", dbEditInfo);
+
+      if (lastEdit == null || dbEditInfo.getEditdate().getTime()!=lastEdit) {
+        params.put("info", "Сообщение было отредактировано независимо");
+        preview = true;
+      }
+    }
+
+    boolean commit = request.getParameter("commit") != null;
+
+    if (commit) {
+      user.checkCommit();
+      if (message.isCommited()) {
+        throw new BadInputException("сообщение уже подтверждено");
+      }
+    }
+
+    params.put("commit", !message.isCommited() && preparedMessage.getSection().isPremoderated() && user.canModerate());
+
     Connection db = null;
+
     try {
       db = LorDataSource.getConnection();
       db.setAutoCommit(false);
-      tmpl.updateCurrentUser(db);
-
-      Message message = Message.getMessage(db, msgid);
-      PreparedMessage preparedMessage = new PreparedMessage(db, message, true);
-      params.put("message", message);
-      params.put("preparedMessage", preparedMessage);
-
-      Group group = Group.getGroup(db, message.getGroupId());
-      params.put("group", group);
-
-      if (group.isModerated()) {
-        params.put("topTags", TagDao.getTopTags(db));
-      }      
-
-      params.put("groups", GroupDao.getGroups(db, preparedMessage.getSection()));
-
-      User user = tmpl.getCurrentUser();
-
-      if (!preparedMessage.isEditable(user)) {
-        throw new AccessViolationException("это сообщение нельзя править");
-      }
-
-      if (!message.isExpired()) {
-        String title = request.getParameter("title");
-        if (title == null || title.trim().length() == 0) {
-          throw new BadInputException("заголовок сообщения не может быть пустым");
-        }
-      }
-
-      List<EditInfoDTO> editInfoList = message.loadEditInfo(db);
-
-      boolean preview = request.getParameter("preview") != null;
-      if (preview) {
-        params.put("info", "Предпросмотр");
-      }
-
-      if (!editInfoList.isEmpty()) {
-        EditInfoDTO dbEditInfo = editInfoList.get(0);
-        params.put("editInfo", dbEditInfo);
-
-        if (lastEdit == null || dbEditInfo.getEditdate().getTime()!=lastEdit) {
-          params.put("info", "Сообщение было отредактировано независимо");
-          preview = true;
-        }
-      }
-
-      boolean commit = request.getParameter("commit") != null;
-
-      if (commit) {
-        user.checkCommit();
-        if (message.isCommited()) {
-          throw new BadInputException("сообщение уже подтверждено");
-        }
-      }
-
-      params.put("commit", !message.isCommited() && preparedMessage.getSection().isPremoderated() && user.canModerate());
 
       Message newMsg = new Message(db, message, request);
 

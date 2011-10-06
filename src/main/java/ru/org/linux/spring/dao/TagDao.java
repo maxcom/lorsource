@@ -19,8 +19,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.core.ConnectionCallback;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.stereotype.Repository;
@@ -107,27 +105,17 @@ public final class TagDao {
   }
 
   public SortedSet<String> getTopTags()  {
-    return jdbcTemplate.execute(new ConnectionCallback<SortedSet<String>>() {
-      @Override
-      public SortedSet<String> doInConnection(Connection con) throws SQLException, DataAccessException {
-        return getTopTagsInternal(con);
-      }
-    });
-  }
+    final SortedSet<String> set = new TreeSet<String>();
 
-  @Deprecated
-  public static SortedSet<String> getTopTags(Connection con) throws SQLException {
-    return getTopTagsInternal(con);
-  }
-
-  private static SortedSet<String> getTopTagsInternal(Connection con) throws SQLException {
-    SortedSet<String> set = new TreeSet<String>();
-    PreparedStatement st = con.prepareStatement("SELECT counter,value FROM tags_values WHERE counter>1 ORDER BY counter DESC LIMIT " + TOP_TAGS_COUNT);
-    ResultSet rs = st.executeQuery();
-
-    while (rs.next()) {
-      set.add(rs.getString("value"));
-    }
+    jdbcTemplate.query(
+            "SELECT counter,value FROM tags_values WHERE counter>1 ORDER BY counter DESC LIMIT " + TOP_TAGS_COUNT,
+            new RowCallbackHandler() {
+              @Override
+              public void processRow(ResultSet rs) throws SQLException {
+                set.add(rs.getString("value"));
+              }
+            }
+    );
 
     return set;
   }
@@ -145,19 +133,6 @@ public final class TagDao {
       }
     });
     return builder.build();
-  }
-
-  @Deprecated
-  public static Map<String,Integer> getAllTags(Connection con) throws SQLException {
-    Map<String,Integer> map = new TreeMap<String,Integer>();
-    PreparedStatement st = con.prepareStatement("SELECT counter,value FROM tags_values WHERE counter>0");
-    ResultSet rs = st.executeQuery();
-
-    while (rs.next()) {
-      map.put(rs.getString("value"),rs.getInt("counter"));
-    }
-
-    return map;
   }
 
   public static void checkTag(String tag) throws UserErrorException {
