@@ -1,11 +1,10 @@
 <%@ page contentType="text/html; charset=utf-8"%>
 <%@ page
-    import="java.util.SortedSet" %>
-<%@ page import="ru.org.linux.site.Message" %>
+    import="ru.org.linux.site.Message" %>
 <%@ page import="ru.org.linux.site.PreparedMessage" %>
 <%@ page import="ru.org.linux.spring.dao.TagDao" %>
-<%@ page import="ru.org.linux.site.Template" %>
 <%@ page import="ru.org.linux.util.HTMLFormatter" %>
+<%@ page import="java.util.SortedSet" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%--
