@@ -199,14 +199,6 @@ public class Message implements Serializable {
       url = original.url;
     }
 
-//    if (request.getParameter("tags")!=null) {
-//      List<String> newTags = Tags.parseTags(request.getParameter("tags"));
-//
-//      tags = new Tags(newTags);
-//    } else {
-//      tags = original.tags;
-//    }
-
     // url check
     if (!group.isImagePostAllowed()) {
       if (url != null && !"".equals(url)) {
