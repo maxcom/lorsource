@@ -15,14 +15,7 @@
 
 package ru.org.linux.spring;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-
-import javax.servlet.http.HttpServletRequest;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.ApplicationObjectSupport;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.ServletRequestUtils;
@@ -31,12 +24,27 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
-
 import ru.org.linux.site.*;
+import ru.org.linux.spring.dao.MessageDao;
+import ru.org.linux.spring.dao.PollDao;
 import ru.org.linux.util.HTMLFormatter;
+
+import javax.servlet.http.HttpServletRequest;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
 
 @Controller
 public class EditVoteController extends ApplicationObjectSupport {
+  @Autowired
+  private PollDao pollDao;
+
+  @Autowired
+  private MessageDao messageDao;
+
   @RequestMapping(value="/edit-vote.jsp", method= RequestMethod.GET)
   public ModelAndView showForm(
     HttpServletRequest request,
@@ -51,26 +59,16 @@ public class EditVoteController extends ApplicationObjectSupport {
     Map<String, Object> params = new HashMap<String, Object>();
     params.put("msgid", msgid);
 
-    Connection db = null;
+    Poll poll = pollDao.getPollByTopicId(msgid);
+    params.put("poll", poll);
 
-    try {
-      db = LorDataSource.getConnection();
+    Message msg = messageDao.getById(msgid);
+    params.put("msg", msg);
 
-      Poll poll = Poll.getPollByTopic(db, msgid);
-      params.put("poll", poll);
+    List<PollVariant> variants = pollDao.getPollVariants(poll, Poll.ORDER_ID);
+    params.put("variants", variants);
 
-      Message msg = Message.getMessage(db, msgid);
-      params.put("msg", msg);
-
-      List<PollVariant> variants = poll.getPollVariants(db, Poll.ORDER_ID);
-      params.put("variants", variants);
-
-      return new ModelAndView("edit-vote", params);
-    } finally {
-      if (db != null) {
-        db.close();
-      }
-    }
+    return new ModelAndView("edit-vote", params);
   }
 
   @RequestMapping(value="/edit-vote.jsp", method= RequestMethod.POST)
@@ -87,16 +85,16 @@ public class EditVoteController extends ApplicationObjectSupport {
       throw new AccessViolationException("Not authorized");
     }
 
+    User user = tmpl.getCurrentUser();
+    user.checkCommit();
+
+    Poll poll = pollDao.getPollByTopicId(msgid);
+
     Connection db = null;
 
     try {
       db = LorDataSource.getConnection();
       db.setAutoCommit(false);
-
-      User user = tmpl.getCurrentUser();
-      user.checkCommit();
-
-      Poll poll = new Poll(db, id);
 
       PreparedStatement pstTopic = db.prepareStatement("UPDATE topics SET title=?,lastmod=CURRENT_TIMESTAMP WHERE id=?");
       pstTopic.setInt(2, msgid);
@@ -110,8 +108,8 @@ public class EditVoteController extends ApplicationObjectSupport {
 
       pstPoll.executeUpdate();
 
-      List<PollVariant> variants = poll.getPollVariants(db, Poll.ORDER_ID);
-      for (PollVariant var : variants) {
+      List<PollVariant> oldVariants = poll.getPollVariants(db, Poll.ORDER_ID);
+      for (PollVariant var : oldVariants) {
         String label = ServletRequestUtils.getRequiredStringParameter(request, "var" + var.getId());
 
         if (label == null || label.trim().length() == 0) {
