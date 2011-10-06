@@ -314,33 +314,11 @@
 <c:out value="${scroller}" escapeXml="false"/>
 
 <c:if test="${showAdsense}">
-
-<div style="text-align: center; margin-top: 1em; margin-bottom: 1em">
-    <a href="http://www.vkusnoserver.ru/">
-        <img src="/adv/vkusnoserver.png" alt="Вкусносервер: ВКУСНЫЕ серверы для друзей" width="720" height="90">
-    </a>
-</div>
-
-</c:if>
-
-<c:if test="${not showAdsense}">
-
-<div class="infoblock" style="border: 1px solid #777; margin-left: auto; margin-right: auto; text-align: center; width: 728px">
-      Вкусносервер — вкусные серверы для друзей. <a href="http://www.vkusnoserver.ru/">http://www.vkusnoserver.ru/</a>
-</div>
-
-</c:if>
-
-<%--
-
-<c:if test="${showAdsense}">
   <div style="text-align: center; margin-top: 1em">
     <jsp:include page="/WEB-INF/jsp/${template.style}/adsense.jsp"/>
   </div>
   <br>
 </c:if>
-
---%>
 
 <c:if test="${fn:length(commentsPrepared)>0}">
   <div class=nav>
