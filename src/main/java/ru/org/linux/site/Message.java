@@ -180,12 +180,11 @@ public class Message implements Serializable {
     sectionCommentsRestriction = Section.getCommentPostscore(sectionid);
   }
 
-  public Message(Connection db, Message original, ServletRequest request) throws BadGroupException, UtilException, UserErrorException {
+  public Message(Group group, Message original, ServletRequest request) throws UtilException, UserErrorException {
     userAgent = original.userAgent;
     postIP = original.postIP;
     guid = original.guid;
 
-    Group group = Group.getGroup(db, guid);
     groupCommentsRestriction = group.getCommentsRestriction();
 
     if (request.getParameter("linktext") != null) {

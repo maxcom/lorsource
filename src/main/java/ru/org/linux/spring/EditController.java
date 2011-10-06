@@ -215,59 +215,71 @@ public class EditController extends ApplicationObjectSupport {
 
     params.put("commit", !message.isCommited() && preparedMessage.getSection().isPremoderated() && user.canModerate());
 
+    Message newMsg = new Message(group, message, request);
+
+    boolean modified = false;
+
+    if (!message.getTitle().equals(newMsg.getTitle())) {
+      modified = true;
+    }
+
+    if (minor==null) {
+      minor = message.isMinor();
+    }
+
+    if (minor!=message.isMinor()) {
+      modified = true;
+    }
+
+    if (!message.getMessage().equals(newMsg.getMessage())) {
+      modified = true;
+    }
+
+    if (message.getLinktext() == null) {
+      if (newMsg.getLinktext() != null) {
+        modified = true;
+      }
+    } else if (!message.getLinktext().equals(newMsg.getLinktext())) {
+      modified = true;
+    }
+
+    if (message.isHaveLink()) {
+      if (message.getUrl() == null) {
+        if (newMsg.getUrl() != null) {
+          modified = true;
+        }
+      } else if (!message.getUrl().equals(newMsg.getUrl())) {
+        modified = true;
+      }
+    }
+
+    if (message.isExpired() && (modified)) {
+      throw new AccessViolationException("нельзя править устаревшие сообщения");
+    }
+
+    List<String> newTags = null;
+
+    if (request.getParameter("tags")!=null) {
+      newTags = TagDao.parseTags(request.getParameter("tags"));
+    }
+
+    if (changeGroupId != null) {
+      if (message.getGroupId() != changeGroupId) {
+        Group changeGroup = groupDao.getGroup(changeGroupId);
+
+        int section = message.getSectionId();
+
+        if (changeGroup.getSectionId() != section) {
+          throw new AccessViolationException("Can't move topics between sections");
+        }
+      }
+    }
+
     Connection db = null;
 
     try {
       db = LorDataSource.getConnection();
       db.setAutoCommit(false);
-
-      Message newMsg = new Message(db, message, request);
-
-      boolean modified = false;
-
-      if (!message.getTitle().equals(newMsg.getTitle())) {
-        modified = true;
-      }
-
-      if (minor==null) {
-        minor = message.isMinor();
-      }
-
-      if (minor!=message.isMinor()) {
-        modified = true;
-      }
-
-      if (!message.getMessage().equals(newMsg.getMessage())) {
-        modified = true;
-      }
-
-      if (message.getLinktext() == null) {
-        if (newMsg.getLinktext() != null) {
-          modified = true;
-        }
-      } else if (!message.getLinktext().equals(newMsg.getLinktext())) {
-        modified = true;
-      }
-
-      if (message.isHaveLink()) {
-        if (message.getUrl() == null) {
-          if (newMsg.getUrl() != null) {
-            modified = true;
-          }
-        } else if (!message.getUrl().equals(newMsg.getUrl())) {
-          modified = true;
-        }
-      }
-
-      if (message.isExpired() && (modified)) {
-        throw new AccessViolationException("нельзя править устаревшие сообщения");
-      }
-
-      List<String> newTags = null;
-
-      if (request.getParameter("tags")!=null) {
-        newTags = TagDao.parseTags(request.getParameter("tags"));
-      }
 
       if (!preview) {
         PreparedStatement pst = db.prepareStatement("UPDATE topics SET linktext=?, url=?, minor=? WHERE id=?");
@@ -289,16 +301,7 @@ public class EditController extends ApplicationObjectSupport {
 
         if (commit) {
           if (changeGroupId != null) {
-            int oldgrp = message.getGroupId();
-            if (oldgrp != changeGroupId) {
-              Group changeGroup = Group.getGroup(db, changeGroupId);
-
-              int section = message.getSectionId();
-
-              if (changeGroup.getSectionId() != section) {
-                throw new AccessViolationException("Can't move topics between sections");
-              }
-
+            if (message.getGroupId() != changeGroupId) {
               message.changeGroup(db, changeGroupId);
             }
           }
