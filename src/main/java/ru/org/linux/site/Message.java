@@ -18,8 +18,6 @@ package ru.org.linux.site;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
@@ -29,7 +27,10 @@ import org.springframework.validation.Errors;
 import ru.org.linux.spring.AddMessageRequest;
 import ru.org.linux.spring.dao.TagDao;
 import ru.org.linux.spring.dao.UserDao;
-import ru.org.linux.util.*;
+import ru.org.linux.util.HTMLFormatter;
+import ru.org.linux.util.StringUtil;
+import ru.org.linux.util.URLUtil;
+import ru.org.linux.util.UtilException;
 import ru.org.linux.util.bbcode.ParserUtil;
 
 import javax.servlet.ServletRequest;
@@ -42,8 +43,6 @@ import java.util.Date;
 import java.util.List;
 
 public class Message implements Serializable {
-  private static final Log logger = LogFactory.getLog(Message.class);
-
   private final int msgid;
   private final int postscore;
   private final boolean votepoll;
