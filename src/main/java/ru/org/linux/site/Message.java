@@ -20,6 +20,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.jdbc.datasource.SingleConnectionDataSource;
@@ -447,6 +448,7 @@ public class Message implements Serializable {
 
   public boolean updateMessage(Connection db, User editor, List<String> newTags) throws SQLException {
     SingleConnectionDataSource scds = new SingleConnectionDataSource(db, true);
+    NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(scds);
 
     PreparedStatement pstGet = db.prepareStatement("SELECT message,title,linktext,url,minor FROM msgbase JOIN topics ON msgbase.id=topics.id WHERE topics.id=? FOR UPDATE");
 
@@ -473,8 +475,6 @@ public class Message implements Serializable {
     editInfo.setEditor(editor.getId());
 
     boolean modified = false;
-
-    SimpleJdbcTemplate jdbcTemplate = new SimpleJdbcTemplate(scds);
 
     if (!oldMessage.equals(message)) {
       editInfo.setOldmessage(oldMessage);
