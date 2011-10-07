@@ -3,10 +3,10 @@
     import="ru.org.linux.site.Message" %>
 <%@ page import="ru.org.linux.site.PreparedMessage" %>
 <%@ page import="ru.org.linux.spring.dao.TagDao" %>
-<%@ page import="ru.org.linux.util.HTMLFormatter" %>
 <%@ page import="java.util.SortedSet" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%--
   ~ Copyright 1998-2010 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -49,7 +49,6 @@
 </script>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 <%
-    Message newMsg = (Message) request.getAttribute("newMsg");
     PreparedMessage newPreparedMsg = (PreparedMessage) request.getAttribute("newPreparedMessage");
     SortedSet<String> topTags = (SortedSet<String>) request.getAttribute("topTags");
 %>
@@ -69,26 +68,21 @@
   <lor:message messageMenu="<%= null %>" preparedMessage="${newPreparedMessage}" message="${newMsg}" showMenu="false"/>
 </div>
 
-<form action="edit.jsp" name="edit" method="post" id="messageForm">
+<form:form modelAttribute="form" action="edit.jsp" name="edit" method="post" id="messageForm">
+  <form:errors cssClass="error" path="*" element="div"/>
+
   <input type="hidden" name="msgid" value="${message.id}">
   <c:if test="${editInfo!=null}">
     <input type="hidden" name="lastEdit" value="${editInfo.editdate.time}">
   </c:if>
 
   <c:if test="${not message.expired}">
-  <label>Заголовок:
-  <input type=text name=title class="required" size=40 value="<%= newMsg.getTitle()==null?"":HTMLFormatter.htmlSpecialChars(newMsg.getTitle()) %>" ></label><br>
-
-  <br>
-  <textarea name="newmsg" cols="70" rows="20"><c:out escapeXml="true" value="${newMsg.message}"/></textarea>
+  <label>Заголовок: <form:input path="title" cssClass="required" size="40"/></label><br><br>
+  <form:textarea path="msg" cols="70" rows="20"/>
   <br><br>
     <c:if test="${message.haveLink}">
-      <label>Текст ссылки:
-      <input type=text name=linktext size=60
-             value="<%= newMsg.getLinktext()==null?"":HTMLFormatter.htmlSpecialChars(newMsg.getLinktext()) %>"></label><br>
-      <label>Ссылка :
-      <input type=text name=url size=70
-             value="<%= newMsg.getUrl()==null?"":HTMLFormatter.htmlSpecialChars(newMsg.getUrl()) %>"></label><br>
+      <label>Текст ссылки: <form:input path="linktext" size="60"/></label><br>
+      <label>Ссылка : <form:input path="url" size="70"/></label><br>
     </c:if>
   </c:if>
 
@@ -126,5 +120,5 @@
     </label> <br>
     <input type=submit name=commit value="Подтвердить">
   </c:if>
-</form>
+</form:form>
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>

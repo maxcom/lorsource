@@ -18,18 +18,20 @@ package ru.org.linux.spring;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.ApplicationObjectSupport;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.validation.Errors;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.site.*;
 import ru.org.linux.spring.dao.GroupDao;
 import ru.org.linux.spring.dao.MessageDao;
 import ru.org.linux.spring.dao.TagDao;
+import ru.org.linux.spring.validators.EditMessageRequestValidator;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.util.HashMap;
@@ -59,8 +61,9 @@ public class EditController extends ApplicationObjectSupport {
   @RequestMapping(value = "/commit.jsp", method = RequestMethod.GET)
   public ModelAndView showCommitForm(
     HttpServletRequest request,
-    @RequestParam("msgid") int msgid)
-  throws Exception {
+    @RequestParam("msgid") int msgid,
+    @ModelAttribute("form") EditMessageRequest form
+  ) throws Exception {
     Template tmpl = Template.getTemplate(request);
 
     if (!tmpl.isModeratorSession()) {
@@ -79,7 +82,7 @@ public class EditController extends ApplicationObjectSupport {
       throw new UserErrorException("Раздел не премодерируемый");
     }
 
-    ModelAndView mv = prepareModel(preparedMessage);
+    ModelAndView mv = prepareModel(preparedMessage, form);
 
     mv.getModel().put("commit", true);
 
@@ -89,8 +92,9 @@ public class EditController extends ApplicationObjectSupport {
   @RequestMapping(value = "/edit.jsp", method = RequestMethod.GET)
   public ModelAndView showEditForm(
     ServletRequest request,
-    @RequestParam("msgid") int msgid)
-    throws Exception {
+    @RequestParam("msgid") int msgid,
+    @ModelAttribute("form") EditMessageRequest form
+  ) throws Exception {
 
     Template tmpl = Template.getTemplate(request);
 
@@ -108,11 +112,12 @@ public class EditController extends ApplicationObjectSupport {
       throw new AccessViolationException("это сообщение нельзя править");
     }
 
-    return prepareModel(preparedMessage);
+    return prepareModel(preparedMessage, form);
   }
 
   private ModelAndView prepareModel(
-    PreparedMessage preparedMessage
+    PreparedMessage preparedMessage,
+    EditMessageRequest form
   ) {
     Map<String, Object> params = new HashMap<String, Object>();
 
@@ -140,6 +145,14 @@ public class EditController extends ApplicationObjectSupport {
       params.put("topTags", tagDao.getTopTags());
     }
 
+    if (message.isHaveLink()) {
+      form.setLinktext(message.getLinktext());
+      form.setUrl(message.getUrl());
+    }
+
+    form.setTitle(message.getTitle());
+    form.setMsg(message.getMessage());
+
     return new ModelAndView("edit", params);
   }
 
@@ -150,7 +163,9 @@ public class EditController extends ApplicationObjectSupport {
     @RequestParam(value="lastEdit", required=false) Long lastEdit,
     @RequestParam(value="bonus", required=false, defaultValue="3") int bonus,
     @RequestParam(value="chgrp", required=false) Integer changeGroupId,
-    @RequestParam(value="minor", required=false) Boolean minor
+    @RequestParam(value="minor", required=false) Boolean minor,
+    @Valid @ModelAttribute("form") EditMessageRequest form,
+    Errors errors
   ) throws Exception {
     Template tmpl = Template.getTemplate(request);
 
@@ -199,8 +214,7 @@ public class EditController extends ApplicationObjectSupport {
       params.put("editInfo", dbEditInfo);
 
       if (lastEdit == null || dbEditInfo.getEditdate().getTime()!=lastEdit) {
-        params.put("info", "Сообщение было отредактировано независимо");
-        preview = true;
+        errors.reject(null, "Сообщение было отредактировано независимо");
       }
     }
 
@@ -215,7 +229,7 @@ public class EditController extends ApplicationObjectSupport {
 
     params.put("commit", !message.isCommited() && preparedMessage.getSection().isPremoderated() && user.canModerate());
 
-    Message newMsg = new Message(group, message, request);
+    Message newMsg = new Message(group, message, form);
 
     boolean modified = false;
 
@@ -281,7 +295,7 @@ public class EditController extends ApplicationObjectSupport {
       db = LorDataSource.getConnection();
       db.setAutoCommit(false);
 
-      if (!preview) {
+      if (!preview && !errors.hasErrors()) {
         PreparedStatement pst = db.prepareStatement("UPDATE topics SET linktext=?, url=?, minor=? WHERE id=?");
 
         pst.setString(1, newMsg.getLinktext());
@@ -324,7 +338,7 @@ public class EditController extends ApplicationObjectSupport {
 
           return new ModelAndView(new RedirectView(message.getLinkLastmod()));
         } else {
-          params.put("info", "nothing changed");
+          errors.reject(null, "Нет изменений");
         }
       }
 
@@ -342,4 +356,12 @@ public class EditController extends ApplicationObjectSupport {
   public void setCommitController(FeedPinger feedPinger) {
     this.feedPinger = feedPinger;
   }
+
+  @InitBinder("form")
+  public void requestValidator(WebDataBinder binder) {
+    binder.setValidator(new EditMessageRequestValidator());
+
+    binder.setBindingErrorProcessor(new ExceptionBindingErrorProcessor());
+  }
+
 }

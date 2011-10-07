@@ -25,15 +25,14 @@ import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 import org.springframework.validation.Errors;
 import ru.org.linux.spring.AddMessageRequest;
+import ru.org.linux.spring.EditMessageRequest;
 import ru.org.linux.spring.dao.TagDao;
 import ru.org.linux.spring.dao.UserDao;
 import ru.org.linux.util.HTMLFormatter;
 import ru.org.linux.util.StringUtil;
 import ru.org.linux.util.URLUtil;
-import ru.org.linux.util.UtilException;
 import ru.org.linux.util.bbcode.ParserUtil;
 
-import javax.servlet.ServletRequest;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -48,7 +47,7 @@ public class Message implements Serializable {
   private final boolean votepoll;
   private final boolean sticky;
   private final String linktext;
-  private String url;
+  private final String url;
   private final String title;
   private final int userid;
   private final int guid;
@@ -138,14 +137,13 @@ public class Message implements Serializable {
       linktext = null;
     }
 
-    url = form.getUrl();
-
     // url check
-    if (!group.isImagePostAllowed()) {
-      if (url != null && !"".equals(url)) {
-        url = URLUtil.fixURL(url);
-      }
+    if (!group.isImagePostAllowed() && !Strings.isNullOrEmpty(form.getUrl())) {
+      url = URLUtil.fixURL(form.getUrl());
+    } else {
+      url = null;
     }
+
     // Setting Message fields
     if (form.getTitle()!=null) {
       title = HTMLFormatter.htmlSpecialChars(form.getTitle());
@@ -180,46 +178,32 @@ public class Message implements Serializable {
     sectionCommentsRestriction = Section.getCommentPostscore(sectionid);
   }
 
-  public Message(Group group, Message original, ServletRequest request) throws UtilException, UserErrorException {
+  public Message(Group group, Message original, EditMessageRequest form) {
     userAgent = original.userAgent;
     postIP = original.postIP;
     guid = original.guid;
 
     groupCommentsRestriction = group.getCommentsRestriction();
 
-    if (request.getParameter("linktext") != null) {
-      linktext = request.getParameter("linktext");
+    if (form.getLinktext() != null && original.havelink) {
+      linktext = form.getLinktext();
     } else {
       linktext = original.linktext;
     }
 
-    if (request.getParameter("url") != null) {
-      url = request.getParameter("url");
+    if (form.getUrl() != null && original.havelink) {
+      url = URLUtil.fixURL(form.getUrl());
     } else {
       url = original.url;
     }
 
-    // url check
-    if (!group.isImagePostAllowed()) {
-      if (url != null && !"".equals(url)) {
-        if (linktext == null) {
-          throw new BadInputException("указан URL без текста");
-        }
-        url = URLUtil.checkAndFixURL(url);
-      }
-    }
-
-    if (request.getParameter("title") != null) {
-      title = HTMLFormatter.htmlSpecialChars(request.getParameter("title"));
+    if (form.getTitle() != null) {
+      title = HTMLFormatter.htmlSpecialChars(form.getTitle());
     } else {
       title = original.title;
     }
 
-    if (request.getParameter("resolve") != null) {
-      resolved = "yes".equals(request.getParameter("resolve"));
-    } else {
-      resolved = original.resolved;
-    }
+    resolved = original.resolved;
 
     havelink = original.havelink;
 
@@ -244,8 +228,8 @@ public class Message implements Serializable {
     lorcode = original.lorcode;
     minor = original.minor;
 
-    if (request.getParameter("newmsg") != null) {
-      message = request.getParameter("newmsg");
+    if (form.getMsg() != null) {
+      message = form.getMsg();
     } else {
       message = original.message;
     }

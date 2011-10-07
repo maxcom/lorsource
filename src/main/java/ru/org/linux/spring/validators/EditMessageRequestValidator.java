@@ -4,28 +4,21 @@ import com.google.common.base.Strings;
 import org.jdom.Verifier;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
-import ru.org.linux.site.BadPasswordException;
-import ru.org.linux.site.UserErrorException;
-import ru.org.linux.spring.AddMessageRequest;
-import ru.org.linux.spring.dao.TagDao;
+import ru.org.linux.spring.EditMessageRequest;
 import ru.org.linux.util.URLUtil;
 
-public class AddMessageRequestValidator implements Validator {
+public class EditMessageRequestValidator implements Validator {
   public static final int MAX_TITLE_LENGTH = 255;
   public static final int MAX_URL_LENGTH = 255;
 
   @Override
   public boolean supports(Class<?> clazz) {
-    return AddMessageRequest.class.equals(clazz);
+    return EditMessageRequest.class.equals(clazz);
   }
 
   @Override
   public void validate(Object target, Errors errors) {
-    AddMessageRequest form = (AddMessageRequest) target;
-
-    if (form.getGroup()==null) {
-      errors.rejectValue("group", null, "Группа не задана");
-    }
+    EditMessageRequest form = (EditMessageRequest) target;
 
     String title = form.getTitle();
 
@@ -58,15 +51,7 @@ public class AddMessageRequestValidator implements Validator {
       }
     }
 
-    if (form.getNick()!=null) {
-      try {
-        form.getNick().checkPassword(form.getPassword());
-      } catch (BadPasswordException e) {
-        errors.rejectValue("password", null, e.getMessage());
-        form.setNick(null);
-      }
-    }
-
+/*
     if (form.getTags()!=null) {
       try {
         TagDao.parseTags(form.getTags());
@@ -74,5 +59,6 @@ public class AddMessageRequestValidator implements Validator {
         errors.rejectValue("tags", null, ex.getMessage());
       }
     }
+*/
   }
 }
