@@ -49,7 +49,6 @@
 </script>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 <%
-    PreparedMessage newPreparedMsg = (PreparedMessage) request.getAttribute("newPreparedMessage");
     SortedSet<String> topTags = (SortedSet<String>) request.getAttribute("topTags");
 %>
 <c:if test="${info!=null}">
@@ -87,10 +86,9 @@
   </c:if>
 
   <c:if test="${group.moderated}">
-  <label>Теги:
-  <input type="text" size="70" name="tags" id="tags" value="<%= TagDao.toString(newPreparedMsg.getTags()) %>"><br>
-  Популярные теги: <%= TagDao.getEditTags(topTags) %></label> <br>
-    </c:if>
+    <label>Теги: <form:input path="tags" size="70"/><br>
+      Популярные теги: <%= TagDao.getEditTags(topTags) %></label> <br>
+  </c:if>
 
   <c:if test="${group.moderated and template.moderatorSession}">
     <label>Мини-новость: <form:checkbox path="minor"/></label><br>

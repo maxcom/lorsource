@@ -7,6 +7,7 @@ public class EditMessageRequest {
   private String msg;
   private Boolean minor;
   private int bonus = 3;
+  private String tags;
 
   public String getUrl() {
     return url;
@@ -54,5 +55,13 @@ public class EditMessageRequest {
 
   public void setBonus(int bonus) {
     this.bonus = bonus;
+  }
+
+  public String getTags() {
+    return tags;
+  }
+
+  public void setTags(String tags) {
+    this.tags = tags;
   }
 }

@@ -148,9 +148,13 @@ public final class TagDao {
 
   public static void checkTag(String tag) throws UserErrorException {
     // обработка тега: только буквы/цифры/пробелы, никаких спецсимволов, запятых, амперсандов и <>
-    if (!tagRE.matcher(tag).matches()) {
+    if (!isGoodTag(tag)) {
       throw new UserErrorException("Некорректный тег: '"+tag+ '\'');
     }
+  }
+
+  private static boolean isGoodTag(String tag) {
+    return tagRE.matcher(tag).matches();
   }
 
   public void updateCounters(final List<String> oldTags, final List<String> newTags) {
@@ -202,6 +206,37 @@ public final class TagDao {
       checkTag(tag);
 
       tagSet.add(tag);
+    }
+
+    return ImmutableList.copyOf(tagSet);
+  }
+
+  public static ImmutableList<String> parseSanitizeTags(String tags) {
+    if (tags==null) {
+      return ImmutableList.of();
+    }
+
+    Set<String> tagSet = new HashSet<String>();
+
+    // Теги разделяютчя пайпом или запятой
+    tags = tags.replaceAll("\\|",",");
+    String [] tagsArr = tags.split(",");
+
+    if (tagsArr.length==0) {
+      return ImmutableList.of();
+    }
+
+    for (String aTagsArr : tagsArr) {
+      String tag = StringUtils.stripToNull(aTagsArr.toLowerCase());
+      // плохой тег - выбрасываем
+      if (tag == null) {
+        continue;
+      }
+
+      // обработка тега: только буквы/цифры/пробелы, никаких спецсимволов, запятых, амперсандов и <>
+      if (isGoodTag(tag)) {
+        tagSet.add(tag);
+      }
     }
 
     return ImmutableList.copyOf(tagSet);

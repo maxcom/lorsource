@@ -154,6 +154,10 @@ public class EditController {
       form.setMinor(message.isMinor());
     }
 
+    if (!preparedMessage.getTags().isEmpty()) {
+      form.setTags(TagDao.toString(preparedMessage.getTags()));
+    }
+
     return new ModelAndView("edit", params);
   }
 
@@ -268,8 +272,8 @@ public class EditController {
 
     List<String> newTags = null;
 
-    if (request.getParameter("tags")!=null) {
-      newTags = TagDao.parseTags(request.getParameter("tags"));
+    if (form.getTags()!=null) {
+      newTags = TagDao.parseSanitizeTags(form.getTags());
     }
 
     if (changeGroupId != null) {
