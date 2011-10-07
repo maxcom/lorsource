@@ -328,9 +328,9 @@ public class EditController extends ApplicationObjectSupport {
             logger.info("сообщение " + message.getId() + " исправлено " + user.getNick());
           }
 
-          searchQueueSender.updateMessageOnly(newMsg.getId());
-
           db.commit();
+
+          searchQueueSender.updateMessageOnly(newMsg.getId());
 
           if (commit) {
             feedPinger.pingFeedburner();
