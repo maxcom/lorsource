@@ -4,7 +4,6 @@
 <%@ page import="ru.org.linux.site.Template"%>
 <%@ page import="ru.org.linux.site.UserErrorException"%>
 <%@ page import="ru.org.linux.util.HTMLFormatter"%>
-<%@ page import="ru.org.linux.util.ServletParameterException"%>
 <%@ page import="javax.mail.Session"%>
 <%@ page import="javax.mail.Transport"%>
 <%@ page import="javax.mail.internet.InternetAddress"%>
@@ -13,7 +12,7 @@
 <%@ page import="java.io.StringWriter"%>
 <%@ page import="java.util.Date"%>
 <%@ page import="java.util.Enumeration"%>
-<%@ page import="java.util.Properties" %>
+<%@ page import="java.util.Properties"%>
 <%--
   ~ Copyright 1998-2010 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -43,7 +42,7 @@
 <h1><%=exception.getMessage()==null?HTMLFormatter.htmlSpecialChars(exception.getClass().getName()):HTMLFormatter.htmlSpecialChars(exception.getMessage()) %></h1>
 
 <% if (exception instanceof UserErrorException) { %>
-<% } else if (exception instanceof ScriptErrorException || exception instanceof ServletParameterException) { %>
+<% } else if (exception instanceof ScriptErrorException) { %>
 Скрипту, генерирующему страничку были переданы некорректные
 параметры. Если на эту страничку вас привела одна из
 страниц нашего сайта, пожалуйста сообщите нам адреса текущей и ссылающейся страниц.
