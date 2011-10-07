@@ -10,6 +10,7 @@ import ru.org.linux.util.URLUtil;
 public class EditMessageRequestValidator implements Validator {
   public static final int MAX_TITLE_LENGTH = 255;
   public static final int MAX_URL_LENGTH = 255;
+  private static final int MAX_COMMIT_BONUS = 20;
 
   @Override
   public boolean supports(Class<?> clazz) {
@@ -49,6 +50,10 @@ public class EditMessageRequestValidator implements Validator {
       if (form.getLinktext()==null || form.getLinktext().isEmpty()) {
         errors.rejectValue("linktext", null, "URL указан без текста ссылки");
       }
+    }
+
+    if (form.getBonus()<0 || form.getBonus()>MAX_COMMIT_BONUS) {
+      errors.rejectValue("bonus", null, "Некорректное значение bonus");
     }
 
 /*

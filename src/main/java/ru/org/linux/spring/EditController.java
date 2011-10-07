@@ -162,7 +162,6 @@ public class EditController {
     HttpServletRequest request,
     @RequestParam("msgid") int msgid,
     @RequestParam(value="lastEdit", required=false) Long lastEdit,
-    @RequestParam(value="bonus", required=false, defaultValue="3") int bonus,
     @RequestParam(value="chgrp", required=false) Integer changeGroupId,
     @Valid @ModelAttribute("form") EditMessageRequest form,
     Errors errors
@@ -286,7 +285,7 @@ public class EditController {
     }
 
     if (!preview && !errors.hasErrors()) {
-      boolean changed = messageDao.updateAndCommit(newMsg, message, user, newTags, commit, changeGroupId, bonus);
+      boolean changed = messageDao.updateAndCommit(newMsg, message, user, newTags, commit, changeGroupId, form.getBonus());
 
       if (changed || commit) {
         searchQueueSender.updateMessageOnly(newMsg.getId());

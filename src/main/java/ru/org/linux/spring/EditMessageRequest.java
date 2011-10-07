@@ -6,6 +6,7 @@ public class EditMessageRequest {
   private String title;
   private String msg;
   private Boolean minor;
+  private int bonus = 3;
 
   public String getUrl() {
     return url;
@@ -45,5 +46,13 @@ public class EditMessageRequest {
 
   public void setMinor(Boolean minor) {
     this.minor = minor;
+  }
+
+  public int getBonus() {
+    return bonus;
+  }
+
+  public void setBonus(int bonus) {
+    this.bonus = bonus;
   }
 }

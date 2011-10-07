@@ -114,8 +114,7 @@
         </c:if>
       </c:forEach>
     </select></label><br>
-    <label>Bonus score (от 0 до 20):
-    <input type=text name=bonus size=40 value="3"></label><br>
+    <label>Bonus score (от 0 до 20): <form:input path="bonus" size="40"/></label><br>
     <input type=submit name=commit value="Подтвердить">
   </c:if>
 </form:form>
