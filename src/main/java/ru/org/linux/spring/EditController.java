@@ -294,7 +294,7 @@ public class EditController extends ApplicationObjectSupport {
       db.setAutoCommit(false);
 
       if (!preview && !errors.hasErrors()) {
-        if (newMsg.updateMessage(db, user, newTags)) {
+        if (MessageDao.updateMessage(db, newMsg, user, newTags)) {
           modified = true;
         }
 

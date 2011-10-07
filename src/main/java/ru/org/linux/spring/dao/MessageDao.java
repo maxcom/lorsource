@@ -1,12 +1,18 @@
 package ru.org.linux.spring.dao;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.*;
+import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
+import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -299,5 +305,111 @@ public class MessageDao {
     }
 
     return msgid;
+  }
+
+  public static boolean updateMessage(Connection db, Message msg, User editor, List<String> newTags) throws SQLException {
+    SingleConnectionDataSource scds = new SingleConnectionDataSource(db, true);
+    NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(scds);
+
+    PreparedStatement pstGet = db.prepareStatement("SELECT message,title,linktext,url,minor FROM msgbase JOIN topics ON msgbase.id=topics.id WHERE topics.id=? FOR UPDATE");
+
+    pstGet.setInt(1, msg.getId());
+    ResultSet rs = pstGet.executeQuery();
+    if (!rs.next()) {
+      throw new RuntimeException("Can't fetch previous message text");
+    }
+
+    String oldMessage = rs.getString("message");
+    String oldTitle = rs.getString("title");
+    String oldLinkText = rs.getString("linktext");
+    String oldURL = rs.getString("url");
+    boolean oldMinor = rs.getBoolean("minor");
+
+    rs.close();
+    pstGet.close();
+
+    List<String> oldTags = TagDao.getMessageTags(db, msg.getId());
+
+    EditInfoDTO editInfo = new EditInfoDTO();
+
+    editInfo.setMsgid(msg.getId());
+    editInfo.setEditor(editor.getId());
+
+    boolean modified = false;
+
+    if (!oldMessage.equals(msg.getMessage())) {
+      editInfo.setOldmessage(oldMessage);
+      modified = true;
+
+      jdbcTemplate.update(
+        "UPDATE msgbase SET message=:message WHERE id=:msgid",
+        ImmutableMap.of("message", msg.getMessage(), "msgid", msg.getId())
+      );
+    }
+
+    if (!oldTitle.equals(msg.getTitle())) {
+      modified = true;
+      editInfo.setOldtitle(oldTitle);
+
+      jdbcTemplate.update(
+        "UPDATE topics SET title=:title WHERE id=:id",
+        ImmutableMap.of("title", msg.getTitle(), "id", msg.getId())
+      );
+    }
+
+    if (!equalStrings(oldLinkText, msg.getLinktext())) {
+      modified = true;
+      editInfo.setOldlinktext(oldLinkText);
+
+      jdbcTemplate.update(
+        "UPDATE topics SET linktext=:linktext WHERE id=:id",
+        ImmutableMap.of("linktext", msg.getLinktext(), "id", msg.getId())
+      );
+    }
+
+    if (!equalStrings(oldURL, msg.getUrl())) {
+      modified = true;
+      editInfo.setOldurl(oldURL);
+
+      jdbcTemplate.update(
+        "UPDATE topics SET url=:url WHERE id=:id",
+        ImmutableMap.of("url", msg.getUrl(), "id", msg.getId())
+      );
+    }
+
+    if (newTags != null) {
+      boolean modifiedTags = TagDao.updateTags(db, msg.getId(), newTags);
+
+      if (modifiedTags) {
+        editInfo.setOldtags(TagDao.toString(oldTags));
+        TagDao.updateCounters(db, oldTags, newTags);
+        modified = true;
+      }
+    }
+
+    if (oldMinor != msg.isMinor()) {
+      jdbcTemplate.update("UPDATE topics SET minor=:minor WHERE id=:id",
+              ImmutableMap.of("minor", msg.isMinor(), "id", msg.getId()));
+      modified = true;
+    }
+
+    if (modified) {
+      SimpleJdbcInsert insert =
+        new SimpleJdbcInsert(scds)
+          .withTableName("edit_info")
+          .usingColumns("msgid", "editor", "oldmessage", "oldtitle", "oldtags", "oldlinktext", "oldurl");
+
+      insert.execute(new BeanPropertySqlParameterSource(editInfo));
+    }
+
+    return modified;
+  }
+
+  private static boolean equalStrings(String s1, String s2) {
+    if (Strings.isNullOrEmpty(s1)) {
+      return Strings.isNullOrEmpty(s2);
+    }
+
+    return s1.equals(s2);
   }
 }

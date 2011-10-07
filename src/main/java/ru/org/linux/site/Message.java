@@ -17,17 +17,12 @@ package ru.org.linux.site;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
-import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 import org.springframework.validation.Errors;
 import ru.org.linux.spring.AddMessageRequest;
 import ru.org.linux.spring.EditMessageRequest;
-import ru.org.linux.spring.dao.TagDao;
 import ru.org.linux.spring.dao.UserDao;
 import ru.org.linux.util.HTMLFormatter;
 import ru.org.linux.util.StringUtil;
@@ -444,111 +439,6 @@ public class Message implements Serializable {
 
   public boolean isSticky() {
     return sticky;
-  }
-
-  public boolean updateMessage(Connection db, User editor, List<String> newTags) throws SQLException {
-    SingleConnectionDataSource scds = new SingleConnectionDataSource(db, true);
-    NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(scds);
-
-    PreparedStatement pstGet = db.prepareStatement("SELECT message,title,linktext,url,minor FROM msgbase JOIN topics ON msgbase.id=topics.id WHERE topics.id=? FOR UPDATE");
-
-    pstGet.setInt(1, msgid);
-    ResultSet rs = pstGet.executeQuery();
-    if (!rs.next()) {
-      throw new RuntimeException("Can't fetch previous message text");
-    }
-
-    String oldMessage = rs.getString("message");
-    String oldTitle = rs.getString("title");
-    String oldLinkText = rs.getString("linktext");
-    String oldURL = rs.getString("url");
-    boolean oldMinor = rs.getBoolean("minor");
-
-    rs.close();
-    pstGet.close();
-
-    List<String> oldTags = TagDao.getMessageTags(db, msgid);
-
-    EditInfoDTO editInfo = new EditInfoDTO();
-
-    editInfo.setMsgid(msgid);
-    editInfo.setEditor(editor.getId());
-
-    boolean modified = false;
-
-    if (!oldMessage.equals(message)) {
-      editInfo.setOldmessage(oldMessage);
-      modified = true;
-
-      jdbcTemplate.update(
-        "UPDATE msgbase SET message=:message WHERE id=:msgid",
-        ImmutableMap.of("message", message, "msgid", msgid)
-      );
-    }
-
-    if (!oldTitle.equals(title)) {
-      modified = true;
-      editInfo.setOldtitle(oldTitle);
-
-      jdbcTemplate.update(
-        "UPDATE topics SET title=:title WHERE id=:id",
-        ImmutableMap.of("title", title, "id", msgid)
-      );
-    }
-
-    if (!equalStrings(oldLinkText, linktext)) {
-      modified = true;
-      editInfo.setOldlinktext(oldLinkText);
-
-      jdbcTemplate.update(
-        "UPDATE topics SET linktext=:linktext WHERE id=:id",
-        ImmutableMap.of("linktext", linktext, "id", msgid)
-      );
-    }
-
-    if (!equalStrings(oldURL, url)) {
-      modified = true;
-      editInfo.setOldurl(oldURL);
-
-      jdbcTemplate.update(
-        "UPDATE topics SET url=:url WHERE id=:id",
-        ImmutableMap.of("url", url, "id", msgid)
-      );
-    }
-
-    if (newTags != null) {
-      boolean modifiedTags = TagDao.updateTags(db, msgid, newTags);
-
-      if (modifiedTags) {
-        editInfo.setOldtags(TagDao.toString(oldTags));
-        TagDao.updateCounters(db, oldTags, newTags);
-        modified = true;
-      }
-    }
-
-    if (oldMinor != minor) {
-      jdbcTemplate.update("UPDATE topics SET minor=:minor WHERE id=:id", ImmutableMap.of("minor", minor, "id", msgid));
-      modified = true;
-    }
-
-    if (modified) {
-      SimpleJdbcInsert insert =
-        new SimpleJdbcInsert(scds)
-          .withTableName("edit_info")
-          .usingColumns("msgid", "editor", "oldmessage", "oldtitle", "oldtags", "oldlinktext", "oldurl");
-
-      insert.execute(new BeanPropertySqlParameterSource(editInfo));
-    }
-
-    return modified;
-  }
-
-  private static boolean equalStrings(String s1, String s2) {
-    if (Strings.isNullOrEmpty(s1)) {
-      return Strings.isNullOrEmpty(s2);
-    }
-
-    return s1.equals(s2);
   }
 
   public String getUrl() {
