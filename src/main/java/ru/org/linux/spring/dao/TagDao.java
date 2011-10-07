@@ -19,6 +19,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.ConnectionCallback;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.stereotype.Repository;
@@ -70,6 +72,15 @@ public final class TagDao {
     st2.close();
 
     return id;
+  }
+
+  public ImmutableList<String> getMessageTags(final int msgid) {
+    return jdbcTemplate.execute(new ConnectionCallback<ImmutableList<String>>() {
+      @Override
+      public ImmutableList<String> doInConnection(Connection con) throws SQLException, DataAccessException {
+        return getMessageTags(con, msgid);
+      }
+    });
   }
 
   @Deprecated
@@ -142,25 +153,31 @@ public final class TagDao {
     }
   }
 
-  public static void updateCounters(Connection con, List<String> oldTags, List<String> newTags) throws SQLException {
-    PreparedStatement stInc = con.prepareStatement("UPDATE tags_values SET counter=counter+1 WHERE id=?");
-    PreparedStatement stDec = con.prepareStatement("UPDATE tags_values SET counter=counter-1 WHERE id=?");
+  public void updateCounters(final List<String> oldTags, final List<String> newTags) {
+    jdbcTemplate.execute(new ConnectionCallback<String>() {
+      @Override
+      public String doInConnection(Connection con) throws SQLException, DataAccessException {
+        PreparedStatement stInc = con.prepareStatement("UPDATE tags_values SET counter=counter+1 WHERE id=?");
+        PreparedStatement stDec = con.prepareStatement("UPDATE tags_values SET counter=counter-1 WHERE id=?");
 
-    for (String tag : newTags) {
-      if (!oldTags.contains(tag)) {
-        int id = getOrCreateTag(con, tag);
-        stInc.setInt(1, id);
-        stInc.executeUpdate();
-      }
-    }
+        for (String tag : newTags) {
+          if (!oldTags.contains(tag)) {
+            int id = getOrCreateTag(con, tag);
+            stInc.setInt(1, id);
+            stInc.executeUpdate();
+          }
+        }
 
-    for (String tag : oldTags) {
-      if (!newTags.contains(tag)) {
-        int id = getOrCreateTag(con, tag);
-        stDec.setInt(1, id);
-        stDec.executeUpdate();
+        for (String tag : oldTags) {
+          if (!newTags.contains(tag)) {
+            int id = getOrCreateTag(con, tag);
+            stDec.setInt(1, id);
+            stDec.executeUpdate();
+          }
+        }
+        return null;
       }
-    }
+    });
   }
 
   public static ImmutableList<String> parseTags(String tags) throws UserErrorException {
@@ -208,39 +225,44 @@ public final class TagDao {
     return out.toString();
   }
 
-  public static boolean updateTags(Connection con, int msgid, List<String> tagList) throws SQLException {
-    List<String> oldTags = getMessageTags(con, msgid);
+  public boolean updateTags(final int msgid, final List<String> tagList) {
+    return jdbcTemplate.execute(new ConnectionCallback<Boolean>() {
+      @Override
+      public Boolean doInConnection(Connection con) throws SQLException, DataAccessException {
+        List<String> oldTags = getMessageTags(con, msgid);
 
-    PreparedStatement insertStatement = con.prepareStatement("INSERT INTO tags VALUES(?,?)");
-    PreparedStatement deleteStatement = con.prepareStatement("DELETE FROM tags WHERE msgid=? and tagid=?");
+        PreparedStatement insertStatement = con.prepareStatement("INSERT INTO tags VALUES(?,?)");
+        PreparedStatement deleteStatement = con.prepareStatement("DELETE FROM tags WHERE msgid=? and tagid=?");
 
-    insertStatement.setInt(1, msgid);
-    deleteStatement.setInt(1, msgid);
+        insertStatement.setInt(1, msgid);
+        deleteStatement.setInt(1, msgid);
 
-    boolean modified = false;
-    for (String tag : tagList) {
-      if (!oldTags.contains(tag)) {
-        int id = getOrCreateTag(con, tag);
+        boolean modified = false;
+        for (String tag : tagList) {
+          if (!oldTags.contains(tag)) {
+            int id = getOrCreateTag(con, tag);
 
-        insertStatement.setInt(2, id);
-        insertStatement.executeUpdate();
-        modified = true;
+            insertStatement.setInt(2, id);
+            insertStatement.executeUpdate();
+            modified = true;
+          }
+        }
+
+        for (String tag : oldTags) {
+          if (!tagList.contains(tag)) {
+            int id = getOrCreateTag(con, tag);
+
+            deleteStatement.setInt(2, id);
+            deleteStatement.executeUpdate();
+            modified = true;
+          }
+        }
+
+        insertStatement.close();
+        deleteStatement.close();
+
+        return modified;
       }
-    }
-
-    for (String tag : oldTags) {
-      if (!tagList.contains(tag)) {
-        int id = getOrCreateTag(con, tag);
-
-        deleteStatement.setInt(2, id);
-        deleteStatement.executeUpdate();
-        modified = true;
-      }
-    }
-
-    insertStatement.close();
-    deleteStatement.close();
-
-    return modified;
+    });
   }
 }

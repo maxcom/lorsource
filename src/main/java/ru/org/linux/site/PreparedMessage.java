@@ -54,11 +54,6 @@ public final class PreparedMessage {
     this(db, message, TagDao.getMessageTags(db, message.getId()), includeCut, mainUrl);
   }
 
-  @Deprecated
-  public PreparedMessage(Connection db, Message message, List<String> tags) throws SQLException {
-    this(db, message, tags, true, "");
-  }
-
   public PreparedMessage(Message message, User author, DeleteInfo deleteInfo, User deleteUser, String processedMessage,
                           PreparedPoll poll, User commiter, List<String> tags, Group group, Section section,
                           EditInfoDTO lastEditInfo, User lastEditor, int editorCount, String userAgent) {
@@ -78,7 +73,7 @@ public final class PreparedMessage {
     this.section = section;
     this.lastEditInfo = lastEditInfo;
     this.lastEditor = lastEditor;
-    this.editCount = editorCount;
+    editCount = editorCount;
     this.userAgent = userAgent;
   }
 

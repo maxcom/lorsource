@@ -12,7 +12,6 @@ import org.springframework.jdbc.core.*;
 import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
-import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,6 +38,9 @@ public class MessageDao {
 
   @Autowired
   private PollDao pollDao;
+
+  @Autowired
+  private TagDao tagDao;
 
   /**
    * Запрос получения полной информации о топике
@@ -78,13 +80,20 @@ public class MessageDao {
   public static final String queryTimeFirstTopic = "SELECT min(postdate) FROM topics WHERE postdate!='epoch'::timestamp";
 
   private JdbcTemplate jdbcTemplate;
+  private NamedParameterJdbcTemplate namedJdbcTemplate;
+  private SimpleJdbcInsert editInsert;
 
   @Autowired
   private UserDao userDao;
 
   @Autowired
-  public void setJdbcTemplate(DataSource dataSource) {
+  public void setDataSource(DataSource dataSource) {
     jdbcTemplate = new JdbcTemplate(dataSource);
+    namedJdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+    editInsert =
+      new SimpleJdbcInsert(dataSource)
+        .withTableName("edit_info")
+        .usingColumns("msgid", "editor", "oldmessage", "oldtitle", "oldtags", "oldlinktext", "oldurl");
   }
 
   /**
@@ -293,42 +302,15 @@ public class MessageDao {
     if (form.getTags() != null) {
       final List<String> tags = TagDao.parseTags(form.getTags());
 
-      jdbcTemplate.execute(new ConnectionCallback<String>() {
-        @Override
-        public String doInConnection(Connection db) throws SQLException, DataAccessException {
-          TagDao.updateTags(db, msgid, tags);
-          TagDao.updateCounters(db, Collections.<String>emptyList(), tags);
-
-          return null;
-        }
-      });
+      tagDao.updateTags(msgid, tags);
+      tagDao.updateCounters(Collections.<String>emptyList(), tags);
     }
 
     return msgid;
   }
 
-  public static boolean updateMessage(Connection db, Message msg, User editor, List<String> newTags) throws SQLException {
-    SingleConnectionDataSource scds = new SingleConnectionDataSource(db, true);
-    NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(scds);
-
-    PreparedStatement pstGet = db.prepareStatement("SELECT message,title,linktext,url,minor FROM msgbase JOIN topics ON msgbase.id=topics.id WHERE topics.id=? FOR UPDATE");
-
-    pstGet.setInt(1, msg.getId());
-    ResultSet rs = pstGet.executeQuery();
-    if (!rs.next()) {
-      throw new RuntimeException("Can't fetch previous message text");
-    }
-
-    String oldMessage = rs.getString("message");
-    String oldTitle = rs.getString("title");
-    String oldLinkText = rs.getString("linktext");
-    String oldURL = rs.getString("url");
-    boolean oldMinor = rs.getBoolean("minor");
-
-    rs.close();
-    pstGet.close();
-
-    List<String> oldTags = TagDao.getMessageTags(db, msg.getId());
+  private boolean updateMessage(Message oldMsg, Message msg, User editor, List<String> newTags) {
+    List<String> oldTags = tagDao.getMessageTags(msg.getId());
 
     EditInfoDTO editInfo = new EditInfoDTO();
 
@@ -337,69 +319,64 @@ public class MessageDao {
 
     boolean modified = false;
 
-    if (!oldMessage.equals(msg.getMessage())) {
-      editInfo.setOldmessage(oldMessage);
+    if (!oldMsg.getMessage().equals(msg.getMessage())) {
+      editInfo.setOldmessage(oldMsg.getMessage());
       modified = true;
 
-      jdbcTemplate.update(
+      namedJdbcTemplate.update(
         "UPDATE msgbase SET message=:message WHERE id=:msgid",
         ImmutableMap.of("message", msg.getMessage(), "msgid", msg.getId())
       );
     }
 
-    if (!oldTitle.equals(msg.getTitle())) {
+    if (!oldMsg.getTitle().equals(msg.getTitle())) {
       modified = true;
-      editInfo.setOldtitle(oldTitle);
+      editInfo.setOldtitle(oldMsg.getTitle());
 
-      jdbcTemplate.update(
+      namedJdbcTemplate.update(
         "UPDATE topics SET title=:title WHERE id=:id",
         ImmutableMap.of("title", msg.getTitle(), "id", msg.getId())
       );
     }
 
-    if (!equalStrings(oldLinkText, msg.getLinktext())) {
+    if (!equalStrings(oldMsg.getLinktext(), msg.getLinktext())) {
       modified = true;
-      editInfo.setOldlinktext(oldLinkText);
+      editInfo.setOldlinktext(oldMsg.getLinktext());
 
-      jdbcTemplate.update(
+      namedJdbcTemplate.update(
         "UPDATE topics SET linktext=:linktext WHERE id=:id",
         ImmutableMap.of("linktext", msg.getLinktext(), "id", msg.getId())
       );
     }
 
-    if (!equalStrings(oldURL, msg.getUrl())) {
+    if (!equalStrings(oldMsg.getUrl(), msg.getUrl())) {
       modified = true;
-      editInfo.setOldurl(oldURL);
+      editInfo.setOldurl(oldMsg.getUrl());
 
-      jdbcTemplate.update(
+      namedJdbcTemplate.update(
         "UPDATE topics SET url=:url WHERE id=:id",
         ImmutableMap.of("url", msg.getUrl(), "id", msg.getId())
       );
     }
 
     if (newTags != null) {
-      boolean modifiedTags = TagDao.updateTags(db, msg.getId(), newTags);
+      boolean modifiedTags = tagDao.updateTags(msg.getId(), newTags);
 
       if (modifiedTags) {
         editInfo.setOldtags(TagDao.toString(oldTags));
-        TagDao.updateCounters(db, oldTags, newTags);
+        tagDao.updateCounters(oldTags, newTags);
         modified = true;
       }
     }
 
-    if (oldMinor != msg.isMinor()) {
-      jdbcTemplate.update("UPDATE topics SET minor=:minor WHERE id=:id",
+    if (oldMsg.isMinor() != msg.isMinor()) {
+      namedJdbcTemplate.update("UPDATE topics SET minor=:minor WHERE id=:id",
               ImmutableMap.of("minor", msg.isMinor(), "id", msg.getId()));
       modified = true;
     }
 
     if (modified) {
-      SimpleJdbcInsert insert =
-        new SimpleJdbcInsert(scds)
-          .withTableName("edit_info")
-          .usingColumns("msgid", "editor", "oldmessage", "oldtitle", "oldtags", "oldlinktext", "oldurl");
-
-      insert.execute(new BeanPropertySqlParameterSource(editInfo));
+      editInsert.execute(new BeanPropertySqlParameterSource(editInfo));
     }
 
     return modified;
@@ -411,5 +388,56 @@ public class MessageDao {
     }
 
     return s1.equals(s2);
+  }
+
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
+  public boolean updateAndCommit(
+          Message newMsg,
+          Message message,
+          User user,
+          List<String> newTags,
+          boolean commit,
+          Integer changeGroupId,
+          int bonus
+  )  {
+    boolean modified = updateMessage(message, newMsg, user, newTags);
+
+    if (commit) {
+      if (changeGroupId != null) {
+        if (message.getGroupId() != changeGroupId) {
+          jdbcTemplate.update("UPDATE topics SET groupid=? WHERE id=?", changeGroupId, message.getId());
+          jdbcTemplate.update("UPDATE groups SET stat4=stat4+1 WHERE id=? or id=?", message.getGroupId(), changeGroupId);
+        }
+      }
+
+      commit(message, user, bonus);
+    }
+
+    if (modified) {
+      logger.info("сообщение " + message.getId() + " исправлено " + user.getNick());
+    }
+
+    return modified;
+  }
+
+  private void commit(Message msg, User commiter, int bonus) {
+    if (bonus < 0 || bonus > 20) {
+      throw new IllegalStateException("Неверное значение bonus");
+    }
+
+    jdbcTemplate.update(
+            "UPDATE topics SET moderate='t', commitby=?, commitdate='now' WHERE id=?",
+            commiter.getId(),
+            msg.getId()
+    );
+
+    User author;
+    try {
+      author = userDao.getUser(msg.getUid());
+    } catch (UserNotFoundException e) {
+      throw new RuntimeException(e);
+    }
+
+    userDao.changeScore(author.getId(), bonus);
   }
 }

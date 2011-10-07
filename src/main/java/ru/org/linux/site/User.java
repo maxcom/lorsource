@@ -402,22 +402,6 @@ public class User implements Serializable {
       throw new RuntimeException(e);
     }
   }
-  @Deprecated
-  public void changeScore(Connection db, int delta) throws SQLException {
-    PreparedStatement st = null;
-    try {
-      st = db.prepareStatement("UPDATE users SET score=score+? WHERE id=?");
-      st.setInt(1, delta);
-      st.setInt(2, id);
-      st.executeUpdate();
-
-      updateCache(db);
-    } finally {
-      if (st!=null) {
-        st.close();
-      }
-    }
-  }
 
   public boolean isCorrector() {
     return corrector;
@@ -517,14 +501,16 @@ public class User implements Serializable {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     User user = (User) o;
 
-    if (id != user.id) return false;
-
-    return true;
+    return id == user.id;
   }
 
   @Override

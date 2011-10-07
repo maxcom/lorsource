@@ -16,7 +16,6 @@
 package ru.org.linux.spring;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.support.ApplicationObjectSupport;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.WebDataBinder;
@@ -32,13 +31,12 @@ import ru.org.linux.spring.validators.EditMessageRequestValidator;
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.sql.Connection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @Controller
-public class EditController extends ApplicationObjectSupport {
+public class EditController {
   @Autowired
   private SearchQueueSender searchQueueSender;
 
@@ -287,57 +285,26 @@ public class EditController extends ApplicationObjectSupport {
       }
     }
 
-    Connection db = null;
+    if (!preview && !errors.hasErrors()) {
+      boolean changed = messageDao.updateAndCommit(newMsg, message, user, newTags, commit, changeGroupId, bonus);
 
-    try {
-      db = LorDataSource.getConnection();
-      db.setAutoCommit(false);
-
-      if (!preview && !errors.hasErrors()) {
-        if (MessageDao.updateMessage(db, newMsg, user, newTags)) {
-          modified = true;
-        }
-
-        params.put("modified", modified);
+      if (changed || commit) {
+        searchQueueSender.updateMessageOnly(newMsg.getId());
 
         if (commit) {
-          if (changeGroupId != null) {
-            if (message.getGroupId() != changeGroupId) {
-              message.changeGroup(db, changeGroupId);
-            }
-          }
-
-          message.commit(db, user, bonus);
+          feedPinger.pingFeedburner();
         }
 
-        if (modified || commit) {
-          if (modified) {
-            logger.info("сообщение " + message.getId() + " исправлено " + user.getNick());
-          }
-
-          db.commit();
-
-          searchQueueSender.updateMessageOnly(newMsg.getId());
-
-          if (commit) {
-            feedPinger.pingFeedburner();
-          }
-
-          return new ModelAndView(new RedirectView(message.getLinkLastmod()));
-        } else {
-          errors.reject(null, "Нет изменений");
-        }
-      }
-
-      params.put("newMsg", newMsg);
-      params.put("newPreparedMessage", new PreparedMessage(db, newMsg, newTags));
-
-      return new ModelAndView("edit", params);
-    } finally {
-      if (db != null) {
-        db.close();
+        return new ModelAndView(new RedirectView(message.getLinkLastmod()));
+      } else {
+        errors.reject(null, "Нет изменений");
       }
     }
+
+    params.put("newMsg", newMsg);
+    params.put("newPreparedMessage", prepareService.prepareMessage(newMsg, newTags));
+
+    return new ModelAndView("edit", params);
   }
 
   public void setCommitController(FeedPinger feedPinger) {

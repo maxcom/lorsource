@@ -650,41 +650,6 @@ public class Message implements Serializable {
     }
   }
 
-  public void commit(Connection db, User commiter, int bonus) throws SQLException, UserErrorException {
-    if (bonus < 0 || bonus > 20) {
-      throw new UserErrorException("Неверное значение bonus");
-    }
-
-    PreparedStatement pst = null;
-    try {
-      pst = db.prepareStatement("UPDATE topics SET moderate='t', commitby=?, commitdate='now' WHERE id=?");
-      pst.setInt(2, msgid);
-      pst.setInt(1, commiter.getId());
-      pst.executeUpdate();
-
-      User author;
-      try {
-        author = User.getUser(db, userid);
-      } catch (UserNotFoundException e) {
-        throw new RuntimeException(e);
-      }
-
-      author.changeScore(db, bonus);
-    } finally {
-      if (pst != null) {
-        pst.close();
-      }
-    }
-  }
-
-  public void changeGroup(Connection db, int changeGroupId) throws SQLException {
-    Statement st = db.createStatement();
-    st.executeUpdate("UPDATE topics SET groupid=" + changeGroupId + " WHERE id=" + msgid);
-    /* to recalc counters */
-    st.executeUpdate("UPDATE groups SET stat4=stat4+1 WHERE id=" + guid + " or id=" + changeGroupId);
-    st.close();
-  }
-
   public boolean isMinor() {
     return minor;
   }
