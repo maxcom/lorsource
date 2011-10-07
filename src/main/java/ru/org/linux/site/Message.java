@@ -226,7 +226,12 @@ public class Message implements Serializable {
     notop = original.notop;
     userid = original.userid;
     lorcode = original.lorcode;
-    minor = original.minor;
+
+    if (form.getMinor()!=null && sectionid==Section.SECTION_NEWS) {
+      minor = form.getMinor();
+    } else {
+      minor = original.minor;
+    }
 
     if (form.getMsg() != null) {
       message = form.getMsg();
@@ -440,10 +445,10 @@ public class Message implements Serializable {
     return sticky;
   }
 
-  public boolean updateMessageText(Connection db, User editor, List<String> newTags) throws SQLException {
+  public boolean updateMessage(Connection db, User editor, List<String> newTags) throws SQLException {
     SingleConnectionDataSource scds = new SingleConnectionDataSource(db, true);
 
-    PreparedStatement pstGet = db.prepareStatement("SELECT message,title,linktext,url FROM msgbase JOIN topics ON msgbase.id=topics.id WHERE topics.id=? FOR UPDATE");
+    PreparedStatement pstGet = db.prepareStatement("SELECT message,title,linktext,url,minor FROM msgbase JOIN topics ON msgbase.id=topics.id WHERE topics.id=? FOR UPDATE");
 
     pstGet.setInt(1, msgid);
     ResultSet rs = pstGet.executeQuery();
@@ -455,6 +460,7 @@ public class Message implements Serializable {
     String oldTitle = rs.getString("title");
     String oldLinkText = rs.getString("linktext");
     String oldURL = rs.getString("url");
+    boolean oldMinor = rs.getBoolean("minor");
 
     rs.close();
     pstGet.close();
@@ -518,6 +524,11 @@ public class Message implements Serializable {
         TagDao.updateCounters(db, oldTags, newTags);
         modified = true;
       }
+    }
+
+    if (oldMinor != minor) {
+      jdbcTemplate.update("UPDATE topics SET minor=:minor WHERE id=:id", ImmutableMap.of("minor", minor, "id", msgid));
+      modified = true;
     }
 
     if (modified) {

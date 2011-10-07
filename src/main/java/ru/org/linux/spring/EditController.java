@@ -33,7 +33,6 @@ import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -153,6 +152,10 @@ public class EditController extends ApplicationObjectSupport {
     form.setTitle(message.getTitle());
     form.setMsg(message.getMessage());
 
+    if (message.getSectionId() == Section.SECTION_NEWS) {
+      form.setMinor(message.isMinor());
+    }
+
     return new ModelAndView("edit", params);
   }
 
@@ -163,7 +166,6 @@ public class EditController extends ApplicationObjectSupport {
     @RequestParam(value="lastEdit", required=false) Long lastEdit,
     @RequestParam(value="bonus", required=false, defaultValue="3") int bonus,
     @RequestParam(value="chgrp", required=false) Integer changeGroupId,
-    @RequestParam(value="minor", required=false) Boolean minor,
     @Valid @ModelAttribute("form") EditMessageRequest form,
     Errors errors
   ) throws Exception {
@@ -237,14 +239,6 @@ public class EditController extends ApplicationObjectSupport {
       modified = true;
     }
 
-    if (minor==null) {
-      minor = message.isMinor();
-    }
-
-    if (minor!=message.isMinor()) {
-      modified = true;
-    }
-
     if (!message.getMessage().equals(newMsg.getMessage())) {
       modified = true;
     }
@@ -267,8 +261,12 @@ public class EditController extends ApplicationObjectSupport {
       }
     }
 
-    if (message.isExpired() && (modified)) {
+    if (message.isExpired() && modified) {
       throw new AccessViolationException("нельзя править устаревшие сообщения");
+    }
+
+    if (form.getMinor()!=null && !tmpl.isModeratorSession()) {
+      throw new AccessViolationException("вы не можете менять статус новости");
     }
 
     List<String> newTags = null;
@@ -296,19 +294,8 @@ public class EditController extends ApplicationObjectSupport {
       db.setAutoCommit(false);
 
       if (!preview && !errors.hasErrors()) {
-        PreparedStatement pst = db.prepareStatement("UPDATE topics SET linktext=?, url=?, minor=? WHERE id=?");
-
-        pst.setString(1, newMsg.getLinktext());
-        pst.setString(2, newMsg.getUrl());
-        pst.setBoolean(3, minor);
-        pst.setInt(4, message.getId());
-
-        if (newMsg.updateMessageText(db, user, newTags)) {
+        if (newMsg.updateMessage(db, user, newTags)) {
           modified = true;
-        }
-
-        if (modified) {
-          pst.executeUpdate();
         }
 
         params.put("modified", modified);

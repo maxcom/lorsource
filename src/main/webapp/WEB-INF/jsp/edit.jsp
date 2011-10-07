@@ -91,7 +91,13 @@
   <input type="text" size="70" name="tags" id="tags" value="<%= TagDao.toString(newPreparedMsg.getTags()) %>"><br>
   Популярные теги: <%= TagDao.getEditTags(topTags) %></label> <br>
     </c:if>
+
+  <c:if test="${group.moderated and template.moderatorSession}">
+    <label>Мини-новость: <form:checkbox path="minor"/></label><br>
+  </c:if>
+
   <br>
+    
   <input type="submit" value="Отредактировать">
   &nbsp;
   <input type=submit name=preview value="Предпросмотр">
@@ -110,14 +116,6 @@
     </select></label><br>
     <label>Bonus score (от 0 до 20):
     <input type=text name=bonus size=40 value="3"></label><br>
-    <label>Мини-новость:
-      <c:if test="${message.minor}">
-        <input type="checkbox" checked="checked" name="minor">
-      </c:if>
-      <c:if test="${not message.minor}">
-        <input type="checkbox" name="minor">
-      </c:if>
-    </label> <br>
     <input type=submit name=commit value="Подтвердить">
   </c:if>
 </form:form>
