@@ -117,7 +117,7 @@
 
 <label for="form_msg">Сообщение:</label><br>
 <font size=2>(В режиме <i>Tex paragraphs</i> игнорируются переносы строк.<br> Пустая строка (два раза Enter) начинает новый абзац)</font><br>
-<font size="2"><b>Внимание:</b> Новый режим - <a href="/wiki/en/Lorcode">LORCODE</a></font><br>
+<font size="2"><b>Внимание:</b> Новый режим - <a href="/wiki/en/Lorcode" target="_blank">LORCODE</a></font><br>
 <form:textarea path="msg" cols="70" rows="20" id="form_msg"/><br>
 
 <% if (group!=null && group.isLinksAllowed()) { %>
