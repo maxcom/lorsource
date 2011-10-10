@@ -471,7 +471,7 @@ public class MessageDao {
     }
 
     try {
-      if (res.isEmpty()) {
+      if (res.isEmpty() || res.get(0)==null) {
         return null;
       }
 
@@ -513,7 +513,7 @@ public class MessageDao {
     }
 
     try {
-      if (res.isEmpty()) {
+      if (res.isEmpty() || res.get(0)==null) {
         return null;
       }
 
