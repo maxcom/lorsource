@@ -45,11 +45,6 @@ public final class PreparedMessage {
   private static final int EDIT_PERIOD = 2 * 60 * 60 * 1000; // milliseconds
 
   @Deprecated
-  public PreparedMessage(Connection db, Message message, boolean includeCut) throws SQLException {
-    this(db, message, TagDao.getMessageTags(db, message.getId()), includeCut, "");
-  }
-
-  @Deprecated
   public PreparedMessage(Connection db, Message message, boolean includeCut, String mainUrl) throws SQLException {
     this(db, message, TagDao.getMessageTags(db, message.getId()), includeCut, mainUrl);
   }

@@ -22,6 +22,7 @@ import java.sql.Statement;
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.ApplicationObjectSupport;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,9 +33,23 @@ import org.springframework.web.servlet.view.RedirectView;
 
 import ru.org.linux.site.*;
 import ru.org.linux.spring.dao.GroupDao;
+import ru.org.linux.spring.dao.MessageDao;
+import ru.org.linux.spring.dao.SectionDao;
 
 @Controller
 public class TopicModificationController extends ApplicationObjectSupport {
+  @Autowired
+  private PrepareService prepareService;
+
+  @Autowired
+  private MessageDao messageDao;
+
+  @Autowired
+  private SectionDao sectionDao;
+
+  @Autowired
+  private GroupDao groupDao;
+
   @RequestMapping(value="/setpostscore.jsp", method= RequestMethod.GET)
   public ModelAndView showForm(
     ServletRequest request,
@@ -46,19 +61,7 @@ public class TopicModificationController extends ApplicationObjectSupport {
       throw new AccessViolationException("Not moderator");
     }
 
-    Connection db = null;
-
-    try {
-      db = LorDataSource.getConnection();
-
-      Message msg = Message.getMessage(db, msgid);
-
-      return new ModelAndView("setpostscore", "message", msg);
-    } finally {
-      if (db!=null) {
-        db.close();
-      }
-    }
+    return new ModelAndView("setpostscore", "message", messageDao.getById(msgid));
   }
 
   @RequestMapping(value="/setpostscore.jsp", method= RequestMethod.POST)
@@ -88,6 +91,9 @@ public class TopicModificationController extends ApplicationObjectSupport {
       throw new UserErrorException("invalid postscore " + postscore);
     }
 
+    User user = tmpl.getCurrentUser();
+    user.checkCommit();
+
     Connection db = null;
     try {
       db = LorDataSource.getConnection();
@@ -101,9 +107,6 @@ public class TopicModificationController extends ApplicationObjectSupport {
       pst.setBoolean(3, notop);
       pst.setBoolean(4, minor);
       pst.setInt(5, msgid);
-
-      User user = tmpl.getCurrentUser();
-      user.checkCommit();
 
       pst.executeUpdate();
 
@@ -153,25 +156,14 @@ public class TopicModificationController extends ApplicationObjectSupport {
 
     ModelAndView mv = new ModelAndView("mtn");
 
-    Connection db = null;
+    Message message = messageDao.getById(msgid);
+    Section section = sectionDao.getSection(message.getSectionId());
 
-    try {
-      db = LorDataSource.getConnection();
+    mv.getModel().put("message", message);
 
-      Message message = Message.getMessage(db, msgid);
+    mv.getModel().put("groups", groupDao.getGroups(section));
 
-      mv.getModel().put("message", message);
-
-      Section section = new Section(db, message.getSectionId());
-
-      mv.getModel().put("groups", GroupDao.getGroups(db, section));
-
-      return mv;
-    } finally {
-      if (db!=null) {
-        db.close();
-      }
-    }
+    return mv;
   }
 
   @RequestMapping(value="/mt.jsp", method=RequestMethod.POST)
@@ -262,23 +254,15 @@ public class TopicModificationController extends ApplicationObjectSupport {
 
     ModelAndView mv = new ModelAndView("mtn");
 
-    Connection db = null;
+    Message message = messageDao.getById(msgid);
 
-    try {
-      db = LorDataSource.getConnection();
+    mv.getModel().put("message", message);
 
-      Message message = Message.getMessage(db, msgid);
+    Section section = sectionDao.getSection(Section.SECTION_FORUM);
 
-      mv.getModel().put("message", message);
+    mv.getModel().put("groups", groupDao.getGroups(section));
 
-      mv.getModel().put("groups", GroupDao.getGroups(db, new Section(db, 2)));
-
-      return mv;
-    } finally {
-      if (db!=null) {
-        db.close();
-      }
-    }
+    return mv;
   }
 
   @RequestMapping(value = "/uncommit.jsp", method = RequestMethod.GET)
@@ -292,24 +276,15 @@ public class TopicModificationController extends ApplicationObjectSupport {
       throw new AccessViolationException("Not authorized");
     }
 
-    Connection db = null;
-    try {
-      db = LorDataSource.getConnection();
+    Message message = messageDao.getById(msgid);
 
-      Message message = Message.getMessage(db, msgid);
+    checkUncommitable(message);
 
-      checkUncommitable(message);
+    ModelAndView mv = new ModelAndView("uncommit");
+    mv.getModel().put("message", message);
+    mv.getModel().put("preparedMessage", prepareService.prepareMessage(message, true));
 
-      ModelAndView mv = new ModelAndView("uncommit");
-      mv.getModel().put("message", message);
-      mv.getModel().put("preparedMessage", new PreparedMessage(db, message, true));
-
-      return mv;
-    } finally {
-      if (db != null) {
-        db.close();
-      }
-    }
+    return mv;
   }
 
   @RequestMapping(value="/uncommit.jsp", method=RequestMethod.POST)
