@@ -23,21 +23,6 @@ public class MemoriesListItem {
   private final Timestamp timestamp;
   private final int topic;
 
-  public MemoriesListItem(Connection db, int id) throws SQLException, RecordNotFoundException {
-    Statement st = db.createStatement();
-
-    ResultSet rs = st.executeQuery("SELECT * FROM memories WHERE id="+id);
-
-    if (!rs.next()) {
-      throw new RecordNotFoundException();
-    }
-
-    this.id = id;
-    userid = rs.getInt("userid");
-    timestamp = rs.getTimestamp("add_date");
-    topic = rs.getInt("topic");
-  }
-
   private MemoriesListItem(ResultSet rs) throws SQLException {
     id = rs.getInt("id");
     userid = rs.getInt("userid");
