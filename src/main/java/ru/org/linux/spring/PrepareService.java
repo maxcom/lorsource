@@ -184,7 +184,7 @@ public class PrepareService {
   }
 
   public PreparedComment prepareComment(Comment comment, CommentList comments) throws UserNotFoundException {
-    User author = userDao.getUser(comment.getUserid());
+    User author = userDao.getUserCached(comment.getUserid());
     String processedMessage = commentDao.getPreparedComment(comment.getId());
     User replyAuthor;
     if (comment.getReplyTo()!=0 && comments!=null) {
@@ -192,7 +192,7 @@ public class PrepareService {
 
       if (replyNode!=null) {
         Comment reply = replyNode.getComment();
-        replyAuthor = userDao.getUser(reply.getUserid());
+        replyAuthor = userDao.getUserCached(reply.getUserid());
       } else {
         replyAuthor = null;
       }
