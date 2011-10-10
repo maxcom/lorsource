@@ -18,12 +18,11 @@ package ru.org.linux.site;
 import ru.org.linux.spring.dao.DeleteInfoDao;
 
 import java.io.Serializable;
-import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Date;
-import java.util.Map;
+import java.util.Set;
 
 public class Comment implements Serializable {
   private final int msgid;
@@ -51,25 +50,6 @@ public class Comment implements Serializable {
 
     if (deleted) {
       deleteInfo = deleteInfoDao.getDeleteInfo(msgid);
-    } else {
-      deleteInfo = null;
-    }
-  }
-
-  @Deprecated
-  public Comment(Connection db, ResultSet rs) throws SQLException {
-    msgid=rs.getInt("msgid");
-    title=rs.getString("title");
-    topic=rs.getInt("topic");
-    replyto=rs.getInt("replyto");
-    deleted=rs.getBoolean("deleted");
-    postdate=rs.getTimestamp("postdate");
-    userid=rs.getInt("userid");
-    userAgent=rs.getString("useragent");
-    postIP=rs.getString("postip");
-
-    if (deleted) {
-      deleteInfo = DeleteInfo.getDeleteInfo(db, msgid);
     } else {
       deleteInfo = null;
     }
@@ -113,8 +93,8 @@ public class Comment implements Serializable {
     return replyto;
   }
 
-  public boolean isIgnored(Map<Integer, String> ignoreList) {
-    return ignoreList != null && !ignoreList.isEmpty() && ignoreList.keySet().contains(userid);
+  public boolean isIgnored(Set<Integer> ignoreList) {
+    return ignoreList != null && !ignoreList.isEmpty() && ignoreList.contains(userid);
   }
 
   public boolean isDeleted() {

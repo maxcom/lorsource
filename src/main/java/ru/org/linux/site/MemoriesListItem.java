@@ -73,6 +73,7 @@ public class MemoriesListItem {
     return topic;
   }
 
+  @Deprecated
   public static int getId(Connection db, int userid, int topic) throws SQLException {
     Statement st = db.createStatement();
 

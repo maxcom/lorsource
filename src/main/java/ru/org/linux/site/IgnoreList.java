@@ -27,21 +27,6 @@ public class IgnoreList {
   
   private final Map<Integer, String> ignoreList;
 
-  @Deprecated
-  public static Map<Integer, String> getIgnoreList(Connection db, int userid) throws SQLException {
-    PreparedStatement pst = db.prepareStatement("SELECT a.ignored,b.nick FROM ignore_list a, users b WHERE a.userid=? AND b.id=a.ignored");
-    pst.clearParameters();
-    pst.setInt(1, userid);
-    ResultSet rs = pst.executeQuery();
-    Map<Integer, String> cignored = new HashMap<Integer, String>();
-
-    while(rs.next()) {
-      cignored.put(rs.getInt("ignored"),rs.getString("nick"));
-    }
-
-    return cignored;
-  }
-
   public IgnoreList(Connection db, int userId) throws SQLException {
     if (userId<1) {
       throw new SQLException("Incorrect user ID");

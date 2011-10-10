@@ -102,7 +102,7 @@ public class DeleteCommentController {
 
     params.put("topic", topic);
 
-    CommentList comments = CommentList.getCommentList(commentDao, topic, tmpl.isModeratorSession());
+    CommentList comments = commentDao.getCommentList(topic, tmpl.isModeratorSession());
 
     CommentFilter cv = new CommentFilter(comments);
 

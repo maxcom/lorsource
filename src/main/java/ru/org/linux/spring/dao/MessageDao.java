@@ -440,4 +440,88 @@ public class MessageDao {
 
     userDao.changeScore(author.getId(), bonus);
   }
+
+  public Message getPreviousMessage(Message message) {
+    int scrollMode = Section.getScrollMode(message.getSectionId());
+
+    List<Integer> res;
+
+    switch (scrollMode) {
+      case Section.SCROLL_SECTION:
+        res = jdbcTemplate.queryForList(
+                "SELECT topics.id as msgid FROM topics WHERE topics.commitdate=(SELECT max(commitdate) FROM topics, groups, sections WHERE sections.id=groups.section AND topics.commitdate<? AND topics.groupid=groups.id AND groups.section=? AND (topics.moderate OR NOT sections.moderate) AND NOT deleted)",
+                Integer.class,
+                message.getCommitDate(),
+                message.getSectionId()
+        );
+        break;
+
+      case Section.SCROLL_GROUP:
+        res = jdbcTemplate.queryForList(
+                "SELECT max(topics.id) as msgid FROM topics, groups, sections WHERE sections.id=groups.section AND topics.id<? AND topics.groupid=? AND topics.groupid=groups.id AND (topics.moderate OR NOT sections.moderate) AND NOT deleted",
+                Integer.class,
+                message.getMessageId(),
+                message.getGroupId()
+        );
+        break;
+
+      case Section.SCROLL_NOSCROLL:
+      default:
+        return null;
+    }
+
+    try {
+      if (res.isEmpty()) {
+        return null;
+      }
+
+      int prevMsgid = res.get(0);
+
+      return getById(prevMsgid);
+    } catch (MessageNotFoundException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  public Message getNextMessage(Message message) {
+    int scrollMode = Section.getScrollMode(message.getSectionId());
+
+    List<Integer> res;
+
+    switch (scrollMode) {
+      case Section.SCROLL_SECTION:
+        res = jdbcTemplate.queryForList(
+                "SELECT topics.id as msgid FROM topics WHERE topics.commitdate=(SELECT min(commitdate) FROM topics, groups, sections WHERE sections.id=groups.section AND topics.commitdate>? AND topics.groupid=groups.id AND groups.section=? AND (topics.moderate OR NOT sections.moderate) AND NOT deleted)",
+                Integer.class,
+                message.getCommitDate(),
+                message.getSectionId()
+        );
+        break;
+
+      case Section.SCROLL_GROUP:
+        res = jdbcTemplate.queryForList(
+                "SELECT min(topics.id) as msgid FROM topics, groups, sections WHERE sections.id=groups.section AND topics.id>? AND topics.groupid=? AND topics.groupid=groups.id AND (topics.moderate OR NOT sections.moderate) AND NOT deleted",
+                Integer.class,
+                message.getId(),
+                message.getGroupId()
+        );
+        break;
+
+      case Section.SCROLL_NOSCROLL:
+      default:
+        return null;
+    }
+
+    try {
+      if (res.isEmpty()) {
+        return null;
+      }
+
+      int nextMsgid = res.get(0);
+
+      return getById(nextMsgid);
+    } catch (MessageNotFoundException e) {
+      throw new RuntimeException(e);
+    }
+  }
 }

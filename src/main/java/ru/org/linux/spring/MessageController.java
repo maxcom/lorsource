@@ -16,7 +16,6 @@
 package ru.org.linux.spring;
 
 import java.net.URLEncoder;
-import java.sql.Connection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,7 +24,7 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.springframework.jdbc.support.JdbcUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -36,9 +35,24 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 
 import ru.org.linux.site.*;
+import ru.org.linux.spring.dao.CommentDao;
+import ru.org.linux.spring.dao.MessageDao;
+import ru.org.linux.spring.dao.UserDao;
 
 @Controller
 public class MessageController {
+  @Autowired
+  private MessageDao messageDao;
+
+  @Autowired
+  private PrepareService prepareService;
+
+  @Autowired
+  private CommentDao commentDao;
+
+  @Autowired
+  private UserDao userDao;
+
   @RequestMapping("/forum/{group}/{id}")
   public ModelAndView getMessageNewForum(
     WebRequest webRequest,
@@ -157,23 +171,17 @@ public class MessageController {
     String filter,
     String groupName,
     int msgid,
-    Set<Integer> highlight) throws Exception {
-    Connection db = null;
-    try {
-      db = LorDataSource.getConnection();
+    Set<Integer> highlight)
+  throws Exception {
+    Message message = messageDao.getById(msgid);
+    PreparedMessage preparedMessage = prepareService.prepareMessage(message, true);
+    Group group = preparedMessage.getGroup();
 
-      Message message = Message.getMessage(db, msgid);
-      PreparedMessage preparedMessage = new PreparedMessage(db, message, true);
-      Group group = preparedMessage.getGroup();
-
-      if (!group.getUrlName().equals(groupName) || group.getSectionId() != section) {
-        return new ModelAndView(new RedirectView(message.getLink()));
-      }
-
-      return getMessage(db, webRequest, request, response, preparedMessage, group, page, filter, highlight);
-    } finally {
-      JdbcUtils.closeConnection(db);
+    if (!group.getUrlName().equals(groupName) || group.getSectionId() != section) {
+      return new ModelAndView(new RedirectView(message.getLink()));
     }
+
+    return getMessage(webRequest, request, response, preparedMessage, group, page, filter, highlight);
   }
 
   @RequestMapping("/view-message.jsp")
@@ -184,55 +192,44 @@ public class MessageController {
     @RequestParam(value="filter", required=false) String filter,
     @RequestParam(required=false) String output
   ) throws Exception {
-    Connection db = null;
+    Message message = messageDao.getById(msgid);
 
-    try {
-      db = LorDataSource.getConnection();
+    StringBuilder link = new StringBuilder(message.getLink());
 
-      Message message = Message.getMessage(db, msgid);
+    StringBuilder params = new StringBuilder();
 
-      StringBuilder link = new StringBuilder(message.getLink());
-
-      StringBuilder params = new StringBuilder();
-
-      if (page!=null) {
-        link.append("/page").append(page);
-      }
-
-      if (lastmod!=null && !message.isExpired()) {
-        params.append("?lastmod=").append(message.getLastModified().getTime());
-      }
-
-      if (filter!=null) {
-        if (params.length()==0) {
-          params.append('?');
-        } else {
-          params.append('&');
-        }
-        params.append("filter=").append(filter);
-      }
-
-      if (output!=null) {
-        if (params.length()==0) {
-          params.append('?');
-        } else {
-          params.append('&');
-        }
-        params.append("output=").append(output);
-      }
-
-      link.append(params);
-
-      return new ModelAndView(new RedirectView(link.toString()));
-    } finally {
-      if (db!=null) {
-        db.close();
-      }
+    if (page!=null) {
+      link.append("/page").append(page);
     }
+
+    if (lastmod!=null && !message.isExpired()) {
+      params.append("?lastmod=").append(message.getLastModified().getTime());
+    }
+
+    if (filter!=null) {
+      if (params.length()==0) {
+        params.append('?');
+      } else {
+        params.append('&');
+      }
+      params.append("filter=").append(filter);
+    }
+
+    if (output!=null) {
+      if (params.length()==0) {
+        params.append('?');
+      } else {
+        params.append('&');
+      }
+      params.append("output=").append(output);
+    }
+
+    link.append(params);
+
+    return new ModelAndView(new RedirectView(link.toString()));
   }
 
   private ModelAndView getMessage(
-    Connection db,
     WebRequest webRequest,
     HttpServletRequest request,
     HttpServletResponse response,
@@ -307,20 +304,21 @@ public class MessageController {
 
     params.put("message", message);
     params.put("preparedMessage", preparedMessage);
-    params.put("messageMenu", new MessageMenu(db, preparedMessage, currentUser));
+
+    params.put("messageMenu", prepareService.getMessageMenu(preparedMessage, currentUser));
 
     if (message.isExpired()) {
       response.setDateHeader("Expires", System.currentTimeMillis() + 30 * 24 * 60 * 60 * 1000L);
     }
 
-    CommentList comments = CommentList.getCommentList(db, message, showDeleted);
+    CommentList comments = commentDao.getCommentList(message, showDeleted);
 
     params.put("comments", comments);
 
-    Map<Integer, String> ignoreList = null;
+    Set<Integer> ignoreList = null;
 
     if (currentUser != null) {
-      ignoreList = IgnoreList.getIgnoreList(db, currentUser.getId());
+      ignoreList = userDao.getIgnoreList(currentUser);
     }
 
     int filterMode = CommentFilter.FILTER_IGNORED;
@@ -346,10 +344,10 @@ public class MessageController {
     params.put("defaultFilterMode", defaultFilterMode);
 
     if (!rss) {
-      params.put("prevMessage", message.getPreviousMessage(db));
-      params.put("nextMessage", message.getNextMessage(db));
+      params.put("prevMessage", messageDao.getPreviousMessage(message));
+      params.put("nextMessage", messageDao.getNextMessage(message));
 
-      Set<Integer> hideSet = CommentList.makeHideSet(db, comments, filterMode, ignoreList);
+      Set<Integer> hideSet = CommentList.makeHideSet(userDao, comments, filterMode, ignoreList);
 
       CommentFilter cv = new CommentFilter(comments);
 
@@ -365,7 +363,7 @@ public class MessageController {
 
       List<Comment> commentsFiltred = cv.getComments(reverse, offset, limit, hideSet);
 
-      List<PreparedComment> commentsPrepared = PreparedComment.prepare(db, comments, commentsFiltred);
+      List<PreparedComment> commentsPrepared = prepareService.prepareCommentList(comments, commentsFiltred);
 
       params.put("commentsPrepared", commentsPrepared);
     } else {
@@ -373,7 +371,7 @@ public class MessageController {
 
       List<Comment> commentsFiltred = cv.getComments(true, 0, MessageTable.RSS_DEFAULT, null);
 
-      List<PreparedComment> commentsPrepared = PreparedComment.prepare(db, comments, commentsFiltred);
+      List<PreparedComment> commentsPrepared = prepareService.prepareCommentList(comments, commentsFiltred);
 
       params.put("commentsPrepared", commentsPrepared);
     }
@@ -427,68 +425,59 @@ public class MessageController {
 
   @RequestMapping(value = "/jump-message.jsp", method = {RequestMethod.GET, RequestMethod.HEAD})
   public ModelAndView jumpMessage(
-    HttpServletRequest request,
-    @RequestParam int msgid,
-    @RequestParam(required = false) Integer page,
-    @RequestParam(required = false) String nocache,
-    @RequestParam(required = false) Integer cid
+          HttpServletRequest request,
+          @RequestParam int msgid,
+          @RequestParam(required = false) Integer page,
+          @RequestParam(required = false) String nocache,
+          @RequestParam(required = false) Integer cid
   ) throws Exception {
     Template tmpl = Template.getTemplate(request);
 
-    Connection db = null;
-    try {
-      db = LorDataSource.getConnection();
+    Message topic = messageDao.getById(msgid);
 
-      Message topic = Message.getMessage(db, msgid);
+    String redirectUrl = topic.getLink();
+    StringBuffer options = new StringBuffer();
 
-      String redirectUrl = topic.getLink();
-      StringBuffer options = new StringBuffer();
+    if (page != null) {
+      redirectUrl = topic.getLinkPage(page);
+    }
 
-      if (page != null) {
-        redirectUrl = topic.getLinkPage(page);
+    if (nocache != null) {
+      options.append("nocache=");
+      options.append(URLEncoder.encode(nocache));
+    }
+
+    StringBuilder hash = new StringBuilder();
+
+    if (cid != null) {
+      CommentList comments = commentDao.getCommentList(topic, false);
+      CommentNode node = comments.getNode(cid);
+      if (node == null) {
+        throw new MessageNotFoundException(cid, "Сообщение #" + cid + " было удалено или не существует");
       }
 
-      if (nocache != null) {
-        options.append("nocache=");
-        options.append(URLEncoder.encode(nocache));
+      int pagenum = comments.getCommentPage(node.getComment(), tmpl);
+
+      if (pagenum > 0) {
+        redirectUrl = topic.getLinkPage(pagenum);
       }
 
-      StringBuilder hash = new StringBuilder();
-
-      if (cid != null) {
-        CommentList comments = CommentList.getCommentList(db, topic, false);
-        CommentNode node = comments.getNode(cid);
-        if (node == null) {
-          throw new MessageNotFoundException(cid, "Сообщение #" + cid + " было удалено или не существует");
+      if (!topic.isExpired() && topic.getPageCount(tmpl.getProf().getMessages()) - 1 == pagenum) {
+        if (options.length() > 0) {
+          options.append('&');
         }
-
-        int pagenum = comments.getCommentPage(node.getComment(), tmpl);
-
-        if (pagenum > 0) {
-          redirectUrl = topic.getLinkPage(pagenum);
-        }
-
-        if (!topic.isExpired() && topic.getPageCount(tmpl.getProf().getMessages()) - 1 == pagenum) {
-          if (options.length()>0) {
-            options.append('&');
-          }
-          options.append("lastmod=");
-          options.append(topic.getLastModified().getTime());
-        }
-
-        hash.append("#comment-");
-        hash.append(cid);
+        options.append("lastmod=");
+        options.append(topic.getLastModified().getTime());
       }
 
-      if (options.length()>0) {
-        return new ModelAndView(new RedirectView(redirectUrl + '?'+ options+hash));
-      } else {
-        return new ModelAndView(new RedirectView(redirectUrl+hash));
-      }
-    } finally {
-      if (db != null) {
-        db.close();
-      }
+      hash.append("#comment-");
+      hash.append(cid);
+    }
+
+    if (options.length() > 0) {
+      return new ModelAndView(new RedirectView(redirectUrl + '?' + options + hash));
+    } else {
+      return new ModelAndView(new RedirectView(redirectUrl + hash));
     }
   }
 }

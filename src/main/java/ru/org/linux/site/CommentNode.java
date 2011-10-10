@@ -15,8 +15,9 @@
 
 package ru.org.linux.site;
 
+import ru.org.linux.spring.dao.UserDao;
+
 import java.io.Serializable;
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
 
@@ -43,9 +44,9 @@ public class CommentNode implements Serializable {
     return comment==null?0:comment.getMessageId();
   }
 
-  public void hideAnonymous(Connection db, Set<Integer> hideSet) throws SQLException, UserNotFoundException {
+  public void hideAnonymous(UserDao userDao, Set<Integer> hideSet) throws SQLException, UserNotFoundException {
     if (comment!=null) {
-      User commentAuthor = User.getUserCached(db, comment.getUserid());
+      User commentAuthor = userDao.getUserCached(comment.getUserid());
 
       if (commentAuthor.isAnonymousScore()) {
         hideNode(hideSet);
@@ -54,12 +55,12 @@ public class CommentNode implements Serializable {
 
     if (comment==null || !hideSet.contains(comment.getMessageId())) {
       for (CommentNode child : childs) {
-        child.hideAnonymous(db, hideSet);
+        child.hideAnonymous(userDao, hideSet);
       }
     }
   }
 
-  public void hideIgnored(Set<Integer> hideSet, Map<Integer, String> ignoreList) {
+  public void hideIgnored(Set<Integer> hideSet, Set<Integer> ignoreList) {
     if (comment != null) {
       if (comment.isIgnored(ignoreList)) {
         hideNode(hideSet);

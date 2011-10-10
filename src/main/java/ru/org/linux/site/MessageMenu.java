@@ -15,25 +15,15 @@
 
 package ru.org.linux.site;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-
 public class MessageMenu {
   private final boolean editable;
   private final boolean resolvable;
   private final int memoriesId;
 
-  public MessageMenu(Connection db, PreparedMessage message, User currentUser) throws SQLException {
-    editable = currentUser!=null && message.isEditable(currentUser);
-
-    if (currentUser!=null) {
-      resolvable = (currentUser.canModerate() || (message.getAuthor().getId()==currentUser.getId())) &&
-            message.getGroup().isResolvable();
-      memoriesId = MemoriesListItem.getId(db, currentUser.getId(), message.getId());
-    } else {
-      resolvable = false;
-      memoriesId = 0;
-    }
+  public MessageMenu(boolean editable, boolean resolvable, int memoriesId) {
+    this.editable = editable;
+    this.resolvable = resolvable;
+    this.memoriesId = memoriesId;
   }
 
   public boolean isEditable() {

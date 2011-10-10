@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.org.linux.site.*;
+import ru.org.linux.spring.commons.CacheProvider;
 import ru.org.linux.util.bbcode.ParserUtil;
 
 import javax.sql.DataSource;
@@ -420,5 +421,20 @@ public class CommentDao {
     userEventsDao.addUserRefEvent(userRefs.toArray(new User[userRefs.size()]), comment.getTopicId(), msgid);
 
     return msgid;
+  }
+
+  public CommentList getCommentList(Message topic, boolean showDeleted) {
+    CacheProvider mcc = MemCachedSettings.getCache();
+
+    String cacheId = "commentList?msgid="+topic.getMessageId()+"&showDeleted="+showDeleted;
+
+    CommentList commentList = (CommentList) mcc.getFromCache(cacheId);
+
+    if (commentList == null || commentList.getLastmod() != topic.getLastModified().getTime()) {
+      commentList = new CommentList(getCommentList(topic.getId(), showDeleted), topic.getLastModified().getTime());
+      mcc.storeToCache(cacheId, commentList);
+    }
+
+    return commentList;
   }
 }

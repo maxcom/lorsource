@@ -17,14 +17,10 @@ package ru.org.linux.site;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import ru.org.linux.spring.commons.CacheProvider;
-import ru.org.linux.spring.dao.CommentDao;
+import ru.org.linux.spring.dao.UserDao;
 
 import java.io.Serializable;
-import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.*;
 
 public class CommentList implements Serializable {
@@ -40,33 +36,6 @@ public class CommentList implements Serializable {
     this.lastmod = lastmod;
     this.comments.addAll(comments);
     logger.debug("Read list size = " +comments.size());
-    buildTree();
-  }
-
-  private CommentList(Connection db, int topicId, long lastmod, boolean deleted) throws SQLException {
-    this.lastmod = lastmod;
-
-    String delq = deleted ? "" : " AND NOT deleted ";
-
-    Statement st = db.createStatement();
-    ResultSet rs = st.executeQuery(
-        "SELECT " +
-            "comments.title, topic, postdate, userid, comments.id as msgid, " +
-            "replyto, deleted, user_agents.name AS useragent, comments.postip " +
-            "FROM comments " +
-            "LEFT JOIN user_agents ON (user_agents.id=comments.ua_id) " +
-            "WHERE topic=" + topicId + ' ' + delq + ' ' +
-            "ORDER BY msgid ASC"
-    );
-
-    while (rs.next()) {
-      comments.add(new Comment(db, rs));
-    }
-
-    rs.close();
-
-    logger.debug("Read list size = " +comments.size());
-
     buildTree();
   }
 
@@ -123,38 +92,7 @@ public class CommentList implements Serializable {
     return getCommentPage(comment, messages, reverse);
   }
 
-  public static CommentList getCommentList(CommentDao commentDao, Message topic, boolean showDeleted) {
-    CacheProvider mcc = MemCachedSettings.getCache();
-
-    String cacheId = "commentList?msgid="+topic.getMessageId()+"&showDeleted="+showDeleted;
-
-    CommentList commentList = (CommentList) mcc.getFromCache(cacheId);
-
-    if (commentList == null || commentList.lastmod != topic.getLastModified().getTime()) {
-      commentList = new CommentList(commentDao.getCommentList(topic.getId(), showDeleted), topic.getLastModified().getTime());
-      mcc.storeToCache(cacheId, commentList);
-    }
-
-    return commentList;
-  }
-
-  @Deprecated
-  public static CommentList getCommentList(Connection db, Message topic, boolean showDeleted) throws SQLException {
-    CacheProvider mcc = MemCachedSettings.getCache();
-
-    String cacheId = "commentList?msgid="+topic.getMessageId()+"&showDeleted="+showDeleted;
-
-    CommentList res = (CommentList) mcc.getFromCache(cacheId);
-
-    if (res==null || res.lastmod !=topic.getLastModified().getTime()) {
-      res = new CommentList(db, topic.getMessageId(), topic.getLastModified().getTime(), showDeleted);
-      mcc.storeToCache(cacheId, res);
-    }
-
-    return res;
-  }
-
-  public static Set<Integer> makeHideSet(Connection db, CommentList comments, int filterChain, Map<Integer, String> ignoreList) throws SQLException, UserNotFoundException {
+  public static Set<Integer> makeHideSet(UserDao userDao, CommentList comments, int filterChain, Set<Integer> ignoreList) throws SQLException, UserNotFoundException {
     if (filterChain == CommentFilter.FILTER_NONE) {
       return null;
     }
@@ -163,7 +101,7 @@ public class CommentList implements Serializable {
 
     /* hide anonymous */
     if ((filterChain & CommentFilter.FILTER_ANONYMOUS) > 0) {
-      comments.root.hideAnonymous(db, hideSet);
+      comments.root.hideAnonymous(userDao, hideSet);
     }
 
     /* hide ignored */
@@ -174,5 +112,9 @@ public class CommentList implements Serializable {
     }
     
     return hideSet;
+  }
+
+  public long getLastmod() {
+    return lastmod;
   }
 }

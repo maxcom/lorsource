@@ -35,7 +35,6 @@ import ru.org.linux.spring.dao.CommentDao;
 import ru.org.linux.spring.dao.MessageDao;
 
 import java.io.IOException;
-import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -66,7 +65,7 @@ public class SearchQueueListener {
     this.commentDao = commentDao;
   }
 
-  public void handleMessage(SearchQueueSender.UpdateMessage msgUpdate) throws SQLException, MessageNotFoundException, IOException, SolrServerException {
+  public void handleMessage(SearchQueueSender.UpdateMessage msgUpdate) throws MessageNotFoundException, IOException, SolrServerException {
     logger.info("Indexing "+msgUpdate.getMsgid());
 
     reindexMessage(msgUpdate.getMsgid(), msgUpdate.isWithComments());
@@ -84,7 +83,7 @@ public class SearchQueueListener {
     }
 
     if (withComments) {
-      CommentList commentList = CommentList.getCommentList(commentDao, msg, true);
+      CommentList commentList = commentDao.getCommentList(msg, true);
 
       if (!msg.isDeleted()) {
         reindexComments(msg, commentList);
@@ -103,7 +102,7 @@ public class SearchQueueListener {
     }
   }
 
-  public void handleMessage(SearchQueueSender.UpdateComments msgUpdate) throws SQLException, MessageNotFoundException, IOException, SolrServerException {
+  public void handleMessage(SearchQueueSender.UpdateComments msgUpdate) throws MessageNotFoundException, IOException, SolrServerException {
     logger.info("Indexing comments "+msgUpdate.getMsgids());
 
     UpdateRequest rq = new UpdateRequest();
@@ -138,7 +137,7 @@ public class SearchQueueListener {
     }
   }
 
-  public void handleMessage(SearchQueueSender.UpdateMonth msgUpdate) throws SQLException, MessageNotFoundException, IOException, SolrServerException {
+  public void handleMessage(SearchQueueSender.UpdateMonth msgUpdate) throws MessageNotFoundException, IOException, SolrServerException {
     int month = msgUpdate.getMonth();
     int year = msgUpdate.getYear();
 
