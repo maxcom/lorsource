@@ -64,7 +64,7 @@ public class WhoisController {
     mv.getModel().put("moderatorOrCurrentUser", currentUser || tmpl.isModeratorSession());
 
     if (tmpl.isSessionAuthorized() && !currentUser) {
-      mv.getModel().put("ignoreList", userDao.getIgnoreList(userDao.getUser(tmpl.getCurrentUser().getId())));
+      mv.getModel().put("ignoreList", userDao.getIgnoreList(tmpl.getCurrentUser()));
     }
 
     String userinfo = userDao.getUserInfo(user);

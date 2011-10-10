@@ -119,7 +119,7 @@ public class PrepareService {
   public PreparedMessage prepareMessage(Message message, List<String> tags, boolean includeCut) {
     try {
       Group group = groupDao.getGroup(message.getGroupId());
-      User author = userDao.getUser(message.getUid());
+      User author = userDao.getUserCached(message.getUid());
       Section section = sectionDao.getSection(message.getSectionId());
 
       DeleteInfo deleteInfo;
@@ -128,7 +128,7 @@ public class PrepareService {
         deleteInfo = deleteInfoDao.getDeleteInfo(message.getId());
 
         if (deleteInfo!=null) {
-          deleteUser = userDao.getUser(deleteInfo.getUserid());
+          deleteUser = userDao.getUserCached(deleteInfo.getUserid());
         } else {
           deleteUser = null;
         }
@@ -148,7 +148,7 @@ public class PrepareService {
       User commiter;
 
       if (message.getCommitby()!=0) {
-        commiter = userDao.getUser(message.getCommitby());
+        commiter = userDao.getUserCached(message.getCommitby());
       } else {
         commiter = null;
       }
@@ -160,7 +160,7 @@ public class PrepareService {
 
       if (!editInfo.isEmpty()) {
         lastEditInfo = editInfo.get(0);
-        lastEditor = userDao.getUser(lastEditInfo.getEditor());
+        lastEditor = userDao.getUserCached(lastEditInfo.getEditor());
         editCount = editInfo.size();
       } else {
         lastEditInfo = null;

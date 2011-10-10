@@ -121,6 +121,16 @@ public class UserDao {
     return getUserInternal(jdbcTemplate, id, true);
   }
 
+  /**
+   * Загружает пользователя из БД не используя кеш (всегда обновляет кеш).
+   * Метод используется там, где нужно проверить права пользователя, совершить какой-то
+   * update или получить самый свежий варинт из БД. В остальных случаях нужно
+   * использовать метод getUserCached()
+   *
+   * @param id идентификатор пользователя
+   * @return объект пользователя
+   * @throws UserNotFoundException если пользователь с таким id не найден
+   */
   public User getUser(int id) throws UserNotFoundException {
     return getUserInternal(jdbcTemplate, id, false);
   }
@@ -487,7 +497,7 @@ public class UserDao {
 
   public User getAnonymous() {
     try {
-      return getUser(2);
+      return getUserCached(2);
     } catch (UserNotFoundException e) {
       throw new RuntimeException("Anonymous not found!?", e);
     }
