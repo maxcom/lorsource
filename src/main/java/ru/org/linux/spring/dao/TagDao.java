@@ -24,6 +24,7 @@ import org.springframework.jdbc.core.ConnectionCallback;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.stereotype.Repository;
+import ru.org.linux.site.TagNotFoundException;
 import ru.org.linux.site.UserErrorException;
 
 import javax.sql.DataSource;
@@ -299,5 +300,17 @@ public final class TagDao {
         return modified;
       }
     });
+  }
+
+  public int getTagId(String tag) throws UserErrorException, TagNotFoundException {
+    checkTag(tag);
+
+    List<Integer> res = jdbcTemplate.queryForList("SELECT id FROM tags_values WHERE value=? AND counter>0", Integer.class, tag);
+
+    if (res.isEmpty()) {
+      throw new TagNotFoundException();
+    } else {
+      return res.get(0);
+    }
   }
 }

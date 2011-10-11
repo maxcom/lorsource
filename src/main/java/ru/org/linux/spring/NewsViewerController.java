@@ -15,16 +15,11 @@
 
 package ru.org.linux.spring;
 
-import java.net.URLEncoder;
-import java.sql.*;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletResponse;
-
-import com.google.common.collect.ImmutableList;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.ConnectionCallback;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -33,28 +28,59 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.view.RedirectView;
-
 import ru.org.linux.site.*;
+import ru.org.linux.spring.dao.GroupDao;
 import ru.org.linux.spring.dao.SectionDao;
 import ru.org.linux.spring.dao.TagDao;
+import ru.org.linux.spring.dao.UserDao;
 import ru.org.linux.util.DateUtil;
 import ru.org.linux.util.ServletParameterException;
 import ru.org.linux.util.ServletParameterMissingException;
+
+import javax.servlet.http.HttpServletResponse;
+import javax.sql.DataSource;
+import java.net.URLEncoder;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Controller
 public class NewsViewerController {
   @Autowired
   private SectionDao sectionDao;
 
+  @Autowired
+  private GroupDao groupDao;
+
+  @Autowired
+  private TagDao tagDao;
+
+  @Autowired
+  private PrepareService prepareService;
+
+  @Autowired
+  private UserDao userDao;
+
+  private JdbcTemplate jdbcTemplate;
+
+  @Autowired
+  public void setDataSource(DataSource ds) {
+    jdbcTemplate = new JdbcTemplate(ds);
+  }
+
   @RequestMapping(value = "/view-news.jsp", method = {RequestMethod.GET, RequestMethod.HEAD})
   public ModelAndView showNews(
-    @RequestParam(value="month", required=false) Integer month,
-    @RequestParam(value="year", required=false) Integer year,
-    @RequestParam(value="section", required=false) Integer sectionid,
-    @RequestParam(value="group", required=false) Integer groupid,
-    @RequestParam(value="tag", required=false) String tag,
-    @RequestParam(value="offset", required=false) Integer offset,
-    HttpServletResponse response
+          @RequestParam(value = "month", required = false) Integer month,
+          @RequestParam(value = "year", required = false) Integer year,
+          @RequestParam(value = "section", required = false) Integer sectionid,
+          @RequestParam(value = "group", required = false) Integer groupid,
+          @RequestParam(value = "tag", required = false) String tag,
+          @RequestParam(value = "offset", required = false) Integer offset,
+          HttpServletResponse response
   ) throws Exception {
     Map<String, Object> params = new HashMap<String, Object>();
 
@@ -63,7 +89,7 @@ public class NewsViewerController {
 
     Section section = null;
 
-    if (sectionid!=null) {
+    if (sectionid != null) {
       urlParams.append("section=").append(Integer.toString(sectionid));
 
       section = sectionDao.getSection(sectionid);
@@ -72,16 +98,16 @@ public class NewsViewerController {
       params.put("archiveLink", section.getArchiveLink());
     }
 
-    if (tag!=null) {
-      if (urlParams.length()>0) {
+    if (tag != null) {
+      if (urlParams.length() > 0) {
         urlParams.append('&');
       }
 
       urlParams.append("tag=").append(URLEncoder.encode(tag));
     }
 
-    if (groupid!=null) {
-      if (urlParams.length()>0) {
+    if (groupid != null) {
+      if (urlParams.length() > 0) {
         urlParams.append('&');
       }
 
@@ -90,89 +116,71 @@ public class NewsViewerController {
 
     params.put("params", urlParams);
 
-    Connection db = null;
+    if (month == null) {
+      response.setDateHeader("Expires", System.currentTimeMillis() + 60 * 1000);
+      response.setDateHeader("Last-Modified", System.currentTimeMillis());
+    } else {
+      long expires = System.currentTimeMillis() + 30 * 24 * 60 * 60 * 1000L;
 
-    try {
-      if (month == null) {
+      if (year == null) {
+        throw new ServletParameterMissingException("year");
+      }
+
+      params.put("year", year);
+      params.put("month", month);
+
+      Calendar calendar = Calendar.getInstance();
+      calendar.set(year, month - 1, 1);
+      calendar.add(Calendar.MONTH, 1);
+
+      long lastmod = calendar.getTimeInMillis();
+
+      if (lastmod < System.currentTimeMillis()) {
+        response.setDateHeader("Expires", expires);
+        response.setDateHeader("Last-Modified", lastmod);
+      } else {
         response.setDateHeader("Expires", System.currentTimeMillis() + 60 * 1000);
         response.setDateHeader("Last-Modified", System.currentTimeMillis());
-      } else {
-        long expires = System.currentTimeMillis() + 30 * 24 * 60 * 60 * 1000L;
+      }
+    }
 
-        if (year==null) {
-          throw new ServletParameterMissingException("year");
-        }
+    Group group = null;
 
-        params.put("year", year);
-        params.put("month", month);
+    if (groupid != null) {
+      group = groupDao.getGroup(groupid);
 
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(year, month - 1, 1);
-        calendar.add(Calendar.MONTH, 1);
-
-        long lastmod = calendar.getTimeInMillis();
-
-        if (lastmod < System.currentTimeMillis()) {
-          response.setDateHeader("Expires", expires);
-          response.setDateHeader("Last-Modified", lastmod);
-        } else {
-          response.setDateHeader("Expires", System.currentTimeMillis() + 60 * 1000);
-          response.setDateHeader("Last-Modified", System.currentTimeMillis());
-        }
+      if (group.getSectionId() != sectionid) {
+        throw new ScriptErrorException("группа #" + groupid + " не принадлежит разделу #" + sectionid);
       }
 
-      db = LorDataSource.getConnection();
+      params.put("group", group);
+    }
 
-      Group group = null;
+    if (tag != null) {
+      TagDao.checkTag(tag);
+      params.put("tag", tag);
+    }
 
-      if (groupid != null) {
-        group = Group.getGroup(db, groupid);
+    if (section == null && tag == null) {
+      throw new ServletParameterException("section or tag required");
+    }
 
-        if (group.getSectionId() != sectionid) {
-          throw new ScriptErrorException("группа #" + groupid + " не принадлежит разделу #" + sectionid);
-        }
+    String navtitle;
+    if (section != null) {
+      navtitle = section.getName();
+    } else {
+      navtitle = tag;
+    }
 
-        params.put("group", group);
-      }
+    if (group != null) {
+      navtitle = "<a href=\"" + Section.getNewsViewerLink(group.getSectionId()) + "\">" + section.getName() + "</a> - <strong>" + group.getTitle() + "</strong>";
+    }
 
-      if (tag != null) {
-        TagDao.checkTag(tag);
-        params.put("tag", tag);
-      }
+    String ptitle;
 
-      if (section == null && tag == null) {
-        throw new ServletParameterException("section or tag required");
-      }
-
-      String navtitle;
+    if (month == null) {
       if (section != null) {
-        navtitle = section.getName();
-      } else {
-        navtitle = tag;
-      }
-
-      if (group != null) {
-        navtitle = "<a href=\""+Section.getNewsViewerLink(group.getSectionId()) + "\">" + section.getName() + "</a> - <strong>" + group.getTitle()+"</strong>";
-      }
-
-      String ptitle;
-
-      if (month == null) {
-        if (section != null) {
-          ptitle = section.getName();
-          if (group != null) {
-            ptitle += " - " + group.getTitle();
-          }
-
-          if (tag != null) {
-            ptitle += " - " + tag;
-          }
-        } else {
-          ptitle = tag;
-        }
-      } else {
-        ptitle = "Архив: " + section.getName();
-
+        ptitle = section.getName();
         if (group != null) {
           ptitle += " - " + group.getTitle();
         }
@@ -180,78 +188,82 @@ public class NewsViewerController {
         if (tag != null) {
           ptitle += " - " + tag;
         }
-
-        ptitle += ", " + year + ", " + DateUtil.getMonth(month);
-        navtitle += " - Архив " + year + ", " + DateUtil.getMonth(month);
+      } else {
+        ptitle = tag;
       }
-
-      params.put("ptitle", ptitle);
-      params.put("navtitle", navtitle);
-
-      NewsViewer newsViewer = new NewsViewer();
-
-      if (section!=null) {
-        newsViewer.addSection(sectionid);
-        if (section.isPremoderated()) {
-          newsViewer.setCommitMode(NewsViewer.CommitMode.COMMITED_ONLY);
-        } else {
-          newsViewer.setCommitMode(NewsViewer.CommitMode.POSTMODERATED_ONLY);          
-        }
-      }
+    } else {
+      ptitle = "Архив: " + section.getName();
 
       if (group != null) {
-        newsViewer.setGroup(group.getId());
+        ptitle += " - " + group.getTitle();
       }
 
-      if (tag!=null) {
-        PreparedStatement pst = db.prepareStatement("SELECT id FROM tags_values WHERE value=? AND counter>0");
-        pst.setString(1,tag);
-        ResultSet rs = pst.executeQuery();
-
-        if (rs.next()) {
-          newsViewer.setTag(rs.getInt("id"));
-        } else {
-          throw new TagNotFoundException();
-        }
-
-        rs.close();
-        pst.close();
+      if (tag != null) {
+        ptitle += " - " + tag;
       }
 
-      offset = fixOffset(offset);
+      ptitle += ", " + year + ", " + DateUtil.getMonth(month);
+      navtitle += " - Архив " + year + ", " + DateUtil.getMonth(month);
+    }
 
-      if (month != null) {
-        newsViewer.setDatelimit("postdate>='" + year + '-' + month + "-01'::timestamp AND (postdate<'" + year + '-' + month + "-01'::timestamp+'1 month'::interval)");
-      } else if (tag==null && group==null) {
-        if (!section.isPremoderated()) {
-          newsViewer.setDatelimit("(postdate>(CURRENT_TIMESTAMP-'6 month'::interval))");
-        }
+    params.put("ptitle", ptitle);
+    params.put("navtitle", navtitle);
 
-        newsViewer.setLimit("LIMIT 20" + (offset > 0 ? (" OFFSET " + offset) : ""));
+    final NewsViewer newsViewer = new NewsViewer();
+
+    if (section != null) {
+      newsViewer.addSection(sectionid);
+      if (section.isPremoderated()) {
+        newsViewer.setCommitMode(NewsViewer.CommitMode.COMMITED_ONLY);
       } else {
-        newsViewer.setLimit("LIMIT 20" + (offset > 0 ? (" OFFSET " + offset) : ""));
-      }
-
-      params.put("messages", newsViewer.getPreparedMessagesCached(db));
-
-      params.put("offsetNavigation", month==null);
-      params.put("offset", offset);
-
-      if (section!=null) {
-        String rssLink = "/section-rss.jsp?section="+section.getId();
-        if (group!=null) {
-          rssLink += "&group="+group.getId();
-        }
-
-        params.put("rssLink", rssLink);
-      }
-
-      return new ModelAndView("view-news", params);
-    } finally {
-      if (db != null) {
-        db.close();
+        newsViewer.setCommitMode(NewsViewer.CommitMode.POSTMODERATED_ONLY);
       }
     }
+
+    if (group != null) {
+      newsViewer.setGroup(group.getId());
+    }
+
+    if (tag != null) {
+      newsViewer.setTag(tagDao.getTagId(tag));
+    }
+
+    offset = fixOffset(offset);
+
+    if (month != null) {
+      newsViewer.setDatelimit("postdate>='" + year + '-' + month + "-01'::timestamp AND (postdate<'" + year + '-' + month + "-01'::timestamp+'1 month'::interval)");
+    } else if (tag == null && group == null) {
+      if (!section.isPremoderated()) {
+        newsViewer.setDatelimit("(postdate>(CURRENT_TIMESTAMP-'6 month'::interval))");
+      }
+
+      newsViewer.setLimit("LIMIT 20" + (offset > 0 ? (" OFFSET " + offset) : ""));
+    } else {
+      newsViewer.setLimit("LIMIT 20" + (offset > 0 ? (" OFFSET " + offset) : ""));
+    }
+
+    List<Message> messages = jdbcTemplate.execute(new ConnectionCallback<List<Message>>() {
+      @Override
+      public List<Message> doInConnection(Connection con) throws SQLException, DataAccessException {
+        return newsViewer.getMessagesCached(con);
+      }
+    });
+
+    params.put("messages", prepareService.prepareMessages(messages));
+
+    params.put("offsetNavigation", month == null);
+    params.put("offset", offset);
+
+    if (section != null) {
+      String rssLink = "/section-rss.jsp?section=" + section.getId();
+      if (group != null) {
+        rssLink += "&group=" + group.getId();
+      }
+
+      params.put("rssLink", rssLink);
+    }
+
+    return new ModelAndView("view-news", params);
   }
 
   @RequestMapping(value="/people/{nick}")
@@ -263,57 +275,54 @@ public class NewsViewerController {
   ) throws Exception {
     Map<String, Object> params = new HashMap<String, Object>();
 
-    params.put("url", "/people/"+nick+ '/');
-    params.put("whoisLink", "/people/"+nick+ '/' +"profile");
+    params.put("url", "/people/" + nick + '/');
+    params.put("whoisLink", "/people/" + nick + '/' + "profile");
 // TODO    params.put("archiveLink", "/people/"+nick+"/archive/");
 
-    Connection db = null;
+    response.setDateHeader("Expires", System.currentTimeMillis() + 60 * 1000);
+    response.setDateHeader("Last-Modified", System.currentTimeMillis());
 
-    try {
-      response.setDateHeader("Expires", System.currentTimeMillis() + 60 * 1000);
-      response.setDateHeader("Last-Modified", System.currentTimeMillis());
+    User user = userDao.getUser(nick);
+    UserInfo userInfo = userDao.getUserInfoClass(user);
+    params.put("meLink", userInfo.getUrl());
 
-      db = LorDataSource.getConnection();
+    params.put("ptitle", "Сообщения " + user.getNick());
+    params.put("navtitle", "Сообщения " + user.getNick());
 
-      User user = User.getUser(db, nick);
-      UserInfo userInfo = new UserInfo(db, user.getId());
-      params.put("meLink", userInfo.getUrl());
+    params.put("user", user);
 
-      params.put("ptitle", "Сообщения "+user.getNick());
-      params.put("navtitle", "Сообщения "+user.getNick());
+    final NewsViewer newsViewer = new NewsViewer();
 
-      params.put("user", user);
+    offset = fixOffset(offset);
 
-      NewsViewer newsViewer = new NewsViewer();
+    newsViewer.setLimit("LIMIT 20" + (offset > 0 ? (" OFFSET " + offset) : ""));
 
-      offset = fixOffset(offset);
+    newsViewer.setCommitMode(NewsViewer.CommitMode.ALL);
 
-      newsViewer.setLimit("LIMIT 20" + (offset > 0 ? (" OFFSET " + offset) : ""));
+    if (user.getId() == 2) {
+      throw new UserErrorException("Лента для пользователя anonymous не доступна");
+    }
 
-      newsViewer.setCommitMode(NewsViewer.CommitMode.ALL);
+    newsViewer.setUserid(user.getId());
 
-      if (user.getId()==2) {
-        throw new UserErrorException("Лента для пользователя anonymous не доступна");
+    List<Message> messages = jdbcTemplate.execute(new ConnectionCallback<List<Message>>() {
+      @Override
+      public List<Message> doInConnection(Connection con) throws SQLException, DataAccessException {
+        return newsViewer.getMessagesCached(con);
       }
+    });
 
-      newsViewer.setUserid(user.getId());
+    params.put("messages", prepareService.prepareMessages(messages));
 
-      params.put("messages", newsViewer.getPreparedMessagesCached(db));
+    params.put("offsetNavigation", true);
+    params.put("offset", offset);
 
-      params.put("offsetNavigation", true);
-      params.put("offset", offset);
+    params.put("rssLink", "/people/" + nick + "/?output=rss");
 
-      params.put("rssLink", "/people/"+nick+"/?output=rss");
-
-      if (output!=null && "rss".equals(output)) {
-        return new ModelAndView("section-rss", params);
-      } else {
-        return new ModelAndView("view-news", params);
-      }
-    } finally {
-      if (db != null) {
-        db.close();
-      }
+    if (output != null && "rss".equals(output)) {
+      return new ModelAndView("section-rss", params);
+    } else {
+      return new ModelAndView("view-news", params);
     }
   }
 
@@ -329,54 +338,51 @@ public class NewsViewerController {
     params.put("url", "/people/"+nick+ "/favs");
     params.put("whoisLink", "/people/"+nick+ '/' +"profile");
 
-    Connection db = null;
+    response.setDateHeader("Expires", System.currentTimeMillis() + 60 * 1000);
+    response.setDateHeader("Last-Modified", System.currentTimeMillis());
 
-    try {
-      response.setDateHeader("Expires", System.currentTimeMillis() + 60 * 1000);
-      response.setDateHeader("Last-Modified", System.currentTimeMillis());
+    User user = userDao.getUser(nick);
+    UserInfo userInfo = userDao.getUserInfoClass(user);
+    params.put("meLink", userInfo.getUrl());
 
-      db = LorDataSource.getConnection();
+    params.put("ptitle", "Избранные сообщения " + user.getNick());
+    params.put("navtitle", "Избранные сообщения " + user.getNick());
 
-      User user = User.getUser(db, nick);
-      UserInfo userInfo = new UserInfo(db, user.getId());
-      params.put("meLink", userInfo.getUrl());
+    params.put("user", user);
 
-      params.put("ptitle", "Избранные сообщения "+user.getNick());
-      params.put("navtitle", "Избранные сообщения "+user.getNick());
+    final NewsViewer newsViewer = new NewsViewer();
 
-      params.put("user", user);
+    offset = fixOffset(offset);
 
-      NewsViewer newsViewer = new NewsViewer();
+    newsViewer.setLimit("LIMIT 20" + (offset > 0 ? (" OFFSET " + offset) : ""));
 
-      offset = fixOffset(offset);
+    newsViewer.setCommitMode(NewsViewer.CommitMode.ALL);
 
-      newsViewer.setLimit("LIMIT 20" + (offset > 0 ? (" OFFSET " + offset) : ""));
+    if (user.getId() == 2) {
+      throw new UserErrorException("Лента для пользователя anonymous не доступна");
+    }
 
-      newsViewer.setCommitMode(NewsViewer.CommitMode.ALL);
+    newsViewer.setUserid(user.getId());
+    newsViewer.setUserFavs(true);
 
-      if (user.getId()==2) {
-        throw new UserErrorException("Лента для пользователя anonymous не доступна");
+    List<Message> messages = jdbcTemplate.execute(new ConnectionCallback<List<Message>>() {
+      @Override
+      public List<Message> doInConnection(Connection con) throws SQLException, DataAccessException {
+        return newsViewer.getMessagesCached(con);
       }
+    });
 
-      newsViewer.setUserid(user.getId());
-      newsViewer.setUserFavs(true);
+    params.put("messages", prepareService.prepareMessages(messages));
 
-      params.put("messages", newsViewer.getPreparedMessagesCached(db));
+    params.put("offsetNavigation", true);
+    params.put("offset", offset);
 
-      params.put("offsetNavigation", true);
-      params.put("offset", offset);
+    params.put("rssLink", "/people/" + nick + "/favs?output=rss");
 
-      params.put("rssLink", "/people/"+nick+"/favs?output=rss");
-
-      if (output!=null && "rss".equals(output)) {
-        return new ModelAndView("section-rss", params);
-      } else {
-        return new ModelAndView("view-news", params);
-      }
-    } finally {
-      if (db != null) {
-        db.close();
-      }
+    if (output != null && "rss".equals(output)) {
+      return new ModelAndView("section-rss", params);
+    } else {
+      return new ModelAndView("view-news", params);
     }
   }
 
@@ -405,50 +411,54 @@ public class NewsViewerController {
 
     Section section = null;
 
-    if (sectionId!=0) {
+    if (sectionId != 0) {
       section = sectionDao.getSection(sectionId);
       modelAndView.getModel().put("section", section);
     }
 
-    Connection db = null;
-
-    try {
-      db = LorDataSource.getConnection();
-
-      NewsViewer newsViewer = new NewsViewer();
-      newsViewer.setCommitMode(NewsViewer.CommitMode.UNCOMMITED_ONLY);
-      newsViewer.setDatelimit("postdate>(CURRENT_TIMESTAMP-'1 month'::interval)");
-      if (section != null) {
-        newsViewer.addSection(section.getId());
-      }
-
-      modelAndView.getModel().put("messages", newsViewer.getPreparedMessages(db));
-
-      Statement st = db.createStatement();
-      ResultSet rs;
-
-      if (sectionId == 0) {
-        rs = st.executeQuery("SELECT topics.title as subj, nick, groups.section, groups.title as gtitle, topics.id as msgid, groups.id as guid, sections.name as ptitle, reason FROM topics,groups,users,sections,del_info WHERE sections.id=groups.section AND topics.userid=users.id AND topics.groupid=groups.id AND sections.moderate AND deleted AND del_info.msgid=topics.id AND topics.userid!=del_info.delby AND delDate is not null ORDER BY del_info.delDate DESC LIMIT 20");
-      } else {
-        rs = st.executeQuery("SELECT topics.title as subj, nick, groups.section, groups.title as gtitle, topics.id as msgid, groups.id as guid, sections.name as ptitle, reason FROM topics,groups,users,sections,del_info WHERE sections.id=groups.section AND topics.userid=users.id AND topics.groupid=groups.id AND sections.moderate AND deleted AND del_info.msgid=topics.id AND topics.userid!=del_info.delby AND delDate is not null AND section=" + sectionId + " ORDER BY del_info.delDate DESC LIMIT 20");
-      }
-
-      ImmutableList.Builder<Object> deleted = ImmutableList.builder();
-
-      while (rs.next()) {
-        deleted.add(new DeletedTopic(rs));
-      }
-
-      modelAndView.getModel().put("deletedTopics", deleted.build());
-
-      modelAndView.getModel().put("sections", sectionDao.getSectionsList());
-
-      return modelAndView;
-    } finally {
-      if (db != null) {
-        db.close();
-      }
+    final NewsViewer newsViewer = new NewsViewer();
+    newsViewer.setCommitMode(NewsViewer.CommitMode.UNCOMMITED_ONLY);
+    newsViewer.setDatelimit("postdate>(CURRENT_TIMESTAMP-'1 month'::interval)");
+    if (section != null) {
+      newsViewer.addSection(section.getId());
     }
+
+    List<Message> messages = jdbcTemplate.execute(new ConnectionCallback<List<Message>>() {
+      @Override
+      public List<Message> doInConnection(Connection con) throws SQLException, DataAccessException {
+        return newsViewer.getMessages(con);
+      }
+    });
+
+    modelAndView.getModel().put("messages", prepareService.prepareMessages(messages));
+
+    RowMapper<DeletedTopic> mapper = new RowMapper<DeletedTopic>() {
+      @Override
+      public DeletedTopic mapRow(ResultSet rs, int rowNum) throws SQLException {
+        return new DeletedTopic(rs);
+      }
+    };
+
+    List deleted;
+
+    if (sectionId == 0) {
+      deleted = jdbcTemplate.query(
+              "SELECT topics.title as subj, nick, groups.section, groups.title as gtitle, topics.id as msgid, groups.id as guid, sections.name as ptitle, reason FROM topics,groups,users,sections,del_info WHERE sections.id=groups.section AND topics.userid=users.id AND topics.groupid=groups.id AND sections.moderate AND deleted AND del_info.msgid=topics.id AND topics.userid!=del_info.delby AND delDate is not null ORDER BY del_info.delDate DESC LIMIT 20",
+              mapper
+      );
+    } else {
+      deleted = jdbcTemplate.query(
+              "SELECT topics.title as subj, nick, groups.section, groups.title as gtitle, topics.id as msgid, groups.id as guid, sections.name as ptitle, reason FROM topics,groups,users,sections,del_info WHERE sections.id=groups.section AND topics.userid=users.id AND topics.groupid=groups.id AND sections.moderate AND deleted AND del_info.msgid=topics.id AND topics.userid!=del_info.delby AND delDate is not null AND section=? ORDER BY del_info.delDate DESC LIMIT 20",
+              mapper,
+              sectionId
+      );
+    }
+
+    modelAndView.getModel().put("deletedTopics", deleted);
+
+    modelAndView.getModel().put("sections", sectionDao.getSectionsList());
+
+    return modelAndView;
   }
 
   public static class DeletedTopic {
@@ -598,19 +608,7 @@ public class NewsViewerController {
   ) throws Exception {
     Section section = sectionDao.getSection(sectionId);
 
-    Group group;
-
-    Connection db = null;
-
-    try {
-      db = LorDataSource.getConnection();
-
-      group = section.getGroup(db, groupName);
-    } finally {
-      if (db!=null) {
-        db.close();
-      }
-    }
+    Group group = groupDao.getGroup(section, groupName);
 
     ModelAndView mv = showNews(null, null, group.getSectionId(), group.getId(), null, offset, response);
 
@@ -636,20 +634,10 @@ public class NewsViewerController {
       return new RedirectView(Section.getArchiveLink(section)+Integer.toString(year)+ '/' +Integer.toString(month));
     }
 
-    if (groupId!=null) {
-      Connection db = null;
+    if (groupId != null) {
+      Group group = groupDao.getGroup(groupId);
 
-      try {
-        db=LorDataSource.getConnection();
-
-        Group group = Group.getGroup(db, groupId);
-
-        return new RedirectView(Section.getNewsViewerLink(section)+group.getUrlName()+ '/');
-      } finally {
-        if (db!=null) {
-          db.close();
-        }
-      }
+      return new RedirectView(Section.getNewsViewerLink(section) + group.getUrlName() + '/');
     }
 
     return new RedirectView(Section.getNewsViewerLink(section));

@@ -261,4 +261,16 @@ public class PrepareService {
 
     return new MessageMenu(editable, resolvable, memoriesId);
   }
+
+  public List<PreparedMessage> prepareMessages(List<Message> messages) {
+    List<PreparedMessage> pm = new ArrayList<PreparedMessage>(messages.size());
+
+    for (Message message : messages) {
+      PreparedMessage preparedMessage = prepareMessage(message, false);
+      pm.add(preparedMessage);
+    }
+
+    return pm;
+  }
+
 }
