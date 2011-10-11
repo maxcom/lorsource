@@ -102,11 +102,15 @@ public class PrepareService {
   }
 
   public PreparedMessage prepareMessage(Message message, boolean includeCut) {
-    return prepareMessage(message, messageDao.getTags(message), includeCut);
+    return prepareMessage(message, messageDao.getTags(message), includeCut, false);
+  }
+
+  public PreparedMessage prepareMessage(Message message, boolean includeCut, boolean useAbsoluteUrl) {
+    return prepareMessage(message, messageDao.getTags(message), includeCut, useAbsoluteUrl);
   }
 
   public PreparedMessage prepareMessage(Message message, List<String> tags) {
-    return prepareMessage(message, tags, true);
+    return prepareMessage(message, tags, true, false);
   }
 
   /**
@@ -116,7 +120,7 @@ public class PrepareService {
    * @param includeCut отображать ли cut
    * @return подготовленный топик
    */
-  public PreparedMessage prepareMessage(Message message, List<String> tags, boolean includeCut) {
+  public PreparedMessage prepareMessage(Message message, List<String> tags, boolean includeCut, boolean useAbsoluteUrl) {
     try {
       Group group = groupDao.getGroup(message.getGroupId());
       User author = userDao.getUserCached(message.getUid());
@@ -168,7 +172,7 @@ public class PrepareService {
         editCount = 0;
       }
 
-      String processedMessage = message.getProcessedMessage(userDao, includeCut, configuration.getMainUrl());
+      String processedMessage = message.getProcessedMessage(userDao, includeCut, useAbsoluteUrl?configuration.getMainUrl():"");
       String userAgent = userAgentDao.getUserAgentById(message.getUserAgent());
 
       return new PreparedMessage(message, author, deleteInfo, deleteUser, processedMessage, preparedPoll, commiter, tags, group, section, lastEditInfo, lastEditor, editCount, userAgent);
@@ -262,11 +266,11 @@ public class PrepareService {
     return new MessageMenu(editable, resolvable, memoriesId);
   }
 
-  public List<PreparedMessage> prepareMessages(List<Message> messages) {
+  public List<PreparedMessage> prepareMessages(List<Message> messages, boolean useAbsoluteUrl) {
     List<PreparedMessage> pm = new ArrayList<PreparedMessage>(messages.size());
 
     for (Message message : messages) {
-      PreparedMessage preparedMessage = prepareMessage(message, false);
+      PreparedMessage preparedMessage = prepareMessage(message, false, useAbsoluteUrl);
       pm.add(preparedMessage);
     }
 

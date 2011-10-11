@@ -249,7 +249,7 @@ public class NewsViewerController {
       }
     });
 
-    params.put("messages", prepareService.prepareMessages(messages));
+    params.put("messages", prepareService.prepareMessages(messages, false));
 
     params.put("offsetNavigation", month == null);
     params.put("offset", offset);
@@ -312,14 +312,16 @@ public class NewsViewerController {
       }
     });
 
-    params.put("messages", prepareService.prepareMessages(messages));
+    boolean rss = output != null && "rss".equals(output);
+
+    params.put("messages", prepareService.prepareMessages(messages, rss));
 
     params.put("offsetNavigation", true);
     params.put("offset", offset);
 
     params.put("rssLink", "/people/" + nick + "/?output=rss");
 
-    if (output != null && "rss".equals(output)) {
+    if (rss) {
       return new ModelAndView("section-rss", params);
     } else {
       return new ModelAndView("view-news", params);
@@ -372,14 +374,16 @@ public class NewsViewerController {
       }
     });
 
-    params.put("messages", prepareService.prepareMessages(messages));
+    boolean rss = output != null && "rss".equals(output);
+
+    params.put("messages", prepareService.prepareMessages(messages, rss));
 
     params.put("offsetNavigation", true);
     params.put("offset", offset);
 
     params.put("rssLink", "/people/" + nick + "/favs?output=rss");
 
-    if (output != null && "rss".equals(output)) {
+    if (rss) {
       return new ModelAndView("section-rss", params);
     } else {
       return new ModelAndView("view-news", params);
@@ -430,7 +434,7 @@ public class NewsViewerController {
       }
     });
 
-    modelAndView.getModel().put("messages", prepareService.prepareMessages(messages));
+    modelAndView.getModel().put("messages", prepareService.prepareMessages(messages, false));
 
     RowMapper<DeletedTopic> mapper = new RowMapper<DeletedTopic>() {
       @Override
