@@ -19,6 +19,7 @@ import java.sql.Connection;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -29,16 +30,20 @@ import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.site.LorDataSource;
 import ru.org.linux.site.Section;
 import ru.org.linux.spring.dao.GroupDao;
+import ru.org.linux.spring.dao.SectionDao;
 
 @Controller
 public class SectionController {
+  @Autowired
+  private SectionDao sectionDao;
+
   @RequestMapping("/view-section.jsp")
   public ModelAndView handleRequestInternal(@RequestParam("section") int sectionid) throws Exception {
+    Section section = sectionDao.getSection(sectionid);
+
     Connection db = null;
     try {
       db = LorDataSource.getConnection();
-
-      Section section = new Section(db, sectionid);
 
       Map<String, Object> params = new HashMap<String, Object>();
       params.put("section", section);

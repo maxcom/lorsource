@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -31,9 +33,13 @@ import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.site.LorDataSource;
 import ru.org.linux.site.Section;
 import ru.org.linux.site.Group;
+import ru.org.linux.spring.dao.SectionDao;
 
 @Controller
 public class ArchiveController {
+  @Autowired
+  private SectionDao sectionDao;
+
   public ModelAndView archiveList(
     int sectionid
   ) throws Exception {
@@ -46,10 +52,10 @@ public class ArchiveController {
   ) throws Exception {
     Connection db = null;
 
+    Section section = sectionDao.getSection(sectionid);
+
     try {
       db = LorDataSource.getConnection();
-
-      Section section = new Section(db, sectionid);
 
       ModelAndView mv = new ModelAndView("view-news-archive");
       mv.getModel().put("section", section);

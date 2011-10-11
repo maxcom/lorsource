@@ -43,12 +43,8 @@ import ru.org.linux.util.ServletParameterMissingException;
 
 @Controller
 public class NewsViewerController {
-  private final SectionDao sectionStore;
-
   @Autowired
-  public NewsViewerController(SectionDao sectionStore) {
-    this.sectionStore = sectionStore;
-  }
+  private SectionDao sectionDao;
 
   @RequestMapping(value = "/view-news.jsp", method = {RequestMethod.GET, RequestMethod.HEAD})
   public ModelAndView showNews(
@@ -64,8 +60,16 @@ public class NewsViewerController {
 
     params.put("url", "view-news.jsp");
     StringBuilder urlParams = new StringBuilder();
+
+    Section section = null;
+
     if (sectionid!=null) {
       urlParams.append("section=").append(Integer.toString(sectionid));
+
+      section = sectionDao.getSection(sectionid);
+
+      params.put("section", section);
+      params.put("archiveLink", section.getArchiveLink());
     }
 
     if (tag!=null) {
@@ -118,15 +122,6 @@ public class NewsViewerController {
       }
 
       db = LorDataSource.getConnection();
-
-      Section section = null;
-
-      if (sectionid != null) {
-        section = new Section(db, sectionid);
-
-        params.put("section", section);
-        params.put("archiveLink", section.getArchiveLink());
-      }
 
       Group group = null;
 
@@ -405,19 +400,20 @@ public class NewsViewerController {
   public ModelAndView viewAll(
     @RequestParam(value="section", required = false, defaultValue = "0") int sectionId
   ) throws Exception {
-    Connection db = null;
 
     ModelAndView modelAndView = new ModelAndView("view-all");
 
+    Section section = null;
+
+    if (sectionId!=0) {
+      section = sectionDao.getSection(sectionId);
+      modelAndView.getModel().put("section", section);
+    }
+
+    Connection db = null;
+
     try {
       db = LorDataSource.getConnection();
-
-      Section section = null;
-
-      if (sectionId!=0) {
-        section = new Section(db, sectionId);
-        modelAndView.getModel().put("section", section);
-      }
 
       NewsViewer newsViewer = new NewsViewer();
       newsViewer.setCommitMode(NewsViewer.CommitMode.UNCOMMITED_ONLY);
@@ -445,7 +441,7 @@ public class NewsViewerController {
 
       modelAndView.getModel().put("deletedTopics", deleted.build());
 
-      modelAndView.getModel().put("sections", sectionStore.getSectionsList());
+      modelAndView.getModel().put("sections", sectionDao.getSectionsList());
 
       return modelAndView;
     } finally {
@@ -600,13 +596,15 @@ public class NewsViewerController {
     String groupName,
     HttpServletResponse response
   ) throws Exception {
-    Connection db = null;
+    Section section = sectionDao.getSection(sectionId);
+
     Group group;
+
+    Connection db = null;
 
     try {
       db = LorDataSource.getConnection();
 
-      Section section = new Section(db, sectionId);
       group = section.getGroup(db, groupName);
     } finally {
       if (db!=null) {

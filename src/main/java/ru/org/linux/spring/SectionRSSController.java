@@ -15,12 +15,14 @@
 
 package ru.org.linux.spring;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.site.*;
+import ru.org.linux.spring.dao.SectionDao;
 
 import javax.servlet.http.HttpServletRequest;
 import java.sql.Connection;
@@ -30,6 +32,9 @@ import java.util.*;
 public class SectionRSSController {
   private static final String[] filterValues = { "all", "notalks", "tech"};
   private static final Set<String> filterValuesSet = new HashSet<String>(Arrays.asList(filterValues));
+
+  @Autowired
+  private SectionDao sectionDao;
 
   @RequestMapping("/section-rss.jsp")
   public ModelAndView showRSS(
@@ -78,12 +83,12 @@ public class SectionRSSController {
 
     nv.setLimit("LIMIT 20");
 
+    Section section = sectionDao.getSection(sectionId);
+    params.put("section", section);
+
     Connection db = null;
     try {
       db = LorDataSource.getConnection();
-
-      Section section = new Section(db, sectionId);
-      params.put("section", section);
 
       if (section.isPremoderated()) {
         nv.setCommitMode(NewsViewer.CommitMode.COMMITED_ONLY);
