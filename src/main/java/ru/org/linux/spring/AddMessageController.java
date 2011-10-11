@@ -243,7 +243,7 @@ public class AddMessageController extends ApplicationObjectSupport {
 
     if (group!=null) {
       previewMsg = new Message(form, user, message, request.getRemoteAddr());
-      params.put("message", prepareService.prepareMessage(previewMsg, TagDao.parseSanitizeTags(form.getTags()), true));
+      params.put("message", prepareService.prepareMessage(previewMsg, TagDao.parseSanitizeTags(form.getTags()), true, false));
     }
 
     if (!form.isPreviewMode() && !errors.hasErrors() && !session.getId().equals(request.getParameter("session"))) {
