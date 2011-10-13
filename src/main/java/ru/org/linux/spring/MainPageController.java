@@ -15,73 +15,70 @@
 
 package ru.org.linux.spring;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.ConnectionCallback;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
-import ru.org.linux.site.LorDataSource;
+import ru.org.linux.site.Message;
 import ru.org.linux.site.NewsViewer;
 import ru.org.linux.site.Template;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.sql.DataSource;
 import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.Statement;
+import java.sql.SQLException;
+import java.util.List;
 
 @Controller
 public class MainPageController {
+  @Autowired
+  private PrepareService prepareService;
+
+  private JdbcTemplate jdbcTemplate;
+
+  @Autowired
+  public void setDataSource(DataSource ds) {
+    jdbcTemplate = new JdbcTemplate(ds);
+  }
+
   @RequestMapping({"/", "/index.jsp"})
   public ModelAndView mainPage(HttpServletRequest request) throws Exception {
     Template tmpl = Template.getTemplate(request);
 
-    Connection db = null;
+    final NewsViewer nv = NewsViewer.getMainpage();
 
-    try {
-      db = LorDataSource.getConnection();
-
-      NewsViewer nv = NewsViewer.getMainpage();
-
-      if (tmpl.getProf().isShowGalleryOnMain()) {
-        nv.addSection(3);
-      }
-
-      ModelAndView mv = new ModelAndView("index");
-
-      mv.getModel().put("news", nv.getPreparedMessages(db));
-
-      if (tmpl.isModeratorSession() || tmpl.isCorrectorSession()) {
-        Statement st = db.createStatement();
-        ResultSet allUncommited = st.executeQuery("select count(*) from topics,groups,sections where section=sections.id AND sections.moderate and topics.groupid=groups.id and not deleted and not topics.moderate AND postdate>(CURRENT_TIMESTAMP-'1 month'::interval)");
-
-        int uncommited = 0;
-
-        if (allUncommited.next()) {
-          uncommited = allUncommited.getInt(1);
-        }
-
-        allUncommited.close();
-
-        mv.getModel().put("uncommited", uncommited);
-
-        int uncommitedNews = 0;
-
-        if (uncommited>0) {
-          ResultSet rs = st.executeQuery("select count(*) from topics,groups where section=1 AND topics.groupid=groups.id and not deleted and not topics.moderate AND postdate>(CURRENT_TIMESTAMP-'1 month'::interval)");
-
-          if (rs.next()) {
-            uncommitedNews = rs.getInt(1);
-          }
-
-          rs.close();
-        }
-
-        mv.getModel().put("uncommitedNews", uncommitedNews);
-      }
-
-      return mv;
-    } finally {
-      if (db != null) {
-        db.close();
-      }
+    if (tmpl.getProf().isShowGalleryOnMain()) {
+      nv.addSection(3);
     }
+
+    ModelAndView mv = new ModelAndView("index");
+
+    List<Message> messages = jdbcTemplate.execute(new ConnectionCallback<List<Message>>() {
+      @Override
+      public List<Message> doInConnection(Connection con) throws SQLException, DataAccessException {
+        return nv.getMessages(con);
+      }
+    });
+
+    mv.getModel().put("news", prepareService.prepareMessages(messages, false));
+
+    if (tmpl.isModeratorSession() || tmpl.isCorrectorSession()) {
+      int uncommited = jdbcTemplate.queryForInt("select count(*) from topics,groups,sections where section=sections.id AND sections.moderate and topics.groupid=groups.id and not deleted and not topics.moderate AND postdate>(CURRENT_TIMESTAMP-'1 month'::interval)");
+
+      mv.getModel().put("uncommited", uncommited);
+
+      int uncommitedNews = 0;
+
+      if (uncommited > 0) {
+        uncommitedNews = jdbcTemplate.queryForInt("select count(*) from topics,groups where section=1 AND topics.groupid=groups.id and not deleted and not topics.moderate AND postdate>(CURRENT_TIMESTAMP-'1 month'::interval)");
+      }
+
+      mv.getModel().put("uncommitedNews", uncommitedNews);
+    }
+
+    return mv;
   }
 }
