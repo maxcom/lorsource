@@ -16,10 +16,6 @@
 package ru.org.linux.site;
 
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
-import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 import org.springframework.validation.Errors;
 import ru.org.linux.spring.AddMessageRequest;
 import ru.org.linux.spring.EditMessageRequest;
@@ -35,7 +31,6 @@ import java.net.URLEncoder;
 import java.sql.*;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 
 public class Message implements Serializable {
   private final int msgid;
@@ -453,10 +448,6 @@ public class Message implements Serializable {
     return message;
   }
 
-  public String getProcessedMessage(Connection db) {
-    return getProcessedMessage(db, false);
-  }
-
   public String getProcessedMessage(UserDao userDao, boolean includeCut, String mainUrl) {
     if (lorcode) {
       String okMainUrl;
@@ -467,14 +458,6 @@ public class Message implements Serializable {
         okMainUrl = mainUrl;
       }
       return ParserUtil.bb2xhtml(message, includeCut, false, okMainUrl + getLink(), userDao);
-    } else {
-      return "<p>" + message;
-    }
-  }
-
-  public String getProcessedMessage(Connection db, boolean includeCut) {
-    if (lorcode) {
-      return ParserUtil.bb2xhtml(message, includeCut, false, getLink(), db);
     } else {
       return "<p>" + message;
     }
@@ -498,21 +481,6 @@ public class Message implements Serializable {
 
   public boolean isLorcode() {
     return lorcode;
-  }
-
-  @Deprecated
-  public List<EditInfoDTO> loadEditInfo(Connection db)  {
-    SingleConnectionDataSource scds = new SingleConnectionDataSource(db, true);
-
-    SimpleJdbcTemplate jdbcTemplate = new SimpleJdbcTemplate(scds);
-
-    List<EditInfoDTO> list = jdbcTemplate.query(
-      "SELECT * FROM edit_info WHERE msgid=? ORDER BY id DESC",
-      BeanPropertyRowMapper.newInstance(EditInfoDTO.class),
-      msgid
-    );
-
-    return ImmutableList.copyOf(list);
   }
 
   public boolean isResolved() {

@@ -1,11 +1,9 @@
 package ru.org.linux.util.bbcode;
 
-import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 import ru.org.linux.site.User;
 import ru.org.linux.spring.dao.UserDao;
 import ru.org.linux.util.bbcode.nodes.RootNode;
 
-import java.sql.Connection;
 import java.util.Set;
 
 /**
@@ -29,16 +27,9 @@ public class ParserUtil {
    * @param renderCut признак, показывать\не показывать содержимое тэга cut
    * @param cleanCut признак, оборачивать ли содержимое cut в div с id
    * @param cutUrl url для cut, указывает на текущий топик
-   * @param db интерфейс через который мы высосем информацию для каждого встреченного тэга user
+   * @param userDao интерфейс через который мы высосем информацию для каждого встреченного тэга user
    * @return результирующий HTML
    */
-  @Deprecated
-  public static String bb2xhtml(String bbcode, boolean renderCut, boolean cleanCut, String cutUrl, Connection db) {
-    UserDao singleUserDao = new UserDao();
-    singleUserDao.setJdbcTemplate(new SingleConnectionDataSource(db, true));
-    return bb2xhtml(bbcode, renderCut, cleanCut, cutUrl, singleUserDao);
-  }
-
   public static String bb2xhtml(String bbcode, boolean renderCut, boolean cleanCut, String cutUrl, UserDao userDao) {
     return defaultParser.parse(bbcode, renderCut, cleanCut, cutUrl, userDao).renderXHtml();
   }
@@ -52,12 +43,5 @@ public class ParserUtil {
     String html = rootNode.renderXHtml();
     Set<User> replier = rootNode.getReplier();
     return new ParserResult(html, replier);
-  }
-
-  @Deprecated
-  public static ParserResult bb2xhtm(String bbcode, boolean renderCut, boolean cleanCut, String cutUrl, Connection db) {
-    UserDao singleUserDao = new UserDao();
-    singleUserDao.setJdbcTemplate(new SingleConnectionDataSource(db, true));
-    return bb2xhtm(bbcode, renderCut,cleanCut,cutUrl,singleUserDao);
   }
 }

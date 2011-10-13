@@ -17,8 +17,6 @@ package ru.org.linux.site;
 
 import ru.org.linux.spring.dao.TagDao;
 
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.sql.Timestamp;
 
 public class EditInfoDTO {
@@ -104,14 +102,14 @@ public class EditInfoDTO {
     this.oldurl = oldurl;
   }
 
-  public static EditInfoDTO createFromMessage(Connection db, Message message) throws SQLException {
+  public static EditInfoDTO createFromMessage(TagDao tagDao, Message message) {
     EditInfoDTO current = new EditInfoDTO();
 
     current.setOldmessage(message.getMessage());
     current.setEditdate(message.getPostdate());
     current.setEditor(message.getUid());
     current.setMsgid(message.getMessageId());
-    current.setOldtags(TagDao.toString(TagDao.getMessageTags(db, message.getMessageId())));
+    current.setOldtags(TagDao.toString(tagDao.getMessageTags(message.getMessageId())));
     current.setOldlinktext(message.getLinktext());
     current.setOldurl(message.getUrl());
 

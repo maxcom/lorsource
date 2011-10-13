@@ -524,4 +524,14 @@ public class MessageDao {
       throw new RuntimeException(e);
     }
   }
+
+  public List<EditInfoDTO> loadEditInfo(int msgid)  {
+    List<EditInfoDTO> list = jdbcTemplate.query(
+      "SELECT * FROM edit_info WHERE msgid=? ORDER BY id DESC",
+      BeanPropertyRowMapper.newInstance(EditInfoDTO.class),
+      msgid
+    );
+
+    return ImmutableList.copyOf(list);
+  }
 }

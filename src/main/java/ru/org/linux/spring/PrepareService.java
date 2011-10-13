@@ -43,6 +43,9 @@ public class PrepareService {
   private JdbcTemplate jdbcTemplate;
 
   @Autowired
+  private TagDao tagDao;
+
+  @Autowired
   public void setPollDao(PollDao pollDao) {
     this.pollDao = pollDao;
   }
@@ -277,4 +280,60 @@ public class PrepareService {
     return pm;
   }
 
+  public List<PreparedEditInfo> build(Message message) throws UserNotFoundException, UserErrorException {
+    List<EditInfoDTO> editInfoDTOs = messageDao.loadEditInfo(message.getId());
+    List<PreparedEditInfo> editInfos = new ArrayList<PreparedEditInfo>(editInfoDTOs.size());
+
+    String currentMessage = message.getMessage();
+    String currentTitle = message.getTitle();
+    String currentUrl = message.getUrl();
+    String currentLinktext = message.getLinktext();
+    List<String> currentTags = tagDao.getMessageTags(message.getMessageId());
+
+    for (int i = 0; i<editInfoDTOs.size(); i++) {
+      EditInfoDTO dto = editInfoDTOs.get(i);
+
+      editInfos.add(
+        new PreparedEditInfo(
+          userDao,
+          dto,
+          dto.getOldmessage()!=null ? currentMessage : null,
+          dto.getOldtitle()!=null ? currentTitle : null,
+          dto.getOldurl()!=null ? currentUrl : null,
+          dto.getOldlinktext()!=null ? currentLinktext : null,
+          dto.getOldtags()!=null ? currentTags : null,
+          i==0,
+          false
+        )
+      );
+
+      if (dto.getOldmessage() !=null) {
+        currentMessage = dto.getOldmessage();
+      }
+
+      if (dto.getOldtitle() != null) {
+        currentTitle = dto.getOldtitle();
+      }
+
+      if (dto.getOldurl() != null) {
+        currentUrl = dto.getOldurl();
+      }
+
+      if (dto.getOldlinktext() != null) {
+        currentLinktext = dto.getOldlinktext();
+      }
+
+      if (dto.getOldtags()!=null) {
+        currentTags = TagDao.parseTags(dto.getOldtags());
+      }
+    }
+
+    if (!editInfoDTOs.isEmpty()) {
+      EditInfoDTO current = EditInfoDTO.createFromMessage(tagDao, message);
+
+      editInfos.add(new PreparedEditInfo(userDao, current, currentMessage, currentTitle, currentUrl, currentLinktext, currentTags, false, true));
+    }
+
+    return editInfos;
+  }
 }

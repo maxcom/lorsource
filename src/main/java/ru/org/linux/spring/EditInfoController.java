@@ -15,10 +15,9 @@
 
 package ru.org.linux.spring;
 
-import java.sql.Connection;
 import java.util.List;
 
-import ru.org.linux.site.LorDataSource;
+import org.springframework.beans.factory.annotation.Autowired;
 import ru.org.linux.site.Message;
 import ru.org.linux.site.PreparedEditInfo;
 
@@ -26,9 +25,16 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
+import ru.org.linux.spring.dao.MessageDao;
 
 @Controller
 public class EditInfoController {
+  @Autowired
+  private MessageDao messageDao;
+
+  @Autowired
+  private PrepareService prepareService;
+
   @RequestMapping({
     "/news/{group}/{id}/history",
     "/forum/{group}/{id}/history",
@@ -38,25 +44,15 @@ public class EditInfoController {
   public ModelAndView showEditInfo(
     @PathVariable("id") int msgid
   ) throws Exception {
-    Connection db = null;
+    Message message = messageDao.getById(msgid);
 
-    try {
-      db = LorDataSource.getConnection();
+    List<PreparedEditInfo> editInfos = prepareService.build(message);
 
-      Message message = Message.getMessage(db, msgid);
+    ModelAndView mv = new ModelAndView("history");
 
-      List<PreparedEditInfo> editInfos = PreparedEditInfo.build(db, message);
+    mv.getModel().put("message", message);
+    mv.getModel().put("editInfos", editInfos);
 
-      ModelAndView mv = new ModelAndView("history");
-
-      mv.getModel().put("message", message);
-      mv.getModel().put("editInfos", editInfos);
-
-      return mv;
-    } finally {
-      if (db!=null) {
-        db.close();
-      }
-    }
+    return mv;
   }
 }

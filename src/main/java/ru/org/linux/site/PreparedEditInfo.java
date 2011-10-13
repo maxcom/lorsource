@@ -15,12 +15,9 @@
 
 package ru.org.linux.site;
 
-import ru.org.linux.spring.dao.TagDao;
+import ru.org.linux.spring.dao.UserDao;
 import ru.org.linux.util.bbcode.ParserUtil;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 public class PreparedEditInfo {
@@ -35,7 +32,7 @@ public class PreparedEditInfo {
   private final String linktext;
 
   public PreparedEditInfo(
-    Connection db,
+    UserDao userDao,
     EditInfoDTO editInfo,
     String message,
     String title,
@@ -48,10 +45,10 @@ public class PreparedEditInfo {
     this.editInfo = editInfo;
     this.original = original;
 
-    editor = User.getUserCached(db, editInfo.getEditor());
+    editor = userDao.getUserCached(editInfo.getEditor());
 
     if (message!=null) {
-      this.message = ParserUtil.bb2xhtml(message, true, true, "", db);
+      this.message = ParserUtil.bb2xhtml(message, true, true, "", userDao);
     } else {
       this.message = null;
     }
@@ -99,63 +96,5 @@ public class PreparedEditInfo {
 
   public List<String> getTags() {
     return tags;
-  }
-
-  @Deprecated
-  public static List<PreparedEditInfo> build(Connection db, Message message) throws SQLException, UserNotFoundException, UserErrorException {
-    List<EditInfoDTO> editInfoDTOs = message.loadEditInfo(db);
-    List<PreparedEditInfo> editInfos = new ArrayList<PreparedEditInfo>(editInfoDTOs.size());
-
-    String currentMessage = message.getMessage();
-    String currentTitle = message.getTitle();
-    String currentUrl = message.getUrl();
-    String currentLinktext = message.getLinktext();
-    List<String> currentTags = TagDao.getMessageTags(db, message.getMessageId());
-
-    for (int i = 0; i<editInfoDTOs.size(); i++) {
-      EditInfoDTO dto = editInfoDTOs.get(i);
-
-      editInfos.add(
-        new PreparedEditInfo(
-          db,
-          dto,
-          dto.getOldmessage()!=null ? currentMessage : null,
-          dto.getOldtitle()!=null ? currentTitle : null,
-          dto.getOldurl()!=null ? currentUrl : null,
-          dto.getOldlinktext()!=null ? currentLinktext : null,
-          dto.getOldtags()!=null ? currentTags : null,
-          i==0,
-          false
-        )
-      );
-
-      if (dto.getOldmessage() !=null) {
-        currentMessage = dto.getOldmessage();
-      }
-
-      if (dto.getOldtitle() != null) {
-        currentTitle = dto.getOldtitle();
-      }
-
-      if (dto.getOldurl() != null) {
-        currentUrl = dto.getOldurl();
-      }
-
-      if (dto.getOldlinktext() != null) {
-        currentLinktext = dto.getOldlinktext();
-      }
-
-      if (dto.getOldtags()!=null) {
-        currentTags = TagDao.parseTags(dto.getOldtags());
-      }
-    }
-
-    if (!editInfoDTOs.isEmpty()) {
-      EditInfoDTO current = EditInfoDTO.createFromMessage(db, message);
-
-      editInfos.add(new PreparedEditInfo(db, current, currentMessage, currentTitle, currentUrl, currentLinktext, currentTags, false, true));
-    }
-
-    return editInfos;
   }
 }
