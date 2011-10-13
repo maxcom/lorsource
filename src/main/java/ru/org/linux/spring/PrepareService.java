@@ -16,13 +16,11 @@
 package ru.org.linux.spring;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import ru.org.linux.site.*;
 import ru.org.linux.spring.dao.*;
 import ru.org.linux.util.bbcode.ParserUtil;
 
-import javax.sql.DataSource;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,10 +38,12 @@ public class PrepareService {
   private CommentDao commentDao;
   private UserAgentDao userAgentDao;
   private Configuration configuration;
-  private JdbcTemplate jdbcTemplate;
 
   @Autowired
   private TagDao tagDao;
+
+  @Autowired
+  private MemoriesDao memoriesDao;
 
   @Autowired
   public void setPollDao(PollDao pollDao) {
@@ -88,11 +88,6 @@ public class PrepareService {
   @Autowired
   public void setConfiguration(Configuration configuration) {
     this.configuration = configuration;
-  }
-
-  @Autowired
-  public void setDataSource(DataSource ds) {
-    jdbcTemplate = new JdbcTemplate(ds);
   }
 
   /**
@@ -249,18 +244,7 @@ public class PrepareService {
       resolvable = (currentUser.canModerate() || (message.getAuthor().getId()==currentUser.getId())) &&
             message.getGroup().isResolvable();
 
-      List<Integer> res = jdbcTemplate.queryForList(
-              "SELECT id FROM memories WHERE userid=? AND topic=?",
-              Integer.class,
-              currentUser.getId(),
-              message.getId()
-      );
-
-      if (!res.isEmpty()) {
-        memoriesId = res.get(0);
-      } else {
-        memoriesId = 0;
-      }
+      memoriesId = memoriesDao.getId(currentUser, message.getMessage());
     } else {
       resolvable = false;
       memoriesId = 0;

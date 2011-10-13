@@ -15,7 +15,9 @@
 
 package ru.org.linux.site;
 
-import java.sql.*;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
 
 public class MemoriesListItem {
   private final int id;
@@ -23,23 +25,11 @@ public class MemoriesListItem {
   private final Timestamp timestamp;
   private final int topic;
 
-  private MemoriesListItem(ResultSet rs) throws SQLException {
+  public MemoriesListItem(ResultSet rs) throws SQLException {
     id = rs.getInt("id");
     userid = rs.getInt("userid");
     timestamp = rs.getTimestamp("add_date");
     topic = rs.getInt("topic");
-  }
-
-  public static MemoriesListItem getMemoriesListItem(Connection db, int id) throws SQLException {
-    Statement st = db.createStatement();
-
-    ResultSet rs = st.executeQuery("SELECT * FROM memories WHERE id="+id);
-
-    if (!rs.next()) {
-      return null;
-    } else {
-      return new MemoriesListItem(rs);
-    }
   }
 
   public int getId() {
@@ -56,18 +46,5 @@ public class MemoriesListItem {
 
   public int getTopic() {
     return topic;
-  }
-
-  @Deprecated
-  public static int getId(Connection db, int userid, int topic) throws SQLException {
-    Statement st = db.createStatement();
-
-    ResultSet rs = st.executeQuery("SELECT id FROM memories WHERE userid="+userid+" AND topic="+topic);
-
-    if (!rs.next()) {
-      return 0;
-    } else {
-      return rs.getInt("id");
-    }
   }
 }

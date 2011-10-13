@@ -15,10 +15,7 @@
 
 package ru.org.linux.spring;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-
-import javax.servlet.ServletRequest;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -26,15 +23,24 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.view.RedirectView;
-
 import ru.org.linux.site.*;
+import ru.org.linux.spring.dao.MemoriesDao;
+import ru.org.linux.spring.dao.MessageDao;
+
+import javax.servlet.ServletRequest;
 
 @Controller
 public class MemoriesController {
-  @RequestMapping(value="/memories.jsp", params = {"add"}, method= RequestMethod.POST)
+  @Autowired
+  private MessageDao messageDao;
+
+  @Autowired
+  private MemoriesDao memoriesDao;
+
+  @RequestMapping(value = "/memories.jsp", params = {"add"}, method = RequestMethod.POST)
   public View add(
-    ServletRequest request,
-    @RequestParam("msgid") int msgid
+          ServletRequest request,
+          @RequestParam("msgid") int msgid
   ) throws Exception {
     Template tmpl = Template.getTemplate(request);
 
@@ -42,39 +48,24 @@ public class MemoriesController {
       throw new AccessViolationException("Not authorized");
     }
 
-    Connection db = null;
+    User user = tmpl.getCurrentUser();
+    user.checkBlocked();
+    user.checkAnonymous();
 
-    try {
-      db = LorDataSource.getConnection();
-
-      User user = tmpl.getCurrentUser();
-      user.checkBlocked();
-      user.checkAnonymous();
-
-      Message topic = Message.getMessage(db, msgid);
-      if (topic.isDeleted()) {
-        throw new UserErrorException("Тема удалена");
-      }
-
-      if (MemoriesListItem.getId(db, user.getId(), topic.getId()) == 0) {
-        PreparedStatement pst = db.prepareStatement("INSERT INTO memories (userid, topic) values (?,?)");
-        pst.setInt(1, user.getId());
-        pst.setInt(2, topic.getId());
-        pst.executeUpdate();
-      }
-
-      return new RedirectView(topic.getLink());
-    } finally {
-      if (db!=null) {
-        db.close();
-      }
+    Message topic = messageDao.getById(msgid);
+    if (topic.isDeleted()) {
+      throw new UserErrorException("Тема удалена");
     }
+
+    memoriesDao.addToMemories(user.getId(), topic.getId());
+
+    return new RedirectView(topic.getLink());
   }
 
-  @RequestMapping(value="/memories.jsp", params = {"remove"}, method= RequestMethod.POST)
+  @RequestMapping(value = "/memories.jsp", params = {"remove"}, method = RequestMethod.POST)
   public ModelAndView remove(
-    ServletRequest request,
-    @RequestParam("id") int id
+          ServletRequest request,
+          @RequestParam("id") int id
   ) throws Exception {
     Template tmpl = Template.getTemplate(request);
 
@@ -82,37 +73,24 @@ public class MemoriesController {
       throw new AccessViolationException("Not authorized");
     }
 
-    Connection db = null;
+    User user = tmpl.getCurrentUser();
+    user.checkBlocked();
+    user.checkAnonymous();
 
-    try {
-      db = LorDataSource.getConnection();
+    MemoriesListItem m = memoriesDao.getMemoriesListItem(id);
 
-      User user = tmpl.getCurrentUser();
-      user.checkBlocked();
-      user.checkAnonymous();
-
-      MemoriesListItem m = MemoriesListItem.getMemoriesListItem(db, id);
-
-      if (m != null) {
-        if (m.getUserid() != user.getId()) {
-          throw new AccessViolationException("Нельзя удалить чужую запись");
-        }
-
-        Message topic = Message.getMessage(db, m.getTopic());
-
-        PreparedStatement pst = db.prepareStatement("DELETE FROM memories WHERE id=?");
-        pst.setInt(1, id);
-        pst.executeUpdate();
-
-        return new ModelAndView(new RedirectView(topic.getLink()));
-      } else {
-        return new ModelAndView("action-done", "message", "Запись уже удалена");
+    if (m != null) {
+      if (m.getUserid() != user.getId()) {
+        throw new AccessViolationException("Нельзя удалить чужую запись");
       }
 
-    } finally {
-      if (db!=null) {
-        db.close();
-      }
+      Message topic = messageDao.getById(m.getTopic());
+
+      memoriesDao.delete(id);
+
+      return new ModelAndView(new RedirectView(topic.getLink()));
+    } else {
+      return new ModelAndView("action-done", "message", "Запись уже удалена");
     }
   }
 }
