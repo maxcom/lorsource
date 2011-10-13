@@ -23,7 +23,7 @@ import java.util.regex.Pattern;
 
 public final class URLUtil {
   private static final Pattern isUrl = Pattern.compile(
-    "(((https?)|(ftp))://(([0-9\\p{L}.-]+\\.\\p{L}+)|(\\d+\\.\\d+\\.\\d+\\.\\d+))(:[0-9]+)?(/[^ ]*)?)|(mailto:[a-z0-9_+-]+@[0-9a-z.-]+\\.[a-z]+)|(news:[a-z0-9.-]+)|(((www)|(ftp))\\.(([0-9a-z.-]+\\.[a-z]+(:[0-9]+)?(/[^ ]*)?)|([a-z]+(/[^ ]*)?)))",
+    "(((https?)|(ftp))://(([0-9\\p{L}.-]+\\.\\p{L}+)|(\\d+\\.\\d+\\.\\d+\\.\\d+))(:[0-9]+)?(/[^ ]*)?)|(mailto:[a-z0-9_+-.]+@[0-9a-z.-]+\\.[a-z]+)|(news:[a-z0-9.-]+)|(((www)|(ftp))\\.(([0-9a-z.-]+\\.[a-z]+(:[0-9]+)?(/[^ ]*)?)|([a-z]+(/[^ ]*)?)))",
     Pattern.CASE_INSENSITIVE
   );
 

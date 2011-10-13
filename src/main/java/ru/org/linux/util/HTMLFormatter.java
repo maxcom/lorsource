@@ -115,12 +115,12 @@ public class HTMLFormatter {
     "(?:/(?:([\\w=?+/\\[\\]~%;,._@#'!\\p{L}:-]|(\\([^\\)]*\\)))*([\\p{L}:'" +
     "\\w=?+/~@%#-]|(?:&(?=amp;)[\\w:$_.+!" +
     "*'#%(),@\\p{L}=;/-]+)+|(\\([^\\)]*\\))))?)?)" +
-    "|(?:mailto: ?[a-z0-9+]+@[a-z0-9.-]+.[a-z]+)|(?:news:([\\w+]\\.?)+)";
+    "|(?:mailto: ?[a-z0-9+.]+@[a-z0-9.-]+.[a-z]+)|(?:news:([\\w+]\\.?)+)";
 
   private static final String URL_PATTTERN_UNESCAPED = "(?:(?:(?:(?:https?://)|(?:ftp://)|(?:www\\.))|(?:ftp\\.))[a-z0-9.-]+(?:\\.[a-z]+)?(?::[0-9]+)?" +
     "(?:/(?:([\\w=?+/\\[\\]~%;,._@#'!\\p{L}:-]|(\\([^\\)]*\\)))*([\\p{L}:'" +
     "\\w=?+/~@%#-]|(?:&[\\w:$_.+!*'#%(),@\\p{L}=;/-]+)+|(\\([^\\)]*\\))))?)?)" +
-    "|(?:mailto: ?[a-z0-9+]+@[a-z0-9.-]+.[a-z]+)|(?:news:([\\w+]\\.?)+)";
+    "|(?:mailto: ?[a-z0-9+.]+@[a-z0-9.-]+.[a-z]+)|(?:news:([\\w+]\\.?)+)";
 
   public static final Pattern urlRE = Pattern.compile(URL_PATTTERN, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
   public static final Pattern urlRE_UNESCAPED = Pattern.compile(URL_PATTTERN_UNESCAPED, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
