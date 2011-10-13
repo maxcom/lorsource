@@ -15,19 +15,26 @@
 
 package ru.org.linux.spring;
 
-import java.sql.Connection;
-
-import javax.servlet.http.HttpServletRequest;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
-
 import ru.org.linux.site.*;
+import ru.org.linux.spring.dao.GroupDao;
+import ru.org.linux.spring.dao.MessageDao;
+
+import javax.servlet.http.HttpServletRequest;
 
 @Controller
 public class ResolveController  {
+  @Autowired
+  private MessageDao messageDao;
+
+  @Autowired
+  private GroupDao groupDao;
+
   @RequestMapping("/resolve.jsp")
   public ModelAndView resolve(
     HttpServletRequest request,
@@ -35,27 +42,18 @@ public class ResolveController  {
     @RequestParam("resolve") String resolved
   ) throws Exception {
     Template tmpl = Template.getTemplate(request);
-    Connection db = null;
 
-    try {
-      db = LorDataSource.getConnection();
-      Message message = Message.getMessage(db, msgid);
-      Group group = Group.getGroup(db, message.getGroupId());
-      User currentUser = tmpl.getCurrentUser();
-      if (!group.isResolvable()) {
-        throw new AccessViolationException("В данной группе нельзя помечать темы как решенные");
-      }
-      if (!tmpl.isModeratorSession() && currentUser.getId() != message.getUid()) {
-        throw new AccessViolationException("У Вас нет прав на решение данной темы");
-      }
-      message.resolveMessage(db, (resolved != null) && "yes".equals(resolved));
-      return new ModelAndView(new RedirectView(message.getLinkLastmod()));
-    } finally {
-      if (db != null) {
-        db.close();
-      }
+    Message message = messageDao.getById(msgid);
+    Group group = groupDao.getGroup(message.getGroupId());
+    User currentUser = tmpl.getCurrentUser();
+    if (!group.isResolvable()) {
+      throw new AccessViolationException("В данной группе нельзя помечать темы как решенные");
     }
+    if (!tmpl.isModeratorSession() && currentUser.getId() != message.getUid()) {
+      throw new AccessViolationException("У Вас нет прав на решение данной темы");
+    }
+    messageDao.resolveMessage(message.getId(), (resolved != null) && "yes".equals(resolved));
+
+    return new ModelAndView(new RedirectView(message.getLinkLastmod()));
   }
-
-
 }

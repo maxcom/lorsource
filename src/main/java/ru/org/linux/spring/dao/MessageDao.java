@@ -22,7 +22,10 @@ import ru.org.linux.util.LorHttpUtils;
 import javax.servlet.http.HttpServletRequest;
 import javax.sql.DataSource;
 import java.io.IOException;
-import java.sql.*;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.*;
 
 /**
@@ -533,5 +536,13 @@ public class MessageDao {
     );
 
     return ImmutableList.copyOf(list);
+  }
+
+  public void resolveMessage(int msgid, boolean b) {
+    jdbcTemplate.update(
+            "UPDATE topics SET resolved=?,lastmod=lastmod+'1 second'::interval WHERE id=?",
+            b,
+            msgid
+    );
   }
 }

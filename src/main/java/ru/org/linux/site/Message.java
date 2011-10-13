@@ -487,13 +487,6 @@ public class Message implements Serializable {
     return resolved;
   }
 
-  public void resolveMessage(Connection db, boolean b) throws SQLException {
-    PreparedStatement pstMsgbase = db.prepareStatement("UPDATE topics SET resolved=?,lastmod=lastmod+'1 second'::interval WHERE id=?");
-    pstMsgbase.setBoolean(1, b);
-    pstMsgbase.setInt(2, msgid);
-    pstMsgbase.executeUpdate();
-  }
-
   public String getLink() {
     try {
       return Section.getSectionLink(sectionid) + URLEncoder.encode(groupUrl, UTF8) + '/' + msgid;
