@@ -111,17 +111,7 @@ public class NewsViewer {
 
   @Deprecated
   public List<PreparedMessage> getPreparedMessages(Connection db) throws SQLException {
-    return getPreparedMessages(db, false);
-  }
-
-  @Deprecated
-  public List<PreparedMessage> getPreparedMessagesCached(Connection db) throws SQLException {
-    return getPreparedMessages(db, true);
-  }
-
-  @Deprecated
-  private List<PreparedMessage> getPreparedMessages(Connection db, boolean cached) throws SQLException {
-    List<Message> messages = cached?getMessagesCached(db):getMessages(db);
+    List<Message> messages = getMessages(db);
     List<PreparedMessage> pm = new ArrayList<PreparedMessage>(messages.size());
 
     for (Message message : messages) {
