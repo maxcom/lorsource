@@ -57,7 +57,6 @@ public class NewsViewer {
   private String datelimit = null;
   private String limit="";
   private int tag=0;
-  private String mainUrl = "";
 
   private CommitMode commitMode = CommitMode.COMMITED_AND_POSTMODERATED;
 
@@ -107,19 +106,6 @@ public class NewsViewer {
     }
 
     return res;
-  }
-
-  @Deprecated
-  public List<PreparedMessage> getPreparedMessages(Connection db) throws SQLException {
-    List<Message> messages = getMessages(db);
-    List<PreparedMessage> pm = new ArrayList<PreparedMessage>(messages.size());
-
-    for (Message message : messages) {
-      PreparedMessage preparedMessage = new PreparedMessage(db, message, false, mainUrl);
-      pm.add(preparedMessage);
-    }
-
-    return pm;
   }
 
   public List<Message> getMessages(Connection db) throws SQLException {
@@ -247,10 +233,6 @@ public class NewsViewer {
 
   public void setLimit(String limit) {
     this.limit = limit;
-  }
-
-  public void setMainUrl(String url) {
-    mainUrl = url;
   }
 
   public String getVariantID()  {

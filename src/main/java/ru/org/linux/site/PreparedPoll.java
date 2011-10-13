@@ -18,8 +18,6 @@ package ru.org.linux.site;
 import com.google.common.collect.ImmutableList;
 import ru.org.linux.util.HTMLFormatter;
 
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.List;
 
 public class PreparedPoll {
@@ -31,13 +29,6 @@ public class PreparedPoll {
     this.poll = poll;
     this.maximumValue = maximumValue;
     this.variants = ImmutableList.copyOf(variants);
-  }
-
-  @Deprecated
-  public PreparedPoll(Connection db, Poll poll) throws SQLException {
-    this.poll = poll;
-    maximumValue = poll.getMaxVote(db);
-    variants = poll.getPollVariants(db, Poll.ORDER_VOTES);
   }
 
   public Poll getPoll() {

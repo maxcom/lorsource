@@ -457,22 +457,6 @@ public class Message implements Serializable {
     return getProcessedMessage(db, false);
   }
 
-  @Deprecated
-  public String getProcessedMessage(Connection db, boolean includeCut, String mainUrl) {
-    if (lorcode) {
-      String okMainUrl;
-      // Откусяываем последний слэш у mainUrl если он есть
-      if(mainUrl.endsWith("/")){
-        okMainUrl = mainUrl.substring(0, mainUrl.length()-1);
-      }else{
-        okMainUrl = mainUrl;
-      }
-      return ParserUtil.bb2xhtml(message, includeCut, false, okMainUrl + getLink(), db);
-    } else {
-      return "<p>" + message;
-    }
-  }
-
   public String getProcessedMessage(UserDao userDao, boolean includeCut, String mainUrl) {
     if (lorcode) {
       String okMainUrl;

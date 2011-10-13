@@ -706,8 +706,6 @@ public class NewsViewerController {
     nv.setNotalks(notalks);
     nv.setTech(tech);
 
-    nv.setMainUrl(Template.getTemplate(request).getMainUrl());
-
     nv.setLimit("LIMIT 20");
 
     Section section = sectionDao.getSection(sectionId);

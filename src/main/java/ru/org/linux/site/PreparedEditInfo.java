@@ -101,6 +101,7 @@ public class PreparedEditInfo {
     return tags;
   }
 
+  @Deprecated
   public static List<PreparedEditInfo> build(Connection db, Message message) throws SQLException, UserNotFoundException, UserErrorException {
     List<EditInfoDTO> editInfoDTOs = message.loadEditInfo(db);
     List<PreparedEditInfo> editInfos = new ArrayList<PreparedEditInfo>(editInfoDTOs.size());

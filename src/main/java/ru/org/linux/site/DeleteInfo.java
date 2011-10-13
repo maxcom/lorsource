@@ -31,28 +31,6 @@ public class DeleteInfo implements Serializable {
     this.delDate = delDate;
   }
 
-  @Deprecated
-  public static DeleteInfo getDeleteInfo(Connection db, int msgid) throws SQLException {
-    PreparedStatement pst = null;
-    try {
-      pst = db.prepareStatement("SELECT nick,reason,users.id as userid, deldate FROM del_info,users WHERE msgid=? AND users.id=del_info.delby");
-
-      pst.setInt(1, msgid);
-
-      ResultSet rs = pst.executeQuery();
-
-      if (!rs.next()) {
-        return null;
-      }
-
-      return new DeleteInfo(rs.getString("nick"), rs.getInt("userid"), rs.getString("reason"), rs.getTimestamp("deldate"));
-    } finally {
-      if (pst!=null) {
-        pst.close();
-      }
-    }
-  }
-
   public String getNick() {
     return nick;
   }

@@ -16,12 +16,7 @@
 package ru.org.linux.site;
 
 import com.google.common.collect.ImmutableList;
-import ru.org.linux.spring.dao.TagDao;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.List;
 
 public final class PreparedMessage {
@@ -44,11 +39,6 @@ public final class PreparedMessage {
 
   private static final int EDIT_PERIOD = 2 * 60 * 60 * 1000; // milliseconds
 
-  @Deprecated
-  public PreparedMessage(Connection db, Message message, boolean includeCut, String mainUrl) throws SQLException {
-    this(db, message, TagDao.getMessageTags(db, message.getId()), includeCut, mainUrl);
-  }
-
   public PreparedMessage(Message message, User author, DeleteInfo deleteInfo, User deleteUser, String processedMessage,
                           PreparedPoll poll, User commiter, List<String> tags, Group group, Section section,
                           EditInfoDTO lastEditInfo, User lastEditor, int editorCount, String userAgent) {
@@ -70,100 +60,6 @@ public final class PreparedMessage {
     this.lastEditor = lastEditor;
     editCount = editorCount;
     this.userAgent = userAgent;
-  }
-
-  private PreparedMessage(Connection db, Message message, List<String> tags, boolean includeCut, String mainUrl) throws SQLException {
-    try {
-      this.message = message;
-
-      group = Group.getGroup(db, message.getGroupId());
-
-      author = User.getUserCached(db, message.getUid());
-
-      section = new Section(db, message.getSectionId());
-
-      if (message.isDeleted()) {
-        deleteInfo = DeleteInfo.getDeleteInfo(db, message.getId());
-
-        if (deleteInfo!=null) {
-          deleteUser = User.getUserCached(db, deleteInfo.getUserid());
-        } else {
-          deleteUser = null;
-        }
-      } else {
-        deleteInfo = null;
-        deleteUser = null;
-      }
-
-      if (message.isVotePoll()) {
-        poll = new PreparedPoll(db, Poll.getPollByTopic(db, message.getId()));
-      } else {
-        poll = null;
-      }
-
-      if (message.getCommitby()!=0) {
-        commiter = User.getUserCached(db, message.getCommitby());
-      } else {
-        commiter = null;
-      }
-
-      List<EditInfoDTO> editInfo = message.loadEditInfo(db);
-      if (!editInfo.isEmpty()) {
-        lastEditInfo = editInfo.get(0);
-        lastEditor = User.getUserCached(db, lastEditInfo.getEditor());
-        editCount = editInfo.size();
-      } else {
-        lastEditInfo = null;
-        lastEditor = null;
-        editCount = 0;
-      }
-
-      processedMessage = message.getProcessedMessage(db, includeCut, mainUrl);
-
-      userAgent = loadUserAgent(db, message.getUserAgent());
-
-      if (tags!=null) {
-        this.tags=ImmutableList.copyOf(tags);
-      } else {
-        this.tags=ImmutableList.of();
-      }
-    } catch (BadGroupException e) {
-      throw new RuntimeException(e);
-    } catch (UserNotFoundException e) {
-      throw new RuntimeException(e);
-    } catch (PollNotFoundException e) {
-      throw new RuntimeException(e);
-    } catch (SectionNotFoundException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  /**
-   * См. UserAgentDao
-   * @param db подключение к БД
-   * @param id id UA
-   * @return название UA
-   * @throws SQLException если что-то не так
-   */
-  @Deprecated
-  private static String loadUserAgent(Connection db, int id) throws SQLException {
-    if (id==0) {
-      return null;
-    }
-
-    PreparedStatement pst = db.prepareStatement("SELECT name FROM user_agents WHERE id=?");
-
-    try {
-      pst.setInt(1, id);
-      ResultSet rs = pst.executeQuery();
-      if (rs.next()) {
-        return rs.getString(1);
-      } else {
-        return null;
-      }
-    } finally {
-      pst.close();
-    }
   }
 
   public Message getMessage() {

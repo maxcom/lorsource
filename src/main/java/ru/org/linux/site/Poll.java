@@ -34,46 +34,6 @@ public class Poll implements Serializable {
   private final boolean multiSelect;
   private static final long serialVersionUID = -6541849807995680089L;
 
-  @Deprecated
-  public static Poll getPollByTopic(Connection db, int msgid) throws SQLException, PollNotFoundException {
-    PreparedStatement pst = db.prepareStatement("SELECT votenames.id FROM votenames,topics WHERE topics.id=? AND votenames.topic=topics.id");
-    pst.clearParameters();
-    pst.setInt(1, msgid);
-    ResultSet rs = pst.executeQuery();
-    if (!rs.next()) {
-      throw new PollNotFoundException("Голосование не найдено для темы #"+msgid);
-    }
-    
-    return new Poll(db, rs.getInt("id"));
-  }
-
-  @Deprecated
-  private static int getCurrentPollId(Connection db) throws SQLException {
-    Statement st = db.createStatement();
-
-    ResultSet rs = st.executeQuery("SELECT votenames.id FROM votenames,topics WHERE topics.id=votenames.topic AND topics.moderate = 't' AND topics.deleted = 'f' AND topics.commitdate = (select max(commitdate) from topics where groupid=19387 AND moderate AND NOT deleted)");
-
-    return rs.next()?rs.getInt("id"):0;
-  }
-
-  @Deprecated
-  public Poll(Connection db, int id) throws SQLException, PollNotFoundException {
-    this.id = id;
-
-    Statement st = db.createStatement();
-
-    ResultSet rs = st.executeQuery("SELECT topic, multiselect FROM votenames WHERE id="+id);
-
-    if (!rs.next()) {
-      throw new PollNotFoundException(id);
-    }
-
-    topic = rs.getInt("topic");
-    multiSelect = rs.getBoolean("multiselect");
-
-    current = getCurrentPollId(db)==id;
-  }
-
   public Poll(int id, int topic, boolean multiSelect, boolean current) {
     this.id = id;
     this.topic = topic;
@@ -115,21 +75,6 @@ public class Poll implements Serializable {
 
   public int getTopicId() {
     return topic;
-  }
-
-  @Deprecated
-  public int getMaxVote(Connection db) throws SQLException {
-    Statement st = db.createStatement();
-    ResultSet rs=st.executeQuery("SELECT max(votes) FROM votes WHERE vote="+id);
-    rs.next();
-    int max=rs.getInt("max");
-    if (max == 0) {
-      max = 1;
-    }
-    rs.close();
-    st.close();
-
-    return max;
   }
 
   public void addNewVariant(Connection db, String label) throws SQLException {
