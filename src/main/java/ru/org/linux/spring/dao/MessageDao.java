@@ -560,4 +560,42 @@ public class MessageDao {
             msg.getId()
     );
   }
+
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
+  public void moveTopic(Message msg, Group newGrp, User moveBy) {
+    String url = msg.getUrl();
+
+    jdbcTemplate.update("UPDATE topics SET groupid=?,lastmod=CURRENT_TIMESTAMP WHERE id=?", newGrp.getId(), msg.getId());
+
+    if (url != null && !newGrp.isLinksAllowed() && !newGrp.isImagePostAllowed()) {
+      jdbcTemplate.update("UPDATE topics SET linktext=null, url=null WHERE id=?", msg.getId());
+
+      String title = msg.getGroupTitle();
+      String linktext = msg.getLinktext();
+
+      /* if url is not null, update the topic text */
+      String link;
+      if (msg.isLorcode()) {
+        link = "\n[url=" + url + ']' + linktext + "[/url]\n";
+      } else {
+        link = "<br><a href=\"" + url + "\">" + linktext + "</a>\n<br>\n";
+      }
+
+      String add;
+
+      if (msg.isLorcode()) {
+        add = '\n' + link + "\n[i]Перемещено " + moveBy.getNick() + " из " + title + "[/i]\n";
+      } else {
+        add = '\n' + link + "<br><i>Перемещено " + moveBy.getNick() + " из " + title + "</i>\n";
+      }
+
+      jdbcTemplate.update("UPDATE msgbase SET message=message||? WHERE id=?", add, msg.getId());
+    }
+
+    if (!newGrp.isModerated()) {
+      ImmutableList<String> oldTags = tagDao.getMessageTags(msg.getId());
+      tagDao.updateTags(msg.getId(), ImmutableList.<String>of());
+      tagDao.updateCounters(oldTags, Collections.<String>emptyList());
+    }
+  }
 }

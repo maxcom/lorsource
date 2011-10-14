@@ -30,9 +30,6 @@ import ru.org.linux.spring.dao.SectionDao;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.Statement;
 
 @Controller
 public class TopicModificationController extends ApplicationObjectSupport {
@@ -164,60 +161,12 @@ public class TopicModificationController extends ApplicationObjectSupport {
 
     Group newGrp = groupDao.getGroup(newgr);
 
-    Connection db = null;
+    messageDao.moveTopic(msg, newGrp, tmpl.getCurrentUser());
 
-    try {
-      db = LorDataSource.getConnection();
-      db.setAutoCommit(false);
+    logger.info("topic " + msgid + " moved" +
+            " by " + tmpl.getNick() + " from news/forum " + msg.getGroupTitle() + " to forum " + newGrp.getTitle());
 
-      Statement st1 = db.createStatement();
-
-      String url = msg.getUrl();
-
-      PreparedStatement movePst = db.prepareStatement("UPDATE topics SET groupid=?,lastmod=CURRENT_TIMESTAMP WHERE id=?");
-      movePst.setInt(1, newGrp.getId());
-      movePst.setInt(2, msgid);
-
-      movePst.executeUpdate();
-
-      if (url != null && !newGrp.isLinksAllowed() && !newGrp.isImagePostAllowed()) {
-        String sSql = "UPDATE topics SET linktext=null, url=null WHERE id=" + msgid;
-
-        String title = msg.getGroupTitle();
-        String linktext = msg.getLinktext();
-
-        st1.executeUpdate(sSql);
-
-        /* if url is not null, update the topic text */
-        PreparedStatement pst1 = db.prepareStatement("UPDATE msgbase SET message=message||? WHERE id=?");
-
-        String link;
-        if (msg.isLorcode()) {
-          link = "\n[url=" + url + ']' + linktext + "[/url]\n";
-        } else {
-          link = "<br><a href=\"" + url + "\">" + linktext + "</a>\n<br>\n";
-        }
-
-        if (msg.isLorcode()) {
-          pst1.setString(1, '\n' + link + "\n[i]Перемещено " + tmpl.getNick() + " из " + title + "[/i]\n");
-        } else {
-          pst1.setString(1, '\n' + link + "<br><i>Перемещено " + tmpl.getNick() + " из " + title + "</i>\n");
-        }
-
-        pst1.setInt(2, msgid);
-        pst1.executeUpdate();
-      }
-
-      logger.info("topic " + msgid + " moved" +
-              " by " + tmpl.getNick() + " from news/forum " + msg.getGroupTitle() + " to forum " + newGrp.getTitle());
-      db.commit();
-
-      return new ModelAndView(new RedirectView(msg.getLinkLastmod()));
-    } finally {
-      if (db!=null) {
-        db.close();
-      }
-    }
+    return new ModelAndView(new RedirectView(msg.getLinkLastmod()));
   }
 
   @RequestMapping(value="/mt.jsp", method=RequestMethod.GET)
