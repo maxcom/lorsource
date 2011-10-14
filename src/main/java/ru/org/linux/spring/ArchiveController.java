@@ -15,30 +15,33 @@
 
 package ru.org.linux.spring;
 
-import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.servlet.http.HttpServletResponse;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.view.RedirectView;
-
-import ru.org.linux.site.LorDataSource;
-import ru.org.linux.site.Section;
 import ru.org.linux.site.Group;
+import ru.org.linux.site.Section;
+import ru.org.linux.spring.dao.ArchiveDao;
+import ru.org.linux.spring.dao.GroupDao;
 import ru.org.linux.spring.dao.SectionDao;
+
+import javax.servlet.http.HttpServletResponse;
+import java.util.List;
 
 @Controller
 public class ArchiveController {
   @Autowired
   private SectionDao sectionDao;
+
+  @Autowired
+  private GroupDao groupDao;
+
+  @Autowired
+  private ArchiveDao archiveDao;
 
   public ModelAndView archiveList(
     int sectionid
@@ -50,51 +53,23 @@ public class ArchiveController {
     int sectionid,
     String groupName
   ) throws Exception {
-    Connection db = null;
+    ModelAndView mv = new ModelAndView("view-news-archive");
 
     Section section = sectionDao.getSection(sectionid);
+    mv.getModel().put("section", section);
 
-    try {
-      db = LorDataSource.getConnection();
-
-      ModelAndView mv = new ModelAndView("view-news-archive");
-      mv.getModel().put("section", section);
-
-      Group group = null;
-      if (groupName!=null) {
-        group = new Group(db, sectionid, groupName);
-      }
-
-      PreparedStatement pst;
-      if (group==null) {
-        pst = db.prepareStatement("select year, month, c from monthly_stats where section=? and groupid is null order by year, month");
-      } else {
-        pst = db.prepareStatement("select year, month, c from monthly_stats where section=? and groupid=? order by year, month");
-        pst.setInt(2, group.getId());
-      }
-      pst.setInt(1, sectionid);
-
-      mv.getModel().put("group", group);
-
-      ResultSet rs = pst.executeQuery();
-
-      List<NewsArchiveListItem> items = new ArrayList<NewsArchiveListItem>();
-
-      while (rs.next()) {
-        items.add(new NewsArchiveListItem(section, group, rs.getInt("year"), rs.getInt("month"), rs.getInt("c")));
-      }
-
-      rs.close();
-      pst.close();
-
-      mv.getModel().put("items", items);
-
-      return mv;
-    } finally {
-      if (db != null) {
-        db.close();
-      }
+    Group group = null;
+    if (groupName!=null) {
+      group = groupDao.getGroup(section, groupName);
     }
+
+    mv.getModel().put("group", group);
+
+    List<ArchiveDao.ArchiveDTO> items = archiveDao.getArchiveDTO(section, group);
+
+    mv.getModel().put("items", items);
+
+    return mv;
   }
 
   @RequestMapping("/gallery/archive")
@@ -131,40 +106,5 @@ public class ArchiveController {
     }
 
     return new RedirectView(link);
-  }
-
-  public static class NewsArchiveListItem {
-    private final int year;
-    private final int month;
-    private final int count;
-    private final Section section;
-    private final Group group;
-
-    public NewsArchiveListItem(Section section, Group group, int year, int month, int count) {
-      this.year = year;
-      this.month = month;
-      this.count = count;
-      this.group = group;
-      this.section = section;
-    }
-
-    public int getYear() {
-      return year;
-    }
-
-    public int getMonth() {
-      return month;
-    }
-
-    public int getCount() {
-      return count;
-    }
-
-    public String getLink() {
-      if (group!=null) {
-        return group.getArchiveLink(year, month);
-      }
-      return section.getArchiveLink(year, month);
-    }
   }
 }

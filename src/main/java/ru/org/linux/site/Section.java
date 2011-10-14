@@ -15,14 +15,14 @@
 
 package ru.org.linux.site;
 
-import org.springframework.jdbc.support.JdbcUtils;
-
 import java.io.Serializable;
 import java.sql.*;
 import java.util.HashMap;
 import java.util.Map;
 
 public class Section implements Serializable {
+  private static final long serialVersionUID = -2259350244006777910L;
+
   private final String name;
   private final boolean imagepost;
   private final boolean moderate;
@@ -44,31 +44,6 @@ public class Section implements Serializable {
     sections.put("forum", SECTION_FORUM);
     sections.put("gallery", SECTION_GALLERY);
     sections.put("polls", SECTION_POLLS);
-  }
-
-  @Deprecated
-  public Section(Connection db, int id) throws SQLException, SectionNotFoundException {
-    this.id = id;
-
-    Statement st = db.createStatement();
-    try {
-      ResultSet rs = st.executeQuery(
-        "SELECT name, imagepost, vote, moderate " +
-          "FROM sections " +
-          "WHERE id=" + id
-      );
-
-      if (!rs.next()) {
-        throw new SectionNotFoundException(id);
-      }
-
-      name = rs.getString("name");
-      imagepost = rs.getBoolean("imagepost");
-      votepoll = rs.getBoolean("vote");
-      moderate = rs.getBoolean("moderate");
-    } finally {
-      JdbcUtils.closeStatement(st);
-    }
   }
 
   public Section(ResultSet rs) throws SQLException {
@@ -215,20 +190,6 @@ public class Section implements Serializable {
     }
     
     return getSectionLink(id)+"archive/";
-  }
-
-  @Deprecated
-  public Group getGroup(Connection db, String name) throws SQLException, BadGroupException {
-    PreparedStatement st = db.prepareStatement("SELECT id FROM groups WHERE section=? AND urlname=?");
-    st.setInt(1, id);
-    st.setString(2, name);
-
-    ResultSet rs = st.executeQuery();
-    if (!rs.next()) {
-      throw new BadGroupException("group not found");
-    }
-
-    return Group.getGroup(db, rs.getInt(1));
   }
 
   public static int getSection(String name) throws SectionNotFoundException {

@@ -15,28 +15,28 @@
 
 package ru.org.linux.spring;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.servlet.ServletRequest;
-import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
-
 import ru.org.linux.site.AccessViolationException;
 import ru.org.linux.site.Group;
-import ru.org.linux.site.PreparedGroupInfo;
 import ru.org.linux.site.Template;
+import ru.org.linux.spring.dao.GroupDao;
+
+import javax.servlet.ServletRequest;
+import java.util.HashMap;
+import java.util.Map;
 
 @Controller
 public class GroupModificationController {
-  private DataSource dataSource;
+  @Autowired
+  private GroupDao groupDao;
+
+  @Autowired
+  private PrepareService prepareService;
 
   @RequestMapping(value="/groupmod.jsp", method = RequestMethod.GET)
   public ModelAndView showForm(@RequestParam("group") int id, ServletRequest request) throws Exception {
@@ -46,20 +46,13 @@ public class GroupModificationController {
       throw new AccessViolationException("Not moderator");
     }
 
-    Connection db = null;
-    try {
-      db = dataSource.getConnection();
+    Group group = groupDao.getGroup(id);
 
-      Group group = Group.getGroup(db, id);
-      ModelAndView mv = new ModelAndView("groupmod", "group", group);
-      mv.getModel().put("groupInfo", new PreparedGroupInfo(db, group));
+    ModelAndView mv = new ModelAndView("groupmod", "group", group);
 
-      return mv;
-    } finally {
-      if (db!=null) {
-        db.close();
-      }
-    }
+    mv.getModel().put("groupInfo", prepareService.prepareGroupInfo(group));
+
+    return mv;
   }
 
   @RequestMapping(value="/groupmod.jsp", method = RequestMethod.POST)
@@ -79,58 +72,23 @@ public class GroupModificationController {
       throw new AccessViolationException("Not moderator");
     }
 
-    Connection db = null;
+    Group group = groupDao.getGroup(id);
 
-    try {
-      db = dataSource.getConnection();
+    if (preview != null) {
+      group.setTitle(title);
+      group.setInfo(info);
+      group.setLongInfo(longInfo);
 
-      Group group = Group.getGroup(db, id);
+      Map<String, Object> params = new HashMap<String, Object>();
+      params.put("group", group);
+      params.put("groupInfo", prepareService.prepareGroupInfo(group));
+      params.put("preview", true);
 
-      if (preview!=null) {
-        group.setTitle(title);
-        group.setInfo(info);
-        group.setLongInfo(longInfo);
-
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put("group", group);
-        params.put("groupInfo", new PreparedGroupInfo(db, group));
-        params.put("preview", true);
-
-        return new ModelAndView("groupmod", params);
-      }
-
-      PreparedStatement pst = db.prepareStatement("UPDATE groups SET title=?, info=?, longinfo=?,resolvable=?,urlname=? WHERE id=?");
-
-      pst.setString(1, title);
-
-      if (info.length()>0) {
-        pst.setString(2, info);
-      } else {
-        pst.setString(2, null);
-      }
-
-      if (longInfo.length()>0) {
-        pst.setString(3, longInfo);
-      } else {
-        pst.setString(3, null);
-      }
-
-      pst.setBoolean(4, resolvable!=null);
-      pst.setString(5, urlName);
-      pst.setInt(6, id);
-
-      pst.executeUpdate();
-
-      return new ModelAndView("action-done", "message", "Параметры изменены");
-    } finally {
-      if (db!=null) {
-        db.close();
-      }
+      return new ModelAndView("groupmod", params);
     }
-  }
 
-  @Autowired
-  public void setDataSource(DataSource dataSource) {
-    this.dataSource = dataSource;
+    groupDao.setParams(group, title, info, longInfo, resolvable!=null, urlName);
+
+    return new ModelAndView("action-done", "message", "Параметры изменены");
   }
 }

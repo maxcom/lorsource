@@ -15,79 +15,37 @@
 
 package ru.org.linux.site;
 
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.datasource.SingleConnectionDataSource;
-import ru.org.linux.spring.dao.GroupDao;
-
-import java.sql.Connection;
-import java.sql.PreparedStatement;
+import java.io.Serializable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class Group {
-  private boolean moderate;
-  private boolean imagepost;
-  private boolean votepoll;
-  private boolean havelink;
-  private int section;
-  private String linktext;
-  private String sectionName;
-  private String title;
-  private String urlName;
-  private String image;
-  private int restrictTopics;
-  private int restrictComments;
-  private int id;
+public class Group implements Serializable {
+  private static final long serialVersionUID = 6173447416543763434L;
 
-  private int stat1;
-  private int stat2;
-  private int stat3;
+  private final boolean moderate;
+  private final boolean imagepost;
+  private final boolean votepoll;
+  private final boolean havelink;
+  private final int section;
+  private final String linktext;
+  private final String sectionName;
+  private String title;
+  private final String urlName;
+  private final String image;
+  private final int restrictTopics;
+  private final int restrictComments;
+  private final int id;
+
+  private final int stat1;
+  private final int stat2;
+  private final int stat3;
 
   private String info;
   private String longInfo;
 
-  private boolean resolvable;
-
-  @Deprecated
-  public static Group getGroup(Connection db, int id) throws BadGroupException {
-    SingleConnectionDataSource scds = new SingleConnectionDataSource(db, true);
-    JdbcTemplate jdbcTemplate = new JdbcTemplate(scds);
-
-    return GroupDao.getGroup(jdbcTemplate, id);
-  }
-
-  public Group(Connection db, int section, String urlname) throws SQLException, BadGroupException {
-    ResultSet rs = null;
-    PreparedStatement pst = null;
-    try {
-      pst = db.prepareStatement("SELECT sections.moderate, sections.preformat, imagepost, vote, section, havelink, linktext, sections.name as sname, title, urlname, image, restrict_topics, restrict_comments,stat1,stat2,stat3,groups.id, groups.info, groups.longinfo, groups.resolvable FROM groups, sections WHERE groups.urlname=? AND groups.section=sections.id AND groups.section=?");
-
-      pst.setString(1, urlname);
-      pst.setInt(2, section);
-      
-      rs = pst.executeQuery();
-
-      if (!rs.next()) {
-        throw new BadGroupException("Группа " + id + " не существует");
-      }
-
-      init(rs);
-    } finally {
-      if (pst != null) {
-        pst.close();
-      }
-
-      if (rs != null) {
-        rs.close();
-      }
-    }
-  }
+  private final boolean resolvable;
 
   public Group(ResultSet rs) throws SQLException {
-    init(rs);
-  }
-
-  private void init(ResultSet rs) throws SQLException {
     id = rs.getInt("id");
     moderate = rs.getBoolean("moderate");
     imagepost = rs.getBoolean("imagepost");

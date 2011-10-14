@@ -1,11 +1,10 @@
 package ru.org.linux.spring.dao;
 
-import com.google.common.collect.ImmutableList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.ConnectionCallback;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.PreparedStatementCallback;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import ru.org.linux.site.BadGroupException;
@@ -13,10 +12,9 @@ import ru.org.linux.site.Group;
 import ru.org.linux.site.Section;
 
 import javax.sql.DataSource;
-import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.List;
 
 @Repository
@@ -29,15 +27,6 @@ public class GroupDao {
   }
 
   public Group getGroup(int id) throws BadGroupException {
-    return getGroupInternal(jdbcTemplate, id);
-  }
-
-  @Deprecated
-  public static Group getGroup(JdbcTemplate jdbcTemplate, int id) throws BadGroupException {
-    return getGroupInternal(jdbcTemplate, id);
-  }
-
-  private static Group getGroupInternal(JdbcTemplate jdbcTemplate, int id) throws BadGroupException {
     try {
       return jdbcTemplate.queryForObject(
               "SELECT sections.moderate, sections.preformat, imagepost, vote, section, havelink, linktext, sections.name as sname, title, urlname, image, restrict_topics, restrict_comments,stat1,stat2,stat3,groups.id, groups.info, groups.longinfo, groups.resolvable FROM groups, sections WHERE groups.id=? AND groups.section=sections.id",
@@ -54,35 +43,19 @@ public class GroupDao {
     }
   }
 
-  public List<Group> getGroups(final Section section) {
-    return jdbcTemplate.execute(new ConnectionCallback<List<Group>>() {
-      @Override
-      public List<Group> doInConnection(Connection con) throws SQLException, DataAccessException {
-        return getGroupsInternal(con, section);
-      }
-    });
+  public List<Group> getGroups(Section section) {
+    return jdbcTemplate.query(
+            "SELECT sections.moderate, sections.preformat, imagepost, vote, section, havelink, linktext, sections.name as sname, title, urlname, image, restrict_topics, restrict_comments, stat1,stat2,stat3,groups.id,groups.info,groups.longinfo,groups.resolvable FROM groups, sections WHERE sections.id=? AND groups.section=sections.id ORDER BY id",
+            new RowMapper<Group>() {
+              @Override
+              public Group mapRow(ResultSet rs, int rowNum) throws SQLException {
+                return new Group(rs);
+              }
+            },
+            section.getId()
+    );
   }
 
-  @Deprecated
-  public static List<Group> getGroups(Connection db, Section section) throws SQLException {
-    return getGroupsInternal(db, section);
-  }
-
-  private static List<Group> getGroupsInternal(Connection db, Section section) throws SQLException {
-    Statement st = db.createStatement();
-
-    ResultSet rs = st.executeQuery("SELECT sections.moderate, sections.preformat, imagepost, vote, section, havelink, linktext, sections.name as sname, title, urlname, image, restrict_topics, restrict_comments, stat1,stat2,stat3,groups.id,groups.info,groups.longinfo,groups.resolvable FROM groups, sections WHERE sections.id=" + section.getId() + " AND groups.section=sections.id ORDER BY id");
-
-    ImmutableList.Builder<Group> list = ImmutableList.builder();
-
-    while(rs.next()) {
-      Group group = new Group(rs);
-
-      list.add(group);
-    }
-
-    return list.build();
-  }
 
   public Group getGroup(Section section, String name) throws BadGroupException {
     try {
@@ -94,7 +67,7 @@ public class GroupDao {
     }
   }
 
-  public int calcTopicsCount(Group group, boolean showDeleted) throws SQLException {
+  public int calcTopicsCount(Group group, boolean showDeleted) {
     String query = "SELECT count(topics.id) " +
             "FROM topics WHERE " +
             (group.isModerated() ? "moderate AND " : "") +
@@ -111,5 +84,37 @@ public class GroupDao {
     } else {
       return 0;
     }
+  }
+
+  public void setParams(final Group group, final String title, final String info, final String longInfo, final boolean resolvable, final String urlName) {
+    jdbcTemplate.execute(
+            "UPDATE groups SET title=?, info=?, longinfo=?,resolvable=?,urlname=? WHERE id=?",
+            new PreparedStatementCallback<String>() {
+              @Override
+              public String doInPreparedStatement(PreparedStatement pst) throws SQLException, DataAccessException {
+                pst.setString(1, title);
+
+                if (info.length() > 0) {
+                  pst.setString(2, info);
+                } else {
+                  pst.setString(2, null);
+                }
+
+                if (longInfo.length() > 0) {
+                  pst.setString(3, longInfo);
+                } else {
+                  pst.setString(3, null);
+                }
+
+                pst.setBoolean(4, resolvable);
+                pst.setString(5, urlName);
+                pst.setInt(6, group.getId());
+
+                pst.executeUpdate();
+
+                return null;
+              }
+            }
+    );
   }
 }

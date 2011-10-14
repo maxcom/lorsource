@@ -24,19 +24,26 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
+import ru.org.linux.site.Section;
+import ru.org.linux.site.SectionNotFoundException;
 import ru.org.linux.spring.commons.CacheProvider;
-import ru.org.linux.spring.dao.ArchiveDaoImpl;
+import ru.org.linux.spring.dao.ArchiveDao;
+import ru.org.linux.spring.dao.SectionDao;
 
 @Controller
 public class ArchiveBoxletImpl extends SpringBoxlet{
-  private ArchiveDaoImpl archiveDao;
+  private ArchiveDao archiveDao;
   private CacheProvider cacheProvider;
 
-  public ArchiveDaoImpl getArchiveDao() {
-    return archiveDao;
-  }
+  private Section sectionNews;
+
   @Autowired
-  public void setArchiveDao(ArchiveDaoImpl archiveDao) {
+  public void setSectionDa(SectionDao sectionDao) throws SectionNotFoundException {
+    sectionNews = sectionDao.getSection(Section.SECTION_NEWS);
+  }
+
+  @Autowired
+  public void setArchiveDao(ArchiveDao archiveDao) {
     this.archiveDao = archiveDao;
   }
 
@@ -48,10 +55,10 @@ public class ArchiveBoxletImpl extends SpringBoxlet{
   @Override
   @RequestMapping("/archive.boxlet")
   protected ModelAndView getData(HttpServletRequest request) throws Exception {
-    List<ArchiveDaoImpl.ArchiveDTO> list = getFromCache(cacheProvider, new GetCommand<List<ArchiveDaoImpl.ArchiveDTO>>() {
+    List<ArchiveDao.ArchiveDTO> list = getFromCache(cacheProvider, new GetCommand<List<ArchiveDao.ArchiveDTO>>() {
       @Override
-      public List<ArchiveDaoImpl.ArchiveDTO> get() {
-        return archiveDao.getArchiveDTO();
+      public List<ArchiveDao.ArchiveDTO> get() {
+        return archiveDao.getArchiveDTO(sectionNews, 13);
       }
     });
 

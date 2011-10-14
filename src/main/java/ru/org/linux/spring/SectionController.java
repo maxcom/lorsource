@@ -15,10 +15,6 @@
 
 package ru.org.linux.spring;
 
-import java.sql.Connection;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,35 +22,31 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.view.RedirectView;
-
-import ru.org.linux.site.LorDataSource;
 import ru.org.linux.site.Section;
 import ru.org.linux.spring.dao.GroupDao;
 import ru.org.linux.spring.dao.SectionDao;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Controller
 public class SectionController {
   @Autowired
   private SectionDao sectionDao;
 
+  @Autowired
+  private GroupDao groupDao;
+
   @RequestMapping("/view-section.jsp")
   public ModelAndView handleRequestInternal(@RequestParam("section") int sectionid) throws Exception {
     Section section = sectionDao.getSection(sectionid);
 
-    Connection db = null;
-    try {
-      db = LorDataSource.getConnection();
+    Map<String, Object> params = new HashMap<String, Object>();
+    params.put("section", section);
 
-      Map<String, Object> params = new HashMap<String, Object>();
-      params.put("section", section);
-      params.put("groups", GroupDao.getGroups(db, section));
+    params.put("groups", groupDao.getGroups(section));
 
-      return new ModelAndView("section", params);
-    } finally {
-      if (db!=null) {
-        db.close();
-      }
-    }
+    return new ModelAndView("section", params);
   }
 
   @RequestMapping("/forum")
