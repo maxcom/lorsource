@@ -309,15 +309,6 @@ public class User implements Serializable {
   }
 
   @Deprecated
-  public String resetPassword(Connection db) throws SQLException {
-    String password = StringUtil.generatePassword();
-
-    setPassword(db, password);
-
-    return password;
-  }
-
-  @Deprecated
   public void setPassword(Connection db, String password) throws SQLException {
     PasswordEncryptor encryptor = new BasicPasswordEncryptor();
 
@@ -345,11 +336,6 @@ public class User implements Serializable {
     JdbcTemplate jdbcTemplate = new JdbcTemplate(scds);
 
     return UserDao.getUser(jdbcTemplate, nick);
-  }
-
-  @Deprecated
-  public static User getUser(Connection db, int id) throws UserNotFoundException {
-    return getUser(db, id, false);
   }
 
   @Deprecated
@@ -397,7 +383,7 @@ public class User implements Serializable {
 
   private void updateCache(Connection db) {
     try {
-      getUser(db, id);
+      getUser(db, id, false);
     } catch (UserNotFoundException e) {
       throw new RuntimeException(e);
     }
@@ -485,18 +471,6 @@ public class User implements Serializable {
 
   public int getUnreadEvents() {
     return unreadEvents;
-  }
-
-  @Deprecated
-  public void resetUnreadEvents(Connection db) throws SQLException {
-    PreparedStatement st = db.prepareStatement("UPDATE users SET unread_events=0 where id=?");
-    try {
-      st.setInt(1, id);
-
-      st.executeUpdate();
-    } finally {
-      JdbcUtils.closeStatement(st);
-    }
   }
 
   @Override

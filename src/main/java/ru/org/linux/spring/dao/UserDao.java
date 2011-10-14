@@ -378,37 +378,27 @@ public class UserDao {
   }
 
   /**
-   * Смена пароля пользователю
-   * @param user пользователь которому меняется пароль
-   * @param password пароль в открытом виде
-   */
-  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public void setPassword(User user, String password){
-    setPasswordWithoutTransaction(user, password);
-  }
-
-  public void setPasswordWithoutTransaction(User user, String password) {
-    PasswordEncryptor encryptor = new BasicPasswordEncryptor();
-    String encryptedPassword = encryptor.encryptPassword(password);
-    jdbcTemplate.update("UPDATE users SET passwd=?, lostpwd = 'epoch' WHERE id=?",
-        encryptedPassword, user.getId());
-  }
-
-  /**
    * Сброс пороля на случайный
    * @param user пользователь которому сбрасывается пароль
    * @return новый пароь в открытом виде
    */
   public String resetPassword(User user){
     String password = StringUtil.generatePassword();
-    setPassword(user, password);
+    PasswordEncryptor encryptor = new BasicPasswordEncryptor();
+    String encryptedPassword = encryptor.encryptPassword(password);
+
+    jdbcTemplate.update("UPDATE users SET passwd=?, lostpwd = 'epoch' WHERE id=?",
+        encryptedPassword, user.getId());
+
     return password;
   }
 
-  public String resetPasswordWithoutTransaction(User user) {
-    String password = StringUtil.generatePassword();
-    setPasswordWithoutTransaction(user, password);
-    return password;
+  public void updateResetDate(User user, Timestamp now) {
+    jdbcTemplate.update("UPDATE users SET lostpwd=? WHERE id=?",  now, user.getId());
+  }
+
+  public Timestamp getResetDate(User user) {
+    return jdbcTemplate.queryForObject("SELECT lostpwd FROM users WHERE id=?", Timestamp.class, user.getId());
   }
 
   /**
@@ -496,5 +486,28 @@ public class UserDao {
     }
 
     return users;
+  }
+
+  public User getByEmail(String email) {
+    try {
+      int id = jdbcTemplate.queryForInt(
+              "SELECT id FROM users WHERE email=? AND not blocked",
+              email
+      );
+
+      return getUser(id);
+    } catch (EmptyResultDataAccessException ex) {
+      return null;
+    } catch (UserNotFoundException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  public boolean canResetPassword(User user) {
+    return !jdbcTemplate.queryForObject(
+            "SELECT lostpwd>CURRENT_TIMESTAMP-'1 week'::interval as datecheck FROM users WHERE id=?",
+            Boolean.class,
+            user.getId()
+    );
   }
 }

@@ -15,9 +15,15 @@
 
 package ru.org.linux.spring;
 
-import java.sql.*;
-import java.util.Date;
-import java.util.Properties;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.ModelAndView;
+import ru.org.linux.site.*;
+import ru.org.linux.spring.dao.UserDao;
+import ru.org.linux.util.StringUtil;
 
 import javax.mail.MessagingException;
 import javax.mail.Session;
@@ -26,19 +32,16 @@ import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import javax.servlet.http.HttpServletRequest;
-
-import ru.org.linux.site.*;
-import ru.org.linux.util.StringUtil;
-
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.ModelAndView;
+import java.sql.Timestamp;
+import java.util.Date;
+import java.util.Properties;
 
 @Controller
-public class
-  LostPasswordController {
+public class LostPasswordController {
+
+  @Autowired
+  private UserDao userDao;
+
   @RequestMapping(value="/lostpwd.jsp", method= RequestMethod.GET)
   public ModelAndView showForm() {
     return new ModelAndView("lostpwd-form");
@@ -53,57 +56,31 @@ public class
   public ModelAndView sendPassword(@RequestParam("email") String email, HttpServletRequest request) throws Exception {
     Template tmpl = Template.getTemplate(request);
 
-    Connection db = null;
+    User user = userDao.getByEmail(email);
+    if (user==null) {
+      throw new BadInputException("Ваш email не зарегистрирован");
+    }
+
+    user.checkBlocked();
+    user.checkAnonymous();
+
+    if (user.canModerate()) {
+      throw new AccessViolationException("this feature is not for you, ask me directly");
+    }
+
+    if (!userDao.canResetPassword(user)) {
+      throw new AccessViolationException("нельзя запрашивать пароль чаще одного раза в неделю");
+    }
+
+    Timestamp now = new Timestamp(System.currentTimeMillis());
+
     try {
-      db = LorDataSource.getConnection();
-      db.setAutoCommit(false);
-
-      PreparedStatement pst = db.prepareStatement("SELECT id, lostpwd>CURRENT_TIMESTAMP-'1 week'::interval as datecheck FROM users WHERE email=? AND not blocked");
-      pst.setString(1, email);
-      ResultSet rs = pst.executeQuery();
-
-      if (!rs.next()) {
-        throw new BadInputException("Ваш email не зарегистрирован");
-      }
-
-      User user = User.getUser(db, rs.getInt("id"));
-      user.checkBlocked();
-      user.checkAnonymous();
-
-      if (user.canModerate()) {
-        throw new AccessViolationException("this feature is not for you, ask me directly");
-      }
-
-      if (rs.getBoolean("datecheck")) {
-        throw new AccessViolationException("нельзя запрашивать пароль чаще одного раза в неделю");
-      }
-
-      rs.close();
-      pst.close();
-
-      PreparedStatement st = db.prepareStatement("UPDATE users SET lostpwd=? WHERE id=?");
-      Timestamp now = new Timestamp(System.currentTimeMillis());
-
-      st.setTimestamp(1, now);
-      st.setInt(2, user.getId());
-
-      st.executeUpdate();
-
-      st.close();
-
       sendEmail(tmpl, user, email, now);
-
-      db.commit();
-
-      st.close();
+      userDao.updateResetDate(user, now);
 
       return new ModelAndView("action-done", "message", "Инструкция по сбросу пароля была отправлена на ваш email");
     } catch (AddressException ex) {
       throw new UserErrorException("Incorrect email address");
-    } finally {
-      if (db != null) {
-        db.close();
-      }
     }
   }
 
@@ -115,41 +92,26 @@ public class
   ) throws Exception {
     Template tmpl = Template.getTemplate(request);
 
-    Connection db = null;
-    try {
-      db = LorDataSource.getConnection();
-      db.setAutoCommit(false);
+    User user = userDao.getUser(nick);
 
-      User user = User.getUser(db, nick);
-      user.checkBlocked();
-      user.checkAnonymous();
+    user.checkBlocked();
+    user.checkAnonymous();
 
-      if (user.canModerate()) {
-        throw new AccessViolationException("this feature is not for you, ask me directly");
-      }
-
-      PreparedStatement pst = db.prepareStatement("SELECT lostpwd FROM users WHERE id=?");
-      pst.setInt(1, user.getId());
-      ResultSet rs = pst.executeQuery();
-      rs.next();
-      Timestamp resetDate = rs.getTimestamp("lostpwd");
-
-      String resetCode = getResetCode(tmpl.getSecret(), user.getNick(), user.getEmail(), resetDate);
-
-      if (!resetCode.equals(formCode)) {
-        throw new UserErrorException("Код не совпадает");
-      }
-
-      String password = user.resetPassword(db);
-
-      db.commit();
-
-      return new ModelAndView("action-done", "message", "Ваш новый пароль: "+password);
-    } finally {
-      if (db != null) {
-        db.close();
-      }
+    if (user.canModerate()) {
+      throw new AccessViolationException("this feature is not for you, ask me directly");
     }
+
+    Timestamp resetDate = userDao.getResetDate(user);
+
+    String resetCode = getResetCode(tmpl.getSecret(), user.getNick(), user.getEmail(), resetDate);
+
+    if (!resetCode.equals(formCode)) {
+      throw new UserErrorException("Код не совпадает");
+    }
+
+    String password = userDao.resetPassword(user);
+
+    return new ModelAndView("action-done", "message", "Ваш новый пароль: " + password);
   }
 
   private static String getResetCode(String base, String nick, String email, Timestamp tm) {
