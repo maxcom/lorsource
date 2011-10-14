@@ -326,7 +326,6 @@ public class UserDao {
    * @param user пользователь
    * @param photo userpick
    */
-  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   public void setPhoto(User user, String photo){
     jdbcTemplate.update("UPDATE users SET photo=? WHERE id=?", photo, user.getId());
   }

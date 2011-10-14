@@ -15,14 +15,7 @@
 
 package ru.org.linux.spring;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URLEncoder;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.util.Random;
-
-import javax.servlet.ServletRequest;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.ApplicationObjectSupport;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,13 +24,22 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
-
 import ru.org.linux.site.*;
+import ru.org.linux.spring.dao.UserDao;
 import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.ImageInfo;
 
+import javax.servlet.ServletRequest;
+import java.io.File;
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.util.Random;
+
 @Controller
 public class AddPhotoController extends ApplicationObjectSupport {
+  @Autowired
+  private UserDao userDao;
+
   @RequestMapping(value = "/addphoto.jsp", method = RequestMethod.GET)
   public ModelAndView showForm(ServletRequest request) throws Exception {
     Template tmpl = Template.getTemplate(request);
@@ -61,7 +63,6 @@ public class AddPhotoController extends ApplicationObjectSupport {
       return new ModelAndView("addphoto", "error", "изображение не задано");      
     }
 
-    Connection db = null;
     try {
       File uploadedFile = File.createTempFile("userpic", "", new File(tmpl.getObjectConfig().getPathPrefix() + "/linux-storage/tmp/"));
 
@@ -88,12 +89,7 @@ public class AddPhotoController extends ApplicationObjectSupport {
         throw new ScriptErrorException("Can't move photo: internal error");
       }
 
-      db = LorDataSource.getConnection();
-
-      PreparedStatement pst = db.prepareStatement("UPDATE users SET photo=? WHERE id=?");
-      pst.setString(1, photoname);
-      pst.setInt(2, user.getId());
-      pst.executeUpdate();
+      userDao.setPhoto(user, photoname);
 
       logger.info("Установлена фотография пользователем " + user.getNick());
 
@@ -104,10 +100,6 @@ public class AddPhotoController extends ApplicationObjectSupport {
       return new ModelAndView("addphoto", "error", ex.getMessage());
     } catch (UserErrorException ex) {
       return new ModelAndView("addphoto", "error", ex.getMessage());
-    } finally {
-      if (db != null) {
-        db.close();
-      }
     }
   }
 }
