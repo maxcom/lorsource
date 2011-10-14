@@ -15,59 +15,31 @@
 
 package ru.org.linux.spring;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.List;
-
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
-
-import ru.org.linux.site.LorDataSource;
 import ru.org.linux.site.User;
+import ru.org.linux.spring.dao.UserDao;
+
+import java.util.List;
 
 @Controller
 public class ServerInfoController {
+  @Autowired
+  private UserDao userDao;
+
   @RequestMapping("/server.jsp")
   public ModelAndView serverInfo() throws Exception {
-    Connection db = null;
+    List<User> moderators = userDao.getModerators();
 
-    try {
-      db = LorDataSource.getConnection();
+    ModelAndView mv = new ModelAndView("server");
+    mv.getModel().put("moderators", moderators);
 
-      List<User> moderators = new ArrayList<User>();
+    List<User> correctors = userDao.getCorrectors();
 
-      Statement st = db.createStatement();
-      ResultSet rs = st.executeQuery("SELECT id FROM users WHERE canmod ORDER BY id");
+    mv.getModel().put("correctors", correctors);
 
-      while (rs.next()) {
-        moderators.add(User.getUserCached(db, rs.getInt("id")));
-      }
-
-      rs.close();
-
-      ModelAndView mv = new ModelAndView("server");
-      mv.getModel().put("moderators", moderators);
-
-      rs = st.executeQuery("SELECT id FROM users WHERE corrector ORDER BY id");
-
-      List<User> correctors = new ArrayList<User>();
-
-      while (rs.next()) {
-        correctors.add(User.getUserCached(db, rs.getInt("id")));
-      }
-
-      rs.close();
-
-      mv.getModel().put("correctors", correctors);
-
-      return mv;
-    } finally {
-      if (db!=null) {
-        db.close();
-      }
-    }
+    return mv;
   }
 }

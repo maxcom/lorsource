@@ -22,6 +22,7 @@ import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 
 @Repository
@@ -294,16 +295,7 @@ public class UserDao {
    * @return список новых пользователей
    */
   public List<User> getNewUsers() {
-    return jdbcTemplate.query(queryNewUsers, new RowMapper<User>() {
-      @Override
-      public User mapRow(ResultSet resultSet, int i) throws SQLException {
-        try {
-          return getUser(resultSet.getInt("id"));
-        } catch (UserNotFoundException e) {
-          throw new SQLException(e.getMessage());
-        }
-      }
-    });
+    return getUsersCached(jdbcTemplate.queryForList(queryNewUsers, Integer.class));
   }
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
@@ -477,5 +469,33 @@ public class UserDao {
     } catch (UserNotFoundException e) {
       throw new RuntimeException("Anonymous not found!?", e);
     }
+  }
+
+  public List<User> getModerators() {
+    return getUsersCached(jdbcTemplate.queryForList(
+            "SELECT id FROM users WHERE canmod ORDER BY id",
+            Integer.class
+    ));
+  }
+
+  public List<User> getCorrectors() {
+    return getUsersCached(jdbcTemplate.queryForList(
+            "SELECT id FROM users WHERE corrector ORDER BY id",
+            Integer.class
+    ));
+  }
+
+  public List<User> getUsersCached(List<Integer> ids) {
+    List<User> users = new ArrayList<User>(ids.size());
+
+    for (int id : ids) {
+      try {
+        users.add(getUserCached(id));
+      } catch (UserNotFoundException e) {
+        throw new RuntimeException(e);
+      }
+    }
+
+    return users;
   }
 }
