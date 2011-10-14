@@ -15,13 +15,6 @@
 
 package ru.org.linux.spring;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.Statement;
-
-import javax.servlet.ServletRequest;
-import javax.servlet.http.HttpServletRequest;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.ApplicationObjectSupport;
 import org.springframework.stereotype.Controller;
@@ -30,11 +23,16 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
-
 import ru.org.linux.site.*;
 import ru.org.linux.spring.dao.GroupDao;
 import ru.org.linux.spring.dao.MessageDao;
 import ru.org.linux.spring.dao.SectionDao;
+
+import javax.servlet.ServletRequest;
+import javax.servlet.http.HttpServletRequest;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.Statement;
 
 @Controller
 public class TopicModificationController extends ApplicationObjectSupport {
@@ -94,12 +92,12 @@ public class TopicModificationController extends ApplicationObjectSupport {
     User user = tmpl.getCurrentUser();
     user.checkCommit();
 
+    Message msg = messageDao.getById(msgid);
+
     Connection db = null;
     try {
       db = LorDataSource.getConnection();
       db.setAutoCommit(false);
-
-      Message msg = Message.getMessage(db, msgid);
 
       PreparedStatement pst = db.prepareStatement("UPDATE topics SET postscore=?, sticky=?, notop=?, lastmod=CURRENT_TIMESTAMP,minor=? WHERE id=?");
       pst.setInt(1, postscore);
@@ -178,21 +176,22 @@ public class TopicModificationController extends ApplicationObjectSupport {
       throw new AccessViolationException("Not moderator");
     }
 
+    Message msg = messageDao.getById(msgid);
+
+    if (msg.isDeleted()) {
+      throw new AccessViolationException("Сообщение удалено");
+    }
+
+    Group newGrp = groupDao.getGroup(newgr);
+
     Connection db = null;
 
     try {
       db = LorDataSource.getConnection();
       db.setAutoCommit(false);
 
-      Message msg = Message.getMessage(db, msgid);
-
-      if (msg.isDeleted()) {
-        throw new AccessViolationException("Сообщение удалено");
-      }
-
       Statement st1 = db.createStatement();
 
-      Group newGrp = Group.getGroup(db, newgr);
       String url = msg.getUrl();
 
       PreparedStatement movePst = db.prepareStatement("UPDATE topics SET groupid=?,lastmod=CURRENT_TIMESTAMP WHERE id=?");
@@ -298,15 +297,14 @@ public class TopicModificationController extends ApplicationObjectSupport {
       throw new AccessViolationException("Not authorized");
     }
 
+    Message message = messageDao.getById(msgid);
+
+    checkUncommitable(message);
+
     Connection db = null;
     try {
       db = LorDataSource.getConnection();
       db.setAutoCommit(false);
-      tmpl.updateCurrentUser(db);
-
-      Message message = Message.getMessage(db, msgid);
-
-      checkUncommitable(message);
 
       PreparedStatement st1 = db.prepareStatement("UPDATE topics SET moderate='f',commitby=NULL,commitdate=NULL WHERE id=?");
       st1.setInt(1, msgid);

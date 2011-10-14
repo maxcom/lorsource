@@ -28,7 +28,9 @@ import ru.org.linux.util.bbcode.ParserUtil;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.sql.*;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -509,32 +511,6 @@ public class Message implements Serializable {
 
   public boolean isMinor() {
     return minor;
-  }
-
-  @Deprecated
-  public static Message getMessage(Connection db, int msgid) throws SQLException, MessageNotFoundException {
-    Statement st = db.createStatement();
-
-    ResultSet rs = st.executeQuery(
-      "SELECT " +
-        "postdate, topics.id as msgid, userid, topics.title, " +
-        "topics.groupid as guid, topics.url, topics.linktext, ua_id, " +
-        "groups.title as gtitle, urlname, vote, havelink, section, topics.sticky, topics.postip, " +
-        "postdate<(CURRENT_TIMESTAMP-sections.expire) as expired, deleted, lastmod, commitby, " +
-        "commitdate, topics.stat1, postscore, topics.moderate, message, notop,bbcode, " +
-        "topics.resolved, restrict_comments, minor " +
-        "FROM topics " +
-        "INNER JOIN groups ON (groups.id=topics.groupid) " +
-        "INNER JOIN sections ON (sections.id=groups.section) " +
-        "INNER JOIN msgbase ON (msgbase.id=topics.id) " +
-        "WHERE topics.id=" + msgid
-    );
-
-    if (!rs.next()) {
-      throw new MessageNotFoundException(msgid);
-    }
-
-    return new Message(rs);
   }
 
   /**
