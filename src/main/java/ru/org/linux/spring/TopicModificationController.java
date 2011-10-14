@@ -94,51 +94,31 @@ public class TopicModificationController extends ApplicationObjectSupport {
 
     Message msg = messageDao.getById(msgid);
 
-    Connection db = null;
-    try {
-      db = LorDataSource.getConnection();
-      db.setAutoCommit(false);
+    messageDao.setTopicOptions(msg, postscore, sticky, notop, minor);
 
-      PreparedStatement pst = db.prepareStatement("UPDATE topics SET postscore=?, sticky=?, notop=?, lastmod=CURRENT_TIMESTAMP,minor=? WHERE id=?");
-      pst.setInt(1, postscore);
-      pst.setBoolean(2, sticky);
-      pst.setBoolean(3, notop);
-      pst.setBoolean(4, minor);
-      pst.setInt(5, msgid);
+    StringBuilder out = new StringBuilder();
 
-      pst.executeUpdate();
-
-      StringBuilder out = new StringBuilder();
-
-      if (msg.getPostScore() != postscore) {
-        out.append("Установлен новый уровень записи: ").append(getPostScoreInfoFull(postscore)).append("<br>");
-        logger.info("Установлен новый уровень записи " + postscore + " для " + msgid + " пользователем " + user.getNick());
-      }
-
-      if (msg.isSticky() != sticky) {
-        out.append("Новое значение sticky: ").append(sticky).append("<br>");
-        logger.info("Новое значение sticky: " + sticky);
-      }
-
-      if (msg.isNotop() != notop) {
-        out.append("Новое значение notop: ").append(notop).append("<br>");
-        logger.info("Новое значение notop: " + notop);
-      }
-
-      pst.close();
-      db.commit();
-
-      ModelAndView mv = new ModelAndView("action-done");
-      mv.getModel().put("message", "Данные изменены");
-      mv.getModel().put("bigMessage", out.toString());
-      mv.getModel().put("link", msg.getLink());
-
-      return mv;
-    } finally {
-      if (db != null) {
-        db.close();
-      }
+    if (msg.getPostScore() != postscore) {
+      out.append("Установлен новый уровень записи: ").append(getPostScoreInfoFull(postscore)).append("<br>");
+      logger.info("Установлен новый уровень записи " + postscore + " для " + msgid + " пользователем " + user.getNick());
     }
+
+    if (msg.isSticky() != sticky) {
+      out.append("Новое значение sticky: ").append(sticky).append("<br>");
+      logger.info("Новое значение sticky: " + sticky);
+    }
+
+    if (msg.isNotop() != notop) {
+      out.append("Новое значение notop: ").append(notop).append("<br>");
+      logger.info("Новое значение notop: " + notop);
+    }
+
+    ModelAndView mv = new ModelAndView("action-done");
+    mv.getModel().put("message", "Данные изменены");
+    mv.getModel().put("bigMessage", out.toString());
+    mv.getModel().put("link", msg.getLink());
+
+    return mv;
   }
 
   @RequestMapping(value="/mtn.jsp", method=RequestMethod.GET)
@@ -287,7 +267,7 @@ public class TopicModificationController extends ApplicationObjectSupport {
   }
 
   @RequestMapping(value="/uncommit.jsp", method=RequestMethod.POST)
-  public ModelAndView undelete(
+  public ModelAndView uncommit(
     HttpServletRequest request,
     @RequestParam int msgid
   ) throws Exception {
@@ -301,28 +281,11 @@ public class TopicModificationController extends ApplicationObjectSupport {
 
     checkUncommitable(message);
 
-    Connection db = null;
-    try {
-      db = LorDataSource.getConnection();
-      db.setAutoCommit(false);
+    messageDao.uncommit(message);
 
-      PreparedStatement st1 = db.prepareStatement("UPDATE topics SET moderate='f',commitby=NULL,commitdate=NULL WHERE id=?");
-      st1.setInt(1, msgid);
+    logger.info("Отменено подтверждение сообщения " + msgid + " пользователем " + tmpl.getNick());
 
-      st1.executeUpdate();
-
-      logger.info("Отменено подтверждение сообщения " + msgid + " пользователем " + tmpl.getNick());
-
-      st1.close();
-
-      db.commit();
-
-      return new ModelAndView("action-done", "message", "Подтверждение отменено");
-    } finally {
-      if (db != null) {
-        db.close();
-      }
-    }
+    return new ModelAndView("action-done", "message", "Подтверждение отменено");
   }
 
   private static void checkUncommitable(Message message) throws AccessViolationException {

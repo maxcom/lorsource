@@ -444,6 +444,10 @@ public class MessageDao {
     userDao.changeScore(author.getId(), bonus);
   }
 
+  public void uncommit(Message msg) {
+    jdbcTemplate.update("UPDATE topics SET moderate='f',commitby=NULL,commitdate=NULL WHERE id=?", msg.getId());
+  }
+
   public Message getPreviousMessage(Message message) {
     int scrollMode = Section.getScrollMode(message.getSectionId());
 
@@ -543,6 +547,17 @@ public class MessageDao {
             "UPDATE topics SET resolved=?,lastmod=lastmod+'1 second'::interval WHERE id=?",
             b,
             msgid
+    );
+  }
+
+  public void setTopicOptions(Message msg, int postscore, boolean sticky, boolean notop, boolean minor) {
+    jdbcTemplate.update(
+            "UPDATE topics SET postscore=?, sticky=?, notop=?, lastmod=CURRENT_TIMESTAMP,minor=? WHERE id=?",
+            postscore,
+            sticky,
+            notop,
+            minor,
+            msg.getId()
     );
   }
 }
