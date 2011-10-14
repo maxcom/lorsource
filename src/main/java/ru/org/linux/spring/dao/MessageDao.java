@@ -567,7 +567,7 @@ public class MessageDao {
 
     jdbcTemplate.update("UPDATE topics SET groupid=?,lastmod=CURRENT_TIMESTAMP WHERE id=?", newGrp.getId(), msg.getId());
 
-    if (url != null && !newGrp.isLinksAllowed() && !newGrp.isImagePostAllowed()) {
+    if (!newGrp.isLinksAllowed() && !newGrp.isImagePostAllowed()) {
       jdbcTemplate.update("UPDATE topics SET linktext=null, url=null WHERE id=?", msg.getId());
 
       String title = msg.getGroupTitle();
@@ -575,10 +575,15 @@ public class MessageDao {
 
       /* if url is not null, update the topic text */
       String link;
-      if (msg.isLorcode()) {
-        link = "\n[url=" + url + ']' + linktext + "[/url]\n";
+
+      if (!Strings.isNullOrEmpty(url)) {
+        if (msg.isLorcode()) {
+          link = "\n[url=" + url + ']' + linktext + "[/url]\n";
+        } else {
+          link = "<br><a href=\"" + url + "\">" + linktext + "</a>\n<br>\n";
+        }
       } else {
-        link = "<br><a href=\"" + url + "\">" + linktext + "</a>\n<br>\n";
+        link = "";
       }
 
       String add;
