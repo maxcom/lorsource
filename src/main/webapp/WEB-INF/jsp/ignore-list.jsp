@@ -16,7 +16,7 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
-<%--@elvariable id="ignoreList" type="java.util.Map<Integer, String>"--%>
+<%--@elvariable id="ignoreList" type="java.util.Map<Integer, User>"--%>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
 <%
@@ -40,7 +40,7 @@
       <li>
         <form action="ignore-list.jsp" method="POST">
           <input type="hidden" name="id" value="${item.key}">
-          <span style="white-space: nowrap"><img alt="" src="/img/tuxlor.png"><a style="text-decoration: none" href='/people/${item.value}/profile'>${item.value}</a></span>
+          <span style="white-space: nowrap"><img alt="" src="/img/tuxlor.png"><lor:user user="${item.value}" decorate="true" link="true"/> </span>
           <input type="submit" name="del" value="Удалить">
         </form>
       </li>

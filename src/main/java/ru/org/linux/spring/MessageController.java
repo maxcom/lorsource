@@ -36,6 +36,7 @@ import org.springframework.web.servlet.view.RedirectView;
 
 import ru.org.linux.site.*;
 import ru.org.linux.spring.dao.CommentDao;
+import ru.org.linux.spring.dao.IgnoreListDao;
 import ru.org.linux.spring.dao.MessageDao;
 import ru.org.linux.spring.dao.UserDao;
 
@@ -52,6 +53,9 @@ public class MessageController {
 
   @Autowired
   private UserDao userDao;
+
+  @Autowired
+  private IgnoreListDao ignoreListDao;
 
   @RequestMapping("/forum/{group}/{id}")
   public ModelAndView getMessageNewForum(
@@ -318,7 +322,7 @@ public class MessageController {
     Set<Integer> ignoreList = null;
 
     if (currentUser != null) {
-      ignoreList = userDao.getIgnoreList(currentUser);
+      ignoreList = ignoreListDao.get(currentUser);
     }
 
     int filterMode = CommentFilter.FILTER_IGNORED;

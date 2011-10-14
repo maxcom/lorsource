@@ -26,6 +26,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.site.*;
 import ru.org.linux.spring.dao.GroupDao;
+import ru.org.linux.spring.dao.IgnoreListDao;
 import ru.org.linux.spring.dao.SectionDao;
 import ru.org.linux.spring.dao.UserDao;
 import ru.org.linux.util.ServletParameterBadValueException;
@@ -49,6 +50,9 @@ public class GroupController {
 
   @Autowired
   private PrepareService prepareService;
+
+  @Autowired
+  private IgnoreListDao ignoreListDao;
 
   private JdbcTemplate jdbcTemplate;
 
@@ -167,7 +171,7 @@ public class GroupController {
     Set<Integer> ignoreList;
 
     if (tmpl.getCurrentUser()!=null) {
-      ignoreList = userDao.getIgnoreList(tmpl.getCurrentUser());
+      ignoreList = ignoreListDao.get(tmpl.getCurrentUser());
     } else {
       ignoreList = Collections.emptySet();
     }

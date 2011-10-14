@@ -1,7 +1,6 @@
 package ru.org.linux.spring.dao;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
@@ -24,11 +23,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.List;
-import java.util.Set;
 
 @Repository
 public class UserDao {
   private JdbcTemplate jdbcTemplate;
+
+  @Autowired
+  private IgnoreListDao ignoreListDao;
 
   /**
    * изменение score пользователю
@@ -43,7 +44,6 @@ public class UserDao {
   private static final String queryUserInfoClass = "SELECT url, town, lastlogin, regdate FROM users WHERE id=?";
   private static final String queryBanInfoClass = "SELECT * FROM ban_info WHERE userid=?";
 
-  private static final String queryIgnoreStat = "SELECT count(*) as inum FROM ignore_list JOIN users ON  ignore_list.userid = users.id WHERE ignored=? AND not blocked";
   private static final String queryCommentStat = "SELECT count(*) as c FROM comments WHERE userid=? AND not deleted";
   private static final String queryTopicDates = "SELECT min(postdate) as first,max(postdate) as last FROM topics WHERE topics.userid=?";
   private static final String queryCommentDates = "SELECT min(postdate) as first,max(postdate) as last FROM comments WHERE comments.userid=?";
@@ -55,8 +55,6 @@ public class UserDao {
                     "AND sections.id=groups.section " +
                     "AND not deleted " +
                     "GROUP BY sections.name";
-
-  private static final String queryIgnoreList = "SELECT a.ignored FROM ignore_list a WHERE a.userid=?";
 
   private static final String updateResetUnreadReplies = "UPDATE users SET unread_events=0 where id=?";
 
@@ -241,13 +239,7 @@ public class UserDao {
    * @return статистика
    */
   public UserStatistics getUserStatisticsClass(User user) {
-    int ignoreCount;
-
-    try {
-      ignoreCount = jdbcTemplate.queryForInt(queryIgnoreStat, user.getId());
-    } catch (EmptyResultDataAccessException exception) {
-      ignoreCount = 0;
-    }
+    int ignoreCount = ignoreListDao.getIgnoreStat(user);
 
     int commentCount;
 
@@ -295,22 +287,6 @@ public class UserDao {
         commentStat.get(0), commentStat.get(1),
         topicStat.get(0), topicStat.get(1),
         builder.build());
-  }
-
-  /**
-   * Получить список игнорируемых
-   * @param user пользователь который игнорирует
-   * @return список игнорируемых
-   */
-  public Set<Integer> getIgnoreList(User user) {
-    final ImmutableSet.Builder<Integer> builder = ImmutableSet.builder();
-    jdbcTemplate.query(queryIgnoreList, new RowCallbackHandler() {
-      @Override
-      public void processRow(ResultSet resultSet) throws SQLException {
-        builder.add(resultSet.getInt("ignored"));
-      }
-    }, user.getId());
-    return builder.build();
   }
 
   /**

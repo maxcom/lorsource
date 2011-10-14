@@ -26,6 +26,7 @@ import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.site.Template;
 import ru.org.linux.site.User;
 import ru.org.linux.site.UserNotFoundException;
+import ru.org.linux.spring.dao.IgnoreListDao;
 import ru.org.linux.spring.dao.UserDao;
 import ru.org.linux.util.HTMLFormatter;
 
@@ -36,6 +37,9 @@ import java.net.URLEncoder;
 public class WhoisController {
   @Autowired
   private UserDao userDao;
+
+  @Autowired
+  private IgnoreListDao ignoreListDao;
 
   @RequestMapping("/people/{nick}/profile")
   public ModelAndView getInfoNew(@PathVariable String nick, ServletRequest request) throws Exception {
@@ -64,7 +68,7 @@ public class WhoisController {
     mv.getModel().put("moderatorOrCurrentUser", currentUser || tmpl.isModeratorSession());
 
     if (tmpl.isSessionAuthorized() && !currentUser) {
-      mv.getModel().put("ignoreList", userDao.getIgnoreList(tmpl.getCurrentUser()));
+      mv.getModel().put("ignoreList", ignoreListDao.get(tmpl.getCurrentUser()));
     }
 
     String userinfo = userDao.getUserInfo(user);
