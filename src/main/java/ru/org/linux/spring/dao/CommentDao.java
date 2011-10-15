@@ -227,7 +227,7 @@ public class CommentDao {
   }
 
   private List<Integer> deleteReplys(int msgid, User user, boolean score, int depth) {
-    List<Integer> replys = getReplys(msgid);
+    List<Integer> replys = getReplysForUpdate(msgid);
     List<Integer> deleted = new LinkedList<Integer>();
     for (Integer r : replys) {
       deleted.addAll(deleteReplys(r, user, score, depth+1));
@@ -267,13 +267,8 @@ public class CommentDao {
    * @param msgid id комментария
    * @return список ответов на комментарий
    */
-  public List<Integer> getReplys(int msgid){
-    return jdbcTemplate.query(replysForComment, new RowMapper<Integer>() {
-      @Override
-      public Integer mapRow(ResultSet rs, int rowNum) throws SQLException {
-        return rs.getInt(1);
-      }
-    },msgid);
+  private List<Integer> getReplysForUpdate(int msgid){
+    return jdbcTemplate.queryForList(replysForComment, Integer.class, msgid);
   }
 
   /**
