@@ -47,6 +47,10 @@ body {
 	line-height: 1.4;
 }
 
+textarea {
+    font-family: Trebuchet MS, sans-serif;
+}
+
 p {
 	margin-bottom: 1em;
 }
