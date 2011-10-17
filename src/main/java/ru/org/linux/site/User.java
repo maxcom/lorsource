@@ -19,11 +19,8 @@ import org.apache.commons.codec.binary.Base64;
 import org.jasypt.exceptions.EncryptionOperationNotPossibleException;
 import org.jasypt.util.password.BasicPasswordEncryptor;
 import org.jasypt.util.password.PasswordEncryptor;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 import org.springframework.validation.Errors;
 import ru.org.linux.spring.LoginController;
-import ru.org.linux.spring.dao.UserDao;
 import ru.org.linux.util.StringUtil;
 
 import javax.servlet.http.Cookie;
@@ -305,14 +302,6 @@ public class User implements Serializable {
 
   public String getPhoto() {
     return photo;
-  }
-
-  @Deprecated
-  public static User getUser(Connection db, String nick) throws UserNotFoundException {
-    SingleConnectionDataSource scds = new SingleConnectionDataSource(db, true);
-    JdbcTemplate jdbcTemplate = new JdbcTemplate(scds);
-
-    return UserDao.getUser(jdbcTemplate, nick);
   }
 
   public boolean isAnonymousScore() {

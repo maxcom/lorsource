@@ -12,6 +12,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +22,7 @@ import ru.org.linux.util.URLUtil;
 
 import javax.mail.internet.InternetAddress;
 import javax.sql.DataSource;
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -64,11 +66,6 @@ public class UserDao {
   @Autowired
   public void setJdbcTemplate(DataSource dataSource) {
     jdbcTemplate = new JdbcTemplate(dataSource);
-  }
-
-  @Deprecated
-  public static User getUser(JdbcTemplate jdbcTemplate, String nick) throws UserNotFoundException {
-    return getUserInternal(jdbcTemplate, nick);
   }
 
   private static User getUserInternal(JdbcTemplate jdbcTemplate, String nick) throws UserNotFoundException {
@@ -134,11 +131,6 @@ public class UserDao {
    */
   public User getUser(int id) throws UserNotFoundException {
     return getUserInternal(jdbcTemplate, id, false);
-  }
-
-  @Deprecated
-  public static User getUser(JdbcTemplate jdbcTemplate, int id, boolean useCache) throws UserNotFoundException {
-    return getUserInternal(jdbcTemplate, id, useCache);
   }
 
   private static User getUserInternal(JdbcTemplate jdbcTemplate, int id, boolean useCache) throws UserNotFoundException {
@@ -577,5 +569,13 @@ public class UserDao {
 
   public void acceptNewEmail(User user) {
     jdbcTemplate.update("UPDATE users SET email=new_email WHERE id=?", user.getId());
+  }
+
+  @Deprecated
+  public static User getUser(Connection db, String nick) throws UserNotFoundException {
+    SingleConnectionDataSource scds = new SingleConnectionDataSource(db, true);
+    JdbcTemplate jdbcTemplate = new JdbcTemplate(scds);
+
+    return getUserInternal(jdbcTemplate, nick);
   }
 }

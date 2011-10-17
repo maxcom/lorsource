@@ -86,7 +86,7 @@ public final class Template {
         
         try {
           db = LorDataSource.getConnection();
-          User user = User.getUser(db, profileCookie);
+          User user = UserDao.getUser(db, profileCookie);
 
           if (user.getMD5(getSecret()).equals(getCookie("password")) && !user.isBlocked()) {
             performLogin(response, db, user);
@@ -261,7 +261,7 @@ public final class Template {
     }
 
     try {
-      currentUser = User.getUser(db, (String) session.getAttribute("nick"));
+      currentUser = UserDao.getUser(db, (String) session.getAttribute("nick"));
     } catch (UserNotFoundException e) {
       throw new RuntimeException("Can't find currentUser!?", e);
     }
