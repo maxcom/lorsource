@@ -15,9 +15,7 @@
 
 package ru.org.linux.site;
 
-import org.springframework.jdbc.support.JdbcUtils;
-
-import java.sql.*;
+import java.sql.Timestamp;
 
 public class BanInfo {
   private final Timestamp date;
@@ -28,32 +26,6 @@ public class BanInfo {
     this.date = date;
     this.reason = reason;
     this.moderator = moderator;
-  }
-
-  @Deprecated
-  public static BanInfo getBanInfo(Connection db, User user) throws SQLException {
-    Statement st = null;
-
-    try {
-      st = db.createStatement();
-      ResultSet rs = st.executeQuery("SELECT * FROM ban_info WHERE userid="+user.getId());
-
-      if (!rs.next()) {
-        return null;
-      } else {
-        try {
-          Timestamp date = rs.getTimestamp("bandate");
-          String reason = rs.getString("reason");
-          User moderator = User.getUserCached(db, rs.getInt("ban_by"));
-
-          return new BanInfo(date, reason, moderator);
-        } catch (UserNotFoundException e) {
-          throw new RuntimeException(e);
-        }
-      }
-    } finally {
-      JdbcUtils.closeStatement(st);
-    }
   }
 
   public Timestamp getDate() {
