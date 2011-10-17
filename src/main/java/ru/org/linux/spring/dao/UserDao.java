@@ -510,4 +510,8 @@ public class UserDao {
             user.getId()
     );
   }
+
+  public void activateUser(User user) {
+    jdbcTemplate.update("UPDATE users SET activated='t' WHERE id=?", user.getId());
+  }
 }
