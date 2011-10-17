@@ -105,7 +105,9 @@ public class LoginController {
         throw new BadInputException("не удалось открыть сессию; возможно отсутствует поддержка Cookie");
       }
 
-      performLogin(response, db, tmpl, session, user);
+      createCookies(response, tmpl, session, user);
+
+      tmpl.performLogin(response, db, user);
 
       db.commit();
 
@@ -156,12 +158,6 @@ public class LoginController {
     }
 
     return new ModelAndView(new RedirectView("/"));
-  }
-
-  private static void performLogin(HttpServletResponse response, Connection db, Template tmpl, HttpSession session, User user) throws SQLException {
-    createCookies(response, tmpl, session, user);
-
-    tmpl.performLogin(response, db, user);
   }
 
   private static void createCookies(HttpServletResponse response, Template tmpl, HttpSession session, User user) {
