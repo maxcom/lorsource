@@ -15,9 +15,21 @@
 
 package ru.org.linux.spring;
 
-import java.sql.*;
-import java.util.Date;
-import java.util.Properties;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.support.ApplicationObjectSupport;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.view.RedirectView;
+import ru.org.linux.site.*;
+import ru.org.linux.spring.dao.IPBlockDao;
+import ru.org.linux.spring.dao.UserDao;
+import ru.org.linux.util.BadURLException;
+import ru.org.linux.util.HTMLFormatter;
+import ru.org.linux.util.LorHttpUtils;
+import ru.org.linux.util.URLUtil;
 
 import javax.mail.MessagingException;
 import javax.mail.Session;
@@ -27,20 +39,8 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.support.ApplicationObjectSupport;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.view.RedirectView;
-
-import ru.org.linux.site.*;
-import ru.org.linux.spring.dao.IPBlockDao;
-import ru.org.linux.spring.dao.UserDao;
-import ru.org.linux.util.*;
+import java.util.Date;
+import java.util.Properties;
 
 @SuppressWarnings({"ProhibitedExceptionDeclared"})
 @Controller
@@ -321,40 +321,22 @@ public class RegisterController extends ApplicationObjectSupport {
       throw new AccessViolationException("Not authorized!");
     }
 
-    Connection db = null;
+    User user = tmpl.getCurrentUser();
 
-    try {
-      db = LorDataSource.getConnection();
-      db.setAutoCommit(false);
+    String newEmail = userDao.getNewEmail(user);
 
-      User user = tmpl.getCurrentUser();
-
-      Statement st = db.createStatement();
-      ResultSet rs = st.executeQuery("SELECT new_email FROM users WHERE id=" + user.getId());
-      rs.next();
-
-      String newEmail = rs.getString("new_email");
-      if (newEmail == null) {
-        throw new AccessViolationException("new_email == null?!");
-      }
-
-      String regcode = user.getActivationCode(tmpl.getSecret(), newEmail);
-
-      if (regcode.equals(activation)) {
-        PreparedStatement pst = db.prepareStatement("UPDATE users SET email=new_email WHERE id=?");
-        pst.setInt(1, user.getId());
-        pst.executeUpdate();
-      } else {
-        throw new AccessViolationException("Bad activation code");
-      }
-
-      db.commit();
-
-      return new ModelAndView(new RedirectView("/people/"+user.getNick()+"/profile"));
-    } finally {
-      if (db != null) {
-        db.close();
-      }
+    if (newEmail == null) {
+      throw new AccessViolationException("new_email == null?!");
     }
+
+    String regcode = user.getActivationCode(tmpl.getSecret(), newEmail);
+
+    if (!regcode.equals(activation)) {
+      throw new AccessViolationException("Bad activation code");
+    }
+
+    userDao.acceptNewEmail(user);
+
+    return new ModelAndView(new RedirectView("/people/" + user.getNick() + "/profile"));
   }
 }

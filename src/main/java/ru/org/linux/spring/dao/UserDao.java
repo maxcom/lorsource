@@ -570,4 +570,12 @@ public class UserDao {
 
     return c>0;
   }
+
+  public String getNewEmail(User user) {
+    return jdbcTemplate.queryForObject("SELECT new_email FROM users WHERE id=?", String.class, user.getId());
+  }
+
+  public void acceptNewEmail(User user) {
+    jdbcTemplate.update("UPDATE users SET email=new_email WHERE id=?", user.getId());
+  }
 }
