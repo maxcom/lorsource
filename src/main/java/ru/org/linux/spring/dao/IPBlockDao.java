@@ -8,12 +8,14 @@ import org.springframework.validation.Errors;
 import org.xbill.DNS.TextParseException;
 import ru.org.linux.site.AccessViolationException;
 import ru.org.linux.site.IPBlockInfo;
+import ru.org.linux.site.User;
 import ru.org.linux.util.DNSBLClient;
 
 import javax.sql.DataSource;
 import java.net.UnknownHostException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.List;
 
 @Repository
@@ -77,6 +79,28 @@ public class IPBlockDao {
 
     if (block.isBlocked()) {
       errors.reject(null, "Постинг заблокирован: "+block.getReason());
+    }
+  }
+
+  public void blockIP(String ip, User moderator, String reason, Timestamp ts) {
+    IPBlockInfo blockInfo = getBlockInfo(ip);
+
+    if (blockInfo == null) {
+      jdbcTemplate.update(
+              "INSERT INTO b_ips (ip, mod_id, date, reason, ban_date) VALUES (?::inet, ?, CURRENT_TIMESTAMP, ?, ?)",
+              ip,
+              moderator.getId(),
+              reason,
+              ts
+      );
+    } else {
+      jdbcTemplate.update(
+              "UPDATE b_ips SET mod_id=?,date=CURRENT_TIMESTAMP, reason=?, ban_date=? WHERE ip=?::inet",
+              moderator.getId(),
+              reason,
+              ts,
+              ip
+      );
     }
   }
 }

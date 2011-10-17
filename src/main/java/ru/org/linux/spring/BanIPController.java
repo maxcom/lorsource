@@ -23,13 +23,13 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
-import ru.org.linux.site.*;
+import ru.org.linux.site.Template;
+import ru.org.linux.site.User;
+import ru.org.linux.site.UserErrorException;
 import ru.org.linux.spring.dao.IPBlockDao;
 
 import javax.servlet.http.HttpServletRequest;
 import java.net.URLEncoder;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Date;
@@ -87,40 +87,12 @@ public class BanIPController {
       ts = new Timestamp(calendar.getTimeInMillis());
     }
 
-    Connection db = null;
-    try {
-      IPBlockInfo blockInfo = ipBlockDao.getBlockInfo(ip);
+    User user = tmpl.getCurrentUser();
 
-      User user = tmpl.getCurrentUser();
+    user.checkCommit();
 
-      user.checkCommit();
+    ipBlockDao.blockIP(ip, user, reason, ts);
 
-      db = LorDataSource.getConnection();
-      db.setAutoCommit(false);
-
-      PreparedStatement pst;
-
-      if (blockInfo == null) {
-        pst = db.prepareStatement("INSERT INTO b_ips (ip, mod_id, date, reason, ban_date) VALUES (?::inet, ?, CURRENT_TIMESTAMP, ?, ?)");
-      } else {
-        pst = db.prepareStatement("UPDATE b_ips SET ip=?::inet, mod_id=?,date=CURRENT_TIMESTAMP, reason=?, ban_date=? WHERE ip=?::inet");
-        pst.setString(5, ip);
-      }
-
-      pst.setString(1, ip);
-      pst.setInt(2, user.getId());
-      pst.setString(3, reason);
-      pst.setTimestamp(4, ts);
-
-      pst.executeUpdate();
-
-      db.commit();
-
-      return new ModelAndView(new RedirectView("sameip.jsp?ip=" + URLEncoder.encode(ip)));
-    } finally {
-      if (db != null) {
-        db.close();
-      }
-    }
+    return new ModelAndView(new RedirectView("sameip.jsp?ip=" + URLEncoder.encode(ip)));
   }
 }
