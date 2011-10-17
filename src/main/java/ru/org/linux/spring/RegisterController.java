@@ -28,11 +28,8 @@ import javax.mail.internet.MimeMessage;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import org.jasypt.util.password.BasicPasswordEncryptor;
-import org.jasypt.util.password.PasswordEncryptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.ApplicationObjectSupport;
-import org.springframework.jdbc.support.JdbcUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -42,6 +39,7 @@ import org.springframework.web.servlet.view.RedirectView;
 
 import ru.org.linux.site.*;
 import ru.org.linux.spring.dao.IPBlockDao;
+import ru.org.linux.spring.dao.UserDao;
 import ru.org.linux.util.*;
 
 @SuppressWarnings({"ProhibitedExceptionDeclared"})
@@ -49,6 +47,9 @@ import ru.org.linux.util.*;
 public class RegisterController extends ApplicationObjectSupport {
   private CaptchaService captcha;
   private IPBlockDao ipBlockDao;
+
+  @Autowired
+  private UserDao userDao;
 
   @Autowired
   public void setCaptcha(CaptchaService captcha) {
@@ -67,31 +68,19 @@ public class RegisterController extends ApplicationObjectSupport {
     Template tmpl = Template.getTemplate(request);
 
     if (tmpl.isSessionAuthorized()) {
-      Connection db = null;
+      User user = tmpl.getCurrentUser();
 
-      try {
-        db = LorDataSource.getConnection();
-        db.setAutoCommit(false);
+      user.checkAnonymous();
 
-        tmpl.updateCurrentUser(db);
+      UserInfo userInfo = userDao.getUserInfoClass(user);
 
-        User user = tmpl.getCurrentUser();
-        user.checkAnonymous();
+      ModelAndView mv = new ModelAndView("register-update");
 
-        UserInfo userInfo = new UserInfo(db, user.getId());
+      mv.getModel().put("user", user);
+      mv.getModel().put("userInfo", userInfo);
+      mv.getModel().put("userInfoText", userDao.getUserInfo(user));
 
-        ModelAndView mv = new ModelAndView("register-update");
-
-        mv.getModel().put("user", user);
-        mv.getModel().put("userInfo", userInfo);
-        mv.getModel().put("userInfoText", user.getUserinfo(db));
-
-        db.commit();
-
-        return mv;
-      } finally {
-        JdbcUtils.closeConnection(db);
-      }
+      return mv;
     } else {
       return new ModelAndView("register");
     }
@@ -111,7 +100,6 @@ public class RegisterController extends ApplicationObjectSupport {
     HttpSession session = request.getSession();
     Template tmpl = Template.getTemplate(request);
 
-    Connection db = null;
     try {
       boolean changeMode = "change".equals(request.getParameter("mode"));
 
@@ -121,7 +109,7 @@ public class RegisterController extends ApplicationObjectSupport {
         if (!tmpl.isSessionAuthorized()) {
           throw new AccessViolationException("Not authorized");
         }
-        
+
         nick = tmpl.getNick();
       } else {
         nick = request.getParameter("nick");
@@ -198,118 +186,59 @@ public class RegisterController extends ApplicationObjectSupport {
 
       ipBlockDao.checkBlockIP(request.getRemoteAddr());
 
-      db = LorDataSource.getConnection();
-      db.setAutoCommit(false);
-
-      int userid;
-
       boolean emailChanged = false;
 
       if (changeMode) {
-        User user = User.getUser(db, nick);
-        userid = user.getId();
+        User user = userDao.getUser(nick);
         user.checkPassword(request.getParameter("oldpass"));
         user.checkAnonymous();
 
-        PreparedStatement ist = db.prepareStatement(
-          "UPDATE users SET  name=?, url=?, new_email=?, town=? WHERE id=" + userid);
-        ist.setString(1, name);
-        
-        if (password != null) {
-          user.setPassword(db, password);
-        }
-
-        if (url != null) {
-          ist.setString(2, url);
-        } else {
-          ist.setString(2, null);
-        }
+        String newEmail;
 
         if (user.getEmail()!=null && user.getEmail().equals(email)) {
-          ist.setString(3, null);
+          newEmail = null;
         } else {
-          int emailCount = getUserCount(db, mail.getAddress());
-
-          if (emailCount != 0) {
+          if (userDao.getByEmail(mail.getAddress())!=null) {
             throw new BadInputException("такой email уже используется");
           }
 
-          ist.setString(3, mail.getAddress());
+          newEmail = mail.getAddress();
 
           sendEmail(tmpl, user.getNick(), mail.getAddress(), false);
 
           emailChanged = true;
         }
 
-        ist.setString(4, town);
-
-        ist.executeUpdate();
-
-        ist.close();
-
-        user.setUserinfo(db, info);
+        userDao.updateUser(
+                user,
+                name,
+                url,
+                newEmail,
+                town,
+                password,
+                info
+        );
       } else {
-        PreparedStatement pst = db.prepareStatement("SELECT count(*) as c FROM users WHERE nick=?");
-        pst.setString(1, nick);
-        ResultSet rs = pst.executeQuery();
-        rs.next();
-
-        if (rs.getInt("c") != 0) {
+        if (userDao.isUserExists(nick)) {
           throw new BadInputException("пользователь " + nick + " уже существует");
         }
         
-        rs.close();
-        pst.close();
+        if (url!=null && !URLUtil.isUrl(url)) {
+          throw new BadInputException("Некорректный URL");
+        }
 
-        int emailCount = getUserCount(db, mail.getAddress());
-
-        if (emailCount != 0) {
+        if (userDao.getByEmail(mail.getAddress()) != null) {
           throw new BadInputException("пользователь с таким e-mail уже зарегистрирован.<br>" +
             "Если вы забыли параметры своего аккаунта, воспользуйтесь <a href=\"/lostpwd.jsp\">формой восстановления пароля</a>");
         }
 
-        Statement st = db.createStatement();
-        rs = st.executeQuery("select nextval('s_uid') as userid");
-        rs.next();
-        userid = rs.getInt("userid");
-        rs.close();
-        st.close();
-
-        PreparedStatement ist = db.prepareStatement(
-          "INSERT INTO users " +
-            "(id, name, nick, passwd, url, email, town, score, max_score,regdate) " +
-            "VALUES (?,?,?,?,?,?,?,45,45,current_timestamp)"
-        );
-        ist.setInt(1, userid);
-        ist.setString(2, name);
-        ist.setString(3, nick);
-
-        PasswordEncryptor encryptor = new BasicPasswordEncryptor();
-        ist.setString(4, encryptor.encryptPassword(password));
-
-        if (url != null) {
-          ist.setString(5, URLUtil.checkAndFixURL(url));
-        } else {
-          ist.setString(5, null);
-        }
-
-        ist.setString(6, mail.getAddress());
-
-        ist.setString(7, town);
-        ist.executeUpdate();
-        ist.close();
+        int userid = userDao.createUser(name, nick, password, url, mail, town, info);
 
         String logmessage = "Зарегистрирован пользователь " + nick + " (id=" + userid + ") " + LorHttpUtils.getRequestIP(request);
         logger.info(logmessage);
 
-        if (info != null) {
-          User.setUserinfo(db, userid, info);
-        }
-
         sendEmail(tmpl, nick, email, true);
       }
-
-      db.commit();
 
       if (changeMode) {
         if (emailChanged) {
@@ -328,28 +257,6 @@ public class RegisterController extends ApplicationObjectSupport {
       return new ModelAndView("register", "error", e.getMessage());
     } catch (AddressException e) {
       return new ModelAndView("register", "error", "Некорректный e-mail: "+e.getMessage());
-    } finally {
-      if (db != null) {
-        db.close();
-      }
-    }
-  }
-
-  private static int getUserCount(Connection db, String email) throws SQLException {
-    PreparedStatement pst2 = db.prepareStatement("SELECT count(*) as c FROM users WHERE email=?");
-    ResultSet rs = null;
-
-    try {
-      pst2.setString(1, email);
-      rs = pst2.executeQuery();
-      if (!rs.next()) {
-        return 0;
-      }
-
-      return rs.getInt("c");
-    } finally {
-      JdbcUtils.closeResultSet(rs);
-      JdbcUtils.closeStatement(pst2);
     }
   }
 

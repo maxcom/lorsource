@@ -15,7 +15,9 @@
 
 package ru.org.linux.site;
 
-import java.sql.*;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
 
 public class UserInfo {
   private final String url;
@@ -28,27 +30,6 @@ public class UserInfo {
     town = resultSet.getString("town");
     lastLogin = resultSet.getTimestamp("lastlogin");
     registrationDate = resultSet.getTimestamp("regdate");
-  }
-
-  @Deprecated
-  public UserInfo(Connection db, int id) throws SQLException, UserNotFoundException {
-    PreparedStatement userInfo = db.prepareStatement("SELECT url, town, lastlogin, regdate FROM users WHERE id=?");
-
-    userInfo.setInt(1, id);
-
-    ResultSet rs = userInfo.executeQuery();
-
-    if (!rs.next()) {
-      throw new UserNotFoundException(id);
-    }
-
-    url = rs.getString("url");
-    town = rs.getString("town");
-    lastLogin = rs.getTimestamp("lastlogin");
-    registrationDate = rs.getTimestamp("regdate");
-
-    rs.close();
-    userInfo.close();
   }
 
   public String getUrl() {

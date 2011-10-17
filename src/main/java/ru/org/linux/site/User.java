@@ -21,7 +21,6 @@ import org.jasypt.util.password.BasicPasswordEncryptor;
 import org.jasypt.util.password.PasswordEncryptor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.SingleConnectionDataSource;
-import org.springframework.jdbc.support.JdbcUtils;
 import org.springframework.validation.Errors;
 import ru.org.linux.spring.LoginController;
 import ru.org.linux.spring.dao.UserDao;
@@ -309,46 +308,11 @@ public class User implements Serializable {
   }
 
   @Deprecated
-  public void setPassword(Connection db, String password) throws SQLException {
-    PasswordEncryptor encryptor = new BasicPasswordEncryptor();
-
-    String encryptedPassword = encryptor.encryptPassword(password);
-
-    PreparedStatement st = null;
-
-    try {
-      st = db.prepareStatement("UPDATE users SET passwd=?,lostpwd = 'epoch' WHERE id=?");
-      st.setString(1, encryptedPassword);
-      st.setInt(2, id);
-      st.executeUpdate();
-
-      updateCache(db);
-    } finally {
-      if (st!=null) {
-        st.close();
-      }
-    }
-  }
-
-  @Deprecated
   public static User getUser(Connection db, String nick) throws UserNotFoundException {
     SingleConnectionDataSource scds = new SingleConnectionDataSource(db, true);
     JdbcTemplate jdbcTemplate = new JdbcTemplate(scds);
 
     return UserDao.getUser(jdbcTemplate, nick);
-  }
-
-  @Deprecated
-  public static User getUserCached(Connection db, int id) throws UserNotFoundException {
-    return getUser(db, id, true);
-  }
-
-  @Deprecated
-  private static User getUser(Connection db, int id, boolean useCache) throws UserNotFoundException {
-    SingleConnectionDataSource scds = new SingleConnectionDataSource(db, true);
-    JdbcTemplate jdbcTemplate = new JdbcTemplate(scds);
-
-    return UserDao.getUser(jdbcTemplate, id, useCache);
   }
 
   public boolean isAnonymousScore() {
@@ -379,14 +343,6 @@ public class User implements Serializable {
 
     // Remove ACEGI_SECURITY_CONTEXT and session
     session.removeAttribute("ACEGI_SECURITY_CONTEXT"); // if any
-  }
-
-  private void updateCache(Connection db) {
-    try {
-      getUser(db, id, false);
-    } catch (UserNotFoundException e) {
-      throw new RuntimeException(e);
-    }
   }
 
   public boolean isCorrector() {
@@ -429,40 +385,6 @@ public class User implements Serializable {
 
   public boolean hasGravatar() {
     return email!=null;
-  }
-
-  public String getUserinfo(Connection db) throws SQLException {
-    PreparedStatement st = db.prepareStatement("SELECT userinfo FROM users where id=?");
-    st.setInt(1, id);
-
-    ResultSet rs = st.executeQuery();
-    rs.next();
-
-    String userinfo = rs.getString("userinfo");
-
-    if (userinfo==null) {
-      return "";
-    } else {
-      return userinfo;
-    }
-  }
-
-  @Deprecated
-  public void setUserinfo(Connection db, String text) throws SQLException {
-    PreparedStatement st = db.prepareStatement("UPDATE users SET userinfo=? where id=?");
-    st.setString(1, text);
-    st.setInt(2, id);
-
-    st.executeUpdate();
-  }
-
-  @Deprecated
-  public static void setUserinfo(Connection db, int id, String text) throws SQLException {
-    PreparedStatement st = db.prepareStatement("UPDATE users SET userinfo=? where id=?");
-    st.setString(1, text);
-    st.setInt(2, id);
-
-    st.executeUpdate();
   }
 
   public String getName() {

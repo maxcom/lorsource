@@ -17,7 +17,9 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.org.linux.site.*;
 import ru.org.linux.util.StringUtil;
+import ru.org.linux.util.URLUtil;
 
+import javax.mail.internet.InternetAddress;
 import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -304,7 +306,8 @@ public class UserDao {
     if(userInfo == null || userInfo.trim().isEmpty()) {
       return;
     }
-    setUserInfo(user, null);
+
+    setUserInfo(user.getId(), null);
     changeScore(user.getId(), -10);
   }
 
@@ -332,12 +335,11 @@ public class UserDao {
 
   /**
    * Обновление дополнительной информации пользователя
-   * @param user пользователь
+   * @param userid пользователь
    * @param text текст дополнительной информации
    */
-  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public void setUserInfo(User user, String text){
-    jdbcTemplate.update("UPDATE users SET userinfo=? where id=?", text, user.getId());
+  private void setUserInfo(int userid, String text){
+    jdbcTemplate.update("UPDATE users SET userinfo=? where id=?", text, userid);
   }
 
   /**
@@ -384,6 +386,10 @@ public class UserDao {
    */
   public String resetPassword(User user){
     String password = StringUtil.generatePassword();
+    return setPassword(user, password);
+  }
+
+  private String setPassword(User user, String password) {
     PasswordEncryptor encryptor = new BasicPasswordEncryptor();
     String encryptedPassword = encryptor.encryptPassword(password);
 
@@ -513,5 +519,55 @@ public class UserDao {
 
   public void activateUser(User user) {
     jdbcTemplate.update("UPDATE users SET activated='t' WHERE id=?", user.getId());
+  }
+
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
+  public void updateUser(User user, String name, String url, String new_email, String town, String password, String info) {
+    jdbcTemplate.update(
+            "UPDATE users SET  name=?, url=?, new_email=?, town=? WHERE id=?",
+            name,
+            url,
+            new_email,
+            town,
+            user.getId()
+    );
+
+    if (password != null) {
+      setPassword(user, password);
+    }
+
+    setUserInfo(user.getId(), info);
+  }
+
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
+  public int createUser(String name, String nick, String password, String url, InternetAddress mail, String town, String info) {
+    PasswordEncryptor encryptor = new BasicPasswordEncryptor();
+
+    int userid = jdbcTemplate.queryForInt("select nextval('s_uid') as userid");
+
+    jdbcTemplate.update(
+            "INSERT INTO users " +
+              "(id, name, nick, passwd, url, email, town, score, max_score,regdate) " +
+              "VALUES (?,?,?,?,?,?,?,45,45,current_timestamp)",
+            userid,
+            name,
+            nick,
+            encryptor.encryptPassword(password),
+            url==null?null: URLUtil.fixURL(url),
+            mail.getAddress(),
+            town
+    );
+
+    if (info != null) {
+      setUserInfo(userid, info);
+    }
+
+    return userid;
+  }
+
+  public boolean isUserExists(String nick) {
+    int c = jdbcTemplate.queryForInt("SELECT count(*) as c FROM users WHERE nick=?", nick);
+
+    return c>0;
   }
 }
