@@ -77,6 +77,15 @@
 
   <c:if test="${not message.expired}">
   <label>Заголовок: <form:input path="title" cssClass="required" size="40"/></label><br><br>
+
+  <c:if test="${message.votePoll and template.moderatorSession}">
+      <c:forEach var="v" items="${form.poll}" varStatus="i">
+            <label>Вариант #${i.index}:
+                <form:input path="poll[${v.key}]" size="40" disabled="true"/></label><br>
+      </c:forEach>
+      <br>
+  </c:if>
+
   <form:textarea path="msg" cols="70" rows="20"/>
   <br><br>
     <c:if test="${message.haveLink}">

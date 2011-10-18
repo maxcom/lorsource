@@ -1,5 +1,7 @@
 package ru.org.linux.spring;
 
+import java.util.Map;
+
 public class EditMessageRequest {
   private String url;
   private String linktext;
@@ -8,6 +10,8 @@ public class EditMessageRequest {
   private Boolean minor;
   private int bonus = 3;
   private String tags;
+
+  private Map<Integer, String> poll;
 
   public String getUrl() {
     return url;
@@ -63,5 +67,13 @@ public class EditMessageRequest {
 
   public void setTags(String tags) {
     this.tags = tags;
+  }
+
+  public Map<Integer, String> getPoll() {
+    return poll;
+  }
+
+  public void setPoll(Map<Integer, String> poll) {
+    this.poll = poll;
   }
 }

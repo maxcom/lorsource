@@ -25,6 +25,7 @@ import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.site.*;
 import ru.org.linux.spring.dao.GroupDao;
 import ru.org.linux.spring.dao.MessageDao;
+import ru.org.linux.spring.dao.PollDao;
 import ru.org.linux.spring.dao.TagDao;
 import ru.org.linux.spring.validators.EditMessageRequestValidator;
 
@@ -54,6 +55,9 @@ public class EditController {
 
   @Autowired
   private TagDao tagDao;
+
+  @Autowired
+  private PollDao pollDao;
 
   @RequestMapping(value = "/commit.jsp", method = RequestMethod.GET)
   public ModelAndView showCommitForm(
@@ -115,7 +119,7 @@ public class EditController {
   private ModelAndView prepareModel(
     PreparedMessage preparedMessage,
     EditMessageRequest form
-  ) {
+  ) throws PollNotFoundException {
     Map<String, Object> params = new HashMap<String, Object>();
 
     Message message = preparedMessage.getMessage();
@@ -156,6 +160,18 @@ public class EditController {
 
     if (!preparedMessage.getTags().isEmpty()) {
       form.setTags(TagDao.toString(preparedMessage.getTags()));
+    }
+
+    if (message.isVotePoll()) {
+      Poll poll = pollDao.getPollByTopicId(message.getId());
+
+      Map<Integer, String> map = new HashMap<Integer, String>();
+
+      for (PollVariant v : pollDao.getPollVariants(poll, Poll.ORDER_ID)) {
+        map.put(v.getId(), v.getLabel());
+      }
+
+      form.setPoll(map);
     }
 
     return new ModelAndView("edit", params);
