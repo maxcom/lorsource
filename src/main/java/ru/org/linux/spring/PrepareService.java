@@ -103,10 +103,6 @@ public class PrepareService {
     return prepareMessage(message, messageDao.getTags(message), includeCut, false);
   }
 
-  public PreparedMessage prepareMessage(Message message, boolean includeCut, boolean useAbsoluteUrl) {
-    return prepareMessage(message, messageDao.getTags(message), includeCut, useAbsoluteUrl);
-  }
-
   public PreparedMessage prepareMessage(Message message, List<String> tags) {
     return prepareMessage(message, tags, true, false);
   }
@@ -142,7 +138,7 @@ public class PrepareService {
       PreparedPoll preparedPoll;
 
       if (message.isVotePoll()) {
-        preparedPoll = preparePoll(pollDao.getPoll(pollDao.getPollId(message.getId())));
+        preparedPoll = preparePoll(pollDao.getPollByTopicId(message.getId()));
       } else {
         preparedPoll = null;
       }
@@ -257,7 +253,7 @@ public class PrepareService {
     List<PreparedMessage> pm = new ArrayList<PreparedMessage>(messages.size());
 
     for (Message message : messages) {
-      PreparedMessage preparedMessage = prepareMessage(message, false, useAbsoluteUrl);
+      PreparedMessage preparedMessage = prepareMessage(message, messageDao.getTags(message), false, useAbsoluteUrl);
       pm.add(preparedMessage);
     }
 

@@ -92,20 +92,6 @@ public class PollDao {
   }
 
   /**
-   * Получить id Голосования по id топика
-   * @param topicId id топика
-   * @return id голосования
-   * @throws PollNotFoundException гененрируется если такого голосования не существует
-   */
-  public int getPollId(int topicId) throws PollNotFoundException {
-    try {
-      return jdbcTemplate.queryForInt(queryPoolIdByTopicId, topicId);
-    } catch (EmptyResultDataAccessException exception) {
-      throw new PollNotFoundException();
-    }
-  }
-
-  /**
    * Возвращает текщее авктивное голосование
    * @return id текущего голосования
    */
@@ -155,7 +141,11 @@ public class PollDao {
    * @throws PollNotFoundException отсутствует такое голосование
    */
   public Poll getPollByTopicId(int topicId) throws PollNotFoundException {
-    return getPoll(getPollId(topicId));
+    try {
+      return getPoll(jdbcTemplate.queryForInt(queryPoolIdByTopicId, topicId));
+    } catch (EmptyResultDataAccessException exception) {
+      throw new PollNotFoundException();
+    }
   }
 
   /**
