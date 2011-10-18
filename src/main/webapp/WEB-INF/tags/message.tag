@@ -49,9 +49,6 @@
         <c:if test="${preparedMessage.section.premoderated and not message.commited}">
           [<a href="commit.jsp?msgid=${message.id}">Подтвердить</a>]
         </c:if>
-        <c:if test="${message.votePoll}">
-          [<a href="edit-vote.jsp?msgid=${message.id}">Править опрос</a>]
-        </c:if>
         
         [<a href="setpostscore.jsp?msgid=${message.id}">Параметры</a>]
         [<a href="mt.jsp?msgid=${message.id}">Перенести</a>]

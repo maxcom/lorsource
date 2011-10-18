@@ -201,11 +201,7 @@
     </c:if>
 <%
       if (preparedMessage.isEditable(tmpl.getCurrentUser())) {
-        if (!votepoll) {
-          out.append(" [<a href=\"edit.jsp?msgid=").append(Integer.toString(msgid)).append("\">Править</a>]");
-        } else {
-          out.append(" [<a href=\"edit-vote.jsp?msgid=").append(Integer.toString(msgid)).append("\">Править</a>]");
-        }
+        out.append(" [<a href=\"edit.jsp?msgid=").append(Integer.toString(msgid)).append("\">Править</a>]");
       }
 %>
   </c:if>

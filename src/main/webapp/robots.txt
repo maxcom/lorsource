@@ -17,7 +17,6 @@ Disallow: /show-replies.jsp
 Disallow: /ignore-list.jsp
 Disallow: /commit.jsp
 Disallow: /delete_comment.jsp
-Disallow: /edit-vote.jsp
 Disallow: /addphoto.jsp
 Disallow: /dw.jsp
 

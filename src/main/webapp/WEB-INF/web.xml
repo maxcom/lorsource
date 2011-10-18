@@ -243,10 +243,6 @@
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>springapp</servlet-name>
-        <url-pattern>/edit-vote.jsp</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>springapp</servlet-name>
         <url-pattern>/delete_comment.jsp</url-pattern>
     </servlet-mapping>
     <servlet-mapping>

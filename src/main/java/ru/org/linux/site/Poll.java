@@ -15,12 +15,10 @@
 
 package ru.org.linux.site;
 
-import com.google.common.collect.ImmutableList;
-
 import java.io.Serializable;
-import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 
 public class Poll implements Serializable {
   public static final int MAX_POLL_SIZE = 15;
@@ -43,34 +41,6 @@ public class Poll implements Serializable {
 
   public int getId() {
     return id;
-  }
-
-  @Deprecated
-  public ImmutableList<PollVariant> getPollVariants(Connection db, int order) throws SQLException {
-    List<PollVariant> variants = new ArrayList<PollVariant>();
-    Statement st = db.createStatement();
-    ResultSet rs;
-
-    switch (order) {
-      case ORDER_ID:
-        rs = st.executeQuery("SELECT * FROM votes WHERE vote="+id+" ORDER BY id");
-        break;
-      case ORDER_VOTES:
-        rs = st.executeQuery("SELECT * FROM votes WHERE vote="+id+" ORDER BY votes DESC, id");
-        break;
-      default:
-        throw new RuntimeException("Oops!? order="+order);
-    }
-
-    while (rs.next()) {
-      int varId = rs.getInt("id");
-      String label = rs.getString("label");
-      int votes = rs.getInt("votes");
-
-      variants.add(new PollVariant(varId, label, votes));
-    }
-
-    return ImmutableList.copyOf(variants);
   }
 
   public int getTopicId() {
