@@ -390,7 +390,7 @@ public class MessageDao {
     return s1.equals(s2);
   }
 
-  private boolean updatePoll(Message message, List<PollVariant> newVariants) throws PollNotFoundException {
+  private boolean updatePoll(Message message, List<PollVariant> newVariants, boolean multiselect) throws PollNotFoundException {
     boolean modified = false;
 
     final Poll poll = pollDao.getPollByTopicId(message.getId());
@@ -434,6 +434,11 @@ public class MessageDao {
       }
     }
 
+    if (poll.isMultiSelect()!=multiselect) {
+      modified = true;
+      jdbcTemplate.update("UPDATE votenames SET multiselect=? WHERE id=?", multiselect, poll.getId());
+    }
+
     return modified;
   }
 
@@ -446,12 +451,13 @@ public class MessageDao {
           boolean commit,
           Integer changeGroupId,
           int bonus,
-          List<PollVariant> pollVariants
+          List<PollVariant> pollVariants,
+          boolean multiselect
   )  {
     boolean modified = updateMessage(message, newMsg, user, newTags);
 
     try {
-      if (pollVariants!=null && updatePoll(message, pollVariants)) {
+      if (pollVariants!=null && updatePoll(message, pollVariants, multiselect)) {
         modified = true;
       }
     } catch (PollNotFoundException e) {

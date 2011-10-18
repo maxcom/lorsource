@@ -12,8 +12,8 @@ public class EditMessageRequest {
   private String tags;
 
   private Map<Integer, String> poll;
-
   private String[] newPoll = new String[3];
+  private boolean multiselect;
 
   public String getUrl() {
     return url;
@@ -85,5 +85,13 @@ public class EditMessageRequest {
 
   public void setNewPoll(String[] newPoll) {
     this.newPoll = newPoll;
+  }
+
+  public boolean isMultiselect() {
+    return multiselect;
+  }
+
+  public void setMultiselect(boolean multiselect) {
+    this.multiselect = multiselect;
   }
 }

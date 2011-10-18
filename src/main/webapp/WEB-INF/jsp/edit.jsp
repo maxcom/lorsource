@@ -88,6 +88,8 @@
             <label>Новый #${i.index}:
                 <form:input path="newPoll[${i.index}]" size="40"/></label><br>
       </c:forEach>
+
+      <label>Мультивыбор: <form:checkbox path="multiselect" size="40"/></label>
       <br>
   </c:if>
 

@@ -165,6 +165,8 @@ public class EditController {
       Poll poll = pollDao.getPollByTopicId(message.getId());
 
       form.setPoll(PollVariant.toMap(pollDao.getPollVariants(poll, Poll.ORDER_ID)));
+
+      form.setMultiselect(poll.isMultiSelect());
     }
 
     return new ModelAndView("edit", params);
@@ -332,7 +334,8 @@ public class EditController {
               commit,
               changeGroupId,
               form.getBonus(),
-              newPoll!=null?newPoll.getVariants():null
+              newPoll!=null?newPoll.getVariants():null,
+              form.isMultiselect()
       );
 
       if (changed || commit) {
