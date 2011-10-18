@@ -16,9 +16,6 @@
 package ru.org.linux.site;
 
 import java.io.Serializable;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 
 public class Poll implements Serializable {
   public static final int MAX_POLL_SIZE = 15;
@@ -45,17 +42,6 @@ public class Poll implements Serializable {
 
   public int getTopicId() {
     return topic;
-  }
-
-  public void addNewVariant(Connection db, String label) throws SQLException {
-    PreparedStatement addPst = db.prepareStatement("INSERT INTO votes (id, vote, label) values (nextval('votes_id'), ?, ?)");
-
-    addPst.clearParameters();
-
-    addPst.setInt(1, id);
-    addPst.setString(2, label);
-
-    addPst.executeUpdate();
   }
 
   public boolean isCurrent() {

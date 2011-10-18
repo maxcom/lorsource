@@ -22,7 +22,10 @@ import ru.org.linux.util.LorHttpUtils;
 import javax.servlet.http.HttpServletRequest;
 import javax.sql.DataSource;
 import java.io.IOException;
-import java.sql.*;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.*;
 
 /**
@@ -406,31 +409,18 @@ public class MessageDao {
         modified = true;
       }
 
-      jdbcTemplate.execute(new ConnectionCallback<Object>() {
-        @Override
-        public Object doInConnection(Connection db) throws SQLException, DataAccessException {
-          if (Strings.isNullOrEmpty(label)) {
-            var.remove(db);
-          } else {
-            var.updateLabel(db, label);
-          }
-
-          return null;
-        }
-      });
+      if (Strings.isNullOrEmpty(label)) {
+        pollDao.removeVariant(var);
+      } else {
+        pollDao.updateVariant(var, label);
+      }
     }
 
     for (final PollVariant var : newVariants) {
       if (var.getId()==0 && !Strings.isNullOrEmpty(var.getLabel())) {
         modified = true;
-        
-        jdbcTemplate.execute(new ConnectionCallback<Object>() {
-          @Override
-          public Object doInConnection(Connection db) throws SQLException, DataAccessException {
-            poll.addNewVariant(db, var.getLabel());
-            return null;
-          }
-        });
+
+        pollDao.addNewVariant(poll, var.getLabel());
       }
     }
 

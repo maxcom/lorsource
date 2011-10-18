@@ -17,9 +17,7 @@ package ru.org.linux.spring.dao;
 
 import com.google.common.collect.ImmutableList;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.ConnectionCallback;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.core.RowMapper;
@@ -29,7 +27,8 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.org.linux.site.*;
 
 import javax.sql.DataSource;
-import java.sql.*;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -198,7 +197,7 @@ public class PollDao {
   }
 
   // call in @Transactional
-  public void createPoll(final List<String> pollList, boolean multiSelect, int msgid) {
+  public void createPoll(List<String> pollList, boolean multiSelect, int msgid) {
     final int voteid = getNextPollId();
 
     jdbcTemplate.update("INSERT INTO votenames (id, multiselect, topic) values (?,?,?)", voteid, multiSelect, msgid);
@@ -206,20 +205,13 @@ public class PollDao {
     try {
       final Poll poll = getPoll(voteid);
 
-      jdbcTemplate.execute(new ConnectionCallback<String>() {
-        @Override
-        public String doInConnection(Connection db) throws SQLException, DataAccessException {
-          for (String variant : pollList) {
-            if (variant.trim().length() == 0) {
-              continue;
-            }
-
-            poll.addNewVariant(db, variant);
-          }
-
-          return null;
+      for (String variant : pollList) {
+        if (variant.trim().length() == 0) {
+          continue;
         }
-      });
+
+        addNewVariant(poll, variant);
+      }
     } catch (PollNotFoundException e) {
       throw new RuntimeException(e);
     }
@@ -227,5 +219,25 @@ public class PollDao {
 
   private int getNextPollId() {
     return jdbcTemplate.queryForInt("select nextval('vote_id') as voteid");
+  }
+
+  public void addNewVariant(Poll poll, String label) {
+    jdbcTemplate.update(
+            "INSERT INTO votes (id, vote, label) values (nextval('votes_id'), ?, ?)",
+            poll.getId(),
+            label
+    );
+  }
+
+  public void updateVariant(PollVariant var, String label) {
+    if (var.getLabel().equals(label)) {
+      return;
+    }
+
+    jdbcTemplate.update("UPDATE votes SET label=? WHERE id=?", label, var.getId());
+  }
+
+  public void removeVariant(PollVariant variant) {
+    jdbcTemplate.update("DELETE FROM votes WHERE id=?", variant.getId());
   }
 }
