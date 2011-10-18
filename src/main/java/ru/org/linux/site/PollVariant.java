@@ -19,6 +19,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.List;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 public class PollVariant {
   private final int id;
@@ -59,5 +62,15 @@ public class PollVariant {
   public void remove(Connection db) throws SQLException {
     Statement st = db.createStatement();
     st.executeUpdate("DELETE FROM votes WHERE id="+id);
+  }
+
+  public static SortedMap<Integer, String> toMap(List<PollVariant> list) {
+    SortedMap<Integer, String> map = new TreeMap<Integer, String>();
+
+    for (PollVariant v : list) {
+      map.put(v.getId(), v.getLabel());
+    }
+
+    return map;
   }
 }

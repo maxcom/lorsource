@@ -22,10 +22,7 @@ import ru.org.linux.util.LorHttpUtils;
 import javax.servlet.http.HttpServletRequest;
 import javax.sql.DataSource;
 import java.io.IOException;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
+import java.sql.*;
 import java.util.*;
 
 /**
@@ -393,6 +390,39 @@ public class MessageDao {
     return s1.equals(s2);
   }
 
+  private boolean updatePoll(Message message, List<PollVariant> newVariants) throws PollNotFoundException {
+    boolean modified = false;
+
+    Poll poll = pollDao.getPollByTopicId(message.getId());
+
+    ImmutableList<PollVariant> oldVariants = pollDao.getPollVariants(poll, Poll.ORDER_ID);
+
+    Map<Integer, String> newMap = PollVariant.toMap(newVariants);
+
+    for (final PollVariant var : oldVariants) {
+      final String label = newMap.get(var.getId());
+
+      if (!equalStrings(var.getLabel(), label)) {
+        modified = true;
+      }
+
+      jdbcTemplate.execute(new ConnectionCallback<Object>() {
+        @Override
+        public Object doInConnection(Connection db) throws SQLException, DataAccessException {
+          if (Strings.isNullOrEmpty(label)) {
+            var.remove(db);
+          } else {
+            var.updateLabel(db, label);
+          }
+
+          return null;
+        }
+      });
+    }
+
+    return modified;
+  }
+
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   public boolean updateAndCommit(
           Message newMsg,
@@ -401,9 +431,18 @@ public class MessageDao {
           List<String> newTags,
           boolean commit,
           Integer changeGroupId,
-          int bonus
+          int bonus,
+          List<PollVariant> pollVariants
   )  {
     boolean modified = updateMessage(message, newMsg, user, newTags);
+
+    try {
+      if (pollVariants!=null && updatePoll(message, pollVariants)) {
+        modified = true;
+      }
+    } catch (PollNotFoundException e) {
+      throw new RuntimeException(e);
+    }
 
     if (commit) {
       if (changeGroupId != null) {

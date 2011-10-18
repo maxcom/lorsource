@@ -81,7 +81,7 @@
   <c:if test="${message.votePoll and template.moderatorSession}">
       <c:forEach var="v" items="${form.poll}" varStatus="i">
             <label>Вариант #${i.index}:
-                <form:input path="poll[${v.key}]" size="40" disabled="true"/></label><br>
+                <form:input path="poll[${v.key}]" size="40"/></label><br>
       </c:forEach>
       <br>
   </c:if>

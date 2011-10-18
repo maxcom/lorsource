@@ -100,11 +100,11 @@ public class PrepareService {
   }
 
   public PreparedMessage prepareMessage(Message message, boolean includeCut) {
-    return prepareMessage(message, messageDao.getTags(message), includeCut, false);
+    return prepareMessage(message, messageDao.getTags(message), includeCut, false, null);
   }
 
-  public PreparedMessage prepareMessage(Message message, List<String> tags) {
-    return prepareMessage(message, tags, true, false);
+  public PreparedMessage prepareMessage(Message message, List<String> tags, PreparedPoll newPoll) {
+    return prepareMessage(message, tags, true, false, newPoll);
   }
 
   /**
@@ -114,7 +114,7 @@ public class PrepareService {
    * @param includeCut отображать ли cut
    * @return подготовленный топик
    */
-  public PreparedMessage prepareMessage(Message message, List<String> tags, boolean includeCut, boolean useAbsoluteUrl) {
+  private PreparedMessage prepareMessage(Message message, List<String> tags, boolean includeCut, boolean useAbsoluteUrl, PreparedPoll poll) {
     try {
       Group group = groupDao.getGroup(message.getGroupId());
       User author = userDao.getUserCached(message.getUid());
@@ -138,7 +138,11 @@ public class PrepareService {
       PreparedPoll preparedPoll;
 
       if (message.isVotePoll()) {
-        preparedPoll = preparePoll(pollDao.getPollByTopicId(message.getId()));
+        if (poll==null) {
+          preparedPoll = preparePoll(pollDao.getPollByTopicId(message.getId()));
+        } else {
+          preparedPoll = poll;
+        }
       } else {
         preparedPoll = null;
       }
@@ -253,7 +257,7 @@ public class PrepareService {
     List<PreparedMessage> pm = new ArrayList<PreparedMessage>(messages.size());
 
     for (Message message : messages) {
-      PreparedMessage preparedMessage = prepareMessage(message, messageDao.getTags(message), false, useAbsoluteUrl);
+      PreparedMessage preparedMessage = prepareMessage(message, messageDao.getTags(message), false, useAbsoluteUrl, null);
       pm.add(preparedMessage);
     }
 

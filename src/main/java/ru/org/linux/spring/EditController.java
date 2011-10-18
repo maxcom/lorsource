@@ -15,6 +15,7 @@
 
 package ru.org.linux.spring;
 
+import com.google.common.base.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.Errors;
@@ -32,9 +33,7 @@ import ru.org.linux.spring.validators.EditMessageRequestValidator;
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Controller
 public class EditController {
@@ -165,13 +164,7 @@ public class EditController {
     if (message.isVotePoll()) {
       Poll poll = pollDao.getPollByTopicId(message.getId());
 
-      Map<Integer, String> map = new HashMap<Integer, String>();
-
-      for (PollVariant v : pollDao.getPollVariants(poll, Poll.ORDER_ID)) {
-        map.put(v.getId(), v.getLabel());
-      }
-
-      form.setPoll(map);
+      form.setPoll(PollVariant.toMap(pollDao.getPollVariants(poll, Poll.ORDER_ID)));
     }
 
     return new ModelAndView("edit", params);
@@ -304,8 +297,37 @@ public class EditController {
       }
     }
 
+    PreparedPoll newPoll = null;
+
+    if (message.isVotePoll() && form.getPoll() != null && tmpl.isModeratorSession()) {
+      Poll poll = pollDao.getPollByTopicId(message.getId());
+
+      PreparedPoll orig = prepareService.preparePoll(poll);
+
+      List<PollVariant> newVariants = new ArrayList<PollVariant>();
+
+      for (PollVariant v : pollDao.getPollVariants(poll, Poll.ORDER_ID)) {
+        String label = form.getPoll().get(v.getId());
+
+        if (!Strings.isNullOrEmpty(label)) {
+          newVariants.add(new PollVariant(v.getId(), label, v.getVotes()));
+        }
+      }
+
+      newPoll = new PreparedPoll(poll, orig.getMaximumValue(), newVariants);
+    }
+
     if (!preview && !errors.hasErrors()) {
-      boolean changed = messageDao.updateAndCommit(newMsg, message, user, newTags, commit, changeGroupId, form.getBonus());
+      boolean changed = messageDao.updateAndCommit(
+              newMsg,
+              message,
+              user,
+              newTags,
+              commit,
+              changeGroupId,
+              form.getBonus(),
+              newPoll!=null?newPoll.getVariants():null
+      );
 
       if (changed || commit) {
         searchQueueSender.updateMessageOnly(newMsg.getId());
@@ -321,7 +343,8 @@ public class EditController {
     }
 
     params.put("newMsg", newMsg);
-    params.put("newPreparedMessage", prepareService.prepareMessage(newMsg, newTags));
+
+    params.put("newPreparedMessage", prepareService.prepareMessage(newMsg, newTags, newPoll));
 
     return new ModelAndView("edit", params);
   }
