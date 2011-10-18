@@ -13,6 +13,8 @@ public class EditMessageRequest {
 
   private Map<Integer, String> poll;
 
+  private String[] newPoll = new String[3];
+
   public String getUrl() {
     return url;
   }
@@ -75,5 +77,13 @@ public class EditMessageRequest {
 
   public void setPoll(Map<Integer, String> poll) {
     this.poll = poll;
+  }
+
+  public String[] getNewPoll() {
+    return newPoll;
+  }
+
+  public void setNewPoll(String[] newPoll) {
+    this.newPoll = newPoll;
   }
 }

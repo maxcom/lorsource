@@ -83,6 +83,11 @@
             <label>Вариант #${i.index}:
                 <form:input path="poll[${v.key}]" size="40"/></label><br>
       </c:forEach>
+
+      <c:forEach var="v" items="${form.newPoll}" varStatus="i">
+            <label>Новый #${i.index}:
+                <form:input path="newPoll[${i.index}]" size="40"/></label><br>
+      </c:forEach>
       <br>
   </c:if>
 

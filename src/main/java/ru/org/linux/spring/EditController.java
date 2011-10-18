@@ -314,6 +314,12 @@ public class EditController {
         }
       }
 
+      for (String label : form.getNewPoll()) {
+        if (!Strings.isNullOrEmpty(label)) {
+          newVariants.add(new PollVariant(0, label, 0));
+        }
+      }
+
       newPoll = new PreparedPoll(poll, orig.getMaximumValue(), newVariants);
     }
 

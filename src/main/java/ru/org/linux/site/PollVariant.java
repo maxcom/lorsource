@@ -68,7 +68,9 @@ public class PollVariant {
     SortedMap<Integer, String> map = new TreeMap<Integer, String>();
 
     for (PollVariant v : list) {
-      map.put(v.getId(), v.getLabel());
+      if (v.getId()!=0) {
+        map.put(v.getId(), v.getLabel());
+      }
     }
 
     return map;

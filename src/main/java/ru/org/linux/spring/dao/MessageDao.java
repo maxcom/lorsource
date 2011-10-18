@@ -393,7 +393,7 @@ public class MessageDao {
   private boolean updatePoll(Message message, List<PollVariant> newVariants) throws PollNotFoundException {
     boolean modified = false;
 
-    Poll poll = pollDao.getPollByTopicId(message.getId());
+    final Poll poll = pollDao.getPollByTopicId(message.getId());
 
     ImmutableList<PollVariant> oldVariants = pollDao.getPollVariants(poll, Poll.ORDER_ID);
 
@@ -418,6 +418,20 @@ public class MessageDao {
           return null;
         }
       });
+    }
+
+    for (final PollVariant var : newVariants) {
+      if (var.getId()==0 && !Strings.isNullOrEmpty(var.getLabel())) {
+        modified = true;
+        
+        jdbcTemplate.execute(new ConnectionCallback<Object>() {
+          @Override
+          public Object doInConnection(Connection db) throws SQLException, DataAccessException {
+            poll.addNewVariant(db, var.getLabel());
+            return null;
+          }
+        });
+      }
     }
 
     return modified;
