@@ -33,22 +33,6 @@ public class CaptchaService {
     this.captcha = captcha;
   }
 
-  @Deprecated
-  public void checkCaptcha(ServletRequest request) throws BadInputException {
-    String captchaChallenge = request.getParameter("recaptcha_challenge_field");
-    String captchaResponse = request.getParameter("recaptcha_response_field");
-
-    if (captchaChallenge==null || captchaResponse==null) {
-      throw new BadInputException("Код проверки не указан");
-    }
-
-    ReCaptchaResponse response = captcha.checkAnswer(request.getRemoteAddr(), captchaChallenge, captchaResponse);
-
-    if (!response.isValid()) {
-      throw new BadInputException("Код проверки не совпадает");
-    }
-  }
-
   public void checkCaptcha(ServletRequest request, Errors errors) {
     String captchaChallenge = request.getParameter("recaptcha_challenge_field");
     String captchaResponse = request.getParameter("recaptcha_response_field");

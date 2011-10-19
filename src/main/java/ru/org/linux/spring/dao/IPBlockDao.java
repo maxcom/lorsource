@@ -6,7 +6,6 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.validation.Errors;
 import org.xbill.DNS.TextParseException;
-import ru.org.linux.site.AccessViolationException;
 import ru.org.linux.site.IPBlockInfo;
 import ru.org.linux.site.User;
 import ru.org.linux.util.DNSBLClient;
@@ -49,21 +48,6 @@ public class IPBlockDao {
   public static boolean getTor(String addr) throws TextParseException, UnknownHostException {
     DNSBLClient dnsbl = new DNSBLClient("tor.ahbl.org");
     return (dnsbl.checkIP(addr));
-  }
-
-  @Deprecated
-  public void checkBlockIP(String addr) throws AccessViolationException, UnknownHostException, TextParseException {
-    if (getTor(addr)) {
-      throw new AccessViolationException("Постинг заблокирован: tor.ahbl.org");
-    }
-
-    IPBlockInfo block = getBlockInfo(addr);
-
-    if (block == null) {
-      return;
-    }
-
-    block.checkBlock();
   }
 
   public void checkBlockIP(String addr, Errors errors) throws UnknownHostException, TextParseException {

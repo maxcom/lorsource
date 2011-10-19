@@ -15,20 +15,27 @@
 
 package ru.org.linux.spring;
 
+import com.google.common.base.Strings;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.ApplicationObjectSupport;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.Errors;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
-import ru.org.linux.site.*;
+import ru.org.linux.site.AccessViolationException;
+import ru.org.linux.site.Template;
+import ru.org.linux.site.User;
+import ru.org.linux.site.UserInfo;
 import ru.org.linux.spring.dao.IPBlockDao;
 import ru.org.linux.spring.dao.UserDao;
-import ru.org.linux.util.BadURLException;
 import ru.org.linux.util.HTMLFormatter;
 import ru.org.linux.util.LorHttpUtils;
+import ru.org.linux.util.StringUtil;
 import ru.org.linux.util.URLUtil;
 
 import javax.mail.MessagingException;
@@ -63,6 +70,7 @@ public class RegisterController extends ApplicationObjectSupport {
 
   @RequestMapping(value = "/register.jsp", method = RequestMethod.GET)
   public ModelAndView register(
+    @ModelAttribute("form") RegisterRequest form,
     HttpServletRequest request
   ) throws Exception {
     Template tmpl = Template.getTemplate(request);
@@ -76,9 +84,11 @@ public class RegisterController extends ApplicationObjectSupport {
 
       ModelAndView mv = new ModelAndView("register-update");
 
-      mv.getModel().put("user", user);
-      mv.getModel().put("userInfo", userInfo);
-      mv.getModel().put("userInfoText", userDao.getUserInfo(user));
+      form.setEmail(user.getEmail());
+      form.setUrl(userInfo.getUrl());
+      form.setTown(userInfo.getTown());
+      form.setName(user.getName());
+      form.setInfo(StringEscapeUtils.unescapeHtml(userDao.getUserInfo(user)));
 
       return mv;
     } else {
@@ -89,126 +99,142 @@ public class RegisterController extends ApplicationObjectSupport {
   @RequestMapping(value = "/register.jsp", method = RequestMethod.POST)
   public ModelAndView doRegister(
     HttpServletRequest request,
-    @RequestParam String email,
-    @RequestParam(required=false) String town,
-    @RequestParam(required=false) String info,
-    @RequestParam(required=false) String name,
-    @RequestParam(required=false) String url,
+    @ModelAttribute("form") RegisterRequest form,
+    Errors errors,
+    @RequestParam(required=false) String oldpass,
     @RequestParam(required=false) String password,
     @RequestParam(required=false) String password2    
   ) throws Exception {
     HttpSession session = request.getSession();
     Template tmpl = Template.getTemplate(request);
 
-    try {
-      boolean changeMode = "change".equals(request.getParameter("mode"));
+    boolean changeMode = "change".equals(request.getParameter("mode"));
 
-      String nick;
+    String nick;
 
-      if (changeMode) {
-        if (!tmpl.isSessionAuthorized()) {
-          throw new AccessViolationException("Not authorized");
-        }
-
-        nick = tmpl.getNick();
-      } else {
-        nick = request.getParameter("nick");
-        User.checkNick(nick);
+    if (changeMode) {
+      if (!tmpl.isSessionAuthorized()) {
+        throw new AccessViolationException("Not authorized");
       }
 
-      if (password != null && password.length() == 0) {
-        password = null;
+      nick = tmpl.getNick();
+    } else {
+      nick = form.getNick();
+
+      if (!StringUtil.checkLoginName(nick)) {
+        errors.rejectValue("nick", null, "некорректное имя пользователя");
       }
 
-      if (password2 != null && password2.length() == 0) {
-        password2 = null;
+      if (nick.length() > User.MAX_NICK_LENGTH) {
+        errors.rejectValue("nick", null, "слишком длинное имя пользователя");
+      }
+    }
+
+    if (password != null && password.length() == 0) {
+      password = null;
+    }
+
+    if (password2 != null && password2.length() == 0) {
+      password2 = null;
+    }
+
+    InternetAddress mail = null;
+
+    if (Strings.isNullOrEmpty(form.getEmail())) {
+      errors.rejectValue("email", null, "Не указан e-mail");
+    } else {
+      try {
+        mail = new InternetAddress(form.getEmail());
+      } catch (AddressException e) {
+        errors.rejectValue("email", null, "Некорректный e-mail: " + e.getMessage());
+      }
+    }
+
+    String url = null;
+
+    if (!Strings.isNullOrEmpty(form.getUrl())) {
+      if (!URLUtil.isUrl(form.getUrl())) {
+        errors.rejectValue("url", null, "Некорректный URL");
       }
 
-      if (email == null || "".equals(email)) {
-        throw new BadInputException("Не указан e-mail");
+      url = URLUtil.fixURL(form.getUrl());
+    }
+
+    if (!changeMode) {
+      if (password == null) {
+        errors.reject(null, "пароль не может быть пустым");
       }
 
-      InternetAddress mail = new InternetAddress(email);
-      if (url != null && "".equals(url)) {
-        url = null;
+      if (password2 == null || !password.equals(password2)) {
+        errors.reject(null, "введенные пароли не совпадают");
+      }
+    } else {
+      if (password2 != null && password != null && !password.equals(password2)) {
+        errors.reject(null, "введенные пароли не совпадают");
+      }
+    }
+
+    String name = null;
+
+    if (!Strings.isNullOrEmpty(form.getName())) {
+      name = form.getName();
+    }
+
+    if (name != null) {
+      name = HTMLFormatter.htmlSpecialChars(name);
+    }
+
+    String town = null;
+
+    if (!Strings.isNullOrEmpty(form.getTown())) {
+      town = HTMLFormatter.htmlSpecialChars(form.getTown());
+    }
+
+    String info = null;
+
+    if (!Strings.isNullOrEmpty(form.getInfo())) {
+      info = HTMLFormatter.htmlSpecialChars(form.getInfo());
+    }
+
+    if (!changeMode && !errors.hasErrors()) {
+      captcha.checkCaptcha(request, errors);
+
+      if (session.getAttribute("register-visited") == null) {
+        logger.info("Flood protection (not visited register.jsp) " + request.getRemoteAddr());
+        errors.reject(null, "Временная ошибка, попробуйте еще раз");
+      }
+    }
+
+    ipBlockDao.checkBlockIP(request.getRemoteAddr(), errors);
+
+    boolean emailChanged = false;
+
+    if (changeMode) {
+      User user = userDao.getUser(nick);
+
+      if (!user.matchPassword(oldpass)) {
+        errors.reject(null, "Неверный пароль");
       }
 
-      if (url != null) {
-        url = URLUtil.checkAndFixURL(url);
-      }
+      user.checkAnonymous();
 
-      if (!changeMode) {
-        if (password == null) {
-          throw new BadInputException("пароль не может быть пустым");
-        }
+      String newEmail = null;
 
-        if (password2 == null || !password.equals(password2)) {
-          throw new BadInputException("введенные пароли не совпадают");
-        }
-      } else {
-        if (password2 != null && password != null && !password.equals(password2)) {
-          throw new BadInputException("введенные пароли не совпадают");
-        }
-      }
-
-      if (name != null && "".equals(name)) {
-        name = null;
-      }
-
-      if (town != null && "".equals(town)) {
-        town = null;
-      }
-
-      if (info != null && "".equals(info)) {
-        info = null;
-      }
-
-      if (name != null) {
-        name = HTMLFormatter.htmlSpecialChars(name);
-      }
-
-      if (town != null) {
-        town = HTMLFormatter.htmlSpecialChars(town);
-      }
-
-      if (info != null) {
-        info = HTMLFormatter.htmlSpecialChars(info);
-      }
-
-      if (!changeMode) {
-        captcha.checkCaptcha(request);
-
-        if (session.getAttribute("register-visited") == null) {
-          logger.info("Flood protection (not visited register.jsp) " + request.getRemoteAddr());
-          throw new BadInputException("сбой");
-        }
-      }
-
-      ipBlockDao.checkBlockIP(request.getRemoteAddr());
-
-      boolean emailChanged = false;
-
-      if (changeMode) {
-        User user = userDao.getUser(nick);
-        user.checkPassword(request.getParameter("oldpass"));
-        user.checkAnonymous();
-
-        String newEmail;
-
-        if (user.getEmail()!=null && user.getEmail().equals(email)) {
+      if (mail != null) {
+        if (user.getEmail().equals(form.getEmail())) {
           newEmail = null;
         } else {
-          if (userDao.getByEmail(mail.getAddress())!=null) {
-            throw new BadInputException("такой email уже используется");
+          if (userDao.getByEmail(mail.getAddress()) != null) {
+            errors.rejectValue("email", null, "такой email уже используется");
           }
 
           newEmail = mail.getAddress();
 
-          sendEmail(tmpl, user.getNick(), mail.getAddress(), false);
-
           emailChanged = true;
         }
+      }
 
+      if (!errors.hasErrors()) {
         userDao.updateUser(
                 user,
                 name,
@@ -218,45 +244,49 @@ public class RegisterController extends ApplicationObjectSupport {
                 password,
                 info
         );
+
+        if (emailChanged) {
+          sendEmail(tmpl, user.getNick(), mail.getAddress(), false);
+        }
       } else {
-        if (userDao.isUserExists(nick)) {
-          throw new BadInputException("пользователь " + nick + " уже существует");
-        }
-        
-        if (url!=null && !URLUtil.isUrl(url)) {
-          throw new BadInputException("Некорректный URL");
-        }
+        return new ModelAndView("register-update");
+      }
+    } else {
+      if (userDao.isUserExists(nick)) {
+        errors.rejectValue("nick", null, "пользователь " + nick + " уже существует");
+      }
 
-        if (userDao.getByEmail(mail.getAddress()) != null) {
-          throw new BadInputException("пользователь с таким e-mail уже зарегистрирован.<br>" +
-            "Если вы забыли параметры своего аккаунта, воспользуйтесь <a href=\"/lostpwd.jsp\">формой восстановления пароля</a>");
-        }
+      if (url != null && !URLUtil.isUrl(url)) {
+        errors.rejectValue("url", null, "Некорректный URL");
+      }
 
+      if (mail != null && userDao.getByEmail(mail.getAddress()) != null) {
+        errors.rejectValue("email", null, "пользователь с таким e-mail уже зарегистрирован. " +
+                "Если вы забыли параметры своего аккаунта, воспользуйтесь формой восстановления пароля");
+      }
+
+      if (!errors.hasErrors()) {
         int userid = userDao.createUser(name, nick, password, url, mail, town, info);
 
         String logmessage = "Зарегистрирован пользователь " + nick + " (id=" + userid + ") " + LorHttpUtils.getRequestIP(request);
         logger.info(logmessage);
 
-        sendEmail(tmpl, nick, email, true);
-      }
-
-      if (changeMode) {
-        if (emailChanged) {
-          String msg = "Обновление регистрации прошло успешно. Ожидайте письма с кодом активации смены email.";
-
-          return new ModelAndView("action-done", "message", msg);
-        } else {
-          return new ModelAndView(new RedirectView("/people/"+nick+"/profile"));
-        }
+        sendEmail(tmpl, nick, form.getEmail(), true);
       } else {
-        return new ModelAndView("action-done", "message", "Добавление пользователя прошло успешно. Ожидайте письма с кодом активации.");
+        return new ModelAndView("register");
       }
-    } catch (BadInputException e) {
-      return new ModelAndView("register", "error", e.getMessage());
-    } catch (BadURLException e) {
-      return new ModelAndView("register", "error", e.getMessage());
-    } catch (AddressException e) {
-      return new ModelAndView("register", "error", "Некорректный e-mail: "+e.getMessage());
+    }
+
+    if (changeMode) {
+      if (emailChanged) {
+        String msg = "Обновление регистрации прошло успешно. Ожидайте письма с кодом активации смены email.";
+
+        return new ModelAndView("action-done", "message", msg);
+      } else {
+        return new ModelAndView(new RedirectView("/people/" + nick + "/profile"));
+      }
+    } else {
+      return new ModelAndView("action-done", "message", "Добавление пользователя прошло успешно. Ожидайте письма с кодом активации.");
     }
   }
 
