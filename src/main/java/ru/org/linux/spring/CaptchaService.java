@@ -16,16 +16,20 @@
 package ru.org.linux.spring;
 
 import net.tanesha.recaptcha.ReCaptcha;
+import net.tanesha.recaptcha.ReCaptchaException;
 import net.tanesha.recaptcha.ReCaptchaResponse;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
-import ru.org.linux.site.BadInputException;
 
 import javax.servlet.ServletRequest;
 
 @Component
 public class CaptchaService {
+  private static final Log logger = LogFactory.getLog(CaptchaService.class);
+
   private ReCaptcha captcha;
 
   @Autowired
@@ -42,10 +46,16 @@ public class CaptchaService {
       return;
     }
 
-    ReCaptchaResponse response = captcha.checkAnswer(request.getRemoteAddr(), captchaChallenge, captchaResponse);
+    try {
+      ReCaptchaResponse response = captcha.checkAnswer(request.getRemoteAddr(), captchaChallenge, captchaResponse);
 
-    if (!response.isValid()) {
-      errors.reject(null, "Код проверки не совпадает");
+      if (!response.isValid()) {
+        errors.reject(null, "Код проверки не совпадает");
+      }
+    } catch (ReCaptchaException e) {
+      logger.warn("Unable to check captcha", e);
+
+      errors.reject(null, "Unable to check captcha: "+e.getMessage());
     }
   }
 }
