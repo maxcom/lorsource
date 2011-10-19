@@ -15,9 +15,10 @@
 
 package ru.org.linux.spring;
 
-import com.google.common.collect.ImmutableList;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.support.JdbcUtils;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -29,13 +30,17 @@ import ru.org.linux.util.ServletParameterParser;
 import ru.org.linux.util.StringUtil;
 
 import javax.servlet.http.HttpServletRequest;
-import java.sql.*;
+import javax.sql.DataSource;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.List;
 
 @Controller
 public class SameIPController {
   private IPBlockDao ipBlockDao;
   private UserDao userDao;
+  private JdbcTemplate jdbcTemplate;
 
   @Autowired
   public void setIpBlockDao(IPBlockDao ipBlockDao) {
@@ -45,6 +50,11 @@ public class SameIPController {
   @Autowired
   public void setUserDao(UserDao userDao) {
     this.userDao = userDao;
+  }
+
+  @Autowired
+  public void setDataSource(DataSource ds) {
+    jdbcTemplate = new JdbcTemplate(ds);
   }
 
   @RequestMapping("/sameip.jsp")
@@ -62,47 +72,37 @@ public class SameIPController {
 
     ModelAndView mv = new ModelAndView("sameip");
 
-    Connection db = null;
+    int userAgentId = 0;
 
-    try {
-      db = LorDataSource.getConnection();
+    if (msgid != null) {
+      SqlRowSet rs = jdbcTemplate.queryForRowSet(
+              "SELECT postip, ua_id FROM topics WHERE id=?",
+              msgid
+      );
 
-      int userAgentId = 0;
-      if (msgid != null) {
-        Statement ipst = db.createStatement();
-        ResultSet rs = ipst.executeQuery("SELECT postip, ua_id FROM topics WHERE id=" + msgid);
-
+      if (!rs.next()) {
+        rs = jdbcTemplate.queryForRowSet("SELECT postip, ua_id FROM comments WHERE id=?", msgid);
         if (!rs.next()) {
-          rs.close();
-          rs = ipst.executeQuery("SELECT postip, ua_id FROM comments WHERE id=" + msgid);
-          if (!rs.next()) {
-            throw new MessageNotFoundException(msgid);
-          }
+          throw new MessageNotFoundException(msgid);
         }
-
-        ip = rs.getString("postip");
-        userAgentId = rs.getInt("ua_id");
-
-        if (ip == null) {
-          throw new ScriptErrorException("No IP data for #" + msgid);
-        }
-
-        rs.close();
-        ipst.close();
-      } else {
-        ip = ServletParameterParser.getIP(request, "ip");
       }
 
-      mv.getModel().put("ip", ip);
-      mv.getModel().put("uaId", userAgentId);
+      ip = rs.getString("postip");
+      userAgentId = rs.getInt("ua_id");
 
-      mv.getModel().put("topics", getTopics(db, ip));
-      mv.getModel().put("comments", getComments(db, ip));
-      mv.getModel().put("users", getUsers(db, ip, userAgentId));
-
-    } finally {
-      JdbcUtils.closeConnection(db);
+      if (ip == null) {
+        throw new ScriptErrorException("No IP data for #" + msgid);
+      }
+    } else {
+      ip = ServletParameterParser.getIP(request, "ip");
     }
+
+    mv.getModel().put("ip", ip);
+    mv.getModel().put("uaId", userAgentId);
+
+    mv.getModel().put("topics", getTopics(ip));
+    mv.getModel().put("comments", getComments(ip));
+    mv.getModel().put("users", getUsers(ip, userAgentId));
 
     IPBlockInfo blockInfo = ipBlockDao.getBlockInfo(ip);
 
@@ -116,73 +116,61 @@ public class SameIPController {
     return mv;
   }
 
-  private static List<TopicItem> getTopics(Connection db, String ip) throws SQLException {
-    Statement st=db.createStatement();
-    ResultSet rs=st.executeQuery(
-      "SELECT sections.name as ptitle, groups.title as gtitle, topics.title as title, topics.id as msgid, postdate, deleted " +
-        "FROM topics, groups, sections, users " +
-        "WHERE topics.groupid=groups.id " +
-        "AND sections.id=groups.section " +
-        "AND users.id=topics.userid " +
-        "AND topics.postip='"+ip+"' " +
-        "AND postdate>CURRENT_TIMESTAMP-'3 days'::interval ORDER BY msgid DESC");
-
-    ImmutableList.Builder<TopicItem> res = ImmutableList.builder();
-
-    while (rs.next()) {
-      res.add(new TopicItem(rs, false));
-    }
-
-    rs.close();
-    st.close();
-
-    return res.build();
+  private List<TopicItem> getTopics(String ip) {
+    return jdbcTemplate.query(
+            "SELECT sections.name as ptitle, groups.title as gtitle, topics.title as title, topics.id as msgid, postdate, deleted " +
+                    "FROM topics, groups, sections, users " +
+                    "WHERE topics.groupid=groups.id " +
+                    "AND sections.id=groups.section " +
+                    "AND users.id=topics.userid " +
+                    "AND topics.postip=?::inet " +
+                    "AND postdate>CURRENT_TIMESTAMP-'3 days'::interval ORDER BY msgid DESC",
+            new RowMapper<TopicItem>() {
+              @Override
+              public TopicItem mapRow(ResultSet rs, int rowNum) throws SQLException {
+                return new TopicItem(rs, false);
+              }
+            },
+            ip
+    );
   }
 
-  private static List<TopicItem> getComments(Connection db, String ip) throws SQLException {
-    Statement st=db.createStatement();
-    ResultSet rs=st.executeQuery(
-      "SELECT sections.name as ptitle, groups.title as gtitle, topics.title, topics.id as topicid, comments.id as msgid, comments.postdate, comments.deleted " +
-        "FROM sections, groups, topics, comments " +
-        "WHERE sections.id=groups.section " +
-        "AND groups.id=topics.groupid " +
-        "AND comments.topic=topics.id " +
-        "AND comments.postip='"+ip+"' " +
-        "AND comments.postdate>CURRENT_TIMESTAMP-'24 hour'::interval " +
-        "ORDER BY postdate DESC;");
-
-    ImmutableList.Builder<TopicItem> res = ImmutableList.builder();
-
-    while (rs.next()) {
-      res.add(new TopicItem(rs, true));
-    }
-
-    rs.close();
-    st.close();
-
-    return res.build();
+  private List<TopicItem> getComments(String ip) {
+    return jdbcTemplate.query(
+            "SELECT sections.name as ptitle, groups.title as gtitle, topics.title, topics.id as topicid, comments.id as msgid, comments.postdate, comments.deleted " +
+                    "FROM sections, groups, topics, comments " +
+                    "WHERE sections.id=groups.section " +
+                    "AND groups.id=topics.groupid " +
+                    "AND comments.topic=topics.id " +
+                    "AND comments.postip=?::inet " +
+                    "AND comments.postdate>CURRENT_TIMESTAMP-'24 hour'::interval " +
+                    "ORDER BY postdate DESC",
+            new RowMapper<TopicItem>() {
+              @Override
+              public TopicItem mapRow(ResultSet rs, int rowNum) throws SQLException {
+                return new TopicItem(rs, true);
+              }
+            },
+            ip
+    );
   }
 
-  private static List<UserItem> getUsers(Connection db, String ip, int uaId) throws SQLException {
-    Statement st=db.createStatement();
-    ResultSet rs=st.executeQuery(
-      "SELECT MAX(c.postdate) AS lastdate, u.nick, c.ua_id, ua.name AS user_agent " +
-        "FROM comments c LEFT JOIN user_agents ua ON c.ua_id = ua.id " +
-        "JOIN users u ON c.userid = u.id " +
-        "WHERE c.postip='" + ip + "' " +
-        "GROUP BY u.nick, c.ua_id, ua.name " +
-        "ORDER BY MAX(c.postdate) DESC, u.nick, ua.name");
-
-    ImmutableList.Builder<UserItem> res = ImmutableList.builder();
-
-    while (rs.next()) {
-      res.add(new UserItem(rs, uaId));
-    }
-
-    rs.close();
-    st.close();
-
-    return res.build();
+  private List<UserItem> getUsers(String ip, final int uaId) {
+    return jdbcTemplate.query(
+            "SELECT MAX(c.postdate) AS lastdate, u.nick, c.ua_id, ua.name AS user_agent " +
+                    "FROM comments c LEFT JOIN user_agents ua ON c.ua_id = ua.id " +
+                    "JOIN users u ON c.userid = u.id " +
+                    "WHERE c.postip=?::inet " +
+                    "GROUP BY u.nick, c.ua_id, ua.name " +
+                    "ORDER BY MAX(c.postdate) DESC, u.nick, ua.name",
+            new RowMapper<UserItem>() {
+              @Override
+              public UserItem mapRow(ResultSet rs, int rowNum) throws SQLException {
+                return new UserItem(rs, uaId);
+              }
+            },
+            ip
+    );
   }
 
   public static class TopicItem {
