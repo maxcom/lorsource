@@ -19,8 +19,8 @@
 
 package ru.org.linux.util;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.Iterator;
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -106,7 +106,7 @@ public class HTMLFormatter {
         }
       }
       return buf.toString();
-    } catch (Exception e) {
+    } catch (UnsupportedEncodingException e) {
       return str;
     }
   }
@@ -142,7 +142,7 @@ public class HTMLFormatter {
       int end = m.end();
 
       // обработка начальной части до URL
-      out.append(wrapLongLine(chunk.substring(index, start), maxlength, " ", index));
+      out.append(chunk.substring(index, start));
 
       // обработка URL
       String url = chunk.substring(start, end);
@@ -172,29 +172,10 @@ public class HTMLFormatter {
 
     // обработка последнего фрагмента
     if (index < chunk.length()) {
-      if (outputLorcode) {
-        out.append(chunk.substring(index));
-      } else {
-        out.append(wrapLongLine(chunk.substring(index), maxlength, " ", index));
-      }
+      out.append(chunk.substring(index));
     }
 
     return out.toString();
-  }
-
-  public static int countCharacters(String str) throws UtilException {
-    int size = 0;
-
-    try {
-      for (Iterator<String> i=new SGMLStringIterator(str); i.hasNext(); ) {
-        i.next();
-        size++;
-      }
-    } catch (StringIndexOutOfBoundsException ex) {
-      throw new UtilException("Invalid SGML Entity");
-    }
-
-    return size;
   }
 
   /**
@@ -380,55 +361,6 @@ public class HTMLFormatter {
     }
 
     return res.toString();
-  }
-
-  /** Разбивает слишком длинный фрагмент в строке на части
-   *
-   * @param line строка
-   * @param maxlength максимальная длинна фрагмента
-   * @param delim разделитель которым будет разбиваться строка
-   * @param start текущая позиция в строке
-   * @return разбитая строка
-   */
-  private static String wrapLongLine(String line, int maxlength, String delim, int start)  {
-    StringBuilder sb = new StringBuilder();
-
-    int index = start;
-
-    for (Iterator i = new SGMLStringIterator(line); i.hasNext(); ) {
-      String ch = (String) i.next();
-
-      if (index%maxlength == maxlength-1) {
-        sb.append(delim);
-      }
-
-      sb.append(ch);
-
-      index++;
-    }
-
-    return sb.toString();
-  }
-
-  /**
-   * Wrap long text line
-   */
-  public static String wrapLongLine(String line, int maxlength, String delim)  {
-    return wrapLongLine(line, maxlength, delim, 0);
-  }
-
-  /**
-   * Wrap long text lines
-   */
-  public static String wrapLongLines(String text, int maxlength) {
-    StringTokenizer st = new StringTokenizer(text, "\n", true);
-    StringBuilder sb = new StringBuilder();
-
-    while (st.hasMoreTokens()) {
-      sb.append(wrapLongLine(st.nextToken(), maxlength, "\n"));
-    }
-
-    return sb.toString();
   }
 
   public void setOutputLorcode(boolean outputLorcode) {

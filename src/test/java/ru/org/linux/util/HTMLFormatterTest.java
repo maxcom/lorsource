@@ -150,26 +150,6 @@ public class HTMLFormatterTest {
   }
 
   @Test
-  public void testCountSGML1() throws UtilException {
-    assertEquals(HTMLFormatter.countCharacters(TEXT4), TEXT4.length());
-  }
-
-  @Test
-  public void testCountSGML2() throws UtilException {
-    assertEquals(5, HTMLFormatter.countCharacters(TEXT6));
-  }
-
-  @Test
-  public void testWrapSGML() throws UtilException {
-    assertEquals(TEXT7, HTMLFormatter.wrapLongLine(TEXT7, 35, " "));
-  }
-
-  @Test
-  public void testWrapSGML2() throws UtilException {
-    assertEquals(RESULT7, HTMLFormatter.wrapLongLine(TEXT7, 20, " "));
-  }
-
-  @Test
   public void testQuiting1() throws UtilException {
     HTMLFormatter formatter = new HTMLFormatter(QUOTING1);
 
