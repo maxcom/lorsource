@@ -192,7 +192,7 @@
   </c:if>
   <%
   if (Template.isSessionAuthorized(session) && (tmpl.getNick().equals(user.getNick()))) {
-    out.print("<p><a href=\"register.jsp?mode=change\">Изменить регистрацию</a>.");
+    out.print("<p><a href=\"register.jsp\">Изменить регистрацию</a>.");
   }
 %>
 
