@@ -28,8 +28,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.Serializable;
 import java.net.URLEncoder;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -269,19 +267,6 @@ public class User implements Serializable {
     } else {
       return getStars(score, maxScore);
     }
-  }
-
-  /**
-   * Update lastlogin time in database
-   * @param dbconn already opened database connection
-   * @throws SQLException on database failure
-   */
-  public void updateUserLastlogin(Connection dbconn) throws SQLException {
-    String sSql = "UPDATE users SET lastlogin=CURRENT_TIMESTAMP WHERE id=?";
-    PreparedStatement pst = dbconn.prepareStatement(sSql);
-    pst.setInt(1, id);
-    pst.executeUpdate();
-    pst.close();
   }
 
   public boolean isBlockable() {

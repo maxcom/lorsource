@@ -16,9 +16,6 @@
 package ru.org.linux.spring;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.core.ConnectionCallback;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -36,9 +33,6 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.Collections;
 
 @Controller
@@ -47,13 +41,6 @@ public class LoginController {
 
   @Autowired
   private UserDao userDao;
-
-  private JdbcTemplate jdbcTemplate;
-
-  @Autowired
-  public void setDataSource(DataSource ds) {
-    jdbcTemplate = new JdbcTemplate(ds);
-  }
 
   private static boolean isAjax(HttpServletRequest request) {
     String header = request.getHeader("X-Requested-With");
@@ -68,9 +55,9 @@ public class LoginController {
 
   @RequestMapping(value = "/login.jsp", method = RequestMethod.POST)
   public ModelAndView doLogin(
-    HttpServletRequest request,
-    final HttpServletResponse response,
-    @RequestParam(required = false) String activation
+          HttpServletRequest request,
+          HttpServletResponse response,
+          @RequestParam(required = false) String activation
   ) throws Exception {
     final Template tmpl = Template.getTemplate(request);
     HttpSession session = request.getSession();
@@ -119,13 +106,7 @@ public class LoginController {
 
     createCookies(response, tmpl, session, user);
 
-    jdbcTemplate.execute(new ConnectionCallback<Object>() {
-      @Override
-      public Object doInConnection(Connection con) throws SQLException {
-        tmpl.performLogin(response, con, user);
-        return null;
-      }
-    });
+    tmpl.performLogin(response, user);
 
     if (ajax) {
       return new ModelAndView("login-xml", Collections.singletonMap("ok", "welcome"));
@@ -136,10 +117,10 @@ public class LoginController {
 
   @RequestMapping(value = "/logout.jsp", method = RequestMethod.GET)
   public ModelAndView logout(
-    HttpServletRequest request,
-    HttpSession session,
-    HttpServletResponse response,
-    @RequestParam(required = false) String sessionId
+          HttpServletRequest request,
+          HttpSession session,
+          HttpServletResponse response,
+          @RequestParam(required = false) String sessionId
   ) {
     Template tmpl = Template.getTemplate(request);
 

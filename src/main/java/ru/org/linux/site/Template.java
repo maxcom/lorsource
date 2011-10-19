@@ -17,7 +17,6 @@ package ru.org.linux.site;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.jdbc.support.JdbcUtils;
 import ru.org.linux.site.config.PathConfig;
 import ru.org.linux.spring.dao.UserDao;
 import ru.org.linux.storage.StorageException;
@@ -32,7 +31,6 @@ import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.text.DateFormat;
 import java.util.Properties;
@@ -45,6 +43,8 @@ public final class Template {
   private final Config config;
   private final HttpSession session;
 
+  private final UserDao userDao;
+
   private User currentUser = null;
 
   public final DateFormat dateFormat = DateFormats.createDefault();
@@ -54,9 +54,11 @@ public final class Template {
     return config.getProperties().getProperty("Secret");
   }
 
-  public Template(HttpServletRequest request, Properties properties, HttpServletResponse response)
+  public Template(HttpServletRequest request, Properties properties, HttpServletResponse response, UserDao userDao)
       throws ClassNotFoundException, IOException, SQLException, StorageException {
     request.setCharacterEncoding("utf-8"); // блядский tomcat
+
+    this.userDao = userDao;
 
     // TODO use better initialization
     config = new Config(properties);
@@ -68,33 +70,21 @@ public final class Template {
     session = request.getSession();
 
     if (isSessionAuthorized(session)) {
-      Connection db = null;
-
-      try {
-        db = LorDataSource.getConnection();
-        initCurrentUser(db, false);
-      } finally {
-        JdbcUtils.closeConnection(db);
-      }
+      initCurrentUser(userDao, false);
     } else if (session != null) {
       String profileCookie = getCookie("profile");
 
       if (profileCookie != null && !profileCookie.isEmpty() &&
           !"anonymous".equals(profileCookie) && getCookie("password") != null) {
 
-        Connection db = null;
-        
         try {
-          db = LorDataSource.getConnection();
-          User user = UserDao.getUser(db, profileCookie);
+          User user = userDao.getUser(profileCookie);
 
           if (user.getMD5(getSecret()).equals(getCookie("password")) && !user.isBlocked()) {
-            performLogin(response, db, user);
+            performLogin(response, user);
           }
         } catch (UserNotFoundException ex) {
           logger.warn("Can't restore password for user: " + profileCookie, ex);
-        } finally {
-          JdbcUtils.closeConnection(db);
         }
       }
     }
@@ -115,12 +105,12 @@ public final class Template {
     response.addHeader("Cache-Control", "private");
   }
 
-  public void performLogin(HttpServletResponse response, Connection db, User user) throws SQLException {
+  public void performLogin(HttpServletResponse response, User user) {
     session.setAttribute("login", Boolean.TRUE);
     session.setAttribute("nick", user.getNick());
     session.setAttribute("moderator", user.canModerate());
     session.setAttribute("corrector", user.canCorrect());
-    user.updateUserLastlogin(db);
+    userDao.updateLastlogin(user);
     user.acegiSecurityHack(response, session);
     currentUser = user;
   }
@@ -241,30 +231,8 @@ public final class Template {
     return (Template) request.getAttribute("template");
   }
 
-  @Deprecated
-  public void updateCurrentUser(Connection db) {
-    initCurrentUser(db, true);
-  }
-
   public void updateCurrentUser(UserDao userDao) {
     initCurrentUser(userDao, true);
-  }
-
-  @Deprecated
-  private void initCurrentUser(Connection db, boolean forceUpdate) {
-    if (!isSessionAuthorized()) {
-      return;
-    }
-
-    if (currentUser != null && !forceUpdate) {
-      return;
-    }
-
-    try {
-      currentUser = UserDao.getUser(db, (String) session.getAttribute("nick"));
-    } catch (UserNotFoundException e) {
-      throw new RuntimeException("Can't find currentUser!?", e);
-    }
   }
 
   private void initCurrentUser(UserDao userDao, boolean forceUpdate) {

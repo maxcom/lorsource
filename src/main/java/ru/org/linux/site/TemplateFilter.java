@@ -15,16 +15,17 @@
 
 package ru.org.linux.site;
 
-import java.io.IOException;
-import java.util.Properties;
-
-import javax.servlet.*;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
+import ru.org.linux.spring.dao.UserDao;
+
+import javax.servlet.*;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.Properties;
 
 public class TemplateFilter implements Filter {
   private static final Log logger = LogFactory.getLog(TemplateFilter.class);
@@ -32,12 +33,16 @@ public class TemplateFilter implements Filter {
   private FilterConfig filterConfig;
 
   private Properties properties;
+  private UserDao userDao;
 
   @Override
   public void init(FilterConfig filterConfig) throws ServletException {
     this.filterConfig = filterConfig;
 
-    properties=getProperties(filterConfig.getServletContext());
+    WebApplicationContext ctx = WebApplicationContextUtils.getWebApplicationContext(filterConfig.getServletContext());
+
+    properties = (Properties) ctx.getBean("properties");
+    userDao = (UserDao) ctx.getBean("userDao");
 
     MemCachedSettings.setMainUrl(properties.getProperty("MainUrl"));
   }
@@ -49,7 +54,12 @@ public class TemplateFilter implements Filter {
     }
 
     try {
-      Template tmpl = new Template((HttpServletRequest) servletRequest, properties, (HttpServletResponse) servletResponse);
+      Template tmpl = new Template(
+              (HttpServletRequest) servletRequest,
+              properties,
+              (HttpServletResponse) servletResponse,
+              userDao
+      );
 
       servletRequest.setAttribute("template", tmpl);
     } catch (Exception ex) {
@@ -65,9 +75,4 @@ public class TemplateFilter implements Filter {
     filterConfig = null;
   }
 
-  private static Properties getProperties(ServletContext sc)  {
-    WebApplicationContext ctx = WebApplicationContextUtils.getWebApplicationContext(sc);
-
-    return (Properties) ctx.getBean("properties");
-  }
 }

@@ -12,7 +12,6 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,7 +21,6 @@ import ru.org.linux.util.URLUtil;
 
 import javax.mail.internet.InternetAddress;
 import javax.sql.DataSource;
-import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -68,7 +66,7 @@ public class UserDao {
     jdbcTemplate = new JdbcTemplate(dataSource);
   }
 
-  private static User getUserInternal(JdbcTemplate jdbcTemplate, String nick) throws UserNotFoundException {
+  public User getUser(String nick) throws UserNotFoundException {
     if (nick == null) {
       throw new NullPointerException();
     }
@@ -107,16 +105,8 @@ public class UserDao {
     return user;
   }
 
-  public User getUser(String nick) throws UserNotFoundException {
-    return getUserInternal(jdbcTemplate, nick);
-  }
-
-  public User getUser(int id, boolean useCache) throws UserNotFoundException {
-    return getUserInternal(jdbcTemplate, id, useCache);
-  }
-
   public User getUserCached(int id) throws UserNotFoundException {
-    return getUserInternal(jdbcTemplate, id, true);
+    return getUser(id, true);
   }
 
   /**
@@ -130,10 +120,10 @@ public class UserDao {
    * @throws UserNotFoundException если пользователь с таким id не найден
    */
   public User getUser(int id) throws UserNotFoundException {
-    return getUserInternal(jdbcTemplate, id, false);
+    return getUser(id, false);
   }
 
-  private static User getUserInternal(JdbcTemplate jdbcTemplate, int id, boolean useCache) throws UserNotFoundException {
+  private User getUser(int id, boolean useCache) throws UserNotFoundException {
     Cache cache = CacheManager.create().getCache("Users");
 
     String cacheId = "User?id="+id;
@@ -571,11 +561,12 @@ public class UserDao {
     jdbcTemplate.update("UPDATE users SET email=new_email WHERE id=?", user.getId());
   }
 
-  @Deprecated
-  public static User getUser(Connection db, String nick) throws UserNotFoundException {
-    SingleConnectionDataSource scds = new SingleConnectionDataSource(db, true);
-    JdbcTemplate jdbcTemplate = new JdbcTemplate(scds);
-
-    return getUserInternal(jdbcTemplate, nick);
+  /**
+   * Update lastlogin time in database
+   * @param user logged user
+   * @throws SQLException on database failure
+   */
+  public void updateLastlogin(User user) {
+    jdbcTemplate.update("UPDATE users SET lastlogin=CURRENT_TIMESTAMP WHERE id=?", user.getId());
   }
 }
