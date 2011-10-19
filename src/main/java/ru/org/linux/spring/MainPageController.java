@@ -45,7 +45,7 @@ public class MainPageController {
   }
 
   @RequestMapping({"/", "/index.jsp"})
-  public ModelAndView mainPage(HttpServletRequest request) throws Exception {
+  public ModelAndView mainPage(HttpServletRequest request) {
     Template tmpl = Template.getTemplate(request);
 
     final NewsViewer nv = NewsViewer.getMainpage();

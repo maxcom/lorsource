@@ -30,7 +30,7 @@ public class ServerInfoController {
   private UserDao userDao;
 
   @RequestMapping("/server.jsp")
-  public ModelAndView serverInfo() throws Exception {
+  public ModelAndView serverInfo() {
     List<User> moderators = userDao.getModerators();
 
     ModelAndView mv = new ModelAndView("server");

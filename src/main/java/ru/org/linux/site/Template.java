@@ -31,7 +31,6 @@ import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.sql.SQLException;
 import java.text.DateFormat;
 import java.util.Properties;
 
@@ -55,7 +54,7 @@ public final class Template {
   }
 
   public Template(HttpServletRequest request, Properties properties, HttpServletResponse response, UserDao userDao)
-      throws ClassNotFoundException, IOException, SQLException, StorageException {
+      throws ClassNotFoundException, IOException, StorageException {
     request.setCharacterEncoding("utf-8"); // блядский tomcat
 
     this.userDao = userDao;
