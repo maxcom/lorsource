@@ -15,6 +15,7 @@
 
 package ru.org.linux.spring;
 
+import com.google.common.base.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -55,6 +56,10 @@ public class LostPasswordController {
   @RequestMapping(value="/lostpwd.jsp", method= RequestMethod.POST)
   public ModelAndView sendPassword(@RequestParam("email") String email, HttpServletRequest request) throws Exception {
     Template tmpl = Template.getTemplate(request);
+
+    if (Strings.isNullOrEmpty(email)) {
+      throw new BadInputException("email не задан");
+    }
 
     User user = userDao.getByEmail(email);
     if (user==null) {
