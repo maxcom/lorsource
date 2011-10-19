@@ -75,29 +75,19 @@ public final class TagDao {
     return id;
   }
 
-  public ImmutableList<String> getMessageTags(final int msgid) {
-    return jdbcTemplate.execute(new ConnectionCallback<ImmutableList<String>>() {
-      @Override
-      public ImmutableList<String> doInConnection(Connection con) throws SQLException, DataAccessException {
-        return getMessageTags(con, msgid);
-      }
-    });
-  }
+  public ImmutableList<String> getMessageTags(int msgid) {
+    final ImmutableList.Builder<String> tags = ImmutableList.builder();
 
-  @Deprecated
-  public static ImmutableList<String> getMessageTags(Connection con, int msgid) throws SQLException {
-    ImmutableList.Builder<String> tags = ImmutableList.builder();
-    
-    PreparedStatement st = con.prepareStatement("SELECT tags_values.value FROM tags, tags_values WHERE tags.msgid=? AND tags_values.id=tags.tagid ORDER BY value");
-    st.setInt(1, msgid);
-
-    ResultSet rs = st.executeQuery();
-
-    while (rs.next()) {
-      tags.add(rs.getString("value"));
-    }
-
-    st.close();
+    jdbcTemplate.query(
+            "SELECT tags_values.value FROM tags, tags_values WHERE tags.msgid=? AND tags_values.id=tags.tagid ORDER BY value",
+            new RowCallbackHandler() {
+              @Override
+              public void processRow(ResultSet rs) throws SQLException {
+                tags.add(rs.getString("value"));
+              }
+            },
+            msgid
+    );
 
     return tags.build();
   }
@@ -262,10 +252,11 @@ public final class TagDao {
   }
 
   public boolean updateTags(final int msgid, final List<String> tagList) {
+    final List<String> oldTags = getMessageTags(msgid);
+
     return jdbcTemplate.execute(new ConnectionCallback<Boolean>() {
       @Override
       public Boolean doInConnection(Connection con) throws SQLException, DataAccessException {
-        List<String> oldTags = getMessageTags(con, msgid);
 
         PreparedStatement insertStatement = con.prepareStatement("INSERT INTO tags VALUES(?,?)");
         PreparedStatement deleteStatement = con.prepareStatement("DELETE FROM tags WHERE msgid=? and tagid=?");
