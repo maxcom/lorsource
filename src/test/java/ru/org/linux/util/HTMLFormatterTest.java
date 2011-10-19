@@ -29,14 +29,6 @@ public class HTMLFormatterTest {
   private static final String TEXT3 = "Long url: http://www.linux.org.ru/profile/maxcom/view-message.jsp?msgid=1993651";
   private static final String RESULT3 = "Long url: <a href=\"http://www.linux.org.ru/profile/maxcom/view-message.jsp?msgid=1993651\">http://www.linux....</a>";
 
-  private static final String TEXT4 = "Forced wrapping: 12345678901234567890123456789";
-  private static final String RESULT4 = "Forced wrapping: 1234567890123456789 0123456789";
-
-  private static final String TEXT6 = "123&nbsp;4";
-
-  private static final String TEXT7 = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
-  private static final String RESULT7 = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
-
   private static final String TEXT8 = "Long url: http://www.linux.org.ru/profile/maxcom/view-message.jsp?msgid=1993651&a=b";
   private static final String RESULT8 = "Long url: <a href=\"http://www.linux.org.ru/profile/maxcom/view-message.jsp?msgid=1993651&amp;a=b\">http://www.linux....</a>";
 
@@ -138,15 +130,6 @@ public class HTMLFormatterTest {
     formatter.enableUrlHighLightMode();
 
     assertEquals(RESULT10, formatter.process());
-  }
-
-  @Test
-  public void testWrap1() throws UtilException {
-    HTMLFormatter formatter = new HTMLFormatter(TEXT4);
-
-    formatter.setMaxLength(20);
-
-    assertEquals(RESULT4, formatter.process());
   }
 
   @Test
