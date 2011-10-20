@@ -28,7 +28,7 @@
     </td>
 
     <td align=right valign=middle>
-      [<a style="text-decoration: none" href="register.jsp?mode=change">Изменение регистрации</a>]
+      [<a style="text-decoration: none" href="register.jsp">Изменение регистрации</a>]
       [<a style="text-decoration: none" href="rules.jsp">Правила форума</a>]
      </td>
     </tr>

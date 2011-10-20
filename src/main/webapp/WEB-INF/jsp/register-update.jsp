@@ -1,7 +1,7 @@
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="ru.org.linux.site.User,ru.org.linux.site.UserInfo"  %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%--
   ~ Copyright 1998-2010 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,9 +16,6 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
-
-<%--@elvariable id="userInfoText" type="java.lang.String"--%>
-<%--@elvariable id="error" type="java.lang.String"--%>
 
 <jsp:include page="head.jsp"/>
 
@@ -54,49 +51,33 @@
     </tr>
  </table>
 <h1 class="optional">Изменение регистрации</h1>
-<%
-  User user = (User) request.getAttribute("user");
-  UserInfo userInfo = (UserInfo) request.getAttribute("userInfo");
-%>
 
-<c:if test="${error!=null}">
-  <div class="error">Ошибка: ${error}</div>
-</c:if>
+<form:form modelAttribute="form" method="POST" action="register.jsp" id="changeForm">
 
-<form method=POST action="register.jsp" id="changeForm">
+    <form:errors path="*" element="div" cssClass="error"/>
+    
 <input type=hidden name=mode value="change">
-Полное имя:
-<input type=text name="name" size="40" value="<%
-if (user.getName()!=null) {
- out.print(user.getName());
-}
-%>"><br>
-Пароль:
-<input class="required" type=password name="oldpass" size="20"><br>
-Новый пароль:
-<input type=password name="password" size="20"> (не заполняйте если не хотите менять)<br>
-Повторите новый пароль:
-<input type=password name="password2" size="20"><br>
-URL:
-<input type=text name="url" size="50" value="<%
-	if (userInfo.getUrl()!=null) {
-      out.print(userInfo.getUrl());
-    }
-%>"><br>
-(не забудьте добавить <b>http://</b>)<br>
-Email:
-<input type=text class="required email" name="email" size="50" value="<%= user.getEmail() %>"><br>
+<label> Полное имя: <form:input path="name" size="40"/></label><br>
+<label>Пароль:
+<input class="required" type=password name="oldpass" size="20"></label><br>
+<label>Новый пароль:
+<input type=password name="password" size="20"> (не заполняйте если не хотите менять)</label><br>
+<label>Повторите новый пароль:
+<input type=password name="password2" size="20"></label><br>
+
+<label>URL (не забудьте добавить <b>http://</b>): <form:input path="url" size="50"/></label><br>
+
+<label>Email: <form:input path="email" size="50" cssClass="required email"/></label><br>
+
+<label>
 Город (просьба писать русскими буквами без сокращений, например: <b>Москва</b>,
 <b>Нижний Новгород</b>, <b>Троицк (Московская область)</b>):
-<input type=text name="town" size="50" value="<%
- if (userInfo.getTown()!=null) {
-  out.print(userInfo.getTown());
- }
-%>"><br>
+<form:input path="town" size="50" maxlength="100"/></label> <br>
+
 <label>Дополнительная информация:<br>
-  <textarea name=info cols=50 rows=5>${userInfoText}</textarea>
+  <form:textarea path="info" cols="50" rows="5"/>
 </label>
 <br>
 <input type=submit value="Обновить">
-</form>
+</form:form>
 <jsp:include page="footer.jsp"/>

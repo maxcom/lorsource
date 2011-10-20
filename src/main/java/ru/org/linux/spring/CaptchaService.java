@@ -16,37 +16,25 @@
 package ru.org.linux.spring;
 
 import net.tanesha.recaptcha.ReCaptcha;
+import net.tanesha.recaptcha.ReCaptchaException;
 import net.tanesha.recaptcha.ReCaptchaResponse;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
-import ru.org.linux.site.BadInputException;
 
 import javax.servlet.ServletRequest;
 
 @Component
 public class CaptchaService {
+  private static final Log logger = LogFactory.getLog(CaptchaService.class);
+
   private ReCaptcha captcha;
 
   @Autowired
   public void setCaptcha(ReCaptcha captcha) {
     this.captcha = captcha;
-  }
-
-  @Deprecated
-  public void checkCaptcha(ServletRequest request) throws BadInputException {
-    String captchaChallenge = request.getParameter("recaptcha_challenge_field");
-    String captchaResponse = request.getParameter("recaptcha_response_field");
-
-    if (captchaChallenge==null || captchaResponse==null) {
-      throw new BadInputException("Код проверки не указан");
-    }
-
-    ReCaptchaResponse response = captcha.checkAnswer(request.getRemoteAddr(), captchaChallenge, captchaResponse);
-
-    if (!response.isValid()) {
-      throw new BadInputException("Код проверки не совпадает");
-    }
   }
 
   public void checkCaptcha(ServletRequest request, Errors errors) {
@@ -58,10 +46,16 @@ public class CaptchaService {
       return;
     }
 
-    ReCaptchaResponse response = captcha.checkAnswer(request.getRemoteAddr(), captchaChallenge, captchaResponse);
+    try {
+      ReCaptchaResponse response = captcha.checkAnswer(request.getRemoteAddr(), captchaChallenge, captchaResponse);
 
-    if (!response.isValid()) {
-      errors.reject(null, "Код проверки не совпадает");
+      if (!response.isValid()) {
+        errors.reject(null, "Код проверки не совпадает");
+      }
+    } catch (ReCaptchaException e) {
+      logger.warn("Unable to check captcha", e);
+
+      errors.reject(null, "Unable to check captcha: "+e.getMessage());
     }
   }
 }

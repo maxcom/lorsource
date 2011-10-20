@@ -1,6 +1,7 @@
 <%@ page contentType="text/html; charset=utf-8"%>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%--
   ~ Copyright 1998-2010 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,7 +16,6 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
-<%--@elvariable id="error" type="java.lang.String"--%>
 <jsp:include page="head.jsp"/>
 
 <title>Регистрация пользователя</title>
@@ -45,32 +45,35 @@
 Если вы уже регистрировались на нашем сайте и забыли пароль - вам
 <a href="../../lostpwd.jsp">сюда</a>.
 
-<c:if test="${error!=null}">
-  <div class="error">Ошибка: ${error}</div>
-</c:if>
+<form:form modelAttribute="form" method="POST" action="register.jsp" id="registerForm">
+    <form:errors path="*" element="div" cssClass="error"/>
+    
+<label><b>Login:</b> <form:input path="nick" cssClass="required" size="40"/></label><br>
 
-<form method=POST action="register.jsp" id="registerForm">
-<b>Login:</b>
-<input class="required" type=text name=nick size=40 value="<c:out value="${param.nick}" escapeXml="true"/>"><br>
-Полное имя:
-<input type=text name=name size=40 value="<c:out value="${param.name}" escapeXml="true"/>"><br>
-<b>Пароль:</b>
-<input class="required" id="password" type=password name=password size=20 maxlength="40"><br>
-<b>Повторите Пароль:</b>
-<input class="required" id="password2" type=password name=password2 size=20 maxlength="40"><br>
-URL (не забудьте добавить <b>http://</b>): <br>
-<input type=text name=url size="50" value="<c:out value="${param.url}" escapeXml="true"/>"><br>
-<b>E-mail</b> (ваш email не будет публиковаться на сайте):<br>
-<input class="required email" type=text name=email size="50" value="<c:out value="${param.email}" escapeXml="true"/>"><br>
-Город (просьба писать русскими буквами без сокращений, например: <b>Москва</b>,
-<b>Нижний Новгород</b>, <b>Троицк (Московская область)</b>):
-<input type=text name=town maxlength="100" size=50 value="<c:out value="${param.town}" escapeXml="true"/>"><br>
-Дополнительная информация:<br>
-<textarea name=info cols=50 rows=5><c:out value="${param.info}" escapeXml="true"/></textarea><br>
+<label>Полное имя: <form:input path="name" size="40"/></label><br>
+<label><b>Пароль:</b>
+<input class="required" id="password" type=password name=password size=20 maxlength="40"></label><br>
+<label><b>Повторите пароль:</b>
+<input class="required" id="password2" type=password name=password2 size=20 maxlength="40"></label><br>
+
+<label>URL (не забудьте добавить <b>http://</b>): <form:input path="url" size="50"/></label><br>
+
+<label><b>E-mail</b> (ваш email не будет публиковаться на сайте):<br>
+<form:input path="email" cssClass="required email" size="50"/></label><br>
+
+    <label>
+    Город (просьба писать русскими буквами без сокращений, например: <b>Москва</b>,
+    <b>Нижний Новгород</b>, <b>Троицк (Московская область)</b>):
+    <form:input path="town" size="50" maxlength="100"/></label> <br>
+
+    <label>Дополнительная информация:<br>
+      <form:textarea path="info" cols="50" rows="5"/>
+    </label>
+
 <p>
   <lor:captcha/>
 
 <br>
 <input type=submit value="Зарегистрироваться">
-</form>
+</form:form>
 <jsp:include page="footer.jsp"/>

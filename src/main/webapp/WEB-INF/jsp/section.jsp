@@ -82,7 +82,7 @@
 </c:if>
 <ul>
 <li><a href="addphoto.jsp">Добавить фотографию</a>
-<li><a href="register.jsp?mode=change">Изменение регистрации</a>
+<li><a href="register.jsp">Изменение регистрации</a>
 <li><a href="lostpwd.jsp">Получить забытый пароль</a>
 <li><a href="edit-profile.jsp">Персональные настройки сайта</a>
 </ul>
