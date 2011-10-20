@@ -15,11 +15,61 @@
 
 package ru.org.linux.util;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 public class URLUtilTest {
+
+  private String MainUrl = "http://127.0.0.1:8080/";
+
+  @Test
+  public void testGetRequest() {
+    assertEquals("news/debian/6753486#comment-6753612",
+        URLUtil.getRequestFromUrl(MainUrl, "http://127.0.0.1:8080/news/debian/6753486#comment-6753612"));
+    assertEquals("forum/general/6890857/page2?lastmod=1319022386177#comment-6892917",
+        URLUtil.getRequestFromUrl(MainUrl, "http://127.0.0.1:8080/forum/general/6890857/page2?lastmod=1319022386177#comment-6892917"));
+    assertEquals("news/debian/6753486#comment-6753612",
+        URLUtil.getRequestFromUrl(MainUrl, "https://127.0.0.1:8080/news/debian/6753486#comment-6753612"));
+    assertEquals("forum/general/6890857/page2?lastmod=1319022386177#comment-6892917",
+        URLUtil.getRequestFromUrl(MainUrl, "https://127.0.0.1:8080/forum/general/6890857/page2?lastmod=1319022386177#comment-6892917"));
+    assertEquals("forum/talks/6893165?lastmod=1319027964738",
+        URLUtil.getRequestFromUrl(MainUrl, "http://127.0.0.1:8080/forum/talks/6893165?lastmod=1319027964738"));
+    assertEquals("forum/talks/6893165?lastmod=1319027964738",
+        URLUtil.getRequestFromUrl(MainUrl, "https://127.0.0.1:8080/forum/talks/6893165?lastmod=1319027964738"));
+  }
+
+  @Test
+  public void testGetMessageId() {
+    assertEquals(6753486,
+        URLUtil.getMessageIdFromRequest(URLUtil.getRequestFromUrl(MainUrl, "http://127.0.0.1:8080/news/debian/6753486#comment-6753612")));
+    assertEquals(6753486,
+        URLUtil.getMessageIdFromRequest(URLUtil.getRequestFromUrl(MainUrl, "https://127.0.0.1:8080/news/debian/6753486#comment-6753612")));
+    assertEquals(6890857,
+        URLUtil.getMessageIdFromRequest(URLUtil.getRequestFromUrl(MainUrl, "http://127.0.0.1:8080/forum/general/6890857/page2?lastmod=1319022386177#comment-6892917")));
+    assertEquals(6890857,
+        URLUtil.getMessageIdFromRequest(URLUtil.getRequestFromUrl(MainUrl, "https://127.0.0.1:8080/forum/general/6890857/page2?lastmod=1319022386177#comment-6892917")));
+    assertEquals(6893165,
+        URLUtil.getMessageIdFromRequest(URLUtil.getRequestFromUrl(MainUrl, "https://127.0.0.1:8080/forum/talks/6893165?lastmod=1319027964738")));
+  }
+
+  @Test
+  public void testGetCommentId() {
+    assertEquals(6753612,
+        URLUtil.getCommentIdFromRequest(URLUtil.getRequestFromUrl(MainUrl, "http://127.0.0.1:8080/news/debian/6753486#comment-6753612")));
+    assertEquals(6753612,
+        URLUtil.getCommentIdFromRequest(URLUtil.getRequestFromUrl(MainUrl, "https://127.0.0.1:8080/news/debian/6753486#comment-6753612")));
+    assertEquals(6892917,
+        URLUtil.getCommentIdFromRequest(URLUtil.getRequestFromUrl(MainUrl, "http://127.0.0.1:8080/forum/general/6890857/page2?lastmod=1319022386177#comment-6892917")));
+    assertEquals(6892917,
+        URLUtil.getCommentIdFromRequest(URLUtil.getRequestFromUrl(MainUrl, "https://127.0.0.1:8080/forum/general/6890857/page2?lastmod=1319022386177#comment-6892917")));
+    assertEquals(0,
+        URLUtil.getCommentIdFromRequest(URLUtil.getRequestFromUrl(MainUrl, "https://127.0.0.1:8080/forum/talks/6893165?lastmod=1319027964738")));
+  }
+
+
   @Test
   public void testSimpleURL() {
     assertTrue(URLUtil.isUrl("http://www.linux.org.ru/"));
