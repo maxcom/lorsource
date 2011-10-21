@@ -184,27 +184,29 @@ public class HTMLFormatter {
           out.append("[url=").append(URLEncoder(url)).append(']').append(urlchunk).append("[/url]");
         } else {
           // Волшебный код исправления lor ссылок на комментарии правильными jump-ами :_)
-          String newurl;
+          String newurl = url;
           int msgid=0;
+          int cid = 0;
+          boolean isLorUrl = false;
           try {
             if(!"".equals(mainUrl)) {
+              // Пытаемся откусить от url mainUrl, если не получается работаем штатно иначе делаем новую ссылку
               String request = URLUtil.getRequestFromUrl(mainUrl, url);
               if(!"".equals(request)) {
                 msgid = URLUtil.getMessageIdFromRequest(request);
+                cid = URLUtil.getCommentIdFromRequest(request);
+
                 Message message = messageDao.getById(msgid);
                 Group group = messageDao.getGroup(message);
 
-                newurl = URLUtil.formatJumpUrl(mainUrl, group, msgid, URLUtil.getCommentIdFromRequest(request), secure);
-              } else {
-                newurl = url;
+                newurl = URLUtil.formatJumpUrl(mainUrl, group, msgid, cid, secure);
+                isLorUrl = true;
               }
-            } else {
-              newurl = url;
             }
           } catch (Exception e) {
             newurl = url;
           }
-          if(url.equals(newurl)) {
+          if(!isLorUrl) {
             out.append("<a href=\"").append(URLEncoder(url)).append("\">").append(urlchunk).append("</a>");
           } else {
             String title;

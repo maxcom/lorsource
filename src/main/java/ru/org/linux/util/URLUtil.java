@@ -147,10 +147,17 @@ public final class URLUtil {
     }
     return 0;
   }
-
+  /**
+   * Создает валидный url для комментария или топика
+   * @param mainUrl главный url :-|
+   * @param msgid id топика
+   * @param cid id коментария
+   * @param secure флаг является ли клиент https или нет
+   * @return пустую строку если что-то не так или валидный jump
+   */
   public static String formatJumpUrl(String mainUrl, Group group, int msgid, int cid, boolean secure) throws Exception {
     String groupUrl = group.getUrl();
-    if(msgid == 0 || cid ==0 || "".equals(mainUrl)) {
+    if(msgid == 0 || "".equals(mainUrl)) {
       return "";
     }
     String cropMainUrl = cropSchemeFromUrl(mainUrl);
@@ -163,31 +170,11 @@ public final class URLUtil {
     } else {
       scheme = "http";
     }
-
-    return String.format("%s://%s%s%d?cid=%d", scheme, cropMainUrl, groupUrl, msgid, cid);
-  }
-
-  /**
-   * Создает валидный url перехода к конкретному комментарию
-   * @param mainUrl главный url :-|
-   * @param msgid id топика
-   * @param cid id коментария
-   * @param secure флаг является ли клиент https или нет
-   * @return пустую строку если что-то не так или валидный jump
-   */
-  public static String formatLorUrl(String mainUrl, int msgid, int cid, boolean secure) {
-    if(msgid == 0 || cid ==0 || "".equals(mainUrl)) {
-      return "";
-    }
-    String cropMainUrl = cropSchemeFromUrl(mainUrl);
-    String scheme;
-    if(secure) {
-      scheme = "https";
+    if(cid != 0) {
+      return String.format("%s://%s%s%d?cid=%d", scheme, cropMainUrl, groupUrl, msgid, cid);
     } else {
-      scheme = "http";
+      return String.format("%s://%s%s%d", scheme, cropMainUrl, groupUrl, msgid);
     }
-
-    return String.format("%s://%sjump-message.jsp?msgid=%d&cid=%d", scheme, cropMainUrl, msgid, cid);
   }
 
   public static boolean isSecureUrl(String url) {
