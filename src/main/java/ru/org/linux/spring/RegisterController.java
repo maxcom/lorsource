@@ -121,11 +121,15 @@ public class RegisterController extends ApplicationObjectSupport {
     } else {
       nick = form.getNick();
 
-      if (!StringUtil.checkLoginName(nick)) {
+      if (Strings.isNullOrEmpty(nick)) {
+        errors.rejectValue("nick", null, "не задан nick");
+      }
+
+      if (nick!=null && !StringUtil.checkLoginName(nick)) {
         errors.rejectValue("nick", null, "некорректное имя пользователя");
       }
 
-      if (nick.length() > User.MAX_NICK_LENGTH) {
+      if (nick!=null && nick.length() > User.MAX_NICK_LENGTH) {
         errors.rejectValue("nick", null, "слишком длинное имя пользователя");
       }
     }
