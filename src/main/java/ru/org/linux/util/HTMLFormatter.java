@@ -19,6 +19,9 @@
 
 package ru.org.linux.util;
 
+import ru.org.linux.site.MessageNotFoundException;
+import ru.org.linux.spring.dao.MessageDao;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.StringTokenizer;
@@ -37,6 +40,7 @@ public class HTMLFormatter {
 
   private String mainUrl = "";
   private boolean secure = false;
+  private MessageDao messageDao = null;
 
   public HTMLFormatter(String atext) {
     text = atext;
@@ -81,6 +85,10 @@ public class HTMLFormatter {
 
   public void setSecure(boolean secure) {
     this.secure = secure;
+  }
+
+  public void setMessageDao(MessageDao messageDao) {
+    this.messageDao = messageDao;
   }
 
   public void setMaxLength(int value) {
@@ -175,10 +183,12 @@ public class HTMLFormatter {
         } else {
           // Волшебный код исправления lor ссылок на комментарии правильными jump-ами :_)
           String newurl;
+          int msgid=0;
           if(!"".equals(mainUrl)) {
             String request = URLUtil.getRequestFromUrl(mainUrl, url);
             if(!"".equals(request)) {
-              newurl = URLUtil.formatLorUrl(mainUrl, URLUtil.getMessageIdFromRequest(request), URLUtil.getCommentIdFromRequest(request), secure);
+              msgid = URLUtil.getMessageIdFromRequest(request);
+              newurl = URLUtil.formatLorUrl(mainUrl, msgid, URLUtil.getCommentIdFromRequest(request), secure);
             } else {
               newurl = url;
             }
@@ -188,7 +198,17 @@ public class HTMLFormatter {
           if(url.equals(newurl)) {
             out.append("<a href=\"").append(URLEncoder(url)).append("\">").append(urlchunk).append("</a>");
           } else {
-            out.append("<a href=\"").append(URLEncoder(newurl)).append("\">").append(newurl).append("</a>");
+            String title;
+            if(messageDao != null && msgid != 0) {
+              try {
+                title = "Комментарий в топике \"" + messageDao.getById(msgid).getTitle() + "\"";
+              } catch (MessageNotFoundException e) {
+                title = "Комментарий в несуществующем топике";
+              }
+            } else {
+              title = url;
+            }
+            out.append("<a href=\"").append(URLEncoder(newurl)).append("\">").append(title).append("</a>");
           }
         }
       } else {

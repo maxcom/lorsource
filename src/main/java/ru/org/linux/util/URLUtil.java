@@ -75,9 +75,9 @@ public final class URLUtil {
   private static String cropSchemeFromUrl(String url) {
     String newUrl;
     if(url.startsWith("http://")) {
-      newUrl = url.substring(8);
+      newUrl = url.substring(7);
     } else if(url.startsWith("https://")) {
-      newUrl = url.substring(9);
+      newUrl = url.substring(8);
     } else {
       newUrl = url;
     }
@@ -160,12 +160,12 @@ public final class URLUtil {
     String cropMainUrl = cropSchemeFromUrl(mainUrl);
     String scheme;
     if(secure) {
-      scheme = "https://";
+      scheme = "https";
     } else {
-      scheme = "http://";
+      scheme = "http";
     }
 
-    return String.format("%s%s/jump-message.jsp?msgid=%d&cid=%d", scheme, mainUrl, msgid, cid);
+    return String.format("%s://%sjump-message.jsp?msgid=%d&cid=%d", scheme, cropMainUrl, msgid, cid);
   }
 
   public static boolean isSecureUrl(String url) {

@@ -69,9 +69,10 @@ public class TextNode extends Node {
       if (parserParameters.getAutoLinkTags().contains(tagNode.bbtag.getName())) {
         HTMLFormatter formatter = new HTMLFormatter(text);
         formatter.enableUrlHighLightMode();
-        if(rootNode.getConfiguration() != null) {
+        if(rootNode.getConfiguration() != null && rootNode.getMessageDao() != null) {
           formatter.setMainUrl(rootNode.getConfiguration().getMainUrl());
           formatter.setSecure(rootNode.isSecure());
+          formatter.setMessageDao(rootNode.getMessageDao());
         }
         return formatter.process();
 

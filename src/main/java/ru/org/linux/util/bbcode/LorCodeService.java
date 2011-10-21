@@ -19,6 +19,7 @@ package ru.org.linux.util.bbcode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.org.linux.spring.Configuration;
+import ru.org.linux.spring.dao.MessageDao;
 import ru.org.linux.spring.dao.UserDao;
 import ru.org.linux.util.bbcode.nodes.RootNode;
 
@@ -31,6 +32,9 @@ public class LorCodeService {
 
   @Autowired
   Configuration configuration;
+
+  @Autowired
+  MessageDao messageDao;
 
   public String parser(String text) {
     return parser(text, true, true, "", false);
@@ -61,6 +65,7 @@ public class LorCodeService {
     RootNode rootNode = defaultParser.getRootNode();
     rootNode.setRenderOptions(renderCut, cleanCut, cutUrl);
     rootNode.setUserDao(userDao);
+    rootNode.setMessageDao(messageDao);
     rootNode.setConfiguration(configuration);
     rootNode.setSecure(secure);
     return rootNode;

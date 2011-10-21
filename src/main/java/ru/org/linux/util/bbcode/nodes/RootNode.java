@@ -40,6 +40,7 @@ package ru.org.linux.util.bbcode.nodes;
 
 import ru.org.linux.site.User;
 import ru.org.linux.spring.Configuration;
+import ru.org.linux.spring.dao.MessageDao;
 import ru.org.linux.spring.dao.UserDao;
 import ru.org.linux.util.bbcode.ParserParameters;
 
@@ -58,6 +59,7 @@ public class RootNode extends Node {
   private boolean cleanCut;
   private String cutUrl;
   private UserDao userDao;
+  private MessageDao messageDao;
   private Configuration configuration;
   private Set<User> replier;
   private boolean secure;
@@ -70,6 +72,14 @@ public class RootNode extends Node {
     cutUrl = "";
     replier = new HashSet<User>();
     secure = false;
+  }
+
+  public MessageDao getMessageDao() {
+    return messageDao;
+  }
+
+  public void setMessageDao(MessageDao messageDao) {
+    this.messageDao = messageDao;
   }
 
   public void setUserDao(UserDao userDao) {
