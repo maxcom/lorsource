@@ -19,6 +19,8 @@
 
 package ru.org.linux.util;
 
+import ru.org.linux.site.Group;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -146,11 +148,31 @@ public final class URLUtil {
     return 0;
   }
 
+  public static String formatJumpUrl(String mainUrl, Group group, int msgid, int cid, boolean secure) throws Exception {
+    String groupUrl = group.getUrl();
+    if(msgid == 0 || cid ==0 || "".equals(mainUrl)) {
+      return "";
+    }
+    String cropMainUrl = cropSchemeFromUrl(mainUrl);
+    if(cropMainUrl.endsWith("/")) {
+      cropMainUrl = cropMainUrl.substring(0, cropMainUrl.length()-1);
+    }
+    String scheme;
+    if(secure) {
+      scheme = "https";
+    } else {
+      scheme = "http";
+    }
+
+    return String.format("%s://%s%s%d?cid=%d", scheme, cropMainUrl, groupUrl, msgid, cid);
+  }
+
   /**
    * Создает валидный url перехода к конкретному комментарию
    * @param mainUrl главный url :-|
    * @param msgid id топика
    * @param cid id коментария
+   * @param secure флаг является ли клиент https или нет
    * @return пустую строку если что-то не так или валидный jump
    */
   public static String formatLorUrl(String mainUrl, int msgid, int cid, boolean secure) {

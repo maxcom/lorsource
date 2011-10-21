@@ -19,6 +19,8 @@
 
 package ru.org.linux.util;
 
+import ru.org.linux.site.Group;
+import ru.org.linux.site.Message;
 import ru.org.linux.site.MessageNotFoundException;
 import ru.org.linux.spring.dao.MessageDao;
 
@@ -150,7 +152,7 @@ public class HTMLFormatter {
    * @return отформатированную строку
    * @throws UtilException в случае некорректного входного текста
    */
-  private String formatHTMLLine(String chunk)  {
+  private String formatHTMLLine(String chunk) {
     StringBuilder out = new StringBuilder();
 
     Matcher m = (outputLorcode?urlRE_UNESCAPED:urlRE).matcher(chunk);
@@ -184,15 +186,22 @@ public class HTMLFormatter {
           // Волшебный код исправления lor ссылок на комментарии правильными jump-ами :_)
           String newurl;
           int msgid=0;
-          if(!"".equals(mainUrl)) {
-            String request = URLUtil.getRequestFromUrl(mainUrl, url);
-            if(!"".equals(request)) {
-              msgid = URLUtil.getMessageIdFromRequest(request);
-              newurl = URLUtil.formatLorUrl(mainUrl, msgid, URLUtil.getCommentIdFromRequest(request), secure);
+          try {
+            if(!"".equals(mainUrl)) {
+              String request = URLUtil.getRequestFromUrl(mainUrl, url);
+              if(!"".equals(request)) {
+                msgid = URLUtil.getMessageIdFromRequest(request);
+                Message message = messageDao.getById(msgid);
+                Group group = messageDao.getGroup(message);
+
+                newurl = URLUtil.formatJumpUrl(mainUrl, group, msgid, URLUtil.getCommentIdFromRequest(request), secure);
+              } else {
+                newurl = url;
+              }
             } else {
               newurl = url;
             }
-          } else {
+          } catch (Exception e) {
             newurl = url;
           }
           if(url.equals(newurl)) {
@@ -201,14 +210,14 @@ public class HTMLFormatter {
             String title;
             if(messageDao != null && msgid != 0) {
               try {
-                title = "Комментарий в топике \"" + messageDao.getById(msgid).getTitle() + "\"";
+                title = escapeHtmlBBcode(messageDao.getById(msgid).getTitle());
               } catch (MessageNotFoundException e) {
                 title = "Комментарий в несуществующем топике";
               }
             } else {
               title = url;
             }
-            out.append("<a href=\"").append(URLEncoder(newurl)).append("\">").append(title).append("</a>");
+            out.append("<a href=\"").append(URLEncoder(newurl)).append("\" title=\"").append(title).append("\">").append(newurl).append("</a>");
           }
         }
       } else {

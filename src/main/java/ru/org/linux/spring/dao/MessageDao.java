@@ -138,6 +138,16 @@ public class MessageDao {
   }
 
   /**
+   * Получить group message
+   * @param message message
+   * @return group
+   * @throws BadGroupException если что-то неправильно
+   */
+  public Group getGroup(Message message) throws  BadGroupException {
+    return groupDao.getGroup(message.getGroupId());
+  }
+
+  /**
    * Получить список топиков за месяц
    * @param year год
    * @param month месяц
