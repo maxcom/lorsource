@@ -102,7 +102,7 @@ public class LostPasswordController {
     user.checkBlocked();
     user.checkAnonymous();
 
-    if (user.canModerate()) {
+    if (user.isAdministrator()) {
       throw new AccessViolationException("this feature is not for you, ask me directly");
     }
 
