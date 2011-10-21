@@ -35,6 +35,9 @@ public class HTMLFormatter {
 
   private boolean outputLorcode = false;
 
+  private String mainUrl = "";
+  private boolean secure = false;
+
   public HTMLFormatter(String atext) {
     text = atext;
   }
@@ -70,6 +73,14 @@ public class HTMLFormatter {
     }
 
     return res;
+  }
+
+  public void setMainUrl(String mainUrl) {
+    this.mainUrl = mainUrl;
+  }
+
+  public void setSecure(boolean secure) {
+    this.secure = secure;
   }
 
   public void setMaxLength(int value) {
@@ -162,7 +173,23 @@ public class HTMLFormatter {
         if (outputLorcode) {
           out.append("[url=").append(URLEncoder(url)).append(']').append(urlchunk).append("[/url]");
         } else {
-          out.append("<a href=\"").append(URLEncoder(url)).append("\">").append(urlchunk).append("</a>");
+          // Волшебный код исправления lor ссылок на комментарии правильными jump-ами :_)
+          String newurl;
+          if(!"".equals(mainUrl)) {
+            String request = URLUtil.getRequestFromUrl(mainUrl, url);
+            if(!"".equals(request)) {
+              newurl = URLUtil.formatLorUrl(mainUrl, URLUtil.getMessageIdFromRequest(request), URLUtil.getCommentIdFromRequest(request), secure);
+            } else {
+              newurl = url;
+            }
+          } else {
+            newurl = url;
+          }
+          if(url.equals(newurl)) {
+            out.append("<a href=\"").append(URLEncoder(url)).append("\">").append(urlchunk).append("</a>");
+          } else {
+            out.append("<a href=\"").append(URLEncoder(newurl)).append("\">").append(newurl).append("</a>");
+          }
         }
       } else {
         out.append(url);

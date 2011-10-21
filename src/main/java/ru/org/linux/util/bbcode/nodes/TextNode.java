@@ -50,10 +50,12 @@ import ru.org.linux.util.bbcode.ParserParameters;
  */
 public class TextNode extends Node {
   final String text;
+  final RootNode rootNode;
 
-  public TextNode(Node parent, ParserParameters parserParameters, String text) {
+  public TextNode(Node parent, ParserParameters parserParameters, String text, RootNode rootNode) {
     super(parent, parserParameters);
     this.text = text;
+    this.rootNode = rootNode;
   }
 
   public String getText() {
@@ -67,6 +69,10 @@ public class TextNode extends Node {
       if (parserParameters.getAutoLinkTags().contains(tagNode.bbtag.getName())) {
         HTMLFormatter formatter = new HTMLFormatter(text);
         formatter.enableUrlHighLightMode();
+        if(rootNode.getConfiguration() != null) {
+          formatter.setMainUrl(rootNode.getConfiguration().getMainUrl());
+          formatter.setSecure(rootNode.isSecure());
+        }
         return formatter.process();
 
       }

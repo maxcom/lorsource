@@ -17,7 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.org.linux.site.*;
 import ru.org.linux.spring.commons.CacheProvider;
 import ru.org.linux.util.StringUtil;
-import ru.org.linux.util.bbcode.ParserUtil;
+import ru.org.linux.util.bbcode.LorCodeService;
 
 import javax.sql.DataSource;
 import java.sql.*;
@@ -80,6 +80,8 @@ public class CommentDao {
 
   private UserEventsDao userEventsDao;
 
+  private LorCodeService lorCodeService;
+
   @Autowired
   public void setDataSource(DataSource dataSource) {
     jdbcTemplate = new JdbcTemplate(dataSource);
@@ -102,6 +104,11 @@ public class CommentDao {
   @Autowired
   public void setUserEventsDao(UserEventsDao userEventsDao) {
     this.userEventsDao = userEventsDao;
+  }
+
+  @Autowired
+  public void setLorCodeService(LorCodeService lorCodeService) {
+    this.lorCodeService = lorCodeService;
   }
 
   /**
@@ -171,14 +178,14 @@ public class CommentDao {
    * @param id id комментария
    * @return строку html комментария
    */
-  public String getPreparedComment(int id) {
+  public String getPreparedComment(int id, final boolean secure) {
     return jdbcTemplate.queryForObject(queryCommentForPrepare, new RowMapper<String>() {
       @Override
       public String mapRow(ResultSet resultSet, int i) throws SQLException {
         String text = resultSet.getString("message");
         boolean isLorcode = resultSet.getBoolean("bbcode");
         if (isLorcode) {
-          return ParserUtil.bb2xhtml(text, true, true, "", userDao);
+          return lorCodeService.parser(text, secure);
         } else {
           return "<p>" + text + "</p>";
         }

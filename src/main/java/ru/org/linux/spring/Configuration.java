@@ -31,7 +31,7 @@ public class Configuration {
   @Autowired
   Properties properties;
 
-  String getMainUrl() {
+  public String getMainUrl() {
     return properties.getProperty("MainUrl");
   }
 }

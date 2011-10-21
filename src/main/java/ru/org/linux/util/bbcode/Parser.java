@@ -142,17 +142,17 @@ public class Parser {
           }
         } else if (!isParagraphed) {
           if(matcher.start() != 0){
-            currentNode.getChildren().add(new TextNode(currentNode, parserParameters, text.substring(0, matcher.start())));
+            currentNode.getChildren().add(new TextNode(currentNode, parserParameters, text.substring(0, matcher.start()), rootNode));
           }
           if(matcher.end() != text.length()){
-            currentNode.getChildren().add(new TextNode(currentNode, parserParameters, text.substring(matcher.end())));
+            currentNode.getChildren().add(new TextNode(currentNode, parserParameters, text.substring(matcher.end()), rootNode));
           }
 
         }else{
-          currentNode.getChildren().add(new TextNode(currentNode, parserParameters, text));
+          currentNode.getChildren().add(new TextNode(currentNode, parserParameters, text, rootNode));
         }
       } else {
-        currentNode.getChildren().add(new TextNode(currentNode, parserParameters, text));
+        currentNode.getChildren().add(new TextNode(currentNode, parserParameters, text, rootNode));
       }
     }
     return currentNode;
@@ -234,6 +234,14 @@ public class Parser {
       tempNode = tempNode.getParent();
     }
     return currentNode;
+  }
+
+  public RootNode getRootNode() {
+    return new RootNode(parserParameters);
+  }
+
+  public RootNode parseRoot(RootNode rootNode, String text) {
+    return parse(rootNode, text);
   }
 
   /**

@@ -68,6 +68,23 @@ public final class URLUtil {
   }
 
   /**
+   * Откусываем от url http\https или оставляем как есть
+   * @param url обрабатываемый url
+   * @return обкусанный url
+   */
+  private static String cropSchemeFromUrl(String url) {
+    String newUrl;
+    if(url.startsWith("http://")) {
+      newUrl = url.substring(8);
+    } else if(url.startsWith("https://")) {
+      newUrl = url.substring(9);
+    } else {
+      newUrl = url;
+    }
+    return newUrl;
+  }
+
+  /**
    * Возвращает запрос из URL, если URL начинается с MainUrl
    * тоесть все что после MainUrl иначе пустую строку
    * @param mainUrl по идее MainUrl из properties
@@ -77,23 +94,8 @@ public final class URLUtil {
   public static String getRequestFromUrl(String mainUrl, String url) {
     // MainUrl http://127.0.0.1:8080/
     // Request https://127.0.0.1:8080/forum/general/6890857/page2?lastmod=1319022386177#comment-6892917
-    String tempMainUrl;
-    String tempUrl;
-    if(mainUrl.startsWith("http://")) {
-      tempMainUrl = mainUrl.substring(8);
-    } else if(mainUrl.startsWith("https://")) {
-      tempMainUrl = mainUrl.substring(9);
-    } else {
-      tempMainUrl = mainUrl;
-    }
-
-    if(url.startsWith("http://")) {
-      tempUrl = url.substring(8);
-    } else if(url.startsWith("https://")) {
-      tempUrl = url.substring(9);
-    } else {
-      tempUrl = url;
-    }
+    String tempMainUrl = cropSchemeFromUrl(mainUrl);
+    String tempUrl = cropSchemeFromUrl(url);
 
     if(tempUrl.startsWith(tempMainUrl)) {
       return tempUrl.substring(tempMainUrl.length());
@@ -143,6 +145,33 @@ public final class URLUtil {
     }
     return 0;
   }
+
+  /**
+   * Создает валидный url перехода к конкретному комментарию
+   * @param mainUrl главный url :-|
+   * @param msgid id топика
+   * @param cid id коментария
+   * @return пустую строку если что-то не так или валидный jump
+   */
+  public static String formatLorUrl(String mainUrl, int msgid, int cid, boolean secure) {
+    if(msgid == 0 || cid ==0 || "".equals(mainUrl)) {
+      return "";
+    }
+    String cropMainUrl = cropSchemeFromUrl(mainUrl);
+    String scheme;
+    if(secure) {
+      scheme = "https://";
+    } else {
+      scheme = "http://";
+    }
+
+    return String.format("%s%s/jump-message.jsp?msgid=%d&cid=%d", scheme, mainUrl, msgid, cid);
+  }
+
+  public static boolean isSecureUrl(String url) {
+    return url.startsWith("https://");
+  }
+
 
 
   public static boolean isUrl(String x) {

@@ -19,7 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.org.linux.site.*;
 import ru.org.linux.spring.dao.*;
-import ru.org.linux.util.bbcode.ParserUtil;
+import ru.org.linux.util.bbcode.LorCodeService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,6 +38,7 @@ public class PrepareService {
   private CommentDao commentDao;
   private UserAgentDao userAgentDao;
   private Configuration configuration;
+  private LorCodeService lorCodeService;
 
   @Autowired
   private TagDao tagDao;
@@ -88,6 +89,11 @@ public class PrepareService {
   @Autowired
   public void setConfiguration(Configuration configuration) {
     this.configuration = configuration;
+  }
+
+  @Autowired
+  public void setLorCodeService(LorCodeService lorCodeService) {
+    this.lorCodeService = lorCodeService;
   }
 
   /**
@@ -185,9 +191,9 @@ public class PrepareService {
     }
   }
 
-  public PreparedComment prepareComment(Comment comment, CommentList comments) throws UserNotFoundException {
+  public PreparedComment prepareComment(Comment comment, CommentList comments, boolean secure) throws UserNotFoundException {
     User author = userDao.getUserCached(comment.getUserid());
-    String processedMessage = commentDao.getPreparedComment(comment.getId());
+    String processedMessage = commentDao.getPreparedComment(comment.getId(), secure);
     User replyAuthor;
     if (comment.getReplyTo()!=0 && comments!=null) {
       CommentNode replyNode = comments.getNode(comment.getReplyTo());
@@ -204,21 +210,21 @@ public class PrepareService {
     return new PreparedComment(comment, author, processedMessage, replyAuthor);
   }
 
-  public PreparedComment prepareComment(Comment comment) throws UserNotFoundException {
-    return prepareComment(comment, (CommentList)null);
+  public PreparedComment prepareComment(Comment comment, boolean secure) throws UserNotFoundException {
+    return prepareComment(comment, (CommentList)null, secure);
   }
 
-  public PreparedComment prepareComment(Comment comment, String message) throws UserNotFoundException {
+  public PreparedComment prepareComment(Comment comment, String message, boolean secure) throws UserNotFoundException {
     User author = userDao.getUserCached(comment.getUserid());
-    String processedMessage = PreparedComment.getProcessedMessage(userDao, message).getHtml();
+    String processedMessage = lorCodeService.parser(message, secure);
 
     return new PreparedComment(comment, author, processedMessage, null);
   }
 
-  public List<PreparedComment> prepareCommentList(CommentList comments, List<Comment> list) throws UserNotFoundException {
+  public List<PreparedComment> prepareCommentList(CommentList comments, List<Comment> list, boolean secure) throws UserNotFoundException {
     List<PreparedComment> commentsPrepared = new ArrayList<PreparedComment>(list.size());
     for (Comment comment : list) {
-      commentsPrepared.add(prepareComment(comment, comments));
+      commentsPrepared.add(prepareComment(comment, comments, secure));
     }
     return commentsPrepared;
   }
@@ -227,7 +233,7 @@ public class PrepareService {
     String longInfo;
 
     if (group.getLongInfo()!=null) {
-      longInfo = ParserUtil.bb2xhtml(group.getLongInfo(), true, true, "", userDao);
+      longInfo = lorCodeService.parser(group.getLongInfo());
     } else {
       longInfo = null;
     }

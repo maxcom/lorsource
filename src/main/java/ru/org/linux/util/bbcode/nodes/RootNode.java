@@ -39,6 +39,7 @@
 package ru.org.linux.util.bbcode.nodes;
 
 import ru.org.linux.site.User;
+import ru.org.linux.spring.Configuration;
 import ru.org.linux.spring.dao.UserDao;
 import ru.org.linux.util.bbcode.ParserParameters;
 
@@ -57,7 +58,9 @@ public class RootNode extends Node {
   private boolean cleanCut;
   private String cutUrl;
   private UserDao userDao;
+  private Configuration configuration;
   private Set<User> replier;
+  private boolean secure;
 
   public RootNode(ParserParameters parserParameters) {
     super(parserParameters);
@@ -66,10 +69,27 @@ public class RootNode extends Node {
     cleanCut = true;
     cutUrl = "";
     replier = new HashSet<User>();
+    secure = false;
   }
 
   public void setUserDao(UserDao userDao) {
     this.userDao = userDao;
+  }
+
+  public Configuration getConfiguration() {
+    return configuration;
+  }
+
+  public void setConfiguration(Configuration configuration) {
+    this.configuration = configuration;
+  }
+
+  public boolean isSecure() {
+    return secure;
+  }
+
+  public void setSecure(boolean secure) {
+    this.secure = secure;
   }
 
   public UserDao getUserDao() {

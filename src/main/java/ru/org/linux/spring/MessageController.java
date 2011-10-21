@@ -15,15 +15,6 @@
 
 package ru.org.linux.spring;
 
-import java.net.URLEncoder;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -33,12 +24,19 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
-
 import ru.org.linux.site.*;
 import ru.org.linux.spring.dao.CommentDao;
 import ru.org.linux.spring.dao.IgnoreListDao;
 import ru.org.linux.spring.dao.MessageDao;
 import ru.org.linux.spring.dao.UserDao;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.net.URLEncoder;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @Controller
 public class MessageController {
@@ -367,7 +365,7 @@ public class MessageController {
 
       List<Comment> commentsFiltred = cv.getComments(reverse, offset, limit, hideSet);
 
-      List<PreparedComment> commentsPrepared = prepareService.prepareCommentList(comments, commentsFiltred);
+      List<PreparedComment> commentsPrepared = prepareService.prepareCommentList(comments, commentsFiltred, request.isSecure());
 
       params.put("commentsPrepared", commentsPrepared);
     } else {
@@ -375,7 +373,7 @@ public class MessageController {
 
       List<Comment> commentsFiltred = cv.getComments(true, 0, MessageTable.RSS_DEFAULT, null);
 
-      List<PreparedComment> commentsPrepared = prepareService.prepareCommentList(comments, commentsFiltred);
+      List<PreparedComment> commentsPrepared = prepareService.prepareCommentList(comments, commentsFiltred, request.isSecure());
 
       params.put("commentsPrepared", commentsPrepared);
     }
