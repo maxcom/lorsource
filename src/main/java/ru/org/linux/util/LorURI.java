@@ -109,26 +109,53 @@ public class LorURI {
     }
   }
 
+  /**
+   * Ссылка является ссылкой на внтренности lorsource
+   * @return true если lorsource ссылка
+   */
   public boolean isTrueLorUrl() {
     return isTrueLorUrl;
   }
 
+  /**
+   * Ссылка является ссылкой на топик или комментарий в топике
+   * @return true если ссылка на топик или комментарий
+   */
   public boolean isMessageUrl() {
     return isMessageUrl;
   }
 
+  /**
+   * Вовзращает id топика ссылки или 0 если ссылка не на топик или комментарий
+   * @return id топика
+   */
   public int getMessageId() {
     return messageId;
   }
 
+  /**
+   * Ссылка является комментарием в топике
+   * @return true если ссылка на комментарий
+   */
   public boolean isCommentUrl() {
     return isCommentUrl;
   }
 
+  /**
+   * Возвращает id комментария из ссылки или 0 если ссылка не на комментарий
+   * @return id комментария
+   */
   public int getCommentId() {
     return commentId;
   }
 
+  /**
+   * Исправляет scheme url http или https в зависимости от флага secure
+   * предполагалось только для lor ссылок, но будет работать с любыми, только зачем?
+   * @param secure true если https
+   * @return исправленный url
+   * @throws URIException неправильный url
+   */
   public String fixScheme(boolean secure) throws URIException {
     String scheme;
     if(secure) {
@@ -145,6 +172,15 @@ public class LorURI {
     return fixUri.getEscapedURI();
   }
 
+  /**
+   * Создает url для редиректа на текущее сообщение\комментарий
+   * @param messageDao доступ к базе сообщений
+   * @param secure https ли текуший клиент
+   * @return url для редиректа или пустая строка
+   * @throws MessageNotFoundException если нет сообещния
+   * @throws BadGroupException если нет группы оО
+   * @throws URIException если url неправильный
+   */
   public String formatJump(MessageDao messageDao, boolean secure) throws MessageNotFoundException, BadGroupException, URIException {
     if(isMessageUrl) {
       Message message = messageDao.getById(messageId);
