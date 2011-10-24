@@ -42,6 +42,8 @@ public class LorURITest {
 
   private String url4 = "https://127.0.0.1:8080/news"; // not message url
   private String url5 = "https://example.com"; // not lorsource url
+  private String url6 = "http://127.0.0.1:8080/search.jsp?q=%D0%BF%D1%80%D0%B8%D0%B2%D0%B5%D1%82&oldQ=&range=ALL&interval=ALL&user=&_usertopic=on"; // search url
+  private String url7 = "http://127.0.0.1:8080/search.jsp?q=привет&oldQ=&range=ALL&interval=ALL&user=&_usertopic=on"; // search url unescaped
 
   @Before
   public void initTest() throws Exception {
@@ -123,5 +125,33 @@ public class LorURITest {
     assertTrue(!lorURI.isCommentUrl());
     assertEquals("", lorURI.formatJump(messageDao, false));
     assertEquals("", lorURI.formatJump(messageDao, true));
+  }
+
+  @Test
+  public void test6() throws Exception {
+    LorURI lorURI = new LorURI(mainUrl, url6);
+    assertEquals(0, lorURI.getMessageId());
+    assertEquals(0, lorURI.getCommentId());
+    assertTrue(lorURI.isTrueLorUrl());
+    assertTrue(!lorURI.isMessageUrl());
+    assertTrue(!lorURI.isCommentUrl());
+    assertEquals("", lorURI.formatJump(messageDao, false));
+    assertEquals("", lorURI.formatJump(messageDao, true));
+    assertEquals("http://127.0.0.1:8080/search.jsp?q=%D0%BF%D1%80%D0%B8%D0%B2%D0%B5%D1%82&oldQ=&range=ALL&interval=ALL&user=&_usertopic=on", lorURI.fixScheme(false));
+    assertEquals("https://127.0.0.1:8080/search.jsp?q=%D0%BF%D1%80%D0%B8%D0%B2%D0%B5%D1%82&oldQ=&range=ALL&interval=ALL&user=&_usertopic=on", lorURI.fixScheme(true));
+  }
+
+  @Test
+  public void test7() throws Exception {
+    LorURI lorURI = new LorURI(mainUrl, url6);
+    assertEquals(0, lorURI.getMessageId());
+    assertEquals(0, lorURI.getCommentId());
+    assertTrue(lorURI.isTrueLorUrl());
+    assertTrue(!lorURI.isMessageUrl());
+    assertTrue(!lorURI.isCommentUrl());
+    assertEquals("", lorURI.formatJump(messageDao, false));
+    assertEquals("", lorURI.formatJump(messageDao, true));
+    assertEquals("http://127.0.0.1:8080/search.jsp?q=%D0%BF%D1%80%D0%B8%D0%B2%D0%B5%D1%82&oldQ=&range=ALL&interval=ALL&user=&_usertopic=on", lorURI.fixScheme(false));
+    assertEquals("https://127.0.0.1:8080/search.jsp?q=%D0%BF%D1%80%D0%B8%D0%B2%D0%B5%D1%82&oldQ=&range=ALL&interval=ALL&user=&_usertopic=on", lorURI.fixScheme(true));
   }
 }

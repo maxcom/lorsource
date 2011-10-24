@@ -50,8 +50,8 @@ public class LorURI {
    * @throws URIException если что-то не так в mainUrl или url
    */
   public LorURI(String mainUrl, String url) throws URIException{
-    lorUri = new URI(url, false);
-    mainUri = new URI(mainUrl, false);
+    lorUri = new URI(url, true, "UTF-8");
+    mainUri = new URI(mainUrl, true, "UTF-8");
     isTrueLorUrl = (lorUri.getHost().equals(mainUri.getHost()) && lorUri.getPort() == mainUri.getPort());
 
     if(isTrueLorUrl) {
