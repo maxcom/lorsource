@@ -19,8 +19,6 @@
 
 package ru.org.linux.util;
 
-import ru.org.linux.site.Group;
-import ru.org.linux.site.Message;
 import ru.org.linux.site.MessageNotFoundException;
 import ru.org.linux.spring.dao.MessageDao;
 
@@ -183,43 +181,27 @@ public class HTMLFormatter {
         if (outputLorcode) {
           out.append("[url=").append(URLEncoder(url)).append(']').append(urlchunk).append("[/url]");
         } else {
-          // Волшебный код исправления lor ссылок на комментарии правильными jump-ами :_)
-          String newurl = url;
-          int msgid=0;
-          int cid = 0;
-          boolean isLorUrl = false;
           try {
-            if(!"".equals(mainUrl)) {
-              // Пытаемся откусить от url mainUrl, если не получается работаем штатно иначе делаем новую ссылку
-              String request = URLUtil.getRequestFromUrl(mainUrl, url);
-              if(!"".equals(request)) {
-                msgid = URLUtil.getMessageIdFromRequest(request);
-                cid = URLUtil.getCommentIdFromRequest(request);
-
-                Message message = messageDao.getById(msgid);
-                Group group = messageDao.getGroup(message);
-
-                newurl = URLUtil.formatJumpUrl(mainUrl, group, msgid, cid, secure);
-                isLorUrl = true;
-              }
-            }
-          } catch (Exception e) {
-            newurl = url;
-          }
-          if(!isLorUrl) {
-            out.append("<a href=\"").append(URLEncoder(url)).append("\">").append(urlchunk).append("</a>");
-          } else {
-            String title;
-            if(messageDao != null && msgid != 0) {
+            LorURI lorURI = new LorURI(mainUrl, url);
+            if(lorURI.isMessageUrl()) {
+              // Ссылка на топик или комментарий
+              String title;
               try {
-                title = escapeHtmlBBcode(messageDao.getById(msgid).getTitle());
+                title = escapeHtmlBBcode(messageDao.getById(lorURI.getMessageId()).getTitle());
               } catch (MessageNotFoundException e) {
                 title = "Комментарий в несуществующем топике";
               }
+              String newurl = lorURI.formatJump(messageDao, secure);
+              out.append("<a href=\"").append(newurl).append("\" title=\"").append(title).append("\">").append(newurl).append("</a>");
+            } else if(lorURI.isTrueLorUrl()) {
+              // ссылка внутри lorsource исправляем scheme
+              String fixedUri = lorURI.fixScheme(secure);
+              out.append("<a href=\"").append(fixedUri).append("\">").append(fixedUri).append("</a>");
             } else {
-              title = url;
+              out.append("<a href=\"").append(URLEncoder(url)).append("\">").append(urlchunk).append("</a>");
             }
-            out.append("<a href=\"").append(URLEncoder(newurl)).append("\" title=\"").append(title).append("\">").append(newurl).append("</a>");
+          } catch (Exception e) {
+            out.append("<a href=\"").append(URLEncoder(url)).append("\">").append(urlchunk).append("</a>");
           }
         }
       } else {

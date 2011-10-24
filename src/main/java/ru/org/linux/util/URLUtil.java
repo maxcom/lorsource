@@ -19,9 +19,6 @@
 
 package ru.org.linux.util;
 
-import ru.org.linux.site.Group;
-
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public final class URLUtil {
@@ -68,120 +65,6 @@ public final class URLUtil {
 
     return url;
   }
-
-  /**
-   * Откусываем от url http\https или оставляем как есть
-   * @param url обрабатываемый url
-   * @return обкусанный url
-   */
-  private static String cropSchemeFromUrl(String url) {
-    String newUrl;
-    if(url.startsWith("http://")) {
-      newUrl = url.substring(7);
-    } else if(url.startsWith("https://")) {
-      newUrl = url.substring(8);
-    } else {
-      newUrl = url;
-    }
-    return newUrl;
-  }
-
-  /**
-   * Возвращает запрос из URL, если URL начинается с MainUrl
-   * тоесть все что после MainUrl иначе пустую строку
-   * @param mainUrl по идее MainUrl из properties
-   * @param url URL который обрабатываем
-   * @return значимую часть URL без MainUrl
-   */
-  public static String getRequestFromUrl(String mainUrl, String url) {
-    // MainUrl http://127.0.0.1:8080/
-    // Request https://127.0.0.1:8080/forum/general/6890857/page2?lastmod=1319022386177#comment-6892917
-    String tempMainUrl = cropSchemeFromUrl(mainUrl);
-    String tempUrl = cropSchemeFromUrl(url);
-
-    if(tempUrl.startsWith(tempMainUrl)) {
-      return tempUrl.substring(tempMainUrl.length());
-    } else {
-      return "";
-    }
-  }
-
-  /**
-   * Из запроса который возвращает getRequestFromUrl пытается достать id топика
-   * если не удается то 0
-   * @param request запрос
-   * @return id топика
-   */
-  public static int getMessageIdFromRequest(String request) {
-    if(request.length() == 0) {
-      return 0;
-    }
-    Matcher m = requestMessagePattern.matcher(request);
-    if(m.find()) {
-      try {
-        return Integer.parseInt(m.group(1));
-      } catch (NumberFormatException e) {
-        return 0;
-      }
-    }
-    return 0;
-  }
-
-  /**
-   * Из запроса который возвращает getRequestFromUrl пытается достать id клмментария
-   * если не удается то 0
-   * @param request запрос
-   * @return id топика
-   */
-  public static int getCommentIdFromRequest(String request) {
-    if(request.length() == 0) {
-      return 0;
-    }
-    Matcher m = requestCommentPattern.matcher(request);
-    if(m.find()) {
-      try {
-        return Integer.parseInt(m.group(1));
-      } catch (NumberFormatException e) {
-        return 0;
-      }
-    }
-    return 0;
-  }
-  /**
-   * Создает валидный url для комментария или топика
-   * @param mainUrl главный url :-|
-   * @param msgid id топика
-   * @param cid id коментария
-   * @param secure флаг является ли клиент https или нет
-   * @return пустую строку если что-то не так или валидный jump
-   */
-  public static String formatJumpUrl(String mainUrl, Group group, int msgid, int cid, boolean secure) throws Exception {
-    String groupUrl = group.getUrl();
-    if(msgid == 0 || "".equals(mainUrl)) {
-      return "";
-    }
-    String cropMainUrl = cropSchemeFromUrl(mainUrl);
-    if(cropMainUrl.endsWith("/")) {
-      cropMainUrl = cropMainUrl.substring(0, cropMainUrl.length()-1);
-    }
-    String scheme;
-    if(secure) {
-      scheme = "https";
-    } else {
-      scheme = "http";
-    }
-    if(cid != 0) {
-      return String.format("%s://%s%s%d?cid=%d", scheme, cropMainUrl, groupUrl, msgid, cid);
-    } else {
-      return String.format("%s://%s%s%d", scheme, cropMainUrl, groupUrl, msgid);
-    }
-  }
-
-  public static boolean isSecureUrl(String url) {
-    return url.startsWith("https://");
-  }
-
-
 
   public static boolean isUrl(String x) {
     return isUrl.matcher(x).matches();
