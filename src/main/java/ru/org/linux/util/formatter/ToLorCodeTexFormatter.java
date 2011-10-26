@@ -15,17 +15,14 @@
 
 package ru.org.linux.util.formatter;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.org.linux.spring.Configuration;
 
-import java.util.StringTokenizer;
-
+/**
+ * Формирует сообщение с TeX переносами для сохранения в базе
+ * Основная функции: экранирование тэга code и выделение цитат
+ */
 @Service
-public class ToLorCodeTexFormatter extends FormatterHelper{
-
-  @Autowired
-  Configuration configuration;
+public class ToLorCodeTexFormatter {
 
   /**
    * Форматирует текст
@@ -35,17 +32,10 @@ public class ToLorCodeTexFormatter extends FormatterHelper{
    */
   public String format(String text, boolean quoting) {
     String newText = text.replaceAll("\\[(/?code)\\]", "[[$1]]");
-    StringTokenizer st = new StringTokenizer(newText, " \n", true);
-    StringBuilder sb = new StringBuilder();
-    while (st.hasMoreTokens()) {
-      sb.append(formatLine(st.nextToken()));
-    }
-
-    String formattedLine  = sb.toString();
     if(quoting) {
-      return quote(formattedLine);
+      return quote(newText);
     } else {
-      return formattedLine;
+      return newText;
     }
   }
 

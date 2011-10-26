@@ -39,19 +39,15 @@
 package ru.org.linux.util.bbcode.nodes;
 
 import ru.org.linux.site.User;
-import ru.org.linux.spring.Configuration;
-import ru.org.linux.spring.dao.MessageDao;
 import ru.org.linux.spring.dao.UserDao;
 import ru.org.linux.util.bbcode.ParserParameters;
+import ru.org.linux.util.formatter.ToHtmlFormatter;
 
 import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Created by IntelliJ IDEA.
- * User: hizel
- * Date: 6/30/11
- * Time: 3:01 PM
+ * Корневой узел дерева разбора LORCODE, а также все параметры для разбора
  */
 public class RootNode extends Node {
   private int cutCount;
@@ -59,8 +55,7 @@ public class RootNode extends Node {
   private boolean cleanCut;
   private String cutUrl;
   private UserDao userDao;
-  private MessageDao messageDao;
-  private Configuration configuration;
+  private ToHtmlFormatter toHtmlFormatter;
   private Set<User> replier;
   private boolean secure;
 
@@ -74,25 +69,22 @@ public class RootNode extends Node {
     secure = false;
   }
 
-  public MessageDao getMessageDao() {
-    return messageDao;
+  public ToHtmlFormatter getToHtmlFormatter() {
+    return toHtmlFormatter;
   }
 
-  public void setMessageDao(MessageDao messageDao) {
-    this.messageDao = messageDao;
+  public void setToHtmlFormatter(ToHtmlFormatter toHtmlFormatter) {
+    this.toHtmlFormatter = toHtmlFormatter;
+  }
+
+  public UserDao getUserDao() {
+    return userDao;
   }
 
   public void setUserDao(UserDao userDao) {
     this.userDao = userDao;
   }
 
-  public Configuration getConfiguration() {
-    return configuration;
-  }
-
-  public void setConfiguration(Configuration configuration) {
-    this.configuration = configuration;
-  }
 
   public boolean isSecure() {
     return secure;
@@ -100,10 +92,6 @@ public class RootNode extends Node {
 
   public void setSecure(boolean secure) {
     this.secure = secure;
-  }
-
-  public UserDao getUserDao() {
-    return userDao;
   }
 
   public void addReplier(User nick) {

@@ -19,6 +19,7 @@
 
 package ru.org.linux.util;
 
+import org.apache.commons.httpclient.URI;
 import ru.org.linux.site.MessageNotFoundException;
 import ru.org.linux.spring.dao.MessageDao;
 
@@ -39,7 +40,7 @@ public class HTMLFormatter {
 
   private boolean outputLorcode = false;
 
-  private String mainUrl = "";
+  private URI mainURI;
   private boolean secure = false;
   private MessageDao messageDao = null;
 
@@ -80,8 +81,8 @@ public class HTMLFormatter {
     return res;
   }
 
-  public void setMainUrl(String mainUrl) {
-    this.mainUrl = mainUrl;
+  public void setMainURI(URI mainURI) {
+    this.mainURI = mainURI;
   }
 
   public void setSecure(boolean secure) {
@@ -183,7 +184,7 @@ public class HTMLFormatter {
           out.append("[url=").append(URLEncoder(url)).append(']').append(urlchunk).append("[/url]");
         } else {
           try {
-            LorURI lorURI = new LorURI(mainUrl, url);
+            LorURI lorURI = new LorURI(mainURI, url);
             if(lorURI.isMessageUrl()) {
               // Ссылка на топик или комментарий
               String title;

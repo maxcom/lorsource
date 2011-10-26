@@ -38,15 +38,12 @@
 
 package ru.org.linux.util.bbcode.nodes;
 
-import ru.org.linux.util.HTMLFormatter;
 import ru.org.linux.util.bbcode.Parser;
 import ru.org.linux.util.bbcode.ParserParameters;
+import ru.org.linux.util.formatter.ToHtmlFormatter;
 
 /**
- * Created by IntelliJ IDEA.
- * User: hizel
- * Date: 6/30/11
- * Time: 11:57 AM
+ * Узел дерева разбора LORCODE с текстом
  */
 public class TextNode extends Node {
   final String text;
@@ -67,15 +64,10 @@ public class TextNode extends Node {
     if (TagNode.class.isInstance(parent)) {
       TagNode tagNode = (TagNode) parent;
       if (parserParameters.getAutoLinkTags().contains(tagNode.bbtag.getName())) {
-        HTMLFormatter formatter = new HTMLFormatter(text);
-        formatter.enableUrlHighLightMode();
-        if(rootNode.getConfiguration() != null && rootNode.getMessageDao() != null) {
-          formatter.setMainUrl(rootNode.getConfiguration().getMainUrl());
-          formatter.setSecure(rootNode.isSecure());
-          formatter.setMessageDao(rootNode.getMessageDao());
+        ToHtmlFormatter toHtmlFormatter = rootNode.getToHtmlFormatter();
+        if(toHtmlFormatter != null) {
+          return toHtmlFormatter.format(text, rootNode.isSecure());
         }
-        return formatter.process();
-
       }
     }
     return Parser.escape(text);

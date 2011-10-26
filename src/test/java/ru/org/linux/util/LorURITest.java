@@ -15,6 +15,7 @@
 
 package ru.org.linux.util;
 
+import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,8 +36,11 @@ public class LorURITest {
   private Group group2;
   private Message message3;
   private Group group3;
+  private Message message12;
+  private Group group12;
 
-  private String mainUrl = "http://127.0.0.1:8080/";
+
+  URI mainURI;
   private String url1 = "http://127.0.0.1:8080/news/debian/6753486#comment-6753612";
   private String url2 = "https://127.0.0.1:8080/forum/talks/6893165?lastmod=1319027964738";
   private String url3 = "https://127.0.0.1:8080/forum/general/6890857/page2?lastmod=1319022386177#comment-6892917";
@@ -48,9 +52,13 @@ public class LorURITest {
   private String url8 = "some crap";
   private String url9 = "";
   private String url10 = null;
+  private String url11 = "127.0.0.1:8080/news/debian/6753486#comment-6753612";
+  private String url12 = "http://127.0.0.1:8080/forum/security/1948661?lastmod=1319623223360#comment-1948668";
 
   @Before
   public void initTest() throws Exception {
+    mainURI = new URI("http://127.0.0.1:8080/", true, "UTF-8");
+
     messageDao = mock(MessageDao.class);
     message1 = mock(Message.class);
     group1 = mock(Group.class);
@@ -58,22 +66,26 @@ public class LorURITest {
     group2 = mock(Group.class);
     message3 = mock(Message.class);
     group3 = mock(Group.class);
-
+    message12 = mock(Message.class);
+    group12 = mock(Group.class);
 
     when(group1.getUrl()).thenReturn("/news/debian/");
     when(group2.getUrl()).thenReturn("/forum/talks/");
     when(group3.getUrl()).thenReturn("/forum/general/");
+    when(group12.getUrl()).thenReturn("/forum/security/");
     when(messageDao.getGroup(message1)).thenReturn(group1);
     when(messageDao.getGroup(message2)).thenReturn(group2);
     when(messageDao.getGroup(message3)).thenReturn(group3);
+    when(messageDao.getGroup(message12)).thenReturn(group12);
     when(messageDao.getById(6753486)).thenReturn(message1);
     when(messageDao.getById(6893165)).thenReturn(message2);
     when(messageDao.getById(6890857)).thenReturn(message3);
+    when(messageDao.getById(1948661)).thenReturn(message12);
   }
 
   @Test
   public void test1() throws Exception {
-    LorURI lorURI = new LorURI(mainUrl, url1);
+    LorURI lorURI = new LorURI(mainURI, url1);
     assertEquals(6753486, lorURI.getMessageId());
     assertEquals(6753612, lorURI.getCommentId());
     assertTrue(lorURI.isTrueLorUrl());
@@ -85,7 +97,7 @@ public class LorURITest {
 
   @Test
   public void test2() throws Exception {
-    LorURI lorURI = new LorURI(mainUrl, url2);
+    LorURI lorURI = new LorURI(mainURI, url2);
     assertEquals(6893165, lorURI.getMessageId());
     assertEquals(0, lorURI.getCommentId());
     assertTrue(lorURI.isTrueLorUrl());
@@ -97,7 +109,7 @@ public class LorURITest {
 
   @Test
   public void test3() throws Exception {
-    LorURI lorURI = new LorURI(mainUrl, url3);
+    LorURI lorURI = new LorURI(mainURI, url3);
     assertEquals(6890857, lorURI.getMessageId());
     assertEquals(6892917, lorURI.getCommentId());
     assertTrue(lorURI.isTrueLorUrl());
@@ -109,7 +121,7 @@ public class LorURITest {
 
   @Test
   public void test4() throws Exception {
-    LorURI lorURI = new LorURI(mainUrl, url4);
+    LorURI lorURI = new LorURI(mainURI, url4);
     assertEquals(0, lorURI.getMessageId());
     assertEquals(0, lorURI.getCommentId());
     assertTrue(lorURI.isTrueLorUrl());
@@ -121,7 +133,7 @@ public class LorURITest {
 
   @Test
   public void test5() throws Exception {
-    LorURI lorURI = new LorURI(mainUrl, url5);
+    LorURI lorURI = new LorURI(mainURI, url5);
     assertEquals(0, lorURI.getMessageId());
     assertEquals(0, lorURI.getCommentId());
     assertTrue(!lorURI.isTrueLorUrl());
@@ -133,7 +145,7 @@ public class LorURITest {
 
   @Test
   public void test6() throws Exception {
-    LorURI lorURI = new LorURI(mainUrl, url6);
+    LorURI lorURI = new LorURI(mainURI, url6);
     assertEquals(0, lorURI.getMessageId());
     assertEquals(0, lorURI.getCommentId());
     assertTrue(lorURI.isTrueLorUrl());
@@ -149,7 +161,7 @@ public class LorURITest {
   public void test7() throws Exception {
     boolean result = false;
     try {
-      LorURI lorURI =new LorURI(mainUrl, url7);
+      LorURI lorURI =new LorURI(mainURI, url7);
     } catch (URIException e) {
       result = true;
     }
@@ -160,7 +172,7 @@ public class LorURITest {
   public void test8() throws Exception {
     boolean result = false;
     try {
-      LorURI lorURI = new LorURI(mainUrl, url8);
+      LorURI lorURI = new LorURI(mainURI, url8);
     } catch (URIException e) {
       result = true;
     }
@@ -169,7 +181,7 @@ public class LorURITest {
 
   @Test
   public void test9() throws Exception {
-    LorURI lorURI = new LorURI(mainUrl, url9);
+    LorURI lorURI = new LorURI(mainURI, url9);
     assertEquals(0, lorURI.getMessageId());
     assertEquals(0, lorURI.getCommentId());
     assertTrue(!lorURI.isTrueLorUrl());
@@ -185,11 +197,35 @@ public class LorURITest {
   public void test10() throws Exception {
     boolean result = false;
     try {
-      LorURI lorURI = new LorURI(mainUrl, url10);
+      LorURI lorURI = new LorURI(mainURI, url10);
     } catch (Exception e) {
       result=true;
     }
     assertTrue(result);
+  }
+
+  @Test
+  public void test11() throws Exception {
+    LorURI lorURI = new LorURI(mainURI, url11);
+    assertEquals(0, lorURI.getMessageId());
+    assertEquals(0, lorURI.getCommentId());
+    assertTrue(!lorURI.isTrueLorUrl());
+    assertTrue(!lorURI.isMessageUrl());
+    assertTrue(!lorURI.isCommentUrl());
+    assertEquals("", lorURI.formatJump(messageDao, false));
+    assertEquals("", lorURI.formatJump(messageDao, true));
+  }
+
+  @Test
+  public void test12() throws Exception {
+    LorURI lorURI = new LorURI(mainURI, url12);
+    assertEquals(1948661, lorURI.getMessageId());
+    assertEquals(1948668, lorURI.getCommentId());
+    assertTrue(lorURI.isTrueLorUrl());
+    assertTrue(lorURI.isMessageUrl());
+    assertTrue(lorURI.isCommentUrl());
+    assertEquals("http://127.0.0.1:8080/forum/security/1948661?cid=1948668", lorURI.formatJump(messageDao, false));
+    assertEquals("https://127.0.0.1:8080/forum/security/1948661?cid=1948668", lorURI.formatJump(messageDao, true));
   }
 
 }

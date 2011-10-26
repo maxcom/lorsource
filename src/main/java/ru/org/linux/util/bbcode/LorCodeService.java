@@ -22,6 +22,7 @@ import ru.org.linux.spring.Configuration;
 import ru.org.linux.spring.dao.MessageDao;
 import ru.org.linux.spring.dao.UserDao;
 import ru.org.linux.util.bbcode.nodes.RootNode;
+import ru.org.linux.util.formatter.ToHtmlFormatter;
 
 @Service
 public class LorCodeService {
@@ -35,6 +36,9 @@ public class LorCodeService {
 
   @Autowired
   MessageDao messageDao;
+
+  @Autowired
+  ToHtmlFormatter toHtmlFormatter;
 
   public String parser(String text) {
     return parser(text, true, true, "", false);
@@ -65,9 +69,8 @@ public class LorCodeService {
     RootNode rootNode = defaultParser.getRootNode();
     rootNode.setRenderOptions(renderCut, cleanCut, cutUrl);
     rootNode.setUserDao(userDao);
-    rootNode.setMessageDao(messageDao);
-    rootNode.setConfiguration(configuration);
     rootNode.setSecure(secure);
+    rootNode.setToHtmlFormatter(toHtmlFormatter);
     return rootNode;
   }
 }

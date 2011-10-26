@@ -34,8 +34,8 @@ public class LorURI {
   private static final Pattern requestCommentPattern = Pattern.compile("^comment-(\\d+)");
 
   private final String rawUrl;
-  private final URI lorUri;
-  private final URI mainUri;
+  private final URI lorURI;
+  private final URI mainURI;
   private final boolean isTrueLorUrl;
   private final boolean isMessageUrl;
   private final int messageId;
@@ -45,28 +45,23 @@ public class LorURI {
   /**
    * Создаем объект с проверкой что url это подмножество mainUrl и
    * попыткой вычеленить из url id топика и комментария
-   * если mainUrl или url неправильные генерируем исключение
-   * @param mainUrl основоной url сайта
+   * если url неправильные генерируем исключение
+   * @param mainURI основоной URI сайта из конфигурации
    * @param url обрабатываемый url
    * @throws URIException если url неправильный
    * @throws NullPointerException если mainUrl или url null
    */
-  public LorURI(String mainUrl, String url) throws URIException {
+  public LorURI(URI mainURI, String url) throws URIException {
     rawUrl = url;
-    mainUri = new URI(mainUrl, true, "UTF-8");
-    lorUri = new URI(url, true, "UTF-8");
-    isTrueLorUrl = (lorUri != null
-        && lorUri.isAbsoluteURI()
-        && lorUri.getHost() != null
-        && mainUri.getHost() != null
-        && mainUri.getHost().equals(lorUri.getHost())
-        && mainUri.getPort() == lorUri.getPort());
+    this.mainURI = mainURI;
+    lorURI = new URI(url, true, "UTF-8");
+    isTrueLorUrl = (mainURI.getHost().equals(lorURI.getHost()) && mainURI.getPort() == lorURI.getPort());
 
     if(isTrueLorUrl) {
         // find message id in lor url
         int msgId = 0;
         boolean isMsg = false;
-        String path = lorUri.getPath();
+        String path = lorURI.getPath();
         if(path != null) {
           Matcher messageMatcher = requestMessagePattern.matcher(path);
 
@@ -89,7 +84,7 @@ public class LorURI {
         // find comment id in lor url
         int commId = 0;
         boolean isComm = false;
-        String fragment = lorUri.getFragment();
+        String fragment = lorURI.getFragment();
         if(fragment != null) {
           Matcher commentMatcher = requestCommentPattern.matcher(fragment);
           if(commentMatcher.find()) {
@@ -113,6 +108,11 @@ public class LorURI {
       commentId = 0;
       isCommentUrl = false;
     }
+  }
+
+  @Override
+  public String toString() {
+    return lorURI.toString();
   }
 
   /**
@@ -172,11 +172,11 @@ public class LorURI {
     } else {
       scheme = "http";
     }
-    String host = lorUri.getHost();
-    int port = lorUri.getPort();
-    String path = lorUri.getPath();
-    String query = lorUri.getQuery();
-    String fragment = lorUri.getFragment();
+    String host = lorURI.getHost();
+    int port = lorURI.getPort();
+    String path = lorURI.getPath();
+    String query = lorURI.getQuery();
+    String fragment = lorURI.getFragment();
     URI fixUri = new URI(scheme, null, host, port, path, query, fragment);
     return fixUri.getEscapedURI();
   }
@@ -200,8 +200,8 @@ public class LorURI {
       } else {
         scheme = "http";
       }
-      String host = mainUri.getHost();
-      int port = mainUri.getPort();
+      String host = mainURI.getHost();
+      int port = mainURI.getPort();
       String path = group.getUrl() + messageId;
       String query = "";
       if(isCommentUrl()) {
