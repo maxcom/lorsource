@@ -18,11 +18,11 @@ package ru.org.linux.util.bbcode;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.org.linux.site.User;
+import ru.org.linux.spring.Configuration;
+import ru.org.linux.spring.dao.MessageDao;
 import ru.org.linux.spring.dao.UserDao;
 import ru.org.linux.util.bbcode.nodes.RootNode;
-
-import java.util.Set;
+import ru.org.linux.util.formatter.ToHtmlFormatter;
 
 @Service
 public class LorCodeService {
@@ -31,25 +31,46 @@ public class LorCodeService {
   @Autowired
   UserDao userDao;
 
-  public String parser(String lorcode) {
-    return defaultParser.parse(lorcode).renderXHtml();
+  @Autowired
+  Configuration configuration;
+
+  @Autowired
+  MessageDao messageDao;
+
+  @Autowired
+  ToHtmlFormatter toHtmlFormatter;
+
+  public String parser(String text) {
+    return parser(text, true, true, "", false);
   }
 
-  public String parser(String lorcode, boolean renderCut, boolean cleanCut, String cutUrl) {
-    return defaultParser.parse(lorcode, renderCut, cleanCut, cutUrl, userDao).renderXHtml();
+  public String parser(String text, boolean secure) {
+    return parser(text, true, true, "", secure);
   }
 
-  public ParserResult parserWithReplies(String lorcode) {
-    RootNode rootNode = defaultParser.parse(lorcode);
-    String html = rootNode.renderXHtml();
-    Set<User> replier = rootNode.getReplier();
-    return new ParserResult(html, replier);
+  public String parser(String text, boolean renderCut, boolean cleanCut, String cutUrl, boolean secure) {
+    return defaultParser.parseRoot(prepareRootNode(renderCut, cleanCut, cutUrl, secure), text).renderXHtml();
   }
 
-  public ParserResult parserWithReplies(String lorcode,  boolean renderCut, boolean cleanCut, String cutUrl) {
-    RootNode rootNode = defaultParser.parse(lorcode, renderCut, cleanCut, cutUrl, userDao);
-    String html = rootNode.renderXHtml();
-    Set<User> replier = rootNode.getReplier();
-    return new ParserResult(html, replier);
+  public ParserResult parserWithReplies(String text) {
+    return parserWithReplies(text, true, true, "", false);
+  }
+
+  public ParserResult parserWithReplies(String text, boolean secure) {
+    return parserWithReplies(text, true, true, "", secure);
+  }
+
+  public ParserResult parserWithReplies(String text,  boolean renderCut, boolean cleanCut, String cutUrl, boolean secure) {
+    RootNode parsedRootNode = defaultParser.parseRoot(prepareRootNode(renderCut, cleanCut, cutUrl, secure), text);
+    return new ParserResult(parsedRootNode.renderXHtml(), parsedRootNode.getReplier());
+  }
+
+  private RootNode prepareRootNode(boolean renderCut, boolean cleanCut, String cutUrl, boolean secure) {
+    RootNode rootNode = defaultParser.getRootNode();
+    rootNode.setRenderOptions(renderCut, cleanCut, cutUrl);
+    rootNode.setUserDao(userDao);
+    rootNode.setSecure(secure);
+    rootNode.setToHtmlFormatter(toHtmlFormatter);
+    return rootNode;
   }
 }

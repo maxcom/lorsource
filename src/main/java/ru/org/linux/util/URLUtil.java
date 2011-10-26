@@ -27,6 +27,9 @@ public final class URLUtil {
     Pattern.CASE_INSENSITIVE
   );
 
+  private static final Pattern requestMessagePattern = Pattern.compile("\\w+/\\w+/(\\d+)");
+  private static final Pattern requestCommentPattern = Pattern.compile("#comment-(\\d+)");
+
   private URLUtil() {
   }
 

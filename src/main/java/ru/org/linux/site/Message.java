@@ -20,7 +20,6 @@ import org.springframework.validation.Errors;
 import ru.org.linux.spring.AddMessageRequest;
 import ru.org.linux.spring.EditMessageRequest;
 import ru.org.linux.spring.dao.UserDao;
-import ru.org.linux.util.HTMLFormatter;
 import ru.org.linux.util.StringUtil;
 import ru.org.linux.util.URLUtil;
 import ru.org.linux.util.bbcode.ParserUtil;
@@ -125,7 +124,7 @@ public class Message implements Serializable {
     groupCommentsRestriction = group.getCommentsRestriction();
 
     if (form.getLinktext()!=null) {
-      linktext = HTMLFormatter.htmlSpecialChars(form.getLinktext());
+      linktext = StringUtil.escapeHtml(form.getLinktext());
     } else {
       linktext = null;
     }
@@ -139,7 +138,7 @@ public class Message implements Serializable {
 
     // Setting Message fields
     if (form.getTitle()!=null) {
-      title = HTMLFormatter.htmlSpecialChars(form.getTitle());
+      title = StringUtil.escapeHtml(form.getTitle());
     } else {
       title = null;
     }
@@ -191,7 +190,7 @@ public class Message implements Serializable {
     }
 
     if (form.getTitle() != null) {
-      title = HTMLFormatter.htmlSpecialChars(form.getTitle());
+      title = StringUtil.escapeHtml(form.getTitle());
     } else {
       title = original.title;
     }

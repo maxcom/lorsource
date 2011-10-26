@@ -7,7 +7,7 @@ import ru.org.linux.site.BadPasswordException;
 import ru.org.linux.site.Comment;
 import ru.org.linux.site.Message;
 import ru.org.linux.spring.AddCommentRequest;
-import ru.org.linux.util.HTMLFormatter;
+import ru.org.linux.util.StringUtil;
 
 public class AddCommentRequestValidator implements Validator {
   @Override
@@ -20,7 +20,7 @@ public class AddCommentRequestValidator implements Validator {
     AddCommentRequest add = (AddCommentRequest) target;
 
     if (add.getTitle() != null) {
-      String title = HTMLFormatter.htmlSpecialChars(add.getTitle());
+      String title = StringUtil.escapeHtml(add.getTitle());
 
       if (title.length() > Comment.TITLE_LENGTH) {
         errors.rejectValue("title", null, "заголовок превышает " + Comment.TITLE_LENGTH + " символов");

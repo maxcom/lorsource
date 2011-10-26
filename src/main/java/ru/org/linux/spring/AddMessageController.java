@@ -32,8 +32,9 @@ import ru.org.linux.site.*;
 import ru.org.linux.spring.dao.*;
 import ru.org.linux.spring.validators.AddMessageRequestValidator;
 import ru.org.linux.util.BadImageException;
-import ru.org.linux.util.HTMLFormatter;
 import ru.org.linux.util.UtilException;
+import ru.org.linux.util.formatter.ToLorCodeFormatter;
+import ru.org.linux.util.formatter.ToLorCodeTexFormatter;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -57,6 +58,8 @@ public class AddMessageController extends ApplicationObjectSupport {
   private UserDao userDao;
   private PrepareService prepareService;
   private MessageDao messageDao;
+  private ToLorCodeFormatter toLorCodeFormatter;
+  private ToLorCodeTexFormatter toLorCodeTexFormatter;
   public static final int MAX_MESSAGE_LENGTH_ANONYMOUS = 4096;
   public static final int MAX_MESSAGE_LENGTH = 16384;
 
@@ -110,6 +113,16 @@ public class AddMessageController extends ApplicationObjectSupport {
     this.messageDao = messageDao;
   }
 
+  @Autowired
+  public void setToLorCodeFormatter(ToLorCodeFormatter toLorCodeFormatter) {
+    this.toLorCodeFormatter = toLorCodeFormatter;
+  }
+
+  @Autowired
+  public void setToLorCodeTexFormatter(ToLorCodeTexFormatter toLorCodeTexFormatter) {
+    this.toLorCodeTexFormatter = toLorCodeTexFormatter;
+  }
+
   @RequestMapping(value = "/add.jsp", method = RequestMethod.GET)
   public ModelAndView add(@Valid @ModelAttribute("form") AddMessageRequest form, HttpServletRequest request) throws Exception {
     Map<String, Object> params = new HashMap<String, Object>();
@@ -137,7 +150,7 @@ public class AddMessageController extends ApplicationObjectSupport {
     return new ModelAndView("add", params);
   }
 
-  private static String processMessage(String msg, String mode) {
+  String processMessage(String msg, String mode) {
     if (msg == null) {
       return "";
     }
@@ -145,17 +158,7 @@ public class AddMessageController extends ApplicationObjectSupport {
     if ("lorcode".equals(mode)) {
       return msg;
     } else {
-      // Format message
-      HTMLFormatter formatter = new HTMLFormatter(msg);
-
-      formatter.setMaxLength(80);
-      formatter.setOutputLorcode(true);
-
-      if ("ntobr".equals(mode)) {
-        formatter.enableNewLineMode();
-      }
-
-      return formatter.process();
+      return toLorCodeFormatter.format(msg, false);
     }
   }
 

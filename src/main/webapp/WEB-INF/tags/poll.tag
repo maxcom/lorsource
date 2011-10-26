@@ -1,6 +1,6 @@
 <%@ tag import="ru.org.linux.site.PollVariant" %>
 <%@ tag import="ru.org.linux.site.Template" %>
-<%@ tag import="ru.org.linux.util.HTMLFormatter" %>
+<%@ tag import="ru.org.linux.util.StringUtil" %>
 <%@ tag import="ru.org.linux.util.ImageInfo" %>
 <%@ tag pageEncoding="UTF-8"%>
 <%--
@@ -33,7 +33,7 @@
     if (highlight!=null && highlight.contains(id)) {
       out.append("<b>");
     }
-    out.append(HTMLFormatter.htmlSpecialChars(var.getLabel()));
+    out.append(StringUtil.escapeHtml(var.getLabel()));
     if (highlight!=null && highlight.contains(id)) {
       out.append("</b>");
     }

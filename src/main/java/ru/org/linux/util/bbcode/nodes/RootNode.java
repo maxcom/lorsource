@@ -41,15 +41,13 @@ package ru.org.linux.util.bbcode.nodes;
 import ru.org.linux.site.User;
 import ru.org.linux.spring.dao.UserDao;
 import ru.org.linux.util.bbcode.ParserParameters;
+import ru.org.linux.util.formatter.ToHtmlFormatter;
 
 import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Created by IntelliJ IDEA.
- * User: hizel
- * Date: 6/30/11
- * Time: 3:01 PM
+ * Корневой узел дерева разбора LORCODE, а также все параметры для разбора
  */
 public class RootNode extends Node {
   private int cutCount;
@@ -57,7 +55,9 @@ public class RootNode extends Node {
   private boolean cleanCut;
   private String cutUrl;
   private UserDao userDao;
+  private ToHtmlFormatter toHtmlFormatter;
   private Set<User> replier;
+  private boolean secure;
 
   public RootNode(ParserParameters parserParameters) {
     super(parserParameters);
@@ -66,14 +66,32 @@ public class RootNode extends Node {
     cleanCut = true;
     cutUrl = "";
     replier = new HashSet<User>();
+    secure = false;
+  }
+
+  public ToHtmlFormatter getToHtmlFormatter() {
+    return toHtmlFormatter;
+  }
+
+  public void setToHtmlFormatter(ToHtmlFormatter toHtmlFormatter) {
+    this.toHtmlFormatter = toHtmlFormatter;
+  }
+
+  public UserDao getUserDao() {
+    return userDao;
   }
 
   public void setUserDao(UserDao userDao) {
     this.userDao = userDao;
   }
 
-  public UserDao getUserDao() {
-    return userDao;
+
+  public boolean isSecure() {
+    return secure;
+  }
+
+  public void setSecure(boolean secure) {
+    this.secure = secure;
   }
 
   public void addReplier(User nick) {

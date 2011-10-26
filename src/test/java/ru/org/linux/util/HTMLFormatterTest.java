@@ -15,9 +15,18 @@
 
 package ru.org.linux.util;
 
+import org.apache.commons.httpclient.URI;
 import org.hamcrest.CoreMatchers;
-import static org.junit.Assert.*;
+import org.junit.Before;
 import org.junit.Test;
+import ru.org.linux.spring.Configuration;
+import ru.org.linux.util.formatter.ToHtmlFormatter;
+import ru.org.linux.util.formatter.ToLorCodeFormatter;
+import ru.org.linux.util.formatter.ToLorCodeTexFormatter;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class HTMLFormatterTest {
   private static final String TEXT1 = "Here is www.linux.org.ru, have fun! :-)";
@@ -33,14 +42,14 @@ public class HTMLFormatterTest {
   private static final String RESULT8 = "Long url: <a href=\"http://www.linux.org.ru/profile/maxcom/view-message.jsp?msgid=1993651&amp;a=b\">http://www.linux....</a>";
 
   private static final String QUOTING1 = "> 1";
-  private static final String RESULT_QUOTING1 = "<i>&gt; 1</i>";
-  private static final String RESULT_QUOTING1_NOQUOTING = "&gt; 1";
+  private static final String RESULT_QUOTING1 = "\n[i]> 1[/i]";
+  private static final String RESULT_QUOTING1_NOQUOTING = "> 1";
 
   private static final String QUOTING2 = "> 1\n2";
-  private static final String RESULT_QUOTING2 = "<i>&gt; 1\n2</i>";
+  private static final String RESULT_QUOTING2 = "\n[i]> 1\n2[/i]";
 
   private static final String QUOTING3 = "> 1\n2\n\n3";
-  private static final String RESULT_QUOTING3 = "<i>&gt; 1\n2\n</i><p>\n3";
+  private static final String RESULT_QUOTING3 = "\n[i]> 1\n2\n[/i]\n\n3";
 
   private static final String TEXT9 = "(http://ru.wikipedia.org/wiki/Blah_(blah))";
   private static final String RESULT9 = "(<a href=\"http://ru.wikipedia.org/wiki/Blah_(blah)\">http://ru.wikipedia.org/wiki/Blah_(blah)</a>)";
@@ -63,401 +72,92 @@ public class HTMLFormatterTest {
   private static final String EMPTY_ANCHOR = "http://www.google.com/#";
   private static final String SLASH_AFTER_AMP = "http://extensions.joomla.org/extensions/communities-&-groupware/ratings-&-reviews/5483/details";
 
-  @Test
-  public void testURLHighlight() throws UtilException {
-    HTMLFormatter formatter = new HTMLFormatter(TEXT1);
+  private ToHtmlFormatter toHtmlFormatter;
+  private ToHtmlFormatter toHtmlFormatter20;
+  private ToLorCodeFormatter toLorCodeFormatter;
+  private ToLorCodeTexFormatter toLorCodeTexFormatter;
+  private Configuration configuration;
+  private URI mainURI;
 
-    formatter.enableUrlHighLightMode();
+  @Before
+  public void init() throws Exception {
+    mainURI = new URI("http://127.0.0.1:8080/",true, "UTF-8");
 
-    assertEquals(RESULT1, formatter.process());
+    configuration = mock(Configuration.class);
+
+    when(configuration.getMainURI()).thenReturn(mainURI);
+
+    toHtmlFormatter = new ToHtmlFormatter();
+    toHtmlFormatter.setConfiguration(configuration);
+
+    toHtmlFormatter20 = new ToHtmlFormatter();
+    toHtmlFormatter20.setConfiguration(configuration);
+    toHtmlFormatter20.setMaxLength(20);
+
+    toLorCodeTexFormatter = new ToLorCodeTexFormatter();
+    toLorCodeFormatter = new ToLorCodeFormatter();
   }
 
   @Test
-  public void testURLHighlight2() throws UtilException {
-    HTMLFormatter formatter = new HTMLFormatter(TEXT2);
-
-    formatter.enableUrlHighLightMode();
-
-    assertEquals(RESULT2, formatter.process());
+  public void testToHtmlFormatter() {
+    assertEquals(RESULT1, toHtmlFormatter.format(TEXT1, false));
+    assertEquals(RESULT2, toHtmlFormatter.format(TEXT2, false));
+    assertEquals(RESULT3, toHtmlFormatter20.format(TEXT3, false));
+    assertEquals(RESULT8, toHtmlFormatter20.format(TEXT8, false));
+    assertEquals(RESULT9, toHtmlFormatter.format(TEXT9, false));
+    assertEquals(RESULT10, toHtmlFormatter.format(TEXT10, false));
+    assertTrue(toHtmlFormatter.format(LINK_WITH_UNDERSCORE, false).endsWith("</a>"));
+    assertTrue(toHtmlFormatter.format(LINK_WITH_PARAM_ONLY, false).endsWith("</a>"));
+    assertTrue(toHtmlFormatter.format(RFC1738, false).endsWith("</a>"));
+    assertTrue(toHtmlFormatter.format(CYR_LINK, false).endsWith("</a>"));
+    assertTrue(toHtmlFormatter.format(GOOGLE_CACHE, false).endsWith("</a>"));
+    assertTrue(toHtmlFormatter.format(URL_WITH_AT, false).endsWith("</a>"));
+    assertTrue(toHtmlFormatter.format(Latin1Supplement, false).endsWith("</a>"));
+    assertTrue(toHtmlFormatter.format(greek, false).endsWith("</a>"));
+    assertTrue(toHtmlFormatter.format(QP, false).endsWith("</a>"));
+    assertTrue(toHtmlFormatter.format(EMPTY_ANCHOR, false).endsWith("</a>"));
+    assertTrue(toHtmlFormatter.format(SLASH_AFTER_AMP, false).endsWith("</a>"));
   }
 
   @Test
-  public void testURLHighlight3() throws UtilException {
-    HTMLFormatter formatter = new HTMLFormatter(TEXT3);
+  public void testToLorCodeTexFormatter() {
+    assertEquals(RESULT_QUOTING1, toLorCodeTexFormatter.format(QUOTING1, true));
+    assertEquals(RESULT_QUOTING1_NOQUOTING, toLorCodeTexFormatter.format(QUOTING1, false));
+    assertEquals(RESULT_QUOTING2, toLorCodeTexFormatter.format(QUOTING2, true));
+    assertEquals(RESULT_QUOTING3, toLorCodeTexFormatter.format(QUOTING3, true));
 
-    formatter.enableUrlHighLightMode();
-    formatter.setMaxLength(20);
-
-    assertEquals(RESULT3, formatter.process());
+    assertEquals("\n[i]>test\n[/i]\n\ntest", toLorCodeTexFormatter.format(">test\n\ntest", true)); // 4
+    assertEquals("test\n\ntest\ntest", toLorCodeTexFormatter.format("test\n\ntest\ntest", true)); // 1
+    assertEquals("test\n\n[i]\n>test[/i]", toLorCodeTexFormatter.format("test\n\n>test", true)); // 7
+    assertEquals("test &", toLorCodeTexFormatter.format("test &", true)); // 8
+    assertEquals("test[br]\ntest", toLorCodeFormatter.format("test\r\ntest", true)); // 9
+    assertEquals("test[br]\ntest", toLorCodeFormatter.format("test\ntest", true)); // 10
+    assertEquals("[i]>test[/i][br]\ntest", toLorCodeFormatter.format(">test\ntest", true)); // 11
+    assertEquals("[i]>test[/i][i][br]\n>test[/i]", toLorCodeFormatter.format(">test\n>test", true)); // 12
   }
 
   @Test
-  public void testURLHighlight4() throws UtilException {
-    HTMLFormatter formatter = new HTMLFormatter(TEXT8);
-
-    formatter.enableUrlHighLightMode();
-    formatter.setMaxLength(20);
-
-    assertEquals(RESULT8, formatter.process());
-  }
-
-  @Test
-  public void testURLHighlight5() throws UtilException {
-    HTMLFormatter formatter = new HTMLFormatter(TEXT9);
-
-    formatter.enableUrlHighLightMode();
-
-    assertEquals(RESULT9, formatter.process());
-  }
-
-  @Test
-  public void testURLHighlight6() throws UtilException {
-    HTMLFormatter formatter = new HTMLFormatter(
-      "(http://ozpp.ru/laws2/pravila-prod/tovar5.html)");
-
-    formatter.enableUrlHighLightMode();
-    formatter.enableTexNewLineMode();
-    formatter.enableQuoting();
-    formatter.setOutputLorcode(true);
-
-    assertEquals("([url=http://ozpp.ru/laws2/pravila-prod/tovar5.html]http://ozpp.ru/laws2/pravila-prod/tovar5.html[/url])", formatter.process());
-  }
-
-  @Test
-  public void testURLHighlight7() throws UtilException {
-    HTMLFormatter formatter = new HTMLFormatter(TEXT10);
-
-    formatter.enableUrlHighLightMode();
-
-    assertEquals(RESULT10, formatter.process());
-  }
-
-  @Test
-  public void testQuiting1() throws UtilException {
-    HTMLFormatter formatter = new HTMLFormatter(QUOTING1);
-
-    formatter.enableTexNewLineMode();
-    formatter.enableQuoting();
-
-    assertEquals(RESULT_QUOTING1, formatter.process());
-  }
-
-  @Test
-  public void testNoQuiting() throws UtilException {
-    HTMLFormatter formatter = new HTMLFormatter(QUOTING1);
-
-    formatter.enableTexNewLineMode();
-
-    assertEquals(RESULT_QUOTING1_NOQUOTING, formatter.process());
-  }
-
-  @Test
-  public void testQuiting2() throws UtilException {
-    HTMLFormatter formatter = new HTMLFormatter(QUOTING2);
-
-    formatter.enableTexNewLineMode();
-    formatter.enableQuoting();
-
-    assertEquals(RESULT_QUOTING2, formatter.process());
-  }
-
-  @Test
-  public void testQuiting3() throws UtilException {
-    HTMLFormatter formatter = new HTMLFormatter(QUOTING3);
-
-    formatter.enableTexNewLineMode();
-    formatter.enableQuoting();
-
-    assertEquals(RESULT_QUOTING3, formatter.process());
-  }
-
-  @Test
-  public void testEntityCrash() {
-    HTMLFormatter formatter = new HTMLFormatter(GUARANTEED_CRASH);
-    formatter.enableUrlHighLightMode();
+  public void testCrash() {
     try {
-      String r = formatter.process();
-      assertEquals("&quot;<a href=\"http://www.google.com/\">http://www.google.com/</a>&quot;", r);
-    } catch (StringIndexOutOfBoundsException e) {
+      assertEquals("&quot;<a href=\"http://www.google.com/&quot;\">http://www.google.com/&quot;</a>",
+          toHtmlFormatter.format(GUARANTEED_CRASH, false));
+    } catch (Exception e) {
       fail("It seems, it should not happen?");
     }
   }
 
   @Test
-  public void testUndescore() {
-    HTMLFormatter formatter = new HTMLFormatter(LINK_WITH_UNDERSCORE);
-    formatter.enableUrlHighLightMode();
-    String s = formatter.process();
-    assertTrue("Whole text must be formatted as link: " + s, s.endsWith("</a>"));
-  }
-
-  @Test
-  public void testWithParamOnly() {
-    HTMLFormatter formatter = new HTMLFormatter(LINK_WITH_PARAM_ONLY);
-    formatter.enableUrlHighLightMode();
-    String s = formatter.process();
-    assertTrue("Whole text must be formatted as link: " + s, s.endsWith("</a>"));
-  }
-
-  @Test
-  public void testWithCyrillic() {
-    HTMLFormatter formatter = new HTMLFormatter(RFC1738);
-    formatter.enableUrlHighLightMode();
-    String s = formatter.process();
-    assertTrue("Whole text must be formatted as link: " + s, s.endsWith("</a>"));
-  }
-
-  @Test
-  public void testNlSubstition() {
-    String s = HTMLFormatter.nl2br("This is a line\nwith break inside it");
-    Integer i = s.indexOf("<br>");
-    assertThat("Newline is changed to <br>", i, CoreMatchers.not(-1));
-  }
-
-  @Test
-  public void testStringEscape() {
+  public void testHTMLEscape() {
     String str = "This is an entity &#1999;";
-    String s = HTMLFormatter.htmlSpecialChars(str);
+    String s = StringUtil.escapeHtml(str);
     assertThat("String should remaint unescaped", s, CoreMatchers.equalTo(str));
-  }
 
-  @Test
-  public void testAmpEscape() {
-    String str = "a&b";
-    String s = HTMLFormatter.htmlSpecialChars(str);
+    str = "a&b";
+    s = StringUtil.escapeHtml(str);
     assertThat("Ampersand should be escaped", s, CoreMatchers.equalTo("a&amp;b"));
-  }
 
-  @Test
-  public void testParaSubstition() {
-    String str = "this is a line\n\r\n\rwith some\n\nlinebreaks in it";
-    String s = HTMLFormatter.texnl2br(str, false, false);
-    Integer i = s.indexOf("<p>");
-    assertThat("Newlines is changed to <p>", i, CoreMatchers.not(-1));
-    Integer b = s.indexOf("<p>", i + 3);
-    assertThat("Wait, there should be two paras", b, CoreMatchers.not(-1));
-  }
-
-  @Test
-  public void testCyrillicLink() {
-    HTMLFormatter formatter = new HTMLFormatter(CYR_LINK);
-    formatter.enableUrlHighLightMode();
-    String s = formatter.process();
-    assertTrue("All text should be inside link", s.endsWith("</a>"));
-  }
-
-  @Test
-  public void testGoogleCache() {
-    HTMLFormatter formatter = new HTMLFormatter(GOOGLE_CACHE);
-    formatter.enableUrlHighLightMode();
-    String s = formatter.process();
-    assertTrue("All text should be inside link", s.endsWith("</a>"));
-  }
-
-  @Test
-  public void testURLWithAt() {
-    HTMLFormatter formatter = new HTMLFormatter(URL_WITH_AT);
-    formatter.enableUrlHighLightMode();
-    String s = formatter.process();
-    assertTrue("All text should be inside link", s.endsWith("</a>"));
-  }
-/*
-TODO
-
-  @Test
-  public void testURLWithLastQ() {
-    HTMLFormatter formatter = new HTMLFormatter("http://www.w3.org/1999/xhtml?");
-    formatter.enableUrlHighLightMode();
-    String s = formatter.process();
-    assertTrue("Last question in url must not be highlighted", s.endsWith("</a>?"));
-  }
-*/
-
-  @Test
-  public void testLatin1Supplement() {
-    HTMLFormatter formatter = new HTMLFormatter(Latin1Supplement);
-    formatter.enableUrlHighLightMode();
-    String s2 = formatter.process();
-    assertTrue("All text should be inside link", s2.endsWith("</a>"));
-  }
-
-  @Test
-  public void testGreek() {
-    HTMLFormatter formatter = new HTMLFormatter(greek);
-    formatter.enableUrlHighLightMode();
-    String s2 = formatter.process();
-    assertTrue("All text should be inside link", s2.endsWith("</a>"));
-  }
-
-  @Test
-  public void testQP(){
-    HTMLFormatter formatter = new HTMLFormatter(QP);
-    formatter.enableUrlHighLightMode();
-    String s2 = formatter.process();
-    assertTrue("All text should be inside link", s2.endsWith("</a>"));
-  }
-
-  @Test
-  public void testEmptyAnchor(){
-    HTMLFormatter formatter = new HTMLFormatter(EMPTY_ANCHOR);
-    formatter.enableUrlHighLightMode();
-    String s2 = formatter.process();
-    assertTrue("All text should be inside link", s2.endsWith("</a>"));
-  }
-
-  @Test
-  public void testSlashAfterAmp(){
-    HTMLFormatter formatter = new HTMLFormatter(SLASH_AFTER_AMP);
-    formatter.enableUrlHighLightMode();
-    String s2 = formatter.process();
-    assertTrue("All text should be inside link", s2.endsWith("</a>"));
-    int blankIndex = s2.indexOf(' ');
-    int lastIndex = s2.lastIndexOf(' ');
-    assertThat("No whitespace inside link", blankIndex, CoreMatchers.equalTo(lastIndex));
-    //whitespace shoud separate href attribute. no other ws should occur
-  }
-
-  @Test
-  public void testBBCode1() {
-    HTMLFormatter f = new HTMLFormatter("test\n\ntest\ntest");
-    f.setOutputLorcode(true);
-    f.enableQuoting();
-    f.enableTexNewLineMode();
-
-    assertEquals("test\n\ntest\ntest", f.process());
-  }
-
-  @Test
-  public void testBBCode2() {
-    HTMLFormatter f = new HTMLFormatter("www.linux.org.ru");
-    f.setOutputLorcode(true);
-    f.enableQuoting();
-    f.enableUrlHighLightMode();
-
-    assertEquals("[url=http://www.linux.org.ru]www.linux.org.ru[/url]", f.process());
-  }
-
-  @Test
-  public void testBBCode3() {
-    HTMLFormatter f = new HTMLFormatter("http://www.linux.org.ru/");
-    f.setOutputLorcode(true);
-    f.enableQuoting();
-    f.enableUrlHighLightMode();
-
-    assertEquals("[url=http://www.linux.org.ru/]http://www.linux.org.ru/[/url]", f.process());
-  }
-
-  @Test
-  public void testBBCode4() {
-    HTMLFormatter f = new HTMLFormatter(">test\n\ntest");
-    f.setOutputLorcode(true);
-    f.enableQuoting();
-    f.enableUrlHighLightMode();
-    f.enableTexNewLineMode();
-
-    assertEquals("\n[i]>test\n[/i]\n\ntest", f.process());
-  }
-
-  @Test
-  public void testBBCode5() {
-    HTMLFormatter f = new HTMLFormatter("<>");
-    f.setOutputLorcode(true);
-    f.enableQuoting();
-    f.enableUrlHighLightMode();
-    f.enableTexNewLineMode();
-
-    assertEquals("<>", f.process());
-  }
-
-  @Test
-  public void testBBCode6() {
-    HTMLFormatter f = new HTMLFormatter("test http://www.linux.org.ru/jump-message.jsp?msgid=4238459&cid=4240245 test");
-    f.setOutputLorcode(true);
-    f.enableQuoting();
-    f.enableUrlHighLightMode();
-    f.enableTexNewLineMode();
-
-    assertEquals("test [url=http://www.linux.org.ru/jump-message.jsp?msgid=4238459&cid=4240245]http://www.linux.org.ru/jump-message.jsp?msgid=4238459&cid=4240245[/url] test", f.process());
-  }
-
-  @Test
-  public void testBBCode7() {
-    HTMLFormatter f = new HTMLFormatter("test\n\n>test");
-    f.setOutputLorcode(true);
-    f.enableQuoting();
-    f.enableUrlHighLightMode();
-    f.enableTexNewLineMode();
-
-    assertEquals("test\n\n[i]\n>test[/i]", f.process());
-  }
-
-  @Test
-  public void testBBCode8() {
-    HTMLFormatter f = new HTMLFormatter("test &");
-    f.setOutputLorcode(true);
-    f.enableQuoting();
-    f.enableUrlHighLightMode();
-    f.enableTexNewLineMode();
-
-    assertEquals("test &", f.process());
-  }
-
-  @Test
-  public void testBBCode9() {
-    HTMLFormatter f = new HTMLFormatter("test\r\ntest");
-    f.setOutputLorcode(true);
-    f.enableUrlHighLightMode();
-    f.enableNewLineMode();
-
-    assertEquals("test[br]\ntest", f.process());
-  }
-
-  @Test
-  public void testBBCode10() {
-    HTMLFormatter f = new HTMLFormatter("test\ntest");
-    f.setOutputLorcode(true);
-    f.enableNewLineMode();
-    f.enableUrlHighLightMode();
-    f.enableQuoting();
-
-    assertEquals("test[br]\ntest", f.process());
-  }
-
-  @Test
-  public void testBBCode11() {
-    HTMLFormatter f = new HTMLFormatter(">test\ntest");
-    f.setOutputLorcode(true);
-    f.enableNewLineMode();
-    f.enableUrlHighLightMode();
-    f.enableQuoting();
-
-    assertEquals("[i]>test[/i][br]\ntest", f.process());
-  }
-
-  @Test
-  public void testBBCode12() {
-    HTMLFormatter f = new HTMLFormatter(">test\n>test");
-    f.setOutputLorcode(true);
-    f.enableNewLineMode();
-    f.enableUrlHighLightMode();
-    f.enableQuoting();
-
-    assertEquals("[i]>test[/i][i][br]\n" +
-      ">test[/i]", f.process());
-  }
-
-  @Test
-  public void testEscape() {
-    assertEquals("&lt;script&gt;", HTMLFormatter.htmlSpecialChars("<script>"));
-  }
-
-  @Test
-  public void testEscapeEntity() {
-    assertEquals("&nbsp;", HTMLFormatter.htmlSpecialChars("&nbsp;"));
-  }
-
-  @Test
-  public void testEscapeEntity2() {
-    assertEquals("&#41;&#41;&#41;", HTMLFormatter.htmlSpecialChars("&#41;&#41;&#41;"));
+    assertEquals("&lt;script&gt;", StringUtil.escapeHtml("<script>"));
+    assertEquals("&nbsp;", StringUtil.escapeHtml("&nbsp;"));
+    assertEquals("&#41;&#41;&#41;", StringUtil.escapeHtml("&#41;&#41;&#41;"));
   }
 }

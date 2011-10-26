@@ -42,10 +42,7 @@ import ru.org.linux.util.bbcode.ParserParameters;
 import ru.org.linux.util.bbcode.tags.Tag;
 
 /**
- * Created by IntelliJ IDEA.
- * User: hizel
- * Date: 6/30/11
- * Time: 3:09 PM
+ * Узел дерева разбора LORCODE с тэгом
  */
 public class TagNode extends Node {
   final Tag bbtag;

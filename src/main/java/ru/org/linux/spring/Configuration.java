@@ -15,10 +15,12 @@
 
 package ru.org.linux.spring;
 
+import org.apache.commons.httpclient.URI;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.util.Properties;
 
 /**
@@ -27,11 +29,54 @@ import java.util.Properties;
 @Service
 public class Configuration {
 
+  private final String errMsg = "Invalid MainUrl property: ";
+
   @Qualifier("properties")
   @Autowired
   Properties properties;
 
-  String getMainUrl() {
-    return properties.getProperty("MainUrl");
+  private URI mainURI;
+  private String mainHost;
+  private int mainPort;
+
+  /**
+   * Предполагается, что на этапе запуска приожения, если с MainUrl что-то не так то контейнер не запустится :-)
+   */
+  @PostConstruct
+  public void init() {
+
+    try {
+      mainURI = new URI(properties.getProperty("MainUrl"), true, "UTF-8");
+    } catch (Exception e) {
+      throw new RuntimeException(errMsg+e.getMessage());
+    }
+    if(!mainURI.isAbsoluteURI()) {
+      throw new RuntimeException(errMsg+"URI not absolute path");
+    }
+    try {
+      mainHost = mainURI.getHost();
+      mainPort = mainURI.getPort();
+      if(mainHost == null) {
+        throw new RuntimeException(errMsg+"bad URI host");
+      }
+    } catch (Exception e) {
+     throw new RuntimeException(errMsg+e.getMessage());
+    }
+  }
+
+  public String getMainUrl() {
+    return mainURI.toString();
+  }
+
+  public URI getMainURI() {
+    return mainURI;
+  }
+
+  public boolean compareWithMainURI(URI uri) {
+    try {
+      return (mainHost.equals(uri.getHost()) && mainPort == uri.getPort());
+    } catch (Exception e) {
+      return false;
+    }
   }
 }

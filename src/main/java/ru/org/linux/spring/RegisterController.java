@@ -33,7 +33,6 @@ import ru.org.linux.site.User;
 import ru.org.linux.site.UserInfo;
 import ru.org.linux.spring.dao.IPBlockDao;
 import ru.org.linux.spring.dao.UserDao;
-import ru.org.linux.util.HTMLFormatter;
 import ru.org.linux.util.LorHttpUtils;
 import ru.org.linux.util.StringUtil;
 import ru.org.linux.util.URLUtil;
@@ -185,19 +184,19 @@ public class RegisterController extends ApplicationObjectSupport {
     }
 
     if (name != null) {
-      name = HTMLFormatter.htmlSpecialChars(name);
+      name = StringUtil.escapeHtml(name);
     }
 
     String town = null;
 
     if (!Strings.isNullOrEmpty(form.getTown())) {
-      town = HTMLFormatter.htmlSpecialChars(form.getTown());
+      town = StringUtil.escapeHtml(form.getTown());
     }
 
     String info = null;
 
     if (!Strings.isNullOrEmpty(form.getInfo())) {
-      info = HTMLFormatter.htmlSpecialChars(form.getInfo());
+      info = StringUtil.escapeHtml(form.getInfo());
     }
 
     if (!changeMode && !errors.hasErrors()) {

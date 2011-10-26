@@ -15,10 +15,6 @@
 
 package ru.org.linux.site;
 
-import ru.org.linux.spring.dao.UserDao;
-import ru.org.linux.util.bbcode.ParserResult;
-import ru.org.linux.util.bbcode.ParserUtil;
-
 public class PreparedComment {
   private final Comment comment;
   private final User author;
@@ -30,10 +26,6 @@ public class PreparedComment {
     this.author = author;
     this.processedMessage = processedMessage;
     this.replyAuthor = replyAuthor;
-  }
-
-  public static ParserResult getProcessedMessage(UserDao userDao, String message) {
-    return ParserUtil.bb2xhtm(message, true, true, "", userDao);
   }
 
   public Comment getComment() {

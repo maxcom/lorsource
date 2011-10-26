@@ -5,7 +5,7 @@
 <%@ tag import="ru.org.linux.spring.dao.TagDao" %>
 <%@ tag import="ru.org.linux.site.Template" %>
 <%@ tag import="ru.org.linux.util.BadImageException" %>
-<%@ tag import="ru.org.linux.util.HTMLFormatter" %>
+<%@ tag import="ru.org.linux.util.StringUtil" %>
 <%@ tag import="ru.org.linux.util.ImageInfo" %>
 <%@ tag pageEncoding="UTF-8"%>
 <%@ attribute name="message" required="true" type="ru.org.linux.site.Message" %>
@@ -147,7 +147,7 @@
       url = message.getLink();
     }
 
-    out.append("<p>&gt;&gt;&gt; <a href=\"").append(HTMLFormatter.htmlSpecialChars(url)).append("\">").append(message.getLinktext()).append("</a>");
+    out.append("<p>&gt;&gt;&gt; <a href=\"").append(StringUtil.escapeHtml(url)).append("\">").append(message.getLinktext()).append("</a>");
   } else if (imagepost) {
     String imageFilename = tmpl.getConfig().getProperty("HTMLPathPrefix") + url;
     out.append("<p>&gt;&gt;&gt; <a href=\"/").append(url).append("\">Просмотр</a>");
