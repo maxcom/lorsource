@@ -1,6 +1,6 @@
 <%@ page contentType="text/html; charset=utf-8" %>
 <%@ page
-        import="ru.org.linux.site.PreparedComment,ru.org.linux.util.HTMLFormatter" %>
+        import="ru.org.linux.site.PreparedComment,ru.org.linux.util.StringUtil" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
@@ -78,7 +78,7 @@
 
 <%
       if (request.getParameter("title") != null) {
-        title = HTMLFormatter.htmlSpecialChars(request.getParameter("title"));
+        title = StringUtil.escapeHtml(request.getParameter("title"));
       }
 %>
 <c:if test="${comment!=null}">

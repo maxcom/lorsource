@@ -32,9 +32,11 @@ import ru.org.linux.spring.dao.IPBlockDao;
 import ru.org.linux.spring.dao.MessageDao;
 import ru.org.linux.spring.dao.UserDao;
 import ru.org.linux.spring.validators.AddCommentRequestValidator;
-import ru.org.linux.util.HTMLFormatter;
 import ru.org.linux.util.ServletParameterException;
+import ru.org.linux.util.StringUtil;
 import ru.org.linux.util.bbcode.LorCodeService;
+import ru.org.linux.util.formatter.ToLorCodeFormatter;
+import ru.org.linux.util.formatter.ToLorCodeTexFormatter;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -55,6 +57,8 @@ public class AddCommentController extends ApplicationObjectSupport {
   private IPBlockDao ipBlockDao;
   private PrepareService prepareService;
   private LorCodeService lorCodeService;
+  private ToLorCodeFormatter toLorCodeFormatter;
+  private ToLorCodeTexFormatter toLorCodeTexFormatter;
 
   @Autowired
   public void setSearchQueueSender(SearchQueueSender searchQueueSender) {
@@ -101,6 +105,16 @@ public class AddCommentController extends ApplicationObjectSupport {
     this.lorCodeService = lorCodeService;
   }
 
+  @Autowired
+  public void setToLorCodeFormatter(ToLorCodeFormatter toLorCodeFormatter) {
+    this.toLorCodeFormatter = toLorCodeFormatter;
+  }
+
+  @Autowired
+  public void setToLorCodeTexFormatter(ToLorCodeTexFormatter toLorCodeTexFormatter) {
+    this.toLorCodeTexFormatter = toLorCodeTexFormatter;
+  }
+
   @RequestMapping(value = "/add_comment.jsp", method = RequestMethod.GET)
   public ModelAndView showFormReply(
     @ModelAttribute("add") @Valid AddCommentRequest add,
@@ -141,25 +155,14 @@ public class AddCommentController extends ApplicationObjectSupport {
     );
   }
 
-  private static String processMessage(String msg, String mode) {
+  private String processMessage(String msg, String mode) {
     if ("lorcode".equals(mode)) {
       return msg;
+    }else if("ntobr".equals(mode)) {
+      return toLorCodeFormatter.format(msg, true);
+    } else {
+      return toLorCodeTexFormatter.format(msg, true);
     }
-
-    HTMLFormatter form = new HTMLFormatter(msg);
-    form.setMaxLength(80);
-    form.setOutputLorcode(true);
-
-    if ("ntobr".equals(mode)) {
-      form.enableNewLineMode();
-      form.enableQuoting();
-    }
-    if ("quot".equals(mode)) {
-      form.enableTexNewLineMode();
-      form.enableQuoting();
-    }
-
-    return form.process();
   }
 
   @RequestMapping(value = "/add_comment.jsp", method = RequestMethod.POST)
@@ -241,7 +244,7 @@ public class AddCommentController extends ApplicationObjectSupport {
 
       comment = new Comment(
               replyto,
-              HTMLFormatter.htmlSpecialChars(title),
+              StringUtil.escapeHtml(title),
               add.getTopic().getId(),
               user.getId(),
               request.getHeader("user-agent"),

@@ -2,7 +2,7 @@
 <%@ tag import="ru.org.linux.site.CommentNode" %>
 <%@ tag import="ru.org.linux.site.Template" %>
 <%@ tag import="ru.org.linux.site.User" %>
-<%@ tag import="ru.org.linux.util.HTMLFormatter" %>
+<%@ tag import="ru.org.linux.util.StringUtil" %>
 <%@ tag import="java.text.DateFormat" %>
 <%@ tag pageEncoding="UTF-8"%>
 <%--
@@ -53,7 +53,7 @@
       if (comment.getComment().getDeleteInfo() ==null) {
         out.append("<strong>Сообщение удалено</strong>");
       } else {
-        out.append("<strong>Сообщение удалено ").append(comment.getComment().getDeleteInfo().getNick()).append(" по причине '").append(HTMLFormatter.htmlSpecialChars(comment.getComment().getDeleteInfo().getReason())).append("'</strong>");
+        out.append("<strong>Сообщение удалено ").append(comment.getComment().getDeleteInfo().getNick()).append(" по причине '").append(StringUtil.escapeHtml(comment.getComment().getDeleteInfo().getReason())).append("'</strong>");
       }
     }
 %>

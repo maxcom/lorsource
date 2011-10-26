@@ -3,7 +3,7 @@
 <%@ page import="ru.org.linux.site.ScriptErrorException"%>
 <%@ page import="ru.org.linux.site.Template"%>
 <%@ page import="ru.org.linux.site.UserErrorException"%>
-<%@ page import="ru.org.linux.util.HTMLFormatter"%>
+<%@ page import="ru.org.linux.util.StringUtil"%>
 <%@ page import="javax.mail.Session"%>
 <%@ page import="javax.mail.Transport"%>
 <%@ page import="javax.mail.internet.InternetAddress"%>
@@ -37,9 +37,9 @@
 %>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
-<title>Ошибка: <%= HTMLFormatter.htmlSpecialChars(exception.getClass().getName()) %></title>
+<title>Ошибка: <%= StringUtil.escapeHtml(exception.getClass().getName()) %></title>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
-<h1><%=exception.getMessage()==null?HTMLFormatter.htmlSpecialChars(exception.getClass().getName()):HTMLFormatter.htmlSpecialChars(exception.getMessage()) %></h1>
+<h1><%=exception.getMessage()==null?StringUtil.escapeHtml(exception.getClass().getName()):StringUtil.escapeHtml(exception.getMessage()) %></h1>
 
 <% if (exception instanceof UserErrorException) { %>
 <% } else if (exception instanceof ScriptErrorException) { %>

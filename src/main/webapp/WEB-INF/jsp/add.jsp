@@ -1,6 +1,6 @@
 <%@ page contentType="text/html; charset=utf-8" import="ru.org.linux.site.Group,ru.org.linux.site.Screenshot"  %>
 <%@ page import="ru.org.linux.spring.dao.TagDao"%>
-<%@ page import="ru.org.linux.util.HTMLFormatter"%>
+<%@ page import="ru.org.linux.util.StringUtil"%>
 <%@ page import="java.util.SortedSet" %>
 <%--
   ~ Copyright 1998-2010 Linux.org.ru
@@ -79,7 +79,7 @@
 <form:form modelAttribute="form" id="messageForm" method="POST" action="add.jsp" enctype="${group.imagePostAllowed?'multipart/form-data':'application/x-www-form-urlencoded'}" >
   <form:errors path="*" element="div" cssClass="error"/>
 
-  <input type="hidden" name="session" value="<%= HTMLFormatter.htmlSpecialChars(session.getId()) %>">
+  <input type="hidden" name="session" value="<%= StringUtil.escapeHtml(session.getId()) %>">
   <form:hidden path="noinfo"/>
 
   <c:if test="${not template.sessionAuthorized}">

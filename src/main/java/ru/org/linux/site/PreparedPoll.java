@@ -16,7 +16,7 @@
 package ru.org.linux.site;
 
 import com.google.common.collect.ImmutableList;
-import ru.org.linux.util.HTMLFormatter;
+import ru.org.linux.util.StringUtil;
 
 import java.util.List;
 
@@ -52,7 +52,7 @@ public class PreparedPoll {
     for (PollVariant var : variants) {
       out.append("<tr><td>");
       int votes = var.getVotes();
-      out.append(HTMLFormatter.htmlSpecialChars(var.getLabel()));
+      out.append(StringUtil.escapeHtml(var.getLabel()));
       out.append("</td><td>").append(votes).append("</td><td>");
       total += votes;
       for (int i = 0; i < 20 * votes / max; i++) {

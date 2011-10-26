@@ -1,6 +1,6 @@
 <%@ tag import="ru.org.linux.site.Message" %>
 <%@ tag import="ru.org.linux.site.Template" %>
-<%@ tag import="ru.org.linux.util.HTMLFormatter" %>
+<%@ tag import="ru.org.linux.util.StringUtil" %>
 <%--
   ~ Copyright 1998-2010 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,7 +27,7 @@
 <%@ attribute name="cancel" required="false" type="java.lang.Boolean" %>
 <form method="POST" action="add_comment.jsp" id="commentForm">
   <input type="hidden" name="session"
-         value="<%= HTMLFormatter.htmlSpecialChars(session.getId()) %>">
+         value="<%= StringUtil.escapeHtml(session.getId()) %>">
   <% if (!Template.isSessionAuthorized(session)) { %>
   <label for="nick">Имя:</label>
   <input id="nick" type='text' name='nick' value="anonymous" size=40><br>
@@ -52,7 +52,7 @@
   <font size="2"><b>Внимание:</b> Новый режим - <a href="/wiki/en/Lorcode" target="_blank">LORCODE</a></font><br>
 
   <textarea id="msg" class="required" name="msg" cols="70"
-            rows="20"><%= msg == null ? "" : HTMLFormatter.htmlSpecialChars(msg)
+            rows="20"><%= msg == null ? "" : StringUtil.escapeHtml(msg)
   %></textarea><br>
 
   <select name=mode>

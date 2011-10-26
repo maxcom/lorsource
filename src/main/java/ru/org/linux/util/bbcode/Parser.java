@@ -39,7 +39,7 @@
 package ru.org.linux.util.bbcode;
 
 import ru.org.linux.spring.dao.UserDao;
-import ru.org.linux.util.HTMLFormatter;
+import ru.org.linux.util.StringUtil;
 import ru.org.linux.util.bbcode.nodes.Node;
 import ru.org.linux.util.bbcode.nodes.RootNode;
 import ru.org.linux.util.bbcode.nodes.TagNode;
@@ -73,7 +73,7 @@ public class Parser {
   }
 
   public static String escape(String html) {
-    return HTMLFormatter.htmlSpecialChars(html);
+    return StringUtil.escapeHtml(html);
   }
 
   /**

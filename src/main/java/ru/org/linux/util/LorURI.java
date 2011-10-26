@@ -33,6 +33,7 @@ public class LorURI {
   private static final Pattern requestMessagePattern = Pattern.compile("^/\\w+/\\w+/(\\d+)");
   private static final Pattern requestCommentPattern = Pattern.compile("^comment-(\\d+)");
 
+  private final String rawUrl;
   private final URI lorUri;
   private final URI mainUri;
   private final boolean isTrueLorUrl;
@@ -47,60 +48,65 @@ public class LorURI {
    * если mainUrl или url неправильные генерируем исключение
    * @param mainUrl основоной url сайта
    * @param url обрабатываемый url
-   * @throws URIException если что-то не так в mainUrl или url
+   * @throws URIException если url неправильный
+   * @throws NullPointerException если mainUrl или url null
    */
-  public LorURI(String mainUrl, String url) throws URIException{
-    lorUri = new URI(url, true, "UTF-8");
+  public LorURI(String mainUrl, String url) throws URIException {
+    rawUrl = url;
     mainUri = new URI(mainUrl, true, "UTF-8");
-    isTrueLorUrl = (lorUri.getHost().equals(mainUri.getHost()) && lorUri.getPort() == mainUri.getPort());
+    lorUri = new URI(url, true, "UTF-8");
+    isTrueLorUrl = (lorUri != null
+        && lorUri.isAbsoluteURI()
+        && lorUri.getHost() != null
+        && mainUri.getHost() != null
+        && mainUri.getHost().equals(lorUri.getHost())
+        && mainUri.getPort() == lorUri.getPort());
 
     if(isTrueLorUrl) {
+        // find message id in lor url
+        int msgId = 0;
+        boolean isMsg = false;
+        String path = lorUri.getPath();
+        if(path != null) {
+          Matcher messageMatcher = requestMessagePattern.matcher(path);
 
-      // find message id in lor url
-      int msgId = 0;
-      boolean isMsg = false;
-      String path = lorUri.getPath();
-      if(path != null) {
-        Matcher messageMatcher = requestMessagePattern.matcher(path);
-
-        if(messageMatcher.find()) {
-          try {
-            msgId = Integer.parseInt(messageMatcher.group(1));
-            isMsg = true;
-          } catch (NumberFormatException e) {
+          if(messageMatcher.find()) {
+            try {
+              msgId = Integer.parseInt(messageMatcher.group(1));
+              isMsg = true;
+            } catch (NumberFormatException e) {
+              msgId = 0;
+              isMsg = false;
+            }
+          } else {
             msgId = 0;
             isMsg = false;
           }
-        } else {
-          msgId = 0;
-          isMsg = false;
         }
-      }
-      messageId = msgId;
-      isMessageUrl = isMsg;
+        messageId = msgId;
+        isMessageUrl = isMsg;
 
-      // find comment id in lor url
-      int commId = 0;
-      boolean isComm = false;
-      String fragment = lorUri.getFragment();
-      if(fragment != null) {
-        Matcher commentMatcher = requestCommentPattern.matcher(fragment);
-        if(commentMatcher.find()) {
-          try {
-            commId = Integer.parseInt(commentMatcher.group(1));
-            isComm = true;
-          } catch (NumberFormatException e) {
+        // find comment id in lor url
+        int commId = 0;
+        boolean isComm = false;
+        String fragment = lorUri.getFragment();
+        if(fragment != null) {
+          Matcher commentMatcher = requestCommentPattern.matcher(fragment);
+          if(commentMatcher.find()) {
+            try {
+              commId = Integer.parseInt(commentMatcher.group(1));
+              isComm = true;
+            } catch (NumberFormatException e) {
+              commId = 0;
+              isComm = false;
+            }
+          } else {
             commId = 0;
             isComm = false;
           }
-        } else {
-          commId = 0;
-          isComm = false;
         }
-      }
-      commentId = commId;
-      isCommentUrl = isComm;
-
+        commentId = commId;
+        isCommentUrl = isComm;
     } else {
       messageId = 0;
       isMessageUrl = false;
@@ -157,6 +163,9 @@ public class LorURI {
    * @throws URIException неправильный url
    */
   public String fixScheme(boolean secure) throws URIException {
+    if(!isTrueLorUrl) {
+      return "";
+    }
     String scheme;
     if(secure) {
       scheme = "https";

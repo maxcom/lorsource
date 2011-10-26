@@ -1,6 +1,6 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jstl/core" %>
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="ru.org.linux.util.HTMLFormatter,org.apache.commons.logging.Log" isErrorPage="true" %>
+<%@ page import="ru.org.linux.util.StringUtil,org.apache.commons.logging.Log" isErrorPage="true" %>
 <%@ page import="org.apache.commons.logging.LogFactory"%>
 <%@ page import="org.springframework.validation.BindException" %>
 <%--
@@ -29,7 +29,7 @@
 %>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
-<title>Ошибка: <%= HTMLFormatter.htmlSpecialChars(exception.getClass().getName()) %></title>
+<title>Ошибка: <%= StringUtil.escapeHtml(exception.getClass().getName()) %></title>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 <h1>
     <%
@@ -45,7 +45,7 @@
             }
         }
 
-        out.print(HTMLFormatter.htmlSpecialChars(message));
+        out.print(StringUtil.escapeHtml(message));
     %>
 </h1>
 

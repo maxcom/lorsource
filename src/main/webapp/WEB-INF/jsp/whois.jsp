@@ -1,7 +1,6 @@
 <%@ page contentType="text/html; charset=utf-8"%>
 <%@ page import="java.util.Map,ru.org.linux.site.Template"   buffer="60kb" %>
 <%@ page import="ru.org.linux.site.User"%>
-<%@ page import="ru.org.linux.util.HTMLFormatter"%>
 <%@ page import="java.util.Set" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>

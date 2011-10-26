@@ -28,6 +28,7 @@ import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Deprecated
 public class HTMLFormatter {
   private final String text;
   private int maxlength = 80;
@@ -56,7 +57,7 @@ public class HTMLFormatter {
       str = text.replaceAll("\\[(/?code)\\]", "[[$1]]");
 //      str = escapeHtmlBBcode(text);
     } else {
-      str = htmlSpecialChars(text);
+      str = StringUtil.escapeHtml(text);
     }
 
     StringTokenizer st = new StringTokenizer(str, " \n", true);
@@ -187,7 +188,7 @@ public class HTMLFormatter {
               // Ссылка на топик или комментарий
               String title;
               try {
-                title = escapeHtmlBBcode(messageDao.getById(lorURI.getMessageId()).getTitle());
+                title = StringUtil.escapeHtml(messageDao.getById(lorURI.getMessageId()).getTitle());
               } catch (MessageNotFoundException e) {
                 title = "Комментарий в несуществующем топике";
               }
@@ -362,78 +363,9 @@ public class HTMLFormatter {
   }
 
 
-  /**
-   * Convert special SGML (HTML) chars to
-   * SGML entities
-   */  
-  private static final Pattern uniRE = Pattern.compile("^&((#[1-9]\\d{1,4})|(\\w{1,8}));");
-
-  public static String htmlSpecialChars(String str) {
-    StringBuilder res = new StringBuilder();
-
-    for (int i = 0; i < str.length(); i++) {
-      switch (str.charAt(i)) {
-        case '<':
-          res.append("&lt;");
-          break;
-        case '>':
-          res.append("&gt;");
-          break;
-        case '\"':
-          res.append("&quot;");
-          break;
-        case '&':
-          Matcher m = uniRE.matcher(str.substring(i));
-          if (m.find()) {
-              String s = m.group();
-              res.append(s);
-              i+=s.length()-1;
-              continue;
-          } else {
-            res.append("&amp;");
-          }
-
-          break;
-        default:
-          res.append(str.charAt(i));
-      }
-
-    }
-
-    return res.toString();
-  }
 
   public void setOutputLorcode(boolean outputLorcode) {
     this.outputLorcode = outputLorcode;
   }
 
-  public static String escapeHtmlBBcode(String content) {
-    // escaping single characters
-    content = replaceAll(content, "[]{}\t".toCharArray(), new String[]{
-        "&#91;",
-        "&#93;",
-        "&#123;",
-        "&#125;",
-        "&nbsp; &nbsp;"});
-
-    return content;
-  }
-
-  public static String replaceAll(CharSequence str, char[] chars, String[] replacement) {
-    StringBuilder buffer = new StringBuilder();
-    for (int i = 0; i < str.length(); i++) {
-      char c = str.charAt(i);
-      boolean matched = false;
-      for (int j = 0; j < chars.length; j++) {
-        if (c == chars[j]) {
-          buffer.append(replacement[j]);
-          matched = true;
-        }
-      }
-      if (!matched) {
-        buffer.append(c);
-      }
-    }
-    return buffer.toString();
-  }
 }

@@ -15,6 +15,7 @@
 
 package ru.org.linux.util;
 
+import org.apache.commons.httpclient.URIException;
 import org.junit.Before;
 import org.junit.Test;
 import ru.org.linux.site.Group;
@@ -44,6 +45,9 @@ public class LorURITest {
   private String url5 = "https://example.com"; // not lorsource url
   private String url6 = "http://127.0.0.1:8080/search.jsp?q=%D0%BF%D1%80%D0%B8%D0%B2%D0%B5%D1%82&oldQ=&range=ALL&interval=ALL&user=&_usertopic=on"; // search url
   private String url7 = "http://127.0.0.1:8080/search.jsp?q=привет&oldQ=&range=ALL&interval=ALL&user=&_usertopic=on"; // search url unescaped
+  private String url8 = "some crap";
+  private String url9 = "";
+  private String url10 = null;
 
   @Before
   public void initTest() throws Exception {
@@ -143,15 +147,49 @@ public class LorURITest {
 
   @Test
   public void test7() throws Exception {
-    LorURI lorURI = new LorURI(mainUrl, url6);
+    boolean result = false;
+    try {
+      LorURI lorURI =new LorURI(mainUrl, url7);
+    } catch (URIException e) {
+      result = true;
+    }
+    assertTrue(result);
+  }
+
+  @Test
+  public void test8() throws Exception {
+    boolean result = false;
+    try {
+      LorURI lorURI = new LorURI(mainUrl, url8);
+    } catch (URIException e) {
+      result = true;
+    }
+    assertTrue(result);
+  }
+
+  @Test
+  public void test9() throws Exception {
+    LorURI lorURI = new LorURI(mainUrl, url9);
     assertEquals(0, lorURI.getMessageId());
     assertEquals(0, lorURI.getCommentId());
-    assertTrue(lorURI.isTrueLorUrl());
+    assertTrue(!lorURI.isTrueLorUrl());
     assertTrue(!lorURI.isMessageUrl());
     assertTrue(!lorURI.isCommentUrl());
     assertEquals("", lorURI.formatJump(messageDao, false));
     assertEquals("", lorURI.formatJump(messageDao, true));
-    assertEquals("http://127.0.0.1:8080/search.jsp?q=%D0%BF%D1%80%D0%B8%D0%B2%D0%B5%D1%82&oldQ=&range=ALL&interval=ALL&user=&_usertopic=on", lorURI.fixScheme(false));
-    assertEquals("https://127.0.0.1:8080/search.jsp?q=%D0%BF%D1%80%D0%B8%D0%B2%D0%B5%D1%82&oldQ=&range=ALL&interval=ALL&user=&_usertopic=on", lorURI.fixScheme(true));
+    assertEquals("", lorURI.fixScheme(false));
+    assertEquals("", lorURI.fixScheme(true));
   }
+
+  @Test
+  public void test10() throws Exception {
+    boolean result = false;
+    try {
+      LorURI lorURI = new LorURI(mainUrl, url10);
+    } catch (Exception e) {
+      result=true;
+    }
+    assertTrue(result);
+  }
+
 }

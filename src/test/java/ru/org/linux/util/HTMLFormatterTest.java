@@ -16,8 +16,9 @@
 package ru.org.linux.util;
 
 import org.hamcrest.CoreMatchers;
-import static org.junit.Assert.*;
 import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 public class HTMLFormatterTest {
   private static final String TEXT1 = "Here is www.linux.org.ru, have fun! :-)";
@@ -217,14 +218,14 @@ public class HTMLFormatterTest {
   @Test
   public void testStringEscape() {
     String str = "This is an entity &#1999;";
-    String s = HTMLFormatter.htmlSpecialChars(str);
+    String s = StringUtil.escapeHtml(str);
     assertThat("String should remaint unescaped", s, CoreMatchers.equalTo(str));
   }
 
   @Test
   public void testAmpEscape() {
     String str = "a&b";
-    String s = HTMLFormatter.htmlSpecialChars(str);
+    String s = StringUtil.escapeHtml(str);
     assertThat("Ampersand should be escaped", s, CoreMatchers.equalTo("a&amp;b"));
   }
 
@@ -448,16 +449,16 @@ TODO
 
   @Test
   public void testEscape() {
-    assertEquals("&lt;script&gt;", HTMLFormatter.htmlSpecialChars("<script>"));
+    assertEquals("&lt;script&gt;", StringUtil.escapeHtml("<script>"));
   }
 
   @Test
   public void testEscapeEntity() {
-    assertEquals("&nbsp;", HTMLFormatter.htmlSpecialChars("&nbsp;"));
+    assertEquals("&nbsp;", StringUtil.escapeHtml("&nbsp;"));
   }
 
   @Test
   public void testEscapeEntity2() {
-    assertEquals("&#41;&#41;&#41;", HTMLFormatter.htmlSpecialChars("&#41;&#41;&#41;"));
+    assertEquals("&#41;&#41;&#41;", StringUtil.escapeHtml("&#41;&#41;&#41;"));
   }
 }
