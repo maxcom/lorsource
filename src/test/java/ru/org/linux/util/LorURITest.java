@@ -25,6 +25,7 @@ import ru.org.linux.spring.dao.MessageDao;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -49,10 +50,10 @@ public class LorURITest {
   private String url5 = "https://example.com"; // not lorsource url
   private String url6 = "http://127.0.0.1:8080/search.jsp?q=%D0%BF%D1%80%D0%B8%D0%B2%D0%B5%D1%82&oldQ=&range=ALL&interval=ALL&user=&_usertopic=on"; // search url
   private String url7 = "http://127.0.0.1:8080/search.jsp?q=привет&oldQ=&range=ALL&interval=ALL&user=&_usertopic=on"; // search url unescaped
-  private String url8 = "some crap";
-  private String url9 = "";
-  private String url10 = null;
-  private String url11 = "127.0.0.1:8080/news/debian/6753486#comment-6753612";
+  private String failurl8 = "some crap";
+  private String failurl9 = "";
+  private String failurl10 = null;
+  private String failurl11 = "127.0.0.1:8080/news/debian/6753486#comment-6753612";
   private String url12 = "http://127.0.0.1:8080/forum/security/1948661?lastmod=1319623223360#comment-1948668";
 
   @Before
@@ -159,20 +160,23 @@ public class LorURITest {
 
   @Test
   public void test7() throws Exception {
-    boolean result = false;
-    try {
-      LorURI lorURI =new LorURI(mainURI, url7);
-    } catch (URIException e) {
-      result = true;
-    }
-    assertTrue(result);
+    LorURI lorURI = new LorURI(mainURI, url7);
+    assertEquals(0, lorURI.getMessageId());
+    assertEquals(0, lorURI.getCommentId());
+    assertTrue(lorURI.isTrueLorUrl());
+    assertTrue(!lorURI.isMessageUrl());
+    assertTrue(!lorURI.isCommentUrl());
+    assertEquals("", lorURI.formatJump(messageDao, false));
+    assertEquals("", lorURI.formatJump(messageDao, true));
+    assertEquals("http://127.0.0.1:8080/search.jsp?q=%D0%BF%D1%80%D0%B8%D0%B2%D0%B5%D1%82&oldQ=&range=ALL&interval=ALL&user=&_usertopic=on", lorURI.fixScheme(false));
+    assertEquals("https://127.0.0.1:8080/search.jsp?q=%D0%BF%D1%80%D0%B8%D0%B2%D0%B5%D1%82&oldQ=&range=ALL&interval=ALL&user=&_usertopic=on", lorURI.fixScheme(true));
   }
 
   @Test
   public void test8() throws Exception {
     boolean result = false;
     try {
-      LorURI lorURI = new LorURI(mainURI, url8);
+      LorURI lorURI = new LorURI(mainURI, failurl8);
     } catch (URIException e) {
       result = true;
     }
@@ -181,23 +185,20 @@ public class LorURITest {
 
   @Test
   public void test9() throws Exception {
-    LorURI lorURI = new LorURI(mainURI, url9);
-    assertEquals(0, lorURI.getMessageId());
-    assertEquals(0, lorURI.getCommentId());
-    assertTrue(!lorURI.isTrueLorUrl());
-    assertTrue(!lorURI.isMessageUrl());
-    assertTrue(!lorURI.isCommentUrl());
-    assertEquals("", lorURI.formatJump(messageDao, false));
-    assertEquals("", lorURI.formatJump(messageDao, true));
-    assertEquals("", lorURI.fixScheme(false));
-    assertEquals("", lorURI.fixScheme(true));
+    boolean result = false;
+    try {
+      LorURI lorURI = new LorURI(mainURI, failurl9);
+    } catch (URIException e) {
+      result = true;
+    }
+    assertTrue(result);
   }
 
   @Test
   public void test10() throws Exception {
     boolean result = false;
     try {
-      LorURI lorURI = new LorURI(mainURI, url10);
+      LorURI lorURI = new LorURI(mainURI, failurl10);
     } catch (Exception e) {
       result=true;
     }
@@ -206,14 +207,13 @@ public class LorURITest {
 
   @Test
   public void test11() throws Exception {
-    LorURI lorURI = new LorURI(mainURI, url11);
-    assertEquals(0, lorURI.getMessageId());
-    assertEquals(0, lorURI.getCommentId());
-    assertTrue(!lorURI.isTrueLorUrl());
-    assertTrue(!lorURI.isMessageUrl());
-    assertTrue(!lorURI.isCommentUrl());
-    assertEquals("", lorURI.formatJump(messageDao, false));
-    assertEquals("", lorURI.formatJump(messageDao, true));
+    boolean result = false;
+    try {
+      LorURI lorURI = new LorURI(mainURI, failurl11);
+    } catch (Exception e) {
+      result=true;
+    }
+    assertTrue(result);
   }
 
   @Test

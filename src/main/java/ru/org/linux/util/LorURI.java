@@ -49,7 +49,6 @@ public class LorURI {
    * @param mainURI основоной URI сайта из конфигурации
    * @param url обрабатываемый url
    * @throws URIException если url неправильный
-   * @throws NullPointerException если mainUrl или url null
    */
   public LorURI(URI mainURI, String url) throws URIException {
     rawUrl = url;
@@ -61,6 +60,9 @@ public class LorURI {
       uri = new URI(url, false, "UTF-8");
     }
     lorURI = uri;
+    if(lorURI.getHost() == null) {
+      throw new URIException();
+    }
     isTrueLorUrl = (mainURI.getHost().equals(lorURI.getHost()) && mainURI.getPort() == lorURI.getPort());
 
     if(isTrueLorUrl) {
