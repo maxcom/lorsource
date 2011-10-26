@@ -40,11 +40,10 @@ public class ToHtmlFormatter {
     "|(?:mailto: ?[a-z0-9+.]+@[a-z0-9.-]+.[a-z]+)|(?:news:([\\w+]\\.?)+)";
 
   private static final Pattern URL_PATTERN = Pattern.compile(URL_REGEX, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
-  private static final int MAX_LENGTH = 80;
-
 
   private Configuration configuration;
   private MessageDao messageDao;
+  private int maxLength=80;
 
   @Autowired
   public void setConfiguration(Configuration configuration) {
@@ -54,6 +53,11 @@ public class ToHtmlFormatter {
   @Autowired
   public void setMessageDao(MessageDao messageDao) {
     this.messageDao = messageDao;
+  }
+
+  // для тестирования
+  public void setMaxLength(int maxLength) {
+    this.maxLength = maxLength;
   }
 
   /**
@@ -107,8 +111,8 @@ public class ToHtmlFormatter {
         url_href = "ftp://" + may_url;
       }
 
-      if (url_body.length() > MAX_LENGTH) {
-        url_body = may_url.substring(0, MAX_LENGTH - 3) + "...";
+      if (url_body.length() > maxLength) {
+        url_body = may_url.substring(0, maxLength - 3) + "...";
       }
 
       try {

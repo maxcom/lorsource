@@ -112,7 +112,7 @@ public class LorURI {
 
   @Override
   public String toString() {
-    return lorURI.toString();
+    return lorURI.getEscapedURIReference();
   }
 
   /**
