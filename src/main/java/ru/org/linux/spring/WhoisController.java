@@ -28,7 +28,7 @@ import ru.org.linux.site.User;
 import ru.org.linux.site.UserNotFoundException;
 import ru.org.linux.spring.dao.IgnoreListDao;
 import ru.org.linux.spring.dao.UserDao;
-import ru.org.linux.util.HTMLFormatter;
+import ru.org.linux.util.bbcode.LorCodeService;
 
 import javax.servlet.ServletRequest;
 import java.net.URLEncoder;
@@ -40,6 +40,9 @@ public class WhoisController {
 
   @Autowired
   private IgnoreListDao ignoreListDao;
+
+  @Autowired
+  private LorCodeService lorCodeService;
 
   @RequestMapping("/people/{nick}/profile")
   public ModelAndView getInfoNew(@PathVariable String nick, ServletRequest request) throws Exception {
@@ -72,7 +75,7 @@ public class WhoisController {
     }
 
     String userinfo = userDao.getUserInfo(user);
-    mv.getModel().put("userInfoText", (userinfo == null)?"":HTMLFormatter.nl2br(userinfo));
+    mv.getModel().put("userInfoText", (userinfo == null)?"":lorCodeService.parser(userinfo, request.isSecure()));
 
     return mv;
   }
