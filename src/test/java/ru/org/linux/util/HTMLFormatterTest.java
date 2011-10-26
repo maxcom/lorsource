@@ -108,12 +108,12 @@ public class HTMLFormatterTest {
     assertEquals(RESULT10, toHtmlFormatter.format(TEXT10, false));
     assertTrue(toHtmlFormatter.format(LINK_WITH_UNDERSCORE, false).endsWith("</a>"));
     assertTrue(toHtmlFormatter.format(LINK_WITH_PARAM_ONLY, false).endsWith("</a>"));
-    //assertTrue(toHtmlFormatter.format(RFC1738, false).endsWith("</a>")); TODO по идее в парсер попадает экранированное
-    //assertTrue(toHtmlFormatter.format(CYR_LINK, false).endsWith("</a>"));
+    assertTrue(toHtmlFormatter.format(RFC1738, false).endsWith("</a>"));
+    assertTrue(toHtmlFormatter.format(CYR_LINK, false).endsWith("</a>"));
     assertTrue(toHtmlFormatter.format(GOOGLE_CACHE, false).endsWith("</a>"));
     assertTrue(toHtmlFormatter.format(URL_WITH_AT, false).endsWith("</a>"));
-    //assertTrue(toHtmlFormatter.format(Latin1Supplement, false).endsWith("</a>"));
-    //assertTrue(toHtmlFormatter.format(greek, false).endsWith("</a>"));
+    assertTrue(toHtmlFormatter.format(Latin1Supplement, false).endsWith("</a>"));
+    assertTrue(toHtmlFormatter.format(greek, false).endsWith("</a>"));
     assertTrue(toHtmlFormatter.format(QP, false).endsWith("</a>"));
     assertTrue(toHtmlFormatter.format(EMPTY_ANCHOR, false).endsWith("</a>"));
     assertTrue(toHtmlFormatter.format(SLASH_AFTER_AMP, false).endsWith("</a>"));

@@ -54,7 +54,13 @@ public class LorURI {
   public LorURI(URI mainURI, String url) throws URIException {
     rawUrl = url;
     this.mainURI = mainURI;
-    lorURI = new URI(url, true, "UTF-8");
+    URI uri;
+    try {
+      uri = new URI(url, true, "UTF-8");
+    } catch (URIException e) {
+      uri = new URI(url, false, "UTF-8");
+    }
+    lorURI = uri;
     isTrueLorUrl = (mainURI.getHost().equals(lorURI.getHost()) && mainURI.getPort() == lorURI.getPort());
 
     if(isTrueLorUrl) {
