@@ -210,7 +210,7 @@ public class TopicModificationController extends ApplicationObjectSupport {
 
     ModelAndView mv = new ModelAndView("uncommit");
     mv.getModel().put("message", message);
-    mv.getModel().put("preparedMessage", prepareService.prepareMessage(message, true));
+    mv.getModel().put("preparedMessage", prepareService.prepareMessage(message, false, request.isSecure()));
 
     return mv;
   }

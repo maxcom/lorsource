@@ -50,7 +50,7 @@ public class GroupModificationController {
 
     ModelAndView mv = new ModelAndView("groupmod", "group", group);
 
-    mv.getModel().put("groupInfo", prepareService.prepareGroupInfo(group));
+    mv.getModel().put("groupInfo", prepareService.prepareGroupInfo(group, request.isSecure()));
 
     return mv;
   }
@@ -81,7 +81,7 @@ public class GroupModificationController {
 
       Map<String, Object> params = new HashMap<String, Object>();
       params.put("group", group);
-      params.put("groupInfo", prepareService.prepareGroupInfo(group));
+      params.put("groupInfo", prepareService.prepareGroupInfo(group, request.isSecure()));
       params.put("preview", true);
 
       return new ModelAndView("groupmod", params);

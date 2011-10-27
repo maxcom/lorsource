@@ -105,22 +105,24 @@ public class PrepareService {
     return new PreparedPoll(poll, pollDao.getMaxVote(poll), pollDao.getCountUsers(poll), pollDao.getPollVariants(poll, Poll.ORDER_VOTES));
   }
 
-  public PreparedMessage prepareMessage(Message message, boolean includeCut) {
-    return prepareMessage(message, messageDao.getTags(message), includeCut, false, null);
+  public PreparedMessage prepareMessage(Message message, boolean minimizeCut, boolean secure) {
+    return prepareMessage(message, messageDao.getTags(message), minimizeCut, null, secure);
   }
 
-  public PreparedMessage prepareMessage(Message message, List<String> tags, PreparedPoll newPoll) {
-    return prepareMessage(message, tags, true, false, newPoll);
+  public PreparedMessage prepareMessage(Message message, List<String> tags, PreparedPoll newPoll, boolean secure) {
+    return prepareMessage(message, tags, false, newPoll, secure);
   }
 
   /**
    * Функция подготовки топика
    * @param message топик
    * @param tags список тэгов
-   * @param includeCut отображать ли cut
+   * @param minimizeCut сворачивать ли cut
+   * @param poll опрос к топику
+   * @param secure является ли соединение https
    * @return подготовленный топик
    */
-  private PreparedMessage prepareMessage(Message message, List<String> tags, boolean includeCut, boolean useAbsoluteUrl, PreparedPoll poll) {
+  private PreparedMessage prepareMessage(Message message, List<String> tags, boolean minimizeCut, PreparedPoll poll, boolean secure) {
     try {
       Group group = groupDao.getGroup(message.getGroupId());
       User author = userDao.getUserCached(message.getUid());
@@ -176,7 +178,18 @@ public class PrepareService {
         editCount = 0;
       }
 
-      String processedMessage = message.getProcessedMessage(userDao, includeCut, useAbsoluteUrl?configuration.getMainUrl():"");
+      String processedMessage;
+      if(message.isLorcode()) {
+        if(minimizeCut) {
+          String url = configuration.getMainUrl() + message.getLink();
+          processedMessage = lorCodeService.parseTopicWithMinimizedCut(message.getMessage(), url, secure);
+        } else {
+          processedMessage = lorCodeService.parseTopic(message.getMessage(), secure);
+        }
+      } else {
+        processedMessage = "<p>" + message.getMessage();
+      }
+
       String userAgent = userAgentDao.getUserAgentById(message.getUserAgent());
 
       return new PreparedMessage(message, author, deleteInfo, deleteUser, processedMessage, preparedPoll, commiter, tags, group, section, lastEditInfo, lastEditor, editCount, userAgent);
@@ -216,7 +229,7 @@ public class PrepareService {
 
   public PreparedComment prepareComment(Comment comment, String message, boolean secure) throws UserNotFoundException {
     User author = userDao.getUserCached(comment.getUserid());
-    String processedMessage = lorCodeService.parser(message, secure);
+    String processedMessage = lorCodeService.parseComment(message, secure);
 
     return new PreparedComment(comment, author, processedMessage, null);
   }
@@ -229,11 +242,11 @@ public class PrepareService {
     return commentsPrepared;
   }
 
-  public PreparedGroupInfo prepareGroupInfo(Group group) {
+  public PreparedGroupInfo prepareGroupInfo(Group group, boolean secure) {
     String longInfo;
 
     if (group.getLongInfo()!=null) {
-      longInfo = lorCodeService.parser(group.getLongInfo());
+      longInfo = lorCodeService.parseComment(group.getLongInfo(), secure);
     } else {
       longInfo = null;
     }
@@ -259,18 +272,24 @@ public class PrepareService {
     return new MessageMenu(editable, resolvable, memoriesId);
   }
 
-  public List<PreparedMessage> prepareMessages(List<Message> messages, boolean useAbsoluteUrl) {
+  /**
+   * Подготовка пачки топиков, используется в NewsViewerController
+   * @param messages список топиков
+   * @param secure является ли соединение https
+   * @return список подготовленных топиков
+   */
+  public List<PreparedMessage> prepareMessages(List<Message> messages, boolean secure) {
     List<PreparedMessage> pm = new ArrayList<PreparedMessage>(messages.size());
 
     for (Message message : messages) {
-      PreparedMessage preparedMessage = prepareMessage(message, messageDao.getTags(message), false, useAbsoluteUrl, null);
+      PreparedMessage preparedMessage = prepareMessage(message, messageDao.getTags(message), true, null, secure);
       pm.add(preparedMessage);
     }
 
     return pm;
   }
 
-  public List<PreparedEditInfo> build(Message message) throws UserNotFoundException, UserErrorException {
+  public List<PreparedEditInfo> build(Message message, boolean secure) throws UserNotFoundException, UserErrorException {
     List<EditInfoDTO> editInfoDTOs = messageDao.loadEditInfo(message.getId());
     List<PreparedEditInfo> editInfos = new ArrayList<PreparedEditInfo>(editInfoDTOs.size());
 
@@ -285,6 +304,8 @@ public class PrepareService {
 
       editInfos.add(
         new PreparedEditInfo(
+          lorCodeService,
+          secure,
           userDao,
           dto,
           dto.getOldmessage()!=null ? currentMessage : null,
@@ -321,7 +342,7 @@ public class PrepareService {
     if (!editInfoDTOs.isEmpty()) {
       EditInfoDTO current = EditInfoDTO.createFromMessage(tagDao, message);
 
-      editInfos.add(new PreparedEditInfo(userDao, current, currentMessage, currentTitle, currentUrl, currentLinktext, currentTags, false, true));
+      editInfos.add(new PreparedEditInfo(lorCodeService, secure, userDao, current, currentMessage, currentTitle, currentUrl, currentLinktext, currentTags, false, true));
     }
 
     return editInfos;

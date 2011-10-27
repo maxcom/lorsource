@@ -75,7 +75,7 @@ public class WhoisController {
     }
 
     String userinfo = userDao.getUserInfo(user);
-    mv.getModel().put("userInfoText", (userinfo == null)?"":lorCodeService.parser(userinfo, request.isSecure()));
+    mv.getModel().put("userInfoText", (userinfo == null)?"":lorCodeService.parseComment(userinfo, request.isSecure()));
 
     return mv;
   }

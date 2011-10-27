@@ -151,7 +151,7 @@ public class AddCommentController extends ApplicationObjectSupport {
     return new ModelAndView(
             "comment-message",
             "preparedMessage",
-            prepareService.prepareMessage(add.getTopic(), true)
+            prepareService.prepareMessage(add.getTopic(), false, request.isSecure())
     );
   }
 
@@ -259,7 +259,7 @@ public class AddCommentController extends ApplicationObjectSupport {
     }
 
     if (!add.isPreviewMode() && !errors.hasErrors() && comment != null) {
-      Set<User> userRefs = lorCodeService.parserWithReplies(msg).getReplier();
+      Set<User> userRefs = lorCodeService.parseCommentWithReplies(msg, request.isSecure()).getReplier();
 
       int msgid = commentDao.saveNewMessage(comment, msg, userRefs);
 

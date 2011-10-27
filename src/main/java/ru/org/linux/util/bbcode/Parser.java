@@ -38,7 +38,6 @@
 
 package ru.org.linux.util.bbcode;
 
-import ru.org.linux.spring.dao.UserDao;
 import ru.org.linux.util.StringUtil;
 import ru.org.linux.util.bbcode.nodes.Node;
 import ru.org.linux.util.bbcode.nodes.RootNode;
@@ -240,35 +239,17 @@ public class Parser {
     return new RootNode(parserParameters);
   }
 
-  public RootNode parseRoot(RootNode rootNode, String text) {
-    return parse(rootNode, text);
-  }
-
-  /**
-   * Точка входа для разбора LORCODE в которой rootNode создается
-   * @param bbcode обрабатываемый LORCODE
-   * @return дерево разбора
-   */
-  public RootNode parse(String bbcode) {
-    RootNode rootNode = new RootNode(parserParameters);
-    rootNode.setRenderOptions(true, true, "");
-    return parse(rootNode, bbcode);
-  }
-
-  public RootNode parse(String bbcode, boolean renderCut, boolean cleanCut, String cutUrl, UserDao userDao) {
-    RootNode rootNode = new RootNode(parserParameters);
-    rootNode.setRenderOptions(renderCut, cleanCut, cutUrl);
-    rootNode.setUserDao(userDao);
-    return parse(rootNode, bbcode);
-  }
-
   /**
    * Точка входа для разбора LORCODE
    *
    * @param rootNode корневой узел новго дерева
-   * @param bbcode обрабатываемы LORCODE
+   * @param text обрабатываемы LORCODE
    * @return возвращает инвалидный html
    */
+  public RootNode parseRoot(RootNode rootNode, String text) {
+    return parse(rootNode, text);
+  }
+
   private RootNode parse(RootNode rootNode, String bbcode) {
     Node currentNode = rootNode;
     int pos = 0;

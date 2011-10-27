@@ -19,7 +19,7 @@ import org.apache.solr.common.SolrDocument;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import ru.org.linux.spring.dao.UserDao;
-import ru.org.linux.util.bbcode.ParserUtil;
+import ru.org.linux.util.bbcode.LorCodeService;
 
 import java.sql.Timestamp;
 import java.util.Date;
@@ -33,7 +33,7 @@ public class SearchItem {
   private final User user;
   private final String message;
 
-  public SearchItem(SolrDocument doc, UserDao userDao, JdbcTemplate jdbcTemplate) {
+  public SearchItem(SolrDocument doc, UserDao userDao, JdbcTemplate jdbcTemplate, LorCodeService lorCodeService, boolean secure) {
     msgid = Integer.valueOf(doc.getFieldValue("id").toString());
     title = (String) doc.getFieldValue("title");
     topicTitle = (String) doc.getFieldValue("topic_title");
@@ -51,7 +51,7 @@ public class SearchItem {
     String rawMessage = rs.getString("message");
 
     if (rs.getBoolean("bbcode")) {
-      message = ParserUtil.bb2xhtml(rawMessage, true, true, "", userDao);
+      message = lorCodeService.parseComment(rawMessage, secure);
     } else {
       message = rawMessage;
     }

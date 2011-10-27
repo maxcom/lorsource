@@ -44,6 +44,12 @@ import java.util.Map;
 import java.util.Set;
 
 public interface ParserParameters {
+  public static enum CutType {
+    INTOPIC_MAXIMIZED,
+    INTOPIC_MINIMIZED,
+    INCOMMENT
+  }
+
   public Set<String> getAllowedListParameters();
 
   public Set<String> getBlockLevelTags();

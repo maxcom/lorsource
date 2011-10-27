@@ -15,17 +15,17 @@
 
 package ru.org.linux.spring;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import ru.org.linux.site.Message;
-import ru.org.linux.site.PreparedEditInfo;
-
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
+import ru.org.linux.site.Message;
+import ru.org.linux.site.PreparedEditInfo;
 import ru.org.linux.spring.dao.MessageDao;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 @Controller
 public class EditInfoController {
@@ -42,11 +42,12 @@ public class EditInfoController {
     "/polls/{group}/{id}/history"
 })
   public ModelAndView showEditInfo(
+    HttpServletRequest request,
     @PathVariable("id") int msgid
   ) throws Exception {
     Message message = messageDao.getById(msgid);
 
-    List<PreparedEditInfo> editInfos = prepareService.build(message);
+    List<PreparedEditInfo> editInfos = prepareService.build(message, request.isSecure());
 
     ModelAndView mv = new ModelAndView("history");
 

@@ -37,7 +37,9 @@ import ru.org.linux.site.*;
 import ru.org.linux.spring.dao.GroupDao;
 import ru.org.linux.spring.dao.SectionDao;
 import ru.org.linux.spring.dao.UserDao;
+import ru.org.linux.util.bbcode.LorCodeService;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.sql.DataSource;
 import java.beans.PropertyEditorSupport;
 import java.util.ArrayList;
@@ -51,6 +53,7 @@ public class SearchController {
   private UserDao userDao;
   private GroupDao groupDao;
   private JdbcTemplate jdbcTemplate;
+  private LorCodeService lorCodeService;
 
   @Autowired
   @Required
@@ -76,6 +79,11 @@ public class SearchController {
   @Autowired
   public void setDataSource(DataSource ds) {
     jdbcTemplate = new JdbcTemplate(ds);
+  }
+
+  @Autowired
+  public void setLorCodeService(LorCodeService lorCodeService) {
+    this.lorCodeService = lorCodeService;
   }
 
   @ModelAttribute("sorts")
@@ -113,6 +121,7 @@ public class SearchController {
 
   @RequestMapping(value = "/search.jsp", method = {RequestMethod.GET, RequestMethod.HEAD})
   public String search(
+          HttpServletRequest request,
           Model model,
           @ModelAttribute("query") SearchRequest query,
           BindingResult bindingResult
@@ -151,7 +160,7 @@ public class SearchController {
       Collection<SearchItem> res = new ArrayList<SearchItem>(list.size());
 
       for (SolrDocument doc : list) {
-        res.add(new SearchItem(doc, userDao, jdbcTemplate));
+        res.add(new SearchItem(doc, userDao, jdbcTemplate, lorCodeService, request.isSecure()));
       }
 
       FacetField sectionFacet = response.getFacetField("section_id");

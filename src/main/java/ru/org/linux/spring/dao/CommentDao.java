@@ -185,7 +185,7 @@ public class CommentDao {
         String text = resultSet.getString("message");
         boolean isLorcode = resultSet.getBoolean("bbcode");
         if (isLorcode) {
-          return lorCodeService.parser(text, secure);
+          return lorCodeService.parseComment(text, secure);
         } else {
           return "<p>" + text + "</p>";
         }

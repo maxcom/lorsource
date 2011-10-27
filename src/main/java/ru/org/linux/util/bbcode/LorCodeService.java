@@ -16,13 +16,20 @@
 
 package ru.org.linux.util.bbcode;
 
+import org.apache.commons.httpclient.URI;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.org.linux.site.User;
 import ru.org.linux.spring.Configuration;
 import ru.org.linux.spring.dao.MessageDao;
 import ru.org.linux.spring.dao.UserDao;
+import ru.org.linux.util.LorURI;
 import ru.org.linux.util.bbcode.nodes.RootNode;
 import ru.org.linux.util.formatter.ToHtmlFormatter;
+
+import java.util.Set;
 
 @Service
 public class LorCodeService {
@@ -40,37 +47,76 @@ public class LorCodeService {
   @Autowired
   ToHtmlFormatter toHtmlFormatter;
 
-  public String parser(String text) {
-    return parser(text, true, true, "", false);
+  /**
+   * Преобразует LORCODE в HTML для комментариев
+   * тэги [cut] не отображаются никак
+   * @param text LORCODE
+   * @param secure является ли текущее соединение secure
+   * @return HTML
+   */
+  public String parseComment(String text, boolean secure) {
+    return defaultParser.parseRoot(prepareCommentRootNode(secure), text).renderXHtml();
   }
 
-  public String parser(String text, boolean secure) {
-    return parser(text, true, true, "", secure);
+  public ParserResult parseCommentWithReplies(String text, boolean secure) {
+    RootNode rootNode = defaultParser.parseRoot(prepareCommentRootNode(secure), text);
+    Set<User> replier = rootNode.getReplier();
+    String html = rootNode.renderXHtml();
+    return new ParserResult(html, replier);
   }
 
-  public String parser(String text, boolean renderCut, boolean cleanCut, String cutUrl, boolean secure) {
-    return defaultParser.parseRoot(prepareRootNode(renderCut, cleanCut, cutUrl, secure), text).renderXHtml();
+  /**
+   * Преобразует LORCODE в HTML для топиков со свернутым содержимым тэга cut
+   * @param text LORCODE
+   * @param cutURL абсолютный URL до топика
+   * @param secure является ли текущее соединение secure
+   * @return HTML
+   */
+  public String parseTopicWithMinimizedCut(String text, String cutURL, boolean secure) {
+    return defaultParser.parseRoot(prepareTopicRootNode(true, cutURL, secure), text).renderXHtml();
+  }
+  /**
+   * Преобразует LORCODE в HTML для топиков со развернутым содержимым тэга cut
+   * содержимое тэга cut оборачивается в div с якорем
+   * @param text LORCODE
+   * @param secure является ли текущее соединение secure
+   * @return HTML
+   */
+  public String parseTopic(String text, boolean secure) {
+    return defaultParser.parseRoot(prepareTopicRootNode(false, null, secure), text).renderXHtml();
   }
 
-  public ParserResult parserWithReplies(String text) {
-    return parserWithReplies(text, true, true, "", false);
-  }
-
-  public ParserResult parserWithReplies(String text, boolean secure) {
-    return parserWithReplies(text, true, true, "", secure);
-  }
-
-  public ParserResult parserWithReplies(String text,  boolean renderCut, boolean cleanCut, String cutUrl, boolean secure) {
-    RootNode parsedRootNode = defaultParser.parseRoot(prepareRootNode(renderCut, cleanCut, cutUrl, secure), text);
-    return new ParserResult(parsedRootNode.renderXHtml(), parsedRootNode.getReplier());
-  }
-
-  private RootNode prepareRootNode(boolean renderCut, boolean cleanCut, String cutUrl, boolean secure) {
+  private RootNode prepareCommentRootNode(boolean secure) {
     RootNode rootNode = defaultParser.getRootNode();
-    rootNode.setRenderOptions(renderCut, cleanCut, cutUrl);
+    rootNode.setCommentCutOptions();
     rootNode.setUserDao(userDao);
     rootNode.setSecure(secure);
     rootNode.setToHtmlFormatter(toHtmlFormatter);
+
+    return rootNode;
+  }
+
+  private RootNode prepareTopicRootNode(boolean minimizeCut, String cutURL, boolean secure) {
+    RootNode rootNode = defaultParser.getRootNode();
+    if(minimizeCut) {
+      try {
+        LorURI cutURI = new LorURI(configuration.getMainURI(), cutURL);
+        if(cutURI.isTrueLorUrl()) {
+          URI fixURI = new URI(cutURI.fixScheme(secure), true, "UTF-8");
+          rootNode.setMinimizedTopicCutOptions(fixURI);
+        } else {
+          rootNode.setMaximizedTopicCutOptions();
+        }
+      } catch (Exception e) {
+        rootNode.setMaximizedTopicCutOptions();
+      }
+    } else {
+      rootNode.setMaximizedTopicCutOptions();
+    }
+    rootNode.setUserDao(userDao);
+    rootNode.setSecure(secure);
+    rootNode.setToHtmlFormatter(toHtmlFormatter);
+
     return rootNode;
   }
 }

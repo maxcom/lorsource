@@ -200,7 +200,7 @@ public class MessageController {
     Set<Integer> highlight)
   throws Exception {
     Message message = messageDao.getById(msgid);
-    PreparedMessage preparedMessage = prepareService.prepareMessage(message, true);
+    PreparedMessage preparedMessage = prepareService.prepareMessage(message, false, request.isSecure());
     Group group = preparedMessage.getGroup();
 
     if (!group.getUrlName().equals(groupName) || group.getSectionId() != section) {

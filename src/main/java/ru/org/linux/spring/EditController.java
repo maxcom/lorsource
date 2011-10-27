@@ -76,7 +76,7 @@ public class EditController {
       throw new UserErrorException("Сообщение уже подтверждено");
     }
 
-    PreparedMessage preparedMessage = prepareService.prepareMessage(message, true);
+    PreparedMessage preparedMessage = prepareService.prepareMessage(message, false, request.isSecure());
 
     if (!preparedMessage.getSection().isPremoderated()) {
       throw new UserErrorException("Раздел не премодерируемый");
@@ -106,7 +106,7 @@ public class EditController {
 
     User user = tmpl.getCurrentUser();
 
-    PreparedMessage preparedMessage = prepareService.prepareMessage(message, true);
+    PreparedMessage preparedMessage = prepareService.prepareMessage(message, false, request.isSecure());
 
     if (!preparedMessage.isEditable(user)) {
       throw new AccessViolationException("это сообщение нельзя править");
@@ -190,7 +190,7 @@ public class EditController {
     Map<String, Object> params = new HashMap<String, Object>();
 
     Message message = messageDao.getById(msgid);
-    PreparedMessage preparedMessage = prepareService.prepareMessage(message, true);
+    PreparedMessage preparedMessage = prepareService.prepareMessage(message, false, request.isSecure());
     Group group = preparedMessage.getGroup();
 
     params.put("message", message);
@@ -353,7 +353,7 @@ public class EditController {
 
     params.put("newMsg", newMsg);
 
-    params.put("newPreparedMessage", prepareService.prepareMessage(newMsg, newTags, newPoll));
+    params.put("newPreparedMessage", prepareService.prepareMessage(newMsg, newTags, newPoll, request.isSecure()));
 
     return new ModelAndView("edit", params);
   }
