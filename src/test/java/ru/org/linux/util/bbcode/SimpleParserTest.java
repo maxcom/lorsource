@@ -221,6 +221,8 @@ public class SimpleParserTest {
         lorCodeService.parseComment("[cut]test[/cut]", false));
     Assert.assertEquals("<p>( <a href=\"http://127.0.0.1:8080/forum/talks/22464#cut0\">читать дальше...</a> )</p>",
         lorCodeService.parseTopicWithMinimizedCut("[cut]test[/cut]", url, false));
+    Assert.assertEquals("<p>( <a href=\"https://127.0.0.1:8080/forum/talks/22464#cut0\">читать дальше...</a> )</p>",
+        lorCodeService.parseTopicWithMinimizedCut("[cut]test[/cut]", url, true));
     Assert.assertEquals("<div id=\"cut0\"><p>test</p></div>",
         lorCodeService.parseTopic("[cut]test[/cut]", false));
   }
@@ -231,6 +233,8 @@ public class SimpleParserTest {
         lorCodeService.parseComment("[cut]\n\ntest[/cut]", false));
     Assert.assertEquals("<p>( <a href=\"http://127.0.0.1:8080/forum/talks/22464#cut0\">читать дальше...</a> )</p>",
         lorCodeService.parseTopicWithMinimizedCut("[cut]\n\ntest[/cut]", url, false));
+    Assert.assertEquals("<p>( <a href=\"https://127.0.0.1:8080/forum/talks/22464#cut0\">читать дальше...</a> )</p>",
+        lorCodeService.parseTopicWithMinimizedCut("[cut]\n\ntest[/cut]", url, true));
     Assert.assertEquals("<div id=\"cut0\"><p>test</p></div>",
         lorCodeService.parseTopic("[cut]\n\ntest[/cut]", false));
   }
@@ -241,6 +245,8 @@ public class SimpleParserTest {
         lorCodeService.parseTopic("some text\n\n[cut]\n\n[list][*]one\n\n[*]\n\ntwo[/cut]", false));
     Assert.assertEquals("<p>some text</p><p>( <a href=\"http://127.0.0.1:8080/forum/talks/22464#cut0\">читать дальше...</a> )</p>",
         lorCodeService.parseTopicWithMinimizedCut("some text\n\n[cut]\n\n[list][*]one\n\n[*]\n\ntwo[/cut]", url, false));
+    Assert.assertEquals("<p>some text</p><p>( <a href=\"https://127.0.0.1:8080/forum/talks/22464#cut0\">читать дальше...</a> )</p>",
+        lorCodeService.parseTopicWithMinimizedCut("some text\n\n[cut]\n\n[list][*]one\n\n[*]\n\ntwo[/cut]", url, true));
   }
 
   @Test

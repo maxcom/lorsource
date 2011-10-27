@@ -273,12 +273,13 @@ public class PrepareService {
   }
 
   /**
-   * Подготовка пачки топиков, используется в NewsViewerController
+   * Подготовка ленты топиков, используется в NewsViewerController например
+   * сообщения рендерятся со свернутым cut
    * @param messages список топиков
    * @param secure является ли соединение https
    * @return список подготовленных топиков
    */
-  public List<PreparedMessage> prepareMessages(List<Message> messages, boolean secure) {
+  public List<PreparedMessage> prepareMessagesFeed(List<Message> messages, boolean secure) {
     List<PreparedMessage> pm = new ArrayList<PreparedMessage>(messages.size());
 
     for (Message message : messages) {

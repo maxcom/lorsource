@@ -251,7 +251,7 @@ public class NewsViewerController {
       }
     });
 
-    params.put("messages", prepareService.prepareMessages(messages, request.isSecure()));
+    params.put("messages", prepareService.prepareMessagesFeed(messages, request.isSecure()));
 
     params.put("offsetNavigation", month == null);
     params.put("offset", offset);
@@ -317,7 +317,7 @@ public class NewsViewerController {
 
     boolean rss = output != null && "rss".equals(output);
 
-    params.put("messages", prepareService.prepareMessages(messages, request.isSecure()));
+    params.put("messages", prepareService.prepareMessagesFeed(messages, request.isSecure()));
 
     params.put("offsetNavigation", true);
     params.put("offset", offset);
@@ -380,7 +380,7 @@ public class NewsViewerController {
 
     boolean rss = output != null && "rss".equals(output);
 
-    params.put("messages", prepareService.prepareMessages(messages, request.isSecure()));
+    params.put("messages", prepareService.prepareMessagesFeed(messages, request.isSecure()));
 
     params.put("offsetNavigation", true);
     params.put("offset", offset);
@@ -439,7 +439,7 @@ public class NewsViewerController {
       }
     });
 
-    modelAndView.getModel().put("messages", prepareService.prepareMessages(messages, request.isSecure()));
+    modelAndView.getModel().put("messages", prepareService.prepareMessagesFeed(messages, request.isSecure()));
 
     RowMapper<DeletedTopic> mapper = new RowMapper<DeletedTopic>() {
       @Override
@@ -755,7 +755,7 @@ public class NewsViewerController {
       }
     });
 
-    params.put("messages", prepareService.prepareMessages(messages, request.isSecure()));
+    params.put("messages", prepareService.prepareMessagesFeed(messages, request.isSecure()));
 
     return new ModelAndView("section-rss", params);
   }

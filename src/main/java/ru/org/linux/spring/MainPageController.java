@@ -63,7 +63,7 @@ public class MainPageController {
       }
     });
 
-    mv.getModel().put("news", prepareService.prepareMessages(messages, request.isSecure()));
+    mv.getModel().put("news", prepareService.prepareMessagesFeed(messages, request.isSecure()));
 
     if (tmpl.isModeratorSession() || tmpl.isCorrectorSession()) {
       int uncommited = jdbcTemplate.queryForInt("select count(*) from topics,groups,sections where section=sections.id AND sections.moderate and topics.groupid=groups.id and not deleted and not topics.moderate AND postdate>(CURRENT_TIMESTAMP-'1 month'::interval)");
