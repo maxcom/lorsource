@@ -102,7 +102,7 @@ public class PrepareService {
    * @return подготовленное голосование
    */
   public PreparedPoll preparePoll(Poll poll) {
-    return new PreparedPoll(poll, pollDao.getMaxVote(poll), pollDao.getPollVariants(poll, Poll.ORDER_VOTES));
+    return new PreparedPoll(poll, pollDao.getMaxVote(poll), pollDao.getCountUsers(poll), pollDao.getPollVariants(poll, Poll.ORDER_VOTES));
   }
 
   public PreparedMessage prepareMessage(Message message, boolean includeCut) {

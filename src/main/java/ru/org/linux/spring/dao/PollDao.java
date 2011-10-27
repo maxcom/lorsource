@@ -41,9 +41,11 @@ public class PollDao {
   private static final String queryPollVariantsOrderById = "SELECT * FROM votes WHERE vote=? ORDER BY id";
   private static final String queryPollVariantsOrderByVotes = "SELECT * FROM votes WHERE vote=? ORDER BY votes DESC, id";
 
-  private static final String queryVotes = "SELECT count(vote) FROM vote_users WHERE vote=? AND userid=?";
+  private static final String queryCountVotesUser = "SELECT count(vote) FROM vote_users WHERE vote=? AND userid=?";
+  private static final String queryCountVotesPool = "SELECT count(userid) FROM vote_users WHERE vote=?";
+  private static final String queryCountVotes = "SELECT sum(votes) as s FROM votes WHERE vote=?";
   private static final String updateVote = "UPDATE votes SET votes=votes+1 WHERE id=? AND vote=?";
-  private static final String insertVote = "INSERT INTO vote_users VALUES(?, ?)";
+  private static final String insertVoteUser = "INSERT INTO vote_users VALUES(?, ?)";
 
   private JdbcTemplate jdbcTemplate;
 
@@ -66,13 +68,27 @@ public class PollDao {
     }, pollId);
   }
 
-  public Integer getVotersCount(Integer pollId) {
-    String sql = "SELECT sum(votes) as s FROM votes WHERE vote= ?";
-    return jdbcTemplate.queryForInt(sql, pollId);
+  /**
+   * Возвращает кол-во проголосовавших пользователей в голосовании
+   * @param poll голосование
+   * @return кол-во проголосвавших пользователей
+   */
+  public int getCountUsers(Poll poll) {
+    return jdbcTemplate.queryForInt(queryCountVotesPool, poll.getId());
   }
 
   /**
-   * Применение голоса к голосванию
+   * Возвращает кол-во голосов в голосовании
+   * @param pollId id голосвания
+   * @return кол-во голосов всего (несколько вариантов от одного пользователя суммируется"
+   */
+  public Integer getVotersCount(Integer pollId) {
+    return jdbcTemplate.queryForInt(queryCountVotes, pollId);
+  }
+
+  /**
+   * Учет голсования, если user не голосовал в этом голосании, то
+   * добавить его варианты в голосование и пометить, что он проголосовал
    * @param voteId id голосования
    * @param votes пункты за которые голосует пользователь
    * @param user голосующий пользователь
@@ -80,13 +96,13 @@ public class PollDao {
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   public void updateVotes(int voteId, int[] votes, User user) throws BadVoteException {
-    if(jdbcTemplate.queryForInt(queryVotes, voteId, user.getId()) == 0){
+    if(jdbcTemplate.queryForInt(queryCountVotesUser, voteId, user.getId()) == 0){
       for(int vote : votes) {
         if(jdbcTemplate.update(updateVote, vote, voteId) == 0) {
           throw new BadVoteException();
         }
       }
-      jdbcTemplate.update(insertVote, voteId, user.getId());
+      jdbcTemplate.update(insertVoteUser, voteId, user.getId());
     }
   }
 
@@ -165,7 +181,7 @@ public class PollDao {
    * Варианты для опроса
    * @param poll опрос
    * @param order порядок сортировки вариантов Poll.ORDER_ID и Poll.ORDER_VOTES
-   * @return
+   * @return неизменяемый список вариантов опроса
    */
   public ImmutableList<PollVariant> getPollVariants(Poll poll, int order) {
     final List<PollVariant> variants = new ArrayList<PollVariant>();

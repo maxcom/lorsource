@@ -20,14 +20,26 @@ import ru.org.linux.util.StringUtil;
 
 import java.util.List;
 
+/**
+ * Подготовленные данные опроса для отображения
+ */
 public class PreparedPoll {
   private final Poll poll;
   private final int maximumValue;
+  private final int countUsers;
   private final ImmutableList<PollVariant> variants;
 
-  public PreparedPoll(Poll poll, int maximumValue, List<PollVariant> variants) {
+  /**
+   * Конструктор
+   * @param poll опрос
+   * @param maximumValue вариант опроса с самым большим кол-вом голосов(?)
+   * @param countUsers кол-во проголосовавших пользователей
+   * @param variants варианты опроса
+   */
+  public PreparedPoll(Poll poll, int maximumValue, int countUsers, List<PollVariant> variants) {
     this.poll = poll;
     this.maximumValue = maximumValue;
+    this.countUsers = countUsers;
     this.variants = ImmutableList.copyOf(variants);
   }
 
@@ -61,6 +73,7 @@ public class PreparedPoll {
       out.append("</td></tr>");
     }
     out.append("<tr><td colspan=2>Всего голосов: ").append(total).append("</td></tr>");
+    out.append("<tr><td colspan=2>Всего проголосовавших: ").append(countUsers).append("</td></tr>");
     out.append("</table>");
     return out.toString();
   }

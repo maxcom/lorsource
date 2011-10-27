@@ -322,7 +322,7 @@ public class EditController {
         }
       }
 
-      newPoll = new PreparedPoll(poll, orig.getMaximumValue(), newVariants);
+      newPoll = new PreparedPoll(poll, orig.getMaximumValue(), pollDao.getCountUsers(poll), newVariants);
     }
 
     if (!preview && !errors.hasErrors()) {
