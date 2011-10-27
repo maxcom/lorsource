@@ -57,7 +57,7 @@
       <li>ActiveMQ 5.3.2</li>
       <li>Spring 3.0</li>
       <li>Wiki: JamWiki 1.0.6</li>
-      <li>Поиск: Apache Solr 3.2.0</li>
+      <li>Поиск: Apache Solr 3.4.0</li>
     </ul>
 
 <h1>Исходные тексты</h1>
