@@ -259,7 +259,7 @@ public class AddCommentController extends ApplicationObjectSupport {
     }
 
     if (!add.isPreviewMode() && !errors.hasErrors() && comment != null) {
-      Set<User> userRefs = lorCodeService.parseCommentWithReplies(msg, request.isSecure()).getReplier();
+      Set<User> userRefs = lorCodeService.getReplierFromMessage(msg);
 
       int msgid = commentDao.saveNewMessage(comment, msg, userRefs);
 

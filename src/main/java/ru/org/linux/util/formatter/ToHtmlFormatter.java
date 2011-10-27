@@ -15,9 +15,12 @@
 
 package ru.org.linux.util.formatter;
 
+import org.apache.commons.httpclient.URI;
+import org.apache.commons.httpclient.URIException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.org.linux.site.MessageNotFoundException;
+import ru.org.linux.site.User;
 import ru.org.linux.spring.Configuration;
 import ru.org.linux.spring.dao.MessageDao;
 import ru.org.linux.util.LorURI;
@@ -86,6 +89,16 @@ public class ToHtmlFormatter {
     return sb.toString();
   }
 
+  public String memberURL(User user, boolean secure) throws URIException {
+    URI mainUri = configuration.getMainURI();
+    String scheme;
+    if(secure) {
+      scheme = "https";
+    } else {
+      scheme = "http";
+    }
+    return (new URI(scheme, null, mainUri.getHost(), mainUri.getPort(), String.format("/people/%s/profile", user.getNick()))).getEscapedURIReference();
+  }
 
   protected String formatURL(String line, boolean secure) {
     StringBuilder out = new StringBuilder();

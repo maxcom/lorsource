@@ -23,6 +23,9 @@ import ru.org.linux.site.User;
 import ru.org.linux.site.UserNotFoundException;
 import ru.org.linux.spring.Configuration;
 import ru.org.linux.spring.dao.UserDao;
+import ru.org.linux.util.formatter.ToHtmlFormatter;
+
+import java.util.Set;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -31,6 +34,7 @@ public class SimpleParserTest {
 
   LorCodeService lorCodeService;
   Configuration configuration;
+  ToHtmlFormatter toHtmlFormatter;
   UserDao userDao;
   User maxcom; // Администратор
   User JB;     // Модератор
@@ -49,6 +53,9 @@ public class SimpleParserTest {
     when(maxcom.isBlocked()).thenReturn(false);
     when(JB.isBlocked()).thenReturn(false);
     when(isden.isBlocked()).thenReturn(true);
+    when(maxcom.getNick()).thenReturn("maxcom");
+    when(JB.getNick()).thenReturn("JB");
+    when(isden.getNick()).thenReturn("isden");
 
     userDao = mock(UserDao.class);
     when(userDao.getUser("maxcom")).thenReturn(maxcom);
@@ -62,10 +69,14 @@ public class SimpleParserTest {
     when(configuration.getMainURI()).thenReturn(mainURI);
     when(configuration.getMainUrl()).thenReturn(mainUrl);
 
+    toHtmlFormatter = new ToHtmlFormatter();
+    toHtmlFormatter.setConfiguration(configuration);
+
 
     lorCodeService = new LorCodeService();
     lorCodeService.userDao = userDao;
     lorCodeService.configuration = configuration;
+    lorCodeService.toHtmlFormatter = toHtmlFormatter;
 
     url = "http://127.0.0.1:8080/forum/talks/22464";
   }
@@ -196,24 +207,25 @@ public class SimpleParserTest {
   public void userTest() throws Exception{
 
 
-    Assert.assertEquals("<p><span style=\"white-space: nowrap\"><img src=\"/img/tuxlor.png\"><a style=\"text-decoration: none\" href='/people/maxcom/profile'>maxcom</a></span></p>",
+    Assert.assertEquals("<p><span style=\"white-space: nowrap\"><img src=\"/img/tuxlor.png\"><a style=\"text-decoration: none\" href=\"http://127.0.0.1:8080/people/maxcom/profile\">maxcom</a></span></p>",
         lorCodeService.parseComment("[user]maxcom[/user]", false));
-    Assert.assertEquals("<p><span style=\"white-space: nowrap\"><img src=\"/img/tuxlor.png\"><s><a style=\"text-decoration: none\" href='/people/isden/profile'>isden</a></s></span></p>",
+    Assert.assertEquals("<p><span style=\"white-space: nowrap\"><img src=\"/img/tuxlor.png\"><s><a style=\"text-decoration: none\" href=\"http://127.0.0.1:8080/people/isden/profile\">isden</a></s></span></p>",
         lorCodeService.parseComment("[user]isden[/user]", false));
     Assert.assertEquals("<p><s>hizel</s></p>",
         lorCodeService.parseComment("[user]hizel[/user]", false));
   }
 
-  /*
   @Test
   public void parserResultTest() throws Exception {
-    ParserResult parserResult = lorCodeService.parserWithReplies("[user]hizel[/user][user]JB[/user][user]maxcom[/user]", true, true, "", false);
+    String msg = "[user]hizel[/user][user]JB[/user][user]maxcom[/user]";
+    Set<User> replier = lorCodeService.getReplierFromMessage(msg);
+    String html = lorCodeService.parseComment(msg, true);
 
-    Assert.assertTrue(parserResult.getReplier().contains(maxcom));
-    Assert.assertTrue(parserResult.getReplier().contains(JB));
-    Assert.assertFalse(parserResult.getReplier().contains(isden));
-    Assert.assertEquals("<p><s>hizel</s><span style=\"white-space: nowrap\"><img src=\"/img/tuxlor.png\"><a style=\"text-decoration: none\" href='/people/JB/profile'>JB</a></span><span style=\"white-space: nowrap\"><img src=\"/img/tuxlor.png\"><a style=\"text-decoration: none\" href='/people/maxcom/profile'>maxcom</a></span></p>", parserResult.getHtml());
-  } */
+    Assert.assertTrue(replier.contains(maxcom));
+    Assert.assertTrue(replier.contains(JB));
+    Assert.assertFalse(replier.contains(isden));
+    Assert.assertEquals("<p><s>hizel</s><span style=\"white-space: nowrap\"><img src=\"/img/tuxlor.png\"><a style=\"text-decoration: none\" href=\"https://127.0.0.1:8080/people/JB/profile\">JB</a></span><span style=\"white-space: nowrap\"><img src=\"/img/tuxlor.png\"><a style=\"text-decoration: none\" href=\"https://127.0.0.1:8080/people/maxcom/profile\">maxcom</a></span></p>", html);
+  }
 
   @Test
   public void cutTest() {

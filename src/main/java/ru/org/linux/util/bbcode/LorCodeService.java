@@ -58,13 +58,16 @@ public class LorCodeService {
     return defaultParser.parseRoot(prepareCommentRootNode(secure), text).renderXHtml();
   }
 
-  public ParserResult parseCommentWithReplies(String text, boolean secure) {
-    RootNode rootNode = defaultParser.parseRoot(prepareCommentRootNode(secure), text);
-    Set<User> replier = rootNode.getReplier();
-    String html = rootNode.renderXHtml();
-    return new ParserResult(html, replier);
+  /**
+   * Возвращает множество пользователей упомянутых в сообщении
+   * @param text сообщение
+   * @return множество пользователей
+   */
+  public Set<User> getReplierFromMessage(String text) {
+    RootNode rootNode = defaultParser.parseRoot(prepareCommentRootNode(false), text);
+    rootNode.renderXHtml();
+    return rootNode.getReplier();
   }
-
   /**
    * Преобразует LORCODE в HTML для топиков со свернутым содержимым тэга cut
    * @param text LORCODE
