@@ -16,7 +16,7 @@
 package ru.org.linux.site;
 
 import ru.org.linux.spring.dao.UserDao;
-import ru.org.linux.util.bbcode.ParserUtil;
+import ru.org.linux.util.bbcode.LorCodeService;
 
 import java.util.List;
 
@@ -32,6 +32,8 @@ public class PreparedEditInfo {
   private final String linktext;
 
   public PreparedEditInfo(
+    LorCodeService lorCodeService,
+    boolean secure,
     UserDao userDao,
     EditInfoDTO editInfo,
     String message,
@@ -48,7 +50,7 @@ public class PreparedEditInfo {
     editor = userDao.getUserCached(editInfo.getEditor());
 
     if (message!=null) {
-      this.message = ParserUtil.bb2xhtml(message, true, true, "", userDao);
+      this.message = lorCodeService.parseComment(message, secure);
     } else {
       this.message = null;
     }

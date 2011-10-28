@@ -93,7 +93,7 @@ public class ShowRepliesController {
     params.put("isMyNotifications", true);
 
     response.addHeader("Cache-Control", "no-cache");
-    List<RepliesListItem> list = repliesDao.getRepliesForUser(currentUser, true, topics, offset, false);
+    List<RepliesListItem> list = repliesDao.getRepliesForUser(currentUser, true, topics, offset, false, request.isSecure());
     if ("POST".equalsIgnoreCase(request.getMethod())) {
       userDao.resetUnreadReplies(currentUser);
       tmpl.updateCurrentUser(userDao);
@@ -177,7 +177,7 @@ public class ShowRepliesController {
       params.put("unreadCount", user.getUnreadEvents());
       response.addHeader("Cache-Control", "no-cache");
     }
-    List<RepliesListItem> list = repliesDao.getRepliesForUser(user, showPrivate, topics, offset, feedRequested);
+    List<RepliesListItem> list = repliesDao.getRepliesForUser(user, showPrivate, topics, offset, feedRequested, request.isSecure());
 
     if (tmpl.isSessionAuthorized()) {
       if ("POST".equalsIgnoreCase(request.getMethod())) {

@@ -81,6 +81,7 @@ public class NewsViewerController {
           @RequestParam(value = "group", required = false) Integer groupid,
           @RequestParam(value = "tag", required = false) String tag,
           @RequestParam(value = "offset", required = false) Integer offset,
+          HttpServletRequest request,
           HttpServletResponse response
   ) throws Exception {
     Map<String, Object> params = new HashMap<String, Object>();
@@ -250,7 +251,7 @@ public class NewsViewerController {
       }
     });
 
-    params.put("messages", prepareService.prepareMessages(messages, false));
+    params.put("messages", prepareService.prepareMessagesFeed(messages, request.isSecure()));
 
     params.put("offsetNavigation", month == null);
     params.put("offset", offset);
@@ -272,6 +273,7 @@ public class NewsViewerController {
     @PathVariable String nick,
     @RequestParam(value="offset", required=false) Integer offset,
     @RequestParam(value="output", required=false) String output,
+    HttpServletRequest request,
     HttpServletResponse response
   ) throws Exception {
     Map<String, Object> params = new HashMap<String, Object>();
@@ -315,7 +317,7 @@ public class NewsViewerController {
 
     boolean rss = output != null && "rss".equals(output);
 
-    params.put("messages", prepareService.prepareMessages(messages, rss));
+    params.put("messages", prepareService.prepareMessagesFeed(messages, request.isSecure()));
 
     params.put("offsetNavigation", true);
     params.put("offset", offset);
@@ -334,6 +336,7 @@ public class NewsViewerController {
     @PathVariable String nick,
     @RequestParam(value="offset", required=false) Integer offset,
     @RequestParam(value="output", required=false) String output,
+    HttpServletRequest request,
     HttpServletResponse response
   ) throws Exception {
     Map<String, Object> params = new HashMap<String, Object>();
@@ -377,7 +380,7 @@ public class NewsViewerController {
 
     boolean rss = output != null && "rss".equals(output);
 
-    params.put("messages", prepareService.prepareMessages(messages, rss));
+    params.put("messages", prepareService.prepareMessagesFeed(messages, request.isSecure()));
 
     params.put("offsetNavigation", true);
     params.put("offset", offset);
@@ -409,7 +412,8 @@ public class NewsViewerController {
 
   @RequestMapping(value="/view-all.jsp", method={RequestMethod.GET, RequestMethod.HEAD})
   public ModelAndView viewAll(
-    @RequestParam(value="section", required = false, defaultValue = "0") int sectionId
+    @RequestParam(value="section", required = false, defaultValue = "0") int sectionId,
+    HttpServletRequest request
   ) throws Exception {
 
     ModelAndView modelAndView = new ModelAndView("view-all");
@@ -435,7 +439,7 @@ public class NewsViewerController {
       }
     });
 
-    modelAndView.getModel().put("messages", prepareService.prepareMessages(messages, false));
+    modelAndView.getModel().put("messages", prepareService.prepareMessagesFeed(messages, request.isSecure()));
 
     RowMapper<DeletedTopic> mapper = new RowMapper<DeletedTopic>() {
       @Override
@@ -529,9 +533,10 @@ public class NewsViewerController {
   @RequestMapping("/gallery/")
   public ModelAndView gallery(
     @RequestParam(required=false) Integer offset,
+    HttpServletRequest request,
     HttpServletResponse response
   ) throws Exception {
-    ModelAndView mv = showNews(null, null, Section.SECTION_GALLERY, null, null, offset, response);
+    ModelAndView mv = showNews(null, null, Section.SECTION_GALLERY, null, null, offset, request, response);
 
     mv.getModel().put("url", "/gallery/");
     mv.getModel().put("params", null);
@@ -542,9 +547,10 @@ public class NewsViewerController {
   @RequestMapping("/forum/lenta")
   public ModelAndView forum(
     @RequestParam(required=false) Integer offset,
+    HttpServletRequest request,
     HttpServletResponse response
   ) throws Exception {
-    ModelAndView mv = showNews(null, null, Section.SECTION_FORUM, null, null, offset, response);
+    ModelAndView mv = showNews(null, null, Section.SECTION_FORUM, null, null, offset, request, response);
 
     mv.getModel().put("url", "/forum/lenta");
     mv.getModel().put("params", null);
@@ -555,9 +561,10 @@ public class NewsViewerController {
   @RequestMapping("/polls/")
   public ModelAndView polls(
     @RequestParam(required=false) Integer offset,
+    HttpServletRequest request,
     HttpServletResponse response
   ) throws Exception {
-    ModelAndView mv = showNews(null, null, Section.SECTION_POLLS, null, null, offset, response);
+    ModelAndView mv = showNews(null, null, Section.SECTION_POLLS, null, null, offset, request, response);
 
     mv.getModel().put("url", "/polls/");
     mv.getModel().put("params", null);
@@ -568,9 +575,10 @@ public class NewsViewerController {
   @RequestMapping("/news/")
   public ModelAndView news(
     @RequestParam(required=false) Integer offset,
+    HttpServletRequest request,
     HttpServletResponse response
   ) throws Exception {
-    ModelAndView mv = showNews(null, null, Section.SECTION_NEWS, null, null, offset, response);
+    ModelAndView mv = showNews(null, null, Section.SECTION_NEWS, null, null, offset, request, response);
 
     mv.getModel().put("url", "/news/");
     mv.getModel().put("params", null);
@@ -582,40 +590,44 @@ public class NewsViewerController {
   public ModelAndView galleryGroup(
     @RequestParam(required=false) Integer offset,
     @PathVariable("group") String groupName,
+    HttpServletRequest request,
     HttpServletResponse response
   ) throws Exception {
-    return group(Section.SECTION_GALLERY, offset, groupName, response);
+    return group(Section.SECTION_GALLERY, offset, groupName, request, response);
   }
 
   @RequestMapping("/news/{group}")
   public ModelAndView newsGroup(
     @RequestParam(required=false) Integer offset,
     @PathVariable("group") String groupName,
+    HttpServletRequest request,
     HttpServletResponse response
   ) throws Exception {
-    return group(Section.SECTION_NEWS, offset, groupName, response);
+    return group(Section.SECTION_NEWS, offset, groupName, request, response);
   }
 
   @RequestMapping("/polls/{group}")
   public ModelAndView pollsGroup(
     @RequestParam(required=false) Integer offset,
     @PathVariable("group") String groupName,
+    HttpServletRequest request,
     HttpServletResponse response
   ) throws Exception {
-    return group(Section.SECTION_POLLS, offset, groupName, response);
+    return group(Section.SECTION_POLLS, offset, groupName, request, response);
   }
 
   public ModelAndView group(
     int sectionId,
     Integer offset,
     String groupName,
+    HttpServletRequest request,
     HttpServletResponse response
   ) throws Exception {
     Section section = sectionDao.getSection(sectionId);
 
     Group group = groupDao.getGroup(section, groupName);
 
-    ModelAndView mv = showNews(null, null, group.getSectionId(), group.getId(), null, offset, response);
+    ModelAndView mv = showNews(null, null, group.getSectionId(), group.getId(), null, offset, request, response);
 
     mv.getModel().put("url", group.getUrl());
     mv.getModel().put("params", null);
@@ -653,9 +665,10 @@ public class NewsViewerController {
     @PathVariable String section,
     @PathVariable int year,
     @PathVariable int month,
+    HttpServletRequest request,
     HttpServletResponse response
   ) throws Exception {
-    ModelAndView mv = showNews(month, year, Section.getSection(section), null, null, null, response);
+    ModelAndView mv = showNews(month, year, Section.getSection(section), null, null, null, request, response);
 
     mv.getModel().put("url", "/gallery/archive/"+year+ '/' +month+ '/');
     mv.getModel().put("params", null);
@@ -742,7 +755,7 @@ public class NewsViewerController {
       }
     });
 
-    params.put("messages", prepareService.prepareMessages(messages, true));
+    params.put("messages", prepareService.prepareMessagesFeed(messages, request.isSecure()));
 
     return new ModelAndView("section-rss", params);
   }

@@ -176,7 +176,7 @@ public class GroupController {
       ignoreList = Collections.emptySet();
     }
 
-    params.put("groupInfo", prepareService.prepareGroupInfo(group));
+    params.put("groupInfo", prepareService.prepareGroupInfo(group, request.isSecure()));
 
     String ignq = "";
 

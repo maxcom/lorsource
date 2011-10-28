@@ -23,7 +23,7 @@ import ru.org.linux.site.User;
 import ru.org.linux.site.UserNotFoundException;
 import ru.org.linux.spring.RepliesListItem;
 import ru.org.linux.util.StringUtil;
-import ru.org.linux.util.bbcode.ParserUtil;
+import ru.org.linux.util.bbcode.LorCodeService;
 
 import javax.sql.DataSource;
 import java.sql.ResultSet;
@@ -38,6 +38,7 @@ import java.util.List;
 public class RepliesDao {
   private JdbcTemplate jdbcTemplate;
   private UserDao userDao;
+  private LorCodeService lorCodeService;
 
   @Autowired
   public void setJdbcTemplate(DataSource dataSource) {
@@ -47,6 +48,11 @@ public class RepliesDao {
   @Autowired
   public void setUserDao(UserDao userDao) {
     this.userDao = userDao;
+  }
+
+  @Autowired
+  public void setLorCodeService(LorCodeService lorCodeService) {
+    this.lorCodeService = lorCodeService;
   }
 
 
@@ -102,7 +108,7 @@ public class RepliesDao {
    * @return список уведомлений
    */
   public List<RepliesListItem> getRepliesForUser(User user, boolean showPrivate, int topics, int offset,
-                                                 final boolean readMessage) {
+                                                 final boolean readMessage, final boolean secure) {
     String queryString;
     if(showPrivate) {
       queryString = queryAllRepliesForUser;
@@ -143,7 +149,7 @@ public class RepliesDao {
         if (readMessage) {
           String text = resultSet.getString("cMessage");
           if (resultSet.getBoolean("bbcode")) {
-            messageText = ParserUtil.bb2xhtml(text, true, true, "", userDao);
+            messageText = lorCodeService.parseComment(text, secure);
           } else {
             messageText = text;
           }

@@ -1,7 +1,7 @@
 <%@ tag import="ru.org.linux.site.NewsViewer" %>
 <%@ tag import="ru.org.linux.site.Template" %>
 <%@ tag import="ru.org.linux.site.User" %>
-<%@ tag import="ru.org.linux.util.HTMLFormatter" %>
+<%@ tag import="ru.org.linux.util.StringUtil" %>
 <%@ tag import="java.net.URLEncoder" %>
 <%@ tag import="java.sql.Timestamp" %>
 <%@ tag import="java.text.DateFormat" %>
@@ -98,7 +98,7 @@
     </c:if>
     <%
   if (message.getUrl() != null && message.isHaveLink() && message.getUrl().length()>0) {
-    out.append("<p>&gt;&gt;&gt; <a href=\"").append(HTMLFormatter.htmlSpecialChars(message.getUrl())).append("\">").append(message.getLinktext()).append("</a>");
+    out.append("<p>&gt;&gt;&gt; <a href=\"").append(StringUtil.escapeHtml(message.getUrl())).append("\">").append(message.getLinktext()).append("</a>");
   }
 
   if (message.getUrl() != null && preparedMessage.getSection().isImagepost()) {

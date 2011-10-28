@@ -20,6 +20,7 @@ import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
 import java.util.Random;
 import java.util.StringTokenizer;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public final class StringUtil {
@@ -92,4 +93,76 @@ public final class StringUtil {
 
     return builder.toString();
   }
+
+  /**
+   * Convert special SGML (HTML) chars to
+   * SGML entities
+   */
+  private static final Pattern uniRE = Pattern.compile("^&((#[1-9]\\d{1,4})|(\\w{1,8}));");
+
+  public static String escapeHtml(String str) {
+    StringBuilder res = new StringBuilder();
+
+    for (int i = 0; i < str.length(); i++) {
+      switch (str.charAt(i)) {
+        case '<':
+          res.append("&lt;");
+          break;
+        case '>':
+          res.append("&gt;");
+          break;
+        case '\"':
+          res.append("&quot;");
+          break;
+        case '&':
+          Matcher m = uniRE.matcher(str.substring(i));
+          if (m.find()) {
+              String s = m.group();
+              res.append(s);
+              i+=s.length()-1;
+              continue;
+          } else {
+            res.append("&amp;");
+          }
+
+          break;
+        default:
+          res.append(str.charAt(i));
+      }
+
+    }
+
+    return res.toString();
+  }
+
+  public static String escapeBBCode(String content) {
+    // escaping single characters
+    content = replaceAll(content, "[]{}\t".toCharArray(), new String[]{
+        "&#91;",
+        "&#93;",
+        "&#123;",
+        "&#125;",
+        "&nbsp; &nbsp;"});
+
+    return content;
+  }
+
+  public static String replaceAll(CharSequence str, char[] chars, String[] replacement) {
+    StringBuilder buffer = new StringBuilder();
+    for (int i = 0; i < str.length(); i++) {
+      char c = str.charAt(i);
+      boolean matched = false;
+      for (int j = 0; j < chars.length; j++) {
+        if (c == chars[j]) {
+          buffer.append(replacement[j]);
+          matched = true;
+        }
+      }
+      if (!matched) {
+        buffer.append(c);
+      }
+    }
+    return buffer.toString();
+  }
+
 }

@@ -38,42 +38,67 @@
 
 package ru.org.linux.util.bbcode.nodes;
 
+import org.apache.commons.httpclient.URI;
 import ru.org.linux.site.User;
 import ru.org.linux.spring.dao.UserDao;
 import ru.org.linux.util.bbcode.ParserParameters;
+import ru.org.linux.util.formatter.ToHtmlFormatter;
 
 import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Created by IntelliJ IDEA.
- * User: hizel
- * Date: 6/30/11
- * Time: 3:01 PM
+ * Корневой узел дерева разбора LORCODE, а также все параметры для разбора
  */
 public class RootNode extends Node {
   private int cutCount;
-  private boolean renderCut;
-  private boolean cleanCut;
-  private String cutUrl;
+  //
+  private ParserParameters.CutType cutType;
+  private URI cutURI;
   private UserDao userDao;
+  private ToHtmlFormatter toHtmlFormatter;
   private Set<User> replier;
+  private boolean secure;
 
   public RootNode(ParserParameters parserParameters) {
     super(parserParameters);
     cutCount = -1;
-    renderCut = true;
-    cleanCut = true;
-    cutUrl = "";
+    cutType = ParserParameters.CutType.INCOMMENT;
     replier = new HashSet<User>();
+    secure = false;
+  }
+
+  public URI getCutURI() {
+    return cutURI;
+  }
+
+  public void setCutURI(URI cutURI) {
+    this.cutURI = cutURI;
+  }
+
+  public ToHtmlFormatter getToHtmlFormatter() {
+    return toHtmlFormatter;
+  }
+
+  public void setToHtmlFormatter(ToHtmlFormatter toHtmlFormatter) {
+    this.toHtmlFormatter = toHtmlFormatter;
+  }
+
+  public UserDao getUserDao() {
+    return userDao;
   }
 
   public void setUserDao(UserDao userDao) {
     this.userDao = userDao;
   }
 
-  public UserDao getUserDao() {
-    return userDao;
+
+  public boolean isSecure() {
+    return secure;
+  }
+
+  public void setSecure(boolean secure) {
+    this.secure = secure;
   }
 
   public void addReplier(User nick) {
@@ -84,10 +109,29 @@ public class RootNode extends Node {
     return replier;
   }
 
-  public void setRenderOptions(boolean renderCut, boolean cleanCut, String cutUrl) {
-    this.renderCut = renderCut;
-    this.cleanCut = cleanCut;
-    this.cutUrl = cutUrl;
+  public void setCommentCutOptions() {
+    this.cutType = ParserParameters.CutType.INCOMMENT;
+  }
+
+  public void setMaximizedTopicCutOptions() {
+    this.cutType = ParserParameters.CutType.INTOPIC_MAXIMIZED;
+  }
+
+  public void setMinimizedTopicCutOptions(URI cutURI) {
+    this.cutType = ParserParameters.CutType.INTOPIC_MINIMIZED;
+    this.cutURI = cutURI;
+  }
+
+  public boolean isComment() {
+    return cutType == ParserParameters.CutType.INCOMMENT;
+  }
+
+  public boolean isTopicMinimized() {
+    return cutType == ParserParameters.CutType.INTOPIC_MINIMIZED;
+  }
+
+  public boolean isTopicMaximized() {
+    return cutType == ParserParameters.CutType.INTOPIC_MAXIMIZED;
   }
 
   @Override
@@ -108,17 +152,5 @@ public class RootNode extends Node {
   public int getCutCount() {
     cutCount += 1;
     return cutCount;
-  }
-
-  public boolean isRenderCut() {
-    return renderCut;
-  }
-
-  public boolean isCleanCut() {
-    return cleanCut;
-  }
-
-  public String getCutUrl() {
-    return cutUrl;
   }
 }

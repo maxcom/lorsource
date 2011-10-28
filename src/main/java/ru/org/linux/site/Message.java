@@ -19,11 +19,8 @@ import com.google.common.base.Strings;
 import org.springframework.validation.Errors;
 import ru.org.linux.spring.AddMessageRequest;
 import ru.org.linux.spring.EditMessageRequest;
-import ru.org.linux.spring.dao.UserDao;
-import ru.org.linux.util.HTMLFormatter;
 import ru.org.linux.util.StringUtil;
 import ru.org.linux.util.URLUtil;
-import ru.org.linux.util.bbcode.ParserUtil;
 
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
@@ -125,7 +122,7 @@ public class Message implements Serializable {
     groupCommentsRestriction = group.getCommentsRestriction();
 
     if (form.getLinktext()!=null) {
-      linktext = HTMLFormatter.htmlSpecialChars(form.getLinktext());
+      linktext = StringUtil.escapeHtml(form.getLinktext());
     } else {
       linktext = null;
     }
@@ -139,7 +136,7 @@ public class Message implements Serializable {
 
     // Setting Message fields
     if (form.getTitle()!=null) {
-      title = HTMLFormatter.htmlSpecialChars(form.getTitle());
+      title = StringUtil.escapeHtml(form.getTitle());
     } else {
       title = null;
     }
@@ -191,7 +188,7 @@ public class Message implements Serializable {
     }
 
     if (form.getTitle() != null) {
-      title = HTMLFormatter.htmlSpecialChars(form.getTitle());
+      title = StringUtil.escapeHtml(form.getTitle());
     } else {
       title = original.title;
     }
@@ -448,21 +445,6 @@ public class Message implements Serializable {
 
   public String getMessage() {
     return message;
-  }
-
-  public String getProcessedMessage(UserDao userDao, boolean includeCut, String mainUrl) {
-    if (lorcode) {
-      String okMainUrl;
-      // Откусяываем последний слэш у mainUrl если он есть
-      if(mainUrl.endsWith("/")){
-        okMainUrl = mainUrl.substring(0, mainUrl.length()-1);
-      }else{
-        okMainUrl = mainUrl;
-      }
-      return ParserUtil.bb2xhtml(message, includeCut, false, okMainUrl + getLink(), userDao);
-    } else {
-      return "<p>" + message;
-    }
   }
 
   public Timestamp getPostdate() {

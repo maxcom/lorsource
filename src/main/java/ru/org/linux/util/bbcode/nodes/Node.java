@@ -44,10 +44,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by IntelliJ IDEA.
- * User: hizel
- * Date: 6/29/11
- * Time: 11:49 PM
+ * Базовый класс для узлов дерева разбора LORCODE
  */
 public class Node {
   Node parent = null;

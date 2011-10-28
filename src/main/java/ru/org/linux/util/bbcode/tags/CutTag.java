@@ -38,6 +38,7 @@
 
 package ru.org.linux.util.bbcode.tags;
 
+import org.apache.commons.httpclient.URI;
 import ru.org.linux.util.bbcode.ParserParameters;
 import ru.org.linux.util.bbcode.nodes.Node;
 import ru.org.linux.util.bbcode.nodes.RootNode;
@@ -73,7 +74,9 @@ public class CutTag extends HtmlEquivTag {
     }
     TagNode tagNode = (TagNode)node;
     RootNode rootNode = tagNode.getRootNode();
-    if (rootNode.isRenderCut() && !rootNode.isCleanCut()) {
+    if (rootNode.isComment()) { // коментарий, просто содержимое
+      return node.renderChildrenXHtml();
+    } else if(rootNode.isTopicMaximized()) { // топик не свернутым cut, содежимое в div
       StringBuilder ret = new StringBuilder();
       ret.append("<div id=\"cut")
               .append(Integer.toString(rootNode.getCutCount()))
@@ -81,10 +84,16 @@ public class CutTag extends HtmlEquivTag {
               .append(node.renderChildrenXHtml())
               .append("</div>");
       return ret.toString();
-    } else if (rootNode.isRenderCut() && rootNode.isCleanCut()) {
-      return node.renderChildrenXHtml();
+    } else if(rootNode.isTopicMinimized()) { // топик со свернутым cut, вместо содержимого ссылка
+      URI uri = rootNode.getCutURI();
+      try {
+        uri.setFragment("cut"+Integer.toString(rootNode.getCutCount()));
+        return String.format("<p>( <a href=\"%s\">читать дальше...</a> )</p>", uri.getEscapedURIReference());
+      } catch (Exception e) {
+        return node.renderChildrenXHtml();
+      }
     } else {
-      return "<p>( <a href=\"" + rootNode.getCutUrl() + "#cut" + Integer.toString(rootNode.getCutCount()) + "\">читать дальше...</a> )</p>";
+      throw new RuntimeException("BUG");
     }
   }
 }

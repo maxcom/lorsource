@@ -38,22 +38,21 @@
 
 package ru.org.linux.util.bbcode.tags;
 
+import org.apache.commons.httpclient.URI;
 import ru.org.linux.site.User;
 import ru.org.linux.site.UserNotFoundException;
+import ru.org.linux.spring.dao.UserDao;
 import ru.org.linux.util.bbcode.Parser;
 import ru.org.linux.util.bbcode.ParserParameters;
 import ru.org.linux.util.bbcode.nodes.Node;
 import ru.org.linux.util.bbcode.nodes.RootNode;
 import ru.org.linux.util.bbcode.nodes.TagNode;
 import ru.org.linux.util.bbcode.nodes.TextNode;
+import ru.org.linux.util.formatter.ToHtmlFormatter;
 
 import java.util.Set;
 
 /**
- * Created by IntelliJ IDEA.
- * User: hizel
- * Date: 7/6/11
- * Time: 12:27 AM
  */
 public class MemberTag extends Tag {
   public MemberTag(String name, Set<String> allowedChildren, String implicitTag, ParserParameters parserParameters) {
@@ -67,24 +66,29 @@ public class MemberTag extends Tag {
     }
     TextNode txtNode = (TextNode) node.getChildren().iterator().next();
     String memberName = Parser.escape(txtNode.getText()).trim();
-    String pattern;
+    String result;
     TagNode tagNode = (TagNode)node;
     RootNode rootNode = tagNode.getRootNode();
+    ToHtmlFormatter toHtmlFormatter = rootNode.getToHtmlFormatter();
+    boolean secure = rootNode.isSecure();
+    UserDao userDao = rootNode.getUserDao();
     try {
-      if(rootNode.getUserDao() != null){
+      if(userDao != null && toHtmlFormatter != null){
         User user = rootNode.getUserDao().getUser(memberName);
         if (!user.isBlocked()) {
-          pattern = "<span style=\"white-space: nowrap\"><img src=\"/img/tuxlor.png\"><a style=\"text-decoration: none\" href='/people/%s/profile'>%s</a></span>";
+          result = String.format("<span style=\"white-space: nowrap\"><img src=\"/img/tuxlor.png\"><a style=\"text-decoration: none\" href=\"%s\">%s</a></span>",
+              toHtmlFormatter.memberURL(user, secure), Parser.escape(memberName));
           rootNode.addReplier(user);
         } else {
-          pattern = "<span style=\"white-space: nowrap\"><img src=\"/img/tuxlor.png\"><s><a style=\"text-decoration: none\" href='/people/%s/profile'>%s</a></s></span>";
+          result = String.format("<span style=\"white-space: nowrap\"><img src=\"/img/tuxlor.png\"><s><a style=\"text-decoration: none\" href=\"%s\">%s</a></s></span>",
+              toHtmlFormatter.memberURL(user, secure), Parser.escape(memberName));
         }
       }else{
-        pattern = "%s";
+        result = Parser.escape(memberName);
       }
-    } catch (UserNotFoundException ex) {
-      pattern = "<s>%s</s>";
+    } catch (Exception ex) {
+      result = String.format("<s>%s</s>", Parser.escape(memberName));
     }
-    return String.format(pattern, Parser.escape(memberName), Parser.escape(memberName));
+    return result;
   }
 }
