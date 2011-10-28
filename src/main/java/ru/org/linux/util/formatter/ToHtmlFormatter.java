@@ -115,17 +115,11 @@ public class ToHtmlFormatter {
       String may_url = line.substring(start, end);
       // href
       String url_href = may_url;
-      // body
-      String url_body = may_url;
 
       if (may_url.toLowerCase().startsWith("www.")) {
         url_href = "http://" + may_url;
       } else if (may_url.toLowerCase().startsWith("ftp.")) {
         url_href = "ftp://" + may_url;
-      }
-
-      if (url_body.length() > maxLength) {
-        url_body = may_url.substring(0, maxLength - 3) + "...";
       }
 
       try {
@@ -140,14 +134,18 @@ public class ToHtmlFormatter {
             url_title = "Комментарий в несуществующем топике";
           }
           String new_url_href = uri.formatJump(messageDao, secure);
-          out.append("<a href=\"").append(new_url_href).append("\" title=\"").append(url_title).append("\">").append(new_url_href).append("</a>");
+          String fixed_url_body = uri.formatUrlBody(maxLength);
+          out.append("<a href=\"").append(new_url_href).append("\" title=\"").append(url_title).append("\">").append(fixed_url_body).append("</a>");
         } else if(uri.isTrueLorUrl()) {
           // ссылка внутри lorsource исправляем scheme
           String fixed_url_href = uri.fixScheme(secure);
-          out.append("<a href=\"").append(fixed_url_href).append("\">").append(fixed_url_href).append("</a>");
+          String fixed_url_body = uri.formatUrlBody(maxLength);
+          out.append("<a href=\"").append(fixed_url_href).append("\">").append(fixed_url_body).append("</a>");
         } else {
           // ссылка не из lorsource
-          out.append("<a href=\"").append(uri.toString()).append("\">").append(url_body).append("</a>");
+          String fixed_url_href = uri.toString();
+          String fixed_url_body = uri.formatUrlBody(maxLength);
+          out.append("<a href=\"").append(fixed_url_href).append("\">").append(fixed_url_href).append("</a>");
         }
       } catch (Exception e) {
         // ссылка не ссылка

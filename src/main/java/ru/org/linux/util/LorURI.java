@@ -118,10 +118,27 @@ public class LorURI {
     }
   }
 
+  /**
+   * Возвращает escaped URL
+   * @return url
+   */
   @Override
   public String toString() {
     return lorURI.getEscapedURIReference();
   }
+
+  /**
+   * Пытается вернуть unescaped URL если не получится то возвращает escaped
+   * @return url
+   */
+  public String toUnEscapedString() {
+    try {
+      return lorURI.getURIReference();
+    } catch (URIException e) {
+      return toString();
+    }
+  }
+
 
   /**
    * Ссылка является ссылкой на внтренности lorsource
@@ -163,6 +180,25 @@ public class LorURI {
     return commentId;
   }
 
+  public String formatUrlBody(int maxLength) throws URIException {
+    String all = lorURI.getURIReference();
+    String scheme = lorURI.getScheme();
+    String uriWithoutScheme = all.substring(scheme.length()+3);
+    if(uriWithoutScheme.length() < maxLength) {
+      return uriWithoutScheme;
+    } else {
+      String hostPort = lorURI.getHost();
+      if(lorURI.getPort() != -1) {
+        hostPort += ":" + lorURI.getPort();
+      }
+      if(hostPort.length() > maxLength) {
+        return hostPort+"/...";
+      } else {
+        return uriWithoutScheme.substring(0, maxLength) + "...";
+      }
+    }
+  }
+
   /**
    * Исправляет scheme url http или https в зависимости от флага secure
    * предполагалось только для lor ссылок, но будет работать с любыми, только зачем?
@@ -172,7 +208,7 @@ public class LorURI {
    */
   public String fixScheme(boolean secure) throws URIException {
     if(!isTrueLorUrl) {
-      return "";
+      return toString();
     }
     String scheme;
     if(secure) {
