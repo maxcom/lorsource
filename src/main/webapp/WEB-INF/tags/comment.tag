@@ -46,7 +46,7 @@
     DateFormat dateFormat = tmpl.dateFormat;
 
     if (!comment.getComment().isDeleted()) {
-      out.append("[<a href=\"/jump-message.jsp?msgid=").append(Integer.toString(comment.getComment().getTopicId())).append("&amp;cid=").append(Integer.toString(comment.getComment().getMessageId())).append("\">#</a>]");
+      out.append("[<a href='").append(topic.getLink()).append("?cid=").append(Integer.toString(comment.getComment().getMessageId())).append("'>#</a>]");
     }
 
     if (comment.getComment().isDeleted()) {
