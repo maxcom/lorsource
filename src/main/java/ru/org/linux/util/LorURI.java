@@ -222,7 +222,7 @@ public class LorURI {
     String query = lorURI.getQuery();
     String fragment = lorURI.getFragment();
     URI fixUri = new URI(scheme, null, host, port, path, query, fragment);
-    return fixUri.getEscapedURI();
+    return fixUri.getEscapedURIReference();
   }
 
   /**
