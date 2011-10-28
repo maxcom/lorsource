@@ -36,10 +36,10 @@ public class HTMLFormatterTest {
   private static final String RESULT2 = "Here is <a href=\"http://linux.org.ru\">http://linux.org.ru</a>, have fun! :-)";
 
   private static final String TEXT3 = "Long url: http://www.linux.org.ru/profile/maxcom/view-message.jsp?msgid=1993651";
-  private static final String RESULT3 = "Long url: <a href=\"http://www.linux.org.ru/profile/maxcom/view-message.jsp?msgid=1993651\">http://www.linux....</a>";
+  private static final String RESULT3 = "Long url: <a href=\"http://www.linux.org.ru/profile/maxcom/view-message.jsp?msgid=1993651\">www.linux.org.ru/pro...</a>";
 
   private static final String TEXT8 = "Long url: http://www.linux.org.ru/profile/maxcom/view-message.jsp?msgid=1993651&a=b";
-  private static final String RESULT8 = "Long url: <a href=\"http://www.linux.org.ru/profile/maxcom/view-message.jsp?msgid=1993651&amp;a=b\">http://www.linux....</a>";
+  private static final String RESULT8 = "Long url: <a href=\"http://www.linux.org.ru/profile/maxcom/view-message.jsp?msgid=1993651&amp;a=b\">www.linux.org.ru/pro...</a>";
 
   private static final String QUOTING1 = "> 1";
   private static final String RESULT_QUOTING1 = "\n[i]> 1[/i]";
@@ -81,7 +81,7 @@ public class HTMLFormatterTest {
 
   @Before
   public void init() throws Exception {
-    mainURI = new URI("http://127.0.0.1:8080/",true, "UTF-8");
+    mainURI = new URI("http://www.linux.org.ru/",true, "UTF-8");
 
     configuration = mock(Configuration.class);
 

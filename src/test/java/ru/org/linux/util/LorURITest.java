@@ -25,7 +25,6 @@ import ru.org.linux.spring.dao.MessageDao;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -41,7 +40,8 @@ public class LorURITest {
   private Group group12;
 
 
-  URI mainURI;
+  URI mainURI; // 127.0.0.1:8080
+  URI mainLORURI; // linux.org.ru
   private String url1 = "http://127.0.0.1:8080/news/debian/6753486#comment-6753612";
   private String url2 = "https://127.0.0.1:8080/forum/talks/6893165?lastmod=1319027964738";
   private String url3 = "https://127.0.0.1:8080/forum/general/6890857/page2?lastmod=1319022386177#comment-6892917";
@@ -59,6 +59,7 @@ public class LorURITest {
   @Before
   public void initTest() throws Exception {
     mainURI = new URI("http://127.0.0.1:8080/", true, "UTF-8");
+    mainLORURI = new URI("http://www.linux.org.ru/", true, "UTF-8");
 
     messageDao = mock(MessageDao.class);
     message1 = mock(Message.class);
@@ -226,6 +227,38 @@ public class LorURITest {
     assertTrue(lorURI.isCommentUrl());
     assertEquals("http://127.0.0.1:8080/forum/security/1948661?cid=1948668", lorURI.formatJump(messageDao, false));
     assertEquals("https://127.0.0.1:8080/forum/security/1948661?cid=1948668", lorURI.formatJump(messageDao, true));
+  }
+
+  @Test
+  public void testForumatUrlBody() throws Exception {
+    // url == mainURL и mainURL host:port
+    LorURI uri1 = new LorURI(mainURI, "http://127.0.0.1:8080/forum/security/1948661?cid=1948668");
+    assertEquals("127.0.0.1:8080/...", uri1.formatUrlBody(10));
+    assertEquals("127.0.0.1:8080/forum...", uri1.formatUrlBody(20));
+    assertEquals("127.0.0.1:8080/forum/security/1948661?cid=1948668", uri1.formatUrlBody(80));
+    // url == mainURL и mainURL host
+    LorURI uri2 = new LorURI(mainLORURI, "https://www.linux.org.ru/search.jsp?q=%D0%B1%D0%BB%D1%8F&oldQ=&range=ALL&interval=ALL&user=&_usertopic=on");
+    assertEquals("www.linux.org.ru/...", uri2.formatUrlBody(10));
+    assertEquals("www.linux.org.ru/sea...", uri2.formatUrlBody(20));
+    assertEquals("www.linux.org.ru/search.jsp?q=бля&oldQ=&range=ALL&interval=ALL&user=&_usertopic=...", uri2.formatUrlBody(80));
+    // unescaped url == mainURL и mainURL host
+    LorURI uri3 = new LorURI(mainLORURI, "https://www.linux.org.ru/search.jsp?q=бля&oldQ=&range=ALL&interval=ALL&user=&_usertopic=on");
+    assertEquals("www.linux.org.ru/...", uri3.formatUrlBody(10));
+    assertEquals("www.linux.org.ru/sea...", uri3.formatUrlBody(20));
+    assertEquals("www.linux.org.ru/search.jsp?q=бля&oldQ=&range=ALL&interval=ALL&user=&_usertopic=...", uri3.formatUrlBody(80));
+
+    // unescaped url != mainURL и mainURL host
+    LorURI uri4 = new LorURI(mainLORURI, "https://example.com/search.jsp?q=бля&oldQ=&range=ALL&interval=ALL&user=&_usertopic=on");
+    assertEquals("example.com/...", uri4.formatUrlBody(10));
+    assertEquals("example.com/search.j...", uri4.formatUrlBody(20));
+    assertEquals("example.com/search.jsp?q=бля&oldQ=&range=ALL&interval=ALL&user=&_usertopic=on", uri4.formatUrlBody(80));
+
+    // escaped url != mainURL и mainURL host
+    LorURI uri5 = new LorURI(mainLORURI, "https://example.com/search.jsp?q=%D0%B1%D0%BB%D1%8F&oldQ=&range=ALL&interval=ALL&user=&_usertopic=on");
+    assertEquals("example.com/...", uri5.formatUrlBody(10));
+    assertEquals("example.com/search.j...", uri5.formatUrlBody(20));
+    assertEquals("example.com/search.jsp?q=бля&oldQ=&range=ALL&interval=ALL&user=&_usertopic=on", uri5.formatUrlBody(80));
+
   }
 
 }
