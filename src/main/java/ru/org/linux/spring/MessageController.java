@@ -210,6 +210,16 @@ public class MessageController {
     return getMessage(webRequest, request, response, preparedMessage, group, page, filter, highlight);
   }
 
+  /**
+   * Оставлено для старых ссылок /view-message.jsp
+   * @param msgid id топика
+   * @param page страница топика
+   * @param lastmod параметр для кэширования
+   * @param filter фильтр
+   * @param output ?
+   * @return вовзращает редирект на новый код
+   * @throws Exception если получится
+   */
   @RequestMapping("/view-message.jsp")
   public ModelAndView getMessageOld(
     @RequestParam("msgid") int msgid,
