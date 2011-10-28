@@ -210,50 +210,6 @@ public class MessageController {
     return getMessage(webRequest, request, response, preparedMessage, group, page, filter, highlight);
   }
 
-  @RequestMapping("/view-message.jsp")
-  public ModelAndView getMessageOld(
-    @RequestParam("msgid") int msgid,
-    @RequestParam(value="page", required=false) Integer page,
-    @RequestParam(value="lastmod", required=false) Long lastmod,
-    @RequestParam(value="filter", required=false) String filter,
-    @RequestParam(required=false) String output
-  ) throws Exception {
-    Message message = messageDao.getById(msgid);
-
-    StringBuilder link = new StringBuilder(message.getLink());
-
-    StringBuilder params = new StringBuilder();
-
-    if (page!=null) {
-      link.append("/page").append(page);
-    }
-
-    if (lastmod!=null && !message.isExpired()) {
-      params.append("?lastmod=").append(message.getLastModified().getTime());
-    }
-
-    if (filter!=null) {
-      if (params.length()==0) {
-        params.append('?');
-      } else {
-        params.append('&');
-      }
-      params.append("filter=").append(filter);
-    }
-
-    if (output!=null) {
-      if (params.length()==0) {
-        params.append('?');
-      } else {
-        params.append('&');
-      }
-      params.append("output=").append(output);
-    }
-
-    link.append(params);
-
-    return new ModelAndView(new RedirectView(link.toString()));
-  }
 
   private ModelAndView getMessage(
     WebRequest webRequest,
