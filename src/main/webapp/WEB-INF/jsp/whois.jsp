@@ -143,8 +143,8 @@
     }
 %>
 </c:if>
-  <br>
   <c:if test="${(template.moderatorSession and user.blockable) or template.currentUser.administrator}">
+  <br>
     <div style="border: 1px dotted; padding: 1em;">
     <form method='post' action='usermod.jsp'>
       <input type='hidden' name='id' value='${user.id}'>
@@ -159,7 +159,6 @@
     </form>
     </div>
   </c:if>
-<br>
 <p>
 <c:if test="${template.sessionAuthorized or user.maxScore>=50}">
 <cite>
