@@ -93,6 +93,8 @@ public class LorURITest {
     assertTrue(lorURI.isTrueLorUrl());
     assertTrue(lorURI.isMessageUrl());
     assertTrue(lorURI.isCommentUrl());
+    assertEquals("http://127.0.0.1:8080/news/debian/6753486#comment-6753612", lorURI.fixScheme(false));
+    assertEquals("https://127.0.0.1:8080/news/debian/6753486#comment-6753612", lorURI.fixScheme(true));
     assertEquals("http://127.0.0.1:8080/news/debian/6753486?cid=6753612", lorURI.formatJump(messageDao, false));
     assertEquals("https://127.0.0.1:8080/news/debian/6753486?cid=6753612", lorURI.formatJump(messageDao, true));
   }
@@ -105,6 +107,8 @@ public class LorURITest {
     assertTrue(lorURI.isTrueLorUrl());
     assertTrue(lorURI.isMessageUrl());
     assertTrue(!lorURI.isCommentUrl());
+    assertEquals("http://127.0.0.1:8080/forum/talks/6893165?lastmod=1319027964738", lorURI.fixScheme(false));
+    assertEquals("https://127.0.0.1:8080/forum/talks/6893165?lastmod=1319027964738", lorURI.fixScheme(true));
     assertEquals("http://127.0.0.1:8080/forum/talks/6893165", lorURI.formatJump(messageDao, false));
     assertEquals("https://127.0.0.1:8080/forum/talks/6893165", lorURI.formatJump(messageDao, true));
   }
@@ -117,6 +121,8 @@ public class LorURITest {
     assertTrue(lorURI.isTrueLorUrl());
     assertTrue(lorURI.isMessageUrl());
     assertTrue(lorURI.isCommentUrl());
+    assertEquals("http://127.0.0.1:8080/forum/general/6890857/page2?lastmod=1319022386177#comment-6892917", lorURI.fixScheme(false));
+    assertEquals("https://127.0.0.1:8080/forum/general/6890857/page2?lastmod=1319022386177#comment-6892917", lorURI.fixScheme(true));
     assertEquals("http://127.0.0.1:8080/forum/general/6890857?cid=6892917", lorURI.formatJump(messageDao, false));
     assertEquals("https://127.0.0.1:8080/forum/general/6890857?cid=6892917", lorURI.formatJump(messageDao, true));
   }
