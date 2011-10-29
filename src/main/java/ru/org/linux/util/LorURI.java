@@ -34,7 +34,6 @@ public class LorURI {
   private static final Pattern requestCommentPattern = Pattern.compile("^comment-(\\d+)");
   private static final Pattern requestConmmentPatternNew = Pattern.compile("cid=(\\d+)");
 
-  private final String rawUrl;
   private final URI lorURI;
   private final URI mainURI;
   private final boolean isTrueLorUrl;
@@ -52,7 +51,6 @@ public class LorURI {
    * @throws URIException если url неправильный
    */
   public LorURI(URI mainURI, String url) throws URIException {
-    rawUrl = url;
     this.mainURI = mainURI;
     URI uri;
     try {
