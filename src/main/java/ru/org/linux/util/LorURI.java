@@ -65,51 +65,53 @@ public class LorURI {
     }
     isTrueLorUrl = (mainURI.getHost().equals(lorURI.getHost()) && mainURI.getPort() == lorURI.getPort());
 
-    if(isTrueLorUrl) {
-        // find message id in lor url
-        int msgId = 0;
-        boolean isMsg = false;
-        String path = lorURI.getPath();
-        if(path != null) {
-          Matcher messageMatcher = requestMessagePattern.matcher(path);
+    if (isTrueLorUrl) {
+      // find message id in lor url
+      int msgId = 0;
+      boolean isMsg = false;
+      String path = lorURI.getPath();
+      if (path != null) {
+        Matcher messageMatcher = requestMessagePattern.matcher(path);
 
-          if(messageMatcher.find()) {
-            try {
-              msgId = Integer.parseInt(messageMatcher.group(1));
-              isMsg = true;
-            } catch (NumberFormatException e) {
-              msgId = 0;
-              isMsg = false;
-            }
-          } else {
+        if (messageMatcher.find()) {
+          try {
+            msgId = Integer.parseInt(messageMatcher.group(1));
+            isMsg = true;
+          } catch (NumberFormatException e) {
             msgId = 0;
             isMsg = false;
           }
+        } else {
+          msgId = 0;
+          isMsg = false;
         }
-        messageId = msgId;
-        isMessageUrl = isMsg;
+      }
+      messageId = msgId;
+      isMessageUrl = isMsg;
 
-        // find comment id in lor url
-        int commId = 0;
-        boolean isComm = false;
-        String fragment = lorURI.getFragment();
-        if(fragment != null) {
-          Matcher commentMatcher = requestCommentPattern.matcher(fragment);
-          if(commentMatcher.find()) {
-            try {
-              commId = Integer.parseInt(commentMatcher.group(1));
-              isComm = true;
-            } catch (NumberFormatException e) {
-              commId = 0;
-              isComm = false;
-            }
-          } else {
+      // find comment id in lor url
+      int commId = 0;
+      boolean isComm = false;
+      String fragment = lorURI.getFragment();
+      if (fragment != null) {
+        Matcher commentMatcher = requestCommentPattern.matcher(fragment);
+        if (commentMatcher.find()) {
+          try {
+            commId = Integer.parseInt(commentMatcher.group(1));
+            isComm = true;
+          } catch (NumberFormatException e) {
             commId = 0;
             isComm = false;
           }
+        } else {
+          commId = 0;
+          isComm = false;
         }
-        commentId = commId;
-        isCommentUrl = isComm;
+      }
+
+
+      commentId = commId;
+      isCommentUrl = isComm;
     } else {
       messageId = 0;
       isMessageUrl = false;
