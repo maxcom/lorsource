@@ -43,6 +43,7 @@ public class LorURITest {
   URI mainURI; // 127.0.0.1:8080
   URI mainLORURI; // linux.org.ru
   private String url1 = "http://127.0.0.1:8080/news/debian/6753486#comment-6753612";
+  private String url1n = "http://127.0.0.1:8080/news/debian/6753486?cid=6753612";
   private String url2 = "https://127.0.0.1:8080/forum/talks/6893165?lastmod=1319027964738";
   private String url3 = "https://127.0.0.1:8080/forum/general/6890857/page2?lastmod=1319022386177#comment-6892917";
 
@@ -88,13 +89,31 @@ public class LorURITest {
   @Test
   public void test1() throws Exception {
     LorURI lorURI = new LorURI(mainURI, url1);
-    assertEquals(6753486, lorURI.getMessageId());
-    assertEquals(6753612, lorURI.getCommentId());
+
     assertTrue(lorURI.isTrueLorUrl());
     assertTrue(lorURI.isMessageUrl());
     assertTrue(lorURI.isCommentUrl());
+
+    assertEquals(6753486, lorURI.getMessageId());
+    assertEquals(6753612, lorURI.getCommentId());
     assertEquals("http://127.0.0.1:8080/news/debian/6753486#comment-6753612", lorURI.fixScheme(false));
     assertEquals("https://127.0.0.1:8080/news/debian/6753486#comment-6753612", lorURI.fixScheme(true));
+    assertEquals("http://127.0.0.1:8080/news/debian/6753486?cid=6753612", lorURI.formatJump(messageDao, false));
+    assertEquals("https://127.0.0.1:8080/news/debian/6753486?cid=6753612", lorURI.formatJump(messageDao, true));
+  }
+
+  @Test
+  public void test1n() throws Exception {
+    LorURI lorURI = new LorURI(mainURI, url1n);
+
+    assertTrue(lorURI.isTrueLorUrl());
+    assertTrue(lorURI.isMessageUrl());
+    assertTrue(lorURI.isCommentUrl());
+
+    assertEquals(6753486, lorURI.getMessageId());
+    assertEquals(6753612, lorURI.getCommentId());
+    assertEquals("http://127.0.0.1:8080/news/debian/6753486?cid=6753612", lorURI.fixScheme(false));
+    assertEquals("https://127.0.0.1:8080/news/debian/6753486?cid=6753612", lorURI.fixScheme(true));
     assertEquals("http://127.0.0.1:8080/news/debian/6753486?cid=6753612", lorURI.formatJump(messageDao, false));
     assertEquals("https://127.0.0.1:8080/news/debian/6753486?cid=6753612", lorURI.formatJump(messageDao, true));
   }

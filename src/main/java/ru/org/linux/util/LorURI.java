@@ -32,6 +32,7 @@ import java.util.regex.Pattern;
 public class LorURI {
   private static final Pattern requestMessagePattern = Pattern.compile("^/\\w+/\\w+/(\\d+)");
   private static final Pattern requestCommentPattern = Pattern.compile("^comment-(\\d+)");
+  private static final Pattern requestConmmentPatternNew = Pattern.compile("cid=(\\d+)");
 
   private final String rawUrl;
   private final URI lorURI;
@@ -103,12 +104,21 @@ public class LorURI {
             commId = 0;
             isComm = false;
           }
-        } else {
-          commId = 0;
-          isComm = false;
         }
       }
 
+      if (lorURI.getQuery()!=null) {
+        Matcher commentMatcher = requestConmmentPatternNew.matcher(lorURI.getQuery());
+        if (commentMatcher.find()) {
+          try {
+            commId = Integer.parseInt(commentMatcher.group(1));
+            isComm = true;
+          } catch (NumberFormatException e) {
+            commId = 0;
+            isComm = false;
+          }
+        }
+      }
 
       commentId = commId;
       isCommentUrl = isComm;
