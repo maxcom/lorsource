@@ -15,7 +15,7 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
-
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 <%
 
@@ -33,7 +33,10 @@
 
   <c:forEach var="tag" items="${tags}">
     <li>
-      <a href="view-news.jsp?tag=${tag.key}">${tag.key}</a>
+      <c:url value="/view-news.jsp" var="tag_url">
+          <c:param name="tag" value="${tag.key}"/>
+      </c:url>
+      <a href="${fn:escapeXml(tag_url)}">${tag.key}</a>
 
       (${tag.value})
 
