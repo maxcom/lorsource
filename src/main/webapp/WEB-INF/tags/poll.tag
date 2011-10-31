@@ -19,34 +19,8 @@
   --%>
 <%@ attribute name="poll" required="true" type="ru.org.linux.site.PreparedPoll" %>
 <%@ attribute name="highlight" required="false" type="java.util.Set" %>
-<table class=poll>
 <%
   Template tmpl = Template.getTemplate(request);
-
-  int max = poll.getMaximumValue();
   ImageInfo info = new ImageInfo(tmpl.getConfig().getProperty("HTMLPathPrefix") + tmpl.getProf().getStyle() + "/img/votes.png");
-  int total = 0;
-  for (PollVariant var : poll.getVariants()) {
-    out.append("<tr><td>");
-    int id = var.getId();
-    int votes = var.getVotes();
-    if (highlight!=null && highlight.contains(id)) {
-      out.append("<b>");
-    }
-    out.append(StringUtil.escapeHtml(var.getLabel()));
-    if (highlight!=null && highlight.contains(id)) {
-      out.append("</b>");
-    }
-    out.append("</td><td>");
-    out.append(Integer.toString(votes));
-    out.append("</td><td>");
-    total += votes;
-    for (int i = 0; i < 20 * votes / max; i++) {
-      out.append("<img src=\"/").append(tmpl.getProf().getStyle()).append("/img/votes.png\" alt=\"*\" ").append(info.getCode()).append('>');
-    }
-    out.append("</td></tr>");
-  }
-%><tr>
-    <td colspan=2>Всего голосов: <%= total %></td>
-</tr>
-</table>
+  out.append(poll.renderPoll("/", tmpl.getProf().getStyle(), info.getCode()));
+%>

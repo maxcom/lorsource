@@ -41,7 +41,12 @@
     <c:url value="/view-vote.jsp" var="vote_url">
       <c:param name="vote" value="${poll.id}"/>
     </c:url>
-    <a href="${vote_url}">результаты</a> (${count} голосов)
+    <c:if test="${poll.multiSelect}">
+        <a href="${vote_url}">результаты</a> (${count}/${countUsers} голосов)
+    </c:if>
+    <c:if test="not ${poll.multiSelect}">
+        <a href="${vote_url}">результаты</a> (${count} голосов)
+    </c:if>
     <br/>
     <a href="${main_url}">итоги прошедших опросов...</a>
     <br/>
