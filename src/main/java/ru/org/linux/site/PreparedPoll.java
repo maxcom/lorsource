@@ -55,8 +55,19 @@ public class PreparedPoll {
     return variants;
   }
 
-  /* TODO: move to JSP */
-  public String renderPoll(String fullUrl)  {
+  public int getCountUsers() {
+    return countUsers;
+  }
+
+  /**
+   * Функция отображения результатов опроса
+   * используем так-же в poll.tag
+   * @param fullUrl для rss полный путь, для сайта просто "/"
+   * @param theme из какой темы брыть значок, TODO для rss из white !?
+   * @param imageInfo строка для html с wight и height
+   * @return html табличку результатов голосования
+   */
+  public String renderPoll(String fullUrl, String theme, String imageInfo)  {
     StringBuilder out = new StringBuilder();
     int max = maximumValue;
     out.append("<table>");
@@ -68,12 +79,20 @@ public class PreparedPoll {
       out.append("</td><td>").append(votes).append("</td><td>");
       total += votes;
       for (int i = 0; i < 20 * votes / max; i++) {
-        out.append("<img src=\"").append(fullUrl).append("white/img/votes.png\" alt=\"*\">");
+        out.append("<img src=\"")
+            .append(fullUrl)
+            .append(theme)
+            .append("/img/votes.png\" alt=\"*\" ")
+            .append(imageInfo)
+            .append(">");
+
       }
       out.append("</td></tr>");
     }
     out.append("<tr><td colspan=2>Всего голосов: ").append(total).append("</td></tr>");
-    out.append("<tr><td colspan=2>Всего проголосовавших: ").append(countUsers).append("</td></tr>");
+    if(poll.isMultiSelect()) {
+      out.append("<tr><td colspan=2>Всего проголосовавших: ").append(countUsers).append("</td></tr>");
+    }
     out.append("</table>");
     return out.toString();
   }
