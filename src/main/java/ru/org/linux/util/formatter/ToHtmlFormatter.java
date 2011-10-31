@@ -148,6 +148,7 @@ public class ToHtmlFormatter {
           out.append("<a href=\"").append(fixed_url_href).append("\">").append(fixed_url_href).append("</a>");
         }
       } catch (Exception e) {
+        // e.printStackTrace();
         // ссылка не ссылка
         out.append(may_url);
       }
