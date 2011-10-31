@@ -35,6 +35,8 @@ public class LorURI {
   private static final Pattern requestMessagePattern = Pattern.compile("^/\\w+/\\w+/(\\d+)");
   private static final Pattern requestCommentPattern = Pattern.compile("^comment-(\\d+)");
   private static final Pattern requestConmmentPatternNew = Pattern.compile("cid=(\\d+)");
+  private static final Pattern requestOldJumpPathPattern = Pattern.compile("^/jump-message.jsp$");
+  private static final Pattern requestOldJumpQueryPattern = Pattern.compile("^msgid=(\\d+)&cid=(\\d+)");
 
   private final URI lorURI;
   private final URI mainURI;
@@ -73,9 +75,28 @@ public class LorURI {
     if (isTrueLorUrl) {
       // find message id in lor url
       int msgId = 0;
+      int commId = 0;
       boolean isMsg = false;
+      boolean isComm = false;
+      if(lorURI.getPath() != null && lorURI.getQuery() != null) {
+        Matcher oldJumpPathMatcher = requestOldJumpPathPattern.matcher(lorURI.getPath());
+        Matcher oldJumpQueryMatcher = requestOldJumpQueryPattern.matcher(lorURI.getQuery());
+        if(oldJumpPathMatcher.find() && oldJumpQueryMatcher.find()) {
+          try {
+            msgId = Integer.parseInt(oldJumpQueryMatcher.group(1));
+            commId = Integer.parseInt(oldJumpQueryMatcher.group(2));
+            isMsg = true;
+            isComm = true;
+          } catch (NumberFormatException e) {
+            msgId = 0;
+            commId = 0;
+            isMsg = false;
+            isComm = false;
+          }
+        }
+      }
       String path = lorURI.getPath();
-      if (path != null) {
+      if (path != null && !isMsg) {
         Matcher messageMatcher = requestMessagePattern.matcher(path);
 
         if (messageMatcher.find()) {
@@ -95,8 +116,6 @@ public class LorURI {
       isMessageUrl = isMsg;
 
       // find comment id in lor url
-      int commId = 0;
-      boolean isComm = false;
       String fragment = lorURI.getFragment();
       if (fragment != null) {
         Matcher commentMatcher = requestCommentPattern.matcher(fragment);
