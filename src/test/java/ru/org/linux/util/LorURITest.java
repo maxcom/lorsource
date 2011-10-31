@@ -272,8 +272,8 @@ public class LorURITest {
 
   @Test
   public void test14() throws Exception {
-    String url14_1 = "https://www.linux.org.ru/jump-message.jsp?msgid=6890857&cid=6892917";
-    String url14_2 = "https://127.0.0.1:8080/jump-message.jsp?msgid=6890857&cid=6892917";
+    String url14_1 = "https://www.linux.org.ru/jump-message.jsp?msgid=6890857&amp;cid=6892917";
+    String url14_2 = "https://127.0.0.1:8080/jump-message.jsp?msgid=6890857&amp;cid=6892917";
     LorURI lorURI1 = new LorURI(mainLORURI, url14_1);
     LorURI lorURI2 = new LorURI(mainURI, url14_2);
 
@@ -282,8 +282,8 @@ public class LorURITest {
     assertTrue(lorURI1.isTrueLorUrl());
     assertTrue(lorURI1.isMessageUrl());
     assertTrue(lorURI1.isCommentUrl());
-    assertEquals("http://www.linux.org.ru/jump-message.jsp?msgid=6890857&cid=6892917", lorURI1.fixScheme(false));
-    assertEquals("https://www.linux.org.ru/jump-message.jsp?msgid=6890857&cid=6892917", lorURI1.fixScheme(true));
+    assertEquals("http://www.linux.org.ru/jump-message.jsp?msgid=6890857&amp;cid=6892917", lorURI1.fixScheme(false));
+    assertEquals("https://www.linux.org.ru/jump-message.jsp?msgid=6890857&amp;cid=6892917", lorURI1.fixScheme(true));
     assertEquals("http://www.linux.org.ru/forum/general/6890857?cid=6892917", lorURI1.formatJump(messageDao, false));
     assertEquals("https://www.linux.org.ru/forum/general/6890857?cid=6892917", lorURI1.formatJump(messageDao, true));
 
@@ -292,8 +292,8 @@ public class LorURITest {
     assertTrue(lorURI2.isTrueLorUrl());
     assertTrue(lorURI2.isMessageUrl());
     assertTrue(lorURI2.isCommentUrl());
-    assertEquals("http://127.0.0.1:8080/jump-message.jsp?msgid=6890857&cid=6892917", lorURI2.fixScheme(false));
-    assertEquals("https://127.0.0.1:8080/jump-message.jsp?msgid=6890857&cid=6892917", lorURI2.fixScheme(true));
+    assertEquals("http://127.0.0.1:8080/jump-message.jsp?msgid=6890857&amp;cid=6892917", lorURI2.fixScheme(false));
+    assertEquals("https://127.0.0.1:8080/jump-message.jsp?msgid=6890857&amp;cid=6892917", lorURI2.fixScheme(true));
     assertEquals("http://127.0.0.1:8080/forum/general/6890857?cid=6892917", lorURI2.formatJump(messageDao, false));
     assertEquals("https://127.0.0.1:8080/forum/general/6890857?cid=6892917", lorURI2.formatJump(messageDao, true));
   }
