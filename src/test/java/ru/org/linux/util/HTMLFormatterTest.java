@@ -19,7 +19,10 @@ import org.apache.commons.httpclient.URI;
 import org.hamcrest.CoreMatchers;
 import org.junit.Before;
 import org.junit.Test;
+import ru.org.linux.site.Group;
+import ru.org.linux.site.Message;
 import ru.org.linux.spring.Configuration;
+import ru.org.linux.spring.dao.MessageDao;
 import ru.org.linux.util.formatter.ToHtmlFormatter;
 import ru.org.linux.util.formatter.ToLorCodeFormatter;
 import ru.org.linux.util.formatter.ToLorCodeTexFormatter;
@@ -78,10 +81,47 @@ public class HTMLFormatterTest {
   private ToLorCodeTexFormatter toLorCodeTexFormatter;
   private Configuration configuration;
   private URI mainURI;
+  private MessageDao messageDao;
+  private Message message1;
+  private Group group1;
+  private Message message2;
+  private Group group2;
+  private Message message3;
+  private Group group3;
+  private Message message12;
+  private Group group12;
+
 
   @Before
   public void init() throws Exception {
     mainURI = new URI("http://www.linux.org.ru/",true, "UTF-8");
+
+    messageDao = mock(MessageDao.class);
+    message1 = mock(Message.class);
+    group1 = mock(Group.class);
+    message2 = mock(Message.class);
+    group2 = mock(Group.class);
+    message3 = mock(Message.class);
+    group3 = mock(Group.class);
+    message12 = mock(Message.class);
+    group12 = mock(Group.class);
+
+    when(message1.getTitle()).thenReturn("привет1");
+    when(message2.getTitle()).thenReturn("привет2");
+    when(message3.getTitle()).thenReturn("привет3");
+    when(message12.getTitle()).thenReturn("привет12");
+    when(group1.getUrl()).thenReturn("/news/debian/");
+    when(group2.getUrl()).thenReturn("/forum/talks/");
+    when(group3.getUrl()).thenReturn("/forum/general/");
+    when(group12.getUrl()).thenReturn("/forum/security/");
+    when(messageDao.getGroup(message1)).thenReturn(group1);
+    when(messageDao.getGroup(message2)).thenReturn(group2);
+    when(messageDao.getGroup(message3)).thenReturn(group3);
+    when(messageDao.getGroup(message12)).thenReturn(group12);
+    when(messageDao.getById(6753486)).thenReturn(message1);
+    when(messageDao.getById(6893165)).thenReturn(message2);
+    when(messageDao.getById(6890857)).thenReturn(message3);
+    when(messageDao.getById(1948661)).thenReturn(message12);
 
     configuration = mock(Configuration.class);
 
@@ -89,9 +129,11 @@ public class HTMLFormatterTest {
 
     toHtmlFormatter = new ToHtmlFormatter();
     toHtmlFormatter.setConfiguration(configuration);
+    toHtmlFormatter.setMessageDao(messageDao);
 
     toHtmlFormatter20 = new ToHtmlFormatter();
     toHtmlFormatter20.setConfiguration(configuration);
+    toHtmlFormatter20.setMessageDao(messageDao);
     toHtmlFormatter20.setMaxLength(20);
 
     toLorCodeTexFormatter = new ToLorCodeTexFormatter();
@@ -135,6 +177,17 @@ public class HTMLFormatterTest {
     assertEquals("[i]>test[/i][br]\ntest", toLorCodeFormatter.format(">test\ntest", true)); // 11
     assertEquals("[i]>test[/i][i][br]\n>test[/i]", toLorCodeFormatter.format(">test\n>test", true)); // 12
   }
+
+  @Test
+  public void testURLs() {
+    String url1 = "http://www.linux.org.ru/forum/general/6890857/page2?lastmod=1319022386177#comment-6892917";
+    String url3 = "http://www.linux.org.ru/jump-message.jsp?msgid=1948661&cid=1948675";
+    assertEquals("<a href=\"http://www.linux.org.ru/forum/general/6890857?cid=6892917\" title=\"привет3\">www.linux.org.ru/forum/general/6890857/page2?lastmod=1319022386177#comment-68929...</a>",
+        toHtmlFormatter.format(url1,false));
+    assertEquals("<a href=\"http://www.linux.org.ru/forum/security/1948661?cid=1948675\" title=\"привет12\">www.linux.org.ru/jump-message.jsp?msgid=1948661&amp;cid=1948675</a>",
+        toHtmlFormatter.format(url3,false));
+  }
+
 
   @Test
   public void testCrash() {

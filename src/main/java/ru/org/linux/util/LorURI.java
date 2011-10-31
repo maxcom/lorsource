@@ -15,6 +15,8 @@
 
 package ru.org.linux.util;
 
+import org.apache.commons.httpclient.HttpURL;
+import org.apache.commons.httpclient.HttpsURL;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import ru.org.linux.site.BadGroupException;
@@ -33,6 +35,8 @@ public class LorURI {
   private static final Pattern requestMessagePattern = Pattern.compile("^/\\w+/\\w+/(\\d+)");
   private static final Pattern requestCommentPattern = Pattern.compile("^comment-(\\d+)");
   private static final Pattern requestConmmentPatternNew = Pattern.compile("cid=(\\d+)");
+  private static final Pattern requestOldJumpPathPattern = Pattern.compile("^/jump-message.jsp$");
+  private static final Pattern requestOldJumpQueryPattern = Pattern.compile("^msgid=(\\d+)&amp;cid=(\\d+)");
 
   private final URI lorURI;
   private final URI mainURI;
@@ -62,14 +66,37 @@ public class LorURI {
     if(lorURI.getHost() == null) {
       throw new URIException();
     }
-    isTrueLorUrl = (mainURI.getHost().equals(lorURI.getHost()) && mainURI.getPort() == lorURI.getPort());
+    /*
+    это uri из lorsouce если хост и порт совпадают и scheme http или https
+     */
+    isTrueLorUrl = (mainURI.getHost().equals(lorURI.getHost()) && mainURI.getPort() == lorURI.getPort()
+                  && ("http".equals(lorURI.getScheme()) || "https".equals(lorURI.getScheme())));
 
     if (isTrueLorUrl) {
       // find message id in lor url
       int msgId = 0;
+      int commId = 0;
       boolean isMsg = false;
+      boolean isComm = false;
+      if(lorURI.getPath() != null && lorURI.getQuery() != null) {
+        Matcher oldJumpPathMatcher = requestOldJumpPathPattern.matcher(lorURI.getPath());
+        Matcher oldJumpQueryMatcher = requestOldJumpQueryPattern.matcher(lorURI.getQuery());
+        if(oldJumpPathMatcher.find() && oldJumpQueryMatcher.find()) {
+          try {
+            msgId = Integer.parseInt(oldJumpQueryMatcher.group(1));
+            commId = Integer.parseInt(oldJumpQueryMatcher.group(2));
+            isMsg = true;
+            isComm = true;
+          } catch (NumberFormatException e) {
+            msgId = 0;
+            commId = 0;
+            isMsg = false;
+            isComm = false;
+          }
+        }
+      }
       String path = lorURI.getPath();
-      if (path != null) {
+      if (path != null && !isMsg) {
         Matcher messageMatcher = requestMessagePattern.matcher(path);
 
         if (messageMatcher.find()) {
@@ -89,8 +116,6 @@ public class LorURI {
       isMessageUrl = isMsg;
 
       // find comment id in lor url
-      int commId = 0;
-      boolean isComm = false;
       String fragment = lorURI.getFragment();
       if (fragment != null) {
         Matcher commentMatcher = requestCommentPattern.matcher(fragment);
@@ -220,19 +245,16 @@ public class LorURI {
     if(!isTrueLorUrl) {
       return toString();
     }
-    String scheme;
-    if(secure) {
-      scheme = "https";
-    } else {
-      scheme = "http";
-    }
     String host = lorURI.getHost();
     int port = lorURI.getPort();
     String path = lorURI.getPath();
     String query = lorURI.getQuery();
     String fragment = lorURI.getFragment();
-    URI fixUri = new URI(scheme, null, host, port, path, query, fragment);
-    return fixUri.getEscapedURIReference();
+    if(!secure) {
+      return (new HttpURL(null, host, port, path, query, fragment)).getEscapedURIReference();
+    } else {
+      return (new HttpsURL(null, host, port, path, query, fragment)).getEscapedURIReference();
+    }
   }
 
   /**
