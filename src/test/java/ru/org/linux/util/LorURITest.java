@@ -38,6 +38,8 @@ public class LorURITest {
   private Group group3;
   private Message message12;
   private Group group12;
+  private Message message15;
+  private Group group15;
 
 
   URI mainURI; // 127.0.0.1:8080
@@ -71,19 +73,24 @@ public class LorURITest {
     group3 = mock(Group.class);
     message12 = mock(Message.class);
     group12 = mock(Group.class);
+    message15 = mock(Message.class);
+    group15 = mock(Group.class);
 
     when(group1.getUrl()).thenReturn("/news/debian/");
     when(group2.getUrl()).thenReturn("/forum/talks/");
     when(group3.getUrl()).thenReturn("/forum/general/");
     when(group12.getUrl()).thenReturn("/forum/security/");
+    when(group15.getUrl()).thenReturn("/forum/linux-org-ru/");
     when(messageDao.getGroup(message1)).thenReturn(group1);
     when(messageDao.getGroup(message2)).thenReturn(group2);
     when(messageDao.getGroup(message3)).thenReturn(group3);
     when(messageDao.getGroup(message12)).thenReturn(group12);
+    when(messageDao.getGroup(message15)).thenReturn(group15);
     when(messageDao.getById(6753486)).thenReturn(message1);
     when(messageDao.getById(6893165)).thenReturn(message2);
     when(messageDao.getById(6890857)).thenReturn(message3);
     when(messageDao.getById(1948661)).thenReturn(message12);
+    when(messageDao.getById(6944260)).thenReturn(message15);
   }
 
   @Test
@@ -297,6 +304,35 @@ public class LorURITest {
     assertEquals("http://127.0.0.1:8080/forum/general/6890857?cid=6892917", lorURI2.formatJump(messageDao, false));
     assertEquals("https://127.0.0.1:8080/forum/general/6890857?cid=6892917", lorURI2.formatJump(messageDao, true));
   }
+
+  @Test
+  public void test15() throws Exception {
+    String url15_1 = "https://www.linux.org.ru/forum/linux-org-ru/6944260/page4?lastmod=1320084656912#comment-6944831";
+    String url15_2 = "https://127.0.0.1:8080/forum/linux-org-ru/6944260/page4?lastmod=1320084656912#comment-6944831";
+    LorURI lorURI1 = new LorURI(mainLORURI, url15_1);
+    LorURI lorURI2 = new LorURI(mainURI, url15_2);
+
+    assertEquals(6944260, lorURI1.getMessageId());
+    assertEquals(6944831, lorURI1.getCommentId());
+    assertTrue(lorURI1.isTrueLorUrl());
+    assertTrue(lorURI1.isMessageUrl());
+    assertTrue(lorURI1.isCommentUrl());
+    assertEquals("http://www.linux.org.ru/forum/linux-org-ru/6944260/page4?lastmod=1320084656912#comment-6944831", lorURI1.fixScheme(false));
+    assertEquals("https://www.linux.org.ru/forum/linux-org-ru/6944260/page4?lastmod=1320084656912#comment-6944831", lorURI1.fixScheme(true));
+    assertEquals("http://www.linux.org.ru/forum/linux-org-ru/6944260?cid=6944831", lorURI1.formatJump(messageDao, false));
+    assertEquals("https://www.linux.org.ru/forum/linux-org-ru/6944260?cid=6944831", lorURI1.formatJump(messageDao, true));
+
+    assertEquals(6944260, lorURI2.getMessageId());
+    assertEquals(6944831, lorURI2.getCommentId());
+    assertTrue(lorURI2.isTrueLorUrl());
+    assertTrue(lorURI2.isMessageUrl());
+    assertTrue(lorURI2.isCommentUrl());
+    assertEquals("http://127.0.0.1:8080/forum/linux-org-ru/6944260/page4?lastmod=1320084656912#comment-6944831", lorURI2.fixScheme(false));
+    assertEquals("https://127.0.0.1:8080/forum/linux-org-ru/6944260/page4?lastmod=1320084656912#comment-6944831", lorURI2.fixScheme(true));
+    assertEquals("http://127.0.0.1:8080/forum/linux-org-ru/6944260?cid=6944831", lorURI2.formatJump(messageDao, false));
+    assertEquals("https://127.0.0.1:8080/forum/linux-org-ru/6944260?cid=6944831", lorURI2.formatJump(messageDao, true));
+  }
+
 
   @Test
   public void testForumatUrlBody() throws Exception {
