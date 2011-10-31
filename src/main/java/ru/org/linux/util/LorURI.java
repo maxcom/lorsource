@@ -15,6 +15,8 @@
 
 package ru.org.linux.util;
 
+import org.apache.commons.httpclient.HttpURL;
+import org.apache.commons.httpclient.HttpsURL;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import ru.org.linux.site.BadGroupException;
@@ -62,7 +64,11 @@ public class LorURI {
     if(lorURI.getHost() == null) {
       throw new URIException();
     }
-    isTrueLorUrl = (mainURI.getHost().equals(lorURI.getHost()) && mainURI.getPort() == lorURI.getPort());
+    /*
+    это uri из lorsouce если хост и порт совпадают и scheme http или https
+     */
+    isTrueLorUrl = (mainURI.getHost().equals(lorURI.getHost()) && mainURI.getPort() == lorURI.getPort()
+                  && ("http".equals(lorURI.getScheme()) || "https".equals(lorURI.getScheme())));
 
     if (isTrueLorUrl) {
       // find message id in lor url
@@ -220,19 +226,16 @@ public class LorURI {
     if(!isTrueLorUrl) {
       return toString();
     }
-    String scheme;
-    if(secure) {
-      scheme = "https";
-    } else {
-      scheme = "http";
-    }
     String host = lorURI.getHost();
     int port = lorURI.getPort();
     String path = lorURI.getPath();
     String query = lorURI.getQuery();
     String fragment = lorURI.getFragment();
-    URI fixUri = new URI(scheme, null, host, port, path, query, fragment);
-    return fixUri.getEscapedURIReference();
+    if(!secure) {
+      return (new HttpURL(null, host, port, path, query, fragment)).getEscapedURIReference();
+    } else {
+      return (new HttpsURL(null, host, port, path, query, fragment)).getEscapedURIReference();
+    }
   }
 
   /**

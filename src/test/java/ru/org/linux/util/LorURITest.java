@@ -255,6 +255,23 @@ public class LorURITest {
   }
 
   @Test
+  public void test13() throws Exception {
+    String url13_1 = "http://www.linux.org.ru/view-news.jsp?tag=c%2B%2B";
+    String url13_2 = "http://www.linux.org.ru/view-news.jsp?tag=c++";
+    String url13_3 = "http://www.linux.org.ru/view-news.jsp?tag=c+c";
+    LorURI lorURI1 = new LorURI(mainLORURI, url13_1);
+    LorURI lorURI2 = new LorURI(mainLORURI, url13_2);
+    LorURI lorURI3 = new LorURI(mainLORURI, url13_3);
+    assertEquals("https://www.linux.org.ru/view-news.jsp?tag=c++", lorURI1.fixScheme(true));
+    assertEquals("http://www.linux.org.ru/view-news.jsp?tag=c++", lorURI1.fixScheme(false));
+    assertEquals("https://www.linux.org.ru/view-news.jsp?tag=c%20%20", lorURI2.fixScheme(true));
+    assertEquals("http://www.linux.org.ru/view-news.jsp?tag=c%20%20", lorURI2.fixScheme(false));
+    assertEquals("http://www.linux.org.ru/view-news.jsp?tag=c%20c", lorURI3.fixScheme(false));
+    assertEquals("https://www.linux.org.ru/view-news.jsp?tag=c%20c", lorURI3.fixScheme(true));
+  }
+
+
+  @Test
   public void testForumatUrlBody() throws Exception {
     // url == mainURL и mainURL host:port
     LorURI uri1 = new LorURI(mainURI, "http://127.0.0.1:8080/forum/security/1948661?cid=1948668");
@@ -283,7 +300,6 @@ public class LorURITest {
     assertEquals("example.com/...", uri5.formatUrlBody(10));
     assertEquals("example.com/search.j...", uri5.formatUrlBody(20));
     assertEquals("example.com/search.jsp?q=бля&oldQ=&range=ALL&interval=ALL&user=&_usertopic=on", uri5.formatUrlBody(80));
-
   }
 
 }
