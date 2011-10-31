@@ -15,11 +15,11 @@
 
 package ru.org.linux.site;
 
-import java.io.File;
-import java.io.IOException;
-
 import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.ImageInfo;
+
+import java.io.File;
+import java.io.IOException;
 
 public class MessageTable {
   public static final int RSS_MIN = 10;
@@ -43,7 +43,7 @@ public class MessageTable {
       buf.append("<p><i>" + info.getWidth() + 'x' + info.getHeight() + ", " + info.getSizeString() + "</i>");
     } else if (topic.isVotePoll()) {
       PreparedPoll poll = preparedTopic.getPoll();
-      buf.append(poll.renderPoll(fullUrl));
+      buf.append(poll.renderPoll(fullUrl, "white", "")); // TODO сделал как было прибито в renderPoll, однако тему white собирались убить?
     } else {
       buf.append(preparedTopic.getProcessedMessage());
     }

@@ -82,11 +82,20 @@ public class PollBoxletImpl extends SpringBoxlet  {
       }
     });
 
+    Integer countUsers = getFromCache(cacheProvider, getCacheKey() + "countUsers"+poll.getId(), new GetCommand<Integer>() {
+      @Override
+      public Integer get() {
+        return pollDao.getCountUsers(poll);
+      }
+    });
+
+
     ModelAndView result = new ModelAndView("boxlets/poll");
     result.addObject("poll", poll);
     result.addObject("votes", votes);
     result.addObject("count", count);
     result.addObject("message", msg);
+    result.addObject("countUsers", countUsers);
     return result;
   }
 
