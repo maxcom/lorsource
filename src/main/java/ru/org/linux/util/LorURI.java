@@ -32,7 +32,7 @@ import java.util.regex.Pattern;
  * Helper class for lorsource uri
  */
 public class LorURI {
-  private static final Pattern requestMessagePattern = Pattern.compile("^/\\w+/\\w+/(\\d+)");
+  private static final Pattern requestMessagePattern = Pattern.compile("^/[\\w-]+/[\\w-]+/(\\d+)");
   private static final Pattern requestCommentPattern = Pattern.compile("^comment-(\\d+)");
   private static final Pattern requestConmmentPatternNew = Pattern.compile("cid=(\\d+)");
   private static final Pattern requestOldJumpPathPattern = Pattern.compile("^/jump-message.jsp$");

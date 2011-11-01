@@ -90,6 +90,8 @@ public class HTMLFormatterTest {
   private Group group3;
   private Message message12;
   private Group group12;
+  private Message message15;
+  private Group group15;
 
 
   @Before
@@ -105,23 +107,29 @@ public class HTMLFormatterTest {
     group3 = mock(Group.class);
     message12 = mock(Message.class);
     group12 = mock(Group.class);
+    message15 = mock(Message.class);
+    group15 = mock(Group.class);
 
     when(message1.getTitle()).thenReturn("привет1");
     when(message2.getTitle()).thenReturn("привет2");
     when(message3.getTitle()).thenReturn("привет3");
     when(message12.getTitle()).thenReturn("привет12");
+    when(message15.getTitle()).thenReturn("привет15");
     when(group1.getUrl()).thenReturn("/news/debian/");
     when(group2.getUrl()).thenReturn("/forum/talks/");
     when(group3.getUrl()).thenReturn("/forum/general/");
     when(group12.getUrl()).thenReturn("/forum/security/");
+    when(group15.getUrl()).thenReturn("/forum/linux-org-ru/");
     when(messageDao.getGroup(message1)).thenReturn(group1);
     when(messageDao.getGroup(message2)).thenReturn(group2);
     when(messageDao.getGroup(message3)).thenReturn(group3);
     when(messageDao.getGroup(message12)).thenReturn(group12);
+    when(messageDao.getGroup(message15)).thenReturn(group15);
     when(messageDao.getById(6753486)).thenReturn(message1);
     when(messageDao.getById(6893165)).thenReturn(message2);
     when(messageDao.getById(6890857)).thenReturn(message3);
     when(messageDao.getById(1948661)).thenReturn(message12);
+    when(messageDao.getById(6944260)).thenReturn(message15);
 
     configuration = mock(Configuration.class);
 
@@ -182,10 +190,13 @@ public class HTMLFormatterTest {
   public void testURLs() {
     String url1 = "http://www.linux.org.ru/forum/general/6890857/page2?lastmod=1319022386177#comment-6892917";
     String url3 = "http://www.linux.org.ru/jump-message.jsp?msgid=1948661&cid=1948675";
+    String url15 = "https://www.linux.org.ru/forum/linux-org-ru/6944260/page4?lastmod=1320084656912#comment-6944831";
     assertEquals("<a href=\"http://www.linux.org.ru/forum/general/6890857?cid=6892917\" title=\"привет3\">www.linux.org.ru/forum/general/6890857/page2?lastmod=1319022386177#comment-68929...</a>",
         toHtmlFormatter.format(url1,false));
     assertEquals("<a href=\"http://www.linux.org.ru/forum/security/1948661?cid=1948675\" title=\"привет12\">www.linux.org.ru/jump-message.jsp?msgid=1948661&amp;cid=1948675</a>",
         toHtmlFormatter.format(url3,false));
+    assertEquals("<a href=\"http://www.linux.org.ru/forum/linux-org-ru/6944260?cid=6944831\" title=\"привет15\">www.linux.org.ru/forum/linux-org-ru/6944260/page4?lastmod=1320084656912#comment-...</a>",
+        toHtmlFormatter.format(url15, false));
   }
 
 
