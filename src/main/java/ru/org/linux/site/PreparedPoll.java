@@ -73,21 +73,20 @@ public class PreparedPoll {
     out.append("<table>");
     int total = 0;
     for (PollVariant var : variants) {
-      out.append("<tr><td>");
+      //                      label      votes     imgTag
+      String formatRow = "<tr><td>%s</td><td>%d</td><td>%s</td></tr>";
+      String formatImgTag = "<p style=\"background: red repeat-x;display: inline;\"><img style=\"visibility:hidden\" height=\"19\" width=\"%d\" src=\"%s\" alt=\"%s\"></div>";
       int votes = var.getVotes();
-      out.append(StringUtil.escapeHtml(var.getLabel()));
-      out.append("</td><td>").append(votes).append("</td><td>");
+      String imgSrc = fullUrl+theme+"/img/votes.png";
+      String imgTag = String.format(
+          formatImgTag,
+          320*votes/max,                        // width
+          imgSrc,                               // img
+          StringUtil.repeat("*", 20*votes/max)  // alt
+      );
+      String row = String.format(formatRow, StringUtil.escapeHtml(var.getLabel()), votes, imgTag);
+      out.append(row);
       total += votes;
-      for (int i = 0; i < 20 * votes / max; i++) {
-        out.append("<img src=\"")
-            .append(fullUrl)
-            .append(theme)
-            .append("/img/votes.png\" alt=\"*\" ")
-            .append(imageInfo)
-            .append(">");
-
-      }
-      out.append("</td></tr>");
     }
     out.append("<tr><td colspan=2>Всего голосов: ").append(total).append("</td></tr>");
     if(poll.isMultiSelect()) {
