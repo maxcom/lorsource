@@ -75,7 +75,7 @@ public class PreparedPoll {
     for (PollVariant var : variants) {
       //                      label      votes     imgTag
       String formatRow = "<tr><td>%s</td><td>%d</td><td>%s</td></tr>";
-      String formatImgTag = "<p style=\"background: red repeat-x;display: inline;\"><img style=\"visibility:hidden\" height=\"19\" width=\"%d\" src=\"%s\" alt=\"%s\"></div>";
+      String formatImgTag = "<p style=\"background: #729FCF repeat-x;display: inline; margin: 5px;\"><img style=\"visibility:hidden\" height=\"19\" width=\"%d\" src=\"%s\" alt=\"%s\"></p>";
       int votes = var.getVotes();
       String imgSrc = fullUrl+theme+"/img/votes.png";
       String imgTag = String.format(
