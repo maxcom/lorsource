@@ -145,7 +145,7 @@ public class ToHtmlFormatter {
           // ссылка не из lorsource
           String fixed_url_href = uri.toString();
           String fixed_url_body = uri.formatUrlBody(maxLength);
-          out.append("<a href=\"").append(fixed_url_href).append("\">").append(fixed_url_href).append("</a>");
+          out.append("<a href=\"").append(fixed_url_href).append("\">").append(fixed_url_body).append("</a>");
         }
       } catch (Exception e) {
         // e.printStackTrace();
