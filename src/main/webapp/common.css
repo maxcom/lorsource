@@ -150,8 +150,9 @@ DIV.boxlet {
 
 div.quote {
   border: 1px dotted;
-  margin-bottom: 1em;
-  margin-right: 1em;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+  margin-right: 0.5em;
   margin-left: 5px;
   font-style: italic;  
   padding: 5px;
@@ -166,7 +167,10 @@ div.quote h3 {
 
 .code {
   border: 1px dotted;
-  margin-bottom: 1em;
+  margin-bottom: 0.5em;
+  margin-right: 0.5em;
+  margin-left: 5px;
+  margin-top: 0.5em;
   font-family: monospace;
   white-space: pre;
 }
