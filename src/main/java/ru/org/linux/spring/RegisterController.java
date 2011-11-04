@@ -31,7 +31,6 @@ import ru.org.linux.site.User;
 import ru.org.linux.site.UserInfo;
 import ru.org.linux.spring.dao.IPBlockDao;
 import ru.org.linux.spring.dao.UserDao;
-import ru.org.linux.spring.validators.EditMessageRequestValidator;
 import ru.org.linux.spring.validators.RegisterRequestValidator;
 import ru.org.linux.util.LorHttpUtils;
 import ru.org.linux.util.StringUtil;
@@ -157,10 +156,6 @@ public class RegisterController extends ApplicationObjectSupport {
     String url = null;
 
     if (!Strings.isNullOrEmpty(form.getUrl())) {
-      if (!URLUtil.isUrl(form.getUrl())) {
-        errors.rejectValue("url", null, "Некорректный URL");
-      }
-
       url = URLUtil.fixURL(form.getUrl());
     }
 

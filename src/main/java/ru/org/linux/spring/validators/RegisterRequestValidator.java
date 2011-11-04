@@ -5,6 +5,7 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 import ru.org.linux.spring.RegisterRequest;
 import ru.org.linux.util.StringUtil;
+import ru.org.linux.util.URLUtil;
 
 public class RegisterRequestValidator implements Validator {
 
@@ -23,6 +24,10 @@ public class RegisterRequestValidator implements Validator {
       if (StringUtil.escapeHtml(form.getTown()).length() > TOWN_LENGTH) {
         errors.rejectValue("town", null, "Слишком длиное название города (максимум "+TOWN_LENGTH+" символов)");
       }
+    }
+
+    if (!Strings.isNullOrEmpty(form.getUrl()) && !URLUtil.isUrl(form.getUrl())) {
+      errors.rejectValue("url", null, "Некорректный URL");
     }
   }
 }
