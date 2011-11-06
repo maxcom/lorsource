@@ -56,7 +56,7 @@
 --%>
     SAMSUNG Electronics&nbsp;&mdash; мировой лидер в&nbsp;производстве полупроводников,
 телекоммуникационного оборудования и&nbsp;цифровой конвергенции&nbsp;&mdash; объявляет о&nbsp;приеме
-на&nbsp;работу программистов, инженеров-разработчик, физиков и&nbsp;химиков: LINUX,
+на&nbsp;работу программистов, инженеров-разработчиков, физиков и&nbsp;химиков: LINUX,
 Android, C/C++, Smart Phones, Smart TV, 3D&nbsp;Imaging, 3D&nbsp;Graphics, ASIC, FPGA,
 SoC, Graphene, MEMS, Biomedical Engineering. Дополнительная информация:
     <a href="http://job.samsung.ru/" style="color: white">http://job.samsung.ru</a>
