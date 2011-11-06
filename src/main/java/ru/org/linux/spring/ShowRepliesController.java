@@ -18,6 +18,7 @@ package ru.org.linux.spring;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
@@ -106,13 +107,12 @@ public class ShowRepliesController {
     return new ModelAndView("show-replies", params);
   }
 
-  @RequestMapping("/show-replies.jsp")
+  @RequestMapping(value="/show-replies.jsp", method= RequestMethod.GET)
   public ModelAndView showReplies(
     HttpServletRequest request,
     HttpServletResponse response,
     @RequestParam(value = "nick", required=false) String nick,
-    @RequestParam(value = "offset", defaultValue = "0") int offset,
-    @RequestParam(value = "forceReset", defaultValue = "false") boolean forceReset
+    @RequestParam(value = "offset", defaultValue = "0") int offset
   ) throws Exception {
     Template tmpl = Template.getTemplate(request);
     boolean feedRequested = request.getParameterMap().containsKey("output");
@@ -139,8 +139,6 @@ public class ShowRepliesController {
 
     Map<String, Object> params = new HashMap<String, Object>();
     params.put("nick", nick);
-    params.put("forceReset", forceReset);
-
 
     if (offset < 0) {
       offset = 0;
@@ -179,14 +177,6 @@ public class ShowRepliesController {
     }
     List<RepliesListItem> list = repliesDao.getRepliesForUser(user, showPrivate, topics, offset, feedRequested, request.isSecure());
 
-    if (tmpl.isSessionAuthorized()) {
-      if ("POST".equalsIgnoreCase(request.getMethod())) {
-        userDao.resetUnreadReplies(currentUser);
-        tmpl.updateCurrentUser(userDao);
-      } else {
-        params.put("enableReset", true);
-      }
-    }
     params.put("isMyNotifications", false);
     params.put("topicsList", list);
     params.put("hasMore", list.size()==topics);
