@@ -354,15 +354,15 @@ public class LorURITest {
 
     // unescaped url != mainURL и mainURL host
     LorURI uri4 = new LorURI(mainLORURI, "https://example.com/search.jsp?q=бля&oldQ=&range=ALL&interval=ALL&user=&_usertopic=on");
-    assertEquals("example.com/...", uri4.formatUrlBody(10));
-    assertEquals("example.com/search.j...", uri4.formatUrlBody(20));
-    assertEquals("example.com/search.jsp?q=бля&oldQ=&range=ALL&interval=ALL&user=&_usertopic=on", uri4.formatUrlBody(80));
+    assertEquals("https://ex...", uri4.formatUrlBody(10));
+    assertEquals("https://example.com/...", uri4.formatUrlBody(20));
+    assertEquals("https://example.com/search.jsp?q=бля&oldQ=&range=ALL&interval=ALL&user=&_usertop...", uri4.formatUrlBody(80));
 
     // escaped url != mainURL и mainURL host
     LorURI uri5 = new LorURI(mainLORURI, "https://example.com/search.jsp?q=%D0%B1%D0%BB%D1%8F&oldQ=&range=ALL&interval=ALL&user=&_usertopic=on");
-    assertEquals("example.com/...", uri5.formatUrlBody(10));
-    assertEquals("example.com/search.j...", uri5.formatUrlBody(20));
-    assertEquals("example.com/search.jsp?q=бля&oldQ=&range=ALL&interval=ALL&user=&_usertopic=on", uri5.formatUrlBody(80));
+    assertEquals("https://ex...", uri5.formatUrlBody(10));
+    assertEquals("https://example.com/...", uri5.formatUrlBody(20));
+    assertEquals("https://example.com/search.jsp?q=бля&oldQ=&range=ALL&interval=ALL&user=&_usertop...", uri5.formatUrlBody(80));
   }
 
 }

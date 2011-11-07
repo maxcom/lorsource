@@ -219,17 +219,25 @@ public class LorURI {
     String all = lorURI.getURIReference();
     String scheme = lorURI.getScheme();
     String uriWithoutScheme = all.substring(scheme.length()+3);
-    if(uriWithoutScheme.length() < maxLength) {
-      return uriWithoutScheme;
-    } else {
-      String hostPort = lorURI.getHost();
-      if(lorURI.getPort() != -1) {
-        hostPort += ":" + lorURI.getPort();
-      }
-      if(hostPort.length() > maxLength) {
-        return hostPort+"/...";
+    if(isTrueLorUrl) {
+      if(uriWithoutScheme.length() < maxLength) {
+        return uriWithoutScheme;
       } else {
-        return uriWithoutScheme.substring(0, maxLength) + "...";
+        String hostPort = lorURI.getHost();
+        if(lorURI.getPort() != -1) {
+          hostPort += ":" + lorURI.getPort();
+        }
+        if(hostPort.length() > maxLength) {
+          return hostPort+"/...";
+        } else {
+          return uriWithoutScheme.substring(0, maxLength) + "...";
+        }
+      }
+    } else {
+      if(all.length() < maxLength) {
+        return all;
+      } else {
+        return all.substring(0, maxLength) + "...";
       }
     }
   }
