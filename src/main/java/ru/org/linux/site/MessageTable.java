@@ -43,7 +43,7 @@ public class MessageTable {
       buf.append("<p><i>" + info.getWidth() + 'x' + info.getHeight() + ", " + info.getSizeString() + "</i>");
     } else if (topic.isVotePoll()) {
       PreparedPoll poll = preparedTopic.getPoll();
-      buf.append(poll.renderPoll(fullUrl, "white", "")); // TODO сделал как было прибито в renderPoll, однако тему white собирались убить?
+      buf.append(poll.renderPoll());
     } else {
       buf.append(preparedTopic.getProcessedMessage());
     }

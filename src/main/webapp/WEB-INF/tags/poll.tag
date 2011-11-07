@@ -20,7 +20,5 @@
 <%@ attribute name="poll" required="true" type="ru.org.linux.site.PreparedPoll" %>
 <%@ attribute name="highlight" required="false" type="java.util.Set" %>
 <%
-  Template tmpl = Template.getTemplate(request);
-  ImageInfo info = new ImageInfo(tmpl.getConfig().getProperty("HTMLPathPrefix") + tmpl.getProf().getStyle() + "/img/votes.png");
-  out.append(poll.renderPoll("/", tmpl.getProf().getStyle(), info.getCode()));
+  out.append(poll.renderPoll());
 %>
