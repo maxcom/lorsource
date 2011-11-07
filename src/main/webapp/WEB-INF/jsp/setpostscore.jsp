@@ -1,3 +1,4 @@
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page contentType="text/html; charset=utf-8" %>
 <%@ page import="ru.org.linux.site.Message" %>
 <%--
@@ -15,6 +16,8 @@
   ~    limitations under the License.
   --%>
 <%--@elvariable id="message" type="ru.org.linux.site.Message"--%>
+<%--@elvariable id="group" type="ru.org.linux.site.Group"--%>
+
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
 <title>Смена параметров сообщения</title>
@@ -50,9 +53,13 @@
   </select>
     </label>
     <br>
-  <label>Прикрепить сообщение <input type=checkbox name="sticky" <%= sticky?"checked":"" %>></label><br>
+  <c:if test="${not group.moderated}">
+    <label>Прикрепить сообщение <input type=checkbox name="sticky" <%= sticky?"checked":"" %>></label><br>
+  </c:if>
   <label>Удалить из top10 <input type=checkbox name="notop" <%= notop?"checked":"" %>></label><br>
-  <label>Мини-новость <input type=checkbox name="minor" <%= minor?"checked":"" %>></label><br>
+  <c:if test="${group.moderated}">
+    <label>Мини-новость <input type=checkbox name="minor" <%= minor?"checked":"" %>></label><br>
+  </c:if>
   <input type=submit value="Изменить">
 </form>
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>

@@ -36,7 +36,7 @@ public class HTMLFormatterTest {
   private static final String RESULT1 = "Here is <a href=\"http://www.linux.org.ru\">www.linux.org.ru</a>, have fun! :-)";
 
   private static final String TEXT2 = "Here is http://linux.org.ru, have fun! :-)";
-  private static final String RESULT2 = "Here is <a href=\"http://linux.org.ru\">http://linux.org.ru</a>, have fun! :-)";
+  private static final String RESULT2 = "Here is <a href=\"http://linux.org.ru\">linux.org.ru</a>, have fun! :-)";
 
   private static final String TEXT3 = "Long url: http://www.linux.org.ru/profile/maxcom/view-message.jsp?msgid=1993651";
   private static final String RESULT3 = "Long url: <a href=\"http://www.linux.org.ru/profile/maxcom/view-message.jsp?msgid=1993651\">www.linux.org.ru/pro...</a>";
@@ -55,10 +55,14 @@ public class HTMLFormatterTest {
   private static final String RESULT_QUOTING3 = "\n[i]> 1\n2\n[/i]\n\n3";
 
   private static final String TEXT9 = "(http://ru.wikipedia.org/wiki/Blah_(blah))";
-  private static final String RESULT9 = "(<a href=\"http://ru.wikipedia.org/wiki/Blah_(blah)\">http://ru.wikipedia.org/wiki/Blah_(blah)</a>)";
+  private static final String RESULT9 = "(<a href=\"http://ru.wikipedia.org/wiki/Blah_(blah)\">ru.wikipedia.org/wiki/Blah_(blah)</a>)";
   
   private static final String TEXT10 = "Twitter url: https://twitter.com/#!/l_o_r";
-  private static final String RESULT10 = "Twitter url: <a href=\"https://twitter.com/#!/l_o_r\">https://twitter.com/#!/l_o_r</a>";
+  private static final String RESULT10 = "Twitter url: <a href=\"https://twitter.com/#!/l_o_r\">twitter.com/#!/l_o_r</a>";
+
+  private static final String TEXT11 = "Long url: http://www.google.com.ua/search?client=opera&rls=en&q=InsireData&sourceid=opera&ie=utf-8&oe=utf-8&channel=suggest#sclient=psy-ab&hl=uk&client=opera&hs=kZt&rls=en&channel=suggest&source=hp&q=InsireData+lisp&pbx=1&oq=InsireData+lisp&aq=f&aqi=&aql=1&gs_sm=e&gs_upl=3936l5946l0l6137l13l9l3l0l0l0l253l1481l0.6.2l10l0&bav=on.2,or.r_gc.r_pw.,cf.osb&fp=35c95703241399bd&biw=1271&bih=694";
+  private static final String RESULT11 = "Long url: <a href=\"http://www.google.com.ua/search?client=opera&amp;rls=en&amp;q=InsireData&amp;sourceid=opera&amp;ie=utf-8&amp;oe=utf-8&amp;channel=suggest#sclient=psy-ab&amp;hl=uk&amp;client=opera&amp;hs=kZt&amp;rls=en&amp;channel=suggest&amp;source=hp&amp;q=InsireData+lisp&amp;pbx=1&amp;oq=InsireData+lisp&amp;aq=f&amp;aqi=&amp;aql=1&amp;gs_sm=e&amp;gs_upl=3936l5946l0l6137l13l9l3l0l0l0l253l1481l0.6.2l10l0&amp;bav=on.2,or.r_gc.r_pw.,cf.osb&amp;fp=35c95703241399bd&amp;biw=1271&amp;bih=694\">www.google.com.ua/search?client=opera&amp;rls=en&amp;q=InsireData&amp;sourceid=o...</a>";
+
 
   private static final String TEXT11 = "Long url: http://www.google.com.ua/search?client=opera&rls=en&q=InsireData&sourceid=opera&ie=utf-8&oe=utf-8&channel=suggest#sclient=psy-ab&hl=uk&client=opera&hs=kZt&rls=en&channel=suggest&source=hp&q=InsireData+lisp&pbx=1&oq=InsireData+lisp&aq=f&aqi=&aql=1&gs_sm=e&gs_upl=3936l5946l0l6137l13l9l3l0l0l0l253l1481l0.6.2l10l0&bav=on.2,or.r_gc.r_pw.,cf.osb&fp=35c95703241399bd&biw=1271&bih=694";
   private static final String RESULT11 = "Long url: <a href=\"http://www.google.com.ua/search?client=opera&amp;rls=en&amp;q=InsireData&amp;sourceid=opera&amp;ie=utf-8&amp;oe=utf-8&amp;channel=suggest#sclient=psy-ab&amp;hl=uk&amp;client=opera&amp;hs=kZt&amp;rls=en&amp;channel=suggest&amp;source=hp&amp;q=InsireData+lisp&amp;pbx=1&amp;oq=InsireData+lisp&amp;aq=f&amp;aqi=&amp;aql=1&amp;gs_sm=e&amp;gs_upl=3936l5946l0l6137l13l9l3l0l0l0l253l1481l0.6.2l10l0&amp;bav=on.2,or.r_gc.r_pw.,cf.osb&amp;fp=35c95703241399bd&amp;biw=1271&amp;bih=694\">http://www.google.com.ua/search?client=opera&amp;rls=en&amp;q=InsireData&amp;sou...</a>";
@@ -208,7 +212,7 @@ public class HTMLFormatterTest {
   @Test
   public void testCrash() {
     try {
-      assertEquals("&quot;<a href=\"http://www.google.com/&quot;\">http://www.google.com/&quot;</a>",
+      assertEquals("&quot;<a href=\"http://www.google.com/&quot;\">www.google.com/&quot;</a>",
           toHtmlFormatter.format(GUARANTEED_CRASH, false));
     } catch (Exception e) {
       fail("It seems, it should not happen?");

@@ -16,6 +16,7 @@
 package ru.org.linux.spring;
 
 import com.google.common.base.Strings;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.Errors;
@@ -150,7 +151,7 @@ public class EditController {
       form.setUrl(message.getUrl());
     }
 
-    form.setTitle(message.getTitle());
+    form.setTitle(StringEscapeUtils.unescapeHtml(message.getTitle()));
     form.setMsg(message.getMessage());
 
     if (message.getSectionId() == Section.SECTION_NEWS) {

@@ -21,10 +21,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.ApplicationObjectSupport;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.Errors;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.site.AccessViolationException;
@@ -33,6 +31,7 @@ import ru.org.linux.site.User;
 import ru.org.linux.site.UserInfo;
 import ru.org.linux.spring.dao.IPBlockDao;
 import ru.org.linux.spring.dao.UserDao;
+import ru.org.linux.spring.validators.RegisterRequestValidator;
 import ru.org.linux.util.LorHttpUtils;
 import ru.org.linux.util.StringUtil;
 import ru.org.linux.util.URLUtil;
@@ -45,6 +44,7 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import javax.validation.Valid;
 import java.util.Date;
 import java.util.Properties;
 
@@ -98,7 +98,7 @@ public class RegisterController extends ApplicationObjectSupport {
   @RequestMapping(value = "/register.jsp", method = RequestMethod.POST)
   public ModelAndView doRegister(
     HttpServletRequest request,
-    @ModelAttribute("form") RegisterRequest form,
+    @Valid @ModelAttribute("form") RegisterRequest form,
     Errors errors,
     @RequestParam(required=false) String oldpass,
     @RequestParam(required=false) String password,
@@ -156,10 +156,6 @@ public class RegisterController extends ApplicationObjectSupport {
     String url = null;
 
     if (!Strings.isNullOrEmpty(form.getUrl())) {
-      if (!URLUtil.isUrl(form.getUrl())) {
-        errors.rejectValue("url", null, "Некорректный URL");
-      }
-
       url = URLUtil.fixURL(form.getUrl());
     }
 
@@ -371,5 +367,12 @@ public class RegisterController extends ApplicationObjectSupport {
     userDao.acceptNewEmail(user);
 
     return new ModelAndView(new RedirectView("/people/" + user.getNick() + "/profile"));
+  }
+
+  @InitBinder("form")
+  public void requestValidator(WebDataBinder binder) {
+    binder.setValidator(new RegisterRequestValidator());
+
+    binder.setBindingErrorProcessor(new ExceptionBindingErrorProcessor());
   }
 }

@@ -56,7 +56,12 @@ public class TopicModificationController extends ApplicationObjectSupport {
       throw new AccessViolationException("Not moderator");
     }
 
-    return new ModelAndView("setpostscore", "message", messageDao.getById(msgid));
+    ModelAndView mv = new ModelAndView("setpostscore");
+    Message message = messageDao.getById(msgid);
+    mv.addObject("message", message);
+    mv.addObject("group", groupDao.getGroup(message.getGroupId()));
+
+    return mv;
   }
 
   @RequestMapping(value="/setpostscore.jsp", method= RequestMethod.POST)
@@ -108,6 +113,11 @@ public class TopicModificationController extends ApplicationObjectSupport {
     if (msg.isNotop() != notop) {
       out.append("Новое значение notop: ").append(notop).append("<br>");
       logger.info("Новое значение notop: " + notop);
+    }
+
+    if (msg.isMinor() != minor) {
+      out.append("Новое значение minor: ").append(minor).append("<br>");
+      logger.info("Новое значение minor: " + minor);
     }
 
     ModelAndView mv = new ModelAndView("action-done");
