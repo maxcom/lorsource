@@ -81,7 +81,8 @@ public class TrackerDao {
         "urlname," +
         "comments.postdate, " +
         "sections.moderate as smod, " +
-        "t.moderate " +
+        "t.moderate, " +
+        "'forum' as type " +
       "FROM topics AS t, groups AS g, comments, sections " +
       "WHERE g.section=sections.id AND not t.deleted AND t.id=comments.topic AND t.groupid=g.id " +
         "AND comments.id=(SELECT id FROM comments WHERE NOT deleted AND comments.topic=t.id ORDER BY postdate DESC LIMIT 1) " +
@@ -105,12 +106,33 @@ public class TrackerDao {
           "urlname," +
           "postdate, " +
           "sections.moderate as smod, " +
-          "t.moderate " +
+          "t.moderate, " +
+          "'forum' as type " +
       "FROM topics AS t, groups AS g, sections " +
       "WHERE sections.id=g.section AND not t.deleted AND t.postdate > :interval " +
           "%s" + /* user!=null ? queryPartIgnored*/
           "%s" + /* noTalks ? queryPartNoTalks tech ? queryPartTech mine ? queryPartMine*/
           " AND t.stat1=0 AND g.id=t.groupid " +
+     "UNION ALL " +
+      "SELECT " + // wiki
+          "wiki_user_id as author, " +
+          "topic_id as id, change_date as lastmod, " +
+          "0 as stat1, " +
+          "0 as stat3, " +
+          "0 as stat4, " +
+          "virtual_wiki_id as gid, " +
+          "virtual_wiki_name as gtitle, " +
+          "topic_name as title, " +
+          "0 as cid, " +
+          "0 as last_comment_by, " +
+          "'f' as resolved, " +
+          "0 as section, " +
+          "'' as urlname, " +
+          "now() as postdate, " +
+          "'f' as smod, " +
+          "'f' as moderate, " +
+          "'wiki' as type " +
+      "FROM jam_recent_change " +
      "ORDER BY lastmod DESC LIMIT :topics OFFSET :offset";
   private static final String queryPartIgnored = " AND t.userid NOT IN (select ignored from ignore_list where userid=:userid) ";
   private static final String queryPartNoTalks = " AND not t.groupid=8404 ";
@@ -168,6 +190,7 @@ public class TrackerDao {
         int groupId, section;
         String groupTitle, groupUrlName;
         String title;
+        String type;
         boolean resolved, uncommited;
         try {
           author = userDao.getUserCached(resultSet.getInt("author"));
@@ -200,9 +223,10 @@ public class TrackerDao {
         postdate = resultSet.getTimestamp("postdate");
         uncommited = resultSet.getBoolean("smod") && !resultSet.getBoolean("moderate");
         pages = Message.getPageCount(stat1, messagesInPage);
+        type = resultSet.getString("type");
         return new TrackerItem(author, msgid, lastmod, stat1, stat3, stat4,
             groupId, groupTitle, title, cid, lastCommentBy, resolved,
-            section, groupUrlName, postdate, uncommited, pages);
+            section, groupUrlName, postdate, uncommited, pages, type);
       }
     });
   }

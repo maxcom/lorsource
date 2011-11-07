@@ -26,13 +26,15 @@ public class TrackerItem {
   private final Timestamp postdate;
   private final boolean uncommited;
   private final int pages;
+  private final String type;
 
   public TrackerItem(User author, int msgid, Timestamp lastmod,
                      int stat1, int stat3, int stat4,
                      int groupId, String groupTitle, String title,
                      int cid, User lastCommentBy, boolean resolved,
                      int section, String groupUrlName,
-                     Timestamp postdate, boolean uncommited, int pages) {
+                     Timestamp postdate, boolean uncommited, int pages,
+                     String type) {
     this.author = author;
     this.msgid = msgid;
     this.lastmod = lastmod;
@@ -50,6 +52,7 @@ public class TrackerItem {
     this.postdate = postdate;
     this.uncommited = uncommited;
     this.pages = pages;
+    this.type = type;
   }
 
   public String getUrl() {
