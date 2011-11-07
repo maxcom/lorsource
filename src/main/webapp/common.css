@@ -326,3 +326,14 @@ pre code span {
     font-size: large; font-weight: bold;
     margin: 0;
 }
+
+p.poll {
+    background: #729FCF repeat-x;
+    display: inline;
+    margin: 5px;
+}
+
+img.pollimg {
+    visibility: hidden;
+    height:  19px;
+}

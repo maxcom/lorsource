@@ -62,12 +62,9 @@ public class PreparedPoll {
   /**
    * Функция отображения результатов опроса
    * используем так-же в poll.tag
-   * @param fullUrl для rss полный путь, для сайта просто "/"
-   * @param theme из какой темы брыть значок, TODO для rss из white !?
-   * @param imageInfo строка для html с wight и height
    * @return html табличку результатов голосования
    */
-  public String renderPoll(String fullUrl, String theme, String imageInfo)  {
+  public String renderPoll()  {
     StringBuilder out = new StringBuilder();
     int max = maximumValue;
     out.append("<table>");
@@ -75,13 +72,11 @@ public class PreparedPoll {
     for (PollVariant var : variants) {
       //                      label      votes     imgTag
       String formatRow = "<tr><td>%s</td><td>%d</td><td>%s</td></tr>";
-      String formatImgTag = "<p style=\"background: #729FCF repeat-x;display: inline; margin: 5px;\"><img style=\"visibility:hidden\" height=\"19\" width=\"%d\" src=\"%s\" alt=\"%s\"></p>";
+      String formatImgTag = "<p class=\"poll\"><img class=\"pollimg\" width=\"%d\" alt=\"%s\"></p>";
       int votes = var.getVotes();
-      String imgSrc = fullUrl+theme+"/img/votes.png";
       String imgTag = String.format(
           formatImgTag,
           320*votes/max,                        // width
-          imgSrc,                               // img
           StringUtil.repeat("*", 20*votes/max)  // alt
       );
       String row = String.format(formatRow, StringUtil.escapeHtml(var.getLabel()), votes, imgTag);
