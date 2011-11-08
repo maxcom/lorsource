@@ -3,6 +3,8 @@ package ru.org.linux.spring.dao;
 import ru.org.linux.site.Section;
 import ru.org.linux.site.User;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.sql.Timestamp;
 
 /**
@@ -26,15 +28,13 @@ public class TrackerItem {
   private final Timestamp postdate;
   private final boolean uncommited;
   private final int pages;
-  private final String type;
 
   public TrackerItem(User author, int msgid, Timestamp lastmod,
                      int stat1, int stat3, int stat4,
                      int groupId, String groupTitle, String title,
                      int cid, User lastCommentBy, boolean resolved,
                      int section, String groupUrlName,
-                     Timestamp postdate, boolean uncommited, int pages,
-                     String type) {
+                     Timestamp postdate, boolean uncommited, int pages) {
     this.author = author;
     this.msgid = msgid;
     this.lastmod = lastmod;
@@ -52,23 +52,42 @@ public class TrackerItem {
     this.postdate = postdate;
     this.uncommited = uncommited;
     this.pages = pages;
-    this.type = type;
   }
 
   public String getUrl() {
-    if (pages > 1) {
-      return getGroupUrl() + msgid + "/page" + Integer.toString(pages - 1) + "?lastmod=" + lastmod.getTime();
+    if(section != 0) {
+      if (pages > 1) {
+        return getGroupUrl() + msgid + "/page" + Integer.toString(pages - 1) + "?lastmod=" + lastmod.getTime();
+      } else {
+        return getGroupUrl() + msgid + "?lastmod=" + lastmod.getTime();
+      }
     } else {
-      return getGroupUrl() + msgid + "?lastmod=" + lastmod.getTime();
+      try {
+        return String.format("/wiki/en/%s", URLEncoder.encode(title, "UTF-8"));
+      } catch (UnsupportedEncodingException e) {
+        throw new RuntimeException(e.getMessage());
+      }
     }
   }
 
   public String getUrlReverse() {
-    return getGroupUrl() + '/' + msgid + "?lastmod=" + lastmod.getTime();
+    if(section != 0) {
+      return getGroupUrl() + '/' + msgid + "?lastmod=" + lastmod.getTime();
+    } else {
+      try {
+        return String.format("/wiki/en/%s", URLEncoder.encode(title, "UTF-8"));
+      } catch (UnsupportedEncodingException e) {
+        throw new RuntimeException(e.getMessage());
+      }
+    }
   }
 
   public String getGroupUrl() {
-    return Section.getSectionLink(section) + groupUrlName + '/';
+    if(section != 0) {
+      return Section.getSectionLink(section) + groupUrlName + '/';
+    } else {
+      return "/wiki/";
+    }
   }
 
   public User getAuthor() {
@@ -104,7 +123,15 @@ public class TrackerItem {
   }
 
   public String getTitle() {
-    return title;
+    if(section != 0) {
+      return title;
+    } else {
+      if(title.startsWith("Comments:")) {
+        return String.format("Комментарии к вики статье: %s", title.substring(9));
+      } else {
+        return String.format("Вики статья: %s", title);
+      }
+    }
   }
 
   public int getPages() {

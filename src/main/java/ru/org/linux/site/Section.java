@@ -157,7 +157,7 @@ public class Section implements Serializable {
       case SECTION_POLLS:
         return "/polls/";
       default:
-        throw new RuntimeException("unknown section");
+        throw new RuntimeException("unknown section: " + section);
     }
   }
 
