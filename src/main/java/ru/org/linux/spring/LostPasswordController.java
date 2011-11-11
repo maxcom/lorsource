@@ -116,7 +116,11 @@ public class LostPasswordController {
 
     String password = userDao.resetPassword(user);
 
-    return new ModelAndView("action-done", "message", "Ваш новый пароль: " + password);
+    return new ModelAndView(
+            "action-done",
+            "message",
+            "Ваш новый пароль: " + StringUtil.escapeHtml(password)
+    );
   }
 
   private static String getResetCode(String base, String nick, String email, Timestamp tm) {
