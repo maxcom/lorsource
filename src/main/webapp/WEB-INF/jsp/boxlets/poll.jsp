@@ -44,7 +44,7 @@
     <c:if test="${poll.multiSelect}">
         <a href="${vote_url}">результаты</a> (${count}/${countUsers} голосов)
     </c:if>
-    <c:if test="not ${poll.multiSelect}">
+    <c:if test="${not poll.multiSelect}">
         <a href="${vote_url}">результаты</a> (${count} голосов)
     </c:if>
     <br/>
