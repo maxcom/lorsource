@@ -267,4 +267,10 @@ public class SimpleParserTest {
         lorCodeService.parseTopic("[cut]\n\ntest[/cut][cut]test[/cut]", false));
   }
 
+  @Test
+  public void appleTest() {
+    Assert.assertEquals("<div class=\"quote\"><h3>Цитата</h3><p> Apple ][</p></div><p> текст</p>",
+        lorCodeService.parseComment("[quote] Apple ][[/quote] текст", false));
+  }
+
 }

@@ -275,7 +275,7 @@ public class Parser {
             }
 
 
-            if (wholematch.startsWith("[/")) {
+            if (wholematch.startsWith("[/") || wholematch.startsWith("[[/")) {
               if (!isCode || "code".equals(tagname)) {
                 currentNode = closeTagNode(rootNode, currentNode, tagname);
               } else {
