@@ -129,3 +129,13 @@ DIV.notes
 .bluehead {
     background: #defefc;
 }
+
+.pollimg{
+    letter-spacing:9px !important;
+}
+.poll{
+    padding-top: 2px !important;
+    background-color: transparent !Important;
+    background-image: url("/white/img/votes.png") !important;
+}
+

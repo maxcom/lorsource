@@ -178,3 +178,12 @@ DIV.notes
     margin-bottom: 0.5em;
     border: #808080 1px solid;
 }
+
+.pollimg{
+    letter-spacing:9px !important;
+}
+.poll{
+    padding-top: 2px !important;
+    background-color: transparent !Important;
+    background-image: url("/black/img/votes.png") !important;
+}
