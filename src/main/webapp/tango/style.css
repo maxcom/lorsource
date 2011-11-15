@@ -302,3 +302,12 @@ input[type="checkbox"] {
 .boxlet H3 {
     margin-bottom: 5px;
 }
+
+.pollimg{
+    letter-spacing:9px !important;
+}
+.poll{
+    padding-top: 2px !important;
+    background-color: transparent !Important;
+    background-image: url("/tango/img/votes.png") !important;
+}
