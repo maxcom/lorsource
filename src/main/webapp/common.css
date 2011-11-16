@@ -327,13 +327,25 @@ pre code span {
     margin: 0;
 }
 
-p.poll {
-    background: #729FCF repeat-x;
-    display: inline;
-    margin: 5px;
+/*результаты опроса в топике, размер пингвина 19px*/
+table.poll-result td {
+    padding: 5px;
+    height: 21px;
 }
 
-img.pollimg {
+table.poll-result .penguin {
+    display: block;
+    margin: 0;
+    padding: 0;
+    height: 19px;
+}
+
+table.poll-result .none {
+    display: none;
+}
+
+table.poll-result img {
     visibility: hidden;
-    height:  19px;
+    margin: 0;
+    padding: 0;
 }

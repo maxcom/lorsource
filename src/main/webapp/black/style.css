@@ -179,11 +179,8 @@ DIV.notes
     border: #808080 1px solid;
 }
 
-.pollimg{
-    letter-spacing:9px !important;
-}
-.poll{
-    padding-top: 2px !important;
+table.poll-result .penguin{
+    background-repeat: repeat-x;
     background-color: transparent !Important;
     background-image: url("/black/img/votes.png") !important;
 }

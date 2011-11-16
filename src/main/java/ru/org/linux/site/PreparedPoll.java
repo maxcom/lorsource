@@ -26,21 +26,27 @@ import java.util.List;
 public class PreparedPoll {
   private final Poll poll;
   private final int maximumValue;
-  private final int countUsers;
+  private final int totalOfVotesPerson;
+  private final int totalVotes;
   private final ImmutableList<PollVariant> variants;
 
   /**
    * Конструктор
    * @param poll опрос
    * @param maximumValue вариант опроса с самым большим кол-вом голосов(?)
-   * @param countUsers кол-во проголосовавших пользователей
+   * @param totalOfVotesPerson кол-во проголосовавших пользователей
    * @param variants варианты опроса
    */
-  public PreparedPoll(Poll poll, int maximumValue, int countUsers, List<PollVariant> variants) {
+  public PreparedPoll(Poll poll, int maximumValue, int totalOfVotesPerson, List<PollVariant> variants) {
     this.poll = poll;
     this.maximumValue = maximumValue;
-    this.countUsers = countUsers;
+    this.totalOfVotesPerson = totalOfVotesPerson;
     this.variants = ImmutableList.copyOf(variants);
+    int total=0;
+    for(PollVariant variant : variants) {
+      total += variant.getVotes();
+    }
+    this.totalVotes = total;
   }
 
   public Poll getPoll() {
@@ -55,13 +61,17 @@ public class PreparedPoll {
     return variants;
   }
 
-  public int getCountUsers() {
-    return countUsers;
+  public int getTotalOfVotesPerson() {
+    return totalOfVotesPerson;
+  }
+
+  public int getTotalVotes() {
+    return totalVotes;
   }
 
   /**
    * Функция отображения результатов опроса
-   * используем так-же в poll.tag
+   * используем в RSS
    * @return html табличку результатов голосования
    */
   public String renderPoll()  {
@@ -71,21 +81,15 @@ public class PreparedPoll {
     int total = 0;
     for (PollVariant var : variants) {
       //                      label      votes     imgTag
-      String formatRow = "<tr><td>%s</td><td>%d</td><td>%s</td></tr>";
-      String formatImgTag = "<p class=\"poll\"><img class=\"pollimg\" width=\"%d\" alt=\"%s\" src=\"/tango/img/votes.png\"></p>";
+      String formatRow = "<tr><td>%s</td><td>%d</td></tr>";
       int votes = var.getVotes();
-      String imgTag = String.format(
-          formatImgTag,
-          320*votes/max,                        // width
-          StringUtil.repeat("*", 20*votes/max)  // alt
-      );
-      String row = String.format(formatRow, StringUtil.escapeHtml(var.getLabel()), votes, imgTag);
+      String row = String.format(formatRow, StringUtil.escapeHtml(var.getLabel()), votes);
       out.append(row);
       total += votes;
     }
     out.append("<tr><td colspan=2>Всего голосов: ").append(total).append("</td></tr>");
     if(poll.isMultiSelect()) {
-      out.append("<tr><td colspan=2>Всего проголосовавших: ").append(countUsers).append("</td></tr>");
+      out.append("<tr><td colspan=2>Всего проголосовавших: ").append(totalOfVotesPerson).append("</td></tr>");
     }
     out.append("</table>");
     return out.toString();
