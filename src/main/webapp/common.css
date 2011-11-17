@@ -329,7 +329,7 @@ pre code span {
 
 /*результаты опроса в топике, размер пингвина 19px*/
 table.poll-result td {
-    padding: 5px;
+    padding: 0px 5px;
     height: 21px;
 }
 
