@@ -33,7 +33,7 @@ public class Perf4jHandlerInterceptor extends HandlerInterceptorAdapter {
           HttpServletResponse response,
           Object handler
   ) throws Exception {
-    CommonsLogStopWatch watch = new CommonsLogStopWatch(request.getRequestURI());
+    CommonsLogStopWatch watch = new CommonsLogStopWatch(handler.getClass().getSimpleName());
 
     watch.setTimeThreshold(TIME_THRESHOLD);
 
