@@ -115,7 +115,7 @@ public class TrackerDao {
       "SELECT " + // wiki
           "wiki_user_id as author, " +
           "topic_id as id, change_date as lastmod, " +
-          "0 as stat1, " +
+          "characters_changed as stat1, " +
           "0 as stat3, " +
           "0 as stat4, " +
           "0 as gid, " +

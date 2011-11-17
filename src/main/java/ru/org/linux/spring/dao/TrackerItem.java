@@ -90,6 +90,10 @@ public class TrackerItem {
     }
   }
 
+  public boolean isWiki() {
+    return section == 0;
+  }
+
   public User getAuthor() {
     return author;
   }

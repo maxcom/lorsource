@@ -100,8 +100,17 @@
           </c:if>
         </td>
         <td align='center'>
-          <c:if test="${msg.stat1==0}">-</c:if><%--
-          --%><c:if test="${msg.stat1>0}"><b>${msg.stat1}</b></c:if>
+            <c:choose>
+                <c:when test="${msg.stat1==0}">
+                    -
+                </c:when>
+                <c:when test="${msg.stat1 > 0 && msg.wiki}">
+                    +${msg.stat1}
+                </c:when>
+                <c:otherwise>
+                    ${msg.stat1}
+                </c:otherwise>
+            </c:choose>
       </tr>
     </c:forEach>
     </tbody>
