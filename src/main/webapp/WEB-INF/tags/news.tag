@@ -12,7 +12,6 @@
 <%@ attribute name="preparedMessage" required="true" type="ru.org.linux.site.PreparedMessage" %>
 <%@ attribute name="multiPortal" required="true" type="java.lang.Boolean" %>
 <%@ attribute name="moderateMode" required="true" type="java.lang.Boolean" %>
-<%@ attribute name="disablePoll" required="false" type="java.lang.Boolean" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
@@ -164,7 +163,7 @@
   } else if (votepoll) {
       %>
         <c:choose>
-            <c:when test="${disablePoll}">
+            <c:when test="${not message.commited}">
                 <lor:disabledPoll poll="${preparedMessage.poll}"/>
             </c:when>
             <c:otherwise>
