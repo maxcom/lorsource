@@ -131,11 +131,13 @@ public class TrackerDao {
           "'f' as moderate " +
       "FROM jam_recent_change " +
       "WHERE topic_id is not null AND change_date > :interval " +
+          "%s" + /* wiki mine */
      "ORDER BY lastmod DESC LIMIT :topics OFFSET :offset";
   private static final String queryPartIgnored = " AND t.userid NOT IN (select ignored from ignore_list where userid=:userid) ";
   private static final String queryPartNoTalks = " AND not t.groupid=8404 ";
   private static final String queryPartTech = " AND not t.groupid=8404 AND not t.groupid=4068 AND section=2 ";
   private static final String queryPartMine = " AND t.userid=:userid ";
+  private static final String queryPartWikiMine = " AND wiki_user_id=:userid ";
 
   public List<TrackerItem> getTrackAll(TrackerFilter filter, User currentUser, Timestamp interval,
                                        int topics, int offset, final int messagesInPage) {
@@ -147,6 +149,7 @@ public class TrackerDao {
 
     String partIgnored;
     String partFilter;
+    String partWiki="";
 
     if(currentUser != null) {
       partIgnored = queryPartIgnored;
@@ -168,6 +171,7 @@ public class TrackerDao {
       case MINE:
         if(currentUser != null) {
           partFilter = queryPartMine;
+          partWiki = queryPartWikiMine;
         } else {
           partFilter = "";
         }
@@ -176,7 +180,7 @@ public class TrackerDao {
         partFilter = "";
     }
 
-    String query = String.format(queryTrackerMain, partIgnored, partFilter, partIgnored, partFilter);
+    String query = String.format(queryTrackerMain, partIgnored, partFilter, partIgnored, partFilter, partWiki);
 
     return jdbcTemplate.query(query, parameter, new RowMapper<TrackerItem>() {
       @Override
