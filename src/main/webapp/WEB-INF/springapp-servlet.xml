@@ -18,9 +18,9 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:context="http://www.springframework.org/schema/context"
-       xmlns:p='http://www.springframework.org/schema/p'
+       xmlns:p='http://www.springframework.org/schema/p' xmlns:mvc="http://www.springframework.org/schema/mvc"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
-       http://www.springframework.org/schema/beans/spring-beans-2.5.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+       http://www.springframework.org/schema/beans/spring-beans-2.5.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd">
 
     <!-- the application context definition for the springapp DispatcherServlet -->
 
@@ -90,4 +90,8 @@
         <property name="maximalCount" value="${feeds.maximalCount}"/>
     </bean>
     <bean id="replyFeed" class="ru.org.linux.spring.ReplyFeedView" parent="absractRomeView" scope="prototype"/>
+
+    <mvc:interceptors>
+        <bean class="ru.org.linux.spring.Perf4jHandlerInterceptor"/>
+    </mvc:interceptors>
 </beans>
