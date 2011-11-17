@@ -25,7 +25,7 @@ import javax.servlet.http.HttpServletResponse;
 
 public class Perf4jHandlerInterceptor extends HandlerInterceptorAdapter {
   private static final String ATTRIBUTE = "perf4jStopWatch";
-  private static final int TIME_THRESHOLD = 2000;
+  private static final int TIME_THRESHOLD = 1000;
 
   @Override
   public boolean preHandle(
