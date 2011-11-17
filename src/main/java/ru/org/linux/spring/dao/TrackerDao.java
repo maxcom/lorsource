@@ -119,7 +119,7 @@ public class TrackerDao {
           "0 as stat3, " +
           "0 as stat4, " +
           "0 as gid, " +
-          "'wiki' as gtitle, " +
+          "'Wiki' as gtitle, " +
           "topic_name as title, " +
           "0 as cid, " +
           "0 as last_comment_by, " +

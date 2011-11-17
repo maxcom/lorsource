@@ -131,11 +131,19 @@ public class TrackerItem {
       return title;
     } else {
       if(title.startsWith("Comments:")) {
-        return String.format("Комментарии к вики статье: %s", title.substring(9));
+        return title.substring(9); // откусываем Comments
       } else {
-        return String.format("Вики статья: %s", title);
+        return title;
       }
     }
+  }
+
+  public boolean isWikiArticle() {
+    return isWiki() && !title.startsWith("Comments:");
+  }
+
+  public boolean isWikiComment() {
+    return isWiki() && title.startsWith("Comments:");
   }
 
   public int getPages() {

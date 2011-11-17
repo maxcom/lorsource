@@ -80,6 +80,12 @@
           <c:if test="${msg.uncommited}">
             (не подтверждено)
           </c:if>
+          <c:if test="${msg.wikiArticle}">
+            (статья)
+          </c:if>
+          <c:if test="${msg.wikiComment}">
+            (комментарий)
+          </c:if>
         </td>
         <td>
           <c:if test="${filter=='mine' && msg.resolved}">
