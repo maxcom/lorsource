@@ -79,7 +79,7 @@
   <lor:news
           message="${msg.message}" preparedMessage="${msg}"
           multiPortal="<%= sectionid==0 %>"
-          moderateMode="true" disablePoll="true"/>
+          moderateMode="true"/>
 </c:forEach>
 <%
 %>
