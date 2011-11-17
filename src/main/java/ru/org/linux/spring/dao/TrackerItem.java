@@ -3,6 +3,8 @@ package ru.org.linux.spring.dao;
 import ru.org.linux.site.Section;
 import ru.org.linux.site.User;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.sql.Timestamp;
 
 /**
@@ -53,19 +55,43 @@ public class TrackerItem {
   }
 
   public String getUrl() {
-    if (pages > 1) {
-      return getGroupUrl() + msgid + "/page" + Integer.toString(pages - 1) + "?lastmod=" + lastmod.getTime();
+    if(section != 0) {
+      if (pages > 1) {
+        return getGroupUrl() + msgid + "/page" + Integer.toString(pages - 1) + "?lastmod=" + lastmod.getTime();
+      } else {
+        return getGroupUrl() + msgid + "?lastmod=" + lastmod.getTime();
+      }
     } else {
-      return getGroupUrl() + msgid + "?lastmod=" + lastmod.getTime();
+      try {
+        return String.format("/wiki/en/%s", URLEncoder.encode(title, "UTF-8"));
+      } catch (UnsupportedEncodingException e) {
+        throw new RuntimeException(e.getMessage());
+      }
     }
   }
 
   public String getUrlReverse() {
-    return getGroupUrl() + '/' + msgid + "?lastmod=" + lastmod.getTime();
+    if(section != 0) {
+      return getGroupUrl() + '/' + msgid + "?lastmod=" + lastmod.getTime();
+    } else {
+      try {
+        return String.format("/wiki/en/%s", URLEncoder.encode(title, "UTF-8"));
+      } catch (UnsupportedEncodingException e) {
+        throw new RuntimeException(e.getMessage());
+      }
+    }
   }
 
   public String getGroupUrl() {
-    return Section.getSectionLink(section) + groupUrlName + '/';
+    if(section != 0) {
+      return Section.getSectionLink(section) + groupUrlName + '/';
+    } else {
+      return "/wiki/";
+    }
+  }
+
+  public boolean isWiki() {
+    return section == 0;
   }
 
   public User getAuthor() {
@@ -101,7 +127,23 @@ public class TrackerItem {
   }
 
   public String getTitle() {
-    return title;
+    if(section != 0) {
+      return title;
+    } else {
+      if(title.startsWith("Comments:")) {
+        return title.substring(9); // откусываем Comments
+      } else {
+        return title;
+      }
+    }
+  }
+
+  public boolean isWikiArticle() {
+    return isWiki() && !title.startsWith("Comments:");
+  }
+
+  public boolean isWikiComment() {
+    return isWiki() && title.startsWith("Comments:");
   }
 
   public int getPages() {

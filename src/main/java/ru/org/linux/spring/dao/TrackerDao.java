@@ -111,6 +111,26 @@ public class TrackerDao {
           "%s" + /* user!=null ? queryPartIgnored*/
           "%s" + /* noTalks ? queryPartNoTalks tech ? queryPartTech mine ? queryPartMine*/
           " AND t.stat1=0 AND g.id=t.groupid " +
+     "UNION ALL " +
+      "SELECT " + // wiki
+          "wiki_user_id as author, " +
+          "topic_id as id, change_date as lastmod, " +
+          "characters_changed as stat1, " +
+          "0 as stat3, " +
+          "0 as stat4, " +
+          "0 as gid, " +
+          "'Wiki' as gtitle, " +
+          "topic_name as title, " +
+          "0 as cid, " +
+          "0 as last_comment_by, " +
+          "'f' as resolved, " +
+          "0 as section, " +
+          "'' as urlname, " +
+          "change_date as postdate, " +
+          "'f' as smod, " +
+          "'f' as moderate " +
+      "FROM jam_recent_change " +
+      "WHERE topic_id is not null AND change_date > :interval " +
      "ORDER BY lastmod DESC LIMIT :topics OFFSET :offset";
   private static final String queryPartIgnored = " AND t.userid NOT IN (select ignored from ignore_list where userid=:userid) ";
   private static final String queryPartNoTalks = " AND not t.groupid=8404 ";
