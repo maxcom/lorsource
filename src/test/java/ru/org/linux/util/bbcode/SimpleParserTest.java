@@ -290,5 +290,11 @@ public class SimpleParserTest {
         lorCodeService.parseTopicWithMinimizedCut("[cut=нечитать!]\n\ntest[/cut]", url, true));
   }
 
+  @Test
+  public void autoLinksInList() {
+    assertEquals("<ul><li><a href=\"http://www.example.com\">http://www.example.com</a></li><li>sure</li><li>profit!</li></ul>",
+        lorCodeService.parseComment("[list][*]www.example.com[*]sure[*]profit![/list]", false));
+  }
+
 
 }
