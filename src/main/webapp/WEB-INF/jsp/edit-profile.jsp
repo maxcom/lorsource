@@ -79,7 +79,7 @@ $(document).ready(function() {
 <td><input type=checkbox name=3column <%= profHash.isThreeColumnsOnMain()?"checked":"" %>></td></tr>
 <tr><td>Показывать анонимные комментарии</td>
 <td><input type=checkbox name=showanonymous <%= profHash.isShowAnonymous()?"checked":"" %>></td></tr>
-<tr><td>Подсветка строчек в таблицах сообщений (tr:hover)</td>
+<tr><td>Подсветка строчек в таблицах сообщений (tr:hover) (только для темы black)</td>
 <td><input type=checkbox name=hover <%= profHash.isUseHover()?"checked":"" %>></td></tr>
 <tr><td>Показывать меньше рекламы</td>
 <td><input type=checkbox name=hideAdsense <%= profHash.isHideAdsense()?"checked":"" %>></td></tr>
