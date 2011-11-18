@@ -27,6 +27,7 @@ import ru.org.linux.util.formatter.ToHtmlFormatter;
 
 import java.util.Set;
 
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -272,5 +273,16 @@ public class SimpleParserTest {
     Assert.assertEquals("<div class=\"quote\"><h3>Цитата</h3><p> Apple ][</p></div><p> текст</p>",
         lorCodeService.parseComment("[quote] Apple ][[/quote] текст", false));
   }
+
+  @Test
+  public void urlParameterQuotesTest() {
+    assertEquals("<p><a href=\"http://www.example.com\">example</a></p>",
+        lorCodeService.parseComment("[url=\"http://www.example.com]example[/url]", false));
+    assertEquals("<p><a href=\"http://www.example.com\">example</a></p>",
+        lorCodeService.parseComment("[url=http://www.example.com\"]example[/url]", false));
+    assertEquals("<p><a href=\"http://www.example.com\">example</a></p>",
+        lorCodeService.parseComment("[url=\"http://www.example.com\"]example[/url]", false));
+  }
+
 
 }
