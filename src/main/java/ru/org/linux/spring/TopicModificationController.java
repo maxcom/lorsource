@@ -136,7 +136,7 @@ public class TopicModificationController extends ApplicationObjectSupport {
     Template tmpl = Template.getTemplate(request);
 
     if (!tmpl.isModeratorSession()) {
-      throw new IllegalAccessException("Not authorized");
+      throw new AccessViolationException("Not authorized");
     }
 
     ModelAndView mv = new ModelAndView("mtn");
