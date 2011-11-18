@@ -284,5 +284,11 @@ public class SimpleParserTest {
         lorCodeService.parseComment("[url=\"http://www.example.com\"]example[/url]", false));
   }
 
+  @Test
+  public void cutWithParameterTest() {
+    assertEquals("<p>( <a href=\"https://127.0.0.1:8080/forum/talks/22464#cut0\">нечитать!</a> )</p>",
+        lorCodeService.parseTopicWithMinimizedCut("[cut=нечитать!]\n\ntest[/cut]", url, true));
+  }
+
 
 }
