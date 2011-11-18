@@ -253,11 +253,20 @@ public class Parser {
   private RootNode parse(RootNode rootNode, String bbcode) {
     Node currentNode = rootNode;
     int pos = 0;
-    boolean isCode = false;
+    boolean isCode = false, firstCode = false;
     while (pos < bbcode.length()) {
       Matcher match = BBTAG_REGEXP.matcher(bbcode).region(pos, bbcode.length());
       if (match.find()) {
-        currentNode = pushTextNode(rootNode, currentNode, bbcode.substring(pos, match.start()));
+        if(!firstCode) {
+          currentNode = pushTextNode(rootNode, currentNode, bbcode.substring(pos, match.start()));
+        } else {
+          firstCode = false;
+          String fixWhole = bbcode.substring(pos, match.start());
+          if(fixWhole.startsWith("\n")) {
+            fixWhole = fixWhole.substring(1); // откусить ведущий перевод строки
+          }
+          currentNode = pushTextNode(rootNode, currentNode, fixWhole);
+        }
         String tagname = match.group(1);
         String parameter = match.group(3);
         String wholematch = match.group(0);
@@ -289,6 +298,7 @@ public class Parser {
                 currentNode = pushTextNode(rootNode, currentNode, wholematch);
               } else if ("code".equals(tagname)) {
                 isCode = true;
+                firstCode = true;
                 currentNode = pushTagNode(rootNode, currentNode, tagname, parameter);
               } else {
                 if ("url".equals(tagname) && parameter != null && parameter.length() > 0) {
