@@ -91,7 +91,7 @@ public class CodeTag extends Tag {
                   .put("vala", "language-vala")
                   .put("go", "language-go")
                   .put("tex", "language-tex")
-                  .put("vbscript", "language-vbsript")
+                  .put("haskell", "language-haskell")
                   .build();
 
   public CodeTag(String name, Set<String> allowedChildren, String implicitTag, ParserParameters parserParameters) {

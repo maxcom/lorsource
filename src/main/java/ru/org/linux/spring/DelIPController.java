@@ -31,7 +31,10 @@ import ru.org.linux.spring.dao.DeleteCommentResult;
 
 import javax.servlet.http.HttpServletRequest;
 import java.sql.Timestamp;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 @Controller
 public class DelIPController {
@@ -89,8 +92,6 @@ public class DelIPController {
 
     User moderator = tmpl.getCurrentUser();
 
-    LinkedList<Integer> deletedIds = new LinkedList<Integer>();
-
     DeleteCommentResult deleteResult = commentDao.deleteCommentsByIPAddress(ip, ts, moderator, reason);
 
     params.put("topics", deleteResult.getDeletedTopicIds().size()); // кол-во удаленных топиков
@@ -100,7 +101,7 @@ public class DelIPController {
       searchQueueSender.updateMessage(topicId, true);
     }
 
-    searchQueueSender.updateComment(deletedIds);
+    searchQueueSender.updateComment(deleteResult.getDeletedCommentIds());
 
     return new ModelAndView("delip", params);
   }
