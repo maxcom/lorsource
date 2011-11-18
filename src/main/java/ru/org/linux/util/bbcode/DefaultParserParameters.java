@@ -72,7 +72,7 @@ public class DefaultParserParameters implements ParserParameters{
     inlineTags = ImmutableSet.of("b", "i", "u", "s", "em", "strong", "url", "url2", "user", "br", "text", "img", "softbr");
     urlTags = ImmutableSet.of("b", "i", "u", "s", "strong", "text");
     blockLevelTags = ImmutableSet.of("p", "quote", "list", "pre", "code", "div", "cut");
-    autoLinkTags = ImmutableSet.of("b", "i", "u", "s", "em", "strong", "p", "quote", "div", "cut", "pre");
+    autoLinkTags = ImmutableSet.of("b", "i", "u", "s", "em", "strong", "p", "quote", "div", "cut", "pre", "*");
     disallowedParagraphTags = ImmutableSet.of("pre", "url", "user", "code");
     paragraphedTags = ImmutableSet.of("pre", "code");
     flowTags = new ImmutableSet.Builder<String>()
