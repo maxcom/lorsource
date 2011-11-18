@@ -39,6 +39,7 @@
 package ru.org.linux.util.bbcode.tags;
 
 import org.apache.commons.httpclient.URI;
+import ru.org.linux.util.bbcode.Parser;
 import ru.org.linux.util.bbcode.ParserParameters;
 import ru.org.linux.util.bbcode.nodes.Node;
 import ru.org.linux.util.bbcode.nodes.RootNode;
@@ -72,6 +73,11 @@ public class CutTag extends HtmlEquivTag {
         }
       }
     }
+    if (!node.isParameter()) {
+      node.setParameter("");
+    } else {
+      node.setParameter(node.getParameter().trim());
+    }
     TagNode tagNode = (TagNode)node;
     RootNode rootNode = tagNode.getRootNode();
     if (rootNode.isComment()) { // коментарий, просто содержимое
@@ -88,7 +94,12 @@ public class CutTag extends HtmlEquivTag {
       URI uri = rootNode.getCutURI();
       try {
         uri.setFragment("cut"+Integer.toString(rootNode.getCutCount()));
-        return String.format("<p>( <a href=\"%s\">читать дальше...</a> )</p>", uri.getEscapedURIReference());
+        if (!node.getParameter().isEmpty()) {
+          String parameter = Parser.escape(node.getParameter().replaceAll("\"", ""));
+          return String.format("<p>( <a href=\"%s\">%s</a> )</p>", uri.getEscapedURIReference(), parameter);
+        } else {
+          return String.format("<p>( <a href=\"%s\">читать дальше...</a> )</p>", uri.getEscapedURIReference());
+        }
       } catch (Exception e) {
         return node.renderChildrenXHtml();
       }

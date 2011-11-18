@@ -27,6 +27,7 @@ import ru.org.linux.util.formatter.ToHtmlFormatter;
 
 import java.util.Set;
 
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -151,7 +152,12 @@ public class SimpleParserTest {
 
   @Test
   public void codeTest() {
-    Assert.assertEquals(lorCodeService.parseComment("[code][list][*]one[*]two[*]three[/list][/code]", false), "<div class=\"code\"><pre class=\"no-highlight\"><code>[list][*]one[*]two[*]three[/list]</code></pre></div>");
+    Assert.assertEquals("<div class=\"code\"><pre class=\"no-highlight\"><code>[list][*]one[*]two[*]three[/list]</code></pre></div>",
+        lorCodeService.parseComment("[code][list][*]one[*]two[*]three[/list][/code]", false));
+    Assert.assertEquals("<div class=\"code\"><pre class=\"no-highlight\"><code>simple code</code></pre></div>",
+        lorCodeService.parseComment("[code]\nsimple code[/code]", false));
+    Assert.assertEquals("<div class=\"code\"><pre class=\"no-highlight\"><code>[list][*]one[*]two[*]three[/list]</code></pre></div>",
+        lorCodeService.parseComment("[code]\n[list][*]one[*]two[*]three[/list][/code]", false));
   }
 
   @Test
@@ -272,5 +278,28 @@ public class SimpleParserTest {
     Assert.assertEquals("<div class=\"quote\"><h3>Цитата</h3><p> Apple ][</p></div><p> текст</p>",
         lorCodeService.parseComment("[quote] Apple ][[/quote] текст", false));
   }
+
+  @Test
+  public void urlParameterQuotesTest() {
+    assertEquals("<p><a href=\"http://www.example.com\">example</a></p>",
+        lorCodeService.parseComment("[url=\"http://www.example.com]example[/url]", false));
+    assertEquals("<p><a href=\"http://www.example.com\">example</a></p>",
+        lorCodeService.parseComment("[url=http://www.example.com\"]example[/url]", false));
+    assertEquals("<p><a href=\"http://www.example.com\">example</a></p>",
+        lorCodeService.parseComment("[url=\"http://www.example.com\"]example[/url]", false));
+  }
+
+  @Test
+  public void cutWithParameterTest() {
+    assertEquals("<p>( <a href=\"https://127.0.0.1:8080/forum/talks/22464#cut0\">нечитать!</a> )</p>",
+        lorCodeService.parseTopicWithMinimizedCut("[cut=нечитать!]\n\ntest[/cut]", url, true));
+  }
+
+  @Test
+  public void autoLinksInList() {
+    assertEquals("<ul><li><a href=\"http://www.example.com\">http://www.example.com</a></li><li>sure</li><li>profit!</li></ul>",
+        lorCodeService.parseComment("[list][*]www.example.com[*]sure[*]profit![/list]", false));
+  }
+
 
 }

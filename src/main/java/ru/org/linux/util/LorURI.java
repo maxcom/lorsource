@@ -111,6 +111,9 @@ public class LorURI {
           msgId = 0;
           isMsg = false;
         }
+        if(path.endsWith("/history")) {
+          isMsg = false;
+        }
       }
       messageId = msgId;
       isMessageUrl = isMsg;

@@ -64,6 +64,12 @@ public class UrlWithParamTag extends Tag {
     String url = "";
     if (node.isParameter()) {
       url = node.getParameter().trim();
+      if(url.startsWith("\"")) {
+        url = url.substring(1);
+      }
+      if(url.endsWith("\"")) {
+        url = url.substring(0, url.length()-1);
+      }
     }
 
     TextNode textChild = null;
@@ -75,29 +81,28 @@ public class UrlWithParamTag extends Tag {
       }
     }
 
+    String escapedUrl = URLUtil.fixURL(url);
+
     if (node.lengthChildren() == 0 || (textChild != null && textChild.getText().trim().length() == 0)){
-      try {
-        String escapedUrl = URLUtil.checkAndFixURL(url);
+      if(URLUtil.isUrl(escapedUrl)) {
         ret.append("<a href=\"")
                 .append(escapedUrl)
                 .append("\">")
                 .append(escapedUrl)
                 .append("</a>");
-      } catch (UtilException ex) {
+      } else {
         ret.append("<s>")
                 .append(Parser.escape(url))
                 .append("</s>");
       }
-
     } else {
-      try {
-        String escapedUrl = URLUtil.checkAndFixURL(url);
+      if(URLUtil.isUrl(escapedUrl)) {
         ret.append("<a href=\"")
                 .append(escapedUrl)
                 .append("\">")
                 .append(node.renderChildrenXHtml())
                 .append("</a>");
-      } catch (UtilException ex) {
+      } else {
         ret.append("<s>")
                 .append(node.renderChildrenXHtml())
                 .append("</s>");
