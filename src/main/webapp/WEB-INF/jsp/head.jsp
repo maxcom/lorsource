@@ -20,9 +20,13 @@
 <html lang=ru>
 <head>
 <LINK REL=STYLESHEET TYPE="text/css" HREF="/common.css">
+<%--
   <c:if test="${template.prof.useHover}">
+--%>
     <LINK REL=STYLESHEET TYPE="text/css" HREF="/${template.style}/hover.css">
+<%--
   </c:if>
+--%>
 
 <c:if test="${not pageContext.request.secure}">
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.2/jquery.min.js" type="text/javascript"></script>
