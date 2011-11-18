@@ -184,3 +184,7 @@ table.poll-result .penguin{
     background-color: transparent !Important;
     background-image: url("/black/img/votes.png") !important;
 }
+
+.code {
+    background: #000060;
+}

@@ -163,10 +163,15 @@ div.quote h3 {
 }
 
 .code {
-  border: 1px dotted;
+  border: 0px;
   margin: 0.5em 0.5em 0.5em 5px;
   font-family: monospace;
   white-space: pre;
+}
+
+code {
+    padding: 0.5em;
+    display: block;
 }
 
 pre {
