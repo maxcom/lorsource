@@ -264,6 +264,8 @@ public class Parser {
           String fixWhole = bbcode.substring(pos, match.start());
           if(fixWhole.startsWith("\n")) {
             fixWhole = fixWhole.substring(1); // откусить ведущий перевод строки
+          } else if(fixWhole.startsWith("\r\n")) {
+            fixWhole = fixWhole.substring(2); // откусить ведущий перевод строки
           }
           currentNode = pushTextNode(rootNode, currentNode, fixWhole);
         }

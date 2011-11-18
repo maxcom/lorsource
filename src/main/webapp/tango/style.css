@@ -239,7 +239,11 @@ pre {
     margin-left: inherit;
 }
 
-.boxlet {
+.code {
+    background-color: #2e3436;
+}
+
+.boxlet, .code {
 -moz-border-radius: 1em;
 -webkit-border-radius: 1em;
 -khtml-border-radius: 1em;
