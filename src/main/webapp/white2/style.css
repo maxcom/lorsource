@@ -136,3 +136,7 @@ table.poll-result .penguin{
     background-image: url("/white/img/votes.png") !important;
 }
 
+.code {
+    background-color: #dadada;
+}
+
