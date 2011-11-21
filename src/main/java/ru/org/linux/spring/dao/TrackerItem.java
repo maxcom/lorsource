@@ -3,8 +3,6 @@ package ru.org.linux.spring.dao;
 import ru.org.linux.site.Section;
 import ru.org.linux.site.User;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.sql.Timestamp;
 
 /**
@@ -70,11 +68,7 @@ public class TrackerItem {
     if(section != 0) {
       return getGroupUrl() + '/' + msgid + "?lastmod=" + lastmod.getTime();
     } else {
-      try {
-        return String.format("/wiki/en/%s", URLEncoder.encode(title, "UTF-8"));
-      } catch (UnsupportedEncodingException e) {
-        throw new RuntimeException(e.getMessage());
-      }
+      return String.format("/wiki/en/%s", title);
     }
   }
 
