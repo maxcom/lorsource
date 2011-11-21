@@ -62,11 +62,7 @@ public class TrackerItem {
         return getGroupUrl() + msgid + "?lastmod=" + lastmod.getTime();
       }
     } else {
-      try {
-        return String.format("/wiki/en/%s", URLEncoder.encode(title, "UTF-8"));
-      } catch (UnsupportedEncodingException e) {
-        throw new RuntimeException(e.getMessage());
-      }
+      return String.format("/wiki/en/%s", title);
     }
   }
 
