@@ -572,7 +572,7 @@ public class MessageDao {
 
       case Section.SCROLL_GROUP:
         res = jdbcTemplate.queryForList(
-                "SELECT min(topics.id) as msgid FROM topics, groups, sections WHERE sections.id=groups.section AND topics.id>? AND topics.groupid=? AND topics.groupid=groups.id AND (topics.moderate OR NOT sections.moderate) AND NOT deleted",
+                "SELECT min(topics.id) as msgid FROM topics WHERE topics.id>? AND topics.groupid=? AND NOT deleted",
                 Integer.class,
                 message.getId(),
                 message.getGroupId()
