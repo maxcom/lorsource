@@ -77,11 +77,10 @@ public class QuoteTag extends Tag {
     }
 
     if (!node.getParameter().isEmpty()) {
-      ret.append("<p>");
-      ret.append("цитата ");
-      ret.append(Parser.escape(node.getParameter().replaceAll("\"", "")));
-      ret.append("</p>");
       ret.append("<div class=\"quote\">");
+      ret.append("<p><cite>");
+      ret.append(Parser.escape(node.getParameter().replaceAll("\"", "")));
+      ret.append("</cite></p>");
       ret.append(node.renderChildrenXHtml());
       ret.append("</div>");
     } else {

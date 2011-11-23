@@ -114,7 +114,7 @@ public class SimpleParserTest {
 
   @Test
   public void quoteParamTest() {
-    Assert.assertEquals(lorCodeService.parseComment("[quote=maxcom]hello world[/quote]", false), "<p>цитата maxcom</p><div class=\"quote\"><p>hello world</p></div>");
+    Assert.assertEquals(lorCodeService.parseComment("[quote=maxcom]hello world[/quote]", false), "<div class=\"quote\"><p><cite>maxcom</cite></p><p>hello world</p></div>");
   }
 
   @Test

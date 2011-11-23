@@ -314,12 +314,14 @@ table.poll-result .penguin{
 }
 
 div.quote {
-    margin: 0.5em;
+    margin: 0;
     border-style: solid;
     border-width: 0 0 0 2px;
     padding-left: 0.5em;
+    padding-top: 0em;
     border-color: #c4a000;
 }
+
 
 .quote div.quote { border-color: #5c3566; }
 .quote .quote div.quote { border-color: #204a87; }
