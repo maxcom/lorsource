@@ -129,7 +129,12 @@
   <td><a href="${topic.groupUrl}">${topic.groupTitle}</a></td>
   <td>
     <c:if test="${topic.type != 'DEL'}">
-      <a href="jump-message.jsp?msgid=${topic.msgid}&amp;cid=${topic.cid}">${topic.subj}</a>
+      <c:if test="${topic.cid>0}">
+        <a href="jump-message.jsp?msgid=${topic.msgid}&amp;cid=${topic.cid}">${topic.subj}</a>
+      </c:if>
+      <c:if test="${topic.cid==0}">
+        <a href="jump-message.jsp?msgid=${topic.msgid}">${topic.subj}</a>
+      </c:if>
     </c:if>
 
     <c:if test="${topic.type == 'DEL'}">

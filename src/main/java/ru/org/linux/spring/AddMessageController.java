@@ -33,8 +33,8 @@ import ru.org.linux.spring.dao.*;
 import ru.org.linux.spring.validators.AddMessageRequestValidator;
 import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.UtilException;
+import ru.org.linux.util.bbcode.LorCodeService;
 import ru.org.linux.util.formatter.ToLorCodeFormatter;
-import ru.org.linux.util.formatter.ToLorCodeTexFormatter;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -45,6 +45,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 
 @Controller
 public class AddMessageController extends ApplicationObjectSupport {
@@ -59,7 +60,10 @@ public class AddMessageController extends ApplicationObjectSupport {
   private PrepareService prepareService;
   private MessageDao messageDao;
   private ToLorCodeFormatter toLorCodeFormatter;
-  private ToLorCodeTexFormatter toLorCodeTexFormatter;
+
+  @Autowired
+  private LorCodeService lorCodeService;
+
   public static final int MAX_MESSAGE_LENGTH_ANONYMOUS = 4096;
   public static final int MAX_MESSAGE_LENGTH = 16384;
 
@@ -118,11 +122,6 @@ public class AddMessageController extends ApplicationObjectSupport {
     this.toLorCodeFormatter = toLorCodeFormatter;
   }
 
-  @Autowired
-  public void setToLorCodeTexFormatter(ToLorCodeTexFormatter toLorCodeTexFormatter) {
-    this.toLorCodeTexFormatter = toLorCodeTexFormatter;
-  }
-
   @RequestMapping(value = "/add.jsp", method = RequestMethod.GET)
   public ModelAndView add(@Valid @ModelAttribute("form") AddMessageRequest form, HttpServletRequest request) throws Exception {
     Map<String, Object> params = new HashMap<String, Object>();
@@ -150,7 +149,7 @@ public class AddMessageController extends ApplicationObjectSupport {
     return new ModelAndView("add", params);
   }
 
-  String processMessage(String msg, String mode) {
+  private String processMessage(String msg, String mode) {
     if (msg == null) {
       return "";
     }
@@ -265,7 +264,9 @@ public class AddMessageController extends ApplicationObjectSupport {
     if (!form.isPreviewMode() && !errors.hasErrors() && group!=null) {
       session.removeAttribute("image");
 
-      int msgid = messageDao.addMessage(request, form, tmpl, group, user, scrn, previewMsg);
+      Set<User> userRefs = lorCodeService.getReplierFromMessage(message);
+
+      int msgid = messageDao.addMessage(request, form, tmpl, group, user, scrn, previewMsg, userRefs);
 
       searchQueueSender.updateMessageOnly(msgid);
 
@@ -286,7 +287,7 @@ public class AddMessageController extends ApplicationObjectSupport {
     }
   }
 
-  @RequestMapping(value = "/add-section.jsp")
+  @RequestMapping("/add-section.jsp")
   public ModelAndView showForm(@RequestParam("section") int sectionId) throws Exception {
     Map<String, Object> params = new HashMap<String, Object>();
 

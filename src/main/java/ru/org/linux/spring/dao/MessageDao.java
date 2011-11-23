@@ -45,6 +45,10 @@ public class MessageDao {
   @Autowired
   private TagDao tagDao;
 
+  @Autowired
+  private UserEventsDao userEventsDao;
+
+
   /**
    * Запрос получения полной информации о топике
    */
@@ -299,7 +303,7 @@ public class MessageDao {
   }
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public int addMessage(HttpServletRequest request, AddMessageRequest form, Template tmpl, Group group, User user, Screenshot scrn, Message previewMsg) throws IOException, ScriptErrorException, UserErrorException {
+  public int addMessage(HttpServletRequest request, AddMessageRequest form, Template tmpl, Group group, User user, Screenshot scrn, Message previewMsg, Set<User> userRefs) throws IOException, ScriptErrorException, UserErrorException {
     final int msgid = saveNewMessage(
             previewMsg,
             tmpl,
@@ -318,6 +322,8 @@ public class MessageDao {
       tagDao.updateTags(msgid, tags);
       tagDao.updateCounters(Collections.<String>emptyList(), tags);
     }
+
+    userEventsDao.addUserRefEvent(userRefs.toArray(new User[userRefs.size()]), msgid);
 
     return msgid;
   }
@@ -524,7 +530,7 @@ public class MessageDao {
 
       case Section.SCROLL_GROUP:
         res = jdbcTemplate.queryForList(
-                "SELECT max(topics.id) as msgid FROM topics, groups, sections WHERE sections.id=groups.section AND topics.id<? AND topics.groupid=? AND topics.groupid=groups.id AND (topics.moderate OR NOT sections.moderate) AND NOT deleted",
+                "SELECT max(topics.id) as msgid FROM topics WHERE topics.id<? AND topics.groupid=? AND NOT deleted",
                 Integer.class,
                 message.getMessageId(),
                 message.getGroupId()
@@ -566,7 +572,7 @@ public class MessageDao {
 
       case Section.SCROLL_GROUP:
         res = jdbcTemplate.queryForList(
-                "SELECT min(topics.id) as msgid FROM topics, groups, sections WHERE sections.id=groups.section AND topics.id>? AND topics.groupid=? AND topics.groupid=groups.id AND (topics.moderate OR NOT sections.moderate) AND NOT deleted",
+                "SELECT min(topics.id) as msgid FROM topics WHERE topics.id>? AND topics.groupid=? AND NOT deleted",
                 Integer.class,
                 message.getId(),
                 message.getGroupId()

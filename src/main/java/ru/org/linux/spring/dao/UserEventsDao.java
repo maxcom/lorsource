@@ -26,7 +26,7 @@ public class UserEventsDao {
       return;
     }
 
-    Map[] batch = new Map[refs.length];
+    Map<String, Object>[] batch = new Map[refs.length];
 
     for (int i=0; i<refs.length; i++) {
       User ref = refs[i];
@@ -37,6 +37,27 @@ public class UserEventsDao {
             "private", false,
             "message_id", topic,
             "comment_id", comment
+      );
+    }
+
+    insert.executeBatch(batch);
+  }
+
+  public void addUserRefEvent(User[] refs, int topic) {
+    if (refs.length==0) {
+      return;
+    }
+
+    Map<String, Object>[] batch = new Map[refs.length];
+
+    for (int i=0; i<refs.length; i++) {
+      User ref = refs[i];
+
+      batch[i] = ImmutableMap.<String, Object>of(
+            "userid", ref.getId(),
+            "type", "REF",
+            "private", false,
+            "message_id", topic
       );
     }
 

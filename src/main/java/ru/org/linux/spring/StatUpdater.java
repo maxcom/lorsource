@@ -33,7 +33,7 @@ import java.util.List;
 @Component
 public class StatUpdater {
   private static final Log logger = LogFactory.getLog(StatUpdater.class);
-  private static final int MAX_EVENTS = 3000;
+  private static final int MAX_EVENTS = 1000;
 
   private SimpleJdbcCall statUpdate;
   private SimpleJdbcCall statUpdate2;
