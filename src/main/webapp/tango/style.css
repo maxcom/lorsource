@@ -312,3 +312,15 @@ table.poll-result .penguin{
     background-color: transparent !Important;
     background-image: url("/tango/img/votes.png") !important;
 }
+
+div.quote {
+    margin: 0.5em;
+    border-style: solid;
+    border-width: 0 0 0 2px;
+    padding-left: 0.5em;
+    border-color: #c4a000;
+}
+
+.quote div.quote { border-color: #5c3566; }
+.quote .quote div.quote { border-color: #204a87; }
+.quote .quote .quote div.quote { border-color: #4e9a06; }
