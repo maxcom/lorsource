@@ -111,10 +111,34 @@ public class TrackerDao {
           "%s" + /* user!=null ? queryPartIgnored*/
           "%s" + /* noTalks ? queryPartNoTalks tech ? queryPartTech mine ? queryPartMine*/
           " AND t.stat1=0 AND g.id=t.groupid " +
-     "UNION ALL " +
+      "%s" + /* wikiPart */
+     "ORDER BY lastmod DESC LIMIT :topics OFFSET :offset";
+
+  private static final String queryPartWiki = "UNION ALL " +
       "SELECT " + // wiki
           "wiki_user_id as author, " +
-          "topic_id as id, change_date as lastmod, " +
+          "0 as id, change_date as lastmod, " +
+          "characters_changed as stat1, " +
+          "0 as stat3, " +
+          "0 as stat4, " +
+          "0 as gid, " +
+          "'Wiki' as gtitle, " +
+          "topic_name as title, " +
+          "0 as cid, " +
+          "0 as last_comment_by, " +
+          "'f' as resolved, " +
+          "0 as section, " +
+          "'' as urlname, " +
+          "change_date as postdate, " +
+          "'f' as smod, " +
+          "'f' as moderate " +
+      "FROM wiki_recent_change " +
+      "WHERE change_date > :interval ";
+
+  private static final String queryPartWikiMine =      "UNION ALL " +
+      "SELECT " + // wiki
+          "wiki_user_id as author, " +
+          "0 as id, change_date as lastmod, " +
           "characters_changed as stat1, " +
           "0 as stat3, " +
           "0 as stat4, " +
@@ -131,13 +155,12 @@ public class TrackerDao {
           "'f' as moderate " +
       "FROM jam_recent_change " +
       "WHERE topic_id is not null AND change_date > :interval " +
-          "%s" + /* wiki mine */
-     "ORDER BY lastmod DESC LIMIT :topics OFFSET :offset";
+      " AND wiki_user_id=:userid ";
+
   private static final String queryPartIgnored = " AND t.userid NOT IN (select ignored from ignore_list where userid=:userid) ";
   private static final String queryPartNoTalks = " AND not t.groupid=8404 ";
   private static final String queryPartTech = " AND not t.groupid=8404 AND not t.groupid=4068 AND section=2 ";
   private static final String queryPartMine = " AND t.userid=:userid ";
-  private static final String queryPartWikiMine = " AND wiki_user_id=:userid ";
 
   public List<TrackerItem> getTrackAll(TrackerFilter filter, User currentUser, Timestamp interval,
                                        int topics, int offset, final int messagesInPage) {
@@ -149,7 +172,7 @@ public class TrackerDao {
 
     String partIgnored;
     String partFilter;
-    String partWiki="";
+    String partWiki=queryPartWiki;
 
     if(currentUser != null) {
       partIgnored = queryPartIgnored;
