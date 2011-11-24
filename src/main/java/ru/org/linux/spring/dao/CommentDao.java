@@ -83,6 +83,9 @@ public class CommentDao {
   private LorCodeService lorCodeService;
 
   @Autowired
+  private IgnoreListDao ignoreListDao;
+
+  @Autowired
   public void setDataSource(DataSource dataSource) {
     jdbcTemplate = new JdbcTemplate(dataSource);
 
@@ -399,7 +402,11 @@ public class CommentDao {
   }
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public int saveNewMessage(final Comment comment, String message, Set<User> userRefs) {
+  public int saveNewMessage(
+          final Comment comment,
+          String message,
+          Set<User> userRefs
+  ) throws MessageNotFoundException {
     final int msgid = jdbcTemplate.queryForInt("select nextval('s_msgid') as msgid");
 
     jdbcTemplate.execute(
@@ -434,6 +441,30 @@ public class CommentDao {
     );
 
     userEventsDao.addUserRefEvent(userRefs.toArray(new User[userRefs.size()]), comment.getTopicId(), msgid);
+
+    if (comment.getReplyTo() != 0) {
+      try {
+        Comment parentComment = getById(comment.getReplyTo());
+
+        if (parentComment.getUserid() != comment.getUserid()) {
+          User parentAuthor = userDao.getUserCached(parentComment.getUserid());
+
+          if (!parentAuthor.isAnonymous()) {
+            Set<Integer> ignoreList = ignoreListDao.get(parentAuthor);
+
+            if (!ignoreList.contains(comment.getUserid())) {
+              userEventsDao.addReplyEvent(
+                      parentAuthor,
+                      comment.getTopicId(),
+                      msgid
+              );
+            }
+          }
+        }
+      } catch (UserNotFoundException e) {
+        throw new RuntimeException(e);
+      }
+    }
 
     return msgid;
   }
