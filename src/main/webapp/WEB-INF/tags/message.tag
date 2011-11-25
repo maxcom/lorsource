@@ -153,7 +153,22 @@
 </div>
     <c:if test="${!message.deleted && showMenu}">
       <div class=reply>
-        <c:if test="${not message.expired}">
+          <c:if test="${template.moderatorSession}">
+          <div style="float: right">
+              <!-- Place this tag in your head or just before your close body tag -->
+              <script type="text/javascript" src="https://apis.google.com/js/plusone.js">
+                  {
+                      lang: 'ru'
+                  }
+              </script>
+
+              <!-- Place this tag where you want the +1 button to render -->
+<%--suppress CheckTagEmptyBody --%>
+              <g:plusone size="small" href="${template.mainUrlNoSlash}${message.link}"></g:plusone>
+          </div>
+          </c:if>
+
+          <c:if test="${not message.expired}">
           <% if (message.isCommentsAllowed(currentUser)) { %>
           [<a href="comment-message.jsp?topic=${message.id}">Ответить на это сообщение</a>]
           <% } %>

@@ -183,6 +183,10 @@ public final class Template {
     return config.getProperties().getProperty(PROPERTY_MAIN_URL);
   }
 
+  public String getMainUrlNoSlash() {
+    return config.getProperties().getProperty(PROPERTY_MAIN_URL).replaceFirst("/$","");
+  }
+
   public String getSecureMainUrl() {
     return config.getProperties().getProperty(PROPERTY_MAIN_URL).replaceFirst("http", "https");
   }
