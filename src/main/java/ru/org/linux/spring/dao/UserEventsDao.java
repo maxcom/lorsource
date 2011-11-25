@@ -63,4 +63,14 @@ public class UserEventsDao {
 
     insert.executeBatch(batch);
   }
+
+  public void addReplyEvent(User parentAuthor, int topicId, int commentId) {
+    insert.execute(ImmutableMap.<String, Object>of(
+            "userid", parentAuthor.getId(),
+            "type", "REPLY",
+            "private", false,
+            "message_id", topicId,
+            "comment_id", commentId
+    ));
+  }
 }
