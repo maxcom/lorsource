@@ -70,7 +70,9 @@ public class ToLorCodeTexFormatter {
           globalNestingLevel = nestingLevel;
         }
         buf.append(line.substring(nestingLevel));
-        buf.append("[br]");
+        if(currentLine < lines.length) {
+          buf.append("[br]");
+        }
       } else {
         if(globalNestingLevel > 0) {
           buf.append(StringUtil.repeat("[/quote]", globalNestingLevel));

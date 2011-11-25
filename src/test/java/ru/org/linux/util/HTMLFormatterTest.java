@@ -46,7 +46,7 @@ public class HTMLFormatterTest {
   private static final String RESULT8 = "Long url: <a href=\"http://www.linux.org.ru/profile/maxcom/view-message.jsp?msgid=1993651&amp;a=b\">www.linux.org.ru/pro...</a>";
 
   private static final String QUOTING1 = "> 1";
-  private static final String RESULT_QUOTING1 = "[quote] 1[br][/quote]";
+  private static final String RESULT_QUOTING1 = "[quote] 1[/quote]";
   private static final String RESULT_QUOTING1_NOQUOTING = "> 1";
 
   private static final String QUOTING2 = "> 1\n2";
@@ -205,12 +205,12 @@ public class HTMLFormatterTest {
 
     assertEquals("[quote]test[br][/quote]test", toLorCodeTexFormatter.format(">test\n\ntest", true)); // 4
     assertEquals("test\n\ntest\ntest", toLorCodeTexFormatter.format("test\n\ntest\ntest", true)); // 1
-    assertEquals("test\n\n[quote]test[br][/quote]", toLorCodeTexFormatter.format("test\n\n>test", true)); // 7
+    assertEquals("test\n\n[quote]test[/quote]", toLorCodeTexFormatter.format("test\n\n>test", true)); // 7
     assertEquals("test &", toLorCodeTexFormatter.format("test &", true)); // 8
     assertEquals("test[br]test", toLorCodeFormatter.format("test\r\ntest", true)); // 9
     assertEquals("test[br]test", toLorCodeFormatter.format("test\ntest", true)); // 10
     assertEquals("[quote]test[br][/quote]test", toLorCodeFormatter.format(">test\ntest", true)); // 11
-    assertEquals("[quote]test[br]test[br][/quote]", toLorCodeFormatter.format(">test\n>test", true)); // 12
+    assertEquals("[quote]test[br]test[/quote]", toLorCodeFormatter.format(">test\n>test", true)); // 12
   }
 
   @Test
@@ -267,39 +267,39 @@ public class HTMLFormatterTest {
         ">one\n\n\n\n>one",
     };
     String[] bb_tex = {
-        "[quote]one[br][/quote]",
-        "[quote]one[br]one[br][/quote]",
-        "[quote][quote]one[br][/quote]teo[br][/quote]",
+        "[quote]one[/quote]",
+        "[quote]one[br]one[/quote]",
+        "[quote][quote]one[br][/quote]teo[/quote]",
         "due>>one\n[quote]teo[br]neo[br][/quote]wuf?\nok",
         "due\n[quote][quote]one[br][/quote]teo[br]neo[br][/quote]wuf?\nok",
-        "[quote]one[br]one[br][/quote]",
+        "[quote]one[br]one[/quote]",
     };
     String[] bb = {
-        "[quote]one[br][/quote]",
-        "[quote]one[br]one[br][/quote]",
-        "[quote][quote]one[br][/quote]teo[br][/quote]",
+        "[quote]one[/quote]",
+        "[quote]one[br]one[/quote]",
+        "[quote][quote]one[br][/quote]teo[/quote]",
         "due>>one[br][quote]teo[br]neo[br][/quote]wuf?[br]ok",
         "due[br][quote][quote]one[br][/quote]teo[br]neo[br][/quote]wuf?[br]ok",
-        "[quote]one[br]one[br][/quote]",
+        "[quote]one[br]one[/quote]",
     };
 
 
     String[] html_tex = {
-        "<div class=\"quote\"><p>one<br></p></div>",
-        "<div class=\"quote\"><p>one<br>one<br></p></div>",
-        "<div class=\"quote\"><div class=\"quote\"><p>one<br></p></div><p>teo<br></p></div>",
+        "<div class=\"quote\"><p>one</p></div>",
+        "<div class=\"quote\"><p>one<br>one</p></div>",
+        "<div class=\"quote\"><div class=\"quote\"><p>one<br></p></div><p>teo</p></div>",
         "<p>due&gt;&gt;one\n</p><div class=\"quote\"><p>teo<br>neo<br></p></div><p>wuf?\nok</p>",
         "<p>due\n</p><div class=\"quote\"><div class=\"quote\"><p>one<br></p></div><p>teo<br>neo<br></p></div><p>wuf?\nok</p>",
-        "<div class=\"quote\"><p>one<br>one<br></p></div>",
+        "<div class=\"quote\"><p>one<br>one</p></div>",
     };
 
     String[] html = {
-        "<div class=\"quote\"><p>one<br></p></div>",
-        "<div class=\"quote\"><p>one<br>one<br></p></div>",
-        "<div class=\"quote\"><div class=\"quote\"><p>one<br></p></div><p>teo<br></p></div>",
+        "<div class=\"quote\"><p>one</p></div>",
+        "<div class=\"quote\"><p>one<br>one</p></div>",
+        "<div class=\"quote\"><div class=\"quote\"><p>one<br></p></div><p>teo</p></div>",
         "<p>due&gt;&gt;one<br></p><div class=\"quote\"><p>teo<br>neo<br></p></div><p>wuf?<br>ok</p>",
         "<p>due<br></p><div class=\"quote\"><div class=\"quote\"><p>one<br></p></div><p>teo<br>neo<br></p></div><p>wuf?<br>ok</p>",
-        "<div class=\"quote\"><p>one<br>one<br></p></div>",
+        "<div class=\"quote\"><p>one<br>one</p></div>",
     };
 
     for(i=0; i<text.length; i++){
