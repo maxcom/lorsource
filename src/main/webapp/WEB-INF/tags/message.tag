@@ -153,7 +153,6 @@
 </div>
     <c:if test="${!message.deleted && showMenu}">
       <div class=reply>
-          <c:if test="${template.moderatorSession}">
           <div style="float: right">
               <!-- Place this tag in your head or just before your close body tag -->
               <script type="text/javascript" src="https://apis.google.com/js/plusone.js">
@@ -166,7 +165,6 @@
 <%--suppress CheckTagEmptyBody --%>
               <g:plusone size="small" href="${template.mainUrlNoSlash}${message.link}"></g:plusone>
           </div>
-          </c:if>
 
           <c:if test="${not message.expired}">
           <% if (message.isCommentsAllowed(currentUser)) { %>
