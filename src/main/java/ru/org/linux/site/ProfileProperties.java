@@ -40,6 +40,7 @@ public class ProfileProperties {
   public static final String BOXES_MAIN31_PROPERTY = "main3-1";
   public static final String BOXES_MAIN32_PROPERTY = "main3-2";
   public static final String TIMESTAMP_PROPERTY = "system.timestamp";
+  public static final String SHOW_SOCIAL_PROPERTY = "showSocial";
 
   private String style;
   private String formatMode;
@@ -54,6 +55,8 @@ public class ProfileProperties {
   private String avatarMode;
   private boolean threeColumnsOnMain;
   private boolean showAnonymous;
+  private boolean showSocial;
+
   private final long timestamp;
 
   private final Map<String, List<String>> boxes = new HashMap<String, List<String>>();
@@ -72,6 +75,8 @@ public class ProfileProperties {
     avatarMode = p.getString(AVATAR_PROPERTY);
     threeColumnsOnMain = p.getBoolean(MAIN_3COLUMNS_PROPERTY);
     showAnonymous = p.getBoolean(SHOW_ANONYMOUS_PROPERTY);
+    showSocial = p.getBoolean(SHOW_SOCIAL_PROPERTY);
+
     timestamp = p.getLong(TIMESTAMP_PROPERTY);
 
     boxes.put(BOXES_MAIN2_PROPERTY, (List<String>) p.getSettings().get(BOXES_MAIN2_PROPERTY));
@@ -95,6 +100,7 @@ public class ProfileProperties {
     p.setString(AVATAR_PROPERTY, avatarMode);
     p.setBoolean(MAIN_3COLUMNS_PROPERTY, threeColumnsOnMain);
     p.setBoolean(SHOW_ANONYMOUS_PROPERTY, showAnonymous);
+    p.setBoolean(SHOW_SOCIAL_PROPERTY, showSocial);
 
     p.setObject(BOXES_MAIN2_PROPERTY, boxes.get(BOXES_MAIN2_PROPERTY));
     p.setObject(BOXES_MAIN31_PROPERTY, boxes.get(BOXES_MAIN31_PROPERTY));
@@ -241,5 +247,13 @@ public class ProfileProperties {
 
   public long getTimestamp() {
     return timestamp;
+  }
+
+  public boolean isShowSocial() {
+    return showSocial;
+  }
+
+  public void setShowSocial(boolean showSocial) {
+    this.showSocial = showSocial;
   }
 }
