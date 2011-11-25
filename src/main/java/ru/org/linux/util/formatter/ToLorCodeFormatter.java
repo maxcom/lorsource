@@ -85,7 +85,9 @@ public class ToLorCodeFormatter {
           globalNestingLevel = 0;
         }
         buf.append(line);
-        buf.append("[br]");
+        if(currentLine < lines.length) {
+          buf.append("[br]");
+        }
       }
     }
     if(globalNestingLevel > 0) {

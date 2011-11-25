@@ -50,10 +50,10 @@ public class HTMLFormatterTest {
   private static final String RESULT_QUOTING1_NOQUOTING = "> 1";
 
   private static final String QUOTING2 = "> 1\n2";
-  private static final String RESULT_QUOTING2 = "[quote] 1[br][/quote]2\n";
+  private static final String RESULT_QUOTING2 = "[quote] 1[br][/quote]2";
 
   private static final String QUOTING3 = "> 1\n2\n\n3";
-  private static final String RESULT_QUOTING3 = "[quote] 1[br][/quote]2\n\n3\n";
+  private static final String RESULT_QUOTING3 = "[quote] 1[br][/quote]2\n\n3";
 
   private static final String TEXT9 = "(http://ru.wikipedia.org/wiki/Blah_(blah))";
   private static final String RESULT9 = "(<a href=\"http://ru.wikipedia.org/wiki/Blah_(blah)\">http://ru.wikipedia.org/wiki/Blah_(blah)</a>)";
@@ -203,13 +203,13 @@ public class HTMLFormatterTest {
     assertEquals(RESULT_QUOTING2, toLorCodeTexFormatter.format(QUOTING2, true));
     assertEquals(RESULT_QUOTING3, toLorCodeTexFormatter.format(QUOTING3, true));
 
-    assertEquals("[quote]test[br][/quote]test\n", toLorCodeTexFormatter.format(">test\n\ntest", true)); // 4
-    assertEquals("test\n\ntest\ntest\n", toLorCodeTexFormatter.format("test\n\ntest\ntest", true)); // 1
+    assertEquals("[quote]test[br][/quote]test", toLorCodeTexFormatter.format(">test\n\ntest", true)); // 4
+    assertEquals("test\n\ntest\ntest", toLorCodeTexFormatter.format("test\n\ntest\ntest", true)); // 1
     assertEquals("test\n\n[quote]test[br][/quote]", toLorCodeTexFormatter.format("test\n\n>test", true)); // 7
-    assertEquals("test &\n", toLorCodeTexFormatter.format("test &", true)); // 8
-    assertEquals("test[br]test[br]", toLorCodeFormatter.format("test\r\ntest", true)); // 9
-    assertEquals("test[br]test[br]", toLorCodeFormatter.format("test\ntest", true)); // 10
-    assertEquals("[quote]test[br][/quote]test[br]", toLorCodeFormatter.format(">test\ntest", true)); // 11
+    assertEquals("test &", toLorCodeTexFormatter.format("test &", true)); // 8
+    assertEquals("test[br]test", toLorCodeFormatter.format("test\r\ntest", true)); // 9
+    assertEquals("test[br]test", toLorCodeFormatter.format("test\ntest", true)); // 10
+    assertEquals("[quote]test[br][/quote]test", toLorCodeFormatter.format(">test\ntest", true)); // 11
     assertEquals("[quote]test[br]test[br][/quote]", toLorCodeFormatter.format(">test\n>test", true)); // 12
   }
 
@@ -258,7 +258,7 @@ public class HTMLFormatterTest {
   @Test
   public void testToLorCodeTexFormatter2() {
     int i;
-    String[] tex = {
+    String[] text = {
         ">one\n",
         ">one\n>one\n",
         ">>one\n>teo\n",
@@ -266,28 +266,49 @@ public class HTMLFormatterTest {
         "due\n>>one\n>teo\n>>neo\nwuf?\nok",
         ">one\n\n\n\n>one",
     };
+    String[] bb_tex = {
+        "[quote]one[br][/quote]",
+        "[quote]one[br]one[br][/quote]",
+        "[quote][quote]one[br][/quote]teo[br][/quote]",
+        "due>>one\n[quote]teo[br]neo[br][/quote]wuf?\nok",
+        "due\n[quote][quote]one[br][/quote]teo[br]neo[br][/quote]wuf?\nok",
+        "[quote]one[br]one[br][/quote]",
+    };
     String[] bb = {
         "[quote]one[br][/quote]",
         "[quote]one[br]one[br][/quote]",
         "[quote][quote]one[br][/quote]teo[br][/quote]",
-        "due>>one\n[quote]teo[br]neo[br][/quote]wuf?\nok\n",
-        "due\n[quote][quote]one[br][/quote]teo[br]neo[br][/quote]wuf?\nok\n",
+        "due>>one[br][quote]teo[br]neo[br][/quote]wuf?[br]ok",
+        "due[br][quote][quote]one[br][/quote]teo[br]neo[br][/quote]wuf?[br]ok",
         "[quote]one[br]one[br][/quote]",
+    };
+
+
+    String[] html_tex = {
+        "<div class=\"quote\"><p>one<br></p></div>",
+        "<div class=\"quote\"><p>one<br>one<br></p></div>",
+        "<div class=\"quote\"><div class=\"quote\"><p>one<br></p></div><p>teo<br></p></div>",
+        "<p>due&gt;&gt;one\n</p><div class=\"quote\"><p>teo<br>neo<br></p></div><p>wuf?\nok</p>",
+        "<p>due\n</p><div class=\"quote\"><div class=\"quote\"><p>one<br></p></div><p>teo<br>neo<br></p></div><p>wuf?\nok</p>",
+        "<div class=\"quote\"><p>one<br>one<br></p></div>",
     };
 
     String[] html = {
         "<div class=\"quote\"><p>one<br></p></div>",
         "<div class=\"quote\"><p>one<br>one<br></p></div>",
         "<div class=\"quote\"><div class=\"quote\"><p>one<br></p></div><p>teo<br></p></div>",
-        "<p>due&gt;&gt;one\n</p><div class=\"quote\"><p>teo<br>neo<br></p></div><p>wuf?\nok\n</p>",
-        "<p>due\n</p><div class=\"quote\"><div class=\"quote\"><p>one<br></p></div><p>teo<br>neo<br></p></div><p>wuf?\nok\n</p>",
+        "<p>due&gt;&gt;one<br></p><div class=\"quote\"><p>teo<br>neo<br></p></div><p>wuf?<br>ok</p>",
+        "<p>due<br></p><div class=\"quote\"><div class=\"quote\"><p>one<br></p></div><p>teo<br>neo<br></p></div><p>wuf?<br>ok</p>",
         "<div class=\"quote\"><p>one<br>one<br></p></div>",
     };
 
-    for(i=0; i<tex.length; i++){
-      String entry = tex[i];
-      assertEquals(bb[i], toLorCodeTexFormatter.format(entry, true));
-      assertEquals(html[i], lorCodeService.parseComment(toLorCodeTexFormatter.format(entry, true), false));
+    for(i=0; i<text.length; i++){
+      String entry = text[i];
+      assertEquals(bb_tex[i], toLorCodeTexFormatter.format(entry, true));
+      assertEquals(html_tex[i], lorCodeService.parseComment(toLorCodeTexFormatter.format(entry, true), false));
+
+      assertEquals(bb[i], toLorCodeFormatter.format(entry, true));
+      assertEquals(html[i], lorCodeService.parseComment(toLorCodeFormatter.format(entry, true), false));
     }
   }
 }

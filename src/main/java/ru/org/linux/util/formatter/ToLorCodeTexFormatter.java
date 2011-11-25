@@ -77,7 +77,9 @@ public class ToLorCodeTexFormatter {
           globalNestingLevel = 0;
         }
         buf.append(line);
-        buf.append('\n');
+        if(currentLine < lines.length) {
+          buf.append('\n');
+        }
       }
     }
     if(globalNestingLevel > 0) {
