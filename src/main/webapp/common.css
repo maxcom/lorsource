@@ -354,3 +354,7 @@ table.poll-result img {
     margin: 0;
     padding: 0;
 }
+
+div.quote p cite {
+    text-decoration: underline;
+}

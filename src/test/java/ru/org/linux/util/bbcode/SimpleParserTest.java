@@ -109,14 +109,12 @@ public class SimpleParserTest {
 
   @Test
   public void quoteTest() {
-    // TODO я нрипонял зачем <div> :-(
-    Assert.assertEquals(lorCodeService.parseComment("[quote]hello world[/quote]", false), "<div class=\"quote\"><h3>Цитата</h3><p>hello world</p></div>");
+    Assert.assertEquals(lorCodeService.parseComment("[quote]hello world[/quote]", false), "<div class=\"quote\"><p>hello world</p></div>");
   }
 
   @Test
   public void quoteParamTest() {
-    // TODO я нрипонял зачем <div> :-(
-    Assert.assertEquals(lorCodeService.parseComment("[quote=maxcom]hello world[/quote]", false), "<div class=\"quote\"><h3>maxcom</h3><p>hello world</p></div>");
+    Assert.assertEquals(lorCodeService.parseComment("[quote=maxcom]hello world[/quote]", false), "<div class=\"quote\"><p><cite>maxcom</cite></p><p>hello world</p></div>");
   }
 
   @Test
@@ -179,7 +177,7 @@ public class SimpleParserTest {
 
   @Test
   public void overflow1Test() {
-    Assert.assertEquals("<p>ololo</p><div class=\"quote\"><h3>Цитата</h3><p><i>hz</i></p></div>",
+    Assert.assertEquals("<p>ololo</p><div class=\"quote\"><p><i>hz</i></p></div>",
             lorCodeService.parseComment("ololo[quote][i]hz[/i][/quote]", false));
   }
 
@@ -275,7 +273,7 @@ public class SimpleParserTest {
 
   @Test
   public void appleTest() {
-    Assert.assertEquals("<div class=\"quote\"><h3>Цитата</h3><p> Apple ][</p></div><p> текст</p>",
+    Assert.assertEquals("<div class=\"quote\"><p> Apple ][</p></div><p> текст</p>",
         lorCodeService.parseComment("[quote] Apple ][[/quote] текст", false));
   }
 
