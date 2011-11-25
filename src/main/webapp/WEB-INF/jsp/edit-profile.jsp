@@ -65,7 +65,7 @@ $(document).ready(function() {
 <form method=POST id="profileForm" action="edit-profile.jsp">
 <table>
 <tr><td colspan=2><hr></td></tr>
-<tr><td>Показывать социальный кнопки (google plus)</td>
+<tr><td>Показывать социальные кнопки (google plus)</td>
 <td><input type=checkbox name=showSocial <%= profHash.isShowSocial()?"checked":"" %>></td></tr>
 <tr><td>Новые комментарии в начале</td>
 <td><input type=checkbox name=newfirst <%= profHash.isShowNewFirst()?"checked":"" %>></td></tr>
