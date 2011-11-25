@@ -16,6 +16,10 @@
 package ru.org.linux.util.formatter;
 
 import org.springframework.stereotype.Service;
+import ru.org.linux.util.StringUtil;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Формирует сообщение для сохранения в базе
@@ -24,7 +28,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class ToLorCodeFormatter {
 
-  private static final String NL_PATTERN = "\r?\n";
+  private static final String NL_REGEXP = "\r?\n";
 
   /**
    * Форматирует текст
@@ -42,41 +46,52 @@ public class ToLorCodeFormatter {
   }
 
   private String fixNL(String text) {
-    return text.replaceAll(NL_PATTERN, "[br]\n");
+    return text.replaceAll(NL_REGEXP, "[br]\n");
   }
 
-  private String quote(String text) {
+  public static final Pattern QUOTE_PATTERN = Pattern.compile("^(\\>+)");
+
+
+  protected String quote(String text) {
     StringBuilder buf = new StringBuilder();
+    String[] lines = text.split("(\\r?\\n)");
+    int globalNestingLevel = 0;
+    int currentLine = 0;
 
-    boolean quot = false;
-
-    for (int i = 0; i < text.length(); i++) {
-      if (text.charAt(i) == '\r') {
-        continue;
-      }
-      if (text.charAt(i) == '\n' || i == 0) {
-        if (quot) {
-          quot = false;
-          buf.append("[/i]");
-        }
-
-        if (text.substring(i).trim().startsWith(">")) {
-          quot = true;
-          buf.append("[i]");
-        }
-
-        if (text.charAt(i) == '\n') {
+    for(String line : lines) {
+      currentLine = currentLine + 1;
+      if(line.isEmpty()) {
+        if(globalNestingLevel == 0) {
           buf.append("[br]");
         }
+        continue;
       }
+      Matcher m = QUOTE_PATTERN.matcher(line);
+      if(m.find()) {
+        int nestingLevel = m.group(1).length();
+        if(globalNestingLevel == 0) {
+          buf.append(StringUtil.repeat("[quote]", nestingLevel));
+          globalNestingLevel = nestingLevel;
+        } else if(nestingLevel < globalNestingLevel) {
+          buf.append(StringUtil.repeat("[/quote]", globalNestingLevel - nestingLevel));
+          globalNestingLevel = nestingLevel;
 
-      buf.append(text.charAt(i));
+        }
+        buf.append(line.substring(nestingLevel));
+        buf.append("[br]");
+      } else {
+        if(globalNestingLevel > 0) {
+          buf.append(StringUtil.repeat("[/quote]", globalNestingLevel));
+          globalNestingLevel = 0;
+        }
+        buf.append(line);
+        buf.append("[br]");
+      }
     }
-
-    if (quot) {
-      buf.append("[/i]");
+    if(globalNestingLevel > 0) {
+      buf.append(StringUtil.repeat("[/quote]", globalNestingLevel));
     }
-
     return buf.toString();
   }
+
 }

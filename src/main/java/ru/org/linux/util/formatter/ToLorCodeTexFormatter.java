@@ -16,6 +16,10 @@
 package ru.org.linux.util.formatter;
 
 import org.springframework.stereotype.Service;
+import ru.org.linux.util.StringUtil;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Формирует сообщение с TeX переносами для сохранения в базе
@@ -39,41 +43,48 @@ public class ToLorCodeTexFormatter {
     }
   }
 
-  private String quote(String text) {
+  public static final Pattern QUOTE_PATTERN = Pattern.compile("^(\\>+)");
+
+  protected String quote(String text) {
     StringBuilder buf = new StringBuilder();
+    String[] lines = text.split("(\\r?\\n)");
+    int globalNestingLevel = 0;
+    int currentLine = 0;
 
-    boolean cr = false;
-    boolean quot = false;
-
-    for (int i = 0; i < text.length(); i++) {
-      if (text.charAt(i) == '\r') {
+    for(String line : lines) {
+      currentLine = currentLine + 1;
+      if(line.isEmpty()) {
+        if(globalNestingLevel == 0) {
+          buf.append('\n');
+        }
         continue;
       }
-      if (text.charAt(i) == '\n' || i == 0) {
-        if (cr || i == 0) {
-          if (quot) {
-            quot = false;
-            buf.append("[/i]\n");
-          }
-
-          if (text.substring(i).trim().startsWith(">")) {
-            quot = true;
-            buf.append("\n[i]");
-          }
-        } else {
-          cr = true;
+      Matcher m = QUOTE_PATTERN.matcher(line);
+      if(m.find()) {
+        int nestingLevel = m.group(1).length();
+        if(globalNestingLevel == 0) {
+          buf.append(StringUtil.repeat("[quote]", nestingLevel));
+          globalNestingLevel = nestingLevel;
+        } else if(nestingLevel < globalNestingLevel) {
+          buf.append(StringUtil.repeat("[/quote]", globalNestingLevel - nestingLevel));
+          globalNestingLevel = nestingLevel;
         }
+        buf.append(line.substring(nestingLevel));
+        buf.append("[br]");
       } else {
-        cr = false;
+        if(globalNestingLevel > 0) {
+          buf.append(StringUtil.repeat("[/quote]", globalNestingLevel));
+          globalNestingLevel = 0;
+        }
+        buf.append(line);
+        buf.append('\n');
       }
-
-      buf.append(text.charAt(i));
     }
-
-    if (quot) {
-      buf.append("[/i]");
+    if(globalNestingLevel > 0) {
+      buf.append(StringUtil.repeat("[/quote]", globalNestingLevel));
     }
-
     return buf.toString();
   }
+
+
 }
