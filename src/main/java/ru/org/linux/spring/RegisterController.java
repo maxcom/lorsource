@@ -270,7 +270,7 @@ public class RegisterController extends ApplicationObjectSupport {
         String logmessage = "Зарегистрирован пользователь " + nick + " (id=" + userid + ") " + LorHttpUtils.getRequestIP(request);
         logger.info(logmessage);
 
-        sendEmail(tmpl, nick, form.getEmail(), true);
+        sendEmail(tmpl, nick, mail.getAddress(), true);
       } else {
         return new ModelAndView("register");
       }
