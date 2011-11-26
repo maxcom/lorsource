@@ -278,7 +278,8 @@ public class User implements Serializable {
       return false;
     }               
 
-    return (maxScore < BLOCK_MAX_SCORE) && (score < BLOCK_SCORE);
+    return true;
+    // return (maxScore < BLOCK_MAX_SCORE) && (score < BLOCK_SCORE);
   }
 
   public boolean isActivated() {
