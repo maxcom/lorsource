@@ -124,6 +124,13 @@
         <input type="hidden" name="email" value="${fn:escapeXml(user.email)}">
         <input type="submit" value="Получить забытый пароль">
       </form>
+      <c:if test="${template.moderatorSession}">
+        <form action="/usermod.jsp" method="POST" style="display: inline">
+          <input type="hidden" name="id" value="${user.id}">
+          <input type='hidden' name='action' value='reset-password'>
+          <input type="submit" value="Сбросить пароль">
+        </form>
+      </c:if>
       <br>
       <b>Score:</b> ${user.score}<br>
       <b>Игнорируется</b>: ${userStat.ignoreCount}<br>

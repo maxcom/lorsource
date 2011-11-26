@@ -129,8 +129,12 @@ public class UserModificationController extends ApplicationObjectSupport {
   }
 
   private static ModelAndView redirectToProfile(User user) {
+    return new ModelAndView(new RedirectView(getNoCacheLinkToProfile(user)));
+  }
+
+  private static String getNoCacheLinkToProfile(User user) {
     Random random = new Random();
-    return new ModelAndView(new RedirectView("/people/" + URLEncoder.encode(user.getNick()) + "/profile?nocache=" + random.nextInt()));
+    return "/people/" + URLEncoder.encode(user.getNick()) + "/profile?nocache=" + random.nextInt();
   }
 
   /**
@@ -188,6 +192,33 @@ public class UserModificationController extends ApplicationObjectSupport {
     return redirectToProfile(user);
   }
 
+  /**
+   * Сброс пароля пользователю
+   * @param request http запрос
+   * @param user пользователь которому сбрасываем пароль
+   * @return сообщение о успешности сброса
+   * @throws Exception при ошибке или отсутствии прав
+   */
+  @RequestMapping(value = "/usermod.jsp", method = RequestMethod.POST, params = "action=reset-password")
+  public ModelAndView resetPassword(
+      HttpServletRequest request,
+      @RequestParam("id") User user
+  ) throws Exception {
+    User moderator = getModerator(request);
+
+    if (user.canModerate()) {
+      throw new AccessViolationException("Пользователю " + user.getNick() + " нельзя сбросить пароль");
+    }
+
+    userDao.resetPassword(user);
+
+    logger.info("Пароль "+user.getNick()+" сброшен модератором "+moderator.getNick());
+
+    ModelAndView mv = new ModelAndView("action-done");
+    mv.getModel().put("link", getNoCacheLinkToProfile(user));
+    mv.getModel().put("message", "Пароль сброшен");
+    return mv;
+  }
   /**
    * Контроллер отчистки дополнительной информации в профиле
    * @param request http запрос
