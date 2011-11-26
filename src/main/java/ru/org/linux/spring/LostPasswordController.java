@@ -73,7 +73,7 @@ public class LostPasswordController {
       throw new AccessViolationException("этот пароль могут сбросить только модераторы");
     }
 
-    if (!userDao.canResetPassword(user)) {
+    if (!tmpl.isModeratorSession() && !userDao.canResetPassword(user)) {
       throw new AccessViolationException("нельзя запрашивать пароль чаще одного раза в неделю");
     }
 
