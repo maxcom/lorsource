@@ -16,8 +16,7 @@
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
-
-<html lang=ru>
+<html lang=ru itemscope itemtype="http://schema.org/Thing">
 <head>
 <LINK REL=STYLESHEET TYPE="text/css" HREF="/common.css">
   <c:if test="${template.style!='black' || (template.style=='black' and template.prof.useHover)}">

@@ -66,6 +66,7 @@
 <c:if test="${not message.expired and template.sessionAuthorized}">
 <script src="/js/addComments.js" type="text/javascript"></script>
 </c:if>
+<meta itemprop="image" content="/tango/img/angry-logo.png">
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 <div class=messages>
 
