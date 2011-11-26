@@ -22,19 +22,8 @@
 <LINK REL="stylesheet" TYPE="text/css" HREF="/tango/tango-dark.css" TITLE="dark">
 <LINK REL="alternate stylesheet" TYPE="text/css" HREF="/tango/tango-swamp.css" TITLE="swamp">
 <LINK REL="shortcut icon" HREF="/favicon.ico" TYPE="image/x-icon">
-<%--
-<script src="/js/jquery.corner.js" type="text/javascript"></script>
---%>
 <script type="text/javascript">
   $.stylesheetInit();
-/*
-  $(document).ready(function() {
-    if ($.browser.msie || ($.browser.opera && $.browser.version < 10.50)) {
-      $('.msg').corner();
-      $('.column .boxlet').corner();
-    }
-  });
-*/
 </script>
 
 </head>
