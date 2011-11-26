@@ -232,7 +232,7 @@ public class UserTest {
                         "<img src=\"/img/normal-star.gif\" width=9 height=9 alt=\"*\">"+
                         "<img src=\"/img/normal-star.gif\" width=9 height=9 alt=\"*\">"+
                         "<img src=\"/img/normal-star.gif\" width=9 height=9 alt=\"*\">", user.getStatus());
-    Assert.assertFalse(user.isBlockable());
+    Assert.assertTrue(user.isBlockable());
     Assert.assertTrue(user.isActivated());
     Assert.assertFalse(user.isAnonymousScore());
     Assert.assertEquals(resultSet.getBoolean("corrector"), user.isCorrector());
