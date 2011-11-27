@@ -191,10 +191,16 @@ public class AddCommentController extends ApplicationObjectSupport {
     }
 
     if (!add.isPreviewMode() && !errors.hasErrors() && !session.getId().equals(request.getParameter("session"))) {
-      logger.info("Flood protection (session variable differs: " + session.getId() + ") " + request.getRemoteAddr());
-      errors.reject(null, "сбой добавления");
+      logger.info(String.format(
+              "Flood protection (session variable differs: session=%s var=%s) ip=%s",
+              session.getId(),
+              request.getParameter("session"),
+              request.getRemoteAddr()
+      ));
+
+      errors.reject(null, "сбой добавления, попробуйте еще раз");
     }
-    
+
     ipBlockDao.checkBlockIP(request.getRemoteAddr(), errors);
 
     Map<String, Object> formParams = new HashMap<String, Object>();
