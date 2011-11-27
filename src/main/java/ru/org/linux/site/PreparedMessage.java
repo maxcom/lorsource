@@ -148,7 +148,7 @@ public final class PreparedMessage {
     }
 
     if (by.getId()==author.getId() && !message.isCommited()) {
-      return section.isPremoderated() || (System.currentTimeMillis() - message.getPostdate().getTime()) < EDIT_PERIOD;
+      return message.isSticky() || section.isPremoderated() || (System.currentTimeMillis() - message.getPostdate().getTime()) < EDIT_PERIOD;
     }
 
     return false;
