@@ -23,6 +23,7 @@ import ru.org.linux.site.Group;
 import ru.org.linux.site.Message;
 import ru.org.linux.spring.Configuration;
 import ru.org.linux.spring.dao.MessageDao;
+import ru.org.linux.util.bbcode.LorCodeService;
 import ru.org.linux.util.formatter.ToHtmlFormatter;
 import ru.org.linux.util.formatter.ToLorCodeFormatter;
 import ru.org.linux.util.formatter.ToLorCodeTexFormatter;
@@ -45,14 +46,14 @@ public class HTMLFormatterTest {
   private static final String RESULT8 = "Long url: <a href=\"http://www.linux.org.ru/profile/maxcom/view-message.jsp?msgid=1993651&amp;a=b\">www.linux.org.ru/pro...</a>";
 
   private static final String QUOTING1 = "> 1";
-  private static final String RESULT_QUOTING1 = "\n[i]> 1[/i]";
+  private static final String RESULT_QUOTING1 = "[quote] 1[/quote]";
   private static final String RESULT_QUOTING1_NOQUOTING = "> 1";
 
   private static final String QUOTING2 = "> 1\n2";
-  private static final String RESULT_QUOTING2 = "\n[i]> 1\n2[/i]";
+  private static final String RESULT_QUOTING2 = "[quote] 1[br][/quote]2";
 
   private static final String QUOTING3 = "> 1\n2\n\n3";
-  private static final String RESULT_QUOTING3 = "\n[i]> 1\n2\n[/i]\n\n3";
+  private static final String RESULT_QUOTING3 = "[quote] 1[br][/quote]2\n\n3";
 
   private static final String TEXT9 = "(http://ru.wikipedia.org/wiki/Blah_(blah))";
   private static final String RESULT9 = "(<a href=\"http://ru.wikipedia.org/wiki/Blah_(blah)\">http://ru.wikipedia.org/wiki/Blah_(blah)</a>)";
@@ -89,6 +90,7 @@ public class HTMLFormatterTest {
   private ToHtmlFormatter toHtmlFormatter;
   private ToHtmlFormatter toHtmlFormatter20;
   private ToLorCodeFormatter toLorCodeFormatter;
+  private LorCodeService lorCodeService;
   private ToLorCodeTexFormatter toLorCodeTexFormatter;
   private Configuration configuration;
   private URI mainURI;
@@ -109,6 +111,8 @@ public class HTMLFormatterTest {
 
   @Before
   public void init() throws Exception {
+    lorCodeService = new LorCodeService();
+
     mainURI = new URI("http://www.linux.org.ru/",true, "UTF-8");
 
     messageDao = mock(MessageDao.class);
@@ -199,14 +203,14 @@ public class HTMLFormatterTest {
     assertEquals(RESULT_QUOTING2, toLorCodeTexFormatter.format(QUOTING2, true));
     assertEquals(RESULT_QUOTING3, toLorCodeTexFormatter.format(QUOTING3, true));
 
-    assertEquals("\n[i]>test\n[/i]\n\ntest", toLorCodeTexFormatter.format(">test\n\ntest", true)); // 4
+    assertEquals("[quote]test[br][/quote]test", toLorCodeTexFormatter.format(">test\n\ntest", true)); // 4
     assertEquals("test\n\ntest\ntest", toLorCodeTexFormatter.format("test\n\ntest\ntest", true)); // 1
-    assertEquals("test\n\n[i]\n>test[/i]", toLorCodeTexFormatter.format("test\n\n>test", true)); // 7
+    assertEquals("test\n\n[quote]test[/quote]", toLorCodeTexFormatter.format("test\n\n>test", true)); // 7
     assertEquals("test &", toLorCodeTexFormatter.format("test &", true)); // 8
-    assertEquals("test[br]\ntest", toLorCodeFormatter.format("test\r\ntest", true)); // 9
-    assertEquals("test[br]\ntest", toLorCodeFormatter.format("test\ntest", true)); // 10
-    assertEquals("[i]>test[/i][br]\ntest", toLorCodeFormatter.format(">test\ntest", true)); // 11
-    assertEquals("[i]>test[/i][i][br]\n>test[/i]", toLorCodeFormatter.format(">test\n>test", true)); // 12
+    assertEquals("test[br]test", toLorCodeFormatter.format("test\r\ntest", true)); // 9
+    assertEquals("test[br]test", toLorCodeFormatter.format("test\ntest", true)); // 10
+    assertEquals("[quote]test[br][/quote]test", toLorCodeFormatter.format(">test\ntest", true)); // 11
+    assertEquals("[quote]test[br]test[/quote]", toLorCodeFormatter.format(">test\n>test", true)); // 12
   }
 
   @Test
@@ -249,5 +253,62 @@ public class HTMLFormatterTest {
     assertEquals("&lt;script&gt;", StringUtil.escapeHtml("<script>"));
     assertEquals("&nbsp;", StringUtil.escapeHtml("&nbsp;"));
     assertEquals("&#41;&#41;&#41;", StringUtil.escapeHtml("&#41;&#41;&#41;"));
+  }
+
+  @Test
+  public void testToLorCodeTexFormatter2() {
+    int i;
+    String[] text = {
+        ">one\n",
+        ">one\n>one\n",
+        ">>one\n>teo\n",
+        "due>>one\n>teo\n>>neo\nwuf?\nok",
+        "due\n>>one\n>teo\n>>neo\nwuf?\nok",
+        ">one\n\n\n\n>one",
+    };
+    String[] bb_tex = {
+        "[quote]one[/quote]",
+        "[quote]one[br]one[/quote]",
+        "[quote][quote]one[br][/quote]teo[/quote]",
+        "due>>one\n[quote]teo[br]neo[br][/quote]wuf?\nok",
+        "due\n[quote][quote]one[br][/quote]teo[br]neo[br][/quote]wuf?\nok",
+        "[quote]one[br]one[/quote]",
+    };
+    String[] bb = {
+        "[quote]one[/quote]",
+        "[quote]one[br]one[/quote]",
+        "[quote][quote]one[br][/quote]teo[/quote]",
+        "due>>one[br][quote]teo[br]neo[br][/quote]wuf?[br]ok",
+        "due[br][quote][quote]one[br][/quote]teo[br]neo[br][/quote]wuf?[br]ok",
+        "[quote]one[br]one[/quote]",
+    };
+
+
+    String[] html_tex = {
+        "<div class=\"quote\"><p>one</p></div>",
+        "<div class=\"quote\"><p>one<br>one</p></div>",
+        "<div class=\"quote\"><div class=\"quote\"><p>one<br></p></div><p>teo</p></div>",
+        "<p>due&gt;&gt;one\n</p><div class=\"quote\"><p>teo<br>neo<br></p></div><p>wuf?\nok</p>",
+        "<p>due\n</p><div class=\"quote\"><div class=\"quote\"><p>one<br></p></div><p>teo<br>neo<br></p></div><p>wuf?\nok</p>",
+        "<div class=\"quote\"><p>one<br>one</p></div>",
+    };
+
+    String[] html = {
+        "<div class=\"quote\"><p>one</p></div>",
+        "<div class=\"quote\"><p>one<br>one</p></div>",
+        "<div class=\"quote\"><div class=\"quote\"><p>one<br></p></div><p>teo</p></div>",
+        "<p>due&gt;&gt;one<br></p><div class=\"quote\"><p>teo<br>neo<br></p></div><p>wuf?<br>ok</p>",
+        "<p>due<br></p><div class=\"quote\"><div class=\"quote\"><p>one<br></p></div><p>teo<br>neo<br></p></div><p>wuf?<br>ok</p>",
+        "<div class=\"quote\"><p>one<br>one</p></div>",
+    };
+
+    for(i=0; i<text.length; i++){
+      String entry = text[i];
+      assertEquals(bb_tex[i], toLorCodeTexFormatter.format(entry, true));
+      assertEquals(html_tex[i], lorCodeService.parseComment(toLorCodeTexFormatter.format(entry, true), false));
+
+      assertEquals(bb[i], toLorCodeFormatter.format(entry, true));
+      assertEquals(html[i], lorCodeService.parseComment(toLorCodeFormatter.format(entry, true), false));
+    }
   }
 }
