@@ -75,7 +75,9 @@ public class ToLorCodeFormatter {
         } else if(nestingLevel < globalNestingLevel) {
           buf.append(StringUtil.repeat("[/quote]", globalNestingLevel - nestingLevel));
           globalNestingLevel = nestingLevel;
-
+        } else if(nestingLevel > globalNestingLevel) {
+          buf.append(StringUtil.repeat("[quote]", nestingLevel - globalNestingLevel));
+          globalNestingLevel = nestingLevel;
         }
         buf.append(line.substring(nestingLevel));
         if(currentLine < lines.length) {
