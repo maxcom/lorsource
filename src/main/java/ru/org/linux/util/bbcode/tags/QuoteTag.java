@@ -41,6 +41,7 @@ package ru.org.linux.util.bbcode.tags;
 import ru.org.linux.util.bbcode.Parser;
 import ru.org.linux.util.bbcode.ParserParameters;
 import ru.org.linux.util.bbcode.nodes.Node;
+import ru.org.linux.util.bbcode.nodes.TagNode;
 import ru.org.linux.util.bbcode.nodes.TextNode;
 
 import java.util.Set;
@@ -59,6 +60,7 @@ public class QuoteTag extends Tag {
   @Override
   public String renderNodeXhtml(Node node) {
     StringBuilder ret = new StringBuilder();
+    boolean emtyQuote = false;
     if (node.lengthChildren() == 0) {
       return "";
     } else {
@@ -67,6 +69,13 @@ public class QuoteTag extends Tag {
         Node child = node.getChildren().iterator().next();
         if (TextNode.class.isInstance(child) && ((TextNode) child).getText().trim().length() == 0) {
           return "";
+        }
+        if (TagNode.class.isInstance(child)) {
+          TagNode tagNode = (TagNode)child;
+          Tag tag = tagNode.getBbtag();
+          if("quote".equals(tag.getName())) {
+            emtyQuote = true;
+          }
         }
       }
     }
@@ -84,9 +93,13 @@ public class QuoteTag extends Tag {
       ret.append(node.renderChildrenXHtml());
       ret.append("</div>");
     } else {
-      ret.append("<div class=\"quote\">");
-      ret.append(node.renderChildrenXHtml());
-      ret.append("</div>");
+      if(emtyQuote) {
+        ret.append(node.renderChildrenXHtml());
+      } else {
+        ret.append("<div class=\"quote\">");
+        ret.append(node.renderChildrenXHtml());
+        ret.append("</div>");
+      }
     }
     return ret.toString();
   }
