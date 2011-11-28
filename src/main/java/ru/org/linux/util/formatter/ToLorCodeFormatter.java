@@ -37,7 +37,7 @@ public class ToLorCodeFormatter {
    * @return отфарматированный текст
    */
   public String format(String text, boolean quoting) {
-    String newText = text.replaceAll("\\[(/?code)\\]", "[[$1]]");
+    String newText = text.replaceAll("\\[(/?code(:?=[\\w\\s]+)?)\\]", "[[$1]]");
     if(quoting) {
       return quote(newText);
     } else {
