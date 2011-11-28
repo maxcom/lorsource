@@ -513,7 +513,7 @@ public class MessageDao {
     jdbcTemplate.update("UPDATE topics SET moderate='f',commitby=NULL,commitdate=NULL WHERE id=?", msg.getId());
   }
 
-  public Message getPreviousMessage(Message message) {
+  public Message getPreviousMessage(Message message, User currentUser) {
     int scrollMode = Section.getScrollMode(message.getSectionId());
 
     List<Integer> res;
@@ -529,12 +529,28 @@ public class MessageDao {
         break;
 
       case Section.SCROLL_GROUP:
-        res = jdbcTemplate.queryForList(
-                "SELECT max(topics.id) as msgid FROM topics WHERE topics.id<? AND topics.groupid=? AND NOT deleted",
-                Integer.class,
-                message.getMessageId(),
-                message.getGroupId()
-        );
+        if (currentUser == null || currentUser.isAnonymous()) {
+          res = jdbcTemplate.queryForList(
+                  "SELECT max(topics.id) as msgid " +
+                          "FROM topics " +
+                          "WHERE topics.id<? AND topics.groupid=? AND NOT deleted",
+                  Integer.class,
+                  message.getMessageId(),
+                  message.getGroupId()
+          );
+        } else {
+            res = jdbcTemplate.queryForList(
+                    "SELECT max(topics.id) as msgid " +
+                            "FROM topics " +
+                            "WHERE topics.id<? AND topics.groupid=? AND NOT deleted " +
+                            "AND userid NOT IN (select ignored from ignore_list where userid=?)",
+                    Integer.class,
+                    message.getMessageId(),
+                    message.getGroupId(),
+                    currentUser.getId()
+            );
+        }
+
         break;
 
       case Section.SCROLL_NOSCROLL:
@@ -555,7 +571,7 @@ public class MessageDao {
     }
   }
 
-  public Message getNextMessage(Message message) {
+  public Message getNextMessage(Message message, User currentUser) {
     int scrollMode = Section.getScrollMode(message.getSectionId());
 
     List<Integer> res;
@@ -571,12 +587,27 @@ public class MessageDao {
         break;
 
       case Section.SCROLL_GROUP:
-        res = jdbcTemplate.queryForList(
-                "SELECT min(topics.id) as msgid FROM topics WHERE topics.id>? AND topics.groupid=? AND NOT deleted",
-                Integer.class,
-                message.getId(),
-                message.getGroupId()
-        );
+        if (currentUser == null || currentUser.isAnonymous()) {
+          res = jdbcTemplate.queryForList(
+                  "SELECT min(topics.id) as msgid " +
+                          "FROM topics " +
+                          "WHERE topics.id>? AND topics.groupid=? AND NOT deleted",
+                  Integer.class,
+                  message.getId(),
+                  message.getGroupId()
+          );
+        } else {
+          res = jdbcTemplate.queryForList(
+                  "SELECT min(topics.id) as msgid " +
+                          "FROM topics " +
+                          "WHERE topics.id>? AND topics.groupid=? AND NOT deleted " +
+                          "AND userid NOT IN (select ignored from ignore_list where userid=?)",
+                  Integer.class,
+                  message.getId(),
+                  message.getGroupId(),
+                  currentUser.getId()
+          );
+        }
         break;
 
       case Section.SCROLL_NOSCROLL:
