@@ -8,6 +8,9 @@ public class RegisterRequest {
   private String info;
   private String nick;
 
+  private String password;
+  private String password2;
+
   public String getEmail() {
     return email;
   }
@@ -54,5 +57,21 @@ public class RegisterRequest {
 
   public void setNick(String nick) {
     this.nick = nick;
+  }
+
+  public String getPassword() {
+    return password;
+  }
+
+  public void setPassword(String password) {
+    this.password = password;
+  }
+
+  public String getPassword2() {
+    return password2;
+  }
+
+  public void setPassword2(String password2) {
+    this.password2 = password2;
   }
 }

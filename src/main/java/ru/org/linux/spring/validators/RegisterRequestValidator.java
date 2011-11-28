@@ -8,8 +8,8 @@ import ru.org.linux.util.StringUtil;
 import ru.org.linux.util.URLUtil;
 
 public class RegisterRequestValidator implements Validator {
-
   private static final int TOWN_LENGTH = 100;
+  private static final int MIN_PASSWORD_LEN = 4;
 
   @Override
   public boolean supports(Class<?> aClass) {
@@ -28,6 +28,16 @@ public class RegisterRequestValidator implements Validator {
 
     if (!Strings.isNullOrEmpty(form.getUrl()) && !URLUtil.isUrl(form.getUrl())) {
       errors.rejectValue("url", null, "Некорректный URL");
+    }
+
+    if (form.getPassword2() != null &&
+            form.getPassword() != null &&
+            !form.getPassword().equals(form.getPassword2())) {
+      errors.reject(null, "введенные пароли не совпадают");
+    }
+
+    if (!Strings.isNullOrEmpty(form.getPassword()) && form.getPassword().length()< MIN_PASSWORD_LEN) {
+      errors.reject(null, "слишком короткий пароль, минимальная длина: "+MIN_PASSWORD_LEN);
     }
   }
 }

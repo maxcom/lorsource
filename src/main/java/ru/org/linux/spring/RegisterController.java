@@ -48,7 +48,7 @@ import javax.validation.Valid;
 import java.util.Date;
 import java.util.Properties;
 
-@SuppressWarnings({"ProhibitedExceptionDeclared"})
+@SuppressWarnings("ProhibitedExceptionDeclared")
 @Controller
 public class RegisterController extends ApplicationObjectSupport {
   private CaptchaService captcha;
@@ -100,9 +100,7 @@ public class RegisterController extends ApplicationObjectSupport {
     HttpServletRequest request,
     @Valid @ModelAttribute("form") RegisterRequest form,
     Errors errors,
-    @RequestParam(required=false) String oldpass,
-    @RequestParam(required=false) String password,
-    @RequestParam(required=false) String password2    
+    @RequestParam(required=false) String oldpass
   ) throws Exception {
     HttpSession session = request.getSession();
     Template tmpl = Template.getTemplate(request);
@@ -133,12 +131,10 @@ public class RegisterController extends ApplicationObjectSupport {
       }
     }
 
-    if (password != null && password.length() == 0) {
-      password = null;
-    }
+    String password = Strings.emptyToNull(form.getPassword());
 
-    if (password2 != null && password2.length() == 0) {
-      password2 = null;
+    if (password!=null && password.equalsIgnoreCase(nick)) {
+      errors.reject(null, "пароль не может совпадать с логином");
     }
 
     InternetAddress mail = null;
@@ -160,24 +156,12 @@ public class RegisterController extends ApplicationObjectSupport {
     }
 
     if (!changeMode) {
-      if (password == null) {
+      if (Strings.isNullOrEmpty(password)) {
         errors.reject(null, "пароль не может быть пустым");
       }
-
-      if (password2 == null || !password.equals(password2)) {
-        errors.reject(null, "введенные пароли не совпадают");
-      }
-    } else {
-      if (password2 != null && password != null && !password.equals(password2)) {
-        errors.reject(null, "введенные пароли не совпадают");
-      }
     }
 
-    String name = null;
-
-    if (!Strings.isNullOrEmpty(form.getName())) {
-      name = form.getName();
-    }
+    String name = Strings.emptyToNull(form.getName());
 
     if (name != null) {
       name = StringUtil.escapeHtml(name);
