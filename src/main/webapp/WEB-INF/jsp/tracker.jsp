@@ -97,7 +97,7 @@
             <a href="${msg.url}">
               <% } %>
                 ${msg.title}
-            </a> (<lor:user user="${msg.author}" decorate="true"/>)
+            </a><c:if test="${msg.author != null}"> (<lor:user user="${msg.author}" decorate="true"/>)</c:if>
         </td>
         <td class="dateinterval">
           <lor:dateinterval date="${msg.postdate}"/>
