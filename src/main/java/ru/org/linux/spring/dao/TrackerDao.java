@@ -116,7 +116,7 @@ public class TrackerDao {
 
   private static final String queryPartWiki = "UNION ALL " +
       "SELECT " + // wiki
-          "wiki_user_id as author, " +
+          "0 as author, " +
           "0 as id, change_date as lastmod, " +
           "characters_changed as stat1, " +
           "0 as stat3, " +
@@ -125,7 +125,7 @@ public class TrackerDao {
           "'Wiki' as gtitle, " +
           "topic_name as title, " +
           "0 as cid, " +
-          "0 as last_comment_by, " +
+          "wiki_user_id as last_comment_by, " +
           "'f' as resolved, " +
           "0 as section, " +
           "'' as urlname, " +
@@ -137,7 +137,7 @@ public class TrackerDao {
 
   private static final String queryPartWikiMine =      "UNION ALL " +
       "SELECT " + // wiki
-          "wiki_user_id as author, " +
+          "0 as author, " +
           "0 as id, change_date as lastmod, " +
           "characters_changed as stat1, " +
           "0 as stat3, " +
@@ -146,7 +146,7 @@ public class TrackerDao {
           "'Wiki' as gtitle, " +
           "topic_name as title, " +
           "0 as cid, " +
-          "0 as last_comment_by, " +
+          "wiki_user_id as last_comment_by, " +
           "'f' as resolved, " +
           "0 as section, " +
           "'' as urlname, " +
@@ -217,7 +217,12 @@ public class TrackerDao {
         String title;
         boolean resolved, uncommited;
         try {
-          author = userDao.getUserCached(resultSet.getInt("author"));
+          int author_id = resultSet.getInt("author");
+          if(author_id != 0) {
+            author = userDao.getUserCached(author_id);
+          } else {
+            author = null;
+          }
         } catch (UserNotFoundException e) {
           throw new RuntimeException(e);
         }
