@@ -299,5 +299,11 @@ public class SimpleParserTest {
         lorCodeService.parseComment("[list][*]www.example.com[*]sure[*]profit![/list]", false));
   }
 
+  @Test
+  public void quoteQuoteQuote() {
+    assertEquals("<div class=\"quote\"><p>прювет!</p></div>",
+        lorCodeService.parseComment("[quote][quote][quote][quote][quote][quote][quote][quote][quote][quote][quote][quote][quote][quote][quote][quote][quote][quote]прювет![/quote][/quote][/quote][/quote][/quote][/quote][/quote][/quote][/quote][/quote][/quote][/quote][/quote][/quote][/quote][/quote][/quote][/quote]", false));
+  }
+
 
 }
