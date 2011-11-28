@@ -256,7 +256,7 @@ public class HTMLFormatterTest {
   }
 
   @Test
-  public void testToLorCodeTexFormatter2() {
+  public void testToLorCodeFormatter2() {
     int i;
     String[] text = {
         ">one\n",
@@ -310,5 +310,17 @@ public class HTMLFormatterTest {
       assertEquals(bb[i], toLorCodeFormatter.format(entry, true));
       assertEquals(html[i], lorCodeService.parseComment(toLorCodeFormatter.format(entry, true), false));
     }
+  }
+
+  @Test
+  public void codeEscape() {
+    assertEquals("[[code]][[/code]]",
+        toLorCodeTexFormatter.format("[code][/code]", true));
+    assertEquals("[[code=perl]][[/code]]",
+        toLorCodeTexFormatter.format("[code=perl][/code]", true));
+    assertEquals("[[code]][[/code]]",
+        toLorCodeFormatter.format("[code][/code]", true));
+    assertEquals("[[code=perl]][[/code]]",
+        toLorCodeFormatter.format("[code=perl][/code]", true));
   }
 }
