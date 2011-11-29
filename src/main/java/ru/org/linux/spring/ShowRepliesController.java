@@ -86,6 +86,8 @@ public class ShowRepliesController {
     params.put("topics", topics);
     params.put("offset", offset);
 
+    params.put("disable_event_header", true);
+
     /* define timestamps for caching */
     long time = System.currentTimeMillis();
     int delay = firstPage ? 90 : 60 * 60;
