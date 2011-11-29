@@ -270,17 +270,17 @@ public class HTMLFormatterTest {
         "[quote]one[/quote]",
         "[quote]one[br]one[/quote]",
         "[quote][quote]one[br][/quote]teo[/quote]",
-        "due>>one\n[quote]teo[br]neo[br][/quote]wuf?\nok",
-        "due\n[quote][quote]one[br][/quote]teo[br]neo[br][/quote]wuf?\nok",
-        "[quote]one[br]one[/quote]",
+        "due>>one\n[quote]teo[br][quote]neo[br][/quote][/quote]wuf?\nok",
+        "due\n[quote][quote]one[br][/quote]teo[br][quote]neo[br][/quote][/quote]wuf?\nok",
+        "[quote]one[br][/quote]\n\n[quote]one[/quote]",
     };
     String[] bb = {
         "[quote]one[/quote]",
         "[quote]one[br]one[/quote]",
         "[quote][quote]one[br][/quote]teo[/quote]",
-        "due>>one[br][quote]teo[br]neo[br][/quote]wuf?[br]ok",
-        "due[br][quote][quote]one[br][/quote]teo[br]neo[br][/quote]wuf?[br]ok",
-        "[quote]one[br]one[/quote]",
+        "due>>one[br][quote]teo[br][quote]neo[br][/quote][/quote]wuf?[br]ok",
+        "due[br][quote][quote]one[br][/quote]teo[br][quote]neo[br][/quote][/quote]wuf?[br]ok",
+        "[quote]one[br][/quote][br][br][quote]one[/quote]",
     };
 
 
@@ -288,18 +288,18 @@ public class HTMLFormatterTest {
         "<div class=\"quote\"><p>one</p></div>",
         "<div class=\"quote\"><p>one<br>one</p></div>",
         "<div class=\"quote\"><div class=\"quote\"><p>one<br></p></div><p>teo</p></div>",
-        "<p>due&gt;&gt;one\n</p><div class=\"quote\"><p>teo<br>neo<br></p></div><p>wuf?\nok</p>",
-        "<p>due\n</p><div class=\"quote\"><div class=\"quote\"><p>one<br></p></div><p>teo<br>neo<br></p></div><p>wuf?\nok</p>",
-        "<div class=\"quote\"><p>one<br>one</p></div>",
+        "<p>due&gt;&gt;one\n</p><div class=\"quote\"><p>teo<br></p><div class=\"quote\"><p>neo<br></p></div></div><p>wuf?\nok</p>",
+        "<p>due\n</p><div class=\"quote\"><div class=\"quote\"><p>one<br></p></div><p>teo<br></p><div class=\"quote\"><p>neo<br></p></div></div><p>wuf?\nok</p>",
+        "<div class=\"quote\"><p>one<br></p></div><div class=\"quote\"><p>one</p></div>",
     };
 
     String[] html = {
         "<div class=\"quote\"><p>one</p></div>",
         "<div class=\"quote\"><p>one<br>one</p></div>",
         "<div class=\"quote\"><div class=\"quote\"><p>one<br></p></div><p>teo</p></div>",
-        "<p>due&gt;&gt;one<br></p><div class=\"quote\"><p>teo<br>neo<br></p></div><p>wuf?<br>ok</p>",
-        "<p>due<br></p><div class=\"quote\"><div class=\"quote\"><p>one<br></p></div><p>teo<br>neo<br></p></div><p>wuf?<br>ok</p>",
-        "<div class=\"quote\"><p>one<br>one</p></div>",
+        "<p>due&gt;&gt;one<br></p><div class=\"quote\"><p>teo<br></p><div class=\"quote\"><p>neo<br></p></div></div><p>wuf?<br>ok</p>",
+        "<p>due<br></p><div class=\"quote\"><div class=\"quote\"><p>one<br></p></div><p>teo<br></p><div class=\"quote\"><p>neo<br></p></div></div><p>wuf?<br>ok</p>",
+        "<div class=\"quote\"><p>one<br></p></div><p><br><br></p><div class=\"quote\"><p>one</p></div>",
     };
 
     for(i=0; i<text.length; i++){
@@ -322,5 +322,13 @@ public class HTMLFormatterTest {
         toLorCodeFormatter.format("[code][/code]", true));
     assertEquals("[[code=perl]][[/code]]",
         toLorCodeFormatter.format("[code=perl][/code]", true));
+  }
+
+  @Test
+  public void againQuoteFormatter() {
+    assertEquals("[quote]one[br][quote]two[br][/quote]one[br][quote][quote]three[/quote][/quote][/quote]",
+        toLorCodeFormatter.format(">one\n>>two\n>one\n>>>three", true));
+    assertEquals("[quote]one[br][quote]two[br][/quote]one[br][quote][quote]three[/quote][/quote][/quote]",
+        toLorCodeTexFormatter.format(">one\n>>two\n>one\n>>>three", true));
   }
 }
