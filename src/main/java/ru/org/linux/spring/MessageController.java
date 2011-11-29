@@ -380,8 +380,13 @@ public class MessageController {
     params.put("defaultFilterMode", defaultFilterMode);
 
     if (!rss) {
-      params.put("prevMessage", messageDao.getPreviousMessage(message));
-      params.put("nextMessage", messageDao.getNextMessage(message));
+      if (ignoreList==null || ignoreList.isEmpty()) {
+        params.put("prevMessage", messageDao.getPreviousMessage(message, null));
+        params.put("nextMessage", messageDao.getNextMessage(message, null));
+      } else {
+        params.put("prevMessage", messageDao.getPreviousMessage(message, currentUser));
+        params.put("nextMessage", messageDao.getNextMessage(message, currentUser));
+      }
 
       Set<Integer> hideSet = CommentList.makeHideSet(userDao, comments, filterMode, ignoreList);
 

@@ -118,12 +118,14 @@
 </div>
   <c:if test="${moderatorOrCurrentUser}">
     <div>
-    <c:if test="${user.email!=null}">
-      <b>Email:</b> <a href="mailto:${user.email}">${user.email}</a> (виден только вам и модераторам)
-      <form action="/lostpwd.jsp" method="POST" style="display: inline">
-        <input type="hidden" name="email" value="${fn:escapeXml(user.email)}">
-        <input type="submit" value="Получить забытый пароль">
-      </form>
+      <c:if test="${user.email!=null}">
+        <b>Email:</b> <a href="mailto:${user.email}">${user.email}</a> (виден только вам и модераторам)
+        <form action="/lostpwd.jsp" method="POST" style="display: inline">
+          <input type="hidden" name="email" value="${fn:escapeXml(user.email)}">
+          <input type="submit" value="Получить забытый пароль">
+        </form>
+      </c:if>
+
       <c:if test="${template.moderatorSession}">
         <form action="/usermod.jsp" method="POST" style="display: inline">
           <input type="hidden" name="id" value="${user.id}">
@@ -134,10 +136,9 @@
       <br>
       <b>Score:</b> ${user.score}<br>
       <b>Игнорируется</b>: ${userStat.ignoreCount}<br>
-    </c:if>
-    </div>      
+    </div>
   </c:if>
-<c:if test="${ignoreList != null}">
+  <c:if test="${ignoreList != null}">
 <%
     Set<Integer> ignoreList = (Set<Integer>) request.getAttribute("ignoreList");
     if (!ignoreList.isEmpty() && ignoreList.contains(user.getId())) {
