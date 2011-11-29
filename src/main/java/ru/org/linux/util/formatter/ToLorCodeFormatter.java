@@ -61,7 +61,10 @@ public class ToLorCodeFormatter {
     for(String line : lines) {
       currentLine = currentLine + 1;
       if(line.isEmpty()) {
-        if(globalNestingLevel == 0) {
+        if(globalNestingLevel > 0) {
+          buf.append(StringUtil.repeat("[/quote]", globalNestingLevel));
+          globalNestingLevel = 0;
+        } else {
           buf.append("[br]");
         }
         continue;
@@ -75,7 +78,9 @@ public class ToLorCodeFormatter {
         } else if(nestingLevel < globalNestingLevel) {
           buf.append(StringUtil.repeat("[/quote]", globalNestingLevel - nestingLevel));
           globalNestingLevel = nestingLevel;
-
+        } else if(nestingLevel > globalNestingLevel) {
+          buf.append(StringUtil.repeat("[quote]", nestingLevel - globalNestingLevel));
+          globalNestingLevel = nestingLevel;
         }
         buf.append(line.substring(nestingLevel));
         if(currentLine < lines.length) {
