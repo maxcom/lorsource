@@ -98,9 +98,11 @@ TR.color2 { background: #f0f0f0; }
 
 
 DIV.messages .title { background: #aea6f2; }
-.messages .comment .title { background: #defefc; margin-right: 0.5em;}
+.messages .comment .title { background: #defefc;}
 .messages .msg { background: #f0f0f0; }
 .messages H1 A { color: black } 
+
+.messages .msg:target { padding-right: 1px; }
 
 /* comment signature */
 div.sig {
