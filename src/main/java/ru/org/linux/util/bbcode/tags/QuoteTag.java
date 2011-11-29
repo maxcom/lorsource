@@ -86,19 +86,23 @@ public class QuoteTag extends Tag {
     }
 
     if (!node.getParameter().isEmpty()) {
+      ret.append("<div class=\"none\">-----Цитата----</div>");
       ret.append("<div class=\"quote\">");
       ret.append("<p><cite>");
       ret.append(Parser.escape(node.getParameter().replaceAll("\"", "")));
       ret.append("</cite></p>");
       ret.append(node.renderChildrenXHtml());
       ret.append("</div>");
+      ret.append("<div class=\"none\">-----Цитата----</div>");
     } else {
       if(emtyQuote) {
         ret.append(node.renderChildrenXHtml());
       } else {
+        ret.append("<div class=\"none\">-----Цитата----</div>");
         ret.append("<div class=\"quote\">");
         ret.append(node.renderChildrenXHtml());
         ret.append("</div>");
+        ret.append("<div class=\"none\">-----Цитата----</div>");
       }
     }
     return ret.toString();

@@ -109,12 +109,12 @@ public class SimpleParserTest {
 
   @Test
   public void quoteTest() {
-    Assert.assertEquals(lorCodeService.parseComment("[quote]hello world[/quote]", false), "<div class=\"quote\"><p>hello world</p></div>");
+    Assert.assertEquals(lorCodeService.parseComment("[quote]hello world[/quote]", false), "<div class=\"none\">-----Цитата----</div><div class=\"quote\"><p>hello world</p></div><div class=\"none\">-----Цитата----</div>");
   }
 
   @Test
   public void quoteParamTest() {
-    Assert.assertEquals(lorCodeService.parseComment("[quote=maxcom]hello world[/quote]", false), "<div class=\"quote\"><p><cite>maxcom</cite></p><p>hello world</p></div>");
+    Assert.assertEquals(lorCodeService.parseComment("[quote=maxcom]hello world[/quote]", false), "<div class=\"none\">-----Цитата----</div><div class=\"quote\"><p><cite>maxcom</cite></p><p>hello world</p></div><div class=\"none\">-----Цитата----</div>");
   }
 
   @Test
@@ -177,7 +177,7 @@ public class SimpleParserTest {
 
   @Test
   public void overflow1Test() {
-    Assert.assertEquals("<p>ololo</p><div class=\"quote\"><p><i>hz</i></p></div>",
+    Assert.assertEquals("<p>ololo</p><div class=\"none\">-----Цитата----</div><div class=\"quote\"><p><i>hz</i></p></div><div class=\"none\">-----Цитата----</div>",
             lorCodeService.parseComment("ololo[quote][i]hz[/i][/quote]", false));
   }
 
@@ -273,7 +273,7 @@ public class SimpleParserTest {
 
   @Test
   public void appleTest() {
-    Assert.assertEquals("<div class=\"quote\"><p> Apple ][</p></div><p> текст</p>",
+    Assert.assertEquals("<div class=\"none\">-----Цитата----</div><div class=\"quote\"><p> Apple ][</p></div><div class=\"none\">-----Цитата----</div><p> текст</p>",
         lorCodeService.parseComment("[quote] Apple ][[/quote] текст", false));
   }
 
@@ -301,7 +301,7 @@ public class SimpleParserTest {
 
   @Test
   public void quoteQuoteQuote() {
-    assertEquals("<div class=\"quote\"><p>прювет!</p></div>",
+    assertEquals("<div class=\"none\">-----Цитата----</div><div class=\"quote\"><p>прювет!</p></div><div class=\"none\">-----Цитата----</div>",
         lorCodeService.parseComment("[quote][quote][quote][quote][quote][quote][quote][quote][quote][quote][quote][quote][quote][quote][quote][quote][quote][quote]прювет![/quote][/quote][/quote][/quote][/quote][/quote][/quote][/quote][/quote][/quote][/quote][/quote][/quote][/quote][/quote][/quote][/quote][/quote]", false));
   }
 

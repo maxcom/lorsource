@@ -285,21 +285,21 @@ public class HTMLFormatterTest {
 
 
     String[] html_tex = {
-        "<div class=\"quote\"><p>one</p></div>",
-        "<div class=\"quote\"><p>one<br>one</p></div>",
-        "<div class=\"quote\"><div class=\"quote\"><p>one<br></p></div><p>teo</p></div>",
-        "<p>due&gt;&gt;one\n</p><div class=\"quote\"><p>teo<br>neo<br></p></div><p>wuf?\nok</p>",
-        "<p>due\n</p><div class=\"quote\"><div class=\"quote\"><p>one<br></p></div><p>teo<br>neo<br></p></div><p>wuf?\nok</p>",
-        "<div class=\"quote\"><p>one<br>one</p></div>",
+        "<div class=\"none\">-----Цитата----</div><div class=\"quote\"><p>one</p></div><div class=\"none\">-----Цитата----</div>",
+        "<div class=\"none\">-----Цитата----</div><div class=\"quote\"><p>one<br>one</p></div><div class=\"none\">-----Цитата----</div>",
+        "<div class=\"none\">-----Цитата----</div><div class=\"quote\"><div class=\"none\">-----Цитата----</div><div class=\"quote\"><p>one<br></p></div><div class=\"none\">-----Цитата----</div><p>teo</p></div><div class=\"none\">-----Цитата----</div>",
+        "<p>due&gt;&gt;one\n</p><div class=\"none\">-----Цитата----</div><div class=\"quote\"><p>teo<br>neo<br></p></div><div class=\"none\">-----Цитата----</div><p>wuf?\nok</p>",
+        "<p>due\n</p><div class=\"none\">-----Цитата----</div><div class=\"quote\"><div class=\"none\">-----Цитата----</div><div class=\"quote\"><p>one<br></p></div><div class=\"none\">-----Цитата----</div><p>teo<br>neo<br></p></div><div class=\"none\">-----Цитата----</div><p>wuf?\nok</p>",
+        "<div class=\"none\">-----Цитата----</div><div class=\"quote\"><p>one<br>one</p></div><div class=\"none\">-----Цитата----</div>",
     };
 
     String[] html = {
-        "<div class=\"quote\"><p>one</p></div>",
-        "<div class=\"quote\"><p>one<br>one</p></div>",
-        "<div class=\"quote\"><div class=\"quote\"><p>one<br></p></div><p>teo</p></div>",
-        "<p>due&gt;&gt;one<br></p><div class=\"quote\"><p>teo<br>neo<br></p></div><p>wuf?<br>ok</p>",
-        "<p>due<br></p><div class=\"quote\"><div class=\"quote\"><p>one<br></p></div><p>teo<br>neo<br></p></div><p>wuf?<br>ok</p>",
-        "<div class=\"quote\"><p>one<br>one</p></div>",
+        "<div class=\"none\">-----Цитата----</div><div class=\"quote\"><p>one</p></div><div class=\"none\">-----Цитата----</div>",
+        "<div class=\"none\">-----Цитата----</div><div class=\"quote\"><p>one<br>one</p></div><div class=\"none\">-----Цитата----</div>",
+        "<div class=\"none\">-----Цитата----</div><div class=\"quote\"><div class=\"none\">-----Цитата----</div><div class=\"quote\"><p>one<br></p></div><div class=\"none\">-----Цитата----</div><p>teo</p></div><div class=\"none\">-----Цитата----</div>",
+        "<p>due&gt;&gt;one<br></p><div class=\"none\">-----Цитата----</div><div class=\"quote\"><p>teo<br>neo<br></p></div><div class=\"none\">-----Цитата----</div><p>wuf?<br>ok</p>",
+        "<p>due<br></p><div class=\"none\">-----Цитата----</div><div class=\"quote\"><div class=\"none\">-----Цитата----</div><div class=\"quote\"><p>one<br></p></div><div class=\"none\">-----Цитата----</div><p>teo<br>neo<br></p></div><div class=\"none\">-----Цитата----</div><p>wuf?<br>ok</p>",
+        "<div class=\"none\">-----Цитата----</div><div class=\"quote\"><p>one<br>one</p></div><div class=\"none\">-----Цитата----</div>",
     };
 
     for(i=0; i<text.length; i++){
