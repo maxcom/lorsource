@@ -272,7 +272,7 @@ public class HTMLFormatterTest {
         "[quote][quote]one[br][/quote]teo[/quote]",
         "due>>one\n[quote]teo[br][quote]neo[br][/quote][/quote]wuf?\nok",
         "due\n[quote][quote]one[br][/quote]teo[br][quote]neo[br][/quote][/quote]wuf?\nok",
-        "[quote]one[br]one[/quote]",
+        "[quote]one[br][/quote]\n\n[quote]one[/quote]",
     };
     String[] bb = {
         "[quote]one[/quote]",
@@ -280,7 +280,7 @@ public class HTMLFormatterTest {
         "[quote][quote]one[br][/quote]teo[/quote]",
         "due>>one[br][quote]teo[br][quote]neo[br][/quote][/quote]wuf?[br]ok",
         "due[br][quote][quote]one[br][/quote]teo[br][quote]neo[br][/quote][/quote]wuf?[br]ok",
-        "[quote]one[br]one[/quote]",
+        "[quote]one[br][/quote][br][br][quote]one[/quote]",
     };
 
 
@@ -290,7 +290,7 @@ public class HTMLFormatterTest {
         "<div class=\"quote\"><div class=\"quote\"><p>one<br></p></div><p>teo</p></div>",
         "<p>due&gt;&gt;one\n</p><div class=\"quote\"><p>teo<br></p><div class=\"quote\"><p>neo<br></p></div></div><p>wuf?\nok</p>",
         "<p>due\n</p><div class=\"quote\"><div class=\"quote\"><p>one<br></p></div><p>teo<br></p><div class=\"quote\"><p>neo<br></p></div></div><p>wuf?\nok</p>",
-        "<div class=\"quote\"><p>one<br>one</p></div>",
+        "<div class=\"quote\"><p>one<br></p></div><div class=\"quote\"><p>one</p></div>",
     };
 
     String[] html = {
@@ -299,7 +299,7 @@ public class HTMLFormatterTest {
         "<div class=\"quote\"><div class=\"quote\"><p>one<br></p></div><p>teo</p></div>",
         "<p>due&gt;&gt;one<br></p><div class=\"quote\"><p>teo<br></p><div class=\"quote\"><p>neo<br></p></div></div><p>wuf?<br>ok</p>",
         "<p>due<br></p><div class=\"quote\"><div class=\"quote\"><p>one<br></p></div><p>teo<br></p><div class=\"quote\"><p>neo<br></p></div></div><p>wuf?<br>ok</p>",
-        "<div class=\"quote\"><p>one<br>one</p></div>",
+        "<div class=\"quote\"><p>one<br></p></div><p><br><br></p><div class=\"quote\"><p>one</p></div>",
     };
 
     for(i=0; i<text.length; i++){

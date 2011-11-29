@@ -54,7 +54,10 @@ public class ToLorCodeTexFormatter {
     for(String line : lines) {
       currentLine = currentLine + 1;
       if(line.isEmpty()) {
-        if(globalNestingLevel == 0) {
+        if(globalNestingLevel > 0) {
+          buf.append(StringUtil.repeat("[/quote]", globalNestingLevel));
+          globalNestingLevel = 0;
+        } else {
           buf.append('\n');
         }
         continue;
