@@ -17,12 +17,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ tag pageEncoding="utf-8" %>
 <c:if test="${template.currentUser.unreadEvents > 0 and not disable_event_header}">
-  <a href="notifications" onclick="$('#events_form').submit(); return false;"
-          >Уведомления (${template.currentUser.unreadEvents})</a>
-
-  <form id="events_form" action="/notifications" method="POST" style="display: none;">
-    <input type="hidden" name="nick" value="${template.nick}">
-  </form>
+  <a href="notifications">Уведомления (${template.currentUser.unreadEvents})</a>
 </c:if>
 <c:if test="${template.currentUser.unreadEvents == 0 || disable_event_header}">
   <a href="notifications">Уведомления</a>

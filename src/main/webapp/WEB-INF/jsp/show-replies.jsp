@@ -35,9 +35,9 @@
 <script type="text/javascript">
   <!--
   $(document).ready(function() {
-    $('#reset_form').ajaxForm(
+    $('#reset_form').ajaxSubmit(
       function() {
-        $('#counter_block').hide();
+        $('#reset_form').hide();
       }
     );
   });
