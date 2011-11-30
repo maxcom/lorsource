@@ -32,6 +32,17 @@
 <title>${title}</title>
 <link rel="alternate" title="RSS" href="show-replies.jsp?output=rss&amp;nick=${nick}" type="application/rss+xml">
 <link rel="alternate" title="Atom" href="show-replies.jsp?output=atom&amp;nick=${nick}" type="application/atom+xml">
+<script type="text/javascript">
+  <!--
+  $(document).ready(function() {
+    $('#reset_form').ajaxForm(
+      function() {
+        $('#counter_block').hide();
+      }
+    );
+  });
+   -->
+</script>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 <table class=nav>
 <tr>
@@ -48,7 +59,7 @@
 <h1 class="optional">${title}</h1>
 
 <c:if test="${unreadCount > 0 && !forceReset}">
-  <div class="infoblock">
+  <div id="counter_block" class="infoblock">
     <c:choose>
       <c:when test="${unreadCount == 1 || (unreadCount>20 && unreadCount%10==1) }">
         У вас ${unreadCount} непрочитанное уведомление
@@ -65,7 +76,7 @@
     </c:choose>
 
     <c:if test="${enableReset}">
-      <form id="events_form" action="/notifications" method="POST" style="display: inline;">
+      <form id="reset_form" action="/notifications" method="POST" style="display: inline;">
         <input type="hidden" name="forceReset" value="true">
         <input type="submit" value="Сбросить">
       </form>

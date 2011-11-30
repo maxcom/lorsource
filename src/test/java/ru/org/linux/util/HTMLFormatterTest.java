@@ -31,6 +31,7 @@ import ru.org.linux.util.formatter.ToLorCodeTexFormatter;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static ru.org.linux.util.bbcode.tags.QuoteTag.*;
 
 public class HTMLFormatterTest {
   private static final String TEXT1 = "Here is www.linux.org.ru, have fun! :-)";
@@ -258,6 +259,7 @@ public class HTMLFormatterTest {
   @Test
   public void testToLorCodeFormatter2() {
     int i;
+
     String[] text = {
         ">one\n",
         ">one\n>one\n",
@@ -270,36 +272,36 @@ public class HTMLFormatterTest {
         "[quote]one[/quote]",
         "[quote]one[br]one[/quote]",
         "[quote][quote]one[br][/quote]teo[/quote]",
-        "due>>one\n[quote]teo[br]neo[br][/quote]wuf?\nok",
-        "due\n[quote][quote]one[br][/quote]teo[br]neo[br][/quote]wuf?\nok",
-        "[quote]one[br]one[/quote]",
+        "due>>one\n[quote]teo[br][quote]neo[br][/quote][/quote]wuf?\nok",
+        "due\n[quote][quote]one[br][/quote]teo[br][quote]neo[br][/quote][/quote]wuf?\nok",
+        "[quote]one[br][/quote]\n\n[quote]one[/quote]",
     };
     String[] bb = {
         "[quote]one[/quote]",
         "[quote]one[br]one[/quote]",
         "[quote][quote]one[br][/quote]teo[/quote]",
-        "due>>one[br][quote]teo[br]neo[br][/quote]wuf?[br]ok",
-        "due[br][quote][quote]one[br][/quote]teo[br]neo[br][/quote]wuf?[br]ok",
-        "[quote]one[br]one[/quote]",
+        "due>>one[br][quote]teo[br][quote]neo[br][/quote][/quote]wuf?[br]ok",
+        "due[br][quote][quote]one[br][/quote]teo[br][quote]neo[br][/quote][/quote]wuf?[br]ok",
+        "[quote]one[br][/quote][br][br][quote]one[/quote]",
     };
 
 
     String[] html_tex = {
-        "<div class=\"none\">-----Цитата----</div><div class=\"quote\"><p>one</p></div><div class=\"none\">-----Цитата----</div>",
-        "<div class=\"none\">-----Цитата----</div><div class=\"quote\"><p>one<br>one</p></div><div class=\"none\">-----Цитата----</div>",
-        "<div class=\"none\">-----Цитата----</div><div class=\"quote\"><div class=\"none\">-----Цитата----</div><div class=\"quote\"><p>one<br></p></div><div class=\"none\">-----Цитата----</div><p>teo</p></div><div class=\"none\">-----Цитата----</div>",
-        "<p>due&gt;&gt;one\n</p><div class=\"none\">-----Цитата----</div><div class=\"quote\"><p>teo<br>neo<br></p></div><div class=\"none\">-----Цитата----</div><p>wuf?\nok</p>",
-        "<p>due\n</p><div class=\"none\">-----Цитата----</div><div class=\"quote\"><div class=\"none\">-----Цитата----</div><div class=\"quote\"><p>one<br></p></div><div class=\"none\">-----Цитата----</div><p>teo<br>neo<br></p></div><div class=\"none\">-----Цитата----</div><p>wuf?\nok</p>",
-        "<div class=\"none\">-----Цитата----</div><div class=\"quote\"><p>one<br>one</p></div><div class=\"none\">-----Цитата----</div>",
+        citeHeader + "<div class=\"quote\"><p>one</p></div>" + citeFooter,
+        citeHeader + "<div class=\"quote\"><p>one<br>one</p></div>" + citeFooter,
+        citeHeader +  "<div class=\"quote\">" + citeHeader + "<div class=\"quote\"><p>one<br></p></div>" + citeFooter + "<p>teo</p></div>" + citeFooter,
+        "<p>due&gt;&gt;one\n</p>" + citeHeader +"<div class=\"quote\"><p>teo<br></p>" + citeHeader +"<div class=\"quote\"><p>neo<br></p></div>" + citeFooter + "</div>" + citeFooter + "<p>wuf?\nok</p>",
+        "<p>due\n</p>" + citeHeader + "<div class=\"quote\">" + citeHeader +"<div class=\"quote\"><p>one<br></p></div>" + citeFooter + "<p>teo<br></p>" + citeHeader + "<div class=\"quote\"><p>neo<br></p></div>" + citeFooter +"</div>" + citeFooter + "<p>wuf?\nok</p>",
+        citeHeader + "<div class=\"quote\"><p>one<br></p></div>" + citeFooter + citeHeader + "<div class=\"quote\"><p>one</p></div>" + citeFooter,
     };
 
     String[] html = {
-        "<div class=\"none\">-----Цитата----</div><div class=\"quote\"><p>one</p></div><div class=\"none\">-----Цитата----</div>",
-        "<div class=\"none\">-----Цитата----</div><div class=\"quote\"><p>one<br>one</p></div><div class=\"none\">-----Цитата----</div>",
-        "<div class=\"none\">-----Цитата----</div><div class=\"quote\"><div class=\"none\">-----Цитата----</div><div class=\"quote\"><p>one<br></p></div><div class=\"none\">-----Цитата----</div><p>teo</p></div><div class=\"none\">-----Цитата----</div>",
-        "<p>due&gt;&gt;one<br></p><div class=\"none\">-----Цитата----</div><div class=\"quote\"><p>teo<br>neo<br></p></div><div class=\"none\">-----Цитата----</div><p>wuf?<br>ok</p>",
-        "<p>due<br></p><div class=\"none\">-----Цитата----</div><div class=\"quote\"><div class=\"none\">-----Цитата----</div><div class=\"quote\"><p>one<br></p></div><div class=\"none\">-----Цитата----</div><p>teo<br>neo<br></p></div><div class=\"none\">-----Цитата----</div><p>wuf?<br>ok</p>",
-        "<div class=\"none\">-----Цитата----</div><div class=\"quote\"><p>one<br>one</p></div><div class=\"none\">-----Цитата----</div>",
+        citeHeader + "<div class=\"quote\"><p>one</p></div>" + citeFooter,
+        citeHeader + "<div class=\"quote\"><p>one<br>one</p></div>" + citeFooter,
+        citeHeader + "<div class=\"quote\">" + citeHeader + "<div class=\"quote\"><p>one<br></p></div>" + citeFooter +"<p>teo</p></div>" + citeFooter,
+        "<p>due&gt;&gt;one<br></p>" + citeHeader + "<div class=\"quote\"><p>teo<br></p>" + citeHeader + "<div class=\"quote\"><p>neo<br></p></div>" + citeFooter + "</div>"+ citeFooter + "<p>wuf?<br>ok</p>",
+        "<p>due<br></p>" + citeHeader + "<div class=\"quote\">" + citeHeader + "<div class=\"quote\"><p>one<br></p></div>"+ citeFooter + "<p>teo<br></p>" + citeHeader + "<div class=\"quote\"><p>neo<br></p></div>" + citeFooter + "</div>" + citeFooter + "<p>wuf?<br>ok</p>",
+        citeHeader + "<div class=\"quote\"><p>one<br></p></div>" + citeFooter + "<p><br><br></p>" + citeHeader + "<div class=\"quote\"><p>one</p></div>" + citeFooter,
     };
 
     for(i=0; i<text.length; i++){
@@ -322,5 +324,13 @@ public class HTMLFormatterTest {
         toLorCodeFormatter.format("[code][/code]", true));
     assertEquals("[[code=perl]][[/code]]",
         toLorCodeFormatter.format("[code=perl][/code]", true));
+  }
+
+  @Test
+  public void againQuoteFormatter() {
+    assertEquals("[quote]one[br][quote]two[br][/quote]one[br][quote][quote]three[/quote][/quote][/quote]",
+        toLorCodeFormatter.format(">one\n>>two\n>one\n>>>three", true));
+    assertEquals("[quote]one[br][quote]two[br][/quote]one[br][quote][quote]three[/quote][/quote][/quote]",
+        toLorCodeTexFormatter.format(">one\n>>two\n>one\n>>>three", true));
   }
 }
