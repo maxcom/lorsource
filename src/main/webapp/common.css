@@ -352,3 +352,7 @@ table.poll-result img {
 div.quote p cite {
     text-decoration: underline;
 }
+
+div.quote {
+    margin: 0.5em 0 0 2em;
+}
