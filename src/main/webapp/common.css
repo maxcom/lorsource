@@ -259,7 +259,7 @@ table.poll td {
 
 p {
     margin-top: 5px;
-    margin-bottom: 0;
+    margin-bottom: 0.6em;
 }
 
 pre code span {
@@ -349,10 +349,11 @@ table.poll-result img {
     padding: 0;
 }
 
-div.quote p cite {
+div.quote>cite {
     text-decoration: underline;
 }
 
 div.quote {
     margin: 0.5em 0 0 2em;
+    display: inline-block;
 }
