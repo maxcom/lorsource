@@ -148,13 +148,6 @@ DIV.boxlet {
     padding-left: 0;
 }
 
-div.quote {
-  border: 1px dotted;
-  margin: 0.5em 0.5em 0.5em 5px;
-  font-style: italic;
-  padding: 5px;
-}
-
 div.quote h3 {
   margin-top: 0;
   margin-bottom: 0;
