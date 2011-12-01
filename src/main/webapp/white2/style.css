@@ -141,10 +141,7 @@ table.poll-result .penguin{
 }
 
 div.quote {
-    margin: 0;
-    border-style: solid;
-    border-width: 0 0 0 2px;
     padding: 0em 0.5em 0em;
-    border-color: black; /*#AEA6F2;*/
+    border-left: black /*#AEA6F2;*/ 2px solid;
 }
 
