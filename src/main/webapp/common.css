@@ -349,7 +349,7 @@ table.poll-result img {
     padding: 0;
 }
 
-div.quote>cite {
+div.quote>p>cite {
     text-decoration: underline;
 }
 
