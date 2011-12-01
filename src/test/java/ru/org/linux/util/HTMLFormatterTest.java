@@ -31,6 +31,7 @@ import ru.org.linux.util.formatter.ToLorCodeTexFormatter;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static ru.org.linux.util.bbcode.tags.QuoteTag.*;
 
 public class HTMLFormatterTest {
   private static final String TEXT1 = "Here is www.linux.org.ru, have fun! :-)";
@@ -258,6 +259,7 @@ public class HTMLFormatterTest {
   @Test
   public void testToLorCodeFormatter2() {
     int i;
+
     String[] text = {
         ">one\n",
         ">one\n>one\n",
@@ -285,21 +287,21 @@ public class HTMLFormatterTest {
 
 
     String[] html_tex = {
-        "<div class=\"quote\"><p>one</p></div>",
-        "<div class=\"quote\"><p>one<br>one</p></div>",
-        "<div class=\"quote\"><div class=\"quote\"><p>one<br></p></div><p>teo</p></div>",
-        "<p>due&gt;&gt;one\n</p><div class=\"quote\"><p>teo<br></p><div class=\"quote\"><p>neo<br></p></div></div><p>wuf?\nok</p>",
-        "<p>due\n</p><div class=\"quote\"><div class=\"quote\"><p>one<br></p></div><p>teo<br></p><div class=\"quote\"><p>neo<br></p></div></div><p>wuf?\nok</p>",
-        "<div class=\"quote\"><p>one<br></p></div><div class=\"quote\"><p>one</p></div>",
+        citeHeader + "<div class=\"quote\"><p>one</p></div>" + citeFooter,
+        citeHeader + "<div class=\"quote\"><p>one<br>one</p></div>" + citeFooter,
+        citeHeader +  "<div class=\"quote\">" + citeHeader + "<div class=\"quote\"><p>one<br></p></div>" + citeFooter + "<p>teo</p></div>" + citeFooter,
+        "<p>due&gt;&gt;one\n</p>" + citeHeader +"<div class=\"quote\"><p>teo<br></p>" + citeHeader +"<div class=\"quote\"><p>neo<br></p></div>" + citeFooter + "</div>" + citeFooter + "<p>wuf?\nok</p>",
+        "<p>due\n</p>" + citeHeader + "<div class=\"quote\">" + citeHeader +"<div class=\"quote\"><p>one<br></p></div>" + citeFooter + "<p>teo<br></p>" + citeHeader + "<div class=\"quote\"><p>neo<br></p></div>" + citeFooter +"</div>" + citeFooter + "<p>wuf?\nok</p>",
+        citeHeader + "<div class=\"quote\"><p>one<br></p></div>" + citeFooter + citeHeader + "<div class=\"quote\"><p>one</p></div>" + citeFooter,
     };
 
     String[] html = {
-        "<div class=\"quote\"><p>one</p></div>",
-        "<div class=\"quote\"><p>one<br>one</p></div>",
-        "<div class=\"quote\"><div class=\"quote\"><p>one<br></p></div><p>teo</p></div>",
-        "<p>due&gt;&gt;one<br></p><div class=\"quote\"><p>teo<br></p><div class=\"quote\"><p>neo<br></p></div></div><p>wuf?<br>ok</p>",
-        "<p>due<br></p><div class=\"quote\"><div class=\"quote\"><p>one<br></p></div><p>teo<br></p><div class=\"quote\"><p>neo<br></p></div></div><p>wuf?<br>ok</p>",
-        "<div class=\"quote\"><p>one<br></p></div><p><br><br></p><div class=\"quote\"><p>one</p></div>",
+        citeHeader + "<div class=\"quote\"><p>one</p></div>" + citeFooter,
+        citeHeader + "<div class=\"quote\"><p>one<br>one</p></div>" + citeFooter,
+        citeHeader + "<div class=\"quote\">" + citeHeader + "<div class=\"quote\"><p>one<br></p></div>" + citeFooter +"<p>teo</p></div>" + citeFooter,
+        "<p>due&gt;&gt;one<br></p>" + citeHeader + "<div class=\"quote\"><p>teo<br></p>" + citeHeader + "<div class=\"quote\"><p>neo<br></p></div>" + citeFooter + "</div>"+ citeFooter + "<p>wuf?<br>ok</p>",
+        "<p>due<br></p>" + citeHeader + "<div class=\"quote\">" + citeHeader + "<div class=\"quote\"><p>one<br></p></div>"+ citeFooter + "<p>teo<br></p>" + citeHeader + "<div class=\"quote\"><p>neo<br></p></div>" + citeFooter + "</div>" + citeFooter + "<p>wuf?<br>ok</p>",
+        citeHeader + "<div class=\"quote\"><p>one<br></p></div>" + citeFooter + "<p><br><br></p>" + citeHeader + "<div class=\"quote\"><p>one</p></div>" + citeFooter,
     };
 
     for(i=0; i<text.length; i++){

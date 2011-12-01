@@ -345,7 +345,7 @@ table.poll-result .penguin {
     height: 19px;
 }
 
-table.poll-result .none {
+.none {
     display: none;
 }
 

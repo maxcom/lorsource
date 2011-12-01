@@ -53,6 +53,10 @@ import java.util.Set;
  * Time: 12:34 PM
  */
 public class QuoteTag extends Tag {
+
+  public static final String citeHeader = "<div class=\"none\">&gt;&gt;-----Цитата----&gt;&gt;</div>";
+  public static final String citeFooter = "<div class=\"none\">&lt;&lt;-----Цитата----&lt;&lt;</div>";
+
   public QuoteTag(String name, Set<String> allowedChildren, String implicitTag, ParserParameters parserParameters) {
     super(name, allowedChildren, implicitTag, parserParameters);
   }
@@ -86,19 +90,23 @@ public class QuoteTag extends Tag {
     }
 
     if (!node.getParameter().isEmpty()) {
+      ret.append(citeHeader);
       ret.append("<div class=\"quote\">");
       ret.append("<p><cite>");
       ret.append(Parser.escape(node.getParameter().replaceAll("\"", "")));
       ret.append("</cite></p>");
       ret.append(node.renderChildrenXHtml());
       ret.append("</div>");
+      ret.append(citeFooter);
     } else {
       if(emtyQuote) {
         ret.append(node.renderChildrenXHtml());
       } else {
+        ret.append(citeHeader);
         ret.append("<div class=\"quote\">");
         ret.append(node.renderChildrenXHtml());
         ret.append("</div>");
+        ret.append(citeFooter);
       }
     }
     return ret.toString();
