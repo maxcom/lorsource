@@ -16,32 +16,33 @@
 package ru.org.linux.site;
 
 import com.google.common.collect.ImmutableList;
+import ru.org.linux.dto.UserDto;
 
 import java.util.List;
 
 public final class PreparedMessage {
   private final Message message;
-  private final User author;
+  private final UserDto author;
   private final DeleteInfo deleteInfo;
-  private final User deleteUser;
+  private final UserDto deleteUser;
   private final String processedMessage;
   private final PreparedPoll poll;
-  private final User commiter;
+  private final UserDto commiter;
   private final ImmutableList<String> tags;
   private final Group group;
   private final Section section;
 
   private final EditInfoDTO lastEditInfo;
-  private final User lastEditor;
+  private final UserDto lastEditor;
   private final int editCount;
 
   private final String userAgent;
 
   private static final int EDIT_PERIOD = 2 * 60 * 60 * 1000; // milliseconds
 
-  public PreparedMessage(Message message, User author, DeleteInfo deleteInfo, User deleteUser, String processedMessage,
-                          PreparedPoll poll, User commiter, List<String> tags, Group group, Section section,
-                          EditInfoDTO lastEditInfo, User lastEditor, int editorCount, String userAgent) {
+  public PreparedMessage(Message message, UserDto author, DeleteInfo deleteInfo, UserDto deleteUser, String processedMessage,
+                          PreparedPoll poll, UserDto commiter, List<String> tags, Group group, Section section,
+                          EditInfoDTO lastEditInfo, UserDto lastEditor, int editorCount, String userAgent) {
     this.message = message;
     this.author = author;
     this.deleteInfo = deleteInfo;
@@ -66,7 +67,7 @@ public final class PreparedMessage {
     return message;
   }
 
-  public User getAuthor() {
+  public UserDto getAuthor() {
     return author;
   }
 
@@ -74,7 +75,7 @@ public final class PreparedMessage {
     return deleteInfo;
   }
 
-  public User getDeleteUser() {
+  public UserDto getDeleteUser() {
     return deleteUser;
   }
 
@@ -86,7 +87,7 @@ public final class PreparedMessage {
     return poll;
   }
 
-  public User getCommiter() {
+  public UserDto getCommiter() {
     return commiter;
   }
 
@@ -94,7 +95,7 @@ public final class PreparedMessage {
     return lastEditInfo;
   }
 
-  public User getLastEditor() {
+  public UserDto getLastEditor() {
     return lastEditor;
   }
 
@@ -118,7 +119,7 @@ public final class PreparedMessage {
     return group;
   }
 
-  public boolean isEditable(User by) {
+  public boolean isEditable(UserDto by) {
     if (message.isDeleted()) {
       return false;
     }

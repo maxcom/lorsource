@@ -25,9 +25,9 @@ import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
+import ru.org.linux.dto.UserDto;
 import ru.org.linux.site.AccessViolationException;
 import ru.org.linux.site.Template;
-import ru.org.linux.site.User;
 import ru.org.linux.site.UserInfo;
 import ru.org.linux.spring.dao.IPBlockDao;
 import ru.org.linux.spring.dao.UserDao;
@@ -76,7 +76,7 @@ public class RegisterController extends ApplicationObjectSupport {
     Template tmpl = Template.getTemplate(request);
 
     if (tmpl.isSessionAuthorized()) {
-      User user = tmpl.getCurrentUser();
+      UserDto user = tmpl.getCurrentUser();
 
       user.checkAnonymous();
 
@@ -127,7 +127,7 @@ public class RegisterController extends ApplicationObjectSupport {
         errors.rejectValue("nick", null, "некорректное имя пользователя");
       }
 
-      if (nick!=null && nick.length() > User.MAX_NICK_LENGTH) {
+      if (nick!=null && nick.length() > UserDto.MAX_NICK_LENGTH) {
         errors.rejectValue("nick", null, "слишком длинное имя пользователя");
       }
     }
@@ -194,7 +194,7 @@ public class RegisterController extends ApplicationObjectSupport {
     boolean emailChanged = false;
 
     if (changeMode) {
-      User user = userDao.getUser(nick);
+      UserDto user = userDao.getUser(nick);
 
       if (!user.matchPassword(oldpass)) {
         errors.reject(null, "Неверный пароль");
@@ -298,7 +298,7 @@ public class RegisterController extends ApplicationObjectSupport {
       text.append("то вам следует подтвердить свое изменение.\n\n");
     }
 
-    String regcode = User.getActivationCode(tmpl.getSecret(), nick, email);
+    String regcode = UserDto.getActivationCode(tmpl.getSecret(), nick, email);
 
     text.append("Для активации перейдите по ссылке http://www.linux.org.ru/activate.jsp\n\n");
     text.append("Код активации: ").append(regcode).append("\n\n");
@@ -335,7 +335,7 @@ public class RegisterController extends ApplicationObjectSupport {
       throw new AccessViolationException("Not authorized!");
     }
 
-    User user = tmpl.getCurrentUser();
+    UserDto user = tmpl.getCurrentUser();
 
     String newEmail = userDao.getNewEmail(user);
 

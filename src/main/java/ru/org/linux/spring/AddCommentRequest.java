@@ -1,8 +1,8 @@
 package ru.org.linux.spring;
 
+import ru.org.linux.dto.UserDto;
 import ru.org.linux.site.Comment;
 import ru.org.linux.site.Message;
-import ru.org.linux.site.User;
 
 public class AddCommentRequest {
   private String preview;
@@ -12,7 +12,7 @@ public class AddCommentRequest {
   private String title;
   private Message topic;
 
-  private User nick;
+  private UserDto nick;
   private String password;
 
   public void setPreview(String preview) {
@@ -67,11 +67,11 @@ public class AddCommentRequest {
     this.topic = topic;
   }
 
-  public User getNick() {
+  public UserDto getNick() {
     return nick;
   }
 
-  public void setNick(User nick) {
+  public void setNick(UserDto nick) {
     this.nick = nick;
   }
 

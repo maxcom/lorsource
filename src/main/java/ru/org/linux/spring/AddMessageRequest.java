@@ -1,8 +1,8 @@
 package ru.org.linux.spring;
 
+import ru.org.linux.dto.UserDto;
 import ru.org.linux.site.Group;
 import ru.org.linux.site.Poll;
-import ru.org.linux.site.User;
 
 public class AddMessageRequest {
   private String title;
@@ -16,7 +16,7 @@ public class AddMessageRequest {
   private String[] poll = new String[Poll.MAX_POLL_SIZE];
   private boolean multiSelect;
 
-  private User nick;
+  private UserDto nick;
   private String password;
 
   private String preview;
@@ -65,11 +65,11 @@ public class AddMessageRequest {
     this.linktext = linktext;
   }
 
-  public User getNick() {
+  public UserDto getNick() {
     return nick;
   }
 
-  public void setNick(User nick) {
+  public void setNick(UserDto nick) {
     this.nick = nick;
   }
 

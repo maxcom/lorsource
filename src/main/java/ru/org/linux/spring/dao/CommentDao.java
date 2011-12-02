@@ -14,6 +14,8 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import ru.org.linux.dao.IgnoreListDao;
+import ru.org.linux.dto.UserDto;
 import ru.org.linux.site.*;
 import ru.org.linux.spring.commons.CacheProvider;
 import ru.org.linux.util.StringUtil;
@@ -229,7 +231,7 @@ public class CommentDao {
    * @throws ScriptErrorException генерируем исключение если на комментарий есть ответы
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public boolean deleteComment(int msgid, String reason, User user, int scoreBonus) throws ScriptErrorException {
+  public boolean deleteComment(int msgid, String reason, UserDto user, int scoreBonus) throws ScriptErrorException {
     if (getReplaysCount(msgid) != 0) {
       throw new ScriptErrorException("Нельзя удалить комментарий с ответами");
     }
@@ -237,7 +239,7 @@ public class CommentDao {
     return doDeleteComment(msgid, reason, user, scoreBonus);
   }
 
-  private boolean deleteCommentWithoutTransaction(int msgid, String reason, User user) throws SQLException {
+  private boolean deleteCommentWithoutTransaction(int msgid, String reason, UserDto user) throws SQLException {
     if (getReplaysCount(msgid) != 0) {
       throw new SQLException("Нельзя удалить комментарий с ответами");
     }
@@ -245,7 +247,7 @@ public class CommentDao {
     return doDeleteComment(msgid, reason, user, 0);
   }
 
-  private boolean doDeleteComment(int msgid, String reason, User user, int scoreBonus) {
+  private boolean doDeleteComment(int msgid, String reason, UserDto user, int scoreBonus) {
     int deleteCount = jdbcTemplate.update(deleteComment, msgid);
 
     if (deleteCount > 0) {
@@ -264,11 +266,11 @@ public class CommentDao {
     }
   }
 
-  public List<Integer> deleteReplys(int msgid, User user, boolean score) {
+  public List<Integer> deleteReplys(int msgid, UserDto user, boolean score) {
     return deleteReplys(msgid, user, score, 0);
   }
 
-  private List<Integer> deleteReplys(int msgid, User user, boolean score, int depth) {
+  private List<Integer> deleteReplys(int msgid, UserDto user, boolean score, int depth) {
     List<Integer> replys = getReplysForUpdate(msgid);
     List<Integer> deleted = new LinkedList<Integer>();
     for (Integer r : replys) {
@@ -334,7 +336,7 @@ public class CommentDao {
    * @throws UserNotFoundException генерирует исключение если пользователь отсутствует
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public DeleteCommentResult deleteAllCommentsAndBlock(User user, final User moderator, String reason) {
+  public DeleteCommentResult deleteAllCommentsAndBlock(UserDto user, final UserDto moderator, String reason) {
     final List<Integer> deletedTopicIds = new ArrayList<Integer>();
     final List<Integer> deletedCommentIds = new ArrayList<Integer>();
 
@@ -381,7 +383,7 @@ public class CommentDao {
    * @return список id удаленных сообщений
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public DeleteCommentResult deleteCommentsByIPAddress(String ip, Timestamp timedelta, final User moderator, final String reason) {
+  public DeleteCommentResult deleteCommentsByIPAddress(String ip, Timestamp timedelta, final UserDto moderator, final String reason) {
 
     final List<Integer> deletedTopicIds = new ArrayList<Integer>();
     final List<Integer> deletedCommentIds = new ArrayList<Integer>();
@@ -428,7 +430,7 @@ public class CommentDao {
   public int saveNewMessage(
           final Comment comment,
           String message,
-          Set<User> userRefs
+          Set<UserDto> userRefs
   ) throws MessageNotFoundException {
     final int msgid = jdbcTemplate.queryForInt("select nextval('s_msgid') as msgid");
 
@@ -463,14 +465,14 @@ public class CommentDao {
             "bbcode", true)
     );
 
-    userEventsDao.addUserRefEvent(userRefs.toArray(new User[userRefs.size()]), comment.getTopicId(), msgid);
+    userEventsDao.addUserRefEvent(userRefs.toArray(new UserDto[userRefs.size()]), comment.getTopicId(), msgid);
 
     if (comment.getReplyTo() != 0) {
       try {
         Comment parentComment = getById(comment.getReplyTo());
 
         if (parentComment.getUserid() != comment.getUserid()) {
-          User parentAuthor = userDao.getUserCached(parentComment.getUserid());
+          UserDto parentAuthor = userDao.getUserCached(parentComment.getUserid());
 
           if (!parentAuthor.isAnonymous()) {
             Set<Integer> ignoreList = ignoreListDao.get(parentAuthor);
@@ -507,7 +509,7 @@ public class CommentDao {
     return commentList;
   }
 
-  public List<CommentsListItem> getUserComments(User user, int limit, int offset) {
+  public List<CommentsListItem> getUserComments(UserDto user, int limit, int offset) {
     return jdbcTemplate.query(
             "SELECT sections.name as ptitle, groups.title as gtitle, topics.title, " +
             "topics.id as topicid, comments.id as msgid, comments.postdate " +
@@ -536,7 +538,7 @@ public class CommentDao {
     );
   }
 
-  public List<DeletedListItem> getDeletedComments(User user) {
+  public List<DeletedListItem> getDeletedComments(UserDto user) {
     return jdbcTemplate.query(
             "SELECT " +
                     "sections.name as ptitle, groups.title as gtitle, topics.title, topics.id as msgid, del_info.reason, deldate " +

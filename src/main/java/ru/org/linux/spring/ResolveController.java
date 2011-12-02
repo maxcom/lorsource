@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
+import ru.org.linux.dto.UserDto;
 import ru.org.linux.site.*;
 import ru.org.linux.spring.dao.GroupDao;
 import ru.org.linux.spring.dao.MessageDao;
@@ -45,7 +46,7 @@ public class ResolveController  {
 
     Message message = messageDao.getById(msgid);
     Group group = groupDao.getGroup(message.getGroupId());
-    User currentUser = tmpl.getCurrentUser();
+    UserDto currentUser = tmpl.getCurrentUser();
     if (!group.isResolvable()) {
       throw new AccessViolationException("В данной группе нельзя помечать темы как решенные");
     }

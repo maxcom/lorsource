@@ -22,9 +22,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
+import ru.org.linux.dto.UserDto;
 import ru.org.linux.site.AccessViolationException;
 import ru.org.linux.site.Template;
-import ru.org.linux.site.User;
 import ru.org.linux.spring.dao.RepliesDao;
 import ru.org.linux.spring.dao.UserDao;
 
@@ -64,7 +64,7 @@ public class ShowRepliesController {
       throw new AccessViolationException("not authorized");
     }
 
-    User currentUser = tmpl.getCurrentUser();
+    UserDto currentUser = tmpl.getCurrentUser();
     String nick = currentUser.getNick();
 
     Map<String, Object> params = new HashMap<String, Object>();
@@ -127,7 +127,7 @@ public class ShowRepliesController {
         throw new AccessViolationException("not authorized");
       }
     } else {
-      User.checkNick(nick);
+      UserDto.checkNick(nick);
       if (!tmpl.isSessionAuthorized() && !feedRequested) {
         throw new AccessViolationException("not authorized");
       }
@@ -165,11 +165,11 @@ public class ShowRepliesController {
     int delay = firstPage ? 90 : 60 * 60;
     response.setDateHeader("Expires", time + 1000 * delay);
 
-    User user = userDao.getUser(nick);
+    UserDto user = userDao.getUser(nick);
 
     boolean showPrivate = tmpl.isModeratorSession();
 
-    User currentUser = tmpl.getCurrentUser();
+    UserDto currentUser = tmpl.getCurrentUser();
     params.put("currentUser", currentUser);
 
     if (currentUser != null && currentUser.getId() == user.getId()) {

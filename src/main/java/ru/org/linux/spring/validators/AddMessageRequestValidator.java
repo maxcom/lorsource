@@ -4,10 +4,10 @@ import com.google.common.base.Strings;
 import org.jdom.Verifier;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
+import ru.org.linux.spring.dao.TagDao;
 import ru.org.linux.site.BadPasswordException;
 import ru.org.linux.site.UserErrorException;
 import ru.org.linux.spring.AddMessageRequest;
-import ru.org.linux.spring.dao.TagDao;
 import ru.org.linux.util.URLUtil;
 
 public class AddMessageRequestValidator implements Validator {

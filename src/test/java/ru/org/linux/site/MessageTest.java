@@ -17,6 +17,7 @@ package ru.org.linux.site;
 
 import org.junit.Test;
 import junit.framework.Assert;
+import ru.org.linux.dto.UserDto;
 
 import java.sql.ResultSet;
 import java.sql.Timestamp;
@@ -40,7 +41,7 @@ public class MessageTest {
    */
   @Test
   public void isDeletableByUserTest1() throws Exception {
-    User user;
+    UserDto user;
     ResultSet resultSet;
     Calendar calendar = Calendar.getInstance();
 
@@ -61,7 +62,7 @@ public class MessageTest {
     when(resultSet.getInt("section")).thenReturn(3); // Галлерея
     when(resultSet.getBoolean("moderate")).thenReturn(true);
 
-    user = mock(User.class);
+    user = mock(UserDto.class);
     when(user.isModerator()).thenReturn(false);
     when(user.getId()).thenReturn(13);
 
@@ -80,7 +81,7 @@ public class MessageTest {
    */
   @Test
   public void isDeletableByUserTest2() throws Exception {
-    User user;
+    UserDto user;
     ResultSet resultSet;
     Calendar calendar = Calendar.getInstance();
 
@@ -101,7 +102,7 @@ public class MessageTest {
     when(resultSet.getInt("section")).thenReturn(3); // Галлерея
     when(resultSet.getBoolean("moderate")).thenReturn(true);
 
-    user = mock(User.class);
+    user = mock(UserDto.class);
     when(user.isModerator()).thenReturn(false);
     when(user.getId()).thenReturn(13);
 
@@ -121,7 +122,7 @@ public class MessageTest {
    */
   @Test
   public void isDeletableByUserTest3() throws Exception {
-    User user;
+    UserDto user;
     ResultSet resultSet;
     Calendar calendar = Calendar.getInstance();
 
@@ -142,7 +143,7 @@ public class MessageTest {
     when(resultSet.getInt("section")).thenReturn(3); // Галлерея
     when(resultSet.getBoolean("moderate")).thenReturn(true);
 
-    user = mock(User.class);
+    user = mock(UserDto.class);
     when(user.isModerator()).thenReturn(false);
     when(user.getId()).thenReturn(14);
 
@@ -162,7 +163,7 @@ public class MessageTest {
    */
   @Test
   public void isDeletableByUserTest4() throws Exception {
-    User user;
+    UserDto user;
     ResultSet resultSet;
     Calendar calendar = Calendar.getInstance();
 
@@ -183,7 +184,7 @@ public class MessageTest {
     when(resultSet.getInt("section")).thenReturn(3); // Галлерея
     when(resultSet.getBoolean("moderate")).thenReturn(true);
 
-    user = mock(User.class);
+    user = mock(UserDto.class);
     when(user.isModerator()).thenReturn(false);
     when(user.getId()).thenReturn(14);
 
@@ -202,7 +203,7 @@ public class MessageTest {
    */
   @Test
   public void isDeletableByModeratorTest() throws Exception {
-    User user;
+    UserDto user;
     ResultSet resultSetModerateOld;
     ResultSet resultSetNotModerateOld;
     ResultSet resultSetModerateNew;
@@ -281,7 +282,7 @@ public class MessageTest {
     when(resultSetNotModerateNew.getTimestamp("postdate")).thenReturn(new Timestamp(newTime));
 
 
-    user = mock(User.class);
+    user = mock(UserDto.class);
     when(user.isModerator()).thenReturn(true);
     when(user.getId()).thenReturn(13);
 

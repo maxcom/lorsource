@@ -1,7 +1,7 @@
 package ru.org.linux.spring.dao;
 
+import ru.org.linux.dto.UserDto;
 import ru.org.linux.site.Section;
-import ru.org.linux.site.User;
 
 import java.sql.Timestamp;
 
@@ -9,7 +9,7 @@ import java.sql.Timestamp;
  *
  */
 public class TrackerItem {
-  private final User author;
+  private final UserDto author;
   private final int msgid;
   private final Timestamp lastmod;
   private final int stat1;
@@ -19,7 +19,7 @@ public class TrackerItem {
   private final String groupTitle;
   private final String title;
   private final int cid;
-  private final User lastCommentBy;
+  private final UserDto lastCommentBy;
   private final boolean resolved;
   private final int section;
   private final String groupUrlName;
@@ -27,10 +27,10 @@ public class TrackerItem {
   private final boolean uncommited;
   private final int pages;
 
-  public TrackerItem(User author, int msgid, Timestamp lastmod,
+  public TrackerItem(UserDto author, int msgid, Timestamp lastmod,
                      int stat1, int stat3, int stat4,
                      int groupId, String groupTitle, String title,
-                     int cid, User lastCommentBy, boolean resolved,
+                     int cid, UserDto lastCommentBy, boolean resolved,
                      int section, String groupUrlName,
                      Timestamp postdate, boolean uncommited, int pages) {
     this.author = author;
@@ -84,7 +84,7 @@ public class TrackerItem {
     return section == 0;
   }
 
-  public User getAuthor() {
+  public UserDto getAuthor() {
     return author;
   }
 
@@ -140,7 +140,7 @@ public class TrackerItem {
     return pages;
   }
 
-  public User getLastCommentBy() {
+  public UserDto getLastCommentBy() {
     return lastCommentBy;
   }
 

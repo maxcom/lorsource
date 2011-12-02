@@ -15,6 +15,7 @@
 
 package ru.org.linux.site;
 
+import ru.org.linux.dto.UserDto;
 import ru.org.linux.spring.dao.UserDao;
 
 import java.io.Serializable;
@@ -46,7 +47,7 @@ public class CommentNode implements Serializable {
 
   public void hideAnonymous(UserDao userDao, Set<Integer> hideSet) throws SQLException, UserNotFoundException {
     if (comment!=null) {
-      User commentAuthor = userDao.getUserCached(comment.getUserid());
+      UserDto commentAuthor = userDao.getUserCached(comment.getUserid());
 
       if (commentAuthor.isAnonymousScore()) {
         hideNode(hideSet);

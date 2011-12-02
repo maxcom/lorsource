@@ -22,10 +22,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
+import ru.org.linux.dto.UserDto;
 import ru.org.linux.site.AccessViolationException;
 import ru.org.linux.site.BadInputException;
 import ru.org.linux.site.Template;
-import ru.org.linux.site.User;
 import ru.org.linux.spring.dao.UserDao;
 import ru.org.linux.util.StringUtil;
 
@@ -74,7 +74,7 @@ public class LoginController {
       return new ModelAndView(ajax ? "login-xml" : "login-form", Collections.singletonMap("error", "Некорректный nick"));
     }
 
-    final User user = userDao.getUser(nick);
+    final UserDto user = userDao.getUser(nick);
 
     user.checkAnonymous();
 
@@ -158,7 +158,7 @@ public class LoginController {
     return new ModelAndView(new RedirectView("/"));
   }
 
-  private static void createCookies(HttpServletResponse response, Template tmpl, HttpSession session, User user) {
+  private static void createCookies(HttpServletResponse response, Template tmpl, HttpSession session, UserDto user) {
     Cookie cookie = new Cookie("password", user.getMD5(tmpl.getSecret()));
     cookie.setMaxAge(60 * 60 * 24 * 31 * 24);
     cookie.setPath("/");

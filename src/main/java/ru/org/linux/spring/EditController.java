@@ -26,6 +26,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.search.SearchQueueSender;
 import ru.org.linux.dao.PollDao;
+import ru.org.linux.dto.UserDto;
 import ru.org.linux.spring.dao.TagDao;
 import ru.org.linux.site.*;
 import ru.org.linux.spring.dao.GroupDao;
@@ -107,7 +108,7 @@ public class EditController {
 
     Message message = messageDao.getById(msgid);
 
-    User user = tmpl.getCurrentUser();
+    UserDto user = tmpl.getCurrentUser();
 
     PreparedMessage preparedMessage = prepareService.prepareMessage(message, false, request.isSecure());
 
@@ -206,7 +207,7 @@ public class EditController {
 
     params.put("groups", groupDao.getGroups(preparedMessage.getSection()));
 
-    User user = tmpl.getCurrentUser();
+    UserDto user = tmpl.getCurrentUser();
 
     if (!preparedMessage.isEditable(user)) {
       throw new AccessViolationException("это сообщение нельзя править");

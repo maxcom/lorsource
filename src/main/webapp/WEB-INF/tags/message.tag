@@ -1,6 +1,6 @@
 <%@ tag import="ru.org.linux.site.NewsViewer" %>
 <%@ tag import="ru.org.linux.site.Template" %>
-<%@ tag import="ru.org.linux.site.User" %>
+<%@ tag import="ru.org.linux.dto.UserDto" %>
 <%@ tag import="ru.org.linux.util.StringUtil" %>
 <%@ tag import="java.net.URLEncoder" %>
 <%@ tag import="java.sql.Timestamp" %>
@@ -32,8 +32,8 @@
 <%
   Template tmpl = Template.getTemplate(request);
 
-  User author = preparedMessage.getAuthor();
-  User currentUser = tmpl.getCurrentUser();
+  UserDto author = preparedMessage.getAuthor();
+  UserDto currentUser = tmpl.getCurrentUser();
 
   int msgid = message.getMessageId();
 %>
@@ -123,7 +123,7 @@
   </c:if>
   <%
   if (preparedMessage.getSection().isPremoderated() && message.getCommitby() != 0) {
-    User commiter = preparedMessage.getCommiter();
+    UserDto commiter = preparedMessage.getCommiter();
 
     if (commiter.getId()!=message.getUid()) {
       Timestamp commitDate = message.getCommitDate();

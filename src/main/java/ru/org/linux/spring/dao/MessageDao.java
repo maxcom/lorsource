@@ -16,6 +16,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.org.linux.dao.PollDao;
+import ru.org.linux.dto.UserDto;
 import ru.org.linux.site.*;
 import ru.org.linux.spring.AddMessageRequest;
 import ru.org.linux.util.LorHttpUtils;
@@ -224,7 +225,7 @@ public class MessageDao {
    * @throws UserErrorException генерируется если некорректная делта score
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public void deleteWithBonus(Message message, User user, String reason, int bonus) throws UserErrorException {
+  public void deleteWithBonus(Message message, UserDto user, String reason, int bonus) throws UserErrorException {
     String finalReason = reason;
     jdbcTemplate.update(updateDeleteMessage, message.getId());
     if (user.isModerator() && bonus!=0 && user.getId()!=message.getUid()) {
@@ -248,7 +249,7 @@ public class MessageDao {
   }
 
   // call in @Transactional environment
-  public int saveNewMessage(final Message msg, Template tmpl, final HttpServletRequest request, Screenshot scrn, final User user)
+  public int saveNewMessage(final Message msg, Template tmpl, final HttpServletRequest request, Screenshot scrn, final UserDto user)
     throws  IOException,  ScriptErrorException {
 
     final Group group = groupDao.getGroup(msg.getGroupId());
@@ -304,7 +305,7 @@ public class MessageDao {
   }
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public int addMessage(HttpServletRequest request, AddMessageRequest form, Template tmpl, Group group, User user, Screenshot scrn, Message previewMsg, Set<User> userRefs) throws IOException, ScriptErrorException, UserErrorException {
+  public int addMessage(HttpServletRequest request, AddMessageRequest form, Template tmpl, Group group, UserDto user, Screenshot scrn, Message previewMsg, Set<UserDto> userRefs) throws IOException, ScriptErrorException, UserErrorException {
     final int msgid = saveNewMessage(
             previewMsg,
             tmpl,
@@ -324,12 +325,12 @@ public class MessageDao {
       tagDao.updateCounters(Collections.<String>emptyList(), tags);
     }
 
-    userEventsDao.addUserRefEvent(userRefs.toArray(new User[userRefs.size()]), msgid);
+    userEventsDao.addUserRefEvent(userRefs.toArray(new UserDto[userRefs.size()]), msgid);
 
     return msgid;
   }
 
-  private boolean updateMessage(Message oldMsg, Message msg, User editor, List<String> newTags) {
+  private boolean updateMessage(Message oldMsg, Message msg, UserDto editor, List<String> newTags) {
     List<String> oldTags = tagDao.getMessageTags(msg.getId());
 
     EditInfoDTO editInfo = new EditInfoDTO();
@@ -453,7 +454,7 @@ public class MessageDao {
   public boolean updateAndCommit(
           Message newMsg,
           Message message,
-          User user,
+          UserDto user,
           List<String> newTags,
           boolean commit,
           Integer changeGroupId,
@@ -489,7 +490,7 @@ public class MessageDao {
     return modified;
   }
 
-  private void commit(Message msg, User commiter, int bonus) {
+  private void commit(Message msg, UserDto commiter, int bonus) {
     if (bonus < 0 || bonus > 20) {
       throw new IllegalStateException("Неверное значение bonus");
     }
@@ -500,7 +501,7 @@ public class MessageDao {
             msg.getId()
     );
 
-    User author;
+    UserDto author;
     try {
       author = userDao.getUser(msg.getUid());
     } catch (UserNotFoundException e) {
@@ -514,7 +515,7 @@ public class MessageDao {
     jdbcTemplate.update("UPDATE topics SET moderate='f',commitby=NULL,commitdate=NULL WHERE id=?", msg.getId());
   }
 
-  public Message getPreviousMessage(Message message, User currentUser) {
+  public Message getPreviousMessage(Message message, UserDto currentUser) {
     int scrollMode = Section.getScrollMode(message.getSectionId());
 
     List<Integer> res;
@@ -572,7 +573,7 @@ public class MessageDao {
     }
   }
 
-  public Message getNextMessage(Message message, User currentUser) {
+  public Message getNextMessage(Message message, UserDto currentUser) {
     int scrollMode = Section.getScrollMode(message.getSectionId());
 
     List<Integer> res;
@@ -659,7 +660,7 @@ public class MessageDao {
   }
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public void moveTopic(Message msg, Group newGrp, User moveBy) {
+  public void moveTopic(Message msg, Group newGrp, UserDto moveBy) {
     String url = msg.getUrl();
 
     jdbcTemplate.update("UPDATE topics SET groupid=?,lastmod=CURRENT_TIMESTAMP WHERE id=?", newGrp.getId(), msg.getId());

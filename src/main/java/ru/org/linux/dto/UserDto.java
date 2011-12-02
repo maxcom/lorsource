@@ -13,13 +13,16 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.site;
+package ru.org.linux.dto;
 
 import org.apache.commons.codec.binary.Base64;
 import org.jasypt.exceptions.EncryptionOperationNotPossibleException;
 import org.jasypt.util.password.BasicPasswordEncryptor;
 import org.jasypt.util.password.PasswordEncryptor;
 import org.springframework.validation.Errors;
+import ru.org.linux.site.AccessViolationException;
+import ru.org.linux.site.BadInputException;
+import ru.org.linux.site.BadPasswordException;
 import ru.org.linux.spring.LoginController;
 import ru.org.linux.util.StringUtil;
 
@@ -31,7 +34,7 @@ import java.net.URLEncoder;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class User implements Serializable {
+public class UserDto implements Serializable {
   private static final int ANONYMOUS_LEVEL_SCORE = 50;
 
   private final String nick;
@@ -59,7 +62,7 @@ public class User implements Serializable {
 
   private static final long serialVersionUID = 69986652856916540L;
 
-  public User(ResultSet rs) throws SQLException {
+  public UserDto(ResultSet rs) throws SQLException {
     id = rs.getInt("id");
     nick = rs.getString("nick");
     canmod = rs.getBoolean("canmod");
@@ -376,7 +379,7 @@ public class User implements Serializable {
       return false;
     }
 
-    User user = (User) o;
+    UserDto user = (UserDto) o;
 
     return id == user.id;
   }

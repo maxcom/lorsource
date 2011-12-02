@@ -29,6 +29,8 @@ import org.springframework.web.multipart.MultipartRequest;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.search.SearchQueueSender;
+import ru.org.linux.dto.UserDto;
+import ru.org.linux.spring.dao.TagDao;
 import ru.org.linux.site.*;
 import ru.org.linux.spring.dao.*;
 import ru.org.linux.spring.validators.AddMessageRequestValidator;
@@ -188,7 +190,7 @@ public class AddMessageController extends ApplicationObjectSupport {
       params.put("addportal", sectionDao.getAddInfo(group.getSectionId()));
     }
 
-    User user;
+    UserDto user;
 
     if (!Template.isSessionAuthorized(session)) {
       if (form.getNick() != null) {
@@ -266,7 +268,7 @@ public class AddMessageController extends ApplicationObjectSupport {
     if (!form.isPreviewMode() && !errors.hasErrors() && group!=null) {
       session.removeAttribute("image");
 
-      Set<User> userRefs = lorCodeService.getReplierFromMessage(message);
+      Set<UserDto> userRefs = lorCodeService.getReplierFromMessage(message);
 
       int msgid = messageDao.addMessage(request, form, tmpl, group, user, scrn, previewMsg, userRefs);
 
@@ -328,7 +330,7 @@ public class AddMessageController extends ApplicationObjectSupport {
       }
     });
 
-    binder.registerCustomEditor(User.class, new UserPropertyEditor(userDao));
+    binder.registerCustomEditor(UserDto.class, new UserPropertyEditor(userDao));
   }
 
   @InitBinder("form")

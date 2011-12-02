@@ -18,7 +18,7 @@
   ~    limitations under the License.
   --%>
 <%--@elvariable id="firstPage" type="Boolean"--%>
-<%--@elvariable id="user" type="ru.org.linux.site.User"--%>
+<%--@elvariable id="user" type="ru.org.linux.dto.UserDto"--%>
 <%--@elvariable id="topics" type="Integer"--%>
 <%--@elvariable id="offset" type="Integer"--%>
 <%--@elvariable id="list" type="java.util.List<ru.org.linux.spring.ShowCommentsController.CommentsListItem>"--%>

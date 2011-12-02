@@ -39,7 +39,7 @@ public class TagsController  {
     return "tags";
   }
 
-  @RequestMapping("/tags.jsp")  
+  @RequestMapping("/tags.jsp")
   public String oldTags() {
     return "redirect:/tags";
   }

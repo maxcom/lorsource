@@ -18,7 +18,7 @@
   ~    limitations under the License.
   --%>
 <%@ tag pageEncoding="UTF-8"%>
-<%@ attribute name="author" required="true" type="ru.org.linux.site.User"%>
+<%@ attribute name="author" required="true" type="ru.org.linux.dto.UserDto"%>
 <div class="userpic">
 <%
   Template tmpl = Template.getTemplate(request);

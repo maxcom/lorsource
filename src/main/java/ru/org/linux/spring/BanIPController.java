@@ -23,8 +23,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
+import ru.org.linux.dto.UserDto;
 import ru.org.linux.site.Template;
-import ru.org.linux.site.User;
 import ru.org.linux.site.UserErrorException;
 import ru.org.linux.spring.dao.IPBlockDao;
 
@@ -87,7 +87,7 @@ public class BanIPController {
       ts = new Timestamp(calendar.getTimeInMillis());
     }
 
-    User user = tmpl.getCurrentUser();
+    UserDto user = tmpl.getCurrentUser();
 
     user.checkCommit();
 

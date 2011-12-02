@@ -28,10 +28,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.view.RedirectView;
+import ru.org.linux.dto.UserDto;
+import ru.org.linux.spring.dao.TagDao;
 import ru.org.linux.site.*;
 import ru.org.linux.spring.dao.GroupDao;
 import ru.org.linux.spring.dao.SectionDao;
-import ru.org.linux.spring.dao.TagDao;
 import ru.org.linux.spring.dao.UserDao;
 import ru.org.linux.util.DateUtil;
 import ru.org.linux.util.ServletParameterException;
@@ -285,7 +286,7 @@ public class NewsViewerController {
     response.setDateHeader("Expires", System.currentTimeMillis() + 60 * 1000);
     response.setDateHeader("Last-Modified", System.currentTimeMillis());
 
-    User user = userDao.getUser(nick);
+    UserDto user = userDao.getUser(nick);
     UserInfo userInfo = userDao.getUserInfoClass(user);
     params.put("meLink", userInfo.getUrl());
 
@@ -347,7 +348,7 @@ public class NewsViewerController {
     response.setDateHeader("Expires", System.currentTimeMillis() + 60 * 1000);
     response.setDateHeader("Last-Modified", System.currentTimeMillis());
 
-    User user = userDao.getUser(nick);
+    UserDto user = userDao.getUser(nick);
     UserInfo userInfo = userDao.getUserInfoClass(user);
     params.put("meLink", userInfo.getUrl());
 
@@ -526,7 +527,7 @@ public class NewsViewerController {
     if (output!=null) {
       return new RedirectView("/people/"+nick+"/?output=rss");
     }
-    
+
     return new RedirectView("/people/"+nick+ '/');
   }
 

@@ -15,6 +15,7 @@
 
 package ru.org.linux.site;
 
+import ru.org.linux.dto.UserDto;
 import ru.org.linux.spring.dao.UserDao;
 import ru.org.linux.util.bbcode.LorCodeService;
 
@@ -23,7 +24,7 @@ import java.util.List;
 public class PreparedEditInfo {
   private final EditInfoDTO editInfo;
   private final boolean original;
-  private final User editor;
+  private final UserDto editor;
   private final String message;
   private final boolean current;
   private final String title;
@@ -68,7 +69,7 @@ public class PreparedEditInfo {
     return editInfo;
   }
 
-  public User getEditor() {
+  public UserDto getEditor() {
     return editor;
   }
 

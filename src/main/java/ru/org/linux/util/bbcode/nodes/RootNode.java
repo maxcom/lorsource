@@ -39,7 +39,7 @@
 package ru.org.linux.util.bbcode.nodes;
 
 import org.apache.commons.httpclient.URI;
-import ru.org.linux.site.User;
+import ru.org.linux.dto.UserDto;
 import ru.org.linux.spring.dao.UserDao;
 import ru.org.linux.util.bbcode.ParserParameters;
 import ru.org.linux.util.formatter.ToHtmlFormatter;
@@ -57,7 +57,7 @@ public class RootNode extends Node {
   private URI cutURI;
   private UserDao userDao;
   private ToHtmlFormatter toHtmlFormatter;
-  private Set<User> replier;
+  private Set<UserDto> replier;
   private boolean secure;
   private boolean rss;
 
@@ -65,7 +65,7 @@ public class RootNode extends Node {
     super(parserParameters);
     cutCount = -1;
     cutType = ParserParameters.CutType.INCOMMENT;
-    replier = new HashSet<User>();
+    replier = new HashSet<UserDto>();
     secure = false;
   }
 
@@ -110,11 +110,11 @@ public class RootNode extends Node {
     this.rss = rss;
   }
 
-  public void addReplier(User nick) {
+  public void addReplier(UserDto nick) {
     replier.add(nick);
   }
 
-  public Set<User> getReplier() {
+  public Set<UserDto> getReplier() {
     return replier;
   }
 

@@ -17,6 +17,7 @@ package ru.org.linux.site;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import ru.org.linux.dto.UserDto;
 import ru.org.linux.site.config.PathConfig;
 import ru.org.linux.spring.dao.UserDao;
 import ru.org.linux.storage.StorageException;
@@ -44,7 +45,7 @@ public final class Template {
 
   private final UserDao userDao;
 
-  private User currentUser = null;
+  private UserDto currentUser = null;
 
   public final DateFormat dateFormat = DateFormats.createDefault();
   public static final String PROPERTY_MAIN_URL = "MainUrl";
@@ -77,7 +78,7 @@ public final class Template {
           !"anonymous".equals(profileCookie) && getCookie("password") != null) {
 
         try {
-          User user = userDao.getUser(profileCookie);
+          UserDto user = userDao.getUser(profileCookie);
 
           if (user.getMD5(getSecret()).equals(getCookie("password")) && !user.isBlocked()) {
             performLogin(response, user);
@@ -104,7 +105,7 @@ public final class Template {
     response.addHeader("Cache-Control", "private");
   }
 
-  public void performLogin(HttpServletResponse response, User user) {
+  public void performLogin(HttpServletResponse response, UserDto user) {
     session.setAttribute("login", Boolean.TRUE);
     session.setAttribute("nick", user.getNick());
     session.setAttribute("moderator", user.isModerator());
@@ -254,7 +255,7 @@ public final class Template {
     }
   }
 
-  public User getCurrentUser()  {
+  public UserDto getCurrentUser()  {
     if (!isSessionAuthorized()) {
       return null;
     }

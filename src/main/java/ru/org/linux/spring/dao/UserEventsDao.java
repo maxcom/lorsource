@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
-import ru.org.linux.site.User;
+import ru.org.linux.dto.UserDto;
 
 import javax.sql.DataSource;
 import java.util.Map;
@@ -21,7 +21,7 @@ public class UserEventsDao {
     insert.usingColumns("userid", "type", "private", "message_id", "comment_id", "message");
   }
 
-  public void addUserRefEvent(User[] refs, int topic, int comment) {
+  public void addUserRefEvent(UserDto[] refs, int topic, int comment) {
     if (refs.length==0) {
       return;
     }
@@ -29,7 +29,7 @@ public class UserEventsDao {
     Map<String, Object>[] batch = new Map[refs.length];
 
     for (int i=0; i<refs.length; i++) {
-      User ref = refs[i];
+      UserDto ref = refs[i];
 
       batch[i] = ImmutableMap.<String, Object>of(
             "userid", ref.getId(),
@@ -43,7 +43,7 @@ public class UserEventsDao {
     insert.executeBatch(batch);
   }
 
-  public void addUserRefEvent(User[] refs, int topic) {
+  public void addUserRefEvent(UserDto[] refs, int topic) {
     if (refs.length==0) {
       return;
     }
@@ -51,7 +51,7 @@ public class UserEventsDao {
     Map<String, Object>[] batch = new Map[refs.length];
 
     for (int i=0; i<refs.length; i++) {
-      User ref = refs[i];
+      UserDto ref = refs[i];
 
       batch[i] = ImmutableMap.<String, Object>of(
             "userid", ref.getId(),
@@ -64,7 +64,7 @@ public class UserEventsDao {
     insert.executeBatch(batch);
   }
 
-  public void addReplyEvent(User parentAuthor, int topicId, int commentId) {
+  public void addReplyEvent(UserDto parentAuthor, int topicId, int commentId) {
     insert.execute(ImmutableMap.<String, Object>of(
             "userid", parentAuthor.getId(),
             "type", "REPLY",

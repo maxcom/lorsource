@@ -1,6 +1,6 @@
 package ru.org.linux.spring;
 
-import ru.org.linux.site.User;
+import ru.org.linux.dto.UserDto;
 import ru.org.linux.site.UserNotFoundException;
 import ru.org.linux.spring.dao.UserDao;
 
@@ -33,6 +33,6 @@ class UserIdPropertyEditor extends PropertyEditorSupport {
       return "";
     }
 
-    return Integer.toString(((User) getValue()).getId());
+    return Integer.toString(((UserDto) getValue()).getId());
   }
 }

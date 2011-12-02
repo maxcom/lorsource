@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.dao.PollDao;
+import ru.org.linux.dto.UserDto;
 import ru.org.linux.site.*;
 import ru.org.linux.spring.dao.MessageDao;
 import ru.org.linux.spring.dao.VoteDto;
@@ -54,7 +55,7 @@ public class VoteController {
       throw new AccessViolationException("Not authorized");
     }
 
-    User user = tmpl.getCurrentUser();
+    UserDto user = tmpl.getCurrentUser();
 
     Poll poll = pollDao.getCurrentPoll();
     Message msg = messageDao.getById(poll.getTopicId());

@@ -15,14 +15,16 @@
 
 package ru.org.linux.site;
 
+import ru.org.linux.dto.UserDto;
+
 import java.sql.Timestamp;
 
 public class BanInfo {
   private final Timestamp date;
   private final String reason;
-  private final User moderator;
+  private final UserDto moderator;
 
-  public BanInfo(Timestamp date, String reason, User moderator) {
+  public BanInfo(Timestamp date, String reason, UserDto moderator) {
     this.date = date;
     this.reason = reason;
     this.moderator = moderator;
@@ -36,7 +38,7 @@ public class BanInfo {
     return reason;
   }
 
-  public User getModerator() {
+  public UserDto getModerator() {
     return moderator;
   }
 }

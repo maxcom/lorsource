@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import ru.org.linux.search.SearchQueueSender;
+import ru.org.linux.dto.UserDto;
 import ru.org.linux.site.*;
 import ru.org.linux.spring.dao.CommentDao;
 import ru.org.linux.spring.dao.MessageDao;
@@ -135,7 +136,7 @@ public class DeleteCommentController {
 
     tmpl.updateCurrentUser(userDao);
 
-    User user = tmpl.getCurrentUser();
+    UserDto user = tmpl.getCurrentUser();
     user.checkBlocked();
     user.checkAnonymous();
 

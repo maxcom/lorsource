@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.search.SearchQueueSender;
+import ru.org.linux.dto.UserDto;
 import ru.org.linux.site.*;
 import ru.org.linux.spring.dao.CommentDao;
 import ru.org.linux.spring.dao.IPBlockDao;
@@ -127,7 +128,7 @@ public class AddCommentController extends ApplicationObjectSupport {
     }
 
     Template tmpl = Template.getTemplate(request);
-    
+
     Map<String, Object> params = new HashMap<String, Object>();
 
     if (add.getMode()==null) {
@@ -209,7 +210,7 @@ public class AddCommentController extends ApplicationObjectSupport {
 
     prepareReplyto(add, formParams, request);
 
-    User user;
+    UserDto user;
 
     if (!Template.isSessionAuthorized(session)) {
       if (add.getNick() != null) {
@@ -267,7 +268,7 @@ public class AddCommentController extends ApplicationObjectSupport {
     }
 
     if (!add.isPreviewMode() && !errors.hasErrors() && comment != null) {
-      Set<User> userRefs = lorCodeService.getReplierFromMessage(msg);
+      Set<UserDto> userRefs = lorCodeService.getReplierFromMessage(msg);
 
       int msgid = commentDao.saveNewMessage(comment, msg, userRefs);
 
@@ -331,6 +332,6 @@ public class AddCommentController extends ApplicationObjectSupport {
       }
     });
 
-    binder.registerCustomEditor(User.class, new UserPropertyEditor(userDao));
+    binder.registerCustomEditor(UserDto.class, new UserPropertyEditor(userDao));
   }
 }

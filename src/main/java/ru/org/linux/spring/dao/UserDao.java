@@ -15,6 +15,8 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import ru.org.linux.dao.IgnoreListDao;
+import ru.org.linux.dto.UserDto;
 import ru.org.linux.site.*;
 import ru.org.linux.util.StringUtil;
 import ru.org.linux.util.URLUtil;
@@ -66,7 +68,7 @@ public class UserDao {
     jdbcTemplate = new JdbcTemplate(dataSource);
   }
 
-  public User getUser(String nick) throws UserNotFoundException {
+  public UserDto getUser(String nick) throws UserNotFoundException {
     if (nick == null) {
       throw new NullPointerException();
     }
@@ -77,12 +79,12 @@ public class UserDao {
 
     Cache cache = CacheManager.create().getCache("Users");
 
-    List<User> list = jdbcTemplate.query(
+    List<UserDto> list = jdbcTemplate.query(
             "SELECT id,nick,candel,canmod,corrector,passwd,blocked,score,max_score,activated,photo,email,name,unread_events FROM users where nick=?",
-            new RowMapper<User>() {
+            new RowMapper<UserDto>() {
               @Override
-              public User mapRow(ResultSet rs, int rowNum) throws SQLException {
-                return new User(rs);
+              public UserDto mapRow(ResultSet rs, int rowNum) throws SQLException {
+                return new UserDto(rs);
               }
             },
             nick
@@ -96,7 +98,7 @@ public class UserDao {
       throw new RuntimeException("list.size()>1 ???");
     }
 
-    User user = list.get(0);
+    UserDto user = list.get(0);
 
     String cacheId = "User?id="+ user.getId();
 
@@ -105,7 +107,7 @@ public class UserDao {
     return user;
   }
 
-  public User getUserCached(int id) throws UserNotFoundException {
+  public UserDto getUserCached(int id) throws UserNotFoundException {
     return getUser(id, true);
   }
 
@@ -119,31 +121,31 @@ public class UserDao {
    * @return объект пользователя
    * @throws UserNotFoundException если пользователь с таким id не найден
    */
-  public User getUser(int id) throws UserNotFoundException {
+  public UserDto getUser(int id) throws UserNotFoundException {
     return getUser(id, false);
   }
 
-  private User getUser(int id, boolean useCache) throws UserNotFoundException {
+  private UserDto getUser(int id, boolean useCache) throws UserNotFoundException {
     Cache cache = CacheManager.create().getCache("Users");
 
     String cacheId = "User?id="+id;
 
-    User res = null;
+    UserDto res = null;
 
     if (useCache) {
       Element element = cache.get(cacheId);
 
       if (element!=null) {
-        res = (User) element.getObjectValue();
+        res = (UserDto) element.getObjectValue();
       }
     }
 
     if (res==null) {
-      List<User> list = jdbcTemplate.query(
-                "SELECT id, nick,score, max_score, candel,canmod,corrector,passwd,blocked,activated,photo,email,name,unread_events FROM users where id=?",              new RowMapper<User>() {
+      List<UserDto> list = jdbcTemplate.query(
+                "SELECT id, nick,score, max_score, candel,canmod,corrector,passwd,blocked,activated,photo,email,name,unread_events FROM users where id=?",              new RowMapper<UserDto>() {
                 @Override
-                public User mapRow(ResultSet rs, int rowNum) throws SQLException {
-                  return new User(rs);
+                public UserDto mapRow(ResultSet rs, int rowNum) throws SQLException {
+                  return new UserDto(rs);
                 }
               },
               id
@@ -171,7 +173,7 @@ public class UserDao {
    * @param user пользователь
    * @return поле userinfo
    */
-  public String getUserInfo(User user) {
+  public String getUserInfo(UserDto user) {
     return jdbcTemplate.queryForObject("SELECT userinfo FROM users where id=?",
         new Object[] {user.getId()}, String.class);
   }
@@ -181,7 +183,7 @@ public class UserDao {
    * @param user пользователь
    * @return информация
    */
-  public UserInfo getUserInfoClass(User user) {
+  public UserInfo getUserInfoClass(UserDto user) {
     return jdbcTemplate.queryForObject(queryUserInfoClass, new RowMapper<UserInfo>() {
       @Override
       public UserInfo mapRow(ResultSet resultSet, int i) throws SQLException {
@@ -195,13 +197,13 @@ public class UserDao {
    * @param user пользователь
    * @return информация о бане :-)
    */
-  public BanInfo getBanInfoClass(User user) {
+  public BanInfo getBanInfoClass(UserDto user) {
     List<BanInfo> infoList = jdbcTemplate.query(queryBanInfoClass, new RowMapper<BanInfo>() {
       @Override
       public BanInfo mapRow(ResultSet resultSet, int i) throws SQLException {
         Timestamp date = resultSet.getTimestamp("bandate");
         String reason = resultSet.getString("reason");
-        User moderator;
+        UserDto moderator;
         try {
           moderator = getUser(resultSet.getInt("ban_by"));
         } catch (UserNotFoundException exception) {
@@ -223,7 +225,7 @@ public class UserDao {
    * @param user пользователь
    * @return статистика
    */
-  public UserStatistics getUserStatisticsClass(User user) {
+  public UserStatistics getUserStatisticsClass(UserDto user) {
     int ignoreCount = ignoreListDao.getIgnoreStat(user);
 
     int commentCount;
@@ -267,7 +269,7 @@ public class UserDao {
         builder.put(resultSet.getString("pname"), resultSet.getInt("c"));
       }
     }, user.getId());
-    
+
     return new UserStatistics(ignoreCount, commentCount,
         commentStat.get(0), commentStat.get(1),
         topicStat.get(0), topicStat.get(1),
@@ -278,12 +280,12 @@ public class UserDao {
    * Получить список новых пользователей зарегистрирововавшихся за последние 3(три) дня
    * @return список новых пользователей
    */
-  public List<User> getNewUsers() {
+  public List<UserDto> getNewUsers() {
     return getUsersCached(jdbcTemplate.queryForList(queryNewUsers, Integer.class));
   }
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public void removeUserInfo(User user) {
+  public void removeUserInfo(UserDto user) {
     String userInfo = getUserInfo(user);
     if(userInfo == null || userInfo.trim().isEmpty()) {
       return;
@@ -299,7 +301,7 @@ public class UserDao {
    * @param cleaner пользователь который чистит
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public void removePhoto(User user, User cleaner) {
+  public void removePhoto(UserDto user, UserDto cleaner) {
     setPhoto(user, null);
     if(cleaner.isModerator() && cleaner.getId() != user.getId()){
       changeScore(user.getId(), -10);
@@ -311,7 +313,7 @@ public class UserDao {
    * @param user пользователь
    * @param photo userpick
    */
-  public void setPhoto(User user, String photo){
+  public void setPhoto(UserDto user, String photo){
     jdbcTemplate.update("UPDATE users SET photo=? WHERE id=?", photo, user.getId());
   }
 
@@ -329,7 +331,7 @@ public class UserDao {
    * @param user пользователь которому сбрасываем
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public void resetUnreadReplies(User user) {
+  public void resetUnreadReplies(UserDto user) {
     jdbcTemplate.update(updateResetUnreadReplies, user.getId());
     jdbcTemplate.update("UPDATE user_events SET unread=false WHERE userid=?", user.getId());
   }
@@ -354,7 +356,7 @@ public class UserDao {
    * @param user пользователь у которого меняется признак корректора
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public void toggleCorrector(User user){
+  public void toggleCorrector(UserDto user){
     if(user.canCorrect()){
       jdbcTemplate.update("UPDATE users SET corrector='f' WHERE id=?", user.getId());
     }else{
@@ -367,12 +369,12 @@ public class UserDao {
    * @param user пользователь которому сбрасывается пароль
    * @return новый пароь в открытом виде
    */
-  public String resetPassword(User user){
+  public String resetPassword(UserDto user){
     String password = StringUtil.generatePassword();
     return setPassword(user, password);
   }
 
-  private String setPassword(User user, String password) {
+  private String setPassword(UserDto user, String password) {
     PasswordEncryptor encryptor = new BasicPasswordEncryptor();
     String encryptedPassword = encryptor.encryptPassword(password);
 
@@ -382,11 +384,11 @@ public class UserDao {
     return password;
   }
 
-  public void updateResetDate(User user, Timestamp now) {
+  public void updateResetDate(UserDto user, Timestamp now) {
     jdbcTemplate.update("UPDATE users SET lostpwd=? WHERE id=?",  now, user.getId());
   }
 
-  public Timestamp getResetDate(User user) {
+  public Timestamp getResetDate(UserDto user) {
     return jdbcTemplate.queryForObject("SELECT lostpwd FROM users WHERE id=?", Timestamp.class, user.getId());
   }
 
@@ -396,7 +398,7 @@ public class UserDao {
    * @param moderator модератор который блокирует
    * @param reason причина блокировки
    */
-  public void blockWithoutTransaction(User user, User moderator, String reason) {
+  public void blockWithoutTransaction(UserDto user, UserDto moderator, String reason) {
     jdbcTemplate.update("UPDATE users SET blocked='t' WHERE id=?", user.getId());
     jdbcTemplate.update("INSERT INTO ban_info (userid, reason, ban_by) VALUES (?, ?, ?)",
         user.getId(), reason, moderator.getId());
@@ -418,7 +420,7 @@ public class UserDao {
    * @param reason причина блокировки
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public void blockWithResetPassword(User user, User moderator, String reason) {
+  public void blockWithResetPassword(UserDto user, UserDto moderator, String reason) {
 
     jdbcTemplate.update("UPDATE users SET blocked='t' WHERE id=?", user.getId());
     jdbcTemplate.update("INSERT INTO ban_info (userid, reason, ban_by) VALUES (?, ?, ?)",
@@ -436,12 +438,12 @@ public class UserDao {
    * @param user разблокируемый пользователь
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public void unblock(User user){
+  public void unblock(UserDto user){
     jdbcTemplate.update("UPDATE users SET blocked='f' WHERE id=?", user.getId());
     jdbcTemplate.update("DELETE FROM ban_info WHERE userid=?", user.getId());
   }
 
-  public User getAnonymous() {
+  public UserDto getAnonymous() {
     try {
       return getUserCached(2);
     } catch (UserNotFoundException e) {
@@ -449,22 +451,22 @@ public class UserDao {
     }
   }
 
-  public List<User> getModerators() {
+  public List<UserDto> getModerators() {
     return getUsersCached(jdbcTemplate.queryForList(
             "SELECT id FROM users WHERE canmod ORDER BY id",
             Integer.class
     ));
   }
 
-  public List<User> getCorrectors() {
+  public List<UserDto> getCorrectors() {
     return getUsersCached(jdbcTemplate.queryForList(
             "SELECT id FROM users WHERE corrector ORDER BY id",
             Integer.class
     ));
   }
 
-  public List<User> getUsersCached(List<Integer> ids) {
-    List<User> users = new ArrayList<User>(ids.size());
+  public List<UserDto> getUsersCached(List<Integer> ids) {
+    List<UserDto> users = new ArrayList<UserDto>(ids.size());
 
     for (int id : ids) {
       try {
@@ -477,7 +479,7 @@ public class UserDao {
     return users;
   }
 
-  public User getByEmail(String email) {
+  public UserDto getByEmail(String email) {
     try {
       int id = jdbcTemplate.queryForInt(
               "SELECT id FROM users WHERE email=? AND not blocked",
@@ -492,7 +494,7 @@ public class UserDao {
     }
   }
 
-  public boolean canResetPassword(User user) {
+  public boolean canResetPassword(UserDto user) {
     return !jdbcTemplate.queryForObject(
             "SELECT lostpwd>CURRENT_TIMESTAMP-'1 week'::interval as datecheck FROM users WHERE id=?",
             Boolean.class,
@@ -500,12 +502,12 @@ public class UserDao {
     );
   }
 
-  public void activateUser(User user) {
+  public void activateUser(UserDto user) {
     jdbcTemplate.update("UPDATE users SET activated='t' WHERE id=?", user.getId());
   }
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public void updateUser(User user, String name, String url, String new_email, String town, String password, String info) {
+  public void updateUser(UserDto user, String name, String url, String new_email, String town, String password, String info) {
     jdbcTemplate.update(
             "UPDATE users SET  name=?, url=?, new_email=?, town=? WHERE id=?",
             name,
@@ -554,11 +556,11 @@ public class UserDao {
     return c>0;
   }
 
-  public String getNewEmail(User user) {
+  public String getNewEmail(UserDto user) {
     return jdbcTemplate.queryForObject("SELECT new_email FROM users WHERE id=?", String.class, user.getId());
   }
 
-  public void acceptNewEmail(User user) {
+  public void acceptNewEmail(UserDto user) {
     jdbcTemplate.update("UPDATE users SET email=new_email WHERE id=?", user.getId());
   }
 
@@ -567,7 +569,7 @@ public class UserDao {
    * @param user logged user
    * @throws SQLException on database failure
    */
-  public void updateLastlogin(User user) {
+  public void updateLastlogin(UserDto user) {
     jdbcTemplate.update("UPDATE users SET lastlogin=CURRENT_TIMESTAMP WHERE id=?", user.getId());
   }
 }

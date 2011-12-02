@@ -15,8 +15,8 @@
 
 package ru.org.linux.spring;
 
+import ru.org.linux.dto.UserDto;
 import ru.org.linux.site.Section;
-import ru.org.linux.site.User;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
@@ -31,7 +31,7 @@ public class RepliesListItem implements Serializable {
   }
 
   private final int cid;
-  private final User cAuthor;
+  private final UserDto cAuthor;
   private final Timestamp cDate;
   private final String messageText;
   private final String groupTitle;
@@ -46,7 +46,7 @@ public class RepliesListItem implements Serializable {
   private final String eventMessage;
   private final Timestamp eventDate;
 
-  public RepliesListItem(int cid, User cAuthor, Timestamp cDate, String messageText, String groupTitle,
+  public RepliesListItem(int cid, UserDto cAuthor, Timestamp cDate, String messageText, String groupTitle,
                          String groupUrlName, String sectionTitle, int sectionId, String subj,
                          Timestamp lastmod, int msgid, EventType type, String eventMessage,
                          Timestamp eventDate) {
@@ -70,7 +70,7 @@ public class RepliesListItem implements Serializable {
     return cid;
   }
 
-  public User getCommentAuthor() {
+  public UserDto getCommentAuthor() {
     return cAuthor;
   }
 

@@ -15,6 +15,8 @@
 
 package ru.org.linux.site;
 
+import ru.org.linux.dto.UserDto;
+
 import java.io.Serializable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -114,7 +116,7 @@ public class Group implements Serializable {
     return restrictTopics;
   }
 
-  public boolean isTopicPostingAllowed(User currentUser) {
+  public boolean isTopicPostingAllowed(UserDto currentUser) {
     if (!isTopicsRestricted()) {
       return true;
     }
@@ -142,7 +144,7 @@ public class Group implements Serializable {
     return restrictComments;
   }
 
-  public boolean isCommentPostingAllowed(User currentUser) {
+  public boolean isCommentPostingAllowed(UserDto currentUser) {
     if (!isCommentsRestricted()) {
       return true;
     }

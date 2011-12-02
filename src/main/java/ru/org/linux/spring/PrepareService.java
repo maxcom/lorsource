@@ -18,6 +18,7 @@ package ru.org.linux.spring;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.org.linux.dao.PollDao;
+import ru.org.linux.dto.UserDto;
 import ru.org.linux.spring.dao.TagDao;
 import ru.org.linux.site.*;
 import ru.org.linux.spring.dao.*;
@@ -127,11 +128,11 @@ public class PrepareService {
   private PreparedMessage prepareMessage(Message message, List<String> tags, boolean minimizeCut, PreparedPoll poll, boolean secure) {
     try {
       Group group = groupDao.getGroup(message.getGroupId());
-      User author = userDao.getUserCached(message.getUid());
+      UserDto author = userDao.getUserCached(message.getUid());
       Section section = sectionDao.getSection(message.getSectionId());
 
       DeleteInfo deleteInfo;
-      User deleteUser;
+      UserDto deleteUser;
       if (message.isDeleted()) {
         deleteInfo = deleteInfoDao.getDeleteInfo(message.getId());
 
@@ -157,7 +158,7 @@ public class PrepareService {
         preparedPoll = null;
       }
 
-      User commiter;
+      UserDto commiter;
 
       if (message.getCommitby()!=0) {
         commiter = userDao.getUserCached(message.getCommitby());
@@ -167,7 +168,7 @@ public class PrepareService {
 
       List<EditInfoDTO> editInfo = messageDao.getEditInfo(message.getId());
       EditInfoDTO lastEditInfo;
-      User lastEditor;
+      UserDto lastEditor;
       int editCount;
 
       if (!editInfo.isEmpty()) {
@@ -215,14 +216,14 @@ public class PrepareService {
   }
 
   public PreparedComment prepareComment(Comment comment, CommentList comments, boolean secure, boolean rss) throws UserNotFoundException {
-    User author = userDao.getUserCached(comment.getUserid());
+    UserDto author = userDao.getUserCached(comment.getUserid());
     String processedMessage;
     if(!rss) {
       processedMessage = commentDao.getPreparedComment(comment.getId(), secure);
     } else {
       processedMessage = commentDao.getPreparedCommentRSS(comment.getId(), secure);
     }
-    User replyAuthor;
+    UserDto replyAuthor;
     if (comment.getReplyTo()!=0 && comments!=null) {
       CommentNode replyNode = comments.getNode(comment.getReplyTo());
 
@@ -243,7 +244,7 @@ public class PrepareService {
   }
 
   public PreparedComment prepareComment(Comment comment, String message, boolean secure) throws UserNotFoundException {
-    User author = userDao.getUserCached(comment.getUserid());
+    UserDto author = userDao.getUserCached(comment.getUserid());
     String processedMessage = lorCodeService.parseComment(message, secure);
 
     return new PreparedComment(comment, author, processedMessage, null);
@@ -277,7 +278,7 @@ public class PrepareService {
     return new PreparedGroupInfo(group, longInfo);
   }
 
-  public MessageMenu getMessageMenu(PreparedMessage message, User currentUser) {
+  public MessageMenu getMessageMenu(PreparedMessage message, UserDto currentUser) {
     boolean editable = currentUser!=null && message.isEditable(currentUser);
     boolean resolvable;
     int memoriesId;

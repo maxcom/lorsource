@@ -20,8 +20,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
+import ru.org.linux.dto.UserDto;
 import ru.org.linux.site.Template;
-import ru.org.linux.site.User;
 import ru.org.linux.site.UserErrorException;
 import ru.org.linux.spring.dao.CommentDao;
 import ru.org.linux.spring.dao.UserDao;
@@ -69,7 +69,7 @@ public class ShowCommentsController {
 
     mv.getModel().put("firstPage", firstPage);
 
-    User user = userDao.getUser(nick);
+    UserDto user = userDao.getUser(nick);
 
     mv.getModel().put("user", user);
 

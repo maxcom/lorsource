@@ -23,6 +23,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import ru.org.linux.dto.UserDto;
 import ru.org.linux.site.*;
 import ru.org.linux.spring.dao.VoteDto;
 
@@ -107,7 +108,7 @@ public class PollDao {
    * @throws BadVoteException неправильное голосование
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public void updateVotes(int voteId, int[] votes, User user) throws BadVoteException {
+  public void updateVotes(int voteId, int[] votes, UserDto user) throws BadVoteException {
     if (jdbcTemplate.queryForInt(queryCountVotesUser, voteId, user.getId()) == 0) {
       for (int vote : votes) {
         if (jdbcTemplate.update(updateVote, vote, voteId) == 0) {

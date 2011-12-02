@@ -20,8 +20,8 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
+import ru.org.linux.dto.UserDto;
 import ru.org.linux.site.Message;
-import ru.org.linux.site.User;
 import ru.org.linux.site.UserNotFoundException;
 
 import javax.sql.DataSource;
@@ -162,7 +162,7 @@ public class TrackerDao {
   private static final String queryPartTech = " AND not t.groupid=8404 AND not t.groupid=4068 AND section=2 ";
   private static final String queryPartMine = " AND t.userid=:userid ";
 
-  public List<TrackerItem> getTrackAll(TrackerFilter filter, User currentUser, Timestamp interval,
+  public List<TrackerItem> getTrackAll(TrackerFilter filter, UserDto currentUser, Timestamp interval,
                                        int topics, int offset, final int messagesInPage) {
 
     MapSqlParameterSource parameter = new MapSqlParameterSource();
@@ -208,7 +208,7 @@ public class TrackerDao {
     return jdbcTemplate.query(query, parameter, new RowMapper<TrackerItem>() {
       @Override
       public TrackerItem mapRow(ResultSet resultSet, int i) throws SQLException {
-        User author, lastCommentBy;
+        UserDto author, lastCommentBy;
         int msgid, cid, pages;
         Timestamp lastmod, postdate;
         int stat1, stat3, stat4;

@@ -26,6 +26,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
+import ru.org.linux.dao.IgnoreListDao;
+import ru.org.linux.dto.UserDto;
 import ru.org.linux.site.*;
 import ru.org.linux.spring.dao.*;
 import ru.org.linux.util.LorURI;
@@ -314,7 +316,7 @@ public class MessageController {
 
     params.put("showDeleted", showDeleted);
 
-    User currentUser = tmpl.getCurrentUser();
+    UserDto currentUser = tmpl.getCurrentUser();
 
     if (message.isExpired() && showDeleted && !tmpl.isModeratorSession()) {
       throw new MessageNotFoundException(message.getId(), "нельзя посмотреть удаленные комментарии в устаревших темах");
@@ -426,7 +428,7 @@ public class MessageController {
     return new ModelAndView(rss ? "view-message-rss" : "view-message", params);
   }
 
-  private static void checkView(Message message, Template tmpl, User currentUser) throws MessageNotFoundException {
+  private static void checkView(Message message, Template tmpl, UserDto currentUser) throws MessageNotFoundException {
     if (tmpl.isModeratorSession()) {
       return;
     }
@@ -444,7 +446,7 @@ public class MessageController {
         return;
       }
 
-      if (currentUser.getScore() < User.VIEW_DELETED_SCORE) {
+      if (currentUser.getScore() < UserDto.VIEW_DELETED_SCORE) {
         throw new MessageNotFoundException(message.getId(), "Сообщение удалено");
       }
     }

@@ -19,7 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
-import ru.org.linux.site.User;
+import ru.org.linux.dto.UserDto;
 import ru.org.linux.site.UserNotFoundException;
 import ru.org.linux.spring.RepliesListItem;
 import ru.org.linux.util.StringUtil;
@@ -107,7 +107,7 @@ public class RepliesDao {
    * @param readMessage возвращать ли отрендеренное содержимое уведомлений
    * @return список уведомлений
    */
-  public List<RepliesListItem> getRepliesForUser(User user, boolean showPrivate, int topics, int offset,
+  public List<RepliesListItem> getRepliesForUser(UserDto user, boolean showPrivate, int topics, int offset,
                                                  final boolean readMessage, final boolean secure) {
     String queryString;
     if(showPrivate) {
@@ -125,7 +125,7 @@ public class RepliesDao {
         }
         Timestamp eventDate = resultSet.getTimestamp("event_date");
         int cid = resultSet.getInt("cid");
-        User cAuthor;
+        UserDto cAuthor;
         Timestamp cDate;
         if (!resultSet.wasNull()) {
           try {

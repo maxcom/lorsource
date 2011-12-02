@@ -17,6 +17,7 @@ package ru.org.linux.site;
 
 import com.google.common.base.Strings;
 import org.springframework.validation.Errors;
+import ru.org.linux.dto.UserDto;
 import ru.org.linux.spring.AddMessageRequest;
 import ru.org.linux.spring.EditMessageRequest;
 import ru.org.linux.util.StringUtil;
@@ -111,7 +112,7 @@ public class Message implements Serializable {
     sectionCommentsRestriction = Section.getCommentPostscore(sectionid);
   }
 
-  public Message(AddMessageRequest form, User user, String message, String postIP) {
+  public Message(AddMessageRequest form, UserDto user, String message, String postIP) {
     userAgent = 0;
     this.postIP = postIP;
 
@@ -303,15 +304,15 @@ public class Message implements Serializable {
       case POSTSCORE_UNRESTRICTED:
         return "";
       case 100:
-        return "<b>Ограничение на отправку комментариев</b>: " + User.getStars(100, 100);
+        return "<b>Ограничение на отправку комментариев</b>: " + UserDto.getStars(100, 100);
       case 200:
-        return "<b>Ограничение на отправку комментариев</b>: " + User.getStars(200, 200);
+        return "<b>Ограничение на отправку комментариев</b>: " + UserDto.getStars(200, 200);
       case 300:
-        return "<b>Ограничение на отправку комментариев</b>: " + User.getStars(300, 300);
+        return "<b>Ограничение на отправку комментариев</b>: " + UserDto.getStars(300, 300);
       case 400:
-        return "<b>Ограничение на отправку комментариев</b>: " + User.getStars(400, 400);
+        return "<b>Ограничение на отправку комментариев</b>: " + UserDto.getStars(400, 400);
       case 500:
-        return "<b>Ограничение на отправку комментариев</b>: " + User.getStars(500, 500);
+        return "<b>Ограничение на отправку комментариев</b>: " + UserDto.getStars(500, 500);
       case POSTSCORE_MOD_AUTHOR:
         return "<b>Ограничение на отправку комментариев</b>: только для модераторов и автора";
       case POSTSCORE_MODERATORS_ONLY:
@@ -355,7 +356,7 @@ public class Message implements Serializable {
     return linktext;
   }
 
-  public boolean isCommentsAllowed(User user) {
+  public boolean isCommentsAllowed(UserDto user) {
     if (user != null && user.isBlocked()) {
       return false;
     }
@@ -399,7 +400,7 @@ public class Message implements Serializable {
     }
   }
 
-  public void checkCommentsAllowed(User user, Errors errors) {
+  public void checkCommentsAllowed(UserDto user, Errors errors) {
     if (deleted) {
       errors.reject(null, "Нельзя добавлять комментарии к удаленному сообщению");
       return;
@@ -500,7 +501,7 @@ public class Message implements Serializable {
    * @param user пользователь удаляющий сообщение
    * @return признак возможности удаления
    */
-  public boolean isDeletableByUser(User user) {
+  public boolean isDeletableByUser(UserDto user) {
     Calendar calendar = Calendar.getInstance();
 
     calendar.setTime(new Date());
@@ -516,7 +517,7 @@ public class Message implements Serializable {
    * @param section местоположение топика
    * @return признак возможности удаления
    */
-  public boolean isDeletableByModerator(User user, Section section) {
+  public boolean isDeletableByModerator(UserDto user, Section section) {
     // TODO убрать от сюда аргумент функции section
     if(!user.isModerator()) {
       return false;

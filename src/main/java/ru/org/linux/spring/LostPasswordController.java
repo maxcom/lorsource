@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
+import ru.org.linux.dto.UserDto;
 import ru.org.linux.site.*;
 import ru.org.linux.spring.dao.UserDao;
 import ru.org.linux.util.StringUtil;
@@ -61,7 +62,7 @@ public class LostPasswordController {
       throw new BadInputException("email не задан");
     }
 
-    User user = userDao.getByEmail(email);
+    UserDto user = userDao.getByEmail(email);
     if (user==null) {
       throw new BadInputException("Ваш email не зарегистрирован");
     }
@@ -97,7 +98,7 @@ public class LostPasswordController {
   ) throws Exception {
     Template tmpl = Template.getTemplate(request);
 
-    User user = userDao.getUser(nick);
+    UserDto user = userDao.getUser(nick);
 
     user.checkBlocked();
     user.checkAnonymous();
@@ -127,7 +128,7 @@ public class LostPasswordController {
     return StringUtil.md5hash(base + ':' + nick + ':' + email+ ':' +Long.toString(tm.getTime())+":reset");
   }
 
-  private static void sendEmail(Template tmpl, User user, String email, Timestamp resetDate) throws MessagingException {
+  private static void sendEmail(Template tmpl, UserDto user, String email, Timestamp resetDate) throws MessagingException {
     Properties props = new Properties();
     props.put("mail.smtp.host", "localhost");
     Session mailSession = Session.getDefaultInstance(props, null);

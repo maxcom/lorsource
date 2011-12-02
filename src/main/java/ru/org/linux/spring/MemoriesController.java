@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.view.RedirectView;
+import ru.org.linux.dto.UserDto;
 import ru.org.linux.site.*;
 import ru.org.linux.spring.dao.MemoriesDao;
 import ru.org.linux.spring.dao.MessageDao;
@@ -48,7 +49,7 @@ public class MemoriesController {
       throw new AccessViolationException("Not authorized");
     }
 
-    User user = tmpl.getCurrentUser();
+    UserDto user = tmpl.getCurrentUser();
     user.checkBlocked();
     user.checkAnonymous();
 
@@ -73,7 +74,7 @@ public class MemoriesController {
       throw new AccessViolationException("Not authorized");
     }
 
-    User user = tmpl.getCurrentUser();
+    UserDto user = tmpl.getCurrentUser();
     user.checkBlocked();
     user.checkAnonymous();
 
