@@ -287,21 +287,21 @@ public class HTMLFormatterTest {
 
 
     String[] html_tex = {
-        citeHeader + "<div class=\"quote\"><p>one</p></div>" + citeFooter,
-        citeHeader + "<div class=\"quote\"><p>one<br>one</p></div>" + citeFooter,
-        citeHeader +  "<div class=\"quote\">" + citeHeader + "<div class=\"quote\"><p>one<br></p></div>" + citeFooter + "<p>teo</p></div>" + citeFooter,
-        "<p>due&gt;&gt;one\n</p>" + citeHeader +"<div class=\"quote\"><p>teo<br></p>" + citeHeader +"<div class=\"quote\"><p>neo<br></p></div>" + citeFooter + "</div>" + citeFooter + "<p>wuf?\nok</p>",
-        "<p>due\n</p>" + citeHeader + "<div class=\"quote\">" + citeHeader +"<div class=\"quote\"><p>one<br></p></div>" + citeFooter + "<p>teo<br></p>" + citeHeader + "<div class=\"quote\"><p>neo<br></p></div>" + citeFooter +"</div>" + citeFooter + "<p>wuf?\nok</p>",
-        citeHeader + "<div class=\"quote\"><p>one<br></p></div>" + citeFooter + citeHeader + "<div class=\"quote\"><p>one</p></div>" + citeFooter,
+        citeHeader + "<p>one</p>" + citeFooter,
+        citeHeader + "<p>one<br>one</p>" + citeFooter,
+        citeHeader + citeHeader + "<p>one<br></p>" + citeFooter + "<p>teo</p>" + citeFooter,
+        "<p>due&gt;&gt;one\n</p>" + citeHeader +"<p>teo<br></p>" + citeHeader +"<p>neo<br></p>" + citeFooter +  citeFooter + "<p>wuf?\nok</p>",
+        "<p>due\n</p>" + citeHeader + citeHeader +"<p>one<br></p>" + citeFooter + "<p>teo<br></p>" + citeHeader + "<p>neo<br></p>" + citeFooter + citeFooter + "<p>wuf?\nok</p>",
+        citeHeader + "<p>one<br></p>" + citeFooter + citeHeader + "<p>one</p>" + citeFooter,
     };
 
     String[] html = {
-        citeHeader + "<div class=\"quote\"><p>one</p></div>" + citeFooter,
-        citeHeader + "<div class=\"quote\"><p>one<br>one</p></div>" + citeFooter,
-        citeHeader + "<div class=\"quote\">" + citeHeader + "<div class=\"quote\"><p>one<br></p></div>" + citeFooter +"<p>teo</p></div>" + citeFooter,
-        "<p>due&gt;&gt;one<br></p>" + citeHeader + "<div class=\"quote\"><p>teo<br></p>" + citeHeader + "<div class=\"quote\"><p>neo<br></p></div>" + citeFooter + "</div>"+ citeFooter + "<p>wuf?<br>ok</p>",
-        "<p>due<br></p>" + citeHeader + "<div class=\"quote\">" + citeHeader + "<div class=\"quote\"><p>one<br></p></div>"+ citeFooter + "<p>teo<br></p>" + citeHeader + "<div class=\"quote\"><p>neo<br></p></div>" + citeFooter + "</div>" + citeFooter + "<p>wuf?<br>ok</p>",
-        citeHeader + "<div class=\"quote\"><p>one<br></p></div>" + citeFooter + "<p><br><br></p>" + citeHeader + "<div class=\"quote\"><p>one</p></div>" + citeFooter,
+        citeHeader + "<p>one</p>" + citeFooter,
+        citeHeader + "<p>one<br>one</p>" + citeFooter,
+        citeHeader + citeHeader + "<p>one<br></p>" + citeFooter +"<p>teo</p>" + citeFooter,
+        "<p>due&gt;&gt;one<br></p>" + citeHeader + "<p>teo<br></p>" + citeHeader + "<p>neo<br></p>" + citeFooter + citeFooter + "<p>wuf?<br>ok</p>",
+        "<p>due<br></p>" + citeHeader + citeHeader + "<p>one<br></p>"+ citeFooter + "<p>teo<br></p>" + citeHeader + "<p>neo<br></p>" + citeFooter + citeFooter + "<p>wuf?<br>ok</p>",
+        citeHeader + "<p>one<br></p>" + citeFooter + "<p><br><br></p>" + citeHeader + "<p>one</p>" + citeFooter,
     };
 
     for(i=0; i<text.length; i++){

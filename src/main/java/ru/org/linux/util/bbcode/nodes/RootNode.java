@@ -59,6 +59,7 @@ public class RootNode extends Node {
   private ToHtmlFormatter toHtmlFormatter;
   private Set<User> replier;
   private boolean secure;
+  private boolean rss;
 
   public RootNode(ParserParameters parserParameters) {
     super(parserParameters);
@@ -99,6 +100,14 @@ public class RootNode extends Node {
 
   public void setSecure(boolean secure) {
     this.secure = secure;
+  }
+
+  public boolean isRss() {
+    return rss;
+  }
+
+  public void setRss(boolean rss) {
+    this.rss = rss;
   }
 
   public void addReplier(User nick) {

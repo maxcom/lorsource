@@ -28,6 +28,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.site.*;
 import ru.org.linux.spring.dao.*;
+import ru.org.linux.util.LorURI;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -60,6 +61,9 @@ public class MessageController {
 
   @Autowired
   private GroupDao groupDao;
+
+  @Autowired
+  private Configuration configuration;
 
   @RequestMapping("/forum/{group}/{id}")
   public ModelAndView getMessageNewForum(
@@ -412,9 +416,11 @@ public class MessageController {
 
       List<Comment> commentsFiltred = cv.getComments(true, 0, MessageTable.RSS_DEFAULT, null);
 
-      List<PreparedComment> commentsPrepared = prepareService.prepareCommentList(comments, commentsFiltred, request.isSecure());
+      List<PreparedComment> commentsPrepared = prepareService.prepareCommentListRSS(comments, commentsFiltred, request.isSecure());
 
       params.put("commentsPrepared", commentsPrepared);
+      LorURI lorURI = new LorURI(configuration.getMainURI(), configuration.getMainUrl());
+      params.put("mainURL", lorURI.fixScheme(request.isSecure()));
     }
 
     return new ModelAndView(rss ? "view-message-rss" : "view-message", params);

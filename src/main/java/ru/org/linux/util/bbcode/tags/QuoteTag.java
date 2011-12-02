@@ -54,8 +54,12 @@ import java.util.Set;
  */
 public class QuoteTag extends Tag {
 
-  public static final String citeHeader = "<div class=\"none\">&gt;&gt;-----Цитата----&gt;&gt;</div>";
-  public static final String citeFooter = "<div class=\"none\">&lt;&lt;-----Цитата----&lt;&lt;</div>";
+  public static final String citeHeader = "<div class=\"none\">&gt;&gt;-----Цитата----&gt;&gt;</div><div class=\"quote\">";
+  public static final String citeFooter = "</div><div class=\"none\">&lt;&lt;-----Цитата----&lt;&lt;</div>";
+
+  public static final String citeHeaderRSS = "<div style=\"border-width: 1 1 1 5px; border-style: solid; border-color: black; padding: 0 0 0 .5em; \">";
+  public static final String citeFooterRSS = "</div>";
+
 
   public QuoteTag(String name, Set<String> allowedChildren, String implicitTag, ParserParameters parserParameters) {
     super(name, allowedChildren, implicitTag, parserParameters);
@@ -89,24 +93,38 @@ public class QuoteTag extends Tag {
       node.setParameter(node.getParameter().trim());
     }
 
+    boolean rss = ((TagNode)node).getRootNode().isRss();
+
     if (!node.getParameter().isEmpty()) {
-      ret.append(citeHeader);
-      ret.append("<div class=\"quote\">");
+      if(rss) {
+        ret.append(citeHeaderRSS);
+      } else {
+        ret.append(citeHeader);
+      }
       ret.append("<p><cite>");
       ret.append(Parser.escape(node.getParameter().replaceAll("\"", "")));
       ret.append("</cite></p>");
       ret.append(node.renderChildrenXHtml());
-      ret.append("</div>");
-      ret.append(citeFooter);
+      if(rss) {
+        ret.append(citeFooterRSS);
+      } else {
+        ret.append(citeFooter);
+      }
     } else {
       if(emtyQuote) {
         ret.append(node.renderChildrenXHtml());
       } else {
-        ret.append(citeHeader);
-        ret.append("<div class=\"quote\">");
+        if(rss) {
+          ret.append(citeHeaderRSS);
+        } else {
+          ret.append(citeHeader);
+        }
         ret.append(node.renderChildrenXHtml());
-        ret.append("</div>");
-        ret.append(citeFooter);
+        if(rss) {
+          ret.append(citeFooterRSS);
+        } else {
+          ret.append(citeFooter);
+        }
       }
     }
     return ret.toString();
