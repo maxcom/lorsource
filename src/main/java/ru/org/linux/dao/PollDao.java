@@ -1,19 +1,18 @@
 /*
- * Copyright 1998-2010 Linux.org.ru
- *    Licensed under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License.
- *    You may obtain a copy of the License at
- *
- *        http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software
- *    distributed under the License is distributed on an "AS IS" BASIS,
- *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *    See the License for the specific language governing permissions and
- *    limitations under the License.
- */
-
-package ru.org.linux.spring.dao;
+* Copyright 1998-2010 Linux.org.ru
+*    Licensed under the Apache License, Version 2.0 (the "License");
+*    you may not use this file except in compliance with the License.
+*    You may obtain a copy of the License at
+*
+*        http://www.apache.org/licenses/LICENSE-2.0
+*
+*    Unless required by applicable law or agreed to in writing, software
+*    distributed under the License is distributed on an "AS IS" BASIS,
+*    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+*    See the License for the specific language governing permissions and
+*    limitations under the License.
+*/
+package ru.org.linux.dao;
 
 import com.google.common.collect.ImmutableList;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +24,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.org.linux.site.*;
+import ru.org.linux.spring.dao.VoteDto;
 
 import javax.sql.DataSource;
 import java.sql.ResultSet;
@@ -32,6 +32,9 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Реализация класса PollDAO.
+ */
 @Repository
 public class PollDao {
   private static final String queryPoolIdByTopicId = "SELECT votenames.id FROM votenames,topics WHERE topics.id=? AND votenames.topic=topics.id";
@@ -54,6 +57,12 @@ public class PollDao {
     jdbcTemplate = new JdbcTemplate(dataSource);
   }
 
+  /**
+   *
+   *
+   * @param pollId
+   * @return
+   */
   public List<VoteDto> getVoteDTO(final Integer pollId) {
     String sql = "SELECT id, label FROM votes WHERE vote= ? ORDER BY id";
     return jdbcTemplate.query(sql, new RowMapper<VoteDto>() {
@@ -69,7 +78,8 @@ public class PollDao {
   }
 
   /**
-   * Возвращает кол-во проголосовавших пользователей в голосовании
+   * Возвращает кол-во проголосовавших пользователей в голосовании.
+   *
    * @param poll голосование
    * @return кол-во проголосвавших пользователей
    */
@@ -78,7 +88,8 @@ public class PollDao {
   }
 
   /**
-   * Возвращает кол-во голосов в голосовании
+   * Возвращает кол-во голосов в голосовании.
+   *
    * @param pollId id голосвания
    * @return кол-во голосов всего (несколько вариантов от одного пользователя суммируется"
    */
@@ -87,18 +98,19 @@ public class PollDao {
   }
 
   /**
-   * Учет голсования, если user не голосовал в этом голосании, то
-   * добавить его варианты в голосование и пометить, что он проголосовал
+   * Учет голосования, если user не голосовал в этом голосании, то
+   * добавить его варианты в голосование и пометить, что он проголосовал.
+   *
    * @param voteId id голосования
-   * @param votes пункты за которые голосует пользователь
-   * @param user голосующий пользователь
+   * @param votes  пункты за которые голосует пользователь
+   * @param user   голосующий пользователь
    * @throws BadVoteException неправильное голосование
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   public void updateVotes(int voteId, int[] votes, User user) throws BadVoteException {
-    if(jdbcTemplate.queryForInt(queryCountVotesUser, voteId, user.getId()) == 0){
-      for(int vote : votes) {
-        if(jdbcTemplate.update(updateVote, vote, voteId) == 0) {
+    if (jdbcTemplate.queryForInt(queryCountVotesUser, voteId, user.getId()) == 0) {
+      for (int vote : votes) {
+        if (jdbcTemplate.update(updateVote, vote, voteId) == 0) {
           throw new BadVoteException();
         }
       }
@@ -107,7 +119,8 @@ public class PollDao {
   }
 
   /**
-   * Возвращает текщее авктивное голосование
+   * Возвращает текщее авктивное голосование.
+   *
    * @return id текущего голосования
    */
   public int getCurrentPollId() {
@@ -119,17 +132,19 @@ public class PollDao {
   }
 
   /**
-   * Получить текщее голосование
+   * Получить текщее голосование.
+   *
    * @return текушие голование
-   * @throws PollNotFoundException при отсутствии голосования
+   * @throws ru.org.linux.site.PollNotFoundException
+   *          при отсутствии голосования
    */
-  public Poll getCurrentPoll() throws PollNotFoundException{
+  public Poll getCurrentPoll() throws PollNotFoundException {
     return getPoll(getCurrentPollId());
   }
 
-
   /**
-   * Получить голосование по id
+   * Получить голосование по id.
+   *
    * @param poolId голосование
    * @return голосование
    * @throws PollNotFoundException если не существует такого голосования
@@ -137,20 +152,21 @@ public class PollDao {
   public Poll getPoll(final int poolId) throws PollNotFoundException {
     final int currentPollId = getCurrentPollId();
     try {
-    return jdbcTemplate.queryForObject(queryPool,
-        new RowMapper<Poll>() {
-          @Override
-          public Poll mapRow(ResultSet resultSet, int i) throws SQLException {
-            return new Poll(poolId, resultSet.getInt("topic"), resultSet.getBoolean("multiselect"), poolId == currentPollId);
-          }
-        }, poolId);
+      return jdbcTemplate.queryForObject(queryPool,
+          new RowMapper<Poll>() {
+            @Override
+            public Poll mapRow(ResultSet resultSet, int i) throws SQLException {
+              return new Poll(poolId, resultSet.getInt("topic"), resultSet.getBoolean("multiselect"), poolId == currentPollId);
+            }
+          }, poolId);
     } catch (EmptyResultDataAccessException exception) {
       throw new PollNotFoundException();
     }
   }
 
   /**
-   * Получить голосование по topic id
+   * Получить голосование по topic id.
+   *
    * @param topicId id топика голосования
    * @return голосование
    * @throws PollNotFoundException отсутствует такое голосование
@@ -164,13 +180,14 @@ public class PollDao {
   }
 
   /**
-   * максимальное число голосов в голосовании
+   * максимальное число голосов в голосовании.
+   *
    * @param poll голосование
    * @return максимальное кол-во голосов
    */
   public int getMaxVote(Poll poll) {
     int max = jdbcTemplate.queryForInt(queryMaxVotes, poll.getId());
-    if(max == 0){
+    if (max == 0) {
       return 1;
     } else {
       return max;
@@ -178,8 +195,9 @@ public class PollDao {
   }
 
   /**
-   * Варианты для опроса
-   * @param poll опрос
+   * Варианты для опроса.
+   *
+   * @param poll  опрос
    * @param order порядок сортировки вариантов Poll.ORDER_ID и Poll.ORDER_VOTES
    * @return неизменяемый список вариантов опроса
    */
@@ -191,8 +209,8 @@ public class PollDao {
           @Override
           public void processRow(ResultSet resultSet) throws SQLException {
             variants.add(new PollVariant(resultSet.getInt("id"),
-                                         resultSet.getString("label"),
-                                         resultSet.getInt("votes")));
+                resultSet.getString("label"),
+                resultSet.getInt("votes")));
           }
         }, poll.getId());
         break;
@@ -201,18 +219,33 @@ public class PollDao {
           @Override
           public void processRow(ResultSet resultSet) throws SQLException {
             variants.add(new PollVariant(resultSet.getInt("id"),
-                                         resultSet.getString("label"),
-                                         resultSet.getInt("votes")));
+                resultSet.getString("label"),
+                resultSet.getInt("votes")));
           }
         }, poll.getId());
         break;
       default:
-        throw new RuntimeException("Oops!? order="+order);
+        throw new RuntimeException("Oops!? order=" + order);
     }
     return ImmutableList.copyOf(variants);
   }
 
-  // call in @Transactional
+  /**
+   * Получить ID будущего голосования
+   *
+   * @return ID
+   */
+  private int getNextPollId() {
+    return jdbcTemplate.queryForInt("select nextval('vote_id') as voteid");
+  }
+
+  /**
+   * Создать голосование.
+   *
+   * @param pollList    - Список вариантов ответов
+   * @param multiSelect - true если голосование с мультивыбором
+   * @param msgid       - ID сообщения.
+   */
   public void createPoll(List<String> pollList, boolean multiSelect, int msgid) {
     final int voteid = getNextPollId();
 
@@ -233,18 +266,38 @@ public class PollDao {
     }
   }
 
-  private int getNextPollId() {
-    return jdbcTemplate.queryForInt("select nextval('vote_id') as voteid");
+  /**
+   * Удалить голосование.
+   *
+   * @param poll объект, содержащий голосование
+   */
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
+  public void deletePoll(Poll poll) {
+    jdbcTemplate.update("DELETE FROM vote_users WHERE vote = ?", poll.getId());
+    jdbcTemplate.update("DELETE FROM votenames  WHERE id   = ?", poll.getId());
+    jdbcTemplate.update("DELETE FROM votes      WHERE vote = ?", poll.getId());
   }
 
+  /**
+   * Добавить новый вариант ответа в голосование.
+   *
+   * @param poll  объект, содержащий голосование
+   * @param label - новый вариант ответа
+   */
   public void addNewVariant(Poll poll, String label) {
     jdbcTemplate.update(
-            "INSERT INTO votes (id, vote, label) values (nextval('votes_id'), ?, ?)",
-            poll.getId(),
-            label
+        "INSERT INTO votes (id, vote, label) values (nextval('votes_id'), ?, ?)",
+        poll.getId(),
+        label
     );
   }
 
+  /**
+   * Изменить вариант голосования.
+   *
+   * @param var   объект варианта голосования
+   * @param label новое содержимое
+   */
   public void updateVariant(PollVariant var, String label) {
     if (var.getLabel().equals(label)) {
       return;
@@ -253,6 +306,11 @@ public class PollDao {
     jdbcTemplate.update("UPDATE votes SET label=? WHERE id=?", label, var.getId());
   }
 
+  /**
+   * Удалить вариант голосования
+   *
+   * @param variant объект варианта голосования
+   */
   public void removeVariant(PollVariant variant) {
     jdbcTemplate.update("DELETE FROM votes WHERE id=?", variant.getId());
   }

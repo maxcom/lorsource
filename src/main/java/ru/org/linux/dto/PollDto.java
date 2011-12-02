@@ -13,11 +13,11 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.spring.dao;
+package ru.org.linux.dto;
 
 import java.io.Serializable;
 
-public class PollDTO implements Serializable {
+public class PollDto implements Serializable {
   private static final long serialVersionUID = 4990058253675059050L;
   private int id;
   private String title;

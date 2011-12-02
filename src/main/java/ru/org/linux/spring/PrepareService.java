@@ -17,6 +17,8 @@ package ru.org.linux.spring;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.org.linux.dao.PollDao;
+import ru.org.linux.spring.dao.TagDao;
 import ru.org.linux.site.*;
 import ru.org.linux.spring.dao.*;
 import ru.org.linux.util.bbcode.LorCodeService;
