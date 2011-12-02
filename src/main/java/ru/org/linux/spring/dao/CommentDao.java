@@ -179,6 +179,7 @@ public class CommentDao {
    * Получить html представление текста комментария
    *
    * @param id id комментария
+   * @param secure https соединение?
    * @return строку html комментария
    */
   public String getPreparedComment(int id, final boolean secure) {
@@ -189,6 +190,28 @@ public class CommentDao {
         boolean isLorcode = resultSet.getBoolean("bbcode");
         if (isLorcode) {
           return lorCodeService.parseComment(text, secure);
+        } else {
+          return "<p>" + text + "</p>";
+        }
+      }
+    }, id);
+  }
+
+  /**
+   * Получить RSS представление текста комментария
+   *
+   * @param id id комментария
+   * @param secure https соединение?
+   * @return строку html комментария
+   */
+  public String getPreparedCommentRSS(int id, final boolean secure) {
+    return jdbcTemplate.queryForObject(queryCommentForPrepare, new RowMapper<String>() {
+      @Override
+      public String mapRow(ResultSet resultSet, int i) throws SQLException {
+        String text = resultSet.getString("message");
+        boolean isLorcode = resultSet.getBoolean("bbcode");
+        if (isLorcode) {
+          return lorCodeService.parseCommentRSS(text, secure);
         } else {
           return "<p>" + text + "</p>";
         }

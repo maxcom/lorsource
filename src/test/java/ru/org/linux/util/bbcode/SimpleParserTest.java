@@ -111,13 +111,13 @@ public class SimpleParserTest {
   @Test
   public void quoteTest() {
     Assert.assertEquals(lorCodeService.parseComment("[quote]hello world[/quote]", false),
-        citeHeader + "<div class=\"quote\"><p>hello world</p></div>" + citeFooter);
+        citeHeader + "<p>hello world</p>" + citeFooter);
   }
 
   @Test
   public void quoteParamTest() {
     Assert.assertEquals(lorCodeService.parseComment("[quote=maxcom]hello world[/quote]", false),
-        citeHeader + "<div class=\"quote\"><p><cite>maxcom</cite></p><p>hello world</p></div>"+citeFooter);
+        citeHeader + "<p><cite>maxcom</cite></p><p>hello world</p>"+citeFooter);
   }
 
   @Test
@@ -180,7 +180,7 @@ public class SimpleParserTest {
 
   @Test
   public void overflow1Test() {
-    Assert.assertEquals("<p>ololo</p>" + citeHeader +"<div class=\"quote\"><p><i>hz</i></p></div>" + citeFooter,
+    Assert.assertEquals("<p>ololo</p>" + citeHeader +"<p><i>hz</i></p>" + citeFooter,
             lorCodeService.parseComment("ololo[quote][i]hz[/i][/quote]", false));
   }
 
@@ -276,7 +276,7 @@ public class SimpleParserTest {
 
   @Test
   public void appleTest() {
-    Assert.assertEquals(citeHeader + "<div class=\"quote\"><p> Apple ][</p></div>" + citeFooter + "<p> текст</p>",
+    Assert.assertEquals(citeHeader + "<p> Apple ][</p>" + citeFooter + "<p> текст</p>",
         lorCodeService.parseComment("[quote] Apple ][[/quote] текст", false));
   }
 
@@ -304,7 +304,7 @@ public class SimpleParserTest {
 
   @Test
   public void quoteQuoteQuote() {
-    assertEquals(citeHeader + "<div class=\"quote\"><p>прювет!</p></div>" + citeFooter,
+    assertEquals(citeHeader + "<p>прювет!</p>" + citeFooter,
         lorCodeService.parseComment("[quote][quote][quote][quote][quote][quote][quote][quote][quote][quote][quote][quote][quote][quote][quote][quote][quote][quote]прювет![/quote][/quote][/quote][/quote][/quote][/quote][/quote][/quote][/quote][/quote][/quote][/quote][/quote][/quote][/quote][/quote][/quote][/quote]", false));
   }
 

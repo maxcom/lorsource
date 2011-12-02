@@ -204,9 +204,22 @@ public class PrepareService {
     }
   }
 
+  public PreparedComment prepareCommentRSS(Comment comment, CommentList comments, boolean secure) throws UserNotFoundException {
+    return prepareComment(comment, comments, secure, true);
+  }
+
   public PreparedComment prepareComment(Comment comment, CommentList comments, boolean secure) throws UserNotFoundException {
+    return prepareComment(comment, comments, secure, false);
+  }
+
+  public PreparedComment prepareComment(Comment comment, CommentList comments, boolean secure, boolean rss) throws UserNotFoundException {
     User author = userDao.getUserCached(comment.getUserid());
-    String processedMessage = commentDao.getPreparedComment(comment.getId(), secure);
+    String processedMessage;
+    if(!rss) {
+      processedMessage = commentDao.getPreparedComment(comment.getId(), secure);
+    } else {
+      processedMessage = commentDao.getPreparedCommentRSS(comment.getId(), secure);
+    }
     User replyAuthor;
     if (comment.getReplyTo()!=0 && comments!=null) {
       CommentNode replyNode = comments.getNode(comment.getReplyTo());
@@ -232,6 +245,14 @@ public class PrepareService {
     String processedMessage = lorCodeService.parseComment(message, secure);
 
     return new PreparedComment(comment, author, processedMessage, null);
+  }
+
+  public List<PreparedComment> prepareCommentListRSS(CommentList comments, List<Comment> list, boolean secure) throws UserNotFoundException {
+    List<PreparedComment> commentsPrepared = new ArrayList<PreparedComment>(list.size());
+    for (Comment comment : list) {
+      commentsPrepared.add(prepareCommentRSS(comment, comments, secure));
+    }
+    return commentsPrepared;
   }
 
   public List<PreparedComment> prepareCommentList(CommentList comments, List<Comment> list, boolean secure) throws UserNotFoundException {

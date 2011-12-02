@@ -17,8 +17,6 @@
 package ru.org.linux.util.bbcode;
 
 import org.apache.commons.httpclient.URI;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.org.linux.site.User;
@@ -55,7 +53,11 @@ public class LorCodeService {
    * @return HTML
    */
   public String parseComment(String text, boolean secure) {
-    return defaultParser.parseRoot(prepareCommentRootNode(secure), text).renderXHtml();
+    return defaultParser.parseRoot(prepareCommentRootNode(secure, false), text).renderXHtml();
+  }
+
+  public String parseCommentRSS(String text, boolean secure) {
+    return defaultParser.parseRoot(prepareCommentRootNode(secure, true), text).renderXHtml();
   }
 
   /**
@@ -64,7 +66,7 @@ public class LorCodeService {
    * @return множество пользователей
    */
   public Set<User> getReplierFromMessage(String text) {
-    RootNode rootNode = defaultParser.parseRoot(prepareCommentRootNode(false), text);
+    RootNode rootNode = defaultParser.parseRoot(prepareCommentRootNode(false, false), text);
     rootNode.renderXHtml();
     return rootNode.getReplier();
   }
@@ -89,12 +91,13 @@ public class LorCodeService {
     return defaultParser.parseRoot(prepareTopicRootNode(false, null, secure), text).renderXHtml();
   }
 
-  private RootNode prepareCommentRootNode(boolean secure) {
+  private RootNode prepareCommentRootNode(boolean secure, boolean rss) {
     RootNode rootNode = defaultParser.getRootNode();
     rootNode.setCommentCutOptions();
     rootNode.setUserDao(userDao);
     rootNode.setSecure(secure);
     rootNode.setToHtmlFormatter(toHtmlFormatter);
+    rootNode.setRss(rss);
 
     return rootNode;
   }
