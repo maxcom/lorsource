@@ -13,7 +13,7 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.site;
+package ru.org.linux.dto;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -29,8 +29,8 @@ import ru.org.linux.util.ImageInfo;
  * Date: Apr 29, 2009
  * Time: 6:44:26 PM
  */
-public class GalleryItem implements Serializable {
-  private static final Log log = LogFactory.getLog(GalleryItem.class);
+public class GalleryDto implements Serializable {
+  private static final Log log = LogFactory.getLog(GalleryDto.class);
 
   private Integer msgid;
   private String nick;
@@ -94,7 +94,7 @@ public class GalleryItem implements Serializable {
   }
 
   public ImageInfo getImginfo() {
-    if (imginfo == null){
+    if (imginfo == null) {
       try {
         imginfo = new ImageInfo(htmlPath + url);
       } catch (BadImageException e) {

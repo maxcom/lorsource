@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+          http://www.springframework.org/schema/jee  http://www.springframework.org/schema/jee/spring-jee.xsd
+"
+       xmlns:jee="http://www.springframework.org/schema/jee">
+
+    <bean id="datasource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+        <!-- TODO: здесь захардкодены реквизиты СУБД. Нужно будет потом вынести в ресурсы -->
+        <property name="driverClassName">
+            <value>org.postgresql.Driver</value>
+        </property>
+        <property name="url">
+            <value>jdbc:postgresql://127.0.0.1:5432/lor</value>
+        </property>
+        <property name="username">
+            <value>linuxweb</value>
+        </property>
+        <property name="password">
+            <value>linuxweb</value>
+        </property>
+    </bean>
+
+    <bean class="org.springframework.jdbc.core.simple.SimpleJdbcTemplate" id="jdbcTemplate">
+        <constructor-arg ref="datasource"/>
+    </bean>
+
+    <bean class="ru.org.linux.dao.GalleryDao" id="galleryDao"/>
+
+</beans>
