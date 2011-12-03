@@ -24,9 +24,9 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.dao.PollDao;
 import ru.org.linux.dto.UserDto;
+import ru.org.linux.dto.VoteDto;
 import ru.org.linux.site.*;
 import ru.org.linux.spring.dao.MessageDao;
-import ru.org.linux.spring.dao.VoteDto;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;

@@ -13,10 +13,15 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.spring.dao;
+package ru.org.linux.dto;
 
 import java.io.Serializable;
 
+/**
+ * User: sreentenko
+* Date: 27.06.2009
+* Time: 3:48:48
+*/
 public class VoteDto implements Serializable {
   private Integer id;
   private String label;
