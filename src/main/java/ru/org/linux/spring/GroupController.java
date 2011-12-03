@@ -25,11 +25,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.dao.IgnoreListDao;
+import ru.org.linux.dao.UserDao;
 import ru.org.linux.dto.UserDto;
 import ru.org.linux.site.*;
 import ru.org.linux.spring.dao.GroupDao;
 import ru.org.linux.spring.dao.SectionDao;
-import ru.org.linux.spring.dao.UserDao;
 import ru.org.linux.util.ServletParameterBadValueException;
 
 import javax.servlet.http.HttpServletRequest;

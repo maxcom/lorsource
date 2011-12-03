@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
+import ru.org.linux.dao.UserDao;
 import ru.org.linux.dto.UserDto;
 import ru.org.linux.site.UserNotFoundException;
 import ru.org.linux.spring.RepliesListItem;

@@ -1,4 +1,4 @@
-package ru.org.linux.spring.dao;
+package ru.org.linux.dao;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -15,7 +15,6 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import ru.org.linux.dao.IgnoreListDao;
 import ru.org.linux.dto.UserDto;
 import ru.org.linux.site.*;
 import ru.org.linux.util.StringUtil;
@@ -31,6 +30,7 @@ import java.util.List;
 
 @Repository
 public class UserDao {
+  private final static int USER_ANONYMOUS_ID = 2;
   private JdbcTemplate jdbcTemplate;
 
   @Autowired
@@ -68,6 +68,13 @@ public class UserDao {
     jdbcTemplate = new JdbcTemplate(dataSource);
   }
 
+  /**
+   * Получение пользователя по его нику (nickname).
+   *
+   * @param nick
+   * @return объект пользователя
+   * @throws UserNotFoundException если пользователь с таким id не найден
+   */
   public UserDto getUser(String nick) throws UserNotFoundException {
     if (nick == null) {
       throw new NullPointerException();
@@ -107,6 +114,13 @@ public class UserDao {
     return user;
   }
 
+  /**
+   * Загружает пользователя из БД всегда используя кеш.
+   *
+   * @param id идентификатор пользователя
+   * @return объект пользователя
+   * @throws UserNotFoundException если пользователь с таким id не найден
+   */
   public UserDto getUserCached(int id) throws UserNotFoundException {
     return getUser(id, true);
   }
@@ -115,7 +129,7 @@ public class UserDao {
    * Загружает пользователя из БД не используя кеш (всегда обновляет кеш).
    * Метод используется там, где нужно проверить права пользователя, совершить какой-то
    * update или получить самый свежий варинт из БД. В остальных случаях нужно
-   * использовать метод getUserCached()
+   * использовать метод getUserCached().
    *
    * @param id идентификатор пользователя
    * @return объект пользователя
@@ -125,6 +139,14 @@ public class UserDao {
     return getUser(id, false);
   }
 
+  /**
+   * Загружает пользователя из БД.
+   *
+   * @param id идентификатор пользователя
+   * @param useCache использовать ли кеш
+   * @return объект пользователя
+   * @throws UserNotFoundException если пользователь с таким id не найден
+   */
   private UserDto getUser(int id, boolean useCache) throws UserNotFoundException {
     Cache cache = CacheManager.create().getCache("Users");
 
@@ -168,7 +190,8 @@ public class UserDao {
   }
 
   /**
-   * Получить поле userinfo пользователя
+   * Получить поле userinfo пользователя.
+   *
    * TODO надо переименовать?
    * @param user пользователь
    * @return поле userinfo
@@ -193,7 +216,8 @@ public class UserDao {
   }
 
   /**
-   * Получить информацию о бане
+   * Получить информацию о бане.
+   *
    * @param user пользователь
    * @return информация о бане :-)
    */
@@ -221,7 +245,8 @@ public class UserDao {
   }
 
   /**
-   * Получить статситику пользователя
+   * Получить статистику пользователя.
+   *
    * @param user пользователь
    * @return статистика
    */
@@ -277,13 +302,19 @@ public class UserDao {
   }
 
   /**
-   * Получить список новых пользователей зарегистрирововавшихся за последние 3(три) дня
+   * Получить список новых пользователей зарегистрирововавшихся за последние 3(три) дня.
+   *
    * @return список новых пользователей
    */
   public List<UserDto> getNewUsers() {
     return getUsersCached(jdbcTemplate.queryForList(queryNewUsers, Integer.class));
   }
 
+  /**
+   * Удаление дополнительной информации пользователя.
+   *
+   * @param user пользователь
+   */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   public void removeUserInfo(UserDto user) {
     String userInfo = getUserInfo(user);
@@ -296,7 +327,8 @@ public class UserDao {
   }
 
   /**
-   * Отчистка userpicture пользователя, с обрезанием шкворца если удляет моедратор
+   * Очистка userpicture пользователя, с обрезанием шкворца если удаляет модератор.
+   *
    * @param user пользовтель у которого чистят
    * @param cleaner пользователь который чистит
    */
@@ -309,7 +341,8 @@ public class UserDao {
   }
 
   /**
-   * Обновление userpic-а пользовтаеля
+   * Обновление userpic-а пользовтаеля.
+   *
    * @param user пользователь
    * @param photo userpick
    */
@@ -318,7 +351,8 @@ public class UserDao {
   }
 
   /**
-   * Обновление дополнительной информации пользователя
+   * Обновление дополнительной информации пользователя.
+   *
    * @param userid пользователь
    * @param text текст дополнительной информации
    */
@@ -327,7 +361,8 @@ public class UserDao {
   }
 
   /**
-   * Сброс уведомлений
+   * Сброс уведомлений.
+   *
    * @param user пользователь которому сбрасываем
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
@@ -339,7 +374,8 @@ public class UserDao {
   /**
    * Изменение шкворца пользовтаеля, принимает отрицательные и положительные значения
    * не накладывает никаких ограничений на параметры используется в купэ с другими
-   * методами и не является транзакцией
+   * методами и не является транзакцией.
+   *
    * @param id id пользователя
    * @param delta дельта на которую меняется шкворец
    */
@@ -352,7 +388,8 @@ public class UserDao {
   }
 
   /**
-   * Смена признака корректора для пользователя
+   * Смена признака корректора для пользователя.
+   *
    * @param user пользователь у которого меняется признак корректора
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
@@ -365,15 +402,23 @@ public class UserDao {
   }
 
   /**
-   * Сброс пороля на случайный
+   * Сброс пароля на случайный.
+   *
    * @param user пользователь которому сбрасывается пароль
-   * @return новый пароь в открытом виде
+   * @return новый пароль в открытом виде
    */
   public String resetPassword(UserDto user){
     String password = StringUtil.generatePassword();
     return setPassword(user, password);
   }
 
+  /**
+   * Установка пароля пользователю.
+   *
+   * @param user пользователь которому устанавливается пароль
+   * @param password новый пароль в открытом виде
+   * @return пароль в открытом виде.
+   */
   private String setPassword(UserDto user, String password) {
     PasswordEncryptor encryptor = new BasicPasswordEncryptor();
     String encryptedPassword = encryptor.encryptPassword(password);
@@ -384,16 +429,27 @@ public class UserDao {
     return password;
   }
 
+  /**
+   *
+   * @param user
+   * @param now
+   */
   public void updateResetDate(UserDto user, Timestamp now) {
     jdbcTemplate.update("UPDATE users SET lostpwd=? WHERE id=?",  now, user.getId());
   }
 
+  /**
+   *
+   * @param user
+   * @return
+   */
   public Timestamp getResetDate(UserDto user) {
     return jdbcTemplate.queryForObject("SELECT lostpwd FROM users WHERE id=?", Timestamp.class, user.getId());
   }
 
   /**
-   * Блокирование пользователя без транзакации(используется в CommentDao для массового удаления с блокировкой)
+   * Блокирование пользователя без транзакации(используется в CommentDao для массового удаления с блокировкой).
+   *
    * @param user пользователь которого блокируем
    * @param moderator модератор который блокирует
    * @param reason причина блокировки
@@ -405,6 +461,10 @@ public class UserDao {
     updateCache(user.getId());
   }
 
+  /**
+   *
+   * @param id
+   */
   private void updateCache(int id) {
     try {
       getUser(id);
@@ -414,7 +474,8 @@ public class UserDao {
   }
 
   /**
-   * Блокировка пользователя и сброс пароля одной транзикацией
+   * Блокировка пользователя и сброс пароля одной транзикацией.
+   *
    * @param user блокируемый пользователь
    * @param moderator модератор который блокирует пользователя
    * @param reason причина блокировки
@@ -434,7 +495,8 @@ public class UserDao {
 
 
   /**
-   * Разблокировка пользователя
+   * Разблокировка пользователя.
+   *
    * @param user разблокируемый пользователь
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
@@ -443,14 +505,24 @@ public class UserDao {
     jdbcTemplate.update("DELETE FROM ban_info WHERE userid=?", user.getId());
   }
 
+  /**
+   * Получить объект анонимного пользователя.
+   *
+   * @return объект анонимного пользователя
+   */
   public UserDto getAnonymous() {
     try {
-      return getUserCached(2);
+      return getUserCached(USER_ANONYMOUS_ID);
     } catch (UserNotFoundException e) {
       throw new RuntimeException("Anonymous not found!?", e);
     }
   }
 
+  /**
+   * Получить список модераторов.
+   *
+   * @return список модераторов
+   */
   public List<UserDto> getModerators() {
     return getUsersCached(jdbcTemplate.queryForList(
             "SELECT id FROM users WHERE canmod ORDER BY id",
@@ -458,6 +530,11 @@ public class UserDao {
     ));
   }
 
+  /**
+   * Получить список корректоров.
+   *
+   * @return список корректоров
+   */
   public List<UserDto> getCorrectors() {
     return getUsersCached(jdbcTemplate.queryForList(
             "SELECT id FROM users WHERE corrector ORDER BY id",
@@ -465,6 +542,11 @@ public class UserDao {
     ));
   }
 
+  /**
+   *
+   * @param ids
+   * @return
+   */
   public List<UserDto> getUsersCached(List<Integer> ids) {
     List<UserDto> users = new ArrayList<UserDto>(ids.size());
 
@@ -479,6 +561,11 @@ public class UserDao {
     return users;
   }
 
+  /**
+   *
+   * @param email
+   * @return
+   */
   public UserDto getByEmail(String email) {
     try {
       int id = jdbcTemplate.queryForInt(
@@ -494,6 +581,11 @@ public class UserDao {
     }
   }
 
+  /**
+   *
+   * @param user
+   * @return
+   */
   public boolean canResetPassword(UserDto user) {
     return !jdbcTemplate.queryForObject(
             "SELECT lostpwd>CURRENT_TIMESTAMP-'1 week'::interval as datecheck FROM users WHERE id=?",
@@ -502,10 +594,24 @@ public class UserDao {
     );
   }
 
+  /**
+   *
+   * @param user
+   */
   public void activateUser(UserDto user) {
     jdbcTemplate.update("UPDATE users SET activated='t' WHERE id=?", user.getId());
   }
 
+  /**
+   *
+   * @param user
+   * @param name
+   * @param url
+   * @param new_email
+   * @param town
+   * @param password
+   * @param info
+   */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   public void updateUser(UserDto user, String name, String url, String new_email, String town, String password, String info) {
     jdbcTemplate.update(
@@ -524,6 +630,18 @@ public class UserDao {
     setUserInfo(user.getId(), info);
   }
 
+  /**
+   * Создать нового пользователя.
+   *
+   * @param name имя
+   * @param nick псевдоним (nickname)
+   * @param password пароль
+   * @param url URI
+   * @param mail e-mail
+   * @param town город
+   * @param info дополнительная информация пользователя
+   * @return идентификатор нового пользователя
+   */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   public int createUser(String name, String nick, String password, String url, InternetAddress mail, String town, String info) {
     PasswordEncryptor encryptor = new BasicPasswordEncryptor();
@@ -531,16 +649,16 @@ public class UserDao {
     int userid = jdbcTemplate.queryForInt("select nextval('s_uid') as userid");
 
     jdbcTemplate.update(
-            "INSERT INTO users " +
-              "(id, name, nick, passwd, url, email, town, score, max_score,regdate) " +
-              "VALUES (?,?,?,?,?,?,?,45,45,current_timestamp)",
-            userid,
-            name,
-            nick,
-            encryptor.encryptPassword(password),
-            url==null?null: URLUtil.fixURL(url),
-            mail.getAddress(),
-            town
+        "INSERT INTO users " +
+            "(id, name, nick, passwd, url, email, town, score, max_score,regdate) " +
+            "VALUES (?,?,?,?,?,?,?,45,45,current_timestamp)",
+        userid,
+        name,
+        nick,
+        encryptor.encryptPassword(password),
+        url == null ? null : URLUtil.fixURL(url),
+        mail.getAddress(),
+        town
     );
 
     if (info != null) {
@@ -550,26 +668,54 @@ public class UserDao {
     return userid;
   }
 
+  /**
+   *
+   * @param nick
+   * @return
+   */
   public boolean isUserExists(String nick) {
     int c = jdbcTemplate.queryForInt("SELECT count(*) as c FROM users WHERE nick=?", nick);
 
     return c>0;
   }
 
+  /**
+   * Получить новый e-mail пользователя.
+   *
+   * @param user объект пользователя.
+   * @return новый e-mail пользователя.
+   */
   public String getNewEmail(UserDto user) {
     return jdbcTemplate.queryForObject("SELECT new_email FROM users WHERE id=?", String.class, user.getId());
   }
 
+  /**
+   * Применить новый e-mail пользователя.
+   *
+   * @param user объект пользователя.
+   */
   public void acceptNewEmail(UserDto user) {
     jdbcTemplate.update("UPDATE users SET email=new_email WHERE id=?", user.getId());
   }
 
   /**
-   * Update lastlogin time in database
+   * Update lastlogin time in database.
+   *
    * @param user logged user
    * @throws SQLException on database failure
    */
   public void updateLastlogin(UserDto user) {
     jdbcTemplate.update("UPDATE users SET lastlogin=CURRENT_TIMESTAMP WHERE id=?", user.getId());
   }
+
+  /**
+   * Удаление пользователя.
+   *
+   * @param userDto объект пользователя.
+   */
+  public void deleteUser(UserDto userDto) {
+    jdbcTemplate.update("DELETE FROM ban_info WHERE userid=?", userDto.getId());
+    jdbcTemplate.update("DELETE FROM users WHERE id=?", userDto.getId());
+  }
+
 }

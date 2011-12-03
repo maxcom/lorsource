@@ -27,13 +27,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.search.SearchQueueSender;
+import ru.org.linux.dao.UserDao;
 import ru.org.linux.dto.UserDto;
 import ru.org.linux.site.AccessViolationException;
 import ru.org.linux.site.Template;
 import ru.org.linux.site.UserErrorException;
 import ru.org.linux.spring.dao.CommentDao;
 import ru.org.linux.spring.dao.DeleteCommentResult;
-import ru.org.linux.spring.dao.UserDao;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;

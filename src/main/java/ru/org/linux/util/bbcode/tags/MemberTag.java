@@ -38,8 +38,8 @@
 
 package ru.org.linux.util.bbcode.tags;
 
+import ru.org.linux.dao.UserDao;
 import ru.org.linux.dto.UserDto;
-import ru.org.linux.spring.dao.UserDao;
 import ru.org.linux.util.bbcode.Parser;
 import ru.org.linux.util.bbcode.ParserParameters;
 import ru.org.linux.util.bbcode.nodes.Node;

@@ -39,8 +39,8 @@
 package ru.org.linux.util.bbcode.nodes;
 
 import org.apache.commons.httpclient.URI;
+import ru.org.linux.dao.UserDao;
 import ru.org.linux.dto.UserDto;
-import ru.org.linux.spring.dao.UserDao;
 import ru.org.linux.util.bbcode.ParserParameters;
 import ru.org.linux.util.formatter.ToHtmlFormatter;
 

@@ -1,8 +1,8 @@
 package ru.org.linux.spring;
 
+import ru.org.linux.dao.UserDao;
 import ru.org.linux.dto.UserDto;
 import ru.org.linux.site.UserNotFoundException;
-import ru.org.linux.spring.dao.UserDao;
 
 import java.beans.PropertyEditorSupport;
 

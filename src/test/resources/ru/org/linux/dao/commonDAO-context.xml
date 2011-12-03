@@ -29,5 +29,6 @@
     <bean class="ru.org.linux.dao.GalleryDao" id="galleryDao"/>
     <bean class="ru.org.linux.dao.PollDao" id="pollDao"/>
     <bean class="ru.org.linux.dao.IgnoreListDao" id="ignoreListDao"/>
+    <bean class="ru.org.linux.dao.UserDao" id="userDao"/>
 
 </beans>

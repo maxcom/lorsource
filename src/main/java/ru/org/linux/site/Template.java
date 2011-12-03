@@ -17,9 +17,9 @@ package ru.org.linux.site;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import ru.org.linux.dao.UserDao;
 import ru.org.linux.dto.UserDto;
 import ru.org.linux.site.config.PathConfig;
-import ru.org.linux.spring.dao.UserDao;
 import ru.org.linux.storage.StorageException;
 import ru.org.linux.storage.StorageNotFoundException;
 import ru.org.linux.util.LorHttpUtils;

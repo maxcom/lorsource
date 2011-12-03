@@ -33,13 +33,13 @@ import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import ru.org.linux.dao.UserDao;
 import ru.org.linux.dto.UserDto;
 import ru.org.linux.site.*;
 import ru.org.linux.util.ExceptionBindingErrorProcessor;
 import ru.org.linux.spring.UserPropertyEditor;
 import ru.org.linux.spring.dao.GroupDao;
 import ru.org.linux.spring.dao.SectionDao;
-import ru.org.linux.spring.dao.UserDao;
 import ru.org.linux.util.bbcode.LorCodeService;
 
 import javax.servlet.http.HttpServletRequest;

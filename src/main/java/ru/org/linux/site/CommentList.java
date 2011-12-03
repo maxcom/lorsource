@@ -17,7 +17,7 @@ package ru.org.linux.site;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import ru.org.linux.spring.dao.UserDao;
+import ru.org.linux.dao.UserDao;
 
 import java.io.Serializable;
 import java.sql.SQLException;

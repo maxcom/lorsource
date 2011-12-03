@@ -16,10 +16,10 @@
 package ru.org.linux.spring;
 
 import org.springframework.jdbc.support.rowset.SqlRowSet;
+import ru.org.linux.dao.UserDao;
 import ru.org.linux.dto.UserDto;
 import ru.org.linux.site.Message;
 import ru.org.linux.site.UserNotFoundException;
-import ru.org.linux.spring.dao.UserDao;
 import ru.org.linux.util.StringUtil;
 
 import java.io.Serializable;
