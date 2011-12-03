@@ -15,14 +15,12 @@
 
 package ru.org.linux.dto;
 
-import ru.org.linux.site.Group;
-
 public class ArchiveDto {
   private int year;
   private int month;
   private int count;
   private SectionDto sectionDto;
-  private Group group;
+  private GroupDto groupDto;
 
   private static final long serialVersionUID = 5862774559965251295L;
 
@@ -58,17 +56,17 @@ public class ArchiveDto {
     this.sectionDto = sectionDto;
   }
 
-  public Group getGroup() {
-    return group;
+  public GroupDto getGroupDto() {
+    return groupDto;
   }
 
-  public void setGroup(Group group) {
-    this.group = group;
+  public void setGroupDto(GroupDto groupDto) {
+    this.groupDto = groupDto;
   }
 
   public String getLink() {
-    if (group != null) {
-      return group.getArchiveLink(year, month);
+    if (groupDto != null) {
+      return groupDto.getArchiveLink(year, month);
     }
     return sectionDto.getArchiveLink(year, month);
   }

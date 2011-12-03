@@ -17,6 +17,7 @@ package ru.org.linux.site;
 
 import com.google.common.base.Strings;
 import org.springframework.validation.Errors;
+import ru.org.linux.dto.GroupDto;
 import ru.org.linux.dto.SectionDto;
 import ru.org.linux.dto.UserDto;
 import ru.org.linux.spring.AddMessageRequest;
@@ -119,9 +120,9 @@ public class Message implements Serializable {
 
     guid = form.getGroup().getId();
 
-    Group group = form.getGroup();
+    GroupDto groupDto = form.getGroup();
 
-    groupCommentsRestriction = group.getCommentsRestriction();
+    groupCommentsRestriction = groupDto.getCommentsRestriction();
 
     if (form.getLinktext() != null) {
       linktext = StringUtil.escapeHtml(form.getLinktext());
@@ -130,7 +131,7 @@ public class Message implements Serializable {
     }
 
     // url check
-    if (!group.isImagePostAllowed() && !Strings.isNullOrEmpty(form.getUrl())) {
+    if (!groupDto.isImagePostAllowed() && !Strings.isNullOrEmpty(form.getUrl())) {
       url = URLUtil.fixURL(form.getUrl());
     } else {
       url = null;
@@ -143,8 +144,8 @@ public class Message implements Serializable {
       title = null;
     }
 
-    havelink = form.getUrl() != null && form.getLinktext() != null && !form.getUrl().isEmpty() && !form.getLinktext().isEmpty() && !group.isImagePostAllowed();
-    sectionid = group.getSectionId();
+    havelink = form.getUrl() != null && form.getLinktext() != null && !form.getUrl().isEmpty() && !form.getLinktext().isEmpty() && !groupDto.isImagePostAllowed();
+    sectionid = groupDto.getSectionId();
     // Defaults
     msgid = 0;
     postscore = 0;
@@ -170,12 +171,12 @@ public class Message implements Serializable {
     sectionCommentsRestriction = SectionDto.getCommentPostscore(sectionid);
   }
 
-  public Message(Group group, Message original, EditMessageRequest form) {
+  public Message(GroupDto groupDto, Message original, EditMessageRequest form) {
     userAgent = original.userAgent;
     postIP = original.postIP;
     guid = original.guid;
 
-    groupCommentsRestriction = group.getCommentsRestriction();
+    groupCommentsRestriction = groupDto.getCommentsRestriction();
 
     if (form.getLinktext() != null && original.havelink) {
       linktext = form.getLinktext();
@@ -199,7 +200,7 @@ public class Message implements Serializable {
 
     havelink = original.havelink;
 
-    sectionid = group.getSectionId();
+    sectionid = groupDto.getSectionId();
 
     msgid = original.msgid;
     postscore = original.getPostScore();

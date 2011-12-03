@@ -24,13 +24,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
+import ru.org.linux.dao.GroupDao;
 import ru.org.linux.dao.IgnoreListDao;
 import ru.org.linux.dao.SectionDao;
 import ru.org.linux.dao.UserDao;
+import ru.org.linux.dto.GroupDto;
 import ru.org.linux.dto.SectionDto;
 import ru.org.linux.dto.UserDto;
 import ru.org.linux.site.*;
-import ru.org.linux.spring.dao.GroupDao;
 import ru.org.linux.util.ServletParameterBadValueException;
 
 import javax.servlet.http.HttpServletRequest;
@@ -68,12 +69,12 @@ public class GroupController {
       @RequestParam("group") int groupId,
       @RequestParam(value = "offset", required = false) Integer offsetObject
   ) throws Exception {
-    Group group = groupDao.getGroup(groupId);
+    GroupDto groupDto = groupDao.getGroup(groupId);
 
     if (offsetObject != null) {
-      return new ModelAndView(new RedirectView(group.getUrl() + "?offset=" + offsetObject.toString()));
+      return new ModelAndView(new RedirectView(groupDto.getUrl() + "?offset=" + offsetObject.toString()));
     } else {
-      return new ModelAndView(new RedirectView(group.getUrl()));
+      return new ModelAndView(new RedirectView(groupDto.getUrl()));
     }
   }
 
@@ -82,12 +83,12 @@ public class GroupController {
       @RequestParam("group") int groupId,
       @RequestParam(value = "offset", required = false) Integer offsetObject
   ) throws Exception {
-    Group group = groupDao.getGroup(groupId);
+    GroupDto groupDto = groupDao.getGroup(groupId);
 
     if (offsetObject != null) {
-      return new ModelAndView(new RedirectView(group.getUrl() + "?offset=" + offsetObject.toString() + "&lastmod=true"));
+      return new ModelAndView(new RedirectView(groupDto.getUrl() + "?offset=" + offsetObject.toString() + "&lastmod=true"));
     } else {
-      return new ModelAndView(new RedirectView(group.getUrl() + "?lastmod=true"));
+      return new ModelAndView(new RedirectView(groupDto.getUrl() + "?lastmod=true"));
     }
   }
 
@@ -129,10 +130,10 @@ public class GroupController {
     SectionDto sectionDto = sectionDao.getSection(SectionDto.SECTION_FORUM);
     params.put("groupList", groupDao.getGroups(sectionDto));
 
-    Group group = groupDao.getGroup(sectionDto, groupName);
+    GroupDto groupDto = groupDao.getGroup(sectionDto, groupName);
 
     if (showDeleted && !"POST".equals(request.getMethod())) {
-      return new ModelAndView(new RedirectView(group.getUrl()));
+      return new ModelAndView(new RedirectView(groupDto.getUrl()));
     }
 
     if (showDeleted && !Template.isSessionAuthorized(request.getSession())) {
@@ -149,7 +150,7 @@ public class GroupController {
       }
 
       if (year == null && offset > MAX_OFFSET) {
-        return new ModelAndView(new RedirectView(group.getUrl() + "archive"));
+        return new ModelAndView(new RedirectView(groupDto.getUrl() + "archive"));
       }
     } else {
       firstPage = true;
@@ -166,7 +167,7 @@ public class GroupController {
 
     params.put("showIgnored", showIgnored);
 
-    params.put("group", group);
+    params.put("group", groupDto);
 
     params.put("section", sectionDto);
 
@@ -178,7 +179,7 @@ public class GroupController {
       ignoreList = Collections.emptySet();
     }
 
-    params.put("groupInfo", prepareService.prepareGroupInfo(group, request.isSecure()));
+    params.put("groupInfo", prepareService.prepareGroupInfo(groupDto, request.isSecure()));
 
     String ignq = "";
 
@@ -191,7 +192,7 @@ public class GroupController {
     String delq = showDeleted ? "" : " AND NOT deleted ";
     int topics = tmpl.getProf().getTopics();
 
-    String q = "SELECT topics.title as subj, lastmod, userid, topics.id as msgid, deleted, topics.stat1, topics.stat3, topics.stat4, topics.sticky, topics.resolved FROM topics,groups WHERE topics.groupid=groups.id AND groups.id=" + group.getId() + delq;
+    String q = "SELECT topics.title as subj, lastmod, userid, topics.id as msgid, deleted, topics.stat1, topics.stat3, topics.stat4, topics.sticky, topics.resolved FROM topics,groups WHERE topics.groupid=groups.id AND groups.id=" + groupDto.getId() + delq;
 
     if (year != null) {
       if (year < 1990 || year > 3000) {
@@ -205,9 +206,9 @@ public class GroupController {
       q += " AND postdate>='" + year + '-' + month + "-01'::timestamp AND (postdate<'" + year + '-' + month + "-01'::timestamp+'1 month'::interval)";
       params.put("year", year);
       params.put("month", month);
-      params.put("url", group.getUrl() + year + '/' + month + '/');
+      params.put("url", groupDto.getUrl() + year + '/' + month + '/');
     } else {
-      params.put("url", group.getUrl());
+      params.put("url", groupDto.getUrl());
     }
 
     SqlRowSet rs;
@@ -249,9 +250,9 @@ public class GroupController {
     params.put("topicsList", topicsList);
 
     if (year == null) {
-      params.put("count", groupDao.calcTopicsCount(group, showDeleted));
+      params.put("count", groupDao.calcTopicsCount(groupDto, showDeleted));
     } else {
-      params.put("count", getArchiveCount(group.getId(), year, month));
+      params.put("count", getArchiveCount(groupDto.getId(), year, month));
     }
 
     return new ModelAndView("group", params);

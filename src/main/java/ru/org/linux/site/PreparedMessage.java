@@ -16,6 +16,7 @@
 package ru.org.linux.site;
 
 import com.google.common.collect.ImmutableList;
+import ru.org.linux.dto.GroupDto;
 import ru.org.linux.dto.SectionDto;
 import ru.org.linux.dto.UserDto;
 
@@ -30,7 +31,7 @@ public final class PreparedMessage {
   private final PreparedPoll poll;
   private final UserDto commiter;
   private final ImmutableList<String> tags;
-  private final Group group;
+  private final GroupDto groupDto;
   private final SectionDto sectionDto;
 
   private final EditInfoDTO lastEditInfo;
@@ -42,7 +43,7 @@ public final class PreparedMessage {
   private static final int EDIT_PERIOD = 2 * 60 * 60 * 1000; // milliseconds
 
   public PreparedMessage(Message message, UserDto author, DeleteInfo deleteInfo, UserDto deleteUser, String processedMessage,
-                         PreparedPoll poll, UserDto commiter, List<String> tags, Group group, SectionDto sectionDto,
+                         PreparedPoll poll, UserDto commiter, List<String> tags, GroupDto groupDto, SectionDto sectionDto,
                          EditInfoDTO lastEditInfo, UserDto lastEditor, int editorCount, String userAgent) {
     this.message = message;
     this.author = author;
@@ -56,7 +57,7 @@ public final class PreparedMessage {
     } else {
       this.tags = ImmutableList.of();
     }
-    this.group = group;
+    this.groupDto = groupDto;
     this.sectionDto = sectionDto;
     this.lastEditInfo = lastEditInfo;
     this.lastEditor = lastEditor;
@@ -116,8 +117,8 @@ public final class PreparedMessage {
     return tags;
   }
 
-  public Group getGroup() {
-    return group;
+  public GroupDto getGroupDto() {
+    return groupDto;
   }
 
   public boolean isEditable(UserDto by) {

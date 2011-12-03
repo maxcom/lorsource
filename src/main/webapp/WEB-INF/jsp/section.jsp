@@ -16,7 +16,7 @@
   ~    limitations under the License.
   --%>
 <%--@elvariable id="section" type="ru.org.linux.dto.SectionDto"--%>
-<%--@elvariable id="groups" type="java.util.List<ru.org.linux.site.Group>"--%>
+<%--@elvariable id="groups" type="java.util.List<ru.org.linux.dto.GroupDto>"--%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 <%

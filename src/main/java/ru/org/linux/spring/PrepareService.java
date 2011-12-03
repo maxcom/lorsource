@@ -17,9 +17,11 @@ package ru.org.linux.spring;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.org.linux.dao.GroupDao;
 import ru.org.linux.dao.PollDao;
 import ru.org.linux.dao.SectionDao;
 import ru.org.linux.dao.UserDao;
+import ru.org.linux.dto.GroupDto;
 import ru.org.linux.dto.SectionDto;
 import ru.org.linux.dto.UserDto;
 import ru.org.linux.spring.dao.TagDao;
@@ -132,7 +134,7 @@ public class PrepareService {
    */
   private PreparedMessage prepareMessage(Message message, List<String> tags, boolean minimizeCut, PreparedPoll poll, boolean secure) {
     try {
-      Group group = groupDao.getGroup(message.getGroupId());
+      GroupDto groupDto = groupDao.getGroup(message.getGroupId());
       UserDto author = userDao.getUserCached(message.getUid());
       SectionDto sectionDto = sectionDao.getSection(message.getSectionId());
 
@@ -200,7 +202,7 @@ public class PrepareService {
 
       String userAgent = userAgentDao.getUserAgentById(message.getUserAgent());
 
-      return new PreparedMessage(message, author, deleteInfo, deleteUser, processedMessage, preparedPoll, commiter, tags, group, sectionDto, lastEditInfo, lastEditor, editCount, userAgent);
+      return new PreparedMessage(message, author, deleteInfo, deleteUser, processedMessage, preparedPoll, commiter, tags, groupDto, sectionDto, lastEditInfo, lastEditor, editCount, userAgent);
     } catch (BadGroupException e) {
       throw new RuntimeException(e);
     } catch (UserNotFoundException e) {
@@ -271,16 +273,16 @@ public class PrepareService {
     return commentsPrepared;
   }
 
-  public PreparedGroupInfo prepareGroupInfo(Group group, boolean secure) {
+  public PreparedGroupInfo prepareGroupInfo(GroupDto groupDto, boolean secure) {
     String longInfo;
 
-    if (group.getLongInfo() != null) {
-      longInfo = lorCodeService.parseComment(group.getLongInfo(), secure);
+    if (groupDto.getLongInfo() != null) {
+      longInfo = lorCodeService.parseComment(groupDto.getLongInfo(), secure);
     } else {
       longInfo = null;
     }
 
-    return new PreparedGroupInfo(group, longInfo);
+    return new PreparedGroupInfo(groupDto, longInfo);
   }
 
   public MessageMenu getMessageMenu(PreparedMessage message, UserDto currentUser) {
@@ -290,7 +292,7 @@ public class PrepareService {
 
     if (currentUser != null) {
       resolvable = (currentUser.isModerator() || (message.getAuthor().getId() == currentUser.getId())) &&
-        message.getGroup().isResolvable();
+          message.getGroupDto().isResolvable();
 
       memoriesId = memoriesDao.getId(currentUser, message.getMessage());
     } else {

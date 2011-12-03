@@ -26,9 +26,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
+import ru.org.linux.dao.GroupDao;
 import ru.org.linux.dao.IgnoreListDao;
 import ru.org.linux.dao.SectionDao;
 import ru.org.linux.dao.UserDao;
+import ru.org.linux.dto.GroupDto;
 import ru.org.linux.dto.SectionDto;
 import ru.org.linux.dto.UserDto;
 import ru.org.linux.site.*;
@@ -210,13 +212,13 @@ public class MessageController {
       throws Exception {
     Message message = messageDao.getById(msgid);
     PreparedMessage preparedMessage = prepareService.prepareMessage(message, false, request.isSecure());
-    Group group = preparedMessage.getGroup();
+    GroupDto groupDto = preparedMessage.getGroupDto();
 
-    if (!group.getUrlName().equals(groupName) || group.getSectionId() != section) {
+    if (!groupDto.getUrlName().equals(groupName) || groupDto.getSectionId() != section) {
       return new ModelAndView(new RedirectView(message.getLink()));
     }
 
-    return getMessage(webRequest, request, response, preparedMessage, group, page, filter, highlight);
+    return getMessage(webRequest, request, response, preparedMessage, groupDto, page, filter, highlight);
   }
 
   /**
@@ -280,7 +282,7 @@ public class MessageController {
       HttpServletRequest request,
       HttpServletResponse response,
       PreparedMessage preparedMessage,
-      Group group,
+      GroupDto groupDto,
       int page,
       String filter,
       Set<Integer> highlight
@@ -328,9 +330,9 @@ public class MessageController {
 
     checkView(message, tmpl, currentUser);
 
-    params.put("group", group);
+    params.put("group", groupDto);
 
-    if (group.getCommentsRestriction() == -1 && !Template.isSessionAuthorized(request.getSession())) {
+    if (groupDto.getCommentsRestriction() == -1 && !Template.isSessionAuthorized(request.getSession())) {
       throw new AccessViolationException("Это сообщение нельзя посмотреть");
     }
 
@@ -487,7 +489,7 @@ public class MessageController {
     String redirectUrl = topic.getLink();
     StringBuffer options = new StringBuffer();
     SectionDto sectionDto = sectionDao.getSection(sectionId);
-    Group group = groupDao.getGroup(sectionDto, groupName);
+    GroupDto groupDto = groupDao.getGroup(sectionDto, groupName);
 
     StringBuilder hash = new StringBuilder();
 

@@ -29,8 +29,10 @@ import org.springframework.web.multipart.MultipartRequest;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.search.SearchQueueSender;
+import ru.org.linux.dao.GroupDao;
 import ru.org.linux.dao.SectionDao;
 import ru.org.linux.dao.UserDao;
+import ru.org.linux.dto.GroupDto;
 import ru.org.linux.dto.SectionDto;
 import ru.org.linux.dto.UserDto;
 import ru.org.linux.spring.dao.TagDao;
@@ -139,19 +141,19 @@ public class AddMessageController extends ApplicationObjectSupport {
       form.setMode(tmpl.getFormatMode());
     }
 
-    Group group = form.getGroup();
+    GroupDto groupDto = form.getGroup();
 
-    if (!group.isTopicPostingAllowed(tmpl.getCurrentUser())) {
+    if (!groupDto.isTopicPostingAllowed(tmpl.getCurrentUser())) {
       throw new AccessViolationException("Не достаточно прав для постинга тем в эту группу");
     }
 
-    params.put("group", group);
+    params.put("group", groupDto);
 
-    if (group.isModerated()) {
+    if (groupDto.isModerated()) {
       params.put("topTags", tagDao.getTopTags());
     }
 
-    params.put("addportal", sectionDao.getAddInfo(group.getSectionId()));
+    params.put("addportal", sectionDao.getAddInfo(groupDto.getSectionId()));
 
     return new ModelAndView("add", params);
   }
@@ -182,15 +184,15 @@ public class AddMessageController extends ApplicationObjectSupport {
 
     String image = processUploadImage(request, tmpl);
 
-    Group group = form.getGroup();
-    params.put("group", group);
+    GroupDto groupDto = form.getGroup();
+    params.put("group", groupDto);
 
-    if (group != null && group.isModerated()) {
+    if (groupDto != null && groupDto.isModerated()) {
       params.put("topTags", tagDao.getTopTags());
     }
 
-    if (group != null) {
-      params.put("addportal", sectionDao.getAddInfo(group.getSectionId()));
+    if (groupDto != null) {
+      params.put("addportal", sectionDao.getAddInfo(groupDto.getSectionId()));
     }
 
     UserDto user;
@@ -217,7 +219,7 @@ public class AddMessageController extends ApplicationObjectSupport {
 
     ipBlockDao.checkBlockIP(request.getRemoteAddr(), errors);
 
-    if (group != null && !group.isTopicPostingAllowed(user)) {
+    if (groupDto != null && !groupDto.isTopicPostingAllowed(user)) {
       errors.reject(null, "Не достаточно прав для постинга тем в эту группу");
     }
 
@@ -235,7 +237,7 @@ public class AddMessageController extends ApplicationObjectSupport {
 
     Screenshot scrn = null;
 
-    if (group != null && group.isImagePostAllowed()) {
+    if (groupDto != null && groupDto.isImagePostAllowed()) {
       scrn = processUpload(session, tmpl, image, errors);
 
       if (scrn != null) {
@@ -250,7 +252,7 @@ public class AddMessageController extends ApplicationObjectSupport {
 
     Message previewMsg = null;
 
-    if (group != null) {
+    if (groupDto != null) {
       previewMsg = new Message(form, user, message, request.getRemoteAddr());
       params.put("message", prepareService.prepareMessage(previewMsg, TagDao.parseSanitizeTags(form.getTags()), null, request.isSecure()));
     }
@@ -268,12 +270,12 @@ public class AddMessageController extends ApplicationObjectSupport {
       dupeProtector.checkDuplication(request.getRemoteAddr(), false, errors);
     }
 
-    if (!form.isPreviewMode() && !errors.hasErrors() && group != null) {
+    if (!form.isPreviewMode() && !errors.hasErrors() && groupDto != null) {
       session.removeAttribute("image");
 
       Set<UserDto> userRefs = lorCodeService.getReplierFromMessage(message);
 
-      int msgid = messageDao.addMessage(request, form, tmpl, group, user, scrn, previewMsg, userRefs);
+      int msgid = messageDao.addMessage(request, form, tmpl, groupDto, user, scrn, previewMsg, userRefs);
 
       searchQueueSender.updateMessageOnly(msgid);
 
@@ -281,11 +283,11 @@ public class AddMessageController extends ApplicationObjectSupport {
 
       String messageUrl = "view-message.jsp?msgid=" + msgid;
 
-      if (!group.isModerated()) {
+      if (!groupDto.isModerated()) {
         return new ModelAndView(new RedirectView(messageUrl + "&nocache=" + random.nextInt()));
       }
 
-      params.put("moderated", group.isModerated());
+      params.put("moderated", groupDto.isModerated());
       params.put("url", messageUrl);
 
       return new ModelAndView("add-done-moderated", params);
@@ -313,7 +315,7 @@ public class AddMessageController extends ApplicationObjectSupport {
 
   @InitBinder
   public void initBinder(WebDataBinder binder) {
-    binder.registerCustomEditor(Group.class, new PropertyEditorSupport() {
+    binder.registerCustomEditor(GroupDto.class, new PropertyEditorSupport() {
       @Override
       public void setAsText(String text) throws IllegalArgumentException {
         try {
@@ -328,7 +330,7 @@ public class AddMessageController extends ApplicationObjectSupport {
         if (getValue() == null) {
           return null;
         } else {
-          return Integer.toString(((Group) getValue()).getId());
+          return Integer.toString(((GroupDto) getValue()).getId());
         }
       }
     });

@@ -13,7 +13,7 @@
 ~    limitations under the License.
 --%>
 
-<%--@elvariable id="group" type="ru.org.linux.site.Group"--%>
+<%--@elvariable id="group" type="ru.org.linux.dto.GroupDto"--%>
 <%--@elvariable id="groupInfo" type="ru.org.linux.site.PreparedGroupInfo"--%>
 
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>

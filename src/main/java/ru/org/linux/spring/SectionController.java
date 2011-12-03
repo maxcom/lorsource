@@ -22,9 +22,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.view.RedirectView;
+import ru.org.linux.dao.GroupDao;
 import ru.org.linux.dao.SectionDao;
 import ru.org.linux.dto.SectionDto;
-import ru.org.linux.spring.dao.GroupDao;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -18,7 +18,7 @@
   --%>
 
 <%--@elvariable id="section" type="ru.org.linux.dto.SectionDto"--%>
-<%--@elvariable id="group" type="ru.org.linux.site.Group"--%>
+<%--@elvariable id="group" type="ru.org.linux.dto.GroupDto"--%>
 <%--@elvariable id="items" type="ru.org.linux.spring.dto.ArchiveDto"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>

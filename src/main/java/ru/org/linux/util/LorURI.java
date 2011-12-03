@@ -19,8 +19,8 @@ import org.apache.commons.httpclient.HttpURL;
 import org.apache.commons.httpclient.HttpsURL;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
+import ru.org.linux.dto.GroupDto;
 import ru.org.linux.site.BadGroupException;
-import ru.org.linux.site.Group;
 import ru.org.linux.site.Message;
 import ru.org.linux.site.MessageNotFoundException;
 import ru.org.linux.spring.dao.MessageDao;
@@ -280,7 +280,7 @@ public class LorURI {
   public String formatJump(MessageDao messageDao, boolean secure) throws MessageNotFoundException, BadGroupException, URIException {
     if(isMessageUrl) {
       Message message = messageDao.getById(messageId);
-      Group group = messageDao.getGroup(message);
+      GroupDto groupDto = messageDao.getGroup(message);
       String scheme;
       if(secure) {
         scheme = "https";
@@ -289,7 +289,7 @@ public class LorURI {
       }
       String host = mainURI.getHost();
       int port = mainURI.getPort();
-      String path = group.getUrl() + messageId;
+      String path = groupDto.getUrl() + messageId;
       String query = "";
       if(isCommentUrl()) {
         query = "cid=" + commentId;

@@ -20,8 +20,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import ru.org.linux.dto.ArchiveDto;
+import ru.org.linux.dto.GroupDto;
 import ru.org.linux.dto.SectionDto;
-import ru.org.linux.site.Group;
 
 import javax.sql.DataSource;
 import java.sql.ResultSet;
@@ -39,11 +39,11 @@ public class ArchiveDao {
 
   /**
    * @param sectionDto
-   * @param group
+   * @param groupDto
    * @return
    */
-  public List<ArchiveDto> getArchiveDTO(SectionDto sectionDto, Group group) {
-    return getArchiveInternal(sectionDto, group, 0);
+  public List<ArchiveDto> getArchiveDTO(SectionDto sectionDto, GroupDto groupDto) {
+    return getArchiveInternal(sectionDto, groupDto, 0);
   }
 
   /**
@@ -57,11 +57,11 @@ public class ArchiveDao {
 
   /**
    * @param sectionDto
-   * @param group
+   * @param groupDto
    * @param limit
    * @return
    */
-  private List<ArchiveDto> getArchiveInternal(final SectionDto sectionDto, final Group group, int limit) {
+  private List<ArchiveDto> getArchiveInternal(final SectionDto sectionDto, final GroupDto groupDto, int limit) {
     RowMapper<ArchiveDto> mapper = new RowMapper<ArchiveDto>() {
       @Override
       public ArchiveDto mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -70,7 +70,7 @@ public class ArchiveDao {
         dto.setMonth(rs.getInt("month"));
         dto.setCount(rs.getInt("c"));
         dto.setSectionDto(sectionDto);
-        dto.setGroup(group);
+        dto.setGroupDto(groupDto);
         return dto;
       }
     };
@@ -84,7 +84,7 @@ public class ArchiveDao {
           limit
       );
     } else {
-      if (group == null) {
+      if (groupDto == null) {
         return jdbcTemplate.query(
             "select year, month, c from monthly_stats where section=? and groupid is null" +
                 " order by year, month",
@@ -96,7 +96,7 @@ public class ArchiveDao {
             "select year, month, c from monthly_stats where section=? and groupid=? order by year, month",
             mapper,
             sectionDto.getId(),
-            group.getId()
+            groupDto.getId()
         );
       }
     }

@@ -1,14 +1,14 @@
 package ru.org.linux.spring;
 
+import ru.org.linux.dto.GroupDto;
 import ru.org.linux.dto.UserDto;
-import ru.org.linux.site.Group;
 import ru.org.linux.site.Poll;
 
 public class AddMessageRequest {
   private String title;
   private String msg;
   private String url;
-  private Group group;
+  private GroupDto groupDto;
   private String linktext;
   private String mode;
   private String tags;
@@ -45,17 +45,17 @@ public class AddMessageRequest {
     this.url = url;
   }
 
-  public Group getGroup() {
-    return group;
+  public GroupDto getGroup() {
+    return groupDto;
   }
 
-  public void setGroup(Group group) {
-    this.group = group;
+  public void setGroup(GroupDto groupDto) {
+    this.groupDto = groupDto;
   }
 
   public String getLinktext() {
-    if (linktext==null && group!=null) {
-      return group.getDefaultLinkText();
+    if (linktext==null && groupDto !=null) {
+      return groupDto.getDefaultLinkText();
     } else {
       return linktext;
     }

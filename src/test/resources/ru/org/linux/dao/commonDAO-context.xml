@@ -32,5 +32,6 @@
     <bean class="ru.org.linux.dao.UserDao" id="userDao"/>
     <bean class="ru.org.linux.dao.ArchiveDao" id="archiveDao"/>
     <bean class="ru.org.linux.dao.SectionDao" id="sectionDao"/>
+    <bean class="ru.org.linux.dao.GroupDao" id="groupDao"/>
 
 </beans>

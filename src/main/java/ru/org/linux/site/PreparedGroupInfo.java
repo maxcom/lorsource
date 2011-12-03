@@ -15,17 +15,19 @@
 
 package ru.org.linux.site;
 
+import ru.org.linux.dto.GroupDto;
+
 public class PreparedGroupInfo {
-  private final Group group;
+  private final GroupDto groupDto;
   private final String longInfo;
 
-  public PreparedGroupInfo(Group group, String longInfo) {
-    this.group = group;
+  public PreparedGroupInfo(GroupDto groupDto, String longInfo) {
+    this.groupDto = groupDto;
     this.longInfo = longInfo;
   }
 
-  public Group getGroup() {
-    return group;
+  public GroupDto getGroupDto() {
+    return groupDto;
   }
 
   public String getLongInfo() {
@@ -33,10 +35,10 @@ public class PreparedGroupInfo {
   }
 
   public String getInfo() {
-    return group.getInfo();
+    return groupDto.getInfo();
   }
 
   public int getId() {
-    return group.getId();
+    return groupDto.getId();
   }
 }

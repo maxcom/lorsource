@@ -1,4 +1,4 @@
-<%@ page contentType="text/html; charset=utf-8" import="ru.org.linux.site.Group,ru.org.linux.site.Screenshot"  %>
+<%@ page contentType="text/html; charset=utf-8" import="ru.org.linux.dto.GroupDto,ru.org.linux.site.Screenshot"  %>
 <%@ page import="ru.org.linux.spring.dao.TagDao"%>
 <%@ page import="ru.org.linux.util.StringUtil"%>
 <%@ page import="java.util.SortedSet" %>
@@ -17,7 +17,7 @@
   ~    limitations under the License.
   --%>
 <%--@elvariable id="message" type="ru.org.linux.site.PreparedMessage"--%>
-<%--@elvariable id="group" type="ru.org.linux.site.Group"--%>
+<%--@elvariable id="group" type="ru.org.linux.dto.GroupDto"--%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <%--@elvariable id="modes" type="java.util.Map"--%>
 <%--@elvariable id="addportal" type="java.lang.String"--%>
@@ -28,7 +28,7 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 
 <%
-    Group group = (Group) request.getAttribute("group");
+    GroupDto group = (GroupDto) request.getAttribute("group");
     SortedSet<String> topTags = (SortedSet<String>) request.getAttribute("topTags");
 %>
 

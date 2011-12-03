@@ -13,7 +13,7 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.site;
+package ru.org.linux.dto;
 
 import ru.org.linux.dto.SectionDto;
 import ru.org.linux.dto.UserDto;
@@ -22,7 +22,7 @@ import java.io.Serializable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class Group implements Serializable {
+public class GroupDto implements Serializable {
   private static final long serialVersionUID = 6173447416543763434L;
 
   private final boolean moderate;
@@ -48,7 +48,7 @@ public class Group implements Serializable {
 
   private final boolean resolvable;
 
-  public Group(ResultSet rs) throws SQLException {
+  public GroupDto(ResultSet rs) throws SQLException {
     id = rs.getInt("id");
     moderate = rs.getBoolean("moderate");
     imagepost = rs.getBoolean("imagepost");

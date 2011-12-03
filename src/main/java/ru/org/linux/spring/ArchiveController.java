@@ -24,11 +24,11 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.dao.ArchiveDao;
+import ru.org.linux.dao.GroupDao;
 import ru.org.linux.dao.SectionDao;
 import ru.org.linux.dto.ArchiveDto;
+import ru.org.linux.dto.GroupDto;
 import ru.org.linux.dto.SectionDto;
-import ru.org.linux.site.Group;
-import ru.org.linux.spring.dao.GroupDao;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
@@ -59,14 +59,14 @@ public class ArchiveController {
     SectionDto sectionDto = sectionDao.getSection(sectionid);
     mv.getModel().put("section", sectionDto);
 
-    Group group = null;
+    GroupDto groupDto = null;
     if (groupName != null) {
-      group = groupDao.getGroup(sectionDto, groupName);
+      groupDto = groupDao.getGroup(sectionDto, groupName);
     }
 
-    mv.getModel().put("group", group);
+    mv.getModel().put("group", groupDto);
 
-    List<ArchiveDto> items = archiveDao.getArchiveDTO(sectionDto, group);
+    List<ArchiveDto> items = archiveDao.getArchiveDTO(sectionDto, groupDto);
 
     mv.getModel().put("items", items);
 

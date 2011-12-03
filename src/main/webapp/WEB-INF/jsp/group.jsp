@@ -1,5 +1,5 @@
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="ru.org.linux.site.Group,ru.org.linux.site.Template,ru.org.linux.dto.UserDto,ru.org.linux.spring.GroupController,ru.org.linux.util.BadImageException"   buffer="200kb"%>
+<%@ page import="ru.org.linux.dto.GroupDto,ru.org.linux.site.Template,ru.org.linux.dto.UserDto,ru.org.linux.spring.GroupController,ru.org.linux.util.BadImageException"   buffer="200kb"%>
 <%@ page import="ru.org.linux.util.DateUtil" %>
 <%@ page import="ru.org.linux.util.ImageInfo" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
@@ -21,9 +21,9 @@
   --%>
 
 <%--@elvariable id="topicsList" type="java.util.List<ru.org.linux.spring.TopicsListItem>"--%>
-<%--@elvariable id="group" type="ru.org.linux.site.Group"--%>
+<%--@elvariable id="group" type="ru.org.linux.dto.GroupDto"--%>
 <%--@elvariable id="firstPage" type="java.lang.Boolean"--%>
-<%--@elvariable id="groupList" type="java.util.List<ru.org.linux.site.Group>"--%>
+<%--@elvariable id="groupList" type="java.util.List<ru.org.linux.dto.GroupDto>"--%>
 <%--@elvariable id="lastmod" type="java.lang.Boolean"--%>
 <%--@elvariable id="count" type="java.lang.Integer"--%>
 <%--@elvariable id="offset" type="java.lang.Integer"--%>
@@ -50,7 +50,7 @@
     boolean firstPage = (Boolean) request.getAttribute("firstPage");
     int offset = (Integer) request.getAttribute("offset");
 
-    Group group = (Group) request.getAttribute("group");
+    GroupDto group = (GroupDto) request.getAttribute("group");
 
     int count = (Integer) request.getAttribute("count");
     int topics = tmpl.getProf().getTopics();

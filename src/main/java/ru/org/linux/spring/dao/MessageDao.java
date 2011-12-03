@@ -15,8 +15,10 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import ru.org.linux.dao.GroupDao;
 import ru.org.linux.dao.PollDao;
 import ru.org.linux.dao.UserDao;
+import ru.org.linux.dto.GroupDto;
 import ru.org.linux.dto.SectionDto;
 import ru.org.linux.dto.UserDto;
 import ru.org.linux.site.*;
@@ -155,7 +157,7 @@ public class MessageDao {
    * @return group
    * @throws BadGroupException если что-то неправильно
    */
-  public Group getGroup(Message message) throws BadGroupException {
+  public GroupDto getGroup(Message message) throws BadGroupException {
     return groupDao.getGroup(message.getGroupId());
   }
 
@@ -262,14 +264,14 @@ public class MessageDao {
   public int saveNewMessage(final Message msg, Template tmpl, final HttpServletRequest request, Screenshot scrn, final UserDto user)
       throws IOException, ScriptErrorException {
 
-    final Group group = groupDao.getGroup(msg.getGroupId());
+    final GroupDto groupDto = groupDao.getGroup(msg.getGroupId());
 
     final int msgid = allocateMsgid();
 
     String url = msg.getUrl();
     String linktext = msg.getLinktext();
 
-    if (group.isImagePostAllowed()) {
+    if (groupDto.isImagePostAllowed()) {
       if (scrn == null) {
         throw new ScriptErrorException("scrn==null!?");
       }
@@ -287,7 +289,7 @@ public class MessageDao {
         new PreparedStatementCallback<String>() {
           @Override
           public String doInPreparedStatement(PreparedStatement pst) throws SQLException, DataAccessException {
-            pst.setInt(1, group.getId());
+            pst.setInt(1, groupDto.getId());
             pst.setInt(2, user.getId());
             pst.setString(3, msg.getTitle());
             pst.setString(4, finalUrl);
@@ -315,7 +317,7 @@ public class MessageDao {
   }
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public int addMessage(HttpServletRequest request, AddMessageRequest form, Template tmpl, Group group, UserDto user, Screenshot scrn, Message previewMsg, Set<UserDto> userRefs) throws IOException, ScriptErrorException, UserErrorException {
+  public int addMessage(HttpServletRequest request, AddMessageRequest form, Template tmpl, GroupDto groupDto, UserDto user, Screenshot scrn, Message previewMsg, Set<UserDto> userRefs) throws IOException, ScriptErrorException, UserErrorException {
     final int msgid = saveNewMessage(
         previewMsg,
         tmpl,
@@ -324,7 +326,7 @@ public class MessageDao {
         user
     );
 
-    if (group.isPollPostAllowed()) {
+    if (groupDto.isPollPostAllowed()) {
       pollDao.createPoll(Arrays.asList(form.getPoll()), form.isMultiSelect(), msgid);
     }
 
@@ -670,7 +672,7 @@ public class MessageDao {
   }
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public void moveTopic(Message msg, Group newGrp, UserDto moveBy) {
+  public void moveTopic(Message msg, GroupDto newGrp, UserDto moveBy) {
     String url = msg.getUrl();
 
     jdbcTemplate.update("UPDATE topics SET groupid=?,lastmod=CURRENT_TIMESTAMP WHERE id=?", newGrp.getId(), msg.getId());

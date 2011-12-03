@@ -25,12 +25,13 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.search.SearchQueueSender;
+import ru.org.linux.dao.GroupDao;
 import ru.org.linux.dao.PollDao;
+import ru.org.linux.dto.GroupDto;
 import ru.org.linux.dto.SectionDto;
 import ru.org.linux.dto.UserDto;
 import ru.org.linux.spring.dao.TagDao;
 import ru.org.linux.site.*;
-import ru.org.linux.spring.dao.GroupDao;
 import ru.org.linux.spring.dao.MessageDao;
 import ru.org.linux.spring.validators.EditMessageRequestValidator;
 import ru.org.linux.util.ExceptionBindingErrorProcessor;
@@ -131,8 +132,8 @@ public class EditController {
     params.put("message", message);
     params.put("preparedMessage", preparedMessage);
 
-    Group group = preparedMessage.getGroup();
-    params.put("group", group);
+    GroupDto groupDto = preparedMessage.getGroupDto();
+    params.put("group", groupDto);
 
     params.put("groups", groupDao.getGroups(preparedMessage.getSectionDto()));
 
@@ -146,7 +147,7 @@ public class EditController {
 
     params.put("commit", false);
 
-    if (group.isModerated()) {
+    if (groupDto.isModerated()) {
       params.put("topTags", tagDao.getTopTags());
     }
 
@@ -196,13 +197,13 @@ public class EditController {
 
     Message message = messageDao.getById(msgid);
     PreparedMessage preparedMessage = prepareService.prepareMessage(message, false, request.isSecure());
-    Group group = preparedMessage.getGroup();
+    GroupDto groupDto = preparedMessage.getGroupDto();
 
     params.put("message", message);
     params.put("preparedMessage", preparedMessage);
-    params.put("group", group);
+    params.put("group", groupDto);
 
-    if (group.isModerated()) {
+    if (groupDto.isModerated()) {
       params.put("topTags", tagDao.getTopTags());
     }
 
@@ -248,7 +249,7 @@ public class EditController {
 
     params.put("commit", !message.isCommited() && preparedMessage.getSectionDto().isPremoderated() && user.isModerator());
 
-    Message newMsg = new Message(group, message, form);
+    Message newMsg = new Message(groupDto, message, form);
 
     boolean modified = false;
 
@@ -294,11 +295,11 @@ public class EditController {
 
     if (changeGroupId != null) {
       if (message.getGroupId() != changeGroupId) {
-        Group changeGroup = groupDao.getGroup(changeGroupId);
+        GroupDto changeGroupDto = groupDao.getGroup(changeGroupId);
 
         int section = message.getSectionId();
 
-        if (changeGroup.getSectionId() != section) {
+        if (changeGroupDto.getSectionId() != section) {
           throw new AccessViolationException("Can't move topics between sections");
         }
       }

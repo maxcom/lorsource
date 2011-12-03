@@ -19,7 +19,7 @@ import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.junit.Before;
 import org.junit.Test;
-import ru.org.linux.site.Group;
+import ru.org.linux.dto.GroupDto;
 import ru.org.linux.site.Message;
 import ru.org.linux.spring.dao.MessageDao;
 
@@ -31,15 +31,15 @@ import static org.mockito.Mockito.when;
 public class LorURITest {
   private MessageDao messageDao;
   private Message message1;
-  private Group group1;
+  private GroupDto group1;
   private Message message2;
-  private Group group2;
+  private GroupDto group2;
   private Message message3;
-  private Group group3;
+  private GroupDto group3;
   private Message message12;
-  private Group group12;
+  private GroupDto group12;
   private Message message15;
-  private Group group15;
+  private GroupDto group15;
 
 
   URI mainURI; // 127.0.0.1:8080
@@ -66,15 +66,15 @@ public class LorURITest {
 
     messageDao = mock(MessageDao.class);
     message1 = mock(Message.class);
-    group1 = mock(Group.class);
+    group1 = mock(GroupDto.class);
     message2 = mock(Message.class);
-    group2 = mock(Group.class);
+    group2 = mock(GroupDto.class);
     message3 = mock(Message.class);
-    group3 = mock(Group.class);
+    group3 = mock(GroupDto.class);
     message12 = mock(Message.class);
-    group12 = mock(Group.class);
+    group12 = mock(GroupDto.class);
     message15 = mock(Message.class);
-    group15 = mock(Group.class);
+    group15 = mock(GroupDto.class);
 
     when(group1.getUrl()).thenReturn("/news/debian/");
     when(group2.getUrl()).thenReturn("/forum/talks/");

@@ -1,6 +1,6 @@
 <%@ tag import="java.io.File" %>
 <%@ tag import="java.io.IOException" %>
-<%@ tag import="ru.org.linux.site.Group" %>
+<%@ tag import="ru.org.linux.dto.GroupDto" %>
 <%@ tag import="ru.org.linux.site.NewsViewer" %>
 <%@ tag import="ru.org.linux.spring.dao.TagDao" %>
 <%@ tag import="ru.org.linux.site.Template" %>
@@ -97,8 +97,8 @@
   boolean imagepost = preparedMessage.getSectionDto().isImagepost();
   boolean votepoll = message.isVotePoll();
 
-  String image = preparedMessage.getGroup().getImage();
-  Group group = preparedMessage.getGroup();
+  String image = preparedMessage.getGroupDto().getImage();
+  GroupDto group = preparedMessage.getGroupDto();
 %>
 <h2>
   <a href="${fn:escapeXml(message.link)}">${message.title}</a>
@@ -111,7 +111,7 @@
     </c:if>
   </div>
 </c:if>
-<c:set var="group" value="${preparedMessage.group}"/>
+<c:set var="group" value="${preparedMessage.groupDto}"/>
 
 <c:if test="${group.image != null}">
 <div class="entry-userpic">

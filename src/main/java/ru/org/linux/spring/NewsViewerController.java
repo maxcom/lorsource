@@ -28,13 +28,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.view.RedirectView;
+import ru.org.linux.dao.GroupDao;
 import ru.org.linux.dao.SectionDao;
 import ru.org.linux.dao.UserDao;
+import ru.org.linux.dto.GroupDto;
 import ru.org.linux.dto.SectionDto;
 import ru.org.linux.dto.UserDto;
 import ru.org.linux.spring.dao.TagDao;
 import ru.org.linux.site.*;
-import ru.org.linux.spring.dao.GroupDao;
 import ru.org.linux.util.DateUtil;
 import ru.org.linux.util.ServletParameterException;
 import ru.org.linux.util.ServletParameterMissingException;
@@ -148,16 +149,16 @@ public class NewsViewerController {
       }
     }
 
-    Group group = null;
+    GroupDto groupDto = null;
 
     if (groupid != null) {
-      group = groupDao.getGroup(groupid);
+      groupDto = groupDao.getGroup(groupid);
 
-      if (group.getSectionId() != sectionid) {
+      if (groupDto.getSectionId() != sectionid) {
         throw new ScriptErrorException("группа #" + groupid + " не принадлежит разделу #" + sectionid);
       }
 
-      params.put("group", group);
+      params.put("group", groupDto);
     }
 
     if (tag != null) {
@@ -176,8 +177,8 @@ public class NewsViewerController {
       navtitle = tag;
     }
 
-    if (group != null) {
-      navtitle = "<a href=\"" + SectionDto.getNewsViewerLink(group.getSectionId()) + "\">" + sectionDto.getName() + "</a> - <strong>" + group.getTitle() + "</strong>";
+    if (groupDto != null) {
+      navtitle = "<a href=\"" + SectionDto.getNewsViewerLink(groupDto.getSectionId()) + "\">" + sectionDto.getName() + "</a> - <strong>" + groupDto.getTitle() + "</strong>";
     }
 
     String ptitle;
@@ -185,8 +186,8 @@ public class NewsViewerController {
     if (month == null) {
       if (sectionDto != null) {
         ptitle = sectionDto.getName();
-        if (group != null) {
-          ptitle += " - " + group.getTitle();
+        if (groupDto != null) {
+          ptitle += " - " + groupDto.getTitle();
         }
 
         if (tag != null) {
@@ -198,8 +199,8 @@ public class NewsViewerController {
     } else {
       ptitle = "Архив: " + sectionDto.getName();
 
-      if (group != null) {
-        ptitle += " - " + group.getTitle();
+      if (groupDto != null) {
+        ptitle += " - " + groupDto.getTitle();
       }
 
       if (tag != null) {
@@ -224,8 +225,8 @@ public class NewsViewerController {
       }
     }
 
-    if (group != null) {
-      newsViewer.setGroup(group.getId());
+    if (groupDto != null) {
+      newsViewer.setGroup(groupDto.getId());
     }
 
     if (tag != null) {
@@ -236,7 +237,7 @@ public class NewsViewerController {
 
     if (month != null) {
       newsViewer.setDatelimit("postdate>='" + year + '-' + month + "-01'::timestamp AND (postdate<'" + year + '-' + month + "-01'::timestamp+'1 month'::interval)");
-    } else if (tag == null && group == null) {
+    } else if (tag == null && groupDto == null) {
       if (!sectionDto.isPremoderated()) {
         newsViewer.setDatelimit("(postdate>(CURRENT_TIMESTAMP-'6 month'::interval))");
       }
@@ -260,8 +261,8 @@ public class NewsViewerController {
 
     if (sectionDto != null) {
       String rssLink = "/section-rss.jsp?section=" + sectionDto.getId();
-      if (group != null) {
-        rssLink += "&group=" + group.getId();
+      if (groupDto != null) {
+        rssLink += "&group=" + groupDto.getId();
       }
 
       params.put("rssLink", rssLink);
@@ -627,11 +628,11 @@ public class NewsViewerController {
   ) throws Exception {
     SectionDto sectionDto = sectionDao.getSection(sectionId);
 
-    Group group = groupDao.getGroup(sectionDto, groupName);
+    GroupDto groupDto = groupDao.getGroup(sectionDto, groupName);
 
-    ModelAndView mv = showNews(null, null, group.getSectionId(), group.getId(), null, offset, request, response);
+    ModelAndView mv = showNews(null, null, groupDto.getSectionId(), groupDto.getId(), null, offset, request, response);
 
-    mv.getModel().put("url", group.getUrl());
+    mv.getModel().put("url", groupDto.getUrl());
     mv.getModel().put("params", null);
 
     return mv;
@@ -654,9 +655,9 @@ public class NewsViewerController {
     }
 
     if (groupId != null) {
-      Group group = groupDao.getGroup(groupId);
+      GroupDto groupDto = groupDao.getGroup(groupId);
 
-      return new RedirectView(SectionDto.getNewsViewerLink(section) + group.getUrlName() + '/');
+      return new RedirectView(SectionDto.getNewsViewerLink(section) + groupDto.getUrlName() + '/');
     }
 
     return new RedirectView(SectionDto.getNewsViewerLink(section));
@@ -732,20 +733,20 @@ public class NewsViewerController {
       nv.setCommitMode(NewsViewer.CommitMode.POSTMODERATED_ONLY);
     }
 
-    Group group = null;
+    GroupDto groupDto = null;
     if (groupId != 0) {
-      group = groupDao.getGroup(groupId);
+      groupDto = groupDao.getGroup(groupId);
 
-      if (group.getSectionId() != sectionId) {
+      if (groupDto.getSectionId() != sectionId) {
         throw new BadGroupException("группа #" + groupId + " не принадлежит разделу #" + sectionId);
       }
 
-      params.put("group", group);
+      params.put("group", groupDto);
     }
 
     String ptitle = sectionDto.getName();
-    if (group != null) {
-      ptitle += " - " + group.getTitle();
+    if (groupDto != null) {
+      ptitle += " - " + groupDto.getTitle();
     }
 
     params.put("ptitle", ptitle);
