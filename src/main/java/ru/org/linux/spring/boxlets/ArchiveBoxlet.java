@@ -24,10 +24,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
+import ru.org.linux.dao.ArchiveDao;
+import ru.org.linux.dto.ArchiveDto;
 import ru.org.linux.site.Section;
 import ru.org.linux.site.SectionNotFoundException;
 import ru.org.linux.spring.commons.CacheProvider;
-import ru.org.linux.spring.dao.ArchiveDao;
 import ru.org.linux.spring.dao.SectionDao;
 
 @Controller
@@ -55,9 +56,9 @@ public class ArchiveBoxlet extends AbstractBoxlet {
   @Override
   @RequestMapping("/archive.boxlet")
   protected ModelAndView getData(HttpServletRequest request) throws Exception {
-    List<ArchiveDao.ArchiveDTO> list = getFromCache(cacheProvider, new GetCommand<List<ArchiveDao.ArchiveDTO>>() {
+    List<ArchiveDto> list = getFromCache(cacheProvider, new GetCommand<List<ArchiveDto>>() {
       @Override
-      public List<ArchiveDao.ArchiveDTO> get() {
+      public List<ArchiveDto> get() {
         return archiveDao.getArchiveDTO(sectionNews, 13);
       }
     });

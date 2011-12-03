@@ -23,9 +23,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.view.RedirectView;
+import ru.org.linux.dao.ArchiveDao;
+import ru.org.linux.dto.ArchiveDto;
 import ru.org.linux.site.Group;
 import ru.org.linux.site.Section;
-import ru.org.linux.spring.dao.ArchiveDao;
 import ru.org.linux.spring.dao.GroupDao;
 import ru.org.linux.spring.dao.SectionDao;
 
@@ -44,14 +45,14 @@ public class ArchiveController {
   private ArchiveDao archiveDao;
 
   public ModelAndView archiveList(
-    int sectionid
+      int sectionid
   ) throws Exception {
     return archiveList(sectionid, null);
   }
 
   public ModelAndView archiveList(
-    int sectionid,
-    String groupName
+      int sectionid,
+      String groupName
   ) throws Exception {
     ModelAndView mv = new ModelAndView("view-news-archive");
 
@@ -59,13 +60,13 @@ public class ArchiveController {
     mv.getModel().put("section", section);
 
     Group group = null;
-    if (groupName!=null) {
+    if (groupName != null) {
       group = groupDao.getGroup(section, groupName);
     }
 
     mv.getModel().put("group", group);
 
-    List<ArchiveDao.ArchiveDTO> items = archiveDao.getArchiveDTO(section, group);
+    List<ArchiveDto> items = archiveDao.getArchiveDTO(section, group);
 
     mv.getModel().put("items", items);
 
@@ -77,6 +78,7 @@ public class ArchiveController {
   ) throws Exception {
     return archiveList(Section.SECTION_GALLERY);
   }
+
   @RequestMapping("/news/archive")
   public ModelAndView newsArchive(
   ) throws Exception {
@@ -91,16 +93,16 @@ public class ArchiveController {
 
   @RequestMapping("/forum/{group}/archive")
   public ModelAndView forumArchive(
-    @PathVariable String group
+      @PathVariable String group
   ) throws Exception {
     return archiveList(Section.SECTION_FORUM, group);
   }
 
-  @RequestMapping(value="/view-news-archive.jsp")
+  @RequestMapping(value = "/view-news-archive.jsp")
   public View galleryArchiveOld(@RequestParam("section") int id, HttpServletResponse response) throws Exception {
     String link = Section.getArchiveLink(id);
 
-    if (link==null) {
+    if (link == null) {
       response.sendError(404, "No archive for this section");
       return null;
     }
