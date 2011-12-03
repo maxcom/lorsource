@@ -28,12 +28,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.view.RedirectView;
+import ru.org.linux.dao.SectionDao;
 import ru.org.linux.dao.UserDao;
+import ru.org.linux.dto.SectionDto;
 import ru.org.linux.dto.UserDto;
 import ru.org.linux.spring.dao.TagDao;
 import ru.org.linux.site.*;
 import ru.org.linux.spring.dao.GroupDao;
-import ru.org.linux.spring.dao.SectionDao;
 import ru.org.linux.util.DateUtil;
 import ru.org.linux.util.ServletParameterException;
 import ru.org.linux.util.ServletParameterMissingException;
@@ -49,7 +50,7 @@ import java.util.*;
 
 @Controller
 public class NewsViewerController {
-  private static final String[] filterValues = { "all", "notalks", "tech"};
+  private static final String[] filterValues = {"all", "notalks", "tech"};
   private static final Set<String> filterValuesSet = new HashSet<String>(Arrays.asList(filterValues));
 
   @Autowired
@@ -76,29 +77,29 @@ public class NewsViewerController {
 
   @RequestMapping(value = "/view-news.jsp", method = {RequestMethod.GET, RequestMethod.HEAD})
   public ModelAndView showNews(
-          @RequestParam(value = "month", required = false) Integer month,
-          @RequestParam(value = "year", required = false) Integer year,
-          @RequestParam(value = "section", required = false) Integer sectionid,
-          @RequestParam(value = "group", required = false) Integer groupid,
-          @RequestParam(value = "tag", required = false) String tag,
-          @RequestParam(value = "offset", required = false) Integer offset,
-          HttpServletRequest request,
-          HttpServletResponse response
+      @RequestParam(value = "month", required = false) Integer month,
+      @RequestParam(value = "year", required = false) Integer year,
+      @RequestParam(value = "section", required = false) Integer sectionid,
+      @RequestParam(value = "group", required = false) Integer groupid,
+      @RequestParam(value = "tag", required = false) String tag,
+      @RequestParam(value = "offset", required = false) Integer offset,
+      HttpServletRequest request,
+      HttpServletResponse response
   ) throws Exception {
     Map<String, Object> params = new HashMap<String, Object>();
 
     params.put("url", "view-news.jsp");
     StringBuilder urlParams = new StringBuilder();
 
-    Section section = null;
+    SectionDto sectionDto = null;
 
     if (sectionid != null) {
       urlParams.append("section=").append(Integer.toString(sectionid));
 
-      section = sectionDao.getSection(sectionid);
+      sectionDto = sectionDao.getSection(sectionid);
 
-      params.put("section", section);
-      params.put("archiveLink", section.getArchiveLink());
+      params.put("section", sectionDto);
+      params.put("archiveLink", sectionDto.getArchiveLink());
     }
 
     if (tag != null) {
@@ -164,26 +165,26 @@ public class NewsViewerController {
       params.put("tag", tag);
     }
 
-    if (section == null && tag == null) {
+    if (sectionDto == null && tag == null) {
       throw new ServletParameterException("section or tag required");
     }
 
     String navtitle;
-    if (section != null) {
-      navtitle = section.getName();
+    if (sectionDto != null) {
+      navtitle = sectionDto.getName();
     } else {
       navtitle = tag;
     }
 
     if (group != null) {
-      navtitle = "<a href=\"" + Section.getNewsViewerLink(group.getSectionId()) + "\">" + section.getName() + "</a> - <strong>" + group.getTitle() + "</strong>";
+      navtitle = "<a href=\"" + SectionDto.getNewsViewerLink(group.getSectionId()) + "\">" + sectionDto.getName() + "</a> - <strong>" + group.getTitle() + "</strong>";
     }
 
     String ptitle;
 
     if (month == null) {
-      if (section != null) {
-        ptitle = section.getName();
+      if (sectionDto != null) {
+        ptitle = sectionDto.getName();
         if (group != null) {
           ptitle += " - " + group.getTitle();
         }
@@ -195,7 +196,7 @@ public class NewsViewerController {
         ptitle = tag;
       }
     } else {
-      ptitle = "Архив: " + section.getName();
+      ptitle = "Архив: " + sectionDto.getName();
 
       if (group != null) {
         ptitle += " - " + group.getTitle();
@@ -214,9 +215,9 @@ public class NewsViewerController {
 
     final NewsViewer newsViewer = new NewsViewer();
 
-    if (section != null) {
+    if (sectionDto != null) {
       newsViewer.addSection(sectionid);
-      if (section.isPremoderated()) {
+      if (sectionDto.isPremoderated()) {
         newsViewer.setCommitMode(NewsViewer.CommitMode.COMMITED_ONLY);
       } else {
         newsViewer.setCommitMode(NewsViewer.CommitMode.POSTMODERATED_ONLY);
@@ -236,7 +237,7 @@ public class NewsViewerController {
     if (month != null) {
       newsViewer.setDatelimit("postdate>='" + year + '-' + month + "-01'::timestamp AND (postdate<'" + year + '-' + month + "-01'::timestamp+'1 month'::interval)");
     } else if (tag == null && group == null) {
-      if (!section.isPremoderated()) {
+      if (!sectionDto.isPremoderated()) {
         newsViewer.setDatelimit("(postdate>(CURRENT_TIMESTAMP-'6 month'::interval))");
       }
 
@@ -257,8 +258,8 @@ public class NewsViewerController {
     params.put("offsetNavigation", month == null);
     params.put("offset", offset);
 
-    if (section != null) {
-      String rssLink = "/section-rss.jsp?section=" + section.getId();
+    if (sectionDto != null) {
+      String rssLink = "/section-rss.jsp?section=" + sectionDto.getId();
       if (group != null) {
         rssLink += "&group=" + group.getId();
       }
@@ -269,13 +270,13 @@ public class NewsViewerController {
     return new ModelAndView("view-news", params);
   }
 
-  @RequestMapping(value="/people/{nick}")
+  @RequestMapping(value = "/people/{nick}")
   public ModelAndView showUserTopicsNew(
-    @PathVariable String nick,
-    @RequestParam(value="offset", required=false) Integer offset,
-    @RequestParam(value="output", required=false) String output,
-    HttpServletRequest request,
-    HttpServletResponse response
+      @PathVariable String nick,
+      @RequestParam(value = "offset", required = false) Integer offset,
+      @RequestParam(value = "output", required = false) String output,
+      HttpServletRequest request,
+      HttpServletResponse response
   ) throws Exception {
     Map<String, Object> params = new HashMap<String, Object>();
 
@@ -332,18 +333,18 @@ public class NewsViewerController {
     }
   }
 
-  @RequestMapping(value="/people/{nick}/favs")
+  @RequestMapping(value = "/people/{nick}/favs")
   public ModelAndView showUserFavs(
-    @PathVariable String nick,
-    @RequestParam(value="offset", required=false) Integer offset,
-    @RequestParam(value="output", required=false) String output,
-    HttpServletRequest request,
-    HttpServletResponse response
+      @PathVariable String nick,
+      @RequestParam(value = "offset", required = false) Integer offset,
+      @RequestParam(value = "output", required = false) String output,
+      HttpServletRequest request,
+      HttpServletResponse response
   ) throws Exception {
     Map<String, Object> params = new HashMap<String, Object>();
 
-    params.put("url", "/people/"+nick+ "/favs");
-    params.put("whoisLink", "/people/"+nick+ '/' +"profile");
+    params.put("url", "/people/" + nick + "/favs");
+    params.put("whoisLink", "/people/" + nick + '/' + "profile");
 
     response.setDateHeader("Expires", System.currentTimeMillis() + 60 * 1000);
     response.setDateHeader("Last-Modified", System.currentTimeMillis());
@@ -396,12 +397,12 @@ public class NewsViewerController {
   }
 
   private static int fixOffset(Integer offset) {
-    if (offset!=null) {
-      if (offset<0) {
-          return 0;
+    if (offset != null) {
+      if (offset < 0) {
+        return 0;
       }
 
-      if (offset>200) {
+      if (offset > 200) {
         return 200;
       }
 
@@ -411,26 +412,26 @@ public class NewsViewerController {
     }
   }
 
-  @RequestMapping(value="/view-all.jsp", method={RequestMethod.GET, RequestMethod.HEAD})
+  @RequestMapping(value = "/view-all.jsp", method = {RequestMethod.GET, RequestMethod.HEAD})
   public ModelAndView viewAll(
-    @RequestParam(value="section", required = false, defaultValue = "0") int sectionId,
-    HttpServletRequest request
+      @RequestParam(value = "section", required = false, defaultValue = "0") int sectionId,
+      HttpServletRequest request
   ) throws Exception {
 
     ModelAndView modelAndView = new ModelAndView("view-all");
 
-    Section section = null;
+    SectionDto sectionDto = null;
 
     if (sectionId != 0) {
-      section = sectionDao.getSection(sectionId);
-      modelAndView.getModel().put("section", section);
+      sectionDto = sectionDao.getSection(sectionId);
+      modelAndView.getModel().put("section", sectionDto);
     }
 
     final NewsViewer newsViewer = new NewsViewer();
     newsViewer.setCommitMode(NewsViewer.CommitMode.UNCOMMITED_ONLY);
     newsViewer.setDatelimit("postdate>(CURRENT_TIMESTAMP-'1 month'::interval)");
-    if (section != null) {
-      newsViewer.addSection(section.getId());
+    if (sectionDto != null) {
+      newsViewer.addSection(sectionDto.getId());
     }
 
     List<Message> messages = jdbcTemplate.execute(new ConnectionCallback<List<Message>>() {
@@ -453,14 +454,14 @@ public class NewsViewerController {
 
     if (sectionId == 0) {
       deleted = jdbcTemplate.query(
-              "SELECT topics.title as subj, nick, groups.section, groups.title as gtitle, topics.id as msgid, groups.id as guid, sections.name as ptitle, reason FROM topics,groups,users,sections,del_info WHERE sections.id=groups.section AND topics.userid=users.id AND topics.groupid=groups.id AND sections.moderate AND deleted AND del_info.msgid=topics.id AND topics.userid!=del_info.delby AND delDate is not null ORDER BY del_info.delDate DESC LIMIT 20",
-              mapper
+          "SELECT topics.title as subj, nick, groups.section, groups.title as gtitle, topics.id as msgid, groups.id as guid, sections.name as ptitle, reason FROM topics,groups,users,sections,del_info WHERE sections.id=groups.section AND topics.userid=users.id AND topics.groupid=groups.id AND sections.moderate AND deleted AND del_info.msgid=topics.id AND topics.userid!=del_info.delby AND delDate is not null ORDER BY del_info.delDate DESC LIMIT 20",
+          mapper
       );
     } else {
       deleted = jdbcTemplate.query(
-              "SELECT topics.title as subj, nick, groups.section, groups.title as gtitle, topics.id as msgid, groups.id as guid, sections.name as ptitle, reason FROM topics,groups,users,sections,del_info WHERE sections.id=groups.section AND topics.userid=users.id AND topics.groupid=groups.id AND sections.moderate AND deleted AND del_info.msgid=topics.id AND topics.userid!=del_info.delby AND delDate is not null AND section=? ORDER BY del_info.delDate DESC LIMIT 20",
-              mapper,
-              sectionId
+          "SELECT topics.title as subj, nick, groups.section, groups.title as gtitle, topics.id as msgid, groups.id as guid, sections.name as ptitle, reason FROM topics,groups,users,sections,del_info WHERE sections.id=groups.section AND topics.userid=users.id AND topics.groupid=groups.id AND sections.moderate AND deleted AND del_info.msgid=topics.id AND topics.userid!=del_info.delby AND delDate is not null AND section=? ORDER BY del_info.delDate DESC LIMIT 20",
+          mapper,
+          sectionId
       );
     }
 
@@ -521,23 +522,23 @@ public class NewsViewerController {
 
   @RequestMapping(value = "/show-topics.jsp", method = RequestMethod.GET)
   public View showUserTopics(
-    @RequestParam("nick") String nick,
-    @RequestParam(value="output", required=false) String output
+      @RequestParam("nick") String nick,
+      @RequestParam(value = "output", required = false) String output
   ) {
-    if (output!=null) {
-      return new RedirectView("/people/"+nick+"/?output=rss");
+    if (output != null) {
+      return new RedirectView("/people/" + nick + "/?output=rss");
     }
 
-    return new RedirectView("/people/"+nick+ '/');
+    return new RedirectView("/people/" + nick + '/');
   }
 
   @RequestMapping("/gallery/")
   public ModelAndView gallery(
-    @RequestParam(required=false) Integer offset,
-    HttpServletRequest request,
-    HttpServletResponse response
+      @RequestParam(required = false) Integer offset,
+      HttpServletRequest request,
+      HttpServletResponse response
   ) throws Exception {
-    ModelAndView mv = showNews(null, null, Section.SECTION_GALLERY, null, null, offset, request, response);
+    ModelAndView mv = showNews(null, null, SectionDto.SECTION_GALLERY, null, null, offset, request, response);
 
     mv.getModel().put("url", "/gallery/");
     mv.getModel().put("params", null);
@@ -547,11 +548,11 @@ public class NewsViewerController {
 
   @RequestMapping("/forum/lenta")
   public ModelAndView forum(
-    @RequestParam(required=false) Integer offset,
-    HttpServletRequest request,
-    HttpServletResponse response
+      @RequestParam(required = false) Integer offset,
+      HttpServletRequest request,
+      HttpServletResponse response
   ) throws Exception {
-    ModelAndView mv = showNews(null, null, Section.SECTION_FORUM, null, null, offset, request, response);
+    ModelAndView mv = showNews(null, null, SectionDto.SECTION_FORUM, null, null, offset, request, response);
 
     mv.getModel().put("url", "/forum/lenta");
     mv.getModel().put("params", null);
@@ -561,11 +562,11 @@ public class NewsViewerController {
 
   @RequestMapping("/polls/")
   public ModelAndView polls(
-    @RequestParam(required=false) Integer offset,
-    HttpServletRequest request,
-    HttpServletResponse response
+      @RequestParam(required = false) Integer offset,
+      HttpServletRequest request,
+      HttpServletResponse response
   ) throws Exception {
-    ModelAndView mv = showNews(null, null, Section.SECTION_POLLS, null, null, offset, request, response);
+    ModelAndView mv = showNews(null, null, SectionDto.SECTION_POLLS, null, null, offset, request, response);
 
     mv.getModel().put("url", "/polls/");
     mv.getModel().put("params", null);
@@ -575,11 +576,11 @@ public class NewsViewerController {
 
   @RequestMapping("/news/")
   public ModelAndView news(
-    @RequestParam(required=false) Integer offset,
-    HttpServletRequest request,
-    HttpServletResponse response
+      @RequestParam(required = false) Integer offset,
+      HttpServletRequest request,
+      HttpServletResponse response
   ) throws Exception {
-    ModelAndView mv = showNews(null, null, Section.SECTION_NEWS, null, null, offset, request, response);
+    ModelAndView mv = showNews(null, null, SectionDto.SECTION_NEWS, null, null, offset, request, response);
 
     mv.getModel().put("url", "/news/");
     mv.getModel().put("params", null);
@@ -589,44 +590,44 @@ public class NewsViewerController {
 
   @RequestMapping("/gallery/{group}")
   public ModelAndView galleryGroup(
-    @RequestParam(required=false) Integer offset,
-    @PathVariable("group") String groupName,
-    HttpServletRequest request,
-    HttpServletResponse response
+      @RequestParam(required = false) Integer offset,
+      @PathVariable("group") String groupName,
+      HttpServletRequest request,
+      HttpServletResponse response
   ) throws Exception {
-    return group(Section.SECTION_GALLERY, offset, groupName, request, response);
+    return group(SectionDto.SECTION_GALLERY, offset, groupName, request, response);
   }
 
   @RequestMapping("/news/{group}")
   public ModelAndView newsGroup(
-    @RequestParam(required=false) Integer offset,
-    @PathVariable("group") String groupName,
-    HttpServletRequest request,
-    HttpServletResponse response
+      @RequestParam(required = false) Integer offset,
+      @PathVariable("group") String groupName,
+      HttpServletRequest request,
+      HttpServletResponse response
   ) throws Exception {
-    return group(Section.SECTION_NEWS, offset, groupName, request, response);
+    return group(SectionDto.SECTION_NEWS, offset, groupName, request, response);
   }
 
   @RequestMapping("/polls/{group}")
   public ModelAndView pollsGroup(
-    @RequestParam(required=false) Integer offset,
-    @PathVariable("group") String groupName,
-    HttpServletRequest request,
-    HttpServletResponse response
+      @RequestParam(required = false) Integer offset,
+      @PathVariable("group") String groupName,
+      HttpServletRequest request,
+      HttpServletResponse response
   ) throws Exception {
-    return group(Section.SECTION_POLLS, offset, groupName, request, response);
+    return group(SectionDto.SECTION_POLLS, offset, groupName, request, response);
   }
 
   public ModelAndView group(
-    int sectionId,
-    Integer offset,
-    String groupName,
-    HttpServletRequest request,
-    HttpServletResponse response
+      int sectionId,
+      Integer offset,
+      String groupName,
+      HttpServletRequest request,
+      HttpServletResponse response
   ) throws Exception {
-    Section section = sectionDao.getSection(sectionId);
+    SectionDto sectionDto = sectionDao.getSection(sectionId);
 
-    Group group = groupDao.getGroup(section, groupName);
+    Group group = groupDao.getGroup(sectionDto, groupName);
 
     ModelAndView mv = showNews(null, null, group.getSectionId(), group.getId(), null, offset, request, response);
 
@@ -636,42 +637,42 @@ public class NewsViewerController {
     return mv;
   }
 
-  @RequestMapping(value="/view-news.jsp", params={ "section" })
+  @RequestMapping(value = "/view-news.jsp", params = {"section"})
   public View oldLink(
-    @RequestParam int section,
-    @RequestParam(required=false) Integer offset,
-    @RequestParam(value="month", required=false) Integer month,
-    @RequestParam(value="year", required=false) Integer year,
-    @RequestParam(value="group", required=false) Integer groupId
+      @RequestParam int section,
+      @RequestParam(required = false) Integer offset,
+      @RequestParam(value = "month", required = false) Integer month,
+      @RequestParam(value = "year", required = false) Integer year,
+      @RequestParam(value = "group", required = false) Integer groupId
   ) throws Exception {
-    if (offset!=null) {
-      return new RedirectView(Section.getNewsViewerLink(section)+"?offset="+Integer.toString(offset));
+    if (offset != null) {
+      return new RedirectView(SectionDto.getNewsViewerLink(section) + "?offset=" + Integer.toString(offset));
     }
 
-    if (year!=null && month!=null) {
-      return new RedirectView(Section.getArchiveLink(section)+Integer.toString(year)+ '/' +Integer.toString(month));
+    if (year != null && month != null) {
+      return new RedirectView(SectionDto.getArchiveLink(section) + Integer.toString(year) + '/' + Integer.toString(month));
     }
 
     if (groupId != null) {
       Group group = groupDao.getGroup(groupId);
 
-      return new RedirectView(Section.getNewsViewerLink(section) + group.getUrlName() + '/');
+      return new RedirectView(SectionDto.getNewsViewerLink(section) + group.getUrlName() + '/');
     }
 
-    return new RedirectView(Section.getNewsViewerLink(section));
+    return new RedirectView(SectionDto.getNewsViewerLink(section));
   }
 
   @RequestMapping("/{section}/archive/{year}/{month}")
   public ModelAndView galleryArchive(
-    @PathVariable String section,
-    @PathVariable int year,
-    @PathVariable int month,
-    HttpServletRequest request,
-    HttpServletResponse response
+      @PathVariable String section,
+      @PathVariable int year,
+      @PathVariable int month,
+      HttpServletRequest request,
+      HttpServletResponse response
   ) throws Exception {
-    ModelAndView mv = showNews(month, year, Section.getSection(section), null, null, null, request, response);
+    ModelAndView mv = showNews(month, year, SectionDto.getSection(section), null, null, null, request, response);
 
-    mv.getModel().put("url", "/gallery/archive/"+year+ '/' +month+ '/');
+    mv.getModel().put("url", "/gallery/archive/" + year + '/' + month + '/');
     mv.getModel().put("params", null);
 
     return mv;
@@ -679,33 +680,33 @@ public class NewsViewerController {
 
   @RequestMapping("/section-rss.jsp")
   public ModelAndView showRSS(
-    @RequestParam(value="filter", required = false) String filter,
-    @RequestParam(value="section", required = false) Integer sectionId,
-    @RequestParam(value="group", required = false) Integer groupId,
-    HttpServletRequest request
+      @RequestParam(value = "filter", required = false) String filter,
+      @RequestParam(value = "section", required = false) Integer sectionId,
+      @RequestParam(value = "group", required = false) Integer groupId,
+      HttpServletRequest request
   ) throws Exception {
 
-    if (filter!=null && !filterValuesSet.contains(filter)) {
+    if (filter != null && !filterValuesSet.contains(filter)) {
       throw new UserErrorException("Некорректное значение filter");
     }
 
     Map<String, Object> params = new HashMap<String, Object>();
 
-    if (sectionId==null) {
+    if (sectionId == null) {
       sectionId = 1;
     }
 
-    if (groupId==null) {
+    if (groupId == null) {
       groupId = 0;
     }
 
-    boolean notalks = filter!=null && "notalks".equals(filter);
-    boolean tech = filter!=null && "tech".equals(filter);
+    boolean notalks = filter != null && "notalks".equals(filter);
+    boolean tech = filter != null && "tech".equals(filter);
 
     String userAgent = request.getHeader("User-Agent");
-    final boolean feedBurner = userAgent!=null && userAgent.contains("FeedBurner");
+    final boolean feedBurner = userAgent != null && userAgent.contains("FeedBurner");
 
-    if (sectionId==1 && groupId==0 && !notalks && !tech && !feedBurner && request.getParameter("noredirect")==null) {
+    if (sectionId == 1 && groupId == 0 && !notalks && !tech && !feedBurner && request.getParameter("noredirect") == null) {
       return new ModelAndView(new RedirectView("http://feeds.feedburner.com/org/LOR"));
     }
 
@@ -713,7 +714,7 @@ public class NewsViewerController {
     nv.addSection(sectionId);
     nv.setDatelimit(" postdate>(CURRENT_TIMESTAMP-'3 month'::interval) ");
 
-    if (groupId !=0) {
+    if (groupId != 0) {
       nv.setGroup(groupId);
     }
 
@@ -722,10 +723,10 @@ public class NewsViewerController {
 
     nv.setLimit("LIMIT 20");
 
-    Section section = sectionDao.getSection(sectionId);
-    params.put("section", section);
+    SectionDto sectionDto = sectionDao.getSection(sectionId);
+    params.put("section", sectionDto);
 
-    if (section.isPremoderated()) {
+    if (sectionDto.isPremoderated()) {
       nv.setCommitMode(NewsViewer.CommitMode.COMMITED_ONLY);
     } else {
       nv.setCommitMode(NewsViewer.CommitMode.POSTMODERATED_ONLY);
@@ -742,7 +743,7 @@ public class NewsViewerController {
       params.put("group", group);
     }
 
-    String ptitle = section.getName();
+    String ptitle = sectionDto.getName();
     if (group != null) {
       ptitle += " - " + group.getTitle();
     }

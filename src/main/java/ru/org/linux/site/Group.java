@@ -15,6 +15,7 @@
 
 package ru.org.linux.site;
 
+import ru.org.linux.dto.SectionDto;
 import ru.org.linux.dto.UserDto;
 
 import java.io.Serializable;
@@ -121,7 +122,7 @@ public class Group implements Serializable {
       return true;
     }
 
-    if (currentUser==null) {
+    if (currentUser == null) {
       return false;
     }
 
@@ -129,7 +130,7 @@ public class Group implements Serializable {
       return false;
     }
 
-    if (restrictTopics==-1) {
+    if (restrictTopics == -1) {
       return currentUser.isModerator();
     } else {
       return currentUser.getScore() >= restrictTopics;
@@ -149,7 +150,7 @@ public class Group implements Serializable {
       return true;
     }
 
-    if (restrictComments==-1) {
+    if (restrictComments == -1) {
       return currentUser.isModerator();
     }
 
@@ -193,11 +194,11 @@ public class Group implements Serializable {
   }
 
   public String getSectionLink() {
-    return Section.getSectionLink(section);
+    return SectionDto.getSectionLink(section);
   }
 
   public String getUrl() {
-    return getSectionLink()+urlName+ '/';
+    return getSectionLink() + urlName + '/';
   }
 
   public String getUrlName() {
@@ -205,7 +206,7 @@ public class Group implements Serializable {
   }
 
   public String getArchiveLink(int year, int month) {
-    return getUrl() +year+ '/' +month+ '/';
+    return getUrl() + year + '/' + month + '/';
   }
 
   public void setTitle(String title) {

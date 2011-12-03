@@ -29,7 +29,9 @@ import org.springframework.web.multipart.MultipartRequest;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.search.SearchQueueSender;
+import ru.org.linux.dao.SectionDao;
 import ru.org.linux.dao.UserDao;
+import ru.org.linux.dto.SectionDto;
 import ru.org.linux.dto.UserDto;
 import ru.org.linux.spring.dao.TagDao;
 import ru.org.linux.site.*;
@@ -133,7 +135,7 @@ public class AddMessageController extends ApplicationObjectSupport {
 
     Template tmpl = Template.getTemplate(request);
 
-    if (form.getMode()==null) {
+    if (form.getMode() == null) {
       form.setMode(tmpl.getFormatMode());
     }
 
@@ -167,11 +169,11 @@ public class AddMessageController extends ApplicationObjectSupport {
   }
 
 
-  @RequestMapping(value="/add.jsp", method=RequestMethod.POST)
+  @RequestMapping(value = "/add.jsp", method = RequestMethod.POST)
   public ModelAndView doAdd(
-          HttpServletRequest request,
-          @Valid @ModelAttribute("form") AddMessageRequest form,
-          BindingResult errors
+      HttpServletRequest request,
+      @Valid @ModelAttribute("form") AddMessageRequest form,
+      BindingResult errors
   ) throws Exception {
     Map<String, Object> params = new HashMap<String, Object>();
 
@@ -183,11 +185,11 @@ public class AddMessageController extends ApplicationObjectSupport {
     Group group = form.getGroup();
     params.put("group", group);
 
-    if (group!=null && group.isModerated()) {
+    if (group != null && group.isModerated()) {
       params.put("topTags", tagDao.getTopTags());
     }
 
-    if (group!=null) {
+    if (group != null) {
       params.put("addportal", sectionDao.getAddInfo(group.getSectionId()));
     }
 
@@ -200,7 +202,7 @@ public class AddMessageController extends ApplicationObjectSupport {
         user = userDao.getAnonymous();
       }
 
-      if (form.getPassword()==null) {
+      if (form.getPassword() == null) {
         errors.rejectValue("password", null, "Требуется авторизация");
       }
     } else {
@@ -215,7 +217,7 @@ public class AddMessageController extends ApplicationObjectSupport {
 
     ipBlockDao.checkBlockIP(request.getRemoteAddr(), errors);
 
-    if (group!=null && !group.isTopicPostingAllowed(user)) {
+    if (group != null && !group.isTopicPostingAllowed(user)) {
       errors.reject(null, "Не достаточно прав для постинга тем в эту группу");
     }
 
@@ -233,10 +235,10 @@ public class AddMessageController extends ApplicationObjectSupport {
 
     Screenshot scrn = null;
 
-    if (group!=null && group.isImagePostAllowed()) {
+    if (group != null && group.isImagePostAllowed()) {
       scrn = processUpload(session, tmpl, image, errors);
 
-      if (scrn!=null) {
+      if (scrn != null) {
         form.setLinktext("gallery/preview/" + scrn.getIconFile().getName());
         form.setUrl("gallery/preview/" + scrn.getMainFile().getName());
       } else {
@@ -248,7 +250,7 @@ public class AddMessageController extends ApplicationObjectSupport {
 
     Message previewMsg = null;
 
-    if (group!=null) {
+    if (group != null) {
       previewMsg = new Message(form, user, message, request.getRemoteAddr());
       params.put("message", prepareService.prepareMessage(previewMsg, TagDao.parseSanitizeTags(form.getTags()), null, request.isSecure()));
     }
@@ -266,7 +268,7 @@ public class AddMessageController extends ApplicationObjectSupport {
       dupeProtector.checkDuplication(request.getRemoteAddr(), false, errors);
     }
 
-    if (!form.isPreviewMode() && !errors.hasErrors() && group!=null) {
+    if (!form.isPreviewMode() && !errors.hasErrors() && group != null) {
       session.removeAttribute("image");
 
       Set<UserDto> userRefs = lorCodeService.getReplierFromMessage(message);
@@ -298,13 +300,13 @@ public class AddMessageController extends ApplicationObjectSupport {
 
     params.put("sectionId", sectionId);
 
-    Section section = sectionDao.getSection(sectionId);
+    SectionDto sectionDto = sectionDao.getSection(sectionId);
 
-    params.put("section", section);
+    params.put("section", sectionDto);
 
-    params.put("info", sectionDao.getAddInfo(section.getId()));
+    params.put("info", sectionDao.getAddInfo(sectionDto.getId()));
 
-    params.put("groups", groupDao.getGroups(section));
+    params.put("groups", groupDao.getGroups(sectionDto));
 
     return new ModelAndView("add-section", params);
   }
@@ -323,7 +325,7 @@ public class AddMessageController extends ApplicationObjectSupport {
 
       @Override
       public String getAsText() {
-        if (getValue()==null) {
+        if (getValue() == null) {
           return null;
         } else {
           return Integer.toString(((Group) getValue()).getId());
@@ -347,7 +349,6 @@ public class AddMessageController extends ApplicationObjectSupport {
   }
 
   /**
-   *
    * @param session
    * @param tmpl
    * @return <icon, image, previewImagePath> or null
@@ -355,12 +356,12 @@ public class AddMessageController extends ApplicationObjectSupport {
    * @throws UtilException
    */
   private Screenshot processUpload(
-          HttpSession session,
-          Template tmpl,
-          String image,
-          Errors errors
+      HttpSession session,
+      Template tmpl,
+      String image,
+      Errors errors
   ) throws IOException, UtilException {
-    if (session==null) {
+    if (session == null) {
       return null;
     }
 
@@ -371,9 +372,9 @@ public class AddMessageController extends ApplicationObjectSupport {
 
       try {
         screenshot = Screenshot.createScreenshot(
-                uploadedFile,
-                errors,
-                tmpl.getObjectConfig().getHTMLPathPrefix() + "/gallery/preview"
+            uploadedFile,
+            errors,
+            tmpl.getObjectConfig().getHTMLPathPrefix() + "/gallery/preview"
         );
 
         if (screenshot != null) {

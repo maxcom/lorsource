@@ -22,9 +22,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.view.RedirectView;
-import ru.org.linux.site.Section;
+import ru.org.linux.dao.SectionDao;
+import ru.org.linux.dto.SectionDto;
 import ru.org.linux.spring.dao.GroupDao;
-import ru.org.linux.spring.dao.SectionDao;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -39,22 +39,22 @@ public class SectionController {
 
   @RequestMapping("/view-section.jsp")
   public ModelAndView handleRequestInternal(@RequestParam("section") int sectionid) throws Exception {
-    Section section = sectionDao.getSection(sectionid);
+    SectionDto sectionDto = sectionDao.getSection(sectionid);
 
     Map<String, Object> params = new HashMap<String, Object>();
-    params.put("section", section);
+    params.put("section", sectionDto);
 
-    params.put("groups", groupDao.getGroups(section));
+    params.put("groups", groupDao.getGroups(sectionDto));
 
     return new ModelAndView("section", params);
   }
 
   @RequestMapping("/forum")
   public ModelAndView forum() throws Exception {
-    return handleRequestInternal(Section.SECTION_FORUM);
+    return handleRequestInternal(SectionDto.SECTION_FORUM);
   }
 
-  @RequestMapping(value="/view-section.jsp", params = {"section=2"})
+  @RequestMapping(value = "/view-section.jsp", params = {"section=2"})
   public View forumOld() {
     return new RedirectView("/forum/");
   }

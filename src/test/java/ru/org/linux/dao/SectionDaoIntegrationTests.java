@@ -14,38 +14,31 @@
  */
 package ru.org.linux.dao;
 
+import com.google.common.collect.ImmutableList;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import ru.org.linux.dto.ArchiveDto;
 import ru.org.linux.dto.SectionDto;
-
-import java.util.List;
-
-import static org.mockito.Mockito.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("commonDAO-context.xml")
-public class ArchiveDaoIntegrationTests {
-
+public class SectionDaoIntegrationTests {
   @Autowired
-  ArchiveDao archiveDao;
+  SectionDao sectionDao;
 
   @Test
-  public void archiveTest() {
-    SectionDto sectionDto = mock(SectionDto.class);
-    when(sectionDto.getId()).thenReturn(SectionDto.SECTION_FORUM);
-
-    List<ArchiveDto> archiveDtoList = archiveDao.getArchiveDTO(sectionDto, 3);
-
-    // TODO: для чистоты тестов необходимо создать отдельную СУБД, в которую вносить только те данные, которые потом и проверять.
-    // Сейчас нет возможности точно проверить количество (и содержимое) архива, не удалив все архивы из существующей базы.
-    // разве что создать свои секции и группы, но лучше создать тестовую СУБД.
-
-    Assert.assertEquals(3, archiveDtoList.size());
+  public void sectionsTest()
+      throws Exception {
+    ImmutableList<SectionDto> sectionDtoImmutableList = sectionDao.getSectionsList();
+    Assert.assertEquals(4, sectionDtoImmutableList.size());
+    SectionDto sectionDto = sectionDao.getSection(SectionDto.SECTION_FORUM);
+    String addInfo = sectionDao.getAddInfo(sectionDto.getId());
+    Assert.assertNotNull(addInfo);
+    Assert.assertTrue("Форум".equals(sectionDto.getName()));
+    Assert.assertEquals(2, sectionDto.getId());
 
   }
 }

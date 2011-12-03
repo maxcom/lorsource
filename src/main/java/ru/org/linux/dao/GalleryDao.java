@@ -21,7 +21,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.stereotype.Repository;
 import ru.org.linux.dto.GalleryDto;
-import ru.org.linux.site.Section;
+import ru.org.linux.dto.SectionDto;
 import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.ImageInfo;
 
@@ -53,7 +53,7 @@ public class GalleryDao {
     String sql = "SELECT topics.id as msgid, " +
         " topics.stat1, topics.title, topics.url, topics.linktext, nick, urlname FROM topics " +
         " JOIN groups ON topics.groupid = groups.id " +
-        " JOIN users ON users.id = topics.userid WHERE topics.moderate AND section=" + Section.SECTION_GALLERY +
+        " JOIN users ON users.id = topics.userid WHERE topics.moderate AND section=" + SectionDto.SECTION_GALLERY +
         " AND NOT deleted AND commitdate is not null ORDER BY commitdate DESC LIMIT 3";
     return template.query(sql, new RowMapper<GalleryDto>() {
       @Override
@@ -66,7 +66,7 @@ public class GalleryDao {
         item.setIcon(rs.getString("linktext"));
         item.setNick(rs.getString("nick"));
         item.setStat(rs.getInt("stat1"));
-        item.setLink(Section.getSectionLink(Section.SECTION_GALLERY) + rs.getString("urlname") + '/' + rs.getInt("msgid"));
+        item.setLink(SectionDto.getSectionLink(SectionDto.SECTION_GALLERY) + rs.getString("urlname") + '/' + rs.getInt("msgid"));
 
         // TODO: а это уже к доменому классу относится:
         String htmlPath = properties.getProperty("HTMLPathPrefix");

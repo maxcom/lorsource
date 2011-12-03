@@ -17,6 +17,7 @@ package ru.org.linux.site;
 
 import org.junit.Test;
 import junit.framework.Assert;
+import ru.org.linux.dto.SectionDto;
 import ru.org.linux.dto.UserDto;
 
 import java.sql.ResultSet;
@@ -37,6 +38,7 @@ public class MessageTest {
   /**
    * Проверка что пользователь МОЖЕТ удалить топик автором которого он является
    * и прошло меньше часа с момента почтинга
+   *
    * @throws Exception
    */
   @Test
@@ -74,9 +76,11 @@ public class MessageTest {
 
     Assert.assertTrue(message.isDeletableByUser(user));
   }
+
   /**
    * Проверка что пользователь НЕМОЖЕТ удалить топик автором которого он является
    * и прошло больше часа с момента почтинга
+   *
    * @throws Exception
    */
   @Test
@@ -118,6 +122,7 @@ public class MessageTest {
   /**
    * Проверка что пользователь НЕМОЖЕТ удалить топик автором которого он неявляется
    * и прошло больше часа с момента постинга
+   *
    * @throws Exception
    */
   @Test
@@ -159,6 +164,7 @@ public class MessageTest {
   /**
    * Проверка что пользователь НЕМОЖЕТ удалить топик автором которого он неявляется
    * и прошло больше часа с момента постинга
+   *
    * @throws Exception
    */
   @Test
@@ -199,6 +205,7 @@ public class MessageTest {
 
   /**
    * Проверка для модератора
+   *
    * @throws Exception
    */
   @Test
@@ -208,8 +215,8 @@ public class MessageTest {
     ResultSet resultSetNotModerateOld;
     ResultSet resultSetModerateNew;
     ResultSet resultSetNotModerateNew;
-    Section sectionModerate;
-    Section sectionNotModerate;
+    SectionDto sectionDtoModerate;
+    SectionDto sectionDtoNotModerate;
 
     Calendar calendar = Calendar.getInstance();
 
@@ -290,10 +297,10 @@ public class MessageTest {
     Assert.assertEquals(true, user.isModerator());
 
 
-    sectionModerate = mock(Section.class);
-    when(sectionModerate.isPremoderated()).thenReturn(true);
-    sectionNotModerate = mock(Section.class);
-    when(sectionNotModerate.isPremoderated()).thenReturn(false);
+    sectionDtoModerate = mock(SectionDto.class);
+    when(sectionDtoModerate.isPremoderated()).thenReturn(true);
+    sectionDtoNotModerate = mock(SectionDto.class);
+    when(sectionDtoNotModerate.isPremoderated()).thenReturn(false);
 
     // проверка что данные в mock resultSet верные
     Assert.assertEquals(true, resultSetModerateNew.getBoolean("moderate"));
@@ -324,22 +331,22 @@ public class MessageTest {
     Assert.assertTrue((new Timestamp(oldTime)).compareTo(messageNotModerateOld.getPostdate()) == 0);
 
     // нельзя удалять старые подтвержденные топики в премодерируемом разделе
-    Assert.assertFalse(messageModerateOld.isDeletableByModerator(user, sectionModerate));
+    Assert.assertFalse(messageModerateOld.isDeletableByModerator(user, sectionDtoModerate));
     // можно удалять старые подтвержденные топики в непремодерируемом разделе
-    Assert.assertTrue(messageModerateOld.isDeletableByModerator(user, sectionNotModerate));
+    Assert.assertTrue(messageModerateOld.isDeletableByModerator(user, sectionDtoNotModerate));
     // можно удалять старые не подтвержденные топики в премодерируемом разделе
-    Assert.assertTrue(messageNotModerateOld.isDeletableByModerator(user, sectionModerate));
+    Assert.assertTrue(messageNotModerateOld.isDeletableByModerator(user, sectionDtoModerate));
     // можно удалять старые не подтвержденные топики в непремодерируемом разделе
-    Assert.assertTrue(messageNotModerateOld.isDeletableByModerator(user, sectionNotModerate));
+    Assert.assertTrue(messageNotModerateOld.isDeletableByModerator(user, sectionDtoNotModerate));
 
     // можно удалять новые подтвержденные топики в премодерируемом разделе
-    Assert.assertTrue(messageModerateNew.isDeletableByModerator(user, sectionModerate));
+    Assert.assertTrue(messageModerateNew.isDeletableByModerator(user, sectionDtoModerate));
     // можно удалять новые подтвержденные топики в непремодерируемом разделе
-    Assert.assertTrue(messageModerateNew.isDeletableByModerator(user, sectionNotModerate));
+    Assert.assertTrue(messageModerateNew.isDeletableByModerator(user, sectionDtoNotModerate));
     // можно удалять новые не подтвержденные топики в премодерируемом разделе
-    Assert.assertTrue(messageNotModerateNew.isDeletableByModerator(user, sectionModerate));
+    Assert.assertTrue(messageNotModerateNew.isDeletableByModerator(user, sectionDtoModerate));
     // можно удалять новые не подтвержденные топики в непремодерируемом разделе
-    Assert.assertTrue(messageNotModerateNew.isDeletableByModerator(user, sectionNotModerate));
+    Assert.assertTrue(messageNotModerateNew.isDeletableByModerator(user, sectionDtoNotModerate));
   }
 
 }

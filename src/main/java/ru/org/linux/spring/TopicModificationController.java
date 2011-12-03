@@ -23,11 +23,12 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
+import ru.org.linux.dao.SectionDao;
+import ru.org.linux.dto.SectionDto;
 import ru.org.linux.dto.UserDto;
 import ru.org.linux.site.*;
 import ru.org.linux.spring.dao.GroupDao;
 import ru.org.linux.spring.dao.MessageDao;
-import ru.org.linux.spring.dao.SectionDao;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
@@ -46,10 +47,10 @@ public class TopicModificationController extends ApplicationObjectSupport {
   @Autowired
   private GroupDao groupDao;
 
-  @RequestMapping(value="/setpostscore.jsp", method= RequestMethod.GET)
+  @RequestMapping(value = "/setpostscore.jsp", method = RequestMethod.GET)
   public ModelAndView showForm(
-    ServletRequest request,
-    @RequestParam int msgid
+      ServletRequest request,
+      @RequestParam int msgid
   ) throws Exception {
     Template tmpl = Template.getTemplate(request);
 
@@ -65,14 +66,14 @@ public class TopicModificationController extends ApplicationObjectSupport {
     return mv;
   }
 
-  @RequestMapping(value="/setpostscore.jsp", method= RequestMethod.POST)
+  @RequestMapping(value = "/setpostscore.jsp", method = RequestMethod.POST)
   public ModelAndView modifyTopic(
-    ServletRequest request,
-    @RequestParam int msgid,
-    @RequestParam int postscore,
-    @RequestParam(defaultValue="false") boolean sticky,
-    @RequestParam(defaultValue="false") boolean notop,
-    @RequestParam(defaultValue="false") boolean minor
+      ServletRequest request,
+      @RequestParam int msgid,
+      @RequestParam int postscore,
+      @RequestParam(defaultValue = "false") boolean sticky,
+      @RequestParam(defaultValue = "false") boolean notop,
+      @RequestParam(defaultValue = "false") boolean minor
   ) throws Exception {
     Template tmpl = Template.getTemplate(request);
 
@@ -129,10 +130,10 @@ public class TopicModificationController extends ApplicationObjectSupport {
     return mv;
   }
 
-  @RequestMapping(value="/mtn.jsp", method=RequestMethod.GET)
+  @RequestMapping(value = "/mtn.jsp", method = RequestMethod.GET)
   public ModelAndView moveTopicForm(
-    ServletRequest request,
-    @RequestParam int msgid
+      ServletRequest request,
+      @RequestParam int msgid
   ) throws Exception {
     Template tmpl = Template.getTemplate(request);
 
@@ -143,20 +144,20 @@ public class TopicModificationController extends ApplicationObjectSupport {
     ModelAndView mv = new ModelAndView("mtn");
 
     Message message = messageDao.getById(msgid);
-    Section section = sectionDao.getSection(message.getSectionId());
+    SectionDto sectionDto = sectionDao.getSection(message.getSectionId());
 
     mv.getModel().put("message", message);
 
-    mv.getModel().put("groups", groupDao.getGroups(section));
+    mv.getModel().put("groups", groupDao.getGroups(sectionDto));
 
     return mv;
   }
 
-  @RequestMapping(value="/mt.jsp", method=RequestMethod.POST)
+  @RequestMapping(value = "/mt.jsp", method = RequestMethod.POST)
   public ModelAndView moveTopic(
-    ServletRequest request,
-    @RequestParam int msgid,
-    @RequestParam("moveto") int newgr
+      ServletRequest request,
+      @RequestParam int msgid,
+      @RequestParam("moveto") int newgr
   ) throws Exception {
     Template tmpl = Template.getTemplate(request);
 
@@ -175,15 +176,15 @@ public class TopicModificationController extends ApplicationObjectSupport {
     messageDao.moveTopic(msg, newGrp, tmpl.getCurrentUser());
 
     logger.info("topic " + msgid + " moved" +
-            " by " + tmpl.getNick() + " from news/forum " + msg.getGroupTitle() + " to forum " + newGrp.getTitle());
+        " by " + tmpl.getNick() + " from news/forum " + msg.getGroupTitle() + " to forum " + newGrp.getTitle());
 
     return new ModelAndView(new RedirectView(msg.getLinkLastmod()));
   }
 
-  @RequestMapping(value="/mt.jsp", method=RequestMethod.GET)
+  @RequestMapping(value = "/mt.jsp", method = RequestMethod.GET)
   public ModelAndView moveTopicFormForum(
-    ServletRequest request,
-    @RequestParam int msgid
+      ServletRequest request,
+      @RequestParam int msgid
   ) throws Exception {
     Template tmpl = Template.getTemplate(request);
 
@@ -197,17 +198,17 @@ public class TopicModificationController extends ApplicationObjectSupport {
 
     mv.getModel().put("message", message);
 
-    Section section = sectionDao.getSection(Section.SECTION_FORUM);
+    SectionDto sectionDto = sectionDao.getSection(SectionDto.SECTION_FORUM);
 
-    mv.getModel().put("groups", groupDao.getGroups(section));
+    mv.getModel().put("groups", groupDao.getGroups(sectionDto));
 
     return mv;
   }
 
   @RequestMapping(value = "/uncommit.jsp", method = RequestMethod.GET)
   public ModelAndView uncommitForm(
-    HttpServletRequest request,
-    @RequestParam int msgid
+      HttpServletRequest request,
+      @RequestParam int msgid
   ) throws Exception {
     Template tmpl = Template.getTemplate(request);
 
@@ -226,10 +227,10 @@ public class TopicModificationController extends ApplicationObjectSupport {
     return mv;
   }
 
-  @RequestMapping(value="/uncommit.jsp", method=RequestMethod.POST)
+  @RequestMapping(value = "/uncommit.jsp", method = RequestMethod.POST)
   public ModelAndView uncommit(
-    HttpServletRequest request,
-    @RequestParam int msgid
+      HttpServletRequest request,
+      @RequestParam int msgid
   ) throws Exception {
     Template tmpl = Template.getTemplate(request);
 

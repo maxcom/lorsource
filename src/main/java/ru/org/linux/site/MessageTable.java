@@ -29,12 +29,12 @@ public class MessageTable {
   private MessageTable() {
   }
 
-  public static String getTopicRss(String htmlPath, String fullUrl, PreparedMessage preparedTopic) throws   IOException, BadImageException {
+  public static String getTopicRss(String htmlPath, String fullUrl, PreparedMessage preparedTopic) throws IOException, BadImageException {
     StringBuilder buf = new StringBuilder();
 
     Message topic = preparedTopic.getMessage();
 
-    if (preparedTopic.getSection().isImagepost()) {
+    if (preparedTopic.getSectionDto().isImagepost()) {
       buf.append(NewsViewer.showMediumImage(htmlPath, topic, true));
 
       ImageInfo info = new ImageInfo(htmlPath + topic.getUrl(), ImageInfo.detectImageType(new File(htmlPath + topic.getUrl())));

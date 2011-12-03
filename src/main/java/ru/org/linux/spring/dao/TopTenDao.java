@@ -26,7 +26,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 
 import org.springframework.stereotype.Repository;
-import ru.org.linux.site.Section;
+import ru.org.linux.dto.SectionDto;
 
 @Repository
 public class TopTenDao {
@@ -42,18 +42,18 @@ public class TopTenDao {
   }
 
 
-  public List<TopTenMessageDTO> getMessages(){
+  public List<TopTenMessageDTO> getMessages() {
     String sql =
-      "select topics.id as msgid, groups.urlname, groups.section, topics.title, lastmod, topics.stat1 as c  " +
-        "from topics " +
-        "join groups on groups.id = topics.groupid" +
-      " where topics.postdate>(CURRENT_TIMESTAMP-'1 month 1 day'::interval) and not deleted and notop is null " +
-      " and groupid!=8404 and groupid!=4068 order by c desc, msgid limit 10";
+        "select topics.id as msgid, groups.urlname, groups.section, topics.title, lastmod, topics.stat1 as c  " +
+            "from topics " +
+            "join groups on groups.id = topics.groupid" +
+            " where topics.postdate>(CURRENT_TIMESTAMP-'1 month 1 day'::interval) and not deleted and notop is null " +
+            " and groupid!=8404 and groupid!=4068 order by c desc, msgid limit 10";
     return jdbcTemplate.query(sql, new RowMapper<TopTenMessageDTO>() {
       @Override
       public TopTenMessageDTO mapRow(ResultSet rs, int i) throws SQLException {
         TopTenMessageDTO result = new TopTenMessageDTO();
-        result.setUrl(Section.getSectionLink(rs.getInt("section"))+rs.getString("urlname")+ '/' +rs.getInt("msgid"));
+        result.setUrl(SectionDto.getSectionLink(rs.getInt("section")) + rs.getString("urlname") + '/' + rs.getInt("msgid"));
         result.setTitle(rs.getString("title"));
         result.setLastmod(rs.getTimestamp("lastmod"));
         result.setAnswers(rs.getInt("c"));
@@ -64,7 +64,7 @@ public class TopTenDao {
   }
 
 
-  public static class TopTenMessageDTO implements Serializable{
+  public static class TopTenMessageDTO implements Serializable {
     private String url;
     private Timestamp lastmod;
     private String title;

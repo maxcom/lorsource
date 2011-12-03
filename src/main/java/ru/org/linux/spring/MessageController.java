@@ -27,7 +27,9 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.dao.IgnoreListDao;
+import ru.org.linux.dao.SectionDao;
 import ru.org.linux.dao.UserDao;
+import ru.org.linux.dto.SectionDto;
 import ru.org.linux.dto.UserDto;
 import ru.org.linux.site.*;
 import ru.org.linux.spring.dao.*;
@@ -70,142 +72,142 @@ public class MessageController {
 
   @RequestMapping("/forum/{group}/{id}")
   public ModelAndView getMessageNewForum(
-    WebRequest webRequest,
-    HttpServletRequest request,
-    HttpServletResponse response,
-    @RequestParam(value = "filter", required = false) String filter,
-    @RequestParam(value = "cid" , required = false) Integer cid,
-    @PathVariable("group") String groupName,
-    @PathVariable("id") int msgid
+      WebRequest webRequest,
+      HttpServletRequest request,
+      HttpServletResponse response,
+      @RequestParam(value = "filter", required = false) String filter,
+      @RequestParam(value = "cid", required = false) Integer cid,
+      @PathVariable("group") String groupName,
+      @PathVariable("id") int msgid
   ) throws Exception {
-    if(cid != null) {
-      return jumpMessage(request, Section.SECTION_FORUM, groupName, msgid, cid);
+    if (cid != null) {
+      return jumpMessage(request, SectionDto.SECTION_FORUM, groupName, msgid, cid);
     }
-    return getMessageNew(Section.SECTION_FORUM, webRequest, request, response, 0, filter, groupName, msgid, null);
+    return getMessageNew(SectionDto.SECTION_FORUM, webRequest, request, response, 0, filter, groupName, msgid, null);
   }
 
   @RequestMapping("/news/{group}/{id}")
   public ModelAndView getMessageNewNews(
-    WebRequest webRequest,
-    HttpServletRequest request,
-    HttpServletResponse response,
-    @RequestParam(value="filter", required=false) String filter,
-    @RequestParam(value = "cid" , required = false) Integer cid,
-    @PathVariable("group") String groupName,
-    @PathVariable("id") int msgid
+      WebRequest webRequest,
+      HttpServletRequest request,
+      HttpServletResponse response,
+      @RequestParam(value = "filter", required = false) String filter,
+      @RequestParam(value = "cid", required = false) Integer cid,
+      @PathVariable("group") String groupName,
+      @PathVariable("id") int msgid
   ) throws Exception {
-    if(cid != null) {
-      return jumpMessage(request, Section.SECTION_NEWS, groupName, msgid, cid);
+    if (cid != null) {
+      return jumpMessage(request, SectionDto.SECTION_NEWS, groupName, msgid, cid);
     }
-    return getMessageNew(Section.SECTION_NEWS, webRequest, request, response, 0, filter, groupName, msgid, null);
+    return getMessageNew(SectionDto.SECTION_NEWS, webRequest, request, response, 0, filter, groupName, msgid, null);
   }
 
   @RequestMapping("/polls/{group}/{id}")
   public ModelAndView getMessageNewPolls(
-    WebRequest webRequest,
-    HttpServletRequest request,
-    HttpServletResponse response,
-    @RequestParam(value="filter", required=false) String filter,
-    @RequestParam(value = "cid" , required = false) Integer cid,
-    @PathVariable("group") String groupName,
-    @PathVariable("id") int msgid,
-    @RequestParam(value="highlight", required=false) Set<Integer> highlight
+      WebRequest webRequest,
+      HttpServletRequest request,
+      HttpServletResponse response,
+      @RequestParam(value = "filter", required = false) String filter,
+      @RequestParam(value = "cid", required = false) Integer cid,
+      @PathVariable("group") String groupName,
+      @PathVariable("id") int msgid,
+      @RequestParam(value = "highlight", required = false) Set<Integer> highlight
   ) throws Exception {
-    if(cid != null) {
-      return jumpMessage(request, Section.SECTION_POLLS, groupName, msgid, cid);
+    if (cid != null) {
+      return jumpMessage(request, SectionDto.SECTION_POLLS, groupName, msgid, cid);
     }
     return getMessageNew(
-      Section.SECTION_POLLS,
-      webRequest,
-      request,
-      response,
-      0,
-      filter,
-      groupName,
-      msgid, highlight);
+        SectionDto.SECTION_POLLS,
+        webRequest,
+        request,
+        response,
+        0,
+        filter,
+        groupName,
+        msgid, highlight);
   }
 
   @RequestMapping("/gallery/{group}/{id}")
   public ModelAndView getMessageNewGallery(
-    WebRequest webRequest,
-    HttpServletRequest request,
-    HttpServletResponse response,
-    @RequestParam(value="filter", required=false) String filter,
-    @RequestParam(value = "cid" , required = false) Integer cid,
-    @PathVariable("group") String groupName,
-    @PathVariable("id") int msgid
+      WebRequest webRequest,
+      HttpServletRequest request,
+      HttpServletResponse response,
+      @RequestParam(value = "filter", required = false) String filter,
+      @RequestParam(value = "cid", required = false) Integer cid,
+      @PathVariable("group") String groupName,
+      @PathVariable("id") int msgid
   ) throws Exception {
-    if(cid != null) {
-      return jumpMessage(request, Section.SECTION_GALLERY, groupName, msgid, cid);
+    if (cid != null) {
+      return jumpMessage(request, SectionDto.SECTION_GALLERY, groupName, msgid, cid);
     }
-    return getMessageNew(Section.SECTION_GALLERY, webRequest, request, response, 0, filter, groupName, msgid, null);
+    return getMessageNew(SectionDto.SECTION_GALLERY, webRequest, request, response, 0, filter, groupName, msgid, null);
   }
 
   @RequestMapping("/forum/{group}/{id}/page{page}")
   public ModelAndView getMessageNewForumPage(
-    WebRequest webRequest,
-    HttpServletRequest request,
-    HttpServletResponse response,
-    @RequestParam(value="filter", required=false) String filter,
-    @PathVariable("group") String groupName,
-    @PathVariable("id") int msgid,
-    @PathVariable("page") int page
+      WebRequest webRequest,
+      HttpServletRequest request,
+      HttpServletResponse response,
+      @RequestParam(value = "filter", required = false) String filter,
+      @PathVariable("group") String groupName,
+      @PathVariable("id") int msgid,
+      @PathVariable("page") int page
   ) throws Exception {
-    return getMessageNew(Section.SECTION_FORUM, webRequest, request, response, page, filter, groupName, msgid, null);
+    return getMessageNew(SectionDto.SECTION_FORUM, webRequest, request, response, page, filter, groupName, msgid, null);
   }
 
   @RequestMapping("/news/{group}/{id}/page{page}")
   public ModelAndView getMessageNewNewsPage(
-    WebRequest webRequest,
-    HttpServletRequest request,
-    HttpServletResponse response,
-    @RequestParam(value="filter", required=false) String filter,
-    @RequestParam(value = "cid" , required = false) Integer cid,
-    @PathVariable("group") String groupName,
-    @PathVariable("id") int msgid,
-    @PathVariable("page") int page
+      WebRequest webRequest,
+      HttpServletRequest request,
+      HttpServletResponse response,
+      @RequestParam(value = "filter", required = false) String filter,
+      @RequestParam(value = "cid", required = false) Integer cid,
+      @PathVariable("group") String groupName,
+      @PathVariable("id") int msgid,
+      @PathVariable("page") int page
   ) throws Exception {
-    return getMessageNew(Section.SECTION_NEWS, webRequest, request, response, page, filter, groupName, msgid, null);
+    return getMessageNew(SectionDto.SECTION_NEWS, webRequest, request, response, page, filter, groupName, msgid, null);
   }
 
   @RequestMapping("/polls/{group}/{id}/page{page}")
   public ModelAndView getMessageNewPollsPage(
-    WebRequest webRequest,
-    HttpServletRequest request,
-    HttpServletResponse response,
-    @RequestParam(value="filter", required=false) String filter,
-    @RequestParam(value = "cid" , required = false) Integer cid,
-    @PathVariable("group") String groupName,
-    @PathVariable("id") int msgid,
-    @PathVariable("page") int page
+      WebRequest webRequest,
+      HttpServletRequest request,
+      HttpServletResponse response,
+      @RequestParam(value = "filter", required = false) String filter,
+      @RequestParam(value = "cid", required = false) Integer cid,
+      @PathVariable("group") String groupName,
+      @PathVariable("id") int msgid,
+      @PathVariable("page") int page
   ) throws Exception {
-    return getMessageNew(Section.SECTION_POLLS, webRequest, request, response, page, filter, groupName, msgid, null);
+    return getMessageNew(SectionDto.SECTION_POLLS, webRequest, request, response, page, filter, groupName, msgid, null);
   }
 
   @RequestMapping("/gallery/{group}/{id}/page{page}")
   public ModelAndView getMessageNewGalleryPage(
-    WebRequest webRequest,
-    HttpServletRequest request,
-    HttpServletResponse response,
-    @RequestParam(value="filter", required=false) String filter,
-    @PathVariable("group") String groupName,
-    @PathVariable("id") int msgid,
-    @PathVariable("page") int page
+      WebRequest webRequest,
+      HttpServletRequest request,
+      HttpServletResponse response,
+      @RequestParam(value = "filter", required = false) String filter,
+      @PathVariable("group") String groupName,
+      @PathVariable("id") int msgid,
+      @PathVariable("page") int page
   ) throws Exception {
-    return getMessageNew(Section.SECTION_GALLERY, webRequest, request, response, page, filter, groupName, msgid, null);
+    return getMessageNew(SectionDto.SECTION_GALLERY, webRequest, request, response, page, filter, groupName, msgid, null);
   }
 
   public ModelAndView getMessageNew(
-    int section,
-    WebRequest webRequest,
-    HttpServletRequest request,
-    HttpServletResponse response,
-    int page,
-    String filter,
-    String groupName,
-    int msgid,
-    Set<Integer> highlight)
-  throws Exception {
+      int section,
+      WebRequest webRequest,
+      HttpServletRequest request,
+      HttpServletResponse response,
+      int page,
+      String filter,
+      String groupName,
+      int msgid,
+      Set<Integer> highlight)
+      throws Exception {
     Message message = messageDao.getById(msgid);
     PreparedMessage preparedMessage = prepareService.prepareMessage(message, false, request.isSecure());
     Group group = preparedMessage.getGroup();
@@ -219,21 +221,22 @@ public class MessageController {
 
   /**
    * Оставлено для старых ссылок /view-message.jsp
-   * @param msgid id топика
-   * @param page страница топика
+   *
+   * @param msgid   id топика
+   * @param page    страница топика
    * @param lastmod параметр для кэширования
-   * @param filter фильтр
-   * @param output ?
+   * @param filter  фильтр
+   * @param output  ?
    * @return вовзращает редирект на новый код
    * @throws Exception если получится
    */
   @RequestMapping("/view-message.jsp")
   public ModelAndView getMessageOld(
-    @RequestParam("msgid") int msgid,
-    @RequestParam(value="page", required=false) Integer page,
-    @RequestParam(value="lastmod", required=false) Long lastmod,
-    @RequestParam(value="filter", required=false) String filter,
-    @RequestParam(required=false) String output
+      @RequestParam("msgid") int msgid,
+      @RequestParam(value = "page", required = false) Integer page,
+      @RequestParam(value = "lastmod", required = false) Long lastmod,
+      @RequestParam(value = "filter", required = false) String filter,
+      @RequestParam(required = false) String output
   ) throws Exception {
     Message message = messageDao.getById(msgid);
 
@@ -241,16 +244,16 @@ public class MessageController {
 
     StringBuilder params = new StringBuilder();
 
-    if (page!=null) {
+    if (page != null) {
       link.append("/page").append(page);
     }
 
-    if (lastmod!=null && !message.isExpired()) {
+    if (lastmod != null && !message.isExpired()) {
       params.append("?lastmod=").append(message.getLastModified().getTime());
     }
 
-    if (filter!=null) {
-      if (params.length()==0) {
+    if (filter != null) {
+      if (params.length() == 0) {
         params.append('?');
       } else {
         params.append('&');
@@ -258,8 +261,8 @@ public class MessageController {
       params.append("filter=").append(filter);
     }
 
-    if (output!=null) {
-      if (params.length()==0) {
+    if (output != null) {
+      if (params.length() == 0) {
         params.append('?');
       } else {
         params.append('&');
@@ -273,14 +276,14 @@ public class MessageController {
   }
 
   private ModelAndView getMessage(
-    WebRequest webRequest,
-    HttpServletRequest request,
-    HttpServletResponse response,
-    PreparedMessage preparedMessage,
-    Group group,
-    int page,
-    String filter,
-    Set<Integer> highlight
+      WebRequest webRequest,
+      HttpServletRequest request,
+      HttpServletResponse response,
+      PreparedMessage preparedMessage,
+      Group group,
+      int page,
+      String filter,
+      Set<Integer> highlight
   ) throws Exception {
     Message message = preparedMessage.getMessage();
 
@@ -387,7 +390,7 @@ public class MessageController {
     params.put("defaultFilterMode", defaultFilterMode);
 
     if (!rss) {
-      if (ignoreList==null || ignoreList.isEmpty()) {
+      if (ignoreList == null || ignoreList.isEmpty()) {
         params.put("prevMessage", messageDao.getPreviousMessage(message, null));
         params.put("nextMessage", messageDao.getNextMessage(message, null));
       } else {
@@ -464,13 +467,13 @@ public class MessageController {
   private static String getEtag(Message message, Template tmpl) {
     String nick = tmpl.getNick();
 
-    String userAddon = nick!=null?('-' +nick):"";
+    String userAddon = nick != null ? ('-' + nick) : "";
 
     if (!tmpl.isUsingDefaultProfile()) {
-      userAddon+=tmpl.getProf().getTimestamp();
+      userAddon += tmpl.getProf().getTimestamp();
     }
 
-    return "msg-"+message.getMessageId()+ '-' +message.getLastModified().getTime()+userAddon;
+    return "msg-" + message.getMessageId() + '-' + message.getLastModified().getTime() + userAddon;
   }
 
   private ModelAndView jumpMessage(
@@ -483,8 +486,8 @@ public class MessageController {
     Message topic = messageDao.getById(msgid);
     String redirectUrl = topic.getLink();
     StringBuffer options = new StringBuffer();
-    Section section = sectionDao.getSection(sectionId);
-    Group group = groupDao.getGroup(section, groupName);
+    SectionDto sectionDto = sectionDao.getSection(sectionId);
+    Group group = groupDao.getGroup(sectionDto, groupName);
 
     StringBuilder hash = new StringBuilder();
 
@@ -521,11 +524,11 @@ public class MessageController {
 
   @RequestMapping(value = "/jump-message.jsp", method = {RequestMethod.GET, RequestMethod.HEAD})
   public ModelAndView jumpMessage(
-          HttpServletRequest request,
-          @RequestParam int msgid,
-          @RequestParam(required = false) Integer page,
-          @RequestParam(required = false) String nocache,
-          @RequestParam(required = false) Integer cid
+      HttpServletRequest request,
+      @RequestParam int msgid,
+      @RequestParam(required = false) Integer page,
+      @RequestParam(required = false) String nocache,
+      @RequestParam(required = false) Integer cid
   ) throws Exception {
     Template tmpl = Template.getTemplate(request);
 

@@ -94,7 +94,7 @@
 <%
   int msgid = message.getId();
   String url = message.getUrl();
-  boolean imagepost = preparedMessage.getSection().isImagepost();
+  boolean imagepost = preparedMessage.getSectionDto().isImagepost();
   boolean votepoll = message.isVotePoll();
 
   String image = preparedMessage.getGroup().getImage();
@@ -105,8 +105,8 @@
 </h2>
 <c:if test="${multiPortal}">
   <div class="group">
-    ${preparedMessage.section.title} - ${message.groupTitle}
-    <c:if test="${not message.commited and preparedMessage.section.premoderated}">
+    ${preparedMessage.sectionDto.title} - ${message.groupTitle}
+    <c:if test="${not message.commited and preparedMessage.sectionDto.premoderated}">
       (не подтверждено)
     </c:if>
   </div>
@@ -134,7 +134,7 @@
 
 <div class="entry-body">
 <div class=msg>
-  <c:if test="${preparedMessage.section.imagepost}">
+  <c:if test="${preparedMessage.sectionDto.imagepost}">
     <%
       out.append(NewsViewer.showMediumImage(tmpl.getConfig().getProperty("HTMLPathPrefix"), message, true));
     %>
@@ -179,13 +179,13 @@
   }
 %>
   </div>
-<c:if test="${preparedMessage.section.premoderated and not empty preparedMessage.tags}">
+<c:if test="${preparedMessage.sectionDto.premoderated and not empty preparedMessage.tags}">
   <lor:tags list="${preparedMessage.tags}"/>
 </c:if>
 
   <div class=sign>
   <c:choose>
-    <c:when test="${preparedMessage.section.premoderated and message.commited}">
+    <c:when test="${preparedMessage.sectionDto.premoderated and message.commited}">
       <lor:sign shortMode="true" postdate="${message.commitDate}" user="${preparedMessage.author}"/>
     </c:when>
     <c:otherwise>
@@ -224,7 +224,7 @@
   <a href="${fn:escapeXml(message.link)}">${message.title}</a>
 
 <c:if test="${multiPortal}">
-    <c:if test="${not message.commited and preparedMessage.section.premoderated}">
+    <c:if test="${not message.commited and preparedMessage.sectionDto.premoderated}">
       (не подтверждено)
     </c:if>
 </c:if>

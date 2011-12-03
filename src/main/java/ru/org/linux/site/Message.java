@@ -17,6 +17,7 @@ package ru.org.linux.site;
 
 import com.google.common.base.Strings;
 import org.springframework.validation.Errors;
+import ru.org.linux.dto.SectionDto;
 import ru.org.linux.dto.UserDto;
 import ru.org.linux.spring.AddMessageRequest;
 import ru.org.linux.spring.EditMessageRequest;
@@ -109,7 +110,7 @@ public class Message implements Serializable {
     resolved = rs.getBoolean("resolved");
     groupCommentsRestriction = rs.getInt("restrict_comments");
     minor = rs.getBoolean("minor");
-    sectionCommentsRestriction = Section.getCommentPostscore(sectionid);
+    sectionCommentsRestriction = SectionDto.getCommentPostscore(sectionid);
   }
 
   public Message(AddMessageRequest form, UserDto user, String message, String postIP) {
@@ -122,7 +123,7 @@ public class Message implements Serializable {
 
     groupCommentsRestriction = group.getCommentsRestriction();
 
-    if (form.getLinktext()!=null) {
+    if (form.getLinktext() != null) {
       linktext = StringUtil.escapeHtml(form.getLinktext());
     } else {
       linktext = null;
@@ -136,7 +137,7 @@ public class Message implements Serializable {
     }
 
     // Setting Message fields
-    if (form.getTitle()!=null) {
+    if (form.getTitle() != null) {
       title = StringUtil.escapeHtml(form.getTitle());
     } else {
       title = null;
@@ -166,7 +167,7 @@ public class Message implements Serializable {
     minor = false;
 
     this.message = message;
-    sectionCommentsRestriction = Section.getCommentPostscore(sectionid);
+    sectionCommentsRestriction = SectionDto.getCommentPostscore(sectionid);
   }
 
   public Message(Group group, Message original, EditMessageRequest form) {
@@ -218,7 +219,7 @@ public class Message implements Serializable {
     userid = original.userid;
     lorcode = original.lorcode;
 
-    if (form.getMinor()!=null && sectionid==Section.SECTION_NEWS) {
+    if (form.getMinor() != null && sectionid == SectionDto.SECTION_NEWS) {
       minor = form.getMinor();
     } else {
       minor = original.minor;
@@ -230,7 +231,7 @@ public class Message implements Serializable {
       message = original.message;
     }
 
-    sectionCommentsRestriction = Section.getCommentPostscore(sectionid);
+    sectionCommentsRestriction = SectionDto.getCommentPostscore(sectionid);
   }
 
   public boolean isExpired() {
@@ -474,7 +475,7 @@ public class Message implements Serializable {
 
   public String getLink() {
     try {
-      return Section.getSectionLink(sectionid) + URLEncoder.encode(groupUrl, UTF8) + '/' + msgid;
+      return SectionDto.getSectionLink(sectionid) + URLEncoder.encode(groupUrl, UTF8) + '/' + msgid;
     } catch (UnsupportedEncodingException e) {
       throw new RuntimeException(e);
     }
@@ -486,7 +487,7 @@ public class Message implements Serializable {
     }
 
     try {
-      return Section.getSectionLink(sectionid) + URLEncoder.encode(groupUrl, UTF8) + '/' + msgid + "/page" + page;
+      return SectionDto.getSectionLink(sectionid) + URLEncoder.encode(groupUrl, UTF8) + '/' + msgid + "/page" + page;
     } catch (UnsupportedEncodingException e) {
       throw new RuntimeException(e);
     }
@@ -498,6 +499,7 @@ public class Message implements Serializable {
 
   /**
    * Проверка может ли пользователь удалить топик
+   *
    * @param user пользователь удаляющий сообщение
    * @return признак возможности удаления
    */
@@ -513,11 +515,12 @@ public class Message implements Serializable {
 
   /**
    * Проверка, может ли модератор удалить топик
-   * @param user пользователь удаляющий сообщение
-   * @param section местоположение топика
+   *
+   * @param user       пользователь удаляющий сообщение
+   * @param sectionDto местоположение топика
    * @return признак возможности удаления
    */
-  public boolean isDeletableByModerator(UserDto user, Section section) {
+  public boolean isDeletableByModerator(UserDto user, SectionDto sectionDto) {
     // TODO убрать от сюда аргумент функции section
     if(!user.isModerator()) {
       return false;
@@ -531,17 +534,17 @@ public class Message implements Serializable {
     boolean ret = false;
 
     // Если раздел премодерируемый и топик не подтвержден удалять можно
-    if(section.isPremoderated() && !moderate) {
+    if (sectionDto.isPremoderated() && !moderate) {
       ret = true;
     }
 
     // Если раздел премодерируемый, топик подтвержден и прошло меньше месяца с подтверждения удалять можно
-    if(section.isPremoderated() && moderate && postdate.compareTo(monthDeltaTime) >= 0) {
+    if (sectionDto.isPremoderated() && moderate && postdate.compareTo(monthDeltaTime) >= 0) {
       ret = true;
     }
 
     // Если раздел не премодерируем, удалять можно
-    if(!section.isPremoderated()) {
+    if (!sectionDto.isPremoderated()) {
       ret = true;
     }
 

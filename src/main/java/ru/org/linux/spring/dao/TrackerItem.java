@@ -1,7 +1,7 @@
 package ru.org.linux.spring.dao;
 
+import ru.org.linux.dto.SectionDto;
 import ru.org.linux.dto.UserDto;
-import ru.org.linux.site.Section;
 
 import java.sql.Timestamp;
 
@@ -44,7 +44,7 @@ public class TrackerItem {
     this.title = title;
     this.cid = cid;
     this.lastCommentBy = lastCommentBy;
-    this.resolved =resolved;
+    this.resolved = resolved;
     this.section = section;
     this.groupUrlName = groupUrlName;
     this.postdate = postdate;
@@ -53,7 +53,7 @@ public class TrackerItem {
   }
 
   public String getUrl() {
-    if(section != 0) {
+    if (section != 0) {
       if (pages > 1) {
         return getGroupUrl() + msgid + "/page" + Integer.toString(pages - 1) + "?lastmod=" + lastmod.getTime();
       } else {
@@ -65,7 +65,7 @@ public class TrackerItem {
   }
 
   public String getUrlReverse() {
-    if(section != 0) {
+    if (section != 0) {
       return getGroupUrl() + '/' + msgid + "?lastmod=" + lastmod.getTime();
     } else {
       return String.format("/wiki/en/%s", title);
@@ -73,8 +73,8 @@ public class TrackerItem {
   }
 
   public String getGroupUrl() {
-    if(section != 0) {
-      return Section.getSectionLink(section) + groupUrlName + '/';
+    if (section != 0) {
+      return SectionDto.getSectionLink(section) + groupUrlName + '/';
     } else {
       return "/wiki/";
     }
@@ -117,10 +117,10 @@ public class TrackerItem {
   }
 
   public String getTitle() {
-    if(section != 0) {
+    if (section != 0) {
       return title;
     } else {
-      if(title.startsWith("Comments:")) {
+      if (title.startsWith("Comments:")) {
         return title.substring(9); // откусываем Comments
       } else {
         return title;

@@ -15,8 +15,8 @@
 
 package ru.org.linux.spring;
 
+import ru.org.linux.dto.SectionDto;
 import ru.org.linux.dto.UserDto;
-import ru.org.linux.site.Section;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
@@ -95,11 +95,11 @@ public class RepliesListItem implements Serializable {
   }
 
   public String getGroupUrl() {
-    return Section.getSectionLink(sectionId) + groupUrlName + '/';
+    return SectionDto.getSectionLink(sectionId) + groupUrlName + '/';
   }
 
   public String getSectionUrl() {
-    return Section.getSectionLink(sectionId);
+    return SectionDto.getSectionLink(sectionId);
   }
 
   public String getSubj() {

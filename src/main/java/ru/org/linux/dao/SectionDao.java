@@ -13,7 +13,7 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.spring.dao;
+package ru.org.linux.dao;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -21,7 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.stereotype.Component;
-import ru.org.linux.site.Section;
+import ru.org.linux.dto.SectionDto;
 import ru.org.linux.site.SectionNotFoundException;
 
 import javax.sql.DataSource;
@@ -31,24 +31,24 @@ import java.util.List;
 
 @Component
 public class SectionDao {
-  private final ImmutableMap<Integer, Section> sections;
-  private final ImmutableList<Section> sectionsList;
+  private final ImmutableMap<Integer, SectionDto> sections;
+  private final ImmutableList<SectionDto> sectionsList;
   private final JdbcTemplate jdbcTemplate;
 
   @Autowired
   public SectionDao(DataSource ds) {
     jdbcTemplate = new JdbcTemplate(ds);
 
-    final ImmutableMap.Builder<Integer, Section> sections = ImmutableMap.builder();
-    final ImmutableList.Builder<Section> sectionsList = ImmutableList.builder();
+    final ImmutableMap.Builder<Integer, SectionDto> sections = ImmutableMap.builder();
+    final ImmutableList.Builder<SectionDto> sectionsList = ImmutableList.builder();
 
     jdbcTemplate.query("SELECT id, name, imagepost, vote, moderate FROM sections ORDER BY id", new RowCallbackHandler() {
       @Override
       public void processRow(ResultSet rs) throws SQLException {
-        Section section = new Section(rs);
+        SectionDto sectionDto = new SectionDto(rs);
 
-        sections.put(section.getId(), section);
-        sectionsList.add(section);
+        sections.put(sectionDto.getId(), sectionDto);
+        sectionsList.add(sectionDto);
       }
     });
 
@@ -56,17 +56,17 @@ public class SectionDao {
     this.sectionsList = sectionsList.build();
   }
 
-  public Section getSection(int id) throws SectionNotFoundException {
-    Section section = sections.get(id);
+  public SectionDto getSection(int id) throws SectionNotFoundException {
+    SectionDto sectionDto = sections.get(id);
 
-    if (section==null) {
+    if (sectionDto == null) {
       throw new SectionNotFoundException(id);
     }
 
-    return section;
+    return sectionDto;
   }
 
-  public ImmutableList<Section> getSectionsList() {
+  public ImmutableList<SectionDto> getSectionsList() {
     return sectionsList;
   }
 

@@ -25,11 +25,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.dao.IgnoreListDao;
+import ru.org.linux.dao.SectionDao;
 import ru.org.linux.dao.UserDao;
+import ru.org.linux.dto.SectionDto;
 import ru.org.linux.dto.UserDto;
 import ru.org.linux.site.*;
 import ru.org.linux.spring.dao.GroupDao;
-import ru.org.linux.spring.dao.SectionDao;
 import ru.org.linux.util.ServletParameterBadValueException;
 
 import javax.servlet.http.HttpServletRequest;
@@ -64,8 +65,8 @@ public class GroupController {
 
   @RequestMapping("/group.jsp")
   public ModelAndView topics(
-          @RequestParam("group") int groupId,
-          @RequestParam(value = "offset", required = false) Integer offsetObject
+      @RequestParam("group") int groupId,
+      @RequestParam(value = "offset", required = false) Integer offsetObject
   ) throws Exception {
     Group group = groupDao.getGroup(groupId);
 
@@ -78,8 +79,8 @@ public class GroupController {
 
   @RequestMapping("/group-lastmod.jsp")
   public ModelAndView topicsLastmod(
-          @RequestParam("group") int groupId,
-          @RequestParam(value = "offset", required = false) Integer offsetObject
+      @RequestParam("group") int groupId,
+      @RequestParam(value = "offset", required = false) Integer offsetObject
   ) throws Exception {
     Group group = groupDao.getGroup(groupId);
 
@@ -92,32 +93,32 @@ public class GroupController {
 
   @RequestMapping(value = {"/forum/{group}/{year}/{month}"})
   public ModelAndView forumArchive(
-    @PathVariable("group") String groupName,
-    @RequestParam(defaultValue = "0", value="offset") int offset,
-    @PathVariable int year,
-    @PathVariable int month,
-    HttpServletRequest request
+      @PathVariable("group") String groupName,
+      @RequestParam(defaultValue = "0", value = "offset") int offset,
+      @PathVariable int year,
+      @PathVariable int month,
+      HttpServletRequest request
   ) throws Exception {
     return forum(groupName, offset, false, request, year, month);
   }
 
   @RequestMapping(value = "/forum/{group}")
   public ModelAndView forum(
-    @PathVariable("group") String groupName,
-    @RequestParam(defaultValue = "0", value="offset") int offset,
-    @RequestParam(defaultValue = "false") boolean lastmod,
-    HttpServletRequest request
+      @PathVariable("group") String groupName,
+      @RequestParam(defaultValue = "0", value = "offset") int offset,
+      @RequestParam(defaultValue = "false") boolean lastmod,
+      HttpServletRequest request
   ) throws Exception {
     return forum(groupName, offset, lastmod, request, null, null);
   }
 
   private ModelAndView forum(
-    @PathVariable("group") String groupName,
-    @RequestParam(defaultValue = "0", value="offset") int offset,
-    @RequestParam(defaultValue = "false") boolean lastmod,
-    HttpServletRequest request,
-    Integer year,
-    Integer month
+      @PathVariable("group") String groupName,
+      @RequestParam(defaultValue = "0", value = "offset") int offset,
+      @RequestParam(defaultValue = "false") boolean lastmod,
+      HttpServletRequest request,
+      Integer year,
+      Integer month
   ) throws Exception {
     Map<String, Object> params = new HashMap<String, Object>();
     Template tmpl = Template.getTemplate(request);
@@ -125,10 +126,10 @@ public class GroupController {
     boolean showDeleted = request.getParameter("deleted") != null;
     params.put("showDeleted", showDeleted);
 
-    Section section = sectionDao.getSection(Section.SECTION_FORUM);
-    params.put("groupList", groupDao.getGroups(section));
+    SectionDto sectionDto = sectionDao.getSection(SectionDto.SECTION_FORUM);
+    params.put("groupList", groupDao.getGroups(sectionDto));
 
-    Group group = groupDao.getGroup(section, groupName);
+    Group group = groupDao.getGroup(sectionDto, groupName);
 
     if (showDeleted && !"POST".equals(request.getMethod())) {
       return new ModelAndView(new RedirectView(group.getUrl()));
@@ -147,8 +148,8 @@ public class GroupController {
         throw new ServletParameterBadValueException("offset", "offset не может быть отрицательным");
       }
 
-      if (year == null && offset>MAX_OFFSET) {
-        return new ModelAndView(new RedirectView(group.getUrl()+"archive"));
+      if (year == null && offset > MAX_OFFSET) {
+        return new ModelAndView(new RedirectView(group.getUrl() + "archive"));
       }
     } else {
       firstPage = true;
@@ -167,11 +168,11 @@ public class GroupController {
 
     params.put("group", group);
 
-    params.put("section", section);
+    params.put("section", sectionDto);
 
     Set<Integer> ignoreList;
 
-    if (tmpl.getCurrentUser()!=null) {
+    if (tmpl.getCurrentUser() != null) {
       ignoreList = ignoreListDao.get(tmpl.getCurrentUser());
     } else {
       ignoreList = Collections.emptySet();
@@ -192,19 +193,19 @@ public class GroupController {
 
     String q = "SELECT topics.title as subj, lastmod, userid, topics.id as msgid, deleted, topics.stat1, topics.stat3, topics.stat4, topics.sticky, topics.resolved FROM topics,groups WHERE topics.groupid=groups.id AND groups.id=" + group.getId() + delq;
 
-    if (year!=null) {
-      if (year<1990 || year > 3000) {
+    if (year != null) {
+      if (year < 1990 || year > 3000) {
         throw new ServletParameterBadValueException("year", "указан некорректный год");
       }
 
-      if (month<1 || month > 12) {
+      if (month < 1 || month > 12) {
         throw new ServletParameterBadValueException("month", "указан некорректный месяц");
       }
 
-      q+=" AND postdate>='" + year + '-' + month + "-01'::timestamp AND (postdate<'" + year + '-' + month + "-01'::timestamp+'1 month'::interval)";
+      q += " AND postdate>='" + year + '-' + month + "-01'::timestamp AND (postdate<'" + year + '-' + month + "-01'::timestamp+'1 month'::interval)";
       params.put("year", year);
       params.put("month", month);
-      params.put("url", group.getUrl()+year+ '/' +month+ '/');
+      params.put("url", group.getUrl() + year + '/' + month + '/');
     } else {
       params.put("url", group.getUrl());
     }
@@ -212,8 +213,8 @@ public class GroupController {
     SqlRowSet rs;
 
     if (!lastmod) {
-      if (year==null) {
-        if (offset==0) {
+      if (year == null) {
+        if (offset == 0) {
           q += " AND (sticky or postdate>CURRENT_TIMESTAMP-'3 month'::interval) ";
         }
 

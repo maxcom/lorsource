@@ -17,7 +17,7 @@
   ~    limitations under the License.
   --%>
 
-<%--@elvariable id="section" type="ru.org.linux.site.Section"--%>
+<%--@elvariable id="section" type="ru.org.linux.dto.SectionDto"--%>
 <%--@elvariable id="group" type="ru.org.linux.site.Group"--%>
 <%--@elvariable id="items" type="ru.org.linux.spring.dto.ArchiveDto"--%>
 

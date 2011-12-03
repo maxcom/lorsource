@@ -13,14 +13,17 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.site;
+package ru.org.linux.dto;
+
+import ru.org.linux.site.Message;
+import ru.org.linux.site.SectionNotFoundException;
 
 import java.io.Serializable;
 import java.sql.*;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Section implements Serializable {
+public class SectionDto implements Serializable {
   private static final long serialVersionUID = -2259350244006777910L;
 
   private final String name;
@@ -28,17 +31,18 @@ public class Section implements Serializable {
   private final boolean moderate;
   private final int id;
   private final boolean votepoll;
-  
+
   public static final int SCROLL_NOSCROLL = 0;
   public static final int SCROLL_SECTION = 1;
   public static final int SCROLL_GROUP = 2;
 
+  public static final int SECTION_NEWS = 1;
   public static final int SECTION_FORUM = 2;
   public static final int SECTION_GALLERY = 3;
-  public static final int SECTION_NEWS = 1;
   public static final int SECTION_POLLS = 5;
 
   private static final Map<String, Integer> sections = new HashMap<String, Integer>();
+
   static {
     sections.put("news", SECTION_NEWS);
     sections.put("forum", SECTION_FORUM);
@@ -46,7 +50,7 @@ public class Section implements Serializable {
     sections.put("polls", SECTION_POLLS);
   }
 
-  public Section(ResultSet rs) throws SQLException {
+  public SectionDto(ResultSet rs) throws SQLException {
     name = rs.getString("name");
     imagepost = rs.getBoolean("imagepost");
     votepoll = rs.getBoolean("vote");
@@ -68,11 +72,11 @@ public class Section implements Serializable {
 
   public static int getScrollMode(int sectionid) {
     switch (sectionid) {
-      case 1: /* news*/
-      case 3: /* screenshots */
-      case 5: /* poll */
+      case SECTION_NEWS: /* news*/
+      case SECTION_GALLERY: /* screenshots */
+      case SECTION_POLLS: /* poll */
         return SCROLL_SECTION;
-      case 2: /* forum */
+      case SECTION_FORUM: /* forum */
         return SCROLL_GROUP;
       default:
         return SCROLL_NOSCROLL;
@@ -88,7 +92,7 @@ public class Section implements Serializable {
   }
 
   public String getAddText() {
-    if (id==4) {
+    if (id == 4) {
       return "Добавить ссылку";
     } else {
       return "Добавить сообщение";
@@ -96,7 +100,7 @@ public class Section implements Serializable {
   }
 
   public boolean isForum() {
-    return id==2;
+    return id == SECTION_FORUM;
   }
 
   public String getTitle() {
@@ -118,11 +122,11 @@ public class Section implements Serializable {
         return rs.getTimestamp("max");
       }
     } finally {
-      if (rs!=null) {
+      if (rs != null) {
         rs.close();
       }
 
-      if (st!=null) {
+      if (st != null) {
         st.close();
       }
     }
@@ -130,7 +134,7 @@ public class Section implements Serializable {
 
   public static int getCommentPostscore(int id) {
     //TODO move this to database
-    if (id==1 || id==2) {
+    if (id == SECTION_NEWS || id == SECTION_FORUM) {
       return Message.POSTSCORE_UNRESTRICTED;
     } else {
       return 50;
@@ -177,7 +181,7 @@ public class Section implements Serializable {
   }
 
   public String getArchiveLink(int year, int month) {
-    return getArchiveLink(id)+year+ '/' +month+ '/';
+    return getArchiveLink(id) + year + '/' + month + '/';
   }
 
   public String getArchiveLink() {
@@ -185,17 +189,17 @@ public class Section implements Serializable {
   }
 
   public static String getArchiveLink(int id) {
-    if (id==SECTION_FORUM) {
+    if (id == SECTION_FORUM) {
       return null;
     }
-    
-    return getSectionLink(id)+"archive/";
+
+    return getSectionLink(id) + "archive/";
   }
 
   public static int getSection(String name) throws SectionNotFoundException {
     Integer v = sections.get(name);
 
-    if (v==null) {
+    if (v == null) {
       throw new SectionNotFoundException();
     }
 

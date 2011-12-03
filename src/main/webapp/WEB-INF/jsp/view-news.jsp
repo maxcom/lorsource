@@ -1,5 +1,5 @@
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="ru.org.linux.site.Group,ru.org.linux.site.Section"   buffer="200kb"%>
+<%@ page import="ru.org.linux.site.Group,ru.org.linux.dto.SectionDto"   buffer="200kb"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
@@ -19,7 +19,7 @@
   ~    limitations under the License.
   --%>
 <%--@elvariable id="messages" type="java.util.List<ru.org.linux.site.PreparedMessage>"--%>
-<%--@elvariable id="section" type="ru.org.linux.site.Section"--%>
+<%--@elvariable id="section" type="ru.org.linux.dto.SectionDto"--%>
 <%--@elvariable id="group" type="ru.org.linux.site.Group"--%>
 <%--@elvariable id="offset" type="java.lang.Integer"--%>
 <%--@elvariable id="ptitle" type="java.lang.String"--%>
@@ -29,7 +29,7 @@
 	<title>${ptitle}</title>
 <%
   Group group = (Group) request.getAttribute("group");
-  Section section = (Section) request.getAttribute("section");
+  SectionDto section = (SectionDto) request.getAttribute("section");
 %>
 
 <c:if test="${rssLink != null}">
@@ -64,7 +64,7 @@
             }
           }
 
-          if (section.getId() == Section.SECTION_FORUM) {
+          if (section.getId() == SectionDto.SECTION_FORUM) {
             if (group == null) {
               out.print("[<a href=\"/forum/\">Таблица</a>]");
             } else {

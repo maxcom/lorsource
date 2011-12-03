@@ -16,13 +16,12 @@
 package ru.org.linux.dto;
 
 import ru.org.linux.site.Group;
-import ru.org.linux.site.Section;
 
 public class ArchiveDto {
   private int year;
   private int month;
   private int count;
-  private Section section;
+  private SectionDto sectionDto;
   private Group group;
 
   private static final long serialVersionUID = 5862774559965251295L;
@@ -51,12 +50,12 @@ public class ArchiveDto {
     this.count = count;
   }
 
-  public Section getSection() {
-    return section;
+  public SectionDto getSectionDto() {
+    return sectionDto;
   }
 
-  public void setSection(Section section) {
-    this.section = section;
+  public void setSectionDto(SectionDto sectionDto) {
+    this.sectionDto = sectionDto;
   }
 
   public Group getGroup() {
@@ -71,6 +70,6 @@ public class ArchiveDto {
     if (group != null) {
       return group.getArchiveLink(year, month);
     }
-    return section.getArchiveLink(year, month);
+    return sectionDto.getArchiveLink(year, month);
   }
 }

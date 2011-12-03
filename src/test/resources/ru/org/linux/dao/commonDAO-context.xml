@@ -31,5 +31,6 @@
     <bean class="ru.org.linux.dao.IgnoreListDao" id="ignoreListDao"/>
     <bean class="ru.org.linux.dao.UserDao" id="userDao"/>
     <bean class="ru.org.linux.dao.ArchiveDao" id="archiveDao"/>
+    <bean class="ru.org.linux.dao.SectionDao" id="sectionDao"/>
 
 </beans>

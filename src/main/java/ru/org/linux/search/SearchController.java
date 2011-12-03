@@ -33,13 +33,13 @@ import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import ru.org.linux.dao.SectionDao;
 import ru.org.linux.dao.UserDao;
 import ru.org.linux.dto.UserDto;
 import ru.org.linux.site.*;
 import ru.org.linux.util.ExceptionBindingErrorProcessor;
 import ru.org.linux.spring.UserPropertyEditor;
 import ru.org.linux.spring.dao.GroupDao;
-import ru.org.linux.spring.dao.SectionDao;
 import ru.org.linux.util.bbcode.LorCodeService;
 
 import javax.servlet.http.HttpServletRequest;
@@ -124,10 +124,10 @@ public class SearchController {
 
   @RequestMapping(value = "/search.jsp", method = {RequestMethod.GET, RequestMethod.HEAD})
   public String search(
-          HttpServletRequest request,
-          Model model,
-          @ModelAttribute("query") SearchRequest query,
-          BindingResult bindingResult
+      HttpServletRequest request,
+      Model model,
+      @ModelAttribute("query") SearchRequest query,
+      BindingResult bindingResult
   ) throws Exception {
     Map<String, Object> params = model.asMap();
 

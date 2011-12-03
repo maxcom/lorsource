@@ -26,6 +26,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.search.SearchQueueSender;
 import ru.org.linux.dao.PollDao;
+import ru.org.linux.dto.SectionDto;
 import ru.org.linux.dto.UserDto;
 import ru.org.linux.spring.dao.TagDao;
 import ru.org.linux.site.*;
@@ -64,9 +65,9 @@ public class EditController {
 
   @RequestMapping(value = "/commit.jsp", method = RequestMethod.GET)
   public ModelAndView showCommitForm(
-    HttpServletRequest request,
-    @RequestParam("msgid") int msgid,
-    @ModelAttribute("form") EditMessageRequest form
+      HttpServletRequest request,
+      @RequestParam("msgid") int msgid,
+      @ModelAttribute("form") EditMessageRequest form
   ) throws Exception {
     Template tmpl = Template.getTemplate(request);
 
@@ -82,7 +83,7 @@ public class EditController {
 
     PreparedMessage preparedMessage = prepareService.prepareMessage(message, false, request.isSecure());
 
-    if (!preparedMessage.getSection().isPremoderated()) {
+    if (!preparedMessage.getSectionDto().isPremoderated()) {
       throw new UserErrorException("Раздел не премодерируемый");
     }
 
@@ -95,9 +96,9 @@ public class EditController {
 
   @RequestMapping(value = "/edit.jsp", method = RequestMethod.GET)
   public ModelAndView showEditForm(
-    ServletRequest request,
-    @RequestParam("msgid") int msgid,
-    @ModelAttribute("form") EditMessageRequest form
+      ServletRequest request,
+      @RequestParam("msgid") int msgid,
+      @ModelAttribute("form") EditMessageRequest form
   ) throws Exception {
 
     Template tmpl = Template.getTemplate(request);
@@ -120,8 +121,8 @@ public class EditController {
   }
 
   private ModelAndView prepareModel(
-    PreparedMessage preparedMessage,
-    EditMessageRequest form
+      PreparedMessage preparedMessage,
+      EditMessageRequest form
   ) throws PollNotFoundException {
     Map<String, Object> params = new HashMap<String, Object>();
 
@@ -133,7 +134,7 @@ public class EditController {
     Group group = preparedMessage.getGroup();
     params.put("group", group);
 
-    params.put("groups", groupDao.getGroups(preparedMessage.getSection()));
+    params.put("groups", groupDao.getGroups(preparedMessage.getSectionDto()));
 
     params.put("newMsg", message);
     params.put("newPreparedMessage", preparedMessage);
@@ -157,7 +158,7 @@ public class EditController {
     form.setTitle(StringEscapeUtils.unescapeHtml(message.getTitle()));
     form.setMsg(message.getMessage());
 
-    if (message.getSectionId() == Section.SECTION_NEWS) {
+    if (message.getSectionId() == SectionDto.SECTION_NEWS) {
       form.setMinor(message.isMinor());
     }
 
@@ -178,12 +179,12 @@ public class EditController {
 
   @RequestMapping(value = "/edit.jsp", method = RequestMethod.POST)
   public ModelAndView edit(
-    HttpServletRequest request,
-    @RequestParam("msgid") int msgid,
-    @RequestParam(value="lastEdit", required=false) Long lastEdit,
-    @RequestParam(value="chgrp", required=false) Integer changeGroupId,
-    @Valid @ModelAttribute("form") EditMessageRequest form,
-    Errors errors
+      HttpServletRequest request,
+      @RequestParam("msgid") int msgid,
+      @RequestParam(value = "lastEdit", required = false) Long lastEdit,
+      @RequestParam(value = "chgrp", required = false) Integer changeGroupId,
+      @Valid @ModelAttribute("form") EditMessageRequest form,
+      Errors errors
   ) throws Exception {
     Template tmpl = Template.getTemplate(request);
 
@@ -205,7 +206,7 @@ public class EditController {
       params.put("topTags", tagDao.getTopTags());
     }
 
-    params.put("groups", groupDao.getGroups(preparedMessage.getSection()));
+    params.put("groups", groupDao.getGroups(preparedMessage.getSectionDto()));
 
     UserDto user = tmpl.getCurrentUser();
 
@@ -231,7 +232,7 @@ public class EditController {
       EditInfoDTO dbEditInfo = editInfoList.get(0);
       params.put("editInfo", dbEditInfo);
 
-      if (lastEdit == null || dbEditInfo.getEditdate().getTime()!=lastEdit) {
+      if (lastEdit == null || dbEditInfo.getEditdate().getTime() != lastEdit) {
         errors.reject(null, "Сообщение было отредактировано независимо");
       }
     }
@@ -245,7 +246,7 @@ public class EditController {
       }
     }
 
-    params.put("commit", !message.isCommited() && preparedMessage.getSection().isPremoderated() && user.isModerator());
+    params.put("commit", !message.isCommited() && preparedMessage.getSectionDto().isPremoderated() && user.isModerator());
 
     Message newMsg = new Message(group, message, form);
 
@@ -281,13 +282,13 @@ public class EditController {
       throw new AccessViolationException("нельзя править устаревшие сообщения");
     }
 
-    if (form.getMinor()!=null && !tmpl.isModeratorSession()) {
+    if (form.getMinor() != null && !tmpl.isModeratorSession()) {
       throw new AccessViolationException("вы не можете менять статус новости");
     }
 
     List<String> newTags = null;
 
-    if (form.getTags()!=null) {
+    if (form.getTags() != null) {
       newTags = TagDao.parseSanitizeTags(form.getTags());
     }
 
@@ -331,15 +332,15 @@ public class EditController {
 
     if (!preview && !errors.hasErrors()) {
       boolean changed = messageDao.updateAndCommit(
-              newMsg,
-              message,
-              user,
-              newTags,
-              commit,
-              changeGroupId,
-              form.getBonus(),
-              newPoll!=null?newPoll.getVariants():null,
-              form.isMultiselect()
+          newMsg,
+          message,
+          user,
+          newTags,
+          commit,
+          changeGroupId,
+          form.getBonus(),
+          newPoll != null ? newPoll.getVariants() : null,
+          form.isMultiselect()
       );
 
       if (changed || commit) {

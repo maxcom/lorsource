@@ -20,8 +20,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import ru.org.linux.dto.ArchiveDto;
+import ru.org.linux.dto.SectionDto;
 import ru.org.linux.site.Group;
-import ru.org.linux.site.Section;
 
 import javax.sql.DataSource;
 import java.sql.ResultSet;
@@ -38,30 +38,30 @@ public class ArchiveDao {
   }
 
   /**
-   * @param section
+   * @param sectionDto
    * @param group
    * @return
    */
-  public List<ArchiveDto> getArchiveDTO(Section section, Group group) {
-    return getArchiveInternal(section, group, 0);
+  public List<ArchiveDto> getArchiveDTO(SectionDto sectionDto, Group group) {
+    return getArchiveInternal(sectionDto, group, 0);
   }
 
   /**
-   * @param section
+   * @param sectionDto
    * @param limit
    * @return
    */
-  public List<ArchiveDto> getArchiveDTO(Section section, int limit) {
-    return getArchiveInternal(section, null, limit);
+  public List<ArchiveDto> getArchiveDTO(SectionDto sectionDto, int limit) {
+    return getArchiveInternal(sectionDto, null, limit);
   }
 
   /**
-   * @param section
+   * @param sectionDto
    * @param group
    * @param limit
    * @return
    */
-  private List<ArchiveDto> getArchiveInternal(final Section section, final Group group, int limit) {
+  private List<ArchiveDto> getArchiveInternal(final SectionDto sectionDto, final Group group, int limit) {
     RowMapper<ArchiveDto> mapper = new RowMapper<ArchiveDto>() {
       @Override
       public ArchiveDto mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -69,7 +69,7 @@ public class ArchiveDao {
         dto.setYear(rs.getInt("year"));
         dto.setMonth(rs.getInt("month"));
         dto.setCount(rs.getInt("c"));
-        dto.setSection(section);
+        dto.setSectionDto(sectionDto);
         dto.setGroup(group);
         return dto;
       }
@@ -80,7 +80,7 @@ public class ArchiveDao {
           "select year, month, c from monthly_stats where section=? and groupid is null" +
               " order by year desc, month desc limit ?",
           mapper,
-          section.getId(),
+          sectionDto.getId(),
           limit
       );
     } else {
@@ -89,13 +89,13 @@ public class ArchiveDao {
             "select year, month, c from monthly_stats where section=? and groupid is null" +
                 " order by year, month",
             mapper,
-            section.getId()
+            sectionDto.getId()
         );
       } else {
         return jdbcTemplate.query(
             "select year, month, c from monthly_stats where section=? and groupid=? order by year, month",
             mapper,
-            section.getId(),
+            sectionDto.getId(),
             group.getId()
         );
       }
