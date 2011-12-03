@@ -44,9 +44,6 @@ public class GalleryDao {
   @Autowired
   private Properties properties;
 
-  // TODO: все захардкоденные номера секций должны быть вынесены в отдельный класс, например ApplicationConstants
-  private static final String GALLERY_SECTION_NUMBER = "3";
-
   /**
    * Возвращает три последних объекта галереи.
    *
@@ -56,7 +53,7 @@ public class GalleryDao {
     String sql = "SELECT topics.id as msgid, " +
         " topics.stat1, topics.title, topics.url, topics.linktext, nick, urlname FROM topics " +
         " JOIN groups ON topics.groupid = groups.id " +
-        " JOIN users ON users.id = topics.userid WHERE topics.moderate AND section=" + GALLERY_SECTION_NUMBER +
+        " JOIN users ON users.id = topics.userid WHERE topics.moderate AND section=" + Section.SECTION_GALLERY +
         " AND NOT deleted AND commitdate is not null ORDER BY commitdate DESC LIMIT 3";
     return template.query(sql, new RowMapper<GalleryDto>() {
       @Override
