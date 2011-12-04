@@ -47,7 +47,12 @@ public class EditInfoController {
   ) throws Exception {
     Message message = messageDao.getById(msgid);
 
-    List<PreparedEditInfo> editInfos = prepareService.build(message, request.isSecure());
+    List<PreparedEditInfo> editInfos = prepareService.build(
+      message,
+      request.isSecure(),
+      "#",
+      "(текст ссылки не изменен)"
+    );
 
     ModelAndView mv = new ModelAndView("history");
 
