@@ -50,7 +50,7 @@ public class IgnoreListDao {
   /**
    * Добавить пользователя в Игнор-лист.
    *
-   * @param listOwner в чей список добавить
+   * @param listOwner    в чей список добавить
    * @param userToIgnore кого добавить
    * @throws AccessViolationException
    */
@@ -60,28 +60,29 @@ public class IgnoreListDao {
     }
 
     jdbcTemplate.update(
-            "INSERT INTO ignore_list (userid,ignored) VALUES(?,?)",
-            listOwner.getId(),
-            userToIgnore.getId()
+        "INSERT INTO ignore_list (userid,ignored) VALUES(?,?)",
+        listOwner.getId(),
+        userToIgnore.getId()
     );
   }
 
   /**
    * Удалить пользователя из Игнор-листа.
    *
-   * @param listOwner из чьего списка удалить
+   * @param listOwner    из чьего списка удалить
    * @param userToIgnore кого удалить
    */
   public void remove(UserDto listOwner, UserDto userToIgnore) {
     jdbcTemplate.update(
-            "DELETE FROM ignore_list WHERE userid=? AND ignored=?",
-            listOwner.getId(),
-            userToIgnore.getId()
+        "DELETE FROM ignore_list WHERE userid=? AND ignored=?",
+        listOwner.getId(),
+        userToIgnore.getId()
     );
   }
 
   /**
    * Получить список игнорируемых
+   *
    * @param user пользователь который игнорирует
    * @return список игнорируемых
    */

@@ -59,10 +59,10 @@ public class PollDao {
   }
 
   /**
+   * Получить список вариантов голосования по идентификатору голосования.
    *
-   *
-   * @param pollId
-   * @return
+   * @param pollId идентификатор голосования
+   * @return список вариантов голосования
    */
   public List<VoteDto> getVoteDTO(final Integer pollId) {
     String sql = "SELECT id, label FROM votes WHERE vote= ? ORDER BY id";
@@ -81,7 +81,7 @@ public class PollDao {
   /**
    * Возвращает кол-во проголосовавших пользователей в голосовании.
    *
-   * @param poll голосование
+   * @param poll объект голосования
    * @return кол-во проголосвавших пользователей
    */
   public int getCountUsers(Poll poll) {
@@ -91,7 +91,7 @@ public class PollDao {
   /**
    * Возвращает кол-во голосов в голосовании.
    *
-   * @param pollId id голосвания
+   * @param pollId идентификатор голосвания
    * @return кол-во голосов всего (несколько вариантов от одного пользователя суммируется"
    */
   public Integer getVotersCount(Integer pollId) {
@@ -102,7 +102,7 @@ public class PollDao {
    * Учет голосования, если user не голосовал в этом голосании, то
    * добавить его варианты в голосование и пометить, что он проголосовал.
    *
-   * @param voteId id голосования
+   * @param voteId идентификатор голосования
    * @param votes  пункты за которые голосует пользователь
    * @param user   голосующий пользователь
    * @throws BadVoteException неправильное голосование
@@ -122,7 +122,7 @@ public class PollDao {
   /**
    * Возвращает текщее авктивное голосование.
    *
-   * @return id текущего голосования
+   * @return идентификатор текущего голосования
    */
   public int getCurrentPollId() {
     try {
@@ -136,19 +136,18 @@ public class PollDao {
    * Получить текщее голосование.
    *
    * @return текушие голование
-   * @throws ru.org.linux.site.PollNotFoundException
-   *          при отсутствии голосования
+   * @throws PollNotFoundException если голосование не существует
    */
   public Poll getCurrentPoll() throws PollNotFoundException {
     return getPoll(getCurrentPollId());
   }
 
   /**
-   * Получить голосование по id.
+   * Получить голосование по идентификатору.
    *
-   * @param poolId голосование
-   * @return голосование
-   * @throws PollNotFoundException если не существует такого голосования
+   * @param poolId идентификатор голосования
+   * @return объект голосование
+   * @throws PollNotFoundException если голосование не существует
    */
   public Poll getPoll(final int poolId) throws PollNotFoundException {
     final int currentPollId = getCurrentPollId();
@@ -166,11 +165,11 @@ public class PollDao {
   }
 
   /**
-   * Получить голосование по topic id.
+   * Получить голосование по идентификатору темы.
    *
-   * @param topicId id топика голосования
-   * @return голосование
-   * @throws PollNotFoundException отсутствует такое голосование
+   * @param topicId идентификатор  темы голосования
+   * @return объект голосования
+   * @throws PollNotFoundException если голосование не существует
    */
   public Poll getPollByTopicId(int topicId) throws PollNotFoundException {
     try {
@@ -183,7 +182,7 @@ public class PollDao {
   /**
    * максимальное число голосов в голосовании.
    *
-   * @param poll голосование
+   * @param poll объект голосования
    * @return максимальное кол-во голосов
    */
   public int getMaxVote(Poll poll) {
@@ -196,9 +195,9 @@ public class PollDao {
   }
 
   /**
-   * Варианты для опроса.
+   * Варианты для голосования.
    *
-   * @param poll  опрос
+   * @param poll  объект голосования
    * @param order порядок сортировки вариантов Poll.ORDER_ID и Poll.ORDER_VOTES
    * @return неизменяемый список вариантов опроса
    */
@@ -232,9 +231,9 @@ public class PollDao {
   }
 
   /**
-   * Получить ID будущего голосования
+   * Получить идентификатор будущего голосования
    *
-   * @return ID
+   * @return идентификатор будущего голосования
    */
   private int getNextPollId() {
     return jdbcTemplate.queryForInt("select nextval('vote_id') as voteid");
@@ -245,7 +244,7 @@ public class PollDao {
    *
    * @param pollList    - Список вариантов ответов
    * @param multiSelect - true если голосование с мультивыбором
-   * @param msgid       - ID сообщения.
+   * @param msgid       - идентификатор темы.
    */
   public void createPoll(List<String> pollList, boolean multiSelect, int msgid) {
     final int voteid = getNextPollId();
@@ -270,7 +269,7 @@ public class PollDao {
   /**
    * Удалить голосование.
    *
-   * @param poll объект, содержащий голосование
+   * @param poll объект голосования
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   public void deletePoll(Poll poll) {
@@ -282,7 +281,7 @@ public class PollDao {
   /**
    * Добавить новый вариант ответа в голосование.
    *
-   * @param poll  объект, содержащий голосование
+   * @param poll  объект голосования
    * @param label - новый вариант ответа
    */
   public void addNewVariant(Poll poll, String label) {

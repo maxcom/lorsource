@@ -26,6 +26,13 @@ public class GroupDao {
     jdbcTemplate = new JdbcTemplate(ds);
   }
 
+  /**
+   * Получить объект группы по идентификатору.
+   *
+   * @param id идентификатор группы
+   * @return объект группы
+   * @throws BadGroupException если группа не существует
+   */
   public GroupDto getGroup(int id) throws BadGroupException {
     try {
       return jdbcTemplate.queryForObject(
@@ -43,6 +50,12 @@ public class GroupDao {
     }
   }
 
+  /**
+   * Получить спусок групп в указанной секции.
+   *
+   * @param sectionDto объект секции.
+   * @return спусок групп
+   */
   public List<GroupDto> getGroups(SectionDto sectionDto) {
     return jdbcTemplate.query(
         "SELECT sections.moderate, sections.preformat, imagepost, vote, section, havelink, linktext, sections.name as sname, title, urlname, image, restrict_topics, restrict_comments, stat1,stat2,stat3,groups.id,groups.info,groups.longinfo,groups.resolvable FROM groups, sections WHERE sections.id=? AND groups.section=sections.id ORDER BY id",
@@ -57,6 +70,14 @@ public class GroupDao {
   }
 
 
+  /**
+   * Получить объект группы в указанной секции по имени группы.
+   *
+   * @param sectionDto объект секции.
+   * @param name       имя группы
+   * @return объект группы
+   * @throws BadGroupException если группа не существует
+   */
   public GroupDto getGroup(SectionDto sectionDto, String name) throws BadGroupException {
     try {
       int id = jdbcTemplate.queryForInt("SELECT id FROM groups WHERE section=? AND urlname=?", sectionDto.getId(), name);
@@ -67,6 +88,13 @@ public class GroupDao {
     }
   }
 
+  /**
+   * Подсчитать количество тем в группе.
+   *
+   * @param groupDto    объект группы
+   * @param showDeleted - учитывать ли удалённые темы
+   * @return количество тем в группе
+   */
   public int calcTopicsCount(GroupDto groupDto, boolean showDeleted) {
     String query = "SELECT count(topics.id) " +
         "FROM topics WHERE " +
@@ -86,6 +114,16 @@ public class GroupDao {
     }
   }
 
+  /**
+   * Изменить настройки группы.
+   *
+   * @param groupDto   объект группы
+   * @param title      Заголовок группы
+   * @param info       дополнительная информация
+   * @param longInfo   расширенная дополнительная информация
+   * @param resolvable м ожно ли ставить темам признак "тема решена"
+   * @param urlName
+   */
   public void setParams(final GroupDto groupDto, final String title, final String info, final String longInfo, final boolean resolvable, final String urlName) {
     jdbcTemplate.execute(
         "UPDATE groups SET title=?, info=?, longinfo=?,resolvable=?,urlname=? WHERE id=?",

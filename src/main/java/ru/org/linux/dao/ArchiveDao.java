@@ -38,28 +38,34 @@ public class ArchiveDao {
   }
 
   /**
-   * @param sectionDto
-   * @param groupDto
-   * @return
+   * Получить список архивов по секции и группе.
+   *
+   * @param sectionDto секция сообщений
+   * @param groupDto   группа сообщений
+   * @return список архивов
    */
   public List<ArchiveDto> getArchiveDTO(SectionDto sectionDto, GroupDto groupDto) {
     return getArchiveInternal(sectionDto, groupDto, 0);
   }
 
   /**
-   * @param sectionDto
-   * @param limit
-   * @return
+   * Получить список архивов по секции с ограничением на количество архивов.
+   *
+   * @param sectionDto секция сообщений
+   * @param limit      количество архивов
+   * @return список архивов
    */
   public List<ArchiveDto> getArchiveDTO(SectionDto sectionDto, int limit) {
     return getArchiveInternal(sectionDto, null, limit);
   }
 
   /**
-   * @param sectionDto
-   * @param groupDto
-   * @param limit
-   * @return
+   * Получить список архивов по секции и группе с ограничением на количество архивов.
+   *
+   * @param sectionDto секция сообщений
+   * @param groupDto   группа сообщений
+   * @param limit      количество архивов
+   * @return список архивов
    */
   private List<ArchiveDto> getArchiveInternal(final SectionDto sectionDto, final GroupDto groupDto, int limit) {
     RowMapper<ArchiveDto> mapper = new RowMapper<ArchiveDto>() {

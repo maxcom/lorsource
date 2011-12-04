@@ -56,6 +56,13 @@ public class SectionDao {
     this.sectionsList = sectionsList.build();
   }
 
+  /**
+   * Получить объект секции по идентификатору секции.
+   *
+   * @param id идентификатор секции
+   * @return объект секции
+   * @throws SectionNotFoundException если секция не найдена
+   */
   public SectionDto getSection(int id) throws SectionNotFoundException {
     SectionDto sectionDto = sections.get(id);
 
@@ -66,10 +73,21 @@ public class SectionDao {
     return sectionDto;
   }
 
+  /**
+   * получить список секций.
+   *
+   * @return список секций
+   */
   public ImmutableList<SectionDto> getSectionsList() {
     return sectionsList;
   }
 
+  /**
+   * Получить расширенную информацию о секции по идентификатору секции.
+   *
+   * @param id идентификатор секции
+   * @return расширеннуя информация о секции
+   */
   public String getAddInfo(int id) {
     List<String> infos = jdbcTemplate.queryForList("select add_info from sections where id=?", String.class, id);
 
