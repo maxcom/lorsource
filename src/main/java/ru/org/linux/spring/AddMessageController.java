@@ -31,11 +31,11 @@ import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.search.SearchQueueSender;
 import ru.org.linux.dao.GroupDao;
 import ru.org.linux.dao.SectionDao;
+import ru.org.linux.dao.TagCloudDao;
 import ru.org.linux.dao.UserDao;
 import ru.org.linux.dto.GroupDto;
 import ru.org.linux.dto.SectionDto;
 import ru.org.linux.dto.UserDto;
-import ru.org.linux.spring.dao.TagDao;
 import ru.org.linux.site.*;
 import ru.org.linux.spring.dao.*;
 import ru.org.linux.spring.validators.AddMessageRequestValidator;
@@ -64,7 +64,7 @@ public class AddMessageController extends ApplicationObjectSupport {
   private IPBlockDao ipBlockDao;
   private GroupDao groupDao;
   private SectionDao sectionDao;
-  private TagDao tagDao;
+  private TagCloudDao tagCloudDao;
   private UserDao userDao;
   private PrepareService prepareService;
   private MessageDao messageDao;
@@ -107,8 +107,8 @@ public class AddMessageController extends ApplicationObjectSupport {
   }
 
   @Autowired
-  public void setTagDao(TagDao tagDao) {
-    this.tagDao = tagDao;
+  public void setTagCloudDao(TagCloudDao tagCloudDao) {
+    this.tagCloudDao = tagCloudDao;
   }
 
   @Autowired
@@ -150,7 +150,7 @@ public class AddMessageController extends ApplicationObjectSupport {
     params.put("group", groupDto);
 
     if (groupDto.isModerated()) {
-      params.put("topTags", tagDao.getTopTags());
+      params.put("topTags", tagCloudDao.getTopTags());
     }
 
     params.put("addportal", sectionDao.getAddInfo(groupDto.getSectionId()));
@@ -188,7 +188,7 @@ public class AddMessageController extends ApplicationObjectSupport {
     params.put("group", groupDto);
 
     if (groupDto != null && groupDto.isModerated()) {
-      params.put("topTags", tagDao.getTopTags());
+      params.put("topTags", tagCloudDao.getTopTags());
     }
 
     if (groupDto != null) {
@@ -254,7 +254,7 @@ public class AddMessageController extends ApplicationObjectSupport {
 
     if (groupDto != null) {
       previewMsg = new Message(form, user, message, request.getRemoteAddr());
-      params.put("message", prepareService.prepareMessage(previewMsg, TagDao.parseSanitizeTags(form.getTags()), null, request.isSecure()));
+      params.put("message", prepareService.prepareMessage(previewMsg, TagCloudDao.parseSanitizeTags(form.getTags()), null, request.isSecure()));
     }
 
     if (!form.isPreviewMode() && !errors.hasErrors() && !session.getId().equals(request.getParameter("session"))) {

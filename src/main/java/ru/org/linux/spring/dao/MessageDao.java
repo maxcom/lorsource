@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.org.linux.dao.GroupDao;
 import ru.org.linux.dao.PollDao;
+import ru.org.linux.dao.TagCloudDao;
 import ru.org.linux.dao.UserDao;
 import ru.org.linux.dto.GroupDto;
 import ru.org.linux.dto.SectionDto;
@@ -49,7 +50,7 @@ public class MessageDao {
   private PollDao pollDao;
 
   @Autowired
-  private TagDao tagDao;
+  private TagCloudDao tagCloudDao;
 
   @Autowired
   private UserEventsDao userEventsDao;
@@ -331,10 +332,10 @@ public class MessageDao {
     }
 
     if (form.getTags() != null) {
-      final List<String> tags = TagDao.parseTags(form.getTags());
+      final List<String> tags = TagCloudDao.parseTags(form.getTags());
 
-      tagDao.updateTags(msgid, tags);
-      tagDao.updateCounters(Collections.<String>emptyList(), tags);
+      tagCloudDao.updateTags(msgid, tags);
+      tagCloudDao.updateCounters(Collections.<String>emptyList(), tags);
     }
 
     userEventsDao.addUserRefEvent(userRefs.toArray(new UserDto[userRefs.size()]), msgid);
@@ -343,7 +344,7 @@ public class MessageDao {
   }
 
   private boolean updateMessage(Message oldMsg, Message msg, UserDto editor, List<String> newTags) {
-    List<String> oldTags = tagDao.getMessageTags(msg.getId());
+    List<String> oldTags = tagCloudDao.getMessageTags(msg.getId());
 
     EditInfoDTO editInfo = new EditInfoDTO();
 
@@ -393,11 +394,11 @@ public class MessageDao {
     }
 
     if (newTags != null) {
-      boolean modifiedTags = tagDao.updateTags(msg.getId(), newTags);
+      boolean modifiedTags = tagCloudDao.updateTags(msg.getId(), newTags);
 
       if (modifiedTags) {
-        editInfo.setOldtags(TagDao.toString(oldTags));
-        tagDao.updateCounters(oldTags, newTags);
+        editInfo.setOldtags(TagCloudDao.toString(oldTags));
+        tagCloudDao.updateCounters(oldTags, newTags);
         modified = true;
       }
     }
@@ -708,9 +709,9 @@ public class MessageDao {
     }
 
     if (!newGrp.isModerated()) {
-      ImmutableList<String> oldTags = tagDao.getMessageTags(msg.getId());
-      tagDao.updateTags(msg.getId(), ImmutableList.<String>of());
-      tagDao.updateCounters(oldTags, Collections.<String>emptyList());
+      ImmutableList<String> oldTags = tagCloudDao.getMessageTags(msg.getId());
+      tagCloudDao.updateTags(msg.getId(), ImmutableList.<String>of());
+      tagCloudDao.updateCounters(oldTags, Collections.<String>emptyList());
     }
   }
 }

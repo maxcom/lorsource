@@ -17,14 +17,11 @@ package ru.org.linux.spring;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.org.linux.dao.GroupDao;
-import ru.org.linux.dao.PollDao;
-import ru.org.linux.dao.SectionDao;
-import ru.org.linux.dao.UserDao;
+import ru.org.linux.dao.*;
 import ru.org.linux.dto.GroupDto;
 import ru.org.linux.dto.SectionDto;
 import ru.org.linux.dto.UserDto;
-import ru.org.linux.spring.dao.TagDao;
+import ru.org.linux.dao.TagCloudDao;
 import ru.org.linux.site.*;
 import ru.org.linux.spring.dao.*;
 import ru.org.linux.util.bbcode.LorCodeService;
@@ -49,7 +46,7 @@ public class PrepareService {
   private LorCodeService lorCodeService;
 
   @Autowired
-  private TagDao tagDao;
+  private TagCloudDao tagCloudDao;
 
   @Autowired
   private MemoriesDao memoriesDao;
@@ -330,7 +327,7 @@ public class PrepareService {
     String currentTitle = message.getTitle();
     String currentUrl = message.getUrl();
     String currentLinktext = message.getLinktext();
-    List<String> currentTags = tagDao.getMessageTags(message.getMessageId());
+    List<String> currentTags = tagCloudDao.getMessageTags(message.getMessageId());
 
     for (int i = 0; i < editInfoDTOs.size(); i++) {
       EditInfoDTO dto = editInfoDTOs.get(i);
@@ -368,12 +365,12 @@ public class PrepareService {
       }
 
       if (dto.getOldtags() != null) {
-        currentTags = TagDao.parseTags(dto.getOldtags());
+        currentTags = TagCloudDao.parseTags(dto.getOldtags());
       }
     }
 
     if (!editInfoDTOs.isEmpty()) {
-      EditInfoDTO current = EditInfoDTO.createFromMessage(tagDao, message);
+      EditInfoDTO current = EditInfoDTO.createFromMessage(tagCloudDao, message);
 
       editInfos.add(new PreparedEditInfo(lorCodeService, secure, userDao, current, currentMessage, currentTitle, currentUrl, currentLinktext, currentTags, false, true));
     }

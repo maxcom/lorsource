@@ -19,7 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
-import ru.org.linux.spring.dao.TagDao;
+import ru.org.linux.dao.TagCloudDao;
 
 import java.util.Map;
 
@@ -27,11 +27,11 @@ import java.util.Map;
 public class TagsController  {
 
   @Autowired
-  TagDao tagDao;
+  TagCloudDao tagCloudDao;
 
   @ModelAttribute("tags")
   public Map<String, Integer> getTags() {
-    return tagDao.getAllTags();
+    return tagCloudDao.getAllTags();
   }
 
   @RequestMapping("/tags")

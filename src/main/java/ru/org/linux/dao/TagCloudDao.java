@@ -13,17 +13,22 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.spring.dao;
+package ru.org.linux.dao;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import org.apache.commons.collections.Closure;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.mutable.MutableDouble;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ConnectionCallback;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowCallbackHandler;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
+import ru.org.linux.dto.TagDto;
 import ru.org.linux.site.TagNotFoundException;
 import ru.org.linux.site.UserErrorException;
 
@@ -36,7 +41,7 @@ import java.util.*;
 import java.util.regex.Pattern;
 
 @Repository
-public final class TagDao {
+public final class TagCloudDao {
   private static final Pattern tagRE = Pattern.compile("([\\p{L}\\d \\+-]+)", Pattern.CASE_INSENSITIVE);
 
   private static final int TOP_TAGS_COUNT = 50;
@@ -50,9 +55,17 @@ public final class TagDao {
     jdbcTemplate = new JdbcTemplate(ds);
   }
 
+  /**
+   * Получить идентификатор существующего тега либо создать новый тег.
+   *
+   * @param con объект соединения
+   * @param tag название тега
+   * @return идентификатор тега
+   * @throws SQLException
+   */
   private static synchronized int getOrCreateTag(Connection con, String tag) throws SQLException {
     PreparedStatement st2 = con.prepareStatement("SELECT id FROM tags_values WHERE value=?");
-    st2.setString(1,tag);
+    st2.setString(1, tag);
     ResultSet rs = st2.executeQuery();
     int id;
 
@@ -60,10 +73,10 @@ public final class TagDao {
       id = rs.getInt("id");
     } else {
       PreparedStatement st = con.prepareStatement("INSERT INTO tags_values (value) VALUES(?)");
-      st.setString(1,tag);
+      st.setString(1, tag);
       st.executeUpdate();
       st.close();
-      
+
       rs = st2.executeQuery();
       rs.next();
       id = rs.getInt("id");
@@ -75,23 +88,35 @@ public final class TagDao {
     return id;
   }
 
+  /**
+   * Получить теги сообщения.
+   *
+   * @param msgid идентификатор сообщения
+   * @return список тегов сообщения
+   */
   public ImmutableList<String> getMessageTags(int msgid) {
     final ImmutableList.Builder<String> tags = ImmutableList.builder();
 
     jdbcTemplate.query(
-            "SELECT tags_values.value FROM tags, tags_values WHERE tags.msgid=? AND tags_values.id=tags.tagid ORDER BY value",
-            new RowCallbackHandler() {
-              @Override
-              public void processRow(ResultSet rs) throws SQLException {
-                tags.add(rs.getString("value"));
-              }
-            },
-            msgid
+        "SELECT tags_values.value FROM tags, tags_values WHERE tags.msgid=? AND tags_values.id=tags.tagid ORDER BY value",
+        new RowCallbackHandler() {
+          @Override
+          public void processRow(ResultSet rs) throws SQLException {
+            tags.add(rs.getString("value"));
+          }
+        },
+        msgid
     );
 
     return tags.build();
   }
 
+  /**
+   * Получить список тегов в строковом представлении.
+   *
+   * @param tags список тегов
+   * @return строка, представляющая список тегов
+   */
   public static String toString(Collection<String> tags) {
     if (tags.isEmpty()) {
       return "";
@@ -106,27 +131,33 @@ public final class TagDao {
     return str.toString();
   }
 
-  public SortedSet<String> getTopTags()  {
+  /**
+   * Получить список наиболее популярных тегов.
+   *
+   * @return список названий тегов
+   */
+  public SortedSet<String> getTopTags() {
     final SortedSet<String> set = new TreeSet<String>();
 
     jdbcTemplate.query(
-            "SELECT counter,value FROM tags_values WHERE counter>1 ORDER BY counter DESC LIMIT " + TOP_TAGS_COUNT,
-            new RowCallbackHandler() {
-              @Override
-              public void processRow(ResultSet rs) throws SQLException {
-                set.add(rs.getString("value"));
-              }
-            }
+        "SELECT counter,value FROM tags_values WHERE counter>1 ORDER BY counter DESC LIMIT " + TOP_TAGS_COUNT,
+        new RowCallbackHandler() {
+          @Override
+          public void processRow(ResultSet rs) throws SQLException {
+            set.add(rs.getString("value"));
+          }
+        }
     );
 
     return set;
   }
 
   /**
-   * Получить все тэги со счетчиком
+   * Получить все тэги со счетчиком.
+   *
    * @return список всех тегов
    */
-  public Map<String,Integer> getAllTags() {
+  public Map<String, Integer> getAllTags() {
     final ImmutableMap.Builder<String, Integer> builder = ImmutableMap.builder();
     jdbcTemplate.query(queryAllTags, new RowCallbackHandler() {
       @Override
@@ -137,17 +168,37 @@ public final class TagDao {
     return builder.build();
   }
 
+  /**
+   * Проверка имени тега на корректность.
+   *
+   * @param tag название тега
+   * @throws UserErrorException
+   */
+  // TODO: этот метод должен быть в сервисе
   public static void checkTag(String tag) throws UserErrorException {
     // обработка тега: только буквы/цифры/пробелы, никаких спецсимволов, запятых, амперсандов и <>
     if (!isGoodTag(tag)) {
-      throw new UserErrorException("Некорректный тег: '"+tag+ '\'');
+      throw new UserErrorException("Некорректный тег: '" + tag + '\'');
     }
   }
 
+  /**
+   * Проверка имени тега на корректность согласно регулярному выражению.
+   *
+   * @param tag название тега
+   * @return
+   */
+  // TODO: этот метод должен быть в сервисе
   private static boolean isGoodTag(String tag) {
     return tagRE.matcher(tag).matches();
   }
 
+  /**
+   * Обновить счетчики использованич тегов.
+   *
+   * @param oldTags список старых тегов
+   * @param newTags список новых тегов
+   */
   public void updateCounters(final List<String> oldTags, final List<String> newTags) {
     jdbcTemplate.execute(new ConnectionCallback<String>() {
       @Override
@@ -175,14 +226,20 @@ public final class TagDao {
     });
   }
 
+  /**
+   * @param tags
+   * @return
+   * @throws UserErrorException
+   */
+  // TODO: этот метод должен быть в сервисе
   public static ImmutableList<String> parseTags(String tags) throws UserErrorException {
     Set<String> tagSet = new HashSet<String>();
 
     // Теги разделяютчя пайпом или запятой
-    tags = tags.replaceAll("\\|",",");
-    String [] tagsArr = tags.split(",");
+    tags = tags.replaceAll("\\|", ",");
+    String[] tagsArr = tags.split(",");
 
-    if (tagsArr.length==0) {
+    if (tagsArr.length == 0) {
       return ImmutableList.of();
     }
 
@@ -202,18 +259,23 @@ public final class TagDao {
     return ImmutableList.copyOf(tagSet);
   }
 
+  /**
+   * @param tags
+   * @return
+   */
+  // TODO: этот метод должен быть в сервисе
   public static ImmutableList<String> parseSanitizeTags(String tags) {
-    if (tags==null) {
+    if (tags == null) {
       return ImmutableList.of();
     }
 
     Set<String> tagSet = new HashSet<String>();
 
     // Теги разделяютчя пайпом или запятой
-    tags = tags.replaceAll("\\|",",");
-    String [] tagsArr = tags.split(",");
+    tags = tags.replaceAll("\\|", ",");
+    String[] tagsArr = tags.split(",");
 
-    if (tagsArr.length==0) {
+    if (tagsArr.length == 0) {
       return ImmutableList.of();
     }
 
@@ -233,7 +295,11 @@ public final class TagDao {
     return ImmutableList.copyOf(tagSet);
   }
 
-  // TODO: move to JSP
+  /**
+   * @param tags
+   * @return
+   */
+  // TODO: этот метод должен быть в сервисе
   public static String getEditTags(Collection<String> tags) {
     StringBuilder out = new StringBuilder();
     boolean first = true;
@@ -251,6 +317,13 @@ public final class TagDao {
     return out.toString();
   }
 
+  /**
+   * Обновить список тегов для сообщения.
+   *
+   * @param msgid   идентификатор сообщения
+   * @param tagList список тегов
+   * @return true если список тегов был обновлён
+   */
   public boolean updateTags(final int msgid, final List<String> tagList) {
     final List<String> oldTags = getMessageTags(msgid);
 
@@ -293,6 +366,14 @@ public final class TagDao {
     });
   }
 
+  /**
+   * Получить идентификатор тега по его названию.
+   *
+   * @param tag название тега
+   * @return идентификатор тега
+   * @throws UserErrorException
+   * @throws TagNotFoundException
+   */
   public int getTagId(String tag) throws UserErrorException, TagNotFoundException {
     checkTag(tag);
 
@@ -303,5 +384,53 @@ public final class TagDao {
     } else {
       return res.get(0);
     }
+  }
+
+  /**
+   * Получить список тегов с ограничением на количество.
+   *
+   * @param tagcount количество тегов
+   * @return список объектов тегов
+   */
+  public List<TagDto> getTags(int tagcount) {
+    String sql = "select value,counter from tags_values where counter>0 order by counter desc limit ?";
+    final MutableDouble maxc = new MutableDouble(1);
+    final MutableDouble minc = new MutableDouble(-1);
+    List<TagDto> result = jdbcTemplate.query(sql, new RowMapper<TagDto>() {
+      @Override
+      public TagDto mapRow(ResultSet rs, int rowNum) throws SQLException {
+        TagDto result = new TagDto();
+        result.setValue(rs.getString("value"));
+        double counter = Math.log(rs.getInt("counter"));
+        result.setCounter(counter);
+
+        if (maxc.doubleValue() < counter) {
+          maxc.setValue(counter);
+        }
+
+        if (minc.doubleValue() < 0 || counter < minc.doubleValue()) {
+          minc.setValue(counter);
+        }
+
+        return result;
+      }
+    }, tagcount);
+
+    if (minc.doubleValue() < 0) {
+      minc.setValue(0);
+    }
+
+    CollectionUtils.forAllDo(result, new Closure() {
+      @Override
+      public void execute(Object o) {
+        TagDto tag = (TagDto) o;
+        tag.setWeight((int) Math.round(10 * (tag.getCounter() - minc.doubleValue())
+            / (maxc.doubleValue() - minc.doubleValue())));
+      }
+    });
+
+    Collections.sort(result);
+
+    return result;
   }
 }

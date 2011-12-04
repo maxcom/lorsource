@@ -27,10 +27,10 @@ import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.search.SearchQueueSender;
 import ru.org.linux.dao.GroupDao;
 import ru.org.linux.dao.PollDao;
+import ru.org.linux.dao.TagCloudDao;
 import ru.org.linux.dto.GroupDto;
 import ru.org.linux.dto.SectionDto;
 import ru.org.linux.dto.UserDto;
-import ru.org.linux.spring.dao.TagDao;
 import ru.org.linux.site.*;
 import ru.org.linux.spring.dao.MessageDao;
 import ru.org.linux.spring.validators.EditMessageRequestValidator;
@@ -59,7 +59,7 @@ public class EditController {
   private GroupDao groupDao;
 
   @Autowired
-  private TagDao tagDao;
+  private TagCloudDao tagCloudDao;
 
   @Autowired
   private PollDao pollDao;
@@ -148,7 +148,7 @@ public class EditController {
     params.put("commit", false);
 
     if (groupDto.isModerated()) {
-      params.put("topTags", tagDao.getTopTags());
+      params.put("topTags", tagCloudDao.getTopTags());
     }
 
     if (message.isHaveLink()) {
@@ -164,7 +164,7 @@ public class EditController {
     }
 
     if (!preparedMessage.getTags().isEmpty()) {
-      form.setTags(TagDao.toString(preparedMessage.getTags()));
+      form.setTags(TagCloudDao.toString(preparedMessage.getTags()));
     }
 
     if (message.isVotePoll()) {
@@ -204,7 +204,7 @@ public class EditController {
     params.put("group", groupDto);
 
     if (groupDto.isModerated()) {
-      params.put("topTags", tagDao.getTopTags());
+      params.put("topTags", tagCloudDao.getTopTags());
     }
 
     params.put("groups", groupDao.getGroups(preparedMessage.getSectionDto()));
@@ -290,7 +290,7 @@ public class EditController {
     List<String> newTags = null;
 
     if (form.getTags() != null) {
-      newTags = TagDao.parseSanitizeTags(form.getTags());
+      newTags = TagCloudDao.parseSanitizeTags(form.getTags());
     }
 
     if (changeGroupId != null) {

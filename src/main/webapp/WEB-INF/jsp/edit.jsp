@@ -2,7 +2,7 @@
 <%@ page
     import="ru.org.linux.site.Message" %>
 <%@ page import="ru.org.linux.site.PreparedMessage" %>
-<%@ page import="ru.org.linux.spring.dao.TagDao" %>
+<%@ page import="ru.org.linux.dao.TagCloudDao" %>
 <%@ page import="java.util.SortedSet" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
@@ -103,7 +103,7 @@
 
   <c:if test="${group.moderated}">
     <label>Теги: <form:input path="tags" size="70"/><br>
-      Популярные теги: <%= TagDao.getEditTags(topTags) %></label> <br>
+      Популярные теги: <%= TagCloudDao.getEditTags(topTags) %></label> <br>
   </c:if>
 
   <c:if test="${group.moderated and template.moderatorSession}">

@@ -30,11 +30,11 @@ import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.dao.GroupDao;
 import ru.org.linux.dao.SectionDao;
+import ru.org.linux.dao.TagCloudDao;
 import ru.org.linux.dao.UserDao;
 import ru.org.linux.dto.GroupDto;
 import ru.org.linux.dto.SectionDto;
 import ru.org.linux.dto.UserDto;
-import ru.org.linux.spring.dao.TagDao;
 import ru.org.linux.site.*;
 import ru.org.linux.util.DateUtil;
 import ru.org.linux.util.ServletParameterException;
@@ -61,7 +61,7 @@ public class NewsViewerController {
   private GroupDao groupDao;
 
   @Autowired
-  private TagDao tagDao;
+  private TagCloudDao tagCloudDao;
 
   @Autowired
   private PrepareService prepareService;
@@ -162,7 +162,7 @@ public class NewsViewerController {
     }
 
     if (tag != null) {
-      TagDao.checkTag(tag);
+      TagCloudDao.checkTag(tag);
       params.put("tag", tag);
     }
 
@@ -230,7 +230,7 @@ public class NewsViewerController {
     }
 
     if (tag != null) {
-      newsViewer.setTag(tagDao.getTagId(tag));
+      newsViewer.setTag(tagCloudDao.getTagId(tag));
     }
 
     offset = fixOffset(offset);
