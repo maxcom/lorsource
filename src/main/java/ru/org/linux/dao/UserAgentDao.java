@@ -13,7 +13,7 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.spring.dao;
+package ru.org.linux.dao;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -38,7 +38,8 @@ public class UserAgentDao {
   }
 
   /**
-   * получить UA по его id
+   * получить UA по его id.
+   *
    * @param id id UA
    * @return название UA или null если отсутствует
    */
