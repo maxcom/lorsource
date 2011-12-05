@@ -311,8 +311,7 @@ public class PrepareService {
     return pm;
   }
 
-  public List<PreparedEditInfo> build(Message message, boolean secure, String defaultUrl, String defaultLinkText)
-      throws UserNotFoundException, UserErrorException {
+  public List<PreparedEditInfo> build(Message message, boolean secure) throws UserNotFoundException, UserErrorException {
     List<EditInfoDTO> editInfoDTOs = messageDao.loadEditInfo(message.getId());
     List<PreparedEditInfo> editInfos = new ArrayList<PreparedEditInfo>(editInfoDTOs.size());
 
@@ -320,10 +319,11 @@ public class PrepareService {
     String currentTitle = message.getTitle();
     String currentUrl = message.getUrl();
     String currentLinktext = message.getLinktext();
-    boolean currentEditInfo = true;
     List<String> currentTags = tagDao.getMessageTags(message.getMessageId());
 
-    for (EditInfoDTO dto : editInfoDTOs) {
+    for (int i = 0; i<editInfoDTOs.size(); i++) {
+      EditInfoDTO dto = editInfoDTOs.get(i);
+
       editInfos.add(
         new PreparedEditInfo(
           lorCodeService,
@@ -332,15 +332,13 @@ public class PrepareService {
           dto,
           dto.getOldmessage()!=null ? currentMessage : null,
           dto.getOldtitle()!=null ? currentTitle : null,
-          (dto.getOldurl() != null) ? dto.getOldurl() : defaultUrl,
-          (dto.getOldlinktext() != null) ? dto.getOldlinktext(): defaultLinkText,
-          (dto.getOldurl() != null || dto.getOldlinktext() != null),
+          dto.getOldurl()!=null ? currentUrl : null,
+          dto.getOldlinktext()!=null ? currentLinktext : null,
           dto.getOldtags()!=null ? currentTags : null,
-          currentEditInfo,
+          i==0,
           false
         )
       );
-      currentEditInfo = false;
 
       if (dto.getOldmessage() !=null) {
         currentMessage = dto.getOldmessage();
@@ -366,22 +364,7 @@ public class PrepareService {
     if (!editInfoDTOs.isEmpty()) {
       EditInfoDTO current = EditInfoDTO.createFromMessage(tagDao, message);
 
-      editInfos.add(
-        new PreparedEditInfo(
-          lorCodeService,
-          secure,
-          userDao,
-          current,
-          currentMessage,
-          currentTitle,
-          currentUrl,
-          currentLinktext,
-          (currentUrl != null || currentLinktext != null),
-          currentTags,
-          false,
-          true
-        )
-      );
+      editInfos.add(new PreparedEditInfo(lorCodeService, secure, userDao, current, currentMessage, currentTitle, currentUrl, currentLinktext, currentTags, false, true));
     }
 
     return editInfos;

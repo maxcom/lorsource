@@ -30,7 +30,6 @@ public class PreparedEditInfo {
   private final List<String> tags;
   private final String url;
   private final String linktext;
-  private final boolean showLink;
 
   public PreparedEditInfo(
     LorCodeService lorCodeService,
@@ -41,7 +40,6 @@ public class PreparedEditInfo {
     String title,
     String url,
     String linktext,
-    boolean showLink,
     List<String> tags,
     boolean current,
     boolean original
@@ -60,7 +58,6 @@ public class PreparedEditInfo {
     this.title = title;
     this.url = url;
     this.linktext = linktext;
-    this.showLink = showLink;
 
     this.current = current;
 
@@ -101,9 +98,5 @@ public class PreparedEditInfo {
 
   public List<String> getTags() {
     return tags;
-  }
-
-  public boolean isShowLink() {
-    return showLink;
   }
 }
