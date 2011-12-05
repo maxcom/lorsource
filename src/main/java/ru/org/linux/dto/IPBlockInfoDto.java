@@ -13,20 +13,22 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.site;
+package ru.org.linux.dto;
+
+import ru.org.linux.site.AccessViolationException;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Date;
 
-public class IPBlockInfo {
+public class IPBlockInfoDto {
   private final String reason;
   private final Timestamp banDate;
   private final Timestamp originalDate;
   private final int moderator;
 
-  public IPBlockInfo(ResultSet rs) throws SQLException {
+  public IPBlockInfoDto(ResultSet rs) throws SQLException {
     reason = rs.getString("reason");
     banDate = rs.getTimestamp("ban_date");
     originalDate = rs.getTimestamp("date");

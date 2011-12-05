@@ -15,9 +15,6 @@
 
 package ru.org.linux.dto;
 
-import ru.org.linux.dto.SectionDto;
-import ru.org.linux.dto.UserDto;
-
 import java.io.Serializable;
 import java.sql.ResultSet;
 import java.sql.SQLException;

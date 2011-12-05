@@ -35,7 +35,6 @@ import ru.org.linux.dto.MessageDto;
 import ru.org.linux.dto.SectionDto;
 import ru.org.linux.dto.UserDto;
 import ru.org.linux.site.*;
-import ru.org.linux.spring.dao.IPBlockDao;
 import ru.org.linux.spring.validators.AddMessageRequestValidator;
 import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.ExceptionBindingErrorProcessor;

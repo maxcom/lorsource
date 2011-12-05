@@ -1,4 +1,19 @@
-package ru.org.linux.spring.dao;
+/*
+ * Copyright 1998-2011 Linux.org.ru
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ */
+
+package ru.org.linux.dao;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -6,8 +21,8 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.validation.Errors;
 import org.xbill.DNS.TextParseException;
+import ru.org.linux.dto.IPBlockInfoDto;
 import ru.org.linux.dto.UserDto;
-import ru.org.linux.site.IPBlockInfo;
 import ru.org.linux.util.DNSBLClient;
 
 import javax.sql.DataSource;
@@ -26,13 +41,18 @@ public class IPBlockDao {
     jdbcTemplate = new JdbcTemplate(ds);
   }
 
-  public IPBlockInfo getBlockInfo(String addr) {
-    List<IPBlockInfo> list = jdbcTemplate.query(
+  /**
+   *
+   * @param addr
+   * @return
+   */
+  public IPBlockInfoDto getBlockInfo(String addr) {
+    List<IPBlockInfoDto> list = jdbcTemplate.query(
             "SELECT reason, ban_date, date, mod_id FROM b_ips WHERE ip = ?::inet",
-            new RowMapper<IPBlockInfo>() {
+            new RowMapper<IPBlockInfoDto>() {
               @Override
-              public IPBlockInfo mapRow(ResultSet rs, int rowNum) throws SQLException {
-                return new IPBlockInfo(rs);
+              public IPBlockInfoDto mapRow(ResultSet rs, int rowNum) throws SQLException {
+                return new IPBlockInfoDto(rs);
               }
             },
             addr
@@ -45,31 +65,54 @@ public class IPBlockDao {
     }
   }
 
+  /**
+   *
+   * @param addr
+   * @return
+   * @throws TextParseException
+   * @throws UnknownHostException
+   */
+//TODO: это должно быть в сервисе
   public static boolean getTor(String addr) throws TextParseException, UnknownHostException {
     DNSBLClient dnsbl = new DNSBLClient("tor.ahbl.org");
     return (dnsbl.checkIP(addr));
   }
 
+  /**
+   *
+   * @param addr
+   * @param errors
+   * @throws UnknownHostException
+   * @throws TextParseException
+   */
+//TODO: это должно быть в сервисе
   public void checkBlockIP(String addr, Errors errors) throws UnknownHostException, TextParseException {
     if (getTor(addr)) {
       errors.reject(null, "Постинг заблокирован: tor.ahbl.org");
     }
 
-    IPBlockInfo block = getBlockInfo(addr);
+    IPBlockInfoDto blockDto = getBlockInfo(addr);
 
-    if (block == null) {
+    if (blockDto == null) {
       return;
     }
 
-    if (block.isBlocked()) {
-      errors.reject(null, "Постинг заблокирован: "+block.getReason());
+    if (blockDto.isBlocked()) {
+      errors.reject(null, "Постинг заблокирован: "+ blockDto.getReason());
     }
   }
 
+  /**
+   *
+   * @param ip
+   * @param moderator
+   * @param reason
+   * @param ts
+   */
   public void blockIP(String ip, UserDto moderator, String reason, Timestamp ts) {
-    IPBlockInfo blockInfo = getBlockInfo(ip);
+    IPBlockInfoDto blockInfoDto = getBlockInfo(ip);
 
-    if (blockInfo == null) {
+    if (blockInfoDto == null) {
       jdbcTemplate.update(
               "INSERT INTO b_ips (ip, mod_id, date, reason, ban_date) VALUES (?::inet, ?, CURRENT_TIMESTAMP, ?, ?)",
               ip,
@@ -86,5 +129,14 @@ public class IPBlockDao {
               ip
       );
     }
+  }
+
+  /**
+   * Удаление информации о забаненном адресе.
+   *
+   * @param ip IP-адрес
+   */
+  public void delete(String ip) {
+    jdbcTemplate.update( "DELETE FROM b_ips WHERE ip =  ?::inet", ip );
   }
 }

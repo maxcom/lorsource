@@ -1,8 +1,5 @@
 package ru.org.linux.dto;
 
-import ru.org.linux.dto.SectionDto;
-import ru.org.linux.dto.UserDto;
-
 import java.sql.Timestamp;
 
 /**
