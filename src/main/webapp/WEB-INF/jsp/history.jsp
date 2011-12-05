@@ -48,7 +48,7 @@
         <h2>${editInfo.title}</h2>
         ${editInfo.message}
 		<c:if test="${(editInfo.linktext != null) || (editInfo.url != null)}">
-		  <p>&gt;&gt;&gt; <a href="${editInfo.url==null ? "#":editInfo.url}">${editInfo.linktext==null?"(текст ссылки не изменен)":editInfo.linktext}</a>
+		  <p>&gt;&gt;&gt; <a href="${editInfo.url==null ? "#" : editInfo.url}">${editInfo.linktext==null ? "(текст ссылки не изменен)" : editInfo.linktext}</a>
 		</c:if>
         <c:if test="${editInfo.tags != null}">
           <lor:tags list="${editInfo.tags}"/>
