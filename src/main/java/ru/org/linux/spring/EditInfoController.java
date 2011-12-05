@@ -20,9 +20,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
-import ru.org.linux.site.Message;
+import ru.org.linux.dao.MessageDao;
+import ru.org.linux.dto.MessageDto;
 import ru.org.linux.site.PreparedEditInfo;
-import ru.org.linux.spring.dao.MessageDao;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -45,13 +45,13 @@ public class EditInfoController {
     HttpServletRequest request,
     @PathVariable("id") int msgid
   ) throws Exception {
-    Message message = messageDao.getById(msgid);
+    MessageDto messageDto = messageDao.getById(msgid);
 
-    List<PreparedEditInfo> editInfos = prepareService.build(message, request.isSecure());
+    List<PreparedEditInfo> editInfos = prepareService.build(messageDto, request.isSecure());
 
     ModelAndView mv = new ModelAndView("history");
 
-    mv.getModel().put("message", message);
+    mv.getModel().put("message", messageDto);
     mv.getModel().put("editInfos", editInfos);
 
     return mv;

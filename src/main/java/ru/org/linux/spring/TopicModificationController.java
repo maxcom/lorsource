@@ -24,12 +24,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.dao.GroupDao;
+import ru.org.linux.dao.MessageDao;
 import ru.org.linux.dao.SectionDao;
 import ru.org.linux.dto.GroupDto;
+import ru.org.linux.dto.MessageDto;
 import ru.org.linux.dto.SectionDto;
 import ru.org.linux.dto.UserDto;
 import ru.org.linux.site.*;
-import ru.org.linux.spring.dao.MessageDao;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
@@ -60,9 +61,9 @@ public class TopicModificationController extends ApplicationObjectSupport {
     }
 
     ModelAndView mv = new ModelAndView("setpostscore");
-    Message message = messageDao.getById(msgid);
-    mv.addObject("message", message);
-    mv.addObject("group", groupDao.getGroup(message.getGroupId()));
+    MessageDto messageDto = messageDao.getById(msgid);
+    mv.addObject("message", messageDto);
+    mv.addObject("group", groupDao.getGroup(messageDto.getGroupId()));
 
     return mv;
   }
@@ -82,22 +83,22 @@ public class TopicModificationController extends ApplicationObjectSupport {
       throw new AccessViolationException("Not moderator");
     }
 
-    if (postscore < Message.POSTSCORE_UNRESTRICTED) {
+    if (postscore < MessageDto.POSTSCORE_UNRESTRICTED) {
       throw new UserErrorException("invalid postscore " + postscore);
     }
 
-    if (postscore > Message.POSTSCORE_UNRESTRICTED && postscore < Message.POSTSCORE_REGISTERED_ONLY) {
+    if (postscore > MessageDto.POSTSCORE_UNRESTRICTED && postscore < MessageDto.POSTSCORE_REGISTERED_ONLY) {
       throw new UserErrorException("invalid postscore " + postscore);
     }
 
-    if (postscore > Message.POSTSCORE_MODERATORS_ONLY) {
+    if (postscore > MessageDto.POSTSCORE_MODERATORS_ONLY) {
       throw new UserErrorException("invalid postscore " + postscore);
     }
 
     UserDto user = tmpl.getCurrentUser();
     user.checkCommit();
 
-    Message msg = messageDao.getById(msgid);
+    MessageDto msg = messageDao.getById(msgid);
 
     messageDao.setTopicOptions(msg, postscore, sticky, notop, minor);
 
@@ -144,10 +145,10 @@ public class TopicModificationController extends ApplicationObjectSupport {
 
     ModelAndView mv = new ModelAndView("mtn");
 
-    Message message = messageDao.getById(msgid);
-    SectionDto sectionDto = sectionDao.getSection(message.getSectionId());
+    MessageDto messageDto = messageDao.getById(msgid);
+    SectionDto sectionDto = sectionDao.getSection(messageDto.getSectionId());
 
-    mv.getModel().put("message", message);
+    mv.getModel().put("message", messageDto);
 
     mv.getModel().put("groups", groupDao.getGroups(sectionDto));
 
@@ -166,7 +167,7 @@ public class TopicModificationController extends ApplicationObjectSupport {
       throw new AccessViolationException("Not moderator");
     }
 
-    Message msg = messageDao.getById(msgid);
+    MessageDto msg = messageDao.getById(msgid);
 
     if (msg.isDeleted()) {
       throw new AccessViolationException("Сообщение удалено");
@@ -195,9 +196,9 @@ public class TopicModificationController extends ApplicationObjectSupport {
 
     ModelAndView mv = new ModelAndView("mtn");
 
-    Message message = messageDao.getById(msgid);
+    MessageDto messageDto = messageDao.getById(msgid);
 
-    mv.getModel().put("message", message);
+    mv.getModel().put("message", messageDto);
 
     SectionDto sectionDto = sectionDao.getSection(SectionDto.SECTION_FORUM);
 
@@ -217,13 +218,13 @@ public class TopicModificationController extends ApplicationObjectSupport {
       throw new AccessViolationException("Not authorized");
     }
 
-    Message message = messageDao.getById(msgid);
+    MessageDto messageDto = messageDao.getById(msgid);
 
-    checkUncommitable(message);
+    checkUncommitable(messageDto);
 
     ModelAndView mv = new ModelAndView("uncommit");
-    mv.getModel().put("message", message);
-    mv.getModel().put("preparedMessage", prepareService.prepareMessage(message, false, request.isSecure()));
+    mv.getModel().put("message", messageDto);
+    mv.getModel().put("preparedMessage", prepareService.prepareMessage(messageDto, false, request.isSecure()));
 
     return mv;
   }
@@ -239,33 +240,33 @@ public class TopicModificationController extends ApplicationObjectSupport {
       throw new AccessViolationException("Not authorized");
     }
 
-    Message message = messageDao.getById(msgid);
+    MessageDto messageDto = messageDao.getById(msgid);
 
-    checkUncommitable(message);
+    checkUncommitable(messageDto);
 
-    messageDao.uncommit(message);
+    messageDao.uncommit(messageDto);
 
     logger.info("Отменено подтверждение сообщения " + msgid + " пользователем " + tmpl.getNick());
 
     return new ModelAndView("action-done", "message", "Подтверждение отменено");
   }
 
-  private static void checkUncommitable(Message message) throws AccessViolationException {
-    if (message.isExpired()) {
+  private static void checkUncommitable(MessageDto messageDto) throws AccessViolationException {
+    if (messageDto.isExpired()) {
       throw new AccessViolationException("нельзя восстанавливать устаревшие сообщения");
     }
 
-    if (message.isDeleted()) {
+    if (messageDto.isDeleted()) {
       throw new AccessViolationException("сообщение удалено");
     }
 
-    if (!message.isCommited()) {
+    if (!messageDto.isCommited()) {
       throw new AccessViolationException("сообщение не подтверждено");
     }
   }
 
   public static String getPostScoreInfoFull(int postscore) {
-    String info = Message.getPostScoreInfo(postscore);
+    String info = MessageDto.getPostScoreInfo(postscore);
     if (info.isEmpty()) {
       return "без ограничений";
     } else {

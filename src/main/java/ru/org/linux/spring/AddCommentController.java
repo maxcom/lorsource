@@ -27,12 +27,13 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.search.SearchQueueSender;
+import ru.org.linux.dao.MessageDao;
 import ru.org.linux.dao.UserDao;
+import ru.org.linux.dto.MessageDto;
 import ru.org.linux.dto.UserDto;
 import ru.org.linux.site.*;
 import ru.org.linux.spring.dao.CommentDao;
 import ru.org.linux.spring.dao.IPBlockDao;
-import ru.org.linux.spring.dao.MessageDao;
 import ru.org.linux.spring.validators.AddCommentRequestValidator;
 import ru.org.linux.util.ExceptionBindingErrorProcessor;
 import ru.org.linux.util.ServletParameterException;
@@ -305,7 +306,7 @@ public class AddCommentController extends ApplicationObjectSupport {
 
   @InitBinder
   public void initBinder(WebDataBinder binder) {
-    binder.registerCustomEditor(Message.class, new PropertyEditorSupport() {
+    binder.registerCustomEditor(MessageDto.class, new PropertyEditorSupport() {
       @Override
       public void setAsText(String text) throws IllegalArgumentException {
         try {

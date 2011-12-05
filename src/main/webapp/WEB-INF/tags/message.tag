@@ -6,7 +6,7 @@
 <%@ tag import="java.sql.Timestamp" %>
 <%@ tag import="java.text.DateFormat" %>
 <%@ tag pageEncoding="UTF-8"%>
-<%@ attribute name="message" required="true" type="ru.org.linux.site.Message" %>
+<%@ attribute name="message" required="true" type="ru.org.linux.dto.MessageDto" %>
 <%@ attribute name="preparedMessage" required="true" type="ru.org.linux.site.PreparedMessage" %>
 <%@ attribute name="messageMenu" required="true" type="ru.org.linux.site.MessageMenu" %>
 <%@ attribute name="showMenu" required="true" type="java.lang.Boolean" %>

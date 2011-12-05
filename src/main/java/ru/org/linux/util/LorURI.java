@@ -19,11 +19,11 @@ import org.apache.commons.httpclient.HttpURL;
 import org.apache.commons.httpclient.HttpsURL;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
+import ru.org.linux.dao.MessageDao;
 import ru.org.linux.dto.GroupDto;
+import ru.org.linux.dto.MessageDto;
 import ru.org.linux.site.BadGroupException;
-import ru.org.linux.site.Message;
 import ru.org.linux.site.MessageNotFoundException;
-import ru.org.linux.spring.dao.MessageDao;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -279,8 +279,8 @@ public class LorURI {
    */
   public String formatJump(MessageDao messageDao, boolean secure) throws MessageNotFoundException, BadGroupException, URIException {
     if(isMessageUrl) {
-      Message message = messageDao.getById(messageId);
-      GroupDto groupDto = messageDao.getGroup(message);
+      MessageDto messageDto = messageDao.getById(messageId);
+      GroupDto groupDto = messageDao.getGroup(messageDto);
       String scheme;
       if(secure) {
         scheme = "https";

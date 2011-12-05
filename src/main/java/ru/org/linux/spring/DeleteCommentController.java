@@ -23,11 +23,12 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import ru.org.linux.search.SearchQueueSender;
+import ru.org.linux.dao.MessageDao;
 import ru.org.linux.dao.UserDao;
+import ru.org.linux.dto.MessageDto;
 import ru.org.linux.dto.UserDto;
 import ru.org.linux.site.*;
 import ru.org.linux.spring.dao.CommentDao;
-import ru.org.linux.spring.dao.MessageDao;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -96,7 +97,7 @@ public class DeleteCommentController {
 
     int topicId = comment.getTopicId();
 
-    Message topic = messageDao.getById(topicId);
+    MessageDto topic = messageDao.getById(topicId);
 
     if (topic.isDeleted()) {
       throw new AccessViolationException("тема удалена");
@@ -141,7 +142,7 @@ public class DeleteCommentController {
     user.checkAnonymous();
 
     Comment comment = commentDao.getById(msgid);
-    Message topic = messageDao.getById(comment.getTopicId());
+    MessageDto topic = messageDao.getById(comment.getTopicId());
 
     if (comment.isDeleted()) {
       throw new UserErrorException("комментарий уже удален");

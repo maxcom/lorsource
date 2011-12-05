@@ -28,16 +28,14 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.multipart.MultipartRequest;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
+import ru.org.linux.dao.*;
 import ru.org.linux.search.SearchQueueSender;
-import ru.org.linux.dao.GroupDao;
-import ru.org.linux.dao.SectionDao;
-import ru.org.linux.dao.TagCloudDao;
-import ru.org.linux.dao.UserDao;
 import ru.org.linux.dto.GroupDto;
+import ru.org.linux.dto.MessageDto;
 import ru.org.linux.dto.SectionDto;
 import ru.org.linux.dto.UserDto;
 import ru.org.linux.site.*;
-import ru.org.linux.spring.dao.*;
+import ru.org.linux.spring.dao.IPBlockDao;
 import ru.org.linux.spring.validators.AddMessageRequestValidator;
 import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.ExceptionBindingErrorProcessor;
@@ -250,10 +248,10 @@ public class AddMessageController extends ApplicationObjectSupport {
       }
     }
 
-    Message previewMsg = null;
+    MessageDto previewMsg = null;
 
     if (groupDto != null) {
-      previewMsg = new Message(form, user, message, request.getRemoteAddr());
+      previewMsg = new MessageDto(form, user, message, request.getRemoteAddr());
       params.put("message", prepareService.prepareMessage(previewMsg, TagCloudDao.parseSanitizeTags(form.getTags()), null, request.isSecure()));
     }
 

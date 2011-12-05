@@ -33,6 +33,7 @@ import ru.org.linux.dao.SectionDao;
 import ru.org.linux.dao.TagCloudDao;
 import ru.org.linux.dao.UserDao;
 import ru.org.linux.dto.GroupDto;
+import ru.org.linux.dto.MessageDto;
 import ru.org.linux.dto.SectionDto;
 import ru.org.linux.dto.UserDto;
 import ru.org.linux.site.*;
@@ -247,14 +248,14 @@ public class NewsViewerController {
       newsViewer.setLimit("LIMIT 20" + (offset > 0 ? (" OFFSET " + offset) : ""));
     }
 
-    List<Message> messages = jdbcTemplate.execute(new ConnectionCallback<List<Message>>() {
+    List<MessageDto> messageDtos = jdbcTemplate.execute(new ConnectionCallback<List<MessageDto>>() {
       @Override
-      public List<Message> doInConnection(Connection con) throws SQLException, DataAccessException {
+      public List<MessageDto> doInConnection(Connection con) throws SQLException, DataAccessException {
         return newsViewer.getMessagesCached(con);
       }
     });
 
-    params.put("messages", prepareService.prepareMessagesFeed(messages, request.isSecure()));
+    params.put("messages", prepareService.prepareMessagesFeed(messageDtos, request.isSecure()));
 
     params.put("offsetNavigation", month == null);
     params.put("offset", offset);
@@ -311,16 +312,16 @@ public class NewsViewerController {
 
     newsViewer.setUserid(user.getId());
 
-    List<Message> messages = jdbcTemplate.execute(new ConnectionCallback<List<Message>>() {
+    List<MessageDto> messageDtos = jdbcTemplate.execute(new ConnectionCallback<List<MessageDto>>() {
       @Override
-      public List<Message> doInConnection(Connection con) throws SQLException, DataAccessException {
+      public List<MessageDto> doInConnection(Connection con) throws SQLException, DataAccessException {
         return newsViewer.getMessagesCached(con);
       }
     });
 
     boolean rss = output != null && "rss".equals(output);
 
-    params.put("messages", prepareService.prepareMessagesFeed(messages, request.isSecure()));
+    params.put("messages", prepareService.prepareMessagesFeed(messageDtos, request.isSecure()));
 
     params.put("offsetNavigation", true);
     params.put("offset", offset);
@@ -374,16 +375,16 @@ public class NewsViewerController {
     newsViewer.setUserid(user.getId());
     newsViewer.setUserFavs(true);
 
-    List<Message> messages = jdbcTemplate.execute(new ConnectionCallback<List<Message>>() {
+    List<MessageDto> messageDtos = jdbcTemplate.execute(new ConnectionCallback<List<MessageDto>>() {
       @Override
-      public List<Message> doInConnection(Connection con) throws SQLException, DataAccessException {
+      public List<MessageDto> doInConnection(Connection con) throws SQLException, DataAccessException {
         return newsViewer.getMessagesCached(con);
       }
     });
 
     boolean rss = output != null && "rss".equals(output);
 
-    params.put("messages", prepareService.prepareMessagesFeed(messages, request.isSecure()));
+    params.put("messages", prepareService.prepareMessagesFeed(messageDtos, request.isSecure()));
 
     params.put("offsetNavigation", true);
     params.put("offset", offset);
@@ -435,14 +436,14 @@ public class NewsViewerController {
       newsViewer.addSection(sectionDto.getId());
     }
 
-    List<Message> messages = jdbcTemplate.execute(new ConnectionCallback<List<Message>>() {
+    List<MessageDto> messageDtos = jdbcTemplate.execute(new ConnectionCallback<List<MessageDto>>() {
       @Override
-      public List<Message> doInConnection(Connection con) throws SQLException, DataAccessException {
+      public List<MessageDto> doInConnection(Connection con) throws SQLException, DataAccessException {
         return newsViewer.getMessages(con);
       }
     });
 
-    modelAndView.getModel().put("messages", prepareService.prepareMessagesFeed(messages, request.isSecure()));
+    modelAndView.getModel().put("messages", prepareService.prepareMessagesFeed(messageDtos, request.isSecure()));
 
     RowMapper<DeletedTopic> mapper = new RowMapper<DeletedTopic>() {
       @Override
@@ -751,14 +752,14 @@ public class NewsViewerController {
 
     params.put("ptitle", ptitle);
 
-    List<Message> messages = jdbcTemplate.execute(new ConnectionCallback<List<Message>>() {
+    List<MessageDto> messageDtos = jdbcTemplate.execute(new ConnectionCallback<List<MessageDto>>() {
       @Override
-      public List<Message> doInConnection(Connection con) throws SQLException, DataAccessException {
+      public List<MessageDto> doInConnection(Connection con) throws SQLException, DataAccessException {
         return feedBurner ? nv.getMessages(con) : nv.getMessagesCached(con);
       }
     });
 
-    params.put("messages", prepareService.prepareMessagesFeed(messages, request.isSecure()));
+    params.put("messages", prepareService.prepareMessagesFeed(messageDtos, request.isSecure()));
 
     return new ModelAndView("section-rss", params);
   }

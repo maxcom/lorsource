@@ -16,6 +16,8 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.org.linux.dao.IgnoreListDao;
 import ru.org.linux.dao.UserDao;
+import ru.org.linux.dao.UserEventsDao;
+import ru.org.linux.dto.MessageDto;
 import ru.org.linux.dto.UserDto;
 import ru.org.linux.site.*;
 import ru.org.linux.spring.commons.CacheProvider;
@@ -495,7 +497,7 @@ public class CommentDao {
     return msgid;
   }
 
-  public CommentList getCommentList(Message topic, boolean showDeleted) {
+  public CommentList getCommentList(MessageDto topic, boolean showDeleted) {
     CacheProvider mcc = MemCachedSettings.getCache();
 
     String cacheId = "commentList?msgid=" + topic.getMessageId() + "&showDeleted=" + showDeleted;

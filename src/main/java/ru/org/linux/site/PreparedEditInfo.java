@@ -29,8 +29,9 @@ public class PreparedEditInfo {
   private final boolean current;
   private final String title;
   private final List<String> tags;
-  private final String url;
-  private final String linktext;
+  private String url;
+  private boolean showLink = false;
+  private String linktext;
 
   public PreparedEditInfo(
     LorCodeService lorCodeService,
@@ -88,9 +89,16 @@ public class PreparedEditInfo {
   public String getUrl() {
     return url;
   }
+  public void setUrl(String url) {
+    this.url = url;
+  }
 
   public String getLinktext() {
     return linktext;
+  }
+
+  public void setLinktext(String linktext) {
+    this.linktext = linktext;
   }
 
   public boolean isOriginal() {
@@ -99,5 +107,13 @@ public class PreparedEditInfo {
 
   public List<String> getTags() {
     return tags;
+  }
+
+  public boolean isShowLink() {
+    return showLink;
+  }
+
+  public void setShowLink(boolean showLink) {
+    this.showLink = showLink;
   }
 }

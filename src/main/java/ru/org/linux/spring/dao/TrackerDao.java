@@ -21,8 +21,8 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 import ru.org.linux.dao.UserDao;
+import ru.org.linux.dto.MessageDto;
 import ru.org.linux.dto.UserDto;
-import ru.org.linux.site.Message;
 import ru.org.linux.site.UserNotFoundException;
 
 import javax.sql.DataSource;
@@ -252,7 +252,7 @@ public class TrackerDao {
         groupUrlName = resultSet.getString("urlname");
         postdate = resultSet.getTimestamp("postdate");
         uncommited = resultSet.getBoolean("smod") && !resultSet.getBoolean("moderate");
-        pages = Message.getPageCount(stat1, messagesInPage);
+        pages = MessageDto.getPageCount(stat1, messagesInPage);
         return new TrackerItem(author, msgid, lastmod, stat1, stat3, stat4,
             groupId, groupTitle, title, cid, lastCommentBy, resolved,
             section, groupUrlName, postdate, uncommited, pages);

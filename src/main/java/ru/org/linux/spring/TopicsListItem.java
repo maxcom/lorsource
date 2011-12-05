@@ -17,8 +17,8 @@ package ru.org.linux.spring;
 
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import ru.org.linux.dao.UserDao;
+import ru.org.linux.dto.MessageDto;
 import ru.org.linux.dto.UserDto;
-import ru.org.linux.site.Message;
 import ru.org.linux.site.UserNotFoundException;
 import ru.org.linux.util.StringUtil;
 
@@ -65,7 +65,7 @@ public class TopicsListItem implements Serializable {
     sticky = rs.getBoolean("sticky");
     resolved = rs.getBoolean("resolved");
 
-    pages = Message.getPageCount(stat1, messagesInPage);
+    pages = MessageDto.getPageCount(stat1, messagesInPage);
   }
 
   public String getSubj() {

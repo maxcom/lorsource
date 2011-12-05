@@ -23,12 +23,13 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import ru.org.linux.search.SearchQueueSender;
+import ru.org.linux.dao.MessageDao;
 import ru.org.linux.dao.SectionDao;
 import ru.org.linux.dao.UserDao;
+import ru.org.linux.dto.MessageDto;
 import ru.org.linux.dto.SectionDto;
 import ru.org.linux.dto.UserDto;
 import ru.org.linux.site.*;
-import ru.org.linux.spring.dao.MessageDao;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -57,7 +58,7 @@ public class DeleteMessageController extends ApplicationObjectSupport {
       throw new AccessViolationException("Not authorized");
     }
 
-    Message msg = messageDao.getById(msgid);
+    MessageDto msg = messageDao.getById(msgid);
 
     if (msg.isDeleted()) {
       throw new UserErrorException("Сообщение уже удалено");
@@ -93,24 +94,24 @@ public class DeleteMessageController extends ApplicationObjectSupport {
 
     user.checkAnonymous();
 
-    Message message = messageDao.getById(msgid);
-    SectionDto sectionDto = sectionDao.getSection(message.getSectionId());
+    MessageDto messageDto = messageDao.getById(msgid);
+    SectionDto sectionDto = sectionDao.getSection(messageDto.getSectionId());
 
-    if (message.isDeleted()) {
+    if (messageDto.isDeleted()) {
       throw new UserErrorException("Сообщение уже удалено");
     }
 
-    boolean perm = message.isDeletableByUser(user);
+    boolean perm = messageDto.isDeletableByUser(user);
 
     if (!perm && user.isModerator()) {
-      perm = message.isDeletableByModerator(user, sectionDto);
+      perm = messageDto.isDeletableByModerator(user, sectionDto);
     }
 
     if (!perm) {
       user.checkDelete();
     }
 
-    messageDao.deleteWithBonus(message, user, reason, bonus);
+    messageDao.deleteWithBonus(messageDto, user, reason, bonus);
     logger.info("Удалено сообщение " + msgid + " пользователем " + user.getNick() + " по причине `" + reason + '\'');
 
     // Delete msgs from search index
@@ -130,13 +131,13 @@ public class DeleteMessageController extends ApplicationObjectSupport {
       throw new AccessViolationException("Not authorized");
     }
 
-    Message message = messageDao.getById(msgid);
+    MessageDto messageDto = messageDao.getById(msgid);
 
-    checkUndeletable(message);
+    checkUndeletable(messageDto);
 
     ModelAndView mv = new ModelAndView("undelete");
-    mv.getModel().put("message", message);
-    mv.getModel().put("preparedMessage", prepareService.prepareMessage(message, false, request.isSecure()));
+    mv.getModel().put("message", messageDto);
+    mv.getModel().put("preparedMessage", prepareService.prepareMessage(messageDto, false, request.isSecure()));
 
     return mv;
   }
@@ -154,12 +155,12 @@ public class DeleteMessageController extends ApplicationObjectSupport {
 
     tmpl.updateCurrentUser(userDao);
 
-    Message message = messageDao.getById(msgid);
+    MessageDto messageDto = messageDao.getById(msgid);
 
-    checkUndeletable(message);
+    checkUndeletable(messageDto);
 
-    if (message.isDeleted()) {
-      messageDao.undelete(message);
+    if (messageDto.isDeleted()) {
+      messageDao.undelete(messageDto);
     }
 
     logger.info("Восстановлено сообщение " + msgid + " пользователем " + tmpl.getNick());
@@ -170,12 +171,12 @@ public class DeleteMessageController extends ApplicationObjectSupport {
     return new ModelAndView("action-done", "message", "Сообщение восстановлено");
   }
 
-  private static void checkUndeletable(Message message) throws AccessViolationException {
-    if (message.isExpired()) {
+  private static void checkUndeletable(MessageDto messageDto) throws AccessViolationException {
+    if (messageDto.isExpired()) {
       throw new AccessViolationException("нельзя восстанавливать устаревшие сообщения");
     }
 
-    if (!message.isDeleted()) {
+    if (!messageDto.isDeleted()) {
       throw new AccessViolationException("Сообщение уже восстановлено");
     }
   }

@@ -35,5 +35,7 @@
     <bean class="ru.org.linux.dao.GroupDao" id="groupDao"/>
     <bean class="ru.org.linux.dao.TagCloudDao" id="tagCloudDao"/>
     <bean class="ru.org.linux.dao.UserAgentDao" id="userAgentDao"/>
+    <bean class="ru.org.linux.dao.MessageDao" id="messageDao"/>
+    <bean class="ru.org.linux.dao.UserEventsDao" id="userEventsDao"/>
 
 </beans>

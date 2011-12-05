@@ -26,11 +26,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
-import ru.org.linux.dao.GroupDao;
-import ru.org.linux.dao.IgnoreListDao;
-import ru.org.linux.dao.SectionDao;
-import ru.org.linux.dao.UserDao;
+import ru.org.linux.dao.*;
 import ru.org.linux.dto.GroupDto;
+import ru.org.linux.dto.MessageDto;
 import ru.org.linux.dto.SectionDto;
 import ru.org.linux.dto.UserDto;
 import ru.org.linux.site.*;
@@ -210,12 +208,12 @@ public class MessageController {
       int msgid,
       Set<Integer> highlight)
       throws Exception {
-    Message message = messageDao.getById(msgid);
-    PreparedMessage preparedMessage = prepareService.prepareMessage(message, false, request.isSecure());
+    MessageDto messageDto = messageDao.getById(msgid);
+    PreparedMessage preparedMessage = prepareService.prepareMessage(messageDto, false, request.isSecure());
     GroupDto groupDto = preparedMessage.getGroupDto();
 
     if (!groupDto.getUrlName().equals(groupName) || groupDto.getSectionId() != section) {
-      return new ModelAndView(new RedirectView(message.getLink()));
+      return new ModelAndView(new RedirectView(messageDto.getLink()));
     }
 
     return getMessage(webRequest, request, response, preparedMessage, groupDto, page, filter, highlight);
@@ -240,9 +238,9 @@ public class MessageController {
       @RequestParam(value = "filter", required = false) String filter,
       @RequestParam(required = false) String output
   ) throws Exception {
-    Message message = messageDao.getById(msgid);
+    MessageDto messageDto = messageDao.getById(msgid);
 
-    StringBuilder link = new StringBuilder(message.getLink());
+    StringBuilder link = new StringBuilder(messageDto.getLink());
 
     StringBuilder params = new StringBuilder();
 
@@ -250,8 +248,8 @@ public class MessageController {
       link.append("/page").append(page);
     }
 
-    if (lastmod != null && !message.isExpired()) {
-      params.append("?lastmod=").append(message.getLastModified().getTime());
+    if (lastmod != null && !messageDto.isExpired()) {
+      params.append("?lastmod=").append(messageDto.getLastModified().getTime());
     }
 
     if (filter != null) {
@@ -287,7 +285,7 @@ public class MessageController {
       String filter,
       Set<Integer> highlight
   ) throws Exception {
-    Message message = preparedMessage.getMessage();
+    MessageDto messageDto = preparedMessage.getMessage();
 
     Template tmpl = Template.getTemplate(request);
 
@@ -307,11 +305,11 @@ public class MessageController {
     boolean rss = request.getParameter("output") != null && "rss".equals(request.getParameter("output"));
 
     if (showDeleted && !"POST".equals(request.getMethod())) {
-      return new ModelAndView(new RedirectView(message.getLink()));
+      return new ModelAndView(new RedirectView(messageDto.getLink()));
     }
 
     if (page == -1 && !tmpl.isSessionAuthorized()) {
-      return new ModelAndView(new RedirectView(message.getLink()));
+      return new ModelAndView(new RedirectView(messageDto.getLink()));
     }
 
     if (showDeleted) {
@@ -324,11 +322,11 @@ public class MessageController {
 
     UserDto currentUser = tmpl.getCurrentUser();
 
-    if (message.isExpired() && showDeleted && !tmpl.isModeratorSession()) {
-      throw new MessageNotFoundException(message.getId(), "нельзя посмотреть удаленные комментарии в устаревших темах");
+    if (messageDto.isExpired() && showDeleted && !tmpl.isModeratorSession()) {
+      throw new MessageNotFoundException(messageDto.getId(), "нельзя посмотреть удаленные комментарии в устаревших темах");
     }
 
-    checkView(message, tmpl, currentUser);
+    checkView(messageDto, tmpl, currentUser);
 
     params.put("group", groupDto);
 
@@ -337,7 +335,7 @@ public class MessageController {
     }
 
     if (!tmpl.isSessionAuthorized()) { // because users have IgnoreList and memories
-      String etag = getEtag(message, tmpl);
+      String etag = getEtag(messageDto, tmpl);
       response.setHeader("Etag", etag);
 
       if (request.getHeader("If-None-Match") != null) {
@@ -345,21 +343,21 @@ public class MessageController {
           response.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
           return null;
         }
-      } else if (checkLastModified(webRequest, message)) {
+      } else if (checkLastModified(webRequest, messageDto)) {
         return null;
       }
     }
 
-    params.put("message", message);
+    params.put("message", messageDto);
     params.put("preparedMessage", preparedMessage);
 
     params.put("messageMenu", prepareService.getMessageMenu(preparedMessage, currentUser));
 
-    if (message.isExpired()) {
+    if (messageDto.isExpired()) {
       response.setDateHeader("Expires", System.currentTimeMillis() + 30 * 24 * 60 * 60 * 1000L);
     }
 
-    CommentList comments = commentDao.getCommentList(message, showDeleted);
+    CommentList comments = commentDao.getCommentList(messageDto, showDeleted);
 
     params.put("comments", comments);
 
@@ -393,11 +391,11 @@ public class MessageController {
 
     if (!rss) {
       if (ignoreList == null || ignoreList.isEmpty()) {
-        params.put("prevMessage", messageDao.getPreviousMessage(message, null));
-        params.put("nextMessage", messageDao.getNextMessage(message, null));
+        params.put("prevMessage", messageDao.getPreviousMessage(messageDto, null));
+        params.put("nextMessage", messageDao.getNextMessage(messageDto, null));
       } else {
-        params.put("prevMessage", messageDao.getPreviousMessage(message, currentUser));
-        params.put("nextMessage", messageDao.getNextMessage(message, currentUser));
+        params.put("prevMessage", messageDao.getPreviousMessage(messageDto, currentUser));
+        params.put("nextMessage", messageDao.getNextMessage(messageDto, currentUser));
       }
 
       Set<Integer> hideSet = CommentList.makeHideSet(userDao, comments, filterMode, ignoreList);
@@ -434,39 +432,39 @@ public class MessageController {
     return new ModelAndView(rss ? "view-message-rss" : "view-message", params);
   }
 
-  private static void checkView(Message message, Template tmpl, UserDto currentUser) throws MessageNotFoundException {
+  private static void checkView(MessageDto messageDto, Template tmpl, UserDto currentUser) throws MessageNotFoundException {
     if (tmpl.isModeratorSession()) {
       return;
     }
 
-    if (message.isDeleted()) {
-      if (message.isExpired()) {
-        throw new MessageNotFoundException(message.getId(), "нельзя посмотреть устаревшие удаленные сообщения");
+    if (messageDto.isDeleted()) {
+      if (messageDto.isExpired()) {
+        throw new MessageNotFoundException(messageDto.getId(), "нельзя посмотреть устаревшие удаленные сообщения");
       }
 
       if (!tmpl.isSessionAuthorized()) {
-        throw new MessageNotFoundException(message.getId(), "Сообщение удалено");
+        throw new MessageNotFoundException(messageDto.getId(), "Сообщение удалено");
       }
 
-      if (currentUser.getId() == message.getUid()) {
+      if (currentUser.getId() == messageDto.getUid()) {
         return;
       }
 
       if (currentUser.getScore() < UserDto.VIEW_DELETED_SCORE) {
-        throw new MessageNotFoundException(message.getId(), "Сообщение удалено");
+        throw new MessageNotFoundException(messageDto.getId(), "Сообщение удалено");
       }
     }
   }
 
-  private static boolean checkLastModified(WebRequest webRequest, Message message) {
+  private static boolean checkLastModified(WebRequest webRequest, MessageDto messageDto) {
     try {
-      return webRequest.checkNotModified(message.getLastModified().getTime());
+      return webRequest.checkNotModified(messageDto.getLastModified().getTime());
     } catch (IllegalArgumentException ignored) {
       return false;
     }
   }
 
-  private static String getEtag(Message message, Template tmpl) {
+  private static String getEtag(MessageDto messageDto, Template tmpl) {
     String nick = tmpl.getNick();
 
     String userAddon = nick != null ? ('-' + nick) : "";
@@ -475,7 +473,7 @@ public class MessageController {
       userAddon += tmpl.getProf().getTimestamp();
     }
 
-    return "msg-" + message.getMessageId() + '-' + message.getLastModified().getTime() + userAddon;
+    return "msg-" + messageDto.getMessageId() + '-' + messageDto.getLastModified().getTime() + userAddon;
   }
 
   private ModelAndView jumpMessage(
@@ -485,7 +483,7 @@ public class MessageController {
       int msgid,
       int cid) throws Exception {
     Template tmpl = Template.getTemplate(request);
-    Message topic = messageDao.getById(msgid);
+    MessageDto topic = messageDao.getById(msgid);
     String redirectUrl = topic.getLink();
     StringBuffer options = new StringBuffer();
     SectionDto sectionDto = sectionDao.getSection(sectionId);
@@ -534,7 +532,7 @@ public class MessageController {
   ) throws Exception {
     Template tmpl = Template.getTemplate(request);
 
-    Message topic = messageDao.getById(msgid);
+    MessageDto topic = messageDao.getById(msgid);
 
     String redirectUrl = topic.getLink();
     StringBuffer options = new StringBuffer();

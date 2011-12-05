@@ -1,4 +1,4 @@
-package ru.org.linux.spring.dao;
+package ru.org.linux.dao;
 
 import com.google.common.collect.ImmutableMap;
 import org.springframework.beans.factory.annotation.Autowired;

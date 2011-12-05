@@ -1,4 +1,4 @@
-package ru.org.linux.spring.dao;
+package ru.org.linux.dao;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
@@ -15,11 +15,8 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import ru.org.linux.dao.GroupDao;
-import ru.org.linux.dao.PollDao;
-import ru.org.linux.dao.TagCloudDao;
-import ru.org.linux.dao.UserDao;
 import ru.org.linux.dto.GroupDto;
+import ru.org.linux.dto.MessageDto;
 import ru.org.linux.dto.SectionDto;
 import ru.org.linux.dto.UserDto;
 import ru.org.linux.site.*;
@@ -82,8 +79,6 @@ public class MessageDao {
 
   private static final String queryEditInfo = "SELECT * FROM edit_info WHERE msgid=? ORDER BY id DESC";
 
-  private static final String queryTags = "SELECT tags_values.value FROM tags, tags_values WHERE tags.msgid=? AND tags_values.id=tags.tagid ORDER BY value";
-
   private static final String updateUndeleteMessage = "UPDATE topics SET deleted='f' WHERE id=?";
   private static final String updateUneleteInfo = "DELETE FROM del_info WHERE msgid=?";
 
@@ -111,7 +106,7 @@ public class MessageDao {
   }
 
   /**
-   * Время создания первого топика
+   * Время создания первого топика.
    *
    * @return время
    */
@@ -120,50 +115,50 @@ public class MessageDao {
   }
 
   /**
-   * Получить содержимое топика
+   * Получить содержимое топика.
    *
-   * @param message топик
+   * @param messageDto топик
    * @return содержимое
    */
-  public String getMessage(Message message) {
-    return jdbcTemplate.queryForObject(queryOnlyMessage, String.class, message.getId());
+  public String getMessage(MessageDto messageDto) {
+    return jdbcTemplate.queryForObject(queryOnlyMessage, String.class, messageDto.getId());
   }
 
   /**
-   * Получить сообщение по id
+   * Получить сообщение по id.
    *
    * @param id id нужного сообщения
    * @return сообщение
    * @throws MessageNotFoundException при отсутствии сообщения
    */
-  public Message getById(int id) throws MessageNotFoundException {
-    Message message;
+  public MessageDto getById(int id) throws MessageNotFoundException {
+    MessageDto messageDto;
     try {
-      message = jdbcTemplate.queryForObject(queryMessage, new RowMapper<Message>() {
+      messageDto = jdbcTemplate.queryForObject(queryMessage, new RowMapper<MessageDto>() {
         @Override
-        public Message mapRow(ResultSet resultSet, int i) throws SQLException {
-          return new Message(resultSet);
+        public MessageDto mapRow(ResultSet resultSet, int i) throws SQLException {
+          return new MessageDto(resultSet);
         }
       }, id);
     } catch (EmptyResultDataAccessException exception) {
       throw new MessageNotFoundException(id);
     }
-    return message;
+    return messageDto;
   }
 
   /**
-   * Получить group message
+   * Получить group messageDto.
    *
-   * @param message message
+   * @param messageDto messageDto
    * @return group
    * @throws BadGroupException если что-то неправильно
    */
-  public GroupDto getGroup(Message message) throws BadGroupException {
-    return groupDao.getGroup(message.getGroupId());
+  public GroupDto getGroup(MessageDto messageDto) throws BadGroupException {
+    return groupDao.getGroup(messageDto.getGroupId());
   }
 
   /**
-   * Получить список топиков за месяц
+   * Получить список топиков за месяц.
    *
    * @param year  год
    * @param month месяц
@@ -184,7 +179,7 @@ public class MessageDao {
   }
 
   /**
-   * Получить информации о редактировании топика
+   * Получить информации о редактировании топика.
    *
    * @param id id топика
    * @return список изменений топика
@@ -209,60 +204,70 @@ public class MessageDao {
   }
 
   /**
-   * Получить тэги топика
-   * TODO возможно надо сделать TagDao ?
+   * Получить тэги топика.
+   * TODO перенести в service
    *
-   * @param message топик
+   * @param messageDto топик
    * @return список тэгов
    */
-  public ImmutableList<String> getTags(Message message) {
-    final ImmutableList.Builder<String> tags = ImmutableList.builder();
-
-    jdbcTemplate.query(queryTags, new RowCallbackHandler() {
-      @Override
-      public void processRow(ResultSet resultSet) throws SQLException {
-        tags.add(resultSet.getString("value"));
-      }
-    }, message.getId());
-
-    return tags.build();
+  public ImmutableList<String> getTags(MessageDto messageDto) {
+    return tagCloudDao.getMessageTags(messageDto.getId());
   }
 
   /**
-   * Удаление топика и если удаляет модератор изменить автору score
+   * Удаление топика и если удаляет модератор изменить автору score.
    *
-   * @param message удаляемый топик
+   * @param messageDto удаляемый топик
    * @param user    удаляющий пользователь
    * @param reason  прчина удаления
    * @param bonus   дельта изменения score автора топика
    * @throws UserErrorException генерируется если некорректная делта score
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public void deleteWithBonus(Message message, UserDto user, String reason, int bonus) throws UserErrorException {
+  public void deleteWithBonus(MessageDto messageDto, UserDto user, String reason, int bonus) throws UserErrorException {
     String finalReason = reason;
-    jdbcTemplate.update(updateDeleteMessage, message.getId());
-    if (user.isModerator() && bonus != 0 && user.getId() != message.getUid()) {
+    jdbcTemplate.update(updateDeleteMessage, messageDto.getId());
+    if (user.isModerator() && bonus != 0 && user.getId() != messageDto.getUid()) {
       if (bonus > 20 || bonus < 0) {
         throw new UserErrorException("Некорректное значение bonus");
       }
-      userDao.changeScore(message.getUid(), -bonus);
+      userDao.changeScore(messageDto.getUid(), -bonus);
       finalReason += " (" + bonus + ')';
     }
-    jdbcTemplate.update(updateDeleteInfo, message.getId(), user.getId(), finalReason);
+    jdbcTemplate.update(updateDeleteInfo, messageDto.getId(), user.getId(), finalReason);
   }
 
+  /**
+   *
+   * @param messageDto
+   */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public void undelete(Message message) {
-    jdbcTemplate.update(updateUndeleteMessage, message.getId());
-    jdbcTemplate.update(updateUneleteInfo, message.getId());
+  public void undelete(MessageDto messageDto) {
+    jdbcTemplate.update(updateUndeleteMessage, messageDto.getId());
+    jdbcTemplate.update(updateUneleteInfo, messageDto.getId());
   }
 
+  /**
+   *
+   * @return
+   */
   private int allocateMsgid() {
     return jdbcTemplate.queryForInt("select nextval('s_msgid') as msgid");
   }
 
-  // call in @Transactional environment
-  public int saveNewMessage(final Message msg, Template tmpl, final HttpServletRequest request, Screenshot scrn, final UserDto user)
+  /**
+   *
+   * @param msg
+   * @param tmpl
+   * @param request
+   * @param scrn
+   * @param user
+   * @return
+   * @throws IOException
+   * @throws ScriptErrorException
+   */
+// call in @Transactional environment
+  public int saveNewMessage(final MessageDto msg, Template tmpl, final HttpServletRequest request, Screenshot scrn, final UserDto user)
       throws IOException, ScriptErrorException {
 
     final GroupDto groupDto = groupDao.getGroup(msg.getGroupId());
@@ -317,8 +322,24 @@ public class MessageDao {
     return msgid;
   }
 
+  /**
+   *
+   *
+   * @param request
+   * @param form
+   * @param tmpl
+   * @param groupDto
+   * @param user
+   * @param scrn
+   * @param previewMsg
+   * @param userRefs
+   * @return
+   * @throws IOException
+   * @throws ScriptErrorException
+   * @throws UserErrorException
+   */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public int addMessage(HttpServletRequest request, AddMessageRequest form, Template tmpl, GroupDto groupDto, UserDto user, Screenshot scrn, Message previewMsg, Set<UserDto> userRefs) throws IOException, ScriptErrorException, UserErrorException {
+  public int addMessage(HttpServletRequest request, AddMessageRequest form, Template tmpl, GroupDto groupDto, UserDto user, Screenshot scrn, MessageDto previewMsg, Set<UserDto> userRefs) throws IOException, ScriptErrorException, UserErrorException {
     final int msgid = saveNewMessage(
         previewMsg,
         tmpl,
@@ -343,7 +364,15 @@ public class MessageDao {
     return msgid;
   }
 
-  private boolean updateMessage(Message oldMsg, Message msg, UserDto editor, List<String> newTags) {
+  /**
+   *
+   * @param oldMsg
+   * @param msg
+   * @param editor
+   * @param newTags
+   * @return
+   */
+  private boolean updateMessage(MessageDto oldMsg, MessageDto msg, UserDto editor, List<String> newTags) {
     List<String> oldTags = tagCloudDao.getMessageTags(msg.getId());
 
     EditInfoDTO editInfo = new EditInfoDTO();
@@ -416,6 +445,12 @@ public class MessageDao {
     return modified;
   }
 
+  /**
+   *
+   * @param s1
+   * @param s2
+   * @return
+   */
   private static boolean equalStrings(String s1, String s2) {
     if (Strings.isNullOrEmpty(s1)) {
       return Strings.isNullOrEmpty(s2);
@@ -424,10 +459,18 @@ public class MessageDao {
     return s1.equals(s2);
   }
 
-  private boolean updatePoll(Message message, List<PollVariant> newVariants, boolean multiselect) throws PollNotFoundException {
+  /**
+   *
+   * @param messageDto
+   * @param newVariants
+   * @param multiselect
+   * @return
+   * @throws PollNotFoundException
+   */
+  private boolean updatePoll(MessageDto messageDto, List<PollVariant> newVariants, boolean multiselect) throws PollNotFoundException {
     boolean modified = false;
 
-    final Poll poll = pollDao.getPollByTopicId(message.getId());
+    final Poll poll = pollDao.getPollByTopicId(messageDto.getId());
 
     ImmutableList<PollVariant> oldVariants = pollDao.getPollVariants(poll, Poll.ORDER_ID);
 
@@ -463,10 +506,23 @@ public class MessageDao {
     return modified;
   }
 
+  /**
+   *
+   * @param newMsg
+   * @param messageDto
+   * @param user
+   * @param newTags
+   * @param commit
+   * @param changeGroupId
+   * @param bonus
+   * @param pollVariants
+   * @param multiselect
+   * @return
+   */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   public boolean updateAndCommit(
-      Message newMsg,
-      Message message,
+      MessageDto newMsg,
+      MessageDto messageDto,
       UserDto user,
       List<String> newTags,
       boolean commit,
@@ -475,10 +531,10 @@ public class MessageDao {
       List<PollVariant> pollVariants,
       boolean multiselect
   ) {
-    boolean modified = updateMessage(message, newMsg, user, newTags);
+    boolean modified = updateMessage(messageDto, newMsg, user, newTags);
 
     try {
-      if (pollVariants != null && updatePoll(message, pollVariants, multiselect)) {
+      if (pollVariants != null && updatePoll(messageDto, pollVariants, multiselect)) {
         modified = true;
       }
     } catch (PollNotFoundException e) {
@@ -487,23 +543,29 @@ public class MessageDao {
 
     if (commit) {
       if (changeGroupId != null) {
-        if (message.getGroupId() != changeGroupId) {
-          jdbcTemplate.update("UPDATE topics SET groupid=? WHERE id=?", changeGroupId, message.getId());
-          jdbcTemplate.update("UPDATE groups SET stat4=stat4+1 WHERE id=? or id=?", message.getGroupId(), changeGroupId);
+        if (messageDto.getGroupId() != changeGroupId) {
+          jdbcTemplate.update("UPDATE topics SET groupid=? WHERE id=?", changeGroupId, messageDto.getId());
+          jdbcTemplate.update("UPDATE groups SET stat4=stat4+1 WHERE id=? or id=?", messageDto.getGroupId(), changeGroupId);
         }
       }
 
-      commit(message, user, bonus);
+      commit(messageDto, user, bonus);
     }
 
     if (modified) {
-      logger.info("сообщение " + message.getId() + " исправлено " + user.getNick());
+      logger.info("сообщение " + messageDto.getId() + " исправлено " + user.getNick());
     }
 
     return modified;
   }
 
-  private void commit(Message msg, UserDto commiter, int bonus) {
+  /**
+   *
+   * @param msg
+   * @param commiter
+   * @param bonus
+   */
+  private void commit(MessageDto msg, UserDto commiter, int bonus) {
     if (bonus < 0 || bonus > 20) {
       throw new IllegalStateException("Неверное значение bonus");
     }
@@ -524,12 +586,22 @@ public class MessageDao {
     userDao.changeScore(author.getId(), bonus);
   }
 
-  public void uncommit(Message msg) {
+  /**
+   *
+   * @param msg
+   */
+  public void uncommit(MessageDto msg) {
     jdbcTemplate.update("UPDATE topics SET moderate='f',commitby=NULL,commitdate=NULL WHERE id=?", msg.getId());
   }
 
-  public Message getPreviousMessage(Message message, UserDto currentUser) {
-    int scrollMode = SectionDto.getScrollMode(message.getSectionId());
+  /**
+   *
+   * @param messageDto
+   * @param currentUser
+   * @return
+   */
+  public MessageDto getPreviousMessage(MessageDto messageDto, UserDto currentUser) {
+    int scrollMode = SectionDto.getScrollMode(messageDto.getSectionId());
 
     List<Integer> res;
 
@@ -538,8 +610,8 @@ public class MessageDao {
         res = jdbcTemplate.queryForList(
             "SELECT topics.id as msgid FROM topics WHERE topics.commitdate=(SELECT max(commitdate) FROM topics, groups, sections WHERE sections.id=groups.section AND topics.commitdate<? AND topics.groupid=groups.id AND groups.section=? AND (topics.moderate OR NOT sections.moderate) AND NOT deleted)",
             Integer.class,
-            message.getCommitDate(),
-            message.getSectionId()
+            messageDto.getCommitDate(),
+            messageDto.getSectionId()
         );
         break;
 
@@ -550,8 +622,8 @@ public class MessageDao {
                   "FROM topics " +
                   "WHERE topics.id<? AND topics.groupid=? AND NOT deleted",
               Integer.class,
-              message.getMessageId(),
-              message.getGroupId()
+              messageDto.getMessageId(),
+              messageDto.getGroupId()
           );
         } else {
           res = jdbcTemplate.queryForList(
@@ -560,8 +632,8 @@ public class MessageDao {
                   "WHERE topics.id<? AND topics.groupid=? AND NOT deleted " +
                   "AND userid NOT IN (select ignored from ignore_list where userid=?)",
               Integer.class,
-              message.getMessageId(),
-              message.getGroupId(),
+              messageDto.getMessageId(),
+              messageDto.getGroupId(),
               currentUser.getId()
           );
         }
@@ -586,8 +658,14 @@ public class MessageDao {
     }
   }
 
-  public Message getNextMessage(Message message, UserDto currentUser) {
-    int scrollMode = SectionDto.getScrollMode(message.getSectionId());
+  /**
+   *
+   * @param messageDto
+   * @param currentUser
+   * @return
+   */
+  public MessageDto getNextMessage(MessageDto messageDto, UserDto currentUser) {
+    int scrollMode = SectionDto.getScrollMode(messageDto.getSectionId());
 
     List<Integer> res;
 
@@ -596,8 +674,8 @@ public class MessageDao {
         res = jdbcTemplate.queryForList(
             "SELECT topics.id as msgid FROM topics WHERE topics.commitdate=(SELECT min(commitdate) FROM topics, groups, sections WHERE sections.id=groups.section AND topics.commitdate>? AND topics.groupid=groups.id AND groups.section=? AND (topics.moderate OR NOT sections.moderate) AND NOT deleted)",
             Integer.class,
-            message.getCommitDate(),
-            message.getSectionId()
+            messageDto.getCommitDate(),
+            messageDto.getSectionId()
         );
         break;
 
@@ -608,8 +686,8 @@ public class MessageDao {
                   "FROM topics " +
                   "WHERE topics.id>? AND topics.groupid=? AND NOT deleted",
               Integer.class,
-              message.getId(),
-              message.getGroupId()
+              messageDto.getId(),
+              messageDto.getGroupId()
           );
         } else {
           res = jdbcTemplate.queryForList(
@@ -618,8 +696,8 @@ public class MessageDao {
                   "WHERE topics.id>? AND topics.groupid=? AND NOT deleted " +
                   "AND userid NOT IN (select ignored from ignore_list where userid=?)",
               Integer.class,
-              message.getId(),
-              message.getGroupId(),
+              messageDto.getId(),
+              messageDto.getGroupId(),
               currentUser.getId()
           );
         }
@@ -643,6 +721,11 @@ public class MessageDao {
     }
   }
 
+  /**
+   *
+   * @param msgid
+   * @return
+   */
   public List<EditInfoDTO> loadEditInfo(int msgid) {
     List<EditInfoDTO> list = jdbcTemplate.query(
         "SELECT * FROM edit_info WHERE msgid=? ORDER BY id DESC",
@@ -653,6 +736,11 @@ public class MessageDao {
     return ImmutableList.copyOf(list);
   }
 
+  /**
+   *
+   * @param msgid
+   * @param b
+   */
   public void resolveMessage(int msgid, boolean b) {
     jdbcTemplate.update(
         "UPDATE topics SET resolved=?,lastmod=lastmod+'1 second'::interval WHERE id=?",
@@ -661,7 +749,15 @@ public class MessageDao {
     );
   }
 
-  public void setTopicOptions(Message msg, int postscore, boolean sticky, boolean notop, boolean minor) {
+  /**
+   *
+   * @param msg
+   * @param postscore
+   * @param sticky
+   * @param notop
+   * @param minor
+   */
+  public void setTopicOptions(MessageDto msg, int postscore, boolean sticky, boolean notop, boolean minor) {
     jdbcTemplate.update(
         "UPDATE topics SET postscore=?, sticky=?, notop=?, lastmod=CURRENT_TIMESTAMP,minor=? WHERE id=?",
         postscore,
@@ -672,8 +768,14 @@ public class MessageDao {
     );
   }
 
+  /**
+   *
+   * @param msg
+   * @param newGrp
+   * @param moveBy
+   */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public void moveTopic(Message msg, GroupDto newGrp, UserDto moveBy) {
+  public void moveTopic(MessageDto msg, GroupDto newGrp, UserDto moveBy) {
     String url = msg.getUrl();
 
     jdbcTemplate.update("UPDATE topics SET groupid=?,lastmod=CURRENT_TIMESTAMP WHERE id=?", newGrp.getId(), msg.getId());

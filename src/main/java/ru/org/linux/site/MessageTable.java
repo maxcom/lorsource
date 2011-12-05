@@ -15,6 +15,7 @@
 
 package ru.org.linux.site;
 
+import ru.org.linux.dto.MessageDto;
 import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.ImageInfo;
 
@@ -32,7 +33,7 @@ public class MessageTable {
   public static String getTopicRss(String htmlPath, String fullUrl, PreparedMessage preparedTopic) throws IOException, BadImageException {
     StringBuilder buf = new StringBuilder();
 
-    Message topic = preparedTopic.getMessage();
+    MessageDto topic = preparedTopic.getMessage();
 
     if (preparedTopic.getSectionDto().isImagepost()) {
       buf.append(NewsViewer.showMediumImage(htmlPath, topic, true));

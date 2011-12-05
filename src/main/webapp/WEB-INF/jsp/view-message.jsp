@@ -1,5 +1,5 @@
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="ru.org.linux.site.CommentFilter,ru.org.linux.site.Message,ru.org.linux.dto.SectionDto,ru.org.linux.site.Template"   buffer="200kb"%>
+<%@ page import="ru.org.linux.site.CommentFilter,ru.org.linux.dto.MessageDto,ru.org.linux.dto.SectionDto,ru.org.linux.site.Template"   buffer="200kb"%>
 <%@ page import="ru.org.linux.util.StringUtil" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
@@ -20,11 +20,11 @@
   --%>
 
 <%--@elvariable id="showAdsense" type="Boolean"--%>
-<%--@elvariable id="message" type="ru.org.linux.site.Message"--%>
+<%--@elvariable id="message" type="ru.org.linux.dto.MessageDto"--%>
 <%--@elvariable id="preparedMessage" type="ru.org.linux.site.PreparedMessage"--%>
 <%--@elvariable id="messageMenu" type="ru.org.linux.site.MessageMenu"--%>
-<%--@elvariable id="prevMessage" type="ru.org.linux.site.Message"--%>
-<%--@elvariable id="nextMessage" type="ru.org.linux.site.Message"--%>
+<%--@elvariable id="prevMessage" type="ru.org.linux.dto.MessageDto"--%>
+<%--@elvariable id="nextMessage" type="ru.org.linux.dto.MessageDto"--%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <%--@elvariable id="showDeleted" type="Boolean"--%>
 <%--@elvariable id="comments" type="ru.org.linux.site.CommentList"--%>
@@ -41,9 +41,9 @@
 
   int npage = (Integer) request.getAttribute("page");
 
-  Message message = (Message) request.getAttribute("message");
-  Message prevMessage = (Message) request.getAttribute("prevMessage");
-  Message nextMessage = (Message) request.getAttribute("nextMessage");
+  MessageDto message = (MessageDto) request.getAttribute("message");
+  MessageDto prevMessage = (MessageDto) request.getAttribute("prevMessage");
+  MessageDto nextMessage = (MessageDto) request.getAttribute("nextMessage");
 %>
 
 <title>${preparedMessage.sectionDto.title} - ${message.groupTitle} - ${message.title}</title>

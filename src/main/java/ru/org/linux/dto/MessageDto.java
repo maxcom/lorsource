@@ -13,13 +13,10 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.site;
+package ru.org.linux.dto;
 
 import com.google.common.base.Strings;
 import org.springframework.validation.Errors;
-import ru.org.linux.dto.GroupDto;
-import ru.org.linux.dto.SectionDto;
-import ru.org.linux.dto.UserDto;
 import ru.org.linux.spring.AddMessageRequest;
 import ru.org.linux.spring.EditMessageRequest;
 import ru.org.linux.util.StringUtil;
@@ -34,7 +31,7 @@ import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Date;
 
-public class Message implements Serializable {
+public class MessageDto implements Serializable {
   private final int msgid;
   private final int postscore;
   private final boolean votepoll;
@@ -73,7 +70,7 @@ public class Message implements Serializable {
   public static final int POSTSCORE_REGISTERED_ONLY = -50;
   private static final String UTF8 = "UTF-8";
 
-  public Message(ResultSet rs) throws SQLException {
+  public MessageDto(ResultSet rs) throws SQLException {
     msgid = rs.getInt("msgid");
 
     int ps = rs.getInt("postscore");
@@ -114,7 +111,7 @@ public class Message implements Serializable {
     sectionCommentsRestriction = SectionDto.getCommentPostscore(sectionid);
   }
 
-  public Message(AddMessageRequest form, UserDto user, String message, String postIP) {
+  public MessageDto(AddMessageRequest form, UserDto user, String message, String postIP) {
     userAgent = 0;
     this.postIP = postIP;
 
@@ -137,7 +134,7 @@ public class Message implements Serializable {
       url = null;
     }
 
-    // Setting Message fields
+    // Setting MessageDto fields
     if (form.getTitle() != null) {
       title = StringUtil.escapeHtml(form.getTitle());
     } else {
@@ -171,7 +168,7 @@ public class Message implements Serializable {
     sectionCommentsRestriction = SectionDto.getCommentPostscore(sectionid);
   }
 
-  public Message(GroupDto groupDto, Message original, EditMessageRequest form) {
+  public MessageDto(GroupDto groupDto, MessageDto original, EditMessageRequest form) {
     userAgent = original.userAgent;
     postIP = original.postIP;
     guid = original.guid;

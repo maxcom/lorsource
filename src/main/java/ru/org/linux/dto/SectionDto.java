@@ -15,7 +15,6 @@
 
 package ru.org.linux.dto;
 
-import ru.org.linux.site.Message;
 import ru.org.linux.site.SectionNotFoundException;
 
 import java.io.Serializable;
@@ -135,7 +134,7 @@ public class SectionDto implements Serializable {
   public static int getCommentPostscore(int id) {
     //TODO move this to database
     if (id == SECTION_NEWS || id == SECTION_FORUM) {
-      return Message.POSTSCORE_UNRESTRICTED;
+      return MessageDto.POSTSCORE_UNRESTRICTED;
     } else {
       return 50;
     }

@@ -8,7 +8,7 @@
 <%@ tag import="ru.org.linux.util.StringUtil" %>
 <%@ tag import="ru.org.linux.util.ImageInfo" %>
 <%@ tag pageEncoding="UTF-8"%>
-<%@ attribute name="message" required="true" type="ru.org.linux.site.Message" %>
+<%@ attribute name="message" required="true" type="ru.org.linux.dto.MessageDto" %>
 <%@ attribute name="preparedMessage" required="true" type="ru.org.linux.site.PreparedMessage" %>
 <%@ attribute name="multiPortal" required="true" type="java.lang.Boolean" %>
 <%@ attribute name="moderateMode" required="true" type="java.lang.Boolean" %>

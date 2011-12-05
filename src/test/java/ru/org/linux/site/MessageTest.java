@@ -17,6 +17,7 @@ package ru.org.linux.site;
 
 import org.junit.Test;
 import junit.framework.Assert;
+import ru.org.linux.dto.MessageDto;
 import ru.org.linux.dto.SectionDto;
 import ru.org.linux.dto.UserDto;
 
@@ -37,7 +38,7 @@ public class MessageTest {
 
   /**
    * Проверка что пользователь МОЖЕТ удалить топик автором которого он является
-   * и прошло меньше часа с момента почтинга
+   * и прошло меньше часа с момента постинга.
    *
    * @throws Exception
    */
@@ -56,7 +57,7 @@ public class MessageTest {
     when(resultSet.getTimestamp(anyString())).thenReturn(new Timestamp(calendar.getTimeInMillis()));
     // commitby, sectionid, stat1, ua_id,
     when(resultSet.getInt(anyString())).thenReturn(13);
-    // gtitle, urlname, message, postip,
+    // gtitle, urlname, messageDto, postip,
     when(resultSet.getString(anyString())).thenReturn("any");
     // vote, sticky, expired, havelink, bbcode, resolved, minor
     when(resultSet.getBoolean(anyString())).thenReturn(false);
@@ -68,18 +69,18 @@ public class MessageTest {
     when(user.isModerator()).thenReturn(false);
     when(user.getId()).thenReturn(13);
 
-    Message message = new Message(resultSet);
+    MessageDto messageDto = new MessageDto(resultSet);
 
     Assert.assertEquals(false, user.isModerator());
     Assert.assertTrue(user.getId() == resultSet.getInt("userid"));
-    Assert.assertTrue(user.getId() == message.getUid());
+    Assert.assertTrue(user.getId() == messageDto.getUid());
 
-    Assert.assertTrue(message.isDeletableByUser(user));
+    Assert.assertTrue(messageDto.isDeletableByUser(user));
   }
 
   /**
    * Проверка что пользователь НЕМОЖЕТ удалить топик автором которого он является
-   * и прошло больше часа с момента почтинга
+   * и прошло больше часа с момента постинга.
    *
    * @throws Exception
    */
@@ -98,7 +99,7 @@ public class MessageTest {
     when(resultSet.getTimestamp(anyString())).thenReturn(new Timestamp(calendar.getTimeInMillis()));
     // commitby, sectionid, stat1, ua_id,
     when(resultSet.getInt(anyString())).thenReturn(13);
-    // gtitle, urlname, message, postip,
+    // gtitle, urlname, messageDto, postip,
     when(resultSet.getString(anyString())).thenReturn("any");
     // vote, sticky, expired, havelink, bbcode, resolved, minor
     when(resultSet.getBoolean(anyString())).thenReturn(false);
@@ -110,18 +111,18 @@ public class MessageTest {
     when(user.isModerator()).thenReturn(false);
     when(user.getId()).thenReturn(13);
 
-    Message message = new Message(resultSet);
+    MessageDto messageDto = new MessageDto(resultSet);
 
     Assert.assertEquals(false, user.isModerator());
     Assert.assertTrue(user.getId() == resultSet.getInt("userid"));
-    Assert.assertTrue(user.getId() == message.getUid());
+    Assert.assertTrue(user.getId() == messageDto.getUid());
 
-    Assert.assertFalse(message.isDeletableByUser(user));
+    Assert.assertFalse(messageDto.isDeletableByUser(user));
   }
 
   /**
    * Проверка что пользователь НЕМОЖЕТ удалить топик автором которого он неявляется
-   * и прошло больше часа с момента постинга
+   * и прошло больше часа с момента постинга.
    *
    * @throws Exception
    */
@@ -140,7 +141,7 @@ public class MessageTest {
     when(resultSet.getTimestamp(anyString())).thenReturn(new Timestamp(calendar.getTimeInMillis()));
     // commitby, sectionid, stat1, ua_id,
     when(resultSet.getInt(anyString())).thenReturn(13);
-    // gtitle, urlname, message, postip,
+    // gtitle, urlname, messageDto, postip,
     when(resultSet.getString(anyString())).thenReturn("any");
     // vote, sticky, expired, havelink, bbcode, resolved, minor
     when(resultSet.getBoolean(anyString())).thenReturn(false);
@@ -152,18 +153,18 @@ public class MessageTest {
     when(user.isModerator()).thenReturn(false);
     when(user.getId()).thenReturn(14);
 
-    Message message = new Message(resultSet);
+    MessageDto messageDto = new MessageDto(resultSet);
 
     Assert.assertEquals(false, user.isModerator());
     Assert.assertFalse(user.getId() == resultSet.getInt("userid"));
-    Assert.assertFalse(user.getId() == message.getUid());
+    Assert.assertFalse(user.getId() == messageDto.getUid());
 
-    Assert.assertFalse(message.isDeletableByUser(user));
+    Assert.assertFalse(messageDto.isDeletableByUser(user));
   }
 
   /**
    * Проверка что пользователь НЕМОЖЕТ удалить топик автором которого он неявляется
-   * и прошло больше часа с момента постинга
+   * и прошло больше часа с момента постинга.
    *
    * @throws Exception
    */
@@ -182,7 +183,7 @@ public class MessageTest {
     when(resultSet.getTimestamp(anyString())).thenReturn(new Timestamp(calendar.getTimeInMillis()));
     // commitby, sectionid, stat1, ua_id,
     when(resultSet.getInt(anyString())).thenReturn(13);
-    // gtitle, urlname, message, postip,
+    // gtitle, urlname, messageDto, postip,
     when(resultSet.getString(anyString())).thenReturn("any");
     // vote, sticky, expired, havelink, bbcode, resolved, minor
     when(resultSet.getBoolean(anyString())).thenReturn(false);
@@ -194,13 +195,13 @@ public class MessageTest {
     when(user.isModerator()).thenReturn(false);
     when(user.getId()).thenReturn(14);
 
-    Message message = new Message(resultSet);
+    MessageDto messageDto = new MessageDto(resultSet);
 
     Assert.assertEquals(false, user.isModerator());
     Assert.assertFalse(user.getId() == resultSet.getInt("userid"));
-    Assert.assertFalse(user.getId() == message.getUid());
+    Assert.assertFalse(user.getId() == messageDto.getUid());
 
-    Assert.assertFalse(message.isDeletableByUser(user));
+    Assert.assertFalse(messageDto.isDeletableByUser(user));
   }
 
   /**
@@ -314,39 +315,39 @@ public class MessageTest {
     Assert.assertTrue((new Timestamp(oldTime)).compareTo(resultSetNotModerateOld.getTimestamp("postdate")) == 0);
 
 
-    Message messageModerateOld = new Message(resultSetModerateOld);
-    Message messageNotModerateOld = new Message(resultSetNotModerateOld);
-    Message messageModerateNew = new Message(resultSetModerateNew);
-    Message messageNotModerateNew = new Message(resultSetNotModerateNew);
+    MessageDto messageDtoModerateOld = new MessageDto(resultSetModerateOld);
+    MessageDto messageDtoNotModerateOld = new MessageDto(resultSetNotModerateOld);
+    MessageDto messageDtoModerateNew = new MessageDto(resultSetModerateNew);
+    MessageDto messageDtoNotModerateNew = new MessageDto(resultSetNotModerateNew);
 
     // проверка что данные в mock message верные
-    Assert.assertEquals(true, messageModerateNew.isCommited());
-    Assert.assertEquals(true, messageModerateOld.isCommited());
-    Assert.assertEquals(false, messageNotModerateNew.isCommited());
-    Assert.assertEquals(false, messageNotModerateOld.isCommited());
+    Assert.assertEquals(true, messageDtoModerateNew.isCommited());
+    Assert.assertEquals(true, messageDtoModerateOld.isCommited());
+    Assert.assertEquals(false, messageDtoNotModerateNew.isCommited());
+    Assert.assertEquals(false, messageDtoNotModerateOld.isCommited());
 
-    Assert.assertTrue((new Timestamp(newTime)).compareTo(messageModerateNew.getPostdate()) == 0);
-    Assert.assertTrue((new Timestamp(oldTime)).compareTo(messageModerateOld.getPostdate()) == 0);
-    Assert.assertTrue((new Timestamp(newTime)).compareTo(messageNotModerateNew.getPostdate()) == 0);
-    Assert.assertTrue((new Timestamp(oldTime)).compareTo(messageNotModerateOld.getPostdate()) == 0);
+    Assert.assertTrue((new Timestamp(newTime)).compareTo(messageDtoModerateNew.getPostdate()) == 0);
+    Assert.assertTrue((new Timestamp(oldTime)).compareTo(messageDtoModerateOld.getPostdate()) == 0);
+    Assert.assertTrue((new Timestamp(newTime)).compareTo(messageDtoNotModerateNew.getPostdate()) == 0);
+    Assert.assertTrue((new Timestamp(oldTime)).compareTo(messageDtoNotModerateOld.getPostdate()) == 0);
 
     // нельзя удалять старые подтвержденные топики в премодерируемом разделе
-    Assert.assertFalse(messageModerateOld.isDeletableByModerator(user, sectionDtoModerate));
+    Assert.assertFalse(messageDtoModerateOld.isDeletableByModerator(user, sectionDtoModerate));
     // можно удалять старые подтвержденные топики в непремодерируемом разделе
-    Assert.assertTrue(messageModerateOld.isDeletableByModerator(user, sectionDtoNotModerate));
+    Assert.assertTrue(messageDtoModerateOld.isDeletableByModerator(user, sectionDtoNotModerate));
     // можно удалять старые не подтвержденные топики в премодерируемом разделе
-    Assert.assertTrue(messageNotModerateOld.isDeletableByModerator(user, sectionDtoModerate));
+    Assert.assertTrue(messageDtoNotModerateOld.isDeletableByModerator(user, sectionDtoModerate));
     // можно удалять старые не подтвержденные топики в непремодерируемом разделе
-    Assert.assertTrue(messageNotModerateOld.isDeletableByModerator(user, sectionDtoNotModerate));
+    Assert.assertTrue(messageDtoNotModerateOld.isDeletableByModerator(user, sectionDtoNotModerate));
 
     // можно удалять новые подтвержденные топики в премодерируемом разделе
-    Assert.assertTrue(messageModerateNew.isDeletableByModerator(user, sectionDtoModerate));
+    Assert.assertTrue(messageDtoModerateNew.isDeletableByModerator(user, sectionDtoModerate));
     // можно удалять новые подтвержденные топики в непремодерируемом разделе
-    Assert.assertTrue(messageModerateNew.isDeletableByModerator(user, sectionDtoNotModerate));
+    Assert.assertTrue(messageDtoModerateNew.isDeletableByModerator(user, sectionDtoNotModerate));
     // можно удалять новые не подтвержденные топики в премодерируемом разделе
-    Assert.assertTrue(messageNotModerateNew.isDeletableByModerator(user, sectionDtoModerate));
+    Assert.assertTrue(messageDtoNotModerateNew.isDeletableByModerator(user, sectionDtoModerate));
     // можно удалять новые не подтвержденные топики в непремодерируемом разделе
-    Assert.assertTrue(messageNotModerateNew.isDeletableByModerator(user, sectionDtoNotModerate));
+    Assert.assertTrue(messageDtoNotModerateNew.isDeletableByModerator(user, sectionDtoNotModerate));
   }
 
 }

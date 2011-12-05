@@ -19,9 +19,9 @@ import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.junit.Before;
 import org.junit.Test;
+import ru.org.linux.dao.MessageDao;
 import ru.org.linux.dto.GroupDto;
-import ru.org.linux.site.Message;
-import ru.org.linux.spring.dao.MessageDao;
+import ru.org.linux.dto.MessageDto;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -30,15 +30,15 @@ import static org.mockito.Mockito.when;
 
 public class LorURITest {
   private MessageDao messageDao;
-  private Message message1;
+  private MessageDto message1;
   private GroupDto group1;
-  private Message message2;
+  private MessageDto message2;
   private GroupDto group2;
-  private Message message3;
+  private MessageDto message3;
   private GroupDto group3;
-  private Message message12;
+  private MessageDto message12;
   private GroupDto group12;
-  private Message message15;
+  private MessageDto message15;
   private GroupDto group15;
 
 
@@ -65,15 +65,15 @@ public class LorURITest {
     mainLORURI = new URI("http://www.linux.org.ru/", true, "UTF-8");
 
     messageDao = mock(MessageDao.class);
-    message1 = mock(Message.class);
+    message1 = mock(MessageDto.class);
     group1 = mock(GroupDto.class);
-    message2 = mock(Message.class);
+    message2 = mock(MessageDto.class);
     group2 = mock(GroupDto.class);
-    message3 = mock(Message.class);
+    message3 = mock(MessageDto.class);
     group3 = mock(GroupDto.class);
-    message12 = mock(Message.class);
+    message12 = mock(MessageDto.class);
     group12 = mock(GroupDto.class);
-    message15 = mock(Message.class);
+    message15 = mock(MessageDto.class);
     group15 = mock(GroupDto.class);
 
     when(group1.getUrl()).thenReturn("/news/debian/");

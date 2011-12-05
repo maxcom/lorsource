@@ -26,13 +26,14 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.search.SearchQueueSender;
 import ru.org.linux.dao.GroupDao;
+import ru.org.linux.dao.MessageDao;
 import ru.org.linux.dao.PollDao;
 import ru.org.linux.dao.TagCloudDao;
 import ru.org.linux.dto.GroupDto;
+import ru.org.linux.dto.MessageDto;
 import ru.org.linux.dto.SectionDto;
 import ru.org.linux.dto.UserDto;
 import ru.org.linux.site.*;
-import ru.org.linux.spring.dao.MessageDao;
 import ru.org.linux.spring.validators.EditMessageRequestValidator;
 import ru.org.linux.util.ExceptionBindingErrorProcessor;
 
@@ -76,13 +77,13 @@ public class EditController {
       throw new AccessViolationException("Not authorized");
     }
 
-    Message message = messageDao.getById(msgid);
+    MessageDto messageDto = messageDao.getById(msgid);
 
-    if (message.isCommited()) {
+    if (messageDto.isCommited()) {
       throw new UserErrorException("Сообщение уже подтверждено");
     }
 
-    PreparedMessage preparedMessage = prepareService.prepareMessage(message, false, request.isSecure());
+    PreparedMessage preparedMessage = prepareService.prepareMessage(messageDto, false, request.isSecure());
 
     if (!preparedMessage.getSectionDto().isPremoderated()) {
       throw new UserErrorException("Раздел не премодерируемый");
@@ -108,11 +109,11 @@ public class EditController {
       throw new AccessViolationException("Not authorized");
     }
 
-    Message message = messageDao.getById(msgid);
+    MessageDto messageDto = messageDao.getById(msgid);
 
     UserDto user = tmpl.getCurrentUser();
 
-    PreparedMessage preparedMessage = prepareService.prepareMessage(message, false, request.isSecure());
+    PreparedMessage preparedMessage = prepareService.prepareMessage(messageDto, false, request.isSecure());
 
     if (!preparedMessage.isEditable(user)) {
       throw new AccessViolationException("это сообщение нельзя править");
@@ -127,9 +128,9 @@ public class EditController {
   ) throws PollNotFoundException {
     Map<String, Object> params = new HashMap<String, Object>();
 
-    Message message = preparedMessage.getMessage();
+    MessageDto messageDto = preparedMessage.getMessage();
 
-    params.put("message", message);
+    params.put("message", messageDto);
     params.put("preparedMessage", preparedMessage);
 
     GroupDto groupDto = preparedMessage.getGroupDto();
@@ -137,10 +138,10 @@ public class EditController {
 
     params.put("groups", groupDao.getGroups(preparedMessage.getSectionDto()));
 
-    params.put("newMsg", message);
+    params.put("newMsg", messageDto);
     params.put("newPreparedMessage", preparedMessage);
 
-    List<EditInfoDTO> editInfoList = messageDao.getEditInfo(message.getId());
+    List<EditInfoDTO> editInfoList = messageDao.getEditInfo(messageDto.getId());
     if (!editInfoList.isEmpty()) {
       params.put("editInfo", editInfoList.get(0));
     }
@@ -151,24 +152,24 @@ public class EditController {
       params.put("topTags", tagCloudDao.getTopTags());
     }
 
-    if (message.isHaveLink()) {
-      form.setLinktext(message.getLinktext());
-      form.setUrl(message.getUrl());
+    if (messageDto.isHaveLink()) {
+      form.setLinktext(messageDto.getLinktext());
+      form.setUrl(messageDto.getUrl());
     }
 
-    form.setTitle(StringEscapeUtils.unescapeHtml(message.getTitle()));
-    form.setMsg(message.getMessage());
+    form.setTitle(StringEscapeUtils.unescapeHtml(messageDto.getTitle()));
+    form.setMsg(messageDto.getMessage());
 
-    if (message.getSectionId() == SectionDto.SECTION_NEWS) {
-      form.setMinor(message.isMinor());
+    if (messageDto.getSectionId() == SectionDto.SECTION_NEWS) {
+      form.setMinor(messageDto.isMinor());
     }
 
     if (!preparedMessage.getTags().isEmpty()) {
       form.setTags(TagCloudDao.toString(preparedMessage.getTags()));
     }
 
-    if (message.isVotePoll()) {
-      Poll poll = pollDao.getPollByTopicId(message.getId());
+    if (messageDto.isVotePoll()) {
+      Poll poll = pollDao.getPollByTopicId(messageDto.getId());
 
       form.setPoll(PollVariant.toMap(pollDao.getPollVariants(poll, Poll.ORDER_ID)));
 
@@ -195,11 +196,11 @@ public class EditController {
 
     Map<String, Object> params = new HashMap<String, Object>();
 
-    Message message = messageDao.getById(msgid);
-    PreparedMessage preparedMessage = prepareService.prepareMessage(message, false, request.isSecure());
+    MessageDto messageDto = messageDao.getById(msgid);
+    PreparedMessage preparedMessage = prepareService.prepareMessage(messageDto, false, request.isSecure());
     GroupDto groupDto = preparedMessage.getGroupDto();
 
-    params.put("message", message);
+    params.put("message", messageDto);
     params.put("preparedMessage", preparedMessage);
     params.put("group", groupDto);
 
@@ -215,14 +216,14 @@ public class EditController {
       throw new AccessViolationException("это сообщение нельзя править");
     }
 
-    if (!message.isExpired()) {
+    if (!messageDto.isExpired()) {
       String title = request.getParameter("title");
       if (title == null || title.trim().length() == 0) {
         throw new BadInputException("заголовок сообщения не может быть пустым");
       }
     }
 
-    List<EditInfoDTO> editInfoList = messageDao.getEditInfo(message.getId());
+    List<EditInfoDTO> editInfoList = messageDao.getEditInfo(messageDto.getId());
 
     boolean preview = request.getParameter("preview") != null;
     if (preview) {
@@ -242,44 +243,44 @@ public class EditController {
 
     if (commit) {
       user.checkCommit();
-      if (message.isCommited()) {
+      if (messageDto.isCommited()) {
         throw new BadInputException("сообщение уже подтверждено");
       }
     }
 
-    params.put("commit", !message.isCommited() && preparedMessage.getSectionDto().isPremoderated() && user.isModerator());
+    params.put("commit", !messageDto.isCommited() && preparedMessage.getSectionDto().isPremoderated() && user.isModerator());
 
-    Message newMsg = new Message(groupDto, message, form);
+    MessageDto newMsg = new MessageDto(groupDto, messageDto, form);
 
     boolean modified = false;
 
-    if (!message.getTitle().equals(newMsg.getTitle())) {
+    if (!messageDto.getTitle().equals(newMsg.getTitle())) {
       modified = true;
     }
 
-    if (!message.getMessage().equals(newMsg.getMessage())) {
+    if (!messageDto.getMessage().equals(newMsg.getMessage())) {
       modified = true;
     }
 
-    if (message.getLinktext() == null) {
+    if (messageDto.getLinktext() == null) {
       if (newMsg.getLinktext() != null) {
         modified = true;
       }
-    } else if (!message.getLinktext().equals(newMsg.getLinktext())) {
+    } else if (!messageDto.getLinktext().equals(newMsg.getLinktext())) {
       modified = true;
     }
 
-    if (message.isHaveLink()) {
-      if (message.getUrl() == null) {
+    if (messageDto.isHaveLink()) {
+      if (messageDto.getUrl() == null) {
         if (newMsg.getUrl() != null) {
           modified = true;
         }
-      } else if (!message.getUrl().equals(newMsg.getUrl())) {
+      } else if (!messageDto.getUrl().equals(newMsg.getUrl())) {
         modified = true;
       }
     }
 
-    if (message.isExpired() && modified) {
+    if (messageDto.isExpired() && modified) {
       throw new AccessViolationException("нельзя править устаревшие сообщения");
     }
 
@@ -294,10 +295,10 @@ public class EditController {
     }
 
     if (changeGroupId != null) {
-      if (message.getGroupId() != changeGroupId) {
+      if (messageDto.getGroupId() != changeGroupId) {
         GroupDto changeGroupDto = groupDao.getGroup(changeGroupId);
 
-        int section = message.getSectionId();
+        int section = messageDto.getSectionId();
 
         if (changeGroupDto.getSectionId() != section) {
           throw new AccessViolationException("Can't move topics between sections");
@@ -307,8 +308,8 @@ public class EditController {
 
     PreparedPoll newPoll = null;
 
-    if (message.isVotePoll() && form.getPoll() != null && tmpl.isModeratorSession()) {
-      Poll poll = pollDao.getPollByTopicId(message.getId());
+    if (messageDto.isVotePoll() && form.getPoll() != null && tmpl.isModeratorSession()) {
+      Poll poll = pollDao.getPollByTopicId(messageDto.getId());
 
       PreparedPoll orig = prepareService.preparePoll(poll);
 
@@ -334,7 +335,7 @@ public class EditController {
     if (!preview && !errors.hasErrors()) {
       boolean changed = messageDao.updateAndCommit(
           newMsg,
-          message,
+          messageDto,
           user,
           newTags,
           commit,
@@ -351,7 +352,7 @@ public class EditController {
           feedPinger.pingFeedburner();
         }
 
-        return new ModelAndView(new RedirectView(message.getLinkLastmod()));
+        return new ModelAndView(new RedirectView(messageDto.getLinkLastmod()));
       } else {
         errors.reject(null, "Нет изменений");
       }

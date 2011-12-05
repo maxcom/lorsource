@@ -19,10 +19,10 @@ import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.org.linux.dao.MessageDao;
 import ru.org.linux.dto.UserDto;
 import ru.org.linux.site.MessageNotFoundException;
 import ru.org.linux.spring.Configuration;
-import ru.org.linux.spring.dao.MessageDao;
 import ru.org.linux.util.LorURI;
 import ru.org.linux.util.StringUtil;
 

@@ -17,6 +17,7 @@ package ru.org.linux.site;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import ru.org.linux.dto.MessageDto;
 import ru.org.linux.spring.commons.CacheProvider;
 import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.ImageInfo;
@@ -60,7 +61,7 @@ public class NewsViewer {
 
   private CommitMode commitMode = CommitMode.COMMITED_AND_POSTMODERATED;
 
-  public static String showMediumImage(String htmlPath, Message topic, boolean showMedium) {
+  public static String showMediumImage(String htmlPath, MessageDto topic, boolean showMedium) {
     StringBuilder out = new StringBuilder();
     String url = topic.getUrl();
 
@@ -89,7 +90,7 @@ public class NewsViewer {
     return out.toString();
   }
 
-  public List<Message> getMessagesCached(Connection db) throws SQLException {
+  public List<MessageDto> getMessagesCached(Connection db) throws SQLException {
     if (getCacheAge()==0) {
       return getMessages(db);
     }
@@ -98,7 +99,7 @@ public class NewsViewer {
 
     String cacheId = getVariantID();
 
-    List<Message> res = (List<Message>) mcc.getFromCache(cacheId);
+    List<MessageDto> res = (List<MessageDto>) mcc.getFromCache(cacheId);
 
     if (res == null) {
       res = getMessages(db);
@@ -108,7 +109,7 @@ public class NewsViewer {
     return res;
   }
 
-  public List<Message> getMessages(Connection db) throws SQLException {
+  public List<MessageDto> getMessages(Connection db) throws SQLException {
     Statement st = db.createStatement();
 
     StringBuilder where = new StringBuilder(
@@ -199,16 +200,16 @@ public class NewsViewer {
           sort+ ' ' +limit
     );
 
-    List<Message> messages = new ArrayList<Message>();
+    List<MessageDto> messageDtos = new ArrayList<MessageDto>();
 
     while (res.next()) {
-      Message message = new Message(res);
-      messages.add(message);
+      MessageDto messageDto = new MessageDto(res);
+      messageDtos.add(messageDto);
     }
 
     res.close();
 
-    return messages;
+    return messageDtos;
   }
 
   public void setCommitMode(CommitMode commitMode) {

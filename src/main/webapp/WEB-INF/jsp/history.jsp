@@ -15,7 +15,6 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
-<%--@elvariable id="message" type="ru.org.linux.site.Message"--%>
 <%--@elvariable id="editInfos" type="java.util.List<ru.org.linux.site.PreparedEditInfo>"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>

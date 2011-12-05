@@ -18,7 +18,7 @@ package ru.org.linux.spring;
 import com.google.common.collect.ImmutableList;
 import org.junit.Test;
 import ru.org.linux.dao.*;
-import ru.org.linux.site.Message;
+import ru.org.linux.dto.MessageDto;
 import ru.org.linux.spring.dao.*;
 
 import static org.mockito.Mockito.mock;
@@ -33,7 +33,7 @@ public class PrepareServiceTest {
   @Test
   public void prepareMessageTest() {
     ImmutableList<String> tags = ImmutableList.of("one", "two");
-    Message message = mock(Message.class);
+    MessageDto messageDto = mock(MessageDto.class);
 
     PollDao pollDao = mock(PollDao.class);
     GroupDao groupDao = mock(GroupDao.class);
@@ -43,7 +43,7 @@ public class PrepareServiceTest {
     MessageDao messageDao = mock(MessageDao.class);
     UserAgentDao userAgentDao = mock(UserAgentDao.class);
 
-    when(message.getGroupId()).thenReturn(13); // group id 13
+    when(messageDto.getGroupId()).thenReturn(13); // group id 13
 
   }
 

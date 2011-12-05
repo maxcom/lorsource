@@ -1,6 +1,6 @@
 <%@ page contentType="text/html; charset=utf-8"%>
 <%@ page
-    import="ru.org.linux.site.Message" %>
+    import="ru.org.linux.dto.MessageDto" %>
 <%@ page import="ru.org.linux.site.PreparedMessage" %>
 <%@ page import="ru.org.linux.dao.TagCloudDao" %>
 <%@ page import="java.util.SortedSet" %>
@@ -22,9 +22,9 @@
   ~    limitations under the License.
   --%>
 
-<%--@elvariable id="message" type="ru.org.linux.site.Message"--%>
+<%--@elvariable id="message" type="ru.org.linux.dto.MessageDto"--%>
 <%--@elvariable id="preparedMessage" type="ru.org.linux.site.PreparedMessage"--%>
-<%--@elvariable id="newMsg" type="ru.org.linux.site.Message"--%>
+<%--@elvariable id="newMsg" type="ru.org.linux.dto.MessageDto"--%>
 <%--@elvariable id="newPreparedMessage" type="ru.org.linux.site.PreparedMessage"--%>
 <%--@elvariable id="group" type="ru.org.linux.Dto.GroupDto"--%>
 <%--@elvariable id="info" type="java.lang.String"--%>
