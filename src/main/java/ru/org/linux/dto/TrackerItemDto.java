@@ -1,4 +1,4 @@
-package ru.org.linux.spring.dao;
+package ru.org.linux.dto;
 
 import ru.org.linux.dto.SectionDto;
 import ru.org.linux.dto.UserDto;
@@ -8,7 +8,7 @@ import java.sql.Timestamp;
 /**
  *
  */
-public class TrackerItem {
+public class TrackerItemDto {
   private final UserDto author;
   private final int msgid;
   private final Timestamp lastmod;
@@ -27,12 +27,12 @@ public class TrackerItem {
   private final boolean uncommited;
   private final int pages;
 
-  public TrackerItem(UserDto author, int msgid, Timestamp lastmod,
-                     int stat1, int stat3, int stat4,
-                     int groupId, String groupTitle, String title,
-                     int cid, UserDto lastCommentBy, boolean resolved,
-                     int section, String groupUrlName,
-                     Timestamp postdate, boolean uncommited, int pages) {
+  public TrackerItemDto(UserDto author, int msgid, Timestamp lastmod,
+                        int stat1, int stat3, int stat4,
+                        int groupId, String groupTitle, String title,
+                        int cid, UserDto lastCommentBy, boolean resolved,
+                        int section, String groupUrlName,
+                        Timestamp postdate, boolean uncommited, int pages) {
     this.author = author;
     this.msgid = msgid;
     this.lastmod = lastmod;

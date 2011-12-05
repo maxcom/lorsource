@@ -18,7 +18,7 @@
   ~    limitations under the License.
   --%>
 <%--@elvariable id="newUsers" type="java.util.List<ru.org.linux.dto.UserDto>"--%>
-<%--@elvariable id="msgs" type="java.util.List<ru.org.linux.spring.dao.TrackerItem>"--%>
+<%--@elvariable id="msgs" type="java.util.List<ru.org.linux.dao.TrackerItemDto>"--%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 
 <% Template tmpl = Template.getTemplate(request); %>

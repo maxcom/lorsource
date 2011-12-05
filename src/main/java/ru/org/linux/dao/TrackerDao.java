@@ -13,15 +13,15 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.spring.dao;
+package ru.org.linux.dao;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
-import ru.org.linux.dao.UserDao;
 import ru.org.linux.dto.MessageDto;
+import ru.org.linux.dto.TrackerItemDto;
 import ru.org.linux.dto.UserDto;
 import ru.org.linux.site.UserNotFoundException;
 
@@ -163,7 +163,7 @@ public class TrackerDao {
   private static final String queryPartTech = " AND not t.groupid=8404 AND not t.groupid=4068 AND section=2 ";
   private static final String queryPartMine = " AND t.userid=:userid ";
 
-  public List<TrackerItem> getTrackAll(TrackerFilter filter, UserDto currentUser, Timestamp interval,
+  public List<TrackerItemDto> getTrackAll(TrackerFilter filter, UserDto currentUser, Timestamp interval,
                                        int topics, int offset, final int messagesInPage) {
 
     MapSqlParameterSource parameter = new MapSqlParameterSource();
@@ -206,9 +206,9 @@ public class TrackerDao {
 
     String query = String.format(queryTrackerMain, partIgnored, partFilter, partIgnored, partFilter, partWiki);
 
-    return jdbcTemplate.query(query, parameter, new RowMapper<TrackerItem>() {
+    return jdbcTemplate.query(query, parameter, new RowMapper<TrackerItemDto>() {
       @Override
-      public TrackerItem mapRow(ResultSet resultSet, int i) throws SQLException {
+      public TrackerItemDto mapRow(ResultSet resultSet, int i) throws SQLException {
         UserDto author, lastCommentBy;
         int msgid, cid, pages;
         Timestamp lastmod, postdate;
@@ -253,7 +253,7 @@ public class TrackerDao {
         postdate = resultSet.getTimestamp("postdate");
         uncommited = resultSet.getBoolean("smod") && !resultSet.getBoolean("moderate");
         pages = MessageDto.getPageCount(stat1, messagesInPage);
-        return new TrackerItem(author, msgid, lastmod, stat1, stat3, stat4,
+        return new TrackerItemDto(author, msgid, lastmod, stat1, stat3, stat4,
             groupId, groupTitle, title, cid, lastCommentBy, resolved,
             section, groupUrlName, postdate, uncommited, pages);
       }
