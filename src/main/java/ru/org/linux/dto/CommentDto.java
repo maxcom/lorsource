@@ -13,8 +13,9 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.site;
+package ru.org.linux.dto;
 
+import ru.org.linux.site.DeleteInfo;
 import ru.org.linux.spring.dao.DeleteInfoDao;
 
 import java.io.Serializable;
@@ -24,7 +25,7 @@ import java.sql.Timestamp;
 import java.util.Date;
 import java.util.Set;
 
-public class Comment implements Serializable {
+public class CommentDto implements Serializable {
   private final int msgid;
   private final String title;
   private final int userid;
@@ -37,7 +38,7 @@ public class Comment implements Serializable {
   private final String postIP;
   public static final int TITLE_LENGTH = 250;
 
-  public Comment(ResultSet rs, DeleteInfoDao deleteInfoDao) throws SQLException {
+  public CommentDto(ResultSet rs, DeleteInfoDao deleteInfoDao) throws SQLException {
     msgid=rs.getInt("msgid");
     title=rs.getString("title");
     topic=rs.getInt("topic");
@@ -55,13 +56,13 @@ public class Comment implements Serializable {
     }
   }
 
-  public Comment(
-          Integer replyto,
-          String title,
-          int topic,
-          int userid,
-          String userAgent,
-          String postIP
+  public CommentDto(
+    Integer replyto,
+    String title,
+    int topic,
+    int userid,
+    String userAgent,
+    String postIP
   ) {
     msgid =0;
     this.title=title;

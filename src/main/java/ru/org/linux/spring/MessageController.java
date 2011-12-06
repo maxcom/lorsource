@@ -27,12 +27,8 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.dao.*;
-import ru.org.linux.dto.GroupDto;
-import ru.org.linux.dto.MessageDto;
-import ru.org.linux.dto.SectionDto;
-import ru.org.linux.dto.UserDto;
+import ru.org.linux.dto.*;
 import ru.org.linux.site.*;
-import ru.org.linux.spring.dao.*;
 import ru.org.linux.util.LorURI;
 
 import javax.servlet.http.HttpServletRequest;
@@ -412,7 +408,7 @@ public class MessageController {
         offset = messages * page;
       }
 
-      List<Comment> commentsFiltred = cv.getComments(reverse, offset, limit, hideSet);
+      List<CommentDto> commentsFiltred = cv.getComments(reverse, offset, limit, hideSet);
 
       List<PreparedComment> commentsPrepared = prepareService.prepareCommentList(comments, commentsFiltred, request.isSecure());
 
@@ -420,7 +416,7 @@ public class MessageController {
     } else {
       CommentFilter cv = new CommentFilter(comments);
 
-      List<Comment> commentsFiltred = cv.getComments(true, 0, MessageTable.RSS_DEFAULT, null);
+      List<CommentDto> commentsFiltred = cv.getComments(true, 0, MessageTable.RSS_DEFAULT, null);
 
       List<PreparedComment> commentsPrepared = prepareService.prepareCommentListRSS(comments, commentsFiltred, request.isSecure());
 

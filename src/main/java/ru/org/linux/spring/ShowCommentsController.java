@@ -20,11 +20,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
+import ru.org.linux.dao.CommentDao;
 import ru.org.linux.dao.UserDao;
+import ru.org.linux.dto.CommentListItemDto;
 import ru.org.linux.dto.UserDto;
 import ru.org.linux.site.Template;
 import ru.org.linux.site.UserErrorException;
-import ru.org.linux.spring.dao.CommentDao;
 import ru.org.linux.util.ServletParameterException;
 
 import javax.servlet.http.HttpServletRequest;
@@ -77,7 +78,7 @@ public class ShowCommentsController {
       throw new UserErrorException("Функция только для зарегистрированных пользователей");
     }
 
-    List<CommentDao.CommentsListItem> out = commentDao.getUserComments(user, topics, offset);
+    List<CommentListItemDto> out = commentDao.getUserComments(user, topics, offset);
 
     mv.getModel().put("list", out);
 

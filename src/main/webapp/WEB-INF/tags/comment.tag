@@ -1,4 +1,4 @@
-<%@ tag import="ru.org.linux.site.Comment" %>
+<%@ tag import="ru.org.linux.dto.CommentDto" %>
 <%@ tag import="ru.org.linux.site.CommentNode" %>
 <%@ tag import="ru.org.linux.site.Template" %>
 <%@ tag import="ru.org.linux.dto.UserDto" %>
@@ -61,7 +61,7 @@
     <%
       CommentNode replyNode = comments.getNode(comment.getComment().getReplyTo());
       if (replyNode != null) {
-        Comment reply = replyNode.getComment();
+        CommentDto reply = replyNode.getComment();
 
         out.append(" Ответ на: <a href=\"");
 

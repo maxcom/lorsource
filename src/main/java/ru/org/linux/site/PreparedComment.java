@@ -15,22 +15,23 @@
 
 package ru.org.linux.site;
 
+import ru.org.linux.dto.CommentDto;
 import ru.org.linux.dto.UserDto;
 
 public class PreparedComment {
-  private final Comment comment;
+  private final CommentDto comment;
   private final UserDto author;
   private final String processedMessage;
   private final UserDto replyAuthor;
 
-  public PreparedComment(Comment comment, UserDto author, String processedMessage, UserDto replyAuthor) {
-    this.comment = comment;
+  public PreparedComment(CommentDto commentDto, UserDto author, String processedMessage, UserDto replyAuthor) {
+    this.comment = commentDto;
     this.author = author;
     this.processedMessage = processedMessage;
     this.replyAuthor = replyAuthor;
   }
 
-  public Comment getComment() {
+  public CommentDto getComment() {
     return comment;
   }
 

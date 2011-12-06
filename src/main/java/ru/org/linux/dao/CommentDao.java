@@ -1,4 +1,4 @@
-package ru.org.linux.spring.dao;
+package ru.org.linux.dao;
 
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.logging.Log;
@@ -14,13 +14,10 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import ru.org.linux.dao.IgnoreListDao;
-import ru.org.linux.dao.UserDao;
-import ru.org.linux.dao.UserEventsDao;
-import ru.org.linux.dto.MessageDto;
-import ru.org.linux.dto.UserDto;
+import ru.org.linux.dto.*;
 import ru.org.linux.site.*;
 import ru.org.linux.spring.commons.CacheProvider;
+import ru.org.linux.spring.dao.DeleteInfoDao;
 import ru.org.linux.util.StringUtil;
 import ru.org.linux.util.bbcode.LorCodeService;
 
@@ -125,7 +122,7 @@ public class CommentDao {
    * @param comment комментарий
    * @return содержимое комментария
    */
-  public String getMessage(Comment comment) {
+  public String getMessage(CommentDto comment) {
     return jdbcTemplate.queryForObject(queryOnlyMessage, String.class, comment.getId());
   }
 
@@ -136,13 +133,13 @@ public class CommentDao {
    * @return нужный комментарий
    * @throws MessageNotFoundException при отсутствии сообщения
    */
-  public Comment getById(int id) throws MessageNotFoundException {
-    Comment comment;
+  public CommentDto getById(int id) throws MessageNotFoundException {
+    CommentDto comment;
     try {
-      comment = jdbcTemplate.queryForObject(queryCommentById, new RowMapper<Comment>() {
+      comment = jdbcTemplate.queryForObject(queryCommentById, new RowMapper<CommentDto>() {
         @Override
-        public Comment mapRow(ResultSet resultSet, int i) throws SQLException {
-          return new Comment(resultSet, deleteInfoDao);
+        public CommentDto mapRow(ResultSet resultSet, int i) throws SQLException {
+          return new CommentDto(resultSet, deleteInfoDao);
         }
       }, id);
     } catch (EmptyResultDataAccessException exception) {
@@ -158,21 +155,21 @@ public class CommentDao {
    * @param showDeleted вместе с удаленными
    * @return список комментариев топика
    */
-  public List<Comment> getCommentList(int topicId, boolean showDeleted) {
-    final List<Comment> comments = new ArrayList<Comment>();
+  public List<CommentDto> getCommentList(int topicId, boolean showDeleted) {
+    final List<CommentDto> comments = new ArrayList<CommentDto>();
 
     if (showDeleted) {
       jdbcTemplate.query(queryCommentListByTopicId, new RowCallbackHandler() {
         @Override
         public void processRow(ResultSet resultSet) throws SQLException {
-          comments.add(new Comment(resultSet, deleteInfoDao));
+          comments.add(new CommentDto(resultSet, deleteInfoDao));
         }
       }, topicId);
     } else {
       jdbcTemplate.query(queryCommentListByTopicIdWithoutDeleted, new RowCallbackHandler() {
         @Override
         public void processRow(ResultSet resultSet) throws SQLException {
-          comments.add(new Comment(resultSet, deleteInfoDao));
+          comments.add(new CommentDto(resultSet, deleteInfoDao));
         }
       }, topicId);
     }
@@ -339,7 +336,7 @@ public class CommentDao {
    * @throws UserNotFoundException генерирует исключение если пользователь отсутствует
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public DeleteCommentResult deleteAllCommentsAndBlock(UserDto user, final UserDto moderator, String reason) {
+  public DeleteCommentDto deleteAllCommentsAndBlock(UserDto user, final UserDto moderator, String reason) {
     final List<Integer> deletedTopicIds = new ArrayList<Integer>();
     final List<Integer> deletedCommentIds = new ArrayList<Integer>();
 
@@ -373,7 +370,7 @@ public class CommentDao {
             },
             user.getId());
 
-    return new DeleteCommentResult(deletedTopicIds, deletedCommentIds, null);
+    return new DeleteCommentDto(deletedTopicIds, deletedCommentIds, null);
   }
 
   /**
@@ -386,7 +383,7 @@ public class CommentDao {
    * @return список id удаленных сообщений
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public DeleteCommentResult deleteCommentsByIPAddress(String ip, Timestamp timedelta, final UserDto moderator, final String reason) {
+  public DeleteCommentDto deleteCommentsByIPAddress(String ip, Timestamp timedelta, final UserDto moderator, final String reason) {
 
     final List<Integer> deletedTopicIds = new ArrayList<Integer>();
     final List<Integer> deletedCommentIds = new ArrayList<Integer>();
@@ -426,12 +423,12 @@ public class CommentDao {
             },
             ip, timedelta);
 
-    return new DeleteCommentResult(deletedTopicIds, deletedCommentIds, deleteInfo);
+    return new DeleteCommentDto(deletedTopicIds, deletedCommentIds, deleteInfo);
   }
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   public int saveNewMessage(
-          final Comment comment,
+          final CommentDto comment,
           String message,
           Set<UserDto> userRefs
   ) throws MessageNotFoundException {
@@ -472,7 +469,8 @@ public class CommentDao {
 
     if (comment.getReplyTo() != 0) {
       try {
-        Comment parentComment = getById(comment.getReplyTo());
+        CommentDto parentComment = getById(comment.getReplyTo());
+
 
         if (parentComment.getUserid() != comment.getUserid()) {
           UserDto parentAuthor = userDao.getUserCached(parentComment.getUserid());
@@ -512,7 +510,7 @@ public class CommentDao {
     return commentList;
   }
 
-  public List<CommentsListItem> getUserComments(UserDto user, int limit, int offset) {
+  public List<CommentListItemDto> getUserComments(UserDto user, int limit, int offset) {
     return jdbcTemplate.query(
             "SELECT sections.name as ptitle, groups.title as gtitle, topics.title, " +
             "topics.id as topicid, comments.id as msgid, comments.postdate " +
@@ -520,10 +518,10 @@ public class CommentDao {
             "WHERE sections.id=groups.section AND groups.id=topics.groupid " +
             "AND comments.topic=topics.id " +
             "AND comments.userid=? AND NOT comments.deleted ORDER BY postdate DESC LIMIT ? OFFSET ?",
-            new RowMapper<CommentsListItem>() {
+            new RowMapper<CommentListItemDto>() {
               @Override
-              public CommentsListItem mapRow(ResultSet rs, int rowNum) throws SQLException {
-                CommentsListItem item = new CommentsListItem();
+              public CommentListItemDto mapRow(ResultSet rs, int rowNum) throws SQLException {
+                CommentListItemDto item = new CommentListItemDto();
 
                 item.setSectionTitle(rs.getString("ptitle"));
                 item.setGroupTitle(rs.getString("gtitle"));
@@ -605,60 +603,4 @@ public class CommentDao {
     }
   }
 
-  public static class CommentsListItem {
-    private String sectionTitle;
-    private String groupTitle;
-    private int topicId;
-    private int commentId;
-    private String title;
-    private Timestamp postdate;
-
-    public String getSectionTitle() {
-      return sectionTitle;
-    }
-
-    public void setSectionTitle(String sectionTitle) {
-      this.sectionTitle = sectionTitle;
-    }
-
-    public String getGroupTitle() {
-      return groupTitle;
-    }
-
-    public void setGroupTitle(String groupTitle) {
-      this.groupTitle = groupTitle;
-    }
-
-    public int getTopicId() {
-      return topicId;
-    }
-
-    public void setTopicId(int topicId) {
-      this.topicId = topicId;
-    }
-
-    public int getCommentId() {
-      return commentId;
-    }
-
-    public void setCommentId(int commentId) {
-      this.commentId = commentId;
-    }
-
-    public String getTitle() {
-      return title;
-    }
-
-    public void setTitle(String title) {
-      this.title = title;
-    }
-
-    public Timestamp getPostdate() {
-      return postdate;
-    }
-
-    public void setPostdate(Timestamp postdate) {
-      this.postdate = postdate;
-    }
-  }
 }

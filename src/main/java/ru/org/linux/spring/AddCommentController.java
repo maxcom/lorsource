@@ -27,13 +27,14 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.search.SearchQueueSender;
+import ru.org.linux.dao.CommentDao;
 import ru.org.linux.dao.IPBlockDao;
 import ru.org.linux.dao.MessageDao;
 import ru.org.linux.dao.UserDao;
+import ru.org.linux.dto.CommentDto;
 import ru.org.linux.dto.MessageDto;
 import ru.org.linux.dto.UserDto;
 import ru.org.linux.site.*;
-import ru.org.linux.spring.dao.CommentDao;
 import ru.org.linux.spring.validators.AddCommentRequestValidator;
 import ru.org.linux.util.ExceptionBindingErrorProcessor;
 import ru.org.linux.util.ServletParameterException;
@@ -239,7 +240,7 @@ public class AddCommentController extends ApplicationObjectSupport {
       }
     }
 
-    Comment comment = null;
+    CommentDto commentDto = null;
 
     if (add.getTopic()!=null) {
       add.getTopic().checkCommentsAllowed(user, errors);
@@ -252,7 +253,7 @@ public class AddCommentController extends ApplicationObjectSupport {
 
       Integer replyto = add.getReplyto()!=null?add.getReplyto().getId():null;
 
-      comment = new Comment(
+      commentDto = new CommentDto(
               replyto,
               StringUtil.escapeHtml(title),
               add.getTopic().getId(),
@@ -261,17 +262,17 @@ public class AddCommentController extends ApplicationObjectSupport {
               request.getRemoteAddr()
       );
 
-      formParams.put("comment", prepareService.prepareComment(comment, msg, request.isSecure()));
+      formParams.put("comment", prepareService.prepareComment(commentDto, msg, request.isSecure()));
     }
 
     if (!add.isPreviewMode() && !errors.hasErrors()) {
       dupeProtector.checkDuplication(request.getRemoteAddr(), user.getScore() > 100, errors);
     }
 
-    if (!add.isPreviewMode() && !errors.hasErrors() && comment != null) {
+    if (!add.isPreviewMode() && !errors.hasErrors() && commentDto != null) {
       Set<UserDto> userRefs = lorCodeService.getReplierFromMessage(msg);
 
-      int msgid = commentDao.saveNewMessage(comment, msg, userRefs);
+      int msgid = commentDao.saveNewMessage(commentDto, msg, userRefs);
 
       String logmessage = "Написан комментарий " + msgid + " ip:" + request.getRemoteAddr();
       if (request.getHeader("X-Forwarded-For") != null) {
@@ -317,7 +318,7 @@ public class AddCommentController extends ApplicationObjectSupport {
       }
     });
 
-    binder.registerCustomEditor(Comment.class, new PropertyEditorSupport() {
+    binder.registerCustomEditor(CommentDto.class, new PropertyEditorSupport() {
       @Override
       public void setAsText(String text) throws IllegalArgumentException {
         if (text.isEmpty() || "0".equals(text)) {

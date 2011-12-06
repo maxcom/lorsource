@@ -23,12 +23,13 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import ru.org.linux.search.SearchQueueSender;
+import ru.org.linux.dao.CommentDao;
 import ru.org.linux.dao.MessageDao;
 import ru.org.linux.dao.UserDao;
+import ru.org.linux.dto.CommentDto;
 import ru.org.linux.dto.MessageDto;
 import ru.org.linux.dto.UserDto;
 import ru.org.linux.site.*;
-import ru.org.linux.spring.dao.CommentDao;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -89,13 +90,13 @@ public class DeleteCommentController {
 
     params.put("msgid", msgid);
 
-    Comment comment = commentDao.getById(msgid);
+    CommentDto commentDto = commentDao.getById(msgid);
 
-    if (comment.isDeleted()) {
+    if (commentDto.isDeleted()) {
       throw new UserErrorException("комментарий уже удален");
     }
 
-    int topicId = comment.getTopicId();
+    int topicId = commentDto.getTopicId();
 
     MessageDto topic = messageDao.getById(topicId);
 
@@ -109,7 +110,7 @@ public class DeleteCommentController {
 
     CommentFilter cv = new CommentFilter(comments);
 
-    List<Comment> list = cv.getCommentsSubtree(msgid);
+    List<CommentDto> list = cv.getCommentsSubtree(msgid);
 
     params.put("commentsPrepared", prepareService.prepareCommentList(comments, list, request.isSecure()));
     params.put("comments", comments);
@@ -141,19 +142,19 @@ public class DeleteCommentController {
     user.checkBlocked();
     user.checkAnonymous();
 
-    Comment comment = commentDao.getById(msgid);
-    MessageDto topic = messageDao.getById(comment.getTopicId());
+    CommentDto commentDto = commentDao.getById(msgid);
+    MessageDto topic = messageDao.getById(commentDto.getTopicId());
 
-    if (comment.isDeleted()) {
+    if (commentDto.isDeleted()) {
       throw new UserErrorException("комментарий уже удален");
     }
 
     boolean perm = false;
     boolean selfDel = false;
 
-    if (comment.getUserid() == user.getId()) {
+    if (commentDto.getUserid() == user.getId()) {
       if(!user.isModerator()) {
-        perm = (System.currentTimeMillis() - comment.getPostdate().getTime()) < DELETE_PERIOD;
+        perm = (System.currentTimeMillis() - commentDto.getPostdate().getTime()) < DELETE_PERIOD;
         if (perm) {
           selfDel = true;
         }

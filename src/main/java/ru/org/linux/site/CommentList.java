@@ -18,6 +18,7 @@ package ru.org.linux.site;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import ru.org.linux.dao.UserDao;
+import ru.org.linux.dto.CommentDto;
 
 import java.io.Serializable;
 import java.sql.SQLException;
@@ -26,34 +27,34 @@ import java.util.*;
 public class CommentList implements Serializable {
   private static final Log logger = LogFactory.getLog(CommentList.class);
 
-  private final List<Comment> comments = new ArrayList<Comment>(CommentFilter.COMMENTS_INITIAL_BUFSIZE);
+  private final List<CommentDto> comments = new ArrayList<CommentDto>(CommentFilter.COMMENTS_INITIAL_BUFSIZE);
   private final CommentNode root = new CommentNode();
   private final Map<Integer, CommentNode> treeHash = new HashMap<Integer, CommentNode>(CommentFilter.COMMENTS_INITIAL_BUFSIZE);
 
   private final long lastmod;
 
-  public CommentList(List<Comment> comments, long lastmod) {
+  public CommentList(List<CommentDto> commentDtos, long lastmod) {
     this.lastmod = lastmod;
-    this.comments.addAll(comments);
-    logger.debug("Read list size = " +comments.size());
+    this.comments.addAll(commentDtos);
+    logger.debug("Read list size = " + commentDtos.size());
     buildTree();
   }
 
-  public List<Comment> getList() {
+  public List<CommentDto> getList() {
     return Collections.unmodifiableList(comments);
   }
 
   private void buildTree() {
     /* build tree */
-    for (Comment comment : comments) {
-      CommentNode node = new CommentNode(comment);
+    for (CommentDto commentDto : comments) {
+      CommentNode node = new CommentNode(commentDto);
 
-      treeHash.put(comment.getMessageId(), node);
+      treeHash.put(commentDto.getMessageId(), node);
 
-      if (comment.getReplyTo()==0) {
+      if (commentDto.getReplyTo()==0) {
         root.addChild(node);
       } else {
-        CommentNode parentNode = treeHash.get(comment.getReplyTo());
+        CommentNode parentNode = treeHash.get(commentDto.getReplyTo());
         if (parentNode!=null) {
           parentNode.addChild(node);
         } else {
@@ -75,8 +76,8 @@ public class CommentList implements Serializable {
     return lastmod;
   }
 
-  public int getCommentPage(Comment comment, int messages, boolean reverse) {
-    int index = comments.indexOf(comment);
+  public int getCommentPage(CommentDto commentDto, int messages, boolean reverse) {
+    int index = comments.indexOf(commentDto);
 
     if (reverse) {
       return (comments.size()-index)/messages;
@@ -85,11 +86,11 @@ public class CommentList implements Serializable {
     }
   }
 
-  public int getCommentPage(Comment comment, Template tmpl) {
+  public int getCommentPage(CommentDto commentDto, Template tmpl) {
     int messages = tmpl.getProf().getMessages();
     boolean reverse = tmpl.getProf().isShowNewFirst();
 
-    return getCommentPage(comment, messages, reverse);
+    return getCommentPage(commentDto, messages, reverse);
   }
 
   public static Set<Integer> makeHideSet(UserDao userDao, CommentList comments, int filterChain, Set<Integer> ignoreList) throws SQLException, UserNotFoundException {

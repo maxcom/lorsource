@@ -1,14 +1,14 @@
 package ru.org.linux.spring;
 
+import ru.org.linux.dto.CommentDto;
 import ru.org.linux.dto.MessageDto;
 import ru.org.linux.dto.UserDto;
-import ru.org.linux.site.Comment;
 
 public class AddCommentRequest {
   private String preview;
   private String mode;
   private String msg;
-  private Comment replyto;
+  private CommentDto replyto;
   private String title;
   private MessageDto topic;
 
@@ -43,11 +43,11 @@ public class AddCommentRequest {
     this.msg = msg;
   }
 
-  public Comment getReplyto() {
+  public CommentDto getReplyto() {
     return replyto;
   }
 
-  public void setReplyto(Comment replyto) {
+  public void setReplyto(CommentDto replyto) {
     this.replyto = replyto;
   }
 

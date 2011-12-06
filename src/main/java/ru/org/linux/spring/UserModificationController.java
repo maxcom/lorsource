@@ -27,13 +27,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.search.SearchQueueSender;
+import ru.org.linux.dao.CommentDao;
 import ru.org.linux.dao.UserDao;
+import ru.org.linux.dto.DeleteCommentDto;
 import ru.org.linux.dto.UserDto;
 import ru.org.linux.site.AccessViolationException;
 import ru.org.linux.site.Template;
 import ru.org.linux.site.UserErrorException;
-import ru.org.linux.spring.dao.CommentDao;
-import ru.org.linux.spring.dao.DeleteCommentResult;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
@@ -157,16 +157,16 @@ public class UserModificationController extends ApplicationObjectSupport {
     }
     Map<String, Object> params = new HashMap<String, Object>();
     params.put("message", "Удалено");
-    DeleteCommentResult deleteCommentResult = commentDao.deleteAllCommentsAndBlock(user, moderator, reason);
+    DeleteCommentDto deleteCommentDto = commentDao.deleteAllCommentsAndBlock(user, moderator, reason);
 
     logger.info("User " + user.getNick() + " blocked by " + moderator.getNick());
 
-    params.put("bigMessage", deleteCommentResult.getDeletedCommentIds()); // TODO
+    params.put("bigMessage", deleteCommentDto.getDeletedCommentIds()); // TODO
 
-    for(int topicId : deleteCommentResult.getDeletedTopicIds()) {
+    for(int topicId : deleteCommentDto.getDeletedTopicIds()) {
       searchQueueSender.updateMessage(topicId, true);
     }
-    searchQueueSender.updateComment(deleteCommentResult.getDeletedCommentIds());
+    searchQueueSender.updateComment(deleteCommentDto.getDeletedCommentIds());
 
     return new ModelAndView("action-done", params);
   }

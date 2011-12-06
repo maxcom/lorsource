@@ -18,10 +18,7 @@ package ru.org.linux.spring;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.org.linux.dao.*;
-import ru.org.linux.dto.GroupDto;
-import ru.org.linux.dto.MessageDto;
-import ru.org.linux.dto.SectionDto;
-import ru.org.linux.dto.UserDto;
+import ru.org.linux.dto.*;
 import ru.org.linux.dao.TagCloudDao;
 import ru.org.linux.site.*;
 import ru.org.linux.spring.dao.*;
@@ -212,28 +209,28 @@ public class PrepareService {
     }
   }
 
-  public PreparedComment prepareCommentRSS(Comment comment, CommentList comments, boolean secure) throws UserNotFoundException {
-    return prepareComment(comment, comments, secure, true);
+  public PreparedComment prepareCommentRSS(CommentDto commentDto, CommentList comments, boolean secure) throws UserNotFoundException {
+    return prepareComment(commentDto, comments, secure, true);
   }
 
-  public PreparedComment prepareComment(Comment comment, CommentList comments, boolean secure) throws UserNotFoundException {
-    return prepareComment(comment, comments, secure, false);
+  public PreparedComment prepareComment(CommentDto commentDto, CommentList comments, boolean secure) throws UserNotFoundException {
+    return prepareComment(commentDto, comments, secure, false);
   }
 
-  public PreparedComment prepareComment(Comment comment, CommentList comments, boolean secure, boolean rss) throws UserNotFoundException {
-    UserDto author = userDao.getUserCached(comment.getUserid());
+  public PreparedComment prepareComment(CommentDto commentDto, CommentList comments, boolean secure, boolean rss) throws UserNotFoundException {
+    UserDto author = userDao.getUserCached(commentDto.getUserid());
     String processedMessage;
     if (!rss) {
-      processedMessage = commentDao.getPreparedComment(comment.getId(), secure);
+      processedMessage = commentDao.getPreparedComment(commentDto.getId(), secure);
     } else {
-      processedMessage = commentDao.getPreparedCommentRSS(comment.getId(), secure);
+      processedMessage = commentDao.getPreparedCommentRSS(commentDto.getId(), secure);
     }
     UserDto replyAuthor;
-    if (comment.getReplyTo() != 0 && comments != null) {
-      CommentNode replyNode = comments.getNode(comment.getReplyTo());
+    if (commentDto.getReplyTo() != 0 && comments != null) {
+      CommentNode replyNode = comments.getNode(commentDto.getReplyTo());
 
       if (replyNode != null) {
-        Comment reply = replyNode.getComment();
+        CommentDto reply = replyNode.getComment();
         replyAuthor = userDao.getUserCached(reply.getUserid());
       } else {
         replyAuthor = null;
@@ -241,32 +238,32 @@ public class PrepareService {
     } else {
       replyAuthor = null;
     }
-    return new PreparedComment(comment, author, processedMessage, replyAuthor);
+    return new PreparedComment(commentDto, author, processedMessage, replyAuthor);
   }
 
-  public PreparedComment prepareComment(Comment comment, boolean secure) throws UserNotFoundException {
-    return prepareComment(comment, (CommentList) null, secure);
+  public PreparedComment prepareComment(CommentDto commentDto, boolean secure) throws UserNotFoundException {
+    return prepareComment(commentDto, (CommentList) null, secure);
   }
 
-  public PreparedComment prepareComment(Comment comment, String message, boolean secure) throws UserNotFoundException {
-    UserDto author = userDao.getUserCached(comment.getUserid());
+  public PreparedComment prepareComment(CommentDto commentDto, String message, boolean secure) throws UserNotFoundException {
+    UserDto author = userDao.getUserCached(commentDto.getUserid());
     String processedMessage = lorCodeService.parseComment(message, secure);
 
-    return new PreparedComment(comment, author, processedMessage, null);
+    return new PreparedComment(commentDto, author, processedMessage, null);
   }
 
-  public List<PreparedComment> prepareCommentListRSS(CommentList comments, List<Comment> list, boolean secure) throws UserNotFoundException {
+  public List<PreparedComment> prepareCommentListRSS(CommentList comments, List<CommentDto> list, boolean secure) throws UserNotFoundException {
     List<PreparedComment> commentsPrepared = new ArrayList<PreparedComment>(list.size());
-    for (Comment comment : list) {
-      commentsPrepared.add(prepareCommentRSS(comment, comments, secure));
+    for (CommentDto commentDto : list) {
+      commentsPrepared.add(prepareCommentRSS(commentDto, comments, secure));
     }
     return commentsPrepared;
   }
 
-  public List<PreparedComment> prepareCommentList(CommentList comments, List<Comment> list, boolean secure) throws UserNotFoundException {
+  public List<PreparedComment> prepareCommentList(CommentList comments, List<CommentDto> list, boolean secure) throws UserNotFoundException {
     List<PreparedComment> commentsPrepared = new ArrayList<PreparedComment>(list.size());
-    for (Comment comment : list) {
-      commentsPrepared.add(prepareComment(comment, comments, secure));
+    for (CommentDto commentDto : list) {
+      commentsPrepared.add(prepareComment(commentDto, comments, secure));
     }
     return commentsPrepared;
   }

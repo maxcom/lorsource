@@ -1,4 +1,4 @@
-package ru.org.linux.spring.dao;
+package ru.org.linux.dto;
 
 import java.util.List;
 import java.util.Map;
@@ -6,7 +6,7 @@ import java.util.Map;
 /**
  * Результат работы deleteCommentsByIPAddress
  */
-public class DeleteCommentResult {
+public class DeleteCommentDto {
   /**
    * список id удаленных топиков
    */
@@ -20,7 +20,7 @@ public class DeleteCommentResult {
    */
   private final Map<Integer, String> deleteInfo;
 
-  DeleteCommentResult(List<Integer> deletedTopicIds, List<Integer> deletedCommentIds, Map<Integer, String> deleteInfo) {
+  public DeleteCommentDto(List<Integer> deletedTopicIds, List<Integer> deletedCommentIds, Map<Integer, String> deleteInfo) {
     this.deletedCommentIds = deletedCommentIds;
     this.deletedTopicIds = deletedTopicIds;
     this.deleteInfo = deleteInfo;
