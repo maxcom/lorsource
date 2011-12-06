@@ -17,7 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.org.linux.dto.*;
 import ru.org.linux.site.*;
 import ru.org.linux.spring.commons.CacheProvider;
-import ru.org.linux.spring.dao.DeleteInfoDao;
 import ru.org.linux.util.StringUtil;
 import ru.org.linux.util.bbcode.LorCodeService;
 

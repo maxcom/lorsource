@@ -13,18 +13,18 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.site;
+package ru.org.linux.dto;
 
 import java.io.Serializable;
 import java.sql.*;
 
-public class DeleteInfo implements Serializable {
+public class DeleteInfoDto implements Serializable {
   private final String nick;
   private final int userid;
   private final String reason;
   private final Timestamp delDate;
 
-  public DeleteInfo(String nick, int userid, String reason, Timestamp delDate) {
+  public DeleteInfoDto(String nick, int userid, String reason, Timestamp delDate) {
     this.nick = nick;
     this.reason = reason;
     this.userid = userid;

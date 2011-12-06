@@ -13,13 +13,13 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.spring.dao;
+package ru.org.linux.dao;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
-import ru.org.linux.site.DeleteInfo;
+import ru.org.linux.dto.DeleteInfoDto;
 
 import javax.sql.DataSource;
 import java.sql.ResultSet;
@@ -40,15 +40,16 @@ public class DeleteInfoDao {
   }
 
   /**
-   * Кто, когда и почему удалил сообщение
+   * Кто, когда и почему удалил сообщение.
+   *
    * @param id id проверяемого сообщения
    * @return информация о удаленном сообщении
    */
-  public DeleteInfo getDeleteInfo(int id) {
-    List<DeleteInfo> list = jdbcTemplate.query(queryDeleteInfo, new RowMapper<DeleteInfo>() {
+  public DeleteInfoDto getDeleteInfo(int id) {
+    List<DeleteInfoDto> list = jdbcTemplate.query(queryDeleteInfo, new RowMapper<DeleteInfoDto>() {
       @Override
-      public DeleteInfo mapRow(ResultSet resultSet, int i) throws SQLException {
-        return new DeleteInfo(
+      public DeleteInfoDto mapRow(ResultSet resultSet, int i) throws SQLException {
+        return new DeleteInfoDto(
                 resultSet.getString("nick"),
                 resultSet.getInt("userid"),
                 resultSet.getString("reason"),

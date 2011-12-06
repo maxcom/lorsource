@@ -19,7 +19,6 @@ import com.google.common.collect.ImmutableList;
 import org.junit.Test;
 import ru.org.linux.dao.*;
 import ru.org.linux.dto.MessageDto;
-import ru.org.linux.spring.dao.*;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;

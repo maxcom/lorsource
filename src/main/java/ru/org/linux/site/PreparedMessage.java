@@ -16,17 +16,14 @@
 package ru.org.linux.site;
 
 import com.google.common.collect.ImmutableList;
-import ru.org.linux.dto.GroupDto;
-import ru.org.linux.dto.MessageDto;
-import ru.org.linux.dto.SectionDto;
-import ru.org.linux.dto.UserDto;
+import ru.org.linux.dto.*;
 
 import java.util.List;
 
 public final class PreparedMessage {
   private final MessageDto message;
   private final UserDto author;
-  private final DeleteInfo deleteInfo;
+  private final DeleteInfoDto deleteInfo;
   private final UserDto deleteUser;
   private final String processedMessage;
   private final PreparedPoll poll;
@@ -43,12 +40,12 @@ public final class PreparedMessage {
 
   private static final int EDIT_PERIOD = 2 * 60 * 60 * 1000; // milliseconds
 
-  public PreparedMessage(MessageDto messageDto, UserDto author, DeleteInfo deleteInfo, UserDto deleteUser, String processedMessage,
+  public PreparedMessage(MessageDto messageDto, UserDto author, DeleteInfoDto deleteInfoDto, UserDto deleteUser, String processedMessage,
                          PreparedPoll poll, UserDto commiter, List<String> tags, GroupDto groupDto, SectionDto sectionDto,
                          EditInfoDTO lastEditInfo, UserDto lastEditor, int editorCount, String userAgent) {
     this.message = messageDto;
     this.author = author;
-    this.deleteInfo = deleteInfo;
+    this.deleteInfo = deleteInfoDto;
     this.deleteUser = deleteUser;
     this.processedMessage = processedMessage;
     this.poll = poll;
@@ -74,7 +71,7 @@ public final class PreparedMessage {
     return author;
   }
 
-  public DeleteInfo getDeleteInfo() {
+  public DeleteInfoDto getDeleteInfo() {
     return deleteInfo;
   }
 

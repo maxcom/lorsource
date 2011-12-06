@@ -15,8 +15,7 @@
 
 package ru.org.linux.dto;
 
-import ru.org.linux.site.DeleteInfo;
-import ru.org.linux.spring.dao.DeleteInfoDao;
+import ru.org.linux.dao.DeleteInfoDao;
 
 import java.io.Serializable;
 import java.sql.ResultSet;
@@ -33,7 +32,7 @@ public class CommentDto implements Serializable {
   private final int topic;
   private final boolean deleted;
   private final Timestamp postdate;
-  private final DeleteInfo deleteInfo;
+  private final DeleteInfoDto deleteInfo;
   private final String userAgent;
   private final String postIP;
   public static final int TITLE_LENGTH = 250;
@@ -126,7 +125,7 @@ public class CommentDto implements Serializable {
     return userid;
   }
 
-  public DeleteInfo getDeleteInfo() {
+  public DeleteInfoDto getDeleteInfo() {
     return deleteInfo;
   }
 

@@ -133,18 +133,18 @@ public class PrepareService {
       UserDto author = userDao.getUserCached(messageDto.getUid());
       SectionDto sectionDto = sectionDao.getSection(messageDto.getSectionId());
 
-      DeleteInfo deleteInfo;
+      DeleteInfoDto deleteInfoDto;
       UserDto deleteUser;
       if (messageDto.isDeleted()) {
-        deleteInfo = deleteInfoDao.getDeleteInfo(messageDto.getId());
+        deleteInfoDto = deleteInfoDao.getDeleteInfo(messageDto.getId());
 
-        if (deleteInfo != null) {
-          deleteUser = userDao.getUserCached(deleteInfo.getUserid());
+        if (deleteInfoDto != null) {
+          deleteUser = userDao.getUserCached(deleteInfoDto.getUserid());
         } else {
           deleteUser = null;
         }
       } else {
-        deleteInfo = null;
+        deleteInfoDto = null;
         deleteUser = null;
       }
 
@@ -197,7 +197,7 @@ public class PrepareService {
 
       String userAgent = userAgentDao.getUserAgentById(messageDto.getUserAgent());
 
-      return new PreparedMessage(messageDto, author, deleteInfo, deleteUser, processedMessage, preparedPoll, commiter, tags, groupDto, sectionDto, lastEditInfo, lastEditor, editCount, userAgent);
+      return new PreparedMessage(messageDto, author, deleteInfoDto, deleteUser, processedMessage, preparedPoll, commiter, tags, groupDto, sectionDto, lastEditInfo, lastEditor, editCount, userAgent);
     } catch (BadGroupException e) {
       throw new RuntimeException(e);
     } catch (UserNotFoundException e) {
