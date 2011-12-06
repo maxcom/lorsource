@@ -23,11 +23,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.view.RedirectView;
+import ru.org.linux.dao.FavoritesDao;
 import ru.org.linux.dao.MessageDao;
+import ru.org.linux.dto.FavoritesListItemDto;
 import ru.org.linux.dto.MessageDto;
 import ru.org.linux.dto.UserDto;
 import ru.org.linux.site.*;
-import ru.org.linux.spring.dao.MemoriesDao;
 
 import javax.servlet.ServletRequest;
 
@@ -37,7 +38,7 @@ public class MemoriesController {
   private MessageDao messageDao;
 
   @Autowired
-  private MemoriesDao memoriesDao;
+  private FavoritesDao memoriesDao;
 
   @RequestMapping(value = "/memories.jsp", params = {"add"}, method = RequestMethod.POST)
   public View add(
@@ -59,7 +60,7 @@ public class MemoriesController {
       throw new UserErrorException("Тема удалена");
     }
 
-    memoriesDao.addToMemories(user.getId(), topic.getId());
+    memoriesDao.add(user.getId(), topic.getId());
 
     return new RedirectView(topic.getLink());
   }
@@ -79,7 +80,7 @@ public class MemoriesController {
     user.checkBlocked();
     user.checkAnonymous();
 
-    MemoriesListItem m = memoriesDao.getMemoriesListItem(id);
+    FavoritesListItemDto m = memoriesDao.getListItem(id);
 
     if (m != null) {
       if (m.getUserid() != user.getId()) {

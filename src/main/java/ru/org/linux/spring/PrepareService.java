@@ -21,7 +21,6 @@ import ru.org.linux.dao.*;
 import ru.org.linux.dto.*;
 import ru.org.linux.dao.TagCloudDao;
 import ru.org.linux.site.*;
-import ru.org.linux.spring.dao.*;
 import ru.org.linux.util.bbcode.LorCodeService;
 
 import java.util.ArrayList;
@@ -47,7 +46,7 @@ public class PrepareService {
   private TagCloudDao tagCloudDao;
 
   @Autowired
-  private MemoriesDao memoriesDao;
+  private FavoritesDao memoriesDao;
 
   @Autowired
   public void setPollDao(PollDao pollDao) {

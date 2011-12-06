@@ -39,6 +39,7 @@
     <bean class="ru.org.linux.dao.UserEventsDao" id="userEventsDao"/>
     <bean class="ru.org.linux.dao.IPBlockDao" id="iPBlockDao"/>
     <bean class="ru.org.linux.dao.DeleteInfoDao" id="deleteInfoDao"/>
+    <bean class="ru.org.linux.dao.FavoritesDao" id="memoriesDao"/>
     <!-- <bean class="ru.org.linux.dao.CommentDao" id="commentDao"/> -->
 
 </beans>

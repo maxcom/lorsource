@@ -13,19 +13,19 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.site;
+package ru.org.linux.dto;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 
-public class MemoriesListItem {
+public class FavoritesListItemDto {
   private final int id;
   private final int userid;
   private final Timestamp timestamp;
   private final int topic;
 
-  public MemoriesListItem(ResultSet rs) throws SQLException {
+  public FavoritesListItemDto(ResultSet rs) throws SQLException {
     id = rs.getInt("id");
     userid = rs.getInt("userid");
     timestamp = rs.getTimestamp("add_date");
