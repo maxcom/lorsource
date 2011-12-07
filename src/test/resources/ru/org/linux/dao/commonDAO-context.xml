@@ -40,6 +40,7 @@
     <bean class="ru.org.linux.dao.IPBlockDao" id="iPBlockDao"/>
     <bean class="ru.org.linux.dao.DeleteInfoDao" id="deleteInfoDao"/>
     <bean class="ru.org.linux.dao.FavoritesDao" id="memoriesDao"/>
+    <bean class="ru.org.linux.dao.TopTenDao" id="topTenDao"/>
     <!-- <bean class="ru.org.linux.dao.CommentDao" id="commentDao"/> -->
 
 </beans>

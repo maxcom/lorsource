@@ -13,12 +13,10 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.spring.dao;
+package ru.org.linux.dao;
 
-import java.io.Serializable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +25,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 
 import org.springframework.stereotype.Repository;
 import ru.org.linux.dto.SectionDto;
+import ru.org.linux.dto.TopTenMessageDto;
 
 @Repository
 public class TopTenDao {
@@ -42,17 +41,21 @@ public class TopTenDao {
   }
 
 
-  public List<TopTenMessageDTO> getMessages() {
+  /**
+   *
+   * @return
+   */
+  public List<TopTenMessageDto> getMessages() {
     String sql =
         "select topics.id as msgid, groups.urlname, groups.section, topics.title, lastmod, topics.stat1 as c  " +
             "from topics " +
             "join groups on groups.id = topics.groupid" +
             " where topics.postdate>(CURRENT_TIMESTAMP-'1 month 1 day'::interval) and not deleted and notop is null " +
             " and groupid!=8404 and groupid!=4068 order by c desc, msgid limit 10";
-    return jdbcTemplate.query(sql, new RowMapper<TopTenMessageDTO>() {
+    return jdbcTemplate.query(sql, new RowMapper<TopTenMessageDto>() {
       @Override
-      public TopTenMessageDTO mapRow(ResultSet rs, int i) throws SQLException {
-        TopTenMessageDTO result = new TopTenMessageDTO();
+      public TopTenMessageDto mapRow(ResultSet rs, int i) throws SQLException {
+        TopTenMessageDto result = new TopTenMessageDto();
         result.setUrl(SectionDto.getSectionLink(rs.getInt("section")) + rs.getString("urlname") + '/' + rs.getInt("msgid"));
         result.setTitle(rs.getString("title"));
         result.setLastmod(rs.getTimestamp("lastmod"));
@@ -64,52 +67,4 @@ public class TopTenDao {
   }
 
 
-  public static class TopTenMessageDTO implements Serializable {
-    private String url;
-    private Timestamp lastmod;
-    private String title;
-    private Integer pages;
-    private Integer answers;
-    private static final long serialVersionUID = 166352344159392938L;
-
-    public String getUrl() {
-      return url;
-    }
-
-    public void setUrl(String url) {
-      this.url = url;
-    }
-
-    public Timestamp getLastmod() {
-      return lastmod;
-    }
-
-    public void setLastmod(Timestamp lastmod) {
-      this.lastmod = lastmod;
-    }
-
-    public String getTitle() {
-      return title;
-    }
-
-    public void setTitle(String title) {
-      this.title = title;
-    }
-
-    public Integer getPages() {
-      return pages;
-    }
-
-    public void setPages(Integer pages) {
-      this.pages = pages;
-    }
-
-    public Integer getAnswers() {
-      return answers;
-    }
-
-    public void setAnswers(Integer answers) {
-      this.answers = answers;
-    }
-  }
 }
