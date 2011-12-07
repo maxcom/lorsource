@@ -16,7 +16,7 @@
 package ru.org.linux.site;
 
 import ru.org.linux.dto.MessageDto;
-import ru.org.linux.util.BadImageException;
+import ru.org.linux.exception.util.BadImageException;
 import ru.org.linux.util.ImageInfo;
 
 import java.io.File;

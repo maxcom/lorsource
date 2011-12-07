@@ -27,6 +27,8 @@ import ru.org.linux.dao.PollDao;
 import ru.org.linux.dto.MessageDto;
 import ru.org.linux.dto.UserDto;
 import ru.org.linux.dto.VoteDto;
+import ru.org.linux.exception.AccessViolationException;
+import ru.org.linux.exception.BadVoteException;
 import ru.org.linux.site.*;
 
 import javax.servlet.ServletRequest;

@@ -23,7 +23,7 @@ import org.springframework.stereotype.Repository;
 import ru.org.linux.dto.MessageDto;
 import ru.org.linux.dto.TrackerItemDto;
 import ru.org.linux.dto.UserDto;
-import ru.org.linux.site.UserNotFoundException;
+import ru.org.linux.exception.UserNotFoundException;
 
 import javax.sql.DataSource;
 import java.sql.ResultSet;

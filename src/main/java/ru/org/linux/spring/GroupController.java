@@ -31,8 +31,9 @@ import ru.org.linux.dao.UserDao;
 import ru.org.linux.dto.GroupDto;
 import ru.org.linux.dto.SectionDto;
 import ru.org.linux.dto.UserDto;
+import ru.org.linux.exception.AccessViolationException;
+import ru.org.linux.exception.util.ServletParameterBadValueException;
 import ru.org.linux.site.*;
-import ru.org.linux.util.ServletParameterBadValueException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.sql.DataSource;

@@ -24,9 +24,9 @@ import ru.org.linux.dao.CommentDao;
 import ru.org.linux.dao.UserDao;
 import ru.org.linux.dto.CommentListItemDto;
 import ru.org.linux.dto.UserDto;
+import ru.org.linux.exception.UserErrorException;
+import ru.org.linux.exception.util.ServletParameterException;
 import ru.org.linux.site.Template;
-import ru.org.linux.site.UserErrorException;
-import ru.org.linux.util.ServletParameterException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

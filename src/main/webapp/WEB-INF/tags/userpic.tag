@@ -1,6 +1,6 @@
 <%@ tag import="java.io.IOException" %>
 <%@ tag import="ru.org.linux.site.Template" %>
-<%@ tag import="ru.org.linux.util.BadImageException" %>
+<%@ tag import="ru.org.linux.exception.util.BadImageException" %>
 <%@ tag import="ru.org.linux.util.ImageInfo" %>
 
 <%--

@@ -19,6 +19,8 @@
 
 package ru.org.linux.util;
 
+import ru.org.linux.exception.util.BadURLException;
+
 import java.util.regex.Pattern;
 
 public final class URLUtil {

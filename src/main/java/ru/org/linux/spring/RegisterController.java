@@ -28,7 +28,7 @@ import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.dao.IPBlockDao;
 import ru.org.linux.dao.UserDao;
 import ru.org.linux.dto.UserDto;
-import ru.org.linux.site.AccessViolationException;
+import ru.org.linux.exception.AccessViolationException;
 import ru.org.linux.site.Template;
 import ru.org.linux.site.UserInfo;
 import ru.org.linux.spring.validators.RegisterRequestValidator;

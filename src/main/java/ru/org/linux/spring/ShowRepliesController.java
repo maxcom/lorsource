@@ -26,7 +26,7 @@ import ru.org.linux.dao.RepliesDao;
 import ru.org.linux.dao.UserDao;
 import ru.org.linux.dto.RepliesListItemDto;
 import ru.org.linux.dto.UserDto;
-import ru.org.linux.site.AccessViolationException;
+import ru.org.linux.exception.AccessViolationException;
 import ru.org.linux.site.Template;
 
 import javax.servlet.http.HttpServletRequest;

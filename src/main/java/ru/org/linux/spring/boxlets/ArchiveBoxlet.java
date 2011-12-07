@@ -28,7 +28,7 @@ import ru.org.linux.dao.ArchiveDao;
 import ru.org.linux.dao.SectionDao;
 import ru.org.linux.dto.ArchiveDto;
 import ru.org.linux.dto.SectionDto;
-import ru.org.linux.site.SectionNotFoundException;
+import ru.org.linux.exception.SectionNotFoundException;
 import ru.org.linux.spring.commons.CacheProvider;
 
 @Controller

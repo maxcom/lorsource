@@ -22,7 +22,7 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import ru.org.linux.dto.UserDto;
-import ru.org.linux.site.AccessViolationException;
+import ru.org.linux.exception.AccessViolationException;
 
 import java.util.Iterator;
 import java.util.Set;

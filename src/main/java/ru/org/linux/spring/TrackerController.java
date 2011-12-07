@@ -26,8 +26,8 @@ import org.springframework.web.servlet.ModelAndView;
 import ru.org.linux.dao.TrackerDao;
 import ru.org.linux.dao.UserDao;
 import ru.org.linux.dto.UserDto;
+import ru.org.linux.exception.UserErrorException;
 import ru.org.linux.site.Template;
-import ru.org.linux.site.UserErrorException;
 
 import javax.servlet.http.HttpServletRequest;
 import java.sql.Timestamp;

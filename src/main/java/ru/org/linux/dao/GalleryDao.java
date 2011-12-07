@@ -22,7 +22,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.stereotype.Repository;
 import ru.org.linux.dto.GalleryDto;
 import ru.org.linux.dto.SectionDto;
-import ru.org.linux.util.BadImageException;
+import ru.org.linux.exception.util.BadImageException;
 import ru.org.linux.util.ImageInfo;
 
 import java.io.IOException;

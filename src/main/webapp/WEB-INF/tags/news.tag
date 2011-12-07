@@ -4,7 +4,7 @@
 <%@ tag import="ru.org.linux.site.NewsViewer" %>
 <%@ tag import="ru.org.linux.dao.TagCloudDao" %>
 <%@ tag import="ru.org.linux.site.Template" %>
-<%@ tag import="ru.org.linux.util.BadImageException" %>
+<%@ tag import="ru.org.linux.exception.util.BadImageException" %>
 <%@ tag import="ru.org.linux.util.StringUtil" %>
 <%@ tag import="ru.org.linux.util.ImageInfo" %>
 <%@ tag pageEncoding="UTF-8"%>

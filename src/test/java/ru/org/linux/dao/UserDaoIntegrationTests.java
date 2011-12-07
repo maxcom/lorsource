@@ -21,7 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import ru.org.linux.dto.UserDto;
-import ru.org.linux.site.BadPasswordException;
+import ru.org.linux.exception.BadPasswordException;
 import ru.org.linux.site.UserInfo;
 
 import javax.mail.internet.InternetAddress;

@@ -31,9 +31,9 @@ import ru.org.linux.dao.CommentDao;
 import ru.org.linux.dao.UserDao;
 import ru.org.linux.dto.DeleteCommentDto;
 import ru.org.linux.dto.UserDto;
-import ru.org.linux.site.AccessViolationException;
+import ru.org.linux.exception.AccessViolationException;
+import ru.org.linux.exception.UserErrorException;
 import ru.org.linux.site.Template;
-import ru.org.linux.site.UserErrorException;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;

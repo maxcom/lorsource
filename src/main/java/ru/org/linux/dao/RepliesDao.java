@@ -21,7 +21,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import ru.org.linux.dto.RepliesListItemDto;
 import ru.org.linux.dto.UserDto;
-import ru.org.linux.site.UserNotFoundException;
+import ru.org.linux.exception.UserNotFoundException;
 import ru.org.linux.util.StringUtil;
 import ru.org.linux.util.bbcode.LorCodeService;
 

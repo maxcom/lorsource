@@ -36,10 +36,13 @@ import ru.org.linux.dto.GroupDto;
 import ru.org.linux.dto.MessageDto;
 import ru.org.linux.dto.SectionDto;
 import ru.org.linux.dto.UserDto;
+import ru.org.linux.exception.BadGroupException;
+import ru.org.linux.exception.ScriptErrorException;
+import ru.org.linux.exception.UserErrorException;
+import ru.org.linux.exception.util.ServletParameterException;
+import ru.org.linux.exception.util.ServletParameterMissingException;
 import ru.org.linux.site.*;
 import ru.org.linux.util.DateUtil;
-import ru.org.linux.util.ServletParameterException;
-import ru.org.linux.util.ServletParameterMissingException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

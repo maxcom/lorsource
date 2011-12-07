@@ -38,6 +38,8 @@ import ru.org.linux.dao.SectionDao;
 import ru.org.linux.dao.UserDao;
 import ru.org.linux.dto.GroupDto;
 import ru.org.linux.dto.UserDto;
+import ru.org.linux.exception.BadGroupException;
+import ru.org.linux.exception.SectionNotFoundException;
 import ru.org.linux.site.*;
 import ru.org.linux.util.ExceptionBindingErrorProcessor;
 import ru.org.linux.spring.UserPropertyEditor;

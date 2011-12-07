@@ -18,6 +18,7 @@ package ru.org.linux.site;
 import org.junit.Assert;
 import org.junit.Test;
 import ru.org.linux.dto.UserDto;
+import ru.org.linux.exception.AccessViolationException;
 
 import java.sql.ResultSet;
 

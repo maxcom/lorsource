@@ -25,6 +25,8 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.org.linux.dto.UserDto;
 import ru.org.linux.dto.VoteDto;
+import ru.org.linux.exception.BadVoteException;
+import ru.org.linux.exception.PollNotFoundException;
 import ru.org.linux.site.*;
 
 import javax.sql.DataSource;

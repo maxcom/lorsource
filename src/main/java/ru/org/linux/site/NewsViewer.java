@@ -18,8 +18,8 @@ package ru.org.linux.site;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import ru.org.linux.dto.MessageDto;
+import ru.org.linux.exception.util.BadImageException;
 import ru.org.linux.spring.commons.CacheProvider;
-import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.ImageInfo;
 
 import java.io.File;

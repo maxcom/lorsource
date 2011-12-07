@@ -18,6 +18,7 @@ package ru.org.linux.site;
 import ru.org.linux.dao.UserDao;
 import ru.org.linux.dto.CommentDto;
 import ru.org.linux.dto.UserDto;
+import ru.org.linux.exception.UserNotFoundException;
 
 import java.io.Serializable;
 import java.sql.SQLException;

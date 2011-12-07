@@ -24,6 +24,9 @@ import org.springframework.web.servlet.ModelAndView;
 import ru.org.linux.dao.IgnoreListDao;
 import ru.org.linux.dao.UserDao;
 import ru.org.linux.dto.UserDto;
+import ru.org.linux.exception.AccessViolationException;
+import ru.org.linux.exception.BadInputException;
+import ru.org.linux.exception.UserNotFoundException;
 import ru.org.linux.site.*;
 
 import javax.servlet.ServletRequest;

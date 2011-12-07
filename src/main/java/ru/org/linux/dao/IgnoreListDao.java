@@ -23,7 +23,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.stereotype.Repository;
 import ru.org.linux.dto.UserDto;
-import ru.org.linux.site.AccessViolationException;
+import ru.org.linux.exception.AccessViolationException;
 
 import javax.sql.DataSource;
 import java.sql.ResultSet;

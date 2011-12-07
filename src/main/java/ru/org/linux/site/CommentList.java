@@ -19,6 +19,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import ru.org.linux.dao.UserDao;
 import ru.org.linux.dto.CommentDto;
+import ru.org.linux.exception.UserNotFoundException;
 
 import java.io.Serializable;
 import java.sql.SQLException;

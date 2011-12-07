@@ -29,8 +29,8 @@ import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import ru.org.linux.dto.TagDto;
-import ru.org.linux.site.TagNotFoundException;
-import ru.org.linux.site.UserErrorException;
+import ru.org.linux.exception.TagNotFoundException;
+import ru.org.linux.exception.UserErrorException;
 
 import javax.sql.DataSource;
 import java.sql.Connection;

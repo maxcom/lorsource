@@ -46,13 +46,13 @@
           class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver" p:order="2">
         <property name="exceptionMappings">
             <props>
-                <prop key="ru.org.linux.site.MessageNotFoundException">error404</prop>
-                <prop key="ru.org.linux.site.SectionNotFoundException">error404</prop>                
+                <prop key="ru.org.linux.exception.MessageNotFoundException">error404</prop>
+                <prop key="ru.org.linux.exception.SectionNotFoundException">error404</prop>
                 <prop key="org.springframework.web.HttpRequestMethodNotSupportedException">error404</prop>
                 <prop key="java.lang.Exception">error</prop>
-                <prop key="ru.org.linux.site.AccessViolationException">error403</prop>
-                <prop key="ru.org.linux.site.TagNotFoundException">error404</prop>
-                <prop key="ru.org.linux.util.ServletParameterException">error-parameter</prop>
+                <prop key="ru.org.linux.exception.AccessViolationException">error403</prop>
+                <prop key="ru.org.linux.exception.TagNotFoundException">error404</prop>
+                <prop key="ru.org.linux.exception.util.ServletParameterException">error-parameter</prop>
                 <prop key="org.springframework.beans.TypeMismatchException">error-parameter</prop>
                 <prop key="org.springframework.web.bind.MissingServletRequestParameterException">error-parameter</prop>
                 <prop key="org.springframework.validation.BindException">error-parameter</prop>

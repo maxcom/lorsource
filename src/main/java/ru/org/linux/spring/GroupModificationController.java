@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import ru.org.linux.dao.GroupDao;
 import ru.org.linux.dto.GroupDto;
-import ru.org.linux.site.AccessViolationException;
+import ru.org.linux.exception.AccessViolationException;
 import ru.org.linux.site.Template;
 
 import javax.servlet.ServletRequest;

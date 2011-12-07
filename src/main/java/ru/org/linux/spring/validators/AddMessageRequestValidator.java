@@ -5,8 +5,8 @@ import org.jdom.Verifier;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 import ru.org.linux.dao.TagCloudDao;
-import ru.org.linux.site.BadPasswordException;
-import ru.org.linux.site.UserErrorException;
+import ru.org.linux.exception.BadPasswordException;
+import ru.org.linux.exception.UserErrorException;
 import ru.org.linux.spring.AddMessageRequest;
 import ru.org.linux.util.URLUtil;
 

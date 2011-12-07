@@ -21,7 +21,7 @@ import java.io.Serializable;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import ru.org.linux.util.BadImageException;
+import ru.org.linux.exception.util.BadImageException;
 import ru.org.linux.util.ImageInfo;
 
 /**

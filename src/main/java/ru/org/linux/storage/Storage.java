@@ -15,6 +15,11 @@
 
 package ru.org.linux.storage;
 
+import ru.org.linux.exception.storage.StorageBadDomainException;
+import ru.org.linux.exception.storage.StorageBadMsgidException;
+import ru.org.linux.exception.storage.StorageException;
+import ru.org.linux.exception.storage.StorageNotImplException;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;

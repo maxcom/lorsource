@@ -21,7 +21,7 @@ import java.util.Calendar;
 import javax.servlet.ServletRequest;
 
 import ru.org.linux.dao.MessageDao;
-import ru.org.linux.site.AccessViolationException;
+import ru.org.linux.exception.AccessViolationException;
 import ru.org.linux.site.Template;
 
 import org.springframework.beans.factory.annotation.Autowired;

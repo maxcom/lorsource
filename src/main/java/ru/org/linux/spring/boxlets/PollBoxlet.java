@@ -23,7 +23,7 @@ import ru.org.linux.dao.MessageDao;
 import ru.org.linux.dao.PollDao;
 import ru.org.linux.dto.MessageDto;
 import ru.org.linux.dto.VoteDto;
-import ru.org.linux.site.MessageNotFoundException;
+import ru.org.linux.exception.MessageNotFoundException;
 import ru.org.linux.site.Poll;
 import ru.org.linux.spring.commons.CacheProvider;
 

@@ -9,7 +9,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import ru.org.linux.dto.GroupDto;
 import ru.org.linux.dto.SectionDto;
-import ru.org.linux.site.BadGroupException;
+import ru.org.linux.exception.BadGroupException;
 
 import javax.sql.DataSource;
 import java.sql.PreparedStatement;

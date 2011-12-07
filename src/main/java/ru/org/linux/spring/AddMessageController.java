@@ -34,11 +34,14 @@ import ru.org.linux.dto.GroupDto;
 import ru.org.linux.dto.MessageDto;
 import ru.org.linux.dto.SectionDto;
 import ru.org.linux.dto.UserDto;
+import ru.org.linux.exception.AccessViolationException;
+import ru.org.linux.exception.BadGroupException;
+import ru.org.linux.exception.ScriptErrorException;
+import ru.org.linux.exception.util.BadImageException;
+import ru.org.linux.exception.util.UtilException;
 import ru.org.linux.site.*;
 import ru.org.linux.spring.validators.AddMessageRequestValidator;
-import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.ExceptionBindingErrorProcessor;
-import ru.org.linux.util.UtilException;
 import ru.org.linux.util.bbcode.LorCodeService;
 import ru.org.linux.util.formatter.ToLorCodeFormatter;
 

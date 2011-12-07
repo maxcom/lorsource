@@ -26,6 +26,7 @@ import ru.org.linux.dao.MessageDao;
 import ru.org.linux.dto.GroupDto;
 import ru.org.linux.dto.MessageDto;
 import ru.org.linux.dto.UserDto;
+import ru.org.linux.exception.AccessViolationException;
 import ru.org.linux.site.*;
 
 import javax.servlet.http.HttpServletRequest;

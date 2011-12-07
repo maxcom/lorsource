@@ -20,7 +20,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import ru.org.linux.util.BadImageException;
+import ru.org.linux.exception.UserErrorException;
+import ru.org.linux.exception.util.BadImageException;
 import ru.org.linux.util.ImageInfo;
 import ru.org.linux.util.ImageInfo2;
 

@@ -31,8 +31,8 @@ import ru.org.linux.dao.CommentDao;
 import ru.org.linux.dao.MessageDao;
 import ru.org.linux.dto.CommentDto;
 import ru.org.linux.dto.MessageDto;
+import ru.org.linux.exception.MessageNotFoundException;
 import ru.org.linux.site.CommentList;
-import ru.org.linux.site.MessageNotFoundException;
 
 import java.io.IOException;
 import java.sql.Timestamp;

@@ -22,7 +22,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.stereotype.Component;
 import ru.org.linux.dto.SectionDto;
-import ru.org.linux.site.SectionNotFoundException;
+import ru.org.linux.exception.SectionNotFoundException;
 
 import javax.sql.DataSource;
 import java.sql.ResultSet;

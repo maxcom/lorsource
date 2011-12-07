@@ -25,8 +25,8 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.dao.IPBlockDao;
 import ru.org.linux.dto.UserDto;
+import ru.org.linux.exception.UserErrorException;
 import ru.org.linux.site.Template;
-import ru.org.linux.site.UserErrorException;
 
 import javax.servlet.http.HttpServletRequest;
 import java.net.URLEncoder;

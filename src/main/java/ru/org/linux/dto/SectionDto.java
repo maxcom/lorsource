@@ -15,7 +15,7 @@
 
 package ru.org.linux.dto;
 
-import ru.org.linux.site.SectionNotFoundException;
+import ru.org.linux.exception.SectionNotFoundException;
 
 import java.io.Serializable;
 import java.sql.*;

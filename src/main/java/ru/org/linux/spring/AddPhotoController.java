@@ -26,8 +26,11 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.dao.UserDao;
 import ru.org.linux.dto.UserDto;
+import ru.org.linux.exception.AccessViolationException;
+import ru.org.linux.exception.ScriptErrorException;
+import ru.org.linux.exception.UserErrorException;
+import ru.org.linux.exception.util.BadImageException;
 import ru.org.linux.site.*;
-import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.ImageInfo;
 
 import javax.servlet.ServletRequest;

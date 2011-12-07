@@ -16,6 +16,7 @@
 package ru.org.linux.site;
 
 import ru.org.linux.dto.CommentDto;
+import ru.org.linux.exception.MessageNotFoundException;
 
 import java.util.ArrayList;
 import java.util.List;

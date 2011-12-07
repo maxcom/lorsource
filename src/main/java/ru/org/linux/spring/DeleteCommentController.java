@@ -29,6 +29,9 @@ import ru.org.linux.dao.UserDao;
 import ru.org.linux.dto.CommentDto;
 import ru.org.linux.dto.MessageDto;
 import ru.org.linux.dto.UserDto;
+import ru.org.linux.exception.AccessViolationException;
+import ru.org.linux.exception.BadParameterException;
+import ru.org.linux.exception.UserErrorException;
 import ru.org.linux.site.*;
 
 import javax.servlet.http.HttpServletRequest;

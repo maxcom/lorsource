@@ -15,7 +15,7 @@
 
 package ru.org.linux.dto;
 
-import ru.org.linux.site.AccessViolationException;
+import ru.org.linux.exception.AccessViolationException;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
