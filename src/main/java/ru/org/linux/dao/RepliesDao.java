@@ -13,16 +13,15 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.spring.dao;
+package ru.org.linux.dao;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
-import ru.org.linux.dao.UserDao;
+import ru.org.linux.dto.RepliesListItemDto;
 import ru.org.linux.dto.UserDto;
 import ru.org.linux.site.UserNotFoundException;
-import ru.org.linux.spring.RepliesListItem;
 import ru.org.linux.util.StringUtil;
 import ru.org.linux.util.bbcode.LorCodeService;
 
@@ -108,7 +107,7 @@ public class RepliesDao {
    * @param readMessage возвращать ли отрендеренное содержимое уведомлений
    * @return список уведомлений
    */
-  public List<RepliesListItem> getRepliesForUser(UserDto user, boolean showPrivate, int topics, int offset,
+  public List<RepliesListItemDto> getRepliesForUser(UserDto user, boolean showPrivate, int topics, int offset,
                                                  final boolean readMessage, final boolean secure) {
     String queryString;
     if(showPrivate) {
@@ -116,9 +115,9 @@ public class RepliesDao {
     } else {
       queryString = queryRepliesForUserWihoutPrivate;
     }
-    return jdbcTemplate.query(queryString, new RowMapper<RepliesListItem>() {
+    return jdbcTemplate.query(queryString, new RowMapper<RepliesListItemDto>() {
       @Override
-      public RepliesListItem mapRow(ResultSet resultSet, int i) throws SQLException {
+      public RepliesListItemDto mapRow(ResultSet resultSet, int i) throws SQLException {
         String subj = StringUtil.makeTitle(resultSet.getString("subj"));
         Timestamp lastmod = resultSet.getTimestamp("lastmod");
         if (lastmod == null) {
@@ -144,7 +143,7 @@ public class RepliesDao {
         String sectionTitle = resultSet.getString("name");
         int sectionId = resultSet.getInt("section");
         int msgid = resultSet.getInt("msgid");
-        RepliesListItem.EventType type = RepliesListItem.EventType.valueOf(resultSet.getString("type"));
+        RepliesListItemDto.EventType type = RepliesListItemDto.EventType.valueOf(resultSet.getString("type"));
         String eventMessage = resultSet.getString("ev_msg");
         String messageText;
         if (readMessage) {
@@ -157,7 +156,7 @@ public class RepliesDao {
         } else {
           messageText = null;
         }
-        return new RepliesListItem(cid, cAuthor, cDate, messageText, groupTitle, groupUrlName,
+        return new RepliesListItemDto(cid, cAuthor, cDate, messageText, groupTitle, groupUrlName,
             sectionTitle, sectionId, subj, lastmod, msgid, type, eventMessage, eventDate);
       }
     }, user.getId(), topics, offset);

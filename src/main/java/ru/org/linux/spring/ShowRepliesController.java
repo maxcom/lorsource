@@ -22,11 +22,12 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
+import ru.org.linux.dao.RepliesDao;
 import ru.org.linux.dao.UserDao;
+import ru.org.linux.dto.RepliesListItemDto;
 import ru.org.linux.dto.UserDto;
 import ru.org.linux.site.AccessViolationException;
 import ru.org.linux.site.Template;
-import ru.org.linux.spring.dao.RepliesDao;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -96,15 +97,15 @@ public class ShowRepliesController {
     params.put("isMyNotifications", true);
 
     response.addHeader("Cache-Control", "no-cache");
-    List<RepliesListItem> list = repliesDao.getRepliesForUser(currentUser, true, topics, offset, false, request.isSecure());
+    List<RepliesListItemDto> listDto = repliesDao.getRepliesForUser(currentUser, true, topics, offset, false, request.isSecure());
     if ("POST".equalsIgnoreCase(request.getMethod())) {
       userDao.resetUnreadReplies(currentUser);
       tmpl.updateCurrentUser(userDao);
     } else {
       params.put("enableReset", true);
     }
-    params.put("topicsList", list);
-    params.put("hasMore", list.size()==topics);
+    params.put("topicsList", listDto);
+    params.put("hasMore", listDto.size()==topics);
 
     return new ModelAndView("show-replies", params);
   }
@@ -177,11 +178,11 @@ public class ShowRepliesController {
       params.put("unreadCount", user.getUnreadEvents());
       response.addHeader("Cache-Control", "no-cache");
     }
-    List<RepliesListItem> list = repliesDao.getRepliesForUser(user, showPrivate, topics, offset, feedRequested, request.isSecure());
+    List<RepliesListItemDto> listDto = repliesDao.getRepliesForUser(user, showPrivate, topics, offset, feedRequested, request.isSecure());
 
     params.put("isMyNotifications", false);
-    params.put("topicsList", list);
-    params.put("hasMore", list.size()==topics);
+    params.put("topicsList", listDto);
+    params.put("hasMore", listDto.size()==topics);
 
     ModelAndView result = new ModelAndView("show-replies", params);
 
