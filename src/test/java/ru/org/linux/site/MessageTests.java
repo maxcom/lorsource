@@ -34,7 +34,7 @@ import static org.mockito.Mockito.*;
  * Date: 8/30/11
  * Time: 4:27 PM
  */
-public class MessageTest {
+public class MessageTests {
 
   /**
    * Проверка что пользователь МОЖЕТ удалить топик автором которого он является

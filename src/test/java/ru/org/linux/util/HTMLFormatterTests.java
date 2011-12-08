@@ -33,7 +33,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static ru.org.linux.util.bbcode.tags.QuoteTag.*;
 
-public class HTMLFormatterTest {
+public class HTMLFormatterTests {
   private static final String TEXT1 = "Here is www.linux.org.ru, have fun! :-)";
   private static final String RESULT1 = "Here is <a href=\"http://www.linux.org.ru\">www.linux.org.ru</a>, have fun! :-)";
 

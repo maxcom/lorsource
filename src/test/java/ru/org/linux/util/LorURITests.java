@@ -28,7 +28,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class LorURITest {
+public class LorURITests {
   private MessageDao messageDao;
   private MessageDto message1;
   private GroupDto group1;

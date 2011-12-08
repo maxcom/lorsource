@@ -25,7 +25,7 @@ import java.sql.ResultSet;
 /**
  * Unit Tests для User
  */
-public class UserTest {
+public class UserTests {
 
   /**
    * проверка администратора

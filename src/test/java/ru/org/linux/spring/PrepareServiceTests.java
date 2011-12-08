@@ -23,7 +23,7 @@ import ru.org.linux.dto.MessageDto;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class PrepareServiceTest {
+public class PrepareServiceTests {
 
   /**
    * TODO дописать, написать общий тестовый клас со слепком данных для тестирования, как то

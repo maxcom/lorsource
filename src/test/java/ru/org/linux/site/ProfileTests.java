@@ -22,7 +22,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-public class ProfileTest {
+public class ProfileTests {
   @Test
   public void testDefaultProfile() {
     Profile profile = new Profile();
