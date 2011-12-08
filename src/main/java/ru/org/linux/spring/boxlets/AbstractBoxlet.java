@@ -23,7 +23,7 @@ import org.springframework.web.servlet.mvc.AbstractController;
 import ru.org.linux.spring.CacheableController;
 import ru.org.linux.spring.commons.CacheProvider;
 
-public abstract class SpringBoxlet extends AbstractController implements CacheableController{
+public abstract class AbstractBoxlet extends AbstractController implements CacheableController{
 
   protected abstract ModelAndView getData(HttpServletRequest request
   ) throws Exception;

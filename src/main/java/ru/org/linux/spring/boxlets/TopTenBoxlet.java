@@ -33,7 +33,7 @@ import ru.org.linux.site.Template;
 import ru.org.linux.spring.dao.TopTenDao;
 
 @Controller
-public class TopTenBoxletImpl extends SpringBoxlet {
+public class TopTenBoxlet extends AbstractBoxlet {
   private TopTenDao topTenDao;
 
   public TopTenDao getTopTenDao() {

@@ -31,7 +31,7 @@ import ru.org.linux.spring.dao.ArchiveDao;
 import ru.org.linux.spring.dao.SectionDao;
 
 @Controller
-public class ArchiveBoxletImpl extends SpringBoxlet{
+public class ArchiveBoxlet extends AbstractBoxlet {
   private ArchiveDao archiveDao;
   private CacheProvider cacheProvider;
 

@@ -30,7 +30,7 @@ import ru.org.linux.spring.commons.CacheProvider;
 import ru.org.linux.spring.dao.TagCloudDao;
 
 @Controller
-public class TagCloudBoxletImpl extends SpringBoxlet {
+public class TagCloudBoxlet extends AbstractBoxlet {
   private CacheProvider cacheProvider;
   private TagCloudDao tagDao;
 

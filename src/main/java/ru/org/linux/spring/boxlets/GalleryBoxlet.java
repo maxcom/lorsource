@@ -29,7 +29,7 @@ import ru.org.linux.spring.commons.CacheProvider;
 import ru.org.linux.spring.dao.GalleryDaoImpl;
 
 @Controller
-public class GalleryBoxletImpl extends SpringBoxlet {
+public class GalleryBoxlet extends AbstractBoxlet {
   private GalleryDaoImpl galleryDao;
   private CacheProvider cacheProvider;
 

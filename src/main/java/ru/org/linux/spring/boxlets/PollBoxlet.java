@@ -31,7 +31,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @Controller
-public class PollBoxletImpl extends SpringBoxlet  {
+public class PollBoxlet extends AbstractBoxlet {
   private CacheProvider cacheProvider;
   private PollDao pollDao;
   private MessageDao messageDao;

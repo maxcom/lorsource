@@ -22,10 +22,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 @Controller
-public class IbmBoxletImpl extends SpringBoxlet {
+public class TshirtBoxlet extends AbstractBoxlet {
   @Override
-  @RequestMapping("/ibm.boxlet")
+  @RequestMapping("/tshirt.boxlet")
   protected ModelAndView getData(HttpServletRequest request) {
-    return new ModelAndView("boxlets/ibm", null);
+    return new ModelAndView("boxlets/tshirt", null);
   }
 }
