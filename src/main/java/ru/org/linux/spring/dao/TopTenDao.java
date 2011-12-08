@@ -29,7 +29,7 @@ import org.springframework.stereotype.Repository;
 import ru.org.linux.site.Section;
 
 @Repository
-public class TopTenDaoImpl {
+public class TopTenDao {
   private SimpleJdbcTemplate jdbcTemplate;
 
   public SimpleJdbcTemplate getJdbcTemplate() {

@@ -30,18 +30,18 @@ import org.springframework.web.servlet.ModelAndView;
 
 import ru.org.linux.site.ProfileProperties;
 import ru.org.linux.site.Template;
-import ru.org.linux.spring.dao.TopTenDaoImpl;
+import ru.org.linux.spring.dao.TopTenDao;
 
 @Controller
 public class TopTenBoxletImpl extends SpringBoxlet {
-  private TopTenDaoImpl topTenDao;
+  private TopTenDao topTenDao;
 
-  public TopTenDaoImpl getTopTenDao() {
+  public TopTenDao getTopTenDao() {
     return topTenDao;
   }
 
   @Autowired
-  public void setTopTenDao(TopTenDaoImpl topTenDao) {
+  public void setTopTenDao(TopTenDao topTenDao) {
     this.topTenDao = topTenDao;
   }
 
@@ -52,11 +52,11 @@ public class TopTenBoxletImpl extends SpringBoxlet {
     final int itemsPerPage = profile.getMessages();
     String style = profile.getStyle();
 
-    List<TopTenDaoImpl.TopTenMessageDTO> list = topTenDao.getMessages();
+    List<TopTenDao.TopTenMessageDTO> list = topTenDao.getMessages();
     CollectionUtils.forAllDo(list, new Closure() {
       @Override
       public void execute(Object o) {
-        TopTenDaoImpl.TopTenMessageDTO dto = (TopTenDaoImpl.TopTenMessageDTO) o;
+        TopTenDao.TopTenMessageDTO dto = (TopTenDao.TopTenMessageDTO) o;
         int tmp = dto.getAnswers() / itemsPerPage;
         tmp = (dto.getAnswers() % itemsPerPage > 0) ? tmp + 1 : tmp;
         dto.setPages(tmp);
