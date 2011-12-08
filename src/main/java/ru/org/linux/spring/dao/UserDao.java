@@ -301,7 +301,7 @@ public class UserDao {
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   public void removePhoto(User user, User cleaner) {
     setPhoto(user, null);
-    if(cleaner.canModerate() && cleaner.getId() != user.getId()){
+    if(cleaner.isModerator() && cleaner.getId() != user.getId()){
       changeScore(user.getId(), -10);
     }
   }

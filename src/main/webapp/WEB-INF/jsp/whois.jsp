@@ -94,7 +94,7 @@
   </c:if>
 
 <b>Статус:</b> <%= user.getStatus() %><%
-  if (user.canModerate()) {
+  if (user.isModerator()) {
     out.print(" (модератор)");
   }
 
@@ -139,7 +139,7 @@
     </div>
   </c:if>
 
-  <c:if test="${template.sessionAuthorized and !currentUser and not user.canModerate}">
+  <c:if test="${template.sessionAuthorized and !currentUser and not user.moderator}">
     <c:if test="${ignored}">
       <form name='i_unblock' method='post' action='ignore-list.jsp'>
         <input type='hidden' name='id' value='${user.id}'>

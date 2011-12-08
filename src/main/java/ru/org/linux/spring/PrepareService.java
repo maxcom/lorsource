@@ -281,7 +281,7 @@ public class PrepareService {
     int memoriesId;
 
     if (currentUser!=null) {
-      resolvable = (currentUser.canModerate() || (message.getAuthor().getId()==currentUser.getId())) &&
+      resolvable = (currentUser.isModerator() || (message.getAuthor().getId()==currentUser.getId())) &&
             message.getGroup().isResolvable();
 
       memoriesId = memoriesDao.getId(currentUser, message.getMessage());

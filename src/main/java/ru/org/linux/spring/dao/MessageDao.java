@@ -226,7 +226,7 @@ public class MessageDao {
   public void deleteWithBonus(Message message, User user, String reason, int bonus) throws UserErrorException {
     String finalReason = reason;
     jdbcTemplate.update(updateDeleteMessage, message.getId());
-    if (user.canModerate() && bonus!=0 && user.getId()!=message.getUid()) {
+    if (user.isModerator() && bonus!=0 && user.getId()!=message.getUid()) {
       if (bonus>20 || bonus<0) {
         throw new UserErrorException("Некорректное значение bonus");
       }

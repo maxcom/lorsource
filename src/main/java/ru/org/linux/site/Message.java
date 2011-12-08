@@ -374,7 +374,7 @@ public class Message implements Serializable {
       return false;
     }
 
-    if (user.canModerate()) {
+    if (user.isModerator()) {
       return true;
     }
 
@@ -518,7 +518,7 @@ public class Message implements Serializable {
    */
   public boolean isDeletableByModerator(User user, Section section) {
     // TODO убрать от сюда аргумент функции section
-    if(!user.canModerate()) {
+    if(!user.isModerator()) {
       return false;
     }
     Calendar calendar = Calendar.getInstance();

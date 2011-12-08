@@ -128,11 +128,11 @@ public final class PreparedMessage {
     }
 
     if (message.isExpired()) {
-      return by.canModerate() && section.isPremoderated();
+      return by.isModerator() && section.isPremoderated();
     }
 
-    if (by.canModerate()) {
-      if (author.canModerate()) {
+    if (by.isModerator()) {
+      if (author.isModerator()) {
         return true;
       }
 

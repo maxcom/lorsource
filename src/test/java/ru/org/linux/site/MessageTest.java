@@ -62,12 +62,12 @@ public class MessageTest {
     when(resultSet.getBoolean("moderate")).thenReturn(true);
 
     user = mock(User.class);
-    when(user.canModerate()).thenReturn(false);
+    when(user.isModerator()).thenReturn(false);
     when(user.getId()).thenReturn(13);
 
     Message message = new Message(resultSet);
 
-    Assert.assertEquals(false, user.canModerate());
+    Assert.assertEquals(false, user.isModerator());
     Assert.assertTrue(user.getId() == resultSet.getInt("userid"));
     Assert.assertTrue(user.getId() == message.getUid());
 
@@ -102,12 +102,12 @@ public class MessageTest {
     when(resultSet.getBoolean("moderate")).thenReturn(true);
 
     user = mock(User.class);
-    when(user.canModerate()).thenReturn(false);
+    when(user.isModerator()).thenReturn(false);
     when(user.getId()).thenReturn(13);
 
     Message message = new Message(resultSet);
 
-    Assert.assertEquals(false, user.canModerate());
+    Assert.assertEquals(false, user.isModerator());
     Assert.assertTrue(user.getId() == resultSet.getInt("userid"));
     Assert.assertTrue(user.getId() == message.getUid());
 
@@ -143,12 +143,12 @@ public class MessageTest {
     when(resultSet.getBoolean("moderate")).thenReturn(true);
 
     user = mock(User.class);
-    when(user.canModerate()).thenReturn(false);
+    when(user.isModerator()).thenReturn(false);
     when(user.getId()).thenReturn(14);
 
     Message message = new Message(resultSet);
 
-    Assert.assertEquals(false, user.canModerate());
+    Assert.assertEquals(false, user.isModerator());
     Assert.assertFalse(user.getId() == resultSet.getInt("userid"));
     Assert.assertFalse(user.getId() == message.getUid());
 
@@ -184,12 +184,12 @@ public class MessageTest {
     when(resultSet.getBoolean("moderate")).thenReturn(true);
 
     user = mock(User.class);
-    when(user.canModerate()).thenReturn(false);
+    when(user.isModerator()).thenReturn(false);
     when(user.getId()).thenReturn(14);
 
     Message message = new Message(resultSet);
 
-    Assert.assertEquals(false, user.canModerate());
+    Assert.assertEquals(false, user.isModerator());
     Assert.assertFalse(user.getId() == resultSet.getInt("userid"));
     Assert.assertFalse(user.getId() == message.getUid());
 
@@ -282,11 +282,11 @@ public class MessageTest {
 
 
     user = mock(User.class);
-    when(user.canModerate()).thenReturn(true);
+    when(user.isModerator()).thenReturn(true);
     when(user.getId()).thenReturn(13);
 
     // проверка что данные в mock user верные
-    Assert.assertEquals(true, user.canModerate());
+    Assert.assertEquals(true, user.isModerator());
 
 
     sectionModerate = mock(Section.class);

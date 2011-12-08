@@ -107,7 +107,7 @@ public final class Template {
   public void performLogin(HttpServletResponse response, User user) {
     session.setAttribute("login", Boolean.TRUE);
     session.setAttribute("nick", user.getNick());
-    session.setAttribute("moderator", user.canModerate());
+    session.setAttribute("moderator", user.isModerator());
     session.setAttribute("corrector", user.canCorrect());
     userDao.updateLastlogin(user);
     user.acegiSecurityHack(response, session);

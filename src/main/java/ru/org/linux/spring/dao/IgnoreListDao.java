@@ -26,7 +26,7 @@ public class IgnoreListDao {
   }
 
   public void addUser(User listOwner, User userToIgnore) throws AccessViolationException {
-    if (userToIgnore.canModerate()) {
+    if (userToIgnore.isModerator()) {
       throw new AccessViolationException("Нельзя игнорировать модератора");
     }
 

@@ -207,7 +207,7 @@ public class UserModificationController extends ApplicationObjectSupport {
   ) throws Exception {
     User moderator = getModerator(request);
 
-    if (user.canModerate()) {
+    if (user.isModerator()) {
       throw new AccessViolationException("Пользователю " + user.getNick() + " нельзя сбросить пароль");
     }
 
@@ -233,7 +233,7 @@ public class UserModificationController extends ApplicationObjectSupport {
       @RequestParam("id") User user
   ) throws Exception {
     User moderator = getModerator(request);
-    if (user.canModerate()) {
+    if (user.isModerator()) {
       throw new AccessViolationException("Пользователю " + user.getNick() + " нельзя удалить сведения");
     }
     userDao.removeUserInfo(user);
@@ -255,11 +255,11 @@ public class UserModificationController extends ApplicationObjectSupport {
 
     User currentUser = tmpl.getCurrentUser();
 
-    if (!currentUser.canModerate() && currentUser.getId()!=user.getId()) {
+    if (!currentUser.isModerator() && currentUser.getId()!=user.getId()) {
       throw new AccessViolationException("Not permitted");
     }
 
-    if (user.canModerate()) {
+    if (user.isModerator()) {
       throw new AccessViolationException("Пользователю " + user.getNick() + " нельзя удалить картинку");
     }
 

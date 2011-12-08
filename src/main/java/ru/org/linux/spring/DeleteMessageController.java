@@ -100,7 +100,7 @@ public class DeleteMessageController extends ApplicationObjectSupport {
 
     boolean perm = message.isDeletableByUser(user);
 
-    if (!perm && user.canModerate()) {
+    if (!perm && user.isModerator()) {
       perm = message.isDeletableByModerator(user, section);
     }
 

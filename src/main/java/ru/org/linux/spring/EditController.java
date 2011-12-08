@@ -244,7 +244,7 @@ public class EditController {
       }
     }
 
-    params.put("commit", !message.isCommited() && preparedMessage.getSection().isPremoderated() && user.canModerate());
+    params.put("commit", !message.isCommited() && preparedMessage.getSection().isPremoderated() && user.isModerator());
 
     Message newMsg = new Message(group, message, form);
 

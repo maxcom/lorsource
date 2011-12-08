@@ -58,7 +58,7 @@ public class UserTest {
     } catch (AccessViolationException e) {
       Assert.fail();
     }
-    Assert.assertTrue(user.canModerate());
+    Assert.assertTrue(user.isModerator());
     Assert.assertTrue(user.isAdministrator());
     Assert.assertFalse(user.canCorrect());
     Assert.assertFalse(user.isAnonymous());
@@ -113,7 +113,7 @@ public class UserTest {
     } catch (AccessViolationException e) {
       Assert.assertEquals("Delete access denied for anonymous user", e.getMessage());
     }
-    Assert.assertFalse(user.canModerate());
+    Assert.assertFalse(user.isModerator());
     Assert.assertFalse(user.isAdministrator());
     Assert.assertFalse(user.canCorrect());
     Assert.assertTrue(user.isAnonymous());
@@ -164,7 +164,7 @@ public class UserTest {
           resultSet.getString("nick") + " (" +
           resultSet.getInt("id") + ") ", e.getMessage());
     }
-    Assert.assertTrue(user.canModerate());
+    Assert.assertTrue(user.isModerator());
     Assert.assertFalse(user.isAdministrator());
     Assert.assertFalse(user.canCorrect());
     Assert.assertFalse(user.isAnonymous());
@@ -222,7 +222,7 @@ public class UserTest {
           resultSet.getString("nick") + " (" +
           resultSet.getInt("id") + ") ", e.getMessage());
     }
-    Assert.assertFalse(user.canModerate());
+    Assert.assertFalse(user.isModerator());
     Assert.assertFalse(user.isAdministrator());
     Assert.assertFalse(user.canCorrect());
     Assert.assertFalse(user.isAnonymous());
@@ -280,7 +280,7 @@ public class UserTest {
           resultSet.getString("nick") + " (" +
           resultSet.getInt("id") + ") ", e.getMessage());
     }
-    Assert.assertFalse(user.canModerate());
+    Assert.assertFalse(user.isModerator());
     Assert.assertFalse(user.isAdministrator());
     Assert.assertFalse(user.canCorrect());
     Assert.assertFalse(user.isAnonymous());
@@ -334,7 +334,7 @@ public class UserTest {
           resultSet.getString("nick") + " (" +
           resultSet.getInt("id") + ") ", e.getMessage());
     }
-    Assert.assertFalse(user.canModerate());
+    Assert.assertFalse(user.isModerator());
     Assert.assertFalse(user.isAdministrator());
     Assert.assertFalse(user.canCorrect());
     Assert.assertFalse(user.isAnonymous());
@@ -386,7 +386,7 @@ public class UserTest {
     } catch (AccessViolationException e) {
       Assert.assertEquals("Delete access denied for anonymous user", e.getMessage());
     }
-    Assert.assertFalse(user.canModerate());
+    Assert.assertFalse(user.isModerator());
     Assert.assertFalse(user.isAdministrator());
     Assert.assertFalse(user.canCorrect());
     Assert.assertFalse(user.isAnonymous());  // TODO для заблокированного ананомного пользователя False :-\
