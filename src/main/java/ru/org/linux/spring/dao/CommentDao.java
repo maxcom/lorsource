@@ -538,7 +538,16 @@ public class CommentDao {
 
   public List<DeletedListItem> getDeletedComments(User user) {
     return jdbcTemplate.query(
-            "SELECT sections.name as ptitle, groups.title as gtitle, topics.title, topics.id as msgid, del_info.reason, deldate FROM sections, groups, topics, comments, del_info WHERE sections.id=groups.section AND groups.id=topics.groupid AND comments.topic=topics.id AND del_info.msgid=comments.id AND comments.userid=? AND del_info.delby!=comments.userid ORDER BY del_info.delDate DESC NULLS LAST, del_info.msgid DESC LIMIT 20",
+            "SELECT " +
+                    "sections.name as ptitle, groups.title as gtitle, topics.title, topics.id as msgid, del_info.reason, deldate " +
+                    "FROM sections, groups, topics, comments, del_info " +
+                    "WHERE sections.id=groups.section " +
+                    "AND groups.id=topics.groupid " +
+                    "AND comments.topic=topics.id " +
+                    "AND del_info.msgid=comments.id " +
+                    "AND comments.userid=? " +
+                    "AND del_info.delby!=comments.userid " +
+                    "ORDER BY del_info.delDate DESC NULLS LAST, del_info.msgid DESC LIMIT 20",
             new RowMapper<DeletedListItem>() {
               @Override
               public DeletedListItem mapRow(ResultSet rs, int rowNum) throws SQLException {
