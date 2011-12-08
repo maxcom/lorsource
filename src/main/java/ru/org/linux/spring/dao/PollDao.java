@@ -54,12 +54,12 @@ public class PollDao {
     jdbcTemplate = new JdbcTemplate(dataSource);
   }
 
-  public List<VoteDTO> getVoteDTO(final Integer pollId) {
+  public List<VoteDto> getVoteDTO(final Integer pollId) {
     String sql = "SELECT id, label FROM votes WHERE vote= ? ORDER BY id";
-    return jdbcTemplate.query(sql, new RowMapper<VoteDTO>() {
+    return jdbcTemplate.query(sql, new RowMapper<VoteDto>() {
       @Override
-      public VoteDTO mapRow(ResultSet rs, int rowNum) throws SQLException {
-        VoteDTO dto = new VoteDTO();
+      public VoteDto mapRow(ResultSet rs, int rowNum) throws SQLException {
+        VoteDto dto = new VoteDto();
         dto.setId(rs.getInt("id"));
         dto.setLabel(rs.getString("label"));
         dto.setPollId(pollId);

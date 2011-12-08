@@ -25,7 +25,7 @@ import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.site.*;
 import ru.org.linux.spring.dao.MessageDao;
 import ru.org.linux.spring.dao.PollDao;
-import ru.org.linux.spring.dao.VoteDTO;
+import ru.org.linux.spring.dao.VoteDto;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
@@ -109,7 +109,7 @@ public class VoteController {
     }
     params.put("poll", poll);
 
-    List<VoteDTO> votes = pollDao.getVoteDTO(poll.getId());
+    List<VoteDto> votes = pollDao.getVoteDTO(poll.getId());
     params.put("votes", votes);
 
     return new ModelAndView("vote-vote", params);

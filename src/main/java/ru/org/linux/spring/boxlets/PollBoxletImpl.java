@@ -25,7 +25,7 @@ import ru.org.linux.site.Poll;
 import ru.org.linux.spring.commons.CacheProvider;
 import ru.org.linux.spring.dao.MessageDao;
 import ru.org.linux.spring.dao.PollDao;
-import ru.org.linux.spring.dao.VoteDTO;
+import ru.org.linux.spring.dao.VoteDto;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -61,9 +61,9 @@ public class PollBoxletImpl extends SpringBoxlet  {
       }
     });
 
-    List<VoteDTO> votes = getFromCache(cacheProvider, getCacheKey() + "votes"+poll.getId(), new GetCommand<List<VoteDTO>>() {
+    List<VoteDto> votes = getFromCache(cacheProvider, getCacheKey() + "votes"+poll.getId(), new GetCommand<List<VoteDto>>() {
       @Override
-      public List<VoteDTO> get() {
+      public List<VoteDto> get() {
         return pollDao.getVoteDTO(poll.getId());
       }
     });

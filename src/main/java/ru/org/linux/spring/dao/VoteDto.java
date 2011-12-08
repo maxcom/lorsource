@@ -17,12 +17,7 @@ package ru.org.linux.spring.dao;
 
 import java.io.Serializable;
 
-/**
- * User: sreentenko
-* Date: 27.06.2009
-* Time: 3:48:48
-*/
-public class VoteDTO implements Serializable {
+public class VoteDto implements Serializable {
   private Integer id;
   private String label;
   private Integer pollId;
