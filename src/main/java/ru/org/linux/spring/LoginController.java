@@ -147,6 +147,12 @@ public class LoginController {
       cookie3.setMaxAge(60 * 60 * 24 * 31 * 24);
       cookie3.setPath("/wiki");
       response.addCookie(cookie3);
+
+      // отчистка seesion id для wiki
+      Cookie cookie4 = new Cookie("JSESSIONID", "");
+      cookie4.setMaxAge(60 * 60 * 24 * 31 * 24);
+      cookie4.setPath("/wiki");
+      response.addCookie(cookie4);
     }
 
     return new ModelAndView(new RedirectView("/"));
