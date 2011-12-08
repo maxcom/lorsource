@@ -15,20 +15,19 @@
 
 package ru.org.linux.spring.boxlets;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.AbstractController;
-
-import ru.org.linux.spring.CacheableController;
 import ru.org.linux.spring.commons.CacheProvider;
 
-public abstract class AbstractBoxlet extends AbstractController implements CacheableController{
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+public abstract class AbstractBoxlet extends AbstractController {
+  private static final int DEFAULT_EXPIRE = 30000;
 
   protected abstract ModelAndView getData(HttpServletRequest request
   ) throws Exception;
 
-  
   @Override
   protected ModelAndView handleRequestInternal(HttpServletRequest request,
                                                HttpServletResponse response) throws Exception {
@@ -62,12 +61,10 @@ public abstract class AbstractBoxlet extends AbstractController implements Cache
     T get() throws Exception;
   }
 
-  @Override
   public String getCacheKey(){
     return getClass().getName();
   }
 
-  @Override
   public int getExpiryTime(){
     return DEFAULT_EXPIRE;
   }
