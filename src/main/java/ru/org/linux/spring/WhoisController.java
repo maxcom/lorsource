@@ -32,6 +32,7 @@ import ru.org.linux.util.bbcode.LorCodeService;
 
 import javax.servlet.ServletRequest;
 import java.net.URLEncoder;
+import java.util.Set;
 
 @Controller
 public class WhoisController {
@@ -72,7 +73,9 @@ public class WhoisController {
     mv.getModel().put("currentUser", currentUser);
 
     if (tmpl.isSessionAuthorized() && !currentUser) {
-      mv.getModel().put("ignoreList", ignoreListDao.get(tmpl.getCurrentUser()));
+      Set<Integer> ignoreList = ignoreListDao.get(tmpl.getCurrentUser());
+
+      mv.getModel().put("ignored", ignoreList.contains(user.getId()));
     }
 
     String userinfo = userDao.getUserInfo(user);
