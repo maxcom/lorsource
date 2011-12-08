@@ -21,10 +21,10 @@ import org.springframework.validation.Validator;
 
 import ru.org.linux.spring.AddRemoveBoxesController;
 
-public class EditBoxesFormValidator implements Validator{
+public class EditBoxesRequestValidator implements Validator{
   @Override
   public boolean supports(Class clazz) {
-    return AddRemoveBoxesController.EditBoxesForm.class.isAssignableFrom(clazz);
+    return AddRemoveBoxesController.EditBoxesRequest.class.isAssignableFrom(clazz);
   }
 
   @Override
