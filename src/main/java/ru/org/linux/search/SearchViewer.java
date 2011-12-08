@@ -13,14 +13,13 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.site;
-
-import ru.org.linux.spring.SearchRequest;
+package ru.org.linux.search;
 
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import ru.org.linux.site.User;
 
 public class SearchViewer {
   public enum SearchRange {

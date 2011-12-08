@@ -6,7 +6,7 @@ import ru.org.linux.spring.dao.UserDao;
 
 import java.beans.PropertyEditorSupport;
 
-class UserPropertyEditor extends PropertyEditorSupport {
+public class UserPropertyEditor extends PropertyEditorSupport {
   private final UserDao userDao;
 
   public UserPropertyEditor(UserDao userDao) {

@@ -13,7 +13,7 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.spring;
+package ru.org.linux.search;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
@@ -205,7 +205,7 @@ public class SearchQueueListener {
     doc.addField("section_id", topic.getSectionId());
     doc.addField("user_id", comment.getUserid());
     doc.addField("topic_user_id", topic.getUid());
-    doc.addField("topic_id", comment.getTopic());
+    doc.addField("topic_id", comment.getTopicId());
     doc.addField("group_id", topic.getGroupId());
     String topicTitle = topic.getTitle();
     doc.addField("topic_title", StringEscapeUtils.unescapeHtml(topicTitle));

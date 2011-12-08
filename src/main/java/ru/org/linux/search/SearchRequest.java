@@ -13,9 +13,8 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.spring;
+package ru.org.linux.search;
 
-import ru.org.linux.site.SearchViewer;
 import ru.org.linux.site.User;
 
 import java.io.UnsupportedEncodingException;
