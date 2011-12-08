@@ -27,18 +27,18 @@ import org.springframework.web.servlet.ModelAndView;
 import ru.org.linux.site.ProfileProperties;
 import ru.org.linux.site.Template;
 import ru.org.linux.spring.commons.CacheProvider;
-import ru.org.linux.spring.dao.TagDaoImpl;
+import ru.org.linux.spring.dao.TagCloudDao;
 
 @Controller
 public class TagCloudBoxletImpl extends SpringBoxlet {
   private CacheProvider cacheProvider;
-  private TagDaoImpl tagDao;
+  private TagCloudDao tagDao;
 
-  public TagDaoImpl getTagDao() {
+  public TagCloudDao getTagDao() {
     return tagDao;
   }
   @Autowired
-  public void setTagDao(TagDaoImpl tagDao) {
+  public void setTagDao(TagCloudDao tagDao) {
     this.tagDao = tagDao;
   }
 
@@ -54,9 +54,9 @@ public class TagCloudBoxletImpl extends SpringBoxlet {
     final int i = profile.getTags();
     String key = getCacheKey() + "?count=" + i;
 
-    List<TagDaoImpl.TagDTO> list = getFromCache(cacheProvider, key, new GetCommand<List<TagDaoImpl.TagDTO>>() {
+    List<TagCloudDao.TagDTO> list = getFromCache(cacheProvider, key, new GetCommand<List<TagCloudDao.TagDTO>>() {
       @Override
-      public List<TagDaoImpl.TagDTO> get() {
+      public List<TagCloudDao.TagDTO> get() {
         return getTagDao().getTags(i);
       }
     });

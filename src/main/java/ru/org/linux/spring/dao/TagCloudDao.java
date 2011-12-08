@@ -30,7 +30,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class TagDaoImpl {
+public class TagCloudDao {
   private SimpleJdbcTemplate jdbcTemplate;
 
   public SimpleJdbcTemplate getJdbcTemplate() {
