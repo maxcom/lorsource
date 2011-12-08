@@ -33,6 +33,7 @@ import ru.org.linux.site.*;
 import ru.org.linux.spring.dao.*;
 import ru.org.linux.spring.validators.AddMessageRequestValidator;
 import ru.org.linux.util.BadImageException;
+import ru.org.linux.util.ExceptionBindingErrorProcessor;
 import ru.org.linux.util.UtilException;
 import ru.org.linux.util.bbcode.LorCodeService;
 import ru.org.linux.util.formatter.ToLorCodeFormatter;

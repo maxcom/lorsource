@@ -33,6 +33,7 @@ import ru.org.linux.spring.dao.IPBlockDao;
 import ru.org.linux.spring.dao.MessageDao;
 import ru.org.linux.spring.dao.UserDao;
 import ru.org.linux.spring.validators.AddCommentRequestValidator;
+import ru.org.linux.util.ExceptionBindingErrorProcessor;
 import ru.org.linux.util.ServletParameterException;
 import ru.org.linux.util.StringUtil;
 import ru.org.linux.util.bbcode.LorCodeService;

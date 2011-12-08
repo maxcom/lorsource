@@ -1,4 +1,4 @@
-package ru.org.linux.spring;
+package ru.org.linux.util;
 
 import org.springframework.beans.PropertyAccessException;
 import org.springframework.validation.BindingResult;

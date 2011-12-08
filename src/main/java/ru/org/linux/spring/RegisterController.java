@@ -32,6 +32,7 @@ import ru.org.linux.site.UserInfo;
 import ru.org.linux.spring.dao.IPBlockDao;
 import ru.org.linux.spring.dao.UserDao;
 import ru.org.linux.spring.validators.RegisterRequestValidator;
+import ru.org.linux.util.ExceptionBindingErrorProcessor;
 import ru.org.linux.util.LorHttpUtils;
 import ru.org.linux.util.StringUtil;
 import ru.org.linux.util.URLUtil;

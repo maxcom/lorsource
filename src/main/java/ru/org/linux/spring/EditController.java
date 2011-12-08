@@ -31,6 +31,7 @@ import ru.org.linux.spring.dao.MessageDao;
 import ru.org.linux.spring.dao.PollDao;
 import ru.org.linux.spring.dao.TagDao;
 import ru.org.linux.spring.validators.EditMessageRequestValidator;
+import ru.org.linux.util.ExceptionBindingErrorProcessor;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;

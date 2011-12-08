@@ -34,7 +34,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import ru.org.linux.site.*;
-import ru.org.linux.spring.ExceptionBindingErrorProcessor;
+import ru.org.linux.util.ExceptionBindingErrorProcessor;
 import ru.org.linux.spring.UserPropertyEditor;
 import ru.org.linux.spring.dao.GroupDao;
 import ru.org.linux.spring.dao.SectionDao;
