@@ -23,6 +23,7 @@
 <%--@elvariable id="userInfo" type="ru.org.linux.site.UserInfo"--%>
 <%--@elvariable id="userStat" type="ru.org.linux.site.UserStatistics"--%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
+<%--@elvariable id="currentUser" type="java.lang.Boolean"--%>
 <%--@elvariable id="moderatorOrCurrentUser" type="java.lang.Boolean"--%>
 <%--@elvariable id="banInfo" type="ru.org.linux.site.BanInfo"--%>
 <%--@elvariable id="ignoreList" type="java.lang.Set<Integer>"--%>
@@ -201,11 +202,14 @@
   </form>
   </c:if>
   </c:if>
-  <%
-  if (Template.isSessionAuthorized(session) && (tmpl.getNick().equals(user.getNick()))) {
-    out.print("<p><a href=\"register.jsp\">Изменить регистрацию</a>.");
-  }
-%>
+
+  <c:if test="${currentUser}">
+    <h2>Действия</h2>
+    <ul>
+      <li><a href="register.jsp">Изменить регистрацию</a></li>
+      <li><a href="edit-profile.jsp">Изменить настройки</a></li>
+    </ul>
+  </c:if>
 
 <h2>Статистика</h2>
 <c:if test="${userStat.firstTopic != null}">

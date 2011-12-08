@@ -69,6 +69,7 @@ public class WhoisController {
     boolean currentUser = tmpl.isSessionAuthorized() && tmpl.getNick().equals(nick);
 
     mv.getModel().put("moderatorOrCurrentUser", currentUser || tmpl.isModeratorSession());
+    mv.getModel().put("currentUser", currentUser);
 
     if (tmpl.isSessionAuthorized() && !currentUser) {
       mv.getModel().put("ignoreList", ignoreListDao.get(tmpl.getCurrentUser()));
