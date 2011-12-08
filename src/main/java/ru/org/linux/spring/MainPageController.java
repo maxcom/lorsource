@@ -22,7 +22,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
-import ru.org.linux.site.Message;
+import ru.org.linux.dto.MessageDto;
 import ru.org.linux.site.NewsViewer;
 import ru.org.linux.site.Template;
 
@@ -56,14 +56,14 @@ public class MainPageController {
 
     ModelAndView mv = new ModelAndView("index");
 
-    List<Message> messages = jdbcTemplate.execute(new ConnectionCallback<List<Message>>() {
+    List<MessageDto> messageDtos = jdbcTemplate.execute(new ConnectionCallback<List<MessageDto>>() {
       @Override
-      public List<Message> doInConnection(Connection con) throws SQLException, DataAccessException {
+      public List<MessageDto> doInConnection(Connection con) throws SQLException, DataAccessException {
         return nv.getMessages(con);
       }
     });
 
-    mv.getModel().put("news", prepareService.prepareMessagesFeed(messages, request.isSecure()));
+    mv.getModel().put("news", prepareService.prepareMessagesFeed(messageDtos, request.isSecure()));
 
     if (tmpl.isModeratorSession() || tmpl.isCorrectorSession()) {
       int uncommited = jdbcTemplate.queryForInt("select count(*) from topics,groups,sections where section=sections.id AND sections.moderate and topics.groupid=groups.id and not deleted and not topics.moderate AND postdate>(CURRENT_TIMESTAMP-'1 month'::interval)");

@@ -15,6 +15,9 @@
 
 package ru.org.linux.site;
 
+import ru.org.linux.dto.CommentDto;
+import ru.org.linux.exception.MessageNotFoundException;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
@@ -33,38 +36,38 @@ public class CommentFilter {
     this.comments = comments;
   }
 
-  private static List<Comment> getCommentList(List<Comment> comments, boolean reverse, int offset, int limit, Set<Integer> hideSet) {
-    List<Comment> out = new ArrayList<Comment>();
+  private static List<CommentDto> getCommentList(List<CommentDto> commentDtos, boolean reverse, int offset, int limit, Set<Integer> hideSet) {
+    List<CommentDto> out = new ArrayList<CommentDto>();
 
-    for (ListIterator<Comment> i = comments.listIterator(reverse?comments.size():0); reverse?i.hasPrevious():i.hasNext();) {
-      int index = reverse?(comments.size()-i.previousIndex()):i.nextIndex();
+    for (ListIterator<CommentDto> i = commentDtos.listIterator(reverse? commentDtos.size():0); reverse?i.hasPrevious():i.hasNext();) {
+      int index = reverse?(commentDtos.size()-i.previousIndex()):i.nextIndex();
 
-      Comment comment = reverse?i.previous():i.next();
+      CommentDto commentDto = reverse?i.previous():i.next();
 
       if (index<offset || (limit!=0 && index>=offset+limit)) {
         continue;
       }
 
-      if (hideSet==null || !hideSet.contains(comment.getMessageId())) {
-        out.add(comment);
+      if (hideSet==null || !hideSet.contains(commentDto.getMessageId())) {
+        out.add(commentDto);
       }
     }
 
     return out;
   }
 
-  public List<Comment> getComments(boolean reverse, int offset, int limit, Set<Integer> hideSet) {
+  public List<CommentDto> getComments(boolean reverse, int offset, int limit, Set<Integer> hideSet) {
     return getCommentList(comments.getList(), reverse, offset, limit,  hideSet);
   }
 
-  public List<Comment> getCommentsSubtree(int parentId) throws MessageNotFoundException {
+  public List<CommentDto> getCommentsSubtree(int parentId) throws MessageNotFoundException {
     CommentNode parentNode = comments.getNode(parentId);
 
     if (parentNode==null) {
       throw new MessageNotFoundException(parentId);
     }
 
-    List<Comment> parentList = new ArrayList<Comment>();
+    List<CommentDto> parentList = new ArrayList<CommentDto>();
     parentNode.buildList(parentList);
 
     /* display comments */

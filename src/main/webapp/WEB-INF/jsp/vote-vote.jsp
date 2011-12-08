@@ -14,7 +14,7 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
-<%--@elvariable id="message" type="ru.org.linux.site.Message"--%>
+<%--@elvariable id="message" type="ru.org.linux.dto.MessageDto"--%>
 <%--@elvariable id="poll" type="ru.org.linux.site.Poll"--%>
 <%--@elvariable id="votes" type="java.util.List<ru.org.linux.spring.dao.VoteDto>"--%>
 

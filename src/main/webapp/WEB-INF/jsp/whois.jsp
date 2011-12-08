@@ -1,6 +1,6 @@
 <%@ page contentType="text/html; charset=utf-8"%>
 <%@ page import="java.util.Map,ru.org.linux.site.Template"   buffer="60kb" %>
-<%@ page import="ru.org.linux.site.User"%>
+<%@ page import="ru.org.linux.dto.UserDto"%>
 <%@ page import="java.util.Set" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
@@ -19,7 +19,7 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
-<%--@elvariable id="user" type="ru.org.linux.site.User"--%>
+<%--@elvariable id="user" type="ru.org.linux.dto.UserDto"--%>
 <%--@elvariable id="userInfo" type="ru.org.linux.site.UserInfo"--%>
 <%--@elvariable id="userStat" type="ru.org.linux.site.UserStatistics"--%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
@@ -34,7 +34,7 @@
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
 <%
-  User user = (User) request.getAttribute("user");
+  UserDto user = (UserDto) request.getAttribute("user");
 %>
 <title>Информация о пользователе ${user.nick}</title>
 <c:if test="${userInfo.url != null}">
@@ -192,7 +192,7 @@
 
   <p>
 
-    <c:if test="<%= user.isCorrector() || user.getScore() > User.CORRECTOR_SCORE %>">
+    <c:if test="<%= user.isCorrector() || user.getScore() > UserDto.CORRECTOR_SCORE %>">
   <form name='f_toggle_corrector' method='post' action='usermod.jsp'>
     <input type='hidden' name='id' value='${user.id}'>
     <input type='hidden' name='action' value='toggle_corrector'>

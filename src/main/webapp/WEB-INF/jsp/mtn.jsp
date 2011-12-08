@@ -15,8 +15,8 @@
   ~    limitations under the License.
   --%>
 
-<%--@elvariable id="message" type="ru.org.linux.site.Message"--%>
-<%--@elvariable id="groups" type="java.util.List<Group>"--%>
+<%--@elvariable id="message" type="ru.org.linux.dto.MessageDto"--%>
+<%--@elvariable id="groups" type="java.util.List<GroupDto>"--%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>

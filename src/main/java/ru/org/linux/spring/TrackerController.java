@@ -23,11 +23,11 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
+import ru.org.linux.dao.TrackerDao;
+import ru.org.linux.dao.UserDao;
+import ru.org.linux.dto.UserDto;
+import ru.org.linux.exception.UserErrorException;
 import ru.org.linux.site.Template;
-import ru.org.linux.site.User;
-import ru.org.linux.site.UserErrorException;
-import ru.org.linux.spring.dao.TrackerDao;
-import ru.org.linux.spring.dao.UserDao;
 
 import javax.servlet.http.HttpServletRequest;
 import java.sql.Timestamp;
@@ -114,7 +114,7 @@ public class TrackerController {
       params.put("query", "");
     }
 
-    User user = tmpl.getCurrentUser();
+    UserDto user = tmpl.getCurrentUser();
 
     if (trackerFilter == TrackerDao.TrackerFilter.MINE) {
       if (!tmpl.isSessionAuthorized()) {

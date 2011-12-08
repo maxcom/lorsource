@@ -24,22 +24,23 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
+import ru.org.linux.dto.TagDto;
 import ru.org.linux.site.ProfileProperties;
 import ru.org.linux.site.Template;
 import ru.org.linux.spring.commons.CacheProvider;
-import ru.org.linux.spring.dao.TagCloudDao;
+import ru.org.linux.dao.TagCloudDao;
 
 @Controller
 public class TagCloudBoxlet extends AbstractBoxlet {
   private CacheProvider cacheProvider;
-  private TagCloudDao tagDao;
+  private TagCloudDao tagCloudDao;
 
-  public TagCloudDao getTagDao() {
-    return tagDao;
+  public TagCloudDao getTagCloudDao() {
+    return tagCloudDao;
   }
   @Autowired
-  public void setTagDao(TagCloudDao tagDao) {
-    this.tagDao = tagDao;
+  public void setTagCloudDao(TagCloudDao tagCloudDao) {
+    this.tagCloudDao = tagCloudDao;
   }
 
   @Autowired
@@ -54,10 +55,10 @@ public class TagCloudBoxlet extends AbstractBoxlet {
     final int i = profile.getTags();
     String key = getCacheKey() + "?count=" + i;
 
-    List<TagCloudDao.TagDTO> list = getFromCache(cacheProvider, key, new GetCommand<List<TagCloudDao.TagDTO>>() {
+    List<TagDto> list = getFromCache(cacheProvider, key, new GetCommand<List<TagDto>>() {
       @Override
-      public List<TagCloudDao.TagDTO> get() {
-        return getTagDao().getTags(i);
+      public List<TagDto> get() {
+        return getTagCloudDao().getTags(i);
       }
     });
     ModelAndView mav = new ModelAndView("boxlets/tagcloud", "tags", list);

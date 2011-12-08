@@ -22,10 +22,14 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
+import ru.org.linux.dao.MessageDao;
+import ru.org.linux.dao.PollDao;
+import ru.org.linux.dto.MessageDto;
+import ru.org.linux.dto.UserDto;
+import ru.org.linux.dto.VoteDto;
+import ru.org.linux.exception.AccessViolationException;
+import ru.org.linux.exception.BadVoteException;
 import ru.org.linux.site.*;
-import ru.org.linux.spring.dao.MessageDao;
-import ru.org.linux.spring.dao.PollDao;
-import ru.org.linux.spring.dao.VoteDto;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
@@ -54,10 +58,10 @@ public class VoteController {
       throw new AccessViolationException("Not authorized");
     }
 
-    User user = tmpl.getCurrentUser();
+    UserDto user = tmpl.getCurrentUser();
 
     Poll poll = pollDao.getCurrentPoll();
-    Message msg = messageDao.getById(poll.getTopicId());
+    MessageDto msg = messageDao.getById(poll.getTopicId());
 
     if (voteid != poll.getId()) {
       throw new BadVoteException("голосовать можно только в текущий опрос");
@@ -100,7 +104,7 @@ public class VoteController {
 
     Map<String, Object> params = new HashMap<String, Object>();
 
-    Message msg = messageDao.getById(msgid);
+    MessageDto msg = messageDao.getById(msgid);
     params.put("message", msg);
 
     Poll poll = pollDao.getPollByTopicId(msgid);

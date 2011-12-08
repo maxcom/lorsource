@@ -1,8 +1,8 @@
 <%@ page contentType="text/html; charset=utf-8"%>
 <%@ page
-    import="ru.org.linux.site.Message" %>
+    import="ru.org.linux.dto.MessageDto" %>
 <%@ page import="ru.org.linux.site.PreparedMessage" %>
-<%@ page import="ru.org.linux.spring.dao.TagDao" %>
+<%@ page import="ru.org.linux.dao.TagCloudDao" %>
 <%@ page import="java.util.SortedSet" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
@@ -22,15 +22,15 @@
   ~    limitations under the License.
   --%>
 
-<%--@elvariable id="message" type="ru.org.linux.site.Message"--%>
+<%--@elvariable id="message" type="ru.org.linux.dto.MessageDto"--%>
 <%--@elvariable id="preparedMessage" type="ru.org.linux.site.PreparedMessage"--%>
-<%--@elvariable id="newMsg" type="ru.org.linux.site.Message"--%>
+<%--@elvariable id="newMsg" type="ru.org.linux.dto.MessageDto"--%>
 <%--@elvariable id="newPreparedMessage" type="ru.org.linux.site.PreparedMessage"--%>
-<%--@elvariable id="group" type="ru.org.linux.site.Group"--%>
+<%--@elvariable id="group" type="ru.org.linux.Dto.GroupDto"--%>
 <%--@elvariable id="info" type="java.lang.String"--%>
 <%--@elvariable id="editInfo" type="ru.org.linux.site.EditInfoDTO"--%>
 <%--@elvariable id="commit" type="java.lang.Boolean"--%>
-<%--@elvariable id="groups" type="java.util.List<ru.org.linux.site.Group>"--%>
+<%--@elvariable id="groups" type="java.util.List<ru.org.linux.dto.GroupDto>"--%>
 <%--@elvariable id="topTags" type="java.util.SortedSet<String>"--%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 
@@ -103,7 +103,7 @@
 
   <c:if test="${group.moderated}">
     <label>Теги: <form:input path="tags" size="70"/><br>
-      Популярные теги: <%= TagDao.getEditTags(topTags) %></label> <br>
+      Популярные теги: <%= TagCloudDao.getEditTags(topTags) %></label> <br>
   </c:if>
 
   <c:if test="${group.moderated and template.moderatorSession}">

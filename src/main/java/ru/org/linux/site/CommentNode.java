@@ -15,7 +15,10 @@
 
 package ru.org.linux.site;
 
-import ru.org.linux.spring.dao.UserDao;
+import ru.org.linux.dao.UserDao;
+import ru.org.linux.dto.CommentDto;
+import ru.org.linux.dto.UserDto;
+import ru.org.linux.exception.UserNotFoundException;
 
 import java.io.Serializable;
 import java.sql.SQLException;
@@ -23,13 +26,13 @@ import java.util.*;
 
 public class CommentNode implements Serializable {
   private final LinkedList<CommentNode> childs = new LinkedList<CommentNode>();
-  private Comment comment = null;
+  private CommentDto comment = null;
 
   public CommentNode() {
   }
 
-  public CommentNode(Comment comment) {
-    this.comment = comment;
+  public CommentNode(CommentDto commentDto) {
+    this.comment = commentDto;
   }
 
   public void addChild(CommentNode child) {
@@ -46,7 +49,7 @@ public class CommentNode implements Serializable {
 
   public void hideAnonymous(UserDao userDao, Set<Integer> hideSet) throws SQLException, UserNotFoundException {
     if (comment!=null) {
-      User commentAuthor = userDao.getUserCached(comment.getUserid());
+      UserDto commentAuthor = userDao.getUserCached(comment.getUserid());
 
       if (commentAuthor.isAnonymousScore()) {
         hideNode(hideSet);
@@ -74,7 +77,7 @@ public class CommentNode implements Serializable {
     }
   }
 
-  public void buildList(List<Comment> list) {
+  public void buildList(List<CommentDto> list) {
     if (comment!=null) {
       list.add(comment);
     }
@@ -94,7 +97,7 @@ public class CommentNode implements Serializable {
     }
   }
 
-  public Comment getComment() {
+  public CommentDto getComment() {
     return comment;
   }
 }

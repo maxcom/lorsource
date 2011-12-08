@@ -15,24 +15,27 @@
 
 package ru.org.linux.site;
 
-public class PreparedComment {
-  private final Comment comment;
-  private final User author;
-  private final String processedMessage;
-  private final User replyAuthor;
+import ru.org.linux.dto.CommentDto;
+import ru.org.linux.dto.UserDto;
 
-  public PreparedComment(Comment comment, User author, String processedMessage, User replyAuthor) {
-    this.comment = comment;
+public class PreparedComment {
+  private final CommentDto comment;
+  private final UserDto author;
+  private final String processedMessage;
+  private final UserDto replyAuthor;
+
+  public PreparedComment(CommentDto commentDto, UserDto author, String processedMessage, UserDto replyAuthor) {
+    this.comment = commentDto;
     this.author = author;
     this.processedMessage = processedMessage;
     this.replyAuthor = replyAuthor;
   }
 
-  public Comment getComment() {
+  public CommentDto getComment() {
     return comment;
   }
 
-  public User getAuthor() {
+  public UserDto getAuthor() {
     return author;
   }
 
@@ -40,7 +43,7 @@ public class PreparedComment {
     return processedMessage;
   }
 
-  public User getReplyAuthor() {
+  public UserDto getReplyAuthor() {
     return replyAuthor;
   }
 }

@@ -1,14 +1,14 @@
 <%@ tag import="java.io.File" %>
 <%@ tag import="java.io.IOException" %>
-<%@ tag import="ru.org.linux.site.Group" %>
+<%@ tag import="ru.org.linux.dto.GroupDto" %>
 <%@ tag import="ru.org.linux.site.NewsViewer" %>
-<%@ tag import="ru.org.linux.spring.dao.TagDao" %>
+<%@ tag import="ru.org.linux.dao.TagCloudDao" %>
 <%@ tag import="ru.org.linux.site.Template" %>
-<%@ tag import="ru.org.linux.util.BadImageException" %>
+<%@ tag import="ru.org.linux.exception.util.BadImageException" %>
 <%@ tag import="ru.org.linux.util.StringUtil" %>
 <%@ tag import="ru.org.linux.util.ImageInfo" %>
 <%@ tag pageEncoding="UTF-8"%>
-<%@ attribute name="message" required="true" type="ru.org.linux.site.Message" %>
+<%@ attribute name="message" required="true" type="ru.org.linux.dto.MessageDto" %>
 <%@ attribute name="preparedMessage" required="true" type="ru.org.linux.site.PreparedMessage" %>
 <%@ attribute name="multiPortal" required="true" type="java.lang.Boolean" %>
 <%@ attribute name="moderateMode" required="true" type="java.lang.Boolean" %>
@@ -94,24 +94,24 @@
 <%
   int msgid = message.getId();
   String url = message.getUrl();
-  boolean imagepost = preparedMessage.getSection().isImagepost();
+  boolean imagepost = preparedMessage.getSectionDto().isImagepost();
   boolean votepoll = message.isVotePoll();
 
-  String image = preparedMessage.getGroup().getImage();
-  Group group = preparedMessage.getGroup();
+  String image = preparedMessage.getGroupDto().getImage();
+  GroupDto group = preparedMessage.getGroupDto();
 %>
 <h2>
   <a href="${fn:escapeXml(message.link)}">${message.title}</a>
 </h2>
 <c:if test="${multiPortal}">
   <div class="group">
-    ${preparedMessage.section.title} - ${message.groupTitle}
-    <c:if test="${not message.commited and preparedMessage.section.premoderated}">
+    ${preparedMessage.sectionDto.title} - ${message.groupTitle}
+    <c:if test="${not message.commited and preparedMessage.sectionDto.premoderated}">
       (не подтверждено)
     </c:if>
   </div>
 </c:if>
-<c:set var="group" value="${preparedMessage.group}"/>
+<c:set var="group" value="${preparedMessage.groupDto}"/>
 
 <c:if test="${group.image != null}">
 <div class="entry-userpic">
@@ -134,7 +134,7 @@
 
 <div class="entry-body">
 <div class=msg>
-  <c:if test="${preparedMessage.section.imagepost}">
+  <c:if test="${preparedMessage.sectionDto.imagepost}">
     <%
       out.append(NewsViewer.showMediumImage(tmpl.getConfig().getProperty("HTMLPathPrefix"), message, true));
     %>
@@ -179,13 +179,13 @@
   }
 %>
   </div>
-<c:if test="${preparedMessage.section.premoderated and not empty preparedMessage.tags}">
+<c:if test="${preparedMessage.sectionDto.premoderated and not empty preparedMessage.tags}">
   <lor:tags list="${preparedMessage.tags}"/>
 </c:if>
 
   <div class=sign>
   <c:choose>
-    <c:when test="${preparedMessage.section.premoderated and message.commited}">
+    <c:when test="${preparedMessage.sectionDto.premoderated and message.commited}">
       <lor:sign shortMode="true" postdate="${message.commitDate}" user="${preparedMessage.author}"/>
     </c:when>
     <c:otherwise>
@@ -224,7 +224,7 @@
   <a href="${fn:escapeXml(message.link)}">${message.title}</a>
 
 <c:if test="${multiPortal}">
-    <c:if test="${not message.commited and preparedMessage.section.premoderated}">
+    <c:if test="${not message.commited and preparedMessage.sectionDto.premoderated}">
       (не подтверждено)
     </c:if>
 </c:if>

@@ -1,6 +1,6 @@
 <%@ tag import="java.io.IOException" %>
 <%@ tag import="ru.org.linux.site.Template" %>
-<%@ tag import="ru.org.linux.util.BadImageException" %>
+<%@ tag import="ru.org.linux.exception.util.BadImageException" %>
 <%@ tag import="ru.org.linux.util.ImageInfo" %>
 
 <%--
@@ -18,7 +18,7 @@
   ~    limitations under the License.
   --%>
 <%@ tag pageEncoding="UTF-8"%>
-<%@ attribute name="author" required="true" type="ru.org.linux.site.User"%>
+<%@ attribute name="author" required="true" type="ru.org.linux.dto.UserDto"%>
 <div class="userpic">
 <%
   Template tmpl = Template.getTemplate(request);

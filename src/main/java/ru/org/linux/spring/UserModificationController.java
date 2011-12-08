@@ -27,13 +27,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.search.SearchQueueSender;
-import ru.org.linux.site.AccessViolationException;
+import ru.org.linux.dao.CommentDao;
+import ru.org.linux.dao.UserDao;
+import ru.org.linux.dto.DeleteCommentDto;
+import ru.org.linux.dto.UserDto;
+import ru.org.linux.exception.AccessViolationException;
+import ru.org.linux.exception.UserErrorException;
 import ru.org.linux.site.Template;
-import ru.org.linux.site.User;
-import ru.org.linux.site.UserErrorException;
-import ru.org.linux.spring.dao.CommentDao;
-import ru.org.linux.spring.dao.DeleteCommentResult;
-import ru.org.linux.spring.dao.UserDao;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
@@ -65,12 +65,12 @@ public class UserModificationController extends ApplicationObjectSupport {
   }
 
   /**
-   * Возвращает объект User модератора, если текущая сессия не модераторская, тогда исключение
+   * Возвращает объект UserDto модератора, если текущая сессия не модераторская, тогда исключение
    * @param request текущий http запрос
    * @return текущий модератор
    * @throws Exception если модератора нет
    */
-  private static User getModerator(HttpServletRequest request) throws Exception {
+  private static UserDto getModerator(HttpServletRequest request) throws Exception {
     Template tmpl = Template.getTemplate(request);
     if (!tmpl.isModeratorSession()) {
       throw new AccessViolationException("Not moderator");
@@ -90,10 +90,10 @@ public class UserModificationController extends ApplicationObjectSupport {
   @RequestMapping(value = "/usermod.jsp", method = RequestMethod.POST, params = "action=block")
   public ModelAndView blockUser(
       HttpServletRequest request,
-      @RequestParam("id") User user,
+      @RequestParam("id") UserDto user,
       @RequestParam(value = "reason", required = false) String reason
   ) throws Exception {
-    User moderator = getModerator(request);
+    UserDto moderator = getModerator(request);
     if (!user.isBlockable() && !moderator.isAdministrator()) {
       throw new AccessViolationException("Пользователя " + user.getNick() + " нельзя заблокировать");
     }
@@ -117,10 +117,10 @@ public class UserModificationController extends ApplicationObjectSupport {
   @RequestMapping(value = "/usermod.jsp", method = RequestMethod.POST, params = "action=unblock")
   public ModelAndView unblockUser(
       HttpServletRequest request,
-      @RequestParam("id") User user
+      @RequestParam("id") UserDto user
   ) throws Exception {
 
-    User moderator = getModerator(request);
+    UserDto moderator = getModerator(request);
     if (!user.isBlockable() && !moderator.isAdministrator()) {
       throw new AccessViolationException("Пользователя " + user.getNick() + " нельзя разблокировать");
     }
@@ -129,11 +129,11 @@ public class UserModificationController extends ApplicationObjectSupport {
     return redirectToProfile(user);
   }
 
-  private static ModelAndView redirectToProfile(User user) {
+  private static ModelAndView redirectToProfile(UserDto user) {
     return new ModelAndView(new RedirectView(getNoCacheLinkToProfile(user)));
   }
 
-  private static String getNoCacheLinkToProfile(User user) {
+  private static String getNoCacheLinkToProfile(UserDto user) {
     Random random = new Random();
     return "/people/" + URLEncoder.encode(user.getNick()) + "/profile?nocache=" + random.nextInt();
   }
@@ -148,25 +148,25 @@ public class UserModificationController extends ApplicationObjectSupport {
   @RequestMapping(value = "/usermod.jsp", method = RequestMethod.POST, params = "action=block-n-delete-comments")
   public ModelAndView blockAndMassiveDeleteCommentUser(
       HttpServletRequest request,
-      @RequestParam("id") User user,
+      @RequestParam("id") UserDto user,
       @RequestParam(value = "reason", required = false) String reason
   ) throws Exception {
-    User moderator = getModerator(request);
+    UserDto moderator = getModerator(request);
     if (!user.isBlockable() && !moderator.isAdministrator()) {
       throw new AccessViolationException("Пользователя " + user.getNick() + " нельзя заблокировать");
     }
     Map<String, Object> params = new HashMap<String, Object>();
     params.put("message", "Удалено");
-    DeleteCommentResult deleteCommentResult = commentDao.deleteAllCommentsAndBlock(user, moderator, reason);
+    DeleteCommentDto deleteCommentDto = commentDao.deleteAllCommentsAndBlock(user, moderator, reason);
 
     logger.info("User " + user.getNick() + " blocked by " + moderator.getNick());
 
-    params.put("bigMessage", deleteCommentResult.getDeletedCommentIds()); // TODO
+    params.put("bigMessage", deleteCommentDto.getDeletedCommentIds()); // TODO
 
-    for(int topicId : deleteCommentResult.getDeletedTopicIds()) {
+    for(int topicId : deleteCommentDto.getDeletedTopicIds()) {
       searchQueueSender.updateMessage(topicId, true);
     }
-    searchQueueSender.updateComment(deleteCommentResult.getDeletedCommentIds());
+    searchQueueSender.updateComment(deleteCommentDto.getDeletedCommentIds());
 
     return new ModelAndView("action-done", params);
   }
@@ -181,10 +181,10 @@ public class UserModificationController extends ApplicationObjectSupport {
   @RequestMapping(value = "/usermod.jsp", method = RequestMethod.POST, params = "action=toggle_corrector")
   public ModelAndView toggleUserCorrector(
       HttpServletRequest request,
-      @RequestParam("id") User user
+      @RequestParam("id") UserDto user
   ) throws Exception {
-    User moderator = getModerator(request);
-    if (user.getScore()<User.CORRECTOR_SCORE) {
+    UserDto moderator = getModerator(request);
+    if (user.getScore()< UserDto.CORRECTOR_SCORE) {
       throw new AccessViolationException("Пользователя " + user.getNick() + " нельзя сделать корректором");
     }
     userDao.toggleCorrector(user);
@@ -203,9 +203,9 @@ public class UserModificationController extends ApplicationObjectSupport {
   @RequestMapping(value = "/usermod.jsp", method = RequestMethod.POST, params = "action=reset-password")
   public ModelAndView resetPassword(
       HttpServletRequest request,
-      @RequestParam("id") User user
+      @RequestParam("id") UserDto user
   ) throws Exception {
-    User moderator = getModerator(request);
+    UserDto moderator = getModerator(request);
 
     if (user.isModerator()) {
       throw new AccessViolationException("Пользователю " + user.getNick() + " нельзя сбросить пароль");
@@ -230,9 +230,9 @@ public class UserModificationController extends ApplicationObjectSupport {
   @RequestMapping(value = "/usermod.jsp", method = RequestMethod.POST, params = "action=remove_userinfo")
   public ModelAndView removeUserInfo(
       HttpServletRequest request,
-      @RequestParam("id") User user
+      @RequestParam("id") UserDto user
   ) throws Exception {
-    User moderator = getModerator(request);
+    UserDto moderator = getModerator(request);
     if (user.isModerator()) {
       throw new AccessViolationException("Пользователю " + user.getNick() + " нельзя удалить сведения");
     }
@@ -245,7 +245,7 @@ public class UserModificationController extends ApplicationObjectSupport {
   @RequestMapping(value="/remove-userpic.jsp", method= RequestMethod.POST)
   public ModelAndView removeUserpic(
     ServletRequest request,
-    @RequestParam("id") User user
+    @RequestParam("id") UserDto user
   ) throws Exception {
     Template tmpl = Template.getTemplate(request);
 
@@ -253,7 +253,7 @@ public class UserModificationController extends ApplicationObjectSupport {
       throw new AccessViolationException("Not autorized");
     }
 
-    User currentUser = tmpl.getCurrentUser();
+    UserDto currentUser = tmpl.getCurrentUser();
 
     if (!currentUser.isModerator() && currentUser.getId()!=user.getId()) {
       throw new AccessViolationException("Not permitted");
@@ -275,6 +275,6 @@ public class UserModificationController extends ApplicationObjectSupport {
 
   @InitBinder
   public void initBinder(WebDataBinder binder) {
-    binder.registerCustomEditor(User.class, new UserIdPropertyEditor(userDao));
+    binder.registerCustomEditor(UserDto.class, new UserIdPropertyEditor(userDao));
   }
 }

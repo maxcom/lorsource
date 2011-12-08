@@ -19,10 +19,10 @@ import junit.framework.Assert;
 import org.apache.commons.httpclient.URI;
 import org.junit.Before;
 import org.junit.Test;
-import ru.org.linux.site.User;
-import ru.org.linux.site.UserNotFoundException;
+import ru.org.linux.dao.UserDao;
+import ru.org.linux.dto.UserDto;
+import ru.org.linux.exception.UserNotFoundException;
 import ru.org.linux.spring.Configuration;
-import ru.org.linux.spring.dao.UserDao;
 import ru.org.linux.util.formatter.ToHtmlFormatter;
 
 import java.util.Set;
@@ -38,9 +38,9 @@ public class SimpleParserTest {
   Configuration configuration;
   ToHtmlFormatter toHtmlFormatter;
   UserDao userDao;
-  User maxcom; // Администратор
-  User JB;     // Модератор
-  User isden;  // Заблокированный пользователь
+  UserDto maxcom; // Администратор
+  UserDto JB;     // Модератор
+  UserDto isden;  // Заблокированный пользователь
   String mainUrl;
   URI mainURI;
   String url;
@@ -48,9 +48,9 @@ public class SimpleParserTest {
 
   @Before
   public void init() throws Exception {
-    maxcom = mock(User.class);
-    JB = mock(User.class);
-    isden = mock(User.class);
+    maxcom = mock(UserDto.class);
+    JB = mock(UserDto.class);
+    isden = mock(UserDto.class);
 
     when(maxcom.isBlocked()).thenReturn(false);
     when(JB.isBlocked()).thenReturn(false);
@@ -225,7 +225,7 @@ public class SimpleParserTest {
   @Test
   public void parserResultTest() throws Exception {
     String msg = "[user]hizel[/user][user]JB[/user][user]maxcom[/user]";
-    Set<User> replier = lorCodeService.getReplierFromMessage(msg);
+    Set<UserDto> replier = lorCodeService.getReplierFromMessage(msg);
     String html = lorCodeService.parseComment(msg, true);
 
     Assert.assertTrue(replier.contains(maxcom));

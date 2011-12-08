@@ -15,7 +15,8 @@
 
 package ru.org.linux.site;
 
-import ru.org.linux.spring.dao.TagDao;
+import ru.org.linux.dao.TagCloudDao;
+import ru.org.linux.dto.MessageDto;
 
 import java.sql.Timestamp;
 
@@ -102,16 +103,16 @@ public class EditInfoDTO {
     this.oldurl = oldurl;
   }
 
-  public static EditInfoDTO createFromMessage(TagDao tagDao, Message message) {
+  public static EditInfoDTO createFromMessage(TagCloudDao tagCloudDao, MessageDto messageDto) {
     EditInfoDTO current = new EditInfoDTO();
 
-    current.setOldmessage(message.getMessage());
-    current.setEditdate(message.getPostdate());
-    current.setEditor(message.getUid());
-    current.setMsgid(message.getMessageId());
-    current.setOldtags(TagDao.toString(tagDao.getMessageTags(message.getMessageId())));
-    current.setOldlinktext(message.getLinktext());
-    current.setOldurl(message.getUrl());
+    current.setOldmessage(messageDto.getMessage());
+    current.setEditdate(messageDto.getPostdate());
+    current.setEditor(messageDto.getUid());
+    current.setMsgid(messageDto.getMessageId());
+    current.setOldtags(TagCloudDao.toString(tagCloudDao.getMessageTags(messageDto.getMessageId())));
+    current.setOldlinktext(messageDto.getLinktext());
+    current.setOldurl(messageDto.getUrl());
 
     return current;
   }

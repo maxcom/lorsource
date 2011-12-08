@@ -21,6 +21,8 @@ import javax.servlet.ServletRequest;
 
 import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.ServletRequestUtils;
+import ru.org.linux.exception.util.ServletParameterBadValueException;
+import ru.org.linux.exception.util.ServletParameterException;
 
 public class ServletParameterParser {
   private static final Pattern ipRE = Pattern.compile("^[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+$");

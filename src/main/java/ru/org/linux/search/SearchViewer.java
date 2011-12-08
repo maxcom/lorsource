@@ -15,11 +15,12 @@
 
 package ru.org.linux.search;
 
+import ru.org.linux.dto.UserDto;
+
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
-import ru.org.linux.site.User;
 
 public class SearchViewer {
   public enum SearchRange {
@@ -129,7 +130,7 @@ public class SearchViewer {
     }
 
     if (query.getUser() != null) {
-      User user = query.getUser();
+      UserDto user = query.getUser();
 
       if (query.isUsertopic()) {
         params.add("fq", "topic_user_id:" + user.getId());

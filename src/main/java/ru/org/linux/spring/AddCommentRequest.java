@@ -1,18 +1,18 @@
 package ru.org.linux.spring;
 
-import ru.org.linux.site.Comment;
-import ru.org.linux.site.Message;
-import ru.org.linux.site.User;
+import ru.org.linux.dto.CommentDto;
+import ru.org.linux.dto.MessageDto;
+import ru.org.linux.dto.UserDto;
 
 public class AddCommentRequest {
   private String preview;
   private String mode;
   private String msg;
-  private Comment replyto;
+  private CommentDto replyto;
   private String title;
-  private Message topic;
+  private MessageDto topic;
 
-  private User nick;
+  private UserDto nick;
   private String password;
 
   public void setPreview(String preview) {
@@ -43,11 +43,11 @@ public class AddCommentRequest {
     this.msg = msg;
   }
 
-  public Comment getReplyto() {
+  public CommentDto getReplyto() {
     return replyto;
   }
 
-  public void setReplyto(Comment replyto) {
+  public void setReplyto(CommentDto replyto) {
     this.replyto = replyto;
   }
 
@@ -59,19 +59,19 @@ public class AddCommentRequest {
     this.title = title;
   }
 
-  public Message getTopic() {
+  public MessageDto getTopic() {
     return topic;
   }
 
-  public void setTopic(Message topic) {
+  public void setTopic(MessageDto topic) {
     this.topic = topic;
   }
 
-  public User getNick() {
+  public UserDto getNick() {
     return nick;
   }
 
-  public void setNick(User nick) {
+  public void setNick(UserDto nick) {
     this.nick = nick;
   }
 

@@ -19,8 +19,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
-import ru.org.linux.site.User;
-import ru.org.linux.spring.dao.UserDao;
+import ru.org.linux.dao.UserDao;
+import ru.org.linux.dto.UserDto;
 
 import java.util.List;
 
@@ -31,12 +31,12 @@ public class ServerInfoController {
 
   @RequestMapping("/server.jsp")
   public ModelAndView serverInfo() {
-    List<User> moderators = userDao.getModerators();
+    List<UserDto> moderators = userDao.getModerators();
 
     ModelAndView mv = new ModelAndView("server");
     mv.getModel().put("moderators", moderators);
 
-    List<User> correctors = userDao.getCorrectors();
+    List<UserDto> correctors = userDao.getCorrectors();
 
     mv.getModel().put("correctors", correctors);
 

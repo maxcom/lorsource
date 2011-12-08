@@ -17,8 +17,11 @@ package ru.org.linux.spring;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.org.linux.dao.*;
+import ru.org.linux.dto.*;
+import ru.org.linux.dao.TagCloudDao;
+import ru.org.linux.exception.*;
 import ru.org.linux.site.*;
-import ru.org.linux.spring.dao.*;
 import ru.org.linux.util.bbcode.LorCodeService;
 
 import java.util.ArrayList;
@@ -41,10 +44,10 @@ public class PrepareService {
   private LorCodeService lorCodeService;
 
   @Autowired
-  private TagDao tagDao;
+  private TagCloudDao tagCloudDao;
 
   @Autowired
-  private MemoriesDao memoriesDao;
+  private FavoritesDao memoriesDao;
 
   @Autowired
   public void setPollDao(PollDao pollDao) {
@@ -98,6 +101,7 @@ public class PrepareService {
 
   /**
    * Функция подготовки голосования
+   *
    * @param poll голосование
    * @return подготовленное голосование
    */
@@ -105,49 +109,50 @@ public class PrepareService {
     return new PreparedPoll(poll, pollDao.getMaxVote(poll), pollDao.getCountUsers(poll), pollDao.getPollVariants(poll, Poll.ORDER_VOTES));
   }
 
-  public PreparedMessage prepareMessage(Message message, boolean minimizeCut, boolean secure) {
-    return prepareMessage(message, messageDao.getTags(message), minimizeCut, null, secure);
+  public PreparedMessage prepareMessage(MessageDto messageDto, boolean minimizeCut, boolean secure) {
+    return prepareMessage(messageDto, messageDao.getTags(messageDto), minimizeCut, null, secure);
   }
 
-  public PreparedMessage prepareMessage(Message message, List<String> tags, PreparedPoll newPoll, boolean secure) {
-    return prepareMessage(message, tags, false, newPoll, secure);
+  public PreparedMessage prepareMessage(MessageDto messageDto, List<String> tags, PreparedPoll newPoll, boolean secure) {
+    return prepareMessage(messageDto, tags, false, newPoll, secure);
   }
 
   /**
    * Функция подготовки топика
-   * @param message топик
-   * @param tags список тэгов
+   *
+   * @param messageDto     топик
+   * @param tags        список тэгов
    * @param minimizeCut сворачивать ли cut
-   * @param poll опрос к топику
-   * @param secure является ли соединение https
+   * @param poll        опрос к топику
+   * @param secure      является ли соединение https
    * @return подготовленный топик
    */
-  private PreparedMessage prepareMessage(Message message, List<String> tags, boolean minimizeCut, PreparedPoll poll, boolean secure) {
+  private PreparedMessage prepareMessage(MessageDto messageDto, List<String> tags, boolean minimizeCut, PreparedPoll poll, boolean secure) {
     try {
-      Group group = groupDao.getGroup(message.getGroupId());
-      User author = userDao.getUserCached(message.getUid());
-      Section section = sectionDao.getSection(message.getSectionId());
+      GroupDto groupDto = groupDao.getGroup(messageDto.getGroupId());
+      UserDto author = userDao.getUserCached(messageDto.getUid());
+      SectionDto sectionDto = sectionDao.getSection(messageDto.getSectionId());
 
-      DeleteInfo deleteInfo;
-      User deleteUser;
-      if (message.isDeleted()) {
-        deleteInfo = deleteInfoDao.getDeleteInfo(message.getId());
+      DeleteInfoDto deleteInfoDto;
+      UserDto deleteUser;
+      if (messageDto.isDeleted()) {
+        deleteInfoDto = deleteInfoDao.getDeleteInfo(messageDto.getId());
 
-        if (deleteInfo!=null) {
-          deleteUser = userDao.getUserCached(deleteInfo.getUserid());
+        if (deleteInfoDto != null) {
+          deleteUser = userDao.getUserCached(deleteInfoDto.getUserid());
         } else {
           deleteUser = null;
         }
       } else {
-        deleteInfo = null;
+        deleteInfoDto = null;
         deleteUser = null;
       }
 
       PreparedPoll preparedPoll;
 
-      if (message.isVotePoll()) {
-        if (poll==null) {
-          preparedPoll = preparePoll(pollDao.getPollByTopicId(message.getId()));
+      if (messageDto.isVotePoll()) {
+        if (poll == null) {
+          preparedPoll = preparePoll(pollDao.getPollByTopicId(messageDto.getId()));
         } else {
           preparedPoll = poll;
         }
@@ -155,17 +160,17 @@ public class PrepareService {
         preparedPoll = null;
       }
 
-      User commiter;
+      UserDto commiter;
 
-      if (message.getCommitby()!=0) {
-        commiter = userDao.getUserCached(message.getCommitby());
+      if (messageDto.getCommitby() != 0) {
+        commiter = userDao.getUserCached(messageDto.getCommitby());
       } else {
         commiter = null;
       }
 
-      List<EditInfoDTO> editInfo = messageDao.getEditInfo(message.getId());
+      List<EditInfoDTO> editInfo = messageDao.getEditInfo(messageDto.getId());
       EditInfoDTO lastEditInfo;
-      User lastEditor;
+      UserDto lastEditor;
       int editCount;
 
       if (!editInfo.isEmpty()) {
@@ -179,20 +184,20 @@ public class PrepareService {
       }
 
       String processedMessage;
-      if(message.isLorcode()) {
-        if(minimizeCut) {
-          String url = configuration.getMainUrl() + message.getLink();
-          processedMessage = lorCodeService.parseTopicWithMinimizedCut(message.getMessage(), url, secure);
+      if (messageDto.isLorcode()) {
+        if (minimizeCut) {
+          String url = configuration.getMainUrl() + messageDto.getLink();
+          processedMessage = lorCodeService.parseTopicWithMinimizedCut(messageDto.getMessage(), url, secure);
         } else {
-          processedMessage = lorCodeService.parseTopic(message.getMessage(), secure);
+          processedMessage = lorCodeService.parseTopic(messageDto.getMessage(), secure);
         }
       } else {
-        processedMessage = "<p>" + message.getMessage();
+        processedMessage = "<p>" + messageDto.getMessage();
       }
 
-      String userAgent = userAgentDao.getUserAgentById(message.getUserAgent());
+      String userAgent = userAgentDao.getUserAgentById(messageDto.getUserAgent());
 
-      return new PreparedMessage(message, author, deleteInfo, deleteUser, processedMessage, preparedPoll, commiter, tags, group, section, lastEditInfo, lastEditor, editCount, userAgent);
+      return new PreparedMessage(messageDto, author, deleteInfoDto, deleteUser, processedMessage, preparedPoll, commiter, tags, groupDto, sectionDto, lastEditInfo, lastEditor, editCount, userAgent);
     } catch (BadGroupException e) {
       throw new RuntimeException(e);
     } catch (UserNotFoundException e) {
@@ -204,28 +209,28 @@ public class PrepareService {
     }
   }
 
-  public PreparedComment prepareCommentRSS(Comment comment, CommentList comments, boolean secure) throws UserNotFoundException {
-    return prepareComment(comment, comments, secure, true);
+  public PreparedComment prepareCommentRSS(CommentDto commentDto, CommentList comments, boolean secure) throws UserNotFoundException {
+    return prepareComment(commentDto, comments, secure, true);
   }
 
-  public PreparedComment prepareComment(Comment comment, CommentList comments, boolean secure) throws UserNotFoundException {
-    return prepareComment(comment, comments, secure, false);
+  public PreparedComment prepareComment(CommentDto commentDto, CommentList comments, boolean secure) throws UserNotFoundException {
+    return prepareComment(commentDto, comments, secure, false);
   }
 
-  public PreparedComment prepareComment(Comment comment, CommentList comments, boolean secure, boolean rss) throws UserNotFoundException {
-    User author = userDao.getUserCached(comment.getUserid());
+  public PreparedComment prepareComment(CommentDto commentDto, CommentList comments, boolean secure, boolean rss) throws UserNotFoundException {
+    UserDto author = userDao.getUserCached(commentDto.getUserid());
     String processedMessage;
-    if(!rss) {
-      processedMessage = commentDao.getPreparedComment(comment.getId(), secure);
+    if (!rss) {
+      processedMessage = commentDao.getPreparedComment(commentDto.getId(), secure);
     } else {
-      processedMessage = commentDao.getPreparedCommentRSS(comment.getId(), secure);
+      processedMessage = commentDao.getPreparedCommentRSS(commentDto.getId(), secure);
     }
-    User replyAuthor;
-    if (comment.getReplyTo()!=0 && comments!=null) {
-      CommentNode replyNode = comments.getNode(comment.getReplyTo());
+    UserDto replyAuthor;
+    if (commentDto.getReplyTo() != 0 && comments != null) {
+      CommentNode replyNode = comments.getNode(commentDto.getReplyTo());
 
-      if (replyNode!=null) {
-        Comment reply = replyNode.getComment();
+      if (replyNode != null) {
+        CommentDto reply = replyNode.getComment();
         replyAuthor = userDao.getUserCached(reply.getUserid());
       } else {
         replyAuthor = null;
@@ -233,56 +238,56 @@ public class PrepareService {
     } else {
       replyAuthor = null;
     }
-    return new PreparedComment(comment, author, processedMessage, replyAuthor);
+    return new PreparedComment(commentDto, author, processedMessage, replyAuthor);
   }
 
-  public PreparedComment prepareComment(Comment comment, boolean secure) throws UserNotFoundException {
-    return prepareComment(comment, (CommentList)null, secure);
+  public PreparedComment prepareComment(CommentDto commentDto, boolean secure) throws UserNotFoundException {
+    return prepareComment(commentDto, (CommentList) null, secure);
   }
 
-  public PreparedComment prepareComment(Comment comment, String message, boolean secure) throws UserNotFoundException {
-    User author = userDao.getUserCached(comment.getUserid());
+  public PreparedComment prepareComment(CommentDto commentDto, String message, boolean secure) throws UserNotFoundException {
+    UserDto author = userDao.getUserCached(commentDto.getUserid());
     String processedMessage = lorCodeService.parseComment(message, secure);
 
-    return new PreparedComment(comment, author, processedMessage, null);
+    return new PreparedComment(commentDto, author, processedMessage, null);
   }
 
-  public List<PreparedComment> prepareCommentListRSS(CommentList comments, List<Comment> list, boolean secure) throws UserNotFoundException {
+  public List<PreparedComment> prepareCommentListRSS(CommentList comments, List<CommentDto> list, boolean secure) throws UserNotFoundException {
     List<PreparedComment> commentsPrepared = new ArrayList<PreparedComment>(list.size());
-    for (Comment comment : list) {
-      commentsPrepared.add(prepareCommentRSS(comment, comments, secure));
+    for (CommentDto commentDto : list) {
+      commentsPrepared.add(prepareCommentRSS(commentDto, comments, secure));
     }
     return commentsPrepared;
   }
 
-  public List<PreparedComment> prepareCommentList(CommentList comments, List<Comment> list, boolean secure) throws UserNotFoundException {
+  public List<PreparedComment> prepareCommentList(CommentList comments, List<CommentDto> list, boolean secure) throws UserNotFoundException {
     List<PreparedComment> commentsPrepared = new ArrayList<PreparedComment>(list.size());
-    for (Comment comment : list) {
-      commentsPrepared.add(prepareComment(comment, comments, secure));
+    for (CommentDto commentDto : list) {
+      commentsPrepared.add(prepareComment(commentDto, comments, secure));
     }
     return commentsPrepared;
   }
 
-  public PreparedGroupInfo prepareGroupInfo(Group group, boolean secure) {
+  public PreparedGroupInfo prepareGroupInfo(GroupDto groupDto, boolean secure) {
     String longInfo;
 
-    if (group.getLongInfo()!=null) {
-      longInfo = lorCodeService.parseComment(group.getLongInfo(), secure);
+    if (groupDto.getLongInfo() != null) {
+      longInfo = lorCodeService.parseComment(groupDto.getLongInfo(), secure);
     } else {
       longInfo = null;
     }
 
-    return new PreparedGroupInfo(group, longInfo);
+    return new PreparedGroupInfo(groupDto, longInfo);
   }
 
-  public MessageMenu getMessageMenu(PreparedMessage message, User currentUser) {
-    boolean editable = currentUser!=null && message.isEditable(currentUser);
+  public MessageMenu getMessageMenu(PreparedMessage message, UserDto currentUser) {
+    boolean editable = currentUser != null && message.isEditable(currentUser);
     boolean resolvable;
     int memoriesId;
 
-    if (currentUser!=null) {
-      resolvable = (currentUser.isModerator() || (message.getAuthor().getId()==currentUser.getId())) &&
-            message.getGroup().isResolvable();
+    if (currentUser != null) {
+      resolvable = (currentUser.isModerator() || (message.getAuthor().getId() == currentUser.getId())) &&
+          message.getGroupDto().isResolvable();
 
       memoriesId = memoriesDao.getId(currentUser, message.getMessage());
     } else {
@@ -296,51 +301,52 @@ public class PrepareService {
   /**
    * Подготовка ленты топиков, используется в NewsViewerController например
    * сообщения рендерятся со свернутым cut
-   * @param messages список топиков
-   * @param secure является ли соединение https
+   *
+   * @param messageDtos список топиков
+   * @param secure   является ли соединение https
    * @return список подготовленных топиков
    */
-  public List<PreparedMessage> prepareMessagesFeed(List<Message> messages, boolean secure) {
-    List<PreparedMessage> pm = new ArrayList<PreparedMessage>(messages.size());
+  public List<PreparedMessage> prepareMessagesFeed(List<MessageDto> messageDtos, boolean secure) {
+    List<PreparedMessage> pm = new ArrayList<PreparedMessage>(messageDtos.size());
 
-    for (Message message : messages) {
-      PreparedMessage preparedMessage = prepareMessage(message, messageDao.getTags(message), true, null, secure);
+    for (MessageDto messageDto : messageDtos) {
+      PreparedMessage preparedMessage = prepareMessage(messageDto, messageDao.getTags(messageDto), true, null, secure);
       pm.add(preparedMessage);
     }
 
     return pm;
   }
 
-  public List<PreparedEditInfo> build(Message message, boolean secure) throws UserNotFoundException, UserErrorException {
-    List<EditInfoDTO> editInfoDTOs = messageDao.loadEditInfo(message.getId());
+  public List<PreparedEditInfo> build(MessageDto messageDto, boolean secure) throws UserNotFoundException, UserErrorException {
+    List<EditInfoDTO> editInfoDTOs = messageDao.loadEditInfo(messageDto.getId());
     List<PreparedEditInfo> editInfos = new ArrayList<PreparedEditInfo>(editInfoDTOs.size());
 
-    String currentMessage = message.getMessage();
-    String currentTitle = message.getTitle();
-    String currentUrl = message.getUrl();
-    String currentLinktext = message.getLinktext();
-    List<String> currentTags = tagDao.getMessageTags(message.getMessageId());
+    String currentMessage = messageDto.getMessage();
+    String currentTitle = messageDto.getTitle();
+    String currentUrl = messageDto.getUrl();
+    String currentLinktext = messageDto.getLinktext();
+    List<String> currentTags = tagCloudDao.getMessageTags(messageDto.getMessageId());
 
-    for (int i = 0; i<editInfoDTOs.size(); i++) {
+    for (int i = 0; i < editInfoDTOs.size(); i++) {
       EditInfoDTO dto = editInfoDTOs.get(i);
 
       editInfos.add(
-        new PreparedEditInfo(
-          lorCodeService,
-          secure,
-          userDao,
-          dto,
-          dto.getOldmessage()!=null ? currentMessage : null,
-          dto.getOldtitle()!=null ? currentTitle : null,
-          dto.getOldurl()!=null ? currentUrl : null,
-          dto.getOldlinktext()!=null ? currentLinktext : null,
-          dto.getOldtags()!=null ? currentTags : null,
-          i==0,
-          false
-        )
+          new PreparedEditInfo(
+              lorCodeService,
+              secure,
+              userDao,
+              dto,
+              dto.getOldmessage() != null ? currentMessage : null,
+              dto.getOldtitle() != null ? currentTitle : null,
+              dto.getOldurl() != null ? currentUrl : null,
+              dto.getOldlinktext() != null ? currentLinktext : null,
+              dto.getOldtags() != null ? currentTags : null,
+              i == 0,
+              false
+          )
       );
 
-      if (dto.getOldmessage() !=null) {
+      if (dto.getOldmessage() != null) {
         currentMessage = dto.getOldmessage();
       }
 
@@ -356,13 +362,13 @@ public class PrepareService {
         currentLinktext = dto.getOldlinktext();
       }
 
-      if (dto.getOldtags()!=null) {
-        currentTags = TagDao.parseTags(dto.getOldtags());
+      if (dto.getOldtags() != null) {
+        currentTags = TagCloudDao.parseTags(dto.getOldtags());
       }
     }
 
     if (!editInfoDTOs.isEmpty()) {
-      EditInfoDTO current = EditInfoDTO.createFromMessage(tagDao, message);
+      EditInfoDTO current = EditInfoDTO.createFromMessage(tagCloudDao, messageDto);
 
       editInfos.add(new PreparedEditInfo(lorCodeService, secure, userDao, current, currentMessage, currentTitle, currentUrl, currentLinktext, currentTags, false, true));
     }

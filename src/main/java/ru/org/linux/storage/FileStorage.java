@@ -15,6 +15,8 @@
 
 package ru.org.linux.storage;
 
+import ru.org.linux.exception.storage.StorageNotFoundException;
+
 import java.io.*;
 
 public class FileStorage extends Storage {

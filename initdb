@@ -1,0 +1,21 @@
+#!/bin/sh
+
+
+dropdb lor >/dev/null 2>&1
+dropuser maxcom >/dev/null 2>&1
+dropuser linuxweb >/dev/null 2>&1
+dropuser jamwiki >/dev/null 2>&1
+
+createdb --encoding=UTF8 lor
+createuser -S -D -R maxcom
+createuser -S -D -R linuxweb
+createuser -S -D -R jamwiki
+psql -c "alter user linuxweb password 'linuxweb'" template1
+psql -c "alter user maxcom password 'maxcom'" template1
+psql -c "alter user jamwiki password 'jamwiki'" template1
+
+psql -f sql/schema.sql lor
+psql -f sql/data-demo.sql lor
+psql -f sql/post-data.sql lor
+
+vacuumdb --analyze lor

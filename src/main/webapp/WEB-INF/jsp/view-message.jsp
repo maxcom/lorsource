@@ -1,5 +1,5 @@
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="ru.org.linux.site.CommentFilter,ru.org.linux.site.Message,ru.org.linux.site.Section,ru.org.linux.site.Template"   buffer="200kb"%>
+<%@ page import="ru.org.linux.site.CommentFilter,ru.org.linux.dto.MessageDto,ru.org.linux.dto.SectionDto,ru.org.linux.site.Template"   buffer="200kb"%>
 <%@ page import="ru.org.linux.util.StringUtil" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
@@ -20,15 +20,15 @@
   --%>
 
 <%--@elvariable id="showAdsense" type="Boolean"--%>
-<%--@elvariable id="message" type="ru.org.linux.site.Message"--%>
+<%--@elvariable id="message" type="ru.org.linux.dto.MessageDto"--%>
 <%--@elvariable id="preparedMessage" type="ru.org.linux.site.PreparedMessage"--%>
 <%--@elvariable id="messageMenu" type="ru.org.linux.site.MessageMenu"--%>
-<%--@elvariable id="prevMessage" type="ru.org.linux.site.Message"--%>
-<%--@elvariable id="nextMessage" type="ru.org.linux.site.Message"--%>
+<%--@elvariable id="prevMessage" type="ru.org.linux.dto.MessageDto"--%>
+<%--@elvariable id="nextMessage" type="ru.org.linux.dto.MessageDto"--%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <%--@elvariable id="showDeleted" type="Boolean"--%>
 <%--@elvariable id="comments" type="ru.org.linux.site.CommentList"--%>
-<%--@elvariable id="group" type="ru.org.linux.site.Group"--%>
+<%--@elvariable id="group" type="ru.org.linux.dto.GroupDto"--%>
 <%--@elvariable id="commentsPrepared" type="java.util.List<ru.org.linux.site.PreparedComment>"--%>
 <%--@elvariable id="page" type="Integer"--%>
 <%--@elvariable id="highlight" type="java.util.Set"--%>
@@ -41,13 +41,13 @@
 
   int npage = (Integer) request.getAttribute("page");
 
-  Message message = (Message) request.getAttribute("message");
-  Message prevMessage = (Message) request.getAttribute("prevMessage");
-  Message nextMessage = (Message) request.getAttribute("nextMessage");
+  MessageDto message = (MessageDto) request.getAttribute("message");
+  MessageDto prevMessage = (MessageDto) request.getAttribute("prevMessage");
+  MessageDto nextMessage = (MessageDto) request.getAttribute("nextMessage");
 %>
 
-<title>${preparedMessage.section.title} - ${message.groupTitle} - ${message.title}</title>
-<link rel="parent" title="${preparedMessage.section.title} - ${message.groupTitle}" href="group.jsp?group=${message.groupId}">
+<title>${preparedMessage.sectionDto.title} - ${message.groupTitle} - ${message.title}</title>
+<link rel="parent" title="${preparedMessage.sectionDto.title} - ${message.groupTitle}" href="group.jsp?group=${message.groupId}">
 <c:if test="${prevMessage != null}">
   <link rel="Previous" id="PrevLink" href="${fn:escapeXml(prevMessage.link)}" title="<%= StringUtil.makeTitle(prevMessage.getTitle()) %>">
 </c:if>
@@ -75,9 +75,9 @@
   <table class=nav>
   <tr>
   <td align=left valign=middle id="navPath">
-    <a href="${preparedMessage.section.sectionLink}">${preparedMessage.section.title}</a> -
+    <a href="${preparedMessage.sectionDto.sectionLink}">${preparedMessage.sectionDto.title}</a> -
     <a href="${group.url}">${group.title}</a>
-    <c:if test="${preparedMessage.section.premoderated and not message.commited}">
+    <c:if test="${preparedMessage.sectionDto.premoderated and not message.commited}">
         (не подтверждено)
     </c:if>
   </td>
@@ -106,17 +106,17 @@
     </td>
   </table>
 </form>
-<c:set var="scrollGroup" value="<%= Section.getScrollMode(message.getSectionId())==Section.SCROLL_GROUP %>"/>
+<c:set var="scrollGroup" value="<%= SectionDto.getScrollMode(message.getSectionId())==SectionDto.SCROLL_GROUP %>"/>
 
 <c:set var="scroller">
 <%
-  int scroll = Section.getScrollMode(message.getSectionId());
+  int scroll = SectionDto.getScrollMode(message.getSectionId());
 
   if (prevMessage == null && nextMessage == null) {
-    scroll = Section.SCROLL_NOSCROLL;
+    scroll = SectionDto.SCROLL_NOSCROLL;
   }
 
-  if (scroll != Section.SCROLL_NOSCROLL) {
+  if (scroll != SectionDto.SCROLL_NOSCROLL) {
 %>
     <table class=nav>
       <tr>
@@ -167,9 +167,9 @@
 
 <c:set var="bottomScroller">
 <%
-  int scroll = Section.getScrollMode(message.getSectionId());
+  int scroll = SectionDto.getScrollMode(message.getSectionId());
 
-  if (scroll != Section.SCROLL_NOSCROLL) {
+  if (scroll != SectionDto.SCROLL_NOSCROLL) {
 %>
     <table class=nav>
       <tr>
@@ -195,9 +195,9 @@
           <table>
             <tr valign=middle>
               <td>
-                <a title="${preparedMessage.section.title} - ${message.groupTitle}"
+                <a title="${preparedMessage.sectionDto.title} - ${message.groupTitle}"
                    href="${group.url}">
-                  ${preparedMessage.section.title} - ${message.groupTitle}
+                  ${preparedMessage.sectionDto.title} - ${message.groupTitle}
                 </a>
               </td>
             </tr>

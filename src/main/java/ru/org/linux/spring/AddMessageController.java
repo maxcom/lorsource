@@ -28,13 +28,20 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.multipart.MultipartRequest;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
+import ru.org.linux.dao.*;
 import ru.org.linux.search.SearchQueueSender;
+import ru.org.linux.dto.GroupDto;
+import ru.org.linux.dto.MessageDto;
+import ru.org.linux.dto.SectionDto;
+import ru.org.linux.dto.UserDto;
+import ru.org.linux.exception.AccessViolationException;
+import ru.org.linux.exception.BadGroupException;
+import ru.org.linux.exception.ScriptErrorException;
+import ru.org.linux.exception.util.BadImageException;
+import ru.org.linux.exception.util.UtilException;
 import ru.org.linux.site.*;
-import ru.org.linux.spring.dao.*;
 import ru.org.linux.spring.validators.AddMessageRequestValidator;
-import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.ExceptionBindingErrorProcessor;
-import ru.org.linux.util.UtilException;
 import ru.org.linux.util.bbcode.LorCodeService;
 import ru.org.linux.util.formatter.ToLorCodeFormatter;
 
@@ -57,7 +64,7 @@ public class AddMessageController extends ApplicationObjectSupport {
   private IPBlockDao ipBlockDao;
   private GroupDao groupDao;
   private SectionDao sectionDao;
-  private TagDao tagDao;
+  private TagCloudDao tagCloudDao;
   private UserDao userDao;
   private PrepareService prepareService;
   private MessageDao messageDao;
@@ -100,8 +107,8 @@ public class AddMessageController extends ApplicationObjectSupport {
   }
 
   @Autowired
-  public void setTagDao(TagDao tagDao) {
-    this.tagDao = tagDao;
+  public void setTagCloudDao(TagCloudDao tagCloudDao) {
+    this.tagCloudDao = tagCloudDao;
   }
 
   @Autowired
@@ -130,23 +137,23 @@ public class AddMessageController extends ApplicationObjectSupport {
 
     Template tmpl = Template.getTemplate(request);
 
-    if (form.getMode()==null) {
+    if (form.getMode() == null) {
       form.setMode(tmpl.getFormatMode());
     }
 
-    Group group = form.getGroup();
+    GroupDto groupDto = form.getGroup();
 
-    if (!group.isTopicPostingAllowed(tmpl.getCurrentUser())) {
+    if (!groupDto.isTopicPostingAllowed(tmpl.getCurrentUser())) {
       throw new AccessViolationException("Не достаточно прав для постинга тем в эту группу");
     }
 
-    params.put("group", group);
+    params.put("group", groupDto);
 
-    if (group.isModerated()) {
-      params.put("topTags", tagDao.getTopTags());
+    if (groupDto.isModerated()) {
+      params.put("topTags", tagCloudDao.getTopTags());
     }
 
-    params.put("addportal", sectionDao.getAddInfo(group.getSectionId()));
+    params.put("addportal", sectionDao.getAddInfo(groupDto.getSectionId()));
 
     return new ModelAndView("add", params);
   }
@@ -164,11 +171,11 @@ public class AddMessageController extends ApplicationObjectSupport {
   }
 
 
-  @RequestMapping(value="/add.jsp", method=RequestMethod.POST)
+  @RequestMapping(value = "/add.jsp", method = RequestMethod.POST)
   public ModelAndView doAdd(
-          HttpServletRequest request,
-          @Valid @ModelAttribute("form") AddMessageRequest form,
-          BindingResult errors
+      HttpServletRequest request,
+      @Valid @ModelAttribute("form") AddMessageRequest form,
+      BindingResult errors
   ) throws Exception {
     Map<String, Object> params = new HashMap<String, Object>();
 
@@ -177,18 +184,18 @@ public class AddMessageController extends ApplicationObjectSupport {
 
     String image = processUploadImage(request, tmpl);
 
-    Group group = form.getGroup();
-    params.put("group", group);
+    GroupDto groupDto = form.getGroup();
+    params.put("group", groupDto);
 
-    if (group!=null && group.isModerated()) {
-      params.put("topTags", tagDao.getTopTags());
+    if (groupDto != null && groupDto.isModerated()) {
+      params.put("topTags", tagCloudDao.getTopTags());
     }
 
-    if (group!=null) {
-      params.put("addportal", sectionDao.getAddInfo(group.getSectionId()));
+    if (groupDto != null) {
+      params.put("addportal", sectionDao.getAddInfo(groupDto.getSectionId()));
     }
 
-    User user;
+    UserDto user;
 
     if (!Template.isSessionAuthorized(session)) {
       if (form.getNick() != null) {
@@ -197,7 +204,7 @@ public class AddMessageController extends ApplicationObjectSupport {
         user = userDao.getAnonymous();
       }
 
-      if (form.getPassword()==null) {
+      if (form.getPassword() == null) {
         errors.rejectValue("password", null, "Требуется авторизация");
       }
     } else {
@@ -212,7 +219,7 @@ public class AddMessageController extends ApplicationObjectSupport {
 
     ipBlockDao.checkBlockIP(request.getRemoteAddr(), errors);
 
-    if (group!=null && !group.isTopicPostingAllowed(user)) {
+    if (groupDto != null && !groupDto.isTopicPostingAllowed(user)) {
       errors.reject(null, "Не достаточно прав для постинга тем в эту группу");
     }
 
@@ -230,10 +237,10 @@ public class AddMessageController extends ApplicationObjectSupport {
 
     Screenshot scrn = null;
 
-    if (group!=null && group.isImagePostAllowed()) {
+    if (groupDto != null && groupDto.isImagePostAllowed()) {
       scrn = processUpload(session, tmpl, image, errors);
 
-      if (scrn!=null) {
+      if (scrn != null) {
         form.setLinktext("gallery/preview/" + scrn.getIconFile().getName());
         form.setUrl("gallery/preview/" + scrn.getMainFile().getName());
       } else {
@@ -243,11 +250,11 @@ public class AddMessageController extends ApplicationObjectSupport {
       }
     }
 
-    Message previewMsg = null;
+    MessageDto previewMsg = null;
 
-    if (group!=null) {
-      previewMsg = new Message(form, user, message, request.getRemoteAddr());
-      params.put("message", prepareService.prepareMessage(previewMsg, TagDao.parseSanitizeTags(form.getTags()), null, request.isSecure()));
+    if (groupDto != null) {
+      previewMsg = new MessageDto(form, user, message, request.getRemoteAddr());
+      params.put("message", prepareService.prepareMessage(previewMsg, TagCloudDao.parseSanitizeTags(form.getTags()), null, request.isSecure()));
     }
 
     if (!form.isPreviewMode() && !errors.hasErrors() && !session.getId().equals(request.getParameter("session"))) {
@@ -263,12 +270,12 @@ public class AddMessageController extends ApplicationObjectSupport {
       dupeProtector.checkDuplication(request.getRemoteAddr(), false, errors);
     }
 
-    if (!form.isPreviewMode() && !errors.hasErrors() && group!=null) {
+    if (!form.isPreviewMode() && !errors.hasErrors() && groupDto != null) {
       session.removeAttribute("image");
 
-      Set<User> userRefs = lorCodeService.getReplierFromMessage(message);
+      Set<UserDto> userRefs = lorCodeService.getReplierFromMessage(message);
 
-      int msgid = messageDao.addMessage(request, form, tmpl, group, user, scrn, previewMsg, userRefs);
+      int msgid = messageDao.addMessage(request, form, tmpl, groupDto, user, scrn, previewMsg, userRefs);
 
       searchQueueSender.updateMessageOnly(msgid);
 
@@ -276,11 +283,11 @@ public class AddMessageController extends ApplicationObjectSupport {
 
       String messageUrl = "view-message.jsp?msgid=" + msgid;
 
-      if (!group.isModerated()) {
+      if (!groupDto.isModerated()) {
         return new ModelAndView(new RedirectView(messageUrl + "&nocache=" + random.nextInt()));
       }
 
-      params.put("moderated", group.isModerated());
+      params.put("moderated", groupDto.isModerated());
       params.put("url", messageUrl);
 
       return new ModelAndView("add-done-moderated", params);
@@ -295,20 +302,20 @@ public class AddMessageController extends ApplicationObjectSupport {
 
     params.put("sectionId", sectionId);
 
-    Section section = sectionDao.getSection(sectionId);
+    SectionDto sectionDto = sectionDao.getSection(sectionId);
 
-    params.put("section", section);
+    params.put("section", sectionDto);
 
-    params.put("info", sectionDao.getAddInfo(section.getId()));
+    params.put("info", sectionDao.getAddInfo(sectionDto.getId()));
 
-    params.put("groups", groupDao.getGroups(section));
+    params.put("groups", groupDao.getGroups(sectionDto));
 
     return new ModelAndView("add-section", params);
   }
 
   @InitBinder
   public void initBinder(WebDataBinder binder) {
-    binder.registerCustomEditor(Group.class, new PropertyEditorSupport() {
+    binder.registerCustomEditor(GroupDto.class, new PropertyEditorSupport() {
       @Override
       public void setAsText(String text) throws IllegalArgumentException {
         try {
@@ -320,15 +327,15 @@ public class AddMessageController extends ApplicationObjectSupport {
 
       @Override
       public String getAsText() {
-        if (getValue()==null) {
+        if (getValue() == null) {
           return null;
         } else {
-          return Integer.toString(((Group) getValue()).getId());
+          return Integer.toString(((GroupDto) getValue()).getId());
         }
       }
     });
 
-    binder.registerCustomEditor(User.class, new UserPropertyEditor(userDao));
+    binder.registerCustomEditor(UserDto.class, new UserPropertyEditor(userDao));
   }
 
   @InitBinder("form")
@@ -344,7 +351,6 @@ public class AddMessageController extends ApplicationObjectSupport {
   }
 
   /**
-   *
    * @param session
    * @param tmpl
    * @return <icon, image, previewImagePath> or null
@@ -352,12 +358,12 @@ public class AddMessageController extends ApplicationObjectSupport {
    * @throws UtilException
    */
   private Screenshot processUpload(
-          HttpSession session,
-          Template tmpl,
-          String image,
-          Errors errors
+      HttpSession session,
+      Template tmpl,
+      String image,
+      Errors errors
   ) throws IOException, UtilException {
-    if (session==null) {
+    if (session == null) {
       return null;
     }
 
@@ -368,9 +374,9 @@ public class AddMessageController extends ApplicationObjectSupport {
 
       try {
         screenshot = Screenshot.createScreenshot(
-                uploadedFile,
-                errors,
-                tmpl.getObjectConfig().getHTMLPathPrefix() + "/gallery/preview"
+            uploadedFile,
+            errors,
+            tmpl.getObjectConfig().getHTMLPathPrefix() + "/gallery/preview"
         );
 
         if (screenshot != null) {

@@ -15,7 +15,7 @@
 
 package ru.org.linux.search;
 
-import ru.org.linux.site.User;
+import ru.org.linux.dto.UserDto;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -26,7 +26,7 @@ public class SearchRequest {
   private String q = "";
   private String oldQ = "";
   private boolean usertopic = false;
-  private User user=null;
+  private UserDto user=null;
   private int section = 0;
   private SearchViewer.SearchOrder sort = SearchViewer.SearchOrder.RELEVANCE;
   private int group = 0;
@@ -54,11 +54,11 @@ public class SearchRequest {
     this.usertopic = usertopic;
   }
 
-  public User getUser() {
+  public UserDto getUser() {
     return user;
   }
 
-  public void setUser(User user) {
+  public void setUser(UserDto user) {
     this.user = user;
   }
 

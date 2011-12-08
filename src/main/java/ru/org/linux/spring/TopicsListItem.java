@@ -16,10 +16,10 @@
 package ru.org.linux.spring;
 
 import org.springframework.jdbc.support.rowset.SqlRowSet;
-import ru.org.linux.site.Message;
-import ru.org.linux.site.User;
-import ru.org.linux.site.UserNotFoundException;
-import ru.org.linux.spring.dao.UserDao;
+import ru.org.linux.dao.UserDao;
+import ru.org.linux.dto.MessageDto;
+import ru.org.linux.dto.UserDto;
+import ru.org.linux.exception.UserNotFoundException;
 import ru.org.linux.util.StringUtil;
 
 import java.io.Serializable;
@@ -35,9 +35,9 @@ public class TopicsListItem implements Serializable {
   private final int stat4;
   private final boolean sticky;
   private final int pages;
-  private final User author;
+  private final UserDto author;
   private final boolean resolved;
-  
+
   private static final long serialVersionUID = 5344250574674257995L;
 
   // SELECT topics.title as subj, sections.name, lastmod, topics.id as msgid, topics.deleted, topics.stat1, topics.stat3, topics.stat4, topics.sticky, userid
@@ -65,7 +65,7 @@ public class TopicsListItem implements Serializable {
     sticky = rs.getBoolean("sticky");
     resolved = rs.getBoolean("resolved");
 
-    pages = Message.getPageCount(stat1, messagesInPage);
+    pages = MessageDto.getPageCount(stat1, messagesInPage);
   }
 
   public String getSubj() {
@@ -76,7 +76,7 @@ public class TopicsListItem implements Serializable {
     return lastmod;
   }
 
-  public User getAuthor() {
+  public UserDto getAuthor() {
     return author;
   }
 

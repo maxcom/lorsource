@@ -24,9 +24,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
+import ru.org.linux.dao.UserDao;
+import ru.org.linux.dto.UserDto;
+import ru.org.linux.exception.AccessViolationException;
+import ru.org.linux.exception.ScriptErrorException;
+import ru.org.linux.exception.UserErrorException;
+import ru.org.linux.exception.util.BadImageException;
 import ru.org.linux.site.*;
-import ru.org.linux.spring.dao.UserDao;
-import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.ImageInfo;
 
 import javax.servlet.ServletRequest;
@@ -60,7 +64,7 @@ public class AddPhotoController extends ApplicationObjectSupport {
     }
 
     if (file==null || file.isEmpty()) {
-      return new ModelAndView("addphoto", "error", "изображение не задано");      
+      return new ModelAndView("addphoto", "error", "изображение не задано");
     }
 
     try {
@@ -71,7 +75,7 @@ public class AddPhotoController extends ApplicationObjectSupport {
       Userpic.checkUserpic(uploadedFile);
       String extension = ImageInfo.detectImageType(uploadedFile);
 
-      User user = tmpl.getCurrentUser();
+      UserDto user = tmpl.getCurrentUser();
       user.checkAnonymous();
 
       Random random = new Random();

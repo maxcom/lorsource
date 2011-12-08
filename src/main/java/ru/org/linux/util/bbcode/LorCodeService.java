@@ -19,10 +19,10 @@ package ru.org.linux.util.bbcode;
 import org.apache.commons.httpclient.URI;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.org.linux.site.User;
+import ru.org.linux.dao.MessageDao;
+import ru.org.linux.dao.UserDao;
+import ru.org.linux.dto.UserDto;
 import ru.org.linux.spring.Configuration;
-import ru.org.linux.spring.dao.MessageDao;
-import ru.org.linux.spring.dao.UserDao;
 import ru.org.linux.util.LorURI;
 import ru.org.linux.util.bbcode.nodes.RootNode;
 import ru.org.linux.util.formatter.ToHtmlFormatter;
@@ -65,7 +65,7 @@ public class LorCodeService {
    * @param text сообщение
    * @return множество пользователей
    */
-  public Set<User> getReplierFromMessage(String text) {
+  public Set<UserDto> getReplierFromMessage(String text) {
     RootNode rootNode = defaultParser.parseRoot(prepareCommentRootNode(false, false), text);
     rootNode.renderXHtml();
     return rootNode.getReplier();

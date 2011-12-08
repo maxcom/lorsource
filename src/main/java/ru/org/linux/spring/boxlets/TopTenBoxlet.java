@@ -28,9 +28,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
+import ru.org.linux.dao.TopTenDao;
+import ru.org.linux.dto.TopTenMessageDto;
 import ru.org.linux.site.ProfileProperties;
 import ru.org.linux.site.Template;
-import ru.org.linux.spring.dao.TopTenDao;
 
 @Controller
 public class TopTenBoxlet extends AbstractBoxlet {
@@ -52,11 +53,11 @@ public class TopTenBoxlet extends AbstractBoxlet {
     final int itemsPerPage = profile.getMessages();
     String style = profile.getStyle();
 
-    List<TopTenDao.TopTenMessageDTO> list = topTenDao.getMessages();
+    List<TopTenMessageDto> list = topTenDao.getMessages();
     CollectionUtils.forAllDo(list, new Closure() {
       @Override
       public void execute(Object o) {
-        TopTenDao.TopTenMessageDTO dto = (TopTenDao.TopTenMessageDTO) o;
+        TopTenMessageDto dto = (TopTenMessageDto) o;
         int tmp = dto.getAnswers() / itemsPerPage;
         tmp = (dto.getAnswers() % itemsPerPage > 0) ? tmp + 1 : tmp;
         dto.setPages(tmp);

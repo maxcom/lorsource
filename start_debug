@@ -1,0 +1,5 @@
+#!/bin/sh
+
+export MAVEN_OPTS="-Xms256m -Xmx512m -agentlib:jdwp=transport=dt_socket,address=8123,server=y,suspend=n"
+
+mvn jetty:run

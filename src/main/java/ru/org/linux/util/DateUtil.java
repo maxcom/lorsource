@@ -15,6 +15,8 @@
 
 package ru.org.linux.util;
 
+import ru.org.linux.exception.util.BadDateException;
+
 public final class DateUtil {
   private DateUtil() {
   }

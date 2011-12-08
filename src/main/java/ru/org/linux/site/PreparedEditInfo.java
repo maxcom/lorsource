@@ -15,7 +15,9 @@
 
 package ru.org.linux.site;
 
-import ru.org.linux.spring.dao.UserDao;
+import ru.org.linux.dao.UserDao;
+import ru.org.linux.dto.UserDto;
+import ru.org.linux.exception.UserNotFoundException;
 import ru.org.linux.util.bbcode.LorCodeService;
 
 import java.util.List;
@@ -23,13 +25,14 @@ import java.util.List;
 public class PreparedEditInfo {
   private final EditInfoDTO editInfo;
   private final boolean original;
-  private final User editor;
+  private final UserDto editor;
   private final String message;
   private final boolean current;
   private final String title;
   private final List<String> tags;
-  private final String url;
-  private final String linktext;
+  private String url;
+  private boolean showLink = false;
+  private String linktext;
 
   public PreparedEditInfo(
     LorCodeService lorCodeService,
@@ -68,7 +71,7 @@ public class PreparedEditInfo {
     return editInfo;
   }
 
-  public User getEditor() {
+  public UserDto getEditor() {
     return editor;
   }
 
@@ -87,9 +90,16 @@ public class PreparedEditInfo {
   public String getUrl() {
     return url;
   }
+  public void setUrl(String url) {
+    this.url = url;
+  }
 
   public String getLinktext() {
     return linktext;
+  }
+
+  public void setLinktext(String linktext) {
+    this.linktext = linktext;
   }
 
   public boolean isOriginal() {
@@ -98,5 +108,13 @@ public class PreparedEditInfo {
 
   public List<String> getTags() {
     return tags;
+  }
+
+  public boolean isShowLink() {
+    return showLink;
+  }
+
+  public void setShowLink(boolean showLink) {
+    this.showLink = showLink;
   }
 }

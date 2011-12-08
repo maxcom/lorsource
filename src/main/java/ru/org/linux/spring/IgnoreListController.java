@@ -21,9 +21,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
+import ru.org.linux.dao.IgnoreListDao;
+import ru.org.linux.dao.UserDao;
+import ru.org.linux.dto.UserDto;
+import ru.org.linux.exception.AccessViolationException;
+import ru.org.linux.exception.BadInputException;
+import ru.org.linux.exception.UserNotFoundException;
 import ru.org.linux.site.*;
-import ru.org.linux.spring.dao.IgnoreListDao;
-import ru.org.linux.spring.dao.UserDao;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
@@ -47,16 +51,16 @@ public class IgnoreListController {
       throw new AccessViolationException("Not authorized");
     }
 
-    User user = tmpl.getCurrentUser();
+    UserDto user = tmpl.getCurrentUser();
     user.checkAnonymous();
 
-    Map<Integer, User> ignoreMap = createIgnoreMap(ignoreListDao.get(user));
+    Map<Integer, UserDto> ignoreMap = createIgnoreMap(ignoreListDao.get(user));
 
     return new ModelAndView("ignore-list", "ignoreList", ignoreMap);
   }
 
-  private Map<Integer,User> createIgnoreMap(Set<Integer> ignoreList) throws UserNotFoundException {
-    Map<Integer, User> ignoreMap = new HashMap<Integer, User>(ignoreList.size());
+  private Map<Integer,UserDto> createIgnoreMap(Set<Integer> ignoreList) throws UserNotFoundException {
+    Map<Integer, UserDto> ignoreMap = new HashMap<Integer, UserDto>(ignoreList.size());
 
     for (int id : ignoreList) {
       ignoreMap.put(id, userDao.getUserCached(id));
@@ -76,10 +80,10 @@ public class IgnoreListController {
       throw new AccessViolationException("Not authorized");
     }
 
-    User user = tmpl.getCurrentUser();
+    UserDto user = tmpl.getCurrentUser();
     user.checkAnonymous();
 
-    User addUser = userDao.getUser(nick);
+    UserDto addUser = userDao.getUser(nick);
 
     // Add nick to ignore list
     if (nick.equals(user.getNick())) {
@@ -92,7 +96,7 @@ public class IgnoreListController {
       ignoreListDao.addUser(user, addUser);
     }
 
-    Map<Integer, User> ignoreMap = createIgnoreMap(ignoreListDao.get(user));
+    Map<Integer, UserDto> ignoreMap = createIgnoreMap(ignoreListDao.get(user));
     return new ModelAndView("ignore-list", "ignoreList", ignoreMap);
   }
 
@@ -107,14 +111,14 @@ public class IgnoreListController {
       throw new AccessViolationException("Not authorized");
     }
 
-    User user = tmpl.getCurrentUser();
+    UserDto user = tmpl.getCurrentUser();
     user.checkAnonymous();
 
-    User delUser = userDao.getUser(id);
+    UserDto delUser = userDao.getUser(id);
 
     ignoreListDao.remove(user, delUser);
 
-    Map<Integer, User> ignoreMap = createIgnoreMap(ignoreListDao.get(user));
+    Map<Integer, UserDto> ignoreMap = createIgnoreMap(ignoreListDao.get(user));
     return new ModelAndView("ignore-list", "ignoreList", ignoreMap);
   }
 }

@@ -21,7 +21,7 @@
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
-<title>${preparedMessage.section.title} - ${add.topic.groupTitle} - ${add.topic.title}</title>
+<title>${preparedMessage.sectionDto.title} - ${add.topic.groupTitle} - ${add.topic.title}</title>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 <div class=messages>
   <lor:message messageMenu="<%= null %>" preparedMessage="${preparedMessage}" message="${add.topic}" showMenu="false"/>

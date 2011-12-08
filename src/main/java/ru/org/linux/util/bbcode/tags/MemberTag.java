@@ -38,10 +38,8 @@
 
 package ru.org.linux.util.bbcode.tags;
 
-import org.apache.commons.httpclient.URI;
-import ru.org.linux.site.User;
-import ru.org.linux.site.UserNotFoundException;
-import ru.org.linux.spring.dao.UserDao;
+import ru.org.linux.dao.UserDao;
+import ru.org.linux.dto.UserDto;
 import ru.org.linux.util.bbcode.Parser;
 import ru.org.linux.util.bbcode.ParserParameters;
 import ru.org.linux.util.bbcode.nodes.Node;
@@ -74,7 +72,7 @@ public class MemberTag extends Tag {
     UserDao userDao = rootNode.getUserDao();
     try {
       if(userDao != null && toHtmlFormatter != null){
-        User user = rootNode.getUserDao().getUser(memberName);
+        UserDto user = rootNode.getUserDao().getUser(memberName);
         if (!user.isBlocked()) {
           result = String.format("<span style=\"white-space: nowrap\"><img src=\"/img/tuxlor.png\"><a style=\"text-decoration: none\" href=\"%s\">%s</a></span>",
               toHtmlFormatter.memberURL(user, secure), Parser.escape(memberName));

@@ -23,9 +23,13 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
+import ru.org.linux.dao.IPBlockDao;
+import ru.org.linux.dao.UserDao;
+import ru.org.linux.dto.IPBlockInfoDto;
+import ru.org.linux.exception.AccessViolationException;
+import ru.org.linux.exception.MessageNotFoundException;
+import ru.org.linux.exception.ScriptErrorException;
 import ru.org.linux.site.*;
-import ru.org.linux.spring.dao.IPBlockDao;
-import ru.org.linux.spring.dao.UserDao;
 import ru.org.linux.util.ServletParameterParser;
 import ru.org.linux.util.StringUtil;
 
@@ -104,11 +108,11 @@ public class SameIPController {
     mv.getModel().put("comments", getComments(ip));
     mv.getModel().put("users", getUsers(ip, userAgentId));
 
-    IPBlockInfo blockInfo = ipBlockDao.getBlockInfo(ip);
+    IPBlockInfoDto blockInfoDto = ipBlockDao.getBlockInfo(ip);
 
-    if (blockInfo!=null) {
-      mv.getModel().put("blockInfo", blockInfo);
-      mv.getModel().put("blockModerator", userDao.getUserCached(blockInfo.getModerator()));
+    if (blockInfoDto !=null) {
+      mv.getModel().put("blockInfo", blockInfoDto);
+      mv.getModel().put("blockModerator", userDao.getUserCached(blockInfoDto.getModerator()));
     }
 
     mv.getModel().put("tor", IPBlockDao.getTor(ip));

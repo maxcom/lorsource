@@ -33,12 +33,16 @@ import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import ru.org.linux.dao.GroupDao;
+import ru.org.linux.dao.SectionDao;
+import ru.org.linux.dao.UserDao;
+import ru.org.linux.dto.GroupDto;
+import ru.org.linux.dto.UserDto;
+import ru.org.linux.exception.BadGroupException;
+import ru.org.linux.exception.SectionNotFoundException;
 import ru.org.linux.site.*;
 import ru.org.linux.util.ExceptionBindingErrorProcessor;
 import ru.org.linux.spring.UserPropertyEditor;
-import ru.org.linux.spring.dao.GroupDao;
-import ru.org.linux.spring.dao.SectionDao;
-import ru.org.linux.spring.dao.UserDao;
 import ru.org.linux.util.bbcode.LorCodeService;
 
 import javax.servlet.http.HttpServletRequest;
@@ -123,10 +127,10 @@ public class SearchController {
 
   @RequestMapping(value = "/search.jsp", method = {RequestMethod.GET, RequestMethod.HEAD})
   public String search(
-          HttpServletRequest request,
-          Model model,
-          @ModelAttribute("query") SearchRequest query,
-          BindingResult bindingResult
+      HttpServletRequest request,
+      Model model,
+      @ModelAttribute("query") SearchRequest query,
+      BindingResult bindingResult
   ) throws Exception {
     Map<String, Object> params = model.asMap();
 
@@ -147,9 +151,9 @@ public class SearchController {
       SearchViewer sv = new SearchViewer(query);
 
       if (query.getGroup() != 0) {
-        Group group = groupDao.getGroup(query.getGroup());
+        GroupDto groupDto = groupDao.getGroup(query.getGroup());
 
-        if (group.getSectionId() != query.getSection()) {
+        if (groupDto.getSectionId() != query.getSection()) {
           query.setGroup(0);
         }
       }
@@ -229,13 +233,13 @@ public class SearchController {
     for (FacetField.Count count : groupFacet.getValues()) {
       int groupId = Integer.parseInt(count.getName());
 
-      Group group = groupDao.getGroup(groupId);
+      GroupDto groupDto = groupDao.getGroup(groupId);
 
-      if (group.getSectionId() != sectionId) {
+      if (groupDto.getSectionId() != sectionId) {
         continue;
       }
 
-      String name = group.getTitle().toLowerCase();
+      String name = groupDto.getTitle().toLowerCase();
 
       builder.put(groupId, name + " (" + count.getCount() + ')');
 
@@ -282,7 +286,7 @@ public class SearchController {
       }
     });
 
-    binder.registerCustomEditor(User.class, new UserPropertyEditor(userDao));
+    binder.registerCustomEditor(UserDto.class, new UserPropertyEditor(userDao));
 
     binder.setBindingErrorProcessor(new ExceptionBindingErrorProcessor());
   }

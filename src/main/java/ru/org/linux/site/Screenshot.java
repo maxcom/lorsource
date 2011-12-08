@@ -17,9 +17,9 @@ package ru.org.linux.site;
 
 import org.apache.commons.io.FileUtils;
 import org.springframework.validation.Errors;
-import ru.org.linux.util.BadImageException;
+import ru.org.linux.exception.util.BadImageException;
+import ru.org.linux.exception.util.UtilException;
 import ru.org.linux.util.ImageInfo;
-import ru.org.linux.util.UtilException;
 
 import java.io.File;
 import java.io.IOException;

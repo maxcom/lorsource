@@ -13,7 +13,7 @@
   ~    limitations under the License.
   --%>
 <%--@elvariable id="poll" type="ru.org.linux.site.Poll"--%>
-<%--@elvariable id="message" type="ru.org.linux.site.Message"--%>
+<%--@elvariable id="message" type="ru.org.linux.dto.MessageDto"--%>
 <%--@elvariable id="count" type="java.lang.Integer"--%>
 <%--@elvariable id="votes" type="java.util.List<ru.org.linux.spring.dao.VoteDto>"--%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>

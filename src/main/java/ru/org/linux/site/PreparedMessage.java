@@ -16,65 +16,66 @@
 package ru.org.linux.site;
 
 import com.google.common.collect.ImmutableList;
+import ru.org.linux.dto.*;
 
 import java.util.List;
 
 public final class PreparedMessage {
-  private final Message message;
-  private final User author;
-  private final DeleteInfo deleteInfo;
-  private final User deleteUser;
+  private final MessageDto message;
+  private final UserDto author;
+  private final DeleteInfoDto deleteInfo;
+  private final UserDto deleteUser;
   private final String processedMessage;
   private final PreparedPoll poll;
-  private final User commiter;
+  private final UserDto commiter;
   private final ImmutableList<String> tags;
-  private final Group group;
-  private final Section section;
+  private final GroupDto groupDto;
+  private final SectionDto sectionDto;
 
   private final EditInfoDTO lastEditInfo;
-  private final User lastEditor;
+  private final UserDto lastEditor;
   private final int editCount;
 
   private final String userAgent;
 
   private static final int EDIT_PERIOD = 2 * 60 * 60 * 1000; // milliseconds
 
-  public PreparedMessage(Message message, User author, DeleteInfo deleteInfo, User deleteUser, String processedMessage,
-                          PreparedPoll poll, User commiter, List<String> tags, Group group, Section section,
-                          EditInfoDTO lastEditInfo, User lastEditor, int editorCount, String userAgent) {
-    this.message = message;
+  public PreparedMessage(MessageDto messageDto, UserDto author, DeleteInfoDto deleteInfoDto, UserDto deleteUser, String processedMessage,
+                         PreparedPoll poll, UserDto commiter, List<String> tags, GroupDto groupDto, SectionDto sectionDto,
+                         EditInfoDTO lastEditInfo, UserDto lastEditor, int editorCount, String userAgent) {
+    this.message = messageDto;
     this.author = author;
-    this.deleteInfo = deleteInfo;
+    this.deleteInfo = deleteInfoDto;
     this.deleteUser = deleteUser;
     this.processedMessage = processedMessage;
     this.poll = poll;
     this.commiter = commiter;
-    if (tags!=null) {
-      this.tags=ImmutableList.copyOf(tags);
+    if (tags != null) {
+      this.tags = ImmutableList.copyOf(tags);
     } else {
-      this.tags=ImmutableList.of();
+      this.tags = ImmutableList.of();
     }
-    this.group = group;
-    this.section = section;
+    this.groupDto = groupDto;
+    this.sectionDto = sectionDto;
     this.lastEditInfo = lastEditInfo;
     this.lastEditor = lastEditor;
     editCount = editorCount;
     this.userAgent = userAgent;
   }
 
-  public Message getMessage() {
+  public MessageDto getMessage() {
     return message;
   }
 
-  public User getAuthor() {
+  public UserDto getAuthor() {
     return author;
   }
 
-  public DeleteInfo getDeleteInfo() {
+  public DeleteInfoDto getDeleteInfo() {
     return deleteInfo;
   }
 
-  public User getDeleteUser() {
+  public UserDto getDeleteUser() {
     return deleteUser;
   }
 
@@ -86,7 +87,7 @@ public final class PreparedMessage {
     return poll;
   }
 
-  public User getCommiter() {
+  public UserDto getCommiter() {
     return commiter;
   }
 
@@ -94,7 +95,7 @@ public final class PreparedMessage {
     return lastEditInfo;
   }
 
-  public User getLastEditor() {
+  public UserDto getLastEditor() {
     return lastEditor;
   }
 
@@ -114,11 +115,11 @@ public final class PreparedMessage {
     return tags;
   }
 
-  public Group getGroup() {
-    return group;
+  public GroupDto getGroupDto() {
+    return groupDto;
   }
 
-  public boolean isEditable(User by) {
+  public boolean isEditable(UserDto by) {
     if (message.isDeleted()) {
       return false;
     }
@@ -128,7 +129,7 @@ public final class PreparedMessage {
     }
 
     if (message.isExpired()) {
-      return by.isModerator() && section.isPremoderated();
+      return by.isModerator() && sectionDto.isPremoderated();
     }
 
     if (by.isModerator()) {
@@ -136,25 +137,25 @@ public final class PreparedMessage {
         return true;
       }
 
-      return section.isPremoderated();
+      return sectionDto.isPremoderated();
     }
 
     if (!message.isLorcode()) {
       return false;
     }
 
-    if (by.canCorrect() && section.isPremoderated()) {
+    if (by.canCorrect() && sectionDto.isPremoderated()) {
       return true;
     }
 
-    if (by.getId()==author.getId() && !message.isCommited()) {
-      return message.isSticky() || section.isPremoderated() || (System.currentTimeMillis() - message.getPostdate().getTime()) < EDIT_PERIOD;
+    if (by.getId() == author.getId() && !message.isCommited()) {
+      return message.isSticky() || sectionDto.isPremoderated() || (System.currentTimeMillis() - message.getPostdate().getTime()) < EDIT_PERIOD;
     }
 
     return false;
   }
 
-  public Section getSection() {
-    return section;
+  public SectionDto getSectionDto() {
+    return sectionDto;
   }
 }

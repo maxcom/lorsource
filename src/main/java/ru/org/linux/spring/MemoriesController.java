@@ -23,9 +23,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.view.RedirectView;
+import ru.org.linux.dao.FavoritesDao;
+import ru.org.linux.dao.MessageDao;
+import ru.org.linux.dto.FavoritesListItemDto;
+import ru.org.linux.dto.MessageDto;
+import ru.org.linux.dto.UserDto;
+import ru.org.linux.exception.AccessViolationException;
+import ru.org.linux.exception.UserErrorException;
 import ru.org.linux.site.*;
-import ru.org.linux.spring.dao.MemoriesDao;
-import ru.org.linux.spring.dao.MessageDao;
 
 import javax.servlet.ServletRequest;
 
@@ -35,7 +40,7 @@ public class MemoriesController {
   private MessageDao messageDao;
 
   @Autowired
-  private MemoriesDao memoriesDao;
+  private FavoritesDao memoriesDao;
 
   @RequestMapping(value = "/memories.jsp", params = {"add"}, method = RequestMethod.POST)
   public View add(
@@ -48,16 +53,16 @@ public class MemoriesController {
       throw new AccessViolationException("Not authorized");
     }
 
-    User user = tmpl.getCurrentUser();
+    UserDto user = tmpl.getCurrentUser();
     user.checkBlocked();
     user.checkAnonymous();
 
-    Message topic = messageDao.getById(msgid);
+    MessageDto topic = messageDao.getById(msgid);
     if (topic.isDeleted()) {
       throw new UserErrorException("Тема удалена");
     }
 
-    memoriesDao.addToMemories(user.getId(), topic.getId());
+    memoriesDao.add(user.getId(), topic.getId());
 
     return new RedirectView(topic.getLink());
   }
@@ -73,18 +78,18 @@ public class MemoriesController {
       throw new AccessViolationException("Not authorized");
     }
 
-    User user = tmpl.getCurrentUser();
+    UserDto user = tmpl.getCurrentUser();
     user.checkBlocked();
     user.checkAnonymous();
 
-    MemoriesListItem m = memoriesDao.getMemoriesListItem(id);
+    FavoritesListItemDto m = memoriesDao.getListItem(id);
 
     if (m != null) {
       if (m.getUserid() != user.getId()) {
         throw new AccessViolationException("Нельзя удалить чужую запись");
       }
 
-      Message topic = messageDao.getById(m.getTopic());
+      MessageDto topic = messageDao.getById(m.getTopic());
 
       memoriesDao.delete(id);
 

@@ -18,9 +18,9 @@ package ru.org.linux.search;
 import org.apache.solr.common.SolrDocument;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
-import ru.org.linux.site.User;
-import ru.org.linux.site.UserNotFoundException;
-import ru.org.linux.spring.dao.UserDao;
+import ru.org.linux.dao.UserDao;
+import ru.org.linux.dto.UserDto;
+import ru.org.linux.exception.UserNotFoundException;
 import ru.org.linux.util.bbcode.LorCodeService;
 
 import java.sql.Timestamp;
@@ -32,7 +32,7 @@ public class SearchItem {
   private final String topicTitle;
   private final Timestamp postdate;
   private final int topic;
-  private final User user;
+  private final UserDto user;
   private final String message;
 
   public SearchItem(SolrDocument doc, UserDao userDao, JdbcTemplate jdbcTemplate, LorCodeService lorCodeService, boolean secure) {
@@ -85,7 +85,7 @@ public class SearchItem {
     return topic;
   }
 
-  public User getUser() {
+  public UserDto getUser() {
     return user;
   }
 

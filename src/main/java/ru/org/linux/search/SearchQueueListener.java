@@ -27,12 +27,12 @@ import org.apache.solr.common.SolrInputDocument;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.stereotype.Component;
-import ru.org.linux.site.Comment;
+import ru.org.linux.dao.CommentDao;
+import ru.org.linux.dao.MessageDao;
+import ru.org.linux.dto.CommentDto;
+import ru.org.linux.dto.MessageDto;
+import ru.org.linux.exception.MessageNotFoundException;
 import ru.org.linux.site.CommentList;
-import ru.org.linux.site.Message;
-import ru.org.linux.site.MessageNotFoundException;
-import ru.org.linux.spring.dao.CommentDao;
-import ru.org.linux.spring.dao.MessageDao;
 
 import java.io.IOException;
 import java.sql.Timestamp;
@@ -73,7 +73,7 @@ public class SearchQueueListener {
   }
 
   private void reindexMessage(int msgid, boolean withComments) throws IOException, SolrServerException,  MessageNotFoundException {
-    Message msg = messageDao.getById(msgid);
+    MessageDto msg = messageDao.getById(msgid);
 
     if (!msg.isDeleted()) {
       updateMessage(msg);
@@ -88,9 +88,9 @@ public class SearchQueueListener {
       if (!msg.isDeleted()) {
         reindexComments(msg, commentList);
       } else {
-        List<String> msgids = Lists.transform(commentList.getList(), new Function<Comment, String>() {
+        List<String> msgids = Lists.transform(commentList.getList(), new Function<CommentDto, String>() {
           @Override
-          public String apply(Comment comment) {
+          public String apply(CommentDto comment) {
             return Integer.toString(comment.getId());
           }
         });
@@ -112,19 +112,19 @@ public class SearchQueueListener {
     boolean delete = false;
 
     for (Integer msgid : msgUpdate.getMsgids()) {
-      Comment comment = commentDao.getById(msgid);
+      CommentDto commentDto = commentDao.getById(msgid);
 
-      if (comment.isDeleted()) {
-        logger.info("Deleting comment "+comment.getId()+" from solr");
-        solrServer.deleteById(Integer.toString(comment.getId()));
+      if (commentDto.isDeleted()) {
+        logger.info("Deleting comment "+ commentDto.getId()+" from solr");
+        solrServer.deleteById(Integer.toString(commentDto.getId()));
         delete = true;
       } else {
         // комментарии могут быть из разного топика в функция массового удаления
         // возможно для скорости нужен какой-то кеш топиков, т.к. чаще бывает что все
         // комментарии из одного топика
-        Message topic = messageDao.getById(comment.getTopicId());
-        String message = commentDao.getMessage(comment);
-        rq.add(processComment(topic, comment, message));
+        MessageDto topic = messageDao.getById(commentDto.getTopicId());
+        String message = commentDao.getMessage(commentDto);
+        rq.add(processComment(topic, commentDto, message));
       }
     }
 
@@ -154,7 +154,7 @@ public class SearchQueueListener {
     logger.info("Reindex month "+year+'/'+month+" done, "+(endTime-startTime)/1000000+" millis");
   }
 
-  private void updateMessage(Message topic) throws IOException, SolrServerException {
+  private void updateMessage(MessageDto topic) throws IOException, SolrServerException {
     SolrInputDocument doc = new SolrInputDocument();
 
     doc.addField("id", topic.getId());
@@ -176,16 +176,16 @@ public class SearchQueueListener {
     solrServer.add(doc);
   }
 
-  private void reindexComments(Message topic, CommentList comments) throws IOException, SolrServerException {
+  private void reindexComments(MessageDto topic, CommentList comments) throws IOException, SolrServerException {
     Collection<SolrInputDocument> docs = new ArrayList<SolrInputDocument>();
     List<String> delete = new ArrayList<String>();
 
-    for (Comment comment : comments.getList()) {
-      if (comment.isDeleted()) {
-        delete.add(Integer.toString(comment.getId()));
+    for (CommentDto commentDto : comments.getList()) {
+      if (commentDto.isDeleted()) {
+        delete.add(Integer.toString(commentDto.getId()));
       }
-      String message = commentDao.getMessage(comment);
-      docs.add(processComment(topic, comment, message));
+      String message = commentDao.getMessage(commentDto);
+      docs.add(processComment(topic, commentDto, message));
     }
 
     if (!docs.isEmpty()) {
@@ -197,20 +197,20 @@ public class SearchQueueListener {
     }
   }
 
-  private static SolrInputDocument processComment(Message topic, Comment comment, String message) {
+  private static SolrInputDocument processComment(MessageDto topic, CommentDto commentDto, String message) {
     SolrInputDocument doc = new SolrInputDocument();
 
-    doc.addField("id", comment.getId());
+    doc.addField("id", commentDto.getId());
 
     doc.addField("section_id", topic.getSectionId());
-    doc.addField("user_id", comment.getUserid());
+    doc.addField("user_id", commentDto.getUserid());
     doc.addField("topic_user_id", topic.getUid());
-    doc.addField("topic_id", comment.getTopicId());
+    doc.addField("topic_id", commentDto.getTopicId());
     doc.addField("group_id", topic.getGroupId());
     String topicTitle = topic.getTitle();
     doc.addField("topic_title", StringEscapeUtils.unescapeHtml(topicTitle));
     
-    String commentTitle = comment.getTitle();
+    String commentTitle = commentDto.getTitle();
 
     if (commentTitle != null &&
         !commentTitle.isEmpty() &&
@@ -220,7 +220,7 @@ public class SearchQueueListener {
     }
 
     doc.addField("message", message);
-    Date postdate = comment.getPostdate();
+    Date postdate = commentDto.getPostdate();
     doc.addField("postdate", new Timestamp(postdate.getTime()));
 
     doc.addField("is_comment", true);

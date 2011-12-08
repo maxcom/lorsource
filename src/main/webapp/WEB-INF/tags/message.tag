@@ -1,12 +1,12 @@
 <%@ tag import="ru.org.linux.site.NewsViewer" %>
 <%@ tag import="ru.org.linux.site.Template" %>
-<%@ tag import="ru.org.linux.site.User" %>
+<%@ tag import="ru.org.linux.dto.UserDto" %>
 <%@ tag import="ru.org.linux.util.StringUtil" %>
 <%@ tag import="java.net.URLEncoder" %>
 <%@ tag import="java.sql.Timestamp" %>
 <%@ tag import="java.text.DateFormat" %>
 <%@ tag pageEncoding="UTF-8"%>
-<%@ attribute name="message" required="true" type="ru.org.linux.site.Message" %>
+<%@ attribute name="message" required="true" type="ru.org.linux.dto.MessageDto" %>
 <%@ attribute name="preparedMessage" required="true" type="ru.org.linux.site.PreparedMessage" %>
 <%@ attribute name="messageMenu" required="true" type="ru.org.linux.site.MessageMenu" %>
 <%@ attribute name="showMenu" required="true" type="java.lang.Boolean" %>
@@ -32,8 +32,8 @@
 <%
   Template tmpl = Template.getTemplate(request);
 
-  User author = preparedMessage.getAuthor();
-  User currentUser = tmpl.getCurrentUser();
+  UserDto author = preparedMessage.getAuthor();
+  UserDto currentUser = tmpl.getCurrentUser();
 
   int msgid = message.getMessageId();
 %>
@@ -46,14 +46,14 @@
     <c:if test="${not message.deleted}">
       [<a href="${message.link}">#</a>]
       <c:if test="${template.moderatorSession}">
-        <c:if test="${preparedMessage.section.premoderated and not message.commited}">
+        <c:if test="${preparedMessage.sectionDto.premoderated and not message.commited}">
           [<a href="commit.jsp?msgid=${message.id}">Подтвердить</a>]
         </c:if>
         
         [<a href="setpostscore.jsp?msgid=${message.id}">Параметры</a>]
         [<a href="mt.jsp?msgid=${message.id}">Перенести</a>]
 
-        <c:if test="${preparedMessage.section.premoderated}">
+        <c:if test="${preparedMessage.sectionDto.premoderated}">
           [<a href="mtn.jsp?msgid=${message.id}">Группа</a>]
         </c:if>
 
@@ -101,11 +101,11 @@
     out.append("<p>&gt;&gt;&gt; <a href=\"").append(StringUtil.escapeHtml(message.getUrl())).append("\">").append(message.getLinktext()).append("</a>");
   }
 
-  if (message.getUrl() != null && preparedMessage.getSection().isImagepost()) {
+  if (message.getUrl() != null && preparedMessage.getSectionDto().isImagepost()) {
     out.append(NewsViewer.showMediumImage(tmpl.getObjectConfig().getHTMLPathPrefix(), message, true));
   }
 %>
-<c:if test="${preparedMessage.section.premoderated and not empty preparedMessage.tags}">
+<c:if test="${preparedMessage.sectionDto.premoderated and not empty preparedMessage.tags}">
   <lor:tags list="${preparedMessage.tags}"/>
 </c:if>
 <div class=sign>
@@ -122,8 +122,8 @@
     </c:if>
   </c:if>
   <%
-  if (preparedMessage.getSection().isPremoderated() && message.getCommitby() != 0) {
-    User commiter = preparedMessage.getCommiter();
+  if (preparedMessage.getSectionDto().isPremoderated() && message.getCommitby() != 0) {
+    UserDto commiter = preparedMessage.getCommiter();
 
     if (commiter.getId()!=message.getUid()) {
       Timestamp commitDate = message.getCommitDate();

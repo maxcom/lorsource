@@ -17,10 +17,13 @@ package ru.org.linux.site;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import ru.org.linux.dao.UserDao;
+import ru.org.linux.dto.UserDto;
+import ru.org.linux.exception.AccessViolationException;
+import ru.org.linux.exception.UserNotFoundException;
+import ru.org.linux.exception.storage.StorageException;
+import ru.org.linux.exception.storage.StorageNotFoundException;
 import ru.org.linux.site.config.PathConfig;
-import ru.org.linux.spring.dao.UserDao;
-import ru.org.linux.storage.StorageException;
-import ru.org.linux.storage.StorageNotFoundException;
 import ru.org.linux.util.LorHttpUtils;
 import ru.org.linux.util.StringUtil;
 
@@ -34,7 +37,7 @@ import java.io.OutputStream;
 import java.text.DateFormat;
 import java.util.Properties;
 
-public final class Template {
+public class Template {
   private static final Log logger = LogFactory.getLog(Template.class);
 
   private final Properties cookies;
@@ -44,7 +47,7 @@ public final class Template {
 
   private final UserDao userDao;
 
-  private User currentUser = null;
+  private UserDto currentUser = null;
 
   public final DateFormat dateFormat = DateFormats.createDefault();
   public static final String PROPERTY_MAIN_URL = "MainUrl";
@@ -77,7 +80,7 @@ public final class Template {
           !"anonymous".equals(profileCookie) && getCookie("password") != null) {
 
         try {
-          User user = userDao.getUser(profileCookie);
+          UserDto user = userDao.getUser(profileCookie);
 
           if (user.getMD5(getSecret()).equals(getCookie("password")) && !user.isBlocked()) {
             performLogin(response, user);
@@ -104,7 +107,7 @@ public final class Template {
     response.addHeader("Cache-Control", "private");
   }
 
-  public void performLogin(HttpServletResponse response, User user) {
+  public void performLogin(HttpServletResponse response, UserDto user) {
     session.setAttribute("login", Boolean.TRUE);
     session.setAttribute("nick", user.getNick());
     session.setAttribute("moderator", user.isModerator());
@@ -254,7 +257,7 @@ public final class Template {
     }
   }
 
-  public User getCurrentUser()  {
+  public UserDto getCurrentUser()  {
     if (!isSessionAuthorized()) {
       return null;
     }

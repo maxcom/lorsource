@@ -1,6 +1,7 @@
 package ru.org.linux.util.bbcode;
 
-import ru.org.linux.site.User;
+import ru.org.linux.dto.UserDto;
+
 import java.util.Set;
 
 /**
@@ -11,9 +12,9 @@ import java.util.Set;
  */
 public class ParserResult {
   private final String html;
-  private final Set<User> replier;
+  private final Set<UserDto> replier;
 
-  public ParserResult(String html, Set<User> replier) {
+  public ParserResult(String html, Set<UserDto> replier) {
     this.html = html;
     this.replier = replier;
   }
@@ -22,7 +23,7 @@ public class ParserResult {
     return html;
   }
 
-  public Set<User> getReplier() {
+  public Set<UserDto> getReplier() {
     return replier;
   }
 }

@@ -21,9 +21,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
+import ru.org.linux.dao.GroupDao;
+import ru.org.linux.dao.MessageDao;
+import ru.org.linux.dto.GroupDto;
+import ru.org.linux.dto.MessageDto;
+import ru.org.linux.dto.UserDto;
+import ru.org.linux.exception.AccessViolationException;
 import ru.org.linux.site.*;
-import ru.org.linux.spring.dao.GroupDao;
-import ru.org.linux.spring.dao.MessageDao;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -43,10 +47,10 @@ public class ResolveController  {
   ) throws Exception {
     Template tmpl = Template.getTemplate(request);
 
-    Message message = messageDao.getById(msgid);
-    Group group = groupDao.getGroup(message.getGroupId());
-    User currentUser = tmpl.getCurrentUser();
-    if (!group.isResolvable()) {
+    MessageDto messageDto = messageDao.getById(msgid);
+    GroupDto groupDto = groupDao.getGroup(messageDto.getGroupId());
+    UserDto currentUser = tmpl.getCurrentUser();
+    if (!groupDto.isResolvable()) {
       throw new AccessViolationException("В данной группе нельзя помечать темы как решенные");
     }
 
@@ -54,11 +58,11 @@ public class ResolveController  {
       throw new AccessViolationException("Not authorized");
     }
 
-    if (!tmpl.isModeratorSession() && currentUser.getId() != message.getUid()) {
+    if (!tmpl.isModeratorSession() && currentUser.getId() != messageDto.getUid()) {
       throw new AccessViolationException("У Вас нет прав на решение данной темы");
     }
-    messageDao.resolveMessage(message.getId(), (resolved != null) && "yes".equals(resolved));
+    messageDao.resolveMessage(messageDto.getId(), (resolved != null) && "yes".equals(resolved));
 
-    return new ModelAndView(new RedirectView(message.getLinkLastmod()));
+    return new ModelAndView(new RedirectView(messageDto.getLinkLastmod()));
   }
 }

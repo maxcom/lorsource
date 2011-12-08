@@ -26,8 +26,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
+import ru.org.linux.dao.*;
+import ru.org.linux.dto.*;
+import ru.org.linux.exception.AccessViolationException;
+import ru.org.linux.exception.BadInputException;
+import ru.org.linux.exception.MessageNotFoundException;
 import ru.org.linux.site.*;
-import ru.org.linux.spring.dao.*;
 import ru.org.linux.util.LorURI;
 
 import javax.servlet.http.HttpServletRequest;
@@ -67,187 +71,188 @@ public class MessageController {
 
   @RequestMapping("/forum/{group}/{id}")
   public ModelAndView getMessageNewForum(
-    WebRequest webRequest,
-    HttpServletRequest request,
-    HttpServletResponse response,
-    @RequestParam(value = "filter", required = false) String filter,
-    @RequestParam(value = "cid" , required = false) Integer cid,
-    @PathVariable("group") String groupName,
-    @PathVariable("id") int msgid
+      WebRequest webRequest,
+      HttpServletRequest request,
+      HttpServletResponse response,
+      @RequestParam(value = "filter", required = false) String filter,
+      @RequestParam(value = "cid", required = false) Integer cid,
+      @PathVariable("group") String groupName,
+      @PathVariable("id") int msgid
   ) throws Exception {
-    if(cid != null) {
-      return jumpMessage(request, Section.SECTION_FORUM, groupName, msgid, cid);
+    if (cid != null) {
+      return jumpMessage(request, SectionDto.SECTION_FORUM, groupName, msgid, cid);
     }
-    return getMessageNew(Section.SECTION_FORUM, webRequest, request, response, 0, filter, groupName, msgid, null);
+    return getMessageNew(SectionDto.SECTION_FORUM, webRequest, request, response, 0, filter, groupName, msgid, null);
   }
 
   @RequestMapping("/news/{group}/{id}")
   public ModelAndView getMessageNewNews(
-    WebRequest webRequest,
-    HttpServletRequest request,
-    HttpServletResponse response,
-    @RequestParam(value="filter", required=false) String filter,
-    @RequestParam(value = "cid" , required = false) Integer cid,
-    @PathVariable("group") String groupName,
-    @PathVariable("id") int msgid
+      WebRequest webRequest,
+      HttpServletRequest request,
+      HttpServletResponse response,
+      @RequestParam(value = "filter", required = false) String filter,
+      @RequestParam(value = "cid", required = false) Integer cid,
+      @PathVariable("group") String groupName,
+      @PathVariable("id") int msgid
   ) throws Exception {
-    if(cid != null) {
-      return jumpMessage(request, Section.SECTION_NEWS, groupName, msgid, cid);
+    if (cid != null) {
+      return jumpMessage(request, SectionDto.SECTION_NEWS, groupName, msgid, cid);
     }
-    return getMessageNew(Section.SECTION_NEWS, webRequest, request, response, 0, filter, groupName, msgid, null);
+    return getMessageNew(SectionDto.SECTION_NEWS, webRequest, request, response, 0, filter, groupName, msgid, null);
   }
 
   @RequestMapping("/polls/{group}/{id}")
   public ModelAndView getMessageNewPolls(
-    WebRequest webRequest,
-    HttpServletRequest request,
-    HttpServletResponse response,
-    @RequestParam(value="filter", required=false) String filter,
-    @RequestParam(value = "cid" , required = false) Integer cid,
-    @PathVariable("group") String groupName,
-    @PathVariable("id") int msgid,
-    @RequestParam(value="highlight", required=false) Set<Integer> highlight
+      WebRequest webRequest,
+      HttpServletRequest request,
+      HttpServletResponse response,
+      @RequestParam(value = "filter", required = false) String filter,
+      @RequestParam(value = "cid", required = false) Integer cid,
+      @PathVariable("group") String groupName,
+      @PathVariable("id") int msgid,
+      @RequestParam(value = "highlight", required = false) Set<Integer> highlight
   ) throws Exception {
-    if(cid != null) {
-      return jumpMessage(request, Section.SECTION_POLLS, groupName, msgid, cid);
+    if (cid != null) {
+      return jumpMessage(request, SectionDto.SECTION_POLLS, groupName, msgid, cid);
     }
     return getMessageNew(
-      Section.SECTION_POLLS,
-      webRequest,
-      request,
-      response,
-      0,
-      filter,
-      groupName,
-      msgid, highlight);
+        SectionDto.SECTION_POLLS,
+        webRequest,
+        request,
+        response,
+        0,
+        filter,
+        groupName,
+        msgid, highlight);
   }
 
   @RequestMapping("/gallery/{group}/{id}")
   public ModelAndView getMessageNewGallery(
-    WebRequest webRequest,
-    HttpServletRequest request,
-    HttpServletResponse response,
-    @RequestParam(value="filter", required=false) String filter,
-    @RequestParam(value = "cid" , required = false) Integer cid,
-    @PathVariable("group") String groupName,
-    @PathVariable("id") int msgid
+      WebRequest webRequest,
+      HttpServletRequest request,
+      HttpServletResponse response,
+      @RequestParam(value = "filter", required = false) String filter,
+      @RequestParam(value = "cid", required = false) Integer cid,
+      @PathVariable("group") String groupName,
+      @PathVariable("id") int msgid
   ) throws Exception {
-    if(cid != null) {
-      return jumpMessage(request, Section.SECTION_GALLERY, groupName, msgid, cid);
+    if (cid != null) {
+      return jumpMessage(request, SectionDto.SECTION_GALLERY, groupName, msgid, cid);
     }
-    return getMessageNew(Section.SECTION_GALLERY, webRequest, request, response, 0, filter, groupName, msgid, null);
+    return getMessageNew(SectionDto.SECTION_GALLERY, webRequest, request, response, 0, filter, groupName, msgid, null);
   }
 
   @RequestMapping("/forum/{group}/{id}/page{page}")
   public ModelAndView getMessageNewForumPage(
-    WebRequest webRequest,
-    HttpServletRequest request,
-    HttpServletResponse response,
-    @RequestParam(value="filter", required=false) String filter,
-    @PathVariable("group") String groupName,
-    @PathVariable("id") int msgid,
-    @PathVariable("page") int page
+      WebRequest webRequest,
+      HttpServletRequest request,
+      HttpServletResponse response,
+      @RequestParam(value = "filter", required = false) String filter,
+      @PathVariable("group") String groupName,
+      @PathVariable("id") int msgid,
+      @PathVariable("page") int page
   ) throws Exception {
-    return getMessageNew(Section.SECTION_FORUM, webRequest, request, response, page, filter, groupName, msgid, null);
+    return getMessageNew(SectionDto.SECTION_FORUM, webRequest, request, response, page, filter, groupName, msgid, null);
   }
 
   @RequestMapping("/news/{group}/{id}/page{page}")
   public ModelAndView getMessageNewNewsPage(
-    WebRequest webRequest,
-    HttpServletRequest request,
-    HttpServletResponse response,
-    @RequestParam(value="filter", required=false) String filter,
-    @RequestParam(value = "cid" , required = false) Integer cid,
-    @PathVariable("group") String groupName,
-    @PathVariable("id") int msgid,
-    @PathVariable("page") int page
+      WebRequest webRequest,
+      HttpServletRequest request,
+      HttpServletResponse response,
+      @RequestParam(value = "filter", required = false) String filter,
+      @RequestParam(value = "cid", required = false) Integer cid,
+      @PathVariable("group") String groupName,
+      @PathVariable("id") int msgid,
+      @PathVariable("page") int page
   ) throws Exception {
-    return getMessageNew(Section.SECTION_NEWS, webRequest, request, response, page, filter, groupName, msgid, null);
+    return getMessageNew(SectionDto.SECTION_NEWS, webRequest, request, response, page, filter, groupName, msgid, null);
   }
 
   @RequestMapping("/polls/{group}/{id}/page{page}")
   public ModelAndView getMessageNewPollsPage(
-    WebRequest webRequest,
-    HttpServletRequest request,
-    HttpServletResponse response,
-    @RequestParam(value="filter", required=false) String filter,
-    @RequestParam(value = "cid" , required = false) Integer cid,
-    @PathVariable("group") String groupName,
-    @PathVariable("id") int msgid,
-    @PathVariable("page") int page
+      WebRequest webRequest,
+      HttpServletRequest request,
+      HttpServletResponse response,
+      @RequestParam(value = "filter", required = false) String filter,
+      @RequestParam(value = "cid", required = false) Integer cid,
+      @PathVariable("group") String groupName,
+      @PathVariable("id") int msgid,
+      @PathVariable("page") int page
   ) throws Exception {
-    return getMessageNew(Section.SECTION_POLLS, webRequest, request, response, page, filter, groupName, msgid, null);
+    return getMessageNew(SectionDto.SECTION_POLLS, webRequest, request, response, page, filter, groupName, msgid, null);
   }
 
   @RequestMapping("/gallery/{group}/{id}/page{page}")
   public ModelAndView getMessageNewGalleryPage(
-    WebRequest webRequest,
-    HttpServletRequest request,
-    HttpServletResponse response,
-    @RequestParam(value="filter", required=false) String filter,
-    @PathVariable("group") String groupName,
-    @PathVariable("id") int msgid,
-    @PathVariable("page") int page
+      WebRequest webRequest,
+      HttpServletRequest request,
+      HttpServletResponse response,
+      @RequestParam(value = "filter", required = false) String filter,
+      @PathVariable("group") String groupName,
+      @PathVariable("id") int msgid,
+      @PathVariable("page") int page
   ) throws Exception {
-    return getMessageNew(Section.SECTION_GALLERY, webRequest, request, response, page, filter, groupName, msgid, null);
+    return getMessageNew(SectionDto.SECTION_GALLERY, webRequest, request, response, page, filter, groupName, msgid, null);
   }
 
   public ModelAndView getMessageNew(
-    int section,
-    WebRequest webRequest,
-    HttpServletRequest request,
-    HttpServletResponse response,
-    int page,
-    String filter,
-    String groupName,
-    int msgid,
-    Set<Integer> highlight)
-  throws Exception {
-    Message message = messageDao.getById(msgid);
-    PreparedMessage preparedMessage = prepareService.prepareMessage(message, false, request.isSecure());
-    Group group = preparedMessage.getGroup();
+      int section,
+      WebRequest webRequest,
+      HttpServletRequest request,
+      HttpServletResponse response,
+      int page,
+      String filter,
+      String groupName,
+      int msgid,
+      Set<Integer> highlight)
+      throws Exception {
+    MessageDto messageDto = messageDao.getById(msgid);
+    PreparedMessage preparedMessage = prepareService.prepareMessage(messageDto, false, request.isSecure());
+    GroupDto groupDto = preparedMessage.getGroupDto();
 
-    if (!group.getUrlName().equals(groupName) || group.getSectionId() != section) {
-      return new ModelAndView(new RedirectView(message.getLink()));
+    if (!groupDto.getUrlName().equals(groupName) || groupDto.getSectionId() != section) {
+      return new ModelAndView(new RedirectView(messageDto.getLink()));
     }
 
-    return getMessage(webRequest, request, response, preparedMessage, group, page, filter, highlight);
+    return getMessage(webRequest, request, response, preparedMessage, groupDto, page, filter, highlight);
   }
 
   /**
    * Оставлено для старых ссылок /view-message.jsp
-   * @param msgid id топика
-   * @param page страница топика
+   *
+   * @param msgid   id топика
+   * @param page    страница топика
    * @param lastmod параметр для кэширования
-   * @param filter фильтр
-   * @param output ?
+   * @param filter  фильтр
+   * @param output  ?
    * @return вовзращает редирект на новый код
    * @throws Exception если получится
    */
   @RequestMapping("/view-message.jsp")
   public ModelAndView getMessageOld(
-    @RequestParam("msgid") int msgid,
-    @RequestParam(value="page", required=false) Integer page,
-    @RequestParam(value="lastmod", required=false) Long lastmod,
-    @RequestParam(value="filter", required=false) String filter,
-    @RequestParam(required=false) String output
+      @RequestParam("msgid") int msgid,
+      @RequestParam(value = "page", required = false) Integer page,
+      @RequestParam(value = "lastmod", required = false) Long lastmod,
+      @RequestParam(value = "filter", required = false) String filter,
+      @RequestParam(required = false) String output
   ) throws Exception {
-    Message message = messageDao.getById(msgid);
+    MessageDto messageDto = messageDao.getById(msgid);
 
-    StringBuilder link = new StringBuilder(message.getLink());
+    StringBuilder link = new StringBuilder(messageDto.getLink());
 
     StringBuilder params = new StringBuilder();
 
-    if (page!=null) {
+    if (page != null) {
       link.append("/page").append(page);
     }
 
-    if (lastmod!=null && !message.isExpired()) {
-      params.append("?lastmod=").append(message.getLastModified().getTime());
+    if (lastmod != null && !messageDto.isExpired()) {
+      params.append("?lastmod=").append(messageDto.getLastModified().getTime());
     }
 
-    if (filter!=null) {
-      if (params.length()==0) {
+    if (filter != null) {
+      if (params.length() == 0) {
         params.append('?');
       } else {
         params.append('&');
@@ -255,8 +260,8 @@ public class MessageController {
       params.append("filter=").append(filter);
     }
 
-    if (output!=null) {
-      if (params.length()==0) {
+    if (output != null) {
+      if (params.length() == 0) {
         params.append('?');
       } else {
         params.append('&');
@@ -270,16 +275,16 @@ public class MessageController {
   }
 
   private ModelAndView getMessage(
-    WebRequest webRequest,
-    HttpServletRequest request,
-    HttpServletResponse response,
-    PreparedMessage preparedMessage,
-    Group group,
-    int page,
-    String filter,
-    Set<Integer> highlight
+      WebRequest webRequest,
+      HttpServletRequest request,
+      HttpServletResponse response,
+      PreparedMessage preparedMessage,
+      GroupDto groupDto,
+      int page,
+      String filter,
+      Set<Integer> highlight
   ) throws Exception {
-    Message message = preparedMessage.getMessage();
+    MessageDto messageDto = preparedMessage.getMessage();
 
     Template tmpl = Template.getTemplate(request);
 
@@ -299,11 +304,11 @@ public class MessageController {
     boolean rss = request.getParameter("output") != null && "rss".equals(request.getParameter("output"));
 
     if (showDeleted && !"POST".equals(request.getMethod())) {
-      return new ModelAndView(new RedirectView(message.getLink()));
+      return new ModelAndView(new RedirectView(messageDto.getLink()));
     }
 
     if (page == -1 && !tmpl.isSessionAuthorized()) {
-      return new ModelAndView(new RedirectView(message.getLink()));
+      return new ModelAndView(new RedirectView(messageDto.getLink()));
     }
 
     if (showDeleted) {
@@ -314,22 +319,22 @@ public class MessageController {
 
     params.put("showDeleted", showDeleted);
 
-    User currentUser = tmpl.getCurrentUser();
+    UserDto currentUser = tmpl.getCurrentUser();
 
-    if (message.isExpired() && showDeleted && !tmpl.isModeratorSession()) {
-      throw new MessageNotFoundException(message.getId(), "нельзя посмотреть удаленные комментарии в устаревших темах");
+    if (messageDto.isExpired() && showDeleted && !tmpl.isModeratorSession()) {
+      throw new MessageNotFoundException(messageDto.getId(), "нельзя посмотреть удаленные комментарии в устаревших темах");
     }
 
-    checkView(message, tmpl, currentUser);
+    checkView(messageDto, tmpl, currentUser);
 
-    params.put("group", group);
+    params.put("group", groupDto);
 
-    if (group.getCommentsRestriction() == -1 && !Template.isSessionAuthorized(request.getSession())) {
+    if (groupDto.getCommentsRestriction() == -1 && !Template.isSessionAuthorized(request.getSession())) {
       throw new AccessViolationException("Это сообщение нельзя посмотреть");
     }
 
     if (!tmpl.isSessionAuthorized()) { // because users have IgnoreList and memories
-      String etag = getEtag(message, tmpl);
+      String etag = getEtag(messageDto, tmpl);
       response.setHeader("Etag", etag);
 
       if (request.getHeader("If-None-Match") != null) {
@@ -337,21 +342,21 @@ public class MessageController {
           response.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
           return null;
         }
-      } else if (checkLastModified(webRequest, message)) {
+      } else if (checkLastModified(webRequest, messageDto)) {
         return null;
       }
     }
 
-    params.put("message", message);
+    params.put("message", messageDto);
     params.put("preparedMessage", preparedMessage);
 
     params.put("messageMenu", prepareService.getMessageMenu(preparedMessage, currentUser));
 
-    if (message.isExpired()) {
+    if (messageDto.isExpired()) {
       response.setDateHeader("Expires", System.currentTimeMillis() + 30 * 24 * 60 * 60 * 1000L);
     }
 
-    CommentList comments = commentDao.getCommentList(message, showDeleted);
+    CommentList comments = commentDao.getCommentList(messageDto, showDeleted);
 
     params.put("comments", comments);
 
@@ -384,12 +389,12 @@ public class MessageController {
     params.put("defaultFilterMode", defaultFilterMode);
 
     if (!rss) {
-      if (ignoreList==null || ignoreList.isEmpty()) {
-        params.put("prevMessage", messageDao.getPreviousMessage(message, null));
-        params.put("nextMessage", messageDao.getNextMessage(message, null));
+      if (ignoreList == null || ignoreList.isEmpty()) {
+        params.put("prevMessage", messageDao.getPreviousMessage(messageDto, null));
+        params.put("nextMessage", messageDao.getNextMessage(messageDto, null));
       } else {
-        params.put("prevMessage", messageDao.getPreviousMessage(message, currentUser));
-        params.put("nextMessage", messageDao.getNextMessage(message, currentUser));
+        params.put("prevMessage", messageDao.getPreviousMessage(messageDto, currentUser));
+        params.put("nextMessage", messageDao.getNextMessage(messageDto, currentUser));
       }
 
       Set<Integer> hideSet = CommentList.makeHideSet(userDao, comments, filterMode, ignoreList);
@@ -406,7 +411,7 @@ public class MessageController {
         offset = messages * page;
       }
 
-      List<Comment> commentsFiltred = cv.getComments(reverse, offset, limit, hideSet);
+      List<CommentDto> commentsFiltred = cv.getComments(reverse, offset, limit, hideSet);
 
       List<PreparedComment> commentsPrepared = prepareService.prepareCommentList(comments, commentsFiltred, request.isSecure());
 
@@ -414,7 +419,7 @@ public class MessageController {
     } else {
       CommentFilter cv = new CommentFilter(comments);
 
-      List<Comment> commentsFiltred = cv.getComments(true, 0, MessageTable.RSS_DEFAULT, null);
+      List<CommentDto> commentsFiltred = cv.getComments(true, 0, MessageTable.RSS_DEFAULT, null);
 
       List<PreparedComment> commentsPrepared = prepareService.prepareCommentListRSS(comments, commentsFiltred, request.isSecure());
 
@@ -426,48 +431,48 @@ public class MessageController {
     return new ModelAndView(rss ? "view-message-rss" : "view-message", params);
   }
 
-  private static void checkView(Message message, Template tmpl, User currentUser) throws MessageNotFoundException {
+  private static void checkView(MessageDto messageDto, Template tmpl, UserDto currentUser) throws MessageNotFoundException {
     if (tmpl.isModeratorSession()) {
       return;
     }
 
-    if (message.isDeleted()) {
-      if (message.isExpired()) {
-        throw new MessageNotFoundException(message.getId(), "нельзя посмотреть устаревшие удаленные сообщения");
+    if (messageDto.isDeleted()) {
+      if (messageDto.isExpired()) {
+        throw new MessageNotFoundException(messageDto.getId(), "нельзя посмотреть устаревшие удаленные сообщения");
       }
 
       if (!tmpl.isSessionAuthorized()) {
-        throw new MessageNotFoundException(message.getId(), "Сообщение удалено");
+        throw new MessageNotFoundException(messageDto.getId(), "Сообщение удалено");
       }
 
-      if (currentUser.getId() == message.getUid()) {
+      if (currentUser.getId() == messageDto.getUid()) {
         return;
       }
 
-      if (currentUser.getScore() < User.VIEW_DELETED_SCORE) {
-        throw new MessageNotFoundException(message.getId(), "Сообщение удалено");
+      if (currentUser.getScore() < UserDto.VIEW_DELETED_SCORE) {
+        throw new MessageNotFoundException(messageDto.getId(), "Сообщение удалено");
       }
     }
   }
 
-  private static boolean checkLastModified(WebRequest webRequest, Message message) {
+  private static boolean checkLastModified(WebRequest webRequest, MessageDto messageDto) {
     try {
-      return webRequest.checkNotModified(message.getLastModified().getTime());
+      return webRequest.checkNotModified(messageDto.getLastModified().getTime());
     } catch (IllegalArgumentException ignored) {
       return false;
     }
   }
 
-  private static String getEtag(Message message, Template tmpl) {
+  private static String getEtag(MessageDto messageDto, Template tmpl) {
     String nick = tmpl.getNick();
 
-    String userAddon = nick!=null?('-' +nick):"";
+    String userAddon = nick != null ? ('-' + nick) : "";
 
     if (!tmpl.isUsingDefaultProfile()) {
-      userAddon+=tmpl.getProf().getTimestamp();
+      userAddon += tmpl.getProf().getTimestamp();
     }
 
-    return "msg-"+message.getMessageId()+ '-' +message.getLastModified().getTime()+userAddon;
+    return "msg-" + messageDto.getMessageId() + '-' + messageDto.getLastModified().getTime() + userAddon;
   }
 
   private ModelAndView jumpMessage(
@@ -477,11 +482,11 @@ public class MessageController {
       int msgid,
       int cid) throws Exception {
     Template tmpl = Template.getTemplate(request);
-    Message topic = messageDao.getById(msgid);
+    MessageDto topic = messageDao.getById(msgid);
     String redirectUrl = topic.getLink();
     StringBuffer options = new StringBuffer();
-    Section section = sectionDao.getSection(sectionId);
-    Group group = groupDao.getGroup(section, groupName);
+    SectionDto sectionDto = sectionDao.getSection(sectionId);
+    GroupDto groupDto = groupDao.getGroup(sectionDto, groupName);
 
     StringBuilder hash = new StringBuilder();
 
@@ -518,15 +523,15 @@ public class MessageController {
 
   @RequestMapping(value = "/jump-message.jsp", method = {RequestMethod.GET, RequestMethod.HEAD})
   public ModelAndView jumpMessage(
-          HttpServletRequest request,
-          @RequestParam int msgid,
-          @RequestParam(required = false) Integer page,
-          @RequestParam(required = false) String nocache,
-          @RequestParam(required = false) Integer cid
+      HttpServletRequest request,
+      @RequestParam int msgid,
+      @RequestParam(required = false) Integer page,
+      @RequestParam(required = false) String nocache,
+      @RequestParam(required = false) Integer cid
   ) throws Exception {
     Template tmpl = Template.getTemplate(request);
 
-    Message topic = messageDao.getById(msgid);
+    MessageDto topic = messageDao.getById(msgid);
 
     String redirectUrl = topic.getLink();
     StringBuffer options = new StringBuffer();

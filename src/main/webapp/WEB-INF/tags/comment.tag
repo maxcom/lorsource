@@ -1,7 +1,7 @@
-<%@ tag import="ru.org.linux.site.Comment" %>
+<%@ tag import="ru.org.linux.dto.CommentDto" %>
 <%@ tag import="ru.org.linux.site.CommentNode" %>
 <%@ tag import="ru.org.linux.site.Template" %>
-<%@ tag import="ru.org.linux.site.User" %>
+<%@ tag import="ru.org.linux.dto.UserDto" %>
 <%@ tag import="ru.org.linux.util.StringUtil" %>
 <%@ tag import="java.text.DateFormat" %>
 <%@ tag pageEncoding="UTF-8"%>
@@ -23,7 +23,7 @@
 <%@ attribute name="comments" required="true" type="ru.org.linux.site.CommentList" %>
 <%@ attribute name="expired" required="true" type="java.lang.Boolean"%>
 <%@ attribute name="showMenu" required="true" type="java.lang.Boolean"%>
-<%@ attribute name="topic" required="true" type="ru.org.linux.site.Message" %>
+<%@ attribute name="topic" required="true" type="ru.org.linux.dto.MessageDto" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
@@ -37,7 +37,7 @@
   out.append(Integer.toString(comment.getComment().getMessageId()));
   out.append(" -->\n");
 
-  User author = comment.getAuthor();
+  UserDto author = comment.getAuthor();
 %>
 <div class="msg" id="comment-${comment.comment.messageId}">
 <c:if test="${showMenu}">
@@ -61,7 +61,7 @@
     <%
       CommentNode replyNode = comments.getNode(comment.getComment().getReplyTo());
       if (replyNode != null) {
-        Comment reply = replyNode.getComment();
+        CommentDto reply = replyNode.getComment();
 
         out.append(" Ответ на: <a href=\"");
 
@@ -76,7 +76,7 @@
 
         out.append("\" onclick=\"highlightMessage(").append(Integer.toString(reply.getMessageId())).append(");\">");
 
-        User replyAuthor = comment.getReplyAuthor();
+        UserDto replyAuthor = comment.getReplyAuthor();
 
         String title = reply.getTitle();
 
@@ -118,7 +118,7 @@
 <c:if test="${not comment.comment.deleted and showMenu}">
     <div class=reply>
 <%
-    User currentUser = tmpl.getCurrentUser();
+    UserDto currentUser = tmpl.getCurrentUser();
 
     if (topic.isCommentsAllowed(currentUser)) {
       out.append("[<a href=\"add_comment.jsp?topic=").append(Integer.toString(comment.getComment().getTopicId())).append("&amp;replyto=").append(Integer.toString(comment.getComment().getMessageId())).append("\">Ответить на это сообщение</a>] ");

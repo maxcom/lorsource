@@ -16,7 +16,7 @@
   ~    limitations under the License.
   --%>
 
-<%--@elvariable id="message" type="ru.org.linux.site.Message"--%>
+<%--@elvariable id="message" type="ru.org.linux.dto.MessageDto"--%>
 <%--@elvariable id="preparedMessage" type="ru.org.linux.site.PreparedMessage"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
