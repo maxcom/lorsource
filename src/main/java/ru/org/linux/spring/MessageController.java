@@ -15,8 +15,6 @@
 
 package ru.org.linux.spring;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -40,12 +38,14 @@ import java.util.Set;
 
 @Controller
 public class MessageController {
-  private static final Log logger = LogFactory.getLog(MessageController.class);
   @Autowired
   private MessageDao messageDao;
 
   @Autowired
-  private PrepareService prepareService;
+  private CommentPrepareService prepareService;
+
+  @Autowired
+  private MessagePrepareService messagePrepareService;
 
   @Autowired
   private CommentDao commentDao;
@@ -76,7 +76,7 @@ public class MessageController {
     @PathVariable("id") int msgid
   ) throws Exception {
     if(cid != null) {
-      return jumpMessage(request, Section.SECTION_FORUM, groupName, msgid, cid);
+      return jumpMessage(request, msgid, cid);
     }
     return getMessageNew(Section.SECTION_FORUM, webRequest, request, response, 0, filter, groupName, msgid, null);
   }
@@ -92,7 +92,7 @@ public class MessageController {
     @PathVariable("id") int msgid
   ) throws Exception {
     if(cid != null) {
-      return jumpMessage(request, Section.SECTION_NEWS, groupName, msgid, cid);
+      return jumpMessage(request, msgid, cid);
     }
     return getMessageNew(Section.SECTION_NEWS, webRequest, request, response, 0, filter, groupName, msgid, null);
   }
@@ -109,7 +109,7 @@ public class MessageController {
     @RequestParam(value="highlight", required=false) Set<Integer> highlight
   ) throws Exception {
     if(cid != null) {
-      return jumpMessage(request, Section.SECTION_POLLS, groupName, msgid, cid);
+      return jumpMessage(request, msgid, cid);
     }
     return getMessageNew(
       Section.SECTION_POLLS,
@@ -133,7 +133,7 @@ public class MessageController {
     @PathVariable("id") int msgid
   ) throws Exception {
     if(cid != null) {
-      return jumpMessage(request, Section.SECTION_GALLERY, groupName, msgid, cid);
+      return jumpMessage(request, msgid, cid);
     }
     return getMessageNew(Section.SECTION_GALLERY, webRequest, request, response, 0, filter, groupName, msgid, null);
   }
@@ -204,7 +204,7 @@ public class MessageController {
     Set<Integer> highlight)
   throws Exception {
     Message message = messageDao.getById(msgid);
-    PreparedMessage preparedMessage = prepareService.prepareMessage(message, false, request.isSecure());
+    PreparedMessage preparedMessage = messagePrepareService.prepareMessage(message, false, request.isSecure());
     Group group = preparedMessage.getGroup();
 
     if (!group.getUrlName().equals(groupName) || group.getSectionId() != section) {
@@ -345,7 +345,7 @@ public class MessageController {
     params.put("message", message);
     params.put("preparedMessage", preparedMessage);
 
-    params.put("messageMenu", prepareService.getMessageMenu(preparedMessage, currentUser));
+    params.put("messageMenu", messagePrepareService.getMessageMenu(preparedMessage, currentUser));
 
     if (message.isExpired()) {
       response.setDateHeader("Expires", System.currentTimeMillis() + 30 * 24 * 60 * 60 * 1000L);
@@ -471,17 +471,13 @@ public class MessageController {
   }
 
   private ModelAndView jumpMessage(
-      HttpServletRequest request,
-      int sectionId,
-      String groupName,
-      int msgid,
-      int cid) throws Exception {
+          HttpServletRequest request,
+          int msgid,
+          int cid) throws Exception {
     Template tmpl = Template.getTemplate(request);
     Message topic = messageDao.getById(msgid);
     String redirectUrl = topic.getLink();
     StringBuffer options = new StringBuffer();
-    Section section = sectionDao.getSection(sectionId);
-    Group group = groupDao.getGroup(section, groupName);
 
     StringBuilder hash = new StringBuilder();
 

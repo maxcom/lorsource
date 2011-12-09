@@ -49,7 +49,7 @@ public class GroupController {
   private UserDao userDao;
 
   @Autowired
-  private PrepareService prepareService;
+  private GroupInfoPrepareService prepareService;
 
   @Autowired
   private IgnoreListDao ignoreListDao;
@@ -89,7 +89,7 @@ public class GroupController {
     }
   }
 
-  @RequestMapping(value = {"/forum/{group}/{year}/{month}"})
+  @RequestMapping("/forum/{group}/{year}/{month}")
   public ModelAndView forumArchive(
     @PathVariable("group") String groupName,
     @RequestParam(defaultValue = "0", value="offset") int offset,
@@ -100,7 +100,7 @@ public class GroupController {
     return forum(groupName, offset, false, request, year, month);
   }
 
-  @RequestMapping(value = "/forum/{group}")
+  @RequestMapping("/forum/{group}")
   public ModelAndView forum(
     @PathVariable("group") String groupName,
     @RequestParam(defaultValue = "0", value="offset") int offset,

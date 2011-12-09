@@ -20,6 +20,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
+import ru.org.linux.site.EditInfoPrepareService;
 import ru.org.linux.site.Message;
 import ru.org.linux.site.PreparedEditInfo;
 import ru.org.linux.spring.dao.MessageDao;
@@ -33,7 +34,7 @@ public class EditInfoController {
   private MessageDao messageDao;
 
   @Autowired
-  private PrepareService prepareService;
+  private EditInfoPrepareService prepareService;
 
   @RequestMapping({
     "/news/{group}/{id}/history",
@@ -47,7 +48,7 @@ public class EditInfoController {
   ) throws Exception {
     Message message = messageDao.getById(msgid);
 
-    List<PreparedEditInfo> editInfos = prepareService.build(message, request.isSecure());
+    List<PreparedEditInfo> editInfos = prepareService.prepareEditInfo(message, request.isSecure());
 
     ModelAndView mv = new ModelAndView("history");
 

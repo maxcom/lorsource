@@ -57,10 +57,13 @@ public class AddCommentController extends ApplicationObjectSupport {
   private MessageDao messageDao;
   private UserDao userDao;
   private IPBlockDao ipBlockDao;
-  private PrepareService prepareService;
+  private CommentPrepareService prepareService;
   private LorCodeService lorCodeService;
   private ToLorCodeFormatter toLorCodeFormatter;
   private ToLorCodeTexFormatter toLorCodeTexFormatter;
+
+  @Autowired
+  private MessagePrepareService messagePrepareService;
 
   @Autowired
   public void setSearchQueueSender(SearchQueueSender searchQueueSender) {
@@ -98,7 +101,7 @@ public class AddCommentController extends ApplicationObjectSupport {
   }
 
   @Autowired
-  public void setPrepareService(PrepareService prepareService) {
+  public void setPrepareService(CommentPrepareService prepareService) {
     this.prepareService = prepareService;
   }
 
@@ -153,7 +156,7 @@ public class AddCommentController extends ApplicationObjectSupport {
     return new ModelAndView(
             "comment-message",
             "preparedMessage",
-            prepareService.prepareMessage(add.getTopic(), false, request.isSecure())
+            messagePrepareService.prepareMessage(add.getTopic(), false, request.isSecure())
     );
   }
 

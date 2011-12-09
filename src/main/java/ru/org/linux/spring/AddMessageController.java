@@ -59,7 +59,10 @@ public class AddMessageController extends ApplicationObjectSupport {
   private SectionDao sectionDao;
   private TagDao tagDao;
   private UserDao userDao;
-  private PrepareService prepareService;
+
+  @Autowired
+  private MessagePrepareService prepareService;
+
   private MessageDao messageDao;
   private ToLorCodeFormatter toLorCodeFormatter;
 
@@ -107,11 +110,6 @@ public class AddMessageController extends ApplicationObjectSupport {
   @Autowired
   public void setUserDao(UserDao userDao) {
     this.userDao = userDao;
-  }
-
-  @Autowired
-  public void setPrepareService(PrepareService prepareService) {
-    this.prepareService = prepareService;
   }
 
   @Autowired

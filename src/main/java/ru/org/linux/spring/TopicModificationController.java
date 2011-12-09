@@ -34,7 +34,7 @@ import javax.servlet.http.HttpServletRequest;
 @Controller
 public class TopicModificationController extends ApplicationObjectSupport {
   @Autowired
-  private PrepareService prepareService;
+  private MessagePrepareService prepareService;
 
   @Autowired
   private MessageDao messageDao;

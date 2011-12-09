@@ -43,7 +43,7 @@ public class DeleteMessageController extends ApplicationObjectSupport {
   @Autowired
   private MessageDao messageDao;
   @Autowired
-  private PrepareService prepareService;
+  private MessagePrepareService prepareService;
 
   @RequestMapping(value="/delete.jsp", method= RequestMethod.GET)
   public ModelAndView showForm(

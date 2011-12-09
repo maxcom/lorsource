@@ -23,6 +23,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import ru.org.linux.site.Message;
+import ru.org.linux.site.MessagePrepareService;
 import ru.org.linux.site.NewsViewer;
 import ru.org.linux.site.Template;
 
@@ -35,7 +36,7 @@ import java.util.List;
 @Controller
 public class MainPageController {
   @Autowired
-  private PrepareService prepareService;
+  private MessagePrepareService prepareService;
 
   private JdbcTemplate jdbcTemplate;
 

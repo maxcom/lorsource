@@ -41,7 +41,7 @@ public class DeleteCommentController {
   private CommentDao commentDao;
   private MessageDao messageDao;
   private UserDao userDao;
-  private PrepareService prepareService;
+  private CommentPrepareService prepareService;
 
   private static final int DELETE_PERIOD = 60 * 60 * 1000; // milliseconds
 
@@ -67,7 +67,7 @@ public class DeleteCommentController {
   }
 
   @Autowired
-  public void setPrepareService(PrepareService prepareService) {
+  public void setPrepareService(CommentPrepareService prepareService) {
     this.prepareService = prepareService;
   }
 

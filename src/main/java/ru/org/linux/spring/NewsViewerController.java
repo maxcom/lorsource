@@ -61,7 +61,7 @@ public class NewsViewerController {
   private TagDao tagDao;
 
   @Autowired
-  private PrepareService prepareService;
+  private MessagePrepareService prepareService;
 
   @Autowired
   private UserDao userDao;
@@ -268,7 +268,7 @@ public class NewsViewerController {
     return new ModelAndView("view-news", params);
   }
 
-  @RequestMapping(value="/people/{nick}")
+  @RequestMapping("/people/{nick}")
   public ModelAndView showUserTopicsNew(
     @PathVariable String nick,
     @RequestParam(value="offset", required=false) Integer offset,
@@ -331,7 +331,7 @@ public class NewsViewerController {
     }
   }
 
-  @RequestMapping(value="/people/{nick}/favs")
+  @RequestMapping("/people/{nick}/favs")
   public ModelAndView showUserFavs(
     @PathVariable String nick,
     @RequestParam(value="offset", required=false) Integer offset,
@@ -448,7 +448,7 @@ public class NewsViewerController {
       }
     };
 
-    List deleted;
+    List<DeletedTopic> deleted;
 
     if (sectionId == 0) {
       deleted = jdbcTemplate.query(
