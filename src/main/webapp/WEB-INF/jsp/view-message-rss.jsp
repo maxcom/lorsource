@@ -34,7 +34,6 @@
   <description><![CDATA[<%
     out.print(MessageTable.getTopicRss(
             tmpl.getConfig().getProperty("HTMLPathPrefix"),
-            tmpl.getMainUrl(),
             (PreparedMessage) request.getAttribute("preparedMessage")));
 %>]]>
   </description>
