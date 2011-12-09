@@ -24,6 +24,9 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import ru.org.linux.poll.Poll;
+import ru.org.linux.poll.PollNotFoundException;
+import ru.org.linux.poll.PollVariant;
 import ru.org.linux.site.*;
 
 import javax.sql.DataSource;

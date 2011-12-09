@@ -15,7 +15,7 @@
   ~    limitations under the License.
   --%>
 <%--@elvariable id="message" type="ru.org.linux.site.Message"--%>
-<%--@elvariable id="poll" type="ru.org.linux.site.Poll"--%>
+<%--@elvariable id="poll" type="ru.org.linux.poll.Poll"--%>
 <%--@elvariable id="votes" type="java.util.List<ru.org.linux.spring.dao.VoteDto>"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>

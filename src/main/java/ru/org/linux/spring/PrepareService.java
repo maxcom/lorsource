@@ -17,6 +17,9 @@ package ru.org.linux.spring;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.org.linux.poll.PollNotFoundException;
+import ru.org.linux.poll.PollPrepareService;
+import ru.org.linux.poll.PreparedPoll;
 import ru.org.linux.site.*;
 import ru.org.linux.spring.dao.*;
 import ru.org.linux.util.bbcode.LorCodeService;
@@ -29,7 +32,6 @@ import java.util.List;
  */
 @Service
 public class PrepareService {
-  private PollDao pollDao;
   private GroupDao groupDao;
   private UserDao userDao;
   private SectionDao sectionDao;
@@ -41,15 +43,13 @@ public class PrepareService {
   private LorCodeService lorCodeService;
 
   @Autowired
+  private PollPrepareService pollPrepareService;
+
+  @Autowired
   private TagDao tagDao;
 
   @Autowired
   private MemoriesDao memoriesDao;
-
-  @Autowired
-  public void setPollDao(PollDao pollDao) {
-    this.pollDao = pollDao;
-  }
 
   @Autowired
   public void setGroupDao(GroupDao groupDao) {
@@ -96,15 +96,6 @@ public class PrepareService {
     this.lorCodeService = lorCodeService;
   }
 
-  /**
-   * Функция подготовки голосования
-   * @param poll голосование
-   * @return подготовленное голосование
-   */
-  public PreparedPoll preparePoll(Poll poll) {
-    return new PreparedPoll(poll, pollDao.getMaxVote(poll), pollDao.getCountUsers(poll), pollDao.getPollVariants(poll, Poll.ORDER_VOTES));
-  }
-
   public PreparedMessage prepareMessage(Message message, boolean minimizeCut, boolean secure) {
     return prepareMessage(message, messageDao.getTags(message), minimizeCut, null, secure);
   }
@@ -147,7 +138,7 @@ public class PrepareService {
 
       if (message.isVotePoll()) {
         if (poll==null) {
-          preparedPoll = preparePoll(pollDao.getPollByTopicId(message.getId()));
+          preparedPoll = pollPrepareService.preparePoll(message);
         } else {
           preparedPoll = poll;
         }

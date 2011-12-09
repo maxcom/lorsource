@@ -13,42 +13,44 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.site;
+package ru.org.linux.poll;
 
-import java.io.Serializable;
+import java.util.List;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
-public class Poll implements Serializable {
-  public static final int MAX_POLL_SIZE = 15;
-  public static final int ORDER_ID = 1;
-  public static final int ORDER_VOTES = 2;
-
+public class PollVariant {
   private final int id;
-  private final int topic;
+  private final String label;
+  private final int votes;
 
-  private final boolean current;
-  private final boolean multiSelect;
-  private static final long serialVersionUID = -6541849807995680089L;
-
-  public Poll(int id, int topic, boolean multiSelect, boolean current) {
+  public PollVariant(int id, String label, int votes) {
     this.id = id;
-    this.topic = topic;
-    this.multiSelect = multiSelect;
-    this.current = current;
+    this.label = label;
+    this.votes = votes;
   }
 
   public int getId() {
     return id;
   }
 
-  public int getTopicId() {
-    return topic;
+  public String getLabel() {
+    return label;
   }
 
-  public boolean isCurrent() {
-    return current;
+  public int getVotes() {
+    return votes;
   }
 
-  public boolean isMultiSelect() {
-    return multiSelect;
+  public static SortedMap<Integer, String> toMap(List<PollVariant> list) {
+    SortedMap<Integer, String> map = new TreeMap<Integer, String>();
+
+    for (PollVariant v : list) {
+      if (v.getId()!=0) {
+        map.put(v.getId(), v.getLabel());
+      }
+    }
+
+    return map;
   }
 }

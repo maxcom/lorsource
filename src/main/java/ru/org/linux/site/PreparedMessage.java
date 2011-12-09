@@ -16,6 +16,7 @@
 package ru.org.linux.site;
 
 import com.google.common.collect.ImmutableList;
+import ru.org.linux.poll.PreparedPoll;
 
 import java.util.List;
 

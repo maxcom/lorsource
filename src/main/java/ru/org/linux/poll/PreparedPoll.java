@@ -13,7 +13,7 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.site;
+package ru.org.linux.poll;
 
 import com.google.common.collect.ImmutableList;
 import ru.org.linux.util.StringUtil;
@@ -46,7 +46,7 @@ public class PreparedPoll {
     for(PollVariant variant : variants) {
       total += variant.getVotes();
     }
-    this.totalVotes = total;
+    totalVotes = total;
   }
 
   public Poll getPoll() {
@@ -76,7 +76,6 @@ public class PreparedPoll {
    */
   public String renderPoll()  {
     StringBuilder out = new StringBuilder();
-    int max = maximumValue;
     out.append("<table>");
     int total = 0;
     for (PollVariant var : variants) {

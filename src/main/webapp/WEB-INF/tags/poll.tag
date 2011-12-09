@@ -1,4 +1,4 @@
-<%@ tag import="ru.org.linux.site.PollVariant" %>
+<%@ tag import="ru.org.linux.poll.PollVariant" %>
 <%@ tag import="ru.org.linux.util.StringUtil" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
@@ -17,7 +17,7 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
-<%@ attribute name="poll" required="true" type="ru.org.linux.site.PreparedPoll" %>
+<%@ attribute name="poll" required="true" type="ru.org.linux.poll.PreparedPoll" %>
 <table class="poll-result">
 <c:forEach var="variant" items="${poll.variants}">
     <tr>

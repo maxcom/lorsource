@@ -15,6 +15,7 @@
 
 package ru.org.linux.site;
 
+import ru.org.linux.poll.PreparedPoll;
 import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.ImageInfo;
 

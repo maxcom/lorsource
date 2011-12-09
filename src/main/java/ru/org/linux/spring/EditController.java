@@ -24,6 +24,7 @@ import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
+import ru.org.linux.poll.*;
 import ru.org.linux.search.SearchQueueSender;
 import ru.org.linux.site.*;
 import ru.org.linux.spring.dao.GroupDao;
@@ -51,6 +52,9 @@ public class EditController {
 
   @Autowired
   private PrepareService prepareService;
+
+  @Autowired
+  private PollPrepareService pollPrepareService;
 
   @Autowired
   private GroupDao groupDao;
@@ -307,7 +311,7 @@ public class EditController {
     if (message.isVotePoll() && form.getPoll() != null && tmpl.isModeratorSession()) {
       Poll poll = pollDao.getPollByTopicId(message.getId());
 
-      PreparedPoll orig = prepareService.preparePoll(poll);
+      PreparedPoll orig = pollPrepareService.preparePoll(poll);
 
       List<PollVariant> newVariants = new ArrayList<PollVariant>();
 
