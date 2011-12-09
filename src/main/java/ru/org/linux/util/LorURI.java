@@ -277,10 +277,17 @@ public class LorURI {
    * @throws BadGroupException если нет группы оО
    * @throws URIException если url неправильный
    */
-  public String formatJump(MessageDao messageDao, boolean secure) throws MessageNotFoundException, BadGroupException, URIException {
+  public String formatJump(MessageDao messageDao, boolean secure) throws MessageNotFoundException, URIException {
     if(isMessageUrl) {
       Message message = messageDao.getById(messageId);
-      Group group = messageDao.getGroup(message);
+      Group group = null;
+
+      try {
+        group = messageDao.getGroup(message);
+      } catch (BadGroupException e) {
+        throw new RuntimeException("Invalid group id msgid="+messageId, e);
+      }
+
       String scheme;
       if(secure) {
         scheme = "https";
@@ -291,7 +298,7 @@ public class LorURI {
       int port = mainURI.getPort();
       String path = group.getUrl() + messageId;
       String query = "";
-      if(isCommentUrl()) {
+      if(isCommentUrl) {
         query = "cid=" + commentId;
       }
       URI jumpUri = new URI(scheme, null , host, port, path, query);

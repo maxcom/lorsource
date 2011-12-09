@@ -19,9 +19,11 @@ import org.apache.commons.httpclient.URI;
 import org.hamcrest.CoreMatchers;
 import org.junit.Before;
 import org.junit.Test;
+import ru.org.linux.site.Comment;
 import ru.org.linux.site.Group;
 import ru.org.linux.site.Message;
 import ru.org.linux.spring.Configuration;
+import ru.org.linux.spring.dao.CommentDao;
 import ru.org.linux.spring.dao.MessageDao;
 import ru.org.linux.util.bbcode.LorCodeService;
 import ru.org.linux.util.formatter.ToHtmlFormatter;
@@ -93,43 +95,29 @@ public class HTMLFormatterTest {
   private ToLorCodeFormatter toLorCodeFormatter;
   private LorCodeService lorCodeService;
   private ToLorCodeTexFormatter toLorCodeTexFormatter;
-  private Configuration configuration;
-  private URI mainURI;
-  private MessageDao messageDao;
-  private Message message1;
-  private Group group1;
-  private Message message2;
-  private Group group2;
-  private Message message3;
-  private Group group3;
-  private Message message12;
-  private Group group12;
-  private Message message15;
-  private Group group15;
-  private Message messageHistory;
-  private Group groupHistory;
-
 
   @Before
   public void init() throws Exception {
     lorCodeService = new LorCodeService();
 
-    mainURI = new URI("http://www.linux.org.ru/",true, "UTF-8");
+    URI mainURI = new URI("http://www.linux.org.ru/", true, "UTF-8");
 
-    messageDao = mock(MessageDao.class);
-    message1 = mock(Message.class);
-    group1 = mock(Group.class);
-    message2 = mock(Message.class);
-    group2 = mock(Group.class);
-    message3 = mock(Message.class);
-    group3 = mock(Group.class);
-    message12 = mock(Message.class);
-    group12 = mock(Group.class);
-    message15 = mock(Message.class);
-    group15 = mock(Group.class);
-    messageHistory = mock(Message.class);
-    groupHistory = mock(Group.class);
+    MessageDao messageDao = mock(MessageDao.class);
+    Message message1 = mock(Message.class);
+    Group group1 = mock(Group.class);
+    Message message2 = mock(Message.class);
+    Group group2 = mock(Group.class);
+    Message message3 = mock(Message.class);
+    Group group3 = mock(Group.class);
+    Message message12 = mock(Message.class);
+    Group group12 = mock(Group.class);
+    Message message15 = mock(Message.class);
+    Group group15 = mock(Group.class);
+    Message messageHistory = mock(Message.class);
+    Group groupHistory = mock(Group.class);
+    CommentDao commentDao = mock(CommentDao.class);
 
+    Comment comment = mock(Comment.class);
 
     when(message1.getTitle()).thenReturn("привет1");
     when(message2.getTitle()).thenReturn("привет2");
@@ -155,19 +143,24 @@ public class HTMLFormatterTest {
     when(messageDao.getById(1948661)).thenReturn(message12);
     when(messageDao.getById(6944260)).thenReturn(message15);
     when(messageDao.getById(6992532)).thenReturn(messageHistory);
+    when(commentDao.getById(6892917)).thenReturn(comment);
+    when(commentDao.getById(1948675)).thenReturn(comment);
+    when(commentDao.getById(6944831)).thenReturn(comment);
 
-    configuration = mock(Configuration.class);
+    Configuration configuration = mock(Configuration.class);
 
     when(configuration.getMainURI()).thenReturn(mainURI);
 
     toHtmlFormatter = new ToHtmlFormatter();
     toHtmlFormatter.setConfiguration(configuration);
     toHtmlFormatter.setMessageDao(messageDao);
+    toHtmlFormatter.setCommentDao(commentDao);
 
     toHtmlFormatter20 = new ToHtmlFormatter();
     toHtmlFormatter20.setConfiguration(configuration);
     toHtmlFormatter20.setMessageDao(messageDao);
     toHtmlFormatter20.setMaxLength(20);
+    toHtmlFormatter20.setCommentDao(commentDao);
 
     toLorCodeTexFormatter = new ToLorCodeTexFormatter();
     toLorCodeFormatter = new ToLorCodeFormatter();
@@ -217,15 +210,15 @@ public class HTMLFormatterTest {
   @Test
   public void testURLs() {
     String url1 = "http://www.linux.org.ru/forum/general/6890857/page2?lastmod=1319022386177#comment-6892917";
-    String url3 = "http://www.linux.org.ru/jump-message.jsp?msgid=1948661&cid=1948675";
-    String url15 = "https://www.linux.org.ru/forum/linux-org-ru/6944260/page4?lastmod=1320084656912#comment-6944831";
-    String urlHistory = "http://www.linux.org.ru/news/kernel/6992532/history";
     assertEquals("<a href=\"http://www.linux.org.ru/forum/general/6890857?cid=6892917\" title=\"привет3\">www.linux.org.ru/forum/general/6890857/page2?lastmod=1319022386177#comment-68929...</a>",
         toHtmlFormatter.format(url1,false));
+    String url3 = "http://www.linux.org.ru/jump-message.jsp?msgid=1948661&cid=1948675";
     assertEquals("<a href=\"http://www.linux.org.ru/forum/security/1948661?cid=1948675\" title=\"привет12\">www.linux.org.ru/jump-message.jsp?msgid=1948661&amp;cid=1948675</a>",
         toHtmlFormatter.format(url3,false));
+    String url15 = "https://www.linux.org.ru/forum/linux-org-ru/6944260/page4?lastmod=1320084656912#comment-6944831";
     assertEquals("<a href=\"http://www.linux.org.ru/forum/linux-org-ru/6944260?cid=6944831\" title=\"привет15\">www.linux.org.ru/forum/linux-org-ru/6944260/page4?lastmod=1320084656912#comment-...</a>",
         toHtmlFormatter.format(url15, false));
+    String urlHistory = "http://www.linux.org.ru/news/kernel/6992532/history";
     assertEquals("<a href=\"https://www.linux.org.ru/news/kernel/6992532/history\">www.linux.org.ru/news/kernel/6992532/history</a>",
         toHtmlFormatter.format(urlHistory, true));
   }
@@ -258,7 +251,6 @@ public class HTMLFormatterTest {
 
   @Test
   public void testToLorCodeFormatter2() {
-    int i;
 
     String[] text = {
         ">one\n",
@@ -304,7 +296,7 @@ public class HTMLFormatterTest {
         citeHeader + "<p>one<br></p>" + citeFooter + "<p><br><br></p>" + citeHeader + "<p>one</p>" + citeFooter,
     };
 
-    for(i=0; i<text.length; i++){
+    for(int i = 0; i<text.length; i++){
       String entry = text[i];
       assertEquals(bb_tex[i], toLorCodeTexFormatter.format(entry, true));
       assertEquals(html_tex[i], lorCodeService.parseComment(toLorCodeTexFormatter.format(entry, true), false));
