@@ -112,45 +112,45 @@ public class ToHtmlFormatter {
       out.append(line.substring(index, start));
 
       // возможно это url
-      String may_url = line.substring(start, end);
+      String mayUrl = line.substring(start, end);
       // href
-      String url_href = may_url;
+      String urlHref = mayUrl;
 
-      if (may_url.toLowerCase().startsWith("www.")) {
-        url_href = "http://" + may_url;
-      } else if (may_url.toLowerCase().startsWith("ftp.")) {
-        url_href = "ftp://" + may_url;
+      if (mayUrl.toLowerCase().startsWith("www.")) {
+        urlHref = "http://" + mayUrl;
+      } else if (mayUrl.toLowerCase().startsWith("ftp.")) {
+        urlHref = "ftp://" + mayUrl;
       }
 
       try {
-        LorURI uri = new LorURI(configuration.getMainURI(), url_href);
+        LorURI uri = new LorURI(configuration.getMainURI(), urlHref);
 
         if(uri.isMessageUrl()) {
           // Ссылка на топик или комментарий
-          String url_title;
+          String urlTitle;
           try {
-            url_title = StringUtil.escapeHtml(messageDao.getById(uri.getMessageId()).getTitle());
+            urlTitle = StringUtil.escapeHtml(messageDao.getById(uri.getMessageId()).getTitle());
           } catch (MessageNotFoundException e) {
-            url_title = "Комментарий в несуществующем топике";
+            urlTitle = "Комментарий в несуществующем топике";
           }
-          String new_url_href = uri.formatJump(messageDao, secure);
-          String fixed_url_body = uri.formatUrlBody(maxLength);
-          out.append("<a href=\"").append(new_url_href).append("\" title=\"").append(url_title).append("\">").append(fixed_url_body).append("</a>");
+          String newUrlHref = uri.formatJump(messageDao, secure);
+          String fixedUrlBody = uri.formatUrlBody(maxLength);
+          out.append("<a href=\"").append(newUrlHref).append("\" title=\"").append(urlTitle).append("\">").append(fixedUrlBody).append("</a>");
         } else if(uri.isTrueLorUrl()) {
           // ссылка внутри lorsource исправляем scheme
-          String fixed_url_href = uri.fixScheme(secure);
-          String fixed_url_body = uri.formatUrlBody(maxLength);
-          out.append("<a href=\"").append(fixed_url_href).append("\">").append(fixed_url_body).append("</a>");
+          String fixedUrlHref = uri.fixScheme(secure);
+          String fixedUrlBody = uri.formatUrlBody(maxLength);
+          out.append("<a href=\"").append(fixedUrlHref).append("\">").append(fixedUrlBody).append("</a>");
         } else {
           // ссылка не из lorsource
-          String fixed_url_href = uri.toString();
-          String fixed_url_body = uri.formatUrlBody(maxLength);
-          out.append("<a href=\"").append(fixed_url_href).append("\">").append(fixed_url_body).append("</a>");
+          String fixedUrlHref = uri.toString();
+          String fixedUrlBody = uri.formatUrlBody(maxLength);
+          out.append("<a href=\"").append(fixedUrlHref).append("\">").append(fixedUrlBody).append("</a>");
         }
       } catch (Exception e) {
         // e.printStackTrace();
         // ссылка не ссылка
-        out.append(may_url);
+        out.append(mayUrl);
       }
       index = end;
     }
