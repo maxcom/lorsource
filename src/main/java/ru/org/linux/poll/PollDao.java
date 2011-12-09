@@ -54,6 +54,12 @@ public class PollDao {
     jdbcTemplate = new JdbcTemplate(dataSource);
   }
 
+  /**
+   * Получить список вариантов голосования по идентификатору голосования.
+   *
+   * @param pollId идентификатор голосования
+   * @return список вариантов голосования
+   */
   public List<VoteDto> getVoteDTO(final Integer pollId) {
     String sql = "SELECT id, label FROM votes WHERE vote= ? ORDER BY id";
     return jdbcTemplate.query(sql, new RowMapper<VoteDto>() {
@@ -69,8 +75,9 @@ public class PollDao {
   }
 
   /**
-   * Возвращает кол-во проголосовавших пользователей в голосовании
-   * @param poll голосование
+   * Возвращает кол-во проголосовавших пользователей в голосовании.
+   *
+   * @param poll объект голосования
    * @return кол-во проголосвавших пользователей
    */
   public int getCountUsers(Poll poll) {
@@ -78,8 +85,9 @@ public class PollDao {
   }
 
   /**
-   * Возвращает кол-во голосов в голосовании
-   * @param pollId id голосвания
+   * Возвращает кол-во голосов в голосовании.
+   *
+   * @param pollId идентификатор голосвания
    * @return кол-во голосов всего (несколько вариантов от одного пользователя суммируется"
    */
   public Integer getVotersCount(Integer pollId) {
@@ -87,11 +95,12 @@ public class PollDao {
   }
 
   /**
-   * Учет голсования, если user не голосовал в этом голосании, то
-   * добавить его варианты в голосование и пометить, что он проголосовал
-   * @param voteId id голосования
-   * @param votes пункты за которые голосует пользователь
-   * @param user голосующий пользователь
+   * Учет голосования, если user не голосовал в этом голосании, то
+   * добавить его варианты в голосование и пометить, что он проголосовал.
+   *
+   * @param voteId идентификатор голосования
+   * @param votes  пункты за которые голосует пользователь
+   * @param user   голосующий пользователь
    * @throws BadVoteException неправильное голосование
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
@@ -119,9 +128,10 @@ public class PollDao {
   }
 
   /**
-   * Получить текщее голосование
+   * Получить текщее голосование.
+   *
    * @return текушие голование
-   * @throws PollNotFoundException при отсутствии голосования
+   * @throws PollNotFoundException если голосование не существует
    */
   public Poll getCurrentPoll() throws PollNotFoundException{
     return getPoll(getCurrentPollId());
@@ -129,10 +139,11 @@ public class PollDao {
 
 
   /**
-   * Получить голосование по id
-   * @param poolId голосование
-   * @return голосование
-   * @throws PollNotFoundException если не существует такого голосования
+   * Получить голосование по идентификатору.
+   *
+   * @param poolId идентификатор голосования
+   * @return объект голосование
+   * @throws PollNotFoundException если голосование не существует
    */
   public Poll getPoll(final int poolId) throws PollNotFoundException {
     final int currentPollId = getCurrentPollId();
@@ -150,10 +161,11 @@ public class PollDao {
   }
 
   /**
-   * Получить голосование по topic id
-   * @param topicId id топика голосования
-   * @return голосование
-   * @throws PollNotFoundException отсутствует такое голосование
+   * Получить голосование по идентификатору темы.
+   *
+   * @param topicId идентификатор  темы голосования
+   * @return объект голосования
+   * @throws PollNotFoundException если голосование не существует
    */
   public Poll getPollByTopicId(int topicId) throws PollNotFoundException {
     try {
@@ -164,8 +176,9 @@ public class PollDao {
   }
 
   /**
-   * максимальное число голосов в голосовании
-   * @param poll голосование
+   * максимальное число голосов в голосовании.
+   *
+   * @param poll объект голосования
    * @return максимальное кол-во голосов
    */
   public int getMaxVote(Poll poll) {
@@ -178,8 +191,9 @@ public class PollDao {
   }
 
   /**
-   * Варианты для опроса
-   * @param poll опрос
+   * Варианты для голосования.
+   *
+   * @param poll  объект голосования
    * @param order порядок сортировки вариантов Poll.ORDER_ID и Poll.ORDER_VOTES
    * @return неизменяемый список вариантов опроса
    */
@@ -212,6 +226,13 @@ public class PollDao {
     return ImmutableList.copyOf(variants);
   }
 
+  /**
+   * Создать голосование.
+   *
+   * @param pollList    - Список вариантов ответов
+   * @param multiSelect - true если голосование с мультивыбором
+   * @param msgid       - идентификатор темы.
+   */
   // call in @Transactional
   public void createPoll(List<String> pollList, boolean multiSelect, int msgid) {
     final int voteid = getNextPollId();
@@ -233,10 +254,33 @@ public class PollDao {
     }
   }
 
+  /**
+   * Получить идентификатор будущего голосования
+   *
+   * @return идентификатор будущего голосования
+   */
   private int getNextPollId() {
     return jdbcTemplate.queryForInt("select nextval('vote_id') as voteid");
   }
 
+  /**
+   * Удалить голосование.
+   *
+   * @param poll объект голосования
+   */
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
+  public void deletePoll(Poll poll) {
+    jdbcTemplate.update("DELETE FROM vote_users WHERE vote = ?", poll.getId());
+    jdbcTemplate.update("DELETE FROM votenames  WHERE id   = ?", poll.getId());
+    jdbcTemplate.update("DELETE FROM votes      WHERE vote = ?", poll.getId());
+  }
+
+  /**
+   * Добавить новый вариант ответа в голосование.
+   *
+   * @param poll  объект голосования
+   * @param label - новый вариант ответа
+   */
   public void addNewVariant(Poll poll, String label) {
     jdbcTemplate.update(
             "INSERT INTO votes (id, vote, label) values (nextval('votes_id'), ?, ?)",
@@ -245,6 +289,12 @@ public class PollDao {
     );
   }
 
+  /**
+   * Изменить вариант голосования.
+   *
+   * @param var   объект варианта голосования
+   * @param label новое содержимое
+   */
   public void updateVariant(PollVariant var, String label) {
     if (var.getLabel().equals(label)) {
       return;
@@ -253,6 +303,11 @@ public class PollDao {
     jdbcTemplate.update("UPDATE votes SET label=? WHERE id=?", label, var.getId());
   }
 
+  /**
+   * Удалить вариант голосования
+   *
+   * @param variant объект варианта голосования
+   */
   public void removeVariant(PollVariant variant) {
     jdbcTemplate.update("DELETE FROM votes WHERE id=?", variant.getId());
   }
