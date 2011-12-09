@@ -40,10 +40,10 @@ public class LorURI {
 
   private final URI lorURI;
   private final URI mainURI;
-  private final boolean isTrueLorUrl;
-  private final boolean isMessageUrl;
+  private final boolean trueLorUrl;
+  private final boolean messageUrl;
   private final int messageId;
-  private final boolean isCommentUrl;
+  private final boolean commentUrl;
   private final int commentId;
 
   /**
@@ -69,10 +69,10 @@ public class LorURI {
     /*
     это uri из lorsouce если хост и порт совпадают и scheme http или https
      */
-    isTrueLorUrl = (mainURI.getHost().equals(lorURI.getHost()) && mainURI.getPort() == lorURI.getPort()
+    trueLorUrl = (mainURI.getHost().equals(lorURI.getHost()) && mainURI.getPort() == lorURI.getPort()
                   && ("http".equals(lorURI.getScheme()) || "https".equals(lorURI.getScheme())));
 
-    if (isTrueLorUrl) {
+    if (trueLorUrl) {
       // find message id in lor url
       int msgId = 0;
       int commId = 0;
@@ -116,7 +116,7 @@ public class LorURI {
         }
       }
       messageId = msgId;
-      isMessageUrl = isMsg;
+      messageUrl = isMsg;
 
       // find comment id in lor url
       String fragment = lorURI.getFragment();
@@ -147,12 +147,12 @@ public class LorURI {
       }
 
       commentId = commId;
-      isCommentUrl = isComm;
+      commentUrl = isComm;
     } else {
       messageId = 0;
-      isMessageUrl = false;
+      messageUrl = false;
       commentId = 0;
-      isCommentUrl = false;
+      commentUrl = false;
     }
   }
 
@@ -183,7 +183,7 @@ public class LorURI {
    * @return true если lorsource ссылка
    */
   public boolean isTrueLorUrl() {
-    return isTrueLorUrl;
+    return trueLorUrl;
   }
 
   /**
@@ -191,7 +191,7 @@ public class LorURI {
    * @return true если ссылка на топик или комментарий
    */
   public boolean isMessageUrl() {
-    return isMessageUrl;
+    return messageUrl;
   }
 
   /**
@@ -207,7 +207,7 @@ public class LorURI {
    * @return true если ссылка на комментарий
    */
   public boolean isCommentUrl() {
-    return isCommentUrl;
+    return commentUrl;
   }
 
   /**
@@ -222,7 +222,7 @@ public class LorURI {
     String all = lorURI.getURIReference();
     String scheme = lorURI.getScheme();
     String uriWithoutScheme = all.substring(scheme.length()+3);
-    if(isTrueLorUrl) {
+    if(trueLorUrl) {
       if(uriWithoutScheme.length() < maxLength) {
         return uriWithoutScheme;
       } else {
@@ -253,7 +253,7 @@ public class LorURI {
    * @throws URIException неправильный url
    */
   public String fixScheme(boolean secure) throws URIException {
-    if(!isTrueLorUrl) {
+    if(!trueLorUrl) {
       return toString();
     }
     String host = lorURI.getHost();
@@ -278,7 +278,7 @@ public class LorURI {
    * @throws URIException если url неправильный
    */
   public String formatJump(MessageDao messageDao, boolean secure) throws MessageNotFoundException, URIException {
-    if(isMessageUrl) {
+    if(messageUrl) {
       Message message = messageDao.getById(messageId);
       Group group = null;
 
@@ -298,7 +298,7 @@ public class LorURI {
       int port = mainURI.getPort();
       String path = group.getUrl() + messageId;
       String query = "";
-      if(isCommentUrl) {
+      if(commentUrl) {
         query = "cid=" + commentId;
       }
       URI jumpUri = new URI(scheme, null , host, port, path, query);
