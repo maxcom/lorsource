@@ -15,7 +15,7 @@
 <%--@elvariable id="poll" type="ru.org.linux.poll.Poll"--%>
 <%--@elvariable id="message" type="ru.org.linux.site.Message"--%>
 <%--@elvariable id="count" type="java.lang.Integer"--%>
-<%--@elvariable id="votes" type="java.util.List<ru.org.linux.spring.dao.VoteDto>"--%>
+<%--@elvariable id="votes" type="java.util.List<ru.org.linux.poll.VoteDto>"--%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="lor" uri="http://www.linux.org.ru" %>

@@ -29,7 +29,7 @@ import ru.org.linux.search.SearchQueueSender;
 import ru.org.linux.site.*;
 import ru.org.linux.spring.dao.GroupDao;
 import ru.org.linux.spring.dao.MessageDao;
-import ru.org.linux.spring.dao.PollDao;
+import ru.org.linux.poll.PollDao;
 import ru.org.linux.spring.dao.TagDao;
 import ru.org.linux.spring.validators.EditMessageRequestValidator;
 import ru.org.linux.util.ExceptionBindingErrorProcessor;

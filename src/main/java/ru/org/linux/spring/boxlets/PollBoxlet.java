@@ -20,12 +20,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import ru.org.linux.poll.Poll;
+import ru.org.linux.poll.PollDao;
+import ru.org.linux.poll.VoteDto;
 import ru.org.linux.site.Message;
 import ru.org.linux.site.MessageNotFoundException;
 import ru.org.linux.spring.commons.CacheProvider;
 import ru.org.linux.spring.dao.MessageDao;
-import ru.org.linux.spring.dao.PollDao;
-import ru.org.linux.spring.dao.VoteDto;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
