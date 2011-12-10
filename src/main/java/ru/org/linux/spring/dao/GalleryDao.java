@@ -33,8 +33,8 @@ import java.util.List;
 import java.util.Properties;
 
 @Repository
-public class GalleryDaoImpl {
-  private static final Log log = LogFactory.getLog(GalleryDaoImpl.class);
+public class GalleryDao {
+  private static final Log log = LogFactory.getLog(GalleryDao.class);
 
   private SimpleJdbcTemplate template;
   private Properties properties;

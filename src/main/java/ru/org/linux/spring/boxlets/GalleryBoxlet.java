@@ -26,18 +26,18 @@ import org.springframework.web.servlet.ModelAndView;
 
 import ru.org.linux.site.GalleryItem;
 import ru.org.linux.spring.commons.CacheProvider;
-import ru.org.linux.spring.dao.GalleryDaoImpl;
+import ru.org.linux.spring.dao.GalleryDao;
 
 @Controller
 public class GalleryBoxlet extends AbstractBoxlet {
-  private GalleryDaoImpl galleryDao;
+  private GalleryDao galleryDao;
   private CacheProvider cacheProvider;
 
-  public GalleryDaoImpl getGalleryDao() {
+  public GalleryDao getGalleryDao() {
     return galleryDao;
   }
   @Autowired
-  public void setGalleryDao(GalleryDaoImpl galleryDao) {
+  public void setGalleryDao(GalleryDao galleryDao) {
     this.galleryDao = galleryDao;
   }
 
