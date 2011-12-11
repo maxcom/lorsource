@@ -132,8 +132,8 @@
   if (group.getImage() != null) {
     out.print("<div align=center>");
     try {
-      ImageInfo info = new ImageInfo(tmpl.getObjectConfig().getHTMLPathPrefix() + tmpl.getStyle() + group.getImage());
-      out.print("<img src=\"/" + tmpl.getStyle() + group.getImage() + "\" " + info.getCode() + " border=0 alt=\"Группа " + group.getTitle() + "\">");
+      ImageInfo info = new ImageInfo(tmpl.getObjectConfig().getHTMLPathPrefix() + "skins/" +tmpl.getStyle() + group.getImage());
+      out.print("<img src=\"/skins/" + tmpl.getStyle() + group.getImage() + "\" " + info.getCode() + " border=0 alt=\"Группа " + group.getTitle() + "\">");
     } catch (BadImageException ex) {
       out.print("[bad image]");
     }

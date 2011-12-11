@@ -310,7 +310,7 @@ input[type="checkbox"] {
 table.poll-result .penguin{
     background-repeat: repeat-x;
     background-color: transparent !Important;
-    background-image: url("/tango/img/votes.png") !important;
+    background-image: url("/skins/tango/img/votes.png") !important;
 }
 
 div.quote {

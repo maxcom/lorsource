@@ -277,38 +277,38 @@
                         <aggregation>
                             <removeIncluded>true</removeIncluded>
                             <insertNewLine>true</insertNewLine>
-                            <output>${project.build.directory}/${project.build.finalName}/tango/combined.css</output>
+                            <output>${project.build.directory}/${project.build.finalName}/skins/tango/combined.css</output>
                             <includes>
-                                <include>${project.build.directory}/${project.build.finalName}/tango/syntax.css</include>
-                                <include>${project.build.directory}/${project.build.finalName}/tango/reset-fonts-grids.css</include>
-                                <include>${project.build.directory}/${project.build.finalName}/tango/style.css</include>
+                                <include>${project.build.directory}/${project.build.finalName}/skins/tango/syntax.css</include>
+                                <include>${project.build.directory}/${project.build.finalName}/skins/tango/reset-fonts-grids.css</include>
+                                <include>${project.build.directory}/${project.build.finalName}/skins/tango/style.css</include>
                             </includes>
                         </aggregation>
                         <aggregation>
                             <removeIncluded>true</removeIncluded>
                             <insertNewLine>true</insertNewLine>
-                            <output>${project.build.directory}/${project.build.finalName}/black/combined.css</output>
+                            <output>${project.build.directory}/${project.build.finalName}/skins/black/combined.css</output>
                             <includes>
-                                <include>${project.build.directory}/${project.build.finalName}/black/style.css</include>
-                                <include>${project.build.directory}/${project.build.finalName}/black/ir_black.css</include>
+                                <include>${project.build.directory}/${project.build.finalName}/skins/black/style.css</include>
+                                <include>${project.build.directory}/${project.build.finalName}/skins/black/ir_black.css</include>
                             </includes>
                         </aggregation>
                         <aggregation>
                             <removeIncluded>false</removeIncluded>
                             <insertNewLine>true</insertNewLine>
-                            <output>${project.build.directory}/${project.build.finalName}/white/combined.css</output>
+                            <output>${project.build.directory}/${project.build.finalName}/skins/white/combined.css</output>
                             <includes>
-                                <include>${project.build.directory}/${project.build.finalName}/white/style.css</include>
-                                <include>${project.build.directory}/${project.build.finalName}/white/idea.css</include>
+                                <include>${project.build.directory}/${project.build.finalName}/skins/white/style.css</include>
+                                <include>${project.build.directory}/${project.build.finalName}/skins/white/idea.css</include>
                             </includes>
                         </aggregation>
                         <aggregation>
                             <removeIncluded>false</removeIncluded>
                             <insertNewLine>true</insertNewLine>
-                            <output>${project.build.directory}/${project.build.finalName}/white2/combined.css</output>
+                            <output>${project.build.directory}/${project.build.finalName}/skins/white2/combined.css</output>
                             <includes>
-                                <include>${project.build.directory}/${project.build.finalName}/white2/style.css</include>
-                                <include>${project.build.directory}/${project.build.finalName}/white/idea.css</include>
+                                <include>${project.build.directory}/${project.build.finalName}/skins/white2/style.css</include>
+                                <include>${project.build.directory}/${project.build.finalName}/skins/white/idea.css</include>
                             </includes>
                         </aggregation>
                     </aggregations>

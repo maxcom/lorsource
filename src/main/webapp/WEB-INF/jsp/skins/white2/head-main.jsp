@@ -16,7 +16,7 @@
   ~    limitations under the License.
   --%>
 
-<LINK REL=STYLESHEET TYPE="text/css" HREF="/white2/combined.css" TITLE="Normal">
+<LINK REL=STYLESHEET TYPE="text/css" HREF="/skins/white2/combined.css" TITLE="Normal">
 <LINK REL="shortcut icon" HREF="/favicon.ico" TYPE="image/x-icon">
 </head>
 <body bgcolor="#ffffff" text="#000000" link="#0000ee" vlink="#551a8b" ALINK="#ff0000">
@@ -24,7 +24,7 @@
 <!-- #defefc #aea6f2 -->
 
 <table width="100%" border=0 cellpadding=0 cellspacing=0>
-<tr><td class="bluehead"><img src="/white2/h1.png" alt="Русская информация об ОС Linux" width=452 height=72></td><td class="bluehead" align=right valign=top><span class=head></span>
+<tr><td class="bluehead"><img src="/skins/white2/h1.png" alt="Русская информация об ОС Linux" width=452 height=72></td><td class="bluehead" align=right valign=top><span class=head></span>
 </td>
   <td align="right" valign="top" class="bluehead">
     <c:if test="${template.sessionAuthorized}">
@@ -39,7 +39,7 @@
     <a href="/register.jsp">Регистрация</a> -
     <a href="/login.jsp" id="loginbutton">Вход</a>
     <br>
-    <img src="/black/pingvin.gif" alt="Linux Logo" height=114 width=102>
+    <img src="/skins/black/pingvin.gif" alt="Linux Logo" height=114 width=102>
   </div>
 
   <form method=POST action="login.jsp" style="display: none" id="regform">
@@ -51,7 +51,7 @@
 </c:if>
 </td>
 </tr>
-<tr><td><img src="/white2/h2.png" alt="" width=452 height=49></td></tr>
+<tr><td><img src="/skins/white2/h2.png" alt="" width=452 height=49></td></tr>
 </table>
 
 <div align="center">

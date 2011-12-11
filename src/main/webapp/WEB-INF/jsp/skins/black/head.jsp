@@ -15,13 +15,13 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
-<LINK REL=STYLESHEET TYPE="text/css" HREF="/black/combined.css" TITLE="Normal">
+<LINK REL=STYLESHEET TYPE="text/css" HREF="/skins/black/combined.css" TITLE="Normal">
 <LINK REL="shortcut icon" HREF="/favicon.ico" TYPE="image/x-icon">
 </head>
 <body>
 <table border="0" cellspacing="0" cellpadding="0" width="100%" class="head">
 <tr>
-        <td rowspan="2" align=left><a href="/"><img src="/black/lor-new.png" width=282 height=60 border=0 alt="Linux.org.ru"></a></td>
+        <td rowspan="2" align=left><a href="/"><img src="/skins/black/lor-new.png" width=282 height=60 border=0 alt="Linux.org.ru"></a></td>
         <td align="right">
           <c:if test="${template.sessionAuthorized}">
             <c:url var="userUrl" value="/people/${template.nick}/profile"/>

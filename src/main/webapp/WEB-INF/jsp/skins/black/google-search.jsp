@@ -47,7 +47,7 @@
 <input type="hidden" name="oe" value="UTF-8"></input>
 <input type="hidden" name="flav" value="0000"></input>
 <input type="hidden" name="sig" value="VNPb2D8JZrqtw9dZ"></input>
-<input type="hidden" name="cof" value="GALT:#3399FF;GL:1;DIV:#666666;VLC:FFFFFF;AH:center;BGC:000000;LBGC:FFFF00;ALC:FFFFFF;LC:FFFFFF;T:CCCCCC;GFNT:FFFFFF;GIMP:FFFFFF;LH:65;LW:30;L:http://www.linux.org.ru/black/img/angry-logo.gif;S:http://;LP:1;FORID:1"></input>
+<input type="hidden" name="cof" value="GALT:#3399FF;GL:1;DIV:#666666;VLC:FFFFFF;AH:center;BGC:000000;LBGC:FFFF00;ALC:FFFFFF;LC:FFFFFF;T:CCCCCC;GFNT:FFFFFF;GIMP:FFFFFF;LH:65;LW:30;L:http://www.linux.org.ru/skins/black/img/angry-logo.gif;S:http://;LP:1;FORID:1"></input>
 <input type="hidden" name="hl" value="ru"></input>
 </td></tr></table>
 </form>

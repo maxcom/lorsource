@@ -148,7 +148,7 @@
 
 <c:if test="${query.initial}">
   <h2>Поиск через Google</h2>
-  <jsp:include page="/WEB-INF/jsp/${template.style}/google-search.jsp"/>
+  <jsp:include page="/WEB-INF/jsp/skins/${template.style}/google-search.jsp"/>
 </c:if>
 
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>

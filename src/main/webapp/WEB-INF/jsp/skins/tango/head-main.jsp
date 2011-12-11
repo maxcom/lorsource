@@ -18,9 +18,9 @@
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 
 <!-- head-main -->
-<LINK REL="stylesheet" TYPE="text/css" HREF="/tango/combined.css">
-<LINK REL="stylesheet" TYPE="text/css" HREF="/tango/tango-dark.css" TITLE="dark">
-<LINK REL="alternate stylesheet" TYPE="text/css" HREF="/tango/tango-swamp.css" TITLE="swamp">
+<LINK REL="stylesheet" TYPE="text/css" HREF="/skins/tango/combined.css">
+<LINK REL="stylesheet" TYPE="text/css" HREF="/skins/tango/tango-dark.css" TITLE="dark">
+<LINK REL="alternate stylesheet" TYPE="text/css" HREF="/skins/tango/tango-swamp.css" TITLE="swamp">
 <LINK REL="shortcut icon" HREF="/favicon.ico" TYPE="image/x-icon">
 <script type="text/javascript">
   $.stylesheetInit();

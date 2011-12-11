@@ -91,7 +91,7 @@ $(document).ready(function() {
 <tr>
   <td valign=top>Тема</td>
   <td>
-    <c:set value="<%= tmpl.getStyle() %>" var="style"/>
+    <c:set value="skins/${tmpl.style}" var="style"/>
 
     <c:forEach var="s" items="<%= DefaultProfile.getStyleList() %>">
       <c:if test="${s == style}">

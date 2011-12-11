@@ -16,12 +16,12 @@
   --%>
 
 <!-- head-main -->
-<LINK REL=STYLESHEET TYPE="text/css" HREF="/black/combined.css" TITLE="Normal">
+<LINK REL=STYLESHEET TYPE="text/css" HREF="skins/black/combined.css" TITLE="Normal">
 <LINK REL="shortcut icon" HREF="/favicon.ico" TYPE="image/x-icon">
 </head>
 <body style="margin-top: 0">
 <a href="/">
-<img style="float: left; border: 0" src="/black/lorlogo-try.png" alt="Русская информация об ОС LINUX" width="270" height="208">
+<img style="float: left; border: 0" src="skins/black/lorlogo-try.png" alt="Русская информация об ОС LINUX" width="270" height="208">
 </a>
 <div id="head-main">
 <table>
@@ -70,7 +70,7 @@ SoC, Graphene, MEMS, Biomedical Engineering. Дополнительная инф
   добро пожаловать, <a style="text-decoration: none" href="${userUrl}">${template.nick}</a>
   [<a href="logout.jsp?sessionId=<%= session.getId() %>" title="Выйти">x</a>]
   <%--<br>--%>
-  <%--<img src="/black/pingvin.gif" alt="Linux Logo" height=114 width=102>--%>
+  <%--<img src="/skins/black/pingvin.gif" alt="Linux Logo" height=114 width=102>--%>
 </c:if>
 
 <c:if test="${not template.sessionAuthorized}">
@@ -78,7 +78,7 @@ SoC, Graphene, MEMS, Biomedical Engineering. Дополнительная инф
     <a href="/register.jsp">Регистрация</a> -
     <a id="loginbutton" href="/login.jsp">Вход</a>
     <%--<br>--%>
-    <%--<img src="/black/pingvin.gif" alt="Linux Logo" height=114 width=102>--%>
+    <%--<img src="/skins/black/pingvin.gif" alt="Linux Logo" height=114 width=102>--%>
   </div>
 
   <form method=POST action="login.jsp" style="display: none" id="regform">

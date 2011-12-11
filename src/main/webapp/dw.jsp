@@ -27,12 +27,12 @@
 <html lang=ru>
 <head>
 
-<LINK REL=STYLESHEET TYPE="text/css" HREF="/<%= tmpl.getStyle() %>/style.css" TITLE="Normal">
+<LINK REL=STYLESHEET TYPE="text/css" HREF="/skins/${tmpl.style}/style.css" TITLE="Normal">
 <%
   if (ServletParameterParser.getBoolean(request, "main")) { %>
-<LINK REL=STYLESHEET TYPE="text/css" HREF="/<%= tmpl.getStyle() %>/dw-main.css">
+<LINK REL=STYLESHEET TYPE="text/css" HREF="/skins/${tmpl.style}/dw-main.css">
 <% } else { %>
-<LINK REL=STYLESHEET TYPE="text/css" HREF="/<%= tmpl.getStyle() %>/dw.css">
+<LINK REL=STYLESHEET TYPE="text/css" HREF="/skins/${tmpl.style}/dw.css">
 <% } %>
 <base target="_top">
 </head>
