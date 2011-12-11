@@ -1,5 +1,5 @@
 <%@ page contentType="text/html; charset=utf-8" import="ru.org.linux.gallery.Screenshot"  %>
-<%@ page import="ru.org.linux.spring.dao.TagDao"%>
+<%@ page import="ru.org.linux.tagcloud.TagCloudDao"%>
 <%@ page import="ru.org.linux.util.StringUtil"%>
 <%@ page import="java.util.SortedSet" %>
 <%@ page import="ru.org.linux.group.Group" %>
@@ -134,7 +134,7 @@
     Метки (разделенные запятой)
     <form:input path="tags" size="70"/>
     </label><br>
-    Популярные теги: <%= TagDao.getEditTags(topTags) %> <br>
+    Популярные теги: <%= TagCloudDao.getEditTags(topTags) %> <br>
 </c:if>
 
 <form:select path="mode" items="${modes}"/>

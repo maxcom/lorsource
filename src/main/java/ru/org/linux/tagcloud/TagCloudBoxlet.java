@@ -13,7 +13,7 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.spring.boxlets;
+package ru.org.linux.tagcloud;
 
 import java.util.List;
 
@@ -26,8 +26,8 @@ import org.springframework.web.servlet.ModelAndView;
 
 import ru.org.linux.site.ProfileProperties;
 import ru.org.linux.site.Template;
+import ru.org.linux.spring.boxlets.AbstractBoxlet;
 import ru.org.linux.spring.commons.CacheProvider;
-import ru.org.linux.spring.dao.TagCloudDao;
 
 @Controller
 public class TagCloudBoxlet extends AbstractBoxlet {
@@ -54,9 +54,9 @@ public class TagCloudBoxlet extends AbstractBoxlet {
     final int i = profile.getTags();
     String key = getCacheKey() + "?count=" + i;
 
-    List<TagCloudDao.TagDTO> list = getFromCache(cacheProvider, key, new GetCommand<List<TagCloudDao.TagDTO>>() {
+    List<TagCloudDto> list = getFromCache(cacheProvider, key, new GetCommand<List<TagCloudDto>>() {
       @Override
-      public List<TagCloudDao.TagDTO> get() {
+      public List<TagCloudDto> get() {
         return getTagDao().getTags(i);
       }
     });

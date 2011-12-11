@@ -36,7 +36,7 @@ import ru.org.linux.message.MessagePrepareService;
 import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionDao;
 import ru.org.linux.site.*;
-import ru.org.linux.spring.dao.TagDao;
+import ru.org.linux.tagcloud.TagCloudDao;
 import ru.org.linux.spring.dao.UserDao;
 import ru.org.linux.util.DateUtil;
 import ru.org.linux.util.ServletParameterException;
@@ -63,7 +63,7 @@ public class NewsViewerController {
   private GroupDao groupDao;
 
   @Autowired
-  private TagDao tagDao;
+  private TagCloudDao tagCloudDao;
 
   @Autowired
   private MessagePrepareService prepareService;
@@ -84,7 +84,7 @@ public class NewsViewerController {
           @RequestParam(value = "year", required = false) Integer year,
           @RequestParam(value = "section", required = false) Integer sectionid,
           @RequestParam(value = "group", required = false) Integer groupid,
-          @RequestParam(value = "tag", required = false) String tag,
+          @RequestParam(value = "tagcloud", required = false) String tag,
           @RequestParam(value = "offset", required = false) Integer offset,
           HttpServletRequest request,
           HttpServletResponse response
@@ -110,7 +110,7 @@ public class NewsViewerController {
         urlParams.append('&');
       }
 
-      urlParams.append("tag=").append(URLEncoder.encode(tag));
+      urlParams.append("tagcloud=").append(URLEncoder.encode(tag));
     }
 
     if (groupid != null) {
@@ -164,12 +164,12 @@ public class NewsViewerController {
     }
 
     if (tag != null) {
-      TagDao.checkTag(tag);
-      params.put("tag", tag);
+      TagCloudDao.checkTag(tag);
+      params.put("tagcloud", tag);
     }
 
     if (section == null && tag == null) {
-      throw new ServletParameterException("section or tag required");
+      throw new ServletParameterException("section or tagcloud required");
     }
 
     String navtitle;
@@ -232,7 +232,7 @@ public class NewsViewerController {
     }
 
     if (tag != null) {
-      newsViewer.setTag(tagDao.getTagId(tag));
+      newsViewer.setTag(tagCloudDao.getTagId(tag));
     }
 
     offset = fixOffset(offset);

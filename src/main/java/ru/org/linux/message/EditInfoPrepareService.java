@@ -19,7 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.org.linux.site.UserErrorException;
 import ru.org.linux.site.UserNotFoundException;
-import ru.org.linux.spring.dao.TagDao;
+import ru.org.linux.tagcloud.TagCloudDao;
 import ru.org.linux.spring.dao.UserDao;
 import ru.org.linux.util.bbcode.LorCodeService;
 
@@ -32,7 +32,7 @@ public class EditInfoPrepareService {
   private MessageDao messageDao;
 
   @Autowired
-  private TagDao tagDao;
+  private TagCloudDao tagCloudDao;
 
   @Autowired
   private UserDao userDao;
@@ -48,7 +48,7 @@ public class EditInfoPrepareService {
     String currentTitle = message.getTitle();
     String currentUrl = message.getUrl();
     String currentLinktext = message.getLinktext();
-    List<String> currentTags = tagDao.getMessageTags(message.getMessageId());
+    List<String> currentTags = tagCloudDao.getMessageTags(message.getMessageId());
 
     for (int i = 0; i< editInfoDtos.size(); i++) {
       EditInfoDto dto = editInfoDtos.get(i);
@@ -86,12 +86,12 @@ public class EditInfoPrepareService {
       }
 
       if (dto.getOldtags()!=null) {
-        currentTags = TagDao.parseTags(dto.getOldtags());
+        currentTags = TagCloudDao.parseTags(dto.getOldtags());
       }
     }
 
     if (!editInfoDtos.isEmpty()) {
-      EditInfoDto current = EditInfoDto.createFromMessage(tagDao, message);
+      EditInfoDto current = EditInfoDto.createFromMessage(tagCloudDao, message);
 
       editInfos.add(new PreparedEditInfo(lorCodeService, secure, userDao, current, currentMessage, currentTitle, currentUrl, currentLinktext, currentTags, false, true));
     }

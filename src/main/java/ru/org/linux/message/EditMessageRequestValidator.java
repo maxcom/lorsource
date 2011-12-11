@@ -20,7 +20,7 @@ import org.jdom.Verifier;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 import ru.org.linux.site.UserErrorException;
-import ru.org.linux.spring.dao.TagDao;
+import ru.org.linux.tagcloud.TagCloudDao;
 import ru.org.linux.util.URLUtil;
 
 public class EditMessageRequestValidator implements Validator {
@@ -74,7 +74,7 @@ public class EditMessageRequestValidator implements Validator {
 
     if (form.getTags()!=null) {
       try {
-        TagDao.parseTags(form.getTags());
+        TagCloudDao.parseTags(form.getTags());
       } catch (UserErrorException ex) {
         errors.rejectValue("tags", null, ex.getMessage());
       }

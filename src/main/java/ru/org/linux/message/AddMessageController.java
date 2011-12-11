@@ -39,8 +39,8 @@ import ru.org.linux.site.*;
 import ru.org.linux.spring.CaptchaService;
 import ru.org.linux.spring.UserPropertyEditor;
 import ru.org.linux.spring.dao.IPBlockDao;
-import ru.org.linux.spring.dao.TagDao;
 import ru.org.linux.spring.dao.UserDao;
+import ru.org.linux.tagcloud.TagCloudDao;
 import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.ExceptionBindingErrorProcessor;
 import ru.org.linux.util.UtilException;
@@ -66,7 +66,7 @@ public class AddMessageController extends ApplicationObjectSupport {
   private IPBlockDao ipBlockDao;
   private GroupDao groupDao;
   private SectionDao sectionDao;
-  private TagDao tagDao;
+  private TagCloudDao tagCloudDao;
   private UserDao userDao;
 
   @Autowired
@@ -112,8 +112,8 @@ public class AddMessageController extends ApplicationObjectSupport {
   }
 
   @Autowired
-  public void setTagDao(TagDao tagDao) {
-    this.tagDao = tagDao;
+  public void setTagCloudDao(TagCloudDao tagCloudDao) {
+    this.tagCloudDao = tagCloudDao;
   }
 
   @Autowired
@@ -150,7 +150,7 @@ public class AddMessageController extends ApplicationObjectSupport {
     params.put("group", group);
 
     if (group.isModerated()) {
-      params.put("topTags", tagDao.getTopTags());
+      params.put("topTags", tagCloudDao.getTopTags());
     }
 
     params.put("addportal", sectionDao.getAddInfo(group.getSectionId()));
@@ -188,7 +188,7 @@ public class AddMessageController extends ApplicationObjectSupport {
     params.put("group", group);
 
     if (group!=null && group.isModerated()) {
-      params.put("topTags", tagDao.getTopTags());
+      params.put("topTags", tagCloudDao.getTopTags());
     }
 
     if (group!=null) {
@@ -254,7 +254,7 @@ public class AddMessageController extends ApplicationObjectSupport {
 
     if (group!=null) {
       previewMsg = new Message(form, user, message, request.getRemoteAddr());
-      params.put("message", prepareService.prepareMessage(previewMsg, TagDao.parseSanitizeTags(form.getTags()), null, request.isSecure()));
+      params.put("message", prepareService.prepareMessage(previewMsg, TagCloudDao.parseSanitizeTags(form.getTags()), null, request.isSecure()));
     }
 
     if (!form.isPreviewMode() && !errors.hasErrors() && !session.getId().equals(request.getParameter("session"))) {

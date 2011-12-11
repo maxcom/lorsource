@@ -29,6 +29,6 @@ public class EditBoxesRequestValidator implements Validator{
 
   @Override
   public void validate(Object target, Errors errors) {
-    ValidationUtils.rejectIfEmptyOrWhitespace(errors, "tag", "tag.empty", "Не указана колонка");
+    ValidationUtils.rejectIfEmptyOrWhitespace(errors, "tagcloud", "tagcloud.empty", "Не указана колонка");
   }
 }

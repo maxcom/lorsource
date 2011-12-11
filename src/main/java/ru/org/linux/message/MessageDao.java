@@ -40,7 +40,7 @@ import ru.org.linux.poll.PollNotFoundException;
 import ru.org.linux.poll.PollVariant;
 import ru.org.linux.section.Section;
 import ru.org.linux.site.*;
-import ru.org.linux.spring.dao.TagDao;
+import ru.org.linux.tagcloud.TagCloudDao;
 import ru.org.linux.spring.dao.UserDao;
 import ru.org.linux.spring.dao.UserEventsDao;
 import ru.org.linux.util.LorHttpUtils;
@@ -69,7 +69,7 @@ public class MessageDao {
   private PollDao pollDao;
 
   @Autowired
-  private TagDao tagDao;
+  private TagCloudDao tagCloudDao;
 
   @Autowired
   private UserEventsDao userEventsDao;
@@ -232,7 +232,7 @@ public class MessageDao {
    * @return список тэгов
    */
   public ImmutableList<String> getTags(Message message) {
-    return tagDao.getMessageTags(message.getId());
+    return tagCloudDao.getMessageTags(message.getId());
   }
 
   /**
@@ -375,10 +375,10 @@ public class MessageDao {
     }
 
     if (form.getTags() != null) {
-      final List<String> tags = TagDao.parseTags(form.getTags());
+      final List<String> tags = TagCloudDao.parseTags(form.getTags());
 
-      tagDao.updateTags(msgid, tags);
-      tagDao.updateCounters(Collections.<String>emptyList(), tags);
+      tagCloudDao.updateTags(msgid, tags);
+      tagCloudDao.updateCounters(Collections.<String>emptyList(), tags);
     }
 
     userEventsDao.addUserRefEvent(userRefs.toArray(new User[userRefs.size()]), msgid);
@@ -395,7 +395,7 @@ public class MessageDao {
    * @return
    */
   private boolean updateMessage(Message oldMsg, Message msg, User editor, List<String> newTags) {
-    List<String> oldTags = tagDao.getMessageTags(msg.getId());
+    List<String> oldTags = tagCloudDao.getMessageTags(msg.getId());
 
     EditInfoDto editInfo = new EditInfoDto();
 
@@ -445,11 +445,11 @@ public class MessageDao {
     }
 
     if (newTags != null) {
-      boolean modifiedTags = tagDao.updateTags(msg.getId(), newTags);
+      boolean modifiedTags = tagCloudDao.updateTags(msg.getId(), newTags);
 
       if (modifiedTags) {
-        editInfo.setOldtags(TagDao.toString(oldTags));
-        tagDao.updateCounters(oldTags, newTags);
+        editInfo.setOldtags(TagCloudDao.toString(oldTags));
+        tagCloudDao.updateCounters(oldTags, newTags);
         modified = true;
       }
     }
@@ -834,9 +834,9 @@ public class MessageDao {
     }
 
     if (!newGrp.isModerated()) {
-      ImmutableList<String> oldTags = tagDao.getMessageTags(msg.getId());
-      tagDao.updateTags(msg.getId(), ImmutableList.<String>of());
-      tagDao.updateCounters(oldTags, Collections.<String>emptyList());
+      ImmutableList<String> oldTags = tagCloudDao.getMessageTags(msg.getId());
+      tagCloudDao.updateTags(msg.getId(), ImmutableList.<String>of());
+      tagCloudDao.updateCounters(oldTags, Collections.<String>emptyList());
     }
   }
 }

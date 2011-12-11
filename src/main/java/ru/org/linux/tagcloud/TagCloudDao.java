@@ -13,18 +13,21 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.spring.dao;
+package ru.org.linux.tagcloud;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import org.apache.commons.collections.Closure;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.mutable.MutableDouble;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ConnectionCallback;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowCallbackHandler;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
-import ru.org.linux.site.TagNotFoundException;
 import ru.org.linux.site.UserErrorException;
 
 import javax.sql.DataSource;
@@ -36,7 +39,7 @@ import java.util.*;
 import java.util.regex.Pattern;
 
 @Repository
-public final class TagDao {
+public final class TagCloudDao {
   private static final Pattern tagRE = Pattern.compile("([\\p{L}\\d \\+-]+)", Pattern.CASE_INSENSITIVE);
 
   private static final int TOP_TAGS_COUNT = 50;
@@ -303,5 +306,47 @@ public final class TagDao {
     } else {
       return res.get(0);
     }
+  }
+
+  public List<TagCloudDto> getTags(int tagcount) {
+    String sql = "select value,counter from tags_values where counter>0 order by counter desc limit ?";
+    final MutableDouble maxc = new MutableDouble(1);
+    final MutableDouble minc = new MutableDouble(-1);
+    List<TagCloudDto> result = jdbcTemplate.query(sql, new RowMapper<TagCloudDto>() {
+      @Override
+      public TagCloudDto mapRow(ResultSet rs, int rowNum) throws SQLException {
+        TagCloudDto result = new TagCloudDto();
+        result.setValue(rs.getString("value"));
+        double counter = Math.log(rs.getInt("counter"));
+        result.setCounter(counter);
+
+        if (maxc.doubleValue() < counter){
+          maxc.setValue(counter);
+        }
+
+        if (minc.doubleValue() < 0 || counter < minc.doubleValue()){
+          minc.setValue(counter);
+        }
+
+        return result;
+      }
+    }, tagcount);
+
+    if (minc.doubleValue() < 0){
+      minc.setValue(0);
+    }
+
+    CollectionUtils.forAllDo(result, new Closure() {
+      @Override
+      public void execute(Object o) {
+        TagCloudDto tag = (TagCloudDto) o;
+        tag.setWeight((int) Math.round(10 * (tag.getCounter() - minc.doubleValue())
+          / (maxc.doubleValue() - minc.doubleValue())));
+      }
+    });
+
+    Collections.sort(result);
+
+    return result;
   }
 }
