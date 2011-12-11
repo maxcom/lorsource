@@ -13,7 +13,9 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.site;
+package ru.org.linux.section;
+
+import ru.org.linux.site.ScriptErrorException;
 
 public class SectionNotFoundException extends ScriptErrorException {
   public SectionNotFoundException(int id) {

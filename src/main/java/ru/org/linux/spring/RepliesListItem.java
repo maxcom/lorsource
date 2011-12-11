@@ -15,7 +15,7 @@
 
 package ru.org.linux.spring;
 
-import ru.org.linux.site.Section;
+import ru.org.linux.section.Section;
 import ru.org.linux.site.User;
 
 import java.io.Serializable;

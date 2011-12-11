@@ -34,6 +34,7 @@ import ru.org.linux.poll.Poll;
 import ru.org.linux.poll.PollDao;
 import ru.org.linux.poll.PollNotFoundException;
 import ru.org.linux.poll.PollVariant;
+import ru.org.linux.section.Section;
 import ru.org.linux.site.*;
 import ru.org.linux.spring.AddMessageRequest;
 import ru.org.linux.util.LorHttpUtils;

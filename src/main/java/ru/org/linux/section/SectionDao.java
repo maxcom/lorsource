@@ -13,7 +13,7 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.spring.dao;
+package ru.org.linux.section;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -21,8 +21,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.stereotype.Component;
-import ru.org.linux.site.Section;
-import ru.org.linux.site.SectionNotFoundException;
 
 import javax.sql.DataSource;
 import java.sql.ResultSet;
@@ -56,6 +54,13 @@ public class SectionDao {
     this.sectionsList = sectionsList.build();
   }
 
+  /**
+   * Получить объект секции по идентификатору секции.
+   *
+   * @param id идентификатор секции
+   * @return объект секции
+   * @throws SectionNotFoundException если секция не найдена
+   */
   public Section getSection(int id) throws SectionNotFoundException {
     Section section = sections.get(id);
 
@@ -66,10 +71,21 @@ public class SectionDao {
     return section;
   }
 
+  /**
+   * получить список секций.
+   *
+   * @return список секций
+   */
   public ImmutableList<Section> getSectionsList() {
     return sectionsList;
   }
 
+  /**
+   * Получить расширенную информацию о секции по идентификатору секции.
+   *
+   * @param id идентификатор секции
+   * @return расширеннуя информация о секции
+   */
   public String getAddInfo(int id) {
     List<String> infos = jdbcTemplate.queryForList("select add_info from sections where id=?", String.class, id);
 

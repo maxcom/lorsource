@@ -21,8 +21,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.stereotype.Repository;
+import ru.org.linux.section.Section;
 import ru.org.linux.site.GalleryItem;
-import ru.org.linux.site.Section;
 import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.ImageInfo;
 

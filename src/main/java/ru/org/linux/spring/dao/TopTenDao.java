@@ -26,7 +26,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 
 import org.springframework.stereotype.Repository;
-import ru.org.linux.site.Section;
+import ru.org.linux.section.Section;
 
 @Repository
 public class TopTenDao {

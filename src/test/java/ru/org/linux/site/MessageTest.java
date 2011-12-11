@@ -17,6 +17,7 @@ package ru.org.linux.site;
 
 import org.junit.Test;
 import junit.framework.Assert;
+import ru.org.linux.section.Section;
 
 import java.sql.ResultSet;
 import java.sql.Timestamp;

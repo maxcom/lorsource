@@ -15,6 +15,8 @@
 
 package ru.org.linux.site;
 
+import ru.org.linux.section.Section;
+
 import java.io.Serializable;
 import java.sql.ResultSet;
 import java.sql.SQLException;

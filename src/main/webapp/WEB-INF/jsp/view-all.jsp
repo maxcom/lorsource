@@ -1,6 +1,6 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="java.util.Date,ru.org.linux.site.Section"   buffer="60kb"%>
+<%@ page import="java.util.Date,ru.org.linux.section.Section"   buffer="60kb"%>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%--
   ~ Copyright 1998-2010 Linux.org.ru
@@ -19,8 +19,8 @@
 <%--@elvariable id="messages" type="java.util.List<ru.org.linux.site.PreparedMessage>"--%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <%--@elvariable id="deletedTopics" type="java.util.List<ru.org.linux.spring.NewsViewerController.DeletedTopic>"--%>
-<%--@elvariable id="sections" type="java.util.List<ru.org.linux.site.Section>"--%>
-<%--@elvariable id="section" type="ru.org.linux.site.Section"--%>
+<%--@elvariable id="sections" type="java.util.List<ru.org.linux.section.Section>"--%>
+<%--@elvariable id="section" type="ru.org.linux.section.Section"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 

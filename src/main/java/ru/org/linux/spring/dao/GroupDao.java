@@ -22,9 +22,9 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCallback;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
+import ru.org.linux.section.Section;
 import ru.org.linux.site.BadGroupException;
 import ru.org.linux.site.Group;
-import ru.org.linux.site.Section;
 
 import javax.sql.DataSource;
 import java.sql.PreparedStatement;

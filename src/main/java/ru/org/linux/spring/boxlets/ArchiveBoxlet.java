@@ -24,11 +24,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
-import ru.org.linux.site.Section;
-import ru.org.linux.site.SectionNotFoundException;
+import ru.org.linux.section.Section;
+import ru.org.linux.section.SectionDao;
+import ru.org.linux.section.SectionNotFoundException;
 import ru.org.linux.spring.commons.CacheProvider;
 import ru.org.linux.spring.dao.ArchiveDao;
-import ru.org.linux.spring.dao.SectionDao;
 
 @Controller
 public class ArchiveBoxlet extends AbstractBoxlet {

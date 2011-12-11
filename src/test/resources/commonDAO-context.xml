@@ -25,5 +25,6 @@
     </bean>
 
     <bean class="ru.org.linux.poll.PollDao" id="pollDao"/>
+    <bean class="ru.org.linux.section.SectionDao" id="sectionDao"/>
 
 </beans>
