@@ -13,7 +13,7 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.site;
+package ru.org.linux.gallery;
 
 import org.apache.commons.io.FileUtils;
 import org.springframework.validation.Errors;
@@ -26,7 +26,7 @@ import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class Screenshot {
+public class ScreenShot {
   public static final int MAX_SCREENSHOT_FILESIZE = 1500000;
   public static final int MIN_SCREENSHOT_SIZE = 400;
   public static final int MAX_SCREENSHOT_SIZE = 3000;
@@ -40,7 +40,7 @@ public class Screenshot {
   private static final int ICON_WIDTH = 200;
   private static final int MEDIUM_WIDTH = 500;
 
-  public static Screenshot createScreenshot(File file, Errors errors, String dir) throws IOException, BadImageException, UtilException {
+  public static ScreenShot createScreenshot(File file, Errors errors, String dir) throws IOException, BadImageException, UtilException {
     boolean error = false;
 
     if (!file.isFile()) {
@@ -78,7 +78,7 @@ public class Screenshot {
       try {
         String name = tempFile.getName();
 
-        Screenshot scrn = new Screenshot(name, dir, extension);
+        ScreenShot scrn = new ScreenShot(name, dir, extension);
 
         scrn.doResize(file);
 
@@ -91,7 +91,7 @@ public class Screenshot {
     }
   }
 
-  private Screenshot(String name, String path, String extension) {
+  private ScreenShot(String name, String path, String extension) {
     String mainname = name + '.' + extension;
     String iconname = name + "-icon.jpg";
     String medname = name + "-med.jpg";
@@ -103,8 +103,8 @@ public class Screenshot {
     this.extension = extension;
   }
 
-  public Screenshot moveTo(String dir, String name) throws IOException {
-    Screenshot dest = new Screenshot(name, dir, extension);
+  public ScreenShot moveTo(String dir, String name) throws IOException {
+    ScreenShot dest = new ScreenShot(name, dir, extension);
 
     FileUtils.moveFile(mainFile, dest.mainFile);
     FileUtils.moveFile(iconFile, dest.iconFile);

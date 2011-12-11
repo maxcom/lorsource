@@ -17,6 +17,7 @@ package ru.org.linux.site;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import ru.org.linux.gallery.ScreenShot;
 import ru.org.linux.spring.commons.CacheProvider;
 import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.ImageInfo;
@@ -65,7 +66,7 @@ public class NewsViewer {
     String url = topic.getUrl();
 
     try {
-      String mediumName = Screenshot.getMediumName(url);
+      String mediumName = ScreenShot.getMediumName(url);
 
       if (!showMedium || !new File(htmlPath, mediumName).exists()) {
         mediumName = topic.getLinktext();

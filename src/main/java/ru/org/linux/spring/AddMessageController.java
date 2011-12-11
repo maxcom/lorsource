@@ -28,6 +28,7 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.multipart.MultipartRequest;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
+import ru.org.linux.gallery.ScreenShot;
 import ru.org.linux.search.SearchQueueSender;
 import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionDao;
@@ -228,7 +229,7 @@ public class AddMessageController extends ApplicationObjectSupport {
       }
     }
 
-    Screenshot scrn = null;
+    ScreenShot scrn = null;
 
     if (group!=null && group.isImagePostAllowed()) {
       scrn = processUpload(session, tmpl, image, errors);
@@ -351,7 +352,7 @@ public class AddMessageController extends ApplicationObjectSupport {
    * @throws IOException
    * @throws UtilException
    */
-  private Screenshot processUpload(
+  private ScreenShot processUpload(
           HttpSession session,
           Template tmpl,
           String image,
@@ -361,35 +362,35 @@ public class AddMessageController extends ApplicationObjectSupport {
       return null;
     }
 
-    Screenshot screenshot = null;
+    ScreenShot screenShot = null;
 
     if (image != null && !image.isEmpty()) {
       File uploadedFile = new File(image);
 
       try {
-        screenshot = Screenshot.createScreenshot(
-                uploadedFile,
-                errors,
-                tmpl.getObjectConfig().getHTMLPathPrefix() + "/gallery/preview"
+        screenShot = ScreenShot.createScreenshot(
+          uploadedFile,
+          errors,
+          tmpl.getObjectConfig().getHTMLPathPrefix() + "/gallery/preview"
         );
 
-        if (screenshot != null) {
+        if (screenShot != null) {
           logger.info("SCREEN: " + uploadedFile.getAbsolutePath() + "\nINFO: SCREEN: " + image);
 
-          session.setAttribute("image", screenshot);
+          session.setAttribute("image", screenShot);
         }
       } catch (BadImageException e) {
         errors.reject(null, "Некорректное изображение: " + e.getMessage());
       }
     } else if (session.getAttribute("image") != null && !"".equals(session.getAttribute("image"))) {
-      screenshot = (Screenshot) session.getAttribute("image");
+      screenShot = (ScreenShot) session.getAttribute("image");
 
-      if (!screenshot.getMainFile().exists()) {
-        screenshot = null;
+      if (!screenShot.getMainFile().exists()) {
+        screenShot = null;
       }
     }
 
-    return screenshot;
+    return screenShot;
   }
 
   private String processUploadImage(HttpServletRequest request, Template tmpl) throws IOException, ScriptErrorException {

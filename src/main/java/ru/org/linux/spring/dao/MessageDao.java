@@ -30,6 +30,10 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import ru.org.linux.gallery.ScreenShot;
+import ru.org.linux.group.BadGroupException;
+import ru.org.linux.group.Group;
+import ru.org.linux.group.GroupDao;
 import ru.org.linux.poll.Poll;
 import ru.org.linux.poll.PollDao;
 import ru.org.linux.poll.PollNotFoundException;
@@ -266,9 +270,19 @@ public class MessageDao {
     return jdbcTemplate.queryForInt("select nextval('s_msgid') as msgid");
   }
 
-  // call in @Transactional environment
-  public int saveNewMessage(final Message msg, Template tmpl, final HttpServletRequest request, Screenshot scrn, final User user)
-    throws  IOException,  ScriptErrorException {
+  /**
+   *
+   * @param msg
+   * @param tmpl
+   * @param request
+   * @param scrn
+   * @param user
+   * @return
+   * @throws IOException
+   * @throws ScriptErrorException
+   */
+// call in @Transactional environment
+  public int saveNewMessage(final Message msg, Template tmpl, final HttpServletRequest request, ScreenShot scrn, final User user) throws  IOException,  ScriptErrorException {
 
     final Group group = groupDao.getGroup(msg.getGroupId());
 
@@ -282,10 +296,10 @@ public class MessageDao {
         throw new ScriptErrorException("scrn==null!?");
       }
 
-      Screenshot screenshot = scrn.moveTo(tmpl.getObjectConfig().getHTMLPathPrefix() + "/gallery", Integer.toString(msgid));
+      ScreenShot screenShot = scrn.moveTo(tmpl.getObjectConfig().getHTMLPathPrefix() + "/gallery", Integer.toString(msgid));
 
-      url = "gallery/" + screenshot.getMainFile().getName();
-      linktext = "gallery/" + screenshot.getIconFile().getName();
+      url = "gallery/" + screenShot.getMainFile().getName();
+      linktext = "gallery/" + screenShot.getIconFile().getName();
     }
 
     final String finalUrl = url;
@@ -323,7 +337,7 @@ public class MessageDao {
   }
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public int addMessage(HttpServletRequest request, AddMessageRequest form, Template tmpl, Group group, User user, Screenshot scrn, Message previewMsg, Set<User> userRefs) throws IOException, ScriptErrorException, UserErrorException {
+  public int addMessage(HttpServletRequest request, AddMessageRequest form, Template tmpl, Group group, User user, ScreenShot scrn, Message previewMsg, Set<User> userRefs) throws IOException, ScriptErrorException, UserErrorException {
     final int msgid = saveNewMessage(
             previewMsg,
             tmpl,
