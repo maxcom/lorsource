@@ -31,6 +31,8 @@ import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.group.BadGroupException;
 import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
+import ru.org.linux.message.Message;
+import ru.org.linux.message.MessagePrepareService;
 import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionDao;
 import ru.org.linux.site.*;

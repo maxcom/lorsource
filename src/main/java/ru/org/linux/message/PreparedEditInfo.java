@@ -13,15 +13,17 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.site;
+package ru.org.linux.message;
 
+import ru.org.linux.site.User;
+import ru.org.linux.site.UserNotFoundException;
 import ru.org.linux.spring.dao.UserDao;
 import ru.org.linux.util.bbcode.LorCodeService;
 
 import java.util.List;
 
 public class PreparedEditInfo {
-  private final EditInfoDTO editInfo;
+  private final EditInfoDto editInfo;
   private final boolean original;
   private final User editor;
   private final String message;
@@ -35,7 +37,7 @@ public class PreparedEditInfo {
     LorCodeService lorCodeService,
     boolean secure,
     UserDao userDao,
-    EditInfoDTO editInfo,
+    EditInfoDto editInfo,
     String message,
     String title,
     String url,
@@ -64,7 +66,7 @@ public class PreparedEditInfo {
     this.tags = tags;
   }
 
-  public EditInfoDTO getEditInfo() {
+  public EditInfoDto getEditInfo() {
     return editInfo;
   }
 

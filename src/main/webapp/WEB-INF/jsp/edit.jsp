@@ -1,7 +1,7 @@
 <%@ page contentType="text/html; charset=utf-8"%>
 <%@ page
-    import="ru.org.linux.site.Message" %>
-<%@ page import="ru.org.linux.site.PreparedMessage" %>
+    import="ru.org.linux.message.Message" %>
+<%@ page import="ru.org.linux.message.PreparedMessage" %>
 <%@ page import="ru.org.linux.spring.dao.TagDao" %>
 <%@ page import="java.util.SortedSet" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
@@ -22,13 +22,13 @@
   ~    limitations under the License.
   --%>
 
-<%--@elvariable id="message" type="ru.org.linux.site.Message"--%>
-<%--@elvariable id="preparedMessage" type="ru.org.linux.site.PreparedMessage"--%>
-<%--@elvariable id="newMsg" type="ru.org.linux.site.Message"--%>
-<%--@elvariable id="newPreparedMessage" type="ru.org.linux.site.PreparedMessage"--%>
+<%--@elvariable id="message" type="ru.org.linux.message.Message"--%>
+<%--@elvariable id="preparedMessage" type="ru.org.linux.message.PreparedMessage"--%>
+<%--@elvariable id="newMsg" type="ru.org.linux.message.Message"--%>
+<%--@elvariable id="newPreparedMessage" type="ru.org.linux.message.PreparedMessage"--%>
 <%--@elvariable id="group" type="ru.org.linux.group.Group"--%>
 <%--@elvariable id="info" type="java.lang.String"--%>
-<%--@elvariable id="editInfo" type="ru.org.linux.site.EditInfoDTO"--%>
+<%--@elvariable id="editInfo" type="ru.org.linux.message.EditInfoDto"--%>
 <%--@elvariable id="commit" type="java.lang.Boolean"--%>
 <%--@elvariable id="groups" type="java.util.List<ru.org.linux.group.Group>"--%>
 <%--@elvariable id="topTags" type="java.util.SortedSet<String>"--%>

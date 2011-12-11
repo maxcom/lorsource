@@ -8,8 +8,8 @@
 <%@ tag import="ru.org.linux.util.StringUtil" %>
 <%@ tag import="ru.org.linux.util.ImageInfo" %>
 <%@ tag pageEncoding="UTF-8"%>
-<%@ attribute name="message" required="true" type="ru.org.linux.site.Message" %>
-<%@ attribute name="preparedMessage" required="true" type="ru.org.linux.site.PreparedMessage" %>
+<%@ attribute name="message" required="true" type="ru.org.linux.message.Message" %>
+<%@ attribute name="preparedMessage" required="true" type="ru.org.linux.message.PreparedMessage" %>
 <%@ attribute name="multiPortal" required="true" type="java.lang.Boolean" %>
 <%@ attribute name="moderateMode" required="true" type="java.lang.Boolean" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>

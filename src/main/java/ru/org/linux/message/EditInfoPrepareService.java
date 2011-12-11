@@ -13,11 +13,12 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.site;
+package ru.org.linux.message;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.org.linux.spring.dao.MessageDao;
+import ru.org.linux.site.UserErrorException;
+import ru.org.linux.site.UserNotFoundException;
 import ru.org.linux.spring.dao.TagDao;
 import ru.org.linux.spring.dao.UserDao;
 import ru.org.linux.util.bbcode.LorCodeService;
@@ -40,8 +41,8 @@ public class EditInfoPrepareService {
   private LorCodeService lorCodeService;
 
   public List<PreparedEditInfo> prepareEditInfo(Message message, boolean secure) throws UserNotFoundException, UserErrorException {
-    List<EditInfoDTO> editInfoDTOs = messageDao.loadEditInfo(message.getId());
-    List<PreparedEditInfo> editInfos = new ArrayList<PreparedEditInfo>(editInfoDTOs.size());
+    List<EditInfoDto> editInfoDtos = messageDao.loadEditInfo(message.getId());
+    List<PreparedEditInfo> editInfos = new ArrayList<PreparedEditInfo>(editInfoDtos.size());
 
     String currentMessage = message.getMessage();
     String currentTitle = message.getTitle();
@@ -49,8 +50,8 @@ public class EditInfoPrepareService {
     String currentLinktext = message.getLinktext();
     List<String> currentTags = tagDao.getMessageTags(message.getMessageId());
 
-    for (int i = 0; i<editInfoDTOs.size(); i++) {
-      EditInfoDTO dto = editInfoDTOs.get(i);
+    for (int i = 0; i< editInfoDtos.size(); i++) {
+      EditInfoDto dto = editInfoDtos.get(i);
 
       editInfos.add(
         new PreparedEditInfo(
@@ -89,8 +90,8 @@ public class EditInfoPrepareService {
       }
     }
 
-    if (!editInfoDTOs.isEmpty()) {
-      EditInfoDTO current = EditInfoDTO.createFromMessage(tagDao, message);
+    if (!editInfoDtos.isEmpty()) {
+      EditInfoDto current = EditInfoDto.createFromMessage(tagDao, message);
 
       editInfos.add(new PreparedEditInfo(lorCodeService, secure, userDao, current, currentMessage, currentTitle, currentUrl, currentLinktext, currentTags, false, true));
     }

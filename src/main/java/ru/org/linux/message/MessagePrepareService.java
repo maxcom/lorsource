@@ -13,7 +13,7 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.site;
+package ru.org.linux.message;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -26,8 +26,14 @@ import ru.org.linux.poll.PreparedPoll;
 import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionDao;
 import ru.org.linux.section.SectionNotFoundException;
+import ru.org.linux.site.DeleteInfo;
+import ru.org.linux.site.User;
+import ru.org.linux.site.UserNotFoundException;
 import ru.org.linux.spring.Configuration;
-import ru.org.linux.spring.dao.*;
+import ru.org.linux.spring.dao.DeleteInfoDao;
+import ru.org.linux.spring.dao.MemoriesDao;
+import ru.org.linux.spring.dao.UserAgentDao;
+import ru.org.linux.spring.dao.UserDao;
 import ru.org.linux.util.bbcode.LorCodeService;
 
 import java.util.ArrayList;
@@ -123,8 +129,8 @@ public class MessagePrepareService {
         commiter = null;
       }
 
-      List<EditInfoDTO> editInfo = messageDao.getEditInfo(message.getId());
-      EditInfoDTO lastEditInfo;
+      List<EditInfoDto> editInfo = messageDao.getEditInfo(message.getId());
+      EditInfoDto lastEditInfo;
       User lastEditor;
       int editCount;
 

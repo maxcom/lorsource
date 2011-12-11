@@ -34,7 +34,7 @@ import java.io.OutputStream;
 import java.text.DateFormat;
 import java.util.Properties;
 
-public final class Template {
+public class Template {
   private static final Log logger = LogFactory.getLog(Template.class);
 
   private final Properties cookies;

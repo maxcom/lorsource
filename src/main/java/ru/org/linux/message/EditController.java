@@ -13,7 +13,7 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.spring;
+package ru.org.linux.message;
 
 import com.google.common.base.Strings;
 import org.apache.commons.lang.StringEscapeUtils;
@@ -30,15 +30,18 @@ import ru.org.linux.poll.*;
 import ru.org.linux.search.SearchQueueSender;
 import ru.org.linux.section.Section;
 import ru.org.linux.site.*;
-import ru.org.linux.spring.dao.MessageDao;
+import ru.org.linux.poll.PollDao;
 import ru.org.linux.spring.dao.TagDao;
-import ru.org.linux.spring.validators.EditMessageRequestValidator;
+import ru.org.linux.spring.FeedPinger;
 import ru.org.linux.util.ExceptionBindingErrorProcessor;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Controller
 public class EditController {
@@ -142,7 +145,7 @@ public class EditController {
     params.put("newMsg", message);
     params.put("newPreparedMessage", preparedMessage);
 
-    List<EditInfoDTO> editInfoList = messageDao.getEditInfo(message.getId());
+    List<EditInfoDto> editInfoList = messageDao.getEditInfo(message.getId());
     if (!editInfoList.isEmpty()) {
       params.put("editInfo", editInfoList.get(0));
     }
@@ -224,7 +227,7 @@ public class EditController {
       }
     }
 
-    List<EditInfoDTO> editInfoList = messageDao.getEditInfo(message.getId());
+    List<EditInfoDto> editInfoList = messageDao.getEditInfo(message.getId());
 
     boolean preview = request.getParameter("preview") != null;
     if (preview) {
@@ -232,7 +235,7 @@ public class EditController {
     }
 
     if (!editInfoList.isEmpty()) {
-      EditInfoDTO dbEditInfo = editInfoList.get(0);
+      EditInfoDto dbEditInfo = editInfoList.get(0);
       params.put("editInfo", dbEditInfo);
 
       if (lastEdit == null || dbEditInfo.getEditdate().getTime()!=lastEdit) {

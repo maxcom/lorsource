@@ -22,8 +22,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
-import ru.org.linux.site.Message;
-import ru.org.linux.site.MessagePrepareService;
+import ru.org.linux.message.Message;
+import ru.org.linux.message.MessagePrepareService;
 import ru.org.linux.site.NewsViewer;
 import ru.org.linux.site.Template;
 

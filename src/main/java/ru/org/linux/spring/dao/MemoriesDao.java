@@ -21,8 +21,8 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import ru.org.linux.message.Message;
 import ru.org.linux.site.MemoriesListItem;
-import ru.org.linux.site.Message;
 import ru.org.linux.site.User;
 
 import javax.sql.DataSource;

@@ -1,5 +1,5 @@
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="ru.org.linux.site.CommentFilter,ru.org.linux.site.Message,ru.org.linux.section.Section,ru.org.linux.site.Template"   buffer="200kb"%>
+<%@ page import="ru.org.linux.site.CommentFilter,ru.org.linux.message.Message,ru.org.linux.section.Section,ru.org.linux.site.Template"   buffer="200kb"%>
 <%@ page import="ru.org.linux.util.StringUtil" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
@@ -20,11 +20,11 @@
   --%>
 
 <%--@elvariable id="showAdsense" type="Boolean"--%>
-<%--@elvariable id="message" type="ru.org.linux.site.Message"--%>
-<%--@elvariable id="preparedMessage" type="ru.org.linux.site.PreparedMessage"--%>
-<%--@elvariable id="messageMenu" type="ru.org.linux.site.MessageMenu"--%>
-<%--@elvariable id="prevMessage" type="ru.org.linux.site.Message"--%>
-<%--@elvariable id="nextMessage" type="ru.org.linux.site.Message"--%>
+<%--@elvariable id="message" type="ru.org.linux.message.Message"--%>
+<%--@elvariable id="preparedMessage" type="ru.org.linux.message.PreparedMessage"--%>
+<%--@elvariable id="messageMenu" type="ru.org.linux.message.MessageMenu"--%>
+<%--@elvariable id="prevMessage" type="ru.org.linux.message.Message"--%>
+<%--@elvariable id="nextMessage" type="ru.org.linux.message.Message"--%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <%--@elvariable id="showDeleted" type="Boolean"--%>
 <%--@elvariable id="comments" type="ru.org.linux.site.CommentList"--%>

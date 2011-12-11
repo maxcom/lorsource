@@ -15,6 +15,8 @@
 
 package ru.org.linux.site;
 
+import ru.org.linux.message.MessageNotFoundException;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;

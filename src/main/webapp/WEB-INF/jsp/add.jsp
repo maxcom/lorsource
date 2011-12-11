@@ -17,12 +17,12 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
-<%--@elvariable id="message" type="ru.org.linux.site.PreparedMessage"--%>
+<%--@elvariable id="message" type="ru.org.linux.message.PreparedMessage"--%>
 <%--@elvariable id="group" type="ru.org.linux.group.Group"--%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <%--@elvariable id="modes" type="java.util.Map"--%>
 <%--@elvariable id="addportal" type="java.lang.String"--%>
-<%--@elvariable id="form" type="ru.org.linux.spring.AddMessageRequest"--%>
+<%--@elvariable id="form" type="ru.org.linux.message.AddMessageRequest"--%>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>

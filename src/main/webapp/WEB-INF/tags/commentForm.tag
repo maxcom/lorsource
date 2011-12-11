@@ -1,4 +1,4 @@
-<%@ tag import="ru.org.linux.site.Message" %>
+<%@ tag import="ru.org.linux.message.Message" %>
 <%@ tag import="ru.org.linux.site.Template" %>
 <%@ tag import="ru.org.linux.util.StringUtil" %>
 <%--
@@ -19,7 +19,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 
-<%@ attribute name="topic" required="true" type="ru.org.linux.site.Message" %>
+<%@ attribute name="topic" required="true" type="ru.org.linux.message.Message" %>
 <%@ attribute name="title" required="true" type="java.lang.String" %>
 <%@ attribute name="replyto" required="false" type="java.lang.Integer" %>
 <%@ attribute name="msg" required="false" type="java.lang.String" %>

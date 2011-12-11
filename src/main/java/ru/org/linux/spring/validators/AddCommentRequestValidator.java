@@ -18,9 +18,9 @@ package ru.org.linux.spring.validators;
 import org.jdom.Verifier;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
+import ru.org.linux.message.Message;
 import ru.org.linux.site.BadPasswordException;
 import ru.org.linux.site.Comment;
-import ru.org.linux.site.Message;
 import ru.org.linux.spring.AddCommentRequest;
 import ru.org.linux.util.StringUtil;
 

@@ -13,7 +13,7 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.spring;
+package ru.org.linux.message;
 
 import com.google.common.collect.ImmutableMap;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,8 +36,11 @@ import ru.org.linux.search.SearchQueueSender;
 import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionDao;
 import ru.org.linux.site.*;
-import ru.org.linux.spring.dao.*;
-import ru.org.linux.spring.validators.AddMessageRequestValidator;
+import ru.org.linux.spring.CaptchaService;
+import ru.org.linux.spring.UserPropertyEditor;
+import ru.org.linux.spring.dao.IPBlockDao;
+import ru.org.linux.spring.dao.TagDao;
+import ru.org.linux.spring.dao.UserDao;
 import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.ExceptionBindingErrorProcessor;
 import ru.org.linux.util.UtilException;

@@ -13,10 +13,9 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.spring;
+package ru.org.linux.message;
 
 import org.springframework.jdbc.support.rowset.SqlRowSet;
-import ru.org.linux.site.Message;
 import ru.org.linux.site.User;
 import ru.org.linux.site.UserNotFoundException;
 import ru.org.linux.spring.dao.UserDao;

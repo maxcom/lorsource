@@ -13,7 +13,9 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.site;
+package ru.org.linux.message;
+
+import ru.org.linux.site.ScriptErrorException;
 
 public class MessageNotFoundException extends ScriptErrorException {
   public MessageNotFoundException(int id, String info) {

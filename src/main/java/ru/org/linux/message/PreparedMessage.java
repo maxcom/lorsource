@@ -13,12 +13,14 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.site;
+package ru.org.linux.message;
 
 import com.google.common.collect.ImmutableList;
 import ru.org.linux.group.Group;
 import ru.org.linux.poll.PreparedPoll;
 import ru.org.linux.section.Section;
+import ru.org.linux.site.DeleteInfo;
+import ru.org.linux.site.User;
 
 import java.util.List;
 
@@ -34,7 +36,7 @@ public final class PreparedMessage {
   private final Group group;
   private final Section section;
 
-  private final EditInfoDTO lastEditInfo;
+  private final EditInfoDto lastEditInfo;
   private final User lastEditor;
   private final int editCount;
 
@@ -44,7 +46,7 @@ public final class PreparedMessage {
 
   public PreparedMessage(Message message, User author, DeleteInfo deleteInfo, User deleteUser, String processedMessage,
                           PreparedPoll poll, User commiter, List<String> tags, Group group, Section section,
-                          EditInfoDTO lastEditInfo, User lastEditor, int editorCount, String userAgent) {
+                          EditInfoDto lastEditInfo, User lastEditor, int editorCount, String userAgent) {
     this.message = message;
     this.author = author;
     this.deleteInfo = deleteInfo;
@@ -93,7 +95,7 @@ public final class PreparedMessage {
     return commiter;
   }
 
-  public EditInfoDTO getLastEditInfo() {
+  public EditInfoDto getLastEditInfo() {
     return lastEditInfo;
   }
 

@@ -13,7 +13,7 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.spring;
+package ru.org.linux.message;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -23,8 +23,9 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
+import ru.org.linux.message.Message;
+import ru.org.linux.message.MessageDao;
 import ru.org.linux.site.*;
-import ru.org.linux.spring.dao.MessageDao;
 
 import javax.servlet.http.HttpServletRequest;
 

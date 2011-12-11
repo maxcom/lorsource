@@ -13,13 +13,13 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.site;
+package ru.org.linux.message;
 
 import ru.org.linux.spring.dao.TagDao;
 
 import java.sql.Timestamp;
 
-public class EditInfoDTO {
+public class EditInfoDto {
   private int id;
   private int msgid;
   private int editor;
@@ -102,8 +102,8 @@ public class EditInfoDTO {
     this.oldurl = oldurl;
   }
 
-  public static EditInfoDTO createFromMessage(TagDao tagDao, Message message) {
-    EditInfoDTO current = new EditInfoDTO();
+  public static EditInfoDto createFromMessage(TagDao tagDao, Message message) {
+    EditInfoDto current = new EditInfoDto();
 
     current.setOldmessage(message.getMessage());
     current.setEditdate(message.getPostdate());

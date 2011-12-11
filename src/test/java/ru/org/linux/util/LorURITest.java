@@ -20,8 +20,8 @@ import org.apache.commons.httpclient.URIException;
 import org.junit.Before;
 import org.junit.Test;
 import ru.org.linux.group.Group;
-import ru.org.linux.site.Message;
-import ru.org.linux.spring.dao.MessageDao;
+import ru.org.linux.message.Message;
+import ru.org.linux.message.MessageDao;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;

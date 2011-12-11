@@ -13,9 +13,10 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.site;
+package ru.org.linux.message;
 
 import ru.org.linux.poll.PreparedPoll;
+import ru.org.linux.site.NewsViewer;
 import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.ImageInfo;
 

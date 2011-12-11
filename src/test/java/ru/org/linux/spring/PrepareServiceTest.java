@@ -18,9 +18,10 @@ package ru.org.linux.spring;
 import com.google.common.collect.ImmutableList;
 import org.junit.Test;
 import ru.org.linux.group.GroupDao;
+import ru.org.linux.message.Message;
+import ru.org.linux.message.MessageDao;
 import ru.org.linux.poll.PollDao;
 import ru.org.linux.section.SectionDao;
-import ru.org.linux.site.Message;
 import ru.org.linux.spring.dao.*;
 
 import static org.mockito.Mockito.mock;

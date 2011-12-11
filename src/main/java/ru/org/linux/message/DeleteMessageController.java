@@ -13,7 +13,7 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.spring;
+package ru.org.linux.message;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.ApplicationObjectSupport;
@@ -25,8 +25,10 @@ import org.springframework.web.servlet.ModelAndView;
 import ru.org.linux.search.SearchQueueSender;
 import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionDao;
-import ru.org.linux.site.*;
-import ru.org.linux.spring.dao.MessageDao;
+import ru.org.linux.site.AccessViolationException;
+import ru.org.linux.site.Template;
+import ru.org.linux.site.User;
+import ru.org.linux.site.UserErrorException;
 import ru.org.linux.spring.dao.UserDao;
 
 import javax.servlet.http.HttpServletRequest;

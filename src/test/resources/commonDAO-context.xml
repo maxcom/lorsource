@@ -30,4 +30,10 @@
     <bean class="ru.org.linux.group.GroupDao" id="groupDao"/>
     <bean class="ru.org.linux.archive.ArchiveDao" id="archiveDao"/>
 
+    <bean class="ru.org.linux.spring.dao.TagDao" id="tagDao"/>
+    <bean class="ru.org.linux.spring.dao.UserEventsDao" id="userEventsDao"/>
+    <bean class="ru.org.linux.spring.dao.UserDao" id="userDao"/>
+    <bean class="ru.org.linux.spring.dao.IgnoreListDao" id="ignoreListDao"/>
+    <bean class="ru.org.linux.message.MessageDao" id="messageDao"/>
+
 </beans>

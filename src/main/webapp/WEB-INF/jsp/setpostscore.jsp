@@ -1,6 +1,6 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page contentType="text/html; charset=utf-8" %>
-<%@ page import="ru.org.linux.site.Message" %>
+<%@ page import="ru.org.linux.message.Message" %>
 <%--
   ~ Copyright 1998-2010 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,7 +15,7 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
-<%--@elvariable id="message" type="ru.org.linux.site.Message"--%>
+<%--@elvariable id="message" type="ru.org.linux.message.Message"--%>
 <%--@elvariable id="group" type="ru.org.linux.group.Group"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>

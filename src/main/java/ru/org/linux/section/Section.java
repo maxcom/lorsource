@@ -15,7 +15,7 @@
 
 package ru.org.linux.section;
 
-import ru.org.linux.site.Message;
+import ru.org.linux.message.Message;
 
 import java.io.Serializable;
 import java.sql.*;
