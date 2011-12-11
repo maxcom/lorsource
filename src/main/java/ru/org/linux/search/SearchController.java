@@ -33,12 +33,14 @@ import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import ru.org.linux.group.BadGroupException;
+import ru.org.linux.group.Group;
+import ru.org.linux.group.GroupDao;
 import ru.org.linux.section.SectionDao;
 import ru.org.linux.section.SectionNotFoundException;
 import ru.org.linux.site.*;
 import ru.org.linux.util.ExceptionBindingErrorProcessor;
 import ru.org.linux.spring.UserPropertyEditor;
-import ru.org.linux.spring.dao.GroupDao;
 import ru.org.linux.spring.dao.UserDao;
 import ru.org.linux.util.bbcode.LorCodeService;
 

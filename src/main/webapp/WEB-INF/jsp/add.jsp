@@ -18,7 +18,7 @@
   ~    limitations under the License.
   --%>
 <%--@elvariable id="message" type="ru.org.linux.site.PreparedMessage"--%>
-<%--@elvariable id="group" type="ru.org.linux.site.Group"--%>
+<%--@elvariable id="group" type="ru.org.linux.group.Group"--%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <%--@elvariable id="modes" type="java.util.Map"--%>
 <%--@elvariable id="addportal" type="java.lang.String"--%>

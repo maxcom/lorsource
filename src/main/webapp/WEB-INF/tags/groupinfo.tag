@@ -16,7 +16,7 @@
   ~    limitations under the License.
   --%>
 <%@ tag pageEncoding="utf-8" %>
-<%@ attribute name="group" required="true" type="ru.org.linux.site.PreparedGroupInfo" %>
+<%@ attribute name="group" required="true" type="ru.org.linux.group.PreparedGroupInfo" %>
 <% Template tmpl = Template.getTemplate(request); %>
 <c:if test="${group.info != null}">
   <p style="margin-top: 0"><em>${group.info}</em></p>

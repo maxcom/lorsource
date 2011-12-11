@@ -31,6 +31,9 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.org.linux.gallery.Screenshot;
+import ru.org.linux.group.BadGroupException;
+import ru.org.linux.group.Group;
+import ru.org.linux.group.GroupDao;
 import ru.org.linux.poll.Poll;
 import ru.org.linux.poll.PollDao;
 import ru.org.linux.poll.PollNotFoundException;
@@ -168,7 +171,7 @@ public class MessageDao {
    * @return group
    * @throws BadGroupException если что-то неправильно
    */
-  public Group getGroup(Message message) throws  BadGroupException {
+  public Group getGroup(Message message) throws BadGroupException {
     return groupDao.getGroup(message.getGroupId());
   }
 

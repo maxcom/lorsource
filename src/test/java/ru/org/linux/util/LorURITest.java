@@ -19,7 +19,7 @@ import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.junit.Before;
 import org.junit.Test;
-import ru.org.linux.site.Group;
+import ru.org.linux.group.Group;
 import ru.org.linux.site.Message;
 import ru.org.linux.spring.dao.MessageDao;
 

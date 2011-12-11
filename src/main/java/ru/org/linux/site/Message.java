@@ -17,6 +17,7 @@ package ru.org.linux.site;
 
 import com.google.common.base.Strings;
 import org.springframework.validation.Errors;
+import ru.org.linux.group.Group;
 import ru.org.linux.section.Section;
 import ru.org.linux.spring.AddMessageRequest;
 import ru.org.linux.spring.EditMessageRequest;

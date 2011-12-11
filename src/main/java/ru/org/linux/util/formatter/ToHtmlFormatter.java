@@ -167,7 +167,7 @@ public class ToHtmlFormatter {
    * @param out сюда будет записана ссылка
    * @param uri исходный uri
    * @throws URIException если uri не корректный
-   * @throws BadGroupException если uri не корректный
+   * @throws ru.org.linux.group.BadGroupException если uri не корректный
    * @throws MessageNotFoundException если uri не корректный
    */
   private void processMessageUrl(boolean secure, StringBuilder out, LorURI uri) throws URIException {

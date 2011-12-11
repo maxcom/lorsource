@@ -13,8 +13,8 @@
 ~    limitations under the License.
 --%>
 
-<%--@elvariable id="group" type="ru.org.linux.site.Group"--%>
-<%--@elvariable id="groupInfo" type="ru.org.linux.site.PreparedGroupInfo"--%>
+<%--@elvariable id="group" type="ru.org.linux.group.Group"--%>
+<%--@elvariable id="groupInfo" type="ru.org.linux.group.PreparedGroupInfo"--%>
 
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>

@@ -1,5 +1,5 @@
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="ru.org.linux.site.Group,ru.org.linux.site.Template,ru.org.linux.site.User,ru.org.linux.spring.GroupController,ru.org.linux.util.BadImageException"   buffer="200kb"%>
+<%@ page import="ru.org.linux.group.Group,ru.org.linux.site.Template,ru.org.linux.site.User,ru.org.linux.group.GroupController,ru.org.linux.util.BadImageException"   buffer="200kb"%>
 <%@ page import="ru.org.linux.util.DateUtil" %>
 <%@ page import="ru.org.linux.util.ImageInfo" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
@@ -21,9 +21,9 @@
   --%>
 
 <%--@elvariable id="topicsList" type="java.util.List<ru.org.linux.spring.TopicsListItem>"--%>
-<%--@elvariable id="group" type="ru.org.linux.site.Group"--%>
+<%--@elvariable id="group" type="ru.org.linux.group.Group"--%>
 <%--@elvariable id="firstPage" type="java.lang.Boolean"--%>
-<%--@elvariable id="groupList" type="java.util.List<ru.org.linux.site.Group>"--%>
+<%--@elvariable id="groupList" type="java.util.List<ru.org.linux.group.Group>"--%>
 <%--@elvariable id="lastmod" type="java.lang.Boolean"--%>
 <%--@elvariable id="count" type="java.lang.Integer"--%>
 <%--@elvariable id="offset" type="java.lang.Integer"--%>
@@ -32,7 +32,7 @@
 <%--@elvariable id="year" type="java.lang.Integer"--%>
 <%--@elvariable id="month" type="java.lang.Integer"--%>
 <%--@elvariable id="url" type="java.lang.String"--%>
-<%--@elvariable id="groupInfo" type="ru.org.linux.site.PreparedGroupInfo"--%>
+<%--@elvariable id="groupInfo" type="ru.org.linux.group.PreparedGroupInfo"--%>
 
 <% Template tmpl = Template.getTemplate(request); %>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>

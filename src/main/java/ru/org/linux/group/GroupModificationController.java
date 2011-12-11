@@ -13,7 +13,7 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.spring;
+package ru.org.linux.group;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -22,10 +22,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import ru.org.linux.site.AccessViolationException;
-import ru.org.linux.site.Group;
-import ru.org.linux.site.GroupInfoPrepareService;
 import ru.org.linux.site.Template;
-import ru.org.linux.spring.dao.GroupDao;
 
 import javax.servlet.ServletRequest;
 import java.util.HashMap;

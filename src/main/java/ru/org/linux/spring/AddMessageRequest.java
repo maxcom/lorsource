@@ -15,8 +15,8 @@
 
 package ru.org.linux.spring;
 
+import ru.org.linux.group.Group;
 import ru.org.linux.poll.Poll;
-import ru.org.linux.site.Group;
 import ru.org.linux.site.User;
 
 public class AddMessageRequest {

@@ -13,7 +13,7 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.site;
+package ru.org.linux.group;
 
 public class PreparedGroupInfo {
   private final Group group;

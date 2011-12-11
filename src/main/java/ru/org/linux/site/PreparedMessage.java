@@ -16,6 +16,7 @@
 package ru.org.linux.site;
 
 import com.google.common.collect.ImmutableList;
+import ru.org.linux.group.Group;
 import ru.org.linux.poll.PreparedPoll;
 import ru.org.linux.section.Section;
 

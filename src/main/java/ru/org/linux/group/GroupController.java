@@ -13,7 +13,7 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.spring;
+package ru.org.linux.group;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -27,7 +27,7 @@ import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionDao;
 import ru.org.linux.site.*;
-import ru.org.linux.spring.dao.GroupDao;
+import ru.org.linux.spring.TopicsListItem;
 import ru.org.linux.spring.dao.IgnoreListDao;
 import ru.org.linux.spring.dao.UserDao;
 import ru.org.linux.util.ServletParameterBadValueException;

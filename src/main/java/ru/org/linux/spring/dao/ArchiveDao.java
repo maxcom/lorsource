@@ -19,8 +19,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
+import ru.org.linux.group.Group;
 import ru.org.linux.section.Section;
-import ru.org.linux.site.Group;
 
 import javax.sql.DataSource;
 import java.io.Serializable;
