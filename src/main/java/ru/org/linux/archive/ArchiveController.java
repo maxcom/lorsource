@@ -13,7 +13,7 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.spring;
+package ru.org.linux.archive;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -27,7 +27,6 @@ import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
 import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionDao;
-import ru.org.linux.spring.dao.ArchiveDao;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
@@ -65,7 +64,7 @@ public class ArchiveController {
 
     mv.getModel().put("group", group);
 
-    List<ArchiveDao.ArchiveDTO> items = archiveDao.getArchiveDTO(section, group);
+    List<ArchiveDto> items = archiveDao.getArchiveDto(section, group);
 
     mv.getModel().put("items", items);
 

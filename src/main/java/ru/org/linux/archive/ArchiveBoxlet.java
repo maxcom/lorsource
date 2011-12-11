@@ -13,7 +13,7 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.spring.boxlets;
+package ru.org.linux.archive;
 
 import java.util.List;
 
@@ -27,8 +27,8 @@ import org.springframework.web.servlet.ModelAndView;
 import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionDao;
 import ru.org.linux.section.SectionNotFoundException;
+import ru.org.linux.spring.boxlets.AbstractBoxlet;
 import ru.org.linux.spring.commons.CacheProvider;
-import ru.org.linux.spring.dao.ArchiveDao;
 
 @Controller
 public class ArchiveBoxlet extends AbstractBoxlet {
@@ -38,7 +38,7 @@ public class ArchiveBoxlet extends AbstractBoxlet {
   private Section sectionNews;
 
   @Autowired
-  public void setSectionDa(SectionDao sectionDao) throws SectionNotFoundException {
+  public void setSectionDao(SectionDao sectionDao) throws SectionNotFoundException {
     sectionNews = sectionDao.getSection(Section.SECTION_NEWS);
   }
 
@@ -55,10 +55,10 @@ public class ArchiveBoxlet extends AbstractBoxlet {
   @Override
   @RequestMapping("/archive.boxlet")
   protected ModelAndView getData(HttpServletRequest request) throws Exception {
-    List<ArchiveDao.ArchiveDTO> list = getFromCache(cacheProvider, new GetCommand<List<ArchiveDao.ArchiveDTO>>() {
+    List<ArchiveDto> list = getFromCache(cacheProvider, new GetCommand<List<ArchiveDto>>() {
       @Override
-      public List<ArchiveDao.ArchiveDTO> get() {
-        return archiveDao.getArchiveDTO(sectionNews, 13);
+      public List<ArchiveDto> get() {
+        return archiveDao.getArchiveDto(sectionNews, 13);
       }
     });
 
