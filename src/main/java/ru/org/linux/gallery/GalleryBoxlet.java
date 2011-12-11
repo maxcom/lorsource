@@ -13,7 +13,7 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.spring.boxlets;
+package ru.org.linux.gallery;
 
 import java.util.List;
 
@@ -24,27 +24,17 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
-import ru.org.linux.site.GalleryItem;
+import ru.org.linux.spring.boxlets.AbstractBoxlet;
 import ru.org.linux.spring.commons.CacheProvider;
-import ru.org.linux.spring.dao.GalleryDao;
 
 @Controller
 public class GalleryBoxlet extends AbstractBoxlet {
+  private static final int COUNT_ITEMS = 3;
+  @Autowired
   private GalleryDao galleryDao;
+
+  @Autowired
   private CacheProvider cacheProvider;
-
-  public GalleryDao getGalleryDao() {
-    return galleryDao;
-  }
-  @Autowired
-  public void setGalleryDao(GalleryDao galleryDao) {
-    this.galleryDao = galleryDao;
-  }
-
-  @Autowired
-  public void setCacheProvider(CacheProvider cacheProvider) {
-    this.cacheProvider = cacheProvider;
-  }
 
   @Override
   @RequestMapping("/gallery.boxlet")
@@ -54,7 +44,7 @@ public class GalleryBoxlet extends AbstractBoxlet {
     List<GalleryItem> list = getFromCache(cacheProvider, new GetCommand<List<GalleryItem>>() {
       @Override
       public List<GalleryItem> get() {
-        return galleryDao.getGalleryItems();
+        return galleryDao.getGalleryItems(COUNT_ITEMS);
       }
     });
     mav.addObject("items", list);

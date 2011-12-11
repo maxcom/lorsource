@@ -16,7 +16,7 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
-<%--@elvariable id="items" type="java.util.List<ru.org.linux.site.GalleryItem>"--%>
+<%--@elvariable id="items" type="java.util.List<ru.org.linux.gallery.GalleryItem>"--%>
 
   <h2><a href="/gallery/">Галерея</a></h2>
 

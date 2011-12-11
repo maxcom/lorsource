@@ -13,7 +13,7 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.site;
+package ru.org.linux.gallery;
 
 import java.io.IOException;
 import java.io.Serializable;
