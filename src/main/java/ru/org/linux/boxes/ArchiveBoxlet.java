@@ -13,7 +13,7 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.archive;
+package ru.org.linux.boxes;
 
 import java.util.List;
 
@@ -24,10 +24,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
+import ru.org.linux.archive.ArchiveDao;
+import ru.org.linux.archive.ArchiveDto;
+import ru.org.linux.boxes.AbstractBoxlet;
 import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionDao;
 import ru.org.linux.section.SectionNotFoundException;
-import ru.org.linux.spring.boxlets.AbstractBoxlet;
 import ru.org.linux.util.cache.CacheProvider;
 
 @Controller

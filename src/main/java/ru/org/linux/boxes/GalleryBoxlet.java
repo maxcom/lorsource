@@ -13,7 +13,7 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.gallery;
+package ru.org.linux.boxes;
 
 import java.util.List;
 
@@ -24,7 +24,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
-import ru.org.linux.spring.boxlets.AbstractBoxlet;
+import ru.org.linux.boxes.AbstractBoxlet;
+import ru.org.linux.gallery.GalleryDao;
+import ru.org.linux.gallery.GalleryItem;
 import ru.org.linux.util.cache.CacheProvider;
 
 @Controller

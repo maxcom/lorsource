@@ -13,7 +13,7 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.spring;
+package ru.org.linux.boxes;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -26,7 +26,6 @@ import javax.servlet.http.HttpServletRequest;
 import ru.org.linux.profile.DefaultProfile;
 import ru.org.linux.user.AccessViolationException;
 import ru.org.linux.site.Template;
-import ru.org.linux.spring.validators.EditBoxesRequestValidator;
 import ru.org.linux.util.storage.StorageException;
 
 import org.apache.commons.collections.CollectionUtils;

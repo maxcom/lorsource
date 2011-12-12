@@ -13,22 +13,19 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.spring.validators;
+package ru.org.linux.boxes;
 
-import org.springframework.validation.Errors;
-import org.springframework.validation.ValidationUtils;
-import org.springframework.validation.Validator;
+import javax.servlet.http.HttpServletRequest;
 
-import ru.org.linux.spring.AddRemoveBoxesController;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
 
-public class EditBoxesRequestValidator implements Validator{
+@Controller
+public class TshirtBoxlet extends AbstractBoxlet {
   @Override
-  public boolean supports(Class clazz) {
-    return AddRemoveBoxesController.EditBoxesRequest.class.isAssignableFrom(clazz);
-  }
-
-  @Override
-  public void validate(Object target, Errors errors) {
-    ValidationUtils.rejectIfEmptyOrWhitespace(errors, "tagcloud", "tagcloud.empty", "Не указана колонка");
+  @RequestMapping("/tshirt.boxlet")
+  protected ModelAndView getData(HttpServletRequest request) {
+    return new ModelAndView("boxlets/tshirt", null);
   }
 }

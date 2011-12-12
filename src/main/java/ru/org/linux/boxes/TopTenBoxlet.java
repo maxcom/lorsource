@@ -13,12 +13,16 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.tagcloud;
+package ru.org.linux.boxes;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.collections.Closure;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,48 +30,42 @@ import org.springframework.web.servlet.ModelAndView;
 
 import ru.org.linux.profile.ProfileProperties;
 import ru.org.linux.site.Template;
-import ru.org.linux.spring.boxlets.AbstractBoxlet;
-import ru.org.linux.util.cache.CacheProvider;
 
 @Controller
-public class TagCloudBoxlet extends AbstractBoxlet {
-  private CacheProvider cacheProvider;
-  private TagCloudDao tagDao;
+public class TopTenBoxlet extends AbstractBoxlet {
+  private TopTenDao topTenDao;
 
-  public TagCloudDao getTagDao() {
-    return tagDao;
-  }
-  @Autowired
-  public void setTagDao(TagCloudDao tagDao) {
-    this.tagDao = tagDao;
+  public TopTenDao getTopTenDao() {
+    return topTenDao;
   }
 
   @Autowired
-  public void setCacheProvider(CacheProvider cacheProvider) {
-    this.cacheProvider = cacheProvider;
+  public void setTopTenDao(TopTenDao topTenDao) {
+    this.topTenDao = topTenDao;
   }
 
   @Override
-  @RequestMapping("/tagcloud.boxlet")
-  protected ModelAndView getData(HttpServletRequest request) throws Exception {
+  @RequestMapping("/top10.boxlet")
+  protected ModelAndView getData(HttpServletRequest request) {
     ProfileProperties profile = Template.getTemplate(request).getProf();
-    final int i = profile.getTags();
-    String key = getCacheKey() + "?count=" + i;
+    final int itemsPerPage = profile.getMessages();
+    String style = profile.getStyle();
 
-    List<TagCloudDto> list = getFromCache(cacheProvider, key, new GetCommand<List<TagCloudDto>>() {
+    List<TopTenDao.TopTenMessageDTO> list = topTenDao.getMessages();
+    CollectionUtils.forAllDo(list, new Closure() {
       @Override
-      public List<TagCloudDto> get() {
-        return getTagDao().getTags(i);
+      public void execute(Object o) {
+        TopTenDao.TopTenMessageDTO dto = (TopTenDao.TopTenMessageDTO) o;
+        int tmp = dto.getAnswers() / itemsPerPage;
+        tmp = (dto.getAnswers() % itemsPerPage > 0) ? tmp + 1 : tmp;
+        dto.setPages(tmp);
       }
     });
-    ModelAndView mav = new ModelAndView("boxlets/tagcloud", "tags", list);
-    mav.addObject("count", i);
-    return mav;
-  }
 
+    Map<String, Object> params = new HashMap<String, Object>();
+    params.put("messages", list);
+    params.put("style", style);
 
-  @Override
-  public int getExpiryTime() {
-    return super.getExpiryTime() * 10;
+    return new ModelAndView("boxlets/top10", params);
   }
 }

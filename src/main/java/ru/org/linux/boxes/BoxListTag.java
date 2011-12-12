@@ -13,7 +13,7 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.site.tags;
+package ru.org.linux.boxes;
 
 import java.util.List;
 

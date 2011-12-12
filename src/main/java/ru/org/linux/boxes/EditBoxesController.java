@@ -13,7 +13,7 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.spring;
+package ru.org.linux.boxes;
 
 import javax.servlet.http.HttpServletRequest;
 

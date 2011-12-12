@@ -13,7 +13,7 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.spring.dao;
+package ru.org.linux.boxes;
 
 import java.io.Serializable;
 import java.sql.ResultSet;

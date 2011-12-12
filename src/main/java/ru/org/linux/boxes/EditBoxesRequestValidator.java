@@ -13,19 +13,22 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.spring.boxlets;
+package ru.org.linux.boxes;
 
-import javax.servlet.http.HttpServletRequest;
+import org.springframework.validation.Errors;
+import org.springframework.validation.ValidationUtils;
+import org.springframework.validation.Validator;
 
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.servlet.ModelAndView;
+import ru.org.linux.boxes.AddRemoveBoxesController;
 
-@Controller
-public class IbmBoxlet extends AbstractBoxlet {
+public class EditBoxesRequestValidator implements Validator{
   @Override
-  @RequestMapping("/ibm.boxlet")
-  protected ModelAndView getData(HttpServletRequest request) {
-    return new ModelAndView("boxlets/ibm", null);
+  public boolean supports(Class clazz) {
+    return AddRemoveBoxesController.EditBoxesRequest.class.isAssignableFrom(clazz);
+  }
+
+  @Override
+  public void validate(Object target, Errors errors) {
+    ValidationUtils.rejectIfEmptyOrWhitespace(errors, "tagcloud", "tagcloud.empty", "Не указана колонка");
   }
 }
