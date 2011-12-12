@@ -13,7 +13,7 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.spring;
+package ru.org.linux.site;
 
 import org.apache.commons.httpclient.URI;
 import org.springframework.beans.factory.annotation.Autowired;

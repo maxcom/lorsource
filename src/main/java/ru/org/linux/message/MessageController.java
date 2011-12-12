@@ -32,7 +32,7 @@ import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionDao;
 import ru.org.linux.site.*;
 import ru.org.linux.comment.CommentPrepareService;
-import ru.org.linux.spring.Configuration;
+import ru.org.linux.site.Configuration;
 import ru.org.linux.comment.CommentDao;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.user.AccessViolationException;

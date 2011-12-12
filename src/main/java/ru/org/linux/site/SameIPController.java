@@ -13,7 +13,7 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.spring;
+package ru.org.linux.site;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import ru.org.linux.message.MessageNotFoundException;
 import ru.org.linux.site.*;
-import ru.org.linux.spring.dao.IPBlockDao;
+import ru.org.linux.site.IPBlockDao;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.user.AccessViolationException;
 import ru.org.linux.util.ServletParameterParser;

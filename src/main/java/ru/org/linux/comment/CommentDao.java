@@ -33,7 +33,7 @@ import ru.org.linux.message.Message;
 import ru.org.linux.message.MessageNotFoundException;
 import ru.org.linux.profile.IgnoreListDao;
 import ru.org.linux.site.*;
-import ru.org.linux.spring.dao.DeleteInfoDao;
+import ru.org.linux.site.DeleteInfoDao;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.user.*;
 import ru.org.linux.user.UserEventsDao;

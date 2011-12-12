@@ -31,7 +31,7 @@ import ru.org.linux.search.SearchQueueSender;
 import ru.org.linux.section.Section;
 import ru.org.linux.site.*;
 import ru.org.linux.poll.PollDao;
-import ru.org.linux.spring.FeedPinger;
+import ru.org.linux.site.FeedPinger;
 import ru.org.linux.tagcloud.TagCloudDao;
 import ru.org.linux.user.AccessViolationException;
 import ru.org.linux.site.BadInputException;

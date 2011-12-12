@@ -38,7 +38,7 @@ import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionDao;
 import ru.org.linux.site.*;
 import ru.org.linux.user.UserPropertyEditor;
-import ru.org.linux.spring.dao.IPBlockDao;
+import ru.org.linux.site.IPBlockDao;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.tagcloud.TagCloudDao;
 import ru.org.linux.user.AccessViolationException;

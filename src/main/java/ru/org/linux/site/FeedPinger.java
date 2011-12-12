@@ -13,7 +13,7 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.spring;
+package ru.org.linux.site;
 
 import java.net.MalformedURLException;
 import java.net.URL;

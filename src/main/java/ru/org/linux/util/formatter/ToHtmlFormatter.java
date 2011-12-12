@@ -24,7 +24,7 @@ import ru.org.linux.comment.CommentDao;
 import ru.org.linux.message.Message;
 import ru.org.linux.message.MessageDao;
 import ru.org.linux.message.MessageNotFoundException;
-import ru.org.linux.spring.Configuration;
+import ru.org.linux.site.Configuration;
 import ru.org.linux.user.User;
 import ru.org.linux.util.LorURI;
 import ru.org.linux.util.StringUtil;

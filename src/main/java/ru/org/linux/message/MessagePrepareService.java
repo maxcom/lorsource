@@ -17,7 +17,7 @@ package ru.org.linux.message;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.org.linux.spring.dao.UserAgentDao;
+import ru.org.linux.site.UserAgentDao;
 import ru.org.linux.group.BadGroupException;
 import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
@@ -28,12 +28,12 @@ import ru.org.linux.poll.PreparedPoll;
 import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionDao;
 import ru.org.linux.section.SectionNotFoundException;
+import ru.org.linux.site.Configuration;
 import ru.org.linux.site.DeleteInfo;
+import ru.org.linux.site.DeleteInfoDao;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserNotFoundException;
-import ru.org.linux.spring.Configuration;
-import ru.org.linux.spring.dao.DeleteInfoDao;
 import ru.org.linux.util.bbcode.LorCodeService;
 
 import java.util.ArrayList;

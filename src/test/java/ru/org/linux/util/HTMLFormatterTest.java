@@ -24,7 +24,7 @@ import ru.org.linux.comment.CommentDao;
 import ru.org.linux.group.Group;
 import ru.org.linux.message.Message;
 import ru.org.linux.message.MessageDao;
-import ru.org.linux.spring.Configuration;
+import ru.org.linux.site.Configuration;
 import ru.org.linux.util.bbcode.LorCodeService;
 import ru.org.linux.util.formatter.ToHtmlFormatter;
 import ru.org.linux.util.formatter.ToLorCodeFormatter;

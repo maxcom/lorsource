@@ -13,7 +13,7 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.spring;
+package ru.org.linux.site;
 
 import org.perf4j.StopWatch;
 import org.perf4j.commonslog.CommonsLogStopWatch;

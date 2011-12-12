@@ -19,10 +19,10 @@ import junit.framework.Assert;
 import org.apache.commons.httpclient.URI;
 import org.junit.Before;
 import org.junit.Test;
+import ru.org.linux.site.Configuration;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserNotFoundException;
-import ru.org.linux.spring.Configuration;
 import ru.org.linux.util.formatter.ToHtmlFormatter;
 
 import java.util.Set;
