@@ -13,12 +13,11 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.spring.validators;
+package ru.org.linux.auth;
 
 import com.google.common.base.Strings;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
-import ru.org.linux.spring.RegisterRequest;
 import ru.org.linux.util.StringUtil;
 import ru.org.linux.util.URLUtil;
 

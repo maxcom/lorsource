@@ -13,7 +13,7 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.spring;
+package ru.org.linux.auth;
 
 import com.google.common.base.Strings;
 import org.springframework.beans.factory.annotation.Autowired;

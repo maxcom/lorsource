@@ -13,7 +13,7 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.spring;
+package ru.org.linux.auth;
 
 import com.google.common.base.Strings;
 import org.apache.commons.lang.StringEscapeUtils;
@@ -31,7 +31,6 @@ import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserInfo;
 import ru.org.linux.spring.dao.IPBlockDao;
-import ru.org.linux.spring.validators.RegisterRequestValidator;
 import ru.org.linux.util.ExceptionBindingErrorProcessor;
 import ru.org.linux.util.LorHttpUtils;
 import ru.org.linux.util.StringUtil;
