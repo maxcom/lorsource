@@ -13,7 +13,7 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.spring;
+package ru.org.linux.comment;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -23,7 +23,6 @@ import org.springframework.web.servlet.ModelAndView;
 import ru.org.linux.site.Template;
 import ru.org.linux.site.User;
 import ru.org.linux.site.UserErrorException;
-import ru.org.linux.spring.dao.CommentDao;
 import ru.org.linux.spring.dao.UserDao;
 import ru.org.linux.util.ServletParameterException;
 

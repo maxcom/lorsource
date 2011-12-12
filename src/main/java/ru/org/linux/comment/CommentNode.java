@@ -13,13 +13,18 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.site;
+package ru.org.linux.comment;
 
+import ru.org.linux.site.User;
+import ru.org.linux.site.UserNotFoundException;
 import ru.org.linux.spring.dao.UserDao;
 
 import java.io.Serializable;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
 
 public class CommentNode implements Serializable {
   private final LinkedList<CommentNode> childs = new LinkedList<CommentNode>();

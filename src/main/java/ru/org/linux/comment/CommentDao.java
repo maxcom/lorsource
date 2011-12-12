@@ -13,7 +13,7 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.spring.dao;
+package ru.org.linux.comment;
 
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.logging.Log;
@@ -32,6 +32,10 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.org.linux.message.Message;
 import ru.org.linux.message.MessageNotFoundException;
 import ru.org.linux.site.*;
+import ru.org.linux.spring.dao.DeleteInfoDao;
+import ru.org.linux.spring.dao.IgnoreListDao;
+import ru.org.linux.spring.dao.UserDao;
+import ru.org.linux.spring.dao.UserEventsDao;
 import ru.org.linux.util.cache.CacheProvider;
 import ru.org.linux.util.StringUtil;
 import ru.org.linux.util.bbcode.LorCodeService;

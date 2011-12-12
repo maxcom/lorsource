@@ -27,12 +27,12 @@ import org.apache.solr.common.SolrInputDocument;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.stereotype.Component;
+import ru.org.linux.comment.Comment;
+import ru.org.linux.comment.CommentDao;
+import ru.org.linux.comment.CommentList;
 import ru.org.linux.message.Message;
 import ru.org.linux.message.MessageDao;
 import ru.org.linux.message.MessageNotFoundException;
-import ru.org.linux.site.Comment;
-import ru.org.linux.site.CommentList;
-import ru.org.linux.spring.dao.CommentDao;
 
 import java.io.IOException;
 import java.sql.Timestamp;

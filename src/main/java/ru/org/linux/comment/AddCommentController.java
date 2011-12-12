@@ -13,7 +13,7 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.spring;
+package ru.org.linux.comment;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.ApplicationObjectSupport;
@@ -31,11 +31,14 @@ import ru.org.linux.message.MessageDao;
 import ru.org.linux.message.MessageNotFoundException;
 import ru.org.linux.message.MessagePrepareService;
 import ru.org.linux.search.SearchQueueSender;
-import ru.org.linux.site.*;
-import ru.org.linux.spring.dao.CommentDao;
+import ru.org.linux.site.DupeProtector;
+import ru.org.linux.site.Template;
+import ru.org.linux.site.User;
+import ru.org.linux.site.UserNotFoundException;
+import ru.org.linux.spring.CaptchaService;
+import ru.org.linux.spring.UserPropertyEditor;
 import ru.org.linux.spring.dao.IPBlockDao;
 import ru.org.linux.spring.dao.UserDao;
-import ru.org.linux.spring.validators.AddCommentRequestValidator;
 import ru.org.linux.util.ExceptionBindingErrorProcessor;
 import ru.org.linux.util.ServletParameterException;
 import ru.org.linux.util.StringUtil;

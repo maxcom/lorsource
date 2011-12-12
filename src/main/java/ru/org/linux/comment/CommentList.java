@@ -13,10 +13,12 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.site;
+package ru.org.linux.comment;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import ru.org.linux.site.Template;
+import ru.org.linux.site.UserNotFoundException;
 import ru.org.linux.spring.dao.UserDao;
 
 import java.io.Serializable;

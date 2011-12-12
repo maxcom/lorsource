@@ -1,6 +1,6 @@
 <%@ page contentType="text/html; charset=utf-8" %>
 <%@ page
-        import="ru.org.linux.site.PreparedComment,ru.org.linux.util.StringUtil" %>
+        import="ru.org.linux.comment.PreparedComment,ru.org.linux.util.StringUtil" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
@@ -19,8 +19,8 @@
   ~    limitations under the License.
   --%>
 <%--@elvariable id="add" type="ru.org.linux.spring.AddCommentRequest"--%>
-<%--@elvariable id="onComment" type="ru.org.linux.site.PreparedComment"--%>
-<%--@elvariable id="comment" type="ru.org.linux.site.PreparedComment"--%>
+<%--@elvariable id="onComment" type="ru.org.linux.comment.PreparedComment"--%>
+<%--@elvariable id="comment" type="ru.org.linux.comment.PreparedComment"--%>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
 <title>Добавить сообщение</title>

@@ -19,8 +19,8 @@
 <%--@elvariable id="topic" type="ru.org.linux.message.Message"--%>
 <%--@elvariable id="msgid" type="java.lang.Integer"--%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
-<%--@elvariable id="commentsPrepared" type="java.util.List<ru.org.linux.site.PreparedComment>"--%>
-<%--@elvariable id="comments" type="ru.org.linux.site.CommentList"--%>
+<%--@elvariable id="commentsPrepared" type="java.util.List<ru.org.linux.comment.PreparedComment>"--%>
+<%--@elvariable id="comments" type="ru.org.linux.comment.CommentList"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 

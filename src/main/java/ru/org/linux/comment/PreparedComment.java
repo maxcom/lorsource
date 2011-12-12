@@ -13,7 +13,9 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.site;
+package ru.org.linux.comment;
+
+import ru.org.linux.site.User;
 
 public class PreparedComment {
   private final Comment comment;
