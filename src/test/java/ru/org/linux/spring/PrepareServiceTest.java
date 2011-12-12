@@ -23,6 +23,7 @@ import ru.org.linux.message.MessageDao;
 import ru.org.linux.poll.PollDao;
 import ru.org.linux.section.SectionDao;
 import ru.org.linux.spring.dao.*;
+import ru.org.linux.user.UserDao;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;

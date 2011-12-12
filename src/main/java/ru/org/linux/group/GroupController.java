@@ -29,7 +29,9 @@ import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionDao;
 import ru.org.linux.site.*;
 import ru.org.linux.spring.dao.IgnoreListDao;
-import ru.org.linux.spring.dao.UserDao;
+import ru.org.linux.user.UserDao;
+import ru.org.linux.user.AccessViolationException;
+import ru.org.linux.user.User;
 import ru.org.linux.util.ServletParameterBadValueException;
 
 import javax.servlet.http.HttpServletRequest;

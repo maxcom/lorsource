@@ -13,7 +13,7 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.site;
+package ru.org.linux.user;
 
 import com.google.common.collect.ImmutableMap;
 

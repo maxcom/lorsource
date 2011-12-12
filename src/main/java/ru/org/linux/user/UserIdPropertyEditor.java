@@ -13,11 +13,11 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.spring;
+package ru.org.linux.user;
 
-import ru.org.linux.site.User;
-import ru.org.linux.site.UserNotFoundException;
-import ru.org.linux.spring.dao.UserDao;
+import ru.org.linux.user.User;
+import ru.org.linux.user.UserDao;
+import ru.org.linux.user.UserNotFoundException;
 
 import java.beans.PropertyEditorSupport;
 

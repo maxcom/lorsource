@@ -23,7 +23,7 @@ import java.util.Set;
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 
-import ru.org.linux.site.AccessViolationException;
+import ru.org.linux.user.AccessViolationException;
 import ru.org.linux.site.DefaultProfile;
 import ru.org.linux.site.Template;
 import ru.org.linux.spring.validators.EditBoxesRequestValidator;
@@ -106,7 +106,7 @@ public class AddRemoveBoxesController extends ApplicationObjectSupport {
   public String doAdd(@ModelAttribute("form") EditBoxesRequest form, BindingResult result,
                       SessionStatus status, HttpServletRequest request)
     throws IOException,
-          AccessViolationException, StorageException {
+    AccessViolationException, StorageException {
 
     new EditBoxesRequestValidator().validate(form, result);
     ValidationUtils.rejectIfEmptyOrWhitespace(result, "boxName", "boxName.empty", "Не выбран бокслет");

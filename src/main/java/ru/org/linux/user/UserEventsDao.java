@@ -13,13 +13,13 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.spring.dao;
+package ru.org.linux.user;
 
 import com.google.common.collect.ImmutableMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
-import ru.org.linux.site.User;
+import ru.org.linux.user.User;
 
 import javax.sql.DataSource;
 import java.util.Map;

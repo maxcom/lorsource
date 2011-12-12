@@ -33,6 +33,10 @@ import ru.org.linux.site.*;
 import ru.org.linux.poll.PollDao;
 import ru.org.linux.spring.FeedPinger;
 import ru.org.linux.tagcloud.TagCloudDao;
+import ru.org.linux.user.AccessViolationException;
+import ru.org.linux.site.BadInputException;
+import ru.org.linux.user.User;
+import ru.org.linux.user.UserErrorException;
 import ru.org.linux.util.ExceptionBindingErrorProcessor;
 
 import javax.servlet.ServletRequest;

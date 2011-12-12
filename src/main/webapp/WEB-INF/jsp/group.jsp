@@ -1,5 +1,5 @@
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="ru.org.linux.group.Group,ru.org.linux.site.Template,ru.org.linux.site.User,ru.org.linux.group.GroupController,ru.org.linux.util.BadImageException"   buffer="200kb"%>
+<%@ page import="ru.org.linux.group.Group,ru.org.linux.site.Template,ru.org.linux.user.User,ru.org.linux.group.GroupController,ru.org.linux.util.BadImageException"   buffer="200kb"%>
 <%@ page import="ru.org.linux.util.DateUtil" %>
 <%@ page import="ru.org.linux.util.ImageInfo" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>

@@ -15,7 +15,7 @@
 
 package ru.org.linux.comment;
 
-import ru.org.linux.site.User;
+import ru.org.linux.user.User;
 
 public class PreparedComment {
   private final Comment comment;

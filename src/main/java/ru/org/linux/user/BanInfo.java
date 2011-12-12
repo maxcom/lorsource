@@ -13,12 +13,30 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.site;
+package ru.org.linux.user;
 
-public class BadProfileException extends UserErrorException
-{
-	public BadProfileException(String info)
-	{
-		super(info);
-	}
+import java.sql.Timestamp;
+
+public class BanInfo {
+  private final Timestamp date;
+  private final String reason;
+  private final User moderator;
+
+  public BanInfo(Timestamp date, String reason, User moderator) {
+    this.date = date;
+    this.reason = reason;
+    this.moderator = moderator;
+  }
+
+  public Timestamp getDate() {
+    return date;
+  }
+
+  public String getReason() {
+    return reason;
+  }
+
+  public User getModerator() {
+    return moderator;
+  }
 }

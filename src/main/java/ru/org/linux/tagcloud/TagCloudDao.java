@@ -28,7 +28,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
-import ru.org.linux.site.UserErrorException;
+import ru.org.linux.user.UserErrorException;
 
 import javax.sql.DataSource;
 import java.sql.Connection;

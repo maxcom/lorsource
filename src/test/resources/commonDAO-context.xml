@@ -31,8 +31,8 @@
     <bean class="ru.org.linux.archive.ArchiveDao" id="archiveDao"/>
     <bean class="ru.org.linux.tagcloud.TagCloudDao" id="tagCloudDao"/>
 
-    <bean class="ru.org.linux.spring.dao.UserEventsDao" id="userEventsDao"/>
-    <bean class="ru.org.linux.spring.dao.UserDao" id="userDao"/>
+    <bean class="ru.org.linux.user.UserEventsDao" id="userEventsDao"/>
+    <bean class="ru.org.linux.user.UserDao" id="userDao"/>
     <bean class="ru.org.linux.spring.dao.IgnoreListDao" id="ignoreListDao"/>
     <bean class="ru.org.linux.message.MessageDao" id="messageDao"/>
 

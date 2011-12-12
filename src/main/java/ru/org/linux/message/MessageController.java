@@ -34,7 +34,10 @@ import ru.org.linux.comment.CommentPrepareService;
 import ru.org.linux.spring.Configuration;
 import ru.org.linux.comment.CommentDao;
 import ru.org.linux.spring.dao.IgnoreListDao;
-import ru.org.linux.spring.dao.UserDao;
+import ru.org.linux.user.UserDao;
+import ru.org.linux.user.AccessViolationException;
+import ru.org.linux.site.BadInputException;
+import ru.org.linux.user.User;
 import ru.org.linux.util.LorURI;
 
 import javax.servlet.http.HttpServletRequest;

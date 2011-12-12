@@ -1,7 +1,7 @@
 <%@ tag import="ru.org.linux.comment.Comment" %>
 <%@ tag import="ru.org.linux.comment.CommentNode" %>
 <%@ tag import="ru.org.linux.site.Template" %>
-<%@ tag import="ru.org.linux.site.User" %>
+<%@ tag import="ru.org.linux.user.User" %>
 <%@ tag import="ru.org.linux.util.StringUtil" %>
 <%@ tag import="java.text.DateFormat" %>
 <%@ tag pageEncoding="UTF-8"%>

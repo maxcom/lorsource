@@ -50,7 +50,7 @@
                 <prop key="ru.org.linux.section.SectionNotFoundException">error404</prop>
                 <prop key="org.springframework.web.HttpRequestMethodNotSupportedException">error404</prop>
                 <prop key="java.lang.Exception">error</prop>
-                <prop key="ru.org.linux.site.AccessViolationException">error403</prop>
+                <prop key="ru.org.linux.user.AccessViolationException">error403</prop>
                 <prop key="ru.org.linux.tagcloud.TagNotFoundException">error404</prop>
                 <prop key="ru.org.linux.util.ServletParameterException">error-parameter</prop>
                 <prop key="org.springframework.beans.TypeMismatchException">error-parameter</prop>

@@ -17,7 +17,7 @@ package ru.org.linux.message;
 
 import ru.org.linux.group.Group;
 import ru.org.linux.poll.Poll;
-import ru.org.linux.site.User;
+import ru.org.linux.user.User;
 
 public class AddMessageRequest {
   private String title;

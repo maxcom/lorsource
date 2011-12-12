@@ -13,15 +13,10 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.site;
+package ru.org.linux.user;
 
-public class UserNotFoundException extends ScriptErrorException {
-  public UserNotFoundException(String name) {
-    super("Пользователь \"" + name + "\" не существует");
+public class AccessViolationException extends UserErrorException {
+  public AccessViolationException(String info) {
+    super(info);
   }
-
-  public UserNotFoundException(int id) {
-    super("Пользователь id=" + id + " не существует");
-  }
-
 }

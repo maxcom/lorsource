@@ -23,7 +23,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import ru.org.linux.site.*;
-import ru.org.linux.spring.dao.UserDao;
+import ru.org.linux.user.UserDao;
+import ru.org.linux.user.AccessViolationException;
+import ru.org.linux.site.BadInputException;
+import ru.org.linux.user.User;
+import ru.org.linux.user.UserErrorException;
 import ru.org.linux.util.StringUtil;
 
 import javax.mail.MessagingException;

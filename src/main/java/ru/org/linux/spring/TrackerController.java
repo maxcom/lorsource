@@ -24,10 +24,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import ru.org.linux.site.Template;
-import ru.org.linux.site.User;
-import ru.org.linux.site.UserErrorException;
+import ru.org.linux.user.User;
+import ru.org.linux.user.UserDao;
+import ru.org.linux.user.UserErrorException;
 import ru.org.linux.spring.dao.TrackerDao;
-import ru.org.linux.spring.dao.UserDao;
 
 import javax.servlet.http.HttpServletRequest;
 import java.sql.Timestamp;

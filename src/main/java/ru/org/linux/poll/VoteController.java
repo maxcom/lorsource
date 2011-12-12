@@ -25,6 +25,8 @@ import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.message.Message;
 import ru.org.linux.message.MessageDao;
 import ru.org.linux.site.*;
+import ru.org.linux.user.AccessViolationException;
+import ru.org.linux.user.User;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;

@@ -25,10 +25,10 @@ import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.message.Message;
 import ru.org.linux.message.MessageDao;
-import ru.org.linux.site.AccessViolationException;
+import ru.org.linux.user.AccessViolationException;
 import ru.org.linux.site.Template;
-import ru.org.linux.site.User;
-import ru.org.linux.site.UserErrorException;
+import ru.org.linux.user.User;
+import ru.org.linux.user.UserErrorException;
 
 import javax.servlet.ServletRequest;
 

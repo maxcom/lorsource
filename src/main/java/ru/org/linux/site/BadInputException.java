@@ -15,6 +15,8 @@
 
 package ru.org.linux.site;
 
+import ru.org.linux.user.UserErrorException;
+
 public class BadInputException extends UserErrorException
 {
 	public BadInputException(String info)

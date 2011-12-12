@@ -13,12 +13,12 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.site;
+package ru.org.linux.user;
 
-public class BadPasswordException extends UserErrorException
+public class BadProfileException extends UserErrorException
 {
-	public BadPasswordException(String name)
+	public BadProfileException(String info)
 	{
-		super("Пароль для пользователя \""+name+"\" задан неверно");
+		super(info);
 	}
 }

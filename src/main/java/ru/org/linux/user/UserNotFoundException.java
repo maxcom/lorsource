@@ -13,18 +13,17 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.site;
+package ru.org.linux.user;
 
-public class UserErrorException extends Exception
-{
-	public UserErrorException()
-	{
-		super("неизвестная пользовательская ошибка");
-	}
+import ru.org.linux.site.ScriptErrorException;
 
-	public UserErrorException(String info)
-	{
-		super(info);
-	}
+public class UserNotFoundException extends ScriptErrorException {
+  public UserNotFoundException(String name) {
+    super("Пользователь \"" + name + "\" не существует");
+  }
+
+  public UserNotFoundException(int id) {
+    super("Пользователь id=" + id + " не существует");
+  }
 
 }

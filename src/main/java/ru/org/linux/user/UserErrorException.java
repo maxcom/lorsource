@@ -13,30 +13,18 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.site;
+package ru.org.linux.user;
 
-import java.sql.Timestamp;
+public class UserErrorException extends Exception
+{
+	public UserErrorException()
+	{
+		super("неизвестная пользовательская ошибка");
+	}
 
-public class BanInfo {
-  private final Timestamp date;
-  private final String reason;
-  private final User moderator;
+	public UserErrorException(String info)
+	{
+		super(info);
+	}
 
-  public BanInfo(Timestamp date, String reason, User moderator) {
-    this.date = date;
-    this.reason = reason;
-    this.moderator = moderator;
-  }
-
-  public Timestamp getDate() {
-    return date;
-  }
-
-  public String getReason() {
-    return reason;
-  }
-
-  public User getModerator() {
-    return moderator;
-  }
 }

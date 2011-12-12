@@ -22,7 +22,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import ru.org.linux.gallery.Screenshot;
 import ru.org.linux.group.Group;
-import ru.org.linux.site.User;
+import ru.org.linux.user.User;
 import ru.org.linux.site.Template;
 
 import javax.servlet.http.HttpServletRequest;

@@ -27,10 +27,10 @@ import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
 import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionDao;
-import ru.org.linux.site.AccessViolationException;
+import ru.org.linux.user.AccessViolationException;
 import ru.org.linux.site.Template;
-import ru.org.linux.site.User;
-import ru.org.linux.site.UserErrorException;
+import ru.org.linux.user.User;
+import ru.org.linux.user.UserErrorException;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;

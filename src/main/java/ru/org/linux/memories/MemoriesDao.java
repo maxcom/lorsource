@@ -22,7 +22,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.org.linux.message.Message;
-import ru.org.linux.site.User;
+import ru.org.linux.user.User;
 
 import javax.sql.DataSource;
 import java.sql.ResultSet;

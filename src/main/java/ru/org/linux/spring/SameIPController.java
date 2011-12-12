@@ -26,7 +26,8 @@ import org.springframework.web.servlet.ModelAndView;
 import ru.org.linux.message.MessageNotFoundException;
 import ru.org.linux.site.*;
 import ru.org.linux.spring.dao.IPBlockDao;
-import ru.org.linux.spring.dao.UserDao;
+import ru.org.linux.user.UserDao;
+import ru.org.linux.user.AccessViolationException;
 import ru.org.linux.util.ServletParameterParser;
 import ru.org.linux.util.StringUtil;
 

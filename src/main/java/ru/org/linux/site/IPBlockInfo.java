@@ -15,6 +15,8 @@
 
 package ru.org.linux.site;
 
+import ru.org.linux.user.AccessViolationException;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;

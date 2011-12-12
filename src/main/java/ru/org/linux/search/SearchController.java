@@ -38,10 +38,10 @@ import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
 import ru.org.linux.section.SectionDao;
 import ru.org.linux.section.SectionNotFoundException;
-import ru.org.linux.site.*;
+import ru.org.linux.user.User;
+import ru.org.linux.user.UserDao;
+import ru.org.linux.user.UserPropertyEditor;
 import ru.org.linux.util.ExceptionBindingErrorProcessor;
-import ru.org.linux.spring.UserPropertyEditor;
-import ru.org.linux.spring.dao.UserDao;
 import ru.org.linux.util.bbcode.LorCodeService;
 
 import javax.servlet.http.HttpServletRequest;

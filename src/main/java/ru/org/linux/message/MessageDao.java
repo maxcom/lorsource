@@ -41,8 +41,9 @@ import ru.org.linux.poll.PollVariant;
 import ru.org.linux.section.Section;
 import ru.org.linux.site.*;
 import ru.org.linux.tagcloud.TagCloudDao;
-import ru.org.linux.spring.dao.UserDao;
-import ru.org.linux.spring.dao.UserEventsDao;
+import ru.org.linux.user.UserDao;
+import ru.org.linux.user.*;
+import ru.org.linux.user.UserEventsDao;
 import ru.org.linux.util.LorHttpUtils;
 
 import javax.servlet.http.HttpServletRequest;

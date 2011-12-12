@@ -22,7 +22,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.validation.Errors;
 import org.xbill.DNS.TextParseException;
 import ru.org.linux.site.IPBlockInfo;
-import ru.org.linux.site.User;
+import ru.org.linux.user.User;
 import ru.org.linux.util.DNSBLClient;
 
 import javax.sql.DataSource;

@@ -13,13 +13,14 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.site;
+package ru.org.linux.user;
 
 import org.apache.commons.codec.binary.Base64;
 import org.jasypt.exceptions.EncryptionOperationNotPossibleException;
 import org.jasypt.util.password.BasicPasswordEncryptor;
 import org.jasypt.util.password.PasswordEncryptor;
 import org.springframework.validation.Errors;
+import ru.org.linux.site.BadInputException;
 import ru.org.linux.spring.LoginController;
 import ru.org.linux.util.StringUtil;
 

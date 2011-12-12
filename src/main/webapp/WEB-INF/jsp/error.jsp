@@ -2,7 +2,7 @@
 <%@ page import="org.apache.commons.logging.Log,org.apache.commons.logging.LogFactory" isErrorPage="true" %>
 <%@ page import="ru.org.linux.site.ScriptErrorException"%>
 <%@ page import="ru.org.linux.site.Template"%>
-<%@ page import="ru.org.linux.site.UserErrorException"%>
+<%@ page import="ru.org.linux.user.UserErrorException"%>
 <%@ page import="ru.org.linux.util.StringUtil"%>
 <%@ page import="javax.mail.Session"%>
 <%@ page import="javax.mail.Transport"%>

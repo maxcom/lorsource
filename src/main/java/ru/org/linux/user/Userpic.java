@@ -13,16 +13,16 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.site;
+package ru.org.linux.user;
+
+import ru.org.linux.util.BadImageException;
+import ru.org.linux.util.ImageInfo;
+import ru.org.linux.util.ImageInfo2;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-
-import ru.org.linux.util.BadImageException;
-import ru.org.linux.util.ImageInfo;
-import ru.org.linux.util.ImageInfo2;
 
 public class Userpic {
   public static final int MAX_USERPIC_FILESIZE = 32000;

@@ -17,7 +17,7 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
-<%--@elvariable id="newUsers" type="java.util.List<ru.org.linux.site.User>"--%>
+<%--@elvariable id="newUsers" type="java.util.List<ru.org.linux.user.User>"--%>
 <%--@elvariable id="msgs" type="java.util.List<ru.org.linux.spring.dao.TrackerItem>"--%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 
