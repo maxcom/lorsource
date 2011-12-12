@@ -13,12 +13,18 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.util;
+package ru.org.linux.util.storage;
 
-public class UtilBadHTMLException extends UtilException
-{
-	UtilBadHTMLException()
-	{
-		super("bad HTML");
-	}
+public class StorageException extends Exception {
+  public StorageException() {
+    super("неизвестная ошибка хранилища");
+  }
+
+  public StorageException(String info) {
+    super(info);
+  }
+
+  public StorageException(String info, Exception e) {
+    super(info, e);
+  }
 }

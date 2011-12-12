@@ -13,10 +13,13 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.storage;
+package ru.org.linux.util.boxlet;
 
-public class StorageNotImplException extends StorageException {
-  public StorageNotImplException() {
-    super("данный метод доступа к хранилищу не реализован драйвером");
-  }
+public class BoxletException extends Exception {
+
+	public BoxletException(String info)
+	{
+		super(info);
+	}
+
 }

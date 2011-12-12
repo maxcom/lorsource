@@ -13,10 +13,10 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.storage;
+package ru.org.linux.util.storage;
 
-public class StorageBadMsgidException extends StorageException {
-  public StorageBadMsgidException(String msgid) {
-    super("Некорректный идентификатор объекта " + msgid);
+public class StorageInternalErrorException extends StorageException {
+  public StorageInternalErrorException(String info) {
+    super("Внутренняя ошибка хранилища: " + info);
   }
 }

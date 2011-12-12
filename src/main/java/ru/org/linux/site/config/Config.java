@@ -13,15 +13,15 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.site;
+package ru.org.linux.site.config;
 
 import java.util.Properties;
 
 import ru.org.linux.site.config.PathConfig;
 import ru.org.linux.site.config.PropertiesConfig;
 import ru.org.linux.site.config.StorageConfig;
-import ru.org.linux.storage.FileStorage;
-import ru.org.linux.storage.Storage;
+import ru.org.linux.util.storage.FileStorage;
+import ru.org.linux.util.storage.Storage;
 
 public class Config
 implements

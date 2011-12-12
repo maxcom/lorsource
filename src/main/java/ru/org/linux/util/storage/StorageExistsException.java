@@ -13,13 +13,17 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.boxlet;
+package ru.org.linux.util.storage;
 
-public class BoxletException extends Exception {
-
-	public BoxletException(String info)
+public class StorageExistsException extends StorageException
+{
+	public StorageExistsException(String domain, int msgid)
 	{
-		super(info);
+		super("Объект "+domain+ ':' +msgid+" уже существует");
 	}
 
+	public StorageExistsException(String domain, String msgid)
+	{
+		super("Объект "+domain+ ':' +msgid+" уже существует");
+	}
 }

@@ -13,10 +13,10 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.storage;
+package ru.org.linux.util.storage;
 
-public class StorageBadDomainException extends StorageException {
-  public StorageBadDomainException(String domain) {
-    super("Некорректное имя домена " + domain);
+public class StorageNotImplException extends StorageException {
+  public StorageNotImplException() {
+    super("данный метод доступа к хранилищу не реализован драйвером");
   }
 }

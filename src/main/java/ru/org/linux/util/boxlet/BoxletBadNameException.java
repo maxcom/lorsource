@@ -13,18 +13,11 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.storage;
+package ru.org.linux.util.boxlet;
 
-public class StorageException extends Exception {
-  public StorageException() {
-    super("неизвестная ошибка хранилища");
-  }
-
-  public StorageException(String info) {
-    super(info);
-  }
-
-  public StorageException(String info, Exception e) {
-    super(info, e);
-  }
+public class BoxletBadNameException extends BoxletException {
+	public BoxletBadNameException(String name)
+	{
+		super("bad boxlet name: " + name);
+	}
 }
