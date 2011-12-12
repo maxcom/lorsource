@@ -24,12 +24,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
+import ru.org.linux.comment.*;
 import ru.org.linux.group.Group;
 import ru.org.linux.section.Section;
 import ru.org.linux.site.*;
-import ru.org.linux.spring.CommentPrepareService;
+import ru.org.linux.comment.CommentPrepareService;
 import ru.org.linux.spring.Configuration;
-import ru.org.linux.spring.dao.*;
+import ru.org.linux.comment.CommentDao;
+import ru.org.linux.spring.dao.IgnoreListDao;
+import ru.org.linux.spring.dao.UserDao;
 import ru.org.linux.util.LorURI;
 
 import javax.servlet.http.HttpServletRequest;

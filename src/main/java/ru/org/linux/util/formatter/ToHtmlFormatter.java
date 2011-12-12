@@ -19,13 +19,13 @@ import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.org.linux.site.Comment;
 import ru.org.linux.site.MessageNotFoundException;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.site.User;
 import ru.org.linux.spring.Configuration;
-import ru.org.linux.spring.dao.CommentDao;
 import ru.org.linux.topic.TopicDao;
+import ru.org.linux.comment.Comment;
+import ru.org.linux.comment.CommentDao;
 import ru.org.linux.util.LorURI;
 import ru.org.linux.util.StringUtil;
 

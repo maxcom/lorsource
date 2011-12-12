@@ -13,9 +13,8 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.spring;
+package ru.org.linux.comment;
 
-import ru.org.linux.site.Comment;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.site.User;
 

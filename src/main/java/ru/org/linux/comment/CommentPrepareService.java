@@ -13,12 +13,13 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.spring;
+package ru.org.linux.comment;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.org.linux.site.*;
-import ru.org.linux.spring.dao.*;
+import ru.org.linux.site.User;
+import ru.org.linux.site.UserNotFoundException;
+import ru.org.linux.spring.dao.UserDao;
 import ru.org.linux.util.bbcode.LorCodeService;
 
 import java.util.ArrayList;

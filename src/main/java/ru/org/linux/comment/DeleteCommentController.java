@@ -13,7 +13,7 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.spring;
+package ru.org.linux.comment;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
@@ -24,7 +24,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import ru.org.linux.search.SearchQueueSender;
 import ru.org.linux.site.*;
-import ru.org.linux.spring.dao.CommentDao;
 import ru.org.linux.topic.TopicDao;
 import ru.org.linux.spring.dao.UserDao;
 import ru.org.linux.topic.Topic;
