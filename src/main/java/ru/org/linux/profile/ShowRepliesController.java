@@ -13,7 +13,7 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.spring;
+package ru.org.linux.profile;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -22,10 +22,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
+import ru.org.linux.notifications.RepliesDao;
+import ru.org.linux.notifications.RepliesListItem;
 import ru.org.linux.user.AccessViolationException;
 import ru.org.linux.site.Template;
 import ru.org.linux.user.User;
-import ru.org.linux.spring.dao.RepliesDao;
 import ru.org.linux.user.UserDao;
 
 import javax.servlet.http.HttpServletRequest;

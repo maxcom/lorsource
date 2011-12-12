@@ -13,13 +13,13 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.spring;
+package ru.org.linux.profile;
 
 import javax.servlet.ServletRequest;
 
+import ru.org.linux.profile.DefaultProfile;
 import ru.org.linux.site.BadInputException;
 import ru.org.linux.user.AccessViolationException;
-import ru.org.linux.site.DefaultProfile;
 import ru.org.linux.site.Template;
 
 import org.springframework.stereotype.Controller;

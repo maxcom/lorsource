@@ -17,6 +17,8 @@ package ru.org.linux.site;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import ru.org.linux.profile.Profile;
+import ru.org.linux.profile.ProfileProperties;
 import ru.org.linux.site.config.Config;
 import ru.org.linux.site.config.PathConfig;
 import ru.org.linux.user.UserDao;

@@ -13,7 +13,7 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.spring;
+package ru.org.linux.profile;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -27,7 +27,6 @@ import ru.org.linux.site.Template;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserErrorException;
-import ru.org.linux.spring.dao.TrackerDao;
 
 import javax.servlet.http.HttpServletRequest;
 import java.sql.Timestamp;

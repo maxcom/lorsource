@@ -19,6 +19,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 
 import org.junit.Test;
+import ru.org.linux.profile.Profile;
 
 import static org.junit.Assert.*;
 

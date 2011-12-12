@@ -13,7 +13,7 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.spring.dao;
+package ru.org.linux.profile;
 
 import ru.org.linux.section.Section;
 import ru.org.linux.user.User;

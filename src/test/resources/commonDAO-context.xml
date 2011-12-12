@@ -33,7 +33,7 @@
 
     <bean class="ru.org.linux.user.UserEventsDao" id="userEventsDao"/>
     <bean class="ru.org.linux.user.UserDao" id="userDao"/>
-    <bean class="ru.org.linux.spring.dao.IgnoreListDao" id="ignoreListDao"/>
+    <bean class="ru.org.linux.profile.IgnoreListDao" id="ignoreListDao"/>
     <bean class="ru.org.linux.message.MessageDao" id="messageDao"/>
 
 </beans>

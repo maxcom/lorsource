@@ -13,7 +13,7 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.spring;
+package ru.org.linux.profile;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

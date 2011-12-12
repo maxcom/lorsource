@@ -13,12 +13,12 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.site;
+package ru.org.linux.profile;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import static ru.org.linux.site.ProfileProperties.*;
+import static ru.org.linux.profile.ProfileProperties.*;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;

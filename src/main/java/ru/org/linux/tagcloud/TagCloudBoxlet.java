@@ -24,7 +24,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
-import ru.org.linux.site.ProfileProperties;
+import ru.org.linux.profile.ProfileProperties;
 import ru.org.linux.site.Template;
 import ru.org.linux.spring.boxlets.AbstractBoxlet;
 import ru.org.linux.util.cache.CacheProvider;

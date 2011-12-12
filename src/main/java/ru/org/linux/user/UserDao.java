@@ -30,8 +30,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import ru.org.linux.spring.dao.IgnoreListDao;
-import ru.org.linux.user.*;
+import ru.org.linux.profile.IgnoreListDao;
 import ru.org.linux.util.StringUtil;
 import ru.org.linux.util.URLUtil;
 

@@ -23,7 +23,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
 import org.apache.commons.lang.StringUtils;
 
-import ru.org.linux.site.DefaultProfile;
+import ru.org.linux.profile.DefaultProfile;
 import ru.org.linux.site.Template;
 
 

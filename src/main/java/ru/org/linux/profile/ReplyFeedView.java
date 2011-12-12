@@ -13,7 +13,7 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.spring;
+package ru.org.linux.profile;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -22,6 +22,8 @@ import java.util.List;
 import java.util.Map;
 
 import com.sun.syndication.feed.synd.*;
+import ru.org.linux.notifications.RepliesListItem;
+import ru.org.linux.spring.AbstractRomeView;
 
 public class ReplyFeedView extends AbstractRomeView {
   @Override
