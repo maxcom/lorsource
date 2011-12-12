@@ -13,7 +13,7 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.spring;
+package ru.org.linux.memories;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -25,8 +25,10 @@ import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.message.Message;
 import ru.org.linux.message.MessageDao;
-import ru.org.linux.site.*;
-import ru.org.linux.spring.dao.MemoriesDao;
+import ru.org.linux.site.AccessViolationException;
+import ru.org.linux.site.Template;
+import ru.org.linux.site.User;
+import ru.org.linux.site.UserErrorException;
 
 import javax.servlet.ServletRequest;
 

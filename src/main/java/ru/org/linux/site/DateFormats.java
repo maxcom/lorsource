@@ -20,7 +20,9 @@ import java.text.SimpleDateFormat;
 import java.util.Locale;
 
 public class DateFormats {
-  private static final Locale RUSSIAN_LOCALE = new Locale("ru");private DateFormats() {
+  private static final Locale RUSSIAN_LOCALE = new Locale("ru");
+
+  private DateFormats() {
   }
 
   public static DateFormat createDefault() {
