@@ -13,9 +13,7 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.spring.commons;
-
-import ru.org.linux.site.MemCachedSettings;
+package ru.org.linux.util.cache;
 
 import net.spy.memcached.OperationTimeoutException;
 import org.apache.commons.logging.Log;

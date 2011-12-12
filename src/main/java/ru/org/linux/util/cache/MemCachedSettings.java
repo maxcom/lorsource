@@ -13,15 +13,12 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.site;
+package ru.org.linux.util.cache;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
 
 import net.spy.memcached.MemcachedClient;
-
-import ru.org.linux.spring.commons.CacheProvider;
-import ru.org.linux.spring.commons.MemCachedProvider;
 
 public class MemCachedSettings {
   private static final MemCachedSettings me;static {

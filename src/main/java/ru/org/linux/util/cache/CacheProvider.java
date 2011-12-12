@@ -13,7 +13,7 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.spring.commons;
+package ru.org.linux.util.cache;
 
 public interface CacheProvider {
   Object getFromCache(String key);

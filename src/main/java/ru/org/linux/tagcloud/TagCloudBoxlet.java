@@ -27,7 +27,7 @@ import org.springframework.web.servlet.ModelAndView;
 import ru.org.linux.site.ProfileProperties;
 import ru.org.linux.site.Template;
 import ru.org.linux.spring.boxlets.AbstractBoxlet;
-import ru.org.linux.spring.commons.CacheProvider;
+import ru.org.linux.util.cache.CacheProvider;
 
 @Controller
 public class TagCloudBoxlet extends AbstractBoxlet {

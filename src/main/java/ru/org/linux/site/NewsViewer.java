@@ -19,9 +19,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import ru.org.linux.gallery.Screenshot;
 import ru.org.linux.message.Message;
-import ru.org.linux.spring.commons.CacheProvider;
+import ru.org.linux.util.cache.CacheProvider;
 import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.ImageInfo;
+import ru.org.linux.util.cache.MemCachedSettings;
 
 import java.io.File;
 import java.io.IOException;

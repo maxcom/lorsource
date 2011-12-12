@@ -17,7 +17,7 @@ package ru.org.linux.spring.boxlets;
 
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.AbstractController;
-import ru.org.linux.spring.commons.CacheProvider;
+import ru.org.linux.util.cache.CacheProvider;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

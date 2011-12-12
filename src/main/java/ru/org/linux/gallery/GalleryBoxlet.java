@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import ru.org.linux.spring.boxlets.AbstractBoxlet;
-import ru.org.linux.spring.commons.CacheProvider;
+import ru.org.linux.util.cache.CacheProvider;
 
 @Controller
 public class GalleryBoxlet extends AbstractBoxlet {

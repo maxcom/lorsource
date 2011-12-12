@@ -32,9 +32,10 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.org.linux.message.Message;
 import ru.org.linux.message.MessageNotFoundException;
 import ru.org.linux.site.*;
-import ru.org.linux.spring.commons.CacheProvider;
+import ru.org.linux.util.cache.CacheProvider;
 import ru.org.linux.util.StringUtil;
 import ru.org.linux.util.bbcode.LorCodeService;
+import ru.org.linux.util.cache.MemCachedSettings;
 
 import javax.sql.DataSource;
 import java.sql.*;
