@@ -325,4 +325,16 @@ public class HTMLFormatterTest {
     assertEquals("[quote]one[br][quote]two[br][/quote]one[br][quote][quote]three[/quote][/quote][/quote]",
         toLorCodeTexFormatter.format(">one\n>>two\n>one\n>>>three", true));
   }
+
+  @Test
+  public void inCodeEscape() {
+    assertEquals(
+        "<div class=\"code\"><pre class=\"no-highlight\"><code>&amp;#9618;</code></pre></div>",
+        lorCodeService.parseTopic("[code]&#9618;[/code]", false)
+    );
+    assertEquals(
+        "<p>&#9618;</p>",
+        lorCodeService.parseTopic("&#9618;", false)
+    );
+  }
 }

@@ -100,6 +100,11 @@ public final class StringUtil {
    */
   private static final Pattern uniRE = Pattern.compile("^&((#[1-9]\\d{1,4})|(\\w{1,8}));");
 
+  /**
+   * Экранируем управляющие html символьные последовательности, кроме &#NNNN;
+   * @param str сырая строка
+   * @return отэкранированная строка
+   */
   public static String escapeHtml(String str) {
     StringBuilder res = new StringBuilder();
 
@@ -134,6 +139,38 @@ public final class StringUtil {
 
     return res.toString();
   }
+  /**
+   * Экранируем управляющие html символьные последовательности, в отличии от
+   * escapeHtml &#NNN; тоже экранируем
+   * @param str сырая строка
+   * @return отэкранированная строка
+   */
+  public static String escapeForceHtml(String str) {
+    StringBuilder res = new StringBuilder();
+
+    for (int i = 0; i < str.length(); i++) {
+      switch (str.charAt(i)) {
+        case '<':
+          res.append("&lt;");
+          break;
+        case '>':
+          res.append("&gt;");
+          break;
+        case '\"':
+          res.append("&quot;");
+          break;
+        case '&':
+          res.append("&amp;");
+          break;
+        default:
+          res.append(str.charAt(i));
+      }
+
+    }
+
+    return res.toString();
+  }
+
 
   public static String escapeBBCode(String content) {
     // escaping single characters
