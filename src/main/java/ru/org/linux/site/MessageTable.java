@@ -15,6 +15,7 @@
 
 package ru.org.linux.site;
 
+import ru.org.linux.poll.PreparedPoll;
 import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.ImageInfo;
 
@@ -29,7 +30,7 @@ public class MessageTable {
   private MessageTable() {
   }
 
-  public static String getTopicRss(String htmlPath, String fullUrl, PreparedMessage preparedTopic) throws   IOException, BadImageException {
+  public static String getTopicRss(String htmlPath, PreparedMessage preparedTopic) throws   IOException, BadImageException {
     StringBuilder buf = new StringBuilder();
 
     Message topic = preparedTopic.getMessage();

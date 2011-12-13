@@ -19,9 +19,9 @@ import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.org.linux.site.MessageNotFoundException;
-import ru.org.linux.site.User;
+import ru.org.linux.site.*;
 import ru.org.linux.spring.Configuration;
+import ru.org.linux.spring.dao.CommentDao;
 import ru.org.linux.spring.dao.MessageDao;
 import ru.org.linux.util.LorURI;
 import ru.org.linux.util.StringUtil;
@@ -46,6 +46,8 @@ public class ToHtmlFormatter {
 
   private Configuration configuration;
   private MessageDao messageDao;
+  private CommentDao commentDao;
+
   private int maxLength=80;
 
   @Autowired
@@ -56,6 +58,11 @@ public class ToHtmlFormatter {
   @Autowired
   public void setMessageDao(MessageDao messageDao) {
     this.messageDao = messageDao;
+  }
+
+  @Autowired
+  public void setCommentDao(CommentDao commentDao) {
+    this.commentDao = commentDao;
   }
 
   // для тестирования
@@ -77,12 +84,7 @@ public class ToHtmlFormatter {
 
     while (st.hasMoreTokens()) {
       String token = st.nextToken();
-      String formattedToken;
-      try {
-        formattedToken = formatURL(token, secure);
-      } catch (Exception e) {
-        formattedToken = token;
-      }
+      String formattedToken = formatURL(token, secure);
       sb.append(formattedToken);
     }
 
@@ -112,45 +114,33 @@ public class ToHtmlFormatter {
       out.append(line.substring(index, start));
 
       // возможно это url
-      String may_url = line.substring(start, end);
+      String mayUrl = line.substring(start, end);
       // href
-      String url_href = may_url;
+      String urlHref = mayUrl;
 
-      if (may_url.toLowerCase().startsWith("www.")) {
-        url_href = "http://" + may_url;
-      } else if (may_url.toLowerCase().startsWith("ftp.")) {
-        url_href = "ftp://" + may_url;
+      if (mayUrl.toLowerCase().startsWith("www.")) {
+        urlHref = "http://" + mayUrl;
+      } else if (mayUrl.toLowerCase().startsWith("ftp.")) {
+        urlHref = "ftp://" + mayUrl;
       }
 
       try {
-        LorURI uri = new LorURI(configuration.getMainURI(), url_href);
+        LorURI uri = new LorURI(configuration.getMainURI(), urlHref);
 
         if(uri.isMessageUrl()) {
-          // Ссылка на топик или комментарий
-          String url_title;
-          try {
-            url_title = StringUtil.escapeHtml(messageDao.getById(uri.getMessageId()).getTitle());
-          } catch (MessageNotFoundException e) {
-            url_title = "Комментарий в несуществующем топике";
-          }
-          String new_url_href = uri.formatJump(messageDao, secure);
-          String fixed_url_body = uri.formatUrlBody(maxLength);
-          out.append("<a href=\"").append(new_url_href).append("\" title=\"").append(url_title).append("\">").append(fixed_url_body).append("</a>");
+          processMessageUrl(secure, out, uri);
         } else if(uri.isTrueLorUrl()) {
-          // ссылка внутри lorsource исправляем scheme
-          String fixed_url_href = uri.fixScheme(secure);
-          String fixed_url_body = uri.formatUrlBody(maxLength);
-          out.append("<a href=\"").append(fixed_url_href).append("\">").append(fixed_url_body).append("</a>");
+          processGenericLorUrl(secure, out, uri);
         } else {
           // ссылка не из lorsource
-          String fixed_url_href = uri.toString();
-          String fixed_url_body = uri.formatUrlBody(maxLength);
-          out.append("<a href=\"").append(fixed_url_href).append("\">").append(fixed_url_body).append("</a>");
+          String fixedUrlHref = uri.toString();
+          String fixedUrlBody = uri.formatUrlBody(maxLength);
+          out.append("<a href=\"").append(fixedUrlHref).append("\">").append(fixedUrlBody).append("</a>");
         }
-      } catch (Exception e) {
+      } catch (URIException e) {
         // e.printStackTrace();
         // ссылка не ссылка
-        out.append(may_url);
+        out.append(mayUrl);
       }
       index = end;
     }
@@ -163,6 +153,51 @@ public class ToHtmlFormatter {
     return out.toString();
   }
 
+  private void processGenericLorUrl(boolean secure, StringBuilder out, LorURI uri) throws URIException {
+    // ссылка внутри lorsource исправляем scheme
+    String fixedUrlHref = uri.fixScheme(secure);
+    String fixedUrlBody = uri.formatUrlBody(maxLength);
+    out.append("<a href=\"").append(fixedUrlHref).append("\">").append(fixedUrlBody).append("</a>");
+  }
 
+  /**
+   * Ссылка на топик или комментарий
+   *
+   * @param secure признак того какой надо url: https или http
+   * @param out сюда будет записана ссылка
+   * @param uri исходный uri
+   * @throws URIException если uri не корректный
+   * @throws BadGroupException если uri не корректный
+   * @throws MessageNotFoundException если uri не корректный
+   */
+  private void processMessageUrl(boolean secure, StringBuilder out, LorURI uri) throws URIException {
+    try {
+      Message message = messageDao.getById(uri.getMessageId());
 
+      boolean deleted = message.isDeleted();
+
+      if (!deleted && uri.isCommentUrl()) {
+        Comment comment = commentDao.getById(uri.getCommentId());
+
+        deleted = comment.isDeleted();
+      }
+
+      String urlTitle = StringUtil.escapeHtml(message.getTitle());
+
+      String newUrlHref = uri.formatJump(messageDao, secure);
+      String fixedUrlBody = uri.formatUrlBody(maxLength);
+
+      if (deleted) {
+        out.append("<s>");
+      }
+
+      out.append("<a href=\"").append(newUrlHref).append("\" title=\"").append(urlTitle).append("\">").append(fixedUrlBody).append("</a>");
+
+      if (deleted) {
+        out.append("</s>");
+      }
+    } catch (MessageNotFoundException ex) {
+      out.append("<a href=\"").append(uri.toString()).append("\">").append(uri.formatUrlBody(maxLength)).append("</a>");
+    }
+  }
 }

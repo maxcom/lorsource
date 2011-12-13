@@ -1,3 +1,18 @@
+/*
+ * Copyright 1998-2010 Linux.org.ru
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ */
+
 package ru.org.linux.spring.dao;
 
 import com.google.common.base.Strings;
@@ -15,6 +30,10 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import ru.org.linux.poll.Poll;
+import ru.org.linux.poll.PollDao;
+import ru.org.linux.poll.PollNotFoundException;
+import ru.org.linux.poll.PollVariant;
 import ru.org.linux.site.*;
 import ru.org.linux.spring.AddMessageRequest;
 import ru.org.linux.util.LorHttpUtils;
@@ -226,7 +245,7 @@ public class MessageDao {
   public void deleteWithBonus(Message message, User user, String reason, int bonus) throws UserErrorException {
     String finalReason = reason;
     jdbcTemplate.update(updateDeleteMessage, message.getId());
-    if (user.canModerate() && bonus!=0 && user.getId()!=message.getUid()) {
+    if (user.isModerator() && bonus!=0 && user.getId()!=message.getUid()) {
       if (bonus>20 || bonus<0) {
         throw new UserErrorException("Некорректное значение bonus");
       }

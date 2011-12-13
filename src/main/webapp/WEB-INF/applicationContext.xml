@@ -108,7 +108,7 @@
     <bean id="httpConnectionManager" destroy-method="shutdownAll"
           class="org.apache.commons.httpclient.MultiThreadedHttpConnectionManager"/>
 
-    <bean id="httpClient" class="ru.org.linux.spring.SearchHttpClientFactoryBean">
+    <bean id="httpClient" class="ru.org.linux.search.SearchHttpClientFactoryBean">
         <property name="connectionManager" ref="httpConnectionManager"/>
         <property name="username" value="${solr.username}"/>
         <property name="password" value="${solr.password}"/>

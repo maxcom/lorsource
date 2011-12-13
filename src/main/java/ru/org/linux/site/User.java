@@ -173,7 +173,7 @@ public class User implements Serializable {
     }
   }
 
-  public boolean canModerate() {
+  public boolean isModerator() {
     return canmod;
   }
 
@@ -274,11 +274,8 @@ public class User implements Serializable {
       return false;
     }
 
-    if (canModerate()) {
-      return false;
-    }               
+    return !isModerator();
 
-    return true;
     // return (maxScore < BLOCK_MAX_SCORE) && (score < BLOCK_SCORE);
   }
 

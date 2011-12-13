@@ -28,10 +28,12 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.multipart.MultipartRequest;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
+import ru.org.linux.search.SearchQueueSender;
 import ru.org.linux.site.*;
 import ru.org.linux.spring.dao.*;
 import ru.org.linux.spring.validators.AddMessageRequestValidator;
 import ru.org.linux.util.BadImageException;
+import ru.org.linux.util.ExceptionBindingErrorProcessor;
 import ru.org.linux.util.UtilException;
 import ru.org.linux.util.bbcode.LorCodeService;
 import ru.org.linux.util.formatter.ToLorCodeFormatter;
@@ -57,7 +59,10 @@ public class AddMessageController extends ApplicationObjectSupport {
   private SectionDao sectionDao;
   private TagDao tagDao;
   private UserDao userDao;
-  private PrepareService prepareService;
+
+  @Autowired
+  private MessagePrepareService prepareService;
+
   private MessageDao messageDao;
   private ToLorCodeFormatter toLorCodeFormatter;
 
@@ -105,11 +110,6 @@ public class AddMessageController extends ApplicationObjectSupport {
   @Autowired
   public void setUserDao(UserDao userDao) {
     this.userDao = userDao;
-  }
-
-  @Autowired
-  public void setPrepareService(PrepareService prepareService) {
-    this.prepareService = prepareService;
   }
 
   @Autowired

@@ -17,8 +17,8 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
-<%--@elvariable id="result" type="java.util.List<ru.org.linux.site.SearchItem>"--%>
-<%--@elvariable id="query" type="ru.org.linux.spring.SearchRequest"--%>
+<%--@elvariable id="result" type="java.util.List<ru.org.linux.search.SearchItem>"--%>
+<%--@elvariable id="query" type="ru.org.linux.search.SearchRequest"--%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <%--@elvariable id="time" type="java.lang.Long"--%>
 <%--@elvariable id="searchTime" type="java.lang.Long"--%>

@@ -26,7 +26,7 @@ import javax.servlet.http.HttpServletRequest;
 import ru.org.linux.site.AccessViolationException;
 import ru.org.linux.site.DefaultProfile;
 import ru.org.linux.site.Template;
-import ru.org.linux.spring.validators.EditBoxesFormValidator;
+import ru.org.linux.spring.validators.EditBoxesRequestValidator;
 import ru.org.linux.storage.StorageException;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -55,7 +55,7 @@ public class AddRemoveBoxesController extends ApplicationObjectSupport {
     }
 
     ModelMap result = new ModelMap();
-    EditBoxesForm form = new EditBoxesForm();
+    EditBoxesRequest form = new EditBoxesRequest();
     form.setPosition(pos);
     form.setTag(tag);
     result.addAttribute("form", form);
@@ -63,7 +63,7 @@ public class AddRemoveBoxesController extends ApplicationObjectSupport {
   }
 
   @RequestMapping(value = "/remove-box.jsp", method = RequestMethod.POST)
-  public String doRemove(@ModelAttribute("form") EditBoxesForm form, BindingResult result,
+  public String doRemove(@ModelAttribute("form") EditBoxesRequest form, BindingResult result,
                          SessionStatus status, HttpServletRequest request)
     throws Exception {
     Template t = Template.getTemplate(request);
@@ -72,7 +72,7 @@ public class AddRemoveBoxesController extends ApplicationObjectSupport {
       throw new AccessViolationException("Not authorized");
     }
 
-    new EditBoxesFormValidator().validate(form, result);
+    new EditBoxesRequestValidator().validate(form, result);
     ValidationUtils.rejectIfEmptyOrWhitespace(result, "position", "position.empty", "Не указанa позиция бокслета");
     if (result.hasErrors()) {
       return "remove-box";
@@ -103,12 +103,12 @@ public class AddRemoveBoxesController extends ApplicationObjectSupport {
   }
 
   @RequestMapping(value = "/add-box.jsp", method = RequestMethod.POST)
-  public String doAdd(@ModelAttribute("form") EditBoxesForm form, BindingResult result,
+  public String doAdd(@ModelAttribute("form") EditBoxesRequest form, BindingResult result,
                       SessionStatus status, HttpServletRequest request)
     throws IOException,
           AccessViolationException, StorageException {
 
-    new EditBoxesFormValidator().validate(form, result);
+    new EditBoxesRequestValidator().validate(form, result);
     ValidationUtils.rejectIfEmptyOrWhitespace(result, "boxName", "boxName.empty", "Не выбран бокслет");
     if (StringUtils.isNotEmpty(form.getBoxName()) && !DefaultProfile.isBox(form.getBoxName())) {
       result.addError(new FieldError("boxName", "boxName.invalid", "Неверный бокслет"));
@@ -144,7 +144,7 @@ public class AddRemoveBoxesController extends ApplicationObjectSupport {
     return "redirect:/edit-boxes.jsp";
   }
 
-  private static String getObjectName(EditBoxesForm form, HttpServletRequest request)  {
+  private static String getObjectName(EditBoxesRequest form, HttpServletRequest request)  {
     String objectName;
     if ("left".equals(form.getTag())) {
       if (EditBoxesController.getThreeColumns(request)) {
@@ -158,7 +158,7 @@ public class AddRemoveBoxesController extends ApplicationObjectSupport {
     return objectName;
   }
 
-  public static class EditBoxesForm {
+  public static class EditBoxesRequest {
     private Integer position;
     private String tag;
     private String password;

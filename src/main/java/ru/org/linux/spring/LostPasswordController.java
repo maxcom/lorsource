@@ -69,7 +69,7 @@ public class LostPasswordController {
     user.checkBlocked();
     user.checkAnonymous();
 
-    if (user.canModerate() && !tmpl.isModeratorSession()) {
+    if (user.isModerator() && !tmpl.isModeratorSession()) {
       throw new AccessViolationException("этот пароль могут сбросить только модераторы");
     }
 

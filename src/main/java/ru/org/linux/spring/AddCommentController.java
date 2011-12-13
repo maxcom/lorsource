@@ -26,12 +26,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
+import ru.org.linux.search.SearchQueueSender;
 import ru.org.linux.site.*;
 import ru.org.linux.spring.dao.CommentDao;
 import ru.org.linux.spring.dao.IPBlockDao;
 import ru.org.linux.spring.dao.MessageDao;
 import ru.org.linux.spring.dao.UserDao;
 import ru.org.linux.spring.validators.AddCommentRequestValidator;
+import ru.org.linux.util.ExceptionBindingErrorProcessor;
 import ru.org.linux.util.ServletParameterException;
 import ru.org.linux.util.StringUtil;
 import ru.org.linux.util.bbcode.LorCodeService;
@@ -55,10 +57,13 @@ public class AddCommentController extends ApplicationObjectSupport {
   private MessageDao messageDao;
   private UserDao userDao;
   private IPBlockDao ipBlockDao;
-  private PrepareService prepareService;
+  private CommentPrepareService prepareService;
   private LorCodeService lorCodeService;
   private ToLorCodeFormatter toLorCodeFormatter;
   private ToLorCodeTexFormatter toLorCodeTexFormatter;
+
+  @Autowired
+  private MessagePrepareService messagePrepareService;
 
   @Autowired
   public void setSearchQueueSender(SearchQueueSender searchQueueSender) {
@@ -96,7 +101,7 @@ public class AddCommentController extends ApplicationObjectSupport {
   }
 
   @Autowired
-  public void setPrepareService(PrepareService prepareService) {
+  public void setPrepareService(CommentPrepareService prepareService) {
     this.prepareService = prepareService;
   }
 
@@ -151,7 +156,7 @@ public class AddCommentController extends ApplicationObjectSupport {
     return new ModelAndView(
             "comment-message",
             "preparedMessage",
-            prepareService.prepareMessage(add.getTopic(), false, request.isSecure())
+            messagePrepareService.prepareMessage(add.getTopic(), false, request.isSecure())
     );
   }
 

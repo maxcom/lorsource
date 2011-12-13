@@ -47,7 +47,7 @@
       </c:if>
       <description><![CDATA[
       <%
-        out.print(MessageTable.getTopicRss(tmpl.getConfig().getProperty("HTMLPathPrefix"), tmpl.getMainUrl(), (PreparedMessage) pageContext.getAttribute("msg")));
+        out.print(MessageTable.getTopicRss(tmpl.getConfig().getProperty("HTMLPathPrefix"),  (PreparedMessage) pageContext.getAttribute("msg")));
       %>
       ]]></description>
     </item>

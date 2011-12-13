@@ -23,11 +23,11 @@
 <%--@elvariable id="userInfo" type="ru.org.linux.site.UserInfo"--%>
 <%--@elvariable id="userStat" type="ru.org.linux.site.UserStatistics"--%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
+<%--@elvariable id="currentUser" type="java.lang.Boolean"--%>
+<%--@elvariable id="ignored" type="java.lang.Boolean"--%>
 <%--@elvariable id="moderatorOrCurrentUser" type="java.lang.Boolean"--%>
 <%--@elvariable id="banInfo" type="ru.org.linux.site.BanInfo"--%>
-<%--@elvariable id="ignoreList" type="java.lang.Set<Integer>"--%>
 
-<% Template tmpl = Template.getTemplate(request); %>
 <%
   response.setDateHeader("Expires", System.currentTimeMillis()+120000);
 %>
@@ -94,7 +94,7 @@
   </c:if>
 
 <b>Статус:</b> <%= user.getStatus() %><%
-  if (user.canModerate()) {
+  if (user.isModerator()) {
     out.print(" (модератор)");
   }
 
@@ -138,24 +138,25 @@
       <b>Игнорируется</b>: ${userStat.ignoreCount}<br>
     </div>
   </c:if>
-  <c:if test="${ignoreList != null}">
-<%
-    Set<Integer> ignoreList = (Set<Integer>) request.getAttribute("ignoreList");
-    if (!ignoreList.isEmpty() && ignoreList.contains(user.getId())) {
-      out.print("<form name='i_unblock' method='post' action='ignore-list.jsp'>\n");
-      out.print("<input type='hidden' name='id' value='" + user.getId() + "'>\n");
-      out.print("Вы игнорируете этого пользователя &nbsp; \n");
-      out.print("<input type='submit' name='del' value='не игнорировать'>\n");
-      out.print("</form>");
-    } else {
-      out.print("<form name='i_block' method='post' action='ignore-list.jsp'>\n");
-      out.print("<input type='hidden' name='nick' value='" + user.getNick() + "'>\n");
-      out.print("Вы не игнорируете этого пользователя &nbsp; \n");
-      out.print("<input type='submit' name='add' value='игнорировать'>\n");
-      out.print("</form>");
-    }
-%>
-</c:if>
+
+  <c:if test="${template.sessionAuthorized and !currentUser and not user.moderator}">
+    <c:if test="${ignored}">
+      <form name='i_unblock' method='post' action='ignore-list.jsp'>
+        <input type='hidden' name='id' value='${user.id}'>
+        Вы игнорируете этого пользователя &nbsp;
+        <input type='submit' name='del' value='не игнорировать'>
+      </form>
+    </c:if>
+
+    <c:if test="${not ignored}">
+      <form name='i_block' method='post' action='ignore-list.jsp'>
+        <input type='hidden' name='nick' value='${user.nick}'>
+        Вы не игнорируете этого пользователя &nbsp;
+        <input type='submit' name='add' value='игнорировать'>
+      </form>
+    </c:if>
+  </c:if>
+
   <c:if test="${(template.moderatorSession and user.blockable) or template.currentUser.administrator}">
   <br>
     <div style="border: 1px dotted; padding: 1em;">
@@ -201,11 +202,14 @@
   </form>
   </c:if>
   </c:if>
-  <%
-  if (Template.isSessionAuthorized(session) && (tmpl.getNick().equals(user.getNick()))) {
-    out.print("<p><a href=\"register.jsp\">Изменить регистрацию</a>.");
-  }
-%>
+
+  <c:if test="${currentUser}">
+    <h2>Действия</h2>
+    <ul>
+      <li><a href="register.jsp">Изменить регистрацию</a></li>
+      <li><a href="edit-profile.jsp">Изменить настройки</a></li>
+    </ul>
+  </c:if>
 
 <h2>Статистика</h2>
 <c:if test="${userStat.firstTopic != null}">

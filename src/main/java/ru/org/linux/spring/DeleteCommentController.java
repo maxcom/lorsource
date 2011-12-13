@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
+import ru.org.linux.search.SearchQueueSender;
 import ru.org.linux.site.*;
 import ru.org.linux.spring.dao.CommentDao;
 import ru.org.linux.spring.dao.MessageDao;
@@ -40,7 +41,7 @@ public class DeleteCommentController {
   private CommentDao commentDao;
   private MessageDao messageDao;
   private UserDao userDao;
-  private PrepareService prepareService;
+  private CommentPrepareService prepareService;
 
   private static final int DELETE_PERIOD = 60 * 60 * 1000; // milliseconds
 
@@ -66,7 +67,7 @@ public class DeleteCommentController {
   }
 
   @Autowired
-  public void setPrepareService(PrepareService prepareService) {
+  public void setPrepareService(CommentPrepareService prepareService) {
     this.prepareService = prepareService;
   }
 
@@ -149,7 +150,7 @@ public class DeleteCommentController {
     boolean selfDel = false;
 
     if (comment.getUserid() == user.getId()) {
-      if(!user.canModerate()) {
+      if(!user.isModerator()) {
         perm = (System.currentTimeMillis() - comment.getPostdate().getTime()) < DELETE_PERIOD;
         if (perm) {
           selfDel = true;
@@ -159,7 +160,7 @@ public class DeleteCommentController {
       }
     }
 
-    if (!perm && user.canModerate()) {
+    if (!perm && user.isModerator()) {
       perm = true;
     }
 

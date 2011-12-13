@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import ru.org.linux.site.AccessViolationException;
 import ru.org.linux.site.Group;
+import ru.org.linux.site.GroupInfoPrepareService;
 import ru.org.linux.site.Template;
 import ru.org.linux.spring.dao.GroupDao;
 
@@ -36,7 +37,7 @@ public class GroupModificationController {
   private GroupDao groupDao;
 
   @Autowired
-  private PrepareService prepareService;
+  private GroupInfoPrepareService prepareService;
 
   @RequestMapping(value="/groupmod.jsp", method = RequestMethod.GET)
   public ModelAndView showForm(@RequestParam("group") int id, ServletRequest request) throws Exception {

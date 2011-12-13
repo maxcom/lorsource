@@ -128,7 +128,7 @@ public class Group implements Serializable {
     }
 
     if (restrictTopics==-1) {
-      return currentUser.canModerate();
+      return currentUser.isModerator();
     } else {
       return currentUser.getScore() >= restrictTopics;
     }
@@ -148,7 +148,7 @@ public class Group implements Serializable {
     }
 
     if (restrictComments==-1) {
-      return currentUser.canModerate();
+      return currentUser.isModerator();
     }
 
     return currentUser.getScore() >= restrictComments;

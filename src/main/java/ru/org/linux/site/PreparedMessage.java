@@ -16,6 +16,7 @@
 package ru.org.linux.site;
 
 import com.google.common.collect.ImmutableList;
+import ru.org.linux.poll.PreparedPoll;
 
 import java.util.List;
 
@@ -128,11 +129,11 @@ public final class PreparedMessage {
     }
 
     if (message.isExpired()) {
-      return by.canModerate() && section.isPremoderated();
+      return by.isModerator() && section.isPremoderated();
     }
 
-    if (by.canModerate()) {
-      if (author.canModerate()) {
+    if (by.isModerator()) {
+      if (author.isModerator()) {
         return true;
       }
 

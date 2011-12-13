@@ -24,12 +24,15 @@ import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
+import ru.org.linux.poll.*;
+import ru.org.linux.search.SearchQueueSender;
 import ru.org.linux.site.*;
 import ru.org.linux.spring.dao.GroupDao;
 import ru.org.linux.spring.dao.MessageDao;
-import ru.org.linux.spring.dao.PollDao;
+import ru.org.linux.poll.PollDao;
 import ru.org.linux.spring.dao.TagDao;
 import ru.org.linux.spring.validators.EditMessageRequestValidator;
+import ru.org.linux.util.ExceptionBindingErrorProcessor;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
@@ -48,7 +51,10 @@ public class EditController {
   private MessageDao messageDao;
 
   @Autowired
-  private PrepareService prepareService;
+  private MessagePrepareService messagePrepareService;
+
+  @Autowired
+  private PollPrepareService pollPrepareService;
 
   @Autowired
   private GroupDao groupDao;
@@ -77,7 +83,7 @@ public class EditController {
       throw new UserErrorException("Сообщение уже подтверждено");
     }
 
-    PreparedMessage preparedMessage = prepareService.prepareMessage(message, false, request.isSecure());
+    PreparedMessage preparedMessage = messagePrepareService.prepareMessage(message, false, request.isSecure());
 
     if (!preparedMessage.getSection().isPremoderated()) {
       throw new UserErrorException("Раздел не премодерируемый");
@@ -107,7 +113,7 @@ public class EditController {
 
     User user = tmpl.getCurrentUser();
 
-    PreparedMessage preparedMessage = prepareService.prepareMessage(message, false, request.isSecure());
+    PreparedMessage preparedMessage = messagePrepareService.prepareMessage(message, false, request.isSecure());
 
     if (!preparedMessage.isEditable(user)) {
       throw new AccessViolationException("это сообщение нельзя править");
@@ -191,7 +197,7 @@ public class EditController {
     Map<String, Object> params = new HashMap<String, Object>();
 
     Message message = messageDao.getById(msgid);
-    PreparedMessage preparedMessage = prepareService.prepareMessage(message, false, request.isSecure());
+    PreparedMessage preparedMessage = messagePrepareService.prepareMessage(message, false, request.isSecure());
     Group group = preparedMessage.getGroup();
 
     params.put("message", message);
@@ -242,7 +248,7 @@ public class EditController {
       }
     }
 
-    params.put("commit", !message.isCommited() && preparedMessage.getSection().isPremoderated() && user.canModerate());
+    params.put("commit", !message.isCommited() && preparedMessage.getSection().isPremoderated() && user.isModerator());
 
     Message newMsg = new Message(group, message, form);
 
@@ -305,7 +311,7 @@ public class EditController {
     if (message.isVotePoll() && form.getPoll() != null && tmpl.isModeratorSession()) {
       Poll poll = pollDao.getPollByTopicId(message.getId());
 
-      PreparedPoll orig = prepareService.preparePoll(poll);
+      PreparedPoll orig = pollPrepareService.preparePoll(poll);
 
       List<PollVariant> newVariants = new ArrayList<PollVariant>();
 
@@ -354,7 +360,7 @@ public class EditController {
 
     params.put("newMsg", newMsg);
 
-    params.put("newPreparedMessage", prepareService.prepareMessage(newMsg, newTags, newPoll, request.isSecure()));
+    params.put("newPreparedMessage", messagePrepareService.prepareMessage(newMsg, newTags, newPoll, request.isSecure()));
 
     return new ModelAndView("edit", params);
   }
