@@ -190,7 +190,7 @@ public class GroupController {
     String delq = showDeleted ? "" : " AND NOT deleted ";
     int topics = tmpl.getProf().getTopics();
 
-    String q = "SELECT topics.title as subj, lastmod, userid, topics.id as msgid, deleted, topics.stat1, topics.stat3, topics.stat4, topics.sticky, topics.resolved FROM topics,groups WHERE topics.groupid=groups.id AND groups.id=" + group.getId() + delq;
+    String q = "SELECT topics.title as subj, lastmod, userid, topics.id as msgid, deleted, topics.stat1, topics.stat3, topics.stat4, topics.sticky, topics.resolved FROM topics WHERE topics.groupid=" + group.getId() + delq;
 
     if (year!=null) {
       if (year<1990 || year > 3000) {
