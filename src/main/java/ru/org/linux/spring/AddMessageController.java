@@ -28,7 +28,7 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.multipart.MultipartRequest;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
-import ru.org.linux.gallery.ScreenShot;
+import ru.org.linux.gallery.Screenshot;
 import ru.org.linux.search.SearchQueueSender;
 import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionDao;
@@ -229,7 +229,7 @@ public class AddMessageController extends ApplicationObjectSupport {
       }
     }
 
-    ScreenShot scrn = null;
+    Screenshot scrn = null;
 
     if (group!=null && group.isImagePostAllowed()) {
       scrn = processUpload(session, tmpl, image, errors);
@@ -352,7 +352,7 @@ public class AddMessageController extends ApplicationObjectSupport {
    * @throws IOException
    * @throws UtilException
    */
-  private ScreenShot processUpload(
+  private Screenshot processUpload(
           HttpSession session,
           Template tmpl,
           String image,
@@ -362,16 +362,16 @@ public class AddMessageController extends ApplicationObjectSupport {
       return null;
     }
 
-    ScreenShot screenShot = null;
+    Screenshot screenShot = null;
 
     if (image != null && !image.isEmpty()) {
       File uploadedFile = new File(image);
 
       try {
-        screenShot = ScreenShot.createScreenshot(
-          uploadedFile,
-          errors,
-          tmpl.getObjectConfig().getHTMLPathPrefix() + "/gallery/preview"
+        screenShot = Screenshot.createScreenshot(
+                uploadedFile,
+                errors,
+                tmpl.getObjectConfig().getHTMLPathPrefix() + "/gallery/preview"
         );
 
         if (screenShot != null) {
@@ -383,7 +383,7 @@ public class AddMessageController extends ApplicationObjectSupport {
         errors.reject(null, "Некорректное изображение: " + e.getMessage());
       }
     } else if (session.getAttribute("image") != null && !"".equals(session.getAttribute("image"))) {
-      screenShot = (ScreenShot) session.getAttribute("image");
+      screenShot = (Screenshot) session.getAttribute("image");
 
       if (!screenShot.getMainFile().exists()) {
         screenShot = null;
