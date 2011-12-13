@@ -28,12 +28,11 @@ import java.util.Properties;
  */
 @Service
 public class Configuration {
-
-  private final String errMsg = "Invalid MainUrl property: ";
+  private static final String ERR_MSG = "Invalid MainUrl property: ";
 
   @Qualifier("properties")
   @Autowired
-  Properties properties;
+  private Properties properties;
 
   private URI mainURI;
   private String mainHost;
@@ -48,19 +47,19 @@ public class Configuration {
     try {
       mainURI = new URI(properties.getProperty("MainUrl"), true, "UTF-8");
     } catch (Exception e) {
-      throw new RuntimeException(errMsg+e.getMessage());
+      throw new RuntimeException(ERR_MSG +e.getMessage());
     }
     if(!mainURI.isAbsoluteURI()) {
-      throw new RuntimeException(errMsg+"URI not absolute path");
+      throw new RuntimeException(ERR_MSG +"URI not absolute path");
     }
     try {
       mainHost = mainURI.getHost();
       mainPort = mainURI.getPort();
       if(mainHost == null) {
-        throw new RuntimeException(errMsg+"bad URI host");
+        throw new RuntimeException(ERR_MSG +"bad URI host");
       }
     } catch (Exception e) {
-     throw new RuntimeException(errMsg+e.getMessage());
+     throw new RuntimeException(ERR_MSG +e.getMessage());
     }
   }
 

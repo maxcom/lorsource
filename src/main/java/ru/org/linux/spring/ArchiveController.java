@@ -96,7 +96,7 @@ public class ArchiveController {
     return archiveList(Section.SECTION_FORUM, group);
   }
 
-  @RequestMapping(value="/view-news-archive.jsp")
+  @RequestMapping("/view-news-archive.jsp")
   public View galleryArchiveOld(@RequestParam("section") int id, HttpServletResponse response) throws Exception {
     String link = Section.getArchiveLink(id);
 

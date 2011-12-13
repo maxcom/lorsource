@@ -95,13 +95,12 @@ public class TrackerController {
     /*params.put("filterItems", filterItems);*/
     Calendar calendar = Calendar.getInstance();
     calendar.setTime(new Date());
-    Timestamp dateLimit;
     if(trackerFilter == TrackerDao.TrackerFilter.MINE) {
       calendar.add(Calendar.MONTH, -6);
     } else {
       calendar.add(Calendar.HOUR, -24);
     }
-    dateLimit = new Timestamp(calendar.getTimeInMillis());
+    Timestamp dateLimit = new Timestamp(calendar.getTimeInMillis());
 
     Template tmpl = Template.getTemplate(request);
     int messages = tmpl.getProf().getMessages();

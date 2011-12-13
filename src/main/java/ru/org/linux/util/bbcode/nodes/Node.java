@@ -50,7 +50,7 @@ public class Node {
   Node parent = null;
   private final List<Node> children;
   String parameter;
-  protected ParserParameters parserParameters;
+  protected final ParserParameters parserParameters;
 
   public Node(ParserParameters parserParameters) {
     this.parserParameters = parserParameters;

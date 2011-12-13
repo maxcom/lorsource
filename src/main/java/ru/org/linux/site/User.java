@@ -274,7 +274,7 @@ public class User implements Serializable {
       return false;
     }
 
-    return !isModerator();
+    return !canmod;
 
     // return (maxScore < BLOCK_MAX_SCORE) && (score < BLOCK_SCORE);
   }

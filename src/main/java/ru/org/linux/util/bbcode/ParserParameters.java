@@ -44,23 +44,23 @@ import java.util.Map;
 import java.util.Set;
 
 public interface ParserParameters {
-  public static enum CutType {
+  enum CutType {
     INTOPIC_MAXIMIZED,
     INTOPIC_MINIMIZED,
     INCOMMENT
   }
 
-  public Set<String> getAllowedListParameters();
+  Set<String> getAllowedListParameters();
 
-  public Set<String> getBlockLevelTags();
+  Set<String> getBlockLevelTags();
 
-  public Map<String, Tag> getAllTagsDict();
+  Map<String, Tag> getAllTagsDict();
 
-  public Set<String> getAllTagsNames();
+  Set<String> getAllTagsNames();
 
-  public Set<String> getAutoLinkTags();
+  Set<String> getAutoLinkTags();
 
-  public Set<String> getDisallowedParagraphTags();
+  Set<String> getDisallowedParagraphTags();
 
-  public Set<String> getParagraphedTags();
+  Set<String> getParagraphedTags();
 }

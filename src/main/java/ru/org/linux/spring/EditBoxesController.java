@@ -25,7 +25,7 @@ import ru.org.linux.site.Template;
 
 @Controller
 public class EditBoxesController {
-  @RequestMapping(value = "/edit-boxes.jsp")
+  @RequestMapping("/edit-boxes.jsp")
   public ModelAndView view(HttpServletRequest request) {
     boolean isThreeColumn = getThreeColumns(request);
     ModelAndView result = new ModelAndView("edit-boxes");

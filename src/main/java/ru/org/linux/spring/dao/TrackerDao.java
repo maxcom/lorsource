@@ -208,14 +208,23 @@ public class TrackerDao {
     return jdbcTemplate.query(query, parameter, new RowMapper<TrackerItem>() {
       @Override
       public TrackerItem mapRow(ResultSet resultSet, int i) throws SQLException {
-        User author, lastCommentBy;
-        int msgid, cid, pages;
-        Timestamp lastmod, postdate;
-        int stat1, stat3, stat4;
-        int groupId, section;
-        String groupTitle, groupUrlName;
+        User author;
+        User lastCommentBy;
+        int msgid;
+        int cid;
+        int pages;
+        Timestamp lastmod;
+        Timestamp postdate;
+        int stat1;
+        int stat3;
+        int stat4;
+        int groupId;
+        int section;
+        String groupTitle;
+        String groupUrlName;
         String title;
-        boolean resolved, uncommited;
+        boolean resolved;
+        boolean uncommited;
         try {
           int author_id = resultSet.getInt("author");
           if(author_id != 0) {

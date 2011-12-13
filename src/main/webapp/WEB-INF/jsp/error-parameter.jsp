@@ -35,8 +35,8 @@
     <%
         String message = exception.getMessage()==null?exception.getClass().getName():exception.getMessage();
 
-        if (exception instanceof org.springframework.validation.BindException) {
-            org.springframework.validation.BindException b = (org.springframework.validation.BindException) exception;
+        if (exception instanceof BindException) {
+            BindException b = (BindException) exception;
 
             if (b.hasGlobalErrors()) {
                 message = b.getGlobalError().getDefaultMessage();

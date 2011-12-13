@@ -38,9 +38,7 @@
 
 package ru.org.linux.util.bbcode.tags;
 
-import org.apache.commons.httpclient.URI;
 import ru.org.linux.site.User;
-import ru.org.linux.site.UserNotFoundException;
 import ru.org.linux.spring.dao.UserDao;
 import ru.org.linux.util.bbcode.Parser;
 import ru.org.linux.util.bbcode.ParserParameters;

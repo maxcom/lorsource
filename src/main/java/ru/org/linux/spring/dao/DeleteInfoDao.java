@@ -32,7 +32,7 @@ import java.util.List;
 @Repository
 public class DeleteInfoDao {
   private JdbcTemplate jdbcTemplate;
-  private final String queryDeleteInfo = "SELECT nick,reason,users.id as userid, deldate FROM del_info,users WHERE msgid=? AND users.id=del_info.delby";
+  private static final String queryDeleteInfo = "SELECT nick,reason,users.id as userid, deldate FROM del_info,users WHERE msgid=? AND users.id=del_info.delby";
 
   @Autowired
   public void setJdbcTemplate(DataSource dataSource) {

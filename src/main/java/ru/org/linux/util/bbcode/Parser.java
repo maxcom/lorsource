@@ -162,7 +162,7 @@ public class Parser {
    * @param currentNode текщуий узел
    * @return новый текущий узел
    */
-  private Node descend(Node currentNode) {
+  private static Node descend(Node currentNode) {
     return currentNode.getChildren().get(currentNode.getChildren().size() - 1);
   }
 
@@ -171,7 +171,7 @@ public class Parser {
    * @param currentNode текущий узел
    * @return новый текущий узел
    */
-  private Node ascend(Node currentNode) {
+  private static Node ascend(Node currentNode) {
     return currentNode.getParent();
   }
 
@@ -215,7 +215,7 @@ public class Parser {
    * @param name имя закрываемого тэга
    * @return новый текущий узел после закрытия тэга
    */
-  private Node closeTagNode(RootNode rootNode, Node currentNode, String name) {
+  private static Node closeTagNode(RootNode rootNode, Node currentNode, String name) {
     Node tempNode = currentNode;
     while (true) {
       if (tempNode == rootNode) {
@@ -253,7 +253,8 @@ public class Parser {
   private RootNode parse(RootNode rootNode, String bbcode) {
     Node currentNode = rootNode;
     int pos = 0;
-    boolean isCode = false, firstCode = false;
+    boolean isCode = false;
+    boolean firstCode = false;
     while (pos < bbcode.length()) {
       Matcher match = BBTAG_REGEXP.matcher(bbcode).region(pos, bbcode.length());
       if (match.find()) {

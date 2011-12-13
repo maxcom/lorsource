@@ -36,7 +36,7 @@ public class ImageInfo{
 
   private final String filename;
 
-  @SuppressWarnings({"UseOfSystemOutOrSystemErr"})
+  @SuppressWarnings("UseOfSystemOutOrSystemErr")
   public static void main(String[] args) throws Exception {
     ImageInfo info = new ImageInfo(args[0]);
 

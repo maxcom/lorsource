@@ -45,7 +45,7 @@ public class ToLorCodeFormatter {
     }
   }
 
-  private String fixNL(String text) {
+  private static String fixNL(String text) {
     return text.replaceAll(NL_REGEXP, "[br]\n");
   }
 

@@ -57,7 +57,7 @@ public class Tag {
   boolean selfClosing = false;
   private Set<String> prohibitedElements;
   private boolean discardable = false;
-  protected ParserParameters parserParameters;
+  protected final ParserParameters parserParameters;
 
   public Tag(String name, Set<String> allowedChildren, String implicitTag, ParserParameters parserParameters) {
     this.name = name;

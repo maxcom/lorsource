@@ -22,8 +22,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.view.RedirectView;
-import ru.org.linux.section.Section;
-import ru.org.linux.section.SectionDao;
 import ru.org.linux.spring.dao.GroupDao;
 
 import java.util.HashMap;

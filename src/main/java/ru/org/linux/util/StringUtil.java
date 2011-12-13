@@ -172,8 +172,12 @@ public final class StringUtil {
    * @return повторенная n раз строка
    */
   public static String repeat(String s, int n) {
-    if(s == null) return null;
-    if(n <= 0) return s;
+    if(s == null) {
+      return null;
+    }
+    if(n <= 0) {
+      return s;
+    }
     final StringBuilder sb = new StringBuilder(s.length()*n);
     for(int i = 0; i < n; i++) {
         sb.append(s);

@@ -57,7 +57,7 @@ public class RootNode extends Node {
   private URI cutURI;
   private UserDao userDao;
   private ToHtmlFormatter toHtmlFormatter;
-  private Set<User> replier;
+  private final Set<User> replier;
   private boolean secure;
   private boolean rss;
 
@@ -119,15 +119,15 @@ public class RootNode extends Node {
   }
 
   public void setCommentCutOptions() {
-    this.cutType = ParserParameters.CutType.INCOMMENT;
+    cutType = ParserParameters.CutType.INCOMMENT;
   }
 
   public void setMaximizedTopicCutOptions() {
-    this.cutType = ParserParameters.CutType.INTOPIC_MAXIMIZED;
+    cutType = ParserParameters.CutType.INTOPIC_MAXIMIZED;
   }
 
   public void setMinimizedTopicCutOptions(URI cutURI) {
-    this.cutType = ParserParameters.CutType.INTOPIC_MINIMIZED;
+    cutType = ParserParameters.CutType.INTOPIC_MINIMIZED;
     this.cutURI = cutURI;
   }
 
