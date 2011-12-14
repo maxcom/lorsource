@@ -2,7 +2,7 @@
 <%@ page import="ru.org.linux.spring.dao.TagDao"%>
 <%@ page import="ru.org.linux.util.StringUtil"%>
 <%@ page import="java.util.SortedSet" %>
-<%@ page import="ru.org.linux.site.Group" %>
+<%@ page import="ru.org.linux.group.Group" %>
 <%--
   ~ Copyright 1998-2010 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
