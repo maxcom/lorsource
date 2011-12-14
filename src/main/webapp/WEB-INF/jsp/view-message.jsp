@@ -363,6 +363,7 @@
 <hr>
 <% } %>
 
+<%--
 <c:if test="${showAdsense and not pageContext.request.secure}">
   <script type="text/javascript">
     <!--
@@ -375,6 +376,7 @@
 <div align=center id="dw">
 </div>
 </c:if>
+--%>
 
 <c:if test="${not message.expired and template.sessionAuthorized}">
   <div style="display: none">
