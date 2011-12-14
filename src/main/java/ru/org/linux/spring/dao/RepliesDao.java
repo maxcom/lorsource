@@ -19,9 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
-import ru.org.linux.site.Comment;
-import ru.org.linux.site.User;
-import ru.org.linux.site.UserNotFoundException;
+import ru.org.linux.site.*;
 import ru.org.linux.spring.RepliesListItem;
 import ru.org.linux.util.StringUtil;
 import ru.org.linux.util.bbcode.LorCodeService;
@@ -39,7 +37,8 @@ import java.util.List;
 public class RepliesDao {
   private JdbcTemplate jdbcTemplate;
   private UserDao userDao;
-  private CommentDao commentDao;
+  private LorCodeService lorCodeService;
+  private MessageDao messageDao;
 
   @Autowired
   public void setJdbcTemplate(DataSource dataSource) {
@@ -52,9 +51,15 @@ public class RepliesDao {
   }
 
   @Autowired
-  public void setCommentDao(CommentDao commentDao) {
-    this.commentDao = commentDao;
+  public void setLorCodeService(LorCodeService lorCodeService) {
+    this.lorCodeService = lorCodeService;
   }
+
+  @Autowired
+  public void setMessageDao(MessageDao messageDao) {
+    this.messageDao = messageDao;
+  }
+
 
 
   private static final String queryAllRepliesForUser =
@@ -149,7 +154,21 @@ public class RepliesDao {
         String eventMessage = resultSet.getString("ev_msg");
         String messageText;
         if (readMessage) {
-          messageText = commentDao.getPreparedCommentRSS(cid, secure);
+          if(cid != 0) { // Комментарий
+            messageText = lorCodeService.prepareTextRSS(resultSet.getString("cMessage"), secure, resultSet.getBoolean("bbcode"));
+          } else { // Топик
+            Message message;
+            try {
+              message = messageDao.getById(msgid);
+            } catch (MessageNotFoundException e) {
+              message = null;
+            }
+            if(message != null) {
+              messageText = lorCodeService.prepareTextRSS(message.getMessage(), secure, message.isLorcode());
+            } else {
+              messageText = "";
+            }
+          }
         } else {
           messageText = null;
         }
