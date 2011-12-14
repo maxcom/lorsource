@@ -177,6 +177,7 @@ public class ShowRepliesController {
       params.put("unreadCount", user.getUnreadEvents());
       response.addHeader("Cache-Control", "no-cache");
     }
+
     List<RepliesListItem> list = repliesDao.getRepliesForUser(user, showPrivate, topics, offset, feedRequested, request.isSecure());
 
     params.put("isMyNotifications", false);
