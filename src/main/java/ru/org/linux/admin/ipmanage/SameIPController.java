@@ -23,13 +23,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
-import ru.org.linux.admin.ipmanage.IPBlockDao;
-import ru.org.linux.admin.ipmanage.IPBlockInfo;
 import ru.org.linux.message.MessageNotFoundException;
 import ru.org.linux.site.ScriptErrorException;
 import ru.org.linux.site.Template;
-import ru.org.linux.user.UserDao;
 import ru.org.linux.user.AccessViolationException;
+import ru.org.linux.user.UserDao;
 import ru.org.linux.util.ServletParameterParser;
 import ru.org.linux.util.StringUtil;
 
@@ -80,8 +78,8 @@ public class SameIPController {
 
     if (msgid != null) {
       SqlRowSet rs = jdbcTemplate.queryForRowSet(
-              "SELECT postip, ua_id FROM topics WHERE id=?",
-              msgid
+        "SELECT postip, ua_id FROM topics WHERE id=?",
+        msgid
       );
 
       if (!rs.next()) {
@@ -110,70 +108,73 @@ public class SameIPController {
 
     IPBlockInfo blockInfo = ipBlockDao.getBlockInfo(ip);
 
-    if (blockInfo!=null) {
+    if (blockInfo != null) {
       mv.getModel().put("blockInfo", blockInfo);
       mv.getModel().put("blockModerator", userDao.getUserCached(blockInfo.getModerator()));
     }
 
     mv.getModel().put("tor", IPBlockDao.getTor(ip));
 
+    mv.addObject("banPeriods", BanPeriodEnum.getDescriptions());
+    mv.addObject("customPeriodName", BanPeriodEnum.CUSTOM.toString());
+
     return mv;
   }
 
   private List<TopicItem> getTopics(String ip) {
     return jdbcTemplate.query(
-            "SELECT sections.name as ptitle, groups.title as gtitle, topics.title as title, topics.id as msgid, postdate, deleted " +
-                    "FROM topics, groups, sections, users " +
-                    "WHERE topics.groupid=groups.id " +
-                    "AND sections.id=groups.section " +
-                    "AND users.id=topics.userid " +
-                    "AND topics.postip=?::inet " +
-                    "AND postdate>CURRENT_TIMESTAMP-'3 days'::interval ORDER BY msgid DESC",
-            new RowMapper<TopicItem>() {
-              @Override
-              public TopicItem mapRow(ResultSet rs, int rowNum) throws SQLException {
-                return new TopicItem(rs, false);
-              }
-            },
-            ip
+      "SELECT sections.name as ptitle, groups.title as gtitle, topics.title as title, topics.id as msgid, postdate, deleted " +
+        "FROM topics, groups, sections, users " +
+        "WHERE topics.groupid=groups.id " +
+        "AND sections.id=groups.section " +
+        "AND users.id=topics.userid " +
+        "AND topics.postip=?::inet " +
+        "AND postdate>CURRENT_TIMESTAMP-'3 days'::interval ORDER BY msgid DESC",
+      new RowMapper<TopicItem>() {
+        @Override
+        public TopicItem mapRow(ResultSet rs, int rowNum) throws SQLException {
+          return new TopicItem(rs, false);
+        }
+      },
+      ip
     );
   }
 
   private List<TopicItem> getComments(String ip) {
     return jdbcTemplate.query(
-            "SELECT sections.name as ptitle, groups.title as gtitle, topics.title, topics.id as topicid, comments.id as msgid, comments.postdate, comments.deleted " +
-                    "FROM sections, groups, topics, comments " +
-                    "WHERE sections.id=groups.section " +
-                    "AND groups.id=topics.groupid " +
-                    "AND comments.topic=topics.id " +
-                    "AND comments.postip=?::inet " +
-                    "AND comments.postdate>CURRENT_TIMESTAMP-'24 hour'::interval " +
-                    "ORDER BY postdate DESC",
-            new RowMapper<TopicItem>() {
-              @Override
-              public TopicItem mapRow(ResultSet rs, int rowNum) throws SQLException {
-                return new TopicItem(rs, true);
-              }
-            },
-            ip
+      "SELECT sections.name as ptitle, groups.title as gtitle, topics.title, topics.id as topicid, comments.id as msgid, comments.postdate, comments.deleted " +
+        "FROM sections, groups, topics, comments " +
+        "WHERE sections.id=groups.section " +
+        "AND groups.id=topics.groupid " +
+        "AND comments.topic=topics.id " +
+        "AND comments.postip=?::inet " +
+        "AND comments.postdate>CURRENT_TIMESTAMP-'24 hour'::interval " +
+        "ORDER BY postdate DESC",
+      new RowMapper<TopicItem>() {
+        @Override
+        public TopicItem mapRow(ResultSet rs, int rowNum) throws SQLException {
+          return new TopicItem(rs, true);
+        }
+      },
+      ip
     );
   }
 
   private List<UserItem> getUsers(String ip, final int uaId) {
     return jdbcTemplate.query(
-            "SELECT MAX(c.postdate) AS lastdate, u.nick, c.ua_id, ua.name AS user_agent " +
-                    "FROM comments c LEFT JOIN user_agents ua ON c.ua_id = ua.id " +
-                    "JOIN users u ON c.userid = u.id " +
-                    "WHERE c.postip=?::inet " +
-                    "GROUP BY u.nick, c.ua_id, ua.name " +
-                    "ORDER BY MAX(c.postdate) DESC, u.nick, ua.name",
-            new RowMapper<UserItem>() {
-              @Override
-              public UserItem mapRow(ResultSet rs, int rowNum) throws SQLException {
-                return new UserItem(rs, uaId);
-              }
-            },
-            ip
+      "SELECT MAX(c.postdate) AS lastdate, u.nick, c.ua_id, ua.name AS user_agent " +
+        "FROM comments c LEFT JOIN user_agents ua ON c.ua_id = ua.id " +
+        "JOIN users u ON c.userid = u.id " +
+        "WHERE c.postip=?::inet " +
+        "GROUP BY u.nick, c.ua_id, ua.name " +
+        "ORDER BY MAX(c.postdate) DESC, u.nick, ua.name",
+      new RowMapper<UserItem>() {
+        @Override
+        public UserItem mapRow(ResultSet rs, int rowNum) throws SQLException {
+          return new UserItem(rs, uaId);
+        }
+      },
+      ip
     );
   }
 

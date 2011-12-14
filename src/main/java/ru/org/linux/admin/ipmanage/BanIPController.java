@@ -42,7 +42,7 @@ public class BanIPController {
     this.ipBlockDao = ipBlockDao;
   }
 
-  @RequestMapping(value="/banip.jsp", method= RequestMethod.POST)
+  @RequestMapping(value = "/banip.jsp", method = RequestMethod.POST)
   public ModelAndView banIP(
     HttpServletRequest request,
     @RequestParam("ip") String ip,
@@ -54,40 +54,44 @@ public class BanIPController {
     if (!tmpl.isModeratorSession()) {
       throw new IllegalAccessException("Not authorized");
     }
+    BanPeriodEnum banPeriodEnum = BanPeriodEnum.valueOf(time);
+
+    int days = (BanPeriodEnum.CUSTOM.equals(banPeriodEnum))
+      ? ServletRequestUtils.getRequiredIntParameter(request, "ban_days")
+      : 0;
 
     Calendar calendar = Calendar.getInstance();
     calendar.setTime(new Date());
-
-    if ("hour".equals(time)) {
-      calendar.add(Calendar.HOUR_OF_DAY, 1);
-    } else if ("day".equals(time)) {
-      calendar.add(Calendar.DAY_OF_MONTH, 1);
-    } else if ("month".equals(time)) {
-      calendar.add(Calendar.MONTH, 1);
-    } else if ("3month".equals(time)) {
-      calendar.add(Calendar.MONTH, 3);
-    } else if ("6month".equals(time)) {
-      calendar.add(Calendar.MONTH, 6);
-    } else if ("remove".equals(time)) {
-    } else if ("custom".equals(time)) {
-      int days = ServletRequestUtils.getRequiredIntParameter(request, "ban_days");
-
-      if (days <= 0 || days > 180) {
-        throw new UserErrorException("Invalid days count");
-      }
-
-      calendar.add(Calendar.DAY_OF_MONTH, days);
+    switch (banPeriodEnum) {
+      case HOUR_1:
+        calendar.add(Calendar.HOUR_OF_DAY, 1);
+        break;
+      case DAY_1:
+        calendar.add(Calendar.DAY_OF_MONTH, 1);
+        break;
+      case MONTH_1:
+        calendar.add(Calendar.MONTH, 1);
+        break;
+      case MONTH_3:
+        calendar.add(Calendar.MONTH, 3);
+        break;
+      case MONTH_6:
+        calendar.add(Calendar.MONTH, 6);
+        break;
+      case CUSTOM:
+        if (days <= 0 || days > 180) {
+          throw new UserErrorException("Invalid days count");
+        }
+        calendar.add(Calendar.DAY_OF_MONTH, days);
+        break;
+      default:
+        break;
     }
-
-    Timestamp ts;
-    if ("unlim".equals(time)) {
-      ts = null;
-    } else {
-      ts = new Timestamp(calendar.getTimeInMillis());
-    }
+    Timestamp ts = (BanPeriodEnum.PERMANENT.equals(banPeriodEnum))
+      ? null
+      : new Timestamp(calendar.getTimeInMillis());
 
     User user = tmpl.getCurrentUser();
-
     user.checkCommit();
 
     ipBlockDao.blockIP(ip, user, reason, ts);
