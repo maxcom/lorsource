@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
+import ru.org.linux.site.Comment;
 import ru.org.linux.site.User;
 import ru.org.linux.site.UserNotFoundException;
 import ru.org.linux.spring.RepliesListItem;
@@ -38,7 +39,7 @@ import java.util.List;
 public class RepliesDao {
   private JdbcTemplate jdbcTemplate;
   private UserDao userDao;
-  private LorCodeService lorCodeService;
+  private CommentDao commentDao;
 
   @Autowired
   public void setJdbcTemplate(DataSource dataSource) {
@@ -51,8 +52,8 @@ public class RepliesDao {
   }
 
   @Autowired
-  public void setLorCodeService(LorCodeService lorCodeService) {
-    this.lorCodeService = lorCodeService;
+  public void setCommentDao(CommentDao commentDao) {
+    this.commentDao = commentDao;
   }
 
 
@@ -104,7 +105,8 @@ public class RepliesDao {
    * @param showPrivate включать ли приватные
    * @param topics кол-во уведомлений
    * @param offset сдвиг относительно начала
-   * @param readMessage возвращать ли отрендеренное содержимое уведомлений
+   * @param readMessage возвращать ли отрендеренное содержимое уведомлений (используется только для RSS)
+   * @param secure является ли текущие соединение https
    * @return список уведомлений
    */
   public List<RepliesListItem> getRepliesForUser(User user, boolean showPrivate, int topics, int offset,
@@ -147,12 +149,7 @@ public class RepliesDao {
         String eventMessage = resultSet.getString("ev_msg");
         String messageText;
         if (readMessage) {
-          String text = resultSet.getString("cMessage");
-          if (resultSet.getBoolean("bbcode")) {
-            messageText = lorCodeService.parseComment(text, secure);
-          } else {
-            messageText = text;
-          }
+          messageText = commentDao.getPreparedCommentRSS(cid, secure);
         } else {
           messageText = null;
         }
