@@ -31,7 +31,7 @@ import java.net.URLEncoder;
 import java.sql.Timestamp;
 
 @Controller
-public class BanIPController {
+public class BanIpController {
   @Autowired
   private BanIpService banIpService;
 

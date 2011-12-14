@@ -19,9 +19,6 @@
 
 <title>Поиск писем с IP-адреса</title>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
-<%
-  String ip = (String) request.getAttribute("ip");
-%>
 <table class=nav>
   <tr>
     <td align=left valign=middle id="navPath">
@@ -107,13 +104,13 @@ function checkCustomBan(selectObject) {
 </form>
 
 <form method="post" action="delip.jsp">
-<input type="hidden" name="ip" value="<%= ip %>">
+<input type="hidden" name="ip" value="${ip}">
 Удалить темы и сообщения с IP по причине: <br>
 <input type="text" name="reason" maxlength="254" size="40" value=""><br>
 за последний(ие) <select name="time" onchange="checkCustomDel(this.selectedIndex);">
-<option value="hour">1 час</option>
-<option value="day">1 день</option>
-<option value="3day">3 дня</option>
+<c:forEach var="deletePeriod" items="${deletePeriods}">
+<option value="${deletePeriod.key}">${deletePeriod.value}</option>
+</c:forEach>
 </select>
 <p>
 <input type="submit" name="del" value="del from ip">

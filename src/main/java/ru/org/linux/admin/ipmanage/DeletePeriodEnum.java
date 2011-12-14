@@ -14,42 +14,29 @@
  */
 package ru.org.linux.admin.ipmanage;
 
-import java.util.Calendar;
 import ru.org.linux.util.enumhelper.ValueComparer;
 
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
 /**
- * Перечисление, описывающее возможные варианты периодов блокировки IP-адреса.
+ * Перечисление, описывающее возможные варианты периодов удаления последних сообщений с IP-адреса.
  */
-public enum BanPeriodEnum {
-  HOUR_1("1  час", Calendar.HOUR_OF_DAY, 1),
-  DAY_1("1 день", Calendar.DAY_OF_MONTH, 1),
-  MONTH_1("1 месяц", Calendar.MONTH, 1),
-  MONTH_3("3 месяца", Calendar.MONTH, 3),
-  MONTH_6("6 месяцев", Calendar.MONTH, 6),
-  PERMANENT("постоянно", 0, 0),
-  REMOVE("не блокировать", 0, 0),
-  CUSTOM("указать (дней)", 0, 0);
+public enum DeletePeriodEnum {
+  HOUR_1("1  час", Calendar.HOUR_OF_DAY, -1),
+  DAY_1("1 день", Calendar.DAY_OF_MONTH, -1),
+  DAY_3("3 дня", Calendar.DAY_OF_MONTH, -3);
 
   private final String description;
   private final int calendarPeriod;
   private final int calendarNumPeriods;
 
-  BanPeriodEnum(String description, int calendarPeriod, int calendarNumPeriods) {
+  DeletePeriodEnum(String description, int calendarPeriod, int calendarNumPeriods) {
     this.description = description;
     this.calendarPeriod = calendarPeriod;
     this.calendarNumPeriods = calendarNumPeriods;
-  }
-
-  public int getCalendarPeriod() {
-    return calendarPeriod;
-  }
-
-  public int getCalendarNumPeriods() {
-    return calendarNumPeriods;
   }
 
   /**
@@ -59,12 +46,19 @@ public enum BanPeriodEnum {
    */
   public static Map<String, String> getDescriptions() {
     Map<String, String> descriptions = new HashMap<String, String>();
-    for (BanPeriodEnum banPeriod : values()) {
-      descriptions.put(banPeriod.toString(), banPeriod.description);
+    for (DeletePeriodEnum deletePeriodEnum : values()) {
+      descriptions.put(deletePeriodEnum.toString(), deletePeriodEnum.description);
     }
     Map<String, String> descriptionsSorted = new TreeMap<String, String>(new ValueComparer(descriptions));
     descriptionsSorted.putAll(descriptions);
     return descriptionsSorted;
   }
 
+  public int getCalendarPeriod() {
+    return calendarPeriod;
+  }
+
+  public int getCalendarNumPeriods() {
+    return calendarNumPeriods;
+  }
 }

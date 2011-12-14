@@ -29,7 +29,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
 @Controller
-public class SameIPController {
+public class SameIpController {
 
   @Autowired
   SameIpService sameIpService;
@@ -73,7 +73,6 @@ public class SameIPController {
     }
 
     modelAndView.addObject("ip", ipInfo.getIpAddress());
-    modelAndView.addObject("uaId", ipInfo.getUserAgentId());
 
     modelAndView.addObject("topics", sameIpService.getForumMessages(ipInfo.getIpAddress(), false));
     modelAndView.addObject("comments", sameIpService.getForumMessages(ipInfo.getIpAddress(), true));
@@ -91,6 +90,7 @@ public class SameIPController {
 
     modelAndView.addObject("banPeriods", BanPeriodEnum.getDescriptions());
     modelAndView.addObject("customPeriodName", BanPeriodEnum.CUSTOM.toString());
+    modelAndView.addObject("deletePeriods", DeletePeriodEnum.getDescriptions());
 
     return modelAndView;
   }

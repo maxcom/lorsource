@@ -39,6 +39,7 @@ public class UserAgentDao {
 
   /**
    * получить UA по его id
+   *
    * @param id id UA
    * @return название UA или null если отсутствует
    */

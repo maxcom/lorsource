@@ -42,7 +42,7 @@ public class IPBlockInfo {
   @Deprecated
   public void checkBlock() throws AccessViolationException {
     if (isBlocked()) {
-      throw new AccessViolationException("Постинг заблокирован: "+reason);
+      throw new AccessViolationException("Постинг заблокирован: " + reason);
     }
   }
 
