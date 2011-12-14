@@ -72,7 +72,7 @@
 
 <p>
 
-<form method="post" action="banip.jsp">
+<form method="post" action="/admin/ipmanage/ban">
 <input type="hidden" name="ip" value="${ip}">
 забанить/разбанить IP по причине: <br>
 <input type="text" name="reason" maxlength="254" size="40" value=""><br>
@@ -103,7 +103,7 @@ function checkCustomBan(selectObject) {
 </script>
 </form>
 
-<form method="post" action="delip.jsp">
+<form method="post" action="/admin/ipmanage/delmessages">
 <input type="hidden" name="ip" value="${ip}">
 Удалить темы и сообщения с IP по причине: <br>
 <input type="text" name="reason" maxlength="254" size="40" value=""><br>

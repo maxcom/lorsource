@@ -45,7 +45,7 @@ public class BanIpController {
    * @return
    * @throws Exception
    */
-  @RequestMapping(value = "/banip.jsp", method = RequestMethod.POST)
+  @RequestMapping(value = "/admin/ipmanage/ban", method = RequestMethod.POST)
   public ModelAndView banIpRequestHandler(
     HttpServletRequest request,
     @RequestParam("ip") String ip,
@@ -67,6 +67,6 @@ public class BanIpController {
     Timestamp timestamp = banIpService.calculateTimestamp(banPeriod, days);
     banIpService.doBan(user, ip, reason, timestamp);
 
-    return new ModelAndView(new RedirectView("sameip.jsp?ip=" + URLEncoder.encode(ip, "UTF-8")));
+    return new ModelAndView(new RedirectView("/admin/ipmanage/same?ip=" + URLEncoder.encode(ip, "UTF-8")));
   }
 }

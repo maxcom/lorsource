@@ -108,7 +108,7 @@
     <div class=sign>
       <lor:sign postdate="${comment.comment.postdate}" user="${comment.author}" shortMode="false"/>
       <c:if test="${template.moderatorSession}">
-        (<a href="sameip.jsp?msgid=${comment.comment.id}">${comment.comment.postIP}</a>)
+        (<a href="/admin/ipmanage/same?msgid=${comment.comment.id}">${comment.comment.postIP}</a>)
         <c:if test="${comment.comment.userAgent!=null}">
           <br>
           <span class="sign_more"><c:out value="${comment.comment.userAgent}" escapeXml="true"/></span>

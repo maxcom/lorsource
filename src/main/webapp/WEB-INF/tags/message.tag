@@ -111,7 +111,7 @@
 <div class=sign>
   <lor:sign postdate="${message.postdate}" user="${preparedMessage.author}" shortMode="false"/>
   <c:if test="${template.moderatorSession}">
-    (<a href="sameip.jsp?msgid=${message.id}">${message.postIP}</a>)
+    (<a href="/admin/ipmanage/same?msgid=${message.id}">${message.postIP}</a>)
   </c:if>
 
   <span class="sign_more">

@@ -45,7 +45,7 @@ public class SameIpController {
    * @return
    * @throws Exception
    */
-  @RequestMapping("/sameip.jsp")
+  @RequestMapping("/admin/ipmanage/same")
   public ModelAndView sameIpRequestHandler(
     HttpServletRequest request,
     @RequestParam(required = false) Integer msgid

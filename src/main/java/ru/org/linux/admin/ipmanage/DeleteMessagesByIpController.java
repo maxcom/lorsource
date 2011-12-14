@@ -46,7 +46,7 @@ public class DeleteMessagesByIpController {
    * @return возвращаем страничку с результатом выполнения
    * @throws Exception по дороге может что-то сучится
    */
-  @RequestMapping(value = "/delip.jsp", method = RequestMethod.POST)
+  @RequestMapping(value = "/admin/ipmanage/delmessages", method = RequestMethod.POST)
   public ModelAndView delIp(HttpServletRequest request,
                             @RequestParam("reason") String reason,
                             @RequestParam("ip") String ip,
