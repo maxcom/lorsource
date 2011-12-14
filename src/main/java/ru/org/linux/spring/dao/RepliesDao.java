@@ -39,7 +39,7 @@ import java.util.List;
 public class RepliesDao {
   private JdbcTemplate jdbcTemplate;
   private UserDao userDao;
-  private CommentDao commentDao;
+  private LorCodeService lorCodeService;
 
   @Autowired
   public void setJdbcTemplate(DataSource dataSource) {
@@ -52,9 +52,10 @@ public class RepliesDao {
   }
 
   @Autowired
-  public void setCommentDao(CommentDao commentDao) {
-    this.commentDao = commentDao;
+  public void setLorCodeService(LorCodeService lorCodeService) {
+    this.lorCodeService = lorCodeService;
   }
+
 
 
   private static final String queryAllRepliesForUser =
@@ -149,7 +150,7 @@ public class RepliesDao {
         String eventMessage = resultSet.getString("ev_msg");
         String messageText;
         if (readMessage) {
-          messageText = commentDao.getPreparedCommentRSS(cid, secure);
+          messageText = lorCodeService.prepareTextRSS(resultSet.getString("cMessage"), secure, resultSet.getBoolean("bbcode"));
         } else {
           messageText = null;
         }
