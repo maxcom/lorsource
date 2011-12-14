@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd"
+        >
+
+    <bean class="ru.org.linux.admin.ipmanage.MockDaoFactory" id="mockDaoFactory"/>
+    <bean class="ru.org.linux.admin.ipmanage.SameIpService" id="sameIpService"/>
+
+    <bean id="sameIpDao"
+          factory-bean="mockDaoFactory"
+          factory-method="getSameIpDao"/>
+
+    <bean id="ipBlockDao"
+          factory-bean="mockDaoFactory"
+          factory-method="getIpBlockDao"/>
+
+    <bean id="userDao"
+          factory-bean="mockDaoFactory"
+          factory-method="getUserDao"/>
+
+    <bean id="ignoreListDao"
+          factory-bean="mockDaoFactory"
+          factory-method="getIgnoreListDao"/>
+</beans>

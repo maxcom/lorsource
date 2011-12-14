@@ -22,13 +22,17 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Date;
 
-public class IPBlockInfo {
-  private final String reason;
-  private final Timestamp banDate;
-  private final Timestamp originalDate;
-  private final int moderator;
+public class IpBlockInfo {
+  private String reason;
+  private Timestamp banDate;
+  private Timestamp originalDate;
+  private int moderator;
 
-  public IPBlockInfo(ResultSet rs) throws SQLException {
+  public IpBlockInfo() {
+
+  }
+
+  public IpBlockInfo(ResultSet rs) throws SQLException {
     reason = rs.getString("reason");
     banDate = rs.getTimestamp("ban_date");
     originalDate = rs.getTimestamp("date");
@@ -60,5 +64,21 @@ public class IPBlockInfo {
 
   public int getModerator() {
     return moderator;
+  }
+
+  public void setReason(String reason) {
+    this.reason = reason;
+  }
+
+  public void setBanDate(Timestamp banDate) {
+    this.banDate = banDate;
+  }
+
+  public void setOriginalDate(Timestamp originalDate) {
+    this.originalDate = originalDate;
+  }
+
+  public void setModerator(int moderator) {
+    this.moderator = moderator;
   }
 }

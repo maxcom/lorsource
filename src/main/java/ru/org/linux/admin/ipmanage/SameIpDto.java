@@ -21,13 +21,17 @@ import java.sql.Timestamp;
 class SameIpDto {
 
   static class TopicItem {
-    private final String ptitle;
-    private final String gtitle;
-    private final int commentId;
-    private final String title;
-    private final Timestamp postdate;
-    private final int topicId;
-    private final boolean deleted;
+    private String ptitle;
+    private String gtitle;
+    private int commentId;
+    private String title;
+    private Timestamp postdate;
+    private int topicId;
+    private boolean deleted;
+
+    public TopicItem() {
+
+    }
 
     public TopicItem(ResultSet rs) throws SQLException {
       ptitle = rs.getString("ptitle");
@@ -66,20 +70,68 @@ class SameIpDto {
     public boolean isDeleted() {
       return deleted;
     }
+
+    public void setPtitle(String ptitle) {
+      this.ptitle = ptitle;
+    }
+
+    public void setGtitle(String gtitle) {
+      this.gtitle = gtitle;
+    }
+
+    public void setCommentId(int commentId) {
+      this.commentId = commentId;
+    }
+
+    public void setTitle(String title) {
+      this.title = title;
+    }
+
+    public void setPostdate(Timestamp postdate) {
+      this.postdate = postdate;
+    }
+
+    public void setTopicId(int topicId) {
+      this.topicId = topicId;
+    }
+
+    public void setDeleted(boolean deleted) {
+      this.deleted = deleted;
+    }
   }
 
 
   static class UserItem {
-    private final Timestamp lastdate;
-    private final String nick;
-    private final String userAgent;
-    private final int uaId;
+    private Timestamp lastdate;
+    private String nick;
+    private String userAgent;
+    private int uaId;
+
+    public UserItem() {
+
+    }
 
     public UserItem(ResultSet rs) throws SQLException {
       lastdate = rs.getTimestamp("lastdate");
       nick = rs.getString("nick");
       this.uaId = rs.getInt("ua_id");
       userAgent = rs.getString("user_agent");
+    }
+
+    public void setLastdate(Timestamp lastdate) {
+      this.lastdate = lastdate;
+    }
+
+    public void setNick(String nick) {
+      this.nick = nick;
+    }
+
+    public void setUserAgent(String userAgent) {
+      this.userAgent = userAgent;
+    }
+
+    public void setUaId(int uaId) {
+      this.uaId = uaId;
     }
 
     public int getUaId() {

@@ -28,7 +28,7 @@ import java.sql.Timestamp;
 import java.util.List;
 
 @Repository
-public class IPBlockDao {
+public class IpBlockDao {
   private JdbcTemplate jdbcTemplate;
 
   @Autowired
@@ -36,13 +36,13 @@ public class IPBlockDao {
     jdbcTemplate = new JdbcTemplate(ds);
   }
 
-  public IPBlockInfo getBlockInfo(String addr) {
-    List<IPBlockInfo> list = jdbcTemplate.query(
+  public IpBlockInfo getBlockInfo(String addr) {
+    List<IpBlockInfo> list = jdbcTemplate.query(
       "SELECT reason, ban_date, date, mod_id FROM b_ips WHERE ip = ?::inet",
-      new RowMapper<IPBlockInfo>() {
+      new RowMapper<IpBlockInfo>() {
         @Override
-        public IPBlockInfo mapRow(ResultSet rs, int rowNum) throws SQLException {
-          return new IPBlockInfo(rs);
+        public IpBlockInfo mapRow(ResultSet rs, int rowNum) throws SQLException {
+          return new IpBlockInfo(rs);
         }
       },
       addr
@@ -56,7 +56,7 @@ public class IPBlockDao {
   }
 
   public void blockIP(String ip, User moderator, String reason, Timestamp ts) {
-    IPBlockInfo blockInfo = getBlockInfo(ip);
+    IpBlockInfo blockInfo = getBlockInfo(ip);
 
     if (blockInfo == null) {
       jdbcTemplate.update(

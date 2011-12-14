@@ -31,7 +31,7 @@ import java.util.Date;
 public class BanIpService {
 
   @Autowired
-  private IPBlockDao ipBlockDao;
+  private IpBlockDao ipBlockDao;
 
   /**
    * Заблокировать доступ по IP-адресу.
@@ -91,7 +91,7 @@ public class BanIpService {
       errors.reject(null, "Постинг заблокирован: tor.ahbl.org");
     }
 
-    IPBlockInfo block = ipBlockDao.getBlockInfo(addr);
+    IpBlockInfo block = ipBlockDao.getBlockInfo(addr);
 
     if (block == null) {
       return;

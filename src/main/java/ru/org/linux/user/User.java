@@ -35,22 +35,22 @@ import java.sql.SQLException;
 public class User implements Serializable {
   private static final int ANONYMOUS_LEVEL_SCORE = 50;
 
-  private final String nick;
-  private final int id;
-  private final boolean canmod;
-  private final boolean candel;
-  private final boolean anonymous;
-  private final boolean corrector;
-  private final boolean blocked;
-  private final String password;
-  private final int score;
-  private final int maxScore;
-  private final String photo;
-  private final String email;
-  private final String fullName;
-  private final int unreadEvents;
+  private String nick;
+  private int id;
+  private boolean canmod;
+  private boolean candel;
+  private boolean anonymous;
+  private boolean corrector;
+  private boolean blocked;
+  private String password;
+  private int score;
+  private int maxScore;
+  private String photo;
+  private String email;
+  private String fullName;
+  private int unreadEvents;
 
-  private final boolean activated;
+  private boolean activated;
   public static final int CORRECTOR_SCORE = 100;
   private static final int BLOCK_MAX_SCORE = 400;
   private static final int BLOCK_SCORE = 200;
@@ -59,6 +59,10 @@ public class User implements Serializable {
   public static final int MAX_NICK_LENGTH = 40;
 
   private static final long serialVersionUID = 69986652856916540L;
+
+  public User() {
+
+  }
 
   public User(ResultSet rs) throws SQLException {
     id = rs.getInt("id");
@@ -78,7 +82,7 @@ public class User implements Serializable {
     anonymous = "".equals(pwd);
     password = pwd;
 
-    photo=rs.getString("photo");
+    photo = rs.getString("photo");
 
     email = rs.getString("email");
 
@@ -98,7 +102,7 @@ public class User implements Serializable {
       throw new BadPasswordException(nick);
     }
 
-    if (password==null) {
+    if (password == null) {
       throw new BadPasswordException(nick);
     }
 
@@ -183,7 +187,7 @@ public class User implements Serializable {
   }
 
   public boolean canCorrect() {
-    return corrector && score>= CORRECTOR_SCORE;
+    return corrector && score >= CORRECTOR_SCORE;
   }
 
   public boolean isAnonymous() {
@@ -271,7 +275,7 @@ public class User implements Serializable {
   }
 
   public boolean isBlockable() {
-    if (id==2) {
+    if (id == 2) {
       return false;
     }
 
@@ -289,7 +293,7 @@ public class User implements Serializable {
   }
 
   public boolean isAnonymousScore() {
-    return anonymous || blocked || score<ANONYMOUS_LEVEL_SCORE;
+    return anonymous || blocked || score < ANONYMOUS_LEVEL_SCORE;
   }
 
   public void acegiSecurityHack(HttpServletResponse response, HttpSession session) {
@@ -323,7 +327,7 @@ public class User implements Serializable {
   }
 
   public static void checkNick(String nick) throws BadInputException {
-    if (nick==null || !StringUtil.checkLoginName(nick)) {
+    if (nick == null || !StringUtil.checkLoginName(nick)) {
       throw new BadInputException("некорректное имя пользователя");
     }
 
@@ -345,11 +349,11 @@ public class User implements Serializable {
       nonExist = avatarStyle;
     }
 
-    String grUrl = secure?"https://secure.gravatar.com/avatar/":"http://www.gravatar.com/avatar/";
+    String grUrl = secure ? "https://secure.gravatar.com/avatar/" : "http://www.gravatar.com/avatar/";
 
     return grUrl
       + StringUtil.md5hash(email.toLowerCase())
-      + "?s="+size+"&amp;r=g&amp;d="+nonExist;
+      + "?s=" + size + "&amp;r=g&amp;d=" + nonExist;
   }
 
   public String getEmail() {
@@ -357,7 +361,7 @@ public class User implements Serializable {
   }
 
   public boolean hasGravatar() {
-    return email!=null;
+    return email != null;
   }
 
   public String getName() {
@@ -366,6 +370,66 @@ public class User implements Serializable {
 
   public int getUnreadEvents() {
     return unreadEvents;
+  }
+
+  public void setNick(String nick) {
+    this.nick = nick;
+  }
+
+  public void setId(int id) {
+    this.id = id;
+  }
+
+  public void setCanmod(boolean canmod) {
+    this.canmod = canmod;
+  }
+
+  public void setCandel(boolean candel) {
+    this.candel = candel;
+  }
+
+  public void setAnonymous(boolean anonymous) {
+    this.anonymous = anonymous;
+  }
+
+  public void setCorrector(boolean corrector) {
+    this.corrector = corrector;
+  }
+
+  public void setBlocked(boolean blocked) {
+    this.blocked = blocked;
+  }
+
+  public void setPassword(String password) {
+    this.password = password;
+  }
+
+  public void setScore(int score) {
+    this.score = score;
+  }
+
+  public void setMaxScore(int maxScore) {
+    this.maxScore = maxScore;
+  }
+
+  public void setPhoto(String photo) {
+    this.photo = photo;
+  }
+
+  public void setEmail(String email) {
+    this.email = email;
+  }
+
+  public void setFullName(String fullName) {
+    this.fullName = fullName;
+  }
+
+  public void setUnreadEvents(int unreadEvents) {
+    this.unreadEvents = unreadEvents;
+  }
+
+  public void setActivated(boolean activated) {
+    this.activated = activated;
   }
 
   @Override

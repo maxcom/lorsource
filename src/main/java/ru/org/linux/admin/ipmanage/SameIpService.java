@@ -32,7 +32,7 @@ public class SameIpService {
   SameIpDao sameIpDao;
 
   @Autowired
-  private IPBlockDao ipBlockDao;
+  private IpBlockDao ipBlockDao;
 
   @Autowired
   private UserDao userDao;
@@ -86,7 +86,7 @@ public class SameIpService {
   public SameIp.BlockInfo getBlockInfo(String ipAddress) {
     SameIp.BlockInfo blockInfo = new SameIp.BlockInfo();
 
-    IPBlockInfo ipBlockInfo = ipBlockDao.getBlockInfo(ipAddress);
+    IpBlockInfo ipBlockInfo = ipBlockDao.getBlockInfo(ipAddress);
     blockInfo.setBlocked(ipBlockInfo != null);
 
     if (ipBlockInfo != null) {
