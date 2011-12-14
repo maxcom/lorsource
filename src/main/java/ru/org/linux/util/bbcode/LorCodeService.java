@@ -125,4 +125,12 @@ public class LorCodeService {
 
     return rootNode;
   }
+  
+  public String prepareTextRSS(String text, boolean secure, boolean lorcode) {
+    if (lorcode) {
+      return parseCommentRSS(text, secure);
+    } else {
+      return "<p>" + text + "</p>";
+    }
+  }
 }
