@@ -34,33 +34,39 @@ public class BanIpService {
   private IPBlockDao ipBlockDao;
 
   /**
-   * @param user
-   * @param ip
-   * @param reason
-   * @param banPeriodEnum
-   * @param days
+   * Заблокировать доступ по IP-адресу.
+   *
+   * @param user      пользователь, осуществляющий блокировку
+   * @param ipAddress блокируемый IP-адрес
+   * @param reason    причина блокировки
+   * @param timestamp время, на которое необходимо заблокировать IP-адрес
    * @throws UserErrorException
    */
-  public void doBan(User user, String ip, String reason, BanPeriodEnum banPeriodEnum, int days)
+  public void doBan(User user, String ipAddress, String reason, Timestamp timestamp)
+    throws UserErrorException {
+
+    user.checkCommit();
+
+    ipBlockDao.blockIP(ipAddress, user, reason, timestamp);
+  }
+
+  /**
+   * Вычисление времени блокировки IP-адреса согласно выбора модератора.
+   *
+   * @param banPeriodEnum период, на который необходимо заблокировать IP-адрес
+   * @param days          количество дней (при варианте периода "CUSTOM")
+   * @return время, до которого IP-адрес будет заблокирован (null - постоянно)
+   * @throws UserErrorException
+   */
+  public Timestamp calculateTimestamp(BanPeriodEnum banPeriodEnum, int days)
     throws UserErrorException {
     Calendar calendar = Calendar.getInstance();
     calendar.setTime(new Date());
 
     switch (banPeriodEnum) {
-      case HOUR_1:
-        calendar.add(Calendar.HOUR_OF_DAY, 1);
-        break;
-      case DAY_1:
-        calendar.add(Calendar.DAY_OF_MONTH, 1);
-        break;
-      case MONTH_1:
-        calendar.add(Calendar.MONTH, 1);
-        break;
-      case MONTH_3:
-        calendar.add(Calendar.MONTH, 3);
-        break;
-      case MONTH_6:
-        calendar.add(Calendar.MONTH, 6);
+      case PERMANENT:
+        return null;
+      case REMOVE:
         break;
       case CUSTOM:
         if (days <= 0 || days > 180) {
@@ -69,15 +75,10 @@ public class BanIpService {
         calendar.add(Calendar.DAY_OF_MONTH, days);
         break;
       default:
+        calendar.add(banPeriodEnum.getCalendarPeriod(), banPeriodEnum.getCalendarNumPeriods());
         break;
     }
-    Timestamp ts = (BanPeriodEnum.PERMANENT.equals(banPeriodEnum))
-      ? null
-      : new Timestamp(calendar.getTimeInMillis());
-
-    user.checkCommit();
-
-    ipBlockDao.blockIP(ip, user, reason, ts);
+    return new Timestamp(calendar.getTimeInMillis());
   }
 
   public boolean getTor(String addr) throws TextParseException, UnknownHostException {
@@ -100,5 +101,4 @@ public class BanIpService {
       errors.reject(null, "Постинг заблокирован: " + block.getReason());
     }
   }
-
 }

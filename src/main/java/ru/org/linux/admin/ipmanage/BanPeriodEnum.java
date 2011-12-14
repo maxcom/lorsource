@@ -15,6 +15,8 @@
 package ru.org.linux.admin.ipmanage;
 
 import java.util.Comparator;
+
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
@@ -23,19 +25,31 @@ import java.util.TreeMap;
  * Перечисление, описывающее возможные варианты периодов бана IP-адреса.
  */
 public enum BanPeriodEnum {
-  HOUR_1("1  час"),
-  DAY_1("1 день"),
-  MONTH_1("1 месяц"),
-  MONTH_3("3 месяца"),
-  MONTH_6("6 месяцев"),
-  PERMANENT("постоянно"),
-  REMOVE("не блокировать"),
-  CUSTOM("указать (дней)");
+  HOUR_1("1  час", Calendar.HOUR_OF_DAY, 1),
+  DAY_1("1 день", Calendar.DAY_OF_MONTH, 1),
+  MONTH_1("1 месяц", Calendar.MONTH, 1),
+  MONTH_3("3 месяца", Calendar.MONTH, 3),
+  MONTH_6("6 месяцев", Calendar.MONTH, 6),
+  PERMANENT("постоянно", 0, 0),
+  REMOVE("не блокировать", 0, 0),
+  CUSTOM("указать (дней)", 0, 0);
 
   private final String description;
+  private final int calendarPeriod;
+  private final int calendarNumPeriods;
 
-  BanPeriodEnum(String description) {
+  BanPeriodEnum(String description, int calendarPeriod, int calendarNumPeriods) {
     this.description = description;
+    this.calendarPeriod = calendarPeriod;
+    this.calendarNumPeriods = calendarNumPeriods;
+  }
+
+  public int getCalendarPeriod() {
+    return calendarPeriod;
+  }
+
+  public int getCalendarNumPeriods() {
+    return calendarNumPeriods;
   }
 
   /**

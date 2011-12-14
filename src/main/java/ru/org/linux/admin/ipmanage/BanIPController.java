@@ -28,6 +28,7 @@ import ru.org.linux.user.User;
 
 import javax.servlet.http.HttpServletRequest;
 import java.net.URLEncoder;
+import java.sql.Timestamp;
 
 @Controller
 public class BanIPController {
@@ -63,7 +64,8 @@ public class BanIPController {
       : 0;
 
     User user = tmpl.getCurrentUser();
-    banIpService.doBan(user, ip, reason, banPeriod, days);
+    Timestamp timestamp = banIpService.calculateTimestamp(banPeriod, days);
+    banIpService.doBan(user, ip, reason, timestamp);
 
     return new ModelAndView(new RedirectView("sameip.jsp?ip=" + URLEncoder.encode(ip, "UTF-8")));
   }
