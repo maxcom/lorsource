@@ -16,49 +16,35 @@
 package ru.org.linux.admin.ipmanage;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
-import ru.org.linux.message.MessageNotFoundException;
 import ru.org.linux.site.ScriptErrorException;
 import ru.org.linux.site.Template;
 import ru.org.linux.user.AccessViolationException;
-import ru.org.linux.user.UserDao;
 import ru.org.linux.util.ServletParameterParser;
-import ru.org.linux.util.StringUtil;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.sql.DataSource;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.util.List;
+import java.io.IOException;
 
 @Controller
 public class SameIPController {
-  private IPBlockDao ipBlockDao;
-  private UserDao userDao;
-  private JdbcTemplate jdbcTemplate;
 
   @Autowired
-  public void setIpBlockDao(IPBlockDao ipBlockDao) {
-    this.ipBlockDao = ipBlockDao;
-  }
+  SameIpService sameIpService;
 
   @Autowired
-  public void setUserDao(UserDao userDao) {
-    this.userDao = userDao;
-  }
+  BanIpService banIpService;
 
-  @Autowired
-  public void setDataSource(DataSource ds) {
-    jdbcTemplate = new JdbcTemplate(ds);
-  }
-
+  /**
+   * Обработчик web-запроса поиска информации по IP-адресу.
+   *
+   * @param request
+   * @param msgid
+   * @return
+   * @throws Exception
+   */
   @RequestMapping("/sameip.jsp")
   public ModelAndView sameIP(
     HttpServletRequest request,
@@ -70,195 +56,42 @@ public class SameIPController {
       throw new AccessViolationException("Not moderator");
     }
 
-    String ip;
 
-    ModelAndView mv = new ModelAndView("sameip");
+    ModelAndView modelAndView = new ModelAndView("sameip");
 
-    int userAgentId = 0;
-
+    SameIp.IpInfo ipInfo;
     if (msgid != null) {
-      SqlRowSet rs = jdbcTemplate.queryForRowSet(
-        "SELECT postip, ua_id FROM topics WHERE id=?",
-        msgid
-      );
+      ipInfo = sameIpService.getIpInfo(msgid);
 
-      if (!rs.next()) {
-        rs = jdbcTemplate.queryForRowSet("SELECT postip, ua_id FROM comments WHERE id=?", msgid);
-        if (!rs.next()) {
-          throw new MessageNotFoundException(msgid);
-        }
-      }
-
-      ip = rs.getString("postip");
-      userAgentId = rs.getInt("ua_id");
-
-      if (ip == null) {
+      if (ipInfo.getIpAddress() == null) {
         throw new ScriptErrorException("No IP data for #" + msgid);
       }
     } else {
-      ip = ServletParameterParser.getIP(request, "ip");
+      ipInfo = new SameIp.IpInfo();
+      ipInfo.setIpAddress(ServletParameterParser.getIP(request, "ip"));
+      ipInfo.setUserAgentId(0);
     }
 
-    mv.getModel().put("ip", ip);
-    mv.getModel().put("uaId", userAgentId);
+    modelAndView.addObject("ip", ipInfo.getIpAddress());
+    modelAndView.addObject("uaId", ipInfo.getUserAgentId());
 
-    mv.getModel().put("topics", getTopics(ip));
-    mv.getModel().put("comments", getComments(ip));
-    mv.getModel().put("users", getUsers(ip, userAgentId));
+    modelAndView.addObject("topics", sameIpService.getForumMessages(ipInfo.getIpAddress(), false));
+    modelAndView.addObject("comments", sameIpService.getForumMessages(ipInfo.getIpAddress(), true));
+    modelAndView.addObject("users", sameIpService.getUsers(ipInfo.getIpAddress(), ipInfo.getUserAgentId()));
 
-    IPBlockInfo blockInfo = ipBlockDao.getBlockInfo(ip);
+    SameIp.BlockInfo blockInfo = sameIpService.getBlockInfo(ipInfo.getIpAddress());
 
-    if (blockInfo != null) {
-      mv.getModel().put("blockInfo", blockInfo);
-      mv.getModel().put("blockModerator", userDao.getUserCached(blockInfo.getModerator()));
+    try {
+      blockInfo.setTor(banIpService.getTor(ipInfo.getIpAddress()));
+    } catch (IOException ignored) {
+      blockInfo.setTor(false);
     }
 
-    mv.getModel().put("tor", IPBlockDao.getTor(ip));
+    modelAndView.addObject("blockInfo", blockInfo);
 
-    mv.addObject("banPeriods", BanPeriodEnum.getDescriptions());
-    mv.addObject("customPeriodName", BanPeriodEnum.CUSTOM.toString());
+    modelAndView.addObject("banPeriods", BanPeriodEnum.getDescriptions());
+    modelAndView.addObject("customPeriodName", BanPeriodEnum.CUSTOM.toString());
 
-    return mv;
-  }
-
-  private List<TopicItem> getTopics(String ip) {
-    return jdbcTemplate.query(
-      "SELECT sections.name as ptitle, groups.title as gtitle, topics.title as title, topics.id as msgid, postdate, deleted " +
-        "FROM topics, groups, sections, users " +
-        "WHERE topics.groupid=groups.id " +
-        "AND sections.id=groups.section " +
-        "AND users.id=topics.userid " +
-        "AND topics.postip=?::inet " +
-        "AND postdate>CURRENT_TIMESTAMP-'3 days'::interval ORDER BY msgid DESC",
-      new RowMapper<TopicItem>() {
-        @Override
-        public TopicItem mapRow(ResultSet rs, int rowNum) throws SQLException {
-          return new TopicItem(rs, false);
-        }
-      },
-      ip
-    );
-  }
-
-  private List<TopicItem> getComments(String ip) {
-    return jdbcTemplate.query(
-      "SELECT sections.name as ptitle, groups.title as gtitle, topics.title, topics.id as topicid, comments.id as msgid, comments.postdate, comments.deleted " +
-        "FROM sections, groups, topics, comments " +
-        "WHERE sections.id=groups.section " +
-        "AND groups.id=topics.groupid " +
-        "AND comments.topic=topics.id " +
-        "AND comments.postip=?::inet " +
-        "AND comments.postdate>CURRENT_TIMESTAMP-'24 hour'::interval " +
-        "ORDER BY postdate DESC",
-      new RowMapper<TopicItem>() {
-        @Override
-        public TopicItem mapRow(ResultSet rs, int rowNum) throws SQLException {
-          return new TopicItem(rs, true);
-        }
-      },
-      ip
-    );
-  }
-
-  private List<UserItem> getUsers(String ip, final int uaId) {
-    return jdbcTemplate.query(
-      "SELECT MAX(c.postdate) AS lastdate, u.nick, c.ua_id, ua.name AS user_agent " +
-        "FROM comments c LEFT JOIN user_agents ua ON c.ua_id = ua.id " +
-        "JOIN users u ON c.userid = u.id " +
-        "WHERE c.postip=?::inet " +
-        "GROUP BY u.nick, c.ua_id, ua.name " +
-        "ORDER BY MAX(c.postdate) DESC, u.nick, ua.name",
-      new RowMapper<UserItem>() {
-        @Override
-        public UserItem mapRow(ResultSet rs, int rowNum) throws SQLException {
-          return new UserItem(rs, uaId);
-        }
-      },
-      ip
-    );
-  }
-
-  public static class TopicItem {
-    private final String ptitle;
-    private final String gtitle;
-    private final int id;
-    private final String title;
-    private final Timestamp postdate;
-    private final int topicId;
-    private final boolean deleted;
-
-    private TopicItem(ResultSet rs, boolean isComment) throws SQLException {
-      ptitle = rs.getString("ptitle");
-      gtitle = rs.getString("gtitle");
-      id = rs.getInt("msgid");
-      title = StringUtil.makeTitle(rs.getString("title"));
-      postdate = rs.getTimestamp("postdate");
-
-      if (isComment) {
-        topicId = rs.getInt("topicid");
-      } else {
-        topicId = 0;
-      }
-
-      deleted = rs.getBoolean("deleted");
-    }
-
-    public String getPtitle() {
-      return ptitle;
-    }
-
-    public String getGtitle() {
-      return gtitle;
-    }
-
-    public int getId() {
-      return id;
-    }
-
-    public String getTitle() {
-      return title;
-    }
-
-    public Timestamp getPostdate() {
-      return postdate;
-    }
-
-    public int getTopicId() {
-      return topicId;
-    }
-
-    public boolean isDeleted() {
-      return deleted;
-    }
-  }
-
-  public static class UserItem {
-    private final Timestamp lastdate;
-    private final String nick;
-    private final boolean sameUa;
-    private final String userAgent;
-
-    private UserItem(ResultSet rs, int uaId) throws SQLException {
-      lastdate = rs.getTimestamp("lastdate");
-      nick = rs.getString("nick");
-      sameUa = uaId == rs.getInt("ua_id");
-      userAgent = rs.getString("user_agent");
-    }
-
-    public Timestamp getLastdate() {
-      return lastdate;
-    }
-
-    public String getNick() {
-      return nick;
-    }
-
-    public boolean isSameUa() {
-      return sameUa;
-    }
-
-    public String getUserAgent() {
-      return userAgent;
-    }
+    return modelAndView;
   }
 }

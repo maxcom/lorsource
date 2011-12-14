@@ -25,9 +25,9 @@ import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
-import ru.org.linux.admin.ipmanage.IPBlockDao;
-import ru.org.linux.user.AccessViolationException;
+import ru.org.linux.admin.ipmanage.BanIpService;
 import ru.org.linux.site.Template;
+import ru.org.linux.user.AccessViolationException;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserInfo;
@@ -52,7 +52,9 @@ import java.util.Properties;
 @Controller
 public class RegisterController extends ApplicationObjectSupport {
   private CaptchaService captcha;
-  private IPBlockDao ipBlockDao;
+
+  @Autowired
+  private BanIpService banIpService;
 
   @Autowired
   private UserDao userDao;
@@ -60,11 +62,6 @@ public class RegisterController extends ApplicationObjectSupport {
   @Autowired
   public void setCaptcha(CaptchaService captcha) {
     this.captcha = captcha;
-  }
-
-  @Autowired
-  public void setIpBlockDao(IPBlockDao ipBlockDao) {
-    this.ipBlockDao = ipBlockDao;
   }
 
   @RequestMapping(value = "/register.jsp", method = RequestMethod.GET)
@@ -100,7 +97,7 @@ public class RegisterController extends ApplicationObjectSupport {
     HttpServletRequest request,
     @Valid @ModelAttribute("form") RegisterRequest form,
     Errors errors,
-    @RequestParam(required=false) String oldpass
+    @RequestParam(required = false) String oldpass
   ) throws Exception {
     HttpSession session = request.getSession();
     Template tmpl = Template.getTemplate(request);
@@ -122,18 +119,18 @@ public class RegisterController extends ApplicationObjectSupport {
         errors.rejectValue("nick", null, "не задан nick");
       }
 
-      if (nick!=null && !StringUtil.checkLoginName(nick)) {
+      if (nick != null && !StringUtil.checkLoginName(nick)) {
         errors.rejectValue("nick", null, "некорректное имя пользователя");
       }
 
-      if (nick!=null && nick.length() > User.MAX_NICK_LENGTH) {
+      if (nick != null && nick.length() > User.MAX_NICK_LENGTH) {
         errors.rejectValue("nick", null, "слишком длинное имя пользователя");
       }
     }
 
     String password = Strings.emptyToNull(form.getPassword());
 
-    if (password!=null && password.equalsIgnoreCase(nick)) {
+    if (password != null && password.equalsIgnoreCase(nick)) {
       errors.reject(null, "пароль не может совпадать с логином");
     }
 
@@ -188,7 +185,7 @@ public class RegisterController extends ApplicationObjectSupport {
       }
     }
 
-    ipBlockDao.checkBlockIP(request.getRemoteAddr(), errors);
+    banIpService.checkBlockIP(request.getRemoteAddr(), errors);
 
     boolean emailChanged = false;
 
@@ -219,13 +216,13 @@ public class RegisterController extends ApplicationObjectSupport {
 
       if (!errors.hasErrors()) {
         userDao.updateUser(
-                user,
-                name,
-                url,
-                newEmail,
-                town,
-                password,
-                info
+          user,
+          name,
+          url,
+          newEmail,
+          town,
+          password,
+          info
         );
 
         if (emailChanged) {
@@ -245,7 +242,7 @@ public class RegisterController extends ApplicationObjectSupport {
 
       if (mail != null && userDao.getByEmail(mail.getAddress()) != null) {
         errors.rejectValue("email", null, "пользователь с таким e-mail уже зарегистрирован. " +
-                "Если вы забыли параметры своего аккаунта, воспользуйтесь формой восстановления пароля");
+          "Если вы забыли параметры своего аккаунта, воспользуйтесь формой восстановления пароля");
       }
 
       if (!errors.hasErrors()) {
@@ -318,7 +315,7 @@ public class RegisterController extends ApplicationObjectSupport {
     Transport.send(emailMessage);
   }
 
-  @RequestMapping(value="/activate.jsp", method= RequestMethod.GET)
+  @RequestMapping(value = "/activate.jsp", method = RequestMethod.GET)
   public ModelAndView activateForm() {
     return new ModelAndView("activate");
   }

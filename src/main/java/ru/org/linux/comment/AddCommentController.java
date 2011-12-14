@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
-import ru.org.linux.admin.ipmanage.IPBlockDao;
+import ru.org.linux.admin.ipmanage.BanIpService;
 import ru.org.linux.auth.CaptchaService;
 import ru.org.linux.message.Message;
 import ru.org.linux.message.MessageDao;
@@ -56,13 +56,15 @@ import java.util.Set;
 
 @Controller
 public class AddCommentController extends ApplicationObjectSupport {
+  @Autowired
+  private BanIpService banIpService;
+
   private SearchQueueSender searchQueueSender;
   private CaptchaService captcha;
   private DupeProtector dupeProtector;
   private CommentDao commentDao;
   private MessageDao messageDao;
   private UserDao userDao;
-  private IPBlockDao ipBlockDao;
   private CommentPrepareService prepareService;
   private LorCodeService lorCodeService;
   private ToLorCodeFormatter toLorCodeFormatter;
@@ -102,11 +104,6 @@ public class AddCommentController extends ApplicationObjectSupport {
   }
 
   @Autowired
-  public void setIpBlockDao(IPBlockDao ipBlockDao) {
-    this.ipBlockDao = ipBlockDao;
-  }
-
-  @Autowired
   public void setPrepareService(CommentPrepareService prepareService) {
     this.prepareService = prepareService;
   }
@@ -131,15 +128,15 @@ public class AddCommentController extends ApplicationObjectSupport {
     @ModelAttribute("add") @Valid AddCommentRequest add,
     HttpServletRequest request
   ) throws Exception {
-    if (add.getTopic()==null) {
+    if (add.getTopic() == null) {
       throw new ServletParameterException("тема на задана");
     }
 
     Template tmpl = Template.getTemplate(request);
-    
+
     Map<String, Object> params = new HashMap<String, Object>();
 
-    if (add.getMode()==null) {
+    if (add.getMode() == null) {
       add.setMode(tmpl.getFormatMode());
     }
 
@@ -155,21 +152,21 @@ public class AddCommentController extends ApplicationObjectSupport {
   ) {
     Template tmpl = Template.getTemplate(request);
 
-    if (add.getMode()==null) {
+    if (add.getMode() == null) {
       add.setMode(tmpl.getFormatMode());
     }
 
     return new ModelAndView(
-            "comment-message",
-            "preparedMessage",
-            messagePrepareService.prepareMessage(add.getTopic(), false, request.isSecure())
+      "comment-message",
+      "preparedMessage",
+      messagePrepareService.prepareMessage(add.getTopic(), false, request.isSecure())
     );
   }
 
   private String processMessage(String msg, String mode) {
     if ("lorcode".equals(mode)) {
       return msg;
-    }else if("ntobr".equals(mode)) {
+    } else if ("ntobr".equals(mode)) {
       return toLorCodeFormatter.format(msg, true);
     } else {
       return toLorCodeTexFormatter.format(msg, true);
@@ -184,12 +181,12 @@ public class AddCommentController extends ApplicationObjectSupport {
   ) throws Exception {
     Template tmpl = Template.getTemplate(request);
 
-    if (add.getMsg()==null || add.getMsg().trim().isEmpty()) {
+    if (add.getMsg() == null || add.getMsg().trim().isEmpty()) {
       errors.rejectValue("msg", null, "комментарий не может быть пустым");
       add.setMsg("");
     }
 
-    if (add.getMode()==null) {
+    if (add.getMode() == null) {
       add.setMode(tmpl.getFormatMode());
     }
 
@@ -203,16 +200,16 @@ public class AddCommentController extends ApplicationObjectSupport {
 
     if (!add.isPreviewMode() && !errors.hasErrors() && !session.getId().equals(request.getParameter("session"))) {
       logger.info(String.format(
-              "Flood protection (session variable differs: session=%s var=%s) ip=%s",
-              session.getId(),
-              request.getParameter("session"),
-              request.getRemoteAddr()
+        "Flood protection (session variable differs: session=%s var=%s) ip=%s",
+        session.getId(),
+        request.getParameter("session"),
+        request.getRemoteAddr()
       ));
 
       errors.reject(null, "сбой добавления, попробуйте еще раз");
     }
 
-    ipBlockDao.checkBlockIP(request.getRemoteAddr(), errors);
+    banIpService.checkBlockIP(request.getRemoteAddr(), errors);
 
     Map<String, Object> formParams = new HashMap<String, Object>();
 
@@ -227,7 +224,7 @@ public class AddCommentController extends ApplicationObjectSupport {
         user = userDao.getAnonymous();
       }
 
-      if (add.getPassword()==null) {
+      if (add.getPassword() == null) {
         errors.reject(null, "Требуется авторизация");
       }
     } else {
@@ -248,24 +245,24 @@ public class AddCommentController extends ApplicationObjectSupport {
 
     Comment comment = null;
 
-    if (add.getTopic()!=null) {
+    if (add.getTopic() != null) {
       add.getTopic().checkCommentsAllowed(user, errors);
 
       String title = add.getTitle();
 
-      if (title==null) {
-        title="";
+      if (title == null) {
+        title = "";
       }
 
-      Integer replyto = add.getReplyto()!=null?add.getReplyto().getId():null;
+      Integer replyto = add.getReplyto() != null ? add.getReplyto().getId() : null;
 
       comment = new Comment(
-              replyto,
-              StringUtil.escapeHtml(title),
-              add.getTopic().getId(),
-              user.getId(),
-              request.getHeader("user-agent"),
-              request.getRemoteAddr()
+        replyto,
+        StringUtil.escapeHtml(title),
+        add.getTopic().getId(),
+        user.getId(),
+        request.getHeader("user-agent"),
+        request.getRemoteAddr()
       );
 
       formParams.put("comment", prepareService.prepareComment(comment, msg, request.isSecure()));
@@ -299,7 +296,7 @@ public class AddCommentController extends ApplicationObjectSupport {
   }
 
   private void prepareReplyto(AddCommentRequest add, Map<String, Object> formParams, HttpServletRequest request) throws UserNotFoundException {
-    if (add.getReplyto()!=null) {
+    if (add.getReplyto() != null) {
       formParams.put("onComment", prepareService.prepareComment(add.getReplyto(), request.isSecure()));
     }
   }

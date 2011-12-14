@@ -28,21 +28,23 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.multipart.MultipartRequest;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
-import ru.org.linux.admin.ipmanage.IPBlockDao;
-import ru.org.linux.gallery.Screenshot;
+import ru.org.linux.admin.ipmanage.BanIpService;
 import ru.org.linux.auth.CaptchaService;
+import ru.org.linux.gallery.Screenshot;
 import ru.org.linux.group.BadGroupException;
 import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
 import ru.org.linux.search.SearchQueueSender;
 import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionDao;
-import ru.org.linux.site.*;
-import ru.org.linux.user.UserPropertyEditor;
-import ru.org.linux.user.UserDao;
+import ru.org.linux.site.DupeProtector;
+import ru.org.linux.site.ScriptErrorException;
+import ru.org.linux.site.Template;
 import ru.org.linux.tagcloud.TagCloudDao;
 import ru.org.linux.user.AccessViolationException;
 import ru.org.linux.user.User;
+import ru.org.linux.user.UserDao;
+import ru.org.linux.user.UserPropertyEditor;
 import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.ExceptionBindingErrorProcessor;
 import ru.org.linux.util.UtilException;
@@ -62,10 +64,12 @@ import java.util.Set;
 
 @Controller
 public class AddMessageController extends ApplicationObjectSupport {
+  @Autowired
+  private BanIpService banIpService;
+
   private SearchQueueSender searchQueueSender;
   private CaptchaService captcha;
   private DupeProtector dupeProtector;
-  private IPBlockDao ipBlockDao;
   private GroupDao groupDao;
   private SectionDao sectionDao;
   private TagCloudDao tagCloudDao;
@@ -96,11 +100,6 @@ public class AddMessageController extends ApplicationObjectSupport {
   @Autowired
   public void setDupeProtector(DupeProtector dupeProtector) {
     this.dupeProtector = dupeProtector;
-  }
-
-  @Autowired
-  public void setIpBlockDao(IPBlockDao ipBlockDao) {
-    this.ipBlockDao = ipBlockDao;
   }
 
   @Autowired
@@ -139,7 +138,7 @@ public class AddMessageController extends ApplicationObjectSupport {
 
     Template tmpl = Template.getTemplate(request);
 
-    if (form.getMode()==null) {
+    if (form.getMode() == null) {
       form.setMode(tmpl.getFormatMode());
     }
 
@@ -173,11 +172,11 @@ public class AddMessageController extends ApplicationObjectSupport {
   }
 
 
-  @RequestMapping(value="/add.jsp", method=RequestMethod.POST)
+  @RequestMapping(value = "/add.jsp", method = RequestMethod.POST)
   public ModelAndView doAdd(
-          HttpServletRequest request,
-          @Valid @ModelAttribute("form") AddMessageRequest form,
-          BindingResult errors
+    HttpServletRequest request,
+    @Valid @ModelAttribute("form") AddMessageRequest form,
+    BindingResult errors
   ) throws Exception {
     Map<String, Object> params = new HashMap<String, Object>();
 
@@ -189,11 +188,11 @@ public class AddMessageController extends ApplicationObjectSupport {
     Group group = form.getGroup();
     params.put("group", group);
 
-    if (group!=null && group.isModerated()) {
+    if (group != null && group.isModerated()) {
       params.put("topTags", tagCloudDao.getTopTags());
     }
 
-    if (group!=null) {
+    if (group != null) {
       params.put("addportal", sectionDao.getAddInfo(group.getSectionId()));
     }
 
@@ -206,7 +205,7 @@ public class AddMessageController extends ApplicationObjectSupport {
         user = userDao.getAnonymous();
       }
 
-      if (form.getPassword()==null) {
+      if (form.getPassword() == null) {
         errors.rejectValue("password", null, "Требуется авторизация");
       }
     } else {
@@ -219,9 +218,9 @@ public class AddMessageController extends ApplicationObjectSupport {
       errors.reject(null, "Анонимный пользователь");
     }
 
-    ipBlockDao.checkBlockIP(request.getRemoteAddr(), errors);
+    banIpService.checkBlockIP(request.getRemoteAddr(), errors);
 
-    if (group!=null && !group.isTopicPostingAllowed(user)) {
+    if (group != null && !group.isTopicPostingAllowed(user)) {
       errors.reject(null, "Не достаточно прав для постинга тем в эту группу");
     }
 
@@ -239,10 +238,10 @@ public class AddMessageController extends ApplicationObjectSupport {
 
     Screenshot scrn = null;
 
-    if (group!=null && group.isImagePostAllowed()) {
+    if (group != null && group.isImagePostAllowed()) {
       scrn = processUpload(session, tmpl, image, errors);
 
-      if (scrn!=null) {
+      if (scrn != null) {
         form.setLinktext("gallery/preview/" + scrn.getIconFile().getName());
         form.setUrl("gallery/preview/" + scrn.getMainFile().getName());
       } else {
@@ -254,7 +253,7 @@ public class AddMessageController extends ApplicationObjectSupport {
 
     Message previewMsg = null;
 
-    if (group!=null) {
+    if (group != null) {
       previewMsg = new Message(form, user, message, request.getRemoteAddr());
       params.put("message", prepareService.prepareMessage(previewMsg, TagCloudDao.parseSanitizeTags(form.getTags()), null, request.isSecure()));
     }
@@ -272,7 +271,7 @@ public class AddMessageController extends ApplicationObjectSupport {
       dupeProtector.checkDuplication(request.getRemoteAddr(), false, errors);
     }
 
-    if (!form.isPreviewMode() && !errors.hasErrors() && group!=null) {
+    if (!form.isPreviewMode() && !errors.hasErrors() && group != null) {
       session.removeAttribute("image");
 
       Set<User> userRefs = lorCodeService.getReplierFromMessage(message);
@@ -329,7 +328,7 @@ public class AddMessageController extends ApplicationObjectSupport {
 
       @Override
       public String getAsText() {
-        if (getValue()==null) {
+        if (getValue() == null) {
           return null;
         } else {
           return Integer.toString(((Group) getValue()).getId());
@@ -353,7 +352,6 @@ public class AddMessageController extends ApplicationObjectSupport {
   }
 
   /**
-   *
    * @param session
    * @param tmpl
    * @return <icon, image, previewImagePath> or null
@@ -361,12 +359,12 @@ public class AddMessageController extends ApplicationObjectSupport {
    * @throws UtilException
    */
   private Screenshot processUpload(
-          HttpSession session,
-          Template tmpl,
-          String image,
-          Errors errors
+    HttpSession session,
+    Template tmpl,
+    String image,
+    Errors errors
   ) throws IOException, UtilException {
-    if (session==null) {
+    if (session == null) {
       return null;
     }
 
@@ -377,9 +375,9 @@ public class AddMessageController extends ApplicationObjectSupport {
 
       try {
         screenShot = Screenshot.createScreenshot(
-                uploadedFile,
-                errors,
-                tmpl.getObjectConfig().getHTMLPathPrefix() + "/gallery/preview"
+          uploadedFile,
+          errors,
+          tmpl.getObjectConfig().getHTMLPathPrefix() + "/gallery/preview"
         );
 
         if (screenShot != null) {

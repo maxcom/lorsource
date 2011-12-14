@@ -2,7 +2,7 @@
 <%@ page contentType="text/html; charset=utf-8"%>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%--
-  ~ Copyright 1998-2010 Linux.org.ru
+  ~ Copyright 1998-2011 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
   ~    You may obtain a copy of the License at
@@ -15,13 +15,6 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
-<%--@elvariable id="blockInfo" type="ru.org.linux.admin.ipmanage.IPBlockInfo"--%>
-<%--@elvariable id="blockModerator" type="ru.org.linux.user.User"--%>
-<%--@elvariable id="topics" type="java.util.List<ru.org.linux.admin.ipmanage.SameIPController.TopicItem>"--%>
-<%--@elvariable id="comments" type="java.util.List<ru.org.linux.admin.ipmanage.SameIPController.TopicItem>"--%>
-<%--@elvariable id="users" type="java.util.List<ru.org.linux.admin.ipmanage.SameIPController.UserItem>"--%>
-<%--@elvariable id="ip" type="java.lang.String"--%>
-<%--@elvariable id="tor" type="java.lang.Boolean"--%>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
 <title>Поиск писем с IP-адреса</title>
@@ -48,40 +41,42 @@
 
 </table>
 
-<h1 class="optional">Сообщения с <%= ip %> (за 3 дня)</h1>
+<h1 class="optional">Сообщения с ${ip} (за 3 дня)</h1>
 
 <strong>Текущий статус: </strong>
 
-<c:if test="${tor}">
+<c:if test="${blockInfo.tor}">
   адрес заблокирован: tor.ahbl.org; база:
 </c:if>
-
-<c:if test="${blockInfo == null}">
+<c:choose>
+<c:when test="${not blockInfo.blocked}">
   адрес не заблокирован
-</c:if>
-
-<c:if test="${blockInfo != null}">
-  <c:if test="${blockInfo.banDate == null}">
+</c:when>
+<c:otherwise>
+  <c:choose>
+  <c:when test="${blockInfo.banDate == null}">
     адрес заблокирован постоянно
-  </c:if>
-  <c:if test="${blockInfo.banDate != null}">
+  </c:when>
+  <c:otherwise>
     адрес заблокирован до <lor:date date="${blockInfo.banDate}"/>
 
-    <c:if test="${not blockInfo.blocked}">
+    <c:if test="${blockInfo.blockExpired}">
       (блокировка истекла)
     </c:if>
-  </c:if>
+  </c:otherwise>
+  </c:choose>
 
   <br>
   <strong>Причина блокировки: </strong><c:out value="${blockInfo.reason}" escapeXml="true"/><br>
   <strong>Дата блокировки: </strong><lor:date date="${blockInfo.originalDate}"/><br>
-  <strong>Адрес блокирован: </strong>${blockModerator.nick}
-</c:if>
+  <strong>Адрес блокирован: </strong>${blockInfo.moderatorNick}
+</c:otherwise>
+</c:choose>
 
 <p>
 
 <form method="post" action="banip.jsp">
-<input type="hidden" name="ip" value="<%= ip %>">
+<input type="hidden" name="ip" value="${ip}">
 забанить/разбанить IP по причине: <br>
 <input type="text" name="reason" maxlength="254" size="40" value=""><br>
 <select name="time" onchange="checkCustomBan(this);">
@@ -143,7 +138,7 @@ function checkCustomBan(selectObject) {
     <c:if test="${topic.deleted}">
       <s>
     </c:if>
-    <a href="view-message.jsp?msgid=${topic.id}" rev=contents>${topic.title}</a>
+    <a href="view-message.jsp?msgid=${topic.topicId}" rev=contents>${topic.title}</a>
     <c:if test="${topic.deleted}">
       </s>
     </c:if>
@@ -171,7 +166,7 @@ function checkCustomBan(selectObject) {
     <c:if test="${topic.deleted}">
       <s>
     </c:if>
-    <a href="jump-message.jsp?msgid=${topic.topicId}&amp;cid=${topic.id}" rev=contents>${topic.title}</a>
+    <a href="jump-message.jsp?msgid=${topic.topicId}&amp;cid=${topic.commentId}" rev=contents>${topic.title}</a>
     <c:if test="${topic.deleted}">
       </s>
     </c:if>
