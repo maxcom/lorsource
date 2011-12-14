@@ -39,10 +39,7 @@
 package ru.org.linux.util.bbcode;
 
 import ru.org.linux.util.StringUtil;
-import ru.org.linux.util.bbcode.nodes.Node;
-import ru.org.linux.util.bbcode.nodes.RootNode;
-import ru.org.linux.util.bbcode.nodes.TagNode;
-import ru.org.linux.util.bbcode.nodes.TextNode;
+import ru.org.linux.util.bbcode.nodes.*;
 import ru.org.linux.util.bbcode.tags.Tag;
 
 import java.util.Map;
@@ -74,15 +71,24 @@ public class Parser {
   public static String escape(String html) {
     return StringUtil.escapeHtml(html);
   }
+  
+  private void rawPushTextNode(RootNode rootNode, Node currentNode, String text, boolean isCode) {
+    if(!isCode) {
+      currentNode.getChildren().add(new TextNode(currentNode, parserParameters, text, rootNode));
+    } else {
+      currentNode.getChildren().add(new TextCodeNode(currentNode, parserParameters, text, rootNode));
+    }
+  }
 
   /**
    * Добавление текстового узда
    * @param rootNode корневой узел
    * @param currentNode текущий узел
    * @param text текст
+   * @param isCode это текст из тэга code
    * @return возвращает новй текущий узел
    */
-  private Node pushTextNode(RootNode rootNode, Node currentNode, String text) {
+  private Node pushTextNode(RootNode rootNode, Node currentNode, String text, boolean isCode) {
     if (!currentNode.allows("text")) {
       if (text.trim().length() == 0) {
         //currentNode.getChildren().add(new TextNode(currentNode, this, text));
@@ -96,7 +102,7 @@ public class Parser {
         } else {
           currentNode = ascend(currentNode);
         }
-        currentNode = pushTextNode(rootNode, currentNode, text);
+        currentNode = pushTextNode(rootNode, currentNode, text, isCode);
       }
     } else {
       Matcher matcher = P_REGEXP.matcher(text);
@@ -129,7 +135,7 @@ public class Parser {
       if (matcher.find()) {
         if(isAllow){
           if(matcher.start() != 0){
-            currentNode = pushTextNode(rootNode, currentNode, text.substring(0, matcher.start()));
+            currentNode = pushTextNode(rootNode, currentNode, text.substring(0, matcher.start()), isCode);
           }
           if (isParagraph) {
             currentNode = ascend(currentNode);
@@ -137,21 +143,20 @@ public class Parser {
           if(matcher.end() != text.length()){
             currentNode.getChildren().add(new TagNode(currentNode, parserParameters, "p", " ", rootNode));
             currentNode = descend(currentNode);
-            currentNode = pushTextNode(rootNode, currentNode, text.substring(matcher.end()));
+            currentNode = pushTextNode(rootNode, currentNode, text.substring(matcher.end()), isCode);
           }
         } else if (!isParagraphed) {
           if(matcher.start() != 0){
-            currentNode.getChildren().add(new TextNode(currentNode, parserParameters, text.substring(0, matcher.start()), rootNode));
+            rawPushTextNode(rootNode, currentNode, text.substring(0, matcher.start()), isCode);
           }
           if(matcher.end() != text.length()){
-            currentNode.getChildren().add(new TextNode(currentNode, parserParameters, text.substring(matcher.end()), rootNode));
+            rawPushTextNode(rootNode, currentNode, text.substring(matcher.end()), isCode);
           }
-
         }else{
-          currentNode.getChildren().add(new TextNode(currentNode, parserParameters, text, rootNode));
+          rawPushTextNode(rootNode, currentNode, text, isCode);
         }
       } else {
-        currentNode.getChildren().add(new TextNode(currentNode, parserParameters, text, rootNode));
+        rawPushTextNode(rootNode, currentNode, text, isCode);
       }
     }
     return currentNode;
@@ -259,7 +264,7 @@ public class Parser {
       Matcher match = BBTAG_REGEXP.matcher(bbcode).region(pos, bbcode.length());
       if (match.find()) {
         if(!firstCode) {
-          currentNode = pushTextNode(rootNode, currentNode, bbcode.substring(pos, match.start()));
+          currentNode = pushTextNode(rootNode, currentNode, bbcode.substring(pos, match.start()), isCode);
         } else {
           firstCode = false;
           String fixWhole = bbcode.substring(pos, match.start());
@@ -268,14 +273,14 @@ public class Parser {
           } else if(fixWhole.startsWith("\r\n")) {
             fixWhole = fixWhole.substring(2); // откусить ведущий перевод строки
           }
-          currentNode = pushTextNode(rootNode, currentNode, fixWhole);
+          currentNode = pushTextNode(rootNode, currentNode, fixWhole, isCode);
         }
         String tagname = match.group(1);
         String parameter = match.group(3);
         String wholematch = match.group(0);
 
         if (wholematch.startsWith("[[") && wholematch.endsWith("]]")) {
-          currentNode = pushTextNode(rootNode, currentNode, wholematch.substring(1, wholematch.length() - 1));
+          currentNode = pushTextNode(rootNode, currentNode, wholematch.substring(1, wholematch.length() - 1), isCode);
         } else {
           if (parameter != null && parameter.length() > 0) {
             parameter = parameter.substring(1);
@@ -283,7 +288,7 @@ public class Parser {
           Set<String> allTagsNames = parserParameters.getAllTagsNames();
           if (allTagsNames.contains(tagname)) {
             if (wholematch.startsWith("[[")) {
-              currentNode = pushTextNode(rootNode, currentNode, "[");
+              currentNode = pushTextNode(rootNode, currentNode, "[", isCode);
             }
 
 
@@ -291,14 +296,14 @@ public class Parser {
               if (!isCode || "code".equals(tagname)) {
                 currentNode = closeTagNode(rootNode, currentNode, tagname);
               } else {
-                currentNode = pushTextNode(rootNode, currentNode, wholematch);
+                currentNode = pushTextNode(rootNode, currentNode, wholematch, isCode);
               }
               if ("code".equals(tagname)) {
                 isCode = false;
               }
             } else {
               if (isCode && !"code".equals(tagname)) {
-                currentNode = pushTextNode(rootNode, currentNode, wholematch);
+                currentNode = pushTextNode(rootNode, currentNode, wholematch, isCode);
               } else if ("code".equals(tagname)) {
                 isCode = true;
                 firstCode = true;
@@ -314,15 +319,15 @@ public class Parser {
             }
 
             if (wholematch.endsWith("]]")) {
-              currentNode = pushTextNode(rootNode, currentNode, "]");
+              currentNode = pushTextNode(rootNode, currentNode, "]", isCode);
             }
           } else {
-            currentNode = pushTextNode(rootNode, currentNode, wholematch);
+            currentNode = pushTextNode(rootNode, currentNode, wholematch, isCode);
           }
         }
         pos = match.end();
       } else {
-        currentNode = pushTextNode(rootNode, currentNode, bbcode.substring(pos));
+        currentNode = pushTextNode(rootNode, currentNode, bbcode.substring(pos), isCode);
         pos = bbcode.length();
       }
     }
