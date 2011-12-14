@@ -27,7 +27,7 @@
         <description>Boxlet container</description>
         <display-name>boxlets</display-name>
         <name>boxlets</name>
-        <tag-class>ru.org.linux.site.tags.BoxListTag</tag-class>
+        <tag-class>ru.org.linux.boxes.BoxListTag</tag-class>
         <body-content>JSP</body-content>
         <attribute>
             <name>object</name>

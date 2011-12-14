@@ -18,9 +18,9 @@ package ru.org.linux.search;
 import org.apache.solr.common.SolrDocument;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
-import ru.org.linux.site.User;
-import ru.org.linux.site.UserNotFoundException;
-import ru.org.linux.spring.dao.UserDao;
+import ru.org.linux.user.User;
+import ru.org.linux.user.UserDao;
+import ru.org.linux.user.UserNotFoundException;
 import ru.org.linux.util.bbcode.LorCodeService;
 
 import java.sql.Timestamp;

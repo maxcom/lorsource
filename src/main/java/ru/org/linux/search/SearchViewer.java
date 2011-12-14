@@ -19,7 +19,7 @@ import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
-import ru.org.linux.site.User;
+import ru.org.linux.user.User;
 
 public class SearchViewer {
   public enum SearchRange {
@@ -119,7 +119,7 @@ public class SearchViewer {
     params.setFacet(true);
 
     if (query.getSection() != 0 ){
-      params.add("fq", "{!tag=dt}section_id:"+query.getSection());
+      params.add("fq", "{!tagcloud=dt}section_id:"+query.getSection());
       params.addFacetField("{!ex=dt}section_id");
 
       params.addFacetField("{!ex=dt}group_id");
@@ -139,7 +139,7 @@ public class SearchViewer {
     }
 
     if (query.getGroup()!=0) {
-      params.add("fq", "{!tag=dt}group_id:" + query.getGroup());
+      params.add("fq", "{!tagcloud=dt}group_id:" + query.getGroup());
     }
 
     params.set("sort", query.getSort().getParam());

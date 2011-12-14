@@ -1,14 +1,14 @@
 <%@ tag import="ru.org.linux.site.NewsViewer" %>
 <%@ tag import="ru.org.linux.site.Template" %>
-<%@ tag import="ru.org.linux.site.User" %>
+<%@ tag import="ru.org.linux.user.User" %>
 <%@ tag import="ru.org.linux.util.StringUtil" %>
 <%@ tag import="java.net.URLEncoder" %>
 <%@ tag import="java.sql.Timestamp" %>
 <%@ tag import="java.text.DateFormat" %>
 <%@ tag pageEncoding="UTF-8"%>
-<%@ attribute name="message" required="true" type="ru.org.linux.site.Message" %>
-<%@ attribute name="preparedMessage" required="true" type="ru.org.linux.site.PreparedMessage" %>
-<%@ attribute name="messageMenu" required="true" type="ru.org.linux.site.MessageMenu" %>
+<%@ attribute name="message" required="true" type="ru.org.linux.message.Message" %>
+<%@ attribute name="preparedMessage" required="true" type="ru.org.linux.message.PreparedMessage" %>
+<%@ attribute name="messageMenu" required="true" type="ru.org.linux.message.MessageMenu" %>
 <%@ attribute name="showMenu" required="true" type="java.lang.Boolean" %>
 <%@ attribute name="highlight" type="java.util.Set" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
@@ -111,7 +111,7 @@
 <div class=sign>
   <lor:sign postdate="${message.postdate}" user="${preparedMessage.author}" shortMode="false"/>
   <c:if test="${template.moderatorSession}">
-    (<a href="sameip.jsp?msgid=${message.id}">${message.postIP}</a>)
+    (<a href="/admin/ipmanage/same?msgid=${message.id}">${message.postIP}</a>)
   </c:if>
 
   <span class="sign_more">

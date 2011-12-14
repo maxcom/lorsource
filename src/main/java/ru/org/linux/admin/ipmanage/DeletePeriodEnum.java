@@ -1,0 +1,64 @@
+/*
+ * Copyright 1998-2011 Linux.org.ru
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ */
+package ru.org.linux.admin.ipmanage;
+
+import ru.org.linux.util.enumhelper.ValueComparer;
+
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.TreeMap;
+
+/**
+ * Перечисление, описывающее возможные варианты периодов удаления последних сообщений с IP-адреса.
+ */
+public enum DeletePeriodEnum {
+  HOUR_1("1  час", Calendar.HOUR_OF_DAY, -1),
+  DAY_1("1 день", Calendar.DAY_OF_MONTH, -1),
+  DAY_3("3 дня", Calendar.DAY_OF_MONTH, -3);
+
+  private final String description;
+  private final int calendarPeriod;
+  private final int calendarNumPeriods;
+
+  DeletePeriodEnum(String description, int calendarPeriod, int calendarNumPeriods) {
+    this.description = description;
+    this.calendarPeriod = calendarPeriod;
+    this.calendarNumPeriods = calendarNumPeriods;
+  }
+
+  /**
+   * Получает карту описаний значений перечисления.
+   *
+   * @return карта описаний значений в виде {значение перечисления, описание перечисления}.
+   */
+  public static Map<String, String> getDescriptions() {
+    Map<String, String> descriptions = new HashMap<String, String>();
+    for (DeletePeriodEnum deletePeriodEnum : values()) {
+      descriptions.put(deletePeriodEnum.toString(), deletePeriodEnum.description);
+    }
+    Map<String, String> descriptionsSorted = new TreeMap<String, String>(new ValueComparer(descriptions));
+    descriptionsSorted.putAll(descriptions);
+    return descriptionsSorted;
+  }
+
+  public int getCalendarPeriod() {
+    return calendarPeriod;
+  }
+
+  public int getCalendarNumPeriods() {
+    return calendarNumPeriods;
+  }
+}

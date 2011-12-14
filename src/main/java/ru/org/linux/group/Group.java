@@ -16,7 +16,7 @@
 package ru.org.linux.group;
 
 import ru.org.linux.section.Section;
-import ru.org.linux.site.User;
+import ru.org.linux.user.User;
 
 import java.io.Serializable;
 import java.sql.ResultSet;

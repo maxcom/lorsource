@@ -20,8 +20,8 @@ import org.apache.commons.httpclient.URIException;
 import org.junit.Before;
 import org.junit.Test;
 import ru.org.linux.group.Group;
-import ru.org.linux.site.Message;
-import ru.org.linux.spring.dao.MessageDao;
+import ru.org.linux.message.Message;
+import ru.org.linux.message.MessageDao;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -263,18 +263,18 @@ public class LorURITest {
 
   @Test
   public void test13() throws Exception {
-    String url13_1 = "http://www.linux.org.ru/view-news.jsp?tag=c%2B%2B";
-    String url13_2 = "http://www.linux.org.ru/view-news.jsp?tag=c++";
-    String url13_3 = "http://www.linux.org.ru/view-news.jsp?tag=c+c";
+    String url13_1 = "http://www.linux.org.ru/view-news.jsp?tagcloud=c%2B%2B";
+    String url13_2 = "http://www.linux.org.ru/view-news.jsp?tagcloud=c++";
+    String url13_3 = "http://www.linux.org.ru/view-news.jsp?tagcloud=c+c";
     LorURI lorURI1 = new LorURI(mainLORURI, url13_1);
     LorURI lorURI2 = new LorURI(mainLORURI, url13_2);
     LorURI lorURI3 = new LorURI(mainLORURI, url13_3);
-    assertEquals("https://www.linux.org.ru/view-news.jsp?tag=c++", lorURI1.fixScheme(true));
-    assertEquals("http://www.linux.org.ru/view-news.jsp?tag=c++", lorURI1.fixScheme(false));
-    assertEquals("https://www.linux.org.ru/view-news.jsp?tag=c%20%20", lorURI2.fixScheme(true));
-    assertEquals("http://www.linux.org.ru/view-news.jsp?tag=c%20%20", lorURI2.fixScheme(false));
-    assertEquals("http://www.linux.org.ru/view-news.jsp?tag=c%20c", lorURI3.fixScheme(false));
-    assertEquals("https://www.linux.org.ru/view-news.jsp?tag=c%20c", lorURI3.fixScheme(true));
+    assertEquals("https://www.linux.org.ru/view-news.jsp?tagcloud=c++", lorURI1.fixScheme(true));
+    assertEquals("http://www.linux.org.ru/view-news.jsp?tagcloud=c++", lorURI1.fixScheme(false));
+    assertEquals("https://www.linux.org.ru/view-news.jsp?tagcloud=c%20%20", lorURI2.fixScheme(true));
+    assertEquals("http://www.linux.org.ru/view-news.jsp?tagcloud=c%20%20", lorURI2.fixScheme(false));
+    assertEquals("http://www.linux.org.ru/view-news.jsp?tagcloud=c%20c", lorURI3.fixScheme(false));
+    assertEquals("https://www.linux.org.ru/view-news.jsp?tagcloud=c%20c", lorURI3.fixScheme(true));
   }
 
   @Test

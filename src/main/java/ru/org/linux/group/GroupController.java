@@ -24,12 +24,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
+import ru.org.linux.message.TopicsListItem;
+import ru.org.linux.profile.IgnoreListDao;
 import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionDao;
 import ru.org.linux.site.*;
-import ru.org.linux.spring.TopicsListItem;
-import ru.org.linux.spring.dao.IgnoreListDao;
-import ru.org.linux.spring.dao.UserDao;
+import ru.org.linux.user.UserDao;
+import ru.org.linux.user.AccessViolationException;
+import ru.org.linux.user.User;
 import ru.org.linux.util.ServletParameterBadValueException;
 
 import javax.servlet.http.HttpServletRequest;

@@ -1,7 +1,7 @@
-<%@ tag import="ru.org.linux.site.Comment" %>
-<%@ tag import="ru.org.linux.site.CommentNode" %>
+<%@ tag import="ru.org.linux.comment.Comment" %>
+<%@ tag import="ru.org.linux.comment.CommentNode" %>
 <%@ tag import="ru.org.linux.site.Template" %>
-<%@ tag import="ru.org.linux.site.User" %>
+<%@ tag import="ru.org.linux.user.User" %>
 <%@ tag import="ru.org.linux.util.StringUtil" %>
 <%@ tag import="java.text.DateFormat" %>
 <%@ tag pageEncoding="UTF-8"%>
@@ -19,11 +19,11 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
-<%@ attribute name="comment" required="true" type="ru.org.linux.site.PreparedComment" %>
-<%@ attribute name="comments" required="true" type="ru.org.linux.site.CommentList" %>
+<%@ attribute name="comment" required="true" type="ru.org.linux.comment.PreparedComment" %>
+<%@ attribute name="comments" required="true" type="ru.org.linux.comment.CommentList" %>
 <%@ attribute name="expired" required="true" type="java.lang.Boolean"%>
 <%@ attribute name="showMenu" required="true" type="java.lang.Boolean"%>
-<%@ attribute name="topic" required="true" type="ru.org.linux.site.Message" %>
+<%@ attribute name="topic" required="true" type="ru.org.linux.message.Message" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
@@ -108,7 +108,7 @@
     <div class=sign>
       <lor:sign postdate="${comment.comment.postdate}" user="${comment.author}" shortMode="false"/>
       <c:if test="${template.moderatorSession}">
-        (<a href="sameip.jsp?msgid=${comment.comment.id}">${comment.comment.postIP}</a>)
+        (<a href="/admin/ipmanage/same?msgid=${comment.comment.id}">${comment.comment.postIP}</a>)
         <c:if test="${comment.comment.userAgent!=null}">
           <br>
           <span class="sign_more"><c:out value="${comment.comment.userAgent}" escapeXml="true"/></span>

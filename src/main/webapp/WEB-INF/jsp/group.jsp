@@ -1,5 +1,5 @@
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="ru.org.linux.group.Group,ru.org.linux.site.Template,ru.org.linux.site.User,ru.org.linux.group.GroupController,ru.org.linux.util.BadImageException"   buffer="200kb"%>
+<%@ page import="ru.org.linux.group.Group,ru.org.linux.site.Template,ru.org.linux.user.User,ru.org.linux.group.GroupController,ru.org.linux.util.BadImageException"   buffer="200kb"%>
 <%@ page import="ru.org.linux.util.DateUtil" %>
 <%@ page import="ru.org.linux.util.ImageInfo" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
@@ -20,7 +20,7 @@
   ~    limitations under the License.
   --%>
 
-<%--@elvariable id="topicsList" type="java.util.List<ru.org.linux.spring.TopicsListItem>"--%>
+<%--@elvariable id="topicsList" type="java.util.List<ru.org.linux.message.TopicsListItem>"--%>
 <%--@elvariable id="group" type="ru.org.linux.group.Group"--%>
 <%--@elvariable id="firstPage" type="java.lang.Boolean"--%>
 <%--@elvariable id="groupList" type="java.util.List<ru.org.linux.group.Group>"--%>
@@ -132,8 +132,8 @@
   if (group.getImage() != null) {
     out.print("<div align=center>");
     try {
-      ImageInfo info = new ImageInfo(tmpl.getObjectConfig().getHTMLPathPrefix() + tmpl.getStyle() + group.getImage());
-      out.print("<img src=\"/" + tmpl.getStyle() + group.getImage() + "\" " + info.getCode() + " border=0 alt=\"Группа " + group.getTitle() + "\">");
+      ImageInfo info = new ImageInfo(tmpl.getObjectConfig().getHTMLPathPrefix() + "skins/" +tmpl.getStyle() + group.getImage());
+      out.print("<img src=\"/skins/" + tmpl.getStyle() + group.getImage() + "\" " + info.getCode() + " border=0 alt=\"Группа " + group.getTitle() + "\">");
     } catch (BadImageException ex) {
       out.print("[bad image]");
     }

@@ -18,7 +18,7 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
-<%--@elvariable id="messages" type="java.util.List<ru.org.linux.site.PreparedMessage>"--%>
+<%--@elvariable id="messages" type="java.util.List<ru.org.linux.message.PreparedMessage>"--%>
 <%--@elvariable id="section" type="ru.org.linux.section.Section"--%>
 <%--@elvariable id="group" type="ru.org.linux.group.Group"--%>
 <%--@elvariable id="offset" type="java.lang.Integer"--%>

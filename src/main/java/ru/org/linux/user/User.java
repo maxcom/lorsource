@@ -1,0 +1,453 @@
+/*
+ * Copyright 1998-2010 Linux.org.ru
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ */
+
+package ru.org.linux.user;
+
+import org.apache.commons.codec.binary.Base64;
+import org.jasypt.exceptions.EncryptionOperationNotPossibleException;
+import org.jasypt.util.password.BasicPasswordEncryptor;
+import org.jasypt.util.password.PasswordEncryptor;
+import org.springframework.validation.Errors;
+import ru.org.linux.auth.LoginController;
+import ru.org.linux.site.BadInputException;
+import ru.org.linux.util.StringUtil;
+
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import java.io.Serializable;
+import java.net.URLEncoder;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+public class User implements Serializable {
+  private static final int ANONYMOUS_LEVEL_SCORE = 50;
+
+  private String nick;
+  private int id;
+  private boolean canmod;
+  private boolean candel;
+  private boolean anonymous;
+  private boolean corrector;
+  private boolean blocked;
+  private String password;
+  private int score;
+  private int maxScore;
+  private String photo;
+  private String email;
+  private String fullName;
+  private int unreadEvents;
+
+  private boolean activated;
+  public static final int CORRECTOR_SCORE = 100;
+  private static final int BLOCK_MAX_SCORE = 400;
+  private static final int BLOCK_SCORE = 200;
+  public static final int VIEW_DELETED_SCORE = 100;
+
+  public static final int MAX_NICK_LENGTH = 40;
+
+  private static final long serialVersionUID = 69986652856916540L;
+
+  public User() {
+
+  }
+
+  public User(ResultSet rs) throws SQLException {
+    id = rs.getInt("id");
+    nick = rs.getString("nick");
+    canmod = rs.getBoolean("canmod");
+    candel = rs.getBoolean("candel");
+    corrector = rs.getBoolean("corrector");
+    activated = rs.getBoolean("activated");
+    blocked = rs.getBoolean("blocked");
+    score = rs.getInt("score");
+    maxScore = rs.getInt("max_score");
+    fullName = rs.getString("name");
+    String pwd = rs.getString("passwd");
+    if (pwd == null) {
+      pwd = "";
+    }
+    anonymous = "".equals(pwd);
+    password = pwd;
+
+    photo = rs.getString("photo");
+
+    email = rs.getString("email");
+
+    unreadEvents = rs.getInt("unread_events");
+  }
+
+  public int getId() {
+    return id;
+  }
+
+  public String getNick() {
+    return nick;
+  }
+
+  public void checkPassword(String password) throws BadPasswordException {
+    if (blocked) {
+      throw new BadPasswordException(nick);
+    }
+
+    if (password == null) {
+      throw new BadPasswordException(nick);
+    }
+
+    if (anonymous && password.isEmpty()) {
+      return;
+    }
+
+    if (!matchPassword(password)) {
+      throw new BadPasswordException(nick);
+    }
+  }
+
+  public boolean matchPassword(String password) {
+    PasswordEncryptor encryptor = new BasicPasswordEncryptor();
+
+    try {
+      return encryptor.checkPassword(password, this.password);
+    } catch (EncryptionOperationNotPossibleException ex) {
+      return false;
+    }
+  }
+
+  public void checkAnonymous() throws AccessViolationException {
+    if (anonymous || blocked) {
+      throw new AccessViolationException("Anonymous user");
+    }
+  }
+
+  public void checkBlocked() throws AccessViolationException {
+    if (blocked) {
+      throw new AccessViolationException("Пользователь заблокирован");
+    }
+
+    if (!activated) {
+      throw new AccessViolationException("Пользователь не активирован");
+    }
+  }
+
+  public void checkBlocked(Errors errors) {
+    if (blocked) {
+      errors.reject(null, "Пользователь заблокирован");
+    }
+
+    if (!activated) {
+      errors.reject(null, "Пользователь не активирован");
+    }
+  }
+
+  public void checkCommit() throws AccessViolationException {
+    if (anonymous || blocked) {
+      throw new AccessViolationException("Commit access denied for anonymous user");
+    }
+    if (!canmod) {
+      throw new AccessViolationException("Commit access denied for user " + nick + " (" + id + ") ");
+    }
+  }
+
+  public boolean isBlocked() {
+    return blocked;
+  }
+
+  /**
+   * Check if use is super-moderator
+   *
+   * @throws AccessViolationException if use is not super-moderator
+   */
+  public void checkDelete() throws AccessViolationException {
+    if (anonymous || blocked) {
+      throw new AccessViolationException("Delete access denied for anonymous user");
+    }
+    if (!candel) {
+      throw new AccessViolationException("Delete access denied for user " + nick + " (" + id + ") ");
+    }
+  }
+
+  public boolean isModerator() {
+    return canmod;
+  }
+
+  public boolean isAdministrator() {
+    return candel;
+  }
+
+  public boolean canCorrect() {
+    return corrector && score >= CORRECTOR_SCORE;
+  }
+
+  public boolean isAnonymous() {
+    return anonymous;
+  }
+
+  public String getMD5(String base) {
+    return StringUtil.md5hash(base + password);
+  }
+
+  public String getActivationCode(String base) {
+    return getActivationCode(base, nick, email);
+  }
+
+  public String getActivationCode(String base, String email) {
+    return StringUtil.md5hash(base + ':' + nick + ':' + email);
+  }
+
+  public static String getActivationCode(String base, String nick, String email) {
+    return StringUtil.md5hash(base + ':' + nick + ':' + email);
+  }
+
+  public int getScore() {
+    if (anonymous) {
+      return 0;
+    } else {
+      return score;
+    }
+  }
+
+  public int getMaxScore() {
+    if (anonymous) {
+      return 0;
+    } else {
+      return maxScore;
+    }
+  }
+
+  public String getStars() {
+    return getStars(score, maxScore);
+  }
+
+  public static String getStars(int score, int maxScore) {
+    StringBuilder out = new StringBuilder();
+
+    if (score < 0) {
+      score = 0;
+    }
+    if (score >= 600) {
+      score = 599;
+    }
+    if (maxScore < 0) {
+      maxScore = 0;
+    }
+    if (maxScore >= 600) {
+      maxScore = 599;
+    }
+
+    if (maxScore < score) {
+      maxScore = score;
+    }
+
+    int stars = (int) Math.floor(score / 100.0);
+    int greyStars = (int) Math.floor(maxScore / 100.0) - stars;
+
+    for (int i = 0; i < stars; i++) {
+      out.append("<img src=\"/img/normal-star.gif\" width=9 height=9 alt=\"*\">");
+    }
+
+    for (int i = 0; i < greyStars; i++) {
+      out.append("<img src=\"/img/grey-star.gif\" width=9 height=9 alt=\"#\">");
+    }
+
+    return out.toString();
+  }
+
+  public String getStatus() {
+    if (score < ANONYMOUS_LEVEL_SCORE) {
+      return "анонимный";
+    } else if (score < 100 && maxScore < 100) {
+      return "новый пользователь";
+    } else {
+      return getStars(score, maxScore);
+    }
+  }
+
+  public boolean isBlockable() {
+    if (id == 2) {
+      return false;
+    }
+
+    return !canmod;
+
+    // return (maxScore < BLOCK_MAX_SCORE) && (score < BLOCK_SCORE);
+  }
+
+  public boolean isActivated() {
+    return activated;
+  }
+
+  public String getPhoto() {
+    return photo;
+  }
+
+  public boolean isAnonymousScore() {
+    return anonymous || blocked || score < ANONYMOUS_LEVEL_SCORE;
+  }
+
+  public void acegiSecurityHack(HttpServletResponse response, HttpSession session) {
+    String username = nick;
+    //String cookieName = "ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE"; //ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE_KEY;
+    String cookieName = LoginController.ACEGI_COOKIE_NAME; //ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE_KEY;
+    long tokenValiditySeconds = 1209600; // 14 days
+    String key = "jam35Wiki"; // from applicationContext-acegi-security.xml
+    long expiryTime = System.currentTimeMillis() + (tokenValiditySeconds * 1000);
+
+    // construct token to put in cookie; format is:
+    // username + ":" + expiryTime + ":" + Md5Hex(username + ":" +
+    // expiryTime + ":" + password + ":" + key)
+
+    String signatureValue = StringUtil.md5hash(username + ':' + expiryTime + ':' + password + ':' + key);
+    String tokenValue = username + ':' + expiryTime + ':' + signatureValue;
+    String tokenValueBase64 = new String(Base64.encodeBase64(tokenValue.getBytes()));
+
+    // Add remember me cookie
+    Cookie acegi = new Cookie(cookieName, tokenValueBase64);
+    acegi.setMaxAge(Long.valueOf(expiryTime).intValue());
+    acegi.setPath("/wiki");
+    response.addCookie(acegi);
+
+    // Remove ACEGI_SECURITY_CONTEXT and session
+    session.removeAttribute("ACEGI_SECURITY_CONTEXT"); // if any
+  }
+
+  public boolean isCorrector() {
+    return corrector;
+  }
+
+  public static void checkNick(String nick) throws BadInputException {
+    if (nick == null || !StringUtil.checkLoginName(nick)) {
+      throw new BadInputException("некорректное имя пользователя");
+    }
+
+    if (nick.length() > MAX_NICK_LENGTH) {
+      throw new BadInputException("слишком длинное имя пользователя");
+    }
+  }
+
+  public String getGravatar(String avatarStyle, int size, boolean secure) {
+    String nonExist;
+
+    if ("empty".equals(avatarStyle)) {
+      if (secure) {
+        nonExist = URLEncoder.encode("https://www.linux.org.ru/img/p.gif");
+      } else {
+        nonExist = URLEncoder.encode("http://www.linux.org.ru/img/p.gif");
+      }
+    } else {
+      nonExist = avatarStyle;
+    }
+
+    String grUrl = secure ? "https://secure.gravatar.com/avatar/" : "http://www.gravatar.com/avatar/";
+
+    return grUrl
+      + StringUtil.md5hash(email.toLowerCase())
+      + "?s=" + size + "&amp;r=g&amp;d=" + nonExist;
+  }
+
+  public String getEmail() {
+    return email;
+  }
+
+  public boolean hasGravatar() {
+    return email != null;
+  }
+
+  public String getName() {
+    return fullName;
+  }
+
+  public int getUnreadEvents() {
+    return unreadEvents;
+  }
+
+  public void setNick(String nick) {
+    this.nick = nick;
+  }
+
+  public void setId(int id) {
+    this.id = id;
+  }
+
+  public void setCanmod(boolean canmod) {
+    this.canmod = canmod;
+  }
+
+  public void setCandel(boolean candel) {
+    this.candel = candel;
+  }
+
+  public void setAnonymous(boolean anonymous) {
+    this.anonymous = anonymous;
+  }
+
+  public void setCorrector(boolean corrector) {
+    this.corrector = corrector;
+  }
+
+  public void setBlocked(boolean blocked) {
+    this.blocked = blocked;
+  }
+
+  public void setPassword(String password) {
+    this.password = password;
+  }
+
+  public void setScore(int score) {
+    this.score = score;
+  }
+
+  public void setMaxScore(int maxScore) {
+    this.maxScore = maxScore;
+  }
+
+  public void setPhoto(String photo) {
+    this.photo = photo;
+  }
+
+  public void setEmail(String email) {
+    this.email = email;
+  }
+
+  public void setFullName(String fullName) {
+    this.fullName = fullName;
+  }
+
+  public void setUnreadEvents(int unreadEvents) {
+    this.unreadEvents = unreadEvents;
+  }
+
+  public void setActivated(boolean activated) {
+    this.activated = activated;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+
+    User user = (User) o;
+
+    return id == user.id;
+  }
+
+  @Override
+  public int hashCode() {
+    return id;
+  }
+}

@@ -18,7 +18,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ attribute name="shortMode" type="java.lang.Boolean" %><%@
-        attribute name="user" type="ru.org.linux.site.User" %><%@
+        attribute name="user" type="ru.org.linux.user.User" %><%@
         attribute name="postdate" type="java.sql.Timestamp" %>
 
 <lor:user decorate="true" link="true" user="${user}"/>

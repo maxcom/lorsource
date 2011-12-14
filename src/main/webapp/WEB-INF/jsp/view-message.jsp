@@ -1,5 +1,5 @@
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="ru.org.linux.site.CommentFilter,ru.org.linux.site.Message,ru.org.linux.section.Section,ru.org.linux.site.Template"   buffer="200kb"%>
+<%@ page import="ru.org.linux.comment.CommentFilter,ru.org.linux.message.Message,ru.org.linux.section.Section,ru.org.linux.site.Template"   buffer="200kb"%>
 <%@ page import="ru.org.linux.util.StringUtil" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
@@ -20,16 +20,16 @@
   --%>
 
 <%--@elvariable id="showAdsense" type="Boolean"--%>
-<%--@elvariable id="message" type="ru.org.linux.site.Message"--%>
-<%--@elvariable id="preparedMessage" type="ru.org.linux.site.PreparedMessage"--%>
-<%--@elvariable id="messageMenu" type="ru.org.linux.site.MessageMenu"--%>
-<%--@elvariable id="prevMessage" type="ru.org.linux.site.Message"--%>
-<%--@elvariable id="nextMessage" type="ru.org.linux.site.Message"--%>
+<%--@elvariable id="message" type="ru.org.linux.message.Message"--%>
+<%--@elvariable id="preparedMessage" type="ru.org.linux.message.PreparedMessage"--%>
+<%--@elvariable id="messageMenu" type="ru.org.linux.message.MessageMenu"--%>
+<%--@elvariable id="prevMessage" type="ru.org.linux.message.Message"--%>
+<%--@elvariable id="nextMessage" type="ru.org.linux.message.Message"--%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <%--@elvariable id="showDeleted" type="Boolean"--%>
-<%--@elvariable id="comments" type="ru.org.linux.site.CommentList"--%>
+<%--@elvariable id="comments" type="ru.org.linux.comment.CommentList"--%>
 <%--@elvariable id="group" type="ru.org.linux.group.Group"--%>
-<%--@elvariable id="commentsPrepared" type="java.util.List<ru.org.linux.site.PreparedComment>"--%>
+<%--@elvariable id="commentsPrepared" type="java.util.List<ru.org.linux.comment.PreparedComment>"--%>
 <%--@elvariable id="page" type="Integer"--%>
 <%--@elvariable id="highlight" type="java.util.Set"--%>
 
@@ -315,7 +315,7 @@
 
 <c:if test="${showAdsense}">
   <div style="text-align: center; margin-top: 1em">
-    <jsp:include page="/WEB-INF/jsp/${template.style}/adsense.jsp"/>
+    <jsp:include page="/WEB-INF/jsp/skins/${template.style}/adsense.jsp"/>
   </div>
   <br>
 </c:if>

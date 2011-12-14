@@ -17,10 +17,16 @@ package ru.org.linux.site;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import ru.org.linux.profile.Profile;
+import ru.org.linux.profile.ProfileProperties;
+import ru.org.linux.site.config.Config;
 import ru.org.linux.site.config.PathConfig;
-import ru.org.linux.spring.dao.UserDao;
-import ru.org.linux.storage.StorageException;
-import ru.org.linux.storage.StorageNotFoundException;
+import ru.org.linux.user.UserDao;
+import ru.org.linux.user.AccessViolationException;
+import ru.org.linux.user.User;
+import ru.org.linux.user.UserNotFoundException;
+import ru.org.linux.util.storage.StorageException;
+import ru.org.linux.util.storage.StorageNotFoundException;
 import ru.org.linux.util.LorHttpUtils;
 import ru.org.linux.util.StringUtil;
 
@@ -34,7 +40,7 @@ import java.io.OutputStream;
 import java.text.DateFormat;
 import java.util.Properties;
 
-public final class Template {
+public class Template {
   private static final Log logger = LogFactory.getLog(Template.class);
 
   private final Properties cookies;

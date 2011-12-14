@@ -120,6 +120,11 @@
       <url-pattern>/</url-pattern>
     </servlet-mapping>
 
+    <servlet-mapping>
+      <servlet-name>springapp</servlet-name>
+      <url-pattern>/admin/**</url-pattern>
+    </servlet-mapping>
+
      <servlet-mapping>
         <servlet-name>springapp</servlet-name>
         <url-pattern>/view-section.jsp</url-pattern>
@@ -127,10 +132,6 @@
     <servlet-mapping>
         <servlet-name>springapp</servlet-name>
         <url-pattern>/tags.jsp</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>springapp</servlet-name>
-        <url-pattern>/delip.jsp</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>springapp</servlet-name>
@@ -239,10 +240,6 @@
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>springapp</servlet-name>
-        <url-pattern>/banip.jsp</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>springapp</servlet-name>
         <url-pattern>/delete_comment.jsp</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
@@ -306,11 +303,6 @@
     <servlet-mapping>
       <servlet-name>springapp</servlet-name>
       <url-pattern>/show-comments.jsp</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-      <servlet-name>springapp</servlet-name>
-      <url-pattern>/sameip.jsp</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>

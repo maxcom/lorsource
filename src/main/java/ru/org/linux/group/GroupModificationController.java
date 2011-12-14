@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
-import ru.org.linux.site.AccessViolationException;
+import ru.org.linux.user.AccessViolationException;
 import ru.org.linux.site.Template;
 
 import javax.servlet.ServletRequest;

@@ -2,14 +2,14 @@
 <%@ tag import="java.io.IOException" %>
 <%@ tag import="ru.org.linux.group.Group" %>
 <%@ tag import="ru.org.linux.site.NewsViewer" %>
-<%@ tag import="ru.org.linux.spring.dao.TagDao" %>
+<%@ tag import="ru.org.linux.tagcloud.TagCloudDao" %>
 <%@ tag import="ru.org.linux.site.Template" %>
 <%@ tag import="ru.org.linux.util.BadImageException" %>
 <%@ tag import="ru.org.linux.util.StringUtil" %>
 <%@ tag import="ru.org.linux.util.ImageInfo" %>
 <%@ tag pageEncoding="UTF-8"%>
-<%@ attribute name="message" required="true" type="ru.org.linux.site.Message" %>
-<%@ attribute name="preparedMessage" required="true" type="ru.org.linux.site.PreparedMessage" %>
+<%@ attribute name="message" required="true" type="ru.org.linux.message.Message" %>
+<%@ attribute name="preparedMessage" required="true" type="ru.org.linux.message.PreparedMessage" %>
 <%@ attribute name="multiPortal" required="true" type="java.lang.Boolean" %>
 <%@ attribute name="moderateMode" required="true" type="java.lang.Boolean" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
@@ -118,14 +118,14 @@
   <a href="${group.url}">
   <%
     try {
-      ImageInfo info = new ImageInfo(tmpl.getConfig().getProperty("HTMLPathPrefix") + tmpl.getProf().getStyle() + image);
-      out.append("<img src=\"/").append(tmpl.getProf().getStyle()).append(image).append("\" ").append(info.getCode()).append(" border=0 alt=\"Группа ").append(group.getTitle()).append("\">");
+      ImageInfo info = new ImageInfo(tmpl.getConfig().getProperty("HTMLPathPrefix") + "skins/" +tmpl.getProf().getStyle() + image);
+      out.append("<img src=\"/skins/").append(tmpl.getProf().getStyle()).append(image).append("\" ").append(info.getCode()).append(" border=0 alt=\"Группа ").append(group.getTitle()).append("\">");
     } catch (IOException e) {
 //      NewsViewer.logger.warn("Bad Image for group "+ message.getGroupId(), e);
-      out.append("[bad image] <img class=newsimage src=\"/").append(tmpl.getProf().getStyle()).append(image).append("\" " + " border=0 alt=\"Группа ").append(group.getTitle()).append("\">");
+      out.append("[bad image] <img class=newsimage src=\"/skins/").append(tmpl.getProf().getStyle()).append(image).append("\" " + " border=0 alt=\"Группа ").append(group.getTitle()).append("\">");
     } catch (BadImageException e) {
 //      NewsViewer.logger.warn("Bad Image for group "+ message.getGroupId(), e);
-      out.append("[bad image] <img class=newsimage src=\"/").append(tmpl.getProf().getStyle()).append(image).append("\" " + " border=0 alt=\"Группа ").append(group.getTitle()).append("\">");
+      out.append("[bad image] <img class=newsimage src=\"/skins/").append(tmpl.getProf().getStyle()).append(image).append("\" " + " border=0 alt=\"Группа ").append(group.getTitle()).append("\">");
     }
 %>
     </a>

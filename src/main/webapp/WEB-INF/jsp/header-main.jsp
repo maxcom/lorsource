@@ -29,7 +29,7 @@
   <base href="${fn:escapeXml(template.mainUrl)}">
 </c:if>
 
-<jsp:include page="${template.style}/head-main.jsp"/>
+<jsp:include page="skins/${template.style}/head-main.jsp"/>
 
 <c:if test="${not pageContext.request.secure}">
     <!-- Rating@Mail.ru counter -->

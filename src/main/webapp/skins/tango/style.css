@@ -1,0 +1,322 @@
+.news {
+	border-top: none;
+}
+
+.newsblog .nav, .newsblog2 .nav {
+    border: none;
+}
+
+h1,h2 {
+    font-weight: bold;
+}
+
+#bd h1,h2 {
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+}
+
+#bd .messages h1, .messages h2 {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+h1 {
+    font-size: 1.5em;
+}
+
+h2 {
+    font-size: 1.3em;
+}
+
+.newsblog h1, .newsblog2 h1 {
+    display: none;
+}
+
+em {
+	font-style: italic;
+}
+
+strong {
+	font-weight: bold;
+}
+
+body {
+	font-family: Trebuchet MS, sans-serif;
+	font-size: medium;
+	padding: 8px;
+	line-height: 1.4;
+}
+
+textarea {
+    font-family: Trebuchet MS, sans-serif;
+}
+
+p {
+	margin-bottom: 1em;
+}
+
+#hd {
+    padding-left: 1em;
+}
+
+#hd h1 {
+	font-size: 2em;
+	font-weight: bold;
+    padding-top: 0.5em;
+}
+
+#hd .menu {
+	text-align: center;
+	margin-top: 1em;
+	margin-bottom: 1em;
+}
+
+#hd .menu li:after {
+	content: " |";
+}
+
+#hd .menu li.last:after {
+	content: " ";
+}
+
+#hd .menu li {
+	display: inline;
+}
+
+#hd .primary {
+	font-size: 1.1em;
+}
+
+#hd .secondary {
+	font-size: 0.9em;
+}
+
+#bd {
+	margin-bottom: 2em;
+    padding-left: 1em;
+    padding-right: 1em;
+}
+
+#bd div.news {
+	margin-bottom: 2em;
+}
+
+#bd .news h2 {
+	font-size: 1.6em;
+	margin-top: 0.25em;
+    margin-bottom: 0;
+}
+
+.news .entry-body {
+    padding-top: 0.5em;
+}
+
+.news .entry-userpic {
+    padding-top: 0.5em;
+}
+
+#bd h1.optional {
+    display: none;
+}
+
+#bd .news div.text {
+	margin-left: 64px;
+}
+
+#bd ul, #bd ol {
+	margin-top: 1em;
+	margin-bottom: 1em;
+}
+
+#bd ul *, #bd ol * {
+	margin: 0;
+}
+
+#bd li {
+	margin-left: 2em;
+	list-style: inherit;
+}
+
+#bd .tags {
+	font-size: 0.8em;
+}
+
+#bd .sign {
+    font-style: normal;
+	text-align: left;
+	margin-bottom: 0.5em;
+}
+
+#bd .news .nav {
+	text-align: left;
+}
+
+#bd .column, #bd .column2 {
+	font-size: 0.8em;
+	text-align: left;
+}
+
+.boxlet {
+	padding-bottom: 1em;
+    margin-bottom: 1em;
+}
+
+.boxlet h2 {
+	font-weight: bold;
+	padding: 0.25em;
+	margin-bottom: 0.25em;
+    font-size: 1.5em;
+    margin-top: 0;
+}
+
+.boxlet p.image {
+	text-align: center;
+	margin-bottom: 0;
+}
+
+#bd .forum h1 {
+	font-size: 1.5em;
+}
+
+#bd .forum table {
+	width: 100%;
+}
+
+#bd .forum table tbody td {
+    padding: 0.1em 0.1em 0.1em 0.25em;
+    border: 1px solid;
+
+}
+
+#bd .forum table th {
+    border: 1px solid;
+}
+
+#bd .forum table tbody td * {
+	text-decoration: none;
+}
+
+#bd .forum table tbody td s {
+	text-decoration: line-through;
+}
+
+#ft {
+    padding: 1em;
+	border-top: 1px dashed;
+	font-size: 0.8em;
+}
+
+.tag {
+    font-style: normal;
+}
+
+div.msg_body h1 {
+    font-weight: bold;
+    font-size: medium;
+}
+
+div.msg_body h2 {
+    font-weight: bold;
+    font-size: medium;
+}
+
+.msg {
+    -moz-border-radius: 1em;
+    -webkit-border-radius: 1em;
+    -khtml-border-radius: 1em;
+    border-radius: 1em;
+}
+
+pre {
+    line-height: 1.2em;
+}
+
+.msg .title {
+     margin-left: 1em;
+}
+
+.msg .code .title {
+    margin-left: inherit;
+}
+
+.code {
+    background-color: #2e3436;
+}
+
+.boxlet, .code {
+-moz-border-radius: 1em;
+-webkit-border-radius: 1em;
+-khtml-border-radius: 1em;
+border-radius: 1em;
+}
+
+#navPath {
+    font-size: 1.5em;
+}
+
+#navPath a {
+    text-decoration: underline;
+}
+
+#navPath a:visited {
+    text-decoration: underline;
+}
+
+#loginGreating {
+    text-align: right; 
+    float: right;
+    padding-left: 1em;
+}
+
+input[type="radio"] {
+    margin-left: 3px;
+    margin-right: 3px;
+}
+
+input[type="checkbox"] {
+    margin-left: 3px;
+    margin-right: 3px;
+}
+
+#bd p {
+    margin-top: 5px;
+}
+
+#whois_userpic {
+    -moz-border-radius: 1em;
+    -webkit-border-radius: 1em;
+    -khtml-border-radius: 1em;
+    border-radius: 1em;
+    padding: 1em;
+}
+
+.boxlet h3 {
+    margin-bottom: 0.5em;
+}
+
+.infoblock {
+    -moz-border-radius: 1em;
+    -webkit-border-radius: 1em;
+    -khtml-border-radius: 1em;
+    border-radius: 1em;
+    border: 0;
+    margin-bottom: 1em;
+}
+
+.boxlet H3 {
+    margin-bottom: 5px;
+}
+
+table.poll-result .penguin{
+    background-repeat: repeat-x;
+    background-color: transparent !Important;
+    background-image: url("/skins/tango/img/votes.png") !important;
+}
+
+div.quote {
+    margin: 0;
+    border-style: solid;
+    border-width: 0 0 0 5px;
+    padding: 0em 0.5em 0em;
+    border-color: #555753;
+}

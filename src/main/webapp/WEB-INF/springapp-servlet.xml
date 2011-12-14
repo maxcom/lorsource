@@ -46,12 +46,12 @@
           class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver" p:order="2">
         <property name="exceptionMappings">
             <props>
-                <prop key="ru.org.linux.site.MessageNotFoundException">error404</prop>
+                <prop key="ru.org.linux.message.MessageNotFoundException">error404</prop>
                 <prop key="ru.org.linux.section.SectionNotFoundException">error404</prop>
                 <prop key="org.springframework.web.HttpRequestMethodNotSupportedException">error404</prop>
                 <prop key="java.lang.Exception">error</prop>
-                <prop key="ru.org.linux.site.AccessViolationException">error403</prop>
-                <prop key="ru.org.linux.site.TagNotFoundException">error404</prop>
+                <prop key="ru.org.linux.user.AccessViolationException">error403</prop>
+                <prop key="ru.org.linux.tagcloud.TagNotFoundException">error404</prop>
                 <prop key="ru.org.linux.util.ServletParameterException">error-parameter</prop>
                 <prop key="org.springframework.beans.TypeMismatchException">error-parameter</prop>
                 <prop key="org.springframework.web.bind.MissingServletRequestParameterException">error-parameter</prop>
@@ -71,7 +71,7 @@
         <property name="location" value="/WEB-INF/feeds.properties"/>
     </bean>
 
-    <bean id="absractRomeView" class="ru.org.linux.spring.AbstractRomeView" abstract="true">
+    <bean id="absractRomeView" class="ru.org.linux.site.AbstractRomeView" abstract="true">
         <property name="contentTypes">
             <map>
                 <entry key="rss" value="application/rss+xml"/>
@@ -89,9 +89,9 @@
         <property name="minimalCount" value="${feeds.minimalCount}"/>
         <property name="maximalCount" value="${feeds.maximalCount}"/>
     </bean>
-    <bean id="replyFeed" class="ru.org.linux.spring.ReplyFeedView" parent="absractRomeView" scope="prototype"/>
+    <bean id="replyFeed" class="ru.org.linux.profile.ReplyFeedView" parent="absractRomeView" scope="prototype"/>
 
     <mvc:interceptors>
-        <bean class="ru.org.linux.spring.Perf4jHandlerInterceptor"/>
+        <bean class="ru.org.linux.site.Perf4jHandlerInterceptor"/>
     </mvc:interceptors>
 </beans>

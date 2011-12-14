@@ -1,5 +1,5 @@
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="java.util.Date,ru.org.linux.site.DefaultProfile,ru.org.linux.site.Template"   buffer="60kb"%>
+<%@ page import="java.util.Date,ru.org.linux.profile.DefaultProfile,ru.org.linux.site.Template"   buffer="60kb"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib prefix="lor" uri="http://www.linux.org.ru" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lorDir" %>
@@ -19,7 +19,7 @@
   ~    limitations under the License.
   --%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
-<%--@elvariable id="news" type="java.util.List<ru.org.linux.site.PreparedMessage>"--%>
+<%--@elvariable id="news" type="java.util.List<ru.org.linux.message.PreparedMessage>"--%>
 <%--@elvariable id="uncommited" type="java.lang.Integer"--%>
 <%--@elvariable id="uncommitedNews" type="java.lang.Integer"--%>
 

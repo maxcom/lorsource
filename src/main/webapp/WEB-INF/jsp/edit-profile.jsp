@@ -1,7 +1,7 @@
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="ru.org.linux.site.DefaultProfile,ru.org.linux.site.Template" %>
+<%@ page import="ru.org.linux.profile.DefaultProfile,ru.org.linux.site.Template" %>
 <%@ page import="ru.org.linux.util.ProfileHashtable" %>
-<%@ page import="ru.org.linux.site.ProfileProperties" %>
+<%@ page import="ru.org.linux.profile.ProfileProperties" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%--
   ~ Copyright 1998-2010 Linux.org.ru
@@ -91,7 +91,7 @@ $(document).ready(function() {
 <tr>
   <td valign=top>Тема</td>
   <td>
-    <c:set value="<%= tmpl.getStyle() %>" var="style"/>
+    <c:set value="skins/${tmpl.style}" var="style"/>
 
     <c:forEach var="s" items="<%= DefaultProfile.getStyleList() %>">
       <c:if test="${s == style}">
