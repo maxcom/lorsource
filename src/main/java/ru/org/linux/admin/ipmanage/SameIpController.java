@@ -46,7 +46,7 @@ public class SameIpController {
    * @throws Exception
    */
   @RequestMapping("/sameip.jsp")
-  public ModelAndView sameIP(
+  public ModelAndView sameIpRequestHandler(
     HttpServletRequest request,
     @RequestParam(required = false) Integer msgid
   ) throws Exception {
@@ -56,8 +56,7 @@ public class SameIpController {
       throw new AccessViolationException("Not moderator");
     }
 
-
-    ModelAndView modelAndView = new ModelAndView("sameip");
+    ModelAndView modelAndView = new ModelAndView("admin/ipmanage/sameip");
 
     SameIp.IpInfo ipInfo;
     if (msgid != null) {

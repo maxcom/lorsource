@@ -69,6 +69,6 @@ public class DeleteMessagesByIpController {
     params.put("topics", deleteResult.getDeletedTopicIds().size()); // кол-во удаленных топиков
     params.put("deleted", deleteResult.getDeleteInfo());
 
-    return new ModelAndView("delip", params);
+    return new ModelAndView("admin/ipmanage/delip", params);
   }
 }
