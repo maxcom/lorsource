@@ -17,7 +17,7 @@ package ru.org.linux.message;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.org.linux.site.UserAgentDao;
+import ru.org.linux.admin.ipmanage.UserAgentDao;
 import ru.org.linux.group.BadGroupException;
 import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;

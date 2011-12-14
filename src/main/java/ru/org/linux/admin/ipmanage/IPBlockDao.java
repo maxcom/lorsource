@@ -13,7 +13,7 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.site;
+package ru.org.linux.admin.ipmanage;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -21,7 +21,6 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.validation.Errors;
 import org.xbill.DNS.TextParseException;
-import ru.org.linux.site.IPBlockInfo;
 import ru.org.linux.user.User;
 import ru.org.linux.util.DNSBLClient;
 

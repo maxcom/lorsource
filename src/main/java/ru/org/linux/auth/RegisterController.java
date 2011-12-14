@@ -25,7 +25,7 @@ import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
-import ru.org.linux.site.IPBlockDao;
+import ru.org.linux.admin.ipmanage.IPBlockDao;
 import ru.org.linux.user.AccessViolationException;
 import ru.org.linux.site.Template;
 import ru.org.linux.user.User;

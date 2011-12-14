@@ -17,7 +17,7 @@ package ru.org.linux.spring;
 
 import com.google.common.collect.ImmutableList;
 import org.junit.Test;
-import ru.org.linux.site.UserAgentDao;
+import ru.org.linux.admin.ipmanage.UserAgentDao;
 import ru.org.linux.group.GroupDao;
 import ru.org.linux.message.Message;
 import ru.org.linux.message.MessageDao;

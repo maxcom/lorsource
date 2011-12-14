@@ -15,11 +15,11 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
-<%--@elvariable id="blockInfo" type="ru.org.linux.site.IPBlockInfo"--%>
+<%--@elvariable id="blockInfo" type="ru.org.linux.admin.ipmanage.IPBlockInfo"--%>
 <%--@elvariable id="blockModerator" type="ru.org.linux.user.User"--%>
-<%--@elvariable id="topics" type="java.util.List<ru.org.linux.spring.SameIPController.TopicItem>"--%>
-<%--@elvariable id="comments" type="java.util.List<ru.org.linux.spring.SameIPController.TopicItem>"--%>
-<%--@elvariable id="users" type="java.util.List<ru.org.linux.spring.SameIPController.UserItem>"--%>
+<%--@elvariable id="topics" type="java.util.List<ru.org.linux.admin.ipmanage.SameIPController.TopicItem>"--%>
+<%--@elvariable id="comments" type="java.util.List<ru.org.linux.admin.ipmanage.SameIPController.TopicItem>"--%>
+<%--@elvariable id="users" type="java.util.List<ru.org.linux.admin.ipmanage.SameIPController.UserItem>"--%>
 <%--@elvariable id="ip" type="java.lang.String"--%>
 <%--@elvariable id="tor" type="java.lang.Boolean"--%>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
