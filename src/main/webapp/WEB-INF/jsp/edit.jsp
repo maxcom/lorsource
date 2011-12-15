@@ -28,7 +28,7 @@
 <%--@elvariable id="newPreparedMessage" type="ru.org.linux.topic.PreparedTopic"--%>
 <%--@elvariable id="group" type="ru.org.linux.group.Group"--%>
 <%--@elvariable id="info" type="java.lang.String"--%>
-<%--@elvariable id="editInfo" type="ru.org.linux.topic.EditInfoDTO"--%>
+<%--@elvariable id="editInfo" type="ru.org.linux.topic.EditInfoDto"--%>
 <%--@elvariable id="commit" type="java.lang.Boolean"--%>
 <%--@elvariable id="groups" type="java.util.List<ru.org.linux.group.Group>"--%>
 <%--@elvariable id="topTags" type="java.util.SortedSet<String>"--%>

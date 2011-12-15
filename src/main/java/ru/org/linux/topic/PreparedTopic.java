@@ -36,7 +36,7 @@ public final class PreparedTopic {
   private final Group group;
   private final Section section;
 
-  private final EditInfoDTO lastEditInfo;
+  private final EditInfoDto lastEditInfo;
   private final User lastEditor;
   private final int editCount;
 
@@ -46,7 +46,7 @@ public final class PreparedTopic {
 
   public PreparedTopic(Topic message, User author, DeleteInfo deleteInfo, User deleteUser, String processedMessage,
                        PreparedPoll poll, User commiter, List<String> tags, Group group, Section section,
-                       EditInfoDTO lastEditInfo, User lastEditor, int editorCount, String userAgent) {
+                       EditInfoDto lastEditInfo, User lastEditor, int editorCount, String userAgent) {
     this.message = message;
     this.author = author;
     this.deleteInfo = deleteInfo;
@@ -95,7 +95,7 @@ public final class PreparedTopic {
     return commiter;
   }
 
-  public EditInfoDTO getLastEditInfo() {
+  public EditInfoDto getLastEditInfo() {
     return lastEditInfo;
   }
 

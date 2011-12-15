@@ -17,7 +17,7 @@ package ru.org.linux.topic;
 
 import java.sql.Timestamp;
 
-public class EditInfoDTO {
+public class EditInfoDto {
   private int id;
   private int msgid;
   private int editor;
@@ -100,8 +100,8 @@ public class EditInfoDTO {
     this.oldurl = oldurl;
   }
 
-  public static EditInfoDTO createFromMessage(TagDao tagDao, Topic message) {
-    EditInfoDTO current = new EditInfoDTO();
+  public static EditInfoDto createFromMessage(TagDao tagDao, Topic message) {
+    EditInfoDto current = new EditInfoDto();
 
     current.setOldmessage(message.getMessage());
     current.setEditdate(message.getPostdate());

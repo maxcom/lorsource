@@ -141,7 +141,7 @@ public class EditTopicController {
     params.put("newMsg", message);
     params.put("newPreparedMessage", preparedMessage);
 
-    List<EditInfoDTO> editInfoList = messageDao.getEditInfo(message.getId());
+    List<EditInfoDto> editInfoList = messageDao.getEditInfo(message.getId());
     if (!editInfoList.isEmpty()) {
       params.put("editInfo", editInfoList.get(0));
     }
@@ -223,7 +223,7 @@ public class EditTopicController {
       }
     }
 
-    List<EditInfoDTO> editInfoList = messageDao.getEditInfo(message.getId());
+    List<EditInfoDto> editInfoList = messageDao.getEditInfo(message.getId());
 
     boolean preview = request.getParameter("preview") != null;
     if (preview) {
@@ -231,7 +231,7 @@ public class EditTopicController {
     }
 
     if (!editInfoList.isEmpty()) {
-      EditInfoDTO dbEditInfo = editInfoList.get(0);
+      EditInfoDto dbEditInfo = editInfoList.get(0);
       params.put("editInfo", dbEditInfo);
 
       if (lastEdit == null || dbEditInfo.getEditdate().getTime()!=lastEdit) {

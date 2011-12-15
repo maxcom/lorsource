@@ -201,12 +201,12 @@ public class TopicDao {
    * @param id id топика
    * @return список изменений топика
    */
-  public List<EditInfoDTO> getEditInfo(int id) {
-    final List<EditInfoDTO> editInfoDTOs = new ArrayList<EditInfoDTO>();
+  public List<EditInfoDto> getEditInfo(int id) {
+    final List<EditInfoDto> editInfoDTOs = new ArrayList<EditInfoDto>();
     jdbcTemplate.query(queryEditInfo, new RowCallbackHandler() {
       @Override
       public void processRow(ResultSet resultSet) throws SQLException {
-        EditInfoDTO editInfoDTO = new EditInfoDTO();
+        EditInfoDto editInfoDTO = new EditInfoDto();
         editInfoDTO.setId(resultSet.getInt("id"));
         editInfoDTO.setMsgid(resultSet.getInt("msgid"));
         editInfoDTO.setEditor(resultSet.getInt("editor"));
@@ -366,7 +366,7 @@ public class TopicDao {
   private boolean updateMessage(Topic oldMsg, Topic msg, User editor, List<String> newTags) {
     List<String> oldTags = tagDao.getMessageTags(msg.getId());
 
-    EditInfoDTO editInfo = new EditInfoDTO();
+    EditInfoDto editInfo = new EditInfoDto();
 
     editInfo.setMsgid(msg.getId());
     editInfo.setEditor(editor.getId());
@@ -663,10 +663,10 @@ public class TopicDao {
     }
   }
 
-  public List<EditInfoDTO> loadEditInfo(int msgid)  {
-    List<EditInfoDTO> list = jdbcTemplate.query(
+  public List<EditInfoDto> loadEditInfo(int msgid)  {
+    List<EditInfoDto> list = jdbcTemplate.query(
       "SELECT * FROM edit_info WHERE msgid=? ORDER BY id DESC",
-      BeanPropertyRowMapper.newInstance(EditInfoDTO.class),
+      BeanPropertyRowMapper.newInstance(EditInfoDto.class),
       msgid
     );
 

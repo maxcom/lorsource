@@ -41,7 +41,7 @@ public class EditInfoPrepareService {
   private LorCodeService lorCodeService;
 
   public List<PreparedEditInfo> prepareEditInfo(Topic message, boolean secure) throws UserNotFoundException, UserErrorException {
-    List<EditInfoDTO> editInfoDTOs = messageDao.loadEditInfo(message.getId());
+    List<EditInfoDto> editInfoDTOs = messageDao.loadEditInfo(message.getId());
     List<PreparedEditInfo> editInfos = new ArrayList<PreparedEditInfo>(editInfoDTOs.size());
 
     String currentMessage = message.getMessage();
@@ -51,7 +51,7 @@ public class EditInfoPrepareService {
     List<String> currentTags = tagDao.getMessageTags(message.getMessageId());
 
     for (int i = 0; i<editInfoDTOs.size(); i++) {
-      EditInfoDTO dto = editInfoDTOs.get(i);
+      EditInfoDto dto = editInfoDTOs.get(i);
 
       editInfos.add(
         new PreparedEditInfo(
@@ -91,7 +91,7 @@ public class EditInfoPrepareService {
     }
 
     if (!editInfoDTOs.isEmpty()) {
-      EditInfoDTO current = EditInfoDTO.createFromMessage(tagDao, message);
+      EditInfoDto current = EditInfoDto.createFromMessage(tagDao, message);
 
       editInfos.add(new PreparedEditInfo(lorCodeService, secure, userDao, current, currentMessage, currentTitle, currentUrl, currentLinktext, currentTags, false, true));
     }

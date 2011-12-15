@@ -126,8 +126,8 @@ public class TopicPrepareService {
         commiter = null;
       }
 
-      List<EditInfoDTO> editInfo = messageDao.getEditInfo(message.getId());
-      EditInfoDTO lastEditInfo;
+      List<EditInfoDto> editInfo = messageDao.getEditInfo(message.getId());
+      EditInfoDto lastEditInfo;
       User lastEditor;
       int editCount;
 
