@@ -13,12 +13,14 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.site;
+package ru.org.linux.topic;
 
 import com.google.common.collect.ImmutableList;
 import ru.org.linux.group.Group;
 import ru.org.linux.poll.PreparedPoll;
 import ru.org.linux.section.Section;
+import ru.org.linux.site.DeleteInfo;
+import ru.org.linux.site.User;
 
 import java.util.List;
 

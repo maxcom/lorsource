@@ -13,10 +13,10 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
-<%--@elvariable id="messages" type="java.util.List<ru.org.linux.site.PreparedTopic>"--%>
+<%--@elvariable id="messages" type="java.util.List<ru.org.linux.topic.PreparedTopic>"--%>
 <%@ page contentType="application/rss+xml; charset=utf-8"%>
-<%@ page import="java.util.Date,ru.org.linux.site.TopicRssHelper"   buffer="200kb"%>
-<%@ page import="ru.org.linux.site.PreparedTopic" %>
+<%@ page import="java.util.Date,ru.org.linux.topic.TopicRssHelper"   buffer="200kb"%>
+<%@ page import="ru.org.linux.topic.PreparedTopic" %>
 <%@ page import="ru.org.linux.site.Template" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>

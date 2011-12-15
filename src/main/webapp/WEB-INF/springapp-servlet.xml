@@ -51,7 +51,7 @@
                 <prop key="org.springframework.web.HttpRequestMethodNotSupportedException">error404</prop>
                 <prop key="java.lang.Exception">error</prop>
                 <prop key="ru.org.linux.site.AccessViolationException">error403</prop>
-                <prop key="ru.org.linux.site.TagNotFoundException">error404</prop>
+                <prop key="ru.org.linux.topic.TagNotFoundException">error404</prop>
                 <prop key="ru.org.linux.util.ServletParameterException">error-parameter</prop>
                 <prop key="org.springframework.beans.TypeMismatchException">error-parameter</prop>
                 <prop key="org.springframework.web.bind.MissingServletRequestParameterException">error-parameter</prop>

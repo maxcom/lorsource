@@ -17,7 +17,7 @@ package ru.org.linux.poll;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.org.linux.site.Topic;
+import ru.org.linux.topic.Topic;
 
 @Service
 public class PollPrepareService {

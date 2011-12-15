@@ -23,7 +23,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.site.*;
-import ru.org.linux.spring.dao.TopicDao;
+import ru.org.linux.topic.TopicDao;
+import ru.org.linux.topic.Topic;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;

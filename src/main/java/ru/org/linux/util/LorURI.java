@@ -21,9 +21,9 @@ import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import ru.org.linux.group.BadGroupException;
 import ru.org.linux.group.Group;
-import ru.org.linux.site.Topic;
+import ru.org.linux.topic.Topic;
 import ru.org.linux.site.MessageNotFoundException;
-import ru.org.linux.spring.dao.TopicDao;
+import ru.org.linux.topic.TopicDao;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

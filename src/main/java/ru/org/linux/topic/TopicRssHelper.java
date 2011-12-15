@@ -13,7 +13,7 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.site;
+package ru.org.linux.topic;
 
 import ru.org.linux.poll.PreparedPoll;
 import ru.org.linux.util.BadImageException;

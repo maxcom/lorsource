@@ -1,8 +1,8 @@
 <%@ page contentType="text/html; charset=utf-8"%>
 <%@ page
-    import="ru.org.linux.site.Topic" %>
-<%@ page import="ru.org.linux.site.PreparedTopic" %>
-<%@ page import="ru.org.linux.spring.dao.TagDao" %>
+    import="ru.org.linux.topic.Topic" %>
+<%@ page import="ru.org.linux.topic.PreparedTopic" %>
+<%@ page import="ru.org.linux.topic.TagDao" %>
 <%@ page import="java.util.SortedSet" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
@@ -22,13 +22,13 @@
   ~    limitations under the License.
   --%>
 
-<%--@elvariable id="message" type="ru.org.linux.site.Topic"--%>
-<%--@elvariable id="preparedMessage" type="ru.org.linux.site.PreparedTopic"--%>
-<%--@elvariable id="newMsg" type="ru.org.linux.site.Topic"--%>
-<%--@elvariable id="newPreparedMessage" type="ru.org.linux.site.PreparedTopic"--%>
+<%--@elvariable id="message" type="ru.org.linux.topic.Topic"--%>
+<%--@elvariable id="preparedMessage" type="ru.org.linux.topic.PreparedTopic"--%>
+<%--@elvariable id="newMsg" type="ru.org.linux.topic.Topic"--%>
+<%--@elvariable id="newPreparedMessage" type="ru.org.linux.topic.PreparedTopic"--%>
 <%--@elvariable id="group" type="ru.org.linux.group.Group"--%>
 <%--@elvariable id="info" type="java.lang.String"--%>
-<%--@elvariable id="editInfo" type="ru.org.linux.site.EditInfoDTO"--%>
+<%--@elvariable id="editInfo" type="ru.org.linux.topic.EditInfoDTO"--%>
 <%--@elvariable id="commit" type="java.lang.Boolean"--%>
 <%--@elvariable id="groups" type="java.util.List<ru.org.linux.group.Group>"--%>
 <%--@elvariable id="topTags" type="java.util.SortedSet<String>"--%>

@@ -30,7 +30,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import ru.org.linux.site.ProfileProperties;
 import ru.org.linux.site.Template;
-import ru.org.linux.spring.dao.TopTenDao;
+import ru.org.linux.topic.TopTenDao;
 
 @Controller
 public class TopTenBoxlet extends AbstractBoxlet {

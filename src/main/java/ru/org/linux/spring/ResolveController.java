@@ -24,7 +24,8 @@ import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
 import ru.org.linux.site.*;
-import ru.org.linux.spring.dao.TopicDao;
+import ru.org.linux.topic.TopicDao;
+import ru.org.linux.topic.Topic;
 
 import javax.servlet.http.HttpServletRequest;
 

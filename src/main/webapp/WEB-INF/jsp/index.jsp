@@ -19,7 +19,7 @@
   ~    limitations under the License.
   --%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
-<%--@elvariable id="news" type="java.util.List<ru.org.linux.site.PreparedTopic>"--%>
+<%--@elvariable id="news" type="java.util.List<ru.org.linux.topic.PreparedTopic>"--%>
 <%--@elvariable id="uncommited" type="java.lang.Integer"--%>
 <%--@elvariable id="uncommitedNews" type="java.lang.Integer"--%>
 

@@ -15,7 +15,7 @@
 
 package ru.org.linux.section;
 
-import ru.org.linux.site.Topic;
+import ru.org.linux.topic.Topic;
 
 import java.io.Serializable;
 import java.sql.*;

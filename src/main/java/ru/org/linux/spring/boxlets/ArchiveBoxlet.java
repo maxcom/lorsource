@@ -28,7 +28,7 @@ import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionDao;
 import ru.org.linux.section.SectionNotFoundException;
 import ru.org.linux.spring.commons.CacheProvider;
-import ru.org.linux.spring.dao.ArchiveDao;
+import ru.org.linux.topic.ArchiveDao;
 
 @Controller
 public class ArchiveBoxlet extends AbstractBoxlet {

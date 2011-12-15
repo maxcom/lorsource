@@ -16,6 +16,7 @@
 package ru.org.linux.site;
 
 import ru.org.linux.spring.dao.UserDao;
+import ru.org.linux.topic.EditInfoDTO;
 import ru.org.linux.util.bbcode.LorCodeService;
 
 import java.util.List;

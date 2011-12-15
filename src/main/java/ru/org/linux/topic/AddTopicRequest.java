@@ -13,7 +13,7 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.spring;
+package ru.org.linux.topic;
 
 import ru.org.linux.group.Group;
 import ru.org.linux.poll.Poll;

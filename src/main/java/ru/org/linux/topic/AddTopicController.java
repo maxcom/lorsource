@@ -13,7 +13,7 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.spring;
+package ru.org.linux.topic;
 
 import com.google.common.collect.ImmutableMap;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +36,8 @@ import ru.org.linux.search.SearchQueueSender;
 import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionDao;
 import ru.org.linux.site.*;
+import ru.org.linux.spring.CaptchaService;
+import ru.org.linux.spring.UserPropertyEditor;
 import ru.org.linux.spring.dao.*;
 import ru.org.linux.spring.validators.AddTopicRequestValidator;
 import ru.org.linux.util.BadImageException;

@@ -29,10 +29,10 @@ import org.springframework.beans.factory.annotation.Required;
 import org.springframework.stereotype.Component;
 import ru.org.linux.site.Comment;
 import ru.org.linux.site.CommentList;
-import ru.org.linux.site.Topic;
+import ru.org.linux.topic.Topic;
 import ru.org.linux.site.MessageNotFoundException;
 import ru.org.linux.spring.dao.CommentDao;
-import ru.org.linux.spring.dao.TopicDao;
+import ru.org.linux.topic.TopicDao;
 
 import java.io.IOException;
 import java.sql.Timestamp;

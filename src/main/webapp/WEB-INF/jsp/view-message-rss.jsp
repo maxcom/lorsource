@@ -14,16 +14,16 @@
   ~    limitations under the License.
   --%>
 <%@ page contentType="application/rss+xml; charset=utf-8"%>
-<%@ page import="ru.org.linux.site.TopicRssHelper"   buffer="200kb"%>
-<%@ page import="ru.org.linux.site.PreparedTopic" %>
+<%@ page import="ru.org.linux.topic.TopicRssHelper"   buffer="200kb"%>
+<%@ page import="ru.org.linux.topic.PreparedTopic" %>
 <%@ page import="ru.org.linux.site.Template" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
-<%--@elvariable id="message" type="ru.org.linux.site.Topic"--%>
+<%--@elvariable id="message" type="ru.org.linux.topic.Topic"--%>
 <%--@elvariable id="comments" type="ru.org.linux.site.CommentList"--%>
 <%--@elvariable id="commentsPrepared" type="java.util.List<ru.org.linux.site.PreparedComment>"--%>
-<%--@elvariable id="preparedMessage" type="ru.org.linux.site.PreparedTopic"--%>
+<%--@elvariable id="preparedMessage" type="ru.org.linux.topic.PreparedTopic"--%>
 <% Template tmpl = Template.getTemplate(request); %>
 
 <rss version="2.0">

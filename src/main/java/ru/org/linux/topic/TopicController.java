@@ -13,7 +13,7 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.spring;
+package ru.org.linux.topic;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -25,10 +25,10 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.group.Group;
-import ru.org.linux.group.GroupDao;
 import ru.org.linux.section.Section;
-import ru.org.linux.section.SectionDao;
 import ru.org.linux.site.*;
+import ru.org.linux.spring.CommentPrepareService;
+import ru.org.linux.spring.Configuration;
 import ru.org.linux.spring.dao.*;
 import ru.org.linux.util.LorURI;
 

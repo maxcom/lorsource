@@ -2,14 +2,15 @@
 <%@ tag import="java.io.IOException" %>
 <%@ tag import="ru.org.linux.group.Group" %>
 <%@ tag import="ru.org.linux.site.NewsViewer" %>
-<%@ tag import="ru.org.linux.spring.dao.TagDao" %>
+<%@ tag import="ru.org.linux.topic.TagDao" %>
 <%@ tag import="ru.org.linux.site.Template" %>
 <%@ tag import="ru.org.linux.util.BadImageException" %>
 <%@ tag import="ru.org.linux.util.StringUtil" %>
 <%@ tag import="ru.org.linux.util.ImageInfo" %>
+<%@ tag import="ru.org.linux.topic.NewsViewer" %>
 <%@ tag pageEncoding="UTF-8"%>
-<%@ attribute name="message" required="true" type="ru.org.linux.site.Topic" %>
-<%@ attribute name="preparedMessage" required="true" type="ru.org.linux.site.PreparedTopic" %>
+<%@ attribute name="message" required="true" type="ru.org.linux.topic.Topic" %>
+<%@ attribute name="preparedMessage" required="true" type="ru.org.linux.topic.PreparedTopic" %>
 <%@ attribute name="multiPortal" required="true" type="java.lang.Boolean" %>
 <%@ attribute name="moderateMode" required="true" type="java.lang.Boolean" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>

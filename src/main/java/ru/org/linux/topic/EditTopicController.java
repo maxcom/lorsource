@@ -13,7 +13,7 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.spring;
+package ru.org.linux.topic;
 
 import com.google.common.base.Strings;
 import org.apache.commons.lang.StringEscapeUtils;
@@ -30,8 +30,7 @@ import ru.org.linux.poll.*;
 import ru.org.linux.search.SearchQueueSender;
 import ru.org.linux.section.Section;
 import ru.org.linux.site.*;
-import ru.org.linux.spring.dao.TopicDao;
-import ru.org.linux.spring.dao.TagDao;
+import ru.org.linux.spring.FeedPinger;
 import ru.org.linux.spring.validators.EditTopicRequestValidator;
 import ru.org.linux.util.ExceptionBindingErrorProcessor;
 

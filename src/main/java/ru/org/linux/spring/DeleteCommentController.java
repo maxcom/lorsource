@@ -25,8 +25,9 @@ import org.springframework.web.servlet.ModelAndView;
 import ru.org.linux.search.SearchQueueSender;
 import ru.org.linux.site.*;
 import ru.org.linux.spring.dao.CommentDao;
-import ru.org.linux.spring.dao.TopicDao;
+import ru.org.linux.topic.TopicDao;
 import ru.org.linux.spring.dao.UserDao;
+import ru.org.linux.topic.Topic;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;

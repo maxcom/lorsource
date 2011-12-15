@@ -27,7 +27,6 @@ import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionDao;
 import ru.org.linux.site.*;
-import ru.org.linux.spring.TopicsListItem;
 import ru.org.linux.spring.dao.IgnoreListDao;
 import ru.org.linux.spring.dao.UserDao;
 import ru.org.linux.util.ServletParameterBadValueException;

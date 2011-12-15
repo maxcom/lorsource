@@ -16,7 +16,7 @@
 package ru.org.linux.spring;
 
 import ru.org.linux.site.Comment;
-import ru.org.linux.site.Topic;
+import ru.org.linux.topic.Topic;
 import ru.org.linux.site.User;
 
 public class AddCommentRequest {

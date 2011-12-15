@@ -19,11 +19,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
-import ru.org.linux.site.Topic;
+import ru.org.linux.topic.Topic;
 import ru.org.linux.site.MessageNotFoundException;
 import ru.org.linux.spring.boxlets.AbstractBoxlet;
 import ru.org.linux.spring.commons.CacheProvider;
-import ru.org.linux.spring.dao.TopicDao;
+import ru.org.linux.topic.TopicDao;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;

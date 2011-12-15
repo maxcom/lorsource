@@ -22,9 +22,9 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
-import ru.org.linux.site.Topic;
-import ru.org.linux.site.TopicPrepareService;
-import ru.org.linux.site.NewsViewer;
+import ru.org.linux.topic.Topic;
+import ru.org.linux.topic.TopicPrepareService;
+import ru.org.linux.topic.NewsViewer;
 import ru.org.linux.site.Template;
 
 import javax.servlet.http.HttpServletRequest;

@@ -13,9 +13,7 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.site;
-
-import ru.org.linux.spring.dao.TagDao;
+package ru.org.linux.topic;
 
 import java.sql.Timestamp;
 

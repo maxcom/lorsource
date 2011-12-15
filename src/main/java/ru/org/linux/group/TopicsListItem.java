@@ -13,10 +13,10 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.spring;
+package ru.org.linux.group;
 
 import org.springframework.jdbc.support.rowset.SqlRowSet;
-import ru.org.linux.site.Topic;
+import ru.org.linux.topic.Topic;
 import ru.org.linux.site.User;
 import ru.org.linux.site.UserNotFoundException;
 import ru.org.linux.spring.dao.UserDao;

@@ -13,13 +13,12 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.spring;
+package ru.org.linux.topic;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
-import ru.org.linux.spring.dao.TagDao;
 
 import java.util.Map;
 
@@ -27,7 +26,7 @@ import java.util.Map;
 public class TagsController  {
 
   @Autowired
-  TagDao tagDao;
+  private TagDao tagDao;
 
   @ModelAttribute("tags")
   public Map<String, Integer> getTags() {

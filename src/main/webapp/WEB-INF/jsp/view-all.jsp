@@ -16,9 +16,9 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
-<%--@elvariable id="messages" type="java.util.List<ru.org.linux.site.PreparedTopic>"--%>
+<%--@elvariable id="messages" type="java.util.List<ru.org.linux.topic.PreparedTopic>"--%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
-<%--@elvariable id="deletedTopics" type="java.util.List<ru.org.linux.spring.NewsViewerController.DeletedTopic>"--%>
+<%--@elvariable id="deletedTopics" type="java.util.List<ru.org.linux.topic.NewsViewerController.DeletedTopic>"--%>
 <%--@elvariable id="sections" type="java.util.List<ru.org.linux.section.Section>"--%>
 <%--@elvariable id="section" type="ru.org.linux.section.Section"--%>
 

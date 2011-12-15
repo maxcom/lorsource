@@ -13,10 +13,28 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.site;
+package ru.org.linux.topic;
 
-public class TagNotFoundException extends Exception {
-  public TagNotFoundException() {
-    super("Tag not found");
+public class TopicMenu {
+  private final boolean editable;
+  private final boolean resolvable;
+  private final int memoriesId;
+
+  public TopicMenu(boolean editable, boolean resolvable, int memoriesId) {
+    this.editable = editable;
+    this.resolvable = resolvable;
+    this.memoriesId = memoriesId;
+  }
+
+  public boolean isEditable() {
+    return editable;
+  }
+
+  public boolean isResolvable() {
+    return resolvable;
+  }
+
+  public int getMemoriesId() {
+    return memoriesId;
   }
 }
