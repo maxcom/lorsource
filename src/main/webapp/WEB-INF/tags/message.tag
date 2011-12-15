@@ -1,4 +1,3 @@
-<%@ tag import="ru.org.linux.site.NewsViewer" %>
 <%@ tag import="ru.org.linux.site.Template" %>
 <%@ tag import="ru.org.linux.site.User" %>
 <%@ tag import="ru.org.linux.util.StringUtil" %>

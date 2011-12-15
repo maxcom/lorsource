@@ -1,7 +1,6 @@
 <%@ tag import="java.io.File" %>
 <%@ tag import="java.io.IOException" %>
 <%@ tag import="ru.org.linux.group.Group" %>
-<%@ tag import="ru.org.linux.site.NewsViewer" %>
 <%@ tag import="ru.org.linux.topic.TagDao" %>
 <%@ tag import="ru.org.linux.site.Template" %>
 <%@ tag import="ru.org.linux.util.BadImageException" %>
