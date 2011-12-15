@@ -19,7 +19,10 @@ import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.org.linux.site.*;
+import ru.org.linux.site.Comment;
+import ru.org.linux.site.MessageNotFoundException;
+import ru.org.linux.site.Topic;
+import ru.org.linux.site.User;
 import ru.org.linux.spring.Configuration;
 import ru.org.linux.spring.dao.CommentDao;
 import ru.org.linux.spring.dao.TopicDao;
@@ -167,7 +170,6 @@ public class ToHtmlFormatter {
    * @param out сюда будет записана ссылка
    * @param uri исходный uri
    * @throws URIException если uri не корректный
-   * @throws ru.org.linux.group.BadGroupException если uri не корректный
    * @throws MessageNotFoundException если uri не корректный
    */
   private void processMessageUrl(boolean secure, StringBuilder out, LorURI uri) throws URIException {

@@ -61,12 +61,6 @@ public class TopicController {
   private IgnoreListDao ignoreListDao;
 
   @Autowired
-  private SectionDao sectionDao;
-
-  @Autowired
-  private GroupDao groupDao;
-
-  @Autowired
   private Configuration configuration;
 
   @RequestMapping("/forum/{group}/{id}")

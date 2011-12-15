@@ -43,7 +43,7 @@ public class TrackerDao {
   }
 
   @Autowired
-  UserDao userDao;
+  private UserDao userDao;
 
   public enum TrackerFilter {
     ALL("all", "все сообщения"),
@@ -171,8 +171,6 @@ public class TrackerDao {
     parameter.addValue("offset", offset);
 
     String partIgnored;
-    String partFilter;
-    String partWiki=queryPartWiki;
 
     if(currentUser != null) {
       partIgnored = queryPartIgnored;
@@ -181,6 +179,8 @@ public class TrackerDao {
       partIgnored = "";
     }
 
+    String partFilter;
+    String partWiki = queryPartWiki;
     switch (filter) {
       case ALL:
         partFilter = "";
@@ -209,22 +209,6 @@ public class TrackerDao {
       @Override
       public TrackerItem mapRow(ResultSet resultSet, int i) throws SQLException {
         User author;
-        User lastCommentBy;
-        int msgid;
-        int cid;
-        int pages;
-        Timestamp lastmod;
-        Timestamp postdate;
-        int stat1;
-        int stat3;
-        int stat4;
-        int groupId;
-        int section;
-        String groupTitle;
-        String groupUrlName;
-        String title;
-        boolean resolved;
-        boolean uncommited;
         try {
           int author_id = resultSet.getInt("author");
           if(author_id != 0) {
@@ -235,15 +219,16 @@ public class TrackerDao {
         } catch (UserNotFoundException e) {
           throw new RuntimeException(e);
         }
-        msgid = resultSet.getInt("id");
-        lastmod = resultSet.getTimestamp("lastmod");
-        stat1 = resultSet.getInt("stat1");
-        stat3 = resultSet.getInt("stat3");
-        stat4 = resultSet.getInt("stat4");
-        groupId = resultSet.getInt("gid");
-        groupTitle = resultSet.getString("gtitle");
-        title = resultSet.getString("title");
-        cid = resultSet.getInt("cid");
+        int msgid = resultSet.getInt("id");
+        Timestamp lastmod = resultSet.getTimestamp("lastmod");
+        int stat1 = resultSet.getInt("stat1");
+        int stat3 = resultSet.getInt("stat3");
+        int stat4 = resultSet.getInt("stat4");
+        int groupId = resultSet.getInt("gid");
+        String groupTitle = resultSet.getString("gtitle");
+        String title = resultSet.getString("title");
+        int cid = resultSet.getInt("cid");
+        User lastCommentBy;
         try {
           int id = resultSet.getInt("last_comment_by");
 
@@ -255,12 +240,12 @@ public class TrackerDao {
         } catch (UserNotFoundException e) {
           throw new RuntimeException(e);
         }
-        resolved = resultSet.getBoolean("resolved");
-        section = resultSet.getInt("section");
-        groupUrlName = resultSet.getString("urlname");
-        postdate = resultSet.getTimestamp("postdate");
-        uncommited = resultSet.getBoolean("smod") && !resultSet.getBoolean("moderate");
-        pages = Topic.getPageCount(stat1, messagesInPage);
+        boolean resolved = resultSet.getBoolean("resolved");
+        int section = resultSet.getInt("section");
+        String groupUrlName = resultSet.getString("urlname");
+        Timestamp postdate = resultSet.getTimestamp("postdate");
+        boolean uncommited = resultSet.getBoolean("smod") && !resultSet.getBoolean("moderate");
+        int pages = Topic.getPageCount(stat1, messagesInPage);
         return new TrackerItem(author, msgid, lastmod, stat1, stat3, stat4,
             groupId, groupTitle, title, cid, lastCommentBy, resolved,
             section, groupUrlName, postdate, uncommited, pages);
