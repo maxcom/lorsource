@@ -31,7 +31,6 @@ import ru.org.linux.search.SearchQueueSender;
 import ru.org.linux.section.Section;
 import ru.org.linux.site.*;
 import ru.org.linux.spring.FeedPinger;
-import ru.org.linux.spring.validators.EditTopicRequestValidator;
 import ru.org.linux.util.ExceptionBindingErrorProcessor;
 
 import javax.servlet.ServletRequest;

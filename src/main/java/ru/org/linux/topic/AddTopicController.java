@@ -39,7 +39,6 @@ import ru.org.linux.site.*;
 import ru.org.linux.spring.CaptchaService;
 import ru.org.linux.spring.UserPropertyEditor;
 import ru.org.linux.spring.dao.*;
-import ru.org.linux.spring.validators.AddTopicRequestValidator;
 import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.ExceptionBindingErrorProcessor;
 import ru.org.linux.util.UtilException;
