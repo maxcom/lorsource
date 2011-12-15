@@ -507,7 +507,7 @@ public class CommentDao {
     return msgid;
   }
 
-  public CommentList getCommentList(Message topic, boolean showDeleted) {
+  public CommentList getCommentList(Topic topic, boolean showDeleted) {
     CacheProvider mcc = MemCachedSettings.getCache();
 
     String cacheId = "commentList?msgid=" + topic.getMessageId() + "&showDeleted=" + showDeleted;

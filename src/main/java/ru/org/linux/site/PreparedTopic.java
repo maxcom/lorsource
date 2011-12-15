@@ -22,8 +22,8 @@ import ru.org.linux.section.Section;
 
 import java.util.List;
 
-public final class PreparedMessage {
-  private final Message message;
+public final class PreparedTopic {
+  private final Topic message;
   private final User author;
   private final DeleteInfo deleteInfo;
   private final User deleteUser;
@@ -42,9 +42,9 @@ public final class PreparedMessage {
 
   private static final int EDIT_PERIOD = 2 * 60 * 60 * 1000; // milliseconds
 
-  public PreparedMessage(Message message, User author, DeleteInfo deleteInfo, User deleteUser, String processedMessage,
-                          PreparedPoll poll, User commiter, List<String> tags, Group group, Section section,
-                          EditInfoDTO lastEditInfo, User lastEditor, int editorCount, String userAgent) {
+  public PreparedTopic(Topic message, User author, DeleteInfo deleteInfo, User deleteUser, String processedMessage,
+                       PreparedPoll poll, User commiter, List<String> tags, Group group, Section section,
+                       EditInfoDTO lastEditInfo, User lastEditor, int editorCount, String userAgent) {
     this.message = message;
     this.author = author;
     this.deleteInfo = deleteInfo;
@@ -65,7 +65,7 @@ public final class PreparedMessage {
     this.userAgent = userAgent;
   }
 
-  public Message getMessage() {
+  public Topic getMessage() {
     return message;
   }
 

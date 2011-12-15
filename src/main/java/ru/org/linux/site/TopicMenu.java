@@ -15,12 +15,12 @@
 
 package ru.org.linux.site;
 
-public class MessageMenu {
+public class TopicMenu {
   private final boolean editable;
   private final boolean resolvable;
   private final int memoriesId;
 
-  public MessageMenu(boolean editable, boolean resolvable, int memoriesId) {
+  public TopicMenu(boolean editable, boolean resolvable, int memoriesId) {
     this.editable = editable;
     this.resolvable = resolvable;
     this.memoriesId = memoriesId;

@@ -29,12 +29,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
-import ru.org.linux.spring.dao.MessageDao;
+import ru.org.linux.spring.dao.TopicDao;
 
 @Controller
 public class SearchControlController {
   private SearchQueueSender searchQueueSender;
-  private MessageDao messageDao;
+  private TopicDao messageDao;
 
   @Autowired
   @Required
@@ -43,7 +43,7 @@ public class SearchControlController {
   }
 
   @Autowired
-  public void setMessageDao(MessageDao messageDao) {
+  public void setMessageDao(TopicDao messageDao) {
     this.messageDao = messageDao;
   }
 

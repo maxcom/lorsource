@@ -21,9 +21,9 @@ import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import ru.org.linux.group.BadGroupException;
 import ru.org.linux.group.Group;
-import ru.org.linux.site.Message;
+import ru.org.linux.site.Topic;
 import ru.org.linux.site.MessageNotFoundException;
-import ru.org.linux.spring.dao.MessageDao;
+import ru.org.linux.spring.dao.TopicDao;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -277,9 +277,9 @@ public class LorURI {
    * @throws BadGroupException если нет группы оО
    * @throws URIException если url неправильный
    */
-  public String formatJump(MessageDao messageDao, boolean secure) throws MessageNotFoundException, URIException {
+  public String formatJump(TopicDao messageDao, boolean secure) throws MessageNotFoundException, URIException {
     if(messageUrl) {
-      Message message = messageDao.getById(messageId);
+      Topic message = messageDao.getById(messageId);
       Group group = null;
 
       try {

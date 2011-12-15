@@ -24,14 +24,14 @@ import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
 import ru.org.linux.site.*;
-import ru.org.linux.spring.dao.MessageDao;
+import ru.org.linux.spring.dao.TopicDao;
 
 import javax.servlet.http.HttpServletRequest;
 
 @Controller
 public class ResolveController  {
   @Autowired
-  private MessageDao messageDao;
+  private TopicDao messageDao;
 
   @Autowired
   private GroupDao groupDao;
@@ -44,7 +44,7 @@ public class ResolveController  {
   ) throws Exception {
     Template tmpl = Template.getTemplate(request);
 
-    Message message = messageDao.getById(msgid);
+    Topic message = messageDao.getById(msgid);
     Group group = groupDao.getGroup(message.getGroupId());
     User currentUser = tmpl.getCurrentUser();
     if (!group.isResolvable()) {

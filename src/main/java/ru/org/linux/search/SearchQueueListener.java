@@ -29,10 +29,10 @@ import org.springframework.beans.factory.annotation.Required;
 import org.springframework.stereotype.Component;
 import ru.org.linux.site.Comment;
 import ru.org.linux.site.CommentList;
-import ru.org.linux.site.Message;
+import ru.org.linux.site.Topic;
 import ru.org.linux.site.MessageNotFoundException;
 import ru.org.linux.spring.dao.CommentDao;
-import ru.org.linux.spring.dao.MessageDao;
+import ru.org.linux.spring.dao.TopicDao;
 
 import java.io.IOException;
 import java.sql.Timestamp;
@@ -46,7 +46,7 @@ public class SearchQueueListener {
   private static final Log logger = LogFactory.getLog(SearchQueueListener.class);
   
   private SolrServer solrServer;
-  private MessageDao messageDao;
+  private TopicDao messageDao;
   private CommentDao commentDao;
 
   @Autowired
@@ -56,7 +56,7 @@ public class SearchQueueListener {
   }
 
   @Autowired
-  public void setMessageDao(MessageDao messageDao) {
+  public void setMessageDao(TopicDao messageDao) {
     this.messageDao = messageDao;
   }
 
@@ -73,7 +73,7 @@ public class SearchQueueListener {
   }
 
   private void reindexMessage(int msgid, boolean withComments) throws IOException, SolrServerException,  MessageNotFoundException {
-    Message msg = messageDao.getById(msgid);
+    Topic msg = messageDao.getById(msgid);
 
     if (!msg.isDeleted()) {
       updateMessage(msg);
@@ -122,7 +122,7 @@ public class SearchQueueListener {
         // комментарии могут быть из разного топика в функция массового удаления
         // возможно для скорости нужен какой-то кеш топиков, т.к. чаще бывает что все
         // комментарии из одного топика
-        Message topic = messageDao.getById(comment.getTopicId());
+        Topic topic = messageDao.getById(comment.getTopicId());
         String message = commentDao.getMessage(comment);
         rq.add(processComment(topic, comment, message));
       }
@@ -154,7 +154,7 @@ public class SearchQueueListener {
     logger.info("Reindex month "+year+'/'+month+" done, "+(endTime-startTime)/1000000+" millis");
   }
 
-  private void updateMessage(Message topic) throws IOException, SolrServerException {
+  private void updateMessage(Topic topic) throws IOException, SolrServerException {
     SolrInputDocument doc = new SolrInputDocument();
 
     doc.addField("id", topic.getId());
@@ -176,7 +176,7 @@ public class SearchQueueListener {
     solrServer.add(doc);
   }
 
-  private void reindexComments(Message topic, CommentList comments) throws IOException, SolrServerException {
+  private void reindexComments(Topic topic, CommentList comments) throws IOException, SolrServerException {
     Collection<SolrInputDocument> docs = new ArrayList<SolrInputDocument>();
     List<String> delete = new ArrayList<String>();
 
@@ -197,7 +197,7 @@ public class SearchQueueListener {
     }
   }
 
-  private static SolrInputDocument processComment(Message topic, Comment comment, String message) {
+  private static SolrInputDocument processComment(Topic topic, Comment comment, String message) {
     SolrInputDocument doc = new SolrInputDocument();
 
     doc.addField("id", comment.getId());

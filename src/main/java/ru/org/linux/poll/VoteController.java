@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.site.*;
-import ru.org.linux.spring.dao.MessageDao;
+import ru.org.linux.spring.dao.TopicDao;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
@@ -38,7 +38,7 @@ public class VoteController {
   private PollDao pollDao;
 
   @Autowired
-  private MessageDao messageDao;
+  private TopicDao messageDao;
 
   @RequestMapping(value="/vote.jsp", method= RequestMethod.POST)
   public ModelAndView vote(
@@ -55,7 +55,7 @@ public class VoteController {
     User user = tmpl.getCurrentUser();
 
     Poll poll = pollDao.getCurrentPoll();
-    Message msg = messageDao.getById(poll.getTopicId());
+    Topic msg = messageDao.getById(poll.getTopicId());
 
     if (voteid != poll.getId()) {
       throw new BadVoteException("голосовать можно только в текущий опрос");
@@ -98,7 +98,7 @@ public class VoteController {
 
     Map<String, Object> params = new HashMap<String, Object>();
 
-    Message msg = messageDao.getById(msgid);
+    Topic msg = messageDao.getById(msgid);
     params.put("message", msg);
 
     Poll poll = pollDao.getPollByTopicId(msgid);

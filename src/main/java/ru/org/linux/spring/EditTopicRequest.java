@@ -17,7 +17,7 @@ package ru.org.linux.spring;
 
 import java.util.Map;
 
-public class EditMessageRequest {
+public class EditTopicRequest {
   private String url;
   private String linktext;
   private String title;

@@ -22,8 +22,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
-import ru.org.linux.site.Message;
-import ru.org.linux.site.MessagePrepareService;
+import ru.org.linux.site.Topic;
+import ru.org.linux.site.TopicPrepareService;
 import ru.org.linux.site.NewsViewer;
 import ru.org.linux.site.Template;
 
@@ -36,7 +36,7 @@ import java.util.List;
 @Controller
 public class MainPageController {
   @Autowired
-  private MessagePrepareService prepareService;
+  private TopicPrepareService prepareService;
 
   private JdbcTemplate jdbcTemplate;
 
@@ -57,9 +57,9 @@ public class MainPageController {
 
     ModelAndView mv = new ModelAndView("index");
 
-    List<Message> messages = jdbcTemplate.execute(new ConnectionCallback<List<Message>>() {
+    List<Topic> messages = jdbcTemplate.execute(new ConnectionCallback<List<Topic>>() {
       @Override
-      public List<Message> doInConnection(Connection con) throws SQLException, DataAccessException {
+      public List<Topic> doInConnection(Connection con) throws SQLException, DataAccessException {
         return nv.getMessages(con);
       }
     });

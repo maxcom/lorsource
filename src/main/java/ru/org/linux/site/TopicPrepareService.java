@@ -34,9 +34,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class MessagePrepareService {
+public class TopicPrepareService {
   @Autowired
-  private MessageDao messageDao;
+  private TopicDao messageDao;
 
   @Autowired
   private GroupDao groupDao;
@@ -65,11 +65,11 @@ public class MessagePrepareService {
   @Autowired
   private MemoriesDao memoriesDao;
 
-  public PreparedMessage prepareMessage(Message message, boolean minimizeCut, boolean secure) {
+  public PreparedTopic prepareMessage(Topic message, boolean minimizeCut, boolean secure) {
     return prepareMessage(message, messageDao.getTags(message), minimizeCut, null, secure);
   }
 
-  public PreparedMessage prepareMessage(Message message, List<String> tags, PreparedPoll newPoll, boolean secure) {
+  public PreparedTopic prepareMessage(Topic message, List<String> tags, PreparedPoll newPoll, boolean secure) {
     return prepareMessage(message, tags, false, newPoll, secure);
   }
 
@@ -82,7 +82,7 @@ public class MessagePrepareService {
    * @param secure является ли соединение https
    * @return подготовленный топик
    */
-  private PreparedMessage prepareMessage(Message message, List<String> tags, boolean minimizeCut, PreparedPoll poll, boolean secure) {
+  private PreparedTopic prepareMessage(Topic message, List<String> tags, boolean minimizeCut, PreparedPoll poll, boolean secure) {
     try {
       Group group = groupDao.getGroup(message.getGroupId());
       User author = userDao.getUserCached(message.getUid());
@@ -152,7 +152,7 @@ public class MessagePrepareService {
 
       String userAgent = userAgentDao.getUserAgentById(message.getUserAgent());
 
-      return new PreparedMessage(message, author, deleteInfo, deleteUser, processedMessage, preparedPoll, commiter, tags, group, section, lastEditInfo, lastEditor, editCount, userAgent);
+      return new PreparedTopic(message, author, deleteInfo, deleteUser, processedMessage, preparedPoll, commiter, tags, group, section, lastEditInfo, lastEditor, editCount, userAgent);
     } catch (BadGroupException e) {
       throw new RuntimeException(e);
     } catch (UserNotFoundException e) {
@@ -171,18 +171,18 @@ public class MessagePrepareService {
    * @param secure является ли соединение https
    * @return список подготовленных топиков
    */
-  public List<PreparedMessage> prepareMessagesFeed(List<Message> messages, boolean secure) {
-    List<PreparedMessage> pm = new ArrayList<PreparedMessage>(messages.size());
+  public List<PreparedTopic> prepareMessagesFeed(List<Topic> messages, boolean secure) {
+    List<PreparedTopic> pm = new ArrayList<PreparedTopic>(messages.size());
 
-    for (Message message : messages) {
-      PreparedMessage preparedMessage = prepareMessage(message, messageDao.getTags(message), true, null, secure);
+    for (Topic message : messages) {
+      PreparedTopic preparedMessage = prepareMessage(message, messageDao.getTags(message), true, null, secure);
       pm.add(preparedMessage);
     }
 
     return pm;
   }
 
-  public MessageMenu getMessageMenu(PreparedMessage message, User currentUser) {
+  public TopicMenu getMessageMenu(PreparedTopic message, User currentUser) {
     boolean editable = currentUser!=null && message.isEditable(currentUser);
     boolean resolvable;
     int memoriesId;
@@ -197,6 +197,6 @@ public class MessagePrepareService {
       memoriesId = 0;
     }
 
-    return new MessageMenu(editable, resolvable, memoriesId);
+    return new TopicMenu(editable, resolvable, memoriesId);
   }
 }

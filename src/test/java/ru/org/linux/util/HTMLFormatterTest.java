@@ -21,10 +21,10 @@ import org.junit.Before;
 import org.junit.Test;
 import ru.org.linux.group.Group;
 import ru.org.linux.site.Comment;
-import ru.org.linux.site.Message;
+import ru.org.linux.site.Topic;
 import ru.org.linux.spring.Configuration;
 import ru.org.linux.spring.dao.CommentDao;
-import ru.org.linux.spring.dao.MessageDao;
+import ru.org.linux.spring.dao.TopicDao;
 import ru.org.linux.util.bbcode.LorCodeService;
 import ru.org.linux.util.formatter.ToHtmlFormatter;
 import ru.org.linux.util.formatter.ToLorCodeFormatter;
@@ -102,18 +102,18 @@ public class HTMLFormatterTest {
 
     URI mainURI = new URI("http://www.linux.org.ru/", true, "UTF-8");
 
-    MessageDao messageDao = mock(MessageDao.class);
-    Message message1 = mock(Message.class);
+    TopicDao messageDao = mock(TopicDao.class);
+    Topic message1 = mock(Topic.class);
     Group group1 = mock(Group.class);
-    Message message2 = mock(Message.class);
+    Topic message2 = mock(Topic.class);
     Group group2 = mock(Group.class);
-    Message message3 = mock(Message.class);
+    Topic message3 = mock(Topic.class);
     Group group3 = mock(Group.class);
-    Message message12 = mock(Message.class);
+    Topic message12 = mock(Topic.class);
     Group group12 = mock(Group.class);
-    Message message15 = mock(Message.class);
+    Topic message15 = mock(Topic.class);
     Group group15 = mock(Group.class);
-    Message messageHistory = mock(Message.class);
+    Topic messageHistory = mock(Topic.class);
     Group groupHistory = mock(Group.class);
     CommentDao commentDao = mock(CommentDao.class);
 

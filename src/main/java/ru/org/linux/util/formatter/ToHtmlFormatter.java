@@ -22,7 +22,7 @@ import org.springframework.stereotype.Service;
 import ru.org.linux.site.*;
 import ru.org.linux.spring.Configuration;
 import ru.org.linux.spring.dao.CommentDao;
-import ru.org.linux.spring.dao.MessageDao;
+import ru.org.linux.spring.dao.TopicDao;
 import ru.org.linux.util.LorURI;
 import ru.org.linux.util.StringUtil;
 
@@ -45,7 +45,7 @@ public class ToHtmlFormatter {
   private static final Pattern URL_PATTERN = Pattern.compile(URL_REGEX, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
 
   private Configuration configuration;
-  private MessageDao messageDao;
+  private TopicDao messageDao;
   private CommentDao commentDao;
 
   private int maxLength=80;
@@ -56,7 +56,7 @@ public class ToHtmlFormatter {
   }
 
   @Autowired
-  public void setMessageDao(MessageDao messageDao) {
+  public void setMessageDao(TopicDao messageDao) {
     this.messageDao = messageDao;
   }
 
@@ -172,7 +172,7 @@ public class ToHtmlFormatter {
    */
   private void processMessageUrl(boolean secure, StringBuilder out, LorURI uri) throws URIException {
     try {
-      Message message = messageDao.getById(uri.getMessageId());
+      Topic message = messageDao.getById(uri.getMessageId());
 
       boolean deleted = message.isDeleted();
 

@@ -21,9 +21,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import ru.org.linux.site.EditInfoPrepareService;
-import ru.org.linux.site.Message;
+import ru.org.linux.site.Topic;
 import ru.org.linux.site.PreparedEditInfo;
-import ru.org.linux.spring.dao.MessageDao;
+import ru.org.linux.spring.dao.TopicDao;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -31,7 +31,7 @@ import java.util.List;
 @Controller
 public class EditInfoController {
   @Autowired
-  private MessageDao messageDao;
+  private TopicDao messageDao;
 
   @Autowired
   private EditInfoPrepareService prepareService;
@@ -46,7 +46,7 @@ public class EditInfoController {
     HttpServletRequest request,
     @PathVariable("id") int msgid
   ) throws Exception {
-    Message message = messageDao.getById(msgid);
+    Topic message = messageDao.getById(msgid);
 
     List<PreparedEditInfo> editInfos = prepareService.prepareEditInfo(message, request.isSecure());
 

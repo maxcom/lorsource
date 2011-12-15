@@ -19,8 +19,8 @@ import com.google.common.base.Strings;
 import org.springframework.validation.Errors;
 import ru.org.linux.group.Group;
 import ru.org.linux.section.Section;
-import ru.org.linux.spring.AddMessageRequest;
-import ru.org.linux.spring.EditMessageRequest;
+import ru.org.linux.spring.AddTopicRequest;
+import ru.org.linux.spring.EditTopicRequest;
 import ru.org.linux.util.StringUtil;
 import ru.org.linux.util.URLUtil;
 
@@ -33,7 +33,7 @@ import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Date;
 
-public class Message implements Serializable {
+public class Topic implements Serializable {
   private final int msgid;
   private final int postscore;
   private final boolean votepoll;
@@ -72,7 +72,7 @@ public class Message implements Serializable {
   public static final int POSTSCORE_REGISTERED_ONLY = -50;
   private static final String UTF8 = "UTF-8";
 
-  public Message(ResultSet rs) throws SQLException {
+  public Topic(ResultSet rs) throws SQLException {
     msgid = rs.getInt("msgid");
 
     int ps = rs.getInt("postscore");
@@ -113,7 +113,7 @@ public class Message implements Serializable {
     sectionCommentsRestriction = Section.getCommentPostscore(sectionid);
   }
 
-  public Message(AddMessageRequest form, User user, String message, String postIP) {
+  public Topic(AddTopicRequest form, User user, String message, String postIP) {
     userAgent = 0;
     this.postIP = postIP;
 
@@ -170,7 +170,7 @@ public class Message implements Serializable {
     sectionCommentsRestriction = Section.getCommentPostscore(sectionid);
   }
 
-  public Message(Group group, Message original, EditMessageRequest form) {
+  public Topic(Group group, Topic original, EditTopicRequest form) {
     userAgent = original.userAgent;
     postIP = original.postIP;
     guid = original.guid;

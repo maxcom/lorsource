@@ -16,7 +16,7 @@
 package ru.org.linux.spring;
 
 import ru.org.linux.site.Comment;
-import ru.org.linux.site.Message;
+import ru.org.linux.site.Topic;
 import ru.org.linux.site.User;
 
 public class AddCommentRequest {
@@ -25,7 +25,7 @@ public class AddCommentRequest {
   private String msg;
   private Comment replyto;
   private String title;
-  private Message topic;
+  private Topic topic;
 
   private User nick;
   private String password;
@@ -74,11 +74,11 @@ public class AddCommentRequest {
     this.title = title;
   }
 
-  public Message getTopic() {
+  public Topic getTopic() {
     return topic;
   }
 
-  public void setTopic(Message topic) {
+  public void setTopic(Topic topic) {
     this.topic = topic;
   }
 

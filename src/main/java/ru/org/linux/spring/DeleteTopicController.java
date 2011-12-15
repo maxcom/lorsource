@@ -26,7 +26,7 @@ import ru.org.linux.search.SearchQueueSender;
 import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionDao;
 import ru.org.linux.site.*;
-import ru.org.linux.spring.dao.MessageDao;
+import ru.org.linux.spring.dao.TopicDao;
 import ru.org.linux.spring.dao.UserDao;
 
 import javax.servlet.http.HttpServletRequest;
@@ -34,7 +34,7 @@ import javax.servlet.http.HttpSession;
 import java.util.HashMap;
 
 @Controller
-public class DeleteMessageController extends ApplicationObjectSupport {
+public class DeleteTopicController extends ApplicationObjectSupport {
   @Autowired
   private SearchQueueSender searchQueueSender;
   @Autowired
@@ -42,9 +42,9 @@ public class DeleteMessageController extends ApplicationObjectSupport {
   @Autowired
   private SectionDao sectionDao;
   @Autowired
-  private MessageDao messageDao;
+  private TopicDao messageDao;
   @Autowired
-  private MessagePrepareService prepareService;
+  private TopicPrepareService prepareService;
 
   @RequestMapping(value="/delete.jsp", method= RequestMethod.GET)
   public ModelAndView showForm(
@@ -56,7 +56,7 @@ public class DeleteMessageController extends ApplicationObjectSupport {
       throw new AccessViolationException("Not authorized");
     }
 
-    Message msg = messageDao.getById(msgid);
+    Topic msg = messageDao.getById(msgid);
 
     if (msg.isDeleted()) {
       throw new UserErrorException("Сообщение уже удалено");
@@ -92,7 +92,7 @@ public class DeleteMessageController extends ApplicationObjectSupport {
 
     user.checkAnonymous();
 
-    Message message = messageDao.getById(msgid);
+    Topic message = messageDao.getById(msgid);
     Section section = sectionDao.getSection(message.getSectionId());
 
     if(message.isDeleted()) {
@@ -129,7 +129,7 @@ public class DeleteMessageController extends ApplicationObjectSupport {
       throw new AccessViolationException("Not authorized");
     }
 
-    Message message = messageDao.getById(msgid);
+    Topic message = messageDao.getById(msgid);
 
     checkUndeletable(message);
 
@@ -153,7 +153,7 @@ public class DeleteMessageController extends ApplicationObjectSupport {
 
     tmpl.updateCurrentUser(userDao);
 
-    Message message = messageDao.getById(msgid);
+    Topic message = messageDao.getById(msgid);
 
     checkUndeletable(message);
 
@@ -169,7 +169,7 @@ public class DeleteMessageController extends ApplicationObjectSupport {
     return new ModelAndView("action-done", "message", "Сообщение восстановлено");
   }
 
-  private static void checkUndeletable(Message message) throws AccessViolationException {
+  private static void checkUndeletable(Topic message) throws AccessViolationException {
     if (message.isExpired()) {
       throw new AccessViolationException("нельзя восстанавливать устаревшие сообщения");
     }

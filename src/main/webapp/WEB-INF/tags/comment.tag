@@ -23,7 +23,7 @@
 <%@ attribute name="comments" required="true" type="ru.org.linux.site.CommentList" %>
 <%@ attribute name="expired" required="true" type="java.lang.Boolean"%>
 <%@ attribute name="showMenu" required="true" type="java.lang.Boolean"%>
-<%@ attribute name="topic" required="true" type="ru.org.linux.site.Message" %>
+<%@ attribute name="topic" required="true" type="ru.org.linux.site.Topic" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>

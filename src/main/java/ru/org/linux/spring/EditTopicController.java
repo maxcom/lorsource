@@ -30,9 +30,9 @@ import ru.org.linux.poll.*;
 import ru.org.linux.search.SearchQueueSender;
 import ru.org.linux.section.Section;
 import ru.org.linux.site.*;
-import ru.org.linux.spring.dao.MessageDao;
+import ru.org.linux.spring.dao.TopicDao;
 import ru.org.linux.spring.dao.TagDao;
-import ru.org.linux.spring.validators.EditMessageRequestValidator;
+import ru.org.linux.spring.validators.EditTopicRequestValidator;
 import ru.org.linux.util.ExceptionBindingErrorProcessor;
 
 import javax.servlet.ServletRequest;
@@ -41,7 +41,7 @@ import javax.validation.Valid;
 import java.util.*;
 
 @Controller
-public class EditController {
+public class EditTopicController {
   @Autowired
   private SearchQueueSender searchQueueSender;
 
@@ -49,10 +49,10 @@ public class EditController {
   private FeedPinger feedPinger;
 
   @Autowired
-  private MessageDao messageDao;
+  private TopicDao messageDao;
 
   @Autowired
-  private MessagePrepareService messagePrepareService;
+  private TopicPrepareService messagePrepareService;
 
   @Autowired
   private PollPrepareService pollPrepareService;
@@ -70,7 +70,7 @@ public class EditController {
   public ModelAndView showCommitForm(
     HttpServletRequest request,
     @RequestParam("msgid") int msgid,
-    @ModelAttribute("form") EditMessageRequest form
+    @ModelAttribute("form") EditTopicRequest form
   ) throws Exception {
     Template tmpl = Template.getTemplate(request);
 
@@ -78,13 +78,13 @@ public class EditController {
       throw new AccessViolationException("Not authorized");
     }
 
-    Message message = messageDao.getById(msgid);
+    Topic message = messageDao.getById(msgid);
 
     if (message.isCommited()) {
       throw new UserErrorException("Сообщение уже подтверждено");
     }
 
-    PreparedMessage preparedMessage = messagePrepareService.prepareMessage(message, false, request.isSecure());
+    PreparedTopic preparedMessage = messagePrepareService.prepareMessage(message, false, request.isSecure());
 
     if (!preparedMessage.getSection().isPremoderated()) {
       throw new UserErrorException("Раздел не премодерируемый");
@@ -101,7 +101,7 @@ public class EditController {
   public ModelAndView showEditForm(
     ServletRequest request,
     @RequestParam("msgid") int msgid,
-    @ModelAttribute("form") EditMessageRequest form
+    @ModelAttribute("form") EditTopicRequest form
   ) throws Exception {
 
     Template tmpl = Template.getTemplate(request);
@@ -110,11 +110,11 @@ public class EditController {
       throw new AccessViolationException("Not authorized");
     }
 
-    Message message = messageDao.getById(msgid);
+    Topic message = messageDao.getById(msgid);
 
     User user = tmpl.getCurrentUser();
 
-    PreparedMessage preparedMessage = messagePrepareService.prepareMessage(message, false, request.isSecure());
+    PreparedTopic preparedMessage = messagePrepareService.prepareMessage(message, false, request.isSecure());
 
     if (!preparedMessage.isEditable(user)) {
       throw new AccessViolationException("это сообщение нельзя править");
@@ -124,12 +124,12 @@ public class EditController {
   }
 
   private ModelAndView prepareModel(
-    PreparedMessage preparedMessage,
-    EditMessageRequest form
+    PreparedTopic preparedMessage,
+    EditTopicRequest form
   ) throws PollNotFoundException {
     Map<String, Object> params = new HashMap<String, Object>();
 
-    Message message = preparedMessage.getMessage();
+    Topic message = preparedMessage.getMessage();
 
     params.put("message", message);
     params.put("preparedMessage", preparedMessage);
@@ -186,7 +186,7 @@ public class EditController {
     @RequestParam("msgid") int msgid,
     @RequestParam(value="lastEdit", required=false) Long lastEdit,
     @RequestParam(value="chgrp", required=false) Integer changeGroupId,
-    @Valid @ModelAttribute("form") EditMessageRequest form,
+    @Valid @ModelAttribute("form") EditTopicRequest form,
     Errors errors
   ) throws Exception {
     Template tmpl = Template.getTemplate(request);
@@ -197,8 +197,8 @@ public class EditController {
 
     Map<String, Object> params = new HashMap<String, Object>();
 
-    Message message = messageDao.getById(msgid);
-    PreparedMessage preparedMessage = messagePrepareService.prepareMessage(message, false, request.isSecure());
+    Topic message = messageDao.getById(msgid);
+    PreparedTopic preparedMessage = messagePrepareService.prepareMessage(message, false, request.isSecure());
     Group group = preparedMessage.getGroup();
 
     params.put("message", message);
@@ -251,7 +251,7 @@ public class EditController {
 
     params.put("commit", !message.isCommited() && preparedMessage.getSection().isPremoderated() && user.isModerator());
 
-    Message newMsg = new Message(group, message, form);
+    Topic newMsg = new Topic(group, message, form);
 
     boolean modified = false;
 
@@ -372,7 +372,7 @@ public class EditController {
 
   @InitBinder("form")
   public void requestValidator(WebDataBinder binder) {
-    binder.setValidator(new EditMessageRequestValidator());
+    binder.setValidator(new EditTopicRequestValidator());
 
     binder.setBindingErrorProcessor(new ExceptionBindingErrorProcessor());
   }

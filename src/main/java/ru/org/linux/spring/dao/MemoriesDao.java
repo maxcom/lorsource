@@ -22,7 +22,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.org.linux.site.MemoriesListItem;
-import ru.org.linux.site.Message;
+import ru.org.linux.site.Topic;
 import ru.org.linux.site.User;
 
 import javax.sql.DataSource;
@@ -64,7 +64,7 @@ public class MemoriesDao {
    * @param topic
    * @return
    */
-  public int getId(User user, Message topic) {
+  public int getId(User user, Topic topic) {
     List<Integer> res = jdbcTemplate.queryForList(
             "SELECT id FROM memories WHERE userid=? AND topic=?",
             Integer.class,

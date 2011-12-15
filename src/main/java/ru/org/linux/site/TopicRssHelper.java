@@ -22,18 +22,18 @@ import ru.org.linux.util.ImageInfo;
 import java.io.File;
 import java.io.IOException;
 
-public class MessageTable {
+public class TopicRssHelper {
   public static final int RSS_MIN = 10;
   public static final int RSS_MAX = 30;
   public static final int RSS_DEFAULT = 20;
 
-  private MessageTable() {
+  private TopicRssHelper() {
   }
 
-  public static String getTopicRss(String htmlPath, PreparedMessage preparedTopic) throws   IOException, BadImageException {
+  public static String getTopicRss(String htmlPath, PreparedTopic preparedTopic) throws   IOException, BadImageException {
     StringBuilder buf = new StringBuilder();
 
-    Message topic = preparedTopic.getMessage();
+    Topic topic = preparedTopic.getMessage();
 
     if (preparedTopic.getSection().isImagepost()) {
       buf.append(NewsViewer.showMediumImage(htmlPath, topic, true));

@@ -17,7 +17,7 @@ package ru.org.linux.poll;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.org.linux.site.Message;
+import ru.org.linux.site.Topic;
 
 @Service
 public class PollPrepareService {
@@ -43,7 +43,7 @@ public class PollPrepareService {
    * @param topic голосование
    * @return подготовленное голосование
    */
-  public PreparedPoll preparePoll(Message topic) throws PollNotFoundException {
+  public PreparedPoll preparePoll(Topic topic) throws PollNotFoundException {
     Poll poll = pollDao.getPollByTopicId(topic.getId());
 
     return new PreparedPoll(

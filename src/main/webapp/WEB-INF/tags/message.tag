@@ -6,9 +6,9 @@
 <%@ tag import="java.sql.Timestamp" %>
 <%@ tag import="java.text.DateFormat" %>
 <%@ tag pageEncoding="UTF-8"%>
-<%@ attribute name="message" required="true" type="ru.org.linux.site.Message" %>
-<%@ attribute name="preparedMessage" required="true" type="ru.org.linux.site.PreparedMessage" %>
-<%@ attribute name="messageMenu" required="true" type="ru.org.linux.site.MessageMenu" %>
+<%@ attribute name="message" required="true" type="ru.org.linux.site.Topic" %>
+<%@ attribute name="preparedMessage" required="true" type="ru.org.linux.site.PreparedTopic" %>
+<%@ attribute name="messageMenu" required="true" type="ru.org.linux.site.TopicMenu" %>
 <%@ attribute name="showMenu" required="true" type="java.lang.Boolean" %>
 <%@ attribute name="highlight" type="java.util.Set" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>

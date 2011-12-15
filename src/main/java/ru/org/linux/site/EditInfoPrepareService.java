@@ -17,7 +17,7 @@ package ru.org.linux.site;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.org.linux.spring.dao.MessageDao;
+import ru.org.linux.spring.dao.TopicDao;
 import ru.org.linux.spring.dao.TagDao;
 import ru.org.linux.spring.dao.UserDao;
 import ru.org.linux.util.bbcode.LorCodeService;
@@ -28,7 +28,7 @@ import java.util.List;
 @Service
 public class EditInfoPrepareService {
   @Autowired
-  private MessageDao messageDao;
+  private TopicDao messageDao;
 
   @Autowired
   private TagDao tagDao;
@@ -39,7 +39,7 @@ public class EditInfoPrepareService {
   @Autowired
   private LorCodeService lorCodeService;
 
-  public List<PreparedEditInfo> prepareEditInfo(Message message, boolean secure) throws UserNotFoundException, UserErrorException {
+  public List<PreparedEditInfo> prepareEditInfo(Topic message, boolean secure) throws UserNotFoundException, UserErrorException {
     List<EditInfoDTO> editInfoDTOs = messageDao.loadEditInfo(message.getId());
     List<PreparedEditInfo> editInfos = new ArrayList<PreparedEditInfo>(editInfoDTOs.size());
 

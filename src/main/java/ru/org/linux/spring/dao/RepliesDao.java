@@ -38,7 +38,7 @@ public class RepliesDao {
   private JdbcTemplate jdbcTemplate;
   private UserDao userDao;
   private LorCodeService lorCodeService;
-  private MessageDao messageDao;
+  private TopicDao messageDao;
 
   @Autowired
   public void setJdbcTemplate(DataSource dataSource) {
@@ -56,7 +56,7 @@ public class RepliesDao {
   }
 
   @Autowired
-  public void setMessageDao(MessageDao messageDao) {
+  public void setMessageDao(TopicDao messageDao) {
     this.messageDao = messageDao;
   }
 
@@ -157,7 +157,7 @@ public class RepliesDao {
           if(cid != 0) { // Комментарий
             messageText = lorCodeService.prepareTextRSS(resultSet.getString("cMessage"), secure, resultSet.getBoolean("bbcode"));
           } else { // Топик
-            Message message;
+            Topic message;
             try {
               message = messageDao.getById(msgid);
             } catch (MessageNotFoundException e) {

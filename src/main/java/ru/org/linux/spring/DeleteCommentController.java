@@ -25,7 +25,7 @@ import org.springframework.web.servlet.ModelAndView;
 import ru.org.linux.search.SearchQueueSender;
 import ru.org.linux.site.*;
 import ru.org.linux.spring.dao.CommentDao;
-import ru.org.linux.spring.dao.MessageDao;
+import ru.org.linux.spring.dao.TopicDao;
 import ru.org.linux.spring.dao.UserDao;
 
 import javax.servlet.http.HttpServletRequest;
@@ -39,7 +39,7 @@ import java.util.Map;
 public class DeleteCommentController {
   private SearchQueueSender searchQueueSender;
   private CommentDao commentDao;
-  private MessageDao messageDao;
+  private TopicDao messageDao;
   private UserDao userDao;
   private CommentPrepareService prepareService;
 
@@ -52,7 +52,7 @@ public class DeleteCommentController {
   }
 
   @Autowired
-  public void setMessageDao(MessageDao messageDao) {
+  public void setMessageDao(TopicDao messageDao) {
     this.messageDao = messageDao;
   }
 
@@ -95,7 +95,7 @@ public class DeleteCommentController {
 
     int topicId = comment.getTopicId();
 
-    Message topic = messageDao.getById(topicId);
+    Topic topic = messageDao.getById(topicId);
 
     if (topic.isDeleted()) {
       throw new AccessViolationException("тема удалена");
@@ -140,7 +140,7 @@ public class DeleteCommentController {
     user.checkAnonymous();
 
     Comment comment = commentDao.getById(msgid);
-    Message topic = messageDao.getById(comment.getTopicId());
+    Topic topic = messageDao.getById(comment.getTopicId());
 
     if (comment.isDeleted()) {
       throw new UserErrorException("комментарий уже удален");

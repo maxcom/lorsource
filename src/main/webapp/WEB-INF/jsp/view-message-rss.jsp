@@ -14,16 +14,16 @@
   ~    limitations under the License.
   --%>
 <%@ page contentType="application/rss+xml; charset=utf-8"%>
-<%@ page import="ru.org.linux.site.MessageTable"   buffer="200kb"%>
-<%@ page import="ru.org.linux.site.PreparedMessage" %>
+<%@ page import="ru.org.linux.site.TopicRssHelper"   buffer="200kb"%>
+<%@ page import="ru.org.linux.site.PreparedTopic" %>
 <%@ page import="ru.org.linux.site.Template" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
-<%--@elvariable id="message" type="ru.org.linux.site.Message"--%>
+<%--@elvariable id="message" type="ru.org.linux.site.Topic"--%>
 <%--@elvariable id="comments" type="ru.org.linux.site.CommentList"--%>
 <%--@elvariable id="commentsPrepared" type="java.util.List<ru.org.linux.site.PreparedComment>"--%>
-<%--@elvariable id="preparedMessage" type="ru.org.linux.site.PreparedMessage"--%>
+<%--@elvariable id="preparedMessage" type="ru.org.linux.site.PreparedTopic"--%>
 <% Template tmpl = Template.getTemplate(request); %>
 
 <rss version="2.0">
@@ -32,9 +32,9 @@
 <language>ru</language>
 <title>Linux.org.ru: ${message.title}</title>
   <description><![CDATA[<%
-    out.print(MessageTable.getTopicRss(
+    out.print(TopicRssHelper.getTopicRss(
             tmpl.getConfig().getProperty("HTMLPathPrefix"),
-            (PreparedMessage) request.getAttribute("preparedMessage")));
+            (PreparedTopic) request.getAttribute("preparedMessage")));
 %>]]>
   </description>
   <c:forEach items="${commentsPrepared}" var="comment">

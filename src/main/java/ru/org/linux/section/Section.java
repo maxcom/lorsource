@@ -15,7 +15,7 @@
 
 package ru.org.linux.section;
 
-import ru.org.linux.site.Message;
+import ru.org.linux.site.Topic;
 
 import java.io.Serializable;
 import java.sql.*;
@@ -133,7 +133,7 @@ public class Section implements Serializable {
   public static int getCommentPostscore(int id) {
     //TODO move this to database
     if (id==1 || id==2) {
-      return Message.POSTSCORE_UNRESTRICTED;
+      return Topic.POSTSCORE_UNRESTRICTED;
     } else {
       return 50;
     }

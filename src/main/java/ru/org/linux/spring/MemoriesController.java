@@ -25,14 +25,14 @@ import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.site.*;
 import ru.org.linux.spring.dao.MemoriesDao;
-import ru.org.linux.spring.dao.MessageDao;
+import ru.org.linux.spring.dao.TopicDao;
 
 import javax.servlet.ServletRequest;
 
 @Controller
 public class MemoriesController {
   @Autowired
-  private MessageDao messageDao;
+  private TopicDao messageDao;
 
   @Autowired
   private MemoriesDao memoriesDao;
@@ -52,7 +52,7 @@ public class MemoriesController {
     user.checkBlocked();
     user.checkAnonymous();
 
-    Message topic = messageDao.getById(msgid);
+    Topic topic = messageDao.getById(msgid);
     if (topic.isDeleted()) {
       throw new UserErrorException("Тема удалена");
     }
@@ -84,7 +84,7 @@ public class MemoriesController {
         throw new AccessViolationException("Нельзя удалить чужую запись");
       }
 
-      Message topic = messageDao.getById(m.getTopic());
+      Topic topic = messageDao.getById(m.getTopic());
 
       memoriesDao.delete(id);
 

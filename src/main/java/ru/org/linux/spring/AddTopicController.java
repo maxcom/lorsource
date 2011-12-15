@@ -37,7 +37,7 @@ import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionDao;
 import ru.org.linux.site.*;
 import ru.org.linux.spring.dao.*;
-import ru.org.linux.spring.validators.AddMessageRequestValidator;
+import ru.org.linux.spring.validators.AddTopicRequestValidator;
 import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.ExceptionBindingErrorProcessor;
 import ru.org.linux.util.UtilException;
@@ -56,7 +56,7 @@ import java.util.Random;
 import java.util.Set;
 
 @Controller
-public class AddMessageController extends ApplicationObjectSupport {
+public class AddTopicController extends ApplicationObjectSupport {
   private SearchQueueSender searchQueueSender;
   private CaptchaService captcha;
   private DupeProtector dupeProtector;
@@ -67,9 +67,9 @@ public class AddMessageController extends ApplicationObjectSupport {
   private UserDao userDao;
 
   @Autowired
-  private MessagePrepareService prepareService;
+  private TopicPrepareService prepareService;
 
-  private MessageDao messageDao;
+  private TopicDao messageDao;
   private ToLorCodeFormatter toLorCodeFormatter;
 
   @Autowired
@@ -119,7 +119,7 @@ public class AddMessageController extends ApplicationObjectSupport {
   }
 
   @Autowired
-  public void setMessageDao(MessageDao messageDao) {
+  public void setMessageDao(TopicDao messageDao) {
     this.messageDao = messageDao;
   }
 
@@ -129,7 +129,7 @@ public class AddMessageController extends ApplicationObjectSupport {
   }
 
   @RequestMapping(value = "/add.jsp", method = RequestMethod.GET)
-  public ModelAndView add(@Valid @ModelAttribute("form") AddMessageRequest form, HttpServletRequest request) throws Exception {
+  public ModelAndView add(@Valid @ModelAttribute("form") AddTopicRequest form, HttpServletRequest request) throws Exception {
     Map<String, Object> params = new HashMap<String, Object>();
 
     Template tmpl = Template.getTemplate(request);
@@ -171,7 +171,7 @@ public class AddMessageController extends ApplicationObjectSupport {
   @RequestMapping(value="/add.jsp", method=RequestMethod.POST)
   public ModelAndView doAdd(
           HttpServletRequest request,
-          @Valid @ModelAttribute("form") AddMessageRequest form,
+          @Valid @ModelAttribute("form") AddTopicRequest form,
           BindingResult errors
   ) throws Exception {
     Map<String, Object> params = new HashMap<String, Object>();
@@ -247,10 +247,10 @@ public class AddMessageController extends ApplicationObjectSupport {
       }
     }
 
-    Message previewMsg = null;
+    Topic previewMsg = null;
 
     if (group!=null) {
-      previewMsg = new Message(form, user, message, request.getRemoteAddr());
+      previewMsg = new Topic(form, user, message, request.getRemoteAddr());
       params.put("message", prepareService.prepareMessage(previewMsg, TagDao.parseSanitizeTags(form.getTags()), null, request.isSecure()));
     }
 
@@ -337,7 +337,7 @@ public class AddMessageController extends ApplicationObjectSupport {
 
   @InitBinder("form")
   public void requestValidator(WebDataBinder binder) {
-    binder.setValidator(new AddMessageRequestValidator());
+    binder.setValidator(new AddTopicRequestValidator());
 
     binder.setBindingErrorProcessor(new ExceptionBindingErrorProcessor());
   }

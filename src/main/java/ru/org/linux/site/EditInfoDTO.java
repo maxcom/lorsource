@@ -102,7 +102,7 @@ public class EditInfoDTO {
     this.oldurl = oldurl;
   }
 
-  public static EditInfoDTO createFromMessage(TagDao tagDao, Message message) {
+  public static EditInfoDTO createFromMessage(TagDao tagDao, Topic message) {
     EditInfoDTO current = new EditInfoDTO();
 
     current.setOldmessage(message.getMessage());

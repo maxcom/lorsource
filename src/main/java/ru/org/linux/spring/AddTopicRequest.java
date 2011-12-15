@@ -19,7 +19,7 @@ import ru.org.linux.group.Group;
 import ru.org.linux.poll.Poll;
 import ru.org.linux.site.User;
 
-public class AddMessageRequest {
+public class AddTopicRequest {
   private String title;
   private String msg;
   private String url;

@@ -20,7 +20,7 @@ import org.junit.Test;
 import ru.org.linux.group.GroupDao;
 import ru.org.linux.poll.PollDao;
 import ru.org.linux.section.SectionDao;
-import ru.org.linux.site.Message;
+import ru.org.linux.site.Topic;
 import ru.org.linux.spring.dao.*;
 
 import static org.mockito.Mockito.mock;
@@ -35,14 +35,14 @@ public class PrepareServiceTest {
   @Test
   public void prepareMessageTest() {
     ImmutableList<String> tags = ImmutableList.of("one", "two");
-    Message message = mock(Message.class);
+    Topic message = mock(Topic.class);
 
     PollDao pollDao = mock(PollDao.class);
     GroupDao groupDao = mock(GroupDao.class);
     UserDao userDao = mock(UserDao.class);
     SectionDao sectionDao = mock(SectionDao.class);
     DeleteInfoDao deleteInfoDao = mock(DeleteInfoDao.class);
-    MessageDao messageDao = mock(MessageDao.class);
+    TopicDao messageDao = mock(TopicDao.class);
     UserAgentDao userAgentDao = mock(UserAgentDao.class);
 
     when(message.getGroupId()).thenReturn(13); // group id 13

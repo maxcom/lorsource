@@ -21,22 +21,22 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 import ru.org.linux.site.BadPasswordException;
 import ru.org.linux.site.UserErrorException;
-import ru.org.linux.spring.AddMessageRequest;
+import ru.org.linux.spring.AddTopicRequest;
 import ru.org.linux.spring.dao.TagDao;
 import ru.org.linux.util.URLUtil;
 
-public class AddMessageRequestValidator implements Validator {
+public class AddTopicRequestValidator implements Validator {
   public static final int MAX_TITLE_LENGTH = 255;
   public static final int MAX_URL_LENGTH = 255;
 
   @Override
   public boolean supports(Class<?> clazz) {
-    return AddMessageRequest.class.equals(clazz);
+    return AddTopicRequest.class.equals(clazz);
   }
 
   @Override
   public void validate(Object target, Errors errors) {
-    AddMessageRequest form = (AddMessageRequest) target;
+    AddTopicRequest form = (AddTopicRequest) target;
 
     if (form.getGroup()==null) {
       errors.rejectValue("group", null, "Группа не задана");

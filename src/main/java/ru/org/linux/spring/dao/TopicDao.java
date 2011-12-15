@@ -40,7 +40,7 @@ import ru.org.linux.poll.PollNotFoundException;
 import ru.org.linux.poll.PollVariant;
 import ru.org.linux.section.Section;
 import ru.org.linux.site.*;
-import ru.org.linux.spring.AddMessageRequest;
+import ru.org.linux.spring.AddTopicRequest;
 import ru.org.linux.util.LorHttpUtils;
 
 import javax.servlet.http.HttpServletRequest;
@@ -57,8 +57,8 @@ import java.util.*;
  */
 
 @Repository
-public class MessageDao {
-  private static final Log logger = LogFactory.getLog(MessageDao.class);
+public class TopicDao {
+  private static final Log logger = LogFactory.getLog(TopicDao.class);
 
   @Autowired
   private GroupDao groupDao;
@@ -140,7 +140,7 @@ public class MessageDao {
    * @param message топик
    * @return содержимое
    */
-  public String getMessage(Message message) {
+  public String getMessage(Topic message) {
     return jdbcTemplate.queryForObject(queryOnlyMessage, String.class, message.getId());
   }
 
@@ -150,13 +150,13 @@ public class MessageDao {
    * @return сообщение
    * @throws MessageNotFoundException при отсутствии сообщения
    */
-  public Message getById(int id) throws MessageNotFoundException {
-    Message message;
+  public Topic getById(int id) throws MessageNotFoundException {
+    Topic message;
     try {
-      message = jdbcTemplate.queryForObject(queryMessage, new RowMapper<Message>() {
+      message = jdbcTemplate.queryForObject(queryMessage, new RowMapper<Topic>() {
         @Override
-        public Message mapRow(ResultSet resultSet, int i) throws SQLException {
-          return new Message(resultSet);
+        public Topic mapRow(ResultSet resultSet, int i) throws SQLException {
+          return new Topic(resultSet);
         }
       }, id);
     } catch (EmptyResultDataAccessException exception) {
@@ -171,7 +171,7 @@ public class MessageDao {
    * @return group
    * @throws BadGroupException если что-то неправильно
    */
-  public Group getGroup(Message message) throws BadGroupException {
+  public Group getGroup(Topic message) throws BadGroupException {
     return groupDao.getGroup(message.getGroupId());
   }
 
@@ -225,7 +225,7 @@ public class MessageDao {
    * @param message топик
    * @return список тэгов
    */
-  public ImmutableList<String> getTags(Message message) {
+  public ImmutableList<String> getTags(Topic message) {
     final ImmutableList.Builder<String> tags = ImmutableList.builder();
 
     jdbcTemplate.query(queryTags, new RowCallbackHandler() {
@@ -247,7 +247,7 @@ public class MessageDao {
    * @throws UserErrorException генерируется если некорректная делта score
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public void deleteWithBonus(Message message, User user, String reason, int bonus) throws UserErrorException {
+  public void deleteWithBonus(Topic message, User user, String reason, int bonus) throws UserErrorException {
     String finalReason = reason;
     jdbcTemplate.update(updateDeleteMessage, message.getId());
     if (user.isModerator() && bonus!=0 && user.getId()!=message.getUid()) {
@@ -261,7 +261,7 @@ public class MessageDao {
   }
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public void undelete(Message message) {
+  public void undelete(Topic message) {
     jdbcTemplate.update(updateUndeleteMessage, message.getId());
     jdbcTemplate.update(updateUneleteInfo, message.getId());
   }
@@ -282,7 +282,7 @@ public class MessageDao {
    * @throws ScriptErrorException
    */
 // call in @Transactional environment
-  public int saveNewMessage(final Message msg, Template tmpl, final HttpServletRequest request, Screenshot scrn, final User user) throws  IOException,  ScriptErrorException {
+  public int saveNewMessage(final Topic msg, Template tmpl, final HttpServletRequest request, Screenshot scrn, final User user) throws  IOException,  ScriptErrorException {
 
     final Group group = groupDao.getGroup(msg.getGroupId());
 
@@ -337,7 +337,7 @@ public class MessageDao {
   }
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public int addMessage(HttpServletRequest request, AddMessageRequest form, Template tmpl, Group group, User user, Screenshot scrn, Message previewMsg, Set<User> userRefs) throws IOException, ScriptErrorException, UserErrorException {
+  public int addMessage(HttpServletRequest request, AddTopicRequest form, Template tmpl, Group group, User user, Screenshot scrn, Topic previewMsg, Set<User> userRefs) throws IOException, ScriptErrorException, UserErrorException {
     final int msgid = saveNewMessage(
             previewMsg,
             tmpl,
@@ -362,7 +362,7 @@ public class MessageDao {
     return msgid;
   }
 
-  private boolean updateMessage(Message oldMsg, Message msg, User editor, List<String> newTags) {
+  private boolean updateMessage(Topic oldMsg, Topic msg, User editor, List<String> newTags) {
     List<String> oldTags = tagDao.getMessageTags(msg.getId());
 
     EditInfoDTO editInfo = new EditInfoDTO();
@@ -443,7 +443,7 @@ public class MessageDao {
     return s1.equals(s2);
   }
 
-  private boolean updatePoll(Message message, List<PollVariant> newVariants, boolean multiselect) throws PollNotFoundException {
+  private boolean updatePoll(Topic message, List<PollVariant> newVariants, boolean multiselect) throws PollNotFoundException {
     boolean modified = false;
 
     final Poll poll = pollDao.getPollByTopicId(message.getId());
@@ -484,8 +484,8 @@ public class MessageDao {
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   public boolean updateAndCommit(
-          Message newMsg,
-          Message message,
+          Topic newMsg,
+          Topic message,
           User user,
           List<String> newTags,
           boolean commit,
@@ -522,7 +522,7 @@ public class MessageDao {
     return modified;
   }
 
-  private void commit(Message msg, User commiter, int bonus) {
+  private void commit(Topic msg, User commiter, int bonus) {
     if (bonus < 0 || bonus > 20) {
       throw new IllegalStateException("Неверное значение bonus");
     }
@@ -543,11 +543,11 @@ public class MessageDao {
     userDao.changeScore(author.getId(), bonus);
   }
 
-  public void uncommit(Message msg) {
+  public void uncommit(Topic msg) {
     jdbcTemplate.update("UPDATE topics SET moderate='f',commitby=NULL,commitdate=NULL WHERE id=?", msg.getId());
   }
 
-  public Message getPreviousMessage(Message message, User currentUser) {
+  public Topic getPreviousMessage(Topic message, User currentUser) {
     int scrollMode = Section.getScrollMode(message.getSectionId());
 
     List<Integer> res;
@@ -605,7 +605,7 @@ public class MessageDao {
     }
   }
 
-  public Message getNextMessage(Message message, User currentUser) {
+  public Topic getNextMessage(Topic message, User currentUser) {
     int scrollMode = Section.getScrollMode(message.getSectionId());
 
     List<Integer> res;
@@ -680,7 +680,7 @@ public class MessageDao {
     );
   }
 
-  public void setTopicOptions(Message msg, int postscore, boolean sticky, boolean notop, boolean minor) {
+  public void setTopicOptions(Topic msg, int postscore, boolean sticky, boolean notop, boolean minor) {
     jdbcTemplate.update(
             "UPDATE topics SET postscore=?, sticky=?, notop=?, lastmod=CURRENT_TIMESTAMP,minor=? WHERE id=?",
             postscore,
@@ -692,7 +692,7 @@ public class MessageDao {
   }
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public void moveTopic(Message msg, Group newGrp, User moveBy) {
+  public void moveTopic(Topic msg, Group newGrp, User moveBy) {
     String url = msg.getUrl();
 
     jdbcTemplate.update("UPDATE topics SET groupid=?,lastmod=CURRENT_TIMESTAMP WHERE id=?", newGrp.getId(), msg.getId());

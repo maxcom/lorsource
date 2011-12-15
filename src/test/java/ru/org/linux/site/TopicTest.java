@@ -32,7 +32,7 @@ import static org.mockito.Mockito.*;
  * Date: 8/30/11
  * Time: 4:27 PM
  */
-public class MessageTest {
+public class TopicTest {
 
   /**
    * Проверка что пользователь МОЖЕТ удалить топик автором которого он является
@@ -66,7 +66,7 @@ public class MessageTest {
     when(user.isModerator()).thenReturn(false);
     when(user.getId()).thenReturn(13);
 
-    Message message = new Message(resultSet);
+    Topic message = new Topic(resultSet);
 
     Assert.assertEquals(false, user.isModerator());
     Assert.assertTrue(user.getId() == resultSet.getInt("userid"));
@@ -106,7 +106,7 @@ public class MessageTest {
     when(user.isModerator()).thenReturn(false);
     when(user.getId()).thenReturn(13);
 
-    Message message = new Message(resultSet);
+    Topic message = new Topic(resultSet);
 
     Assert.assertEquals(false, user.isModerator());
     Assert.assertTrue(user.getId() == resultSet.getInt("userid"));
@@ -147,7 +147,7 @@ public class MessageTest {
     when(user.isModerator()).thenReturn(false);
     when(user.getId()).thenReturn(14);
 
-    Message message = new Message(resultSet);
+    Topic message = new Topic(resultSet);
 
     Assert.assertEquals(false, user.isModerator());
     Assert.assertFalse(user.getId() == resultSet.getInt("userid"));
@@ -188,7 +188,7 @@ public class MessageTest {
     when(user.isModerator()).thenReturn(false);
     when(user.getId()).thenReturn(14);
 
-    Message message = new Message(resultSet);
+    Topic message = new Topic(resultSet);
 
     Assert.assertEquals(false, user.isModerator());
     Assert.assertFalse(user.getId() == resultSet.getInt("userid"));
@@ -307,10 +307,10 @@ public class MessageTest {
     Assert.assertTrue((new Timestamp(oldTime)).compareTo(resultSetNotModerateOld.getTimestamp("postdate")) == 0);
 
 
-    Message messageModerateOld = new Message(resultSetModerateOld);
-    Message messageNotModerateOld = new Message(resultSetNotModerateOld);
-    Message messageModerateNew = new Message(resultSetModerateNew);
-    Message messageNotModerateNew = new Message(resultSetNotModerateNew);
+    Topic messageModerateOld = new Topic(resultSetModerateOld);
+    Topic messageNotModerateOld = new Topic(resultSetNotModerateOld);
+    Topic messageModerateNew = new Topic(resultSetModerateNew);
+    Topic messageNotModerateNew = new Topic(resultSetNotModerateNew);
 
     // проверка что данные в mock message верные
     Assert.assertEquals(true, messageModerateNew.isCommited());

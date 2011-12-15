@@ -41,15 +41,15 @@ import java.util.Map;
 import java.util.Set;
 
 @Controller
-public class MessageController {
+public class TopicController {
   @Autowired
-  private MessageDao messageDao;
+  private TopicDao messageDao;
 
   @Autowired
   private CommentPrepareService prepareService;
 
   @Autowired
-  private MessagePrepareService messagePrepareService;
+  private TopicPrepareService messagePrepareService;
 
   @Autowired
   private CommentDao commentDao;
@@ -207,8 +207,8 @@ public class MessageController {
     int msgid,
     Set<Integer> highlight)
   throws Exception {
-    Message message = messageDao.getById(msgid);
-    PreparedMessage preparedMessage = messagePrepareService.prepareMessage(message, false, request.isSecure());
+    Topic message = messageDao.getById(msgid);
+    PreparedTopic preparedMessage = messagePrepareService.prepareMessage(message, false, request.isSecure());
     Group group = preparedMessage.getGroup();
 
     if (!group.getUrlName().equals(groupName) || group.getSectionId() != section) {
@@ -236,7 +236,7 @@ public class MessageController {
     @RequestParam(value="filter", required=false) String filter,
     @RequestParam(required=false) String output
   ) throws Exception {
-    Message message = messageDao.getById(msgid);
+    Topic message = messageDao.getById(msgid);
 
     StringBuilder link = new StringBuilder(message.getLink());
 
@@ -277,13 +277,13 @@ public class MessageController {
     WebRequest webRequest,
     HttpServletRequest request,
     HttpServletResponse response,
-    PreparedMessage preparedMessage,
+    PreparedTopic preparedMessage,
     Group group,
     int page,
     String filter,
     Set<Integer> highlight
   ) throws Exception {
-    Message message = preparedMessage.getMessage();
+    Topic message = preparedMessage.getMessage();
 
     Template tmpl = Template.getTemplate(request);
 
@@ -418,7 +418,7 @@ public class MessageController {
     } else {
       CommentFilter cv = new CommentFilter(comments);
 
-      List<Comment> commentsFiltred = cv.getComments(true, 0, MessageTable.RSS_DEFAULT, null);
+      List<Comment> commentsFiltred = cv.getComments(true, 0, TopicRssHelper.RSS_DEFAULT, null);
 
       List<PreparedComment> commentsPrepared = prepareService.prepareCommentListRSS(comments, commentsFiltred, request.isSecure());
 
@@ -430,7 +430,7 @@ public class MessageController {
     return new ModelAndView(rss ? "view-message-rss" : "view-message", params);
   }
 
-  private static void checkView(Message message, Template tmpl, User currentUser) throws MessageNotFoundException {
+  private static void checkView(Topic message, Template tmpl, User currentUser) throws MessageNotFoundException {
     if (tmpl.isModeratorSession()) {
       return;
     }
@@ -454,7 +454,7 @@ public class MessageController {
     }
   }
 
-  private static boolean checkLastModified(WebRequest webRequest, Message message) {
+  private static boolean checkLastModified(WebRequest webRequest, Topic message) {
     try {
       return webRequest.checkNotModified(message.getLastModified().getTime());
     } catch (IllegalArgumentException ignored) {
@@ -462,7 +462,7 @@ public class MessageController {
     }
   }
 
-  private static String getEtag(Message message, Template tmpl) {
+  private static String getEtag(Topic message, Template tmpl) {
     String nick = tmpl.getNick();
 
     String userAddon = nick!=null?('-' +nick):"";
@@ -479,7 +479,7 @@ public class MessageController {
           int msgid,
           int cid) throws Exception {
     Template tmpl = Template.getTemplate(request);
-    Message topic = messageDao.getById(msgid);
+    Topic topic = messageDao.getById(msgid);
     String redirectUrl = topic.getLink();
     StringBuffer options = new StringBuffer();
 
@@ -526,7 +526,7 @@ public class MessageController {
   ) throws Exception {
     Template tmpl = Template.getTemplate(request);
 
-    Message topic = messageDao.getById(msgid);
+    Topic topic = messageDao.getById(msgid);
 
     String redirectUrl = topic.getLink();
     StringBuffer options = new StringBuffer();

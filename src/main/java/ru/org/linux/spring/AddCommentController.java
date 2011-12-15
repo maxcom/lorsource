@@ -30,7 +30,7 @@ import ru.org.linux.search.SearchQueueSender;
 import ru.org.linux.site.*;
 import ru.org.linux.spring.dao.CommentDao;
 import ru.org.linux.spring.dao.IPBlockDao;
-import ru.org.linux.spring.dao.MessageDao;
+import ru.org.linux.spring.dao.TopicDao;
 import ru.org.linux.spring.dao.UserDao;
 import ru.org.linux.spring.validators.AddCommentRequestValidator;
 import ru.org.linux.util.ExceptionBindingErrorProcessor;
@@ -54,7 +54,7 @@ public class AddCommentController extends ApplicationObjectSupport {
   private CaptchaService captcha;
   private DupeProtector dupeProtector;
   private CommentDao commentDao;
-  private MessageDao messageDao;
+  private TopicDao messageDao;
   private UserDao userDao;
   private IPBlockDao ipBlockDao;
   private CommentPrepareService prepareService;
@@ -63,7 +63,7 @@ public class AddCommentController extends ApplicationObjectSupport {
   private ToLorCodeTexFormatter toLorCodeTexFormatter;
 
   @Autowired
-  private MessagePrepareService messagePrepareService;
+  private TopicPrepareService messagePrepareService;
 
   @Autowired
   public void setSearchQueueSender(SearchQueueSender searchQueueSender) {
@@ -86,7 +86,7 @@ public class AddCommentController extends ApplicationObjectSupport {
   }
 
   @Autowired
-  public void setMessageDao(MessageDao messageDao) {
+  public void setMessageDao(TopicDao messageDao) {
     this.messageDao = messageDao;
   }
 
@@ -307,7 +307,7 @@ public class AddCommentController extends ApplicationObjectSupport {
 
   @InitBinder
   public void initBinder(WebDataBinder binder) {
-    binder.registerCustomEditor(Message.class, new PropertyEditorSupport() {
+    binder.registerCustomEditor(Topic.class, new PropertyEditorSupport() {
       @Override
       public void setAsText(String text) throws IllegalArgumentException {
         try {

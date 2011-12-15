@@ -64,7 +64,7 @@ public class NewsViewerController {
   private TagDao tagDao;
 
   @Autowired
-  private MessagePrepareService prepareService;
+  private TopicPrepareService prepareService;
 
   @Autowired
   private UserDao userDao;
@@ -247,9 +247,9 @@ public class NewsViewerController {
       newsViewer.setLimit("LIMIT 20" + (offset > 0 ? (" OFFSET " + offset) : ""));
     }
 
-    List<Message> messages = jdbcTemplate.execute(new ConnectionCallback<List<Message>>() {
+    List<Topic> messages = jdbcTemplate.execute(new ConnectionCallback<List<Topic>>() {
       @Override
-      public List<Message> doInConnection(Connection con) throws SQLException, DataAccessException {
+      public List<Topic> doInConnection(Connection con) throws SQLException, DataAccessException {
         return newsViewer.getMessagesCached(con);
       }
     });
@@ -311,9 +311,9 @@ public class NewsViewerController {
 
     newsViewer.setUserid(user.getId());
 
-    List<Message> messages = jdbcTemplate.execute(new ConnectionCallback<List<Message>>() {
+    List<Topic> messages = jdbcTemplate.execute(new ConnectionCallback<List<Topic>>() {
       @Override
-      public List<Message> doInConnection(Connection con) throws SQLException, DataAccessException {
+      public List<Topic> doInConnection(Connection con) throws SQLException, DataAccessException {
         return newsViewer.getMessagesCached(con);
       }
     });
@@ -374,9 +374,9 @@ public class NewsViewerController {
     newsViewer.setUserid(user.getId());
     newsViewer.setUserFavs(true);
 
-    List<Message> messages = jdbcTemplate.execute(new ConnectionCallback<List<Message>>() {
+    List<Topic> messages = jdbcTemplate.execute(new ConnectionCallback<List<Topic>>() {
       @Override
-      public List<Message> doInConnection(Connection con) throws SQLException, DataAccessException {
+      public List<Topic> doInConnection(Connection con) throws SQLException, DataAccessException {
         return newsViewer.getMessagesCached(con);
       }
     });
@@ -435,9 +435,9 @@ public class NewsViewerController {
       newsViewer.addSection(section.getId());
     }
 
-    List<Message> messages = jdbcTemplate.execute(new ConnectionCallback<List<Message>>() {
+    List<Topic> messages = jdbcTemplate.execute(new ConnectionCallback<List<Topic>>() {
       @Override
-      public List<Message> doInConnection(Connection con) throws SQLException, DataAccessException {
+      public List<Topic> doInConnection(Connection con) throws SQLException, DataAccessException {
         return newsViewer.getMessages(con);
       }
     });
@@ -751,9 +751,9 @@ public class NewsViewerController {
 
     params.put("ptitle", ptitle);
 
-    List<Message> messages = jdbcTemplate.execute(new ConnectionCallback<List<Message>>() {
+    List<Topic> messages = jdbcTemplate.execute(new ConnectionCallback<List<Topic>>() {
       @Override
-      public List<Message> doInConnection(Connection con) throws SQLException, DataAccessException {
+      public List<Topic> doInConnection(Connection con) throws SQLException, DataAccessException {
         return feedBurner ? nv.getMessages(con) : nv.getMessagesCached(con);
       }
     });

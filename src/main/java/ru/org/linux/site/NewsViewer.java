@@ -61,7 +61,7 @@ public class NewsViewer {
 
   private CommitMode commitMode = CommitMode.COMMITED_AND_POSTMODERATED;
 
-  public static String showMediumImage(String htmlPath, Message topic, boolean showMedium) {
+  public static String showMediumImage(String htmlPath, Topic topic, boolean showMedium) {
     StringBuilder out = new StringBuilder();
     String url = topic.getUrl();
 
@@ -90,7 +90,7 @@ public class NewsViewer {
     return out.toString();
   }
 
-  public List<Message> getMessagesCached(Connection db) throws SQLException {
+  public List<Topic> getMessagesCached(Connection db) throws SQLException {
     if (getCacheAge()==0) {
       return getMessages(db);
     }
@@ -99,7 +99,7 @@ public class NewsViewer {
 
     String cacheId = getVariantID();
 
-    List<Message> res = (List<Message>) mcc.getFromCache(cacheId);
+    List<Topic> res = (List<Topic>) mcc.getFromCache(cacheId);
 
     if (res == null) {
       res = getMessages(db);
@@ -109,7 +109,7 @@ public class NewsViewer {
     return res;
   }
 
-  public List<Message> getMessages(Connection db) throws SQLException {
+  public List<Topic> getMessages(Connection db) throws SQLException {
     Statement st = db.createStatement();
 
     StringBuilder where = new StringBuilder(
@@ -200,10 +200,10 @@ public class NewsViewer {
           sort+ ' ' +limit
     );
 
-    List<Message> messages = new ArrayList<Message>();
+    List<Topic> messages = new ArrayList<Topic>();
 
     while (res.next()) {
-      Message message = new Message(res);
+      Topic message = new Topic(res);
       messages.add(message);
     }
 
