@@ -1,10 +1,10 @@
 <%@ tag import="ru.org.linux.site.Template" %>
 <%@ tag import="ru.org.linux.site.User" %>
+<%@ tag import="ru.org.linux.topic.NewsViewer" %>
 <%@ tag import="ru.org.linux.util.StringUtil" %>
 <%@ tag import="java.net.URLEncoder" %>
 <%@ tag import="java.sql.Timestamp" %>
 <%@ tag import="java.text.DateFormat" %>
-<%@ tag import="ru.org.linux.topic.NewsViewer" %>
 <%@ tag pageEncoding="UTF-8"%>
 <%@ attribute name="message" required="true" type="ru.org.linux.topic.Topic" %>
 <%@ attribute name="preparedMessage" required="true" type="ru.org.linux.topic.PreparedTopic" %>

@@ -30,6 +30,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import ru.org.linux.site.Template;
 import ru.org.linux.gallery.Screenshot;
 import ru.org.linux.group.BadGroupException;
 import ru.org.linux.group.Group;

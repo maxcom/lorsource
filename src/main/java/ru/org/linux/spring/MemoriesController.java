@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.view.RedirectView;
+import ru.org.linux.site.Template;
 import ru.org.linux.site.*;
 import ru.org.linux.spring.dao.MemoriesDao;
 import ru.org.linux.topic.TopicDao;

@@ -22,11 +22,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
+import ru.org.linux.site.Template;
 import ru.org.linux.comment.CommentDao;
 import ru.org.linux.comment.DeleteCommentResult;
 import ru.org.linux.search.SearchQueueSender;
 import ru.org.linux.site.AccessViolationException;
-import ru.org.linux.site.Template;
 import ru.org.linux.site.User;
 import ru.org.linux.site.UserErrorException;
 

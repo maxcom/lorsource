@@ -20,7 +20,8 @@ import org.jasypt.exceptions.EncryptionOperationNotPossibleException;
 import org.jasypt.util.password.BasicPasswordEncryptor;
 import org.jasypt.util.password.PasswordEncryptor;
 import org.springframework.validation.Errors;
-import ru.org.linux.spring.LoginController;
+import ru.org.linux.auth.BadPasswordException;
+import ru.org.linux.auth.LoginController;
 import ru.org.linux.util.StringUtil;
 
 import javax.servlet.http.Cookie;

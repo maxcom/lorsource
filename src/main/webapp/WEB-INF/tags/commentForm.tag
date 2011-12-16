@@ -1,4 +1,3 @@
-<%@ tag import="ru.org.linux.topic.Topic" %>
 <%@ tag import="ru.org.linux.site.Template" %>
 <%@ tag import="ru.org.linux.util.StringUtil" %>
 <%--

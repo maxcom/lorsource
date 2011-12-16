@@ -1,6 +1,5 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ tag import="ru.org.linux.site.Template" %>
-
 <%--
   ~ Copyright 1998-2010 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");

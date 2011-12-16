@@ -1,8 +1,7 @@
-<%@ tag import="java.io.IOException" %>
 <%@ tag import="ru.org.linux.site.Template" %>
 <%@ tag import="ru.org.linux.util.BadImageException" %>
 <%@ tag import="ru.org.linux.util.ImageInfo" %>
-
+<%@ tag import="java.io.IOException" %>
 <%--
   ~ Copyright 1998-2010 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");

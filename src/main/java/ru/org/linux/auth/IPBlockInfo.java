@@ -13,7 +13,9 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.site;
+package ru.org.linux.auth;
+
+import ru.org.linux.site.AccessViolationException;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

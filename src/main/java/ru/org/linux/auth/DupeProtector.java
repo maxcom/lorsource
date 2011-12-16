@@ -13,7 +13,7 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.site;
+package ru.org.linux.auth;
 
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;

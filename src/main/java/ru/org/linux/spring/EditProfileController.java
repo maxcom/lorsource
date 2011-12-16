@@ -17,10 +17,10 @@ package ru.org.linux.spring;
 
 import javax.servlet.ServletRequest;
 
+import ru.org.linux.site.Template;
 import ru.org.linux.site.AccessViolationException;
 import ru.org.linux.site.BadInputException;
 import ru.org.linux.site.DefaultProfile;
-import ru.org.linux.site.Template;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
