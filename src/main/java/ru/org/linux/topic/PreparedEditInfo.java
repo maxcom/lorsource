@@ -13,10 +13,11 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.site;
+package ru.org.linux.topic;
 
+import ru.org.linux.site.User;
+import ru.org.linux.site.UserNotFoundException;
 import ru.org.linux.spring.dao.UserDao;
-import ru.org.linux.topic.EditInfoDto;
 import ru.org.linux.util.bbcode.LorCodeService;
 
 import java.util.List;

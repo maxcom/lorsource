@@ -13,17 +13,13 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.spring;
+package ru.org.linux.topic;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
-import ru.org.linux.topic.EditInfoPrepareService;
-import ru.org.linux.topic.Topic;
-import ru.org.linux.site.PreparedEditInfo;
-import ru.org.linux.topic.TopicDao;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
