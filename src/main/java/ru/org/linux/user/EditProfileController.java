@@ -17,6 +17,7 @@ package ru.org.linux.user;
 
 import javax.servlet.ServletRequest;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.site.Template;
 import ru.org.linux.site.BadInputException;
@@ -31,6 +32,14 @@ import org.springframework.web.servlet.view.RedirectView;
 @Controller
 @RequestMapping("/edit-profile.jsp")
 public class EditProfileController {
+  private UserDao userDao;
+
+  @Autowired
+  public void setUserDao(UserDao userDao) {
+    this.userDao = userDao;
+  }
+
+  
   @RequestMapping(method=RequestMethod.GET)
   public ModelAndView showForm(ServletRequest request) throws Exception {
     Template tmpl = Template.getTemplate(request);
@@ -68,6 +77,10 @@ public class EditProfileController {
       throw new BadInputException("некорректное число меток в облаке");
     }
 
+    if(!DefaultProfile.getStyleList().contains(request.getParameter("style"))) {
+      throw new BadInputException("неправльное название темы");
+    }
+
     tmpl.getProf().setTopics(topics);
     tmpl.getProf().setMessages(messages);
     tmpl.getProf().setTags(tags);
@@ -76,7 +89,9 @@ public class EditProfileController {
     tmpl.getProf().setHideAdsense("on".equals(request.getParameter("hideAdsense")));
     tmpl.getProf().setShowGalleryOnMain("on".equals(request.getParameter("mainGallery")));
     tmpl.getProf().setFormatMode(request.getParameter("format_mode"));
-    tmpl.getProf().setStyle(request.getParameter("style"));
+    tmpl.getProf().setStyle(request.getParameter("style")); // TODO убрать как только
+    userDao.setStyle(tmpl.getCurrentUser(), request.getParameter("style"));
+    
     tmpl.getProf().setShowSocial("on".equals(request.getParameter("showSocial")));
 
     String avatar = request.getParameter("avatar");

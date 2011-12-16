@@ -51,6 +51,7 @@ public class User implements Serializable {
   private final String email;
   private final String fullName;
   private final int unreadEvents;
+  private final String style;
 
   private final boolean activated;
   public static final int CORRECTOR_SCORE = 100;
@@ -79,12 +80,10 @@ public class User implements Serializable {
     }
     anonymous = "".equals(pwd);
     password = pwd;
-
     photo=rs.getString("photo");
-
     email = rs.getString("email");
-
     unreadEvents = rs.getInt("unread_events");
+    style = rs.getString("style");
   }
 
   public int getId() {
@@ -368,6 +367,14 @@ public class User implements Serializable {
 
   public int getUnreadEvents() {
     return unreadEvents;
+  }
+
+  /**
+   * Стиль\тема пользователя
+   * @return название стиля\темы
+   */
+  public String getStyle() {
+    return style;
   }
 
   @Override
