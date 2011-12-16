@@ -1,5 +1,4 @@
 <%@ tag import="ru.org.linux.site.Template" %>
-<%@ tag import="ru.org.linux.site.User" %>
 <%@ tag import="ru.org.linux.topic.NewsViewer" %>
 <%@ tag import="ru.org.linux.util.StringUtil" %>
 <%@ tag import="java.net.URLEncoder" %>
