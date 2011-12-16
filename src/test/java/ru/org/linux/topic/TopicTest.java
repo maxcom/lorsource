@@ -13,12 +13,11 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.site;
+package ru.org.linux.topic;
 
 import org.junit.Test;
 import junit.framework.Assert;
 import ru.org.linux.section.Section;
-import ru.org.linux.topic.Topic;
 import ru.org.linux.user.User;
 
 import java.sql.ResultSet;
