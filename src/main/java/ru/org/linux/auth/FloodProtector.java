@@ -23,7 +23,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 @Component
-public class DupeProtector {
+public class FloodProtector {
   private static final int THRESHOLD = 30000;
   private static final int THRESHOLD_TRUSTED = 3000;
   

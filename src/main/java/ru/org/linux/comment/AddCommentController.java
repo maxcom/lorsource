@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
-import ru.org.linux.auth.DupeProtector;
+import ru.org.linux.auth.FloodProtector;
 import ru.org.linux.auth.IPBlockDao;
 import ru.org.linux.site.Template;
 import ru.org.linux.search.SearchQueueSender;
@@ -58,7 +58,7 @@ import java.util.Set;
 public class AddCommentController extends ApplicationObjectSupport {
   private SearchQueueSender searchQueueSender;
   private CaptchaService captcha;
-  private DupeProtector dupeProtector;
+  private FloodProtector dupeProtector;
   private CommentDao commentDao;
   private TopicDao messageDao;
   private UserDao userDao;
@@ -82,7 +82,7 @@ public class AddCommentController extends ApplicationObjectSupport {
   }
 
   @Autowired
-  public void setDupeProtector(DupeProtector dupeProtector) {
+  public void setDupeProtector(FloodProtector dupeProtector) {
     this.dupeProtector = dupeProtector;
   }
 

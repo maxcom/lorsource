@@ -28,7 +28,7 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.multipart.MultipartRequest;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
-import ru.org.linux.auth.DupeProtector;
+import ru.org.linux.auth.FloodProtector;
 import ru.org.linux.auth.IPBlockDao;
 import ru.org.linux.site.Template;
 import ru.org.linux.gallery.Screenshot;
@@ -63,7 +63,7 @@ import java.util.Set;
 public class AddTopicController extends ApplicationObjectSupport {
   private SearchQueueSender searchQueueSender;
   private CaptchaService captcha;
-  private DupeProtector dupeProtector;
+  private FloodProtector dupeProtector;
   private IPBlockDao ipBlockDao;
   private GroupDao groupDao;
   private SectionDao sectionDao;
@@ -93,7 +93,7 @@ public class AddTopicController extends ApplicationObjectSupport {
   }
 
   @Autowired
-  public void setDupeProtector(DupeProtector dupeProtector) {
+  public void setDupeProtector(FloodProtector dupeProtector) {
     this.dupeProtector = dupeProtector;
   }
 
