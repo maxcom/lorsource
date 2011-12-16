@@ -20,7 +20,7 @@ import org.jdom.Verifier;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 import ru.org.linux.auth.BadPasswordException;
-import ru.org.linux.site.UserErrorException;
+import ru.org.linux.user.UserErrorException;
 import ru.org.linux.util.URLUtil;
 
 public class AddTopicRequestValidator implements Validator {

@@ -5,6 +5,7 @@
 <%@ tag import="java.net.URLEncoder" %>
 <%@ tag import="java.sql.Timestamp" %>
 <%@ tag import="java.text.DateFormat" %>
+<%@ tag import="ru.org.linux.user.User" %>
 <%@ tag pageEncoding="UTF-8"%>
 <%@ attribute name="message" required="true" type="ru.org.linux.topic.Topic" %>
 <%@ attribute name="preparedMessage" required="true" type="ru.org.linux.topic.PreparedTopic" %>

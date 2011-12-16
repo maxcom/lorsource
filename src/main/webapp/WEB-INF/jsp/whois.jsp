@@ -1,6 +1,6 @@
 <%@ page contentType="text/html; charset=utf-8"%>
 <%@ page import="java.util.Map,ru.org.linux.site.Template"   buffer="60kb" %>
-<%@ page import="ru.org.linux.site.User"%>
+<%@ page import="ru.org.linux.user.User"%>
 <%@ page import="java.util.Set" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
@@ -19,14 +19,14 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
-<%--@elvariable id="user" type="ru.org.linux.site.User"--%>
-<%--@elvariable id="userInfo" type="ru.org.linux.site.UserInfo"--%>
-<%--@elvariable id="userStat" type="ru.org.linux.site.UserStatistics"--%>
+<%--@elvariable id="user" type="ru.org.linux.user.User"--%>
+<%--@elvariable id="userInfo" type="ru.org.linux.user.UserInfo"--%>
+<%--@elvariable id="userStat" type="ru.org.linux.user.UserStatistics"--%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <%--@elvariable id="currentUser" type="java.lang.Boolean"--%>
 <%--@elvariable id="ignored" type="java.lang.Boolean"--%>
 <%--@elvariable id="moderatorOrCurrentUser" type="java.lang.Boolean"--%>
-<%--@elvariable id="banInfo" type="ru.org.linux.site.BanInfo"--%>
+<%--@elvariable id="banInfo" type="ru.org.linux.user.BanInfo"--%>
 
 <%
   response.setDateHeader("Expires", System.currentTimeMillis()+120000);

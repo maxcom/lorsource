@@ -16,7 +16,7 @@
   --%><%@
         attribute name="decorate" required="false" type="java.lang.Boolean" %><%@
         attribute name="link" required="false" type="java.lang.Boolean" %><%@
-        attribute name="user" type="ru.org.linux.site.User" %><%@
+        attribute name="user" type="ru.org.linux.user.User" %><%@
         taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %><%@
         taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %><%--
 --%><c:if test="${decorate != null and decorate and user.blocked}"><s></c:if><%--

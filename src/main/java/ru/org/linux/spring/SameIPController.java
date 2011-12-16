@@ -23,11 +23,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
+import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.auth.IPBlockDao;
 import ru.org.linux.auth.IPBlockInfo;
 import ru.org.linux.site.Template;
 import ru.org.linux.site.*;
-import ru.org.linux.spring.dao.UserDao;
+import ru.org.linux.user.UserDao;
 import ru.org.linux.util.ServletParameterParser;
 import ru.org.linux.util.StringUtil;
 

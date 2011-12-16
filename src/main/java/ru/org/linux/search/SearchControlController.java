@@ -20,8 +20,8 @@ import java.util.Calendar;
 
 import javax.servlet.ServletRequest;
 
+import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.site.Template;
-import ru.org.linux.site.AccessViolationException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;

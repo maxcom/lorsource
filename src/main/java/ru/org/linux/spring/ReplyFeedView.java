@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.sun.syndication.feed.synd.*;
+import ru.org.linux.user.RepliesListItem;
 
 public class ReplyFeedView extends AbstractRomeView {
   @Override

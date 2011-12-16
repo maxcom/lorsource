@@ -19,7 +19,7 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
 import org.springframework.validation.Validator;
 
-import ru.org.linux.spring.AddRemoveBoxesController;
+import ru.org.linux.user.AddRemoveBoxesController;
 
 public class EditBoxesRequestValidator implements Validator{
   @Override

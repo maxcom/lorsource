@@ -17,9 +17,9 @@ package ru.org.linux.topic;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.org.linux.site.UserErrorException;
-import ru.org.linux.site.UserNotFoundException;
-import ru.org.linux.spring.dao.UserDao;
+import ru.org.linux.user.UserDao;
+import ru.org.linux.user.UserErrorException;
+import ru.org.linux.user.UserNotFoundException;
 import ru.org.linux.util.bbcode.LorCodeService;
 
 import java.util.ArrayList;

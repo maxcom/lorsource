@@ -22,12 +22,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
+import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.site.Template;
 import ru.org.linux.search.SearchQueueSender;
 import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionDao;
-import ru.org.linux.site.*;
-import ru.org.linux.spring.dao.UserDao;
+import ru.org.linux.user.UserDao;
+import ru.org.linux.user.User;
+import ru.org.linux.user.UserErrorException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;

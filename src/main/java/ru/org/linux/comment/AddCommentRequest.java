@@ -16,7 +16,7 @@
 package ru.org.linux.comment;
 
 import ru.org.linux.topic.Topic;
-import ru.org.linux.site.User;
+import ru.org.linux.user.User;
 
 public class AddCommentRequest {
   private String preview;

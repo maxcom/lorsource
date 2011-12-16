@@ -15,9 +15,9 @@
 
 package ru.org.linux.comment;
 
-import ru.org.linux.site.User;
-import ru.org.linux.site.UserNotFoundException;
-import ru.org.linux.spring.dao.UserDao;
+import ru.org.linux.user.User;
+import ru.org.linux.user.UserDao;
+import ru.org.linux.user.UserNotFoundException;
 
 import java.io.Serializable;
 import java.sql.SQLException;

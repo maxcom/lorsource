@@ -15,9 +15,9 @@
 
 package ru.org.linux.topic;
 
-import ru.org.linux.site.User;
-import ru.org.linux.site.UserNotFoundException;
-import ru.org.linux.spring.dao.UserDao;
+import ru.org.linux.user.User;
+import ru.org.linux.user.UserDao;
+import ru.org.linux.user.UserNotFoundException;
 import ru.org.linux.util.bbcode.LorCodeService;
 
 import java.util.List;

@@ -15,7 +15,7 @@
 
 package ru.org.linux.auth;
 
-import ru.org.linux.site.UserErrorException;
+import ru.org.linux.user.UserErrorException;
 
 public class BadPasswordException extends UserErrorException
 {

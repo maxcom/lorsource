@@ -21,7 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.org.linux.site.MessageNotFoundException;
 import ru.org.linux.topic.Topic;
-import ru.org.linux.site.User;
+import ru.org.linux.user.User;
 import ru.org.linux.spring.Configuration;
 import ru.org.linux.topic.TopicDao;
 import ru.org.linux.comment.Comment;

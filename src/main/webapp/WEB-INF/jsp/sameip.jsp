@@ -16,7 +16,7 @@
   ~    limitations under the License.
   --%>
 <%--@elvariable id="blockInfo" type="ru.org.linux.auth.IPBlockInfo"--%>
-<%--@elvariable id="blockModerator" type="ru.org.linux.site.User"--%>
+<%--@elvariable id="blockModerator" type="ru.org.linux.user.User"--%>
 <%--@elvariable id="topics" type="java.util.List<ru.org.linux.spring.SameIPController.TopicItem>"--%>
 <%--@elvariable id="comments" type="java.util.List<ru.org.linux.spring.SameIPController.TopicItem>"--%>
 <%--@elvariable id="users" type="java.util.List<ru.org.linux.spring.SameIPController.UserItem>"--%>

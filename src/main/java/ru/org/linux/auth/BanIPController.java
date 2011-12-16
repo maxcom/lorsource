@@ -24,8 +24,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.site.Template;
-import ru.org.linux.site.User;
-import ru.org.linux.site.UserErrorException;
+import ru.org.linux.user.User;
+import ru.org.linux.user.UserErrorException;
 
 import javax.servlet.http.HttpServletRequest;
 import java.net.URLEncoder;

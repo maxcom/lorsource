@@ -33,9 +33,7 @@ import ru.org.linux.site.*;
 import ru.org.linux.spring.commons.CacheProvider;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.spring.dao.DeleteInfoDao;
-import ru.org.linux.spring.dao.IgnoreListDao;
-import ru.org.linux.spring.dao.UserDao;
-import ru.org.linux.spring.dao.UserEventsDao;
+import ru.org.linux.user.*;
 import ru.org.linux.util.StringUtil;
 import ru.org.linux.util.bbcode.LorCodeService;
 

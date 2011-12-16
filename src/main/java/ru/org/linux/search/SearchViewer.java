@@ -19,7 +19,7 @@ import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
-import ru.org.linux.site.User;
+import ru.org.linux.user.User;
 
 public class SearchViewer {
   public enum SearchRange {

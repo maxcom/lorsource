@@ -19,7 +19,7 @@ import com.google.common.base.Strings;
 import org.springframework.validation.Errors;
 import ru.org.linux.group.Group;
 import ru.org.linux.section.Section;
-import ru.org.linux.site.User;
+import ru.org.linux.user.User;
 import ru.org.linux.util.StringUtil;
 import ru.org.linux.util.URLUtil;
 

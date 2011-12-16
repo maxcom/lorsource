@@ -24,6 +24,7 @@ import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
+import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.site.Template;
 import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
@@ -32,6 +33,8 @@ import ru.org.linux.search.SearchQueueSender;
 import ru.org.linux.section.Section;
 import ru.org.linux.site.*;
 import ru.org.linux.spring.FeedPinger;
+import ru.org.linux.user.User;
+import ru.org.linux.user.UserErrorException;
 import ru.org.linux.util.ExceptionBindingErrorProcessor;
 
 import javax.servlet.ServletRequest;

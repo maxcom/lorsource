@@ -18,8 +18,8 @@ package ru.org.linux.comment;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import ru.org.linux.site.Template;
-import ru.org.linux.site.UserNotFoundException;
-import ru.org.linux.spring.dao.UserDao;
+import ru.org.linux.user.UserDao;
+import ru.org.linux.user.UserNotFoundException;
 
 import java.io.Serializable;
 import java.sql.SQLException;

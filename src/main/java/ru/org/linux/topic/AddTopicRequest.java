@@ -17,7 +17,7 @@ package ru.org.linux.topic;
 
 import ru.org.linux.group.Group;
 import ru.org.linux.poll.Poll;
-import ru.org.linux.site.User;
+import ru.org.linux.user.User;
 
 public class AddTopicRequest {
   private String title;

@@ -15,7 +15,7 @@
 
 package ru.org.linux.search;
 
-import ru.org.linux.site.User;
+import ru.org.linux.user.User;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;

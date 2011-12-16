@@ -15,7 +15,8 @@
 
 package ru.org.linux.util.bbcode;
 
-import ru.org.linux.site.User;
+import ru.org.linux.user.User;
+
 import java.util.Set;
 
 /**
