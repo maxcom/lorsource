@@ -52,6 +52,9 @@ public class UserDao {
    * изменение score пользователю
    */
   private static final String queryChangeScore = "UPDATE users SET score=score+? WHERE id=?";
+  private static final String queryUserById = "SELECT id,nick,score,max_score,candel,canmod,corrector,passwd,blocked,activated,photo,email,name,unread_events,style FROM users where id=?";
+  private static final String queryUserByNick = "SELECT id,nick,candel,canmod,corrector,passwd,blocked,score,max_score,activated,photo,email,name,unread_events,style FROM users where nick=?";
+  private static final String updateUserStyle = "UPDATE users SET style=? WHERE id=?";
 
   private static final String queryNewUsers = "SELECT id FROM users where " +
                                                 "regdate IS NOT null " +
@@ -92,7 +95,7 @@ public class UserDao {
     Cache cache = CacheManager.create().getCache("Users");
 
     List<User> list = jdbcTemplate.query(
-            "SELECT id,nick,candel,canmod,corrector,passwd,blocked,score,max_score,activated,photo,email,name,unread_events FROM users where nick=?",
+            queryUserByNick,
             new RowMapper<User>() {
               @Override
               public User mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -153,8 +156,8 @@ public class UserDao {
     }
 
     if (res==null) {
-      List<User> list = jdbcTemplate.query(
-                "SELECT id, nick,score, max_score, candel,canmod,corrector,passwd,blocked,activated,photo,email,name,unread_events FROM users where id=?",              new RowMapper<User>() {
+      List<User> list = jdbcTemplate.query( 
+          queryUserById, new RowMapper<User>() {
                 @Override
                 public User mapRow(ResultSet rs, int rowNum) throws SQLException {
                   return new User(rs);
@@ -375,6 +378,16 @@ public class UserDao {
       jdbcTemplate.update("UPDATE users SET corrector='t' WHERE id=?", user.getId());
     }
   }
+  
+  /**
+   * Смена стиля\темы пользователя
+   * @param user пользователь у которого меняется стиль\тема
+   */
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
+  public void setStyle(User user, String theme){
+    jdbcTemplate.update(updateUserStyle, theme, user.getId());
+  }
+  
 
   /**
    * Сброс пороля на случайный

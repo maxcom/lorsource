@@ -14,6 +14,7 @@ public class Users {
     resultSet = mock(ResultSet.class);
     when(resultSet.getInt("id")).thenReturn(1);
     when(resultSet.getString("nick")).thenReturn("maxcom");
+    when(resultSet.getString("style")).thenReturn("tango");
     when(resultSet.getBoolean("canmod")).thenReturn(true);
     when(resultSet.getBoolean("candel")).thenReturn(true);
     when(resultSet.getBoolean("corrector")).thenReturn(false);
@@ -33,6 +34,7 @@ public class Users {
     resultSet = mock(ResultSet.class);
     when(resultSet.getInt("id")).thenReturn(2);
     when(resultSet.getString("nick")).thenReturn("anonymous");
+    when(resultSet.getString("style")).thenReturn("tango");
     when(resultSet.getBoolean("canmod")).thenReturn(false);
     when(resultSet.getBoolean("candel")).thenReturn(false);
     when(resultSet.getBoolean("corrector")).thenReturn(false);
@@ -52,6 +54,7 @@ public class Users {
     resultSet = mock(ResultSet.class);
     when(resultSet.getInt("id")).thenReturn(5280);
     when(resultSet.getString("nick")).thenReturn("svu");
+    when(resultSet.getString("style")).thenReturn("tango");
     when(resultSet.getBoolean("canmod")).thenReturn(true);
     when(resultSet.getBoolean("candel")).thenReturn(false);
     when(resultSet.getBoolean("corrector")).thenReturn(false);
@@ -71,6 +74,7 @@ public class Users {
     resultSet = mock(ResultSet.class);
     when(resultSet.getInt("id")).thenReturn(13);
     when(resultSet.getString("nick")).thenReturn("user5star");
+    when(resultSet.getString("style")).thenReturn("tango");
     when(resultSet.getBoolean("canmod")).thenReturn(false);
     when(resultSet.getBoolean("candel")).thenReturn(false);
     when(resultSet.getBoolean("corrector")).thenReturn(false);
@@ -90,6 +94,7 @@ public class Users {
     resultSet = mock(ResultSet.class);
     when(resultSet.getInt("id")).thenReturn(14);
     when(resultSet.getString("nick")).thenReturn("user1star");
+    when(resultSet.getString("style")).thenReturn("tango");
     when(resultSet.getBoolean("canmod")).thenReturn(false);
     when(resultSet.getBoolean("candel")).thenReturn(false);
     when(resultSet.getBoolean("corrector")).thenReturn(false);
@@ -109,6 +114,7 @@ public class Users {
     resultSet = mock(ResultSet.class);
     when(resultSet.getInt("id")).thenReturn(15);
     when(resultSet.getString("nick")).thenReturn("user45score");
+    when(resultSet.getString("style")).thenReturn("tango");
     when(resultSet.getBoolean("canmod")).thenReturn(false);
     when(resultSet.getBoolean("candel")).thenReturn(false);
     when(resultSet.getBoolean("corrector")).thenReturn(false);
@@ -128,6 +134,7 @@ public class Users {
     resultSet = mock(ResultSet.class);
     when(resultSet.getInt("id")).thenReturn(16);
     when(resultSet.getString("nick")).thenReturn("userBlocked");
+    when(resultSet.getString("style")).thenReturn("tango");
     when(resultSet.getBoolean("canmod")).thenReturn(false);
     when(resultSet.getBoolean("candel")).thenReturn(false);
     when(resultSet.getBoolean("corrector")).thenReturn(false);
