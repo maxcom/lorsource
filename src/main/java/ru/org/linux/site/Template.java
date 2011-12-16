@@ -165,7 +165,12 @@ public final class Template {
   }
 
   public String getStyle() {
-    return userProfile.getProperties().getStyle();
+    User user = getCurrentUser();
+    if(user == null) {
+      return "tango"; // TODO move to properties?
+    } else {
+      return user.getStyle();
+    }
   }
 
   public String getFormatMode() {
