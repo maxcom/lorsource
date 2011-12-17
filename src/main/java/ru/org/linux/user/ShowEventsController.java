@@ -33,7 +33,7 @@ import java.util.List;
 import java.util.Map;
 
 @Controller
-public class ShowRepliesController {
+public class ShowEventsController {
   @Autowired
   private ReplyFeedView feedView;
   @Autowired
