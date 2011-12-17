@@ -44,11 +44,12 @@ public class RepliesListItem implements Serializable {
   private final EventType type;
   private final String eventMessage;
   private final Timestamp eventDate;
+  private final boolean unread;
 
   public RepliesListItem(int cid, User cAuthor, Timestamp cDate, String messageText, String groupTitle,
                          String groupUrlName, String sectionTitle, int sectionId, String subj,
                          Timestamp lastmod, int msgid, EventType type, String eventMessage,
-                         Timestamp eventDate) {
+                         Timestamp eventDate, boolean unread) {
     this.cid = cid;
     this.cAuthor = cAuthor;
     this.cDate = cDate;
@@ -63,6 +64,7 @@ public class RepliesListItem implements Serializable {
     this.type = type;
     this.eventMessage = eventMessage;
     this.eventDate = eventDate;
+    this.unread = unread;
   }
 
   public int getCid() {
@@ -123,6 +125,10 @@ public class RepliesListItem implements Serializable {
 
   public Timestamp getEventDate() {
     return eventDate;
+  }
+
+  public boolean isUnread() {
+    return unread;
   }
 }
 

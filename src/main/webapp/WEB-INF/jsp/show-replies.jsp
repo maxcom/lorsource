@@ -16,7 +16,7 @@
 
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
-<%--@elvariable id="topicsList" type="java.util.List<ru.org.linux.user.ShowEventsController.MyTopicsListItem>"--%>
+<%--@elvariable id="topicsList" type="java.util.List<ru.org.linux.user.RepliesListItem>"--%>
 <%--@elvariable id="firstPage" type="Boolean"--%>
 <%--@elvariable id="nick" type="String"--%>
 <%--@elvariable id="hasMore" type="String"--%>
@@ -153,6 +153,8 @@
       <br>
       <c:out value="${topic.eventMessage}" escapeXml="true"/>
     </c:if>
+
+    <c:if test="${topic.unread}">&bull;</c:if>
   </td>
   <td>
     <lor:dateinterval date="${topic.eventDate}"/>

@@ -62,7 +62,6 @@ public class RepliesDao {
   }
 
 
-
   private static final String queryAllRepliesForUser =
       "SELECT event_date, " +
           " topics.title as subj, sections.name, groups.title as gtitle, " +
@@ -70,7 +69,7 @@ public class RepliesDao {
           " comments.id AS cid, " +
           " comments.postdate AS cDate, " +
           " comments.userid AS cAuthor, " +
-          " msgbase.message AS cMessage, bbcode, " +
+          " msgbase.message AS cMessage, bbcode, unread, " +
           " urlname, sections.id as section, comments.deleted," +
           " type, user_events.message as ev_msg" +
       " FROM user_events INNER JOIN topics ON (topics.id = message_id)" +
@@ -90,7 +89,7 @@ public class RepliesDao {
           " comments.id AS cid, " +
           " comments.postdate AS cDate, " +
           " comments.userid AS cAuthor, " +
-          " msgbase.message AS cMessage, bbcode, " +
+          " msgbase.message AS cMessage, bbcode, unread, " +
           " urlname, sections.id as section, comments.deleted," +
           " type, user_events.message as ev_msg" +
       " FROM user_events INNER JOIN topics ON (topics.id = message_id)" +
@@ -173,8 +172,11 @@ public class RepliesDao {
         } else {
           messageText = null;
         }
+
+        boolean unread = resultSet.getBoolean("unread");
+
         return new RepliesListItem(cid, cAuthor, cDate, messageText, groupTitle, groupUrlName,
-            sectionTitle, sectionId, subj, lastmod, msgid, type, eventMessage, eventDate);
+            sectionTitle, sectionId, subj, lastmod, msgid, type, eventMessage, eventDate, unread);
       }
     }, user.getId(), topics, offset);
   }
