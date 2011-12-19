@@ -72,7 +72,15 @@ public class HTMLFormatterTest {
 
   private static final String TEXT13 = "with login: ftp://olor@o.example.org/olo/2a-ep4ce22/2a-ep4ce22_introduction.pdf";
   private static final String RESULT13 = "with login: <a href=\"ftp://olor@o.example.org/olo/2a-ep4ce22/2a-ep4ce22_introduction.pdf\">ftp://olor@o.example.org/olo/2a-ep4ce22/2a-ep4ce22_introduction.pdf</a>";
+  
+  private static final String TEXT14 = "with first one symbol: http://a.test.com";
+  private static final String RESULT14 = "with first one symbol: <a href=\"http://a.test.com\">http://a.test.com</a>";
 
+  private static final String TEXT15 = "with www: www.test.com";
+  private static final String RESULT15 = "with www: <a href=\"http://www.test.com\">http://www.test.com</a>";
+
+  private static final String TEXT16 = "with ftp: ftp.test.com";
+  private static final String RESULT16 = "with ftp: <a href=\"ftp://ftp.test.com\">ftp://ftp.test.com</a>";
 
 
   private static final String GUARANTEED_CRASH = "\"http://www.google.com/\"";
@@ -177,6 +185,9 @@ public class HTMLFormatterTest {
     assertEquals(RESULT11, toHtmlFormatter.format(TEXT11, false));
     assertEquals(RESULT12, toHtmlFormatter.format(TEXT12, false));
     assertEquals(RESULT13, toHtmlFormatter.format(TEXT13, false));
+    assertEquals(RESULT14, toHtmlFormatter.format(TEXT14, false));
+    assertEquals(RESULT15, toHtmlFormatter.format(TEXT15, false));
+    assertEquals(RESULT16, toHtmlFormatter.format(TEXT16, false));
     assertTrue(toHtmlFormatter.format(LINK_WITH_UNDERSCORE, false).endsWith("</a>"));
     assertTrue(toHtmlFormatter.format(LINK_WITH_PARAM_ONLY, false).endsWith("</a>"));
     assertTrue(toHtmlFormatter.format(RFC1738, false).endsWith("</a>"));
