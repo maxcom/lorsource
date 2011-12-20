@@ -108,8 +108,6 @@ public final class Template {
   public void performLogin(HttpServletResponse response, User user) {
     session.setAttribute("login", Boolean.TRUE);
     session.setAttribute("nick", user.getNick());
-    session.setAttribute("moderator", user.isModerator());
-    session.setAttribute("corrector", user.canCorrect());
     userDao.updateLastlogin(user);
     user.acegiSecurityHack(response, session);
     currentUser = user;
@@ -214,14 +212,15 @@ public final class Template {
       return false;
     }
 
-    return (Boolean) session.getAttribute("moderator");
+    return currentUser.isModerator();
   }
 
   public boolean isCorrectorSession() {
     if (!isSessionAuthorized(session)) {
       return false;
     }
-    return session.getAttribute("corrector")!=null ? (Boolean) session.getAttribute("corrector") : false;
+
+    return currentUser.isCorrector();
   }
 
   /**
