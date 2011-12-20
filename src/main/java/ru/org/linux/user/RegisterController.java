@@ -202,7 +202,7 @@ public class RegisterController extends ApplicationObjectSupport {
       String newEmail = null;
 
       if (mail != null) {
-        if (user.getEmail().equals(form.getEmail())) {
+        if (user.getEmail()!=null && user.getEmail().equals(form.getEmail())) {
           newEmail = null;
         } else {
           if (userDao.getByEmail(mail.getAddress()) != null) {
