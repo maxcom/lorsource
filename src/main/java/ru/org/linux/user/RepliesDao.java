@@ -60,6 +60,11 @@ public class RepliesDao {
   public void setMessageDao(TopicDao messageDao) {
     this.messageDao = messageDao;
   }
+  
+  private static final String queryPartFilterAnswers = " AND type = 'REPLY' ";
+  private static final String queryPartFilterFavorites = " AND type = 'WATCH' ";
+  private static final String queryPartFilterDeleted = " AND type = 'DEL' ";
+  private static final String queryPartFilterReference = " AND type= 'REF' ";
 
 
   private static final String queryAllRepliesForUser =
@@ -78,6 +83,7 @@ public class RepliesDao {
           " LEFT JOIN comments ON (comments.id=comment_id) " +
           " LEFT JOIN msgbase ON (msgbase.id = comments.id)" +
       " WHERE user_events.userid = ? " +
+          " %s " + 
           " AND (comments.id is null or NOT comments.topic_deleted)" +
       " ORDER BY event_date DESC LIMIT ?" +
       " OFFSET ?";
@@ -115,10 +121,27 @@ public class RepliesDao {
    * @return список уведомлений
    */
   public List<RepliesListItem> getRepliesForUser(User user, boolean showPrivate, int topics, int offset,
-                                                 final boolean readMessage, final boolean secure) {
-    String queryString;
+                                                 final boolean readMessage, final boolean secure, ShowEventsController.Filter filter) {
+    String queryString;    
     if(showPrivate) {
-      queryString = queryAllRepliesForUser;
+      String queryPart;
+      switch (filter) {
+        case FAVORITES:
+          queryPart = queryPartFilterFavorites;
+          break;
+        case ANSWERS:
+          queryPart = queryPartFilterAnswers;
+          break;
+        case DELETED:
+          queryPart = queryPartFilterDeleted;
+          break;
+        case REFERENCE:
+          queryPart = queryPartFilterReference;
+          break;
+        default:
+          queryPart = "";
+      }
+      queryString = String.format(queryAllRepliesForUser, queryPart);
     } else {
       queryString = queryRepliesForUserWihoutPrivate;
     }

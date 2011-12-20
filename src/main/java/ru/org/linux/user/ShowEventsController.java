@@ -17,6 +17,7 @@ package ru.org.linux.user;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -28,9 +29,7 @@ import ru.org.linux.spring.ReplyFeedView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Controller
 public class ShowEventsController {
@@ -40,6 +39,57 @@ public class ShowEventsController {
   private UserDao userDao;
   @Autowired
   private RepliesDao repliesDao;
+
+  public static enum Filter {
+    ALL       ("all"      , "все уведомления"),
+    ANSWERS   ("answers"  , "ответы"),
+    FAVORITES ("favorites", "избранное"),
+    DELETED   ("deleted"  , "удаленное"),
+    REFERENCE ("reference", "упоминания");
+
+    private String value;
+    private String label;
+
+    Filter(String value, String label) {
+      this.value = value;
+      this.label = label;
+    }
+
+    public String getValue() {
+      return value;
+    }
+
+    public String getLabel() {
+      return label;
+    }
+  }
+  
+  public static class Action {
+    private String filter;
+    public Action() {
+      filter = "all";
+    }
+    public void setFilter(String filter) {
+      this.filter = filter;
+    }
+    public String getFilter() {
+      return filter;
+    }
+  }
+  
+  private static final Set<String> filterValues;
+
+  static {
+    filterValues = new HashSet<String>();
+    for(Filter filter : Filter.values()) {
+      filterValues.add(filter.getValue());
+    }
+  }
+
+  @ModelAttribute("filter")
+  public static List<Filter> getFilter() {
+    return Arrays.asList(Filter.values());
+  }
 
   /**
    * Показывает уведомления для текущего пользоваетля
@@ -54,6 +104,7 @@ public class ShowEventsController {
   public ModelAndView showNotifications(
       HttpServletRequest request,
       HttpServletResponse response,
+      @ModelAttribute("notifications") Action action,
       @RequestParam(value = "offset", defaultValue = "0") int offset,
       @RequestParam(value = "forceReset", defaultValue = "false") boolean forceReset
   ) throws Exception {
@@ -62,12 +113,25 @@ public class ShowEventsController {
       throw new AccessViolationException("not authorized");
     }
 
+    String filterAction = action.getFilter();
+    Filter filter;
+    if(filterValues.contains(filterAction)) {
+      filter = Filter.valueOf(filterAction.toUpperCase());
+    } else {
+      filter = Filter.ALL;
+    }
+
     User currentUser = tmpl.getCurrentUser();
     String nick = currentUser.getNick();
 
     Map<String, Object> params = new HashMap<String, Object>();
     params.put("nick", nick);
     params.put("forceReset", forceReset);
+    if(filter != Filter.ALL) {
+      params.put("addition_query", "&filter"+filter);
+    } else {
+      params.put("addition_query", "");
+    }
 
     if (offset < 0) {
       offset = 0;
@@ -94,7 +158,7 @@ public class ShowEventsController {
     params.put("isMyNotifications", true);
 
     response.addHeader("Cache-Control", "no-cache");
-    List<RepliesListItem> list = repliesDao.getRepliesForUser(currentUser, true, topics, offset, false, request.isSecure());
+    List<RepliesListItem> list = repliesDao.getRepliesForUser(currentUser, true, topics, offset, false, request.isSecure(), filter);
     if ("POST".equalsIgnoreCase(request.getMethod())) {
       userDao.resetUnreadReplies(currentUser);
       tmpl.updateCurrentUser(userDao);
@@ -176,7 +240,7 @@ public class ShowEventsController {
       response.addHeader("Cache-Control", "no-cache");
     }
 
-    List<RepliesListItem> list = repliesDao.getRepliesForUser(user, showPrivate, topics, offset, feedRequested, request.isSecure());
+    List<RepliesListItem> list = repliesDao.getRepliesForUser(user, showPrivate, topics, offset, feedRequested, request.isSecure(), Filter.ALL);
 
     params.put("isMyNotifications", false);
     params.put("topicsList", list);

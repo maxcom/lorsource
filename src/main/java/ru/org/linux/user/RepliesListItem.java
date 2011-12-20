@@ -26,7 +26,11 @@ import java.sql.Timestamp;
 public class RepliesListItem implements Serializable {
 
   public enum EventType {
-    REPLY, DEL, WATCH, OTHER, REF
+    REPLY,  // ответ
+    DEL,    // удаленное сообщение
+    WATCH,  // избранное(?)
+    OTHER,  // другое
+    REF     // упоминание
   }
 
   private final int cid;
