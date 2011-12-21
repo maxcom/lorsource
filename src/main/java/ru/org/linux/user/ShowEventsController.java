@@ -128,7 +128,7 @@ public class ShowEventsController {
     params.put("nick", nick);
     params.put("forceReset", forceReset);
     if(filter != Filter.ALL) {
-      params.put("addition_query", "&filter"+filter);
+      params.put("addition_query", "&filter="+filter.getValue());
     } else {
       params.put("addition_query", "");
     }
