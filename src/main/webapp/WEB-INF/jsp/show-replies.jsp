@@ -15,6 +15,7 @@
   --%>
 
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%--@elvariable id="topicsList" type="java.util.List<ru.org.linux.user.RepliesListItem>"--%>
 <%--@elvariable id="firstPage" type="Boolean"--%>
@@ -44,17 +45,25 @@
    -->
 </script>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
+<form:form commandName="notifications" ACTION="/notifications" method="GET">
 <table class=nav>
 <tr>
-<td align=left valign=middle id="navPath">
-  ${title}
-</td>
-  <td align=right>
-    <ul>
-      <li>[<a href="show-replies.jsp?output=rss&amp;nick=${nick}">RSS</a>]</li>
-    </ul>
-  </td>
+    <td align=left valign=middle id="navPath">
+    ${title}
+    </td>
+    <td align=right>
+        <form:select path="filter">
+            <form:options items="${filter}" itemValue="value" itemLabel="label"/>
+        </form:select>
+        <input type="submit" value="показать">
+    </td>
+    <td align=right>
+        <ul>
+        <li>[<a href="show-replies.jsp?output=rss&amp;nick=${nick}">RSS</a>]</li>
+        </ul>
+    </td>
 </table>
+</form:form>
 
 <h1 class="optional">${title}</h1>
 
@@ -84,18 +93,14 @@
   </div>
 </c:if>
 
-<%
-  int offset = (Integer) request.getAttribute("offset");
-  int topics = (Integer) request.getAttribute("topics");
-%>
 <div style="float: left">
 <c:if test="${not firstPage}">
 <c:choose>
 <c:when test="${not isMyNotifications}">
-  <a rel=prev rev=next href="show-replies.jsp?nick=${nick}&amp;offset=<%= offset - topics %>">← назад</a>
+  <a rel=prev rev=next href="show-replies.jsp?nick=${nick}&amp;offset=${offset-topics}${addition_query}">← назад</a>
 </c:when>
 <c:otherwise>
-  <a rel=prev rev=next href="notifications?offset=<%= offset - topics %>">← назад</a>
+  <a rel=prev rev=next href="notifications?offset=${offset-topics}${addition_query}">← назад</a>
 </c:otherwise>
 </c:choose>
 </c:if>
@@ -105,10 +110,10 @@
 <c:if test="${hasMore}">
 <c:choose>
 <c:when test="${not isMyNotifications}">
-  <a rel=next rev=prev href="show-replies.jsp?nick=${nick}&amp;offset=<%= offset + topics %>">вперед →</a>
+  <a rel=next rev=prev href="show-replies.jsp?nick=${nick}&amp;offset=${offset+topics}${addition_query}">вперед →</a>
 </c:when>
 <c:otherwise>
-  <a rel=next rev=prev href="notifications?offset=<%= offset + topics %>">вперед →</a>
+  <a rel=next rev=prev href="notifications?offset=${offset+topics}${addition_query}">вперед →</a>
 </c:otherwise>
 </c:choose>
 </c:if>
@@ -174,10 +179,10 @@
 <c:if test="${not firstPage}">
 <c:choose>
 <c:when test="${not isMyNotifications}">
-  <a rel=prev rev=next href="show-replies.jsp?nick=${nick}&amp;offset=<%= offset - topics %>">← назад</a>
+  <a rel=prev rev=next href="show-replies.jsp?nick=${nick}&amp;offset=${offset-topics}${addition_query}">← назад</a>
 </c:when>
 <c:otherwise>
-  <a rel=prev rev=next href="notifications?offset=<%= offset - topics %>">← назад</a>
+  <a rel=prev rev=next href="notifications?offset=${offset-topics}${addition_query}">← назад</a>
 </c:otherwise>
 </c:choose>
 </c:if>
@@ -187,10 +192,10 @@
 <c:if test="${hasMore}">
 <c:choose>
 <c:when test="${not isMyNotifications}">
-  <a rel=next rev=prev href="show-replies.jsp?nick=${nick}&amp;offset=<%= offset + topics %>">вперед →</a>
+  <a rel=next rev=prev href="show-replies.jsp?nick=${nick}&amp;offset=${offset+topics}${addition_query}">вперед →</a>
 </c:when>
 <c:otherwise>
-  <a rel=next rev=prev href="notifications?offset=<%= offset + topics %>">вперед →</a>
+  <a rel=next rev=prev href="notifications?offset=${offset+topics}${addition_query}">вперед →</a>
 </c:otherwise>
 </c:choose>
 </c:if>
