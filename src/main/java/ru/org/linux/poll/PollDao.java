@@ -34,18 +34,32 @@ import java.util.List;
 
 @Repository
 public class PollDao {
-  private static final String queryPoolIdByTopicId = "SELECT votenames.id FROM votenames,topics WHERE topics.id=? AND votenames.topic=topics.id";
-  private static final String queryCurrentPollId = "SELECT votenames.id FROM votenames,topics WHERE topics.id=votenames.topic AND topics.moderate = 't' AND topics.deleted = 'f' AND topics.commitdate = (select max(commitdate) from topics where groupid=19387 AND moderate AND NOT deleted)";
-  private static final String queryPool = "SELECT topic, multiselect FROM votenames WHERE id=?";
-  private static final String queryMaxVotes = "SELECT max(votes) FROM votes WHERE vote=?";
-  private static final String queryPollVariantsOrderById = "SELECT * FROM votes WHERE vote=? ORDER BY id";
-  private static final String queryPollVariantsOrderByVotes = "SELECT * FROM votes WHERE vote=? ORDER BY votes DESC, id";
+  private static final String queryPoolIdByTopicId = "SELECT polls.id FROM polls,topics WHERE topics.id=? AND polls.topic=topics.id";
+  private static final String queryCurrentPollId = "SELECT polls.id FROM polls,topics WHERE topics.id=polls.topic AND topics.moderate = 't' AND topics.deleted = 'f' AND topics.commitdate = (select max(commitdate) from topics where groupid=19387 AND moderate AND NOT deleted)";
+  private static final String queryPool = "SELECT topic, multiselect FROM polls WHERE id=?";
+  private static final String queryMaxVotes = "SELECT max(votes) FROM polls_variants WHERE vote=?";
+  private static final String queryPollVariantsOrderById = "SELECT id, label, votes FROM polls_variants WHERE vote=? ORDER BY id";
+  private static final String queryPollVariantsOrderByVotes = "SELECT id, label, votes FROM polls_variants WHERE vote=? ORDER BY votes DESC, id";
+  private static final String queryPollUserVote = "select count(vote) from vote_users where userid=? and variant_id=?";
 
   private static final String queryCountVotesUser = "SELECT count(vote) FROM vote_users WHERE vote=? AND userid=?";
   private static final String queryCountVotesPool = "SELECT count(userid) FROM vote_users WHERE vote=?";
-  private static final String queryCountVotes = "SELECT sum(votes) as s FROM votes WHERE vote=?";
-  private static final String updateVote = "UPDATE votes SET votes=votes+1 WHERE id=? AND vote=?";
-  private static final String insertVoteUser = "INSERT INTO vote_users VALUES(?, ?)";
+  private static final String queryCountVotes = "SELECT sum(votes) as s FROM polls_variants WHERE vote=?";
+  private static final String updateVote = "UPDATE polls_variants SET votes=votes+1 WHERE id=? AND vote=?";
+  private static final String insertVoteUser = "INSERT INTO vote_users VALUES(?, ?, ?)";
+  private static final String insertPoll = "INSERT INTO polls (id, multiselect, topic) values (?,?,?)";
+  
+  private static final String deletePoll1 = "DELETE FROM vote_users     WHERE vote = ?";
+  private static final String deletePoll2 = "DELETE FROM polls          WHERE id   = ?";
+  private static final String deletePoll3 = "DELETE FROM polls_variants WHERE vote = ?";
+  
+  private static final String queryNextPollId = "select nextval('vote_id') as voteid";
+  
+  private static final String insertNewVariant = "INSERT INTO polls_variants (id, vote, label) values (nextval('votes_id'), ?, ?)";
+  private static final String updateVariant = "UPDATE polls_variants SET label=? WHERE id=?";
+  private static final String deleteVariant = "DELETE FROM polls_variants WHERE id=?";
+  
+  private static final String updateMultiselect = "UPDATE polls SET multiselect=? WHERE id=?";
 
   private JdbcTemplate jdbcTemplate;
 
@@ -60,9 +74,8 @@ public class PollDao {
    * @param pollId идентификатор голосования
    * @return список вариантов голосования
    */
-  public List<VoteDto> getVoteDTO(final Integer pollId) {
-    String sql = "SELECT id, label FROM votes WHERE vote= ? ORDER BY id";
-    return jdbcTemplate.query(sql, new RowMapper<VoteDto>() {
+  public List<VoteDto> getVoteDTO(final Integer pollId) {    
+    return jdbcTemplate.query(queryPollVariantsOrderById, new RowMapper<VoteDto>() {
       @Override
       public VoteDto mapRow(ResultSet rs, int rowNum) throws SQLException {
         VoteDto dto = new VoteDto();
@@ -98,20 +111,20 @@ public class PollDao {
    * Учет голосования, если user не голосовал в этом голосании, то
    * добавить его варианты в голосование и пометить, что он проголосовал.
    *
-   * @param voteId идентификатор голосования
+   * @param pollId идентификатор голосования
    * @param votes  пункты за которые голосует пользователь
    * @param user   голосующий пользователь
    * @throws BadVoteException неправильное голосование
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public void updateVotes(int voteId, int[] votes, User user) throws BadVoteException {
-    if(jdbcTemplate.queryForInt(queryCountVotesUser, voteId, user.getId()) == 0){
+  public void updateVotes(int pollId, int[] votes, User user) throws BadVoteException {
+    if(jdbcTemplate.queryForInt(queryCountVotesUser, pollId, user.getId()) == 0){
       for(int vote : votes) {
-        if(jdbcTemplate.update(updateVote, vote, voteId) == 0) {
+        if(jdbcTemplate.update(updateVote, vote, pollId) == 0) {
           throw new BadVoteException();
         }
+        jdbcTemplate.update(insertVoteUser, pollId, user.getId(), vote);
       }
-      jdbcTemplate.update(insertVoteUser, voteId, user.getId());
     }
   }
 
@@ -191,22 +204,38 @@ public class PollDao {
   }
 
   /**
-   * Варианты для голосования.
-   *
-   * @param poll  объект голосования
+   * Варианты опроса для ананимного пользователя
+   * @param poll опрос
    * @param order порядок сортировки вариантов Poll.ORDER_ID и Poll.ORDER_VOTES
    * @return неизменяемый список вариантов опроса
    */
   public ImmutableList<PollVariant> getPollVariants(Poll poll, int order) {
+    return getPollVariants(poll, order, null);
+  }
+
+  /**
+   * Варианты опроса для кокретного пользователя
+   *
+   * @param poll  объект голосования
+   * @param order порядок сортировки вариантов Poll.ORDER_ID и Poll.ORDER_VOTES
+   * @param user для какого пользователя отдаем 
+   * @return неизменяемый список вариантов опроса
+   */
+  public ImmutableList<PollVariant> getPollVariants(Poll poll, int order, final User user) {
     final List<PollVariant> variants = new ArrayList<PollVariant>();
     switch (order) {
       case Poll.ORDER_ID:
         jdbcTemplate.query(queryPollVariantsOrderById, new RowCallbackHandler() {
           @Override
           public void processRow(ResultSet resultSet) throws SQLException {
-            variants.add(new PollVariant(resultSet.getInt("id"),
-                                         resultSet.getString("label"),
-                                         resultSet.getInt("votes")));
+            int id = resultSet.getInt("id");
+            String label = resultSet.getString("label");
+            int votes = resultSet.getInt("votes");
+            boolean voted = false;
+            if(user != null && jdbcTemplate.queryForInt(queryPollUserVote, user.getId(), resultSet.getInt("id")) !=0) {
+              voted = true;
+            }
+            variants.add(new PollVariant(id, label, votes, voted));
           }
         }, poll.getId());
         break;
@@ -214,9 +243,14 @@ public class PollDao {
         jdbcTemplate.query(queryPollVariantsOrderByVotes, new RowCallbackHandler() {
           @Override
           public void processRow(ResultSet resultSet) throws SQLException {
-            variants.add(new PollVariant(resultSet.getInt("id"),
-                                         resultSet.getString("label"),
-                                         resultSet.getInt("votes")));
+            int id = resultSet.getInt("id");
+            String label = resultSet.getString("label");
+            int votes = resultSet.getInt("votes");
+            boolean voted = false;
+            if(user != null && jdbcTemplate.queryForInt(queryPollUserVote, user.getId(), resultSet.getInt("id")) !=0) {
+              voted = true;
+            }
+            variants.add(new PollVariant(id, label, votes, voted));
           }
         }, poll.getId());
         break;
@@ -237,7 +271,7 @@ public class PollDao {
   public void createPoll(List<String> pollList, boolean multiSelect, int msgid) {
     final int voteid = getNextPollId();
 
-    jdbcTemplate.update("INSERT INTO votenames (id, multiselect, topic) values (?,?,?)", voteid, multiSelect, msgid);
+    jdbcTemplate.update(insertPoll, voteid, multiSelect, msgid);
 
     try {
       final Poll poll = getPoll(voteid);
@@ -260,7 +294,7 @@ public class PollDao {
    * @return идентификатор будущего голосования
    */
   private int getNextPollId() {
-    return jdbcTemplate.queryForInt("select nextval('vote_id') as voteid");
+    return jdbcTemplate.queryForInt(queryNextPollId);
   }
 
   /**
@@ -270,9 +304,9 @@ public class PollDao {
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   public void deletePoll(Poll poll) {
-    jdbcTemplate.update("DELETE FROM vote_users WHERE vote = ?", poll.getId());
-    jdbcTemplate.update("DELETE FROM votenames  WHERE id   = ?", poll.getId());
-    jdbcTemplate.update("DELETE FROM votes      WHERE vote = ?", poll.getId());
+    jdbcTemplate.update(deletePoll1, poll.getId());
+    jdbcTemplate.update(deletePoll2, poll.getId());
+    jdbcTemplate.update(deletePoll3, poll.getId());
   }
 
   /**
@@ -283,7 +317,7 @@ public class PollDao {
    */
   public void addNewVariant(Poll poll, String label) {
     jdbcTemplate.update(
-            "INSERT INTO votes (id, vote, label) values (nextval('votes_id'), ?, ?)",
+            insertNewVariant,
             poll.getId(),
             label
     );
@@ -300,7 +334,7 @@ public class PollDao {
       return;
     }
 
-    jdbcTemplate.update("UPDATE votes SET label=? WHERE id=?", label, var.getId());
+    jdbcTemplate.update(updateVariant, label, var.getId());
   }
 
   /**
@@ -309,6 +343,16 @@ public class PollDao {
    * @param variant объект варианта голосования
    */
   public void removeVariant(PollVariant variant) {
-    jdbcTemplate.update("DELETE FROM votes WHERE id=?", variant.getId());
+    jdbcTemplate.update(deleteVariant, variant.getId());
+  }
+
+  /**
+   * Обновить признак мультивыбора для опроса
+   * ALERT: не Transactional метод, использовать только внтури Transactional метода
+   * @param poll опрос
+   * @param multiselect признак мультивыбора
+   */
+  public void updateMultiselect(Poll poll, boolean multiselect) {
+    jdbcTemplate.update(updateMultiselect, multiselect, poll.getId());
   }
 }

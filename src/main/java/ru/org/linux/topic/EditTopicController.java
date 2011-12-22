@@ -322,13 +322,13 @@ public class EditTopicController {
         String label = form.getPoll().get(v.getId());
 
         if (!Strings.isNullOrEmpty(label)) {
-          newVariants.add(new PollVariant(v.getId(), label, v.getVotes()));
+          newVariants.add(new PollVariant(v.getId(), label, v.getVotes(), v.getUserVoted()));
         }
       }
 
       for (String label : form.getNewPoll()) {
         if (!Strings.isNullOrEmpty(label)) {
-          newVariants.add(new PollVariant(0, label, 0));
+          newVariants.add(new PollVariant(0, label, 0, false));
         }
       }
 
