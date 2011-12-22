@@ -120,6 +120,10 @@ SoC, Graphene, MEMS, Biomedical Engineering. Дополнительная инф
     </div>
   </c:if>
 
+  <div align="center" style="margin-bottom: 1em;">
+    <a href="http://shop.linuxformat.ru/lxf_01_12_2012"><img src="/adv/LXF_200x300.gif" witdh="200" height="300" border="0"></a>
+  </div>
+
   <lor:boxlets object="<%= columns3 ? \"main3-1\" : \"main2\" %>" var="boxes">
       <c:forEach var="boxlet" items="${boxes}">
         <div class="boxlet">
