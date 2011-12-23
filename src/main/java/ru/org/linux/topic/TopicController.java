@@ -206,7 +206,12 @@ public class TopicController {
     Set<Integer> highlight)
   throws Exception {
     Topic message = messageDao.getById(msgid);
-    PreparedTopic preparedMessage = messagePrepareService.prepareMessage(message, false, request.isSecure());
+    Template tmpl = Template.getTemplate(request);
+    User user = null;
+    if(tmpl.isSessionAuthorized()) {
+      user = tmpl.getCurrentUser();
+    }
+    PreparedTopic preparedMessage = messagePrepareService.prepareTopicForView(message, false, request.isSecure(), user);
     Group group = preparedMessage.getGroup();
 
     if (!group.getUrlName().equals(groupName) || group.getSectionId() != section) {

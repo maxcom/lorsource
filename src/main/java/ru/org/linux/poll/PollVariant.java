@@ -23,11 +23,13 @@ public class PollVariant {
   private final int id;
   private final String label;
   private final int votes;
+  private final boolean userVoted;
 
-  public PollVariant(int id, String label, int votes) {
+  public PollVariant(int id, String label, int votes, boolean userVoted) {
     this.id = id;
     this.label = label;
     this.votes = votes;
+    this.userVoted = userVoted;
   }
 
   public int getId() {
@@ -40,6 +42,10 @@ public class PollVariant {
 
   public int getVotes() {
     return votes;
+  }
+
+  public boolean getUserVoted() {
+    return userVoted;
   }
 
   public static SortedMap<Integer, String> toMap(List<PollVariant> list) {

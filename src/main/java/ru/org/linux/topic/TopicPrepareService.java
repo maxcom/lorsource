@@ -69,6 +69,10 @@ public class TopicPrepareService {
 
   @Autowired
   private MemoriesDao memoriesDao;
+  
+  public PreparedTopic prepareTopicForView(Topic message, boolean minimizeCut, boolean secure, User user) {
+    return prepareMessage(message, messageDao.getTags(message), minimizeCut, null, secure, user);
+  }
 
   public PreparedTopic prepareMessage(Topic message, boolean minimizeCut, boolean secure) {
     return prepareMessage(message, messageDao.getTags(message), minimizeCut, null, secure);
@@ -78,6 +82,10 @@ public class TopicPrepareService {
     return prepareMessage(message, tags, false, newPoll, secure);
   }
 
+  private PreparedTopic prepareMessage(Topic message, List<String> tags, boolean minimizeCut, PreparedPoll poll, boolean secure) {
+    return prepareMessage(message, tags, minimizeCut, poll, secure, null);
+  }
+
   /**
    * Функция подготовки топика
    * @param message топик
@@ -85,9 +93,10 @@ public class TopicPrepareService {
    * @param minimizeCut сворачивать ли cut
    * @param poll опрос к топику
    * @param secure является ли соединение https
+   * @param user пользователь
    * @return подготовленный топик
    */
-  private PreparedTopic prepareMessage(Topic message, List<String> tags, boolean minimizeCut, PreparedPoll poll, boolean secure) {
+  private PreparedTopic prepareMessage(Topic message, List<String> tags, boolean minimizeCut, PreparedPoll poll, boolean secure, User user) {
     try {
       Group group = groupDao.getGroup(message.getGroupId());
       User author = userDao.getUserCached(message.getUid());
@@ -112,7 +121,7 @@ public class TopicPrepareService {
 
       if (message.isVotePoll()) {
         if (poll==null) {
-          preparedPoll = pollPrepareService.preparePoll(message);
+          preparedPoll = pollPrepareService.preparePoll(message, user);
         } else {
           preparedPoll = poll;
         }
