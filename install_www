@@ -2,12 +2,14 @@
 
 set -e
 
-mvn -P production clean package
+mvn clean package
 
 echo Copying files...
 
+sudo rm /var/lib/tomcat6/webapps/ROOT/WEB-INF/web.xml
 sudo rm -f /var/lib/tomcat6/webapps/ROOT/WEB-INF/lib/*.jar
 sudo rm -rf /var/lib/tomcat6/webapps/ROOT/WEB-INF/classes
+mvn -P production liquibase:update
 sudo cp -R --preserve=timestamp target/lor-1.0-SNAPSHOT/* /var/lib/tomcat6/webapps/ROOT
 sudo touch /var/lib/tomcat6/webapps/ROOT/WEB-INF/web.xml
 

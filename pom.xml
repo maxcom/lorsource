@@ -484,7 +484,7 @@
             </configuration>
             <executions>
               <execution>
-                <phase>process-resources</phase>
+                <phase>pre-integration-test</phase>
                 <goals>
                   <goal>update</goal>
                 </goals>
