@@ -21,8 +21,8 @@
 <table class="poll-result">
 <c:forEach var="variant" items="${poll.variants}">
     <tr>
-        <td>${fn:escapeXml(variant.label)}</td>
-        <td>${variant.votes}</td>
+        <td><c:if test="${variant.userVoted}"><b></c:if>${fn:escapeXml(variant.label)}<c:if test="${variant.userVoted}"></b></c:if></td>
+        <td><c:if test="${variant.userVoted}"><b></c:if>${variant.votes}<c:if test="${variant.userVoted}"></b></c:if></td>
         <%
             PollVariant variant = (PollVariant)jspContext.getAttribute("variant");
             int variantWidth = 20*variant.getVotes()/poll.getMaximumValue();

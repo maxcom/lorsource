@@ -1,0 +1,26 @@
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
+
+    <changeSet id="2011122301" author="hizel">
+        <renameTable oldTableName="votenames" newTableName="polls"/>
+        <renameTable oldTableName="votes" newTableName="polls_variants"/>
+
+        <addColumn tableName="vote_users">
+            <column name="variant_id" type="integer">
+                <constraints foreignKeyName="vote_users_variant_id_fkey" references="polls_variants(id)"/>
+            </column>
+        </addColumn>
+
+        <dropIndex indexName="vote_users_idx" tableName="vote_users"/>
+
+        <createIndex tableName="vote_users" indexName="vote_users_idx" unique="true">
+            <column name="vote"/>
+            <column name="userid"/>
+            <column name="variant_id"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>

@@ -477,7 +477,7 @@ public class TopicDao {
 
     if (poll.isMultiSelect()!=multiselect) {
       modified = true;
-      jdbcTemplate.update("UPDATE votenames SET multiselect=? WHERE id=?", multiselect, poll.getId());
+      pollDao.updateMultiselect(poll, multiselect);
     }
 
     return modified;
