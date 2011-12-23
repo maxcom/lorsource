@@ -2,7 +2,7 @@
 
 set -e
 
-mvn clean package
+mvn -P production clean package
 
 echo Copying files...
 
