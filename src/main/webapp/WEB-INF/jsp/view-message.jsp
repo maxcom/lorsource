@@ -31,7 +31,6 @@
 <%--@elvariable id="group" type="ru.org.linux.group.Group"--%>
 <%--@elvariable id="commentsPrepared" type="java.util.List<ru.org.linux.comment.PreparedComment>"--%>
 <%--@elvariable id="page" type="Integer"--%>
-<%--@elvariable id="highlight" type="java.util.Set"--%>
 
 <% Template tmpl = Template.getTemplate(request); %>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
@@ -308,8 +307,7 @@
         messageMenu="${messageMenu}"
         preparedMessage="${preparedMessage}" 
         message="${message}"
-        showMenu="true"
-        highlight="${highlight}"/>
+        showMenu="true"/>
 
 <c:out value="${scroller}" escapeXml="false"/>
 

@@ -80,7 +80,7 @@ public class TopicController {
     if(cid != null) {
       return jumpMessage(request, msgid, cid);
     }
-    return getMessageNew(Section.SECTION_FORUM, webRequest, request, response, 0, filter, groupName, msgid, null);
+    return getMessageNew(Section.SECTION_FORUM, webRequest, request, response, 0, filter, groupName, msgid);
   }
 
   @RequestMapping("/news/{group}/{id}")
@@ -96,7 +96,7 @@ public class TopicController {
     if(cid != null) {
       return jumpMessage(request, msgid, cid);
     }
-    return getMessageNew(Section.SECTION_NEWS, webRequest, request, response, 0, filter, groupName, msgid, null);
+    return getMessageNew(Section.SECTION_NEWS, webRequest, request, response, 0, filter, groupName, msgid);
   }
 
   @RequestMapping("/polls/{group}/{id}")
@@ -107,8 +107,7 @@ public class TopicController {
     @RequestParam(value="filter", required=false) String filter,
     @RequestParam(value = "cid" , required = false) Integer cid,
     @PathVariable("group") String groupName,
-    @PathVariable("id") int msgid,
-    @RequestParam(value="highlight", required=false) Set<Integer> highlight
+    @PathVariable("id") int msgid
   ) throws Exception {
     if(cid != null) {
       return jumpMessage(request, msgid, cid);
@@ -121,7 +120,7 @@ public class TopicController {
       0,
       filter,
       groupName,
-      msgid, highlight);
+      msgid);
   }
 
   @RequestMapping("/gallery/{group}/{id}")
@@ -137,7 +136,7 @@ public class TopicController {
     if(cid != null) {
       return jumpMessage(request, msgid, cid);
     }
-    return getMessageNew(Section.SECTION_GALLERY, webRequest, request, response, 0, filter, groupName, msgid, null);
+    return getMessageNew(Section.SECTION_GALLERY, webRequest, request, response, 0, filter, groupName, msgid);
   }
 
   @RequestMapping("/forum/{group}/{id}/page{page}")
@@ -150,7 +149,7 @@ public class TopicController {
     @PathVariable("id") int msgid,
     @PathVariable("page") int page
   ) throws Exception {
-    return getMessageNew(Section.SECTION_FORUM, webRequest, request, response, page, filter, groupName, msgid, null);
+    return getMessageNew(Section.SECTION_FORUM, webRequest, request, response, page, filter, groupName, msgid);
   }
 
   @RequestMapping("/news/{group}/{id}/page{page}")
@@ -164,7 +163,7 @@ public class TopicController {
     @PathVariable("id") int msgid,
     @PathVariable("page") int page
   ) throws Exception {
-    return getMessageNew(Section.SECTION_NEWS, webRequest, request, response, page, filter, groupName, msgid, null);
+    return getMessageNew(Section.SECTION_NEWS, webRequest, request, response, page, filter, groupName, msgid);
   }
 
   @RequestMapping("/polls/{group}/{id}/page{page}")
@@ -178,7 +177,7 @@ public class TopicController {
     @PathVariable("id") int msgid,
     @PathVariable("page") int page
   ) throws Exception {
-    return getMessageNew(Section.SECTION_POLLS, webRequest, request, response, page, filter, groupName, msgid, null);
+    return getMessageNew(Section.SECTION_POLLS, webRequest, request, response, page, filter, groupName, msgid);
   }
 
   @RequestMapping("/gallery/{group}/{id}/page{page}")
@@ -191,7 +190,7 @@ public class TopicController {
     @PathVariable("id") int msgid,
     @PathVariable("page") int page
   ) throws Exception {
-    return getMessageNew(Section.SECTION_GALLERY, webRequest, request, response, page, filter, groupName, msgid, null);
+    return getMessageNew(Section.SECTION_GALLERY, webRequest, request, response, page, filter, groupName, msgid);
   }
 
   public ModelAndView getMessageNew(
@@ -202,9 +201,7 @@ public class TopicController {
     int page,
     String filter,
     String groupName,
-    int msgid,
-    Set<Integer> highlight)
-  throws Exception {
+    int msgid) throws Exception {
     Topic message = messageDao.getById(msgid);
     Template tmpl = Template.getTemplate(request);
     User user = null;
@@ -218,7 +215,7 @@ public class TopicController {
       return new ModelAndView(new RedirectView(message.getLink()));
     }
 
-    return getMessage(webRequest, request, response, preparedMessage, group, page, filter, highlight);
+    return getMessage(webRequest, request, response, preparedMessage, group, page, filter);
   }
 
   /**
@@ -283,8 +280,7 @@ public class TopicController {
     PreparedTopic preparedMessage,
     Group group,
     int page,
-    String filter,
-    Set<Integer> highlight
+    String filter
   ) throws Exception {
     Topic message = preparedMessage.getMessage();
 
@@ -295,8 +291,6 @@ public class TopicController {
     params.put("showAdsense", !tmpl.isSessionAuthorized() || !tmpl.getProf().isHideAdsense());
 
     params.put("page", page);
-
-    params.put("highlight", highlight);
 
     boolean showDeleted = request.getParameter("deleted") != null;
     if (showDeleted) {
