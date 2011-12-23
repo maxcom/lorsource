@@ -4,5 +4,6 @@
   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
          http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
 
+    <include file="sql/updates/2011-12-23-poll.xml"/>
 
 </databaseChangeLog>
