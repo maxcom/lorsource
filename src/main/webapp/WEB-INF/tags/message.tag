@@ -10,7 +10,6 @@
 <%@ attribute name="preparedMessage" required="true" type="ru.org.linux.topic.PreparedTopic" %>
 <%@ attribute name="messageMenu" required="true" type="ru.org.linux.topic.TopicMenu" %>
 <%@ attribute name="showMenu" required="true" type="java.lang.Boolean" %>
-<%@ attribute name="highlight" type="java.util.Set" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
