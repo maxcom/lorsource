@@ -74,20 +74,7 @@ public class VoteController {
 
     pollDao.updateVotes(voteid, votes, user);
 
-    StringBuilder url = new StringBuilder();
-
-    for (int vote : votes) {
-      if (url.length()==0) {
-        url.append('?');
-      } else {
-        url.append('&');
-      }
-
-      url.append("highlight=");
-      url.append(Integer.toString(vote));
-    }
-
-    return new ModelAndView(new RedirectView(msg.getLink() + url));
+    return new ModelAndView(new RedirectView(msg.getLink()));
   }
 
   @RequestMapping(value="/vote-vote.jsp", method=RequestMethod.GET)
