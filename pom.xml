@@ -363,7 +363,7 @@
                     <execution>
                         <id>create-temp-storage</id>
                         <phase>generate-test-resources</phase>
-                        <configuration>       
+                        <configuration>
                             <tasks>
                                 <mkdir dir="${project.build.directory}/tmp/linux-storage/profile"/>
                                 <mkdir dir="${project.build.directory}/tmp/linux-storage/tmp"/>
@@ -477,9 +477,10 @@
             <groupId>org.liquibase</groupId>
             <artifactId>liquibase-maven-plugin</artifactId>
             <version>2.0.1</version>
+
             <configuration>
               <propertyFile>sql/liquibase.config</propertyFile>
-              <verbose>false</verbose>
+              <verbose>true</verbose>
             </configuration>
             <executions>
               <execution>
@@ -492,7 +493,23 @@
           </plugin>
         </plugins>
     </build>
-
+    <profiles>
+        <profile>
+            <id>production</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.liquibase</groupId>
+                        <artifactId>liquibase-maven-plugin</artifactId>
+                        <configuration>
+                            <propertyFile>sql/production-liquibase.config</propertyFile>
+                            <verbose>false</verbose>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
     <repositories>
         <repository>
             <id>java.net</id>
