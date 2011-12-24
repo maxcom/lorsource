@@ -1,0 +1,25 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
+
+  <changeSet id="2011122302" author="hizel">
+      <createView viewName="jam_wiki_user" replaceIfExists="true">
+          SELECT users.id AS wiki_user_id,
+                 users.nick AS login,
+                 users.name AS display_name,
+                 users.regdate AS create_date,
+                 users.lastlogin AS last_login_date,
+                 '127.0.0.1'::character varying(15) AS create_ip_address,
+                 '127.0.0.1'::character varying(15) AS last_login_ip_address,
+                 'ru_RU'::character varying(8) AS default_locale,
+                 users.email,
+                 'toolbar'::character varying(50) AS editor,
+                 ''::character varying(255) AS signature,
+                 style
+          FROM users
+      </createView>
+  </changeSet>
+
+</databaseChangeLog>
