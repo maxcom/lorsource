@@ -1,0 +1,14 @@
+#!/bin/sh
+
+# Для отладки приложения в Intellij Idea community edition необходимо выполнить действия:
+# - в Idea выберите пункт меню Run -> Edit configuration
+# - добавьте новую конфигурацию (нажмите на плюсик)
+# - из выпадающего списка выберите "Remote"
+# - Name: как угодно. Например, lor-debug
+# - Port: 8123
+# - нажмите кнопку "Ok" после этого запустите start_debug из комстроки
+# - в Idea выберите конфигурацию запуска 'lor-debug' и запустите в режиме отладки.
+
+export MAVEN_OPTS="-agentlib:jdwp=transport=dt_socket,address=8123,server=y,suspend=n"
+
+mvn package liquibase:update jetty:run
