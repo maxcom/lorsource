@@ -29,6 +29,7 @@ import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.auth.CaptchaService;
 import ru.org.linux.auth.FloodProtector;
 import ru.org.linux.auth.IPBlockDao;
+import ru.org.linux.auth.IPBlockInfo;
 import ru.org.linux.site.Template;
 import ru.org.linux.search.SearchQueueSender;
 import ru.org.linux.user.User;
@@ -159,11 +160,15 @@ public class AddCommentController extends ApplicationObjectSupport {
       add.setMode(tmpl.getFormatMode());
     }
 
-    return new ModelAndView(
-            "comment-message",
-            "preparedMessage",
-            messagePrepareService.prepareMessage(add.getTopic(), false, request.isSecure())
+    ModelAndView modelAndView = new ModelAndView(
+      "comment-message",
+      "preparedMessage",
+      messagePrepareService.prepareMessage(add.getTopic(), false, request.isSecure())
     );
+
+    IPBlockInfo ipBlockInfo = ipBlockDao.getBlockInfo(request.getRemoteAddr());
+    modelAndView.addObject("ipBlockInfo", ipBlockInfo);
+    return modelAndView;
   }
 
   private String processMessage(String msg, String mode) {
@@ -197,7 +202,10 @@ public class AddCommentController extends ApplicationObjectSupport {
 
     HttpSession session = request.getSession();
 
-    if (!add.isPreviewMode() && !Template.isSessionAuthorized(session)) {
+    IPBlockInfo ipBlockInfo = ipBlockDao.getBlockInfo(request.getRemoteAddr());
+
+    if (!add.isPreviewMode() &&
+      (!Template.isSessionAuthorized(session) || ipBlockInfo.isCaptchaRequired())) {
       captcha.checkCaptcha(request, errors);
     }
 
@@ -212,7 +220,9 @@ public class AddCommentController extends ApplicationObjectSupport {
       errors.reject(null, "сбой добавления, попробуйте еще раз");
     }
 
-    ipBlockDao.checkBlockIP(request.getRemoteAddr(), errors);
+    if (ipBlockInfo.isBlocked() && ! ipBlockInfo.isAllowPosting()) {
+      ipBlockDao.checkBlockIP(ipBlockInfo, errors);
+    }
 
     Map<String, Object> formParams = new HashMap<String, Object>();
 
@@ -294,8 +304,9 @@ public class AddCommentController extends ApplicationObjectSupport {
 
       return new ModelAndView(new RedirectView(returnUrl));
     }
-
-    return new ModelAndView("add_comment", formParams);
+    ModelAndView modelAndView = new ModelAndView("add_comment", formParams);
+    modelAndView.addObject("ipBlockInfo", ipBlockInfo);
+    return modelAndView;
   }
 
   private void prepareReplyto(AddCommentRequest add, Map<String, Object> formParams, HttpServletRequest request) throws UserNotFoundException {

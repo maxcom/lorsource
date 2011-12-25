@@ -21,20 +21,43 @@ import java.sql.Timestamp;
 import java.util.Date;
 
 public class IPBlockInfo {
+  private final boolean initialized;
+  private final String ip;
   private final String reason;
   private final Timestamp banDate;
   private final Timestamp originalDate;
   private final int moderator;
+  private final boolean allowPosting;
+  private final boolean captchaRequired;
+
+  public IPBlockInfo(String ip) {
+    this.ip = ip;
+    this.reason = null;
+    this.banDate = null;
+    this.originalDate = null;
+    this.moderator = 0;
+    this.allowPosting = false;
+    this.captchaRequired = false;
+    this.initialized = false;
+  }
 
   public IPBlockInfo(ResultSet rs) throws SQLException {
+    ip = rs.getString("ip");
     reason = rs.getString("reason");
     banDate = rs.getTimestamp("ban_date");
     originalDate = rs.getTimestamp("date");
     moderator = rs.getInt("mod_id");
+    allowPosting = rs.getBoolean("allow_posting");
+    captchaRequired = rs.getBoolean("captcha_required");
+    initialized = true;
+  }
+
+  public String getIp() {
+    return ip;
   }
 
   public boolean isBlocked() {
-    return banDate == null || banDate.after(new Date());
+    return isInitialized() && (banDate == null || banDate.after(new Date()));
   }
 
   @Deprecated
@@ -59,4 +82,17 @@ public class IPBlockInfo {
   public int getModerator() {
     return moderator;
   }
+
+  public boolean isInitialized() {
+    return initialized;
+  }
+
+  public boolean isAllowPosting() {
+    return !isBlocked() || allowPosting;
+  }
+
+  public boolean isCaptchaRequired() {
+    return isAllowPosting() && captchaRequired;
+  }
+
 }

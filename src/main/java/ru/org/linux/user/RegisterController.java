@@ -28,6 +28,7 @@ import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.auth.CaptchaService;
 import ru.org.linux.auth.IPBlockDao;
+import ru.org.linux.auth.IPBlockInfo;
 import ru.org.linux.site.Template;
 import ru.org.linux.util.ExceptionBindingErrorProcessor;
 import ru.org.linux.util.LorHttpUtils;
@@ -186,7 +187,8 @@ public class RegisterController extends ApplicationObjectSupport {
       }
     }
 
-    ipBlockDao.checkBlockIP(request.getRemoteAddr(), errors);
+    IPBlockInfo ipBlockInfo = ipBlockDao.getBlockInfo(request.getRemoteAddr());
+    ipBlockDao.checkBlockIP(ipBlockInfo, errors);
 
     boolean emailChanged = false;
 
