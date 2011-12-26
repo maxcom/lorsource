@@ -81,6 +81,9 @@ public class HTMLFormatterTest {
 
   private static final String TEXT16 = "with ftp: ftp.test.com";
   private static final String RESULT16 = "with ftp: <a href=\"ftp://ftp.test.com\">ftp://ftp.test.com</a>";
+  
+  private static final String TEXT17 = "http://translate.google.com/?sl=en&tl=ru#ru|en|%D0%BE%D1%81%D1%91%D0%BB";
+  private static final String RESULT17 = "<a href=\"http://translate.google.com/?sl=en&amp;tl=ru#ru|en|%D0%BE%D1%81%D1%91%D0%BB\">http://translate.google.com/?sl=en&amp;tl=ru#ru|en|осёл</a>";
 
 
   private static final String GUARANTEED_CRASH = "\"http://www.google.com/\"";
@@ -188,6 +191,7 @@ public class HTMLFormatterTest {
     assertEquals(RESULT14, toHtmlFormatter.format(TEXT14, false));
     assertEquals(RESULT15, toHtmlFormatter.format(TEXT15, false));
     assertEquals(RESULT16, toHtmlFormatter.format(TEXT16, false));
+    assertEquals(RESULT17, toHtmlFormatter.format(TEXT17, false));
     assertTrue(toHtmlFormatter.format(LINK_WITH_UNDERSCORE, false).endsWith("</a>"));
     assertTrue(toHtmlFormatter.format(LINK_WITH_PARAM_ONLY, false).endsWith("</a>"));
     assertTrue(toHtmlFormatter.format(RFC1738, false).endsWith("</a>"));
