@@ -15,43 +15,15 @@
 
 package ru.org.linux.section;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowCallbackHandler;
-import org.springframework.stereotype.Component;
-
-import javax.sql.DataSource;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
-@Component
-public class SectionDao {
-  private JdbcTemplate jdbcTemplate;
-
-  @Autowired
-  public void setDataSource(DataSource ds) {
-    jdbcTemplate = new JdbcTemplate(ds);
-  }
-
+public interface SectionDao {
   /**
    * Получить список всех секций.
    *
    * @return список секций
    */
-  public List<Section> getAllSections() {
-    final List<Section> sectionList = new ArrayList<Section>();
-    jdbcTemplate.query("SELECT id, name, imagepost, vote, moderate FROM sections ORDER BY id",
-      new RowCallbackHandler() {
-        @Override
-        public void processRow(ResultSet rs) throws SQLException {
-          Section section = new Section(rs);
-          sectionList.add(section);
-        }
-      });
-    return sectionList;
-  }
+  List<Section> getAllSections();
 
   /**
    * Получить расширенную информацию о секции по идентификатору секции.
@@ -59,13 +31,5 @@ public class SectionDao {
    * @param id идентификатор секции
    * @return расширеннуя информация о секции
    */
-  public String getAddInfo(int id) {
-    List<String> infos = jdbcTemplate.queryForList("select add_info from sections where id=?", String.class, id);
-
-    if (infos.isEmpty()) {
-      return null;
-    } else {
-      return infos.get(0);
-    }
-  }
+  String getAddInfo(int id);
 }
