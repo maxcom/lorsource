@@ -36,8 +36,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import ru.org.linux.group.BadGroupException;
 import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
-import ru.org.linux.section.SectionDao;
 import ru.org.linux.section.SectionNotFoundException;
+import ru.org.linux.section.SectionService;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserPropertyEditor;
@@ -54,7 +54,8 @@ import java.util.Map;
 @Controller
 public class SearchController {
   private SolrServer solrServer;
-  private SectionDao sectionStore;
+  @Autowired
+  private SectionService sectionService;
   private UserDao userDao;
   private GroupDao groupDao;
   private JdbcTemplate jdbcTemplate;
@@ -64,11 +65,6 @@ public class SearchController {
   @Required
   public void setSolrServer(SolrServer solrServer) {
     this.solrServer = solrServer;
-  }
-
-  @Autowired
-  public void setSectionStore(SectionDao sectionStore) {
-    this.sectionStore = sectionStore;
   }
 
   @Autowired
@@ -212,7 +208,7 @@ public class SearchController {
     for (FacetField.Count count : sectionFacet.getValues()) {
       int sectionId = Integer.parseInt(count.getName());
 
-      String name = sectionStore.getSection(sectionId).getName().toLowerCase();
+      String name = sectionService.getSection(sectionId).getName().toLowerCase();
 
       builder.put(sectionId, name + " (" + count.getCount() + ')');
 

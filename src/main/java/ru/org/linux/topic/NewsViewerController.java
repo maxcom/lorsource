@@ -32,7 +32,7 @@ import ru.org.linux.group.BadGroupException;
 import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
 import ru.org.linux.section.Section;
-import ru.org.linux.section.SectionDao;
+import ru.org.linux.section.SectionService;
 import ru.org.linux.site.*;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.user.User;
@@ -57,7 +57,7 @@ public class NewsViewerController {
   private static final Set<String> filterValuesSet = new HashSet<String>(Arrays.asList(filterValues));
 
   @Autowired
-  private SectionDao sectionDao;
+  private SectionService sectionService;
 
   @Autowired
   private GroupDao groupDao;
@@ -99,7 +99,7 @@ public class NewsViewerController {
     if (sectionid != null) {
       urlParams.append("section=").append(Integer.toString(sectionid));
 
-      section = sectionDao.getSection(sectionid);
+      section = sectionService.getSection(sectionid);
 
       params.put("section", section);
       params.put("archiveLink", section.getArchiveLink());
@@ -426,7 +426,7 @@ public class NewsViewerController {
     Section section = null;
 
     if (sectionId != 0) {
-      section = sectionDao.getSection(sectionId);
+      section = sectionService.getSection(sectionId);
       modelAndView.getModel().put("section", section);
     }
 
@@ -470,7 +470,7 @@ public class NewsViewerController {
 
     modelAndView.getModel().put("deletedTopics", deleted);
 
-    modelAndView.getModel().put("sections", sectionDao.getSectionsList());
+    modelAndView.getModel().put("sections", sectionService.getSectionList());
 
     return modelAndView;
   }
@@ -628,7 +628,7 @@ public class NewsViewerController {
     HttpServletRequest request,
     HttpServletResponse response
   ) throws Exception {
-    Section section = sectionDao.getSection(sectionId);
+    Section section = sectionService.getSection(sectionId);
 
     Group group = groupDao.getGroup(section, groupName);
 
@@ -726,7 +726,7 @@ public class NewsViewerController {
 
     nv.setLimit("LIMIT 20");
 
-    Section section = sectionDao.getSection(sectionId);
+    Section section = sectionService.getSection(sectionId);
     params.put("section", section);
 
     if (section.isPremoderated()) {

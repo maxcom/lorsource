@@ -25,9 +25,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.auth.AccessViolationException;
+import ru.org.linux.section.SectionService;
 import ru.org.linux.site.Template;
 import ru.org.linux.section.Section;
-import ru.org.linux.section.SectionDao;
 import ru.org.linux.user.IgnoreListDao;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.user.User;
@@ -45,7 +45,7 @@ public class GroupController {
   private GroupDao groupDao;
 
   @Autowired
-  private SectionDao sectionDao;
+  private SectionService sectionService;
 
   @Autowired
   private UserDao userDao;
@@ -126,7 +126,7 @@ public class GroupController {
     boolean showDeleted = request.getParameter("deleted") != null;
     params.put("showDeleted", showDeleted);
 
-    Section section = sectionDao.getSection(Section.SECTION_FORUM);
+    Section section = sectionService.getSection(Section.SECTION_FORUM);
     params.put("groupList", groupDao.getGroups(section));
 
     Group group = groupDao.getGroup(section, groupName);

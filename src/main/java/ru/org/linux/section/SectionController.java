@@ -30,14 +30,14 @@ import java.util.Map;
 @Controller
 public class SectionController {
   @Autowired
-  private SectionDao sectionDao;
+  private SectionService sectionService;
 
   @Autowired
   private GroupDao groupDao;
 
   @RequestMapping("/view-section.jsp")
   public ModelAndView handleRequestInternal(@RequestParam("section") int sectionid) throws Exception {
-    Section section = sectionDao.getSection(sectionid);
+    Section section = sectionService.getSection(sectionid);
 
     Map<String, Object> params = new HashMap<String, Object>();
     params.put("section", section);

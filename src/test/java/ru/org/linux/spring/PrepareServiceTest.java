@@ -20,6 +20,7 @@ import org.junit.Test;
 import ru.org.linux.group.GroupDao;
 import ru.org.linux.poll.PollDao;
 import ru.org.linux.section.SectionDao;
+import ru.org.linux.section.SectionDaoImpl;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.spring.dao.*;
 import ru.org.linux.topic.TopicDao;
@@ -42,7 +43,7 @@ public class PrepareServiceTest {
     PollDao pollDao = mock(PollDao.class);
     GroupDao groupDao = mock(GroupDao.class);
     UserDao userDao = mock(UserDao.class);
-    SectionDao sectionDao = mock(SectionDao.class);
+    SectionDao sectionDao = mock(SectionDaoImpl.class);
     DeleteInfoDao deleteInfoDao = mock(DeleteInfoDao.class);
     TopicDao messageDao = mock(TopicDao.class);
     UserAgentDao userAgentDao = mock(UserAgentDao.class);

@@ -26,7 +26,7 @@ import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
 import ru.org.linux.section.Section;
-import ru.org.linux.section.SectionDao;
+import ru.org.linux.section.SectionService;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
@@ -34,7 +34,7 @@ import java.util.List;
 @Controller
 public class ArchiveController {
   @Autowired
-  private SectionDao sectionDao;
+  private SectionService sectionService;
 
   @Autowired
   private GroupDao groupDao;
@@ -54,7 +54,7 @@ public class ArchiveController {
   ) throws Exception {
     ModelAndView mv = new ModelAndView("view-news-archive");
 
-    Section section = sectionDao.getSection(sectionid);
+    Section section = sectionService.getSection(sectionid);
     mv.getModel().put("section", section);
 
     Group group = null;

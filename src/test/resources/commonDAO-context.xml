@@ -26,7 +26,7 @@
 
     <bean class="ru.org.linux.gallery.GalleryDao" id="galleryDao"/>
     <bean class="ru.org.linux.poll.PollDao" id="pollDao"/>
-    <bean class="ru.org.linux.section.SectionDao" id="sectionDao"/>
+    <bean class="ru.org.linux.section.SectionDaoImpl" id="sectionDao"/>
     <bean class="ru.org.linux.group.GroupDao" id="groupDao"/>
 
 </beans>

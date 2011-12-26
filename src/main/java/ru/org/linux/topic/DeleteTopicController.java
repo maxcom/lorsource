@@ -23,10 +23,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import ru.org.linux.auth.AccessViolationException;
+import ru.org.linux.section.SectionService;
 import ru.org.linux.site.Template;
 import ru.org.linux.search.SearchQueueSender;
 import ru.org.linux.section.Section;
-import ru.org.linux.section.SectionDao;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserErrorException;
@@ -42,7 +42,7 @@ public class DeleteTopicController extends ApplicationObjectSupport {
   @Autowired
   private UserDao userDao;
   @Autowired
-  private SectionDao sectionDao;
+  private SectionService sectionService;
   @Autowired
   private TopicDao messageDao;
   @Autowired
@@ -64,7 +64,7 @@ public class DeleteTopicController extends ApplicationObjectSupport {
       throw new UserErrorException("Сообщение уже удалено");
     }
 
-    Section section = sectionDao.getSection(msg.getSectionId());
+    Section section = sectionService.getSection(msg.getSectionId());
 
     HashMap<String, Object> params = new HashMap<String, Object>();
     params.put("bonus", !section.isPremoderated());
@@ -95,7 +95,7 @@ public class DeleteTopicController extends ApplicationObjectSupport {
     user.checkAnonymous();
 
     Topic message = messageDao.getById(msgid);
-    Section section = sectionDao.getSection(message.getSectionId());
+    Section section = sectionService.getSection(message.getSectionId());
 
     if(message.isDeleted()) {
       throw new UserErrorException("Сообщение уже удалено");

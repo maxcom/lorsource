@@ -25,11 +25,11 @@ import java.util.Map;
 public class Section implements Serializable {
   private static final long serialVersionUID = -2259350244006777910L;
 
-  private final String name;
-  private final boolean imagepost;
-  private final boolean moderate;
-  private final int id;
-  private final boolean votepoll;
+  private String name;
+  private boolean imagepost;
+  private boolean moderate;
+  private int id;
+  private boolean votepoll;
   
   public static final int SCROLL_NOSCROLL = 0;
   public static final int SCROLL_SECTION = 1;
@@ -46,6 +46,10 @@ public class Section implements Serializable {
     sections.put("forum", SECTION_FORUM);
     sections.put("gallery", SECTION_GALLERY);
     sections.put("polls", SECTION_POLLS);
+  }
+
+  public Section() {
+
   }
 
   public Section(ResultSet rs) throws SQLException {
@@ -202,5 +206,25 @@ public class Section implements Serializable {
     }
 
     return v;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public void setImagepost(boolean imagepost) {
+    this.imagepost = imagepost;
+  }
+
+  public void setModerate(boolean moderate) {
+    this.moderate = moderate;
+  }
+
+  public void setId(int id) {
+    this.id = id;
+  }
+
+  public void setVotepoll(boolean votepoll) {
+    this.votepoll = votepoll;
   }
 }
