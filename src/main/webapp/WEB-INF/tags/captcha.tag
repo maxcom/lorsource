@@ -7,7 +7,7 @@
 <%@ taglib prefix="lor" uri="http://www.linux.org.ru" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 
-<%@ attribute name="ipBlockInfo" required="true" type="ru.org.linux.auth.IPBlockInfo" %>
+<%@ attribute name="ipBlockInfo" required="false" type="ru.org.linux.auth.IPBlockInfo" %>
 <%--
   ~ Copyright 1998-2010 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
