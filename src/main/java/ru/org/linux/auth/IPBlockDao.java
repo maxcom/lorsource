@@ -42,7 +42,7 @@ public class IPBlockDao {
 
   public IPBlockInfo getBlockInfo(String addr) {
     List<IPBlockInfo> list = jdbcTemplate.query(
-            "SELECT reason, ban_date, date, mod_id FROM b_ips WHERE ip = ?::inet",
+            "SELECT ip, reason, ban_date, date, mod_id, allow_posting, captcha_required FROM b_ips WHERE ip = ?::inet",
             new RowMapper<IPBlockInfo>() {
               @Override
               public IPBlockInfo mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -53,7 +53,7 @@ public class IPBlockDao {
     );
 
     if (list.isEmpty()) {
-      return null;
+      return new IPBlockInfo(addr);
     } else {
       return list.get(0);
     }
@@ -64,15 +64,10 @@ public class IPBlockDao {
     return (dnsbl.checkIP(addr));
   }
 
-  public void checkBlockIP(String addr, Errors errors) throws UnknownHostException, TextParseException {
-    if (getTor(addr)) {
+  public void checkBlockIP(IPBlockInfo block, Errors errors)
+    throws UnknownHostException, TextParseException {
+    if (getTor(block.getIp())) {
       errors.reject(null, "Постинг заблокирован: tor.ahbl.org");
-    }
-
-    IPBlockInfo block = getBlockInfo(addr);
-
-    if (block == null) {
-      return;
     }
 
     if (block.isBlocked()) {
@@ -80,23 +75,30 @@ public class IPBlockDao {
     }
   }
 
-  public void blockIP(String ip, User moderator, String reason, Timestamp ts) {
+  public void blockIP(String ip, User moderator, String reason, Timestamp ts,
+                      Boolean allow_posting, Boolean captcha_required) {
     IPBlockInfo blockInfo = getBlockInfo(ip);
 
-    if (blockInfo == null) {
+    if (!blockInfo.isInitialized()) {
       jdbcTemplate.update(
-              "INSERT INTO b_ips (ip, mod_id, date, reason, ban_date) VALUES (?::inet, ?, CURRENT_TIMESTAMP, ?, ?)",
+              "INSERT INTO b_ips (ip, mod_id, date, reason, ban_date, allow_posting, captcha_required)"+
+                " VALUES (?::inet, ?, CURRENT_TIMESTAMP, ?, ?, ?, ?)",
               ip,
               moderator.getId(),
               reason,
-              ts
+              ts,
+              allow_posting,
+              captcha_required
       );
     } else {
       jdbcTemplate.update(
-              "UPDATE b_ips SET mod_id=?,date=CURRENT_TIMESTAMP, reason=?, ban_date=? WHERE ip=?::inet",
+              "UPDATE b_ips SET mod_id=?,date=CURRENT_TIMESTAMP, reason=?, ban_date=?, allow_posting=?, captcha_required=?"+
+                " WHERE ip=?::inet",
               moderator.getId(),
               reason,
               ts,
+              allow_posting,
+              captcha_required,
               ip
       );
     }

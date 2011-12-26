@@ -1,0 +1,16 @@
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
+
+    <changeSet id="2011122501" author="Slava Zanko">
+
+        <addColumn tableName="b_ips">
+            <column name="allow_posting" type="boolean" defaultValueBoolean="false" />
+            <column name="captcha_required" type="boolean" defaultValueBoolean="true" />
+        </addColumn>
+
+    </changeSet>
+
+</databaseChangeLog>

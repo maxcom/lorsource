@@ -25,6 +25,8 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.auth.AccessViolationException;
+import ru.org.linux.auth.IPBlockDao;
+import ru.org.linux.auth.IPBlockInfo;
 import ru.org.linux.site.Template;
 import ru.org.linux.comment.*;
 import ru.org.linux.group.Group;
@@ -66,6 +68,9 @@ public class TopicController {
 
   @Autowired
   private Configuration configuration;
+
+  @Autowired
+  private IPBlockDao ipBlockDao;
 
   @RequestMapping("/forum/{group}/{id}")
   public ModelAndView getMessageNewForum(
@@ -412,6 +417,10 @@ public class TopicController {
       List<PreparedComment> commentsPrepared = prepareService.prepareCommentList(comments, commentsFiltred, request.isSecure());
 
       params.put("commentsPrepared", commentsPrepared);
+
+      IPBlockInfo ipBlockInfo = ipBlockDao.getBlockInfo(request.getRemoteAddr());
+      params.put("ipBlockInfo", ipBlockInfo);
+
     } else {
       CommentFilter cv = new CommentFilter(comments);
 

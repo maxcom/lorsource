@@ -39,6 +39,6 @@
 <font size=2><strong>Внимание!</strong> Перед написанием комментария ознакомьтесь с
 <a href="rules.jsp">правилами</a> сайта.</font><p>
 
-<lor:commentForm topic="${add.topic}" title="" mode="${add.mode}"/>
+<lor:commentForm topic="${add.topic}" title="" mode="${add.mode}" ipBlockInfo="${ipBlockInfo}"/>
 
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>

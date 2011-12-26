@@ -139,7 +139,7 @@
 
 <form:select path="mode" items="${modes}"/>
 
-  <lor:captcha/>
+  <lor:captcha ipBlockInfo="${ipBlockInfo}"/>
 <br>
 <input type=submit value="Поместить">
 <input type=submit name=preview value="Предпросмотр">
