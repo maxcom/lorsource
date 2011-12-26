@@ -24,8 +24,8 @@ import ru.org.linux.poll.PollNotFoundException;
 import ru.org.linux.poll.PollPrepareService;
 import ru.org.linux.poll.PreparedPoll;
 import ru.org.linux.section.Section;
-import ru.org.linux.section.SectionDao;
 import ru.org.linux.section.SectionNotFoundException;
+import ru.org.linux.section.SectionService;
 import ru.org.linux.site.DeleteInfo;
 import ru.org.linux.user.MemoriesDao;
 import ru.org.linux.user.User;
@@ -50,7 +50,7 @@ public class TopicPrepareService {
   private UserDao userDao;
 
   @Autowired
-  private SectionDao sectionDao;
+  private SectionService sectionService;
 
   @Autowired
   private DeleteInfoDao deleteInfoDao;
@@ -100,7 +100,7 @@ public class TopicPrepareService {
     try {
       Group group = groupDao.getGroup(message.getGroupId());
       User author = userDao.getUserCached(message.getUid());
-      Section section = sectionDao.getSection(message.getSectionId());
+      Section section = sectionService.getSection(message.getSectionId());
 
       DeleteInfo deleteInfo;
       User deleteUser;

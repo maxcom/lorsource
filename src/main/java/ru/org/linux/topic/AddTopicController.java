@@ -29,6 +29,7 @@ import org.springframework.web.multipart.MultipartRequest;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.auth.*;
+import ru.org.linux.section.SectionService;
 import ru.org.linux.site.Template;
 import ru.org.linux.gallery.Screenshot;
 import ru.org.linux.group.BadGroupException;
@@ -36,7 +37,6 @@ import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
 import ru.org.linux.search.SearchQueueSender;
 import ru.org.linux.section.Section;
-import ru.org.linux.section.SectionDao;
 import ru.org.linux.site.*;
 import ru.org.linux.user.UserPropertyEditor;
 import ru.org.linux.user.User;
@@ -65,7 +65,8 @@ public class AddTopicController extends ApplicationObjectSupport {
   private FloodProtector dupeProtector;
   private IPBlockDao ipBlockDao;
   private GroupDao groupDao;
-  private SectionDao sectionDao;
+  @Autowired
+  private SectionService sectionService;
   private TagDao tagDao;
   private UserDao userDao;
 
@@ -104,11 +105,6 @@ public class AddTopicController extends ApplicationObjectSupport {
   @Autowired
   public void setGroupDao(GroupDao groupDao) {
     this.groupDao = groupDao;
-  }
-
-  @Autowired
-  public void setSectionDao(SectionDao sectionDao) {
-    this.sectionDao = sectionDao;
   }
 
   @Autowired
@@ -153,7 +149,7 @@ public class AddTopicController extends ApplicationObjectSupport {
       params.put("topTags", tagDao.getTopTags());
     }
 
-    params.put("addportal", sectionDao.getAddInfo(group.getSectionId()));
+    params.put("addportal", sectionService.getAddInfo(group.getSectionId()));
     IPBlockInfo ipBlockInfo = ipBlockDao.getBlockInfo(request.getRemoteAddr());
     params.put("ipBlockInfo", ipBlockInfo);
     return new ModelAndView("add", params);
@@ -193,7 +189,7 @@ public class AddTopicController extends ApplicationObjectSupport {
     }
 
     if (group!=null) {
-      params.put("addportal", sectionDao.getAddInfo(group.getSectionId()));
+      params.put("addportal", sectionService.getAddInfo(group.getSectionId()));
     }
 
     User user;
@@ -308,11 +304,11 @@ public class AddTopicController extends ApplicationObjectSupport {
 
     params.put("sectionId", sectionId);
 
-    Section section = sectionDao.getSection(sectionId);
+    Section section = sectionService.getSection(sectionId);
 
     params.put("section", section);
 
-    params.put("info", sectionDao.getAddInfo(section.getId()));
+    params.put("info", sectionService.getAddInfo(section.getId()));
 
     params.put("groups", groupDao.getGroups(section));
 
