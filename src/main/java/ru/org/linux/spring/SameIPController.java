@@ -109,10 +109,16 @@ public class SameIPController {
 
     IPBlockInfo blockInfo = ipBlockDao.getBlockInfo(ip);
 
-    if (blockInfo!=null) {
+    Boolean allowPosting = false;
+    Boolean captchaRequired = true;
+    if (blockInfo.isInitialized()) {
       mv.getModel().put("blockInfo", blockInfo);
+      allowPosting = blockInfo.isAllowPosting();
+      captchaRequired = blockInfo.isCaptchaRequired();
       mv.getModel().put("blockModerator", userDao.getUserCached(blockInfo.getModerator()));
     }
+    mv.addObject("allowPosting", allowPosting);
+    mv.addObject("captchaRequired", captchaRequired);
 
     mv.getModel().put("tor", IPBlockDao.getTor(ip));
 

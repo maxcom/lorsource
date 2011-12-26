@@ -98,3 +98,14 @@ color: #babdb6;
 #bd .nav a:visited {
     color: #729fcf;    
 }
+
+fieldset {
+ border: 1px solid white;
+ padding: 5px;
+}
+
+fieldset legend {
+ padding-left: 5px;
+ padding-right: 5px;
+ color:#babdb6;
+}

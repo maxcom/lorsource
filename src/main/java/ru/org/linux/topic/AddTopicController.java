@@ -28,10 +28,7 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.multipart.MultipartRequest;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
-import ru.org.linux.auth.AccessViolationException;
-import ru.org.linux.auth.CaptchaService;
-import ru.org.linux.auth.FloodProtector;
-import ru.org.linux.auth.IPBlockDao;
+import ru.org.linux.auth.*;
 import ru.org.linux.site.Template;
 import ru.org.linux.gallery.Screenshot;
 import ru.org.linux.group.BadGroupException;
@@ -157,7 +154,8 @@ public class AddTopicController extends ApplicationObjectSupport {
     }
 
     params.put("addportal", sectionDao.getAddInfo(group.getSectionId()));
-
+    IPBlockInfo ipBlockInfo = ipBlockDao.getBlockInfo(request.getRemoteAddr());
+    params.put("ipBlockInfo", ipBlockInfo);
     return new ModelAndView("add", params);
   }
 
@@ -220,7 +218,10 @@ public class AddTopicController extends ApplicationObjectSupport {
       errors.reject(null, "Анонимный пользователь");
     }
 
-    ipBlockDao.checkBlockIP(request.getRemoteAddr(), errors);
+    IPBlockInfo ipBlockInfo = ipBlockDao.getBlockInfo(request.getRemoteAddr());
+    if (ipBlockInfo.isBlocked() && ! ipBlockInfo.isAllowPosting()) {
+      ipBlockDao.checkBlockIP(ipBlockInfo, errors);
+    }
 
     if (group!=null && !group.isTopicPostingAllowed(user)) {
       errors.reject(null, "Не достаточно прав для постинга тем в эту группу");
@@ -265,7 +266,8 @@ public class AddTopicController extends ApplicationObjectSupport {
       errors.reject(null, "сбой добавления");
     }
 
-    if (!form.isPreviewMode() && !errors.hasErrors() && !Template.isSessionAuthorized(session)) {
+    if (!form.isPreviewMode() && !errors.hasErrors() && !Template.isSessionAuthorized(session)
+      || ipBlockInfo.isCaptchaRequired()) {
       captcha.checkCaptcha(request, errors);
     }
 
@@ -295,6 +297,7 @@ public class AddTopicController extends ApplicationObjectSupport {
 
       return new ModelAndView("add-done-moderated", params);
     } else {
+      params.put("ipBlockInfo", ipBlockInfo);
       return new ModelAndView("add", params);
     }
   }
