@@ -36,8 +36,6 @@
   out.append("\n\n<!-- ");
   out.append(Integer.toString(comment.getComment().getMessageId()));
   out.append(" -->\n");
-
-  User author = comment.getAuthor();
 %>
 <div class="msg" id="comment-${comment.comment.messageId}">
   <div class=title>
@@ -100,7 +98,7 @@
   <c:set var="showPhotos" value="<%= tmpl.getProf().isShowPhotos() %>"/>
 
   <c:if test="${showPhotos}">
-    <lor:userpic author="<%= author %>"/>
+    <lor:userpic author="${comment.author}"/>
     <c:set var="msgBodyStyle" value="message-w-userpic"/>
   </c:if>
 
@@ -130,7 +128,7 @@
       out.append("[<a href=\"add_comment.jsp?topic=").append(Integer.toString(comment.getComment().getTopicId())).append("&amp;replyto=").append(Integer.toString(comment.getComment().getMessageId())).append("\">Ответить на это сообщение</a>] ");
     }
 
-    if (moderatorMode || (!topic.isExpired() && author.getNick().equals(tmpl.getNick()))) {
+    if (moderatorMode || (!topic.isExpired() && comment.getAuthor().getNick().equals(tmpl.getNick()))) {
       out.append("[<a href=\"delete_comment.jsp?msgid=").append(Integer.toString(comment.getComment().getMessageId())).append("\">Удалить</a>]");
     }
 %>
