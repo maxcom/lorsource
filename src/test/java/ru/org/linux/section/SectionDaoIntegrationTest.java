@@ -14,13 +14,14 @@
  */
 package ru.org.linux.section;
 
-import com.google.common.collect.ImmutableList;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:commonDAO-context.xml")
@@ -31,13 +32,11 @@ public class SectionDaoIntegrationTest {
   @Test
   public void sectionsTest()
       throws Exception {
-    ImmutableList<Section> sectionDtoImmutableList = sectionDao.getSectionsList();
-    Assert.assertEquals(4, sectionDtoImmutableList.size());
-    Section sectionDto = sectionDao.getSection(Section.SECTION_FORUM);
-    String addInfo = sectionDao.getAddInfo(sectionDto.getId());
-    Assert.assertNotNull(addInfo);
-    Assert.assertTrue("Форум".equals(sectionDto.getName()));
-    Assert.assertEquals(2, sectionDto.getId());
 
+    List<Section> sectionList = sectionDao.getAllSections();
+    Assert.assertEquals(4, sectionList.size());
+
+    String addInfo = sectionDao.getAddInfo(sectionList.get(0).getId());
+    Assert.assertNotNull(addInfo);
   }
 }

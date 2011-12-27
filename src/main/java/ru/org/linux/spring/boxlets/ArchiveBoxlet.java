@@ -17,6 +17,7 @@ package ru.org.linux.spring.boxlets;
 
 import java.util.List;
 
+import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,8 +26,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import ru.org.linux.section.Section;
-import ru.org.linux.section.SectionDao;
 import ru.org.linux.section.SectionNotFoundException;
+import ru.org.linux.section.SectionService;
 import ru.org.linux.spring.commons.CacheProvider;
 import ru.org.linux.topic.ArchiveDao;
 
@@ -35,11 +36,21 @@ public class ArchiveBoxlet extends AbstractBoxlet {
   private ArchiveDao archiveDao;
   private CacheProvider cacheProvider;
 
+  @Autowired
+  SectionService sectionService;
+
   private Section sectionNews;
 
-  @Autowired
-  public void setSectionDa(SectionDao sectionDao) throws SectionNotFoundException {
-    sectionNews = sectionDao.getSection(Section.SECTION_NEWS);
+  /**
+   * Инициализация бокслета.
+   * Метод вызывается автоматически сразу после создания бина.
+   *
+   * @throws SectionNotFoundException
+   */
+  @PostConstruct
+  private void initializeBoxlet()
+    throws SectionNotFoundException {
+    sectionNews = sectionService.getSection(Section.SECTION_NEWS);
   }
 
   @Autowired

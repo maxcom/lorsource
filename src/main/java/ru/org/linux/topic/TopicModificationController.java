@@ -24,11 +24,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.auth.AccessViolationException;
+import ru.org.linux.section.SectionService;
 import ru.org.linux.site.Template;
 import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
 import ru.org.linux.section.Section;
-import ru.org.linux.section.SectionDao;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserErrorException;
 
@@ -44,7 +44,7 @@ public class TopicModificationController extends ApplicationObjectSupport {
   private TopicDao messageDao;
 
   @Autowired
-  private SectionDao sectionDao;
+  private SectionService sectionService;
 
   @Autowired
   private GroupDao groupDao;
@@ -146,7 +146,7 @@ public class TopicModificationController extends ApplicationObjectSupport {
     ModelAndView mv = new ModelAndView("mtn");
 
     Topic message = messageDao.getById(msgid);
-    Section section = sectionDao.getSection(message.getSectionId());
+    Section section = sectionService.getSection(message.getSectionId());
 
     mv.getModel().put("message", message);
 
@@ -200,7 +200,7 @@ public class TopicModificationController extends ApplicationObjectSupport {
 
     mv.getModel().put("message", message);
 
-    Section section = sectionDao.getSection(Section.SECTION_FORUM);
+    Section section = sectionService.getSection(Section.SECTION_FORUM);
 
     mv.getModel().put("groups", groupDao.getGroups(section));
 
