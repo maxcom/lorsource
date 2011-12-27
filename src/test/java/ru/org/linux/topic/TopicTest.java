@@ -290,7 +290,6 @@ public class TopicTest {
     // проверка что данные в mock user верные
     Assert.assertEquals(true, user.isModerator());
 
-
     sectionModerate = mock(Section.class);
     when(sectionModerate.isPremoderated()).thenReturn(true);
     sectionNotModerate = mock(Section.class);

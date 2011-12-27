@@ -5,6 +5,6 @@
     >
 
   <bean class="ru.org.linux.section.SectionService" id="sectionService"/>
-  <bean class="ru.org.linux.section.stub.SectionDaoImpl" id="sectionDao"/>
+  <bean class="ru.org.linux.section.stub.TestSectionDaoImpl" id="sectionDao"/>
 
 </beans>
