@@ -109,3 +109,7 @@ fieldset legend {
  padding-right: 5px;
  color:#babdb6;
 }
+
+#bd .forum table tbody tr:hover {
+	background-color: #5c3566;
+}
