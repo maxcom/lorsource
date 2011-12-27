@@ -40,8 +40,8 @@
   User author = comment.getAuthor();
 %>
 <div class="msg" id="comment-${comment.comment.messageId}">
-<c:if test="${showMenu}">
   <div class=title>
+<c:if test="${showMenu}">
 <%
     DateFormat dateFormat = tmpl.dateFormat;
 
@@ -89,8 +89,14 @@
 //        logger.warning("Weak reply #" + comment.getReplyTo() + " on comment=" + comment.getMessageId() + " msgid=" + comment.getTopic());
       }
     %>
-</c:if>    &nbsp;</div>
+</c:if>
   </c:if>
+
+  <c:if test="${not showMenu}">
+    [#]
+  </c:if>
+    &nbsp;</div>
+
   <c:set var="showPhotos" value="<%= tmpl.getProf().isShowPhotos() %>"/>
 
   <c:if test="${showPhotos}">
