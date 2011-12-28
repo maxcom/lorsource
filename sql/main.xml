@@ -7,5 +7,6 @@
     <include file="sql/updates/2011-12-23-poll.xml"/>
     <include file="sql/updates/2011-12-23-themed-wiki.xml"/>
     <include file="sql/updates/2011-12-25-ban.xml"/>
+    <include file="sql/updates/2011-12-29-section-scrollMode.xml"/>
 
 </databaseChangeLog>

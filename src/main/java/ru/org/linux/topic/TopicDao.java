@@ -30,6 +30,9 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import ru.org.linux.section.SectionScrollModeEnum;
+import ru.org.linux.section.SectionNotFoundException;
+import ru.org.linux.section.SectionService;
 import ru.org.linux.site.Template;
 import ru.org.linux.gallery.Screenshot;
 import ru.org.linux.group.BadGroupException;
@@ -39,7 +42,6 @@ import ru.org.linux.poll.Poll;
 import ru.org.linux.poll.PollDao;
 import ru.org.linux.poll.PollNotFoundException;
 import ru.org.linux.poll.PollVariant;
-import ru.org.linux.section.Section;
 import ru.org.linux.site.*;
 import ru.org.linux.user.*;
 import ru.org.linux.util.LorHttpUtils;
@@ -73,6 +75,8 @@ public class TopicDao {
   @Autowired
   private UserEventsDao userEventsDao;
 
+  @Autowired
+  private SectionService sectionService;
 
   /**
    * Запрос получения полной информации о топике
@@ -549,12 +553,19 @@ public class TopicDao {
   }
 
   public Topic getPreviousMessage(Topic message, User currentUser) {
-    int scrollMode = Section.getScrollMode(message.getSectionId());
+    SectionScrollModeEnum sectionScrollMode;
+
+    try {
+      sectionScrollMode = sectionService.getScrollMode(message.getSectionId());
+    } catch (SectionNotFoundException e) {
+      logger.error(e);
+      return null;
+    }
 
     List<Integer> res;
 
-    switch (scrollMode) {
-      case Section.SCROLL_SECTION:
+    switch (sectionScrollMode) {
+      case SECTION:
         res = jdbcTemplate.queryForList(
                 "SELECT topics.id as msgid FROM topics WHERE topics.commitdate=(SELECT max(commitdate) FROM topics, groups, sections WHERE sections.id=groups.section AND topics.commitdate<? AND topics.groupid=groups.id AND groups.section=? AND (topics.moderate OR NOT sections.moderate) AND NOT deleted)",
                 Integer.class,
@@ -563,7 +574,7 @@ public class TopicDao {
         );
         break;
 
-      case Section.SCROLL_GROUP:
+      case GROUP:
         if (currentUser == null || currentUser.isAnonymous()) {
           res = jdbcTemplate.queryForList(
                   "SELECT max(topics.id) as msgid " +
@@ -588,7 +599,7 @@ public class TopicDao {
 
         break;
 
-      case Section.SCROLL_NOSCROLL:
+      case NO_SCROLL:
       default:
         return null;
     }
@@ -607,12 +618,19 @@ public class TopicDao {
   }
 
   public Topic getNextMessage(Topic message, User currentUser) {
-    int scrollMode = Section.getScrollMode(message.getSectionId());
+    SectionScrollModeEnum sectionScrollMode;
+
+    try {
+      sectionScrollMode = sectionService.getScrollMode(message.getSectionId());
+    } catch (SectionNotFoundException e) {
+      logger.error(e);
+      return null;
+    }
 
     List<Integer> res;
 
-    switch (scrollMode) {
-      case Section.SCROLL_SECTION:
+    switch (sectionScrollMode) {
+      case SECTION:
         res = jdbcTemplate.queryForList(
                 "SELECT topics.id as msgid FROM topics WHERE topics.commitdate=(SELECT min(commitdate) FROM topics, groups, sections WHERE sections.id=groups.section AND topics.commitdate>? AND topics.groupid=groups.id AND groups.section=? AND (topics.moderate OR NOT sections.moderate) AND NOT deleted)",
                 Integer.class,
@@ -621,7 +639,7 @@ public class TopicDao {
         );
         break;
 
-      case Section.SCROLL_GROUP:
+      case GROUP:
         if (currentUser == null || currentUser.isAnonymous()) {
           res = jdbcTemplate.queryForList(
                   "SELECT min(topics.id) as msgid " +
@@ -645,7 +663,7 @@ public class TopicDao {
         }
         break;
 
-      case Section.SCROLL_NOSCROLL:
+      case NO_SCROLL:
       default:
         return null;
     }

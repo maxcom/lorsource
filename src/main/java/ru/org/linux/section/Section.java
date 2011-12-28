@@ -31,9 +31,7 @@ public class Section implements Serializable {
   private final int id;
   private final boolean votepoll;
   
-  public static final int SCROLL_NOSCROLL = 0;
-  public static final int SCROLL_SECTION = 1;
-  public static final int SCROLL_GROUP = 2;
+  private SectionScrollModeEnum scrollMode;
 
   public static final int SECTION_FORUM = 2;
   public static final int SECTION_GALLERY = 3;
@@ -54,14 +52,16 @@ public class Section implements Serializable {
     votepoll = rs.getBoolean("vote");
     moderate = rs.getBoolean("moderate");
     id = rs.getInt("id");
+    scrollMode = SectionScrollModeEnum.valueOf(rs.getString("scroll_mode"));
   }
 
-  public Section(String name, boolean imagepost, boolean moderate, int id, boolean votepoll) {
+  public Section(String name, boolean imagepost, boolean moderate, int id, boolean votepoll, String scrollModeStr) {
     this.name = name;
     this.imagepost = imagepost;
     this.moderate = moderate;
     this.id = id;
     this.votepoll = votepoll;
+    scrollMode = SectionScrollModeEnum.valueOf(scrollModeStr);
   }
 
   public String getName() {
@@ -76,17 +76,8 @@ public class Section implements Serializable {
     return votepoll;
   }
 
-  public static int getScrollMode(int sectionid) {
-    switch (sectionid) {
-      case 1: /* news*/
-      case 3: /* screenshots */
-      case 5: /* poll */
-        return SCROLL_SECTION;
-      case 2: /* forum */
-        return SCROLL_GROUP;
-      default:
-        return SCROLL_NOSCROLL;
-    }
+  public SectionScrollModeEnum getScrollMode() {
+    return scrollMode;
   }
 
   public int getId() {
