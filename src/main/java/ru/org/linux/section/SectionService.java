@@ -94,4 +94,17 @@ public class SectionService {
   public String getAddInfo(int id) {
     return sectionDao.getAddInfo(id);
   }
+
+  /**
+   * Получить тип "листания" между страницами.
+   *
+   * @param sectionId  идентификатор секции
+   * @return тип "листания" между страницами
+   * @throws SectionNotFoundException
+   */
+  public SectionScrollModeEnum getScrollMode(int sectionId)
+    throws SectionNotFoundException {
+    Section section = getSection(sectionId);
+    return section.getScrollMode();
+  }
 }

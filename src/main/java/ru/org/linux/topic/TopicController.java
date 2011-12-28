@@ -27,6 +27,8 @@ import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.auth.IPBlockDao;
 import ru.org.linux.auth.IPBlockInfo;
+import ru.org.linux.section.SectionScrollModeEnum;
+import ru.org.linux.section.SectionService;
 import ru.org.linux.site.Template;
 import ru.org.linux.comment.*;
 import ru.org.linux.group.Group;
@@ -48,6 +50,9 @@ import java.util.Set;
 
 @Controller
 public class TopicController {
+  @Autowired
+  private SectionService sectionService;
+
   @Autowired
   private TopicDao messageDao;
 
@@ -390,13 +395,34 @@ public class TopicController {
     params.put("defaultFilterMode", defaultFilterMode);
 
     if (!rss) {
+      Topic prevMessage;
+      Topic nextMessage;
       if (ignoreList==null || ignoreList.isEmpty()) {
-        params.put("prevMessage", messageDao.getPreviousMessage(message, null));
-        params.put("nextMessage", messageDao.getNextMessage(message, null));
+        prevMessage = messageDao.getPreviousMessage(message, null);
+        nextMessage = messageDao.getNextMessage(message, null);
       } else {
-        params.put("prevMessage", messageDao.getPreviousMessage(message, currentUser));
-        params.put("nextMessage", messageDao.getNextMessage(message, currentUser));
+        prevMessage = messageDao.getPreviousMessage(message, currentUser);
+        nextMessage = messageDao.getNextMessage(message, currentUser);
       }
+
+      params.put("prevMessage", prevMessage);
+      params.put("nextMessage", nextMessage);
+
+      Boolean topScroller;
+      SectionScrollModeEnum sectionScroller = sectionService.getScrollMode(message.getSectionId());
+
+      if (prevMessage == null && nextMessage == null) {
+        topScroller = false;
+      } else {
+        topScroller = sectionScroller != SectionScrollModeEnum.NO_SCROLL;
+      }
+      params.put("topScroller", topScroller);
+
+      Boolean bottomScroller = sectionScroller != SectionScrollModeEnum.NO_SCROLL;
+      params.put("bottomScroller", bottomScroller);
+
+      Boolean scrollGroup = sectionScroller == SectionScrollModeEnum.GROUP;
+      params.put("scrollGroup", scrollGroup);
 
       Set<Integer> hideSet = CommentList.makeHideSet(userDao, comments, filterMode, ignoreList);
 

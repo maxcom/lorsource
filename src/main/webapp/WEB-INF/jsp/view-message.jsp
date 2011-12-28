@@ -104,18 +104,8 @@
     </td>
   </table>
 </form>
-<c:set var="scrollGroup" value="<%= Section.getScrollMode(message.getSectionId())==Section.SCROLL_GROUP %>"/>
 
-<c:set var="scroller">
-<%
-  int scroll = Section.getScrollMode(message.getSectionId());
-
-  if (prevMessage == null && nextMessage == null) {
-    scroll = Section.SCROLL_NOSCROLL;
-  }
-
-  if (scroll != Section.SCROLL_NOSCROLL) {
-%>
+<c:set var="scroller"><c:if test="${topScroller}">
     <table class=nav>
       <tr>
         <td align=left valign=middle width="35%">
@@ -157,18 +147,10 @@
         </td>
       </tr>
     </table>
-<%
-   }
-%>
 
-</c:set>
+</c:if></c:set>
 
-<c:set var="bottomScroller">
-<%
-  int scroll = Section.getScrollMode(message.getSectionId());
-
-  if (scroll != Section.SCROLL_NOSCROLL) {
-%>
+<c:set var="bottomScroller"><c:if test="${bottomScroller}">
     <table class=nav>
       <tr>
         <td align=left valign=middle width="35%">
@@ -221,11 +203,8 @@
         </td>
       </tr>
     </table>
-<%
-   }
-%>
 
-</c:set>
+</c:if></c:set>
 
 <c:if test="${showDeleted}">
   <h1 class="optional">Режим показа удаленных комментариев</h1>
