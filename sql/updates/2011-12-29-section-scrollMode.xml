@@ -1,0 +1,29 @@
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
+
+  <changeSet id="2011122901" author="Slava Zanko">
+
+    <addColumn tableName="sections">
+      <column name="scroll_mode" type="java.sql.Types.VARCHAR(10)" defaultValue="NO_SCROLL" />
+    </addColumn>
+
+    <update tableName="sections">
+      <column name="scroll_mode" value="NO_SCROLL"/>
+    </update>
+
+    <update tableName="sections">
+      <column name="scroll_mode" value="SECTION"/>
+      <where>id in (1,3,5)</where>
+    </update>
+
+    <update tableName="sections">
+      <column name="scroll_mode" value="GROUP"/>
+      <where>id=2</where>
+    </update>
+
+  </changeSet>
+
+</databaseChangeLog>

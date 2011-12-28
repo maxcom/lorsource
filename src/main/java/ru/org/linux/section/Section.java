@@ -46,39 +46,22 @@ public class Section implements Serializable {
     sections.put("polls", SECTION_POLLS);
   }
 
-  private void setScrollModeById(){
-    switch (id) {
-      case 1: /* news*/
-      case 3: /* screenshots */
-      case 5: /* poll */
-        scrollMode = SectionScrollModeEnum.SECTION;
-        break;
-      case 2: /* forum */
-        scrollMode = SectionScrollModeEnum.GROUP;
-        break;
-      default:
-        scrollMode = SectionScrollModeEnum.NO_SCROLL;
-    }
-  }
-
   public Section(ResultSet rs) throws SQLException {
     name = rs.getString("name");
     imagepost = rs.getBoolean("imagepost");
     votepoll = rs.getBoolean("vote");
     moderate = rs.getBoolean("moderate");
     id = rs.getInt("id");
-
-    setScrollModeById();
+    scrollMode = SectionScrollModeEnum.valueOf(rs.getString("scroll_mode"));
   }
 
-  public Section(String name, boolean imagepost, boolean moderate, int id, boolean votepoll) {
+  public Section(String name, boolean imagepost, boolean moderate, int id, boolean votepoll, String scrollModeStr) {
     this.name = name;
     this.imagepost = imagepost;
     this.moderate = moderate;
     this.id = id;
     this.votepoll = votepoll;
-
-    setScrollModeById();
+    scrollMode = SectionScrollModeEnum.valueOf(scrollModeStr);
   }
 
   public String getName() {
