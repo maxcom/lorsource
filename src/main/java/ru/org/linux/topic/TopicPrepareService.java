@@ -17,6 +17,7 @@ package ru.org.linux.topic;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.org.linux.admin.user.UserAgentDao;
 import ru.org.linux.group.BadGroupException;
 import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
@@ -69,7 +70,7 @@ public class TopicPrepareService {
 
   @Autowired
   private MemoriesDao memoriesDao;
-  
+
   public PreparedTopic prepareTopicForView(Topic message, boolean minimizeCut, boolean secure, User user) {
     return prepareMessage(message, messageDao.getTags(message), minimizeCut, null, secure, user);
   }

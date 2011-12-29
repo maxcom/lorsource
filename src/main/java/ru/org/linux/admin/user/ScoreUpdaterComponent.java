@@ -13,7 +13,7 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.spring;
+package ru.org.linux.admin.user;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -24,8 +24,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
-public class ScoreUpdater {
-  private static final Log logger = LogFactory.getLog(ScoreUpdater.class);
+public class ScoreUpdaterComponent {
+  private static final Log logger = LogFactory.getLog(ScoreUpdaterComponent.class);
 
   private SimpleJdbcTemplate jdbcTemplate;
 
