@@ -36,8 +36,11 @@ public class SectionService {
   @PostConstruct
   private void initializeSectionList() {
     ImmutableList.Builder<Section> sectionListBuilder = ImmutableList.builder();
-    List<Section> sections = sectionDao.getAllSections();
-    sectionListBuilder.addAll(sections);
+    List<SectionDto> sectionDtoList = sectionDao.getAllSections();
+    for (SectionDto sectionDto: sectionDtoList) {
+      Section section = Section.fromSectionDto(sectionDto);
+      sectionListBuilder.add(section);
+    }
     sectionList = sectionListBuilder.build();
   }
 
@@ -53,7 +56,7 @@ public class SectionService {
       initializeSectionList();
     }
     for (Section section : sectionList) {
-      if (section.getName().equals(SectionName)) {
+      if (section.getTitle().equals(SectionName)) {
         return section.getId();
       }
     }

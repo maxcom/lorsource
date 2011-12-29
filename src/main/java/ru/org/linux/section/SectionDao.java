@@ -23,7 +23,7 @@ public interface SectionDao {
    *
    * @return список секций
    */
-  List<Section> getAllSections();
+  List<SectionDto> getAllSections();
 
   /**
    * Получить расширенную информацию о секции по идентификатору секции.

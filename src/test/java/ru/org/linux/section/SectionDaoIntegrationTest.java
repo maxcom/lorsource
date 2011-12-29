@@ -29,8 +29,8 @@ public class SectionDaoIntegrationTest {
   @Autowired
   SectionDao sectionDao;
 
-  private Section getSectionById(List<Section> sectionList, int id) {
-    for (Section section: sectionList) {
+  private SectionDto  getSectionById(List<SectionDto> sectionList, int id) {
+    for (SectionDto section: sectionList) {
       if (section.getId() == id) {
         return section;
       }
@@ -41,7 +41,7 @@ public class SectionDaoIntegrationTest {
   public void sectionsTest()
       throws Exception {
 
-    List<Section> sectionList = sectionDao.getAllSections();
+    List<SectionDto> sectionList = sectionDao.getAllSections();
     Assert.assertEquals(4, sectionList.size());
 
     String addInfo = sectionDao.getAddInfo(sectionList.get(0).getId());
@@ -51,24 +51,24 @@ public class SectionDaoIntegrationTest {
   public void sectionsScrollModeTest()
     throws Exception {
 
-    List<Section> sectionList = sectionDao.getAllSections();
+    List<SectionDto> sectionList = sectionDao.getAllSections();
 
-    Section section;
+    SectionDto section;
     section = getSectionById(sectionList, 1);
     Assert.assertNotNull(section);
-    Assert.assertEquals(SectionScrollModeEnum.SECTION, section.getScrollMode());
+    Assert.assertEquals(SectionScrollModeEnum.SECTION.toString(), section.getScrollMode());
 
     section = getSectionById(sectionList, 2);
     Assert.assertNotNull(section);
-    Assert.assertEquals(SectionScrollModeEnum.GROUP, section.getScrollMode());
+    Assert.assertEquals(SectionScrollModeEnum.GROUP.toString(), section.getScrollMode());
 
     section = getSectionById(sectionList, 3);
     Assert.assertNotNull(section);
-    Assert.assertEquals(SectionScrollModeEnum.SECTION, section.getScrollMode());
+    Assert.assertEquals(SectionScrollModeEnum.SECTION.toString(), section.getScrollMode());
 
     section = getSectionById(sectionList, 5);
     Assert.assertNotNull(section);
-    Assert.assertEquals(SectionScrollModeEnum.SECTION, section.getScrollMode());
+    Assert.assertEquals(SectionScrollModeEnum.SECTION.toString(), section.getScrollMode());
 
   }
 

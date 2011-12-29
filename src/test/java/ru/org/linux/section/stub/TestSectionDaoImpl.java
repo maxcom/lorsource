@@ -14,7 +14,7 @@
  */
 package ru.org.linux.section.stub;
 
-import ru.org.linux.section.Section;
+import ru.org.linux.section.SectionDto;
 import ru.org.linux.section.SectionDao;
 
 import java.util.ArrayList;
@@ -23,14 +23,14 @@ import java.util.List;
 public class TestSectionDaoImpl implements SectionDao {
 
   @Override
-  public List<Section> getAllSections() {
-    List<Section> sectionList = new ArrayList<Section>();
+  public List<SectionDto> getAllSections() {
+    List<SectionDto> sectionList = new ArrayList<SectionDto>();
 
-    sectionList.add(new Section("Section 1", false, true, 1, false, "SECTION"));
-    sectionList.add(new Section("Section 2", false, true, 2, false, "GROUP"));
-    sectionList.add(new Section("Section 3", true, true, 3, false, "SECTION"));
-    sectionList.add(new Section("Section 4", false, false, 4, false, "NO_SCROLL"));
-    sectionList.add(new Section("Section 5", false, false, 5, true, "SECTION"));
+    sectionList.add(new SectionDto("Section 1", false, true, 1, false, "SECTION"));
+    sectionList.add(new SectionDto("Section 2", false, true, 2, false, "GROUP"));
+    sectionList.add(new SectionDto("Section 3", true, true, 3, false, "SECTION"));
+    sectionList.add(new SectionDto("Section 4", false, false, 4, false, "NO_SCROLL"));
+    sectionList.add(new SectionDto("Section 5", false, false, 5, true, "SECTION"));
 
     return sectionList;
   }
