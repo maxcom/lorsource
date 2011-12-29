@@ -17,7 +17,7 @@ package ru.org.linux.site;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import ru.org.linux.auth.AccessViolationException;
+import ru.org.linux.user.auth.AccessViolationException;
 import ru.org.linux.site.config.PathConfig;
 import ru.org.linux.user.*;
 import ru.org.linux.storage.StorageException;

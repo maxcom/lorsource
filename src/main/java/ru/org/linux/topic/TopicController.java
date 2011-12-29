@@ -26,7 +26,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.admin.ipmanage.IPBlockDao;
 import ru.org.linux.admin.ipmanage.IPBlockInfo;
-import ru.org.linux.auth.AccessViolationException;
+import ru.org.linux.user.auth.AccessViolationException;
 import ru.org.linux.section.SectionScrollModeEnum;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.site.Template;

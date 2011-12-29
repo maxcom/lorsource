@@ -28,8 +28,8 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.admin.ipmanage.IPBlockDao;
 import ru.org.linux.admin.ipmanage.IPBlockInfo;
-import ru.org.linux.auth.CaptchaService;
-import ru.org.linux.auth.FloodProtector;
+import ru.org.linux.user.auth.CaptchaService;
+import ru.org.linux.user.auth.FloodProtectorComponent;
 import ru.org.linux.site.Template;
 import ru.org.linux.search.SearchQueueSender;
 import ru.org.linux.user.User;
@@ -59,7 +59,7 @@ import java.util.Set;
 public class AddCommentController extends ApplicationObjectSupport {
   private SearchQueueSender searchQueueSender;
   private CaptchaService captcha;
-  private FloodProtector dupeProtector;
+  private FloodProtectorComponent dupeProtectorComponent;
   private CommentDao commentDao;
   private TopicDao messageDao;
   private UserDao userDao;
@@ -83,8 +83,8 @@ public class AddCommentController extends ApplicationObjectSupport {
   }
 
   @Autowired
-  public void setDupeProtector(FloodProtector dupeProtector) {
-    this.dupeProtector = dupeProtector;
+  public void setDupeProtectorComponent(FloodProtectorComponent dupeProtectorComponent) {
+    this.dupeProtectorComponent = dupeProtectorComponent;
   }
 
   @Autowired
@@ -282,7 +282,7 @@ public class AddCommentController extends ApplicationObjectSupport {
     }
 
     if (!add.isPreviewMode() && !errors.hasErrors()) {
-      dupeProtector.checkDuplication(request.getRemoteAddr(), user.getScore() > 100, errors);
+      dupeProtectorComponent.checkDuplication(request.getRemoteAddr(), user.getScore() > 100, errors);
     }
 
     if (!add.isPreviewMode() && !errors.hasErrors() && comment != null) {

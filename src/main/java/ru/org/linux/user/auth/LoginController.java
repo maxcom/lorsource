@@ -13,7 +13,7 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.auth;
+package ru.org.linux.user.auth;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;

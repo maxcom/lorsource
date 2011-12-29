@@ -18,7 +18,7 @@ package ru.org.linux.user;
 import javax.servlet.ServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import ru.org.linux.auth.AccessViolationException;
+import ru.org.linux.user.auth.AccessViolationException;
 import ru.org.linux.site.Template;
 import ru.org.linux.site.BadInputException;
 import ru.org.linux.site.DefaultProfile;
@@ -39,7 +39,7 @@ public class EditProfileController {
     this.userDao = userDao;
   }
 
-  
+
   @RequestMapping(method=RequestMethod.GET)
   public ModelAndView showForm(ServletRequest request) throws Exception {
     Template tmpl = Template.getTemplate(request);
@@ -91,7 +91,7 @@ public class EditProfileController {
     tmpl.getProf().setFormatMode(request.getParameter("format_mode"));
     tmpl.getProf().setStyle(request.getParameter("style")); // TODO убрать как только
     userDao.setStyle(tmpl.getCurrentUser(), request.getParameter("style"));
-    
+
     tmpl.getProf().setShowSocial("on".equals(request.getParameter("showSocial")));
 
     String avatar = request.getParameter("avatar");

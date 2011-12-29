@@ -15,7 +15,7 @@
 
 package ru.org.linux.admin.ipmanage;
 
-import ru.org.linux.auth.AccessViolationException;
+import ru.org.linux.user.auth.AccessViolationException;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
