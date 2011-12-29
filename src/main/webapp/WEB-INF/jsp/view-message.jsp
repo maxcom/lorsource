@@ -73,7 +73,7 @@
   <table class=nav>
   <tr>
   <td align=left valign=middle id="navPath">
-    <a href="${preparedMessage.section.sectionLink}">${preparedMessage.section.title}</a> -
+    <a href="${preparedMessage.section.link}">${preparedMessage.section.title}</a> -
     <a href="${group.url}">${group.title}</a>
     <c:if test="${preparedMessage.section.premoderated and not message.commited}">
         (не подтверждено)

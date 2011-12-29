@@ -50,7 +50,7 @@ public class SectionServiceTest {
     throws Exception {
     Section section = sectionService.getSection(3);
     Assert.assertNotNull(section);
-    Assert.assertEquals("Section 3", section.getName());
+    Assert.assertEquals("Section 3", section.getTitle());
     Assert.assertTrue(section.isPremoderated());
     Assert.assertFalse(section.isVotePoll());
     Assert.assertTrue(section.isImagepost());
@@ -58,7 +58,7 @@ public class SectionServiceTest {
 
     section = sectionService.getSection(2);
     Assert.assertNotNull(section);
-    Assert.assertEquals("Section 2", section.getName());
+    Assert.assertEquals("Section 2", section.getTitle());
     Assert.assertTrue(section.isPremoderated());
     Assert.assertFalse(section.isVotePoll());
     Assert.assertFalse(section.isImagepost());

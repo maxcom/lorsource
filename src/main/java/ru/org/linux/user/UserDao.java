@@ -68,13 +68,13 @@ public class UserDao {
   private static final String queryTopicDates = "SELECT min(postdate) as first,max(postdate) as last FROM topics WHERE topics.userid=?";
   private static final String queryCommentDates = "SELECT min(postdate) as first,max(postdate) as last FROM comments WHERE comments.userid=?";
   private static final String queryCommentsBySectionStat =
-            "SELECT sections.name as pname, count(*) as c " +
+            "SELECT sections.title as pname, count(*) as c " +
                     "FROM topics, groups, sections " +
                     "WHERE topics.userid=? " +
                     "AND groups.id=topics.groupid " +
                     "AND sections.id=groups.section " +
                     "AND not deleted " +
-                    "GROUP BY sections.name";
+                    "GROUP BY sections.title";
 
   private static final String updateResetUnreadReplies = "UPDATE users SET unread_events=0 where id=?";
 

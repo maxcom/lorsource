@@ -127,7 +127,7 @@ public class SameIPController {
 
   private List<TopicItem> getTopics(String ip) {
     return jdbcTemplate.query(
-            "SELECT sections.name as ptitle, groups.title as gtitle, topics.title as title, topics.id as msgid, postdate, deleted " +
+            "SELECT sections.title as ptitle, groups.title as gtitle, topics.title as title, topics.id as msgid, postdate, deleted " +
                     "FROM topics, groups, sections, users " +
                     "WHERE topics.groupid=groups.id " +
                     "AND sections.id=groups.section " +
@@ -146,7 +146,7 @@ public class SameIPController {
 
   private List<TopicItem> getComments(String ip) {
     return jdbcTemplate.query(
-            "SELECT sections.name as ptitle, groups.title as gtitle, topics.title, topics.id as topicid, comments.id as msgid, comments.postdate, comments.deleted " +
+            "SELECT sections.title as ptitle, groups.title as gtitle, topics.title, topics.id as topicid, comments.id as msgid, comments.postdate, comments.deleted " +
                     "FROM sections, groups, topics, comments " +
                     "WHERE sections.id=groups.section " +
                     "AND groups.id=topics.groupid " +

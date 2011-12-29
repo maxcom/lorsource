@@ -527,7 +527,7 @@ public class CommentDao {
 
   public List<CommentsListItem> getUserComments(User user, int limit, int offset) {
     return jdbcTemplate.query(
-            "SELECT sections.name as ptitle, groups.title as gtitle, topics.title, " +
+            "SELECT sections.title as ptitle, groups.title as gtitle, topics.title, " +
             "topics.id as topicid, comments.id as msgid, comments.postdate " +
             "FROM sections, groups, topics, comments " +
             "WHERE sections.id=groups.section AND groups.id=topics.groupid " +
@@ -557,7 +557,7 @@ public class CommentDao {
   public List<DeletedListItem> getDeletedComments(User user) {
     return jdbcTemplate.query(
             "SELECT " +
-                    "sections.name as ptitle, groups.title as gtitle, topics.title, topics.id as msgid, del_info.reason, deldate " +
+                    "sections.title as ptitle, groups.title as gtitle, topics.title, topics.id as msgid, del_info.reason, deldate " +
                     "FROM sections, groups, topics, comments, del_info " +
                     "WHERE sections.id=groups.section " +
                     "AND groups.id=topics.groupid " +

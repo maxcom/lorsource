@@ -37,6 +37,7 @@ public class SectionDaoIntegrationTest {
     }
     return null;
   }
+
   @Test
   public void sectionsTest()
       throws Exception {
@@ -47,6 +48,7 @@ public class SectionDaoIntegrationTest {
     String addInfo = sectionDao.getAddInfo(sectionList.get(0).getId());
     Assert.assertNotNull(addInfo);
   }
+
   @Test
   public void sectionsScrollModeTest()
     throws Exception {
@@ -69,7 +71,41 @@ public class SectionDaoIntegrationTest {
     section = getSectionById(sectionList, 5);
     Assert.assertNotNull(section);
     Assert.assertEquals(SectionScrollModeEnum.SECTION.toString(), section.getScrollMode());
-
   }
 
+  @Test
+  public void extendedSectionsTest()
+    throws Exception {
+
+    List<SectionDto> sectionList = sectionDao.getAllSections();
+
+    SectionDto section;
+    section = getSectionById(sectionList, 1);
+    Assert.assertEquals("Новости", section.getTitle());
+    Assert.assertEquals("news", section.getName());
+    Assert.assertEquals("/news/", section.getLink());
+    Assert.assertEquals("/news/", section.getFeedLink());
+    Assert.assertEquals(-9999, section.getMinCommentScore());
+
+    section = getSectionById(sectionList, 2);
+    Assert.assertEquals("Форум", section.getTitle());
+    Assert.assertEquals("forum", section.getName());
+    Assert.assertEquals("/forum/", section.getLink());
+    Assert.assertEquals("/forum/lenta/", section.getFeedLink());
+    Assert.assertEquals(-9999, section.getMinCommentScore());
+
+    section = getSectionById(sectionList, 3);
+    Assert.assertEquals("Галерея", section.getTitle());
+    Assert.assertEquals("gallery", section.getName());
+    Assert.assertEquals("/gallery/", section.getLink());
+    Assert.assertEquals("/gallery/", section.getFeedLink());
+    Assert.assertEquals(50, section.getMinCommentScore());
+
+    section = getSectionById(sectionList, 5);
+    Assert.assertEquals("Голосования", section.getTitle());
+    Assert.assertEquals("polls", section.getName());
+    Assert.assertEquals("/polls/", section.getLink());
+    Assert.assertEquals("/polls/", section.getFeedLink());
+    Assert.assertEquals(50, section.getMinCommentScore());
+  }
 }

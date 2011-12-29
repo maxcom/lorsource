@@ -25,7 +25,7 @@
   response.setDateHeader("Last-Modified", new Date(new Date().getTime() - 2 * 1000).getTime());
 
 %>
-<title>${section.name}</title>
+<title>${section.title}</title>
 <link rel="parent" title="Linux.org.ru" href="/">
 <LINK REL="alternate" HREF="/section-rss.jsp?section=${section.id}" TYPE="application/rss+xml">
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
@@ -33,7 +33,7 @@
   <table class=nav>
     <tr>
       <td align=left valign=middle id="navPath">
-        <strong>${section.name}</strong>
+        <strong>${section.title}</strong>
       </td>
 
       <td align=right valign=middle>
@@ -54,7 +54,7 @@
     </tr>
   </table>
 
-<h1 class="optional">${section.name}</h1>
+<h1 class="optional">${section.title}</h1>
 
 Группы:
 <ul>

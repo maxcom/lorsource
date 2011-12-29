@@ -54,10 +54,10 @@
         <c:forEach items="${sections}" var="item">
           <c:if test="${item.premoderated}">
             <c:if test="${section!=null && item.id == section.id}">
-              <option value="${item.id}" selected>${item.name}</option>
+              <option value="${item.id}" selected>${item.title}</option>
             </c:if>
             <c:if test="${item.id != section.id}">
-              <option value="${item.id}">${item.name}</option>
+              <option value="${item.id}">${item.title}</option>
             </c:if>
           </c:if>
         </c:forEach>
