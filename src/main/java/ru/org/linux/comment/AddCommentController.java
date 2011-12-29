@@ -26,10 +26,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
+import ru.org.linux.admin.ipmanage.IPBlockDao;
+import ru.org.linux.admin.ipmanage.IPBlockInfo;
 import ru.org.linux.auth.CaptchaService;
 import ru.org.linux.auth.FloodProtector;
-import ru.org.linux.auth.IPBlockDao;
-import ru.org.linux.auth.IPBlockInfo;
 import ru.org.linux.site.Template;
 import ru.org.linux.search.SearchQueueSender;
 import ru.org.linux.user.User;
@@ -137,7 +137,7 @@ public class AddCommentController extends ApplicationObjectSupport {
     }
 
     Template tmpl = Template.getTemplate(request);
-    
+
     Map<String, Object> params = new HashMap<String, Object>();
 
     if (add.getMode()==null) {
