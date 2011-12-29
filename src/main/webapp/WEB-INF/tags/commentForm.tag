@@ -24,7 +24,7 @@
 <%@ attribute name="msg" required="false" type="java.lang.String" %>
 <%@ attribute name="mode" required="true" type="java.lang.String" %>
 <%@ attribute name="cancel" required="false" type="java.lang.Boolean" %>
-<%@ attribute name="ipBlockInfo" required="false" type="ru.org.linux.auth.IPBlockInfo" %>
+<%@ attribute name="ipBlockInfo" required="false" type="ru.org.linux.admin.ipmanage.IPBlockInfo" %>
 <form method="POST" action="add_comment.jsp" id="commentForm">
   <input type="hidden" name="session"
          value="<%= StringUtil.escapeHtml(session.getId()) %>">

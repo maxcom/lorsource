@@ -13,18 +13,12 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.storage;
+package ru.org.linux.user.auth;
 
-public class StorageNotFoundException extends StorageException {
-  public StorageNotFoundException(String domain, int msgid) {
-    super("Не найден объект " + domain + ':' + msgid);
-  }
+import ru.org.linux.user.UserErrorException;
 
-  public StorageNotFoundException(String domain, String msgid) {
-    super("Не найден объект " + domain + ':' + msgid);
-  }
-
-  public StorageNotFoundException(String domain, String msgid, Exception e) {
-    super("Не найден объект " + domain + ':' + msgid, e);
+public class AccessViolationException extends UserErrorException {
+  public AccessViolationException(String info) {
+    super(info);
   }
 }

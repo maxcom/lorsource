@@ -23,11 +23,11 @@ import java.util.Set;
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 
-import ru.org.linux.auth.AccessViolationException;
+import ru.org.linux.user.auth.AccessViolationException;
 import ru.org.linux.site.Template;
 import ru.org.linux.site.DefaultProfile;
 import ru.org.linux.spring.validators.EditBoxesRequestValidator;
-import ru.org.linux.storage.StorageException;
+import ru.org.linux.util.storage.StorageException;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -92,7 +92,7 @@ public class AddRemoveBoxesController extends ApplicationObjectSupport {
         t.writeProfile(t.getProfileName());
       }
     }
-    
+
     status.setComplete();
     return "redirect:/edit-boxes.jsp";
   }
@@ -136,7 +136,7 @@ public class AddRemoveBoxesController extends ApplicationObjectSupport {
     } else {
       boxlets.add(form.boxName);
     }
-    
+
     t.getProf().setList(objectName, boxlets);
     t.writeProfile(t.getProfileName());
 

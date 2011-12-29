@@ -13,7 +13,9 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.auth;
+package ru.org.linux.admin.ipmanage;
+
+import ru.org.linux.user.auth.AccessViolationException;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

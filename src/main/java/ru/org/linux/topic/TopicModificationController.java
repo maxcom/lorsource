@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
-import ru.org.linux.auth.AccessViolationException;
+import ru.org.linux.user.auth.AccessViolationException;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.site.Template;
 import ru.org.linux.group.Group;

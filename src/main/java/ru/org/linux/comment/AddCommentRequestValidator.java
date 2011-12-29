@@ -18,7 +18,7 @@ package ru.org.linux.comment;
 import org.jdom.Verifier;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
-import ru.org.linux.auth.BadPasswordException;
+import ru.org.linux.user.auth.BadPasswordException;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.util.StringUtil;
 

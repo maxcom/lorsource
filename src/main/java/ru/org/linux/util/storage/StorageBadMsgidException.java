@@ -13,14 +13,10 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.auth;
+package ru.org.linux.util.storage;
 
-import ru.org.linux.user.UserErrorException;
-
-public class BadPasswordException extends UserErrorException
-{
-	public BadPasswordException(String name)
-	{
-		super("Пароль для пользователя \""+name+"\" задан неверно");
-	}
+public class StorageBadMsgidException extends StorageException {
+  public StorageBadMsgidException(String msgid) {
+    super("Некорректный идентификатор объекта " + msgid);
+  }
 }

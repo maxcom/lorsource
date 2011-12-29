@@ -13,7 +13,7 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.auth;
+package ru.org.linux.user.auth;
 
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
@@ -23,10 +23,10 @@ import java.util.Iterator;
 import java.util.Map;
 
 @Component
-public class FloodProtector {
+public class FloodProtectorComponent {
   private static final int THRESHOLD = 30000;
   private static final int THRESHOLD_TRUSTED = 3000;
-  
+
   private final Map<String,Long> hash = new HashMap<String,Long>();
   public static final String MESSAGE = "Следующее сообщение может быть записано не менее чем через 30 секунд после предыдущего";
 

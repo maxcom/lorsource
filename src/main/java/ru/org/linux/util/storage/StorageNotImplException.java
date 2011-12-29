@@ -13,12 +13,10 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.auth;
+package ru.org.linux.util.storage;
 
-import ru.org.linux.user.UserErrorException;
-
-public class AccessViolationException extends UserErrorException {
-  public AccessViolationException(String info) {
-    super(info);
+public class StorageNotImplException extends StorageException {
+  public StorageNotImplException() {
+    super("данный метод доступа к хранилищу не реализован драйвером");
   }
 }

@@ -13,18 +13,18 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.storage;
+package ru.org.linux.util.storage;
 
-public class StorageException extends Exception {
-  public StorageException() {
-    super("неизвестная ошибка хранилища");
+public class StorageNotFoundException extends StorageException {
+  public StorageNotFoundException(String domain, int msgid) {
+    super("Не найден объект " + domain + ':' + msgid);
   }
 
-  public StorageException(String info) {
-    super(info);
+  public StorageNotFoundException(String domain, String msgid) {
+    super("Не найден объект " + domain + ':' + msgid);
   }
 
-  public StorageException(String info, Exception e) {
-    super(info, e);
+  public StorageNotFoundException(String domain, String msgid, Exception e) {
+    super("Не найден объект " + domain + ':' + msgid, e);
   }
 }

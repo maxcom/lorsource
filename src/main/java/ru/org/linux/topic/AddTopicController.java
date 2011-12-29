@@ -28,7 +28,9 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.multipart.MultipartRequest;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
-import ru.org.linux.auth.*;
+import ru.org.linux.admin.ipmanage.IPBlockDao;
+import ru.org.linux.admin.ipmanage.IPBlockInfo;
+import ru.org.linux.user.auth.*;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.site.Template;
 import ru.org.linux.gallery.Screenshot;
@@ -62,7 +64,7 @@ import java.util.Set;
 public class AddTopicController extends ApplicationObjectSupport {
   private SearchQueueSender searchQueueSender;
   private CaptchaService captcha;
-  private FloodProtector dupeProtector;
+  private FloodProtectorComponent dupeProtectorComponent;
   private IPBlockDao ipBlockDao;
   private GroupDao groupDao;
   @Autowired
@@ -93,8 +95,8 @@ public class AddTopicController extends ApplicationObjectSupport {
   }
 
   @Autowired
-  public void setDupeProtector(FloodProtector dupeProtector) {
-    this.dupeProtector = dupeProtector;
+  public void setDupeProtectorComponent(FloodProtectorComponent dupeProtectorComponent) {
+    this.dupeProtectorComponent = dupeProtectorComponent;
   }
 
   @Autowired
@@ -268,7 +270,7 @@ public class AddTopicController extends ApplicationObjectSupport {
     }
 
     if (!form.isPreviewMode() && !errors.hasErrors()) {
-      dupeProtector.checkDuplication(request.getRemoteAddr(), false, errors);
+      dupeProtectorComponent.checkDuplication(request.getRemoteAddr(), false, errors);
     }
 
     if (!form.isPreviewMode() && !errors.hasErrors() && group!=null) {

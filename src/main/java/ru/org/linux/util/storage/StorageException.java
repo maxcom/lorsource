@@ -13,10 +13,18 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.storage;
+package ru.org.linux.util.storage;
 
-public class StorageInternalErrorException extends StorageException {
-  public StorageInternalErrorException(String info) {
-    super("Внутренняя ошибка хранилища: " + info);
+public class StorageException extends Exception {
+  public StorageException() {
+    super("неизвестная ошибка хранилища");
+  }
+
+  public StorageException(String info) {
+    super(info);
+  }
+
+  public StorageException(String info, Exception e) {
+    super(info, e);
   }
 }

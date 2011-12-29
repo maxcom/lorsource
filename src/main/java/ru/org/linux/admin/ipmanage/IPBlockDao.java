@@ -13,7 +13,7 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.auth;
+package ru.org.linux.admin.ipmanage;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;

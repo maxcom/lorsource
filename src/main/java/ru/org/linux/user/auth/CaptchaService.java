@@ -13,7 +13,7 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.auth;
+package ru.org.linux.user.auth;
 
 import net.tanesha.recaptcha.ReCaptcha;
 import net.tanesha.recaptcha.ReCaptchaException;

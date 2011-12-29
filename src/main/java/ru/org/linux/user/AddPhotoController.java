@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
-import ru.org.linux.auth.AccessViolationException;
+import ru.org.linux.user.auth.AccessViolationException;
 import ru.org.linux.site.Template;
 import ru.org.linux.site.*;
 import ru.org.linux.util.BadImageException;
@@ -61,7 +61,7 @@ public class AddPhotoController extends ApplicationObjectSupport {
     }
 
     if (file==null || file.isEmpty()) {
-      return new ModelAndView("addphoto", "error", "изображение не задано");      
+      return new ModelAndView("addphoto", "error", "изображение не задано");
     }
 
     try {
