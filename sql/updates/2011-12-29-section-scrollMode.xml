@@ -26,4 +26,13 @@
 
   </changeSet>
 
+  <changeSet id="2011122902" author="Slava Zanko">
+
+      <addNotNullConstraint
+              tableName="sections"
+              columnName="scroll_mode"
+              defaultNullValue="NO_SCROLL" />
+
+  </changeSet>
+
 </databaseChangeLog>
