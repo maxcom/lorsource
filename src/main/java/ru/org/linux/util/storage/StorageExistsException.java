@@ -13,10 +13,17 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.storage;
+package ru.org.linux.util.storage;
 
-public class StorageBadMsgidException extends StorageException {
-  public StorageBadMsgidException(String msgid) {
-    super("Некорректный идентификатор объекта " + msgid);
-  }
+public class StorageExistsException extends StorageException
+{
+	public StorageExistsException(String domain, int msgid)
+	{
+		super("Объект "+domain+ ':' +msgid+" уже существует");
+	}
+
+	public StorageExistsException(String domain, String msgid)
+	{
+		super("Объект "+domain+ ':' +msgid+" уже существует");
+	}
 }

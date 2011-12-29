@@ -13,10 +13,10 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.storage;
+package ru.org.linux.util.storage;
 
-public class StorageNotImplException extends StorageException {
-  public StorageNotImplException() {
-    super("данный метод доступа к хранилищу не реализован драйвером");
+public class StorageBadMsgidException extends StorageException {
+  public StorageBadMsgidException(String msgid) {
+    super("Некорректный идентификатор объекта " + msgid);
   }
 }

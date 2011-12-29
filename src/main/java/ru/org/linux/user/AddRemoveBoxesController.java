@@ -27,7 +27,7 @@ import ru.org.linux.user.auth.AccessViolationException;
 import ru.org.linux.site.Template;
 import ru.org.linux.site.DefaultProfile;
 import ru.org.linux.spring.validators.EditBoxesRequestValidator;
-import ru.org.linux.storage.StorageException;
+import ru.org.linux.util.storage.StorageException;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;

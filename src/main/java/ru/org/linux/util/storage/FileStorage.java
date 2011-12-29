@@ -13,7 +13,7 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.storage;
+package ru.org.linux.util.storage;
 
 import java.io.*;
 

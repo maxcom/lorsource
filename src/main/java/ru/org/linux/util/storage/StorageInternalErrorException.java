@@ -13,17 +13,10 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.storage;
+package ru.org.linux.util.storage;
 
-public class StorageExistsException extends StorageException
-{
-	public StorageExistsException(String domain, int msgid)
-	{
-		super("Объект "+domain+ ':' +msgid+" уже существует");
-	}
-
-	public StorageExistsException(String domain, String msgid)
-	{
-		super("Объект "+domain+ ':' +msgid+" уже существует");
-	}
+public class StorageInternalErrorException extends StorageException {
+  public StorageInternalErrorException(String info) {
+    super("Внутренняя ошибка хранилища: " + info);
+  }
 }
