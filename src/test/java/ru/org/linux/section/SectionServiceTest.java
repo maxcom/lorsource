@@ -85,4 +85,27 @@ public class SectionServiceTest {
     additionalInfo = sectionService.getAddInfo(3);
     Assert.assertEquals("Extended info for Section 3", additionalInfo);
   }
+
+  @Test
+  public void getScrollModeTest()
+    throws Exception {
+    Section section;
+
+    section = sectionService.getSection(1);
+    Assert.assertEquals(SectionScrollModeEnum.SECTION, section.getScrollMode());
+
+    section = sectionService.getSection(2);
+    Assert.assertEquals(SectionScrollModeEnum.GROUP, section.getScrollMode());
+
+    section = sectionService.getSection(3);
+    Assert.assertEquals(SectionScrollModeEnum.SECTION, section.getScrollMode());
+
+    section = sectionService.getSection(4);
+    Assert.assertEquals(SectionScrollModeEnum.NO_SCROLL, section.getScrollMode());
+
+    section = sectionService.getSection(5);
+    Assert.assertEquals(SectionScrollModeEnum.SECTION, section.getScrollMode());
+
+  }
+
 }

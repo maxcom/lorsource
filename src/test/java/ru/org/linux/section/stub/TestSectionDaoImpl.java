@@ -26,11 +26,11 @@ public class TestSectionDaoImpl implements SectionDao {
   public List<Section> getAllSections() {
     List<Section> sectionList = new ArrayList<Section>();
 
-    sectionList.add(new Section("Section 1", false, true, 1, false));
-    sectionList.add(new Section("Section 2", false, true, 2, false));
-    sectionList.add(new Section("Section 3", true, true, 3, false));
-    sectionList.add(new Section("Section 4", false, false, 4, false));
-    sectionList.add(new Section("Section 5", false, false, 5, true));
+    sectionList.add(new Section("Section 1", false, true, 1, false, "SECTION"));
+    sectionList.add(new Section("Section 2", false, true, 2, false, "GROUP"));
+    sectionList.add(new Section("Section 3", true, true, 3, false, "SECTION"));
+    sectionList.add(new Section("Section 4", false, false, 4, false, "NO_SCROLL"));
+    sectionList.add(new Section("Section 5", false, false, 5, true, "SECTION"));
 
     return sectionList;
   }
