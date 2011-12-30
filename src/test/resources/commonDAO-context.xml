@@ -29,4 +29,14 @@
     <bean class="ru.org.linux.section.SectionDaoImpl" id="sectionDao"/>
     <bean class="ru.org.linux.group.GroupDao" id="groupDao"/>
 
+    <bean class="org.springframework.beans.factory.config.PropertiesFactoryBean" scope="singleton"
+          name="properties">
+        <property name="properties">
+            <props>
+                <prop key="MainUrl">http://test-lor:8080/</prop>
+            </props>
+        </property>
+    </bean>
+
+    <bean class="ru.org.linux.spring.Configuration"/>
 </beans>
