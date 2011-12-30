@@ -16,6 +16,7 @@
 package ru.org.linux.user;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableMap.Builder;
 import com.google.common.collect.Lists;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
@@ -277,7 +278,7 @@ public class UserDao {
       topicStat = null;
     }
 
-    final ImmutableMap.Builder<String, Integer> builder = ImmutableMap.builder();
+    final Builder<String, Integer> builder = ImmutableMap.builder();
     jdbcTemplate.query(queryCommentsBySectionStat, new RowCallbackHandler() {
       @Override
       public void processRow(ResultSet resultSet) throws SQLException {

@@ -16,6 +16,7 @@
 package ru.org.linux.user;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableSet.Builder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowCallbackHandler;
@@ -65,7 +66,7 @@ public class IgnoreListDao {
    * @return список игнорируемых
    */
   public Set<Integer> get(User user) {
-    final ImmutableSet.Builder<Integer> builder = ImmutableSet.builder();
+    final Builder<Integer> builder = ImmutableSet.builder();
     jdbcTemplate.query(queryIgnoreList, new RowCallbackHandler() {
       @Override
       public void processRow(ResultSet resultSet) throws SQLException {

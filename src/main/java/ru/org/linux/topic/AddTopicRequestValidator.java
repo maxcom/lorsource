@@ -42,7 +42,7 @@ public class AddTopicRequestValidator implements Validator {
 
     String title = form.getTitle();
 
-    if (title!=null && "".equals(title.trim())) {
+    if (title!=null && title.trim().isEmpty()) {
       errors.rejectValue("title", null, "заголовок сообщения не может быть пустым");
     }
 

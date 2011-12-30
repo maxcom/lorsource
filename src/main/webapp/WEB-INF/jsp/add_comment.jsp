@@ -59,7 +59,7 @@
 
         replyto = onComment.getComment().getId();
 
-        if (onComment.getComment().getTitle().length() > 0) {
+        if (!onComment.getComment().getTitle().isEmpty()) {
             title = onComment.getComment().getTitle();
             if (!title.startsWith("Re:")) {
                 title = "Re: " + title;

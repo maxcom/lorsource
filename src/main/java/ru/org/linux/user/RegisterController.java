@@ -42,6 +42,7 @@ import javax.mail.Transport;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMessage.RecipientType;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
@@ -314,7 +315,7 @@ public class RegisterController extends ApplicationObjectSupport {
     MimeMessage emailMessage = new MimeMessage(mailSession);
     emailMessage.setFrom(new InternetAddress("no-reply@linux.org.ru"));
 
-    emailMessage.addRecipient(MimeMessage.RecipientType.TO, new InternetAddress(email));
+    emailMessage.addRecipient(RecipientType.TO, new InternetAddress(email));
     emailMessage.setSubject("Linux.org.ru registration");
     emailMessage.setSentDate(new Date());
     emailMessage.setText(text.toString(), "UTF-8");

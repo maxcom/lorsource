@@ -82,7 +82,7 @@ public class UrlWithParamTag extends Tag {
 
     String escapedUrl = URLUtil.fixURL(url);
 
-    if (node.lengthChildren() == 0 || (textChild != null && textChild.getText().trim().length() == 0)){
+    if (node.lengthChildren() == 0 || (textChild != null && textChild.getText().trim().isEmpty())){
       if(URLUtil.isUrl(escapedUrl)) {
         ret.append("<a href=\"")
                 .append(escapedUrl)

@@ -221,7 +221,7 @@ public class EditTopicController {
 
     if (!message.isExpired()) {
       String title = request.getParameter("title");
-      if (title == null || title.trim().length() == 0) {
+      if (title == null || title.trim().isEmpty()) {
         throw new BadInputException("заголовок сообщения не может быть пустым");
       }
     }

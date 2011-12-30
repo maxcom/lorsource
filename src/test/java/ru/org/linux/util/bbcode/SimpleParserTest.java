@@ -211,7 +211,7 @@ public class SimpleParserTest {
   }
 
   @Test
-  public void userTest() throws Exception{
+  public void userTest() {
 
 
     Assert.assertEquals("<p><span style=\"white-space: nowrap\"><img src=\"/img/tuxlor.png\"><a style=\"text-decoration: none\" href=\"http://127.0.0.1:8080/people/maxcom/profile\">maxcom</a></span></p>",
@@ -223,7 +223,7 @@ public class SimpleParserTest {
   }
 
   @Test
-  public void parserResultTest() throws Exception {
+  public void parserResultTest() {
     String msg = "[user]hizel[/user][user]JB[/user][user]maxcom[/user]";
     Set<User> replier = lorCodeService.getReplierFromMessage(msg);
     String html = lorCodeService.parseComment(msg, true);

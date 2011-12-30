@@ -85,7 +85,7 @@ public class Node {
   }
 
   public boolean isParameter() {
-    return (parameter != null) && (parameter.length() > 0);
+    return (parameter != null) && (!parameter.isEmpty());
   }
 
   public String getParameter() {

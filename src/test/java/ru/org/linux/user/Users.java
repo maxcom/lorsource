@@ -10,8 +10,7 @@ import static org.mockito.Mockito.when;
  */
 public class Users {
   public static ResultSet getMaxcom() throws Exception {
-    ResultSet resultSet;
-    resultSet = mock(ResultSet.class);
+    ResultSet resultSet = mock(ResultSet.class);
     when(resultSet.getInt("id")).thenReturn(1);
     when(resultSet.getString("nick")).thenReturn("maxcom");
     when(resultSet.getString("style")).thenReturn("tango");
@@ -30,8 +29,7 @@ public class Users {
     return resultSet;
   }
   public static ResultSet getAnonymous() throws Exception {
-    ResultSet resultSet;
-    resultSet = mock(ResultSet.class);
+    ResultSet resultSet = mock(ResultSet.class);
     when(resultSet.getInt("id")).thenReturn(2);
     when(resultSet.getString("nick")).thenReturn("anonymous");
     when(resultSet.getString("style")).thenReturn("tango");
@@ -50,8 +48,7 @@ public class Users {
     return resultSet;
   }
   public static ResultSet getModerator() throws Exception {
-    ResultSet resultSet;
-    resultSet = mock(ResultSet.class);
+    ResultSet resultSet = mock(ResultSet.class);
     when(resultSet.getInt("id")).thenReturn(5280);
     when(resultSet.getString("nick")).thenReturn("svu");
     when(resultSet.getString("style")).thenReturn("tango");
@@ -70,8 +67,7 @@ public class Users {
     return resultSet;
   }
   public static ResultSet getUser5star() throws  Exception {
-    ResultSet resultSet;
-    resultSet = mock(ResultSet.class);
+    ResultSet resultSet = mock(ResultSet.class);
     when(resultSet.getInt("id")).thenReturn(13);
     when(resultSet.getString("nick")).thenReturn("user5star");
     when(resultSet.getString("style")).thenReturn("tango");
@@ -90,8 +86,7 @@ public class Users {
     return resultSet;
   }
   public static ResultSet getUser1star() throws  Exception {
-    ResultSet resultSet;
-    resultSet = mock(ResultSet.class);
+    ResultSet resultSet = mock(ResultSet.class);
     when(resultSet.getInt("id")).thenReturn(14);
     when(resultSet.getString("nick")).thenReturn("user1star");
     when(resultSet.getString("style")).thenReturn("tango");
@@ -110,8 +105,7 @@ public class Users {
     return resultSet;
   }
   public static ResultSet getUser45Score() throws Exception {
-    ResultSet resultSet;
-    resultSet = mock(ResultSet.class);
+    ResultSet resultSet = mock(ResultSet.class);
     when(resultSet.getInt("id")).thenReturn(15);
     when(resultSet.getString("nick")).thenReturn("user45score");
     when(resultSet.getString("style")).thenReturn("tango");
@@ -130,8 +124,7 @@ public class Users {
     return resultSet;
   }
   public static ResultSet getUser45ScoreBlocked() throws Exception {
-    ResultSet resultSet;
-    resultSet = mock(ResultSet.class);
+    ResultSet resultSet = mock(ResultSet.class);
     when(resultSet.getInt("id")).thenReturn(16);
     when(resultSet.getString("nick")).thenReturn("userBlocked");
     when(resultSet.getString("style")).thenReturn("tango");

@@ -29,7 +29,7 @@ public class SectionDaoIntegrationTest {
   @Autowired
   SectionDao sectionDao;
 
-  private Section getSectionById(List<Section> sectionList, int id) {
+  private static Section getSectionById(List<Section> sectionList, int id) {
     for (Section section: sectionList) {
       if (section.getId() == id) {
         return section;
@@ -38,8 +38,7 @@ public class SectionDaoIntegrationTest {
     return null;
   }
   @Test
-  public void sectionsTest()
-      throws Exception {
+  public void sectionsTest() {
 
     List<Section> sectionList = sectionDao.getAllSections();
     Assert.assertEquals(4, sectionList.size());
@@ -48,13 +47,11 @@ public class SectionDaoIntegrationTest {
     Assert.assertNotNull(addInfo);
   }
   @Test
-  public void sectionsScrollModeTest()
-    throws Exception {
+  public void sectionsScrollModeTest() {
 
     List<Section> sectionList = sectionDao.getAllSections();
 
-    Section section;
-    section = getSectionById(sectionList, 1);
+    Section section = getSectionById(sectionList, 1);
     Assert.assertNotNull(section);
     Assert.assertEquals(SectionScrollModeEnum.SECTION, section.getScrollMode());
 

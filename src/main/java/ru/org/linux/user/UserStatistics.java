@@ -16,6 +16,7 @@
 package ru.org.linux.user;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableMap.Builder;
 
 import java.sql.*;
 import java.util.Map;
@@ -107,7 +108,7 @@ public class UserStatistics {
     commentDatesResult.close();
     commentDates.close();
 
-    ImmutableMap.Builder<String, Integer> builder = ImmutableMap.builder();
+    Builder<String, Integer> builder = ImmutableMap.builder();
     ResultSet comments = commentsBySectionStat.executeQuery();
     while (comments.next()) {
       builder.put(comments.getString("pname"), comments.getInt("c"));

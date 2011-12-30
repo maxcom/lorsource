@@ -145,13 +145,13 @@ public class GroupDao {
         public String doInPreparedStatement(PreparedStatement pst) throws SQLException, DataAccessException {
           pst.setString(1, title);
 
-          if (info.length() > 0) {
+          if (!info.isEmpty()) {
             pst.setString(2, info);
           } else {
             pst.setString(2, null);
           }
 
-          if (longInfo.length() > 0) {
+          if (!longInfo.isEmpty()) {
             pst.setString(3, longInfo);
           } else {
             pst.setString(3, null);

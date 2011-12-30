@@ -42,11 +42,9 @@ public class TopicTest {
    */
   @Test
   public void isDeletableByUserTest1() throws Exception {
-    User user;
-    ResultSet resultSet;
     Calendar calendar = Calendar.getInstance();
 
-    resultSet = mock(ResultSet.class);
+    ResultSet resultSet = mock(ResultSet.class);
     when(resultSet.getInt("postscore")).thenReturn(-9999);
     when(resultSet.wasNull()).thenReturn(false);
     calendar.setTime(new Date());
@@ -63,7 +61,7 @@ public class TopicTest {
     when(resultSet.getInt("section")).thenReturn(3); // Галлерея
     when(resultSet.getBoolean("moderate")).thenReturn(true);
 
-    user = mock(User.class);
+    User user = mock(User.class);
     when(user.isModerator()).thenReturn(false);
     when(user.getId()).thenReturn(13);
 
@@ -82,11 +80,9 @@ public class TopicTest {
    */
   @Test
   public void isDeletableByUserTest2() throws Exception {
-    User user;
-    ResultSet resultSet;
     Calendar calendar = Calendar.getInstance();
 
-    resultSet = mock(ResultSet.class);
+    ResultSet resultSet = mock(ResultSet.class);
     when(resultSet.getInt("postscore")).thenReturn(-9999);
     when(resultSet.wasNull()).thenReturn(false);
     calendar.setTime(new Date());
@@ -103,7 +99,7 @@ public class TopicTest {
     when(resultSet.getInt("section")).thenReturn(3); // Галлерея
     when(resultSet.getBoolean("moderate")).thenReturn(true);
 
-    user = mock(User.class);
+    User user = mock(User.class);
     when(user.isModerator()).thenReturn(false);
     when(user.getId()).thenReturn(13);
 
@@ -123,11 +119,9 @@ public class TopicTest {
    */
   @Test
   public void isDeletableByUserTest3() throws Exception {
-    User user;
-    ResultSet resultSet;
     Calendar calendar = Calendar.getInstance();
 
-    resultSet = mock(ResultSet.class);
+    ResultSet resultSet = mock(ResultSet.class);
     when(resultSet.getInt("postscore")).thenReturn(-9999);
     when(resultSet.wasNull()).thenReturn(false);
     calendar.setTime(new Date());
@@ -144,7 +138,7 @@ public class TopicTest {
     when(resultSet.getInt("section")).thenReturn(3); // Галлерея
     when(resultSet.getBoolean("moderate")).thenReturn(true);
 
-    user = mock(User.class);
+    User user = mock(User.class);
     when(user.isModerator()).thenReturn(false);
     when(user.getId()).thenReturn(14);
 
@@ -164,11 +158,9 @@ public class TopicTest {
    */
   @Test
   public void isDeletableByUserTest4() throws Exception {
-    User user;
-    ResultSet resultSet;
     Calendar calendar = Calendar.getInstance();
 
-    resultSet = mock(ResultSet.class);
+    ResultSet resultSet = mock(ResultSet.class);
     when(resultSet.getInt("postscore")).thenReturn(-9999);
     when(resultSet.wasNull()).thenReturn(false);
     calendar.setTime(new Date());
@@ -185,7 +177,7 @@ public class TopicTest {
     when(resultSet.getInt("section")).thenReturn(3); // Галлерея
     when(resultSet.getBoolean("moderate")).thenReturn(true);
 
-    user = mock(User.class);
+    User user = mock(User.class);
     when(user.isModerator()).thenReturn(false);
     when(user.getId()).thenReturn(14);
 
@@ -204,13 +196,6 @@ public class TopicTest {
    */
   @Test
   public void isDeletableByModeratorTest() throws Exception {
-    User user;
-    ResultSet resultSetModerateOld;
-    ResultSet resultSetNotModerateOld;
-    ResultSet resultSetModerateNew;
-    ResultSet resultSetNotModerateNew;
-    Section sectionModerate;
-    Section sectionNotModerate;
 
     Calendar calendar = Calendar.getInstance();
 
@@ -223,7 +208,7 @@ public class TopicTest {
     long newTime = calendar.getTimeInMillis();
 
 
-    resultSetModerateOld = mock(ResultSet.class);
+    ResultSet resultSetModerateOld = mock(ResultSet.class);
     when(resultSetModerateOld.getInt("postscore")).thenReturn(-9999);
     when(resultSetModerateOld.wasNull()).thenReturn(false);
     // commitdate, lastmod
@@ -238,7 +223,7 @@ public class TopicTest {
     when(resultSetModerateOld.getTimestamp("postdate")).thenReturn(new Timestamp(oldTime));
 
 
-    resultSetNotModerateOld = mock(ResultSet.class);
+    ResultSet resultSetNotModerateOld = mock(ResultSet.class);
     when(resultSetNotModerateOld.getInt("postscore")).thenReturn(-9999);
     when(resultSetNotModerateOld.wasNull()).thenReturn(false);
     // commitdate, lastmod
@@ -253,7 +238,7 @@ public class TopicTest {
     when(resultSetNotModerateOld.getTimestamp("postdate")).thenReturn(new Timestamp(oldTime));
 
 
-    resultSetModerateNew = mock(ResultSet.class);
+    ResultSet resultSetModerateNew = mock(ResultSet.class);
     when(resultSetModerateNew.getInt("postscore")).thenReturn(-9999);
     when(resultSetModerateNew.wasNull()).thenReturn(false);
     // commitdate, lastmod
@@ -268,7 +253,7 @@ public class TopicTest {
     when(resultSetModerateNew.getTimestamp("postdate")).thenReturn(new Timestamp(newTime));
 
 
-    resultSetNotModerateNew = mock(ResultSet.class);
+    ResultSet resultSetNotModerateNew = mock(ResultSet.class);
     when(resultSetNotModerateNew.getInt("postscore")).thenReturn(-9999);
     when(resultSetNotModerateNew.wasNull()).thenReturn(false);
     // commitdate, lastmod
@@ -283,16 +268,16 @@ public class TopicTest {
     when(resultSetNotModerateNew.getTimestamp("postdate")).thenReturn(new Timestamp(newTime));
 
 
-    user = mock(User.class);
+    User user = mock(User.class);
     when(user.isModerator()).thenReturn(true);
     when(user.getId()).thenReturn(13);
 
     // проверка что данные в mock user верные
     Assert.assertEquals(true, user.isModerator());
 
-    sectionModerate = mock(Section.class);
+    Section sectionModerate = mock(Section.class);
     when(sectionModerate.isPremoderated()).thenReturn(true);
-    sectionNotModerate = mock(Section.class);
+    Section sectionNotModerate = mock(Section.class);
     when(sectionNotModerate.isPremoderated()).thenReturn(false);
 
     // проверка что данные в mock resultSet верные

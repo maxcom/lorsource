@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import ru.org.linux.site.Template;
+import ru.org.linux.topic.TagCloudDao.TagDTO;
 import ru.org.linux.user.ProfileProperties;
 import ru.org.linux.spring.commons.CacheProvider;
 import ru.org.linux.topic.TagCloudDao;
@@ -54,9 +55,9 @@ public class TagCloudBoxlet extends AbstractBoxlet {
     final int i = profile.getTags();
     String key = getCacheKey() + "?count=" + i;
 
-    List<TagCloudDao.TagDTO> list = getFromCache(cacheProvider, key, new GetCommand<List<TagCloudDao.TagDTO>>() {
+    List<TagDTO> list = getFromCache(cacheProvider, key, new GetCommand<List<TagDTO>>() {
       @Override
-      public List<TagCloudDao.TagDTO> get() {
+      public List<TagDTO> get() {
         return getTagDao().getTags(i);
       }
     });

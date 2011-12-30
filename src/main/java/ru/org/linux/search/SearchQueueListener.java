@@ -27,6 +27,9 @@ import org.apache.solr.common.SolrInputDocument;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.stereotype.Component;
+import ru.org.linux.search.SearchQueueSender.UpdateComments;
+import ru.org.linux.search.SearchQueueSender.UpdateMessage;
+import ru.org.linux.search.SearchQueueSender.UpdateMonth;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.site.MessageNotFoundException;
 import ru.org.linux.topic.TopicDao;
@@ -65,7 +68,7 @@ public class SearchQueueListener {
     this.commentDao = commentDao;
   }
 
-  public void handleMessage(SearchQueueSender.UpdateMessage msgUpdate) throws MessageNotFoundException, IOException, SolrServerException {
+  public void handleMessage(UpdateMessage msgUpdate) throws MessageNotFoundException, IOException, SolrServerException {
     logger.info("Indexing "+msgUpdate.getMsgid());
 
     reindexMessage(msgUpdate.getMsgid(), msgUpdate.isWithComments());
@@ -102,7 +105,7 @@ public class SearchQueueListener {
     }
   }
 
-  public void handleMessage(SearchQueueSender.UpdateComments msgUpdate) throws MessageNotFoundException, IOException, SolrServerException {
+  public void handleMessage(UpdateComments msgUpdate) throws MessageNotFoundException, IOException, SolrServerException {
     logger.info("Indexing comments "+msgUpdate.getMsgids());
 
     UpdateRequest rq = new UpdateRequest();
@@ -137,7 +140,7 @@ public class SearchQueueListener {
     }
   }
 
-  public void handleMessage(SearchQueueSender.UpdateMonth msgUpdate) throws MessageNotFoundException, IOException, SolrServerException {
+  public void handleMessage(UpdateMonth msgUpdate) throws MessageNotFoundException, IOException, SolrServerException {
     int month = msgUpdate.getMonth();
     int year = msgUpdate.getYear();
 

@@ -22,6 +22,8 @@ import org.springframework.stereotype.Repository;
 import ru.org.linux.site.*;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicDao;
+import ru.org.linux.user.RepliesListItem.EventType;
+import ru.org.linux.user.ShowEventsController.Filter;
 import ru.org.linux.util.StringUtil;
 import ru.org.linux.util.bbcode.LorCodeService;
 
@@ -121,7 +123,7 @@ public class RepliesDao {
    * @return список уведомлений
    */
   public List<RepliesListItem> getRepliesForUser(User user, boolean showPrivate, int topics, int offset,
-                                                 final boolean readMessage, final boolean secure, ShowEventsController.Filter filter) {
+                                                 final boolean readMessage, final boolean secure, Filter filter) {
     String queryString;    
     if(showPrivate) {
       String queryPart;
@@ -173,7 +175,7 @@ public class RepliesDao {
         String sectionTitle = resultSet.getString("name");
         int sectionId = resultSet.getInt("section");
         int msgid = resultSet.getInt("msgid");
-        RepliesListItem.EventType type = RepliesListItem.EventType.valueOf(resultSet.getString("type"));
+        EventType type = EventType.valueOf(resultSet.getString("type"));
         String eventMessage = resultSet.getString("ev_msg");
         String messageText;
         if (readMessage) {

@@ -68,7 +68,7 @@ public class CutTag extends HtmlEquivTag {
       // обработка пустого тэга
       if (node.lengthChildren() == 1) {
         Node child = node.getChildren().iterator().next();
-        if (TextNode.class.isInstance(child) && ((TextNode) child).getText().trim().length() == 0) {
+        if (TextNode.class.isInstance(child) && ((TextNode) child).getText().trim().isEmpty()) {
           return "";
         }
       }

@@ -27,6 +27,7 @@ import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
 import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionService;
+import ru.org.linux.topic.ArchiveDao.ArchiveDTO;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
@@ -64,7 +65,7 @@ public class ArchiveController {
 
     mv.getModel().put("group", group);
 
-    List<ArchiveDao.ArchiveDTO> items = archiveDao.getArchiveDTO(section, group);
+    List<ArchiveDTO> items = archiveDao.getArchiveDTO(section, group);
 
     mv.getModel().put("items", items);
 

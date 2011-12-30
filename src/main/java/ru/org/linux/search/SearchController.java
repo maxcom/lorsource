@@ -16,9 +16,11 @@
 package ru.org.linux.search;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableMap.Builder;
 import com.google.common.collect.ImmutableSortedMap;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.response.FacetField;
+import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
@@ -36,6 +38,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import ru.org.linux.group.BadGroupException;
 import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
+import ru.org.linux.search.SearchViewer.SearchInterval;
+import ru.org.linux.search.SearchViewer.SearchOrder;
+import ru.org.linux.search.SearchViewer.SearchRange;
 import ru.org.linux.section.SectionNotFoundException;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.user.User;
@@ -88,10 +93,10 @@ public class SearchController {
   }
 
   @ModelAttribute("sorts")
-  public static Map<SearchViewer.SearchOrder, String> getSorts() {
-    ImmutableMap.Builder<SearchViewer.SearchOrder, String> builder = ImmutableSortedMap.naturalOrder();
+  public static Map<SearchOrder, String> getSorts() {
+    Builder<SearchOrder, String> builder = ImmutableSortedMap.naturalOrder();
 
-    for (SearchViewer.SearchOrder value : SearchViewer.SearchOrder.values()) {
+    for (SearchOrder value : SearchOrder.values()) {
       builder.put(value, value.getName());
     }
 
@@ -99,10 +104,10 @@ public class SearchController {
   }
 
   @ModelAttribute("intervals")
-  public static Map<SearchViewer.SearchInterval, String> getIntervals() {
-    ImmutableMap.Builder<SearchViewer.SearchInterval, String> builder = ImmutableSortedMap.naturalOrder();
+  public static Map<SearchInterval, String> getIntervals() {
+    Builder<SearchInterval, String> builder = ImmutableSortedMap.naturalOrder();
 
-    for (SearchViewer.SearchInterval value : SearchViewer.SearchInterval.values()) {
+    for (SearchInterval value : SearchInterval.values()) {
       builder.put(value, value.getTitle());
     }
 
@@ -110,10 +115,10 @@ public class SearchController {
   }
 
   @ModelAttribute("ranges")
-  public static Map<SearchViewer.SearchRange, String> getRanges() {
-    ImmutableMap.Builder<SearchViewer.SearchRange, String> builder = ImmutableSortedMap.naturalOrder();
+  public static Map<SearchRange, String> getRanges() {
+    Builder<SearchRange, String> builder = ImmutableSortedMap.naturalOrder();
 
-    for (SearchViewer.SearchRange value : SearchViewer.SearchRange.values()) {
+    for (SearchRange value : SearchRange.values()) {
       builder.put(value, value.getTitle());
     }
 
@@ -169,7 +174,7 @@ public class SearchController {
       if (sectionFacet != null && sectionFacet.getValueCount() > 1) {
         params.put("sectionFacet", buildSectionFacet(sectionFacet));
       } else if (sectionFacet != null && sectionFacet.getValueCount() == 1) {
-        FacetField.Count first = sectionFacet.getValues().get(0);
+        Count first = sectionFacet.getValues().get(0);
 
         query.setSection(Integer.parseInt(first.getName()));
       }
@@ -201,11 +206,11 @@ public class SearchController {
   }
 
   private Map<Integer, String> buildSectionFacet(FacetField sectionFacet) throws SectionNotFoundException {
-    ImmutableMap.Builder<Integer, String> builder = ImmutableSortedMap.naturalOrder();
+    Builder<Integer, String> builder = ImmutableSortedMap.naturalOrder();
 
     int totalCount = 0;
 
-    for (FacetField.Count count : sectionFacet.getValues()) {
+    for (Count count : sectionFacet.getValues()) {
       int sectionId = Integer.parseInt(count.getName());
 
       String name = sectionService.getSection(sectionId).getName().toLowerCase();
@@ -221,11 +226,11 @@ public class SearchController {
   }
 
   private Map<Integer, String> buildGroupFacet(int sectionId, FacetField groupFacet) throws BadGroupException {
-    ImmutableMap.Builder<Integer, String> builder = ImmutableSortedMap.naturalOrder();
+    Builder<Integer, String> builder = ImmutableSortedMap.naturalOrder();
 
     int totalCount = 0;
 
-    for (FacetField.Count count : groupFacet.getValues()) {
+    for (Count count : groupFacet.getValues()) {
       int groupId = Integer.parseInt(count.getName());
 
       Group group = groupDao.getGroup(groupId);
@@ -254,30 +259,30 @@ public class SearchController {
 
   @InitBinder
   public void initBinder(WebDataBinder binder) {
-    binder.registerCustomEditor(SearchViewer.SearchOrder.class, new PropertyEditorSupport() {
+    binder.registerCustomEditor(SearchOrder.class, new PropertyEditorSupport() {
       @Override
       public void setAsText(String s) throws IllegalArgumentException {
         if ("1".equals(s)) { // for old links
-          setValue(SearchViewer.SearchOrder.RELEVANCE);
+          setValue(SearchOrder.RELEVANCE);
         } else if ("2".equals(s)) {
-          setValue(SearchViewer.SearchOrder.DATE);
+          setValue(SearchOrder.DATE);
         } else {
-          setValue(SearchViewer.SearchOrder.valueOf(s));
+          setValue(SearchOrder.valueOf(s));
         }
       }
     });
 
-    binder.registerCustomEditor(SearchViewer.SearchInterval.class, new PropertyEditorSupport() {
+    binder.registerCustomEditor(SearchInterval.class, new PropertyEditorSupport() {
       @Override
       public void setAsText(String s) throws IllegalArgumentException {
-        setValue(SearchViewer.SearchInterval.valueOf(s.toUpperCase()));
+        setValue(SearchInterval.valueOf(s.toUpperCase()));
       }
     });
 
-    binder.registerCustomEditor(SearchViewer.SearchRange.class, new PropertyEditorSupport() {
+    binder.registerCustomEditor(SearchRange.class, new PropertyEditorSupport() {
       @Override
       public void setAsText(String s) throws IllegalArgumentException {
-        setValue(SearchViewer.SearchRange.valueOf(s.toUpperCase()));
+        setValue(SearchRange.valueOf(s.toUpperCase()));
       }
     });
 

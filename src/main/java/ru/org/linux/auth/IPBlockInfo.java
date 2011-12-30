@@ -32,13 +32,13 @@ public class IPBlockInfo {
 
   public IPBlockInfo(String ip) {
     this.ip = ip;
-    this.reason = null;
-    this.banDate = null;
-    this.originalDate = null;
-    this.moderator = 0;
-    this.allowPosting = false;
-    this.captchaRequired = false;
-    this.initialized = false;
+    reason = null;
+    banDate = null;
+    originalDate = null;
+    moderator = 0;
+    allowPosting = false;
+    captchaRequired = false;
+    initialized = false;
   }
 
   public IPBlockInfo(ResultSet rs) throws SQLException {
@@ -57,7 +57,7 @@ public class IPBlockInfo {
   }
 
   public boolean isBlocked() {
-    return isInitialized() && (banDate == null || banDate.after(new Date()));
+    return initialized && (banDate == null || banDate.after(new Date()));
   }
 
   public Timestamp getOriginalDate() {

@@ -6,5 +6,5 @@ package ru.org.linux.section;
 public enum SectionScrollModeEnum {
   NO_SCROLL,
   SECTION,
-  GROUP;
+  GROUP
 }

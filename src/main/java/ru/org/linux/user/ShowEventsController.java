@@ -40,15 +40,15 @@ public class ShowEventsController {
   @Autowired
   private RepliesDao repliesDao;
 
-  public static enum Filter {
+  public enum Filter {
     ALL       ("all"      , "все уведомления"),
     ANSWERS   ("answers"  , "ответы"),
     FAVORITES ("favorites", "избранное"),
     DELETED   ("deleted"  , "удаленное"),
     REFERENCE ("reference", "упоминания");
 
-    private String value;
-    private String label;
+    private final String value;
+    private final String label;
 
     Filter(String value, String label) {
       this.value = value;

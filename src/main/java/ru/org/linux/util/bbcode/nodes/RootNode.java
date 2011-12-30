@@ -42,6 +42,7 @@ import org.apache.commons.httpclient.URI;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.util.bbcode.ParserParameters;
+import ru.org.linux.util.bbcode.ParserParameters.CutType;
 import ru.org.linux.util.formatter.ToHtmlFormatter;
 
 import java.util.HashSet;
@@ -53,7 +54,7 @@ import java.util.Set;
 public class RootNode extends Node {
   private int cutCount;
   //
-  private ParserParameters.CutType cutType;
+  private CutType cutType;
   private URI cutURI;
   private UserDao userDao;
   private ToHtmlFormatter toHtmlFormatter;
@@ -64,7 +65,7 @@ public class RootNode extends Node {
   public RootNode(ParserParameters parserParameters) {
     super(parserParameters);
     cutCount = -1;
-    cutType = ParserParameters.CutType.INCOMMENT;
+    cutType = CutType.INCOMMENT;
     replier = new HashSet<User>();
     secure = false;
   }
@@ -119,28 +120,28 @@ public class RootNode extends Node {
   }
 
   public void setCommentCutOptions() {
-    cutType = ParserParameters.CutType.INCOMMENT;
+    cutType = CutType.INCOMMENT;
   }
 
   public void setMaximizedTopicCutOptions() {
-    cutType = ParserParameters.CutType.INTOPIC_MAXIMIZED;
+    cutType = CutType.INTOPIC_MAXIMIZED;
   }
 
   public void setMinimizedTopicCutOptions(URI cutURI) {
-    cutType = ParserParameters.CutType.INTOPIC_MINIMIZED;
+    cutType = CutType.INTOPIC_MINIMIZED;
     this.cutURI = cutURI;
   }
 
   public boolean isComment() {
-    return cutType == ParserParameters.CutType.INCOMMENT;
+    return cutType == CutType.INCOMMENT;
   }
 
   public boolean isTopicMinimized() {
-    return cutType == ParserParameters.CutType.INTOPIC_MINIMIZED;
+    return cutType == CutType.INTOPIC_MINIMIZED;
   }
 
   public boolean isTopicMaximized() {
-    return cutType == ParserParameters.CutType.INTOPIC_MAXIMIZED;
+    return cutType == CutType.INTOPIC_MAXIMIZED;
   }
 
   @Override

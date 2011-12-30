@@ -18,7 +18,6 @@ package ru.org.linux.spring;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
-import java.util.Properties;
 
 import org.apache.xmlrpc.XmlRpcException;
 import org.apache.xmlrpc.client.XmlRpcClient;

@@ -20,7 +20,7 @@ import java.beans.PropertyEditorSupport;
 class UserIdPropertyEditor extends PropertyEditorSupport {
   private final UserDao userDao;
 
-  public UserIdPropertyEditor(UserDao userDao) {
+  UserIdPropertyEditor(UserDao userDao) {
     this.userDao = userDao;
   }
 

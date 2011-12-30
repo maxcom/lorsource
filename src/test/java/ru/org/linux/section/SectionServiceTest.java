@@ -89,9 +89,8 @@ public class SectionServiceTest {
   @Test
   public void getScrollModeTest()
     throws Exception {
-    Section section;
 
-    section = sectionService.getSection(1);
+    Section section = sectionService.getSection(1);
     Assert.assertEquals(SectionScrollModeEnum.SECTION, section.getScrollMode());
 
     section = sectionService.getSection(2);

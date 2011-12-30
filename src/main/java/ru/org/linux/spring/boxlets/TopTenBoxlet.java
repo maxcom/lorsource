@@ -29,6 +29,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import ru.org.linux.site.Template;
+import ru.org.linux.topic.TopTenDao.TopTenMessageDTO;
 import ru.org.linux.user.ProfileProperties;
 import ru.org.linux.topic.TopTenDao;
 
@@ -52,11 +53,11 @@ public class TopTenBoxlet extends AbstractBoxlet {
     final int itemsPerPage = profile.getMessages();
     String style = profile.getStyle();
 
-    List<TopTenDao.TopTenMessageDTO> list = topTenDao.getMessages();
+    List<TopTenMessageDTO> list = topTenDao.getMessages();
     CollectionUtils.forAllDo(list, new Closure() {
       @Override
       public void execute(Object o) {
-        TopTenDao.TopTenMessageDTO dto = (TopTenDao.TopTenMessageDTO) o;
+        TopTenMessageDTO dto = (TopTenMessageDTO) o;
         int tmp = dto.getAnswers() / itemsPerPage;
         tmp = (dto.getAnswers() % itemsPerPage > 0) ? tmp + 1 : tmp;
         dto.setPages(tmp);

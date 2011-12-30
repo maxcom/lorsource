@@ -17,6 +17,7 @@ package ru.org.linux.topic;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableList.Builder;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -30,10 +31,6 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import ru.org.linux.section.SectionScrollModeEnum;
-import ru.org.linux.section.SectionNotFoundException;
-import ru.org.linux.section.SectionService;
-import ru.org.linux.site.Template;
 import ru.org.linux.gallery.Screenshot;
 import ru.org.linux.group.BadGroupException;
 import ru.org.linux.group.Group;
@@ -42,7 +39,11 @@ import ru.org.linux.poll.Poll;
 import ru.org.linux.poll.PollDao;
 import ru.org.linux.poll.PollNotFoundException;
 import ru.org.linux.poll.PollVariant;
-import ru.org.linux.site.*;
+import ru.org.linux.section.SectionNotFoundException;
+import ru.org.linux.section.SectionScrollModeEnum;
+import ru.org.linux.section.SectionService;
+import ru.org.linux.site.MessageNotFoundException;
+import ru.org.linux.site.ScriptErrorException;
 import ru.org.linux.spring.Configuration;
 import ru.org.linux.user.*;
 import ru.org.linux.util.LorHttpUtils;
@@ -235,7 +236,7 @@ public class TopicDao {
    * @return список тэгов
    */
   public ImmutableList<String> getTags(Topic message) {
-    final ImmutableList.Builder<String> tags = ImmutableList.builder();
+    final Builder<String> tags = ImmutableList.builder();
 
     jdbcTemplate.query(queryTags, new RowCallbackHandler() {
       @Override
@@ -345,7 +346,7 @@ public class TopicDao {
   }
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public int addMessage(HttpServletRequest request, AddTopicRequest form, Template tmpl, Group group, User user, Screenshot scrn, Topic previewMsg, Set<User> userRefs) throws IOException, ScriptErrorException, UserErrorException {
+  public int addMessage(HttpServletRequest request, AddTopicRequest form, Group group, User user, Screenshot scrn, Topic previewMsg, Set<User> userRefs) throws IOException, ScriptErrorException, UserErrorException {
     final int msgid = saveNewMessage(
             previewMsg,
             request,

@@ -30,6 +30,7 @@ import ru.org.linux.section.SectionNotFoundException;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.spring.commons.CacheProvider;
 import ru.org.linux.topic.ArchiveDao;
+import ru.org.linux.topic.ArchiveDao.ArchiveDTO;
 
 @Controller
 public class ArchiveBoxlet extends AbstractBoxlet {
@@ -66,9 +67,9 @@ public class ArchiveBoxlet extends AbstractBoxlet {
   @Override
   @RequestMapping("/archive.boxlet")
   protected ModelAndView getData(HttpServletRequest request) throws Exception {
-    List<ArchiveDao.ArchiveDTO> list = getFromCache(cacheProvider, new GetCommand<List<ArchiveDao.ArchiveDTO>>() {
+    List<ArchiveDTO> list = getFromCache(cacheProvider, new GetCommand<List<ArchiveDTO>>() {
       @Override
-      public List<ArchiveDao.ArchiveDTO> get() {
+      public List<ArchiveDTO> get() {
         return archiveDao.getArchiveDTO(sectionNews, 13);
       }
     });

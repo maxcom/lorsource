@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import ru.org.linux.site.Template;
+import ru.org.linux.spring.dao.TrackerDao.TrackerFilter;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserErrorException;
@@ -48,8 +49,8 @@ public class TrackerController {
   private static final Set<String> filterValuesSet = new HashSet<String>(Arrays.asList(filterValues));
 
   @ModelAttribute("filterItems")
-  public static List<TrackerDao.TrackerFilter> getFilter() {
-    return Arrays.asList(TrackerDao.TrackerFilter.values());
+  public static List<TrackerFilter> getFilter() {
+    return Arrays.asList(TrackerFilter.values());
   }
 
   @RequestMapping("/tracker.jsp")
@@ -72,30 +73,30 @@ public class TrackerController {
       }
     }
 
-    TrackerDao.TrackerFilter trackerFilter;
+    TrackerFilter trackerFilter;
     if(filter != null) {
       if("notalks".equals(filter)) {
-        trackerFilter = TrackerDao.TrackerFilter.NOTALKS;
+        trackerFilter = TrackerFilter.NOTALKS;
       } else if ("tech".equals(filter)) {
-        trackerFilter = TrackerDao.TrackerFilter.TECH;
+        trackerFilter = TrackerFilter.TECH;
       } else if ("mine".equals(filter)) {
-        trackerFilter = TrackerDao.TrackerFilter.MINE;
+        trackerFilter = TrackerFilter.MINE;
       } else {
-        trackerFilter = TrackerDao.TrackerFilter.ALL;
+        trackerFilter = TrackerFilter.ALL;
       }
     } else {
-      trackerFilter = TrackerDao.TrackerFilter.ALL;
+      trackerFilter = TrackerFilter.ALL;
     }
 
     Map<String, Object> params = new HashMap<String, Object>();
-    params.put("mine", trackerFilter == TrackerDao.TrackerFilter.MINE);
+    params.put("mine", trackerFilter == TrackerFilter.MINE);
     params.put("offset", offset);
     params.put("filter", filter);
     params.put("tracker", new TrackerFilterAction(filter));
     /*params.put("filterItems", filterItems);*/
     Calendar calendar = Calendar.getInstance();
     calendar.setTime(new Date());
-    if(trackerFilter == TrackerDao.TrackerFilter.MINE) {
+    if(trackerFilter == TrackerFilter.MINE) {
       calendar.add(Calendar.MONTH, -6);
     } else {
       calendar.add(Calendar.HOUR, -24);
@@ -115,14 +116,14 @@ public class TrackerController {
 
     User user = tmpl.getCurrentUser();
 
-    if (trackerFilter == TrackerDao.TrackerFilter.MINE) {
+    if (trackerFilter == TrackerFilter.MINE) {
       if (!tmpl.isSessionAuthorized()) {
         throw new UserErrorException("Not authorized");
       }
     }
     params.put("msgs", trackerDao.getTrackAll(trackerFilter, user, dateLimit, topics, offset, messages));
 
-    if (tmpl.isModeratorSession() && trackerFilter != TrackerDao.TrackerFilter.MINE) {
+    if (tmpl.isModeratorSession() && trackerFilter != TrackerFilter.MINE) {
       params.put("newUsers", userDao.getNewUsers());
     }
 

@@ -23,8 +23,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import ru.org.linux.auth.AccessViolationException;
+import ru.org.linux.site.BadInputException;
 import ru.org.linux.site.Template;
-import ru.org.linux.site.*;
 import ru.org.linux.spring.Configuration;
 import ru.org.linux.util.StringUtil;
 
@@ -34,6 +34,7 @@ import javax.mail.Transport;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMessage.RecipientType;
 import javax.servlet.http.HttpServletRequest;
 import java.sql.Timestamp;
 import java.util.Date;
@@ -99,8 +100,6 @@ public class LostPasswordController {
     @RequestParam("code") String formCode,
     HttpServletRequest request
   ) throws Exception {
-    Template tmpl = Template.getTemplate(request);
-
     User user = userDao.getUser(nick);
 
     user.checkBlocked();
@@ -141,7 +140,7 @@ public class LostPasswordController {
 
     String resetCode = getResetCode(configuration.getSecret(), user.getNick(), email, resetDate);
 
-    msg.addRecipient(MimeMessage.RecipientType.TO, new InternetAddress(email));
+    msg.addRecipient(RecipientType.TO, new InternetAddress(email));
     msg.setSubject("Your password @linux.org.ru");
     msg.setSentDate(new Date());
     msg.setText(

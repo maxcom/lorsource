@@ -277,7 +277,7 @@ public class PollDao {
       final Poll poll = getPoll(voteid);
 
       for (String variant : pollList) {
-        if (variant.trim().length() == 0) {
+        if (variant.trim().isEmpty()) {
           continue;
         }
 

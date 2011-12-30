@@ -34,6 +34,7 @@ import ru.org.linux.group.GroupDao;
 import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.site.*;
+import ru.org.linux.topic.NewsViewer.CommitMode;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserErrorException;
@@ -221,9 +222,9 @@ public class NewsViewerController {
     if (section != null) {
       newsViewer.addSection(sectionid);
       if (section.isPremoderated()) {
-        newsViewer.setCommitMode(NewsViewer.CommitMode.COMMITED_ONLY);
+        newsViewer.setCommitMode(CommitMode.COMMITED_ONLY);
       } else {
-        newsViewer.setCommitMode(NewsViewer.CommitMode.POSTMODERATED_ONLY);
+        newsViewer.setCommitMode(CommitMode.POSTMODERATED_ONLY);
       }
     }
 
@@ -305,7 +306,7 @@ public class NewsViewerController {
 
     newsViewer.setLimit("LIMIT 20" + (offset > 0 ? (" OFFSET " + offset) : ""));
 
-    newsViewer.setCommitMode(NewsViewer.CommitMode.ALL);
+    newsViewer.setCommitMode(CommitMode.ALL);
 
     if (user.getId() == 2) {
       throw new UserErrorException("Лента для пользователя anonymous не доступна");
@@ -367,7 +368,7 @@ public class NewsViewerController {
 
     newsViewer.setLimit("LIMIT 20" + (offset > 0 ? (" OFFSET " + offset) : ""));
 
-    newsViewer.setCommitMode(NewsViewer.CommitMode.ALL);
+    newsViewer.setCommitMode(CommitMode.ALL);
 
     if (user.getId() == 2) {
       throw new UserErrorException("Лента для пользователя anonymous не доступна");
@@ -431,7 +432,7 @@ public class NewsViewerController {
     }
 
     final NewsViewer newsViewer = new NewsViewer();
-    newsViewer.setCommitMode(NewsViewer.CommitMode.UNCOMMITED_ONLY);
+    newsViewer.setCommitMode(CommitMode.UNCOMMITED_ONLY);
     newsViewer.setDatelimit("postdate>(CURRENT_TIMESTAMP-'1 month'::interval)");
     if (section != null) {
       newsViewer.addSection(section.getId());
@@ -730,9 +731,9 @@ public class NewsViewerController {
     params.put("section", section);
 
     if (section.isPremoderated()) {
-      nv.setCommitMode(NewsViewer.CommitMode.COMMITED_ONLY);
+      nv.setCommitMode(CommitMode.COMMITED_ONLY);
     } else {
-      nv.setCommitMode(NewsViewer.CommitMode.POSTMODERATED_ONLY);
+      nv.setCommitMode(CommitMode.POSTMODERATED_ONLY);
     }
 
     Group group = null;

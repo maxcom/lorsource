@@ -44,7 +44,7 @@ public final class StringUtil {
     login = login.toLowerCase();
 
     // no zerosize login
-    if (login.length() == 0) {
+    if (login.isEmpty()) {
       return false;
     }
     if (login.length() >= 80) {
@@ -55,7 +55,7 @@ public final class StringUtil {
   }
 
   public static String makeTitle(String title) {
-    if (title != null && !"".equals(title.trim())) {
+    if (title != null && !title.trim().isEmpty()) {
       return title;
     }
     return "Без заглавия";

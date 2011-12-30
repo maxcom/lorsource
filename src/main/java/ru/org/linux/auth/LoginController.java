@@ -69,7 +69,7 @@ public class LoginController {
 
     String nick = request.getParameter("nick");
 
-    if (nick == null || "".equals(nick)) {
+    if (nick == null || nick.isEmpty()) {
       return new ModelAndView(ajax ? "login-xml" : "login-form", Collections.singletonMap("error", "Не указан nick"));
     }
 

@@ -90,7 +90,7 @@ public class Parser {
    */
   private Node pushTextNode(RootNode rootNode, Node currentNode, String text, boolean isCode) {
     if (!currentNode.allows("text")) {
-      if (text.trim().length() == 0) {
+      if (text.trim().isEmpty()) {
         //currentNode.getChildren().add(new TextNode(currentNode, this, text));
       } else {
         if (currentNode.allows("p")) {
@@ -229,7 +229,7 @@ public class Parser {
       if (TagNode.class.isInstance(tempNode)) {
         TagNode node = (TagNode) tempNode;
         String tagName = node.getBbtag().getName();
-        if (tagName.equals(name) || ("url".equals(name) && tagName.equals("url2"))) {
+        if (tagName.equals(name) || ("url".equals(name) && "url2".equals(tagName))) {
           currentNode = tempNode;
           currentNode = ascend(currentNode);
           break;
@@ -282,7 +282,7 @@ public class Parser {
         if (wholematch.startsWith("[[") && wholematch.endsWith("]]")) {
           currentNode = pushTextNode(rootNode, currentNode, wholematch.substring(1, wholematch.length() - 1), isCode);
         } else {
-          if (parameter != null && parameter.length() > 0) {
+          if (parameter != null && !parameter.isEmpty()) {
             parameter = parameter.substring(1);
           }
           Set<String> allTagsNames = parserParameters.getAllTagsNames();
@@ -309,7 +309,7 @@ public class Parser {
                 firstCode = true;
                 currentNode = pushTagNode(rootNode, currentNode, tagname, parameter);
               } else {
-                if ("url".equals(tagname) && parameter != null && parameter.length() > 0) {
+                if ("url".equals(tagname) && parameter != null && !parameter.isEmpty()) {
                   // специальная проверка для [url] с параметром
                   currentNode = pushTagNode(rootNode, currentNode, "url2", parameter);
                 } else {

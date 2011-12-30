@@ -44,6 +44,7 @@ import ru.org.linux.util.bbcode.ParserParameters;
 import ru.org.linux.util.bbcode.nodes.Node;
 
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 /**
@@ -76,7 +77,7 @@ public class HtmlEquivTag extends Tag {
     if (!attributes.isEmpty()) {
       opening.append(' ');
 
-      for (Map.Entry<String, String> entry : attributes.entrySet()) {
+      for (Entry<String, String> entry : attributes.entrySet()) {
         opening.append(entry.getKey());
         opening.append('=');
         opening.append(Parser.escape(entry.getValue()));

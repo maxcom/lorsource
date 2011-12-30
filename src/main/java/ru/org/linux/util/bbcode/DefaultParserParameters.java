@@ -16,6 +16,7 @@
 package ru.org.linux.util.bbcode;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableSet.Builder;
 import ru.org.linux.util.bbcode.tags.*;
 
 import java.util.*;
@@ -90,7 +91,7 @@ public class DefaultParserParameters implements ParserParameters{
     autoLinkTags = ImmutableSet.of("b", "i", "u", "s", "em", "strong", "p", "quote", "div", "cut", "pre", "*");
     disallowedParagraphTags = ImmutableSet.of("pre", "url", "user", "code");
     paragraphedTags = ImmutableSet.of("pre", "code");
-    flowTags = new ImmutableSet.Builder<String>()
+    flowTags = new Builder<String>()
             .addAll(inlineTags)
             .addAll(blockLevelTags)
             .build();
@@ -199,7 +200,7 @@ public class DefaultParserParameters implements ParserParameters{
         allTagsDict.put(tag.getName(), tag);
       }
     }
-    ImmutableSet.Builder<String> allTagsBuilder = new ImmutableSet.Builder<String>();
+    Builder<String> allTagsBuilder = new Builder<String>();
     for (Tag tag : allTags) {
       allTagsBuilder.add(tag.getName());
     }

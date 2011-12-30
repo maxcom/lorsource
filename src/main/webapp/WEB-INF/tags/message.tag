@@ -96,7 +96,7 @@
       <p>&gt;&gt;&gt; <a href="vote-vote.jsp?msgid=${message.id}">Проголосовать</a></p>
     </c:if>
     <%
-  if (message.getUrl() != null && message.isHaveLink() && message.getUrl().length()>0) {
+  if (message.getUrl() != null && message.isHaveLink() && !message.getUrl().isEmpty()) {
     out.append("<p>&gt;&gt;&gt; <a href=\"").append(StringUtil.escapeHtml(message.getUrl())).append("\">").append(message.getLinktext()).append("</a>");
   }
 

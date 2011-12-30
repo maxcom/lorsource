@@ -19,7 +19,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 
 import org.junit.Test;
-import ru.org.linux.user.Profile;
 
 import static org.junit.Assert.*;
 

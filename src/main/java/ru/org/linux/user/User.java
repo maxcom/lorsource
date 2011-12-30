@@ -78,7 +78,7 @@ public class User implements Serializable {
     if (pwd == null) {
       pwd = "";
     }
-    anonymous = "".equals(pwd);
+    anonymous = pwd.isEmpty();
     password = pwd;
     photo=rs.getString("photo");
     email = rs.getString("email");

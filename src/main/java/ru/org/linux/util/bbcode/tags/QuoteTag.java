@@ -75,7 +75,7 @@ public class QuoteTag extends Tag {
       // обработка пустого тэга
       if (node.lengthChildren() == 1) {
         Node child = node.getChildren().iterator().next();
-        if (TextNode.class.isInstance(child) && ((TextNode) child).getText().trim().length() == 0) {
+        if (TextNode.class.isInstance(child) && ((TextNode) child).getText().trim().isEmpty()) {
           return "";
         }
         if (TagNode.class.isInstance(child)) {

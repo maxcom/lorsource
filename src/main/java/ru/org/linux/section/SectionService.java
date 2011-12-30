@@ -16,6 +16,7 @@
 package ru.org.linux.section;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableList.Builder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -35,7 +36,7 @@ public class SectionService {
    */
   @PostConstruct
   private void initializeSectionList() {
-    ImmutableList.Builder<Section> sectionListBuilder = ImmutableList.builder();
+    Builder<Section> sectionListBuilder = ImmutableList.builder();
     List<Section> sections = sectionDao.getAllSections();
     sectionListBuilder.addAll(sections);
     sectionList = sectionListBuilder.build();

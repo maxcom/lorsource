@@ -13,6 +13,7 @@
 <%@ page import="java.util.Date"%>
 <%@ page import="java.util.Enumeration"%>
 <%@ page import="java.util.Properties"%>
+<%@ page import="javax.mail.internet.MimeMessage.RecipientType" %>
 <%--
   ~ Copyright 1998-2010 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -94,7 +95,7 @@
   MimeMessage emailMessage = new MimeMessage(mailSession);
   emailMessage.setFrom(new InternetAddress("no-reply@linux.org.ru"));
 
-  emailMessage.addRecipient(MimeMessage.RecipientType.TO, mail);
+  emailMessage.addRecipient(RecipientType.TO, mail);
   emailMessage.setSubject("Linux.org.ru: " + exception.getClass());
   emailMessage.setSentDate(new Date());
   emailMessage.setText(text.toString(), "UTF-8");

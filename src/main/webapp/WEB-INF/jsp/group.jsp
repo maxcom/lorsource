@@ -238,7 +238,7 @@
   if (offset - topics > 0) {
     out.print("<a rel=prev rev=next href=\"" + url + "?offset=" + (offset - topics) + urlAdd + "\">← назад</a>");
   } else if (offset - topics == 0) {
-    out.print("<a rel=prev rev=next href=\"" + url + (urlAdd.length() > 0 ? ('?' + urlAdd.substring(5)) : "") + "\">← назад</a>");
+    out.print("<a rel=prev rev=next href=\"" + url + (!urlAdd.isEmpty() ? ('?' + urlAdd.substring(5)) : "") + "\">← назад</a>");
   }
 %>
 </div>

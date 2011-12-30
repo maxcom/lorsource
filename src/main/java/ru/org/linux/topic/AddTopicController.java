@@ -281,7 +281,7 @@ public class AddTopicController extends ApplicationObjectSupport {
 
       Set<User> userRefs = lorCodeService.getReplierFromMessage(message);
 
-      int msgid = messageDao.addMessage(request, form, tmpl, group, user, scrn, previewMsg, userRefs);
+      int msgid = messageDao.addMessage(request, form, group, user, scrn, previewMsg, userRefs);
 
       searchQueueSender.updateMessageOnly(msgid);
 

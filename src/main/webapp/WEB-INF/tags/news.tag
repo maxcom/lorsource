@@ -142,7 +142,7 @@
   ${preparedMessage.processedMessage}
 <%
   if (url != null && !imagepost && !votepoll) {
-    if (url.length()==0) {
+    if (url.isEmpty()) {
       url = message.getLink();
     }
 

@@ -263,7 +263,7 @@ public class NewsViewer {
       id.append("&f");
     }
 
-    if (limit!=null && limit.length()>0) {
+    if (limit!=null && !limit.isEmpty()) {
       id.append("&lmt=").append(URLEncoder.encode(limit));
     }
 
@@ -277,7 +277,7 @@ public class NewsViewer {
   }
 
   public int getCacheAge() {
-    if (limit==null || limit.length()==0) {
+    if (limit==null || limit.isEmpty()) {
       return 10*60*1000;
     }
 

@@ -78,7 +78,7 @@
 
         String title = reply.getTitle();
 
-        if (title.trim().length() == 0) {
+        if (title.trim().isEmpty()) {
           title = "комментарий";
         }
 

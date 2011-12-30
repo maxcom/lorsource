@@ -15,12 +15,16 @@
 
 package ru.org.linux.search;
 
+import ru.org.linux.search.SearchViewer.SearchInterval;
+import ru.org.linux.search.SearchViewer.SearchOrder;
+import ru.org.linux.search.SearchViewer.SearchRange;
 import ru.org.linux.user.User;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 public class SearchRequest {
   private String q = "";
@@ -28,10 +32,10 @@ public class SearchRequest {
   private boolean usertopic = false;
   private User user=null;
   private int section = 0;
-  private SearchViewer.SearchOrder sort = SearchViewer.SearchOrder.RELEVANCE;
+  private SearchOrder sort = SearchOrder.RELEVANCE;
   private int group = 0;
-  private SearchViewer.SearchInterval interval = SearchViewer.SearchInterval.ALL;
-  private SearchViewer.SearchRange range = SearchViewer.SearchRange.ALL;
+  private SearchInterval interval = SearchInterval.ALL;
+  private SearchRange range = SearchRange.ALL;
   private int offset = 0;
 
   public String getQ() {
@@ -70,11 +74,11 @@ public class SearchRequest {
     this.section = section;
   }
 
-  public SearchViewer.SearchOrder getSort() {
+  public SearchOrder getSort() {
     return sort;
   }
 
-  public void setSort(SearchViewer.SearchOrder sort) {
+  public void setSort(SearchOrder sort) {
     this.sort = sort;
   }
 
@@ -94,19 +98,19 @@ public class SearchRequest {
     this.group = group;
   }
 
-  public SearchViewer.SearchInterval getInterval() {
+  public SearchInterval getInterval() {
     return interval;
   }
 
-  public void setInterval(SearchViewer.SearchInterval interval) {
+  public void setInterval(SearchInterval interval) {
     this.interval = interval;
   }
 
-  public SearchViewer.SearchRange getRange() {
+  public SearchRange getRange() {
     return range;
   }
 
-  public void setRange(SearchViewer.SearchRange range) {
+  public void setRange(SearchRange range) {
     this.range = range;
   }
 
@@ -125,11 +129,11 @@ public class SearchRequest {
       params.put("q", q);
     }
 
-    if (range != SearchViewer.SearchRange.ALL) {
+    if (range != SearchRange.ALL) {
       params.put("range", range.toString());
     }
 
-    if (interval != SearchViewer.SearchInterval.ALL) {
+    if (interval != SearchInterval.ALL) {
       params.put("interval", interval.toString());
     }
 
@@ -141,7 +145,7 @@ public class SearchRequest {
       params.put("usertopic", "true");
     }
 
-    if (sort!=SearchViewer.SearchOrder.RELEVANCE) {
+    if (sort!= SearchOrder.RELEVANCE) {
       params.put("sort", sort.toString());
     }
 
@@ -163,7 +167,7 @@ public class SearchRequest {
   private static String buildParams(Map<String, String> params) {
     StringBuilder str = new StringBuilder();
 
-    for (Map.Entry<String, String> entry : params.entrySet()) {
+    for (Entry<String, String> entry : params.entrySet()) {
       if (str.length()>0) {
         str.append('&');
       }
