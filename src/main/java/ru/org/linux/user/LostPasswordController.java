@@ -25,6 +25,7 @@ import org.springframework.web.servlet.ModelAndView;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.site.Template;
 import ru.org.linux.site.*;
+import ru.org.linux.spring.Configuration;
 import ru.org.linux.util.StringUtil;
 
 import javax.mail.MessagingException;
@@ -40,9 +41,11 @@ import java.util.Properties;
 
 @Controller
 public class LostPasswordController {
-
   @Autowired
   private UserDao userDao;
+
+  @Autowired
+  private Configuration configuration;
 
   @RequestMapping(value="/lostpwd.jsp", method= RequestMethod.GET)
   public ModelAndView showForm() {
@@ -81,7 +84,7 @@ public class LostPasswordController {
     Timestamp now = new Timestamp(System.currentTimeMillis());
 
     try {
-      sendEmail(tmpl, user, email, now);
+      sendEmail(user, email, now);
       userDao.updateResetDate(user, now);
 
       return new ModelAndView("action-done", "message", "Инструкция по сбросу пароля была отправлена на ваш email");
@@ -109,7 +112,7 @@ public class LostPasswordController {
 
     Timestamp resetDate = userDao.getResetDate(user);
 
-    String resetCode = getResetCode(tmpl.getSecret(), user.getNick(), user.getEmail(), resetDate);
+    String resetCode = getResetCode(configuration.getSecret(), user.getNick(), user.getEmail(), resetDate);
 
     if (!resetCode.equals(formCode)) {
       throw new UserErrorException("Код не совпадает");
@@ -128,7 +131,7 @@ public class LostPasswordController {
     return StringUtil.md5hash(base + ':' + nick + ':' + email+ ':' +Long.toString(tm.getTime())+":reset");
   }
 
-  private static void sendEmail(Template tmpl, User user, String email, Timestamp resetDate) throws MessagingException {
+  private void sendEmail(User user, String email, Timestamp resetDate) throws MessagingException {
     Properties props = new Properties();
     props.put("mail.smtp.host", "localhost");
     Session mailSession = Session.getDefaultInstance(props, null);
@@ -136,7 +139,7 @@ public class LostPasswordController {
     MimeMessage msg = new MimeMessage(mailSession);
     msg.setFrom(new InternetAddress("no-reply@linux.org.ru"));
 
-    String resetCode = getResetCode(tmpl.getSecret(), user.getNick(), email, resetDate);
+    String resetCode = getResetCode(configuration.getSecret(), user.getNick(), email, resetDate);
 
     msg.addRecipient(MimeMessage.RecipientType.TO, new InternetAddress(email));
     msg.setSubject("Your password @linux.org.ru");

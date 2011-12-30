@@ -22,6 +22,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.stereotype.Repository;
 import ru.org.linux.section.Section;
+import ru.org.linux.spring.Configuration;
 import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.ImageInfo;
 
@@ -38,7 +39,7 @@ public class GalleryDao {
   private SimpleJdbcTemplate template;
 
   @Autowired
-  private Properties properties;
+  private Configuration configuration;
 
   public SimpleJdbcTemplate getTemplate() {
     return template;
@@ -74,7 +75,7 @@ public class GalleryDao {
           item.setStat(rs.getInt("stat1"));
           item.setLink(Section.getSectionLink(Section.SECTION_GALLERY) + rs.getString("urlname") + '/' + rs.getInt("msgid"));
 
-          String htmlPath = properties.getProperty("HTMLPathPrefix");
+          String htmlPath = configuration.getHTMLPathPrefix();
           item.setHtmlPath(htmlPath);
           try {
             item.setInfo(new ImageInfo(htmlPath + item.getIcon()));

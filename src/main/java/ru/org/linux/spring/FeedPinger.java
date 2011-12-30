@@ -27,15 +27,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.ApplicationObjectSupport;
 import org.springframework.stereotype.Service;
 
-import ru.org.linux.site.Template;
-
 @Service
 public class FeedPinger extends ApplicationObjectSupport {
   @Autowired(required = true)
-  private Properties properties;
-
-  @Autowired(required = true)
   private XmlRpcClientConfigImpl config;
+
+  @Autowired
+  private Configuration configuration;
 
   public void pingFeedburner() {
     try {
@@ -45,7 +43,7 @@ public class FeedPinger extends ApplicationObjectSupport {
 
       client.setConfig(config);
 
-      Object[] params = {"Linux.org.ru", properties.getProperty(Template.PROPERTY_MAIN_URL)};
+      Object[] params = {"Linux.org.ru", configuration.getMainUrl()};
 
       Map r = (Map) client.execute("weblogUpdates.ping", params);
 
@@ -59,10 +57,6 @@ public class FeedPinger extends ApplicationObjectSupport {
     } catch (XmlRpcException e) {
       logger.warn("Feedburner ping failed", e);
     }
-  }
-
-  public void setProperties(Properties properties) {
-    this.properties = properties;
   }
 
   public void setConfig(XmlRpcClientConfigImpl config) {

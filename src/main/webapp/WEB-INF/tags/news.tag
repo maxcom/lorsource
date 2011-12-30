@@ -117,7 +117,7 @@
   <a href="${group.url}">
   <%
     try {
-      ImageInfo info = new ImageInfo(tmpl.getConfig().getProperty("HTMLPathPrefix") + tmpl.getStyle() + image);
+      ImageInfo info = new ImageInfo(tmpl.getConfig().getHTMLPathPrefix() + tmpl.getStyle() + image);
       out.append("<img src=\"/").append(tmpl.getStyle()).append(image).append("\" ").append(info.getCode()).append(" border=0 alt=\"Группа ").append(group.getTitle()).append("\">");
     } catch (IOException e) {
 //      NewsViewer.logger.warn("Bad Image for group "+ message.getGroupId(), e);
@@ -135,7 +135,7 @@
 <div class=msg>
   <c:if test="${preparedMessage.section.imagepost}">
     <%
-      out.append(NewsViewer.showMediumImage(tmpl.getConfig().getProperty("HTMLPathPrefix"), message, true));
+      out.append(NewsViewer.showMediumImage(tmpl.getConfig().getHTMLPathPrefix(), message, true));
     %>
   </c:if>
   
@@ -148,7 +148,7 @@
 
     out.append("<p>&gt;&gt;&gt; <a href=\"").append(StringUtil.escapeHtml(url)).append("\">").append(message.getLinktext()).append("</a>");
   } else if (imagepost) {
-    String imageFilename = tmpl.getConfig().getProperty("HTMLPathPrefix") + url;
+    String imageFilename = tmpl.getConfig().getHTMLPathPrefix() + url;
     out.append("<p>&gt;&gt;&gt; <a href=\"/").append(url).append("\">Просмотр</a>");
     try {
       ImageInfo info = new ImageInfo(imageFilename, ImageInfo.detectImageType(new File(imageFilename)));

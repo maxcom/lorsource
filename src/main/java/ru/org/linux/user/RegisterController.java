@@ -30,6 +30,7 @@ import ru.org.linux.auth.CaptchaService;
 import ru.org.linux.auth.IPBlockDao;
 import ru.org.linux.auth.IPBlockInfo;
 import ru.org.linux.site.Template;
+import ru.org.linux.spring.Configuration;
 import ru.org.linux.util.ExceptionBindingErrorProcessor;
 import ru.org.linux.util.LorHttpUtils;
 import ru.org.linux.util.StringUtil;
@@ -55,6 +56,9 @@ public class RegisterController extends ApplicationObjectSupport {
 
   @Autowired
   private UserDao userDao;
+
+  @Autowired
+  private Configuration configuration;
 
   @Autowired
   public void setCaptcha(CaptchaService captcha) {
@@ -229,7 +233,7 @@ public class RegisterController extends ApplicationObjectSupport {
         );
 
         if (emailChanged) {
-          sendEmail(tmpl, user.getNick(), mail.getAddress(), false);
+          sendEmail(user.getNick(), mail.getAddress(), false);
         }
       } else {
         return new ModelAndView("register-update");
@@ -254,7 +258,7 @@ public class RegisterController extends ApplicationObjectSupport {
         String logmessage = "Зарегистрирован пользователь " + nick + " (id=" + userid + ") " + LorHttpUtils.getRequestIP(request);
         logger.info(logmessage);
 
-        sendEmail(tmpl, nick, mail.getAddress(), true);
+        sendEmail(nick, mail.getAddress(), true);
       } else {
         return new ModelAndView("register");
       }
@@ -273,7 +277,7 @@ public class RegisterController extends ApplicationObjectSupport {
     }
   }
 
-  private static void sendEmail(Template tmpl, String nick, String email, boolean isNew) throws MessagingException {
+  private void sendEmail(String nick, String email, boolean isNew) throws MessagingException {
     StringBuilder text = new StringBuilder();
 
     text.append("Здравствуйте!\n\n");
@@ -297,7 +301,7 @@ public class RegisterController extends ApplicationObjectSupport {
       text.append("то вам следует подтвердить свое изменение.\n\n");
     }
 
-    String regcode = User.getActivationCode(tmpl.getSecret(), nick, email);
+    String regcode = User.getActivationCode(configuration.getSecret(), nick, email);
 
     text.append("Для активации перейдите по ссылке http://www.linux.org.ru/activate.jsp\n\n");
     text.append("Код активации: ").append(regcode).append("\n\n");
@@ -342,7 +346,7 @@ public class RegisterController extends ApplicationObjectSupport {
       throw new AccessViolationException("new_email == null?!");
     }
 
-    String regcode = user.getActivationCode(tmpl.getSecret(), newEmail);
+    String regcode = user.getActivationCode(configuration.getSecret(), newEmail);
 
     if (!regcode.equals(activation)) {
       throw new AccessViolationException("Bad activation code");

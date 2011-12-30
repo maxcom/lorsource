@@ -101,7 +101,7 @@
   }
 
   if (message.getUrl() != null && preparedMessage.getSection().isImagepost()) {
-    out.append(NewsViewer.showMediumImage(tmpl.getObjectConfig().getHTMLPathPrefix(), message, true));
+    out.append(NewsViewer.showMediumImage(tmpl.getConfig().getHTMLPathPrefix(), message, true));
   }
 %>
 <c:if test="${preparedMessage.section.premoderated and not empty preparedMessage.tags}">

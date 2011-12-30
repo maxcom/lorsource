@@ -18,7 +18,9 @@ package ru.org.linux.site;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import ru.org.linux.auth.AccessViolationException;
-import ru.org.linux.site.config.PathConfig;
+import ru.org.linux.spring.Configuration;
+import ru.org.linux.storage.FileStorage;
+import ru.org.linux.storage.Storage;
 import ru.org.linux.user.*;
 import ru.org.linux.storage.StorageException;
 import ru.org.linux.storage.StorageNotFoundException;
@@ -40,7 +42,7 @@ public final class Template {
 
   private final Properties cookies;
   private final Profile userProfile;
-  private final Config config;
+  private final Configuration configuration;
   private final HttpSession session;
 
   private final UserDao userDao;
@@ -48,20 +50,23 @@ public final class Template {
   private User currentUser = null;
 
   public final DateFormat dateFormat = DateFormats.createDefault();
-  public static final String PROPERTY_MAIN_URL = "MainUrl";
 
-  public String getSecret() {
-    return config.getProperties().getProperty("Secret");
-  }
+  private final Storage storage;
 
-  public Template(HttpServletRequest request, Properties properties, HttpServletResponse response, UserDao userDao)
-      throws ClassNotFoundException, IOException, StorageException {
+  public Template(
+          HttpServletRequest request,
+          HttpServletResponse response,
+          UserDao userDao,
+          Configuration configuration
+  )
+      throws IOException, StorageException {
     request.setCharacterEncoding("utf-8"); // блядский tomcat
 
     this.userDao = userDao;
 
-    // TODO use better initialization
-    config = new Config(properties);
+    this.configuration = configuration;
+
+    storage = new FileStorage(configuration.getPathPrefix() + "linux-storage/");
 
     // read profiles
     cookies = LorHttpUtils.getCookies(request.getCookies());
@@ -80,7 +85,7 @@ public final class Template {
         try {
           User user = userDao.getUser(profileCookie);
 
-          if (user.getMD5(getSecret()).equals(getCookie("password")) && !user.isBlocked()) {
+          if (user.getMD5(configuration.getSecret()).equals(getCookie("password")) && !user.isBlocked()) {
             performLogin(response, user);
           }
         } catch (UserNotFoundException ex) {
@@ -97,6 +102,8 @@ public final class Template {
       } catch (IOException e) {
         logger.info("Bad profile for user "+getNick(), e);
       } catch (StorageNotFoundException e) {
+      } catch (ClassNotFoundException e) {
+        logger.info("Bad profile for user "+getNick(), e);
       }
     }
 
@@ -113,10 +120,6 @@ public final class Template {
     currentUser = user;
   }
 
-  public Properties getConfig() {
-    return config.getProperties();
-  }
-
   public String getProfileName() {
     return getNick();
   }
@@ -124,7 +127,7 @@ public final class Template {
   private Profile readProfile() throws ClassNotFoundException, IOException, StorageException {
     InputStream df = null;
     try {
-      df = config.getStorage().getReadStream("profile", getNick());
+      df = storage.getReadStream("profile", getNick());
 
       return new Profile(df);
     } finally {
@@ -149,7 +152,7 @@ public final class Template {
 
     OutputStream df = null;
     try {
-      df = config.getStorage().getWriteStream("profile", name);
+      df = storage.getWriteStream("profile", name);
       userProfile.write(df);
     } finally {
       if (df!=null) {
@@ -184,19 +187,19 @@ public final class Template {
   }
 
   public String getMainUrl() {
-    return config.getProperties().getProperty(PROPERTY_MAIN_URL);
+    return configuration.getMainUrl();
   }
 
   public String getMainUrlNoSlash() {
-    return config.getProperties().getProperty(PROPERTY_MAIN_URL).replaceFirst("/$","");
+    return configuration.getMainUrl().replaceFirst("/$", "");
   }
 
   public String getSecureMainUrl() {
-    return config.getProperties().getProperty(PROPERTY_MAIN_URL).replaceFirst("http", "https");
+    return configuration.getMainUrl().replaceFirst("http", "https");
   }
 
-  public PathConfig getObjectConfig() {
-    return config;
+  public Configuration getConfig() {
+    return configuration;
   }
 
   public boolean isSessionAuthorized() {

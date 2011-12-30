@@ -43,6 +43,7 @@ import ru.org.linux.poll.PollDao;
 import ru.org.linux.poll.PollNotFoundException;
 import ru.org.linux.poll.PollVariant;
 import ru.org.linux.site.*;
+import ru.org.linux.spring.Configuration;
 import ru.org.linux.user.*;
 import ru.org.linux.util.LorHttpUtils;
 
@@ -77,6 +78,9 @@ public class TopicDao {
 
   @Autowired
   private SectionService sectionService;
+
+  @Autowired
+  private Configuration configuration;
 
   /**
    * Запрос получения полной информации о топике
@@ -277,8 +281,8 @@ public class TopicDao {
 
   /**
    *
+   *
    * @param msg
-   * @param tmpl
    * @param request
    * @param scrn
    * @param user
@@ -287,8 +291,7 @@ public class TopicDao {
    * @throws ScriptErrorException
    */
 // call in @Transactional environment
-  public int saveNewMessage(final Topic msg, Template tmpl, final HttpServletRequest request, Screenshot scrn, final User user) throws  IOException,  ScriptErrorException {
-
+  public int saveNewMessage(final Topic msg, final HttpServletRequest request, Screenshot scrn, final User user) throws  IOException,  ScriptErrorException {
     final Group group = groupDao.getGroup(msg.getGroupId());
 
     final int msgid = allocateMsgid();
@@ -301,7 +304,7 @@ public class TopicDao {
         throw new ScriptErrorException("scrn==null!?");
       }
 
-      Screenshot screenShot = scrn.moveTo(tmpl.getObjectConfig().getHTMLPathPrefix() + "/gallery", Integer.toString(msgid));
+      Screenshot screenShot = scrn.moveTo(configuration.getHTMLPathPrefix() + "/gallery", Integer.toString(msgid));
 
       url = "gallery/" + screenShot.getMainFile().getName();
       linktext = "gallery/" + screenShot.getIconFile().getName();
@@ -345,7 +348,6 @@ public class TopicDao {
   public int addMessage(HttpServletRequest request, AddTopicRequest form, Template tmpl, Group group, User user, Screenshot scrn, Topic previewMsg, Set<User> userRefs) throws IOException, ScriptErrorException, UserErrorException {
     final int msgid = saveNewMessage(
             previewMsg,
-            tmpl,
             request,
             scrn,
             user

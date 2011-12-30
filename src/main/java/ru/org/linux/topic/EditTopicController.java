@@ -368,10 +368,6 @@ public class EditTopicController {
     return new ModelAndView("edit", params);
   }
 
-  public void setCommitController(FeedPinger feedPinger) {
-    this.feedPinger = feedPinger;
-  }
-
   @InitBinder("form")
   public void requestValidator(WebDataBinder binder) {
     binder.setValidator(new EditTopicRequestValidator());

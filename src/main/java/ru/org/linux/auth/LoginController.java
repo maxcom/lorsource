@@ -24,6 +24,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.site.Template;
 import ru.org.linux.site.BadInputException;
+import ru.org.linux.spring.Configuration;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.util.StringUtil;
@@ -40,6 +41,9 @@ public class LoginController {
 
   @Autowired
   private UserDao userDao;
+
+  @Autowired
+  private Configuration configuration;
 
   private static boolean isAjax(HttpServletRequest request) {
     String header = request.getHeader("X-Requested-With");
@@ -82,7 +86,7 @@ public class LoginController {
         return new ModelAndView(ajax ? "login-xml" : "login-form", Collections.singletonMap("error", "Требуется активация"));
       }
 
-      String regcode = user.getActivationCode(tmpl.getSecret());
+      String regcode = user.getActivationCode(configuration.getSecret());
 
       if (regcode.equals(activation)) {
         userDao.activateUser(user);
@@ -103,7 +107,7 @@ public class LoginController {
       throw new BadInputException("не удалось открыть сессию; возможно отсутствует поддержка Cookie");
     }
 
-    createCookies(response, tmpl, session, user);
+    createCookies(response, session, user);
 
     tmpl.performLogin(response, user);
 
@@ -157,8 +161,8 @@ public class LoginController {
     return new ModelAndView(new RedirectView("/"));
   }
 
-  private static void createCookies(HttpServletResponse response, Template tmpl, HttpSession session, User user) {
-    Cookie cookie = new Cookie("password", user.getMD5(tmpl.getSecret()));
+  private void createCookies(HttpServletResponse response, HttpSession session, User user) {
+    Cookie cookie = new Cookie("password", user.getMD5(configuration.getSecret()));
     cookie.setMaxAge(60 * 60 * 24 * 31 * 24);
     cookie.setPath("/");
     response.addCookie(cookie);

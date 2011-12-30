@@ -27,6 +27,7 @@ import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.site.Template;
 import ru.org.linux.site.*;
+import ru.org.linux.spring.Configuration;
 import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.ImageInfo;
 
@@ -40,6 +41,9 @@ import java.util.Random;
 public class AddPhotoController extends ApplicationObjectSupport {
   @Autowired
   private UserDao userDao;
+
+  @Autowired
+  private Configuration configuration;
 
   @RequestMapping(value = "/addphoto.jsp", method = RequestMethod.GET)
   public ModelAndView showForm(ServletRequest request) throws Exception {
@@ -65,7 +69,7 @@ public class AddPhotoController extends ApplicationObjectSupport {
     }
 
     try {
-      File uploadedFile = File.createTempFile("userpic", "", new File(tmpl.getObjectConfig().getPathPrefix() + "/linux-storage/tmp/"));
+      File uploadedFile = File.createTempFile("userpic", "", new File(configuration.getPathPrefix() + "/linux-storage/tmp/"));
 
       file.transferTo(uploadedFile);
 
@@ -82,7 +86,7 @@ public class AddPhotoController extends ApplicationObjectSupport {
 
       do {
         photoname = Integer.toString(user.getId()) + ':' + random.nextInt() + '.' + extension;
-        photofile = new File(tmpl.getObjectConfig().getHTMLPathPrefix() + "/photos", photoname);
+        photofile = new File(configuration.getHTMLPathPrefix() + "/photos", photoname);
       } while (photofile.exists());
 
       if (!uploadedFile.renameTo(photofile)) {

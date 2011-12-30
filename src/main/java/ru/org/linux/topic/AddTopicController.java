@@ -38,6 +38,7 @@ import ru.org.linux.group.GroupDao;
 import ru.org.linux.search.SearchQueueSender;
 import ru.org.linux.section.Section;
 import ru.org.linux.site.*;
+import ru.org.linux.spring.Configuration;
 import ru.org.linux.user.UserPropertyEditor;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
@@ -67,6 +68,7 @@ public class AddTopicController extends ApplicationObjectSupport {
   private GroupDao groupDao;
   @Autowired
   private SectionService sectionService;
+
   private TagDao tagDao;
   private UserDao userDao;
 
@@ -78,6 +80,9 @@ public class AddTopicController extends ApplicationObjectSupport {
 
   @Autowired
   private LorCodeService lorCodeService;
+
+  @Autowired
+  private Configuration configuration;
 
   public static final int MAX_MESSAGE_LENGTH_ANONYMOUS = 4096;
   public static final int MAX_MESSAGE_LENGTH = 16384;
@@ -179,7 +184,7 @@ public class AddTopicController extends ApplicationObjectSupport {
     Template tmpl = Template.getTemplate(request);
     HttpSession session = request.getSession();
 
-    String image = processUploadImage(request, tmpl);
+    String image = processUploadImage(request);
 
     Group group = form.getGroup();
     params.put("group", group);
@@ -238,7 +243,7 @@ public class AddTopicController extends ApplicationObjectSupport {
     Screenshot scrn = null;
 
     if (group!=null && group.isImagePostAllowed()) {
-      scrn = processUpload(session, tmpl, image, errors);
+      scrn = processUpload(session, image, errors);
 
       if (scrn!=null) {
         form.setLinktext("gallery/preview/" + scrn.getIconFile().getName());
@@ -354,15 +359,14 @@ public class AddTopicController extends ApplicationObjectSupport {
 
   /**
    *
+   *
    * @param session
-   * @param tmpl
    * @return <icon, image, previewImagePath> or null
    * @throws IOException
    * @throws UtilException
    */
   private Screenshot processUpload(
           HttpSession session,
-          Template tmpl,
           String image,
           Errors errors
   ) throws IOException, UtilException {
@@ -379,7 +383,7 @@ public class AddTopicController extends ApplicationObjectSupport {
         screenShot = Screenshot.createScreenshot(
                 uploadedFile,
                 errors,
-                tmpl.getObjectConfig().getHTMLPathPrefix() + "/gallery/preview"
+                configuration.getHTMLPathPrefix() + "/gallery/preview"
         );
 
         if (screenShot != null) {
@@ -401,11 +405,11 @@ public class AddTopicController extends ApplicationObjectSupport {
     return screenShot;
   }
 
-  private String processUploadImage(HttpServletRequest request, Template tmpl) throws IOException, ScriptErrorException {
+  private String processUploadImage(HttpServletRequest request) throws IOException, ScriptErrorException {
     if (request instanceof MultipartHttpServletRequest) {
       MultipartFile multipartFile = ((MultipartRequest) request).getFile("image");
       if (multipartFile != null && !multipartFile.isEmpty()) {
-        File uploadedFile = File.createTempFile("preview", "", new File(tmpl.getObjectConfig().getPathPrefix() + "/linux-storage/tmp/"));
+        File uploadedFile = File.createTempFile("preview", "", new File(configuration.getPathPrefix() + "/linux-storage/tmp/"));
         String image = uploadedFile.getPath();
         if ((uploadedFile.canWrite() || uploadedFile.createNewFile())) {
           try {

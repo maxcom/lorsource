@@ -19,21 +19,21 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
+import ru.org.linux.spring.Configuration;
 import ru.org.linux.user.UserDao;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Properties;
 
 public class TemplateFilter implements Filter {
   private static final Log logger = LogFactory.getLog(TemplateFilter.class);
 
   private FilterConfig filterConfig;
 
-  private Properties properties;
   private UserDao userDao;
+  private Configuration configuration;
 
   @Override
   public void init(FilterConfig filterConfig) throws ServletException {
@@ -41,10 +41,10 @@ public class TemplateFilter implements Filter {
 
     WebApplicationContext ctx = WebApplicationContextUtils.getWebApplicationContext(filterConfig.getServletContext());
 
-    properties = (Properties) ctx.getBean("properties");
-    userDao = (UserDao) ctx.getBean("userDao");
+    userDao = ctx.getBean("userDao", UserDao.class);
+    configuration = ctx.getBean(Configuration.class);
 
-    MemCachedSettings.setMainUrl(properties.getProperty("MainUrl"));
+    MemCachedSettings.setMainUrl(configuration.getMainUrl());
   }
 
   @Override
@@ -56,9 +56,9 @@ public class TemplateFilter implements Filter {
     try {
       Template tmpl = new Template(
               (HttpServletRequest) servletRequest,
-              properties,
               (HttpServletResponse) servletResponse,
-              userDao
+              userDao,
+              configuration
       );
 
       servletRequest.setAttribute("template", tmpl);

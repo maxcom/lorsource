@@ -24,7 +24,7 @@
 
   if (author.getPhoto() != null) {
     try {
-      ImageInfo info = new ImageInfo(tmpl.getObjectConfig().getHTMLPathPrefix() + "/photos/" + author.getPhoto());
+      ImageInfo info = new ImageInfo(tmpl.getConfig().getHTMLPathPrefix() + "/photos/" + author.getPhoto());
 
       out.append("<img class=\"photo\" src=\"/photos/").append(author.getPhoto()).append("\" alt=\"").append(author.getNick()).append(" (фотография)\" ").append(info.getCode()).append(" >");
     } catch (BadImageException e) {

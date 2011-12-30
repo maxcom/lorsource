@@ -29,6 +29,7 @@ import java.util.Properties;
 @Service
 public class Configuration {
   private static final String ERR_MSG = "Invalid MainUrl property: ";
+  public static final String PROPERTY_MAIN_URL = "MainUrl";
 
   @Qualifier("properties")
   @Autowired
@@ -43,7 +44,6 @@ public class Configuration {
    */
   @PostConstruct
   public void init() {
-
     try {
       mainURI = new URI(properties.getProperty("MainUrl"), true, "UTF-8");
     } catch (Exception e) {
@@ -77,5 +77,17 @@ public class Configuration {
     } catch (Exception e) {
       return false;
     }
+  }
+
+  public String getPathPrefix() {
+    return properties.getProperty("PathPrefix");
+  }
+
+  public String getHTMLPathPrefix() {
+    return properties.getProperty("HTMLPathPrefix");
+  }
+
+  public String getSecret() {
+    return properties.getProperty("Secret");
   }
 }

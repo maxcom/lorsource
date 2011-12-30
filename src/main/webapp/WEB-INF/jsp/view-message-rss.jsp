@@ -33,7 +33,7 @@
 <title>Linux.org.ru: ${message.title}</title>
   <description><![CDATA[<%
     out.print(TopicRssHelper.getTopicRss(
-            tmpl.getConfig().getProperty("HTMLPathPrefix"),
+            tmpl.getConfig().getHTMLPathPrefix(),
             (PreparedTopic) request.getAttribute("preparedMessage")));
 %>]]>
   </description>
