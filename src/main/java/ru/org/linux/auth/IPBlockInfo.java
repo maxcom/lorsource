@@ -60,13 +60,6 @@ public class IPBlockInfo {
     return isInitialized() && (banDate == null || banDate.after(new Date()));
   }
 
-  @Deprecated
-  public void checkBlock() throws AccessViolationException {
-    if (isBlocked()) {
-      throw new AccessViolationException("Постинг заблокирован: "+reason);
-    }
-  }
-
   public Timestamp getOriginalDate() {
     return originalDate;
   }
@@ -92,7 +85,6 @@ public class IPBlockInfo {
   }
 
   public boolean isCaptchaRequired() {
-    return isAllowPosting() && captchaRequired;
+    return isBlocked() && allowPosting && captchaRequired;
   }
-
 }
