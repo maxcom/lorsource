@@ -28,115 +28,69 @@ import java.util.Map;
 public class Section implements Serializable {
   private static final long serialVersionUID = -2259350244006777910L;
 
-  private int id;
-  private String title;
-  private boolean imagepost;
-  private boolean premoderated;
-  private boolean votePoll;
-  private String name;
-  private String link;
-  private String feedLink;
-  private int minCommentScore;
+  private final int id;
+  private final String title;
+  private final boolean imagepost;
+  private final boolean premoderated;
+  private final boolean votePoll;
+  private final String name;
+  private final String link;
+  private final String feedLink;
+  private final int minCommentScore;
 
   private SectionScrollModeEnum scrollMode;
 
-  public Section() {
-  }
-
-  public String getTitle() {
-    return title;
-  }
-
-  public void setTitle(String title) {
-    this.title = title;
-  }
-
-  public boolean isImagepost() {
-    return imagepost;
-  }
-
-  public void setImagepost(boolean imagepost) {
-    this.imagepost = imagepost;
-  }
-
-  public boolean isPremoderated() {
-    return premoderated;
-  }
-
-  public void setPremoderated(boolean premoderated) {
-    this.premoderated = premoderated;
+  public Section(SectionDto sectionDto) {
+    this.id = sectionDto.getId();
+    this.title = sectionDto.getTitle();
+    this.imagepost = sectionDto.isImagePost();
+    this.premoderated = sectionDto.isPremoderated();
+    this.votePoll = sectionDto.isVotePoll();
+    this.scrollMode = SectionScrollModeEnum.valueOf(sectionDto.getScrollMode());
+    this.name = sectionDto.getName();
+    this.link = sectionDto.getLink();
+    this.feedLink = sectionDto.getFeedLink();
+    this.minCommentScore = sectionDto.getMinCommentScore();
   }
 
   public int getId() {
     return id;
   }
 
-  public void setId(int id) {
-    this.id = id;
+  public String getTitle() {
+    return title;
+  }
+
+  public boolean isImagepost() {
+    return imagepost;
+  }
+
+  public boolean isPremoderated() {
+    return premoderated;
   }
 
   public boolean isVotePoll() {
     return votePoll;
   }
 
-  public void setVotePoll(boolean votePoll) {
-    this.votePoll = votePoll;
-  }
-
-  public SectionScrollModeEnum getScrollMode() {
-    return scrollMode;
-  }
-
-  public void setScrollMode(SectionScrollModeEnum scrollMode) {
-    this.scrollMode = scrollMode;
-  }
-
   public String getName() {
     return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
   }
 
   public String getLink() {
     return link;
   }
 
-  public void setLink(String link) {
-    this.link = link;
-  }
-
   public String getFeedLink() {
     return feedLink;
-  }
-
-  public void setFeedLink(String feedLink) {
-    this.feedLink = feedLink;
   }
 
   public int getMinCommentScore() {
     return minCommentScore;
   }
 
-  public void setMinCommentScore(int minCommentScore) {
-    this.minCommentScore = minCommentScore;
-  }
-
-  public static Section fromSectionDto(SectionDto sectionDto) {
-    Section section = new Section();
-
-    section.setId(sectionDto.getId());
-    section.setTitle(sectionDto.getTitle());
-    section.setImagepost(sectionDto.isImagePost());
-    section.setPremoderated(sectionDto.isPremoderated());
-    section.setVotePoll(sectionDto.isVotePoll());
-    section.setScrollMode(SectionScrollModeEnum.valueOf(sectionDto.getScrollMode()));
-    section.setName(sectionDto.getName());
-    section.setLink(sectionDto.getLink());
-    section.setFeedLink(sectionDto.getFeedLink());
-    section.setMinCommentScore(sectionDto.getMinCommentScore());
-    return section;
+  public SectionScrollModeEnum getScrollMode() {
+    return scrollMode;
   }
 
   public boolean isForum() {

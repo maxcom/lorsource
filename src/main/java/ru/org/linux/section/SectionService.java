@@ -38,7 +38,7 @@ public class SectionService {
     ImmutableList.Builder<Section> sectionListBuilder = ImmutableList.builder();
     List<SectionDto> sectionDtoList = sectionDao.getAllSections();
     for (SectionDto sectionDto: sectionDtoList) {
-      Section section = Section.fromSectionDto(sectionDto);
+      Section section = new Section(sectionDto);
       sectionListBuilder.add(section);
     }
     sectionList = sectionListBuilder.build();
