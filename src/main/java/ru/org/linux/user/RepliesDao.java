@@ -69,7 +69,7 @@ public class RepliesDao {
 
   private static final String queryAllRepliesForUser =
       "SELECT event_date, " +
-          " topics.title as subj, sections.name, groups.title as gtitle, " +
+          " topics.title as subj, sections.title, groups.title as gtitle, " +
           " lastmod, topics.id as msgid, " +
           " comments.id AS cid, " +
           " comments.postdate AS cDate, " +
@@ -90,7 +90,7 @@ public class RepliesDao {
 
   private static final String queryRepliesForUserWihoutPrivate =
       "SELECT event_date, " +
-          " topics.title as subj, sections.name, groups.title as gtitle, " +
+          " topics.title as subj, sections.title, groups.title as gtitle, " +
           " lastmod, topics.id as msgid, " +
           " comments.id AS cid, " +
           " comments.postdate AS cDate, " +

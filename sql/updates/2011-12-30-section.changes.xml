@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog/1.9"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog/1.9
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-1.9.xsd">
+
+  <changeSet id="2011123001" author="Slava Zanko">
+    <renameColumn
+        tableName="sections"
+        oldColumnName="name" newColumnName="title"/>
+  </changeSet>
+
+  <changeSet id="2011123002" author="Slava Zanko">
+    <addColumn tableName="sections">
+      <column name="name" type="varchar(255)"/>
+    </addColumn>
+
+    <addColumn tableName="sections">
+      <column name="link" type="varchar(255)"/>
+    </addColumn>
+
+    <addColumn tableName="sections">
+      <column name="feed_link" type="varchar(255)"/>
+    </addColumn>
+
+    <addColumn tableName="sections">
+      <column name="min_comment_score" type="integer"/>
+    </addColumn>
+
+    <addNotNullConstraint
+        tableName="sections"
+        columnName="name"
+        defaultNullValue="" />
+    <addNotNullConstraint
+        tableName="sections"
+        columnName="link"
+        defaultNullValue="" />
+    <addNotNullConstraint
+        tableName="sections"
+        columnName="feed_link"
+        defaultNullValue="" />
+    <addNotNullConstraint
+        tableName="sections"
+        columnName="min_comment_score"
+        defaultNullValue="-9999" />
+
+  </changeSet>
+
+  <changeSet id="2011123003" author="Slava Zanko">
+    <update tableName="sections">
+      <column name="name" value="news"/>
+      <column name="link" value="/news/"/>
+      <column name="feed_link" value="/news/"/>
+      <where>id=1</where>
+    </update>
+
+    <update tableName="sections">
+      <column name="name" value="forum"/>
+      <column name="link" value="/forum/"/>
+      <column name="feed_link" value="/forum/lenta/"/>
+      <where>id=2</where>
+    </update>
+
+    <update tableName="sections">
+      <column name="name" value="gallery"/>
+      <column name="link" value="/gallery/"/>
+      <column name="feed_link" value="/gallery/"/>
+      <where>id=3</where>
+    </update>
+
+    <update tableName="sections">
+      <column name="name" value="polls"/>
+      <column name="link" value="/polls/"/>
+      <column name="feed_link" value="/polls/"/>
+      <where>id=5</where>
+    </update>
+
+    <update tableName="sections">
+      <column name="min_comment_score" value="50"/>
+    </update>
+
+    <update tableName="sections">
+      <column name="min_comment_score" value="-9999"/>
+      <where>id in (1,2)</where>
+    </update>
+
+  </changeSet>
+
+</databaseChangeLog>

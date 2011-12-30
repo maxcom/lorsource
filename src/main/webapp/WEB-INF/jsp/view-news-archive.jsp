@@ -23,7 +23,7 @@
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 <title>
-${section.name}
+${section.title}
   <c:if test="${group!=null}">
     - ${group.title}
   </c:if>
@@ -31,7 +31,7 @@ ${section.name}
 </title>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 <H1>
-${section.name}
+${section.title}
   <c:if test="${group!=null}">
     - ${group.title}
   </c:if>

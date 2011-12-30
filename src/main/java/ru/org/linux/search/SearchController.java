@@ -208,7 +208,7 @@ public class SearchController {
     for (FacetField.Count count : sectionFacet.getValues()) {
       int sectionId = Integer.parseInt(count.getName());
 
-      String name = sectionService.getSection(sectionId).getName().toLowerCase();
+      String name = sectionService.getSection(sectionId).getTitle().toLowerCase();
 
       builder.put(sectionId, name + " (" + count.getCount() + ')');
 

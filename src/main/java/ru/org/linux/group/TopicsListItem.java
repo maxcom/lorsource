@@ -40,7 +40,7 @@ public class TopicsListItem implements Serializable {
   
   private static final long serialVersionUID = 5344250574674257995L;
 
-  // SELECT topics.title as subj, sections.name, lastmod, topics.id as msgid, topics.deleted, topics.stat1, topics.stat3, topics.stat4, topics.sticky, userid
+  // SELECT topics.title as subj, sections.title, lastmod, topics.id as msgid, topics.deleted, topics.stat1, topics.stat3, topics.stat4, topics.sticky, userid
   public TopicsListItem(UserDao userDao, SqlRowSet rs, int messagesInPage) {
     subj = StringUtil.makeTitle(rs.getString("subj"));
 

@@ -29,47 +29,83 @@ public class SectionDaoIntegrationTest {
   @Autowired
   SectionDao sectionDao;
 
-  private Section getSectionById(List<Section> sectionList, int id) {
-    for (Section section: sectionList) {
+  private SectionDto  getSectionById(List<SectionDto> sectionList, int id) {
+    for (SectionDto section: sectionList) {
       if (section.getId() == id) {
         return section;
       }
     }
     return null;
   }
+
   @Test
   public void sectionsTest()
       throws Exception {
 
-    List<Section> sectionList = sectionDao.getAllSections();
+    List<SectionDto> sectionList = sectionDao.getAllSections();
     Assert.assertEquals(4, sectionList.size());
 
     String addInfo = sectionDao.getAddInfo(sectionList.get(0).getId());
     Assert.assertNotNull(addInfo);
   }
+
   @Test
   public void sectionsScrollModeTest()
     throws Exception {
 
-    List<Section> sectionList = sectionDao.getAllSections();
+    List<SectionDto> sectionList = sectionDao.getAllSections();
 
-    Section section;
+    SectionDto section;
     section = getSectionById(sectionList, 1);
     Assert.assertNotNull(section);
-    Assert.assertEquals(SectionScrollModeEnum.SECTION, section.getScrollMode());
+    Assert.assertEquals(SectionScrollModeEnum.SECTION.toString(), section.getScrollMode());
 
     section = getSectionById(sectionList, 2);
     Assert.assertNotNull(section);
-    Assert.assertEquals(SectionScrollModeEnum.GROUP, section.getScrollMode());
+    Assert.assertEquals(SectionScrollModeEnum.GROUP.toString(), section.getScrollMode());
 
     section = getSectionById(sectionList, 3);
     Assert.assertNotNull(section);
-    Assert.assertEquals(SectionScrollModeEnum.SECTION, section.getScrollMode());
+    Assert.assertEquals(SectionScrollModeEnum.SECTION.toString(), section.getScrollMode());
 
     section = getSectionById(sectionList, 5);
     Assert.assertNotNull(section);
-    Assert.assertEquals(SectionScrollModeEnum.SECTION, section.getScrollMode());
-
+    Assert.assertEquals(SectionScrollModeEnum.SECTION.toString(), section.getScrollMode());
   }
 
+  @Test
+  public void extendedSectionsTest()
+    throws Exception {
+
+    List<SectionDto> sectionList = sectionDao.getAllSections();
+
+    SectionDto section;
+    section = getSectionById(sectionList, 1);
+    Assert.assertEquals("Новости", section.getTitle());
+    Assert.assertEquals("news", section.getName());
+    Assert.assertEquals("/news/", section.getLink());
+    Assert.assertEquals("/news/", section.getFeedLink());
+    Assert.assertEquals(-9999, section.getMinCommentScore());
+
+    section = getSectionById(sectionList, 2);
+    Assert.assertEquals("Форум", section.getTitle());
+    Assert.assertEquals("forum", section.getName());
+    Assert.assertEquals("/forum/", section.getLink());
+    Assert.assertEquals("/forum/lenta/", section.getFeedLink());
+    Assert.assertEquals(-9999, section.getMinCommentScore());
+
+    section = getSectionById(sectionList, 3);
+    Assert.assertEquals("Галерея", section.getTitle());
+    Assert.assertEquals("gallery", section.getName());
+    Assert.assertEquals("/gallery/", section.getLink());
+    Assert.assertEquals("/gallery/", section.getFeedLink());
+    Assert.assertEquals(50, section.getMinCommentScore());
+
+    section = getSectionById(sectionList, 5);
+    Assert.assertEquals("Голосования", section.getTitle());
+    Assert.assertEquals("polls", section.getName());
+    Assert.assertEquals("/polls/", section.getLink());
+    Assert.assertEquals("/polls/", section.getFeedLink());
+    Assert.assertEquals(50, section.getMinCommentScore());
+  }
 }

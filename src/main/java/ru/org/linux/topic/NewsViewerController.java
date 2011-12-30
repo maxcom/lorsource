@@ -174,20 +174,20 @@ public class NewsViewerController {
 
     String navtitle;
     if (section != null) {
-      navtitle = section.getName();
+      navtitle = section.getTitle();
     } else {
       navtitle = tag;
     }
 
     if (group != null) {
-      navtitle = "<a href=\"" + Section.getNewsViewerLink(group.getSectionId()) + "\">" + section.getName() + "</a> - <strong>" + group.getTitle() + "</strong>";
+      navtitle = "<a href=\"" + Section.getNewsViewerLink(group.getSectionId()) + "\">" + section.getTitle() + "</a> - <strong>" + group.getTitle() + "</strong>";
     }
 
     String ptitle;
 
     if (month == null) {
       if (section != null) {
-        ptitle = section.getName();
+        ptitle = section.getTitle();
         if (group != null) {
           ptitle += " - " + group.getTitle();
         }
@@ -199,7 +199,7 @@ public class NewsViewerController {
         ptitle = tag;
       }
     } else {
-      ptitle = "Архив: " + section.getName();
+      ptitle = "Архив: " + section.getTitle();
 
       if (group != null) {
         ptitle += " - " + group.getTitle();
@@ -457,12 +457,12 @@ public class NewsViewerController {
 
     if (sectionId == 0) {
       deleted = jdbcTemplate.query(
-              "SELECT topics.title as subj, nick, groups.section, groups.title as gtitle, topics.id as msgid, groups.id as guid, sections.name as ptitle, reason FROM topics,groups,users,sections,del_info WHERE sections.id=groups.section AND topics.userid=users.id AND topics.groupid=groups.id AND sections.moderate AND deleted AND del_info.msgid=topics.id AND topics.userid!=del_info.delby AND delDate is not null ORDER BY del_info.delDate DESC LIMIT 20",
+              "SELECT topics.title as subj, nick, groups.section, groups.title as gtitle, topics.id as msgid, groups.id as guid, sections.title as ptitle, reason FROM topics,groups,users,sections,del_info WHERE sections.id=groups.section AND topics.userid=users.id AND topics.groupid=groups.id AND sections.moderate AND deleted AND del_info.msgid=topics.id AND topics.userid!=del_info.delby AND delDate is not null ORDER BY del_info.delDate DESC LIMIT 20",
               mapper
       );
     } else {
       deleted = jdbcTemplate.query(
-              "SELECT topics.title as subj, nick, groups.section, groups.title as gtitle, topics.id as msgid, groups.id as guid, sections.name as ptitle, reason FROM topics,groups,users,sections,del_info WHERE sections.id=groups.section AND topics.userid=users.id AND topics.groupid=groups.id AND sections.moderate AND deleted AND del_info.msgid=topics.id AND topics.userid!=del_info.delby AND delDate is not null AND section=? ORDER BY del_info.delDate DESC LIMIT 20",
+              "SELECT topics.title as subj, nick, groups.section, groups.title as gtitle, topics.id as msgid, groups.id as guid, sections.title as ptitle, reason FROM topics,groups,users,sections,del_info WHERE sections.id=groups.section AND topics.userid=users.id AND topics.groupid=groups.id AND sections.moderate AND deleted AND del_info.msgid=topics.id AND topics.userid!=del_info.delby AND delDate is not null AND section=? ORDER BY del_info.delDate DESC LIMIT 20",
               mapper,
               sectionId
       );
@@ -746,7 +746,7 @@ public class NewsViewerController {
       params.put("group", group);
     }
 
-    String ptitle = section.getName();
+    String ptitle = section.getTitle();
     if (group != null) {
       ptitle += " - " + group.getTitle();
     }

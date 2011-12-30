@@ -22,16 +22,142 @@ import java.sql.*;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Доменный класс для работы с секциями.
+ */
 public class Section implements Serializable {
   private static final long serialVersionUID = -2259350244006777910L;
 
-  private final String name;
-  private final boolean imagepost;
-  private final boolean moderate;
-  private final int id;
-  private final boolean votepoll;
-  
+  private int id;
+  private String title;
+  private boolean imagepost;
+  private boolean premoderated;
+  private boolean votePoll;
+  private String name;
+  private String link;
+  private String feedLink;
+  private int minCommentScore;
+
   private SectionScrollModeEnum scrollMode;
+
+  public Section() {
+  }
+
+  public String getTitle() {
+    return title;
+  }
+
+  public void setTitle(String title) {
+    this.title = title;
+  }
+
+  public boolean isImagepost() {
+    return imagepost;
+  }
+
+  public void setImagepost(boolean imagepost) {
+    this.imagepost = imagepost;
+  }
+
+  public boolean isPremoderated() {
+    return premoderated;
+  }
+
+  public void setPremoderated(boolean premoderated) {
+    this.premoderated = premoderated;
+  }
+
+  public int getId() {
+    return id;
+  }
+
+  public void setId(int id) {
+    this.id = id;
+  }
+
+  public boolean isVotePoll() {
+    return votePoll;
+  }
+
+  public void setVotePoll(boolean votePoll) {
+    this.votePoll = votePoll;
+  }
+
+  public SectionScrollModeEnum getScrollMode() {
+    return scrollMode;
+  }
+
+  public void setScrollMode(SectionScrollModeEnum scrollMode) {
+    this.scrollMode = scrollMode;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public String getLink() {
+    return link;
+  }
+
+  public void setLink(String link) {
+    this.link = link;
+  }
+
+  public String getFeedLink() {
+    return feedLink;
+  }
+
+  public void setFeedLink(String feedLink) {
+    this.feedLink = feedLink;
+  }
+
+  public int getMinCommentScore() {
+    return minCommentScore;
+  }
+
+  public void setMinCommentScore(int minCommentScore) {
+    this.minCommentScore = minCommentScore;
+  }
+
+  public static Section fromSectionDto(SectionDto sectionDto) {
+    Section section = new Section();
+
+    section.setId(sectionDto.getId());
+    section.setTitle(sectionDto.getTitle());
+    section.setImagepost(sectionDto.isImagePost());
+    section.setPremoderated(sectionDto.isPremoderated());
+    section.setVotePoll(sectionDto.isVotePoll());
+    section.setScrollMode(SectionScrollModeEnum.valueOf(sectionDto.getScrollMode()));
+    section.setName(sectionDto.getName());
+    section.setLink(sectionDto.getLink());
+    section.setFeedLink(sectionDto.getFeedLink());
+    section.setMinCommentScore(sectionDto.getMinCommentScore());
+    return section;
+  }
+
+  public boolean isForum() {
+    return "forum".equals(name);
+  }
+
+  public String getArchiveLink() {
+    return isForum()
+      ? null
+      : getLink() + "archive/";
+  }
+
+  public String getArchiveLink(int year, int month) {
+    String archiveLink = getArchiveLink();
+    if (archiveLink == null) {
+      //todo: действия при отсутствующем линке
+    }
+    return archiveLink + year + '/' + month + '/';
+  }
+
+  // **************************************************************
 
   public static final int SECTION_FORUM = 2;
   public static final int SECTION_GALLERY = 3;
@@ -39,6 +165,7 @@ public class Section implements Serializable {
   public static final int SECTION_POLLS = 5;
 
   private static final Map<String, Integer> sections = new HashMap<String, Integer>();
+
   static {
     sections.put("news", SECTION_NEWS);
     sections.put("forum", SECTION_FORUM);
@@ -46,100 +173,26 @@ public class Section implements Serializable {
     sections.put("polls", SECTION_POLLS);
   }
 
-  public Section(ResultSet rs) throws SQLException {
-    name = rs.getString("name");
-    imagepost = rs.getBoolean("imagepost");
-    votepoll = rs.getBoolean("vote");
-    moderate = rs.getBoolean("moderate");
-    id = rs.getInt("id");
-    scrollMode = SectionScrollModeEnum.valueOf(rs.getString("scroll_mode"));
-  }
 
-  public Section(String name, boolean imagepost, boolean moderate, int id, boolean votepoll, String scrollModeStr) {
-    this.name = name;
-    this.imagepost = imagepost;
-    this.moderate = moderate;
-    this.id = id;
-    this.votepoll = votepoll;
-    scrollMode = SectionScrollModeEnum.valueOf(scrollModeStr);
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public boolean isImagepost() {
-    return imagepost;
-  }
-
-  public boolean isVotePoll() {
-    return votepoll;
-  }
-
-  public SectionScrollModeEnum getScrollMode() {
-    return scrollMode;
-  }
-
-  public int getId() {
-    return id;
-  }
-
-  public boolean isPremoderated() {
-    return moderate;
-  }
-
+  @Deprecated
   public String getAddText() {
-    if (id==4) {
+    // используется в section.jsp:40
+    // TODO: это должно быть в контроллере
+    if (id == 4) {
       return "Добавить ссылку";
     } else {
       return "Добавить сообщение";
     }
   }
 
-  public boolean isForum() {
-    return id==2;
-  }
-
-  public String getTitle() {
-    return name;
-  }
-
-  public Timestamp getLastCommitdate(Connection db) throws SQLException {
-    Statement st = null;
-    ResultSet rs = null;
-
-    try {
-      st = db.createStatement();
-
-      rs = st.executeQuery("select max(commitdate) from topics,groups where section=" + id + " and topics.groupid=groups.id");
-
-      if (!rs.next()) {
-        return null;
-      } else {
-        return rs.getTimestamp("max");
-      }
-    } finally {
-      if (rs!=null) {
-        rs.close();
-      }
-
-      if (st!=null) {
-        st.close();
-      }
-    }
-  }
-
+  @Deprecated
   public static int getCommentPostscore(int id) {
     //TODO move this to database
-    if (id==1 || id==2) {
+    if (id == 1 || id == 2) {
       return Topic.POSTSCORE_UNRESTRICTED;
     } else {
       return 50;
     }
-  }
-
-  public String getSectionLink() {
-    return getSectionLinkInternal(id);
   }
 
   @Deprecated
@@ -147,6 +200,7 @@ public class Section implements Serializable {
     return getSectionLinkInternal(section);
   }
 
+  @Deprecated
   private static String getSectionLinkInternal(int section) {
     switch (section) {
       case SECTION_FORUM:
@@ -162,6 +216,7 @@ public class Section implements Serializable {
     }
   }
 
+  @Deprecated
   public static String getNewsViewerLink(int section) throws SectionNotFoundException {
     switch (section) {
       case SECTION_FORUM:
@@ -177,29 +232,50 @@ public class Section implements Serializable {
     }
   }
 
-  public String getArchiveLink(int year, int month) {
-    return getArchiveLink(id)+year+ '/' +month+ '/';
-  }
 
-  public String getArchiveLink() {
-    return getArchiveLink(id);
-  }
-
+  @Deprecated
   public static String getArchiveLink(int id) {
-    if (id==SECTION_FORUM) {
+    if (id == SECTION_FORUM) {
       return null;
     }
-    
-    return getSectionLink(id)+"archive/";
+
+    return getSectionLink(id) + "archive/";
   }
 
+  @Deprecated
   public static int getSection(String name) throws SectionNotFoundException {
     Integer v = sections.get(name);
 
-    if (v==null) {
+    if (v == null) {
       throw new SectionNotFoundException();
     }
 
     return v;
+  }
+
+  @Deprecated
+  public Timestamp getLastCommitdate(Connection db) throws SQLException {
+    Statement st = null;
+    ResultSet rs = null;
+
+    try {
+      st = db.createStatement();
+
+      rs = st.executeQuery("select max(commitdate) from topics,groups where section=" + id + " and topics.groupid=groups.id");
+
+      if (!rs.next()) {
+        return null;
+      } else {
+        return rs.getTimestamp("max");
+      }
+    } finally {
+      if (rs != null) {
+        rs.close();
+      }
+
+      if (st != null) {
+        st.close();
+      }
+    }
   }
 }
