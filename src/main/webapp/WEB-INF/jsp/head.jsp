@@ -20,7 +20,7 @@
 <html lang=ru>
 <head>
 <LINK REL=STYLESHEET TYPE="text/css" HREF="/common.css">
-  <c:if test="${template.style!='black' || (template.style=='black' and template.prof.useHover)}">
+  <c:if test="${template.style=='black' and template.prof.useHover}">
     <LINK REL=STYLESHEET TYPE="text/css" HREF="/${template.style}/hover.css">
   </c:if>
 
