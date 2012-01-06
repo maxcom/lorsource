@@ -22,7 +22,7 @@
 <title>История изменений</title>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 <h1>История изменений</h1>
-
+<div id="historyButtonBar"></div>
 <div class="messages">
   <c:forEach items="${editInfos}" var="editInfo">
     <p>
