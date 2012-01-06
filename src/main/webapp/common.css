@@ -358,3 +358,11 @@ table.poll-result img {
 div.quote p cite {
     text-decoration: underline;
 }
+
+.difference-insert {
+  background-color: green;
+}
+
+.difference-delete {
+  background-color: red;
+}
