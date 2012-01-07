@@ -92,6 +92,10 @@ public class EditInfoPrepareService {
     if (!editInfoDTOs.isEmpty()) {
       EditInfoDto current = EditInfoDto.createFromMessage(tagDao, message);
 
+      if (currentTags.isEmpty()) {
+        currentTags = null;
+      }
+
       editInfos.add(new PreparedEditInfo(lorCodeService, secure, userDao, current, currentMessage, currentTitle, currentUrl, currentLinktext, currentTags, false, true));
     }
 
