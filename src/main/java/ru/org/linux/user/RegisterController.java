@@ -193,7 +193,7 @@ public class RegisterController extends ApplicationObjectSupport {
     }
 
     IPBlockInfo ipBlockInfo = ipBlockDao.getBlockInfo(request.getRemoteAddr());
-    ipBlockDao.checkBlockIP(ipBlockInfo, errors);
+    ipBlockDao.checkBlockIP(ipBlockInfo, errors, null);
 
     boolean emailChanged = false;
 

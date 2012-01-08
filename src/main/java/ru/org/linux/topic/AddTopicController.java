@@ -220,8 +220,8 @@ public class AddTopicController extends ApplicationObjectSupport {
     }
 
     IPBlockInfo ipBlockInfo = ipBlockDao.getBlockInfo(request.getRemoteAddr());
-    if (ipBlockInfo.isBlocked() && ! ipBlockInfo.isAllowPosting()) {
-      ipBlockDao.checkBlockIP(ipBlockInfo, errors);
+    if (ipBlockInfo.isBlocked() && ! ipBlockInfo.isAllowRegistredPosting()) {
+      ipBlockDao.checkBlockIP(ipBlockInfo, errors, user);
     }
 
     if (group!=null && !group.isTopicPostingAllowed(user)) {

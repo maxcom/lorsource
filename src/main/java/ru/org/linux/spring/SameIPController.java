@@ -113,7 +113,7 @@ public class SameIPController {
     Boolean captchaRequired = true;
     if (blockInfo.isInitialized()) {
       mv.getModel().put("blockInfo", blockInfo);
-      allowPosting = blockInfo.isAllowPosting();
+      allowPosting = blockInfo.isAllowRegistredPosting();
       captchaRequired = blockInfo.isCaptchaRequired();
       mv.getModel().put("blockModerator", userDao.getUserCached(blockInfo.getModerator()));
     }

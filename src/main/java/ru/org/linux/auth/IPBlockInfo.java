@@ -80,7 +80,7 @@ public class IPBlockInfo {
     return initialized;
   }
 
-  public boolean isAllowPosting() {
+  public boolean isAllowRegistredPosting() {
     return !isBlocked() || allowPosting;
   }
 

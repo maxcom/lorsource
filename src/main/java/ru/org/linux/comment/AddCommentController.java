@@ -220,10 +220,6 @@ public class AddCommentController extends ApplicationObjectSupport {
       errors.reject(null, "сбой добавления, попробуйте еще раз");
     }
 
-    if (ipBlockInfo.isBlocked() && ! ipBlockInfo.isAllowPosting()) {
-      ipBlockDao.checkBlockIP(ipBlockInfo, errors);
-    }
-
     Map<String, Object> formParams = new HashMap<String, Object>();
 
     prepareReplyto(add, formParams, request);
@@ -245,6 +241,10 @@ public class AddCommentController extends ApplicationObjectSupport {
     }
 
     user.checkBlocked(errors);
+
+    if (ipBlockInfo.isBlocked() && ! ipBlockInfo.isAllowRegistredPosting()) {
+      ipBlockDao.checkBlockIP(ipBlockInfo, errors, user);
+    }
 
     if (user.isAnonymous()) {
       if (msg.length() > 4096) {

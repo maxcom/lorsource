@@ -64,14 +64,14 @@ public class IPBlockDao {
     return (dnsbl.checkIP(addr));
   }
 
-  public void checkBlockIP(IPBlockInfo block, Errors errors)
+  public void checkBlockIP(IPBlockInfo block, Errors errors, User user)
     throws UnknownHostException, TextParseException {
     if (getTor(block.getIp())) {
       errors.reject(null, "Постинг заблокирован: tor.ahbl.org");
     }
 
-    if (block.isBlocked()) {
-      errors.reject(null, "Постинг заблокирован: "+block.getReason());
+    if (block.isBlocked() && (user == null || user.isAnonymousScore() || !block.isAllowRegistredPosting())) {
+      errors.reject(null, "Постинг заблокирован: " + block.getReason());
     }
   }
 
