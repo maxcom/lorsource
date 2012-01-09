@@ -18,7 +18,7 @@ var LorViewDiffHistory = function() {
     },
 
     html2plain: function (html) {
-      html = html.replace(/<(S*?)[^>]*>.*?|<.*?\/>/g, function(tag){
+      html = html.replace(/(<(\S*?)[^>]*>|<.*?\/>)/g, function(tag){
           return document.lorViewDiffHistory.pushHash(tag);
       });
 
@@ -63,16 +63,19 @@ var LorViewDiffHistory = function() {
 
 
     highlightContentDiff: function (object1, object2) {
+      this.clearHash();
       var content1 = this.html2plain ($(object1).html());
       var content2 = this.html2plain ($(object2).html());
 
       var diffs = this.dmp.diff_main(content1, content2);
+      this.dmp.diff_cleanupSemantic(diffs);
       var html = this.makeHtml(diffs);
 
       return this.plain2html(html);
     }
   };
 }
+document.lorViewDiffHistory = new LorViewDiffHistory();
 
 function diffHighlightOn(button) {
   document.prev_object = null;
@@ -116,7 +119,6 @@ function toggleDiffHighlight(obj) {
 }
 
 $(document).ready(function() {
-  document.lorViewDiffHistory = new LorViewDiffHistory();
   var button = $('<input type="button">')
     .val("Подсветить различия")
     .attr("highlighted", "off")

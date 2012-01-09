@@ -49,9 +49,11 @@
       </div>
       <div class="msg_body">
         ${editInfo.message}
-		<c:if test="${(editInfo.linktext != null) || (editInfo.url != null)}">
-		  <p>&gt;&gt;&gt; <a href="${editInfo.url==null ? "#" : editInfo.url}">${editInfo.linktext==null ? "(текст ссылки не изменен)" : editInfo.linktext}</a>
-		</c:if>
+      </div>
+      <div class="msg_footer">
+        <c:if test="${(editInfo.linktext != null) || (editInfo.url != null)}">
+          <p>&gt;&gt;&gt; <a href="${editInfo.url==null ? "#" : editInfo.url}">${editInfo.linktext==null ? "(текст ссылки не изменен)" : editInfo.linktext}</a>
+        </c:if>
         <c:if test="${editInfo.tags != null}">
           <lor:tags list="${editInfo.tags}"/>
         </c:if>
@@ -61,5 +63,3 @@
 </div>
 
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>
-
-
