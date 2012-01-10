@@ -81,7 +81,12 @@ function diffHighlightOn(button) {
   document.prev_object = null;
   $("div.messages div.msg div.msg_body").each(
     function(ind, obj){
-      $(obj).attr("oldHtml", $(obj).html());
+      var htmlContent = $(obj).html();
+      $(obj).attr("oldHtml", htmlContent);
+      htmlContent = htmlContent.replace(/\n/,'').trim();
+      if (htmlContent == '') {
+        return;
+      }
       if (document.prev_object == null) {
         document.prev_object = obj;
         return;
