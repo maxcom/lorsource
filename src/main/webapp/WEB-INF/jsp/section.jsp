@@ -37,7 +37,7 @@
       </td>
 
       <td align=right valign=middle>
-        [<a href="add-section.jsp?section=${section.id}">${section.addText}</a>]
+        [<a href="add-section.jsp?section=${section.id}">Добавить сообщение</a>]
         
         <c:if test="${section.id!=2}">
             [<a href="section-rss.jsp?section=${section.id}">RSS</a>]
@@ -75,7 +75,6 @@
 
 </ul>
 
-<c:if test="${section.forum}">
 <h1>Настройки</h1>
 <c:if test="${not template.sessionAuthorized}">
 Если вы еще не зарегистрировались - вам <a href="register.jsp">сюда</a>.
@@ -86,6 +85,5 @@
 <li><a href="lostpwd.jsp">Получить забытый пароль</a>
 <li><a href="edit-profile.jsp">Персональные настройки сайта</a>
 </ul>
-</c:if>
 
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>

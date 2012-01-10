@@ -18,7 +18,8 @@ package ru.org.linux.section;
 import ru.org.linux.topic.Topic;
 
 import java.io.Serializable;
-import java.sql.*;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -88,45 +89,8 @@ public class Section implements Serializable {
     return moderate;
   }
 
-  public String getAddText() {
-    if (id==4) {
-      return "Добавить ссылку";
-    } else {
-      return "Добавить сообщение";
-    }
-  }
-
-  public boolean isForum() {
-    return id==2;
-  }
-
   public String getTitle() {
     return name;
-  }
-
-  public Timestamp getLastCommitdate(Connection db) throws SQLException {
-    Statement st = null;
-    ResultSet rs = null;
-
-    try {
-      st = db.createStatement();
-
-      rs = st.executeQuery("select max(commitdate) from topics,groups where section=" + id + " and topics.groupid=groups.id");
-
-      if (!rs.next()) {
-        return null;
-      } else {
-        return rs.getTimestamp("max");
-      }
-    } finally {
-      if (rs!=null) {
-        rs.close();
-      }
-
-      if (st!=null) {
-        st.close();
-      }
-    }
   }
 
   public static int getCommentPostscore(int id) {

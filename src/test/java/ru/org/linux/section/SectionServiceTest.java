@@ -54,7 +54,6 @@ public class SectionServiceTest {
     Assert.assertTrue(section.isPremoderated());
     Assert.assertFalse(section.isVotePoll());
     Assert.assertTrue(section.isImagepost());
-    Assert.assertFalse(section.isForum());
 
     section = sectionService.getSection(2);
     Assert.assertNotNull(section);
@@ -62,7 +61,6 @@ public class SectionServiceTest {
     Assert.assertTrue(section.isPremoderated());
     Assert.assertFalse(section.isVotePoll());
     Assert.assertFalse(section.isImagepost());
-    Assert.assertTrue(section.isForum());
 
     try {
       section = sectionService.getSection(-1);
