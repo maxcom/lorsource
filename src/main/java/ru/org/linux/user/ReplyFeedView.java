@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.sun.syndication.feed.synd.*;
+import org.apache.commons.lang.StringEscapeUtils;
 import ru.org.linux.spring.AbstractRomeView;
 
 public class ReplyFeedView extends AbstractRomeView {
@@ -48,7 +49,7 @@ public class ReplyFeedView extends AbstractRomeView {
       
       SyndEntry feedEntry = new SyndEntryImpl();
       feedEntry.setPublishedDate(item.getCommentDate());
-      feedEntry.setTitle(item.getSubj());
+      feedEntry.setTitle(StringEscapeUtils.unescapeHtml(item.getSubj()));
 
       String link;
 
