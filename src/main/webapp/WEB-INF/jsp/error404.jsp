@@ -27,7 +27,7 @@
     <div id="warning-text">
         <h1>404</h1>
         <p>Запрошенный Вами URL не был найден на этом сервере.</p>
-        <p>The URL you requested is not found on this server.</p>
+        <p>The URL you requested was not found on this server.</p>
     </div>
 </div>
 <div id="warning-footer"></div>
