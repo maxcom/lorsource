@@ -22,8 +22,15 @@
 <title>Error 404</title>
 <jsp:include page="header.jsp"/>
 
-<h1>Error 404</h1>
-Запрошенный Вами URL не был найден на этом сервере. <p>
-The URL you requested is not found on this server.
+<div id="warning-body">
+    <div id="warning-logo"><img src="/img/good-penguin.jpg" alt="good-penguin" /></div>
+    <div id="warning-text">
+        <h1>404</h1>
+        <p>Запрошенный Вами URL не был найден на этом сервере.</p>
+        <p>The URL you requested is not found on this server.</p>
+    </div>
+</div>
+<div id="warning-footer"></div>
 
-  <jsp:include page="footer.jsp"/>
+
+<jsp:include page="footer.jsp"/>
