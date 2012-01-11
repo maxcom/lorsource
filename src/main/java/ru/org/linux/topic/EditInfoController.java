@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
 import java.util.List;
 
 @Controller
@@ -47,6 +48,11 @@ public class EditInfoController {
     List<PreparedEditInfo> editInfos = prepareService.prepareEditInfo(message, request.isSecure());
 
     ModelAndView mv = new ModelAndView("history");
+
+    List<String> javaScriptsForLayout = new ArrayList<String>();
+    javaScriptsForLayout.add("diff_match_patch.js");
+    javaScriptsForLayout.add("lor_view_diff_history.js");
+    mv.addObject("javascriptsForLayout", javaScriptsForLayout);
 
     mv.getModel().put("message", message);
     mv.getModel().put("editInfos", editInfos);

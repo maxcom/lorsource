@@ -105,7 +105,7 @@ DIV.sign {
   word-wrap: break-word;
 }
 
-.msg_body {
+.msg_body, .msg_header, .msg_footer {
   padding-left: 0.5em;
   padding-right: 0.5em;
 }
@@ -357,4 +357,12 @@ table.poll-result img {
 
 div.quote p cite {
     text-decoration: underline;
+}
+
+.difference-insert,  .difference-insert * {
+  background-color: green;
+}
+
+.difference-delete, .difference-delete * {
+  background-color: red;
 }
