@@ -17,7 +17,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
-<%--@elvariable id="topicsList" type="java.util.List<ru.org.linux.user.RepliesListItem>"--%>
+<%--@elvariable id="topicsList" type="java.util.List<ru.org.linux.user.UserEvent>"--%>
 <%--@elvariable id="firstPage" type="Boolean"--%>
 <%--@elvariable id="nick" type="String"--%>
 <%--@elvariable id="hasMore" type="String"--%>

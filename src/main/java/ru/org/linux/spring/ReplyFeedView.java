@@ -22,13 +22,13 @@ import java.util.List;
 import java.util.Map;
 
 import com.sun.syndication.feed.synd.*;
-import ru.org.linux.user.RepliesListItem;
+import ru.org.linux.user.UserEvent;
 
 public class ReplyFeedView extends AbstractRomeView {
   @Override
   protected void createFeed(SyndFeed feed, Map model) {
     @SuppressWarnings("unchecked")
-    List<RepliesListItem> list = (List<RepliesListItem>) model.get("topicsList");
+    List<UserEvent> list = (List<UserEvent>) model.get("topicsList");
     String s = "Ответы на комментарии пользователя " + model.get("nick");
     feed.setTitle(s);
     feed.setLink("http://www.linux.org.ru");
@@ -43,7 +43,7 @@ public class ReplyFeedView extends AbstractRomeView {
     feed.setPublishedDate(lastModified);
     List<SyndEntry> entries = new ArrayList<SyndEntry>();
     feed.setEntries(entries);
-    for (RepliesListItem item : list) {
+    for (UserEvent item : list) {
       SyndEntry feedEntry = new SyndEntryImpl();
       feedEntry.setPublishedDate(item.getCommentDate());
       feedEntry.setTitle(item.getSubj());

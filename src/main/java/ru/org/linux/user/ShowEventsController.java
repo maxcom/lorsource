@@ -158,7 +158,7 @@ public class ShowEventsController {
     params.put("isMyNotifications", true);
 
     response.addHeader("Cache-Control", "no-cache");
-    List<RepliesListItem> list = repliesDao.getRepliesForUser(currentUser, true, topics, offset, false, request.isSecure(), filter);
+    List<UserEvent> list = repliesDao.getRepliesForUser(currentUser, true, topics, offset, false, request.isSecure(), filter);
     if ("POST".equalsIgnoreCase(request.getMethod())) {
       userDao.resetUnreadReplies(currentUser);
       tmpl.updateCurrentUser(userDao);
@@ -240,7 +240,7 @@ public class ShowEventsController {
       response.addHeader("Cache-Control", "no-cache");
     }
 
-    List<RepliesListItem> list = repliesDao.getRepliesForUser(user, showPrivate, topics, offset, feedRequested, request.isSecure(), Filter.ALL);
+    List<UserEvent> list = repliesDao.getRepliesForUser(user, showPrivate, topics, offset, feedRequested, request.isSecure(), Filter.ALL);
 
     params.put("isMyNotifications", false);
     params.put("topicsList", list);

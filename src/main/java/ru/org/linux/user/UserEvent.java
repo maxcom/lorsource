@@ -23,8 +23,7 @@ import java.sql.Timestamp;
 /**
  * Элемент списка уведомлений
  */
-public class RepliesListItem implements Serializable {
-
+public class UserEvent implements Serializable {
   public enum EventType {
     REPLY,  // ответ
     DEL,    // удаленное сообщение
@@ -50,10 +49,10 @@ public class RepliesListItem implements Serializable {
   private final Timestamp eventDate;
   private final boolean unread;
 
-  public RepliesListItem(int cid, User cAuthor, Timestamp cDate, String messageText, String groupTitle,
-                         String groupUrlName, String sectionTitle, int sectionId, String subj,
-                         Timestamp lastmod, int msgid, EventType type, String eventMessage,
-                         Timestamp eventDate, boolean unread) {
+  public UserEvent(int cid, User cAuthor, Timestamp cDate, String messageText, String groupTitle,
+                   String groupUrlName, String sectionTitle, int sectionId, String subj,
+                   Timestamp lastmod, int msgid, EventType type, String eventMessage,
+                   Timestamp eventDate, boolean unread) {
     this.cid = cid;
     this.cAuthor = cAuthor;
     this.cDate = cDate;

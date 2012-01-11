@@ -22,7 +22,7 @@ import org.springframework.stereotype.Repository;
 import ru.org.linux.site.*;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicDao;
-import ru.org.linux.user.RepliesListItem.EventType;
+import ru.org.linux.user.UserEvent.EventType;
 import ru.org.linux.user.ShowEventsController.Filter;
 import ru.org.linux.util.StringUtil;
 import ru.org.linux.util.bbcode.LorCodeService;
@@ -122,7 +122,7 @@ public class RepliesDao {
    * @param secure является ли текущие соединение https
    * @return список уведомлений
    */
-  public List<RepliesListItem> getRepliesForUser(User user, boolean showPrivate, int topics, int offset,
+  public List<UserEvent> getRepliesForUser(User user, boolean showPrivate, int topics, int offset,
                                                  final boolean readMessage, final boolean secure, Filter filter) {
     String queryString;    
     if(showPrivate) {
@@ -147,9 +147,9 @@ public class RepliesDao {
     } else {
       queryString = queryRepliesForUserWihoutPrivate;
     }
-    return jdbcTemplate.query(queryString, new RowMapper<RepliesListItem>() {
+    return jdbcTemplate.query(queryString, new RowMapper<UserEvent>() {
       @Override
-      public RepliesListItem mapRow(ResultSet resultSet, int i) throws SQLException {
+      public UserEvent mapRow(ResultSet resultSet, int i) throws SQLException {
         String subj = StringUtil.makeTitle(resultSet.getString("subj"));
         Timestamp lastmod = resultSet.getTimestamp("lastmod");
         if (lastmod == null) {
@@ -200,7 +200,7 @@ public class RepliesDao {
 
         boolean unread = resultSet.getBoolean("unread");
 
-        return new RepliesListItem(cid, cAuthor, cDate, messageText, groupTitle, groupUrlName,
+        return new UserEvent(cid, cAuthor, cDate, messageText, groupTitle, groupUrlName,
             sectionTitle, sectionId, subj, lastmod, msgid, type, eventMessage, eventDate, unread);
       }
     }, user.getId(), topics, offset);
