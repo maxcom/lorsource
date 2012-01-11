@@ -25,7 +25,6 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.site.Template;
-import ru.org.linux.spring.ReplyFeedView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -39,6 +38,8 @@ public class ShowEventsController {
   private UserDao userDao;
   @Autowired
   private RepliesDao repliesDao;
+  @Autowired
+  private UserEventPrepareService prepareService;
 
   public enum Filter {
     ALL       ("all"      , "все уведомления"),
@@ -158,14 +159,17 @@ public class ShowEventsController {
     params.put("isMyNotifications", true);
 
     response.addHeader("Cache-Control", "no-cache");
-    List<UserEvent> list = repliesDao.getRepliesForUser(currentUser, true, topics, offset, false, request.isSecure(), filter);
+    List<UserEvent> list = repliesDao.getRepliesForUser(currentUser, true, topics, offset, filter);
+    List<PreparedUserEvent> prepared = prepareService.prepare(list, false, request.isSecure());
+
     if ("POST".equalsIgnoreCase(request.getMethod())) {
       userDao.resetUnreadReplies(currentUser);
       tmpl.updateCurrentUser(userDao);
     } else {
       params.put("enableReset", true);
     }
-    params.put("topicsList", list);
+
+    params.put("topicsList", prepared);
     params.put("hasMore", list.size()==topics);
 
     return new ModelAndView("show-replies", params);
@@ -240,10 +244,11 @@ public class ShowEventsController {
       response.addHeader("Cache-Control", "no-cache");
     }
 
-    List<UserEvent> list = repliesDao.getRepliesForUser(user, showPrivate, topics, offset, feedRequested, request.isSecure(), Filter.ALL);
+    List<UserEvent> list = repliesDao.getRepliesForUser(user, showPrivate, topics, offset, Filter.ALL);
+    List<PreparedUserEvent> prepared = prepareService.prepare(list, feedRequested, request.isSecure());
 
     params.put("isMyNotifications", false);
-    params.put("topicsList", list);
+    params.put("topicsList", prepared);
     params.put("hasMore", list.size()==topics);
 
     ModelAndView result = new ModelAndView("show-replies", params);

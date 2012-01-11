@@ -13,7 +13,7 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.spring;
+package ru.org.linux.user;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -22,13 +22,13 @@ import java.util.List;
 import java.util.Map;
 
 import com.sun.syndication.feed.synd.*;
-import ru.org.linux.user.UserEvent;
+import ru.org.linux.spring.AbstractRomeView;
 
 public class ReplyFeedView extends AbstractRomeView {
   @Override
   protected void createFeed(SyndFeed feed, Map model) {
     @SuppressWarnings("unchecked")
-    List<UserEvent> list = (List<UserEvent>) model.get("topicsList");
+    List<PreparedUserEvent> list = (List<PreparedUserEvent>) model.get("topicsList");
     String s = "Ответы на комментарии пользователя " + model.get("nick");
     feed.setTitle(s);
     feed.setLink("http://www.linux.org.ru");
@@ -37,13 +37,15 @@ public class ReplyFeedView extends AbstractRomeView {
     feed.setDescription(s);
     Date lastModified = new Date();
     if (!list.isEmpty()) {
-      Timestamp timestamp = list.get(0).getLastmod();
+      Timestamp timestamp = list.get(0).getEvent().getLastmod();
       lastModified = new Date(timestamp.getTime());
     }
     feed.setPublishedDate(lastModified);
     List<SyndEntry> entries = new ArrayList<SyndEntry>();
     feed.setEntries(entries);
-    for (UserEvent item : list) {
+    for (PreparedUserEvent preparedUserEvent : list) {
+      UserEvent item = preparedUserEvent.getEvent();
+      
       SyndEntry feedEntry = new SyndEntryImpl();
       feedEntry.setPublishedDate(item.getCommentDate());
       feedEntry.setTitle(item.getSubj());
@@ -51,7 +53,7 @@ public class ReplyFeedView extends AbstractRomeView {
       String link;
 
       if (item.getCid()!=0) {
-        feedEntry.setAuthor(item.getNick());
+        feedEntry.setAuthor(preparedUserEvent.getCommentAuthor().getNick());
 
         link = String.format(
           "http://www.linux.org.ru/jump-message.jsp?msgid=%s&cid=%s",
@@ -68,9 +70,9 @@ public class ReplyFeedView extends AbstractRomeView {
       feedEntry.setLink(link);
       feedEntry.setUri(link);
 
-      if (item.getMessageText() != null){
+      if (preparedUserEvent.getMessageText() != null){
         SyndContent message = new SyndContentImpl();
-        message.setValue(item.getMessageText());
+        message.setValue(preparedUserEvent.getMessageText());
         message.setType("text/html");
         feedEntry.setDescription(message);
       }

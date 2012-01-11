@@ -13,11 +13,10 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
-
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
-<%--@elvariable id="topicsList" type="java.util.List<ru.org.linux.user.UserEvent>"--%>
+<%--@elvariable id="topicsList" type="java.util.List<ru.org.linux.user.PreparedUserEvent>"--%>
 <%--@elvariable id="firstPage" type="Boolean"--%>
 <%--@elvariable id="nick" type="String"--%>
 <%--@elvariable id="hasMore" type="String"--%>
@@ -131,40 +130,40 @@
 <tr>
   <td align="center">
     <c:choose>
-      <c:when test="${topic.type == 'DEL'}">
+      <c:when test="${topic.event.type == 'DEL'}">
         <img src="/img/del.png" border="0" alt="[X]" title="Сообщение удалено" width="15" height="15">
       </c:when>
-      <c:when test="${topic.type == 'REPLY'}">
+      <c:when test="${topic.event.type == 'REPLY'}">
         <img src="/img/mail_reply.png" border="0" title="Ответ" alt="[R]" width="16" height="16">
       </c:when>
-      <c:when test="${topic.type == 'REF'}">
+      <c:when test="${topic.event.type == 'REF'}">
         <img src="/img/tuxlor.png" border="0" title="Упоминание" alt="[U]" width="7" height="16">
       </c:when>
     </c:choose>
   </td>
-  <td><a href="${topic.groupUrl}">${topic.groupTitle}</a></td>
+  <td><a href="${topic.event.groupUrl}">${topic.event.groupTitle}</a></td>
   <td>
-    <c:if test="${topic.type != 'DEL'}">
-      <c:if test="${topic.cid>0}">
-        <a href="jump-message.jsp?msgid=${topic.msgid}&amp;cid=${topic.cid}">${topic.subj}</a>
+    <c:if test="${topic.event.type != 'DEL'}">
+      <c:if test="${topic.event.cid>0}">
+        <a href="jump-message.jsp?msgid=${topic.event.msgid}&amp;cid=${topic.event.cid}">${topic.event.subj}</a>
       </c:if>
-      <c:if test="${topic.cid==0}">
-        <a href="jump-message.jsp?msgid=${topic.msgid}">${topic.subj}</a>
+      <c:if test="${topic.event.cid==0}">
+        <a href="jump-message.jsp?msgid=${topic.event.msgid}">${topic.event.subj}</a>
       </c:if>
     </c:if>
 
-    <c:if test="${topic.type == 'DEL'}">
-      <a href="view-message.jsp?msgid=${topic.msgid}">${topic.subj}</a>
+    <c:if test="${topic.event.type == 'DEL'}">
+      <a href="view-message.jsp?msgid=${topic.event.msgid}">${topic.event.subj}</a>
       <br>
-      <c:out value="${topic.eventMessage}" escapeXml="true"/>
+      <c:out value="${topic.event.eventMessage}" escapeXml="true"/>
     </c:if>
 
-    <c:if test="${topic.unread}">&bull;</c:if>
+    <c:if test="${topic.event.unread}">&bull;</c:if>
   </td>
   <td>
-    <lor:dateinterval date="${topic.eventDate}"/>
+    <lor:dateinterval date="${topic.event.eventDate}"/>
 
-    <c:if test="${topic.cid != 0}">
+    <c:if test="${topic.event.cid != 0}">
        (<lor:user user="${topic.commentAuthor}" decorate="true"/>)
     </c:if>
   </td>

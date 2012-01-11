@@ -33,12 +33,10 @@ public class UserEvent implements Serializable {
   }
 
   private final int cid;
-  private final User cAuthor;
+  private final int cAuthor;
   private final Timestamp cDate;
-  private final String messageText;
   private final String groupTitle;
   private final String groupUrlName;
-  private final String sectionTitle;
   private final int sectionId;
   private static final long serialVersionUID = -8433869244309809050L;
   private final String subj;
@@ -49,17 +47,15 @@ public class UserEvent implements Serializable {
   private final Timestamp eventDate;
   private final boolean unread;
 
-  public UserEvent(int cid, User cAuthor, Timestamp cDate, String messageText, String groupTitle,
-                   String groupUrlName, String sectionTitle, int sectionId, String subj,
+  public UserEvent(int cid, int cAuthor, Timestamp cDate, String groupTitle,
+                   String groupUrlName, int sectionId, String subj,
                    Timestamp lastmod, int msgid, EventType type, String eventMessage,
                    Timestamp eventDate, boolean unread) {
     this.cid = cid;
     this.cAuthor = cAuthor;
     this.cDate = cDate;
-    this.messageText = messageText;
     this.groupTitle = groupTitle;
     this.groupUrlName = groupUrlName;
-    this.sectionTitle = sectionTitle;
     this.sectionId = sectionId;
     this.subj = subj;
     this.lastmod = lastmod;
@@ -69,12 +65,16 @@ public class UserEvent implements Serializable {
     this.eventDate = eventDate;
     this.unread = unread;
   }
+  
+  public boolean isComment() {
+    return cid>0;
+  }
 
   public int getCid() {
     return cid;
   }
 
-  public User getCommentAuthor() {
+  public int getCommentAuthor() {
     return cAuthor;
   }
 
@@ -82,28 +82,12 @@ public class UserEvent implements Serializable {
     return cDate;
   }
 
-  public String getMessageText() {
-    return messageText;
-  }
-
-  public String getNick() {
-    return cAuthor.getNick();
-  }
-
   public String getGroupTitle() {
     return groupTitle;
   }
 
-  public String getSectionTitle() {
-    return sectionTitle;
-  }
-
   public String getGroupUrl() {
     return Section.getSectionLink(sectionId) + groupUrlName + '/';
-  }
-
-  public String getSectionUrl() {
-    return Section.getSectionLink(sectionId);
   }
 
   public String getSubj() {
