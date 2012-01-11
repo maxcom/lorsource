@@ -37,10 +37,16 @@
                 <p>причём забанен он был настолько давно, что никто уже и не помнит, когда.</p>
             </c:otherwise>
         </c:choose>
-        <c:if test="${not empty exception.banInfo.reason}">
-            <p>Причина тому проста: <i><c:out value="${exception.banInfo.reason}" escapeXml="true"/></i></p>
-        </c:if>
-        <p>Вопросы, пожелания по <a href="mailto:support@sport-loto.ru">адресу</a></p>
+        <c:choose>
+            <c:when test="${not empty exception.banInfo.reason}">
+                <p>Причина тому проста: <i><c:out value="${exception.banInfo.reason}" escapeXml="true"/></i>.</p>
+            </c:when>
+            <c:otherwise>
+                <p>Мы не знаем, за что его забанили. Видимо, он был большой редиской.</p>
+            </c:otherwise>
+        </c:choose>
+        <p>Мы сожалеем, правда.</p>
+        <p>Вопросы, пожелания по <a href="mailto:support@sport-loto.ru">адресу</a>.</p>
     </div>
 </div>
 <div id="warning-footer"></div>
