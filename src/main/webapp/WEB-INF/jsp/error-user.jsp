@@ -1,4 +1,6 @@
 <%@ page contentType="text/html; charset=utf-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%--
   ~ Copyright 1998-2010 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,20 +16,23 @@
   ~    limitations under the License.
   --%>
 
-<%
-   response.setStatus(404);
-%>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
-<title>Error 404</title>
+<title>This is ban</title>
 <jsp:include page="header.jsp"/>
 
 <div id="warning-body">
     <div id="warning-logo"><img src="/img/good-penguin.jpg" alt="good-penguin" /></div>
     <div id="warning-text">
-        <h1>404</h1>
-        <p>Запрошенный Вами URL не был найден на этом сервере.</p>
-        <p>The URL you requested is not found on this server.</p>
+        <h1>Пользователь <c:out value="${exception.user.nick}" escapeXml="true"/> забанен</h1>
+        <p>Пользователь <b><c:out value="${exception.user.nick}" escapeXml="true"/></b> лишен удовольствия пользовать LOR.</p>
+        <c:if test="${not empty exception.banInfo.date}">
+            <p>В момент: <fmt:formatDate value="${exception.banInfo.date}" type="both" dateStyle="full" timeStyle="full"/></p>
+        </c:if>
+        <c:if test="${not empty exception.banInfo.reason}">
+            <p>По причине: <i><c:out value="${exception.banInfo.reason}" escapeXml="true"/></i></p>
+        </c:if>
+        <p>Вопросы, пожелания по <a href="mailto:support@sport-loto.ru">адресу</a></p>
     </div>
 </div>
 <div id="warning-footer"></div>

@@ -56,6 +56,7 @@
                 <prop key="org.springframework.beans.TypeMismatchException">error-parameter</prop>
                 <prop key="org.springframework.web.bind.MissingServletRequestParameterException">error-parameter</prop>
                 <prop key="org.springframework.validation.BindException">error-parameter</prop>
+                <prop key="ru.org.linux.user.UserBanedException">error-user</prop>
             </props>
         </property>
     </bean>
