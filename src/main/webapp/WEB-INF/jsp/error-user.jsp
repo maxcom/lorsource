@@ -28,7 +28,7 @@
     <div id="warning-logo"><img src="/img/good-penguin.jpg" alt="good-penguin" /></div>
     <div id="warning-text">
         <h1>Пользователь <c:out value="${exception.user.nick}" escapeXml="true"/> забанен</h1>
-        <p>К сожалению, ользователь <b><c:out value="${exception.user.nick}" escapeXml="true"/></b> не может более посещать LOR.</p>
+        <p>К сожалению, пользователь <b><c:out value="${exception.user.nick}" escapeXml="true"/></b> не может более посещать LOR.</p>
         <c:if test="${not empty exception.banInfo.date}">
             <p>начиная с <fmt:formatDate value="${exception.banInfo.date}" type="both" dateStyle="full" timeStyle="full"/></p>
         </c:if>
