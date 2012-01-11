@@ -48,7 +48,7 @@ public class WhoisController {
     User user = userDao.getUser(nick);
 
     if (user.isBlocked() && !tmpl.isSessionAuthorized()) {
-      throw new UserNotFoundException(nick);
+      throw new UserBanedException(user, userDao.getBanInfoClass(user));
     }
 
     ModelAndView mv = new ModelAndView("whois");
