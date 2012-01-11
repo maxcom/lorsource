@@ -22,7 +22,7 @@
 <title>История изменений</title>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 <h1>История изменений</h1>
-
+<div id="historyButtonBar"></div>
 <div class="messages">
   <c:forEach items="${editInfos}" var="editInfo">
     <p>
@@ -44,12 +44,16 @@
       :
     </p>
     <div class="msg">
-      <div class="msg_body">
+      <div class="msg_header">
         <h2>${editInfo.title}</h2>
+      </div>
+      <div class="msg_body">
         ${editInfo.message}
-		<c:if test="${(editInfo.linktext != null) || (editInfo.url != null)}">
-		  <p>&gt;&gt;&gt; <a href="${editInfo.url==null ? "#" : editInfo.url}">${editInfo.linktext==null ? "(текст ссылки не изменен)" : editInfo.linktext}</a>
-		</c:if>
+      </div>
+      <div class="msg_footer">
+        <c:if test="${(editInfo.linktext != null) || (editInfo.url != null)}">
+          <p>&gt;&gt;&gt; <a href="${editInfo.url==null ? "#" : editInfo.url}">${editInfo.linktext==null ? "(текст ссылки не изменен)" : editInfo.linktext}</a>
+        </c:if>
         <c:if test="${editInfo.tags != null}">
           <lor:tags list="${editInfo.tags}"/>
         </c:if>
@@ -59,5 +63,3 @@
 </div>
 
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>
-
-

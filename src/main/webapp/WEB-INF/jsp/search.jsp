@@ -107,9 +107,11 @@
   <div class="messages">
   <div class="comment">
     <c:forEach items="${result}" var="item">
-      <div class=msg>
-        <div class="msg_body">
+      <div class="msg">
+        <div class="msg_header">
           <h2><a href="${item.url}"><c:out escapeXml="true" value="${item.title}"/></a></h2>
+        </div>
+        <div class="msg_body">
 
           <p>${item.message}</p>
 
