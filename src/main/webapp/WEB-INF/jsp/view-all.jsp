@@ -77,7 +77,7 @@
 много скриншотов, дайте им повисеть на главной странице.<p>
 <c:forEach var="msg" items="${messages}">
   <lor:news
-          message="${msg.message}" preparedMessage="${msg}"
+          preparedMessage="${msg}"
           multiPortal="<%= sectionid==0 %>"
           moderateMode="true"/>
 </c:forEach>

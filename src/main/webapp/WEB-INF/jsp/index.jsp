@@ -86,7 +86,7 @@ SoC, Graphene, MEMS, Biomedical Engineering. Дополнительная инф
   }
 %>
     <c:forEach var="msg" items="${news}">
-      <lorDir:news message="${msg.message}" preparedMessage="${msg}" multiPortal="<%= multiPortal %>" moderateMode="false"/>
+      <lorDir:news preparedMessage="${msg}" multiPortal="<%= multiPortal %>" moderateMode="false"/>
     </c:forEach>
 <div class="nav">
   [<a href="/news/?offset=20">← предыдущие</a>]
