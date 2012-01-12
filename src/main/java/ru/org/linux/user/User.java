@@ -122,6 +122,11 @@ public class User implements Serializable {
     }
   }
 
+  /**
+   * Проверка на анонимность или заблокированность
+   * TODO проверка на бан в этой функции сбивает с толку
+   * @throws AccessViolationException если пользователь блокирован или анонимен
+   */
   public void checkAnonymous() throws AccessViolationException {
     if (anonymous || blocked) {
       throw new AccessViolationException("Anonymous user");
