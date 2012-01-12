@@ -89,7 +89,7 @@ public class TopicDao {
   private static final String queryMessage = "SELECT " +
         "postdate, topics.id as msgid, userid, topics.title, " +
         "topics.groupid as guid, topics.url, topics.linktext, ua_id, " +
-        "groups.title as gtitle, urlname, vote, havelink, section, topics.sticky, topics.postip, " +
+        "urlname, vote, havelink, section, topics.sticky, topics.postip, " +
         "postdate<(CURRENT_TIMESTAMP-sections.expire) as expired, deleted, lastmod, commitby, " +
         "commitdate, topics.stat1, postscore, topics.moderate, message, notop,bbcode, " +
         "topics.resolved, restrict_comments, minor " +
@@ -722,7 +722,7 @@ public class TopicDao {
     if (!newGrp.isLinksAllowed() && !newGrp.isImagePostAllowed()) {
       jdbcTemplate.update("UPDATE topics SET linktext=null, url=null WHERE id=?", msg.getId());
 
-      String title = msg.getGroupTitle();
+      String title = msg.getGroupUrl();
       String linktext = msg.getLinktext();
 
       /* if url is not null, update the topic text */

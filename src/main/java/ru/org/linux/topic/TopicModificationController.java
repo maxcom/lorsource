@@ -178,7 +178,7 @@ public class TopicModificationController extends ApplicationObjectSupport {
     messageDao.moveTopic(msg, newGrp, tmpl.getCurrentUser());
 
     logger.info("topic " + msgid + " moved" +
-            " by " + tmpl.getNick() + " from news/forum " + msg.getGroupTitle() + " to forum " + newGrp.getTitle());
+            " by " + tmpl.getNick() + " from news/forum " + msg.getGroupUrl() + " to forum " + newGrp.getTitle());
 
     return new ModelAndView(new RedirectView(msg.getLinkLastmod()));
   }

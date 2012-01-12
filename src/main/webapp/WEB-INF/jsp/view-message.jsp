@@ -45,8 +45,8 @@
   Topic nextMessage = (Topic) request.getAttribute("nextMessage");
 %>
 
-<title>${preparedMessage.section.title} - ${message.groupTitle} - ${message.title}</title>
-<link rel="parent" title="${preparedMessage.section.title} - ${message.groupTitle}" href="group.jsp?group=${message.groupId}">
+<title>${preparedMessage.section.title} - ${preparedMessage.group.title} - ${message.title}</title>
+<link rel="parent" title="${preparedMessage.section.title} - ${preparedMessage.group.title}" href="group.jsp?group=${message.groupId}">
 <c:if test="${prevMessage != null}">
   <link rel="Previous" id="PrevLink" href="${fn:escapeXml(prevMessage.link)}" title="<%= StringUtil.makeTitle(prevMessage.getTitle()) %>">
 </c:if>
@@ -118,9 +118,6 @@
                   <td align=left valign=top>
                     <a href="${fn:escapeXml(prevMessage.link)}" rel=prev rev=next>
                     <%= StringUtil.makeTitle(prevMessage.getTitle()) %></a>
-                    <c:if test="${!scrollGroup}">
-                      (${prevMessage.groupTitle})
-                    </c:if>
                   </td>
                 </c:if>
             </tr>
@@ -134,9 +131,6 @@
                   <a href="${fn:escapeXml(nextMessage.link)}" rel=next rev=prev>
                     <%= StringUtil.makeTitle(nextMessage.getTitle()) %>
                   </a>
-                  <c:if test="${!scrollGroup}">
-                    (${nextMessage.groupTitle})
-                  </c:if>
                 </td>
                 <td align="right" valign="middle" style="padding-left: 5px">
                   <a href="${fn:escapeXml(nextMessage.link)}" rel=next rev=prev>→</a>
@@ -163,9 +157,6 @@
                   <td align=left valign=top>
                     <a href="${fn:escapeXml(prevMessage.link)}" rel=prev rev=next>
                     <%= StringUtil.makeTitle(prevMessage.getTitle()) %></a>
-                    <c:if test="${!scrollGroup}">
-                      (${prevMessage.groupTitle})
-                    </c:if>
                   </td>
                 </c:if>
             </tr>
@@ -175,9 +166,9 @@
           <table>
             <tr valign=middle>
               <td>
-                <a title="${preparedMessage.section.title} - ${message.groupTitle}"
+                <a title="${preparedMessage.section.title} - ${preparedMessage.group.title}"
                    href="${group.url}">
-                  ${preparedMessage.section.title} - ${message.groupTitle}
+                  ${preparedMessage.section.title} - ${preparedMessage.group.title}
                 </a>
               </td>
             </tr>
@@ -190,9 +181,6 @@
                   <a href="${fn:escapeXml(nextMessage.link)}" rel=next rev=prev>
                     <%= StringUtil.makeTitle(nextMessage.getTitle()) %>
                   </a>
-                  <c:if test="${!scrollGroup}">
-                    (${nextMessage.groupTitle})
-                  </c:if>
                 </td>
                 <td align="right" valign="middle" style="padding-left: 5px">
                   <a href="${fn:escapeXml(nextMessage.link)}" rel=next rev=prev>→</a>

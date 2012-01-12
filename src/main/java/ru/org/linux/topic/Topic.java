@@ -48,7 +48,6 @@ public class Topic implements Serializable {
   private final boolean havelink;
   private final Timestamp postdate;
   private final Timestamp commitDate;
-  private final String groupTitle;
   private final String groupUrl;
   private final Timestamp lastModified;
   private final int sectionid;
@@ -95,7 +94,6 @@ public class Topic implements Serializable {
     postdate = rs.getTimestamp("postdate");
     commitDate = rs.getTimestamp("commitdate");
     commitby = rs.getInt("commitby");
-    groupTitle = rs.getString("gtitle");
     groupUrl = rs.getString("urlname");
     lastModified = rs.getTimestamp("lastmod");
     sectionid = rs.getInt("section");
@@ -154,7 +152,6 @@ public class Topic implements Serializable {
     commitby = 0;
     postdate = new Timestamp(System.currentTimeMillis());
     commitDate = null;
-    groupTitle = "";
     groupUrl = "";
     lastModified = new Timestamp(System.currentTimeMillis());
     commentCount = 0;
@@ -209,7 +206,6 @@ public class Topic implements Serializable {
     commitby = original.commitby;
     postdate = original.postdate;
     commitDate = original.commitDate;
-    groupTitle = original.groupTitle;
     groupUrl = original.groupUrl;
     lastModified = new Timestamp(System.currentTimeMillis());
     commentCount = original.commentCount;
@@ -243,10 +239,6 @@ public class Topic implements Serializable {
 
   public String getTitle() {
     return title;
-  }
-
-  public String getGroupTitle() {
-    return groupTitle;
   }
 
   public Timestamp getLastModified() {
@@ -546,5 +538,9 @@ public class Topic implements Serializable {
     }
 
     return ret;
+  }
+
+  public String getGroupUrl() {
+    return groupUrl;
   }
 }

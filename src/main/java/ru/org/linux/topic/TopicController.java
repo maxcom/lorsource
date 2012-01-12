@@ -421,9 +421,6 @@ public class TopicController {
       Boolean bottomScroller = sectionScroller != SectionScrollModeEnum.NO_SCROLL;
       params.put("bottomScroller", bottomScroller);
 
-      Boolean scrollGroup = sectionScroller == SectionScrollModeEnum.GROUP;
-      params.put("scrollGroup", scrollGroup);
-
       Set<Integer> hideSet = CommentList.makeHideSet(userDao, comments, filterMode, ignoreList);
 
       CommentFilter cv = new CommentFilter(comments);
