@@ -32,6 +32,7 @@ import ru.org.linux.auth.IPBlockDao;
 import ru.org.linux.auth.IPBlockInfo;
 import ru.org.linux.site.Template;
 import ru.org.linux.search.SearchQueueSender;
+import ru.org.linux.topic.TopicPermissionService;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserNotFoundException;
@@ -68,6 +69,9 @@ public class AddCommentController extends ApplicationObjectSupport {
   private LorCodeService lorCodeService;
   private ToLorCodeFormatter toLorCodeFormatter;
   private ToLorCodeTexFormatter toLorCodeTexFormatter;
+
+  @Autowired
+  private TopicPermissionService permissionService;
 
   @Autowired
   private TopicPrepareService messagePrepareService;
@@ -259,7 +263,7 @@ public class AddCommentController extends ApplicationObjectSupport {
     Comment comment = null;
 
     if (add.getTopic()!=null) {
-      add.getTopic().checkCommentsAllowed(user, errors);
+      permissionService.checkCommentsAllowed(add.getTopic(), user, errors);
 
       String title = add.getTitle();
 

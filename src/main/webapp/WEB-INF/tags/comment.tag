@@ -4,6 +4,7 @@
 <%@ tag import="ru.org.linux.user.User" %>
 <%@ tag import="ru.org.linux.util.StringUtil" %>
 <%@ tag import="java.text.DateFormat" %>
+<%@ tag import="ru.org.linux.topic.TopicPermissionService" %>
 <%@ tag pageEncoding="UTF-8"%>
 <%--
   ~ Copyright 1998-2010 Linux.org.ru
@@ -124,7 +125,7 @@
 <%
     User currentUser = tmpl.getCurrentUser();
 
-    if (topic.isCommentsAllowed(currentUser)) {
+    if (TopicPermissionService.isCommentsAllowed(topic, currentUser)) {
       out.append("[<a href=\"add_comment.jsp?topic=").append(Integer.toString(comment.getComment().getTopicId())).append("&amp;replyto=").append(Integer.toString(comment.getComment().getMessageId())).append("\">Ответить на это сообщение</a>] ");
     }
 

@@ -168,7 +168,7 @@
           </c:if>
 
           <c:if test="${not message.expired}">
-          <% if (message.isCommentsAllowed(currentUser)) { %>
+          <% if (preparedMessage.isCommentsAllowed(currentUser)) { %>
           [<a href="comment-message.jsp?topic=${message.id}">Ответить на это сообщение</a>]
           <% } %>
         </c:if>

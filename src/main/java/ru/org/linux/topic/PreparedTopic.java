@@ -42,7 +42,7 @@ public final class PreparedTopic {
 
   private final String userAgent;
 
-  private static final int EDIT_PERIOD = 2 * 60 * 60 * 1000; // milliseconds
+  public static final int EDIT_PERIOD = 2 * 60 * 60 * 1000; // milliseconds
 
   public PreparedTopic(Topic message, User author, DeleteInfo deleteInfo, User deleteUser, String processedMessage,
                        PreparedPoll poll, User commiter, List<String> tags, Group group, Section section,
@@ -124,39 +124,11 @@ public final class PreparedTopic {
   }
 
   public boolean isEditable(User by) {
-    if (message.isDeleted()) {
-      return false;
-    }
+    return TopicPermissionService.isEditable(this, by);
+  }
 
-    if (by.isAnonymous() || by.isBlocked()) {
-      return false;
-    }
-
-    if (message.isExpired()) {
-      return by.isModerator() && section.isPremoderated();
-    }
-
-    if (by.isModerator()) {
-      if (author.isModerator()) {
-        return true;
-      }
-
-      return section.isPremoderated();
-    }
-
-    if (!message.isLorcode()) {
-      return false;
-    }
-
-    if (by.canCorrect() && section.isPremoderated()) {
-      return true;
-    }
-
-    if (by.getId()==author.getId() && !message.isCommited()) {
-      return message.isSticky() || section.isPremoderated() || (System.currentTimeMillis() - message.getPostdate().getTime()) < EDIT_PERIOD;
-    }
-
-    return false;
+  public boolean isCommentsAllowed(User user) {
+    return TopicPermissionService.isCommentsAllowed(message, user);
   }
 
   public Section getSection() {

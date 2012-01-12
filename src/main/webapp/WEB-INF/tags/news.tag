@@ -193,7 +193,7 @@
   </c:choose>
 </div>
 <div class="nav">
-<c:set var="commentsAllowed"><%= message.isCommentsAllowed(tmpl.getCurrentUser()) %></c:set>
+<c:set var="commentsAllowed"><%= preparedMessage.isCommentsAllowed(tmpl.getCurrentUser()) %></c:set>
 <c:if test="${not moderateMode and commentsAllowed}">
   [<a href="comment-message.jsp?topic=${message.id}">Добавить&nbsp;комментарий</a>]
 </c:if>

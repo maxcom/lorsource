@@ -16,7 +16,6 @@
 package ru.org.linux.topic;
 
 import com.google.common.base.Strings;
-import org.springframework.validation.Errors;
 import ru.org.linux.group.Group;
 import ru.org.linux.section.Section;
 import ru.org.linux.user.User;
@@ -29,8 +28,6 @@ import java.net.URLEncoder;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.Calendar;
-import java.util.Date;
 
 public class Topic implements Serializable {
   private final int msgid;
@@ -348,66 +345,6 @@ public class Topic implements Serializable {
     return linktext;
   }
 
-  public boolean isCommentsAllowed(User user) {
-    if (user != null && user.isBlocked()) {
-      return false;
-    }
-
-    if (deleted || expired) {
-      return false;
-    }
-
-    int score = getPostScore();
-
-    if (score == POSTSCORE_UNRESTRICTED) {
-      return true;
-    }
-
-    if (user == null || user.isAnonymous()) {
-      return false;
-    }
-
-    if (user.isModerator()) {
-      return true;
-    }
-
-    if (score == POSTSCORE_REGISTERED_ONLY) {
-      return true;
-    }
-
-    if (score == POSTSCORE_MODERATORS_ONLY) {
-      return false;
-    }
-
-    boolean isAuthor = user.getId() == userid;
-
-    if (score == POSTSCORE_MOD_AUTHOR) {
-      return isAuthor;
-    }
-
-    if (isAuthor) {
-      return true;
-    } else {
-      return user.getScore() >= score;
-    }
-  }
-
-  public void checkCommentsAllowed(User user, Errors errors) {
-    if (deleted) {
-      errors.reject(null, "Нельзя добавлять комментарии к удаленному сообщению");
-      return;
-    }
-
-    if (expired) {
-      errors.reject(null, "Сообщение уже устарело");
-      return;
-    }
-
-    if (!isCommentsAllowed(user)) {
-      errors.reject(null, "Вы не можете добавлять комментарии в эту тему");
-    }
-  }
-
   public int getUid() {
     return userid;
   }
@@ -486,58 +423,6 @@ public class Topic implements Serializable {
 
   public boolean isMinor() {
     return minor;
-  }
-
-  /**
-   * Проверка может ли пользователь удалить топик
-   * @param user пользователь удаляющий сообщение
-   * @return признак возможности удаления
-   */
-  public boolean isDeletableByUser(User user) {
-    Calendar calendar = Calendar.getInstance();
-
-    calendar.setTime(new Date());
-    calendar.add(Calendar.HOUR_OF_DAY, -1);
-    Timestamp hourDeltaTime = new Timestamp(calendar.getTimeInMillis());
-
-    return (postdate.compareTo(hourDeltaTime) >= 0 && userid == user.getId());
-  }
-
-  /**
-   * Проверка, может ли модератор удалить топик
-   * @param user пользователь удаляющий сообщение
-   * @param section местоположение топика
-   * @return признак возможности удаления
-   */
-  public boolean isDeletableByModerator(User user, Section section) {
-    // TODO убрать от сюда аргумент функции section
-    if(!user.isModerator()) {
-      return false;
-    }
-    Calendar calendar = Calendar.getInstance();
-
-    calendar.setTime(new Date());
-    calendar.add(Calendar.MONTH, -1);
-    Timestamp monthDeltaTime = new Timestamp(calendar.getTimeInMillis());
-
-    boolean ret = false;
-
-    // Если раздел премодерируемый и топик не подтвержден удалять можно
-    if(section.isPremoderated() && !moderate) {
-      ret = true;
-    }
-
-    // Если раздел премодерируемый, топик подтвержден и прошло меньше месяца с подтверждения удалять можно
-    if(section.isPremoderated() && moderate && postdate.compareTo(monthDeltaTime) >= 0) {
-      ret = true;
-    }
-
-    // Если раздел не премодерируем, удалять можно
-    if(!section.isPremoderated()) {
-      ret = true;
-    }
-
-    return ret;
   }
 
   public String getGroupUrl() {

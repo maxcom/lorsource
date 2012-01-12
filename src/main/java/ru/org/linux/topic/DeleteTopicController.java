@@ -47,6 +47,8 @@ public class DeleteTopicController extends ApplicationObjectSupport {
   private TopicDao messageDao;
   @Autowired
   private TopicPrepareService prepareService;
+  @Autowired
+  private TopicPermissionService permissionService;
 
   @RequestMapping(value="/delete.jsp", method= RequestMethod.GET)
   public ModelAndView showForm(
@@ -101,10 +103,10 @@ public class DeleteTopicController extends ApplicationObjectSupport {
       throw new UserErrorException("Сообщение уже удалено");
     }
 
-    boolean perm = message.isDeletableByUser(user);
+    boolean perm = permissionService.isDeletableByUser(message, user);
 
     if (!perm && user.isModerator()) {
-      perm = message.isDeletableByModerator(user, section);
+      perm = permissionService.isDeletableByModerator(message, user, section);
     }
 
     if (!perm) {
