@@ -16,16 +16,16 @@
 package ru.org.linux.auth;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.site.Template;
 import ru.org.linux.site.BadInputException;
 import ru.org.linux.spring.Configuration;
 import ru.org.linux.user.User;
+import ru.org.linux.user.UserBanedException;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.util.StringUtil;
 
@@ -78,6 +78,10 @@ public class LoginController {
     }
 
     final User user = userDao.getUser(nick);
+
+    if(user.isBlocked()) {
+      throw new UserBanedException(user, userDao.getBanInfoClass(user));
+    }
 
     user.checkAnonymous();
 
@@ -174,4 +178,14 @@ public class LoginController {
 
     user.acegiSecurityHack(response, session);
   }
+
+  /**
+   * Обрабатываем исключительную ситуацию для забаненого пользователя
+   */
+  @ExceptionHandler(UserBanedException.class)
+  @ResponseStatus(HttpStatus.FORBIDDEN)
+  public String handleUserBanedException(UserBanedException ex, HttpServletRequest request, HttpServletResponse response) {
+    return "error-user-banned";
+  }
+
 }

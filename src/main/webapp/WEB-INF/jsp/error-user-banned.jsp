@@ -16,9 +16,6 @@
   ~    limitations under the License.
   --%>
 
-<%
-   response.setStatus(403);
-%>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
 <title>Пользователь <c:out value="${exception.user.nick}" escapeXml="true"/> забанен.</title>
