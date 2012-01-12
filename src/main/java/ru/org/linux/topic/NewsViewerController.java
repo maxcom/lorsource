@@ -90,6 +90,8 @@ public class NewsViewerController {
           HttpServletRequest request,
           HttpServletResponse response
   ) throws Exception {
+    Template tmpl = Template.getTemplate(request);
+                                                 
     Map<String, Object> params = new HashMap<String, Object>();
 
     params.put("url", "view-news.jsp");
@@ -257,7 +259,7 @@ public class NewsViewerController {
       }
     });
 
-    params.put("messages", prepareService.prepareMessagesFeed(messages, request.isSecure()));
+    params.put("messages", prepareService.prepareMessagesForUser(messages, request.isSecure(), tmpl.getCurrentUser()));
 
     params.put("offsetNavigation", month == null);
     params.put("offset", offset);
@@ -282,6 +284,8 @@ public class NewsViewerController {
     HttpServletRequest request,
     HttpServletResponse response
   ) throws Exception {
+    Template tmpl = Template.getTemplate(request);
+    
     Map<String, Object> params = new HashMap<String, Object>();
 
     params.put("url", "/people/" + nick + '/');
@@ -323,7 +327,7 @@ public class NewsViewerController {
 
     boolean rss = output != null && "rss".equals(output);
 
-    params.put("messages", prepareService.prepareMessagesFeed(messages, request.isSecure()));
+    params.put("messages", prepareService.prepareMessagesForUser(messages, request.isSecure(), tmpl.getCurrentUser()));
 
     params.put("offsetNavigation", true);
     params.put("offset", offset);
@@ -345,6 +349,7 @@ public class NewsViewerController {
     HttpServletRequest request,
     HttpServletResponse response
   ) throws Exception {
+    Template tmpl = Template.getTemplate(request);
     Map<String, Object> params = new HashMap<String, Object>();
 
     params.put("url", "/people/"+nick+ "/favs");
@@ -386,7 +391,7 @@ public class NewsViewerController {
 
     boolean rss = output != null && "rss".equals(output);
 
-    params.put("messages", prepareService.prepareMessagesFeed(messages, request.isSecure()));
+    params.put("messages", prepareService.prepareMessagesForUser(messages, request.isSecure(), tmpl.getCurrentUser()));
 
     params.put("offsetNavigation", true);
     params.put("offset", offset);
@@ -421,6 +426,7 @@ public class NewsViewerController {
     @RequestParam(value="section", required = false, defaultValue = "0") int sectionId,
     HttpServletRequest request
   ) throws Exception {
+    Template tmpl = Template.getTemplate(request);
 
     ModelAndView modelAndView = new ModelAndView("view-all");
 
@@ -445,7 +451,7 @@ public class NewsViewerController {
       }
     });
 
-    modelAndView.getModel().put("messages", prepareService.prepareMessagesFeed(messages, request.isSecure()));
+    modelAndView.getModel().put("messages", prepareService.prepareMessagesForUser(messages, request.isSecure(), tmpl.getCurrentUser()));
 
     RowMapper<DeletedTopic> mapper = new RowMapper<DeletedTopic>() {
       @Override
@@ -689,6 +695,7 @@ public class NewsViewerController {
     @RequestParam(value="group", required = false) Integer groupId,
     HttpServletRequest request
   ) throws Exception {
+    Template tmpl = Template.getTemplate(request);
 
     if (filter!=null && !filterValuesSet.contains(filter)) {
       throw new UserErrorException("Некорректное значение filter");
@@ -761,7 +768,7 @@ public class NewsViewerController {
       }
     });
 
-    params.put("messages", prepareService.prepareMessagesFeed(messages, request.isSecure()));
+    params.put("messages", prepareService.prepareMessagesForUser(messages, request.isSecure(), tmpl.getCurrentUser()));
 
     return new ModelAndView("section-rss", params);
   }

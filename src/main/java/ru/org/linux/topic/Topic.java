@@ -61,10 +61,6 @@ public class Topic implements Serializable {
   private final boolean minor;
 
   private static final long serialVersionUID = 807240555706110851L;
-  public static final int POSTSCORE_MOD_AUTHOR = 9999;
-  public static final int POSTSCORE_UNRESTRICTED = -9999;
-  public static final int POSTSCORE_MODERATORS_ONLY = 10000;
-  public static final int POSTSCORE_REGISTERED_ONLY = -50;
   private static final String UTF8 = "UTF-8";
 
   public Topic(ResultSet rs) throws SQLException {
@@ -73,7 +69,7 @@ public class Topic implements Serializable {
     int ps = rs.getInt("postscore");
 
     if (rs.wasNull()) {
-      postscore = POSTSCORE_UNRESTRICTED;
+      postscore = TopicPermissionService.POSTSCORE_UNRESTRICTED;
     } else {
       postscore = ps;
     }
@@ -259,7 +255,7 @@ public class Topic implements Serializable {
   }
 
   private int getCommentCountRestriction() {
-    int commentCountPS = POSTSCORE_UNRESTRICTED;
+    int commentCountPS = TopicPermissionService.POSTSCORE_UNRESTRICTED;
 
     if (!sticky) {
       if (commentCount > 3000) {
@@ -285,32 +281,7 @@ public class Topic implements Serializable {
   }
 
   public String getPostScoreInfo() {
-    return getPostScoreInfo(getPostScore());
-  }
-
-  public static String getPostScoreInfo(int postscore) {
-    switch (postscore) {
-      case POSTSCORE_UNRESTRICTED:
-        return "";
-      case 100:
-        return "<b>Ограничение на отправку комментариев</b>: " + User.getStars(100, 100);
-      case 200:
-        return "<b>Ограничение на отправку комментариев</b>: " + User.getStars(200, 200);
-      case 300:
-        return "<b>Ограничение на отправку комментариев</b>: " + User.getStars(300, 300);
-      case 400:
-        return "<b>Ограничение на отправку комментариев</b>: " + User.getStars(400, 400);
-      case 500:
-        return "<b>Ограничение на отправку комментариев</b>: " + User.getStars(500, 500);
-      case POSTSCORE_MOD_AUTHOR:
-        return "<b>Ограничение на отправку комментариев</b>: только для модераторов и автора";
-      case POSTSCORE_MODERATORS_ONLY:
-        return "<b>Ограничение на отправку комментариев</b>: только для модераторов";
-      case POSTSCORE_REGISTERED_ONLY:
-        return "<b>Ограничение на отправку комментариев</b>: только для зарегистрированных пользователей";
-      default:
-        return "<b>Ограничение на отправку комментариев</b>: только для зарегистрированных пользователей, score>=" + postscore;
-    }
+    return TopicPermissionService.getPostScoreInfo(getPostScore());
   }
 
   public int getMessageId() {

@@ -15,32 +15,20 @@
 
 package ru.org.linux.topic;
 
-public class TopicMenu {
-  private final boolean editable;
-  private final boolean resolvable;
-  private final int memoriesId;
-  private final boolean commentsAllowed;
+public class PersonalizedPreparedTopic {
+  private final PreparedTopic preparedTopic;
+  private final TopicMenu topicMenu;
 
-  public TopicMenu(boolean editable, boolean resolvable, int memoriesId, boolean commentsAllowed) {
-    this.editable = editable;
-    this.resolvable = resolvable;
-    this.memoriesId = memoriesId;
-    this.commentsAllowed = commentsAllowed;
+  public PersonalizedPreparedTopic(PreparedTopic preparedTopic, TopicMenu topicMenu) {
+    this.preparedTopic = preparedTopic;
+    this.topicMenu = topicMenu;
   }
 
-  public boolean isEditable() {
-    return editable;
+  public PreparedTopic getPreparedTopic() {
+    return preparedTopic;
   }
 
-  public boolean isResolvable() {
-    return resolvable;
-  }
-
-  public int getMemoriesId() {
-    return memoriesId;
-  }
-
-  public boolean isCommentsAllowed() {
-    return commentsAllowed;
+  public TopicMenu getTopicMenu() {
+    return topicMenu;
   }
 }

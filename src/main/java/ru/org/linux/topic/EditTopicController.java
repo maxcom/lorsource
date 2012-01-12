@@ -71,6 +71,9 @@ public class EditTopicController {
   @Autowired
   private PollDao pollDao;
 
+  @Autowired
+  private TopicPermissionService permissionService;
+
   @RequestMapping(value = "/commit.jsp", method = RequestMethod.GET)
   public ModelAndView showCommitForm(
     HttpServletRequest request,
@@ -121,7 +124,7 @@ public class EditTopicController {
 
     PreparedTopic preparedMessage = messagePrepareService.prepareMessage(message, false, request.isSecure());
 
-    if (!preparedMessage.isEditable(user)) {
+    if (!permissionService.isEditable(preparedMessage, user)) {
       throw new AccessViolationException("это сообщение нельзя править");
     }
 
@@ -218,7 +221,7 @@ public class EditTopicController {
 
     User user = tmpl.getCurrentUser();
 
-    if (!preparedMessage.isEditable(user)) {
+    if (!permissionService.isEditable(preparedMessage, user)) {
       throw new AccessViolationException("это сообщение нельзя править");
     }
 

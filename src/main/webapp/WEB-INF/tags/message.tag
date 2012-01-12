@@ -32,7 +32,6 @@
   Template tmpl = Template.getTemplate(request);
 
   User author = preparedMessage.getAuthor();
-  User currentUser = tmpl.getCurrentUser();
 
   int msgid = message.getMessageId();
 %>
@@ -168,9 +167,9 @@
           </c:if>
 
           <c:if test="${not message.expired}">
-          <% if (preparedMessage.isCommentsAllowed(currentUser)) { %>
-          [<a href="comment-message.jsp?topic=${message.id}">Ответить на это сообщение</a>]
-          <% } %>
+            <c:if test="${messageMenu.commentsAllowed}">
+              [<a href="comment-message.jsp?topic=${message.id}">Ответить на это сообщение</a>]
+            </c:if>
         </c:if>
         <c:if test="${messageMenu.editable}">
             [<a href="edit.jsp?msgid=${message.id}">Править</a>]

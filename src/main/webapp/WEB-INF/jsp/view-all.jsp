@@ -16,7 +16,7 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
-<%--@elvariable id="messages" type="java.util.List<ru.org.linux.topic.PreparedTopic>"--%>
+<%--@elvariable id="messages" type="java.util.List<ru.org.linux.topic.PersonalizedPreparedTopic>"--%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <%--@elvariable id="deletedTopics" type="java.util.List<ru.org.linux.topic.NewsViewerController.DeletedTopic>"--%>
 <%--@elvariable id="sections" type="java.util.List<ru.org.linux.section.Section>"--%>
@@ -76,8 +76,8 @@
 <strong>Внимание модераторам!</strong> Не подтверждайте сразу
 много скриншотов, дайте им повисеть на главной странице.<p>
 <c:forEach var="msg" items="${messages}">
-  <lor:news
-          preparedMessage="${msg}"
+  <lor:news messageMenu="${msg.topicMenu}"
+          preparedMessage="${msg.preparedTopic}"
           multiPortal="<%= sectionid==0 %>"
           moderateMode="true"/>
 </c:forEach>

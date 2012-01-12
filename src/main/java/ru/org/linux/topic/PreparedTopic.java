@@ -123,14 +123,6 @@ public final class PreparedTopic {
     return group;
   }
 
-  public boolean isEditable(User by) {
-    return TopicPermissionService.isEditable(this, by);
-  }
-
-  public boolean isCommentsAllowed(User user) {
-    return TopicPermissionService.isCommentsAllowed(message, user);
-  }
-
   public Section getSection() {
     return section;
   }

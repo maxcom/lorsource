@@ -83,15 +83,15 @@ public class TopicModificationController extends ApplicationObjectSupport {
       throw new AccessViolationException("Not moderator");
     }
 
-    if (postscore < Topic.POSTSCORE_UNRESTRICTED) {
+    if (postscore < TopicPermissionService.POSTSCORE_UNRESTRICTED) {
       throw new UserErrorException("invalid postscore " + postscore);
     }
 
-    if (postscore > Topic.POSTSCORE_UNRESTRICTED && postscore < Topic.POSTSCORE_REGISTERED_ONLY) {
+    if (postscore > TopicPermissionService.POSTSCORE_UNRESTRICTED && postscore < TopicPermissionService.POSTSCORE_REGISTERED_ONLY) {
       throw new UserErrorException("invalid postscore " + postscore);
     }
 
-    if (postscore > Topic.POSTSCORE_MODERATORS_ONLY) {
+    if (postscore > TopicPermissionService.POSTSCORE_MODERATORS_ONLY) {
       throw new UserErrorException("invalid postscore " + postscore);
     }
 
@@ -266,7 +266,7 @@ public class TopicModificationController extends ApplicationObjectSupport {
   }
 
   public static String getPostScoreInfoFull(int postscore) {
-    String info = Topic.getPostScoreInfo(postscore);
+    String info = TopicPermissionService.getPostScoreInfo(postscore);
     if (info.isEmpty()) {
       return "без ограничений";
     } else {

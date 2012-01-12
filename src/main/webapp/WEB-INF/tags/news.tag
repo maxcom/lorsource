@@ -9,6 +9,7 @@
 <%@ tag import="ru.org.linux.topic.Topic" %>
 <%@ tag pageEncoding="UTF-8"%>
 <%@ attribute name="preparedMessage" required="true" type="ru.org.linux.topic.PreparedTopic" %>
+<%@ attribute name="messageMenu" required="true" type="ru.org.linux.topic.TopicMenu" %>
 <%@ attribute name="multiPortal" required="true" type="java.lang.Boolean" %>
 <%@ attribute name="moderateMode" required="true" type="java.lang.Boolean" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
@@ -94,7 +95,6 @@
 <c:if test="${not message.minor}">
 <div class=news id="topic-${message.id}">
 <%
-  int msgid = message.getId();
   String url = message.getUrl();
   boolean imagepost = preparedMessage.getSection().isImagepost();
   boolean votepoll = message.isVotePoll();
@@ -196,8 +196,7 @@
   </c:choose>
 </div>
 <div class="nav">
-<c:set var="commentsAllowed"><%= preparedMessage.isCommentsAllowed(tmpl.getCurrentUser()) %></c:set>
-<c:if test="${not moderateMode and commentsAllowed}">
+<c:if test="${not moderateMode and messageMenu.commentsAllowed}">
   [<a href="comment-message.jsp?topic=${message.id}">Добавить&nbsp;комментарий</a>]
 </c:if>
   <c:if test="${moderateMode and template.sessionAuthorized}">
@@ -208,11 +207,10 @@
     <c:if test="${template.moderatorSession or template.currentUser.id == message.uid}">
        [<a href="delete.jsp?msgid=${message.id}">Удалить</a>]
     </c:if>
-<%
-      if (preparedMessage.isEditable(tmpl.getCurrentUser())) {
-        out.append(" [<a href=\"edit.jsp?msgid=").append(Integer.toString(msgid)).append("\">Править</a>]");
-      }
-%>
+
+    <c:if test="${messageMenu.editable}">
+       [<a href="edit.jsp?msgid=${message.id}">Править</a>]
+    </c:if>
   </c:if>
   <c:out value="${commentsLinks}" escapeXml="false"/>
   </div>

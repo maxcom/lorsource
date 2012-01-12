@@ -69,6 +69,7 @@
 
     <div class=messages>
         <lor:comment
+                commentsAllowed="false"
                 showMenu="false"
                 comment="${onComment}"
                 comments="${null}"
@@ -84,7 +85,7 @@
 <c:if test="${comment!=null}">
   <p><b>Ваше сообщение</b></p>
   <div class=messages>
-    <lor:comment showMenu="false" comment="${comment}" comments="${null}" expired="${false}" topic="${null}"/>
+    <lor:comment commentsAllowed="false" showMenu="false" comment="${comment}" comments="${null}" expired="${false}" topic="${null}"/>
   </div>
 </c:if>
 

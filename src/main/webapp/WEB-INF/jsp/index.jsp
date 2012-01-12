@@ -19,7 +19,7 @@
   ~    limitations under the License.
   --%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
-<%--@elvariable id="news" type="java.util.List<ru.org.linux.topic.PreparedTopic>"--%>
+<%--@elvariable id="news" type="java.util.List<ru.org.linux.topic.PersonalizedPreparedTopic>"--%>
 <%--@elvariable id="uncommited" type="java.lang.Integer"--%>
 <%--@elvariable id="uncommitedNews" type="java.lang.Integer"--%>
 
@@ -86,7 +86,7 @@ SoC, Graphene, MEMS, Biomedical Engineering. Дополнительная инф
   }
 %>
     <c:forEach var="msg" items="${news}">
-      <lorDir:news preparedMessage="${msg}" multiPortal="<%= multiPortal %>" moderateMode="false"/>
+      <lorDir:news preparedMessage="${msg.preparedTopic}" messageMenu="${msg.topicMenu}" multiPortal="<%= multiPortal %>" moderateMode="false"/>
     </c:forEach>
 <div class="nav">
   [<a href="/news/?offset=20">← предыдущие</a>]

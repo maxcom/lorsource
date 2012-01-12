@@ -24,6 +24,7 @@
 <%@ attribute name="comments" required="true" type="ru.org.linux.comment.CommentList" %>
 <%@ attribute name="expired" required="true" type="java.lang.Boolean"%>
 <%@ attribute name="showMenu" required="true" type="java.lang.Boolean"%>
+<%@ attribute name="commentsAllowed" required="true" type="java.lang.Boolean" %>
 <%@ attribute name="topic" required="true" type="ru.org.linux.topic.Topic" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
@@ -120,21 +121,18 @@
         </c:if>
       </c:if>
     </div>
-<c:if test="${not comment.comment.deleted and showMenu}">
+  <c:if test="${not comment.comment.deleted and showMenu}">
     <div class=reply>
+      <c:if test="${commentsAllowed}">
+        [<a href="add_comment.jsp?topic=${topic.id}&amp;replyto=${comment.comment.id}">Ответить на это сообщение</a>]
+      </c:if>
 <%
-    User currentUser = tmpl.getCurrentUser();
-
-    if (TopicPermissionService.isCommentsAllowed(topic, currentUser)) {
-      out.append("[<a href=\"add_comment.jsp?topic=").append(Integer.toString(comment.getComment().getTopicId())).append("&amp;replyto=").append(Integer.toString(comment.getComment().getMessageId())).append("\">Ответить на это сообщение</a>] ");
-    }
-
     if (moderatorMode || (!topic.isExpired() && comment.getAuthor().getNick().equals(tmpl.getNick()))) {
       out.append("[<a href=\"delete_comment.jsp?msgid=").append(Integer.toString(comment.getComment().getMessageId())).append("\">Удалить</a>]");
     }
 %>
      </div>
-</c:if>
+  </c:if>
 
   </div><div style="clear: both"></div>
 </div>

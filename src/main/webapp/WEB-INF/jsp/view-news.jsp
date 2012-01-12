@@ -18,7 +18,7 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
-<%--@elvariable id="messages" type="java.util.List<ru.org.linux.topic.PreparedTopic>"--%>
+<%--@elvariable id="messages" type="java.util.List<ru.org.linux.topic.PersonalizedPreparedTopic>"--%>
 <%--@elvariable id="section" type="ru.org.linux.section.Section"--%>
 <%--@elvariable id="group" type="ru.org.linux.group.Group"--%>
 <%--@elvariable id="offset" type="java.lang.Integer"--%>
@@ -91,7 +91,7 @@
 
 <H1 class="optional">${ptitle}</H1>
 <c:forEach var="msg" items="${messages}">
-  <lor:news preparedMessage="${msg}" multiPortal="<%= section==null && group==null %>" moderateMode="false"/>
+  <lor:news preparedMessage="${msg.preparedTopic}" messageMenu="${msg.topicMenu}" multiPortal="<%= section==null && group==null %>" moderateMode="false"/>
 </c:forEach>
 
 <c:if test="${offsetNavigation}">

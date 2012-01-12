@@ -1,6 +1,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page contentType="text/html; charset=utf-8" %>
 <%@ page import="ru.org.linux.topic.Topic" %>
+<%@ page import="ru.org.linux.topic.TopicPermissionService" %>
 <%--
   ~ Copyright 1998-2010 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -40,16 +41,16 @@
   Ограничение комментирования:
 
   <select name="postscore">
-    <option <%= postscore== Topic.POSTSCORE_UNRESTRICTED?"selected":"" %> value="<%= Topic.POSTSCORE_UNRESTRICTED %>">без ограничений</option>
-    <option <%= postscore== Topic.POSTSCORE_REGISTERED_ONLY?"selected":"" %> value="<%= Topic.POSTSCORE_REGISTERED_ONLY %>">для зарегистрированных</option>
+    <option <%= postscore== TopicPermissionService.POSTSCORE_UNRESTRICTED?"selected":"" %> value="<%= TopicPermissionService.POSTSCORE_UNRESTRICTED %>">без ограничений</option>
+    <option <%= postscore== TopicPermissionService.POSTSCORE_REGISTERED_ONLY?"selected":"" %> value="<%= TopicPermissionService.POSTSCORE_REGISTERED_ONLY %>">для зарегистрированных</option>
     <option <%= postscore==50?"selected":"" %> value="50">score>=50</option>
     <option <%= postscore==100?"selected":"" %> value="100">100 - одна "звезда"</option>
     <option <%= postscore==200?"selected":"" %> value="200">200 - две "звезды"</option>
     <option <%= postscore==300?"selected":"" %> value="300">300 - три "звезды"</option>
     <option <%= postscore==400?"selected":"" %> value="400">400 - четыре "звезды"</option>
     <option <%= postscore==500?"selected":"" %> value="500">500 - пять "звезд"</option>
-    <option <%= postscore== Topic.POSTSCORE_MOD_AUTHOR?"selected":"" %> value="<%= Topic.POSTSCORE_MOD_AUTHOR%>">только для модераторов и автора</option>
-    <option <%= postscore== Topic.POSTSCORE_MODERATORS_ONLY?"selected":"" %> value="<%= Topic.POSTSCORE_MODERATORS_ONLY%>">только для модераторов</option>
+    <option <%= postscore== TopicPermissionService.POSTSCORE_MOD_AUTHOR?"selected":"" %> value="<%= TopicPermissionService.POSTSCORE_MOD_AUTHOR%>">только для модераторов и автора</option>
+    <option <%= postscore== TopicPermissionService.POSTSCORE_MODERATORS_ONLY?"selected":"" %> value="<%= TopicPermissionService.POSTSCORE_MODERATORS_ONLY%>">только для модераторов</option>
   </select>
     </label>
     <br>

@@ -69,6 +69,9 @@ public class TopicPrepareService {
 
   @Autowired
   private MemoriesDao memoriesDao;
+
+  @Autowired
+  private TopicPermissionService permissionService;
   
   public PreparedTopic prepareTopicForView(Topic message, boolean minimizeCut, boolean secure, User user) {
     return prepareMessage(message, messageDao.getTags(message), minimizeCut, null, secure, user);
@@ -185,19 +188,20 @@ public class TopicPrepareService {
    * @param secure является ли соединение https
    * @return список подготовленных топиков
    */
-  public List<PreparedTopic> prepareMessagesFeed(List<Topic> messages, boolean secure) {
-    List<PreparedTopic> pm = new ArrayList<PreparedTopic>(messages.size());
+  public List<PersonalizedPreparedTopic> prepareMessagesForUser(List<Topic> messages, boolean secure, User user) {
+    List<PersonalizedPreparedTopic> pm = new ArrayList<PersonalizedPreparedTopic>(messages.size());
 
     for (Topic message : messages) {
       PreparedTopic preparedMessage = prepareMessage(message, messageDao.getTags(message), true, null, secure);
-      pm.add(preparedMessage);
+      TopicMenu topicMenu = getMessageMenu(preparedMessage, user);
+      pm.add(new PersonalizedPreparedTopic(preparedMessage, topicMenu));
     }
 
     return pm;
   }
 
   public TopicMenu getMessageMenu(PreparedTopic message, User currentUser) {
-    boolean editable = currentUser!=null && message.isEditable(currentUser);
+    boolean editable = currentUser!=null && permissionService.isEditable(message, currentUser);
     boolean resolvable;
     int memoriesId;
 
@@ -211,6 +215,6 @@ public class TopicPrepareService {
       memoriesId = 0;
     }
 
-    return new TopicMenu(editable, resolvable, memoriesId);
+    return new TopicMenu(editable, resolvable, memoriesId, permissionService.isCommentsAllowed(message.getMessage(), currentUser));
   }
 }

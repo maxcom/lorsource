@@ -26,6 +26,36 @@ import java.util.Date;
 
 @Service
 public class TopicPermissionService {
+  public static final int POSTSCORE_MOD_AUTHOR = 9999;
+  public static final int POSTSCORE_UNRESTRICTED = -9999;
+  public static final int POSTSCORE_MODERATORS_ONLY = 10000;
+  public static final int POSTSCORE_REGISTERED_ONLY = -50;
+
+  public static String getPostScoreInfo(int postscore) {
+    switch (postscore) {
+      case POSTSCORE_UNRESTRICTED:
+        return "";
+      case 100:
+        return "<b>Ограничение на отправку комментариев</b>: " + User.getStars(100, 100);
+      case 200:
+        return "<b>Ограничение на отправку комментариев</b>: " + User.getStars(200, 200);
+      case 300:
+        return "<b>Ограничение на отправку комментариев</b>: " + User.getStars(300, 300);
+      case 400:
+        return "<b>Ограничение на отправку комментариев</b>: " + User.getStars(400, 400);
+      case 500:
+        return "<b>Ограничение на отправку комментариев</b>: " + User.getStars(500, 500);
+      case POSTSCORE_MOD_AUTHOR:
+        return "<b>Ограничение на отправку комментариев</b>: только для модераторов и автора";
+      case POSTSCORE_MODERATORS_ONLY:
+        return "<b>Ограничение на отправку комментариев</b>: только для модераторов";
+      case POSTSCORE_REGISTERED_ONLY:
+        return "<b>Ограничение на отправку комментариев</b>: только для зарегистрированных пользователей";
+      default:
+        return "<b>Ограничение на отправку комментариев</b>: только для зарегистрированных пользователей, score>=" + postscore;
+    }
+  }
+
   public void checkCommentsAllowed(Topic topic, User user, Errors errors) {
     if (topic.isDeleted()) {
       errors.reject(null, "Нельзя добавлять комментарии к удаленному сообщению");
@@ -42,7 +72,7 @@ public class TopicPermissionService {
     }
   }
   
-  public static boolean isCommentsAllowed(Topic topic, User user) {
+  public boolean isCommentsAllowed(Topic topic, User user) {
     if (user != null && user.isBlocked()) {
       return false;
     }
@@ -53,7 +83,7 @@ public class TopicPermissionService {
 
     int score = topic.getPostScore();
 
-    if (score == Topic.POSTSCORE_UNRESTRICTED) {
+    if (score == POSTSCORE_UNRESTRICTED) {
       return true;
     }
 
@@ -65,17 +95,17 @@ public class TopicPermissionService {
       return true;
     }
 
-    if (score == Topic.POSTSCORE_REGISTERED_ONLY) {
+    if (score == POSTSCORE_REGISTERED_ONLY) {
       return true;
     }
 
-    if (score == Topic.POSTSCORE_MODERATORS_ONLY) {
+    if (score == POSTSCORE_MODERATORS_ONLY) {
       return false;
     }
 
     boolean isAuthor = user.getId() == topic.getUid();
 
-    if (score == Topic.POSTSCORE_MOD_AUTHOR) {
+    if (score == POSTSCORE_MOD_AUTHOR) {
       return isAuthor;
     }
 
@@ -138,7 +168,7 @@ public class TopicPermissionService {
     return (topic.getPostdate().compareTo(hourDeltaTime) >= 0 && topic.getUid() == user.getId());
   }
   
-  public static boolean isEditable(PreparedTopic topic, User by) {
+  public boolean isEditable(PreparedTopic topic, User by) {
     Topic message = topic.getMessage();
     Section section = topic.getSection();
     User author = topic.getAuthor();
