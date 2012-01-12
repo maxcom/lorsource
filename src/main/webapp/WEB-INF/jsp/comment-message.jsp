@@ -17,11 +17,11 @@
   --%>
 <%--@elvariable id="preparedMessage" type="ru.org.linux.topic.PreparedTopic"--%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
-<%--@elvariable id="add" type="ru.org.linux.spring.AddCommentRequest"--%>
+<%--@elvariable id="add" type="ru.org.linux.comment.AddCommentRequest"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
-<title>${preparedMessage.section.title} - ${add.topic.groupTitle} - ${add.topic.title}</title>
+<title>${preparedMessage.section.title} - ${preparedMessage.group.title} - ${add.topic.title}</title>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 <div class=messages>
   <lor:message messageMenu="<%= null %>" preparedMessage="${preparedMessage}" message="${add.topic}" showMenu="false"/>
