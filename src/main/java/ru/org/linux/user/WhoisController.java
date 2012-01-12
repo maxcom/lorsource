@@ -17,6 +17,7 @@ package ru.org.linux.user;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -27,6 +28,8 @@ import ru.org.linux.site.Template;
 import ru.org.linux.util.bbcode.LorCodeService;
 
 import javax.servlet.ServletRequest;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.net.URLEncoder;
 import java.util.Set;
 
@@ -83,5 +86,14 @@ public class WhoisController {
   @RequestMapping("/whois.jsp")
   public View getInfo(@RequestParam("nick") String nick) {
     return new RedirectView("/people/"+ URLEncoder.encode(nick)+"/profile");
+  }
+
+  /**
+   * Обрабатываем исключительную ситуацию для забаненого пользователя
+   */
+  @ExceptionHandler(UserBanedException.class)
+  public String handleUserBanedException(UserBanedException ex, HttpServletRequest request, HttpServletResponse response) {
+    response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+    return "error-user-banned";
   }
 }
