@@ -327,16 +327,18 @@ public class NewsViewerController {
 
     boolean rss = output != null && "rss".equals(output);
 
-    params.put("messages", prepareService.prepareMessagesForUser(messages, request.isSecure(), tmpl.getCurrentUser()));
-
     params.put("offsetNavigation", true);
     params.put("offset", offset);
 
     params.put("rssLink", "/people/" + nick + "/?output=rss");
 
     if (rss) {
+      params.put("messages", prepareService.prepareMessages(messages, request.isSecure()));
+
       return new ModelAndView("section-rss", params);
     } else {
+      params.put("messages", prepareService.prepareMessagesForUser(messages, request.isSecure(), tmpl.getCurrentUser()));
+
       return new ModelAndView("view-news", params);
     }
   }
@@ -391,16 +393,18 @@ public class NewsViewerController {
 
     boolean rss = output != null && "rss".equals(output);
 
-    params.put("messages", prepareService.prepareMessagesForUser(messages, request.isSecure(), tmpl.getCurrentUser()));
-
     params.put("offsetNavigation", true);
     params.put("offset", offset);
 
     params.put("rssLink", "/people/" + nick + "/favs?output=rss");
 
     if (rss) {
+      params.put("messages", prepareService.prepareMessages(messages, request.isSecure()));
+
       return new ModelAndView("section-rss", params);
     } else {
+      params.put("messages", prepareService.prepareMessagesForUser(messages, request.isSecure(), tmpl.getCurrentUser()));
+
       return new ModelAndView("view-news", params);
     }
   }
@@ -695,8 +699,6 @@ public class NewsViewerController {
     @RequestParam(value="group", required = false) Integer groupId,
     HttpServletRequest request
   ) throws Exception {
-    Template tmpl = Template.getTemplate(request);
-
     if (filter!=null && !filterValuesSet.contains(filter)) {
       throw new UserErrorException("Некорректное значение filter");
     }
@@ -768,7 +770,7 @@ public class NewsViewerController {
       }
     });
 
-    params.put("messages", prepareService.prepareMessagesForUser(messages, request.isSecure(), tmpl.getCurrentUser()));
+    params.put("messages", prepareService.prepareMessages(messages, request.isSecure()));
 
     return new ModelAndView("section-rss", params);
   }

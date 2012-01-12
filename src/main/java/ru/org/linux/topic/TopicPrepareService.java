@@ -200,6 +200,24 @@ public class TopicPrepareService {
     return pm;
   }
 
+  /**
+   * Подготовка ленты топиков, используется в NewsViewerController например
+   * сообщения рендерятся со свернутым cut
+   * @param messages список топиков
+   * @param secure является ли соединение https
+   * @return список подготовленных топиков
+   */
+  public List<PreparedTopic> prepareMessages(List<Topic> messages, boolean secure) {
+    List<PreparedTopic> pm = new ArrayList<PreparedTopic>(messages.size());
+
+    for (Topic message : messages) {
+      PreparedTopic preparedMessage = prepareMessage(message, messageDao.getTags(message), true, null, secure);
+      pm.add(preparedMessage);
+    }
+
+    return pm;
+  }
+
   public TopicMenu getMessageMenu(PreparedTopic message, User currentUser) {
     boolean editable = currentUser!=null && permissionService.isEditable(message, currentUser);
     boolean resolvable;
