@@ -91,7 +91,7 @@
 
 <H1 class="optional">${ptitle}</H1>
 <c:forEach var="msg" items="${messages}">
-  <lor:news message="${msg.message}" preparedMessage="${msg}" multiPortal="<%= section==null && group==null %>" moderateMode="false"/>
+  <lor:news preparedMessage="${msg}" multiPortal="<%= section==null && group==null %>" moderateMode="false"/>
 </c:forEach>
 
 <c:if test="${offsetNavigation}">

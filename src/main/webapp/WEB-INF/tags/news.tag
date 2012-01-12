@@ -6,8 +6,8 @@
 <%@ tag import="ru.org.linux.util.StringUtil" %>
 <%@ tag import="java.io.File" %>
 <%@ tag import="java.io.IOException" %>
+<%@ tag import="ru.org.linux.topic.Topic" %>
 <%@ tag pageEncoding="UTF-8"%>
-<%@ attribute name="message" required="true" type="ru.org.linux.topic.Topic" %>
 <%@ attribute name="preparedMessage" required="true" type="ru.org.linux.topic.PreparedTopic" %>
 <%@ attribute name="multiPortal" required="true" type="java.lang.Boolean" %>
 <%@ attribute name="moderateMode" required="true" type="java.lang.Boolean" %>
@@ -29,8 +29,11 @@
   ~    limitations under the License.
   --%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
+<c:set var="message" value="${preparedMessage.message}"/>
+
 <%
   Template tmpl = Template.getTemplate(request);
+  Topic message = preparedMessage.getMessage();
   int pages = message.getPageCount(tmpl.getProf().getMessages());
 %>
 
