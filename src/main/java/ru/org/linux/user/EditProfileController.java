@@ -18,6 +18,7 @@ package ru.org.linux.user;
 import javax.servlet.ServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestParam;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.site.Template;
 import ru.org.linux.site.BadInputException;
@@ -52,7 +53,12 @@ public class EditProfileController {
   }
 
   @RequestMapping(method=RequestMethod.POST)
-  public ModelAndView editProfile(ServletRequest request) throws Exception {
+  public ModelAndView editProfile(
+          ServletRequest request,
+          @RequestParam("tags") int tags,
+          @RequestParam("topics") int topics,
+          @RequestParam("messages") int messages
+  ) throws Exception {
     Template tmpl = Template.getTemplate(request);
 
     if (!tmpl.isSessionAuthorized()) {
@@ -60,10 +66,6 @@ public class EditProfileController {
     }
 
     String profile = tmpl.getNick();
-
-    int topics = Integer.parseInt(request.getParameter("topics"));
-    int messages = Integer.parseInt(request.getParameter("messages"));
-    int tags = Integer.parseInt(request.getParameter("tags"));
 
     if (topics <= 0 || topics > 500) {
       throw new BadInputException("некорректное число тем");
