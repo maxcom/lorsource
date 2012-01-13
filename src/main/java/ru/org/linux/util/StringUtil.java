@@ -222,4 +222,8 @@ public final class StringUtil {
     return sb.toString();
   }
 
+  public static boolean isUnsignedPositiveNumber(String s) {
+    return s.matches("\\d+");
+  }
+
 }

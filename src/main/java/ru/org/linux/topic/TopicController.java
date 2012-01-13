@@ -38,7 +38,7 @@ import ru.org.linux.spring.Configuration;
 import ru.org.linux.user.IgnoreListDao;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.user.User;
-import ru.org.linux.util.LorURI;
+import ru.org.linux.util.LorURL;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -452,8 +452,8 @@ public class TopicController {
       List<PreparedComment> commentsPrepared = prepareService.prepareCommentListRSS(comments, commentsFiltred, request.isSecure());
 
       params.put("commentsPrepared", commentsPrepared);
-      LorURI lorURI = new LorURI(configuration.getMainURI(), configuration.getMainUrl());
-      params.put("mainURL", lorURI.fixScheme(request.isSecure()));
+      LorURL lorURL = new LorURL(configuration.getMainURI(), configuration.getMainUrl());
+      params.put("mainURL", lorURL.fixScheme(request.isSecure()));
     }
 
     return new ModelAndView(rss ? "view-message-rss" : "view-message", params);

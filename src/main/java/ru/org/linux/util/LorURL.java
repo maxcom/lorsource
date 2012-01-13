@@ -12,7 +12,6 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-
 package ru.org.linux.util;
 
 import org.apache.commons.httpclient.HttpURL;
@@ -21,138 +20,114 @@ import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import ru.org.linux.group.BadGroupException;
 import ru.org.linux.group.Group;
-import ru.org.linux.topic.Topic;
 import ru.org.linux.site.MessageNotFoundException;
+import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicDao;
 
+import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * Helper class for lorsource uri
- */
-public class LorURI {
+import static ru.org.linux.util.StringUtil.isUnsignedPositiveNumber;
+
+public class LorURL extends URI {
+  
   private static final Pattern requestMessagePattern = Pattern.compile("^/[\\w-]+/[\\w-]+/(\\d+)");
   private static final Pattern requestCommentPattern = Pattern.compile("^comment-(\\d+)");
   private static final Pattern requestConmmentPatternNew = Pattern.compile("cid=(\\d+)");
   private static final Pattern requestOldJumpPathPattern = Pattern.compile("^/jump-message.jsp$");
   private static final Pattern requestOldJumpQueryPattern = Pattern.compile("^msgid=(\\d+)&amp;cid=(\\d+)");
+  
 
-  private final URI lorURI;
-  private final URI mainURI;
-  private final boolean trueLorUrl;
-  private final boolean messageUrl;
-  private final int messageId;
-  private final boolean commentUrl;
-  private final int commentId;
+  protected boolean _true_lor_url = false;
+  protected char[] _main_host = null;
+  protected int _main_port = -1;
+  protected final char[] _http_scheme = "http".toCharArray();
+  protected final char[] _https_scheme = "https".toCharArray();
+  
+  protected int _topic_id = -1;
+  protected int _comment_id = -1;
 
-  /**
-   * Создаем объект с проверкой что url это подмножество mainUrl и
-   * попыткой вычеленить из url id топика и комментария
-   * если url неправильные генерируем исключение
-   * @param mainURI основоной URI сайта из конфигурации
-   * @param url обрабатываемый url
-   * @throws URIException если url неправильный
-   */
-  public LorURI(URI mainURI, String url) throws URIException {
-    this.mainURI = mainURI;
-    URI uri;
+  public LorURL(URI mainURI, String url) throws URIException {
+    protocolCharset = "UTF-8";
     try {
-      uri = new URI(url, true, "UTF-8");
-    } catch (URIException e) {
-      uri = new URI(url, false, "UTF-8");
-    }
-    lorURI = uri;
-    if(lorURI.getHost() == null) {
-      throw new URIException();
-    }
-    /*
-    это uri из lorsouce если хост и порт совпадают и scheme http или https
-     */
-    trueLorUrl = (mainURI.getHost().equals(lorURI.getHost()) && mainURI.getPort() == lorURI.getPort()
-                  && ("http".equals(lorURI.getScheme()) || "https".equals(lorURI.getScheme())));
+      parseUriReference(url, true);
+      if(_host == null) {
+        throw new URIException("no host");
+      }
 
-    if (trueLorUrl) {
+      _main_host = mainURI.getRawHost();
+      _main_port = mainURI.getPort();
+
+      _true_lor_url = Arrays.equals(_main_host, _host) && _main_port == _port
+          && (Arrays.equals(_http_scheme, _scheme) || Arrays.equals(_https_scheme, _scheme));
+
+      findURLIds();
+    } catch (URIException ex) {
+        parseUriReference(url, false);
+        if(_host == null) {
+          throw new URIException("no host");
+        }
+
+        _main_host = mainURI.getRawHost();
+        _main_port = mainURI.getPort();
+
+        _true_lor_url = Arrays.equals(_main_host, _host) && _main_port == _port
+            && (Arrays.equals(_http_scheme, _scheme) || Arrays.equals(_https_scheme, _scheme));
+
+        findURLIds();
+    }
+  }
+  
+  protected void findURLIds() throws URIException {
+    if(_true_lor_url) {
       // find message id in lor url
-      int msgId = 0;
-      int commId = 0;
-      boolean isMsg = false;
-      boolean isComm = false;
-      if(lorURI.getPath() != null && lorURI.getQuery() != null) {
-        Matcher oldJumpPathMatcher = requestOldJumpPathPattern.matcher(lorURI.getPath());
-        Matcher oldJumpQueryMatcher = requestOldJumpQueryPattern.matcher(lorURI.getQuery());
+      String path = getPath();
+      String query = getQuery();
+      String fragment = getFragment();
+      
+      if(path != null && query != null) {
+        Matcher oldJumpPathMatcher = requestOldJumpPathPattern.matcher(path);
+        Matcher oldJumpQueryMatcher = requestOldJumpQueryPattern.matcher(query);
         if(oldJumpPathMatcher.find() && oldJumpQueryMatcher.find()) {
-          try {
-            msgId = Integer.parseInt(oldJumpQueryMatcher.group(1));
-            commId = Integer.parseInt(oldJumpQueryMatcher.group(2));
-            isMsg = true;
-            isComm = true;
-          } catch (NumberFormatException e) {
-            msgId = 0;
-            commId = 0;
-            isMsg = false;
-            isComm = false;
+          if(isUnsignedPositiveNumber(oldJumpQueryMatcher.group(1)) && 
+              isUnsignedPositiveNumber(oldJumpQueryMatcher.group(2))) {
+            _topic_id = Integer.parseInt(oldJumpQueryMatcher.group(1));
+            _comment_id = Integer.parseInt(oldJumpQueryMatcher.group(2)); 
           }
         }
       }
-      String path = lorURI.getPath();
-      if (path != null && !isMsg) {
+      
+      if (path != null && _topic_id == -1) {
         Matcher messageMatcher = requestMessagePattern.matcher(path);
 
         if (messageMatcher.find()) {
-          try {
-            msgId = Integer.parseInt(messageMatcher.group(1));
-            isMsg = true;
-          } catch (NumberFormatException e) {
-            msgId = 0;
-            isMsg = false;
+          if(isUnsignedPositiveNumber(messageMatcher.group(1))) {
+            _topic_id = Integer.parseInt(messageMatcher.group(1)); 
           }
-        } else {
-          msgId = 0;
-          isMsg = false;
         }
         if(path.endsWith("/history")) {
-          isMsg = false;
+          _topic_id = -1;
         }
       }
-      messageId = msgId;
-      messageUrl = isMsg;
 
-      // find comment id in lor url
-      String fragment = lorURI.getFragment();
-      if (fragment != null) {
+      if (fragment != null && _topic_id != -1) {
         Matcher commentMatcher = requestCommentPattern.matcher(fragment);
         if (commentMatcher.find()) {
-          try {
-            commId = Integer.parseInt(commentMatcher.group(1));
-            isComm = true;
-          } catch (NumberFormatException e) {
-            commId = 0;
-            isComm = false;
+          if(isUnsignedPositiveNumber(commentMatcher.group(1))) {
+            _comment_id = Integer.parseInt(commentMatcher.group(1)); 
           }
         }
       }
 
-      if (lorURI.getQuery()!=null) {
-        Matcher commentMatcher = requestConmmentPatternNew.matcher(lorURI.getQuery());
+      if (query != null && _topic_id != -1) {
+        Matcher commentMatcher = requestConmmentPatternNew.matcher(query);
         if (commentMatcher.find()) {
-          try {
-            commId = Integer.parseInt(commentMatcher.group(1));
-            isComm = true;
-          } catch (NumberFormatException e) {
-            commId = 0;
-            isComm = false;
+          if(isUnsignedPositiveNumber(commentMatcher.group(1))) {
+            _comment_id = Integer.parseInt(commentMatcher.group(1));
           }
         }
       }
-
-      commentId = commId;
-      commentUrl = isComm;
-    } else {
-      messageId = 0;
-      messageUrl = false;
-      commentId = 0;
-      commentUrl = false;
     }
   }
 
@@ -162,7 +137,7 @@ public class LorURI {
    */
   @Override
   public String toString() {
-    return lorURI.getEscapedURIReference();
+    return getEscapedURIReference();
   }
 
   /**
@@ -171,7 +146,7 @@ public class LorURI {
    */
   public String toUnEscapedString() {
     try {
-      return lorURI.getURIReference();
+      return getURIReference();
     } catch (URIException e) {
       return toString();
     }
@@ -183,7 +158,7 @@ public class LorURI {
    * @return true если lorsource ссылка
    */
   public boolean isTrueLorUrl() {
-    return trueLorUrl;
+    return _true_lor_url;
   }
 
   /**
@@ -191,7 +166,7 @@ public class LorURI {
    * @return true если ссылка на топик или комментарий
    */
   public boolean isMessageUrl() {
-    return messageUrl;
+    return _topic_id != -1;
   }
 
   /**
@@ -199,7 +174,7 @@ public class LorURI {
    * @return id топика
    */
   public int getMessageId() {
-    return messageId;
+    return _topic_id;
   }
 
   /**
@@ -207,7 +182,7 @@ public class LorURI {
    * @return true если ссылка на комментарий
    */
   public boolean isCommentUrl() {
-    return commentUrl;
+    return _comment_id != -1;
   }
 
   /**
@@ -215,20 +190,20 @@ public class LorURI {
    * @return id комментария
    */
   public int getCommentId() {
-    return commentId;
+    return _comment_id;
   }
 
   public String formatUrlBody(int maxLength) throws URIException {
-    String all = lorURI.getURIReference();
-    String scheme = lorURI.getScheme();
+    String all = getURIReference();
+    String scheme = getScheme();
     String uriWithoutScheme = all.substring(scheme.length()+3);
-    if(trueLorUrl) {
+    if(_true_lor_url) {
       if(uriWithoutScheme.length() < maxLength) {
         return uriWithoutScheme;
       } else {
-        String hostPort = lorURI.getHost();
-        if(lorURI.getPort() != -1) {
-          hostPort += ":" + lorURI.getPort();
+        String hostPort = getHost();
+        if(getPort() != -1) {
+          hostPort += ":" + getPort();
         }
         if(hostPort.length() > maxLength) {
           return hostPort+"/...";
@@ -253,14 +228,14 @@ public class LorURI {
    * @throws URIException неправильный url
    */
   public String fixScheme(boolean secure) throws URIException {
-    if(!trueLorUrl) {
+    if(!_true_lor_url) {
       return toString();
     }
-    String host = lorURI.getHost();
-    int port = lorURI.getPort();
-    String path = lorURI.getPath();
-    String query = lorURI.getQuery();
-    String fragment = lorURI.getFragment();
+    String host = getHost();
+    int port = getPort();
+    String path = getPath();
+    String query = getQuery();
+    String fragment = getFragment();
     if(!secure) {
       return (new HttpURL(null, host, port, path, query, fragment)).getEscapedURIReference();
     } else {
@@ -273,19 +248,18 @@ public class LorURI {
    * @param messageDao доступ к базе сообщений
    * @param secure https ли текуший клиент
    * @return url для редиректа или пустая строка
-   * @throws MessageNotFoundException если нет сообещния
-   * @throws BadGroupException если нет группы оО
+   * @throws ru.org.linux.site.MessageNotFoundException если нет сообещния
    * @throws URIException если url неправильный
    */
   public String formatJump(TopicDao messageDao, boolean secure) throws MessageNotFoundException, URIException {
-    if(messageUrl) {
-      Topic message = messageDao.getById(messageId);
+    if(_topic_id != -1) {
+      Topic message = messageDao.getById(_topic_id);
       Group group = null;
 
       try {
         group = messageDao.getGroup(message);
       } catch (BadGroupException e) {
-        throw new RuntimeException("Invalid group id msgid="+messageId, e);
+        throw new RuntimeException("Invalid group id msgid="+_topic_id, e);
       }
 
       String scheme;
@@ -294,16 +268,17 @@ public class LorURI {
       } else {
         scheme = "http";
       }
-      String host = mainURI.getHost();
-      int port = mainURI.getPort();
-      String path = group.getUrl() + messageId;
+      String host = getHost();
+      int port = getPort();
+      String path = group.getUrl() + _topic_id;
       String query = "";
-      if(commentUrl) {
-        query = "cid=" + commentId;
+      if(_comment_id != -1) {
+        query = "cid=" + _comment_id;
       }
       URI jumpUri = new URI(scheme, null , host, port, path, query);
       return jumpUri.getEscapedURI();
     }
     return "";
   }
+
 }
