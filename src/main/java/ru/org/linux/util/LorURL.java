@@ -48,6 +48,8 @@ public class LorURL extends URI {
   protected int _topic_id = -1;
   protected int _comment_id = -1;
 
+  protected boolean _escaped = true;
+
   public LorURL(URI mainURI, String url) throws URIException {
     protocolCharset = "UTF-8";
     try {
@@ -62,20 +64,32 @@ public class LorURL extends URI {
       _true_lor_url = Arrays.equals(_main_host, _host) && _main_port == _port
           && (Arrays.equals(_http_scheme, _scheme) || Arrays.equals(_https_scheme, _scheme));
 
+      /**
+       * Пытаемся вычислить, что fragment таки не encode
+       */
+      if(_fragment != null) {
+        String fragmentStr = new String(_fragment);
+        String asciiFragment = fragmentStr.replaceAll("[^\\p{ASCII}]", "");
+        if(fragmentStr.length() != asciiFragment.length()) {
+          throw new URIException("error fragment?");
+        }
+      }
+
       findURLIds();
     } catch (URIException ex) {
-        parseUriReference(url, false);
-        if(_host == null) {
-          throw new URIException("no host");
-        }
+      parseUriReference(url, false);
+      if(_host == null) {
+        throw new URIException("no host");
+      }
 
-        _main_host = mainURI.getRawHost();
-        _main_port = mainURI.getPort();
+      _main_host = mainURI.getRawHost();
+      _main_port = mainURI.getPort();
 
-        _true_lor_url = Arrays.equals(_main_host, _host) && _main_port == _port
-            && (Arrays.equals(_http_scheme, _scheme) || Arrays.equals(_https_scheme, _scheme));
+      _true_lor_url = Arrays.equals(_main_host, _host) && _main_port == _port
+          && (Arrays.equals(_http_scheme, _scheme) || Arrays.equals(_https_scheme, _scheme));
 
-        findURLIds();
+      findURLIds();
+      _escaped = false;
     }
   }
   
