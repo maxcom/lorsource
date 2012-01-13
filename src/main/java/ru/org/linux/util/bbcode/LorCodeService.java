@@ -23,7 +23,7 @@ import ru.org.linux.user.User;
 import ru.org.linux.spring.Configuration;
 import ru.org.linux.topic.TopicDao;
 import ru.org.linux.user.UserDao;
-import ru.org.linux.util.LorURI;
+import ru.org.linux.util.LorURL;
 import ru.org.linux.util.bbcode.nodes.RootNode;
 import ru.org.linux.util.formatter.ToHtmlFormatter;
 
@@ -106,9 +106,9 @@ public class LorCodeService {
     RootNode rootNode = defaultParser.getRootNode();
     if(minimizeCut) {
       try {
-        LorURI cutURI = new LorURI(configuration.getMainURI(), cutURL);
-        if(cutURI.isTrueLorUrl()) {
-          URI fixURI = new URI(cutURI.fixScheme(secure), true, "UTF-8");
+        LorURL lorCutURL = new LorURL(configuration.getMainURI(), cutURL);
+        if(lorCutURL.isTrueLorUrl()) {
+          URI fixURI = new URI(lorCutURL.fixScheme(secure), true, "UTF-8");
           rootNode.setMinimizedTopicCutOptions(fixURI);
         } else {
           rootNode.setMaximizedTopicCutOptions();
