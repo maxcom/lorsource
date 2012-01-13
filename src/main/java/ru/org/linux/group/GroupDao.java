@@ -49,7 +49,7 @@ public class GroupDao {
   public Group getGroup(int id) throws BadGroupException {
     try {
       return jdbcTemplate.queryForObject(
-        "SELECT sections.moderate, sections.preformat, imagepost, vote, section, havelink, linktext, sections.name as sname, title, urlname, image, restrict_topics, restrict_comments,stat1,stat2,stat3,groups.id, groups.info, groups.longinfo, groups.resolvable FROM groups, sections WHERE groups.id=? AND groups.section=sections.id",
+        "SELECT sections.moderate, sections.preformat, imagepost, vote, section, havelink, linktext, title, urlname, image, restrict_topics, restrict_comments,stat1,stat2,stat3,groups.id, groups.info, groups.longinfo, groups.resolvable FROM groups, sections WHERE groups.id=? AND groups.section=sections.id",
         new RowMapper<Group>() {
           @Override
           public Group mapRow(ResultSet resultSet, int i) throws SQLException {
@@ -71,7 +71,7 @@ public class GroupDao {
    */
   public List<Group> getGroups(Section section) {
     return jdbcTemplate.query(
-      "SELECT sections.moderate, sections.preformat, imagepost, vote, section, havelink, linktext, sections.name as sname, title, urlname, image, restrict_topics, restrict_comments, stat1,stat2,stat3,groups.id,groups.info,groups.longinfo,groups.resolvable FROM groups, sections WHERE sections.id=? AND groups.section=sections.id ORDER BY id",
+      "SELECT sections.moderate, sections.preformat, imagepost, vote, section, havelink, linktext, title, urlname, image, restrict_topics, restrict_comments, stat1,stat2,stat3,groups.id,groups.info,groups.longinfo,groups.resolvable FROM groups, sections WHERE sections.id=? AND groups.section=sections.id ORDER BY id",
       new RowMapper<Group>() {
         @Override
         public Group mapRow(ResultSet rs, int rowNum) throws SQLException {

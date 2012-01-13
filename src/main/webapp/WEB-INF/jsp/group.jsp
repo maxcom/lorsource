@@ -22,6 +22,7 @@
 
 <%--@elvariable id="topicsList" type="java.util.List<ru.org.linux.group.TopicsListItem>"--%>
 <%--@elvariable id="group" type="ru.org.linux.group.Group"--%>
+<%--@elvariable id="section" type="ru.org.linux.section.Section"--%>
 <%--@elvariable id="firstPage" type="java.lang.Boolean"--%>
 <%--@elvariable id="groupList" type="java.util.List<ru.org.linux.group.Group>"--%>
 <%--@elvariable id="lastmod" type="java.lang.Boolean"--%>
@@ -64,7 +65,7 @@
 
     response.setDateHeader("Expires", System.currentTimeMillis() + 90 * 1000);
 %>
-<title>${group.sectionName} - ${group.title}
+<title>${section.name} - ${group.title}
   <c:if test="${year != null}">
     - Архив ${year}, <%= DateUtil.getMonth((Integer) request.getAttribute("month")) %>
   </c:if>
@@ -76,7 +77,7 @@
   <table class=nav>
     <tr>
     <td align=left valign=middle id="navPath">
-      <a href="${group.sectionLink}">${group.sectionName}</a> - ${group.title}
+      <a href="${group.sectionLink}">${section.name}</a> - ${group.title}
       <c:if test="${year != null}">
         - Архив ${year}, <%= DateUtil.getMonth((Integer) request.getAttribute("month")) %>
       </c:if>
@@ -127,7 +128,7 @@
 
 </form>
 
-<h1 class="optional">${group.sectionName}: ${group.title}</h1>
+<h1 class="optional">${section.name}: ${group.title}</h1>
 <%
   if (group.getImage() != null) {
     out.print("<div align=center>");

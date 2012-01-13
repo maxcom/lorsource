@@ -31,7 +31,6 @@ public class Group implements Serializable {
   private final boolean havelink;
   private final int section;
   private final String linktext;
-  private final String sectionName;
   private String title;
   private final String urlName;
   private final String image;
@@ -56,7 +55,6 @@ public class Group implements Serializable {
     section = rs.getInt("section");
     havelink = rs.getBoolean("havelink");
     linktext = rs.getString("linktext");
-    sectionName = rs.getString("sname");
     title = rs.getString("title");
     urlName = rs.getString("urlname");
     image = rs.getString("image");
@@ -95,10 +93,6 @@ public class Group implements Serializable {
 
   public String getDefaultLinkText() {
     return linktext;
-  }
-
-  public String getSectionName() {
-    return sectionName;
   }
 
   public String getTitle() {
