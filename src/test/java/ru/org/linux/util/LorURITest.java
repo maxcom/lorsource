@@ -95,7 +95,7 @@ public class LorURITest {
 
   @Test
   public void test1() throws Exception {
-    LorURI lorURI = new LorURI(mainURI, url1);
+    LorURL lorURI = new LorURL(mainURI, url1);
 
     assertTrue(lorURI.isTrueLorUrl());
     assertTrue(lorURI.isMessageUrl());
@@ -111,7 +111,7 @@ public class LorURITest {
 
   @Test
   public void test1n() throws Exception {
-    LorURI lorURI = new LorURI(mainURI, url1n);
+    LorURL lorURI = new LorURL(mainURI, url1n);
 
     assertTrue(lorURI.isTrueLorUrl());
     assertTrue(lorURI.isMessageUrl());
@@ -127,9 +127,9 @@ public class LorURITest {
 
   @Test
   public void test2() throws Exception {
-    LorURI lorURI = new LorURI(mainURI, url2);
+    LorURL lorURI = new LorURL(mainURI, url2);
     assertEquals(6893165, lorURI.getMessageId());
-    assertEquals(0, lorURI.getCommentId());
+    assertEquals(-1, lorURI.getCommentId());
     assertTrue(lorURI.isTrueLorUrl());
     assertTrue(lorURI.isMessageUrl());
     assertTrue(!lorURI.isCommentUrl());
@@ -141,7 +141,7 @@ public class LorURITest {
 
   @Test
   public void test3() throws Exception {
-    LorURI lorURI = new LorURI(mainURI, url3);
+    LorURL lorURI = new LorURL(mainURI, url3);
     assertEquals(6890857, lorURI.getMessageId());
     assertEquals(6892917, lorURI.getCommentId());
     assertTrue(lorURI.isTrueLorUrl());
@@ -155,9 +155,9 @@ public class LorURITest {
 
   @Test
   public void test4() throws Exception {
-    LorURI lorURI = new LorURI(mainURI, url4);
-    assertEquals(0, lorURI.getMessageId());
-    assertEquals(0, lorURI.getCommentId());
+    LorURL lorURI = new LorURL(mainURI, url4);
+    assertEquals(-1, lorURI.getMessageId());
+    assertEquals(-1, lorURI.getCommentId());
     assertTrue(lorURI.isTrueLorUrl());
     assertTrue(!lorURI.isMessageUrl());
     assertTrue(!lorURI.isCommentUrl());
@@ -167,9 +167,9 @@ public class LorURITest {
 
   @Test
   public void test5() throws Exception {
-    LorURI lorURI = new LorURI(mainURI, url5);
-    assertEquals(0, lorURI.getMessageId());
-    assertEquals(0, lorURI.getCommentId());
+    LorURL lorURI = new LorURL(mainURI, url5);
+    assertEquals(-1, lorURI.getMessageId());
+    assertEquals(-1, lorURI.getCommentId());
     assertTrue(!lorURI.isTrueLorUrl());
     assertTrue(!lorURI.isMessageUrl());
     assertTrue(!lorURI.isCommentUrl());
@@ -179,9 +179,9 @@ public class LorURITest {
 
   @Test
   public void test6() throws Exception {
-    LorURI lorURI = new LorURI(mainURI, url6);
-    assertEquals(0, lorURI.getMessageId());
-    assertEquals(0, lorURI.getCommentId());
+    LorURL lorURI = new LorURL(mainURI, url6);
+    assertEquals(-1, lorURI.getMessageId());
+    assertEquals(-1, lorURI.getCommentId());
     assertTrue(lorURI.isTrueLorUrl());
     assertTrue(!lorURI.isMessageUrl());
     assertTrue(!lorURI.isCommentUrl());
@@ -193,9 +193,9 @@ public class LorURITest {
 
   @Test
   public void test7() throws Exception {
-    LorURI lorURI = new LorURI(mainURI, url7);
-    assertEquals(0, lorURI.getMessageId());
-    assertEquals(0, lorURI.getCommentId());
+    LorURL lorURI = new LorURL(mainURI, url7);
+    assertEquals(-1, lorURI.getMessageId());
+    assertEquals(-1, lorURI.getCommentId());
     assertTrue(lorURI.isTrueLorUrl());
     assertTrue(!lorURI.isMessageUrl());
     assertTrue(!lorURI.isCommentUrl());
@@ -209,7 +209,7 @@ public class LorURITest {
   public void test8() throws Exception {
     boolean result = false;
     try {
-      LorURI lorURI = new LorURI(mainURI, failurl8);
+      LorURL lorURI = new LorURL(mainURI, failurl8);
     } catch (URIException e) {
       result = true;
     }
@@ -220,7 +220,7 @@ public class LorURITest {
   public void test9() throws Exception {
     boolean result = false;
     try {
-      LorURI lorURI = new LorURI(mainURI, failurl9);
+      LorURL lorURI = new LorURL(mainURI, failurl9);
     } catch (URIException e) {
       result = true;
     }
@@ -231,7 +231,7 @@ public class LorURITest {
   public void test10() throws Exception {
     boolean result = false;
     try {
-      LorURI lorURI = new LorURI(mainURI, failurl10);
+      LorURL lorURI = new LorURL(mainURI, failurl10);
     } catch (Exception e) {
       result=true;
     }
@@ -242,7 +242,7 @@ public class LorURITest {
   public void test11() throws Exception {
     boolean result = false;
     try {
-      LorURI lorURI = new LorURI(mainURI, failurl11);
+      LorURL lorURI = new LorURL(mainURI, failurl11);
     } catch (Exception e) {
       result=true;
     }
@@ -251,7 +251,7 @@ public class LorURITest {
 
   @Test
   public void test12() throws Exception {
-    LorURI lorURI = new LorURI(mainURI, url12);
+    LorURL lorURI = new LorURL(mainURI, url12);
     assertEquals(1948661, lorURI.getMessageId());
     assertEquals(1948668, lorURI.getCommentId());
     assertTrue(lorURI.isTrueLorUrl());
@@ -266,9 +266,9 @@ public class LorURITest {
     String url13_1 = "http://www.linux.org.ru/view-news.jsp?tag=c%2B%2B";
     String url13_2 = "http://www.linux.org.ru/view-news.jsp?tag=c++";
     String url13_3 = "http://www.linux.org.ru/view-news.jsp?tag=c+c";
-    LorURI lorURI1 = new LorURI(mainLORURI, url13_1);
-    LorURI lorURI2 = new LorURI(mainLORURI, url13_2);
-    LorURI lorURI3 = new LorURI(mainLORURI, url13_3);
+    LorURL lorURI1 = new LorURL(mainLORURI, url13_1);
+    LorURL lorURI2 = new LorURL(mainLORURI, url13_2);
+    LorURL lorURI3 = new LorURL(mainLORURI, url13_3);
     assertEquals("https://www.linux.org.ru/view-news.jsp?tag=c++", lorURI1.fixScheme(true));
     assertEquals("http://www.linux.org.ru/view-news.jsp?tag=c++", lorURI1.fixScheme(false));
     assertEquals("https://www.linux.org.ru/view-news.jsp?tag=c%20%20", lorURI2.fixScheme(true));
@@ -281,8 +281,8 @@ public class LorURITest {
   public void test14() throws Exception {
     String url14_1 = "https://www.linux.org.ru/jump-message.jsp?msgid=6890857&amp;cid=6892917";
     String url14_2 = "https://127.0.0.1:8080/jump-message.jsp?msgid=6890857&amp;cid=6892917";
-    LorURI lorURI1 = new LorURI(mainLORURI, url14_1);
-    LorURI lorURI2 = new LorURI(mainURI, url14_2);
+    LorURL lorURI1 = new LorURL(mainLORURI, url14_1);
+    LorURL lorURI2 = new LorURL(mainURI, url14_2);
 
     assertEquals(6890857, lorURI1.getMessageId());
     assertEquals(6892917, lorURI1.getCommentId());
@@ -309,8 +309,8 @@ public class LorURITest {
   public void test15() throws Exception {
     String url15_1 = "https://www.linux.org.ru/forum/linux-org-ru/6944260/page4?lastmod=1320084656912#comment-6944831";
     String url15_2 = "https://127.0.0.1:8080/forum/linux-org-ru/6944260/page4?lastmod=1320084656912#comment-6944831";
-    LorURI lorURI1 = new LorURI(mainLORURI, url15_1);
-    LorURI lorURI2 = new LorURI(mainURI, url15_2);
+    LorURL lorURI1 = new LorURL(mainLORURI, url15_1);
+    LorURL lorURI2 = new LorURL(mainURI, url15_2);
 
     assertEquals(6944260, lorURI1.getMessageId());
     assertEquals(6944831, lorURI1.getCommentId());
@@ -337,29 +337,29 @@ public class LorURITest {
   @Test
   public void testForumatUrlBody() throws Exception {
     // url == mainURL и mainURL host:port
-    LorURI uri1 = new LorURI(mainURI, "http://127.0.0.1:8080/forum/security/1948661?cid=1948668");
+    LorURL uri1 = new LorURL(mainURI, "http://127.0.0.1:8080/forum/security/1948661?cid=1948668");
     assertEquals("127.0.0.1:8080/...", uri1.formatUrlBody(10));
     assertEquals("127.0.0.1:8080/forum...", uri1.formatUrlBody(20));
     assertEquals("127.0.0.1:8080/forum/security/1948661?cid=1948668", uri1.formatUrlBody(80));
     // url == mainURL и mainURL host
-    LorURI uri2 = new LorURI(mainLORURI, "https://www.linux.org.ru/search.jsp?q=%D0%B1%D0%BB%D1%8F&oldQ=&range=ALL&interval=ALL&user=&_usertopic=on");
+    LorURL uri2 = new LorURL(mainLORURI, "https://www.linux.org.ru/search.jsp?q=%D0%B1%D0%BB%D1%8F&oldQ=&range=ALL&interval=ALL&user=&_usertopic=on");
     assertEquals("www.linux.org.ru/...", uri2.formatUrlBody(10));
     assertEquals("www.linux.org.ru/sea...", uri2.formatUrlBody(20));
     assertEquals("www.linux.org.ru/search.jsp?q=бля&oldQ=&range=ALL&interval=ALL&user=&_usertopic=...", uri2.formatUrlBody(80));
     // unescaped url == mainURL и mainURL host
-    LorURI uri3 = new LorURI(mainLORURI, "https://www.linux.org.ru/search.jsp?q=бля&oldQ=&range=ALL&interval=ALL&user=&_usertopic=on");
+    LorURL uri3 = new LorURL(mainLORURI, "https://www.linux.org.ru/search.jsp?q=бля&oldQ=&range=ALL&interval=ALL&user=&_usertopic=on");
     assertEquals("www.linux.org.ru/...", uri3.formatUrlBody(10));
     assertEquals("www.linux.org.ru/sea...", uri3.formatUrlBody(20));
     assertEquals("www.linux.org.ru/search.jsp?q=бля&oldQ=&range=ALL&interval=ALL&user=&_usertopic=...", uri3.formatUrlBody(80));
 
     // unescaped url != mainURL и mainURL host
-    LorURI uri4 = new LorURI(mainLORURI, "https://example.com/search.jsp?q=бля&oldQ=&range=ALL&interval=ALL&user=&_usertopic=on");
+    LorURL uri4 = new LorURL(mainLORURI, "https://example.com/search.jsp?q=бля&oldQ=&range=ALL&interval=ALL&user=&_usertopic=on");
     assertEquals("https://ex...", uri4.formatUrlBody(10));
     assertEquals("https://example.com/...", uri4.formatUrlBody(20));
     assertEquals("https://example.com/search.jsp?q=бля&oldQ=&range=ALL&interval=ALL&user=&_usertop...", uri4.formatUrlBody(80));
 
     // escaped url != mainURL и mainURL host
-    LorURI uri5 = new LorURI(mainLORURI, "https://example.com/search.jsp?q=%D0%B1%D0%BB%D1%8F&oldQ=&range=ALL&interval=ALL&user=&_usertopic=on");
+    LorURL uri5 = new LorURL(mainLORURI, "https://example.com/search.jsp?q=%D0%B1%D0%BB%D1%8F&oldQ=&range=ALL&interval=ALL&user=&_usertopic=on");
     assertEquals("https://ex...", uri5.formatUrlBody(10));
     assertEquals("https://example.com/...", uri5.formatUrlBody(20));
     assertEquals("https://example.com/search.jsp?q=бля&oldQ=&range=ALL&interval=ALL&user=&_usertop...", uri5.formatUrlBody(80));
