@@ -91,7 +91,7 @@ public class WhoisController {
    */
   @ExceptionHandler(UserBanedException.class)
   @ResponseStatus(HttpStatus.FORBIDDEN)
-  public String handleUserBanedException(UserBanedException ex, HttpServletRequest request, HttpServletResponse response) {
-    return "error-user-banned";
+  public ModelAndView handleUserBanedException(UserBanedException ex, HttpServletRequest request, HttpServletResponse response) {
+    return new ModelAndView("error-user-banned", "exception", ex);
   }
 }
