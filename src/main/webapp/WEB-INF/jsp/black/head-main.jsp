@@ -54,11 +54,14 @@
   <div class="infoblock" style="margin:0; text-align: justify">
     <a href="http://job.samsung.ru/"><img width="130" height="43" src="/adv/Samsung_Logo.png" alt="" style="float: left; border: 0"></a>
     <div style="margin-left: 135px">
-   SAMSUNG Electronics&nbsp;&mdash; мировой лидер в&nbsp;производстве полупроводников,
-телекоммуникационного оборудования и&nbsp;цифровой конвергенции&nbsp;&mdash; объявляет о&nbsp;приеме
-на&nbsp;работу программистов, инженеров-разработчиков, физиков и&nbsp;химиков: LINUX,
-Android, C/C++, Smart Phones, Smart TV, 3D&nbsp;Imaging, 3D&nbsp;Graphics, ASIC, FPGA,
-SoC, Graphene, MEMS, Biomedical Engineering. Дополнительная информация:
+        SAMSUNG Electronics&nbsp;&mdash; мировой лидер в&nbsp;производстве полупроводников,
+        телекоммуникационного оборудования и&nbsp;цифровой конвергенции&nbsp;&mdash;
+        объявляет о&nbsp;приеме на&nbsp;работу инженеров-программистов,
+        разработчиков в&nbsp;исследовательские центры компании в&nbsp;Южной Корее:
+        Cloud Computing, Cryptography&nbsp;/ Encryption, Security Software, Multimedia
+        (TV, BD, PVR, HTS), Linux Kernel, Android, C/C++ Programming, Widget,
+        DRM, Network Software, LTE eNB Software Design, Modem ASIC, FPGA, SoC.
+        Дополнительная информация:
     <a href="http://job.samsung.ru/" style="color: white">http://job.samsung.ru</a>
     </div>
   </div>
