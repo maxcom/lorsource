@@ -285,9 +285,11 @@ public class SimpleParserTest {
     assertEquals("<p><a href=\"http://www.example.com\">example</a></p>",
         lorCodeService.parseComment("[url=\"http://www.example.com]example[/url]", false));
     assertEquals("<p><a href=\"http://www.example.com\">example</a></p>",
-        lorCodeService.parseComment("[url=http://www.example.com\"]example[/url]", false));
-    assertEquals("<p><a href=\"http://www.example.com\">example</a></p>",
         lorCodeService.parseComment("[url=\"http://www.example.com\"]example[/url]", false));
+    assertEquals("<p><a href=\"http://www.example.com\">example</a></p>",
+        lorCodeService.parseComment("[url='http://www.example.com']example[/url]", false));
+    assertEquals("<p><a href=\"http://www.example.com\">example</a></p>",
+        lorCodeService.parseComment("[url='http://www.example.com]example[/url]", false));
   }
 
   @Test
