@@ -38,6 +38,7 @@
 
 package ru.org.linux.util.bbcode.tags;
 
+import ru.org.linux.util.StringUtil;
 import ru.org.linux.util.URLUtil;
 import ru.org.linux.util.bbcode.Parser;
 import ru.org.linux.util.bbcode.ParserParameters;
@@ -65,9 +66,14 @@ public class UrlWithParamTag extends Tag {
       url = node.getParameter().trim();
       if(url.startsWith("\"")) {
         url = url.substring(1);
-      }
-      if(url.endsWith("\"")) {
-        url = url.substring(0, url.length()-1);
+        if(url.endsWith("\"")) {
+          url = url.substring(0, url.length()-1);
+        }
+      } else if(url.startsWith("'")) {
+        url = url.substring(1);
+        if(url.endsWith("\'")) {
+          url = url.substring(0, url.length()-1);
+        }
       }
     }
 
@@ -90,7 +96,9 @@ public class UrlWithParamTag extends Tag {
                 .append(escapedUrl)
                 .append("</a>");
       } else {
-        ret.append("<s>")
+        ret.append("<s title=\"")
+                .append(StringUtil.escapeHtml(escapedUrl))
+                .append("\">")
                 .append(Parser.escape(url))
                 .append("</s>");
       }
@@ -102,9 +110,11 @@ public class UrlWithParamTag extends Tag {
                 .append(node.renderChildrenXHtml())
                 .append("</a>");
       } else {
-        ret.append("<s>")
-                .append(node.renderChildrenXHtml())
-                .append("</s>");
+        ret.append("<s title=\"")
+            .append(StringUtil.escapeHtml(escapedUrl))
+            .append("\">")
+            .append(node.renderChildrenXHtml())
+            .append("</s>");
       }
     }
 
