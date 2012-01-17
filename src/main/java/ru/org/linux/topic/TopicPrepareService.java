@@ -77,19 +77,19 @@ public class TopicPrepareService {
   private MsgbaseDao msgbaseDao;
   
   public PreparedTopic prepareTopicForView(Topic message, boolean minimizeCut, boolean secure, User user) {
-    return prepareMessage(message, messageDao.getTags(message), minimizeCut, null, secure, user);
+    return prepareMessage(message, messageDao.getTags(message), minimizeCut, null, secure, user, null);
   }
 
   public PreparedTopic prepareMessage(Topic message, boolean minimizeCut, boolean secure) {
-    return prepareMessage(message, messageDao.getTags(message), minimizeCut, null, secure);
+    return prepareMessage(message, messageDao.getTags(message), minimizeCut, null, secure, null);
   }
 
-  public PreparedTopic prepareMessage(Topic message, List<String> tags, PreparedPoll newPoll, boolean secure) {
-    return prepareMessage(message, tags, false, newPoll, secure);
+  public PreparedTopic prepareMessage(Topic message, List<String> tags, PreparedPoll newPoll, boolean secure, String text) {
+    return prepareMessage(message, tags, false, newPoll, secure, text);
   }
 
-  private PreparedTopic prepareMessage(Topic message, List<String> tags, boolean minimizeCut, PreparedPoll poll, boolean secure) {
-    return prepareMessage(message, tags, minimizeCut, poll, secure, null);
+  private PreparedTopic prepareMessage(Topic message, List<String> tags, boolean minimizeCut, PreparedPoll poll, boolean secure, String text) {
+    return prepareMessage(message, tags, minimizeCut, poll, secure, null, text);
   }
 
   /**
@@ -102,7 +102,14 @@ public class TopicPrepareService {
    * @param user пользователь
    * @return подготовленный топик
    */
-  private PreparedTopic prepareMessage(Topic message, List<String> tags, boolean minimizeCut, PreparedPoll poll, boolean secure, User user) {
+  private PreparedTopic prepareMessage(
+          Topic message, 
+          List<String> tags, 
+          boolean minimizeCut, 
+          PreparedPoll poll,
+          boolean secure, 
+          User user,
+          String text) {
     try {
       Group group = groupDao.getGroup(message.getGroupId());
       User author = userDao.getUserCached(message.getUid());
@@ -160,21 +167,34 @@ public class TopicPrepareService {
 
       String processedMessage;
 
-      MessageText messageText = msgbaseDao.getMessageText(message.getId());
+      if (text == null) {
+        MessageText messageText = msgbaseDao.getMessageText(message.getId());
 
-      if (messageText.isLorcode()) {
-        if(minimizeCut) {
+        if (messageText.isLorcode()) {
+          if (minimizeCut) {
+            String url = configuration.getMainUrl() + message.getLink();
+            processedMessage = lorCodeService.parseTopicWithMinimizedCut(
+                    messageText.getText(),
+                    url,
+                    secure
+            );
+          } else {
+            processedMessage = lorCodeService.parseTopic(messageText.getText(), secure);
+          }
+        } else {
+          processedMessage = "<p>" + messageText.getText();
+        }
+      } else {
+        if (minimizeCut) {
           String url = configuration.getMainUrl() + message.getLink();
           processedMessage = lorCodeService.parseTopicWithMinimizedCut(
-                  messageText.getText(),
-                  url, 
+                  text,
+                  url,
                   secure
           );
         } else {
-          processedMessage = lorCodeService.parseTopic(messageText.getText(), secure);
+          processedMessage = lorCodeService.parseTopic(text, secure);
         }
-      } else {
-        processedMessage = "<p>" + messageText.getText();
       }
 
       String userAgent = userAgentDao.getUserAgentById(message.getUserAgent());
@@ -202,7 +222,7 @@ public class TopicPrepareService {
     List<PersonalizedPreparedTopic> pm = new ArrayList<PersonalizedPreparedTopic>(messages.size());
 
     for (Topic message : messages) {
-      PreparedTopic preparedMessage = prepareMessage(message, messageDao.getTags(message), true, null, secure);
+      PreparedTopic preparedMessage = prepareMessage(message, messageDao.getTags(message), true, null, secure, null);
       TopicMenu topicMenu = getMessageMenu(preparedMessage, user);
       pm.add(new PersonalizedPreparedTopic(preparedMessage, topicMenu));
     }
@@ -221,7 +241,7 @@ public class TopicPrepareService {
     List<PreparedTopic> pm = new ArrayList<PreparedTopic>(messages.size());
 
     for (Topic message : messages) {
-      PreparedTopic preparedMessage = prepareMessage(message, messageDao.getTags(message), true, null, secure);
+      PreparedTopic preparedMessage = prepareMessage(message, messageDao.getTags(message), true, null, secure, null);
       pm.add(preparedMessage);
     }
 

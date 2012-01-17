@@ -349,15 +349,15 @@ public class EditTopicController {
       newPoll = new PreparedPoll(poll, orig.getMaximumValue(), pollDao.getCountUsers(poll), newVariants);
     }
 
-    if (!preview && !errors.hasErrors()) {
-      String newText;
-      
-      if (form.getMsg() != null) {
-        newText = form.getMsg();
-      } else {
-        newText = msgbaseDao.getMessageText(message.getId()).getText();
-      }
+    String newText;
 
+    if (form.getMsg() != null) {
+      newText = form.getMsg();
+    } else {
+      newText = msgbaseDao.getMessageText(message.getId()).getText();
+    }
+
+    if (!preview && !errors.hasErrors()) {
       boolean changed = messageDao.updateAndCommit(
               newMsg,
               message,
@@ -386,7 +386,7 @@ public class EditTopicController {
 
     params.put("newMsg", newMsg);
 
-    params.put("newPreparedMessage", messagePrepareService.prepareMessage(newMsg, newTags, newPoll, request.isSecure()));
+    params.put("newPreparedMessage", messagePrepareService.prepareMessage(newMsg, newTags, newPoll, request.isSecure(), newText));
 
     return new ModelAndView("edit", params);
   }
