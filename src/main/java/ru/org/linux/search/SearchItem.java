@@ -16,8 +16,8 @@
 package ru.org.linux.search;
 
 import org.apache.solr.common.SolrDocument;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.support.rowset.SqlRowSet;
+import ru.org.linux.spring.dao.MessageText;
+import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserNotFoundException;
@@ -35,7 +35,7 @@ public class SearchItem {
   private final User user;
   private final String message;
 
-  public SearchItem(SolrDocument doc, UserDao userDao, JdbcTemplate jdbcTemplate, LorCodeService lorCodeService, boolean secure) {
+  public SearchItem(SolrDocument doc, UserDao userDao, MsgbaseDao msgbaseDao, LorCodeService lorCodeService, boolean secure) {
     msgid = Integer.valueOf(doc.getFieldValue("id").toString());
     title = (String) doc.getFieldValue("title");
     topicTitle = (String) doc.getFieldValue("topic_title");
@@ -44,15 +44,11 @@ public class SearchItem {
     postdate = new Timestamp(postdate_dt.getTime());
     topic = (Integer) doc.getFieldValue("topic_id");
 
-    SqlRowSet rs = jdbcTemplate.queryForRowSet("select message,bbcode from msgbase where id=?", msgid);
+    MessageText messageText = msgbaseDao.getMessageText(msgid);
 
-    if (!rs.next()) {
-      throw new RuntimeException("text not found! msgid="+msgid);
-    }
+    String rawMessage = messageText.getText();
 
-    String rawMessage = rs.getString("message");
-
-    if (rs.getBoolean("bbcode")) {
+    if (messageText.isLorcode()) {
       message = lorCodeService.parseComment(rawMessage, secure);
     } else {
       message = rawMessage;

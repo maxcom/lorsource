@@ -25,8 +25,6 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Required;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -43,6 +41,7 @@ import ru.org.linux.search.SearchViewer.SearchOrder;
 import ru.org.linux.search.SearchViewer.SearchRange;
 import ru.org.linux.section.SectionNotFoundException;
 import ru.org.linux.section.SectionService;
+import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserPropertyEditor;
@@ -50,7 +49,6 @@ import ru.org.linux.util.ExceptionBindingErrorProcessor;
 import ru.org.linux.util.bbcode.LorCodeService;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.sql.DataSource;
 import java.beans.PropertyEditorSupport;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -63,11 +61,12 @@ public class SearchController {
   private SectionService sectionService;
   private UserDao userDao;
   private GroupDao groupDao;
-  private JdbcTemplate jdbcTemplate;
   private LorCodeService lorCodeService;
+  
+  @Autowired
+  private MsgbaseDao msgbaseDao;
 
   @Autowired
-  @Required
   public void setSolrServer(SolrServer solrServer) {
     this.solrServer = solrServer;
   }
@@ -80,11 +79,6 @@ public class SearchController {
   @Autowired
   public void setGroupDao(GroupDao groupDao) {
     this.groupDao = groupDao;
-  }
-
-  @Autowired
-  public void setDataSource(DataSource ds) {
-    jdbcTemplate = new JdbcTemplate(ds);
   }
 
   @Autowired
@@ -166,7 +160,7 @@ public class SearchController {
       Collection<SearchItem> res = new ArrayList<SearchItem>(list.size());
 
       for (SolrDocument doc : list) {
-        res.add(new SearchItem(doc, userDao, jdbcTemplate, lorCodeService, request.isSecure()));
+        res.add(new SearchItem(doc, userDao, msgbaseDao, lorCodeService, request.isSecure()));
       }
 
       FacetField sectionFacet = response.getFacetField("section_id");
