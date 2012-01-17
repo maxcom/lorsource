@@ -366,6 +366,7 @@ public class Topic implements Serializable {
     return commitDate;
   }
 
+  @Deprecated
   public boolean isLorcode() {
     return lorcode;
   }

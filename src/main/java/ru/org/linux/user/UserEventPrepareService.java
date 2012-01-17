@@ -17,10 +17,8 @@ package ru.org.linux.user;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.org.linux.comment.CommentPrepareService;
-import ru.org.linux.site.MessageNotFoundException;
-import ru.org.linux.topic.Topic;
-import ru.org.linux.topic.TopicDao;
+import ru.org.linux.spring.dao.MessageText;
+import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.util.bbcode.LorCodeService;
 
 import java.util.ArrayList;
@@ -32,13 +30,10 @@ public class UserEventPrepareService {
   private LorCodeService lorCodeService;
   
   @Autowired
-  private TopicDao messageDao;
-  
-  @Autowired
   private UserDao userDao;
   
   @Autowired
-  private CommentPrepareService commentPrepareService;
+  private MsgbaseDao msgbaseDao;
 
   /**
    * 
@@ -51,20 +46,19 @@ public class UserEventPrepareService {
     List<PreparedUserEvent> prepared = new ArrayList<PreparedUserEvent>(events.size());
 
     for (UserEvent event : events) {
-      String messageText;
+      String text;
       if (readMessage) {
-        if(event.isComment()) { // Комментарий
-          messageText = commentPrepareService.prepareCommentTextRSS(event.getCid(), secure);
+        MessageText messageText;
+
+        if(event.isComment()) {
+          messageText = msgbaseDao.getMessageText(event.getCid());
         } else { // Топик
-          try {
-            Topic message = messageDao.getById(event.getMsgid());
-            messageText = lorCodeService.prepareTextRSS(message.getMessage(), secure, message.isLorcode());
-          } catch (MessageNotFoundException e) {
-            messageText = "";
-          }
+          messageText = msgbaseDao.getMessageText(event.getMsgid());
         }
+
+        text = lorCodeService.prepareTextRSS(messageText.getText(), secure, messageText.isLorcode());
       } else {
-        messageText = null;
+        text = null;
       }
       
       User commentAuthor;
@@ -79,7 +73,7 @@ public class UserEventPrepareService {
         commentAuthor = null;
       }
       
-      prepared.add(new PreparedUserEvent(event, messageText, commentAuthor));
+      prepared.add(new PreparedUserEvent(event, text, commentAuthor));
     }
 
     return prepared;
