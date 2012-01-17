@@ -33,6 +33,7 @@ import ru.org.linux.section.Section;
 import ru.org.linux.site.BadInputException;
 import ru.org.linux.site.Template;
 import ru.org.linux.spring.FeedPinger;
+import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserErrorException;
 import ru.org.linux.util.ExceptionBindingErrorProcessor;
@@ -73,6 +74,9 @@ public class EditTopicController {
 
   @Autowired
   private TopicPermissionService permissionService;
+  
+  @Autowired
+  private MsgbaseDao msgbaseDao;
 
   @RequestMapping(value = "/commit.jsp", method = RequestMethod.GET)
   public ModelAndView showCommitForm(
@@ -167,7 +171,7 @@ public class EditTopicController {
     }
 
     form.setTitle(StringEscapeUtils.unescapeHtml(message.getTitle()));
-    form.setMsg(message.getMessage());
+    form.setMsg(msgbaseDao.getMessageText(message.getId()).getText());
 
     if (message.getSectionId() == Section.SECTION_NEWS) {
       form.setMinor(message.isMinor());
@@ -266,11 +270,15 @@ public class EditTopicController {
     if (!message.getTitle().equals(newMsg.getTitle())) {
       modified = true;
     }
-
-    if (!message.getMessage().equals(newMsg.getMessage())) {
-      modified = true;
+    
+    if (form.getMsg()!=null) {
+      String oldText = msgbaseDao.getMessageText(message.getId()).getText();
+  
+      if (!oldText.equals(form.getMsg())) {
+        modified = true;
+      }
     }
-
+    
     if (message.getLinktext() == null) {
       if (newMsg.getLinktext() != null) {
         modified = true;
@@ -342,11 +350,20 @@ public class EditTopicController {
     }
 
     if (!preview && !errors.hasErrors()) {
+      String newText;
+      
+      if (form.getMsg() != null) {
+        newText = form.getMsg();
+      } else {
+        newText = msgbaseDao.getMessageText(message.getId()).getText();
+      }
+
       boolean changed = messageDao.updateAndCommit(
               newMsg,
               message,
               user,
               newTags,
+              newText,
               commit,
               changeGroupId,
               form.getBonus(),

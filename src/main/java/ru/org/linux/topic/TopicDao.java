@@ -389,7 +389,7 @@ public class TopicDao {
     return msgid;
   }
 
-  private boolean updateMessage(Topic oldMsg, Topic msg, User editor, List<String> newTags) {
+  private boolean updateMessage(Topic oldMsg, Topic msg, User editor, List<String> newTags, String newText) {
     List<String> oldTags = tagDao.getMessageTags(msg.getId());
 
     EditInfoDto editInfo = new EditInfoDto();
@@ -398,12 +398,14 @@ public class TopicDao {
     editInfo.setEditor(editor.getId());
 
     boolean modified = false;
+    
+    String oldText = msgbaseDao.getMessageText(msg.getId()).getText();
 
-    if (!oldMsg.getMessage().equals(msg.getMessage())) {
-      editInfo.setOldmessage(oldMsg.getMessage());
+    if (!oldText.equals(newText)) {
+      editInfo.setOldmessage(oldText);
       modified = true;
       
-      msgbaseDao.updateMessage(msg.getId(), msg.getMessage());
+      msgbaseDao.updateMessage(msg.getId(), newText);
     }
 
     if (!oldMsg.getTitle().equals(msg.getTitle())) {
@@ -509,19 +511,20 @@ public class TopicDao {
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   public boolean updateAndCommit(
           Topic newMsg,
-          Topic message,
+          Topic oldMsg,
           User user,
           List<String> newTags,
+          String newText,
           boolean commit,
           Integer changeGroupId,
           int bonus,
           List<PollVariant> pollVariants,
           boolean multiselect
   )  {
-    boolean modified = updateMessage(message, newMsg, user, newTags);
+    boolean modified = updateMessage(oldMsg, newMsg, user, newTags, newText);
 
     try {
-      if (pollVariants!=null && updatePoll(message, pollVariants, multiselect)) {
+      if (pollVariants!=null && updatePoll(oldMsg, pollVariants, multiselect)) {
         modified = true;
       }
     } catch (PollNotFoundException e) {
@@ -530,17 +533,17 @@ public class TopicDao {
 
     if (commit) {
       if (changeGroupId != null) {
-        if (message.getGroupId() != changeGroupId) {
-          jdbcTemplate.update("UPDATE topics SET groupid=? WHERE id=?", changeGroupId, message.getId());
-          jdbcTemplate.update("UPDATE groups SET stat4=stat4+1 WHERE id=? or id=?", message.getGroupId(), changeGroupId);
+        if (oldMsg.getGroupId() != changeGroupId) {
+          jdbcTemplate.update("UPDATE topics SET groupid=? WHERE id=?", changeGroupId, oldMsg.getId());
+          jdbcTemplate.update("UPDATE groups SET stat4=stat4+1 WHERE id=? or id=?", oldMsg.getGroupId(), changeGroupId);
         }
       }
 
-      commit(message, user, bonus);
+      commit(oldMsg, user, bonus);
     }
 
     if (modified) {
-      logger.info("сообщение " + message.getId() + " исправлено " + user.getNick());
+      logger.info("сообщение " + oldMsg.getId() + " исправлено " + user.getNick());
     }
 
     return modified;
