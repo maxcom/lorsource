@@ -50,6 +50,7 @@ import java.util.Set;
 
 @Controller
 public class TopicController {
+  public static final int RSS_DEFAULT = 20;
   @Autowired
   private SectionService sectionService;
 
@@ -447,7 +448,7 @@ public class TopicController {
     } else {
       CommentFilter cv = new CommentFilter(comments);
 
-      List<Comment> commentsFiltred = cv.getComments(true, 0, TopicRssHelper.RSS_DEFAULT, null);
+      List<Comment> commentsFiltred = cv.getComments(true, 0, RSS_DEFAULT, null);
 
       List<PreparedComment> commentsPrepared = prepareService.prepareCommentListRSS(comments, commentsFiltred, request.isSecure());
 

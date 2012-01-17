@@ -14,9 +14,7 @@
   ~    limitations under the License.
   --%>
 <%@ page contentType="application/rss+xml; charset=utf-8"%>
-<%@ page import="ru.org.linux.topic.TopicRssHelper"   buffer="200kb"%>
-<%@ page import="ru.org.linux.topic.PreparedTopic" %>
-<%@ page import="ru.org.linux.site.Template" %>
+<%@ page buffer="200kb"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
@@ -24,19 +22,12 @@
 <%--@elvariable id="preparedMessage" type="ru.org.linux.topic.PreparedTopic"--%>
 <%--@elvariable id="comments" type="ru.org.linux.comment.CommentList"--%>
 <%--@elvariable id="commentsPrepared" type="java.util.List<ru.org.linux.comment.PreparedComment>"--%>
-<% Template tmpl = Template.getTemplate(request); %>
-
 <rss version="2.0">
 <channel>
 <link>http://www.linux.org.ru/view-message.jsp?msgid=${message.id}</link>
 <language>ru</language>
 <title>Linux.org.ru: ${message.title}</title>
-  <description><![CDATA[<%
-    out.print(TopicRssHelper.getTopicRss(
-            tmpl.getConfig().getHTMLPathPrefix(),
-            (PreparedTopic) request.getAttribute("preparedMessage")));
-%>]]>
-  </description>
+  <lor:message-rss preparedMessage="${preparedMessage}"/>
   <c:forEach items="${commentsPrepared}" var="comment">
     <item>
       <title>

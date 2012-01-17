@@ -15,16 +15,9 @@
 
 package ru.org.linux.topic;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import ru.org.linux.gallery.Screenshot;
 import ru.org.linux.site.MemCachedSettings;
 import ru.org.linux.spring.commons.CacheProvider;
-import ru.org.linux.util.BadImageException;
-import ru.org.linux.util.ImageInfo;
 
-import java.io.File;
-import java.io.IOException;
 import java.net.URLEncoder;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -36,7 +29,6 @@ import java.util.List;
 import java.util.Set;
 
 public class NewsViewer {
-  private static final Log logger = LogFactory.getLog("ru.org.linux");
   private boolean userFavs = false;
 
   public void setUserFavs(boolean userFavs) {
@@ -61,35 +53,6 @@ public class NewsViewer {
   private int tag=0;
 
   private CommitMode commitMode = CommitMode.COMMITED_AND_POSTMODERATED;
-
-  public static String showMediumImage(String htmlPath, Topic topic, boolean showMedium) {
-    StringBuilder out = new StringBuilder();
-    String url = topic.getUrl();
-
-    try {
-      String mediumName = Screenshot.getMediumName(url);
-
-      if (!showMedium || !new File(htmlPath, mediumName).exists()) {
-        mediumName = topic.getLinktext();
-      }
-
-      ImageInfo iconInfo = new ImageInfo(htmlPath + mediumName);
-
-      out.append("<p>");
-      out.append("<a href=\"/").append(url).append("\"><img src=\"/").append(mediumName).append("\" ALT=\"").append(topic.getTitle()).append("\" ").append(iconInfo.getCode()).append(" ></a>");
-      out.append("</p>");
-    } catch (BadImageException e) {
-      logger.warn("Bad image", e);
-      out.append("&gt;&gt;&gt; <a href=\"/").append(url).append("\">[BAD IMAGE!] Просмотр</a>");
-    } catch (IOException e) {
-      logger.warn("Bad image", e);
-      out.append("&gt;&gt;&gt; <a href=\"/").append(url).append("\">[BAD IMAGE: IO Exception!] Просмотр</a>");
-    }
-
-    out.append("</p>");
-
-    return out.toString();
-  }
 
   public List<Topic> getMessagesCached(Connection db) throws SQLException {
     if (getCacheAge()==0) {

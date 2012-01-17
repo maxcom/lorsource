@@ -1,12 +1,11 @@
 <%@ tag import="ru.org.linux.group.Group" %>
 <%@ tag import="ru.org.linux.site.Template" %>
 <%@ tag import="ru.org.linux.topic.NewsViewer" %>
+<%@ tag import="ru.org.linux.topic.Topic" %>
 <%@ tag import="ru.org.linux.util.BadImageException" %>
 <%@ tag import="ru.org.linux.util.ImageInfo" %>
 <%@ tag import="ru.org.linux.util.StringUtil" %>
-<%@ tag import="java.io.File" %>
 <%@ tag import="java.io.IOException" %>
-<%@ tag import="ru.org.linux.topic.Topic" %>
 <%@ tag pageEncoding="UTF-8"%>
 <%@ attribute name="preparedMessage" required="true" type="ru.org.linux.topic.PreparedTopic" %>
 <%@ attribute name="messageMenu" required="true" type="ru.org.linux.topic.TopicMenu" %>
@@ -137,9 +136,7 @@
 <div class="entry-body">
 <div class=msg>
   <c:if test="${preparedMessage.section.imagepost}">
-    <%
-      out.append(NewsViewer.showMediumImage(tmpl.getConfig().getHTMLPathPrefix(), message, true));
-    %>
+    <lor:image preparedImage="${preparedMessage.image}" topic="${preparedMessage.message}" showImage="true"/>
   </c:if>
   
   ${preparedMessage.processedMessage}
@@ -151,17 +148,9 @@
 
     out.append("<p>&gt;&gt;&gt; <a href=\"").append(StringUtil.escapeHtml(url)).append("\">").append(message.getLinktext()).append("</a>");
   } else if (imagepost) {
-    String imageFilename = tmpl.getConfig().getHTMLPathPrefix() + url;
-    out.append("<p>&gt;&gt;&gt; <a href=\"/").append(url).append("\">Просмотр</a>");
-    try {
-      ImageInfo info = new ImageInfo(imageFilename, ImageInfo.detectImageType(new File(imageFilename)));
-
-      out.append(" (<i>").append(Integer.toString(info.getWidth())).append('x').append(Integer.toString(info.getHeight())).append(", ").append(info.getSizeString()).append("</i>)");
-    } catch (IOException e) {
-      out.append("(BAD IMAGE)");
-    } catch (BadImageException e) {
-      out.append("(BAD IMAGE)");
-    }
+%>
+  <lor:image preparedImage="${preparedMessage.image}" topic="${preparedMessage.message}" showInfo="true"/>
+<%
   } else if (votepoll) {
       %>
         <c:choose>

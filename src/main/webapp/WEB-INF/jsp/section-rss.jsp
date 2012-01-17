@@ -15,13 +15,9 @@
   --%>
 <%--@elvariable id="messages" type="java.util.List<ru.org.linux.topic.PreparedTopic>"--%>
 <%@ page contentType="application/rss+xml; charset=utf-8"%>
-<%@ page import="java.util.Date,ru.org.linux.topic.TopicRssHelper"   buffer="200kb"%>
-<%@ page import="ru.org.linux.topic.PreparedTopic" %>
-<%@ page import="ru.org.linux.site.Template" %>
+<%@ page import="java.util.Date"   buffer="200kb"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
-<% Template tmpl = Template.getTemplate(request); %>
-
 <rss version="2.0">
   <channel>
     <link>http://www.linux.org.ru/</link>
@@ -45,11 +41,7 @@
       <c:if test="${msg.message.commitDate==null}">
         <pubDate><lor:rfc822date date="${msg.message.postdate}"/></pubDate>
       </c:if>
-      <description><![CDATA[
-      <%
-        out.print(TopicRssHelper.getTopicRss(tmpl.getConfig().getHTMLPathPrefix(),  (PreparedTopic) pageContext.getAttribute("msg")));
-      %>
-      ]]></description>
+      <lor:message-rss preparedMessage="${msg}"/>
     </item>
   </c:forEach>
 </channel>

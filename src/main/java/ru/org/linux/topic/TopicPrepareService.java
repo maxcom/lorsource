@@ -15,8 +15,11 @@
 
 package ru.org.linux.topic;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.org.linux.gallery.Screenshot;
 import ru.org.linux.group.BadGroupException;
 import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
@@ -33,13 +36,19 @@ import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserNotFoundException;
 import ru.org.linux.spring.Configuration;
 import ru.org.linux.spring.dao.*;
+import ru.org.linux.util.BadImageException;
+import ru.org.linux.util.ImageInfo;
 import ru.org.linux.util.bbcode.LorCodeService;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class TopicPrepareService {
+  private static final Log logger = LogFactory.getLog(TopicPrepareService.class);
+  
   @Autowired
   private TopicDao messageDao;
 
@@ -202,8 +211,16 @@ public class TopicPrepareService {
       }
 
       String userAgent = userAgentDao.getUserAgentById(message.getUserAgent());
+      
+      PreparedImage preparedImage;
 
-      return new PreparedTopic(message, author, deleteInfo, deleteUser, processedMessage, preparedPoll, commiter, tags, group, section, lastEditInfo, lastEditor, editCount, userAgent, lorcode);
+      if (group.isImagePostAllowed() && message.getUrl()!=null) {
+        preparedImage = prepareImage(message);
+      } else {
+        preparedImage = null;
+      }
+
+      return new PreparedTopic(message, author, deleteInfo, deleteUser, processedMessage, preparedPoll, commiter, tags, group, section, lastEditInfo, lastEditor, editCount, userAgent, lorcode, preparedImage);
     } catch (BadGroupException e) {
       throw new RuntimeException(e);
     } catch (UserNotFoundException e) {
@@ -212,6 +229,32 @@ public class TopicPrepareService {
       throw new RuntimeException(e);
     } catch (SectionNotFoundException e) {
       throw new RuntimeException(e);
+    }
+  }
+  
+  private PreparedImage prepareImage(Topic topic) {
+    String mediumName = Screenshot.getMediumName(topic.getUrl());
+
+    String htmlPath = configuration.getHTMLPathPrefix();
+    if (!new File(htmlPath, mediumName).exists()) {
+      mediumName = topic.getLinktext();
+    }
+
+    try {
+      ImageInfo mediumImageInfo = new ImageInfo(htmlPath + mediumName);
+      String fullName = htmlPath + topic.getUrl();
+      ImageInfo fullInfo = new ImageInfo(
+              fullName,
+              ImageInfo.detectImageType(new File(fullName))
+      );
+      
+      return new PreparedImage(mediumName, mediumImageInfo, topic.getUrl(), fullInfo);
+    } catch (BadImageException e) {
+      logger.warn(e);
+      return null;
+    } catch (IOException e) {
+      logger.warn(e);
+      return null;
     }
   }
 

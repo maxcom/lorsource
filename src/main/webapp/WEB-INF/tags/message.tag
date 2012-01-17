@@ -76,7 +76,7 @@
   &nbsp;</div>
 </c:if>
 
-<c:set var="showPhotos" value="<%= tmpl.getProf().isShowPhotos() %>"/>
+<c:set var="showPhotos" value="${template.prof.showPhotos}"/>
   <c:if test="${showPhotos}">
     <lor:userpic author="${preparedMessage.author}"/>
     <c:set var="msgBodyStyle" value="message-w-userpic"/>
@@ -98,11 +98,11 @@
   if (message.getUrl() != null && message.isHaveLink() && !message.getUrl().isEmpty()) {
     out.append("<p>&gt;&gt;&gt; <a href=\"").append(StringUtil.escapeHtml(message.getUrl())).append("\">").append(message.getLinktext()).append("</a>");
   }
-
-  if (message.getUrl() != null && preparedMessage.getSection().isImagepost()) {
-    out.append(NewsViewer.showMediumImage(tmpl.getConfig().getHTMLPathPrefix(), message, true));
-  }
 %>
+    <c:if test="${preparedMessage.section.imagepost}">
+      <lor:image preparedImage="${preparedMessage.image}" topic="${preparedMessage.message}" showImage="true"/>
+      <lor:image preparedImage="${preparedMessage.image}" topic="${preparedMessage.message}" showInfo="true"/>
+    </c:if>
 <c:if test="${preparedMessage.section.premoderated and not empty preparedMessage.tags}">
   <lor:tags list="${preparedMessage.tags}"/>
 </c:if>
