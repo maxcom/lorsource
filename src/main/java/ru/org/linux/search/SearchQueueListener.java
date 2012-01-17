@@ -25,17 +25,17 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.request.UpdateRequest;
 import org.apache.solr.common.SolrInputDocument;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Required;
 import org.springframework.stereotype.Component;
-import ru.org.linux.search.SearchQueueSender.UpdateComments;
-import ru.org.linux.search.SearchQueueSender.UpdateMessage;
-import ru.org.linux.search.SearchQueueSender.UpdateMonth;
-import ru.org.linux.topic.Topic;
-import ru.org.linux.site.MessageNotFoundException;
-import ru.org.linux.topic.TopicDao;
 import ru.org.linux.comment.Comment;
 import ru.org.linux.comment.CommentDao;
 import ru.org.linux.comment.CommentList;
+import ru.org.linux.search.SearchQueueSender.UpdateComments;
+import ru.org.linux.search.SearchQueueSender.UpdateMessage;
+import ru.org.linux.search.SearchQueueSender.UpdateMonth;
+import ru.org.linux.site.MessageNotFoundException;
+import ru.org.linux.spring.dao.MsgbaseDao;
+import ru.org.linux.topic.Topic;
+import ru.org.linux.topic.TopicDao;
 
 import java.io.IOException;
 import java.sql.Timestamp;
@@ -51,9 +51,11 @@ public class SearchQueueListener {
   private SolrServer solrServer;
   private TopicDao messageDao;
   private CommentDao commentDao;
+  
+  @Autowired
+  private MsgbaseDao msgbaseDao;
 
   @Autowired
-  @Required
   public void setSolrServer(SolrServer solrServer) {
     this.solrServer = solrServer;
   }
@@ -126,7 +128,7 @@ public class SearchQueueListener {
         // возможно для скорости нужен какой-то кеш топиков, т.к. чаще бывает что все
         // комментарии из одного топика
         Topic topic = messageDao.getById(comment.getTopicId());
-        String message = commentDao.getMessage(comment);
+        String message = msgbaseDao.getMessageText(comment.getId()).getText();
         rq.add(processComment(topic, comment, message));
       }
     }
@@ -170,7 +172,7 @@ public class SearchQueueListener {
 
     doc.addField("title", StringEscapeUtils.unescapeHtml(topic.getTitle()));
     doc.addField("topic_title", topic.getTitle());
-    doc.addField("message", topic.getMessage());
+    doc.addField("message", msgbaseDao.getMessageText(topic.getId()).getText());
     Date postdate = topic.getPostdate();
     doc.addField("postdate", new Timestamp(postdate.getTime()));
 
@@ -187,7 +189,7 @@ public class SearchQueueListener {
       if (comment.isDeleted()) {
         delete.add(Integer.toString(comment.getId()));
       }
-      String message = commentDao.getMessage(comment);
+      String message = msgbaseDao.getMessageText(comment.getId()).getText();
       docs.add(processComment(topic, comment, message));
     }
 

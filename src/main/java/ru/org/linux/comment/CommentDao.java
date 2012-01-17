@@ -122,16 +122,6 @@ public class CommentDao {
   }
 
   /**
-   * Получить содержимое комментария
-   *
-   * @param comment комментарий
-   * @return содержимое комментария
-   */
-  public String getMessage(Comment comment) {
-    return jdbcTemplate.queryForObject(queryOnlyMessage, String.class, comment.getId());
-  }
-
-  /**
    * Получить комментарий по id
    *
    * @param id id нужного комментария

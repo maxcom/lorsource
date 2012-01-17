@@ -344,6 +344,8 @@ public class Topic implements Serializable {
     return userAgent;
   }
 
+  // use MsgbaseDao
+  @Deprecated
   public String getMessage() {
     return message;
   }
