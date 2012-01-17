@@ -310,5 +310,46 @@ public class SimpleParserTest {
         lorCodeService.parseComment("[quote][quote][quote][quote][quote][quote][quote][quote][quote][quote][quote][quote][quote][quote][quote][quote][quote][quote]прювет![/quote][/quote][/quote][/quote][/quote][/quote][/quote][/quote][/quote][/quote][/quote][/quote][/quote][/quote][/quote][/quote][/quote][/quote]", false));
   }
 
+  @Test
+  public void escapeDoubleBrackets() {
+    assertEquals("<p>[[doNotTag]]</p>",
+        lorCodeService.parseComment("[[doNotTag]]", true));
+    assertEquals("<p>[[/doNotTag]]</p>",
+        lorCodeService.parseComment("[[/doNotTag]]", true));
+    assertEquals("<p>[b]</p>",
+        lorCodeService.parseComment("[[b]]", true));
+    assertEquals("<p>[/b]</p>",
+        lorCodeService.parseComment("[[/b]]", true));
+
+
+    assertEquals("<div class=\"code\"><pre class=\"no-highlight\"><code>[[doNotTag]]</code></pre></div>",
+        lorCodeService.parseComment("[code][[doNotTag]][/code]", true));
+    assertEquals("<div class=\"code\"><pre class=\"no-highlight\"><code>[[/doNotTag]]</code></pre></div>",
+        lorCodeService.parseComment("[code][[/doNotTag]][/code]", true));
+    assertEquals("<div class=\"code\"><pre class=\"no-highlight\"><code>[[b]]</code></pre></div>",
+        lorCodeService.parseComment("[code][[b]][/code]", true));
+    assertEquals("<div class=\"code\"><pre class=\"no-highlight\"><code>[[/b]]</code></pre></div>",
+        lorCodeService.parseComment("[code][[/b]][/code]", true));
+
+    assertEquals("<p>[[[doNotTag]]]</p>",
+        lorCodeService.parseComment("[[[doNotTag]]]", true));
+    assertEquals("<p>[[[/doNotTag]]]</p>",
+        lorCodeService.parseComment("[[[/doNotTag]]]", true));
+    assertEquals("<p>[[b]]</p>",
+        lorCodeService.parseComment("[[[b]]]", true));
+    assertEquals("<p>[[/b]]</p>",
+        lorCodeService.parseComment("[[[/b]]]", true));
+
+    assertEquals("<div class=\"code\"><pre class=\"no-highlight\"><code>[[b]]</code></pre></div><p>[b]</p>",
+        lorCodeService.parseComment("[code][[b]][/code][[b]]", true));
+    assertEquals("<div class=\"code\"><pre class=\"no-highlight\"><code>[[/b]]</code></pre></div><p>[b]</p>",
+        lorCodeService.parseComment("[code][[/b]][/code][[b]]", true));
+
+    assertEquals("<div class=\"code\"><pre class=\"no-highlight\"><code>[[code]]</code></pre></div>",
+        lorCodeService.parseComment("[code][[code]][/code]", true));
+    assertEquals("<div class=\"code\"><pre class=\"no-highlight\"><code>[[/code]]</code></pre></div>",
+        lorCodeService.parseComment("[code][[/code]][/code]", true));
+  }
+
 
 }
