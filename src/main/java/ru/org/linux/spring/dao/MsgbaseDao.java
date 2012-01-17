@@ -15,9 +15,11 @@
 
 package ru.org.linux.spring.dao;
 
+import com.google.common.collect.ImmutableMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
@@ -32,10 +34,12 @@ public class MsgbaseDao {
   private static final String QUERY_MESSAGE_TEXT = "SELECT message, bbcode FROM msgbase WHERE id=?";
 
   private JdbcTemplate jdbcTemplate;
+  private NamedParameterJdbcTemplate namedJdbcTemplate;
 
   @Autowired
   public void setDataSource(DataSource dataSource) {
     jdbcTemplate = new JdbcTemplate(dataSource);
+    namedJdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
   }
 
   public MessageText getMessageText(int msgid) {
@@ -48,5 +52,12 @@ public class MsgbaseDao {
         return new MessageText(text, lorcode);
       }
     }, msgid);
+  }                  
+  
+  public void updateMessage(int msgid, String text) {
+    namedJdbcTemplate.update(
+      "UPDATE msgbase SET message=:message WHERE id=:msgid",
+      ImmutableMap.of("message", text, "msgid", msgid)
+    );
   }
 }

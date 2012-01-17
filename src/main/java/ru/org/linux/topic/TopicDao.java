@@ -45,6 +45,7 @@ import ru.org.linux.section.SectionService;
 import ru.org.linux.site.MessageNotFoundException;
 import ru.org.linux.site.ScriptErrorException;
 import ru.org.linux.spring.Configuration;
+import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.user.*;
 import ru.org.linux.util.LorHttpUtils;
 
@@ -82,6 +83,9 @@ public class TopicDao {
 
   @Autowired
   private Configuration configuration;
+  
+  @Autowired
+  private MsgbaseDao msgbaseDao;
 
   /**
    * Запрос получения полной информации о топике
@@ -398,11 +402,8 @@ public class TopicDao {
     if (!oldMsg.getMessage().equals(msg.getMessage())) {
       editInfo.setOldmessage(oldMsg.getMessage());
       modified = true;
-
-      namedJdbcTemplate.update(
-        "UPDATE msgbase SET message=:message WHERE id=:msgid",
-        ImmutableMap.of("message", msg.getMessage(), "msgid", msg.getId())
-      );
+      
+      msgbaseDao.updateMessage(msg.getId(), msg.getMessage());
     }
 
     if (!oldMsg.getTitle().equals(msg.getTitle())) {
