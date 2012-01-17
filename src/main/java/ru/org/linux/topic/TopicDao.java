@@ -281,7 +281,7 @@ public class TopicDao {
   }
 
   /**
-   *
+   * Сохраняем новое сообщение
    *
    * @param msg
    * @param request
@@ -292,7 +292,13 @@ public class TopicDao {
    * @throws ScriptErrorException
    */
 // call in @Transactional environment
-  public int saveNewMessage(final Topic msg, final HttpServletRequest request, Screenshot scrn, final User user) throws  IOException,  ScriptErrorException {
+  private int saveNewMessage(
+          final Topic msg,
+          final HttpServletRequest request,
+          Screenshot scrn,
+          final User user,
+          String text
+  ) throws  IOException,  ScriptErrorException {
     final Group group = groupDao.getGroup(msg.getGroupId());
 
     final int msgid = allocateMsgid();
@@ -336,7 +342,7 @@ public class TopicDao {
     // insert message text
     jdbcTemplate.update(
             "INSERT INTO msgbase (id, message, bbcode) values (?,?, ?)",
-            msgid, msg.getMessage(), msg.isLorcode()
+            msgid, text, true
     );
 
     String logmessage = "Написана тема " + msgid + ' ' + LorHttpUtils.getRequestIP(request);
@@ -346,12 +352,21 @@ public class TopicDao {
   }
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public int addMessage(HttpServletRequest request, AddTopicRequest form, Group group, User user, Screenshot scrn, Topic previewMsg, Set<User> userRefs) throws IOException, ScriptErrorException, UserErrorException {
+  public int addMessage(
+          HttpServletRequest request,
+          AddTopicRequest form,
+          Group group,
+          User user,
+          Screenshot scrn,
+          Topic previewMsg,
+          Set<User> userRefs
+  ) throws IOException, ScriptErrorException, UserErrorException {
     final int msgid = saveNewMessage(
             previewMsg,
             request,
             scrn,
-            user
+            user,
+            form.getMsg()
     );
 
     if (group.isPollPostAllowed()) {
