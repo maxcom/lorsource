@@ -50,7 +50,6 @@ public class Topic implements Serializable {
   private final int sectionid;
   private final int commentCount;
   private final boolean moderate;
-  private final String message;
   private final boolean notop;
   private final int userAgent;
   private final String postIP;
@@ -92,7 +91,6 @@ public class Topic implements Serializable {
     sectionid = rs.getInt("section");
     commentCount = rs.getInt("stat1");
     moderate = rs.getBoolean("moderate");
-    message = rs.getString("message");
     notop = rs.getBoolean("notop");
     userAgent = rs.getInt("ua_id");
     postIP = rs.getString("postip");
@@ -103,7 +101,7 @@ public class Topic implements Serializable {
     sectionCommentsRestriction = Section.getCommentPostscore(sectionid);
   }
 
-  public Topic(AddTopicRequest form, User user, String message, String postIP) {
+  public Topic(AddTopicRequest form, User user, String postIP) {
     userAgent = 0;
     this.postIP = postIP;
 
@@ -155,7 +153,6 @@ public class Topic implements Serializable {
     resolved = false;
     minor = false;
 
-    this.message = message;
     sectionCommentsRestriction = Section.getCommentPostscore(sectionid);
   }
 
@@ -211,12 +208,6 @@ public class Topic implements Serializable {
       minor = form.getMinor();
     } else {
       minor = original.minor;
-    }
-
-    if (form.getMsg() != null) {
-      message = form.getMsg();
-    } else {
-      message = original.message;
     }
 
     sectionCommentsRestriction = Section.getCommentPostscore(sectionid);
@@ -342,12 +333,6 @@ public class Topic implements Serializable {
 
   public int getUserAgent() {
     return userAgent;
-  }
-
-  // use MsgbaseDao
-  @Deprecated
-  public String getMessage() {
-    return message;
   }
 
   public Timestamp getPostdate() {
