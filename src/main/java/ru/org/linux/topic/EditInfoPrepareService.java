@@ -17,6 +17,7 @@ package ru.org.linux.topic;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserErrorException;
 import ru.org.linux.user.UserNotFoundException;
@@ -38,12 +39,17 @@ public class EditInfoPrepareService {
 
   @Autowired
   private LorCodeService lorCodeService;
+  
+  @Autowired
+  private MsgbaseDao msgbaseDao;
 
   public List<PreparedEditInfo> prepareEditInfo(Topic message, boolean secure) throws UserNotFoundException, UserErrorException {
     List<EditInfoDto> editInfoDTOs = messageDao.loadEditInfo(message.getId());
     List<PreparedEditInfo> editInfos = new ArrayList<PreparedEditInfo>(editInfoDTOs.size());
 
-    String currentMessage = message.getMessage();
+    String baseText = msgbaseDao.getMessageText(message.getId()).getText();
+
+    String currentMessage = baseText;
     String currentTitle = message.getTitle();
     String currentUrl = message.getUrl();
     String currentLinktext = message.getLinktext();
@@ -90,7 +96,7 @@ public class EditInfoPrepareService {
     }
 
     if (!editInfoDTOs.isEmpty()) {
-      EditInfoDto current = EditInfoDto.createFromMessage(tagDao, message);
+      EditInfoDto current = EditInfoDto.createFromMessage(tagDao, message, baseText);
 
       if (currentTags.isEmpty()) {
         currentTags = null;

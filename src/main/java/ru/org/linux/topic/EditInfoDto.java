@@ -100,10 +100,10 @@ public class EditInfoDto {
     this.oldurl = oldurl;
   }
 
-  public static EditInfoDto createFromMessage(TagDao tagDao, Topic message) {
+  public static EditInfoDto createFromMessage(TagDao tagDao, Topic message, String text) {
     EditInfoDto current = new EditInfoDto();
 
-    current.setOldmessage(message.getMessage());
+    current.setOldmessage(text);
     current.setEditdate(message.getPostdate());
     current.setEditor(message.getUid());
     current.setMsgid(message.getMessageId());
