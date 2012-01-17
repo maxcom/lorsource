@@ -29,13 +29,14 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import ru.org.linux.site.*;
+import ru.org.linux.site.MemCachedSettings;
+import ru.org.linux.site.MessageNotFoundException;
+import ru.org.linux.site.ScriptErrorException;
 import ru.org.linux.spring.commons.CacheProvider;
-import ru.org.linux.topic.Topic;
 import ru.org.linux.spring.dao.DeleteInfoDao;
+import ru.org.linux.topic.Topic;
 import ru.org.linux.user.*;
 import ru.org.linux.util.StringUtil;
-import ru.org.linux.util.bbcode.LorCodeService;
 
 import javax.sql.DataSource;
 import java.sql.*;
@@ -77,11 +78,6 @@ public class CommentDao {
           "LEFT JOIN user_agents ON (user_agents.id=comments.ua_id) " +
           "WHERE topic=?  AND NOT deleted ORDER BY msgid ASC";
 
-  /**
-   * Запрос тела сообщения и признака bbcode для сообщения
-   */
-  private static final String queryCommentForPrepare = "SELECT message, bbcode FROM msgbase WHERE id=?";
-
   private static final String queryOnlyMessage = "SELECT message FROM msgbase WHERE id=?";
 
   private static final String replysForComment = "SELECT id FROM comments WHERE replyto=? AND NOT deleted FOR UPDATE";
@@ -98,11 +94,9 @@ public class CommentDao {
 
   private UserEventsDao userEventsDao;
 
-  private LorCodeService lorCodeService;
-
   @Autowired
   private IgnoreListDao ignoreListDao;
-
+  
   @Autowired
   public void setDataSource(DataSource dataSource) {
     jdbcTemplate = new JdbcTemplate(dataSource);
@@ -125,11 +119,6 @@ public class CommentDao {
   @Autowired
   public void setUserEventsDao(UserEventsDao userEventsDao) {
     this.userEventsDao = userEventsDao;
-  }
-
-  @Autowired
-  public void setLorCodeService(LorCodeService lorCodeService) {
-    this.lorCodeService = lorCodeService;
   }
 
   /**
@@ -191,50 +180,6 @@ public class CommentDao {
     }
 
     return comments;
-  }
-
-  /**
-   * Получить html представление текста комментария
-   *
-   * @param id id комментария
-   * @param secure https соединение?
-   * @return строку html комментария
-   */
-  public String getPreparedComment(int id, final boolean secure) {
-    return jdbcTemplate.queryForObject(queryCommentForPrepare, new RowMapper<String>() {
-      @Override
-      public String mapRow(ResultSet resultSet, int i) throws SQLException {
-        String text = resultSet.getString("message");
-        boolean isLorcode = resultSet.getBoolean("bbcode");
-        if (isLorcode) {
-          return lorCodeService.parseComment(text, secure);
-        } else {
-          return "<p>" + text + "</p>";
-        }
-      }
-    }, id);
-  }
-
-  /**
-   * Получить RSS представление текста комментария
-   *
-   * @param id id комментария
-   * @param secure https соединение?
-   * @return строку html комментария
-   */
-  public String getPreparedCommentRSS(int id, final boolean secure) {
-    return jdbcTemplate.queryForObject(queryCommentForPrepare, new RowMapper<String>() {
-      @Override
-      public String mapRow(ResultSet resultSet, int i) throws SQLException {
-        String text = resultSet.getString("message");
-        boolean isLorcode = resultSet.getBoolean("bbcode");
-        if (isLorcode) {
-          return lorCodeService.parseCommentRSS(text, secure);
-        } else {
-          return "<p>" + text + "</p>";
-        }
-      }
-    }, id);
   }
 
   /**

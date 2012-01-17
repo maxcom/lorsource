@@ -17,7 +17,7 @@ package ru.org.linux.user;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.org.linux.comment.CommentDao;
+import ru.org.linux.comment.CommentPrepareService;
 import ru.org.linux.site.MessageNotFoundException;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicDao;
@@ -35,10 +35,10 @@ public class UserEventPrepareService {
   private TopicDao messageDao;
   
   @Autowired
-  private CommentDao commentDao;
+  private UserDao userDao;
   
   @Autowired
-  private UserDao userDao;
+  private CommentPrepareService commentPrepareService;
 
   /**
    * 
@@ -54,7 +54,7 @@ public class UserEventPrepareService {
       String messageText;
       if (readMessage) {
         if(event.isComment()) { // Комментарий
-          messageText = commentDao.getPreparedCommentRSS(event.getCid(), secure);
+          messageText = commentPrepareService.prepareCommentTextRSS(event.getCid(), secure);
         } else { // Топик
           try {
             Topic message = messageDao.getById(event.getMsgid());

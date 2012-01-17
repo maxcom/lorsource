@@ -17,6 +17,8 @@ package ru.org.linux.comment;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.org.linux.spring.dao.MessageText;
+import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserNotFoundException;
@@ -36,6 +38,9 @@ public class CommentPrepareService {
   @Autowired
   private LorCodeService lorCodeService;
 
+  @Autowired
+  private MsgbaseDao msgbaseDao;
+
   public PreparedComment prepareCommentRSS(Comment comment, CommentList comments, boolean secure) throws UserNotFoundException {
     return prepareComment(comment, comments, secure, true);
   }
@@ -48,9 +53,9 @@ public class CommentPrepareService {
     User author = userDao.getUserCached(comment.getUserid());
     String processedMessage;
     if(!rss) {
-      processedMessage = commentDao.getPreparedComment(comment.getId(), secure);
+      processedMessage = prepareCommentText(comment.getId(), secure);
     } else {
-      processedMessage = commentDao.getPreparedCommentRSS(comment.getId(), secure);
+      processedMessage = prepareCommentTextRSS(comment.getId(), secure);
     }
     User replyAuthor;
     if (comment.getReplyTo()!=0 && comments!=null) {
@@ -93,5 +98,39 @@ public class CommentPrepareService {
       commentsPrepared.add(prepareComment(comment, comments, secure));
     }
     return commentsPrepared;
+  }
+
+  /**
+   * Получить html представление текста комментария
+   *
+   * @param id id комментария
+   * @param secure https соединение?
+   * @return строку html комментария
+   */
+  public String prepareCommentText(int id, final boolean secure) {
+    MessageText messageText = msgbaseDao.getMessageText(id);
+
+    if (messageText.isLorcode()) {
+      return lorCodeService.parseComment(messageText.getText(), secure);
+    } else {
+      return "<p>" + messageText.getText() + "</p>";
+    }
+  }
+
+  /**
+   * Получить RSS представление текста комментария
+   *
+   * @param id id комментария
+   * @param secure https соединение?
+   * @return строку html комментария
+   */
+  public String prepareCommentTextRSS(int id, final boolean secure) {
+    MessageText messageText = msgbaseDao.getMessageText(id);
+
+    if (messageText.isLorcode()) {
+      return lorCodeService.parseCommentRSS(messageText.getText(), secure);
+    } else {
+      return "<p>" + messageText.getText() + "</p>";
+    }
   }
 }
