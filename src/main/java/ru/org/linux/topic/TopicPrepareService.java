@@ -73,6 +73,9 @@ public class TopicPrepareService {
   @Autowired
   private TopicPermissionService permissionService;
   
+  @Autowired
+  private MsgbaseDao msgbaseDao;
+  
   public PreparedTopic prepareTopicForView(Topic message, boolean minimizeCut, boolean secure, User user) {
     return prepareMessage(message, messageDao.getTags(message), minimizeCut, null, secure, user);
   }
@@ -156,15 +159,22 @@ public class TopicPrepareService {
       }
 
       String processedMessage;
-      if(message.isLorcode()) {
+
+      MessageText messageText = msgbaseDao.getMessageText(message.getId());
+
+      if (messageText.isLorcode()) {
         if(minimizeCut) {
           String url = configuration.getMainUrl() + message.getLink();
-          processedMessage = lorCodeService.parseTopicWithMinimizedCut(message.getMessage(), url, secure);
+          processedMessage = lorCodeService.parseTopicWithMinimizedCut(
+                  messageText.getText(),
+                  url, 
+                  secure
+          );
         } else {
-          processedMessage = lorCodeService.parseTopic(message.getMessage(), secure);
+          processedMessage = lorCodeService.parseTopic(messageText.getText(), secure);
         }
       } else {
-        processedMessage = "<p>" + message.getMessage();
+        processedMessage = "<p>" + messageText.getText();
       }
 
       String userAgent = userAgentDao.getUserAgentById(message.getUserAgent());
