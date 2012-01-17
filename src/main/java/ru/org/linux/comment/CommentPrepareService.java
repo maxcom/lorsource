@@ -33,9 +33,6 @@ public class CommentPrepareService {
   private UserDao userDao;
 
   @Autowired
-  private CommentDao commentDao;
-
-  @Autowired
   private LorCodeService lorCodeService;
 
   @Autowired
@@ -127,10 +124,6 @@ public class CommentPrepareService {
   public String prepareCommentTextRSS(int id, final boolean secure) {
     MessageText messageText = msgbaseDao.getMessageText(id);
 
-    if (messageText.isLorcode()) {
-      return lorCodeService.parseCommentRSS(messageText.getText(), secure);
-    } else {
-      return "<p>" + messageText.getText() + "</p>";
-    }
+    return lorCodeService.prepareTextRSS(messageText.getText(), secure, messageText.isLorcode());
   }
 }
