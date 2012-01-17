@@ -190,12 +190,11 @@ public class NewsViewer {
           "topics.groupid as guid, topics.url, topics.linktext, ua_id, " +
           "urlname, vote, havelink, section, topics.sticky, topics.postip, " +
           "postdate<(CURRENT_TIMESTAMP-sections.expire) as expired, deleted, lastmod, commitby, " +
-          "commitdate, topics.stat1, postscore, topics.moderate, notop,bbcode, " +
+          "commitdate, topics.stat1, postscore, topics.moderate, notop, " +
           "topics.resolved, restrict_comments, minor " +
           "FROM topics " +
           "INNER JOIN groups ON (groups.id=topics.groupid) " +
           "INNER JOIN sections ON (sections.id=groups.section) " +
-          "INNER JOIN msgbase ON (msgbase.id=topics.id) " +
           (userFavs?"INNER JOIN memories ON (memories.topic = topics.id) ":"")+
           "WHERE " + where+ ' ' +
           sort+ ' ' +limit

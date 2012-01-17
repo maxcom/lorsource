@@ -95,12 +95,11 @@ public class TopicDao {
         "topics.groupid as guid, topics.url, topics.linktext, ua_id, " +
         "urlname, vote, havelink, section, topics.sticky, topics.postip, " +
         "postdate<(CURRENT_TIMESTAMP-sections.expire) as expired, deleted, lastmod, commitby, " +
-        "commitdate, topics.stat1, postscore, topics.moderate, notop,bbcode, " +
+        "commitdate, topics.stat1, postscore, topics.moderate, notop, " +
         "topics.resolved, restrict_comments, minor " +
         "FROM topics " +
         "INNER JOIN groups ON (groups.id=topics.groupid) " +
         "INNER JOIN sections ON (sections.id=groups.section) " +
-        "INNER JOIN msgbase ON (msgbase.id=topics.id) " +
         "WHERE topics.id=?";
   /**
    * Удаление топика
@@ -735,6 +734,8 @@ public class TopicDao {
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   public void moveTopic(Topic msg, Group newGrp, User moveBy) {
     String url = msg.getUrl();
+    
+    boolean lorcode = msgbaseDao.getMessageText(msg.getId()).isLorcode();
 
     jdbcTemplate.update("UPDATE topics SET groupid=?,lastmod=CURRENT_TIMESTAMP WHERE id=?", newGrp.getId(), msg.getId());
 
@@ -748,7 +749,7 @@ public class TopicDao {
       String link;
 
       if (!Strings.isNullOrEmpty(url)) {
-        if (msg.isLorcode()) {
+        if (lorcode) {
           link = "\n[url=" + url + ']' + linktext + "[/url]\n";
         } else {
           link = "<br><a href=\"" + url + "\">" + linktext + "</a>\n<br>\n";
@@ -759,13 +760,13 @@ public class TopicDao {
 
       String add;
 
-      if (msg.isLorcode()) {
+      if (lorcode) {
         add = '\n' + link + "\n[i]Перемещено " + moveBy.getNick() + " из " + title + "[/i]\n";
       } else {
         add = '\n' + link + "<br><i>Перемещено " + moveBy.getNick() + " из " + title + "</i>\n";
       }
 
-      jdbcTemplate.update("UPDATE msgbase SET message=message||? WHERE id=?", add, msg.getId());
+      msgbaseDao.appendMessage(msg.getId(), add);
     }
 
     if (!newGrp.isModerated()) {

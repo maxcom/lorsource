@@ -166,9 +166,11 @@ public class TopicPrepareService {
       }
 
       String processedMessage;
+      boolean lorcode;
 
       if (text == null) {
         MessageText messageText = msgbaseDao.getMessageText(message.getId());
+        lorcode = messageText.isLorcode();
 
         if (messageText.isLorcode()) {
           if (minimizeCut) {
@@ -185,6 +187,8 @@ public class TopicPrepareService {
           processedMessage = "<p>" + messageText.getText();
         }
       } else {
+        lorcode = true;
+
         if (minimizeCut) {
           String url = configuration.getMainUrl() + message.getLink();
           processedMessage = lorCodeService.parseTopicWithMinimizedCut(
@@ -199,7 +203,7 @@ public class TopicPrepareService {
 
       String userAgent = userAgentDao.getUserAgentById(message.getUserAgent());
 
-      return new PreparedTopic(message, author, deleteInfo, deleteUser, processedMessage, preparedPoll, commiter, tags, group, section, lastEditInfo, lastEditor, editCount, userAgent);
+      return new PreparedTopic(message, author, deleteInfo, deleteUser, processedMessage, preparedPoll, commiter, tags, group, section, lastEditInfo, lastEditor, editCount, userAgent, lorcode);
     } catch (BadGroupException e) {
       throw new RuntimeException(e);
     } catch (UserNotFoundException e) {

@@ -193,7 +193,7 @@ public class TopicPermissionService {
       return section.isPremoderated();
     }
 
-    if (!message.isLorcode()) {
+    if (!topic.isLorcode()) {
       return false;
     }
 

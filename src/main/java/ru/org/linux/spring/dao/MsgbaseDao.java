@@ -60,4 +60,12 @@ public class MsgbaseDao {
       ImmutableMap.of("message", text, "msgid", msgid)
     );
   }
+
+  public void appendMessage(int msgid, String text) {
+    jdbcTemplate.update(
+            "UPDATE msgbase SET message=message||? WHERE id=?",
+            text,
+            msgid
+    );
+  }
 }

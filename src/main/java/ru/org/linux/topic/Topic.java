@@ -53,7 +53,6 @@ public class Topic implements Serializable {
   private final boolean notop;
   private final int userAgent;
   private final String postIP;
-  private final boolean lorcode;
   private final boolean resolved;
   private final int groupCommentsRestriction;
   private final int sectionCommentsRestriction;
@@ -94,7 +93,6 @@ public class Topic implements Serializable {
     notop = rs.getBoolean("notop");
     userAgent = rs.getInt("ua_id");
     postIP = rs.getString("postip");
-    lorcode = rs.getBoolean("bbcode");
     resolved = rs.getBoolean("resolved");
     groupCommentsRestriction = rs.getInt("restrict_comments");
     minor = rs.getBoolean("minor");
@@ -149,7 +147,6 @@ public class Topic implements Serializable {
     moderate = false;
     notop = false;
     userid = user.getId();
-    lorcode = true;
     resolved = false;
     minor = false;
 
@@ -202,7 +199,6 @@ public class Topic implements Serializable {
     moderate = original.moderate;
     notop = original.notop;
     userid = original.userid;
-    lorcode = original.lorcode;
 
     if (form.getMinor()!=null && sectionid==Section.SECTION_NEWS) {
       minor = form.getMinor();
@@ -349,11 +345,6 @@ public class Topic implements Serializable {
 
   public Timestamp getCommitDate() {
     return commitDate;
-  }
-
-  @Deprecated
-  public boolean isLorcode() {
-    return lorcode;
   }
 
   public boolean isResolved() {

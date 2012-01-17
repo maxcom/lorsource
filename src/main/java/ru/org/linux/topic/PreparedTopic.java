@@ -32,6 +32,7 @@ public final class PreparedTopic {
   private final String processedMessage;
   private final PreparedPoll poll;
   private final User commiter;
+  private final boolean lorcode;
   private final ImmutableList<String> tags;
   private final Group group;
   private final Section section;
@@ -46,7 +47,7 @@ public final class PreparedTopic {
 
   public PreparedTopic(Topic message, User author, DeleteInfo deleteInfo, User deleteUser, String processedMessage,
                        PreparedPoll poll, User commiter, List<String> tags, Group group, Section section,
-                       EditInfoDto lastEditInfo, User lastEditor, int editorCount, String userAgent) {
+                       EditInfoDto lastEditInfo, User lastEditor, int editorCount, String userAgent, boolean lorcode) {
     this.message = message;
     this.author = author;
     this.deleteInfo = deleteInfo;
@@ -54,6 +55,7 @@ public final class PreparedTopic {
     this.processedMessage = processedMessage;
     this.poll = poll;
     this.commiter = commiter;
+    this.lorcode = lorcode;
     if (tags!=null) {
       this.tags=ImmutableList.copyOf(tags);
     } else {
@@ -125,5 +127,9 @@ public final class PreparedTopic {
 
   public Section getSection() {
     return section;
+  }
+
+  public boolean isLorcode() {
+    return lorcode;
   }
 }
