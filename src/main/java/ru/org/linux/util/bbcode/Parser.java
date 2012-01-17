@@ -278,14 +278,18 @@ public class Parser {
         String tagname = match.group(1);
         String parameter = match.group(3);
         String wholematch = match.group(0);
+        Set<String> allTagsNames = parserParameters.getAllTagsNames();
 
         if (wholematch.startsWith("[[") && wholematch.endsWith("]]")) {
-          currentNode = pushTextNode(rootNode, currentNode, wholematch.substring(1, wholematch.length() - 1), isCode);
+          if(allTagsNames.contains(tagname) && !isCode) {
+            currentNode = pushTextNode(rootNode, currentNode, wholematch.substring(1, wholematch.length() - 1), isCode);
+          } else {
+            currentNode = pushTextNode(rootNode, currentNode, wholematch, isCode);
+          }
         } else {
           if (parameter != null && !parameter.isEmpty()) {
             parameter = parameter.substring(1);
           }
-          Set<String> allTagsNames = parserParameters.getAllTagsNames();
           if (allTagsNames.contains(tagname)) {
             if (wholematch.startsWith("[[")) {
               currentNode = pushTextNode(rootNode, currentNode, "[", isCode);
