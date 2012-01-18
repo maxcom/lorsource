@@ -153,6 +153,13 @@
       <div class=reply>
           <c:if test="${template.prof.showSocial}">
           <div style="float: right">
+              <c:if test="${template.moderatorSession}">
+                  <script type="text/javascript" src="//yandex.st/share/share.js" charset="utf-8"></script>
+                  <div style="display:inline" class="yashare-auto-init" data-yashareL10n="ru" data-yashareType="none"
+                       data-yashareQuickServices="juick" data-yashareLink="${template.mainUrlNoSlash}${message.link}"
+                          data-yashareTitle="${message.title}"></div>
+              </c:if>
+
               <!-- Place this tag in your head or just before your close body tag -->
               <script type="text/javascript" src="https://apis.google.com/js/plusone.js">
                   {
