@@ -14,19 +14,16 @@
   ~    limitations under the License.
   --%>
 
-<%
-   response.setStatus(404);
-%>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
-<title>Ошибка: пользователя не существует</title>
+<title>${msgTitle}</title>
 <jsp:include page="header.jsp"/>
 
 <div id="warning-body">
     <div id="warning-logo"><img src="/img/good-penguin.jpg" alt="good-penguin" /></div>
     <div id="warning-text">
-        <h1>Пользователя не существует</h1>
-        <p>Такого пользователя не существует.</p>
+        <h1>${msgHeader}</h1>
+        <p>${msgMessage}</p>
     </div>
 </div>
 <div id="warning-footer"></div>

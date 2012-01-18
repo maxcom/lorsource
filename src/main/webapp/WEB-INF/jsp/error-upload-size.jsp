@@ -26,7 +26,7 @@
     <div id="warning-logo"><img src="/img/good-penguin.jpg" alt="good-penguin" /></div>
     <div id="warning-text">
         <h1>Слишком крупное изображение</h1>
-        <p>Размер изображение превышает лимит(${exception.maxUploadSize}Байт)</p>
+        <p>Размер изображения превышает лимит в ${exception.maxUploadSize} Байт</p>
         <p>Вернитесь <a href="java script:history.back()">назад</a></p>
     </div>
 </div>

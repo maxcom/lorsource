@@ -608,9 +608,14 @@ public class TopicController {
   public ModelAndView handleMessageNotFoundException(MessageNotFoundException ex, HttpServletRequest request, HttpServletResponse response) {
     
     if(ex.getTopic() != null) {
-      ModelAndView mav = new ModelAndView("error-comment-not-found");
-      mav.addObject("topic", ex.getTopic());
-      mav.addObject("commentId", ex.getId());
+      ModelAndView mav = new ModelAndView("error-good-penguin");
+      Topic topic = ex.getTopic();
+      mav.addObject("msgTitle", "Ошибка: сообщения не существует");
+      mav.addObject("msgHeader", "Сообщение удалено или не существует");
+      
+      mav.addObject("msgMessage",
+          String.format("Сообщение %d в топике <a href=\"%s\">%s</a> удалено или не существует",
+          ex.getId(), topic.getLink(), topic.getTitle()));
       return mav;
     } else {
       return new ModelAndView("error404");
