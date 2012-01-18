@@ -94,4 +94,14 @@ public class WhoisController {
   public ModelAndView handleUserBanedException(UserBanedException ex, HttpServletRequest request, HttpServletResponse response) {
     return new ModelAndView("error-user-banned", "exception", ex);
   }
+
+  @ExceptionHandler(UserNotFoundException.class)
+  @ResponseStatus(HttpStatus.NOT_FOUND)
+  public ModelAndView handleUserNotFound(Exception ex, HttpServletRequest request, HttpServletResponse response) {
+    ModelAndView mav = new ModelAndView("error-good-penguin");
+    mav.addObject("msgTitle", "Ошибка: пользователя не существует");
+    mav.addObject("msgHeader", "Пользователя не существует");
+    mav.addObject("msgMessage", "Такого пользователя не существует");
+    return mav;
+  }
 }

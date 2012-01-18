@@ -57,6 +57,7 @@
                 <prop key="org.springframework.web.bind.MissingServletRequestParameterException">error-parameter</prop>
                 <prop key="org.springframework.validation.BindException">error-parameter</prop>
                 <prop key="ru.org.linux.user.UserBanedException">error-user-banned</prop>
+                <prop key="org.springframework.web.multipart.MaxUploadSizeExceededException">error-upload-size</prop>
             </props>
         </property>
     </bean>
