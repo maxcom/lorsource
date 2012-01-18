@@ -16,11 +16,9 @@
 package ru.org.linux.topic;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
@@ -36,6 +34,7 @@ import ru.org.linux.section.Section;
 import ru.org.linux.site.*;
 import ru.org.linux.spring.Configuration;
 import ru.org.linux.user.IgnoreListDao;
+import ru.org.linux.user.UserBanedException;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.user.User;
 import ru.org.linux.util.LorURL;
@@ -518,7 +517,7 @@ public class TopicController {
     CommentList comments = commentDao.getCommentList(topic, false);
     CommentNode node = comments.getNode(cid);
     if (node == null) {
-      throw new MessageNotFoundException(cid, "Сообщение #" + cid + " было удалено или не существует");
+      throw new MessageNotFoundException(topic, cid, "Сообщение #" + cid + " было удалено или не существует");
     }
 
     int pagenum = comments.getCommentPage(node.getComment(), tmpl);
@@ -576,7 +575,7 @@ public class TopicController {
       CommentList comments = commentDao.getCommentList(topic, false);
       CommentNode node = comments.getNode(cid);
       if (node == null) {
-        throw new MessageNotFoundException(cid, "Сообщение #" + cid + " было удалено или не существует");
+        throw new MessageNotFoundException(topic, cid, "Сообщение #" + cid + " было удалено или не существует");
       }
 
       int pagenum = comments.getCommentPage(node.getComment(), tmpl);
@@ -603,4 +602,19 @@ public class TopicController {
       return new ModelAndView(new RedirectView(redirectUrl + hash));
     }
   }
+
+  @ExceptionHandler(MessageNotFoundException.class)
+  @ResponseStatus(HttpStatus.NOT_FOUND)
+  public ModelAndView handleMessageNotFoundException(MessageNotFoundException ex, HttpServletRequest request, HttpServletResponse response) {
+    
+    if(ex.getTopic() != null) {
+      ModelAndView mav = new ModelAndView("error-comment-not-found");
+      mav.addObject("topic", ex.getTopic());
+      mav.addObject("commentId", ex.getId());
+      return mav;
+    } else {
+      return new ModelAndView("error404");
+    }
+  }
+
 }

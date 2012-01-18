@@ -15,12 +15,35 @@
 
 package ru.org.linux.site;
 
+import ru.org.linux.topic.Topic;
+
 public class MessageNotFoundException extends ScriptErrorException {
-  public MessageNotFoundException(int id, String info) {
+
+  private final Topic topic;
+  private final int id;
+
+  public MessageNotFoundException(Topic topic, int commentId, String info) {
+    this.topic = topic;
+    this.id=commentId;
+  }
+  
+  public MessageNotFoundException(int topicId, String info) {
     super(info);
+    this.id = topicId;
+    topic = null;
   }
 
   public MessageNotFoundException(int id) {
     super("Сообщение #" + id + " не существует");
+    this.id = id;
+    topic = null;
+  }
+
+  public Topic getTopic() {
+    return topic;
+  }
+
+  public int getId() {
+    return id;
   }
 }
