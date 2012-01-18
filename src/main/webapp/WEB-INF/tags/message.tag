@@ -153,14 +153,12 @@
       <div class=reply>
           <c:if test="${template.prof.showSocial}">
           <div style="float: right">
-              <c:if test="${template.moderatorSession}">
-                  <script type="text/javascript" src="//yandex.st/share/share.js" charset="utf-8"></script>
-                  <div style="display:inline" class="yashare-auto-init" data-yashareL10n="ru" data-yashareType="none"
-                       data-yashareQuickServices="juick" data-yashareLink="${template.mainUrlNoSlash}${message.link}"
-                          data-yashareTitle="${message.title}"></div>
-              </c:if>
+            <a target="_blank" style="text-decoration: none"
+               href="http://juick.com/post?body=<%= URLEncoder.encode("*LOR " + message.getTitle()+" "+tmpl.getMainUrlNoSlash()+message.getLink()) %>">
+              <img border="0" src="/img/juick.png" width=16 height=16 alt="Juick" title="Share on Juick">
+            </a>
 
-              <!-- Place this tag in your head or just before your close body tag -->
+            <!-- Place this tag in your head or just before your close body tag -->
               <script type="text/javascript" src="https://apis.google.com/js/plusone.js">
                   {
                       lang: 'ru'
