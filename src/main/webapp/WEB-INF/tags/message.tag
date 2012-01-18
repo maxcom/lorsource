@@ -153,13 +153,12 @@
       <div class=reply>
           <c:if test="${template.prof.showSocial}">
           <div style="float: right">
-              <c:if test="${template.moderatorSession}">
-                  <a target="_blank" style="text-decoration: none" href="http://juick.com/post?body=<%= URLEncoder.encode(message.getTitle()+" "+tmpl.getMainUrlNoSlash()+message.getLink()) %>">
-                      <img border="0" src="/img/juick.png" width=16 height=16 alt="Juick" title="Share on Juick">
-                  </a>
-              </c:if>
+            <a target="_blank" style="text-decoration: none"
+               href="http://juick.com/post?body=<%= URLEncoder.encode(message.getTitle()+" "+tmpl.getMainUrlNoSlash()+message.getLink()) %>">
+              <img border="0" src="/img/juick.png" width=16 height=16 alt="Juick" title="Share on Juick">
+            </a>
 
-              <!-- Place this tag in your head or just before your close body tag -->
+            <!-- Place this tag in your head or just before your close body tag -->
               <script type="text/javascript" src="https://apis.google.com/js/plusone.js">
                   {
                       lang: 'ru'
