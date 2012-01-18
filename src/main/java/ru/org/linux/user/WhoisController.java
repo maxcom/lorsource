@@ -94,4 +94,10 @@ public class WhoisController {
   public ModelAndView handleUserBanedException(UserBanedException ex, HttpServletRequest request, HttpServletResponse response) {
     return new ModelAndView("error-user-banned", "exception", ex);
   }
+
+  @ExceptionHandler(UserNotFoundException.class)
+  @ResponseStatus(HttpStatus.NOT_FOUND)
+  public ModelAndView handleUserNotFound(Exception ex, HttpServletRequest request, HttpServletResponse response) {
+    return new ModelAndView("error-user-not-found", "exception", ex);
+  }
 }
