@@ -214,11 +214,7 @@ public class TopicController {
     int msgid) throws Exception {
     Topic message = messageDao.getById(msgid);
     Template tmpl = Template.getTemplate(request);
-    User user = null;
-    if(tmpl.isSessionAuthorized()) {
-      user = tmpl.getCurrentUser();
-    }
-    PreparedTopic preparedMessage = messagePrepareService.prepareTopicForView(message, false, request.isSecure(), user);
+    PreparedTopic preparedMessage = messagePrepareService.prepareTopicForView(message, false, request.isSecure(), tmpl.getCurrentUser());
     Group group = preparedMessage.getGroup();
 
     if (!group.getUrlName().equals(groupName) || group.getSectionId() != section) {
