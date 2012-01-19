@@ -249,6 +249,8 @@ public class AddTopicController extends ApplicationObjectSupport {
         form.setLinktext("gallery/preview/" + scrn.getIconFile().getName());
         form.setUrl("gallery/preview/" + scrn.getMainFile().getName());
       } else {
+        form.setLinktext(null);
+        form.setUrl(null);
         if (!errors.hasErrors()) {
           errors.reject(null, "Изображение отсутствует");
         }

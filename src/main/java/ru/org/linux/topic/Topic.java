@@ -116,7 +116,7 @@ public class Topic implements Serializable {
     }
 
     // url check
-    if (!group.isImagePostAllowed() && !Strings.isNullOrEmpty(form.getUrl())) {
+    if (!Strings.isNullOrEmpty(form.getUrl())) {
       url = URLUtil.fixURL(form.getUrl());
     } else {
       url = null;

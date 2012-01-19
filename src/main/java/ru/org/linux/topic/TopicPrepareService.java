@@ -89,7 +89,13 @@ public class TopicPrepareService {
     return prepareMessage(message, messageDao.getTags(message), minimizeCut, null, secure, user, null);
   }
 
-  public PreparedTopic prepareTopicPreview(Topic message, List<String> tags, PreparedPoll newPoll, boolean secure, String text) {
+  public PreparedTopic prepareTopicPreview(
+          Topic message,
+          List<String> tags,
+          PreparedPoll newPoll,
+          boolean secure,
+          String text
+  ) {
     return prepareMessage(message, tags, false, newPoll, secure, text);
   }
 
