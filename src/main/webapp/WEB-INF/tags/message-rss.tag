@@ -17,19 +17,23 @@
 --%>
 <%@ attribute name="preparedMessage" required="true" type="ru.org.linux.topic.PreparedTopic" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
-<description><![CDATA[<%
-    Topic topic = preparedMessage.getMessage();
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<description><![CDATA[
+  <c:if test="${preparedMessage.section.imagepost}">
+    <lor:image preparedImage="${preparedMessage.image}" topic="${preparedMessage.message}" showImage="true"/>
+  </c:if>
 
-    if (preparedMessage.getSection().isImagepost()) {
-%>
-  <lor:image preparedImage="${preparedMessage.image}" topic="${preparedMessage.message}" showImage="true"/>
-  <lor:image preparedImage="${preparedMessage.image}" topic="${preparedMessage.message}" showInfo="true"/>
-  <%
-    } else if (topic.isVotePoll()) {
+  ${preparedMessage.processedMessage}
+
+  <c:if test="${preparedMessage.section.imagepost}">
+    <lor:image preparedImage="${preparedMessage.image}" topic="${preparedMessage.message}" showInfo="true"/>
+  </c:if>
+
+  <c:if test="${preparedMessage.section.votePoll}">
+    <%
       PreparedPoll poll = preparedMessage.getPoll();
       out.append(poll.renderPoll());
-    } else {
-      out.append(preparedMessage.getProcessedMessage());
-    }
-%>]]>
+    %>
+  </c:if>
+]]>
 </description>
