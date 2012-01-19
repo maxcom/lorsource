@@ -206,7 +206,7 @@
   if (pages > 1) {
     StringBuilder bufInfo = new StringBuilder();
 
-    bufInfo.append("[страница");
+    bufInfo.append("страница");
 
     StringBuilder urlAdd = new StringBuilder();
     if (!message.isExpired()) {
@@ -265,7 +265,6 @@
       bufInfo.append(" →");
     }
 
-    bufInfo.append(']');
     pageInfo = bufInfo.toString();
   }
 %>
