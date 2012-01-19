@@ -85,15 +85,11 @@ public class TopicPrepareService {
   @Autowired
   private MsgbaseDao msgbaseDao;
   
-  public PreparedTopic prepareTopicForView(Topic message, boolean minimizeCut, boolean secure, User user) {
+  public PreparedTopic prepareTopic(Topic message, boolean minimizeCut, boolean secure, User user) {
     return prepareMessage(message, messageDao.getTags(message), minimizeCut, null, secure, user, null);
   }
 
-  public PreparedTopic prepareMessage(Topic message, boolean minimizeCut, boolean secure) {
-    return prepareMessage(message, messageDao.getTags(message), minimizeCut, null, secure, null);
-  }
-
-  public PreparedTopic prepareMessage(Topic message, List<String> tags, PreparedPoll newPoll, boolean secure, String text) {
+  public PreparedTopic prepareTopicPreview(Topic message, List<String> tags, PreparedPoll newPoll, boolean secure, String text) {
     return prepareMessage(message, tags, false, newPoll, secure, text);
   }
 

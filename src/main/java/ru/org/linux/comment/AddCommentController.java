@@ -167,7 +167,7 @@ public class AddCommentController extends ApplicationObjectSupport {
     ModelAndView modelAndView = new ModelAndView(
       "comment-message",
       "preparedMessage",
-      messagePrepareService.prepareMessage(add.getTopic(), false, request.isSecure())
+      messagePrepareService.prepareTopic(add.getTopic(), false, request.isSecure(), tmpl.getCurrentUser())
     );
 
     IPBlockInfo ipBlockInfo = ipBlockDao.getBlockInfo(request.getRemoteAddr());

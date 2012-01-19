@@ -139,7 +139,7 @@ public class DeleteTopicController extends ApplicationObjectSupport {
 
     ModelAndView mv = new ModelAndView("undelete");
     mv.getModel().put("message", message);
-    mv.getModel().put("preparedMessage", prepareService.prepareMessage(message, false, request.isSecure()));
+    mv.getModel().put("preparedMessage", prepareService.prepareTopic(message, false, request.isSecure(), tmpl.getCurrentUser()));
 
     return mv;
   }

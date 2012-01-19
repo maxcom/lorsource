@@ -34,7 +34,6 @@ import ru.org.linux.section.Section;
 import ru.org.linux.site.*;
 import ru.org.linux.spring.Configuration;
 import ru.org.linux.user.IgnoreListDao;
-import ru.org.linux.user.UserBanedException;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.user.User;
 import ru.org.linux.util.LorURL;
@@ -214,7 +213,7 @@ public class TopicController {
     int msgid) throws Exception {
     Topic message = messageDao.getById(msgid);
     Template tmpl = Template.getTemplate(request);
-    PreparedTopic preparedMessage = messagePrepareService.prepareTopicForView(message, false, request.isSecure(), tmpl.getCurrentUser());
+    PreparedTopic preparedMessage = messagePrepareService.prepareTopic(message, false, request.isSecure(), tmpl.getCurrentUser());
     Group group = preparedMessage.getGroup();
 
     if (!group.getUrlName().equals(groupName) || group.getSectionId() != section) {

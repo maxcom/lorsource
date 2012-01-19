@@ -259,7 +259,7 @@ public class AddTopicController extends ApplicationObjectSupport {
 
     if (group!=null) {
       previewMsg = new Topic(form, user, request.getRemoteAddr());
-      params.put("message", prepareService.prepareMessage(previewMsg, TagDao.parseSanitizeTags(form.getTags()), null, request.isSecure(), form.getMsg()));
+      params.put("message", prepareService.prepareTopicPreview(previewMsg, TagDao.parseSanitizeTags(form.getTags()), null, request.isSecure(), form.getMsg()));
     }
 
     if (!form.isPreviewMode() && !errors.hasErrors() && !session.getId().equals(request.getParameter("session"))) {
