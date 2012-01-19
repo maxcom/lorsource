@@ -1,7 +1,4 @@
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page
-    import="ru.org.linux.topic.Topic" %>
-<%@ page import="ru.org.linux.topic.PreparedTopic" %>
 <%@ page import="ru.org.linux.topic.TagDao" %>
 <%@ page import="java.util.SortedSet" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
@@ -21,7 +18,6 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
-
 <%--@elvariable id="message" type="ru.org.linux.topic.Topic"--%>
 <%--@elvariable id="preparedMessage" type="ru.org.linux.topic.PreparedTopic"--%>
 <%--@elvariable id="newMsg" type="ru.org.linux.topic.Topic"--%>
