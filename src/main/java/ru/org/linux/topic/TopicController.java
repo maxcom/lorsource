@@ -25,17 +25,18 @@ import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.auth.IPBlockDao;
 import ru.org.linux.auth.IPBlockInfo;
-import ru.org.linux.section.SectionScrollModeEnum;
-import ru.org.linux.section.SectionService;
-import ru.org.linux.site.Template;
 import ru.org.linux.comment.*;
 import ru.org.linux.group.Group;
 import ru.org.linux.section.Section;
-import ru.org.linux.site.*;
+import ru.org.linux.section.SectionScrollModeEnum;
+import ru.org.linux.section.SectionService;
+import ru.org.linux.site.BadInputException;
+import ru.org.linux.site.MessageNotFoundException;
+import ru.org.linux.site.Template;
 import ru.org.linux.spring.Configuration;
 import ru.org.linux.user.IgnoreListDao;
-import ru.org.linux.user.UserDao;
 import ru.org.linux.user.User;
+import ru.org.linux.user.UserDao;
 import ru.org.linux.util.LorURL;
 
 import javax.servlet.http.HttpServletRequest;
@@ -505,7 +506,7 @@ public class TopicController {
     Template tmpl = Template.getTemplate(request);
     Topic topic = messageDao.getById(msgid);
     String redirectUrl = topic.getLink();
-    StringBuffer options = new StringBuffer();
+    StringBuilder options = new StringBuilder();
 
     StringBuilder hash = new StringBuilder();
 
@@ -538,7 +539,6 @@ public class TopicController {
       return new ModelAndView(new RedirectView(redirectUrl + hash));
     }
   }
-
 
   @RequestMapping(value = "/jump-message.jsp", method = {RequestMethod.GET, RequestMethod.HEAD})
   public ModelAndView jumpMessage(
@@ -600,8 +600,7 @@ public class TopicController {
 
   @ExceptionHandler(MessageNotFoundException.class)
   @ResponseStatus(HttpStatus.NOT_FOUND)
-  public ModelAndView handleMessageNotFoundException(MessageNotFoundException ex, HttpServletRequest request, HttpServletResponse response) {
-    
+  public ModelAndView handleMessageNotFoundException(MessageNotFoundException ex) {
     if(ex.getTopic() != null) {
       ModelAndView mav = new ModelAndView("error-good-penguin");
       Topic topic = ex.getTopic();
