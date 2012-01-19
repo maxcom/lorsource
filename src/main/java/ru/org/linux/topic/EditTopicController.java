@@ -181,7 +181,7 @@ public class EditTopicController {
       form.setTags(TagDao.toString(preparedMessage.getTags()));
     }
 
-    if (message.isVotePoll()) {
+    if (group.isPollPostAllowed()) {
       Poll poll = pollDao.getPollByTopicId(message.getId());
 
       form.setPoll(PollVariant.toMap(pollDao.getPollVariants(poll, Poll.ORDER_ID)));
@@ -325,7 +325,7 @@ public class EditTopicController {
 
     PreparedPoll newPoll = null;
 
-    if (message.isVotePoll() && form.getPoll() != null && tmpl.isModeratorSession()) {
+    if (group.isPollPostAllowed() && form.getPoll() != null && tmpl.isModeratorSession()) {
       Poll poll = pollDao.getPollByTopicId(message.getId());
 
       PreparedPoll orig = pollPrepareService.preparePoll(poll);

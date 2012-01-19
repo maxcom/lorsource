@@ -143,7 +143,7 @@ public class TopicPrepareService {
 
       PreparedPoll preparedPoll;
 
-      if (message.isVotePoll()) {
+      if (section.isVotePoll()) {
         if (poll==null) {
           preparedPoll = pollPrepareService.preparePoll(message, user);
         } else {

@@ -96,7 +96,7 @@
 <%
   String url = message.getUrl();
   boolean imagepost = preparedMessage.getSection().isImagepost();
-  boolean votepoll = message.isVotePoll();
+  boolean votepoll = preparedMessage.getSection().isVotePoll();
 
   String image = preparedMessage.getGroup().getImage();
   Group group = preparedMessage.getGroup();

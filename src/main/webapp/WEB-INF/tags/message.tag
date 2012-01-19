@@ -89,7 +89,7 @@
 
     ${preparedMessage.processedMessage}
 
-    <c:if test="${message.votePoll}">
+    <c:if test="${preparedMessage.section.votePoll}">
       <lor:poll poll="${preparedMessage.poll}"/>
 
       <p>&gt;&gt;&gt; <a href="vote-vote.jsp?msgid=${message.id}">Проголосовать</a></p>

@@ -32,7 +32,6 @@ import java.sql.Timestamp;
 public class Topic implements Serializable {
   private final int msgid;
   private final int postscore;
-  private final boolean votepoll;
   private final boolean sticky;
   private final String linktext;
   private final String url;
@@ -72,7 +71,6 @@ public class Topic implements Serializable {
       postscore = ps;
     }
 
-    votepoll = rs.getBoolean("vote");
     sticky = rs.getBoolean("sticky");
     linktext = rs.getString("linktext");
     url = rs.getString("url");
@@ -134,7 +132,6 @@ public class Topic implements Serializable {
     // Defaults
     msgid = 0;
     postscore = 0;
-    votepoll = false;
     sticky = false;
     deleted = false;
     expired = false;
@@ -186,7 +183,6 @@ public class Topic implements Serializable {
 
     msgid = original.msgid;
     postscore = original.getPostScore();
-    votepoll = original.votepoll;
     sticky = original.sticky;
     deleted = original.deleted;
     expired = original.expired;
@@ -285,10 +281,6 @@ public class Topic implements Serializable {
 
   public static int getPageCount(int commentCount, int messages) {
     return (int) Math.ceil(commentCount / ((double) messages));
-  }
-
-  public boolean isVotePoll() {
-    return votepoll;
   }
 
   public boolean isSticky() {
