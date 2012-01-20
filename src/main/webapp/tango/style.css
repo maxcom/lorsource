@@ -326,4 +326,7 @@ div.quote {
     text-decoration: none;
     border: solid 1px;
     border-radius: 5px;
+    display: inline-block;
+    margin-top: 5px;
+    margin-bottom: 5px;
 }
