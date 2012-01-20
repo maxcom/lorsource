@@ -320,3 +320,10 @@ div.quote {
     padding: 0em 0.5em 0em;
     border-color: #555753;
 }
+
+.page-number {
+    padding: 5px;
+    text-decoration: none;
+    border: solid 1px;
+    border-radius: 5px;
+}

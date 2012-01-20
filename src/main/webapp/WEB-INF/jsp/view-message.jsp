@@ -1,6 +1,5 @@
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="ru.org.linux.comment.CommentFilter,ru.org.linux.topic.Topic,ru.org.linux.section.Section,ru.org.linux.site.Template"   buffer="200kb"%>
-<%@ page import="ru.org.linux.util.StringUtil" %>
+<%@ page import="ru.org.linux.comment.CommentFilter,ru.org.linux.site.Template,ru.org.linux.topic.Topic,ru.org.linux.util.StringUtil"   buffer="200kb"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
@@ -227,13 +226,12 @@
     }
 
     if (npage!=-1 && npage!=0) {
-      bufInfo.append("&emsp;<a href=\"").append(message.getLinkPage(npage-1)).append(filterAdd).append("\">");
+      bufInfo.append("&emsp;<a class=\"page-number\" href=\"").append(message.getLinkPage(npage-1)).append(filterAdd).append("\">");
       bufInfo.append('←');
       bufInfo.append("</a>");
     } else {
-      bufInfo.append("&emsp;←");
+      bufInfo.append("&emsp;<span  class=\"page-number\">←</span>");
     }
-
 
     for (int i = 0; i < pages; i++) {
       bufInfo.append(' ');
@@ -241,28 +239,28 @@
       if (i != npage) {
         if (i>0) {
           if (i==pages-1) {
-            bufInfo.append("<a href=\"").append(message.getLinkPage(i)).append(urlAdd);
+            bufInfo.append("<a class=\"page-number\" href=\"").append(message.getLinkPage(i)).append(urlAdd);
           } else {
-            bufInfo.append("<a href=\"").append(message.getLinkPage(i)).append(filterAdd);
+            bufInfo.append("<a class=\"page-number\" href=\"").append(message.getLinkPage(i)).append(filterAdd);
           }
         } else {
-          bufInfo.append("<a href=\"").append(message.getLink()).append(filterAdd);
+          bufInfo.append("<a class=\"page-number\" href=\"").append(message.getLink()).append(filterAdd);
         }
 
         bufInfo.append("\">").append(i + 1).append("</a>");
       } else {
-        bufInfo.append("<strong>").append(i + 1).append("</strong>");
+        bufInfo.append("<strong class=\"page-number\">").append(i + 1).append("</strong>");
       }
     }
 
     if (npage!=-1 && npage+1!=pages) {
       if (npage+1==pages-1) {
-        bufInfo.append(" <a href=\"").append(message.getLinkPage(npage+1)).append(urlAdd).append("\">→</a>");
+        bufInfo.append(" <a class=\"page-number\" href=\"").append(message.getLinkPage(npage+1)).append(urlAdd).append("\">→</a>");
       } else {
-        bufInfo.append(" <a href=\"").append(message.getLinkPage(npage+1)).append(filterAdd).append("\">→</a>");
+        bufInfo.append(" <a class=\"page-number\" href=\"").append(message.getLinkPage(npage+1)).append(filterAdd).append("\">→</a>");
       }
     } else {
-      bufInfo.append(" →");
+      bufInfo.append(" <span class=\"page-number\">→</span>");
     }
 
     pageInfo = bufInfo.toString();
