@@ -1,10 +1,9 @@
 <%@ tag import="ru.org.linux.site.Template" %>
-<%@ tag import="ru.org.linux.topic.NewsViewer" %>
+<%@ tag import="ru.org.linux.user.User" %>
 <%@ tag import="ru.org.linux.util.StringUtil" %>
 <%@ tag import="java.net.URLEncoder" %>
 <%@ tag import="java.sql.Timestamp" %>
 <%@ tag import="java.text.DateFormat" %>
-<%@ tag import="ru.org.linux.user.User" %>
 <%@ tag pageEncoding="UTF-8"%>
 <%@ attribute name="message" required="true" type="ru.org.linux.topic.Topic" %>
 <%@ attribute name="preparedMessage" required="true" type="ru.org.linux.topic.PreparedTopic" %>
@@ -90,10 +89,18 @@
     ${preparedMessage.processedMessage}
 
     <c:if test="${preparedMessage.section.votePoll}">
-      <lor:poll poll="${preparedMessage.poll}"/>
+      <c:choose>
+          <c:when test="${not message.commited}">
+              <lor:disabledPoll poll="${preparedMessage.poll}"/>
+          </c:when>
+          <c:otherwise>
+              <lor:poll poll="${preparedMessage.poll}"/>
 
-      <p>&gt;&gt;&gt; <a href="vote-vote.jsp?msgid=${message.id}">Проголосовать</a></p>
+            <p>&gt;&gt;&gt; <a href="vote-vote.jsp?msgid=${message.id}">Проголосовать</a></p>
+          </c:otherwise>
+      </c:choose>
     </c:if>
+
     <%
   if (message.getUrl() != null && message.isHaveLink() && !message.getUrl().isEmpty()) {
     out.append("<p>&gt;&gt;&gt; <a href=\"").append(StringUtil.escapeHtml(message.getUrl())).append("\">").append(message.getLinktext()).append("</a>");
