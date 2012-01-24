@@ -20,6 +20,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import ru.org.linux.site.DeleteInfo;
+import ru.org.linux.user.User;
 
 import javax.sql.DataSource;
 import java.sql.ResultSet;
@@ -32,7 +33,8 @@ import java.util.List;
 @Repository
 public class DeleteInfoDao {
   private JdbcTemplate jdbcTemplate;
-  private static final String queryDeleteInfo = "SELECT nick,reason,users.id as userid, deldate FROM del_info,users WHERE msgid=? AND users.id=del_info.delby";
+  private static final String QUERY_DELETE_INFO = "SELECT nick,reason,users.id as userid, deldate, bonus FROM del_info,users WHERE msgid=? AND users.id=del_info.delby";
+  private static final String INSERT_DELETE_INFO = "INSERT INTO del_info (msgid, delby, reason, deldate, bonus) values(?,?,?, CURRENT_TIMESTAMP, ?)";
 
   @Autowired
   public void setJdbcTemplate(DataSource dataSource) {
@@ -45,14 +47,21 @@ public class DeleteInfoDao {
    * @return информация о удаленном сообщении
    */
   public DeleteInfo getDeleteInfo(int id) {
-    List<DeleteInfo> list = jdbcTemplate.query(queryDeleteInfo, new RowMapper<DeleteInfo>() {
+    List<DeleteInfo> list = jdbcTemplate.query(QUERY_DELETE_INFO, new RowMapper<DeleteInfo>() {
       @Override
       public DeleteInfo mapRow(ResultSet resultSet, int i) throws SQLException {
+        Integer bonus = resultSet.getInt("bonus");
+        if (resultSet.wasNull()) {
+          bonus = null;
+        }
+
         return new DeleteInfo(
                 resultSet.getString("nick"),
                 resultSet.getInt("userid"),
                 resultSet.getString("reason"),
-                resultSet.getTimestamp("deldate"));
+                resultSet.getTimestamp("deldate"),
+                bonus
+        );
       }
     }, id);
 
@@ -61,5 +70,9 @@ public class DeleteInfoDao {
     } else {
       return list.get(0);
     }
+  }
+
+  public void insert(int msgid, User deleter, String reason, int scoreBonus) {
+    jdbcTemplate.update(INSERT_DELETE_INFO, msgid, deleter.getId(), reason, scoreBonus);
   }
 }

@@ -23,12 +23,14 @@ public class DeleteInfo implements Serializable {
   private final int userid;
   private final String reason;
   private final Timestamp delDate;
+  private final Integer bonus;
 
-  public DeleteInfo(String nick, int userid, String reason, Timestamp delDate) {
+  public DeleteInfo(String nick, int userid, String reason, Timestamp delDate, Integer bonus) {
     this.nick = nick;
     this.reason = reason;
     this.userid = userid;
     this.delDate = delDate;
+    this.bonus = bonus;
   }
 
   public String getNick() {
@@ -40,7 +42,11 @@ public class DeleteInfo implements Serializable {
   }
 
   public String getReason() {
-    return reason;
+    if (bonus!=null) {
+      return reason + " ("+bonus+")";
+    } else {
+      return reason;
+    }
   }
 
   public Timestamp getDelDate() {

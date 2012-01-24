@@ -45,6 +45,7 @@ import ru.org.linux.section.SectionService;
 import ru.org.linux.site.MessageNotFoundException;
 import ru.org.linux.site.ScriptErrorException;
 import ru.org.linux.spring.Configuration;
+import ru.org.linux.spring.dao.DeleteInfoDao;
 import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.user.*;
 import ru.org.linux.util.LorHttpUtils;
@@ -87,6 +88,9 @@ public class TopicDao {
   @Autowired
   private MsgbaseDao msgbaseDao;
 
+  @Autowired
+  private DeleteInfoDao deleteInfoDao;
+
   /**
    * Запрос получения полной информации о топике
    */
@@ -105,10 +109,6 @@ public class TopicDao {
    * Удаление топика
    */
   private static final String updateDeleteMessage = "UPDATE topics SET deleted='t',sticky='f' WHERE id=?";
-  /**
-   * Обновление информации о удалении
-   */
-  private static final String updateDeleteInfo = "INSERT INTO del_info (msgid, delby, reason, deldate) values(?,?,?, CURRENT_TIMESTAMP)";
 
   private static final String queryEditInfo = "SELECT * FROM edit_info WHERE msgid=? ORDER BY id DESC";
 
@@ -261,16 +261,15 @@ public class TopicDao {
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   public void deleteWithBonus(Topic message, User user, String reason, int bonus) throws UserErrorException {
-    String finalReason = reason;
     jdbcTemplate.update(updateDeleteMessage, message.getId());
     if (user.isModerator() && bonus!=0 && user.getId()!=message.getUid()) {
       if (bonus>20 || bonus<0) {
         throw new UserErrorException("Некорректное значение bonus");
       }
       userDao.changeScore(message.getUid(), -bonus);
-      finalReason += " ("+bonus+ ')';
     }
-    jdbcTemplate.update(updateDeleteInfo, message.getId(), user.getId(), finalReason);
+
+    deleteInfoDao.insert(message.getId(), user, reason, bonus);
   }
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)

@@ -78,12 +78,9 @@ public class CommentDao {
           "LEFT JOIN user_agents ON (user_agents.id=comments.ua_id) " +
           "WHERE topic=?  AND NOT deleted ORDER BY msgid ASC";
 
-  private static final String queryOnlyMessage = "SELECT message FROM msgbase WHERE id=?";
-
   private static final String replysForComment = "SELECT id FROM comments WHERE replyto=? AND NOT deleted FOR UPDATE";
   private static final String replysForCommentCount = "SELECT count(id) FROM comments WHERE replyto=? AND NOT deleted";
   private static final String deleteComment = "UPDATE comments SET deleted='t' WHERE id=? AND not deleted";
-  private static final String insertDelinfo = "INSERT INTO del_info (msgid, delby, reason, deldate) values(?,?,?, CURRENT_TIMESTAMP)";
   private static final String updateScore = "UPDATE users SET score=score+? WHERE id=(SELECT userid FROM comments WHERE id=?)";
 
   private JdbcTemplate jdbcTemplate;
@@ -202,7 +199,7 @@ public class CommentDao {
     int deleteCount = jdbcTemplate.update(deleteComment, msgid);
 
     if (deleteCount > 0) {
-      jdbcTemplate.update(insertDelinfo, msgid, user.getId(), reason + " (" + scoreBonus + ')');
+      deleteInfoDao.insert(msgid, user, reason, scoreBonus);
 
       if (scoreBonus != 0) {
         jdbcTemplate.update(updateScore, scoreBonus, msgid);
@@ -300,8 +297,7 @@ public class CommentDao {
               public void processRow(ResultSet rs) throws SQLException {
                 int mid = rs.getInt("id");
                 jdbcTemplate.update("UPDATE topics SET deleted='t',sticky='f' WHERE id=?", mid);
-                jdbcTemplate.update("INSERT INTO del_info (msgid, delby, reason, deldate) values(?,?,?, CURRENT_TIMESTAMP)",
-                        mid, moderator.getId(), "Блокировка пользователя с удалением сообщений");
+                deleteInfoDao.insert(mid, moderator, "Блокировка пользователя с удалением сообщений", 0);
                 deletedTopicIds.add(mid);
               }
             },
@@ -349,8 +345,7 @@ public class CommentDao {
                 deletedTopicIds.add(msgid);
                 deleteInfo.put(msgid, "Топик " + msgid + " удален");
                 jdbcTemplate.update("UPDATE topics SET deleted='t',sticky='f' WHERE id=?", msgid);
-                jdbcTemplate.update("INSERT INTO del_info (msgid, delby, reason, deldate) values(?,?,?, CURRENT_TIMESTAMP)",
-                        msgid, moderator.getId(), reason);
+                deleteInfoDao.insert(msgid, moderator, reason, 0);
               }
             },
             ip, timedelta);

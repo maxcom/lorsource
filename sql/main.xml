@@ -8,5 +8,6 @@
     <include file="sql/updates/2011-12-23-themed-wiki.xml"/>
     <include file="sql/updates/2011-12-25-ban.xml"/>
     <include file="sql/updates/2011-12-29-section-scrollMode.xml"/>
+    <include file="sql/updates/2012-01-24-delscore.xml"/>
 
 </databaseChangeLog>
