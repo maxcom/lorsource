@@ -573,6 +573,10 @@ public class TopicDao {
   }
 
   public Topic getPreviousMessage(Topic message, User currentUser) {
+    if (message.isSticky()) {
+      return null;
+    }
+
     SectionScrollModeEnum sectionScrollMode;
 
     try {
@@ -587,7 +591,9 @@ public class TopicDao {
     switch (sectionScrollMode) {
       case SECTION:
         res = jdbcTemplate.queryForList(
-                "SELECT topics.id as msgid FROM topics WHERE topics.commitdate=(SELECT max(commitdate) FROM topics, groups, sections WHERE sections.id=groups.section AND topics.commitdate<? AND topics.groupid=groups.id AND groups.section=? AND (topics.moderate OR NOT sections.moderate) AND NOT deleted)",
+                "SELECT topics.id as msgid " +
+                        "FROM topics " +
+                        "WHERE topics.commitdate=(SELECT max(commitdate) FROM topics, groups, sections WHERE sections.id=groups.section AND topics.commitdate<? AND topics.groupid=groups.id AND groups.section=? AND (topics.moderate OR NOT sections.moderate) AND NOT deleted AND not sticky)",
                 Integer.class,
                 message.getCommitDate(),
                 message.getSectionId()
@@ -599,7 +605,7 @@ public class TopicDao {
           res = jdbcTemplate.queryForList(
                   "SELECT max(topics.id) as msgid " +
                           "FROM topics " +
-                          "WHERE topics.id<? AND topics.groupid=? AND NOT deleted",
+                          "WHERE topics.id<? AND topics.groupid=? AND NOT deleted AND NOT sticky",
                   Integer.class,
                   message.getMessageId(),
                   message.getGroupId()
@@ -608,7 +614,7 @@ public class TopicDao {
             res = jdbcTemplate.queryForList(
                     "SELECT max(topics.id) as msgid " +
                             "FROM topics " +
-                            "WHERE topics.id<? AND topics.groupid=? AND NOT deleted " +
+                            "WHERE topics.id<? AND topics.groupid=? AND NOT deleted AND NOT sticky " +
                             "AND userid NOT IN (select ignored from ignore_list where userid=?)",
                     Integer.class,
                     message.getMessageId(),
@@ -638,6 +644,10 @@ public class TopicDao {
   }
 
   public Topic getNextMessage(Topic message, User currentUser) {
+    if (message.isSticky()) {
+      return null;
+    }
+
     SectionScrollModeEnum sectionScrollMode;
 
     try {

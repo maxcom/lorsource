@@ -393,6 +393,7 @@ public class TopicController {
     if (!rss) {
       Topic prevMessage;
       Topic nextMessage;
+
       if (ignoreList==null || ignoreList.isEmpty()) {
         prevMessage = messageDao.getPreviousMessage(message, null);
         nextMessage = messageDao.getNextMessage(message, null);
