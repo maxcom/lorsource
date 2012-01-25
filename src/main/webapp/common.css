@@ -94,6 +94,11 @@ table.nav {
   font-size: smaller;
 }
 
+.msg .reply li {
+  display: inline;
+  margin-left: 0 !important;
+}
+
 DIV.sign {
   margin-top: 1em;
   margin-bottom: 1em; 
@@ -163,7 +168,7 @@ div.quote h3 {
 }
 
 .code {
-  border: 0px;
+  border: 0;
   margin: 0.5em 0.5em 0.5em 5px;
   font-family: monospace;
   white-space: pre;
@@ -334,7 +339,7 @@ pre code span {
 
 /*результаты опроса в топике, размер пингвина 19px*/
 table.poll-result td {
-    padding: 0px 5px;
+    padding: 0 5px;
     height: 21px;
 }
 
