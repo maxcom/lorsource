@@ -269,7 +269,7 @@ public class TopicDao {
       userDao.changeScore(message.getUid(), -bonus);
     }
 
-    deleteInfoDao.insert(message.getId(), user, reason, bonus);
+    deleteInfoDao.insert(message.getId(), user, reason, -bonus);
   }
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
