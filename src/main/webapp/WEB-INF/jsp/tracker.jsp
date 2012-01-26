@@ -160,7 +160,7 @@
 </c:if>
 
 <c:if test="${deleteStats!=null and fn:length(deleteStats)!=0}">
-  <h2>Статистика удаенных за 24 часа</h2>
+  <h2>Статистика удаленных за 24 часа</h2>
   <div class=forum>
 
   <table width="100%" class="message-table">
