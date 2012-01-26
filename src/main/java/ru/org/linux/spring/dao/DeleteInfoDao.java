@@ -20,6 +20,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import ru.org.linux.site.DeleteInfo;
+import ru.org.linux.site.DeleteInfoStat;
 import ru.org.linux.user.User;
 
 import javax.sql.DataSource;
@@ -74,5 +75,17 @@ public class DeleteInfoDao {
 
   public void insert(int msgid, User deleter, String reason, int scoreBonus) {
     jdbcTemplate.update(INSERT_DELETE_INFO, msgid, deleter.getId(), reason, scoreBonus);
+  }
+
+  public List<DeleteInfoStat> getRecentStats() {
+    return jdbcTemplate.query(
+            "select * from( select reason, count(*), sum(bonus) from del_info where deldate>CURRENT_TIMESTAMP-'1 day'::interval and bonus is not null group by reason) as s where sum!=0 order by reason",
+            new RowMapper<DeleteInfoStat>() {
+              @Override
+              public DeleteInfoStat mapRow(ResultSet rs, int rowNum) throws SQLException {
+                return new DeleteInfoStat(rs.getString("reason"), rs.getInt("count"), rs.getInt("sum"));
+              }
+            }
+    );
   }
 }

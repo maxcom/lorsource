@@ -1,8 +1,6 @@
 <%@ page info="last active topics" %>
 <%@ page contentType="text/html; charset=utf-8" %>
-<%@ page
-        import="ru.org.linux.site.Template"
-        buffer="200kb" %>
+<%@ page import="ru.org.linux.site.Template" %>
 <%--
   ~ Copyright 1998-2010 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,13 +18,14 @@
 <%--@elvariable id="newUsers" type="java.util.List<ru.org.linux.user.User>"--%>
 <%--@elvariable id="msgs" type="java.util.List<ru.org.linux.spring.dao.TrackerItem>"--%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
-
+<%--@elvariable id="deleteStats" type="java.util.List<ru.org.linux.site.DeleteInfoStat>"--%>
 <% Template tmpl = Template.getTemplate(request); %>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
+<%@ taglib prefix="ftm" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
 <%
     String title = "Последние сообщения";
@@ -158,5 +157,31 @@
     </c:if>
   </c:forEach>
   (всего ${fn:length(newUsers)})
+</c:if>
+
+<c:if test="${deleteStats!=null and fn:length(deleteStats)!=0}">
+  <h2>Статистика удаенных за 24 часа</h2>
+  <div class=forum>
+
+  <table width="100%" class="message-table">
+    <thead>
+    <tr>
+      <th>Причина</th>
+      <th>Количество</th>
+      <th>Сумма score</th>
+      <th>Средний score</th>
+    </tr>
+    </thead>
+    <tbody>
+      <c:forEach items="${deleteStats}" var="stat">
+          <tr>
+              <td><c:out escapeXml="true" value="${stat.reason}"/></td>
+              <td>${stat.count}</td>
+              <td>${stat.sum}</td>
+              <td><ftm:formatNumber value="${stat.avg}" maxFractionDigits="2"/></td>
+          </tr>
+      </c:forEach>
+  </table>
+  </div>
 </c:if>
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>
