@@ -101,7 +101,7 @@ public class WhoisController {
     ModelAndView mav = new ModelAndView("error-good-penguin");
     mav.addObject("msgTitle", "Ошибка: пользователя не существует");
     mav.addObject("msgHeader", "Пользователя не существует");
-    mav.addObject("msgMessage", "Такого пользователя не существует");
+    mav.addObject("msgMessage", "");
     return mav;
   }
 }

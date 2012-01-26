@@ -17,14 +17,12 @@ package ru.org.linux.topic;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
+import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.ConnectionCallback;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.view.RedirectView;
@@ -35,10 +33,7 @@ import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.site.*;
 import ru.org.linux.topic.NewsViewer.CommitMode;
-import ru.org.linux.user.UserDao;
-import ru.org.linux.user.User;
-import ru.org.linux.user.UserErrorException;
-import ru.org.linux.user.UserInfo;
+import ru.org.linux.user.*;
 import ru.org.linux.util.DateUtil;
 import ru.org.linux.util.ServletParameterException;
 import ru.org.linux.util.ServletParameterMissingException;
@@ -773,5 +768,15 @@ public class NewsViewerController {
     params.put("messages", prepareService.prepareMessages(messages, request.isSecure()));
 
     return new ModelAndView("section-rss", params);
+  }
+
+  @ExceptionHandler(UserNotFoundException.class)
+  @ResponseStatus(HttpStatus.NOT_FOUND)
+  public ModelAndView handleUserNotFound(Exception ex, HttpServletRequest request, HttpServletResponse response) {
+    ModelAndView mav = new ModelAndView("error-good-penguin");
+    mav.addObject("msgTitle", "Ошибка: пользователя не существует");
+    mav.addObject("msgHeader", "Пользователя не существует");
+    mav.addObject("msgMessage", "");
+    return mav;
   }
 }
