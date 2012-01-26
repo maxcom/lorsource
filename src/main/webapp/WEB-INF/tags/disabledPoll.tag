@@ -18,20 +18,16 @@
   ~    limitations under the License.
   --%>
 <%@ attribute name="poll" required="true" type="ru.org.linux.poll.PreparedPoll" %>
-<table class="poll-result">
 <c:forEach var="variant" items="${poll.variants}">
-    <tr>
-        <td>
-            <c:choose>
-                <c:when test="${poll.poll.multiSelect}">
-                    <input type="checkbox" disabled>
-                </c:when>
-                <c:otherwise>
-                    <input type="radio" disabled>
-                </c:otherwise>
-            </c:choose>
-        </td>
-        <td>${fn:escapeXml(variant.label)}</td>
-    </tr>
+    <label>
+    <c:choose>
+        <c:when test="${poll.poll.multiSelect}">
+            <input type="checkbox" disabled>
+        </c:when>
+        <c:otherwise>
+            <input type="radio" disabled>
+        </c:otherwise>
+    </c:choose>
+    ${fn:escapeXml(variant.label)}
+    </label><br>
 </c:forEach>
-</table>
