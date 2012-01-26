@@ -165,7 +165,9 @@
           <p>&gt;&gt;&gt; <a href="vote-vote.jsp?msgid=${message.id}">Голосовать</a>
         </c:if>
 
-        <p>&gt;&gt;&gt; <a href="${message.linkLastmod}">Результаты</a>
+        <c:if test="${message.commited}">
+          <p>&gt;&gt;&gt; <a href="${message.linkLastmod}">Результаты</a>
+        </c:if>
   <%
   }
 %>
