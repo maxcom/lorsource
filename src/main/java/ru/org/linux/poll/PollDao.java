@@ -74,14 +74,13 @@ public class PollDao {
    * @param pollId идентификатор голосования
    * @return список вариантов голосования
    */
-  public List<VoteDto> getVoteDTO(final Integer pollId) {    
+  public List<VoteDto> getVoteDTO(int pollId) {
     return jdbcTemplate.query(queryPollVariantsOrderById, new RowMapper<VoteDto>() {
       @Override
       public VoteDto mapRow(ResultSet rs, int rowNum) throws SQLException {
         VoteDto dto = new VoteDto();
         dto.setId(rs.getInt("id"));
         dto.setLabel(rs.getString("label"));
-        dto.setPollId(pollId);
         return dto;
       }
     }, pollId);
