@@ -43,7 +43,7 @@ public class PollDao {
   private static final String queryPollUserVote = "select count(vote) from vote_users where userid=? and variant_id=?";
 
   private static final String queryCountVotesUser = "SELECT count(vote) FROM vote_users WHERE vote=? AND userid=?";
-  private static final String queryCountVotesPool = "SELECT count(userid) FROM vote_users WHERE vote=?";
+  private static final String queryCountVotesPool = "SELECT count(DISTINCT userid) FROM vote_users WHERE vote=?";
   private static final String queryCountVotes = "SELECT sum(votes) as s FROM polls_variants WHERE vote=?";
   private static final String updateVote = "UPDATE polls_variants SET votes=votes+1 WHERE id=? AND vote=?";
   private static final String insertVoteUser = "INSERT INTO vote_users VALUES(?, ?, ?)";
