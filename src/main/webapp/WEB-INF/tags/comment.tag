@@ -122,15 +122,22 @@
     </div>
   <c:if test="${not comment.comment.deleted and showMenu}">
     <div class=reply>
+      <c:set var="deletable" value="<%= moderatorMode || (!topic.isExpired() && comment.getAuthor().getNick().equals(tmpl.getNick())) %>"/>
+
+      <c:if test="${deletable or commentsAllowed}">
       <ul>
       <c:if test="${commentsAllowed}">
         <li><a href="add_comment.jsp?topic=${topic.id}&amp;replyto=${comment.comment.id}">Ответить на это сообщение</a></li>
       </c:if>
-<%
-    if (moderatorMode || (!topic.isExpired() && comment.getAuthor().getNick().equals(tmpl.getNick()))) {
-      out.append("<li><a href=\"delete_comment.jsp?msgid=").append(Integer.toString(comment.getComment().getMessageId())).append("\">Удалить</a></li>");
-    }
-%>    </ul>
+
+      <c:if test="${deletable}">
+          <li><%
+      out.append("<a href=\"delete_comment.jsp?msgid=").append(Integer.toString(comment.getComment().getMessageId())).append("\">Удалить</a>");
+          %></li>
+
+      </c:if>
+      </ul>
+      </c:if>
      </div>
   </c:if>
 
