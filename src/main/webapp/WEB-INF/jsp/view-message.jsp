@@ -35,7 +35,7 @@
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
 <%
-  int filterMode = (Integer) request.getAttribute("filterMode");
+ + int filterMode = (Integer) request.getAttribute("filterMode");
 
   int npage = (Integer) request.getAttribute("page");
 
@@ -203,8 +203,6 @@
   String pageInfo = null;
   if (pages > 1) {
     StringBuilder bufInfo = new StringBuilder();
-
-    bufInfo.append("страница");
 
     StringBuilder urlAdd = new StringBuilder();
     if (!message.isExpired()) {
