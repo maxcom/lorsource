@@ -35,7 +35,7 @@
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
 <%
- + int filterMode = (Integer) request.getAttribute("filterMode");
+  int filterMode = (Integer) request.getAttribute("filterMode");
 
   int npage = (Integer) request.getAttribute("page");
 
