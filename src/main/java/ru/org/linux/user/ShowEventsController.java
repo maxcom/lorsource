@@ -180,7 +180,8 @@ public class ShowEventsController {
     HttpServletRequest request,
     HttpServletResponse response,
     @RequestParam(value = "nick", required=false) String nick,
-    @RequestParam(value = "offset", defaultValue = "0") int offset
+    @RequestParam(value = "offset", defaultValue = "0") int offset,
+    @ModelAttribute("notifications") Action action
   ) throws Exception {
     Template tmpl = Template.getTemplate(request);
     boolean feedRequested = request.getParameterMap().containsKey("output");

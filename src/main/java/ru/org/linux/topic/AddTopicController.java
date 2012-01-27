@@ -15,6 +15,7 @@
 
 package ru.org.linux.topic;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.ApplicationObjectSupport;
@@ -29,19 +30,22 @@ import org.springframework.web.multipart.MultipartRequest;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.auth.*;
-import ru.org.linux.section.SectionService;
-import ru.org.linux.site.Template;
 import ru.org.linux.gallery.Screenshot;
 import ru.org.linux.group.BadGroupException;
 import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
+import ru.org.linux.poll.Poll;
+import ru.org.linux.poll.PollVariant;
+import ru.org.linux.poll.PreparedPoll;
 import ru.org.linux.search.SearchQueueSender;
 import ru.org.linux.section.Section;
-import ru.org.linux.site.*;
+import ru.org.linux.section.SectionService;
+import ru.org.linux.site.ScriptErrorException;
+import ru.org.linux.site.Template;
 import ru.org.linux.spring.Configuration;
-import ru.org.linux.user.UserPropertyEditor;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
+import ru.org.linux.user.UserPropertyEditor;
 import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.ExceptionBindingErrorProcessor;
 import ru.org.linux.util.UtilException;
@@ -54,10 +58,7 @@ import javax.validation.Valid;
 import java.beans.PropertyEditorSupport;
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 
 @Controller
 public class AddTopicController extends ApplicationObjectSupport {
@@ -257,11 +258,17 @@ public class AddTopicController extends ApplicationObjectSupport {
       }
     }
 
+    PreparedPoll preparedPoll = null;
+    
+    if (group.isPollPostAllowed()) {
+      preparedPoll = preparePollPreview(form);
+    }
+
     Topic previewMsg = null;
 
     if (group!=null) {
       previewMsg = new Topic(form, user, request.getRemoteAddr());
-      params.put("message", prepareService.prepareTopicPreview(previewMsg, TagDao.parseSanitizeTags(form.getTags()), null, request.isSecure(), form.getMsg()));
+      params.put("message", prepareService.prepareTopicPreview(previewMsg, TagDao.parseSanitizeTags(form.getTags()), preparedPoll, request.isSecure(), form.getMsg()));
     }
 
     if (!form.isPreviewMode() && !errors.hasErrors() && !session.getId().equals(request.getParameter("session"))) {
@@ -311,6 +318,20 @@ public class AddTopicController extends ApplicationObjectSupport {
       params.put("ipBlockInfo", ipBlockInfo);
       return new ModelAndView("add", params);
     }
+  }
+  
+  private static PreparedPoll preparePollPreview(AddTopicRequest form) {
+    Poll poll = new Poll(0, 0, form.isMultiSelect(), false);
+
+    ArrayList<PollVariant> variants = new ArrayList<PollVariant>(form.getPoll().length);
+
+    for (String item : form.getPoll()) {
+      if (!Strings.isNullOrEmpty(item)) {
+        variants.add(new PollVariant(0, item, 0, false));
+      }
+    }
+
+    return new PreparedPoll(poll, 1, 0, variants);
   }
 
   @RequestMapping("/add-section.jsp")

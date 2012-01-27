@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import ru.org.linux.site.Template;
+import ru.org.linux.spring.dao.DeleteInfoDao;
 import ru.org.linux.spring.dao.TrackerDao.TrackerFilter;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
@@ -36,14 +37,14 @@ import java.util.*;
 
 @Controller
 public class TrackerController {
-
-  private static final Log logger = LogFactory.getLog(TrackerController.class);
+  @Autowired
+  private TrackerDao trackerDao;
 
   @Autowired
-  TrackerDao trackerDao;
+  private UserDao userDao;
 
   @Autowired
-  UserDao userDao;
+  private DeleteInfoDao deleteInfoDao;
 
   private static final String[] filterValues = { "all", "notalks", "tech", "mine" };
   private static final Set<String> filterValuesSet = new HashSet<String>(Arrays.asList(filterValues));
@@ -125,6 +126,7 @@ public class TrackerController {
 
     if (tmpl.isModeratorSession() && trackerFilter != TrackerFilter.MINE) {
       params.put("newUsers", userDao.getNewUsers());
+      params.put("deleteStats", deleteInfoDao.getRecentStats());
     }
 
     return new ModelAndView("tracker", params);

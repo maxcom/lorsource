@@ -18,7 +18,6 @@
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 
 <link rel="search" title="Search L.O.R." href="/search.jsp">
-<link rel="top" title="Linux.org.ru" href="/">
 <script src="/js/lor.js" type="text/javascript">;</script>
 
 <c:if test="${pageContext.request.secure}">

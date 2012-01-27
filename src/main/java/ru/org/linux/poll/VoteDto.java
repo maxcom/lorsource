@@ -20,7 +20,6 @@ import java.io.Serializable;
 public class VoteDto implements Serializable {
   private Integer id;
   private String label;
-  private Integer pollId;
   private static final long serialVersionUID = -293722815777946212L;
 
   public Integer getId() {
@@ -37,13 +36,5 @@ public class VoteDto implements Serializable {
 
   public void setLabel(String label) {
     this.label = label;
-  }
-
-  public Integer getPollId() {
-    return pollId;
-  }
-
-  public void setPollId(Integer pollId) {
-    this.pollId = pollId;
   }
 }

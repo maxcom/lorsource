@@ -45,6 +45,7 @@ import ru.org.linux.section.SectionService;
 import ru.org.linux.site.MessageNotFoundException;
 import ru.org.linux.site.ScriptErrorException;
 import ru.org.linux.spring.Configuration;
+import ru.org.linux.spring.dao.DeleteInfoDao;
 import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.user.*;
 import ru.org.linux.util.LorHttpUtils;
@@ -87,6 +88,9 @@ public class TopicDao {
   @Autowired
   private MsgbaseDao msgbaseDao;
 
+  @Autowired
+  private DeleteInfoDao deleteInfoDao;
+
   /**
    * Запрос получения полной информации о топике
    */
@@ -105,10 +109,6 @@ public class TopicDao {
    * Удаление топика
    */
   private static final String updateDeleteMessage = "UPDATE topics SET deleted='t',sticky='f' WHERE id=?";
-  /**
-   * Обновление информации о удалении
-   */
-  private static final String updateDeleteInfo = "INSERT INTO del_info (msgid, delby, reason, deldate) values(?,?,?, CURRENT_TIMESTAMP)";
 
   private static final String queryEditInfo = "SELECT * FROM edit_info WHERE msgid=? ORDER BY id DESC";
 
@@ -261,16 +261,15 @@ public class TopicDao {
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   public void deleteWithBonus(Topic message, User user, String reason, int bonus) throws UserErrorException {
-    String finalReason = reason;
     jdbcTemplate.update(updateDeleteMessage, message.getId());
     if (user.isModerator() && bonus!=0 && user.getId()!=message.getUid()) {
       if (bonus>20 || bonus<0) {
         throw new UserErrorException("Некорректное значение bonus");
       }
       userDao.changeScore(message.getUid(), -bonus);
-      finalReason += " ("+bonus+ ')';
     }
-    jdbcTemplate.update(updateDeleteInfo, message.getId(), user.getId(), finalReason);
+
+    deleteInfoDao.insert(message.getId(), user, reason, -bonus);
   }
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
@@ -574,6 +573,10 @@ public class TopicDao {
   }
 
   public Topic getPreviousMessage(Topic message, User currentUser) {
+    if (message.isSticky()) {
+      return null;
+    }
+
     SectionScrollModeEnum sectionScrollMode;
 
     try {
@@ -588,7 +591,9 @@ public class TopicDao {
     switch (sectionScrollMode) {
       case SECTION:
         res = jdbcTemplate.queryForList(
-                "SELECT topics.id as msgid FROM topics WHERE topics.commitdate=(SELECT max(commitdate) FROM topics, groups, sections WHERE sections.id=groups.section AND topics.commitdate<? AND topics.groupid=groups.id AND groups.section=? AND (topics.moderate OR NOT sections.moderate) AND NOT deleted)",
+                "SELECT topics.id as msgid " +
+                        "FROM topics " +
+                        "WHERE topics.commitdate=(SELECT max(commitdate) FROM topics, groups, sections WHERE sections.id=groups.section AND topics.commitdate<? AND topics.groupid=groups.id AND groups.section=? AND (topics.moderate OR NOT sections.moderate) AND NOT deleted AND not sticky)",
                 Integer.class,
                 message.getCommitDate(),
                 message.getSectionId()
@@ -600,7 +605,7 @@ public class TopicDao {
           res = jdbcTemplate.queryForList(
                   "SELECT max(topics.id) as msgid " +
                           "FROM topics " +
-                          "WHERE topics.id<? AND topics.groupid=? AND NOT deleted",
+                          "WHERE topics.id<? AND topics.groupid=? AND NOT deleted AND NOT sticky",
                   Integer.class,
                   message.getMessageId(),
                   message.getGroupId()
@@ -609,7 +614,7 @@ public class TopicDao {
             res = jdbcTemplate.queryForList(
                     "SELECT max(topics.id) as msgid " +
                             "FROM topics " +
-                            "WHERE topics.id<? AND topics.groupid=? AND NOT deleted " +
+                            "WHERE topics.id<? AND topics.groupid=? AND NOT deleted AND NOT sticky " +
                             "AND userid NOT IN (select ignored from ignore_list where userid=?)",
                     Integer.class,
                     message.getMessageId(),
@@ -639,6 +644,10 @@ public class TopicDao {
   }
 
   public Topic getNextMessage(Topic message, User currentUser) {
+    if (message.isSticky()) {
+      return null;
+    }
+
     SectionScrollModeEnum sectionScrollMode;
 
     try {

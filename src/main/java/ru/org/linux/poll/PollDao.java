@@ -43,7 +43,7 @@ public class PollDao {
   private static final String queryPollUserVote = "select count(vote) from vote_users where userid=? and variant_id=?";
 
   private static final String queryCountVotesUser = "SELECT count(vote) FROM vote_users WHERE vote=? AND userid=?";
-  private static final String queryCountVotesPool = "SELECT count(userid) FROM vote_users WHERE vote=?";
+  private static final String queryCountVotesPool = "SELECT count(DISTINCT userid) FROM vote_users WHERE vote=?";
   private static final String queryCountVotes = "SELECT sum(votes) as s FROM polls_variants WHERE vote=?";
   private static final String updateVote = "UPDATE polls_variants SET votes=votes+1 WHERE id=? AND vote=?";
   private static final String insertVoteUser = "INSERT INTO vote_users VALUES(?, ?, ?)";
@@ -74,14 +74,13 @@ public class PollDao {
    * @param pollId идентификатор голосования
    * @return список вариантов голосования
    */
-  public List<VoteDto> getVoteDTO(final Integer pollId) {    
+  public List<VoteDto> getVoteDTO(int pollId) {
     return jdbcTemplate.query(queryPollVariantsOrderById, new RowMapper<VoteDto>() {
       @Override
       public VoteDto mapRow(ResultSet rs, int rowNum) throws SQLException {
         VoteDto dto = new VoteDto();
         dto.setId(rs.getInt("id"));
         dto.setLabel(rs.getString("label"));
-        dto.setPollId(pollId);
         return dto;
       }
     }, pollId);

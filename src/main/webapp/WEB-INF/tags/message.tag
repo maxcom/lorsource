@@ -1,10 +1,9 @@
 <%@ tag import="ru.org.linux.site.Template" %>
-<%@ tag import="ru.org.linux.topic.NewsViewer" %>
+<%@ tag import="ru.org.linux.user.User" %>
 <%@ tag import="ru.org.linux.util.StringUtil" %>
 <%@ tag import="java.net.URLEncoder" %>
 <%@ tag import="java.sql.Timestamp" %>
 <%@ tag import="java.text.DateFormat" %>
-<%@ tag import="ru.org.linux.user.User" %>
 <%@ tag pageEncoding="UTF-8"%>
 <%@ attribute name="message" required="true" type="ru.org.linux.topic.Topic" %>
 <%@ attribute name="preparedMessage" required="true" type="ru.org.linux.topic.PreparedTopic" %>
@@ -90,10 +89,18 @@
     ${preparedMessage.processedMessage}
 
     <c:if test="${preparedMessage.section.votePoll}">
-      <lor:poll poll="${preparedMessage.poll}"/>
+      <c:choose>
+          <c:when test="${not message.commited}">
+              <lor:disabledPoll poll="${preparedMessage.poll}"/>
+          </c:when>
+          <c:otherwise>
+              <lor:poll poll="${preparedMessage.poll}"/>
 
-      <p>&gt;&gt;&gt; <a href="vote-vote.jsp?msgid=${message.id}">Проголосовать</a></p>
+            <p>&gt;&gt;&gt; <a href="vote-vote.jsp?msgid=${message.id}">Проголосовать</a></p>
+          </c:otherwise>
+      </c:choose>
     </c:if>
+
     <%
   if (message.getUrl() != null && message.isHaveLink() && !message.getUrl().isEmpty()) {
     out.append("<p>&gt;&gt;&gt; <a href=\"").append(StringUtil.escapeHtml(message.getUrl())).append("\">").append(message.getLinktext()).append("</a>");
@@ -170,29 +177,29 @@
               <g:plusone size="small" href="${template.mainUrlNoSlash}${message.link}"></g:plusone>
           </div>
           </c:if>
-
+          <ul>
           <c:if test="${not message.expired}">
             <c:if test="${messageMenu.commentsAllowed}">
-              [<a href="comment-message.jsp?topic=${message.id}">Ответить на это сообщение</a>]
+              <li><a href="comment-message.jsp?topic=${message.id}">Ответить на это сообщение</a></li>
             </c:if>
         </c:if>
         <c:if test="${messageMenu.editable}">
-            [<a href="edit.jsp?msgid=${message.id}">Править</a>]
+            <li><a href="edit.jsp?msgid=${message.id}">Править</a></li>
         </c:if>
 
 <%
     if (tmpl.isModeratorSession() || author.equals(tmpl.getCurrentUser())) {
-      out.append("[<a href=\"delete.jsp?msgid=");
+      out.append("<li><a href=\"delete.jsp?msgid=");
       out.print(msgid);
-      out.append("\">Удалить</a>] ");
+      out.append("\">Удалить</a></li> ");
     }
 %>
         <c:if test="${messageMenu.resolvable}">
             <c:if test="${message.resolved}">
-                [<a href="resolve.jsp?msgid=${message.id}&amp;resolve=no">Отметить как нерешенную</a>]
+                <li><a href="resolve.jsp?msgid=${message.id}&amp;resolve=no">Отметить как нерешенную</a></li>
             </c:if>
             <c:if test="${not message.resolved}">
-                [<a href="resolve.jsp?msgid=${message.id}&amp;resolve=yes">Отметить как решенную</a>]
+                <li><a href="resolve.jsp?msgid=${message.id}&amp;resolve=yes">Отметить как решенную</a></li>
             </c:if>
         </c:if>
 <%
@@ -204,7 +211,7 @@
         <form id="memories_form" action="/memories.jsp" method="POST" style="display: inline">
           <input type="hidden" name="id" value="<%= memId %>">
           <input type="hidden" name="remove" value="remove">
-          [<a onclick="$('#memories_form').submit(); return false;" href="#">Удалить из избранного</a>]
+          <li><a onclick="$('#memories_form').submit(); return false;" href="#">Удалить из избранного</a></li>
         </form>
 <%
       } else {
@@ -212,12 +219,12 @@
         <form id="memories_form" action="/memories.jsp" method="POST" style="display: inline">
           <input type="hidden" name="msgid" value="${message.id}">
           <input type="hidden" name="add" value="add">
-          [<a onclick="$('#memories_form').submit(); return false;" href="#">Добавить в избранное</a>]
+          <li><a onclick="$('#memories_form').submit(); return false;" href="#">Добавить в избранное</a></li>
         </form>
         <%
       }
     }
-%>
+%>     </ul>
         <c:if test="${template.sessionAuthorized}">
           <br>${message.postScoreInfo}
         </c:if>

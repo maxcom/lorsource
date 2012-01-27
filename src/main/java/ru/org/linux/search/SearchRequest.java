@@ -127,6 +127,7 @@ public class SearchRequest {
 
     if (q!=null && !q.isEmpty()) {
       params.put("q", q);
+      params.put("oldQ", q);
     }
 
     if (range != SearchRange.ALL) {

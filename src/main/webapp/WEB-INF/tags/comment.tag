@@ -4,7 +4,6 @@
 <%@ tag import="ru.org.linux.user.User" %>
 <%@ tag import="ru.org.linux.util.StringUtil" %>
 <%@ tag import="java.text.DateFormat" %>
-<%@ tag import="ru.org.linux.topic.TopicPermissionService" %>
 <%@ tag pageEncoding="UTF-8"%>
 <%--
   ~ Copyright 1998-2010 Linux.org.ru
@@ -123,14 +122,22 @@
     </div>
   <c:if test="${not comment.comment.deleted and showMenu}">
     <div class=reply>
+      <c:set var="deletable" value="<%= moderatorMode || (!topic.isExpired() && comment.getAuthor().getNick().equals(tmpl.getNick())) %>"/>
+
+      <c:if test="${deletable or commentsAllowed}">
+      <ul>
       <c:if test="${commentsAllowed}">
-        [<a href="add_comment.jsp?topic=${topic.id}&amp;replyto=${comment.comment.id}">Ответить на это сообщение</a>]
+        <li><a href="add_comment.jsp?topic=${topic.id}&amp;replyto=${comment.comment.id}">Ответить на это сообщение</a></li>
       </c:if>
-<%
-    if (moderatorMode || (!topic.isExpired() && comment.getAuthor().getNick().equals(tmpl.getNick()))) {
-      out.append("[<a href=\"delete_comment.jsp?msgid=").append(Integer.toString(comment.getComment().getMessageId())).append("\">Удалить</a>]");
-    }
-%>
+
+      <c:if test="${deletable}">
+          <li><%
+      out.append("<a href=\"delete_comment.jsp?msgid=").append(Integer.toString(comment.getComment().getMessageId())).append("\">Удалить</a>");
+          %></li>
+
+      </c:if>
+      </ul>
+      </c:if>
      </div>
   </c:if>
 
