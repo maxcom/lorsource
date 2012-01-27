@@ -177,7 +177,7 @@
               <g:plusone size="small" href="${template.mainUrlNoSlash}${message.link}"></g:plusone>
           </div>
           </c:if>
-
+          <ul>
           <c:if test="${not message.expired}">
             <c:if test="${messageMenu.commentsAllowed}">
               <li><a href="comment-message.jsp?topic=${message.id}">Ответить на это сообщение</a></li>
@@ -224,7 +224,7 @@
         <%
       }
     }
-%>
+%>     </ul>
         <c:if test="${template.sessionAuthorized}">
           <br>${message.postScoreInfo}
         </c:if>

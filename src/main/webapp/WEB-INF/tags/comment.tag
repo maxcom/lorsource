@@ -122,6 +122,7 @@
     </div>
   <c:if test="${not comment.comment.deleted and showMenu}">
     <div class=reply>
+      <ul>
       <c:if test="${commentsAllowed}">
         <li><a href="add_comment.jsp?topic=${topic.id}&amp;replyto=${comment.comment.id}">Ответить на это сообщение</a></li>
       </c:if>
@@ -129,7 +130,7 @@
     if (moderatorMode || (!topic.isExpired() && comment.getAuthor().getNick().equals(tmpl.getNick()))) {
       out.append("<li><a href=\"delete_comment.jsp?msgid=").append(Integer.toString(comment.getComment().getMessageId())).append("\">Удалить</a></li>");
     }
-%>
+%>    </ul>
      </div>
   </c:if>
 

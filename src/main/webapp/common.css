@@ -94,6 +94,12 @@ table.nav {
   font-size: smaller;
 }
 
+.msg .reply ul {
+  display: inline;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
 .msg .reply li {
   display: inline;
   margin-left: 0 !important;
