@@ -49,11 +49,8 @@
 
 <c:if test="${template.style != 'black'}">
   <div class="infoblock" style="border: 1px solid #777; text-align: justify;">
-    <a href="http://job.samsung.ru/"><img width="130" height="43" src="/adv/Samsung_Logo.png" alt="" style="float: left; border: 0"></a>
+    <a rel="nofollow" href="http://job.samsung.ru/"><img width="130" height="43" src="/adv/Samsung_Logo.png" alt="" style="float: left; border: 0"></a>
     <div style="margin-left: 135px">
-<%--
-    <h2>Вакансии</h2>
---%>
     SAMSUNG Electronics&nbsp;&mdash; мировой лидер в&nbsp;производстве полупроводников,
     телекоммуникационного оборудования и&nbsp;цифровой конвергенции&nbsp;&mdash;
     объявляет о&nbsp;приеме на&nbsp;работу инженеров-программистов,
@@ -62,7 +59,7 @@
     (TV, BD, PVR, HTS), Linux Kernel, Android, C/C++ Programming, Widget,
     DRM, Network Software, LTE eNB Software Design, Modem ASIC, FPGA, SoC.
     Дополнительная информация:
-    <a href="http://job.samsung.ru/" style="color: white">http://job.samsung.ru</a>
+    <a href="http://job.samsung.ru/" rel="nofollow" style="color: white">http://job.samsung.ru</a>
     </div>
   </div>
 </c:if>
