@@ -45,7 +45,6 @@
 %>
 
 <title>${preparedMessage.section.title} - ${preparedMessage.group.title} - ${message.title}</title>
-<link rel="parent" title="${preparedMessage.section.title} - ${preparedMessage.group.title}" href="group.jsp?group=${message.groupId}">
 <c:if test="${prevMessage != null}">
   <link rel="Previous" id="PrevLink" href="${fn:escapeXml(prevMessage.link)}" title="<%= StringUtil.makeTitle(prevMessage.getTitle()) %>">
 </c:if>
