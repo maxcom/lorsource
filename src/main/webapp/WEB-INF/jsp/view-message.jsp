@@ -111,10 +111,10 @@
             <tr valign=middle>
                 <c:if test="${prevMessage != null}">
                   <td style="padding-right: 5px">
-                    <a href="${fn:escapeXml(prevMessage.link)}" rel=prev rev=next>←</a>
+                    <a href="${fn:escapeXml(prevMessage.link)}" rel=prev>←</a>
                   </td>
                   <td align=left valign=top>
-                    <a href="${fn:escapeXml(prevMessage.link)}" rel=prev rev=next>
+                    <a href="${fn:escapeXml(prevMessage.link)}" rel=prev>
                     <%= StringUtil.makeTitle(prevMessage.getTitle()) %></a>
                   </td>
                 </c:if>
@@ -126,12 +126,12 @@
             <table align="right">
               <tr valign=middle align=right>
                 <td>
-                  <a href="${fn:escapeXml(nextMessage.link)}" rel=next rev=prev>
+                  <a href="${fn:escapeXml(nextMessage.link)}" rel=next>
                     <%= StringUtil.makeTitle(nextMessage.getTitle()) %>
                   </a>
                 </td>
                 <td align="right" valign="middle" style="padding-left: 5px">
-                  <a href="${fn:escapeXml(nextMessage.link)}" rel=next rev=prev>→</a>
+                  <a href="${fn:escapeXml(nextMessage.link)}" rel=next>→</a>
                 </td>
               </tr>
             </table>
@@ -150,10 +150,10 @@
             <tr valign=middle>
                 <c:if test="${prevMessage != null}">
                   <td style="padding-right: 5px">
-                    <a href="${fn:escapeXml(prevMessage.link)}" rel=prev rev=next>←</a>
+                    <a href="${fn:escapeXml(prevMessage.link)}" rel=prev>←</a>
                   </td>
                   <td align=left valign=top>
-                    <a href="${fn:escapeXml(prevMessage.link)}" rel=prev rev=next>
+                    <a href="${fn:escapeXml(prevMessage.link)}" rel=prev>
                     <%= StringUtil.makeTitle(prevMessage.getTitle()) %></a>
                   </td>
                 </c:if>
@@ -176,12 +176,12 @@
             <table align="right">
               <tr valign=middle align=right>
                 <td>
-                  <a href="${fn:escapeXml(nextMessage.link)}" rel=next rev=prev>
+                  <a href="${fn:escapeXml(nextMessage.link)}" rel=next>
                     <%= StringUtil.makeTitle(nextMessage.getTitle()) %>
                   </a>
                 </td>
                 <td align="right" valign="middle" style="padding-left: 5px">
-                  <a href="${fn:escapeXml(nextMessage.link)}" rel=next rev=prev>→</a>
+                  <a href="${fn:escapeXml(nextMessage.link)}" rel=next>→</a>
                 </td>
               </tr>
             </table>
