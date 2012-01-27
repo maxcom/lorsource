@@ -98,6 +98,7 @@ table.nav {
   display: inline;
   margin-top: 0;
   margin-bottom: 0;
+  padding-left: 0;
 }
 
 .msg .reply li {
