@@ -17,7 +17,6 @@ package ru.org.linux.topic;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
-import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.ConnectionCallback;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -768,15 +767,5 @@ public class NewsViewerController {
     params.put("messages", prepareService.prepareMessages(messages, request.isSecure()));
 
     return new ModelAndView("section-rss", params);
-  }
-
-  @ExceptionHandler(UserNotFoundException.class)
-  @ResponseStatus(HttpStatus.NOT_FOUND)
-  public ModelAndView handleUserNotFound(Exception ex, HttpServletRequest request, HttpServletResponse response) {
-    ModelAndView mav = new ModelAndView("error-good-penguin");
-    mav.addObject("msgTitle", "Ошибка: пользователя не существует");
-    mav.addObject("msgHeader", "Пользователя не существует");
-    mav.addObject("msgMessage", "");
-    return mav;
   }
 }
