@@ -36,11 +36,11 @@ import ru.org.linux.user.*;
 import ru.org.linux.util.DateUtil;
 import ru.org.linux.util.ServletParameterException;
 import ru.org.linux.util.ServletParameterMissingException;
+import ru.org.linux.util.URLUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
-import java.net.URLEncoder;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -89,36 +89,19 @@ public class NewsViewerController {
     Map<String, Object> params = new HashMap<String, Object>();
 
     params.put("url", "view-news.jsp");
-    StringBuilder urlParams = new StringBuilder();
+
+    URLUtil.QueryString queryString = new URLUtil.QueryString();
+    queryString.add("section", sectionid);
+    queryString.add("tag", tag);
+    queryString.add("group", groupid);
+    params.put("params", queryString.toString());
 
     Section section = null;
-
     if (sectionid != null) {
-      urlParams.append("section=").append(Integer.toString(sectionid));
-
       section = sectionService.getSection(sectionid);
-
       params.put("section", section);
       params.put("archiveLink", section.getArchiveLink());
     }
-
-    if (tag != null) {
-      if (urlParams.length() > 0) {
-        urlParams.append('&');
-      }
-
-      urlParams.append("tag=").append(URLEncoder.encode(tag));
-    }
-
-    if (groupid != null) {
-      if (urlParams.length() > 0) {
-        urlParams.append('&');
-      }
-
-      urlParams.append("group=").append(Integer.toString(groupid));
-    }
-
-    params.put("params", urlParams);
 
     if (month == null) {
       response.setDateHeader("Expires", System.currentTimeMillis() + 60 * 1000);
