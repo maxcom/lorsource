@@ -261,7 +261,7 @@ public class TopicPrepareService {
   }
 
   /**
-   * Подготовка ленты топиков, используется в NewsViewerController например
+   * Подготовка ленты топиков, используется в FeedTopicController например
    * сообщения рендерятся со свернутым cut
    * @param messages список топиков
    * @param secure является ли соединение https
@@ -280,7 +280,7 @@ public class TopicPrepareService {
   }
 
   /**
-   * Подготовка ленты топиков, используется в NewsViewerController например
+   * Подготовка ленты топиков, используется в FeedTopicController например
    * сообщения рендерятся со свернутым cut
    * @param messages список топиков
    * @param secure является ли соединение https
