@@ -46,7 +46,7 @@ public class ToLorCodeFormatter {
   }
 
   private static String fixNL(String text) {
-    return text.replaceAll(NL_REGEXP, "[br]\n");
+    return text.replaceAll(NL_REGEXP, "[br]");
   }
 
   public static final Pattern QUOTE_PATTERN = Pattern.compile("^(\\>+)");
