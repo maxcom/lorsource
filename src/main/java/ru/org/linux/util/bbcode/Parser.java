@@ -193,10 +193,17 @@ public class Parser {
       Map<String, Tag> allTagsDict = parserParameters.getAllTagsDict();
       Set<String> blockLevelTags = parserParameters.getBlockLevelTags();
       Tag newTag = allTagsDict.get(name);
-
+      
       if (newTag.isDiscardable()) {
         return currentNode;
       } else if (currentNode == rootNode || blockLevelTags.contains(((TagNode) currentNode).getBbtag().getName()) && newTag.getImplicitTag() != null) {
+        if(currentNode != rootNode && TagNode.class.isInstance(currentNode)) {
+          TagNode currentTagNode = (TagNode) currentNode;
+          if("p".equals(currentTagNode.getBbtag().getName())) {
+            currentNode = ascend(currentNode);
+            return pushTagNode(rootNode, currentNode, name, parameter);
+          }
+        }
         currentNode = pushTagNode(rootNode, currentNode, newTag.getImplicitTag(), "");
         currentNode = pushTagNode(rootNode, currentNode, name, parameter);
       } else {

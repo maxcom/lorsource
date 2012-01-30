@@ -149,6 +149,18 @@ public class SimpleParserTest {
   @Test
   public void listTest() {
     Assert.assertEquals(lorCodeService.parseComment("[list][*]one[*]two[*]three[/list]", false), "<ul><li>one</li><li>two</li><li>three</li></ul>");
+    assertEquals(
+        "<ul><li>one\n" +
+            "</li><li>two\n" +
+            "</li><li>three\n" +
+            "</li></ul>",
+        lorCodeService.parseComment("[list]\n[*]one\n[*]two\n[*]three\n[/list]", false));
+    assertEquals(
+        "<ul><li>one\n" +
+            "</li><li>two\n" +
+            "</li><li>three\n" +
+            "</li></ul>",
+        lorCodeService.parseTopic("[list]\n[*]one\n[*]two\n[*]three\n[/list]", false));
   }
 
   @Test
@@ -350,6 +362,5 @@ public class SimpleParserTest {
     assertEquals("<div class=\"code\"><pre class=\"no-highlight\"><code>[[/code]]</code></pre></div>",
         lorCodeService.parseComment("[code][[/code]][/code]", true));
   }
-
 
 }
