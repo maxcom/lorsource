@@ -1,5 +1,4 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ tag import="ru.org.linux.topic.NewsViewer" %>
 <%@ tag import="ru.org.linux.topic.Topic" %>
 <%@ tag import="ru.org.linux.topic.PreparedImage" %>
 <%@ tag import="ru.org.linux.util.ImageInfo" %>

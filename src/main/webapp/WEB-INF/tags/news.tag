@@ -1,6 +1,5 @@
 <%@ tag import="ru.org.linux.group.Group" %>
 <%@ tag import="ru.org.linux.site.Template" %>
-<%@ tag import="ru.org.linux.topic.NewsViewer" %>
 <%@ tag import="ru.org.linux.topic.Topic" %>
 <%@ tag import="ru.org.linux.util.BadImageException" %>
 <%@ tag import="ru.org.linux.util.ImageInfo" %>
@@ -122,10 +121,8 @@
       ImageInfo info = new ImageInfo(tmpl.getConfig().getHTMLPathPrefix() + tmpl.getStyle() + image);
       out.append("<img src=\"/").append(tmpl.getStyle()).append(image).append("\" ").append(info.getCode()).append(" border=0 alt=\"Группа ").append(group.getTitle()).append("\">");
     } catch (IOException e) {
-//      NewsViewer.logger.warn("Bad Image for group "+ message.getGroupId(), e);
       out.append("[bad image] <img class=newsimage src=\"/").append(tmpl.getStyle()).append(image).append("\" " + " border=0 alt=\"Группа ").append(group.getTitle()).append("\">");
     } catch (BadImageException e) {
-//      NewsViewer.logger.warn("Bad Image for group "+ message.getGroupId(), e);
       out.append("[bad image] <img class=newsimage src=\"/").append(tmpl.getStyle()).append(image).append("\" " + " border=0 alt=\"Группа ").append(group.getTitle()).append("\">");
     }
 %>

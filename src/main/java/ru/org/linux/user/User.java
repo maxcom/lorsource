@@ -36,6 +36,7 @@ import java.sql.SQLException;
 
 public class User implements Serializable {
   private static final int ANONYMOUS_LEVEL_SCORE = 50;
+  public static final int ANONYMOUS_ID = 2;
 
   private final String nick;
   private final int id;
