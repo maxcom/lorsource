@@ -17,10 +17,9 @@ package ru.org.linux.comment;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.site.Template;
@@ -31,8 +30,10 @@ import ru.org.linux.user.UserDao;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserErrorException;
+import ru.org.linux.user.UserNotFoundException;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -84,7 +85,7 @@ public class DeleteCommentController {
     Map<String, Object> params = new HashMap<String, Object>();
 
     if (!Template.isSessionAuthorized(session)) {
-      throw new AccessViolationException("Not authorized");
+      throw new AccessViolationException("нет авторизованы");
     }
 
     Template tmpl = Template.getTemplate(request);
@@ -128,11 +129,11 @@ public class DeleteCommentController {
     HttpServletRequest request
   ) throws Exception {
     if (bonus < 0 || bonus > 20) {
-      throw new BadParameterException("incorrect bonus value");
+      throw new BadParameterException("неправильный размер штрафа");
     }
 
     if (!Template.isSessionAuthorized(session)) {
-      throw new AccessViolationException("Not authorized");
+      throw new AccessViolationException("нет авторизации");
     }
 
     Template tmpl = Template.getTemplate(request);
@@ -206,4 +207,15 @@ public class DeleteCommentController {
 
     return new ModelAndView("action-done", params);
   }
+
+  @ExceptionHandler({ScriptErrorException.class, UserErrorException.class, AccessViolationException.class})
+  @ResponseStatus(HttpStatus.FORBIDDEN)
+  public ModelAndView handleUserNotFound(Exception ex, HttpServletRequest request, HttpServletResponse response) {
+    ModelAndView mav = new ModelAndView("error-good-penguin");
+    mav.addObject("msgTitle", "Ошибка: " + ex.getMessage());
+    mav.addObject("msgHeader", ex.getMessage());
+    mav.addObject("msgMessage", "");
+    return mav;
+  }
+
 }
