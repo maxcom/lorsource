@@ -16,27 +16,26 @@
 package ru.org.linux.spring;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.core.ConnectionCallback;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import ru.org.linux.site.Template;
+import ru.org.linux.topic.FeedTopicService;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicPrepareService;
-import ru.org.linux.topic.NewsViewer;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.List;
 
 @Controller
 public class MainPageController {
   @Autowired
   private TopicPrepareService prepareService;
+
+  @Autowired
+  private FeedTopicService feedTopicService;
 
   private JdbcTemplate jdbcTemplate;
 
@@ -49,20 +48,9 @@ public class MainPageController {
   public ModelAndView mainPage(HttpServletRequest request) {
     Template tmpl = Template.getTemplate(request);
 
-    final NewsViewer nv = NewsViewer.getMainpage();
-
-    if (tmpl.getProf().isShowGalleryOnMain()) {
-      nv.addSection(3);
-    }
+    List<Topic> messages = feedTopicService.getMainPageFeed(tmpl.getProf().isShowGalleryOnMain());
 
     ModelAndView mv = new ModelAndView("index");
-
-    List<Topic> messages = jdbcTemplate.execute(new ConnectionCallback<List<Topic>>() {
-      @Override
-      public List<Topic> doInConnection(Connection con) throws SQLException, DataAccessException {
-        return nv.getMessages(con);
-      }
-    });
 
     mv.getModel().put("news", prepareService.prepareMessagesForUser(messages, request.isSecure(), tmpl.getCurrentUser()));
 
