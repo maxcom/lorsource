@@ -101,7 +101,7 @@ public class FeedTopicService {
       feedTopicDto.setDateLimitType(FeedTopicDto.DateLimitType.BETWEEN);
       Calendar calendar = Calendar.getInstance();
 
-      calendar.set(year, month, 1);
+      calendar.set(year, month-1, 1);
       feedTopicDto.setFromDate(calendar.getTime());
 
       calendar.add(Calendar.MONTH, 1);
