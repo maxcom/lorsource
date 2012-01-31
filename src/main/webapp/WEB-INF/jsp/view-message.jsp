@@ -204,8 +204,6 @@
   if (pages > 1) {
     StringBuilder bufInfo = new StringBuilder();
 
-    bufInfo.append("страница");
-
     StringBuilder urlAdd = new StringBuilder();
     if (!message.isExpired()) {
       urlAdd.append("?lastmod=").append(message.getLastModified().getTime());
