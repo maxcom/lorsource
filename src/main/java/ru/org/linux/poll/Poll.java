@@ -15,7 +15,10 @@
 
 package ru.org.linux.poll;
 
+import com.google.common.collect.ImmutableList;
+
 import java.io.Serializable;
+import java.util.List;
 
 public class Poll implements Serializable {
   public static final int MAX_POLL_SIZE = 15;
@@ -26,14 +29,17 @@ public class Poll implements Serializable {
   private final int topic;
 
   private final boolean current;
+  private final ImmutableList<PollVariant> variants;
   private final boolean multiSelect;
-  private static final long serialVersionUID = -6541849807995680089L;
 
-  public Poll(int id, int topic, boolean multiSelect, boolean current) {
+  private static final long serialVersionUID = 6505234874388572682L;
+
+  public Poll(int id, int topic, boolean multiSelect, boolean current, List<PollVariant> variants) {
     this.id = id;
     this.topic = topic;
     this.multiSelect = multiSelect;
     this.current = current;
+    this.variants = ImmutableList.copyOf(variants);
   }
 
   public int getId() {
@@ -50,5 +56,19 @@ public class Poll implements Serializable {
 
   public boolean isMultiSelect() {
     return multiSelect;
+  }
+
+  public ImmutableList<PollVariant> getVariants() {
+    return variants;
+  }
+
+  public Poll createNew(List<PollVariant> newVariants) {
+    return new Poll(
+            id,
+            topic,
+            multiSelect,
+            current,
+            newVariants
+    );
   }
 }

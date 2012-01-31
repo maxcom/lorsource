@@ -31,7 +31,6 @@ import ru.org.linux.user.User;
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @Controller
@@ -96,9 +95,6 @@ public class VoteController {
       throw new BadVoteException("голосовать можно только в текущий опрос");
     }
     params.put("poll", poll);
-
-    List<VoteDto> votes = pollDao.getVoteDTO(poll.getId());
-    params.put("votes", votes);
 
     return new ModelAndView("vote-vote", params);
   }

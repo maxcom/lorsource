@@ -26,7 +26,6 @@ import ru.org.linux.spring.commons.CacheProvider;
 import ru.org.linux.topic.TopicDao;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.List;
 
 @Controller
 public class PollBoxlet extends AbstractBoxlet {
@@ -59,13 +58,6 @@ public class PollBoxlet extends AbstractBoxlet {
       }
     });
 
-    List<VoteDto> votes = getFromCache(cacheProvider, getCacheKey() + "votes"+poll.getId(), new GetCommand<List<VoteDto>>() {
-      @Override
-      public List<VoteDto> get() {
-        return pollDao.getVoteDTO(poll.getId());
-      }
-    });
-
     Topic msg = getFromCache(cacheProvider, getCacheKey() + "topic"+poll.getId(), new GetCommand<Topic>() {
       @Override
       public Topic get() throws MessageNotFoundException {
@@ -87,10 +79,8 @@ public class PollBoxlet extends AbstractBoxlet {
       }
     });
 
-
     ModelAndView result = new ModelAndView("boxlets/poll");
     result.addObject("poll", poll);
-    result.addObject("votes", votes);
     result.addObject("count", count);
     result.addObject("message", msg);
     result.addObject("countUsers", countUsers);

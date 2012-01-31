@@ -15,37 +15,27 @@
 
 package ru.org.linux.poll;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-public class PollVariant {
+public class PollVariant implements Serializable {
   private final int id;
   private final String label;
-  private final int votes;
-  private final boolean userVoted;
+  private static final long serialVersionUID = -293722815777946212L;
 
-  public PollVariant(int id, String label, int votes, boolean userVoted) {
+  public PollVariant(int id, String label) {
     this.id = id;
     this.label = label;
-    this.votes = votes;
-    this.userVoted = userVoted;
   }
 
-  public int getId() {
+  public Integer getId() {
     return id;
   }
 
   public String getLabel() {
     return label;
-  }
-
-  public int getVotes() {
-    return votes;
-  }
-
-  public boolean getUserVoted() {
-    return userVoted;
   }
 
   public static SortedMap<Integer, String> toMap(List<PollVariant> list) {

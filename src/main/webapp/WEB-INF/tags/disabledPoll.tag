@@ -1,4 +1,4 @@
-<%@ tag import="ru.org.linux.poll.PollVariant" %>
+<%@ tag import="ru.org.linux.poll.PollVariantResult" %>
 <%@ tag import="ru.org.linux.util.StringUtil" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
@@ -17,11 +17,11 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
-<%@ attribute name="poll" required="true" type="ru.org.linux.poll.PreparedPoll" %>
+<%@ attribute name="poll" required="true" type="ru.org.linux.poll.Poll" %>
 <c:forEach var="variant" items="${poll.variants}">
     <label>
     <c:choose>
-        <c:when test="${poll.poll.multiSelect}">
+        <c:when test="${poll.multiSelect}">
             <input type="checkbox" disabled>
         </c:when>
         <c:otherwise>

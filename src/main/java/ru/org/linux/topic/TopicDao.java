@@ -35,10 +35,7 @@ import ru.org.linux.gallery.Screenshot;
 import ru.org.linux.group.BadGroupException;
 import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
-import ru.org.linux.poll.Poll;
-import ru.org.linux.poll.PollDao;
-import ru.org.linux.poll.PollNotFoundException;
-import ru.org.linux.poll.PollVariant;
+import ru.org.linux.poll.*;
 import ru.org.linux.section.SectionNotFoundException;
 import ru.org.linux.section.SectionScrollModeEnum;
 import ru.org.linux.section.SectionService;
@@ -472,7 +469,7 @@ public class TopicDao {
 
     final Poll poll = pollDao.getPollByTopicId(message.getId());
 
-    ImmutableList<PollVariant> oldVariants = pollDao.getPollVariants(poll, Poll.ORDER_ID);
+    ImmutableList<PollVariant> oldVariants = poll.getVariants();
 
     Map<Integer, String> newMap = PollVariant.toMap(newVariants);
 

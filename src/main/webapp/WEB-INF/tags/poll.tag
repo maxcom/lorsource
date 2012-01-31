@@ -1,4 +1,4 @@
-<%@ tag import="ru.org.linux.poll.PollVariant" %>
+<%@ tag import="ru.org.linux.poll.PollVariantResult" %>
 <%@ tag import="ru.org.linux.util.StringUtil" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
@@ -24,7 +24,7 @@
         <td><c:if test="${variant.userVoted}"><b></c:if>${fn:escapeXml(variant.label)}<c:if test="${variant.userVoted}"></b></c:if></td>
         <td><c:if test="${variant.userVoted}"><b></c:if>${variant.votes}<c:if test="${variant.userVoted}"></b></c:if></td>
         <%
-            PollVariant variant = (PollVariant)jspContext.getAttribute("variant");
+            PollVariantResult variant = (PollVariantResult)jspContext.getAttribute("variant");
             int variantWidth = 20*variant.getVotes()/poll.getMaximumValue();
             request.setAttribute("width", variantWidth*16); // пингвин 16px вширь!
             request.setAttribute("alt", StringUtil.repeat("*", variantWidth));

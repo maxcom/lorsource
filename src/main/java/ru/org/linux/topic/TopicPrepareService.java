@@ -23,19 +23,20 @@ import ru.org.linux.gallery.Screenshot;
 import ru.org.linux.group.BadGroupException;
 import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
-import ru.org.linux.poll.PollNotFoundException;
-import ru.org.linux.poll.PollPrepareService;
-import ru.org.linux.poll.PreparedPoll;
+import ru.org.linux.poll.*;
 import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionNotFoundException;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.site.DeleteInfo;
+import ru.org.linux.spring.Configuration;
+import ru.org.linux.spring.dao.DeleteInfoDao;
+import ru.org.linux.spring.dao.MessageText;
+import ru.org.linux.spring.dao.MsgbaseDao;
+import ru.org.linux.spring.dao.UserAgentDao;
 import ru.org.linux.user.MemoriesDao;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserNotFoundException;
-import ru.org.linux.spring.Configuration;
-import ru.org.linux.spring.dao.*;
 import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.ImageInfo;
 import ru.org.linux.util.bbcode.LorCodeService;
@@ -92,11 +93,18 @@ public class TopicPrepareService {
   public PreparedTopic prepareTopicPreview(
           Topic message,
           List<String> tags,
-          PreparedPoll newPoll,
+          Poll newPoll,
           boolean secure,
           String text
   ) {
-    return prepareMessage(message, tags, false, newPoll, secure, text);
+    return prepareMessage(
+            message,
+            tags,
+            false,
+            newPoll!=null?pollPrepareService.preparePollPreview(newPoll):null,
+            secure,
+            text
+    );
   }
 
   private PreparedTopic prepareMessage(Topic message, List<String> tags, boolean minimizeCut, PreparedPoll poll, boolean secure, String text) {

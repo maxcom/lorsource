@@ -15,29 +15,22 @@
 
 package ru.org.linux.poll;
 
+import com.google.common.base.Function;
+import com.google.common.collect.ImmutableSortedMap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.user.User;
 
+import java.util.List;
+import java.util.Map;
+
 @Service
 public class PollPrepareService {
   @Autowired
   private PollDao pollDao;
-
-  /**
-   * Функция подготовки опроса
-   * @param poll опрос
-   * @return подготовленный опрос
-   */
-  public PreparedPoll preparePoll(Poll poll) {
-    return new PreparedPoll(
-            poll,
-            pollDao.getMaxVote(poll),
-            pollDao.getCountUsers(poll),
-            pollDao.getPollVariants(poll, Poll.ORDER_VOTES)
-    );
-  }
 
   /**
    * Функция подготовки опроса для пользователя
@@ -57,13 +50,39 @@ public class PollPrepareService {
     );
   }
 
-  /**
-   * Функция подготовки опроса
-   * @param topic топик в котором опрос
-   * @return подготовленный опрос
-   * @throws PollNotFoundException может не существовать опроса для этого топика
-   */
-  public PreparedPoll preparePoll(Topic topic) throws PollNotFoundException {
-    return preparePoll(topic, null);
+  public PreparedPoll preparePollPreview(Poll newPoll) {
+    final Map<Integer,PollVariantResult> currentMap;
+
+    if (newPoll.getId()>0) {
+      currentMap = Maps.uniqueIndex(
+              pollDao.getPollVariants(newPoll),
+              new Function<PollVariantResult, Integer>() {
+                @Override
+                public Integer apply(PollVariantResult input) {
+                  return input.getId();
+                }
+              }
+      );
+    } else {
+      currentMap = ImmutableSortedMap.of();
+    }
+
+    List<PollVariantResult> variants = Lists.transform(
+            newPoll.getVariants(),
+            new Function<PollVariant, PollVariantResult>() {
+              @Override
+              public PollVariantResult apply(PollVariant input) {
+                PollVariantResult pollVariant = currentMap.get(input.getId());
+
+                if (pollVariant != null) {
+                  return new PollVariantResult(input.getId(), input.getLabel(), pollVariant.getVotes(), pollVariant.getUserVoted());
+                } else {
+                  return new PollVariantResult(input.getId(), input.getLabel(), 0, false);
+                }
+              }
+            }
+    );
+
+    return new PreparedPoll(newPoll, 1, 0, variants);
   }
 }

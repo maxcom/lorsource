@@ -70,18 +70,16 @@ public class PollDao {
 
   /**
    * Получить список вариантов голосования по идентификатору голосования.
+   * Список отсортирован по id варианта
    *
    * @param pollId идентификатор голосования
    * @return список вариантов голосования
    */
-  public List<VoteDto> getVoteDTO(int pollId) {
-    return jdbcTemplate.query(queryPollVariantsOrderById, new RowMapper<VoteDto>() {
+  private List<PollVariant> getVoteDTO(int pollId) {
+    return jdbcTemplate.query(queryPollVariantsOrderById, new RowMapper<PollVariant>() {
       @Override
-      public VoteDto mapRow(ResultSet rs, int rowNum) throws SQLException {
-        VoteDto dto = new VoteDto();
-        dto.setId(rs.getInt("id"));
-        dto.setLabel(rs.getString("label"));
-        return dto;
+      public PollVariant mapRow(ResultSet rs, int rowNum) throws SQLException {
+        return new PollVariant(rs.getInt("id"), rs.getString("label"));
       }
     }, pollId);
   }
@@ -153,20 +151,26 @@ public class PollDao {
   /**
    * Получить голосование по идентификатору.
    *
-   * @param poolId идентификатор голосования
+   * @param pollId идентификатор голосования
    * @return объект голосование
    * @throws PollNotFoundException если голосование не существует
    */
-  public Poll getPoll(final int poolId) throws PollNotFoundException {
+  public Poll getPoll(final int pollId) throws PollNotFoundException {
     final int currentPollId = getCurrentPollId();
     try {
     return jdbcTemplate.queryForObject(queryPool,
         new RowMapper<Poll>() {
           @Override
           public Poll mapRow(ResultSet resultSet, int i) throws SQLException {
-            return new Poll(poolId, resultSet.getInt("topic"), resultSet.getBoolean("multiselect"), poolId == currentPollId);
+            return new Poll(
+                    pollId,
+                    resultSet.getInt("topic"),
+                    resultSet.getBoolean("multiselect"),
+                    pollId == currentPollId,
+                    getVoteDTO(pollId)
+            );
           }
-        }, poolId);
+        }, pollId);
     } catch (EmptyResultDataAccessException exception) {
       throw new PollNotFoundException();
     }
@@ -204,12 +208,12 @@ public class PollDao {
 
   /**
    * Варианты опроса для ананимного пользователя
+   *
    * @param poll опрос
-   * @param order порядок сортировки вариантов Poll.ORDER_ID и Poll.ORDER_VOTES
    * @return неизменяемый список вариантов опроса
    */
-  public ImmutableList<PollVariant> getPollVariants(Poll poll, int order) {
-    return getPollVariants(poll, order, null);
+  public ImmutableList<PollVariantResult> getPollVariants(Poll poll) {
+    return getPollVariants(poll, Poll.ORDER_ID, null);
   }
 
   /**
@@ -220,42 +224,36 @@ public class PollDao {
    * @param user для какого пользователя отдаем 
    * @return неизменяемый список вариантов опроса
    */
-  public ImmutableList<PollVariant> getPollVariants(Poll poll, int order, final User user) {
-    final List<PollVariant> variants = new ArrayList<PollVariant>();
+  public ImmutableList<PollVariantResult> getPollVariants(Poll poll, int order, final User user) {
+    final List<PollVariantResult> variants = new ArrayList<PollVariantResult>();
+    
+    String query;
+    
     switch (order) {
       case Poll.ORDER_ID:
-        jdbcTemplate.query(queryPollVariantsOrderById, new RowCallbackHandler() {
-          @Override
-          public void processRow(ResultSet resultSet) throws SQLException {
-            int id = resultSet.getInt("id");
-            String label = resultSet.getString("label");
-            int votes = resultSet.getInt("votes");
-            boolean voted = false;
-            if(user != null && jdbcTemplate.queryForInt(queryPollUserVote, user.getId(), resultSet.getInt("id")) !=0) {
-              voted = true;
-            }
-            variants.add(new PollVariant(id, label, votes, voted));
-          }
-        }, poll.getId());
+        query = queryPollVariantsOrderById;
         break;
       case Poll.ORDER_VOTES:
-        jdbcTemplate.query(queryPollVariantsOrderByVotes, new RowCallbackHandler() {
-          @Override
-          public void processRow(ResultSet resultSet) throws SQLException {
-            int id = resultSet.getInt("id");
-            String label = resultSet.getString("label");
-            int votes = resultSet.getInt("votes");
-            boolean voted = false;
-            if(user != null && jdbcTemplate.queryForInt(queryPollUserVote, user.getId(), resultSet.getInt("id")) !=0) {
-              voted = true;
-            }
-            variants.add(new PollVariant(id, label, votes, voted));
-          }
-        }, poll.getId());
+        query = queryPollVariantsOrderByVotes;
         break;
       default:
         throw new RuntimeException("Oops!? order="+order);
     }
+
+    jdbcTemplate.query(query, new RowCallbackHandler() {
+      @Override
+      public void processRow(ResultSet resultSet) throws SQLException {
+        int id = resultSet.getInt("id");
+        String label = resultSet.getString("label");
+        int votes = resultSet.getInt("votes");
+        boolean voted = false;
+        if(user != null && jdbcTemplate.queryForInt(queryPollUserVote, user.getId(), resultSet.getInt("id")) !=0) {
+          voted = true;
+        }
+        variants.add(new PollVariantResult(id, label, votes, voted));
+      }
+    }, poll.getId());
+
     return ImmutableList.copyOf(variants);
   }
 

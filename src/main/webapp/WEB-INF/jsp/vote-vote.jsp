@@ -16,7 +16,6 @@
   --%>
 <%--@elvariable id="message" type="ru.org.linux.topic.Topic"--%>
 <%--@elvariable id="poll" type="ru.org.linux.poll.Poll"--%>
-<%--@elvariable id="votes" type="java.util.List<ru.org.linux.poll.VoteDto>"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
@@ -29,7 +28,7 @@
 <form method=POST action=vote.jsp>
   <input type=hidden name=voteid value=${poll.id}>
   <input type=hidden name=msgid value=${message.id}>
-  <c:forEach var="item" items="${votes}">
+  <c:forEach var="item" items="${poll.variants}">
     <c:if test="${poll.multiSelect}">
       <input type="checkbox" name="vote" id="poll-${item.id}" value="${item.id}"><label for="poll-${item.id}"><c:out escapeXml="true" value="${item.label}"/></label> <br/>
     </c:if>

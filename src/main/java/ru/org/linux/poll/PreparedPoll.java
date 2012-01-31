@@ -28,7 +28,7 @@ public class PreparedPoll {
   private final int maximumValue;
   private final int totalOfVotesPerson;
   private final int totalVotes;
-  private final ImmutableList<PollVariant> variants;
+  private final ImmutableList<PollVariantResult> variants;
 
   /**
    * Конструктор
@@ -37,13 +37,13 @@ public class PreparedPoll {
    * @param totalOfVotesPerson кол-во проголосовавших пользователей
    * @param variants варианты опроса
    */
-  public PreparedPoll(Poll poll, int maximumValue, int totalOfVotesPerson, List<PollVariant> variants) {
+  public PreparedPoll(Poll poll, int maximumValue, int totalOfVotesPerson, List<PollVariantResult> variants) {
     this.poll = poll;
     this.maximumValue = maximumValue;
     this.totalOfVotesPerson = totalOfVotesPerson;
     this.variants = ImmutableList.copyOf(variants);
     int total=0;
-    for(PollVariant variant : variants) {
+    for(PollVariantResult variant : variants) {
       total += variant.getVotes();
     }
     totalVotes = total;
@@ -57,7 +57,7 @@ public class PreparedPoll {
     return maximumValue;
   }
 
-  public ImmutableList<PollVariant> getVariants() {
+  public ImmutableList<PollVariantResult> getVariants() {
     return variants;
   }
 
@@ -78,7 +78,7 @@ public class PreparedPoll {
     StringBuilder out = new StringBuilder();
     out.append("<table>");
     int total = 0;
-    for (PollVariant var : variants) {
+    for (PollVariantResult var : variants) {
       //                      label      votes     imgTag
       String formatRow = "<tr><td>%s</td><td>%d</td></tr>";
       int votes = var.getVotes();

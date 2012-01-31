@@ -36,7 +36,6 @@ import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
 import ru.org.linux.poll.Poll;
 import ru.org.linux.poll.PollVariant;
-import ru.org.linux.poll.PreparedPoll;
 import ru.org.linux.search.SearchQueueSender;
 import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionService;
@@ -258,17 +257,17 @@ public class AddTopicController extends ApplicationObjectSupport {
       }
     }
 
-    PreparedPoll preparedPoll = null;
+    Poll poll = null;
     
     if (group.isPollPostAllowed()) {
-      preparedPoll = preparePollPreview(form);
+      poll = preparePollPreview(form);
     }
 
     Topic previewMsg = null;
 
     if (group!=null) {
       previewMsg = new Topic(form, user, request.getRemoteAddr());
-      params.put("message", prepareService.prepareTopicPreview(previewMsg, TagDao.parseSanitizeTags(form.getTags()), preparedPoll, request.isSecure(), form.getMsg()));
+      params.put("message", prepareService.prepareTopicPreview(previewMsg, TagDao.parseSanitizeTags(form.getTags()), poll, request.isSecure(), form.getMsg()));
     }
 
     if (!form.isPreviewMode() && !errors.hasErrors() && !session.getId().equals(request.getParameter("session"))) {
@@ -320,18 +319,16 @@ public class AddTopicController extends ApplicationObjectSupport {
     }
   }
   
-  private static PreparedPoll preparePollPreview(AddTopicRequest form) {
-    Poll poll = new Poll(0, 0, form.isMultiSelect(), false);
-
-    ArrayList<PollVariant> variants = new ArrayList<PollVariant>(form.getPoll().length);
+  private static Poll preparePollPreview(AddTopicRequest form) {
+    List<PollVariant> variants = new ArrayList<PollVariant>(form.getPoll().length);
 
     for (String item : form.getPoll()) {
       if (!Strings.isNullOrEmpty(item)) {
-        variants.add(new PollVariant(0, item, 0, false));
+        variants.add(new PollVariant(0, item));
       }
     }
 
-    return new PreparedPoll(poll, 1, 0, variants);
+    return new Poll(0, 0, form.isMultiSelect(), false, variants);
   }
 
   @RequestMapping("/add-section.jsp")

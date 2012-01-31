@@ -31,7 +31,7 @@ public class PollDaoIntegrationTest {
   private static final Integer TEST_TOPIC_ID = 1937504;
 
   @Autowired
-  PollDao pollDao;
+  private PollDao pollDao;
 
   @Test
   public void voteGetCurrentPollTest()
@@ -39,8 +39,6 @@ public class PollDaoIntegrationTest {
     int currentPollId = pollDao.getCurrentPollId();
     Poll poll = pollDao.getCurrentPoll();
     Assert.assertEquals(currentPollId, poll.getId());
-
-
   }
 
   @Test
@@ -56,16 +54,17 @@ public class PollDaoIntegrationTest {
       Poll poll = pollDao.getPollByTopicId(TEST_TOPIC_ID);
 
       /* Проверяем правильность сохранения вариантов голосования */
-      ImmutableList<PollVariant> pollVariants = pollDao.getPollVariants(poll, Poll.ORDER_ID);
+      ImmutableList<PollVariantResult> pollVariants = pollDao.getPollVariants(poll);
       Assert.assertEquals(3, pollVariants.size());
 
       /* Проверяем изменения по вариантам голосования */
       pollDao.addNewVariant(poll, "Case 4");
-      pollVariants = pollDao.getPollVariants(poll, Poll.ORDER_ID);
+      pollVariants = pollDao.getPollVariants(poll);
       Assert.assertEquals(4, pollVariants.size());
 
-      pollDao.removeVariant(pollVariants.iterator().next());
-      pollVariants = pollDao.getPollVariants(poll, Poll.ORDER_ID);
+      PollVariantResult next = pollVariants.iterator().next();
+      pollDao.removeVariant(new PollVariant(next.getId(), next.getLabel()));
+      pollVariants = pollDao.getPollVariants(poll);
       Assert.assertEquals(3, pollVariants.size());
 
     } finally {

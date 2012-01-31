@@ -15,26 +15,32 @@
 
 package ru.org.linux.poll;
 
-import java.io.Serializable;
+public class PollVariantResult {
+  private final int id;
+  private final String label;
+  private final int votes;
+  private final boolean userVoted;
 
-public class VoteDto implements Serializable {
-  private Integer id;
-  private String label;
-  private static final long serialVersionUID = -293722815777946212L;
-
-  public Integer getId() {
-    return id;
+  public PollVariantResult(int id, String label, int votes, boolean userVoted) {
+    this.id = id;
+    this.label = label;
+    this.votes = votes;
+    this.userVoted = userVoted;
   }
 
-  public void setId(Integer id) {
-    this.id = id;
+  public int getId() {
+    return id;
   }
 
   public String getLabel() {
     return label;
   }
 
-  public void setLabel(String label) {
-    this.label = label;
+  public int getVotes() {
+    return votes;
+  }
+
+  public boolean getUserVoted() {
+    return userVoted;
   }
 }

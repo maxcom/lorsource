@@ -61,9 +61,6 @@ public class EditTopicController {
   private TopicPrepareService messagePrepareService;
 
   @Autowired
-  private PollPrepareService pollPrepareService;
-
-  @Autowired
   private GroupDao groupDao;
 
   @Autowired
@@ -184,7 +181,7 @@ public class EditTopicController {
     if (group.isPollPostAllowed()) {
       Poll poll = pollDao.getPollByTopicId(message.getId());
 
-      form.setPoll(PollVariant.toMap(pollDao.getPollVariants(poll, Poll.ORDER_ID)));
+      form.setPoll(PollVariant.toMap(poll.getVariants()));
 
       form.setMultiselect(poll.isMultiSelect());
     }
@@ -323,30 +320,28 @@ public class EditTopicController {
       }
     }
 
-    PreparedPoll newPoll = null;
+    Poll newPoll = null;
 
     if (group.isPollPostAllowed() && form.getPoll() != null && tmpl.isModeratorSession()) {
       Poll poll = pollDao.getPollByTopicId(message.getId());
 
-      PreparedPoll orig = pollPrepareService.preparePoll(poll);
-
       List<PollVariant> newVariants = new ArrayList<PollVariant>();
 
-      for (PollVariant v : pollDao.getPollVariants(poll, Poll.ORDER_ID)) {
+      for (PollVariant v : poll.getVariants()) {
         String label = form.getPoll().get(v.getId());
 
         if (!Strings.isNullOrEmpty(label)) {
-          newVariants.add(new PollVariant(v.getId(), label, v.getVotes(), v.getUserVoted()));
+          newVariants.add(new PollVariant(v.getId(), label));
         }
       }
 
       for (String label : form.getNewPoll()) {
         if (!Strings.isNullOrEmpty(label)) {
-          newVariants.add(new PollVariant(0, label, 0, false));
+          newVariants.add(new PollVariant(0, label));
         }
       }
-
-      newPoll = new PreparedPoll(poll, orig.getMaximumValue(), pollDao.getCountUsers(poll), newVariants);
+      
+      newPoll = poll.createNew(newVariants);
     }
 
     String newText;
@@ -386,7 +381,16 @@ public class EditTopicController {
 
     params.put("newMsg", newMsg);
 
-    params.put("newPreparedMessage", messagePrepareService.prepareTopicPreview(newMsg, newTags, newPoll, request.isSecure(), newText));
+    params.put(
+            "newPreparedMessage",
+            messagePrepareService.prepareTopicPreview(
+                    newMsg,
+                    newTags,
+                    newPoll,
+                    request.isSecure(),
+                    newText
+            )
+    );
 
     return new ModelAndView("edit", params);
   }
