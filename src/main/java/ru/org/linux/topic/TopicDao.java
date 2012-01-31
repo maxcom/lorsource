@@ -354,6 +354,7 @@ public class TopicDao {
   public int addMessage(
           HttpServletRequest request,
           AddTopicRequest form,
+          String message,
           Group group,
           User user,
           Screenshot scrn,
@@ -365,7 +366,7 @@ public class TopicDao {
             request,
             scrn,
             user,
-            form.getMsg()
+            message
     );
 
     if (group.isPollPostAllowed()) {
