@@ -286,7 +286,7 @@ public class EditTopicController {
 
     if (message.isHaveLink()) {
       if (message.getUrl() == null) {
-        if (newMsg.getUrl() != null) {
+        if (newMsg.getUrl() != null && ! newMsg.getUrl().trim().isEmpty()) {
           modified = true;
         }
       } else if (!message.getUrl().equals(newMsg.getUrl())) {
@@ -304,7 +304,7 @@ public class EditTopicController {
 
     List<String> newTags = null;
 
-    if (form.getTags()!=null) {
+    if (form.getTags()!=null && !form.getTags().trim().isEmpty()) {
       newTags = TagDao.parseSanitizeTags(form.getTags());
     }
 

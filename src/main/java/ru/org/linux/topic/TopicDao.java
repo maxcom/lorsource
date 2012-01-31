@@ -446,7 +446,6 @@ public class TopicDao {
     if (oldMsg.isMinor() != msg.isMinor()) {
       namedJdbcTemplate.update("UPDATE topics SET minor=:minor WHERE id=:id",
               ImmutableMap.of("minor", msg.isMinor(), "id", msg.getId()));
-      modified = true;
     }
 
     if (modified) {
