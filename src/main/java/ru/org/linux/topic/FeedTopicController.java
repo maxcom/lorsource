@@ -436,7 +436,7 @@ public class FeedTopicController {
 
     Calendar calendar = Calendar.getInstance();
     calendar.setTime(new Date());
-    calendar.add(Calendar.MONTH, -1);
+    calendar.add(Calendar.MONTH, 0);
 
     List<Topic> messages = feedTopicService.getAllTopicsFeed(section, calendar.getTime());
     modelAndView.addObject(
