@@ -349,11 +349,11 @@ public class FeedTopicController {
     modelAndView.addObject("navtitle", "Сообщения " + user.getNick());
 
     modelAndView.addObject("offsetNavigation", true);
-    modelAndView.addObject("offset", offset);
 
     modelAndView.addObject("rssLink", "/people/" + nick + "/?output=rss");
 
     offset = feedTopicService.fixOffset(offset);
+    modelAndView.addObject("offset", offset);
 
     List<Topic> messages = feedTopicService.getUserTopicsFeed(user, offset, false);
     prepareTopicsForPlainOrRss(request, modelAndView, output, messages);
