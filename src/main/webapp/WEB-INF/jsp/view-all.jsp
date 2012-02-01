@@ -18,7 +18,7 @@
   --%>
 <%--@elvariable id="messages" type="java.util.List<ru.org.linux.topic.PersonalizedPreparedTopic>"--%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
-<%--@elvariable id="deletedTopics" type="java.util.List<ru.org.linux.topic.FeedTopicDto.DeletedTopic>"--%>
+<%--@elvariable id="deletedTopics" type="java.util.List<ru.org.linux.topic.TopicListDto.DeletedTopic>"--%>
 <%--@elvariable id="sections" type="java.util.List<ru.org.linux.section.Section>"--%>
 <%--@elvariable id="section" type="ru.org.linux.section.Section"--%>
 
