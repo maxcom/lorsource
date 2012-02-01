@@ -27,6 +27,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.List;
 
 @Repository
@@ -109,28 +110,13 @@ public class FeedTopicDao {
   }
 
   /**
+   *
+   * @param sectionId
    * @return
    */
-  public List<FeedTopicDto.DeletedTopic> getDeletedTopics() {
-    StringBuilder query = new StringBuilder();
-    query
-      .append("SELECT ")
-      .append("topics.title as subj, nick, groups.section, groups.title as gtitle, topics.id as msgid, ")
-      .append("groups.id as guid, sections.name as ptitle, reason ")
-      .append("FROM topics,groups,users,sections,del_info ")
-      .append("WHERE sections.id=groups.section AND topics.userid=users.id ")
-      .append("AND topics.groupid=groups.id AND sections.moderate AND deleted ")
-      .append("AND del_info.msgid=topics.id AND topics.userid!=del_info.delby ")
-      .append("AND delDate is not null ORDER BY del_info.delDate DESC LIMIT 20");
-
-    return jdbcTemplate.query(
-      query.toString(),
-      rowMapperForDeletedTopics
-    );
-  }
-
   public List<FeedTopicDto.DeletedTopic> getDeletedTopics(Integer sectionId) {
     StringBuilder query = new StringBuilder();
+    List <Object> queryParameters = new ArrayList<Object>();
 
     query
       .append("SELECT ")
@@ -140,11 +126,17 @@ public class FeedTopicDao {
       .append("WHERE sections.id=groups.section AND topics.userid=users.id ")
       .append("AND topics.groupid=groups.id AND sections.moderate AND deleted ")
       .append("AND del_info.msgid=topics.id AND topics.userid!=del_info.delby ")
-      .append("AND delDate is not null AND section=? ORDER BY del_info.delDate DESC LIMIT 20");
+      .append("AND delDate is not null ");
+      if (sectionId != null && sectionId.intValue() != 0) {
+        query.append(" AND section=? ");
+        queryParameters.add(sectionId);
+      }
+      query.append(" ORDER BY del_info.delDate DESC LIMIT 20");
+
     return jdbcTemplate.query(
       query.toString(),
-      rowMapperForDeletedTopics,
-      sectionId
+      queryParameters.toArray(),
+      rowMapperForDeletedTopics
     );
   }
 
@@ -170,16 +162,23 @@ public class FeedTopicDao {
     where.append(feedTopicDto.getCommitMode().getQueryPiece());
 
     if (!feedTopicDto.getSections().isEmpty()) {
-      where.append(" AND section in (");
-      boolean first = true;
-      for (int section : feedTopicDto.getSections()) {
-        if (!first) {
-          where.append(',');
+      StringBuilder whereSections = new StringBuilder();
+
+      for (Integer section : feedTopicDto.getSections()) {
+        if (section == null || section.intValue() == 0) {
+          continue;
         }
-        where.append(section);
-        first = false;
+        if (whereSections.length() != 0) {
+          whereSections.append(',');
+        }
+        whereSections.append(section);
       }
-      where.append(')');
+      if (whereSections.length() != 0) {
+        where
+          .append(" AND section in (")
+          .append(whereSections)
+          .append(')');
+      }
     }
 
     if (feedTopicDto.getGroup() != 0) {

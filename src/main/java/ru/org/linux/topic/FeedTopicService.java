@@ -101,7 +101,7 @@ public class FeedTopicService {
       feedTopicDto.setDateLimitType(FeedTopicDto.DateLimitType.BETWEEN);
       Calendar calendar = Calendar.getInstance();
 
-      calendar.set(year, month-1, 1);
+      calendar.set(year, month - 1, 1);
       feedTopicDto.setFromDate(calendar.getTime());
 
       calendar.add(Calendar.MONTH, 1);
@@ -132,7 +132,7 @@ public class FeedTopicService {
     logger.debug(
       new StringBuilder()
         .append("FeedTopicService.getTopicsFeed()")
-        .append("; user=").append((user != null) ?user.toString(): "(null)")
+        .append("; user=").append((user != null) ? user.toString() : "(null)")
         .append("; offset=").append(offset)
         .toString()
     );
@@ -245,11 +245,7 @@ public class FeedTopicService {
         .toString()
     );
 
-    if (sectionId == null) {
-      return feedTopicDao.getDeletedTopics();
-    } else {
-      return feedTopicDao.getDeletedTopics(sectionId);
-    }
+    return feedTopicDao.getDeletedTopics(sectionId);
   }
 
   public List<Topic> getMainPageFeed(boolean isShowGalleryOnMain) {
