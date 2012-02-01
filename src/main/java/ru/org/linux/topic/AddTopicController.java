@@ -17,6 +17,8 @@ package ru.org.linux.topic;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.ApplicationObjectSupport;
 import org.springframework.stereotype.Controller;
@@ -61,6 +63,8 @@ import java.util.*;
 
 @Controller
 public class AddTopicController extends ApplicationObjectSupport {
+  private static final Log logger = LogFactory.getLog(AddTopicController.class);
+
   private SearchQueueSender searchQueueSender;
   private CaptchaService captcha;
   private FloodProtector dupeProtector;
@@ -267,7 +271,7 @@ public class AddTopicController extends ApplicationObjectSupport {
 
     if (group!=null) {
       previewMsg = new Topic(form, user, request.getRemoteAddr());
-      params.put("message", prepareService.prepareTopicPreview(previewMsg, TagDao.parseSanitizeTags(form.getTags()), poll, request.isSecure(), form.getMsg()));
+      params.put("message", prepareService.prepareTopicPreview(previewMsg, TagDao.parseSanitizeTags(form.getTags()), poll, request.isSecure(), message));
     }
 
     if (!form.isPreviewMode() && !errors.hasErrors() && !session.getId().equals(request.getParameter("session"))) {
@@ -292,6 +296,7 @@ public class AddTopicController extends ApplicationObjectSupport {
       int msgid = messageDao.addMessage(
               request,
               form,
+              message,
               group,
               user,
               scrn,
