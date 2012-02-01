@@ -31,7 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Repository
-public class FeedTopicDao {
+public class TopicListDao {
   public static enum CommitMode {
     COMMITED_ONLY(" AND sections.moderate AND commitdate is not null "),
     UNCOMMITED_ONLY(" AND (NOT topics.moderate) AND sections.moderate "),
@@ -50,9 +50,9 @@ public class FeedTopicDao {
     }
   }
 
-  private static final Log logger = LogFactory.getLog(FeedTopicDao.class);
+  private static final Log logger = LogFactory.getLog(TopicListDao.class);
 
-  private static final RowMapper<FeedTopicDto.DeletedTopic> rowMapperForDeletedTopics = getRowMapperForDeletedTopics();
+  private static final RowMapper<TopicListDto.DeletedTopic> rowMapperForDeletedTopics = getRowMapperForDeletedTopics();
 
   private JdbcTemplate jdbcTemplate;
 
@@ -65,14 +65,14 @@ public class FeedTopicDao {
   /**
    * Получение список топиков.
    *
-   * @param feedTopicDto объект, содержащий условия выборки
+   * @param topicListDto объект, содержащий условия выборки
    * @return список топиков
    */
-  public List<Topic> getTopics(FeedTopicDto feedTopicDto) {
-    logger.debug("FeedTopicDao.getTopics(); feedTopicDto = " + feedTopicDto.toString());
-    String where = makeConditions(feedTopicDto);
-    String sort = makeSortOrder(feedTopicDto);
-    String limit = makeLimitAndOffset(feedTopicDto);
+  public List<Topic> getTopics(TopicListDto topicListDto) {
+    logger.debug("TopicListDao.getTopics(); topicListDto = " + topicListDto.toString());
+    String where = makeConditions(topicListDto);
+    String sort = makeSortOrder(topicListDto);
+    String limit = makeLimitAndOffset(topicListDto);
 
     StringBuilder query = new StringBuilder();
 
@@ -87,7 +87,7 @@ public class FeedTopicDao {
       .append("FROM topics ")
       .append("INNER JOIN groups ON (groups.id=topics.groupid) ")
       .append("INNER JOIN sections ON (sections.id=groups.section) ");
-    if (feedTopicDto.isUserFavs()) {
+    if (topicListDto.isUserFavs()) {
       query.append("INNER JOIN memories ON (memories.topic = topics.id) ");
     }
     query
@@ -114,7 +114,7 @@ public class FeedTopicDao {
    * @param sectionId
    * @return
    */
-  public List<FeedTopicDto.DeletedTopic> getDeletedTopics(Integer sectionId) {
+  public List<TopicListDto.DeletedTopic> getDeletedTopics(Integer sectionId) {
     StringBuilder query = new StringBuilder();
     List <Object> queryParameters = new ArrayList<Object>();
 
@@ -140,11 +140,11 @@ public class FeedTopicDao {
     );
   }
 
-  private static RowMapper<FeedTopicDto.DeletedTopic> getRowMapperForDeletedTopics() {
-    return new RowMapper<FeedTopicDto.DeletedTopic>() {
+  private static RowMapper<TopicListDto.DeletedTopic> getRowMapperForDeletedTopics() {
+    return new RowMapper<TopicListDto.DeletedTopic>() {
       @Override
-      public FeedTopicDto.DeletedTopic mapRow(ResultSet rs, int rowNum) throws SQLException {
-        return new FeedTopicDto.DeletedTopic(rs);
+      public TopicListDto.DeletedTopic mapRow(ResultSet rs, int rowNum) throws SQLException {
+        return new TopicListDto.DeletedTopic(rs);
       }
     };
   }
@@ -152,19 +152,19 @@ public class FeedTopicDao {
   /**
    * Создание условий выборки SQL-запроса.
    *
-   * @param feedTopicDto объект, содержащий условия выборки
+   * @param topicListDto объект, содержащий условия выборки
    * @return строка, содержащая условия выборки SQL-запроса
    */
-  private String makeConditions(FeedTopicDto feedTopicDto) {
+  private String makeConditions(TopicListDto topicListDto) {
     StringBuilder where = new StringBuilder(
       "NOT deleted"
     );
-    where.append(feedTopicDto.getCommitMode().getQueryPiece());
+    where.append(topicListDto.getCommitMode().getQueryPiece());
 
-    if (!feedTopicDto.getSections().isEmpty()) {
+    if (!topicListDto.getSections().isEmpty()) {
       StringBuilder whereSections = new StringBuilder();
 
-      for (Integer section : feedTopicDto.getSections()) {
+      for (Integer section : topicListDto.getSections()) {
         if (section == null || section.intValue() == 0) {
           continue;
         }
@@ -181,55 +181,55 @@ public class FeedTopicDao {
       }
     }
 
-    if (feedTopicDto.getGroup() != 0) {
+    if (topicListDto.getGroup() != 0) {
       where
         .append(" AND groupid=")
-        .append(feedTopicDto.getGroup());
+        .append(topicListDto.getGroup());
     }
 
     DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-    switch (feedTopicDto.getDateLimitType()) {
+    switch (topicListDto.getDateLimitType()) {
       case BETWEEN:
         where
           .append(" AND postdate>='")
-          .append(dateFormat.format(feedTopicDto.getFromDate()))
+          .append(dateFormat.format(topicListDto.getFromDate()))
           .append("'::timestamp AND postdate<'")
-          .append(dateFormat.format(feedTopicDto.getToDate()))
+          .append(dateFormat.format(topicListDto.getToDate()))
           .append("'::timestamp ");
         break;
       case MONTH_AGO:
         where
           .append("AND postdate>'")
-          .append(dateFormat.format(feedTopicDto.getFromDate()))
+          .append(dateFormat.format(topicListDto.getFromDate()))
           .append("'::timestamp ");
         break;
       default:
     }
 
-    if (feedTopicDto.getUserId() != 0) {
-      if (feedTopicDto.isUserFavs()) {
+    if (topicListDto.getUserId() != 0) {
+      if (topicListDto.isUserFavs()) {
         where
           .append(" AND memories.userid=")
-          .append(feedTopicDto.getUserId());
+          .append(topicListDto.getUserId());
       } else {
         where
           .append(" AND userid=")
-          .append(feedTopicDto.getUserId());
+          .append(topicListDto.getUserId());
       }
     }
 
-    if (feedTopicDto.isNotalks()) {
+    if (topicListDto.isNotalks()) {
       where.append(" AND not topics.groupid=8404");
     }
 
-    if (feedTopicDto.isTech()) {
+    if (topicListDto.isTech()) {
       where.append(" AND not topics.groupid=8404 AND not topics.groupid=4068 AND groups.section=2");
     }
 
-    if (feedTopicDto.getTag() != 0) {
+    if (topicListDto.getTag() != 0) {
       where
         .append(" AND topics.moderate AND topics.id IN (SELECT msgid FROM tags WHERE tagid=")
-        .append(feedTopicDto.getTag())
+        .append(topicListDto.getTag())
         .append(')');
     }
     return where.toString();
@@ -238,15 +238,15 @@ public class FeedTopicDao {
   /**
    * Создание условий сортировки SQL-запроса.
    *
-   * @param feedTopicDto объект, содержащий условия выборки
+   * @param topicListDto объект, содержащий условия выборки
    * @return строка, содержащая условия сортировки
    */
-  private String makeSortOrder(FeedTopicDto feedTopicDto) {
-    if (feedTopicDto.isUserFavs()) {
+  private String makeSortOrder(TopicListDto topicListDto) {
+    if (topicListDto.isUserFavs()) {
       return "ORDER BY memories.id DESC";
     }
 
-    switch (feedTopicDto.getCommitMode()) {
+    switch (topicListDto.getCommitMode()) {
       case COMMITED_ONLY:
         return " ORDER BY commitdate DESC";
       case UNCOMMITED_ONLY:
@@ -261,17 +261,17 @@ public class FeedTopicDao {
   /**
    * Создание ограничений размера результатов SQL-запроса.
    *
-   * @param feedTopicDto объект, содержащий условия выборки
+   * @param topicListDto объект, содержащий условия выборки
    * @return строка, содержащая смещение и количество записей
    */
-  private String makeLimitAndOffset(FeedTopicDto feedTopicDto) {
+  private String makeLimitAndOffset(TopicListDto topicListDto) {
     String limitStr = "";
-    if (feedTopicDto.getLimit() != null) {
-      limitStr += " LIMIT " + feedTopicDto.getLimit().toString();
+    if (topicListDto.getLimit() != null) {
+      limitStr += " LIMIT " + topicListDto.getLimit().toString();
     }
 
-    if (feedTopicDto.getOffset() != null) {
-      limitStr += " OFFSET " + feedTopicDto.getOffset().toString();
+    if (topicListDto.getOffset() != null) {
+      limitStr += " OFFSET " + topicListDto.getOffset().toString();
     }
     return limitStr;
   }
