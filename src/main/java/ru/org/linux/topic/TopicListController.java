@@ -41,14 +41,14 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.*;
 
 @Controller
-public class FeedTopicController {
-  private static final Log logger = LogFactory.getLog(FeedTopicController.class);
+public class TopicListController {
+  private static final Log logger = LogFactory.getLog(TopicListController.class);
 
   @Autowired
   private SectionService sectionService;
 
   @Autowired
-  private FeedTopicService feedTopicService;
+  private TopicListService topicListService;
 
   @Autowired
   private TopicPrepareService prepareService;
@@ -123,9 +123,9 @@ public class FeedTopicController {
     modelAndView.addObject("ptitle", calculatePTitle(section, group, tag, year, month));
     modelAndView.addObject("navtitle", calculateNavTitle(section, tag, group, year, month));
 
-    offset = feedTopicService.fixOffset(offset);
+    offset = topicListService.fixOffset(offset);
 
-    List<Topic> messages = feedTopicService.getTopicsFeed(section, group, tag, offset, year, month);
+    List<Topic> messages = topicListService.getTopicsFeed(section, group, tag, offset, year, month);
 
     Template tmpl = Template.getTemplate(request);
     modelAndView.addObject(
@@ -349,13 +349,13 @@ public class FeedTopicController {
     modelAndView.addObject("navtitle", "Сообщения " + user.getNick());
 
     modelAndView.addObject("offsetNavigation", true);
-    modelAndView.addObject("offset", offset);
 
     modelAndView.addObject("rssLink", "/people/" + nick + "/?output=rss");
 
-    offset = feedTopicService.fixOffset(offset);
+    offset = topicListService.fixOffset(offset);
+    modelAndView.addObject("offset", offset);
 
-    List<Topic> messages = feedTopicService.getUserTopicsFeed(user, offset, false);
+    List<Topic> messages = topicListService.getUserTopicsFeed(user, offset, false);
     prepareTopicsForPlainOrRss(request, modelAndView, output, messages);
     return modelAndView;
   }
@@ -389,8 +389,8 @@ public class FeedTopicController {
     modelAndView.addObject("ptitle", "Избранные сообщения " + user.getNick());
     modelAndView.addObject("navtitle", "Избранные сообщения " + user.getNick());
 
-    offset = feedTopicService.fixOffset(offset);
-    List<Topic> messages = feedTopicService.getUserTopicsFeed(user, offset, false);
+    offset = topicListService.fixOffset(offset);
+    List<Topic> messages = topicListService.getUserTopicsFeed(user, offset, false);
     prepareTopicsForPlainOrRss(request, modelAndView, output, messages);
     return modelAndView;
   }
@@ -438,13 +438,13 @@ public class FeedTopicController {
     calendar.setTime(new Date());
     calendar.add(Calendar.MONTH, -1);
 
-    List<Topic> messages = feedTopicService.getAllTopicsFeed(section, calendar.getTime());
+    List<Topic> messages = topicListService.getAllTopicsFeed(section, calendar.getTime());
     modelAndView.addObject(
       "messages",
       prepareService.prepareMessagesForUser(messages, request.isSecure(), tmpl.getCurrentUser())
     );
 
-    List<FeedTopicDto.DeletedTopic> deleted = feedTopicService.getDeletedTopicsFeed(sectionId);
+    List<TopicListDto.DeletedTopic> deleted = topicListService.getDeletedTopicsFeed(sectionId);
 
     modelAndView.addObject("deletedTopics", deleted);
     modelAndView.addObject("sections", sectionService.getSectionList());
@@ -544,7 +544,7 @@ public class FeedTopicController {
     calendar.add(Calendar.MONTH, -3);
 
     List<Topic> messages =
-      feedTopicService.getRssTopicsFeed(section, group, calendar.getTime(), notalks, tech, feedBurner);
+      topicListService.getRssTopicsFeed(section, group, calendar.getTime(), notalks, tech, feedBurner);
 
     modelAndView.addObject("messages", prepareService.prepareMessages(messages, request.isSecure()));
     return modelAndView;
