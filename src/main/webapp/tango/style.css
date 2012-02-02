@@ -198,9 +198,8 @@ p {
 }
 
 #bd .forum table tbody td {
-    padding: 0.1em 0.1em 0.1em 0.25em;
+    padding-left: 4px;
     border: 1px solid;
-
 }
 
 #bd .forum table th {

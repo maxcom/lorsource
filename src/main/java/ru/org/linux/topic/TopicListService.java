@@ -31,14 +31,14 @@ import java.util.Date;
 import java.util.List;
 
 @Service
-public class FeedTopicService {
-  private static final Log logger = LogFactory.getLog(FeedTopicService.class);
+public class TopicListService {
+  private static final Log logger = LogFactory.getLog(TopicListService.class);
 
   @Autowired
   private TagDao tagDao;
 
   @Autowired
-  private FeedTopicDao feedTopicDao;
+  private TopicListDao topicListDao;
 
   @Autowired
   private CacheProvider cacheProvider;
@@ -68,7 +68,7 @@ public class FeedTopicService {
     throws UserErrorException, TagNotFoundException {
     logger.debug(
       new StringBuilder()
-        .append("FeedTopicService.getTopicsFeed()")
+        .append("TopicListService.getTopicsFeed()")
         .append("; section=").append((section != null) ? section.toString() : "(null)")
         .append("; group=").append((group != null) ? group.toString() : "(null)")
         .append("; tag=").append(tag)
@@ -78,47 +78,47 @@ public class FeedTopicService {
         .toString()
     );
 
-    FeedTopicDto feedTopicDto = new FeedTopicDto();
+    TopicListDto topicListDto = new TopicListDto();
 
     if (section != null) {
-      feedTopicDto.getSections().add(section.getId());
+      topicListDto.getSections().add(section.getId());
       if (section.isPremoderated()) {
-        feedTopicDto.setCommitMode(FeedTopicDao.CommitMode.COMMITED_ONLY);
+        topicListDto.setCommitMode(TopicListDao.CommitMode.COMMITED_ONLY);
       } else {
-        feedTopicDto.setCommitMode(FeedTopicDao.CommitMode.POSTMODERATED_ONLY);
+        topicListDto.setCommitMode(TopicListDao.CommitMode.POSTMODERATED_ONLY);
       }
     }
 
     if (group != null) {
-      feedTopicDto.setGroup(group.getId());
+      topicListDto.setGroup(group.getId());
     }
 
     if (tag != null) {
-      feedTopicDto.setTag(tagDao.getTagId(tag));
+      topicListDto.setTag(tagDao.getTagId(tag));
     }
 
     if (month != null && year != null) {
-      feedTopicDto.setDateLimitType(FeedTopicDto.DateLimitType.BETWEEN);
+      topicListDto.setDateLimitType(TopicListDto.DateLimitType.BETWEEN);
       Calendar calendar = Calendar.getInstance();
 
       calendar.set(year, month - 1, 1);
-      feedTopicDto.setFromDate(calendar.getTime());
+      topicListDto.setFromDate(calendar.getTime());
 
       calendar.add(Calendar.MONTH, 1);
-      feedTopicDto.setToDate(calendar.getTime());
+      topicListDto.setToDate(calendar.getTime());
     } else {
 
-      feedTopicDto.setLimit(20);
-      feedTopicDto.setOffset(offset > 0 ? offset : null);
+      topicListDto.setLimit(20);
+      topicListDto.setOffset(offset > 0 ? offset : null);
       if (tag == null && group == null && !section.isPremoderated()) {
-        feedTopicDto.setDateLimitType(FeedTopicDto.DateLimitType.MONTH_AGO);
+        topicListDto.setDateLimitType(TopicListDto.DateLimitType.MONTH_AGO);
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Date());
         calendar.add(Calendar.MONTH, -6);
-        feedTopicDto.setFromDate(calendar.getTime());
+        topicListDto.setFromDate(calendar.getTime());
       }
     }
-    return getCachedFeed(feedTopicDto);
+    return getCachedFeed(topicListDto);
   }
 
   /**
@@ -131,20 +131,20 @@ public class FeedTopicService {
   public List<Topic> getUserTopicsFeed(User user, Integer offset, boolean isFavorite) {
     logger.debug(
       new StringBuilder()
-        .append("FeedTopicService.getTopicsFeed()")
+        .append("TopicListService.getTopicsFeed()")
         .append("; user=").append((user != null) ? user.toString() : "(null)")
         .append("; offset=").append(offset)
         .toString()
     );
 
-    FeedTopicDto feedTopicDto = new FeedTopicDto();
-    feedTopicDto.setLimit(20);
-    feedTopicDto.setOffset(offset);
-    feedTopicDto.setCommitMode(FeedTopicDao.CommitMode.ALL);
-    feedTopicDto.setUserId(user.getId());
-    feedTopicDto.setUserFavs(isFavorite);
+    TopicListDto topicListDto = new TopicListDto();
+    topicListDto.setLimit(20);
+    topicListDto.setOffset(offset);
+    topicListDto.setCommitMode(TopicListDao.CommitMode.ALL);
+    topicListDto.setUserId(user.getId());
+    topicListDto.setUserFavs(isFavorite);
 
-    return getCachedFeed(feedTopicDto);
+    return getCachedFeed(topicListDto);
   }
 
   /**
@@ -168,7 +168,7 @@ public class FeedTopicService {
   ) {
     logger.debug(
       new StringBuilder()
-        .append("FeedTopicService.getRssTopicsFeed()")
+        .append("TopicListService.getRssTopicsFeed()")
         .append("; section=").append((section != null) ? section.toString() : "(null)")
         .append("; group=").append((group != null) ? group.toString() : "(null)")
         .append("; fromDate=").append(fromDate)
@@ -178,30 +178,30 @@ public class FeedTopicService {
         .toString()
     );
 
-    FeedTopicDto feedTopicDto = new FeedTopicDto();
+    TopicListDto topicListDto = new TopicListDto();
 
     if (section != null) {
-      feedTopicDto.getSections().add(section.getId());
+      topicListDto.getSections().add(section.getId());
     }
     if (group != null) {
-      feedTopicDto.setGroup(group.getId());
+      topicListDto.setGroup(group.getId());
     }
 
-    feedTopicDto.setDateLimitType(FeedTopicDto.DateLimitType.MONTH_AGO);
-    feedTopicDto.setFromDate(fromDate);
+    topicListDto.setDateLimitType(TopicListDto.DateLimitType.MONTH_AGO);
+    topicListDto.setFromDate(fromDate);
 
-    feedTopicDto.setNotalks(noTalks);
-    feedTopicDto.setTech(tech);
-    feedTopicDto.setLimit(20);
+    topicListDto.setNotalks(noTalks);
+    topicListDto.setTech(tech);
+    topicListDto.setLimit(20);
 
     if (section.isPremoderated()) {
-      feedTopicDto.setCommitMode(FeedTopicDao.CommitMode.COMMITED_ONLY);
+      topicListDto.setCommitMode(TopicListDao.CommitMode.COMMITED_ONLY);
     } else {
-      feedTopicDto.setCommitMode(FeedTopicDao.CommitMode.POSTMODERATED_ONLY);
+      topicListDto.setCommitMode(TopicListDao.CommitMode.POSTMODERATED_ONLY);
     }
     return (feedBurner)
-      ? feedTopicDao.getTopics(feedTopicDto)
-      : getCachedFeed(feedTopicDto);
+      ? topicListDao.getTopics(topicListDto)
+      : getCachedFeed(topicListDto);
   }
 
   /**
@@ -215,63 +215,63 @@ public class FeedTopicService {
   ) {
     logger.debug(
       new StringBuilder()
-        .append("FeedTopicService.getAllTopicsFeed()")
+        .append("TopicListService.getAllTopicsFeed()")
         .append("; section=").append((section != null) ? section.toString() : "(null)")
         .append("; fromDate=").append(fromDate)
         .toString()
     );
 
-    FeedTopicDto feedTopicDto = new FeedTopicDto();
-    feedTopicDto.setCommitMode(FeedTopicDao.CommitMode.UNCOMMITED_ONLY);
+    TopicListDto topicListDto = new TopicListDto();
+    topicListDto.setCommitMode(TopicListDao.CommitMode.UNCOMMITED_ONLY);
     if (section != null) {
-      feedTopicDto.getSections().add(section.getId());
+      topicListDto.getSections().add(section.getId());
     }
 
-    feedTopicDto.setDateLimitType(FeedTopicDto.DateLimitType.MONTH_AGO);
-    feedTopicDto.setFromDate(fromDate);
+    topicListDto.setDateLimitType(TopicListDto.DateLimitType.MONTH_AGO);
+    topicListDto.setFromDate(fromDate);
 
-    return getCachedFeed(feedTopicDto);
+    return getCachedFeed(topicListDto);
   }
 
   /**
    * @param sectionId
    * @return
    */
-  public List<FeedTopicDto.DeletedTopic> getDeletedTopicsFeed(Integer sectionId) {
+  public List<TopicListDto.DeletedTopic> getDeletedTopicsFeed(Integer sectionId) {
     logger.debug(
       new StringBuilder()
-        .append("FeedTopicService.getDeletedTopicsFeed()")
+        .append("TopicListService.getDeletedTopicsFeed()")
         .append("; sectionId=").append(sectionId)
         .toString()
     );
 
-    return feedTopicDao.getDeletedTopics(sectionId);
+    return topicListDao.getDeletedTopics(sectionId);
   }
 
   public List<Topic> getMainPageFeed(boolean isShowGalleryOnMain) {
     logger.debug(
       new StringBuilder()
-        .append("FeedTopicService.getMainPageFeed()")
+        .append("TopicListService.getMainPageFeed()")
         .append("; isShowGalleryOnMain=").append(isShowGalleryOnMain)
         .toString()
     );
 
-    FeedTopicDto feedTopicDto = new FeedTopicDto();
+    TopicListDto topicListDto = new TopicListDto();
 
-    feedTopicDto.getSections().add(Section.SECTION_NEWS);
-    feedTopicDto.setLimit(20);
-    feedTopicDto.setDateLimitType(FeedTopicDto.DateLimitType.MONTH_AGO);
+    topicListDto.getSections().add(Section.SECTION_NEWS);
+    topicListDto.setLimit(20);
+    topicListDto.setDateLimitType(TopicListDto.DateLimitType.MONTH_AGO);
 
     Calendar calendar = Calendar.getInstance();
     calendar.setTime(new Date());
     calendar.add(Calendar.MONTH, -1);
-    feedTopicDto.setFromDate(calendar.getTime());
-    feedTopicDto.setCommitMode(FeedTopicDao.CommitMode.COMMITED_ONLY);
+    topicListDto.setFromDate(calendar.getTime());
+    topicListDto.setCommitMode(TopicListDao.CommitMode.COMMITED_ONLY);
 
     if (isShowGalleryOnMain) {
-      feedTopicDto.getSections().add(Section.SECTION_GALLERY);
+      topicListDto.getSections().add(Section.SECTION_GALLERY);
     }
-    return getCachedFeed(feedTopicDto);
+    return getCachedFeed(topicListDto);
   }
 
 
@@ -300,27 +300,27 @@ public class FeedTopicService {
   /**
    * Получение списка топиков из кэша или из СУБД.
    *
-   * @param feedTopicDto объект, содержащий условия выборки
+   * @param topicListDto объект, содержащий условия выборки
    * @return список топиков
    */
-  private List<Topic> getCachedFeed(FeedTopicDto feedTopicDto) {
-    int cacheAge = getCacheAge(feedTopicDto);
+  private List<Topic> getCachedFeed(TopicListDto topicListDto) {
+    int cacheAge = getCacheAge(topicListDto);
     if (cacheAge == 0) {
-      return feedTopicDao.getTopics(feedTopicDto);
+      return topicListDao.getTopics(topicListDto);
     }
 
     String cacheKey = null;
     try {
-      cacheKey = makeCacheKey(feedTopicDto);
+      cacheKey = makeCacheKey(topicListDto);
       logger.trace("cacheKey=" + cacheKey);
     } catch (UnsupportedEncodingException e) {
       logger.error("Fail to create cache key", e);
-      return feedTopicDao.getTopics(feedTopicDto);
+      return topicListDao.getTopics(topicListDto);
     }
 
     List<Topic> result = (List<Topic>) cacheProvider.getFromCache(cacheKey);
     if (result == null) {
-      result = feedTopicDao.getTopics(feedTopicDto);
+      result = topicListDao.getTopics(topicListDto);
       cacheProvider.storeToCache(cacheKey, result, cacheAge);
     }
     return result;
@@ -329,34 +329,34 @@ public class FeedTopicService {
   /**
    * Создание уникального ключа для кэша согласно условиям выборки.
    *
-   * @param feedTopicDto объект, содержащий условия выборки
+   * @param topicListDto объект, содержащий условия выборки
    * @return Строка, содержащая уникальный ключ кэша
    * @throws UnsupportedEncodingException
    */
-  private String makeCacheKey(FeedTopicDto feedTopicDto)
+  private String makeCacheKey(TopicListDto topicListDto)
     throws UnsupportedEncodingException {
     URLUtil.QueryString queryString = new URLUtil.QueryString();
-    queryString.add("tg", feedTopicDto.getTag());
-    queryString.add("cm", feedTopicDto.getCommitMode());
+    queryString.add("tg", topicListDto.getTag());
+    queryString.add("cm", topicListDto.getCommitMode());
 
 
-    for (int section : feedTopicDto.getSections()) {
+    for (int section : topicListDto.getSections()) {
       queryString.add("sec", section);
     }
-    queryString.add("grp", feedTopicDto.getGroup());
+    queryString.add("grp", topicListDto.getGroup());
 
-    queryString.add("dlmtType", feedTopicDto.getDateLimitType());
-    queryString.add("dlmt1", feedTopicDto.getFromDate());
-    queryString.add("dlmt2", feedTopicDto.getToDate());
-    if (feedTopicDto.getUserId() != 0) {
-      queryString.add("u", feedTopicDto.getUserId());
+    queryString.add("dlmtType", topicListDto.getDateLimitType());
+    queryString.add("dlmt1", topicListDto.getFromDate());
+    queryString.add("dlmt2", topicListDto.getToDate());
+    if (topicListDto.getUserId() != 0) {
+      queryString.add("u", topicListDto.getUserId());
     }
 
-    queryString.add("f", feedTopicDto.isUserFavs());
-    queryString.add("lmt", feedTopicDto.getLimit());
-    queryString.add("offst", feedTopicDto.getOffset());
-    queryString.add("notalks", feedTopicDto.isNotalks());
-    queryString.add("tech", feedTopicDto.isTech());
+    queryString.add("f", topicListDto.isUserFavs());
+    queryString.add("lmt", topicListDto.getLimit());
+    queryString.add("offst", topicListDto.getOffset());
+    queryString.add("notalks", topicListDto.isNotalks());
+    queryString.add("tech", topicListDto.isTech());
 
     return "view-news?" + queryString.toString();
   }
@@ -364,15 +364,15 @@ public class FeedTopicService {
   /**
    * Получение "времени жизни" данных в кэше.
    *
-   * @param feedTopicDto объект, содержащий условия выборки
+   * @param topicListDto объект, содержащий условия выборки
    * @return количество миллисекунд.
    */
-  private int getCacheAge(FeedTopicDto feedTopicDto) {
-    if (feedTopicDto.getLimit() == null || feedTopicDto.getLimit().equals(0)) {
+  private int getCacheAge(TopicListDto topicListDto) {
+    if (topicListDto.getLimit() == null || topicListDto.getLimit().equals(0)) {
       return 10 * 60 * 1000;
     }
 
-    if (feedTopicDto.getCommitMode() == FeedTopicDao.CommitMode.COMMITED_ONLY) {
+    if (topicListDto.getCommitMode() == TopicListDao.CommitMode.COMMITED_ONLY) {
       return 0;
     }
 

@@ -21,7 +21,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-public class FeedTopicDto {
+public class TopicListDto {
   public enum DateLimitType {
     NONE,
     BETWEEN,
@@ -30,7 +30,7 @@ public class FeedTopicDto {
 
   ;
 
-  private FeedTopicDao.CommitMode commitMode = FeedTopicDao.CommitMode.COMMITED_AND_POSTMODERATED;
+  private TopicListDao.CommitMode commitMode = TopicListDao.CommitMode.COMMITED_AND_POSTMODERATED;
 
   private final Set<Integer> sections = new HashSet<Integer>();
   private int userId = 0;
@@ -50,11 +50,11 @@ public class FeedTopicDto {
     return sections;
   }
 
-  public FeedTopicDao.CommitMode getCommitMode() {
+  public TopicListDao.CommitMode getCommitMode() {
     return commitMode;
   }
 
-  public void setCommitMode(FeedTopicDao.CommitMode commitMode) {
+  public void setCommitMode(TopicListDao.CommitMode commitMode) {
     this.commitMode = commitMode;
   }
 
@@ -148,7 +148,7 @@ public class FeedTopicDto {
 
   public String toString() {
     return new StringBuilder()
-      .append(FeedTopicDto.class.toString())
+      .append(TopicListDto.class.toString())
       .append("[")
       .append("commitMode=").append(commitMode)
       .append("; userId=").append(userId)

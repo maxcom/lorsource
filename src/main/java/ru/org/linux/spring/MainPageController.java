@@ -21,7 +21,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import ru.org.linux.site.Template;
-import ru.org.linux.topic.FeedTopicService;
+import ru.org.linux.topic.TopicListService;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicPrepareService;
 
@@ -35,7 +35,7 @@ public class MainPageController {
   private TopicPrepareService prepareService;
 
   @Autowired
-  private FeedTopicService feedTopicService;
+  private TopicListService topicListService;
 
   private JdbcTemplate jdbcTemplate;
 
@@ -48,7 +48,7 @@ public class MainPageController {
   public ModelAndView mainPage(HttpServletRequest request) {
     Template tmpl = Template.getTemplate(request);
 
-    List<Topic> messages = feedTopicService.getMainPageFeed(tmpl.getProf().isShowGalleryOnMain());
+    List<Topic> messages = topicListService.getMainPageFeed(tmpl.getProf().isShowGalleryOnMain());
 
     ModelAndView mv = new ModelAndView("index");
 

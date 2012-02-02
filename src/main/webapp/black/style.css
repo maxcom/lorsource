@@ -102,10 +102,6 @@ DIV.forum A { text-decoration: none }
   background: #000040;
 }
 
-table.nav>tbody>tr>td {
-  border: #808080 1px solid; 
-}
-
 .newsblog .nav {
 //  background-color: black;
 }
