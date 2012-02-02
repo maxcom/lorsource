@@ -28,7 +28,6 @@
 
 </head>
 <body>
-<div id="doc3" class="yui-t5">
   	<div id="hd">
         <div id="loginGreating" class="head">
         <c:if test="${template.sessionAuthorized}">
