@@ -36,6 +36,12 @@
   response.setDateHeader("Last-Modified", new Date(new Date().getTime() - 2 * 1000).getTime());
 
 %>
+<style type="text/css">
+    #samsung_text { margin-left: 135px; }
+    @media screen and (max-width: 640px) {
+        #samsung_text { margin-left: 0; }
+    }
+</style>
 <jsp:include page="/WEB-INF/jsp/header-main.jsp"/>
 <%
   boolean columns3 = tmpl.getProf().isThreeColumnsOnMain();
@@ -49,8 +55,8 @@
 
 <c:if test="${template.style != 'black'}">
   <div class="infoblock" style="border: 1px solid #777; text-align: justify;">
-    <a rel="nofollow" href="http://job.samsung.ru/"><img width="130" height="43" src="/adv/Samsung_Logo.png" alt="" style="float: left; border: 0"></a>
-    <div style="margin-left: 135px">
+    <a rel="nofollow" href="http://job.samsung.ru/"><img width="130" height="43" src="/adv/Samsung_Logo.png" alt="" style="float: left; border: 0; padding-right: 5px"></a>
+    <div id="samsung_text">
     SAMSUNG Electronics&nbsp;&mdash; мировой лидер в&nbsp;производстве полупроводников,
     телекоммуникационного оборудования и&nbsp;цифровой конвергенции&nbsp;&mdash;
     объявляет о&nbsp;приеме на&nbsp;работу инженеров-программистов,
