@@ -344,3 +344,27 @@ div.quote {
     margin-top: 5px;
     margin-bottom: 5px;
 }
+
+@media screen and (max-width: 800px) {
+    div.newsblog {
+        float: none;
+        margin-left: 0;
+    }
+
+    .newsblog-in {
+        margin-left: 0;
+    }
+
+    div.column {
+        width: 100%;
+        float: none;
+    }
+
+    div.boxlet {
+        width: 100%;
+    }
+
+    div.boxlet h2 {
+        width: 100%;
+    }
+}
