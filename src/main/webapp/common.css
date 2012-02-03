@@ -407,3 +407,8 @@ div.quote p cite {
 #warning-text p { margin: 0.1em !important; }
 #warning-logo { float: right;}
 #warning-footer { clear: both; }
+
+textarea, input {
+    max-width: 100%;
+}
+

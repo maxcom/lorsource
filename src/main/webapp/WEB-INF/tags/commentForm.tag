@@ -42,8 +42,8 @@
     <input type=hidden name=replyto value="<%= replyto %>">
   </c:if>
 
-  <label for="title">Заглавие:</label>
-  <input type=text id="title" name=title size=40 value="<%= title %>"><br>
+  <label for="title">Заглавие:</label><br>
+  <input type=text id="title" name=title style="width: 40em" value="<%= title %>"><br>
 
   <label for="msg">Сообщение:</label><br>
   <font size=2>(В режиме <i>Tex paragraphs</i> игнорируются переносы строк.<br> Пустая строка (два
@@ -51,7 +51,7 @@
     цитирования)</font><br>
   <font size="2"><b>Внимание:</b> Новый режим - <a href="/wiki/en/Lorcode" target="_blank">LORCODE</a></font><br>
 
-  <textarea id="msg" class="required" name="msg" cols="70"
+  <textarea id="msg" class="required" name="msg" style="width: 40em"
             rows="20"><%= msg == null ? "" : StringUtil.escapeHtml(msg)
   %></textarea><br>
 

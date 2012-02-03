@@ -94,8 +94,8 @@
 
   <form:hidden path="group"/>
 
-  <label>Заглавие:
-    <form:input path="title" cssClass="required" size="40"/><br>
+  <label>Заглавие:<br>
+    <form:input path="title" cssClass="required" style="width: 40em"/><br>
    </label>
 
   <c:if test="${group!=null and group.imagePostAllowed}">
@@ -119,21 +119,21 @@
 <label for="form_msg">Сообщение:</label><br>
 <font size=2>(В режиме <i>Tex paragraphs</i> игнорируются переносы строк.<br> Пустая строка (два раза Enter) начинает новый абзац)</font><br>
 <font size="2"><b>Внимание:</b> Новый режим - <a href="/wiki/en/Lorcode" target="_blank">LORCODE</a></font><br>
-<form:textarea path="msg" cols="70" rows="20" id="form_msg"/><br>
+<form:textarea path="msg" style="width: 40em" rows="20" id="form_msg"/><br>
 
 <% if (group!=null && group.isLinksAllowed()) { %>
 <label>
-Текст ссылки: <form:input path="linktext" size="60"/>
+Текст ссылки:<br> <form:input path="linktext" style="width: 40em"/>
 </label><br>
 <label>
-Ссылка (не забудьте <b>http://</b>) <form:input path="url" size="70"/>
+Ссылка (не забудьте <b>http://</b>):<br> <form:input path="url" style="width: 40em"/>
 </label><br>
 <% } %>
 <c:if test="${group.moderated}">
     <label>
-    Метки (разделенные запятой)
-    <form:input path="tags" size="70"/>
-    </label><br>
+    Метки (разделенные запятой):<br>
+    <form:input path="tags" style="width: 40em"/>
+    </label><p>
     Популярные теги: <%= TagDao.getEditTags(topTags) %> <br>
 </c:if>
 
