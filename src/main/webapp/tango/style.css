@@ -384,4 +384,17 @@ div.quote {
     #hd {
         padding-left: 0;
     }
+
+    img.photo {
+        max-width: 100%;
+        height: auto;
+    }
+
+    .userpic {
+        width: 50px;
+    }
+
+    .message-w-userpic {
+        padding-left: 60px;
+    }
 }
