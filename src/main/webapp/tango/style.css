@@ -82,7 +82,7 @@ p {
 #hd .menu {
 	text-align: center;
 	margin-top: 0.5em;
-	margin-bottom: 1em;
+	margin-bottom: 0.5em;
 }
 
 #hd .menu li:after {
