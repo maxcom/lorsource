@@ -46,45 +46,47 @@
       ${navtitle}
     </td>
     <td align=right valign=middle>
+      <ul>
       <c:if test="${template.moderatorSession and group!=null}">
-        [<a href="groupmod.jsp?group=${group.id}">Править группу</a>]
+        <li><a href="groupmod.jsp?group=${group.id}">Править группу</a></li>
       </c:if>
       <c:if test="${section != null}">
         <c:if test="${section.premoderated}">
-          [<a href="/view-all.jsp?section=${section.id}">Неподтвержденные</a>]
+          <li><a href="/view-all.jsp?section=${section.id}">Неподтвержденные</a></li>
         </c:if>
         <%
           if (section.isVotePoll()) {
-            out.print("[<a href=\"add.jsp?group=19387\">Добавить голосование</a>]");
+            out.print("<li><a href=\"add.jsp?group=19387\">Добавить</a></li>");
           } else {
             if (group == null) {
-              out.print("[<a href=\"add-section.jsp?section=" + section.getId() + "\">Добавить</a>]");
+              out.print("<li><a href=\"add-section.jsp?section=" + section.getId() + "\">Добавить</a></li>");
             } else {
-              out.print("[<a href=\"add.jsp?group=" + group.getId() + "\">Добавить</a>]");
+              out.print("<li><a href=\"add.jsp?group=" + group.getId() + "\">Добавить</a></li>");
             }
           }
 
           if (section.getId() == Section.SECTION_FORUM) {
             if (group == null) {
-              out.print("[<a href=\"/forum/\">Таблица</a>]");
+              out.print("<li><a href=\"/forum/\">Таблица</a></li>");
             } else {
-              out.print("[<a href=\"/forum/" + group.getUrlName() + "/\">Таблица</a>]");
+              out.print("<li><a href=\"/forum/" + group.getUrlName() + "/\">Таблица</a></li>");
             }
           }
         %>
       </c:if>
 
       <c:if test="${archiveLink != null}">
-        [<a href="${archiveLink}">Архив</a>]
+        <li><a href="${archiveLink}">Архив</a></li>
       </c:if>
 
       <c:if test="${whoisLink != null}">
-        [<a href="${whoisLink}">Профиль</a>]
+        <li><a href="${whoisLink}">Профиль</a><li>
       </c:if>
 
       <c:if test="${rssLink != null}">
-        [<a href="${rssLink}">RSS</a>]
+        <li><a href="${rssLink}">RSS</a></li>
       </c:if>
+      </ul>
     </td>
   </tr>
 </table>
