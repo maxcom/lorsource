@@ -46,9 +46,10 @@
     </td>
 
     <td align=right valign=middle>
-      [<a href="rules.jsp">Правила форума</a>]
-      [<a href="tags.jsp">Метки</a>]
-
+      <ul>
+      <li><a href="rules.jsp">Правила форума</a></li>
+      <li><a href="tags.jsp">Метки</a></li>
+      </ul>
       <select name=section onChange="submit();" title="Быстрый переход">
         <option value=0>Все</option>
         <c:forEach items="${sections}" var="item">
@@ -63,7 +64,6 @@
         </c:forEach>
       </select>
     </td>
-
   </tr>
  </table>
 </form>

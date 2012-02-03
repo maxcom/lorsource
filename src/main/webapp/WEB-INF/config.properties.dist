@@ -13,7 +13,7 @@
 #    limitations under the License.
 #
 
-MainUrl=http://127.0.0.1:8080/
+MainUrl=http://192.168.1.3:8080/
 PathPrefix=target/tmp/
 HTMLPathPrefix=target/lor-1.0-SNAPSHOT/
 Secret=secret
