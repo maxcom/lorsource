@@ -32,6 +32,11 @@ public class MsgbaseDao {
    * Запрос тела сообщения и признака bbcode для сообщения
    */
   private static final String QUERY_MESSAGE_TEXT = "SELECT message, bbcode FROM msgbase WHERE id=?";
+  private static final String QUERY_MESSAGE_TEXT_FROM_WIKI =
+      "    select jam_topic_version.version_content " +
+          "    from jam_topic, jam_topic_version " +
+          "    where jam_topic.current_version_id = jam_topic_version.topic_version_id " +
+          "    and jam_topic.topic_id = ?";
 
   private JdbcTemplate jdbcTemplate;
   private NamedParameterJdbcTemplate namedJdbcTemplate;
@@ -40,6 +45,10 @@ public class MsgbaseDao {
   public void setDataSource(DataSource dataSource) {
     jdbcTemplate = new JdbcTemplate(dataSource);
     namedJdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+  }
+  
+  public String getMessageTextFromWiki(int topic_id) {
+    return jdbcTemplate.queryForObject(QUERY_MESSAGE_TEXT_FROM_WIKI, String.class, topic_id);
   }
 
   public MessageText getMessageText(int msgid) {

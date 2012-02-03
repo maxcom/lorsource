@@ -165,6 +165,7 @@ public class SearchQueueListener {
     doc.addField("id", topic.getId());
 
     doc.addField("section_id", topic.getSectionId());
+    doc.addField("section", topic.getSectionId());
     doc.addField("user_id", topic.getUid());
     doc.addField("topic_user_id", topic.getUid());
     doc.addField("topic_id", topic.getMessageId());
@@ -208,6 +209,7 @@ public class SearchQueueListener {
     doc.addField("id", comment.getId());
 
     doc.addField("section_id", topic.getSectionId());
+    doc.addField("section", topic.getSectionId());
     doc.addField("user_id", comment.getUserid());
     doc.addField("topic_user_id", topic.getUid());
     doc.addField("topic_id", comment.getTopicId());

@@ -31,7 +31,7 @@ public class SearchRequest {
   private String oldQ = "";
   private boolean usertopic = false;
   private User user=null;
-  private int section = 0;
+  private String section = null;
   private SearchOrder sort = SearchOrder.RELEVANCE;
   private int group = 0;
   private SearchInterval interval = SearchInterval.ALL;
@@ -66,11 +66,11 @@ public class SearchRequest {
     this.user = user;
   }
 
-  public int getSection() {
+  public String getSection() {
     return section;
   }
 
-  public void setSection(int section) {
+  public void setSection(String section) {
     this.section = section;
   }
 
@@ -150,8 +150,8 @@ public class SearchRequest {
       params.put("sort", sort.toString());
     }
 
-    if (section!=0) {
-      params.put("section", Integer.toString(section));
+    if (section!=null && !section.isEmpty()) {
+      params.put("section", section);
     }
 
     if (group!=0) {

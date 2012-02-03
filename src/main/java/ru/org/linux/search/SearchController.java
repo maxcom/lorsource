@@ -18,6 +18,8 @@ package ru.org.linux.search;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
 import com.google.common.collect.ImmutableSortedMap;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.FacetField.Count;
@@ -56,6 +58,7 @@ import java.util.Map;
 
 @Controller
 public class SearchController {
+  private static final Log logger = LogFactory.getLog(SearchQueueListener.class);
   private SolrServer solrServer;
   @Autowired
   private SectionService sectionService;
@@ -132,7 +135,7 @@ public class SearchController {
 
     if (!initial && !bindingResult.hasErrors()) {
       if (!query.getQ().equals(query.getOldQ())) {
-        query.setSection(0);
+        query.setSection(null);
         query.setGroup(0);
       }
 
@@ -147,7 +150,7 @@ public class SearchController {
       if (query.getGroup() != 0) {
         Group group = groupDao.getGroup(query.getGroup());
 
-        if (group.getSectionId() != query.getSection()) {
+        if ("wiki".equals(query.getSection()) || group.getSectionId() != Integer.valueOf(query.getSection())) {
           query.setGroup(0);
         }
       }
@@ -163,14 +166,14 @@ public class SearchController {
         res.add(new SearchItem(doc, userDao, msgbaseDao, lorCodeService, request.isSecure()));
       }
 
-      FacetField sectionFacet = response.getFacetField("section_id");
+      FacetField sectionFacet = response.getFacetField("section");
 
       if (sectionFacet != null && sectionFacet.getValueCount() > 1) {
         params.put("sectionFacet", buildSectionFacet(sectionFacet));
       } else if (sectionFacet != null && sectionFacet.getValueCount() == 1) {
         Count first = sectionFacet.getValues().get(0);
 
-        query.setSection(Integer.parseInt(first.getName()));
+        query.setSection(first.getName());
       }
 
       FacetField groupFacet = response.getFacetField("group_id");
@@ -199,37 +202,46 @@ public class SearchController {
     return "search";
   }
 
-  private Map<Integer, String> buildSectionFacet(FacetField sectionFacet) throws SectionNotFoundException {
-    Builder<Integer, String> builder = ImmutableSortedMap.naturalOrder();
+  private Map<String, String> buildSectionFacet(FacetField sectionFacet) throws SectionNotFoundException {
+    Builder<String, String> builder = ImmutableSortedMap.naturalOrder();
 
     int totalCount = 0;
 
     for (Count count : sectionFacet.getValues()) {
-      int sectionId = Integer.parseInt(count.getName());
-
-      String name = sectionService.getSection(sectionId).getName().toLowerCase();
-
-      builder.put(sectionId, name + " (" + count.getCount() + ')');
+      if("wiki".equals(count.getName())) {
+        builder.put(count.getName(), count.getName() + " (" + count.getCount() + ')');
+      } else {
+        int sectionId = Integer.parseInt(count.getName());
+        String name = sectionService.getSection(sectionId).getName().toLowerCase();
+        builder.put(count.getName(), name + " (" + count.getCount() + ')');
+      }
 
       totalCount += count.getCount();
     }
 
-    builder.put(0, "все (" + Integer.toString(totalCount) + ')');
+    builder.put("0", "все (" + Integer.toString(totalCount) + ')');
 
     return builder.build();
   }
 
-  private Map<Integer, String> buildGroupFacet(int sectionId, FacetField groupFacet) throws BadGroupException {
+  private Map<Integer, String> buildGroupFacet(String section, FacetField groupFacet) throws BadGroupException {
     Builder<Integer, String> builder = ImmutableSortedMap.naturalOrder();
+    if (section == null || section.isEmpty() || "wiki".equals(section)) {
+      return null;
+    }
 
     int totalCount = 0;
 
     for (Count count : groupFacet.getValues()) {
+      if("0".equals(count.getName())) {
+        continue;
+      }
+
       int groupId = Integer.parseInt(count.getName());
 
       Group group = groupDao.getGroup(groupId);
 
-      if (group.getSectionId() != sectionId) {
+      if (group.getSectionId() != Integer.valueOf(section)) {
         continue;
       }
 
