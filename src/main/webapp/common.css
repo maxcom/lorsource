@@ -315,6 +315,15 @@ pre code span {
 .nav ul {
     margin-top: inherit !important;
     margin-bottom: inherit !important;
+    display: inline;
+}
+
+.nav li:after {
+	content: "]";
+}
+
+.nav li:before {
+	content: "[";
 }
 
 #whois_userpic {

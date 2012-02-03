@@ -85,21 +85,23 @@
     </td>
 
     <td align=right valign=middle>
-      [<a href="${group.url}archive/">Архив</a>]
+      <ul>
+      <li><a href="${group.url}archive/">Архив</a></li>
       <c:if test="${year==null}">
         <c:if test="${template.moderatorSession}">
-          [<a href="groupmod.jsp?group=${group.id}">Править группу</a>]
+          <li><a href="groupmod.jsp?group=${group.id}">Править группу</a></li>
         </c:if>
 <%
   User currentUser = tmpl.getCurrentUser();
 
   if (group.isTopicPostingAllowed(currentUser)) {
 %>
-      [<a href="add.jsp?group=${group.id}">Добавить сообщение</a>]
+      <li><a href="add.jsp?group=${group.id}">Добавить сообщение</a></li>
 <%
   }
 %>
-  [<a href="section-rss.jsp?section=${group.sectionId}&amp;group=${group.id}">RSS</a>]
+  <li><a href="section-rss.jsp?section=${group.sectionId}&amp;group=${group.id}">RSS</a></li>
+  </ul>
       <select name=group onchange="goto(this);" title="Быстрый переход">
         <c:forEach items="${groupList}" var="item">
           <c:if test="${item.id == group.id}">

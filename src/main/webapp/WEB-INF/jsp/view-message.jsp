@@ -80,14 +80,16 @@
 
     <td align=right>
       <ul>
-      <li>[<a href="${message.link}?output=rss">RSS</a>]</li>
+      <li><a href="${message.link}?output=rss">RSS</a></li>
 
       <c:if test="${!showDeleted}">
         <input type=hidden name=page value="${page}">
         <c:if test="${not template.usingDefaultProfile}">
-           <li>[<a href="ignore-list.jsp">Фильтр</a>]</li>
+           <li><a href="ignore-list.jsp">Фильтр</a></li>
         </c:if>
-        <li><select name="filter" onChange="submit();">
+      </ul>
+
+        <select name="filter" onChange="submit();">
 <%
     out.print("<option value=\"" + CommentFilter.toString(CommentFilter.FILTER_NONE) + '\"' + (filterMode == CommentFilter.FILTER_NONE ? " selected=\"selected\"" : "") + ">все комментарии</option>");
     out.print("<option value=\"" + CommentFilter.toString(CommentFilter.FILTER_ANONYMOUS) + '\"' + ((filterMode&CommentFilter.FILTER_ANONYMOUS)!=0 ? " selected=\"selected\"" : "") + ">без анонимных</option>");
@@ -96,9 +98,8 @@
       out.print("<option value=\"" + CommentFilter.toString(CommentFilter.FILTER_IGNORED) + '\"' + (filterMode == CommentFilter.FILTER_IGNORED ? " selected=\"selected\"" : "") + ">без игнорируемых</option>");
     }
 %>
-          </select></li>
+          </select>
       </c:if>
-        </ul>
     </td>
   </table>
 </form>
