@@ -155,7 +155,7 @@
         <dependency>
             <groupId>org.apache.solr</groupId>
             <artifactId>solr-solrj</artifactId>
-            <version>3.4.0</version>
+            <version>3.5.0</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.apache.zookeeper</groupId>
@@ -394,7 +394,7 @@
                                 <artifactItem>
                                     <groupId>org.apache.solr</groupId>
                                     <artifactId>solr</artifactId>
-                                    <version>3.4.0</version>
+                                    <version>3.5.0</version>
                                     <type>war</type>
                                     <overWrite>false</overWrite>
                                     <outputDirectory>${project.build.directory}/test-wars</outputDirectory>
