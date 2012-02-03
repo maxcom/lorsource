@@ -130,3 +130,13 @@ fieldset legend {
 }
 
 .page-number {background-color: #272c2d;}
+
+.nav li a {
+    border-color: #D4D4D4;
+    background-color: #555753;
+    color: #BABDB6;
+}
+
+#bd .nav li a:visited {
+    color: #BABDB6;
+}

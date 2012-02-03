@@ -167,3 +167,11 @@ div.quote {
   background: #d8d8d8;
 }
 
+.nav li:after {
+	content: "]";
+}
+
+.nav li:before {
+	content: "[";
+}
+

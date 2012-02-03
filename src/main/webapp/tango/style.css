@@ -343,6 +343,23 @@ div.quote {
     margin-bottom: 5px;
 }
 
+.nav li a {
+    margin-left: 0 !important;
+    position: relative;
+    overflow: visible;
+    display: inline-block;
+    padding: 1px 5px;
+    border: 1px solid;
+    margin: 0;
+    font-size: small;
+    white-space: nowrap;
+    outline: none;
+    -webkit-border-radius: 0.2em;
+    -moz-border-radius: 0.2em;
+    border-radius: 0.2em;
+    zoom: 1;
+}
+
 @media screen and (max-width: 800px) {
     div.newsblog {
         float: none;

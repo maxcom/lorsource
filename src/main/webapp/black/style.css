@@ -207,3 +207,11 @@ div.quote {
     padding: 0em 0.5em 0em;
     border-color: #808080; /*#AEA6F2;*/
 }
+
+.nav li:after {
+	content: "]";
+}
+
+.nav li:before {
+	content: "[";
+}

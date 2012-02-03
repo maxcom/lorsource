@@ -318,14 +318,6 @@ pre code span {
     display: inline;
 }
 
-.nav li:after {
-	content: "]";
-}
-
-.nav li:before {
-	content: "[";
-}
-
 #whois_userpic {
     float: right;
 }
