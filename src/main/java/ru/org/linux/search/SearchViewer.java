@@ -117,14 +117,16 @@ public class SearchViewer {
 
     params.setFacetMinCount(1);
     params.setFacet(true);
+    
+    String section = query.getSection();
 
-    if (query.getSection() != 0 ){
-      params.add("fq", "{!tag=dt}section_id:"+query.getSection());
-      params.addFacetField("{!ex=dt}section_id");
+    if (section != null && !section.isEmpty() && !"0".equals(section)){
+      params.add("fq", "{!tag=dt}section:"+query.getSection());
+      params.addFacetField("{!ex=dt}section");
 
       params.addFacetField("{!ex=dt}group_id");
     } else {
-      params.addFacetField("section_id");
+      params.addFacetField("section");
       params.addFacetField("group_id");
     }
 

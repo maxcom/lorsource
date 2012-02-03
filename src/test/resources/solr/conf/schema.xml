@@ -91,6 +91,7 @@
         <field name="message" type="text" indexed="true" stored="false" multiValued="false"/>
         <field name="postdate" type="date" indexed="true" stored="true" multiValued="false"/>
         <field name="is_comment" type="boolean" indexed="true" stored="true" multiValued="false"/>
+        <field name="section" type="string" stored="true" required="true" multiValued="false"/>
         <dynamicField name="*_id" type="int" stored="true"/>
     </fields>
 

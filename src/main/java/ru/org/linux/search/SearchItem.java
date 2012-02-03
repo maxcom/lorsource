@@ -15,6 +15,8 @@
 
 package ru.org.linux.search;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.solr.common.SolrDocument;
 import ru.org.linux.spring.dao.MessageText;
 import ru.org.linux.spring.dao.MsgbaseDao;
@@ -26,34 +28,49 @@ import ru.org.linux.util.bbcode.LorCodeService;
 import java.sql.Timestamp;
 import java.util.Date;
 
+import static ru.org.linux.util.URLUtil.buildWikiURL;
+
 public class SearchItem {
-  private final int msgid;
+  private static final Log logger = LogFactory.getLog(SearchItem.class);
+  private final String msgid;
   private final String title;
   private final String topicTitle;
   private final Timestamp postdate;
   private final int topic;
   private final User user;
   private final String message;
-
+  private final String virtualWiki;
+  private final String section;
+  
   public SearchItem(SolrDocument doc, UserDao userDao, MsgbaseDao msgbaseDao, LorCodeService lorCodeService, boolean secure) {
-    msgid = Integer.valueOf(doc.getFieldValue("id").toString());
+    msgid = (String) doc.getFieldValue("id");
     title = (String) doc.getFieldValue("title");
     topicTitle = (String) doc.getFieldValue("topic_title");
     int userid = (Integer) doc.getFieldValue("user_id");
     Date postdate_dt = (Date) doc.getFieldValue("postdate");
     postdate = new Timestamp(postdate_dt.getTime());
     topic = (Integer) doc.getFieldValue("topic_id");
+    section = (String) doc.getFieldValue("section");
 
-    MessageText messageText = msgbaseDao.getMessageText(msgid);
-
-    String rawMessage = messageText.getText();
-
-    if (messageText.isLorcode()) {
-      message = lorCodeService.parseComment(rawMessage, secure);
+    if(!"wiki".equals(section)) {
+      virtualWiki = null;
+      MessageText messageText = msgbaseDao.getMessageText(Integer.valueOf(msgid));
+      String rawMessage = messageText.getText();
+      if (messageText.isLorcode()) {
+        message = lorCodeService.parseComment(rawMessage, secure);
+      } else {
+        message = rawMessage;
+      }
     } else {
-      message = rawMessage;
+      // Wiki id like <virtual_wiki>-<topic_id>
+      String[] msgIds = msgid.split("-");
+      if(msgIds.length != 2) {
+        throw new RuntimeException("Invalid wiki ID");
+      }
+      
+      message = msgbaseDao.getMessageTextFromWiki(Integer.valueOf(msgIds[1]));
+      virtualWiki = msgIds[0];
     }
-
     try {
       user = userDao.getUserCached(userid);
     } catch (UserNotFoundException e) {
@@ -62,7 +79,11 @@ public class SearchItem {
   }
 
   public int getMsgid() {
-    return msgid;
+    if("wiki".equals(section)) {
+      return 0;
+    } else {
+      return Integer.valueOf(msgid);
+    }
   }
 
   public String getTitle() {
@@ -90,10 +111,19 @@ public class SearchItem {
   }
 
   public String getUrl() {
-    if (topic==0 || topic==msgid) {
-      return "view-message.jsp?msgid="+msgid;
+    if("wiki".equals(section)) {
+      try {
+        return buildWikiURL(virtualWiki, title);
+      } catch (Exception e) {
+        logger.warn("Fail build topic url for " + title + " in " + virtualWiki);
+        return "#";
+      }      
     } else {
-      return "jump-message.jsp?msgid="+topic+"&amp;cid="+msgid;
+      if (topic==0 || topic==Integer.valueOf(msgid)) {
+        return "view-message.jsp?msgid="+msgid;
+      } else {
+        return "jump-message.jsp?msgid="+topic+"&amp;cid="+msgid;
+      }
     }
   }
 }
