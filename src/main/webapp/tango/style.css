@@ -367,3 +367,13 @@ div.quote {
         width: 100%;
     }
 }
+
+@media screen and (max-width: 640px) {
+    div.entry-userpic {
+        float: right;
+    }
+
+    div.entry-body {
+        margin-left: 0;
+    }
+}
