@@ -375,4 +375,13 @@ div.quote {
     div.entry-body {
         margin-left: 0;
     }
+
+    #bd {
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+    #hd {
+        padding-left: 0;
+    }
 }
