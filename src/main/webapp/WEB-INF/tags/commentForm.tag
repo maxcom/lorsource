@@ -41,25 +41,26 @@
   <c:if test="${replyto != null}">
     <input type=hidden name=replyto value="<%= replyto %>">
   </c:if>
-
-  <label for="title">Заглавие:</label><br>
-  <input type=text id="title" name=title style="width: 40em" value="<%= title %>"><br>
-
-  <label for="msg">Сообщение:</label><br>
-  <font size=2>(В режиме <i>Tex paragraphs</i> игнорируются переносы строк.<br> Пустая строка (два
-    раза Enter) начинает новый абзац.<br> Знак '&gt;' в начале абзаца выделяет абзац курсивом
-    цитирования)</font><br>
-  <font size="2"><b>Внимание:</b> Новый режим - <a href="/wiki/en/Lorcode" target="_blank">LORCODE</a></font><br>
-
-  <textarea id="msg" class="required" name="msg" style="width: 40em"
-            rows="20"><%= msg == null ? "" : StringUtil.escapeHtml(msg)
-  %></textarea><br>
-
+  <label for="form_mode">Разметка:*</label><br>
   <select name=mode>
   <option value=quot <%= "quot".equals(mode)?"selected":""%> >TeX paragraphs w/quoting
   <option value=ntobr <%= "ntobr".equals(mode)?"selected":""%> >User line breaks w/quoting
   <option value=lorcode <%= "lorcode".equals(mode)?"selected":""%> >LORCODE
   </select>  <br>
+
+  <label for="title">Заглавие:</label><br>
+  <input type=text id="title" name=title style="width: 40em" value="<%= title %>"><br>
+
+  <label for="msg">Сообщение:</label><br>
+
+  <textarea id="msg" class="required" name="msg" style="width: 40em"
+            rows="20"><%= msg == null ? "" : StringUtil.escapeHtml(msg)
+  %></textarea><br>
+  <font size="2">* В режиме <i>Tex paragraphs</i> игнорируются переносы строк.<br>
+                 Пустая строка (два раза Enter) начинает новый абзац.<br>
+                 Знак '&gt;' в начале абзаца выделяет абзац курсивом цитирования</font><br>
+  <font size="2"><b>Внимание:</b> <a href="/wiki/en/Lorcode" target="_blank">прочитайте описание разметки LORCODE</a></font><br>
+
 
   ${topic.postScoreInfo}
 

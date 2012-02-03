@@ -115,11 +115,13 @@
         <label>Мультивыбор: <form:checkbox path="multiSelect" size="40"/></label>
       </p>
   </c:if>
+<label for="form_mode">Разметка:*</label><br>
+<form:select path="mode" items="${modes}"/><br>
 
 <label for="form_msg">Сообщение:</label><br>
-<font size=2>(В режиме <i>Tex paragraphs</i> игнорируются переносы строк.<br> Пустая строка (два раза Enter) начинает новый абзац)</font><br>
-<font size="2"><b>Внимание:</b> Новый режим - <a href="/wiki/en/Lorcode" target="_blank">LORCODE</a></font><br>
 <form:textarea path="msg" style="width: 40em" rows="20" id="form_msg"/><br>
+<font size="2"><b>Внимание:</b> <a href="/wiki/en/Lorcode" target="_blank">прочитайте описание разметки LORCODE</a></font><br>
+
 
 <% if (group!=null && group.isLinksAllowed()) { %>
 <label>
@@ -136,8 +138,6 @@
     </label><p>
     Популярные теги: <%= TagDao.getEditTags(topTags) %> <br>
 </c:if>
-
-<form:select path="mode" items="${modes}"/>
 
   <lor:captcha ipBlockInfo="${ipBlockInfo}"/>
 <br>
