@@ -25,7 +25,7 @@
 <script type="text/javascript">
   $.stylesheetInit();
 </script>
-
+<meta name = "viewport" content = "width = device-width">
 </head>
 <body>
   	<div id="hd">
