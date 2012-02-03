@@ -58,7 +58,7 @@
     </td>
     <td align=right>
         <ul>
-        <li>[<a href="show-replies.jsp?output=rss&amp;nick=${nick}">RSS</a>]</li>
+        <li><a href="show-replies.jsp?output=rss&amp;nick=${nick}">RSS</a></li>
         </ul>
     </td>
 </table>
