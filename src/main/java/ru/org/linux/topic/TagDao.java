@@ -35,7 +35,7 @@ import java.util.*;
 import java.util.regex.Pattern;
 
 @Repository
-public final class TagDao {
+public class TagDao {
   private static final Pattern tagRE = Pattern.compile("([\\p{L}\\d \\+-]+)", Pattern.CASE_INSENSITIVE);
 
   private static final int TOP_TAGS_COUNT = 50;
