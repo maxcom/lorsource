@@ -433,4 +433,8 @@ div.quote {
     .message-w-userpic {
         padding-left: 60px;
     }
+
+    .longtitle {
+        display: none;
+    }
 }

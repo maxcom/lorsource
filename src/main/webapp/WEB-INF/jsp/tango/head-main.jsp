@@ -51,7 +51,7 @@
         </c:if>
         </div>
 
-        <h1><a id="sitetitle" href="/">LINUX.ORG.RU&nbsp;&#8212; Русская информация об&nbsp;ОС&nbsp;Linux</a></h1>
+        <h1><a id="sitetitle" href="/">LINUX.ORG.RU<span class="longtitle">&nbsp;&#8212; Русская информация об&nbsp;ОС&nbsp;Linux</span></a></h1>
 
         <div class="menu">
             <ul class="primary">
