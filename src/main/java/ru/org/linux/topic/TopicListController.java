@@ -348,11 +348,10 @@ public class TopicListController {
     modelAndView.addObject("ptitle", "Сообщения " + user.getNick());
     modelAndView.addObject("navtitle", "Сообщения " + user.getNick());
 
-    modelAndView.addObject("offsetNavigation", true);
-
     modelAndView.addObject("rssLink", "/people/" + nick + "/?output=rss");
 
     offset = topicListService.fixOffset(offset);
+    modelAndView.addObject("offsetNavigation", true);
     modelAndView.addObject("offset", offset);
 
     List<Topic> messages = topicListService.getUserTopicsFeed(user, offset, false);
@@ -390,7 +389,10 @@ public class TopicListController {
     modelAndView.addObject("navtitle", "Избранные сообщения " + user.getNick());
 
     offset = topicListService.fixOffset(offset);
-    List<Topic> messages = topicListService.getUserTopicsFeed(user, offset, false);
+    modelAndView.addObject("offsetNavigation", true);
+    modelAndView.addObject("offset", offset);
+
+    List<Topic> messages = topicListService.getUserTopicsFeed(user, offset, true);
     prepareTopicsForPlainOrRss(request, modelAndView, output, messages);
     return modelAndView;
   }
