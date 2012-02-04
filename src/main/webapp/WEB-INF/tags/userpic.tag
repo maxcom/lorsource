@@ -26,7 +26,7 @@
     try {
       ImageInfo info = new ImageInfo(tmpl.getConfig().getHTMLPathPrefix() + "/photos/" + author.getPhoto());
 
-      out.append("<img class=\"photo\" src=\"/photos/").append(author.getPhoto()).append("\" alt=\"").append(author.getNick()).append(" (фотография)\" ").append(info.getCode()).append(" >");
+      out.append("<img class=\"photo\" src=\"/photos/").append(author.getPhoto()).append("\" alt=\"").append(author.getNick()).append("\" ").append(info.getCode()).append(" >");
     } catch (BadImageException e) {
 //      logger.warning(StringUtil.getStackTrace(e));
     } catch (IOException e) {
