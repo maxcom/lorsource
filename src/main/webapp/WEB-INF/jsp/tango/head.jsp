@@ -1,6 +1,5 @@
 <%@ page contentType="text/html; charset=utf-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-
 <%--
   ~ Copyright 1998-2012 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,6 +14,5 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
-
 <jsp:include page="head-main.jsp"/>
 

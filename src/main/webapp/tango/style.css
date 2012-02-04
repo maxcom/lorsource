@@ -360,6 +360,10 @@ div.quote {
     zoom: 1;
 }
 
+#sitetitle {
+    text-decoration: none;
+}
+
 @media screen and (max-width: 800px) {
     div.newsblog {
         float: none;

@@ -16,8 +16,6 @@
   ~    limitations under the License.
   --%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
-
-<!-- head-main -->
 <LINK REL="stylesheet" TYPE="text/css" HREF="/tango/combined.css">
 <LINK REL="stylesheet" TYPE="text/css" HREF="/tango/tango-dark.css" TITLE="dark">
 <LINK REL="alternate stylesheet" TYPE="text/css" HREF="/tango/tango-swamp.css" TITLE="swamp">
@@ -79,7 +77,5 @@
             </ul>
         </div>
     </div>
-
-
 
 <div style="clear: both"></div>
