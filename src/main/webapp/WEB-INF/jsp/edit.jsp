@@ -72,7 +72,7 @@
   </c:if>
 
   <c:if test="${not message.expired}">
-  <label>Заголовок: <form:input path="title" cssClass="required" size="40"/></label><br><br>
+  <label>Заголовок:<br> <form:input path="title" cssClass="required" style="width: 40em"/></label><br><br>
 
   <c:if test="${group.pollPostAllowed and template.moderatorSession}">
       <c:forEach var="v" items="${form.poll}" varStatus="i">
@@ -89,16 +89,16 @@
       <br>
   </c:if>
 
-  <form:textarea path="msg" cols="70" rows="20"/>
+  <form:textarea path="msg" style="width: 40em" rows="20"/>
   <br><br>
     <c:if test="${message.haveLink}">
-      <label>Текст ссылки: <form:input path="linktext" size="60"/></label><br>
-      <label>Ссылка : <form:input path="url" size="70"/></label><br>
+      <label>Текст ссылки:<br> <form:input path="linktext" style="width: 40em"/></label><br>
+      <label>Ссылка:<br> <form:input path="url" style="width: 40em"/></label><br>
     </c:if>
   </c:if>
 
   <c:if test="${group.moderated}">
-    <label>Теги: <form:input path="tags" size="70"/><br>
+    <label>Теги:<br><form:input path="tags" style="width: 40em"/><p>
       Популярные теги: <%= TagDao.getEditTags(topTags) %></label> <br>
   </c:if>
 
