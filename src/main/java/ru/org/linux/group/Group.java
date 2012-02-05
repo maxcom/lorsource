@@ -47,28 +47,48 @@ public class Group implements Serializable {
 
   private final boolean resolvable;
 
+  public Group(boolean moderate, boolean imagepost, boolean votepoll, boolean havelink, int section,
+               String linktext, String urlName, String image, int restrictTopics, int restrictComments,
+               int id, int stat1, int stat2, int stat3, boolean resolvable) {
+    this.moderate = moderate;
+    this.imagepost = imagepost;
+    this.votepoll = votepoll;
+    this.havelink = havelink;
+    this.section = section;
+    this.linktext = linktext;
+    this.urlName = urlName;
+    this.image = image;
+    this.restrictTopics = restrictTopics;
+    this.restrictComments = restrictComments;
+    this.id = id;
+    this.stat1 = stat1;
+    this.stat2 = stat2;
+    this.stat3 = stat3;
+    this.resolvable = resolvable;
+  }
+
   public Group(ResultSet rs) throws SQLException {
-    id = rs.getInt("id");
-    moderate = rs.getBoolean("moderate");
-    imagepost = rs.getBoolean("imagepost");
-    votepoll = rs.getBoolean("vote");
-    section = rs.getInt("section");
-    havelink = rs.getBoolean("havelink");
-    linktext = rs.getString("linktext");
+    this(
+      rs.getBoolean("moderate"),
+      rs.getBoolean("imagepost"),
+      rs.getBoolean("vote"),
+      rs.getBoolean("havelink"),
+      rs.getInt("section"),
+      rs.getString("linktext"),
+      rs.getString("urlname"),
+      rs.getString("image"),
+      rs.getInt("restrict_topics"),
+      rs.getInt("restrict_comments"),
+      rs.getInt("id"),
+      rs.getInt("stat1"),
+      rs.getInt("stat2"),
+      rs.getInt("stat3"),
+      rs.getBoolean("resolvable")
+    );
+
     title = rs.getString("title");
-    urlName = rs.getString("urlname");
-    image = rs.getString("image");
-    restrictTopics = rs.getInt("restrict_topics");
-    restrictComments = rs.getInt("restrict_comments");
-
-    stat1 = rs.getInt("stat1");
-    stat2 = rs.getInt("stat2");
-    stat3 = rs.getInt("stat3");
-
-
     info = rs.getString("info");
     longInfo = rs.getString("longinfo");
-    resolvable = rs.getBoolean("resolvable");
   }
 
   public boolean isImagePostAllowed() {

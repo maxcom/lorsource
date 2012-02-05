@@ -101,7 +101,7 @@ public class TopicListService {
       topicListDto.setDateLimitType(TopicListDto.DateLimitType.BETWEEN);
       Calendar calendar = Calendar.getInstance();
 
-      calendar.set(year, month - 1, 1);
+      calendar.set(year, month - 1, 1, 0, 0, 0);
       topicListDto.setFromDate(calendar.getTime());
 
       calendar.add(Calendar.MONTH, 1);
