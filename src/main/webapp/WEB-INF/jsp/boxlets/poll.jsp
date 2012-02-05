@@ -36,7 +36,7 @@
       </c:forEach>
       <input type="submit" value="vote">
     </form>
-    <br/>
+    <br>
     <c:url value="/view-vote.jsp" var="vote_url">
       <c:param name="vote" value="${poll.id}"/>
     </c:url>
@@ -46,8 +46,8 @@
     <c:if test="${not poll.multiSelect}">
         <a href="${vote_url}">результаты</a> (${count} голосов)
     </c:if>
-    <br/>
+    <br>
     <a href="${main_url}">итоги прошедших опросов...</a>
-    <br/>
+    <br>
     [<a href="<c:url value="/add.jsp?group=19387"/>">добавить опрос</a>]
   </div>
