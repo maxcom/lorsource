@@ -45,7 +45,6 @@
   </c:if>
 </div>
 
-
 <script type="text/javascript">
 var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
 document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
@@ -61,10 +60,6 @@ pageTracker._trackPageLoadTime();
 } catch(err) {}</script>
 
 </div>
-
-<c:if test="${template.style == 'tango'}">
-  </div>
-</c:if>
 
 <c:if test="${not pageContext.request.secure}">
 <!-- begin of Top100 code -->
