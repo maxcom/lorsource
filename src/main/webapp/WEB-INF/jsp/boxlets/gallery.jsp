@@ -1,7 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="lor" uri="http://www.linux.org.ru" %>
-
 <%--
   ~ Copyright 1998-2012 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,10 +28,10 @@
         <a href="${url}">
           <c:choose>
             <c:when test="${not empty item.info}">
-              <img src="${item.icon}" alt="Скриншот: ${item.title}" ${item.info.code}/>
+              <img src="${item.icon}" alt="Скриншот: ${item.title}" ${item.info.code}>
             </c:when>
             <c:otherwise>
-              [bad image] <img src="${item.icon}" alt="Скриншот: ${item.title}"/>
+              [bad image] <img src="${item.icon}" alt="Скриншот: ${item.title}">
             </c:otherwise>
           </c:choose>
         </a>
