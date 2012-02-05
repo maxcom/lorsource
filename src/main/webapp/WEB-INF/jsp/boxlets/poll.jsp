@@ -25,7 +25,7 @@
     <h3>${message.title}</h3>
 
     <form action="/vote.jsp" method="POST">
-      <input type="hidden" name="voteid" value="${poll.id}"/>
+      <input type="hidden" name="voteid" value="${poll.id}">
       <c:forEach var="item" items="${poll.variants}">
         <c:if test="${poll.multiSelect}">
           <input type="checkbox" name="vote" id="poll-${item.id}" value="${item.id}"><label for="poll-${item.id}"><c:out escapeXml="true" value="${item.label}"/></label> <br>
@@ -34,7 +34,7 @@
           <input type="radio" name="vote" id="poll-${item.id}" value="${item.id}"><label for="poll-${item.id}"><c:out escapeXml="true" value="${item.label}"/></label> <br>
         </c:if>
       </c:forEach>
-      <input type="submit" value="vote"/>
+      <input type="submit" value="vote">
     </form>
     <br/>
     <c:url value="/view-vote.jsp" var="vote_url">
