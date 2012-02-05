@@ -27,7 +27,7 @@
     <c:url value="/news/archive/${item.year}/${item.month}" var="item_url"/>
     <fmt:parseDate var="item_date" value="${item.year} ${item.month}" pattern="yyyy M"/>
     <a href="${fn:escapeXml(item_url)}"><fmt:formatDate value="${item_date}" pattern="yyyy MMMM"/>
-      (${item.count})</a> <br/>
+      (${item.count})</a> <br>
   </c:forEach>
   <br>&gt;&gt;&gt; <a href="${head_url}archive/"> Предыдущие месяцы</a> (с октября 1998)
 </div>
