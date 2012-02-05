@@ -40,8 +40,8 @@
     <!-- //Rating@Mail.ru logo -->
 </c:if>
   <c:if test="${template.style == 'tango'}"><br>
-           Стиль: <a href="#" rel="dark" class="styleswitch">Dark</a></li> -
-            <a href="#" rel="swamp" class="styleswitch">Swamp</a></li>
+           Стиль: <a href="#" rel="dark" class="styleswitch">Dark</a> -
+            <a href="#" rel="swamp" class="styleswitch">Swamp</a>
   </c:if>
 </div>
 
