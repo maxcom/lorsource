@@ -167,6 +167,23 @@ public class TopicListDto {
       .toString();
   }
 
+  public void copy (TopicListDto topicListDto) {
+    sections.clear();
+    sections.addAll(topicListDto.getSections());
+    userId = topicListDto.getUserId();
+    userFavs = topicListDto.isUserFavs();
+    group = topicListDto.getGroup();
+    tag = topicListDto.getTag();
+    limit = topicListDto.getLimit();
+    offset = topicListDto.getOffset();
+    dateLimitType = topicListDto.getDateLimitType();
+    fromDate = topicListDto.getFromDate();
+    toDate = topicListDto.getToDate();
+    notalks = topicListDto.isNotalks();
+    tech = topicListDto.isTech();
+    commitMode = topicListDto.getCommitMode();
+  }
+
   public static class DeletedTopic {
     private final String nick;
     private final int id;

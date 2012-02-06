@@ -60,41 +60,93 @@ public class Topic implements Serializable {
   private static final long serialVersionUID = 807240555706110851L;
   private static final String UTF8 = "UTF-8";
 
+  public Topic(int msgId,
+               int postScore,
+               boolean sticky,
+               String linkText,
+               String url,
+               String title,
+               int userId,
+               int groupId,
+               boolean deleted,
+               boolean expired,
+               int commitBy,
+               boolean haveLink,
+               Timestamp postdate,
+               Timestamp commitDate,
+               String groupUrl,
+               Timestamp lastModified,
+               int sectionId,
+               int commentCount,
+               boolean moderate,
+               boolean noTop,
+               int userAgent,
+               String postIP,
+               boolean resolved,
+               int groupCommentsRestriction,
+               int sectionCommentsRestriction,
+               boolean minor
+  ) {
+    this.msgid = msgId;
+    this.postscore = postScore;
+
+    this.sticky= sticky;
+    this.linktext = linkText;
+    this.url = url;
+    this.title = title;
+    this.userid = userId;
+    this.guid = groupId;
+    this.deleted = deleted;
+    this.expired = expired;
+    this.commitby = commitBy;
+    this.havelink = haveLink;
+    this.postdate = postdate;
+    this.commitDate = commitDate;
+    this.groupUrl = groupUrl;
+    this.lastModified = lastModified;
+    this.sectionid = sectionId;
+    this.commentCount = commentCount;
+    this.moderate = moderate;
+    this.notop = noTop;
+    this.userAgent = userAgent;
+    this.postIP = postIP;
+    this.resolved = resolved;
+    this.groupCommentsRestriction = groupCommentsRestriction;
+    this.sectionCommentsRestriction = sectionCommentsRestriction;
+    this.minor = minor;
+  }
+
   public Topic(ResultSet rs) throws SQLException {
-    msgid = rs.getInt("msgid");
-
-    int ps = rs.getInt("postscore");
-
-    if (rs.wasNull()) {
-      postscore = TopicPermissionService.POSTSCORE_UNRESTRICTED;
-    } else {
-      postscore = ps;
-    }
-
-    sticky = rs.getBoolean("sticky");
-    linktext = rs.getString("linktext");
-    url = rs.getString("url");
-    userid = rs.getInt("userid");
-    title = StringUtil.makeTitle(rs.getString("title"));
-    guid = rs.getInt("guid");
-    deleted = rs.getBoolean("deleted");
-    expired = !sticky && rs.getBoolean("expired");
-    havelink = rs.getBoolean("havelink");
-    postdate = rs.getTimestamp("postdate");
-    commitDate = rs.getTimestamp("commitdate");
-    commitby = rs.getInt("commitby");
-    groupUrl = rs.getString("urlname");
-    lastModified = rs.getTimestamp("lastmod");
-    sectionid = rs.getInt("section");
-    commentCount = rs.getInt("stat1");
-    moderate = rs.getBoolean("moderate");
-    notop = rs.getBoolean("notop");
-    userAgent = rs.getInt("ua_id");
-    postIP = rs.getString("postip");
-    resolved = rs.getBoolean("resolved");
-    groupCommentsRestriction = rs.getInt("restrict_comments");
-    minor = rs.getBoolean("minor");
-    sectionCommentsRestriction = Section.getCommentPostscore(sectionid);
+    this(
+      rs.getInt("msgid"),
+      (rs.wasNull())
+        ? TopicPermissionService.POSTSCORE_UNRESTRICTED
+        : rs.getInt("postscore"),
+      rs.getBoolean("sticky"),
+      rs.getString("linktext"),
+      rs.getString("url"),
+      StringUtil.makeTitle(rs.getString("title")),
+      rs.getInt("userid"),
+      rs.getInt("guid"),
+      rs.getBoolean("deleted"),
+      !rs.getBoolean("sticky") && rs.getBoolean("expired"),
+      rs.getInt("commitby"),
+      rs.getBoolean("havelink"),
+      rs.getTimestamp("postdate"),
+      rs.getTimestamp("commitdate"),
+      rs.getString("urlname"),
+      rs.getTimestamp("lastmod"),
+      rs.getInt("section"),
+      rs.getInt("stat1"),
+      rs.getBoolean("moderate"),
+      rs.getBoolean("notop"),
+      rs.getInt("ua_id"),
+      rs.getString("postip"),
+      rs.getBoolean("resolved"),
+      rs.getInt("restrict_comments"),
+      Section.getCommentPostscore(rs.getInt("section")),
+      rs.getBoolean("minor")
+    );
   }
 
   public Topic(AddTopicRequest form, User user, String postIP) {
