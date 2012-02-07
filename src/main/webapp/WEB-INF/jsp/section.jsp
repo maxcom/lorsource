@@ -37,19 +37,16 @@
       </td>
 
       <td align=right valign=middle>
-        [<a href="add-section.jsp?section=${section.id}">Добавить сообщение</a>]
-        
-        <c:if test="${section.id!=2}">
-            [<a href="section-rss.jsp?section=${section.id}">RSS</a>]
-        </c:if>
+        <ul>
+          <li><a href="add-section.jsp?section=${section.id}">Добавить сообщение</a></li>
 
-        <c:if test="${section.id==2}">
-            [<a href="/forum/lenta/">Лента</a>]
-            [<a href="section-rss.jsp?section=${section.id}">RSS</a>
+          <li><a href="/forum/lenta/">Лента</a></li>
+        </ul>
+
+        [<a href="section-rss.jsp?section=${section.id}">RSS</a>
             <span id="rss-select">
                 <a href="section-rss.jsp?section=${section.id}&filter=notalks">без talks</a>
                 <a href="section-rss.jsp?section=${section.id}&filter=tech">тех. разделы форума</a></span>]
-        </c:if>
       </td>
     </tr>
   </table>
