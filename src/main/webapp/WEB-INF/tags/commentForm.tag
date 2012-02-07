@@ -41,8 +41,8 @@
   <c:if test="${replyto != null}">
     <input type=hidden name=replyto value="<%= replyto %>">
   </c:if>
-  <label for="form_mode">Разметка:*</label><br>
-  <select name=mode>
+  <label for="mode">Разметка:*</label><br>
+  <select id="mode" name="mode">
   <option value=quot <%= "quot".equals(mode)?"selected":""%> >TeX paragraphs w/quoting
   <option value=ntobr <%= "ntobr".equals(mode)?"selected":""%> >User line breaks w/quoting
   <option value=lorcode <%= "lorcode".equals(mode)?"selected":""%> >LORCODE
