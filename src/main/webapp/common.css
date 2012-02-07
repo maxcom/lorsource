@@ -267,11 +267,13 @@ textarea.error {
 }
 
 label.error {
-    margin: inherit inherit inherit 1em;
+    margin: inherit;
+    margin-left: 1em;
     padding: inherit;
     border: inherit;
     vertical-align: top;
     color: #f00;
+    display: inline-block;
 }
 
 #commentForm {
