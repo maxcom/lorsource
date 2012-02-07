@@ -1,6 +1,5 @@
 <%@ page contentType="text/html; charset=utf-8"%>
 <%@ page import="ru.org.linux.site.DefaultProfile,ru.org.linux.site.Template" %>
-<%@ page import="ru.org.linux.util.ProfileHashtable" %>
 <%@ page import="ru.org.linux.user.ProfileProperties" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%--
@@ -139,7 +138,7 @@ $(document).ready(function() {
 
 <h2>Настройка главной страницы</h2>
 После того, как вы создали свой собственный профиль, вы можете
-настройть под себя содержимое стартовой страницы.
+настроить под себя содержимое стартовой страницы.
 <ul>
 <li><a href="/edit-boxes.jsp">настройка стартовой страницы</a>
 </ul>
