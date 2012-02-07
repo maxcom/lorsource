@@ -16,7 +16,6 @@
 package ru.org.linux.topic.stub;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicListDao;
 import ru.org.linux.topic.TopicListDto;
@@ -24,7 +23,6 @@ import ru.org.linux.topic.TopicListDto;
 import java.util.ArrayList;
 import java.util.List;
 
-@Repository
 public class TestTopicListDaoImpl implements TopicListDao {
   @Autowired
   TopicListDto topicListDto;
