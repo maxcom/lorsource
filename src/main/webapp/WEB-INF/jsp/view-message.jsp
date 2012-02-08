@@ -68,17 +68,16 @@
 
 <form method="GET" action="view-message.jsp">
 <input type=hidden name=msgid value="${message.id}">
-  <table class=nav>
-  <tr>
-  <td align=left valign=middle id="navPath">
+  <div class=nav>
+  <div id="navPath">
     <a href="${preparedMessage.section.sectionLink}">${preparedMessage.section.title}</a> -
     <a href="${group.url}">${group.title}</a>
     <c:if test="${preparedMessage.section.premoderated and not message.commited}">
         (не подтверждено)
     </c:if>
-  </td>
+  </div>
 
-    <td align=right>
+    <div class="nav-buttons">
       <ul>
       <li><a href="${message.link}?output=rss">RSS</a></li>
 
@@ -100,8 +99,8 @@
 %>
           </select>
       </c:if>
-    </td>
-  </table>
+    </div>
+  </div>
 </form>
 
 <c:set var="scroller"><c:if test="${topScroller}">

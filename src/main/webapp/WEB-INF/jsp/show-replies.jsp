@@ -45,23 +45,21 @@
 </script>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 <form:form commandName="notifications" ACTION="/notifications" method="GET">
-<table class=nav>
+<div class=nav>
 <tr>
-    <td align=left valign=middle id="navPath">
+    <div id="navPath">
     ${title}
-    </td>
-    <td align=right>
+    </div>
+    <div class="nav-buttons">
         <form:select path="filter">
             <form:options items="${filter}" itemValue="value" itemLabel="label"/>
         </form:select>
         <input type="submit" value="показать">
-    </td>
-    <td align=right>
         <ul>
         <li><a href="show-replies.jsp?output=rss&amp;nick=${nick}">RSS</a></li>
         </ul>
-    </td>
-</table>
+    </div>
+</div>
 </form:form>
 
 <h1 class="optional">${title}</h1>

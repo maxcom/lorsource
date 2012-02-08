@@ -29,24 +29,20 @@
 <%
   String ip = (String) request.getAttribute("ip");
 %>
-<table class=nav>
-  <tr>
-    <td align=left valign=middle id="navPath">
+<div class=nav>
+    <div id="navPath">
       <strong>Интерфейс модератора - Сообщения с ${ip}</strong>
-    </td>
+    </div>
 
-    <td align=right valign=middle>
-
+    <div class="nav-buttons">
       [<a href="http://www.radio-msu.net/serv/wwwnslookup/nph-wwwtr.cgi?server=${ip}">NSLOOKUP</a>]
       [WHOIS
       <a href='http://whois.arin.net/ui/query.do?flushCache=false&q=${ip}&whoisSubmitButton=%20$'>ARIN</a> /
       <a href='http://www.apnic.net/apnic-bin/whois.pl?search=${ip}'>APNIC</a> /
       <a href='http://lacnic.net/cgi-bin/lacnic/whois?lg=EN&query=${ip}'>LACNIC</a>
       ]
-    </td>
-  </tr>
-
-</table>
+    </div>
+</div>
 
 <h1 class="optional">Сообщения с <%= ip %> (за 3 дня)</h1>
 

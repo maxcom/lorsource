@@ -39,20 +39,18 @@
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
 <form:form commandName="tracker" ACTION="tracker.jsp" method="GET">
-  <table class=nav>
-    <tr>
-      <td align=left valign=middle id="navPath">
+  <div class=nav>
+      <div id="navPath">
         <%= title %>
-      </td>
+      </div>
 
-      <td align=right valign=middle>
+      <div class="nav-buttons">
         <form:select path="filter">
             <form:options items="${filterItems}" itemValue="value" itemLabel="label"/>
         </form:select>
         <input type="submit" value="показать">
-      </td>
-    </tr>
-  </table>
+      </div>
+  </div>
 </form:form>
 
 <h1 class="optional"><%= title %>

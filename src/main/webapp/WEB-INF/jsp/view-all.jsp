@@ -40,12 +40,12 @@
 
   <form action="view-all.jsp">
 
-  <table class=nav><tr>
-    <td align=left valign=middle id="navPath">
+  <div class=nav>
+    <div id="navPath">
       Просмотр неподтвержденных сообщений - <%= section==null?"Все":section.getName() %>
-    </td>
+    </div>
 
-    <td align=right valign=middle>
+    <div class="nav-buttons">
       <ul>
       <li><a href="rules.jsp">Правила форума</a></li>
       <li><a href="tags.jsp">Метки</a></li>
@@ -63,9 +63,8 @@
           </c:if>
         </c:forEach>
       </select>
-    </td>
-  </tr>
- </table>
+    </div>
+ </div>
 </form>
 
 <h1 class="optional"><%= section==null?"П":(section.getName()+": п") %>росмотр неподтвержденных</h1>

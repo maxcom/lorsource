@@ -41,11 +41,11 @@
 </c:if>
 
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
-  <table class=nav><tr>
-    <td align=left valign=middle id="navPath">
+  <div class=nav>
+    <div id="navPath">
       ${navtitle}
-    </td>
-    <td align=right valign=middle>
+    </div>
+    <div class="nav-buttons">
       <ul>
       <c:if test="${template.moderatorSession and group!=null}">
         <li><a href="groupmod.jsp?group=${group.id}">Править группу</a></li>
@@ -87,9 +87,8 @@
         <li><a href="${rssLink}">RSS</a></li>
       </c:if>
       </ul>
-    </td>
-  </tr>
-</table>
+    </div>
+</div>
 
 <H1 class="optional">${ptitle}</H1>
 <c:forEach var="msg" items="${messages}">

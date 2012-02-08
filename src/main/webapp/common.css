@@ -97,7 +97,10 @@ H1 {
 .messages H2 { margin-bottom: 5px; margin-top: 5px; }
 
 .nav {
-  text-align: center; margin-bottom: 1em; margin-top: 5px;
+  text-align: center;
+  margin-bottom: 1em;
+  margin-top: 5px;
+  padding: 2px;
 }
 
 table.nav {
@@ -413,5 +416,20 @@ div.quote p cite {
 
 textarea, input {
     max-width: 100%;
+}
+
+.nav-buttons {
+   float: right;
+}
+
+#navPath {
+    text-align: left;
+    float: left;
+}
+
+.nav:after {
+    clear: both;
+    display: table;
+    content: "";
 }
 

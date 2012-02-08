@@ -26,16 +26,17 @@
 <title>Добавить сообщение</title>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
-<table class=nav>
-<tr>
-<td align=left valign=middle id="navPath">
+<div class=nav>
+<div id="navPath">
 Добавить комментарий
-</td>
-  <td align=right>
-    [<a href="/view-message.jsp?msgid=${add.topic.id}">Читать комментарии</a>]
-  </td>
-</tr>
-  </table>
+</div>
+  <div class="nav-buttons">
+    <ul>
+        <li><a href="/view-message.jsp?msgid=${add.topic.id}">Читать комментарии</a></li>
+    </ul>
+  </div>
+</div>
+
 <h1 class="optional">Добавить комментарий</h1>
 
 <%--<% if (tmpl.getProf().getBoolean("showinfo") && !Template.isSessionAuthorized(session)) { %>--%>

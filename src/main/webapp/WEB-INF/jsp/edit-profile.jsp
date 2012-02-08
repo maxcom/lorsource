@@ -45,19 +45,18 @@ $(document).ready(function() {
 
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
-  <table class=nav><tr>
-    <td align=left valign=middle id="navPath">
+  <div class=nav>
+    <div id="navPath">
       Настройки профиля
-    </td>
+    </div>
 
-    <td align=right valign=middle>
+    <div class="nav-buttons">
       <ul>
         <li><a href="addphoto.jsp">Добавить фотографию</a></li>
         <li><a href="register.jsp">Изменение регистрации</a></li>
       </ul>
-     </td>
-    </tr>
- </table>
+     </div>
+ </div>
 
 <h1 class="optional">Настройки профиля</h1>
 
