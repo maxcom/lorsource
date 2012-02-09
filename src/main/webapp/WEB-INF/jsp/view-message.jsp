@@ -279,17 +279,10 @@
   <br>
 </c:if>
 
-<c:if test="${fn:length(commentsPrepared)>0}">
-    <div class=nav>
-        <c:if test="${template.prof.showNewFirst}">
-            сообщения отсортированы в порядке убывания даты их написания
-        </c:if>
-<%--
-        <c:if test="${not template.prof.showNewFirst}">
-            сообщения отсортированы в порядке возрастания даты их написания
-        </c:if>
---%>
-    </div>
+<c:if test="${fn:length(commentsPrepared)>0 and template.prof.showNewFirst}">
+  <div class=nav>
+    сообщения отсортированы в порядке убывания даты их написания
+  </div>
 </c:if>
 
 <c:if test="<%= pageInfo!=null %>">
