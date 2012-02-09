@@ -119,7 +119,7 @@ public class Topic implements Serializable {
   public Topic(ResultSet rs) throws SQLException {
     this(
       rs.getInt("msgid"),
-      (rs.wasNull())
+      (rs.getObject("postscore") == null)
         ? TopicPermissionService.POSTSCORE_UNRESTRICTED
         : rs.getInt("postscore"),
       rs.getBoolean("sticky"),

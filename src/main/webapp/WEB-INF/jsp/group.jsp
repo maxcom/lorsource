@@ -74,17 +74,15 @@
     <link rel="parent" title="${group.title}" href="${group.sectionLink}">
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 <form>
-  <table class=nav>
-    <tr>
-    <td align=left valign=middle id="navPath">
+  <div class=nav>
+    <div id="navPath">
       <a href="${group.sectionLink}">${section.name}</a> - ${group.title}
       <c:if test="${year != null}">
         - Архив ${year}, <%= DateUtil.getMonth((Integer) request.getAttribute("month")) %>
       </c:if>
+    </div>
 
-    </td>
-
-    <td align=right valign=middle>
+    <div class="nav-buttons">
       <ul>
       <li><a href="${group.url}archive/">Архив</a></li>
       <c:if test="${year==null}">
@@ -123,9 +121,8 @@
         </c:forEach>
       </select>
       </c:if>
-     </td>
-    </tr>
- </table>
+     </div>
+ </div>
 
 </form>
 

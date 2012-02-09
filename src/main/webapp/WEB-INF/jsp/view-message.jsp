@@ -68,17 +68,16 @@
 
 <form method="GET" action="view-message.jsp">
 <input type=hidden name=msgid value="${message.id}">
-  <table class=nav>
-  <tr>
-  <td align=left valign=middle id="navPath">
+  <div class=nav>
+  <div id="navPath">
     <a href="${preparedMessage.section.sectionLink}">${preparedMessage.section.title}</a> -
     <a href="${group.url}">${group.title}</a>
     <c:if test="${preparedMessage.section.premoderated and not message.commited}">
         (не подтверждено)
     </c:if>
-  </td>
+  </div>
 
-    <td align=right>
+    <div class="nav-buttons">
       <ul>
       <li><a href="${message.link}?output=rss">RSS</a></li>
 
@@ -100,8 +99,8 @@
 %>
           </select>
       </c:if>
-    </td>
-  </table>
+    </div>
+  </div>
 </form>
 
 <c:set var="scroller"><c:if test="${topScroller}">
@@ -280,17 +279,10 @@
   <br>
 </c:if>
 
-<c:if test="${fn:length(commentsPrepared)>0}">
-    <div class=nav>
-        <c:if test="${template.prof.showNewFirst}">
-            сообщения отсортированы в порядке убывания даты их написания
-        </c:if>
-<%--
-        <c:if test="${not template.prof.showNewFirst}">
-            сообщения отсортированы в порядке возрастания даты их написания
-        </c:if>
---%>
-    </div>
+<c:if test="${fn:length(commentsPrepared)>0 and template.prof.showNewFirst}">
+  <div class=nav>
+    сообщения отсортированы в порядке убывания даты их написания
+  </div>
 </c:if>
 
 <c:if test="<%= pageInfo!=null %>">

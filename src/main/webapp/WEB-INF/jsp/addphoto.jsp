@@ -22,17 +22,18 @@
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
 
-  <table class=nav><tr>
-    <td align=left valign=middle id="navPath">
+  <div class=nav>
+    <div id="navPath">
       Загрузка фотографии
-    </td>
+    </div>
 
-    <td align=right valign=middle>
-      [<a style="text-decoration: none" href="register.jsp">Изменение регистрации</a>]
-      [<a style="text-decoration: none" href="rules.jsp">Правила форума</a>]
-     </td>
-    </tr>
- </table>
+    <div class="nav-buttons">
+      <ul>
+        <li><a href="register.jsp">Изменение регистрации</a></li>
+        <li><a href="rules.jsp">Правила форума</a></li>
+      </ul>
+     </div>
+ </div>
 
 <h1 class="optional">Загрузка фотографии</h1>
 

@@ -30,13 +30,12 @@
 <LINK REL="alternate" HREF="/section-rss.jsp?section=${section.id}" TYPE="application/rss+xml">
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
-  <table class=nav>
-    <tr>
-      <td align=left valign=middle id="navPath">
+  <div class=nav>
+      <div id="navPath">
         <strong>${section.name}</strong>
-      </td>
+      </div>
 
-      <td align=right valign=middle>
+      <div class="nav-buttons">
         <ul>
           <li><a href="add-section.jsp?section=${section.id}">Добавить сообщение</a></li>
 
@@ -47,9 +46,8 @@
             <span id="rss-select">
                 <a href="section-rss.jsp?section=${section.id}&filter=notalks">без talks</a>
                 <a href="section-rss.jsp?section=${section.id}&filter=tech">тех. разделы форума</a></span>]
-      </td>
-    </tr>
-  </table>
+      </div>
+  </div>
 
 <h1 class="optional">${section.name}</h1>
 

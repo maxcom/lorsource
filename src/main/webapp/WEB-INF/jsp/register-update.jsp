@@ -39,17 +39,18 @@
 <%
   response.addHeader("Cache-Control", "no-store, no-cache, must-revalidate");
 %>
-  <table class=nav><tr>
-    <td id="navPath" align=left valign=middle>
+  <div class=nav>
+    <div id="navPath">
       Изменение регистрации
-    </td>
+    </div>
 
-    <td align=right valign=middle>
-      [<a style="text-decoration: none" href="../../addphoto.jsp">Добавить фотографию</a>]
-      [<a style="text-decoration: none" href="../../rules.jsp">Правила форума</a>]
-     </td>
-    </tr>
- </table>
+    <div class="nav-buttons">
+      <ul>
+        <li><a href="../../addphoto.jsp">Добавить фотографию</a></li>
+        <li><a href="../../rules.jsp">Правила форума</a></li>
+      </ul>
+     </div>
+ </div>
 <h1 class="optional">Изменение регистрации</h1>
 
 <form:form modelAttribute="form" method="POST" action="register.jsp" id="changeForm">
