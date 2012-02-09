@@ -115,6 +115,28 @@ public class TopicListServiceTest {
   }
 
   @Test
+  public void getUserTopicsFeedWithSectionTest()
+      throws UserErrorException, TagNotFoundException {
+
+    User user = mock(User.class);
+    when(user.getId()).thenReturn(12345);
+
+    List<Topic> topicList = topicListService.getUserTopicsFeed(
+        user, section1, 123, true
+    );
+
+    assertEquals(1, topicListDto.getSections().size());
+    Integer sectionId = topicListDto.getSections().iterator().next();
+    assertEquals(new Integer(11), sectionId);
+
+    assertEquals(new Integer(20), topicListDto.getLimit());
+    assertEquals(new Integer(123), topicListDto.getOffset());
+    assertEquals(TopicListDao.CommitMode.ALL, topicListDto.getCommitMode());
+    assertEquals(12345, topicListDto.getUserId());
+    assertTrue(topicListDto.isUserFavs());
+  }
+
+  @Test
   public void getRssTopicsFeedTest() {
 
     List<Topic> topicList = topicListService.getRssTopicsFeed(

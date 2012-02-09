@@ -328,6 +328,7 @@ public class TopicListController {
   @RequestMapping("/people/{nick}")
   public ModelAndView showUserTopicsNew(
     @PathVariable String nick,
+    @RequestParam(value = "section", required = false) Integer sectionId,
     @RequestParam(value = "offset", required = false) Integer offset,
     @RequestParam(value = "output", required = false) String output,
     HttpServletRequest request,
@@ -337,6 +338,11 @@ public class TopicListController {
     setExpireHeaders(response, null, null);
 
     ModelAndView modelAndView = new ModelAndView();
+
+    Section section = null;
+    if (sectionId != null && sectionId.intValue() != 0) {
+      section = sectionService.getSection(sectionId);
+    }
 
     User user = getUserByNickname(modelAndView, nick);
 
@@ -354,7 +360,17 @@ public class TopicListController {
     modelAndView.addObject("offsetNavigation", true);
     modelAndView.addObject("offset", offset);
 
-    List<Topic> messages = topicListService.getUserTopicsFeed(user, offset, false);
+    List<Topic> messages = topicListService.getUserTopicsFeed(user, section, offset, false);
+
+    boolean rss = output != null && "rss".equals(output);
+    if (!rss) {
+      if (section != null) {
+        modelAndView.addObject("section", section);
+      }
+
+      modelAndView.addObject("sectionList", sectionService.getSectionList());
+    }
+
     prepareTopicsForPlainOrRss(request, modelAndView, output, messages);
     return modelAndView;
   }
