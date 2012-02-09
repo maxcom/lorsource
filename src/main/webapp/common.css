@@ -433,3 +433,6 @@ textarea, input {
     content: "";
 }
 
+.nav form {
+    display: inline;
+}

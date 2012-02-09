@@ -87,24 +87,24 @@
         <li><a href="${rssLink}">RSS</a></li>
       </c:if>
       </ul>
+      <c:if test="${sectionList != null}">
+        <form id="filterForm" action="" method="get">
+          <select name="section" onchange="$('#filterForm').submit();">
+            <option value="0">Все</option>
+            <c:forEach var="sectionListItem" items="${sectionList}">
+              <option
+                      value="${sectionListItem.id}"
+                      <c:if test="${section != null and sectionListItem.id == section.id}">
+                        selected="selected"
+                      </c:if>
+                      >${sectionListItem.title}</option>
+            </c:forEach>
+          </select>
+        </form>
+      </c:if>
     </div>
 </div>
 <H1 class="optional">${ptitle}</H1>
-<c:if test="${sectionList != null}">
-    <form id="filterForm" action="" method="get">
-    <select name="section" onchange="$('#filterForm').submit();">
-      <label><option value="0"/>Все</label>
-      <c:forEach var="sectionListItem" items="${sectionList}">
-        <option
-          value="${sectionListItem.id}"
-          <c:if test="${section != null and sectionListItem.id == section.id}">
-            selected="selected"
-          </c:if>
-        >${sectionListItem.title}</option>
-      </c:forEach>
-    </select>
-    </form>
-</c:if>
 <c:forEach var="msg" items="${messages}">
   <lor:news preparedMessage="${msg.preparedTopic}" messageMenu="${msg.topicMenu}" multiPortal="<%= section==null && group==null %>" moderateMode="false"/>
 </c:forEach>
