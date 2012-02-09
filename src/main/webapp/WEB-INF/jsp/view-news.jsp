@@ -80,11 +80,17 @@
       </c:if>
       </ul>
       <c:if test="${sectionList != null}">
-        <form:form commandName="topicListForm" id="filterForm" action="" method="get">
-          <form:select path="section" onchange="$('#filterForm').submit();">
+        <form:form commandName="topicListRequest" id="filterForm" action="" method="get">
+          <form:select path="section" onchange="$('#group').val('0'); $('#filterForm').submit();">
             <form:option value="0" label="Все" />
             <form:options items="${sectionList}" itemLabel="title" itemValue="id" />
           </form:select>
+          <c:if test="${groupList != null}">
+          <form:select path="group" onchange="$('#filterForm').submit();">
+            <form:option value="0" label="Все" />
+            <form:options items="${groupList}" itemLabel="title" itemValue="id" />
+          </form:select>
+          </c:if>
         </form:form>
       </c:if>
     </div>
@@ -101,17 +107,17 @@
 
   <table class="nav">
     <tr>
-      <c:if test="${topicListForm.offset < 200 && fn:length(messages) == 20}">
+      <c:if test="${topicListRequest.offset < 200 && fn:length(messages) == 20}">
         <td align="left" width="35%">
-          <a href="${url}?${aparams}offset=${topicListForm.offset+20}">← предыдущие</a>
+          <a href="${url}?${aparams}offset=${topicListRequest.offset+20}">← предыдущие</a>
         </td>
       </c:if>
-      <c:if test="${topicListForm.offset > 20}">
+      <c:if test="${topicListRequest.offset > 20}">
         <td width="35%" align="right">
-          <a href="${url}?${aparams}offset=${topicListForm.offset-20}">следующие →</a>
+          <a href="${url}?${aparams}offset=${topicListRequest.offset-20}">следующие →</a>
         </td>
       </c:if>
-      <c:if test="${topicListForm.offset == 20}">
+      <c:if test="${topicListRequest.offset == 20}">
         <td width="35%" align="right">
           <c:if test="${params!=null}">
             <a href="${url}?${params}">следующие →</a>

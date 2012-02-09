@@ -130,7 +130,7 @@ public class TopicListService {
    * @return список топиков пользователя
    */
   public List<Topic> getUserTopicsFeed(User user, Integer offset, boolean isFavorite) {
-    return getUserTopicsFeed(user, null, offset, isFavorite);
+    return getUserTopicsFeed(user, null, null, offset, isFavorite);
   }
 
   /**
@@ -142,7 +142,7 @@ public class TopicListService {
    * @param isFavorite true если нужно выбрать избранные сообщения пользователя
    * @return список топиков пользователя
    */
-  public List<Topic> getUserTopicsFeed(User user, Section section, Integer offset, boolean isFavorite) {
+  public List<Topic> getUserTopicsFeed(User user, Section section, Group group, Integer offset, boolean isFavorite) {
     logger.debug(
         new StringBuilder()
             .append("TopicListService.getTopicsFeed()")
@@ -161,6 +161,9 @@ public class TopicListService {
     topicListDto.setUserFavs(isFavorite);
     if (section != null) {
       topicListDto.getSections().add(section.getId());
+    }
+    if (group != null) {
+      topicListDto.setGroup(group.getId());
     }
 
     return getCachedFeed(topicListDto);
