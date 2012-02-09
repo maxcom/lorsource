@@ -265,6 +265,7 @@ border-radius: 1em;
 
 #navPath {
     font-size: 1.5em;
+    margin-bottom: 5px;
 }
 
 #navPath a {
@@ -436,5 +437,14 @@ div.quote {
 
     .longtitle {
         display: none;
+    }
+
+    #navPath {
+        float: none;
+    }
+
+    .nav-buttons {
+        float: none;
+        text-align: left;
     }
 }
