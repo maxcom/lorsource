@@ -3,6 +3,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 
 <%--
   ~ Copyright 1998-2012 Linux.org.ru
@@ -54,6 +55,7 @@
         <c:if test="${section.premoderated}">
           <li><a href="/view-all.jsp?section=${section.id}">Неподтвержденные</a></li>
         </c:if>
+
         <%
           if (section.isVotePoll()) {
             out.print("<li><a href=\"add.jsp?group=19387\">Добавить</a></li>");
@@ -88,19 +90,12 @@
       </c:if>
       </ul>
       <c:if test="${sectionList != null}">
-        <form id="filterForm" action="" method="get">
-          <select name="section" onchange="$('#filterForm').submit();">
-            <option value="0">Все</option>
-            <c:forEach var="sectionListItem" items="${sectionList}">
-              <option
-                      value="${sectionListItem.id}"
-                      <c:if test="${section != null and sectionListItem.id == section.id}">
-                        selected="selected"
-                      </c:if>
-                      >${sectionListItem.title}</option>
-            </c:forEach>
-          </select>
-        </form>
+        <form:form commandName="topicListForm" id="filterForm" action="" method="get">
+          <form:select path="section" onchange="$('#filterForm').submit();">
+            <form:option value="0" label="Все" />
+            <form:options items="${sectionList}" itemLabel="title" itemValue="id" />
+          </form:select>
+        </form:form>
       </c:if>
     </div>
 </div>
@@ -116,17 +111,17 @@
 
   <table class="nav">
     <tr>
-      <c:if test="${offset < 200 && fn:length(messages) == 20}">
+      <c:if test="${topicListForm.offset < 200 && fn:length(messages) == 20}">
         <td align="left" width="35%">
-          <a href="${url}?${aparams}offset=${offset+20}">← предыдущие</a>
+          <a href="${url}?${aparams}offset=${topicListForm.offset+20}">← предыдущие</a>
         </td>
       </c:if>
-      <c:if test="${offset > 20}">
+      <c:if test="${topicListForm.offset > 20}">
         <td width="35%" align="right">
-          <a href="${url}?${aparams}offset=${offset-20}">следующие →</a>
+          <a href="${url}?${aparams}offset=${topicListForm.offset-20}">следующие →</a>
         </td>
       </c:if>
-      <c:if test="${offset == 20}">
+      <c:if test="${topicListForm.offset == 20}">
         <td width="35%" align="right">
           <c:if test="${params!=null}">
             <a href="${url}?${params}">следующие →</a>

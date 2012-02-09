@@ -38,7 +38,8 @@
 <title>Просмотр неподтвержденных сообщений - <%= section==null?"Все":section.getName() %></title>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
-  <form action="view-all.jsp">
+  <c:url var="urlFilterHandler" value="view-all.jsp" />
+  <form:form commandName="topicListForm" action="${urlFilterHandler}">
 
   <div class=nav>
     <div id="navPath">
@@ -50,8 +51,8 @@
       <li><a href="rules.jsp">Правила форума</a></li>
       <li><a href="tags.jsp">Метки</a></li>
       </ul>
-      <select name=section onChange="submit();" title="Быстрый переход">
-        <option value=0>Все</option>
+      <form:select path="section" onChange="submit();" title="Быстрый переход">
+        <form:option value="0" label="Все" />
         <c:forEach items="${sections}" var="item">
           <c:if test="${item.premoderated}">
             <c:if test="${section!=null && item.id == section.id}">
@@ -62,10 +63,10 @@
             </c:if>
           </c:if>
         </c:forEach>
-      </select>
+      </form:select>
     </div>
- </div>
-</form>
+  </div>
+  </form:form>
 
 <h1 class="optional"><%= section==null?"П":(section.getName()+": п") %>росмотр неподтвержденных</h1>
 <strong>Внимание!</strong> Cообщения отображаются точно так же, как
