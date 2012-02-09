@@ -124,17 +124,33 @@ public class TopicListService {
   /**
    * Получение списка топиков пользователя.
    *
-   * @param user   объект пользователя
-   * @param offset смещение в результатах выборки
+   * @param user       объект пользователя
+   * @param offset     смещение в результатах выборки
+   * @param isFavorite true если нужно выбрать избранные сообщения пользователя
    * @return список топиков пользователя
    */
   public List<Topic> getUserTopicsFeed(User user, Integer offset, boolean isFavorite) {
+    return getUserTopicsFeed(user, null, offset, isFavorite);
+  }
+
+  /**
+   * Получение списка топиков пользователя.
+   *
+   * @param user       объект пользователя
+   * @param section    секция, из которой выбрать сообщения
+   * @param offset     смещение в результатах выборки
+   * @param isFavorite true если нужно выбрать избранные сообщения пользователя
+   * @return список топиков пользователя
+   */
+  public List<Topic> getUserTopicsFeed(User user, Section section, Integer offset, boolean isFavorite) {
     logger.debug(
-      new StringBuilder()
-        .append("TopicListService.getTopicsFeed()")
-        .append("; user=").append((user != null) ? user.toString() : "(null)")
-        .append("; offset=").append(offset)
-        .toString()
+        new StringBuilder()
+            .append("TopicListService.getTopicsFeed()")
+            .append("; user=").append((user != null) ? user.toString() : "(null)")
+            .append("; section=").append(section)
+            .append("; offset=").append(offset)
+            .append("; isFavorite=").append(String.valueOf(isFavorite))
+            .toString()
     );
 
     TopicListDto topicListDto = new TopicListDto();
@@ -143,9 +159,13 @@ public class TopicListService {
     topicListDto.setCommitMode(TopicListDao.CommitMode.ALL);
     topicListDto.setUserId(user.getId());
     topicListDto.setUserFavs(isFavorite);
+    if (section != null) {
+      topicListDto.getSections().add(section.getId());
+    }
 
     return getCachedFeed(topicListDto);
   }
+
 
   /**
    * Получение списка топиков для RSS-ленты.

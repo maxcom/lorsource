@@ -47,10 +47,10 @@
     </div>
     <div class="nav-buttons">
       <ul>
-      <c:if test="${template.moderatorSession and group!=null}">
+      <c:if test="${sectionList == null and template.moderatorSession and group!=null}">
         <li><a href="groupmod.jsp?group=${group.id}">Править группу</a></li>
       </c:if>
-      <c:if test="${section != null}">
+      <c:if test="${sectionList == null and section != null}">
         <c:if test="${section.premoderated}">
           <li><a href="/view-all.jsp?section=${section.id}">Неподтвержденные</a></li>
         </c:if>
@@ -89,8 +89,22 @@
       </ul>
     </div>
 </div>
-
 <H1 class="optional">${ptitle}</H1>
+<c:if test="${sectionList != null}">
+    <form id="filterForm" action="" method="get">
+    <select name="section" onchange="$('#filterForm').submit();">
+      <label><option value="0"/>Все</label>
+      <c:forEach var="sectionListItem" items="${sectionList}">
+        <option
+          value="${sectionListItem.id}"
+          <c:if test="${section != null and sectionListItem.id == section.id}">
+            selected="selected"
+          </c:if>
+        >${sectionListItem.title}</option>
+      </c:forEach>
+    </select>
+    </form>
+</c:if>
 <c:forEach var="msg" items="${messages}">
   <lor:news preparedMessage="${msg.preparedTopic}" messageMenu="${msg.topicMenu}" multiPortal="<%= section==null && group==null %>" moderateMode="false"/>
 </c:forEach>
@@ -99,7 +113,7 @@
   <c:if test="${params !=null}">
     <c:set var="aparams" value="${params}&"/>
   </c:if>
-  
+
   <table class="nav">
     <tr>
       <c:if test="${offset < 200 && fn:length(messages) == 20}">
