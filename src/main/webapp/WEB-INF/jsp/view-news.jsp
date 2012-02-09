@@ -1,5 +1,4 @@
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="ru.org.linux.group.Group,ru.org.linux.section.Section"   buffer="200kb"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
@@ -19,19 +18,9 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
-<%--@elvariable id="messages" type="java.util.List<ru.org.linux.topic.PersonalizedPreparedTopic>"--%>
-<%--@elvariable id="section" type="ru.org.linux.section.Section"--%>
-<%--@elvariable id="group" type="ru.org.linux.group.Group"--%>
-<%--@elvariable id="offset" type="java.lang.Integer"--%>
-<%--@elvariable id="ptitle" type="java.lang.String"--%>
-<%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 	<title>${ptitle}</title>
-<%
-  Group group = (Group) request.getAttribute("group");
-  Section section = (Section) request.getAttribute("section");
-%>
 
 <c:if test="${rssLink != null}">
   <LINK REL="alternate" HREF="${rssLink}" TYPE="application/rss+xml">
@@ -55,26 +44,27 @@
         <c:if test="${section.premoderated}">
           <li><a href="/view-all.jsp?section=${section.id}">Неподтвержденные</a></li>
         </c:if>
-
-        <%
-          if (section.isVotePoll()) {
-            out.print("<li><a href=\"add.jsp?group=19387\">Добавить</a></li>");
-          } else {
-            if (group == null) {
-              out.print("<li><a href=\"add-section.jsp?section=" + section.getId() + "\">Добавить</a></li>");
-            } else {
-              out.print("<li><a href=\"add.jsp?group=" + group.getId() + "\">Добавить</a></li>");
-            }
-          }
-
-          if (section.getId() == Section.SECTION_FORUM) {
-            if (group == null) {
-              out.print("<li><a href=\"/forum/\">Таблица</a></li>");
-            } else {
-              out.print("<li><a href=\"/forum/" + group.getUrlName() + "/\">Таблица</a></li>");
-            }
-          }
-        %>
+        <c:choose>
+          <c:when test="${section.votePoll}">
+            <li><a href="add.jsp?group=19387">Добавить</a></li>
+          </c:when>
+          <c:when test="${group == null}">
+            <li><a href="add-section.jsp?section=${section.id}">Добавить</a></li>
+          </c:when>
+          <c:otherwise>
+            <li><a href="add.jsp?group=${group.id}">Добавить</a></li>
+          </c:otherwise>
+        </c:choose>
+        <c:if test="${section.id == Section.SECTION_FORUM}">
+          <c:choose>
+            <c:when test="${group == null}">
+              <li><a href="/forum/">Таблица</a></li>
+            </c:when>
+            <c:otherwise>
+              <li><a href="/forum/${group.urlName}">Таблица</a></li>
+            </c:otherwise>
+          </c:choose>
+        </c:if>
       </c:if>
 
       <c:if test="${archiveLink != null}">
@@ -101,7 +91,7 @@
 </div>
 <H1 class="optional">${ptitle}</H1>
 <c:forEach var="msg" items="${messages}">
-  <lor:news preparedMessage="${msg.preparedTopic}" messageMenu="${msg.topicMenu}" multiPortal="<%= section==null && group==null %>" moderateMode="false"/>
+  <lor:news preparedMessage="${msg.preparedTopic}" messageMenu="${msg.topicMenu}" multiPortal="${section==null && group==null}" moderateMode="false"/>
 </c:forEach>
 
 <c:if test="${offsetNavigation}">
@@ -136,4 +126,3 @@
 </c:if>
 
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>
-
