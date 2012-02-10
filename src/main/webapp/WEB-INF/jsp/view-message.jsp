@@ -104,7 +104,7 @@
 </form>
 
 <c:set var="scroller"><c:if test="${topScroller}">
-  <div class=nav style="display: table">
+  <div class=nav style="display: table; width: 100%">
     <div style="vertical-align: middle; width: 35%; display: table-cell">
       <table>
         <tr valign=middle>
@@ -143,7 +143,7 @@
 </c:if></c:set>
 
 <c:set var="bottomScroller"><c:if test="${bottomScroller}">
-  <div class=nav style="display: table">
+  <div class=nav style="display: table; width: 100%">
     <div style="vertical-align: middle; width: 35%; display: table-cell">
       <table>
         <tr valign=middle>
