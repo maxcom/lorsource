@@ -7,7 +7,7 @@ package ru.org.linux.topic;
  * @version 2012-02-09
  *          created 09.02.12 16:13
  */
-public class TopicListForm {
+public class TopicListRequest {
   private Integer section;
   private Integer group;
   private String tag;

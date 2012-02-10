@@ -72,7 +72,7 @@ public class TopicListController {
   @RequestMapping(value = "/view-news.jsp", method = {RequestMethod.GET, RequestMethod.HEAD})
   public ModelAndView mainTopicsFeedHandler(
     HttpServletRequest request,
-    TopicListForm topicListForm,
+    TopicListRequest topicListForm,
     HttpServletResponse response
   ) throws Exception {
 
@@ -147,7 +147,7 @@ public class TopicListController {
   @RequestMapping("/gallery/")
   public ModelAndView gallery(
     HttpServletRequest request,
-    TopicListForm topicListForm,
+    TopicListRequest topicListForm,
     HttpServletResponse response
   ) throws Exception {
 
@@ -171,7 +171,7 @@ public class TopicListController {
   @RequestMapping("/forum/lenta")
   public ModelAndView forum(
     HttpServletRequest request,
-    TopicListForm topicListForm,
+    TopicListRequest topicListForm,
     HttpServletResponse response
   ) throws Exception {
 
@@ -195,7 +195,7 @@ public class TopicListController {
   @RequestMapping("/polls/")
   public ModelAndView polls(
     HttpServletRequest request,
-    TopicListForm topicListForm,
+    TopicListRequest topicListForm,
     HttpServletResponse response
   ) throws Exception {
     topicListForm.setSection(Section.SECTION_POLLS);
@@ -218,7 +218,7 @@ public class TopicListController {
   @RequestMapping("/news/")
   public ModelAndView news(
     HttpServletRequest request,
-    TopicListForm topicListForm,
+    TopicListRequest topicListForm,
     HttpServletResponse response
   ) throws Exception {
     topicListForm.setSection(Section.SECTION_NEWS);
@@ -242,7 +242,7 @@ public class TopicListController {
   @RequestMapping("/gallery/{group}")
   public ModelAndView galleryGroup(
     HttpServletRequest request,
-    TopicListForm topicListForm,
+    TopicListRequest topicListForm,
     @PathVariable("group") String groupName,
     HttpServletResponse response
   ) throws Exception {
@@ -261,7 +261,7 @@ public class TopicListController {
   @RequestMapping("/news/{group}")
   public ModelAndView newsGroup(
     HttpServletRequest request,
-    TopicListForm topicListForm,
+    TopicListRequest topicListForm,
     @PathVariable("group") String groupName,
     HttpServletResponse response
   ) throws Exception {
@@ -280,7 +280,7 @@ public class TopicListController {
   @RequestMapping("/polls/{group}")
   public ModelAndView pollsGroup(
     HttpServletRequest request,
-    TopicListForm topicListForm,
+    TopicListRequest topicListForm,
     @PathVariable("group") String groupName,
     HttpServletResponse response
   ) throws Exception {
@@ -300,7 +300,7 @@ public class TopicListController {
   @RequestMapping("/{section}/archive/{year}/{month}")
   public ModelAndView galleryArchive(
     HttpServletRequest request,
-    TopicListForm topicListForm,
+    TopicListRequest topicListForm,
     @PathVariable String section,
     @PathVariable int year,
     @PathVariable int month,
@@ -328,7 +328,7 @@ public class TopicListController {
   @RequestMapping("/people/{nick}")
   public ModelAndView showUserTopicsNew(
     HttpServletRequest request,
-    TopicListForm topicListForm,
+    TopicListRequest topicListForm,
     @PathVariable String nick,
     HttpServletResponse response
   ) throws Exception {
@@ -404,7 +404,7 @@ public class TopicListController {
   @RequestMapping("/people/{nick}/favs")
   public ModelAndView showUserFavs(
     HttpServletRequest request,
-    TopicListForm topicListForm,
+    TopicListRequest topicListForm,
     @PathVariable String nick,
     HttpServletResponse response
   ) throws Exception {
@@ -526,7 +526,7 @@ public class TopicListController {
   @RequestMapping("/section-rss.jsp")
   public ModelAndView showRSS(
     HttpServletRequest request,
-    TopicListForm topicListForm
+    TopicListRequest topicListForm
   ) throws Exception {
 
     final String[] filterValues = {"all", "notalks", "tech"};
@@ -595,7 +595,7 @@ public class TopicListController {
   private void prepareTopicsForPlainOrRss(
     HttpServletRequest request,
     ModelAndView modelAndView,
-    TopicListForm topicListForm,
+    TopicListRequest topicListForm,
     List<Topic> messages
   ) {
     boolean rss = topicListForm.getOutput() != null && "rss".equals(topicListForm.getOutput());
@@ -646,7 +646,7 @@ public class TopicListController {
    */
   private ModelAndView group(
     HttpServletRequest request,
-    TopicListForm topicListForm,
+    TopicListRequest topicListForm,
     String groupName,
     HttpServletResponse response
   ) throws Exception {
@@ -673,7 +673,7 @@ public class TopicListController {
    */
   private void setExpireHeaders(
     HttpServletResponse response,
-    TopicListForm topicListForm
+    TopicListRequest topicListForm
   ) {
     if (topicListForm.getMonth()== null) {
       response.setDateHeader("Expires", System.currentTimeMillis() + 60 * 1000);
@@ -707,7 +707,7 @@ public class TopicListController {
    * @param topicListForm
    * @throws Exception
    */
-  private void checkRequestConditions(Section section, Group group, TopicListForm topicListForm)
+  private void checkRequestConditions(Section section, Group group, TopicListRequest topicListForm)
     throws Exception {
     if (topicListForm.getMonth() != null && topicListForm.getYear() == null) {
       throw new ServletParameterMissingException("year");
@@ -730,7 +730,7 @@ public class TopicListController {
    * @return
    * @throws BadDateException
    */
-  private String calculatePTitle(Section section, Group group, TopicListForm topicListForm)
+  private String calculatePTitle(Section section, Group group, TopicListRequest topicListForm)
     throws BadDateException {
     StringBuilder ptitle = new StringBuilder();
 
@@ -775,7 +775,7 @@ public class TopicListController {
    * @throws BadDateException
    * @throws SectionNotFoundException
    */
-  private String calculateNavTitle(Section section, Group group, TopicListForm topicListForm)
+  private String calculateNavTitle(Section section, Group group, TopicListRequest topicListForm)
     throws BadDateException, SectionNotFoundException {
 
     StringBuilder navTitle = new StringBuilder();
