@@ -463,7 +463,6 @@ public class TopicListController {
 
     ModelAndView modelAndView = new ModelAndView("view-all");
 
-
     Section section = null;
     if (sectionId != 0) {
       section = sectionService.getSection(sectionId);

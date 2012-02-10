@@ -40,7 +40,7 @@
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
   <c:url var="urlFilterHandler" value="view-all.jsp" />
-  <form:form commandName="topicListForm" action="${urlFilterHandler}">
+  <form action="${urlFilterHandler}">
 
   <div class=nav>
     <div id="navPath">
@@ -52,8 +52,8 @@
       <li><a href="rules.jsp">Правила форума</a></li>
       <li><a href="tags.jsp">Метки</a></li>
       </ul>
-      <form:select path="section" onChange="submit();" title="Быстрый переход">
-        <form:option value="0" label="Все" />
+      <select name="section" onChange="submit();" title="Быстрый переход">
+        <option value="0">Все</option>
         <c:forEach items="${sections}" var="item">
           <c:if test="${item.premoderated}">
             <c:if test="${section!=null && item.id == section.id}">
@@ -64,10 +64,10 @@
             </c:if>
           </c:if>
         </c:forEach>
-      </form:select>
+      </select>
     </div>
   </div>
-  </form:form>
+  </form>
 
 <h1 class="optional"><%= section==null?"П":(section.getName()+": п") %>росмотр неподтвержденных</h1>
 <strong>Внимание!</strong> Cообщения отображаются точно так же, как
