@@ -1,7 +1,8 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="java.util.Date,ru.org.linux.section.Section"   buffer="60kb"%>
+<%@ page import="ru.org.linux.section.Section,java.util.Date"   buffer="60kb"%>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%--
   ~ Copyright 1998-2012 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
