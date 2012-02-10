@@ -146,7 +146,7 @@
 
 <c:set var="bottomScroller"><c:if test="${bottomScroller}">
   <div class=nav>
-  <div style="display: table; width: auto">
+  <div style="display: table; width: 100%">
     <div style="vertical-align: middle; width: 35%; display: table-cell">
       <table>
         <tr valign=middle>
