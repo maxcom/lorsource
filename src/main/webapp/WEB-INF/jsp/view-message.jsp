@@ -104,92 +104,85 @@
 </form>
 
 <c:set var="scroller"><c:if test="${topScroller}">
-    <table class=nav>
-      <tr>
-        <td align=left valign=middle width="35%">
-          <table>
-            <tr valign=middle>
-                <c:if test="${prevMessage != null}">
-                  <td style="padding-right: 5px">
-                    <a href="${fn:escapeXml(prevMessage.link)}" rel=prev>←</a>
-                  </td>
-                  <td align=left valign=top>
-                    <a href="${fn:escapeXml(prevMessage.link)}" rel=prev>
-                    <%= StringUtil.makeTitle(prevMessage.getTitle()) %></a>
-                  </td>
-                </c:if>
-            </tr>
-          </table>
-        </td>
-        <td align=left valign=middle width="35%">
-          <c:if test="${nextMessage != null}">
-            <table align="right">
-              <tr valign=middle align=right>
-                <td>
-                  <a href="${fn:escapeXml(nextMessage.link)}" rel=next>
-                    <%= StringUtil.makeTitle(nextMessage.getTitle()) %>
-                  </a>
-                </td>
-                <td align="right" valign="middle" style="padding-left: 5px">
-                  <a href="${fn:escapeXml(nextMessage.link)}" rel=next>→</a>
-                </td>
-              </tr>
-            </table>
+  <div class=nav style="display: table">
+    <div style="vertical-align: middle; width: 35%; display: table-cell">
+      <table>
+        <tr valign=middle>
+          <c:if test="${prevMessage != null}">
+            <td style="padding-right: 5px">
+              <a href="${fn:escapeXml(prevMessage.link)}" rel=prev>←</a>
+            </td>
+            <td align=left valign=top>
+              <a href="${fn:escapeXml(prevMessage.link)}" rel=prev>
+                <%= StringUtil.makeTitle(prevMessage.getTitle()) %>
+              </a>
+            </td>
           </c:if>
-        </td>
-      </tr>
-    </table>
-
+        </tr>
+      </table>
+    </div>
+    <div style="vertical-align: middle; width: 30%; display: table-cell">
+    </div>
+    <div style="vertical-align: middle; width: 35%; display: table-cell; text-align: right">
+      <c:if test="${nextMessage != null}">
+        <table align="right">
+          <tr valign=middle align=right>
+            <td>
+              <a href="${fn:escapeXml(nextMessage.link)}" rel=next>
+                <%= StringUtil.makeTitle(nextMessage.getTitle()) %>
+              </a>
+            </td>
+            <td align="right" valign="middle" style="padding-left: 5px">
+              <a href="${fn:escapeXml(nextMessage.link)}" rel=next>→</a>
+            </td>
+          </tr>
+        </table>
+      </c:if>
+    </div>
+  </div>
 </c:if></c:set>
 
 <c:set var="bottomScroller"><c:if test="${bottomScroller}">
-    <table class=nav>
-      <tr>
-        <td align=left valign=middle width="35%">
-          <table>
-            <tr valign=middle>
-                <c:if test="${prevMessage != null}">
-                  <td style="padding-right: 5px">
-                    <a href="${fn:escapeXml(prevMessage.link)}" rel=prev>←</a>
-                  </td>
-                  <td align=left valign=top>
-                    <a href="${fn:escapeXml(prevMessage.link)}" rel=prev>
-                    <%= StringUtil.makeTitle(prevMessage.getTitle()) %></a>
-                  </td>
-                </c:if>
-            </tr>
-          </table>
-        </td>
-        <td align=center valign=middle>
-          <table>
-            <tr valign=middle>
-              <td>
-                <a title="${preparedMessage.section.title} - ${preparedMessage.group.title}"
-                   href="${group.url}">
-                  ${preparedMessage.section.title} - ${preparedMessage.group.title}
-                </a>
-              </td>
-            </tr>
-          </table>
-        <td align=right valign=middle width="35%">
-          <c:if test="${nextMessage != null}">
-            <table align="right">
-              <tr valign=middle align=right>
-                <td>
-                  <a href="${fn:escapeXml(nextMessage.link)}" rel=next>
-                    <%= StringUtil.makeTitle(nextMessage.getTitle()) %>
-                  </a>
-                </td>
-                <td align="right" valign="middle" style="padding-left: 5px">
-                  <a href="${fn:escapeXml(nextMessage.link)}" rel=next>→</a>
-                </td>
-              </tr>
-            </table>
+  <div class=nav style="display: table">
+    <div style="vertical-align: middle; width: 35%; display: table-cell">
+      <table>
+        <tr valign=middle>
+          <c:if test="${prevMessage != null}">
+            <td style="padding-right: 5px">
+              <a href="${fn:escapeXml(prevMessage.link)}" rel=prev>←</a>
+            </td>
+            <td align=left valign=top>
+              <a href="${fn:escapeXml(prevMessage.link)}" rel=prev>
+                <%= StringUtil.makeTitle(prevMessage.getTitle()) %>
+              </a>
+            </td>
           </c:if>
-        </td>
-      </tr>
-    </table>
-
+        </tr>
+      </table>
+    </div>
+    <div style="vertical-align: middle; width: 30%; display: table-cell; text-align: center">
+      <a title="${preparedMessage.section.title} - ${preparedMessage.group.title}"
+         href="${group.url}">
+          ${preparedMessage.section.title} - ${preparedMessage.group.title}
+      </a>
+    </div>
+    <div style="vertical-align: middle; width: 35%; display: table-cell; text-align: right">
+      <c:if test="${nextMessage != null}">
+        <table align="right">
+          <tr valign=middle align=right>
+            <td>
+              <a href="${fn:escapeXml(nextMessage.link)}" rel=next>
+                <%= StringUtil.makeTitle(nextMessage.getTitle()) %>
+              </a>
+            </td>
+            <td align="right" valign="middle" style="padding-left: 5px">
+              <a href="${fn:escapeXml(nextMessage.link)}" rel=next>→</a>
+            </td>
+          </tr>
+        </table>
+      </c:if>
+    </div>
+  </div>
 </c:if></c:set>
 
 <c:if test="${showDeleted}">
