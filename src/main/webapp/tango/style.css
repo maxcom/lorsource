@@ -427,6 +427,11 @@ div.quote {
         height: auto;
     }
 
+    img.medium-image {
+        max-width: 100%;
+        height: auto;
+    }
+
     .userpic {
         width: 50px;
     }

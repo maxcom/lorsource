@@ -24,7 +24,7 @@
 <c:if test="${showImage!=null and showImage and preparedImage!=null}">
   <p>
     <a href="${preparedImage.fullName}">
-      <img src="${preparedImage.mediumName}" alt="${topic.title}" ${preparedImage.mediumInfo.code}>
+      <img class="medium-image" src="${preparedImage.mediumName}" alt="${topic.title}" ${preparedImage.mediumInfo.code}>
     </a>
   </p>
 </c:if>
