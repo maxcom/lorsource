@@ -335,8 +335,6 @@
   </div>
 </c:if>
 
-<jsp:include page="/WEB-INF/jsp/footer.jsp"/>
-
 <c:if test="${template.prof.showSocial}">
   <!-- Place this tag in your head or just before your close body tag -->
     <script type="text/javascript" src="https://apis.google.com/js/plusone.js">
@@ -345,3 +343,5 @@
         }
     </script>
 </c:if>
+
+<jsp:include page="/WEB-INF/jsp/footer.jsp"/>
