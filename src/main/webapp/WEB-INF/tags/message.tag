@@ -165,16 +165,10 @@
               <img border="0" src="/img/juick.png" width=16 height=16 alt="Juick" title="Share on Juick">
             </a>
 
-            <!-- Place this tag in your head or just before your close body tag -->
-              <script type="text/javascript" src="https://apis.google.com/js/plusone.js">
-                  {
-                      lang: 'ru'
-                  }
-              </script>
-
-              <!-- Place this tag where you want the +1 button to render -->
-<%--suppress CheckTagEmptyBody --%>
-              <g:plusone size="small" href="${template.mainUrlNoSlash}${message.link}"></g:plusone>
+            <!-- Place this tag where you want the +1 button to render -->
+            <div style="width: 70px; height: 15px; display: inline-block">
+              <div class="g-plusone" data-size="small" data-href="${template.mainUrlNoSlash}${message.link}"></div>
+            </div>
           </div>
           </c:if>
           <ul>
