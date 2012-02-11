@@ -76,7 +76,6 @@ DIV.newsblog {
 
 .newsblog-in {
   margin-left: 245px;
-  min-width: 20em;
 }
 
 .newsblog-in2 {
@@ -343,10 +342,6 @@ pre code span {
 .boxlet li {
     list-style: inside !important;
     margin-left: 0 !important;
-}
-
-.msg {
-    min-width: 20em;
 }
 
 .tags {
