@@ -115,19 +115,21 @@ public class TopicListServiceTest {
   }
 
   @Test
-  public void getUserTopicsFeedWithSectionTest()
+  public void getUserTopicsFeedWithSectionAndGroupTest()
       throws UserErrorException, TagNotFoundException {
 
     User user = mock(User.class);
     when(user.getId()).thenReturn(12345);
 
     List<Topic> topicList = topicListService.getUserTopicsFeed(
-        user, section1, 123, true
+        user, section1, group, 123, true
     );
 
     assertEquals(1, topicListDto.getSections().size());
     Integer sectionId = topicListDto.getSections().iterator().next();
     assertEquals(new Integer(11), sectionId);
+
+    assertEquals(111, topicListDto.getGroup());
 
     assertEquals(new Integer(20), topicListDto.getLimit());
     assertEquals(new Integer(123), topicListDto.getOffset());

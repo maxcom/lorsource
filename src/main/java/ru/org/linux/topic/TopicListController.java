@@ -339,8 +339,13 @@ public class TopicListController {
     ModelAndView modelAndView = new ModelAndView();
 
     Section section = null;
+    Group group = null;
     if (topicListForm.getSection() != null && topicListForm.getSection().intValue() != 0) {
       section = sectionService.getSection(topicListForm.getSection());
+
+      if (topicListForm.getGroup() != null && topicListForm.getGroup().intValue() != 0) {
+        group = groupDao.getGroup(topicListForm.getGroup());
+      }
     }
 
     if (topicListForm.getTag() != null) {
@@ -368,6 +373,7 @@ public class TopicListController {
     List<Topic> messages = topicListService.getUserTopicsFeed(
       user,
       section,
+      group,
       topicListForm.getOffset(),
       false
     );
@@ -376,16 +382,25 @@ public class TopicListController {
     if (!rss) {
       if (section != null) {
         modelAndView.addObject("section", section);
+        modelAndView.addObject("group", group);
+        List <Group> groupList = groupDao.getGroups(section);
+        if (groupList.size() == 1) {
+          groupList = null;
+        }
+        modelAndView.addObject("groupList", groupList);
       }
-
       modelAndView.addObject("sectionList", sectionService.getSectionList());
     }
 
     if ("0".equals(topicListForm.getSection())) {
       topicListForm.setSection(null);
     }
+    if ("0".equals(topicListForm.getGroup())) {
+      topicListForm.setGroup(null);
+    }
     URLUtil.QueryString queryString = new URLUtil.QueryString();
     queryString.add("section", topicListForm.getSection());
+    queryString.add("group", topicListForm.getGroup());
     queryString.add("tag", topicListForm.getTag());
     modelAndView.addObject("params", queryString.toString());
 
