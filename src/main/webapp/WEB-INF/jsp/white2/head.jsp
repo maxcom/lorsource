@@ -24,7 +24,7 @@
 <!-- #defefc #aea6f2 -->
 
 <table width="100%" border=0 cellpadding=0 cellspacing=0>
-<tr><td class="bluehead"><img src="/white2/h1.png" alt="Русская информация об ОС Linux" width=452 height=72></td>
+<tr><td class="bluehead" style="line-height: 0"><img src="/white2/h1.png" alt="Русская информация об ОС Linux" width=452 height=72></td>
 <td align="right" valign="top" class="bluehead">
   <c:if test="${template.sessionAuthorized}">
     <c:url var="userUrl" value="/people/${template.nick}/profile"/>
