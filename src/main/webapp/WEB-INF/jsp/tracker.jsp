@@ -38,7 +38,7 @@
 </title>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
-<form:form commandName="tracker" ACTION="tracker.jsp" method="GET">
+<form:form commandName="tracker" method="GET">
   <div class=nav>
       <div id="navPath">
         <%= title %>
