@@ -263,7 +263,7 @@ public class AddTopicController extends ApplicationObjectSupport {
 
     Poll poll = null;
     
-    if (group.isPollPostAllowed()) {
+    if (group!=null && group.isPollPostAllowed()) {
       poll = preparePollPreview(form);
     }
 
