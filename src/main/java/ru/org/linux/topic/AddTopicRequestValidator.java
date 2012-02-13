@@ -24,7 +24,7 @@ import ru.org.linux.user.UserErrorException;
 import ru.org.linux.util.URLUtil;
 
 public class AddTopicRequestValidator implements Validator {
-  public static final int MAX_TITLE_LENGTH = 255;
+  public static final int MAX_TITLE_LENGTH = 140;
   public static final int MAX_URL_LENGTH = 255;
 
   @Override
