@@ -121,20 +121,20 @@
   </table>
 </div>
 
-<table class="nav">
-  <tr>
-    <td align="left">
+<div class="nav">
+  <div style="display: table; width: 100%">
+    <div style="display: table-cell; text-align: left">
       <c:if test="${offset>0}">
         <a href="tracker.jsp?offset=${offset-topics}${query}">← предыдущие</a>
       </c:if>
-    </td>
-    <td align="right">
+    </div>
+    <div style="display: table-cell; text-align: right">
       <c:if test="${offset+topics<300 and fn:length(msgs)==topics}">
         <a href="tracker.jsp?offset=${offset+topics}${query}">следующие →</a>
       </c:if>
-    </td>
-  </tr>
-</table>
+    </div>
+  </div>
+</div>
 
 <c:if test="${newUsers!=null and fn:length(newUsers)!=0}">
   <h2>Новые пользователи</h2>
