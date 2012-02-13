@@ -19,7 +19,6 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
-
 <%--@elvariable id="topicsList" type="java.util.List<ru.org.linux.group.TopicsListItem>"--%>
 <%--@elvariable id="group" type="ru.org.linux.group.Group"--%>
 <%--@elvariable id="section" type="ru.org.linux.section.Section"--%>
@@ -34,7 +33,6 @@
 <%--@elvariable id="month" type="java.lang.Integer"--%>
 <%--@elvariable id="url" type="java.lang.String"--%>
 <%--@elvariable id="groupInfo" type="ru.org.linux.group.PreparedGroupInfo"--%>
-
 <% Template tmpl = Template.getTemplate(request); %>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 <script type="text/javascript">
@@ -195,13 +193,13 @@
     </c:if>
 
     <c:if test="${firstPage and topic.pages<=1}">
-        <a href="${group.url}${topic.msgid}?lastmod=${topic.lastmod.time}" rev="contents">
+        <a href="${group.url}${topic.msgid}?lastmod=${topic.lastmod.time}">
           ${topic.subj}
         </a>
     </c:if>
 
     <c:if test="${not firstPage or topic.pages>1}">
-      <a href="${group.url}${topic.msgid}" rev="contents">
+      <a href="${group.url}${topic.msgid}">
           ${topic.subj}
       </a>
     </c:if>
@@ -234,9 +232,9 @@
   }
 
   if (offset - topics > 0) {
-    out.print("<a rel=prev rev=next href=\"" + url + "?offset=" + (offset - topics) + urlAdd + "\">← назад</a>");
+    out.print("<a rel=prev href=\"" + url + "?offset=" + (offset - topics) + urlAdd + "\">← назад</a>");
   } else if (offset - topics == 0) {
-    out.print("<a rel=prev rev=next href=\"" + url + (!urlAdd.isEmpty() ? ('?' + urlAdd.substring(5)) : "") + "\">← назад</a>");
+    out.print("<a rel=prev href=\"" + url + (!urlAdd.isEmpty() ? ('?' + urlAdd.substring(5)) : "") + "\">← назад</a>");
   }
 %>
 </div>
@@ -244,7 +242,7 @@
   <%
     if (offset + topics < count) {
       if (year!=null || (offset+topics) < GroupController.MAX_OFFSET) {
-        out.print("<a rel=next rev=prev href=\"" + url + "?offset=" + (offset + topics) + urlAdd + "\">вперед →</a>");
+        out.print("<a rel=next href=\"" + url + "?offset=" + (offset + topics) + urlAdd + "\">вперед →</a>");
       }
     }
   %>
