@@ -15,6 +15,7 @@
 
 package ru.org.linux.topic;
 
+import com.google.common.base.Strings;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -77,7 +78,7 @@ public class TopicListController {
   ) throws Exception {
 
     Section section = null;
-    if (topicListForm.getSection() != null) {
+    if (topicListForm.getSection() != null && topicListForm.getSection()!=0) {
       section = sectionService.getSection(topicListForm.getSection());
     }
 
@@ -96,7 +97,10 @@ public class TopicListController {
     modelAndView.addObject("url", "view-news.jsp");
     if (section != null) {
       modelAndView.addObject("section", section);
-      modelAndView.addObject("archiveLink", section.getArchiveLink());
+
+      if (Strings.isNullOrEmpty(topicListForm.getTag())) {
+        modelAndView.addObject("archiveLink", section.getArchiveLink());
+      }
     }
 
     setExpireHeaders(response, topicListForm);
@@ -125,16 +129,14 @@ public class TopicListController {
 
     modelAndView.addObject("offsetNavigation", topicListForm.getMonth() == null);
 
-    if (topicListForm.getSection() == null
-      && topicListForm.getTag() != null
-      && !topicListForm.getTag().trim().isEmpty()) {
+    if (!Strings.isNullOrEmpty(topicListForm.getTag())) {
       boolean rss = topicListForm.getOutput() != null && "rss".equals(topicListForm.getOutput());
       if (!rss) {
         modelAndView.addObject("sectionList", sectionService.getSectionList());
       }
     }
 
-    if (section != null) {
+    if (section != null && Strings.isNullOrEmpty(topicListForm.getTag())) {
       String rssLink = "/section-rss.jsp?section=" + section.getId();
       if (group != null) {
         rssLink += "&group=" + group.getId();
