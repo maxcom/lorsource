@@ -72,7 +72,7 @@
       </c:if>
 
       <c:if test="${whoisLink != null}">
-        <li><a href="${whoisLink}">Профиль</a><li>
+        <li><a href="${whoisLink}">Профиль</a></li>
       </c:if>
 
       <c:if test="${rssLink != null}">
