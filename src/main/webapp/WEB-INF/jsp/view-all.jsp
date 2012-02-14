@@ -88,17 +88,12 @@
 <div class=forum>
 <table class="message-table" width="100%">
 <thead>
-<tr><th>&nbsp;<a name="undelete" title="Восстановить">#</a>&nbsp;</th><th>Группа</th><th>Заголовок</th><th>Причина удаления</th></tr>
+<tr><th>Группа</th><th>Заголовок</th><th>Причина удаления</th></tr>
 <tbody>
 
 <c:forEach items="${deletedTopics}" var="topic">
 
 <tr>
-  <td align="center">
-    <c:if test="${template.moderatorSession}">
-      <a href="/undelete.jsp?msgid=${topic.id}" title="Восстановить">#</a>
-    </c:if>
-  </td>
   <td><a href="group.jsp?group=${topic.groupId}">${topic.ptitle} - ${topic.gtitle}</a></td>
   <td><a href="view-message.jsp?msgid=${topic.id}">${topic.title}</a> (${topic.nick})</td>
   <td>${topic.reason}</td>
