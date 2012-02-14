@@ -125,21 +125,21 @@
   </div>
   </div>
 
-  <table class="nav">
-    <tr>
+<div class="nav">
+  <div style="display: table; width: 100%">
       <c:if test="${prevLink!=null}">
-        <td align="left" width="35%">
+        <div style="display: table-cell; text-align: left">
           <a href="${prevLink}">← предыдущие</a>
-        </td>
+        </div>
       </c:if>
       <c:if test="${nextLink!=null}">
-        <td width="35%" align="right">
+        <div style="display: table-right; text-align: right">
           <a href="${nextLink}">следующие →</a>
-        </td>
+        </div>
       </c:if>
-    </tr>
-  </table>
-
+  </div>
+</div>
+  
   <p>
     <i>
       Время поиска ${searchTime} ms, время БД ${time} ms
