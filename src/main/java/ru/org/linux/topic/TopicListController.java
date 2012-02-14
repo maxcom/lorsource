@@ -123,7 +123,16 @@ public class TopicListController {
       prepareService.prepareMessagesForUser(messages, request.isSecure(), tmpl.getCurrentUser())
     );
 
-    modelAndView.addObject("offsetNavigation", topicListForm.getMonth()== null);
+    modelAndView.addObject("offsetNavigation", topicListForm.getMonth() == null);
+
+    if (topicListForm.getSection() == null
+      && topicListForm.getTag() != null
+      && !topicListForm.getTag().trim().isEmpty()) {
+      boolean rss = topicListForm.getOutput() != null && "rss".equals(topicListForm.getOutput());
+      if (!rss) {
+        modelAndView.addObject("sectionList", sectionService.getSectionList());
+      }
+    }
 
     if (section != null) {
       String rssLink = "/section-rss.jsp?section=" + section.getId();
@@ -310,7 +319,7 @@ public class TopicListController {
     topicListForm.setYear(year);
     topicListForm.setMonth(month);
 
-    ModelAndView modelAndView = mainTopicsFeedHandler( request, topicListForm, response);
+    ModelAndView modelAndView = mainTopicsFeedHandler(request, topicListForm, response);
 
     modelAndView.addObject("url", "/gallery/archive/" + year + '/' + month + '/');
     modelAndView.addObject("params", null);
@@ -383,7 +392,7 @@ public class TopicListController {
       if (section != null) {
         modelAndView.addObject("section", section);
         modelAndView.addObject("group", group);
-        List <Group> groupList = groupDao.getGroups(section);
+        List<Group> groupList = groupDao.getGroups(section);
         if (groupList.size() == 1) {
           groupList = null;
         }
@@ -503,11 +512,7 @@ public class TopicListController {
   }
 
   /**
-   * @param section
-   * @param offset
-   * @param month
-   * @param year
-   * @param groupId
+   * @param topicListForm
    * @return
    * @throws Exception
    * @deprecated
@@ -515,27 +520,43 @@ public class TopicListController {
   @Deprecated
   @RequestMapping(value = "/view-news.jsp", params = {"section"})
   public View oldLink(
-    @RequestParam int section,
-    @RequestParam(required = false) Integer offset,
-    @RequestParam(value = "month", required = false) Integer month,
-    @RequestParam(value = "year", required = false) Integer year,
-    @RequestParam(value = "group", required = false) Integer groupId
+    TopicListRequest topicListForm
   ) throws Exception {
-    if (offset != null) {
-      return new RedirectView(Section.getNewsViewerLink(section) + "?offset=" + Integer.toString(offset));
+
+    if ("0".equals(topicListForm.getGroup())) {
+      topicListForm.setGroup(null);
     }
 
-    if (year != null && month != null) {
-      return new RedirectView(Section.getArchiveLink(section) + Integer.toString(year) + '/' + Integer.toString(month));
+    StringBuilder redirectLink = new StringBuilder();
+    redirectLink.append(Section.getNewsViewerLink(topicListForm.getSection()));
+
+    if (topicListForm.getYear() != null && topicListForm.getMonth() != null) {
+      redirectLink
+        .append(topicListForm.getYear())
+        .append('/')
+        .append(topicListForm.getMonth());
+    } else if (topicListForm.getGroup() != null) {
+      Group group = groupDao.getGroup(topicListForm.getGroup());
+      redirectLink
+        .append(group.getUrlName())
+        .append('/');
     }
 
-    if (groupId != null) {
-      Group group = groupDao.getGroup(groupId);
+    URLUtil.QueryString queryString = new URLUtil.QueryString();
+    queryString.add("offset", topicListForm.getOffset());
 
-      return new RedirectView(Section.getNewsViewerLink(section) + group.getUrlName() + '/');
+    if (topicListForm.getTag() != null && !topicListForm.getTag().trim().isEmpty()) {
+      queryString.add("tag", topicListForm.getTag());
     }
 
-    return new RedirectView(Section.getNewsViewerLink(section));
+    String queryStr = queryString.toString();
+    if (queryStr.length() > 0) {
+      redirectLink
+        .append('?')
+        .append(queryStr);
+    }
+
+    return new RedirectView(redirectLink.toString());
   }
 
   @RequestMapping("/section-rss.jsp")
@@ -690,7 +711,7 @@ public class TopicListController {
     HttpServletResponse response,
     TopicListRequest topicListForm
   ) {
-    if (topicListForm.getMonth()== null) {
+    if (topicListForm.getMonth() == null) {
       response.setDateHeader("Expires", System.currentTimeMillis() + 60 * 1000);
       response.setDateHeader("Last-Modified", System.currentTimeMillis());
     } else {
