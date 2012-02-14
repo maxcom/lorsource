@@ -54,28 +54,22 @@
         <h1><a id="sitetitle" href="/">LINUX.ORG.RU<span class="longtitle">&nbsp;&#8212; Русская информация об&nbsp;ОС&nbsp;Linux</span></a></h1>
 
         <div class="menu">
-            <ul class="primary">
-                <li class="first"><a href="/news/">Новости</a></li>
-                <li><a href="/gallery/">Галерея</a></li>
+          <ul class="primary">
+            <li class="first"><a href="/news/">Новости</a></li>
+            <li><a href="/gallery/">Галерея</a></li>
 
-                <li><a href="/forum/">Форум</a></li>
-                <li><a href="/tracker.jsp">Трекер</a></li>
-                <li><a href="/wiki/">Wiki</a></li>
-                <li class="last"><a href="/search.jsp">Поиск</a></li>
-            </ul>
-            <ul class="secondary">
-                <li class="first"><a href="/wiki/en/Linux">O&nbsp;linux</a></li>
-                <li><a href="/wiki/en/%D0%94%D0%B8%D1%81%D1%82%D1%80%D0%B8%D0%B1%D1%83%D1%82%D0%B8%D0%B2%D1%8B">Дистрибутивы</a></li>
+            <li><a href="/forum/">Форум</a></li>
+            <li><a href="/tracker.jsp">Трекер</a></li>
+            <li><a href="/wiki/">Wiki</a></li>
+            <c:if test="${template.sessionAuthorized}">
+              <li>
+                <lor:events/>
+              </li>
+            </c:if>
 
-                <c:if test="${template.sessionAuthorized}">
-                  <li>
-                    <lor:events/>
-                  </li>
-                </c:if>
-
-                <li class="last"><a href="/server.jsp">О&nbsp;сервере</a></li>
-            </ul>
+            <li class="last"><a href="/search.jsp">Поиск</a></li>
+          </ul>
         </div>
-    </div>
+      </div>
 
 <div style="clear: both"></div>
