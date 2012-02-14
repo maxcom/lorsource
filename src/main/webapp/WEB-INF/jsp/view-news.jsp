@@ -81,6 +81,7 @@
       </ul>
       <c:if test="${sectionList != null}">
         <form:form commandName="topicListRequest" id="filterForm" action="" method="get">
+          <form:hidden path="tag"/>
           <form:select path="section" onchange="$('#group').val('0'); $('#filterForm').submit();">
             <form:option value="0" label="Все" />
             <form:options items="${sectionList}" itemLabel="title" itemValue="id" />
