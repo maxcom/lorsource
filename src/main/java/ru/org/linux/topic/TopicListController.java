@@ -518,7 +518,7 @@ public class TopicListController {
    * @deprecated
    */
   @Deprecated
-  @RequestMapping(value = "/view-news.jsp", params = {"section"})
+  @RequestMapping(value = "/view-news.jsp", params = {"section", "!tag"})
   public View oldLink(
     TopicListRequest topicListForm
   ) throws Exception {
