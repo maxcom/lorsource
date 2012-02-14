@@ -817,9 +817,15 @@ public class TopicListController {
     throws BadDateException, SectionNotFoundException {
 
     StringBuilder navTitle = new StringBuilder();
-    navTitle.append(topicListForm.getTag());
 
-    if (group == null) {
+    if (!Strings.isNullOrEmpty(topicListForm.getTag())) {
+      navTitle.append(topicListForm.getTag());
+
+      if (section!=null) {
+        navTitle.append(" - ");
+        navTitle.append(section.getName());
+      }
+    } else if (group == null) {
       if (section != null) {
         navTitle.setLength(0);
         navTitle.append(section.getName());
@@ -844,5 +850,4 @@ public class TopicListController {
     }
     return navTitle.toString();
   }
-
 }
