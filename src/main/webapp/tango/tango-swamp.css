@@ -17,8 +17,7 @@ html,body{background-color:#D9DAC6 !important;}
 body{color:#00000d !important;}
 a{color:#0000ad !important;}
 #hd h1{color:#fff !important;}
-#hd .menu .primary a{color:#3F77FF !important;}
-#hd .menu .secondary a{color:#3F77FF !important;}
+#hd .menu a{color:#3F77FF !important;}
 #bd h2 *{color:#0000AD !important;}
 #bd .tags a{color:#3F77FF !important;}
 #bd .sign a{color:#0000ad !important; text-decoration: none !important;}

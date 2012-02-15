@@ -29,12 +29,8 @@ a {
 	color: #ffffff;
 }
 
-#hd .menu .primary a {
+#hd .menu a {
 	color: #e9b96e;
-}
-
-#hd .menu .secondary a {
-	color: #fcaf3e;
 }
 
 #bd h2 * {

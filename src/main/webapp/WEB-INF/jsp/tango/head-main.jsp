@@ -51,25 +51,21 @@
         </c:if>
         </div>
 
-        <h1><a id="sitetitle" href="/">LINUX.ORG.RU<span class="longtitle">&nbsp;&#8212; Русская информация об&nbsp;ОС&nbsp;Linux</span></a></h1>
+        <a id="sitetitle" href="/">LINUX.ORG.RU</a>
 
-        <div class="menu">
-          <ul class="primary">
-            <li class="first"><a href="/news/">Новости</a></li>
-            <li><a href="/gallery/">Галерея</a></li>
+        <ul class="menu">
+          <li><a href="/news/">Новости</a></li>
+          <li><a href="/gallery/">Галерея</a></li>
 
-            <li><a href="/forum/">Форум</a></li>
-            <li><a href="/tracker.jsp">Трекер</a></li>
-            <li><a href="/wiki/">Wiki</a></li>
-            <c:if test="${template.sessionAuthorized}">
-              <li>
-                <lor:events/>
-              </li>
-            </c:if>
+          <li><a href="/forum/">Форум</a></li>
+          <li><a href="/tracker.jsp">Трекер</a></li>
+          <li><a href="/wiki/">Wiki</a></li>
+          <c:if test="${template.sessionAuthorized}">
+            <li>
+              <lor:events/>
+            </li>
+          </c:if>
 
-            <li class="last"><a href="/search.jsp">Поиск</a></li>
-          </ul>
-        </div>
+          <li><a href="/search.jsp">Поиск</a></li>
+        </ul>
       </div>
-
-<div style="clear: both"></div>

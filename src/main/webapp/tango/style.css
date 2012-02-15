@@ -72,37 +72,37 @@ p {
 
 #hd {
     padding-left: 1em;
+    margin-bottom: 0.75em;
 }
 
-#hd h1 {
+#hd:after {
+	content: ".";
+	display: block;
+	clear: both;
+	visibility: hidden;
+	line-height: 0;
+	height: 0;
+}
+
+#sitetitle {
 	font-size: 2em;
 	font-weight: bold;
+    margin-right: 1em;
+    text-decoration: none;
+    display: block;
+    float: left;
 }
 
 #hd .menu {
-	text-align: center;
 	margin-top: 0.5em;
 	margin-bottom: 0.5em;
-}
-
-#hd .menu li:after {
-	content: " |";
-}
-
-#hd .menu li.last:after {
-	content: " ";
+    float: left;
+    font-size: 1.1em;
 }
 
 #hd .menu li {
 	display: inline;
-}
-
-#hd .primary {
-	font-size: 1.1em;
-}
-
-#hd .secondary {
-	font-size: 0.9em;
+    margin-right: 0.5em;
 }
 
 #bd {
@@ -280,6 +280,8 @@ border-radius: 1em;
     text-align: right; 
     float: right;
     padding-left: 1em;
+    margin-top: 0.5em;
+    margin-right: 0.75em;
 }
 
 input[type="radio"] {
@@ -323,7 +325,7 @@ input[type="checkbox"] {
 
 table.poll-result .penguin{
     background-repeat: repeat-x;
-    background-color: transparent !Important;
+    background-color: transparent !important;
     background-image: url("/tango/img/votes.png") !important;
 }
 
@@ -359,10 +361,6 @@ div.quote {
     -moz-border-radius: 0.2em;
     border-radius: 0.2em;
     zoom: 1;
-}
-
-#sitetitle {
-    text-decoration: none;
 }
 
 @media screen and (max-width: 800px) {
@@ -438,10 +436,6 @@ div.quote {
 
     .message-w-userpic {
         padding-left: 60px;
-    }
-
-    .longtitle {
-        display: none;
     }
 
     #navPath {
