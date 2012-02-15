@@ -27,7 +27,25 @@
 </head>
 <body>
   	<div id="hd">
-        <div id="loginGreating" class="head">
+        <a id="sitetitle" href="/">LINUX.ORG.RU</a>
+
+        <ul class="menu">
+          <li><a href="/news/">Новости</a></li>
+          <li><a href="/gallery/">Галерея</a></li>
+
+          <li><a href="/forum/">Форум</a></li>
+          <li><a href="/tracker.jsp">Трекер</a></li>
+          <li><a href="/wiki/">Wiki</a></li>
+          <c:if test="${template.sessionAuthorized}">
+            <li>
+              <lor:events/>
+            </li>
+          </c:if>
+
+          <li><a href="/search.jsp">Поиск</a></li>
+        </ul>
+
+        <div id="loginGreating">
         <c:if test="${template.sessionAuthorized}">
           <c:url var="userUrl" value="/people/${template.nick}/profile"/>
           добро пожаловать, <a style="text-decoration: none" href="${userUrl}">${template.nick}</a>
@@ -50,23 +68,5 @@
           </form>
         </c:if>
         </div>
-
-        <a id="sitetitle" href="/">LINUX.ORG.RU</a>
-
-        <ul class="menu">
-          <li><a href="/news/">Новости</a></li>
-          <li><a href="/gallery/">Галерея</a></li>
-
-          <li><a href="/forum/">Форум</a></li>
-          <li><a href="/tracker.jsp">Трекер</a></li>
-          <li><a href="/wiki/">Wiki</a></li>
-          <c:if test="${template.sessionAuthorized}">
-            <li>
-              <lor:events/>
-            </li>
-          </c:if>
-
-          <li><a href="/search.jsp">Поиск</a></li>
-        </ul>
       </div>
       <div style="clear: both"></div>
