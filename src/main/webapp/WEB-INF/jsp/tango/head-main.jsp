@@ -69,3 +69,4 @@
           <li><a href="/search.jsp">Поиск</a></li>
         </ul>
       </div>
+      <div style="clear: both"></div>
