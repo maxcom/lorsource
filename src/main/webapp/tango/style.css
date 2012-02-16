@@ -456,5 +456,6 @@ div.quote {
 
     #sitetitle {
         font-size: 1.6em;
+        float: none;
     }
 }
