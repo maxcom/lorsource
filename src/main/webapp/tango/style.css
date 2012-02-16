@@ -137,6 +137,10 @@ p {
     padding-top: 0.5em;
 }
 
+.mini-news {
+    font-size: medium;
+}
+
 #bd h1.optional {
     display: none;
 }

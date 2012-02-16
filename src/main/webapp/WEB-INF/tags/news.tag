@@ -207,7 +207,7 @@
 </c:if>
 
 <c:if test="${message.minor}">
-<div class=infoblock id="topic-${message.id}">
+<div class="infoblock mini-news" id="topic-${message.id}">
 Мини-новость:
   <a href="${fn:escapeXml(message.link)}">${message.title}</a>
 
