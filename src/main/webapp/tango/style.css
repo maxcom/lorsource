@@ -94,15 +94,23 @@ p {
 }
 
 #hd .menu {
-	margin-top: 0.5em;
 	margin-bottom: 0.5em;
-    float: left;
     font-size: 1.1em;
 }
 
+#hd .menu:after {
+    content: ".";
+    display: block;
+    clear: both;
+    visibility: hidden;
+    line-height: 0;
+    height: 0;
+}
+
 #hd .menu li {
-	display: inline;
+    float: left;
     margin-right: 0.5em;
+    margin-top: 0.5em;
 }
 
 #bd {
@@ -278,9 +286,8 @@ border-radius: 1em;
 
 #loginGreating {
     text-align: right; 
-    float: right;
+    float: right !important;
     padding-left: 1em;
-    margin-top: 0.5em;
     margin-right: 0.75em;
 }
 

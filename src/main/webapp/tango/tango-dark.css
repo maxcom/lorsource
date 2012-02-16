@@ -25,6 +25,10 @@ a {
 	color: #729fcf;
 }
 
+#loginGreating a {
+    color: #729fcf !important;
+}
+
 #hd h1 {
 	color: #ffffff;
 }

@@ -43,12 +43,11 @@
           </c:if>
 
           <li><a href="/search.jsp">Поиск</a></li>
-        </ul>
 
-        <div id="loginGreating">
+        <li id="loginGreating">
         <c:if test="${template.sessionAuthorized}">
           <c:url var="userUrl" value="/people/${template.nick}/profile"/>
-          добро пожаловать, <a style="text-decoration: none" href="${userUrl}">${template.nick}</a>
+          <a style="text-decoration: none" href="${userUrl}">${template.nick}</a>
           <a href="logout.jsp?sessionId=<%= session.getId() %>" title="Выйти">
           <img style="position: relative; bottom: -2px; border: 0" src="/img/logout.png" width="16" height="16" alt="[x]">
           </a>
@@ -67,6 +66,7 @@
             <input id="hide_loginbutton" type="button" value="Отмена">
           </form>
         </c:if>
-        </div>
+        </li>
+        </ul>
       </div>
       <div style="clear: both"></div>
