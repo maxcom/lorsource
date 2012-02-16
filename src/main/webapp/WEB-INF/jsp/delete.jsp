@@ -76,6 +76,6 @@ function change(dest,source)
 
 </table>
 <input type=hidden name=msgid value="${msgid}">
-<input type=submit value="Delete/Удалить">
+<input type=submit value="Удалить">
 </form>
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>
