@@ -23,6 +23,7 @@ import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserNotFoundException;
+import ru.org.linux.util.StringUtil;
 import ru.org.linux.util.bbcode.LorCodeService;
 
 import java.sql.Timestamp;
@@ -68,7 +69,13 @@ public class SearchItem {
         throw new RuntimeException("Invalid wiki ID");
       }
       
-      message = msgbaseDao.getMessageTextFromWiki(Integer.valueOf(msgIds[1]));
+      String content = msgbaseDao.getMessageTextFromWiki(Integer.valueOf(msgIds[1]));      
+      String msg = StringUtil.escapeHtml(content.substring(0, Math.min(1300, content.length())));
+      if(Math.min(1300, content.length()) == 1300) {
+        message = msg + "...";
+      } else {
+        message = msg;
+      }
       virtualWiki = msgIds[0];
     }
     try {
