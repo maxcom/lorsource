@@ -10,5 +10,6 @@
     <include file="sql/updates/2011-12-29-section-scrollMode.xml"/>
     <include file="sql/updates/2012-01-24-delscore.xml"/>
     <include file="sql/updates/2012-02-02-grant-wiki.xml"/>
+    <include file="sql/updates/2012-02-16-topic-perm-fix.xml"/>
 
 </databaseChangeLog>

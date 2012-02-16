@@ -53,7 +53,7 @@ public class GroupDao {
         new RowMapper<Group>() {
           @Override
           public Group mapRow(ResultSet resultSet, int i) throws SQLException {
-            return new Group(resultSet);
+            return Group.buildGroup(resultSet);
           }
         },
         id
@@ -75,7 +75,7 @@ public class GroupDao {
       new RowMapper<Group>() {
         @Override
         public Group mapRow(ResultSet rs, int rowNum) throws SQLException {
-          return new Group(rs);
+          return Group.buildGroup(rs);
         }
       },
       section.getId()

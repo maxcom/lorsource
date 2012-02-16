@@ -16,6 +16,8 @@
 package ru.org.linux.group;
 
 import ru.org.linux.section.Section;
+import ru.org.linux.topic.Topic;
+import ru.org.linux.topic.TopicPermissionService;
 import ru.org.linux.user.User;
 
 import java.io.Serializable;
@@ -67,8 +69,13 @@ public class Group implements Serializable {
     this.resolvable = resolvable;
   }
 
-  public Group(ResultSet rs) throws SQLException {
-    this(
+  public static Group buildGroup(ResultSet rs) throws SQLException {
+    int restrict_topics = rs.getInt("restrict_topics");
+    if (rs.wasNull()) {
+      restrict_topics = TopicPermissionService.POSTSCORE_UNRESTRICTED;
+    }
+
+    Group group = new Group(
       rs.getBoolean("moderate"),
       rs.getBoolean("imagepost"),
       rs.getBoolean("vote"),
@@ -77,7 +84,7 @@ public class Group implements Serializable {
       rs.getString("linktext"),
       rs.getString("urlname"),
       rs.getString("image"),
-      rs.getInt("restrict_topics"),
+      restrict_topics,
       rs.getInt("restrict_comments"),
       rs.getInt("id"),
       rs.getInt("stat1"),
@@ -86,9 +93,11 @@ public class Group implements Serializable {
       rs.getBoolean("resolvable")
     );
 
-    title = rs.getString("title");
-    info = rs.getString("info");
-    longInfo = rs.getString("longinfo");
+    group.setTitle(rs.getString("title"));
+    group.setInfo(rs.getString("info"));
+    group.setLongInfo(rs.getString("longinfo"));
+
+    return group;
   }
 
   public boolean isImagePostAllowed() {
@@ -124,7 +133,7 @@ public class Group implements Serializable {
   }
 
   public boolean isTopicPostingAllowed(User currentUser) {
-    if (restrictTopics == 0) {
+    if (restrictTopics == TopicPermissionService.POSTSCORE_UNRESTRICTED) {
       return true;
     }
 
@@ -136,7 +145,7 @@ public class Group implements Serializable {
       return false;
     }
 
-    if (restrictTopics==-1) {
+    if (restrictTopics==TopicPermissionService.POSTSCORE_MODERATORS_ONLY) {
       return currentUser.isModerator();
     } else {
       return currentUser.getScore() >= restrictTopics;
@@ -145,18 +154,6 @@ public class Group implements Serializable {
 
   public int getCommentsRestriction() {
     return restrictComments;
-  }
-
-  public boolean isCommentPostingAllowed(User currentUser) {
-    if (!(restrictComments != 0)) {
-      return true;
-    }
-
-    if (restrictComments==-1) {
-      return currentUser.isModerator();
-    }
-
-    return currentUser.getScore() >= restrictComments;
   }
 
   public int getId() {

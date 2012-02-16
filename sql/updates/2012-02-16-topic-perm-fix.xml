@@ -1,0 +1,14 @@
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
+
+    <changeSet id="2012021601" author="maxcom">
+        <update tableName="groups">
+            <column name="restrict_topics" valueNumeric="10000"/>
+            <where>restrict_topics=-1</where>
+        </update>
+    </changeSet>
+
+</databaseChangeLog>
