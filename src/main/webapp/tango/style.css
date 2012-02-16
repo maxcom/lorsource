@@ -453,4 +453,8 @@ div.quote {
         float: none;
         text-align: left;
     }
+
+    #sitetitle {
+        font-size: 1.6em;
+    }
 }
