@@ -123,16 +123,8 @@ public class Group implements Serializable {
     return image;
   }
 
-  public boolean isTopicsRestricted() {
-    return restrictTopics != 0;
-  }
-
-  public int getTopicsRestriction() {
-    return restrictTopics;
-  }
-
   public boolean isTopicPostingAllowed(User currentUser) {
-    if (!isTopicsRestricted()) {
+    if (restrictTopics == 0) {
       return true;
     }
 
@@ -151,16 +143,12 @@ public class Group implements Serializable {
     }
   }
 
-  public boolean isCommentsRestricted() {
-    return restrictComments != 0;
-  }
-
   public int getCommentsRestriction() {
     return restrictComments;
   }
 
   public boolean isCommentPostingAllowed(User currentUser) {
-    if (!isCommentsRestricted()) {
+    if (!(restrictComments != 0)) {
       return true;
     }
 
