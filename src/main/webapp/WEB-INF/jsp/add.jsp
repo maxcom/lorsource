@@ -23,6 +23,7 @@
 <%--@elvariable id="modes" type="java.util.Map"--%>
 <%--@elvariable id="addportal" type="java.lang.String"--%>
 <%--@elvariable id="form" type="ru.org.linux.topic.AddTopicRequest"--%>
+<%--@elvariable id="postscoreInfo" type="java.lang.String"--%>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
@@ -83,17 +84,19 @@
   <input type="hidden" name="session" value="<%= StringUtil.escapeHtml(session.getId()) %>">
   <form:hidden path="noinfo"/>
 
+  ${postscoreInfo}<br>
+
   <c:if test="${not template.sessionAuthorized}">
     <label>
-        Имя: <input type=text name="nick" size=40>
+        Имя:<br> <input type=text class="required" value="anonymous" name="nick" style="width: 40em">
     </label><br>
     <label>
-        Пароль: <input type=password name=password size=40><br>
-    </label>
+        Пароль:<br> <input type=password name=password style="width: 40em">
+    </label><br>
   </c:if>
 
   <form:hidden path="group"/>
-
+  <p>
   <label>Заглавие:<br>
     <form:input path="title" cssClass="required" style="width: 40em"/><br>
    </label>

@@ -24,13 +24,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Section implements Serializable {
-  private static final long serialVersionUID = -2259350244006777910L;
+  private static final long serialVersionUID = -2259350244006777911L;
 
   private final String name;
   private final boolean imagepost;
   private final boolean moderate;
   private final int id;
   private final boolean votepoll;
+  private final int topicsRestriction;
   
   private SectionScrollModeEnum scrollMode;
 
@@ -53,16 +54,25 @@ public class Section implements Serializable {
     votepoll = rs.getBoolean("vote");
     moderate = rs.getBoolean("moderate");
     id = rs.getInt("id");
+
+    int restrictTopicsValue = rs.getInt("restrict_topics");
+    if (!rs.wasNull()) {
+      topicsRestriction = restrictTopicsValue;
+    } else {
+      topicsRestriction = TopicPermissionService.POSTSCORE_UNRESTRICTED;
+    }
+
     scrollMode = SectionScrollModeEnum.valueOf(rs.getString("scroll_mode"));
   }
 
-  public Section(String name, boolean imagepost, boolean moderate, int id, boolean votepoll, String scrollModeStr) {
+  public Section(String name, boolean imagepost, boolean moderate, int id, boolean votepoll, String scrollModeStr, int topicsRestriction) {
     this.name = name;
     this.imagepost = imagepost;
     this.moderate = moderate;
     this.id = id;
     this.votepoll = votepoll;
     scrollMode = SectionScrollModeEnum.valueOf(scrollModeStr);
+    this.topicsRestriction = topicsRestriction;
   }
 
   public String getName() {
@@ -165,5 +175,9 @@ public class Section implements Serializable {
     }
 
     return v;
+  }
+
+  public int getTopicsRestriction() {
+    return topicsRestriction;
   }
 }

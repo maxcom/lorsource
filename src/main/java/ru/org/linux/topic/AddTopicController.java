@@ -152,9 +152,15 @@ public class AddTopicController extends ApplicationObjectSupport {
 
     Group group = form.getGroup();
 
-    if (!groupPermissionService.isTopicPostingAllowed(group, tmpl.getCurrentUser())) {
-      throw new AccessViolationException("Не достаточно прав для постинга тем в эту группу");
+    if (tmpl.isSessionAuthorized() && !groupPermissionService.isTopicPostingAllowed(group, tmpl.getCurrentUser())) {
+      ModelAndView errorView = new ModelAndView("error-good-penguin");
+      errorView.addObject("msgHeader", "Не достаточно прав для постинга тем в эту группу");
+      errorView.addObject("msgMessage", groupPermissionService.getPostScoreInfo(group));
+
+      return errorView;
     }
+
+    params.put("postscoreInfo", groupPermissionService.getPostScoreInfo(group));
 
     params.put("group", group);
 
@@ -196,6 +202,7 @@ public class AddTopicController extends ApplicationObjectSupport {
 
     Group group = form.getGroup();
     params.put("group", group);
+    params.put("postscoreInfo", groupPermissionService.getPostScoreInfo(group));
 
     if (group!=null && group.isModerated()) {
       params.put("topTags", tagDao.getTopTags());
@@ -222,10 +229,6 @@ public class AddTopicController extends ApplicationObjectSupport {
     }
 
     user.checkBlocked(errors);
-
-    if (user.isAnonymous()) {
-      errors.reject(null, "Анонимный пользователь");
-    }
 
     IPBlockInfo ipBlockInfo = ipBlockDao.getBlockInfo(request.getRemoteAddr());
     if (ipBlockInfo.isBlocked() && ! ipBlockInfo.isAllowRegistredPosting()) {
