@@ -132,28 +132,12 @@ public class Group implements Serializable {
     return image;
   }
 
-  public boolean isTopicPostingAllowed(User currentUser) {
-    if (restrictTopics == TopicPermissionService.POSTSCORE_UNRESTRICTED) {
-      return true;
-    }
-
-    if (currentUser==null) {
-      return false;
-    }
-
-    if (currentUser.isBlocked()) {
-      return false;
-    }
-
-    if (restrictTopics==TopicPermissionService.POSTSCORE_MODERATORS_ONLY) {
-      return currentUser.isModerator();
-    } else {
-      return currentUser.getScore() >= restrictTopics;
-    }
-  }
-
   public int getCommentsRestriction() {
     return restrictComments;
+  }
+
+  public int getTopicRestriction() {
+    return restrictTopics;
   }
 
   public int getId() {

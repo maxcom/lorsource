@@ -56,6 +56,9 @@ public class GroupController {
   @Autowired
   private IgnoreListDao ignoreListDao;
 
+  @Autowired
+  private GroupPermissionService groupPermissionService;
+
   private JdbcTemplate jdbcTemplate;
 
   @Autowired
@@ -253,6 +256,8 @@ public class GroupController {
     } else {
       params.put("count", getArchiveCount(group.getId(), year, month));
     }
+
+    params.put("addable", groupPermissionService.isTopicPostingAllowed(group, tmpl.getCurrentUser()));
 
     return new ModelAndView("group", params);
   }

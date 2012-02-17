@@ -36,6 +36,7 @@ import ru.org.linux.gallery.Screenshot;
 import ru.org.linux.group.BadGroupException;
 import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
+import ru.org.linux.group.GroupPermissionService;
 import ru.org.linux.poll.Poll;
 import ru.org.linux.poll.PollVariant;
 import ru.org.linux.search.SearchQueueSender;
@@ -84,6 +85,9 @@ public class AddTopicController extends ApplicationObjectSupport {
 
   @Autowired
   private LorCodeService lorCodeService;
+
+  @Autowired
+  private GroupPermissionService groupPermissionService;
 
   @Autowired
   private Configuration configuration;
@@ -148,7 +152,7 @@ public class AddTopicController extends ApplicationObjectSupport {
 
     Group group = form.getGroup();
 
-    if (!group.isTopicPostingAllowed(tmpl.getCurrentUser())) {
+    if (!groupPermissionService.isTopicPostingAllowed(group, tmpl.getCurrentUser())) {
       throw new AccessViolationException("Не достаточно прав для постинга тем в эту группу");
     }
 
@@ -228,7 +232,7 @@ public class AddTopicController extends ApplicationObjectSupport {
       ipBlockDao.checkBlockIP(ipBlockInfo, errors, user);
     }
 
-    if (group!=null && !group.isTopicPostingAllowed(user)) {
+    if (group!=null && !groupPermissionService.isTopicPostingAllowed(group, user)) {
       errors.reject(null, "Не достаточно прав для постинга тем в эту группу");
     }
 

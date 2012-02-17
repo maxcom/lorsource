@@ -25,6 +25,7 @@
 <%--@elvariable id="firstPage" type="java.lang.Boolean"--%>
 <%--@elvariable id="groupList" type="java.util.List<ru.org.linux.group.Group>"--%>
 <%--@elvariable id="lastmod" type="java.lang.Boolean"--%>
+<%--@elvariable id="addable" type="java.lang.Boolean"--%>
 <%--@elvariable id="count" type="java.lang.Integer"--%>
 <%--@elvariable id="offset" type="java.lang.Integer"--%>
 <%--@elvariable id="showDeleted" type="java.lang.Boolean"--%>
@@ -86,16 +87,10 @@
         <c:if test="${template.moderatorSession}">
           <li><a href="groupmod.jsp?group=${group.id}">Править группу</a></li>
         </c:if>
-<%
-  User currentUser = tmpl.getCurrentUser();
-
-  if (group.isTopicPostingAllowed(currentUser)) {
-%>
-      <li><a href="add.jsp?group=${group.id}">Добавить сообщение</a></li>
-<%
-  }
-%>
-  <li><a href="section-rss.jsp?section=${group.sectionId}&amp;group=${group.id}">RSS</a></li>
+        <c:if test="${addable}">
+          <li><a href="add.jsp?group=${group.id}">Добавить сообщение</a></li>
+        </c:if>
+        <li><a href="section-rss.jsp?section=${group.sectionId}&amp;group=${group.id}">RSS</a></li>
   </ul>
       <select name=group onchange="goto(this);" title="Быстрый переход">
         <c:forEach items="${groupList}" var="item">
