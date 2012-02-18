@@ -143,9 +143,7 @@ public class RegisterController extends ApplicationObjectSupport {
 
     InternetAddress mail = null;
 
-    if (Strings.isNullOrEmpty(form.getEmail())) {
-      errors.rejectValue("email", null, "Не указан e-mail");
-    } else {
+    if (!Strings.isNullOrEmpty(form.getEmail())) {
       try {
         mail = new InternetAddress(form.getEmail());
       } catch (AddressException e) {
