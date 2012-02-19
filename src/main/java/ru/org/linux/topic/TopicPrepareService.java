@@ -23,6 +23,7 @@ import ru.org.linux.gallery.Screenshot;
 import ru.org.linux.group.BadGroupException;
 import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
+import ru.org.linux.group.GroupPermissionService;
 import ru.org.linux.poll.*;
 import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionNotFoundException;
@@ -81,7 +82,10 @@ public class TopicPrepareService {
   private MemoriesDao memoriesDao;
 
   @Autowired
-  private TopicPermissionService permissionService;
+  private TopicPermissionService topicPermissionService;
+  
+  @Autowired
+  private GroupPermissionService groupPermissionService;
   
   @Autowired
   private MsgbaseDao msgbaseDao;
@@ -306,20 +310,29 @@ public class TopicPrepareService {
   }
 
   public TopicMenu getMessageMenu(PreparedTopic message, User currentUser) {
-    boolean editable = currentUser!=null && permissionService.isEditable(message, currentUser);
+    boolean editable = currentUser!=null && topicPermissionService.isEditable(message, currentUser);
     boolean resolvable;
     int memoriesId;
+    boolean deletable;
 
     if (currentUser!=null) {
       resolvable = (currentUser.isModerator() || (message.getAuthor().getId()==currentUser.getId())) &&
             message.getGroup().isResolvable();
 
       memoriesId = memoriesDao.getId(currentUser, message.getMessage());
+      deletable = groupPermissionService.isDeletable(message.getMessage(), currentUser);
     } else {
       resolvable = false;
       memoriesId = 0;
+      deletable = false;
     }
 
-    return new TopicMenu(editable, resolvable, memoriesId, permissionService.isCommentsAllowed(message.getMessage(), currentUser));
+    return new TopicMenu(
+            editable, 
+            resolvable, 
+            memoriesId, 
+            topicPermissionService.isCommentsAllowed(message.getMessage(), currentUser), 
+            deletable
+    );
   }
 }

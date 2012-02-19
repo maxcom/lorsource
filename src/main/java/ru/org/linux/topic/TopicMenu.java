@@ -20,12 +20,19 @@ public class TopicMenu {
   private final boolean resolvable;
   private final int memoriesId;
   private final boolean commentsAllowed;
+  private final boolean deletable;
 
-  public TopicMenu(boolean editable, boolean resolvable, int memoriesId, boolean commentsAllowed) {
+  public TopicMenu(
+          boolean editable,
+          boolean resolvable,
+          int memoriesId,
+          boolean commentsAllowed,
+          boolean deletable) {
     this.editable = editable;
     this.resolvable = resolvable;
     this.memoriesId = memoriesId;
     this.commentsAllowed = commentsAllowed;
+    this.deletable = deletable;
   }
 
   public boolean isEditable() {
@@ -42,5 +49,9 @@ public class TopicMenu {
 
   public boolean isCommentsAllowed() {
     return commentsAllowed;
+  }
+
+  public boolean isDeletable() {
+    return deletable;
   }
 }

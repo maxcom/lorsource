@@ -29,12 +29,7 @@
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <%
   Template tmpl = Template.getTemplate(request);
-
-  User author = preparedMessage.getAuthor();
-
-  int msgid = message.getMessageId();
 %>
-
   <!-- ${message.id}  -->
 <div class=msg id="topic-${message.id}">
 <c:if test="${showMenu}">
@@ -180,14 +175,9 @@
         <c:if test="${messageMenu.editable}">
             <li><a href="edit.jsp?msgid=${message.id}">Править</a></li>
         </c:if>
-
-<%
-    if (tmpl.isModeratorSession() || author.equals(tmpl.getCurrentUser())) {
-      out.append("<li><a href=\"delete.jsp?msgid=");
-      out.print(msgid);
-      out.append("\">Удалить</a></li> ");
-    }
-%>
+        <c:if test="${messageMenu.deletable}">
+          <li><a href="delete.jsp?msgid=${message.id}">Удалить</a></li>
+        </c:if>
         <c:if test="${messageMenu.resolvable}">
             <c:if test="${message.resolved}">
                 <li><a href="resolve.jsp?msgid=${message.id}&amp;resolve=no">Отметить как нерешенную</a></li>
