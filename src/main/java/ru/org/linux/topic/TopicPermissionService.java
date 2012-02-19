@@ -15,9 +15,12 @@
 
 package ru.org.linux.topic;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import ru.org.linux.section.Section;
+import ru.org.linux.section.SectionNotFoundException;
+import ru.org.linux.section.SectionService;
 import ru.org.linux.user.User;
 
 import java.sql.Timestamp;
@@ -30,7 +33,7 @@ public class TopicPermissionService {
   public static final int POSTSCORE_UNRESTRICTED = -9999;
   public static final int POSTSCORE_MODERATORS_ONLY = 10000;
   public static final int POSTSCORE_REGISTERED_ONLY = -50;
-
+  
   public static String getPostScoreInfo(int postscore) {
     switch (postscore) {
       case POSTSCORE_UNRESTRICTED:
@@ -115,58 +118,6 @@ public class TopicPermissionService {
       return user.getScore() >= score;
     }
   }  
-  
-  /**
-   * Проверка, может ли модератор удалить топик
-   * @param user пользователь удаляющий сообщение
-   * @param section местоположение топика
-   * @return признак возможности удаления
-   */
-  public boolean isDeletableByModerator(Topic topic, User user, Section section) {
-    // TODO убрать от сюда аргумент функции section
-    if(!user.isModerator()) {
-      return false;
-    }
-    Calendar calendar = Calendar.getInstance();
-
-    calendar.setTime(new Date());
-    calendar.add(Calendar.MONTH, -1);
-    Timestamp monthDeltaTime = new Timestamp(calendar.getTimeInMillis());
-
-    boolean ret = false;
-
-    // Если раздел премодерируемый и топик не подтвержден удалять можно
-    if(section.isPremoderated() && !topic.isCommited()) {
-      ret = true;
-    }
-
-    // Если раздел премодерируемый, топик подтвержден и прошло меньше месяца с подтверждения удалять можно
-    if(section.isPremoderated() && topic.isCommited() && topic.getPostdate().compareTo(monthDeltaTime) >= 0) {
-      ret = true;
-    }
-
-    // Если раздел не премодерируем, удалять можно
-    if(!section.isPremoderated()) {
-      ret = true;
-    }
-
-    return ret;
-  }
-  
-  /**
-   * Проверка может ли пользователь удалить топик
-   * @param user пользователь удаляющий сообщение
-   * @return признак возможности удаления
-   */
-  public boolean isDeletableByUser(Topic topic, User user) {
-    Calendar calendar = Calendar.getInstance();
-
-    calendar.setTime(new Date());
-    calendar.add(Calendar.HOUR_OF_DAY, -1);
-    Timestamp hourDeltaTime = new Timestamp(calendar.getTimeInMillis());
-
-    return (topic.getPostdate().compareTo(hourDeltaTime) >= 0 && topic.getUid() == user.getId());
-  }
   
   public boolean isEditable(PreparedTopic topic, User by) {
     Topic message = topic.getMessage();

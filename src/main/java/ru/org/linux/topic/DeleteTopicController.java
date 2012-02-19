@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import ru.org.linux.auth.AccessViolationException;
+import ru.org.linux.group.GroupPermissionService;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.site.Template;
 import ru.org.linux.search.SearchQueueSender;
@@ -48,7 +49,7 @@ public class DeleteTopicController extends ApplicationObjectSupport {
   @Autowired
   private TopicPrepareService prepareService;
   @Autowired
-  private TopicPermissionService permissionService;
+  private GroupPermissionService permissionService;
 
   @RequestMapping(value="/delete.jsp", method= RequestMethod.GET)
   public ModelAndView showForm(
@@ -60,10 +61,16 @@ public class DeleteTopicController extends ApplicationObjectSupport {
       throw new AccessViolationException("Not authorized");
     }
 
+    Template tmpl = Template.getTemplate(request);
+
     Topic msg = messageDao.getById(msgid);
 
     if (msg.isDeleted()) {
       throw new UserErrorException("Сообщение уже удалено");
+    }
+
+    if (!permissionService.isDeletable(msg, tmpl.getCurrentUser())) {
+      throw new AccessViolationException("Вы не можете удалить это сообщение");
     }
 
     Section section = sectionService.getSection(msg.getSectionId());
@@ -97,20 +104,13 @@ public class DeleteTopicController extends ApplicationObjectSupport {
     user.checkAnonymous();
 
     Topic message = messageDao.getById(msgid);
-    Section section = sectionService.getSection(message.getSectionId());
 
     if(message.isDeleted()) {
       throw new UserErrorException("Сообщение уже удалено");
     }
 
-    boolean perm = permissionService.isDeletableByUser(message, user);
-
-    if (!perm && user.isModerator()) {
-      perm = permissionService.isDeletableByModerator(message, user, section);
-    }
-
-    if (!perm) {
-      user.checkDelete();
+    if (!permissionService.isDeletable(message, user))  {
+      throw new AccessViolationException("Вы не можете удалить это сообщение");
     }
 
     messageDao.deleteWithBonus(message, user, reason, bonus);

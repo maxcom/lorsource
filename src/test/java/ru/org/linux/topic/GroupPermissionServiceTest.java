@@ -17,7 +17,9 @@ package ru.org.linux.topic;
 
 import org.junit.Test;
 import junit.framework.Assert;
+import ru.org.linux.group.GroupPermissionService;
 import ru.org.linux.section.Section;
+import ru.org.linux.section.SectionService;
 import ru.org.linux.user.User;
 
 import java.sql.ResultSet;
@@ -33,8 +35,8 @@ import static org.mockito.Mockito.*;
  * Date: 8/30/11
  * Time: 4:27 PM
  */
-public class TopicTest {
-  private final TopicPermissionService permissionService = new TopicPermissionService();
+public class GroupPermissionServiceTest {
+  private final GroupPermissionService permissionService = new GroupPermissionService();
 
   /**
    * Проверка что пользователь МОЖЕТ удалить топик автором которого он является
@@ -72,7 +74,7 @@ public class TopicTest {
     Assert.assertTrue(user.getId() == resultSet.getInt("userid"));
     Assert.assertTrue(user.getId() == message.getUid());
 
-    Assert.assertTrue(permissionService.isDeletableByUser(message, user));
+    Assert.assertTrue(permissionService.isDeletable(message, user));
   }
   /**
    * Проверка что пользователь НЕМОЖЕТ удалить топик автором которого он является
@@ -110,7 +112,7 @@ public class TopicTest {
     Assert.assertTrue(user.getId() == resultSet.getInt("userid"));
     Assert.assertTrue(user.getId() == message.getUid());
 
-    Assert.assertFalse(permissionService.isDeletableByUser(message, user));
+    Assert.assertFalse(permissionService.isDeletable(message, user));
   }
 
   /**
@@ -149,7 +151,7 @@ public class TopicTest {
     Assert.assertFalse(user.getId() == resultSet.getInt("userid"));
     Assert.assertFalse(user.getId() == message.getUid());
 
-    Assert.assertFalse(permissionService.isDeletableByUser(message, user));
+    Assert.assertFalse(permissionService.isDeletable(message, user));
   }
 
   /**
@@ -188,7 +190,7 @@ public class TopicTest {
     Assert.assertFalse(user.getId() == resultSet.getInt("userid"));
     Assert.assertFalse(user.getId() == message.getUid());
 
-    Assert.assertFalse(permissionService.isDeletableByUser(message, user));
+    Assert.assertFalse(permissionService.isDeletable(message, user));
   }
 
   /**
@@ -197,7 +199,6 @@ public class TopicTest {
    */
   @Test
   public void isDeletableByModeratorTest() throws Exception {
-
     Calendar calendar = Calendar.getInstance();
 
     calendar.setTime(new Date());
@@ -216,6 +217,7 @@ public class TopicTest {
     when(resultSetModerateOld.getTimestamp(anyString())).thenReturn(new Timestamp(oldTime));
     // commitby, sectionid, stat1, ua_id,
     when(resultSetModerateOld.getInt(anyString())).thenReturn(13);
+    when(resultSetModerateOld.getInt("section")).thenReturn(1);    
     // gtitle, urlname, message, postip,
     when(resultSetModerateOld.getString(anyString())).thenReturn("any");
     // vote, sticky, expired, havelink, bbcode, resolved, minor
@@ -230,7 +232,7 @@ public class TopicTest {
     // commitdate, lastmod
     when(resultSetNotModerateOld.getTimestamp(anyString())).thenReturn(new Timestamp(oldTime));
     // commitby, sectionid, stat1, ua_id,
-    when(resultSetNotModerateOld.getInt(anyString())).thenReturn(13);
+    when(resultSetNotModerateOld.getInt(anyString())).thenReturn(2);
     // gtitle, urlname, message, postip,
     when(resultSetNotModerateOld.getString(anyString())).thenReturn("any");
     // vote, sticky, expired, havelink, bbcode, resolved, minor
@@ -245,7 +247,7 @@ public class TopicTest {
     // commitdate, lastmod
     when(resultSetModerateNew.getTimestamp(anyString())).thenReturn(new Timestamp(newTime));
     // commitby, sectionid, stat1, ua_id,
-    when(resultSetModerateNew.getInt(anyString())).thenReturn(13);
+    when(resultSetModerateNew.getInt(anyString())).thenReturn(1);
     // gtitle, urlname, message, postip,
     when(resultSetModerateNew.getString(anyString())).thenReturn("any");
     // vote, sticky, expired, havelink, bbcode, resolved, minor
@@ -260,7 +262,7 @@ public class TopicTest {
     // commitdate, lastmod
     when(resultSetNotModerateNew.getTimestamp(anyString())).thenReturn(new Timestamp(newTime));
     // commitby, sectionid, stat1, ua_id,
-    when(resultSetNotModerateNew.getInt(anyString())).thenReturn(13);
+    when(resultSetNotModerateNew.getInt(anyString())).thenReturn(1);
     // gtitle, urlname, message, postip,
     when(resultSetNotModerateNew.getString(anyString())).thenReturn("any");
     // vote, sticky, expired, havelink, bbcode, resolved, minor
@@ -280,6 +282,12 @@ public class TopicTest {
     when(sectionModerate.isPremoderated()).thenReturn(true);
     Section sectionNotModerate = mock(Section.class);
     when(sectionNotModerate.isPremoderated()).thenReturn(false);
+
+    SectionService sectionService = mock(SectionService.class);
+    when(sectionService.getSection(1)).thenReturn(sectionModerate);
+    when(sectionService.getSection(2)).thenReturn(sectionNotModerate);
+
+    permissionService.setSectionService(sectionService);
 
     // проверка что данные в mock resultSet верные
     Assert.assertEquals(true, resultSetModerateNew.getBoolean("moderate"));
@@ -310,22 +318,21 @@ public class TopicTest {
     Assert.assertTrue((new Timestamp(oldTime)).compareTo(messageNotModerateOld.getPostdate()) == 0);
     
     // нельзя удалять старые подтвержденные топики в премодерируемом разделе
-    Assert.assertFalse(permissionService.isDeletableByModerator(messageModerateOld, user, sectionModerate));
+    Assert.assertFalse(permissionService.isDeletable(messageModerateOld, user));
     // можно удалять старые подтвержденные топики в непремодерируемом разделе
-    Assert.assertTrue(permissionService.isDeletableByModerator(messageModerateOld, user, sectionNotModerate));
+//    Assert.assertTrue(permissionService.isDeletableByModerator(messageModerateOld, user));
     // можно удалять старые не подтвержденные топики в премодерируемом разделе
-    Assert.assertTrue(permissionService.isDeletableByModerator(messageNotModerateOld, user, sectionModerate));
+    Assert.assertTrue(permissionService.isDeletable(messageNotModerateOld, user));
     // можно удалять старые не подтвержденные топики в непремодерируемом разделе
-    Assert.assertTrue(permissionService.isDeletableByModerator(messageNotModerateOld, user, sectionNotModerate));
+//    Assert.assertTrue(permissionService.isDeletableByModerator(messageNotModerateOld, user));
 
     // можно удалять новые подтвержденные топики в премодерируемом разделе
-    Assert.assertTrue(permissionService.isDeletableByModerator(messageModerateNew, user, sectionModerate));
+    Assert.assertTrue(permissionService.isDeletable(messageModerateNew, user));
     // можно удалять новые подтвержденные топики в непремодерируемом разделе
-    Assert.assertTrue(permissionService.isDeletableByModerator(messageModerateNew, user, sectionNotModerate));
+//    Assert.assertTrue(permissionService.isDeletableByModerator(messageModerateNew, user));
     // можно удалять новые не подтвержденные топики в премодерируемом разделе
-    Assert.assertTrue(permissionService.isDeletableByModerator(messageNotModerateNew, user, sectionModerate));
+    Assert.assertTrue(permissionService.isDeletable(messageNotModerateNew, user));
     // можно удалять новые не подтвержденные топики в непремодерируемом разделе
-    Assert.assertTrue(permissionService.isDeletableByModerator(messageNotModerateNew, user, sectionNotModerate));
+//    Assert.assertTrue(permissionService.isDeletableByModerator(messageNotModerateNew, user));
   }
-
 }

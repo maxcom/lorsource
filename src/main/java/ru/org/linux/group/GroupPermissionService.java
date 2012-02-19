@@ -5,13 +5,22 @@ import org.springframework.stereotype.Service;
 import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionNotFoundException;
 import ru.org.linux.section.SectionService;
+import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicPermissionService;
 import ru.org.linux.user.User;
 
+import java.sql.Timestamp;
+import java.util.Calendar;
+import java.util.Date;
+
 @Service
 public class GroupPermissionService {
-  @Autowired
   private SectionService sectionService;
+
+  @Autowired
+  public void setSectionService(SectionService sectionService) {
+    this.sectionService = sectionService;
+  }
 
   private int getEffectivePostscore(Group group) {
     Section section;
@@ -70,5 +79,78 @@ public class GroupPermissionService {
       default:
         return "<b>Ограничение на добавление сообщений</b>: только для зарегистрированных пользователей, score>=" + postscore;
     }
+  }
+
+  public boolean isDeletable(Topic topic, User user) {
+    boolean perm = isDeletableByUser(topic, user);
+
+    if (!perm && user.isModerator()) {
+      perm = isDeletableByModerator(topic, user);
+    }
+
+    if (!perm) {
+      return user.isAdministrator();
+    }
+
+    return perm;
+  }
+
+  /**
+   * Проверка может ли пользователь удалить топик
+   * @param user пользователь удаляющий сообщение
+   * @return признак возможности удаления
+   */
+  private boolean isDeletableByUser(Topic topic, User user) {
+    Calendar calendar = Calendar.getInstance();
+
+    calendar.setTime(new Date());
+    calendar.add(Calendar.HOUR_OF_DAY, -1);
+    Timestamp hourDeltaTime = new Timestamp(calendar.getTimeInMillis());
+
+    return (topic.getPostdate().compareTo(hourDeltaTime) >= 0 && topic.getUid() == user.getId());
+  }
+
+  /**
+   * Проверка, может ли модератор удалить топик
+   * @param user пользователь удаляющий сообщение
+   * @return признак возможности удаления
+   */
+  private boolean isDeletableByModerator(Topic topic, User user) {
+    if(!user.isModerator()) {
+      return false;
+    }
+
+    Calendar calendar = Calendar.getInstance();
+
+    calendar.setTime(new Date());
+    calendar.add(Calendar.MONTH, -1);
+    Timestamp monthDeltaTime = new Timestamp(calendar.getTimeInMillis());
+
+    boolean ret = false;
+
+    Section section;
+
+    try {
+      section = sectionService.getSection(topic.getSectionId());
+    } catch (SectionNotFoundException e) {
+      throw new RuntimeException(e);
+    }
+
+    // Если раздел премодерируемый и топик не подтвержден удалять можно
+    if(section.isPremoderated() && !topic.isCommited()) {
+      ret = true;
+    }
+
+    // Если раздел премодерируемый, топик подтвержден и прошло меньше месяца с подтверждения удалять можно
+    if(section.isPremoderated() && topic.isCommited() && topic.getPostdate().compareTo(monthDeltaTime) >= 0) {
+      ret = true;
+    }
+
+    // Если раздел не премодерируем, удалять можно
+    if(!section.isPremoderated()) {
+      ret = true;
+    }
+
+    return ret;
   }
 }
