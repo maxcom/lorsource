@@ -90,9 +90,11 @@ public class TopicListController {
 
     ModelAndView modelAndView = new ModelAndView("view-news");
 
-    URLUtil.QueryString queryString = new URLUtil.QueryString();
-    queryString.add("topicListForm", topicListForm);
-    modelAndView.addObject("params", queryString.toString());
+    if(topicListForm.getTag() != null) {
+      URLUtil.QueryString queryString = new URLUtil.QueryString();
+      queryString.add("tag", topicListForm.getTag());
+      modelAndView.addObject("params", queryString.toString());
+    }
 
     modelAndView.addObject("url", "view-news.jsp");
     if (section != null) {
