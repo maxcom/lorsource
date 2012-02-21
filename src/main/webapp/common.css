@@ -431,3 +431,8 @@ textarea, input {
 .nav form {
     display: inline;
 }
+
+.social-buttons {
+    float: right;
+    margin-right: 1em;
+}

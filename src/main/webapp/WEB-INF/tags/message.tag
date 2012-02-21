@@ -154,7 +154,7 @@
     <c:if test="${!message.deleted && showMenu}">
       <div class=reply>
           <c:if test="${template.prof.showSocial}">
-          <div style="float: right">
+          <div class="social-buttons">
             <a target="_blank" style="text-decoration: none"
                href="http://juick.com/post?body=<%= URLEncoder.encode("*LOR " + message.getTitle()+" "+tmpl.getMainUrlNoSlash()+message.getLink()) %>">
               <img border="0" src="/img/juick.png" width=16 height=16 alt="Juick" title="Share on Juick">
