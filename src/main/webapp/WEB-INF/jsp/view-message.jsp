@@ -335,13 +335,4 @@
   </div>
 </c:if>
 
-<c:if test="${template.prof.showSocial}">
-  <!-- Place this tag in your head or just before your close body tag -->
-    <script type="text/javascript" src="https://apis.google.com/js/plusone.js">
-        {
-            lang: 'ru'
-        }
-    </script>
-</c:if>
-
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>

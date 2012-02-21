@@ -165,10 +165,10 @@
               <img border="0" src="/img/twitter.png" width=16 height=16 alt="Share on Twitter" title="Share on Twitter">
             </a>
 
-            <!-- Place this tag where you want the +1 button to render -->
-            <div style="width: 70px; height: 15px; display: inline-block">
-              <div class="g-plusone" data-size="small" data-href="${template.mainUrlNoSlash}${message.link}"></div>
-            </div>
+            <a target="_blank" style="text-decoration: none"
+               href="https://plus.google.com/share?url=<%= URLEncoder.encode(tmpl.getMainUrlNoSlash()+message.getLink()) %>">
+              <img border="0" src="/img/google-plus-icon.png" width=16 height=16 alt="Share on Google Plus" title="Share on Google Plus">
+            </a>
           </div>
           </c:if>
           <ul>
