@@ -30,6 +30,31 @@
         <a id="sitetitle" href="/">LINUX.ORG.RU</a>
 
         <ul class="menu">
+          <li id="loginGreating">
+            <c:if test="${template.sessionAuthorized}">
+              <c:url var="userUrl" value="/people/${template.nick}/profile"/>
+              <a style="text-decoration: none" href="${userUrl}">${template.nick}</a>
+              <a href="logout.jsp?sessionId=<%= session.getId() %>" title="Выйти">
+                <img style="position: relative; bottom: -2px; border: 0" src="/img/logout.png" width="16" height="16"
+                     alt="[x]">
+              </a>
+            </c:if>
+
+            <c:if test="${not template.sessionAuthorized}">
+              <div id="regmenu" class="head">
+                <a href="/register.jsp">Регистрация</a> -
+                <a id="loginbutton" href="/login.jsp">Вход</a>
+              </div>
+
+              <form method=POST action="login.jsp" style="display: none" id="regform">
+                <label>Имя: <input type=text name=nick size=15></label><br>
+                <label>Пароль: <input type=password name=passwd size=15></label><br>
+                <input type=submit value="Вход">
+                <input id="hide_loginbutton" type="button" value="Отмена">
+              </form>
+            </c:if>
+          </li>
+
           <li><a href="/news/">Новости</a></li>
           <li><a href="/gallery/">Галерея</a></li>
 
@@ -44,29 +69,6 @@
 
           <li><a href="/search.jsp">Поиск</a></li>
 
-        <li id="loginGreating">
-        <c:if test="${template.sessionAuthorized}">
-          <c:url var="userUrl" value="/people/${template.nick}/profile"/>
-          <a style="text-decoration: none" href="${userUrl}">${template.nick}</a>
-          <a href="logout.jsp?sessionId=<%= session.getId() %>" title="Выйти">
-          <img style="position: relative; bottom: -2px; border: 0" src="/img/logout.png" width="16" height="16" alt="[x]">
-          </a>
-        </c:if>
-
-        <c:if test="${not template.sessionAuthorized}">
-          <div id="regmenu" class="head">
-            <a href="/register.jsp">Регистрация</a> -
-            <a id="loginbutton" href="/login.jsp">Вход</a>
-          </div>
-
-          <form method=POST action="login.jsp" style="display: none" id="regform">
-            <label>Имя: <input type=text name=nick size=15></label><br>
-            <label>Пароль: <input type=password name=passwd size=15></label><br>
-            <input type=submit value="Вход">
-            <input id="hide_loginbutton" type="button" value="Отмена">
-          </form>
-        </c:if>
-        </li>
         </ul>
       </div>
       <div style="clear: both"></div>
