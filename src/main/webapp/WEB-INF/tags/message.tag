@@ -160,6 +160,11 @@
               <img border="0" src="/img/juick.png" width=16 height=16 alt="Juick" title="Share on Juick">
             </a>
 
+            <a target="_blank" style="text-decoration: none"
+               href="https://twitter.com/intent/tweet?text=<%= URLEncoder.encode(message.getTitle()) %>&amp;url=<%= URLEncoder.encode(tmpl.getMainUrlNoSlash()+message.getLink()) %>&amp;hashtags=<%= URLEncoder.encode("лор") %>">
+              <img border="0" src="/img/twitter.png" width=16 height=16 alt="Share on Twitter" title="Share on Twitter">
+            </a>
+
             <!-- Place this tag where you want the +1 button to render -->
             <div style="width: 70px; height: 15px; display: inline-block">
               <div class="g-plusone" data-size="small" data-href="${template.mainUrlNoSlash}${message.link}"></div>
