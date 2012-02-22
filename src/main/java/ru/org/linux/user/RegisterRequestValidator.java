@@ -34,7 +34,19 @@ public class RegisterRequestValidator implements Validator {
           "nepwk.com",
           "klzlk.com",
           "nwldx.com",
-          "mailinator.com"
+          "mailinator.com",
+          "mytrashmail.com",
+          "temporaryinbox.com",
+          "10minutemail.com",
+          "pookmail.com",
+          "dodgeit.com",
+          "mailexpire.com",
+          "spambox.us",
+          "jetable.org",
+          "maileater.com",
+          "gapmail.ru",
+          "mintemail.com",
+          "mailinator2.com"
   );
 
   private void checkEmail(InternetAddress email, Errors errors) {
