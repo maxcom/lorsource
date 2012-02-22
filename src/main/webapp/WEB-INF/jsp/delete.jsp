@@ -70,7 +70,7 @@ function change(dest,source)
   <c:if test="${template.moderatorSession and bonus}">
   <tr>
     <td>Штраф score (от 0 до 20)</td>
-    <td><input type=text name=bonus size=40 value="0"></td>
+    <td><input type=text name=bonus size=40 value="7"></td>
   </tr>
 </c:if>
 
