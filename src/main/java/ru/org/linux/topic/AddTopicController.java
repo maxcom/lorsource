@@ -202,7 +202,10 @@ public class AddTopicController extends ApplicationObjectSupport {
 
     Group group = form.getGroup();
     params.put("group", group);
-    params.put("postscoreInfo", groupPermissionService.getPostScoreInfo(group));
+
+    if (group!=null) {
+      params.put("postscoreInfo", groupPermissionService.getPostScoreInfo(group));
+    }
 
     if (group!=null && group.isModerated()) {
       params.put("topTags", tagDao.getTopTags());
