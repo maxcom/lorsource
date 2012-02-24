@@ -28,7 +28,7 @@
           <input type="checkbox" <%= enabled?"":"disabled" %> name="vote" value="${variant.id}">
         </c:when>
         <c:otherwise>
-          <input type="radio" <%= enabled?"":"disabled" %> disabled name="vote" value="${variant.id}">
+          <input type="radio" <%= enabled?"":"disabled" %> name="vote" value="${variant.id}">
         </c:otherwise>
       </c:choose>
         ${fn:escapeXml(variant.label)}
