@@ -63,7 +63,7 @@
   <font size="2"><b>Внимание:</b> <a href="/wiki/en/Lorcode" target="_blank">прочитайте описание разметки LORCODE</a></font><br>
 
 
-  ${postScoreInfo}
+  ${postscoreInfo}
 
   <br>
   <lor:captcha ipBlockInfo="${ipBlockInfo}" />
