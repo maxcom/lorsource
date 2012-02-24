@@ -35,7 +35,10 @@ import ru.org.linux.gallery.Screenshot;
 import ru.org.linux.group.BadGroupException;
 import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
-import ru.org.linux.poll.*;
+import ru.org.linux.poll.Poll;
+import ru.org.linux.poll.PollDao;
+import ru.org.linux.poll.PollNotFoundException;
+import ru.org.linux.poll.PollVariant;
 import ru.org.linux.section.SectionNotFoundException;
 import ru.org.linux.section.SectionScrollModeEnum;
 import ru.org.linux.section.SectionService;
@@ -44,7 +47,10 @@ import ru.org.linux.site.ScriptErrorException;
 import ru.org.linux.spring.Configuration;
 import ru.org.linux.spring.dao.DeleteInfoDao;
 import ru.org.linux.spring.dao.MsgbaseDao;
-import ru.org.linux.user.*;
+import ru.org.linux.user.User;
+import ru.org.linux.user.UserDao;
+import ru.org.linux.user.UserErrorException;
+import ru.org.linux.user.UserEventsDao;
 import ru.org.linux.util.LorHttpUtils;
 
 import javax.servlet.http.HttpServletRequest;
@@ -515,7 +521,8 @@ public class TopicDao {
           Integer changeGroupId,
           int bonus,
           List<PollVariant> pollVariants,
-          boolean multiselect
+          boolean multiselect,
+          Map<Integer, Integer> editorBonus
   )  {
     boolean modified = updateMessage(oldMsg, newMsg, user, newTags, newText);
 
@@ -535,7 +542,7 @@ public class TopicDao {
         }
       }
 
-      commit(oldMsg, user, bonus);
+      commit(oldMsg, user, bonus, editorBonus);
     }
 
     if (modified) {
@@ -545,7 +552,7 @@ public class TopicDao {
     return modified;
   }
 
-  private void commit(Topic msg, User commiter, int bonus) {
+  private void commit(Topic msg, User commiter, int bonus, Map<Integer, Integer> editorBonus) {
     if (bonus < 0 || bonus > 20) {
       throw new IllegalStateException("Неверное значение bonus");
     }
@@ -556,14 +563,13 @@ public class TopicDao {
             msg.getId()
     );
 
-    User author;
-    try {
-      author = userDao.getUser(msg.getUid());
-    } catch (UserNotFoundException e) {
-      throw new RuntimeException(e);
+    userDao.changeScore(msg.getUid(), bonus);
+    
+    if (editorBonus!=null) {
+      for (Map.Entry<Integer, Integer> entry : editorBonus.entrySet()) {
+        userDao.changeScore(entry.getKey(), entry.getValue());
+      }
     }
-
-    userDao.changeScore(author.getId(), bonus);
   }
 
   public void uncommit(Topic msg) {

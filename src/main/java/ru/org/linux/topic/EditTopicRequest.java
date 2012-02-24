@@ -27,6 +27,7 @@ public class EditTopicRequest {
   private String tags;
 
   private Map<Integer, String> poll;
+  private Map<Integer, Integer> editorBonus;
   private String[] newPoll = new String[3];
   private boolean multiselect;
 
@@ -108,5 +109,13 @@ public class EditTopicRequest {
 
   public void setMultiselect(boolean multiselect) {
     this.multiselect = multiselect;
+  }
+
+  public Map<Integer, Integer> getEditorBonus() {
+    return editorBonus;
+  }
+
+  public void setEditorBonus(Map<Integer, Integer> editorBonus) {
+    this.editorBonus = editorBonus;
   }
 }
