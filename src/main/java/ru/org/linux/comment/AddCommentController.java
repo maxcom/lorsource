@@ -30,17 +30,17 @@ import ru.org.linux.auth.CaptchaService;
 import ru.org.linux.auth.FloodProtector;
 import ru.org.linux.auth.IPBlockDao;
 import ru.org.linux.auth.IPBlockInfo;
-import ru.org.linux.site.Template;
 import ru.org.linux.search.SearchQueueSender;
+import ru.org.linux.site.MessageNotFoundException;
+import ru.org.linux.site.Template;
+import ru.org.linux.topic.Topic;
+import ru.org.linux.topic.TopicDao;
 import ru.org.linux.topic.TopicPermissionService;
+import ru.org.linux.topic.TopicPrepareService;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserNotFoundException;
-import ru.org.linux.site.MessageNotFoundException;
 import ru.org.linux.user.UserPropertyEditor;
-import ru.org.linux.topic.TopicDao;
-import ru.org.linux.topic.Topic;
-import ru.org.linux.topic.TopicPrepareService;
 import ru.org.linux.util.ExceptionBindingErrorProcessor;
 import ru.org.linux.util.ServletParameterException;
 import ru.org.linux.util.StringUtil;
@@ -149,6 +149,8 @@ public class AddCommentController extends ApplicationObjectSupport {
     }
 
     prepareReplyto(add, params, request);
+    
+    params.put("postscoreInfo", TopicPermissionService.getPostScoreInfo(add.getTopic().getPostScore()));
 
     return new ModelAndView("add_comment", params);
   }
@@ -227,6 +229,8 @@ public class AddCommentController extends ApplicationObjectSupport {
     Map<String, Object> formParams = new HashMap<String, Object>();
 
     prepareReplyto(add, formParams, request);
+
+    formParams.put("postscoreInfo", TopicPermissionService.getPostScoreInfo(add.getTopic().getPostScore()));
 
     User user;
 
