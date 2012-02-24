@@ -105,6 +105,7 @@
         title="<%= title %>"
         replyto="<%= replyto %>"
         msg="${add.msg}"
-        mode="${add.mode}"/>
+        mode="${add.mode}"
+        postscoreInfo="${postscoreInfo}" />
 
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>
