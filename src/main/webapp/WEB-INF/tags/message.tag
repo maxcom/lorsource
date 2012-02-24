@@ -86,7 +86,7 @@
     <c:if test="${preparedMessage.section.votePoll}">
       <c:choose>
           <c:when test="${not message.commited}">
-              <lor:disabledPoll poll="${preparedMessage.poll.poll}"/>
+              <lor:poll-form poll="${preparedMessage.poll.poll}" enabled="false"/>
           </c:when>
           <c:otherwise>
               <lor:poll poll="${preparedMessage.poll}"/>
