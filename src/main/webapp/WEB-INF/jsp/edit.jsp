@@ -1,5 +1,4 @@
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="ru.org.linux.topic.TagDao" %>
 <%@ page import="java.util.SortedSet" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
@@ -44,9 +43,6 @@
   });
 </script>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
-<%
-    SortedSet<String> topTags = (SortedSet<String>) request.getAttribute("topTags");
-%>
 <c:if test="${info!=null}">
   <h1>${info}</h1>
   <h2>Текущая версия сообщения</h2>
@@ -99,7 +95,10 @@
 
   <c:if test="${group.moderated}">
     <label>Теги:<br><form:input path="tags" style="width: 40em"/><p>
-      Популярные теги: <%= TagDao.getEditTags(topTags) %></label> <br>
+      Популярные теги:
+     <c:forEach items="${topTags}" var="topTag" varStatus = "status">
+${status.first ? '' : ', '}<a onclick="addTag('${topTag}');">${topTag}</a>
+     </c:forEach>
   </c:if>
 
   <c:if test="${group.moderated and template.moderatorSession}">

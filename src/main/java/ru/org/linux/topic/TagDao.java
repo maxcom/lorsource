@@ -36,7 +36,6 @@ import java.util.regex.Pattern;
 
 @Repository
 public class TagDao {
-  private static final Pattern tagRE = Pattern.compile("([\\p{L}\\d \\+-]+)", Pattern.CASE_INSENSITIVE);
 
   private static final int TOP_TAGS_COUNT = 50;
 
@@ -91,20 +90,6 @@ public class TagDao {
     return tags.build();
   }
 
-  public static String toString(Collection<String> tags) {
-    if (tags.isEmpty()) {
-      return "";
-    }
-
-    StringBuilder str = new StringBuilder();
-
-    for (String tag : tags) {
-      str.append(str.length() > 0 ? "," : "").append(tag);
-    }
-
-    return str.toString();
-  }
-
   public SortedSet<String> getTopTags()  {
     final SortedSet<String> set = new TreeSet<String>();
 
@@ -136,16 +121,6 @@ public class TagDao {
     return builder.build();
   }
 
-  public static void checkTag(String tag) throws UserErrorException {
-    // обработка тега: только буквы/цифры/пробелы, никаких спецсимволов, запятых, амперсандов и <>
-    if (!isGoodTag(tag)) {
-      throw new UserErrorException("Некорректный тег: '"+tag+ '\'');
-    }
-  }
-
-  private static boolean isGoodTag(String tag) {
-    return tagRE.matcher(tag).matches();
-  }
 
   public void updateCounters(final List<String> oldTags, final List<String> newTags) {
     jdbcTemplate.execute(new ConnectionCallback<String>() {
@@ -172,82 +147,6 @@ public class TagDao {
         return null;
       }
     });
-  }
-
-  public static ImmutableList<String> parseTags(String tags) throws UserErrorException {
-    Set<String> tagSet = new HashSet<String>();
-
-    // Теги разделяютчя пайпом или запятой
-    tags = tags.replaceAll("\\|",",");
-    String [] tagsArr = tags.split(",");
-
-    if (tagsArr.length==0) {
-      return ImmutableList.of();
-    }
-
-    for (String aTagsArr : tagsArr) {
-      String tag = StringUtils.stripToNull(aTagsArr.toLowerCase());
-      // плохой тег - выбрасываем
-      if (tag == null) {
-        continue;
-      }
-
-      // обработка тега: только буквы/цифры/пробелы, никаких спецсимволов, запятых, амперсандов и <>
-      checkTag(tag);
-
-      tagSet.add(tag);
-    }
-
-    return ImmutableList.copyOf(tagSet);
-  }
-
-  public static ImmutableList<String> parseSanitizeTags(String tags) {
-    if (tags==null) {
-      return ImmutableList.of();
-    }
-
-    Set<String> tagSet = new HashSet<String>();
-
-    // Теги разделяютчя пайпом или запятой
-    tags = tags.replaceAll("\\|",",");
-    String [] tagsArr = tags.split(",");
-
-    if (tagsArr.length==0) {
-      return ImmutableList.of();
-    }
-
-    for (String aTagsArr : tagsArr) {
-      String tag = StringUtils.stripToNull(aTagsArr.toLowerCase());
-      // плохой тег - выбрасываем
-      if (tag == null) {
-        continue;
-      }
-
-      // обработка тега: только буквы/цифры/пробелы, никаких спецсимволов, запятых, амперсандов и <>
-      if (isGoodTag(tag)) {
-        tagSet.add(tag);
-      }
-    }
-
-    return ImmutableList.copyOf(tagSet);
-  }
-
-  // TODO: move to JSP
-  public static String getEditTags(Collection<String> tags) {
-    StringBuilder out = new StringBuilder();
-    boolean first = true;
-
-    for (String tag : tags) {
-      if (!first) {
-        out.append(", ");
-      }
-      out.append("<a onclick=\"addTag('").append(tag).append("')\">");
-      out.append(tag);
-      out.append("</a>");
-      first = false;
-    }
-
-    return out.toString();
   }
 
   public boolean updateTags(final int msgid, final List<String> tagList) {
@@ -292,9 +191,15 @@ public class TagDao {
     });
   }
 
-  public int getTagId(String tag) throws UserErrorException, TagNotFoundException {
-    checkTag(tag);
-
+  /**
+   * Получение идентификационного номера тега по названию
+   *
+   * @param tag название тега
+   * @return идентификационный номер
+   * @throws UserErrorException
+   * @throws TagNotFoundException
+   */
+public int getTagId(String tag) throws UserErrorException, TagNotFoundException {
     List<Integer> res = jdbcTemplate.queryForList("SELECT id FROM tags_values WHERE value=? AND counter>0", Integer.class, tag);
 
     if (res.isEmpty()) {

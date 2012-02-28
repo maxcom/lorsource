@@ -35,7 +35,7 @@ public class TopicListService {
   private static final Log logger = LogFactory.getLog(TopicListService.class);
 
   @Autowired
-  private TagDao tagDao;
+  private TagService tagService;
 
   @Autowired
   private TopicListDao topicListDao;
@@ -94,7 +94,7 @@ public class TopicListService {
     }
 
     if (tag != null) {
-      topicListDto.setTag(tagDao.getTagId(tag));
+      topicListDto.setTag(tagService.getTagId(tag));
     }
 
     if (month != null && year != null) {

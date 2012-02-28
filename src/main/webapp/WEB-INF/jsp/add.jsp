@@ -1,5 +1,5 @@
 <%@ page contentType="text/html; charset=utf-8" import="ru.org.linux.gallery.Screenshot"  %>
-<%@ page import="ru.org.linux.topic.TagDao"%>
+<%@ page import="ru.org.linux.topic.TagService"%>
 <%@ page import="ru.org.linux.util.StringUtil"%>
 <%@ page import="java.util.SortedSet" %>
 <%@ page import="ru.org.linux.group.Group" %>
@@ -31,7 +31,6 @@
 
 <%
     Group group = (Group) request.getAttribute("group");
-    SortedSet<String> topTags = (SortedSet<String>) request.getAttribute("topTags");
 %>
 
 <title>Добавить сообщение</title>
@@ -139,7 +138,10 @@
     Метки (разделенные запятой):<br>
     <form:input path="tags" style="width: 40em"/>
     </label><p>
-    Популярные теги: <%= TagDao.getEditTags(topTags) %> <br>
+    Популярные теги:
+     <c:forEach items="${topTags}" var="topTag" varStatus = "status">
+${status.first ? '' : ', '}<a onclick="addTag('${topTag}');">${topTag}</a>
+     </c:forEach>
 </c:if>
 
   <lor:captcha ipBlockInfo="${ipBlockInfo}"/>

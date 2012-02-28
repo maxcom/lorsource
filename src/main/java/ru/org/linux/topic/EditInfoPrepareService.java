@@ -32,7 +32,7 @@ public class EditInfoPrepareService {
   private TopicDao messageDao;
 
   @Autowired
-  private TagDao tagDao;
+  private TagService tagService;
 
   @Autowired
   private UserDao userDao;
@@ -53,7 +53,7 @@ public class EditInfoPrepareService {
     String currentTitle = message.getTitle();
     String currentUrl = message.getUrl();
     String currentLinktext = message.getLinktext();
-    List<String> currentTags = tagDao.getMessageTags(message.getMessageId());
+    List<String> currentTags = tagService.getMessageTags(message.getMessageId());
 
     for (int i = 0; i<editInfoDTOs.size(); i++) {
       EditInfoDto dto = editInfoDTOs.get(i);
@@ -91,12 +91,12 @@ public class EditInfoPrepareService {
       }
 
       if (dto.getOldtags()!=null) {
-        currentTags = TagDao.parseTags(dto.getOldtags());
+        currentTags = tagService.parseTags(dto.getOldtags());
       }
     }
 
     if (!editInfoDTOs.isEmpty()) {
-      EditInfoDto current = EditInfoDto.createFromMessage(tagDao, message, baseText);
+      EditInfoDto current = EditInfoDto.createFromMessage(tagService, message, baseText);
 
       if (currentTags.isEmpty()) {
         currentTags = null;

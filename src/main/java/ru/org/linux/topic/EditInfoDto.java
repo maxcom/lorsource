@@ -100,14 +100,14 @@ public class EditInfoDto {
     this.oldurl = oldurl;
   }
 
-  public static EditInfoDto createFromMessage(TagDao tagDao, Topic message, String text) {
+  public static EditInfoDto createFromMessage(TagService tagService, Topic message, String text) {
     EditInfoDto current = new EditInfoDto();
 
     current.setOldmessage(text);
     current.setEditdate(message.getPostdate());
     current.setEditor(message.getUid());
     current.setMsgid(message.getMessageId());
-    current.setOldtags(TagDao.toString(tagDao.getMessageTags(message.getMessageId())));
+    current.setOldtags(TagService.toString(tagService.getMessageTags(message.getMessageId())));
     current.setOldlinktext(message.getLinktext());
     current.setOldurl(message.getUrl());
 

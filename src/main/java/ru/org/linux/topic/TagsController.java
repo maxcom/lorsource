@@ -26,11 +26,11 @@ import java.util.Map;
 public class TagsController  {
 
   @Autowired
-  private TagDao tagDao;
+  private TagService tagService;
 
   @ModelAttribute("tags")
   public Map<String, Integer> getTags() {
-    return tagDao.getAllTags();
+    return tagService.getAllTags();
   }
 
   @RequestMapping("/tags")
