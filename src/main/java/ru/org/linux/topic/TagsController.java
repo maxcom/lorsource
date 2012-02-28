@@ -15,31 +15,63 @@
 
 package ru.org.linux.topic;
 
+import com.google.common.base.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
 
+import java.util.List;
 import java.util.Map;
+import java.util.SortedSet;
 
 @Controller
-public class TagsController  {
+public class TagsController {
 
   @Autowired
   private TagService tagService;
 
-  @ModelAttribute("tags")
-  public Map<String, Integer> getTags() {
-    return tagService.getAllTags();
-  }
-
+  /**
+   * Обработчик по умолчанию. Показ тегов по самой первой букве.
+   *
+   * @return
+   */
   @RequestMapping("/tags")
-  public String tags() {
-    return "tags";
+  public ModelAndView showDefaultTagListHandlertags() {
+    return showTagListHandler("");
   }
 
-  @RequestMapping("/tags.jsp")  
-  public String oldTags() {
+  /**
+   * Показ тегов по первой букве.
+   *
+   * @param firstLetter - фильтр: первая буква для тегов, которые должны быть показаны
+   * @return
+   */
+  @RequestMapping("/tags/{firstLetter}")
+  public ModelAndView showTagListHandler(
+    @PathVariable String firstLetter
+  ) {
+    ModelAndView modelAndView = new ModelAndView("tags");
+
+    SortedSet<String> firstLetters = tagService.getFirstLetters();
+    modelAndView.addObject("firstLetters", firstLetters);
+
+    
+    if (Strings.isNullOrEmpty(firstLetter)) {
+      firstLetter = firstLetters.first();
+    }
+    modelAndView.addObject("currentLetter", firstLetter);
+
+    Map<String, Integer> tags = tagService.getTagsByFirstLetter(firstLetter);
+    modelAndView.addObject("tags", tags);
+
+    return modelAndView;
+  }
+
+  @RequestMapping("/tags.jsp")
+  public String oldTagsRedirectHandler() {
     return "redirect:/tags";
   }
 }
