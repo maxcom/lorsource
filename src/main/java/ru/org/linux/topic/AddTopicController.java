@@ -74,7 +74,9 @@ public class AddTopicController extends ApplicationObjectSupport {
   @Autowired
   private SectionService sectionService;
 
-  private TagDao tagDao;
+  @Autowired
+  private TagService tagService;
+
   private UserDao userDao;
 
   @Autowired
@@ -91,6 +93,9 @@ public class AddTopicController extends ApplicationObjectSupport {
 
   @Autowired
   private Configuration configuration;
+
+  @Autowired
+  private AddTopicRequestValidator addTopicRequestValidator;
 
   public static final int MAX_MESSAGE_LENGTH_ANONYMOUS = 4096;
   public static final int MAX_MESSAGE_LENGTH = 16384;
@@ -118,11 +123,6 @@ public class AddTopicController extends ApplicationObjectSupport {
   @Autowired
   public void setGroupDao(GroupDao groupDao) {
     this.groupDao = groupDao;
-  }
-
-  @Autowired
-  public void setTagDao(TagDao tagDao) {
-    this.tagDao = tagDao;
   }
 
   @Autowired
@@ -165,7 +165,7 @@ public class AddTopicController extends ApplicationObjectSupport {
     params.put("group", group);
 
     if (group.isModerated()) {
-      params.put("topTags", tagDao.getTopTags());
+      params.put("topTags", tagService.getTopTags());
     }
 
     params.put("addportal", sectionService.getAddInfo(group.getSectionId()));
@@ -208,7 +208,7 @@ public class AddTopicController extends ApplicationObjectSupport {
     }
 
     if (group!=null && group.isModerated()) {
-      params.put("topTags", tagDao.getTopTags());
+      params.put("topTags", tagService.getTopTags());
     }
 
     if (group!=null) {
@@ -281,7 +281,7 @@ public class AddTopicController extends ApplicationObjectSupport {
 
     if (group!=null) {
       previewMsg = new Topic(form, user, request.getRemoteAddr());
-      params.put("message", prepareService.prepareTopicPreview(previewMsg, TagDao.parseSanitizeTags(form.getTags()), poll, request.isSecure(), message));
+      params.put("message", prepareService.prepareTopicPreview(previewMsg, tagService.parseSanitizeTags(form.getTags()), poll, request.isSecure(), message));
     }
 
     if (!form.isPreviewMode() && !errors.hasErrors() && !session.getId().equals(request.getParameter("session"))) {
@@ -390,7 +390,7 @@ public class AddTopicController extends ApplicationObjectSupport {
 
   @InitBinder("form")
   public void requestValidator(WebDataBinder binder) {
-    binder.setValidator(new AddTopicRequestValidator());
+    binder.setValidator(addTopicRequestValidator);
 
     binder.setBindingErrorProcessor(new ExceptionBindingErrorProcessor());
   }

@@ -17,15 +17,22 @@ package ru.org.linux.topic;
 
 import com.google.common.base.Strings;
 import org.jdom.Verifier;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 import ru.org.linux.auth.BadPasswordException;
 import ru.org.linux.user.UserErrorException;
 import ru.org.linux.util.URLUtil;
 
+
+@Component
 public class AddTopicRequestValidator implements Validator {
   public static final int MAX_TITLE_LENGTH = 140;
   public static final int MAX_URL_LENGTH = 255;
+
+  @Autowired
+  private TagService tagService;
 
   @Override
   public boolean supports(Class<?> clazz) {
@@ -82,7 +89,7 @@ public class AddTopicRequestValidator implements Validator {
 
     if (form.getTags()!=null) {
       try {
-        TagDao.parseTags(form.getTags());
+        tagService.parseTags(form.getTags());
       } catch (UserErrorException ex) {
         errors.rejectValue("tags", null, ex.getMessage());
       }
