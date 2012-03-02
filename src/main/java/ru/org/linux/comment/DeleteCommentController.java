@@ -85,7 +85,7 @@ public class DeleteCommentController {
     Map<String, Object> params = new HashMap<String, Object>();
 
     if (!Template.isSessionAuthorized(session)) {
-      throw new AccessViolationException("нет авторизованы");
+      throw new AccessViolationException("нет авторизации");
     }
 
     Template tmpl = Template.getTemplate(request);
