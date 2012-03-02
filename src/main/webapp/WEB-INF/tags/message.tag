@@ -86,7 +86,7 @@
     <c:if test="${preparedMessage.section.votePoll}">
       <c:choose>
           <c:when test="${not message.commited}">
-              <lor:disabledPoll poll="${preparedMessage.poll.poll}"/>
+              <lor:poll-form poll="${preparedMessage.poll.poll}" enabled="false"/>
           </c:when>
           <c:otherwise>
               <lor:poll poll="${preparedMessage.poll}"/>
@@ -156,7 +156,7 @@
           <c:if test="${template.prof.showSocial}">
           <div class="social-buttons">
             <a target="_blank" style="text-decoration: none"
-               href="http://juick.com/post?body=<%= URLEncoder.encode("*LOR " + message.getTitle()+" "+tmpl.getMainUrlNoSlash()+message.getLink()) %>">
+               href="http://juick.com/post?body=<%= URLEncoder.encode("*LOR " + message.getTitle()+ ' '+tmpl.getMainUrlNoSlash()+message.getLink()) %>">
               <img border="0" src="/img/juick.png" width=16 height=16 alt="Juick" title="Share on Juick">
             </a>
 
@@ -215,7 +215,7 @@
     }
 %>     </ul>
         <c:if test="${template.sessionAuthorized}">
-          <br>${message.postScoreInfo}
+          <br>${preparedMessage.postscoreInfo}
         </c:if>
         </div>
       </c:if>

@@ -14,6 +14,7 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
+<%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%--@elvariable id="message" type="ru.org.linux.topic.Topic"--%>
 <%--@elvariable id="poll" type="ru.org.linux.poll.Poll"--%>
 
@@ -25,20 +26,10 @@
 <H1>Голосование</H1>
 <h2><a href="view-message.jsp?msgid=${poll.topicId}">Опрос</a></h2>
 <h3><c:out value="${message.title}" escapeXml="true"/></h3>
-<form method=POST action=vote.jsp>
-  <input type=hidden name=voteid value=${poll.id}>
-  <input type=hidden name=msgid value=${message.id}>
-  <c:forEach var="item" items="${poll.variants}">
-    <c:if test="${poll.multiSelect}">
-      <input type="checkbox" name="vote" id="poll-${item.id}" value="${item.id}"><label for="poll-${item.id}"><c:out escapeXml="true" value="${item.label}"/></label> <br/>
-    </c:if>
-    <c:if test="${not poll.multiSelect}">
-      <input type="radio" name="vote" id="poll-${item.id}" value="${item.id}"><label for="poll-${item.id}"><c:out escapeXml="true" value="${item.label}"/></label> <br/>
-    </c:if>
-  </c:forEach>
 
-<input type=submit value=vote>  
-</form><br>
+<lor:poll-form poll="${poll}" enabled="true"/>
+
+<br>
 <a href="view-vote.jsp?vote=${poll.id}">результаты</a>
 <br><a href="view-news.jsp?section=5">итоги прошедших опросов...</a>
 <br>[<a href="add.jsp?group=19387">добавить опрос</a>]

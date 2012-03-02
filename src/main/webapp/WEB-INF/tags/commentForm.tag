@@ -25,6 +25,7 @@
 <%@ attribute name="mode" required="true" type="java.lang.String" %>
 <%@ attribute name="cancel" required="false" type="java.lang.Boolean" %>
 <%@ attribute name="ipBlockInfo" required="false" type="ru.org.linux.auth.IPBlockInfo" %>
+<%@ attribute name="postscoreInfo" required="true" type="java.lang.String" %>
 <form method="POST" action="add_comment.jsp" id="commentForm">
   <input type="hidden" name="session"
          value="<%= StringUtil.escapeHtml(session.getId()) %>">
@@ -33,7 +34,7 @@
   <input id="nick" type='text' name='nick' value="anonymous" size=40><br>
   <label for="password">Пароль:</label>
   <input id="password" type=password name=password size=40><br>
-  ${topic.postScoreInfo}
+  ${postscoreInfo}
   <br>
   <% } %>
 
@@ -62,7 +63,7 @@
   <font size="2"><b>Внимание:</b> <a href="/wiki/en/Lorcode" target="_blank">прочитайте описание разметки LORCODE</a></font><br>
 
 
-  ${topic.postScoreInfo}
+  ${postscoreInfo}
 
   <br>
   <lor:captcha ipBlockInfo="${ipBlockInfo}" />

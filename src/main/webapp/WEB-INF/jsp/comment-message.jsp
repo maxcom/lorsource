@@ -1,5 +1,5 @@
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="ru.org.linux.site.Template"   buffer="200kb"%>
+<%@ page buffer="200kb"%>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%--
   ~ Copyright 1998-2012 Linux.org.ru
@@ -39,6 +39,11 @@
 <font size=2><strong>Внимание!</strong> Перед написанием комментария ознакомьтесь с
 <a href="rules.jsp">правилами</a> сайта.</font><p>
 
-<lor:commentForm topic="${add.topic}" title="" mode="${add.mode}" ipBlockInfo="${ipBlockInfo}"/>
+<lor:commentForm
+        topic="${add.topic}"
+        title=""
+        mode="${add.mode}"
+        ipBlockInfo="${ipBlockInfo}"
+        postscoreInfo="${preparedMessage.postscoreInfo}" />
 
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>

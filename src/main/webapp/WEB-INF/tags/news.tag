@@ -151,16 +151,13 @@
   } else if (votepoll) {
       %>
         <c:choose>
-            <c:when test="${not message.commited}">
-                <lor:disabledPoll poll="${preparedMessage.poll.poll}"/>
+            <c:when test="${not message.commited || preparedMessage.poll.poll.current}">
+                <lor:poll-form poll="${preparedMessage.poll.poll}" enabled="${preparedMessage.poll.poll.current}"/>
             </c:when>
             <c:otherwise>
                 <lor:poll poll="${preparedMessage.poll}"/>
             </c:otherwise>
         </c:choose>
-        <c:if test="${preparedMessage.poll.poll.current}">
-          <p>&gt;&gt;&gt; <a href="vote-vote.jsp?msgid=${message.id}">Голосовать</a>
-        </c:if>
 
         <c:if test="${message.commited}">
           <p>&gt;&gt;&gt; <a href="${message.linkLastmod}">Результаты</a>

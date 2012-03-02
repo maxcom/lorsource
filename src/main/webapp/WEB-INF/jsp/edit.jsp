@@ -124,7 +124,12 @@
         </c:if>
       </c:forEach>
     </select></label><br>
-    <label>Bonus score (от 0 до 20): <form:input path="bonus" size="40"/></label><br>
+    <label>Бонус автору (<lor:user decorate="true" user="${preparedMessage.author}"/>) (от 0 до 20): <form:input path="bonus" size="5" cssClass="number" type="number"/></label><br>
+
+    <c:forEach items="${editors}" var="editor">
+      <label>Бонус корректору (<lor:user decorate="true" user="${editor}"/>) (от 0 до 5): <form:input path="editorBonus[${editor.id}]" size="5" cssClass="number" type="number"/></label><br>
+    </c:forEach>
+
     <input type=submit name=commit value="Подтвердить">
   </c:if>
 </form:form>

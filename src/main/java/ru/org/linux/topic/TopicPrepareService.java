@@ -24,7 +24,10 @@ import ru.org.linux.group.BadGroupException;
 import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
 import ru.org.linux.group.GroupPermissionService;
-import ru.org.linux.poll.*;
+import ru.org.linux.poll.Poll;
+import ru.org.linux.poll.PollNotFoundException;
+import ru.org.linux.poll.PollPrepareService;
+import ru.org.linux.poll.PreparedPoll;
 import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionNotFoundException;
 import ru.org.linux.section.SectionService;
@@ -234,7 +237,25 @@ public class TopicPrepareService {
         preparedImage = null;
       }
 
-      return new PreparedTopic(message, author, deleteInfo, deleteUser, processedMessage, preparedPoll, commiter, tags, group, section, lastEditInfo, lastEditor, editCount, userAgent, lorcode, preparedImage);
+      return new PreparedTopic(
+              message, 
+              author, 
+              deleteInfo, 
+              deleteUser, 
+              processedMessage, 
+              preparedPoll, 
+              commiter, 
+              tags,
+              group,
+              section,
+              lastEditInfo,
+              lastEditor, 
+              editCount,
+              userAgent, 
+              lorcode, 
+              preparedImage, 
+              TopicPermissionService.getPostScoreInfo(message.getPostScore())
+      );
     } catch (BadGroupException e) {
       throw new RuntimeException(e);
     } catch (UserNotFoundException e) {

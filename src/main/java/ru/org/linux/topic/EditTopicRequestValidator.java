@@ -26,6 +26,7 @@ public class EditTopicRequestValidator implements Validator {
   public static final int MAX_TITLE_LENGTH = 255;
   public static final int MAX_URL_LENGTH = 255;
   private static final int MAX_COMMIT_BONUS = 20;
+  private static final int MAX_EDITOR_BONUS = 5;
 
   @Override
   public boolean supports(Class<?> clazz) {
@@ -69,6 +70,14 @@ public class EditTopicRequestValidator implements Validator {
 
     if (form.getBonus()<0 || form.getBonus()>MAX_COMMIT_BONUS) {
       errors.rejectValue("bonus", null, "Некорректное значение bonus");
+    }
+    
+    if (form.getEditorBonus()!=null) {
+      for (Integer value : form.getEditorBonus().values()) {
+        if (value==null || value<0 || value>MAX_EDITOR_BONUS) {
+          errors.rejectValue("editorBonus", null, "Некорректное значение editorBonus");
+        }
+      }
     }
 
     if (form.getTags()!=null) {

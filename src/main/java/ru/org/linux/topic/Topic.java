@@ -315,10 +315,6 @@ public class Topic implements Serializable {
     return effective;
   }
 
-  public String getPostScoreInfo() {
-    return TopicPermissionService.getPostScoreInfo(getPostScore());
-  }
-
   public int getMessageId() {
     return msgid;
   }

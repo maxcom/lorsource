@@ -44,12 +44,29 @@ public final class PreparedTopic {
   private final String userAgent;
   
   private final PreparedImage image;
+  
+  private final String postscoreInfo;
 
   public static final int EDIT_PERIOD = 2 * 60 * 60 * 1000; // milliseconds
 
-  public PreparedTopic(Topic message, User author, DeleteInfo deleteInfo, User deleteUser, String processedMessage,
-                       PreparedPoll poll, User commiter, List<String> tags, Group group, Section section,
-                       EditInfoDto lastEditInfo, User lastEditor, int editorCount, String userAgent, boolean lorcode, PreparedImage image) {
+  public PreparedTopic(
+          Topic message,
+          User author,
+          DeleteInfo deleteInfo,
+          User deleteUser,
+          String processedMessage,
+          PreparedPoll poll,
+          User commiter,
+          List<String> tags,
+          Group group,
+          Section section,
+          EditInfoDto lastEditInfo,
+          User lastEditor,
+          int editorCount,
+          String userAgent,
+          boolean lorcode,
+          PreparedImage image,
+          String postscoreInfo) {
     this.message = message;
     this.author = author;
     this.deleteInfo = deleteInfo;
@@ -58,6 +75,7 @@ public final class PreparedTopic {
     this.poll = poll;
     this.commiter = commiter;
     this.lorcode = lorcode;
+    this.postscoreInfo = postscoreInfo;
     if (tags!=null) {
       this.tags=ImmutableList.copyOf(tags);
     } else {
@@ -138,5 +156,9 @@ public final class PreparedTopic {
 
   public PreparedImage getImage() {
     return image;
+  }
+
+  public String getPostscoreInfo() {
+    return postscoreInfo;
   }
 }

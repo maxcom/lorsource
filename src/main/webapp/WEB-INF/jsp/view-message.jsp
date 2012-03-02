@@ -331,7 +331,14 @@
 
 <c:if test="${not message.expired and template.sessionAuthorized}">
   <div style="display: none">
-    <lor:commentForm topic="${message}" title="" replyto="0" cancel="true" mode="${template.formatMode}" ipBlockInfo="${ipBlockInfo}" />
+    <lor:commentForm
+            topic="${message}"
+            title=""
+            replyto="0"
+            cancel="true"
+            mode="${template.formatMode}"
+            ipBlockInfo="${ipBlockInfo}"
+            postscoreInfo="${preparedMessage.postscoreInfo}" />
   </div>
 </c:if>
 

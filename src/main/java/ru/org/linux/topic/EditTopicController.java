@@ -15,7 +15,12 @@
 
 package ru.org.linux.topic;
 
+import com.google.common.base.Function;
+import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -27,7 +32,10 @@ import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
-import ru.org.linux.poll.*;
+import ru.org.linux.poll.Poll;
+import ru.org.linux.poll.PollDao;
+import ru.org.linux.poll.PollNotFoundException;
+import ru.org.linux.poll.PollVariant;
 import ru.org.linux.search.SearchQueueSender;
 import ru.org.linux.section.Section;
 import ru.org.linux.site.BadInputException;
@@ -35,7 +43,9 @@ import ru.org.linux.site.Template;
 import ru.org.linux.spring.FeedPinger;
 import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.user.User;
+import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserErrorException;
+import ru.org.linux.user.UserNotFoundException;
 import ru.org.linux.util.ExceptionBindingErrorProcessor;
 
 import javax.servlet.ServletRequest;
@@ -74,6 +84,9 @@ public class EditTopicController {
   
   @Autowired
   private MsgbaseDao msgbaseDao;
+  
+  @Autowired
+  private UserDao userDao;
 
   @RequestMapping(value = "/commit.jsp", method = RequestMethod.GET)
   public ModelAndView showCommitForm(
@@ -138,7 +151,7 @@ public class EditTopicController {
   ) throws PollNotFoundException {
     Map<String, Object> params = new HashMap<String, Object>();
 
-    Topic message = preparedMessage.getMessage();
+    final Topic message = preparedMessage.getMessage();
 
     params.put("message", message);
     params.put("preparedMessage", preparedMessage);
@@ -150,10 +163,21 @@ public class EditTopicController {
 
     params.put("newMsg", message);
     params.put("newPreparedMessage", preparedMessage);
-
+    
     List<EditInfoDto> editInfoList = messageDao.getEditInfo(message.getId());
     if (!editInfoList.isEmpty()) {
       params.put("editInfo", editInfoList.get(0));
+
+      ImmutableSet<User> editors = getEditors(message, editInfoList);
+
+      ImmutableMap.Builder<Integer,Integer> editorBonus = ImmutableMap.builder();
+      for (User editor : editors) {
+        editorBonus.put(editor.getId(), 1);
+      }
+
+      form.setEditorBonus(editorBonus.build());
+      
+      params.put("editors", editors);
     }
 
     params.put("commit", false);
@@ -189,6 +213,28 @@ public class EditTopicController {
     return new ModelAndView("edit", params);
   }
 
+  private ImmutableSet<User> getEditors(final Topic message, List<EditInfoDto> editInfoList) {
+    return ImmutableSet.copyOf(
+            Iterables.transform(
+                    Iterables.filter(editInfoList, new Predicate<EditInfoDto>() {
+                      @Override
+                      public boolean apply(EditInfoDto input) {
+                        return input.getEditor() != message.getUid();
+                      }
+                    }),
+                    new Function<EditInfoDto, User>() {
+                      @Override
+                      public User apply(EditInfoDto input) {
+                        try {
+                          return userDao.getUserCached(input.getEditor());
+                        } catch (UserNotFoundException e) {
+                          throw new RuntimeException(e);
+                        }
+                      }
+                    })
+    );
+  }
+
   @RequestMapping(value = "/edit.jsp", method = RequestMethod.POST)
   public ModelAndView edit(
     HttpServletRequest request,
@@ -206,7 +252,7 @@ public class EditTopicController {
 
     Map<String, Object> params = new HashMap<String, Object>();
 
-    Topic message = messageDao.getById(msgid);
+    final Topic message = messageDao.getById(msgid);
     PreparedTopic preparedMessage = messagePrepareService.prepareTopic(message, false, request.isSecure(), tmpl.getCurrentUser());
     Group group = preparedMessage.getGroup();
 
@@ -352,6 +398,28 @@ public class EditTopicController {
       newText = msgbaseDao.getMessageText(message.getId()).getText();
     }
 
+    if (form.getEditorBonus() != null) {
+      ImmutableSet<Integer> editors = ImmutableSet.copyOf(
+              Iterables.transform(
+                      Iterables.filter(editInfoList, new Predicate<EditInfoDto>() {
+                        @Override
+                        public boolean apply(EditInfoDto input) {
+                          return input.getEditor() != message.getUid();
+                        }
+                      }), new Function<EditInfoDto, Integer>() {
+                @Override
+                public Integer apply(EditInfoDto input) {
+                  return input.getEditor();
+                }
+              }));
+
+      for (int userid : form.getEditorBonus().keySet()) {
+        if (!editors.contains(userid)) {
+          errors.reject("editorBonus", "некорректный корректор?!");
+        }
+      }
+    }
+
     if (!preview && !errors.hasErrors()) {
       boolean changed = messageDao.updateAndCommit(
               newMsg,
@@ -363,7 +431,8 @@ public class EditTopicController {
               changeGroupId,
               form.getBonus(),
               newPoll!=null?newPoll.getVariants():null,
-              form.isMultiselect()
+              form.isMultiselect(),
+              form.getEditorBonus()
       );
 
       if (changed || commit) {
