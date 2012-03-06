@@ -158,18 +158,7 @@ public class TagService {
     tagDao.updateCounters(oldTags, newTags);
   }
 
-  /**
-   * Получить уникальный список первых букв тегов.
-   *
-   * @return список первых букв тегов
-   */
-  SortedSet<String> getFirstLetters() {
-    return tagDao.getFirstLetters();
-  }
 
-  Map<String, Integer> getTagsByFirstLetter(String firstLetter) {
-    return tagDao.getTagsByFirstLetter(firstLetter);
-  }
   public static String toString(Collection<String> tags) {
     if (tags.isEmpty()) {
       return "";

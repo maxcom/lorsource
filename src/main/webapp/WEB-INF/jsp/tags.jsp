@@ -29,21 +29,6 @@
 
 <h1>Список меток</h1>
 
-<div class="tags-first-letters">
-<c:forEach var="firstLetter" items="${firstLetters}" varStatus = "status">
-${status.first ? '' : ', '}
-  <c:choose>
-    <c:when test="${firstLetter == currentLetter}">
-      <span>${firstLetter}</span>
-    </c:when>
-    <c:otherwise>
-      <c:url var="tagLetterUrl" value="/tags/${firstLetter}" />
-      <a href="${tagLetterUrl}">${firstLetter}</a>
-    </c:otherwise>
-  </c:choose>
-</c:forEach>
-</div>
-
 <ul>
 
   <c:forEach var="tag" items="${tags}">

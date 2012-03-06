@@ -17,6 +17,7 @@ package ru.org.linux.topic;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ConnectionCallback;
@@ -30,10 +31,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.List;
-import java.util.Map;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.*;
+import java.util.regex.Pattern;
 
 @Repository
 public class TagDao {
@@ -51,7 +50,7 @@ public class TagDao {
 
   private static synchronized int getOrCreateTag(Connection con, String tag) throws SQLException {
     PreparedStatement st2 = con.prepareStatement("SELECT id FROM tags_values WHERE value=?");
-    st2.setString(1, tag);
+    st2.setString(1,tag);
     ResultSet rs = st2.executeQuery();
     int id;
 
@@ -59,10 +58,10 @@ public class TagDao {
       id = rs.getInt("id");
     } else {
       PreparedStatement st = con.prepareStatement("INSERT INTO tags_values (value) VALUES(?)");
-      st.setString(1, tag);
+      st.setString(1,tag);
       st.executeUpdate();
       st.close();
-
+      
       rs = st2.executeQuery();
       rs.next();
       id = rs.getInt("id");
@@ -78,70 +77,40 @@ public class TagDao {
     final ImmutableList.Builder<String> tags = ImmutableList.builder();
 
     jdbcTemplate.query(
-      "SELECT tags_values.value FROM tags, tags_values WHERE tags.msgid=? AND tags_values.id=tags.tagid ORDER BY value",
-      new RowCallbackHandler() {
-        @Override
-        public void processRow(ResultSet rs) throws SQLException {
-          tags.add(rs.getString("value"));
-        }
-      },
-      msgid
+            "SELECT tags_values.value FROM tags, tags_values WHERE tags.msgid=? AND tags_values.id=tags.tagid ORDER BY value",
+            new RowCallbackHandler() {
+              @Override
+              public void processRow(ResultSet rs) throws SQLException {
+                tags.add(rs.getString("value"));
+              }
+            },
+            msgid
     );
 
     return tags.build();
   }
 
-  public SortedSet<String> getTopTags() {
+  public SortedSet<String> getTopTags()  {
     final SortedSet<String> set = new TreeSet<String>();
 
     jdbcTemplate.query(
-      "SELECT counter,value FROM tags_values WHERE counter>1 ORDER BY counter DESC LIMIT " + TOP_TAGS_COUNT,
-      new RowCallbackHandler() {
-        @Override
-        public void processRow(ResultSet rs) throws SQLException {
-          set.add(rs.getString("value"));
-        }
-      }
+            "SELECT counter,value FROM tags_values WHERE counter>1 ORDER BY counter DESC LIMIT " + TOP_TAGS_COUNT,
+            new RowCallbackHandler() {
+              @Override
+              public void processRow(ResultSet rs) throws SQLException {
+                set.add(rs.getString("value"));
+              }
+            }
     );
 
     return set;
-  }
-
-  SortedSet<String> getFirstLetters() {
-    final SortedSet<String> set = new TreeSet<String>();
-
-    jdbcTemplate.query(
-      "select distinct firstchar from (select lower(left(value,1)) as firstchar from tags_values order by firstchar) firstchars",
-      new RowCallbackHandler() {
-        @Override
-        public void processRow(ResultSet rs) throws SQLException {
-          set.add(rs.getString("firstchar"));
-        }
-      }
-    );
-    return set;
-  }
-
-  Map<String, Integer> getTagsByFirstLetter(String firstLetter) {
-    final ImmutableMap.Builder<String, Integer> builder = ImmutableMap.builder();
-    jdbcTemplate.query("select counter, value from tags_values where lower(left(value,1)) = ? order by value;",
-      new RowCallbackHandler() {
-        @Override
-        public void processRow(ResultSet resultSet) throws SQLException {
-          builder.put(resultSet.getString("value"), resultSet.getInt("counter"));
-        }
-      },
-      firstLetter
-    );
-    return builder.build();
   }
 
   /**
    * Получить все тэги со счетчиком
-   *
    * @return список всех тегов
    */
-  public Map<String, Integer> getAllTags() {
+  public Map<String,Integer> getAllTags() {
     final ImmutableMap.Builder<String, Integer> builder = ImmutableMap.builder();
     jdbcTemplate.query(queryAllTags, new RowCallbackHandler() {
       @Override
@@ -230,7 +199,7 @@ public class TagDao {
    * @throws UserErrorException
    * @throws TagNotFoundException
    */
-  public int getTagId(String tag) throws UserErrorException, TagNotFoundException {
+public int getTagId(String tag) throws UserErrorException, TagNotFoundException {
     List<Integer> res = jdbcTemplate.queryForList("SELECT id FROM tags_values WHERE value=? AND counter>0", Integer.class, tag);
 
     if (res.isEmpty()) {
