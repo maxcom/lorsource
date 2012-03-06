@@ -282,7 +282,7 @@ public class Parser {
           }
           currentNode = pushTextNode(rootNode, currentNode, fixWhole, isCode);
         }
-        String tagname = match.group(1);
+        String tagname = match.group(1).toLowerCase();
         String parameter = match.group(3);
         String wholematch = match.group(0);
         Set<String> allTagsNames = parserParameters.getAllTagsNames();
