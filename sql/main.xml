@@ -12,5 +12,6 @@
     <include file="sql/updates/2012-02-02-grant-wiki.xml"/>
     <include file="sql/updates/2012-02-16-topic-perm-fix.xml"/>
     <include file="sql/updates/2012-02-17-section-score.xml"/>
+    <include file="sql/updates/2012-02-28-tags-first-letter-index.xml"/>
 
 </databaseChangeLog>
