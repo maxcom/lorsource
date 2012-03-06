@@ -54,6 +54,9 @@ public class TopicListController {
   @Autowired
   private TopicPrepareService prepareService;
 
+  @Autowired
+  private TagService tagService;
+
   // TODO: здесь должен быть сервис, а не DAO
   @Autowired
   private GroupDao groupDao;
@@ -365,7 +368,7 @@ public class TopicListController {
     }
 
     if (topicListForm.getTag() != null) {
-      TagDao.checkTag(topicListForm.getTag());
+      tagService.checkTag(topicListForm.getTag());
     }
 
     User user = getUserByNickname(modelAndView, nick);
@@ -759,7 +762,7 @@ public class TopicListController {
       throw new ServletParameterException("section or tag required");
     }
     if (topicListForm.getTag() != null) {
-      TagDao.checkTag(topicListForm.getTag());
+      tagService.checkTag(topicListForm.getTag());
     }
     if (section != null && group != null && group.getSectionId() != section.getId()) {
       throw new ScriptErrorException("группа #" + group.getId() + " не принадлежит разделу #" + section.getId());

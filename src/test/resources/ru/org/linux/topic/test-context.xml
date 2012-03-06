@@ -27,8 +27,12 @@
   <bean class="ru.org.linux.topic.stub.TestTopicListDaoImpl" id="topicListDao"/>
 
   <bean id="tagDao"
+        factory-bean="beansProvider"
+        factory-method="getTagDao"/>
+
+  <bean id="tagService"
       factory-bean="beansProvider"
-      factory-method="getTagDao"/>
+      factory-method="getTagService"/>
 
   <bean id="cacheProvider"
         factory-bean="beansProvider"

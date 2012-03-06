@@ -26,6 +26,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import ru.org.linux.site.Template;
 import ru.org.linux.topic.TagCloudDao.TagDTO;
+import ru.org.linux.topic.TagService;
 import ru.org.linux.user.ProfileProperties;
 import ru.org.linux.spring.commons.CacheProvider;
 import ru.org.linux.topic.TagCloudDao;

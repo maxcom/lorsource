@@ -77,7 +77,7 @@ public class TopicDao {
   private PollDao pollDao;
 
   @Autowired
-  private TagDao tagDao;
+  private TagService tagService;
 
   @Autowired
   private UserEventsDao userEventsDao;
@@ -380,10 +380,10 @@ public class TopicDao {
     }
 
     if (form.getTags() != null) {
-      final List<String> tags = TagDao.parseTags(form.getTags());
+      final List<String> tags = tagService.parseTags(form.getTags());
 
-      tagDao.updateTags(msgid, tags);
-      tagDao.updateCounters(Collections.<String>emptyList(), tags);
+      tagService.updateTags(msgid, tags);
+      tagService.updateCounters(Collections.<String>emptyList(), tags);
     }
 
     userEventsDao.addUserRefEvent(userRefs.toArray(new User[userRefs.size()]), msgid);
@@ -392,7 +392,7 @@ public class TopicDao {
   }
 
   private boolean updateMessage(Topic oldMsg, Topic msg, User editor, List<String> newTags, String newText) {
-    List<String> oldTags = tagDao.getMessageTags(msg.getId());
+    List<String> oldTags = tagService.getMessageTags(msg.getId());
 
     EditInfoDto editInfo = new EditInfoDto();
 
@@ -441,11 +441,11 @@ public class TopicDao {
     }
 
     if (newTags != null) {
-      boolean modifiedTags = tagDao.updateTags(msg.getId(), newTags);
+      boolean modifiedTags = tagService.updateTags(msg.getId(), newTags);
 
       if (modifiedTags) {
-        editInfo.setOldtags(TagDao.toString(oldTags));
-        tagDao.updateCounters(oldTags, newTags);
+        editInfo.setOldtags(TagService.toString(oldTags));
+        tagService.updateCounters(oldTags, newTags);
         modified = true;
       }
     }
@@ -783,9 +783,9 @@ public class TopicDao {
     }
 
     if (!newGrp.isModerated()) {
-      ImmutableList<String> oldTags = tagDao.getMessageTags(msg.getId());
-      tagDao.updateTags(msg.getId(), ImmutableList.<String>of());
-      tagDao.updateCounters(oldTags, Collections.<String>emptyList());
+      ImmutableList<String> oldTags = tagService.getMessageTags(msg.getId());
+      tagService.updateTags(msg.getId(), ImmutableList.<String>of());
+      tagService.updateCounters(oldTags, Collections.<String>emptyList());
     }
   }
 }

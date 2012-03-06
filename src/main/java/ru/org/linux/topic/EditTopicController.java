@@ -74,7 +74,7 @@ public class EditTopicController {
   private GroupDao groupDao;
 
   @Autowired
-  private TagDao tagDao;
+  private TagService tagService;
 
   @Autowired
   private PollDao pollDao;
@@ -87,6 +87,8 @@ public class EditTopicController {
   
   @Autowired
   private UserDao userDao;
+
+  private EditTopicRequestValidator editTopicRequestValidator;
 
   @RequestMapping(value = "/commit.jsp", method = RequestMethod.GET)
   public ModelAndView showCommitForm(
@@ -183,7 +185,7 @@ public class EditTopicController {
     params.put("commit", false);
 
     if (group.isModerated()) {
-      params.put("topTags", tagDao.getTopTags());
+      params.put("topTags", tagService.getTopTags());
     }
 
     if (message.isHaveLink()) {
@@ -199,7 +201,7 @@ public class EditTopicController {
     }
 
     if (!preparedMessage.getTags().isEmpty()) {
-      form.setTags(TagDao.toString(preparedMessage.getTags()));
+      form.setTags(TagService.toString(preparedMessage.getTags()));
     }
 
     if (group.isPollPostAllowed()) {
@@ -261,7 +263,7 @@ public class EditTopicController {
     params.put("group", group);
 
     if (group.isModerated()) {
-      params.put("topTags", tagDao.getTopTags());
+      params.put("topTags", tagService.getTopTags());
     }
 
     params.put("groups", groupDao.getGroups(preparedMessage.getSection()));
@@ -351,7 +353,7 @@ public class EditTopicController {
     List<String> newTags = null;
 
     if (form.getTags()!=null) {
-      newTags = TagDao.parseSanitizeTags(form.getTags());
+      newTags = tagService.parseSanitizeTags(form.getTags());
     }
 
     if (changeGroupId != null) {
@@ -466,7 +468,7 @@ public class EditTopicController {
 
   @InitBinder("form")
   public void requestValidator(WebDataBinder binder) {
-    binder.setValidator(new EditTopicRequestValidator());
+    binder.setValidator(editTopicRequestValidator);
 
     binder.setBindingErrorProcessor(new ExceptionBindingErrorProcessor());
   }
