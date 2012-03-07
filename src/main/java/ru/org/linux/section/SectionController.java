@@ -22,13 +22,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.view.RedirectView;
+import ru.org.linux.ApplicationController;
 import ru.org.linux.group.GroupDao;
 
 import java.util.HashMap;
 import java.util.Map;
 
 @Controller
-public class SectionController {
+public class SectionController extends ApplicationController {
   @Autowired
   private SectionService sectionService;
 
@@ -39,12 +40,13 @@ public class SectionController {
   public ModelAndView handleRequestInternal(@RequestParam("section") int sectionid) throws Exception {
     Section section = sectionService.getSection(sectionid);
 
-    Map<String, Object> params = new HashMap<String, Object>();
-    params.put("section", section);
 
-    params.put("groups", groupDao.getGroups(section));
+    ModelAndView modelAndView = new ModelAndView("section");
+    modelAndView.addObject("section", section);
 
-    return new ModelAndView("section", params);
+    modelAndView.addObject("groups", groupDao.getGroups(section));
+
+    return render(modelAndView);
   }
 
   @RequestMapping("/forum")
@@ -53,7 +55,7 @@ public class SectionController {
   }
 
   @RequestMapping(value="/view-section.jsp", params = {"section=2"})
-  public View forumOld() {
-    return new RedirectView("/forum/");
+  public ModelAndView forumOld() {
+    return redirect("/forum/");
   }
 }

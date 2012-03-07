@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
+import ru.org.linux.ApplicationController;
 import ru.org.linux.auth.CaptchaService;
 import ru.org.linux.auth.FloodProtector;
 import ru.org.linux.auth.IPBlockDao;
@@ -57,17 +58,39 @@ import java.util.Map;
 import java.util.Set;
 
 @Controller
-public class AddCommentController extends ApplicationObjectSupport {
+public class AddCommentController extends ApplicationController {
+
+  @Autowired
   private SearchQueueSender searchQueueSender;
+
+  @Autowired
   private CaptchaService captcha;
+
+  @Autowired
   private FloodProtector dupeProtector;
+
+  @Autowired
   private CommentDao commentDao;
+
+  @Autowired
   private TopicDao messageDao;
+
+  @Autowired
   private UserDao userDao;
+
+  @Autowired
   private IPBlockDao ipBlockDao;
+
+  @Autowired
   private CommentPrepareService prepareService;
+
+  @Autowired
   private LorCodeService lorCodeService;
+
+  @Autowired
   private ToLorCodeFormatter toLorCodeFormatter;
+
+  @Autowired
   private ToLorCodeTexFormatter toLorCodeTexFormatter;
 
   @Autowired
@@ -75,61 +98,6 @@ public class AddCommentController extends ApplicationObjectSupport {
 
   @Autowired
   private TopicPrepareService messagePrepareService;
-
-  @Autowired
-  public void setSearchQueueSender(SearchQueueSender searchQueueSender) {
-    this.searchQueueSender = searchQueueSender;
-  }
-
-  @Autowired
-  public void setCaptcha(CaptchaService captcha) {
-    this.captcha = captcha;
-  }
-
-  @Autowired
-  public void setDupeProtector(FloodProtector dupeProtector) {
-    this.dupeProtector = dupeProtector;
-  }
-
-  @Autowired
-  public void setCommentDao(CommentDao commentDao) {
-    this.commentDao = commentDao;
-  }
-
-  @Autowired
-  public void setMessageDao(TopicDao messageDao) {
-    this.messageDao = messageDao;
-  }
-
-  @Autowired
-  public void setUserDao(UserDao userDao) {
-    this.userDao = userDao;
-  }
-
-  @Autowired
-  public void setIpBlockDao(IPBlockDao ipBlockDao) {
-    this.ipBlockDao = ipBlockDao;
-  }
-
-  @Autowired
-  public void setPrepareService(CommentPrepareService prepareService) {
-    this.prepareService = prepareService;
-  }
-
-  @Autowired
-  public void setLorCodeService(LorCodeService lorCodeService) {
-    this.lorCodeService = lorCodeService;
-  }
-
-  @Autowired
-  public void setToLorCodeFormatter(ToLorCodeFormatter toLorCodeFormatter) {
-    this.toLorCodeFormatter = toLorCodeFormatter;
-  }
-
-  @Autowired
-  public void setToLorCodeTexFormatter(ToLorCodeTexFormatter toLorCodeTexFormatter) {
-    this.toLorCodeTexFormatter = toLorCodeTexFormatter;
-  }
 
   @RequestMapping(value = "/add_comment.jsp", method = RequestMethod.GET)
   public ModelAndView showFormReply(
@@ -141,6 +109,7 @@ public class AddCommentController extends ApplicationObjectSupport {
     }
 
     Template tmpl = Template.getTemplate(request);
+    ModelAndView modelAndView = new ModelAndView("add_comment");
     
     Map<String, Object> params = new HashMap<String, Object>();
 
@@ -152,7 +121,8 @@ public class AddCommentController extends ApplicationObjectSupport {
     
     params.put("postscoreInfo", TopicPermissionService.getPostScoreInfo(add.getTopic().getPostScore()));
 
-    return new ModelAndView("add_comment", params);
+    modelAndView.addAllObjects(params);
+    return render(modelAndView);
   }
 
   @RequestMapping("/comment-message.jsp")
@@ -174,7 +144,7 @@ public class AddCommentController extends ApplicationObjectSupport {
 
     IPBlockInfo ipBlockInfo = ipBlockDao.getBlockInfo(request.getRemoteAddr());
     modelAndView.addObject("ipBlockInfo", ipBlockInfo);
-    return modelAndView;
+    return render(modelAndView);
   }
 
   private String processMessage(String msg, String mode) {
@@ -314,7 +284,7 @@ public class AddCommentController extends ApplicationObjectSupport {
     }
     ModelAndView modelAndView = new ModelAndView("add_comment", formParams);
     modelAndView.addObject("ipBlockInfo", ipBlockInfo);
-    return modelAndView;
+    return render(modelAndView);
   }
 
   private void prepareReplyto(AddCommentRequest add, Map<String, Object> formParams, HttpServletRequest request) throws UserNotFoundException {

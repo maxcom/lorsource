@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
+import ru.org.linux.ApplicationController;
 import ru.org.linux.site.Template;
 import ru.org.linux.spring.dao.DeleteInfoDao;
 import ru.org.linux.spring.dao.TrackerDao.TrackerFilter;
@@ -36,7 +37,7 @@ import java.sql.Timestamp;
 import java.util.*;
 
 @Controller
-public class TrackerController {
+public class TrackerController extends ApplicationController {
   @Autowired
   private TrackerDao trackerDao;
 
@@ -89,12 +90,13 @@ public class TrackerController {
       trackerFilter = TrackerFilter.ALL;
     }
 
-    Map<String, Object> params = new HashMap<String, Object>();
-    params.put("mine", trackerFilter == TrackerFilter.MINE);
-    params.put("offset", offset);
-    params.put("filter", filter);
-    params.put("tracker", new TrackerFilterAction(filter));
-    /*params.put("filterItems", filterItems);*/
+    ModelAndView modelAndView = new ModelAndView("tracker");
+
+    modelAndView.addObject("mine", trackerFilter == TrackerFilter.MINE);
+    modelAndView.addObject("offset", offset);
+    modelAndView.addObject("filter", filter);
+    modelAndView.addObject("tracker", new TrackerFilterAction(filter));
+    /*modelAndView.addObject("filterItems", filterItems);*/
     Calendar calendar = Calendar.getInstance();
     calendar.setTime(new Date());
     if(trackerFilter == TrackerFilter.MINE) {
@@ -108,11 +110,11 @@ public class TrackerController {
     int messages = tmpl.getProf().getMessages();
     int topics = tmpl.getProf().getTopics();
 
-    params.put("topics", topics);
+    modelAndView.addObject("topics", topics);
     if (filter!=null) {
-      params.put("query", "&filter="+filter);
+      modelAndView.addObject("query", "&filter="+filter);
     } else {
-      params.put("query", "");
+      modelAndView.addObject("query", "");
     }
 
     User user = tmpl.getCurrentUser();
@@ -122,14 +124,14 @@ public class TrackerController {
         throw new UserErrorException("Not authorized");
       }
     }
-    params.put("msgs", trackerDao.getTrackAll(trackerFilter, user, dateLimit, topics, offset, messages));
+    modelAndView.addObject("msgs", trackerDao.getTrackAll(trackerFilter, user, dateLimit, topics, offset, messages));
 
     if (tmpl.isModeratorSession() && trackerFilter != TrackerFilter.MINE) {
-      params.put("newUsers", userDao.getNewUsers());
-      params.put("deleteStats", deleteInfoDao.getRecentStats());
+      modelAndView.addObject("newUsers", userDao.getNewUsers());
+      modelAndView.addObject("deleteStats", deleteInfoDao.getRecentStats());
     }
 
-    return new ModelAndView("tracker", params);
+    return render(modelAndView);
   }
 
 }

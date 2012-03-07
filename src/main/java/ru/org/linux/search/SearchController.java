@@ -35,6 +35,7 @@ import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import ru.org.linux.ApplicationController;
 import ru.org.linux.group.BadGroupException;
 import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
@@ -57,37 +58,26 @@ import java.util.Collection;
 import java.util.Map;
 
 @Controller
-public class SearchController {
+public class SearchController extends ApplicationController {
   private static final Log logger = LogFactory.getLog(SearchQueueListener.class);
+
+  @Autowired
   private SolrServer solrServer;
+
   @Autowired
   private SectionService sectionService;
+
+  @Autowired
   private UserDao userDao;
+
+  @Autowired
   private GroupDao groupDao;
+
+  @Autowired
   private LorCodeService lorCodeService;
   
   @Autowired
   private MsgbaseDao msgbaseDao;
-
-  @Autowired
-  public void setSolrServer(SolrServer solrServer) {
-    this.solrServer = solrServer;
-  }
-
-  @Autowired
-  public void setUserDao(UserDao userDao) {
-    this.userDao = userDao;
-  }
-
-  @Autowired
-  public void setGroupDao(GroupDao groupDao) {
-    this.groupDao = groupDao;
-  }
-
-  @Autowired
-  public void setLorCodeService(LorCodeService lorCodeService) {
-    this.lorCodeService = lorCodeService;
-  }
 
   @ModelAttribute("sorts")
   public static Map<SearchOrder, String> getSorts() {

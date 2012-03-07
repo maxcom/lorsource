@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
+import ru.org.linux.ApplicationController;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.auth.IPBlockDao;
 import ru.org.linux.auth.IPBlockInfo;
@@ -48,7 +49,7 @@ import java.util.Map;
 import java.util.Set;
 
 @Controller
-public class TopicController {
+public class TopicController extends ApplicationController {
   public static final int RSS_DEFAULT = 20;
   @Autowired
   private SectionService sectionService;
@@ -218,7 +219,7 @@ public class TopicController {
     Group group = preparedMessage.getGroup();
 
     if (!group.getUrlName().equals(groupName) || group.getSectionId() != section) {
-      return new ModelAndView(new RedirectView(message.getLink()));
+      return redirect(message.getLink());
     }
 
     return getMessage(webRequest, request, response, preparedMessage, group, page, filter);
@@ -246,37 +247,25 @@ public class TopicController {
 
     StringBuilder link = new StringBuilder(message.getLink());
 
-    StringBuilder params = new StringBuilder();
+    Map<String, String> redirectParams = new HashMap<String, String>();
 
     if (page!=null) {
       link.append("/page").append(page);
     }
 
     if (lastmod!=null && !message.isExpired()) {
-      params.append("?lastmod=").append(message.getLastModified().getTime());
+      redirectParams.put("lastmod", String.valueOf(message.getLastModified().getTime()));
     }
 
     if (filter!=null) {
-      if (params.length()==0) {
-        params.append('?');
-      } else {
-        params.append('&');
-      }
-      params.append("filter=").append(filter);
+      redirectParams.put("filter", filter);
     }
 
     if (output!=null) {
-      if (params.length()==0) {
-        params.append('?');
-      } else {
-        params.append('&');
-      }
-      params.append("output=").append(output);
+      redirectParams.put("output", output);
     }
 
-    link.append(params);
-
-    return new ModelAndView(new RedirectView(link.toString()));
+    return redirect(link.toString(), redirectParams);
   }
 
   private ModelAndView getMessage(
@@ -290,20 +279,19 @@ public class TopicController {
   ) throws Exception {
     Topic message = preparedMessage.getMessage();
 
+    boolean rss = request.getParameter("output") != null && "rss".equals(request.getParameter("output"));
+    ModelAndView modelAndView = new ModelAndView(rss ? "view-message-rss" : "view-message");
+
     Template tmpl = Template.getTemplate(request);
 
-    Map<String, Object> params = new HashMap<String, Object>();
+    modelAndView.addObject("showAdsense", !tmpl.isSessionAuthorized() || !tmpl.getProf().isHideAdsense());
 
-    params.put("showAdsense", !tmpl.isSessionAuthorized() || !tmpl.getProf().isHideAdsense());
-
-    params.put("page", page);
+    modelAndView.addObject("page", page);
 
     boolean showDeleted = request.getParameter("deleted") != null;
     if (showDeleted) {
       page = -1;
     }
-
-    boolean rss = request.getParameter("output") != null && "rss".equals(request.getParameter("output"));
 
     if (showDeleted && !"POST".equals(request.getMethod())) {
       return new ModelAndView(new RedirectView(message.getLink()));
@@ -319,7 +307,7 @@ public class TopicController {
       }
     }
 
-    params.put("showDeleted", showDeleted);
+    modelAndView.addObject("showDeleted", showDeleted);
 
     User currentUser = tmpl.getCurrentUser();
 
@@ -329,7 +317,7 @@ public class TopicController {
 
     checkView(message, tmpl, currentUser);
 
-    params.put("group", group);
+    modelAndView.addObject("group", group);
 
     if (group.getCommentsRestriction() == -1 && !Template.isSessionAuthorized(request.getSession())) {
       throw new AccessViolationException("Это сообщение нельзя посмотреть");
@@ -349,10 +337,10 @@ public class TopicController {
       }
     }
 
-    params.put("message", message);
-    params.put("preparedMessage", preparedMessage);
+    modelAndView.addObject("message", message);
+    modelAndView.addObject("preparedMessage", preparedMessage);
 
-    params.put("messageMenu", messagePrepareService.getMessageMenu(preparedMessage, currentUser));
+    modelAndView.addObject("messageMenu", messagePrepareService.getMessageMenu(preparedMessage, currentUser));
 
     if (message.isExpired()) {
       response.setDateHeader("Expires", System.currentTimeMillis() + 30 * 24 * 60 * 60 * 1000L);
@@ -360,7 +348,7 @@ public class TopicController {
 
     CommentList comments = commentDao.getCommentList(message, showDeleted);
 
-    params.put("comments", comments);
+    modelAndView.addObject("comments", comments);
 
     Set<Integer> ignoreList = null;
 
@@ -387,8 +375,8 @@ public class TopicController {
       }
     }
 
-    params.put("filterMode", filterMode);
-    params.put("defaultFilterMode", defaultFilterMode);
+    modelAndView.addObject("filterMode", filterMode);
+    modelAndView.addObject("defaultFilterMode", defaultFilterMode);
 
     if (!rss) {
       Topic prevMessage;
@@ -402,8 +390,8 @@ public class TopicController {
         nextMessage = messageDao.getNextMessage(message, currentUser);
       }
 
-      params.put("prevMessage", prevMessage);
-      params.put("nextMessage", nextMessage);
+      modelAndView.addObject("prevMessage", prevMessage);
+      modelAndView.addObject("nextMessage", nextMessage);
 
       Boolean topScroller;
       SectionScrollModeEnum sectionScroller = sectionService.getScrollMode(message.getSectionId());
@@ -413,10 +401,10 @@ public class TopicController {
       } else {
         topScroller = sectionScroller != SectionScrollModeEnum.NO_SCROLL;
       }
-      params.put("topScroller", topScroller);
+      modelAndView.addObject("topScroller", topScroller);
 
       Boolean bottomScroller = sectionScroller != SectionScrollModeEnum.NO_SCROLL;
-      params.put("bottomScroller", bottomScroller);
+      modelAndView.addObject("bottomScroller", bottomScroller);
 
       Set<Integer> hideSet = CommentList.makeHideSet(userDao, comments, filterMode, ignoreList);
 
@@ -436,10 +424,10 @@ public class TopicController {
 
       List<PreparedComment> commentsPrepared = prepareService.prepareCommentList(comments, commentsFiltred, request.isSecure());
 
-      params.put("commentsPrepared", commentsPrepared);
+      modelAndView.addObject("commentsPrepared", commentsPrepared);
 
       IPBlockInfo ipBlockInfo = ipBlockDao.getBlockInfo(request.getRemoteAddr());
-      params.put("ipBlockInfo", ipBlockInfo);
+      modelAndView.addObject("ipBlockInfo", ipBlockInfo);
 
     } else {
       CommentFilter cv = new CommentFilter(comments);
@@ -448,12 +436,12 @@ public class TopicController {
 
       List<PreparedComment> commentsPrepared = prepareService.prepareCommentListRSS(comments, commentsFiltred, request.isSecure());
 
-      params.put("commentsPrepared", commentsPrepared);
+      modelAndView.addObject("commentsPrepared", commentsPrepared);
       LorURL lorURL = new LorURL(configuration.getMainURI(), configuration.getMainUrl());
-      params.put("mainURL", lorURL.fixScheme(request.isSecure()));
+      modelAndView.addObject("mainURL", lorURL.fixScheme(request.isSecure()));
     }
 
-    return new ModelAndView(rss ? "view-message-rss" : "view-message", params);
+    return render(modelAndView);
   }
 
   private static void checkView(Topic message, Template tmpl, User currentUser) throws MessageNotFoundException {
@@ -506,8 +494,9 @@ public class TopicController {
           int cid) throws Exception {
     Template tmpl = Template.getTemplate(request);
     Topic topic = messageDao.getById(msgid);
+
     String redirectUrl = topic.getLink();
-    StringBuilder options = new StringBuilder();
+    Map<String, String> redirectParams = new HashMap<String, String>();
 
     StringBuilder hash = new StringBuilder();
 
@@ -524,21 +513,12 @@ public class TopicController {
     }
 
     if (!topic.isExpired() && topic.getPageCount(tmpl.getProf().getMessages()) - 1 == pagenum) {
-      if (options.length() > 0) {
-        options.append('&');
-      }
-      options.append("lastmod=");
-      options.append(topic.getLastModified().getTime());
+      redirectParams.put("lastmod", String.valueOf(topic.getLastModified().getTime()));
     }
 
     hash.append("#comment-");
     hash.append(cid);
-
-    if (options.length() > 0) {
-      return new ModelAndView(new RedirectView(redirectUrl + '?' + options + hash));
-    } else {
-      return new ModelAndView(new RedirectView(redirectUrl + hash));
-    }
+    return redirect(redirectUrl+ hash, redirectParams);
   }
 
   @RequestMapping(value = "/jump-message.jsp", method = {RequestMethod.GET, RequestMethod.HEAD})
@@ -554,15 +534,14 @@ public class TopicController {
     Topic topic = messageDao.getById(msgid);
 
     String redirectUrl = topic.getLink();
-    StringBuffer options = new StringBuffer();
+    Map<String, String> redirectParams = new HashMap<String, String>();
 
     if (page != null) {
       redirectUrl = topic.getLinkPage(page);
     }
 
     if (nocache != null) {
-      options.append("nocache=");
-      options.append(URLEncoder.encode(nocache));
+      redirectParams.put("nocache", nocache);
     }
 
     StringBuilder hash = new StringBuilder();
@@ -581,40 +560,30 @@ public class TopicController {
       }
 
       if (!topic.isExpired() && topic.getPageCount(tmpl.getProf().getMessages()) - 1 == pagenum) {
-        if (options.length() > 0) {
-          options.append('&');
-        }
-        options.append("lastmod=");
-        options.append(topic.getLastModified().getTime());
+        redirectParams.put("lastmod", String.valueOf(topic.getLastModified().getTime()));
       }
 
       hash.append("#comment-");
       hash.append(cid);
     }
-
-    if (options.length() > 0) {
-      return new ModelAndView(new RedirectView(redirectUrl + '?' + options + hash));
-    } else {
-      return new ModelAndView(new RedirectView(redirectUrl + hash));
-    }
+    return redirect(redirectUrl+ hash, redirectParams);
   }
 
   @ExceptionHandler(MessageNotFoundException.class)
   @ResponseStatus(HttpStatus.NOT_FOUND)
   public ModelAndView handleMessageNotFoundException(MessageNotFoundException ex) {
-    if(ex.getTopic() != null) {
-      ModelAndView mav = new ModelAndView("error-good-penguin");
-      Topic topic = ex.getTopic();
-      mav.addObject("msgTitle", "Ошибка: сообщения не существует");
-      mav.addObject("msgHeader", "Сообщение удалено или не существует");
-      
-      mav.addObject("msgMessage",
-          String.format("Сообщение %d в топике <a href=\"%s\">%s</a> удалено или не существует",
-          ex.getId(), topic.getLink(), topic.getTitle()));
-      return mav;
-    } else {
-      return new ModelAndView("error404");
+    if (ex.getTopic() == null) {
+      return render(new ModelAndView("error404"));
     }
-  }
 
+    ModelAndView modelAndView = new ModelAndView("error-good-penguin");
+    Topic topic = ex.getTopic();
+    modelAndView.addObject("msgTitle", "Ошибка: сообщения не существует");
+    modelAndView.addObject("msgHeader", "Сообщение удалено или не существует");
+
+    modelAndView.addObject("msgMessage",
+      String.format("Сообщение %d в топике <a href=\"%s\">%s</a> удалено или не существует",
+        ex.getId(), topic.getLink(), topic.getTitle()));
+    return render(modelAndView);
+  }
 }

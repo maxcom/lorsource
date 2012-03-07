@@ -31,6 +31,7 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.multipart.MultipartRequest;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
+import ru.org.linux.ApplicationController;
 import ru.org.linux.auth.*;
 import ru.org.linux.gallery.Screenshot;
 import ru.org.linux.group.BadGroupException;
@@ -63,26 +64,40 @@ import java.io.IOException;
 import java.util.*;
 
 @Controller
-public class AddTopicController extends ApplicationObjectSupport {
+public class AddTopicController extends ApplicationController {
   private static final Log logger = LogFactory.getLog(AddTopicController.class);
 
+  @Autowired
   private SearchQueueSender searchQueueSender;
+
+  @Autowired
   private CaptchaService captcha;
+
+  @Autowired
   private FloodProtector dupeProtector;
+
+  @Autowired
   private IPBlockDao ipBlockDao;
+
+  @Autowired
   private GroupDao groupDao;
+
   @Autowired
   private SectionService sectionService;
 
   @Autowired
   private TagService tagService;
 
+  @Autowired
   private UserDao userDao;
 
   @Autowired
   private TopicPrepareService prepareService;
 
+  @Autowired
   private TopicDao messageDao;
+
+  @Autowired
   private ToLorCodeFormatter toLorCodeFormatter;
 
   @Autowired
@@ -100,49 +115,9 @@ public class AddTopicController extends ApplicationObjectSupport {
   public static final int MAX_MESSAGE_LENGTH_ANONYMOUS = 4096;
   public static final int MAX_MESSAGE_LENGTH = 16384;
 
-  @Autowired
-  public void setSearchQueueSender(SearchQueueSender searchQueueSender) {
-    this.searchQueueSender = searchQueueSender;
-  }
-
-  @Autowired
-  public void setCaptcha(CaptchaService captcha) {
-    this.captcha = captcha;
-  }
-
-  @Autowired
-  public void setDupeProtector(FloodProtector dupeProtector) {
-    this.dupeProtector = dupeProtector;
-  }
-
-  @Autowired
-  public void setIpBlockDao(IPBlockDao ipBlockDao) {
-    this.ipBlockDao = ipBlockDao;
-  }
-
-  @Autowired
-  public void setGroupDao(GroupDao groupDao) {
-    this.groupDao = groupDao;
-  }
-
-  @Autowired
-  public void setUserDao(UserDao userDao) {
-    this.userDao = userDao;
-  }
-
-  @Autowired
-  public void setMessageDao(TopicDao messageDao) {
-    this.messageDao = messageDao;
-  }
-
-  @Autowired
-  public void setToLorCodeFormatter(ToLorCodeFormatter toLorCodeFormatter) {
-    this.toLorCodeFormatter = toLorCodeFormatter;
-  }
-
   @RequestMapping(value = "/add.jsp", method = RequestMethod.GET)
   public ModelAndView add(@Valid @ModelAttribute("form") AddTopicRequest form, HttpServletRequest request) throws Exception {
-    Map<String, Object> params = new HashMap<String, Object>();
+    ModelAndView modelAndView = new ModelAndView("add");
 
     Template tmpl = Template.getTemplate(request);
 
@@ -160,18 +135,18 @@ public class AddTopicController extends ApplicationObjectSupport {
       return errorView;
     }
 
-    params.put("postscoreInfo", groupPermissionService.getPostScoreInfo(group));
+    modelAndView.addObject("postscoreInfo", groupPermissionService.getPostScoreInfo(group));
 
-    params.put("group", group);
+    modelAndView.addObject("group", group);
 
     if (group.isModerated()) {
-      params.put("topTags", tagService.getTopTags());
+      modelAndView.addObject("topTags", tagService.getTopTags());
     }
 
-    params.put("addportal", sectionService.getAddInfo(group.getSectionId()));
+    modelAndView.addObject("addportal", sectionService.getAddInfo(group.getSectionId()));
     IPBlockInfo ipBlockInfo = ipBlockDao.getBlockInfo(request.getRemoteAddr());
-    params.put("ipBlockInfo", ipBlockInfo);
-    return new ModelAndView("add", params);
+    modelAndView.addObject("ipBlockInfo", ipBlockInfo);
+    return render(modelAndView);
   }
 
   private String processMessage(String msg, String mode) {
@@ -193,7 +168,7 @@ public class AddTopicController extends ApplicationObjectSupport {
           @Valid @ModelAttribute("form") AddTopicRequest form,
           BindingResult errors
   ) throws Exception {
-    Map<String, Object> params = new HashMap<String, Object>();
+    ModelAndView modelAndView =  new ModelAndView();
 
     Template tmpl = Template.getTemplate(request);
     HttpSession session = request.getSession();
@@ -201,18 +176,18 @@ public class AddTopicController extends ApplicationObjectSupport {
     String image = processUploadImage(request);
 
     Group group = form.getGroup();
-    params.put("group", group);
+    modelAndView.addObject("group", group);
 
     if (group!=null) {
-      params.put("postscoreInfo", groupPermissionService.getPostScoreInfo(group));
+      modelAndView.addObject("postscoreInfo", groupPermissionService.getPostScoreInfo(group));
     }
 
     if (group!=null && group.isModerated()) {
-      params.put("topTags", tagService.getTopTags());
+      modelAndView.addObject("topTags", tagService.getTopTags());
     }
 
     if (group!=null) {
-      params.put("addportal", sectionService.getAddInfo(group.getSectionId()));
+      modelAndView.addObject("addportal", sectionService.getAddInfo(group.getSectionId()));
     }
 
     User user;
@@ -281,7 +256,7 @@ public class AddTopicController extends ApplicationObjectSupport {
 
     if (group!=null) {
       previewMsg = new Topic(form, user, request.getRemoteAddr());
-      params.put("message", prepareService.prepareTopicPreview(previewMsg, tagService.parseSanitizeTags(form.getTags()), poll, request.isSecure(), message));
+      modelAndView.addObject("message", prepareService.prepareTopicPreview(previewMsg, tagService.parseSanitizeTags(form.getTags()), poll, request.isSecure(), message));
     }
 
     if (!form.isPreviewMode() && !errors.hasErrors() && !session.getId().equals(request.getParameter("session"))) {
@@ -324,14 +299,14 @@ public class AddTopicController extends ApplicationObjectSupport {
         return new ModelAndView(new RedirectView(messageUrl + "&nocache=" + random.nextInt()));
       }
 
-      params.put("moderated", group.isModerated());
-      params.put("url", messageUrl);
-
-      return new ModelAndView("add-done-moderated", params);
+      modelAndView.addObject("moderated", group.isModerated());
+      modelAndView.addObject("url", messageUrl);
+      modelAndView.setViewName("add-done-moderated");
     } else {
-      params.put("ipBlockInfo", ipBlockInfo);
-      return new ModelAndView("add", params);
+      modelAndView.addObject("ipBlockInfo", ipBlockInfo);
+      modelAndView.setViewName("add");
     }
+    return render(modelAndView);
   }
   
   private static Poll preparePollPreview(AddTopicRequest form) {
@@ -348,19 +323,19 @@ public class AddTopicController extends ApplicationObjectSupport {
 
   @RequestMapping("/add-section.jsp")
   public ModelAndView showForm(@RequestParam("section") int sectionId) throws Exception {
-    Map<String, Object> params = new HashMap<String, Object>();
+    ModelAndView modelAndView = new ModelAndView("add-section");
 
-    params.put("sectionId", sectionId);
+    modelAndView.addObject("sectionId", sectionId);
 
     Section section = sectionService.getSection(sectionId);
 
-    params.put("section", section);
+    modelAndView.addObject("section", section);
 
-    params.put("info", sectionService.getAddInfo(section.getId()));
+    modelAndView.addObject("info", sectionService.getAddInfo(section.getId()));
 
-    params.put("groups", groupDao.getGroups(section));
+    modelAndView.addObject("groups", groupDao.getGroups(section));
 
-    return new ModelAndView("add-section", params);
+    return render(modelAndView);
   }
 
   @InitBinder

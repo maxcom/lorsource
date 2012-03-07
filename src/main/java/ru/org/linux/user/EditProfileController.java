@@ -19,6 +19,7 @@ import javax.servlet.ServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestParam;
+import ru.org.linux.ApplicationController;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.site.Template;
 import ru.org.linux.site.BadInputException;
@@ -32,7 +33,7 @@ import org.springframework.web.servlet.view.RedirectView;
 
 @Controller
 @RequestMapping("/edit-profile.jsp")
-public class EditProfileController {
+public class EditProfileController extends ApplicationController {
   private UserDao userDao;
 
   @Autowired
@@ -49,7 +50,7 @@ public class EditProfileController {
       throw new AccessViolationException("Not authorized");
     }
 
-    return new ModelAndView("edit-profile");
+    return render(new ModelAndView("edit-profile"));
   }
 
   @RequestMapping(method=RequestMethod.POST)
@@ -111,6 +112,6 @@ public class EditProfileController {
 
     tmpl.writeProfile(profile);
 
-    return new ModelAndView(new RedirectView("/"));
+    return redirect("/");
   }
 }

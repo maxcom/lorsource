@@ -21,6 +21,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
+import ru.org.linux.ApplicationController;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.site.Template;
 
@@ -29,7 +30,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.*;
 
 @Controller
-public class ShowEventsController {
+public class ShowEventsController extends ApplicationController {
   @Autowired
   private ReplyFeedView feedView;
   @Autowired
@@ -123,13 +124,13 @@ public class ShowEventsController {
     User currentUser = tmpl.getCurrentUser();
     String nick = currentUser.getNick();
 
-    Map<String, Object> params = new HashMap<String, Object>();
-    params.put("nick", nick);
-    params.put("forceReset", forceReset);
+    ModelAndView modelAndView = new ModelAndView("show-replies");
+    modelAndView.addObject("nick", nick);
+    modelAndView.addObject("forceReset", forceReset);
     if(filter != Filter.ALL) {
-      params.put("addition_query", "&filter="+filter.getValue());
+      modelAndView.addObject("addition_query", "&filter=" + filter.getValue());
     } else {
-      params.put("addition_query", "");
+      modelAndView.addObject("addition_query", "");
     }
 
     if (offset < 0) {
@@ -143,18 +144,18 @@ public class ShowEventsController {
       topics = 200;
     }
 
-    params.put("firstPage", firstPage);
-    params.put("topics", topics);
-    params.put("offset", offset);
+    modelAndView.addObject("firstPage", firstPage);
+    modelAndView.addObject("topics", topics);
+    modelAndView.addObject("offset", offset);
 
-    params.put("disable_event_header", true);
+    modelAndView.addObject("disable_event_header", true);
 
     /* define timestamps for caching */
     long time = System.currentTimeMillis();
     int delay = firstPage ? 90 : 60 * 60;
     response.setDateHeader("Expires", time + 1000 * delay);
-    params.put("unreadCount", currentUser.getUnreadEvents());
-    params.put("isMyNotifications", true);
+    modelAndView.addObject("unreadCount", currentUser.getUnreadEvents());
+    modelAndView.addObject("isMyNotifications", true);
 
     response.addHeader("Cache-Control", "no-cache");
     List<UserEvent> list = repliesDao.getRepliesForUser(currentUser, true, topics, offset, filter);
@@ -164,13 +165,13 @@ public class ShowEventsController {
       userDao.resetUnreadReplies(currentUser);
       tmpl.updateCurrentUser(userDao);
     } else {
-      params.put("enableReset", true);
+      modelAndView.addObject("enableReset", true);
     }
 
-    params.put("topicsList", prepared);
-    params.put("hasMore", list.size()==topics);
+    modelAndView.addObject("topicsList", prepared);
+    modelAndView.addObject("hasMore", list.size() == topics);
 
-    return new ModelAndView("show-replies", params);
+    return render(modelAndView);
   }
 
   @RequestMapping(value="/show-replies.jsp", method= RequestMethod.GET)
@@ -204,8 +205,8 @@ public class ShowEventsController {
       }
     }
 
-    Map<String, Object> params = new HashMap<String, Object>();
-    params.put("nick", nick);
+    ModelAndView modelAndView = new ModelAndView("show-replies");
+    modelAndView.addObject("nick", nick);
 
     if (offset < 0) {
       offset = 0;
@@ -221,9 +222,9 @@ public class ShowEventsController {
       topics = 200;
     }
 
-    params.put("firstPage", firstPage);
-    params.put("topics", topics);
-    params.put("offset", offset);
+    modelAndView.addObject("firstPage", firstPage);
+    modelAndView.addObject("topics", topics);
+    modelAndView.addObject("offset", offset);
 
     /* define timestamps for caching */
     long time = System.currentTimeMillis();
@@ -235,40 +236,38 @@ public class ShowEventsController {
     boolean showPrivate = tmpl.isModeratorSession();
 
     User currentUser = tmpl.getCurrentUser();
-    params.put("currentUser", currentUser);
+    modelAndView.addObject("currentUser", currentUser);
 
     if (currentUser != null && currentUser.getId() == user.getId()) {
       showPrivate = true;
-      params.put("unreadCount", user.getUnreadEvents());
+      modelAndView.addObject("unreadCount", user.getUnreadEvents());
       response.addHeader("Cache-Control", "no-cache");
     }
 
     List<UserEvent> list = repliesDao.getRepliesForUser(user, showPrivate, topics, offset, Filter.ALL);
     List<PreparedUserEvent> prepared = prepareService.prepare(list, feedRequested, request.isSecure());
 
-    params.put("isMyNotifications", false);
-    params.put("topicsList", prepared);
-    params.put("hasMore", list.size()==topics);
-
-    ModelAndView result = new ModelAndView("show-replies", params);
+    modelAndView.addObject("isMyNotifications", false);
+    modelAndView.addObject("topicsList", prepared);
+    modelAndView.addObject("hasMore", list.size() == topics);
 
     if (feedRequested) {
-      result.addObject("feed-type", "rss");
+      modelAndView.addObject("feed-type", "rss");
       if ("atom".equals(request.getParameter("output"))) {
-        result.addObject("feed-type", "atom");
+        modelAndView.addObject("feed-type", "atom");
       }
-      result.setView(feedView);
+      modelAndView.setView(feedView);
     }
-    return result;
+    return render(modelAndView);
   }
 
   @ExceptionHandler(UserNotFoundException.class)
   @ResponseStatus(HttpStatus.NOT_FOUND)
   public ModelAndView handleUserNotFound(Exception ex, HttpServletRequest request, HttpServletResponse response) {
-    ModelAndView mav = new ModelAndView("error-good-penguin");
-    mav.addObject("msgTitle", "Ошибка: пользователя не существует");
-    mav.addObject("msgHeader", "Пользователя не существует");
-    mav.addObject("msgMessage", "");
-    return mav;
+    ModelAndView modelAndView = new ModelAndView("error-good-penguin");
+    modelAndView.addObject("msgTitle", "Ошибка: пользователя не существует");
+    modelAndView.addObject("msgHeader", "Пользователя не существует");
+    modelAndView.addObject("msgMessage", "");
+    return render(modelAndView);
   }
 }

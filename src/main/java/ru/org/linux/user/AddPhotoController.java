@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
+import ru.org.linux.ApplicationController;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.site.Template;
 import ru.org.linux.site.*;
@@ -35,10 +36,12 @@ import javax.servlet.ServletRequest;
 import java.io.File;
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 @Controller
-public class AddPhotoController extends ApplicationObjectSupport {
+public class AddPhotoController extends ApplicationController {
   @Autowired
   private UserDao userDao;
 
@@ -53,7 +56,7 @@ public class AddPhotoController extends ApplicationObjectSupport {
       throw new AccessViolationException("Not authorized");
     }
 
-    return new ModelAndView("addphoto");
+    return render(new ModelAndView("addphoto"));
   }
 
   @RequestMapping(value = "/addphoto.jsp", method = RequestMethod.POST)
@@ -65,7 +68,7 @@ public class AddPhotoController extends ApplicationObjectSupport {
     }
 
     if (file==null || file.isEmpty()) {
-      return new ModelAndView("addphoto", "error", "изображение не задано");      
+      return render(new ModelAndView("addphoto", "error", "изображение не задано"));
     }
 
     try {
@@ -98,13 +101,17 @@ public class AddPhotoController extends ApplicationObjectSupport {
 
       logger.info("Установлена фотография пользователем " + user.getNick());
 
-      return new ModelAndView(new RedirectView("/people/" + URLEncoder.encode(user.getNick()) + "/profile?nocache=" + random.nextInt()));
+      Map<String, String> redirectParams = new HashMap<String, String>();
+      redirectParams.put("nocache", String.valueOf(random.nextInt()));
+
+      String redirectUrl = "/people/" + URLEncoder.encode(user.getNick(), "UTF-8") + "/profile";
+      return redirect(redirectUrl, redirectParams);
     } catch (IOException ex){
-      return new ModelAndView("addphoto", "error", ex.getMessage());
+      return render(new ModelAndView("addphoto", "error", ex.getMessage()));
     } catch (BadImageException ex){
-      return new ModelAndView("addphoto", "error", ex.getMessage());
+      return render(new ModelAndView("addphoto", "error", ex.getMessage()));
     } catch (UserErrorException ex) {
-      return new ModelAndView("addphoto", "error", ex.getMessage());
+      return render(new ModelAndView("addphoto", "error", ex.getMessage()));
     }
   }
 }

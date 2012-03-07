@@ -19,13 +19,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
+import ru.org.linux.ApplicationController;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
 
 import java.util.List;
 
 @Controller
-public class ServerInfoController {
+public class ServerInfoController extends ApplicationController {
   @Autowired
   private UserDao userDao;
 
@@ -33,13 +34,13 @@ public class ServerInfoController {
   public ModelAndView serverInfo() {
     List<User> moderators = userDao.getModerators();
 
-    ModelAndView mv = new ModelAndView("server");
-    mv.getModel().put("moderators", moderators);
+    ModelAndView modelAndView = new ModelAndView("server");
+    modelAndView.addObject("moderators", moderators);
 
     List<User> correctors = userDao.getCorrectors();
 
-    mv.getModel().put("correctors", correctors);
+    modelAndView.addObject("correctors", correctors);
 
-    return mv;
+    return render(modelAndView);
   }
 }

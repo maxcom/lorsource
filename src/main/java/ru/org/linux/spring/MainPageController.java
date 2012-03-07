@@ -20,6 +20,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
+import ru.org.linux.ApplicationController;
 import ru.org.linux.site.Template;
 import ru.org.linux.topic.TopicListService;
 import ru.org.linux.topic.Topic;
@@ -30,7 +31,7 @@ import javax.sql.DataSource;
 import java.util.List;
 
 @Controller
-public class MainPageController {
+public class MainPageController extends ApplicationController {
   @Autowired
   private TopicPrepareService prepareService;
 
@@ -50,14 +51,17 @@ public class MainPageController {
 
     List<Topic> messages = topicListService.getMainPageFeed(tmpl.getProf().isShowGalleryOnMain());
 
-    ModelAndView mv = new ModelAndView("index");
+    ModelAndView modelAndView = new ModelAndView("index");
 
-    mv.getModel().put("news", prepareService.prepareMessagesForUser(messages, request.isSecure(), tmpl.getCurrentUser()));
+    modelAndView.addObject(
+      "news",
+      prepareService.prepareMessagesForUser(messages, request.isSecure(), tmpl.getCurrentUser())
+    );
 
     if (tmpl.isModeratorSession() || tmpl.isCorrectorSession()) {
       int uncommited = jdbcTemplate.queryForInt("select count(*) from topics,groups,sections where section=sections.id AND sections.moderate and topics.groupid=groups.id and not deleted and not topics.moderate AND postdate>(CURRENT_TIMESTAMP-'1 month'::interval)");
 
-      mv.getModel().put("uncommited", uncommited);
+      modelAndView.addObject("uncommited", uncommited);
 
       int uncommitedNews = 0;
 
@@ -65,9 +69,9 @@ public class MainPageController {
         uncommitedNews = jdbcTemplate.queryForInt("select count(*) from topics,groups where section=1 AND topics.groupid=groups.id and not deleted and not topics.moderate AND postdate>(CURRENT_TIMESTAMP-'1 month'::interval)");
       }
 
-      mv.getModel().put("uncommitedNews", uncommitedNews);
+      modelAndView.addObject("uncommitedNews", uncommitedNews);
     }
 
-    return mv;
+    return render(modelAndView);
   }
 }

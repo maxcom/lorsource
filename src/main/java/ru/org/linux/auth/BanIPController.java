@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
+import ru.org.linux.ApplicationController;
 import ru.org.linux.site.Template;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserErrorException;
@@ -32,15 +33,14 @@ import java.net.URLEncoder;
 import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 @Controller
-public class BanIPController {
-  private IPBlockDao ipBlockDao;
+public class BanIPController extends ApplicationController {
 
   @Autowired
-  public void setIpBlockDao(IPBlockDao ipBlockDao) {
-    this.ipBlockDao = ipBlockDao;
-  }
+  private IPBlockDao ipBlockDao;
 
   @RequestMapping(value="/banip.jsp", method= RequestMethod.POST)
   public ModelAndView banIP(
@@ -94,6 +94,8 @@ public class BanIPController {
 
     ipBlockDao.blockIP(ip, user, reason, ts, allow_posting, captcha_required);
 
-    return new ModelAndView(new RedirectView("sameip.jsp?ip=" + URLEncoder.encode(ip)));
+    Map<String, String> redirectParams = new HashMap<String, String>();
+    redirectParams.put("ip", ip);
+    return redirect("sameip.jsp", redirectParams);
   }
 }

@@ -16,12 +16,13 @@
 package ru.org.linux;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.support.ApplicationObjectSupport;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 
 import java.util.Map;
 
-abstract public class ApplicationController {
+abstract public class ApplicationController extends ApplicationObjectSupport {
 
   @Autowired
   protected ApplicationLayout applicationLayout;
@@ -63,6 +64,7 @@ abstract public class ApplicationController {
     ModelAndView modelAndView = new ModelAndView(redirectView);
     return modelAndView;
   }
+
   /**
    * Добавление JavaScript-файлов к текущему показу.
    *
