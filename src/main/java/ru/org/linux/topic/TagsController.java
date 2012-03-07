@@ -18,12 +18,12 @@ package ru.org.linux.topic;
 import com.google.common.base.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
+import ru.org.linux.site.Template;
 
-import java.util.List;
+import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 import java.util.SortedSet;
 
@@ -39,8 +39,11 @@ public class TagsController {
    * @return
    */
   @RequestMapping("/tags")
-  public ModelAndView showDefaultTagListHandlertags() {
-    return showTagListHandler("");
+  public ModelAndView showDefaultTagListHandlertags(
+    HttpServletRequest request
+  )
+    throws TagNotFoundException {
+    return showTagListHandler("", request);
   }
 
   /**
@@ -51,20 +54,27 @@ public class TagsController {
    */
   @RequestMapping("/tags/{firstLetter}")
   public ModelAndView showTagListHandler(
-    @PathVariable String firstLetter
-  ) {
+    @PathVariable String firstLetter,
+    HttpServletRequest request
+  )
+    throws TagNotFoundException {
     ModelAndView modelAndView = new ModelAndView("tags");
+    Template tmpl = Template.getTemplate(request);
 
-    SortedSet<String> firstLetters = tagService.getFirstLetters();
+    SortedSet<String> firstLetters = tagService.getFirstLetters(!tmpl.isModeratorSession());
     modelAndView.addObject("firstLetters", firstLetters);
 
-    
+
     if (Strings.isNullOrEmpty(firstLetter)) {
       firstLetter = firstLetters.first();
     }
     modelAndView.addObject("currentLetter", firstLetter);
 
-    Map<String, Integer> tags = tagService.getTagsByFirstLetter(firstLetter);
+    Map<String, Integer> tags = tagService.getTagsByFirstLetter(firstLetter, !tmpl.isModeratorSession());
+
+    if (tags.size() == 0) {
+      throw new TagNotFoundException("Tag list is empty");
+    }
     modelAndView.addObject("tags", tags);
 
     return modelAndView;

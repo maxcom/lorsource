@@ -107,11 +107,20 @@ public class TagDao {
     return set;
   }
 
-  SortedSet<String> getFirstLetters() {
+  SortedSet<String> getFirstLetters(boolean skip_empty_usages) {
     final SortedSet<String> set = new TreeSet<String>();
 
+    StringBuilder query = new StringBuilder();
+    query.append("select distinct firstchar from ")
+      .append("(select lower(substr(value,1,1)) as firstchar from tags_values ");
+
+    if (skip_empty_usages) {
+      query.append(" where counter > 0 ");
+    }
+    query.append(" order by firstchar) firstchars");
+
     jdbcTemplate.query(
-      "select distinct firstchar from (select lower(substr(value,1,1)) as firstchar from tags_values order by firstchar) firstchars",
+      query.toString(),
       new RowCallbackHandler() {
         @Override
         public void processRow(ResultSet rs) throws SQLException {
@@ -122,9 +131,17 @@ public class TagDao {
     return set;
   }
 
-  Map<String, Integer> getTagsByFirstLetter(String firstLetter) {
+  Map<String, Integer> getTagsByFirstLetter(String firstLetter, boolean skip_empty_usages) {
     final ImmutableMap.Builder<String, Integer> builder = ImmutableMap.builder();
-    jdbcTemplate.query("select counter, value from tags_values where lower(substr(value,1,1)) = ? order by value;",
+    StringBuilder query = new StringBuilder();
+    query.append("select counter, value from tags_values where lower(substr(value,1,1)) = ? ");
+
+    if (skip_empty_usages) {
+      query.append(" and counter > 0 ");
+    }
+    query.append(" order by value");
+
+    jdbcTemplate.query(query.toString(),
       new RowCallbackHandler() {
         @Override
         public void processRow(ResultSet resultSet) throws SQLException {

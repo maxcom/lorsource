@@ -47,16 +47,23 @@ ${status.first ? '' : ', '}
 <ul>
 
   <c:forEach var="tag" items="${tags}">
-    <li>
-      <c:url value="/view-news.jsp" var="tag_url">
-          <c:param name="tag" value="${tag.key}"/>
-      </c:url>
-      <a href="${fn:escapeXml(tag_url)}">${tag.key}</a>
+    <c:if test="${tag.value != 0 || template.moderatorSession}">
+      <li>
+        <c:choose>
+          <c:when test="${tag.value != 0}">
+            <c:url value="/view-news.jsp" var="tag_url">
+                <c:param name="tag" value="${tag.key}"/>
+            </c:url>
+            <a href="${fn:escapeXml(tag_url)}">${tag.key}</a>
+          </c:when>
+          <c:otherwise>
+            <span>${tag.key}</span>
+          </c:otherwise>
+        </c:choose>
 
-      (${tag.value})
-
-    </li>
-
+        (${tag.value})
+      </li>
+    </c:if>
   </c:forEach>
 
 </ul>

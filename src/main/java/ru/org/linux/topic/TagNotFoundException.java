@@ -19,4 +19,7 @@ public class TagNotFoundException extends Exception {
   public TagNotFoundException() {
     super("Tag not found");
   }
+  public TagNotFoundException(String message) {
+    super(message);
+  }
 }
