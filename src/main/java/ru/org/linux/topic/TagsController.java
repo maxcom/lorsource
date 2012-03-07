@@ -70,6 +70,7 @@ public class TagsController {
     return modelAndView;
   }
 
+  @Deprecated
   @RequestMapping("/tags.jsp")
   public String oldTagsRedirectHandler() {
     return "redirect:/tags";
