@@ -107,14 +107,14 @@ public class TagDao {
     return set;
   }
 
-  SortedSet<String> getFirstLetters(boolean skip_empty_usages) {
+  SortedSet<String> getFirstLetters(boolean skipEmptyUsages) {
     final SortedSet<String> set = new TreeSet<String>();
 
     StringBuilder query = new StringBuilder();
     query.append("select distinct firstchar from ")
       .append("(select lower(substr(value,1,1)) as firstchar from tags_values ");
 
-    if (skip_empty_usages) {
+    if (skipEmptyUsages) {
       query.append(" where counter > 0 ");
     }
     query.append(" order by firstchar) firstchars");
