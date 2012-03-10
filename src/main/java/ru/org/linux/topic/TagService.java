@@ -163,12 +163,12 @@ public class TagService {
    *
    * @return список первых букв тегов
    */
-  SortedSet<String> getFirstLetters(boolean skip_empty_usages) {
-    return tagDao.getFirstLetters(skip_empty_usages);
+  SortedSet<String> getFirstLetters(boolean skipEmptyUsages) {
+    return tagDao.getFirstLetters(skipEmptyUsages);
   }
 
-  Map<String, Integer> getTagsByFirstLetter(String firstLetter, boolean skip_empty_usages) {
-    return tagDao.getTagsByFirstLetter(firstLetter, skip_empty_usages);
+  Map<String, Integer> getTagsByFirstLetter(String firstLetter, boolean skipEmptyUsages) {
+    return tagDao.getTagsByFirstLetter(firstLetter, skipEmptyUsages);
   }
 
   public static String toString(Collection<String> tags) {
