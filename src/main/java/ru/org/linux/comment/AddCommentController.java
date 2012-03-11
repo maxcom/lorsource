@@ -230,8 +230,6 @@ public class AddCommentController extends ApplicationObjectSupport {
 
     prepareReplyto(add, formParams, request);
 
-    formParams.put("postscoreInfo", TopicPermissionService.getPostScoreInfo(add.getTopic().getPostScore()));
-
     User user;
 
     if (!Template.isSessionAuthorized(session)) {
@@ -267,6 +265,8 @@ public class AddCommentController extends ApplicationObjectSupport {
     Comment comment = null;
 
     if (add.getTopic()!=null) {
+      formParams.put("postscoreInfo", TopicPermissionService.getPostScoreInfo(add.getTopic().getPostScore()));
+
       permissionService.checkCommentsAllowed(add.getTopic(), user, errors);
 
       String title = add.getTitle();
