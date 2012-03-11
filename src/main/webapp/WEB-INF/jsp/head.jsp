@@ -22,6 +22,10 @@
     <LINK REL=STYLESHEET TYPE="text/css" HREF="/${template.style}/hover.css">
   </c:if>
 
+<!--[if lt IE 9]>
+<script src="/js/html5.js" type="text/javascript"></script>
+<![endif]-->
+
 <c:if test="${not pageContext.request.secure}">
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.2/jquery.min.js" type="text/javascript"></script>
 </c:if>
