@@ -1,3 +1,4 @@
+<%@ tag import="com.google.common.base.Strings" %>
 <%@ tag
         pageEncoding="UTF-8"
 %><%--
@@ -16,13 +17,14 @@
   --%><%@
         attribute name="decorate" required="false" type="java.lang.Boolean" %><%@
         attribute name="link" required="false" type="java.lang.Boolean" %><%@
+        attribute name="rel" required="false" type="java.lang.String" %><%@
         attribute name="user" type="ru.org.linux.user.User" %><%@
         taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %><%@
         taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %><%--
 --%><c:if test="${decorate != null and decorate and user.blocked}"><s></c:if><%--
 --%><c:choose><%--
 --%><c:when test="${link!=null and link and not user.anonymous}"><%--
---%><a href="/people/${user.nick}/profile">${user.nick}</a><%--
+--%><a <%= Strings.isNullOrEmpty(rel)?"":"rel=\""+rel+ '"' %> href="/people/${user.nick}/profile">${user.nick}</a><%--
 --%></c:when><%--
 --%><c:otherwise><%--
 --%>${user.nick}<%--

@@ -21,7 +21,7 @@
         attribute name="user" type="ru.org.linux.user.User" %><%@
         attribute name="postdate" type="java.sql.Timestamp" %>
 
-<lor:user decorate="true" link="true" user="${user}"/>
+<lor:user rel="author" decorate="true" link="true" user="${user}"/>
 
 <c:if test="${not shortMode and not user.anonymous}">
   ${user.stars}
