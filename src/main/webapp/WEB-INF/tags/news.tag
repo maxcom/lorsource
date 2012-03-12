@@ -91,7 +91,7 @@
 </c:set>
 
 <c:if test="${not message.minor}">
-<div class=news id="topic-${message.id}">
+<article class=news id="topic-${message.id}">
 <%
   String url = message.getUrl();
   boolean imagepost = preparedMessage.getSection().isImagepost();
@@ -200,11 +200,11 @@
   <c:out value="${commentsLinks}" escapeXml="false"/>
   </div>
   </div>
-</div>
+</article>
 </c:if>
 
 <c:if test="${message.minor}">
-<div class="infoblock mini-news" id="topic-${message.id}">
+<article class="infoblock mini-news" id="topic-${message.id}">
 Мини-новость:
   <a href="${fn:escapeXml(message.link)}">${message.title}</a>
 
@@ -215,5 +215,5 @@
 </c:if>
 
   <c:out value="${commentsLinks}" escapeXml="false"/>
-</div>
+</article>
 </c:if>

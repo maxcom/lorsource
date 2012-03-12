@@ -38,7 +38,7 @@
   out.append(Integer.toString(comment.getComment().getMessageId()));
   out.append(" -->\n");
 %>
-<div class="msg" id="comment-${comment.comment.messageId}">
+<article class="msg" id="comment-${comment.comment.messageId}">
   <div class=title>
 <c:if test="${showMenu}">
 <%
@@ -142,4 +142,4 @@
   </c:if>
 
   </div><div style="clear: both"></div>
-</div>
+</article>

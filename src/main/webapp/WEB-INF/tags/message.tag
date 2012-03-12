@@ -31,7 +31,7 @@
   Template tmpl = Template.getTemplate(request);
 %>
   <!-- ${message.id}  -->
-<div class=msg id="topic-${message.id}">
+<article class=msg id="topic-${message.id}">
 <c:if test="${showMenu}">
   <div class=title>
     <c:if test="${message.resolved}"><img src="/img/solved.png" alt="решено" title="решено"/></c:if>
@@ -221,4 +221,4 @@
       </c:if>
 </div>
   <div style="clear: both"></div>
-</div>
+</article>
