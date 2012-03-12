@@ -1,5 +1,4 @@
-<%@ tag import="com.google.common.base.Strings" %>
-<%@ tag
+<%@ tag import="com.google.common.base.Strings" %><%@ tag
         pageEncoding="UTF-8"
 %><%--
   ~ Copyright 1998-2012 Linux.org.ru
