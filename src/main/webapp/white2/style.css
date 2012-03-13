@@ -63,10 +63,10 @@ DIV.columnimg
    }
 
 /* news items */
-DIV.news H2 { font-family: sans-serif;  margin-bottom: 5px; margin-top: 5px; }
+.news H2 { font-family: sans-serif;  margin-bottom: 5px; margin-top: 5px; }
 .news H2 A { color: #786af2; } 
 H1 A { color: #786af2 } 
-DIV.news DIV.nav { text-align: left; margin-top: 1em; }
+.news DIV.nav { text-align: left; margin-top: 1em; }
 
 /* view-forum */
 DIV.forum A { text-decoration: none; }
