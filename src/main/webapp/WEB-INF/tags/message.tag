@@ -105,6 +105,7 @@
       <lor:image preparedImage="${preparedMessage.image}" topic="${preparedMessage.message}" showImage="true"/>
       <lor:image preparedImage="${preparedMessage.image}" topic="${preparedMessage.message}" showInfo="true"/>
     </c:if>
+<footer>
 <c:if test="${preparedMessage.section.premoderated and not empty preparedMessage.tags}">
   <lor:tags list="${preparedMessage.tags}"/>
 </c:if>
@@ -219,6 +220,7 @@
         </c:if>
         </div>
       </c:if>
+</footer>
 </div>
   <div style="clear: both"></div>
 </article>
