@@ -46,7 +46,7 @@
   <h2>Поисковая система сайта</h2>
 </c:if>
 
-<form:input path="q" TYPE="text" SIZE="50" maxlength="250"/>
+<form:input path="q" TYPE="search" SIZE="50" maxlength="250"/>
   <input TYPE="submit" VALUE="Поиск"><BR>
 
   <form:hidden path="oldQ"/>
