@@ -1,8 +1,6 @@
 <%@ page contentType="text/html; charset=utf-8" import="ru.org.linux.gallery.Screenshot"  %>
-<%@ page import="ru.org.linux.topic.TagService"%>
+<%@ page import="ru.org.linux.group.Group"%>
 <%@ page import="ru.org.linux.util.StringUtil"%>
-<%@ page import="java.util.SortedSet" %>
-<%@ page import="ru.org.linux.group.Group" %>
 <%--
   ~ Copyright 1998-2012 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -130,7 +128,7 @@
 Текст ссылки:<br> <form:input path="linktext" style="width: 40em"/>
 </label><br>
 <label>
-Ссылка (не забудьте <b>http://</b>):<br> <form:input path="url" style="width: 40em"/>
+Ссылка (не забудьте <b>http://</b>):<br> <form:input path="url" type="url" style="width: 40em"/>
 </label><br>
 <% } %>
 <c:if test="${group.moderated}">
