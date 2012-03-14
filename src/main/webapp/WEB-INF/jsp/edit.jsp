@@ -94,11 +94,13 @@
   </c:if>
 
   <c:if test="${group.moderated}">
-    <label>Теги:<br><form:input path="tags" style="width: 40em"/><p>
+    <label>Теги:<br><form:input path="tags" style="width: 40em"/>
+    <p>
       Популярные теги:
-     <c:forEach items="${topTags}" var="topTag" varStatus = "status">
-${status.first ? '' : ', '}<a onclick="addTag('${topTag}');">${topTag}</a>
-     </c:forEach>
+      <c:forEach items="${topTags}" var="topTag" varStatus="status">
+        ${status.first ? '' : ', '}<a onclick="addTag('${topTag}');">${topTag}</a>
+      </c:forEach>
+    </p>
   </c:if>
 
   <c:if test="${group.moderated and template.moderatorSession}">
