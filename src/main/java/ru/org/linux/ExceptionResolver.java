@@ -16,14 +16,39 @@ package ru.org.linux;
 
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.handler.SimpleMappingExceptionResolver;
+import ru.org.linux.site.ScriptErrorException;
+import ru.org.linux.site.Template;
+import ru.org.linux.user.UserErrorException;
+import ru.org.linux.util.StringUtil;
 
+import javax.mail.Message;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.Properties;
 
 /**
  * Класс. предназначенный для перехвата исключений приложения.
  */
 public class ExceptionResolver extends SimpleMappingExceptionResolver {
+
+  private final static String EMAIL_SENT = "Произошла непредвиденная ошибка. Администраторы получили об этом сигнал.";
+  private final static String EMAIL_NOT_SENT = "Произошла непредвиденная ошибка. К сожалению сервер временно не принимает сообщения об ошибках.";
+  private final static String EMAIL_ADDRESS = "bugz@linux.org.ru";
+
+  enum ExceptionType {
+    IGNORED,
+    SCRIPT_ERROR,
+    OTHER;
+  }
 
   /**
    * Общий обработчик исключительных ситуаций.
@@ -45,9 +70,114 @@ public class ExceptionResolver extends SimpleMappingExceptionResolver {
     ModelAndView modelAndView = super.doResolveException(request, response, handler, ex);
     if (modelAndView == null) {
       modelAndView = new ModelAndView("error");
-
+      prepareModelForCommonException(modelAndView, request, ex);
     }
     modelAndView.addObject("exception", ex);
     return modelAndView;
+  }
+
+  /**
+   * Наполнение объекта web-модели необходимыми для показа данными.
+   *
+   * @param modelAndView объект web-модели
+   * @param request      данные запроса от web-клиента
+   * @param exception    исключение
+   */
+  private void prepareModelForCommonException(
+    ModelAndView modelAndView,
+    HttpServletRequest request,
+    Exception exception
+  ) {
+    modelAndView.addObject("headTitle", StringUtil.escapeHtml(exception.getClass().getName()));
+
+    String errorMessage = exception.getMessage() == null
+      ? StringUtil.escapeHtml(exception.getClass().getName())
+      : StringUtil.escapeHtml(exception.getMessage());
+    modelAndView.addObject("errorMessage", errorMessage);
+
+    ExceptionType exceptionType = ExceptionType.OTHER;
+    if (exception instanceof UserErrorException) {
+      exceptionType = ExceptionType.IGNORED;
+    } else if (exception instanceof ScriptErrorException) {
+      logger.debug("error.jsp", exception);
+      exceptionType = ExceptionType.SCRIPT_ERROR;
+    } else {
+      String infoMessage = sendEmailToAdmin(request, exception);
+      modelAndView.addObject("infoMessage", infoMessage);
+    }
+    modelAndView.addObject("exceptionType", exceptionType.name());
+  }
+
+  /**
+   * Отсылка E-mail администраторам.
+   *
+   * @param request   данные запроса от web-клиента
+   * @param exception исключение
+   * @return Строку, содержащую состояние отсылки письма
+   */
+  private String sendEmailToAdmin(
+    HttpServletRequest request,
+    Exception exception
+  ) {
+    InternetAddress mail;
+    try {
+      mail = new InternetAddress(EMAIL_ADDRESS);
+    } catch (AddressException e) {
+      return EMAIL_NOT_SENT + " Неправильный e-mail адрес: " + EMAIL_ADDRESS;
+    }
+    StringBuilder text = new StringBuilder();
+
+    if (exception.getMessage() == null) {
+      text.append(exception.getClass().getName());
+    } else {
+      text.append(exception.getMessage());
+    }
+    text.append("\n\n");
+
+    Template tmpl = Template.getTemplate(request);
+    text.append("Main URL: ").append(tmpl.getMainUrl()).append(request.getAttribute("javax.servlet.error.request_uri"));
+
+    if (request.getQueryString() != null) {
+      text.append('?').append(request.getQueryString()).append('\n');
+    }
+    text.append('\n');
+
+    text.append("IP: " + request.getRemoteAddr() + '\n');
+
+    text.append(" Headers: ");
+    Enumeration enu = request.getHeaderNames();
+    while (enu.hasMoreElements()) {
+      String paramName = (String) enu.nextElement();
+      text.append("\n         ").append(paramName).append(": ").append(request.getHeader(paramName));
+    }
+    text.append("\n\n");
+
+    StringWriter exceptionStackTrace = new StringWriter();
+    exception.printStackTrace(new PrintWriter(exceptionStackTrace));
+    text.append(exceptionStackTrace.toString());
+
+    Properties props = new Properties();
+    props.put("mail.smtp.host", "localhost");
+    Session mailSession = Session.getDefaultInstance(props, null);
+
+    MimeMessage emailMessage = new MimeMessage(mailSession);
+    try {
+      emailMessage.setFrom(new InternetAddress("no-reply@linux.org.ru"));
+      emailMessage.addRecipient(Message.RecipientType.TO, mail);
+      emailMessage.setSubject("Linux.org.ru: " + exception.getClass());
+      emailMessage.setSentDate(new Date());
+      emailMessage.setText(text.toString(), "UTF-8");
+    } catch (Exception e) {
+      logger.error("An error occured while creating e-mail!", e);
+      return EMAIL_NOT_SENT;
+    }
+    try {
+      Transport.send(emailMessage);
+      return EMAIL_SENT;
+    } catch (Exception e) {
+      return EMAIL_NOT_SENT;
+    } finally {
+      logger.warn("error.jsp", exception);
+    }
   }
 }
