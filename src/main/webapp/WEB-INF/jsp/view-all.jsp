@@ -94,7 +94,7 @@
 <c:forEach items="${deletedTopics}" var="topic">
 
 <tr>
-  <td><a href="group.jsp?group=${topic.groupId}">${topic.ptitle} - ${topic.gtitle}</a></td>
+  <td><a href="group.jsp?group=${topic.groupId}">${topic.gtitle}</a></td>
   <td><a href="view-message.jsp?msgid=${topic.id}">${topic.title}</a> (${topic.nick})</td>
   <td>${topic.reason}</td>
 </tr>
