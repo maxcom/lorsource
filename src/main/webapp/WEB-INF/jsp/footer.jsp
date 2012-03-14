@@ -16,7 +16,7 @@
   --%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 </div>
-<div id="ft">
+<footer id="ft">
 
 <p id="ft-info">
   <a href="server.jsp">О Сервере</a> -
@@ -56,12 +56,12 @@ pageTracker._trackPageview();
 pageTracker._trackPageLoadTime();
 } catch(err) {}</script>
 
-</div>
-
 <c:if test="${not pageContext.request.secure}">
     <!-- begin of Top100 code -->
     <script id="top100Counter" type="text/javascript" src="http://counter.rambler.ru/top100.jcn?29833"></script><noscript><img src="http://counter.rambler.ru/top100.cnt?29833" alt="" width="1" height="1" border="0"/></noscript>
     <!-- end of Top100 code -->
 </c:if>
+
+</footer>
 
 </body></html>
