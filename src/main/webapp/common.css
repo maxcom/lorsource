@@ -441,5 +441,9 @@ textarea, input {
     text-decoration: underline !important;
 }
 
+.message-table {
+    width: 100%;
+}
+
 /* HTML5 for FF3 & etc */
 article, aside, details, figcaption, figure, footer, header, hgroup, nav, section { display: block; }

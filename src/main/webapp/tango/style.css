@@ -203,10 +203,6 @@ p {
 	font-size: 1.5em;
 }
 
-#bd .forum table {
-	width: 100%;
-}
-
 #bd .forum table tbody td {
     padding-left: 4px;
     border: 1px solid;
