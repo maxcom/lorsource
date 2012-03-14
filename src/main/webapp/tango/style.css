@@ -461,4 +461,8 @@ div.quote {
         font-size: 1.6em;
         float: none;
     }
+
+    html {
+        -webkit-text-size-adjust: none; /* Prevent font scaling in landscape */
+    }
 }
