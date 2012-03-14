@@ -14,10 +14,12 @@
  */
 package ru.org.linux;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.handler.SimpleMappingExceptionResolver;
 import ru.org.linux.site.ScriptErrorException;
 import ru.org.linux.site.Template;
+import ru.org.linux.spring.Configuration;
 import ru.org.linux.user.UserErrorException;
 import ru.org.linux.util.StringUtil;
 
@@ -42,7 +44,9 @@ public class ExceptionResolver extends SimpleMappingExceptionResolver {
 
   private final static String EMAIL_SENT = "Произошла непредвиденная ошибка. Администраторы получили об этом сигнал.";
   private final static String EMAIL_NOT_SENT = "Произошла непредвиденная ошибка. К сожалению сервер временно не принимает сообщения об ошибках.";
-  private final static String EMAIL_ADDRESS = "bugz@linux.org.ru";
+
+  @Autowired
+  private Configuration configuration;
 
   enum ExceptionType {
     IGNORED,
@@ -120,10 +124,12 @@ public class ExceptionResolver extends SimpleMappingExceptionResolver {
     Exception exception
   ) {
     InternetAddress mail;
+    String adminEmailAddress = configuration.getAdminEmailAddress();
+
     try {
-      mail = new InternetAddress(EMAIL_ADDRESS);
+      mail = new InternetAddress(adminEmailAddress, true);
     } catch (AddressException e) {
-      return EMAIL_NOT_SENT + " Неправильный e-mail адрес: " + EMAIL_ADDRESS;
+      return EMAIL_NOT_SENT + " Неправильный e-mail адрес: " + adminEmailAddress;
     }
     StringBuilder text = new StringBuilder();
 
