@@ -60,7 +60,7 @@ public class User implements Serializable {
   private static final int BLOCK_SCORE = 200;
   public static final int VIEW_DELETED_SCORE = 100;
 
-  public static final int MAX_NICK_LENGTH = 40;
+  public static final int MAX_NICK_LENGTH = 19; // check only on new user registration, do not check existing users!
 
   private static final long serialVersionUID = 69986652856916540L;
 
@@ -332,10 +332,6 @@ public class User implements Serializable {
   public static void checkNick(String nick) throws BadInputException {
     if (nick==null || !StringUtil.checkLoginName(nick)) {
       throw new BadInputException("некорректное имя пользователя");
-    }
-
-    if (nick.length() > MAX_NICK_LENGTH) {
-      throw new BadInputException("слишком длинное имя пользователя");
     }
   }
 
