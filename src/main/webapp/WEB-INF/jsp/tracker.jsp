@@ -60,7 +60,6 @@
   <table width="100%" class="message-table">
     <thead>
     <tr>
-      <th>Группа</th>
       <th>Заголовок</th>
       <th>Последнее<br>сообщение</th>
       <th>Число ответов</th>
@@ -71,24 +70,20 @@
 
       <tr>
         <td>
-<%--
-          <a href="${msg.groupUrl}">
---%>
-              ${msg.groupTitle}
-<%--
-          </a>
---%>
-          <c:if test="${msg.uncommited}">
-            (не подтверждено)
-          </c:if>
-          <c:if test="${msg.wikiArticle}">
-            (статья)
-          </c:if>
-          <c:if test="${msg.wikiComment}">
-            (комментарий)
-          </c:if>
-        </td>
-        <td>
+          <span class="group-title">
+            ${msg.groupTitle}
+
+            <c:if test="${msg.uncommited}">
+              (не подтверждено)
+            </c:if>
+            <c:if test="${msg.wikiArticle}">
+              (статья)
+            </c:if>
+            <c:if test="${msg.wikiComment}">
+              (комментарий)
+            </c:if>
+          </span>
+
           <c:if test="${filter=='mine' && msg.resolved}">
             <img src="/img/solved.png" alt="решено" title="решено"/>
           </c:if>

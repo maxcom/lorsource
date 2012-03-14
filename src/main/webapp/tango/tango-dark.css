@@ -73,7 +73,7 @@ a {
 	border-color: #555753;
 }
 
-#bd .forum table tbody td * {
+#bd .forum table tbody td a {
 	color: #eeeeec;
 }
 
