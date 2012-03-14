@@ -57,7 +57,7 @@
 </h1>
 
 <div class=forum>
-  <table width="100%" class="message-table">
+  <table class="message-table">
     <thead>
     <tr>
       <th>Заголовок</th>
