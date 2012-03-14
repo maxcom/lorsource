@@ -121,7 +121,7 @@
 <div class=forum>
 <table width="100%" class="message-table">
 <thead>
-<tr><th></th><th>Группа</th><th>Заголовок</th><th>Комментарий</th></tr>
+<tr><th></th><th>Заголовок</th><th>Комментарий</th></tr>
 <tbody>
 
 <c:forEach var="topic" items="${topicsList}">
@@ -139,7 +139,6 @@
       </c:when>
     </c:choose>
   </td>
-  <td><a href="${topic.event.groupUrl}">${topic.event.groupTitle}</a></td>
   <td>
     <c:if test="${topic.event.type != 'DEL'}">
       <c:if test="${topic.event.cid>0}">
@@ -148,10 +147,12 @@
       <c:if test="${topic.event.cid==0}">
         <a href="jump-message.jsp?msgid=${topic.event.msgid}">${topic.event.subj}</a>
       </c:if>
+      (<a class="secondary" href="${topic.event.groupUrl}">${topic.event.groupTitle}</a>)
     </c:if>
 
     <c:if test="${topic.event.type == 'DEL'}">
       <a href="view-message.jsp?msgid=${topic.event.msgid}">${topic.event.subj}</a>
+      (<a class="secondary" href="${topic.event.groupUrl}">${topic.event.groupTitle}</a>)
       <br>
       <c:out value="${topic.event.eventMessage}" escapeXml="true"/>
     </c:if>
