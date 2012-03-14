@@ -71,9 +71,13 @@
 
       <tr>
         <td>
+<%--
           <a href="${msg.groupUrl}">
+--%>
               ${msg.groupTitle}
+<%--
           </a>
+--%>
           <c:if test="${msg.uncommited}">
             (не подтверждено)
           </c:if>
