@@ -1,6 +1,5 @@
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="ru.org.linux.group.Group,ru.org.linux.group.GroupController,ru.org.linux.site.Template,ru.org.linux.user.User,ru.org.linux.util.BadImageException"   buffer="200kb"%>
-<%@ page import="ru.org.linux.util.DateUtil" %>
+<%@ page import="ru.org.linux.group.Group,ru.org.linux.group.GroupController,ru.org.linux.site.Template,ru.org.linux.util.BadImageException,ru.org.linux.util.DateUtil"   buffer="200kb"%>
 <%@ page import="ru.org.linux.util.ImageInfo" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
@@ -133,7 +132,7 @@
 %>
 <lor:groupinfo group="${groupInfo}"/>
 <div class=forum>
-<table width="100%" class="message-table">
+<table class="message-table">
 <thead>
 <tr>
   <th>Тема<br>
