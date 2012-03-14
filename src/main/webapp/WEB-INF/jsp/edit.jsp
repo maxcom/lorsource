@@ -89,7 +89,7 @@
   <br><br>
     <c:if test="${message.haveLink}">
       <label>Текст ссылки:<br> <form:input path="linktext" style="width: 40em"/></label><br>
-      <label>Ссылка:<br> <form:input path="url" style="width: 40em"/></label><br>
+      <label>Ссылка:<br> <form:input path="url" type="url" style="width: 40em"/></label><br>
     </c:if>
   </c:if>
 
