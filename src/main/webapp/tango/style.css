@@ -216,7 +216,7 @@ p {
     border: 1px solid;
 }
 
-#bd .forum table tbody td * {
+#bd .forum table tbody td a {
 	text-decoration: none;
 }
 

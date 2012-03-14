@@ -85,8 +85,7 @@
                   --%><c:if test="${msg.author != null}"><lor:user user="${msg.author}" decorate="true"/>
                   в
                   </c:if>
-
-                   ${msg.groupTitle}<%--
+                   <a href="${msg.groupUrl}" class="secondary">${msg.groupTitle}</a><%--
 
                    --%><c:if test="${msg.uncommited}">, не подтверждено</c:if><%--
                   --%><c:if test="${msg.wikiArticle}">, статья</c:if><%--

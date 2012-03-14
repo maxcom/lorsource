@@ -139,3 +139,7 @@ fieldset legend {
 #bd .nav li a:visited {
     color: #BABDB6;
 }
+
+.message-table a.secondary {
+    color: #babdb6 !important;
+}

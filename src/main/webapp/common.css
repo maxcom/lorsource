@@ -437,5 +437,9 @@ textarea, input {
     margin-right: 1em;
 }
 
+.message-table a.secondary {
+    text-decoration: underline !important;
+}
+
 /* HTML5 for FF3 & etc */
 article, aside, details, figcaption, figure, footer, header, hgroup, nav, section { display: block; }
