@@ -70,20 +70,6 @@
 
       <tr>
         <td>
-          <span class="group-title">
-            ${msg.groupTitle}
-
-            <c:if test="${msg.uncommited}">
-              (не подтверждено)
-            </c:if>
-            <c:if test="${msg.wikiArticle}">
-              (статья)
-            </c:if>
-            <c:if test="${msg.wikiComment}">
-              (комментарий)
-            </c:if>
-          </span>
-
           <c:if test="${filter=='mine' && msg.resolved}">
             <img src="/img/solved.png" alt="решено" title="решено"/>
           </c:if>
@@ -93,7 +79,19 @@
             <a href="${msg.url}">
               <% } %>
                 ${msg.title}
-            </a><c:if test="${msg.author != null}"> (<lor:user user="${msg.author}" decorate="true"/>)</c:if>
+            </a>
+
+                (<%--
+                  --%><c:if test="${msg.author != null}"><lor:user user="${msg.author}" decorate="true"/>
+                  в
+                  </c:if>
+
+                   ${msg.groupTitle}<%--
+
+                   --%><c:if test="${msg.uncommited}">, не подтверждено</c:if><%--
+                  --%><c:if test="${msg.wikiArticle}">, статья</c:if><%--
+                   --%><c:if test="${msg.wikiComment}">, комментарий</c:if><%--
+                  --%>)
         </td>
         <td class="dateinterval">
           <lor:dateinterval date="${msg.postdate}"/>

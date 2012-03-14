@@ -428,10 +428,6 @@ textarea, input {
     content: "";
 }
 
-.message-table .group-title:after {
-    content: "》";
-}
-
 .nav form {
     display: inline;
 }
