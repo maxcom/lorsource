@@ -46,10 +46,6 @@
         <error-code>404</error-code>
         <location>/WEB-INF/jsp/error404.jsp</location>
     </error-page>
-    <error-page>
-        <exception-type>java.lang.Throwable</exception-type>
-        <location>/WEB-INF/jsp/error.jsp</location>
-    </error-page>
     <jsp-config>
         <taglib>
             <taglib-uri>http://java.sun.com/jsp/jstl/core</taglib-uri>

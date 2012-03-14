@@ -43,13 +43,12 @@
     <bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerExceptionResolver" p:order="1" />
 
     <bean id="exceptionMapping"
-          class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver" p:order="2">
+          class="ru.org.linux.ExceptionResolver" p:order="2">
         <property name="exceptionMappings">
             <props>
                 <prop key="ru.org.linux.site.MessageNotFoundException">error404</prop>
                 <prop key="ru.org.linux.section.SectionNotFoundException">error404</prop>
                 <prop key="org.springframework.web.HttpRequestMethodNotSupportedException">error404</prop>
-                <prop key="java.lang.Exception">error</prop>
                 <prop key="ru.org.linux.auth.AccessViolationException">error403</prop>
                 <prop key="ru.org.linux.topic.TagNotFoundException">error404</prop>
                 <prop key="ru.org.linux.util.ServletParameterException">error-parameter</prop>
