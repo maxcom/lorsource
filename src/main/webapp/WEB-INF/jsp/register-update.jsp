@@ -66,9 +66,9 @@
 <label>Повторите новый пароль:
 <input type=password name="password2" size="20"></label><br>
 
-<label>URL (не забудьте добавить <b>http://</b>): <form:input path="url" size="50"/></label><br>
+<label>URL (не забудьте добавить <b>http://</b>): <form:input path="url" type="url" size="50"/></label><br>
 
-<label>Email: <form:input path="email" size="50" cssClass="required email"/></label><br>
+<label>Email: <form:input path="email" type="email" size="50" cssClass="required email"/></label><br>
 
 <label>
 Город (просьба писать русскими буквами без сокращений, например: <b>Москва</b>,
