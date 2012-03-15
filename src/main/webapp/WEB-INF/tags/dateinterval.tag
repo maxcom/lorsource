@@ -1,7 +1,6 @@
-<%@ tag import="java.util.Calendar" %>
 <%@ tag import="ru.org.linux.site.DateFormats" %>
-<%@ tag pageEncoding="utf-8" %>
-
+<%@ tag import="java.util.Calendar" %>
+<%@ tag pageEncoding="utf-8" trimDirectiveWhitespaces="true" %>
 <%--
   ~ Copyright 1998-2012 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
