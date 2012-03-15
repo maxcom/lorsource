@@ -28,7 +28,7 @@ public class DateFormats {
   }
 
   public static DateFormat createShort() {
-    return new SimpleDateFormat("dd.MM.yyyy HH:mm");
+    return new SimpleDateFormat("dd.MM.yy HH:mm");
   }
 
   public static DateFormat createTime() {
