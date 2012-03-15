@@ -98,7 +98,7 @@
             (<lor:user user="${msg.lastCommentBy}" decorate="true"/>)
           </c:if>
         </td>
-        <td align='center'>
+        <td class='numbers'>
             <c:choose>
                 <c:when test="${msg.stat1==0}">
                     -

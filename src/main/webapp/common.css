@@ -241,6 +241,10 @@ pre {
     text-align: right;
 }
 
+.message-table td.numbers {
+    text-align: center;
+}
+
 .userpic {
     float: left;
     width: 150px;

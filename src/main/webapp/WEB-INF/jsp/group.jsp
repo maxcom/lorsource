@@ -209,7 +209,7 @@
     <lor:dateinterval date="${topic.lastmod}"/>
   </td>
 
-  <td align=center>
+  <td class=numbers>
       <c:if test="${topic.stat1==0}">-</c:if><c:if test="${topic.stat1>0}"><b>${topic.stat1}</b></c:if>/<c:if test="${topic.stat3==0}">-</c:if><c:if test="${topic.stat3>0}"><b>${topic.stat3}</b></c:if>/<c:if test="${topic.stat4==0}">-</c:if><c:if test="${topic.stat4>0}"><b>${topic.stat4}</b></c:if> 
   </td> </tr>
 </c:forEach>
