@@ -20,7 +20,7 @@
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
 <title>Error 404</title>
-<jsp:include page="header.jsp"/>
+<jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
 <div id="warning-body">
     <div id="warning-logo"><img src="/img/good-penguin.jpg" alt="good-penguin" /></div>
@@ -33,4 +33,4 @@
 <div id="warning-footer"></div>
 
 
-<jsp:include page="footer.jsp"/>
+<jsp:include page="/WEB-INF/jsp/footer.jsp"/>

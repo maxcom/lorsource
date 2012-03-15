@@ -603,7 +603,7 @@ public class TopicController {
   @ResponseStatus(HttpStatus.NOT_FOUND)
   public ModelAndView handleMessageNotFoundException(MessageNotFoundException ex) {
     if(ex.getTopic() != null) {
-      ModelAndView mav = new ModelAndView("error-good-penguin");
+      ModelAndView mav = new ModelAndView("errors/good-penguin");
       Topic topic = ex.getTopic();
       mav.addObject("msgTitle", "Ошибка: сообщения не существует");
       mav.addObject("msgHeader", "Сообщение удалено или не существует");
@@ -613,7 +613,7 @@ public class TopicController {
           ex.getId(), topic.getLink(), topic.getTitle()));
       return mav;
     } else {
-      return new ModelAndView("error404");
+      return new ModelAndView("errors/code404");
     }
   }
 

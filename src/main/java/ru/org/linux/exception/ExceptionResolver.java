@@ -76,7 +76,7 @@ public class ExceptionResolver extends SimpleMappingExceptionResolver {
   ) {
     ModelAndView modelAndView = super.doResolveException(request, response, handler, ex);
     if (modelAndView == null) {
-      modelAndView = new ModelAndView("error");
+      modelAndView = new ModelAndView("errors/common");
       prepareModelForCommonException(modelAndView, request, ex);
     }
     modelAndView.addObject("exception", ex);
@@ -106,7 +106,7 @@ public class ExceptionResolver extends SimpleMappingExceptionResolver {
     if (exception instanceof UserErrorException) {
       exceptionType = ExceptionType.IGNORED;
     } else if (exception instanceof ScriptErrorException) {
-      logger.debug("error.jsp", exception);
+      logger.debug("errors/common.jsp", exception);
       exceptionType = ExceptionType.SCRIPT_ERROR;
     } else {
       String infoMessage = sendEmailToAdmin(request, exception);
@@ -186,7 +186,7 @@ public class ExceptionResolver extends SimpleMappingExceptionResolver {
     } catch (Exception e) {
       return EMAIL_NOT_SENT;
     } finally {
-      logger.warn("error.jsp", exception);
+      logger.warn("errors/common.jsp", exception);
     }
   }
 }

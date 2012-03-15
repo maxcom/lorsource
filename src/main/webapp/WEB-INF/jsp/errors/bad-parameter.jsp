@@ -53,6 +53,6 @@
 параметры. Если на эту страничку вас привела одна из
 страниц нашего сайта, пожалуйста сообщите нам адреса текущей и ссылающейся страниц.
 <%
-  logger.debug("error-parameter.jsp", exception);
+  logger.debug("errors/bad-parameter.jsp", exception);
 %>
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>
