@@ -30,22 +30,22 @@
   yesterday.roll(Calendar.DAY_OF_MONTH, false);
 
   if (diff<2*1000*60) {
-    out.print("минуту&nbsp;назад");
+    out.print("минуту назад");
   } else if (diff<1000*60*60) {
     long min = diff / (1000 * 60);
 
     if (min%10<5 && min%10>1 && (min>20 || min<10)) {
-      out.print(min +"&nbsp;минуты&nbsp;назад");
+      out.print(min +"&nbsp;минуты назад");
     } else if (min%10==1 && min>20 ) {
-        out.print(min +"&nbsp;минута&nbsp;назад");
+        out.print(min +"&nbsp;минута назад");
     } else {
-      out.print(min +"&nbsp;минут&nbsp;назад");
+      out.print(min +"&nbsp;минут назад");
     }
   } else if (c.after(today)) {
-    out.print("сегодня&nbsp;" + DateFormats.createTime().format(date));
+    out.print("сегодня " + DateFormats.createTime().format(date));
   } else if (c.after(yesterday)) {
-    out.print("вчера&nbsp;" + DateFormats.createTime().format(date));
+    out.print("вчера " + DateFormats.createTime().format(date));
   } else {
-    out.print(DateFormats.createShort().format(date).replace(" ", "&nbsp;"));
+    out.print(DateFormats.createShort().format(date));
   }
 %>
