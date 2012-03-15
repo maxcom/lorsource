@@ -55,13 +55,13 @@ div.entry-body {
 }
 
 /* info boxes on columns */
-DIV.column {
+.column {
   text-align: center;
   float: left;
   width: 240px;
 }
 
-DIV.column2 {
+.column2 {
   text-align: center;
   width: 240px;
   position: absolute;

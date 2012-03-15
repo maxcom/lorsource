@@ -388,12 +388,12 @@ div.quote {
         margin-right: 0;
     }
 
-    div.column {
+    .column {
         width: 100%;
         float: none;
     }
 
-    div.column2 {
+    .column2 {
         width: 100%;
         position: static;
     }

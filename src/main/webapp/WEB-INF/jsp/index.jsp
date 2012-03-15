@@ -102,7 +102,7 @@
 </div>
 </div>
 </div>
-<div class=column>
+<aside class=column>
 
   <c:if test="${template.sessionAuthorized}">
     <div class=boxlet>
@@ -133,9 +133,9 @@
         </div>
       </c:forEach>
   </lor:boxlets>
-</div>
+</aside>
 <% if (columns3) { %>
-<div class=column2>
+<aside class=column2>
   <lor:boxlets object="main3-2" var="boxes">
       <c:forEach var="boxlet" items="${boxes}">
         <div class="boxlet">
@@ -143,7 +143,7 @@
         </div>
       </c:forEach>
   </lor:boxlets>
-</div>
+</aside>
 <% } %>
 
 <div style="clear: both"></div>
