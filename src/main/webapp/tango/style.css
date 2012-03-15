@@ -405,6 +405,15 @@ div.quote {
     div.boxlet h2 {
         width: auto;
     }
+
+    #bd {
+        padding-left: 0.5em;
+        padding-right: 0.5em;
+    }
+
+    #hd {
+        padding-left: 0.5em;
+    }
 }
 
 @media screen and (max-width: 640px) {
