@@ -35,11 +35,11 @@
     long min = diff / (1000 * 60);
 
     if (min%10<5 && min%10>1 && (min>20 || min<10)) {
-      out.print(min +"&nbsp;минуты назад");
+      out.print(min +"&nbsp;минуты");
     } else if (min%10==1 && min>20 ) {
-        out.print(min +"&nbsp;минута назад");
+        out.print(min +"&nbsp;минута");
     } else {
-      out.print(min +"&nbsp;минут назад");
+      out.print(min +"&nbsp;минут");
     }
   } else if (c.after(today)) {
     out.print("сегодня " + DateFormats.createTime().format(date));
