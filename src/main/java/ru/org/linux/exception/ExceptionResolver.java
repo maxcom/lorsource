@@ -12,9 +12,10 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package ru.org.linux;
+package ru.org.linux.exception;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.handler.SimpleMappingExceptionResolver;
 import ru.org.linux.site.ScriptErrorException;
@@ -40,6 +41,8 @@ import java.util.Properties;
 /**
  * Класс. предназначенный для перехвата исключений приложения.
  */
+
+@Component
 public class ExceptionResolver extends SimpleMappingExceptionResolver {
 
   private final static String EMAIL_SENT = "Произошла непредвиденная ошибка. Администраторы получили об этом сигнал.";

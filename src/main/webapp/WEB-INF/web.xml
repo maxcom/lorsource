@@ -46,6 +46,10 @@
         <error-code>404</error-code>
         <location>/WEB-INF/jsp/error404.jsp</location>
     </error-page>
+    <error-page>
+        <exception-type>java.lang.Throwable</exception-type>
+        <location>/ExceptionResolver</location>
+    </error-page>
     <jsp-config>
         <taglib>
             <taglib-uri>http://java.sun.com/jsp/jstl/core</taglib-uri>
@@ -64,6 +68,11 @@
         <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
         <load-on-startup>1</load-on-startup>
     </servlet>
+
+    <servlet-mapping>
+      <servlet-name>springapp</servlet-name>
+      <url-pattern>/ExceptionResolver</url-pattern>
+    </servlet-mapping>
 
     <servlet-mapping>
         <servlet-name>default</servlet-name>
