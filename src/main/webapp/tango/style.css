@@ -398,6 +398,11 @@ div.quote {
         position: static;
     }
 
+    #bd .column, #bd .column2 {
+	    font-size: inherit;
+    }
+
+
     div.boxlet {
         width: 100%;
     }
