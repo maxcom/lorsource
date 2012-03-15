@@ -21,6 +21,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
+import ru.org.linux.ApplicationController;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.site.Template;
 import ru.org.linux.search.SearchQueueSender;
@@ -41,40 +42,23 @@ import java.util.List;
 import java.util.Map;
 
 @Controller
-public class DeleteCommentController {
+public class DeleteCommentController extends ApplicationController {
+  @Autowired
   private SearchQueueSender searchQueueSender;
+
+  @Autowired
   private CommentDao commentDao;
+
+  @Autowired
   private TopicDao messageDao;
+
+  @Autowired
   private UserDao userDao;
+
+  @Autowired
   private CommentPrepareService prepareService;
 
   private static final int DELETE_PERIOD = 60 * 60 * 1000; // milliseconds
-
-  @Autowired
-  @Required
-  public void setSearchQueueSender(SearchQueueSender searchQueueSender) {
-    this.searchQueueSender = searchQueueSender;
-  }
-
-  @Autowired
-  public void setMessageDao(TopicDao messageDao) {
-    this.messageDao = messageDao;
-  }
-
-  @Autowired
-  public void setCommentDao(CommentDao commentDao) {
-    this.commentDao = commentDao;
-  }
-
-  @Autowired
-  public void setUserDao(UserDao userDao) {
-    this.userDao = userDao;
-  }
-
-  @Autowired
-  public void setPrepareService(CommentPrepareService prepareService) {
-    this.prepareService = prepareService;
-  }
 
   @RequestMapping(value = "/delete_comment.jsp", method = RequestMethod.GET)
   public ModelAndView showForm(
@@ -82,7 +66,8 @@ public class DeleteCommentController {
     HttpServletRequest request,
     @RequestParam("msgid") int msgid
   ) throws Exception {
-    Map<String, Object> params = new HashMap<String, Object>();
+    ModelAndView modelAndView = new ModelAndView("delete_comment");
+
 
     if (!Template.isSessionAuthorized(session)) {
       throw new AccessViolationException("нет авторизации");
@@ -90,7 +75,7 @@ public class DeleteCommentController {
 
     Template tmpl = Template.getTemplate(request);
 
-    params.put("msgid", msgid);
+    modelAndView.addObject("msgid", msgid);
 
     Comment comment = commentDao.getById(msgid);
 
@@ -106,7 +91,7 @@ public class DeleteCommentController {
       throw new AccessViolationException("тема удалена");
     }
 
-    params.put("topic", topic);
+    modelAndView.addObject("topic", topic);
 
     CommentList comments = commentDao.getCommentList(topic, tmpl.isModeratorSession());
 
@@ -114,10 +99,10 @@ public class DeleteCommentController {
 
     List<Comment> list = cv.getCommentsSubtree(msgid);
 
-    params.put("commentsPrepared", prepareService.prepareCommentList(comments, list, request.isSecure()));
-    params.put("comments", comments);
+    modelAndView.addObject("commentsPrepared", prepareService.prepareCommentList(comments, list, request.isSecure()));
+    modelAndView.addObject("comments", comments);
 
-    return new ModelAndView("delete_comment", params);
+    return render(modelAndView);
   }
 
   @RequestMapping(value = "/delete_comment.jsp", method = RequestMethod.POST)
@@ -199,23 +184,23 @@ public class DeleteCommentController {
 
     searchQueueSender.updateComment(deleted);
 
-    Map<String, Object> params = new HashMap<String, Object>();
-    params.put("message", "Удалено успешно");
-    params.put("bigMessage", out.toString());
+    ModelAndView modelAndView = new ModelAndView("action-done");
+    modelAndView.addObject("message", "Удалено успешно");
+    modelAndView.addObject("bigMessage", out.toString());
 
-    params.put("link", topic.getLink());
+    modelAndView.addObject("link", topic.getLink());
 
-    return new ModelAndView("action-done", params);
+    return render(modelAndView);
   }
 
   @ExceptionHandler({ScriptErrorException.class, UserErrorException.class, AccessViolationException.class})
   @ResponseStatus(HttpStatus.FORBIDDEN)
   public ModelAndView handleUserNotFound(Exception ex, HttpServletRequest request, HttpServletResponse response) {
-    ModelAndView mav = new ModelAndView("error-good-penguin");
-    mav.addObject("msgTitle", "Ошибка: " + ex.getMessage());
-    mav.addObject("msgHeader", ex.getMessage());
-    mav.addObject("msgMessage", "");
-    return mav;
+    ModelAndView modelAndView = new ModelAndView("error-good-penguin");
+    modelAndView.addObject("msgTitle", "Ошибка: " + ex.getMessage());
+    modelAndView.addObject("msgHeader", ex.getMessage());
+    modelAndView.addObject("msgMessage", "");
+    return render(modelAndView);
   }
 
 }

@@ -29,6 +29,7 @@ import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
+import ru.org.linux.ApplicationController;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
@@ -57,7 +58,7 @@ import java.util.List;
 import java.util.Map;
 
 @Controller
-public class EditTopicController {
+public class EditTopicController extends ApplicationController {
   @Autowired
   private SearchQueueSender searchQueueSender;
 
@@ -114,11 +115,11 @@ public class EditTopicController {
       throw new UserErrorException("Раздел не премодерируемый");
     }
 
-    ModelAndView mv = prepareModel(preparedMessage, form);
+    ModelAndView modelAndView = prepareModel(preparedMessage, form);
 
-    mv.getModel().put("commit", true);
+    modelAndView.addObject("commit", true);
 
-    return mv;
+    return render(modelAndView);
   }
 
   @RequestMapping(value = "/edit.jsp", method = RequestMethod.GET)
@@ -151,24 +152,24 @@ public class EditTopicController {
     PreparedTopic preparedMessage,
     EditTopicRequest form
   ) throws PollNotFoundException {
-    Map<String, Object> params = new HashMap<String, Object>();
+    ModelAndView modelAndView = new ModelAndView("edit");
 
     final Topic message = preparedMessage.getMessage();
 
-    params.put("message", message);
-    params.put("preparedMessage", preparedMessage);
+    modelAndView.addObject("message", message);
+    modelAndView.addObject("preparedMessage", preparedMessage);
 
     Group group = preparedMessage.getGroup();
-    params.put("group", group);
+    modelAndView.addObject("group", group);
 
-    params.put("groups", groupDao.getGroups(preparedMessage.getSection()));
+    modelAndView.addObject("groups", groupDao.getGroups(preparedMessage.getSection()));
 
-    params.put("newMsg", message);
-    params.put("newPreparedMessage", preparedMessage);
+    modelAndView.addObject("newMsg", message);
+    modelAndView.addObject("newPreparedMessage", preparedMessage);
     
     List<EditInfoDto> editInfoList = messageDao.getEditInfo(message.getId());
     if (!editInfoList.isEmpty()) {
-      params.put("editInfo", editInfoList.get(0));
+      modelAndView.addObject("editInfo", editInfoList.get(0));
 
       ImmutableSet<User> editors = getEditors(message, editInfoList);
 
@@ -178,14 +179,14 @@ public class EditTopicController {
       }
 
       form.setEditorBonus(editorBonus.build());
-      
-      params.put("editors", editors);
+
+      modelAndView.addObject("editors", editors);
     }
 
-    params.put("commit", false);
+    modelAndView.addObject("commit", false);
 
     if (group.isModerated()) {
-      params.put("topTags", tagService.getTopTags());
+      modelAndView.addObject("topTags", tagService.getTopTags());
     }
 
     if (message.isHaveLink()) {
@@ -212,7 +213,7 @@ public class EditTopicController {
       form.setMultiselect(poll.isMultiSelect());
     }
 
-    return new ModelAndView("edit", params);
+    return render(modelAndView);
   }
 
   private ImmutableSet<User> getEditors(final Topic message, List<EditInfoDto> editInfoList) {
@@ -252,21 +253,21 @@ public class EditTopicController {
       throw new AccessViolationException("Not authorized");
     }
 
-    Map<String, Object> params = new HashMap<String, Object>();
+    ModelAndView modelAndView = new ModelAndView("edit");
 
     final Topic message = messageDao.getById(msgid);
     PreparedTopic preparedMessage = messagePrepareService.prepareTopic(message, false, request.isSecure(), tmpl.getCurrentUser());
     Group group = preparedMessage.getGroup();
 
-    params.put("message", message);
-    params.put("preparedMessage", preparedMessage);
-    params.put("group", group);
+    modelAndView.addObject("message", message);
+    modelAndView.addObject("preparedMessage", preparedMessage);
+    modelAndView.addObject("group", group);
 
     if (group.isModerated()) {
-      params.put("topTags", tagService.getTopTags());
+      modelAndView.addObject("topTags", tagService.getTopTags());
     }
 
-    params.put("groups", groupDao.getGroups(preparedMessage.getSection()));
+    modelAndView.addObject("groups", groupDao.getGroups(preparedMessage.getSection()));
 
     User user = tmpl.getCurrentUser();
 
@@ -285,12 +286,12 @@ public class EditTopicController {
 
     boolean preview = request.getParameter("preview") != null;
     if (preview) {
-      params.put("info", "Предпросмотр");
+      modelAndView.addObject("info", "Предпросмотр");
     }
 
     if (!editInfoList.isEmpty()) {
       EditInfoDto dbEditInfo = editInfoList.get(0);
-      params.put("editInfo", dbEditInfo);
+      modelAndView.addObject("editInfo", dbEditInfo);
 
       if (lastEdit == null || dbEditInfo.getEditdate().getTime()!=lastEdit) {
         errors.reject(null, "Сообщение было отредактировано независимо");
@@ -306,7 +307,10 @@ public class EditTopicController {
       }
     }
 
-    params.put("commit", !message.isCommited() && preparedMessage.getSection().isPremoderated() && user.isModerator());
+    modelAndView.addObject(
+      "commit",
+      !message.isCommited() && preparedMessage.getSection().isPremoderated() && user.isModerator()
+    );
 
     Topic newMsg = new Topic(group, message, form);
 
@@ -450,9 +454,9 @@ public class EditTopicController {
       }
     }
 
-    params.put("newMsg", newMsg);
+    modelAndView.addObject("newMsg", newMsg);
 
-    params.put(
+    modelAndView.addObject(
             "newPreparedMessage",
             messagePrepareService.prepareTopicPreview(
                     newMsg,
@@ -463,7 +467,7 @@ public class EditTopicController {
             )
     );
 
-    return new ModelAndView("edit", params);
+    return render(modelAndView);
   }
 
   @InitBinder("form")

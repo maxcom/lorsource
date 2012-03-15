@@ -21,8 +21,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.View;
-import org.springframework.web.servlet.view.RedirectView;
+import ru.org.linux.ApplicationController;
 import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
 import ru.org.linux.section.Section;
@@ -33,7 +32,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 @Controller
-public class ArchiveController {
+public class ArchiveController extends ApplicationController {
   @Autowired
   private SectionService sectionService;
 
@@ -53,23 +52,23 @@ public class ArchiveController {
     int sectionid,
     String groupName
   ) throws Exception {
-    ModelAndView mv = new ModelAndView("view-news-archive");
+    ModelAndView modelAndView = new ModelAndView("view-news-archive");
 
     Section section = sectionService.getSection(sectionid);
-    mv.getModel().put("section", section);
+    modelAndView.addObject("section", section);
 
     Group group = null;
     if (groupName!=null) {
       group = groupDao.getGroup(section, groupName);
     }
 
-    mv.getModel().put("group", group);
+    modelAndView.addObject("group", group);
 
     List<ArchiveDTO> items = archiveDao.getArchiveDTO(section, group);
 
-    mv.getModel().put("items", items);
+    modelAndView.addObject("items", items);
 
-    return mv;
+    return render(modelAndView);
   }
 
   @RequestMapping("/gallery/archive")
@@ -97,14 +96,18 @@ public class ArchiveController {
   }
 
   @RequestMapping("/view-news-archive.jsp")
-  public View galleryArchiveOld(@RequestParam("section") int id, HttpServletResponse response) throws Exception {
+  public ModelAndView galleryArchiveOld(
+    @RequestParam("section") int id,
+    HttpServletResponse response
+  )
+    throws Exception {
     String link = Section.getArchiveLink(id);
 
-    if (link==null) {
+    if (link == null) {
       response.sendError(404, "No archive for this section");
       return null;
     }
 
-    return new RedirectView(link);
+    return redirect(link);
   }
 }

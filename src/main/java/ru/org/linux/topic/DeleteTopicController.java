@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
+import ru.org.linux.ApplicationController;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.group.GroupPermissionService;
 import ru.org.linux.section.SectionService;
@@ -37,7 +38,7 @@ import javax.servlet.http.HttpSession;
 import java.util.HashMap;
 
 @Controller
-public class DeleteTopicController extends ApplicationObjectSupport {
+public class DeleteTopicController extends ApplicationController {
   @Autowired
   private SearchQueueSender searchQueueSender;
   @Autowired
@@ -75,12 +76,12 @@ public class DeleteTopicController extends ApplicationObjectSupport {
 
     Section section = sectionService.getSection(msg.getSectionId());
 
-    HashMap<String, Object> params = new HashMap<String, Object>();
-    params.put("bonus", !section.isPremoderated());
+    ModelAndView modelAndView = new ModelAndView("delete");
+    modelAndView.addObject("bonus", !section.isPremoderated());
 
-    params.put("msgid", msgid);
+    modelAndView.addObject("msgid", msgid);
 
-    return new ModelAndView("delete", params);
+    return render(modelAndView);
   }
 
   @RequestMapping(value="/delete.jsp", method= RequestMethod.POST)
@@ -119,7 +120,7 @@ public class DeleteTopicController extends ApplicationObjectSupport {
     // Delete msgs from search index
     searchQueueSender.updateMessage(msgid, true);
 
-    return new ModelAndView("action-done", "message", "Сообщение удалено");
+    return render(new ModelAndView("action-done", "message", "Сообщение удалено"));
   }
 
   @RequestMapping(value = "/undelete.jsp", method = RequestMethod.GET)
@@ -137,11 +138,11 @@ public class DeleteTopicController extends ApplicationObjectSupport {
 
     checkUndeletable(message);
 
-    ModelAndView mv = new ModelAndView("undelete");
-    mv.getModel().put("message", message);
-    mv.getModel().put("preparedMessage", prepareService.prepareTopic(message, false, request.isSecure(), tmpl.getCurrentUser()));
+    ModelAndView modelAndView = new ModelAndView("undelete");
+    modelAndView.addObject("message", message);
+    modelAndView.addObject("preparedMessage", prepareService.prepareTopic(message, false, request.isSecure(), tmpl.getCurrentUser()));
 
-    return mv;
+    return render(modelAndView);
   }
 
   @RequestMapping(value="/undelete.jsp", method=RequestMethod.POST)
@@ -170,7 +171,7 @@ public class DeleteTopicController extends ApplicationObjectSupport {
     // Undelete msgs from search index
     searchQueueSender.updateMessage(msgid, true);
 
-    return new ModelAndView("action-done", "message", "Сообщение восстановлено");
+    return render(new ModelAndView("action-done", "message", "Сообщение восстановлено"));
   }
 
   private static void checkUndeletable(Topic message) throws AccessViolationException {

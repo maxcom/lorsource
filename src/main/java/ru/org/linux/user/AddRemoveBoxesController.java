@@ -23,6 +23,7 @@ import java.util.Set;
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 
+import ru.org.linux.ApplicationController;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.site.Template;
 import ru.org.linux.site.DefaultProfile;
@@ -42,7 +43,8 @@ import org.springframework.web.bind.support.SessionStatus;
 
 @Controller
 @SessionAttributes("allboxes")
-public class AddRemoveBoxesController extends ApplicationObjectSupport {
+public class AddRemoveBoxesController extends ApplicationController {
+
   @RequestMapping(value = {"/remove-box.jsp", "/add-box.jsp"}, method = RequestMethod.GET)
   public ModelMap showRemove(@RequestParam String tag,
                              @RequestParam(required = false) Integer pos,

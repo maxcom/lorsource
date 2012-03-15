@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
+import ru.org.linux.ApplicationController;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.site.BadInputException;
 import ru.org.linux.site.Template;
@@ -41,7 +42,7 @@ import java.util.Date;
 import java.util.Properties;
 
 @Controller
-public class LostPasswordController {
+public class LostPasswordController extends ApplicationController {
   @Autowired
   private UserDao userDao;
 
@@ -50,12 +51,12 @@ public class LostPasswordController {
 
   @RequestMapping(value="/lostpwd.jsp", method= RequestMethod.GET)
   public ModelAndView showForm() {
-    return new ModelAndView("lostpwd-form");
+    return render(new ModelAndView("lostpwd-form"));
   }
 
   @RequestMapping(value="/reset-password", method= RequestMethod.GET)
   public ModelAndView showCodeForm() {
-    return new ModelAndView("reset-password-form");
+    return render(new ModelAndView("reset-password-form"));
   }
 
   @RequestMapping(value="/lostpwd.jsp", method= RequestMethod.POST)
@@ -88,7 +89,9 @@ public class LostPasswordController {
       sendEmail(user, email, now);
       userDao.updateResetDate(user, now);
 
-      return new ModelAndView("action-done", "message", "Инструкция по сбросу пароля была отправлена на ваш email");
+      return render(
+        new ModelAndView("action-done", "message", "Инструкция по сбросу пароля была отправлена на ваш email")
+      );
     } catch (AddressException ex) {
       throw new UserErrorException("Incorrect email address");
     }
@@ -119,11 +122,11 @@ public class LostPasswordController {
 
     String password = userDao.resetPassword(user);
 
-    return new ModelAndView(
+    return render(new ModelAndView(
             "action-done",
             "message",
             "Ваш новый пароль: " + StringUtil.escapeHtml(password)
-    );
+    ));
   }
 
   private static String getResetCode(String base, String nick, String email, Timestamp tm) {

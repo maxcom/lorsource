@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
+import ru.org.linux.ApplicationController;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.site.Template;
@@ -38,7 +39,7 @@ import javax.sql.DataSource;
 import java.util.*;
 
 @Controller
-public class GroupController {
+public class GroupController extends ApplicationController {
   public static final int MAX_OFFSET = 300;
 
   @Autowired
@@ -74,9 +75,11 @@ public class GroupController {
     Group group = groupDao.getGroup(groupId);
 
     if (offsetObject != null) {
-      return new ModelAndView(new RedirectView(group.getUrl() + "?offset=" + offsetObject.toString()));
+      Map<String, String> redirectParams = new HashMap<String, String>();
+      redirectParams.put("offset", offsetObject.toString());
+      return redirect(group.getUrl(), redirectParams);
     } else {
-      return new ModelAndView(new RedirectView(group.getUrl()));
+      return redirect(group.getUrl());
     }
   }
 
@@ -85,13 +88,15 @@ public class GroupController {
           @RequestParam("group") int groupId,
           @RequestParam(value = "offset", required = false) Integer offsetObject
   ) throws Exception {
-    Group group = groupDao.getGroup(groupId);
+    Map<String, String> redirectParams = new HashMap<String, String>();
+    redirectParams.put("lastmod", "true");
 
     if (offsetObject != null) {
-      return new ModelAndView(new RedirectView(group.getUrl() + "?offset=" + offsetObject.toString() + "&lastmod=true"));
-    } else {
-      return new ModelAndView(new RedirectView(group.getUrl() + "?lastmod=true"));
+      redirectParams.put("offset", offsetObject.toString());
     }
+
+    Group group = groupDao.getGroup(groupId);
+    return redirect(group.getUrl(), redirectParams);
   }
 
   @RequestMapping("/forum/{group}/{year}/{month}")
@@ -123,14 +128,14 @@ public class GroupController {
     Integer year,
     Integer month
   ) throws Exception {
-    Map<String, Object> params = new HashMap<String, Object>();
+    ModelAndView modelAndView = new ModelAndView("group");
     Template tmpl = Template.getTemplate(request);
 
     boolean showDeleted = request.getParameter("deleted") != null;
-    params.put("showDeleted", showDeleted);
+    modelAndView.addObject("showDeleted", showDeleted);
 
     Section section = sectionService.getSection(Section.SECTION_FORUM);
-    params.put("groupList", groupDao.getGroups(section));
+    modelAndView.addObject("groupList", groupDao.getGroups(section));
 
     Group group = groupDao.getGroup(section, groupName);
 
@@ -158,20 +163,20 @@ public class GroupController {
       firstPage = true;
     }
 
-    params.put("firstPage", firstPage);
-    params.put("offset", offset);
-    params.put("lastmod", lastmod);
+    modelAndView.addObject("firstPage", firstPage);
+    modelAndView.addObject("offset", offset);
+    modelAndView.addObject("lastmod", lastmod);
 
     boolean showIgnored = false;
     if (request.getParameter("showignored") != null) {
       showIgnored = "t".equals(request.getParameter("showignored"));
     }
 
-    params.put("showIgnored", showIgnored);
+    modelAndView.addObject("showIgnored", showIgnored);
 
-    params.put("group", group);
+    modelAndView.addObject("group", group);
 
-    params.put("section", section);
+    modelAndView.addObject("section", section);
 
     Set<Integer> ignoreList;
 
@@ -181,7 +186,7 @@ public class GroupController {
       ignoreList = Collections.emptySet();
     }
 
-    params.put("groupInfo", prepareService.prepareGroupInfo(group, request.isSecure()));
+    modelAndView.addObject("groupInfo", prepareService.prepareGroupInfo(group, request.isSecure()));
 
     String ignq = "";
 
@@ -206,11 +211,11 @@ public class GroupController {
       }
 
       q+=" AND postdate>='" + year + '-' + month + "-01'::timestamp AND (postdate<'" + year + '-' + month + "-01'::timestamp+'1 month'::interval)";
-      params.put("year", year);
-      params.put("month", month);
-      params.put("url", group.getUrl()+year+ '/' +month+ '/');
+      modelAndView.addObject("year", year);
+      modelAndView.addObject("month", month);
+      modelAndView.addObject("url", group.getUrl()+year+ '/' +month+ '/');
     } else {
-      params.put("url", group.getUrl());
+      modelAndView.addObject("url", group.getUrl());
     }
 
     SqlRowSet rs;
@@ -249,17 +254,17 @@ public class GroupController {
       topicsList.add(topic);
     }
 
-    params.put("topicsList", topicsList);
+    modelAndView.addObject("topicsList", topicsList);
 
     if (year == null) {
-      params.put("count", groupDao.calcTopicsCount(group, showDeleted));
+      modelAndView.addObject("count", groupDao.calcTopicsCount(group, showDeleted));
     } else {
-      params.put("count", getArchiveCount(group.getId(), year, month));
+      modelAndView.addObject("count", getArchiveCount(group.getId(), year, month));
     }
 
-    params.put("addable", groupPermissionService.isTopicPostingAllowed(group, tmpl.getCurrentUser()));
+    modelAndView.addObject("addable", groupPermissionService.isTopicPostingAllowed(group, tmpl.getCurrentUser()));
 
-    return new ModelAndView("group", params);
+    return render(modelAndView);
   }
 
   private int getArchiveCount(int groupid, int year, int month) {

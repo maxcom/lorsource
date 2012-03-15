@@ -21,16 +21,17 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
+import ru.org.linux.ApplicationController;
 import ru.org.linux.site.Template;
 
 @Controller
-public class EditBoxesController {
+public class EditBoxesController extends ApplicationController {
   @RequestMapping("/edit-boxes.jsp")
   public ModelAndView view(HttpServletRequest request) {
     boolean isThreeColumn = getThreeColumns(request);
-    ModelAndView result = new ModelAndView("edit-boxes");
-    result.addObject("isThreeColumn", isThreeColumn);
-    return result;
+    ModelAndView modelAndView = new ModelAndView("edit-boxes");
+    modelAndView.addObject("isThreeColumn", isThreeColumn);
+    return render(modelAndView);
   }
 
   protected static boolean getThreeColumns(HttpServletRequest request) {

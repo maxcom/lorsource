@@ -20,6 +20,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
+import ru.org.linux.ApplicationController;
 import ru.org.linux.comment.CommentDao.CommentsListItem;
 import ru.org.linux.site.Template;
 import ru.org.linux.user.User;
@@ -32,7 +33,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 @Controller
-public class ShowCommentsController {
+public class ShowCommentsController extends ApplicationController {
   @Autowired
   private UserDao userDao;
 
@@ -48,16 +49,16 @@ public class ShowCommentsController {
   ) throws Exception {
     Template tmpl = Template.getTemplate(request);
 
-    ModelAndView mv = new ModelAndView("show-comments");
+    ModelAndView modelAndView = new ModelAndView("show-comments");
 
     int topics = 50;
-    mv.getModel().put("topics", topics);
+    modelAndView.getModel().put("topics", topics);
 
     if (offset<0) {
       throw new ServletParameterException("offset<0!?");
     }
 
-    mv.getModel().put("offset", offset);
+    modelAndView.addObject("offset", offset);
 
     boolean firstPage = offset==0;
 
@@ -67,11 +68,11 @@ public class ShowCommentsController {
       response.setDateHeader("Expires", System.currentTimeMillis() + 60 * 60 * 1000L);
     }
 
-    mv.getModel().put("firstPage", firstPage);
+    modelAndView.addObject("firstPage", firstPage);
 
     User user = userDao.getUser(nick);
 
-    mv.getModel().put("user", user);
+    modelAndView.addObject("user", user);
 
     if (user.isAnonymous()) {
       throw new UserErrorException("Функция только для зарегистрированных пользователей");
@@ -79,12 +80,12 @@ public class ShowCommentsController {
 
     List<CommentsListItem> out = commentDao.getUserComments(user, topics, offset);
 
-    mv.getModel().put("list", out);
+    modelAndView.addObject("list", out);
 
     if (tmpl.isModeratorSession()) {
-      mv.getModel().put("deletedList", commentDao.getDeletedComments(user));
+      modelAndView.addObject("deletedList", commentDao.getDeletedComments(user));
     }
 
-    return mv;
+    return render(modelAndView);
   }
 }

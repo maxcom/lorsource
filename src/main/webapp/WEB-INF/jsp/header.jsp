@@ -35,6 +35,13 @@
   <base href="${fn:escapeXml(template.mainUrl)}">
 </c:if>
 
+<c:if test="${cssForLayout != null}">
+  <c:forEach items="${cssForLayout}" var="css">
+    <c:url value="/${template.style}/css/${css}" var="cssURL"/>
+    <LINK REL="stylesheet" TYPE="text/css" HREF="${cssURL}">
+  </c:forEach>
+</c:if>
+
 <jsp:include page="${template.style}/head.jsp"/>
 
 <c:if test="${not pageContext.request.secure}">

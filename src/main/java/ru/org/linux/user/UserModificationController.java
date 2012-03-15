@@ -17,7 +17,6 @@ package ru.org.linux.user;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
-import org.springframework.context.support.ApplicationObjectSupport;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
@@ -26,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
+import ru.org.linux.ApplicationController;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.site.Template;
 import ru.org.linux.comment.CommentDao;
@@ -40,7 +40,7 @@ import java.util.Map;
 import java.util.Random;
 
 @Controller
-public class UserModificationController extends ApplicationObjectSupport {
+public class UserModificationController extends ApplicationController {
   private SearchQueueSender searchQueueSender;
   private UserDao userDao;
   private CommentDao commentDao;
@@ -126,8 +126,8 @@ public class UserModificationController extends ApplicationObjectSupport {
     return redirectToProfile(user);
   }
 
-  private static ModelAndView redirectToProfile(User user) {
-    return new ModelAndView(new RedirectView(getNoCacheLinkToProfile(user)));
+  private ModelAndView redirectToProfile(User user) {
+    return redirect(getNoCacheLinkToProfile(user));
   }
 
   private static String getNoCacheLinkToProfile(User user) {
@@ -152,20 +152,20 @@ public class UserModificationController extends ApplicationObjectSupport {
     if (!user.isBlockable() && !moderator.isAdministrator()) {
       throw new AccessViolationException("Пользователя " + user.getNick() + " нельзя заблокировать");
     }
-    Map<String, Object> params = new HashMap<String, Object>();
-    params.put("message", "Удалено");
+    ModelAndView modelAndView = new ModelAndView("action-done");
+    modelAndView.addObject("message", "Удалено");
     DeleteCommentResult deleteCommentResult = commentDao.deleteAllCommentsAndBlock(user, moderator, reason);
 
     logger.info("User " + user.getNick() + " blocked by " + moderator.getNick());
 
-    params.put("bigMessage", deleteCommentResult.getDeletedCommentIds()); // TODO
+    modelAndView.addObject("bigMessage", deleteCommentResult.getDeletedCommentIds()); // TODO
 
     for(int topicId : deleteCommentResult.getDeletedTopicIds()) {
       searchQueueSender.updateMessage(topicId, true);
     }
     searchQueueSender.updateComment(deleteCommentResult.getDeletedCommentIds());
 
-    return new ModelAndView("action-done", params);
+    return render(modelAndView);
   }
 
   /**
@@ -212,10 +212,10 @@ public class UserModificationController extends ApplicationObjectSupport {
 
     logger.info("Пароль "+user.getNick()+" сброшен модератором "+moderator.getNick());
 
-    ModelAndView mv = new ModelAndView("action-done");
-    mv.getModel().put("link", getNoCacheLinkToProfile(user));
-    mv.getModel().put("message", "Пароль сброшен");
-    return mv;
+    ModelAndView modelAndView = new ModelAndView("action-done");
+    modelAndView.addObject("link", getNoCacheLinkToProfile(user));
+    modelAndView.addObject("message", "Пароль сброшен");
+    return render(modelAndView);
   }
   /**
    * Контроллер отчистки дополнительной информации в профиле

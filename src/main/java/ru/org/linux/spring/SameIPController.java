@@ -23,6 +23,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
+import ru.org.linux.ApplicationController;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.auth.IPBlockDao;
 import ru.org.linux.auth.IPBlockInfo;
@@ -40,20 +41,12 @@ import java.sql.Timestamp;
 import java.util.List;
 
 @Controller
-public class SameIPController {
+public class SameIPController extends ApplicationController {
+  @Autowired
   private IPBlockDao ipBlockDao;
+  @Autowired
   private UserDao userDao;
   private JdbcTemplate jdbcTemplate;
-
-  @Autowired
-  public void setIpBlockDao(IPBlockDao ipBlockDao) {
-    this.ipBlockDao = ipBlockDao;
-  }
-
-  @Autowired
-  public void setUserDao(UserDao userDao) {
-    this.userDao = userDao;
-  }
 
   @Autowired
   public void setDataSource(DataSource ds) {
@@ -73,7 +66,7 @@ public class SameIPController {
 
     String ip;
 
-    ModelAndView mv = new ModelAndView("sameip");
+    ModelAndView modelAndView = new ModelAndView("sameip");
 
     int userAgentId = 0;
 
@@ -100,29 +93,29 @@ public class SameIPController {
       ip = ServletParameterParser.getIP(request, "ip");
     }
 
-    mv.getModel().put("ip", ip);
-    mv.getModel().put("uaId", userAgentId);
+    modelAndView.addObject("ip", ip);
+    modelAndView.addObject("uaId", userAgentId);
 
-    mv.getModel().put("topics", getTopics(ip));
-    mv.getModel().put("comments", getComments(ip));
-    mv.getModel().put("users", getUsers(ip, userAgentId));
+    modelAndView.addObject("topics", getTopics(ip));
+    modelAndView.addObject("comments", getComments(ip));
+    modelAndView.addObject("users", getUsers(ip, userAgentId));
 
     IPBlockInfo blockInfo = ipBlockDao.getBlockInfo(ip);
 
     Boolean allowPosting = false;
     Boolean captchaRequired = true;
     if (blockInfo.isInitialized()) {
-      mv.getModel().put("blockInfo", blockInfo);
+      modelAndView.addObject("blockInfo", blockInfo);
       allowPosting = blockInfo.isAllowRegistredPosting();
       captchaRequired = blockInfo.isCaptchaRequired();
-      mv.getModel().put("blockModerator", userDao.getUserCached(blockInfo.getModerator()));
+      modelAndView.addObject("blockModerator", userDao.getUserCached(blockInfo.getModerator()));
     }
-    mv.addObject("allowPosting", allowPosting);
-    mv.addObject("captchaRequired", captchaRequired);
+    modelAndView.addObject("allowPosting", allowPosting);
+    modelAndView.addObject("captchaRequired", captchaRequired);
 
-    mv.getModel().put("tor", IPBlockDao.getTor(ip));
+    modelAndView.addObject("tor", IPBlockDao.getTor(ip));
 
-    return mv;
+    return render(modelAndView);
   }
 
   private List<TopicItem> getTopics(String ip) {

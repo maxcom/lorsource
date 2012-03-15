@@ -18,13 +18,13 @@ package ru.org.linux.user;
 import com.google.common.base.Strings;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.support.ApplicationObjectSupport;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
+import ru.org.linux.ApplicationController;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.auth.CaptchaService;
 import ru.org.linux.auth.IPBlockDao;
@@ -51,8 +51,11 @@ import java.util.Properties;
 
 @SuppressWarnings("ProhibitedExceptionDeclared")
 @Controller
-public class RegisterController extends ApplicationObjectSupport {
+public class RegisterController extends ApplicationController {
+  @Autowired
   private CaptchaService captcha;
+
+  @Autowired
   private IPBlockDao ipBlockDao;
 
   @Autowired
@@ -60,16 +63,6 @@ public class RegisterController extends ApplicationObjectSupport {
 
   @Autowired
   private Configuration configuration;
-
-  @Autowired
-  public void setCaptcha(CaptchaService captcha) {
-    this.captcha = captcha;
-  }
-
-  @Autowired
-  public void setIpBlockDao(IPBlockDao ipBlockDao) {
-    this.ipBlockDao = ipBlockDao;
-  }
 
   @RequestMapping(value = "/register.jsp", method = RequestMethod.GET)
   public ModelAndView register(
@@ -95,7 +88,7 @@ public class RegisterController extends ApplicationObjectSupport {
 
       return mv;
     } else {
-      return new ModelAndView("register");
+      return render(new ModelAndView("register"));
     }
   }
 
@@ -259,7 +252,7 @@ public class RegisterController extends ApplicationObjectSupport {
 
         sendEmail(nick, mail.getAddress(), true);
       } else {
-        return new ModelAndView("register");
+        return render(new ModelAndView("register"));
       }
     }
 
@@ -267,12 +260,18 @@ public class RegisterController extends ApplicationObjectSupport {
       if (emailChanged) {
         String msg = "Обновление регистрации прошло успешно. Ожидайте письма с кодом активации смены email.";
 
-        return new ModelAndView("action-done", "message", msg);
+        return render(new ModelAndView("action-done", "message", msg));
       } else {
-        return new ModelAndView(new RedirectView("/people/" + nick + "/profile"));
+        return redirect("/people/" + nick + "/profile");
       }
     } else {
-      return new ModelAndView("action-done", "message", "Добавление пользователя прошло успешно. Ожидайте письма с кодом активации.");
+      return render(
+        new ModelAndView(
+          "action-done",
+          "message",
+          "Добавление пользователя прошло успешно. Ожидайте письма с кодом активации."
+        )
+      );
     }
   }
 
@@ -323,7 +322,7 @@ public class RegisterController extends ApplicationObjectSupport {
 
   @RequestMapping(value="/activate.jsp", method= RequestMethod.GET)
   public ModelAndView activateForm() {
-    return new ModelAndView("activate");
+    return render(new ModelAndView("activate"));
   }
 
   @RequestMapping(value = "/activate.jsp", method = RequestMethod.POST)
@@ -353,7 +352,7 @@ public class RegisterController extends ApplicationObjectSupport {
 
     userDao.acceptNewEmail(user);
 
-    return new ModelAndView(new RedirectView("/people/" + user.getNick() + "/profile"));
+    return redirect("/people/" + user.getNick() + "/profile");
   }
 
   @InitBinder("form")

@@ -20,6 +20,7 @@ import java.util.Calendar;
 
 import javax.servlet.ServletRequest;
 
+import ru.org.linux.ApplicationController;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.site.Template;
 
@@ -32,20 +33,12 @@ import org.springframework.web.servlet.ModelAndView;
 import ru.org.linux.topic.TopicDao;
 
 @Controller
-public class SearchControlController {
+public class SearchControlController extends ApplicationController {
+  @Autowired
   private SearchQueueSender searchQueueSender;
+
+  @Autowired
   private TopicDao messageDao;
-
-  @Autowired
-  @Required
-  public void setSearchQueueSender(SearchQueueSender searchQueueSender) {
-    this.searchQueueSender = searchQueueSender;
-  }
-
-  @Autowired
-  public void setMessageDao(TopicDao messageDao) {
-    this.messageDao = messageDao;
-  }
 
   @RequestMapping(value="/admin/search-reindex", method=RequestMethod.POST, params = "action=all")
   public ModelAndView reindexAll(ServletRequest request) throws Exception {
@@ -72,7 +65,7 @@ public class SearchControlController {
 
     searchQueueSender.updateMonth(1970, 1);
 
-    return new ModelAndView("action-done", "message", "Scheduled reindex");
+    return render(new ModelAndView("action-done", "message", "Scheduled reindex"));
   }
 
   @RequestMapping(value="/admin/search-reindex", method=RequestMethod.POST, params = "action=current")
@@ -92,11 +85,11 @@ public class SearchControlController {
       current.add(Calendar.MONTH, -1);
     }
 
-    return new ModelAndView("action-done", "message", "Scheduled reindex last 3 month");
+    return render(new ModelAndView("action-done", "message", "Scheduled reindex last 3 month"));
   }
 
   @RequestMapping(value="/admin/search-reindex", method=RequestMethod.GET)
   public ModelAndView reindexAll()  {
-    return new ModelAndView("search-reindex");
+    return render(new ModelAndView("search-reindex"));
   }
 }

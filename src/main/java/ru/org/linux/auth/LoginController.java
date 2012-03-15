@@ -21,6 +21,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
+import ru.org.linux.ApplicationController;
 import ru.org.linux.site.Template;
 import ru.org.linux.site.BadInputException;
 import ru.org.linux.spring.Configuration;
@@ -36,7 +37,7 @@ import javax.servlet.http.HttpSession;
 import java.util.Collections;
 
 @Controller
-public class LoginController {
+public class LoginController extends ApplicationController  {
   public static final String ACEGI_COOKIE_NAME = "SPRING_SECURITY_REMEMBER_ME_COOKIE";
 
   @Autowired
@@ -53,7 +54,8 @@ public class LoginController {
 
   @RequestMapping(value = "/login.jsp", method = RequestMethod.GET)
   public ModelAndView loginForm() {
-    return new ModelAndView("login-form");
+    ModelAndView modelAndView = new ModelAndView("login-form");
+    return render(modelAndView);
   }
 
   @RequestMapping(value = "/login.jsp", method = RequestMethod.POST)
@@ -68,13 +70,16 @@ public class LoginController {
     boolean ajax = isAjax(request);
 
     String nick = request.getParameter("nick");
+    ModelAndView modelAndView = new ModelAndView(ajax ? "login-xml" : "login-form");
 
     if (nick == null || nick.isEmpty()) {
-      return new ModelAndView(ajax ? "login-xml" : "login-form", Collections.singletonMap("error", "Не указан nick"));
+      modelAndView.addAllObjects(Collections.singletonMap("error", "Не указан nick"));
+      return render(modelAndView);
     }
 
     if (!StringUtil.checkLoginName(nick)) {
-      return new ModelAndView(ajax ? "login-xml" : "login-form", Collections.singletonMap("error", "Некорректный nick"));
+      modelAndView.addAllObjects(Collections.singletonMap("error", "Некорректный nick"));
+      return render(modelAndView);
     }
 
     final User user = userDao.getUser(nick);
@@ -87,7 +92,8 @@ public class LoginController {
 
     if (!user.isActivated()) {
       if (activation == null) {
-        return new ModelAndView(ajax ? "login-xml" : "login-form", Collections.singletonMap("error", "Требуется активация"));
+        modelAndView.addAllObjects(Collections.singletonMap("error", "Требуется активация"));
+        return render(modelAndView);
       }
 
       String regcode = user.getActivationCode(configuration.getSecret());
@@ -104,7 +110,8 @@ public class LoginController {
 
     String password = request.getParameter("passwd");
     if (password == null || !user.matchPassword(password)) {
-      return new ModelAndView(ajax ? "login-xml" : "login-form", Collections.singletonMap("error", "Неверный пароль"));
+      modelAndView.addAllObjects(Collections.singletonMap("error", "Неверный пароль"));
+      return render(modelAndView);
     }
 
     if (session == null) {
@@ -116,9 +123,10 @@ public class LoginController {
     tmpl.performLogin(response, user);
 
     if (ajax) {
-      return new ModelAndView("login-xml", Collections.singletonMap("ok", "welcome"));
+      modelAndView.addAllObjects(Collections.singletonMap("ok", "welcome"));
+      return render(modelAndView);
     } else {
-      return new ModelAndView(new RedirectView("/"));
+      return redirect("/");
     }
   }
 
@@ -133,7 +141,8 @@ public class LoginController {
 
     if (tmpl.isSessionAuthorized()) {
       if (sessionId == null || !session.getId().equals(sessionId)) {
-        return new ModelAndView("logout");
+        ModelAndView modelAndView = new ModelAndView("logout");
+        return render(modelAndView);
       }
 
       session.removeAttribute("login");
@@ -162,7 +171,7 @@ public class LoginController {
       response.addCookie(cookie4);
     }
 
-    return new ModelAndView(new RedirectView("/"));
+    return redirect("/");
   }
 
   private void createCookies(HttpServletResponse response, HttpSession session, User user) {
@@ -185,7 +194,8 @@ public class LoginController {
   @ExceptionHandler(UserBanedException.class)
   @ResponseStatus(HttpStatus.FORBIDDEN)
   public ModelAndView handleUserBanedException(UserBanedException ex, HttpServletRequest request, HttpServletResponse response) {
-    return new ModelAndView("error-user-banned", "exception", ex);
+    ModelAndView modelAndView = new ModelAndView("error-user-banned", "exception", ex);
+    return render(modelAndView);
   }
 
 }

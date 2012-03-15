@@ -21,6 +21,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
+import ru.org.linux.ApplicationController;
 import ru.org.linux.site.Template;
 
 import javax.servlet.http.HttpServletRequest;
@@ -28,7 +29,7 @@ import java.util.Map;
 import java.util.SortedSet;
 
 @Controller
-public class TagsController {
+public class TagsController extends ApplicationController {
 
   @Autowired
   private TagService tagService;
@@ -77,7 +78,7 @@ public class TagsController {
     }
     modelAndView.addObject("tags", tags);
 
-    return modelAndView;
+    return render(modelAndView);
   }
 
   @Deprecated

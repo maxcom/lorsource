@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
+import ru.org.linux.ApplicationController;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.site.Template;
@@ -36,7 +37,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 
 @Controller
-public class TopicModificationController extends ApplicationObjectSupport {
+public class TopicModificationController extends ApplicationController {
   @Autowired
   private TopicPrepareService prepareService;
 
@@ -60,12 +61,12 @@ public class TopicModificationController extends ApplicationObjectSupport {
       throw new AccessViolationException("Not moderator");
     }
 
-    ModelAndView mv = new ModelAndView("setpostscore");
+    ModelAndView modelAndView = new ModelAndView("setpostscore");
     Topic message = messageDao.getById(msgid);
-    mv.addObject("message", message);
-    mv.addObject("group", groupDao.getGroup(message.getGroupId()));
+    modelAndView.addObject("message", message);
+    modelAndView.addObject("group", groupDao.getGroup(message.getGroupId()));
 
-    return mv;
+    return render(modelAndView);
   }
 
   @RequestMapping(value="/setpostscore.jsp", method= RequestMethod.POST)
@@ -124,12 +125,12 @@ public class TopicModificationController extends ApplicationObjectSupport {
       logger.info("Новое значение minor: " + minor);
     }
 
-    ModelAndView mv = new ModelAndView("action-done");
-    mv.getModel().put("message", "Данные изменены");
-    mv.getModel().put("bigMessage", out.toString());
-    mv.getModel().put("link", msg.getLink());
+    ModelAndView modelAndView = new ModelAndView("action-done");
+    modelAndView.addObject("message", "Данные изменены");
+    modelAndView.addObject("bigMessage", out.toString());
+    modelAndView.addObject("link", msg.getLink());
 
-    return mv;
+    return render(modelAndView);
   }
 
   @RequestMapping(value="/mtn.jsp", method=RequestMethod.GET)
@@ -143,16 +144,16 @@ public class TopicModificationController extends ApplicationObjectSupport {
       throw new AccessViolationException("Not authorized");
     }
 
-    ModelAndView mv = new ModelAndView("mtn");
+    ModelAndView modelAndView = new ModelAndView("mtn");
 
     Topic message = messageDao.getById(msgid);
     Section section = sectionService.getSection(message.getSectionId());
 
-    mv.getModel().put("message", message);
+    modelAndView.addObject("message", message);
 
-    mv.getModel().put("groups", groupDao.getGroups(section));
+    modelAndView.addObject("groups", groupDao.getGroups(section));
 
-    return mv;
+    return render(modelAndView);
   }
 
   @RequestMapping(value="/mt.jsp", method=RequestMethod.POST)
@@ -180,7 +181,7 @@ public class TopicModificationController extends ApplicationObjectSupport {
     logger.info("topic " + msgid + " moved" +
             " by " + tmpl.getNick() + " from news/forum " + msg.getGroupUrl() + " to forum " + newGrp.getTitle());
 
-    return new ModelAndView(new RedirectView(msg.getLinkLastmod()));
+    return redirect(msg.getLinkLastmod());
   }
 
   @RequestMapping(value="/mt.jsp", method=RequestMethod.GET)
@@ -194,17 +195,17 @@ public class TopicModificationController extends ApplicationObjectSupport {
       throw new AccessViolationException("Not authorized");
     }
 
-    ModelAndView mv = new ModelAndView("mtn");
+    ModelAndView modelAndView = new ModelAndView("mtn");
 
     Topic message = messageDao.getById(msgid);
 
-    mv.getModel().put("message", message);
+    modelAndView.addObject("message", message);
 
     Section section = sectionService.getSection(Section.SECTION_FORUM);
 
-    mv.getModel().put("groups", groupDao.getGroups(section));
+    modelAndView.addObject("groups", groupDao.getGroups(section));
 
-    return mv;
+    return render(modelAndView);
   }
 
   @RequestMapping(value = "/uncommit.jsp", method = RequestMethod.GET)
@@ -222,11 +223,11 @@ public class TopicModificationController extends ApplicationObjectSupport {
 
     checkUncommitable(message);
 
-    ModelAndView mv = new ModelAndView("uncommit");
-    mv.getModel().put("message", message);
-    mv.getModel().put("preparedMessage", prepareService.prepareTopic(message, false, request.isSecure(), tmpl.getCurrentUser()));
+    ModelAndView modelAndView = new ModelAndView("uncommit");
+    modelAndView.addObject("message", message);
+    modelAndView.addObject("preparedMessage", prepareService.prepareTopic(message, false, request.isSecure(), tmpl.getCurrentUser()));
 
-    return mv;
+    return render(modelAndView);
   }
 
   @RequestMapping(value="/uncommit.jsp", method=RequestMethod.POST)
@@ -248,7 +249,7 @@ public class TopicModificationController extends ApplicationObjectSupport {
 
     logger.info("Отменено подтверждение сообщения " + msgid + " пользователем " + tmpl.getNick());
 
-    return new ModelAndView("action-done", "message", "Подтверждение отменено");
+    return render(new ModelAndView("action-done", "message", "Подтверждение отменено"));
   }
 
   private static void checkUncommitable(Topic message) throws AccessViolationException {

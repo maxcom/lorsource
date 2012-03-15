@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
+import ru.org.linux.ApplicationController;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.site.Template;
 
@@ -29,7 +30,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Controller
-public class GroupModificationController {
+public class GroupModificationController extends ApplicationController {
   @Autowired
   private GroupDao groupDao;
 
@@ -46,11 +47,11 @@ public class GroupModificationController {
 
     Group group = groupDao.getGroup(id);
 
-    ModelAndView mv = new ModelAndView("groupmod", "group", group);
+    ModelAndView modelAndView = new ModelAndView("groupmod", "group", group);
 
-    mv.getModel().put("groupInfo", prepareService.prepareGroupInfo(group, request.isSecure()));
+    modelAndView.addObject("groupInfo", prepareService.prepareGroupInfo(group, request.isSecure()));
 
-    return mv;
+    return render(modelAndView);
   }
 
   @RequestMapping(value="/groupmod.jsp", method = RequestMethod.POST)
@@ -73,20 +74,21 @@ public class GroupModificationController {
     Group group = groupDao.getGroup(id);
 
     if (preview != null) {
+      ModelAndView modelAndView = new ModelAndView("groupmod");
+
       group.setTitle(title);
       group.setInfo(info);
       group.setLongInfo(longInfo);
 
-      Map<String, Object> params = new HashMap<String, Object>();
-      params.put("group", group);
-      params.put("groupInfo", prepareService.prepareGroupInfo(group, request.isSecure()));
-      params.put("preview", true);
+      modelAndView.addObject("group", group);
+      modelAndView.addObject("groupInfo", prepareService.prepareGroupInfo(group, request.isSecure()));
+      modelAndView.addObject("preview", true);
 
-      return new ModelAndView("groupmod", params);
+      return render(modelAndView);
     }
 
     groupDao.setParams(group, title, info, longInfo, resolvable!=null, urlName);
 
-    return new ModelAndView("action-done", "message", "Параметры изменены");
+    return render(new ModelAndView("action-done", "message", "Параметры изменены"));
   }
 }

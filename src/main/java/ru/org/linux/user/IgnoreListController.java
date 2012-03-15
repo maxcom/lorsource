@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
+import ru.org.linux.ApplicationController;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.site.Template;
 import ru.org.linux.site.*;
@@ -32,7 +33,7 @@ import java.util.Map;
 import java.util.Set;
 
 @Controller
-public class IgnoreListController {
+public class IgnoreListController extends ApplicationController {
   @Autowired
   private UserDao userDao;
 
@@ -52,7 +53,7 @@ public class IgnoreListController {
 
     Map<Integer, User> ignoreMap = createIgnoreMap(ignoreListDao.get(user));
 
-    return new ModelAndView("ignore-list", "ignoreList", ignoreMap);
+    return render(new ModelAndView("ignore-list", "ignoreList", ignoreMap));
   }
 
   private Map<Integer,User> createIgnoreMap(Set<Integer> ignoreList) throws UserNotFoundException {
@@ -93,7 +94,7 @@ public class IgnoreListController {
     }
 
     Map<Integer, User> ignoreMap = createIgnoreMap(ignoreListDao.get(user));
-    return new ModelAndView("ignore-list", "ignoreList", ignoreMap);
+    return render(new ModelAndView("ignore-list", "ignoreList", ignoreMap));
   }
 
   @RequestMapping(value="/ignore-list.jsp", method= RequestMethod.POST, params = "del")
@@ -115,6 +116,6 @@ public class IgnoreListController {
     ignoreListDao.remove(user, delUser);
 
     Map<Integer, User> ignoreMap = createIgnoreMap(ignoreListDao.get(user));
-    return new ModelAndView("ignore-list", "ignoreList", ignoreMap);
+    return render(new ModelAndView("ignore-list", "ignoreList", ignoreMap));
   }
 }

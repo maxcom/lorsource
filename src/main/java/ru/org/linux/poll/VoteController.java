@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
+import ru.org.linux.ApplicationController;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.site.Template;
 import ru.org.linux.topic.TopicDao;
@@ -34,7 +35,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Controller
-public class VoteController {
+public class VoteController extends ApplicationController {
 
   @Autowired
   private PollDao pollDao;
@@ -73,7 +74,7 @@ public class VoteController {
 
     pollDao.updateVotes(voteid, votes, user);
 
-    return new ModelAndView(new RedirectView(msg.getLink()));
+    return redirect(msg.getLink());
   }
 
   @RequestMapping(value="/vote-vote.jsp", method=RequestMethod.GET)
@@ -85,23 +86,26 @@ public class VoteController {
       throw new AccessViolationException("Not authorized");
     }
 
-    Map<String, Object> params = new HashMap<String, Object>();
+    ModelAndView modelAndView = new ModelAndView("vote-vote");
 
     Topic msg = messageDao.getById(msgid);
-    params.put("message", msg);
+    modelAndView.addObject("message", msg);
 
     Poll poll = pollDao.getPollByTopicId(msgid);
     if (!poll.isCurrent()) {
       throw new BadVoteException("голосовать можно только в текущий опрос");
     }
-    params.put("poll", poll);
+    modelAndView.addObject("poll", poll);
 
-    return new ModelAndView("vote-vote", params);
+    return render(modelAndView);
   }
 
   @RequestMapping("/view-vote.jsp")
   public ModelAndView viewVote(@RequestParam("vote") int voteid) throws Exception {
     Poll poll = pollDao.getPoll(voteid);
-    return new ModelAndView(new RedirectView("/jump-message.jsp?msgid=" + poll.getTopicId()));
+
+    Map<String, String> redirectParams = new HashMap<String, String>();
+    redirectParams.put("msgid", String.valueOf(poll.getTopicId()));
+    return redirect("/jump-message.jsp", redirectParams);
   }
 }

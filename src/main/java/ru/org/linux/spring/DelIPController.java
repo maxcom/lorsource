@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
+import ru.org.linux.ApplicationController;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.site.Template;
 import ru.org.linux.comment.CommentDao;
@@ -38,20 +39,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Controller
-public class DelIPController {
+public class DelIPController extends ApplicationController  {
+  @Autowired
   private SearchQueueSender searchQueueSender;
+
+  @Autowired
   private CommentDao commentDao;
 
-  @Autowired
-  @Required
-  public void setSearchQueueSender(SearchQueueSender searchQueueSender) {
-    this.searchQueueSender = searchQueueSender;
-  }
-
-  @Autowired
-  public void setCommentDao(CommentDao commentDao) {
-    this.commentDao = commentDao;
-  }
   /**
    * Контроллер удаление топиков и сообщений по ip и времени
    * @param request http запрос (для получения текущего пользователя)
@@ -67,7 +61,7 @@ public class DelIPController {
                             @RequestParam("ip") String ip,
                             @RequestParam("time") String time
                             ) throws Exception {
-    Map<String, Object> params = new HashMap<String, Object>();
+    ModelAndView modelAndView = new ModelAndView("delip");
 
     Template tmpl = Template.getTemplate(request);
 
@@ -89,14 +83,14 @@ public class DelIPController {
     }
 
     Timestamp ts = new Timestamp(calendar.getTimeInMillis());
-    params.put("message", "Удаляем темы и сообщения после "+ts.toString()+" с IP "+ip+"<br>");
+    modelAndView.addObject("message", "Удаляем темы и сообщения после "+ts.toString()+" с IP "+ip+"<br>");
 
     User moderator = tmpl.getCurrentUser();
 
     DeleteCommentResult deleteResult = commentDao.deleteCommentsByIPAddress(ip, ts, moderator, reason);
 
-    params.put("topics", deleteResult.getDeletedTopicIds().size()); // кол-во удаленных топиков
-    params.put("deleted", deleteResult.getDeleteInfo());
+    modelAndView.addObject("topics", deleteResult.getDeletedTopicIds().size()); // кол-во удаленных топиков
+    modelAndView.addObject("deleted", deleteResult.getDeleteInfo());
 
     for(int topicId : deleteResult.getDeletedTopicIds()) {
       searchQueueSender.updateMessage(topicId, true);
@@ -104,6 +98,6 @@ public class DelIPController {
 
     searchQueueSender.updateComment(deleteResult.getDeletedCommentIds());
 
-    return new ModelAndView("delip", params);
+    return render(modelAndView);
   }
 }

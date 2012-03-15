@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.view.RedirectView;
+import ru.org.linux.ApplicationController;
 import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
 import ru.org.linux.section.Section;
@@ -42,10 +43,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.*;
 
 @Controller
-public class TopicListController {
-  private static final Log logger = LogFactory.getLog(TopicListController.class);
-
-  @Autowired
+public class TopicListController extends ApplicationController {
+ @Autowired
   private SectionService sectionService;
 
   @Autowired
@@ -153,7 +152,7 @@ public class TopicListController {
       modelAndView.addObject("rssLink", rssLink);
     }
 
-    return modelAndView;
+    return render(modelAndView);
   }
 
   /**
@@ -424,7 +423,7 @@ public class TopicListController {
     modelAndView.addObject("params", queryString.toString());
 
     prepareTopicsForPlainOrRss(request, modelAndView, topicListForm, messages);
-    return modelAndView;
+    return render(modelAndView);
   }
 
   /**
@@ -462,7 +461,7 @@ public class TopicListController {
 
     List<Topic> messages = topicListService.getUserTopicsFeed(user, topicListForm.getOffset(), true);
     prepareTopicsForPlainOrRss(request, modelAndView, topicListForm, messages);
-    return modelAndView;
+    return render(modelAndView);
   }
 
   /**
@@ -471,15 +470,15 @@ public class TopicListController {
    * @return
    */
   @RequestMapping(value = "/show-topics.jsp", method = RequestMethod.GET)
-  public View showUserTopics(
+  public ModelAndView showUserTopics(
     @RequestParam("nick") String nick,
     @RequestParam(value = "output", required = false) String output
   ) {
     if (output != null) {
-      return new RedirectView("/people/" + nick + "/?output=rss");
+      return redirect("/people/" + nick + "/?output=rss");
     }
 
-    return new RedirectView("/people/" + nick + '/');
+    return redirect("/people/" + nick + '/');
   }
 
   /**
@@ -518,7 +517,7 @@ public class TopicListController {
     modelAndView.addObject("deletedTopics", deleted);
     modelAndView.addObject("sections", sectionService.getSectionList());
 
-    return modelAndView;
+    return render(modelAndView);
   }
 
   /**
@@ -529,7 +528,7 @@ public class TopicListController {
    */
   @Deprecated
   @RequestMapping(value = "/view-news.jsp", params = {"section", "!tag"})
-  public View oldLink(
+  public ModelAndView oldLink(
     TopicListRequest topicListForm
   ) throws Exception {
 
@@ -552,21 +551,14 @@ public class TopicListController {
         .append('/');
     }
 
-    URLUtil.QueryString queryString = new URLUtil.QueryString();
-    queryString.add("offset", topicListForm.getOffset());
+    Map<String, String> redirectParams = new HashMap<String, String>();
+    redirectParams.put("offset", topicListForm.getOffset().toString());
 
     if (topicListForm.getTag() != null && !topicListForm.getTag().trim().isEmpty()) {
-      queryString.add("tag", topicListForm.getTag());
+      redirectParams.put("tag", topicListForm.getTag());
     }
 
-    String queryStr = queryString.toString();
-    if (queryStr.length() > 0) {
-      redirectLink
-        .append('?')
-        .append(queryStr);
-    }
-
-    return new RedirectView(redirectLink.toString());
+    return redirect(redirectLink.toString(), redirectParams);
   }
 
   @RequestMapping("/section-rss.jsp")
@@ -611,8 +603,7 @@ public class TopicListController {
       ptitle += " - " + group.getTitle();
     }
 
-
-    checkRequestConditions(section, group, topicListForm);
+      checkRequestConditions(section, group, topicListForm);
 
     ModelAndView modelAndView = new ModelAndView("section-rss");
 
@@ -628,7 +619,7 @@ public class TopicListController {
       topicListService.getRssTopicsFeed(section, group, calendar.getTime(), notalks, tech, feedBurner);
 
     modelAndView.addObject("messages", prepareService.prepareMessages(messages, request.isSecure()));
-    return modelAndView;
+    return render(modelAndView);
   }
 
 

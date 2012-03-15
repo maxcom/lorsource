@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.view.RedirectView;
+import ru.org.linux.ApplicationController;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.site.Template;
 import ru.org.linux.topic.TopicDao;
@@ -31,7 +32,7 @@ import ru.org.linux.topic.Topic;
 import javax.servlet.ServletRequest;
 
 @Controller
-public class MemoriesController {
+public class MemoriesController extends ApplicationController {
   @Autowired
   private TopicDao messageDao;
 
@@ -39,7 +40,7 @@ public class MemoriesController {
   private MemoriesDao memoriesDao;
 
   @RequestMapping(value = "/memories.jsp", params = {"add"}, method = RequestMethod.POST)
-  public View add(
+  public ModelAndView add(
           ServletRequest request,
           @RequestParam("msgid") int msgid
   ) throws Exception {
@@ -60,7 +61,7 @@ public class MemoriesController {
 
     memoriesDao.addToMemories(user.getId(), topic.getId());
 
-    return new RedirectView(topic.getLink());
+    return redirect(topic.getLink());
   }
 
   @RequestMapping(value = "/memories.jsp", params = {"remove"}, method = RequestMethod.POST)
@@ -89,9 +90,9 @@ public class MemoriesController {
 
       memoriesDao.delete(id);
 
-      return new ModelAndView(new RedirectView(topic.getLink()));
+      return redirect(topic.getLink());
     } else {
-      return new ModelAndView("action-done", "message", "Запись уже удалена");
+      return render(new ModelAndView("action-done", "message", "Запись уже удалена"));
     }
   }
 }
