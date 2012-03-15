@@ -93,9 +93,9 @@
                   --%>)
         </td>
         <td class="dateinterval">
-          <lor:dateinterval date="${msg.postdate}"/>,
-          <c:if test="${msg.lastCommentBy != null}">
-            <lor:user user="${msg.lastCommentBy}" decorate="true"/>
+          <lor:dateinterval date="${msg.postdate}"/><%--
+          --%><c:if test="${msg.lastCommentBy != null}"><%--
+            --%>, <lor:user user="${msg.lastCommentBy}" decorate="true"/>
           </c:if>
         </td>
         <td class='numbers'>
