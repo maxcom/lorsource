@@ -228,7 +228,7 @@ pre {
 }
 
 .message-table td {
-    padding: 3px;
+    padding: 3px 5px 3px 5px;
 }
 
 .message-table th {
