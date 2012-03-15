@@ -199,6 +199,10 @@ a:visited#sitetitle  {
     margin-right: 0.75em;
 }
 
+#hd {
+    background-color: #defefc;
+}
+
 #hd .menu {
 	margin-bottom: 0.5em;
     font-size: 1.1em;
