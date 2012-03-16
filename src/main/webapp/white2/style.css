@@ -175,3 +175,47 @@ div.quote {
 	content: "[";
 }
 
+#sitetitle {
+	font-size: 2em;
+	font-weight: bold;
+    margin-right: 1em;
+    display: block;
+    float: left;
+    text-decoration: none;
+    color: #786AF2 !important;
+}
+
+#loginGreating {
+    text-align: right;
+    float: right !important;
+    padding-left: 1em;
+    margin-right: 0.75em;
+}
+
+#hd {
+    background-color: #defefc;
+}
+
+div#hd a, div#hd a:visited {
+    color: #00E;
+}
+
+#hd .menu {
+	margin-bottom: 0.5em;
+}
+
+#hd .menu:after {
+    content: ".";
+    display: block;
+    clear: both;
+    visibility: hidden;
+    line-height: 0;
+    height: 0;
+}
+
+#hd .menu li {
+    float: left;
+    margin-right: 0.5em;
+    margin-top: 0.5em;
+    list-style: none;
+}
