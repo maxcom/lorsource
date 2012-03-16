@@ -179,9 +179,13 @@ div.quote {
 	font-size: 2em;
 	font-weight: bold;
     margin-right: 1em;
-    text-decoration: none;
     display: block;
     float: left;
+}
+
+a#sitetitle, a:visited#sitetitle {
+    color: #00E;
+    text-decoration: none;
 }
 
 #loginGreating {
@@ -193,6 +197,10 @@ div.quote {
 
 #hd {
     background-color: #defefc;
+}
+
+div#hd a, div#hd a:visited {
+    color: #00E;
 }
 
 #hd .menu {
