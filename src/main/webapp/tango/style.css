@@ -43,10 +43,6 @@ h2 {
     font-size: 1.3em;
 }
 
-.newsblog h1, .newsblog2 h1 {
-    display: none;
-}
-
 em {
 	font-style: italic;
 }

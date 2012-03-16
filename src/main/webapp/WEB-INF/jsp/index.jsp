@@ -1,5 +1,5 @@
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="java.util.Date,ru.org.linux.site.DefaultProfile,ru.org.linux.site.Template"   buffer="60kb"%>
+<%@ page import="ru.org.linux.site.Template,java.util.Date"   buffer="60kb"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib prefix="lor" uri="http://www.linux.org.ru" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lorDir" %>
@@ -50,8 +50,6 @@
 <div style="clear: both"></div>
 <div class="<%= columns3?"newsblog2":"newsblog"%>">
   <div class="<%= columns3?"newsblog-in2":"newsblog-in"%>">
-
-<h1><a href="/news/">Новости</a></h1>
 
 <c:if test="${template.style != 'black'}">
   <div class="infoblock" style="border: 1px solid #777; text-align: justify;">
