@@ -182,6 +182,7 @@ div.quote {
     display: block;
     float: left;
     text-decoration: none;
+    color: #786AF2 !important;
 }
 
 #loginGreating {
@@ -196,7 +197,7 @@ div.quote {
 }
 
 div#hd a, div#hd a:visited {
-    color: #786AF2;
+    color: #00E;
 }
 
 #hd .menu {
