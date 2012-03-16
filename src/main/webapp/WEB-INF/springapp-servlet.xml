@@ -19,8 +19,9 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:context="http://www.springframework.org/schema/context"
        xmlns:p='http://www.springframework.org/schema/p' xmlns:mvc="http://www.springframework.org/schema/mvc"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans
-       http://www.springframework.org/schema/beans/spring-beans-2.5.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd">
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+       http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd">
 
     <!-- the application context definition for the springapp DispatcherServlet -->
 
@@ -43,21 +44,20 @@
     <bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerExceptionResolver" p:order="1" />
 
     <bean id="exceptionMapping"
-          class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver" p:order="2">
+          class="ru.org.linux.exception.ExceptionResolver" p:order="2">
         <property name="exceptionMappings">
             <props>
-                <prop key="ru.org.linux.site.MessageNotFoundException">error404</prop>
-                <prop key="ru.org.linux.section.SectionNotFoundException">error404</prop>
-                <prop key="org.springframework.web.HttpRequestMethodNotSupportedException">error404</prop>
-                <prop key="java.lang.Exception">error</prop>
-                <prop key="ru.org.linux.auth.AccessViolationException">error403</prop>
-                <prop key="ru.org.linux.topic.TagNotFoundException">error404</prop>
-                <prop key="ru.org.linux.util.ServletParameterException">error-parameter</prop>
-                <prop key="org.springframework.beans.TypeMismatchException">error-parameter</prop>
-                <prop key="org.springframework.web.bind.MissingServletRequestParameterException">error-parameter</prop>
-                <prop key="org.springframework.validation.BindException">error-parameter</prop>
-                <prop key="ru.org.linux.user.UserBanedException">error-user-banned</prop>
-                <prop key="org.springframework.web.multipart.MaxUploadSizeExceededException">error-upload-size</prop>
+                <prop key="ru.org.linux.site.MessageNotFoundException">errors/code404</prop>
+                <prop key="ru.org.linux.section.SectionNotFoundException">errors/code404</prop>
+                <prop key="org.springframework.web.HttpRequestMethodNotSupportedException">errors/code404</prop>
+                <prop key="ru.org.linux.auth.AccessViolationException">errors/code403</prop>
+                <prop key="ru.org.linux.topic.TagNotFoundException">errors/code404</prop>
+                <prop key="ru.org.linux.util.ServletParameterException">errors/bad-parameter</prop>
+                <prop key="org.springframework.beans.TypeMismatchException">errors/bad-parameter</prop>
+                <prop key="org.springframework.web.bind.MissingServletRequestParameterException">errors/bad-parameter</prop>
+                <prop key="org.springframework.validation.BindException">errors/bad-parameter</prop>
+                <prop key="ru.org.linux.user.UserBanedException">errors/user-banned</prop>
+                <prop key="org.springframework.web.multipart.MaxUploadSizeExceededException">errors/upload-size</prop>
             </props>
         </property>
     </bean>
