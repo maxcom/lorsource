@@ -184,14 +184,6 @@ div.quote {
     float: left;
 }
 
-a#sitetitle {
-    color: black;
-}
-
-a:visited#sitetitle  {
-    color: black;
-}
-
 #loginGreating {
     text-align: right;
     float: right !important;
@@ -205,7 +197,6 @@ a:visited#sitetitle  {
 
 #hd .menu {
 	margin-bottom: 0.5em;
-    font-size: 1.1em;
 }
 
 #hd .menu:after {
