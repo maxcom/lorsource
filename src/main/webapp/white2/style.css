@@ -181,10 +181,6 @@ div.quote {
     margin-right: 1em;
     display: block;
     float: left;
-}
-
-a#sitetitle, a:visited#sitetitle {
-    color: #00E;
     text-decoration: none;
 }
 
@@ -200,7 +196,7 @@ a#sitetitle, a:visited#sitetitle {
 }
 
 div#hd a, div#hd a:visited {
-    color: #00E;
+    color: #786AF2;
 }
 
 #hd .menu {
