@@ -185,7 +185,7 @@ public class LoginController {
   @ExceptionHandler(UserBanedException.class)
   @ResponseStatus(HttpStatus.FORBIDDEN)
   public ModelAndView handleUserBanedException(UserBanedException ex, HttpServletRequest request, HttpServletResponse response) {
-    return new ModelAndView("error-user-banned", "exception", ex);
+    return new ModelAndView("errors/user-banned", "exception", ex);
   }
 
 }
