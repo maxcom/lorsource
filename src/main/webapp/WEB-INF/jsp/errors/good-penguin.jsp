@@ -1,4 +1,3 @@
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page contentType="text/html; charset=utf-8"%>
 <%--
   ~ Copyright 1998-2012 Linux.org.ru
@@ -15,20 +14,19 @@
   ~    limitations under the License.
   --%>
 
-<%
-   response.setStatus(403);
-%>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 
-<title>Error 403</title>
-<jsp:include page="header.jsp"/>
+<title>${msgTitle}</title>
+<jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
-<h1>Error 403</h1>
+<div id="warning-body">
+    <div id="warning-logo"><img src="/img/good-penguin.jpg" alt="good-penguin" /></div>
+    <div id="warning-text">
+        <h1>${msgHeader}</h1>
+        <p>${msgMessage}</p>
+    </div>
+</div>
+<div id="warning-footer"></div>
 
-Доступ запрещен.
 
-<c:if test="${exception != null}">
-  Причина: ${exception.message}
-</c:if>
-
-  <jsp:include page="footer.jsp"/>
+<jsp:include page="/WEB-INF/jsp/footer.jsp"/>

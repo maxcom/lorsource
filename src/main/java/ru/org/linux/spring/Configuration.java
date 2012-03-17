@@ -90,4 +90,7 @@ public class Configuration {
   public String getSecret() {
     return properties.getProperty("Secret");
   }
+  public String getAdminEmailAddress() {
+    return properties.getProperty("admin.emailAddress");
+  }
 }

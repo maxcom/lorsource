@@ -153,7 +153,7 @@ public class AddTopicController extends ApplicationObjectSupport {
     Group group = form.getGroup();
 
     if (tmpl.isSessionAuthorized() && !groupPermissionService.isTopicPostingAllowed(group, tmpl.getCurrentUser())) {
-      ModelAndView errorView = new ModelAndView("error-good-penguin");
+      ModelAndView errorView = new ModelAndView("errors/good-penguin");
       errorView.addObject("msgHeader", "Недостаточно прав для постинга тем в эту группу");
       errorView.addObject("msgMessage", groupPermissionService.getPostScoreInfo(group));
 
