@@ -18,15 +18,11 @@ package ru.org.linux.topic;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.core.ConnectionCallback;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -39,7 +35,7 @@ public class TagDao {
 
   private static final int TOP_TAGS_COUNT = 50;
 
-  private static final String queryAllTags = "SELECT counter,value FROM tags_values WHERE counter>0";
+  private static final String QUERY_ALL_TAGS = "SELECT counter,value FROM tags_values WHERE counter>0";
 
   private static final String QUERY_TAG_ID_BY_NAME = "SELECT id FROM tags_values WHERE value=?";
 
@@ -48,31 +44,6 @@ public class TagDao {
   @Autowired
   public void setDataSource(DataSource ds) {
     jdbcTemplate = new JdbcTemplate(ds);
-  }
-
-  private static synchronized int getOrCreateTag(Connection con, String tag) throws SQLException {
-    PreparedStatement st2 = con.prepareStatement("SELECT id FROM tags_values WHERE value=?");
-    st2.setString(1, tag);
-    ResultSet rs = st2.executeQuery();
-    int id;
-
-    if (rs.next()) {
-      id = rs.getInt("id");
-    } else {
-      PreparedStatement st = con.prepareStatement("INSERT INTO tags_values (value) VALUES(?)");
-      st.setString(1, tag);
-      st.executeUpdate();
-      st.close();
-
-      rs = st2.executeQuery();
-      rs.next();
-      id = rs.getInt("id");
-    }
-
-    rs.close();
-    st2.close();
-
-    return id;
   }
 
   /**
@@ -133,6 +104,12 @@ public class TagDao {
     return set;
   }
 
+  /**
+   * Получение списка первых букв тегов.
+   *
+   * @param skipEmptyUsages пропускать ли буквы, теги которых нигде не используются
+   * @return список первых букв тегов.
+   */
   SortedSet<String> getFirstLetters(boolean skipEmptyUsages) {
     final SortedSet<String> set = new TreeSet<String>();
 
@@ -157,6 +134,13 @@ public class TagDao {
     return set;
   }
 
+  /**
+   * Получение списка тегов по первой букве.
+   *
+   * @param firstLetter       фильтр: первая буква для тегов, которые должны быть показаны
+   * @param skip_empty_usages пропускать ли буквы, теги которых нигде не используются
+   * @return список тегов
+   */
   Map<String, Integer> getTagsByFirstLetter(String firstLetter, boolean skip_empty_usages) {
     final ImmutableMap.Builder<String, Integer> builder = ImmutableMap.builder();
     StringBuilder query = new StringBuilder();
@@ -180,13 +164,13 @@ public class TagDao {
   }
 
   /**
-   * Получить все тэги со счетчиком
+   * Получить все тэги со счетчиком.
    *
    * @return список всех тегов
    */
   public Map<String, Integer> getAllTags() {
     final ImmutableMap.Builder<String, Integer> builder = ImmutableMap.builder();
-    jdbcTemplate.query(queryAllTags, new RowCallbackHandler() {
+    jdbcTemplate.query(QUERY_ALL_TAGS, new RowCallbackHandler() {
       @Override
       public void processRow(ResultSet resultSet) throws SQLException {
         builder.put(resultSet.getString("value"), resultSet.getInt("counter"));
@@ -195,74 +179,55 @@ public class TagDao {
     return builder.build();
   }
 
-
-  public void updateCounters(final List<String> oldTags, final List<String> newTags) {
-    jdbcTemplate.execute(new ConnectionCallback<String>() {
-      @Override
-      public String doInConnection(Connection con) throws SQLException, DataAccessException {
-        PreparedStatement stInc = con.prepareStatement("UPDATE tags_values SET counter=counter+1 WHERE id=?");
-        PreparedStatement stDec = con.prepareStatement("UPDATE tags_values SET counter=counter-1 WHERE id=?");
-
-        for (String tag : newTags) {
-          if (!oldTags.contains(tag)) {
-            int id = getOrCreateTag(con, tag);
-            stInc.setInt(1, id);
-            stInc.executeUpdate();
-          }
-        }
-
-        for (String tag : oldTags) {
-          if (!newTags.contains(tag)) {
-            int id = getOrCreateTag(con, tag);
-            stDec.setInt(1, id);
-            stDec.executeUpdate();
-          }
-        }
-        return null;
-      }
-    });
+  /**
+   * Увеличить счётчик использования тега.
+   *
+   * @param tagId  идентификационный номер тега
+   */
+  public void increaseCounterById(int tagId) {
+    jdbcTemplate.update(
+      "UPDATE tags_values SET counter=counter+1 WHERE id=?",
+      new Object[]{new Integer(tagId)}
+    );
   }
 
-  public boolean updateTags(final int msgid, final List<String> tagList) {
-    final List<String> oldTags = getMessageTags(msgid);
+  /**
+   * Уменьшить счётчик использования тега.
+   *
+   * @param tagId  идентификационный номер тега
+   */
+  public void decreaseCounterById(int tagId) {
+    jdbcTemplate.update(
+      "UPDATE tags_values SET counter=counter-1 WHERE id=?",
+      new Object[]{new Integer(tagId)}
+    );
+  }
 
-    return jdbcTemplate.execute(new ConnectionCallback<Boolean>() {
-      @Override
-      public Boolean doInConnection(Connection con) throws SQLException, DataAccessException {
+  /**
+   * Добавление тега к топику.
+   *
+   * @param msgId идентификационный номер топика
+   * @param tagId идентификационный номер тега
+   */
+  public void addTagToTopic(int msgId, int tagId) {
+    jdbcTemplate.update(
+      "INSERT INTO tags VALUES(?,?)",
+      new Object[]{new Integer(msgId), new Integer(tagId)}
+    );
+  }
 
-        PreparedStatement insertStatement = con.prepareStatement("INSERT INTO tags VALUES(?,?)");
-        PreparedStatement deleteStatement = con.prepareStatement("DELETE FROM tags WHERE msgid=? and tagid=?");
+  /**
+   * Удаление тега у топика.
+   *
+   * @param msgId идентификационный номер топика
+   * @param tagId идентификационный номер тега
+   */
+  public void deleteTagFromTopic(int msgId, int tagId) {
+    jdbcTemplate.update(
+      "DELETE FROM tags WHERE msgid=? and tagid=?",
+      new Object[]{new Integer(msgId), new Integer(tagId)}
+    );
 
-        insertStatement.setInt(1, msgid);
-        deleteStatement.setInt(1, msgid);
-
-        boolean modified = false;
-        for (String tag : tagList) {
-          if (!oldTags.contains(tag)) {
-            int id = getOrCreateTag(con, tag);
-
-            insertStatement.setInt(2, id);
-            insertStatement.executeUpdate();
-            modified = true;
-          }
-        }
-
-        for (String tag : oldTags) {
-          if (!tagList.contains(tag)) {
-            int id = getOrCreateTag(con, tag);
-
-            deleteStatement.setInt(2, id);
-            deleteStatement.executeUpdate();
-            modified = true;
-          }
-        }
-
-        insertStatement.close();
-        deleteStatement.close();
-
-        return modified;
-      }
-    });
   }
 
   /**
