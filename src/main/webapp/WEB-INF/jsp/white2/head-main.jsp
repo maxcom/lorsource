@@ -25,7 +25,9 @@
 </head>
 <body>
   	<div id="hd">
-  	    <embed src="/img/Tux.svg" type="image/svg+xml" height="100%" align="left"/>
+  	    <div id="hdtux">
+  	        <embed src="/img/Tux.svg" type="image/svg+xml" height="100%" width="100%" />
+  	    </div>
         <a id="sitetitle" href="/">LINUX.ORG.RU</a>
         <ul class="menu">
           <li id="loginGreating">
@@ -64,7 +66,7 @@
           </c:if>
 
           <li><a href="/search.jsp">Поиск</a></li>
-
         </ul>
+        <div style="clear: both"></div>
       </div>
       <div style="clear: both"></div>
