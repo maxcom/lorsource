@@ -79,7 +79,7 @@ public class TagDao {
   public void deleteTag(int tagId) {
     jdbcTemplate.update(
       "DELETE FROM tags_values WHERE id=?",
-      new Object[]{new Integer(tagId)}
+      new Object[]{tagId}
     );
   }
 
@@ -202,8 +202,8 @@ public class TagDao {
     jdbcTemplate.update(
       "UPDATE tags_values SET counter=counter+? WHERE id=?",
       new Object[]{
-        new Integer(tagCount),
-        new Integer(tagId)
+        tagCount,
+        tagId
       }
     );
   }
@@ -218,8 +218,8 @@ public class TagDao {
     jdbcTemplate.update(
       "UPDATE tags_values SET counter=counter-? WHERE id=?",
       new Object[]{
-        new Integer(tagCount),
-        new Integer(tagId)
+        tagCount,
+        tagId
       }
     );
   }
@@ -233,7 +233,10 @@ public class TagDao {
   public void addTagToTopic(int msgId, int tagId) {
     jdbcTemplate.update(
       "INSERT INTO tags VALUES(?,?)",
-      new Object[]{new Integer(msgId), new Integer(tagId)}
+      new Object[]{
+        msgId,
+        tagId
+      }
     );
   }
 
@@ -246,7 +249,10 @@ public class TagDao {
   public void deleteTagFromTopic(int msgId, int tagId) {
     jdbcTemplate.update(
       "DELETE FROM tags WHERE msgid=? and tagid=?",
-      new Object[]{new Integer(msgId), new Integer(tagId)}
+      new Object[]{
+        msgId,
+        tagId
+      }
     );
 
   }
@@ -261,9 +267,9 @@ public class TagDao {
     jdbcTemplate.update(
       "UPDATE tags SET tagid=? WHERE tagid=? AND msgid NOT IN (SELECT msgid FROM tags WHERE tagid=?)",
       new Object[]{
-        new Integer(newTagId),
-        new Integer(oldTagId),
-        new Integer(newTagId)
+        newTagId,
+        oldTagId,
+        newTagId
       }
     );
   }
@@ -276,7 +282,9 @@ public class TagDao {
   public void deleteTagFromTopics(int tagId) {
     jdbcTemplate.update(
       "DELETE FROM tags WHERE tagid=?",
-      new Object[]{new Integer(tagId)}
+      new Object[]{
+        tagId
+      }
     );
   }
 
@@ -292,8 +300,8 @@ public class TagDao {
       "SELECT count (tagid) FROM tags WHERE tagid=? AND msgid NOT IN (SELECT msgid FROM tags WHERE tagid=?)",
       Integer.class,
       new Object[]{
-        new Integer(oldTagId),
-        new Integer(newTagId)
+        oldTagId,
+        newTagId
       }
     );
     return res.get(0);
