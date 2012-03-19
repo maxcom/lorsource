@@ -215,3 +215,59 @@ div.quote {
 .nav li:before {
 	content: "[";
 }
+
+@media screen and (max-width:360px) {
+
+	#head-main {
+		margin-left: 0;
+		float: none;
+	}
+
+	#head-main .infoblock div {
+		margin-left: 0 !important
+	}
+
+	div.newsblog {
+		float: none;
+		margin-left: 0;
+	}
+
+	.newsblog-in {
+		margin-left: 0;
+	}
+
+	.column {
+		width: 100%;
+		float:none;
+	}
+	
+	.column2 {
+		width: 100%;
+		position: static;
+	}
+	
+	#bd .column, #bd .column2 {
+		font-size: inherit;
+	}
+	
+	div.boxlet {
+		width: 100%;
+	}
+	
+	div.boxlet h2 {
+		width:auto;
+	}
+	
+	#bd, #hd {
+		padding-left: 0.5em;
+		padding-right: 0.5em
+	}
+
+	div.entry-userpic {
+		display: none;
+	}
+	
+	div.entry-body {
+		margin-left: 0;
+	}
+}
