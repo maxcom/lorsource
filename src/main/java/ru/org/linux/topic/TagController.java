@@ -25,6 +25,7 @@ import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
+import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.site.Template;
 
 import javax.servlet.http.HttpServletRequest;
@@ -37,7 +38,7 @@ import java.util.SortedSet;
 @Controller
 public class TagController {
 
-  private static final ModelAndView notFoundPage = new ModelAndView("errors/code404");
+  private static final String REJECT_REASON = "недостаточно прав доступа";
 
   @Autowired
   private TagService tagService;
@@ -132,10 +133,10 @@ public class TagController {
     HttpServletRequest request,
     @RequestParam(value = "firstLetter", required = false, defaultValue = "") String firstLetter,
     @RequestParam(value = "tagName") String oldTagName
-  ) {
+  ) throws AccessViolationException {
     Template template = Template.getTemplate(request);
     if (!template.isModeratorSession()) {
-      return notFoundPage;
+      throw new AccessViolationException(REJECT_REASON);
     }
     TagRequest.Change tagRequestChange = new TagRequest.Change();
     tagRequestChange.setOldTagName(oldTagName);
@@ -161,10 +162,10 @@ public class TagController {
     @RequestParam(value = "firstLetter", required = false, defaultValue = "") String firstLetter,
     @ModelAttribute("tagRequestChange") TagRequest.Change tagRequestChange,
     Errors errors
-  ) {
+  ) throws AccessViolationException {
     Template template = Template.getTemplate(request);
     if (!template.isModeratorSession()) {
-      return notFoundPage;
+      throw new AccessViolationException(REJECT_REASON);
     }
 
     tagService.change(tagRequestChange.getOldTagName(), tagRequestChange.getTagName(), errors);
