@@ -109,7 +109,7 @@
       <div class="boxlet_content">
         Ваш статус: ${template.currentUser.status}
         <ul>
-          <li><a href="tracker.jsp?filter=mine">Мои темы</a></li>
+          <li><a href="/people/${template.nick}/">Мои темы</a></li>
           <li><a href="/people/${template.nick}/favs">Избранные темы</a></li>
           <li><a href="show-comments.jsp?nick=${template.nick}">Мои комментарии</a></li>
           <c:set var="events">
