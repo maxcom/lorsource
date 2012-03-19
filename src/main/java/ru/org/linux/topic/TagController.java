@@ -192,10 +192,10 @@ public class TagController {
     HttpServletRequest request,
     @RequestParam(value = "firstLetter", required = false, defaultValue = "") String firstLetter,
     @RequestParam(value = "tagName") String oldTagName
-  ) {
+  ) throws AccessViolationException {
     Template template = Template.getTemplate(request);
     if (!template.isModeratorSession()) {
-      return notFoundPage;
+      throw new AccessViolationException(REJECT_REASON);
     }
     TagRequest.Delete tagRequestDelete = new TagRequest.Delete();
     tagRequestDelete.setOldTagName(oldTagName);
@@ -221,10 +221,10 @@ public class TagController {
     @RequestParam(value = "firstLetter", required = false, defaultValue = "") String firstLetter,
     @ModelAttribute("tagRequestDelete") TagRequest.Delete tagRequestDelete,
     Errors errors
-  ) {
+  ) throws AccessViolationException {
     Template template = Template.getTemplate(request);
     if (!template.isModeratorSession()) {
-      return notFoundPage;
+      throw new AccessViolationException(REJECT_REASON);
     }
 
     tagService.delete(tagRequestDelete.getOldTagName(), tagRequestDelete.getTagName(), errors);
