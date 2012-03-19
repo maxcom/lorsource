@@ -18,9 +18,6 @@
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <LINK REL="stylesheet" TYPE="text/css" HREF="/white2/combined.css">
 <LINK REL="shortcut icon" HREF="/favicon.ico" TYPE="image/x-icon">
-<script type="text/javascript">
-  $.stylesheetInit();
-</script>
 <meta name = "viewport" content = "initial-scale=1.0">
 </head>
 <body>

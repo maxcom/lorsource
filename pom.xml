@@ -265,6 +265,8 @@
                 <configuration>
                     <nosuffix>true</nosuffix>
                     <jswarn>false</jswarn>
+                    <nomunge>true</nomunge>
+                    <disableOptimizations>true</disableOptimizations>
                     <aggregations>
                         <aggregation>
                             <removeIncluded>true</removeIncluded>
@@ -275,7 +277,7 @@
                                 <include>${project.build.directory}/${project.build.finalName}/js/jquery.hotkeys-0.7.9.js</include>
                                 <include>${project.build.directory}/${project.build.finalName}/js/jquery.validate.min.js</include>
                                 <include>${project.build.directory}/${project.build.finalName}/js/jquery.validate.ru.js</include>
-                                <include>${project.build.directory}/${project.build.finalName}/js/stylesheetToggle.js</include>
+                                <include>${project.build.directory}/${project.build.finalName}/js/jquery.style-switcher.js</include>
                                 <include>${project.build.directory}/${project.build.finalName}/js/highlight.pack.js</include>
                             </includes>
                         </aggregation>
