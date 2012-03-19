@@ -25,11 +25,12 @@
 </head>
 <body>
   	<div id="hd">
+  	    <embed src="/img/Tux.svg" type="image/svg+xml" height="100%" align="left"/>
         <a id="sitetitle" href="/">LINUX.ORG.RU</a>
-
         <ul class="menu">
           <li id="loginGreating">
             <c:if test="${template.sessionAuthorized}">
+              добро пожаловать,&nbsp;
               <c:url var="userUrl" value="/people/${template.nick}/profile"/>
               <a style="text-decoration: none" href="${userUrl}">${template.nick}</a>
               [<a href="logout.jsp?sessionId=<%= session.getId() %>" title="Выйти">x</a>]
