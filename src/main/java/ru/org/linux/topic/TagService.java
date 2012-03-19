@@ -20,6 +20,7 @@ import com.google.common.collect.ImmutableList;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.Errors;
 import ru.org.linux.user.UserErrorException;
@@ -148,7 +149,7 @@ public class TagService {
    * @param tagList новый список тегов.
    * @return true если были произведены изменения
    */
-  @Transactional
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   public synchronized boolean updateTags(final int msgId, final List<String> tagList) {
     final List<String> oldTags = getMessageTags(msgId);
 
@@ -177,7 +178,7 @@ public class TagService {
    * @param oldTags список старых тегов
    * @param newTags список новых тегов
    */
-  @Transactional
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   public void updateCounters(final List<String> oldTags, final List<String> newTags) {
     for (String tag : newTags) {
       if (!oldTags.contains(tag)) {
@@ -275,7 +276,7 @@ public class TagService {
    * @param newTagName новое название тега
    * @param errors     обработчик ошибок ввода для формы
    */
-  @Transactional
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   public void delete(String tagName, String newTagName, Errors errors) {
     // todo: Нельзя строить логику на исключениях. Это антипаттерн!
     try {
