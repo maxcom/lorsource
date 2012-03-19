@@ -37,4 +37,26 @@ public class TagRequest {
       this.oldTagName = oldTagName;
     }
   }
+
+  public static class Delete {
+    private String tagName;
+
+    private String oldTagName;
+
+    public String getTagName() {
+      return tagName;
+    }
+
+    public void setTagName(String tagName) {
+      this.tagName = tagName;
+    }
+
+    public String getOldTagName() {
+      return oldTagName;
+    }
+
+    public void setOldTagName(String oldTagName) {
+      this.oldTagName = oldTagName;
+    }
+  }
 }

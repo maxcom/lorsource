@@ -150,6 +150,7 @@ public class TagController {
    * Обработка данных с формы изменения тега.
    *
    * @param request          данные запроса от web-клиента
+   * @param firstLetter      фильтр: первая буква для тегов, которые должны быть показаны
    * @param tagRequestChange форма добавления тега
    * @param errors           обработчик ошибок ввода для формы
    * @return объект web-модели
@@ -173,6 +174,65 @@ public class TagController {
     }
 
     ModelAndView modelAndView = new ModelAndView("tags-change");
+    modelAndView.addObject("firstLetter", firstLetter);
+    return modelAndView;
+  }
+
+  /**
+   * Показ формы удаления существующего тега.
+   *
+   * @param request     данные запроса от web-клиента
+   * @param firstLetter фильтр: первая буква для тегов, которые должны быть показаны
+   * @param oldTagName  название редактируемого тега
+   * @return объект web-модели
+   */
+  @RequestMapping(value = "/tags/delete", method = RequestMethod.GET)
+  public ModelAndView deleteTagShowFormHandler(
+    HttpServletRequest request,
+    @RequestParam(value = "firstLetter", required = false, defaultValue = "") String firstLetter,
+    @RequestParam(value = "tagName") String oldTagName
+  ) {
+    Template template = Template.getTemplate(request);
+    if (!template.isModeratorSession()) {
+      return notFoundPage;
+    }
+    TagRequest.Delete tagRequestDelete = new TagRequest.Delete();
+    tagRequestDelete.setOldTagName(oldTagName);
+    ModelAndView modelAndView = new ModelAndView("tags-delete");
+    modelAndView.addObject("firstLetter", firstLetter);
+    modelAndView.addObject("tagRequestDelete", tagRequestDelete);
+    return modelAndView;
+  }
+
+
+  /**
+   * Обработка данных с формы изменения тега.
+   *
+   * @param request          данные запроса от web-клиента
+   * @param firstLetter      фильтр: первая буква для тегов, которые должны быть показаны
+   * @param tagRequestDelete форма удаления тега
+   * @param errors           обработчик ошибок ввода для формы
+   * @return объект web-модели
+   */
+  @RequestMapping(value = "/tags/delete", method = RequestMethod.POST)
+  public ModelAndView deleteTagSubmitHandler(
+    HttpServletRequest request,
+    @RequestParam(value = "firstLetter", required = false, defaultValue = "") String firstLetter,
+    @ModelAttribute("tagRequestDelete") TagRequest.Delete tagRequestDelete,
+    Errors errors
+  ) {
+    Template template = Template.getTemplate(request);
+    if (!template.isModeratorSession()) {
+      return notFoundPage;
+    }
+
+    tagService.delete(tagRequestDelete.getOldTagName(), tagRequestDelete.getTagName(), errors);
+
+    if (!errors.hasErrors()) {
+      return redirectToListPage(firstLetter);
+    }
+
+    ModelAndView modelAndView = new ModelAndView("tags-delete");
     modelAndView.addObject("firstLetter", firstLetter);
     return modelAndView;
   }

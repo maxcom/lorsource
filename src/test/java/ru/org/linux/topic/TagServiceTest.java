@@ -49,6 +49,11 @@ public class TagServiceTest {
     binder = new WebDataBinder(tagRequestChange);
   }
 
+  private void prepareDeleteDataBinder() {
+    TagRequest.Delete tagRequestDelete = new TagRequest.Delete();
+    binder = new WebDataBinder(tagRequestDelete);
+  }
+
   @Test
   public void changeTest()
     throws Exception {
@@ -75,6 +80,32 @@ public class TagServiceTest {
     when(tagDao.getTagIdByName("testNewTag")).thenThrow(new TagNotFoundException("TagNotFoundException"));
     prepareChangeDataBinder();
     tagService.change("testTag", "testNewTag", binder.getBindingResult());
+    assertFalse(binder.getBindingResult().hasErrors());
+  }
+  @Test
+  public void deleteTest()
+    throws Exception {
+
+    when(tagDao.getTagIdByName("InvalidTestTag")).thenThrow(new TagNotFoundException("TagNotFoundException"));
+
+    prepareDeleteDataBinder();
+    tagService.delete("InvalidTestTag", "testNewTag", binder.getBindingResult());
+    assertTrue(binder.getBindingResult().hasErrors());
+
+    prepareDeleteDataBinder();
+    tagService.delete("testTag", "#$%@@#%$", binder.getBindingResult());
+    assertTrue(binder.getBindingResult().hasErrors());
+
+    prepareDeleteDataBinder();
+    tagService.delete("#$%@@#%$", "testNewTag", binder.getBindingResult());
+    assertTrue(binder.getBindingResult().hasErrors());
+
+    prepareDeleteDataBinder();
+    tagService.delete("testTag", "testTag", binder.getBindingResult());
+    assertTrue(binder.getBindingResult().hasErrors());
+
+    prepareDeleteDataBinder();
+    tagService.delete("testTag", "testNewTag", binder.getBindingResult());
     assertFalse(binder.getBindingResult().hasErrors());
   }
 }

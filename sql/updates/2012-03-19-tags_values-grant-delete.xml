@@ -1,0 +1,16 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
+
+    <changeSet id="2012031901" author="Slava Zanko">
+        <sql>
+            GRANT DELETE ON TABLE tags_values TO linuxweb;
+        </sql>
+        <rollback>
+            REVOKE DELETE ON TABLE tags_values FROM linuxweb;
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

@@ -71,6 +71,19 @@ public class TagDao {
     );
   }
 
+  /**
+   * Удалить тег.
+   *
+   * @param tagId идентификационный номер тега
+   */
+  public void deleteTag(int tagId) {
+    jdbcTemplate.update(
+      "DELETE FROM tags_values WHERE id=?",
+      new Object[]{new Integer(tagId)}
+    );
+  }
+
+
   public ImmutableList<String> getMessageTags(int msgid) {
     final ImmutableList.Builder<String> tags = ImmutableList.builder();
 
@@ -164,9 +177,9 @@ public class TagDao {
   }
 
   /**
-   * Получить все тэги со счетчиком.
+   * Получить только те теги, которые используются.
    *
-   * @return список всех тегов
+   * @return список тегов
    */
   public Map<String, Integer> getAllTags() {
     final ImmutableMap.Builder<String, Integer> builder = ImmutableMap.builder();
@@ -182,24 +195,32 @@ public class TagDao {
   /**
    * Увеличить счётчик использования тега.
    *
-   * @param tagId  идентификационный номер тега
+   * @param tagId    идентификационный номер тега
+   * @param tagCount на какое значение изменить счётчик
    */
-  public void increaseCounterById(int tagId) {
+  public void increaseCounterById(int tagId, int tagCount) {
     jdbcTemplate.update(
-      "UPDATE tags_values SET counter=counter+1 WHERE id=?",
-      new Object[]{new Integer(tagId)}
+      "UPDATE tags_values SET counter=counter+? WHERE id=?",
+      new Object[]{
+        new Integer(tagCount),
+        new Integer(tagId)
+      }
     );
   }
 
   /**
    * Уменьшить счётчик использования тега.
    *
-   * @param tagId  идентификационный номер тега
+   * @param tagId    идентификационный номер тега
+   * @param tagCount на какое значение изменить счётчик
    */
-  public void decreaseCounterById(int tagId) {
+  public void decreaseCounterById(int tagId, int tagCount) {
     jdbcTemplate.update(
-      "UPDATE tags_values SET counter=counter-1 WHERE id=?",
-      new Object[]{new Integer(tagId)}
+      "UPDATE tags_values SET counter=counter-? WHERE id=?",
+      new Object[]{
+        new Integer(tagCount),
+        new Integer(tagId)
+      }
     );
   }
 
@@ -228,6 +249,54 @@ public class TagDao {
       new Object[]{new Integer(msgId), new Integer(tagId)}
     );
 
+  }
+
+  /**
+   * Замена тега в топиках другим тегом.
+   *
+   * @param oldTagId идентификационный номер старого тега
+   * @param newTagId идентификационный номер нового тега
+   */
+  public void replaceTagForTopics(int oldTagId, int newTagId) {
+    jdbcTemplate.update(
+      "UPDATE tags SET tagid=? WHERE tagid=? AND msgid NOT IN (SELECT msgid FROM tags WHERE tagid=?)",
+      new Object[]{
+        new Integer(newTagId),
+        new Integer(oldTagId),
+        new Integer(newTagId)
+      }
+    );
+  }
+
+  /**
+   * Удаление тега из топиков.
+   *
+   * @param tagId идентификационный номер тега
+   */
+  public void deleteTagFromTopics(int tagId) {
+    jdbcTemplate.update(
+      "DELETE FROM tags WHERE tagid=?",
+      new Object[]{new Integer(tagId)}
+    );
+  }
+
+  /**
+   * Получение количества тегов, которые будут изменены для топиков (величина прироста использования тега).
+   *
+   * @param oldTagId идентификационный номер старого тега
+   * @param newTagId идентификационный номер нового тега
+   * @return величина прироста использования тега
+   */
+  public int getCountReplacedTagsForTopic(int oldTagId, int newTagId) {
+    List<Integer> res = jdbcTemplate.queryForList(
+      "SELECT count (tagid) FROM tags WHERE tagid=? AND msgid NOT IN (SELECT msgid FROM tags WHERE tagid=?)",
+      Integer.class,
+      new Object[]{
+        new Integer(oldTagId),
+        new Integer(newTagId)
+      }
+    );
+    return res.get(0);
   }
 
   /**
