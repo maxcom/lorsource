@@ -32,9 +32,6 @@
 %>
 
 <title>Добавить сообщение</title>
-<script src="/js/jquery.validate.pack.js" type="text/javascript"></script>
-<script src="/js/jquery.validate.ru.js" type="text/javascript"></script>
-
 <script src="/js/jqueryui/jquery-ui-1.8.18.custom.min.js" type="text/javascript"></script>
 
 <script type="text/javascript">
