@@ -15,15 +15,21 @@
 
 package ru.org.linux.topic;
 
+import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 import ru.org.linux.site.Template;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
 
@@ -84,5 +90,19 @@ public class TagsController {
   @RequestMapping("/tags.jsp")
   public String oldTagsRedirectHandler() {
     return "redirect:/tags";
+  }
+
+  @RequestMapping(value="/tags", params = {"term"})
+  public @ResponseBody List<String> showTagListHandlerJSON(
+    @RequestParam("term") final String term
+  ) {
+    Map<String, Integer> tags = tagService.getTagsByFirstLetter(term.substring(0, 1), true);
+
+    return ImmutableList.copyOf(Iterables.filter(tags.keySet(), new Predicate<String>() {
+      @Override
+      public boolean apply(String input) {
+        return input.startsWith(term);
+      }
+    }));
   }
 }
