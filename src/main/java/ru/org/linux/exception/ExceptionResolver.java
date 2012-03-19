@@ -80,6 +80,7 @@ public class ExceptionResolver extends SimpleMappingExceptionResolver {
       prepareModelForCommonException(modelAndView, request, ex);
     }
     modelAndView.addObject("exception", ex);
+    response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
     return modelAndView;
   }
 
