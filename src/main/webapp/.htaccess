@@ -1,4 +1,4 @@
-ErrorDocument 404 /error404.jsp
+ErrorDocument 404 /errors/code404.jsp
 
 Redirect permanent /info.html http://www.linux.org.ru/books/
 Redirect permanent /info-mirror.html http://www.linux.org.ru/books/

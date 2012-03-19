@@ -228,7 +228,7 @@
   <c:if test="${user.id!=2}">
 
 <div class="forum">
-<table class="message-table">
+<table class="message-table" style="width: auto">
 <thead>
 <tr><th>Раздел</th><th>Число сообщений (тем)</th></tr>
 <tbody>

@@ -1,5 +1,5 @@
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="java.util.Date,ru.org.linux.site.DefaultProfile,ru.org.linux.site.Template"   buffer="60kb"%>
+<%@ page import="ru.org.linux.site.Template,java.util.Date"   buffer="60kb"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib prefix="lor" uri="http://www.linux.org.ru" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lorDir" %>
@@ -50,8 +50,6 @@
 <div style="clear: both"></div>
 <div class="<%= columns3?"newsblog2":"newsblog"%>">
   <div class="<%= columns3?"newsblog-in2":"newsblog-in"%>">
-
-<h1><a href="/news/">Новости</a></h1>
 
 <c:if test="${template.style != 'black'}">
   <div class="infoblock" style="border: 1px solid #777; text-align: justify;">
@@ -111,13 +109,9 @@
       <div class="boxlet_content">
         Ваш статус: ${template.currentUser.status}
         <ul>
-          <li><a href="tracker.jsp?filter=mine">Мои темы</a></li>
+          <li><a href="/people/${template.nick}/">Мои темы</a></li>
           <li><a href="/people/${template.nick}/favs">Избранные темы</a></li>
           <li><a href="show-comments.jsp?nick=${template.nick}">Мои комментарии</a></li>
-          <c:set var="events">
-             <lorDir:events/>
-          </c:set>
-          <li>${fn:trim(events)}</li>
         </ul>
         <ul>
           <li><a href="edit-profile.jsp">Настройки</a></li>

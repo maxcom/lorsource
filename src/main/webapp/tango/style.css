@@ -43,10 +43,6 @@ h2 {
     font-size: 1.3em;
 }
 
-.newsblog h1, .newsblog2 h1 {
-    display: none;
-}
-
 em {
 	font-style: italic;
 }
@@ -160,6 +156,8 @@ p {
 #bd li {
 	margin-left: 2em;
 	list-style: inherit;
+    padding-top: 0.125em;
+    padding-bottom: 0.125em;
 }
 
 #bd .tags {
@@ -397,6 +395,11 @@ div.quote {
         width: 100%;
         position: static;
     }
+
+    #bd .column, #bd .column2 {
+	    font-size: inherit;
+    }
+
 
     div.boxlet {
         width: 100%;

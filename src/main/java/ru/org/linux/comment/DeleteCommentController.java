@@ -211,7 +211,7 @@ public class DeleteCommentController {
   @ExceptionHandler({ScriptErrorException.class, UserErrorException.class, AccessViolationException.class})
   @ResponseStatus(HttpStatus.FORBIDDEN)
   public ModelAndView handleUserNotFound(Exception ex, HttpServletRequest request, HttpServletResponse response) {
-    ModelAndView mav = new ModelAndView("error-good-penguin");
+    ModelAndView mav = new ModelAndView("errors/good-penguin");
     mav.addObject("msgTitle", "Ошибка: " + ex.getMessage());
     mav.addObject("msgHeader", ex.getMessage());
     mav.addObject("msgMessage", "");
