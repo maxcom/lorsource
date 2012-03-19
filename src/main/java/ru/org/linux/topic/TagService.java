@@ -19,6 +19,7 @@ import com.google.common.collect.ImmutableList;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.Errors;
 import ru.org.linux.user.UserErrorException;
 
 import java.util.*;
@@ -41,14 +42,15 @@ public class TagService {
   }
 
   /**
-   * Получение идентификационного номера тега по названию
+   * Получение идентификационного номера тега по названию. Тег должен использоваться.
    *
    * @param tag название тега
    * @return идентификационный номер
    * @throws UserErrorException
    * @throws TagNotFoundException
    */
-  public int getTagId(String tag) throws UserErrorException, TagNotFoundException {
+  public int getTagId(String tag)
+    throws UserErrorException, TagNotFoundException {
     checkTag(tag);
     return tagDao.getTagId(tag);
   }
@@ -163,12 +165,44 @@ public class TagService {
    *
    * @return список первых букв тегов
    */
-  SortedSet<String> getFirstLetters(boolean skipEmptyUsages) {
+  public SortedSet<String> getFirstLetters(boolean skipEmptyUsages) {
     return tagDao.getFirstLetters(skipEmptyUsages);
   }
 
-  Map<String, Integer> getTagsByFirstLetter(String firstLetter, boolean skipEmptyUsages) {
+  /**
+   * Получить список тегов по первому символу.
+   *
+   * @param firstLetter     первый символ
+   * @param skipEmptyUsages пропускать ли неиспользуемые теги
+   * @return список тегов по первому символу
+   */
+  public Map<String, Integer> getTagsByFirstLetter(String firstLetter, boolean skipEmptyUsages) {
     return tagDao.getTagsByFirstLetter(firstLetter, skipEmptyUsages);
+  }
+
+  /**
+   * Изменить название существующего тега.
+   *
+   * @param oldTagName старое название тега
+   * @param tagName    новое название тега
+   * @param errors     обработчик ошибок ввода для формы
+   */
+  public void change(String oldTagName, String tagName, Errors errors) {
+    // todo: Нельзя строить логику на исключениях. Это антипаттерн!
+    try {
+      checkTag(tagName);
+      int oldTagId = tagDao.getTagIdByName(oldTagName);
+      try {
+        int tagId = tagDao.getTagIdByName(tagName);
+        errors.rejectValue("tagName", "", "Тег с таким именем уже существует!");
+      } catch (TagNotFoundException ignored) {
+        tagDao.changeTag(oldTagId, tagName);
+      }
+    } catch (UserErrorException e) {
+      errors.rejectValue("tagName", "", e.getMessage());
+    } catch (TagNotFoundException e) {
+      errors.rejectValue("tagName", "", "Тега с таким именем не существует!");
+    }
   }
 
   public static String toString(Collection<String> tags) {
@@ -188,4 +222,5 @@ public class TagService {
   private boolean isGoodTag(String tag) {
     return tagRE.matcher(tag).matches();
   }
+
 }

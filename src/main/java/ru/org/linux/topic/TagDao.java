@@ -23,7 +23,6 @@ import org.springframework.jdbc.core.ConnectionCallback;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.stereotype.Repository;
-import ru.org.linux.user.UserErrorException;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -41,6 +40,8 @@ public class TagDao {
   private static final int TOP_TAGS_COUNT = 50;
 
   private static final String queryAllTags = "SELECT counter,value FROM tags_values WHERE counter>0";
+
+  private static final String QUERY_TAG_ID_BY_NAME = "SELECT id FROM tags_values WHERE value=?";
 
   private JdbcTemplate jdbcTemplate;
 
@@ -72,6 +73,31 @@ public class TagDao {
     st2.close();
 
     return id;
+  }
+
+  /**
+   * Создать новый тег.
+   *
+   * @param tagName название нового тега
+   */
+  public void createTag(String tagName) {
+    jdbcTemplate.update(
+      "INSERT INTO tags_values (value) VALUES(?)",
+      new Object[]{tagName}
+    );
+  }
+
+  /**
+   * Изменить название существующего тега.
+   *
+   * @param tagId   идентификационный номер существующего тега
+   * @param tagName новое название тега
+   */
+  public void changeTag(Integer tagId, String tagName) {
+    jdbcTemplate.update(
+      "UPDATE tags_values set value=? WHERE id=?",
+      new Object[]{tagName, tagId}
+    );
   }
 
   public ImmutableList<String> getMessageTags(int msgid) {
@@ -240,16 +266,33 @@ public class TagDao {
   }
 
   /**
-   * Получение идентификационного номера тега по названию
+   * Получение идентификационного номера тега по названию. Тег должен использоваться.
    *
    * @param tag название тега
    * @return идентификационный номер
-   * @throws UserErrorException
    * @throws TagNotFoundException
    */
-  public int getTagId(String tag) throws UserErrorException, TagNotFoundException {
-    List<Integer> res = jdbcTemplate.queryForList("SELECT id FROM tags_values WHERE value=? AND counter>0", Integer.class, tag);
+  public int getTagId(String tag)
+    throws TagNotFoundException {
+    List<Integer> res = jdbcTemplate.queryForList(QUERY_TAG_ID_BY_NAME + " AND counter>0", Integer.class, tag);
 
+    if (res.isEmpty()) {
+      throw new TagNotFoundException();
+    } else {
+      return res.get(0);
+    }
+  }
+
+  /**
+   * Получение идентификационного номера тега по названию.
+   *
+   * @param tagName название тега
+   * @return идентификационный номер
+   * @throws TagNotFoundException
+   */
+  public int getTagIdByName(String tagName)
+    throws TagNotFoundException {
+    List<Integer> res = jdbcTemplate.queryForList(QUERY_TAG_ID_BY_NAME, Integer.class, tagName);
     if (res.isEmpty()) {
       throw new TagNotFoundException();
     } else {
