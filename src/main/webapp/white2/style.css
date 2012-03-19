@@ -194,7 +194,6 @@ div.quote {
 
 #hd {
     background-color: #defefc;
-    height: 2.5em;
     margin-bottom: 0.4em;
 }
 
@@ -208,17 +207,8 @@ div#hd a, div#hd a:visited {
 
 #hdtux {
     width: 4em;
-    height: 100%;
+    height: 2.5em;
     float: left;
-}
-
-#hd .menu:after {
-    content: ".";
-    display: block;
-    clear: both;
-    visibility: hidden;
-    line-height: 0;
-    height: 0;
 }
 
 #hd .menu li {

@@ -66,7 +66,7 @@
           </c:if>
 
           <li><a href="/search.jsp">Поиск</a></li>
-
         </ul>
+        <div style="clear: both"></div>
       </div>
       <div style="clear: both"></div>
