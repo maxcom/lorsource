@@ -20,6 +20,40 @@
 
 <title>Удаление метки</title>
 <link rel="parent" title="Linux.org.ru" href="/">
+<script src="/js/jqueryui/jquery-ui-1.8.18.custom.min.js" type="text/javascript"></script>
+<script type="text/javascript">
+  $(function() {
+      $( "#tagName" )
+        .bind( "keydown", function( event ) {
+          if ( event.keyCode === $.ui.keyCode.TAB &&
+              $( this ).data( "autocomplete" ).menu.active ) {
+            event.preventDefault();
+          }
+        })
+        .autocomplete({
+          source: function( request, response ) {
+            $.getJSON( "/tags", {
+              term: request.term
+            }, response );
+          },
+          search: function() {
+           // custom minLength
+            if ( this.value.length < 2 ) {
+              return false;
+            }
+          },
+          focus: function() {
+            // prevent value inserted on focus
+            return false;
+          },
+          select: function( event, ui ) {
+            this.value = ui.item.value;
+            return false;
+          }
+        });
+    });
+ </script>
+<link rel="stylesheet" href="/js/jqueryui/jquery-ui-1.8.18.custom.css">
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
 <div class="nav">
@@ -33,9 +67,9 @@
  <form:form modelAttribute="tagRequestDelete" method="POST" action="${delete_url}" enctype="multipart/form-data" >
   <form:errors path="*" element="div" cssClass="error"/>
   <form:hidden path="oldTagName" />
-  Удаляемое название: ${tagRequestChange.oldTagName}<br />
+  Удаляемое название: ${tagRequestDelete.oldTagName}<br />
   Метка. которой нужно заменить удаляемую (пусто - удалить без замены):<br />
-  <form:input path="tagName" cssClass="required" style="width: 40em" /><br />
+  <form:input id="tagName" path="tagName" cssClass="required" style="width: 40em" /><br />
   <input type="submit" value="Удалить" />
   <c:url var="list_url" value="/tags/${firstLetter}" />
   <input type="button" value="Отменить" onClick="window.location='${list_url}';" />

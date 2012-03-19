@@ -109,7 +109,7 @@ public class TagController {
   List<String> showTagListHandlerJSON(
     @RequestParam("term") final String term
   ) {
-    Map<String, Integer> tags = tagService.getTagsByFirstLetter(term.substring(0, 1), true);
+    Map<String, Integer> tags = tagService.getTagsByFirstLetter(term.substring(0, 1), false);
 
     return ImmutableList.copyOf(Iterables.filter(tags.keySet(), new Predicate<String>() {
       @Override
