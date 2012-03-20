@@ -341,4 +341,8 @@ public class TagDao {
       return res.get(0);
     }
   }
+
+  public void recalcAllCounters() {
+    jdbcTemplate.update("update tags_values set counter = (select count(*) from tags join topics on tags.msgid=topics.id where tags.tagid=tags_values.id and not deleted and moderate)");
+  }
 }
