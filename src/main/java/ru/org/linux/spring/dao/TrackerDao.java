@@ -47,21 +47,31 @@ public class TrackerDao {
   private UserDao userDao;
 
   public enum TrackerFilter {
-    ALL("all", "все сообщения"),
-    NOTALKS("notalks", "без talks"),
-    TECH("tech", "тех. разделы форума"),
-    MINE("mine", "мои темы");
+    ALL("all", "все сообщения", true),
+    NOTALKS("notalks", "без talks", false),
+    TECH("tech", "тех. разделы форума", false),
+    MINE("mine", "мои темы", false);
+
     private final String value;
     private final String label;
-    TrackerFilter(String value, String label) {
+    private final boolean def;
+
+    TrackerFilter(String value, String label, boolean def) {
       this.value = value;
       this.label = label;
+      this.def = def;
     }
+
     public String getValue() {
       return value;
     }
+
     public String getLabel() {
       return label;
+    }
+
+    public boolean isDefault() {
+      return def;
     }
   }
 

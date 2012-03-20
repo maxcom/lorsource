@@ -38,20 +38,26 @@
 </title>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
-<form:form commandName="tracker" method="GET">
-  <div class=nav>
-      <div id="navPath">
-        <%= title %>
-      </div>
-
-      <div class="nav-buttons">
-        <form:select path="filter">
-            <form:options items="${filterItems}" itemValue="value" itemLabel="label"/>
-        </form:select>
-        <input type="submit" value="показать">
-      </div>
+<div class=nav>
+  <div id="navPath">
+    <%= title %>
   </div>
-</form:form>
+
+  <div class="nav-buttons">
+    <ul>
+      <c:forEach items="${filterItems}" var="f">
+        <li>
+          <c:url var="fUrl" value="/tracker.jsp">
+            <c:if test="${not f.default}">
+              <c:param name="filter">${f.value}</c:param>
+            </c:if>
+          </c:url>
+          <a href="${fUrl}">${f.label}</a>
+        </li>
+      </c:forEach>
+    </ul>
+  </div>
+</div>
 
 <h1 class="optional"><%= title %>
 </h1>
