@@ -52,10 +52,7 @@ public class TagDao {
    * @param tagName название нового тега
    */
   public void createTag(String tagName) {
-    jdbcTemplate.update(
-      "INSERT INTO tags_values (value) VALUES(?)",
-      new Object[]{tagName}
-    );
+    jdbcTemplate.update("INSERT INTO tags_values (value) VALUES(?)", tagName);
   }
 
   /**
@@ -66,9 +63,7 @@ public class TagDao {
    */
   public void changeTag(Integer tagId, String tagName) {
     jdbcTemplate.update(
-      "UPDATE tags_values set value=? WHERE id=?",
-      new Object[]{tagName, tagId}
-    );
+      "UPDATE tags_values set value=? WHERE id=?", tagName, tagId);
   }
 
   /**
@@ -77,10 +72,7 @@ public class TagDao {
    * @param tagId идентификационный номер тега
    */
   public void deleteTag(int tagId) {
-    jdbcTemplate.update(
-      "DELETE FROM tags_values WHERE id=?",
-      new Object[]{tagId}
-    );
+    jdbcTemplate.update("DELETE FROM tags_values WHERE id=?", tagId);
   }
 
 
@@ -199,13 +191,7 @@ public class TagDao {
    * @param tagCount на какое значение изменить счётчик
    */
   public void increaseCounterById(int tagId, int tagCount) {
-    jdbcTemplate.update(
-      "UPDATE tags_values SET counter=counter+? WHERE id=?",
-      new Object[]{
-        tagCount,
-        tagId
-      }
-    );
+    jdbcTemplate.update("UPDATE tags_values SET counter=counter+? WHERE id=?", tagCount, tagId);
   }
 
   /**
@@ -215,13 +201,7 @@ public class TagDao {
    * @param tagCount на какое значение изменить счётчик
    */
   public void decreaseCounterById(int tagId, int tagCount) {
-    jdbcTemplate.update(
-      "UPDATE tags_values SET counter=counter-? WHERE id=?",
-      new Object[]{
-        tagCount,
-        tagId
-      }
-    );
+    jdbcTemplate.update("UPDATE tags_values SET counter=counter-? WHERE id=?", tagCount, tagId);
   }
 
   /**
@@ -231,13 +211,7 @@ public class TagDao {
    * @param tagId идентификационный номер тега
    */
   public void addTagToTopic(int msgId, int tagId) {
-    jdbcTemplate.update(
-      "INSERT INTO tags VALUES(?,?)",
-      new Object[]{
-        msgId,
-        tagId
-      }
-    );
+    jdbcTemplate.update("INSERT INTO tags VALUES(?,?)", msgId, tagId);
   }
 
   /**
@@ -247,13 +221,7 @@ public class TagDao {
    * @param tagId идентификационный номер тега
    */
   public void deleteTagFromTopic(int msgId, int tagId) {
-    jdbcTemplate.update(
-      "DELETE FROM tags WHERE msgid=? and tagid=?",
-      new Object[]{
-        msgId,
-        tagId
-      }
-    );
+    jdbcTemplate.update("DELETE FROM tags WHERE msgid=? and tagid=?", msgId, tagId);
 
   }
 
@@ -266,11 +234,9 @@ public class TagDao {
   public void replaceTagForTopics(int oldTagId, int newTagId) {
     jdbcTemplate.update(
       "UPDATE tags SET tagid=? WHERE tagid=? AND msgid NOT IN (SELECT msgid FROM tags WHERE tagid=?)",
-      new Object[]{
-        newTagId,
-        oldTagId,
-        newTagId
-      }
+      newTagId,
+      oldTagId,
+      newTagId
     );
   }
 
@@ -280,12 +246,7 @@ public class TagDao {
    * @param tagId идентификационный номер тега
    */
   public void deleteTagFromTopics(int tagId) {
-    jdbcTemplate.update(
-      "DELETE FROM tags WHERE tagid=?",
-      new Object[]{
-        tagId
-      }
-    );
+    jdbcTemplate.update("DELETE FROM tags WHERE tagid=?", tagId);
   }
 
   /**
@@ -299,11 +260,10 @@ public class TagDao {
     List<Integer> res = jdbcTemplate.queryForList(
       "SELECT count (tagid) FROM tags WHERE tagid=? AND msgid NOT IN (SELECT msgid FROM tags WHERE tagid=?)",
       Integer.class,
-      new Object[]{
-        oldTagId,
-        newTagId
-      }
+      oldTagId,
+      newTagId
     );
+
     return res.get(0);
   }
 
