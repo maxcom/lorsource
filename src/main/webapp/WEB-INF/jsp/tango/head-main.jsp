@@ -32,7 +32,7 @@
 	}
     var isCookie = readCookie("style_selected");
     if(isCookie){
-        var newStyle = "tango/" + isCookie + ".css"
+        var newStyle = "/tango/" + isCookie + ".css"
         $("link[id=theme]").attr("href",newStyle);
     }
   </script>

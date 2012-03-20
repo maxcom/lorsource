@@ -49,7 +49,7 @@
         $('#styleswitch').styleSwitcher({
             slidein: false,
             cookieExpires: 365,
-            directory:"tango/"
+            directory:"/tango/"
         });
     });
   </script>
