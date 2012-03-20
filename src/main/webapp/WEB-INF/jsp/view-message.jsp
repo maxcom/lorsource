@@ -166,7 +166,7 @@
     <div style="vertical-align: middle; width: 30%; display: table-cell; text-align: center">
       <a title="${preparedMessage.section.title} - ${preparedMessage.group.title}"
          href="${group.url}">
-          ${preparedMessage.section.title} - ${preparedMessage.group.title}
+          ${preparedMessage.group.title}
       </a>
     </div>
     <div style="vertical-align: middle; width: 35%; display: table-cell; text-align: right">
