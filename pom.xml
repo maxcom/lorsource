@@ -265,8 +265,6 @@
                 <configuration>
                     <nosuffix>true</nosuffix>
                     <jswarn>false</jswarn>
-                    <nomunge>true</nomunge>
-                    <disableOptimizations>true</disableOptimizations>
                     <aggregations>
                         <aggregation>
                             <removeIncluded>true</removeIncluded>
