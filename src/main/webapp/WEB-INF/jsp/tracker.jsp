@@ -52,7 +52,12 @@
               <c:param name="filter">${f.value}</c:param>
             </c:if>
           </c:url>
-          <a href="${fUrl}">${f.label}</a>
+          <c:if test="${tracker.filter!=f.value}">
+            <a href="${fUrl}">${f.label}</a>
+          </c:if>
+          <c:if test="${tracker.filter==f.value}">
+            <a href="${fUrl}" class="current">${f.label}</a>
+          </c:if>
         </li>
       </c:forEach>
     </ul>

@@ -68,9 +68,13 @@ public class TrackerController {
       @RequestParam(value="offset", required = false) Integer offset,
       HttpServletRequest request) throws Exception {
 
+    if (action.getFilter()==null) {
+      action.setFilter(TrackerFilter.ALL.getValue());
+    }
+
     String filter = action.getFilter();
 
-    if (filter!=null && !filterValuesSet.contains(filter)) {
+    if (!filterValuesSet.contains(filter)) {
       throw new UserErrorException("Некорректное значение filter");
     }
 
