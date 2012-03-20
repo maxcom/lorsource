@@ -40,8 +40,19 @@
     <!-- //Rating@Mail.ru logo -->
 </c:if>
   <c:if test="${template.style == 'tango'}"><br>
-           Стиль: <a href="#" rel="dark" class="styleswitch">Dark</a> -
-            <a href="#" rel="swamp" class="styleswitch">Swamp</a>
+  <div id="styleswitch">
+           Стиль: <a href="javascript: void(0)" id="tango-dark">Dark</a> -
+            <a href="javascript: void(0)" id="tango-swamp">Swamp</a>
+  </div>
+  <script type="text/javascript">
+    $(document).ready(function() {
+        $('#styleswitch').styleSwitcher({
+            slidein: false,
+            cookieExpires: 365,
+            directory:"tango/"
+        });
+    });
+  </script>
   </c:if>
 </div>
 
