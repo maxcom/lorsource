@@ -15,8 +15,6 @@
 
 package ru.org.linux.spring;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -25,11 +23,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import ru.org.linux.site.Template;
 import ru.org.linux.spring.dao.DeleteInfoDao;
+import ru.org.linux.spring.dao.TrackerDao;
 import ru.org.linux.spring.dao.TrackerDao.TrackerFilter;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserErrorException;
-import ru.org.linux.spring.dao.TrackerDao;
 
 import javax.servlet.http.HttpServletRequest;
 import java.sql.Timestamp;
