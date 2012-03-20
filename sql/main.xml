@@ -14,5 +14,6 @@
     <include file="sql/updates/2012-02-17-section-score.xml"/>
     <include file="sql/updates/2012-02-28-tags-first-letter-index.xml"/>
     <include file="sql/updates/2012-03-19-tags_values-grant-delete.xml"/>
+    <include file="sql/updates/2012-03-20-grant-move-wiki-moder.xml"/>
 
 </databaseChangeLog>

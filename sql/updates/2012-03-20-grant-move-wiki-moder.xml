@@ -1,0 +1,31 @@
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
+
+    <changeSet id="2012032001" author="hizel">
+        <sql>
+            CREATE OR REPLACE VIEW jam_authorities AS
+                (((((((
+            SELECT users.nick AS username, 'ROLE_ADMIN' AS authority FROM users WHERE (users.canmod = true)
+            UNION
+            SELECT users.nick AS username, 'ROLE_SYSADMIN' AS authority FROM users WHERE (users.id = 1))
+            UNION
+            SELECT users.nick AS username, 'ROLE_TRANSLATE' AS authority FROM users WHERE (users.canmod = true))
+            UNION
+            SELECT users.nick AS username, 'ROLE_UPLOAD' AS authority FROM users WHERE (users.id = 1))
+            UNION
+            SELECT users.nick AS username, 'ROLE_MOVE' AS authority FROM users WHERE (users.canmod = true)) -- This is Fix!
+            UNION
+            SELECT users.nick AS username, 'ROLE_IMPORT' AS authority FROM users WHERE (users.id = 1))
+            UNION
+            SELECT users.nick AS username, 'ROLE_EDIT_EXISTING' AS authority FROM users WHERE ((NOT users.blocked) AND (users.score >= 0)))
+            UNION
+            SELECT users.nick AS username, 'ROLE_EDIT_NEW' AS authority FROM users WHERE ((NOT users.blocked) AND (users.score >= 0)))
+            UNION
+            SELECT users.nick AS username, 'ROLE_VIEW' AS authority FROM users WHERE ((NOT users.blocked) AND (users.score >= 0));
+        </sql>
+    </changeSet>
+
+</databaseChangeLog>
