@@ -15,10 +15,14 @@
 
 package ru.org.linux.topic;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.Errors;
 import ru.org.linux.user.UserErrorException;
 
 import java.util.*;
@@ -41,14 +45,15 @@ public class TagService {
   }
 
   /**
-   * Получение идентификационного номера тега по названию
+   * Получение идентификационного номера тега по названию. Тег должен использоваться.
    *
    * @param tag название тега
    * @return идентификационный номер
    * @throws UserErrorException
    * @throws TagNotFoundException
    */
-  public int getTagId(String tag) throws UserErrorException, TagNotFoundException {
+  public int getTagId(String tag)
+    throws UserErrorException, TagNotFoundException {
     checkTag(tag);
     return tagDao.getTagId(tag);
   }
@@ -144,8 +149,27 @@ public class TagService {
    * @param tagList новый список тегов.
    * @return true если были произведены изменения
    */
-  public boolean updateTags(final int msgId, final List<String> tagList) {
-    return tagDao.updateTags(msgId, tagList);
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
+  public synchronized boolean updateTags(final int msgId, final List<String> tagList) {
+    final List<String> oldTags = getMessageTags(msgId);
+
+    boolean modified = false;
+    for (String tag : tagList) {
+      if (!oldTags.contains(tag)) {
+        int id = getOrCreateTag(tag);
+        tagDao.addTagToTopic(msgId, id);
+        modified = true;
+      }
+    }
+
+    for (String tag : oldTags) {
+      if (!tagList.contains(tag)) {
+        int id = getOrCreateTag(tag);
+        tagDao.deleteTagFromTopic(msgId, id);
+        modified = true;
+      }
+    }
+    return modified;
   }
 
   /**
@@ -154,8 +178,21 @@ public class TagService {
    * @param oldTags список старых тегов
    * @param newTags список новых тегов
    */
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   public void updateCounters(final List<String> oldTags, final List<String> newTags) {
-    tagDao.updateCounters(oldTags, newTags);
+    for (String tag : newTags) {
+      if (!oldTags.contains(tag)) {
+        int id = getOrCreateTag(tag);
+        tagDao.increaseCounterById(id, 1);
+      }
+    }
+
+    for (String tag : oldTags) {
+      if (!newTags.contains(tag)) {
+        int id = getOrCreateTag(tag);
+        tagDao.decreaseCounterById(id, 1);
+      }
+    }
   }
 
   /**
@@ -163,13 +200,133 @@ public class TagService {
    *
    * @return список первых букв тегов
    */
-  SortedSet<String> getFirstLetters(boolean skipEmptyUsages) {
+  public SortedSet<String> getFirstLetters(boolean skipEmptyUsages) {
     return tagDao.getFirstLetters(skipEmptyUsages);
   }
 
-  Map<String, Integer> getTagsByFirstLetter(String firstLetter, boolean skipEmptyUsages) {
+  /**
+   * Получить список тегов по первому символу.
+   *
+   * @param firstLetter     первый символ
+   * @param skipEmptyUsages пропускать ли неиспользуемые теги
+   * @return список тегов по первому символу
+   */
+  public Map<String, Integer> getTagsByFirstLetter(String firstLetter, boolean skipEmptyUsages) {
     return tagDao.getTagsByFirstLetter(firstLetter, skipEmptyUsages);
   }
+
+  /**
+   * Создать новый тег.
+   *
+   * @param tagName название нового тега
+   */
+  public void create(String tagName) {
+    tagDao.createTag(tagName);
+  }
+
+  /**
+   * Создать новый тег с проверкой на существующий.
+   *
+   * @param tagName название нового тега
+   * @param errors  обработчик ошибок ввода для формы
+   */
+  public void create(String tagName, Errors errors) {
+    // todo: Нельзя строить логику на исключениях. Это антипаттерн!
+    try {
+      checkTag(tagName);
+      int tagId = tagDao.getTagIdByName(tagName);
+      errors.rejectValue("tagName", "", "Тег с таким именем уже существует!");
+    } catch (TagNotFoundException ignored) {
+      tagDao.createTag(tagName);
+    } catch (UserErrorException e) {
+      errors.rejectValue("tagName", "", e.getMessage());
+    }
+  }
+
+  /**
+   * Изменить название существующего тега.
+   *
+   * @param oldTagName старое название тега
+   * @param tagName    новое название тега
+   * @param errors     обработчик ошибок ввода для формы
+   */
+  public void change(String oldTagName, String tagName, Errors errors) {
+    // todo: Нельзя строить логику на исключениях. Это антипаттерн!
+    try {
+      checkTag(tagName);
+      int oldTagId = tagDao.getTagIdByName(oldTagName);
+      try {
+        int tagId = tagDao.getTagIdByName(tagName);
+        errors.rejectValue("tagName", "", "Тег с таким именем уже существует!");
+      } catch (TagNotFoundException ignored) {
+        tagDao.changeTag(oldTagId, tagName);
+      }
+    } catch (UserErrorException e) {
+      errors.rejectValue("tagName", "", e.getMessage());
+    } catch (TagNotFoundException e) {
+      errors.rejectValue("tagName", "", "Тега с таким именем не существует!");
+    }
+  }
+
+  /**
+   * Удалить тег по названию. Заменить все использования удаляемого тега
+   * новым тегом (если имя нового тега не null).
+   *
+   * @param tagName    название тега
+   * @param newTagName новое название тега
+   * @param errors     обработчик ошибок ввода для формы
+   */
+  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
+  public void delete(String tagName, String newTagName, Errors errors) {
+    // todo: Нельзя строить логику на исключениях. Это антипаттерн!
+    try {
+      checkTag(tagName);
+      int oldTagId = tagDao.getTagIdByName(tagName);
+      if (!Strings.isNullOrEmpty(newTagName)) {
+        if (newTagName.equals(tagName)) {
+          errors.rejectValue("tagName", "", "Заменяемый тег не должен быть равен удаляемому!");
+          return;
+        }
+        checkTag(newTagName);
+        int newTagId = getOrCreateTag(newTagName);
+        if (newTagId != 0) {
+          int tagCount = tagDao.getCountReplacedTagsForTopic(oldTagId, newTagId);
+          tagDao.replaceTagForTopics(oldTagId, newTagId);
+          tagDao.increaseCounterById(newTagId, tagCount);
+        }
+      }
+      tagDao.deleteTagFromTopics(oldTagId);
+      tagDao.deleteTag(oldTagId);
+
+    } catch (UserErrorException e) {
+      errors.rejectValue("tagName", "", e.getMessage());
+    } catch (TagNotFoundException e) {
+      errors.rejectValue("tagName", "", "Тега с таким именем не существует!");
+    }
+  }
+
+  /**
+   * Получение идентификационного номера тега по названию, либо создание нового тега.
+   *
+   * @param tagName название тега
+   * @return идентификационный номер тега
+   */
+  public int getOrCreateTag(String tagName) {
+    int id;
+    // todo: Нельзя строить логику на исключениях. Это антипаттерн!
+    try {
+      id = tagDao.getTagIdByName(tagName);
+    } catch (TagNotFoundException e) {
+      create(tagName);
+      try {
+        id = tagDao.getTagIdByName(tagName);
+      } catch (TagNotFoundException e2) {
+        id = 0;
+      }
+    }
+    return id;
+  }
+
 
   public static String toString(Collection<String> tags) {
     if (tags.isEmpty()) {
@@ -188,4 +345,5 @@ public class TagService {
   private boolean isGoodTag(String tag) {
     return tagRE.matcher(tag).matches();
   }
+
 }

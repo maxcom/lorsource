@@ -227,6 +227,12 @@
             <artifactId>perf4j</artifactId>
             <version>0.9.16</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.codehaus.jackson</groupId>
+            <artifactId>jackson-mapper-asl</artifactId>
+            <version>1.9.5</version>
+        </dependency>
     </dependencies>
 
     <build>

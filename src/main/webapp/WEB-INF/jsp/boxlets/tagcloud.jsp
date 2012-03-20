@@ -12,8 +12,7 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
-
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page contentType="text/html;charset=UTF-8" language="java" trimDirectiveWhitespaces="true" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="lor" uri="http://www.linux.org.ru" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
@@ -29,4 +28,7 @@
         <a class="cloud${tag.weight}" href="${fn:escapeXml(tag_url)}">${tag.value}</a>
       </c:forEach>
     </div>
+    <p>
+      <a href="/tags/">все метки...</a>
+    </p>
   </div>

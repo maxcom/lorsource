@@ -22,11 +22,14 @@
 </head>
 <body>
   	<div id="hd">
+  	    <div id="hdtux">
+  	        <embed src="/img/Tux.svg" type="image/svg+xml" height="100%" width="100%" />
+  	    </div>
         <a id="sitetitle" href="/">LINUX.ORG.RU</a>
-
         <ul class="menu">
           <li id="loginGreating">
             <c:if test="${template.sessionAuthorized}">
+              добро пожаловать,&nbsp;
               <c:url var="userUrl" value="/people/${template.nick}/profile"/>
               <a style="text-decoration: none" href="${userUrl}">${template.nick}</a>
               [<a href="logout.jsp?sessionId=<%= session.getId() %>" title="Выйти">x</a>]
@@ -60,7 +63,7 @@
           </c:if>
 
           <li><a href="/search.jsp">Поиск</a></li>
-
         </ul>
+        <div style="clear: both"></div>
       </div>
       <div style="clear: both"></div>
