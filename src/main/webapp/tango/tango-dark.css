@@ -136,6 +136,11 @@ fieldset legend {
     color: #BABDB6;
 }
 
+.nav li a.current {
+    background-color: #BABDB6;
+    color: black !important;
+}
+
 #bd .nav li a:visited {
     color: #BABDB6;
 }

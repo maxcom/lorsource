@@ -15,8 +15,9 @@
 
 package ru.org.linux.spring;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import com.google.common.base.Function;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -25,11 +26,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import ru.org.linux.site.Template;
 import ru.org.linux.spring.dao.DeleteInfoDao;
+import ru.org.linux.spring.dao.TrackerDao;
 import ru.org.linux.spring.dao.TrackerDao.TrackerFilter;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserErrorException;
-import ru.org.linux.spring.dao.TrackerDao;
 
 import javax.servlet.http.HttpServletRequest;
 import java.sql.Timestamp;
@@ -46,8 +47,15 @@ public class TrackerController {
   @Autowired
   private DeleteInfoDao deleteInfoDao;
 
-  private static final String[] filterValues = { "all", "notalks", "tech", "mine" };
-  private static final Set<String> filterValuesSet = new HashSet<String>(Arrays.asList(filterValues));
+  private static final Set<String> filterValuesSet =
+          ImmutableSet.copyOf(Iterables.transform(
+                  Arrays.asList(TrackerFilter.values()),
+                  new Function<TrackerFilter, String>() {
+                    @Override
+                    public String apply(TrackerFilter input) {
+                      return input.getValue();
+                    }
+                  }));
 
   @ModelAttribute("filterItems")
   public static List<TrackerFilter> getFilter(HttpServletRequest request) {
@@ -72,9 +80,13 @@ public class TrackerController {
       @RequestParam(value="offset", required = false) Integer offset,
       HttpServletRequest request) throws Exception {
 
+    if (action.getFilter()==null) {
+      action.setFilter(TrackerFilter.ALL.getValue());
+    }
+
     String filter = action.getFilter();
 
-    if (filter!=null && !filterValuesSet.contains(filter)) {
+    if (!filterValuesSet.contains(filter)) {
       throw new UserErrorException("Некорректное значение filter");
     }
 

@@ -18,6 +18,8 @@ package ru.org.linux.topic;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -30,6 +32,8 @@ import java.util.regex.Pattern;
 
 @Service
 public class TagService {
+  private static final Log logger = LogFactory.getLog(TagService.class);
+
   private static final Pattern tagRE = Pattern.compile("([\\p{L}\\d \\+-]+)", Pattern.CASE_INSENSITIVE);
 
   @Autowired
@@ -151,12 +155,14 @@ public class TagService {
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   public synchronized boolean updateTags(final int msgId, final List<String> tagList) {
+    logger.debug("Обновление списка тегов [" + tagList.toString() + "] для топика msgId=" + msgId);
     final List<String> oldTags = getMessageTags(msgId);
 
     boolean modified = false;
     for (String tag : tagList) {
       if (!oldTags.contains(tag)) {
         int id = getOrCreateTag(tag);
+        logger.trace("Добавлен тег '" + tag + "' к топику msgId=" + msgId);
         tagDao.addTagToTopic(msgId, id);
         modified = true;
       }
@@ -165,10 +171,12 @@ public class TagService {
     for (String tag : oldTags) {
       if (!tagList.contains(tag)) {
         int id = getOrCreateTag(tag);
+        logger.trace("Удалён тег '" + tag + "' к топику msgId=" + msgId);
         tagDao.deleteTagFromTopic(msgId, id);
         modified = true;
       }
     }
+    logger.trace("Завершено: обновление списка тегов для топика msgId=" + msgId);
     return modified;
   }
 
@@ -180,9 +188,18 @@ public class TagService {
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
   public void updateCounters(final List<String> oldTags, final List<String> newTags) {
+    StringBuilder logStr = new StringBuilder()
+      .append("Обновление счётчиков тегов; старые теги [")
+      .append(oldTags.toString())
+      .append("]; новые теги [")
+      .append(newTags.toString())
+      .append("]");
+    logger.debug(logStr);
+
     for (String tag : newTags) {
       if (!oldTags.contains(tag)) {
         int id = getOrCreateTag(tag);
+        logger.trace("Увеличен счётчик для тега " + tag);
         tagDao.increaseCounterById(id, 1);
       }
     }
@@ -190,9 +207,11 @@ public class TagService {
     for (String tag : oldTags) {
       if (!newTags.contains(tag)) {
         int id = getOrCreateTag(tag);
+        logger.trace("Уменьшен счётчик для тега " + tag);
         tagDao.decreaseCounterById(id, 1);
       }
     }
+    logger.trace("Завершено: " + logStr);
   }
 
   /**
@@ -222,6 +241,7 @@ public class TagService {
    */
   public void create(String tagName) {
     tagDao.createTag(tagName);
+    logger.info("Создан тег: " + tagName);
   }
 
   /**
@@ -237,7 +257,7 @@ public class TagService {
       int tagId = tagDao.getTagIdByName(tagName);
       errors.rejectValue("tagName", "", "Тег с таким именем уже существует!");
     } catch (TagNotFoundException ignored) {
-      tagDao.createTag(tagName);
+      create(tagName);
     } catch (UserErrorException e) {
       errors.rejectValue("tagName", "", e.getMessage());
     }
@@ -260,6 +280,13 @@ public class TagService {
         errors.rejectValue("tagName", "", "Тег с таким именем уже существует!");
       } catch (TagNotFoundException ignored) {
         tagDao.changeTag(oldTagId, tagName);
+        StringBuilder logStr = new StringBuilder()
+          .append("Изменено название тега. Старое значение: '")
+          .append(oldTagName)
+          .append("'; новое значение: '")
+          .append(tagName)
+          .append("'");
+        logger.info(logStr);
       }
     } catch (UserErrorException e) {
       errors.rejectValue("tagName", "", e.getMessage());
@@ -292,11 +319,27 @@ public class TagService {
         if (newTagId != 0) {
           int tagCount = tagDao.getCountReplacedTagsForTopic(oldTagId, newTagId);
           tagDao.replaceTagForTopics(oldTagId, newTagId);
+          StringBuilder logStr = new StringBuilder()
+            .append("Удаляемый тег '")
+            .append(tagName)
+            .append("' заменён тегом '")
+            .append(newTagName)
+            .append("'");
+          logger.debug(logStr);
+
           tagDao.increaseCounterById(newTagId, tagCount);
+          logStr = new StringBuilder()
+            .append("Счётчик использование тега '")
+            .append(newTagName)
+            .append("' увеличен на ")
+            .append(tagCount);
+          logger.trace(logStr);
         }
       }
       tagDao.deleteTagFromTopics(oldTagId);
+      logger.trace("Удалено использование тега '" + tagName + "' в топиках");
       tagDao.deleteTag(oldTagId);
+      logger.info("Удалён тег: " + tagName);
 
     } catch (UserErrorException e) {
       errors.rejectValue("tagName", "", e.getMessage());

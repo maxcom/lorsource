@@ -19,6 +19,7 @@
 <%--@elvariable id="msgs" type="java.util.List<ru.org.linux.spring.dao.TrackerItem>"--%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <%--@elvariable id="deleteStats" type="java.util.List<ru.org.linux.site.DeleteInfoStat>"--%>
+<%--@elvariable id="filterItems" type="java.util.List<ru.org.linux.spring.dao.TrackerDao.TrackerFilter>"--%>
 <% Template tmpl = Template.getTemplate(request); %>
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
@@ -38,20 +39,31 @@
 </title>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
-<form:form commandName="tracker" method="GET">
-  <div class=nav>
-      <div id="navPath">
-        <%= title %>
-      </div>
-
-      <div class="nav-buttons">
-        <form:select path="filter">
-            <form:options items="${filterItems}" itemValue="value" itemLabel="label"/>
-        </form:select>
-        <input type="submit" value="показать">
-      </div>
+<div class=nav>
+  <div id="navPath">
+    <%= title %>
   </div>
-</form:form>
+
+  <div class="nav-buttons">
+    <ul>
+      <c:forEach items="${filterItems}" var="f">
+        <li>
+          <c:url var="fUrl" value="/tracker.jsp">
+            <c:if test="${not f.default}">
+              <c:param name="filter">${f.value}</c:param>
+            </c:if>
+          </c:url>
+          <c:if test="${tracker.filter!=f.value}">
+            <a href="${fUrl}">${f.label}</a>
+          </c:if>
+          <c:if test="${tracker.filter==f.value}">
+            <a href="${fUrl}" class="current">${f.label}</a>
+          </c:if>
+        </li>
+      </c:forEach>
+    </ul>
+  </div>
+</div>
 
 <h1 class="optional"><%= title %>
 </h1>
@@ -70,8 +82,8 @@
 
       <tr>
         <td>
-          <c:if test="${filter=='mine' && msg.resolved}">
-            <img src="/img/solved.png" alt="решено" title="решено"/>
+          <c:if test="${msg.resolved}">
+            <img src="/img/solved.png" alt="решено" title="решено" width=15 height=15/>
           </c:if>
           <% if (tmpl.getProf().isShowNewFirst()) { %>
           <a href="${msg.urlReverse}">
