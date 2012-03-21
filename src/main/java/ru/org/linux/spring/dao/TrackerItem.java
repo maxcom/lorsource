@@ -28,8 +28,6 @@ public class TrackerItem {
   private final int msgid;
   private final Timestamp lastmod;
   private final int stat1;
-  private final int stat3;
-  private final int stat4;
   private final int groupId;
   private final String groupTitle;
   private final String title;
@@ -43,7 +41,7 @@ public class TrackerItem {
   private final int pages;
 
   public TrackerItem(User author, int msgid, Timestamp lastmod,
-                     int stat1, int stat3, int stat4,
+                     int stat1,
                      int groupId, String groupTitle, String title,
                      int cid, User lastCommentBy, boolean resolved,
                      int section, String groupUrlName,
@@ -52,8 +50,6 @@ public class TrackerItem {
     this.msgid = msgid;
     this.lastmod = lastmod;
     this.stat1 = stat1;
-    this.stat3 = stat3;
-    this.stat4 = stat4;
     this.groupId = groupId;
     this.groupTitle = groupTitle;
     this.title = title;
@@ -113,14 +109,6 @@ public class TrackerItem {
 
   public int getStat1() {
     return stat1;
-  }
-
-  public int getStat3() {
-    return stat3;
-  }
-
-  public int getStat4() {
-    return stat4;
   }
 
   public int getGroupId() {

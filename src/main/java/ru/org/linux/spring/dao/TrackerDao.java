@@ -80,8 +80,6 @@ public class TrackerDao {
         "t.userid as author, " +
         "t.id, lastmod, " +
         "t.stat1 AS stat1, " +
-        "t.stat3 AS stat3, " +
-        "t.stat4 AS stat4, " +
         "g.id AS gid, " +
         "g.title AS gtitle, " +
         "t.title AS title, " +
@@ -104,8 +102,6 @@ public class TrackerDao {
           "t.userid as author, " +
           "t.id, lastmod,  " +
           "t.stat1 AS stat1, " +
-          "t.stat3 AS stat3, " +
-          "t.stat4 AS stat4, " +
           "g.id AS gid, " +
           "g.title AS gtitle, " +
           "t.title AS title, " +
@@ -130,8 +126,6 @@ public class TrackerDao {
           "0 as author, " +
           "0 as id, change_date as lastmod, " +
           "characters_changed as stat1, " +
-          "0 as stat3, " +
-          "0 as stat4, " +
           "0 as gid, " +
           "'Wiki' as gtitle, " +
           "topic_name as title, " +
@@ -151,8 +145,6 @@ public class TrackerDao {
           "0 as author, " +
           "0 as id, change_date as lastmod, " +
           "characters_changed as stat1, " +
-          "0 as stat3, " +
-          "0 as stat4, " +
           "0 as gid, " +
           "'Wiki' as gtitle, " +
           "topic_name as title, " +
@@ -233,8 +225,6 @@ public class TrackerDao {
         int msgid = resultSet.getInt("id");
         Timestamp lastmod = resultSet.getTimestamp("lastmod");
         int stat1 = resultSet.getInt("stat1");
-        int stat3 = resultSet.getInt("stat3");
-        int stat4 = resultSet.getInt("stat4");
         int groupId = resultSet.getInt("gid");
         String groupTitle = resultSet.getString("gtitle");
         String title = resultSet.getString("title");
@@ -257,8 +247,8 @@ public class TrackerDao {
         Timestamp postdate = resultSet.getTimestamp("postdate");
         boolean uncommited = resultSet.getBoolean("smod") && !resultSet.getBoolean("moderate");
         int pages = Topic.getPageCount(stat1, messagesInPage);
-        return new TrackerItem(author, msgid, lastmod, stat1, stat3, stat4,
-            groupId, groupTitle, title, cid, lastCommentBy, resolved,
+        return new TrackerItem(author, msgid, lastmod, stat1,
+                groupId, groupTitle, title, cid, lastCommentBy, resolved,
             section, groupUrlName, postdate, uncommited, pages);
       }
     });
