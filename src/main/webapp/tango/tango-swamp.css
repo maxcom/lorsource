@@ -81,3 +81,17 @@ fieldset legend {
 	background-color: #5c3566;
 }
 
+#bd .nav li a {
+    border-color: #3F77FF;
+    color: #3F77FF;
+}
+
+#bd .nav li a.current {
+    color: black !important;
+    background-color: #3F77FF;
+    border-color: #3F77FF;
+}
+
+#bd .nav li a:visited {
+    color: #3F77FF;
+}
