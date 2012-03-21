@@ -65,9 +65,6 @@
   </div>
 </div>
 
-<h1 class="optional"><%= title %>
-</h1>
-
 <div class=forum>
   <table class="message-table">
     <thead>
