@@ -231,10 +231,15 @@ pre {
     padding: 3px 5px 3px 5px;
 }
 
+/* first column align left*/
+.message-table thead th:first-child {
+    text-align: left;
+}
+
 .message-table th {
     padding: 3px 3px 5px;
-    vertical-align: top;
-    text-align: left;
+    vertical-align: center;
+    text-align: center;
 }
 
 .message-table td.dateinterval {
