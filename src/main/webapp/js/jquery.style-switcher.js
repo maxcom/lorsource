@@ -27,7 +27,7 @@
 			var isCookie = readCookie("style_selected")
 			if(isCookie){
 				var newStyle = opts.directory + isCookie + ".css";
-				$("link[id=theme]").attr("href",newStyle);
+				/*$("link[id=theme]").attr("href",newStyle);*/
 				baseStyle = newStyle;
 			}
 			else{
