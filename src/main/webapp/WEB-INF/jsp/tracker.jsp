@@ -65,16 +65,13 @@
   </div>
 </div>
 
-<h1 class="optional"><%= title %>
-</h1>
-
 <div class=forum>
   <table class="message-table">
     <thead>
     <tr>
-      <th>Заголовок</th>
-      <th>Последнее<br>сообщение</th>
-      <th>Число ответов</th>
+      <th width="60%">Заголовок</th>
+      <th>Последнее сообщение</th>
+      <th>Ответы</th>
     </tr>
     </thead>
     <tbody>
