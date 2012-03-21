@@ -50,8 +50,20 @@ public class TrackerController {
   private static final Set<String> filterValuesSet = new HashSet<String>(Arrays.asList(filterValues));
 
   @ModelAttribute("filterItems")
-  public static List<TrackerFilter> getFilter() {
-    return Arrays.asList(TrackerFilter.values());
+  public static List<TrackerFilter> getFilter(HttpServletRequest request) {
+    Template tmpl = Template.getTemplate(request);
+    if(tmpl.isSessionAuthorized()) {
+      return Arrays.asList(TrackerFilter.values());
+    } else {
+      List<TrackerFilter> trackerFilters = new ArrayList<TrackerFilter>();
+      for(TrackerFilter trackerFilter : TrackerFilter.values()) {
+        if("mine".equals(trackerFilter.getValue())) {
+          continue;
+        }
+        trackerFilters.add(trackerFilter);
+      }
+      return trackerFilters;
+    }
   }
 
   @RequestMapping("/tracker.jsp")
