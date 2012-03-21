@@ -316,14 +316,14 @@ pre code span {
 }
 
 .nav li {
-    display: inline;
+    display: inline-block;
     margin-left: 0 !important;
 }
 
 .nav ul {
     margin-top: inherit !important;
     margin-bottom: inherit !important;
-    display: inline;
+    display: inline-block;
 }
 
 #whois_userpic {
