@@ -25,12 +25,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.auth.AccessViolationException;
+import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.site.Template;
-import ru.org.linux.section.Section;
 import ru.org.linux.user.IgnoreListDao;
-import ru.org.linux.user.UserDao;
 import ru.org.linux.user.User;
+import ru.org.linux.user.UserDao;
+import ru.org.linux.user.UserNotFoundException;
 import ru.org.linux.util.ServletParameterBadValueException;
 
 import javax.servlet.http.HttpServletRequest;
@@ -237,10 +238,15 @@ public class GroupController {
     int messages = tmpl.getProf().getMessages();
 
     while (rs.next()) {
-      TopicsListItem topic = new TopicsListItem(userDao, rs, messages);
+      User author;
 
-      // TODO: надо проверять просто ID в списке игнорирования
-      User author = topic.getAuthor();
+      try {
+        author = userDao.getUserCached(rs.getInt("userid"));
+      } catch (UserNotFoundException e) {
+        throw new RuntimeException(e);
+      }
+
+      TopicsListItem topic = new TopicsListItem(author, rs, messages);
 
       if (!firstPage && !ignoreList.isEmpty() && ignoreList.contains(author.getId())) {
         continue;
