@@ -106,7 +106,7 @@
       <lor:image preparedImage="${preparedMessage.image}" topic="${preparedMessage.message}" showInfo="true"/>
     </c:if>
 <footer>
-<c:if test="${preparedMessage.section.premoderated and not empty preparedMessage.tags}">
+<c:if test="${not empty preparedMessage.tags}">
   <lor:tags list="${preparedMessage.tags}"/>
 </c:if>
 <div class=sign>

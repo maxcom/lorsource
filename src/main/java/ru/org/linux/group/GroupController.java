@@ -15,6 +15,7 @@
 
 package ru.org.linux.group;
 
+import com.google.common.collect.ImmutableList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
@@ -28,6 +29,7 @@ import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.site.Template;
+import ru.org.linux.topic.TagService;
 import ru.org.linux.user.IgnoreListDao;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
@@ -59,6 +61,9 @@ public class GroupController {
 
   @Autowired
   private GroupPermissionService groupPermissionService;
+
+  @Autowired
+  private TagService tagService;
 
   private JdbcTemplate jdbcTemplate;
 
@@ -246,7 +251,9 @@ public class GroupController {
         throw new RuntimeException(e);
       }
 
-      TopicsListItem topic = new TopicsListItem(author, rs, messages);
+      ImmutableList<String> tags = tagService.getMessageTagsForTitle(rs.getInt("msgid"));
+
+      TopicsListItem topic = new TopicsListItem(author, rs, messages, tags);
 
       if (!firstPage && !ignoreList.isEmpty() && ignoreList.contains(author.getId())) {
         continue;

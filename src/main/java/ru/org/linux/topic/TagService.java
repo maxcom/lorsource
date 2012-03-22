@@ -40,6 +40,7 @@ public class TagService {
   public static final int MAX_TAG_LENGTH = 25;
   
   public static final int MAX_TAGS_PER_TOPIC = 5;
+  public static final int MAX_TAGS_IN_TITLE = 3;
 
   @Autowired
   private TagDao tagDao;
@@ -170,6 +171,18 @@ public class TagService {
    */
   public ImmutableList<String> getMessageTags(int msgId) {
     return tagDao.getMessageTags(msgId);
+  }
+
+  /**
+   * Получить все теги сообщения по идентификационному номеру сообщения.
+   * Ограничение по числу тегов для показа в заголовке в таблице
+   *
+   * @param msgId идентификационный номер сообщения
+   * @return все теги сообщения
+   */
+  public ImmutableList<String> getMessageTagsForTitle(int msgId) {
+    ImmutableList<String> tags = tagDao.getMessageTags(msgId);
+    return tags.subList(0, Math.min(tags.size(), TagService.MAX_TAGS_IN_TITLE));
   }
 
   /**

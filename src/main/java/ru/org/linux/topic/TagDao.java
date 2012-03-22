@@ -303,6 +303,6 @@ public class TagDao {
   }
 
   public void recalcAllCounters() {
-    jdbcTemplate.update("update tags_values set counter = (select count(*) from tags join topics on tags.msgid=topics.id where tags.tagid=tags_values.id and not deleted and moderate)");
+    jdbcTemplate.update("update tags_values set counter = (select count(*) from tags join topics on tags.msgid=topics.id where tags.tagid=tags_values.id and not deleted)");
   }
 }

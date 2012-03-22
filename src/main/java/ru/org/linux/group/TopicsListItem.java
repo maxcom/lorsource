@@ -15,6 +15,7 @@
 
 package ru.org.linux.group;
 
+import com.google.common.collect.ImmutableList;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.user.User;
@@ -34,13 +35,15 @@ public class TopicsListItem implements Serializable {
   private final boolean sticky;
   private final int pages;
   private final User author;
+  private ImmutableList<String> tags;
   private final boolean resolved;
   
   private static final long serialVersionUID = 5344250574674257995L;
 
   // SELECT topics.title as subj, sections.name, lastmod, topics.id as msgid, topics.deleted, topics.stat1, topics.stat3, topics.stat4, topics.sticky, userid
-  public TopicsListItem(User author, SqlRowSet rs, int messagesInPage) {
+  public TopicsListItem(User author, SqlRowSet rs, int messagesInPage, ImmutableList<String> tags) {
     this.author = author;
+    this.tags = tags;
     subj = StringUtil.makeTitle(rs.getString("subj"));
 
     Timestamp lastmod = rs.getTimestamp("lastmod");
@@ -62,7 +65,16 @@ public class TopicsListItem implements Serializable {
   }
 
   public String getSubj() {
-    return subj;
+    StringBuilder subjBuilder = new StringBuilder();
+
+    for (String tag : tags) {
+      subjBuilder.append('[').append(tag).append("] ");
+    }
+
+
+    subjBuilder.append(subj);
+
+    return subjBuilder.toString();
   }
 
   public Timestamp getLastmod() {
@@ -103,5 +115,9 @@ public class TopicsListItem implements Serializable {
 
   public boolean isResolved(){
     return resolved;
+  }
+
+  public ImmutableList<String> getTags() {
+    return tags;
   }
 }

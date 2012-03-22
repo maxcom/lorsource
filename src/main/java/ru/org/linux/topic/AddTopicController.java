@@ -31,7 +31,10 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.multipart.MultipartRequest;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
-import ru.org.linux.auth.*;
+import ru.org.linux.auth.CaptchaService;
+import ru.org.linux.auth.FloodProtector;
+import ru.org.linux.auth.IPBlockDao;
+import ru.org.linux.auth.IPBlockInfo;
 import ru.org.linux.gallery.Screenshot;
 import ru.org.linux.group.BadGroupException;
 import ru.org.linux.group.Group;
@@ -164,8 +167,9 @@ public class AddTopicController extends ApplicationObjectSupport {
 
     params.put("group", group);
 
-    if (group.isModerated()) {
+    if (groupPermissionService.canUseTags(group, tmpl.getCurrentUser())) {
       params.put("topTags", tagService.getTopTags());
+      params.put("useTags", true);
     }
 
     params.put("addportal", sectionService.getAddInfo(group.getSectionId()));
@@ -207,8 +211,9 @@ public class AddTopicController extends ApplicationObjectSupport {
       params.put("postscoreInfo", groupPermissionService.getPostScoreInfo(group));
     }
 
-    if (group!=null && group.isModerated()) {
+    if (group!=null && groupPermissionService.canUseTags(group, tmpl.getCurrentUser())) {
       params.put("topTags", tagService.getTopTags());
+      params.put("useTags", true);
     }
 
     if (group!=null) {

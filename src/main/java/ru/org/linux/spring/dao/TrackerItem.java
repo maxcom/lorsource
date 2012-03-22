@@ -15,6 +15,7 @@
 
 package ru.org.linux.spring.dao;
 
+import com.google.common.collect.ImmutableList;
 import ru.org.linux.section.Section;
 import ru.org.linux.user.User;
 
@@ -39,13 +40,14 @@ public class TrackerItem {
   private final Timestamp postdate;
   private final boolean uncommited;
   private final int pages;
+  private final ImmutableList<String> tags;
 
   public TrackerItem(User author, int msgid, Timestamp lastmod,
                      int stat1,
                      int groupId, String groupTitle, String title,
                      int cid, User lastCommentBy, boolean resolved,
                      int section, String groupUrlName,
-                     Timestamp postdate, boolean uncommited, int pages) {
+                     Timestamp postdate, boolean uncommited, int pages, ImmutableList<String> tags) {
     this.author = author;
     this.msgid = msgid;
     this.lastmod = lastmod;
@@ -61,6 +63,7 @@ public class TrackerItem {
     this.postdate = postdate;
     this.uncommited = uncommited;
     this.pages = pages;
+    this.tags = tags;
   }
 
   public String getUrl() {
@@ -121,7 +124,15 @@ public class TrackerItem {
 
   public String getTitle() {
     if(section != 0) {
-      return title;
+      StringBuilder subjBuilder = new StringBuilder();
+
+      for (String tag : tags) {
+        subjBuilder.append('[').append(tag).append("] ");
+      }
+
+      subjBuilder.append(title);
+
+      return subjBuilder.toString();
     } else {
       if(title.startsWith("Comments:")) {
         return title.substring(9); // откусываем Comments
@@ -169,5 +180,9 @@ public class TrackerItem {
 
   public int getCid() {
     return cid;
+  }
+
+  public ImmutableList<String> getTags() {
+    return tags;
   }
 }

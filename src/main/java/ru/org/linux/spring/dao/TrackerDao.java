@@ -15,11 +15,13 @@
 
 package ru.org.linux.spring.dao;
 
+import com.google.common.collect.ImmutableList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
+import ru.org.linux.topic.TagService;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
@@ -45,6 +47,9 @@ public class TrackerDao {
 
   @Autowired
   private UserDao userDao;
+
+  @Autowired
+  private TagService tagService;
 
   public enum TrackerFilter {
     ALL("all", "все сообщения", true),
@@ -247,9 +252,18 @@ public class TrackerDao {
         Timestamp postdate = resultSet.getTimestamp("postdate");
         boolean uncommited = resultSet.getBoolean("smod") && !resultSet.getBoolean("moderate");
         int pages = Topic.getPageCount(stat1, messagesInPage);
+
+        ImmutableList<String> tags;
+
+        if (msgid!=0 && !resultSet.getBoolean("smod")) {
+          tags = tagService.getMessageTagsForTitle(msgid);
+        } else {
+          tags = ImmutableList.of();
+        }
+
         return new TrackerItem(author, msgid, lastmod, stat1,
                 groupId, groupTitle, title, cid, lastCommentBy, resolved,
-            section, groupUrlName, postdate, uncommited, pages);
+            section, groupUrlName, postdate, uncommited, pages, tags);
       }
     });
   }

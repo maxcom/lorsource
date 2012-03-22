@@ -366,7 +366,7 @@ public class TopicDao {
           Screenshot scrn,
           Topic previewMsg,
           Set<User> userRefs
-  ) throws IOException, ScriptErrorException, UserErrorException {
+  ) throws IOException, ScriptErrorException {
     final int msgid = saveNewMessage(
             previewMsg,
             request,
@@ -780,12 +780,6 @@ public class TopicDao {
       }
 
       msgbaseDao.appendMessage(msg.getId(), add);
-    }
-
-    if (!newGrp.isModerated()) {
-      ImmutableList<String> oldTags = tagService.getMessageTags(msg.getId());
-      tagService.updateTags(msg.getId(), ImmutableList.<String>of());
-      tagService.updateCounters(oldTags, Collections.<String>emptyList());
     }
   }
 }

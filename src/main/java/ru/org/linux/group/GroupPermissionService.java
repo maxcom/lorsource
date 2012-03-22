@@ -153,4 +153,12 @@ public class GroupPermissionService {
 
     return ret;
   }
+
+  public boolean canUseTags(Group group, User user) {
+    if (group.isModerated()) {
+      return true;
+    }
+
+    return user!=null && user.isAdministrator(); // && user.getScore()>=500;
+  }
 }
