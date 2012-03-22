@@ -32,6 +32,7 @@ import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.group.Group;
 import ru.org.linux.group.GroupDao;
+import ru.org.linux.group.GroupPermissionService;
 import ru.org.linux.poll.Poll;
 import ru.org.linux.poll.PollDao;
 import ru.org.linux.poll.PollNotFoundException;
@@ -80,7 +81,7 @@ public class EditTopicController {
   private PollDao pollDao;
 
   @Autowired
-  private TopicPermissionService permissionService;
+  private GroupPermissionService permissionService;
   
   @Autowired
   private MsgbaseDao msgbaseDao;

@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionNotFoundException;
 import ru.org.linux.section.SectionService;
+import ru.org.linux.topic.PreparedTopic;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicPermissionService;
 import ru.org.linux.user.User;
@@ -160,5 +161,45 @@ public class GroupPermissionService {
     }
 
     return user!=null && user.isAdministrator(); // && user.getScore()>=500;
+  }
+
+  public boolean isEditable(PreparedTopic topic, User by) {
+    Topic message = topic.getMessage();
+    Section section = topic.getSection();
+    User author = topic.getAuthor();
+
+    if (message.isDeleted()) {
+      return false;
+    }
+
+    if (by.isAnonymous() || by.isBlocked()) {
+      return false;
+    }
+
+    if (message.isExpired()) {
+      return by.isModerator() && section.isPremoderated();
+    }
+
+    if (by.isModerator()) {
+      if (author.isModerator()) {
+        return true;
+      }
+
+      return section.isPremoderated();
+    }
+
+    if (!topic.isLorcode()) {
+      return false;
+    }
+
+    if (by.canCorrect() && section.isPremoderated()) {
+      return true;
+    }
+
+    if (by.getId()==author.getId() && !message.isCommited()) {
+      return message.isSticky() || section.isPremoderated() || (System.currentTimeMillis() - message.getPostdate().getTime()) < PreparedTopic.EDIT_PERIOD;
+    }
+
+    return false;
   }
 }

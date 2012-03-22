@@ -331,7 +331,7 @@ public class TopicPrepareService {
   }
 
   public TopicMenu getMessageMenu(PreparedTopic message, User currentUser) {
-    boolean editable = currentUser!=null && topicPermissionService.isEditable(message, currentUser);
+    boolean editable = currentUser!=null && groupPermissionService.isEditable(message, currentUser);
     boolean resolvable;
     int memoriesId;
     boolean deletable;
