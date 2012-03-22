@@ -69,7 +69,14 @@ public class TagService {
     }
   }
 
-  public ImmutableList<String> parseTags(String tags) throws UserErrorException {
+  /**
+   * Разбор сторки тегов. Error при ошибках
+   *
+   * @param tags список тегов через запятую
+   * @param errors класс для ошибок валидации (параметр 'tags')
+   * @return список тегов
+   */
+  public ImmutableList<String> parseTags(String tags, Errors errors) {
     Set<String> tagSet = new HashSet<String>();
 
     // Теги разделяютчя пайпом или запятой
@@ -88,7 +95,9 @@ public class TagService {
       }
 
       // обработка тега: только буквы/цифры/пробелы, никаких спецсимволов, запятых, амперсандов и <>
-      checkTag(tag);
+      if (!isGoodTag(tag)) {
+        errors.rejectValue("tags", "Некорректный тег: '" + tag + '\'');
+      }
 
       tagSet.add(tag);
     }
@@ -96,6 +105,12 @@ public class TagService {
     return ImmutableList.copyOf(tagSet);
   }
 
+  /**
+   * Разбор строки тегов. Игнорируем некорректные теги
+   *
+   * @param tags список тегов через запятую
+   * @return список тегов
+   */
   public ImmutableList<String> parseSanitizeTags(String tags) {
     if (tags == null) {
       return ImmutableList.of();

@@ -380,7 +380,7 @@ public class TopicDao {
     }
 
     if (form.getTags() != null) {
-      final List<String> tags = tagService.parseTags(form.getTags());
+      final List<String> tags = tagService.parseSanitizeTags(form.getTags());
 
       tagService.updateTags(msgid, tags);
       tagService.updateCounters(Collections.<String>emptyList(), tags);

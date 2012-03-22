@@ -91,7 +91,7 @@ public class EditInfoPrepareService {
       }
 
       if (dto.getOldtags()!=null) {
-        currentTags = tagService.parseTags(dto.getOldtags());
+        currentTags = tagService.parseSanitizeTags(dto.getOldtags());
       }
     }
 

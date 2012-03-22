@@ -21,7 +21,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
-import ru.org.linux.user.UserErrorException;
 import ru.org.linux.util.URLUtil;
 
 @Component
@@ -87,11 +86,7 @@ public class EditTopicRequestValidator implements Validator {
     }
 
     if (form.getTags()!=null) {
-      try {
-        tagService.parseTags(form.getTags());
-      } catch (UserErrorException ex) {
-        errors.rejectValue("tags", null, ex.getMessage());
-      }
+      tagService.parseTags(form.getTags(), errors);
     }
   }
 }
