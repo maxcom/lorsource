@@ -1,6 +1,7 @@
 <%@ page contentType="text/html; charset=utf-8" import="ru.org.linux.gallery.Screenshot"  %>
 <%@ page import="ru.org.linux.group.Group"%>
-<%@ page import="ru.org.linux.util.StringUtil"%>
+<%@ page import="ru.org.linux.topic.TagService"%>
+<%@ page import="ru.org.linux.util.StringUtil" %>
 <%--
   ~ Copyright 1998-2012 Linux.org.ru
   ~    Licensed under the Apache License, Version 2.0 (the "License");
@@ -134,7 +135,7 @@
 <% } %>
 <c:if test="${group.moderated}">
     <label>
-    Метки (разделенные запятой):<br>
+    Метки (разделенные запятой, не более <%= TagService.MAX_TAGS_PER_TOPIC %>):<br>
     <form:input id="tags" path="tags" style="width: 40em"/>
     </label><p>
     Популярные теги:

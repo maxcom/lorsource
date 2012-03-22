@@ -1,3 +1,4 @@
+<%@ page import="ru.org.linux.topic.TagService" %>
 <%@ page contentType="text/html; charset=utf-8"%>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
@@ -94,7 +95,9 @@
   </c:if>
 
   <c:if test="${group.moderated}">
-    <label>Теги:<br><form:input id="tags" path="tags" style="width: 40em"/>
+    <label>Метки (разделенные запятой, не более <%= TagService.MAX_TAGS_PER_TOPIC %>):<br>
+      <form:input id="tags" path="tags" style="width: 40em" placeholder="не более <%= TagService.MAX_TAGS_PER_TOPIC %> тегов"/>
+    </label>
     <p>
       Популярные теги:
       <c:forEach items="${topTags}" var="topTag" varStatus="status">

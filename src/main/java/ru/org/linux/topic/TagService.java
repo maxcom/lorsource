@@ -38,6 +38,8 @@ public class TagService {
 
   public static final int MIN_TAG_LENGTH = 2;
   public static final int MAX_TAG_LENGTH = 25;
+  
+  public static final int MAX_TAGS_PER_TOPIC = 5;
 
   @Autowired
   private TagDao tagDao;
@@ -105,6 +107,10 @@ public class TagService {
       }
 
       tagSet.add(tag);
+    }
+
+    if (tagSet.size()>MAX_TAGS_PER_TOPIC) {
+      errors.rejectValue("tags", null, "Слишком много тегов (максимум "+MAX_TAGS_PER_TOPIC+")");
     }
 
     return ImmutableList.copyOf(tagSet);
