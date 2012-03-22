@@ -116,8 +116,8 @@
         <label>Мультивыбор: <form:checkbox path="multiSelect" size="40"/></label>
       </p>
   </c:if>
-<label for="form_mode">Разметка:*</label><br>
-<form:select path="mode" items="${modes}"/><br>
+<label>Разметка:*<br>
+<form:select path="mode" items="${modes}"/></label><br>
 
 <label for="form_msg">Сообщение:</label><br>
 <form:textarea path="msg" style="width: 40em" rows="20" id="form_msg"/><br>
