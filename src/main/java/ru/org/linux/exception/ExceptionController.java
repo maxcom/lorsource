@@ -17,7 +17,6 @@ package ru.org.linux.exception;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 
@@ -30,7 +29,7 @@ public class ExceptionController {
   @Autowired
   private ExceptionResolver exceptionResolver;
 
-  @RequestMapping(value = "/ExceptionResolver", method = RequestMethod.GET)
+  @RequestMapping("/ExceptionResolver")
   public ModelAndView defaultExceptionHandler(
     HttpServletRequest request,
     HttpServletResponse response,
