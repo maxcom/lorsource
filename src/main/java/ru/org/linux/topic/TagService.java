@@ -36,6 +36,9 @@ public class TagService {
 
   private static final Pattern tagRE = Pattern.compile("([\\p{L}\\d \\+-]+)", Pattern.CASE_INSENSITIVE);
 
+  public static final int MIN_TAG_LENGTH = 2;
+  public static final int MAX_TAG_LENGTH = 25;
+
   @Autowired
   private TagDao tagDao;
 
@@ -95,8 +98,10 @@ public class TagService {
       }
 
       // обработка тега: только буквы/цифры/пробелы, никаких спецсимволов, запятых, амперсандов и <>
-      if (!isGoodTag(tag)) {
-        errors.rejectValue("tags", "Некорректный тег: '" + tag + '\'');
+      if (tag.length()>MAX_TAG_LENGTH) {
+        errors.rejectValue("tags", null, "Слишком длиный тег: '" + tag + "\' (максимум "+MAX_TAG_LENGTH +" символов)");
+      } else if (!isGoodTag(tag)) {
+        errors.rejectValue("tags", null, "Некорректный тег: '" + tag + '\'');
       }
 
       tagSet.add(tag);
@@ -401,7 +406,6 @@ public class TagService {
   }
 
   private boolean isGoodTag(String tag) {
-    return tagRE.matcher(tag).matches();
+    return tagRE.matcher(tag).matches() && tag.length() >= MIN_TAG_LENGTH && tag.length() <= MAX_TAG_LENGTH;
   }
-
 }
