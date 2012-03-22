@@ -163,6 +163,13 @@ public class GroupPermissionService {
     return user!=null && user.isAdministrator(); // && user.getScore()>=500;
   }
 
+  /**
+   * Можно ли редактировать сообщения полностью
+   *
+   * @param topic тема
+   * @param by редактор
+   * @return true если можно, false если нет
+   */
   public boolean isEditable(PreparedTopic topic, User by) {
     Topic message = topic.getMessage();
     Section section = topic.getSection();
@@ -177,7 +184,7 @@ public class GroupPermissionService {
     }
 
     if (message.isExpired()) {
-      return by.isModerator() && section.isPremoderated();
+      return false;
     }
 
     if (by.isModerator()) {
@@ -190,6 +197,55 @@ public class GroupPermissionService {
 
     if (!topic.isLorcode()) {
       return false;
+    }
+
+    if (by.canCorrect() && section.isPremoderated()) {
+      return true;
+    }
+
+    if (by.getId()==author.getId() && !message.isCommited()) {
+      return message.isSticky() || section.isPremoderated() || (System.currentTimeMillis() - message.getPostdate().getTime()) < PreparedTopic.EDIT_PERIOD;
+    }
+
+    return false;
+  }
+
+  /**
+   * Можно ли редактировать теги сообщения
+   *
+   * @param topic тема
+   * @param by редактор
+   * @return true если можно, false если нет
+   */
+  public boolean isTagsEditable(PreparedTopic topic, User by) {
+    Topic message = topic.getMessage();
+    Section section = topic.getSection();
+    User author = topic.getAuthor();
+
+    if (!canUseTags(topic.getGroup(), by)) {
+      return false;
+    }
+
+    if (message.isDeleted()) {
+      return false;
+    }
+
+    if (by.isAnonymous() || by.isBlocked()) {
+      return false;
+    }
+
+    if (by.isModerator()) {
+      if (section.isPremoderated()) {
+        return true;
+      }
+
+      if (author.isModerator()) {
+        return true;
+      }
+
+      if (section.isPremoderated()) {
+        return true;
+      }
     }
 
     if (by.canCorrect() && section.isPremoderated()) {

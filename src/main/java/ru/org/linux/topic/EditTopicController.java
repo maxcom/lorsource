@@ -115,7 +115,7 @@ public class EditTopicController {
       throw new UserErrorException("Раздел не премодерируемый");
     }
 
-    ModelAndView mv = prepareModel(preparedMessage, form);
+    ModelAndView mv = prepareModel(preparedMessage, form, tmpl.getCurrentUser());
 
     mv.getModel().put("commit", true);
 
@@ -141,16 +141,17 @@ public class EditTopicController {
 
     PreparedTopic preparedMessage = messagePrepareService.prepareTopic(message, false, request.isSecure(), tmpl.getCurrentUser());
 
-    if (!permissionService.isEditable(preparedMessage, user)) {
+    if (!permissionService.isEditable(preparedMessage, user) && !permissionService.isTagsEditable(preparedMessage, user)) {
       throw new AccessViolationException("это сообщение нельзя править");
     }
 
-    return prepareModel(preparedMessage, form);
+    return prepareModel(preparedMessage, form, tmpl.getCurrentUser());
   }
 
   private ModelAndView prepareModel(
     PreparedTopic preparedMessage,
-    EditTopicRequest form
+    EditTopicRequest form,
+    User currentUser
   ) throws PollNotFoundException {
     Map<String, Object> params = new HashMap<String, Object>();
 
@@ -166,7 +167,9 @@ public class EditTopicController {
 
     params.put("newMsg", message);
     params.put("newPreparedMessage", preparedMessage);
-    
+
+    params.put("tagsEditable", permissionService.isTagsEditable(preparedMessage, currentUser));
+
     List<EditInfoDto> editInfoList = messageDao.getEditInfo(message.getId());
     if (!editInfoList.isEmpty()) {
       params.put("editInfo", editInfoList.get(0));
@@ -262,6 +265,7 @@ public class EditTopicController {
     params.put("message", message);
     params.put("preparedMessage", preparedMessage);
     params.put("group", group);
+    params.put("tagsEditable", permissionService.isTagsEditable(preparedMessage, tmpl.getCurrentUser()));
 
     if (group.isModerated()) {
       params.put("topTags", tagService.getTopTags());
@@ -271,11 +275,14 @@ public class EditTopicController {
 
     User user = tmpl.getCurrentUser();
 
-    if (!permissionService.isEditable(preparedMessage, user)) {
+    boolean editable = permissionService.isEditable(preparedMessage, user);
+    boolean tagsEditable = permissionService.isTagsEditable(preparedMessage, user);
+
+    if (!editable && !tagsEditable) {
       throw new AccessViolationException("это сообщение нельзя править");
     }
 
-    if (!message.isExpired()) {
+    if (editable) {
       String title = request.getParameter("title");
       if (title == null || title.trim().isEmpty()) {
         throw new BadInputException("заголовок сообщения не может быть пустым");
@@ -343,8 +350,8 @@ public class EditTopicController {
       }
     }
 
-    if (message.isExpired() && modified) {
-      throw new AccessViolationException("нельзя править устаревшие сообщения");
+    if (!editable && modified) {
+      throw new AccessViolationException("нельзя править это сообщение, только теги");
     }
 
     if (form.getMinor()!=null && !tmpl.isModeratorSession()) {

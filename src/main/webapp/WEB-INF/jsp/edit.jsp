@@ -28,6 +28,7 @@
 <%--@elvariable id="groups" type="java.util.List<ru.org.linux.group.Group>"--%>
 <%--@elvariable id="topTags" type="java.util.SortedSet<String>"--%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
+<%--@elvariable id="tagsEditable" type="java.lang.Boolean"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 <title>Редактирование сообщения</title>
@@ -94,9 +95,9 @@
     </c:if>
   </c:if>
 
-  <c:if test="${group.moderated}">
+  <c:if test="${tagsEditable}">
     <label>Метки (разделенные запятой, не более <%= TagService.MAX_TAGS_PER_TOPIC %>):<br>
-      <form:input id="tags" path="tags" style="width: 40em" placeholder="не более <%= TagService.MAX_TAGS_PER_TOPIC %> тегов"/>
+      <form:input id="tags" path="tags" style="width: 40em"/>
     </label>
     <p>
       Популярные теги:
