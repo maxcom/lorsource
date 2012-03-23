@@ -160,7 +160,7 @@ public class GroupPermissionService {
       return true;
     }
 
-    return user!=null && user.isAdministrator(); // && user.getScore()>=500;
+    return user!=null && user.isModerator(); // && user.getScore()>=500;
   }
 
   /**
