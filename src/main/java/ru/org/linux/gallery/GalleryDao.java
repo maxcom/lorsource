@@ -18,14 +18,15 @@ package ru.org.linux.gallery;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.stereotype.Repository;
 import ru.org.linux.section.Section;
 import ru.org.linux.spring.Configuration;
 import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.ImageInfo;
 
+import javax.sql.DataSource;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -33,21 +34,18 @@ import java.util.List;
 
 @Repository
 public class GalleryDao {
+
   private static final Log log = LogFactory.getLog(GalleryDao.class);
 
-  private SimpleJdbcTemplate template;
+  private JdbcTemplate jdbcTemplate;
+
+  @Autowired
+  public void setDataSource(DataSource dataSource) {
+    jdbcTemplate = new JdbcTemplate(dataSource);
+  }
 
   @Autowired
   private Configuration configuration;
-
-  public SimpleJdbcTemplate getTemplate() {
-    return template;
-  }
-
-  @Autowired
-  public void setTemplate(SimpleJdbcTemplate template) {
-    this.template = template;
-  }
 
   /**
    * Возвращает три последних объекта галереи.
@@ -60,7 +58,7 @@ public class GalleryDao {
       " JOIN groups ON topics.groupid = groups.id " +
       " JOIN users ON users.id = topics.userid WHERE topics.moderate AND section= " + Section.SECTION_GALLERY +
       " AND NOT deleted AND commitdate is not null ORDER BY commitdate DESC LIMIT ?";
-    return template.query(sql,
+    return jdbcTemplate.query(sql,
       new RowMapper<GalleryItem>() {
         @Override
         public GalleryItem mapRow(ResultSet rs, int rowNum) throws SQLException {

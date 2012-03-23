@@ -22,25 +22,23 @@ import java.sql.Timestamp;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 
 import org.springframework.stereotype.Repository;
 import ru.org.linux.section.Section;
 
+import javax.sql.DataSource;
+
 @Repository
 public class TopTenDao {
-  private SimpleJdbcTemplate jdbcTemplate;
 
-  public SimpleJdbcTemplate getJdbcTemplate() {
-    return jdbcTemplate;
-  }
+  private JdbcTemplate jdbcTemplate;
 
   @Autowired
-  public void setJdbcTemplate(SimpleJdbcTemplate jdbcTemplate) {
-    this.jdbcTemplate = jdbcTemplate;
+  public void setDataSource(DataSource dataSource) {
+    jdbcTemplate = new JdbcTemplate(dataSource);
   }
-
 
   public List<TopTenMessageDTO> getMessages(){
     String sql =
