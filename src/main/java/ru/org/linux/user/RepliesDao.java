@@ -19,6 +19,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
+import ru.org.linux.section.SectionNotFoundException;
+import ru.org.linux.section.SectionService;
 import ru.org.linux.user.ShowEventsController.Filter;
 import ru.org.linux.user.UserEvent.EventType;
 import ru.org.linux.util.StringUtil;
@@ -40,6 +42,9 @@ public class RepliesDao {
   public void setJdbcTemplate(DataSource dataSource) {
     jdbcTemplate = new JdbcTemplate(dataSource);
   }
+  
+  @Autowired
+  private SectionService sectionService;
 
   private static final String queryPartFilterAnswers = " AND type = 'REPLY' ";
   private static final String queryPartFilterFavorites = " AND type = 'WATCH' ";
@@ -123,7 +128,7 @@ public class RepliesDao {
     }
     return jdbcTemplate.query(queryString, new RowMapper<UserEvent>() {
       @Override
-      public UserEvent mapRow(ResultSet resultSet, int i) throws SQLException {
+      public UserEvent mapRow(ResultSet resultSet, int i) throws SQLException {        
         String subj = StringUtil.makeTitle(resultSet.getString("subj"));
         Timestamp lastmod = resultSet.getTimestamp("lastmod");
         if (lastmod == null) {
@@ -148,9 +153,12 @@ public class RepliesDao {
         String eventMessage = resultSet.getString("ev_msg");
 
         boolean unread = resultSet.getBoolean("unread");
-
-        return new UserEvent(cid, cAuthor, cDate, groupTitle, groupUrlName,
-                sectionId, subj, lastmod, msgid, type, eventMessage, eventDate, unread);
+        try {
+          return new UserEvent(cid, cAuthor, cDate, groupTitle, groupUrlName,
+                sectionService.getSection(sectionId), subj, lastmod, msgid, type, eventMessage, eventDate, unread);
+        } catch (SectionNotFoundException e) {
+          throw new RuntimeException(e);
+        }
       }
     }, user.getId(), topics, offset);
   }
