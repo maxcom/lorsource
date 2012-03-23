@@ -30,6 +30,10 @@
         factory-bean="beansProvider"
         factory-method="getTagDao"/>
 
+  <bean id="userTagDao"
+        factory-bean="beansProvider"
+        factory-method="getUserTagDao"/>
+
   <bean id="tagService"
       factory-bean="beansProvider"
       factory-method="getTagService"/>
