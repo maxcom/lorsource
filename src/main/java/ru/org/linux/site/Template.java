@@ -102,6 +102,7 @@ public final class Template {
       } catch (IOException e) {
         logger.info("Bad profile for user "+getNick(), e);
       } catch (StorageNotFoundException e) {
+
       } catch (ClassNotFoundException e) {
         logger.info("Bad profile for user "+getNick(), e);
       }

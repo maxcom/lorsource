@@ -43,7 +43,7 @@ public class ToLorCodeTexFormatter {
     }
   }
 
-  public static final Pattern QUOTE_PATTERN = Pattern.compile("^(\\>+)");
+  public static final Pattern QUOTE_PATTERN = Pattern.compile("^(>+)");
 
   protected String quote(String text) {
     StringBuilder buf = new StringBuilder();
