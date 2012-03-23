@@ -162,15 +162,6 @@ public class Section implements Serializable {
     return getSectionLink() + "archive/";
   }
 
-  @Deprecated
-  public static String getArchiveLink(int id) {
-    if (id==SECTION_FORUM) {
-      return null;
-    }
-    
-    return getSectionLink(id)+"archive/";
-  }
-
   public static int getSection(String name) throws SectionNotFoundException {
     Integer v = sections.get(name);
 
