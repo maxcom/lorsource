@@ -128,7 +128,6 @@ public class Group implements Serializable {
     return section;
   }
 
-  @Deprecated
   public int getSectionId() {
     return section.getId();
   }
