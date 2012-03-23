@@ -23,13 +23,14 @@
   response.addHeader("Cache-Control", "no-store, no-cache, must-revalidate");
   response.addHeader("Pragma", "no-cache");
 %>
-<title>Список Игнорирования</title>
+<title>Фильтрация сообщений</title>
 
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
-<h1>Список Игнорирования</h1>
-
-<form action="ignore-list.jsp" method="POST">
+<h1>Фильтрация сообщений</h1>
+<fieldset>
+<legend>Список игнорирования пользователей</legend>
+<form action="<c:url value="/user-filter/ignore-user"/>" method="POST">
 
   Ник: <input type="text" name="nick" size="20" maxlength="80"><input type="submit" name="add" value="Добавить"><br>
 </form>
@@ -38,7 +39,7 @@
   <ul>
     <c:forEach var="item" items="${ignoreList}">
       <li>
-        <form action="ignore-list.jsp" method="POST">
+        <form action="<c:url value="/user-filter/ignore-user"/>" method="POST">
           <input type="hidden" name="id" value="${item.key}">
           <span style="white-space: nowrap"><img alt="" src="/img/tuxlor.png"><lor:user user="${item.value}" decorate="true" link="true"/> </span>
           <input type="submit" name="del" value="Удалить">
@@ -49,6 +50,6 @@
 <br>
 
 </c:if>
-
+</fieldset>
 
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>

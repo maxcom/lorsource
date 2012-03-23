@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.site.Template;
 import ru.org.linux.site.*;
@@ -39,7 +40,7 @@ public class IgnoreListController {
   @Autowired
   private IgnoreListDao ignoreListDao;
 
-  @RequestMapping(value="/ignore-list.jsp", method={RequestMethod.GET, RequestMethod.HEAD})
+  @RequestMapping(value="/user-filter", method={RequestMethod.GET, RequestMethod.HEAD})
   public ModelAndView showList(HttpServletRequest request) throws Exception {
     Template tmpl = Template.getTemplate(request);
 
@@ -50,9 +51,11 @@ public class IgnoreListController {
     User user = tmpl.getCurrentUser();
     user.checkAnonymous();
 
-    Map<Integer, User> ignoreMap = createIgnoreMap(ignoreListDao.get(user));
+    ModelAndView modelAndView = new  ModelAndView("user-filter-list");
 
-    return new ModelAndView("ignore-list", "ignoreList", ignoreMap);
+    Map<Integer, User> ignoreMap = createIgnoreMap(ignoreListDao.get(user));
+    modelAndView.addObject("ignoreList",ignoreMap);
+    return modelAndView;
   }
 
   private Map<Integer,User> createIgnoreMap(Set<Integer> ignoreList) throws UserNotFoundException {
@@ -65,7 +68,7 @@ public class IgnoreListController {
     return ignoreMap;
   }
 
-  @RequestMapping(value="/ignore-list.jsp", method= RequestMethod.POST, params = "add")
+  @RequestMapping(value="/user-filter/ignore-user", method= RequestMethod.POST, params = "add")
   public ModelAndView listAdd(
     HttpServletRequest request,
     @RequestParam String nick
@@ -92,11 +95,10 @@ public class IgnoreListController {
       ignoreListDao.addUser(user, addUser);
     }
 
-    Map<Integer, User> ignoreMap = createIgnoreMap(ignoreListDao.get(user));
-    return new ModelAndView("ignore-list", "ignoreList", ignoreMap);
+    return new ModelAndView(new RedirectView("/user-filter"));
   }
 
-  @RequestMapping(value="/ignore-list.jsp", method= RequestMethod.POST, params = "del")
+  @RequestMapping(value="/user-filter/ignore-user", method= RequestMethod.POST, params = "del")
   public ModelAndView listDel(
     ServletRequest request,
     @RequestParam int id
@@ -114,7 +116,6 @@ public class IgnoreListController {
 
     ignoreListDao.remove(user, delUser);
 
-    Map<Integer, User> ignoreMap = createIgnoreMap(ignoreListDao.get(user));
-    return new ModelAndView("ignore-list", "ignoreList", ignoreMap);
+    return new ModelAndView(new RedirectView("/user-filter"));
   }
 }

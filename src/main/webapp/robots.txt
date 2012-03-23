@@ -14,7 +14,7 @@ Disallow: /add_comment.jsp
 Disallow: /edit-profile.jsp
 Disallow: /comment-message.jsp
 Disallow: /show-replies.jsp
-Disallow: /ignore-list.jsp
+Disallow: /user-filter
 Disallow: /commit.jsp
 Disallow: /delete_comment.jsp
 Disallow: /addphoto.jsp
