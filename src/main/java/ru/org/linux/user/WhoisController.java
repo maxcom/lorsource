@@ -28,6 +28,7 @@ import ru.org.linux.util.bbcode.LorCodeService;
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Set;
 
@@ -82,8 +83,8 @@ public class WhoisController {
   }
 
   @RequestMapping("/whois.jsp")
-  public View getInfo(@RequestParam("nick") String nick) {
-    return new RedirectView("/people/"+ URLEncoder.encode(nick)+"/profile");
+  public View getInfo(@RequestParam("nick") String nick) throws UnsupportedEncodingException{
+    return new RedirectView("/people/"+ URLEncoder.encode(nick, "UTF-8")+"/profile");
   }
 
   /**

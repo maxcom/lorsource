@@ -34,6 +34,7 @@ import ru.org.linux.search.SearchQueueSender;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
@@ -126,13 +127,13 @@ public class UserModificationController extends ApplicationObjectSupport {
     return redirectToProfile(user);
   }
 
-  private static ModelAndView redirectToProfile(User user) {
+  private static ModelAndView redirectToProfile(User user) throws UnsupportedEncodingException{
     return new ModelAndView(new RedirectView(getNoCacheLinkToProfile(user)));
   }
 
-  private static String getNoCacheLinkToProfile(User user) {
+  private static String getNoCacheLinkToProfile(User user) throws UnsupportedEncodingException{
     Random random = new Random();
-    return "/people/" + URLEncoder.encode(user.getNick()) + "/profile?nocache=" + random.nextInt();
+    return "/people/" + URLEncoder.encode(user.getNick(), "UTF-8") + "/profile?nocache=" + random.nextInt();
   }
 
   /**

@@ -37,6 +37,9 @@ import java.sql.SQLException;
 public class User implements Serializable {
   private static final int ANONYMOUS_LEVEL_SCORE = 50;
   public static final int ANONYMOUS_ID = 2;
+  /* TODO */
+  public static final String EMPTY_GRAVATAR_URL = "http%3A%2F%2Fwww.linux.org.ru%2Fimg%2Fp.gif";
+  public static final String EMPTY_GRAVATAR_SECURE_URL = "https%3A%2F%2Fwww.linux.org.ru%2Fimg%2Fp.gif";
 
   private final String nick;
   private final int id;
@@ -340,9 +343,9 @@ public class User implements Serializable {
 
     if ("empty".equals(avatarStyle)) {
       if (secure) {
-        nonExist = URLEncoder.encode("https://www.linux.org.ru/img/p.gif");
+        nonExist = EMPTY_GRAVATAR_SECURE_URL;
       } else {
-        nonExist = URLEncoder.encode("http://www.linux.org.ru/img/p.gif");
+        nonExist = EMPTY_GRAVATAR_URL;
       }
     } else {
       nonExist = avatarStyle;

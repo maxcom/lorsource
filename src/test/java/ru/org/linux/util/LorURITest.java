@@ -22,6 +22,9 @@ import org.junit.Test;
 import ru.org.linux.group.Group;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicDao;
+import ru.org.linux.user.User;
+
+import java.net.URLEncoder;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -363,6 +366,12 @@ public class LorURITest {
     assertEquals("https://ex...", uri5.formatUrlBody(10));
     assertEquals("https://example.com/...", uri5.formatUrlBody(20));
     assertEquals("https://example.com/search.jsp?q=бля&oldQ=&range=ALL&interval=ALL&user=&_usertop...", uri5.formatUrlBody(80));
+  }
+  
+  @Test
+  public void testUrlEncode() throws Exception {
+    assertEquals(User.EMPTY_GRAVATAR_SECURE_URL,  URLEncoder.encode("https://www.linux.org.ru/img/p.gif", "UTF-8"));
+    assertEquals(User.EMPTY_GRAVATAR_URL,  URLEncoder.encode("http://www.linux.org.ru/img/p.gif", "UTF-8"));
   }
 
 }
