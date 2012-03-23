@@ -206,7 +206,7 @@ public class TopicListDaoImpl implements TopicListDao {
 
     if (topicListDto.getTag() != 0) {
       where
-        .append(" AND topics.moderate AND topics.id IN (SELECT msgid FROM tags WHERE tagid=")
+        .append(" AND topics.id IN (SELECT msgid FROM tags WHERE tagid=")
         .append(topicListDto.getTag())
         .append(')');
     }
