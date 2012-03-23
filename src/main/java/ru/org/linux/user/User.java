@@ -340,9 +340,9 @@ public class User implements Serializable {
 
     if ("empty".equals(avatarStyle)) {
       if (secure) {
-        nonExist = "https://www.linux.org.ru/img/p.gif";
+        nonExist = "https%3A%2F%2Fwww.linux.org.ru%2Fimg%2Fp.gif";
       } else {
-        nonExist = "http://www.linux.org.ru/img/p.gif";
+        nonExist = "http%3A%2F%2Fwww.linux.org.ru%2Fimg%2Fp.gif";
       }
     } else {
       nonExist = avatarStyle;
