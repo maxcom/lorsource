@@ -118,7 +118,7 @@ public class TagController {
     return ImmutableList.copyOf(Iterables.filter(tags.keySet(), new Predicate<String>() {
       @Override
       public boolean apply(String input) {
-        return input.startsWith(term);
+        return input.startsWith(term) && TagService.isGoodTag(input);
       }
     }));
   }

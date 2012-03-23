@@ -424,7 +424,7 @@ public class TagService {
     return str.toString();
   }
 
-  private boolean isGoodTag(String tag) {
+  public static boolean isGoodTag(String tag) {
     return tagRE.matcher(tag).matches() && tag.length() >= MIN_TAG_LENGTH && tag.length() <= MAX_TAG_LENGTH;
   }
 }
