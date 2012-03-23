@@ -66,7 +66,7 @@ public class AddCommentRequestValidator implements Validator {
         errors.reject(null, "нельзя комментировать удаленные комментарии");
       }
 
-      if (topic==null || add.getReplyto().getTopic() != topic.getId()) {
+      if (topic==null || add.getReplyto().getTopicId() != topic.getId()) {
         errors.reject(null, "некорректная тема");
       }
     }
