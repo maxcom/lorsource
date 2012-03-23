@@ -89,6 +89,7 @@ public class EditTopicController {
   @Autowired
   private UserDao userDao;
 
+  @Autowired
   private EditTopicRequestValidator editTopicRequestValidator;
 
   @RequestMapping(value = "/commit.jsp", method = RequestMethod.GET)
