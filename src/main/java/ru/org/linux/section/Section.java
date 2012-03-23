@@ -102,9 +102,17 @@ public class Section implements Serializable {
   public String getTitle() {
     return name;
   }
+  
+  public int getCommentPostscore() {
+    if (id==1 || id==2) {
+      return TopicPermissionService.POSTSCORE_UNRESTRICTED;
+    } else {
+      return 50;
+    }
+  }
 
+  @Deprecated
   public static int getCommentPostscore(int id) {
-    //TODO move this to database
     if (id==1 || id==2) {
       return TopicPermissionService.POSTSCORE_UNRESTRICTED;
     } else {

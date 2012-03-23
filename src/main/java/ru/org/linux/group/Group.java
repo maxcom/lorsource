@@ -124,6 +124,11 @@ public class Group implements Serializable {
     return votepoll;
   }
 
+  public Section getSection() {
+    return section;
+  }
+
+  @Deprecated
   public int getSectionId() {
     return section.getId();
   }

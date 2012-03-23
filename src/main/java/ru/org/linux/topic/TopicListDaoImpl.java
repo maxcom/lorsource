@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
+import ru.org.linux.section.SectionService;
 
 import javax.sql.DataSource;
 import java.sql.ResultSet;
@@ -44,6 +45,9 @@ public class TopicListDaoImpl implements TopicListDao {
   public void setDataSource(DataSource ds) {
     jdbcTemplate = new JdbcTemplate(ds);
   }
+
+  @Autowired
+  private SectionService sectionService;
 
   @Override
   public List<Topic> getTopics(TopicListDto topicListDto) {
@@ -81,7 +85,7 @@ public class TopicListDaoImpl implements TopicListDao {
       new RowMapper<Topic>() {
         @Override
         public Topic mapRow(ResultSet resultSet, int i) throws SQLException {
-          return new Topic(resultSet);
+          return new Topic(resultSet, sectionService);
         }
       }
     );
