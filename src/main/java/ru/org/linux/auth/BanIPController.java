@@ -94,6 +94,6 @@ public class BanIPController {
 
     ipBlockDao.blockIP(ip, user, reason, ts, allow_posting, captcha_required);
 
-    return new ModelAndView(new RedirectView("sameip.jsp?ip=" + URLEncoder.encode(ip)));
+    return new ModelAndView(new RedirectView("sameip.jsp?ip=" + URLEncoder.encode(ip, "UTF-8")));
   }
 }

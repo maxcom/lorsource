@@ -562,7 +562,7 @@ public class TopicController {
 
     if (nocache != null) {
       options.append("nocache=");
-      options.append(URLEncoder.encode(nocache));
+      options.append(URLEncoder.encode(nocache, "UTF-8"));
     }
 
     StringBuilder hash = new StringBuilder();
