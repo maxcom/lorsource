@@ -28,8 +28,6 @@ public class TopicListDto {
     MONTH_AGO
   }
 
-  ;
-
   private TopicListDao.CommitMode commitMode = TopicListDao.CommitMode.COMMITED_AND_POSTMODERATED;
 
   private final Set<Integer> sections = new HashSet<Integer>();
