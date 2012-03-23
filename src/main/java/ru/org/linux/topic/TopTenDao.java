@@ -27,6 +27,8 @@ import org.springframework.jdbc.core.RowMapper;
 
 import org.springframework.stereotype.Repository;
 import ru.org.linux.section.Section;
+import ru.org.linux.section.SectionNotFoundException;
+import ru.org.linux.section.SectionService;
 
 import javax.sql.DataSource;
 
@@ -40,6 +42,9 @@ public class TopTenDao {
     jdbcTemplate = new JdbcTemplate(dataSource);
   }
 
+  @Autowired
+  private SectionService sectionService;
+
   public List<TopTenMessageDTO> getMessages(){
     String sql =
       "select topics.id as msgid, groups.urlname, groups.section, topics.title, lastmod, topics.stat1 as c  " +
@@ -50,12 +55,16 @@ public class TopTenDao {
     return jdbcTemplate.query(sql, new RowMapper<TopTenMessageDTO>() {
       @Override
       public TopTenMessageDTO mapRow(ResultSet rs, int i) throws SQLException {
-        TopTenMessageDTO result = new TopTenMessageDTO();
-        result.setUrl(Section.getSectionLink(rs.getInt("section"))+rs.getString("urlname")+ '/' +rs.getInt("msgid"));
-        result.setTitle(rs.getString("title"));
-        result.setLastmod(rs.getTimestamp("lastmod"));
-        result.setAnswers(rs.getInt("c"));
-        return result;
+        try {
+          TopTenMessageDTO result = new TopTenMessageDTO();
+          result.setUrl(sectionService.getSection(rs.getInt("section")).getSectionLink()+rs.getString("urlname")+ '/' +rs.getInt("msgid"));
+          result.setTitle(rs.getString("title"));
+          result.setLastmod(rs.getTimestamp("lastmod"));
+          result.setAnswers(rs.getInt("c"));
+          return result;
+        } catch (SectionNotFoundException ex) {
+          throw new RuntimeException(ex.getMessage());
+        }
       }
     });
 

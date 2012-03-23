@@ -37,7 +37,7 @@ public class UserEvent implements Serializable {
   private final Timestamp cDate;
   private final String groupTitle;
   private final String groupUrlName;
-  private final int sectionId;
+  private final Section section;
   private static final long serialVersionUID = -8433869244309809050L;
   private final String subj;
   private final Timestamp lastmod;
@@ -48,7 +48,7 @@ public class UserEvent implements Serializable {
   private final boolean unread;
 
   public UserEvent(int cid, int cAuthor, Timestamp cDate, String groupTitle,
-                   String groupUrlName, int sectionId, String subj,
+                   String groupUrlName, Section section, String subj,
                    Timestamp lastmod, int msgid, EventType type, String eventMessage,
                    Timestamp eventDate, boolean unread) {
     this.cid = cid;
@@ -56,7 +56,7 @@ public class UserEvent implements Serializable {
     this.cDate = cDate;
     this.groupTitle = groupTitle;
     this.groupUrlName = groupUrlName;
-    this.sectionId = sectionId;
+    this.section = section;
     this.subj = subj;
     this.lastmod = lastmod;
     this.msgid = msgid;
@@ -87,7 +87,7 @@ public class UserEvent implements Serializable {
   }
 
   public String getGroupUrl() {
-    return Section.getSectionLink(sectionId) + groupUrlName + '/';
+    return section.getSectionLink() + groupUrlName + '/';
   }
 
   public String getSubj() {

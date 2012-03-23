@@ -172,7 +172,7 @@ public class TopicDao {
       message = jdbcTemplate.queryForObject(queryMessage, new RowMapper<Topic>() {
         @Override
         public Topic mapRow(ResultSet resultSet, int i) throws SQLException {
-          return new Topic(resultSet);
+          return new Topic(resultSet, sectionService);
         }
       }, id);
     } catch (EmptyResultDataAccessException exception) {

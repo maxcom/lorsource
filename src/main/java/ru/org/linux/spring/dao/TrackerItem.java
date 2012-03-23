@@ -35,7 +35,7 @@ public class TrackerItem {
   private final int cid;
   private final User lastCommentBy;
   private final boolean resolved;
-  private final int section;
+  private final Section section;
   private final String groupUrlName;
   private final Timestamp postdate;
   private final boolean uncommited;
@@ -46,7 +46,7 @@ public class TrackerItem {
                      int stat1,
                      int groupId, String groupTitle, String title,
                      int cid, User lastCommentBy, boolean resolved,
-                     int section, String groupUrlName,
+                     Section section, String groupUrlName,
                      Timestamp postdate, boolean uncommited, int pages, ImmutableList<String> tags) {
     this.author = author;
     this.msgid = msgid;
@@ -67,7 +67,7 @@ public class TrackerItem {
   }
 
   public String getUrl() {
-    if(section != 0) {
+    if(section != null) {
       if (pages > 1) {
         return getGroupUrl() + msgid + "/page" + Integer.toString(pages - 1) + "?lastmod=" + lastmod.getTime();
       } else {
@@ -79,7 +79,7 @@ public class TrackerItem {
   }
 
   public String getUrlReverse() {
-    if(section != 0) {
+    if(section != null) {
       return getGroupUrl() + '/' + msgid + "?lastmod=" + lastmod.getTime();
     } else {
       return String.format("/wiki/en/%s", title);
@@ -87,15 +87,15 @@ public class TrackerItem {
   }
 
   public String getGroupUrl() {
-    if(section != 0) {
-      return Section.getSectionLink(section) + groupUrlName + '/';
+    if(section != null) {
+      return section.getSectionLink() + groupUrlName + '/';
     } else {
       return "/wiki/";
     }
   }
 
   public boolean isWiki() {
-    return section == 0;
+    return section == null;
   }
 
   public User getAuthor() {
@@ -123,7 +123,7 @@ public class TrackerItem {
   }
 
   public String getTitle() {
-    if(section != 0) {
+    if(section != null) {
       StringBuilder subjBuilder = new StringBuilder();
 
       for (String tag : tags) {
@@ -162,7 +162,7 @@ public class TrackerItem {
     return resolved;
   }
 
-  public int getSection() {
+  public Section getSection() {
     return section;
   }
 

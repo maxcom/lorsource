@@ -15,6 +15,7 @@
 
 package ru.org.linux.topic;
 
+import org.junit.Before;
 import org.junit.Test;
 import junit.framework.Assert;
 import ru.org.linux.group.GroupPermissionService;
@@ -37,6 +38,24 @@ import static org.mockito.Mockito.*;
  */
 public class GroupPermissionServiceTest {
   private final GroupPermissionService permissionService = new GroupPermissionService();
+
+  SectionService sectionService;
+  Section sectionModerate;
+  Section sectionNotModerate;
+
+
+  @Before
+  public void init() throws Exception {
+    sectionService = mock(SectionService.class);
+    sectionModerate = mock(Section.class);
+    sectionNotModerate = mock(Section.class);
+    when(sectionModerate.isPremoderated()).thenReturn(true);
+    when(sectionNotModerate.isPremoderated()).thenReturn(false);
+    when(sectionService.getSection(1)).thenReturn(sectionModerate);
+    when(sectionService.getSection(2)).thenReturn(sectionNotModerate);
+    when(sectionService.getSection(anyInt())).thenReturn(sectionModerate);
+    permissionService.setSectionService(sectionService);
+  }
 
   /**
    * Проверка что пользователь МОЖЕТ удалить топик автором которого он является
@@ -68,7 +87,7 @@ public class GroupPermissionServiceTest {
     when(user.isModerator()).thenReturn(false);
     when(user.getId()).thenReturn(13);
 
-    Topic message = new Topic(resultSet);
+    Topic message = new Topic(resultSet, sectionService);
 
     Assert.assertEquals(false, user.isModerator());
     Assert.assertTrue(user.getId() == resultSet.getInt("userid"));
@@ -106,7 +125,7 @@ public class GroupPermissionServiceTest {
     when(user.isModerator()).thenReturn(false);
     when(user.getId()).thenReturn(13);
 
-    Topic message = new Topic(resultSet);
+    Topic message = new Topic(resultSet, sectionService);
 
     Assert.assertEquals(false, user.isModerator());
     Assert.assertTrue(user.getId() == resultSet.getInt("userid"));
@@ -145,7 +164,7 @@ public class GroupPermissionServiceTest {
     when(user.isModerator()).thenReturn(false);
     when(user.getId()).thenReturn(14);
 
-    Topic message = new Topic(resultSet);
+    Topic message = new Topic(resultSet, sectionService);
 
     Assert.assertEquals(false, user.isModerator());
     Assert.assertFalse(user.getId() == resultSet.getInt("userid"));
@@ -184,7 +203,7 @@ public class GroupPermissionServiceTest {
     when(user.isModerator()).thenReturn(false);
     when(user.getId()).thenReturn(14);
 
-    Topic message = new Topic(resultSet);
+    Topic message = new Topic(resultSet, sectionService);
 
     Assert.assertEquals(false, user.isModerator());
     Assert.assertFalse(user.getId() == resultSet.getInt("userid"));
@@ -278,16 +297,6 @@ public class GroupPermissionServiceTest {
     // проверка что данные в mock user верные
     Assert.assertEquals(true, user.isModerator());
 
-    Section sectionModerate = mock(Section.class);
-    when(sectionModerate.isPremoderated()).thenReturn(true);
-    Section sectionNotModerate = mock(Section.class);
-    when(sectionNotModerate.isPremoderated()).thenReturn(false);
-
-    SectionService sectionService = mock(SectionService.class);
-    when(sectionService.getSection(1)).thenReturn(sectionModerate);
-    when(sectionService.getSection(2)).thenReturn(sectionNotModerate);
-
-    permissionService.setSectionService(sectionService);
 
     // проверка что данные в mock resultSet верные
     Assert.assertEquals(true, resultSetModerateNew.getBoolean("moderate"));
@@ -301,10 +310,10 @@ public class GroupPermissionServiceTest {
     Assert.assertTrue((new Timestamp(oldTime)).compareTo(resultSetNotModerateOld.getTimestamp("postdate")) == 0);
 
 
-    Topic messageModerateOld = new Topic(resultSetModerateOld);
-    Topic messageNotModerateOld = new Topic(resultSetNotModerateOld);
-    Topic messageModerateNew = new Topic(resultSetModerateNew);
-    Topic messageNotModerateNew = new Topic(resultSetNotModerateNew);
+    Topic messageModerateOld = new Topic(resultSetModerateOld, sectionService);
+    Topic messageNotModerateOld = new Topic(resultSetNotModerateOld, sectionService);
+    Topic messageModerateNew = new Topic(resultSetModerateNew, sectionService);
+    Topic messageNotModerateNew = new Topic(resultSetNotModerateNew, sectionService);
 
     // проверка что данные в mock message верные
     Assert.assertEquals(true, messageModerateNew.isCommited());

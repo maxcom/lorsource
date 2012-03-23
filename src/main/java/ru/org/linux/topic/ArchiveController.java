@@ -98,7 +98,7 @@ public class ArchiveController {
 
   @RequestMapping("/view-news-archive.jsp")
   public View galleryArchiveOld(@RequestParam("section") int id, HttpServletResponse response) throws Exception {
-    String link = Section.getArchiveLink(id);
+    String link = sectionService.getSection(id).getArchiveLink();
 
     if (link==null) {
       response.sendError(404, "No archive for this section");

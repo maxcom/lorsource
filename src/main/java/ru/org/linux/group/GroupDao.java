@@ -23,6 +23,7 @@ import org.springframework.jdbc.core.PreparedStatementCallback;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import ru.org.linux.section.Section;
+import ru.org.linux.section.SectionService;
 
 import javax.sql.DataSource;
 import java.sql.PreparedStatement;
@@ -33,11 +34,14 @@ import java.util.List;
 @Repository
 public class GroupDao {
   private final JdbcTemplate jdbcTemplate;
+  private final SectionService sectionService;
 
   @Autowired
-  public GroupDao(DataSource ds) {
+  public GroupDao(DataSource ds, SectionService sectionService1) {
     jdbcTemplate = new JdbcTemplate(ds);
+    sectionService = sectionService1;
   }
+
 
   /**
    * Получить объект группы по идентификатору.
@@ -53,7 +57,7 @@ public class GroupDao {
         new RowMapper<Group>() {
           @Override
           public Group mapRow(ResultSet resultSet, int i) throws SQLException {
-            return Group.buildGroup(resultSet);
+            return Group.buildGroup(resultSet, sectionService);
           }
         },
         id
@@ -75,7 +79,7 @@ public class GroupDao {
       new RowMapper<Group>() {
         @Override
         public Group mapRow(ResultSet rs, int rowNum) throws SQLException {
-          return Group.buildGroup(rs);
+          return Group.buildGroup(rs, sectionService);
         }
       },
       section.getId()

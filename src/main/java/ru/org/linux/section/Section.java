@@ -102,9 +102,17 @@ public class Section implements Serializable {
   public String getTitle() {
     return name;
   }
+  
+  public int getCommentPostscore() {
+    if (id==1 || id==2) {
+      return TopicPermissionService.POSTSCORE_UNRESTRICTED;
+    } else {
+      return 50;
+    }
+  }
 
+  @Deprecated
   public static int getCommentPostscore(int id) {
-    //TODO move this to database
     if (id==1 || id==2) {
       return TopicPermissionService.POSTSCORE_UNRESTRICTED;
     } else {
@@ -152,19 +160,14 @@ public class Section implements Serializable {
   }
 
   public String getArchiveLink(int year, int month) {
-    return getArchiveLink(id)+year+ '/' +month+ '/';
+    return getArchiveLink()+year+ '/' +month+ '/';
   }
 
   public String getArchiveLink() {
-    return getArchiveLink(id);
-  }
-
-  public static String getArchiveLink(int id) {
-    if (id==SECTION_FORUM) {
+    if(id == SECTION_FORUM) {
       return null;
     }
-    
-    return getSectionLink(id)+"archive/";
+    return getSectionLink() + "archive/";
   }
 
   public static int getSection(String name) throws SectionNotFoundException {

@@ -18,6 +18,8 @@ package ru.org.linux.topic;
 import com.google.common.base.Strings;
 import ru.org.linux.group.Group;
 import ru.org.linux.section.Section;
+import ru.org.linux.section.SectionNotFoundException;
+import ru.org.linux.section.SectionService;
 import ru.org.linux.user.User;
 import ru.org.linux.util.StringUtil;
 import ru.org.linux.util.URLUtil;
@@ -46,7 +48,7 @@ public class Topic implements Serializable {
   private final Timestamp commitDate;
   private final String groupUrl;
   private final Timestamp lastModified;
-  private final int sectionid;
+  private final Section section;
   private final int commentCount;
   private final boolean moderate;
   private final boolean notop;
@@ -60,96 +62,43 @@ public class Topic implements Serializable {
   private static final long serialVersionUID = 807240555706110851L;
   private static final String UTF8 = "UTF-8";
 
-  public Topic(int msgId,
-               int postScore,
-               boolean sticky,
-               String linkText,
-               String url,
-               String title,
-               int userId,
-               int groupId,
-               boolean deleted,
-               boolean expired,
-               int commitBy,
-               boolean haveLink,
-               Timestamp postdate,
-               Timestamp commitDate,
-               String groupUrl,
-               Timestamp lastModified,
-               int sectionId,
-               int commentCount,
-               boolean moderate,
-               boolean noTop,
-               int userAgent,
-               String postIP,
-               boolean resolved,
-               int groupCommentsRestriction,
-               int sectionCommentsRestriction,
-               boolean minor
-  ) {
-    this.msgid = msgId;
-    this.postscore = postScore;
-
-    this.sticky= sticky;
-    this.linktext = linkText;
-    this.url = url;
-    this.title = title;
-    this.userid = userId;
-    this.guid = groupId;
-    this.deleted = deleted;
-    this.expired = expired;
-    this.commitby = commitBy;
-    this.havelink = haveLink;
-    this.postdate = postdate;
-    this.commitDate = commitDate;
-    this.groupUrl = groupUrl;
-    this.lastModified = lastModified;
-    this.sectionid = sectionId;
-    this.commentCount = commentCount;
-    this.moderate = moderate;
-    this.notop = noTop;
-    this.userAgent = userAgent;
-    this.postIP = postIP;
-    this.resolved = resolved;
-    this.groupCommentsRestriction = groupCommentsRestriction;
-    this.sectionCommentsRestriction = sectionCommentsRestriction;
-    this.minor = minor;
+  public Topic(ResultSet rs, SectionService sectionService) throws SQLException {
+    try {
+      this.msgid = rs.getInt("msgid");
+      this.postscore = (rs.getObject("postscore") == null)
+          ? TopicPermissionService.POSTSCORE_UNRESTRICTED
+          : rs.getInt("postscore");
+      this.sticky = rs.getBoolean("sticky");
+      this.linktext = rs.getString("linktext");
+      this.url = rs.getString("url");
+      this.title = StringUtil.makeTitle(rs.getString("title"));
+      this.userid = rs.getInt("userid");
+      this.guid = rs.getInt("guid");
+      this.deleted = rs.getBoolean("deleted");
+      this.expired = !rs.getBoolean("sticky") && rs.getBoolean("expired");
+      this.commitby = rs.getInt("commitby");
+      this.havelink = rs.getBoolean("havelink");
+      this.postdate = rs.getTimestamp("postdate");
+      this.commitDate = rs.getTimestamp("commitdate");
+      this.groupUrl = rs.getString("urlname");
+      this.lastModified = rs.getTimestamp("lastmod");
+      this.section = sectionService.getSection(rs.getInt("section"));
+      this.commentCount = rs.getInt("stat1");
+      this.moderate = rs.getBoolean("moderate");
+      this.notop = rs.getBoolean("notop");
+      this.userAgent = rs.getInt("ua_id");
+      this.postIP = rs.getString("postip");
+      this.resolved = rs.getBoolean("resolved");
+      this.groupCommentsRestriction = rs.getInt("restrict_comments");
+      this.sectionCommentsRestriction = section.getCommentPostscore();
+      this.minor = rs.getBoolean("minor");
+    } catch (SectionNotFoundException ex) {
+      throw new RuntimeException(ex.getMessage());
+    }
   }
 
-  public Topic(ResultSet rs) throws SQLException {
-    this(
-      rs.getInt("msgid"),
-      (rs.getObject("postscore") == null)
-        ? TopicPermissionService.POSTSCORE_UNRESTRICTED
-        : rs.getInt("postscore"),
-      rs.getBoolean("sticky"),
-      rs.getString("linktext"),
-      rs.getString("url"),
-      StringUtil.makeTitle(rs.getString("title")),
-      rs.getInt("userid"),
-      rs.getInt("guid"),
-      rs.getBoolean("deleted"),
-      !rs.getBoolean("sticky") && rs.getBoolean("expired"),
-      rs.getInt("commitby"),
-      rs.getBoolean("havelink"),
-      rs.getTimestamp("postdate"),
-      rs.getTimestamp("commitdate"),
-      rs.getString("urlname"),
-      rs.getTimestamp("lastmod"),
-      rs.getInt("section"),
-      rs.getInt("stat1"),
-      rs.getBoolean("moderate"),
-      rs.getBoolean("notop"),
-      rs.getInt("ua_id"),
-      rs.getString("postip"),
-      rs.getBoolean("resolved"),
-      rs.getInt("restrict_comments"),
-      Section.getCommentPostscore(rs.getInt("section")),
-      rs.getBoolean("minor")
-    );
-  }
 
-  public Topic(AddTopicRequest form, User user, String postIP) {
+  public Topic(AddTopicRequest form, User user, String postIP, SectionService sectionService) {
     userAgent = 0;
     this.postIP = postIP;
 
@@ -180,7 +129,7 @@ public class Topic implements Serializable {
     }
 
     havelink = form.getUrl() != null && form.getLinktext() != null && !form.getUrl().isEmpty() && !form.getLinktext().isEmpty() && !group.isImagePostAllowed();
-    sectionid = group.getSectionId();
+    section = group.getSection();
     // Defaults
     msgid = 0;
     postscore = 0;
@@ -199,7 +148,7 @@ public class Topic implements Serializable {
     resolved = false;
     minor = false;
 
-    sectionCommentsRestriction = Section.getCommentPostscore(sectionid);
+    sectionCommentsRestriction = section.getCommentPostscore();
   }
 
   public Topic(Group group, Topic original, EditTopicRequest form) {
@@ -231,7 +180,7 @@ public class Topic implements Serializable {
 
     havelink = original.havelink;
 
-    sectionid = group.getSectionId();
+    section = group.getSection();
 
     msgid = original.msgid;
     postscore = original.getPostScore();
@@ -248,13 +197,13 @@ public class Topic implements Serializable {
     notop = original.notop;
     userid = original.userid;
 
-    if (form.getMinor()!=null && sectionid==Section.SECTION_NEWS) {
+    if (form.getMinor()!=null && section.getId()==Section.SECTION_NEWS) {
       minor = form.getMinor();
     } else {
       minor = original.minor;
     }
 
-    sectionCommentsRestriction = Section.getCommentPostscore(sectionid);
+    sectionCommentsRestriction = section.getCommentPostscore();
   }
 
   public boolean isExpired() {
@@ -282,7 +231,7 @@ public class Topic implements Serializable {
   }
 
   public int getSectionId() {
-    return sectionid;
+    return section.getId();
   }
 
   public int getCommentCount() {
@@ -393,7 +342,7 @@ public class Topic implements Serializable {
 
   public String getLink() {
     try {
-      return Section.getSectionLink(sectionid) + URLEncoder.encode(groupUrl, UTF8) + '/' + msgid;
+      return section.getSectionLink() + URLEncoder.encode(groupUrl, UTF8) + '/' + msgid;
     } catch (UnsupportedEncodingException e) {
       throw new RuntimeException(e);
     }
@@ -405,7 +354,7 @@ public class Topic implements Serializable {
     }
 
     try {
-      return Section.getSectionLink(sectionid) + URLEncoder.encode(groupUrl, UTF8) + '/' + msgid + "/page" + page;
+      return section.getSectionLink() + URLEncoder.encode(groupUrl, UTF8) + '/' + msgid + "/page" + page;
     } catch (UnsupportedEncodingException e) {
       throw new RuntimeException(e);
     }

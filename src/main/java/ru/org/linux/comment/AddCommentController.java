@@ -210,12 +210,12 @@ public class AddCommentController extends ApplicationObjectSupport {
 
     IPBlockInfo ipBlockInfo = ipBlockDao.getBlockInfo(request.getRemoteAddr());
 
-    if (!add.isPreviewMode() &&
+    if (add.isNotPreviewMode() &&
       (!Template.isSessionAuthorized(session) || ipBlockInfo.isCaptchaRequired())) {
       captcha.checkCaptcha(request, errors);
     }
 
-    if (!add.isPreviewMode() && !errors.hasErrors() && !session.getId().equals(request.getParameter("session"))) {
+    if (add.isNotPreviewMode() && !errors.hasErrors() && !session.getId().equals(request.getParameter("session"))) {
       logger.info(String.format(
               "Flood protection (session variable differs: session=%s var=%s) ip=%s",
               session.getId(),
@@ -289,11 +289,11 @@ public class AddCommentController extends ApplicationObjectSupport {
       formParams.put("comment", prepareService.prepareComment(comment, msg, request.isSecure()));
     }
 
-    if (!add.isPreviewMode() && !errors.hasErrors()) {
+    if (add.isNotPreviewMode() && !errors.hasErrors()) {
       dupeProtector.checkDuplication(request.getRemoteAddr(), user.getScore() > 100, errors);
     }
 
-    if (!add.isPreviewMode() && !errors.hasErrors() && comment != null) {
+    if (add.isNotPreviewMode() && !errors.hasErrors() && comment != null) {
       Set<User> userRefs = lorCodeService.getReplierFromMessage(msg);
 
       int msgid = commentDao.saveNewMessage(comment, msg, userRefs);

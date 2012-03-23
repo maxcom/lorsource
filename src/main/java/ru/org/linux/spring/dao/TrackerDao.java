@@ -21,6 +21,9 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
+import ru.org.linux.section.Section;
+import ru.org.linux.section.SectionNotFoundException;
+import ru.org.linux.section.SectionService;
 import ru.org.linux.topic.TagService;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.user.User;
@@ -50,6 +53,9 @@ public class TrackerDao {
 
   @Autowired
   private TagService tagService;
+
+  @Autowired
+  private SectionService sectionService;
 
   public enum TrackerFilter {
     ALL("all", "все сообщения", true),
@@ -224,9 +230,6 @@ public class TrackerDao {
           } else {
             author = null;
           }
-        } catch (UserNotFoundException e) {
-          throw new RuntimeException(e);
-        }
         int msgid = resultSet.getInt("id");
         Timestamp lastmod = resultSet.getTimestamp("lastmod");
         int stat1 = resultSet.getInt("stat1");
@@ -235,7 +238,6 @@ public class TrackerDao {
         String title = resultSet.getString("title");
         int cid = resultSet.getInt("cid");
         User lastCommentBy;
-        try {
           int id = resultSet.getInt("last_comment_by");
 
           if (id != 0) {
@@ -243,11 +245,12 @@ public class TrackerDao {
           } else {
             lastCommentBy = null;
           }
-        } catch (UserNotFoundException e) {
-          throw new RuntimeException(e);
-        }
         boolean resolved = resultSet.getBoolean("resolved");
-        int section = resultSet.getInt("section");
+        int sectionId = resultSet.getInt("section");
+        Section section = null;
+        if(sectionId != 0) {
+          section = sectionService.getSection(sectionId);
+        }
         String groupUrlName = resultSet.getString("urlname");
         Timestamp postdate = resultSet.getTimestamp("postdate");
         boolean uncommited = resultSet.getBoolean("smod") && !resultSet.getBoolean("moderate");
@@ -264,6 +267,11 @@ public class TrackerDao {
         return new TrackerItem(author, msgid, lastmod, stat1,
                 groupId, groupTitle, title, cid, lastCommentBy, resolved,
             section, groupUrlName, postdate, uncommited, pages, tags);
+        } catch (SectionNotFoundException e) {
+          throw new RuntimeException(e);
+      } catch (UserNotFoundException e) {
+        throw new RuntimeException(e);
+      }
       }
     });
   }
