@@ -160,7 +160,7 @@ public class GroupPermissionService {
       return true;
     }
 
-    return user!=null && user.isModerator(); // && user.getScore()>=500;
+    return user!=null && user.getScore()>=400;
   }
 
   /**
@@ -239,17 +239,7 @@ public class GroupPermissionService {
     }
 
     if (by.isModerator()) {
-      if (section.isPremoderated()) {
-        return true;
-      }
-
-      if (author.isModerator()) {
-        return true;
-      }
-
-      if (section.isPremoderated()) {
-        return true;
-      }
+      return true;
     }
 
     if (by.canCorrect() && section.isPremoderated()) {
