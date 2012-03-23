@@ -37,8 +37,8 @@ public class AddCommentRequest {
     return preview;
   }
 
-  public boolean isPreviewMode() {
-    return preview!=null;
+  public boolean isNotPreviewMode() {
+    return preview == null;
   }
 
   public String getMode() {
