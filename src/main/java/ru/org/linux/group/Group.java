@@ -16,6 +16,8 @@
 package ru.org.linux.group;
 
 import ru.org.linux.section.Section;
+import ru.org.linux.section.SectionNotFoundException;
+import ru.org.linux.section.SectionService;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicPermissionService;
 import ru.org.linux.user.User;
@@ -31,7 +33,7 @@ public class Group implements Serializable {
   private final boolean imagepost;
   private final boolean votepoll;
   private final boolean havelink;
-  private final int section;
+  private final Section section;
   private final String linktext;
   private String title;
   private final String urlName;
@@ -51,6 +53,14 @@ public class Group implements Serializable {
 
   public Group(boolean moderate, boolean imagepost, boolean votepoll, boolean havelink, int section,
                String linktext, String urlName, String image, int restrictTopics, int restrictComments,
+               int id, int stat1, int stat2, int stat3, boolean resolvable, SectionService sectionService) throws SectionNotFoundException{
+    this(moderate, imagepost, votepoll, havelink, sectionService.getSection(section),
+        linktext, urlName, image, restrictTopics, restrictComments,
+        id, stat1, stat2, stat3, resolvable);
+  }
+  
+  public Group(boolean moderate, boolean imagepost, boolean votepoll, boolean havelink, Section section,
+               String linktext, String urlName, String image, int restrictTopics, int restrictComments,
                int id, int stat1, int stat2, int stat3, boolean resolvable) {
     this.moderate = moderate;
     this.imagepost = imagepost;
@@ -68,36 +78,42 @@ public class Group implements Serializable {
     this.stat3 = stat3;
     this.resolvable = resolvable;
   }
+  
 
-  public static Group buildGroup(ResultSet rs) throws SQLException {
+  public static Group buildGroup(ResultSet rs, SectionService sectionService) throws SQLException {
     int restrict_topics = rs.getInt("restrict_topics");
     if (rs.wasNull()) {
       restrict_topics = TopicPermissionService.POSTSCORE_UNRESTRICTED;
     }
 
-    Group group = new Group(
-      rs.getBoolean("moderate"),
-      rs.getBoolean("imagepost"),
-      rs.getBoolean("vote"),
-      rs.getBoolean("havelink"),
-      rs.getInt("section"),
-      rs.getString("linktext"),
-      rs.getString("urlname"),
-      rs.getString("image"),
-      restrict_topics,
-      rs.getInt("restrict_comments"),
-      rs.getInt("id"),
-      rs.getInt("stat1"),
-      rs.getInt("stat2"),
-      rs.getInt("stat3"),
-      rs.getBoolean("resolvable")
-    );
+    try {
+      Group group = new Group(
+        rs.getBoolean("moderate"),
+        rs.getBoolean("imagepost"),
+        rs.getBoolean("vote"),
+        rs.getBoolean("havelink"),
+        rs.getInt("section"),
+        rs.getString("linktext"),
+        rs.getString("urlname"),
+        rs.getString("image"),
+        restrict_topics,
+        rs.getInt("restrict_comments"),
+        rs.getInt("id"),
+        rs.getInt("stat1"),
+        rs.getInt("stat2"),
+        rs.getInt("stat3"),
+        rs.getBoolean("resolvable"),
+          sectionService
+      );
 
-    group.setTitle(rs.getString("title"));
-    group.setInfo(rs.getString("info"));
-    group.setLongInfo(rs.getString("longinfo"));
+      group.setTitle(rs.getString("title"));
+      group.setInfo(rs.getString("info"));
+      group.setLongInfo(rs.getString("longinfo"));
 
-    return group;
+      return group;
+    } catch (SectionNotFoundException ex) {
+      throw new RuntimeException(ex.getMessage());
+    }
   }
 
   public boolean isImagePostAllowed() {
@@ -109,7 +125,7 @@ public class Group implements Serializable {
   }
 
   public int getSectionId() {
-    return section;
+    return section.getId();
   }
 
   public boolean isModerated() {
@@ -174,12 +190,12 @@ public class Group implements Serializable {
 
   public boolean isResolvable() {
     return resolvable;
-  }
+  }   
 
   public String getSectionLink() {
-    return Section.getSectionLink(section);
+    return section.getSectionLink();
   }
-
+  
   public String getUrl() {
     return getSectionLink()+urlName+ '/';
   }
@@ -187,7 +203,6 @@ public class Group implements Serializable {
   public String getUrlName() {
     return urlName;
   }
-
   public String getArchiveLink(int year, int month) {
     return getUrl() +year+ '/' +month+ '/';
   }

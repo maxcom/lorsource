@@ -43,6 +43,7 @@
     <bean class="ru.org.linux.poll.PollDao" id="pollDao"/>
     <bean class="ru.org.linux.section.SectionDaoImpl" id="sectionDao"/>
     <bean class="ru.org.linux.group.GroupDao" id="groupDao"/>
+    <bean class="ru.org.linux.section.SectionService" id="sectionService" />
 
     <bean class="org.springframework.beans.factory.config.PropertiesFactoryBean" scope="singleton"
           name="properties">

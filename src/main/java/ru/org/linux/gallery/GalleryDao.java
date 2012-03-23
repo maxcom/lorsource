@@ -22,6 +22,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import ru.org.linux.section.Section;
+import ru.org.linux.section.SectionNotFoundException;
+import ru.org.linux.section.SectionService;
 import ru.org.linux.spring.Configuration;
 import ru.org.linux.util.BadImageException;
 import ru.org.linux.util.ImageInfo;
@@ -47,6 +49,9 @@ public class GalleryDao {
   @Autowired
   private Configuration configuration;
 
+  @Autowired
+  private SectionService sectionService;
+
   /**
    * Возвращает три последних объекта галереи.
    *
@@ -70,14 +75,16 @@ public class GalleryDao {
           item.setIcon(rs.getString("linktext"));
           item.setNick(rs.getString("nick"));
           item.setStat(rs.getInt("stat1"));
-          item.setLink(Section.getSectionLink(Section.SECTION_GALLERY) + rs.getString("urlname") + '/' + rs.getInt("msgid"));
 
           String htmlPath = configuration.getHTMLPathPrefix();
           item.setHtmlPath(htmlPath);
           try {
+            item.setLink(sectionService.getSection(Section.SECTION_GALLERY).getSectionLink() + rs.getString("urlname") + '/' + rs.getInt("msgid"));
             item.setInfo(new ImageInfo(htmlPath + item.getIcon()));
             item.setImginfo(new ImageInfo(htmlPath + item.getUrl()));
           } catch (BadImageException e) {
+            log.error(e);
+          } catch (SectionNotFoundException e) {
             log.error(e);
           } catch (IOException e) {
             log.error(e);
