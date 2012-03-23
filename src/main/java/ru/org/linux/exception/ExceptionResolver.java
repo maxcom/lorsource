@@ -54,7 +54,7 @@ public class ExceptionResolver extends SimpleMappingExceptionResolver {
   enum ExceptionType {
     IGNORED,
     SCRIPT_ERROR,
-    OTHER;
+    OTHER
   }
 
   /**
