@@ -168,7 +168,9 @@ public class EditTopicController {
     params.put("newMsg", message);
     params.put("newPreparedMessage", preparedMessage);
 
-    params.put("tagsEditable", permissionService.isTagsEditable(preparedMessage, currentUser));
+    params.put("editable", permissionService.isEditable(preparedMessage, currentUser));
+    boolean tagsEditable = permissionService.isTagsEditable(preparedMessage, currentUser);
+    params.put("tagsEditable", tagsEditable);
 
     List<EditInfoDto> editInfoList = messageDao.getEditInfo(message.getId());
     if (!editInfoList.isEmpty()) {
@@ -188,7 +190,7 @@ public class EditTopicController {
 
     params.put("commit", false);
 
-    if (group.isModerated()) {
+    if (tagsEditable) {
       params.put("topTags", tagService.getTopTags());
     }
 
@@ -262,25 +264,26 @@ public class EditTopicController {
     PreparedTopic preparedMessage = messagePrepareService.prepareTopic(message, false, request.isSecure(), tmpl.getCurrentUser());
     Group group = preparedMessage.getGroup();
 
-    params.put("message", message);
-    params.put("preparedMessage", preparedMessage);
-    params.put("group", group);
-    params.put("tagsEditable", permissionService.isTagsEditable(preparedMessage, tmpl.getCurrentUser()));
-
-    if (group.isModerated()) {
-      params.put("topTags", tagService.getTopTags());
-    }
-
-    params.put("groups", groupDao.getGroups(preparedMessage.getSection()));
-
     User user = tmpl.getCurrentUser();
 
-    boolean editable = permissionService.isEditable(preparedMessage, user);
     boolean tagsEditable = permissionService.isTagsEditable(preparedMessage, user);
+    boolean editable = permissionService.isEditable(preparedMessage, user);
 
     if (!editable && !tagsEditable) {
       throw new AccessViolationException("это сообщение нельзя править");
     }
+
+    params.put("message", message);
+    params.put("preparedMessage", preparedMessage);
+    params.put("group", group);
+    params.put("tagsEditable", tagsEditable);
+    params.put("editable", editable);
+
+    if (tagsEditable) {
+      params.put("topTags", tagService.getTopTags());
+    }
+
+    params.put("groups", groupDao.getGroups(preparedMessage.getSection()));
 
     if (editable) {
       String title = request.getParameter("title");

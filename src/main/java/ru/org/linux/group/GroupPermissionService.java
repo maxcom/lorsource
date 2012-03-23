@@ -234,6 +234,10 @@ public class GroupPermissionService {
       return false;
     }
 
+    if (by.isAdministrator()) {
+      return true;
+    }
+
     if (by.isModerator()) {
       if (section.isPremoderated()) {
         return true;

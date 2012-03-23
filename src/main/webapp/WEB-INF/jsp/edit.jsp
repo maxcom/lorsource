@@ -29,6 +29,7 @@
 <%--@elvariable id="topTags" type="java.util.SortedSet<String>"--%>
 <%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <%--@elvariable id="tagsEditable" type="java.lang.Boolean"--%>
+<%--@elvariable id="editable" type="java.lang.Boolean"--%>
 
 <jsp:include page="/WEB-INF/jsp/head.jsp"/>
 <title>Редактирование сообщения</title>
@@ -69,7 +70,7 @@
     <input type="hidden" name="lastEdit" value="${editInfo.editdate.time}">
   </c:if>
 
-  <c:if test="${not message.expired}">
+  <c:if test="${editable}">
   <label>Заголовок:<br> <form:input path="title" cssClass="required" style="width: 40em"/></label><br><br>
 
   <c:if test="${group.pollPostAllowed and template.moderatorSession}">
