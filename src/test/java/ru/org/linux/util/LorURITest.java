@@ -22,6 +22,7 @@ import org.junit.Test;
 import ru.org.linux.group.Group;
 import ru.org.linux.topic.Topic;
 import ru.org.linux.topic.TopicDao;
+import ru.org.linux.user.User;
 
 import java.net.URLEncoder;
 
@@ -369,7 +370,8 @@ public class LorURITest {
   
   @Test
   public void testUrlEncode() throws Exception {
-    assertEquals("https%3A%2F%2Fwww.linux.org.ru%2Fimg%2Fp.gif",  URLEncoder.encode("https://www.linux.org.ru/img/p.gif", "UTF-8"));
+    assertEquals(User.EMPTY_GRAVATAR_SECURE_URL,  URLEncoder.encode("https://www.linux.org.ru/img/p.gif", "UTF-8"));
+    assertEquals(User.EMPTY_GRAVATAR_URL,  URLEncoder.encode("http://www.linux.org.ru/img/p.gif", "UTF-8"));
   }
 
 }
