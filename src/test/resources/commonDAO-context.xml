@@ -35,7 +35,7 @@
         </property>
     </bean>
 
-    <bean class="org.springframework.jdbc.core.simple.SimpleJdbcTemplate" id="jdbcTemplate">
+    <bean class="org.springframework.jdbc.core.JdbcTemplate" id="jdbcTemplate">
         <constructor-arg ref="datasource"/>
     </bean>
 
