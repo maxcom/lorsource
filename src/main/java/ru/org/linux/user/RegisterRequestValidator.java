@@ -46,7 +46,8 @@ public class RegisterRequestValidator implements Validator {
           "maileater.com",
           "gapmail.ru",
           "mintemail.com",
-          "mailinator2.com"
+          "mailinator2.com",
+          "rppkn.com"
   );
 
   private void checkEmail(InternetAddress email, Errors errors) {
