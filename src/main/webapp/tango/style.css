@@ -367,6 +367,18 @@ div.quote {
 }
 
 @media screen and (max-width: 800px) {
+    .hideon-tablet {
+        display: none;
+    }
+
+    span.hideon-desktop {
+        display: inline;
+    }
+
+    .hideon-desktop {
+        display: inherit;
+    }
+
     div.newsblog {
         float: none;
         margin-left: 0;

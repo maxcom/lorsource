@@ -69,6 +69,7 @@
   <table class="message-table">
     <thead>
     <tr>
+      <th class="hideon-tablet">Группа</th>
       <th>Заголовок</th>
       <th>Последнее сообщение</th>
       <th>Ответы</th>
@@ -76,8 +77,15 @@
     </thead>
     <tbody>
     <c:forEach var="msg" items="${msgs}">
+      <c:set var="groupLink"><%--
+                         --%><a href="${msg.groupUrl}" class="secondary">${msg.groupTitle}</a><%--
 
+                         --%><c:if test="${msg.uncommited}">, не подтверждено</c:if><%--
+                        --%><c:if test="${msg.wikiArticle}">, статья</c:if><%--
+                         --%><c:if test="${msg.wikiComment}">, комментарий</c:if><%--
+                        --%></c:set>
       <tr>
+        <td class="hideon-tablet">${groupLink}</td>
         <td>
           <c:if test="${msg.resolved}">
             <img src="/img/solved.png" alt="решено" title="решено" width=15 height=15/>
@@ -91,15 +99,9 @@
             </a>
 
                 (<%--
-                  --%><c:if test="${msg.author != null}"><lor:user user="${msg.author}" decorate="true"/>
-                  в
-                  </c:if><%--
-                   --%><a href="${msg.groupUrl}" class="secondary">${msg.groupTitle}</a><%--
-
-                   --%><c:if test="${msg.uncommited}">, не подтверждено</c:if><%--
-                  --%><c:if test="${msg.wikiArticle}">, статья</c:if><%--
-                   --%><c:if test="${msg.wikiComment}">, комментарий</c:if><%--
-                  --%>)
+                  --%><c:if test="${msg.author != null}"><lor:user user="${msg.author}" decorate="true"/><%--
+                  --%><span class="hideon-desktop"> в </span><%--
+                  --%></c:if><span class="hideon-desktop">${groupLink}</span>)
         </td>
         <td class="dateinterval">
           <lor:dateinterval date="${msg.postdate}"/><%--

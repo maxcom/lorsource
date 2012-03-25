@@ -451,3 +451,7 @@ textarea, input {
 
 /* HTML5 for FF3 & etc */
 article, aside, details, figcaption, figure, footer, header, hgroup, nav, section { display: block; }
+
+.hideon-desktop {
+    display: none;
+}
