@@ -160,7 +160,7 @@ public class GroupPermissionService {
       return true;
     }
 
-    return user!=null && user.getScore()>=400;
+    return user!=null && user.getScore()>=100;
   }
 
   /**
