@@ -33,7 +33,7 @@ import java.util.Map;
 import java.util.Set;
 
 @Controller
-public class IgnoreListController {
+public class UserFilterController {
   @Autowired
   private UserDao userDao;
 
