@@ -16,6 +16,7 @@
 package ru.org.linux.user;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -23,8 +24,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.auth.AccessViolationException;
+import ru.org.linux.site.BadInputException;
 import ru.org.linux.site.Template;
-import ru.org.linux.site.*;
+import ru.org.linux.topic.TagNotFoundException;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
@@ -40,8 +42,12 @@ public class UserFilterController {
   @Autowired
   private IgnoreListDao ignoreListDao;
 
-  @RequestMapping(value="/user-filter", method={RequestMethod.GET, RequestMethod.HEAD})
-  public ModelAndView showList(HttpServletRequest request) throws Exception {
+  @Autowired
+  private UserTagService userTagService;
+
+  @RequestMapping(value = "/user-filter", method = {RequestMethod.GET, RequestMethod.HEAD})
+  public ModelAndView showList(HttpServletRequest request)
+    throws AccessViolationException, UserNotFoundException {
     Template tmpl = Template.getTemplate(request);
 
     if (!tmpl.isSessionAuthorized()) {
@@ -51,14 +57,16 @@ public class UserFilterController {
     User user = tmpl.getCurrentUser();
     user.checkAnonymous();
 
-    ModelAndView modelAndView = new  ModelAndView("user-filter-list");
+    ModelAndView modelAndView = new ModelAndView("user-filter-list");
 
     Map<Integer, User> ignoreMap = createIgnoreMap(ignoreListDao.get(user));
-    modelAndView.addObject("ignoreList",ignoreMap);
+    modelAndView.addObject("ignoreList", ignoreMap);
+    modelAndView.addObject("favoriteTags", userTagService.favoritesGet(user));
+    modelAndView.addObject("ignoreTags", userTagService.ignoresGet(user));
     return modelAndView;
   }
 
-  private Map<Integer,User> createIgnoreMap(Set<Integer> ignoreList) throws UserNotFoundException {
+  private Map<Integer, User> createIgnoreMap(Set<Integer> ignoreList) throws UserNotFoundException {
     Map<Integer, User> ignoreMap = new HashMap<Integer, User>(ignoreList.size());
 
     for (int id : ignoreList) {
@@ -68,7 +76,7 @@ public class UserFilterController {
     return ignoreMap;
   }
 
-  @RequestMapping(value="/user-filter/ignore-user", method= RequestMethod.POST, params = "add")
+  @RequestMapping(value = "/user-filter/ignore-user", method = RequestMethod.POST, params = "add")
   public ModelAndView listAdd(
     HttpServletRequest request,
     @RequestParam String nick
@@ -98,7 +106,7 @@ public class UserFilterController {
     return new ModelAndView(new RedirectView("/user-filter"));
   }
 
-  @RequestMapping(value="/user-filter/ignore-user", method= RequestMethod.POST, params = "del")
+  @RequestMapping(value = "/user-filter/ignore-user", method = RequestMethod.POST, params = "del")
   public ModelAndView listDel(
     ServletRequest request,
     @RequestParam int id
@@ -115,6 +123,141 @@ public class UserFilterController {
     User delUser = userDao.getUser(id);
 
     ignoreListDao.remove(user, delUser);
+
+    return new ModelAndView(new RedirectView("/user-filter"));
+  }
+
+  /**
+   * Добавление тега к пользователю.
+   *
+   * @param request данные запроса от web-клиента
+   * @param tagName название тега
+   * @return объект web-модели
+   * @throws AccessViolationException нарушение прав доступа
+   * @throws UserNotFoundException    пользователь не найден
+   */
+  @RequestMapping(value = "/user-filter/favorite-tag", method = RequestMethod.POST, params = "add")
+  public ModelAndView favoriteTagAdd(
+    HttpServletRequest request,
+    @RequestParam String tagName
+  ) throws AccessViolationException, UserNotFoundException {
+    Template tmpl = Template.getTemplate(request);
+
+    if (!tmpl.isSessionAuthorized()) {
+      throw new AccessViolationException("Not authorized");
+    }
+
+    User user = tmpl.getCurrentUser();
+    user.checkAnonymous();
+    String errorMessage = null;
+    try {
+      userTagService.favoriteAdd(user, tagName);
+    } catch (TagNotFoundException e) {
+      errorMessage = e.getMessage();
+    } catch (DuplicateKeyException e) {
+      errorMessage = "Тег уже добавлен";
+    }
+    if (errorMessage != null) {
+      ModelAndView modelAndView = showList(request);
+      modelAndView.addObject("favoriteTagAddError", tagName + ": " + errorMessage);
+      return modelAndView;
+    }
+
+    return new ModelAndView(new RedirectView("/user-filter"));
+  }
+
+  /**
+   * Удаление тега у пользователя.
+   *
+   * @param request данные запроса от web-клиента
+   * @param tagName название тега
+   * @return объект web-модели
+   * @throws TagNotFoundException     тег не найден
+   * @throws AccessViolationException нарушение прав доступа
+   */
+  @RequestMapping(value = "/user-filter/favorite-tag", method = RequestMethod.POST, params = "del")
+  public ModelAndView favoriteTagDel(
+    ServletRequest request,
+    @RequestParam String tagName
+  ) throws TagNotFoundException, AccessViolationException {
+    Template tmpl = Template.getTemplate(request);
+
+    if (!tmpl.isSessionAuthorized()) {
+      throw new AccessViolationException("Not authorized");
+    }
+
+    User user = tmpl.getCurrentUser();
+    user.checkAnonymous();
+
+    userTagService.favoriteDel(user, tagName);
+
+    return new ModelAndView(new RedirectView("/user-filter"));
+  }
+
+  /**
+   * Добавление игнорированного тега к пользователю.
+   *
+   * @param request данные запроса от web-клиента
+   * @param tagName название тега
+   * @return объект web-модели
+   * @throws AccessViolationException нарушение прав доступа
+   * @throws UserNotFoundException    пользователь не найден
+   */
+  @RequestMapping(value = "/user-filter/ignore-tag", method = RequestMethod.POST, params = "add")
+  public ModelAndView ignoreTagAdd(
+    HttpServletRequest request,
+    @RequestParam String tagName
+  ) throws AccessViolationException, UserNotFoundException {
+    Template tmpl = Template.getTemplate(request);
+
+    if (!tmpl.isSessionAuthorized()) {
+      throw new AccessViolationException("Not authorized");
+    }
+
+    User user = tmpl.getCurrentUser();
+    user.checkAnonymous();
+
+    String errorMessage = null;
+    try {
+      userTagService.ignoreAdd(user, tagName);
+    } catch (TagNotFoundException e) {
+      errorMessage = e.getMessage();
+    } catch (DuplicateKeyException e) {
+      errorMessage = "Тег уже добавлен";
+    }
+    if (errorMessage != null) {
+      ModelAndView modelAndView = showList(request);
+      modelAndView.addObject("ignoreTagAddError", tagName + ": " + errorMessage);
+      return modelAndView;
+    }
+
+    return new ModelAndView(new RedirectView("/user-filter"));
+  }
+
+  /**
+   * Удаление игнорированного тега у пользователя.
+   *
+   * @param request данные запроса от web-клиента
+   * @param tagName название тега
+   * @return объект web-модели
+   * @throws TagNotFoundException     тег не найден
+   * @throws AccessViolationException нарушение прав доступа
+   */
+  @RequestMapping(value = "/user-filter/ignore-tag", method = RequestMethod.POST, params = "del")
+  public ModelAndView ignoreTagDel(
+    ServletRequest request,
+    @RequestParam String tagName
+  ) throws TagNotFoundException, AccessViolationException {
+    Template tmpl = Template.getTemplate(request);
+
+    if (!tmpl.isSessionAuthorized()) {
+      throw new AccessViolationException("Not authorized");
+    }
+
+    User user = tmpl.getCurrentUser();
+    user.checkAnonymous();
+
+    userTagService.ignoreDel(user, tagName);
 
     return new ModelAndView(new RedirectView("/user-filter"));
   }

@@ -25,6 +25,12 @@
 %>
 <title>Фильтрация сообщений</title>
 
+<script src="/js/jqueryui/jquery-ui-1.8.18.custom.min.js" type="text/javascript"></script>
+<script src="/js/tagsAutocomplete.js" type="text/javascript"></script>
+<script type="text/javascript">
+  document.tagInputCssString = "#newFavoriteTagName, #newIgnoreTagName";
+</script>
+<link rel="stylesheet" href="/js/jqueryui/jquery-ui-1.8.18.custom.css">
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 
 <h1>Фильтрация сообщений</h1>
@@ -47,8 +53,52 @@
       </li>
     </c:forEach>
   </ul>
-<br>
+</c:if>
+</fieldset>
+<br />
+<fieldset>
+<legend>Список фаворитных тегов</legend>
+<form action="<c:url value="/user-filter/favorite-tag"/>" method="POST">
+  Тег: <input type="text" name="tagName" id="newFavoriteTagName" size="20" maxlength="80">
+  <input type="submit" name="add" value="Добавить">
+  <c:if test="${favoriteTagAddError != null}"><div class="error">${favoriteTagAddError}</div></c:if>
+</form>
 
+<c:if test="${fn:length(favoriteTags)>0}">
+  <ul>
+    <c:forEach var="tagName" items="${favoriteTags}">
+      <li>
+        <form action="<c:url value="/user-filter/favorite-tag"/>" method="POST">
+          <input type="hidden" name="tagName" value="${tagName}">
+          <span style="white-space: nowrap">${tagName}</span>
+          <input type="submit" name="del" value="Удалить">
+        </form>
+      </li>
+    </c:forEach>
+  </ul>
+</c:if>
+</fieldset>
+<br />
+<fieldset>
+<legend>Список игнорирования тегов</legend>
+<form action="<c:url value="/user-filter/ignore-tag"/>" method="POST">
+  Тег: <input type="text" name="tagName" id="newIgnoreTagName" size="20" maxlength="80">
+  <input type="submit" name="add" value="Добавить">
+  <c:if test="${ignoreTagAddError != null}"><div class="error">${ignoreTagAddError}</div></c:if>
+</form>
+
+<c:if test="${fn:length(ignoreTags)>0}">
+  <ul>
+    <c:forEach var="tagName" items="${ignoreTags}">
+      <li>
+        <form action="<c:url value="/user-filter/ignore-tag"/>" method="POST">
+          <input type="hidden" name="tagName" value="${tagName}">
+          <span style="white-space: nowrap">${tagName}</span>
+          <input type="submit" name="del" value="Удалить">
+        </form>
+      </li>
+    </c:forEach>
+  </ul>
 </c:if>
 </fieldset>
 
