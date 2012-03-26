@@ -1,4 +1,3 @@
-<%@ tag import="ru.org.linux.site.Template" %>
 <%@ tag import="ru.org.linux.util.StringUtil" %>
 <%--
   ~ Copyright 1998-2012 Linux.org.ru
@@ -14,6 +13,7 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   --%>
+<%--@elvariable id="template" type="ru.org.linux.site.Template"--%>
 <%@ tag pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
@@ -29,14 +29,14 @@
 <form method="POST" action="add_comment.jsp" id="commentForm">
   <input type="hidden" name="session"
          value="<%= StringUtil.escapeHtml(session.getId()) %>">
-  <% if (!Template.isSessionAuthorized(session)) { %>
-  <label for="nick">Имя:</label>
-  <input id="nick" type='text' name='nick' value="anonymous" size=40><br>
-  <label for="password">Пароль:</label>
-  <input id="password" type=password name=password size=40><br>
-  ${postscoreInfo}
-  <br>
-  <% } %>
+  <c:if test="${template.sessionAuthorized}">
+    <label for="nick">Имя:</label>
+    <input id="nick" type='text' name='nick' value="anonymous" size=40><br>
+    <label for="password">Пароль:</label>
+    <input id="password" type=password name=password size=40><br>
+    ${postscoreInfo}
+    <br>
+  </c:if>
 
   <input type=hidden name=topic value="${topic.id}">
   <c:if test="${replyto != null}">

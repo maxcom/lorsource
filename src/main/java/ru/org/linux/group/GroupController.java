@@ -144,7 +144,7 @@ public class GroupController {
       return new ModelAndView(new RedirectView(group.getUrl()));
     }
 
-    if (showDeleted && !Template.isSessionAuthorized(request.getSession())) {
+    if (showDeleted && !tmpl.isSessionAuthorized()) {
       throw new AccessViolationException("Вы не авторизованы");
     }
 

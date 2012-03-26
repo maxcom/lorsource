@@ -22,15 +22,15 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import ru.org.linux.auth.AccessViolationException;
-import ru.org.linux.site.Template;
 import ru.org.linux.search.SearchQueueSender;
-import ru.org.linux.site.*;
-import ru.org.linux.topic.TopicDao;
-import ru.org.linux.user.UserDao;
+import ru.org.linux.site.BadParameterException;
+import ru.org.linux.site.ScriptErrorException;
+import ru.org.linux.site.Template;
 import ru.org.linux.topic.Topic;
+import ru.org.linux.topic.TopicDao;
 import ru.org.linux.user.User;
+import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserErrorException;
-import ru.org.linux.user.UserNotFoundException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -84,11 +84,11 @@ public class DeleteCommentController {
   ) throws Exception {
     Map<String, Object> params = new HashMap<String, Object>();
 
-    if (!Template.isSessionAuthorized(session)) {
+    Template tmpl = Template.getTemplate(request);
+
+    if (!tmpl.isSessionAuthorized()) {
       throw new AccessViolationException("нет авторизации");
     }
-
-    Template tmpl = Template.getTemplate(request);
 
     params.put("msgid", msgid);
 
@@ -132,11 +132,11 @@ public class DeleteCommentController {
       throw new BadParameterException("неправильный размер штрафа");
     }
 
-    if (!Template.isSessionAuthorized(session)) {
+    Template tmpl = Template.getTemplate(request);
+
+    if (!tmpl.isSessionAuthorized()) {
       throw new AccessViolationException("нет авторизации");
     }
-
-    Template tmpl = Template.getTemplate(request);
 
     tmpl.updateCurrentUser(userDao);
 

@@ -24,7 +24,9 @@
   --%>
 
 <%
-  if (!Template.isSessionAuthorized(session) || ipBlockInfo != null && ipBlockInfo.isCaptchaRequired()) {
+  Template tmpl = Template.getTemplate(request);
+
+  if (!tmpl.isSessionAuthorized() || ipBlockInfo != null && ipBlockInfo.isCaptchaRequired()) {
 %>
     <p>
 <%

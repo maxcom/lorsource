@@ -24,8 +24,8 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.site.Template;
-import ru.org.linux.topic.TopicDao;
 import ru.org.linux.topic.Topic;
+import ru.org.linux.topic.TopicDao;
 import ru.org.linux.user.User;
 
 import javax.servlet.ServletRequest;
@@ -81,7 +81,9 @@ public class VoteController {
     @RequestParam("msgid") int msgid,
     HttpServletRequest request
   ) throws Exception {
-    if (!Template.isSessionAuthorized(request.getSession())) {
+    Template tmpl = Template.getTemplate(request);
+
+    if (!tmpl.isSessionAuthorized()) {
       throw new AccessViolationException("Not authorized");
     }
 

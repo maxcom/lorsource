@@ -24,16 +24,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.group.GroupPermissionService;
-import ru.org.linux.section.SectionService;
-import ru.org.linux.site.Template;
 import ru.org.linux.search.SearchQueueSender;
 import ru.org.linux.section.Section;
-import ru.org.linux.user.UserDao;
+import ru.org.linux.section.SectionService;
+import ru.org.linux.site.Template;
 import ru.org.linux.user.User;
+import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserErrorException;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import java.util.HashMap;
 
 @Controller
@@ -54,14 +53,13 @@ public class DeleteTopicController extends ApplicationObjectSupport {
   @RequestMapping(value="/delete.jsp", method= RequestMethod.GET)
   public ModelAndView showForm(
     @RequestParam("msgid") int msgid,
-    HttpSession session,
     HttpServletRequest request
   ) throws Exception {
-    if (!Template.isSessionAuthorized(session)) {
+    Template tmpl = Template.getTemplate(request);
+
+    if (!tmpl.isSessionAuthorized()) {
       throw new AccessViolationException("Not authorized");
     }
-
-    Template tmpl = Template.getTemplate(request);
 
     Topic msg = messageDao.getById(msgid);
 
@@ -90,13 +88,12 @@ public class DeleteTopicController extends ApplicationObjectSupport {
     @RequestParam(value="bonus", defaultValue = "0") int bonus,
     HttpServletRequest request
   ) throws Exception {
-    HttpSession session = request.getSession();
+    Template tmpl = Template.getTemplate(request);
 
-    if (!Template.isSessionAuthorized(session)) {
+    if (!tmpl.isSessionAuthorized()) {
       throw new AccessViolationException("Not authorized");
     }
 
-    Template tmpl = Template.getTemplate(request);
     tmpl.updateCurrentUser(userDao);
 
     User user = tmpl.getCurrentUser();

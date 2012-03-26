@@ -331,7 +331,7 @@ public class TopicController {
 
     params.put("group", group);
 
-    if (group.getCommentsRestriction() == -1 && !Template.isSessionAuthorized(request.getSession())) {
+    if (group.getCommentsRestriction() == -1 && !tmpl.isSessionAuthorized()) {
       throw new AccessViolationException("Это сообщение нельзя посмотреть");
     }
 

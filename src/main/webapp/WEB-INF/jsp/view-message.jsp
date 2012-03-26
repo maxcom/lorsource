@@ -305,7 +305,7 @@
 </c:if>
 </div>
 
-<% if (Template.isSessionAuthorized(session) && (!message.isExpired() || tmpl.isModeratorSession()) && !(Boolean) request.getAttribute("showDeleted")) { %>
+<% if (tmpl.isSessionAuthorized() && (!message.isExpired() || tmpl.isModeratorSession()) && !(Boolean) request.getAttribute("showDeleted")) { %>
 <hr>
 <form action="${message.link}" method=POST>
 <input type=hidden name=deleted value=1>

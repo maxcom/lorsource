@@ -211,7 +211,7 @@ public class AddCommentController extends ApplicationObjectSupport {
     IPBlockInfo ipBlockInfo = ipBlockDao.getBlockInfo(request.getRemoteAddr());
 
     if (!add.isPreviewMode() &&
-      (!Template.isSessionAuthorized(session) || ipBlockInfo.isCaptchaRequired())) {
+      (!tmpl.isSessionAuthorized() || ipBlockInfo.isCaptchaRequired())) {
       captcha.checkCaptcha(request, errors);
     }
 
@@ -232,7 +232,7 @@ public class AddCommentController extends ApplicationObjectSupport {
 
     User user;
 
-    if (!Template.isSessionAuthorized(session)) {
+    if (!tmpl.isSessionAuthorized()) {
       if (add.getNick() != null) {
         user = add.getNick();
       } else {

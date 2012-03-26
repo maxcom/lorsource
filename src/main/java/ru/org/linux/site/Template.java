@@ -21,9 +21,9 @@ import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.spring.Configuration;
 import ru.org.linux.storage.FileStorage;
 import ru.org.linux.storage.Storage;
-import ru.org.linux.user.*;
 import ru.org.linux.storage.StorageException;
 import ru.org.linux.storage.StorageNotFoundException;
+import ru.org.linux.user.*;
 import ru.org.linux.util.LorHttpUtils;
 import ru.org.linux.util.StringUtil;
 
@@ -203,15 +203,15 @@ public final class Template {
   }
 
   public boolean isSessionAuthorized() {
-    return isSessionAuthorized(session);
+    return isSessionAuthorized(session) && currentUser!=null;
   }
 
-  public static boolean isSessionAuthorized(HttpSession session) {
+  private static boolean isSessionAuthorized(HttpSession session) {
     return session != null && session.getAttribute("login") != null && (Boolean) session.getAttribute("login");
   }
 
   public boolean isModeratorSession() {
-    if (!isSessionAuthorized(session)) {
+    if (!isSessionAuthorized()) {
       return false;
     }
 
@@ -219,7 +219,7 @@ public final class Template {
   }
 
   public boolean isCorrectorSession() {
-    if (!isSessionAuthorized(session)) {
+    if (!isSessionAuthorized()) {
       return false;
     }
 

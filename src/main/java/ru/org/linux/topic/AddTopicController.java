@@ -222,7 +222,7 @@ public class AddTopicController extends ApplicationObjectSupport {
 
     User user;
 
-    if (!Template.isSessionAuthorized(session)) {
+    if (!tmpl.isSessionAuthorized()) {
       if (form.getNick() != null) {
         user = form.getNick();
       } else {
@@ -294,7 +294,7 @@ public class AddTopicController extends ApplicationObjectSupport {
       errors.reject(null, "сбой добавления");
     }
 
-    if (!form.isPreviewMode() && !errors.hasErrors() && !Template.isSessionAuthorized(session)
+    if (!form.isPreviewMode() && !errors.hasErrors() && !tmpl.isSessionAuthorized()
       || ipBlockInfo.isCaptchaRequired()) {
       captcha.checkCaptcha(request, errors);
     }
