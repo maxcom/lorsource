@@ -156,11 +156,7 @@ public class GroupPermissionService {
   }
 
   public boolean canUseTags(Group group, User user) {
-    if (group.isModerated()) {
-      return true;
-    }
-
-    return user!=null && user.getScore()>=100;
+    return true; // TODO: inline after 2 april 2012
   }
 
   /**
