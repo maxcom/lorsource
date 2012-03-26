@@ -329,7 +329,7 @@ public class UserDao {
    * @param id id пользователя
    * @param delta дельта на которую меняется шкворец
    */
-  @CacheEvict(value="Users", key="id")
+  @CacheEvict(value="Users", key="#id")
   public void changeScore(int id, int delta) {
     if (jdbcTemplate.update(queryChangeScore, delta, id)==0) {
       throw new IllegalArgumentException(new UserNotFoundException(id));
