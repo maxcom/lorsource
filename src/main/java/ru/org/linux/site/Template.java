@@ -247,7 +247,7 @@ public final class Template {
   }
 
   private void initCurrentUser(UserDao userDao, boolean forceUpdate) {
-    if (!isSessionAuthorized()) {
+    if (!isSessionAuthorized(session)) {
       return;
     }
 
