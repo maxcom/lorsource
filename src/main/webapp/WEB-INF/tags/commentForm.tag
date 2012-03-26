@@ -29,7 +29,7 @@
 <form method="POST" action="add_comment.jsp" id="commentForm">
   <input type="hidden" name="session"
          value="<%= StringUtil.escapeHtml(session.getId()) %>">
-  <c:if test="${template.sessionAuthorized}">
+  <c:if test="${!template.sessionAuthorized}">
     <label for="nick">Имя:</label>
     <input id="nick" type='text' name='nick' value="anonymous" size=40><br>
     <label for="password">Пароль:</label>
