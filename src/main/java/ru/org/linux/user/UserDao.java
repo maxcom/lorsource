@@ -18,12 +18,12 @@ package ru.org.linux.user;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
 import com.google.common.collect.Lists;
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Element;
 import org.jasypt.util.password.BasicPasswordEncryptor;
 import org.jasypt.util.password.PasswordEncryptor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowCallbackHandler;
@@ -54,7 +54,7 @@ public class UserDao {
    */
   private static final String queryChangeScore = "UPDATE users SET score=score+? WHERE id=?";
   private static final String queryUserById = "SELECT id,nick,score,max_score,candel,canmod,corrector,passwd,blocked,activated,photo,email,name,unread_events,style FROM users where id=?";
-  private static final String queryUserByNick = "SELECT id,nick,candel,canmod,corrector,passwd,blocked,score,max_score,activated,photo,email,name,unread_events,style FROM users where nick=?";
+  private static final String queryUserIdByNick = "SELECT id FROM users where nick=?";
   private static final String updateUserStyle = "UPDATE users SET style=? WHERE id=?";
 
   private static final String queryNewUsers = "SELECT id FROM users where " +
@@ -93,16 +93,9 @@ public class UserDao {
       throw new UserNotFoundException("<invalid name>");
     }
 
-    Cache cache = CacheManager.create().getCache("Users");
-
-    List<User> list = jdbcTemplate.query(
-            queryUserByNick,
-            new RowMapper<User>() {
-              @Override
-              public User mapRow(ResultSet rs, int rowNum) throws SQLException {
-                return new User(rs);
-              }
-            },
+    List<Integer> list = jdbcTemplate.queryForList(
+            queryUserIdByNick,
+            Integer.class,
             nick
     );
 
@@ -114,17 +107,12 @@ public class UserDao {
       throw new RuntimeException("list.size()>1 ???");
     }
 
-    User user = list.get(0);
-
-    String cacheId = "User?id="+ user.getId();
-
-    cache.put(new Element(cacheId, user));
-
-    return user;
+    return getUser(list.get(0));
   }
 
+  @Cacheable("Users")
   public User getUserCached(int id) throws UserNotFoundException {
-    return getUser(id, true);
+    return getUserInternal(id);
   }
 
   /**
@@ -137,50 +125,31 @@ public class UserDao {
    * @return объект пользователя
    * @throws UserNotFoundException если пользователь с таким id не найден
    */
+  @CachePut("Users")
   public User getUser(int id) throws UserNotFoundException {
-    return getUser(id, false);
+    return getUserInternal(id);
   }
 
-  private User getUser(int id, boolean useCache) throws UserNotFoundException {
-    Cache cache = CacheManager.create().getCache("Users");
-
-    String cacheId = "User?id="+id;
-
-    User res = null;
-
-    if (useCache) {
-      Element element = cache.get(cacheId);
-
-      if (element!=null) {
-        res = (User) element.getObjectValue();
+  private User getUserInternal(int id) throws UserNotFoundException {
+    List<User> list = jdbcTemplate.query(
+            queryUserById, new RowMapper<User>() {
+      @Override
+      public User mapRow(ResultSet rs, int rowNum) throws SQLException {
+        return new User(rs);
       }
+    },
+            id
+    );
+
+    if (list.isEmpty()) {
+      throw new UserNotFoundException(id);
     }
 
-    if (res==null) {
-      List<User> list = jdbcTemplate.query( 
-          queryUserById, new RowMapper<User>() {
-                @Override
-                public User mapRow(ResultSet rs, int rowNum) throws SQLException {
-                  return new User(rs);
-                }
-              },
-              id
-      );
-
-      if (list.isEmpty()) {
-        throw new UserNotFoundException(id);
-      }
-
-      if (list.size()>1) {
-        throw new RuntimeException("list.size()>1 ???");
-      }
-
-      res = list.get(0);
-
-      cache.put(new Element(cacheId, res));
+    if (list.size() > 1) {
+      throw new RuntimeException("list.size()>1 ???");
     }
 
-    return res;
+    return list.get(0);
   }
 
   /**
@@ -329,6 +298,7 @@ public class UserDao {
    * @param user пользователь
    * @param photo userpick
    */
+  @CacheEvict(value="Users", key="#user.id")
   public void setPhoto(User user, String photo){
     jdbcTemplate.update("UPDATE users SET photo=? WHERE id=?", photo, user.getId());
   }
@@ -359,12 +329,11 @@ public class UserDao {
    * @param id id пользователя
    * @param delta дельта на которую меняется шкворец
    */
+  @CacheEvict(value="Users", key="id")
   public void changeScore(int id, int delta) {
     if (jdbcTemplate.update(queryChangeScore, delta, id)==0) {
       throw new IllegalArgumentException(new UserNotFoundException(id));
     }
-
-    updateCache(id);
   }
 
   /**
@@ -372,6 +341,7 @@ public class UserDao {
    * @param user пользователь у которого меняется признак корректора
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
+  @CacheEvict(value="Users", key="#user.id")
   public void toggleCorrector(User user){
     if(user.canCorrect()){
       jdbcTemplate.update("UPDATE users SET corrector='f' WHERE id=?", user.getId());
@@ -385,6 +355,7 @@ public class UserDao {
    * @param user пользователь у которого меняется стиль\тема
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
+  @CacheEvict(value="Users", key="#user.id")
   public void setStyle(User user, String theme){
     jdbcTemplate.update(updateUserStyle, theme, user.getId());
   }
@@ -400,6 +371,7 @@ public class UserDao {
     return setPassword(user, password);
   }
 
+  @CacheEvict(value="Users", key="#user.id")
   private String setPassword(User user, String password) {
     PasswordEncryptor encryptor = new BasicPasswordEncryptor();
     String encryptedPassword = encryptor.encryptPassword(password);
@@ -424,19 +396,11 @@ public class UserDao {
    * @param moderator модератор который блокирует
    * @param reason причина блокировки
    */
+  @CacheEvict(value="Users", key="#user.id")
   public void blockWithoutTransaction(User user, User moderator, String reason) {
     jdbcTemplate.update("UPDATE users SET blocked='t' WHERE id=?", user.getId());
     jdbcTemplate.update("INSERT INTO ban_info (userid, reason, ban_by) VALUES (?, ?, ?)",
         user.getId(), reason, moderator.getId());
-    updateCache(user.getId());
-  }
-
-  private void updateCache(int id) {
-    try {
-      getUser(id);
-    } catch (UserNotFoundException e) {
-      throw new IllegalArgumentException(e);
-    }
   }
 
   /**
@@ -446,6 +410,7 @@ public class UserDao {
    * @param reason причина блокировки
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
+  @CacheEvict(value="Users", key="#user.id")
   public void blockWithResetPassword(User user, User moderator, String reason) {
 
     jdbcTemplate.update("UPDATE users SET blocked='t' WHERE id=?", user.getId());
@@ -455,15 +420,14 @@ public class UserDao {
     String password = encryptor.encryptPassword(StringUtil.generatePassword());
     jdbcTemplate.update("UPDATE users SET passwd=?, lostpwd = 'epoch' WHERE id=?",
         password, user.getId());
-    updateCache(user.getId());
   }
-
 
   /**
    * Разблокировка пользователя
    * @param user разблокируемый пользователь
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
+  @CacheEvict(value="Users", key="#user.id")
   public void unblock(User user){
     jdbcTemplate.update("UPDATE users SET blocked='f' WHERE id=?", user.getId());
     jdbcTemplate.update("DELETE FROM ban_info WHERE userid=?", user.getId());
@@ -528,11 +492,13 @@ public class UserDao {
     );
   }
 
+  @CacheEvict(value="Users", key="#user.id")
   public void activateUser(User user) {
     jdbcTemplate.update("UPDATE users SET activated='t' WHERE id=?", user.getId());
   }
 
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
+  @CacheEvict(value="Users", key="#user.id")
   public void updateUser(User user, String name, String url, String new_email, String town, String password, String info) {
     jdbcTemplate.update(
             "UPDATE users SET  name=?, url=?, new_email=?, town=? WHERE id=?",
@@ -586,6 +552,7 @@ public class UserDao {
     return jdbcTemplate.queryForObject("SELECT new_email FROM users WHERE id=?", String.class, user.getId());
   }
 
+  @CacheEvict(value="Users", key="#user.id")
   public void acceptNewEmail(User user) {
     jdbcTemplate.update("UPDATE users SET email=new_email WHERE id=?", user.getId());
   }
