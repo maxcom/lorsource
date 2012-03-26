@@ -55,7 +55,8 @@ public class TrackerDao {
     ALL("all", "все сообщения", true),
     NOTALKS("notalks", "без talks", false),
     TECH("tech", "тех. разделы форума", false),
-    MINE("mine", "мои темы", false);
+    MINE("mine", "мои темы", false),
+    ZERO("zero", "без ответов", false);
 
     private final String value;
     private final String label;
@@ -79,6 +80,28 @@ public class TrackerDao {
       return def;
     }
   }
+  
+  private static final String queryTrackerZeroMain =
+      "SELECT " +
+          "t.userid as author, " +
+          "t.id, lastmod,  " +
+          "t.stat1 AS stat1, " +
+          "g.id AS gid, " +
+          "g.title AS gtitle, " +
+          "t.title AS title, " +
+          "0 as cid, " +
+          "0 as last_comment_by, " +
+          "t.resolved as resolved," +
+          "section," +
+          "urlname," +
+          "postdate, " +
+          "sections.moderate as smod, " +
+          "t.moderate " +
+          "FROM topics AS t, groups AS g, sections " +
+          "WHERE sections.id=g.section AND not t.deleted AND t.postdate > :interval " +
+          "%s" + /* user!=null ? queryPartIgnored*/
+          " AND t.stat1=0 AND g.id=t.groupid " +
+          "ORDER BY lastmod DESC LIMIT :topics OFFSET :offset";
 
   private static final String queryTrackerMain =
       "SELECT " +
@@ -164,6 +187,8 @@ public class TrackerDao {
       "FROM jam_recent_change " +
       "WHERE topic_id is not null AND change_date > :interval " +
       " AND wiki_user_id=:userid ";
+  
+  
 
   private static final String queryPartIgnored = " AND t.userid NOT IN (select ignored from ignore_list where userid=:userid) ";
   private static final String queryPartNoTalks = " AND not t.groupid=8404 ";
@@ -211,7 +236,13 @@ public class TrackerDao {
         partFilter = "";
     }
 
-    String query = String.format(queryTrackerMain, partIgnored, partFilter, partIgnored, partFilter, partWiki);
+    String query;
+
+    if(filter != TrackerFilter.ZERO) {
+      query = String.format(queryTrackerMain, partIgnored, partFilter, partIgnored, partFilter, partWiki);
+    } else {
+      query = String.format(queryTrackerZeroMain, partIgnored);
+    }
 
     return jdbcTemplate.query(query, parameter, new RowMapper<TrackerItem>() {
       @Override
