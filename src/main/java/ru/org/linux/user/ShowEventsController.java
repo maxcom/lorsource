@@ -45,8 +45,6 @@ public class ShowEventsController {
   @Autowired
   private UserDao userDao;
   @Autowired
-  private RepliesDao repliesDao;
-  @Autowired
   private UserEventPrepareService prepareService;
   @Autowired
   private UserEventsDao userEventsDao;
@@ -149,7 +147,7 @@ public class ShowEventsController {
     params.put("isMyNotifications", true);
 
     response.addHeader("Cache-Control", "no-cache");
-    List<UserEvent> list = repliesDao.getRepliesForUser(currentUser, true, topics, offset, eventFilter);
+    List<UserEvent> list = userEventsDao.getRepliesForUser(currentUser, true, topics, offset, eventFilter);
     List<PreparedUserEvent> prepared = prepareService.prepare(list, false, request.isSecure());
 
     if ("POST".equalsIgnoreCase(request.getMethod())) {
@@ -233,7 +231,7 @@ public class ShowEventsController {
       response.addHeader("Cache-Control", "no-cache");
     }
 
-    List<UserEvent> list = repliesDao.getRepliesForUser(user, showPrivate, topics, offset, UserEventFilterEnum.ALL);
+    List<UserEvent> list = userEventsDao.getRepliesForUser(user, showPrivate, topics, offset, UserEventFilterEnum.ALL);
     List<PreparedUserEvent> prepared = prepareService.prepare(list, feedRequested, request.isSecure());
 
     params.put("isMyNotifications", false);
