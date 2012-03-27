@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class UserEventPrepareService {
+public class UserEventService {
   @Autowired
   private LorCodeService lorCodeService;
   
