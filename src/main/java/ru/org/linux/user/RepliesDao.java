@@ -19,7 +19,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
-import ru.org.linux.user.ShowEventsController.Filter;
 import ru.org.linux.user.UserEvent.EventType;
 import ru.org.linux.util.StringUtil;
 
@@ -97,11 +96,11 @@ public class RepliesDao {
    * @return список уведомлений
    */
   public List<UserEvent> getRepliesForUser(User user, boolean showPrivate, int topics, int offset,
-                                           Filter filter) {
+                                           UserEventFilterEnum eventFilter) {
     String queryString;    
     if(showPrivate) {
       String queryPart;
-      switch (filter) {
+      switch (eventFilter) {
         case FAVORITES:
           queryPart = queryPartFilterFavorites;
           break;

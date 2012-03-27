@@ -51,30 +51,6 @@ public class ShowEventsController {
   @Autowired
   private UserEventsDao userEventsDao;
 
-  public enum Filter {
-    ALL("all", "все уведомления"),
-    ANSWERS("answers", "ответы"),
-    FAVORITES("favorites", "избранное"),
-    DELETED("deleted", "удаленное"),
-    REFERENCE("reference", "упоминания");
-
-    private final String value;
-    private final String label;
-
-    Filter(String value, String label) {
-      this.value = value;
-      this.label = label;
-    }
-
-    public String getValue() {
-      return value;
-    }
-
-    public String getLabel() {
-      return label;
-    }
-  }
-
   public static class Action {
     private String filter;
 
@@ -95,14 +71,14 @@ public class ShowEventsController {
 
   static {
     filterValues = new HashSet<String>();
-    for (Filter filter : Filter.values()) {
-      filterValues.add(filter.getValue());
+    for (UserEventFilterEnum eventFilter : UserEventFilterEnum.values()) {
+      filterValues.add(eventFilter.getValue());
     }
   }
 
   @ModelAttribute("filter")
-  public static List<Filter> getFilter() {
-    return Arrays.asList(Filter.values());
+  public static List<UserEventFilterEnum> getFilter() {
+    return Arrays.asList(UserEventFilterEnum.values());
   }
 
   /**
@@ -129,11 +105,11 @@ public class ShowEventsController {
     }
 
     String filterAction = action.getFilter();
-    Filter filter;
+    UserEventFilterEnum eventFilter;
     if (filterValues.contains(filterAction)) {
-      filter = Filter.valueOf(filterAction.toUpperCase());
+      eventFilter = UserEventFilterEnum.valueOf(filterAction.toUpperCase());
     } else {
-      filter = Filter.ALL;
+      eventFilter = UserEventFilterEnum.ALL;
     }
 
     User currentUser = tmpl.getCurrentUser();
@@ -142,8 +118,8 @@ public class ShowEventsController {
     Map<String, Object> params = new HashMap<String, Object>();
     params.put("nick", nick);
     params.put("forceReset", forceReset);
-    if (filter != Filter.ALL) {
-      params.put("addition_query", "&filter=" + filter.getValue());
+    if (eventFilter != UserEventFilterEnum.ALL) {
+      params.put("addition_query", "&filter=" + eventFilter.getValue());
     } else {
       params.put("addition_query", "");
     }
@@ -173,7 +149,7 @@ public class ShowEventsController {
     params.put("isMyNotifications", true);
 
     response.addHeader("Cache-Control", "no-cache");
-    List<UserEvent> list = repliesDao.getRepliesForUser(currentUser, true, topics, offset, filter);
+    List<UserEvent> list = repliesDao.getRepliesForUser(currentUser, true, topics, offset, eventFilter);
     List<PreparedUserEvent> prepared = prepareService.prepare(list, false, request.isSecure());
 
     if ("POST".equalsIgnoreCase(request.getMethod())) {
@@ -257,7 +233,7 @@ public class ShowEventsController {
       response.addHeader("Cache-Control", "no-cache");
     }
 
-    List<UserEvent> list = repliesDao.getRepliesForUser(user, showPrivate, topics, offset, Filter.ALL);
+    List<UserEvent> list = repliesDao.getRepliesForUser(user, showPrivate, topics, offset, UserEventFilterEnum.ALL);
     List<PreparedUserEvent> prepared = prepareService.prepare(list, feedRequested, request.isSecure());
 
     params.put("isMyNotifications", false);
