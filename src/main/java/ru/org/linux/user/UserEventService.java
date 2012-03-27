@@ -15,6 +15,8 @@
 
 package ru.org.linux.user;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.org.linux.spring.dao.MessageText;
@@ -26,20 +28,25 @@ import java.util.List;
 
 @Service
 public class UserEventService {
+  private static final Log logger = LogFactory.getLog(UserEventService.class);
+
   @Autowired
   private LorCodeService lorCodeService;
-  
+
   @Autowired
   private UserDao userDao;
-  
+
   @Autowired
   private MsgbaseDao msgbaseDao;
 
+  @Autowired
+  private UserEventDao userEventDao;
+
+
   /**
-   * 
-   * @param events список событий
+   * @param events      список событий
    * @param readMessage возвращать ли отрендеренное содержимое уведомлений (используется только для RSS)
-   * @param secure является ли текущие соединение https
+   * @param secure      является ли текущие соединение https
    * @return
    */
   public List<PreparedUserEvent> prepare(List<UserEvent> events, boolean readMessage, boolean secure) {
@@ -50,7 +57,7 @@ public class UserEventService {
       if (readMessage) {
         MessageText messageText;
 
-        if(event.isComment()) {
+        if (event.isComment()) {
           messageText = msgbaseDao.getMessageText(event.getCid());
         } else { // Топик
           messageText = msgbaseDao.getMessageText(event.getMsgid());
@@ -60,9 +67,9 @@ public class UserEventService {
       } else {
         text = null;
       }
-      
+
       User commentAuthor;
-      
+
       if (event.isComment()) {
         try {
           commentAuthor = userDao.getUserCached(event.getCommentAuthor());
@@ -72,10 +79,109 @@ public class UserEventService {
       } else {
         commentAuthor = null;
       }
-      
+
       prepared.add(new PreparedUserEvent(event, text, commentAuthor));
     }
 
     return prepared;
+  }
+
+  /**
+   * Добавление уведомления об упоминании пользователей в комментарии.
+   *
+   * @param users     список пользователей. которых надо оповестить
+   * @param topicId   идентификационный номер топика
+   * @param commentId идентификационный номер комментария
+   */
+  public void addUserRefEvent(User[] users, int topicId, int commentId) {
+    for (User user : users) {
+      userEventDao.addEvent(
+        UserEventFilterEnum.REFERENCE.getType(),
+        user.getId(),
+        false,
+        topicId,
+        commentId,
+        null
+      );
+    }
+  }
+
+  /**
+   * Добавление уведомления об упоминании пользователей в топике.
+   *
+   * @param users   список пользователей. которых надо оповестить
+   * @param topicId идентификационный номер топика
+   */
+  public void addUserRefEvent(User[] users, int topicId) {
+    for (User user : users) {
+      userEventDao.addEvent(
+        UserEventFilterEnum.REFERENCE.getType(),
+        user.getId(),
+        false,
+        topicId,
+        null,
+        null
+      );
+    }
+  }
+
+  /**
+   * Добавление уведомления об ответе на сообщение пользователя.
+   *
+   * @param parentAuthor
+   * @param topicId
+   * @param commentId
+   */
+  public void addReplyEvent(User parentAuthor, int topicId, int commentId) {
+    userEventDao.addEvent(
+      UserEventFilterEnum.ANSWERS.getType(),
+      parentAuthor.getId(),
+      false,
+      topicId,
+      commentId,
+      null
+    );
+  }
+
+  /**
+   * Очистка старых уведомлений пользователей.
+   *
+   * @param maxEventsPerUser максимальное количество уведомлений для одного пользователя
+   */
+  public void cleanupOldEvents(final int maxEventsPerUser) {
+    List<Integer> oldEventsList = userEventDao.getUserIdListByOldEvents(maxEventsPerUser);
+
+    for (int userId : oldEventsList) {
+      logger.info("Cleaning up messages for userid=" + userId);
+      userEventDao.cleanupOldEvents(userId, maxEventsPerUser);
+    }
+  }
+
+  /**
+   * Получить список уведомлений для пользователя.
+   *
+   * @param user        пользователь
+   * @param showPrivate включать ли приватные
+   * @param topics      кол-во уведомлений
+   * @param offset      сдвиг относительно начала
+   * @param eventFilter тип уведомлений
+   * @return список уведомлений
+   */
+  public List<UserEvent> getRepliesForUser(User user, boolean showPrivate, int topics, int offset,
+                                           UserEventFilterEnum eventFilter) {
+    String eventFilterType = null;
+    if (eventFilter != UserEventFilterEnum.ALL) {
+      eventFilterType = eventFilter.getType();
+    }
+    return userEventDao.getRepliesForUser(user.getId(), showPrivate, topics, offset, eventFilterType);
+  }
+
+  /**
+   * Сброс уведомлений.
+   *
+   * @param user пользователь которому сбрасываем
+   */
+  public void resetUnreadReplies(User user) {
+    userEventDao.resetUnreadReplies(user.getId());
   }
 }

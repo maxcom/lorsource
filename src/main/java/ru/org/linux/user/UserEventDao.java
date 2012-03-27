@@ -15,12 +15,10 @@
 
 package ru.org.linux.user;
 
-import com.google.common.collect.ImmutableMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
@@ -32,7 +30,7 @@ import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -94,118 +92,100 @@ public class UserEventDao {
     jdbcTemplate = new JdbcTemplate(ds);
   }
 
-  public void addUserRefEvent(User[] refs, int topic, int comment) {
-    if (refs.length == 0) {
-      return;
+  /**
+   * Добавление уведомления
+   *
+   * @param eventType тип уведомления
+   * @param userId    идентификационный номер пользователя
+   * @param isPrivate приватное ли уведомление
+   * @param topicId   идентификационный номер топика (null если нет)
+   * @param commentId идентификационный номер комментария (null если нет)
+   * @param message   дополнительное сообщение уведомления (null если нет)
+   */
+  public void addEvent(
+    String eventType,
+    int userId,
+    boolean isPrivate,
+    Integer topicId,
+    Integer commentId,
+    String message
+  ) {
+    Map<String, Object> params = new HashMap<String, Object>();
+    params.put("userid", userId);
+    params.put("type", eventType);
+    params.put("private", isPrivate);
+    if (topicId != null) {
+      params.put("message_id", topicId);
+    }
+    if (commentId != null) {
+      params.put("comment_id", commentId);
+    }
+    if (message != null) {
+      params.put("message", message);
     }
 
-    Map<String, Object>[] batch = new Map[refs.length];
-
-    for (int i = 0; i < refs.length; i++) {
-      User ref = refs[i];
-
-      batch[i] = ImmutableMap.<String, Object>of(
-        "userid", ref.getId(),
-        "type", UserEventFilterEnum.REFERENCE.getType(),
-        "private", false,
-        "message_id", topic,
-        "comment_id", comment
-      );
-    }
-
-    insert.executeBatch(batch);
-  }
-
-  public void addUserRefEvent(User[] refs, int topic) {
-    if (refs.length == 0) {
-      return;
-    }
-
-    Map<String, Object>[] batch = new Map[refs.length];
-
-    for (int i = 0; i < refs.length; i++) {
-      User ref = refs[i];
-
-      batch[i] = ImmutableMap.<String, Object>of(
-        "userid", ref.getId(),
-        "type", UserEventFilterEnum.REFERENCE.getType(),
-        "private", false,
-        "message_id", topic
-      );
-    }
-
-    insert.executeBatch(batch);
-  }
-
-  public void addReplyEvent(User parentAuthor, int topicId, int commentId) {
-    insert.execute(ImmutableMap.<String, Object>of(
-      "userid", parentAuthor.getId(),
-      "type", UserEventFilterEnum.ANSWERS.getType(),
-      "private", false,
-      "message_id", topicId,
-      "comment_id", commentId
-    ));
+    insert.execute(params);
   }
 
   /**
-   * Сброс уведомлений
+   * Сброс уведомлений.
    *
-   * @param user пользователь которому сбрасываем
+   * @param userId идентификационный номер пользователь которому сбрасываем
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public void resetUnreadReplies(User user) {
-    jdbcTemplate.update(UPDATE_RESET_UNREAD_REPLIES, user.getId());
-    jdbcTemplate.update("UPDATE user_events SET unread=false WHERE userid=?", user.getId());
+  public void resetUnreadReplies(int userId) {
+    jdbcTemplate.update(UPDATE_RESET_UNREAD_REPLIES, userId);
+    jdbcTemplate.update("UPDATE user_events SET unread=false WHERE userid=?", userId);
   }
 
   /**
-   * Очистка старых уведомлений пользователей.
+   * Получение списка первых 10 идентификационных номеров пользователей,
+   * количество уведомлений которых превышает максимально допустимое значение.
    *
    * @param maxEventsPerUser максимальное количество уведомлений для одного пользователя
+   * @return список идентификационных номеров пользователей
    */
-  public void cleanupOldEvents(final int maxEventsPerUser) {
-    final List<Integer> deleteList = new ArrayList<Integer>();
-
-    jdbcTemplate.query(
-      "select userid, count(user_events.id) from user_events group by userid order by count desc limit 10",
-      new RowCallbackHandler() {
-        @Override
-        public void processRow(ResultSet rs) throws SQLException {
-          if (rs.getInt("count") > maxEventsPerUser) {
-            deleteList.add(rs.getInt("userid"));
-          }
-        }
-      }
+  public List<Integer> getUserIdListByOldEvents(int maxEventsPerUser) {
+    final List<Integer> oldEventsList = jdbcTemplate.queryForList(
+      "select userid from user_events group by userid having count(user_events.id) > ? order by count(user_events.id) DESC limit 10",
+      Integer.class,
+      maxEventsPerUser
     );
-
-    for (int id : deleteList) {
-      logger.info("Cleaning up messages for userid=" + id);
-
-      jdbcTemplate.update(
-        "DELETE FROM user_events WHERE user_events.id IN (SELECT id FROM user_events WHERE userid=? ORDER BY event_date DESC OFFSET ?)",
-        id,
-        maxEventsPerUser
-      );
-    }
+    return oldEventsList;
   }
 
   /**
-   * Получить список уведомлений для пользователя
+   * Очистка старых уведомлений пользователя.
    *
-   * @param user        пользователь
-   * @param showPrivate включать ли приватные
-   * @param topics      кол-во уведомлений
-   * @param offset      сдвиг относительно начала
+   * @param userId           идентификационный номер пользователя
+   * @param maxEventsPerUser максимальное количество уведомлений для одного пользователя
+   */
+  public void cleanupOldEvents(int userId, int maxEventsPerUser) {
+    jdbcTemplate.update(
+      "DELETE FROM user_events WHERE user_events.id IN (SELECT id FROM user_events WHERE userid=? ORDER BY event_date DESC OFFSET ?)",
+      userId,
+      maxEventsPerUser
+    );
+  }
+
+  /**
+   * Получить список уведомлений для пользователя.
+   *
+   * @param userId          идентификационный номер пользователя
+   * @param showPrivate     включать ли приватные
+   * @param topics          кол-во уведомлений
+   * @param offset          сдвиг относительно начала
+   * @param eventFilterType тип уведомлений
    * @return список уведомлений
    */
-  public List<UserEvent> getRepliesForUser(User user, boolean showPrivate, int topics, int offset,
-                                           UserEventFilterEnum eventFilter) {
+  public List<UserEvent> getRepliesForUser(int userId, boolean showPrivate, int topics, int offset,
+                                           String eventFilterType) {
     String queryString;
     if (showPrivate) {
       String queryPart = "";
-      if (eventFilter != UserEventFilterEnum.ALL)
-        queryPart = " AND type = '" + eventFilter.getType() + "' ";
-
+      if (eventFilterType != null) {
+        queryPart = " AND type = '" + eventFilterType + "' ";
+      }
       queryString = String.format(QUERY_ALL_REPLIES_FOR_USER, queryPart);
     } else {
       queryString = QUERY_REPLIES_FOR_USER_WIHOUT_PRIVATE;
@@ -241,6 +221,6 @@ public class UserEventDao {
         return new UserEvent(cid, cAuthor, cDate, groupTitle, groupUrlName,
           sectionId, subj, lastmod, msgid, type, eventMessage, eventDate, unread);
       }
-    }, user.getId(), topics, offset);
+    }, userId, topics, offset);
   }
 }

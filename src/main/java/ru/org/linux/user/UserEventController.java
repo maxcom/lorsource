@@ -46,8 +46,6 @@ public class UserEventController {
   private UserDao userDao;
   @Autowired
   private UserEventService userEventService;
-  @Autowired
-  private UserEventDao userEventDao;
 
   public static class Action {
     private String filter;
@@ -147,11 +145,11 @@ public class UserEventController {
     params.put("isMyNotifications", true);
 
     response.addHeader("Cache-Control", "no-cache");
-    List<UserEvent> list = userEventDao.getRepliesForUser(currentUser, true, topics, offset, eventFilter);
+    List<UserEvent> list = userEventService.getRepliesForUser(currentUser, true, topics, offset, eventFilter);
     List<PreparedUserEvent> prepared = userEventService.prepare(list, false, request.isSecure());
 
     if ("POST".equalsIgnoreCase(request.getMethod())) {
-      userEventDao.resetUnreadReplies(currentUser);
+      userEventService.resetUnreadReplies(currentUser);
       tmpl.updateCurrentUser(userDao);
     } else {
       params.put("enableReset", true);
@@ -231,7 +229,7 @@ public class UserEventController {
       response.addHeader("Cache-Control", "no-cache");
     }
 
-    List<UserEvent> list = userEventDao.getRepliesForUser(user, showPrivate, topics, offset, UserEventFilterEnum.ALL);
+    List<UserEvent> list = userEventService.getRepliesForUser(user, showPrivate, topics, offset, UserEventFilterEnum.ALL);
     List<PreparedUserEvent> prepared = userEventService.prepare(list, feedRequested, request.isSecure());
 
     params.put("isMyNotifications", false);

@@ -89,7 +89,8 @@ public class CommentDao {
 
   private SimpleJdbcInsert insertMsgbase;
 
-  private UserEventDao userEventDao;
+  @Autowired
+  private UserEventService userEventService;
 
   @Autowired
   private IgnoreListDao ignoreListDao;
@@ -111,11 +112,6 @@ public class CommentDao {
   @Autowired
   public void setDeleteInfoDao(DeleteInfoDao deleteInfoDao) {
     this.deleteInfoDao = deleteInfoDao;
-  }
-
-  @Autowired
-  public void setUserEventDao(UserEventDao userEventDao) {
-    this.userEventDao = userEventDao;
   }
 
   /**
@@ -411,7 +407,7 @@ public class CommentDao {
             "bbcode", true)
     );
 
-    userEventDao.addUserRefEvent(userRefs.toArray(new User[userRefs.size()]), comment.getTopicId(), msgid);
+    userEventService.addUserRefEvent(userRefs.toArray(new User[userRefs.size()]), comment.getTopicId(), msgid);
 
     if (comment.getReplyTo() != 0) {
       try {
@@ -424,7 +420,7 @@ public class CommentDao {
             Set<Integer> ignoreList = ignoreListDao.get(parentAuthor);
 
             if (!ignoreList.contains(comment.getUserid())) {
-              userEventDao.addReplyEvent(
+              userEventService.addReplyEvent(
                       parentAuthor,
                       comment.getTopicId(),
                       msgid
