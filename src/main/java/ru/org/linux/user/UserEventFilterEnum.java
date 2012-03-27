@@ -15,18 +15,20 @@
 package ru.org.linux.user;
 
 public enum UserEventFilterEnum {
-  ALL("all", "все уведомления"),
-  ANSWERS("answers", "ответы"),
-  FAVORITES("favorites", "избранное"),
-  DELETED("deleted", "удаленное"),
-  REFERENCE("reference", "упоминания");
+  ALL("all", "все уведомления", ""),
+  ANSWERS("answers", "ответы", "REPLY"),
+  FAVORITES("favorites", "избранное", "WATCH"),
+  DELETED("deleted", "удаленное", "DEL"),
+  REFERENCE("reference", "упоминания", "REF");
 
   private final String value;
   private final String label;
+  private final String type;
 
-  UserEventFilterEnum(String value, String label) {
+  UserEventFilterEnum(String value, String label, String type) {
     this.value = value;
     this.label = label;
+    this.type = type;
   }
 
   public String getValue() {
@@ -35,5 +37,18 @@ public enum UserEventFilterEnum {
 
   public String getLabel() {
     return label;
+  }
+
+  public String getType() {
+    return type;
+  }
+
+  public static UserEventFilterEnum valueOfByType(String type) {
+    for (UserEventFilterEnum eventFilterEnum : UserEventFilterEnum.values()) {
+      if (eventFilterEnum.getType().equals(type)) {
+        return eventFilterEnum;
+      }
+    }
+    return null;
   }
 }

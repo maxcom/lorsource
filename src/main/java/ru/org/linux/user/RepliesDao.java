@@ -19,7 +19,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
-import ru.org.linux.user.UserEvent.EventType;
 import ru.org.linux.util.StringUtil;
 
 import javax.sql.DataSource;
@@ -40,12 +39,6 @@ public class RepliesDao {
     jdbcTemplate = new JdbcTemplate(dataSource);
   }
 
-  private static final String queryPartFilterAnswers = " AND type = 'REPLY' ";
-  private static final String queryPartFilterFavorites = " AND type = 'WATCH' ";
-  private static final String queryPartFilterDeleted = " AND type = 'DEL' ";
-  private static final String queryPartFilterReference = " AND type= 'REF' ";
-
-
   private static final String queryAllRepliesForUser =
       "SELECT event_date, " +
           " topics.title as subj, groups.title as gtitle, " +
@@ -60,7 +53,7 @@ public class RepliesDao {
           " INNER JOIN groups ON (groups.id = topics.groupid) " +
           " LEFT JOIN comments ON (comments.id=comment_id) " +
       " WHERE user_events.userid = ? " +
-          " %s " + 
+          " %s " +
           " AND (comments.id is null or NOT comments.topic_deleted)" +
       " ORDER BY event_date DESC LIMIT ?" +
       " OFFSET ?";
@@ -97,25 +90,12 @@ public class RepliesDao {
    */
   public List<UserEvent> getRepliesForUser(User user, boolean showPrivate, int topics, int offset,
                                            UserEventFilterEnum eventFilter) {
-    String queryString;    
+    String queryString;
     if(showPrivate) {
-      String queryPart;
-      switch (eventFilter) {
-        case FAVORITES:
-          queryPart = queryPartFilterFavorites;
-          break;
-        case ANSWERS:
-          queryPart = queryPartFilterAnswers;
-          break;
-        case DELETED:
-          queryPart = queryPartFilterDeleted;
-          break;
-        case REFERENCE:
-          queryPart = queryPartFilterReference;
-          break;
-        default:
-          queryPart = "";
-      }
+      String queryPart = "";
+      if (eventFilter != UserEventFilterEnum.ALL)
+        queryPart = " AND type = '"+eventFilter.getType()+"' ";
+
       queryString = String.format(queryAllRepliesForUser, queryPart);
     } else {
       queryString = queryRepliesForUserWihoutPrivate;
@@ -143,7 +123,7 @@ public class RepliesDao {
         String groupUrlName = resultSet.getString("urlname");
         int sectionId = resultSet.getInt("section");
         int msgid = resultSet.getInt("msgid");
-        EventType type = EventType.valueOf(resultSet.getString("type"));
+        UserEventFilterEnum type = UserEventFilterEnum.valueOfByType (resultSet.getString("type"));
         String eventMessage = resultSet.getString("ev_msg");
 
         boolean unread = resultSet.getBoolean("unread");

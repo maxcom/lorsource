@@ -54,21 +54,21 @@ public class UserEventsDao {
   }
 
   public void addUserRefEvent(User[] refs, int topic, int comment) {
-    if (refs.length==0) {
+    if (refs.length == 0) {
       return;
     }
 
     Map<String, Object>[] batch = new Map[refs.length];
 
-    for (int i=0; i<refs.length; i++) {
+    for (int i = 0; i < refs.length; i++) {
       User ref = refs[i];
 
       batch[i] = ImmutableMap.<String, Object>of(
-            "userid", ref.getId(),
-            "type", "REF",
-            "private", false,
-            "message_id", topic,
-            "comment_id", comment
+        "userid", ref.getId(),
+        "type", UserEventFilterEnum.REFERENCE.getType(),
+        "private", false,
+        "message_id", topic,
+        "comment_id", comment
       );
     }
 
@@ -76,20 +76,20 @@ public class UserEventsDao {
   }
 
   public void addUserRefEvent(User[] refs, int topic) {
-    if (refs.length==0) {
+    if (refs.length == 0) {
       return;
     }
 
     Map<String, Object>[] batch = new Map[refs.length];
 
-    for (int i=0; i<refs.length; i++) {
+    for (int i = 0; i < refs.length; i++) {
       User ref = refs[i];
 
       batch[i] = ImmutableMap.<String, Object>of(
-            "userid", ref.getId(),
-            "type", "REF",
-            "private", false,
-            "message_id", topic
+        "userid", ref.getId(),
+        "type", UserEventFilterEnum.REFERENCE.getType(),
+        "private", false,
+        "message_id", topic
       );
     }
 
@@ -98,16 +98,17 @@ public class UserEventsDao {
 
   public void addReplyEvent(User parentAuthor, int topicId, int commentId) {
     insert.execute(ImmutableMap.<String, Object>of(
-            "userid", parentAuthor.getId(),
-            "type", "REPLY",
-            "private", false,
-            "message_id", topicId,
-            "comment_id", commentId
+      "userid", parentAuthor.getId(),
+      "type", UserEventFilterEnum.ANSWERS.getType(),
+      "private", false,
+      "message_id", topicId,
+      "comment_id", commentId
     ));
   }
 
   /**
    * Сброс уведомлений
+   *
    * @param user пользователь которому сбрасываем
    */
   @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
@@ -119,7 +120,7 @@ public class UserEventsDao {
   /**
    * Очистка старых уведомлений пользователей.
    *
-   * @param maxEventsPerUser  максимальное количество уведомлений для одного пользователя
+   * @param maxEventsPerUser максимальное количество уведомлений для одного пользователя
    */
   public void cleanupOldEvents(final int maxEventsPerUser) {
     final List<Integer> deleteList = new ArrayList<Integer>();
