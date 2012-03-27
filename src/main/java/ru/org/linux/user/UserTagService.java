@@ -21,6 +21,8 @@ import org.springframework.stereotype.Service;
 import ru.org.linux.topic.TagDao;
 import ru.org.linux.topic.TagNotFoundException;
 
+import java.util.List;
+
 @Service
 public class UserTagService {
   @Autowired
@@ -95,5 +97,15 @@ public class UserTagService {
    */
   public ImmutableList<String> ignoresGet(User user) {
     return userTagDao.getTags(user.getId(), false);
+  }
+
+  /**
+   * Получить список ID пользователей, у которых в профиле есть перечисленные фаворитные теги.
+   *
+   * @param tags  список фаворитных тегов
+   * @return список ID пользователей
+   */
+  public List<Integer> getUserIdListByTags (List<String> tags) {
+    return userTagDao.getUserIdListByTags (tags);
   }
 }

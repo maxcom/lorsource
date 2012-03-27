@@ -51,6 +51,7 @@ import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserErrorException;
 import ru.org.linux.user.UserEventService;
+import ru.org.linux.user.UserTagService;
 import ru.org.linux.util.LorHttpUtils;
 
 import javax.servlet.http.HttpServletRequest;
@@ -93,6 +94,9 @@ public class TopicDao {
 
   @Autowired
   private DeleteInfoDao deleteInfoDao;
+
+  @Autowired
+  private UserTagService userTagService;
 
   /**
    * Запрос получения полной информации о топике
@@ -379,14 +383,35 @@ public class TopicDao {
       pollDao.createPoll(Arrays.asList(form.getPoll()), form.isMultiSelect(), msgid);
     }
 
+    if (userRefs.size() != 0) {
+      userEventService.addUserRefEvent(userRefs.toArray(new User[userRefs.size()]), msgid);
+    }
+
     if (form.getTags() != null) {
-      final List<String> tags = tagService.parseSanitizeTags(form.getTags());
+      List<String> tags = tagService.parseSanitizeTags(form.getTags());
 
       tagService.updateTags(msgid, tags);
       tagService.updateCounters(Collections.<String>emptyList(), tags);
-    }
 
-    userEventService.addUserRefEvent(userRefs.toArray(new User[userRefs.size()]), msgid);
+      // оповещение пользователей по тегам
+      List<Integer> userIdListByTags = userTagService.getUserIdListByTags(tags);
+
+      List<Integer> userRefIds = new ArrayList<Integer>();
+      for (User userRef: userRefs) {
+        userRefIds.add(userRef.getId());
+      }
+
+      // не оповещать пользователей. которые ранее были оповещены через упоминание
+      Iterator userTagIterator = userIdListByTags.iterator();
+
+      while (userTagIterator.hasNext()) {
+        Integer userId = (Integer) userTagIterator.next();
+        if (userRefIds.contains(userId)) {
+          userTagIterator.remove();
+        }
+      }
+      userEventService.addUserTagEvent(userIdListByTags, msgid);
+    }
 
     return msgid;
   }
