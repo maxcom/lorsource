@@ -21,7 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.simple.SimpleJdbcCall;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import ru.org.linux.user.UserEventsDao;
+import ru.org.linux.user.UserEventDao;
 
 import javax.sql.DataSource;
 
@@ -35,7 +35,7 @@ public class StatUpdater {
   private SimpleJdbcCall statMonthly;
 
   @Autowired
-  UserEventsDao userEventsDao;
+  UserEventDao userEventDao;
 
   @Autowired
   public void setDataSource(DataSource dataSource) {
@@ -55,6 +55,6 @@ public class StatUpdater {
 
   @Scheduled(fixedDelay = 60*60*1000)
   public void creanEvents() {
-    userEventsDao.cleanupOldEvents(MAX_EVENTS);
+    userEventDao.cleanupOldEvents(MAX_EVENTS);
   }
 }

@@ -37,8 +37,8 @@ import java.util.List;
 import java.util.Map;
 
 @Repository
-public class UserEventsDao {
-  private static final Log logger = LogFactory.getLog(UserEventsDao.class);
+public class UserEventDao {
+  private static final Log logger = LogFactory.getLog(UserEventDao.class);
 
   private static final String UPDATE_RESET_UNREAD_REPLIES = "UPDATE users SET unread_events=0 where id=?";
 

@@ -39,7 +39,7 @@ import java.util.Map;
 import java.util.Set;
 
 @Controller
-public class ShowEventsController {
+public class UserEventController {
   @Autowired
   private ReplyFeedView feedView;
   @Autowired
@@ -47,7 +47,7 @@ public class ShowEventsController {
   @Autowired
   private UserEventService userEventService;
   @Autowired
-  private UserEventsDao userEventsDao;
+  private UserEventDao userEventDao;
 
   public static class Action {
     private String filter;
@@ -147,11 +147,11 @@ public class ShowEventsController {
     params.put("isMyNotifications", true);
 
     response.addHeader("Cache-Control", "no-cache");
-    List<UserEvent> list = userEventsDao.getRepliesForUser(currentUser, true, topics, offset, eventFilter);
+    List<UserEvent> list = userEventDao.getRepliesForUser(currentUser, true, topics, offset, eventFilter);
     List<PreparedUserEvent> prepared = userEventService.prepare(list, false, request.isSecure());
 
     if ("POST".equalsIgnoreCase(request.getMethod())) {
-      userEventsDao.resetUnreadReplies(currentUser);
+      userEventDao.resetUnreadReplies(currentUser);
       tmpl.updateCurrentUser(userDao);
     } else {
       params.put("enableReset", true);
@@ -231,7 +231,7 @@ public class ShowEventsController {
       response.addHeader("Cache-Control", "no-cache");
     }
 
-    List<UserEvent> list = userEventsDao.getRepliesForUser(user, showPrivate, topics, offset, UserEventFilterEnum.ALL);
+    List<UserEvent> list = userEventDao.getRepliesForUser(user, showPrivate, topics, offset, UserEventFilterEnum.ALL);
     List<PreparedUserEvent> prepared = userEventService.prepare(list, feedRequested, request.isSecure());
 
     params.put("isMyNotifications", false);
