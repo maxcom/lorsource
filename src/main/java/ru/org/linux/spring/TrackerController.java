@@ -106,6 +106,8 @@ public class TrackerController {
         trackerFilter = TrackerFilter.TECH;
       } else if ("mine".equals(filter)) {
         trackerFilter = TrackerFilter.MINE;
+      } else if ("zero".equals(filter)) {
+        trackerFilter = TrackerFilter.ZERO;
       } else {
         trackerFilter = TrackerFilter.ALL;
       }
