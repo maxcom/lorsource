@@ -192,8 +192,14 @@ public class GroupController {
     String ignq = "";
 
     if (!showIgnored && tmpl.isSessionAuthorized()) {
+      int currentUserId = tmpl.getCurrentUser().getId();
       if (firstPage && !ignoreList.isEmpty()) {
-        ignq = " AND topics.userid NOT IN (SELECT ignored FROM ignore_list WHERE userid=" + tmpl.getCurrentUser().getId() + ')';
+        ignq = " AND topics.userid NOT IN (SELECT ignored FROM ignore_list WHERE userid=" + currentUserId + ')';
+      }
+
+      if (!tmpl.isModeratorSession()) {
+        ignq += " AND topics.id NOT IN (select distinct tags.msgid from tags, user_tags "
+          + "where tags.tagid=user_tags.tag_id and user_tags.is_favorite = false and user_id=" + currentUserId + ") ";
       }
     }
 

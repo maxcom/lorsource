@@ -62,7 +62,11 @@ public class UserFilterController {
     Map<Integer, User> ignoreMap = createIgnoreMap(ignoreListDao.get(user));
     modelAndView.addObject("ignoreList", ignoreMap);
     modelAndView.addObject("favoriteTags", userTagService.favoritesGet(user));
-    modelAndView.addObject("ignoreTags", userTagService.ignoresGet(user));
+    if (!tmpl.isModeratorSession()) {
+      modelAndView.addObject("ignoreTags", userTagService.ignoresGet(user));
+    } else {
+      modelAndView.addObject("isModerator", true);
+    }
     return modelAndView;
   }
 
@@ -213,6 +217,9 @@ public class UserFilterController {
     if (!tmpl.isSessionAuthorized()) {
       throw new AccessViolationException("Not authorized");
     }
+    if (tmpl.isModeratorSession()) {
+      throw new AccessViolationException("Модераторам нельзя игнорировать теги");
+    }
 
     User user = tmpl.getCurrentUser();
     user.checkAnonymous();
@@ -252,6 +259,10 @@ public class UserFilterController {
 
     if (!tmpl.isSessionAuthorized()) {
       throw new AccessViolationException("Not authorized");
+    }
+
+    if (tmpl.isModeratorSession()) {
+      throw new AccessViolationException("Модераторам нельзя игнорировать теги");
     }
 
     User user = tmpl.getCurrentUser();

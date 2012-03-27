@@ -81,6 +81,11 @@
 <br />
 <fieldset>
 <legend>Список игнорирования тегов</legend>
+<c:choose>
+<c:when test="${isModerator}">
+Модераторам нельзя игнорировать теги
+</c:when>
+<c:otherwise>
 <form action="<c:url value="/user-filter/ignore-tag"/>" method="POST">
   Тег: <input type="text" name="tagName" id="newIgnoreTagName" size="20" maxlength="80">
   <input type="submit" name="add" value="Добавить">
@@ -100,6 +105,8 @@
     </c:forEach>
   </ul>
 </c:if>
+</c:otherwise>
+</c:choose>
 </fieldset>
 
 <jsp:include page="/WEB-INF/jsp/footer.jsp"/>

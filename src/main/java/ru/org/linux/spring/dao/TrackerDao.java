@@ -191,6 +191,8 @@ public class TrackerDao {
   
 
   private static final String queryPartIgnored = " AND t.userid NOT IN (select ignored from ignore_list where userid=:userid) ";
+  private static final String queryPartTagIgnored = " AND t.id NOT IN (select distinct tags.msgid from tags, user_tags "
+    + "where tags.tagid=user_tags.tag_id and user_tags.is_favorite = false and user_id=:userid) ";
   private static final String queryPartNoTalks = " AND not t.groupid=8404 ";
   private static final String queryPartTech = " AND not t.groupid=8404 AND not t.groupid=4068 AND section=2 ";
   private static final String queryPartMine = " AND t.userid=:userid ";
@@ -206,7 +208,7 @@ public class TrackerDao {
     String partIgnored;
 
     if(currentUser != null) {
-      partIgnored = queryPartIgnored;
+      partIgnored = queryPartIgnored + queryPartTagIgnored;
       parameter.addValue("userid", currentUser.getId());
     } else {
       partIgnored = "";
