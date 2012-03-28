@@ -24,13 +24,6 @@ import java.sql.Timestamp;
  * Элемент списка уведомлений
  */
 public class UserEvent implements Serializable {
-  public enum EventType {
-    REPLY,  // ответ
-    DEL,    // удаленное сообщение
-    WATCH,  // избранное(?)
-    OTHER,  // другое
-    REF     // упоминание
-  }
 
   private final int cid;
   private final int cAuthor;
@@ -42,14 +35,14 @@ public class UserEvent implements Serializable {
   private final String subj;
   private final Timestamp lastmod;
   private final int msgid;
-  private final EventType type;
+  private final UserEventFilterEnum type;
   private final String eventMessage;
   private final Timestamp eventDate;
   private final boolean unread;
 
   public UserEvent(int cid, int cAuthor, Timestamp cDate, String groupTitle,
                    String groupUrlName, int sectionId, String subj,
-                   Timestamp lastmod, int msgid, EventType type, String eventMessage,
+                   Timestamp lastmod, int msgid, UserEventFilterEnum type, String eventMessage,
                    Timestamp eventDate, boolean unread) {
     this.cid = cid;
     this.cAuthor = cAuthor;
@@ -102,7 +95,7 @@ public class UserEvent implements Serializable {
     return msgid;
   }
 
-  public EventType getType() {
+  public UserEventFilterEnum getType() {
     return type;
   }
 
