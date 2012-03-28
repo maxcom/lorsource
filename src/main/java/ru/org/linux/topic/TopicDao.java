@@ -50,7 +50,7 @@ import ru.org.linux.spring.dao.MsgbaseDao;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserErrorException;
-import ru.org.linux.user.UserEventsDao;
+import ru.org.linux.user.UserEventService;
 import ru.org.linux.util.LorHttpUtils;
 
 import javax.servlet.http.HttpServletRequest;
@@ -80,7 +80,7 @@ public class TopicDao {
   private TagService tagService;
 
   @Autowired
-  private UserEventsDao userEventsDao;
+  private UserEventService userEventService;
 
   @Autowired
   private SectionService sectionService;
@@ -386,7 +386,7 @@ public class TopicDao {
       tagService.updateCounters(Collections.<String>emptyList(), tags);
     }
 
-    userEventsDao.addUserRefEvent(userRefs.toArray(new User[userRefs.size()]), msgid);
+    userEventService.addUserRefEvent(userRefs.toArray(new User[userRefs.size()]), msgid);
 
     return msgid;
   }

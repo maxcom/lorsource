@@ -77,8 +77,6 @@ public class UserDao {
                     "AND not deleted " +
                     "GROUP BY sections.name";
 
-  private static final String updateResetUnreadReplies = "UPDATE users SET unread_events=0 where id=?";
-
   @Autowired
   public void setJdbcTemplate(DataSource dataSource) {
     jdbcTemplate = new JdbcTemplate(dataSource);
@@ -310,16 +308,6 @@ public class UserDao {
    */
   private void setUserInfo(int userid, String text){
     jdbcTemplate.update("UPDATE users SET userinfo=? where id=?", text, userid);
-  }
-
-  /**
-   * Сброс уведомлений
-   * @param user пользователь которому сбрасываем
-   */
-  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public void resetUnreadReplies(User user) {
-    jdbcTemplate.update(updateResetUnreadReplies, user.getId());
-    jdbcTemplate.update("UPDATE user_events SET unread=false WHERE userid=?", user.getId());
   }
 
   /**
