@@ -227,18 +227,26 @@
 
   <c:if test="${user.id!=2}">
 
-<div class="forum">
-<table class="message-table" style="width: auto">
-<thead>
-<tr><th>Раздел</th><th>Число сообщений (тем)</th></tr>
-<tbody>
-<c:forEach items="${userStat.topicsBySection}" var="i">
-  <tr><td>${i.key}</td><td>${i.value}</td></tr>
-</c:forEach>
-</table>
-</div>
+<c:if test="${not empty userStat.topicsBySection}">
+  <div class="forum">
+    <table class="message-table" style="width: auto">
+      <thead>
+      <tr>
+        <th>Раздел</th>
+        <th>Число сообщений (тем)</th>
+      </tr>
+      <tbody>
+      <c:forEach items="${userStat.topicsBySection}" var="i">
+      <tr>
+        <td>${i.key}</td>
+        <td>${i.value}</td>
+      </tr>
+      </c:forEach>
+    </table>
+  </div>
+</c:if>
 
-<h2>Сообщения пользователя</h2>
+  <h2>Сообщения пользователя</h2>
 <ul>
   <li>
     <a href="/people/${user.nick}/">Темы</a>
