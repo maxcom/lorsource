@@ -28,6 +28,8 @@ import ru.org.linux.topic.TagNotFoundException;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
@@ -46,7 +48,7 @@ public class UserTagServiceTest {
 
   @Autowired
   UserTagService userTagService;
-  
+
   private User user;
 
   @Before
@@ -121,4 +123,16 @@ public class UserTagServiceTest {
     Assert.assertEquals(etalon.get(0), actual.get(0));
   }
 
+  @Test
+  public void getUserIdListByTagsTest() {
+    List<Integer> etalon = new ArrayList<Integer>();
+    etalon.add(123);
+    List<String> tags = new ArrayList<String>();
+    tags.add("tag1");
+    when(userTagDao.getUserIdListByTags(tags)).thenReturn(etalon);
+
+    List<Integer> actual = userTagService.getUserIdListByTags(tags);
+    Assert.assertEquals(etalon.size(), actual.size());
+    Assert.assertEquals(etalon.get(0), actual.get(0));
+  }
 }

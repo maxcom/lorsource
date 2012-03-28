@@ -28,6 +28,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.sql.DataSource;
+import java.util.ArrayList;
+import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("userTagDao-context.xml")
@@ -234,5 +236,25 @@ public class UserTagDaoIntegrationTest {
 
     tags = userTagDao.getTags(user1Id, false);
     Assert.assertEquals("Wrong count of user tags.", 2, tags.size());
+  }
+
+  @Test
+  public void getUserIdListByTagsTest() {
+    prepareUserTags();
+    List<Integer> userIdList;
+    List<String> tags = new ArrayList<String>();
+    tags.add("UserTagDaoIntegrationTest_tag1");
+    userIdList = userTagDao.getUserIdListByTags(tags);
+    Assert.assertEquals("Wrong count of user ID's.", 2, userIdList.size());
+
+    tags.add("UserTagDaoIntegrationTest_tag2");
+    userIdList = userTagDao.getUserIdListByTags(tags);
+    Assert.assertEquals("Wrong count of user ID's.", 2, userIdList.size());
+
+    tags.clear();
+    userTagDao.deleteTag(user1Id, tag5Id, true);
+    tags.add("UserTagDaoIntegrationTest_tag5");
+    userIdList = userTagDao.getUserIdListByTags(tags);
+    Assert.assertEquals("Wrong count of user ID's.", 1, userIdList.size());
   }
 }
