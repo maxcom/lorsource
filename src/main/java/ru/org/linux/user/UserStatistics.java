@@ -15,9 +15,6 @@
 
 package ru.org.linux.user;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableMap.Builder;
-
 import java.sql.*;
 import java.util.Map;
 
@@ -30,91 +27,19 @@ public class UserStatistics {
   private final Timestamp firstTopic;
   private final Timestamp lastTopic;
 
-  private final Map<String, Integer> commentsBySection;
+  private final Map<String, Integer> topicsBySection;
 
   public UserStatistics(int ignoreCount, int commentCount,
                         Timestamp firstComment, Timestamp lastComment,
                         Timestamp firstTopic, Timestamp lastTopic,
-                        Map<String, Integer> commentsBySection) {
+                        Map<String, Integer> topicsBySection) {
     this.ignoreCount = ignoreCount;
     this.commentCount = commentCount;
     this.firstComment = firstComment;
     this.lastComment = lastComment;
     this.firstTopic = firstTopic;
     this.lastTopic = lastTopic;
-    this.commentsBySection = commentsBySection;
-  }
-
-  @Deprecated
-  public UserStatistics(Connection db, int id) throws SQLException {
-    PreparedStatement ignoreStat = db.prepareStatement("SELECT count(*) as inum FROM ignore_list JOIN users ON  ignore_list.userid = users.id WHERE ignored=? AND not blocked");
-    PreparedStatement commentStat = db.prepareStatement("SELECT count(*) as c FROM comments WHERE userid=? AND not deleted");
-    PreparedStatement topicDates = db.prepareStatement("SELECT min(postdate) as first,max(postdate) as last FROM topics WHERE topics.userid=?");
-    PreparedStatement commentDates = db.prepareStatement("SELECT min(postdate) as first,max(postdate) as last FROM comments WHERE comments.userid=?");
-
-    PreparedStatement commentsBySectionStat = db.prepareStatement(
-            "SELECT sections.name as pname, count(*) as c " +
-                    "FROM topics, groups, sections " +
-                    "WHERE topics.userid=? " +
-                    "AND groups.id=topics.groupid " +
-                    "AND sections.id=groups.section " +
-                    "AND not deleted " +
-                    "GROUP BY sections.name"
-    );
-
-    ignoreStat.setInt(1, id);
-    commentStat.setInt(1, id);
-    topicDates.setInt(1, id);
-    commentDates.setInt(1, id);
-    commentsBySectionStat.setInt(1, id);
-
-    ResultSet ignoreResult = ignoreStat.executeQuery();
-    if (ignoreResult.next()) {
-      ignoreCount = ignoreResult.getInt(1);
-    } else {
-      ignoreCount = 0;
-    }
-    ignoreResult.close();
-    ignoreStat.close();
-
-    ResultSet commentResult = commentStat.executeQuery();
-    if (commentResult.next()) {
-      commentCount = commentResult.getInt(1);
-    } else {
-      commentCount = 0;
-    }
-    commentResult.close();
-    commentStat.close();
-
-    ResultSet topicDatesResult = topicDates.executeQuery();
-    if (topicDatesResult.next()) {
-      firstTopic = topicDatesResult.getTimestamp("first");
-      lastTopic = topicDatesResult.getTimestamp("last");
-    } else {
-      firstTopic = null;
-      lastTopic = null;
-    }
-    topicDatesResult.close();
-    topicDates.close();
-
-    ResultSet commentDatesResult = commentDates.executeQuery();
-    if (commentDatesResult.next()) {
-      firstComment = commentDatesResult.getTimestamp("first");
-      lastComment = commentDatesResult.getTimestamp("last");
-    } else {
-      firstComment = null;
-      lastComment = null;
-    }
-    commentDatesResult.close();
-    commentDates.close();
-
-    Builder<String, Integer> builder = ImmutableMap.builder();
-    ResultSet comments = commentsBySectionStat.executeQuery();
-    while (comments.next()) {
-      builder.put(comments.getString("pname"), comments.getInt("c"));
-    }
-
-    commentsBySection = builder.build();
+    this.topicsBySection = topicsBySection;
   }
 
   public int getIgnoreCount() {
@@ -141,7 +66,7 @@ public class UserStatistics {
     return lastTopic;
   }
 
-  public Map<String, Integer> getCommentsBySection() {
-    return commentsBySection;
+  public Map<String, Integer> getTopicsBySection() {
+    return topicsBySection;
   }
 }

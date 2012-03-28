@@ -68,7 +68,7 @@ public class UserDao {
   private static final String queryCommentStat = "SELECT count(*) as c FROM comments WHERE userid=? AND not deleted";
   private static final String queryTopicDates = "SELECT min(postdate) as first,max(postdate) as last FROM topics WHERE topics.userid=?";
   private static final String queryCommentDates = "SELECT min(postdate) as first,max(postdate) as last FROM comments WHERE comments.userid=?";
-  private static final String queryCommentsBySectionStat =
+  private static final String queryTopicsBySectionStat =
             "SELECT sections.name as pname, count(*) as c " +
                     "FROM topics, groups, sections " +
                     "WHERE topics.userid=? " +
@@ -248,7 +248,7 @@ public class UserDao {
     }
 
     final Builder<String, Integer> builder = ImmutableMap.builder();
-    jdbcTemplate.query(queryCommentsBySectionStat, new RowCallbackHandler() {
+    jdbcTemplate.query(queryTopicsBySectionStat, new RowCallbackHandler() {
       @Override
       public void processRow(ResultSet resultSet) throws SQLException {
         builder.put(resultSet.getString("pname"), resultSet.getInt("c"));

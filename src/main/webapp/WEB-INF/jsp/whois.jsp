@@ -232,7 +232,7 @@
 <thead>
 <tr><th>Раздел</th><th>Число сообщений (тем)</th></tr>
 <tbody>
-<c:forEach items="${userStat.commentsBySection}" var="i">
+<c:forEach items="${userStat.topicsBySection}" var="i">
   <tr><td>${i.key}</td><td>${i.value}</td></tr>
 </c:forEach>
 </table>
