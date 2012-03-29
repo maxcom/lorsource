@@ -16,17 +16,21 @@
 package ru.org.linux.user;
 
 import com.google.common.collect.ImmutableList;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.org.linux.tag.ITagActionHandler;
+import ru.org.linux.tag.IncorrectTagException;
 import ru.org.linux.tag.TagDao;
 import ru.org.linux.tag.TagNotFoundException;
 import ru.org.linux.tag.TagService;
 
 import javax.annotation.PostConstruct;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class UserTagService {
@@ -114,7 +118,7 @@ public class UserTagService {
   /**
    * Получение списка тегов пользователя.
    *
-   * @param user    объект пользователя
+   * @param user объект пользователя
    * @return список тегов пользователя
    */
   public ImmutableList<String> favoritesGet(User user) {
@@ -124,7 +128,7 @@ public class UserTagService {
   /**
    * Получение списка игнорированных тегов пользователя.
    *
-   * @param user    объект пользователя
+   * @param user объект пользователя
    * @return список игнорированных тегов пользователя
    */
   public ImmutableList<String> ignoresGet(User user) {
@@ -134,10 +138,48 @@ public class UserTagService {
   /**
    * Получить список ID пользователей, у которых в профиле есть перечисленные фаворитные теги.
    *
-   * @param tags  список фаворитных тегов
+   * @param tags список фаворитных тегов
    * @return список ID пользователей
    */
-  public List<Integer> getUserIdListByTags (List<String> tags) {
-    return userTagDao.getUserIdListByTags (tags);
+  public List<Integer> getUserIdListByTags(List<String> tags) {
+    return userTagDao.getUserIdListByTags(tags);
   }
+
+  /**
+   * Разбор строки тегов.
+   *
+   * @param tags список тегов через запятую
+   * @return список тегов
+   * @throws IncorrectTagException
+   */
+  public ImmutableList<String> parseTags(String tags)
+    throws IncorrectTagException {
+    Set<String> tagSet = new HashSet<String>();
+
+    // Теги разделяютчя пайпом или запятой
+    tags = tags.replaceAll("\\|", ",");
+    String[] tagsArr = tags.split(",");
+
+    if (tagsArr.length == 0) {
+      return ImmutableList.of();
+    }
+
+    for (String aTagsArr : tagsArr) {
+      String tag = StringUtils.stripToNull(aTagsArr);
+      // плохой тег - выбрасываем
+      if (tag == null) {
+        continue;
+      }
+
+      // обработка тега: только буквы/цифры/пробелы, никаких спецсимволов, запятых, амперсандов и <>
+      if (!tagService.isGoodTag(tag)) {
+        throw new IncorrectTagException("Некорректный тег: '" + tag + '\'');
+      }
+
+      tagSet.add(tag);
+    }
+    return ImmutableList.copyOf(tagSet);
+  }
+
+
 }
