@@ -124,6 +124,10 @@ public class UserTagDao {
    * @return список ID пользователей
    */
   public List<Integer> getUserIdListByTags(List<String> tags) {
+    if (tags.isEmpty()) {
+      return ImmutableList.of();
+    }
+
     return jdbcTemplate.queryForList(
       "select distinct user_id from user_tags where tag_id in (select id from tags_values where value in ( :values )) "
         + "AND is_favorite = true",
