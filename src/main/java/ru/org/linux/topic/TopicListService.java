@@ -21,6 +21,8 @@ import org.springframework.stereotype.Service;
 import ru.org.linux.group.Group;
 import ru.org.linux.section.Section;
 import ru.org.linux.spring.commons.CacheProvider;
+import ru.org.linux.tag.TagNotFoundException;
+import ru.org.linux.tag.TagService;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserErrorException;
 import ru.org.linux.util.URLUtil;

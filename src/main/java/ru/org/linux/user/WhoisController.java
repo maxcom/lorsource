@@ -43,6 +43,9 @@ public class WhoisController {
   @Autowired
   private LorCodeService lorCodeService;
 
+  @Autowired
+  UserTagService userTagService;
+
   @RequestMapping("/people/{nick}/profile")
   public ModelAndView getInfoNew(@PathVariable String nick, ServletRequest request) throws Exception {
     Template tmpl = Template.getTemplate(request);
@@ -79,6 +82,10 @@ public class WhoisController {
     String userinfo = userDao.getUserInfo(user);
     mv.getModel().put("userInfoText", (userinfo == null)?"":lorCodeService.parseComment(userinfo, request.isSecure()));
 
+    mv.addObject("favoriteTags", userTagService.favoritesGet(user));
+    if (currentUser || tmpl.isModeratorSession()) {
+      mv.addObject("ignoreTags", userTagService.ignoresGet(user));
+    }
     return mv;
   }
 

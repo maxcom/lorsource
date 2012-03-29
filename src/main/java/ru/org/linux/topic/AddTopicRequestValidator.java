@@ -30,7 +30,7 @@ public class AddTopicRequestValidator implements Validator {
   public static final int MAX_URL_LENGTH = 255;
 
   @Autowired
-  private TagService tagService;
+  private TopicTagService topicTagService;
 
   @Override
   public boolean supports(Class<?> clazz) {
@@ -86,7 +86,7 @@ public class AddTopicRequestValidator implements Validator {
     }
 
     if (form.getTags()!=null) {
-      tagService.parseTags(form.getTags(), errors);
+      topicTagService.parseTags(form.getTags(), errors);
     }
   }
 }

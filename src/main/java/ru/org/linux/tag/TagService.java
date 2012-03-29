@@ -13,7 +13,7 @@
  *    limitations under the License.
  */
 
-package ru.org.linux.topic;
+package ru.org.linux.tag;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
@@ -39,15 +39,15 @@ public class TagService {
 
   public static final int MIN_TAG_LENGTH = 2;
   public static final int MAX_TAG_LENGTH = 25;
-  
-  public static final int MAX_TAGS_PER_TOPIC = 5;
-  public static final int MAX_TAGS_IN_TITLE = 3;
 
   @Autowired
   private TagDao tagDao;
 
-  @Autowired
-  private UserTagDao userTagDao;
+  private final List<ITagActionHandler> actionHandlers = new ArrayList<ITagActionHandler>();
+
+  public List<ITagActionHandler> getActionHandlers() {
+    return actionHandlers;
+  }
 
   /**
    * Получить все тэги со счетчиком
@@ -77,48 +77,6 @@ public class TagService {
     if (!isGoodTag(tag)) {
       throw new UserErrorException("Некорректный тег: '" + tag + '\'');
     }
-  }
-
-  /**
-   * Разбор сторки тегов. Error при ошибках
-   *
-   * @param tags список тегов через запятую
-   * @param errors класс для ошибок валидации (параметр 'tags')
-   * @return список тегов
-   */
-  public ImmutableList<String> parseTags(String tags, Errors errors) {
-    Set<String> tagSet = new HashSet<String>();
-
-    // Теги разделяютчя пайпом или запятой
-    tags = tags.replaceAll("\\|", ",");
-    String[] tagsArr = tags.split(",");
-
-    if (tagsArr.length == 0) {
-      return ImmutableList.of();
-    }
-
-    for (String aTagsArr : tagsArr) {
-      String tag = StringUtils.stripToNull(aTagsArr.toLowerCase());
-      // плохой тег - выбрасываем
-      if (tag == null) {
-        continue;
-      }
-
-      // обработка тега: только буквы/цифры/пробелы, никаких спецсимволов, запятых, амперсандов и <>
-      if (tag.length()>MAX_TAG_LENGTH) {
-        errors.rejectValue("tags", null, "Слишком длиный тег: '" + tag + "\' (максимум "+MAX_TAG_LENGTH +" символов)");
-      } else if (!isGoodTag(tag)) {
-        errors.rejectValue("tags", null, "Некорректный тег: '" + tag + '\'');
-      }
-
-      tagSet.add(tag);
-    }
-
-    if (tagSet.size()>MAX_TAGS_PER_TOPIC) {
-      errors.rejectValue("tags", null, "Слишком много тегов (максимум "+MAX_TAGS_PER_TOPIC+")");
-    }
-
-    return ImmutableList.copyOf(tagSet);
   }
 
   /**
@@ -165,62 +123,6 @@ public class TagService {
    */
   public SortedSet<String> getTopTags() {
     return tagDao.getTopTags();
-  }
-
-  /**
-   * Получить все теги сообщения по идентификационному номеру сообщения.
-   *
-   * @param msgId идентификационный номер сообщения
-   * @return все теги сообщения
-   */
-  public ImmutableList<String> getMessageTags(int msgId) {
-    return tagDao.getMessageTags(msgId);
-  }
-
-  /**
-   * Получить все теги сообщения по идентификационному номеру сообщения.
-   * Ограничение по числу тегов для показа в заголовке в таблице
-   *
-   * @param msgId идентификационный номер сообщения
-   * @return все теги сообщения
-   */
-  public ImmutableList<String> getMessageTagsForTitle(int msgId) {
-    ImmutableList<String> tags = tagDao.getMessageTags(msgId);
-    return tags.subList(0, Math.min(tags.size(), TagService.MAX_TAGS_IN_TITLE));
-  }
-
-  /**
-   * Обновить список тегов сообщения по идентификационному номеру сообщения.
-   *
-   * @param msgId   идентификационный номер сообщения
-   * @param tagList новый список тегов.
-   * @return true если были произведены изменения
-   */
-  @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
-  public synchronized boolean updateTags(final int msgId, final List<String> tagList) {
-    logger.debug("Обновление списка тегов [" + tagList.toString() + "] для топика msgId=" + msgId);
-    final List<String> oldTags = getMessageTags(msgId);
-
-    boolean modified = false;
-    for (String tag : tagList) {
-      if (!oldTags.contains(tag)) {
-        int id = getOrCreateTag(tag);
-        logger.trace("Добавлен тег '" + tag + "' к топику msgId=" + msgId);
-        tagDao.addTagToTopic(msgId, id);
-        modified = true;
-      }
-    }
-
-    for (String tag : oldTags) {
-      if (!tagList.contains(tag)) {
-        int id = getOrCreateTag(tag);
-        logger.trace("Удалён тег '" + tag + "' к топику msgId=" + msgId);
-        tagDao.deleteTagFromTopic(msgId, id);
-        modified = true;
-      }
-    }
-    logger.trace("Завершено: обновление списка тегов для топика msgId=" + msgId);
-    return modified;
   }
 
   /**
@@ -360,9 +262,9 @@ public class TagService {
         checkTag(newTagName);
         int newTagId = getOrCreateTag(newTagName);
         if (newTagId != 0) {
-          int tagCount = tagDao.getCountReplacedTagsForTopic(oldTagId, newTagId);
-          tagDao.replaceTagForTopics(oldTagId, newTagId);
-          userTagDao.replaceTag(oldTagId, newTagId);
+          for (ITagActionHandler actionHandler : actionHandlers) {
+            actionHandler.replaceTag(oldTagId, tagName, newTagId, newTagName);
+          }
           StringBuilder logStr = new StringBuilder()
             .append("Удаляемый тег '")
             .append(tagName)
@@ -370,20 +272,11 @@ public class TagService {
             .append(newTagName)
             .append("'");
           logger.debug(logStr);
-
-          tagDao.increaseCounterById(newTagId, tagCount);
-          logStr = new StringBuilder()
-            .append("Счётчик использование тега '")
-            .append(newTagName)
-            .append("' увеличен на ")
-            .append(tagCount);
-          logger.trace(logStr);
         }
       }
-      tagDao.deleteTagFromTopics(oldTagId);
-      logger.trace("Удалено использование тега '" + tagName + "' в топиках");
-      userTagDao.deleteTags(oldTagId);
-      logger.trace("Удалено использование тега '" + tagName + "' у всех пользователей");
+      for (ITagActionHandler actionHandler : actionHandlers) {
+        actionHandler.deleteTag(oldTagId, tagName);
+      }
       tagDao.deleteTag(oldTagId);
       logger.info("Удалён тег: " + tagName);
 
@@ -416,7 +309,6 @@ public class TagService {
     return id;
   }
 
-
   public static String toString(Collection<String> tags) {
     if (tags.isEmpty()) {
       return "";
@@ -433,5 +325,14 @@ public class TagService {
 
   public static boolean isGoodTag(String tag) {
     return tagRE.matcher(tag).matches() && tag.length() >= MIN_TAG_LENGTH && tag.length() <= MAX_TAG_LENGTH;
+  }
+
+  /**
+   * пересчёт счётчиков использования.
+   */
+  public void reCalculateAllCounters() {
+    for (ITagActionHandler actionHandler : actionHandlers) {
+      actionHandler.reCalculateAllCounters();
+    }
   }
 }

@@ -12,14 +12,10 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+package ru.org.linux.tag;
 
-package ru.org.linux.topic;
-
-public class TagNotFoundException extends Exception {
-  public TagNotFoundException() {
-    super("Tag not found");
-  }
-  public TagNotFoundException(String message) {
+public class IncorrectTagException extends Exception {
+  public IncorrectTagException (String message) {
     super(message);
   }
 }

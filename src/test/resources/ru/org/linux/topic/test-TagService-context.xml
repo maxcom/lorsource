@@ -29,6 +29,6 @@
         factory-bean="beansProvider"
         factory-method="getUserTagDao"/>
 
-  <bean id="tagService" class="ru.org.linux.topic.TagService" />
+  <bean id="tagService" class="ru.org.linux.tag.TagService" />
 
 </beans>

@@ -34,6 +34,7 @@ import ru.org.linux.section.SectionNotFoundException;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.site.ScriptErrorException;
 import ru.org.linux.site.Template;
+import ru.org.linux.tag.TagService;
 import ru.org.linux.user.*;
 import ru.org.linux.util.*;
 

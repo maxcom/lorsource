@@ -15,6 +15,7 @@
 
 package ru.org.linux.user;
 
+import com.google.common.collect.ImmutableList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Controller;
@@ -26,7 +27,8 @@ import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.site.BadInputException;
 import ru.org.linux.site.Template;
-import ru.org.linux.topic.TagNotFoundException;
+import ru.org.linux.tag.IncorrectTagException;
+import ru.org.linux.tag.TagNotFoundException;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
@@ -155,11 +157,16 @@ public class UserFilterController {
     user.checkAnonymous();
     String errorMessage = null;
     try {
-      userTagService.favoriteAdd(user, tagName);
+      ImmutableList<String> tagList = userTagService.parseTags(tagName);
+      for (String tag : tagList) {
+        userTagService.favoriteAdd(user, tag);
+      }
     } catch (TagNotFoundException e) {
       errorMessage = e.getMessage();
     } catch (DuplicateKeyException e) {
       errorMessage = "Тег уже добавлен";
+    } catch (IncorrectTagException e) {
+      errorMessage = e.getMessage();
     }
     if (errorMessage != null) {
       ModelAndView modelAndView = showList(request);
@@ -226,12 +233,18 @@ public class UserFilterController {
 
     String errorMessage = null;
     try {
-      userTagService.ignoreAdd(user, tagName);
+      ImmutableList<String> tagList = userTagService.parseTags(tagName);
+      for (String tag : tagList) {
+        userTagService.ignoreAdd(user, tag);
+      }
     } catch (TagNotFoundException e) {
       errorMessage = e.getMessage();
     } catch (DuplicateKeyException e) {
       errorMessage = "Тег уже добавлен";
+    } catch (IncorrectTagException e) {
+      errorMessage = e.getMessage();
     }
+
     if (errorMessage != null) {
       ModelAndView modelAndView = showList(request);
       modelAndView.addObject("ignoreTagAddError", tagName + ": " + errorMessage);
