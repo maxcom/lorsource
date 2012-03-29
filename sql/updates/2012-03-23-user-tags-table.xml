@@ -1,0 +1,44 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
+
+    <changeSet id="2012032301" author="Slava Zanko">
+        <createTable tableName="user_tags">
+            <column name="user_id" type="integer">
+                <constraints foreignKeyName="user_tags_userid_fkey" references="users(id)"/>
+            </column>
+            <column name="tag_id" type="integer">
+                <constraints foreignKeyName="user_tags_tagid_fkey" references="tags_values(id)"/>
+            </column>
+            <column name="is_favorite" type="boolean" defaultValueBoolean="false"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="2012032302" author="Slava Zanko">
+        <createIndex tableName="user_tags" indexName="user_tags_uniq_idx" unique="true">
+            <column name="user_id"/>
+            <column name="tag_id"/>
+            <column name="is_favorite"/>
+        </createIndex>
+
+        <createIndex tableName="user_tags" indexName="user_tags_userid_idx">
+            <column name="user_id"/>
+        </createIndex>
+
+        <createIndex tableName="user_tags" indexName="user_tags_tagid_idx">
+            <column name="tag_id"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="2012032303" author="Slava Zanko">
+        <sql>
+            GRANT ALL ON TABLE user_tags TO linuxweb;
+        </sql>
+        <rollback>
+            REVOKE ALL ON TABLE user_tags FROM linuxweb;
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

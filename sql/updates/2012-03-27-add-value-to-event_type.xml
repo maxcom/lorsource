@@ -1,0 +1,23 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
+
+    <changeSet id="2012032701" author="Slava Zanko" runInTransaction="false">
+        <sql>
+            ALTER TABLE  user_events ADD COLUMN type_text varchar(20);
+            UPDATE user_events SET type_text = type::text;
+            DROP TYPE event_type CASCADE;
+
+            CREATE TYPE event_type AS ENUM ('WATCH', 'REPLY', 'DEL', 'OTHER', 'REF', 'TAG');
+
+            ALTER TABLE user_events ADD COLUMN type event_type;
+            UPDATE user_events SET type = type_text::event_type;
+            ALTER TABLE user_events ALTER type SET NOT NULL;
+
+            ALTER TABLE user_events DROP COLUMN type_text;
+        </sql>
+    </changeSet>
+
+</databaseChangeLog>

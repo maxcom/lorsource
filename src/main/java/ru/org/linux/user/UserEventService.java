@@ -144,6 +144,25 @@ public class UserEventService {
   }
 
   /**
+   * Добавление уведомления о назначении тега сообщению.
+   *
+   * @param userIdList  список ID пользователей, которых надо оповестить
+   * @param topicId     идентификационный номер топика
+   */
+  public void addUserTagEvent(List<Integer> userIdList, int topicId) {
+    for (Integer userId : userIdList) {
+      userEventDao.addEvent(
+        UserEventFilterEnum.TAG.getType(),
+        userId,
+        false,
+        topicId,
+        null,
+        null
+      );
+    }
+  }
+
+  /**
    * Очистка старых уведомлений пользователей.
    *
    * @param maxEventsPerUser максимальное количество уведомлений для одного пользователя

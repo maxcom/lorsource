@@ -309,11 +309,6 @@
 
     <servlet-mapping>
       <servlet-name>springapp</servlet-name>
-      <url-pattern>/ignore-list.jsp</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-      <servlet-name>springapp</servlet-name>
       <url-pattern>/show-comments.jsp</url-pattern>
     </servlet-mapping>
 
