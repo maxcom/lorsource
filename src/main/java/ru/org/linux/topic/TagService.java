@@ -362,6 +362,7 @@ public class TagService {
         if (newTagId != 0) {
           int tagCount = tagDao.getCountReplacedTagsForTopic(oldTagId, newTagId);
           tagDao.replaceTagForTopics(oldTagId, newTagId);
+          userTagDao.replaceTag(oldTagId, newTagId);
           StringBuilder logStr = new StringBuilder()
             .append("Удаляемый тег '")
             .append(tagName)

@@ -131,4 +131,22 @@ public class UserTagDao {
       Integer.class
     );
   }
+
+  /**
+   * Замена тега у пользователей другим тегом.
+   *
+   * @param oldTagId идентификационный номер старого тега
+   * @param newTagId идентификационный номер нового тега
+   */
+  public void replaceTag(int oldTagId, int newTagId) {
+    MapSqlParameterSource parameters = new MapSqlParameterSource();
+    parameters.addValue("new_tag_id", newTagId);
+    parameters.addValue("old_tag_id", oldTagId);
+    jdbcTemplate.update(
+      "UPDATE user_tags SET tag_id=:new_tag_id WHERE tag_id=:old_tag_id " +
+        "AND user_id NOT IN (SELECT user_id FROM user_tags WHERE tag_id=:new_tag_id)",
+      parameters
+    );
+  }
+
 }

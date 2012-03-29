@@ -34,6 +34,8 @@ import java.util.List;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("userTagDao-context.xml")
 public class UserTagDaoIntegrationTest {
+  private final static String QUERY_COUNT_FAVORITE_BY_USER = "SELECT count(user_id) FROM user_tags WHERE is_favorite=true AND user_id=?";
+  private final static String QUERY_COUNT_IGNORE_BY_USER = "SELECT count(user_id) FROM user_tags WHERE is_favorite=false AND user_id=?";
   @Autowired
   UserTagDao userTagDao;
 
@@ -138,25 +140,25 @@ public class UserTagDaoIntegrationTest {
     int result;
 
     result = jdbcTemplate.queryForInt(
-      "SELECT count(user_id) FROM user_tags WHERE is_favorite=true AND user_id=?",
+      QUERY_COUNT_FAVORITE_BY_USER,
       user1Id
     );
     Assert.assertEquals("Wrong count of user tags.", 5, result);
 
     result = jdbcTemplate.queryForInt(
-      "SELECT count(user_id) FROM user_tags WHERE is_favorite=false AND user_id=?",
+      QUERY_COUNT_IGNORE_BY_USER,
       user1Id
     );
     Assert.assertEquals("Wrong count of user tags.", 3, result);
 
     result = jdbcTemplate.queryForInt(
-      "SELECT count(user_id) FROM user_tags WHERE is_favorite=true AND user_id=?",
+      QUERY_COUNT_FAVORITE_BY_USER,
       user2Id
     );
     Assert.assertEquals("Wrong count of user tags.", 5, result);
 
     result = jdbcTemplate.queryForInt(
-      "SELECT count(user_id) FROM user_tags WHERE is_favorite=false AND user_id=?",
+      QUERY_COUNT_IGNORE_BY_USER,
       user2Id
     );
     Assert.assertEquals("Wrong count of user tags.", 0, result);
@@ -178,7 +180,7 @@ public class UserTagDaoIntegrationTest {
     int result;
 
     result = jdbcTemplate.queryForInt(
-      "SELECT count(user_id) FROM user_tags WHERE is_favorite=true AND user_id=?",
+      QUERY_COUNT_FAVORITE_BY_USER,
       user1Id
     );
     Assert.assertEquals("Wrong count of user tags.", 3, result);
@@ -186,13 +188,13 @@ public class UserTagDaoIntegrationTest {
     userTagDao.deleteTag(user1Id, tag2Id, false);
 
     result = jdbcTemplate.queryForInt(
-      "SELECT count(user_id) FROM user_tags WHERE is_favorite=true AND user_id=?",
+      QUERY_COUNT_FAVORITE_BY_USER,
       user1Id
     );
     Assert.assertEquals("Wrong count of user tags.", 3, result);
 
     result = jdbcTemplate.queryForInt(
-      "SELECT count(user_id) FROM user_tags WHERE is_favorite=false AND user_id=?",
+      QUERY_COUNT_IGNORE_BY_USER,
       user1Id
     );
     Assert.assertEquals("Wrong count of user tags.", 1, result);
@@ -207,19 +209,19 @@ public class UserTagDaoIntegrationTest {
     int result;
 
     result = jdbcTemplate.queryForInt(
-      "SELECT count(user_id) FROM user_tags WHERE is_favorite=true AND user_id=?",
+      QUERY_COUNT_FAVORITE_BY_USER,
       user1Id
     );
     Assert.assertEquals("Wrong count of user tags.", 4, result);
 
     result = jdbcTemplate.queryForInt(
-      "SELECT count(user_id) FROM user_tags WHERE is_favorite=false AND user_id=?",
+      QUERY_COUNT_IGNORE_BY_USER,
       user1Id
     );
     Assert.assertEquals("Wrong count of user tags.", 1, result);
 
     result = jdbcTemplate.queryForInt(
-      "SELECT count(user_id) FROM user_tags WHERE is_favorite=true AND user_id=?",
+      QUERY_COUNT_FAVORITE_BY_USER,
       user2Id
     );
     Assert.assertEquals("Wrong count of user tags.", 4, result);
@@ -256,5 +258,26 @@ public class UserTagDaoIntegrationTest {
     tags.add("UserTagDaoIntegrationTest_tag5");
     userIdList = userTagDao.getUserIdListByTags(tags);
     Assert.assertEquals("Wrong count of user ID's.", 1, userIdList.size());
+  }
+
+  @Test
+  public void replaceTagTest() {
+    int result;
+    prepareUserTags();
+
+    userTagDao.replaceTag(tag2Id, tag1Id);
+    result = jdbcTemplate.queryForInt(
+      "SELECT count(user_id) FROM user_tags WHERE tag_id=?",
+      tag1Id
+    );
+    Assert.assertEquals("Wrong count of user tags.", 2, result);
+
+    userTagDao.deleteTags(tag1Id);
+    userTagDao.replaceTag(tag2Id, tag1Id);
+    result = jdbcTemplate.queryForInt(
+      "SELECT count(user_id) FROM user_tags WHERE tag_id=?",
+      tag1Id
+    );
+    Assert.assertEquals("Wrong count of user tags.", 3, result);
   }
 }
