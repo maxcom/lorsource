@@ -18,6 +18,7 @@ package ru.org.linux.topic.stub;
 import ru.org.linux.spring.commons.CacheProvider;
 import ru.org.linux.topic.TagDao;
 import ru.org.linux.topic.TagService;
+import ru.org.linux.user.UserTagDao;
 
 import static org.mockito.Mockito.*;
 
@@ -34,6 +35,12 @@ public class BeansProvider {
     throws Exception {
     TagDao tagDao = mock(TagDao.class);
     return tagDao;
+  }
+
+  public UserTagDao getUserTagDao ()
+    throws Exception {
+    UserTagDao userTagDao = mock(UserTagDao.class);
+    return userTagDao;
   }
 
   public CacheProvider getCacheProvider() {

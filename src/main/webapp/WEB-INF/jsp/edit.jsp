@@ -36,6 +36,7 @@
 <script src="/js/jqueryui/jquery-ui-1.8.18.custom.min.js" type="text/javascript"></script>
 <script src="/js/tagsAutocomplete.js" type="text/javascript"></script>
 <script type="text/javascript">
+  document.tagInputCssString = "#tags";
   $(document).ready(function() {
     $("#messageForm").validate({
       messages : {

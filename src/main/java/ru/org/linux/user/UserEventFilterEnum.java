@@ -19,7 +19,8 @@ public enum UserEventFilterEnum {
   ANSWERS("answers", "ответы", "REPLY"),
   FAVORITES("favorites", "избранное", "WATCH"),
   DELETED("deleted", "удаленное", "DEL"),
-  REFERENCE("reference", "упоминания", "REF");
+  REFERENCE("reference", "упоминания", "REF"),
+  TAG("tag", "теги", "TAG");
 
   private final String value;
   private final String label;

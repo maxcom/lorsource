@@ -26,6 +26,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.Errors;
 import ru.org.linux.user.UserErrorException;
+import ru.org.linux.user.UserTagDao;
 
 import java.util.*;
 import java.util.regex.Pattern;
@@ -44,6 +45,9 @@ public class TagService {
 
   @Autowired
   private TagDao tagDao;
+
+  @Autowired
+  private UserTagDao userTagDao;
 
   /**
    * Получить все тэги со счетчиком
@@ -358,6 +362,7 @@ public class TagService {
         if (newTagId != 0) {
           int tagCount = tagDao.getCountReplacedTagsForTopic(oldTagId, newTagId);
           tagDao.replaceTagForTopics(oldTagId, newTagId);
+          userTagDao.replaceTag(oldTagId, newTagId);
           StringBuilder logStr = new StringBuilder()
             .append("Удаляемый тег '")
             .append(tagName)
@@ -377,6 +382,8 @@ public class TagService {
       }
       tagDao.deleteTagFromTopics(oldTagId);
       logger.trace("Удалено использование тега '" + tagName + "' в топиках");
+      userTagDao.deleteTags(oldTagId);
+      logger.trace("Удалено использование тега '" + tagName + "' у всех пользователей");
       tagDao.deleteTag(oldTagId);
       logger.info("Удалён тег: " + tagName);
 

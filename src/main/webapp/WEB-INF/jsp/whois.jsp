@@ -139,7 +139,7 @@
 
   <c:if test="${template.sessionAuthorized and !currentUser and not user.moderator}">
     <c:if test="${ignored}">
-      <form name='i_unblock' method='post' action='ignore-list.jsp'>
+      <form name='i_unblock' method='post' action='<c:url value="/user-filter/ignore-user"/>'>
         <input type='hidden' name='id' value='${user.id}'>
         Вы игнорируете этого пользователя &nbsp;
         <input type='submit' name='del' value='не игнорировать'>
@@ -147,7 +147,7 @@
     </c:if>
 
     <c:if test="${not ignored}">
-      <form name='i_block' method='post' action='ignore-list.jsp'>
+      <form name='i_block' method='post' action='<c:url value="/user-filter/ignore-user"/>'>
         <input type='hidden' name='nick' value='${user.nick}'>
         Вы не игнорируете этого пользователя &nbsp;
         <input type='submit' name='add' value='игнорировать'>
