@@ -15,7 +15,6 @@
 
 package ru.org.linux.tag;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -73,24 +72,6 @@ public class TagDao {
    */
   public void deleteTag(int tagId) {
     jdbcTemplate.update("DELETE FROM tags_values WHERE id=?", tagId);
-  }
-
-
-  public ImmutableList<String> getMessageTags(int msgid) {
-    final ImmutableList.Builder<String> tags = ImmutableList.builder();
-
-    jdbcTemplate.query(
-      "SELECT tags_values.value FROM tags, tags_values WHERE tags.msgid=? AND tags_values.id=tags.tagid ORDER BY value",
-      new RowCallbackHandler() {
-        @Override
-        public void processRow(ResultSet rs) throws SQLException {
-          tags.add(rs.getString("value"));
-        }
-      },
-      msgid
-    );
-
-    return tags.build();
   }
 
   public SortedSet<String> getTopTags() {
@@ -205,69 +186,6 @@ public class TagDao {
   }
 
   /**
-   * Добавление тега к топику.
-   *
-   * @param msgId идентификационный номер топика
-   * @param tagId идентификационный номер тега
-   */
-  public void addTagToTopic(int msgId, int tagId) {
-    jdbcTemplate.update("INSERT INTO tags VALUES(?,?)", msgId, tagId);
-  }
-
-  /**
-   * Удаление тега у топика.
-   *
-   * @param msgId идентификационный номер топика
-   * @param tagId идентификационный номер тега
-   */
-  public void deleteTagFromTopic(int msgId, int tagId) {
-    jdbcTemplate.update("DELETE FROM tags WHERE msgid=? and tagid=?", msgId, tagId);
-
-  }
-
-  /**
-   * Замена тега в топиках другим тегом.
-   *
-   * @param oldTagId идентификационный номер старого тега
-   * @param newTagId идентификационный номер нового тега
-   */
-  public void replaceTagForTopics(int oldTagId, int newTagId) {
-    jdbcTemplate.update(
-      "UPDATE tags SET tagid=? WHERE tagid=? AND msgid NOT IN (SELECT msgid FROM tags WHERE tagid=?)",
-      newTagId,
-      oldTagId,
-      newTagId
-    );
-  }
-
-  /**
-   * Удаление тега из топиков.
-   *
-   * @param tagId идентификационный номер тега
-   */
-  public void deleteTagFromTopics(int tagId) {
-    jdbcTemplate.update("DELETE FROM tags WHERE tagid=?", tagId);
-  }
-
-  /**
-   * Получение количества тегов, которые будут изменены для топиков (величина прироста использования тега).
-   *
-   * @param oldTagId идентификационный номер старого тега
-   * @param newTagId идентификационный номер нового тега
-   * @return величина прироста использования тега
-   */
-  public int getCountReplacedTagsForTopic(int oldTagId, int newTagId) {
-    List<Integer> res = jdbcTemplate.queryForList(
-      "SELECT count (tagid) FROM tags WHERE tagid=? AND msgid NOT IN (SELECT msgid FROM tags WHERE tagid=?)",
-      Integer.class,
-      oldTagId,
-      newTagId
-    );
-
-    return res.get(0);
-  }
-
-  /**
    * Получение идентификационного номера тега по названию. Тег должен использоваться.
    *
    * @param tag название тега
@@ -300,9 +218,5 @@ public class TagDao {
     } else {
       return res.get(0);
     }
-  }
-
-  public void recalcAllCounters() {
-    jdbcTemplate.update("update tags_values set counter = (select count(*) from tags join topics on tags.msgid=topics.id where tags.tagid=tags_values.id and not deleted)");
   }
 }

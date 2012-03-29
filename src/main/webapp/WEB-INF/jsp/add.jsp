@@ -1,6 +1,6 @@
 <%@ page contentType="text/html; charset=utf-8" import="ru.org.linux.gallery.Screenshot"  %>
 <%@ page import="ru.org.linux.group.Group"%>
-<%@ page import="ru.org.linux.topic.TagService"%>
+<%@ page import="ru.org.linux.topic.TopicTagService"%>
 <%@ page import="ru.org.linux.util.StringUtil" %>
 <%--
   ~ Copyright 1998-2012 Linux.org.ru
@@ -101,7 +101,7 @@
 
   <c:if test="${not group.moderated && useTags}">
     <label>
-      Метки (разделенные запятой, не более <%= TagService.MAX_TAGS_PER_TOPIC %>; в заголовке будет показано не более <%= TagService.MAX_TAGS_IN_TITLE %>):<br>
+      Метки (разделенные запятой, не более <%= TopicTagService.MAX_TAGS_PER_TOPIC %>; в заголовке будет показано не более <%= TopicTagService.MAX_TAGS_IN_TITLE %>):<br>
       <form:input id="tags" path="tags" style="width: 40em"/>
     </label><br>
   </c:if>
@@ -146,7 +146,7 @@
 <% } %>
 <c:if test="${group.moderated && useTags}">
     <label>
-    Метки (разделенные запятой, не более <%= TagService.MAX_TAGS_PER_TOPIC %>):<br>
+    Метки (разделенные запятой, не более <%= TopicTagService.MAX_TAGS_PER_TOPIC %>):<br>
     <form:input id="tags" path="tags" style="width: 40em"/>
     </label><p>
     Популярные теги:

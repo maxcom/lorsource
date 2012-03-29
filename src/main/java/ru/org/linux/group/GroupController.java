@@ -30,6 +30,7 @@ import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.site.Template;
 import ru.org.linux.tag.TagService;
+import ru.org.linux.topic.TopicTagService;
 import ru.org.linux.user.IgnoreListDao;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
@@ -64,6 +65,9 @@ public class GroupController {
 
   @Autowired
   private TagService tagService;
+
+  @Autowired
+  private TopicTagService topicTagService;
 
   private JdbcTemplate jdbcTemplate;
 
@@ -257,7 +261,7 @@ public class GroupController {
         throw new RuntimeException(e);
       }
 
-      ImmutableList<String> tags = tagService.getMessageTagsForTitle(rs.getInt("msgid"));
+      ImmutableList<String> tags = topicTagService.getMessageTagsForTitle(rs.getInt("msgid"));
 
       TopicsListItem topic = new TopicsListItem(author, rs, messages, tags);
 

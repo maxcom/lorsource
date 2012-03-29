@@ -16,20 +16,52 @@
 package ru.org.linux.user;
 
 import com.google.common.collect.ImmutableList;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.org.linux.tag.ITagActionHandler;
 import ru.org.linux.tag.TagDao;
 import ru.org.linux.tag.TagNotFoundException;
+import ru.org.linux.tag.TagService;
 
+import javax.annotation.PostConstruct;
 import java.util.List;
 
 @Service
 public class UserTagService {
+  private static final Log logger = LogFactory.getLog(UserTagService.class);
+
+  private ITagActionHandler actionHandler = new ITagActionHandler() {
+    @Override
+    public void replaceTag(int oldTagId, String oldTagName, int newTagId, String newTagName) {
+      userTagDao.replaceTag(oldTagId, newTagId);
+    }
+
+    @Override
+    public void deleteTag(int tagId, String tagName) {
+      userTagDao.deleteTags(tagId);
+      logger.debug("Удалено использование тега '" + tagName + "' у всех пользователей");
+    }
+
+    @Override
+    public void reCalculateAllCounters() {
+    }
+  };
+
   @Autowired
   UserTagDao userTagDao;
 
   @Autowired
   TagDao tagDao;
+
+  @Autowired
+  TagService tagService;
+
+  @PostConstruct
+  private void addToReplaceHandlerList() {
+    tagService.getActionHandlers().add(actionHandler);
+  }
 
   /**
    * Добавление тега к пользователю.

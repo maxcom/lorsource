@@ -6,11 +6,13 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class TagCountersUpdater {
+  private final static int HOUR = 60*60*1000;
+
   @Autowired
-  private TagDao tagDao;
+  private TagService tagService;
   
-  @Scheduled(fixedDelay = 60*60*1000)
+  @Scheduled(fixedDelay = HOUR)
   public void recalcTagsCounters() {
-    tagDao.recalcAllCounters();
+    tagService.reCalculateAllCounters();
   }
 }

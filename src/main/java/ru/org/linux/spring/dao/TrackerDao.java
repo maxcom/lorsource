@@ -23,6 +23,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 import ru.org.linux.tag.TagService;
 import ru.org.linux.topic.Topic;
+import ru.org.linux.topic.TopicTagService;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserNotFoundException;
@@ -50,6 +51,9 @@ public class TrackerDao {
 
   @Autowired
   private TagService tagService;
+
+  @Autowired
+  private TopicTagService topicTagService;
 
   public enum TrackerFilter {
     ALL("all", "все сообщения", true),
@@ -289,7 +293,7 @@ public class TrackerDao {
         ImmutableList<String> tags;
 
         if (msgid!=0 && !resultSet.getBoolean("smod")) {
-          tags = tagService.getMessageTagsForTitle(msgid);
+          tags = topicTagService.getMessageTagsForTitle(msgid);
         } else {
           tags = ImmutableList.of();
         }

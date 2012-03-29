@@ -32,7 +32,7 @@ public class EditTopicRequestValidator implements Validator {
   private static final int MAX_EDITOR_BONUS = 5;
 
   @Autowired
-  private TagService tagService;
+  private TopicTagService topicTagService;
 
   @Override
   public boolean supports(Class<?> clazz) {
@@ -87,7 +87,7 @@ public class EditTopicRequestValidator implements Validator {
     }
 
     if (form.getTags()!=null) {
-      tagService.parseTags(form.getTags(), errors);
+      topicTagService.parseTags(form.getTags(), errors);
     }
   }
 }
