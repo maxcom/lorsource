@@ -451,8 +451,8 @@ public class TopicListController {
     modelAndView.addObject("url", "/people/" + nick + "/favs");
     modelAndView.addObject("whoisLink", "/people/" + nick + '/' + "profile");
 
-    modelAndView.addObject("ptitle", "Избранные сообщения " + user.getNick());
-    modelAndView.addObject("navtitle", "Избранные сообщения " + user.getNick());
+    modelAndView.addObject("ptitle", "Отслеживаемые сообщения " + user.getNick());
+    modelAndView.addObject("navtitle", "Отслеживаемые сообщения " + user.getNick());
 
     topicListForm.setOffset(
       topicListService.fixOffset(topicListForm.getOffset())

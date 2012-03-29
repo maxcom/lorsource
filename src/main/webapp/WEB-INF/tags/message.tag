@@ -231,12 +231,12 @@
 
   function memories_form_setup(memId) {
     if (memId==0) {
-      $("#memories_button").text("Добавить в избранное");
+      $("#memories_button").text("Отслеживать");
 
       $('#memories_button').unbind("click", memories_remove);
       $('#memories_button').bind("click", memories_add);
     } else {
-      $("#memories_button").text("Удалить из избранного");
+      $("#memories_button").text("Не отслеживать");
 
       $('#memories_button').unbind("click", memories_add);
       $('#memories_button').bind("click", memories_remove);

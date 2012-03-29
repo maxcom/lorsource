@@ -1,7 +1,5 @@
 <%@ page contentType="text/html; charset=utf-8"%>
-<%@ page import="java.util.Map,ru.org.linux.site.Template"   buffer="60kb" %>
-<%@ page import="ru.org.linux.user.User"%>
-<%@ page import="java.util.Set" %>
+<%@ page import="ru.org.linux.user.User"   buffer="60kb" %>
 <%@ taglib tagdir="/WEB-INF/tags" prefix="lor" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
@@ -261,7 +259,7 @@
   </li>
 </c:if>
   <li>
-    <a href="/people/${user.nick}/favs">Избранные темы</a>
+    <a href="/people/${user.nick}/favs">Отслеживаемые темы</a>
   </li>
 </ul>
 </c:if>
