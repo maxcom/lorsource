@@ -43,6 +43,7 @@ import ru.org.linux.site.BadInputException;
 import ru.org.linux.site.Template;
 import ru.org.linux.spring.FeedPinger;
 import ru.org.linux.spring.dao.MsgbaseDao;
+import ru.org.linux.tag.TagService;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserErrorException;

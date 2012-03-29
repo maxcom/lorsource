@@ -1,4 +1,4 @@
-package ru.org.linux.topic;
+package ru.org.linux.tag;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;

@@ -18,8 +18,8 @@ package ru.org.linux.user;
 import com.google.common.collect.ImmutableList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.org.linux.topic.TagDao;
-import ru.org.linux.topic.TagNotFoundException;
+import ru.org.linux.tag.TagDao;
+import ru.org.linux.tag.TagNotFoundException;
 
 import java.util.List;
 

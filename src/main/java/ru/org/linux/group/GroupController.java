@@ -29,7 +29,7 @@ import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.section.Section;
 import ru.org.linux.section.SectionService;
 import ru.org.linux.site.Template;
-import ru.org.linux.topic.TagService;
+import ru.org.linux.tag.TagService;
 import ru.org.linux.user.IgnoreListDao;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;

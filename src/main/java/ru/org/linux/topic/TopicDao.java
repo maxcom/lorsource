@@ -47,6 +47,7 @@ import ru.org.linux.site.ScriptErrorException;
 import ru.org.linux.spring.Configuration;
 import ru.org.linux.spring.dao.DeleteInfoDao;
 import ru.org.linux.spring.dao.MsgbaseDao;
+import ru.org.linux.tag.TagService;
 import ru.org.linux.user.User;
 import ru.org.linux.user.UserDao;
 import ru.org.linux.user.UserErrorException;

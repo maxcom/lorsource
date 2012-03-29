@@ -15,6 +15,8 @@
 
 package ru.org.linux.topic;
 
+import ru.org.linux.tag.TagService;
+
 import java.sql.Timestamp;
 
 public class EditInfoDto {

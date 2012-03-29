@@ -26,7 +26,7 @@ import org.springframework.web.servlet.view.RedirectView;
 import ru.org.linux.auth.AccessViolationException;
 import ru.org.linux.site.BadInputException;
 import ru.org.linux.site.Template;
-import ru.org.linux.topic.TagNotFoundException;
+import ru.org.linux.tag.TagNotFoundException;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;

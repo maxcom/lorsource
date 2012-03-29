@@ -15,7 +15,7 @@
 
 package ru.org.linux.user.stub;
 
-import ru.org.linux.topic.TagDao;
+import ru.org.linux.tag.TagDao;
 import ru.org.linux.user.UserTagDao;
 
 import static org.mockito.Mockito.mock;
